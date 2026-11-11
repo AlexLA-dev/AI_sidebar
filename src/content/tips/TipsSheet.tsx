@@ -1,8 +1,8 @@
 // The panel's Tips (2.5 (78), the owner's note: mirror the app's Tips in the extension). "…" in the header → Tips:
 // the app's blocks, texts and Pro badges (tips/data.ts), each block folding like the app's, which ones are open
 // kept on this device. 2.5 (81): an open block's title stays at the top while its cards scroll (tips.css), and the
-// cards play the app's clips, the web versions from the extension's own files (dist/clips), each loaded only once
-// its card is on screen.
+// cards play the app's clips, each loaded only once its card is on screen. 2.6 (91): from the app itself (App Group),
+// none in the extension (ClipFrame).
 
 import type { VNode } from "preact"
 import { useEffect, useMemo, useRef, useState } from "preact/hooks"
@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 import { t } from "../../shared/i18n"
 import * as Icon from "../icons"
 import { useAboveComposer } from "../ux/MessageUx"
+import { ClipFrame } from "./ClipFrame"
 import { forDevice, say, tipsData, type TipEntry } from "./data"
 
 const OPEN = "cf:tipsOpen"
@@ -46,60 +47,33 @@ function stillOnly(): boolean {
 type Load = "auto" | "metadata" | null
 
 /**
- * A card's clip, read from the extension's own files (on the device, no network). The loading rule (2.5 (81), the
- * owner): nothing before Tips opens; on opening, only the first three clips of the open block are prepared; any other
- * clip loads once its card is on screen in an open block, or on a tap; closing Tips lets go of every clip. Muted and
- * looping like the app's, paused off screen; with Reduce Motion, one still frame (the app's, at 3.5 s).
+ * A card's clip: the app's, from the App Group, played in the extension's clip page (2.6 (91), ClipFrame; before, the
+ * extension's own copies). The loading rule (2.5 (81), the owner): nothing before Tips opens; on opening, only the
+ * first three clips of the open block are prepared (the first plays, the next two wait on a still frame); any other
+ * clip loads once its card is on screen in an open block, or on a tap; closing Tips lets go of every clip (their
+ * frames go). Muted and looping like the app's, paused off screen; with Reduce Motion, one still frame.
  */
 function TipClip({ name, lang, load }: { name: string; lang: string; load: Load }): VNode {
-  const ref = useRef<HTMLVideoElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const still = stillOnly()
   const [shown, setShown] = useState(load !== null)
-  const play = (video: HTMLVideoElement) => {
-    if (!still && video.getAttribute("src")) void video.play?.()?.catch(() => undefined)
-  }
+  const [onScreen, setOnScreen] = useState<boolean | undefined>(undefined)
   useEffect(() => {
-    const video = ref.current
-    if (!video) return
-    let seen: IntersectionObserver | null = null
-    if (typeof IntersectionObserver !== "undefined") {
-      seen = new IntersectionObserver(([entry]) => {
-        if (entry?.isIntersecting) {
-          setShown(true)
-          play(video)
-        } else {
-          video.pause?.()
-        }
-      }, { root: video.closest(".cf-sheet"), threshold: 0.2 })
-      seen.observe(video)
-    }
-    return () => {
-      seen?.disconnect()
-      // Tips closed (or the block folded): the clip is let go.
-      video.pause?.()
-      video.removeAttribute("src")
-      video.load?.()
-    }
+    const box = ref.current
+    if (!box || typeof IntersectionObserver === "undefined") return
+    const seen = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) setShown(true)
+      setOnScreen(Boolean(entry?.isIntersecting) && !still)
+    }, { root: box.closest(".cf-sheet"), threshold: 0.2 })
+    seen.observe(box)
+    return () => seen.disconnect()
   }, [])
   // Prepared ones wait on the still frame until they're seen; the first and the ones loaded on screen play at once.
   const waits = still || load === "metadata"
-  const src = shown ? `${chrome.runtime.getURL(`dist/clips/${lang}/${name}.mp4`)}${waits ? "#t=3.5" : ""}` : undefined
   return (
-    <video
-      ref={ref}
-      class="cf-tip-clip"
-      muted
-      loop
-      playsinline
-      autoplay={shown && !waits}
-      preload={load ?? (shown ? "auto" : "none")}
-      aria-hidden="true"
-      src={src}
-      onClick={(e) => {
-        setShown(true)
-        play(e.currentTarget)
-      }}
-    />
+    <div ref={ref} class="cf-tip-clip" aria-hidden="true" onClick={() => setShown(true)}>
+      {shown && <ClipFrame name={name} lang={lang} still={waits && !onScreen} active={onScreen} motion={!still} />}
+    </div>
   )
 }
 
@@ -145,6 +119,7 @@ function TipCard({ tip, mac, lang, load = null }: { tip: TipEntry; mac: boolean;
       <div class="cf-tip-title">
         {say(title)}
         {tip.pro && <span class="cf-pro-badge">Pro</span>}
+        {tip.ultra && <span class="cf-ultra-badge">Ultra</span>}
       </div>
       <p class="cf-tip-text">{say(text)}</p>
     </div>
@@ -167,7 +142,7 @@ export function TipsSheet({ mac, onClose }: { mac: boolean; onClose: () => void 
   }, [ready])
   if (!data) return null
   const heading = say(data.heading)
-  const lang = say(data.clipLang) === "ru" ? "ru" : "en"
+  const lang = say(data.clipLang)
   return (
     <div ref={back} class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="cf-sheet cf-tips" role="dialog" aria-label={heading}>

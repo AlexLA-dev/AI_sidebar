@@ -14,12 +14,27 @@
 		CFA100000000000000000005 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
 		CFA200000000000000000002 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000002 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CF9500000000000000000002 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
+		CF9800000000000000000002 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
+		CF9810000000000000000002 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
+		CF1000000000000000000002 /* ReviewGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000001 /* ReviewGate.swift */; };
+		CF1000000000000000000005 /* ReviewAsk.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000004 /* ReviewAsk.swift */; };
 		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000003 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CF9500000000000000000003 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
+		CF9800000000000000000003 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
+		CF9810000000000000000003 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
+		CF1000000000000000000003 /* ReviewGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000001 /* ReviewGate.swift */; };
+		CF1000000000000000000006 /* ReviewAsk.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000004 /* ReviewAsk.swift */; };
+		CFE200000000000000000002 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
+		CFE200000000000000000003 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
+		CFE600000000000000000002 /* SpeechText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE600000000000000000001 /* SpeechText.swift */; };
+		CFE600000000000000000003 /* SpeechText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE600000000000000000001 /* SpeechText.swift */; };
 		CF3000000000000000000005 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
 		CF6000000000000000000002 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
 		CFB000000000000000000002 /* Organize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB000000000000000000001 /* Organize.swift */; };
 		CFB100000000000000000002 /* OrganizeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB100000000000000000001 /* OrganizeViews.swift */; };
+		CFB200000000000000000002 /* PaidGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB200000000000000000001 /* PaidGallery.swift */; };
 		CF9000000000000000000002 /* ChatAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9000000000000000000001 /* ChatAI.swift */; };
 		CF9000000000000000000003 /* ChatAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9000000000000000000001 /* ChatAI.swift */; };
 		CF6000000000000000000003 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
@@ -29,12 +44,21 @@
 		CFC100000000000000000005 /* Later.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC100000000000000000004 /* Later.swift */; };
 		CFC100000000000000000006 /* Later.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC100000000000000000004 /* Later.swift */; };
 		CFB100000000000000000003 /* OrganizeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB100000000000000000001 /* OrganizeViews.swift */; };
+		CFB200000000000000000003 /* PaidGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB200000000000000000001 /* PaidGallery.swift */; };
 		CF7000000000000000000002 /* ChatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7000000000000000000001 /* ChatsView.swift */; };
 		CF7000000000000000000003 /* ChatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7000000000000000000001 /* ChatsView.swift */; };
 		CF8000000000000000000002 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CF9400000000000000000002 /* SimilarAway.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9400000000000000000001 /* SimilarAway.swift */; };
+		CF5EEC000000000000000002 /* SpeechSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5EEC000000000000000001 /* SpeechSync.swift */; };
 		CF8000000000000000000003 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CF9400000000000000000003 /* SimilarAway.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9400000000000000000001 /* SimilarAway.swift */; };
+		CF5EEC000000000000000003 /* SpeechSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5EEC000000000000000001 /* SpeechSync.swift */; };
 		CF8000000000000000000004 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CF9400000000000000000004 /* SimilarAway.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9400000000000000000001 /* SimilarAway.swift */; };
+		CF5EEC000000000000000004 /* SpeechSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5EEC000000000000000001 /* SpeechSync.swift */; };
 		CF8000000000000000000005 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CF9400000000000000000005 /* SimilarAway.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9400000000000000000001 /* SimilarAway.swift */; };
+		CF5EEC000000000000000005 /* SpeechSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5EEC000000000000000001 /* SpeechSync.swift */; };
 		CFC000000000000000000002 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
 		CFD000000000000000000002 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
 		CFC000000000000000000003 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
@@ -148,6 +172,13 @@
 		CFA100000000000000000001 /* TemplateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStore.swift; sourceTree = "<group>"; };
 		CFA200000000000000000001 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 		CFD100000000000000000001 /* WatchOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchOpen.swift; sourceTree = "<group>"; };
+		CF9500000000000000000001 /* SimilarCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarCards.swift; sourceTree = "<group>"; };
+		CF9800000000000000000001 /* WhatsNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNew.swift; sourceTree = "<group>"; };
+		CF9810000000000000000001 /* MeaningSpot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningSpot.swift; sourceTree = "<group>"; };
+		CF1000000000000000000001 /* ReviewGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewGate.swift; sourceTree = "<group>"; };
+		CF1000000000000000000004 /* ReviewAsk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewAsk.swift; sourceTree = "<group>"; };
+		CFE200000000000000000001 /* Listen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Listen.swift; sourceTree = "<group>"; };
+		CFE600000000000000000001 /* SpeechText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechText.swift; sourceTree = "<group>"; };
 		CF5000000000000000000001 /* PdfText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PdfText.swift; sourceTree = "<group>"; };
 		410D88912F41EE9800684748 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CF6000000000000000000001 /* Chats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chats.swift; sourceTree = "<group>"; };
@@ -155,9 +186,12 @@
 		CFC100000000000000000001 /* ChatUX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatUX.swift; sourceTree = "<group>"; };
 		CFC100000000000000000004 /* Later.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Later.swift; sourceTree = "<group>"; };
 		CFB100000000000000000001 /* OrganizeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeViews.swift; sourceTree = "<group>"; };
+		CFB200000000000000000001 /* PaidGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaidGallery.swift; sourceTree = "<group>"; };
 		CF9000000000000000000001 /* ChatAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAI.swift; sourceTree = "<group>"; };
 		CF7000000000000000000001 /* ChatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsView.swift; sourceTree = "<group>"; };
 		CF8000000000000000000001 /* ChatMirror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMirror.swift; sourceTree = "<group>"; };
+		CF9400000000000000000001 /* SimilarAway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarAway.swift; sourceTree = "<group>"; };
+		CF5EEC000000000000000001 /* SpeechSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSync.swift; sourceTree = "<group>"; };
 		CFC000000000000000000001 /* MessageReminders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReminders.swift; sourceTree = "<group>"; };
 		CFD000000000000000000001 /* WatchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStore.swift; sourceTree = "<group>"; };
 		CF4000000000000000000001 /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
@@ -260,9 +294,17 @@
 				CFC100000000000000000001 /* ChatUX.swift */,
 				CFC100000000000000000004 /* Later.swift */,
 				CFB100000000000000000001 /* OrganizeViews.swift */,
+				CFB200000000000000000001 /* PaidGallery.swift */,
 				CF7000000000000000000001 /* ChatsView.swift */,
 				CFA200000000000000000001 /* TemplatesView.swift */,
 				CFD100000000000000000001 /* WatchOpen.swift */,
+				CF9500000000000000000001 /* SimilarCards.swift */,
+				CF9800000000000000000001 /* WhatsNew.swift */,
+				CF9810000000000000000001 /* MeaningSpot.swift */,
+				CF1000000000000000000001 /* ReviewGate.swift */,
+				CF1000000000000000000004 /* ReviewAsk.swift */,
+				CFE200000000000000000001 /* Listen.swift */,
+				CFE600000000000000000001 /* SpeechText.swift */,
 				410D88912F41EE9800684748 /* ContentView.swift */,
 				CF4000000000000000000001 /* Setup.swift */,
 				410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */,
@@ -292,6 +334,8 @@
 			isa = PBXGroup;
 			children = (
 				CF8000000000000000000001 /* ChatMirror.swift */,
+				CF9400000000000000000001 /* SimilarAway.swift */,
+				CF5EEC000000000000000001 /* SpeechSync.swift */,
 				CFC000000000000000000001 /* MessageReminders.swift */,
 				CFD000000000000000000001 /* WatchStore.swift */,
 				CF3000000000000000000001 /* ChatSync.swift */,
@@ -490,6 +534,9 @@
 				ko,
 				"pt-BR",
 				"zh-Hans",
+				"zh-Hant",
+				ar,
+				vi,
 			);
 			mainGroup = 41FA27A92F41ED2000FED9FC;
 			minimizedProjectReferenceProxies = 1;
@@ -582,14 +629,24 @@
 				CFA100000000000000000005 /* TemplateStore.swift in Sources */,
 				CFA200000000000000000002 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000002 /* WatchOpen.swift in Sources */,
+				CF9500000000000000000002 /* SimilarCards.swift in Sources */,
+				CF9800000000000000000002 /* WhatsNew.swift in Sources */,
+				CF9810000000000000000002 /* MeaningSpot.swift in Sources */,
+				CF1000000000000000000002 /* ReviewGate.swift in Sources */,
+				CF1000000000000000000005 /* ReviewAsk.swift in Sources */,
+				CFE200000000000000000002 /* Listen.swift in Sources */,
+				CFE600000000000000000002 /* SpeechText.swift in Sources */,
 				CF6000000000000000000002 /* Chats.swift in Sources */,
 				CFB000000000000000000002 /* Organize.swift in Sources */,
 				CFC100000000000000000002 /* ChatUX.swift in Sources */,
 				CFC100000000000000000005 /* Later.swift in Sources */,
 				CFB100000000000000000002 /* OrganizeViews.swift in Sources */,
+				CFB200000000000000000002 /* PaidGallery.swift in Sources */,
 				CF9000000000000000000002 /* ChatAI.swift in Sources */,
 				CF7000000000000000000002 /* ChatsView.swift in Sources */,
 				CF8000000000000000000002 /* ChatMirror.swift in Sources */,
+				CF9400000000000000000002 /* SimilarAway.swift in Sources */,
+				CF5EEC000000000000000002 /* SpeechSync.swift in Sources */,
 				CFC000000000000000000002 /* MessageReminders.swift in Sources */,
 				CFD000000000000000000002 /* WatchStore.swift in Sources */,
 				CF4000000000000000000002 /* Setup.swift in Sources */,
@@ -608,6 +665,13 @@
 				CFA100000000000000000004 /* TemplateStore.swift in Sources */,
 				CFA200000000000000000003 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000003 /* WatchOpen.swift in Sources */,
+				CF9500000000000000000003 /* SimilarCards.swift in Sources */,
+				CF9800000000000000000003 /* WhatsNew.swift in Sources */,
+				CF9810000000000000000003 /* MeaningSpot.swift in Sources */,
+				CF1000000000000000000003 /* ReviewGate.swift in Sources */,
+				CF1000000000000000000006 /* ReviewAsk.swift in Sources */,
+				CFE200000000000000000003 /* Listen.swift in Sources */,
+				CFE600000000000000000003 /* SpeechText.swift in Sources */,
 				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D889B2F41EE9800684748 /* ContentView.swift in Sources */,
@@ -616,9 +680,12 @@
 				CFC100000000000000000003 /* ChatUX.swift in Sources */,
 				CFC100000000000000000006 /* Later.swift in Sources */,
 				CFB100000000000000000003 /* OrganizeViews.swift in Sources */,
+				CFB200000000000000000003 /* PaidGallery.swift in Sources */,
 				CF9000000000000000000003 /* ChatAI.swift in Sources */,
 				CF7000000000000000000003 /* ChatsView.swift in Sources */,
 				CF8000000000000000000003 /* ChatMirror.swift in Sources */,
+				CF9400000000000000000003 /* SimilarAway.swift in Sources */,
+				CF5EEC000000000000000003 /* SpeechSync.swift in Sources */,
 				CFC000000000000000000003 /* MessageReminders.swift in Sources */,
 				CFD000000000000000000003 /* WatchStore.swift in Sources */,
 				CF4000000000000000000003 /* Setup.swift in Sources */,
@@ -635,6 +702,8 @@
 				410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
 				CF5000000000000000000002 /* PdfText.swift in Sources */,
 				CF8000000000000000000004 /* ChatMirror.swift in Sources */,
+				CF9400000000000000000004 /* SimilarAway.swift in Sources */,
+				CF5EEC000000000000000004 /* SpeechSync.swift in Sources */,
 				CFC000000000000000000004 /* MessageReminders.swift in Sources */,
 				CFD000000000000000000004 /* WatchStore.swift in Sources */,
 				41FA27F72F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
@@ -650,6 +719,8 @@
 				410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
 				CF5000000000000000000003 /* PdfText.swift in Sources */,
 				CF8000000000000000000005 /* ChatMirror.swift in Sources */,
+				CF9400000000000000000005 /* SimilarAway.swift in Sources */,
+				CF5EEC000000000000000005 /* SpeechSync.swift in Sources */,
 				CFC000000000000000000005 /* MessageReminders.swift in Sources */,
 				CFD000000000000000000005 /* WatchStore.swift in Sources */,
 				41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
@@ -762,7 +833,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -820,7 +891,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -832,7 +903,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -844,7 +915,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -867,7 +938,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -879,7 +950,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -905,7 +976,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -920,7 +991,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -947,7 +1018,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -962,7 +1033,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -988,7 +1059,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -1004,7 +1075,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1027,7 +1098,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -1043,7 +1114,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1068,7 +1139,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1084,7 +1155,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1111,7 +1182,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1127,7 +1198,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,

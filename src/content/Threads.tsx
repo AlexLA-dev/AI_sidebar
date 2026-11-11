@@ -4,12 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 import type { FindReply } from "../shared/types"
 
 import { t, uiLanguage } from "../shared/i18n"
+import { meaningSpotIn } from "../shared/meaningSpot"
 import { activity, allTags, groupByTag, hasTag, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTags, threadTitle, type SearchHit, type Thread } from "../shared/threads"
 import * as Icon from "./icons"
 import { TagChip, TagEditor } from "./Tags"
-import { PinIcon, TrashIcon } from "./ux/MessageUx"
+import { Bell, PinIcon, TrashIcon } from "./ux/MessageUx"
 import { Swipe } from "./ux/Swipe"
 import { ThreadMenu, ThreadMoreButton } from "./ux/ThreadMenu"
+import { SpeakerIcon } from "./listen/useListen"
 
 interface Props {
   threads: Thread[] // pinned first, then the newest
@@ -21,7 +23,8 @@ interface Props {
   onNew: () => void
   onPin: (id: string, pinned: boolean) => void
   onMove: (id: string, index: number) => void // to `index` among the pinned chats
-  onOpenPage: (url: string) => void
+  // `chat`: the chat the page is in (2.6 (98): the page opens with the panel on it).
+  onOpenPage: (url: string, chat?: string) => void
   // Pro features: "Ask your chats" (the row on top) and AI search (✦ in the search field).
   pro: boolean
   onAskHistory: () => void
@@ -42,12 +45,29 @@ interface Props {
   // Recently Deleted (2.5 (83)): how many chats are there (its row ends the list when there are some), and opening it.
   trashCount?: number
   onOpenTrash?: () => void
+  // Organizing (2.6, Pro with suggestions on): open suggestions per chat ("N recommendations" on its row).
+  recs?: Record<string, number>
+  // 2.6 (91): chats with a long answer under way off the panel (a spinner) and with one finished unseen (a dot).
+  busy?: ReadonlySet<string>
+  unread?: ReadonlySet<string>
+  // Build 93: the chat whose text is being read aloud (a speaker on its row), null when nothing plays.
+  playing?: string | null
+  // Build 94, the owner: «глаз и число там где установлены наблюдения за изменениями и колокольчик, если напоминалка
+  // стоит»: how many of a chat's pages are watched (the eye), and the chats with a reminder still to ring (the bell).
+  watched?: Record<string, number>
+  bells?: ReadonlySet<string>
 }
 
 /** "3 pages", in the UI language's plural form. */
 function pagesLabel(count: number): string {
   const rule = new Intl.PluralRules(uiLanguage()).select(count)
   return t(rule === "one" || rule === "few" || rule === "many" ? `pages_${rule}` : "pages_other", count)
+}
+
+/** "1 recommendation", "5 recommendations" (2.6): the open organizing suggestions of a chat, in the plural its language has. */
+export function recsLabel(count: number): string {
+  const rule = new Intl.PluralRules(uiLanguage()).select(count)
+  return t(rule === "one" || rule === "two" || rule === "few" || rule === "many" ? `recs_${rule}` : "recs_other", count)
 }
 
 function host(url: string): string {
@@ -236,7 +256,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs, playing, watched, bells }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -336,10 +356,13 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
         {reply?.ok && reply.results.map(({ id, why }) => {
           const thread = byId.get(id)
           if (!thread) return null
+          // Build 98 (the owner: a meaning result should land on what it refers to, highlighted like a pinned answer):
+          // the chat opens at the message sharing the description's and the why's words, else at its end.
+          const open = () => onOpen(id, meaningSpotIn(thread.m, found?.query ?? query, why))
           return (
             <div key={id} role="listitem" class={`cf-thread ${id === activeId ? "current" : ""}`}>
-              <div class="cf-thread-main" role="button" tabIndex={0} onClick={() => onOpen(id)} onKeyDown={(e) => { if (e.key === "Enter") onOpen(id) }}>
-                <span class="cf-thread-title">{threadName(thread)}</span>
+              <div class="cf-thread-main" role="button" tabIndex={0} onClick={open} onKeyDown={(e) => { if (e.key === "Enter") open() }}>
+                <span class="cf-thread-title" dir="auto">{threadName(thread)}</span>
                 {why && <span class="cf-search-hit cf-find-why"><Icon.Sparkle size={11} /> {why}</span>}
                 <span class="cf-thread-meta"><span class="cf-thread-when">{when(activity(thread))}</span></span>
               </div>
@@ -370,7 +393,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                 onOpen(thread.id, hits[0]?.at)
               }}
             >
-              <span class="cf-thread-title">{threadName(thread)}</span>
+              <span class="cf-thread-title" dir="auto">{threadName(thread)}</span>
               {hits.map((hit, i) => (
                 <span
                   key={i}
@@ -483,8 +506,13 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                     onOpen(thread.id)
                   }}
                 >
-                  <span class="cf-thread-title">{thread.kind === "history" && <Icon.Sparkle size={12} />} {threadName(thread)}</span>
-                  <span class="cf-thread-snippet">{threadSnippet(thread.m)}</span>
+                  <span class="cf-thread-title" dir="auto">
+                    {/* Before the name (build 93): a long name is cut short with "…", and what follows it with it. */}
+                    {playing === thread.id && <span class="cf-thread-audio" role="status" aria-label={t("listenPlayingHere")} title={t("listenPlayingHere")}><SpeakerIcon size={13} /></span>}
+                    {thread.kind === "history" && <Icon.Sparkle size={12} />} {threadName(thread)}
+                    {busy?.has(thread.id) ? <span class="cf-thread-busy" role="status" aria-label={t("busyWorking")} /> : unread?.has(thread.id) ? <span class="cf-thread-unread" role="status" aria-label={t("busyNew")} /> : null}
+                  </span>
+                  <span class="cf-thread-snippet" dir="auto">{threadSnippet(thread.m)}</span>
                   {tags.length > 0 && (
                     <span class="cf-thread-tags">
                       {tags.map((tag) => <TagChip key={tag} tag={tag} onClick={(e) => { e.stopPropagation(); setTagFilter(tag) }} />)}
@@ -493,6 +521,12 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                   <span class="cf-thread-meta">
                     {notes > 0 && (
                       <span class="cf-thread-notes" title={t("chatNotes")} aria-label={t("chatNotes")}><Icon.Pencil />{notes}</span>
+                    )}
+                    {Boolean(watched?.[thread.id]) && (
+                      <span class="cf-thread-mark cf-thread-watch" title={t("chatWatches", watched![thread.id])} aria-label={t("chatWatches", watched![thread.id])}><Icon.Eye size={12} />{watched![thread.id]}</span>
+                    )}
+                    {bells?.has(thread.id) && (
+                      <span class="cf-thread-mark cf-thread-bell" title={t("chatReminder")} aria-label={t("chatReminder")}><Bell size={12} /></span>
                     )}
                     {pages.length > 1 ? (
                       <button
@@ -508,6 +542,9 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                       </button>
                     ) : (
                       pages.length === 1 && <span class="cf-thread-site">{host(pages[0].url)}</span>
+                    )}
+                    {Boolean(recs?.[thread.id]) && (
+                      <span class="cf-thread-recs"><Icon.Sparkle size={11} />{recsLabel(recs![thread.id])}</span>
                     )}
                     <span class="cf-thread-when">{when(activity(thread))}</span>
                   </span>
@@ -561,10 +598,10 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                     onClick={(e) => {
                       e.stopPropagation()
                       setPagesOf(null)
-                      onOpenPage(page.url)
+                      onOpenPage(page.url, thread.id)
                     }}
                   >
-                    <span class="cf-pages-item-title">{page.title || host(page.url)}</span>
+                    <span class="cf-pages-item-title" dir="auto">{page.title || host(page.url)}</span>
                     <span class="cf-pages-item-host">{host(page.url)}</span>
                   </button>
                 ))}

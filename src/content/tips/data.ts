@@ -4,12 +4,12 @@
 // step by hand: change a tip in the app and the next extension build has it.
 
 export type TipText = { key: string; en: string }
-// `clip`: the app's clip for the card (dist/clips/<en|ru>/<clip>.mp4 and .jpg, the web versions); `mac` where a Mac's
+// `clip`: the app's clip for the card (the app's TipClips/<language>/<clip>.mp4, through the App Group); `mac` where a Mac's
 // words or clip differ (none where the app shows none).
 export type TipShown = { title: TipText; text: TipText; clip?: string }
-export type TipEntry = TipShown & { mac?: TipShown; pro?: true }
+export type TipEntry = TipShown & { mac?: TipShown; pro?: true; ultra?: true }
 export type TipBlock = { id: string; title: TipText; tips: TipEntry[] }
-// clipLang: "ru" or "en" in the panel's language, as the app picks its clips.
+// clipLang: the panel's language (its _locales folder), sent with each clip; the app picks the clips' folder from it.
 export type TipsData = { heading: TipText; intro: TipText; clipLang: TipText; lead: TipEntry; groups: TipBlock[] }
 
 declare const __TIPS__: TipsData | undefined

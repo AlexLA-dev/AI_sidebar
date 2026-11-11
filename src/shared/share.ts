@@ -117,8 +117,17 @@ const LATIN: Array<[string, Set<string>, RegExp]> = [
   ["es", new Set("el los las es son qué que cómo por y en un una del se está para con sobre trata eso esto".split(" ")), /[ñ¿¡]/],
   ["fr", new Set("le les est sont et que quoi comment pourquoi un une des du ce cet cette il elle pour dans avec sur qui parle".split(" ")), /[œêâîôûëïç]/],
   ["it", new Set("il lo gli è sono che cosa come perché di e un una del della per con su questo questa parla".split(" ")), /$^/],
-  ["pt_BR", new Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(" ")), /[ãõ]/]
+  ["pt_BR", new Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(" ")), /[ãõ]/],
+  ["vi", new Set("là của và có không gì này những một các cho được trong về như thế nào sao bài trang tôi bạn với để khi đây đó nói".split(" ")), /[ăđơư\u1ea0-\u1ef9]/]
 ]
+// The letters of Latin-script words: Vietnamese adds ă đ ĩ ũ ơ ư and its tone marks to French and German's.
+const WORD = /[a-zà-ÿœăđĩũơư\u1ea0-\u1ef9]+/g
+
+// Characters written one way in Traditional Chinese and another in Simplified (這/这, 們/们, 說/说…): which of the two
+// a text uses more tells zh_TW from zh_CN. Characters both scripts share (里, 后, 于…) aren't here.
+export const TRADITIONAL = "這個們說麼時為會來嗎頁點與對關還讓價樣從種寫問題單開東車書長經現發學國總結網體請應該變處過實動頭義區記錄認識讀聽買賣錢氣電話視備帶獲據歡"
+export const SIMPLIFIED = "这个们说么时为会来吗页点与对关还让价样从种写问题单开东车书长经现发学国总结网体请应该变处过实动头义区记录认识读听买卖钱气电话视备带获据欢"
+const chinese = (count: (re: RegExp) => number) => (count(new RegExp(`[${TRADITIONAL}]`, "g")) > count(new RegExp(`[${SIMPLIFIED}]`, "g")) ? "zh_TW" : "zh_CN")
 
 /** The language of a text, when it's clear: a locale code ("ru", "pt_BR"…). */
 export function textLanguage(text: string): string | undefined {
@@ -126,15 +135,16 @@ export function textLanguage(text: string): string | undefined {
   const count = (re: RegExp) => text.match(re)?.length ?? 0
   const scripts: Array<[string | undefined, number]> = [
     ["ko", count(/[\uac00-\ud7af]/g)],
-    [count(/[\u3040-\u30ff]/g) ? "ja" : "zh_CN", count(/[\u3040-\u30ff\u4e00-\u9fff]/g)],
+    [count(/[\u3040-\u30ff]/g) ? "ja" : chinese(count), count(/[\u3040-\u30ff\u4e00-\u9fff]/g)],
+    ["ar", count(/[\u0600-\u06ff\u0750-\u077f]/g)],
     [/[іїєґ]|(^|[^а-яё])(що|це|ця|цей|чому|який|яка|яке)(?![а-яё])/i.test(text) ? "uk" : "ru", count(/[а-яёіїєґ]/gi)],
-    [undefined, count(/[a-zà-ÿœ]/gi)]
+    [undefined, count(/[a-zà-ÿœăđĩũơư\u1ea0-\u1ef9]/gi)]
   ]
   const [script, letters] = scripts.reduce((a, b) => (b[1] > a[1] ? b : a))
   if (letters < 3) return undefined
   if (script) return script
 
-  const words = text.toLowerCase().match(/[a-zà-ÿœ]+/g) ?? []
+  const words = text.toLowerCase().match(WORD) ?? []
   const scores = LATIN.map(([lang, common, letter]) => [lang, words.filter((w) => common.has(w)).length + (letter.test(text.toLowerCase()) ? 2 : 0)] as const)
   scores.sort((a, b) => b[1] - a[1])
   return scores[0][1] >= 2 && scores[0][1] > scores[1][1] ? scores[0][0] : undefined

@@ -51,11 +51,21 @@ export function fallbackRule(what: WatchKind, value: string, condition: string):
   const c = condition.toLowerCase()
   const n = parseNumber(c)
   if (what === "price" && n !== null) {
-    if (/(below|under|less|cheaper|ниже|меньше|дешевле|нижче|менше|unter|weniger|moins|sous|menos|debajo|meno|sotto|abaixo|以下|未満|이하|미만|低于|以下)/.test(c)) return { kind: "below", n }
-    if (/(above|over|more|выше|больше|вище|більше|über|mehr|plus|más|più|acima|以上|이상|高于)/.test(c)) return { kind: "above", n }
+    if (/(below|under|less|cheaper|ниже|меньше|дешевле|нижче|менше|unter|weniger|moins|sous|menos|debajo|meno|sotto|abaixo|以下|未満|이하|미만|低于|以下|低於|أقل|أدنى|تحت|dưới|thấp hơn|rẻ hơn|ít hơn)/.test(c)) return { kind: "below", n }
+    if (/(above|over|more|выше|больше|вище|більше|über|mehr|plus|más|più|acima|以上|이상|高于|高於|أعلى|أكثر|فوق|cao hơn|nhiều hơn|trên)/.test(c)) return { kind: "above", n }
   }
   if (what === "stock" && isOutOfStock(value)) return { kind: "in-stock" }
   return { kind: "change" }
+}
+
+/**
+ * An amount in a language's currency format. In right-to-left text, Intl's Arabic "‏99.99 US$" shows as "$US 99.99":
+ * the sign after Latin letters ("US$", "UK£", "JP¥") is pulled to the far end. A left-to-right mark after it keeps
+ * the symbol whole, as Intl's Hebrew does with its own marks.
+ */
+export function moneyIn(lang: string, amount: number, currency: string): string {
+  const s = new Intl.NumberFormat(lang, { style: "currency", currency }).format(amount)
+  return /^(ar|he|fa|ur)\b/i.test(lang) ? s.replace(/([A-Za-z]\p{Sc})/gu, "$1\u200E") : s
 }
 
 /**
@@ -67,7 +77,7 @@ export function shownValue(value: string, lang: string, words: { inStock: string
   const money = /^(\d+(?:\.\d+)?)\s([A-Z]{3})$/.exec(v)
   if (money) {
     try {
-      return new Intl.NumberFormat(lang, { style: "currency", currency: money[2] }).format(Number(money[1]))
+      return moneyIn(lang, Number(money[1]), money[2])
     } catch {
       return v
     }

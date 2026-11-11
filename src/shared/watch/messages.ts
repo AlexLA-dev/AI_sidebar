@@ -1,5 +1,6 @@
 // Page watch (2.5): the messages between the panel or the page and the background, and the counters.
 
+import { WATCH_LIMITS } from "../plan"
 import type { Structured } from "./extract.ts"
 import type { Watch, WatchKind, WatchRule, WatchSite, WatchSource } from "./types.ts"
 
@@ -39,17 +40,20 @@ export interface WatchPrepared {
 
 export type WatchRequest =
   | { type: "watchPrepare"; draft: WatchDraft; how: WatchHow }
-  | { type: "watchSave"; draft: WatchDraft; prepared: WatchPrepared; how: WatchHow; live: boolean }
+  // `note`: the person's own note (2.6 (97)), optional.
+  | { type: "watchSave"; draft: WatchDraft; prepared: WatchPrepared; how: WatchHow; live: boolean; note?: string }
   | { type: "watchList" }
   | { type: "watchCancel"; id: string; via: "panel" | "list" }
-  // New words for what a watch waits for, from the list: the rule is planned again; what's read stays.
-  | { type: "watchEdit"; id: string; condition: string }
+  // New words for what a watch waits for, from the list: the rule is planned again; what's read stays. `note`: the
+  // person's own note, changed alone (no AI) when the words stay.
+  | { type: "watchEdit"; id: string; condition: string; note?: string }
   // The page the person has open: which watches it has, then the values read from it.
   | { type: "watchForUrl"; url: string }
   | { type: "watchLive"; url: string; values: Record<string, string | null>; text?: string }
 
 /** Where a watch was made: the eye by a selection, or "Come back later…". */
-export type WatchHow = "bubble" | "later"
+// "panel" (build 95): the eye on the panel's row over its field, with the panel open on the selection.
+export type WatchHow = "bubble" | "later" | "panel"
 
 /**
  * A page watch step for the counters: the "use" kind with f "watch", in the analytics registry's words
@@ -67,7 +71,8 @@ export interface WatchStep {
 }
 
 /** How many watches can check at once: the owner's limit, Free and paid. */
-export const WATCH_LIMIT = { free: 5, paid: 20 } as const
+// Pages watched at once: src/shared/plan.ts WATCH_LIMITS (Free 5, Pro and Own key 20, Ultra 50).
+export const WATCH_LIMIT = { free: WATCH_LIMITS.free, paid: WATCH_LIMITS.pro, ultra: WATCH_LIMITS.ultra } as const
 
 /** The watches of one page, for the live read: where each value sits. */
 export type WatchSpec = Pick<Watch, "id" | "what" | "source" | "before" | "after">

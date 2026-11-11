@@ -1,5 +1,21 @@
 [
   [
+    "Explain the selected text",
+    "**In plain words:** the companies let people work one day less each week for the same pay, as long as the work still got done. Then they checked whether it did."
+  ],
+  [
+    "Объясни выделенный",
+    "**Если проще:** компании разрешили работать на день меньше за ту же зарплату, при условии что работа всё равно будет сделана. А потом проверили, получилось ли."
+  ],
+  [
+    "Translate the selected text",
+    "The terms of the trial: cut hours by 20% without cutting pay, but keep the same output."
+  ],
+  [
+    "Переведи выделенный|Переведите выделенный",
+    "Условие эксперимента: сократить часы на 20% без снижения зарплаты, при условии что результат останется прежним."
+  ],
+  [
     "oxygen|chlorophyll|green",
     "**Chlorophyll absorbs red and blue light** and reflects green, which is why leaves look green *(1:30)*.\n\n- Photosynthesis runs in the **chloroplasts** of leaf cells *(0:40)*.\n- The **oxygen** comes from splitting **water**, not from CO₂ *(4:15)*.\n- The sugar is built later in the **Calvin cycle**, which doesn't need light *(7:50)*."
   ],
@@ -94,6 +110,26 @@
   [
     "meetings",
     "**Fewer and shorter meetings** came first: most teams cut recurring meetings by half and kept them under 30 minutes.\n\nThe time went to focus blocks with notifications off."
+  ],
+  [
+    "catch",
+    "**Worth it if you want strong noise cancelling under $200.** Reviews praise the noise cancelling and the battery; the catch is comfort on long sessions.\n\n- **Good:** blocks train and plane rumble; up to 28 h with noise cancelling on; clear calls, even in wind.\n- **The catch:** ears get warm after about two hours; multipoint sometimes drops the sound for a second; they fold flat but not inward, so the case is bulky.\n- **Price:** $179 now, down from $229.\n\n**Verdict:** a good pick for commuting. Skip it if you switch devices all day or need a small case."
+  ],
+  [
+    "reviews really",
+    "**From the reviews on this page:** mostly positive, with three repeat complaints.\n\n| | What people say |\n|---|---|\n| Noise cancelling | Blocks most train and office noise |\n| Battery | Lasts a work week |\n| Calls | Clear, even in wind |\n| Comfort | Ears get warm after about 2 hours |\n| Multipoint | Sound drops for a second when switching |\n| Case | Bulky: they don't fold inward |\n\nAverage rating: **4.3 of 5** from 1,284 reviews."
+  ],
+  [
+    "main findings",
+    "**Main findings of the Q3 report:**\n\n- **Revenue** grew 12% to **$48.2M** *(p. 1)*.\n- **Subscribers** reached **1.9M**, up 18%; monthly churn fell from 2.6% to **2.1%** *(p. 2)*.\n- **Gross margin** rose 2 points to **61%** *(p. 2)*.\n- **Outlook:** full-year revenue guidance raised to **$186–190M** *(p. 3)*.\n- **Risk:** cloud costs rose 9%, faster than revenue *(p. 3)*."
+  ],
+  [
+    "главные выводы",
+    "**Главные выводы отчёта за III квартал:**\n\n- **Выручка** выросла на 12%, до **3,9 млрд ₽** *(с. 1)*.\n- **Подписчиков** **1,9 млн**, на 18% больше; отток в месяц снизился с 2,6% до **2,1%** *(с. 2)*.\n- **Валовая маржа** выросла на 2 п. п., до **61%** *(с. 2)*.\n- **Прогноз:** выручка за год повышена до **15–15,4 млрд ₽** *(с. 3)*.\n- **Риск:** расходы на облако выросли на 9%, быстрее выручки *(с. 3)*."
+  ],
+  [
+    "Подойдёт ли нам",
+    "Судя по странице, у большинства компаний четырёхдневка сработала потому, что они **сначала убрали лишнюю работу**: меньше встреч, защищённое время для фокуса и ясные приоритеты на неделю. Выручка осталась на прежнем уровне (+1,4%), а выгорание и увольнения заметно снизились."
   ],
   [
     ".*",

@@ -5,6 +5,8 @@
 // The Pro takes (aisearch, history, pdf, organize, suggested-tags) need the stand with PREVIEW_PLAN=pro and a build
 // pointing at it:
 //   CF_STAND=http://localhost:8788 node tools/store/tips-record.mjs <proBuild> <outDir> en aisearch,history,pdf,organize,suggested-tags
+// The 2.6 takes: similar, listen and chips need the stand with PREVIEW_PLAN=ultra (Find similar's fixed list, a tone
+// for Listen); yearly needs it without a plan (Free: Listen opens the plans sheet), the build pointing at that stand.
 // Output like preview-record.mjs: <outDir>/<take>/NNNNN.jpg + <outDir>/<take>.json { frames, events }.
 // tips-render.mjs turns the takes into the looping clips.
 import { chromium } from "playwright"
@@ -36,7 +38,9 @@ const L = ru
       find: "исследование про выгорание",
       selq: "Сколько компаний вернулись к пятидневке?",
       pdf: "Что в отчёте про выручку?",
-      settings: "Настройки", morning: "Завтра утром", fill: "Заполнить со страницы", insert: "Вставить", open: "Открыть"
+      settings: "Настройки", morning: "Завтра утром", fill: "Заполнить со страницы", insert: "Вставить", open: "Открыть",
+      remindNote: "Попробовать фокус-блоки в команде",
+      watchNote: "Купить до поездки, если подешевеют"
     }
   : {
       summarize: "Summarize", key: "Key takeaways", explain: "Explain",
@@ -50,12 +54,15 @@ const L = ru
       find: "that study where burnout dropped",
       selq: "How many companies went back to five days?",
       pdf: "What does the report say about revenue?",
-      settings: "Settings", morning: "Tomorrow morning", fill: "Fill from the page", insert: "Insert", open: "Open"
+      settings: "Settings", morning: "Tomorrow morning", fill: "Fill from the page", insert: "Insert", open: "Open",
+      remindNote: "Try focus blocks with the team",
+      watchNote: "Buy before the trip if they drop"
     }
 
-// macOS Chromium ignores --lang: a copy of the build with only the wanted locale shows the UI in it.
+// macOS Chromium ignores --lang: a copy of the build with only the wanted locale shows the UI in it (English too: a
+// Chromium whose AppleLanguages another script set to Russian would show the Russian panel).
 function localizedExtension() {
-  if (process.platform !== "darwin" || lang === "en") return extDir
+  if (process.platform !== "darwin") return extDir
   const dir = join(tmpdir(), `cf-tips-${lang}`)
   rmSync(dir, { recursive: true, force: true })
   cpSync(extDir, dir, { recursive: true })
@@ -100,18 +107,20 @@ cdp.on("Page.screencastFrame", ({ data, metadata, sessionId }) => {
 })
 
 /** A fresh first session on `url` (nothing recorded yet): no chats, tour and hints seen, consent (2.4's) given.
- * `extra` adds storage (templates, Copied, settings…). */
-async function fresh(url, threads = null, extra = {}) {
+ * `extra` adds storage (templates, Copied, settings…); `entitlement`: the app's answer about the plan and its prices. */
+async function fresh(url, threads = null, extra = {}, entitlement = null) {
   // The previous take's panel must not see (and write back over) the reset storage.
   await page.goto("about:blank")
   await fetch(`${BASE}/reset`)
-  await sw.evaluate(async ({ threads, extra }) => {
+  await sw.evaluate(async ({ threads, extra, entitlement }) => {
     // Chromium has no Safari app behind the extension: its answers stand in (a reminder is scheduled,
     // notifications are allowed, the PDF is read by PdfText.swift).
     globalThis.browser = { runtime: { sendNativeMessage: async (_id, msg) => {
       if (msg.command === "remind") return { success: true, data: { outcome: "scheduled" } }
       if (msg.command === "watch_permission") return { success: true, data: { outcome: "ok" } }
+      if (msg.command === "notifStatus") return { success: true, data: { status: "authorized" } }
       if (msg.command === "pdfText") return { success: true, data: { ok: true, pages: 3, title: "Q3 report", text: "Northwind Q3 report. Revenue rose 12% to $48.2M; subscriptions $31.5M (+18%), services $16.7M." } }
+      if (msg.command === "getEntitlement" && entitlement) return { success: true, data: entitlement }
       return { success: false }
     } } }
     await chrome.storage.local.clear()
@@ -125,8 +134,22 @@ async function fresh(url, threads = null, extra = {}) {
       ...extra
     })
     if (threads) await chrome.storage.local.set({ "cf:threads": threads, "cf:activeThread": { id: Object.keys(threads)[0], at: Date.now() } })
-  }, { threads, extra })
+  }, { threads, extra, entitlement })
   await go(url)
+}
+
+/** Free, with the App Store's prices as the app shares them (2.6: the list prices in USD, the ones in
+ * ContextFlow.storekit and the Ultra migration; perMonth, save and percent as StoreKitManager.deal works them out). */
+const FREE_WITH_PRICES = {
+  active: false, productId: null, expiresAt: null, jws: null,
+  prices: {
+    "com.contextflow.byok.monthly": "$1.99", "com.contextflow.byok.yearly": "$16.99",
+    "com.contextflow.byok.yearly#perMonth": "$1.42", "com.contextflow.byok.yearly#save": "$6.89", "com.contextflow.byok.yearly#percent": "29",
+    "com.contextflow.pro.monthly": "$6.99", "com.contextflow.pro.yearly": "$59.99",
+    "com.contextflow.pro.yearly#perMonth": "$5.00", "com.contextflow.pro.yearly#save": "$23.89", "com.contextflow.pro.yearly#percent": "28",
+    "com.contextflow.ultra.monthly": "$12.99", "com.contextflow.ultra.yearly": "$119.99",
+    "com.contextflow.ultra.yearly#perMonth": "$10.00", "com.contextflow.ultra.yearly#save": "$35.89", "com.contextflow.ultra.yearly#percent": "23"
+  }
 }
 
 /** A few earlier chats, for the search, tags and Pro takes. */
@@ -188,7 +211,9 @@ function chat({ pins = [], url = PAGE_1 } = {}) {
   return { c1: { id: "c1", u: now - 60e3, a: now - 60e3, m, title: ru ? "Исследование четырёхдневки" : "Four-day week research" } }
 }
 
-/** Organizing (Pro): two chats; the shown one ends with a block that belongs in the other. */
+/** Organizing (Pro): two chats; the shown one ends with a block that belongs in the other. The stand's vectors come from
+ * shared words, so the block and the trip's chat share theirs (build 98's move needs a 75% match), and the trip's chat
+ * has two pages (a chat of one page block needs 0.65, more than word vectors give). */
 function organizeChats() {
   const now = Date.now()
   const H = 3_600_000
@@ -196,15 +221,15 @@ function organizeChats() {
   const japan = ru ? "Поездка в Японию" : "Trip to Japan"
   const bread = ru ? "Банановый хлеб" : "Banana bread"
   const A = { id: "chat-japan", u: now - 30 * H, a: now - 30 * H, title: japan, m: ru
-    ? [turn("user", "Какие храмы в Киото посмотреть в Токио-поездке?", `${BASE}/article-2-ru`, "Киото за два дня", now - 50 * H), turn("assistant", "Кинкаку-дзи, Фусими Инари и Киёмидзу-дэра — по утрам, пока мало людей.", null, null, now - 50 * H + 5000),
-       turn("user", "Окупится ли JR Pass для поездки Токио — Киото?", `${BASE}/article-2-ru`, "JR Pass в 2026", now - 30 * H), turn("assistant", "Для поездки Токио — Киото туда и обратно — да, если добавить хотя бы одну поездку.", null, null, now - 30 * H + 5000)]
-    : [turn("user", "Which Kyoto temples to see on the Tokyo trip?", `${BASE}/article-2`, "Kyoto in two days", now - 50 * H), turn("assistant", "Kinkaku-ji, Fushimi Inari and Kiyomizu-dera, early in the morning before the crowds.", null, null, now - 50 * H + 5000),
-       turn("user", "Is the JR Pass worth it for a Tokyo to Kyoto trip?", `${BASE}/article-2`, "JR Pass in 2026", now - 30 * H), turn("assistant", "For a Tokyo to Kyoto round trip, yes, if you add at least one more ride.", null, null, now - 30 * H + 5000)] }
+    ? [turn("user", "Храмы Киото для поездки в Японию в марте: какие посмотреть?", "https://travel.example/kyoto", "Киото за два дня", now - 50 * H), turn("assistant", "Для поездки в Японию в марте: Кинкаку-дзи и Фусими Инари в Киото, с утра — в сезон сакуры людей больше.", null, null, now - 50 * H + 5000),
+       turn("user", "JR Pass для поездки в Японию в марте: окупится из Токио?", "https://rail.example/jr-pass", "JR Pass в 2026", now - 30 * H), turn("assistant", "Для поездки в Японию в марте, Токио — Киото и обратно, да: окупится, если добавить ещё одну поездку.", null, null, now - 30 * H + 5000)]
+    : [turn("user", "Kyoto temples for the Japan trip in March: which to see?", "https://travel.example/kyoto", "Kyoto in two days", now - 50 * H), turn("assistant", "For the Japan trip in March, see Kinkaku-ji and Fushimi Inari in Kyoto early: crowds climb in cherry blossom season.", null, null, now - 50 * H + 5000),
+       turn("user", "JR Pass for the Japan trip in March: worth it from Tokyo?", "https://rail.example/jr-pass", "JR Pass in 2026", now - 30 * H), turn("assistant", "For the Japan trip in March, Tokyo to Kyoto and back, yes: it pays off with one more ride.", null, null, now - 30 * H + 5000)] }
   const B = { id: "chat-bread", u: now - 60e3, a: now - 60e3, title: bread, m: ru
     ? [turn("user", "Сколько бананов на одну форму хлеба?", `${BASE}/article-ru`, "Банановый хлеб", now - 3 * H), turn("assistant", "Три очень спелых банана на форму 22 см.", null, null, now - 3 * H + 5000),
-       turn("user", "Перелёты в Токио в марте: когда покупать билеты для поездки?", `${BASE}/article-2-ru`, "Перелёты в Токио", now - 2 * 60e3), turn("assistant", "Для поездки в Токио в марте билеты лучше брать за 2–3 месяца: в сезон сакуры цены растут.", null, null, now - 2 * 60e3 + 5000)]
+       turn("user", "Перелёты в Токио для поездки в Японию в марте: когда покупать?", `${BASE}/article-2-ru`, "Перелёты в Токио", now - 2 * 60e3), turn("assistant", "Для поездки в Японию в марте билеты в Токио лучше брать за 2–3 месяца: в сезон сакуры цены растут.", null, null, now - 2 * 60e3 + 5000)]
     : [turn("user", "How many bananas for one loaf of banana bread?", `${BASE}/article`, "Banana bread", now - 3 * H), turn("assistant", "Three very ripe bananas for a 9-inch loaf pan.", null, null, now - 3 * H + 5000),
-       turn("user", "Flights to Tokyo in March: when to book for the trip?", `${BASE}/article-2`, "Flights to Tokyo", now - 2 * 60e3), turn("assistant", "For a Tokyo trip in March, book 2–3 months ahead: prices climb in cherry blossom season.", null, null, now - 2 * 60e3 + 5000)] }
+       turn("user", "Flights to Tokyo for the Japan trip in March: when to book?", `${BASE}/article-2`, "Flights to Tokyo", now - 2 * 60e3), turn("assistant", "For the Japan trip in March, book Tokyo flights 2–3 months ahead: prices climb in cherry blossom season.", null, null, now - 2 * 60e3 + 5000)] }
   return { [B.id]: B, [A.id]: A }
 }
 /** Suggested tags (Pro): two chats you tagged Work, and the shown one about the same kind of thing, untagged. */
@@ -309,6 +334,47 @@ async function swipeX(locator, dx) {
   }
   await wait(60)
   await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
+}
+/** A finger along the selection field's chips (dx < 0 pulls the next ones in), as the carousel scrolls under it. */
+async function swipeChips(field, dx) {
+  const b = await field.boundingBox()
+  const x = dx < 0 ? b.x + b.width - 30 : b.x + 30
+  const y = b.y + b.height / 2
+  mark("swipe", { x, y, dx, dy: 0 })
+  await wait(160)
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] })
+  const steps = 16
+  for (let i = 1; i <= steps; i++) {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: x + (dx * i) / steps, y }] })
+    await wait(22)
+  }
+  await wait(40)
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
+}
+/** A finger up a sheet (dy < 0), slow enough to read: it scrolls under the finger. */
+async function swipeSheet(locator, dy) {
+  const b = await locator.boundingBox()
+  const x = b.x + b.width / 2
+  const y = Math.min(b.y + b.height / 2, 700)
+  mark("swipe", { x, y, dx: 0, dy })
+  await wait(160)
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] })
+  const steps = 18
+  for (let i = 1; i <= steps; i++) {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y: y + (dy * i) / steps }] })
+    await wait(24)
+  }
+  await wait(120)
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
+}
+/** Swipes the field's chips until `chip` is wholly in sight at its end (at least `least` px, so it reads as a swipe). */
+async function bringChip(field, chip, least = 0) {
+  const box = await field.boundingBox()
+  const c = await chip.boundingBox()
+  const over = c.x + c.width - (box.x + box.width - 6)
+  if (over <= 0 && !least) return
+  await swipeChips(field, -Math.max(least, over + 24))
+  await wait(900)
 }
 const inRoot = (js) => page.evaluate(shadow(js))
 async function type(text) {
@@ -679,7 +745,8 @@ const takes = {
     await touch(row)
     await wait(1400)
   },
-  // Page watch: the price selected, the eye, its window with the condition, Watch.
+  // Page watch: the price selected, the eye, its window with the condition and a note of your own (2.6 (97): shown with
+  // the watch and in its notification), Watch.
   async watch() {
     await fresh(PRODUCT)
     await page.locator("#price").scrollIntoViewIfNeeded()
@@ -693,24 +760,39 @@ const takes = {
     await touch(eye)
     const go = page.locator(".cf-watch .cf-sheet-actions .cf-primary")
     await go.waitFor()
-    await wait(1100)
+    await wait(900)
+    await tap(page.locator(".cf-watch .cf-note-words")); await type(L.watchNote)
+    await wait(500)
     await touch(go)
     await page.locator(".cf-watch-ok").waitFor({ timeout: 20000 })
     await wait(1500)
   },
-  // Come back later: … at the top of the panel, Come back later…, Tomorrow morning.
+  // Remind me (2.6 (97)): a line selected, the bell, the window with the line as a quote and a note of your own,
+  // Tomorrow morning; ✦ shows the note in the chat, under its quote, with the reminder's time.
   async later() {
-    await fresh(PAGE_1, chat())
-    await openPanel(false)
+    await fresh(PAGE_1)
+    await page.evaluate(() => document.querySelectorAll("main p")[4].scrollIntoView({ block: "center" }))
+    await wait(400)
     await record("later")
-    await touch(page.locator(".cf-page-more"))
-    await wait(500)
-    await touch(page.locator(".cf-page-menu button").first())
-    const row = page.locator(".cf-sheet .cf-sheet-row", { hasText: L.morning }).first()
-    await row.waitFor()
+    const bubble = page.locator(".cf-bubble")
+    await selectText(4, "^", ":", false)
+    const bell = bubble.locator(".cf-sel-remind")
+    await bell.waitFor()
     await wait(800)
+    await tapClears()
+    await touch(bell)
+    const words = page.locator(".cf-sheet .cf-note-words")
+    await words.waitFor()
+    await wait(700)
+    await tap(words); await type(L.remindNote)
+    await wait(400)
+    const row = page.locator(".cf-sheet .cf-sheet-row", { hasText: L.morning }).first()
     await touch(row)
-    await wait(1700)
+    await page.locator(".cf-sheet").waitFor({ state: "detached", timeout: 8000 }).catch(() => undefined)
+    await wait(900)
+    await openPanel()
+    await inRoot(`(r) => { const l = r.querySelector(".cf-messages"); if (l) l.scrollTop = l.scrollHeight }`)
+    await wait(1900)
   },
   // Highlights: a line of an answer selected, Highlight, a yellow mark.
   async highlight() {
@@ -779,14 +861,22 @@ const takes = {
     await touch(undo)
     await wait(1400)
   },
-  // Organizing (Pro): the suggestion under the last answer, a tap moves the block, Open shows it in its chat.
+  // Organizing (Pro): the Suggestions bar at the top of the chat (2.6 (97)); a tap on it brings the suggestion under the
+  // answer it's about, a tap there moves the block, Open shows it in its chat.
   async organize() {
     await fresh(PAGE_2, organizeChats(), ORGANIZE_ON)
     await openPanel(false)
-    await record("organize")
     const move = page.locator(".cf-org-chip.move .cf-org-take")
     await move.waitFor({ timeout: 15000 })
-    await wait(1100)
+    // From the top of the chat, where the bar is (the suggestion is under the last answer, out of sight).
+    await inRoot(`(r) => { const l = r.querySelector(".cf-messages"); if (l) l.scrollTop = 0 }`)
+    await wait(500)
+    await record("organize")
+    const bar = page.locator(".cf-sugbar-main")
+    await bar.waitFor({ timeout: 15000 })
+    await wait(1200)
+    await touch(bar)
+    await wait(1300)
     await touch(move)
     const open = page.locator(".cf-undo-bar button", { hasText: L.open })
     await open.waitFor()
@@ -810,6 +900,112 @@ const takes = {
     await wait(1000)
     await touch(page.locator(".cf-chats-button"))
     await wait(1700)
+  },
+
+  // ------------------------------------------------------------------ 2.6
+
+  // Quick actions in the selection's field (iPhone and iPad): a phrase selected, the chips after "Your question…"
+  // (they nudge in by themselves), a swipe pulls the rest in, a tap on Explain simply answers about the selection.
+  async chips() {
+    await fresh(PAGE_1)
+    await page.evaluate(() => document.querySelectorAll("main p")[3].scrollIntoView({ block: "center" }))
+    await wait(400)
+    await record("chips")
+    const bubble = page.locator(".cf-bubble")
+    await selectText(3, "^", ":", false)
+    await bubble.waitFor()
+    const field = bubble.locator(".cf-ask-field.chips")
+    await field.waitFor()
+    await wait(1900) // the chips' own nudge
+    const explain = bubble.locator(".cf-sel-chip", { hasText: msg("actExplain") }).first()
+    await bringChip(field, explain, 150)
+    await bringChip(field, explain)
+    await tapClears()
+    await touch(explain)
+    await page.locator(".cf-panel.in").waitFor()
+    await answers(1); await wait(1600)
+  },
+  // Find similar (Ultra) from a selection: the product's name selected, Find similar in the field's chips, the card
+  // with its conditions, Cheaper, Find; the checked list streams in (the stand's fixed one for the Aero 2).
+  async similar() {
+    await fresh(PRODUCT)
+    await page.evaluate(() => document.querySelector("h1").scrollIntoView({ block: "center" }))
+    await wait(300)
+    await record("similar")
+    await wait(200)
+    await page.evaluate(() => getSelection().selectAllChildren(document.querySelector("h1")))
+    const bubble = page.locator(".cf-bubble")
+    await bubble.waitFor()
+    const field = bubble.locator(".cf-ask-field.chips")
+    await field.waitFor()
+    await wait(1600) // past the chips' nudge
+    const chip = bubble.locator(".cf-sel-chip.ultra")
+    // In sight at the field's end, as a swipe would bring it.
+    await bringChip(field, chip)
+    await bringChip(field, chip)
+    await tapClears()
+    await touch(chip)
+    const card = page.locator(".cf-similar-pick")
+    await card.waitFor()
+    await wait(900)
+    await touch(card.locator(".cf-chip", { hasText: msg("similarCheaper") }).first())
+    await wait(600)
+    await touch(card.locator(".cf-primary"))
+    await page.locator(".cf-similar-item").first().waitFor({ timeout: 15000 })
+    await page.waitForFunction(shadow(`(r) => r && !r.querySelector(".cf-send.stop") && r.querySelectorAll(".cf-similar-item").length >= 4`), null, { timeout: 20000 })
+    // The list from its top: the checked, cheaper ones first.
+    await inRoot(`(r) => {
+      const list = r.querySelector(".cf-messages")
+      const asked = [...r.querySelectorAll(".cf-msg.user")].at(-1)
+      list.scrollTo({ top: list.scrollTop + asked.getBoundingClientRect().top - list.getBoundingClientRect().top - 8, behavior: "smooth" })
+    }`)
+    await wait(2200)
+  },
+  // Listen (Ultra): Listen under an answer, the player over the question field, its speed tapped to 1.2× and 1.5×;
+  // heard to its end, Listen gets its tick (2.6 (94–98): already voiced, hearing it again costs no minutes). On iPhone
+  // and iPad it plays in the panel when notifications are on (they are here: the app's answer), as on a Mac.
+  async listen() {
+    await fresh(PAGE_1, chat(), { "cf:notifyOn": true })
+    await openPanel(false)
+    // A short answer, heard to its end within the clip.
+    await inRoot(`(r) => r.querySelectorAll(".cf-msg.ai")[1].scrollIntoView({ block: "center" })`)
+    await wait(400)
+    await record("listen")
+    await wait(500)
+    const listen = page.locator(".cf-msg.ai .cf-listen-btn").nth(1)
+    await touch(listen)
+    await page.locator(".cf-listen .cf-listen-time").waitFor({ timeout: 15000 })
+    await wait(1200)
+    const speed = page.locator(".cf-listen-speed")
+    await touch(speed)
+    await wait(800)
+    await touch(speed)
+    await listen.locator(".cf-voiced").waitFor({ timeout: 20000 })
+    await wait(2200)
+  },
+  // Monthly or yearly (any plan; recorded on Free): Listen without Ultra opens the plans, Yearly first with what
+  // each plan saves; Monthly, then Yearly again.
+  async yearly() {
+    await fresh(PAGE_1, chat(), {}, FREE_WITH_PRICES)
+    await openPanel(false)
+    await inRoot(`(r) => r.querySelectorAll(".cf-msg.ai")[0].scrollIntoView({ block: "start" })`)
+    await wait(400)
+    await record("yearly")
+    await wait(400)
+    await touch(page.locator(".cf-msg.ai .cf-listen-btn").first())
+    const sheet = page.locator(".cf-plans")
+    await sheet.waitFor()
+    await page.locator(".cf-plans .cf-plan-save").first().waitFor()
+    await wait(1500)
+    const [monthly, yearly] = [0, 1].map((i) => page.locator(".cf-plans-period button").nth(i))
+    await touch(monthly)
+    await wait(1500)
+    await touch(yearly)
+    await wait(1300)
+    // Up the sheet to Pro and Ultra, the plans the card is about (Ultra comes last, under Own key and Pro).
+    const ultra = await page.locator(".cf-plan-card.ultra").boundingBox()
+    await swipeSheet(page.locator(".cf-plans .cf-plan-card.pro"), -Math.max(120, Math.min(360, ultra.y + ultra.height - 780)))
+    await wait(2200)
   }
 }
 

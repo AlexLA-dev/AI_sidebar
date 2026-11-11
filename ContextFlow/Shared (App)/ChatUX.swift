@@ -189,6 +189,14 @@ extension ChatLibrary {
         }
     }
 
+    /// A reminder's new words (2.6 (97), ChatEntry.withRemindWords): the message's text, every other field kept.
+    func setRemindWords(_ thread: ChatThread, entry index: Int, _ content: String) {
+        editEntries(thread) { entries in
+            guard entries.indices.contains(index) else { return }
+            entries[index]["content"] = content
+        }
+    }
+
     func setRemind(_ thread: ChatThread, entry index: Int, _ remind: ChatRemind?) {
         editEntries(thread) { entries in
             guard entries.indices.contains(index) else { return }
@@ -557,21 +565,25 @@ struct SelectableText: UIViewRepresentable {
 
     func updateUIView(_ view: UITextView, context: Context) {
         context.coordinator.parent = self
+        context.coordinator.openURL = context.environment.openURL
         if !view.attributedText.isEqual(to: text) { view.attributedText = text }
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
         let width = proposal.width ?? 320
+        let scale = max(uiView.traitCollection.displayScale, 1)
+        if let known = context.coordinator.measured, known.width == width, known.scale == scale, known.text.isEqual(to: text) { return known.size }
         let size = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
         // TextKit gives the last line its line gap too; SwiftUI's Text (the answer before 2.5) ends at the font's
         // line height. Without the gap the answer keeps the same height and spacing.
         var height = size.height
         if text.length > 0, let font = text.attribute(.font, at: text.length - 1, effectiveRange: nil) as? UIFont,
-           let pitch = Self.lastLinePitch(uiView), pitch > font.lineHeight {
+           let pitch = Self.lastLinePitch(text, width: width), pitch > font.lineHeight {
             height -= pitch - font.lineHeight
         }
-        let scale = max(uiView.traitCollection.displayScale, 1)
-        return CGSize(width: width, height: ceil(height * scale) / scale)
+        let fitted = CGSize(width: width, height: ceil(height * scale) / scale)
+        context.coordinator.measured = (width, scale, text, fitted)
+        return fitted
     }
 
     /// How far up to draw the text so its lines sit where SwiftUI's Text put them: both put the first baseline at
@@ -582,23 +594,42 @@ struct SelectableText: UIViewRepresentable {
         return (ascender.rounded(.down) - ascender.rounded(.up)) / s
     }
 
-    /// The height TextKit gives the text's last line, with its line gap.
-    private static func lastLinePitch(_ view: UITextView) -> CGFloat? {
-        if let layout = view.textLayoutManager {
-            var pitch: CGFloat?
-            layout.enumerateTextLayoutFragments(from: layout.documentRange.endLocation, options: [.reverse, .ensuresLayout]) { fragment in
-                pitch = fragment.textLineFragments.last?.typographicBounds.height
-                return false
-            }
-            return pitch
-        }
-        let glyphs = view.layoutManager.numberOfGlyphs
-        return glyphs > 0 ? view.layoutManager.lineFragmentRect(forGlyphAt: glyphs - 1, effectiveRange: nil).height : nil
+    /// The height TextKit gives the text's last line, with its line gap, laid out on its own at `width`. 2.6 (98), the
+    /// owner: «прыгают сообщения в чате … расстояние между строками периодически меняется туда-сюда». It was read from
+    /// the view's own layout, which follows the view's height: at the height without the gap the last line no longer
+    /// fit, had no gap to take off, and the next pass gave the gap back, so every answer's blocks went a point or two
+    /// up and down for good, and the messages under them with them.
+    static func lastLinePitch(_ text: NSAttributedString, width: CGFloat) -> CGFloat? {
+        let storage = NSTextStorage(attributedString: text)
+        let layout = NSLayoutManager()
+        let container = NSTextContainer(size: CGSize(width: width, height: .greatestFiniteMagnitude))
+        container.lineFragmentPadding = 0
+        layout.addTextContainer(container)
+        storage.addLayoutManager(layout)
+        layout.ensureLayout(for: container)
+        let glyphs = layout.numberOfGlyphs
+        return glyphs > 0 ? layout.lineFragmentRect(forGlyphAt: glyphs - 1, effectiveRange: nil).height : nil
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
         var parent: SelectableText
+        /// The last size given, for this text at this width: the same answer every pass.
+        var measured: (width: CGFloat, scale: CGFloat, text: NSAttributedString, size: CGSize)?
+        /// Where a link in the text goes: the chat's (2.6 (98): the page opens with the panel on the chat, at the message).
+        var openURL: OpenURLAction?
         init(_ parent: SelectableText) { self.parent = parent }
+
+        @available(iOS 17.0, *)
+        func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
+            guard case .link(let url) = textItem.content, let open = openURL else { return defaultAction }
+            return UIAction(title: defaultAction.title) { _ in open(url) }
+        }
+
+        func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+            guard interaction == .invokeDefaultAction, let open = openURL else { return true }
+            open(url)
+            return false
+        }
 
         func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
             guard range.length > 0 else { return nil }
@@ -655,7 +686,14 @@ struct SelectableText: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         var parent: SelectableText
+        /// Where a link in the text goes: the chat's (2.6 (98)).
+        var openURL: OpenURLAction?
         init(_ parent: SelectableText) { self.parent = parent }
+        func textView(_ textView: NSTextView, clickedOnLink link: Any, at charIndex: Int) -> Bool {
+            guard let open = openURL, let url = (link as? URL) ?? (link as? String).flatMap(URL.init(string:)) else { return false }
+            open(url)
+            return true
+        }
         func textViewDidChangeSelection(_ notification: Notification) {
             guard let view = notification.object as? NSTextView else { return }
             parent.onSelecting(view.selectedRange().length > 0)
@@ -679,6 +717,7 @@ struct SelectableText: NSViewRepresentable {
 
     func updateNSView(_ view: MarkableView, context: Context) {
         context.coordinator.parent = self
+        context.coordinator.openURL = context.environment.openURL
         view.onMark = onMark
         view.onUnmark = onUnmark
         view.marked = marked
@@ -782,6 +821,8 @@ struct PinnedBar: View {
     var open: (Int) -> Void
     var unpin: (Int) -> Void
     var unpinAll: () -> Void
+    /// 2.6 (97): one line, with the bar of suggestions under it.
+    var compact = false
     @State private var listing = false
 
     var body: some View {
@@ -795,13 +836,20 @@ struct PinnedBar: View {
             } label: {
                 HStack(alignment: .center, spacing: 9) {
                     segments(count, shown)
-                    VStack(alignment: .leading, spacing: 1) {
-                        (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple)
-                        Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                    if compact {
+                        HStack(alignment: .firstTextBaseline, spacing: 7) {
+                            (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple).fixedSize()
+                            Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 1) {
+                            (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple)
+                            Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                        }
                     }
                     Spacer(minLength: 0)
                 }
-                .padding(.vertical, 7).padding(.leading, 12)
+                .padding(.vertical, compact ? 6 : 7).padding(.leading, 12)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -809,7 +857,7 @@ struct PinnedBar: View {
             .accessibilityValue(Text(ReminderTimes.text(current.entry.content)))
             if count > 1 {
                 Button { listing = true } label: {
-                    Image(systemName: "list.bullet").frame(width: 44, height: 40)
+                    Image(systemName: "list.bullet").frame(width: 44, height: compact ? 30 : 40)
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(.secondary)
@@ -829,7 +877,7 @@ struct PinnedBar: View {
                 Capsule().fill(Color.purple.opacity(pos == shown ? 1 : 0.3)).frame(width: 2.5)
             }
         }
-        .frame(height: 34)
+        .frame(height: compact ? 18 : 34)
     }
 
     private func list(_ shown: Int) -> some View {
@@ -872,18 +920,39 @@ struct RemindSheet: View {
     var current: Date?
     /// Why the last try didn't set it (notifications off).
     var note: String?
-    var pick: (Date, String) -> Void
+    /// 2.6 (97): a note on a selection's quote, shown over its words.
+    var quote: String? = nil
+    /// The person's own words on a reminder made with Remind on a selection or a page (ChatEntry.remindWords), changed
+    /// with its time; optional, a time saves without them. Nil: no field (a reminder on an answer).
+    var words: String? = nil
+    var pick: (Date, String, String?) -> Void
     var cancel: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var custom = Date().addingTimeInterval(86400)
     @State private var picking = false
+    @State private var own = ""
+    @State private var started = false
+
+    private func picked(_ at: Date, _ preset: String) {
+        pick(at, preset, words == nil ? nil : own.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
 
     var body: some View {
         NavigationStack {
             List {
+                if quote != nil || words != nil {
+                    Section {
+                        if let quote { QuoteBlock(text: quote, lines: 3) }
+                        if words != nil {
+                            // Never focused by itself: a time saves at once, as before.
+                            TextField("Your note (optional)", text: $own, axis: .vertical)
+                                .lineLimit(1...4)
+                        }
+                    }
+                }
                 ForEach(ReminderTimes.presets(), id: \.preset) { item in
                     Button {
-                        pick(item.at, item.preset.rawValue)
+                        picked(item.at, item.preset.rawValue)
                     } label: {
                         HStack {
                             Text(ReminderTimes.title(item.preset)).foregroundColor(.primary)
@@ -894,7 +963,7 @@ struct RemindSheet: View {
                 }
                 if picking {
                     DatePicker("Date", selection: $custom, in: Date()..., displayedComponents: [.date, .hourAndMinute])
-                    Button("Remind") { pick(custom, "custom") }
+                    Button("Remind") { picked(custom, "custom") }
                         .disabled(custom <= Date())
                 } else {
                     Button("Pick a date") { picking = true }
@@ -916,6 +985,11 @@ struct RemindSheet: View {
         }
         .presentationDetents([.medium, .large])
         .frame(minWidth: 320, minHeight: 340)
+        .onAppear {
+            guard !started else { return }
+            started = true
+            own = words ?? ""
+        }
     }
 }
 

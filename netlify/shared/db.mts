@@ -41,9 +41,19 @@ async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   return data as T
 }
 
-export const consume = (items: Counter[]) => rpc<ConsumeResult>("cf_consume", { p_items: items })
+/** A counter kept for good (build 92: a read-aloud part's heard and made seconds, per subscription); before its
+ *  migration (20261109140000) the database counts "ever" by the day. */
+export interface EverCounter extends Omit<Counter, "period"> {
+  period: "ever"
+}
+
+export const consume = (items: Array<Counter | EverCounter>) => rpc<ConsumeResult>("cf_consume", { p_items: items })
 export const refund = (items: Counter[]) => rpc<null>("cf_refund", { p_items: items })
-export const peek = (items: Counter[]) => rpc<CounterState[]>("cf_peek", { p_items: items })
+export const peek = (items: Array<Counter | EverCounter>) => rpc<CounterState[]>("cf_peek", { p_items: items })
+/** One of the install's free answers in the guided first request (2.6, tour.mts): true while it had one left. */
+export const takeTourAnswer = (installId: string, max: number) => rpc<boolean>("cf_tour_take", { p_install: installId, p_max: max })
+/** The guided answer didn't come (refused, failed): it's the install's again. */
+export const giveTourAnswerBack = (installId: string) => rpc<null>("cf_tour_give_back", { p_install: installId })
 
 export function touchInstall(installId: string, platform: string, version: string, locale: string, requests = 0) {
   return rpc<null>("cf_touch_install", {
@@ -80,6 +90,12 @@ export const ownerInsights = (days: number) => rpc<Record<string, unknown>>("cf_
 export const limitsReport = (days: number) => rpc<Record<string, unknown>>("cf_limits_report", { p_days: days })
 /** Organizing the chats (2.5): suggestions shown, taken, turned down and undone; promotions; turning it on (cf_organize_report). */
 export const organizeReport = (days: number) => rpc<Record<string, unknown>>("cf_organize_report", { p_days: days })
+/** Read aloud and find similar (2.6, Ultra): requests, people, tokens by model, cost, failures (cf_ultra_report). */
+export const ultraReport = (days: number) => rpc<Record<string, unknown>>("cf_ultra_report", { p_days: days })
+/** MRR at the end of each day by plan, monthly or yearly, renewal on or off, and currency (cf_mrr_history). */
+export const mrrHistory = (days: number) => rpc<Record<string, unknown>>("cf_mrr_history", { p_days: days })
+/** Users by first week and subscribers by first payment month, still there later; first renewals (cf_retention). */
+export const retention = (days: number) => rpc<Record<string, unknown>>("cf_retention", { p_days: days })
 /** New people's way to the first answer, one row each, by the day they first showed up (cf_onboarding). */
 export const onboarding = (days: number) => rpc<Record<string, unknown>>("cf_onboarding", { p_days: days })
 /** By day: new users, how many of them ran out of free answers that day, Pro bought (cf_new_user_outcomes). */
@@ -90,6 +106,8 @@ export const features = (days: number, base: Record<string, unknown>) =>
   rpc<Record<string, unknown>>("cf_features", { p_days: days, p_base: base })
 /** Feature funnels: who reached each step after the one before (cf_feature_funnels). */
 export const featureFunnels = (days: number) => rpc<Record<string, unknown>[]>("cf_feature_funnels", { p_days: days })
+/** The App Store rating request per platform: due, ask, link, why and at what milestone (cf_rate_report, 2.6 (100)). */
+export const rateReport = (days: number) => rpc<Record<string, unknown>>("cf_rate_report", { p_days: days })
 /** People who ran out of free answers and what they did next; paying installs and their last day (cf_after_limit). */
 export const afterLimit = (days: number) => rpc<Record<string, unknown>>("cf_after_limit", { p_days: days })
 
@@ -122,10 +140,3 @@ export async function maybeCleanup(): Promise<void> {
   if (Math.random() > 0.005) return
   await db().rpc("cf_cleanup").then(() => undefined, () => undefined)
 }
-
-/** Read aloud and find similar (2.6, Ultra): requests, people, tokens by model, cost, failures (cf_ultra_report). */
-export const ultraReport = (days: number) => rpc<Record<string, unknown>>("cf_ultra_report", { p_days: days })
-/** MRR at the end of each day by plan, monthly or yearly, renewal on or off, and currency (cf_mrr_history). */
-export const mrrHistory = (days: number) => rpc<Record<string, unknown>>("cf_mrr_history", { p_days: days })
-/** Users by first week and subscribers by first payment month, still there later; first renewals (cf_retention). */
-export const retention = (days: number) => rpc<Record<string, unknown>>("cf_retention", { p_days: days })

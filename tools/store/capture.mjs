@@ -125,7 +125,7 @@ async function go(s, url) {
   await s.page.waitForTimeout(300)
   // The free-answers count under the field names the daily number, which the store page doesn't.
   // No Pro on the 2.5 shots either (the owner): the footer's "Get Pro" (or an offer) is hidden too.
-  if (process.env.KEEP_USAGE !== "1") await s.page.evaluate(shadow(`(r) => { const st = document.createElement("style"); st.textContent = ".cf-usage-text, .cf-usage .cf-link { visibility: hidden }"; r.appendChild(st) }`))
+  if (process.env.KEEP_USAGE !== "1") await s.page.evaluate(shadow(`(r) => { const st = document.createElement("style"); st.textContent = ".cf-usage-text, .cf-usage .cf-link, .cf-listen-left { visibility: hidden }"; r.appendChild(st) }`))
 }
 
 async function open(s) {
@@ -157,6 +157,12 @@ async function rect(s, file, selectors) {
   const rects = await s.page.evaluate((sels) => {
     const root = document.querySelector("contextflow-root").shadowRoot
     return Object.fromEntries(sels.map((sel) => {
+      if (sel.startsWith("all:")) {
+        const rs = [...root.querySelectorAll(sel.slice(4))].map((e) => e.getBoundingClientRect())
+        if (!rs.length) return [sel, null]
+        const x = Math.min(...rs.map((r) => r.x)), y = Math.min(...rs.map((r) => r.y))
+        return [sel, { x, y, width: Math.max(...rs.map((r) => r.right)) - x, height: Math.max(...rs.map((r) => r.bottom)) - y }]
+      }
       const els = sel.startsWith("@") ? document.querySelectorAll(sel.slice(1)) : root.querySelectorAll(sel)
       const b = els[els.length - 1]?.getBoundingClientRect()
       return [sel, b ? { x: b.x, y: b.y, width: b.width, height: b.height } : null]
@@ -613,15 +619,15 @@ function organizeChats() {
   const japan = ru ? "Поездка в Японию" : "Trip to Japan"
   const bread = ru ? "Банановый хлеб" : "Banana bread"
   const A = { id: "chat-japan", u: now - 30 * H, a: now - 30 * H, title: japan, m: ru
-    ? [turn("user", "Какие храмы в Киото посмотреть в Токио-поездке?", ARTICLE_2, "Киото за два дня", now - 50 * H), turn("assistant", "Кинкаку-дзи, Фусими Инари и Киёмидзу-дэра — по утрам, пока мало людей.", null, null, now - 50 * H + 5000),
-       turn("user", "Окупится ли JR Pass для поездки Токио — Киото?", ARTICLE_2, "JR Pass в 2026", now - 30 * H), turn("assistant", "Для поездки Токио — Киото туда и обратно — да, если добавить хотя бы одну поездку.", null, null, now - 30 * H + 5000)]
-    : [turn("user", "Which Kyoto temples to see on the Tokyo trip?", ARTICLE_2, "Kyoto in two days", now - 50 * H), turn("assistant", "Kinkaku-ji, Fushimi Inari and Kiyomizu-dera, early in the morning before the crowds.", null, null, now - 50 * H + 5000),
-       turn("user", "Is the JR Pass worth it for a Tokyo to Kyoto trip?", ARTICLE_2, "JR Pass in 2026", now - 30 * H), turn("assistant", "For a Tokyo to Kyoto round trip, yes, if you add at least one more ride.", null, null, now - 30 * H + 5000)] }
+    ? [turn("user", "Храмы Киото для поездки в Японию в марте: какие посмотреть?", "https://travel.example/kyoto", "Киото за два дня", now - 50 * H), turn("assistant", "Для поездки в Японию в марте: Кинкаку-дзи и Фусими Инари в Киото, с утра — в сезон сакуры людей больше.", null, null, now - 50 * H + 5000),
+       turn("user", "JR Pass для поездки в Японию в марте: окупится из Токио?", "https://rail.example/jr-pass", "JR Pass в 2026", now - 30 * H), turn("assistant", "Для поездки в Японию в марте, Токио — Киото и обратно, да: окупится, если добавить ещё одну поездку.", null, null, now - 30 * H + 5000)]
+    : [turn("user", "Kyoto temples for the Japan trip in March: which to see?", "https://travel.example/kyoto", "Kyoto in two days", now - 50 * H), turn("assistant", "For the Japan trip in March, see Kinkaku-ji and Fushimi Inari in Kyoto early: crowds climb in cherry blossom season.", null, null, now - 50 * H + 5000),
+       turn("user", "JR Pass for the Japan trip in March: worth it from Tokyo?", "https://rail.example/jr-pass", "JR Pass in 2026", now - 30 * H), turn("assistant", "For the Japan trip in March, Tokyo to Kyoto and back, yes: it pays off with one more ride.", null, null, now - 30 * H + 5000)] }
   const B = { id: "chat-bread", u: now - 60e3, a: now - 60e3, title: bread, m: ru
     ? [turn("user", "Сколько бананов на одну форму хлеба?", ARTICLE, "Банановый хлеб", now - 3 * H), turn("assistant", "Три очень спелых банана на форму 22 см.", null, null, now - 3 * H + 5000),
-       turn("user", "Перелёты в Токио в марте: когда покупать билеты для поездки?", ARTICLE_2, "Перелёты в Токио", now - 2 * 60e3), turn("assistant", "Для поездки в Токио в марте билеты лучше брать за 2–3 месяца: в сезон сакуры цены растут.", null, null, now - 2 * 60e3 + 5000)]
+       turn("user", "Перелёты в Токио для поездки в Японию в марте: когда покупать?", ARTICLE_2, "Перелёты в Токио", now - 2 * 60e3), turn("assistant", "Для поездки в Японию в марте билеты в Токио лучше брать за 2–3 месяца: в сезон сакуры цены растут.", null, null, now - 2 * 60e3 + 5000)]
     : [turn("user", "How many bananas for one loaf of banana bread?", ARTICLE, "Banana bread", now - 3 * H), turn("assistant", "Three very ripe bananas for a 9-inch loaf pan.", null, null, now - 3 * H + 5000),
-       turn("user", "Flights to Tokyo in March: when to book for the trip?", ARTICLE_2, "Flights to Tokyo", now - 2 * 60e3), turn("assistant", "For a Tokyo trip in March, book 2–3 months ahead: prices climb in cherry blossom season.", null, null, now - 2 * 60e3 + 5000)] }
+       turn("user", "Flights to Tokyo for the Japan trip in March: when to book?", ARTICLE_2, "Flights to Tokyo", now - 2 * 60e3), turn("assistant", "For the Japan trip in March, book Tokyo flights 2–3 months ahead: prices climb in cherry blossom season.", null, null, now - 2 * 60e3 + 5000)] }
   return { [B.id]: B, [A.id]: A }
 }
 const ORGANIZE_ON = { "cf:settings": { organize: true }, "cf:orgCards": { consent: "accepted", thirdTag: true, mess: { chats: [], at: 0, closed: true }, firstWin: true } }
@@ -629,9 +635,268 @@ const ORGANIZE_ON = { "cf:settings": { organize: true }, "cf:orgCards": { consen
 async function organize(s) {
   await fresh(s, { url: ARTICLE_2, threads: organizeChats(), extra: ORGANIZE_ON })
   await open(s)
-  await s.page.locator(".cf-org-chip.move .cf-org-take").first().waitFor({ timeout: 20000 })
+  await s.page.locator(".cf-org-chip.move .cf-org-take").first().waitFor({ timeout: 45000 }).catch(async (e) => {
+    const seen = await s.page.evaluate(shadow(`(r) => [...r.querySelectorAll("[class*=cf-org], [class*=cf-sugbar]")].map((e) => e.className + ": " + e.textContent.slice(0, 80))`))
+    console.error("organize: no move suggestion; org elements:", JSON.stringify(seen))
+    throw e
+  })
   await s.page.evaluate(shadow(`(r) => { const l = r.querySelector(".cf-messages"); l.scrollTop = l.scrollHeight }`))
   await s.page.waitForTimeout(700)
+}
+
+// ------------------------------------------------------------- PPO (2.6)
+// Scenes for the product page test against the 2.5 set: the page after a price drop, the last five copies and the
+// field they fill, an answer about a selection, Google with sources, a PDF (Pro).
+
+// The product page as the check found it: the new price, the old one struck through; the panel closed.
+async function watchPage(s) {
+  await fresh(s, { url: SHOP })
+  await s.page.evaluate(([now, was]) => {
+    document.getElementById("price").textContent = now
+    document.querySelector(".old").textContent = was
+    document.getElementById("price").scrollIntoView({ block: "center" })
+  }, lang === "ru" ? ["10 990 ₽", "12 990 ₽"] : ["$99", "$129"])
+  await s.page.waitForTimeout(400)
+}
+
+/** Copied: the last five things copied on pages, no templates (so the list is Copied alone). */
+function copied5() {
+  const now = Date.now()
+  const ru = lang === "ru"
+  const items = (ru
+    ? [["PX-7741-2093", "parcelly.studio", 4], ["Москва, ул. Лесная, 12, кв. 4", "contacts.sevveter.studio", 18], ["Заказ 48213", "shop.sevveter.studio", 35], ["maria.lopez@sevveter.studio", "mail.sevveter.studio", 52], ["+7 495 555-01-42", "contacts.sevveter.studio", 80]]
+    : [["PX-7741-2093", "parcelly.studio", 4], ["12 Linden Street, Apt 4, Boston, MA 02118", "contacts.northwind.studio", 18], ["Order 48213", "shop.northwind.studio", 35], ["maria.lopez@northwind.studio", "mail.northwind.studio", 52], ["+1 617 555 0142", "contacts.northwind.studio", 80]])
+    .map(([text, host, min], i) => ({ id: `k${i}`, text, host, at: now - min * 60e3, from: "page" }))
+  return { "cf:templates": {}, "cf:copied": items }
+}
+
+// The reply begun by hand, the list open on the five copies; then the tracking number tapped into the reply.
+async function copiedFive(s, k) {
+  await fresh(s, { url: INBOX, extra: copied5() })
+  await s.page.evaluate((top) => {
+    document.body.style.paddingBottom = "900px"
+    const r = document.getElementById("reply")
+    r.scrollIntoView({ block: top ? "start" : "center" })
+    window.scrollBy(0, top ? -12 : 60)
+  }, s.d.touch)
+  await press(s, s.page.locator("#reply"))
+  await s.page.keyboard.type(lang === "ru" ? "Мария, заказ уже в пути. Трек-номер: " : "Hi Maria, your order is on its way. Tracking number: ", { delay: 2 })
+  if (s.d.touch) {
+    await s.page.locator(".cf-qi-btn").waitFor()
+    await s.page.waitForTimeout(400)
+    await press(s, s.page.locator(".cf-qi-btn"))
+  } else {
+    await s.sw.evaluate(async (url) => {
+      const tab = (await chrome.tabs.query({})).find((t) => t.url === url)
+      await chrome.tabs.sendMessage(tab.id, { type: "quickInsert" })
+    }, s.page.url())
+  }
+  await s.page.locator(".cf-qi-row").first().waitFor()
+  await s.page.waitForTimeout(700)
+  await shot(s, `${k}-copied5`); await rect(s, `${k}-copied5`, [".cf-qi", ".cf-qi-body", "@#reply", "all:.cf-qi-row", ".cf-qi-sec"])
+  await press(s, s.page.locator(".cf-qi-row", { hasText: "PX-7741-2093" }).first())
+  await s.page.waitForTimeout(900)
+  await s.page.evaluate(() => { const r = document.getElementById("reply"); r.setSelectionRange(r.value.length, r.value.length) })
+}
+
+// A question about the selected sentence, sent from the bubble: the panel opens on the answer.
+async function selAnswer(s) {
+  await selAsk(s)
+  await press(s, s.page.locator(".cf-bubble-send"))
+  await waitAnswer(s)
+  await s.page.evaluate(() => getSelection().removeAllRanges())
+  await s.page.waitForTimeout(400)
+}
+
+// Google: a fresh answer from Google Search with its numbered sources.
+async function google(s) {
+  await fresh(s); await open(s); await chip(s, L.google); await waitSources(s)
+  await scrollTo(s, ".cf-msg.ai .cf-grounded", 140, ".cf-msg.ai .cf-source-list")
+  // The numbered sources whole, with a little room under them.
+  await s.page.evaluate(shadow(`(r) => { const l = r.querySelector(".cf-messages"); l.scrollTop += 70 }`))
+  await s.page.waitForTimeout(250)
+}
+
+
+// ------------------------------------------------------------- 2.6 version and custom pages
+// The 2.6 scenes run on the Ultra stand (PREVIEW_PLAN=ultra, SIMILAR_STUB=store), where Pro's features work too:
+//   CF_STAND=http://localhost:8789 SET=v26 node capture.mjs <ultraBuild> <outDir> <lang>
+const L26 = lang === "ru"
+  ? { remindNote: "Дочитать про поддержку клиентов и обсудить с командой", watchNote: "Взять, если будет дешевле 11 000 ₽", find: "исследование про выгорание",
+      historyQ: "Что я читал на этой неделе?", sumForeign: "Кратко" }
+  : { remindNote: "Finish the part about support teams, then bring it to Monday's meeting", watchNote: "Buy it if it goes under $110", find: "that study where burnout dropped",
+      historyQ: "What did I read this week?", sumForeign: "Summarize" }
+
+// A mouse drag across an element (a Mac's selection).
+async function dragSelect(s, locator) {
+  const b = await locator.boundingBox()
+  await s.page.mouse.move(b.x + 2, b.y + b.height / 2); await s.page.mouse.down()
+  await s.page.mouse.move(b.x + b.width - 2, b.y + b.height / 2, { steps: 8 }); await s.page.mouse.up()
+}
+// On iPhone the tap that reaches the selection's buttons also clears the page's selection.
+const tapClears = (s) => s.page.evaluate(() => document.addEventListener("pointerdown", () => getSelection().removeAllRanges(), { capture: true, once: true }))
+
+// Quick actions under a selection: a phrase selected on the article, the chips in "Your question…" after their nudge.
+async function selChips(s, url = ARTICLE, nth = 3) {
+  await fresh(s, { url })
+  if (s.d.touch) await touchSelect(s, nth)
+  else {
+    const p = s.page.locator("main p").nth(nth)
+    await p.evaluate((el) => { el.scrollIntoView({ block: "center" }) })
+    await s.page.evaluate((n) => {
+      const text = document.querySelectorAll("main p")[n].firstChild
+      const end = text.textContent.indexOf(".") + 1
+      const range = document.createRange(); range.setStart(text, 0); range.setEnd(text, end > 0 ? end : text.textContent.length)
+      getSelection().removeAllRanges(); getSelection().addRange(range)
+      document.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }))
+    }, nth)
+    await s.page.locator(".cf-bubble").waitFor()
+  }
+  await s.page.locator(".cf-bubble .cf-ask-field.chips").waitFor()
+  await s.page.waitForTimeout(1900) // past the chips' own nudge
+}
+
+// Find similar (Ultra): the product's name selected, Find similar among its chips, Cheaper, Find; the checked list.
+async function similar(s) {
+  await fresh(s, { url: SHOP })
+  await s.page.evaluate(() => { document.querySelector("h1").scrollIntoView({ block: "center" }) })
+  await s.page.waitForTimeout(300)
+  if (s.d.touch) await s.page.evaluate(() => getSelection().selectAllChildren(document.querySelector("h1")))
+  else await dragSelect(s, s.page.locator("h1"))
+  const bubble = s.page.locator(".cf-bubble")
+  await bubble.waitFor()
+  const chipEl = bubble.locator(".cf-sel-chip.ultra")
+  await chipEl.waitFor()
+  await s.page.waitForTimeout(1700)
+  await chipEl.evaluate((el) => {
+    const f = el.closest(".cf-ask-field")
+    f.scrollLeft = el.offsetLeft + el.offsetWidth - f.clientWidth + 12
+  })
+  await s.page.waitForTimeout(400)
+  await shot(s, `${s.k}-similarchip`); await rect(s, `${s.k}-similarchip`, [".cf-bubble", ".cf-sel-chip.ultra", "@h1"])
+  if (s.d.touch) await tapClears(s)
+  await press(s, chipEl)
+  const card = s.page.locator(".cf-similar-pick")
+  await card.waitFor()
+  await s.page.waitForTimeout(600)
+  // Where to look comes first (2.6 (98)): Worldwide.
+  await press(s, card.locator(".cf-similar-where .cf-seg button").first())
+  await s.page.waitForTimeout(300)
+  await press(s, card.locator(".cf-chip", { hasText: msg("similarCheaper") }).first())
+  await s.page.waitForTimeout(400)
+  await shot(s, `${s.k}-similarpick`); await rect(s, `${s.k}-similarpick`, [".cf-panel", ".cf-similar-pick"])
+  await press(s, card.locator(".cf-primary"))
+  await s.page.waitForFunction(shadow(`(r) => r && !r.querySelector(".cf-send.stop") && r.querySelectorAll(".cf-similar-item").length >= 4`), null, { timeout: 30000 })
+  await s.page.evaluate(() => getSelection().removeAllRanges())
+  await s.page.evaluate(shadow(`(r) => {
+    const list = r.querySelector(".cf-messages")
+    const asked = [...r.querySelectorAll(".cf-msg.user")].at(-1)
+    list.scrollTop = list.scrollTop + asked.getBoundingClientRect().top - list.getBoundingClientRect().top - 8
+  }`))
+  await s.page.waitForTimeout(700)
+}
+
+// Listen (Ultra): Listen under the long answer; a Mac plays it in the panel (the speed tapped to 1.5×), iPhone and iPad
+// hand it to the app (the panel says so).
+async function listen(s) {
+  await fresh(s, { threads: chat25() })
+  await open(s)
+  await s.page.evaluate(shadow(`(r) => { const l = r.querySelector(".cf-messages"); const a = r.querySelectorAll(".cf-msg.ai")[0]; l.scrollTop = a.offsetTop - l.offsetTop - 12 }`))
+  await s.page.waitForTimeout(400)
+  if (s.d.touch) {
+    // The first answer's row of buttons (Copy, Share, Listen, Tag), the one in view, marked for the call-out.
+    await s.page.evaluate(shadow(`(r) => { const b = r.querySelectorAll(".cf-msg.ai .cf-listen-btn")[0]; b.setAttribute("data-cf-btn", "1"); b.parentElement.setAttribute("data-cf", "listen-row") }`))
+    await shot(s, `${s.k}-listenbtn`); await rect(s, `${s.k}-listenbtn`, [".cf-panel", "[data-cf-btn]", "[data-cf=listen-row]"])
+    return
+  }
+  await press(s, s.page.locator(".cf-msg.ai .cf-listen-btn").first())
+  await s.page.locator(".cf-listen .cf-listen-time").waitFor({ timeout: 15000 })
+  await s.page.waitForTimeout(1500)
+  const speed = s.page.locator(".cf-listen-speed")
+  await press(s, speed); await s.page.waitForTimeout(500)
+  await press(s, speed); await s.page.waitForTimeout(1800)
+}
+
+// Ask your chats (Pro): the chat list's first row, its first suggested question answered from every chat.
+async function askChats(s) {
+  await fresh(s, { threads: history() }); await open(s)
+  await press(s, s.page.locator(".cf-chats-button"))
+  await s.page.waitForTimeout(600)
+  await press(s, s.page.locator(".cf-ask-history .cf-thread-main"))
+  await s.page.waitForTimeout(700)
+  await s.page.locator(".cf-input textarea").fill(L26.historyQ)
+  if (s.d.touch) await s.page.locator(".cf-send").click(); else await s.page.keyboard.press("Enter")
+  await waitAnswer(s)
+}
+
+// Search by meaning (Pro): ✦ by the chat search, a description without the chat's words.
+async function aiSearch(s) {
+  await fresh(s, { threads: history() }); await open(s)
+  await press(s, s.page.locator(".cf-chats-button"))
+  await s.page.waitForTimeout(600)
+  await press(s, s.page.locator(".cf-search-ai"))
+  await s.page.waitForTimeout(300)
+  await s.page.locator(".cf-search input").fill(L26.find)
+  await s.page.locator(".cf-search input").press("Enter")
+  await s.page.locator(".cf-find-why").first().waitFor({ timeout: 15000 })
+  await s.page.waitForTimeout(700)
+}
+
+// Remind me with your own words (2.6): a line selected, the bell, the window with the quote and a note typed.
+async function remindNote(s) {
+  await fresh(s)
+  if (s.d.touch) await touchSelect(s, 4)
+  else {
+    // As selAsk: the quote dragged over from corner to corner.
+    await s.page.evaluate(() => { document.querySelector("blockquote").scrollIntoView({ block: "start" }); window.scrollBy(0, -260) })
+    const box = await s.page.locator("blockquote").boundingBox()
+    await s.page.mouse.move(box.x + 4, box.y + 6); await s.page.mouse.down()
+    await s.page.mouse.move(box.x + box.width - 6, box.y + box.height - 10, { steps: 10 }); await s.page.mouse.up()
+    await s.page.locator(".cf-bubble").waitFor()
+    await s.page.waitForTimeout(300)
+  }
+  await press(s, s.page.locator(".cf-sel-remind").first())
+  const words = s.page.locator(".cf-sheet .cf-note-words")
+  await words.waitFor()
+  await words.fill(L26.remindNote)
+  await words.evaluate((el) => { el.dispatchEvent(new Event("input", { bubbles: true })); el.blur() })
+  await s.page.waitForTimeout(600)
+}
+
+// Watch with your own words: the price selected, the eye, the window with a note typed (not started).
+async function watchNote(s) {
+  await fresh(s, { url: SHOP })
+  await s.page.evaluate(() => document.getElementById("price").scrollIntoView({ block: "center" }))
+  await s.page.waitForTimeout(300)
+  if (s.d.touch) await s.page.evaluate(() => getSelection().selectAllChildren(document.getElementById("price")))
+  else await dragSelect(s, s.page.locator("#price"))
+  const eye = s.page.locator(".cf-sel-watch").first()
+  await eye.waitFor()
+  if (s.d.touch) await tapClears(s)
+  await press(s, eye)
+  const words = s.page.locator(".cf-watch .cf-note-words")
+  await words.waitFor()
+  await words.fill(L26.watchNote)
+  await words.evaluate((el) => { el.dispatchEvent(new Event("input", { bubbles: true })); el.blur() })
+  await s.page.waitForTimeout(600)
+}
+
+// A page in another language summarized in yours.
+async function foreign(s) {
+  await fresh(s, { url: FOREIGN }); await open(s); await chip(s, L.summarize); await waitAnswer(s)
+}
+
+
+// A quick action from the selection's chips (Translate on a page in another language, Explain simply), answered.
+async function selAction(s, url, key) {
+  await selChips(s, url, 2)
+  const c = s.page.locator(".cf-bubble .cf-sel-chip", { hasText: msg(key) }).first()
+  await c.evaluate((el) => { const f = el.closest(".cf-ask-field"); f.scrollLeft = Math.max(0, el.offsetLeft - 24) })
+  await s.page.waitForTimeout(300)
+  if (s.d.touch) await tapClears(s)
+  await press(s, c)
+  await s.page.locator(".cf-panel.in").waitFor()
+  await waitAnswer(s)
 }
 
 const ONLY = process.env.ONLY?.split(",")
@@ -641,6 +906,39 @@ for (const name of ["iphone", "ipad", "mac"]) {
   if (!want(name)) continue
   const s = await session(name)
   const k = name
+  // 2.6: the version's new shots and the custom pages' (Ultra stand, SIMILAR_STUB=store).
+  if (process.env.SET === "v26") {
+    const v26 = [
+      ["summary", async () => { await fresh(s); await open(s); await chip(s, L.summarize); await waitAnswer(s) }, [".cf-panel"]],
+      ["similar", () => similar(s), [".cf-panel", "all:.cf-similar-item"]],
+      ["listen", () => listen(s), [".cf-panel", ".cf-listen", ".cf-msg.ai .cf-listen-btn"]],
+      ["organize", () => organize(s), [".cf-panel", ".cf-org", ".cf-sugbar-main"]],
+      ["askchats", () => askChats(s), [".cf-panel", ".cf-msg.ai"]],
+      ["aisearch", () => aiSearch(s), [".cf-panel", "all:.cf-find-why"]],
+      ["chips", () => selChips(s), [".cf-bubble", ".cf-ask-field"]],
+      ["remindnote", () => remindNote(s), [".cf-panel", ".cf-sheet", ".cf-note-words"]],
+      ["watchnote", () => watchNote(s), [".cf-panel", ".cf-watch", ".cf-note-words"]],
+      ["foreign", () => foreign(s), [".cf-panel", ".cf-msg.ai"]],
+      ["fill", () => fill(s), [".cf-qi", ".cf-qi-fill-text", ".cf-qi-fill-row"]],
+      ["watchpage", () => watchPage(s), [".cf-fab"]],
+      ["watch", () => watch(s), [".cf-panel", ".cf-later-list", ".cf-later-text"]],
+      ["copied5done", () => copiedFive(s, k), ["@#reply"]],
+      ["google", () => google(s), [".cf-panel", ".cf-sources-title", ".cf-source-list"]],
+      ["pdf", () => pdf(s), [".cf-panel", ".cf-used", ".cf-msg.ai"]],
+      ["shopask", () => askAbout(s, SHOP, L.shopAsk), [".cf-panel", ".cf-msg.ai"]],
+      ["pins", () => pins(s), [".cf-panel", ".cf-pinbar", ".cf-msg.ai"]],
+      ["notes", () => notes(s), [".cf-panel", ".cf-bubble-note", ".cf-input"]],
+      ["translatesel", () => selAction(s, FOREIGN, "actTranslate"), [".cf-panel", ".cf-msg.ai"]],
+      ["explainsel", () => selAction(s, ARTICLE, "actExplain"), [".cf-panel", ".cf-msg.ai"]]
+    ]
+    for (const [name, run, sels] of v26) {
+      if (process.env.SCENES && !process.env.SCENES.split(",").includes(name)) continue
+      try { await run() } catch (e) { await shot(s, `${k}-${name}-fail`); console.error(name, e.message.split("\n")[0]); continue }
+      await shot(s, `${k}-${name}`); await rect(s, `${k}-${name}`, sels)
+    }
+    await s.ctx.close()
+    continue
+  }
   if (process.env.SET === "notes") {
     if (name !== "mac") await research(s, k)
     await s.ctx.close()
@@ -689,7 +987,9 @@ for (const name of ["iphone", "ipad", "mac"]) {
   if (process.env.SET === "pro25") {
     for (const [name, run, sels] of [["organize", organize, [".cf-panel", ".cf-org"]], ["video", video, [".cf-panel", ".cf-used"]],
       // Fill on the Pro stand: a free fill adds "N fills left today", and the store page names no limits.
-      ["fill", fill, [".cf-qi", ".cf-qi-fill-text", ".cf-qi-fill-row"]]]) {
+      ["fill", fill, [".cf-qi", ".cf-qi-fill-text", ".cf-qi-fill-row"]],
+      ["pdf", pdf, [".cf-panel", ".cf-used", ".cf-msg.ai"]]]) {
+      if (process.env.PRO_SCENES && !process.env.PRO_SCENES.split(",").includes(name)) continue
       try { await run(s) } catch (e) { await shot(s, `${k}-${name}-fail`); throw e }
       await shot(s, `${k}-${name}`); await rect(s, `${k}-${name}`, sels)
     }
@@ -704,7 +1004,12 @@ for (const name of ["iphone", "ipad", "mac"]) {
     ["remind", () => remind(s), [".cf-panel", ".cf-sheet"]],
     ["selask", () => selAsk(s), [".cf-bubble"]],
     ["pins", () => pins(s), [".cf-panel", ".cf-pinbar", ".cf-msg.ai"]],
-    ["notes", () => notes(s), [".cf-panel", ".cf-bubble-note", ".cf-input"]]
+    ["notes", () => notes(s), [".cf-panel", ".cf-bubble-note", ".cf-input"]],
+    // PPO (2.6)
+    ["watchpage", () => watchPage(s), [".cf-fab"]],
+    ["copied5done", () => copiedFive(s, k), ["@#reply"]],
+    ["selanswer", () => selAnswer(s), [".cf-panel", ".cf-msg.ai"]],
+    ["google", () => google(s), [".cf-panel", ".cf-sources-title", ".cf-source-list"]]
   ]
   for (const [name, run, sels] of scenes) {
     if (process.env.SCENES && !process.env.SCENES.split(",").includes(name)) continue

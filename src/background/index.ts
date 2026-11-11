@@ -1,7 +1,10 @@
+import { tipClip } from "./tipClips"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
-import { API_BASE, LINKS, PRODUCTS, TARGET, VERSION } from "../shared/config"
+import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
+import { appLink, planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
+import { LINK_OPEN_KEY, linkOpen } from "../shared/linkOpen"
 import { uiLanguage } from "../shared/i18n"
 import { keyProvider, OWN_KEY_PATTERN } from "../shared/models"
 import {
@@ -12,6 +15,7 @@ import {
   type ErrorCode,
   type FindReply,
   type Plan,
+  type PlanFacts,
   type Platform,
   type ProOffer,
   type Settings,
@@ -28,8 +32,15 @@ import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
 import { startWatch } from "./watch"
-import { organizeChat, reportOrganize } from "./organize"
+import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
+import { askSimilar, keptSimilar } from "./similar"
+import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
+import { base64 as speechBase64, clearSpeech, serveSpeak, textPartKeys, textVoicedId } from "./speak"
+import { madeTexts, withMade, withVoiced, type MadeList, type MadeText } from "../shared/voiced"
+import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
+import { t } from "../shared/i18n"
+import type { Job } from "../shared/jobs"
 
 // ---------------------------------------------------------------- identity
 
@@ -41,9 +52,12 @@ async function installId(): Promise<string> {
   return id
 }
 
+let platformKept: Platform | null = null
+
 async function platform(): Promise<Platform> {
+  if (platformKept) return platformKept
   const stored = (await chrome.storage.local.get(STORAGE.platform))[STORAGE.platform] as Platform | undefined
-  if (stored) return stored
+  if (stored) return (platformKept = stored)
   return TARGET === "chrome" ? "chrome" : "other"
 }
 
@@ -78,21 +92,175 @@ async function clientInfo() {
 
 let entitlementCache: { at: number; value: NativeEntitlement | null } | null = null
 
+// Read aloud's calls to the app's side (iCloud), one at a time (build 92): if Safari hands native calls over one by
+// one, the plan's waits behind at most one short speech call, never a queue of them.
+let speechLane: Promise<unknown> = Promise.resolve()
+function inSpeechLane<T>(job: () => Promise<T>): Promise<T> {
+  const run = speechLane.then(job, job)
+  speechLane = run.catch(() => undefined)
+  return run
+}
+
+// Build 92 (the owner: the panel showed Free and no prices after coming back from the app, until Safari restarted):
+// an answer that doesn't come, or comes late, never turns a subscriber into Free. The last good one (kept in the
+// extension's storage too, so a fresh background has it at once) stands until it expires while the app's side is
+// asked; a failure is asked again in 5 s, not cached for a minute; a re-read waits at most 1.5 s when one is in hand.
+let entitlementAsking: Promise<NativeEntitlement | null> | null = null
+
+function askEntitlement(): Promise<NativeEntitlement | null> {
+  entitlementAsking ??= (async () => {
+    // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
+    // the panel is in use, so it stops showing the setup guide.
+    const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
+    // What the app heard to its end on this device (build 94): kept with the panel's own, not with the entitlement.
+    if (value && "voiced" in value) {
+      const voiced = Array.isArray(value.voiced) ? value.voiced.filter((id): id is string => typeof id === "string") : []
+      delete value.voiced
+      void keepVoiced(voiced, false)
+    }
+    if (value) {
+      entitlementCache = { at: Date.now(), value }
+      void keepEntitlement(value)
+      void keepPrices(value.prices)
+      return value
+    }
+    const kept = entitlementCache?.value?.active ? entitlementCache.value : await lastEntitlement()
+    entitlementCache = { at: kept ? Date.now() - 55_000 : Date.now(), value: kept }
+    return kept
+  })().finally(() => {
+    entitlementAsking = null
+  })
+  return entitlementAsking
+}
+
 async function entitlement(force = false): Promise<NativeEntitlement | null> {
   if (TARGET !== "safari") return null
-  if (!force && entitlementCache && Date.now() - entitlementCache.at < 60_000) return entitlementCache.value
-  // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
-  // the panel is in use, so it stops showing the setup guide.
-  const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
-  entitlementCache = { at: Date.now(), value }
+  const fresh = entitlementCache && Date.now() - entitlementCache.at < (entitlementCache.value ? 60_000 : 5_000)
+  if (fresh && !force) return entitlementCache!.value
+  const asking = askEntitlement()
+  // A fresh background (Safari started, or its worker woke): the kept one now, the app's answer for the next time.
+  if (!entitlementCache) {
+    const kept = await lastEntitlement()
+    if (kept) return kept
+    return asking
+  }
+  // A re-read with one in hand: the app's answer if it comes within 1.5 s, else the one in hand.
+  const inHand = entitlementCache.value
+  if (!inHand) return asking
+  const late = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500))
+  return (await Promise.race([asking, late])) ?? inHand
+}
+
+// Kept for at most a week, and only while the subscription it saw is still running.
+const KEEP_ENTITLEMENT_MS = 7 * 86_400_000
+let keptJson = ""
+
+async function keepEntitlement(value: NativeEntitlement): Promise<void> {
+  const json = JSON.stringify(value)
+  // Written only when it changes: a write wakes every tab listening to storage.
+  if (json === keptJson) return
+  keptJson = json
+  await chrome.storage.local.set({ [STORAGE.lastEntitlement]: { value, at: Date.now() } }).catch(() => undefined)
+}
+
+// The App Store's prices, kept for the plans sheet when no answer comes (build 92); written only when they change.
+let keptPricesJson = ""
+
+async function keepPrices(prices: unknown): Promise<void> {
+  if (!prices || typeof prices !== "object" || !Object.keys(prices).length) return
+  const json = JSON.stringify(prices)
+  if (json === keptPricesJson) return
+  keptPricesJson = json
+  await chrome.storage.local.set({ [STORAGE.lastPrices]: prices }).catch(() => undefined)
+}
+
+// Build 94: the texts heard to their end on this device ("already voiced" by Listen). One writer, one change at a time;
+// written only when something new comes. The app is told of the panel's (one native message per text heard to its end).
+let voicedLane: Promise<unknown> = Promise.resolve()
+
+function keepVoiced(ids: string[], tellApp: boolean): Promise<void> {
+  const run = voicedLane.then(async () => {
+    if (!ids.length) return
+    const stored = (await chrome.storage.local.get(STORAGE.voiced).catch(() => ({} as Record<string, unknown>)))[STORAGE.voiced]
+    const list = stored && typeof stored === "object" ? stored as Record<string, number> : {}
+    // Only what's new is written, and told to the app (build 95: the server's answer can name a text marked already).
+    const fresh = ids.filter((id) => !list[id])
+    if (!fresh.length) return
+    const next = withVoiced(list, fresh)
+    // Heard in full now: no longer only made (build 98 release).
+    const made = (await chrome.storage.local.get(STORAGE.listenMade).catch(() => ({} as Record<string, unknown>)))[STORAGE.listenMade] as MadeList | undefined
+    const stillMade = made && typeof made === "object" && fresh.some((id) => made[id]) ? withMade(made, [], next) : null
+    await chrome.storage.local.set({ [STORAGE.voiced]: next, ...(stillMade ? { [STORAGE.listenMade]: stillMade } : {}) }).catch(() => undefined)
+    if (tellApp && TARGET === "safari") await callNative("voiced", { ids: fresh }, 3000)
+  })
+  voicedLane = run.catch(() => undefined)
+  return run.catch(() => undefined)
+}
+
+/** Build 98 release: texts made in full for the subscription, not all heard, with the seconds a replay would charge
+ *  (the server's count now). In the same lane as the voiced list; written only when something changed. */
+function keepMade(list: MadeText[]): Promise<void> {
+  const run = voicedLane.then(async () => {
+    if (!list.length) return
+    const got = await chrome.storage.local.get([STORAGE.voiced, STORAGE.listenMade]).catch(() => ({} as Record<string, unknown>))
+    const voiced = (got[STORAGE.voiced] && typeof got[STORAGE.voiced] === "object" ? got[STORAGE.voiced] : {}) as Record<string, number>
+    const made = (got[STORAGE.listenMade] && typeof got[STORAGE.listenMade] === "object" ? got[STORAGE.listenMade] : {}) as MadeList
+    if (list.every(({ id, left }) => voiced[id] || made[id]?.left === left)) return
+    await chrome.storage.local.set({ [STORAGE.listenMade]: withMade(made, list, voiced) }).catch(() => undefined)
+  })
+  voicedLane = run.catch(() => undefined)
+  return run.catch(() => undefined)
+}
+
+// When each text was last asked about (build 95): a chat shown again soon after asks nothing; a text heard since is told
+// of by the heard report itself.
+const voicedAsked = new Map<string, number>()
+const VOICED_ASK_MS = 10 * 60_000
+
+/** Which of these texts are voiced, as the server counts them: by their parts' keys when they're known here (the same
+ *  parts Listen would make), else by the text's id; the voiced ones go into this device's list (the app told). */
+async function askVoiced(texts: Array<{ text: string; what: "answer" | "page"; lang: string }>): Promise<void> {
+  const now = Date.now()
+  const known = (await chrome.storage.local.get(STORAGE.voiced).catch(() => ({} as Record<string, unknown>)))[STORAGE.voiced] as Record<string, number> | undefined
+  const asks: Array<{ id: string; keys: string[] }> = []
+  for (const item of texts.slice(0, 40)) {
+    if (typeof item?.text !== "string" || !item.text.trim()) continue
+    const what = item.what === "page" ? "page" : "answer"
+    const id = textVoicedId(what, item.text)
+    if (known?.[id] || now - (voicedAsked.get(id) ?? 0) < VOICED_ASK_MS || asks.some((a) => a.id === id)) continue
+    voicedAsked.set(id, now)
+    asks.push({ id, keys: await textPartKeys(item.text, what, String(item.lang ?? "").slice(0, 16)).catch(() => []) })
+  }
+  if (!asks.length) return
+  if (voicedAsked.size > 2000) for (const [id, at] of voicedAsked) if (now - at > VOICED_ASK_MS) voicedAsked.delete(id)
+  try {
+    const ent = await entitlement()
+    if (!ent?.active) return
+    const res = await fetch(`${API_BASE}/api/v2/speak-heard`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ installId: await installId(), client: await clientInfo(), entitlement: ent.jws, texts: asks })
+    })
+    if (!res.ok) return
+    const body = (await res.json().catch(() => null)) as { voiced?: unknown; made?: unknown } | null
+    const voiced = Array.isArray(body?.voiced) ? body.voiced.filter((id): id is string => typeof id === "string") : []
+    if (voiced.length) await keepVoiced(voiced, true)
+    await keepMade(madeTexts(body?.made))
+  } catch {
+    // Offline: asked again next time (after the wait).
+  }
+}
+
+async function lastEntitlement(): Promise<NativeEntitlement | null> {
+  const kept = (await chrome.storage.local.get(STORAGE.lastEntitlement).catch(() => ({} as Record<string, unknown>)))[STORAGE.lastEntitlement] as { value?: NativeEntitlement; at?: number } | undefined
+  const value = kept?.value
+  if (!value || typeof kept?.at !== "number" || Date.now() - kept.at > KEEP_ENTITLEMENT_MS) return null
+  if (value.active && value.expiresAt && Date.parse(value.expiresAt) < Date.now()) return null
   return value
 }
 
 function planFromProduct(productId: string | null | undefined): Plan {
-  if (!productId) return "free"
-  if ((PRODUCTS.pro as readonly string[]).includes(productId)) return "pro"
-  if ((PRODUCTS.byok as readonly string[]).includes(productId)) return "byok"
-  return "free"
+  return planOfProduct(productId)
 }
 
 // ------------------------------------------------------------------ status
@@ -117,7 +285,11 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
         active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt,
         autoRenew: typeof ent.autoRenew === "boolean" ? ent.autoRenew : null, period, renewalAsked: ent.renewalAsked === true,
         byokRefusedAt: refusedAt.length ? Math.min(...refusedAt) : null,
-        byokOfferShown: ent.byokOfferShown === true || (period !== null && local[STORAGE.byokOfferShown] === period)
+        byokOfferShown: ent.byokOfferShown === true || (period !== null && local[STORAGE.byokOfferShown] === period),
+        prices: ent.prices && typeof ent.prices === "object" ? ent.prices : {},
+        planChange: ent.planChange && typeof ent.planChange.to === "string" && typeof ent.planChange.at === "number"
+          ? { from: String(ent.planChange.from ?? "free"), to: ent.planChange.to, productId: String(ent.planChange.productId ?? ""), at: ent.planChange.at }
+          : null
       }
     : null
 
@@ -131,12 +303,17 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
     if (!res.ok) throw new Error(`status ${res.status}`)
     const body = (await res.json()) as {
       plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; upgradeOffer?: { discount: number } | null
-      limits?: { searchFreeDaily?: number; searchProWeekly?: number }
+      limits?: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchFreeDaily?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> }
       organize?: { on?: unknown; space?: unknown; config?: unknown }
+      ultra?: { speak?: Usage | null; similar?: Usage | null } | null
+      country?: string
     }
     value = {
-      plan: body.plan, usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
+      plan: body.plan,
+      ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
+      ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
+      plans: planFacts(body.limits),
       searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false,
       organize: body.organize && typeof body.organize.space === "string"
@@ -146,7 +323,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
   } catch {
     value = {
       plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, limitedBefore: false, offer: null,
-      upgradeOffer: null, searchLimits: SEARCH_LIMITS,
+      upgradeOffer: null, searchLimits: SEARCH_LIMITS, ultra: null, plans: planFacts(undefined),
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true, organize: null
     }
   }
@@ -181,6 +358,20 @@ async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): P
 
 // Google search allowances when the server can't be asked (free a day, Pro a week).
 const SEARCH_LIMITS = { freeDaily: 3, proWeekly: 50 }
+
+/** What the plans sheet says about each plan: the server's numbers, these when it can't be reached. */
+function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> } | undefined): PlanFacts {
+  const n = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d)
+  return {
+    freeDaily: n(limits?.freeDaily, 5),
+    proWeekly: n(limits?.proWeekly, 375),
+    ultraWeekly: n(limits?.ultraWeekly, n(limits?.proWeekly, 375)),
+    searchProWeekly: n(limits?.searchProWeekly, SEARCH_LIMITS.proWeekly),
+    speakWeeklySeconds: n(limits?.speakWeeklySeconds, ULTRA_DEFAULTS.speakWeeklySeconds),
+    similarWeekly: n(limits?.similarWeekly, ULTRA_DEFAULTS.similarWeekly),
+    watch: { ...WATCH_LIMITS, ...(limits?.watch ?? {}) }
+  }
+}
 
 /**
  * An Own key subscriber and Pro. "refused": the first refusal of the period starts the day after which Pro at a
@@ -261,34 +452,225 @@ async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, sign
 }
 
 chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === "speak") {
+    serveSpeak(port, {
+      installId,
+      client: clientInfo,
+      jws: async () => {
+        const ent = await entitlement()
+        return ent?.active ? ent.jws : null
+      },
+      // Where a text's minutes went (build 92): heard, from this device, iCloud or the server, and charged up front.
+      report: (counts) => void reportUse({ type: "useEvent", f: "listen", a: "heard", ...counts }),
+      // Voiced now, as the server counts it (build 95): kept with this device's list, the app told.
+      voiced: (ids) => void keepVoiced(ids, true),
+      // Made in full, not all heard (build 98 release): what a replay of each would charge.
+      made: (list) => void keepMade(list),
+      // The user's iCloud through the app's extension (Safari): parts and texts made on their other devices. In their own
+      // lane, one at a time and each short (build 92): the plan and the status never wait behind more than one.
+      sync: TARGET === "safari" ? {
+        getPart: (key, wait) => inSpeechLane(async () => (await callNative<{ aac?: string }>("speechGet", { key, wait: Math.min(wait, 0.8) }, 2500))?.aac ?? null),
+        putPart: async (key, pcm, cache) => {
+          // In pieces (native messages stay small), each its own turn in the lane: the extension keeps it when the last
+          // one is in and replies at once (iCloud comes after).
+          const size = 256 * 1024
+          for (let at = 0, index = 0; at < pcm.length; at += size, index++) {
+            const last = at + size >= pcm.length
+            const data = speechBase64(pcm.subarray(at, at + size))
+            await inSpeechLane(() => callNative("speechPut", { key, index, last, data, ...(last && cache ? { cache } : {}) }, 5_000))
+          }
+        },
+        getText: (key, wait) => inSpeechLane(async () => (await callNative<{ text?: string }>("speechTextGet", { key, wait: Math.min(wait, 0.8) }, 2500))?.text ?? null),
+        putText: (key, text) => inSpeechLane(async () => void (await callNative("speechTextPut", { key, text }, 5_000)))
+      } : undefined
+    })
+    return
+  }
+  if (port.name === "job") return serveJob(port)
   if (port.name !== "chat") return
-  const controller = new AbortController()
-  port.onDisconnect.addListener(() => controller.abort())
   // One question per port: Safari delivers a popup's message twice (two answers, two used from the allowance).
   let asked = false
-  let seq = 0
-  port.onMessage.addListener((message: { type: "ask"; payload: AskPayload }) => {
+  port.onMessage.addListener((message: { type: "ask"; payload: AskPayload; job?: JobSpec }) => {
     if (message?.type !== "ask" || asked) return
     asked = true
-    const emit = (event: StreamEvent) => {
-      if (event.type === "done") void countValueMoment().catch(() => undefined)
+    const run = (emit: (event: StreamEvent) => void, signal: AbortSignal) =>
+      runChat(message.payload, (event) => {
+        // A milestone in Safari (2.6 (100)): counted as due; the app asks when it next comes to the front.
+        if (event.type === "done") {
+          void countValueMoment().then((moment) => {
+            if (moment && TARGET === "safari") void reportUse({ type: "useEvent", f: "rate", a: "due", via: "ext_moment", moment })
+          }).catch(() => undefined)
+        }
+        emit(event)
+      }, signal)
+    servePort(port, message.job ? { ...message.job, kind: "chat" } : null, run as Run)
+  })
+})
+
+type Run = (emit: (event: StreamEvent | SimilarStreamEvent | { type: "kept" }) => void, signal: AbortSignal) => Promise<void>
+
+/**
+ * Answers a panel's question on its port. With a job (build 91), the question is the background's: it goes on when the
+ * panel goes, and its answer is written into the chat (jobs.ts); the panel's "stop" stops it. Without (a page still
+ * running an older panel), as before: the port closing stops it.
+ */
+function servePort(port: chrome.runtime.Port, spec: JobSpec | null, run: Run): void {
+  let seq = 0
+  let closed = false
+  const close = () => {
+    if (closed) return
+    closed = true
+    try {
+      port.disconnect()
+    } catch {
+      // already closed
+    }
+  }
+  // Numbered, so a page that gets a message twice can drop the copy.
+  const send = (event: Record<string, unknown>) => {
+    if (closed) return
+    try {
+      port.postMessage({ ...event, seq: ++seq })
+    } catch {
+      closed = true
+    }
+    if (event.type === "done" || event.type === "error") close()
+  }
+  if (spec) {
+    const unfollow = startJob(spec, run, send)
+    port.onDisconnect.addListener(() => {
+      closed = true
+      unfollow()
+    })
+    port.onMessage.addListener((message: { type?: string }) => {
+      if (message?.type === "stop") {
+        stopJob(spec.id)
+        close()
+      }
+    })
+    return
+  }
+  const controller = new AbortController()
+  port.onDisconnect.addListener(() => {
+    closed = true
+    controller.abort()
+  })
+  run((event) => send(event as unknown as Record<string, unknown>), controller.signal)
+    .catch(() => send({ type: "error", code: "STREAM" }))
+    .finally(close)
+}
+
+/** A panel coming back to a running job ("attach"): what came so far, then the rest; "gone" when none runs here. */
+function serveJob(port: chrome.runtime.Port): void {
+  let seq = 0
+  let unfollow: (() => void) | null = null
+  let id = ""
+  const send = (event: Record<string, unknown>) => {
+    try {
+      port.postMessage({ ...event, seq: ++seq })
+    } catch {
+      unfollow?.()
+    }
+    if (event.type === "done" || event.type === "error" || event.type === "gone") {
       try {
-        // Numbered, so a page that gets a message twice can drop the copy.
-        port.postMessage({ ...event, seq: ++seq })
+        port.disconnect()
       } catch {
-        controller.abort()
+        // already closed
       }
     }
-    runChat(message.payload, emit, controller.signal)
-      .catch(() => emit({ type: "error", code: "STREAM" }))
-      .finally(() => {
-        try {
-          port.disconnect()
-        } catch {
-          // already closed
-        }
+  }
+  port.onDisconnect.addListener(() => unfollow?.())
+  port.onMessage.addListener((message: { type?: string; id?: string }) => {
+    if (message?.type === "attach" && typeof message.id === "string" && !unfollow && !id) {
+      id = message.id
+      // After a restart, a Find similar waiting on our server is followed again first (build 94).
+      void jobsReady().catch(() => undefined).then(() => {
+        unfollow = follow(id, send)
+        if (!unfollow) send({ type: "gone" })
       })
+    } else if (message?.type === "stop" && id) stopJob(id)
   })
+}
+
+// ------------------------------------------------------------ find similar
+
+// "Find similar" (2.6, Ultra): one request per port, like a question; the server checks the plan.
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== "similar") return
+  let asked = false
+  port.onMessage.addListener((message: { type: "similar"; payload: SimilarPayload; job?: JobSpec }) => {
+    if (message?.type !== "similar" || asked) return
+    asked = true
+    const run = async (emit: (event: SimilarStreamEvent | { type: "kept" }) => void, signal: AbortSignal) => {
+      if (!(await consented())) return emit({ type: "error", code: "CONSENT" })
+      const [id, ent, client] = await Promise.all([installId(), entitlement(), clientInfo()])
+      // Build 94: as a job of our server's too (the question's id), so it carries on if Safari suspends this background.
+      await askSimilar({ installId: id, client, entitlement: ent?.active ? ent.jws : null, payload: message.payload, ...(message.job ? { job: message.job.id } : {}) }, emit, signal)
+    }
+    servePort(port, message.job ? { ...message.job, kind: "similar", asked: message.payload.condition ?? "", open: message.payload.page?.url ?? "" } : null, run as Run)
+  })
+})
+
+// ------------------------------------------------- Find similar after leaving Safari (build 94)
+// The owner: «Поиск прерывается, если выходишь из Safari, а надо, чтобы шел и приходила нотификация от приложения,
+// когда найдено, с переходом прямо к вариантам». Our server finishes the search on its own and keeps the answer;
+// this background picks it up when it runs again (jobs.ts). When the person leaves Safari mid-search, the app's
+// extension starts a download of that answer which iOS carries on with Safari suspended, and wakes the ContextFlow app
+// with it: the app says "found" in a notification, whose tap opens the page with the chat (SimilarAway.swift). Back in
+// Safari first, the download is called off: no notification for someone who stayed.
+
+setPoller({
+  result: async (id, wait, signal) => keptSimilar(await installId(), id, wait, signal),
+  take: async (id) => {
+    await keptSimilar(await installId(), id, 0, AbortSignal.timeout(10_000), true)
+  }
+})
+
+// The Find similar jobs the app watches (a download started for them), and whether Safari is left now.
+const watched = new Set<string>()
+let leftSafari = false
+
+/** The notification's words, in the person's language: what was asked, and how it ended. */
+function notifyTexts(job: Job): Record<string, string> {
+  const asked = (job.asked ?? "").trim()
+  const lead = asked ? `${asked.slice(0, 80)} — ` : ""
+  return {
+    title: t("similarNotifyTitle"),
+    found: `${lead}${t("similarNotifyFound", "%d")}`,
+    none: `${lead}${t("similarNotifyNone")}`,
+    failed: `${lead}${t("similarNotifyFailed")}`
+  }
+}
+
+/** A page went away: the app watches each Find similar still at work (iPhone and iPad; on a Mac nothing is suspended). */
+async function similarAway(): Promise<void> {
+  if (TARGET !== "safari") return
+  leftSafari = true
+  const jobs = activeLive().filter((j) => j.kind === "similar" && !watched.has(j.id))
+  if (!jobs.length) return
+  const install = await installId()
+  for (const job of jobs) {
+    watched.add(job.id)
+    void callNative("similarAway", { job: job.id, thread: job.thread, install, base: API_BASE, open: job.open ?? "", at: job.at, ...notifyTexts(job) }, 3000)
+  }
+}
+
+/** A page shows again: the app's downloads are called off; the chat a "found" notification asked to open, if any. */
+async function similarBack(): Promise<string | null> {
+  if (TARGET !== "safari") return null
+  leftSafari = false
+  const jobs = [...watched]
+  watched.clear()
+  const r = await callNative<{ open?: string }>("similarBack", { jobs }, 3000)
+  return typeof r?.open === "string" && r.open ? r.open : null
+}
+
+// A watched job ended here, Safari still left (its background ran on a while): the notification goes now, and the
+// app's download is called off. Stopped by the person: only called off.
+onJobEnd((job, items) => {
+  if (TARGET !== "safari" || job.kind !== "similar" || !watched.delete(job.id)) return
+  const outcome = job.code === "STOPPED" ? "" : job.state === "done" ? (items ? "found" : "none") : "failed"
+  void callNative("similarEnded", { job: job.id, thread: job.thread, open: job.open ?? "", notify: leftSafari && outcome !== "", outcome, items, ...notifyTexts(job) }, 3000)
 })
 
 // --------------------------------------------------------------- AI search
@@ -317,17 +699,46 @@ async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
 
 // --------------------------------------------------------------- open app
 
-async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize"): Promise<{ opened: boolean; url: string }> {
+/** The App Store's "Write a Review" on a Mac (2.6 (100)): the Mac App Store, opened by the extension's app side (a web
+ *  page would open in Safari). When it can't: the App Store's page in a tab. */
+async function rateApp(): Promise<void> {
+  const opened = TARGET === "safari" ? (await callNative<{ opened?: boolean }>("openApp", { url: LINKS.reviewMac }))?.opened : false
+  if (!opened) await chrome.tabs.create({ url: LINKS.review })
+}
+
+async function openApp(
+  target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period
+): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
-  const url = target === "subscribe" ? `contextflow://subscribe?plan=pro${feature ? `&feature=${feature}` : ""}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
+  // 2.6: the plan and period chosen in the panel's plans sheet open preselected in the app.
+  const url = appLink(target, feature, plan, period)
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
   statusCache = null
   return { opened: Boolean(result?.opened), url }
+}
+
+/**
+ * Read aloud on iPhone and iPad (2.6): WebKit stops a page's audio when the screen locks, so the app plays it (with
+ * the lock screen's controls). The parts go to the app through the App Group; the page then follows the link.
+ */
+async function listenInApp(message: Extract<BackgroundRequest, { type: "listenInApp" }>): Promise<{ url: string | null }> {
+  if (TARGET !== "safari") return { url: null }
+  const reply = await callNative<{ id?: string }>("listen", {
+    id: /^[0-9a-f-]{8,64}$/i.test(message.id) ? message.id : "",
+    parts: message.parts.slice(0, 80),
+    text: message.text.slice(0, 24_000),
+    script: message.script === true,
+    lang: message.lang.slice(0, 16),
+    what: message.what,
+    title: message.title.slice(0, 200),
+    url: /^https?:\/\//.test(message.url) ? message.url.slice(0, 2000) : ""
+  })
+  return { url: reply?.id ? `contextflow://listen?id=${encodeURIComponent(reply.id)}` : null }
 }
 
 // ---------------------------------------------------------------- reminders (2.5)
@@ -368,7 +779,14 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders, watches: message.watches, s: "panel" })
+    body: JSON.stringify({
+      kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders,
+      watches: message.watches, plan: message.plan, period: message.period,
+      heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s,
+      cur: message.cur, sf: message.sf,
+      // Listen's "unvoiced" (build 95): why it wasn't marked, and how far from the end (build 98: they never left the panel).
+      why: message.why, gap_s: message.gap_s, moment: message.moment, s: "panel"
+    })
   }).catch(() => undefined)
 }
 
@@ -376,15 +794,93 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
   switch (message?.type) {
+    case "tipClip":
+      void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
+      return true
+    case "liveJobs":
+      // After a restart, the Find similar searches waiting on our server count once they're followed again (build 94).
+      void jobsReady().catch(() => undefined).then(() => sendResponse({ ids: liveJobIds() }))
+      return true
+    case "similarAway":
+      void similarAway().catch(() => undefined)
+      sendResponse(true)
+      return false
+    case "similarBack":
+      similarBack().then((open) => sendResponse({ open }), () => sendResponse({ open: null }))
+      return true
+    case "jobsSeen":
+      void markSeen(message.thread).then(() => sendResponse(true), () => sendResponse(false))
+      return true
     case "status":
       // The panel just opened: pick up settings changed in the ContextFlow app (never delays the status).
       void syncSettings().catch(() => undefined)
-      ;(message.platform ? chrome.storage.local.set({ [STORAGE.platform]: message.platform }) : Promise.resolve())
+      // The platform only when it changes (build 92: written on every status, it woke every tab's storage listeners).
+      ;(message.platform && message.platform !== platformKept ? chrome.storage.local.set({ [STORAGE.platform]: (platformKept = message.platform) }) : Promise.resolve())
         .then(() => status(Boolean(message.refresh), Boolean(message.fresh)))
         .then(sendResponse, () => sendResponse(null))
       return true
     case "openApp":
-      openApp(message.target, message.feature).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      openApp(message.target, message.feature, message.plan, message.period).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      return true
+    case "listenInApp":
+      listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
+      return true
+    case "notifStatus":
+      if (TARGET !== "safari") {
+        sendResponse({ status: "none" })
+        return false
+      }
+      callNative<{ status?: string; later?: number }>("notifStatus", {}, 3000).then((r) => sendResponse({ status: r?.status ?? "unknown", ...(typeof r?.later === "number" && r.later > Date.now() ? { later: r.later } : {}) }), () => sendResponse({ status: "unknown" }))
+      return true
+    case "listenHandoff": {
+      if (TARGET !== "safari" || !/^[0-9a-f-]{8,64}$/i.test(message.id)) {
+        sendResponse({ ok: false })
+        return false
+      }
+      const command = { state: "listenState", away: "listenAway", back: "listenBack", stop: "listenStop" }[message.op]
+      callNative<{ taken?: boolean }>(command, {
+        id: message.id,
+        at: typeof message.at === "number" ? Math.max(0, message.at) : 0,
+        ...(message.starts ? { starts: message.starts.slice(0, 80) } : {}),
+        ...(message.parts ? { parts: message.parts.slice(0, 80).map((p) => p.slice(0, 4000)), complete: message.complete === true } : {}),
+        ...(typeof message.speed === "number" ? { speed: message.speed } : {}),
+        ...(message.title ? { title: message.title.slice(0, 200) } : {}),
+        ...(message.body ? { body: message.body.slice(0, 200) } : {}),
+        ...(message.skipped ? { skipped: true } : {})
+      }, 4000).then((r) => sendResponse({ ok: r !== null, taken: r?.taken === true }), () => sendResponse({ ok: false }))
+      return true
+    }
+    case "listenReturn":
+      if (TARGET !== "safari" || !/^[0-9a-f-]{8,64}$/i.test(message.id)) {
+        sendResponse({ back: false })
+        return false
+      }
+      callNative<{ back?: boolean; play?: boolean; taken?: boolean }>("listenReturn", { id: message.id }, 3000)
+        .then((r) => sendResponse({ back: r?.back === true, play: r?.play === true, taken: r?.taken === true }), () => sendResponse({ back: false }))
+      return true
+    case "voicedAsk":
+      // Build 95: a chat's answers, asked about once in a while each (the server keeps a voiced text for good).
+      if (TARGET !== "safari" || !Array.isArray(message.texts)) {
+        sendResponse({ ok: false })
+        return false
+      }
+      void askVoiced(message.texts)
+      sendResponse({ ok: true })
+      return false
+    case "listenVoiced":
+      if (!/^[0-9a-f]{16}$/.test(message.id)) {
+        sendResponse({ ok: false })
+        return false
+      }
+      void keepVoiced([message.id], true)
+      sendResponse({ ok: true })
+      return false
+    case "speechClear":
+      // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
+      // The list of texts heard to their end goes with it (build 94; the app's side clears its copy on speechClear).
+      if (TARGET === "safari") void callNative("speechClear", {}, 15_000)
+      voicedLane = voicedLane.then(() => chrome.storage.local.remove([STORAGE.voiced, STORAGE.listenMade])).catch(() => undefined)
+      clearSpeech().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "mediaNotice":
       void reportMediaNotice(message.action, message.media)
@@ -410,8 +906,11 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       if (/^https:\/\//.test(message.url)) chrome.tabs.create({ url: message.url })
       sendResponse({ ok: true })
       return false
+    case "rateApp":
+      rateApp().finally(() => sendResponse({ ok: true }))
+      return true
     case "openPage":
-      openPage(message.url).finally(() => sendResponse({ ok: true }))
+      openPage(message.url, message.chat, message.at).finally(() => sendResponse({ ok: true }))
       return true
     case "find":
       findChats(message.query, message.chats).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
@@ -420,6 +919,16 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       // Suggestions send text to the AI: only with the one consent too (it lists them), not the switch alone.
       Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
         .then(([now, id, ent, client, prefs, agreed]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "organizeName":
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => nameChatNow(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "organizeCounts":
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => organizeCounts({ status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "organizeEvent":
@@ -448,8 +957,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         sendResponse({ changed: false })
         return false
       }
-      // The app's changes and its "continue this chat" first, then iCloud.
-      mirrorThreads(true)
+      // The app's changes and its "continue this chat" first (not while the panel stays open), then iCloud.
+      mirrorThreads(!message.quiet)
         .catch(() => null)
         .then(async (open) => ({ open, changed: await syncThreads().catch(() => false) }))
         .then(({ open, changed }) => sendResponse({ changed: changed || Boolean(open), open }), () => sendResponse({ changed: false }))
@@ -462,18 +971,25 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
 // ------------------------------------------------------- toolbar / shortcut
 
 /** A page of a chat: switches to its tab when it's open (this window first), else opens it in a new tab. */
-async function openPage(url: string): Promise<void> {
+/**
+ * Opens a chat's page: the tab that shows it, else a new one. 2.6 (98): with the chat (and message) the link was in, the
+ * page opens with the panel there: a tab that shows it is told at once; a new one takes the note (src/shared/linkOpen.ts).
+ */
+async function openPage(url: string, chat?: string, at?: string): Promise<void> {
   if (!/^https?:\/\//.test(url)) return
   const key = urlKey(url)
   const tabs = await chrome.tabs.query({}).catch(() => [] as chrome.tabs.Tab[])
   const open = tabs.filter((t) => t.id !== undefined && t.url && urlKey(t.url) === key)
   const tab = open.find((t) => t.active && t.lastAccessed !== undefined) ?? open.find((t) => t.active) ?? open[0]
   if (!tab?.id) {
+    const note = chat ? linkOpen(url, chat, at, Date.now()) : null
+    if (note) await chrome.storage.local.set({ [LINK_OPEN_KEY]: note }).catch(() => undefined)
     await chrome.tabs.create({ url })
     return
   }
   await chrome.tabs.update(tab.id, { active: true })
   if (tab.windowId !== undefined) await chrome.windows?.update(tab.windowId, { focused: true }).catch(() => undefined)
+  if (chat) await withTimeout(chrome.tabs.sendMessage(tab.id, { type: "openChat", chat, ...(at ? { at } : {}) }), 1500).catch(() => undefined)
 }
 
 /** `work`, or a rejection after `ms` (Safari never answers a message sent to a tab showing a PDF). */
@@ -552,6 +1068,8 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 watchSettings()
 void syncSettings().catch(() => undefined)
+// Questions a previous background was answering were lost with it: their chats say "interrupted" (build 91).
+void jobsOnStart().catch(() => undefined)
 // Offline at install time: try again whenever the background starts.
 void reportSwitchedOn().catch(() => undefined)
 // Chats follow the user to their other Apple devices through iCloud, and to the ContextFlow app.
@@ -575,8 +1093,8 @@ startWatch({
   installId,
   clientInfo,
   consented,
-  paid: async () => {
+  plan: async () => {
     const ent = await entitlement()
-    return Boolean(ent?.active) && planFromProduct(ent?.productId) !== "free"
+    return ent?.active ? planFromProduct(ent.productId) : "free"
   }
 })

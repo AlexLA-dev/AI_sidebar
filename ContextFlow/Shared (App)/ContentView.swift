@@ -16,7 +16,12 @@ enum Links {
     static let privacy = URL(string: "https://context-flow.app/privacy")!
     static let terms = URL(string: "https://context-flow.app/terms")!
     static let support = URL(string: "https://context-flow.app/support")!
+    /// The App Store's "Write a Review" (on a Mac, in the Mac App Store; a web page would open in the browser).
+    #if os(iOS)
     static let review = URL(string: "https://apps.apple.com/app/id6759115793?action=write-review")!
+    #else
+    static let review = URL(string: "macappstore://apps.apple.com/app/id6759115793?action=write-review")!
+    #endif
     static let manageSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
     // ContextFlow on X and Threads (the names aren't translated). Opens their app when it's installed.
     static let x = URL(string: "https://x.com/ContextFlowApp")!
@@ -38,12 +43,15 @@ final class DeepLinkRouter: ObservableObject {
 
     func handle(_ url: URL) {
         guard url.scheme == "contextflow" else { return }
+        // Opened to do something (buy, listen, the notifications question): no rating asked over it (2.6 (100)).
+        if ["subscribe", "manage", "listen", "notifications"].contains(url.host ?? "") { ReviewAsk.shared.taskLink() }
         pending = url
     }
 }
 
 enum AppTab: Hashable {
-    case home, chats, templates, tips, pro, settings
+    // whatsNew (2.6 (98)): hidden until it opens by itself after an update or from the "is here" notification.
+    case home, chats, templates, tips, pro, settings, whatsNew
 }
 
 // MARK: - Root
@@ -65,50 +73,141 @@ struct ContentView: View {
     /// Chats in Recently Deleted count: the Chats screen is the way to them (2.5 (83)).
     private var hasChats: Bool { !chats.threads.isEmpty || !chats.trashed.isEmpty }
 
-    /// With Pro there is no Pro tab: the plan is at the bottom of Settings. A purchase made on the Pro
-    /// tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
-    private var showsPro: Bool { !store.isPro || tab == .pro }
-
-    /// The extension counted enough good answers since the last time: ask for an App Store rating
-    /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch. On
-    /// launch and whenever the app comes back from Safari. `-CFDebugReview YES`: every time (Debug).
-    private func askForReviewIfDue() {
-        #if DEBUG
-        if UserDefaults.standard.bool(forKey: "CFDebugReview") {
-            requestReview()
-            return
-        }
-        #endif
-        guard let moment = SharedDefaults.shared.pendingReviewMoment() else { return }
-        SharedDefaults.shared.markReviewAsked(moment)
-        Task {
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            requestReview()
-        }
-    }
+    /// With Ultra there is no Pro tab: the plan is at the bottom of Settings (2.6: Pro subscribers keep it, as
+    /// "Ultra"). A purchase made on the tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
+    private var showsPro: Bool { !store.isUltra || tab == .pro }
+    /// The tab's name: Ultra for Pro subscribers (what's left to get), else Pro.
+    private var proTabName: LocalizedStringKey { store.isPro && !store.isUltra ? "Ultra" : "Pro" }
+    /// Read aloud handed over by the Safari panel (contextflow://listen?id=…).
+    /// The player itself isn't observed here (build 92): its clock changes four times a second while it plays, and the
+    /// whole app behind the sheet was laid out again each time (the chat jumped behind the player on iPad, and it cost
+    /// energy). Only whether its sheet is up is.
+    private let listen = ListenPlayer.shared
+    @StateObject private var listenShown = ListenShown()
 
     /// What's new in 2.5 (organizing): once, to those who already have chats.
     @State private var whatsNew = false
+    /// The "What's new" tab (2.6 (98), WhatsNew.swift): shown when it opens, in Tips' place on iPhone and iPad, until
+    /// another tab is chosen.
+    @State private var whatsNewShown = false
+
+    private func openWhatsNew() {
+        whatsNewShown = true
+        tab = .whatsNew
+    }
+
+    /// After an update, the tab opens once by itself; the 2.5 sheet then never shows (its feature has a card in Tips).
+    private func openWhatsNewAfterUpdate() {
+        let existing = hasChats || UserDefaults.standard.object(forKey: "cf_whatsnew_organize") != nil
+        guard WhatsNew.dueAfterUpdate(existingUser: existing) else { return }
+        UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
+        openWhatsNew()
+    }
 
     private func showWhatsNewIfDue() {
+        #if DEBUG
+        // Screenshots of the sheet without chats: -CFDebugWhatsNew YES.
+        if UserDefaults.standard.bool(forKey: "CFDebugWhatsNew") {
+            whatsNew = true
+            return
+        }
+        #endif
         guard hasChats, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
         whatsNew = true
     }
 
+    /// What a plan adds, after a purchase or an upgrade (2.6, build 89).
+    @StateObject private var tour = PlanTour.shared
+    #if os(iOS)
+    /// Notifications, asked with a reason (2.6): after the other sheets and the plan tour.
+    @StateObject private var notify = NotifyAsk.shared
+    #endif
+
+    /// The plan tour waits while another sheet is up (Listen handed over from Safari, What's new, the setup guide),
+    /// then comes back at the step it was on.
+    private var otherSheet: Bool {
+        #if os(iOS)
+        if notify.ask != nil { return true }
+        #endif
+        return listenShown.visible || whatsNew || showingSetup
+    }
+
+    #if os(iOS)
+    private var notifyAsk: Binding<NotifyAsk.Ask?> {
+        Binding(get: { listenShown.visible || whatsNew || showingSetup || tour.run != nil ? nil : notify.ask },
+                set: { if $0 == nil, notify.ask != nil { notify.notNow() } })
+    }
+    #endif
+
+    private var tourRun: Binding<PlanTour.Run?> {
+        Binding(get: { otherSheet ? nil : tour.run }, set: { if $0 == nil, !otherSheet { closeTour() } })
+    }
+
+    private func closeTour() {
+        guard tour.close() else { return }
+        // It stood in for "You're all set" after a purchase: the rating is asked as that alert did.
+        ReviewAsk.shared.ask(.tour, after: 1)
+    }
+
+    /// Apple's rating request, a moment after a good one (ReviewAsk), unless something is being done on screen: the
+    /// plan's tour, the notifications question, the setup guide, the 2.5 What's new sheet, Listen's player (unless a
+    /// text was just heard to its end in it). Safari's moment then waits for the next time the app comes to the front.
+    private func askForReview(_ request: ReviewAsk.Request) {
+        var busy = tour.run != nil || showingSetup || whatsNew || (listenShown.visible && request.via != .listen)
+        #if os(iOS)
+        if notify.ask != nil { busy = true }
+        #endif
+        if ReviewAsk.shared.take(request, busy: busy) { requestReview() }
+    }
+
     var body: some View {
         root
             .tint(brandBlue)
+            .sheet(isPresented: Binding(get: { listenShown.visible }, set: { if !$0 { listen.dismiss() } })) {
+                ListenView(player: listen, openPlans: {
+                    listen.dismiss()
+                    Paywall.shared.focus = .ultra
+                    tab = .pro
+                })
+            }
             .sheet(isPresented: $whatsNew) {
                 OrganizeWhatsNew(pro: store.isPro, openPro: { whatsNew = false; tab = .pro }, close: { whatsNew = false })
             }
+            .sheet(item: tourRun) { run in
+                PlanTourView(tour: tour, run: run, hasChats: hasChats, open: { place in
+                    closeTour()
+                    tab = place
+                }, close: closeTour)
+            }
+            #if os(iOS)
+            .sheet(item: notifyAsk) { ask in
+                NotifyAskView(model: notify, ask: ask)
+            }
+            #endif
             .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
+                // 2.6: the panel's plans sheet names the plan and period; the plans screen opens on it. Build 94: also for
+                // a subscriber choosing another period or a lower plan (they went to Settings, with nothing to buy);
+                // only the plan they already have goes to Settings.
+                case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil):
+                    Paywall.shared.open(url)
+                    tab = .pro
                 case "subscribe", "manage":
                     tab = store.isPro ? .settings : .pro
                     showPlan = store.isPro
+                case "listen":
+                    listen.open(url)
+                #if os(iOS)
+                // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
+                case "notifications":
+                    let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "listen" }?.value?.lowercased()
+                    Task { await NotifyAsk.shared.show(.listen, listen: id) }
+                #endif
                 case "tips": tab = .tips
+                // 2.6 (98): the "is here" notification, or a link to it.
+                case "whatsnew": openWhatsNew()
                 case "chats": tab = hasChats ? .chats : .home
                 // A reminder on a message (2.5): Chats opens at it.
                 case "chat":
@@ -121,15 +220,50 @@ struct ContentView: View {
             }
             .task {
                 SharedDefaults.shared.removeLegacyData()
+                listen.debugStartIfAsked()
+                // Read aloud kept in iCloud (2.6): what's older than 7 days goes (at most once a day, from any device).
+                // And the parts the panel made that are still waiting to go up (build 92: the extension no longer waits on it).
+                Task.detached(priority: .background) {
+                    await SpeechSync.sweep()
+                    await SpeechSync.uploadPending()
+                    // What was heard and not counted yet (the app closed offline): to the server now.
+                    await ListenPlayer.sendHeard()
+                }
                 chats.refresh()
+                openWhatsNewAfterUpdate()
                 showWhatsNewIfDue()
+                // The App Store's version (2.6 (98)): at most every 12 hours; on iPhone and iPad also in the background.
+                Task.detached(priority: .background) { await WhatsNew.check() }
+                #if os(iOS)
+                WhatsNew.schedule()
+                #endif
+                tour.debugStartIfAsked()
                 await store.refreshEntitlement()
-                askForReviewIfDue()
+                ReviewAsk.shared.cameToFront()
                 await activation.launched()
             }
             .onChange(of: scenePhase) { phase in
-                if phase == .active { askForReviewIfDue() }
+                if phase == .active {
+                    ReviewAsk.shared.cameToFront()
+                    Task.detached(priority: .background) { await WhatsNew.check() }
+                    // What the panel heard to its end meanwhile (build 94): Listen's "already voiced" mark.
+                    VoicedList.shared.reload()
+                    // Back from Settings or Safari: whether ContextFlow is on now (2.6), and the guide over Settings goes.
+                    Task { await activation.refresh() }
+                    #if os(iOS)
+                    SettingsPiP.shared.stop()
+                    #endif
+                }
             }
+            // What's new hides again once another tab is chosen (Tips is back in its place). Left after an update: a good
+            // moment for a rating (2.6 (100)).
+            .onChange(of: tab) { next in
+                if next != .whatsNew {
+                    if whatsNewShown { ReviewAsk.shared.ask(.whatsNew) }
+                    whatsNewShown = false
+                }
+            }
+            .onReceive(ReviewAsk.shared.requests) { askForReview($0) }
             // The first chat arrived (or the last one went): show the right first tab.
             .onChange(of: hasChats) { has in
                 if has, tab == .home { tab = .chats }
@@ -144,11 +278,13 @@ struct ContentView: View {
         TabView(selection: $tab) {
             if hasChats {
                 settingsTab
-                tipsTab
+                // What's new stands in Tips' place while it shows: an iPhone shows five tabs, a sixth would put Chats
+                // under More.
+                if whatsNewShown { whatsNewTab } else { tipsTab }
                 if showsPro { proTab }
                 templatesTab
                 // A stack: chats open by value, so a chat's screen stays when its row moves (see ChatRoute).
-                NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
+                NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }, openTab: { tab = $0 }) }
                     .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
                     .tag(AppTab.chats)
             } else {
@@ -157,11 +293,13 @@ struct ContentView: View {
                     .tabItem { Label("Get Started", systemImage: "sparkles") }
                     .tag(AppTab.home)
                 templatesTab
-                tipsTab
+                if whatsNewShown { whatsNewTab } else { tipsTab }
                 if showsPro { proTab }
                 settingsTab
             }
         }
+        // Build 93: the player's bar while a text plays on with its sheet closed.
+        .modifier(ListenMiniPlacement(shown: listenShown.mini, player: listen))
         .sheet(isPresented: $showingSetup) {
             NavigationView {
                 HomeView(store: store, activation: activation, openPro: { showingSetup = false; tab = .pro }, openTips: { showingSetup = false; tab = .tips })
@@ -176,7 +314,7 @@ struct ContentView: View {
                 await store.refreshEntitlement()
                 await activation.launched()
             }
-            askForReviewIfDue()
+            ReviewAsk.shared.cameToFront()
         }
         #else
         NavigationSplitView {
@@ -188,19 +326,32 @@ struct ContentView: View {
                 }
                 Label("Templates", systemImage: "text.badge.plus").tag(AppTab.templates)
                 Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
-                if showsPro { Label("Pro", systemImage: "crown").tag(AppTab.pro) }
+                if whatsNewShown { Label("What's new", systemImage: "sparkles.rectangle.stack").tag(AppTab.whatsNew) }
+                if showsPro { Label(proTabName, systemImage: "crown").tag(AppTab.pro) }
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 190)
         } detail: {
             switch tab {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
-            case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
+            case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }, openTab: { tab = $0 }) }
             case .templates: NavigationStack { TemplatesView() }
             case .tips: TipsView(openPro: { tab = .pro })
+            case .whatsNew: NavigationStack { WhatsNewView() }
             case .pro: ProView(store: store)
             case .settings: SettingsView(showPlan: $showPlan)
             }
+        }
+        .modifier(ListenMiniPlacement(shown: listenShown.mini, player: listen))
+        // Build 94: the setup guide from the Chats screen's "…" (Other… → How to turn on ContextFlow).
+        .sheet(isPresented: $showingSetup) {
+            NavigationStack {
+                HomeView(store: store, activation: activation, openPro: { showingSetup = false; tab = .pro }, openTips: { showingSetup = false; tab = .tips })
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) { Button("Done") { showingSetup = false } }
+                    }
+            }
+            .frame(minWidth: 560, minHeight: 600)
         }
         .frame(minWidth: 720, minHeight: 560)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
@@ -209,12 +360,18 @@ struct ContentView: View {
                 await store.refreshEntitlement()
                 await activation.launched()
             }
-            askForReviewIfDue()
+            ReviewAsk.shared.cameToFront()
         }
         #endif
     }
 
     #if os(iOS)
+    private var whatsNewTab: some View {
+        NavigationStack { WhatsNewView() }
+            .tabItem { Label("What's new", systemImage: "sparkles.rectangle.stack") }
+            .tag(AppTab.whatsNew)
+    }
+
     private var tipsTab: some View {
         NavigationView { TipsView(openPro: { tab = .pro }) }
             .navigationViewStyle(.stack)
@@ -232,7 +389,7 @@ struct ContentView: View {
     private var proTab: some View {
         NavigationView { ProView(store: store) }
             .navigationViewStyle(.stack)
-            .tabItem { Label("Pro", systemImage: "crown") }
+            .tabItem { Label(proTabName, systemImage: "crown") }
             .tag(AppTab.pro)
     }
 
@@ -472,12 +629,14 @@ struct Tip {
     let color: Color
     let title: LocalizedStringKey
     let text: LocalizedStringKey
-    // A short recording of the extension doing it (TipClips/<en|ru>/<clip>.mp4).
+    // A short recording of the extension doing it (TipClips/<language>/<clip>.mp4, TipClip.language).
     var clip: String? = nil
     // Organizing (2.5): Turn on or Try Pro under it.
     var organize = false
     // Needs Pro: the Pro badge by the title.
     var pro = false
+    // Needs Ultra (2.6): the Ultra badge by the title.
+    var ultra = false
 }
 
 struct TipGroup {
@@ -529,14 +688,65 @@ struct TipGroup {
     }
 
     // Reminders and watching are two lists (2.5): the bell is about time, the eye about a change on the page.
-    private static var remindTip: Tip {
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var remindTip: Tip {
         Tip(symbol: "bell", color: .orange, title: "Remind me about this page",
             text: "Reading something you want to finish later? Select a line and tap the bell, or tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.", clip: "later")
     }
 
-    private static var watchTip: Tip {
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var watchTip: Tip {
         Tip(symbol: "eye", color: .green, title: "Know when a price drops",
             text: "Select a price, a stock status or a date on a page and tap the eye. For the whole page, choose Watch this page… in the … menu at the top of the panel. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.", clip: "watch")
+    }
+
+    // Quick actions in the selection's field (2.6). Since 92 a Mac's pop-up has the same field and chips, scrolled with the
+    // trackpad or the wheel; no clip there (the clip is touch).
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var chipsTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "hand.point.up.left", color: .indigo, title: "Quick actions under a selection",
+            text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Swipe along them and tap one, no typing needed.", clip: "chips")
+        #else
+        Tip(symbol: "cursorarrow.click", color: .indigo, title: "Quick actions under a selection",
+            text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Scroll along them with the trackpad or the mouse wheel and click one, no typing needed.")
+        #endif
+    }
+
+    // Find similar (2.6, Ultra): from the panel's actions or its … menu, or from a selection (a chip in its field, on a
+    // Mac too since 92). The clip is touch, so a Mac has none.
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var similarTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
+            text: "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", clip: "similar", ultra: true)
+        #else
+        Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
+            text: "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", ultra: true)
+        #endif
+    }
+
+    // Listen (2.6, Ultra): on iPhone and iPad the app plays it (it goes on with the screen locked), on a Mac the panel
+    // does. The clip is the panel's player (build 98, the owner on 98: «Почему в What's new нет видео про Listen?
+    // Должно быть»): with notifications on, iPhone and iPad play it there too, and the app carries it on when the page
+    // goes; heard to its end, Listen gets its tick.
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var listenTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "speaker.wave.2.fill", color: ultraViolet, title: "Listen",
+            text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. The ContextFlow app reads it in a natural voice, and it keeps playing with the screen locked. Tap the speed in the player for 1×, 1.2×, 1.5× or 2×.", clip: "listen", ultra: true)
+        #else
+        Tip(symbol: "speaker.wave.2.fill", color: ultraViolet, title: "Listen",
+            text: "Click Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it right in the panel. Click the speed in the player for 1×, 1.2×, 1.5× or 2×.", clip: "listen", ultra: true)
+        #endif
+    }
+
+    // Organizing (2.5, Pro): the chat it belongs in. The clip (build 98) starts at the Suggestions bar at the top of the
+    // chat (2.6 (97)), which brings the suggestion under its answer.
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var organizeTip: Tip {
+        Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs",
+            text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true, pro: true)
     }
 
     private static func iOSClip(_ name: String) -> String? {
@@ -551,12 +761,17 @@ struct TipGroup {
     static let all: [TipGroup] = [
         TipGroup(id: "get-started", title: "Get started", tips: [
             openTip,
+            // 2.6 (93), the owner, twice: «в Tips не видел… про возможность перемещать кружок для удобства чтения
+            // страниц». Moving ✦ aside is a first-block card with the clip; hiding it stays under personalization.
+            Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
+                text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it.", clip: "button"),
             Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",
                 text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt.", clip: "gist"),
             Tip(symbol: "text.cursor", color: .purple, title: "Ask about a part",
                 text: "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it.", clip: "part"),
             Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
                 text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
+            chipsTip,
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "A chat follows you",
                 text: "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about. Tap a page's name in the chat to go back to it.", clip: "follows"),
             Tip(symbol: "magnifyingglass", color: .green, title: "Fresh facts from Google",
@@ -575,7 +790,9 @@ struct TipGroup {
             Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video",
                 text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video", pro: true),
             Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",
-                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf", pro: true)
+                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf", pro: true),
+            similarTip,
+            listenTip
         ]),
         TipGroup(id: "quick-insert", title: "Quick insert", tips: [
             insertTip,
@@ -599,19 +816,25 @@ struct TipGroup {
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
                 text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
             Tip(symbol: "sparkles", color: brandBlue, title: "AI search",
-                text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch", pro: true),
+                text: "Describe the chat you remember — “that article about sleep and coffee” — even without the exact words. In the app, choose By meaning under the search; in Safari, tap ✦ next to it.", clip: "aisearch", pro: true),
             Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats",
                 text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history", pro: true),
-            Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs",
-                text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true, pro: true),
+            organizeTip,
             Tip(symbol: "tag", color: .purple, title: "Your tags, suggested",
                 text: "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.", clip: "suggested-tags", organize: true, pro: true)
+        ]),
+        // 2.6: monthly or yearly, and the tour of a plan (text only: the tour itself is being reworked).
+        TipGroup(id: "your-plan", title: "Your plan", tips: [
+            Tip(symbol: "calendar", color: .green, title: "Monthly or yearly",
+                text: "Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans, in the app or in Safari, to see each price and what you save. On monthly already? Switch to yearly is in Settings → Your plan: it starts when your current month ends.", clip: "yearly"),
+            Tip(symbol: "crown", color: brandBlue, title: "What your plan adds",
+                text: "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan.")
         ]),
         TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
                 text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
-            Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
-                text: "Covering something on the page? Drag ✦ up or down along the edge, or to the other side: it stays where you leave it. You can also hide it on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.", clip: "button"),
+            Tip(symbol: "eye.slash", color: .blue, title: "Hide ✦ when you don't need it",
+                text: "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."),
             Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
                 text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),
             Tip(symbol: "lock.shield", color: .brown, title: "Private by design",
@@ -646,6 +869,7 @@ struct TipCard: View {
                 Text(tip.title)
                     .font(.headline)
                 if tip.pro { ProBadge() }
+                if tip.ultra { UltraBadge() }
             }
             Text(tip.text)
                 .font(.callout)
@@ -662,6 +886,18 @@ struct TipCard: View {
         .background(Color.cardFill)
         .cornerRadius(16)
         .accessibilityElement(children: action == nil ? .combine : .contain)
+    }
+}
+
+/// "Ultra" by an Ultra card's title in Tips (2.6), as ProBadge is for Pro's, in Ultra's violet.
+struct UltraBadge: View {
+    var body: some View {
+        Text("Ultra")
+            .font(.caption2.weight(.bold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(ultraViolet))
     }
 }
 
@@ -684,7 +920,7 @@ struct TipBlockHeader: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer(minLength: 8)
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(.secondary)
                     .rotationEffect(.degrees(open ? 90 : 0))
@@ -706,10 +942,15 @@ enum TipClip {
     static let aspect: CGFloat = 540.0 / 794.0
     static let width: CGFloat = 270 // at most; about 400 pt tall
 
-    /// The clip recorded in the app's language: Russian, or English for every other language.
+    /// The clips' language (build 95, one rule for every language, TipClipShare.language): the first of the app's
+    /// language and the person's other languages that has its clips (TipClips/<language>/), else English.
+    static let language: String = {
+        let folder = Bundle.main.url(forResource: "TipClips", withExtension: nil)
+        return TipClipShare.language(Bundle.main.preferredLocalizations + Locale.preferredLanguages, available: folder.map(TipClipShare.languages) ?? [])
+    }()
+
     static func url(_ name: String) -> URL? {
-        let lang = Bundle.main.preferredLocalizations.first?.hasPrefix("ru") == true ? "ru" : "en"
-        return Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(lang)")
+        Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(language)")
     }
 }
 
@@ -787,35 +1028,64 @@ struct PlayerLayerView: NSViewRepresentable {
 
 struct ProView: View {
     @ObservedObject var store: StoreKitManager
-    @Environment(\.requestReview) private var requestReview
+    @ObservedObject private var paywall = Paywall.shared
     @Environment(\.openURL) private var openURL
     @State private var busyProduct: String?
     @State private var restoring = false
     @State private var message: String?
-    @State private var success = false
+    @State private var success: String?
+    /// A change that starts at the next renewal (a lower plan, or the same plan yearly): `success` then says when, not
+    /// "is active" (the 2.6 gate: choosing Pro on Ultra said "Pro is active" while Ultra went on to the renewal).
+    @State private var startsLater = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                hero
-                if store.isByok { byokCard } else if store.entitlement.active { activeCard }
-                organizing
-                features
-                products
-                actions
-                legal
+        ScrollViewReader { scroller in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    hero
+                    if store.isByok { byokCard } else if store.entitlement.active { activeCard }
+                    plans
+                    PaidGallery(facts: store.planFacts, startOnUltra: focusTier == .ultra)
+                        .onAppear { if !store.isPro { ChatAI.reportOrganize("organize_promo", ["action": "shown", "where": "pro_screen"]) } }
+                    features
+                    actions
+                    legal
+                }
+                .padding(20)
+                .frame(maxWidth: 640)
+                .frame(maxWidth: .infinity)
             }
-            .padding(20)
-            .frame(maxWidth: 640)
-            .frame(maxWidth: .infinity)
+            .onAppear { scrollToFocus(scroller) }
+            .onChange(of: paywall.focus) { _ in scrollToFocus(scroller) }
+            .onAppear { buyChosen() }
+            .onChange(of: paywall.buyNow) { _ in buyChosen() }
+            .onChange(of: store.products.count) { _ in buyChosen() }
         }
         .navigationTitle("ContextFlow Pro")
-        .alert(isPresented: $success) {
+        .task { await store.refreshPlanFacts() }
+        .alert(isPresented: Binding(get: { success != nil }, set: { if !$0 { success = nil } })) {
             Alert(
                 title: Text("You're all set"),
-                message: Text("Pro is active. Open Safari and tap ✦ on any page."),
-                dismissButton: .default(Text("OK")) { requestReview() }
+                message: startsLater ? Text(verbatim: success ?? "") : Text("\(success ?? "Pro") is active. Open Safari and tap ✦ on any page."),
+                dismissButton: .default(Text("OK")) { ReviewAsk.shared.ask(.purchase, after: 0.5) }
             )
+        }
+    }
+
+    /// Chosen in the panel (contextflow://subscribe?plan=…&period=…): its purchase opens at once, once the plans have
+    /// loaded and are on screen (build 95). Not the subscription the person already has.
+    private func buyChosen() {
+        guard let id = paywall.buyNow, busyProduct == nil, let product = store.products.first(where: { $0.id == id }) else { return }
+        paywall.buyNow = nil
+        guard !(store.entitlement.active && store.entitlement.productId == id) else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { buy(product) }
+    }
+
+    /// From the panel's plans sheet (contextflow://subscribe?plan=…&period=…): the chosen plan in view.
+    private func scrollToFocus(_ scroller: ScrollViewProxy) {
+        guard let focus = paywall.focus else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            withAnimation { scroller.scrollTo(focus.rawValue, anchor: .center) }
         }
     }
 
@@ -848,7 +1118,7 @@ struct ProView: View {
             Spacer()
         }
         .padding(16)
-        .background(brandGradient)
+        .background(store.isUltra ? ultraGradient : brandGradient)
         .cornerRadius(16)
     }
 
@@ -892,7 +1162,8 @@ struct ProView: View {
         Task {
             do {
                 switch try await store.upgradeWithOffer() {
-                case .purchased: success = true
+                // The plan's tour, when it starts now, takes the place of "You're all set".
+                case .purchased: if !PlanTour.shared.takesOverPurchase() { startsLater = false; success = String(localized: "Pro") }
                 case .pending: message = String(localized: "Your purchase is waiting for approval.")
                 case .cancelled: break
                 }
@@ -903,23 +1174,9 @@ struct ProView: View {
         }
     }
 
-    /// Organizing the chats (2.5), first: what it does, with its loop.
-    private var organizing: some View {
-        HStack(alignment: .center, spacing: 16) {
-            OrganizeAnimation(big: true)
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Sorts by topic").font(.headline)
-                Text("Suggests the right chat for what you just asked, and your own tag for it.")
-                    .font(.callout)
-                    .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .onAppear { if !store.isPro { ChatAI.reportOrganize("organize_promo", ["action": "shown", "where": "pro_screen"]) } }
-    }
-
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
+            Text("Everything in Pro").font(.headline)
             Feature(systemImage: "arrow.turn.down.right", text: "Sorts by topic: suggests the right chat and your own tag")
             Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
             Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
@@ -932,8 +1189,12 @@ struct ProView: View {
         }
     }
 
+    // MARK: Plans (2.6): Own key, Pro and Ultra, monthly or yearly
+
+    private var hasYearly: Bool { StoreKitManager.Tier.allCases.contains { store.product($0, yearly: true) != nil } }
+
     @ViewBuilder
-    private var products: some View {
+    private var plans: some View {
         if store.products.isEmpty {
             HStack(spacing: 10) {
                 if store.isLoadingProducts {
@@ -946,45 +1207,50 @@ struct ProView: View {
                 }
             }
         } else {
-            VStack(spacing: 12) {
-                if let pro = store.pro {
-                    PlanCard(
-                        product: pro,
-                        title: "Pro",
-                        subtitle: "Everything included. No API key needed.",
-                        badge: "Recommended",
-                        highlighted: store.proYearly == nil,
-                        trialEligible: store.introEligible.contains(pro.id),
-                        current: store.entitlement.productId == pro.id,
-                        busy: busyProduct == pro.id,
-                        action: { buy(pro) }
-                    )
+            VStack(alignment: .leading, spacing: 12) {
+                if hasYearly {
+                    Picker("Billing", selection: $paywall.yearly) {
+                        Text("Monthly").tag(false)
+                        if let best = store.bestYearlySaving {
+                            Text("Yearly · save up to \(best)%").tag(true)
+                        } else {
+                            Text("Yearly").tag(true)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityIdentifier("plans.period")
                 }
-                if let yearly = store.proYearly {
-                    PlanCard(
-                        product: yearly,
-                        title: "Pro yearly",
-                        subtitle: "Everything in Pro for a whole year.",
-                        badge: savingsBadge(yearly: yearly, monthly: store.pro),
-                        highlighted: true,
-                        trialEligible: store.introEligible.contains(yearly.id),
-                        current: store.entitlement.productId == yearly.id,
-                        busy: busyProduct == yearly.id,
-                        action: { buy(yearly) }
-                    )
+                ForEach(StoreKitManager.Tier.allCases) { tier in
+                    if let product = store.product(tier, yearly: paywall.yearly && hasYearly) ?? store.product(tier, yearly: false) {
+                        TierCard(
+                            tier: tier,
+                            product: product,
+                            monthly: store.product(tier, yearly: false),
+                            deal: product.subscription?.subscriptionPeriod.unit == .year ? store.yearlyDeal(tier) : nil,
+                            facts: store.planFacts,
+                            focused: tier == focusTier,
+                            current: store.entitlement.active && store.entitlement.productId == product.id,
+                            currentTier: store.tier,
+                            fromMonthly: store.entitlement.active && store.product(tier, yearly: false)?.id == store.entitlement.productId,
+                            trialEligible: store.introEligible.contains(product.id),
+                            busy: busyProduct == product.id,
+                            action: { buy(product) }
+                        )
+                        .id(tier.rawValue)
+                    }
                 }
-                if let byok = store.byok {
-                    PlanCard(
-                        product: byok,
-                        title: "Own key",
-                        subtitle: "Unlimited answers with your own OpenAI or Claude API key.",
-                        badge: nil,
-                        highlighted: false,
-                        trialEligible: store.introEligible.contains(byok.id),
-                        current: store.entitlement.productId == byok.id,
-                        busy: busyProduct == byok.id,
-                        action: { buy(byok) }
-                    )
+                if let note = changeNote {
+                    Text(note)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if let code = store.unclearCurrency {
+                    Text("Prices in \(code), as the App Store gives them.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("plans.currency")
                 }
             }
         }
@@ -993,6 +1259,24 @@ struct ProView: View {
                 .font(.footnote)
                 .foregroundColor(.secondary)
         }
+    }
+
+    /// The plan to highlight: the panel's choice, else the next one up from the current plan (Pro for Free).
+    private var focusTier: StoreKitManager.Tier {
+        if let focus = paywall.focus { return focus }
+        switch store.tier {
+        case .pro?, .ultra?: return .ultra
+        default: return .pro
+        }
+    }
+
+    /// What happens to the current plan when the focused one is bought.
+    private var changeNote: String? {
+        guard let current = store.tier, current != focusTier else { return nil }
+        let name = focusTier.name
+        return focusTier.rank > current.rank
+            ? String(localized: "\(name) starts now. Apple refunds the unused part of \(current.name).")
+            : String(localized: "\(name) starts when your current plan renews.")
     }
 
     private var actions: some View {
@@ -1030,23 +1314,24 @@ struct ProView: View {
         .padding(.top, 4)
     }
 
-    private func savingsBadge(yearly: Product, monthly: Product?) -> LocalizedStringKey? {
-        guard let monthly, monthly.price > 0 else { return nil }
-        let full = monthly.price * 12
-        guard full > yearly.price else { return nil }
-        let percent = NSDecimalNumber(decimal: (full - yearly.price) / full * 100).intValue
-        guard percent >= 5 else { return nil }
-        let badge: LocalizedStringKey = "Save \(percent)%"
-        return badge
-    }
-
     private func buy(_ product: Product) {
         busyProduct = product.id
         message = nil
         Task {
             do {
                 switch try await store.purchase(product) {
-                case .purchased: success = true
+                // The plan's tour, when it starts now, takes the place of "You're all set".
+                case .purchased:
+                    // Bought, but another plan stays on until the renewal (the App Store's sheet said so): said here too.
+                    if store.entitlement.active, let current = store.entitlement.productId, current != product.id {
+                        startsLater = true
+                        success = PlanProducts.plan(of: current) == PlanProducts.plan(of: product.id) && product.id.hasSuffix(".yearly")
+                            ? String(localized: "Yearly starts when your current month ends.")
+                            : String(localized: "\(planName(product.id)) starts when your current plan renews.")
+                    } else if !PlanTour.shared.takesOverPurchase() {
+                        startsLater = false
+                        success = planName(product.id)
+                    }
                 case .pending: message = String(localized: "Your purchase is waiting for approval.")
                 case .cancelled: break
                 }
@@ -1058,10 +1343,176 @@ struct ProView: View {
     }
 }
 
+/// What the panel's plans sheet chose (contextflow://subscribe?plan=ultra&period=yearly), for the Pro screen.
+final class Paywall: ObservableObject {
+    static let shared = Paywall()
+
+    /// The link names a plan, and a period, other than the subscription the person has (or they have none): the plans
+    /// screen opens on it, its Buy for that product. Without a period, any other plan.
+    static func wantsPlan(_ url: URL, current productId: String?) -> Bool {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        guard let tier = items.first(where: { $0.name == "plan" })?.value.flatMap(StoreKitManager.Tier.init(rawValue:)) else { return false }
+        guard let productId else { return true }
+        guard let period = items.first(where: { $0.name == "period" })?.value else { return PlanProducts.plan(of: productId) != tier.rawValue }
+        return "com.contextflow.\(tier.rawValue).\(period == "yearly" ? "yearly" : "monthly")" != productId
+    }
+    @Published var focus: StoreKitManager.Tier?
+    @Published var yearly = true
+    /// The product to buy at once (build 95, the owner since 91: "Choose…" in the panel and "Buy" in the chat open the
+    /// App Store's purchase of that plan and period, not the plans with one more tap to go).
+    @Published var buyNow: String?
+
+    func open(_ url: URL) {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let value = { (name: String) in items.first { $0.name == name }?.value }
+        let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:))
+        if let plan { focus = plan }
+        if let period = value("period") { yearly = period == "yearly" }
+        // A plan and a period named: that product is bought now (the plans stay behind the App Store's sheet).
+        if let plan, let period = value("period") { buyNow = "com.contextflow.\(plan.rawValue).\(period == "yearly" ? "yearly" : "monthly")" }
+    }
+}
+
+let ultraGradient = LinearGradient(colors: [Color(red: 0.55, green: 0.36, blue: 0.96), brandBlue], startPoint: .topLeading, endPoint: .bottomTrailing)
+
+extension StoreKitManager.Tier {
+    var name: String {
+        switch self {
+        case .byok: return String(localized: "Own key")
+        case .pro: return String(localized: "Pro")
+        case .ultra: return String(localized: "Ultra")
+        }
+    }
+}
+
+/// One plan on the Pro screen: its price for the period, what it adds in plain words, and its button.
+struct TierCard: View {
+    let tier: StoreKitManager.Tier
+    let product: Product
+    let monthly: Product?
+    /// Yearly shown: a month of it and what it saves (the App Store's format).
+    let deal: StoreKitManager.YearlyDeal?
+    let facts: ChatAI.PlanFacts
+    let focused: Bool
+    let current: Bool
+    let currentTier: StoreKitManager.Tier?
+    /// The subscriber has this plan monthly: its yearly card is an upgrade too (build 91).
+    var fromMonthly = false
+    let trialEligible: Bool
+    let busy: Bool
+    let action: () -> Void
+
+    private var yearly: Bool { product.subscription?.subscriptionPeriod.unit == .year }
+
+    private var priceLine: String {
+        yearly ? String(localized: "\(product.displayPrice) / year") : String(localized: "\(product.displayPrice) / month")
+    }
+
+    private var saving: Int? { deal?.percent }
+
+    private var lines: [(String, LocalizedStringKey)] {
+        switch tier {
+        case .byok:
+            return [
+                ("key.fill", "Unlimited answers with your own OpenAI or Claude API key"),
+                ("doc.text.magnifyingglass", "Everything on the page: summaries, explanations, translations")
+            ]
+        case .pro:
+            return [
+                ("bolt.fill", "Up to \(facts.proWeekly) answers a week, no API key needed"),
+                ("play.rectangle", "Videos and PDFs, AI search, Ask your chats, sorting by topic"),
+                ("eye", "Watch up to \(facts.watchPro) pages for price drops and changes")
+            ]
+        case .ultra:
+            return [
+                ("checkmark.circle", "Everything in Pro, plus:"),
+                ("speaker.wave.2.fill", "Listen to answers and whole pages in a natural voice: \(facts.speakWeeklyMinutes) minutes a week"),
+                ("square.on.square", "Find similar: alternatives to any page — cheaper, newer, in stock or in your language — \(facts.similarWeekly) searches a week"),
+                ("eye", "Watch up to \(facts.watchUltra) pages")
+            ]
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(tier.name).font(.title3.weight(.bold))
+                if let saving {
+                    Text("Save \(saving)%")
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Capsule().fill(Color.green.opacity(0.15)))
+                        .foregroundColor(.green)
+                }
+                Spacer()
+                Text(priceLine).font(.headline)
+            }
+            // Yearly: what a month of it comes to, against twelve months, and the money it saves.
+            if let deal {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(deal.perMonth) a month, billed yearly")
+                        .font(.footnote.weight(.medium))
+                    Spacer(minLength: 4)
+                    Text(deal.twelveMonths)
+                        .font(.footnote)
+                        .strikethrough()
+                        .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
+                }
+                Text("You save \(deal.saving) a year")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundColor(.green)
+            }
+            // An Ultra subscriber: this week's listening on Ultra's card too, as in the panel's plans (build 95; the owner
+            // asked for the minutes left in the player, Settings and the plans).
+            if tier == .ultra, currentTier == .ultra, let left = facts.speakLeftSeconds {
+                Text("Listening: \(left / 60) of \(facts.speakWeeklyMinutes) min left this week")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .accessibilityIdentifier("plans.listen.left")
+            }
+            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                Feature(systemImage: line.0, text: line.1)
+            }
+            Button(action: action) {
+                Group {
+                    if busy {
+                        ProgressView()
+                    } else if current {
+                        Text("Current plan")
+                    } else if trialEligible, product.subscription?.introductoryOffer?.paymentMode == .freeTrial {
+                        Text("Start free trial")
+                    } else if let currentTier, currentTier.rank < tier.rank {
+                        Text("Upgrade to \(tier.name)")
+                    } else if fromMonthly, yearly {
+                        Text("Upgrade to yearly")
+                    } else {
+                        Text("Subscribe for \(priceLine)")
+                    }
+                }
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(focused ? (tier == .ultra ? Color(red: 0.49, green: 0.31, blue: 0.93) : brandBlue) : .gray)
+            .disabled(busy || current)
+            .accessibilityIdentifier("plans.buy.\(tier.rawValue)")
+        }
+        .padding(16)
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(focused ? (tier == .ultra ? Color(red: 0.55, green: 0.36, blue: 0.96) : brandBlue) : Color.secondary.opacity(0.25), lineWidth: focused ? 2 : 1))
+    }
+}
+
 // MARK: - Components
 
 func planName(_ productId: String?) -> String {
-    productId == StoreKitManager.ProductID.byok ? String(localized: "Own key plan") : String(localized: "Pro")
+    switch PlanProducts.plan(of: productId) {
+    case "byok": return String(localized: "Own key plan")
+    case "ultra": return String(localized: "Ultra")
+    default: return String(localized: "Pro")
+    }
 }
 
 struct Card<Content: View>: View {
@@ -1225,6 +1676,10 @@ struct FooterLinks: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 14) {
                 Link("Rate ContextFlow", destination: Links.review)
+                    .environment(\.openURL, OpenURLAction { _ in
+                        ChatAI.reportUse("rate", "link", ["via": "footer"])
+                        return .systemAction
+                    })
                 Link("Support", destination: Links.support)
                 Link("Privacy Policy", destination: Links.privacy)
                 Link("Terms of Use", destination: Links.terms)
@@ -1330,6 +1785,9 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var restoring = false
     @State private var restoreMessage: String?
+    @State private var switching = false
+    /// "Hide" on the yearly line: away for 60 days (it's a line in Settings, never a prompt).
+    @AppStorage("cf_yearly_hidden_until") private var yearlyHiddenUntil: Double = 0
     /// Set to scroll down to the plan; cleared once it has.
     @Binding var showPlan: Bool
 
@@ -1426,6 +1884,18 @@ struct SettingsView: View {
 
             // With Pro there is no Pro tab: the plan and its subscription are managed here.
             if store.isPro { planSection.id("plan") }
+
+            // 2.6 (100): the App Store's "Write a Review", whenever the person wants to. Apple's own request comes by
+            // itself at good moments (ReviewAsk); nothing of ours asks for a rating (guideline 5.6.1).
+            Section {
+                Button {
+                    ChatAI.reportUse("rate", "link", ["via": "settings"])
+                    openURL(Links.review)
+                } label: {
+                    Label("Rate in App Store", systemImage: "star")
+                }
+                .accessibilityIdentifier("cf-rate")
+            }
         }
         .navigationTitle("Settings")
         #if os(iOS)
@@ -1443,6 +1913,7 @@ struct SettingsView: View {
         Section(header: Text("Your plan"), footer: restoreMessage.map { Text($0) }) {
             HStack {
                 Text(planName(store.entitlement.productId))
+                    .task { if store.isUltra { await store.refreshPlanFacts() } }
                 Spacer()
                 if let date = store.entitlement.expiresAt {
                     if store.entitlement.autoRenew == false {
@@ -1453,6 +1924,18 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+            }
+            // Ultra: this week's listening (build 91: the owner wanted to see the minutes left somewhere).
+            if store.isUltra, let left = store.planFacts.speakLeftSeconds {
+                Text("Listening: \(left / 60) of \(store.planFacts.speakWeeklyMinutes) min left this week")
+                    .foregroundColor(.secondary)
+            }
+            if let offer = store.yearlySwitch, Date().timeIntervalSince1970 > yearlyHiddenUntil {
+                yearlyLine(offer)
+            }
+            // The plan's tour again (2.6): Pro's steps, or Ultra's with Pro's.
+            if let tier = store.tier, tier != .byok {
+                Button("What's in \(tier.name)") { PlanTour.shared.show(tier) }
             }
             Button("Manage Subscription") { openURL(Links.manageSubscriptions) }
             Button {
@@ -1467,6 +1950,368 @@ struct SettingsView: View {
                 if restoring { ProgressView() } else { Text("Restore Purchases") }
             }
             .disabled(restoring)
+        }
+    }
+
+    /// A monthly Pro or Ultra subscriber: what yearly saves, and the switch (it starts when the month ends).
+    private func yearlyLine(_ offer: (tier: StoreKitManager.Tier, deal: StoreKitManager.YearlyDeal, product: Product)) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("\(offer.tier.name) yearly: you save \(offer.deal.saving) (\(offer.deal.percent)%) a year.")
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Yearly starts when your current month ends.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+            HStack {
+                Button {
+                    switching = true
+                    Task {
+                        if case .purchased? = try? await store.purchase(offer.product) {
+                            restoreMessage = String(localized: "Yearly starts when your current month ends.")
+                        }
+                        switching = false
+                    }
+                } label: {
+                    if switching { ProgressView() } else { Text("Switch to yearly") }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(offer.tier == .ultra ? ultraViolet : brandBlue)
+                .disabled(switching)
+                .accessibilityIdentifier("settings.yearly")
+                Spacer()
+                Button("Hide") { yearlyHiddenUntil = Date().addingTimeInterval(60 * 86_400).timeIntervalSince1970 }
+                    .buttonStyle(.borderless)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Plan tour
+
+/// What a plan adds, step by step, after a purchase or an upgrade the app sees (2.6, build 89, the owner: "when a person
+/// buys Pro or Ultra, take them through the features of that plan, the way the first run does"). Pro's steps, Ultra's,
+/// or Ultra's then Pro's for someone coming from below Pro (Own key counts as below). Once per plan, and it can be
+/// skipped; Settings shows it again ("What's in Ultra"). An app update shows nothing: the first plan the app sees is
+/// only noted, and a restore isn't a purchase. Kept in the app's own defaults. The Safari panel has its own tour of the
+/// same steps (src/content/Guide.tsx).
+@MainActor
+final class PlanTour: ObservableObject {
+    static let shared = PlanTour()
+
+    enum Step {
+        case proMedia, proChats, proSort, proTemplates, proWatch, ultraListen, ultraSimilar, ultraWatch
+
+        var isUltra: Bool { self == .ultraListen || self == .ultraSimilar || self == .ultraWatch }
+    }
+
+    struct Run: Identifiable {
+        let id = UUID()
+        /// The plan it shows (the caption, the color).
+        let plan: StoreKitManager.Tier
+        let steps: [Step]
+    }
+
+    static let pro: [Step] = [.proMedia, .proChats, .proSort, .proTemplates, .proWatch]
+    static let ultra: [Step] = [.ultraListen, .ultraSimilar, .ultraWatch]
+    /// From below Pro to Ultra: Ultra's steps, then Pro's, the watched pages (Ultra's number) last.
+    static let ultraFull: [Step] = [.ultraListen, .ultraSimilar, .proMedia, .proChats, .proSort, .proTemplates, .ultraWatch]
+
+    /// The tour on screen (nil: none). The step is kept here, so the tour comes back where it was after another sheet
+    /// (Listen handed over from Safari) took its place for a while.
+    @Published private(set) var run: Run?
+    @Published var index = 0
+    /// It took the place of "You're all set" after a purchase on the Pro tab: the rating is asked when it closes.
+    private var reviewAfter = false
+
+    private let defaults = UserDefaults.standard
+    private static let lastPlanKey = "cf_plan_last_seen"
+    private static let shownKey = "cf_plan_tours_shown"
+
+    /// The plan StoreKit says is active now (StoreKitManager, after every refresh). A move up starts the tour of what's
+    /// new to the person, unless they saw it before; `quietly` (a restore) only notes the plan.
+    func planSeen(_ tier: StoreKitManager.Tier?, quietly: Bool) {
+        let now = tier?.rawValue ?? "free"
+        let last = defaults.string(forKey: Self.lastPlanKey)
+        guard last != now else { return }
+        defaults.set(now, forKey: Self.lastPlanKey)
+        // The first plan seen (a new install, or the update that brought the tour): noted, nothing shown.
+        guard let last, let tier, !quietly, tier.rank > Self.rank(last) else { return }
+        var shown = Set(defaults.stringArray(forKey: Self.shownKey) ?? [])
+        let proRank = StoreKitManager.Tier.pro.rank
+        let newUltra = tier == .ultra && !shown.contains("ultra")
+        let newPro = tier.rank >= proRank && Self.rank(last) < proRank && !shown.contains("pro")
+        let steps = tier == .ultra ? Self.ultraFull.filter { $0.isUltra ? newUltra : newPro } : newPro ? Self.pro : []
+        guard !steps.isEmpty else { return }
+        if newUltra { shown.insert("ultra") }
+        if newPro { shown.insert("pro") }
+        defaults.set(Array(shown), forKey: Self.shownKey)
+        start(Run(plan: tier, steps: steps))
+    }
+
+    /// "What's in Pro / Ultra" in Settings: Pro's steps, or Ultra's with Pro's.
+    func show(_ tier: StoreKitManager.Tier) {
+        switch tier {
+        case .pro: start(Run(plan: .pro, steps: Self.pro))
+        case .ultra: start(Run(plan: .ultra, steps: Self.ultraFull))
+        case .byok: break
+        }
+    }
+
+    /// After a purchase on the Pro tab: whether the tour is on now, in place of "You're all set".
+    func takesOverPurchase() -> Bool {
+        guard run != nil else { return false }
+        reviewAfter = true
+        return true
+    }
+
+    /// Ends the tour (Done, Skip, a tab opened from it, or swiped away). True when the rating is to be asked now.
+    func close() -> Bool {
+        guard run != nil else { return false }
+        run = nil
+        index = 0
+        let review = reviewAfter
+        reviewAfter = false
+        return review
+    }
+
+    /// `-CFDebugPlanTour pro|ultra|full` in Debug builds: the tour at launch (screenshots, checks).
+    func debugStartIfAsked() {
+        #if DEBUG
+        switch UserDefaults.standard.string(forKey: "CFDebugPlanTour") {
+        case "pro": start(Run(plan: .pro, steps: Self.pro))
+        case "ultra": start(Run(plan: .ultra, steps: Self.ultra))
+        case "full": start(Run(plan: .ultra, steps: Self.ultraFull))
+        default: break
+        }
+        #endif
+    }
+
+    /// Safari itself, not another default browser: the steps that live in its panel.
+    static func openSafari() {
+        #if os(iOS)
+        // x-web-search:// always opens Safari, as the home screen's "Open Safari" does.
+        guard let url = URL(string: "x-web-search://?ContextFlow") else { return }
+        UIApplication.shared.open(url) { opened in
+            if !opened, let fallback = URL(string: "https://www.apple.com/") { UIApplication.shared.open(fallback) }
+        }
+        #else
+        guard let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") else { return }
+        NSWorkspace.shared.openApplication(at: safari, configuration: NSWorkspace.OpenConfiguration())
+        #endif
+    }
+
+    private func start(_ next: Run) {
+        index = 0
+        run = next
+    }
+
+    private static func rank(_ plan: String) -> Int { StoreKitManager.Tier(rawValue: plan)?.rank ?? 0 }
+}
+
+/// The plan tour's sheet: a step at a time, with its clip from Tips (or its icon), what it does, and a button to where
+/// it lives when the app has a place for it. Skip, Next, and Done on the last step.
+struct PlanTourView: View {
+    @ObservedObject var tour: PlanTour
+    let run: PlanTour.Run
+    /// The Chats tab is there (the "Open Chats" button).
+    let hasChats: Bool
+    /// A tab of the app, from a step's button: the tour ends there.
+    let open: (AppTab) -> Void
+    let close: () -> Void
+    @ObservedObject private var store = StoreKitManager.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var suggestionsOn = SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false
+
+    private static let ultraColor = Color(red: 0.49, green: 0.31, blue: 0.93)
+    private var accent: Color { run.plan == .ultra ? Self.ultraColor : brandBlue }
+    private var index: Int { min(tour.index, run.steps.count - 1) }
+    private var last: Bool { index == run.steps.count - 1 }
+
+    private var caption: String {
+        "\(String(localized: "What's in \(run.plan.name)")) · \(String(localized: "\(index + 1) of \(run.steps.count)"))"
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text(verbatim: caption)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundColor(.secondary)
+                Spacer(minLength: 12)
+                if !last {
+                    Button("Skip", action: close)
+                        .foregroundColor(.secondary)
+                        .keyboardShortcut(.cancelAction)
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+            .padding(.bottom, 8)
+            ScrollView {
+                stepView(run.steps[index])
+                    .id(index)
+                    .transition(reduceMotion ? AnyTransition.opacity : AnyTransition.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)).combined(with: .opacity))
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 8)
+            }
+            VStack(spacing: 14) {
+                Button(action: next) {
+                    Text(last ? LocalizedStringKey("Done") : LocalizedStringKey("Next"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .keyboardShortcut(.defaultAction)
+                dots
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
+            .padding(.bottom, 16)
+        }
+        .frame(maxWidth: 520)
+        #if os(macOS)
+        .frame(width: 460, height: 600)
+        #endif
+        .tint(accent)
+        .task { await store.refreshPlanFacts() }
+    }
+
+    private func next() {
+        if last {
+            close()
+        } else {
+            withAnimation(.easeInOut(duration: 0.3)) { tour.index = index + 1 }
+        }
+    }
+
+    private var dots: some View {
+        HStack(spacing: 7) {
+            ForEach(run.steps.indices, id: \.self) { i in
+                Circle()
+                    .fill(i == index ? accent : Color.secondary.opacity(0.3))
+                    .frame(width: 7, height: 7)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    private struct Info {
+        let symbol: String
+        let color: Color
+        let title: LocalizedStringKey
+        let text: LocalizedStringKey
+        var clip: String? = nil
+    }
+
+    // The texts of Tips where they say it (sorting, templates, watching); the app's names for the features.
+    private func info(_ step: PlanTour.Step) -> Info {
+        let facts = store.planFacts
+        switch step {
+        case .proMedia:
+            return Info(symbol: "play.rectangle", color: .red, title: "Videos and PDFs on the page",
+                        text: "ContextFlow now reads a video's transcript and the PDFs on a page. Ask as usual: answers point to the moment, like [4:15], or to the PDF's page.", clip: "video")
+        case .proChats:
+            return Info(symbol: "text.bubble", color: .indigo, title: "Search and ask your chats",
+                        text: "In Chats, open the search, choose By meaning and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once.", clip: "history")
+        case .proSort:
+            return Info(symbol: "arrow.turn.down.right", color: brandBlue, title: "Sorted by topic",
+                        text: "Under a new answer or note, ContextFlow suggests the chat it belongs in, or a new one, and one of your own tags. One tap, and it's there.", clip: "organize")
+        case .proTemplates:
+            return Info(symbol: "curlybraces", color: .orange, title: "Templates",
+                        text: "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check.", clip: "fill")
+        case .proWatch, .ultraWatch:
+            return Info(symbol: "eye", color: .green, title: "Watch up to \(step == .ultraWatch ? facts.watchUltra : facts.watchPro) pages",
+                        text: "In Safari, select a price, stock or a date and tap the eye. For the whole page: … → Watch this page.", clip: "watch")
+        case .ultraListen:
+            // Build 95: the tour shows it working, as Tips do (build 98: on iPhone and iPad too, as Tips).
+            return Info(symbol: "speaker.wave.2.fill", color: Self.ultraColor, title: "Listen",
+                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.", clip: "listen")
+        case .ultraSimilar:
+            // Build 95: the tour shows it working, as Tips do (its clip is touch: iPhone and iPad only).
+            #if os(iOS)
+            let clip: String? = "similar"
+            #else
+            let clip: String? = nil
+            #endif
+            return Info(symbol: "square.on.square", color: Self.ultraColor, title: "Find similar",
+                        text: "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.", clip: clip)
+        }
+    }
+
+    private func stepView(_ step: PlanTour.Step) -> some View {
+        let item = info(step)
+        return VStack(spacing: 14) {
+            if let name = item.clip, let url = TipClip.url(name) {
+                TipClipView(url: url)
+                    .aspectRatio(TipClip.aspect, contentMode: .fit)
+                    .frame(maxWidth: TipClip.width, maxHeight: 330)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.primary.opacity(0.08)))
+                    .accessibilityHidden(true)
+                icon(item, size: 40)
+            } else {
+                icon(item, size: 84)
+                    .padding(.vertical, 28)
+            }
+            Text(item.title)
+                .font(.title2.weight(.bold))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(item.text)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            action(step)
+                .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func icon(_ item: Info, size: CGFloat) -> some View {
+        Image(systemName: item.symbol)
+            .font(.system(size: size * 0.45, weight: .semibold))
+            .foregroundColor(.white)
+            .frame(width: size, height: size)
+            .background(RoundedRectangle(cornerRadius: size * 0.25, style: .continuous).fill(item.color))
+            .accessibilityHidden(true)
+    }
+
+    /// Where the step's feature lives: Safari's panel, a tab of the app, or the switch it needs (sorting).
+    @ViewBuilder
+    private func action(_ step: PlanTour.Step) -> some View {
+        switch step {
+        case .proMedia, .proWatch, .ultraListen, .ultraSimilar, .ultraWatch:
+            Button(action: PlanTour.openSafari) { Label("Open Safari", systemImage: "safari") }
+                .buttonStyle(.bordered)
+        case .proChats:
+            if hasChats {
+                Button { open(.chats) } label: { Label("Open Chats", systemImage: "bubble.left.and.bubble.right") }
+                    .buttonStyle(.bordered)
+            }
+        case .proTemplates:
+            Button { open(.templates) } label: { Label("Open Templates", systemImage: "text.badge.plus") }
+                .buttonStyle(.bordered)
+        case .proSort:
+            if suggestionsOn {
+                Label("Suggestions are on.", systemImage: "checkmark.circle.fill")
+                    .font(.callout.weight(.medium))
+                    .foregroundColor(.green)
+            } else {
+                // Turning them on is the consent: what goes where is said first, as on the What's new sheet.
+                VStack(spacing: 10) {
+                    Text("For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button {
+                        OrganizeModel.shared.answerConsent(true, from: "plan_tour")
+                        withAnimation { suggestionsOn = true }
+                    } label: { Label("Turn on suggestions", systemImage: "arrow.turn.down.right") }
+                        .buttonStyle(.bordered)
+                }
+            }
         }
     }
 }

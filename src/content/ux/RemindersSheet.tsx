@@ -21,7 +21,7 @@ export function RemindersSheet({ kind, items, onOpen, onCancel, onReschedule, on
   onOpen: (item: LaterItem) => void
   onCancel: (item: LaterItem) => void
   // A reminder's new time: null once it's set, else why it couldn't be (no notifications on this device).
-  onReschedule: (item: LaterItem, at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => Promise<string | null>
+  onReschedule: (item: LaterItem, at: number, preset: "hour" | "evening" | "morning" | "week" | "custom", words?: string) => Promise<string | null>
   onClose: () => void
 }): VNode {
   const back = useRef<HTMLDivElement>(null)
@@ -36,6 +36,7 @@ export function RemindersSheet({ kind, items, onOpen, onCancel, onReschedule, on
         <span class="cf-later-icon"><Icon.Eye size={15} /></span>
         <span class="cf-later-text">
           <span class="cf-later-title">{item.title}</span>
+          {item.text && <span class="cf-later-body" dir="auto">{item.text}</span>}
           <span class="cf-later-status">{item.status}</span>
         </span>
       </button>
@@ -53,6 +54,7 @@ export function RemindersSheet({ kind, items, onOpen, onCancel, onReschedule, on
             <span class="cf-later-text">
               <span class="cf-later-title">{item.title}</span>
               {item.question && <span class="cf-later-question">{item.question}</span>}
+              {item.quote && <span class="cf-later-quote" dir="auto">{item.quote}</span>}
               {item.text && <span class="cf-later-body">{item.text}</span>}
               <span class="cf-later-status">{item.status}</span>
             </span>
@@ -96,9 +98,11 @@ export function RemindersSheet({ kind, items, onOpen, onCancel, onReschedule, on
         <RemindSheet
           current={changing.item.at}
           note={changing.note}
-          onPick={(at, preset) => {
+          quote={changing.item.quote}
+          words={changing.item.words}
+          onPick={(at, preset, words) => {
             const item = changing.item
-            void onReschedule(item, at, preset).then((note) => setChanging(note ? { item, note } : null))
+            void onReschedule(item, at, preset, words).then((note) => setChanging(note ? { item, note } : null))
           }}
           onCancel={() => {
             const item = changing.item

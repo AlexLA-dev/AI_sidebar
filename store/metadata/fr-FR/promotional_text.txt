@@ -1,1 +1,1 @@
-Nouveau : des modèles qui remplissent noms et dates, ce que vous avez copié dans n’importe quel champ, et une notification quand un prix change.
+Nouveau dans la 2.6 : « Trouver similaire » montre de vraies alternatives vérifiées, « Écouter » lit toute page à voix haute et vos conversations se rangent seules.

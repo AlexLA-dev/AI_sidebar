@@ -26,9 +26,16 @@ struct ChatsView: View {
     var openSetup: () -> Void = {}
     /// The Pro screen (from the AI features, without Pro).
     var openPro: () -> Void = {}
+    /// Build 94: the "…" on the Chats screen opens Settings and Tips (their tabs).
+    var openTab: (AppTab) -> Void = { _ in }
 
+    /// The search field's two ways (2.6 (98), the owner on TestFlight 97: «Не понятно, что это в приложении и зачем», of
+    /// the ✦ button and the "Describe what you remember…" row that looked like a second field): one field, its two
+    /// ways named under it, "By words" and "By meaning" (Pro, AI search). "Ask your chats" stays its own named row.
+    enum SearchWay: Hashable { case words, meaning }
+    @State private var way: SearchWay = .words
     // AI search (Pro): on, the query it ran, and its answer.
-    @State private var aiSearch = false
+    private var aiSearch: Bool { way == .meaning }
     @State private var finding = false
     @State private var found: (query: String, results: Result<[ChatAI.Found], ChatAI.Failure>)?
     /// The search waiting for the AI consent.
@@ -51,9 +58,19 @@ struct ChatsView: View {
 
     /// A reminder's notification was tapped: the chat the message is in now, at the message (2.5).
     @ObservedObject private var links = ChatLinks.shared
+    @ObservedObject private var organize = OrganizeModel.shared
+    // 2.6: open organizing suggestions per chat, and the chats whose badge was counted as shown.
+    @State private var recs: [String: Int] = [:]
+    @State private var recsSeen = Set<String>()
+    @State private var listShown = false
     @State private var linked: (threadId: String, index: Int)?
-    // "Reminders" or "Watching" (2.5 (77): two lists, never one), from the Chats toolbar.
+    // "Reminders" or "Watching" (2.5 (77): two lists, never one), from the Chats toolbar's "…" (build 94).
     @State private var showingList: LaterItem.Kind?
+    // Build 94: Recently Deleted from the "…"; the watched pages' addresses (the rows' eyes); a tick every 30 s while the
+    // list shows, so a reminder that rang loses its bell and an answered or abandoned question its spinner.
+    @State private var showingTrash = false
+    @State private var watched: [String] = []
+    @State private var tick = Date()
 
     #if DEBUG
     private func showListAtLaunch() {
@@ -70,11 +87,27 @@ struct ChatsView: View {
 
     var body: some View {
         List {
-            if aiSearch {
+            // The field's two ways, named, right under it while it's open (iOS 26 shows no system scope bar here).
+            SearchWayRow(way: $way, pro: isPro, typed: searching)
+            // Build 98, the owner: «Оно есть, но не понятно, что с этим делать» (By meaning waited for the keyboard's
+            // Search): a button for it, under the field, while the words typed have no results yet.
+            if aiSearch && searching && !finding && found?.query != query.trimmingCharacters(in: .whitespaces) {
+                Section {
+                    Button(action: runFind) {
+                        Label("Search by meaning", systemImage: "sparkles")
+                            .font(.body.weight(.semibold))
+                            .foregroundColor(brandBlue)
+                    }
+                    .accessibilityIdentifier("cf-meaning-go")
+                }
+            }
+            if aiSearch && (searching || finding || found != nil) {
                 aiResults
             } else if searching {
                 searchResults
             } else {
+                // "By meaning" with nothing typed yet: what it does, over the chats.
+                if aiSearch { meaningHint }
                 chatList
             }
         }
@@ -92,44 +125,24 @@ struct ChatsView: View {
         .onReceive(links.$pending) { _ in openLinked() }
         .onChange(of: library.threads.count) { _ in openLinked() }
         .searchable(text: $query, prompt: aiSearch ? Text("Describe the chat you're looking for…") : Text("Search chats"))
+        .onChange(of: way) { next in
+            found = nil
+            // Without Pro, "By meaning" opens Pro and the field stays on words.
+            if next == .meaning && !isPro {
+                way = .words
+                openPro()
+            }
+        }
         .onSubmit(of: .search) { runFind() }
         .onChange(of: query) { value in
             if value.isEmpty { found = nil }
         }
         .toolbar {
-            // "Reminders" (the bell) and "Watching" (the eye, once watching is in): the director's split, 2.5 (77).
-            ToolbarItem(placement: .navigation) {
-                Button { showingList = .remind } label: { Image(systemName: "bell") }
-                    .accessibilityLabel(Text("Reminders"))
-                    .help(Text("Reminders"))
-            }
-            if LaterCenter.shared.lists(.watch) {
-                ToolbarItem(placement: .navigation) {
-                    Button { showingList = .watch } label: { Image(systemName: "eye") }
-                        .accessibilityLabel(Text("Watching"))
-                        .help(Text("Watching"))
-                }
-            }
-            ToolbarItem {
-                Button {
-                    if isPro {
-                        aiSearch.toggle()
-                        found = nil
-                    } else {
-                        openPro()
-                    }
-                } label: {
-                    HStack(spacing: 3) {
-                        Image(systemName: "sparkles")
-                        if !isPro { Image(systemName: "lock.fill").font(.caption2) }
-                    }
-                    .foregroundColor(aiSearch ? .white : brandBlue)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(aiSearch ? AnyShapeStyle(brandGradient) : AnyShapeStyle(Color.clear)))
-                }
-                .accessibilityLabel(Text(isPro ? "AI search" : "AI search — Pro"))
-            }
+            // Build 94, the owner: «в меню чатов тоже нужно добавить кнопку <…> где будут подходящие функции, хотя бы
+            // watch list, settings, tips, все про онбординг». The Safari panel's chats list has the same "…"
+            // (src/content/ux/PageMenu.tsx): the lists (the bell, the eye; 2.5 (77): two words, two icons), Recently
+            // Deleted, and the rest under "Other…". The bell and the eye were toolbar buttons of their own until 93.
+            ToolbarItem { listMenu }
         }
         .overlay {
             // With chats in Recently Deleted, its row is the list.
@@ -138,8 +151,25 @@ struct ChatsView: View {
             }
         }
         .navigationTitle("Chats")
-        .navigationDestination(for: ChatRoute.self) { destination(for: $0) }
+        .navigationDestination(for: ChatRoute.self) { route in
+            destination(for: route)
+                .onAppear {
+                    if recs[route.id] != nil { ChatAI.reportOrganize("organize", ["action": "tap", "what": "badge"]) }
+                }
+        }
         .sheet(item: $showingList) { kind in RemindersView(library: library, kind: kind) }
+        .navigationDestination(isPresented: $showingTrash) { RecentlyDeletedView(library: library) }
+        // The rows' eyes and the tick (build 94).
+        .task(id: listShown) {
+            while listShown && !Task.isCancelled {
+                watched = LaterCenter.shared.lists(.watch) ? WatchStore.entries().map(\.url) : []
+                #if DEBUG
+                watched += RowMarks.debugWatched
+                #endif
+                tick = Date()
+                try? await Task.sleep(nanoseconds: 30_000_000_000)
+            }
+        }
         #if DEBUG
         // Local checks without taps: -CFShowReminders YES opens "Reminders", -CFShowWatching YES "Watching", once the
         // chats are in.
@@ -167,7 +197,31 @@ struct ChatsView: View {
         } message: {
             Text("You can restore it from Recently Deleted for 30 days.")
         }
-        .onAppear { library.refresh() }
+        .onAppear {
+            library.refresh()
+            listShown = true
+        }
+        // A chat opened over the list (iPhone): the list's counts wait until it shows again.
+        .onDisappear { listShown = false }
+        // 2.6 (Pro, suggestions on): how many open suggestions each chat has, again when chats or their messages
+        // change (not a pin, a mark or a sync of the same messages: 2.6 (91), that recounted all the time while a
+        // chat was open, on the main thread); each chat's "N recommendations" counted once as shown.
+        // 2.6 (93): and when a chat's record changes (its name or tags, from any device).
+        .task(id: listShown ? library.threads.map { "\($0.id):\($0.entries.count):\($0.org?.nm?.t ?? ""):\($0.org?.nm?.no.count ?? 0):\($0.org?.tg.count ?? 0)" }.joined(separator: ",") : "") {
+            guard listShown else { return }
+            // A moment first: a burst of changes (iCloud) counts once.
+            try? await Task.sleep(nanoseconds: 700_000_000)
+            guard !Task.isCancelled else { return }
+            await organize.refreshStatus()
+            guard organize.enabled(pro: store.isPro) else { recs = [:]; return }
+            let found = await organize.counts(in: library.threads)
+            guard !Task.isCancelled else { return }
+            recs = found
+            for id in found.keys where !recsSeen.contains(id) {
+                recsSeen.insert(id)
+                ChatAI.reportOrganize("organize", ["action": "shown", "what": "badge"])
+            }
+        }
         // An Own key subscriber: whether Pro at a discount is set up, and if it's due, the card above, once a period.
         .task {
             await store.refreshUpgradeOffer()
@@ -216,8 +270,12 @@ struct ChatsView: View {
     @ViewBuilder
     private func chatRows(_ threads: [ChatThread]) -> some View {
         ForEach(threads) { thread in
+            // No gesture of our own on the row: a simultaneous tap gesture here took the tap from the link on iPhone and
+            // iPad (2.6 (91–92): "I tap a chat and nothing happens"). A tap on a chat with recommendations is counted
+            // when the chat shows (navigationDestination below).
             NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory)) {
-                ChatRow(thread: thread)
+                ChatRow(thread: thread, recs: recs[thread.id] ?? 0, watches: RowMarks.watches(thread.entries, watched: watched),
+                        reminder: RowMarks.remindsAhead(thread.entries, now: tick), working: RowMarks.pending(thread.entries, now: tick))
             }
             .contextMenu { menu(for: thread) }
             #if os(iOS)
@@ -277,7 +335,9 @@ struct ChatsView: View {
             case .success(let results):
                 ForEach(results, id: \.self) { result in
                     if let thread = library.threads.first(where: { $0.id == result.id }) {
-                        NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory)) {
+                        // Build 98 (the owner: a meaning result should land on what it refers to, highlighted like a
+                        // pinned answer): the chat opens at the message sharing the description's and the why's words.
+                        NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory, scrollTo: thread.isHistory ? nil : meaningSpot(thread, found.query, result.why))) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(thread.name).font(.headline).lineLimit(1)
                                 if !result.why.isEmpty {
@@ -294,8 +354,24 @@ struct ChatsView: View {
                 }
             }
         } else {
-            Label("Describe what you remember, in any words, and press Search: “the article about sleep and coffee from last week”.", systemImage: "sparkles")
-                .foregroundColor(.secondary)
+            meaningHint
+        }
+    }
+
+    /// The message a meaning result refers to (MeaningSpot.swift, the panel's src/shared/meaningSpot.ts): what each
+    /// message says, a question with its page's name, a note with its quote.
+    private func meaningSpot(_ thread: ChatThread, _ query: String, _ why: String) -> Int? {
+        let texts = thread.entries.map { entry in
+            [entry.content, entry.role == "user" ? entry.page?.title : nil, entry.cite].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: "\n")
+        }
+        return MeaningSpot.index(texts: texts, query: query, why: why)
+    }
+
+    /// What "By meaning" does, as words under the field, not a row that looks like another field (2.6 (98)).
+    private var meaningHint: some View {
+        Section {
+        } footer: {
+            Text("Describe what you remember, in any words, and press Search: “the article about sleep and coffee from last week”.")
         }
     }
 
@@ -351,7 +427,7 @@ struct ChatsView: View {
                         Label("Your chats from Safari", systemImage: "sparkles")
                             .font(.headline)
                             .foregroundColor(brandBlue)
-                        Text("Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, ✦ finds a chat from a description.")
+                        Text("Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, “By meaning” finds a chat from a description.")
                             .font(.callout)
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -405,6 +481,38 @@ struct ChatsView: View {
                     }
                 }
             }
+    }
+
+    /// The Chats screen's "…" (build 94).
+    private var listMenu: some View {
+        let now = Date().timeIntervalSince1970 * 1000
+        let reminders = library.threads.reduce(0) { sum, thread in sum + thread.entries.filter { ($0.remind?.at ?? 0) > now }.count }
+        return Menu {
+            Button { showingList = .remind } label: {
+                Label(reminders > 0 ? "Reminders · \(reminders)" : "Reminders", systemImage: "bell")
+            }
+            if LaterCenter.shared.lists(.watch) {
+                Button { showingList = .watch } label: {
+                    Label(watched.isEmpty ? "Watching" : "Watching · \(watched.count)", systemImage: "eye")
+                }
+            }
+            if !library.trashed.isEmpty {
+                Button { showingTrash = true } label: { Label("Recently Deleted · \(library.trashed.count)", systemImage: "trash") }
+            }
+            Menu {
+                Button { openTab(.settings) } label: { Label("Settings", systemImage: "gearshape") }
+                Button { openTab(.tips) } label: { Label("Tips", systemImage: "lightbulb") }
+                if let tier = store.tier, tier != .byok {
+                    Button { PlanTour.shared.show(tier) } label: { Label("What's in \(tier.name)", systemImage: "sparkles") }
+                }
+                Button(action: openSetup) { Label("How to turn on ContextFlow", systemImage: "safari") }
+            } label: {
+                Label("Other…", systemImage: "ellipsis")
+            }
+        } label: {
+            Label("More", systemImage: "ellipsis.circle")
+        }
+        .accessibilityIdentifier("cf-list-menu")
     }
 
     @ViewBuilder
@@ -498,6 +606,62 @@ struct RecentlyDeletedView: View {
     }
 }
 
+/// The search field's two ways, "By words" and "By meaning" (2.6 (98)), as the list's first row while the field is open
+/// or has words in it.
+/// A long press on Listen with a mark (build 98 release; no tooltip on a touch screen): the whole sentence, wrapped, as
+/// the menu's preview (a menu item cuts it at two lines, before the seconds a replay charges), and Listen below it.
+private struct ListenMarkMenu: ViewModifier {
+    let mark: ListenMark?
+    let listen: () -> Void
+
+    func body(content: Content) -> some View {
+        if let mark {
+            content.contextMenu {
+                Button(action: listen) { Label("Listen", systemImage: "speaker.wave.2.fill") }
+            } preview: {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Image(systemName: "checkmark.circle")
+                        .opacity(mark == .free ? 0.8 : 0.38)
+                    mark.words
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .font(.callout)
+                .foregroundColor(.primary)
+                .frame(width: 280, alignment: .leading)
+                .padding(16)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("chat.listen.said")
+            }
+        } else {
+            content
+        }
+    }
+}
+
+private struct SearchWayRow: View {
+    @Binding var way: ChatsView.SearchWay
+    let pro: Bool
+    let typed: Bool
+    @Environment(\.isSearching) private var isSearching
+
+    var body: some View {
+        if isSearching || typed {
+            Section {
+                Picker("Search", selection: $way) {
+                    Text("By words").tag(ChatsView.SearchWay.words)
+                    Text(pro ? "By meaning" : "By meaning · Pro").tag(ChatsView.SearchWay.meaning)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .accessibilityIdentifier("cf-search-way")
+            } footer: {
+                // Build 98, the owner: what each way does, in a line (words: as you type; meaning: on its button).
+                Text("By words shows results as you type. By meaning: describe the chat, then tap Search by meaning.")
+            }
+        }
+    }
+}
+
 /// On top of the list: questions about all the chats (Pro).
 private struct AskHistoryRow: View {
     let pro: Bool
@@ -556,7 +720,8 @@ struct HistoryChatView: View {
     @FocusState private var focused: Bool
     /// The answer just copied: "Copied" for a moment.
     @State private var copied: Int?
-    @Environment(\.requestReview) private var requestReview
+    /// A chat opened from a link in an answer (build 94).
+    @State private var openedChat: String?
 
     private static let examples = ["What did I read this week?", "Summarize my notes", "What have I learned about AI?"]
 
@@ -590,12 +755,14 @@ struct HistoryChatView: View {
                                     .padding(.leading, 40)
                             } else {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    MarkdownView(text: m["content"] ?? "")
-                                    MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels)) {
+                                    MarkdownView(text: RowMarks.linkChats(m["content"] ?? "", chats: chatNames))
+                                    MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels), copy: {
                                         Clipboard.copy(ShareText.plain(m["content"] ?? ""))
                                         copied = index
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copied == index { copied = nil } }
-                                    }
+                                    }, listen: {
+                                        ListenPlayer.shared.listen(answer: m["content"] ?? "", id: "history-\(index)-\((m["content"] ?? "").hashValue)", title: String(localized: "Ask your chats"))
+                                    })
                                 }
                             }
                         }
@@ -643,6 +810,26 @@ struct HistoryChatView: View {
         #endif
         .aiConsent($consentAsk)
         .onAppear(perform: load)
+        // Build 94, the owner: «в чате про чаты нужно делать ссылки на чаты, на которые ссылается ответ»: a chat's
+        // name in an answer opens that chat over this one (Back comes back to the answer).
+        .environment(\.openURL, OpenURLAction { url in
+            guard url.scheme == "chat" else { return .systemAction }
+            let id = url.absoluteString.dropFirst("chat:".count).lowercased()
+            guard let chat = library.threads.first(where: { $0.id.lowercased() == id }) else { return .handled }
+            ChatAI.reportOrganize("use", ["f": "ask_chats", "a": "link"])
+            openedChat = chat.id
+            return .handled
+        })
+        .navigationDestination(isPresented: Binding(get: { openedChat != nil }, set: { if !$0 { openedChat = nil } })) {
+            if let openedChat {
+                ChatDetailView(library: library, threadId: openedChat, openPro: openPro)
+            }
+        }
+    }
+
+    /// The chats an answer may name (links to them, RowMarks.linkChats).
+    private var chatNames: [(id: String, name: String)] {
+        library.threads.filter { !$0.isHistory && $0.id != id }.map { (id: $0.id, name: $0.name) }
     }
 
     private func load() {
@@ -673,7 +860,7 @@ struct HistoryChatView: View {
                 try await ChatAI.askHistory(history, chats: others) { piece in streaming = (streaming ?? "") + piece }
                 messages.append(["role": "assistant", "content": streaming ?? ""])
                 library.saveHistory(id: id, messages: messages)
-                askForReviewAfterAnswer(requestReview)
+                ReviewAsk.shared.appAnswered()
             } catch let error as ChatAI.Failure {
                 failure = error
                 if let partial = streaming, !partial.isEmpty { messages.append(["role": "assistant", "content": partial]) }
@@ -860,6 +1047,13 @@ extension View {
 
 struct ChatRow: View {
     let thread: ChatThread
+    /// Open organizing suggestions in it (2.6, Pro): "N recommendations" on its last line.
+    var recs = 0
+    /// Build 94 (RowMarks): how many of its pages are watched (the eye), a reminder still to ring (the bell), its last
+    /// question still being answered in Safari (a spinner by the name, as the panel's list has).
+    var watches = 0
+    var reminder = false
+    var working = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -876,6 +1070,11 @@ struct ChatRow: View {
                 Text(thread.name)
                     .font(.headline)
                     .lineLimit(1)
+                if working {
+                    ProgressView()
+                        .controlSize(.mini)
+                        .accessibilityLabel(Text("Working on it…"))
+                }
             }
             if !thread.snippet.isEmpty {
                 Text(thread.snippet)
@@ -896,6 +1095,19 @@ struct ChatRow: View {
                 if thread.notes > 0 {
                     Label("\(thread.notes)", systemImage: "pencil")
                         .accessibilityLabel(Text("\(thread.notes) notes"))
+                }
+                if watches > 0 {
+                    Label("\(watches)", systemImage: "eye")
+                        .accessibilityLabel(Text("Pages watched in this chat: \(watches)"))
+                }
+                if reminder {
+                    Image(systemName: "bell")
+                        .accessibilityLabel(Text("A reminder is set in this chat"))
+                }
+                if recs > 0 {
+                    Label("\(recs) recommendations", systemImage: "sparkles")
+                        .foregroundColor(brandBlue)
+                        .lineLimit(1)
                 }
                 Spacer(minLength: 0)
                 Text(thread.lastActivity, style: .relative)
@@ -989,6 +1201,15 @@ struct ExtensionOffBanner: View {
 
 // MARK: - A chat
 
+/// "Named “…” · Undo" (2.6), or why the chat couldn't be named (no Undo), or (2.6 (95)) that suggestions now come by
+/// themselves, after the first one taken.
+private struct NameBar {
+    let id = UUID()
+    let chat: String
+    let text: String
+    let undo: (() -> Void)?
+}
+
 struct ChatDetailView: View {
     @ObservedObject var library: ChatLibrary
     let threadId: String
@@ -1014,7 +1235,6 @@ struct ChatDetailView: View {
     /// Sharing the chat: the messages picked (all at first); nil when not picking.
     @State private var picked: Set<Int>?
     @State private var chatCopied = false
-    @Environment(\.requestReview) private var requestReview
     @Environment(\.dismiss) private var dismiss
     @State private var renaming = false
     @State private var newName = ""
@@ -1024,15 +1244,23 @@ struct ChatDetailView: View {
     @State private var shownId: String?
     @ObservedObject private var organize = OrganizeModel.shared
     @ObservedObject private var store = StoreKitManager.shared
+    // Build 94: texts heard to their end on this device (here or in the panel): Listen shows replaying them is free.
+    @ObservedObject private var voiced = VoicedList.shared
     @State private var suggestions: OrganizeModel.Suggestions?
     @State private var undoBar: (text: String, undo: Organize.MoveUndo)?
+    /// 2.6 (95): the older chat just merged into this one (its Undo keeps this chat shown).
+    @State private var mergedHere: String?
     // When that bar came, when it goes and where the chat was scrolled to (a class: scrolling doesn't redraw), and
     // whether a pointer holds it.
     @State private var undoBarClock = MovedBarClock()
+    // 2.6: "Named “…” · Undo" after the AI named the chat (or why it couldn't), and "Name by topic" working.
+    @State private var nameBar: NameBar?
+    @State private var naming = false
     @State private var undoBarHeld = false
     @State private var messShown = false
     @State private var tagsCard = false
-    @State private var firstWin = false
+    // The chat the first suggestion was taken in: its line stays there until the next question or note.
+    @State private var firstWin: String?
     @State private var organizeTick = 0
     @State private var seen = Set<String>()
     // Chat UX (2.5): which pinned message the bar shows (and until when scrolling doesn't move it), the message whose
@@ -1040,6 +1268,10 @@ struct ChatDetailView: View {
     // bar, and whether text is being selected (no swiping then).
     @State private var pinAt = Int.max
     @State private var pinLock = Date.distantPast
+    // 2.6 (97): the bar of open suggestions: the one it shows, the chip flashing after a tap, the sets counted as shown.
+    @State private var sugAt = 0
+    @State private var sugLit: BarSuggestion?
+    @State private var sugSeen = Set<String>()
     @State private var reminding: Int?
     @State private var remindNote: String?
     // `whole`: they were the chat's last messages, still kept until the bar goes (see deleteMessage).
@@ -1049,6 +1281,12 @@ struct ChatDetailView: View {
 
     private var currentId: String { shownId ?? threadId }
     private var thread: ChatThread? { library.threads.first { $0.id == currentId } }
+
+    /// The chat's answers, asked about whether they're voiced (build 95); not while one is still being written.
+    private func askVoiced(_ thread: ChatThread) {
+        guard streaming.isEmpty else { return }
+        voiced.ask(answers: thread.entries.filter { !$0.isUser && !$0.isNote }.map(\.content))
+    }
 
     var body: some View {
         Group {
@@ -1060,11 +1298,12 @@ struct ChatDetailView: View {
                         LazyVStack(alignment: .leading, spacing: 14) {
                             ForEach(Array(thread.entries.enumerated()), id: \.offset) { index, entry in
                                 if let page = newPage(thread.entries, index) {
-                                    PageDivider(page: page) { library.open(page.url) }
+                                    PageDivider(page: page) { library.open(page.url, chat: thread.id, at: thread.entries[index].id ?? "i\(index)") }
                                 }
                                 pickRow(index) {
                                     VStack(alignment: entry.isUser ? .trailing : .leading, spacing: 8) {
                                         MessageView(entry: entry, onMarks: picked == nil ? { marks in setMarks(thread, index, marks) } : nil, onSelecting: { selecting = $0 })
+                                            .environment(\.openURL, pageLinks(thread, index))
                                         if let remind = entry.remind, !entry.isUser || entry.isNote {
                                             RemindChip(at: Date(timeIntervalSince1970: remind.at / 1000)) { remindNote = nil; reminding = index }
                                         }
@@ -1098,7 +1337,13 @@ struct ChatDetailView: View {
                                                     pin: { togglePin(thread, index, how: "menu") },
                                                     remind: { remindNote = nil; reminding = index },
                                                     delete: { deleteMessage(thread, index, how: "menu") }
-                                                )
+                                                ),
+                                                listen: entry.isNote ? nil : {
+                                                    // Titled by the page the answer is about (build 94, the owner: it had the
+                                                    // chat's name): the one its question was asked on, as in the panel.
+                                                    ListenPlayer.shared.listen(answer: entry.content, id: "chat-\(thread.id)-\(index)", title: answerTitle(thread, index))
+                                                },
+                                                mark: !entry.isNote && store.isUltra ? voiced.mark("answer", entry.content) : nil
                                             )
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
@@ -1174,21 +1419,45 @@ struct ChatDetailView: View {
                     }
                     .safeAreaInset(edge: .top, spacing: 0) {
                         let pinned = pinnedItems(thread)
-                        if !pinned.isEmpty, picked == nil {
-                            PinnedBar(items: pinned, at: Binding(get: { min(pinAt, pinned.count - 1) }, set: { pinAt = $0 }), open: { index in
-                                pinLock = Date().addingTimeInterval(1)
-                                withAnimation { proxy.scrollTo(index, anchor: .center) }
-                                flashMessage(index)
-                                ChatAI.reportUx("ux_pin", ["action": "bar_tap", "how": "bar"])
-                            }, unpin: { index in
-                                togglePin(thread, index, how: "list")
-                            }, unpinAll: {
-                                library.unpinAll(thread)
-                                ChatAI.reportUx("ux_pin", ["action": "unpinned_all", "how": "list"])
-                            })
+                        let sugs = barSuggestions(thread, raw)
+                        if picked == nil, !pinned.isEmpty || !sugs.isEmpty {
+                            // 2.6 (97): with both, one line each.
+                            VStack(spacing: 0) {
+                                if !pinned.isEmpty {
+                                    PinnedBar(items: pinned, at: Binding(get: { min(pinAt, pinned.count - 1) }, set: { pinAt = $0 }), open: { index in
+                                        pinLock = Date().addingTimeInterval(1)
+                                        withAnimation { proxy.scrollTo(index, anchor: .center) }
+                                        flashMessage(index)
+                                        ChatAI.reportUx("ux_pin", ["action": "bar_tap", "how": "bar"])
+                                    }, unpin: { index in
+                                        togglePin(thread, index, how: "list")
+                                    }, unpinAll: {
+                                        library.unpinAll(thread)
+                                        ChatAI.reportUx("ux_pin", ["action": "unpinned_all", "how": "list"])
+                                    }, compact: !sugs.isEmpty)
+                                }
+                                if !sugs.isEmpty {
+                                    SuggestionsBar(items: sugs, at: Binding(get: { min(sugAt, sugs.count - 1) }, set: { sugAt = $0 }), compact: !pinned.isEmpty, open: { item in
+                                        pinLock = Date().addingTimeInterval(1)
+                                        ChatAI.reportUse("org", "bar_tap")
+                                        // The suggestion is under its message: the message's end on screen.
+                                        withAnimation { proxy.scrollTo(item.index, anchor: .bottom) }
+                                        withAnimation(.easeOut(duration: 0.2)) { sugLit = item }
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { withAnimation(.easeIn(duration: 0.4)) { if sugLit == item { sugLit = nil } } }
+                                    }, shown: {
+                                        let key = "\(thread.id)|" + sugs.map { "\($0.kind.rawValue)\($0.index):\($0.text)" }.joined(separator: ",")
+                                        if sugSeen.insert(key).inserted { ChatAI.reportUse("org", "bar_shown") }
+                                    })
+                                }
+                            }
                         }
                     }
                     .onAppear {
+                        #if DEBUG
+                        DebugHangLog.mark("open \(threadId)")
+                        #endif
+                        // Build 95: which answers are already voiced, as the server counts them (any device, any listens).
+                        askVoiced(thread)
                         guard let scrollTo else { return }
                         DispatchQueue.main.async { proxy.scrollTo(scrollTo, anchor: .center) }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { flashMessage(scrollTo) }
@@ -1199,6 +1468,7 @@ struct ChatDetailView: View {
                         proxy.scrollTo("end", anchor: .bottom)
                         // Another message came: start picking again.
                         picked = nil
+                        askVoiced(thread)
                     }
                     // The tag picker opened: all of it in view (above the keyboard).
                     .onChange(of: tagging) { index in
@@ -1227,21 +1497,41 @@ struct ChatDetailView: View {
                             guard !Task.isCancelled else { return }
                             withAnimation { undoBar = nil }
                         }
+                    } else if let bar = nameBar, bar.chat == currentId {
+                        UndoBar(text: bar.text, actions: bar.undo.map { undo in [(label: LocalizedStringKey("Undo"), run: undo)] } ?? [])
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 8)
+                            .task(id: bar.id) {
+                                try? await Task.sleep(nanoseconds: UInt64(UndoClock.move * 1_000_000_000))
+                                guard !Task.isCancelled else { return }
+                                withAnimation { if nameBar?.id == bar.id { nameBar = nil } }
+                            }
                     }
                 }
                 .sheet(isPresented: Binding(get: { reminding != nil }, set: { if !$0 { reminding = nil } })) {
                     if let index = reminding, thread.entries.indices.contains(index) {
                         let current = thread.entries[index].remind.map { Date(timeIntervalSince1970: $0.at / 1000) }
-                        RemindSheet(current: current, note: remindNote, pick: { at, preset in
-                            Task { await setReminder(thread, index, at: at, preset: preset) }
+                        RemindSheet(current: current, note: remindNote, quote: thread.entries[index].cited?.cite,
+                                    words: thread.entries[index].remindWords, pick: { at, preset, words in
+                            Task { await setReminder(thread, index, at: at, preset: preset, words: words) }
                         }, cancel: {
                             Task { await setReminder(thread, index, at: nil, preset: nil) }
                         })
                     }
                 }
                 .task(id: "\(thread.id):\(thread.entries.count):\(asking == nil):\(organizeTick)") { await suggest(thread) }
+                // 2.6 (94): what iCloud has for it now (another device may have renamed it or settled a suggestion).
+                .task(id: thread.id) { await library.pull() }
+                // 2.6 (93): the chat's record came from another device while it's open: shown at once too. 2.6 (95): read
+                // afresh by its id (this closure's `thread` is the chat as it was before the change: a name taken on another
+                // device stayed offered), and on a rename too.
+                .onChange(of: thread.org) { _ in showKept(thread.id) }
+                .onChange(of: thread.name) { _ in showKept(thread.id) }
                 // The bar after a move goes on the next action: a question, a note, another suggestion, leaving the chat.
                 .onDisappear { undoBar = nil }
+                // 2.6 (95): the first suggestion's bar waits for the bar of its move.
+                .onChange(of: undoBar == nil) { gone in if gone { showFirstWin() } }
+                .onChange(of: nameBar == nil) { gone in if gone { showFirstWin() } }
                 .safeAreaInset(edge: .bottom) {
                     if let picked {
                         pickBar(thread, picked, labels)
@@ -1275,6 +1565,10 @@ struct ChatDetailView: View {
                                 newName = thread.title ?? ""
                                 renaming = true
                             } label: { Label("Rename", systemImage: "pencil") }
+                            if organize.enabled(pro: store.isPro), !thread.isHistory, !thread.entries.isEmpty {
+                                Button { nameByTopic(thread) } label: { Label("Name by topic", systemImage: "sparkles") }
+                                    .disabled(naming)
+                            }
                             Button { taggingChat = true } label: { Label("Tags", systemImage: "tag") }
                             Button { library.setPinned(thread, !thread.isPinned) } label: {
                                 Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
@@ -1373,6 +1667,8 @@ struct ChatDetailView: View {
         guard !text.isEmpty, asking == nil else { return }
         failure = nil
         undoBar = nil
+        nameBar = nil
+        firstWin = nil
         if noteMode {
             // A note: kept with the chat, never sent to the AI, uses no answers.
             library.append(thread, [Organize.stamped(["role": "user", "content": text, "note": true])])
@@ -1400,7 +1696,7 @@ struct ChatDetailView: View {
             do {
                 try await ChatAI.ask(text, in: thread) { piece in streaming += piece }
                 save(streaming)
-                askForReviewAfterAnswer(requestReview)
+                ReviewAsk.shared.appAnswered()
             } catch {
                 failure = error as? ChatAI.Failure ?? .network
                 if streaming.isEmpty {
@@ -1422,9 +1718,12 @@ struct ChatDetailView: View {
         guard asking == nil, !thread.isHistory else { return }
         await organize.refreshStatus()
         guard organize.enabled(pro: store.isPro) else { suggestions = nil; return }
+        showKept(thread.id)
         try? await Task.sleep(nanoseconds: 900_000_000)
-        guard !Task.isCancelled, let found = await organize.suggestions(for: thread, in: library.threads),
-              found.chat == currentId, found.length == self.thread?.entries.count else { return }
+        guard !Task.isCancelled, let found = await organize.suggestions(for: thread, in: library.threads) else { return }
+        // Kept with the chat even if it's no longer shown: the list counts it, other devices show it at once.
+        if let org = found.org { library.keepOrg(found.chat, org) }
+        guard found.chat == currentId, found.length == self.thread?.entries.count else { return }
         withAnimation(.easeOut(duration: 0.4)) { suggestions = found }
         // Each suggestion counted once as shown.
         if let move = found.move, !seen.contains("m\(found.chat)\(move.start)") {
@@ -1438,10 +1737,73 @@ struct ChatDetailView: View {
         }
     }
 
+    /// What the chat's own record suggests (worked out here or on another device, 2.6 (93)), at once: the run that
+    /// follows has the last word.
+    private func showKept(_ id: String) {
+        guard asking == nil, organize.enabled(pro: store.isPro), let thread = library.threads.first(where: { $0.id == id }) else { return }
+        guard let kept = organize.kept(thread, in: library.threads) else {
+            // Nothing open in the record (2.6 (94)): what was settled meanwhile goes from what's shown.
+            if let s = suggestions, s.chat == thread.id {
+                let left = organize.settled(s, thread, in: library.threads)
+                if left != s { withAnimation(.easeOut(duration: 0.25)) { suggestions = left } }
+            }
+            return
+        }
+        guard kept.chat == currentId, kept.length == self.thread?.entries.count, kept != suggestions else { return }
+        withAnimation(.easeOut(duration: 0.25)) { suggestions = kept }
+    }
+
+    /// 2.6: the AI's name on the chat, with "Named “…” · Undo": a suggested name taken (never over a name the user
+    /// typed), or "Name by topic" (over any). Never by itself (2.6 (91)).
+    private func putName(_ thread: ChatThread, _ name: String, why: String) {
+        guard let before = library.nameByAI(thread, name, asked: why == "asked") else { return }
+        ChatAI.reportOrganize("organize", ["action": "accepted", "what": "name", "why": why])
+        ReviewAsk.shared.ask(.organize, after: UndoClock.move + UndoClock.grace + 1)
+        let id = thread.id
+        withAnimation {
+            nameBar = NameBar(chat: id, text: String(localized: "Named “\(name)”"), undo: {
+                ReviewAsk.shared.cancel(.organize)
+                withAnimation { nameBar = nil }
+                library.unname(id, name, before: before)
+                ChatAI.reportOrganize("organize", ["action": "undone", "what": "name", "why": why])
+            })
+        }
+    }
+
+    /// "Name by topic" in the chat's menu.
+    private func nameByTopic(_ thread: ChatThread) {
+        naming = true
+        Task {
+            let name = await organize.nameNow(thread)
+            naming = false
+            if let name, let current = library.threads.first(where: { $0.id == thread.id }) {
+                putName(current, name, why: "asked")
+            } else {
+                withAnimation { nameBar = NameBar(chat: thread.id, text: String(localized: "I couldn't name this chat just now. Try again later."), undo: nil) }
+            }
+        }
+    }
+
     /// The suggestions as they are now for this chat (gone once it changed, or while sharing or asking).
     private func current(_ thread: ChatThread) -> OrganizeModel.Suggestions? {
-        guard let s = suggestions, s.chat == thread.id, s.length == thread.entries.count, picked == nil, asking == nil else { return nil }
+        guard var s = suggestions, s.chat == thread.id, s.length == thread.entries.count, picked == nil, asking == nil else { return nil }
+        // 2.6 (95): a name that is the chat's by now (taken on another device), turned down or typed meanwhile isn't offered.
+        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || Organize.turnedDownName(thread.org?.nm?.no ?? [], name) {
+            s.name = nil
+        }
         return s
+    }
+
+    /// 2.6 (97): the open suggestions for the bar at the top: the ones the rows under the messages show.
+    private func barSuggestions(_ thread: ChatThread, _ raw: [[String: Any]]) -> [BarSuggestion] {
+        guard let s = current(thread) else { return [] }
+        var items: [BarSuggestion] = []
+        for (index, item) in s.tags where raw.indices.contains(index) && Organize.entryKey(raw[index]) == item.key {
+            items.append(BarSuggestion(kind: .tag, index: index, text: "#\(item.tag) · \(ReminderTimes.text(thread.entries[index].content, max: 80))"))
+        }
+        if let move = s.move, thread.entries.indices.contains(move.end) { items.append(BarSuggestion(kind: .move, index: move.end, text: SuggestionRow.moveLine(move))) }
+        if let name = s.name, !thread.entries.isEmpty { items.append(BarSuggestion(kind: .name, index: thread.entries.count - 1, text: String(localized: "Name it “\(name)”"))) }
+        return BarSuggestion.ordered(items)
     }
 
     @ViewBuilder
@@ -1449,20 +1811,45 @@ struct ChatDetailView: View {
         if let s = current(thread) {
             let tag = s.tags[index].flatMap { raw.indices.contains(index) && Organize.entryKey(raw[index]) == $0.key ? $0.tag : nil }
             let move = s.move?.end == index ? s.move : nil
-            if tag != nil || move != nil {
+            // 2.6 (91): a better name is a suggestion under the last message, like a tag or a move.
+            let name = index == raw.count - 1 ? s.name : nil
+            if tag != nil || move != nil || name != nil {
                 SuggestionRow(
-                    tag: tag, move: move,
+                    tag: tag, move: move, name: name,
+                    lit: sugLit?.index == index ? sugLit?.kind : nil,
                     onTag: { if let tag { takeTag(thread, index, tag) } },
                     onTagNo: { if let tag { refuseTag(thread, index, tag) } },
                     onMove: { if let move { takeMove(thread, move) } },
-                    onMoveNo: { if let move { refuseMove(thread, move) } }
+                    onMoveNo: { if let move { refuseMove(thread, move) } },
+                    onName: {
+                        guard let name else { return }
+                        suggestions?.name = nil
+                        library.settleName(thread.id, taken: true)
+                        putName(thread, name, why: "drift")
+                    },
+                    onNameNo: {
+                        suggestions?.name = nil
+                        library.settleName(thread.id, taken: false)
+                        ChatAI.reportOrganize("organize", ["action": "dismissed", "what": "name", "why": "drift"])
+                    }
                 )
             }
         }
     }
 
+    /// The first suggestion taken: that from now on they come by themselves (once). 2.6 (95): a bar that goes by itself,
+    /// not a line left at the end of the chat; after the bar of the move (its Undo comes first), if there is one.
     private func won() {
-        if organize.takeFirstWin() { withAnimation { firstWin = true } }
+        if organize.takeFirstWin() { firstWin = currentId; showFirstWin() }
+        // A suggestion taken: a good moment for a rating (2.6 (100)), once its Undo bar has gone (Undo takes it back).
+        ReviewAsk.shared.ask(.organize, after: UndoClock.move + UndoClock.grace + 1)
+    }
+
+    private func showFirstWin() {
+        guard let chat = firstWin, undoBar == nil, nameBar == nil else { return }
+        firstWin = nil
+        guard chat == currentId, organize.enabled(pro: store.isPro) else { return }
+        withAnimation { nameBar = NameBar(chat: chat, text: String(localized: "Done. From now on I'll suggest on my own."), undo: nil) }
     }
 
     private func takeTag(_ thread: ChatThread, _ index: Int, _ tag: String) {
@@ -1492,6 +1879,7 @@ struct ChatDetailView: View {
     }
 
     private func takeMove(_ thread: ChatThread, _ move: OrganizeModel.Move) {
+        if let from = move.from { return takeMergeHere(thread, move, from) }
         suggestions = nil
         guard let undo = library.move(thread, move.start, move.end, to: move.to) else { return }
         ChatAI.reportOrganize("organize", ["action": "accepted", "what": move.to == nil ? "new" : "move", "why": move.why.rawValue])
@@ -1499,7 +1887,21 @@ struct ChatDetailView: View {
         if !library.threads.contains(where: { $0.id == thread.id }) { shownId = undo.target }
         undoBarClock.start()
         undoBarHeld = false
-        withAnimation { undoBar = (String(localized: "Moved to “\(move.toName)”"), undo) }
+        withAnimation { undoBar = (move.why == .merge ? String(localized: "Merged into “\(move.toName)”") : String(localized: "Moved to “\(move.toName)”"), undo) }
+        won()
+    }
+
+    /// 2.6 (95): the older chat joins this one (the merge shown in the newer chat, where the person is): its messages come
+    /// in by time, this chat stays shown; Undo puts it back and the merge isn't suggested again.
+    private func takeMergeHere(_ thread: ChatThread, _ move: OrganizeModel.Move, _ from: String) {
+        suggestions = nil
+        guard let older = library.threads.first(where: { $0.id == from }), !older.entries.isEmpty,
+              let undo = library.move(older, 0, older.entries.count - 1, to: thread.id) else { return }
+        ChatAI.reportOrganize("organize", ["action": "accepted", "what": "move", "why": move.why.rawValue])
+        mergedHere = from
+        undoBarClock.start()
+        undoBarHeld = false
+        withAnimation { undoBar = (String(localized: "Brought “\(move.toName)” here"), undo) }
         won()
     }
 
@@ -1524,8 +1926,16 @@ struct ChatDetailView: View {
     }
 
     private func undoMove(_ undo: Organize.MoveUndo) {
+        ReviewAsk.shared.cancel(.organize)
         withAnimation { undoBar = nil }
         library.undo(undo)
+        // A merge into this chat taken back (2.6 (95)): this chat stays shown, and that merge isn't suggested again.
+        if mergedHere == undo.source, undo.target == currentId {
+            mergedHere = nil
+            library.refuseMerge(undo.source, into: undo.target)
+            ChatAI.reportOrganize("organize", ["action": "undone", "what": "move"])
+            return
+        }
         shownId = undo.source == threadId ? nil : undo.source
         // Taken back: the same move isn't suggested again.
         let keys = Set(undo.keys)
@@ -1543,6 +1953,15 @@ struct ChatDetailView: View {
 
     private func refuseMove(_ thread: ChatThread, _ move: OrganizeModel.Move) {
         undoBar = nil
+        // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere. 2.6
+        // (95): turned down in the newer chat, it's kept with the older one, so neither shows it again.
+        if move.why == .merge, let to = move.to {
+            if let from = move.from { library.refuseMerge(from, into: thread.id) } else { library.refuseMerge(thread.id, into: to) }
+            suggestions?.move = nil
+            ChatAI.reportOrganize("organize", ["action": "dismissed", "what": "move", "why": move.why.rawValue])
+            organizeTick += 1
+            return
+        }
         library.editEntries(thread) { entries in
             for i in move.start...move.end where entries.indices.contains(i) {
                 var dismissed = entries[i]["dismissed"] as? [String: Any] ?? [:]
@@ -1552,6 +1971,8 @@ struct ChatDetailView: View {
         }
         suggestions?.move = nil
         ChatAI.reportOrganize("organize", ["action": "dismissed", "what": move.to == nil ? "new" : "move", "why": move.why.rawValue])
+        // 2.6 (95): the run looks again (the name comes once nothing is left to move).
+        organizeTick += 1
     }
 
     /// Tags the user set on a message: after their third tag in all, what organizing does (without Pro, once).
@@ -1634,8 +2055,8 @@ struct ChatDetailView: View {
     }
 
     /// Sets (or with nil cancels) a message's reminder on this device; the chat keeps the bell (ChatLibrary.remind).
-    private func setReminder(_ thread: ChatThread, _ index: Int, at: Date?, preset: String?) async {
-        if await library.remind(thread, entry: index, at: at, preset: preset) {
+    private func setReminder(_ thread: ChatThread, _ index: Int, at: Date?, preset: String?, words: String? = nil) async {
+        if await library.remind(thread, entry: index, at: at, preset: preset, words: words) {
             reminding = nil
         } else {
             remindNote = String(localized: "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow.")
@@ -1647,6 +2068,8 @@ struct ChatDetailView: View {
         let added = Tags.clean(tags).filter { !known.contains($0.lowercased()) }.count
         library.setTags(thread, entry: index, tags)
         if known.count < 3, known.count + added >= 3, !store.isPro, organize.takeTagsCard() { withAnimation { tagsCard = true } }
+        // 2.6 (98): a tag put on: organizing looks again now, so it's offered on the messages like this one in seconds.
+        if !Tags.clean(tags).isEmpty { DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { organizeTick += 1 } }
     }
 
     /// Cards under the chat: turn suggestions on (Pro, off, the chat looks like it needs them), "Everything in one
@@ -1685,10 +2108,16 @@ struct ChatDetailView: View {
                 openPro()
             }, close: { withAnimation { tagsCard = false } })
         }
-        if firstWin, organize.enabled(pro: store.isPro) {
-            Label("Done. From now on I'll suggest on my own.", systemImage: "sparkles")
-                .font(.footnote)
-                .foregroundColor(.secondary)
+    }
+
+    /// Links in a message (an answer's, a note's page, Find similar's cards): 2.6 (98), the page opens in Safari with the
+    /// panel on this chat, at this message (ChatLibrary.open).
+    private func pageLinks(_ thread: ChatThread, _ index: Int) -> OpenURLAction {
+        OpenURLAction { url in
+            guard ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return .systemAction }
+            let at = thread.entries.indices.contains(index) ? (thread.entries[index].id ?? "i\(index)") : nil
+            library.open(url.absoluteString, chat: thread.id, at: at)
+            return .handled
         }
     }
 
@@ -1787,6 +2216,12 @@ struct ChatDetailView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { chatCopied = false }
     }
 
+    /// An answer's title for Listen: the page its question was asked on (the last page up to it), else the chat's name.
+    private func answerTitle(_ thread: ChatThread, _ index: Int) -> String {
+        guard let page = thread.entries[...min(index, thread.entries.count - 1)].last(where: { $0.isUser && $0.page != nil })?.page else { return thread.name }
+        return page.title.isEmpty ? host(of: page.url) : page.title
+    }
+
     /// The page a question or note moved the chat to (the first one, and every change after it).
     private func newPage(_ entries: [ChatEntry], _ index: Int) -> ChatEntry.Page? {
         let entry = entries[index]
@@ -1837,6 +2272,46 @@ private struct PageDivider: View {
     }
 }
 
+/// A note's text (2.6 (97), the owner: «то, что выделено, было оформлено как цитата, и … можно было написать свою
+/// заметку к ней»): a note made on a selection shows what was selected as a quote and the person's own words under it;
+/// any other note (and one on a selection made before) its text, as before. The panel draws the same
+/// (src/content/ux/NoteText.tsx).
+struct NoteBody: View {
+    let entry: ChatEntry
+
+    var body: some View {
+        if let cited = entry.cited {
+            VStack(alignment: .leading, spacing: 6) {
+                QuoteBlock(text: cited.cite)
+                if !cited.note.isEmpty {
+                    Text(cited.note).textSelection(.enabled)
+                }
+            }
+        } else {
+            Text(entry.content).textSelection(.enabled)
+        }
+    }
+}
+
+/// A quote: a bar at the leading edge and the text in the secondary color, as the panel's (.cf-note-cite).
+struct QuoteBlock: View {
+    let text: String
+    var lines: Int? = nil
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            RoundedRectangle(cornerRadius: 1.5).fill(Color.orange.opacity(0.75)).frame(width: 3)
+            Text(text)
+                .font(.callout)
+                .foregroundColor(.secondary)
+                .lineLimit(lines)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
 private struct MessageView: View {
     let entry: ChatEntry
     /// Answers in a chat: selectable, with "Highlight" (2.5); nil: as plain Markdown (an answer coming in).
@@ -1850,8 +2325,7 @@ private struct MessageView: View {
                     Image(systemName: "pencil")
                         .foregroundColor(.orange)
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(entry.content)
-                            .textSelection(.enabled)
+                        NoteBody(entry: entry)
                         // The page the note was made on (2.5): what a reminder on it brings you back to.
                         if let page = entry.page, let url = URL(string: page.url) {
                             Link(destination: url) {
@@ -1880,6 +2354,10 @@ private struct MessageView: View {
                 ForEach(entry.sources ?? [], id: \.self) { read in
                     ReadChip(read: read)
                 }
+                // Find similar: where it looked, as in the panel (build 95).
+                if entry.similarAsk != nil, let region = entry.similarRegion {
+                    SimilarWhereLine(region: region, country: entry.similarCountry)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.leading, 40)
@@ -1890,7 +2368,10 @@ private struct MessageView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.secondary)
                 }
-                if let onMarks {
+                if let similar = entry.similar, !similar.items.isEmpty {
+                    // Find similar's list as the panel shows it (build 95), not its Markdown copy.
+                    SimilarCardsView(answer: similar)
+                } else if let onMarks {
                     AnswerText(text: entry.content, marks: entry.marks ?? [], onChange: onMarks, onSelecting: onSelecting)
                 } else {
                     MarkdownView(text: entry.content)
@@ -2097,6 +2578,12 @@ private struct MessageTools: View {
     var shareRich: (() -> Void)? = nil
     /// Pin, remind and delete in "…" (2.5); nil: none ("Ask your chats").
     var actions: MessageActions? = nil
+    /// Listen (build 90, answers): Ultra's, in Ultra's tint; without Ultra with a tiny "Ultra" mark.
+    var listen: (() -> Void)? = nil
+    /// Build 94: heard in full, so replaying it costs no minutes: a quiet check by Listen. Build 98 release: made in
+    /// full but not all heard, a lighter check (a replay charges only what was never heard).
+    var mark: ListenMark? = nil
+    @ObservedObject var store = StoreKitManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -2105,35 +2592,87 @@ private struct MessageTools: View {
                     .buttonStyle(.plain)
                     .accessibilityHint(Text("Tags"))
             }
-            HStack(spacing: 2) {
-                Button(action: copy) {
-                    Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
-                }
-                if let shareRich {
-                    Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
-                } else {
-                    ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
-                }
-                if let tag {
-                    Button(action: tag) { Label("Tag", systemImage: "tag") }
-                        .background(Capsule().fill(tagging ? Color.secondary.opacity(0.14) : .clear))
-                        .accessibilityAddTraits(tagging ? .isSelected : [])
-                }
-                if let actions {
-                    Menu {
-                        Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
-                        Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
-                        Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
-                    } label: {
-                        Label("More", systemImage: "ellipsis")
-                    }
-                    .menuIndicator(.hidden)
-                }
+            // With their names while they fit on one line; icons alone when they don't (a long language, a narrow
+            // screen): never a name broken over two lines.
+            ViewThatFits(in: .horizontal) {
+                tools(titles: true)
+                tools(titles: false)
             }
             .buttonStyle(MessageToolStyle())
-            .labelStyle(CompactLabelStyle())
             .padding(.leading, -8)
         }
+    }
+
+    /// The tools with their names, or icons alone (VoiceOver still reads the names).
+    @ViewBuilder
+    private func tools(titles: Bool) -> some View {
+        if titles {
+            row(titles: true).labelStyle(ToolLabelStyle())
+        } else {
+            row(titles: false).labelStyle(.iconOnly)
+        }
+    }
+
+    @ViewBuilder
+    private func row(titles: Bool) -> some View {
+        HStack(spacing: 2) {
+            Button(action: copy) {
+                Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
+            }
+            if let shareRich {
+                Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
+            } else {
+                ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
+            }
+            if let listen {
+                Button(action: listen) {
+                    HStack(spacing: 3) {
+                        Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
+                        if titles { Text("Listen").lineLimit(1) }
+                        if !store.isUltra { UltraMark() }
+                        if let mark {
+                            Image(systemName: "checkmark.circle")
+                                .font(.caption2.weight(.semibold))
+                                .opacity(mark == .free ? 0.8 : 0.38)
+                                .accessibilityIdentifier(mark == .free ? "chat.listen.voiced" : "chat.listen.made")
+                        }
+                    }
+                    .foregroundColor(ultraTint)
+                    .fixedSize()
+                }
+                .help(mark?.words ?? Text("Listen"))
+                .accessibilityLabel(Text("Listen"))
+                .accessibilityValue(mark?.words ?? Text(""))
+                .accessibilityIdentifier("chat.listen")
+                .modifier(ListenMarkMenu(mark: mark, listen: listen))
+            }
+            if let tag {
+                Button(action: tag) { Label("Tag", systemImage: "tag") }
+                    .background(Capsule().fill(tagging ? Color.secondary.opacity(0.14) : .clear))
+                    .accessibilityAddTraits(tagging ? .isSelected : [])
+            }
+            if let actions {
+                Menu {
+                    Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
+                    Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
+                    Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
+                } label: {
+                    Label("More", systemImage: "ellipsis")
+                }
+                .menuIndicator(.hidden)
+            }
+        }
+    }
+}
+
+/// A footer tool's label: its icon and its name, on one line.
+private struct ToolLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 3) {
+            configuration.icon
+            configuration.title.lineLimit(1)
+        }
+        .fixedSize()
     }
 }
 
@@ -2245,20 +2784,6 @@ extension VerticalAlignment {
         let font = NSFont.preferredFont(forTextStyle: .body)
         return font.ascender - font.descender + font.leading + 18
         #endif
-    }
-}
-
-/// Counts an answer the app gave in a chat; on a milestone (the 3rd, 10th, 30th… answer) asks for an
-/// App Store rating a moment after it. Apple decides whether to show it (at most 3 times a year; never
-/// in TestFlight builds).
-@MainActor
-func askForReviewAfterAnswer(_ requestReview: RequestReviewAction) {
-    guard SharedDefaults.shared.countAppAnswer() else { return }
-    // A moment from Safari waiting for the next launch counts as asked: not twice in a row.
-    if let moment = SharedDefaults.shared.pendingReviewMoment() { SharedDefaults.shared.markReviewAsked(moment) }
-    Task {
-        try? await Task.sleep(nanoseconds: 1_500_000_000)
-        requestReview()
     }
 }
 

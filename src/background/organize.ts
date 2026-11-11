@@ -3,11 +3,12 @@
 // this device (storage.local, never iCloud), keyed by the message's key and text in the server's vector space.
 // The rules are src/shared/organize.ts; the app runs the same ones (Organize.swift).
 
+import { hasPro } from "../shared/plan"
 import { API_BASE } from "../shared/config"
 import { entryKey, textKey, type Entry } from "../shared/conversation"
-import { embedText, judgedTags, judgeText, suggestMove, tagCandidates, tagTargets, unpackVector, type VectorOf } from "../shared/organize"
-import { liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
-import { STORAGE, type OrganizeEvent, type OrganizeReply, type StatusInfo } from "../shared/types"
+import { embedText, judgedTags, judgeText, nameCheckKey, nameStateAfter, nameText, openName, openTags, ORGANIZE_ENGINE, organizeScan, orgStateFor, suggestMove, tagCandidates, tagTargets, unpackVector, type MoveSuggestion, type OrganizeConfig, type VectorOf, wantsNameCheck } from "../shared/organize"
+import { cleanTitle, liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
+import { STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type StatusInfo } from "../shared/types"
 
 interface Context {
   status: StatusInfo
@@ -68,33 +69,32 @@ function missing(chats: Thread[], store: VectorStore, max: number): Array<{ key:
   return out
 }
 
-let running: Promise<OrganizeReply> = Promise.resolve({ ok: true, move: null, tags: [] })
-
-/** The suggestions for chat `chatId` now; one run at a time (two panels open don't embed the same twice). */
-export function organizeChat(chatId: string, ctx: Context): Promise<OrganizeReply> {
-  running = running.catch(() => undefined).then(() => organizeOnce(chatId, ctx))
-  return running
+// One run at a time (two panels open, or the list and a chat, don't embed the same twice).
+let running: Promise<unknown> = Promise.resolve()
+function inTurn<T>(work: () => Promise<T>): Promise<T> {
+  const run = running.catch(() => undefined).then(work)
+  running = run
+  return run
 }
 
-async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply> {
-  const org = ctx.status.organize
-  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
-  if (ctx.status.plan !== "pro") return { ok: false, code: "PRO_ONLY" }
-  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgVerdicts])
-  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
-  const chat = threads[chatId]
-  if (!chat || chat.deleted || chat.kind === "history" || chat.m.length === 0) return { ok: true, move: null, tags: [] }
-  const live = liveThreads(threads).filter((t) => t.kind !== "history")
+/** The suggestions for chat `chatId` now. */
+export function organizeChat(chatId: string, ctx: Context): Promise<OrganizeReply> {
+  return inTurn(() => organizeOnce(chatId, ctx))
+}
+
+/** The device's vectors for `first` and then the other chats (asking for those it lacks), and how to read them. */
+async function vectorsFor(first: Thread | null, live: Thread[], ctx: Context, stored: Record<string, unknown>): Promise<{ vectorOf: VectorOf } | { code: OrganizeErrorCode }> {
+  const org = ctx.status.organize!
   let store = stored[STORAGE.orgVectors] as VectorStore | undefined
   if (!store || store.space !== org.space) store = { space: org.space, v: {} }
 
   // Vectors for what lacks them: this chat's messages first, then the other chats', the latest first.
-  const todo = missing([chat, ...live.filter((t) => t.id !== chat.id)], store, MAX_EMBED_PER_RUN)
+  const todo = missing(first ? [first, ...live.filter((t) => t.id !== first.id)] : live, store, MAX_EMBED_PER_RUN)
   for (let i = 0; i < todo.length; i += BATCH) {
     const batch = todo.slice(i, i + BATCH)
     const res = await api(ctx, { op: "embed", texts: batch.map((x) => x.text) })
     if (!res.ok) {
-      if (i === 0 && !chat.m.some((e) => store!.v[entryKey(e)])) return { ok: false, code: res.code }
+      if (i === 0 && first && !first.m.some((e) => store!.v[entryKey(e)])) return { code: res.code }
       break
     }
     // The server moved to another model: the vectors kept so far no longer compare with new ones.
@@ -108,21 +108,40 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   for (const key of Object.keys(store.v)) if (!keys.has(key)) delete store.v[key]
   await chrome.storage.local.set({ [STORAGE.orgVectors]: store })
 
+  const kept = store
   const unpacked = new Map<string, Float32Array | null>()
   const vectorOf: VectorOf = (e: Entry) => {
     const text = embedText(e)
-    const hit = text ? store!.v[entryKey(e)] : undefined
+    const hit = text ? kept.v[entryKey(e)] : undefined
     const at = hit?.indexOf(":") ?? -1
     if (!hit || at < 0 || hit.slice(0, at) !== textKey(text)) return null
     if (!unpacked.has(hit)) unpacked.set(hit, unpackVector(hit.slice(at + 1)))
     return unpacked.get(hit)
   }
+  return { vectorOf }
+}
+
+type OrganizeErrorCode = "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" | "OFF"
+
+async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply> {
+  const org = ctx.status.organize
+  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
+  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgVerdicts])
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const chat = threads[chatId]
+  if (!chat || chat.deleted || chat.kind === "history" || chat.m.length === 0) return { ok: true, move: null, tags: [] }
+  const live = liveThreads(threads).filter((t) => t.kind !== "history")
+  const vectors = await vectorsFor(chat, live, ctx, stored)
+  if ("code" in vectors) return { ok: false, code: vectors.code }
+  const { vectorOf } = vectors
   const cfg = org.config
 
   const move = suggestMove(chat, live, vectorOf, cfg)
+  void reportScan(chat, live, vectorOf, cfg, move, ctx)
   const verdicts = (stored[STORAGE.orgVerdicts] as Verdicts | undefined) ?? {}
   const tags: Array<{ index: number; key: string; tag: string }> = []
-  for (const index of tagTargets(chat, cfg)) {
+  for (const index of tagTargets(chat, cfg, live, vectorOf)) {
     const candidates = tagCandidates(chat, index, live, vectorOf, cfg)
     if (!candidates.length) continue
     const message = judgeText(chat.m, index)
@@ -138,19 +157,100 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   const newest = Object.entries(verdicts).sort((a, b) => b[1].at - a[1].at).slice(0, MAX_VERDICTS)
   await chrome.storage.local.set({ [STORAGE.orgVerdicts]: Object.fromEntries(newest) })
 
+  // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and again
+  // when it gets another page or a move changes it. A better one is a suggestion until taken or turned down (2.6 (91):
+  // never renamed by itself). The check and its answer go with the chat (2.6 (93)): another device asks nothing again,
+  // and a name turned down anywhere never comes back.
+  let nm = chat.org?.nm
+  // 2.6 (95): first what moves out of the chat (or merges), then its name, once nothing is left to move (else a chat on
+  // two topics got names of both, and renames came and went). A name it had stays hidden meanwhile (openName).
+  if (!move && wantsNameCheck(chat)) {
+    const key = nameCheckKey(chat)
+    if (nm?.k !== key) {
+      const current = threadName(chat)
+      const res = await api(ctx, { op: "name", chat: nameText(chat.m), current })
+      const title = res.ok && typeof res.body.title === "string" ? cleanTitle(res.body.title) : ""
+      // Answered: this check is done (a name that fits, or none, suggests nothing), as the app records it.
+      if (res.ok) nm = nameStateAfter(nm, key, { fits: res.body.fits === true, title }, current)
+    }
+  }
+  const state = orgStateFor(chat, move, tags, nm)
+  const name = openName({ ...chat, org: state })
+
   return {
     ok: true,
     move: move && {
       ...move,
-      // A new chat is named like any chat: after its first question.
-      toName: move.to ? threadName(threads[move.to]) : threadTitle(chat.m.slice(move.start, move.end + 1)),
-      count: move.end - move.start + 1
+      // A new chat is named like any chat: after its first question. A merge into this chat names the older one.
+      toName: move.from ? threadName(threads[move.from]) : move.to ? threadName(threads[move.to]) : threadTitle(chat.m.slice(move.start, move.end + 1)),
+      count: move.from ? threads[move.from].m.length : move.end - move.start + 1
     },
-    tags
+    tags,
+    ...(name ? { name } : {}),
+    org: state
   }
 }
 
+
+/**
+ * The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, its suggested name, and
+ * the tags it last showed that are still open (2.6 (91): working out every chat's tag candidates again made the list
+ * hang). Nothing is asked of the AI here but missing vectors. Only chats with some.
+ */
+export function organizeCounts(ctx: Context): Promise<OrganizeCountsReply> {
+  return inTurn(() => countsOnce(ctx))
+}
+
+async function countsOnce(ctx: Context): Promise<OrganizeCountsReply> {
+  const org = ctx.status.organize
+  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
+  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors])
+  const live = liveThreads((stored[STORAGE.threads] as Threads | undefined) ?? {}).filter((t) => t.kind !== "history")
+  const vectors = await vectorsFor(null, live, ctx, stored)
+  if ("code" in vectors) return { ok: false, code: vectors.code }
+  const counts: Record<string, number> = {}
+  for (const chat of live) {
+    const n = (suggestMove(chat, live, vectors.vectorOf, org.config) ? 1 : 0) + (openName(chat) ? 1 : 0) + openTags(chat).length
+    if (n) counts[chat.id] = n
+  }
+  return { ok: true, counts }
+}
+
+/** "Name by topic": a name for chat `chatId` now (the panel puts it on, unless the user typed one meanwhile). */
+export async function nameChatNow(chatId: string, ctx: Context): Promise<OrganizeNameReply> {
+  const org = ctx.status.organize
+  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
+  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
+  const { [STORAGE.threads]: stored } = await chrome.storage.local.get(STORAGE.threads)
+  const chat = (stored as Threads | undefined)?.[chatId]
+  if (!chat || chat.deleted || chat.kind === "history" || !chat.m.length) return { ok: false, code: "NETWORK" }
+  const res = await api(ctx, { op: "name", chat: nameText(chat.m) })
+  if (!res.ok) return { ok: false, code: res.code === "OFF" || res.code === "PRO_ONLY" || res.code === "LIMIT_REACHED" ? res.code : "UPSTREAM" }
+  const name = typeof res.body.title === "string" ? cleanTitle(res.body.title) : ""
+  return name ? { ok: true, name } : { ok: false, code: "UPSTREAM" }
+}
+
 /** An organizing event for the funnel (/api/v2/event): what and where, never text. */
+// 2.6 (98): the scans already reported (a chat, its length and the library's size), so a run again sends nothing.
+const scanned = new Set<string>()
+
+/** What this run compared and why nothing fired (organizeScan): numbers and named reasons only, once per state. */
+async function reportScan(chat: Thread, live: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig, move: MoveSuggestion | null, ctx: Context): Promise<void> {
+  const key = `${chat.id}:${chat.m.length}:${live.length}`
+  if (scanned.has(key)) return
+  scanned.add(key)
+  const scan = organizeScan(chat, live, vectorOf, cfg, move)
+  // How much of the extension's storage is used (its vectors live there), when the browser says.
+  const used = await (chrome.storage.local as { getBytesInUse?: (keys: null) => Promise<number> }).getBytesInUse?.(null).catch(() => undefined)
+  const kb = typeof used === "number" ? { kb: Math.min(9999, Math.round(used / 1024)) } : {}
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "use", installId: ctx.installId, client: ctx.client, f: "org", a: "scan", ...scan, ...kb, ev: ORGANIZE_ENGINE, s: "panel" })
+  }).catch(() => undefined)
+}
+
 export async function reportOrganize(event: OrganizeEvent, installId: string, client: Record<string, unknown>): Promise<void> {
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",

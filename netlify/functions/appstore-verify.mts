@@ -37,7 +37,39 @@ interface NotificationPayload {
   notificationType: string
   subtype?: string
   notificationUUID?: string
-  data?: { bundleId?: string; environment?: string; signedTransactionInfo?: string }
+  data?: { bundleId?: string; environment?: string; signedTransactionInfo?: string; signedRenewalInfo?: string }
+}
+
+// What Apple says will happen at the next renewal (JWSRenewalInfoDecodedPayload): renewalPrice is in milliunits of
+// currency, for autoRenewProductId, with the offer that renewal gets (offerType), if any.
+interface RenewalInfo {
+  autoRenewStatus?: number
+  autoRenewProductId?: string
+  renewalPrice?: number
+  currency?: string
+  offerType?: number
+  renewalDate?: number
+}
+
+// The renewal fields logged with a notification (/analytics «MRR при продлении»); none when Apple sent no renewal
+// info or it doesn't verify.
+function renewalFields(jws: string | undefined): Record<string, unknown> {
+  if (!jws) return {}
+  let info: RenewalInfo
+  try {
+    info = verifyAppleJws<RenewalInfo>(jws)
+  } catch (err) {
+    console.warn("[appstore] bad renewal info in notification:", err instanceof Error ? err.message : err)
+    return {}
+  }
+  return {
+    auto_renew: info.autoRenewStatus === 1 ? true : info.autoRenewStatus === 0 ? false : null,
+    renewal_product: info.autoRenewProductId ?? null,
+    renewal_price: typeof info.renewalPrice === "number" ? info.renewalPrice : null,
+    renewal_currency: info.currency ?? null,
+    renewal_offer: info.offerType ?? null,
+    renewal_at: typeof info.renewalDate === "number" ? new Date(info.renewalDate).toISOString() : null
+  }
 }
 
 async function handleNotification(signedPayload: string): Promise<Response> {
@@ -87,7 +119,8 @@ async function handleNotification(signedPayload: string): Promise<Response> {
     // offer 3 is an offer code (the funnel counts redemptions by it); offer_id names the offer.
     offer: tx.offerType ?? null,
     offer_id: tx.offerIdentifier ?? null,
-    discount: tx.offerDiscountType ?? null
+    discount: tx.offerDiscountType ?? null,
+    ...renewalFields(data.signedRenewalInfo)
   })
   return json({ received: true })
 }
@@ -108,6 +141,7 @@ async function handleClientTransaction(jws: string): Promise<Response> {
     last_transaction_id: String(tx.transactionId)
   })
   await logEvent("appstore_client_tx", null, { product: tx.productId, environment: tx.environment, otid: String(tx.originalTransactionId) })
+  // Builds <= 40 only know these two (they can't buy Ultra or the yearly plans).
   const planType = tx.productId.includes("byok") ? "byok_license" : "pro_subscription"
   return json({ success: true, plan_type: planType })
 }

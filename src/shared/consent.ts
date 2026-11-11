@@ -4,6 +4,9 @@
  * (stored as `true`) named OpenAI only. Version 3 (2.5 (78), the owner: "let it be given once, saying which
  * features it covers") lists every feature that sends something: answers, AI search and "Ask your chats",
  * templates, page watch and suggestions. Everyone who agreed to an earlier text is asked once more.
+ * 2.6: the visible text names OpenAI (when Claude can't answer, suggestions) and Google Gemini (Google answers) next
+ * to Anthropic, and the own-key option; the version stays 3 until the owner decides whether everyone who agreed
+ * is asked again (4) or only new people see the new text (3, as now).
  */
 export const CONSENT_VERSION = 3
 

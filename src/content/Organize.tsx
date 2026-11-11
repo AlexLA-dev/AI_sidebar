@@ -53,13 +53,24 @@ export function panelSelectionStart(root: ShadowRoot): Node | null {
   return !range.collapsed && root.contains(range.startContainer) ? range.startContainer : null
 }
 
+/** 2.6 (97): a move as one line of text, as its chip says it (the bar at the top of the chat). */
+export function moveLine(move: OrganizeMove): string {
+  if (move.from) return t("orgMergeHere", move.toName)
+  if (move.why === "merge") return t("orgMergeInto", move.toName)
+  return move.to ? t("orgMoveTo", messagesCount(move.count), move.toName) : t("orgSplit", move.toName)
+}
+
 /**
  * Under an answer or a note: what organizing suggests for it, dashed — one of the user's tags (a tap adds it) and,
  * under a block's last message, a better chat or a new one (a tap moves the block); ✕ turns either down.
  */
-export function OrganizeRow({ tag, move, quiet, onTag, onTagNo, onMove, onMoveNo }: {
+export function OrganizeRow({ tag, move, name, quiet, onTag, onTagNo, onMove, onMoveNo, onName, onNameNo }: {
   tag?: string
   move?: OrganizeMove
+  // 2.6 (91): a better name for the chat (under its last message); taken or turned down like the rest.
+  name?: string
+  onName?: () => void
+  onNameNo?: () => void
   // Text in this message is selected: the row steps aside (keeping its place) for the bubble by the selection.
   quiet?: boolean
   onTag: () => void
@@ -71,29 +82,59 @@ export function OrganizeRow({ tag, move, quiet, onTag, onTagNo, onMove, onMoveNo
     <div class={`cf-org${quiet ? " quiet" : ""}`} role="group" aria-label={t("orgSuggested")}>
       <span class="cf-org-label">{t("orgSuggested")}</span>
       {tag && (
-        <span class={`cf-org-chip c${tagColor(tag)}`}>
+        <span class={`cf-org-chip c${tagColor(tag)}`} data-sug="tag">
           <button type="button" class="cf-org-take" onClick={onTag} aria-label={t("orgTagA11y", tag)}>#{tag}</button>
           <button type="button" class="cf-org-x" onClick={onTagNo} aria-label={t("orgNoA11y")}><Icon.Close /></button>
         </span>
       )}
       {move && (
-        <span class="cf-org-chip move">
-          <button type="button" class="cf-org-take" onClick={onMove} aria-label={move.to ? t("orgMoveA11y", messagesCount(move.count), move.toName) : t("orgSplitA11y", move.toName)}>
-            <Arrow /><span class="cf-org-text">{move.to ? withName("orgMoveTo", move.toName, messagesCount(move.count)) : withName("orgSplit", move.toName)}</span>
+        <span class="cf-org-chip move" data-sug="move">
+          <button type="button" class="cf-org-take" onClick={onMove} aria-label={move.from ? t("orgMergeHereA11y", move.toName) : move.why === "merge" ? t("orgMergeA11y", move.toName) : move.to ? t("orgMoveA11y", messagesCount(move.count), move.toName) : t("orgSplitA11y", move.toName)}>
+            <Arrow /><span class="cf-org-text">{move.from ? withName("orgMergeHere", move.toName) : move.why === "merge" ? withName("orgMergeInto", move.toName) : move.to ? withName("orgMoveTo", move.toName, messagesCount(move.count)) : withName("orgSplit", move.toName)}</span>
+            {move.to && move.match !== undefined && <span class="cf-org-match">{t("orgMatch", move.match)}</span>}
           </button>
           <button type="button" class="cf-org-x" onClick={onMoveNo} aria-label={t("orgNoA11y")}><Icon.Close /></button>
+        </span>
+      )}
+      {name && (
+        <span class="cf-org-chip move name" data-sug="name">
+          <button type="button" class="cf-org-take" onClick={onName} aria-label={t("orgNameAs", name)}>
+            <Icon.Pencil /><span class="cf-org-text">{withName("orgNameAs", name)}</span>
+          </button>
+          <button type="button" class="cf-org-x" onClick={onNameNo} aria-label={t("orgNoA11y")}><Icon.Close /></button>
         </span>
       )}
     </div>
   )
 }
 
-/** A short loop of what organizing does: messages of one chat slide into the chats and tags they belong to. */
-export function OrganizeAnimation(): VNode {
+const still = () => undefined
+
+/**
+ * What organizing does, drawn with its real pieces (2.6: abstract bars read as placeholder art): a
+ * question, the answer and the row the panel really shows under it, a suggested tag and "3 messages to “Trips”"; in a
+ * gentle loop the bar after a move takes its place (organize.css; it stays on the row with Reduce Motion). `compact`:
+ * the row alone, for the small cards. Not interactive.
+ */
+export function OrganizePreview({ compact }: { compact?: boolean }): VNode {
+  const chat = t("orgDemoChat")
+  const row = (
+    <OrganizeRow
+      tag={t("orgDemoTag")}
+      move={{ start: 0, end: 2, to: "sample", toName: chat, why: "topic", count: 3 }}
+      onTag={still} onTagNo={still} onMove={still} onMoveNo={still}
+    />
+  )
+  const inert = (el: HTMLElement | null) => el?.setAttribute("inert", "")
+  if (compact) return <div ref={inert} class="cf-org-demo compact" aria-hidden="true">{row}</div>
   return (
-    <div class="cf-org-anim" aria-hidden="true">
-      <i class="m m1" /><i class="m m2" /><i class="m m3" /><i class="m m4" />
-      <b class="f f1"><span /></b><b class="f f2"><span /></b>
+    <div ref={inert} class="cf-org-demo" aria-hidden="true">
+      <div class="cf-org-demo-q">{t("orgDemoQuestion")}</div>
+      <div class="cf-org-demo-a">{t("orgDemoAnswer")}</div>
+      <div class="cf-org-demo-swap">
+        <div class="cf-org-demo-row">{row}</div>
+        <div class="cf-org-demo-bar cf-snack"><span>{t("orgMoved", chat)}</span><b>{t("orgUndo")}</b></div>
+      </div>
     </div>
   )
 }
@@ -126,12 +167,12 @@ export function OrganizeCard({ kind, pro, onPrimary, onClose }: {
     <div class="cf-card cf-org-card promo" role="region" aria-label={t(kind === "mess" ? "orgMessTitle" : "orgTagsTitle")}>
       <button type="button" class="cf-org-close" onClick={onClose} aria-label={t("orgCloseA11y")}><Icon.Close /></button>
       <div class="cf-org-promo">
-        <OrganizeAnimation />
         <div>
           <strong>{t(kind === "mess" ? "orgMessTitle" : "orgTagsTitle")}</strong>
           <p>{t(kind === "mess" ? "orgMessText" : "orgTagsText")}</p>
         </div>
       </div>
+      <OrganizePreview compact />
       <div class="cf-card-actions">
         <button type="button" class="cf-primary" onClick={onPrimary}><Icon.Sparkle size={14} /> {pro ?? t("getPro")}</button>
       </div>

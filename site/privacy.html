@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Privacy Policy — ContextFlow</title>
-<meta name="description" content="How ContextFlow handles your data: no accounts, no tracking, page text used only to answer your question." />
+<meta name="description" content="How ContextFlow handles your data: no accounts, no tracking, no ads, and what you send to AI used only for your request." />
 <link rel="icon" href="/icon.png" />
 <link rel="apple-touch-icon" href="/icon-512.png" />
 <link rel="stylesheet" href="/style.css" />
@@ -12,7 +12,7 @@
 <link rel="canonical" href="https://context-flow.app/privacy" />
 <meta name="apple-itunes-app" content="app-id=6759115793, affiliate-data=ct=site_banner&amp;pt=119037986" />
 <meta property="og:title" content="Privacy Policy — ContextFlow" />
-<meta property="og:description" content="How ContextFlow handles your data: no accounts, no tracking, page text used only to answer your question." />
+<meta property="og:description" content="How ContextFlow handles your data: no accounts, no tracking, no ads, and what you send to AI used only for your request." />
 <meta property="og:image" content="https://context-flow.app/icon-512.png" />
 <meta property="og:url" content="https://context-flow.app/privacy" />
 </head>
@@ -20,67 +20,71 @@
 <nav class="wrap"><a class="brand" href="/"><img src="/icon.png" alt="" />ContextFlow</a><div class="links"><a href="/features">Features</a><a href="/cases">Cases</a><a href="/#how">How it works</a><a href="/#pricing">Pricing</a><a href="/support">Support</a></div></nav>
 <main class="wrap doc">
   <h1>Privacy Policy</h1>
-  <div class="updated">Last updated: November 4, 2026 · applies to ContextFlow 2.0 and later</div>
-  <p class="summary"><strong>In short:</strong> ContextFlow has no accounts and no tracking. When you ask a question, your question and the text of the page (or the text you selected) are sent to our AI provider to generate the answer and are not stored by us. Your chats stay on your devices and, if you turn on chat sync, in your own iCloud, end-to-end encrypted.</p>
+  <div class="updated">Last updated: November 8, 2026 · applies to ContextFlow 2.0 and later</div>
+  <p class="summary"><strong>In short:</strong> ContextFlow has no accounts, no tracking and no ads. We don't store the pages, questions or chats you send to an AI feature. Your chats stay on your devices and, if you sync them, in your own iCloud, which we can't access.</p>
 
   <h2>1. Who we are</h2>
-  <p>ContextFlow ("we") is a Safari extension with a companion app for iPhone, iPad and Mac. Contact: <a href="mailto:top10resource@gmail.com">top10resource@gmail.com</a>.</p>
+  <p>ContextFlow ("we", "us") is a Safari extension with a companion app for iPhone, iPad and Mac. You can reach us at <a href="mailto:top10resource@gmail.com">top10resource@gmail.com</a>.</p>
 
-  <h2>2. What we process and why</h2>
-  <table>
-    <tr><th>Data</th><th>Why</th><th>Stored?</th></tr>
-    <tr><td>Your question and the text of the current page or your selection</td><td>To generate the answer you asked for</td><td>Not stored by ContextFlow. Passed to Anthropic (Claude) or, when Claude is unavailable, to OpenAI. Both keep API data only for a limited time (typically up to 30 days) for safety and abuse monitoring, and do not use it to train their models. For Google answers (the "Google" button, ContextFlow 2.1 and later) it is passed to Google instead, which searches Google for the answer and keeps the request for up to 30 days for debugging and abuse monitoring.</td></tr>
-    <tr><td>Short excerpts of your chats (titles, questions, answers and notes), only when you use AI search or "Ask your chats" (Pro, ContextFlow 2.4 and later)</td><td>To find the chat you describe, or to answer your question from your chats</td><td>Not stored by ContextFlow. Passed to Anthropic or OpenAI as above, only for that request.</td></tr>
-    <tr><td>Quick insert (ContextFlow 2.5 and later): the text of a template when you save it and ContextFlow marks its blanks; the template and the text of the current page, only when you tap "Fill from the page"; your search words and your templates' titles, only when you tap "Find by meaning"</td><td>To mark what changes in a template (a name, a date), fill its blanks from the page, or find the template you describe</td><td>Not stored by ContextFlow. Passed to Anthropic (Claude) only for that request. We keep counts only (for example, how many blanks were filled), never the text.</td></tr>
-    <tr><td>Page watch (ContextFlow 2.5 and later): when you ask to be told about a change, the part of the page you selected, your words for when to tell you, up to 1,500 characters of the page's text around the selection, the page's title and its site name; later, only when the watched value has changed and your words need reading, the old and the new value (for a whole page, the sentences that changed), your words, the page's title and its site name</td><td>To decide once what to compare on the page and when a change counts, and later whether a change is the one you asked about</td><td>Not stored by ContextFlow. Passed to Anthropic (Claude) only for that request. The page itself is never fetched by our server: your device checks it. We keep counts only (for example, that a watch was set or came true, and the kind of site such as a shop or a job board), never the page's address or its text.</td></tr>
-    <tr><td>Only with "Suggestions: tags and moving" on (Pro, ContextFlow 2.5 and later; off until you turn it on): the text of new questions, the start of answers, your notes, the titles of the pages they were written on, and the names of your tags with a few short examples of messages you put them on</td><td>To suggest a better chat for a group of messages, or one of your own tags</td><td>Not stored by ContextFlow. The texts go to OpenAI to be turned into numbers (embeddings); to check a suggested tag, the message and the tag's examples go to Anthropic (Claude) or, when Claude is unavailable, to OpenAI. OpenAI keeps API data up to 30 days for abuse monitoring. Anthropic deletes API data within 30 days; a request its safety systems flag may be kept longer, up to 2 years. Neither uses it to train their models.</td></tr>
-    <tr><td>A random installation ID generated by the extension</td><td>To apply the free daily allowance and prevent abuse</td><td>Yes, with request counters and app version, platform and language. Not connected to your name, e-mail or Apple Account.</td></tr>
-    <tr><td>A random ID generated by the ContextFlow app, and whether the extension is switched on and notifications are allowed (ContextFlow 2.4 and later)</td><td>To see how many people get from opening the app to using the extension, and improve that step</td><td>Yes, up to 180 days, once a day when you open the app, with app version, platform and language. Not connected to your name, e-mail or Apple Account. When you subscribe, the extension's installation ID is attached to the purchase so we can tell which installation has Pro.</td></tr>
-    <tr><td>Whether you installed ContextFlow after tapping or seeing an Apple Ads ad on the App Store, and if so which campaign, ad group and keyword (ContextFlow 2.4 and later, iPhone and iPad)</td><td>To see which of our App Store ads bring people who find ContextFlow useful, and stop paying for the rest</td><td>Yes, up to 180 days, with the app's random ID. Apple provides only campaign identifiers through its AdServices framework, never who you are; this is not tracking and needs no permission prompt.</td></tr>
-    <tr><td>On this website (context-flow.app): which kind of source a visit came from (for example ChatGPT, a search engine, a link on our own pages, or none), which of our pages it was, and taps on its App Store buttons</td><td>To see which sources bring people to the site and on to the App Store</td><td>Yes, up to 180 days, as that pair of values only. No cookies, nothing stored on your device, no installation ID, and never the address of the page you came from.</td></tr>
-    <tr><td>Your IP address</td><td>Rate limiting</td><td>Only as a one-way hash that changes every day.</td></tr>
-    <tr><td>App Store subscription data (Apple-signed transaction: product, transaction IDs, expiry date, price paid and the App Store country)</td><td>To give you Pro access and handle renewals, refunds and cancellations, and to see which plans and countries ContextFlow is useful in</td><td>Yes, while the subscription is active and for up to 180 days after, together with the installation ID it is used from. Nothing more precise than the country.</td></tr>
-    <tr><td>Usage statistics (number of requests, response time, which quick action was used, a chat's size, your answer to the auto-renew question and whether upgrade offers were shown or tapped, never any text; for answers with your own API key: provider, model, number of tokens and whether it succeeded; from ContextFlow 2.5: which features you use and in what order within a short session of use, under a random session ID that changes every time — never the page, the site or any text; for quick insert: that something was inserted and how, such as a copied piece, a template or an answer, and that a link to our X or Threads was opened — without the text and without the site)</td><td>To keep the service reliable and improve it</td><td>Yes, up to 180 days, without page content or chat text.</td></tr>
-  </table>
+  <h2>2. What we keep</h2>
+  <p>We keep only what we need to run ContextFlow, keep it working and improve it. None of it is linked to your name, e-mail address or Apple Account.</p>
+  <ul>
+    <li>Random IDs for your installation, created by ContextFlow, with your device type, app version and language.</li>
+    <li>Usage records: which features you use and how often, with sizes, timings and costs. They never contain the pages you visit, their text or your chats. The only words they can contain are short settings you give a feature, such as the condition you set for Find similar.</li>
+    <li>Your subscription status from the App Store: the plan, its dates, the price paid and the App Store country. We never see your payment details.</li>
+    <li>If you came to ContextFlow from an Apple Ads ad on the App Store: which campaign it was, as Apple reports it, without telling us who you are.</li>
+    <li>A one-way hash of your IP address that changes every day, to prevent abuse.</li>
+    <li>On this website: which kind of source a visit came from and which of our pages it was. No cookies.</li>
+  </ul>
+  <p>We keep usage, ad and website records for up to 180 days, subscription records while the subscription is active and for up to 180 days after, and your installation IDs until you ask us to delete them.</p>
 
-  <h2>3. What we don't do</h2>
+  <h2>3. What goes to AI providers</h2>
+  <p>When you use an AI feature, the content that request needs goes to one of our AI providers. Depending on the feature, that's your question or other words you type, the page or the text you selected, your templates, excerpts of your chats, the text you want read aloud, and your "About me" text if you wrote one. ContextFlow's AI features include answers (with Google answers and "Ask your chats"), AI search, "Fill from the page" and "Find by meaning" for templates, Page watch, Suggestions (only if you turn them on), Listen and Find similar.</p>
+  <p>We don't store this content, apart from the short settings described in section 2. Our AI providers keep it only for a limited time, for safety and abuse monitoring, and don't use it to train their models.</p>
+  <p>If you use your own OpenAI or Anthropic API key, answers go straight from your device to that provider, under your own account with them, and don't pass through our servers. We only receive usage counts.</p>
+
+  <h2>4. On your devices and in your iCloud</h2>
+  <p>Your chats, templates, settings, your "About me" text and your own API key are kept on your device, along with what ContextFlow stores there for its features, such as text you copied, pages you watch and audio you listened to.</p>
+  <p>With chat sync on, your chats and templates, and from ContextFlow 2.6 the audio you listened to, are also kept in your private iCloud so you can continue on your other devices. There they are protected by Apple's iCloud encryption. Syncing goes between your devices and iCloud and never through our servers, and we have no access to your iCloud.</p>
+  <p>"Delete all chats" in the settings removes your chats and saved audio from that device and, with chat sync on, from your iCloud. Saved audio also expires after 7 days. Removing the app deletes what it keeps on that device.</p>
+
+  <h2>5. What we don't do</h2>
   <ul>
     <li>No accounts, e-mail addresses or passwords.</li>
-    <li>No browsing history: pages are read only when you open ContextFlow and ask something.</li>
-    <li>No advertising, no tracking across apps or websites, no selling or sharing of data for marketing.</li>
+    <li>No tracking across apps or websites, and no ads in ContextFlow.</li>
+    <li>We don't collect your browsing history.</li>
+    <li>We don't sell your data or share it for marketing.</li>
   </ul>
 
-  <h2>4. Data on your device</h2>
-  <p>Chats, settings, the optional "About me" text and your own OpenAI or Anthropic API key (if you add one) are stored locally in Safari's extension storage. "About me" text is included in requests to personalize answers. With your own key, requests go directly from your device to the provider of that key (OpenAI or Anthropic) under your own account with them, and do not pass through our servers. After such an answer the extension sends us only the usage counters listed in section 2, never your key, your question or the page text. You can delete all chats in the extension settings; removing the app deletes everything.</p>
-  <p><strong>Chat sync (ContextFlow 2.3 and later).</strong> With "Sync chats with iCloud" on in the extension settings (the default), your chats (up to the 50 most recent) are also kept in your private iCloud database so you can continue them on your other devices signed in to the same Apple Account. They are stored end-to-end encrypted with keys only your devices have: neither we nor Apple can read it, and they never pass through our servers. Turning the setting off stops syncing; deleting a chat, or "Delete all chats", also deletes it from iCloud.</p>
-  <p><strong>Page text in chats (ContextFlow 2.4 and later).</strong> When you ask about a page or write a note on it, ContextFlow keeps that page's article text with the chat (the readable text, as Safari's Reader shows it, without menus or ads; up to about 8,000 characters for each of the chat's last ten pages), so you can continue the chat in the ContextFlow app. It's stored like the rest of the chat: in Safari's extension storage and, with chat sync on, in your iCloud, end-to-end encrypted. Pages in Private Browsing, video transcripts and PDFs are not kept. When you ask about a chat in the app, its saved page text is sent with your question to our AI provider, as described in section 2.</p>
-  <p><strong>Suggestions (ContextFlow 2.5 and later).</strong> With suggestions on, ContextFlow keeps on each of your devices a numeric representation (embedding) of each message, so it compares messages on the device instead of sending your chats anywhere; only the text of new messages is sent, as described in section 2. These numbers are not synced to iCloud and are deleted with your chats. Turning a suggestion down, or taking it, is saved with the message and syncs with the chat. Suggestions are off until you turn them on, in the extension's or the app's settings.</p>
-
-  <p><strong>Copied and templates (ContextFlow 2.5 and later).</strong> "Copied" keeps the last 5 pieces of text you copy on web pages in Safari, and what you copy with ContextFlow's own Copy button, so you can insert them into another field. They stay on your device only: they are never sent to us, to AI providers or to iCloud, and are erased after 24 hours. Nothing is kept from password or card fields or forms that have them, in Private Browsing, or on sites you choose "Don't keep on this site" for. You can turn Copied off or clear it in the list or in Settings. Templates are stored in Safari's extension storage and the ContextFlow app on your device and, with "Sync chats with iCloud" on, in your private iCloud database, end-to-end encrypted like your chats.</p>
-  <p><strong>Page watch (ContextFlow 2.5 and later).</strong> When you ask ContextFlow to tell you when something on a page changes, the extension checks that page itself, from your device, while you use Safari; there are no checks while Safari is closed. Your watches, the last value seen and, for a whole page, its text are kept in Safari's extension storage on that device only (not in iCloud), and a copy of the list is shown in the ContextFlow app on the same device. When the change you asked about happens, a notification appears on that device; nothing is pushed from our server. Stop a watch at any time in the panel or in the app's list.</p>
-
-  <h2>5. Service providers</h2>
+  <h2>6. Service providers</h2>
   <ul>
-    <li><strong>Anthropic</strong> — generates answers with Claude, and checks suggested tags (ContextFlow 2.5); with your own Anthropic API key, requests go from your device straight to Anthropic (<a href="https://www.anthropic.com/legal/privacy">privacy policy</a>).</li>
-    <li><strong>OpenAI</strong> — generates answers when Claude is unavailable, turns message text into embeddings for suggestions (ContextFlow 2.5), and with your own OpenAI key (<a href="https://openai.com/policies/privacy-policy">privacy policy</a>).</li>
-    <li><strong>Google</strong> — generates Google answers with Google Search through the Gemini API, only when you choose "Google" (<a href="https://policies.google.com/privacy">privacy policy</a>).</li>
-    <li><strong>Netlify</strong> — hosts our API (<a href="https://www.netlify.com/privacy/">privacy policy</a>).</li>
-    <li><strong>Supabase</strong> — database for counters and subscription records (<a href="https://supabase.com/privacy">privacy policy</a>).</li>
-    <li><strong>Apple</strong> — processes payments (we never see your payment details) and, with chat sync on, keeps your end-to-end encrypted chat in your iCloud.</li>
+    <li><strong>Anthropic</strong> — AI (Claude) (<a href="https://www.anthropic.com/legal/privacy">privacy policy</a>).</li>
+    <li><strong>OpenAI</strong> — AI (<a href="https://openai.com/policies/privacy-policy">privacy policy</a>).</li>
+    <li><strong>Google</strong> — AI (Gemini), Google answers and read-aloud voices (<a href="https://policies.google.com/privacy">privacy policy</a>).</li>
+    <li><strong>Netlify</strong> — hosts our server and this website (<a href="https://www.netlify.com/privacy/">privacy policy</a>).</li>
+    <li><strong>Supabase</strong> — our database for the records in section 2 (<a href="https://supabase.com/privacy">privacy policy</a>).</li>
+    <li><strong>Apple</strong> — App Store payments, Apple Ads and iCloud (<a href="https://www.apple.com/legal/privacy/">privacy policy</a>).</li>
   </ul>
+  <p>These providers may process data outside your country, including in the United States.</p>
 
-  <h2>6. Earlier versions</h2>
-  <p>Versions before 2.0 asked some users to create an account with an e-mail address. Those accounts are no longer used by ContextFlow. To have such an account deleted, e-mail us from the address you used and we will delete it within 30 days.</p>
+  <h2>7. Why we may process it</h2>
+  <p>We process data to provide ContextFlow as you ask us to, and keep usage records because we have a legitimate interest in keeping ContextFlow working and improving it.</p>
 
-  <h2>7. Your rights</h2>
-  <p>You can ask us about the data linked to your installation ID or subscription, or request its deletion, at <a href="mailto:top10resource@gmail.com">top10resource@gmail.com</a>. Depending on where you live (e.g. the EU/UK under GDPR, California under CCPA) you may have additional rights, which we honour.</p>
+  <h2>8. Your rights</h2>
+  <p>You can ask what we keep about your installation or subscription, have it corrected or deleted, or object to its use, by e-mailing <a href="mailto:top10resource@gmail.com">top10resource@gmail.com</a>. Depending on where you live (for example the EU or UK under GDPR, or California under CCPA), you may have more rights, which we honour, and you can complain to your data protection authority.</p>
 
-  <h2>8. Children</h2>
-  <p>ContextFlow is not directed at children under 13 and we do not knowingly collect their data.</p>
+  <h2>9. Children</h2>
+  <p>ContextFlow is not directed at children under 13, and we don't knowingly collect their data.</p>
 
-  <h2>9. Changes</h2>
-  <p>We will post changes on this page and update the date above.</p>
+  <h2>10. Earlier versions</h2>
+  <p>Versions before 2.0 asked some users to create an account with an e-mail address. ContextFlow no longer uses those accounts. To have yours deleted, e-mail us from that address and we'll delete it within 30 days.</p>
+
+  <h2>11. Changes</h2>
+  <p>We'll post changes on this page and update the date above.</p>
+
+  <h2>12. Contact</h2>
+  <p><a href="mailto:top10resource@gmail.com">top10resource@gmail.com</a></p>
 </main>
-<footer class="wrap"><span>© 2026 ContextFlow</span><a href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=site_footer&amp;mt=8">App Store</a><a href="/features">Features</a><a href="/cases">Cases</a><a href="/safari-ai-extension-iphone">AI in Safari on iPhone</a><a href="/notes-while-reading-safari">Notes while you read</a><a href="/safari-summary-vs-chatgpt">Safari summary or ChatGPT</a><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Use</a><a href="/support">Support</a><a href="https://x.com/ContextFlowApp" rel="me">X</a><a href="https://www.threads.com/@contextflowapp" rel="me">Threads</a><a href="mailto:top10resource@gmail.com">top10resource@gmail.com</a></footer>
+<footer class="wrap"><span>© 2026 ContextFlow</span><a href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=site_footer&amp;mt=8">App Store</a><a href="/features">Features</a><a href="/cases">Cases</a><a href="/safari-ai-extension-iphone">AI in Safari on iPhone</a><a href="/notes-while-reading-safari">Notes while you read</a><a href="/safari-summary-vs-chatgpt">Safari summary or ChatGPT</a><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Use</a><a href="/support">Support</a><a href="https://x.com/ContextFlowApp" rel="me">X</a><a href="https://www.threads.com/@contextflowapp" rel="me">Threads</a><a href="mailto:top10resource@gmail.com">top10resource@gmail.com</a><nav class="langs" aria-label="Language" data-i18n-generated><a href="/" hreflang="en" lang="en">English</a><a href="/de/" hreflang="de" lang="de">Deutsch</a><a href="/es/" hreflang="es" lang="es">Español</a><a href="/fr/" hreflang="fr" lang="fr">Français</a><a href="/it/" hreflang="it" lang="it">Italiano</a><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a><a href="/ru/" hreflang="ru" lang="ru">Русский</a><a href="/uk/" hreflang="uk" lang="uk">Українська</a><a href="/vi/" hreflang="vi" lang="vi">Tiếng Việt</a><a href="/ar/" hreflang="ar" lang="ar">العربية</a><a href="/ja/" hreflang="ja" lang="ja">日本語</a><a href="/ko/" hreflang="ko" lang="ko">한국어</a><a href="/zh-hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a><a href="/zh-hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a></nav></footer>
 </body>
 </html>

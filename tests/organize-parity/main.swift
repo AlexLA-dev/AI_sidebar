@@ -40,7 +40,10 @@ func numbers(_ v: [Float]?) -> Any { v.map { $0.map(Double.init) } ?? NSNull() }
 
 func suggestion(_ s: Organize.MoveSuggestion?) -> Any {
     guard let s else { return NSNull() }
-    return ["start": s.start, "end": s.end, "to": s.to ?? NSNull(), "why": s.why.rawValue, "score": s.score, "current": s.current] as [String: Any]
+    var out: [String: Any] = ["start": s.start, "end": s.end, "to": s.to ?? NSNull(), "why": s.why.rawValue, "score": s.score, "current": s.current]
+    if let match = s.match { out["match"] = match }
+    if let from = s.from { out["from"] = from }
+    return out
 }
 
 func candidate(_ c: Organize.TagCandidate) -> Any {
@@ -61,6 +64,29 @@ func run(_ c: [String: Any]) -> Any {
         return Dictionary(uniqueKeysWithValues: OrganizeConfig.fields.map { ($0.name, read[keyPath: $0.path]) })
     case "embedText":
         return (c["m"] as? [[String: Any]] ?? []).map(Organize.embedText)
+    case "nameText":
+        return Organize.nameText(c["m"] as? [[String: Any]] ?? [])
+    case "wantsNameCheck":
+        return thread(c["chat"]).map(Organize.wantsNameCheck) ?? false
+    case "org":
+        // 2.6 (93): the state kept with a chat as it's read back, what it still suggests, a name check's answer on it,
+        // the state a run keeps, and what a name check is about.
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        let chats = threads(c["chats"])
+        let org = chat.org
+        let answer = c["answer"] as? [String: Any] ?? [:]
+        let after = Organize.nameState(after: org?.nm, key: c["key"] as? String ?? "", fits: answer["fits"] as? Bool ?? false,
+                                       title: answer["title"] as? String ?? "", current: c["current"] as? String ?? "")
+        let tg = (c["tg"] as? [[String]] ?? []).map { (key: $0[0], tag: $0[1]) }
+        let state = Organize.orgState(for: chat, move: Organize.suggestMove(chat, chats, vectors(c["vectors"]), cfg), tags: tg, nm: org?.nm)
+        return ["clean": org?.json ?? NSNull(), "move": Organize.openMove(chat, chats)?.json ?? NSNull(),
+                "tags": Organize.openTags(chat).map { ["index": $0.index, "key": $0.key, "tag": $0.tag] as [String: Any] },
+                "name": Organize.openName(chat, name: c["name"] as? String ?? "") ?? NSNull(), "after": after.json, "state": state.json,
+                "key": Organize.nameCheckKey(chat)] as [String: Any]
+    case "names":
+        let pairs = (c["pairs"] as? [[String]] ?? []).map { Organize.nearName($0[0], $0[1]) }
+        let downs = (c["downs"] as? [[Any]] ?? []).map { Organize.turnedDownName($0[0] as? [String] ?? [], $0[1] as? String ?? "") }
+        return ["near": pairs, "down": downs]
     case "hostOf":
         return (c["urls"] as? [Any] ?? []).map { Organize.hostOf($0 as? String) }
     case "pack":
@@ -70,7 +96,7 @@ func run(_ c: [String: Any]) -> Any {
         return (c["packed"] as? [String] ?? []).map { numbers(Organize.unpackVector($0)) }
     case "scoredBlocks":
         return Organize.scoredBlocks(c["m"] as? [[String: Any]] ?? [], vectors(c["vectors"])).map { b -> [String: Any] in
-            ["start": b.start, "end": b.end, "url": b.url ?? NSNull(), "v": numbers(b.v), "weak": b.weak, "t": b.t.map(Organize.whole) ?? NSNull(),
+            ["start": b.start, "end": b.end, "url": b.url ?? NSNull(), "v": numbers(b.v), "a": numbers(b.a), "weak": b.weak, "t": b.t.map(Organize.whole) ?? NSNull(),
              "host": b.host, "settled": b.settled, "dismissed": b.dismissed]
         }
     case "movesAllowed":
@@ -79,12 +105,18 @@ func run(_ c: [String: Any]) -> Any {
     case "suggestMove":
         guard let chat = thread(c["chat"]) else { return NSNull() }
         return suggestion(Organize.suggestMove(chat, threads(c["chats"]), vectors(c["vectors"]), cfg))
+    case "scan":
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        let chats = threads(c["chats"])
+        let vectorOf = vectors(c["vectors"])
+        let s = Organize.organizeScan(chat, chats, vectorOf, cfg, Organize.suggestMove(chat, chats, vectorOf, cfg))
+        return ["chats": s.chats, "msgs": s.msgs, "vec": s.vec, "mg": s.mg, "mga": s.mga, "mgw": s.mgw, "mv": s.mv, "mvw": s.mvw, "res": s.res, "tv": s.tv]
     case "tags":
         // Each message that gets tag suggestions now: its candidates, the judge's text, and what the verdicts leave.
         guard let chat = thread(c["chat"]) else { return NSNull() }
         let chats = threads(c["chats"])
         let vectorOf = vectors(c["vectors"])
-        return Organize.tagTargets(chat, cfg).map { i -> [String: Any] in
+        return Organize.tagTargets(chat, cfg, chats, vectorOf).map { i -> [String: Any] in
             let candidates = Organize.tagCandidates(chat, i, chats, vectorOf, cfg)
             return ["i": i, "judge": Organize.judgeText(chat.entries, i), "candidates": candidates.map(candidate),
                     "judged": Organize.judgedTags(candidates, verdicts(c["verdicts"]), cfg)]

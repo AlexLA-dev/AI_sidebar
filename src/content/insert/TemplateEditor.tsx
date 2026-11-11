@@ -109,7 +109,8 @@ export function TemplateEditor(p: Props): VNode {
   const save = async () => {
     const body = text.trim()
     if (!body) return
-    const words = keywords.split(",").map((k) => k.trim()).filter(Boolean)
+    // Any language's comma: the Arabic keyboard types "،", Chinese and Japanese "，" and "、" (2.6).
+    const words = keywords.split(/[,،，、]/).map((k) => k.trim()).filter(Boolean)
     const now = Date.now()
     const saved = existing
       ? editTemplate(existing, { title, text: body, keywords: words }, now)
@@ -144,6 +145,7 @@ export function TemplateEditor(p: Props): VNode {
         <textarea
           ref={areaRef}
           class="cf-qi-area"
+          dir="auto"
           value={text}
           rows={6}
           placeholder={t("qiTemplateText")}

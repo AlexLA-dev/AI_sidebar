@@ -1,0 +1,125 @@
+{
+ "about": "\"Cheaper\" for apps and services with plans (build 98, the overfit review): the page's own plans (as the planner reads them) and a candidate's pricing (as its App Store or pricing page states it), compared plan with plan — free with free, paid plans period by period (monthly with monthly, yearly with yearly, weekly with weekly; with no period in common, the cheapest per month on both sides), one-time with one-time. A store's free download isn't a free plan. expect: the verdict; mentions: words the note must carry (the plans it compared). Rates are units per euro. Neutral numbers: no case is any one app's own pricing.",
+ "rates": { "EUR": 1, "USD": 1.1, "GBP": 0.85, "JPY": 165, "KRW": 1500, "VND": 28000, "BRL": 6 },
+ "cases": [
+  {
+   "id": "freemium-vs-yearly-only",
+   "source": "build 97: another app's paid plan was set against the page's free plan; theirs is sold by the year only",
+   "mine": [{ "kind": "free", "amount": 0, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 12, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 79.99, "currency": "USD" }, "period": "year", "periods": { "year": { "amount": 79.99, "currency": "USD" } }, "freeStart": true, "via": "app_store" },
+   "expect": "yes", "mentions": ["theirs is free to download, a free plan not shown", "no period in common, per month", "theirs yearly 79.99 USD/year, yours monthly"]
+  },
+  {
+   "id": "monthly-and-yearly-both",
+   "source": "the overfit review's X1: both sell by the month and by the year, theirs cheaper in both; our yearly twelfth was set against their monthly price",
+   "mine": [{ "kind": "paid", "amount": 9.99, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 59.99, "currency": "USD", "period": "year" }],
+   "theirs": { "model": "subscription", "from": { "amount": 7.99, "currency": "USD" }, "period": "month", "periods": { "month": { "amount": 7.99, "currency": "USD" }, "year": { "amount": 39.99, "currency": "USD" } }, "freeStart": true, "via": "app_store" },
+   "expect": "yes", "mentions": ["paid monthly: theirs 7.99 USD/month vs yours 9.99 USD/month", "paid yearly: theirs 39.99 USD/year vs yours 59.99 USD/year"]
+  },
+  {
+   "id": "monthly-only-theirs",
+   "source": "ours by the month and by the year, theirs by the month only: monthly with monthly",
+   "mine": [{ "kind": "paid", "amount": 9.99, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 59.99, "currency": "USD", "period": "year" }],
+   "theirs": { "model": "subscription", "from": { "amount": 7.99, "currency": "USD" }, "period": "month", "periods": { "month": { "amount": 7.99, "currency": "USD" } }, "via": "pricing_page" },
+   "expect": "yes", "mentions": ["paid monthly:"]
+  },
+  {
+   "id": "cheaper-monthly-dearer-yearly",
+   "source": "cheaper by the month, dearer by the year: not settled",
+   "mine": [{ "kind": "paid", "amount": 9.99, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 49.99, "currency": "USD", "period": "year" }],
+   "theirs": { "model": "subscription", "from": { "amount": 6.99, "currency": "USD" }, "period": "month", "periods": { "month": { "amount": 6.99, "currency": "USD" }, "year": { "amount": 69.99, "currency": "USD" } }, "via": "app_store" },
+   "expect": "unknown", "mentions": ["paid monthly:", "paid yearly:", "not settled"]
+  },
+  {
+   "id": "saas-notes",
+   "source": "a notes service with a free plan and a dearer team plan, against a pricing page with a free plan",
+   "mine": [{ "kind": "free", "amount": 0, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 10, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 12, "currency": "USD" }, "period": "month", "periods": { "month": { "amount": 12, "currency": "USD" } }, "freeStart": true, "via": "pricing_page" },
+   "expect": "no", "mentions": ["free: both have a free plan", "paid monthly:"]
+  },
+  {
+   "id": "paywall-free-download",
+   "source": "the overfit review's S2: free to download behind a paywall isn't a free plan",
+   "mine": [{ "kind": "free", "amount": 0, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 4.99, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 6.99, "currency": "USD" }, "period": "month", "periods": { "month": { "amount": 6.99, "currency": "USD" } }, "freeStart": true, "via": "app_store" },
+   "expect": "no", "mentions": ["theirs is free to download, a free plan not shown", "paid monthly:"]
+  },
+  {
+   "id": "streaming-yearly",
+   "source": "a streaming service paid by the year against one paid by the month (pricing read before periods were kept)",
+   "mine": [{ "kind": "paid", "amount": 11.99, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 99.99, "currency": "USD" }, "period": "year", "via": "app_store" },
+   "expect": "yes", "mentions": ["no period in common, per month", "/month"]
+  },
+  {
+   "id": "streaming-same",
+   "source": "two streaming services at about the same monthly price",
+   "mine": [{ "kind": "paid", "amount": 9.99, "currency": "EUR", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 10.49, "currency": "EUR" }, "period": "month", "periods": { "month": { "amount": 10.49, "currency": "EUR" } }, "via": "pricing_page" },
+   "expect": "unknown", "mentions": ["about the same"]
+  },
+  {
+   "id": "streaming-other-currency",
+   "source": "a monthly price in another currency, at the day's rate",
+   "mine": [{ "kind": "paid", "amount": 6.99, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 3.99, "currency": "GBP" }, "period": "month", "periods": { "month": { "amount": 3.99, "currency": "GBP" } }, "via": "app_store" },
+   "expect": "yes", "mentions": ["paid monthly: theirs 3.99 GBP/month (≈", "USD)"]
+  },
+  {
+   "id": "yen-monthly",
+   "source": "a Japanese storefront: yen without decimals, theirs dearer by the month",
+   "mine": [{ "kind": "paid", "amount": 980, "currency": "JPY", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 1200, "currency": "JPY" }, "period": "month", "periods": { "month": { "amount": 1200, "currency": "JPY" } }, "freeStart": true, "via": "app_store" },
+   "expect": "no", "mentions": ["paid monthly: theirs 1200 JPY/month vs yours 980 JPY/month"]
+  },
+  {
+   "id": "won-weekly",
+   "source": "a Korean app sold by the week on both sides",
+   "mine": [{ "kind": "paid", "amount": 4900, "currency": "KRW", "period": "week" }],
+   "theirs": { "model": "subscription", "from": { "amount": 3900, "currency": "KRW" }, "period": "week", "periods": { "week": { "amount": 3900, "currency": "KRW" } }, "freeStart": true, "via": "app_store" },
+   "expect": "yes", "mentions": ["paid weekly:"]
+  },
+  {
+   "id": "dong-against-dollars",
+   "source": "a Vietnamese price (large numbers, no decimals) against a dollar price, at the day's rate",
+   "mine": [{ "kind": "paid", "amount": 99000, "currency": "VND", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 2.99, "currency": "USD" }, "period": "month", "periods": { "month": { "amount": 2.99, "currency": "USD" } }, "via": "app_store" },
+   "expect": "yes", "mentions": ["paid monthly: theirs 2.99 USD/month (≈", "VND)"]
+  },
+  {
+   "id": "reais-mixed",
+   "source": "a Brazilian app: theirs dearer by the month, cheaper by the year",
+   "mine": [{ "kind": "paid", "amount": 29.9, "currency": "BRL", "period": "month" }, { "kind": "paid", "amount": 239.9, "currency": "BRL", "period": "year" }],
+   "theirs": { "model": "subscription", "from": { "amount": 34.9, "currency": "BRL" }, "period": "month", "periods": { "month": { "amount": 34.9, "currency": "BRL" }, "year": { "amount": 199.9, "currency": "BRL" } }, "via": "pricing_page" },
+   "expect": "unknown", "mentions": ["not settled"]
+  },
+  {
+   "id": "vpn-lifetime",
+   "source": "a VPN sold once for life against one paid by the year: no kind in common",
+   "mine": [{ "kind": "paid", "amount": 59.88, "currency": "USD", "period": "year" }],
+   "theirs": { "model": "one_time", "from": { "amount": 79, "currency": "USD" }, "via": "pricing_page" },
+   "expect": "unknown", "mentions": ["no kind in common"]
+  },
+  {
+   "id": "vpn-once-both",
+   "source": "two apps sold once",
+   "mine": [{ "kind": "paid", "amount": 39, "currency": "USD", "period": "once" }],
+   "theirs": { "model": "one_time", "from": { "amount": 29, "currency": "USD" }, "via": "app_store" },
+   "expect": "yes", "mentions": ["one-time:"]
+  },
+  {
+   "id": "free-vs-freemium",
+   "source": "an app free with nothing to buy against one with a free plan and a paid one: free with free is even",
+   "mine": [{ "kind": "free", "amount": 0, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 5, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "free", "via": "app_store" },
+   "expect": "unknown", "mentions": ["free: both have a free plan"]
+  },
+  {
+   "id": "free-vs-paid-only",
+   "source": "an app free with nothing to buy against one only sold by subscription",
+   "mine": [{ "kind": "paid", "amount": 4.99, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "free", "via": "app_store" },
+   "expect": "yes", "mentions": ["theirs is free, yours paid"]
+  }
+ ]
+}

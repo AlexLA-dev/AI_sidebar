@@ -11,6 +11,9 @@
  "languageName": {
   "message": "Español"
  },
+ "langCode": {
+  "message": "es"
+ },
  "ctxPage": {
   "message": "Esta página"
  },
@@ -302,6 +305,9 @@
  "uxRemindTitle": {
   "message": "¿Cuándo te lo recuerdo?"
  },
+ "uxNoteWords": {
+  "message": "Tu nota (opcional)"
+ },
  "uxRemindAsked": {
   "message": "Pediste que te lo recordara: {0}"
  },
@@ -447,10 +453,10 @@
   "message": "Antes de que ContextFlow use la IA"
  },
  "consentBody": {
-  "message": "Lo das una vez y vale para todas las funciones de IA. Cada una envía solo lo que necesita, cuando la usas, a través de nuestro servidor a Anthropic (Claude). No se guarda nada en nuestros servidores y los proveedores no entrenan con ello."
+  "message": "Lo das una vez, para toda la IA de ContextFlow. Cada función envía solo lo que necesita, cuando la usas, por nuestro servidor a Anthropic (Claude), OpenAI (respuestas de respaldo, sugerencias) y Google Gemini (respuestas de Google). Con tu propia clave de API, va directo a ese proveedor. No guardamos nada ni se entrena con ello."
  },
  "consentAnswers": {
-  "message": "Respuestas: tu pregunta, el texto de la página o tu selección, y tu «Sobre mí» si lo escribiste. Si Claude no está disponible, responde OpenAI; las respuestas de Google van a Google."
+  "message": "Respuestas: tu pregunta, el texto de la página o tu selección, y tu «Sobre mí» si lo escribiste. Si Claude no está disponible, responde OpenAI; las respuestas de Google van a Google Gemini."
  },
  "consentChats": {
   "message": "«Pregunta a tus chats» y la búsqueda con IA (Pro): fragmentos breves de tus chats."
@@ -695,6 +701,132 @@
  "tourWholeBody": {
   "message": "Activa «Todo el chat» cuando una pregunta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y esta página."
  },
+ "tourMenuTitle": {
+  "message": "Todo lo demás"
+ },
+ "tourMenuBody": {
+  "message": "Recordatorios y páginas vigiladas, Consejos, Configuración y el recorrido básico de nuevo están en este menú."
+ },
+ "guideSumTitle": {
+  "message": "Tu primera respuesta"
+ },
+ "guideSumBody": {
+  "message": "Toca «{0}»: ContextFlow lee esta página y te la resume."
+ },
+ "guideConsentTitle": {
+  "message": "Un sí para todas las funciones de IA"
+ },
+ "guideConsentBody": {
+  "message": "Antes de enviar nada a la IA, ContextFlow pregunta una vez. Acepta para recibir tu resumen."
+ },
+ "guideAnswerTitle": {
+  "message": "Aquí está tu resumen"
+ },
+ "guideAnswerBody": {
+  "message": "Desplázate para leerlo. Puedes hacer otra pregunta en el campo de abajo cuando quieras."
+ },
+ "guideSelectTitle": {
+  "message": "Ahora pregunta por una parte"
+ },
+ "guideSelectBodyTouch": {
+  "message": "Mantén pulsada una palabra de la página, arrastra la selección unas líneas y toca «{0}»."
+ },
+ "guideSelectBodyMouse": {
+  "message": "Selecciona unas líneas de la página y haz clic en «{0}»."
+ },
+ "guideSelectGo": {
+  "message": "Probar"
+ },
+ "guidePickTouch": {
+  "message": "Mantén pulsada una palabra de la página"
+ },
+ "guidePickMouse": {
+  "message": "Selecciona unas líneas de la página"
+ },
+ "guideTapAskTouch": {
+  "message": "Toca «{0}» para preguntar por lo que seleccionaste."
+ },
+ "guideTapAskMouse": {
+  "message": "Haz clic en «{0}» para preguntar por lo que seleccionaste."
+ },
+ "guideAskSelTitle": {
+  "message": "Pregunta por tu selección"
+ },
+ "guideAskSelBody": {
+  "message": "Elige una acción rápida, como «{0}», o escribe tu propia pregunta."
+ },
+ "uxShowIntro": {
+  "message": "Repetir el recorrido básico"
+ },
+ "uxOther": {
+  "message": "Más…"
+ },
+ "uxRate": {
+  "message": "Valorar en App Store"
+ },
+ "tipClipNeedsApp": {
+  "message": "Abre la app ContextFlow una vez para ver este vídeo."
+ },
+ "busyWorking": {
+  "message": "Preparando la respuesta…"
+ },
+ "busyNew": {
+  "message": "Nueva respuesta lista"
+ },
+ "ptMenu": {
+  "message": "Qué incluye {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: vídeos y PDF"
+ },
+ "ptProMediaBody": {
+  "message": "Si una página tiene un vídeo o un PDF, ContextFlow ahora también los lee: los subtítulos del vídeo y el texto del PDF. Solo pregunta."
+ },
+ "ptProFindTitle": {
+  "message": "Búsqueda con IA en tus chats"
+ },
+ "ptProFindBody": {
+  "message": "Activa ✦ junto a la búsqueda y describe el chat que recuerdas, aunque no sepas las palabras exactas."
+ },
+ "ptProAskTitle": {
+  "message": "Pregunta a todos tus chats"
+ },
+ "ptProAskBody": {
+  "message": "«{0}» responde con todo lo que has leído y preguntado: «¿Qué leí esta semana?»"
+ },
+ "ptProSortTitle": {
+  "message": "Ordenado por temas"
+ },
+ "ptProSortBody": {
+  "message": "Después de una respuesta, una fila debajo sugiere una etiqueta o una carpeta para el chat. Un toque lo ordena, y puedes deshacerlo."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Plantillas"
+ },
+ "ptProTemplatesBody": {
+  "message": "Selecciona texto y toca «{0}» para guardarlo, y luego pégalo en cualquier campo. Todas las que necesites."
+ },
+ "ptProWatchTitle": {
+  "message": "Sigue hasta 20 páginas"
+ },
+ "ptProWatchBody": {
+  "message": "En «…», «{0}» te avisa cuando la página cambia: un precio, una fecha, una publicación nueva."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: escucha"
+ },
+ "ptUltraListenBody": {
+  "message": "Toca «{0}» bajo una respuesta, o «{1}» en «…»: el texto se reescribe para el oído y se lee en voz alta."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Alternativas reales a lo que estás viendo, con cada enlace abierto y comprobado. Toca «{0}» aquí o en «…», o selecciona texto y toca «{1}»."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Sigue hasta 50 páginas"
+ },
+ "ptUltraWatchBody": {
+  "message": "En «…», «{0}» ahora sigue hasta 50 páginas a la vez."
+ },
  "welcomeTitle": {
   "message": "ContextFlow está listo"
  },
@@ -715,6 +847,12 @@
  },
  "selQuestion": {
   "message": "Tu pregunta…"
+ },
+ "selTranslateTo": {
+  "message": "Traducir al {0}"
+ },
+ "selChips": {
+  "message": "Acciones rápidas"
  },
  "selNote": {
   "message": "Nota"
@@ -758,6 +896,9 @@
  "usageProShort": {
   "message": "Pro · {0} de {1} esta semana"
  },
+ "usageUltraShort": {
+  "message": "Ultra · {0} de {1} esta semana"
+ },
  "pinChat": {
   "message": "Fijar chat"
  },
@@ -772,6 +913,12 @@
  },
  "chatNotes": {
   "message": "Tus notas en este chat"
+ },
+ "chatWatches": {
+  "message": "Páginas vigiladas en este chat: {0}"
+ },
+ "chatReminder": {
+  "message": "Hay un recordatorio en este chat"
  },
  "pages_one": {
   "message": "{0} página"
@@ -800,7 +947,19 @@
  "pickNone": {
   "message": "Quitar selección"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{0} respuesta gratis nueva a las {1}, en {2}."
+ },
+ "limitFreeBack_two": {
+  "message": "{0} respuestas gratis nuevas a las {1}, en {2}."
+ },
+ "limitFreeBack_few": {
+  "message": "{0} respuestas gratis nuevas a las {1}, en {2}."
+ },
+ "limitFreeBack_many": {
+  "message": "{0} respuestas gratis nuevas a las {1}, en {2}."
+ },
+ "limitFreeBack_other": {
   "message": "{0} respuestas gratis nuevas a las {1}, en {2}."
  },
  "limitFreePro": {
@@ -1346,6 +1505,63 @@
  "orgFirstWin": {
   "message": "Listo. A partir de ahora te haré sugerencias por mi cuenta."
  },
+ "orgNameChat": {
+  "message": "Nombrar por tema"
+ },
+ "orgNamed": {
+  "message": "Chat llamado «{0}»"
+ },
+ "orgNameFailed": {
+  "message": "No he podido poner nombre al chat ahora. Inténtalo más tarde."
+ },
+ "orgNameAs": {
+  "message": "Llamar al chat «{0}»"
+ },
+ "orgMatch": {
+  "message": "coincide en un {0} %"
+ },
+ "orgMergeInto": {
+  "message": "Unir con «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "Unir este chat con «{0}»"
+ },
+ "orgMerged": {
+  "message": "Unido con «{0}»"
+ },
+ "orgMergeHere": {
+  "message": "Traer «{0}» aquí"
+ },
+ "orgMergeHereA11y": {
+  "message": "Unir el chat anterior «{0}» con este"
+ },
+ "orgMergedHere": {
+  "message": "«{0}» traído aquí"
+ },
+ "orgBarOne": {
+  "message": "Sugerencias · {0}"
+ },
+ "orgBarOf": {
+  "message": "Sugerencias · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Sugerencias en este chat"
+ },
+ "recs_one": {
+  "message": "{0} recomendación"
+ },
+ "recs_two": {
+  "message": "{0} recomendaciones"
+ },
+ "recs_few": {
+  "message": "{0} recomendaciones"
+ },
+ "recs_many": {
+  "message": "{0} recomendaciones"
+ },
+ "recs_other": {
+  "message": "{0} recomendaciones"
+ },
  "orgConsentTitle": {
   "message": "¿Ordenar tus chats por tema?"
  },
@@ -1393,6 +1609,9 @@
  },
  "watchWhen": {
   "message": "Cuándo avisarte"
+ },
+ "watchNoteWords": {
+  "message": "Tu nota (opcional)"
  },
  "watchCondPrice": {
   "message": "cuando cambie el precio (ahora {0})"
@@ -1508,6 +1727,552 @@
  "watchChangedBody": {
   "message": "Ahora: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "Planes"
+ },
+ "plansCompare": {
+  "message": "Comparar planes"
+ },
+ "plansMonthly": {
+  "message": "Mensual"
+ },
+ "plansYearly": {
+  "message": "Anual"
+ },
+ "plansSave": {
+  "message": "Ahorra un {0} %"
+ },
+ "plansCurrent": {
+  "message": "Tu plan"
+ },
+ "plansChoose": {
+  "message": "Elegir {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0}/mes"
+ },
+ "plansPerYear": {
+  "message": "{0}/año"
+ },
+ "plansNote": {
+  "message": "La suscripción se hace en la app ContextFlow. El cambio a Ultra empieza enseguida, y Apple te reembolsa lo que queda de tu plan actual."
+ },
+ "plansCurrency": {
+  "message": "Precios en {0}, tal como los da el App Store."
+ },
+ "tierByok1": {
+  "message": "Respuestas ilimitadas con tu propia clave de API de OpenAI o Claude"
+ },
+ "tierByok2": {
+  "message": "Todo en la página: resúmenes, explicaciones, traducciones"
+ },
+ "tierPro1": {
+  "message": "Hasta {0} respuestas a la semana, sin clave de API"
+ },
+ "tierPro2": {
+  "message": "Vídeos y PDF, búsqueda con IA, «Pregunta a tus chats», orden por tema"
+ },
+ "tierPro3": {
+  "message": "Vigila hasta {0} páginas: bajadas de precio y cambios"
+ },
+ "tierUltra0": {
+  "message": "Todo lo de Pro, y además:"
+ },
+ "tierUltra1": {
+  "message": "Escucha respuestas y páginas enteras con una voz natural: {0} minutos a la semana"
+ },
+ "tierUltra2": {
+  "message": "Buscar similares: alternativas a cualquier página (más baratas, más nuevas, disponibles o en tu idioma), {0} búsquedas a la semana"
+ },
+ "tierUltra3": {
+  "message": "Vigila hasta {0} páginas"
+ },
+ "listen": {
+  "message": "Escuchar"
+ },
+ "listenPage": {
+  "message": "Escuchar esta página"
+ },
+ "listenPause": {
+  "message": "Pausa"
+ },
+ "listenPlay": {
+  "message": "Reproducir"
+ },
+ "listenStop": {
+  "message": "Detener"
+ },
+ "listenClose": {
+  "message": "Detener y cerrar"
+ },
+ "listenPlayingHere": {
+  "message": "Reproduciendo ahora"
+ },
+ "listenVoiced": {
+  "message": "Ya narrado: volver a escucharlo es gratis"
+ },
+ "listenMadeLeft": {
+  "message": "Ya narrado: solo se descuenta lo que no has escuchado, {0}"
+ },
+ "listenGoTo": {
+  "message": "Ir a donde está"
+ },
+ "listenLoading": {
+  "message": "Preparando la voz…"
+ },
+ "listenUltraTitle": {
+  "message": "Escuchar es parte de Ultra"
+ },
+ "listenUltraBody": {
+  "message": "Respuestas y páginas enteras leídas en voz alta con una voz natural, en más de 100 idiomas. En el iPhone sigue sonando con la pantalla bloqueada."
+ },
+ "listenLimit": {
+  "message": "Se acabaron los {0} minutos de escucha de esta semana. Vuelven el {1}."
+ },
+ "listenFailed": {
+  "message": "No se pudo leer en voz alta. Inténtalo de nuevo en un momento."
+ },
+ "listenOffline": {
+  "message": "Sin conexión: la primera vez, escuchar necesita internet."
+ },
+ "listenInApp": {
+  "message": "«Escuchar» se reproduce en la app ContextFlow, así que sigue sonando con la pantalla bloqueada y en tus auriculares."
+ },
+ "listenLeft": {
+  "message": "Escucha: te quedan {0} de {1} min esta semana"
+ },
+ "watchFullPro": {
+  "message": "Con Pro puedes vigilar {0} páginas a la vez. Con Ultra, hasta {1}."
+ },
+ "watchMoreUltra": {
+  "message": "Más con Ultra"
+ },
+ "seeUltra": {
+  "message": "Ver Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · Te quedan {0} de {1} respuestas esta semana"
+ },
+ "actSimilar": {
+  "message": "Buscar similares"
+ },
+ "selSimilar": {
+  "message": "Buscar similares"
+ },
+ "uxSimilar": {
+  "message": "Buscar similares…"
+ },
+ "similarTitle": {
+  "message": "Buscar similares"
+ },
+ "similarConditions": {
+  "message": "Condiciones"
+ },
+ "similarCheaper": {
+  "message": "Más barato"
+ },
+ "similarInStock": {
+  "message": "En stock"
+ },
+ "similarNewer": {
+  "message": "Más reciente"
+ },
+ "similarFree": {
+  "message": "Gratis"
+ },
+ "similarMyLanguage": {
+  "message": "En mi idioma"
+ },
+ "similarShorter": {
+  "message": "Más corto"
+ },
+ "similarInLanguage": {
+  "message": "en {0}"
+ },
+ "similarCustom": {
+  "message": "O di lo que necesitas (opcional)"
+ },
+ "similarHint": {
+  "message": "Alternativas reales que existen ahora. Abrimos y comprobamos cada enlace antes de mostrártelo."
+ },
+ "similarFind": {
+  "message": "Buscar"
+ },
+ "similarAsked": {
+  "message": "Buscar similares"
+ },
+ "similarAskedWith": {
+  "message": "Buscar similares: {0}"
+ },
+ "similarStockIn": {
+  "message": "En stock"
+ },
+ "similarStockOut": {
+  "message": "Agotado"
+ },
+ "similarFromList": {
+  "message": "mencionado en una reseña"
+ },
+ "similarNotConfirmed": {
+  "message": "Sin confirmar"
+ },
+ "similarNotOpened": {
+  "message": "No se pudo abrir la página para comprobarla"
+ },
+ "similarWatchPrice": {
+  "message": "Seguir el precio"
+ },
+ "similarStepPlan": {
+  "message": "Leyendo la página…"
+ },
+ "similarStepSearch": {
+  "message": "Buscando en la web…"
+ },
+ "similarStepCheck": {
+  "message": "Comprobando las páginas…"
+ },
+ "similarStepCheckN": {
+  "message": "Comprobando {0} páginas…"
+ },
+ "similarStepWrite": {
+  "message": "Eligiendo lo mejor…"
+ },
+ "similarNone": {
+  "message": "No hay alternativas comprobadas para esta página. Prueba otra condición o ninguna."
+ },
+ "similarChecked": {
+  "message": "Enlaces comprobados a las {0}"
+ },
+ "similarUpsellText": {
+  "message": "Alternativas reales a lo que estás viendo: un producto, una app, un artículo, una receta, un lugar."
+ },
+ "similarUpsellChecked": {
+  "message": "Cada enlace abierto y comprobado: sin páginas muertas ni inventadas."
+ },
+ "similarUpsellConditions": {
+  "message": "Más barato, en stock, más reciente, gratis, en tu idioma, o con tus palabras."
+ },
+ "similarUpsellWatch": {
+  "message": "Precio y stock tal como los muestra la página, con Seguir el precio."
+ },
+ "similarGetUltra": {
+  "message": "Obtener Ultra"
+ },
+ "similarOff": {
+  "message": "«Buscar similares» aún no está disponible."
+ },
+ "similarLimit": {
+  "message": "Ya usaste las {0} búsquedas de «Buscar similares» de esta semana. Vuelven el {1}."
+ },
+ "orgDemoQuestion": {
+  "message": "¿Vuelos baratos a Lisboa en mayo?"
+ },
+ "orgDemoAnswer": {
+  "message": "En mayo, los vuelos de ida y vuelta de Berlín a Lisboa cuestan desde unos 90 euros. Conviene reservar con seis a ocho semanas de antelación."
+ },
+ "orgDemoTag": {
+  "message": "vacaciones"
+ },
+ "orgDemoChat": {
+  "message": "Viajes"
+ },
+ "listenSpeed": {
+  "message": "Velocidad: {0}. Toca para elegir otra"
+ },
+ "plansYearlySave": {
+  "message": "Anual · ahorra hasta un {0} %"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} al mes, con pago anual"
+ },
+ "plansSaveMoney": {
+  "message": "Ahorras {0} al año"
+ },
+ "yearlyNudge": {
+  "message": "{0} anual: ahorras {1} ({2} %) al año."
+ },
+ "yearlyNudgeButton": {
+  "message": "Cambiar a anual"
+ },
+ "yearlyNudgeNote": {
+  "message": "El plan anual empieza cuando termine tu mes actual."
+ },
+ "yearlyNudgeHide": {
+  "message": "Ocultar"
+ },
+ "galleryTitle": {
+  "message": "Qué incluye"
+ },
+ "galleryNext": {
+  "message": "Siguiente"
+ },
+ "galleryPrevious": {
+  "message": "Anterior"
+ },
+ "gMediaTitle": {
+  "message": "Vídeos y PDF"
+ },
+ "gMediaLine": {
+  "message": "Las respuestas usan la transcripción del vídeo y las páginas del PDF."
+ },
+ "gMediaVideo": {
+  "message": "Transcripción del vídeo · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "Informe del T3 · 3 páginas"
+ },
+ "gMediaAnswer": {
+  "message": "Los ingresos crecieron un 12 % en el tercer trimestre. En el vídeo, el CEO lo atribuye a los nuevos planes de suscripción."
+ },
+ "gSearchTitle": {
+  "message": "Búsqueda con IA y «Pregunta a tus chats»"
+ },
+ "gSearchLine": {
+  "message": "Encuentra un chat describiéndolo o haz una pregunta sobre todos."
+ },
+ "gSearchQuery": {
+  "message": "el artículo sobre el sueño y el café"
+ },
+ "gSearchResult": {
+  "message": "Cafeína y sueño"
+ },
+ "gSearchSnippet": {
+  "message": "El café después de las 14:00 redujo el sueño profundo en una quinta parte…"
+ },
+ "gSearchWhen": {
+  "message": "La semana pasada"
+ },
+ "gTemplatesTitle": {
+  "message": "Plantillas sin límites"
+ },
+ "gTemplatesLine": {
+  "message": "Tus propias instrucciones y respuestas, con nombres y fechas tomados de la página."
+ },
+ "gTemplatesName": {
+  "message": "Seguimiento tras una llamada"
+ },
+ "gTemplatesBody": {
+  "message": "Hola, {0}. Gracias por la llamada del {1}. Como te prometí, aquí tienes los próximos pasos."
+ },
+ "gTemplatesPerson": {
+  "message": "Lucía"
+ },
+ "gTemplatesDay": {
+  "message": "martes"
+ },
+ "gWatchTitle": {
+  "message": "Vigila {0} páginas"
+ },
+ "gWatchLine": {
+  "message": "Entérate cuando baje un precio o cambie una página."
+ },
+ "gWatchChanged": {
+  "message": "Cambió: Precio"
+ },
+ "gWatchNow": {
+  "message": "Ahora: {0} (antes {1})"
+ },
+ "gWatchManyLine": {
+  "message": "Precios, disponibilidad y cambios en hasta {0} páginas a la vez."
+ },
+ "gWatchItem1": {
+  "message": "Auriculares"
+ },
+ "gWatchItem2": {
+  "message": "Vuelo a Lisboa"
+ },
+ "gWatchMore": {
+  "message": "y {0} páginas más"
+ },
+ "gAnswersTitle": {
+  "message": "Hasta {0} respuestas a la semana"
+ },
+ "gAnswersLine": {
+  "message": "Respuestas más profundas y detalladas, en lugar de {0} al día."
+ },
+ "gAnswersWeek": {
+  "message": "a la semana"
+ },
+ "gAnswersFree": {
+  "message": "Gratis: {0} al día"
+ },
+ "gListenTitle": {
+  "message": "Escuchar"
+ },
+ "gListenLine": {
+  "message": "Respuestas y páginas enteras leídas en voz alta con una voz natural, a la velocidad que prefieras."
+ },
+ "gListenSample": {
+  "message": "Cómo ahorran energía los trenes eléctricos"
+ },
+ "gSimilarTitle": {
+  "message": "Buscar similares"
+ },
+ "gSimilarLine": {
+  "message": "Alternativas a cualquier página: más baratas, más nuevas, disponibles o en tu idioma."
+ },
+ "gSimilar1": {
+  "message": "Silla de oficina de malla"
+ },
+ "gSimilar2": {
+  "message": "La misma silla, modelo 2026"
+ },
+ "gSimilar3": {
+  "message": "Silla con reposacabezas"
+ },
+ "gSimilarInStock": {
+  "message": "En stock"
+ },
+ "gSimilarNewer": {
+  "message": "Más reciente"
+ },
+ "gSimilarCheaper": {
+  "message": "Más barato"
+ },
+ "listenMinLeft": {
+  "message": "Quedan {0} min"
+ },
+ "listenMinLeftTitle": {
+  "message": "Te quedan {0} min de escucha esta semana"
+ },
+ "listenLow": {
+  "message": "Te quedan unos {0} min de escucha esta semana, y esto dura unos {1} min. La lectura se detiene donde se acaben los minutos."
+ },
+ "listenAnyway": {
+  "message": "Escuchar de todos modos"
+ },
+ "listenAway": {
+  "message": "Sigue escuchando en ContextFlow: desde {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "Activa las notificaciones para seguir escuchando al salir de Safari o bloquear la pantalla. Si no, «Escuchar» abre la app."
+ },
+ "listenNotifyOn": {
+  "message": "Activar notificaciones"
+ },
+ "listenNotifyLater": {
+  "message": "Ahora no"
+ },
+ "listenTaken": {
+  "message": "Se está reproduciendo en la app ContextFlow."
+ },
+ "listenSeek": {
+  "message": "Posición en el audio"
+ },
+ "plansUpgrade": {
+  "message": "Pasar a {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "Pasar a anual"
+ },
+ "similarPayFree": {
+  "message": "Gratis, sin compras dentro de la app"
+ },
+ "similarPayFreeStart": {
+  "message": "Gratis"
+ },
+ "similarPaySub": {
+  "message": "Suscripción desde {0}"
+ },
+ "similarPayOnce": {
+  "message": "Compra única {0}"
+ },
+ "similarPayIap": {
+  "message": "Compras dentro de la app desde {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/semana"
+ },
+ "similarPerMonth": {
+  "message": "{0}/mes"
+ },
+ "similarPerYear": {
+  "message": "{0}/año"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro recuerda todo el chat"
+ },
+ "offerMemoryBody": {
+  "message": "Una respuesta gratuita recuerda las últimas {0} respuestas y notas de un chat. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste."
+ },
+ "offerMemoryLong": {
+  "message": "Este chat tiene más de las {0} respuestas y notas que recuerda una respuesta gratuita. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste."
+ },
+ "offerRetryAt": {
+  "message": "Las respuestas vuelven a las {0}."
+ },
+ "similarWhere": {
+  "message": "Dónde buscar"
+ },
+ "similarWorld": {
+  "message": "En todo el mundo"
+ },
+ "similarLocal": {
+  "message": "Cerca de mí"
+ },
+ "similarLocalIn": {
+  "message": "Cerca · {0}"
+ },
+ "similarWhereHint": {
+  "message": "Elige primero dónde buscar."
+ },
+ "similarLess": {
+  "message": "Menos parecidos"
+ },
+ "similarPercent": {
+  "message": "Parecido al {0} %"
+ },
+ "similarDiffers": {
+  "message": "Diferencia: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "No está en el App Store de tu país"
+ },
+ "similarShipListed": {
+  "message": "La página de envíos incluye: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "No se indica si envían a este país: {0}"
+ },
+ "similarRatings": {
+  "message": "{0} valoraciones"
+ },
+ "similarReviewersSay": {
+  "message": "Reseñas: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "Búsqueda de similares terminada"
+ },
+ "similarNotifyFound": {
+  "message": "Opciones encontradas: {0}. Toca para verlas."
+ },
+ "similarNotifyNone": {
+  "message": "Nada encaja. Toca para cambiar la condición."
+ },
+ "similarNotifyFailed": {
+  "message": "La búsqueda no terminó. Toca para reintentar."
+ },
+ "similarSay": {
+  "message": "Lo que dicen:"
+ },
+ "similarPros": {
+  "message": "gusta: {0}"
+ },
+ "similarCons": {
+  "message": "no gusta: {0}"
+ },
+ "similarEstimated": {
+  "message": "estimado por la descripción"
+ },
+ "similarSame": {
+  "message": "Mismo artículo, otra tienda"
+ },
+ "similarMisses": {
+  "message": "No cumple tu elección"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },
@@ -1532,6 +2297,12 @@
  "tip_4acd9995ac": {
   "message": "Haz clic en ✦ en la página o en el icono de ContextFlow de la barra de herramientas, o pulsa Control-Shift-E."
  },
+ "tip_af26b6788c": {
+  "message": "Aparta ✦ de en medio"
+ },
+ "tip_6d2694aec4": {
+  "message": "¿✦ tapa lo que estás leyendo? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes."
+ },
  "tip_2749afe54a": {
   "message": "Lo esencial en un toque"
  },
@@ -1549,6 +2320,15 @@
  },
  "tip_fa1cdf5479": {
   "message": "Selecciona texto en una página: escribe tu propia pregunta justo debajo de la selección o toca «Nota» para guardarlo en el chat con su página. Las notas no gastan respuestas."
+ },
+ "tip_2f27bc2271": {
+  "message": "Acciones rápidas bajo la selección"
+ },
+ "tip_b4d2d0edad": {
+  "message": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desliza entre ellas y toca una, sin escribir nada."
+ },
+ "tip_2105cc684e": {
+  "message": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desplázate entre ellas con el trackpad o la rueda del ratón y haz clic en una, sin escribir nada."
  },
  "tip_9000896590": {
   "message": "El chat te acompaña"
@@ -1612,6 +2392,24 @@
  },
  "tip_ff32d2c483": {
   "message": "Con Pro, los PDF que una página muestra o enlaza van con tu pregunta, y las respuestas dicen en qué página está cada cosa. En iPad y Mac, ContextFlow en la barra de herramientas también se abre en una pestaña con un PDF. Las respuestas gratuitas usan el texto de la página."
+ },
+ "tip_de4adc7524": {
+  "message": "Buscar similares"
+ },
+ "tip_b2248495b1": {
+  "message": "Toca «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y toca «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
+ },
+ "tip_31666a3aab": {
+  "message": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
+ },
+ "tip_c518fb0674": {
+  "message": "Escuchar"
+ },
+ "tip_f26f3d2993": {
+  "message": "Toca «Escuchar» debajo de una respuesta, o elige «Escuchar esta página» en el menú «…» arriba del panel. La app ContextFlow lo lee con una voz natural y sigue sonando con la pantalla bloqueada. Toca la velocidad en el reproductor para elegir 1×, 1,2×, 1,5× o 2×."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "Haz clic en «Escuchar» debajo de una respuesta, o elige «Escuchar esta página» en el menú «…» arriba del panel. Una voz natural lo lee ahí mismo, en el panel. Haz clic en la velocidad del reproductor para elegir 1×, 1,2×, 1,5× o 2×."
  },
  "tip_328ee8ddce": {
   "message": "Inserción rápida"
@@ -1688,8 +2486,8 @@
  "tip_4721064b09": {
   "message": "Búsqueda con IA"
  },
- "tip_52a09ac884": {
-  "message": "Toca ✦ junto a la búsqueda y describe el chat que recuerdas —«ese artículo sobre el sueño y el café»—, aunque no uses las palabras exactas."
+ "tip_e4964f1718": {
+  "message": "Describe el chat que recuerdas —«ese artículo sobre el sueño y el café»—, aunque no uses las palabras exactas. En la app, elige «Por significado» bajo la búsqueda; en Safari, toca ✦ junto a ella."
  },
  "tip_068fa58797": {
   "message": "Pregunta a tus chats"
@@ -1709,6 +2507,21 @@
  "tip_69a0bac728": {
   "message": "ContextFlow aprende qué significan tus etiquetas según dónde las pones, y sugiere la adecuada bajo una respuesta o nota nueva. Solo tus propias etiquetas, solo cuando encajan."
  },
+ "tip_b96ddaab20": {
+  "message": "Tu plan"
+ },
+ "tip_b3282f43dd": {
+  "message": "Mensual o anual"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro y Ultra se pagan al mes o al año, y un año cuesta menos que doce meses. Toca «Anual» encima de los planes, en la app o en Safari, para ver cada precio y cuánto ahorras. ¿Ya pagas al mes? «Cambiar a anual» está en «Configuración» → «Tu plan»: empieza cuando termina tu mes actual."
+ },
+ "tip_9288a85bb9": {
+  "message": "Lo que añade tu plan"
+ },
+ "tip_0f2289f887": {
+  "message": "Después de comprar Pro o Ultra, ContextFlow te muestra paso a paso lo que añade tu plan. Para verlo otra vez, toca «…» arriba del panel, luego «Más…» y «Qué incluye Pro» o «Qué incluye Ultra». En la app, está en «Configuración», en «Tu plan»."
+ },
  "tip_3208aa35ac": {
   "message": "Privacidad y personalización"
  },
@@ -1718,11 +2531,11 @@
  "tip_e2d1d4abd0": {
   "message": "Añade una línea en “Sobre mí” —a qué te dedicas, cómo te gustan las respuestas— y ContextFlow las adaptará a ti."
  },
- "tip_10400d6345": {
-  "message": "El botón ✦, a tu manera"
+ "tip_1e9a1535cb": {
+  "message": "Oculta ✦ cuando no lo necesites"
  },
- "tip_4c60874441": {
-  "message": "¿✦ tapa algo de la página? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes. También puedes ocultarlo en un sitio concreto o desactivarlo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+ "tip_6cc366173d": {
+  "message": "¿No necesitas ✦ en un sitio? Ocúltalo en ese sitio o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Usa tu propia clave de API"
@@ -1737,6 +2550,6 @@
   "message": "ContextFlow lee una página solo cuando preguntas y envía únicamente su texto para obtener la respuesta. Tus chats se quedan en tus dispositivos y en tu iCloud. Con las sugerencias activadas, el texto de los mensajes nuevos también va a nuestro servidor para ver dónde encajan; no lo guardamos."
  },
  "tip_clips": {
-  "message": "en"
+  "message": "es"
  }
 }

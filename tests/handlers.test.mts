@@ -116,6 +116,9 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
   cf_limits_report: ({ p_days }) => ({ days: p_days, rows: [{ key: "memory_window", hits: 74, base: 311, status: "systematic" }] }),
   cf_organize_report: ({ p_days }) => ({ days: p_days, suggestions: [{ what: "move", why: "site", shown: 5, accepted: 3, dismissed: 1, undone: 1, users: 2 }], promo: [], optin: [], api: null }),
+  cf_mrr_history: ({ p_days }) => ({ days: p_days, today: "2026-11-10", points: [{ day: "2026-11-10", plan: "byok", yearly: false, renewal_off: false, currency: "EUR", subs: 1, amount: 1990, ending: 0, ending_amount: 0, estimated: 0 }] }),
+  cf_retention: ({ p_days }) => ({ days: p_days, today: "2026-11-10", users: { cohorts: [], cells: [] }, subscribers: { cohorts: [], cells: [], renewals: [] } }),
+  cf_ultra_report: ({ p_days }) => ({ days: p_days, today: "2026-11-08", voice: { total: { texts: 3, minutes: 4.1 }, by_day: [], by_model: [], weeks: [] }, similar: { total: { searches: 4 }, by_day: [], by_model: [], weeks: [] } }),
   cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540, limit: 900, paid: 1200 }], open_reviews: [] }),
   cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }],
   cf_features: ({ p_days, p_base }) => ({ days: p_days, active: 2, features: [{ f: "ask", base: 2, people: 2 }], base: p_base }),
@@ -202,6 +205,7 @@ let resetClaudeCooldown: () => void
 let serverConfig: {
   geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
   anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number; freeDailyLimit: number
+  ultra: { speakWeeklySeconds: number; similarWeekly: number }
 }
 
 before(async () => {
@@ -415,6 +419,24 @@ test("App Store notification names the offer code a subscription started with", 
   assert.deepEqual([logged?.data.offer, logged?.data.offer_id, logged?.data.discount], [3, "Limit hitters: first month 50% off", "PAY_AS_YOU_GO"])
 })
 
+test("App Store notification logs what the next renewal costs and whether it's on", async () => {
+  const signedTransactionInfo = signJws(transaction({ originalTransactionId: "n4", offerType: 3, offerDiscountType: "PAY_AS_YOU_GO", price: 3490, currency: "USD" }))
+  const signedRenewalInfo = signJws({ originalTransactionId: "n4", autoRenewStatus: 1, autoRenewProductId: "com.contextflow.pro.monthly", renewalPrice: 6990, currency: "USD", renewalDate: Date.parse("2026-12-10T10:00:00Z"), signedDate: Date.now() })
+  const signedPayload = signJws({ notificationType: "SUBSCRIBED", subtype: "INITIAL_BUY", notificationUUID: "u4", data: { bundleId: "com.contextflow.app", signedTransactionInfo, signedRenewalInfo }, signedDate: Date.now() })
+  assert.equal((await notify(post("/.netlify/functions/appstore-verify", { signedPayload }), ctx())).status, 200)
+  const logged = events.find((e) => e.kind === "appstore_notification" && e.data.otid === "n4")
+  assert.deepEqual(
+    [logged?.data.price, logged?.data.auto_renew, logged?.data.renewal_product, logged?.data.renewal_price, logged?.data.renewal_currency, logged?.data.renewal_offer, logged?.data.renewal_at],
+    [3490, true, "com.contextflow.pro.monthly", 6990, "USD", null, "2026-12-10T10:00:00.000Z"])
+  // Renewal info that doesn't verify is left out; the notification still counts.
+  const rogue = signJws({ autoRenewStatus: 0 }, { leaf: "rogue" })
+  const second = signJws({ notificationType: "DID_CHANGE_RENEWAL_STATUS", subtype: "AUTO_RENEW_DISABLED", notificationUUID: "u5", data: { bundleId: "com.contextflow.app", signedTransactionInfo, signedRenewalInfo: rogue }, signedDate: Date.now() })
+  assert.equal((await notify(post("/.netlify/functions/appstore-verify", { signedPayload: second }), ctx())).status, 200)
+  const off = events.find((e) => e.kind === "appstore_notification" && e.data.uuid === "u5")
+  assert.equal(off?.data.type, "DID_CHANGE_RENEWAL_STATUS")
+  assert.equal("auto_renew" in (off?.data ?? {}), false)
+})
+
 test("Google mode streams a grounded answer with citations, sources and Search Suggestions", async () => {
   const c = ctx()
   const res = await chat(ask({ mode: "google", page: { kind: "selection", title: "T", url: "https://example.com", text: "capital of France" } }), c)
@@ -495,9 +517,18 @@ test("answer events mark the limits they ran into and the chat's size (2.4)", as
   // The server keeps the last 12 messages of a usual chat.
   const long = Array.from({ length: 15 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: `m${i}` }))
   assert.equal((await one({ messages: long })).history_cut, true)
-  // "Whole chat": another page at the 8,000-character limit.
-  const whole = await one({ context: "chat", messages: [{ role: "user", content: "q" }], pages: [{ title: "O", url: "https://o.example", text: "b".repeat(8_000) }, { title: "P", url: "https://p.example", text: "short" }] })
+  // "Whole chat" (Pro's memory, build 91): another page at the 8,000-character limit.
+  const otherPages = [{ title: "O", url: "https://o.example", text: "b".repeat(8_000) }, { title: "P", url: "https://p.example", text: "short" }]
+  const whole = await one({ entitlement: signJws(transaction()), context: "chat", messages: [{ role: "user", content: "q" }], pages: otherPages })
   assert.equal(whole.other_pages_cut, 1)
+  assert.equal(whole.whole_chat, true)
+  // Without Pro, a whole-chat request (a 2.5 panel, the app) is answered with the last 12 messages and no other pages.
+  const trimmed = await one({ context: "chat", messages: long, pages: otherPages })
+  assert.equal(trimmed.memory_trimmed, true)
+  assert.equal(trimmed.history, 11) // the last 5 answers, their questions and the one asked now (build 92)
+  assert.equal(trimmed.history_cut, true)
+  assert.equal(trimmed.whole_chat, undefined)
+  assert.equal(trimmed.other_pages_cut, undefined)
   // The chat's size from 2.4; anything that isn't a whole number is dropped.
   const sized = await one({ stats: { turns: 45, pages: 3, chats: 50 } })
   assert.deepEqual([sized.chat_turns, sized.chat_pages, sized.chats], [45, 3, 50])
@@ -572,19 +603,27 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.equal(body.after_limit.people[0].locale, "uk-UA")
   assert.deepEqual(body.releases, [{ platform: "IOS", version: "2.4", approved_at: "2026-11-04T14:59:19Z" }])
   assert.deepEqual([body.organize_report.days, body.organize_report.suggestions[0].accepted], [180, 3])
+  // Read aloud and find similar (2.6) with the weekly allowances as configured.
+  assert.deepEqual([body.ultra_report.days, body.ultra_report.voice.total.texts, body.ultra_report.similar.total.searches], [180, 3, 4])
+  assert.deepEqual(body.ultra_report.allowance, { speak_minutes: serverConfig.ultra.speakWeeklySeconds / 60, similar_searches: serverConfig.ultra.similarWeekly })
+  // MRR by day with the period; retention over at least 90 days.
+  assert.deepEqual([body.mrr_history.days, body.mrr_history.points[0].plan], [180, "byok"])
+  assert.equal(body.retention.days, 180)
+  const week = await (await adminUsage(get("admin-test", "7"))).json()
+  assert.deepEqual([week.mrr_history.days, week.retention.days], [7, 90])
 })
 
-test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit, cf_releases and cf_organize_report exist", async () => {
+test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit, cf_releases, cf_organize_report, cf_ultra_report, cf_mrr_history and cf_retention exist", async () => {
   serverConfig.adminToken = "admin-test"
   const saved = { ...rpc }
-  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases", "cf_organize_report"]) delete rpc[fn]
+  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases", "cf_organize_report", "cf_ultra_report", "cf_mrr_history", "cf_retention"]) delete rpc[fn]
   try {
     const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
     assert.equal(res.status, 200)
     const body = await res.json()
     assert.deepEqual(
-      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases, body.organize_report],
-      [3, null, null, null, null, null, null, null, null, null]
+      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases, body.organize_report, body.ultra_report, body.mrr_history, body.retention],
+      [3, null, null, null, null, null, null, null, null, null, null, null, null]
     )
   } finally {
     Object.assign(rpc, saved)
@@ -719,20 +758,25 @@ test("A question from the app about a saved chat: charged like an answer, the pr
   assert.match(system, /ContextFlow app/)
   assert.match(system, /Saved text of the chat's last page/)
   assert.match(system, /Some article text/)
-  assert.match(system, /Other saved text/)
+  // Free (build 91): the chat's memory is Pro's, so its other pages stay out.
+  assert.doesNotMatch(system, /Other saved text/)
   assert.equal(counters.get(`install:${INSTALL}`), 1, "one free answer")
+  const pro = signJws(transaction())
+  await events$(await chat(ask({ entitlement: pro, context: "chat", from: "app", messages, pages: [{ title: "Other", url: "https://other.example", text: "Other saved text" }] }), ctx()))
+  system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /Other saved text/)
   // An older chat without saved page texts.
   await events$(await chat(ask({ context: "chat", from: "app", messages, page: null }), ctx()))
   system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
   assert.match(system, /wasn't saved with it/)
   assert.doesNotMatch(system, /browser blocks access/)
-  // The app sends up to 9 other pages; the panel's "whole chat" still gets 3.
+  // The app sends up to 9 other pages; the panel's "whole chat" still gets 3 (Pro).
   const pages = Array.from({ length: 10 }, (_, i) => ({ title: `Page ${i + 1}`, url: `https://p${i + 1}.example`, text: `Saved fact ${i + 1}` }))
-  await events$(await chat(ask({ context: "chat", from: "app", messages, pages }), ctx()))
+  await events$(await chat(ask({ entitlement: pro, context: "chat", from: "app", messages, pages }), ctx()))
   system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
   assert.match(system, /Saved fact 9\b/)
   assert.doesNotMatch(system, /Saved fact 10/)
-  await events$(await chat(ask({ context: "chat", messages, pages }), ctx()))
+  await events$(await chat(ask({ entitlement: pro, context: "chat", messages, pages }), ctx()))
   system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
   assert.match(system, /Saved fact 3\b/)
   assert.doesNotMatch(system, /Saved fact 4/)

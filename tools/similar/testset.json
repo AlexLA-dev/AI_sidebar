@@ -1,0 +1,855 @@
+[
+ {
+  "id": "p-q45",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.soundcore.com/products/space-q45-a3040011",
+  "condition": "cheaper",
+  "check": {
+   "kind": "cheaper"
+  }
+ },
+ {
+  "id": "p-mixer",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.kitchenaid.com/countertop-appliances/stand-mixers/tilt-head-stand-mixers/p.artisan-series-5-quart-tilt-head-stand-mixer.ksm150psob.html",
+  "condition": "cheaper",
+  "check": {
+   "kind": "cheaper"
+  }
+ },
+ {
+  "id": "p-era100",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.sonos.com/en-us/shop/era-100",
+  "condition": ""
+ },
+ {
+  "id": "p-everyday",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.peakdesign.com/products/everyday-backpack",
+  "condition": ""
+ },
+ {
+  "id": "p-mxmaster",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.logitech.com/en-us/shop/p/mx-master-3s",
+  "condition": "in stock",
+  "check": {
+   "kind": "in_stock"
+  }
+ },
+ {
+  "id": "p-notesleeve",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://bellroy.com/products/note-sleeve-wallet",
+  "condition": "under $80",
+  "check": {
+   "kind": "max_price",
+   "value": 80,
+   "currency": "USD"
+  }
+ },
+ {
+  "id": "p-pocket3",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.dji.com/osmo-pocket-3",
+  "condition": ""
+ },
+ {
+  "id": "p-macbook",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.apple.com/macbook-air/",
+  "condition": "cheaper",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "p-thomann",
+  "category": "product",
+  "locale": "de-DE",
+  "url": "https://www.thomann.de/de/fender_player_ii_strat_mn_blk.htm",
+  "condition": "günstiger",
+  "check": {
+   "kind": "cheaper"
+  }
+ },
+ {
+  "id": "a-notion",
+  "category": "app",
+  "locale": "en-US",
+  "url": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+  "condition": "free and works offline",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "a-raycast",
+  "category": "app",
+  "locale": "en-US",
+  "url": "https://www.raycast.com/",
+  "condition": ""
+ },
+ {
+  "id": "a-figma",
+  "category": "app",
+  "locale": "en-US",
+  "url": "https://www.figma.com/",
+  "condition": "open source",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "a-duolingo",
+  "category": "app",
+  "locale": "en-US",
+  "url": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+  "condition": ""
+ },
+ {
+  "id": "a-todoist",
+  "category": "app",
+  "locale": "ru-RU",
+  "url": "https://todoist.com/",
+  "condition": "бесплатно",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "r-nng",
+  "category": "article",
+  "locale": "en-US",
+  "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+  "condition": "newer",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "r-pg",
+  "category": "article",
+  "locale": "en-US",
+  "url": "https://paulgraham.com/greatwork.html",
+  "condition": "shorter",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "r-pomodoro",
+  "category": "article",
+  "locale": "ru-RU",
+  "url": "https://en.wikipedia.org/wiki/Pomodoro_Technique",
+  "condition": "на русском",
+  "check": {
+   "kind": "language",
+   "lang": "ru"
+  }
+ },
+ {
+  "id": "r-habr",
+  "category": "article",
+  "locale": "ru-RU",
+  "url": "https://habr.com/ru/articles/992196",
+  "condition": ""
+ },
+ {
+  "id": "r-9to5",
+  "category": "article",
+  "locale": "en-US",
+  "url": "https://9to5toys.com/2026/09/29/roborock-2026-qrevo-edge-3-pro-robot-vac-and-mop/",
+  "condition": "newer",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "c-curry",
+  "category": "recipe",
+  "locale": "en-GB",
+  "url": "https://www.bbcgoodfood.com/recipes/easy-chicken-curry",
+  "condition": "vegetarian",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "c-chowmein",
+  "category": "recipe",
+  "locale": "en-US",
+  "url": "https://www.recipetineats.com/chicken-chow-mein/",
+  "condition": ""
+ },
+ {
+  "id": "c-stroganoff",
+  "category": "recipe",
+  "locale": "en-US",
+  "url": "https://www.recipetineats.com/beef-stroganoff/",
+  "condition": "under 30 minutes",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "c-borscht",
+  "category": "recipe",
+  "locale": "ru-RU",
+  "url": "https://lifehacker.ru/classic-borshcht/",
+  "condition": "постный",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "c-syrniki",
+  "category": "recipe",
+  "locale": "ru-RU",
+  "url": "https://lifehacker.ru/syrniki/",
+  "condition": ""
+ },
+ {
+  "id": "l-hoxton",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://thehoxton.com/paris/",
+  "condition": "cheaper",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "l-louvre",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://www.louvre.fr/en",
+  "condition": ""
+ },
+ {
+  "id": "l-yosemite",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://www.nps.gov/yose/index.htm",
+  "condition": "less crowded",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "l-sagrada",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://sagradafamilia.org/en/",
+  "condition": ""
+ },
+ {
+  "id": "l-septime",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://guide.michelin.com/en/ile-de-france/paris/restaurant/septime",
+  "condition": "cheaper",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "k-ml",
+  "category": "course",
+  "locale": "en-US",
+  "url": "https://www.coursera.org/learn/machine-learning",
+  "condition": "free",
+  "check": {
+   "kind": "free"
+  }
+ },
+ {
+  "id": "k-cs50",
+  "category": "course",
+  "locale": "en-US",
+  "url": "https://www.edx.org/learn/computer-science/harvard-university-cs50-s-introduction-to-computer-science",
+  "condition": "shorter",
+  "check": {
+   "kind": "shorter"
+  }
+ },
+ {
+  "id": "k-mit",
+  "category": "course",
+  "locale": "en-US",
+  "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/",
+  "condition": ""
+ },
+ {
+  "id": "k-pyde",
+  "category": "course",
+  "locale": "de-DE",
+  "url": "https://www.coursera.org/learn/python",
+  "condition": "auf Deutsch",
+  "check": {
+   "kind": "language",
+   "lang": "de"
+  }
+ },
+ {
+  "id": "v-3b1b",
+  "category": "video",
+  "locale": "en-US",
+  "url": "https://www.youtube.com/watch?v=aircAruvnKk",
+  "condition": "shorter",
+  "check": {
+   "kind": "shorter"
+  }
+ },
+ {
+  "id": "v-karpathy",
+  "category": "video",
+  "locale": "ru-RU",
+  "url": "https://www.youtube.com/watch?v=kCc8FmEb1nY",
+  "condition": "на русском",
+  "check": {
+   "kind": "language",
+   "lang": "ru"
+  }
+ },
+ {
+  "id": "v-jobs",
+  "category": "video",
+  "locale": "en-US",
+  "url": "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
+  "condition": ""
+ },
+ {
+  "id": "v-ted",
+  "category": "video",
+  "locale": "en-US",
+  "url": "https://www.ted.com/talks/sir_ken_robinson_do_schools_kill_creativity",
+  "condition": ""
+ },
+ {
+  "id": "x-attention",
+  "category": "paper",
+  "locale": "en-US",
+  "url": "https://arxiv.org/abs/1706.03762",
+  "condition": "newer",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "x-rag",
+  "category": "paper",
+  "locale": "en-US",
+  "url": "https://arxiv.org/abs/2005.11401",
+  "condition": ""
+ },
+ {
+  "id": "x-lora",
+  "category": "paper",
+  "locale": "en-US",
+  "url": "https://arxiv.org/abs/2106.09685",
+  "condition": "newer, with code",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "x-alphafold",
+  "category": "paper",
+  "locale": "en-US",
+  "url": "https://www.nature.com/articles/s41586-021-03819-2",
+  "condition": ""
+ },
+ {
+  "id": "j-product-designer",
+  "category": "job",
+  "locale": "en-US",
+  "url": "https://job-boards.greenhouse.io/anthropic/jobs/5446776008",
+  "condition": "remote",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "j-data-scientist",
+  "category": "job",
+  "locale": "en-US",
+  "url": "https://boards.greenhouse.io/figma/jobs/5552580004?gh_jid=5552580004",
+  "condition": ""
+ },
+ {
+  "id": "j-backend",
+  "category": "job",
+  "locale": "en-US",
+  "url": "https://job-boards.greenhouse.io/gitlab/jobs/8749950002",
+  "condition": "in Europe",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "j-pm-airbnb",
+  "category": "job",
+  "locale": "de-DE",
+  "url": "https://careers.airbnb.com/positions/8303742?gh_jid=8303742",
+  "condition": ""
+ },
+ {
+  "id": "b-atomic",
+  "category": "book",
+  "locale": "en-US",
+  "url": "https://www.goodreads.com/book/show/40121378-atomic-habits",
+  "condition": "shorter",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "b-1984",
+  "category": "book",
+  "locale": "en-US",
+  "url": "https://www.goodreads.com/book/show/5470.1984",
+  "condition": ""
+ },
+ {
+  "id": "b-deepwork",
+  "category": "book",
+  "locale": "en-US",
+  "url": "https://calnewport.com/deep-work-rules-for-focused-success-in-a-distracted-world/",
+  "condition": ""
+ },
+ {
+  "id": "fr-crepes",
+  "category": "recipe",
+  "locale": "fr-FR",
+  "url": "https://www.marmiton.org/recettes/recette_crepes-faciles_12372.aspx",
+  "condition": "sans lait",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "fr-cristel",
+  "category": "product",
+  "locale": "fr-FR",
+  "url": "https://www.cristel.com/fr/produits/serie-3-casseroles-en-inox-brosse-1826-fixe",
+  "condition": "compatible induction, moins de 100 €",
+  "check": {
+   "kind": "max_price",
+   "value": 100,
+   "currency": "EUR"
+  },
+  "region": "local",
+  "country": "FR"
+ },
+ {
+  "id": "es-hawkers",
+  "category": "product",
+  "locale": "es-ES",
+  "url": "https://www.hawkersco.com/gafas-de-sol/ocean-coral-petite-400027.html",
+  "condition": "Más barato",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "ES"
+ },
+ {
+  "id": "es-pompeii",
+  "category": "product",
+  "locale": "es-ES",
+  "url": "https://pompeiibrand.com/products/vega-leather-coffee",
+  "condition": "veganas",
+  "check": {
+   "kind": "judgment"
+  },
+  "region": "local",
+  "country": "ES"
+ },
+ {
+  "id": "it-bialetti",
+  "category": "product",
+  "locale": "it-IT",
+  "url": "https://www.bialetti.com/it_it/set-moka-express-the-north-face-bialetti.html",
+  "condition": "Più economico",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "IT"
+ },
+ {
+  "id": "it-tiramisu",
+  "category": "recipe",
+  "locale": "it-IT",
+  "url": "https://www.misya.info/ricetta/tiramisu.htm",
+  "condition": "senza uova",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "it-alessi",
+  "category": "product",
+  "locale": "it-IT",
+  "url": "https://shop.mohd.it/it/plisse-bollitore-elettrico-170cl.html",
+  "condition": "",
+  "region": "local",
+  "country": "IT"
+ },
+ {
+  "id": "pt-havaianas",
+  "category": "product",
+  "locale": "pt-BR",
+  "url": "https://www.havaianas.com.br/products/chinelo-havaianas-top-glitter-neon-4150303_4622",
+  "condition": "Mais barato",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "BR"
+ },
+ {
+  "id": "pt-tramontina",
+  "category": "product",
+  "locale": "pt-BR",
+  "url": "https://www.tramontina.com.br/jogo-de-frigideiras-tramontina-turim-em-aluminio-com-revestimento-interno-e-externo-em-antiaderente-starflon-max-chumbo-2-pecas/20198660.html",
+  "condition": "Mais barato",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "BR"
+ },
+ {
+  "id": "pt-mbway",
+  "category": "app",
+  "locale": "pt-PT",
+  "url": "https://apps.apple.com/pt/app/mb-way/id918126133?l=pt-PT",
+  "condition": "Grátis",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "PT"
+ },
+ {
+  "id": "ja-chiffon",
+  "category": "recipe",
+  "locale": "ja-JP",
+  "url": "https://cookpad.com/jp/recipes/17612633",
+  "condition": "もっと短い",
+  "check": {
+   "kind": "shorter"
+  }
+ },
+ {
+  "id": "ja-line",
+  "category": "app",
+  "locale": "ja-JP",
+  "url": "https://apps.apple.com/jp/app/line/id443904275",
+  "condition": "無料",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "JP"
+ },
+ {
+  "id": "ja-balmuda",
+  "category": "product",
+  "locale": "ja-JP",
+  "url": "https://www.balmuda.com/jp/pot",
+  "condition": "もっと安い",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "JP"
+ },
+ {
+  "id": "ko-10x10",
+  "category": "product",
+  "locale": "ko-KR",
+  "url": "https://www.10x10.co.kr/shopping/category_prd.asp?itemid=6000000",
+  "condition": "",
+  "region": "local",
+  "country": "KR"
+ },
+ {
+  "id": "ko-kakao",
+  "category": "app",
+  "locale": "ko-KR",
+  "url": "https://apps.apple.com/kr/app/kakaotalk/id362057947",
+  "condition": "무료",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "KR"
+ },
+ {
+  "id": "ko-innisfree",
+  "category": "product",
+  "locale": "ko-KR",
+  "url": "https://www.costco.co.kr/p/630863",
+  "condition": "민감한 피부용",
+  "check": {
+   "kind": "judgment"
+  },
+  "region": "local",
+  "country": "KR"
+ },
+ {
+  "id": "zh-wechat",
+  "category": "app",
+  "locale": "zh-CN",
+  "url": "https://apps.apple.com/cn/app/id414478124",
+  "condition": "免费",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "CN"
+ },
+ {
+  "id": "zh-airpods",
+  "category": "product",
+  "locale": "zh-CN",
+  "url": "https://www.apple.com.cn/airpods-4/",
+  "condition": "更便宜",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "CN"
+ },
+ {
+  "id": "zh-sspai",
+  "category": "article",
+  "locale": "zh-CN",
+  "url": "https://sspai.com/post/73215",
+  "condition": "更新的",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "zh-tomato",
+  "category": "article",
+  "locale": "zh-CN",
+  "url": "https://zh.wikipedia.org/zh-cn/番茄炒蛋",
+  "condition": ""
+ },
+ {
+  "id": "tw-line",
+  "category": "app",
+  "locale": "zh-TW",
+  "url": "https://apps.apple.com/tw/app/line/id443904275",
+  "condition": "免費",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "TW"
+ },
+ {
+  "id": "tw-potato",
+  "category": "recipe",
+  "locale": "zh-TW",
+  "url": "https://icook.tw/recipes/440345",
+  "condition": "更短",
+  "check": {
+   "kind": "shorter"
+  }
+ },
+ {
+  "id": "vi-zalo",
+  "category": "app",
+  "locale": "vi-VN",
+  "url": "https://apps.apple.com/vn/app/zalo/id579523206?l=vi",
+  "condition": "Miễn phí",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "VN"
+ },
+ {
+  "id": "vi-cellphones",
+  "category": "product",
+  "locale": "vi-VN",
+  "url": "https://cellphones.com.vn/iphone-16-pro-max.html",
+  "condition": "",
+  "region": "local",
+  "country": "VN"
+ },
+ {
+  "id": "vi-monngon",
+  "category": "recipe",
+  "locale": "vi-VN",
+  "url": "https://monngonmoingay.com/rau-cu-luoc-xot-nam/",
+  "condition": ""
+ },
+ {
+  "id": "ar-careem",
+  "category": "app",
+  "locale": "ar-SA",
+  "url": "https://apps.apple.com/sa/app/careem-rides-food-more/id592978487?l=ar",
+  "condition": "مجاني",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "SA"
+ },
+ {
+  "id": "ar-extra",
+  "category": "product",
+  "locale": "ar-SA",
+  "url": "https://www.extra.com/ar-sa/small-appliances/home-environment-care/vacuum-cleaner/bissell-powerclean-drum-vacuum-cleaner-2000-watt-21-liter-with-blower-function/p/100009425",
+  "condition": "",
+  "region": "local",
+  "country": "SA"
+ },
+ {
+  "id": "ar-fatafeat",
+  "category": "recipe",
+  "locale": "ar-EG",
+  "url": "https://www.fatafeat.com/recipe/122460/طريقة-عمل-الكبيبه-في-الصينية",
+  "condition": ""
+ },
+ {
+  "id": "ar-almosafer",
+  "category": "other",
+  "locale": "ar-SA",
+  "url": "https://www.almosafer.com/ar",
+  "condition": "",
+  "region": "local",
+  "country": "SA"
+ },
+ {
+  "id": "uk-monobank",
+  "category": "app",
+  "locale": "uk-UA",
+  "url": "https://apps.apple.com/ua/app/monobank/id1287005205?l=uk",
+  "condition": "Безкоштовно",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "UA"
+ },
+ {
+  "id": "uk-prometheus",
+  "category": "course",
+  "locale": "uk-UA",
+  "url": "https://prometheus.org.ua/prometheus-free/kubernetes-basics/",
+  "condition": "Безкоштовно",
+  "check": {
+   "kind": "free"
+  },
+  "region": "world",
+  "country": "UA"
+ },
+ {
+  "id": "gb-brompton",
+  "category": "product",
+  "locale": "en-GB",
+  "url": "https://www.brompton.com/p/1029/a-line-23",
+  "condition": "Cheaper",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "GB"
+ },
+ {
+  "id": "in-boat",
+  "category": "product",
+  "locale": "en-IN",
+  "url": "https://www.boat-lifestyle.com/products/boat-partypal-500",
+  "condition": "Cheaper",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "IN"
+ },
+ {
+  "id": "mx-duolingo",
+  "category": "app",
+  "locale": "es-MX",
+  "url": "https://apps.apple.com/mx/app/duolingo-language-lessons/id570060128",
+  "condition": "Gratis",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "MX"
+ },
+ {
+  "id": "uk-lang",
+  "category": "article",
+  "locale": "uk-UA",
+  "url": "https://en.wikipedia.org/wiki/Photosynthesis",
+  "condition": "українською",
+  "check": {
+   "kind": "language",
+   "lang": "uk"
+  }
+ },
+ {
+  "id": "tw-lang",
+  "category": "video",
+  "locale": "zh-TW",
+  "url": "https://www.youtube.com/watch?v=arj7oStGLkU",
+  "condition": "繁體中文",
+  "check": {
+   "kind": "language",
+   "lang": "zh-Hant"
+  }
+ },
+ {
+  "id": "ja-lang",
+  "category": "course",
+  "locale": "ja-JP",
+  "url": "https://www.coursera.org/learn/learning-how-to-learn",
+  "condition": "日本語で",
+  "check": {
+   "kind": "language",
+   "lang": "ja"
+  }
+ },
+ {
+  "id": "ko-lang",
+  "category": "video",
+  "locale": "ko-KR",
+  "url": "https://www.ted.com/talks/amy_cuddy_your_body_language_may_shape_who_you_are",
+  "condition": "한국어로",
+  "check": {
+   "kind": "language",
+   "lang": "ko"
+  }
+ },
+ {
+  "id": "ar-lang",
+  "category": "article",
+  "locale": "ar-SA",
+  "url": "https://en.wikipedia.org/wiki/Coffee",
+  "condition": "باللغة العربية",
+  "check": {
+   "kind": "language",
+   "lang": "ar"
+  }
+ }
+]

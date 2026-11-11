@@ -1,14 +1,14 @@
-Neu in ContextFlow 2.5:
-• Schreibst du immer wieder dieselben Antworten? Speichere eine als Vorlage. ContextFlow markiert, was sich ändert, etwa einen Namen oder ein Datum, und füllt es beim Einfügen von der Seite oder aus der offenen Unterhaltung aus. Prüfen, dann senden. Kostenlos kannst du täglich ein paar Vorlagen ausfüllen lassen, mit Pro ohne Limit
-• Tippe auf ein Textfeld, und daneben erscheint die schwebende ContextFlow-Taste: Was du in Safari kopiert hast, deine Vorlagen und die letzte Antwort sind einen Tipp entfernt. Das klappt auch in Nachrichten in sozialen Netzwerken und in Fenstern, die sich über der Seite öffnen
-• Kopierter Text bleibt 24 Stunden auf deinem Gerät. Aus Passwort- und Kartenfeldern wird nichts gespeichert
-• Antworten und Notizen haben eine neue Taste: „In Feld einfügen“
-• Auf dem Mac oder einem iPad mit Tastatur: Tippe in einem beliebigen Feld / und ein paar Wörter einer Vorlage, dann drück Tab. Control-Shift-V öffnet die ganze Liste
-• Wartest du, bis ein Preis sinkt oder ein Artikel wieder lieferbar ist? Markiere den Preis oder die Zeile zur Verfügbarkeit und tippe auf das Auge. ContextFlow prüft, während du Safari nutzt, und schickt dir eine Mitteilung, wenn sich etwas ändert. Für die ganze Seite: … → „Diese Seite beobachten“
-• Willst du später zu einer Seite zurück? Markiere eine Zeile und tippe auf die Glocke oder wähle … → „An diese Seite erinnern“, dann eine Zeit. Auch jede Antwort und Notiz kann dich erinnern
-• Markiere eine Zeile in einer Antwort und tippe auf „Hervorheben“. Spätere Antworten in diesem Chat berücksichtigen deine Hervorhebungen
-• Auf iPhone und iPad: Wisch eine Antwort oder Notiz nach rechts, um sie anzuheften, nach links, um sie zu löschen. Angeheftete stehen in einer Leiste oben im Chat
-• Chat aus Versehen gelöscht? Er bleibt 30 Tage unter „Zuletzt gelöscht“
-• Mit Pro kann ContextFlow vorschlagen, in welchen Chat eine neue Antwort oder Notiz gehört, und einen deiner eigenen Tags dafür. Das schaltest du selbst ein
-• Tipps sind jetzt nach Aufgaben sortiert, mit kurzen Clips, in der App und im Panel
-• Fehlerbehebungen und Verbesserungen: Chats tauschen in der Liste nicht mehr die Plätze
+Neu in ContextFlow 2.6:
+• Ultra, ein neuer Tarif: alles aus Pro, dazu „Ähnliches finden“ und „Anhören“
+• Ähnliches finden: Du schaust dir ein Produkt, eine App, einen Artikel, ein Rezept oder einen Ort an? Tippe auf „Ähnliches finden“ und bekomm echte Alternativen: günstiger, neuer, auf Lager, kostenlos oder in deiner Sprache, oder sag in eigenen Worten, was du brauchst. Jeder Link wird geöffnet und geprüft, bevor du ihn siehst, und bei jedem kannst du den Preis beobachten
+• Anhören: Tippe unter einer Antwort auf „Anhören“ oder wähle … → „Diese Seite anhören“. Eine natürliche Stimme liest vor, in über 100 Sprachen. Auf dem iPhone läuft es bei gesperrtem Bildschirm weiter
+• Chats, die sich selbst ordnen (Pro): Unter einer neuen Antwort oder Notiz schlägt ContextFlow den passenden Chat vor, einen neuen Chat dafür oder einen deiner eigenen Tags. Die Leiste „Vorschläge“ oben im Chat zeigt alle zusammen. Ein Tippen verschiebt sie, „Widerrufen“ holt sie zurück. Ein Chat kann sich auch selbst nach seinem Thema benennen
+• „Erinnern“ und „Beobachten“ nehmen jetzt eine Notiz in deinen eigenen Worten: was du prüfen willst oder woran du erinnert werden möchtest
+• Markiere Text, und die Schnellaktionen warten direkt im Feld „Deine Frage …“ darunter: „Zusammenfassen“, „Übersetzen“, „Einfach erklären“, „Ähnliches finden“ und mehr
+• Markierter Text schon in deiner Sprache? „Übersetzen“ bietet jetzt eine andere Sprache an, etwa Englisch
+• „Chats“ in der App: ein Suchfeld, nach Wörtern oder nach Bedeutung (Pro)
+• Eigener Schlüssel, Pro und Ultra gibt es jetzt auch jährlich. Der Wechsel von Pro zu Ultra gilt sofort, und Apple erstattet, was von Pro noch übrig ist
+• Neu bei ContextFlow? Eine kurze Einführung begleitet dich durch deine erste Antwort und zählt nicht zu deinen Antworten des Tages
+• Nach einem Update zeigt „Neuigkeiten“ in der App die wichtigsten Änderungen mit kurzen Clips
+• ContextFlow spricht jetzt traditionelles Chinesisch, Arabisch und Vietnamesisch: insgesamt 14 Sprachen
+• Fehlerbehebungen: Panel und Einstellungen scrollen jetzt auf Google, die letzten Zeilen der Einstellungen verschwinden nicht mehr unter der Symbolleiste von Safari, und die Tasten neben markiertem Text bleiben nicht mehr stehen, wenn nur ein Teil der Seite scrollt

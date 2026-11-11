@@ -10,12 +10,37 @@ import SwiftUI
 final class StoreKitManager: ObservableObject {
     static let shared = StoreKitManager()
 
+    /// The products (2.6: Ultra, and yearly plans). A product not yet created in App Store Connect simply doesn't load:
+    /// the paywall shows the plan with the periods it has.
     enum ProductID {
+        static let ultra = "com.contextflow.ultra.monthly"
+        static let ultraYearly = "com.contextflow.ultra.yearly"
         static let pro = "com.contextflow.pro.monthly"
-        // Optional: shown automatically once created in App Store Connect.
         static let proYearly = "com.contextflow.pro.yearly"
         static let byok = "com.contextflow.byok.monthly"
-        static let all = [pro, proYearly, byok]
+        static let byokYearly = "com.contextflow.byok.yearly"
+        static let all = [ultra, ultraYearly, pro, proYearly, byok, byokYearly]
+    }
+
+    enum Tier: String, CaseIterable, Identifiable {
+        case byok, pro, ultra
+        var id: String { rawValue }
+        /// Subscription group order: moving up starts at once (an upgrade), moving down at the next renewal.
+        var rank: Int {
+            switch self {
+            case .byok: return 1
+            case .pro: return 2
+            case .ultra: return 3
+            }
+        }
+        func productId(yearly: Bool) -> String {
+            switch self {
+            case .byok: return yearly ? ProductID.byokYearly : ProductID.byok
+            case .pro: return yearly ? ProductID.proYearly : ProductID.pro
+            case .ultra: return yearly ? ProductID.ultraYearly : ProductID.ultra
+            }
+        }
+        static func of(_ productId: String?) -> Tier? { Tier(rawValue: PlanProducts.plan(of: productId)) }
     }
 
     @Published private(set) var products: [Product] = []
@@ -48,6 +73,69 @@ final class StoreKitManager: ObservableObject {
     var proYearly: Product? { products.first { $0.id == ProductID.proYearly } }
     var byok: Product? { products.first { $0.id == ProductID.byok } }
 
+    func product(_ tier: Tier, yearly: Bool) -> Product? {
+        products.first { $0.id == tier.productId(yearly: yearly) }
+    }
+
+    /// The current plan's tier (nil: none).
+    var tier: Tier? { entitlement.active ? Tier.of(entitlement.productId) : nil }
+
+    /// A plan's yearly price against twelve months of it, in the App Store's own currency format (build 90: the owner
+    /// saw nothing selling the yearly plan). Nil when either isn't on sale or it saves under 5%.
+    struct YearlyDeal: Equatable {
+        let perMonth: String
+        let saving: String
+        let percent: Int
+        let twelveMonths: String
+    }
+
+    func yearlyDeal(_ tier: Tier) -> YearlyDeal? {
+        guard let monthly = product(tier, yearly: false), let yearly = product(tier, yearly: true) else { return nil }
+        return Self.deal(monthly: monthly, yearly: yearly)
+    }
+
+    static func deal(monthly: Product, yearly: Product) -> YearlyDeal? {
+        guard monthly.price > 0 else { return nil }
+        let full = monthly.price * 12
+        guard full > yearly.price else { return nil }
+        // doubleValue: NSDecimalNumber.intValue misreads a long quotient (it gave no badge).
+        let percent = Int((NSDecimalNumber(decimal: (full - yearly.price) / full).doubleValue * 100).rounded())
+        guard percent >= 5 else { return nil }
+        let style = yearly.priceFormatStyle
+        return YearlyDeal(perMonth: (yearly.price / 12).formatted(style), saving: (full - yearly.price).formatted(style), percent: percent, twelveMonths: full.formatted(style))
+    }
+
+    /// The best yearly saving on offer (for the monthly/yearly switch).
+    var bestYearlySaving: Int? {
+        Tier.allCases.compactMap { yearlyDeal($0)?.percent }.max()
+    }
+
+    /// The App Store's currency when its prices don't say it themselves (build 95, the owner's App Store of Canada: CAD
+    /// reads "$12.99", the same as dollars of the US): a currency other than USD written with a bare "$" (as the panel).
+    var unclearCurrency: String? {
+        guard let code = products.first?.priceFormatStyle.currencyCode.uppercased(), code.count == 3, code != "USD" else { return nil }
+        let bare = products.contains { $0.displayPrice.contains("$") && !$0.displayPrice.contains(where: \.isLetter) }
+        return bare ? code : nil
+    }
+
+    /// A monthly Pro or Ultra subscriber whose plan is also sold yearly: what switching saves (Settings, the panel).
+    /// Gone once the switch is made (yearly starts at the renewal; until then the month runs on).
+    var yearlySwitch: (tier: Tier, deal: YearlyDeal, product: Product)? {
+        guard let tier, tier != .byok, product(tier, yearly: false)?.id == entitlement.productId,
+              let yearly = product(tier, yearly: true), renewsTo != yearly.id, let deal = yearlyDeal(tier) else { return nil }
+        return (tier, deal, yearly)
+    }
+
+    /// The product the subscription renews into (a switch to yearly shows here before it starts).
+    @Published private(set) var renewsTo: String?
+
+    /// What the plans say, from the server (the defaults until it answers).
+    @Published private(set) var planFacts = ChatAI.PlanFacts()
+
+    func refreshPlanFacts() async {
+        if let facts = await ChatAI.planFacts() { planFacts = facts }
+    }
+
     /// Pro with auto-renew turned off: the subscription to ask "what was missing" about, once per period
     /// (the app and the panel share the mark). `-CFDebugRenewalOff YES` shows it in Debug builds.
     var renewalOff: SharedEntitlement? {
@@ -68,7 +156,7 @@ final class StoreKitManager: ObservableObject {
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "CFDebugByok") { return true }
         #endif
-        return entitlement.active && entitlement.productId == ProductID.byok
+        return entitlement.active && PlanProducts.byok.contains(entitlement.productId ?? "")
     }
 
     /// Own key → Pro at this discount (%), when the server has the promotional offer set up; nil otherwise.
@@ -121,13 +209,21 @@ final class StoreKitManager: ObservableObject {
         return try await purchase(pro, offer: signature)
     }
 
-    /// Pro is active (the own-key plan isn't Pro): AI search, "Ask your chats", no Pro tab in the app.
+    /// Pro or Ultra is active (Ultra counts as Pro; the own-key plan isn't Pro): AI search, "Ask your chats".
     var isPro: Bool {
         #if DEBUG
         // Local checks against the Pro stand (tools/preview, PREVIEW_PLAN=pro): -CFDebugPro YES.
-        if UserDefaults.standard.bool(forKey: "CFDebugPro") { return true }
+        if UserDefaults.standard.bool(forKey: "CFDebugPro") || UserDefaults.standard.bool(forKey: "CFDebugUltra") { return true }
         #endif
-        return entitlement.active && entitlement.productId != ProductID.byok
+        return entitlement.active && ["pro", "ultra"].contains(PlanProducts.plan(of: entitlement.productId))
+    }
+
+    /// Ultra is active (2.6): read aloud, find similar, more watched pages. `-CFDebugUltra YES` in Debug builds.
+    var isUltra: Bool {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFDebugUltra") { return true }
+        #endif
+        return entitlement.active && PlanProducts.plan(of: entitlement.productId) == "ultra"
     }
 
     func loadProducts() async {
@@ -137,6 +233,9 @@ final class StoreKitManager: ObservableObject {
             let loaded = try await Product.products(for: ProductID.all)
             products = loaded.sorted { $0.price > $1.price }
             productsFailed = loaded.isEmpty
+            // The panel's plans sheet shows these prices (it can't ask the App Store itself).
+            // The panel's plans sheet shows these (with each yearly plan's month and saving).
+            if !loaded.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(loaded, storefront: await Storefront.current?.countryCode)) }
             var eligible = Set<String>()
             for product in loaded {
                 if let subscription = product.subscription,
@@ -170,6 +269,11 @@ final class StoreKitManager: ObservableObject {
             }
             await transaction.finish()
             await refreshEntitlement()
+            #if os(iOS)
+            // Ultra (2.6): read aloud carries on from Safari only with notifications, so they're asked about once (after
+            // the plan's tour).
+            if transaction.productID.contains(".ultra.") { Task { await NotifyAsk.shared.afterUltra() } }
+            #endif
             return .purchased
         case .userCancelled:
             return .cancelled
@@ -180,8 +284,13 @@ final class StoreKitManager: ObservableObject {
         }
     }
 
+    /// Restore Purchases is running: the plan it brings back isn't a purchase (no plan tour).
+    private var restoring = false
+
     /// "Restore Purchases": re-syncs with the App Store (may ask the user to sign in).
     func restore() async -> Bool {
+        restoring = true
+        defer { restoring = false }
         try? await AppStore.sync()
         await refreshEntitlement()
         return entitlement.active
@@ -191,7 +300,8 @@ final class StoreKitManager: ObservableObject {
     func refreshEntitlement() async {
         var best: (transaction: StoreKit.Transaction, jws: String)?
         for await result in StoreKit.Transaction.currentEntitlements {
-            // An Own key subscription upgraded to Pro stays listed until it ends: Pro counts from the purchase.
+            // An Own key subscription upgraded to Pro (or Pro to Ultra) stays listed until it ends: the higher plan
+            // counts from the purchase.
             guard case .verified(let transaction) = result,
                   ProductID.all.contains(transaction.productID),
                   transaction.revocationDate == nil, !transaction.isUpgraded else { continue }
@@ -212,8 +322,27 @@ final class StoreKitManager: ObservableObject {
         } else {
             value = SharedEntitlement(active: false, productId: nil, expiresAt: nil, jws: nil, updatedAt: Date())
         }
+        let before = entitlement.active ? Tier.of(entitlement.productId) : nil
+        if let best { renewsTo = await Self.renewalProduct(of: best.transaction) }
         entitlement = value
         SharedDefaults.shared.writeEntitlement(value)
+        // Build 90: a plan that starts (bought, upgraded, or a different one at renewal) is announced once, for the
+        // onboarding to its features: .cfPlanChanged here (userInfo from / to / productId), "planChange" for the panel.
+        let after = value.active ? Tier.of(value.productId) : nil
+        if let after, after != before, let productId = value.productId {
+            let from = before?.rawValue ?? "free"
+            SharedDefaults.shared.writePlanChange(from: from, to: after.rawValue, productId: productId)
+            NotificationCenter.default.post(name: .cfPlanChanged, object: nil, userInfo: ["from": from, "to": after.rawValue, "productId": productId])
+        }
+        planSeen(value)
+    }
+
+    /// The one place the app sees its plan (after every refresh, from StoreKit, never the App Group's cached copy): a
+    /// move up starts the tour of what the plan adds (PlanTour). PlanTour filters by the last plan it stored: the first
+    /// plan seen (an update, or a fresh install whose subscription StoreKit already has) and Restore show nothing.
+    // `.cfPlanChanged` (ultra-26, branch claude/ultra-26-build90) can replace this hook once that's merged.
+    private func planSeen(_ value: SharedEntitlement) {
+        PlanTour.shared.planSeen(value.active ? Tier.of(value.productId) : nil, quietly: restoring)
     }
 
     enum StoreError: LocalizedError {
@@ -227,4 +356,22 @@ final class StoreKitManager: ObservableObject {
             }
         }
     }
+}
+
+extension StoreKitManager {
+    /// What the subscription of `transaction` renews into (its own product, or the one the user switched to).
+    static func renewalProduct(of transaction: StoreKit.Transaction) async -> String? {
+        guard let group = transaction.subscriptionGroupID,
+              let statuses = try? await Product.SubscriptionInfo.status(for: group) else { return nil }
+        for status in statuses {
+            guard case .verified(let renewal) = status.renewalInfo, renewal.originalTransactionID == transaction.originalID else { continue }
+            return renewal.autoRenewPreference
+        }
+        return nil
+    }
+}
+
+extension Notification.Name {
+    /// A plan started on this device (build 90): userInfo "from" ("free", "byok", "pro", "ultra"), "to", "productId".
+    static let cfPlanChanged = Notification.Name("cfPlanChanged")
 }

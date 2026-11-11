@@ -2,10 +2,12 @@ import { render } from "preact"
 
 import { SHADOW_MODE, TARGET } from "../shared/config"
 import type { ContentRequest } from "../shared/types"
+import { uiDirection, uiLang } from "../shared/i18n"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
 import { setPanelRoot } from "./root"
+import { guardScroll } from "./scrollGuard"
 import { keepOverTopLayer } from "./topLayer"
 import styles from "./styles.css"
 import insertStyles from "./insert/insert.css"
@@ -16,6 +18,8 @@ import { startLiveWatch } from "./watch/live"
 import "./watch/register"
 import watchStyles from "./watch/watch.css"
 import tipsStyles from "./tips/tips.css"
+import similarStyles from "./similar/similar.css"
+import listenStyles from "./listen/listen.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -37,6 +41,11 @@ function boot(): void {
       bus.dispatchEvent(new Event(message.type))
       sendResponse({ ok: true })
     }
+    // 2.6 (98): a link in a chat opened this page, already open in this tab: the panel opens on that chat.
+    if (message?.type === "openChat") {
+      bus.dispatchEvent(new CustomEvent("openChat", { detail: { chat: message.chat, at: message.at } }))
+      sendResponse({ ok: true })
+    }
     return false
   })
 
@@ -44,15 +53,22 @@ function boot(): void {
     if (document.querySelector(HOST_TAG)) return
     const host = document.createElement(HOST_TAG)
     host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;")
+    // The panel's own language and direction (Arabic: right to left), never the page's: `all: initial` keeps direction.
+    host.setAttribute("dir", uiDirection())
+    host.setAttribute("lang", uiLang())
     const root = host.attachShadow({ mode: SHADOW_MODE })
     setPanelRoot(root)
+    // The page's touch handlers (Google's) can't stop our lists from scrolling (2.6).
+    guardScroll(root)
     const style = document.createElement("style")
     style.textContent = `${styles}
 ${insertStyles}
 ${organizeStyles}
 ${uxStyles}
 ${watchStyles}
-${tipsStyles}`
+${tipsStyles}
+${similarStyles}
+${listenStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

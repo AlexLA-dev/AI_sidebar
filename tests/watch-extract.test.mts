@@ -79,6 +79,7 @@ test("same or changed", () => {
   assert.ok(!sameValue("stock", "Sold out", "In stock"))
   assert.ok(sameValue("stock", "In  Stock", "in stock"))
   assert.ok(isOutOfStock("OutOfStock") && isOutOfStock("Нет в наличии") && isOutOfStock("品切れ") && !isOutOfStock("InStock"))
+  assert.ok(isOutOfStock("缺貨") && isOutOfStock("غير متوفر") && isOutOfStock("Hết hàng") && !isOutOfStock("有貨") && !isOutOfStock("متوفر") && !isOutOfStock("Còn hàng"))
 })
 
 test("most conditions are decided without the AI", () => {
@@ -101,9 +102,28 @@ test("without the AI, the plain cases still get a rule", () => {
 test("values as a person reads them: markup prices in their currency format, stock in words", () => {
   const words = { inStock: "в наличии", outOfStock: "нет в наличии" }
   assert.equal(shownValue("34.50 EUR", "ru", words), "34,50\u00a0€")
+  // Arabic (2.6): Intl writes "‏99.99 US$"; a left-to-right mark after the sign keeps "US$" whole in right-to-left text.
+  assert.equal(shownValue("99.99 USD", "ar", words), "\u200f99.99\u00a0US$\u200e")
+  assert.equal(shownValue("99.99 EUR", "ar", words), "\u200f99.99\u00a0€")
+  assert.equal(shownValue("99.99 USD", "zh-Hant", words), "US$99.99")
   assert.equal(shownValue("129 USD", "en", words), "$129.00")
   assert.equal(shownValue("OutOfStock", "ru", words), "нет в наличии")
   assert.equal(shownValue("InStock", "ru", words), "в наличии")
   assert.equal(shownValue("Size 42: sold out", "en", words), "Size 42: sold out")
 })
 
+
+test("2.6: offers as shops write them: a price specification list (its struck-through entry skipped), no @type, lowPrice, microdata text", () => {
+  const ld = (data: unknown) => `<script type="application/ld+json">${JSON.stringify(data)}</script>`
+  // IKEA-like: the specification is a list; the struck-through one isn't the price.
+  assert.equal(structured(ld({ "@type": "Product", offers: { "@type": "Offer", priceCurrency: "EUR", priceSpecification: [{ "@type": "UnitPriceSpecification", priceType: "https://schema.org/StrikethroughPrice", price: 179 }, { "@type": "UnitPriceSpecification", price: 149, priceCurrency: "EUR" }] } })).ldPrice, "149 EUR")
+  // WooCommerce-like: a list without a price type; a price per unit (per kg) isn't the item's.
+  assert.equal(structured(ld({ "@type": "Product", offers: [{ "@type": "Offer", priceSpecification: [{ price: "4.20", priceCurrency: "EUR", referenceQuantity: { value: 1, unitCode: "KGM" } }, { price: "12.60", priceCurrency: "EUR" }] }] })).ldPrice, "12.60 EUR")
+  // An offer without @type under "offers", and an aggregate's lowest price.
+  assert.equal(structured(ld({ "@type": "Product", offers: { price: "28.00", priceCurrency: "EUR" } })).ldPrice, "28.00 EUR")
+  assert.equal(structured(ld({ "@type": "Product", offers: { "@type": "AggregateOffer", lowPrice: 912.5, highPrice: 1041.67, priceCurrency: "EUR" } })).ldPrice, "912.5 EUR")
+  // An app free to download: 0 is its price.
+  assert.equal(structured(ld({ "@type": "SoftwareApplication", offers: { "@type": "Offer", price: 0, priceCurrency: "USD" } })).ldPrice, "0 USD")
+  // Microdata with the price as the element's text.
+  assert.equal(structured('<meta itemprop="priceCurrency" content="EUR"><span class="hidden" itemprop="price">95.00</span>').metaPrice, "95.00 EUR")
+})

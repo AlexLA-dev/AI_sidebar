@@ -1,0 +1,2555 @@
+{
+ "extName": {
+  "message": "ContextFlow — مساعد AI في Safari"
+ },
+ "extDescription": {
+  "message": "اسأل AI عن الصفحة التي تقرؤها: ملخصات وشروح وترجمات دون مغادرة Safari."
+ },
+ "actionTitle": {
+  "message": "اسأل ContextFlow عن هذه الصفحة"
+ },
+ "languageName": {
+  "message": "العربية"
+ },
+ "langCode": {
+  "message": "ar"
+ },
+ "ctxPage": {
+  "message": "هذه الصفحة"
+ },
+ "ctxSelection": {
+  "message": "التحديد · {0} كلمة"
+ },
+ "ctxNone": {
+  "message": "محادثة عامة"
+ },
+ "ctxUsePage": {
+  "message": "استخدام الصفحة كاملة"
+ },
+ "emptyTitle": {
+  "message": "ماذا تريد أن تعرف؟"
+ },
+ "emptyPage": {
+  "message": "أرى هذه الصفحة. اطرح سؤالًا أو اختر إجراءً."
+ },
+ "emptySelection": {
+  "message": "اسأل عن النص المحدد أو اختر إجراءً."
+ },
+ "emptyNone": {
+  "message": "لا يمكن قراءة هذه الصفحة، لكن يمكنك أن تسألني عن أي شيء."
+ },
+ "actSummarize": {
+  "message": "تلخيص"
+ },
+ "actKeyPoints": {
+  "message": "أهم النقاط"
+ },
+ "actExplain": {
+  "message": "اشرح ببساطة"
+ },
+ "actTranslate": {
+  "message": "ترجمة"
+ },
+ "actImprove": {
+  "message": "تحسين الكتابة"
+ },
+ "actReply": {
+  "message": "صياغة رد"
+ },
+ "actGoogle": {
+  "message": "Google"
+ },
+ "promptSummarize": {
+  "message": "لخّص هذه الصفحة في 5–7 نقاط، ثم اذكر الاستنتاج الرئيسي في جملة واحدة."
+ },
+ "promptKeyPoints": {
+  "message": "ما أهم النقاط في هذه الصفحة؟ اذكر الحقائق والأرقام والتواريخ المهمة."
+ },
+ "promptExplain": {
+  "message": "اشرح هذه الصفحة بكلمات بسيطة، كما لو كنت تشرحها لطفل ذكي في الثانية عشرة من عمره."
+ },
+ "promptTranslate": {
+  "message": "ترجم المحتوى الرئيسي لهذه الصفحة إلى {0}. حافظ على البنية والعناوين."
+ },
+ "promptSelSummarize": {
+  "message": "لخّص النص المحدد باختصار."
+ },
+ "promptSelExplain": {
+  "message": "اشرح النص المحدد بكلمات بسيطة."
+ },
+ "promptSelTranslate": {
+  "message": "ترجم النص المحدد إلى {0}."
+ },
+ "promptSelImprove": {
+  "message": "أعد صياغة النص المحدد ليكون أوضح وأوجز. قدّم نسخة محسّنة واحدة."
+ },
+ "promptReply": {
+  "message": "اكتب ردًا قصيرًا ومهذبًا على هذه الرسالة أو هذا المنشور."
+ },
+ "promptGoogle": {
+  "message": "ابحث في Google عن أحدث المعلومات حول موضوع هذه الصفحة وقدّم لي نظرة عامة."
+ },
+ "promptSelGoogle": {
+  "message": "ابحث في Google عن النص المحدد: ما هو، مع أهم الحقائق عنه."
+ },
+ "placeholderPage": {
+  "message": "اسأل عن هذه الصفحة…"
+ },
+ "placeholderSelection": {
+  "message": "اسأل عن النص المحدد…"
+ },
+ "placeholderNone": {
+  "message": "اسأل عن أي شيء…"
+ },
+ "placeholderGoogle": {
+  "message": "اسأل Google…"
+ },
+ "send": {
+  "message": "إرسال"
+ },
+ "stop": {
+  "message": "إيقاف"
+ },
+ "newChat": {
+  "message": "محادثة جديدة"
+ },
+ "chatsTitle": {
+  "message": "المحادثات"
+ },
+ "allChats": {
+  "message": "كل المحادثات"
+ },
+ "chatsEmpty": {
+  "message": "لا توجد محادثات بعد. اسأل عن شيء لتبدأ واحدة."
+ },
+ "deleteChat": {
+  "message": "حذف المحادثة"
+ },
+ "renameChat": {
+  "message": "إعادة تسمية المحادثة"
+ },
+ "chatName": {
+  "message": "اسم المحادثة"
+ },
+ "chatNameHint": {
+  "message": "اتركه فارغًا لتحمل المحادثة اسم سؤالها الأول."
+ },
+ "settings": {
+  "message": "الإعدادات"
+ },
+ "close": {
+  "message": "إغلاق"
+ },
+ "back": {
+  "message": "رجوع"
+ },
+ "copy": {
+  "message": "نسخ"
+ },
+ "copied": {
+  "message": "تم النسخ"
+ },
+ "share": {
+  "message": "مشاركة"
+ },
+ "shareSource": {
+  "message": "المصدر"
+ },
+ "shareMadeWith": {
+  "message": "صُنع باستخدام ContextFlow"
+ },
+ "shareChat": {
+  "message": "مشاركة المحادثة"
+ },
+ "shareYou": {
+  "message": "أنت"
+ },
+ "newPage": {
+  "message": "صفحة جديدة: {0}"
+ },
+ "pageUpdated": {
+  "message": "تم تحديث الصفحة"
+ },
+ "uxMark": {
+  "message": "تمييز"
+ },
+ "uxUnmark": {
+  "message": "إزالة التمييز"
+ },
+ "uxDelete": {
+  "message": "حذف"
+ },
+ "uxPin": {
+  "message": "تثبيت"
+ },
+ "uxUnpin": {
+  "message": "إلغاء التثبيت"
+ },
+ "uxDeletedAnswer": {
+  "message": "تم حذف الإجابة"
+ },
+ "uxDeletedNote": {
+  "message": "تم حذف الملاحظة"
+ },
+ "uxDeletedChat": {
+  "message": "تم حذف المحادثة"
+ },
+ "trashTitle": {
+  "message": "المحذوفة مؤخرًا"
+ },
+ "trashRow": {
+  "message": "المحذوفة مؤخرًا · {0}"
+ },
+ "trashNote": {
+  "message": "تبقى المحادثات متاحة هنا لمدة 30 يومًا. بعد ذلك تُحذف نهائيًا."
+ },
+ "trashRestore": {
+  "message": "استعادة"
+ },
+ "trashDeleteNow": {
+  "message": "حذف الآن"
+ },
+ "trashDeleteAll": {
+  "message": "حذف الكل"
+ },
+ "trashDeleteAllAsk": {
+  "message": "هل تريد حذف كل المحادثات في «المحذوفة مؤخرًا» نهائيًا؟ لا يمكن التراجع عن هذا الإجراء."
+ },
+ "trashDays_one": {
+  "message": "{0} يوم"
+ },
+ "trashDays_few": {
+  "message": "{0} أيام"
+ },
+ "trashDays_many": {
+  "message": "{0} يومًا"
+ },
+ "trashDays_other": {
+  "message": "{0} يوم"
+ },
+ "uxPinned": {
+  "message": "مثبّت"
+ },
+ "uxPinnedN": {
+  "message": "مثبّت #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "كل العناصر المثبّتة"
+ },
+ "uxMore": {
+  "message": "المزيد"
+ },
+ "uxMorePage": {
+  "message": "المزيد: الصفحة"
+ },
+ "uxMoreAnswer": {
+  "message": "المزيد: الإجابة"
+ },
+ "uxMoreNote": {
+  "message": "المزيد: الملاحظة"
+ },
+ "uxMoreChat": {
+  "message": "المزيد: المحادثة"
+ },
+ "uxLater": {
+  "message": "ذكّرني بهذه الصفحة…"
+ },
+ "uxLaterTitle": {
+  "message": "ذكّرني بهذه الصفحة"
+ },
+ "uxWatchPage": {
+  "message": "مراقبة هذه الصفحة…"
+ },
+ "uxReminders": {
+  "message": "التذكيرات"
+ },
+ "uxRemindersN": {
+  "message": "التذكيرات · {0}"
+ },
+ "uxWatching": {
+  "message": "قيد المراقبة"
+ },
+ "uxWatchingN": {
+  "message": "قيد المراقبة · {0}"
+ },
+ "uxAllReminders": {
+  "message": "كل التذكيرات"
+ },
+ "uxNoReminders": {
+  "message": "لا توجد تذكيرات"
+ },
+ "uxNoRemindersHint": {
+  "message": "اضبط تذكيرًا على إجابة أو ملاحظة، أو بالجرس بجانب النص المحدد، أو من هنا: … ← ذكّرني بهذه الصفحة."
+ },
+ "uxNoWatching": {
+  "message": "لا شيء قيد المراقبة"
+ },
+ "uxNoWatchingHint": {
+  "message": "حدّد سعرًا أو حالة توفّر أو تاريخًا واضغط على العين. للصفحة كاملة: … ← مراقبة هذه الصفحة."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · على جهاز آخر"
+ },
+ "uxStop": {
+  "message": "إيقاف"
+ },
+ "uxRemind": {
+  "message": "ذكّرني"
+ },
+ "uxRemindChange": {
+  "message": "تغيير التذكير"
+ },
+ "uxRemindOpen": {
+  "message": "فتح"
+ },
+ "uxRemindTitle": {
+  "message": "متى أذكّرك؟"
+ },
+ "uxNoteWords": {
+  "message": "ملاحظتك (اختياري)"
+ },
+ "uxRemindAsked": {
+  "message": "طلبت التذكير: {0}"
+ },
+ "uxRemindHour": {
+  "message": "بعد ساعة"
+ },
+ "uxRemindEvening": {
+  "message": "هذا المساء"
+ },
+ "uxRemindMorning": {
+  "message": "غدًا صباحًا"
+ },
+ "uxRemindWeek": {
+  "message": "بعد أسبوع"
+ },
+ "uxRemindPick": {
+  "message": "اختر تاريخًا"
+ },
+ "uxRemindSet": {
+  "message": "ذكّرني"
+ },
+ "uxRemindCancel": {
+  "message": "بدون تذكير"
+ },
+ "uxRemindOff": {
+  "message": "إشعارات ContextFlow متوقفة. شغّلها من الإعدادات ← الإشعارات ← ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "افتح تطبيق ContextFlow مرة واحدة واسمح بالإشعارات، ثم اضبط التذكير مرة أخرى."
+ },
+ "uxRemindNone": {
+  "message": "تحتاج التذكيرات إلى تطبيق ContextFlow على هذا الجهاز."
+ },
+ "uxToday": {
+  "message": "اليوم"
+ },
+ "uxTomorrow": {
+  "message": "غدًا"
+ },
+ "uxRemindSaved": {
+  "message": "تذكير: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "حُفظ في المحادثة. إشعارات ContextFlow متوقفة. شغّلها من الإعدادات ← الإشعارات ← ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "حُفظ في المحادثة. تحتاج التذكيرات إلى تطبيق ContextFlow على هذا الجهاز."
+ },
+ "uxUnpinAll": {
+  "message": "إلغاء تثبيت الكل"
+ },
+ "setShareGroup": {
+  "message": "المشاركة والنسخ"
+ },
+ "uxShareMarks": {
+  "message": "التمييز بخط **عريض** في النص المُشارك"
+ },
+ "uxShareMarksHint": {
+  "message": "يعرضه Telegram وNotion وSlack بخط عريض؛ أما «الرسائل» و«الملاحظات» فتعرض النجوم. النسخ يحافظ دائمًا على الخط العريض."
+ },
+ "nowOnPage": {
+  "message": "الآن في: {0}"
+ },
+ "retry": {
+  "message": "إعادة المحاولة"
+ },
+ "askWithoutGoogle": {
+  "message": "اسأل بدون Google"
+ },
+ "thinking": {
+  "message": "جارٍ قراءة الصفحة…"
+ },
+ "searching": {
+  "message": "جارٍ البحث في Google…"
+ },
+ "errNetwork": {
+  "message": "لا يوجد اتصال. تحقق من الإنترنت وحاول مرة أخرى."
+ },
+ "errBusy": {
+  "message": "ContextFlow مشغول جدًا الآن. حاول مرة أخرى بعد دقيقة."
+ },
+ "errUpstream": {
+  "message": "لم تستجب خدمة AI. حاول مرة أخرى."
+ },
+ "errInterrupted": {
+  "message": "انقطعت الإجابة."
+ },
+ "errBadKey": {
+  "message": "رُفض مفتاح API الخاص بك. تحقق منه في الإعدادات."
+ },
+ "errGeneric": {
+  "message": "حدث خطأ ما. حاول مرة أخرى."
+ },
+ "errSearchLimit": {
+  "message": "وصلت إلى حد إجابات Google حاليًا. الإجابات العادية لا تزال تعمل."
+ },
+ "errSearchUnavailable": {
+  "message": "إجابات Google غير متاحة الآن. الإجابات العادية لا تزال تعمل."
+ },
+ "limitFreeTitle": {
+  "message": "استخدمت إجاباتك المجانية لليوم"
+ },
+ "limitProTitle": {
+  "message": "بلغت الحد الأسبوعي"
+ },
+ "limitProBody": {
+  "message": "تتجدد إجابات Pro بعد {0}."
+ },
+ "longPageWeight": {
+  "message": "صفحة طويلة: الإجابة ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "هذه الصفحة طويلة: كل إجابة عنها تُحتسب بمقدار {0} من حد إجاباتك."
+ },
+ "limitLongTitle": {
+  "message": "هذه الصفحة طويلة"
+ },
+ "limitLongBody": {
+  "message": "تُحتسب الإجابة عنها بمقدار {0}، وتبقّى لديك {1}."
+ },
+ "getPro": {
+  "message": "احصل على Pro"
+ },
+ "useOwnKey": {
+  "message": "استخدام مفتاح API الخاص بي"
+ },
+ "usageFree": {
+  "message": "تبقّى {0} من {1} إجابات مجانية اليوم"
+ },
+ "usagePro": {
+  "message": "Pro · تبقّى {0} من {1} إجابة هذا الأسبوع"
+ },
+ "usageOwnKey": {
+  "message": "تستخدم مفتاح API الخاص بك"
+ },
+ "hours": {
+  "message": "{0} س"
+ },
+ "minutes": {
+  "message": "{0} د"
+ },
+ "consentTitle": {
+  "message": "قبل استخدام AI في ContextFlow"
+ },
+ "consentBody": {
+  "message": "توافق مرة واحدة لكل ميزات AI في ContextFlow. كل ميزة ترسل ما تحتاجه فقط، عند استخدامك لها، عبر خادمنا إلى Anthropic (Claude) وOpenAI (إجابات احتياطية واقتراحات) وGoogle Gemini (إجابات Google). مع مفتاح API الخاص بك، يذهب الطلب مباشرة إلى ذلك المزوّد. لا يُحفظ شيء على خوادمنا، ولا يُستخدم للتدريب."
+ },
+ "consentAnswers": {
+  "message": "الإجابات: سؤالك، ونص الصفحة أو النص المحدد، و«نبذة عني» إن كتبتها. إذا لم يكن Claude متاحًا، يجيب OpenAI؛ وإجابات Google تذهب إلى Google Gemini."
+ },
+ "consentChats": {
+  "message": "«اسأل محادثاتك» وبحث AI (Pro): مقتطفات قصيرة من محادثاتك."
+ },
+ "consentTemplates": {
+  "message": "القوالب: نصها، لتحديد الفراغات؛ ونص الصفحة لـ«الملء من الصفحة»؛ وكلماتك وعناوين القوالب لـ«البحث بالمعنى»."
+ },
+ "consentWatch": {
+  "message": "مراقبة صفحة: ما حددته، وكلماتك عن الوقت الذي نخبرك فيه، والنص المحيط به، وعنوان الصفحة؛ ولاحقًا القيمة القديمة والجديدة."
+ },
+ "consentSuggest": {
+  "message": "الاقتراحات (Pro، فقط بعد أن تشغّلها): نص الأسئلة والإجابات والملاحظات الجديدة، إلى OpenAI لمقارنتها وإلى Claude للتحقق من الوسم."
+ },
+ "consentStored": {
+  "message": "تبقى محادثاتك على أجهزتك، وفي iCloud الخاص بك إن كنت تزامنها."
+ },
+ "consentWhat": {
+  "message": "ما الذي يُرسل بالضبط"
+ },
+ "consentAccept": {
+  "message": "الموافقة والمتابعة"
+ },
+ "consentAgainTitle": {
+  "message": "تحديث: موافقة واحدة لكل ميزات AI"
+ },
+ "consentDecline": {
+  "message": "ليس الآن"
+ },
+ "consentNeeded": {
+  "message": "لم يُرسل شيء: إجابات AI تحتاج إلى موافقتك أولًا."
+ },
+ "privacyPolicy": {
+  "message": "سياسة الخصوصية"
+ },
+ "setPlan": {
+  "message": "الخطة"
+ },
+ "planFree": {
+  "message": "مجاني"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "مفتاحك الخاص"
+ },
+ "planRenews": {
+  "message": "يتجدد في {0}"
+ },
+ "manageSubscription": {
+  "message": "إدارة الاشتراك"
+ },
+ "restorePurchases": {
+  "message": "استعادة المشتريات"
+ },
+ "setAppearance": {
+  "message": "المظهر"
+ },
+ "themeAuto": {
+  "message": "تلقائي"
+ },
+ "themeLight": {
+  "message": "فاتح"
+ },
+ "themeDark": {
+  "message": "داكن"
+ },
+ "setTextSize": {
+  "message": "حجم النص"
+ },
+ "sizeNormal": {
+  "message": "عادي"
+ },
+ "sizeLarge": {
+  "message": "كبير"
+ },
+ "setFab": {
+  "message": "الزر العائم"
+ },
+ "fabOn": {
+  "message": "تشغيل"
+ },
+ "fabOff": {
+  "message": "إيقاف"
+ },
+ "setFabHint": {
+  "message": "الزر ✦ يفتح ContextFlow في أي موقع. أخفِه في موقع واحد بالرابط أدناه، أو أوقفه من هنا."
+ },
+ "hideOnSite": {
+  "message": "إخفاء في {0}"
+ },
+ "showOnSite": {
+  "message": "إظهار في {0}"
+ },
+ "setSelectionButton": {
+  "message": "زر عند تحديد النص"
+ },
+ "setAbout": {
+  "message": "نبذة عني"
+ },
+ "setAboutHint": {
+  "message": "اختياري. يساعد على تكييف الإجابات، مثلًا: «أنا مصمم منتجات، اختصر»."
+ },
+ "setOwnKey": {
+  "message": "مفتاح API خاص (OpenAI أو Claude)"
+ },
+ "setOwnKeyHint": {
+  "message": "متاح في خطتي Pro و«مفتاحك الخاص». الصق مفتاح OpenAI أو Anthropic (Claude)؛ تذهب الطلبات مباشرة من جهازك إلى ذلك المزوّد."
+ },
+ "setOwnKeyLocked": {
+  "message": "متاح مع خطة Pro أو «مفتاحك الخاص»"
+ },
+ "setOwnKeyModel": {
+  "message": "النموذج"
+ },
+ "modelFast": {
+  "message": "سريع"
+ },
+ "modelSmart": {
+  "message": "ذكي"
+ },
+ "setOwnKeyModelHint": {
+  "message": "سريع: أحدث Claude Haiku أو GPT mini. ذكي: أحدث Claude Sonnet أو GPT."
+ },
+ "getKey": {
+  "message": "الحصول على مفتاح"
+ },
+ "save": {
+  "message": "حفظ"
+ },
+ "remove": {
+  "message": "إزالة"
+ },
+ "saved": {
+  "message": "تم الحفظ"
+ },
+ "setSyncChats": {
+  "message": "مزامنة المحادثات مع iCloud"
+ },
+ "setSyncChatsHint": {
+  "message": "تابع المحادثة على iPhone وiPad وMac. المحادثة مشفّرة تشفيرًا تامًا بين الطرفين في iCloud الخاص بك، ولا تُخزَّن أبدًا على خوادمنا."
+ },
+ "deleteChats": {
+  "message": "حذف كل المحادثات"
+ },
+ "chatsDeleted": {
+  "message": "تم حذف المحادثات"
+ },
+ "support": {
+  "message": "الدعم"
+ },
+ "terms": {
+  "message": "شروط الاستخدام"
+ },
+ "rateApp": {
+  "message": "قيّم ContextFlow"
+ },
+ "version": {
+  "message": "الإصدار {0}"
+ },
+ "fabLabel": {
+  "message": "اسأل ContextFlow"
+ },
+ "selAsk": {
+  "message": "اسأل AI"
+ },
+ "selExplain": {
+  "message": "اشرح"
+ },
+ "selTranslate": {
+  "message": "ترجم"
+ },
+ "googleModeHint": {
+  "message": "الإجابة عبر بحث Google: معلومات حديثة مع المصادر"
+ },
+ "googleBadge": {
+  "message": "بحث Google"
+ },
+ "sources": {
+  "message": "المصادر"
+ },
+ "tourStep": {
+  "message": "{0} من {1}"
+ },
+ "tourSkip": {
+  "message": "تخطي"
+ },
+ "tourNext": {
+  "message": "التالي"
+ },
+ "tourDone": {
+  "message": "فهمت"
+ },
+ "tourShow": {
+  "message": "عرض التلميحات"
+ },
+ "tourAskTitle": {
+  "message": "اسأل عن هذه الصفحة"
+ },
+ "tourAskBody": {
+  "message": "يقرأ ContextFlow الصفحة التي تتصفحها؛ ومع Pro يقرأ أيضًا ما فيها من فيديوهات ذات ترجمة مكتوبة وملفات PDF. اختر إجراءً مثل «تلخيص»، أو اكتب سؤالك."
+ },
+ "tourSelectTitle": {
+  "message": "جزء منها فقط؟"
+ },
+ "tourSelectBody": {
+  "message": "حدّد نصًا في الصفحة أولًا، وستكون الإجابة عنه وحده. تُظهر هذه الشارة ما يقرؤه ContextFlow."
+ },
+ "tourGoogleTitle": {
+  "message": "معلومات حديثة من Google"
+ },
+ "tourGoogleBody": {
+  "message": "شغّل هذا الخيار للإجابة عبر بحث Google: معلومات حالية مع المصادر."
+ },
+ "tourChatsTitle": {
+  "message": "محادثاتك"
+ },
+ "tourChatsBody": {
+  "message": "تستمر المحادثة من صفحة إلى أخرى. ابدأ محادثة جديدة بـ +، وافتح المحادثات السابقة أو أعد تسميتها أو احذفها من قائمة المحادثات. اضغط على اسم صفحة في المحادثة للعودة إليها."
+ },
+ "tourChatsBodySync": {
+  "message": "تستمر المحادثة من صفحة إلى أخرى، وعلى iPhone وiPad وMac عبر iCloud. ابدأ محادثة جديدة بـ +، وافتح المحادثات السابقة أو أعد تسميتها أو احذفها من قائمة المحادثات. اضغط على اسم صفحة في المحادثة للعودة إليها."
+ },
+ "tourSettingsTitle": {
+  "message": "خصّصه كما تحب"
+ },
+ "tourSettingsBody": {
+  "message": "السمة وحجم النص، والزر ✦، وبضع كلمات عنك لإجابات أفضل، ومفتاح API الخاص بك وخطتك. وهذه التلميحات هنا أيضًا."
+ },
+ "tourNoteTitle": {
+  "message": "ملاحظاتك الخاصة"
+ },
+ "tourNoteBodyTouch": {
+  "message": "اسحب هذا الزر لأعلى أو لأسفل لتكتب ملاحظة بدل السؤال. تبقى في المحادثة مع صفحتها ولا تستهلك أي إجابة."
+ },
+ "tourNoteBodyMouse": {
+  "message": "استخدم التمرير فوق هذا الزر (أو اضغط عليه مطولًا) لتكتب ملاحظة بدل السؤال. تبقى في المحادثة مع صفحتها ولا تستهلك أي إجابة."
+ },
+ "tourWholeTitle": {
+  "message": "المحادثة كاملة في الحسبان"
+ },
+ "tourWholeBody": {
+  "message": "شغّل «المحادثة كاملة» عندما يحتاج السؤال إلى كل شيء: كل الرسائل، وملاحظاتك، وصفحات هذه المحادثة الأخرى. عند إيقافه، تعتمد الإجابات على آخر الرسائل وهذه الصفحة."
+ },
+ "tourMenuTitle": {
+  "message": "كل شيء آخر"
+ },
+ "tourMenuBody": {
+  "message": "التذكيرات والصفحات المراقَبة والتلميحات والإعدادات والجولة الأساسية من جديد، كلها في هذه القائمة."
+ },
+ "guideSumTitle": {
+  "message": "إجابتك الأولى"
+ },
+ "guideSumBody": {
+  "message": "اضغط «{0}»: سيقرأ ContextFlow هذه الصفحة ويلخّصها لك."
+ },
+ "guideConsentTitle": {
+  "message": "موافقة واحدة لكل ميزات AI"
+ },
+ "guideConsentBody": {
+  "message": "قبل أن يُرسل أي شيء إلى AI، يسألك ContextFlow مرة واحدة. وافق لتحصل على ملخّصك."
+ },
+ "guideAnswerTitle": {
+  "message": "إليك ملخّصك"
+ },
+ "guideAnswerBody": {
+  "message": "مرّر لقراءته. يمكنك طرح سؤال متابعة في المربع أدناه في أي وقت."
+ },
+ "guideSelectTitle": {
+  "message": "الآن اسأل عن جزء واحد"
+ },
+ "guideSelectBodyTouch": {
+  "message": "اضغط مطولًا على كلمة في الصفحة، واسحب المقبضين على بضعة أسطر، ثم اضغط «{0}»."
+ },
+ "guideSelectBodyMouse": {
+  "message": "حدّد بضعة أسطر في الصفحة، ثم انقر «{0}»."
+ },
+ "guideSelectGo": {
+  "message": "جرّبه"
+ },
+ "guidePickTouch": {
+  "message": "اضغط مطولًا على كلمة في الصفحة"
+ },
+ "guidePickMouse": {
+  "message": "حدّد بضعة أسطر في الصفحة"
+ },
+ "guideTapAskTouch": {
+  "message": "اضغط «{0}» لتسأل عمّا حدّدته."
+ },
+ "guideTapAskMouse": {
+  "message": "انقر «{0}» لتسأل عمّا حدّدته."
+ },
+ "guideAskSelTitle": {
+  "message": "اسأل عمّا حدّدته"
+ },
+ "guideAskSelBody": {
+  "message": "اختر إجراءً سريعًا مثل «{0}»، أو اكتب سؤالك."
+ },
+ "uxShowIntro": {
+  "message": "إعادة الجولة الأساسية"
+ },
+ "uxOther": {
+  "message": "أخرى…"
+ },
+ "uxRate": {
+  "message": "قيّم في App Store"
+ },
+ "tipClipNeedsApp": {
+  "message": "افتح تطبيق ContextFlow مرة واحدة لمشاهدة هذا المقطع."
+ },
+ "busyWorking": {
+  "message": "جارٍ إعداد الإجابة…"
+ },
+ "busyNew": {
+  "message": "إجابة جديدة جاهزة"
+ },
+ "ptMenu": {
+  "message": "ما يتضمنه {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: الفيديو وملفات PDF"
+ },
+ "ptProMediaBody": {
+  "message": "في صفحة فيها فيديو أو ملف PDF، يقرأهما ContextFlow الآن أيضًا: ترجمة الفيديو ونص الملف. اسأل كالمعتاد."
+ },
+ "ptProFindTitle": {
+  "message": "البحث بالذكاء الاصطناعي في محادثاتك"
+ },
+ "ptProFindBody": {
+  "message": "فعّل ✦ بجوار البحث وصِف المحادثة التي تتذكرها، حتى دون كلماتها الدقيقة."
+ },
+ "ptProAskTitle": {
+  "message": "اسأل كل محادثاتك"
+ },
+ "ptProAskBody": {
+  "message": "يجيب «{0}» من كل ما قرأته وسألت عنه: «ماذا قرأت هذا الأسبوع؟»"
+ },
+ "ptProSortTitle": {
+  "message": "مرتبة حسب الموضوع"
+ },
+ "ptProSortBody": {
+  "message": "بعد كل إجابة، يقترح سطر تحتها وسمًا أو مجلدًا للمحادثة. ضغطة واحدة ترتبها، ويمكنك التراجع."
+ },
+ "ptProTemplatesTitle": {
+  "message": "القوالب"
+ },
+ "ptProTemplatesBody": {
+  "message": "حدد نصًا واضغط «{0}» لحفظه، ثم الصقه في أي حقل. احفظ ما تشاء منها."
+ },
+ "ptProWatchTitle": {
+  "message": "تابع حتى 20 صفحة"
+ },
+ "ptProWatchBody": {
+  "message": "في «…»، يخبرك «{0}» عندما تتغير الصفحة: سعر أو تاريخ أو منشور جديد."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: استمع"
+ },
+ "ptUltraListenBody": {
+  "message": "اضغط «{0}» تحت الإجابة، أو «{1}» في «…»: تُعاد صياغة النص ليناسب السمع ثم يُقرأ بصوت عالٍ."
+ },
+ "ptUltraSimilarBody": {
+  "message": "بدائل حقيقية لما تتصفحه، مع فتح كل رابط والتحقق منه. اضغط «{0}» هنا أو في «…»، أو حدد نصًا واضغط «{1}»."
+ },
+ "ptUltraWatchTitle": {
+  "message": "تابع حتى 50 صفحة"
+ },
+ "ptUltraWatchBody": {
+  "message": "في «…»، يتابع «{0}» الآن حتى 50 صفحة في آن واحد."
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow جاهز"
+ },
+ "welcomeBody": {
+  "message": "افتح أي موقع واضغط على الزر ✦ أو أيقونة ContextFlow في شريط الأدوات. حدّد نصًا لتسأل عن ذلك الجزء فقط."
+ },
+ "welcomeRestricted": {
+  "message": "لا يسمح Safari للامتدادات بقراءة هذه الصفحة. افتح موقعًا عاديًا لاستخدام ContextFlow."
+ },
+ "welcomePermission": {
+  "message": "إذا لم يحدث شيء، فاسمح لـ ContextFlow في كل المواقع: Safari ← الامتدادات ← ContextFlow ← جميع مواقع الويب ← سماح."
+ },
+ "shareNote": {
+  "message": "ملاحظة"
+ },
+ "saveNote": {
+  "message": "حفظ الملاحظة"
+ },
+ "selQuestion": {
+  "message": "سؤالك…"
+ },
+ "selTranslateTo": {
+  "message": "ترجمة إلى {0}"
+ },
+ "selChips": {
+  "message": "إجراءات سريعة"
+ },
+ "selNote": {
+  "message": "ملاحظة"
+ },
+ "selNoteTitle": {
+  "message": "احفظ التحديد في المحادثة كملاحظة (لا يستهلك إجابات)"
+ },
+ "selNoteSaved": {
+  "message": "حُفظ في المحادثة"
+ },
+ "selNoteOpen": {
+  "message": "فتح"
+ },
+ "selHint": {
+  "message": "جديد: اكتب هنا سؤالك عن التحديد، أو احفظه في المحادثة كملاحظة — الملاحظات لا تستهلك إجابات."
+ },
+ "noteQuote": {
+  "message": "«{0}»"
+ },
+ "placeholderNote": {
+  "message": "اكتب ملاحظة — ستبقى في هذه المحادثة"
+ },
+ "noteHintTouch": {
+  "message": "اسحب الزر لأعلى أو لأسفل لكتابة ملاحظة"
+ },
+ "noteHintMouse": {
+  "message": "استخدم التمرير فوق الزر لكتابة ملاحظة"
+ },
+ "wholeChat": {
+  "message": "المحادثة كاملة"
+ },
+ "wholeChatHint": {
+  "message": "تأخذ الإجابات المحادثة كاملة في الحسبان: كل رسالة، وملاحظاتك، وصفحات هذه المحادثة. عند الإيقاف: آخر الرسائل والصفحة المفتوحة."
+ },
+ "openPage": {
+  "message": "فتح هذه الصفحة"
+ },
+ "usageFreeShort": {
+  "message": "تبقّى {0} من {1} اليوم"
+ },
+ "usageProShort": {
+  "message": "Pro · {0} من {1} هذا الأسبوع"
+ },
+ "usageUltraShort": {
+  "message": "Ultra · {0} من {1} هذا الأسبوع"
+ },
+ "pinChat": {
+  "message": "تثبيت المحادثة"
+ },
+ "unpinChat": {
+  "message": "إلغاء تثبيت المحادثة"
+ },
+ "reorderChat": {
+  "message": "اسحب لإعادة الترتيب"
+ },
+ "chatPages": {
+  "message": "صفحات هذه المحادثة"
+ },
+ "chatNotes": {
+  "message": "ملاحظاتك في هذه المحادثة"
+ },
+ "chatWatches": {
+  "message": "الصفحات قيد المراقبة في هذه المحادثة: {0}"
+ },
+ "chatReminder": {
+  "message": "في هذه المحادثة تذكير"
+ },
+ "pages_one": {
+  "message": "{0} صفحة"
+ },
+ "pages_few": {
+  "message": "{0} صفحات"
+ },
+ "pages_many": {
+  "message": "{0} صفحة"
+ },
+ "pages_other": {
+  "message": "{0} صفحة"
+ },
+ "cancel": {
+  "message": "إلغاء"
+ },
+ "pickCount": {
+  "message": "{0} من {1}"
+ },
+ "pickHint": {
+  "message": "اضغط على الرسائل لمشاركتها"
+ },
+ "pickAll": {
+  "message": "تحديد الكل"
+ },
+ "pickNone": {
+  "message": "إلغاء تحديد الكل"
+ },
+ "limitFreeBack_one": {
+  "message": "تعود إجابة مجانية واحدة عند {1}، بعد {2}."
+ },
+ "limitFreeBack_two": {
+  "message": "تعود إجابتان مجانيتان عند {1}، بعد {2}."
+ },
+ "limitFreeBack_few": {
+  "message": "تعود {0} إجابات مجانية عند {1}، بعد {2}."
+ },
+ "limitFreeBack_many": {
+  "message": "تعود {0} إجابة مجانية عند {1}، بعد {2}."
+ },
+ "limitFreeBack_other": {
+  "message": "تعود {0} إجابة مجانية عند {1}، بعد {2}."
+ },
+ "limitFreePro": {
+  "message": "يمنحك Pro ما يصل إلى {0} إجابة أسبوعيًا، والفيديوهات وملفات PDF في الصفحة، وبحث AI، والأسئلة عبر كل محادثاتك."
+ },
+ "limitNotes": {
+  "message": "الملاحظات تبقى مجانية وبلا حدود: دوّن ما يهمك الآن، واسأل AI عنه لاحقًا."
+ },
+ "writeNote": {
+  "message": "اكتب ملاحظة"
+ },
+ "errProvider": {
+  "message": "ردّ مزوّد AI الخاص بك: {0}"
+ },
+ "offerLimit": {
+  "message": "أو احصل على Pro بخصم {0}% على الشهر الأول: ما يصل إلى {1} إجابة أسبوعيًا، أعمق وأكثر تفصيلًا. يمكنك الإلغاء في أي وقت."
+ },
+ "offerButton": {
+  "message": "احصل على Pro بخصم {0}%"
+ },
+ "offerShort": {
+  "message": "Pro −{0}%"
+ },
+ "offerCardTitle": {
+  "message": "تنفد إجاباتك؟"
+ },
+ "offerCardBody": {
+  "message": "سبق أن بلغت الحد اليومي المجاني. يمنحك Pro ما يصل إلى {1} إجابة أسبوعيًا، أعمق وأكثر تفصيلًا، وشهرك الأول بخصم {0}%. بعدها السعر العادي؛ يمكنك الإلغاء في أي وقت من إعدادات App Store."
+ },
+ "offerLater": {
+  "message": "ليس الآن"
+ },
+ "emptyVideo": {
+  "message": "أرى هذا الفيديو وسأقرأ نصّه المكتوب. اطرح سؤالًا أو اختر إجراءً."
+ },
+ "emptyPdf": {
+  "message": "أرى ملف PDF هذا. اطرح سؤالًا أو اختر إجراءً."
+ },
+ "readingVideo": {
+  "message": "جارٍ قراءة نص الفيديو…"
+ },
+ "readingPdf": {
+  "message": "جارٍ قراءة ملف PDF…"
+ },
+ "usedVideo": {
+  "message": "نص الفيديو · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} ص"
+ },
+ "videoNoTranscript": {
+  "message": "لا توجد ترجمة مكتوبة لهذا الفيديو: تعتمد الإجابة على عنوانه ووصفه."
+ },
+ "videoFailed": {
+  "message": "تعذّر الحصول على نص هذا الفيديو: تعتمد الإجابة على عنوانه ووصفه."
+ },
+ "pdfNoText": {
+  "message": "لا يحتوي «{0}» على نص يمكن قراءته (صفحات ممسوحة ضوئيًا): الإجابة من دونه."
+ },
+ "pdfFailed": {
+  "message": "تعذّرت قراءة ملف PDF «{0}»: الإجابة من دونه."
+ },
+ "searchChats": {
+  "message": "البحث في المحادثات"
+ },
+ "searchNone": {
+  "message": "لا توجد محادثات تطابق «{0}»"
+ },
+ "searchClear": {
+  "message": "مسح البحث"
+ },
+ "askHistory": {
+  "message": "اسأل محادثاتك"
+ },
+ "askHistoryHint": {
+  "message": "أسئلة عن كل ما قرأته وسألت عنه"
+ },
+ "askHistoryEmpty": {
+  "message": "اسأل عن كل ما قرأته وسألت عنه مع ContextFlow، في كل محادثاتك."
+ },
+ "askHistoryEx1": {
+  "message": "ماذا قرأت هذا الأسبوع؟"
+ },
+ "askHistoryEx2": {
+  "message": "لخّص ملاحظاتي"
+ },
+ "askHistoryEx3": {
+  "message": "ماذا تعلّمت عن AI؟"
+ },
+ "placeholderHistory": {
+  "message": "اسأل عن محادثاتك…"
+ },
+ "findToggle": {
+  "message": "بحث AI"
+ },
+ "findToggleLocked": {
+  "message": "بحث AI — Pro"
+ },
+ "findPlaceholder": {
+  "message": "صِف المحادثة التي تبحث عنها…"
+ },
+ "findHint": {
+  "message": "صِف ما تتذكره، بأي كلمات، واضغط Enter: «المقال عن النوم والقهوة من الأسبوع الماضي»."
+ },
+ "findBusy": {
+  "message": "جارٍ البحث في محادثاتك…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "اعثر على أي محادثة بما تتذكره منها"
+ },
+ "upsellHistoryTitle": {
+  "message": "اسأل عن كل ما قرأته"
+ },
+ "upsellFindName": {
+  "message": "بحث AI"
+ },
+ "upsellFindText": {
+  "message": "صِف محادثة بكلماتك — «ذلك المقال عن النوم والقهوة من الأسبوع الماضي» — وسيجدها AI، حتى من دون الكلمات نفسها."
+ },
+ "upsellHistoryName": {
+  "message": "اسأل محادثاتك"
+ },
+ "upsellHistoryText": {
+  "message": "أسئلة عبر كل محادثاتك: «ماذا قرأت عن الادخار للتقاعد؟»، «لخّص ملاحظاتي لهذا الشهر»."
+ },
+ "upsellMore": {
+  "message": "وأيضًا الفيديوهات وملفات PDF في الصفحة، وما يصل إلى 375 إجابة أسبوعيًا، أعمق وأكثر تفصيلًا، على iPhone وiPad وMac."
+ },
+ "errProOnly": {
+  "message": "هذه الميزة جزء من Pro."
+ },
+ "tagsTitle": {
+  "message": "الوسوم"
+ },
+ "tagsNew": {
+  "message": "وسم جديد…"
+ },
+ "tagsAdd": {
+  "message": "إضافة وسم"
+ },
+ "tagsDone": {
+  "message": "تم"
+ },
+ "tagsFilter": {
+  "message": "تصفية حسب الوسم"
+ },
+ "tagsGroup": {
+  "message": "المجلدات"
+ },
+ "tagsEdit": {
+  "message": "الوسوم"
+ },
+ "tagsNone": {
+  "message": "بلا وسم"
+ },
+ "tagsButton": {
+  "message": "وسم"
+ },
+ "qiTitle": {
+  "message": "الإدراج السريع"
+ },
+ "qiButton": {
+  "message": "الإدراج السريع: النص المنسوخ والقوالب وإجابات المحادثة"
+ },
+ "qiCommand": {
+  "message": "الإدراج السريع عند المؤشر"
+ },
+ "qiSearch": {
+  "message": "البحث عن قالب"
+ },
+ "qiNewTemplate": {
+  "message": "قالب جديد"
+ },
+ "qiEditTemplate": {
+  "message": "قالب"
+ },
+ "qiCopied": {
+  "message": "المنسوخ"
+ },
+ "qiClear": {
+  "message": "مسح"
+ },
+ "qiCopiedOff": {
+  "message": "«المنسوخ» متوقف. شغّله أدناه."
+ },
+ "qiCopiedEmpty": {
+  "message": "انسخ نصًا من أي صفحة في Safari، وسيظهر هنا."
+ },
+ "qiNothing": {
+  "message": "لم يُعثر على شيء"
+ },
+ "qiToTemplate": {
+  "message": "إنشاء قالب"
+ },
+ "qiTemplates": {
+  "message": "القوالب"
+ },
+ "qiTemplatesTitle": {
+  "message": "القوالب"
+ },
+ "qiAllTemplates": {
+  "message": "كل القوالب"
+ },
+ "qiTemplatesEmpty": {
+  "message": "لا توجد قوالب بعد. اضغط على + أو حدّد ردًا ترسله كثيرًا واضغط على «قالب»."
+ },
+ "qiTemplatesIntro": {
+  "message": "احفظ الردود التي تكتبها مرارًا. سأحدد ما يتغير فيها، مثل الاسم أو التاريخ، ويمكنني ملؤه من الصفحة."
+ },
+ "qiFindAi": {
+  "message": "البحث بالمعنى"
+ },
+ "qiFinding": {
+  "message": "جارٍ البحث…"
+ },
+ "qiFromCf": {
+  "message": "من المحادثة"
+ },
+ "qiLastAnswer": {
+  "message": "آخر إجابة"
+ },
+ "qiLastNote": {
+  "message": "آخر ملاحظة"
+ },
+ "qiKeepCopied": {
+  "message": "الاحتفاظ بالنص المنسوخ"
+ },
+ "qiPrivacy": {
+  "message": "يبقى النص المنسوخ على {0} فقط ويُمسح بعد 24 ساعة."
+ },
+ "qiOnIphone": {
+  "message": "هذا الـ iPhone"
+ },
+ "qiOnIpad": {
+  "message": "هذا الـ iPad"
+ },
+ "qiOnMac": {
+  "message": "هذا الـ Mac"
+ },
+ "qiOnDevice": {
+  "message": "هذا الجهاز"
+ },
+ "qiHideButtonOnSite": {
+  "message": "إخفاء الزر في {0}"
+ },
+ "qiDontKeepOnSite": {
+  "message": "عدم الاحتفاظ في {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "الاحتفاظ في {0} مجددًا"
+ },
+ "qiTip": {
+  "message": "جديد: اضغط لإدراج ما نسخته في علامات تبويب أخرى، أو قالب، أو إجابتي."
+ },
+ "qiKeyInsert": {
+  "message": "إدراج"
+ },
+ "qiKeyChoose": {
+  "message": "اختيار"
+ },
+ "qiKeyClose": {
+  "message": "إغلاق"
+ },
+ "qiBlanksMark": {
+  "message": "فراغات"
+ },
+ "qiBlanksCount": {
+  "message": "الفراغات: {0}"
+ },
+ "qiPasteManually": {
+  "message": "تم النسخ. الصقه في الحقل بنفسك."
+ },
+ "qiInsert": {
+  "message": "إدراج"
+ },
+ "qiInsertIntoField": {
+  "message": "إدراج في الحقل"
+ },
+ "qiFillFromPage": {
+  "message": "الملء من الصفحة"
+ },
+ "qiFillAgain": {
+  "message": "الملء مجددًا"
+ },
+ "qiFilling": {
+  "message": "جارٍ الملء…"
+ },
+ "qiFillHint": {
+  "message": "اكتب في الفراغات، أو اختر من «المنسوخ»، أو سأملؤها من الصفحة."
+ },
+ "qiFillDone": {
+  "message": "المميّز مأخوذ من الصفحة. راجعه قبل الإرسال."
+ },
+ "qiFillPartly": {
+  "message": "المميّز مأخوذ من الصفحة. لم أجد في الصفحة ما يملأ أحد الفراغات: املأه بنفسك."
+ },
+ "qiFillLeft": {
+  "message": "مرات الملء المتبقية اليوم: {0}."
+ },
+ "qiFillLimit": {
+  "message": "انتهت مرات الملء المجانية لليوم. مع Pro لا يوجد حد، ويمكن ملء الفراغات يدويًا على أي حال."
+ },
+ "qiFillByHand": {
+  "message": "الملء يدويًا"
+ },
+ "qiPickCopied": {
+  "message": "المنسوخ لـ«{0}»"
+ },
+ "qiAdapt": {
+  "message": "إعادة الصياغة لهذه الصفحة"
+ },
+ "qiAdaptChat": {
+  "message": "إعادة الصياغة لهذه المحادثة"
+ },
+ "qiAdaptHint": {
+  "message": "«الملء من الصفحة» يملأ الفراغات فقط. «إعادة الصياغة» تغيّر النص كله بواسطة AI وتعرضه في اللوحة."
+ },
+ "qiAdaptLabel": {
+  "message": "أعد صياغة القالب لهذه الصفحة"
+ },
+ "qiAdaptPrompt": {
+  "message": "أعد صياغة هذا القالب ليصبح ردًا يناسب الصفحة التي أنا عليها. حافظ على معناه ونبرته وطوله؛ املأ ما تخبرك به الصفحة، واترك الباقي كما هو. أجب بالرد فقط.\n\nالقالب:\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "هذه هي المحادثة التي أرد فيها. اكتب الرد إلى الشخص المعني فيها:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "قالب"
+ },
+ "qiTemplateTitle": {
+  "message": "العنوان"
+ },
+ "qiTemplateText": {
+  "message": "النص. ضع الفراغات بين قوسين معقوفين، مثل {الاسم}."
+ },
+ "qiMakeBlank": {
+  "message": "فراغ"
+ },
+ "qiBlankDefault": {
+  "message": "فراغ"
+ },
+ "qiUnmark": {
+  "message": "إعادته نصًا عاديًا"
+ },
+ "qiMarking": {
+  "message": "جارٍ تحديد ما يتغير…"
+ },
+ "qiMarkAi": {
+  "message": "تحديد الفراغات"
+ },
+ "qiMarkedHint": {
+  "message": "حُددت الفراغات. اضغط على أحدها لإعادته نصًا عاديًا."
+ },
+ "qiMarkedNone": {
+  "message": "لا يبدو أن شيئًا هنا يتغير. حدّد كلمة واضغط على «فراغ» لإضافة واحد."
+ },
+ "qiMarkFailed": {
+  "message": "تعذّر تحديد الفراغات الآن. حُفظ كنص عادي، ويمكن إضافة الفراغات يدويًا."
+ },
+ "qiBlankHint": {
+  "message": "تُملأ الفراغات عند إدراج القالب."
+ },
+ "qiKeywords": {
+  "message": "كلمات للعثور عليه، مفصولة بفواصل"
+ },
+ "qiSave": {
+  "message": "حفظ"
+ },
+ "qiDelete": {
+  "message": "حذف"
+ },
+ "qiSetButton": {
+  "message": "زر بجانب حقول النص"
+ },
+ "qiSetCopiedHint": {
+  "message": "آخر 5 نصوص نُسخت من الصفحات. تبقى على هذا الجهاز وتُمسح بعد 24 ساعة. لا شيء من حقول كلمات السر أو البطاقات، ولا في التصفح الخاص."
+ },
+ "qiClearCopied": {
+  "message": "مسح «المنسوخ»"
+ },
+ "qiCleared": {
+  "message": "تم المسح"
+ },
+ "qiSetSign": {
+  "message": "رمز في الحقل"
+ },
+ "qiSetSignHint": {
+  "message": "اكتب {0} وبضع كلمات من قالب في أي حقل."
+ },
+ "qiSetShortcut": {
+  "message": "على Mac أو iPad مع لوحة مفاتيح، يفتح ⌃⇧V القائمة."
+ },
+ "hintGot": {
+  "message": "فهمت"
+ },
+ "hintChatsTitle": {
+  "message": "ابحث، رتّب، ارجع"
+ },
+ "hintChatsBody": {
+  "message": "ابحث بالكلمات أو بـ #وسم. ضع وسومًا على المحادثات والإجابات بـ 🏷 وشغّل «المجلدات» لتجميعها. في Pro، يعثر ✦ على محادثة من وصفها، ويجيب «اسأل محادثاتك» منها جميعًا."
+ },
+ "hintVideoTitle": {
+  "message": "في هذه الصفحة فيديو"
+ },
+ "hintVideoBody": {
+  "message": "تعتمد الإجابات على نصّه المكتوب وتشير إلى لحظات مثل [4:15]. بدون ترجمة مكتوبة، تعتمد على العنوان والوصف، وتذكر ذلك."
+ },
+ "hintPdfTitle": {
+  "message": "تُقرأ ملفات PDF أيضًا"
+ },
+ "hintPdfBody": {
+  "message": "ملفات PDF المعروضة في هذه الصفحة أو المرتبطة بها تُرسل مع سؤالك؛ وتذكر الإجابات في أي صفحة منها وردت المعلومة."
+ },
+ "proSkipVideo": {
+  "message": "تم تخطي الفيديو في هذه الصفحة — Pro يقرأ الفيديوهات"
+ },
+ "proSkipPdf": {
+  "message": "تم تخطي ملفات PDF في هذه الصفحة — Pro يقرؤها"
+ },
+ "proSkipBoth": {
+  "message": "تم تخطي الفيديو وملفات PDF في هذه الصفحة — Pro يقرؤها"
+ },
+ "tryPro": {
+  "message": "جرّب Pro"
+ },
+ "emptyVideoFree": {
+  "message": "في هذه الصفحة فيديو. إجابات Pro تعتمد على نصّه المكتوب؛ والإجابات المجانية تعتمد على ما تعرضه الصفحة (العنوان والوصف)."
+ },
+ "emptyPdfFree": {
+  "message": "في هذه الصفحة ملف PDF. إجابات Pro تقرؤه؛ والإجابات المجانية تعتمد على نص الصفحة."
+ },
+ "hintVideoBodyFree": {
+  "message": "مع Pro، تعتمد الإجابات على نصّه المكتوب وتشير إلى لحظات مثل [4:15]. الإجابات المجانية تعتمد على العنوان والوصف."
+ },
+ "hintPdfTitleFree": {
+  "message": "في هذه الصفحة ملفات PDF"
+ },
+ "hintPdfBodyFree": {
+  "message": "يقرأ Pro ملفات PDF المعروضة في هذه الصفحة أو المرتبطة بها، ويذكر من أي صفحة منها جاءت الإجابة. الإجابات المجانية تعتمد على نص الصفحة."
+ },
+ "renewalTitle": {
+  "message": "ينتهي Pro في {0}"
+ },
+ "renewalBody": {
+  "message": "التجديد التلقائي متوقف. ما الذي كان ينقصه؟"
+ },
+ "renewalPrice": {
+  "message": "مكلف جدًا"
+ },
+ "renewalRarely": {
+  "message": "لا أستخدمه بما يكفي"
+ },
+ "renewalAnswers": {
+  "message": "الإجابات لم تكن جيدة بما يكفي"
+ },
+ "renewalFeatures": {
+  "message": "تنقصه ميزة أحتاجها"
+ },
+ "renewalFreeEnough": {
+  "message": "الخطة المجانية تكفيني"
+ },
+ "renewalOther": {
+  "message": "شيء آخر"
+ },
+ "renewalThanks": {
+  "message": "شكرًا — هذا يساعدنا على تحسين ContextFlow."
+ },
+ "planEnds": {
+  "message": "ينتهي في {0}: التجديد التلقائي متوقف"
+ },
+ "upgradePro": {
+  "message": "الترقية إلى Pro"
+ },
+ "upgradeProOff": {
+  "message": "الترقية بخصم {0}%"
+ },
+ "byokLimitTitle": {
+  "message": "نفدت إجابات اليوم عبر ContextFlow"
+ },
+ "byokLimitNoKey": {
+  "message": "لم تُضف مفتاحك بعد، لذا تمر الإجابات عبر ContextFlow: {0} يوميًا. أضف مفتاحك في الإعدادات، أو انتقل إلى Pro: ما يصل إلى {1} إجابة أسبوعيًا، دون حاجة إلى مفتاح."
+ },
+ "byokLimitGoogle": {
+  "message": "في خطة «مفتاحك الخاص»، تمر إجابات Google عبر ContextFlow: {0} يوميًا. يمنحك Pro ما يصل إلى {1} إجابة أسبوعيًا."
+ },
+ "byokSearch": {
+  "message": "في خطة «مفتاحك الخاص»، حد بحث Google هو {0} يوميًا. يمنحك Pro {1} أسبوعيًا."
+ },
+ "byokProOnly": {
+  "message": "غير متاح في خطة «مفتاحك الخاص»."
+ },
+ "byokOfferTitle": {
+  "message": "انتقل إلى Pro بخصم {0}%"
+ },
+ "byokOfferBody": {
+  "message": "يجيب Pro دون مفتاحك: ما يصل إلى {0} إجابة أسبوعيًا، و{1} عملية بحث في Google أسبوعيًا، و«اسأل محادثاتك» وبحث AI. يعرض App Store السعر ومدة الخصم قبل أن تدفع. يبدأ Pro فورًا، ويُستردّ الجزء غير المستخدم من خطتك الحالية."
+ },
+ "orgSuggested": {
+  "message": "مقترح"
+ },
+ "orgTagA11y": {
+  "message": "وسم مقترح «{0}». أضِفه"
+ },
+ "orgNoA11y": {
+  "message": "تجاهل"
+ },
+ "orgCountOne": {
+  "message": "{0} رسالة"
+ },
+ "orgCountFew": {
+  "message": "{0} رسائل"
+ },
+ "orgCountMany": {
+  "message": "{0} رسالة"
+ },
+ "orgCountOther": {
+  "message": "{0} رسالة"
+ },
+ "orgMoveTo": {
+  "message": "{0} إلى «{1}»"
+ },
+ "orgSplit": {
+  "message": "إلى محادثة جديدة: «{0}»"
+ },
+ "orgMoveA11y": {
+  "message": "انقل {0} إلى المحادثة «{1}»"
+ },
+ "orgSplitA11y": {
+  "message": "انقل هذه الرسائل إلى محادثة جديدة، «{0}»"
+ },
+ "orgMoved": {
+  "message": "نُقلت إلى «{0}»"
+ },
+ "orgUndo": {
+  "message": "تراجع"
+ },
+ "orgOpen": {
+  "message": "فتح"
+ },
+ "orgFirstWin": {
+  "message": "تم. من الآن فصاعدًا سأقترح بنفسي."
+ },
+ "orgNameChat": {
+  "message": "التسمية حسب الموضوع"
+ },
+ "orgNamed": {
+  "message": "سُمّيت المحادثة «{0}»"
+ },
+ "orgNameFailed": {
+  "message": "تعذّرت تسمية المحادثة الآن. حاول مرة أخرى لاحقًا."
+ },
+ "orgNameAs": {
+  "message": "تسمية المحادثة «{0}»"
+ },
+ "orgMatch": {
+  "message": "تطابق {0}٪"
+ },
+ "orgMergeInto": {
+  "message": "ادمج مع «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "ادمج هذه المحادثة مع «{0}»"
+ },
+ "orgMerged": {
+  "message": "دُمجت مع «{0}»"
+ },
+ "orgMergeHere": {
+  "message": "أضف «{0}» هنا"
+ },
+ "orgMergeHereA11y": {
+  "message": "أضف المحادثة الأقدم «{0}» إلى هذه المحادثة"
+ },
+ "orgMergedHere": {
+  "message": "أُضيفت «{0}» هنا"
+ },
+ "orgBarOne": {
+  "message": "مقترحات · {0}"
+ },
+ "orgBarOf": {
+  "message": "مقترحات · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "مقترحات في هذه المحادثة"
+ },
+ "recs_one": {
+  "message": "توصية واحدة"
+ },
+ "recs_two": {
+  "message": "توصيتان"
+ },
+ "recs_few": {
+  "message": "{0} توصيات"
+ },
+ "recs_many": {
+  "message": "{0} توصية"
+ },
+ "recs_other": {
+  "message": "{0} توصية"
+ },
+ "orgConsentTitle": {
+  "message": "ترتيب محادثاتك حسب الموضوع؟"
+ },
+ "orgConsentText": {
+  "message": "سأقترح محادثة مناسبة وأحد وسومك تحت الإجابات والملاحظات الجديدة. يمكنك إيقاف ذلك في الإعدادات."
+ },
+ "orgTurnOn": {
+  "message": "تشغيل"
+ },
+ "orgMessTitle": {
+  "message": "كل شيء في محادثة واحدة؟"
+ },
+ "orgMessText": {
+  "message": "في Pro، أقترح مكان كل شيء وأضع الوسوم كما تفعل أنت."
+ },
+ "orgTagsTitle": {
+  "message": "يمكنني وضع الوسوم كما تفعل"
+ },
+ "orgTagsText": {
+  "message": "في Pro، أقترح أحد وسومك تحت الإجابات والملاحظات الجديدة، بناءً على المواضع التي وضعته فيها بنفسك."
+ },
+ "orgCloseA11y": {
+  "message": "إغلاق"
+ },
+ "setOrganize": {
+  "message": "الاقتراحات: الوسوم والنقل"
+ },
+ "setOrganizeHint": {
+  "message": "محادثة مناسبة ووسمك تحت الإجابات والملاحظات الجديدة. يُرسل نص رسائلك إلى خادمنا وإلى OpenAI وAnthropic. لا نحتفظ به، ولا يستخدمونه للتدريب."
+ },
+ "setOrganizePro": {
+  "message": "Pro: يقترح ContextFlow محادثة مناسبة ووسمك تحت الإجابات والملاحظات الجديدة."
+ },
+ "upsellOrganizeName": {
+  "message": "الترتيب حسب الموضوع"
+ },
+ "upsellOrganizeText": {
+  "message": "يقترح المحادثة المناسبة لما سألت عنه للتو، ووسمك الخاص له."
+ },
+ "watchEye": {
+  "message": "مراقبة التغييرات"
+ },
+ "watchSection": {
+  "message": "أبلغني عند التغيّر"
+ },
+ "watchWhen": {
+  "message": "متى أخبرك"
+ },
+ "watchNoteWords": {
+  "message": "ملاحظتك (اختياري)"
+ },
+ "watchCondPrice": {
+  "message": "عند تغيّر السعر (الآن {0})"
+ },
+ "watchCondBack": {
+  "message": "عندما يتوفر مجددًا"
+ },
+ "watchCondStock": {
+  "message": "عند تغيّر التوفر (الآن {0})"
+ },
+ "watchCondDate": {
+  "message": "عند تغيّر التاريخ (الآن {0})"
+ },
+ "watchCondStatus": {
+  "message": "عند تغيّر الحالة (الآن {0})"
+ },
+ "watchCondPage": {
+  "message": "عند ظهور شيء جديد في الصفحة"
+ },
+ "watchHonest": {
+  "message": "أتحقق أثناء استخدامك Safari"
+ },
+ "watchStart": {
+  "message": "مراقبة"
+ },
+ "watchSave": {
+  "message": "حفظ"
+ },
+ "watchTipBell": {
+  "message": "الجرس: سأعيدك إلى هذه الصفحة في وقت تختاره."
+ },
+ "watchTipWatch": {
+  "message": "العين: سأخبرك عندما يتغير شيء هنا: سعر، أو توفر، أو حالة."
+ },
+ "watchChecking": {
+  "message": "جارٍ فحص الصفحة…"
+ },
+ "watchSet": {
+  "message": "المراقبة تعمل. سأخبرك عندما يتغير."
+ },
+ "watchSetLive": {
+  "message": "المراقبة تعمل. هذا الموقع لا يعرضه إلا عند فتح الصفحة، لذا سأتحقق حينها."
+ },
+ "watchUnreadable": {
+  "message": "هذا الموقع لا يسمح لي بالتحقق منه في الخلفية. يمكنني التحقق عندما تفتح الصفحة، أو تذكيرك بإلقاء نظرة."
+ },
+ "watchRemindInstead": {
+  "message": "ذكّرني بإلقاء نظرة"
+ },
+ "watchLiveOk": {
+  "message": "تحقق عند فتح الصفحة"
+ },
+ "watchFull": {
+  "message": "أنت تراقب {0} صفحة بالفعل. أوقف مراقبة إحداها في «قيد المراقبة» أولًا."
+ },
+ "watchFullFree": {
+  "message": "في الخطة المجانية يمكنك مراقبة {0} صفحات في وقت واحد. يراقب Pro حتى {1}."
+ },
+ "watchMore": {
+  "message": "المزيد مع Pro"
+ },
+ "watchFailed": {
+  "message": "لم ينجح ذلك. حاول مرة أخرى بعد قليل."
+ },
+ "watchRow": {
+  "message": "مراقبة: {0} · آخر فحص {1}"
+ },
+ "watchRowNew": {
+  "message": "مراقبة: {0}"
+ },
+ "watchRowNow": {
+  "message": "الآن {0}"
+ },
+ "watchRowLive": {
+  "message": "مراقبة: {0} · سأتحقق عندما تفتح الصفحة"
+ },
+ "watchRowMet": {
+  "message": "تغيّر: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "تغيّر: {0}، الآن {1} · {2}"
+ },
+ "watchStop": {
+  "message": "إيقاف المراقبة"
+ },
+ "watchStopped": {
+  "message": "توقفت المراقبة"
+ },
+ "watchLabelPrice": {
+  "message": "السعر"
+ },
+ "watchLabelStock": {
+  "message": "التوفر"
+ },
+ "watchLabelDate": {
+  "message": "التاريخ"
+ },
+ "watchLabelStatus": {
+  "message": "الحالة"
+ },
+ "watchLabelPage": {
+  "message": "الصفحة"
+ },
+ "watchInStock": {
+  "message": "متوفر"
+ },
+ "watchOutOfStock": {
+  "message": "غير متوفر"
+ },
+ "watchChanged": {
+  "message": "تغيّر: {0}"
+ },
+ "watchChangedBody": {
+  "message": "الآن: {0}"
+ },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "الخطط"
+ },
+ "plansCompare": {
+  "message": "قارن الخطط"
+ },
+ "plansMonthly": {
+  "message": "شهري"
+ },
+ "plansYearly": {
+  "message": "سنوي"
+ },
+ "plansSave": {
+  "message": "وفّر {0}%"
+ },
+ "plansCurrent": {
+  "message": "خطتك"
+ },
+ "plansChoose": {
+  "message": "اختر {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0} / شهر"
+ },
+ "plansPerYear": {
+  "message": "{0} / سنة"
+ },
+ "plansNote": {
+  "message": "الاشتراك يكون في تطبيق ContextFlow. الانتقال إلى Ultra يبدأ فورًا، وتعيد لك Apple قيمة ما تبقّى من خطتك الحالية."
+ },
+ "plansCurrency": {
+  "message": "الأسعار بعملة {0}، كما يعرضها App Store."
+ },
+ "tierByok1": {
+  "message": "إجابات بلا حدود بمفتاح API الخاص بك من OpenAI أو Claude"
+ },
+ "tierByok2": {
+  "message": "كل ما في الصفحة: ملخصات وشروح وترجمات"
+ },
+ "tierPro1": {
+  "message": "حتى {0} إجابة أسبوعيًا، دون حاجة إلى مفتاح API"
+ },
+ "tierPro2": {
+  "message": "الفيديوهات وملفات PDF، وبحث AI، و«اسأل محادثاتك»، والترتيب حسب الموضوع"
+ },
+ "tierPro3": {
+  "message": "مراقبة حتى {0} صفحة: انخفاض الأسعار والتغييرات"
+ },
+ "tierUltra0": {
+  "message": "كل ما في Pro، وأيضًا:"
+ },
+ "tierUltra1": {
+  "message": "الاستماع إلى الإجابات والصفحات كاملة بصوت طبيعي: {0} دقيقة أسبوعيًا"
+ },
+ "tierUltra2": {
+  "message": "البحث عن المشابه: بدائل لأي صفحة — أرخص أو أحدث أو متوفرة أو بلغتك — {0} عملية بحث أسبوعيًا"
+ },
+ "tierUltra3": {
+  "message": "مراقبة حتى {0} صفحة"
+ },
+ "listen": {
+  "message": "استماع"
+ },
+ "listenPage": {
+  "message": "الاستماع إلى هذه الصفحة"
+ },
+ "listenPause": {
+  "message": "إيقاف مؤقت"
+ },
+ "listenPlay": {
+  "message": "تشغيل"
+ },
+ "listenStop": {
+  "message": "إيقاف"
+ },
+ "listenClose": {
+  "message": "إيقاف وإغلاق"
+ },
+ "listenPlayingHere": {
+  "message": "قيد التشغيل الآن"
+ },
+ "listenVoiced": {
+  "message": "تمت قراءته من قبل: إعادة الاستماع مجانية"
+ },
+ "listenMadeLeft": {
+  "message": "تمت قراءته من قبل: يُخصم فقط الجزء الذي لم تستمع إليه، {0}"
+ },
+ "listenGoTo": {
+  "message": "الانتقال إلى مصدره"
+ },
+ "listenLoading": {
+  "message": "جارٍ تجهيز الصوت…"
+ },
+ "listenUltraTitle": {
+  "message": "الاستماع جزء من Ultra"
+ },
+ "listenUltraBody": {
+  "message": "تُقرأ لك الإجابات والصفحات كاملة بصوت طبيعي، بأكثر من 100 لغة. على iPhone يستمر التشغيل حتى مع قفل الشاشة."
+ },
+ "listenLimit": {
+  "message": "انتهت دقائق الاستماع لهذا الأسبوع ({0} دقيقة). تعود يوم {1}."
+ },
+ "listenFailed": {
+  "message": "تعذّرت القراءة بصوت عالٍ. حاول مرة أخرى بعد قليل."
+ },
+ "listenOffline": {
+  "message": "لا يوجد اتصال: يحتاج الاستماع إلى الإنترنت في المرة الأولى."
+ },
+ "listenInApp": {
+  "message": "يعمل «استماع» في تطبيق ContextFlow، لذا يستمر التشغيل حتى مع قفل الشاشة وفي سماعات الرأس."
+ },
+ "listenLeft": {
+  "message": "الاستماع: تبقّى {0} من {1} د هذا الأسبوع"
+ },
+ "watchFullPro": {
+  "message": "في Pro يمكنك مراقبة {0} صفحة في وقت واحد. يراقب Ultra حتى {1}."
+ },
+ "watchMoreUltra": {
+  "message": "المزيد مع Ultra"
+ },
+ "seeUltra": {
+  "message": "اطّلع على Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · تبقّى {0} من {1} إجابة هذا الأسبوع"
+ },
+ "actSimilar": {
+  "message": "ابحث عن مشابه"
+ },
+ "selSimilar": {
+  "message": "ابحث عن مشابه"
+ },
+ "uxSimilar": {
+  "message": "ابحث عن مشابه…"
+ },
+ "similarTitle": {
+  "message": "ابحث عن مشابه"
+ },
+ "similarConditions": {
+  "message": "الشروط"
+ },
+ "similarCheaper": {
+  "message": "أرخص"
+ },
+ "similarInStock": {
+  "message": "متوفر"
+ },
+ "similarNewer": {
+  "message": "أحدث"
+ },
+ "similarFree": {
+  "message": "مجاني"
+ },
+ "similarMyLanguage": {
+  "message": "بلغتي"
+ },
+ "similarShorter": {
+  "message": "أقصر"
+ },
+ "similarInLanguage": {
+  "message": "باللغة {0}"
+ },
+ "similarCustom": {
+  "message": "أو اكتب ما تحتاجه (اختياري)"
+ },
+ "similarHint": {
+  "message": "بدائل حقيقية موجودة الآن. نفتح كل رابط ونتحقق منه قبل أن نعرضه عليك."
+ },
+ "similarFind": {
+  "message": "ابحث"
+ },
+ "similarAsked": {
+  "message": "ابحث عن مشابه"
+ },
+ "similarAskedWith": {
+  "message": "ابحث عن مشابه: {0}"
+ },
+ "similarStockIn": {
+  "message": "متوفر"
+ },
+ "similarStockOut": {
+  "message": "غير متوفر"
+ },
+ "similarFromList": {
+  "message": "مذكور في مراجعة"
+ },
+ "similarNotConfirmed": {
+  "message": "غير مؤكد"
+ },
+ "similarNotOpened": {
+  "message": "تعذّر فتح الصفحة للتحقق"
+ },
+ "similarWatchPrice": {
+  "message": "راقب السعر"
+ },
+ "similarStepPlan": {
+  "message": "جارٍ قراءة الصفحة…"
+ },
+ "similarStepSearch": {
+  "message": "جارٍ البحث في الويب…"
+ },
+ "similarStepCheck": {
+  "message": "جارٍ التحقق من الصفحات…"
+ },
+ "similarStepCheckN": {
+  "message": "جارٍ التحقق من {0} صفحة…"
+ },
+ "similarStepWrite": {
+  "message": "جارٍ اختيار الأفضل…"
+ },
+ "similarNone": {
+  "message": "لا توجد بدائل متحقق منها لهذه الصفحة. جرّب شرطًا آخر أو بدون شرط."
+ },
+ "similarChecked": {
+  "message": "تم التحقق من الروابط في {0}"
+ },
+ "similarUpsellText": {
+  "message": "بدائل حقيقية لما تنظر إليه: منتج أو تطبيق أو مقال أو وصفة أو مكان."
+ },
+ "similarUpsellChecked": {
+  "message": "كل رابط مفتوح ومتحقق منه: لا صفحات معطلة أو مختلقة."
+ },
+ "similarUpsellConditions": {
+  "message": "أرخص، متوفر، أحدث، مجاني، بلغتك — أو بكلماتك."
+ },
+ "similarUpsellWatch": {
+  "message": "السعر والتوفر كما تعرضهما الصفحة، مع مراقبة السعر."
+ },
+ "similarGetUltra": {
+  "message": "احصل على Ultra"
+ },
+ "similarOff": {
+  "message": "ميزة «ابحث عن مشابه» غير متاحة بعد."
+ },
+ "similarLimit": {
+  "message": "استُخدمت عمليات «ابحث عن مشابه» لهذا الأسبوع ({0}). تعود يوم {1}."
+ },
+ "orgDemoQuestion": {
+  "message": "تذاكر رخيصة إلى لشبونة في مايو؟"
+ },
+ "orgDemoAnswer": {
+  "message": "في مايو تبدأ تذاكر الذهاب والعودة من برلين إلى لشبونة من نحو 90 يورو. الأفضل الحجز قبل ستة إلى ثمانية أسابيع."
+ },
+ "orgDemoTag": {
+  "message": "إجازة"
+ },
+ "orgDemoChat": {
+  "message": "رحلات"
+ },
+ "listenSpeed": {
+  "message": "السرعة: {0}. اضغط لاختيار سرعة أخرى"
+ },
+ "plansYearlySave": {
+  "message": "سنوي · وفّر حتى {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} شهريًا، يُدفع سنويًا"
+ },
+ "plansSaveMoney": {
+  "message": "توفّر {0} في السنة"
+ },
+ "yearlyNudge": {
+  "message": "{0} السنوي: توفّر {1} ({2}%) في السنة."
+ },
+ "yearlyNudgeButton": {
+  "message": "التبديل إلى السنوي"
+ },
+ "yearlyNudgeNote": {
+  "message": "يبدأ الاشتراك السنوي عند انتهاء شهرك الحالي."
+ },
+ "yearlyNudgeHide": {
+  "message": "إخفاء"
+ },
+ "galleryTitle": {
+  "message": "ما تحصل عليه"
+ },
+ "galleryNext": {
+  "message": "التالي"
+ },
+ "galleryPrevious": {
+  "message": "السابق"
+ },
+ "gMediaTitle": {
+  "message": "الفيديوهات وملفات PDF"
+ },
+ "gMediaLine": {
+  "message": "تعتمد الإجابات على نص الفيديو المكتوب وعلى صفحات ملف PDF."
+ },
+ "gMediaVideo": {
+  "message": "نص الفيديو · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "تقرير الربع الثالث · 3 صفحات"
+ },
+ "gMediaAnswer": {
+  "message": "نمت الإيرادات بنسبة 12% في الربع الثالث. وفي الفيديو يُرجع الرئيس التنفيذي ذلك إلى خطط الاشتراك الجديدة."
+ },
+ "gSearchTitle": {
+  "message": "بحث AI و«اسأل محادثاتك»"
+ },
+ "gSearchLine": {
+  "message": "اعثر على محادثة بوصفها، أو اطرح سؤالًا على كل محادثاتك."
+ },
+ "gSearchQuery": {
+  "message": "المقال عن النوم والقهوة"
+ },
+ "gSearchResult": {
+  "message": "الكافيين والنوم"
+ },
+ "gSearchSnippet": {
+  "message": "القهوة بعد الثانية ظهرًا قلّلت النوم العميق بمقدار الخُمس…"
+ },
+ "gSearchWhen": {
+  "message": "الأسبوع الماضي"
+ },
+ "gTemplatesTitle": {
+  "message": "قوالب بلا حدود"
+ },
+ "gTemplatesLine": {
+  "message": "طلباتك وردودك الخاصة، مع أسماء وتواريخ تُملأ من الصفحة."
+ },
+ "gTemplatesName": {
+  "message": "متابعة بعد مكالمة"
+ },
+ "gTemplatesBody": {
+  "message": "مرحبًا {0}، شكرًا على مكالمة يوم {1}. كما وعدتُ، إليك الخطوات التالية."
+ },
+ "gTemplatesPerson": {
+  "message": "سارة"
+ },
+ "gTemplatesDay": {
+  "message": "الثلاثاء"
+ },
+ "gWatchTitle": {
+  "message": "مراقبة {0} صفحة"
+ },
+ "gWatchLine": {
+  "message": "اعرف متى ينخفض سعر أو تتغيّر صفحة."
+ },
+ "gWatchChanged": {
+  "message": "تغيّر: السعر"
+ },
+ "gWatchNow": {
+  "message": "الآن: {0} (سابقًا {1})"
+ },
+ "gWatchManyLine": {
+  "message": "الأسعار والتوفر والتغييرات في ما يصل إلى {0} صفحة معًا."
+ },
+ "gWatchItem1": {
+  "message": "سماعات رأس"
+ },
+ "gWatchItem2": {
+  "message": "رحلة إلى لشبونة"
+ },
+ "gWatchMore": {
+  "message": "و{0} صفحة أخرى"
+ },
+ "gAnswersTitle": {
+  "message": "حتى {0} إجابة أسبوعيًا"
+ },
+ "gAnswersLine": {
+  "message": "إجابات أعمق وأكثر تفصيلًا، بدلًا من {0} في اليوم."
+ },
+ "gAnswersWeek": {
+  "message": "في الأسبوع"
+ },
+ "gAnswersFree": {
+  "message": "مجاني: {0} في اليوم"
+ },
+ "gListenTitle": {
+  "message": "استماع"
+ },
+ "gListenLine": {
+  "message": "تُقرأ لك الإجابات والصفحات كاملة بصوت طبيعي، بالسرعة التي تناسبك."
+ },
+ "gListenSample": {
+  "message": "كيف توفّر القطارات الكهربائية الطاقة"
+ },
+ "gSimilarTitle": {
+  "message": "ابحث عن مشابه"
+ },
+ "gSimilarLine": {
+  "message": "بدائل لأي صفحة: أرخص أو أحدث أو متوفرة أو بلغتك."
+ },
+ "gSimilar1": {
+  "message": "كرسي مكتب شبكي"
+ },
+ "gSimilar2": {
+  "message": "الكرسي نفسه، طراز 2026"
+ },
+ "gSimilar3": {
+  "message": "كرسي بمسند للرأس"
+ },
+ "gSimilarInStock": {
+  "message": "متوفر"
+ },
+ "gSimilarNewer": {
+  "message": "أحدث"
+ },
+ "gSimilarCheaper": {
+  "message": "أرخص"
+ },
+ "listenMinLeft": {
+  "message": "تبقّى {0} د"
+ },
+ "listenMinLeftTitle": {
+  "message": "تبقّى {0} د من الاستماع هذا الأسبوع"
+ },
+ "listenLow": {
+  "message": "تبقّى نحو {0} د من الاستماع هذا الأسبوع، وهذا النص يستغرق نحو {1} د. يتوقف التشغيل عند نفاد الدقائق."
+ },
+ "listenAnyway": {
+  "message": "استمع على أي حال"
+ },
+ "listenAway": {
+  "message": "تابِع الاستماع في ContextFlow — من {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "فعّل الإشعارات لتواصل الاستماع عند مغادرة Safari أو قفل الشاشة. وإلا فسيفتح «استماع» التطبيق."
+ },
+ "listenNotifyOn": {
+  "message": "تفعيل الإشعارات"
+ },
+ "listenNotifyLater": {
+  "message": "ليس الآن"
+ },
+ "listenTaken": {
+  "message": "يُشغَّل في تطبيق ContextFlow."
+ },
+ "listenSeek": {
+  "message": "الموضع في التسجيل"
+ },
+ "plansUpgrade": {
+  "message": "الترقية إلى {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "الترقية إلى الاشتراك السنوي"
+ },
+ "similarPayFree": {
+  "message": "مجاني، بلا مشتريات داخل التطبيق"
+ },
+ "similarPayFreeStart": {
+  "message": "مجاني"
+ },
+ "similarPaySub": {
+  "message": "اشتراك من {0}"
+ },
+ "similarPayOnce": {
+  "message": "شراء لمرة واحدة {0}"
+ },
+ "similarPayIap": {
+  "message": "مشتريات داخل التطبيق من {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/أسبوع"
+ },
+ "similarPerMonth": {
+  "message": "{0}/شهر"
+ },
+ "similarPerYear": {
+  "message": "{0}/سنة"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro يتذكر المحادثة كاملة"
+ },
+ "offerMemoryBody": {
+  "message": "الإجابة المجانية تتذكر آخر {0} إجابات وملاحظات في المحادثة. مع Pro يتذكر الذكاء الاصطناعي المحادثة كاملة: كل رسالة، وملاحظاتك، والصفحات التي سألت عنها."
+ },
+ "offerMemoryLong": {
+  "message": "في هذه المحادثة أكثر من {0} إجابات وملاحظات تتذكرها الإجابة المجانية. مع Pro يتذكر الذكاء الاصطناعي المحادثة كاملة: كل رسالة، وملاحظاتك، والصفحات التي سألت عنها."
+ },
+ "offerRetryAt": {
+  "message": "تعود الإجابات في {0}."
+ },
+ "similarWhere": {
+  "message": "أين أبحث"
+ },
+ "similarWorld": {
+  "message": "حول العالم"
+ },
+ "similarLocal": {
+  "message": "بالقرب مني"
+ },
+ "similarLocalIn": {
+  "message": "بالقرب · {0}"
+ },
+ "similarWhereHint": {
+  "message": "اختر أولًا أين تبحث."
+ },
+ "similarLess": {
+  "message": "أقل تشابهًا"
+ },
+ "similarPercent": {
+  "message": "متشابه بنسبة {0}٪"
+ },
+ "similarDiffers": {
+  "message": "الاختلاف: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "غير متوفر في App Store بلدك"
+ },
+ "similarShipListed": {
+  "message": "صفحة الشحن تذكر: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "لم يُذكر إن كان الشحن إلى {0} متاحًا"
+ },
+ "similarRatings": {
+  "message": "{0} تقييم"
+ },
+ "similarReviewersSay": {
+  "message": "المراجعات: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "اكتمل البحث عن المشابه"
+ },
+ "similarNotifyFound": {
+  "message": "الخيارات التي وُجدت: {0}. اضغط لعرضها."
+ },
+ "similarNotifyNone": {
+  "message": "لا شيء مناسب. اضغط لتغيير الشرط."
+ },
+ "similarNotifyFailed": {
+  "message": "لم يكتمل البحث. اضغط لإعادة المحاولة."
+ },
+ "similarSay": {
+  "message": "ماذا يقولون:"
+ },
+ "similarPros": {
+  "message": "يمدحون {0}"
+ },
+ "similarCons": {
+  "message": "ينتقدون {0}"
+ },
+ "similarEstimated": {
+  "message": "تقدير من الوصف"
+ },
+ "similarSame": {
+  "message": "المنتج نفسه، متجر آخر"
+ },
+ "similarMisses": {
+  "message": "لا يطابق اختيارك"
+ },
+ "tip_4cf1b54b00": {
+  "message": "تلميحات"
+ },
+ "tip_245f060c21": {
+  "message": "إجابات سريعة عن «كيف أفعل…؟»"
+ },
+ "tip_89895fd68f": {
+  "message": "على كل أجهزتك"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "عند تشغيل «مزامنة المحادثات مع iCloud»، تتواصل المحادثة التي بدأتها على iPhone على iPad وMac. وهي مشفّرة من طرف إلى طرف في iCloud الخاص بك."
+ },
+ "tip_90e40d5043": {
+  "message": "للبدء"
+ },
+ "tip_ad4199fa48": {
+  "message": "افتحه في أي صفحة"
+ },
+ "tip_79a4dbe893": {
+  "message": "اضغط على ✦ في الصفحة، أو افتح قائمة الصفحة في شريط العناوين واختر ContextFlow."
+ },
+ "tip_4acd9995ac": {
+  "message": "انقر على ✦ في الصفحة أو على أيقونة ContextFlow في شريط الأدوات، أو اضغط Control-Shift-E."
+ },
+ "tip_af26b6788c": {
+  "message": "أبعد ✦ عن طريقك"
+ },
+ "tip_6d2694aec4": {
+  "message": "هل يغطي ✦ ما تقرؤه؟ اسحبه لأعلى أو لأسفل على طول الحافة، أو إلى الجانب الآخر: يبقى حيث تتركه."
+ },
+ "tip_2749afe54a": {
+  "message": "الخلاصة بضغطة واحدة"
+ },
+ "tip_487a14e710": {
+  "message": "«تلخيص» و«أهم النقاط» و«اشرح ببساطة» و«ترجمة» تعمل على الصفحة كلها، دون حاجة إلى كتابة طلب."
+ },
+ "tip_d22c90dac1": {
+  "message": "اسأل عن جزء"
+ },
+ "tip_328a1070b8": {
+  "message": "حدد نصًا في الصفحة واختر «اسأل AI»: تكون الإجابة عن هذا الجزء فقط. ويمكنه أيضًا شرحه أو ترجمته أو إعادة كتابته."
+ },
+ "tip_ca7dfa36cb": {
+  "message": "اسأل عن التحديد أو دوّنه"
+ },
+ "tip_fa1cdf5479": {
+  "message": "حدد نصًا في صفحة: اكتب سؤالك عنه مباشرةً أسفل التحديد، أو اضغط على «ملاحظة» لحفظه في المحادثة مع صفحته. الملاحظات لا تستهلك أي إجابة."
+ },
+ "tip_2f27bc2271": {
+  "message": "إجراءات سريعة تحت التحديد"
+ },
+ "tip_b4d2d0edad": {
+  "message": "حدد نصًا في صفحة: «تلخيص» و«ترجمة» و«ابحث عن مشابه» وغيرها تنتظرك في حقل «سؤالك…» أسفله. اسحب بينها واضغط على واحد منها، دون كتابة أي شيء."
+ },
+ "tip_2105cc684e": {
+  "message": "حدد نصًا في صفحة: «تلخيص» و«ترجمة» و«ابحث عن مشابه» وغيرها تنتظرك في حقل «سؤالك…» أسفله. مرّر بينها بلوحة التتبع أو بعجلة الفأرة وانقر على واحد منها، دون كتابة أي شيء."
+ },
+ "tip_9000896590": {
+  "message": "محادثة ترافقك"
+ },
+ "tip_c76058fe4b": {
+  "message": "واصل السؤال وأنت تنتقل من صفحة إلى أخرى. يتذكر ContextFlow المحادثة والصفحة التي كان عنها كل سؤال. اضغط على اسم صفحة في المحادثة للعودة إليها."
+ },
+ "tip_e5dff10006": {
+  "message": "معلومات حديثة من Google"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "شغّل Google بجانب حقل السؤال لتأتي الإجابة من بحث Google: الأخبار والأسعار وكل ما هو حديث، مع المصادر."
+ },
+ "tip_da5f7b74b1": {
+  "message": "للتعمق أكثر"
+ },
+ "tip_6ba198cbff": {
+  "message": "ملاحظاتك الخاصة"
+ },
+ "tip_6a92f6c633": {
+  "message": "اسحب زر الإرسال لأعلى أو لأسفل (على Mac، مرّر عليه) لتكتب ملاحظة بدل أن تسأل. تبقى في المحادثة مع صفحتها، وتُزامَن معها، ولا تستهلك أي إجابة."
+ },
+ "tip_654fb12e51": {
+  "message": "ميّز ما يهم"
+ },
+ "tip_33115b31e1": {
+  "message": "حدد سطرًا في إجابة واضغط على «تمييز»: يبقى معلّمًا، كأنه بقلم تمييز. تأخذ الإجابات اللاحقة في هذه المحادثة ما ميّزته في الحسبان، و«نسخ» يحتفظ به بخط عريض."
+ },
+ "tip_b4e4a2a85e": {
+  "message": "مثبّت في الأعلى"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "ثبّت إجابة أو ملاحظة، وستنتظرك في الشريط أعلى المحادثة. اضغط على الشريط للانتقال إليها، واضغط مجددًا للتالية."
+ },
+ "tip_b7be002204": {
+  "message": "اسحب للتثبيت أو الحذف"
+ },
+ "tip_104ac1e6e8": {
+  "message": "اسحب إجابة أو ملاحظة إلى اليمين لتثبيتها، وإلى اليسار لحذفها. غيّرت رأيك؟ «تراجع» يعيدها."
+ },
+ "tip_c047d28229": {
+  "message": "التثبيت أو الحذف بنقرة"
+ },
+ "tip_dcfe357b68": {
+  "message": "مرّر المؤشر فوق إجابة أو ملاحظة: تظهر بجانبها «تثبيت» و«ذكّرني» و«حذف»، والنقر بزر الماوس الأيمن يفتح القائمة نفسها. غيّرت رأيك؟ «تراجع» يعيدها."
+ },
+ "tip_e012ef5f59": {
+  "message": "المحادثة كلها في الحسبان"
+ },
+ "tip_3a70cee32e": {
+  "message": "شغّل «المحادثة كاملة» أسفل حقل السؤال حين تحتاج الإجابة إلى كل شيء: كل الرسائل وملاحظاتك والصفحات الأخرى في هذه المحادثة. عند إيقافه، تعتمد الإجابات على آخر الرسائل والصفحة المفتوحة."
+ },
+ "tip_ca29a1f4ed": {
+  "message": "اسأل عن فيديو"
+ },
+ "tip_d6be4709b7": {
+  "message": "مع Pro، يقرأ ContextFlow نص الفيديو الموجود في الصفحة: اطلب الخلاصة، أو ما قيل عن أمر ما، وستشير الإجابة إلى اللحظة، مثل [4:15]. الإجابات المجانية تعتمد على نص الصفحة."
+ },
+ "tip_5c5bca8a9e": {
+  "message": "ملفات PDF في الصفحة"
+ },
+ "tip_ff32d2c483": {
+  "message": "مع Pro، ترافق سؤالك ملفات PDF المعروضة في الصفحة أو المرتبطة بها، وتذكر الإجابات الصفحة التي وردت فيها. على iPad وMac، يُفتح ContextFlow من شريط الأدوات في علامة تبويب PDF أيضًا. الإجابات المجانية تعتمد على نص الصفحة."
+ },
+ "tip_de4adc7524": {
+  "message": "ابحث عن مشابه"
+ },
+ "tip_b2248495b1": {
+  "message": "اضغط على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، واضغط على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
+ },
+ "tip_31666a3aab": {
+  "message": "انقر على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، وانقر على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
+ },
+ "tip_c518fb0674": {
+  "message": "استماع"
+ },
+ "tip_f26f3d2993": {
+  "message": "اضغط على «استماع» أسفل إجابة، أو اختر «الاستماع إلى هذه الصفحة» من قائمة … أعلى اللوحة. يقرؤها تطبيق ContextFlow بصوت طبيعي، ويستمر التشغيل حتى مع قفل الشاشة. اضغط على السرعة في المشغّل لتختار 1× أو 1.2× أو 1.5× أو 2×."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "انقر على «استماع» أسفل إجابة، أو اختر «الاستماع إلى هذه الصفحة» من قائمة … أعلى اللوحة. يقرؤها صوت طبيعي داخل اللوحة مباشرةً. انقر على السرعة في المشغّل لتختار 1× أو 1.2× أو 1.5× أو 2×."
+ },
+ "tip_328ee8ddce": {
+  "message": "الإدراج السريع"
+ },
+ "tip_ff7c853b85": {
+  "message": "إدراج في أي حقل"
+ },
+ "tip_038e87000b": {
+  "message": "اضغط على حقل نص في صفحة، ثم على زر ContextFlow بجانبه: ما نسخته في علامات التبويب الأخرى وقوالبك وآخر إجابة من ContextFlow على بُعد ضغطة واحدة. مع لوحة مفاتيح، اكتب / وبضع كلمات من قالب، ثم اضغط Tab."
+ },
+ "tip_a8e1d14e5b": {
+  "message": "في أي حقل في صفحة، اكتب / وبضع كلمات من قالب، ثم اضغط Tab. يفتح Control-Shift-V القائمة كاملة: ما نسخته في علامات التبويب الأخرى وقوالبك وآخر إجابة من ContextFlow."
+ },
+ "tip_451fa9ccb6": {
+  "message": "المنسوخ، محفوظ ليوم واحد"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "آخر 5 أشياء نسختها من صفحات في Safari تنتظرك في القائمة لمدة 24 ساعة، على هذا الجهاز فقط. لا شيء من حقول كلمات السر أو البطاقات، ولا من التصفح الخاص."
+ },
+ "tip_cf63db6cc6": {
+  "message": "قوالب تملأ نفسها"
+ },
+ "tip_6dd86048c4": {
+  "message": "حدد ردًا ترسله كثيرًا واضغط على «قالب»: يعلّم ContextFlow الاسم والتاريخ وأي شيء آخر يتغير. وعند إدراجه، يضعها زر «التعبئة من الصفحة» في مكانها، مميَّزة لتتحقق منها."
+ },
+ "tip_f09b3558e2": {
+  "message": "المراقبة والتذكير"
+ },
+ "tip_d0d8d1355c": {
+  "message": "ذكّرني بهذه الصفحة"
+ },
+ "tip_b5d4d7711a": {
+  "message": "تقرأ شيئًا وتريد إكماله لاحقًا؟ حدد سطرًا واضغط على الجرس، أو اضغط على … أعلى اللوحة، ثم «ذكّرني بهذه الصفحة…»، واختر وقتًا: سيفتح التذكير هذه الصفحة. وفي قائمة … للإجابات والملاحظات خيار «ذكّرني»."
+ },
+ "tip_74c328b672": {
+  "message": "اعرف متى ينخفض السعر"
+ },
+ "tip_45c2496345": {
+  "message": "حدد سعرًا أو حالة توفّر أو تاريخًا في صفحة واضغط على العين. للصفحة كلها، اختر «مراقبة هذه الصفحة…» من قائمة … أعلى اللوحة. يتحقق ContextFlow من الصفحة أثناء استخدامك Safari ويخبرك عندما تتغير، أو حين ينخفض السعر عن الحد الذي تحدده. حتى 5 في الوقت نفسه، و20 مع Pro."
+ },
+ "tip_0daede04f6": {
+  "message": "محادثات مرتّبة"
+ },
+ "tip_ec2cf96f53": {
+  "message": "ابدأ من جديد أو عُد"
+ },
+ "tip_623811ea30": {
+  "message": "ابدأ محادثة جديدة بالزر +. المحادثات السابقة تنتظرك في قائمة المحادثات: افتح إحداها لتكمل من حيث توقفت، أو أعد تسميتها بالقلم، أو احذفها."
+ },
+ "tip_c4b432e2e9": {
+  "message": "ابحث في محادثاتك"
+ },
+ "tip_eff80bffda": {
+  "message": "اكتب في حقل البحث أعلى قائمة المحادثات: تظهر كل محادثة فيها هذه الكلمات، مع موضعها. النتيجة تفتح المحادثة في ذلك الموضع."
+ },
+ "tip_2e4668f650": {
+  "message": "الوسوم والمجلدات"
+ },
+ "tip_6b5bdf707f": {
+  "message": "ضع وسمًا على محادثة أو إجابة أو ملاحظة بالزر 🏷. اضغط على وسم لترى محادثاته فقط، أو شغّل «المجلدات» لتجميع القائمة حسب الوسم."
+ },
+ "tip_752fb307f2": {
+  "message": "شارك ما وجدته"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "شارك إجابة واحدة أو المحادثة كاملة: يصل النص مع روابطه ومصادره ورابط إلى ContextFlow."
+ },
+ "tip_76f2924bba": {
+  "message": "محادثاتك في التطبيق"
+ },
+ "tip_969cf52d0b": {
+  "message": "في علامة تبويب «المحادثات» كل محادثة من Safari. اسأل عن صفحاتها أو أضف ملاحظة هناك مباشرةً، وضع وسمًا على أي إجابة أو انسخها أو شاركها، أو شارك المحادثة كاملة. «المتابعة في Safari» تكملها من حيث توقفت."
+ },
+ "tip_4721064b09": {
+  "message": "بحث AI"
+ },
+ "tip_e4964f1718": {
+  "message": "صِف المحادثة التي تتذكرها — «ذلك المقال عن النوم والقهوة» — حتى دون الكلمات الدقيقة. في التطبيق، اختر «بالمعنى» تحت البحث؛ وفي Safari، اضغط على ✦ بجانبه."
+ },
+ "tip_068fa58797": {
+  "message": "اسأل محادثاتك"
+ },
+ "tip_8a40be768f": {
+  "message": "الصف الأول في قائمة المحادثات يجيب من كل محادثاتك معًا: «ماذا قرأت هذا الأسبوع؟»، «لخّص ملاحظاتي عن AI»."
+ },
+ "tip_4257aee15a": {
+  "message": "كل شيء في مكانه"
+ },
+ "tip_c61e2edab3": {
+  "message": "سألت عن سيارة في محادثة عن أريكة؟ أسفل الإجابة، يقترح ContextFlow المحادثة التي تنتمي إليها، أو محادثة جديدة. بضغطة واحدة تنتقل إليها، حسب تاريخها؛ و«تراجع» يعيدها إلى مكانها."
+ },
+ "tip_3f9f46cd12": {
+  "message": "وسومك، مقترحة"
+ },
+ "tip_69a0bac728": {
+  "message": "يتعلم ContextFlow معنى وسومك من المواضع التي تضعها فيها، ويقترح الوسم المناسب أسفل إجابة أو ملاحظة جديدة. وسومك أنت فقط، وفقط حين تناسب."
+ },
+ "tip_b96ddaab20": {
+  "message": "خطتك"
+ },
+ "tip_b3282f43dd": {
+  "message": "شهريًا أو سنويًا"
+ },
+ "tip_12e62d9862": {
+  "message": "يتوفر Pro وUltra باشتراك شهري أو سنوي، والسنة أرخص من اثني عشر شهرًا. اضغط على «سنوي» فوق الخطط، في التطبيق أو في Safari، لترى كل سعر وكم توفّر. تدفع شهريًا بالفعل؟ «التبديل إلى السنوي» موجود في «الإعدادات» ← «خطتك»: يبدأ عند انتهاء شهرك الحالي."
+ },
+ "tip_9288a85bb9": {
+  "message": "ما تضيفه خطتك"
+ },
+ "tip_0f2289f887": {
+  "message": "بعد شراء Pro أو Ultra، يعرض لك ContextFlow خطوة بخطوة ما تضيفه خطتك. لتراه مجددًا، اضغط على … أعلى اللوحة، ثم «أخرى…» و«ما يتضمنه Pro» أو «ما يتضمنه Ultra». في التطبيق، تجده في «الإعدادات» ضمن «خطتك»."
+ },
+ "tip_3208aa35ac": {
+  "message": "الخصوصية والتخصيص"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "عرّفه بنفسك"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "أضف سطرًا في «نبذة عني» — ماذا تعمل وكيف تحب الإجابات — وسيكيّف ContextFlow إجاباته لك."
+ },
+ "tip_1e9a1535cb": {
+  "message": "أخفِ ✦ حين لا تحتاج إليه"
+ },
+ "tip_6cc366173d": {
+  "message": "لا تحتاج إلى ✦ في موقع ما؟ أخفِه في ذلك الموقع، أو أوقفه في كل مكان من إعدادات الامتداد. ويظل ContextFlow يُفتح من قائمة الامتدادات في Safari."
+ },
+ "tip_8a727e1bbe": {
+  "message": "استخدم مفتاح API الخاص بك"
+ },
+ "tip_d84a0778d4": {
+  "message": "مع Pro أو خطة «مفتاحك الخاص»، الصق مفتاح OpenAI أو Claude في إعدادات الامتداد داخل Safari. عندها تذهب الطلبات مباشرةً إلى ذلك المزوّد."
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "الخصوصية من الأساس"
+ },
+ "tip_241d3ad076": {
+  "message": "لا يقرأ ContextFlow الصفحة إلا عندما تسأل، ويرسل نصها فقط للحصول على الإجابة. تبقى محادثاتك على أجهزتك وفي iCloud الخاص بك. عند تشغيل الاقتراحات، يُرسَل نص الرسائل الجديدة أيضًا إلى خادمنا لمعرفة مكانها؛ ولا نحتفظ به."
+ },
+ "tip_clips": {
+  "message": "ar"
+ }
+}

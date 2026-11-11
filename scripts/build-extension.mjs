@@ -9,7 +9,7 @@
 //   CF_OPEN_SHADOW=1       the panel's shadow root left open for Playwright checks (test builds only)
 //
 // Output layout (stable file names, so the Xcode project never needs edits):
-//   manifest.json  welcome.html  popup.html  dist/*.js  dist/clips/<en|ru>/*  icons/*.png  _locales/<lang>/messages.json
+//   manifest.json  welcome.html  popup.html  dist/*.js  dist/clip.html  icons/*.png  _locales/<lang>/messages.json
 
 import { context, build } from "esbuild"
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
@@ -52,8 +52,9 @@ function manifest() {
     content_scripts: [
       { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false }
     ],
-    // The Tips clips (2.5 (81)): the panel's <video> lives in the page, so the page must be able to load them.
-    web_accessible_resources: [{ resources: ["dist/clips/en/*", "dist/clips/ru/*"], matches: ["http://*/*", "https://*/*"] }],
+    // The Tips clips' page (2.6 (91)): the panel shows the app's clips in a frame of it, so pages must be able to.
+    // Under dist/ (a folder the Xcode project copies whole; files at the root are listed one by one there).
+    web_accessible_resources: [{ resources: ["dist/clip.html"], matches: ["http://*/*", "https://*/*"] }],
     commands: {
       _execute_action: { suggested_key: { default: "Ctrl+Shift+E", mac: "MacCtrl+Shift+E" }, description: "__MSG_actionTitle__" },
       // Quick insert at the caret: ⌃⇧V in Safari on Mac and iPad (Ctrl+Space is the system's on iPad).
@@ -64,6 +65,12 @@ function manifest() {
   if (target === "safari") m.browser_specific_settings = { safari: { strict_min_version: "16.4" } }
   return m
 }
+
+// Chinese by region (2.6): Traditional for Taiwan, Hong Kong and Macao, Simplified for China and Singapore. The
+// browser picks a _locales folder by the device's language and region, so the regions without a folder of their own
+// get a copy of their script's: zh_TW (Traditional) is also zh_HK and zh_MO, zh_CN (Simplified) is also zh_SG.
+// Chrome skips folders it doesn't know (it maps those regions itself).
+const LOCALE_COPIES = { zh_HK: "zh_TW", zh_MO: "zh_TW", zh_SG: "zh_CN" }
 
 // _locales/<lang>/messages.json from src/locales/<lang>.json, plus the Tips texts (tip_…) from the app's catalog.
 // {0}, {1} stay as they are: t() fills them in itself (Safari's own substitution loses the value next to some
@@ -78,24 +85,24 @@ function locales() {
       // "$" starts a placeholder in messages.json; written as "$$" it is a dollar sign.
       messages[key] = { message: String(text).replace(/\$/g, "$$$$") }
     }
-    mkdirSync(join(out, "_locales", lang), { recursive: true })
-    writeFileSync(join(out, "_locales", lang, "messages.json"), JSON.stringify(messages, null, 1) + "\n")
+    for (const folder of [lang, ...Object.keys(LOCALE_COPIES).filter((copy) => LOCALE_COPIES[copy] === lang)]) {
+      mkdirSync(join(out, "_locales", folder), { recursive: true })
+      writeFileSync(join(out, "_locales", folder, "messages.json"), JSON.stringify(messages, null, 1) + "\n")
+    }
   }
 }
 
-// The Tips sheet's clips (2.5 (81), the owner: "why aren't the videos in the extension?"): the web versions, one file
-// each, never in the scripts, read from the device (no network). English: the site's (site/clips); Russian:
-// extension/clips/ru (the app's Russian clips, made the same way). Under dist/, a folder the Xcode project already
-// copies whole.
+// The Tips clips (2.6 (91), the owner: «подтянуть их из приложения в расширение на том же девайсе»): none in the
+// extension. The app shares its own (TipClips/<language>) through the App Group and the panel plays them from there
+// (TipClipShare.swift, src/background/tipClips.ts, src/pages/clip.ts). The build only checks that every language the
+// app has clips in (English always) has every clip a Tips card names, so no card waits on a clip that doesn't exist.
 function clips() {
-  const sources = { en: join(root, "site/clips"), ru: join(root, "extension/clips/ru") }
-  for (const [lang, dir] of Object.entries(sources)) {
-    mkdirSync(join(out, "dist/clips", lang), { recursive: true })
-    // The clips only: a still frame comes from the clip itself (#t=3.5), so the posters stay the site's.
+  const app = join(root, "ContextFlow/Shared (App)/TipClips")
+  const langs = readdirSync(app, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+  if (!langs.includes("en")) throw new Error("tips: the app's TipClips has no en folder")
+  for (const lang of langs) {
     for (const name of tipClips(tips)) {
-      const from = join(dir, `${name}.mp4`)
-      if (!existsSync(from)) throw new Error(`tips: no ${lang} clip ${name}.mp4 in ${dir}`)
-      cpSync(from, join(out, "dist/clips", lang, `${name}.mp4`))
+      if (!existsSync(join(app, lang, `${name}.mp4`))) throw new Error(`tips: no ${lang} clip ${name}.mp4 in the app's TipClips`)
     }
   }
 }
@@ -105,6 +112,8 @@ function statics() {
   cpSync(join(root, "src/pages/welcome.html"), join(out, "welcome.html"))
   cpSync(join(root, "src/pages/popup.html"), join(out, "popup.html"))
   cpSync(join(root, "extension/icons"), join(out, "icons"), { recursive: true })
+  mkdirSync(join(out, "dist"), { recursive: true })
+  cpSync(join(root, "src/pages/clip.html"), join(out, "dist/clip.html"))
   locales()
   clips()
 }
@@ -115,13 +124,15 @@ const options = {
     background: "src/background/index.ts",
     content: "src/content/index.tsx",
     popup: "src/popup/index.tsx",
-    welcome: "src/pages/welcome.ts"
+    welcome: "src/pages/welcome.ts",
+    clip: "src/pages/clip.ts"
   },
   outdir: join(out, "dist"),
   bundle: true,
   format: "iife",
   target: ["safari16", "chrome110"],
-  minify: !args.watch,
+  // CF_MINIFY=0: readable bundles for profiling test builds (function names in stacks); release builds are minified.
+  minify: !args.watch && process.env.CF_MINIFY !== "0",
   sourcemap: args.watch ? "inline" : false,
   legalComments: "none",
   jsx: "automatic",

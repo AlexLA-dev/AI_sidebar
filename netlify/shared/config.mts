@@ -2,6 +2,7 @@
 // (Project configuration → Environment variables) without a code change.
 
 import { organizeConfig } from "../../src/shared/organize.ts"
+import { PLAN_PRODUCTS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
 
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
@@ -82,9 +83,53 @@ export const config = {
   entitlementLeewayMs: int("ENTITLEMENT_LEEWAY_HOURS", 48) * 3600_000,
 
   freeDailyLimit: int("FREE_DAILY_LIMIT", 5),
+  // Answers in the guided first request that don't count against the free ones, per install, ever (2.6, tour.mts).
+  tourFreeAnswers: int("TOUR_FREE_ANSWERS", 3),
   freeIpDailyLimit: int("FREE_IP_DAILY_LIMIT", 40),
   freeGlobalDailyLimit: int("FREE_GLOBAL_DAILY_LIMIT", 3000),
   proWeeklyLimit: int("PRO_WEEKLY_LIMIT", 375),
+  // Ultra (2.6): everything in Pro (its answers, the same weekly allowance unless set apart) and read aloud,
+  // find similar and more watched pages. Read aloud counts seconds of audio, find similar counts searches, a week
+  // per subscription (Monday, UTC); the global caps only stop runaway spend (nobody sees them).
+  ultra: {
+    weeklyLimit: int("ULTRA_WEEKLY_LIMIT", int("PRO_WEEKLY_LIMIT", 375)),
+    speakWeeklySeconds: int("ULTRA_SPEAK_WEEKLY_SECONDS", ULTRA_DEFAULTS.speakWeeklySeconds),
+    // Room over the week's minutes for a text that's already playing (its later parts), so it never ends in another voice.
+    speakFinishSeconds: int("ULTRA_SPEAK_FINISH_SECONDS", 300),
+    speakGlobalDailySeconds: int("SPEAK_GLOBAL_DAILY_SECONDS", 200_000),
+    // Audio made a week per subscription, as a share of the allowance (build 92: the allowance counts what's heard;
+    // parts made ahead, never heard, repeats and hand-offs are ours, up to this).
+    speakMadePercent: int("ULTRA_SPEAK_MADE_PERCENT", 150),
+    // Find similar's daily safety caps (per install, for everyone) belong to its engine (config.similar, /api/v2/similar).
+    similarWeekly: int("ULTRA_SIMILAR_WEEKLY", ULTRA_DEFAULTS.similarWeekly)
+  },
+  // Read aloud (2.6, Ultra): Gemini TTS through our server with GEMINI_API_KEY, streamed as headerless PCM.
+  // "auto" picks the newest stable model of the kind from the model list (like GEMINI_MODEL); Flash-Lite speaks
+  // ~100 languages, the full Flash TTS the rest (TTS_FULL_LANGS, ISO 639-1/-3 codes Flash-Lite lacks).
+  speak: {
+    liteModel: (env("TTS_MODEL") ?? "auto").trim(),
+    fullModel: (env("TTS_FULL_MODEL") ?? "auto").trim(),
+    liteFallback: (env("TTS_FALLBACK_MODELS") ?? "gemini-3.8-flash-lite-tts,gemini-3.1-flash-tts-preview").split(",").map((m) => m.trim()).filter(Boolean),
+    fullFallback: (env("TTS_FULL_FALLBACK_MODELS") ?? "gemini-3.8-flash-tts,gemini-3.1-flash-tts-preview").split(",").map((m) => m.trim()).filter(Boolean),
+    fullLangs: (env("TTS_FULL_LANGS") ?? "ba,bem,bjn,crh,dyu,dz,fi,gn,ig,kab,lb,lt,ltg,min,my,oc,pag,sd,sl,so,ss,st,sv,sw,tg,th,ti,als,ug").split(",").map((l) => l.trim().toLowerCase()).filter(Boolean),
+    voice: (env("TTS_VOICE") ?? "Kore").trim(),
+    // Characters per request: the client sends a long text in parts (a first short one, for a quick start).
+    maxChars: int("TTS_MAX_CHARS", 3000),
+    // USD per million tokens, for the spend in the logs. Google doubles them from 2027-01-01 (see TTS_PRICES_2027).
+    prices: {
+      lite: { text: Number(env("TTS_PRICE_TEXT") ?? 0.5), audio: Number(env("TTS_PRICE_AUDIO") ?? 6) },
+      full: { text: Number(env("TTS_FULL_PRICE_TEXT") ?? 0.5), audio: Number(env("TTS_FULL_PRICE_AUDIO") ?? 9) }
+    },
+    pricesFrom2027: (env("TTS_PRICES_2027") ?? "on").trim() !== "off",
+    // Text for listening (/api/v2/speak-script, the owner's note): Claude Haiku rewrites tables, lists, code and
+    // symbols into speech before the voice reads it. SPEAK_SCRIPT=off: the device's own rules only. The caps only stop
+    // runaway clients (characters a request; requests a day per subscription and for everyone).
+    scriptEnabled: (env("SPEAK_SCRIPT") ?? "on").trim() !== "off",
+    scriptModel: (env("SPEAK_SCRIPT_MODEL") ?? "claude-haiku-5-5").trim(),
+    scriptMaxChars: int("SPEAK_SCRIPT_MAX_CHARS", 6000),
+    scriptDaily: int("SPEAK_SCRIPT_DAILY", 400),
+    scriptGlobalDaily: int("SPEAK_SCRIPT_GLOBAL_DAILY", 60_000)
+  },
   // Quick insert's AI (Claude Haiku 5.5): marking a template's blanks, filling them from the page, finding a
   // template by meaning. The owner's choice: Free fills its blanks with AI 5 times a day (apart from the 5
   // answers), Pro and Own key without a limit; marking and search have no limit for anyone. The caps
@@ -110,6 +155,54 @@ export const config = {
     judgeDaily: int("WATCH_JUDGE_DAILY", 30),
     ipDaily: int("WATCH_IP_DAILY", 1000),
     globalDaily: int("WATCH_GLOBAL_DAILY", 40_000)
+  },
+  // "Find similar" (2.6, Ultra; /api/v2/similar). SIMILAR_ENGINES says which engines people can reach in
+  // production: "" (the default: none, the endpoint answers UNAVAILABLE), "a" (ours, checked), "b" (Google,
+  // Gemini grounding, shown as is) or "a,b". Off production (deploy previews, `netlify dev`) the evaluation
+  // script (tools/similar/eval.mts) reaches both with a token derived from the service key; nothing else does.
+  similar: {
+    engines: (env("SIMILAR_ENGINES") ?? "").split(",").map((s) => s.trim()).filter((s) => s === "a" || s === "b"),
+    planModel: (env("SIMILAR_PLAN_MODEL") ?? "claude-haiku-5-5").trim(),
+    searchModel: (env("SIMILAR_SEARCH_MODEL") ?? "claude-haiku-5-5").trim(),
+    // Empty: web_search_20260209 (dynamic filtering) on Sonnet and Opus, web_search_20250305 on Haiku.
+    searchTool: (env("SIMILAR_SEARCH_TOOL") ?? "").trim(),
+    writeModel: (env("SIMILAR_WRITE_MODEL") ?? "claude-sonnet-5-5").trim(),
+    // Candidate pages opened per search, and the whole run's time (the function has a minute).
+    maxPages: int("SIMILAR_MAX_PAGES", 12),
+    // 2.6 speed-up: items streamed to the panel as each passes the checks, and at most two follow-up searches for
+    // items named without their own page. Searching stays one call ("single"): the parallel calls ("parallel", one
+    // per search) were faster but brought more list pages, and in the 48-page comparison 7 items named from them
+    // weren't really on them (0 before), so that part was rolled back.
+    searchMode: (env("SIMILAR_SEARCH_MODE") ?? "single").trim() === "parallel" ? "parallel" as const : "single" as const,
+    followUps: int("SIMILAR_FOLLOW_UPS", 2),
+    // Build 93: what reviewers say about the top items (a review search for those without a rating of their own).
+    reviews: (env("SIMILAR_REVIEWS") ?? "on").trim() !== "off",
+    // Build 94: before saying an item lacks something, the brand's other models on its site (SIMILAR_SIBLINGS=off: none).
+    siblings: (env("SIMILAR_SIBLINGS") ?? "on").trim() !== "off",
+    streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
+    // Near them: a shop abroad's delivery page is read before it's offered; one that ships only elsewhere is dropped.
+    // On by default for 2.6, owner's call (2026-11-11: «Даже 1 ошибка из 8 для начала не плохо»); SIMILAR_SHIP_CHECK=off:
+    // not read. `shipsTo` reads refusals and country names in any form; on delivery pages it hadn't seen it still said
+    // "ships there" wrongly about one time in eight, so a model reading the page with a quote that must be on it is next.
+    shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "on").trim() !== "off",
+    // Who reads a delivery page: a small model whose quote our code checks on the page (2.6, measured on 103 labelled
+    // pages: fewer wrong "ships there" and wrong drops than the rules, and fewer "yes" found), or our rules alone.
+    shipReader: (env("SIMILAR_SHIP_READER") ?? "model").trim() === "rules" ? ("rules" as const) : ("model" as const),
+    // A second search call beside the plan's, from the start, for things of the same kind (one search), instead of a
+    // later round when few were found (SIMILAR_ALT_SEARCH=off: the later round).
+    altSearch: (env("SIMILAR_ALT_SEARCH") ?? "on").trim() !== "off",
+    budgetMs: int("SIMILAR_BUDGET_MS", 52_000),
+    // Pages a site won't open to servers may fill a list that has fewer than 3 checked items (marked "not opened").
+    allowUnchecked: (env("SIMILAR_ALLOW_UNCHECKED") ?? "on").trim() !== "off",
+    // Safety caps (the Ultra allowance itself comes with the Ultra plan): per install a day, and for everyone.
+    installDaily: int("SIMILAR_INSTALL_DAILY", 40),
+    globalDaily: int("SIMILAR_GLOBAL_DAILY", 5_000),
+    // USD, for the spend in the logs: Anthropic web search per search; Gemini 3.8 Flash per million tokens
+    // (to 2026-12-31; $1.50/$7.50 from 2027) and Google Search grounding per query (after 5,000 free a month).
+    searchPrice: Number(env("SIMILAR_SEARCH_PRICE") ?? 0.01),
+    geminiPriceIn: Number(env("GEMINI_PRICE_IN") ?? 0.75),
+    geminiPriceOut: Number(env("GEMINI_PRICE_OUT") ?? 3.75),
+    groundingPrice: Number(env("GEMINI_GROUNDING_PRICE") ?? 0.014)
   },
   legacyIpDailyLimit: int("LEGACY_IP_DAILY_LIMIT", 10),
 
@@ -152,6 +245,8 @@ export const config = {
     // Requests a Pro subscriber may make a day (vectors go in batches of up to 128 texts), and all together.
     embedDaily: int("ORGANIZE_EMBED_DAILY", 150),
     tagsDaily: int("ORGANIZE_TAGS_DAILY", 300),
+    // Names by topic (2.6): "Name by topic", and checks of a chat's name as its topic changes.
+    nameDaily: int("ORGANIZE_NAME_DAILY", 200),
     globalDaily: int("ORGANIZE_GLOBAL_DAILY", 100_000),
     // Calibrating the thresholds (tools/organize/calibrate.mts) on a deploy preview: this token stands in for
     // Pro there, never in production. Set it for the Deploy Previews context only.
@@ -168,11 +263,9 @@ export const config = {
   siteGlobalDailyLimit: int("SITE_GLOBAL_DAILY_LIMIT", 20000)
 }
 
-export const PRODUCTS = {
-  "com.contextflow.pro.monthly": "pro",
-  "com.contextflow.pro.yearly": "pro",
-  "com.contextflow.byok.monthly": "byok"
-} as const
+/** Product id → plan, for every product we sell (src/shared/plan.ts; the app and App Store Connect match it). */
+export const PRODUCTS: Readonly<Record<string, PaidPlan>> = Object.fromEntries(
+  (Object.keys(PLAN_PRODUCTS) as PaidPlan[]).flatMap((plan) => PLAN_PRODUCTS[plan].map((id) => [id, plan]))
+)
 
-export type PaidPlan = (typeof PRODUCTS)[keyof typeof PRODUCTS]
-export type Plan = "free" | PaidPlan
+export type { PaidPlan, Plan } from "../../src/shared/plan.ts"

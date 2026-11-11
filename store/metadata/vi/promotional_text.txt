@@ -1,0 +1,1 @@
+Mới trong 2.6: Tìm tương tự đưa ra lựa chọn thay thế có thật, đã kiểm tra, cho thứ bạn đang xem, Nghe đọc to mọi trang, và cuộc trò chuyện tự sắp xếp gọn gàng.

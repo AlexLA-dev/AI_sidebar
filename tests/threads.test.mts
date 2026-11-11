@@ -4,6 +4,9 @@ import { test } from "node:test"
 import type { Entry } from "../src/shared/conversation.ts"
 import {
   applyAppChanges,
+  orgOnly,
+  orgOnlyBase,
+  withRefusals,
   newThreadId,
   applyRemote,
   allTags,
@@ -17,7 +20,7 @@ import {
   tagColor,
   threadTags,
   withMessages,
-  foldText,
+  namedByUser,
   liveThreads,
   markMirrored,
   markSent,
@@ -31,6 +34,7 @@ import {
   shownThread,
   threadForCloud,
   threadFromCloud,
+  cleanOrgState,
   threadName,
   threadNotes,
   threadPages,
@@ -139,6 +143,30 @@ test("a renamed chat keeps its place in the list and its name travels through iC
   assert.deepEqual(back.threads.old, threads.old)
   assert.equal(cleanTitle("  Trip \n to   Rome  "), "Trip to Rome")
   assert.ok(cleanTitle("x".repeat(200)).length <= 80)
+})
+
+test("the AI's name (2.6) goes to iCloud as \"ait\", comes back, and stays with new messages; the user's name is theirs", () => {
+  const m: Entry[] = [{ role: "user", content: "q" }, { role: "assistant", content: "a" }]
+  const named: Thread = { id: "t", u: 5, m, title: "Sorting chats", aiTitle: "Sorting chats" }
+  const data = threadForCloud(named)
+  assert.equal(JSON.parse(data).ait, "Sorting chats")
+  assert.deepEqual(threadFromCloud(data), { m, title: "Sorting chats", aiTitle: "Sorting chats" })
+  assert.equal(withMessages(named, "t", [...m, { role: "user", content: "more" }], 9).aiTitle, "Sorting chats")
+  assert.equal(namedByUser(named), false)
+  assert.equal(namedByUser({ ...named, title: "My own" }), true)
+  assert.equal(namedByUser({ ...named, title: undefined }), false)
+})
+
+test("organizing's state (2.6 (93)) goes to iCloud as \"org\", comes back cleaned, and stays with new messages", () => {
+  const m: Entry[] = [{ role: "user", content: "q" }, { role: "assistant", content: "a" }]
+  const org = { n: 2, k: "a1", mv: { s: 0, e: 1, to: "x", why: "topic" as const, mt: 84 }, tg: [["a1", "Work"]] as Array<[string, string]>, nm: { k: "nk", t: "Name", no: ["Old"] } }
+  const data = threadForCloud({ id: "t", u: 5, m, org })
+  assert.deepEqual(JSON.parse(data).org, org)
+  assert.deepEqual(threadFromCloud(data)?.org, org)
+  assert.deepEqual(withMessages({ id: "t", u: 5, m, org }, "t", [...m, { role: "user", content: "more" }], 9).org, org)
+  // Junk from a future or broken copy: dropped, or the parts that make sense.
+  assert.equal(cleanOrgState({ n: "2" }), undefined)
+  assert.deepEqual(cleanOrgState({ n: 1, k: "", mv: { s: 0, e: 0, to: 3, why: "topic" }, tg: [["a", 1], ["b", "B"]], nm: { k: "z", t: "", no: [1, "N"] } }), { n: 1, k: "", tg: [["b", "B"]], nm: { k: "z", no: ["N"] } })
 })
 
 test("threadForCloud fits one record; threadFromCloud reads both formats and rejects the rest", () => {
@@ -262,7 +290,7 @@ test("searchThreads: every word, accents and case ignored, named chats first, ex
   assert.equal(hit.at, 1)
   assert.ok(!hit.excerpt.includes("**"))
   const [s, e] = hit.marks[0]
-  assert.equal(foldText(hit.excerpt.slice(s, e)), "хвойное")
+  assert.equal(hit.excerpt.slice(s, e), "хвойное")
   // A page title counts too.
   assert.deepEqual(searchThreads(threads, "news.example").map((r) => r.thread.id), ["a", "b", "c"])
   assert.deepEqual(queryWords('"capital of" France'), ["capital of", "france"])
@@ -349,4 +377,48 @@ test("a chat's id on a plain-http page, where crypto.randomUUID is missing: the 
     delete (globalThis.crypto as { randomUUID?: unknown }).randomUUID
   }
   assert.equal(typeof crypto.randomUUID, "function")
+})
+
+// 2.6 (94), the owner on 93: a name taken on one device, and the other still had the old one and the suggestion after
+// five minutes. A change to organizing's record only goes up with the time of the copy it was made on (iCloud then
+// never puts it over another device's newer copy: ChatSync.swift), and one the app made on a stale copy is rebased here.
+test("organizing's record only: marked, sent with its base, and an app change on a stale copy keeps the newer copy", () => {
+  const m: Entry[] = [{ role: "user", content: "q", id: "q1", t: 1 }, { role: "assistant", content: "a", id: "a1", t: 2 }]
+  const synced = { c: 100 }
+  const stored: Thread = { id: "c", u: 100, m, title: "Old name", org: { n: 2, k: "a1", nm: { k: "x", t: "New name" } } }
+  // In sync: the record's change is marked with the copy it was made on.
+  const refused = orgOnly(stored, { ...stored, u: 150, org: { n: 2, k: "a1", nm: { k: "x", no: ["New name"] } } }, synced)
+  assert.deepEqual(refused.ob, { u: 150, b: 100 })
+  assert.equal(orgOnlyBase(refused), 100)
+  const [sent] = pendingChanges({ c: refused }, synced)
+  assert.equal("base" in sent && sent.base, 100)
+  assert.ok(!("ob" in JSON.parse((sent as { data: string }).data)), "the mark stays on this device")
+  // Another change after it: a plain change again (the mark is for that time only).
+  assert.equal(orgOnlyBase({ ...refused, u: 160, title: "Typed" }), undefined)
+  assert.ok(!("base" in pendingChanges({ c: { ...refused, u: 160 } }, synced)[0]))
+  // Not in sync (a new message not sent yet): a plain change.
+  assert.equal(orgOnly({ ...stored, u: 120 }, { ...stored, u: 150 }, synced).ob, undefined)
+  // What was turned down joins another copy, whose open name goes if it's one of them; nothing new, the copy itself.
+  const theirs: Thread = { id: "c", u: 200, m, title: "Renamed elsewhere", org: { n: 2, k: "a1", nm: { k: "y", t: "New name", no: ["Older"] }, mx: ["d"] } }
+  const merged = withRefusals(theirs, { n: 2, k: "a1", nm: { k: "x", no: ["new NAME"] }, mx: ["e", "d"] })
+  assert.deepEqual(merged.org, { n: 2, k: "a1", nm: { k: "y", no: ["Older", "new NAME"] }, mx: ["d", "e"] })
+  assert.equal(merged.title, "Renamed elsewhere")
+  assert.equal(withRefusals(theirs, { n: 2, k: "a1" }), theirs)
+  // The app turned a name down on a copy older than this one (renamed meanwhile): this copy stays, with the refusal,
+  // newer than both, marked so it goes up as such a change.
+  const here: Threads = { c: { ...theirs, u: 200, org: { n: 2, k: "a1", nm: { k: "y", t: "Third name" } } } }
+  const appData = JSON.stringify({ title: "Old name", m, org: { n: 2, k: "a1", nm: { k: "x", no: ["Third name"] } } })
+  const after = applyAppChanges(here, { c: 200 }, [{ id: "c", updatedAt: 180, data: appData, base: 100 }]).threads.c
+  assert.equal(after.u, 200, "older than this copy: not taken")
+  const later = applyAppChanges(here, { c: 200 }, [{ id: "c", updatedAt: 250, data: appData, base: 100 }]).threads.c
+  assert.equal(later.title, "Renamed elsewhere")
+  assert.equal(later.u, 251)
+  assert.deepEqual(later.org?.nm, { k: "y", no: ["Third name"] })
+  assert.deepEqual(later.ob, { u: 251, b: 200 })
+  // A chat this device doesn't have yet: the app's, marked with the app's copy.
+  assert.deepEqual(applyAppChanges({}, {}, [{ id: "c", updatedAt: 250, data: appData, base: 100 }]).threads.c.ob, { u: 250, b: 100 })
+  // Made on this very copy: the app's, marked.
+  const same = applyAppChanges(here, { c: 200 }, [{ id: "c", updatedAt: 250, data: appData, base: 200 }]).threads.c
+  assert.equal(same.title, "Old name")
+  assert.deepEqual(same.ob, { u: 250, b: 200 })
 })

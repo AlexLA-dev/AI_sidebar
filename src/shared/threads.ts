@@ -1,8 +1,9 @@
 // Chats as threads: several conversations, each continued from any page, tab or device until the
 // user starts a new one. Pure helpers shared by the content script, the background and tests.
 
-import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, trimSavedPages, withoutText, withPageChanges, type Entry } from "./conversation.ts"
+import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, trimSavedPages, urlKey, withoutText, withPageChanges, type Entry } from "./conversation.ts"
 import { marksLine } from "./marks.ts"
+import { unaccent } from "./fold.ts"
 import type { ChatDigest } from "./history.ts"
 
 export interface Thread {
@@ -10,7 +11,13 @@ export interface Thread {
   u: number // last change (ms), decides which copy wins between devices
   m: Entry[]
   a?: number // last message (ms): the list order; renaming changes `u` only (missing = `u`)
-  title?: string // set by the user; otherwise the first question names the chat
+  title?: string // set by the user, or by the AI (aiTitle); otherwise the first question names the chat
+  // The name the AI gave it ("Name by topic", or renamed as its topic changed; 2.6). While `title` is still this one,
+  // the AI may name it again; a name the user typed differs from it, and the AI never touches that one.
+  aiTitle?: string
+  // What organizing suggested for this chat, with it so every device shows it at once and knows what was turned down
+  // (2.6 (93); iCloud "org"). See OrgState.
+  org?: OrgState
   pin?: number // pinned: its place among the pinned chats at the top of the list (lower first)
   kind?: "history" // "Ask your chats" (Pro): questions about all the other chats, not a page
   tags?: string[] // the user's tags for the chat (answers and notes have their own, on the entry)
@@ -19,9 +26,55 @@ export interface Thread {
   // Fields of the iCloud copy this version doesn't know (a newer version wrote them): kept as they came, so they go
   // back with the chat instead of being dropped on the next save.
   x?: Record<string, unknown>
+  // On this device only (2.6 (94)): changed since its copy of time `b` (in sync with iCloud then) only in organizing's
+  // record, while `u` is still this one. Such a change never replaces a copy another device wrote since (ChatSync.swift
+  // `base`): build 93's stale suggestions record put back the old name of a chat renamed on another device.
+  ob?: { u: number; b: number }
 }
 
 export type Threads = Record<string, Thread>
+
+/**
+ * Organizing's suggestions for a chat, kept with it (2.6 (93)): worked out when the chat had `n` messages, the last one
+ * `k`; another device shows them at once while the chat is still like that. `mv`: the move (its messages `s`…`e`, the
+ * chat `to` or a new one, why, the match %; 2.6 (95) `fr`: an older chat joins this one whole, `to` being this one, shown
+ * under message `e`); `tg`: [message key, tag] the check said yes to; `nm`: the name check (what
+ * it was about `k`, the name it suggests while open `t`, the names turned down `no`, which never come back).
+ * Turning a move or a tag down is on the messages themselves (`dismissed`).
+ */
+export interface OrgState {
+  n: number
+  k: string
+  mv?: { s: number; e: number; to: string | null; why: "merge" | "page" | "site" | "topic" | "apart"; mt?: number; fr?: string }
+  tg?: Array<[string, string]>
+  nm?: { k: string; t?: string; no?: string[] }
+  // 2.6 (94): the chats a merge into was turned down for (never suggested again).
+  mx?: string[]
+}
+
+/** An OrgState as read back from iCloud or storage, or undefined if it isn't one. */
+export function cleanOrgState(raw: unknown): OrgState | undefined {
+  if (!raw || typeof raw !== "object") return undefined
+  const o = raw as Record<string, unknown>
+  if (typeof o.n !== "number" || typeof o.k !== "string") return undefined
+  const out: OrgState = { n: o.n, k: o.k }
+  const mv = o.mv as Record<string, unknown> | undefined
+  if (mv && typeof mv.s === "number" && typeof mv.e === "number" && (typeof mv.to === "string" || mv.to === null) && ["merge", "page", "site", "topic", "apart"].includes(String(mv.why))) {
+    out.mv = { s: mv.s, e: mv.e, to: mv.to as string | null, why: mv.why as "page", ...(typeof mv.mt === "number" ? { mt: mv.mt } : {}), ...(typeof mv.fr === "string" && mv.fr ? { fr: mv.fr } : {}) }
+  }
+  if (Array.isArray(o.tg)) {
+    const tg = o.tg.filter((x): x is [string, string] => Array.isArray(x) && typeof x[0] === "string" && typeof x[1] === "string").map((x) => [x[0], x[1]] as [string, string])
+    if (tg.length) out.tg = tg
+  }
+  const nm = o.nm as Record<string, unknown> | undefined
+  if (nm && typeof nm.k === "string") {
+    const no = Array.isArray(nm.no) ? nm.no.filter((x): x is string => typeof x === "string") : []
+    out.nm = { k: nm.k, ...(typeof nm.t === "string" && nm.t ? { t: nm.t } : {}), ...(no.length ? { no } : {}) }
+  }
+  const mx = Array.isArray(o.mx) ? o.mx.filter((x): x is string => typeof x === "string" && x.length > 0).slice(-20) : []
+  if (mx.length) out.mx = mx
+  return out
+}
 
 /** The thread this device shows, and when it was picked (a newer thread from another device takes over). */
 export interface ActiveThread {
@@ -30,7 +83,42 @@ export interface ActiveThread {
 }
 
 /** A thread as iCloud stores it (`data` is the JSON conversation), or its deletion. */
-export type CloudChange = { id: string; updatedAt: number; data: string } | { id: string; deleted: true }
+export type CloudChange = { id: string; updatedAt: number; data: string; base?: number } | { id: string; deleted: true }
+
+/** The time of the copy a change only to organizing's record was made on, while it's the thread's last change. */
+export function orgOnlyBase(t: Thread): number | undefined {
+  return t.ob && t.ob.u === t.u ? t.ob.b : undefined
+}
+
+/**
+ * `next`, a change to organizing's record only of `stored`, marked as such (`ob`) when `stored` was in sync with iCloud
+ * (`synced`) or was itself such a change; otherwise (other changes not sent yet) it goes as any change.
+ */
+export function orgOnly(stored: Thread, next: Thread, synced: Record<string, number>): Thread {
+  const { ob: _ob, ...rest } = next
+  const base = stored.u <= (synced[stored.id] ?? -Infinity) ? stored.u : orgOnlyBase(stored)
+  return base === undefined ? rest : { ...rest, ob: { u: next.u, b: base } }
+}
+
+/**
+ * Another copy of a chat with what organizing's record `ours` turned down added: the names (`nm.no`, and the open
+ * name if it's one of them) and the merges (`mx`), at most 20 of each (ChatSync.swift `rebased`). The rest is theirs.
+ */
+export function withRefusals(theirs: Thread, ours: OrgState | undefined): Thread {
+  const no = ours?.nm?.no ?? []
+  const mx = ours?.mx ?? []
+  if (!no.length && !mx.length) return theirs
+  const org: OrgState = theirs.org ? { ...theirs.org } : { n: 0, k: "" }
+  if (no.length) {
+    const all = [...(org.nm?.no ?? [])]
+    for (const x of no) if (!all.some((y) => y.toLowerCase() === x.toLowerCase())) all.push(x)
+    const kept = all.slice(-20)
+    const t = org.nm?.t && !kept.some((y) => y.toLowerCase() === org.nm!.t!.toLowerCase()) ? org.nm.t : undefined
+    org.nm = { k: org.nm?.k ?? "", ...(t ? { t } : {}), no: kept }
+  }
+  if (mx.length) org.mx = [...new Set([...(org.mx ?? []), ...mx])].slice(-20)
+  return { ...theirs, org }
+}
 
 export const MAX_THREADS = 50
 export const MAX_TITLE = 80
@@ -150,6 +238,38 @@ export function pinAt(pinned: Thread[], index: number): number {
 }
 
 /** The pages the chat was on, in the order it first came to them. */
+/**
+ * The chat to open on a page (2.6 (98), the owner: «Когда я нахожусь на странице, которую уже обсуждал в чатах, при
+ * нажатии на кружочек сайдбара нужно открывать чат последний, где обсуждалась эта страница (или домен)»): the most
+ * recently active chat with a question or note on this page, else on this site (the same host); null when none has
+ * (the panel then opens as before). Chats in Recently Deleted and "Ask your chats" aren't about a page.
+ */
+export function chatForPage(threads: Threads, href: string): string | null {
+  const key = urlKey(href)
+  const host = hostOf(href)
+  let page: Thread | null = null
+  let site: Thread | null = null
+  for (const thread of liveThreads(threads)) {
+    if (thread.kind === "history" || thread.m.length === 0) continue
+    const pages = threadPages(thread.m)
+    if (pages.some((p) => urlKey(p.url) === key)) {
+      if (!page || activity(thread) > activity(page)) page = thread
+    } else if (host && pages.some((p) => hostOf(p.url) === host)) {
+      if (!site || activity(thread) > activity(site)) site = thread
+    }
+  }
+  return (page ?? site)?.id ?? null
+}
+
+/** A page's host without "www." ("" for an address that isn't one). */
+function hostOf(href: string): string {
+  try {
+    return new URL(href).hostname.replace(/^www\./, "").toLowerCase()
+  } catch {
+    return ""
+  }
+}
+
 export function threadPages(entries: Entry[]): Array<{ url: string; title: string }> {
   const pages = new Map<string, string>()
   for (const e of entries) if (e.role === "user" && e.page && !pages.has(e.page.url)) pages.set(e.page.url, e.page.title)
@@ -164,6 +284,11 @@ export function threadNotes(entries: Entry[]): number {
 /** The chat's name: the user's, or its first question. */
 export function threadName(thread: Thread): string {
   return thread.title || threadTitle(thread.m)
+}
+
+/** Whether the user named the chat themselves (the AI never renames it then). */
+export function namedByUser(thread: Thread): boolean {
+  return Boolean(thread.title) && thread.title !== thread.aiTitle
 }
 
 /** A name the user typed, cleaned up; empty means "name it after the first question again". */
@@ -230,6 +355,8 @@ export function withMessages(stored: Thread | undefined, id: string, m: Entry[],
   return {
     id, u: now, a: activityAfter(keep, m, now), m,
     ...(keep?.title ? { title: keep.title } : {}),
+    ...(keep?.aiTitle ? { aiTitle: keep.aiTitle } : {}),
+    ...(keep?.org ? { org: keep.org } : {}),
     ...(keep?.pin !== undefined ? { pin: keep.pin } : {}),
     ...(keep?.tags?.length ? { tags: keep.tags } : {}),
     ...(keptKind ? { kind: keptKind } : {}),
@@ -288,7 +415,8 @@ export function pendingChanges(threads: Threads, synced: Record<string, number>)
     if (t.deleted) {
       if (t.id in synced) out.push({ id: t.id, deleted: true })
     } else if (t.m.length > 0 && t.u > (synced[t.id] ?? 0)) {
-      out.push({ id: t.id, updatedAt: t.u, data: threadForCloud(t) })
+      const base = orgOnlyBase(t)
+      out.push({ id: t.id, updatedAt: t.u, data: threadForCloud(t), ...(base !== undefined ? { base } : {}) })
     }
   }
   return out
@@ -303,6 +431,8 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
   const meta = {
     ...thread.x,
     ...(thread.title ? { title: thread.title } : {}),
+    ...(thread.aiTitle ? { ait: thread.aiTitle } : {}),
+    ...(thread.org ? { org: thread.org } : {}),
     ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}),
     ...(thread.pin !== undefined ? { pin: thread.pin } : {}),
     ...(thread.kind ? { k: thread.kind } : {}),
@@ -320,13 +450,13 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
 }
 
 // The fields of a thread's iCloud JSON this version reads; any other is kept in `x` as it came.
-const CLOUD_FIELDS = new Set(["m", "a", "title", "pin", "k", "tags", "trashed"])
+const CLOUD_FIELDS = new Set(["m", "a", "title", "ait", "org", "pin", "k", "tags", "trashed"])
 
 /**
  * A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. Fields it doesn't
  * know are kept (`x`): 2.4 dropped those it didn't know, and saving such a chat there takes it out of Recently Deleted.
  */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin" | "kind" | "tags" | "trashed" | "x"> | null {
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "aiTitle" | "org" | "pin" | "kind" | "tags" | "trashed" | "x"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -338,7 +468,7 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title, pin, k, tags, trashed } = parsed as Record<string, unknown>
+  const { m: raw, a, title, ait, org, pin, k, tags, trashed } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
   const unknown = Object.entries(parsed).filter(([key]) => !CLOUD_FIELDS.has(key))
@@ -346,6 +476,8 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     m,
     ...(typeof a === "number" ? { a } : {}),
     ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {}),
+    ...(typeof ait === "string" && ait.trim() ? { aiTitle: cleanTitle(ait) } : {}),
+    ...(cleanOrgState(org) ? { org: cleanOrgState(org) } : {}),
     ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {}),
     ...(k === "history" ? { kind: "history" as const } : {}),
     ...(Array.isArray(tags) && cleanTags(tags).length ? { tags: cleanTags(tags) } : {}),
@@ -476,7 +608,14 @@ export function applyAppChanges(threads: Threads, synced: Record<string, number>
     if (local && local.u >= c.updatedAt) continue
     const app = threadFromCloud(c.data)
     if (!app) continue
-    next[c.id] = { id: c.id, u: c.updatedAt, ...app }
+    const made: Thread = { id: c.id, u: c.updatedAt, ...app }
+    if (c.base !== undefined && local && !local.deleted && local.u > c.base) {
+      // 2.6 (94): organizing's record, made in the app on a copy this one has changed since: this one, with what the app
+      // turned down, newer than both (so the app's copy takes it too); sent to iCloud as such a change again.
+      next[c.id] = orgOnly(local, { ...withRefusals(local, app.org), u: Math.max(local.u, c.updatedAt) + 1 }, synced)
+    } else {
+      next[c.id] = c.base === undefined ? made : local ? orgOnly(local, made, synced) : { ...made, ob: { u: made.u, b: c.base } }
+    }
     changed = true
   }
   return { threads: changed ? sweepMoved(next, synced, now).threads : next, changed }
@@ -697,18 +836,44 @@ export interface SearchResult {
 }
 
 /**
- * Folded for matching, the same length as `text` (positions carry over to the original): lower case,
- * Latin letters without accents (é → e), ё → е, any space a plain space.
+ * Folded for matching as template search folds (fold.ts): lower case, accents off in every language ("phan hoi"
+ * finds "Phản hồi", "مرحبا" finds "مَرْحَبًا", "елка" finds "Ёлка", "strasse" finds "Straße"), any space a plain space.
  */
 export function foldText(text: string): string {
-  let out = ""
-  for (const ch of text) {
-    let f = /\s/.test(ch) ? " " : ch.toLowerCase()
-    if (/[À-ɏ]/.test(f)) f = f.normalize("NFD").replace(/[̀-ͯ]/g, "")
-    if (f === "ё") f = "е"
-    out += f.length === ch.length ? f : ch
+  return unaccent(text).replace(/\s/g, " ")
+}
+
+/** A text folded for matching, and where each folded character came from in the original. */
+interface Folded {
+  text: string
+  // For each character of `text`: where the letter it comes from starts and ends in the original.
+  from: number[]
+  to: number[]
+}
+
+// Letters as folded, the alphabets in use (a few hundred).
+const folds = new Map<string, string>()
+
+/**
+ * The same fold letter by letter (a letter with the marks after it, so a text typed with separate accents folds
+ * alike), keeping positions for an excerpt's marks. Only for the few places shown; null in the rare text that folds
+ * otherwise letter by letter than as a whole (Korean typed as separate jamo).
+ */
+function foldMap(text: string): Folded | null {
+  const out: Folded = { text: "", from: [], to: [] }
+  for (const m of text.matchAll(/\P{M}\p{M}*|\p{M}+/gu)) {
+    let f = folds.get(m[0])
+    if (f === undefined) {
+      f = foldText(m[0])
+      if (folds.size < 4096) folds.set(m[0], f)
+    }
+    for (let i = 0; i < f.length; i++) {
+      out.from.push(m.index)
+      out.to.push(m.index + m[0].length)
+    }
+    out.text += f
   }
-  return out
+  return out.text === foldText(text) ? out : null
 }
 
 /** The words of a query (quotes keep a phrase together). */
@@ -721,19 +886,23 @@ export function queryWords(query: string): string[] {
   return words
 }
 
-/** An excerpt of `text` around `start`, at most `size` long, with the words in it marked. */
-function excerpt(text: string, folded: string, words: string[], start: number, size = 120): Omit<SearchHit, "at"> {
+/** An excerpt of `text` around the first of `words`, at most `size` long, with the words in it marked. */
+function excerpt(text: string, words: string[], size = 120): Omit<SearchHit, "at"> {
+  const folded = foldMap(text)
+  const starts = folded ? words.map((w) => folded.text.indexOf(w)).filter((i) => i >= 0).map((i) => folded.from[i]) : []
+  const start = starts.length ? Math.min(...starts) : 0
   const from = Math.max(0, Math.min(start - Math.floor(size / 3), text.length - size))
   const to = Math.min(text.length, from + size)
   const lead = from > 0 ? "…" : ""
   const piece = text.slice(from, to).replace(/\s/g, " ")
   const marks: Array<[number, number]> = []
-  const window = folded.slice(from, to)
-  for (const word of words) {
-    let i = window.indexOf(word)
+  for (const word of folded ? words : []) {
+    let i = folded!.text.indexOf(word)
     while (i >= 0) {
-      marks.push([lead.length + i, lead.length + i + word.length])
-      i = window.indexOf(word, i + word.length)
+      const s = folded!.from[i]
+      const e = folded!.to[i + word.length - 1]
+      if (s >= from && e <= to) marks.push([lead.length + s - from, lead.length + e - from])
+      i = folded!.text.indexOf(word, i + word.length)
     }
   }
   marks.sort((a, b) => a[0] - b[0])
@@ -771,8 +940,7 @@ export function searchThreads(threads: Thread[], query: string, maxHits = 3): Se
       if (present.length === words.length) together = true
       // The first question is already the chat's name in the list.
       if (hits.length < maxHits && field.at !== -1 && field.text.replace(/\s+/g, " ").trim() !== name) {
-        const first = Math.min(...present.map((w) => folded[i].indexOf(w)))
-        hits.push({ at: field.at, ...excerpt(field.text, folded[i], present, first) })
+        hits.push({ at: field.at, ...excerpt(field.text, present) })
       }
     })
     scored.push({ result: { thread, hits }, score: named * 100 + (together ? 10 : 0) })

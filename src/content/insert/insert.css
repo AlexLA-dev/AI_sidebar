@@ -38,7 +38,7 @@
 }
 .cf-qi-head { display: flex; align-items: center; gap: 6px; padding: 8px 8px 4px; }
 .cf-qi-search {
-  flex: 1; min-width: 0; height: 36px; padding: 0 10px 0 32px;
+  flex: 1; min-width: 0; height: 36px; padding-block: 0; padding-inline: 32px 10px;
   border: 1px solid var(--border); border-radius: 10px;
   background: var(--bg-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d8a96' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.6-3.6'/%3E%3C/svg%3E") 10px center / 15px no-repeat;
   color: var(--text); font: inherit; font-size: 16px; outline: none;
@@ -50,7 +50,7 @@
 .cf-qi-sec { display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; font-size: 12.5px; font-weight: 650; color: var(--text-3); }
 .cf-qi-sec > span { flex: 1; }
 .cf-qi-sec button { font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--accent-text); }
-.cf-qi-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 6px 8px 6px 14px; text-align: left; }
+.cf-qi-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding-block: 6px; padding-inline: 14px 8px; text-align: start; }
 .cf-qi-row:hover, .cf-qi-row.on { background: var(--bg-2); }
 .cf-qi-row.on { box-shadow: inset 3px 0 0 var(--accent); }
 .cf-qi-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -66,7 +66,7 @@
 .cf-qi-foot button { color: var(--accent-text); font-size: 11.5px; }
 /* A small switch: Copied on or off. */
 .cf-qi-switch { position: relative; width: 34px; height: 20px; border-radius: 10px; background: var(--bg-3); transition: background 0.15s; }
-.cf-qi-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 8px; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform 0.15s; }
+.cf-qi-switch::after { content: ""; position: absolute; top: 2px; inset-inline-start: 2px; width: 16px; height: 16px; border-radius: 8px; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform 0.15s; }
 .cf-qi-switch[aria-checked="true"] { background: var(--ok); }
 .cf-qi-switch[aria-checked="true"]::after { transform: translateX(14px); }
 /* Under the caret ("/phrase", a Mac or an iPad with a keyboard): narrower, no search field. */
@@ -122,7 +122,7 @@
 .cf-qi-foot .cf-qi-keep button { flex: none; }
 
 /* ------------------------------------------------ the template editor */
-.cf-qi-search.plain { padding-left: 10px; background-image: none; }
+.cf-qi-search.plain { padding-inline-start: 10px; background-image: none; }
 .cf-qi-area {
   width: 100%; min-height: 110px; max-height: 38vh; padding: 9px 10px; resize: vertical;
   border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text);
@@ -138,7 +138,7 @@
 /* -------------------------------------------- the panel's Templates view */
 .cf-qi-view { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow-y: auto; }
 .cf-qi-view .cf-qi-head { padding: 10px 12px 6px; }
-.cf-qi-view .cf-qi-row { padding-left: 16px; cursor: pointer; }
+.cf-qi-view .cf-qi-row { padding-inline-start: 16px; cursor: pointer; }
 .cf-qi-empty.big { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 36px 24px; text-align: center; color: var(--text-2); font-size: 14px; }
 .cf-qi-empty.big p { margin: 0; line-height: 1.5; }
 .cf-qi-empty.big svg { color: var(--accent); }
@@ -171,3 +171,13 @@
 /* ------------------------------------------------------------ dark */
 .cf-qi-toast svg { color: inherit; }
 .cf-qi-note .cf-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+
+/* Right to left (Arabic): the switch is on at the start side, the magnifier sits at the start of the field. */
+:host([dir="rtl"]) .cf-qi-switch[aria-checked="true"]::after { transform: translateX(-14px); }
+:host([dir="rtl"]) .cf-qi-search { background-position: right 10px center; }
+
+/* iOS zooms the page into a field whose text is under 16px (2.6 build 90): the template's text and a blank you type
+   into (and the words around the blanks, so they read as one line) are 16px on touch screens. */
+@media (pointer: coarse) {
+  .cf-qi-area, .cf-qi-blank, .cf-qi-fill-text { font-size: 16px; }
+}

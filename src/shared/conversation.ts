@@ -3,6 +3,7 @@
 
 import type { MediaKind } from "./attachments.ts"
 import { markedContent, type Mark } from "./marks.ts"
+import type { SimilarAnswer } from "./similar.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
 
 /** The page a question was asked on: normalized URL, title and a fingerprint of its text. */
@@ -39,6 +40,19 @@ export interface Entry extends ChatTurn {
   mode?: "google"
   // Google answers: sources and Search Suggestions shown with the answer.
   grounding?: Grounding
+  // "Find similar" (2.6): on the question, the condition in the person's words ("" for none); on the answer, the
+  // checked list (its text is the same list in Markdown, for copying, sharing and the app).
+  similarAsk?: string
+  // …and, asked from a selection, what was selected (its subject; asked again with it).
+  similarSel?: string
+  // …and where it looked (build 94, the owner: the question line shows it, and Retry asks the same): anywhere, or near
+  // them in their country (two letters).
+  similarRegion?: "world" | "local"
+  similarCountry?: string
+  // Build 95: the chip they tapped and their own words apart (the server weighs the chip softly, their words strictly).
+  similarChip?: string
+  similarWords?: string
+  similar?: SimilarAnswer
   // User turns: where they were asked, and whether the page had changed since the last question there.
   page?: PageRef
   pageChanged?: boolean
@@ -46,6 +60,11 @@ export interface Entry extends ChatTurn {
   note?: boolean
   // A note made from a page selection: its text starts with the selected text in quotes.
   quote?: boolean
+  // 2.6 (97), the owner: «то, что выделено, было оформлено как цитата, и … можно было написать свою заметку к ней».
+  // Such a note's selected text as it was quoted: the chat shows it as a quote and the rest of the text (the person's
+  // own words) as the note (citedNote). The text keeps the quote too, so older versions show it as before. Notes
+  // made before have none and look as they did.
+  cite?: string
   // User turns: videos and PDFs read along with the page (shown under the question).
   sources?: SourceNote[]
   // User turns: the page had a video or PDFs that weren't read (not Pro); the answer gets a line about it.
@@ -137,6 +156,25 @@ export function withPageChanges(entries: Entry[]): Entry[] {
 }
 
 const MAX_HISTORY = 12
+/**
+ * What a free answer remembers (build 92, the owner): the last 5 answers and notes of the chat. The person's questions
+ * don't count, they come with their answers; the question asked now always goes.
+ */
+export const FREE_MEMORY = 5
+
+/** The last `keep` items that count (answers, notes) and everything after the oldest of them (the questions). */
+export function lastCounted<T>(items: T[], counts: (item: T) => boolean, keep = FREE_MEMORY): T[] {
+  let counted = 0
+  let start = items.length
+  for (let i = items.length - 1; i >= 0; i--) {
+    if (counts(items[i])) {
+      if (counted === keep) break
+      counted++
+    }
+    start = i
+  }
+  return items.slice(start)
+}
 // Page texts kept in a chat: each cut to this (the budget the server gives a chat's other pages), for
 // its last 10 pages (an answer in the app gets the chat's last page and up to MAX_APP_OTHER_PAGES others).
 export const MAX_SAVED_PAGE_CHARS = 8_000
@@ -157,7 +195,40 @@ export function selectionNote(selected: string, comment: string, page: PageRef, 
   if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
   const quote = quoted(text)
   const note = comment.trim()
-  return stamped({ role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }, page.at)
+  return stamped({ role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, cite: text, page }, page.at)
+}
+
+/** Where a cited note's quote ends in its text (after the closing quote mark), or -1 when the text doesn't start with it. */
+function citeEnd(entry: Entry): number {
+  if (!entry.cite) return -1
+  const at = entry.content.indexOf(entry.cite)
+  // The opening mark: “ « „ 「 or « with a space (French).
+  if (at < 0 || at > 3) return -1
+  const end = at + entry.cite.length
+  const gap = entry.content.indexOf("\n\n", end)
+  return gap < 0 ? entry.content.length : gap
+}
+
+/**
+ * A note made from a selection, apart (2.6 (97)): its quote and the person's own words ("" for none). Null for any
+ * other message, and for a note whose text doesn't start with its quote: it's shown as its text, as before.
+ */
+export function citedNote(entry: Entry): { cite: string; note: string } | null {
+  const end = citeEnd(entry)
+  return end < 0 ? null : { cite: entry.cite!, note: entry.content.slice(end).trim() }
+}
+
+/** The person's own words on a note: a cited note's after its quote, any other note's whole text. */
+export function noteWords(entry: Entry): string {
+  return citedNote(entry)?.note ?? entry.content
+}
+
+/** A cited note with new words of the person's (the quote and its marks stay as they were written). */
+export function withNoteWords(entry: Entry, words: string): Entry {
+  const end = citeEnd(entry)
+  if (end < 0) return entry
+  const note = words.trim()
+  return { ...entry, content: entry.content.slice(0, end) + (note ? `\n\n${note}` : "") }
 }
 
 /**
@@ -258,7 +329,8 @@ export function textFingerprint(text: string): string {
 
 /** Removes numbered source citations ("[2](url)") from an answer. */
 export function stripCitations(text: string): string {
-  return text.replace(/[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)/g, "")
+  // Build 94: a link to a chat in an "Ask your chats" answer ([name](chat:<id>)) keeps its name.
+  return text.replace(/[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)/g, "").replace(/\[([^\]\n]+)\]\(chat:[A-Za-z0-9_-]{1,64}\)/g, "$1")
 }
 
 /** The last page the conversation was on (from the latest user turn), if any. */
@@ -292,7 +364,7 @@ export function entriesFrom(parsed: unknown): Entry[] | null {
  * other pages marked with that page so the model knows the current page content isn't what they were about.
  * `wholeChat`: every message that fits WHOLE_CHAT_CHARS, the user's notes marked as notes.
  */
-export function historyForModel(entries: Entry[], currentUrl: string, wholeChat = false): ChatTurn[] {
+export function historyForModel(entries: Entry[], currentUrl: string, wholeChat = false, free = false): ChatTurn[] {
   const turn = ({ role, content, page, note, marks }: Entry): ChatTurn => {
     // The user's highlights in an answer go as <mark>…</mark> (the rule is in the system prompt).
     const text = role === "assistant" && marks?.length ? markedContent(stripCitations(content), marks) : stripCitations(content)
@@ -300,6 +372,8 @@ export function historyForModel(entries: Entry[], currentUrl: string, wholeChat 
     if (note) return { role, content: `[Note the user wrote${elsewhere ? ` on another page: ${elsewhere}` : ""}]\n${text}` }
     return { role, content: elsewhere ? `[Asked on another page: ${elsewhere}]\n${text}` : text }
   }
+  // Free (build 92): the last answers and notes, the notes marked as notes.
+  if (!wholeChat && free) return lastCounted(entries, (e) => e.role === "assistant" || Boolean(e.note)).map(turn)
   if (!wholeChat) return entries.filter((e) => !e.note).slice(-MAX_HISTORY).map(turn)
   const turns: ChatTurn[] = []
   let size = 0

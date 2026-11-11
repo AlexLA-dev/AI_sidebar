@@ -1,0 +1,173 @@
+/* Read aloud and the plans sheet (2.6, Ultra). Ultra's colour: violet into blue, next to Pro's sky into blue. */
+/* Solid, so its small text reads (white on the gradient's light end was 2.7:1; on --ultra it's 5:1). */
+.cf-ultra-badge { display: inline-flex; align-items: center; margin-inline-start: 4px; padding: 0 5px; border-radius: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; color: var(--ultra-on, #fff); background: var(--ultra, #7d4fed); }
+.cf-plan.ultra { color: #fff; background: linear-gradient(135deg, #a78bfa, #2563eb); }
+.cf-msg-tools button.on { color: var(--accent-text); }
+
+/* Build 90: Listen is Ultra's, and looks it (the owner): a soft violet tint in both themes; without Ultra the tiny
+   "Ultra" mark stays. The tokens come from styles.css when they're there (--ultra-text, --ultra-soft). */
+.cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #5b2fd1); }
+.cf-msg-tools button.cf-ultra-tool:hover, .cf-msg-tools button.cf-ultra-tool.on { color: var(--ultra-text, #5b2fd1); background: var(--ultra-soft, rgba(139, 92, 246, 0.12)); }
+.cf-msg-tools button.cf-ultra-tool .cf-ultra-badge { font-size: 9px; padding: 0 4px; margin-inline-start: 2px; opacity: 0.9; }
+.cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #c4b5fd); }
+.cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool:hover, .cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool.on { background: var(--ultra-soft, rgba(167, 139, 250, 0.16)); }
+@media (prefers-color-scheme: dark) {
+  .cf:not([data-theme]) .cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #c4b5fd); }
+  .cf:not([data-theme]) .cf-msg-tools button.cf-ultra-tool:hover, .cf:not([data-theme]) .cf-msg-tools button.cf-ultra-tool.on { background: var(--ultra-soft, rgba(167, 139, 250, 0.16)); }
+}
+
+/* The bar over the question field while something plays. */
+.cf-listen { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 6px 8px; border-radius: 12px; background: var(--accent-soft); color: var(--text); font-size: 12.5px; }
+.cf-listen.error { background: var(--bg-3); }
+.cf-listen-play { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; flex: none; border-radius: 50%; color: #fff !important; background: var(--accent) !important; }
+.cf-listen-play:disabled { opacity: 0.6; }
+.cf-listen-text { flex: 1; min-width: 0; line-height: 1.35; }
+.cf-listen-time { flex: none; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.cf-listen-track { flex: 1; height: 4px; border-radius: 2px; background: var(--bg-3); overflow: hidden; }
+.cf-listen-track div { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.25s linear; }
+/* Build 92: the bar seeks. A taller hit area around the thin line (a finger is wider than 4 px); what has come shows a
+   shade lighter than the rest, and a thumb marks where it is. */
+.cf-listen-track.seek { position: relative; height: 24px; background: none; overflow: visible; cursor: pointer; touch-action: none; display: flex; align-items: center; }
+.cf-listen-track.seek::before { content: ""; position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: var(--bg-3); }
+.cf-listen-track.seek .cf-listen-buffered,
+.cf-listen-track.seek .cf-listen-done { position: absolute; left: 0; height: 4px; border-radius: 2px; }
+.cf-listen-track.seek .cf-listen-buffered { background: color-mix(in srgb, var(--accent) 22%, var(--bg-3)); transition: width 0.25s linear; }
+.cf-listen-track.seek .cf-listen-done { background: var(--accent); transition: width 0.25s linear; }
+.cf-listen-track.seek.dragging .cf-listen-done { transition: none; }
+.cf-listen-thumb { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--bg); transition: left 0.25s linear, transform 0.15s; }
+.cf-listen-track.seek.dragging .cf-listen-thumb { transition: transform 0.15s; transform: scale(1.25); }
+.cf-listen-track.seek:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.cf-listen-left { flex: none; font-size: 11.5px; color: var(--text-2); white-space: nowrap; }
+.cf-listen.low { background: var(--bg-3); }
+.cf-plan-left { margin: 4px 0 0; font-size: 12px; color: var(--ultra-text, #5b2fd1); }
+.cf-listen-speed { flex: none; min-width: 40px; height: 26px; padding: 0 8px; border-radius: 13px; font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; color: var(--accent-text); background: var(--bg); border: 1px solid var(--border); }
+.cf-listen .cf-icon-btn { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; color: var(--text-2); font-size: 18px; }
+.cf[data-touch] .cf-listen { font-size: 14px; }
+
+/* The plans sheet. */
+.cf-sheet.cf-plans { max-height: calc(100% - 40px); padding: 12px 12px 14px; }
+.cf-plans-head { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 10px; font-size: 16px; }
+.cf-plans-head .cf-icon-btn { width: 30px; height: 30px; border-radius: 8px; font-size: 20px; color: var(--text-2); }
+.cf-plans-period { display: flex; margin: 0 0 10px; }
+.cf-plans-period button { flex: 1; }
+.cf-plans-list { display: flex; flex-direction: column; gap: 8px; }
+.cf-plan-card { padding: 10px 12px 12px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-2); }
+.cf-plan-card.focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.cf-plan-card.ultra.focus { border-color: var(--ultra, #7d4fed); box-shadow: 0 0 0 1px var(--ultra, #7d4fed) inset; }
+.cf-plan-top { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+.cf-plan-top strong { font-size: 15px; }
+.cf-plan-price { margin-inline-start: auto; font-weight: 600; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.cf-plan-save { padding: 1px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #047857; background: rgba(16, 185, 129, 0.14); }
+.cf-plan-lines { margin: 6px 0 10px; padding-inline-start: 18px; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.cf-plan-lines li { margin: 2px 0; }
+.cf-plan-lines li.lead { list-style: none; margin-inline-start: -18px; font-weight: 600; color: var(--text); }
+.cf-plan-card .cf-primary, .cf-plan-card .cf-secondary { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.cf-plan-current { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--accent-text); }
+.cf[data-touch] .cf-plan-lines { font-size: 14px; }
+.cf[data-touch] .cf-plan-top strong { font-size: 16.5px; }
+
+/* Build 90: the plans sheet's yearly lines (a month of it, what it saves), and the switch for monthly subscribers. */
+.cf-plan-year { display: flex; align-items: baseline; gap: 6px; margin: 4px 0 0; font-size: 12px; }
+.cf-plan-year s { margin-inline-start: auto; color: var(--text-2); }
+.cf-plan-saved { margin: 2px 0 0; font-size: 12px; font-weight: 650; color: #047857; }
+.cf[data-theme="dark"] .cf-plan-saved, .cf[data-theme="dark"] .cf-plan-save { color: #34d399; }
+@media (prefers-color-scheme: dark) { .cf:not([data-theme]) .cf-plan-saved, .cf:not([data-theme]) .cf-plan-save { color: #34d399; } }
+.cf-yearly { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 2px; padding: 10px 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--border); font-size: 13px; line-height: 1.4; }
+.cf-yearly small { color: var(--text-2); font-size: 12px; }
+.cf-yearly .cf-card-actions { margin: 2px 0 0; }
+
+/* The paid features, one a slide (Gallery.tsx). */
+.cf-gallery { margin: 12px 0 4px; }
+.cf-gallery-head { display: flex; align-items: center; gap: 6px; margin: 0 2px 8px; }
+.cf-gallery-head strong { flex: 1; font-size: 14px; }
+.cf-tier-chip { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #fff !important; background: var(--accent); }
+.cf-tier-chip.ultra { color: var(--ultra-on, #fff) !important; background: var(--ultra, #7d4fed); }
+.cf-tier-chip.dim { opacity: 0.45; }
+button.cf-tier-chip { border: 0; cursor: pointer; }
+/* All slides in one grid cell, one visible: as tall as the tallest, so turning a slide never moves the sheet
+   (build 91). Sideways swipes belong to the gallery, up and down to the page. */
+.cf-gallery-stage { display: grid; overflow: hidden; touch-action: pan-y; }
+.cf-gallery-slide { grid-area: 1 / 1; display: flex; flex-direction: column; gap: 6px; visibility: hidden; pointer-events: none; }
+.cf-gallery-slide.on { visibility: visible; pointer-events: auto; animation: cf-gallery-in 0.28s ease-out both; }
+.cf-gallery-slide.on.back { animation-name: cf-gallery-back; }
+@keyframes cf-gallery-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes cf-gallery-back { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .cf-gallery-slide.on { animation: none; } }
+.cf-gallery-title { display: flex; align-items: center; gap: 6px; }
+.cf-gallery-title strong { font-size: 13.5px; }
+.cf-gallery-line { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--text-2); }
+.cf-gallery-sample { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--border); font-size: 12.5px; }
+.cf-gallery-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.cf-gallery-nav .cf-icon-btn { width: 30px; height: 26px; border-radius: 8px; font-size: 20px; line-height: 1; color: var(--accent-text); }
+.cf-gallery-nav .cf-icon-btn:disabled { opacity: 0.3; }
+.cf-gallery-dots { display: flex; gap: 5px; align-items: center; }
+.cf-gallery-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--text-2); opacity: 0.35; }
+.cf-gallery-dots i.on { width: 7px; height: 7px; opacity: 1; background: #2563eb; }
+.cf-gallery-dots i.on.ultra { background: var(--ultra, #7d4fed); }
+
+/* The samples: the panel's own pieces, small. */
+.cf-g-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-g-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); }
+.cf-g-text { margin: 0; line-height: 1.45; }
+.cf-g-text mark { padding: 0 2px; border-radius: 3px; font-weight: 650; color: inherit; background: rgba(250, 204, 21, 0.38); }
+.cf-g-name { font-size: 12.5px; }
+.cf-g-search { display: flex; align-items: center; gap: 6px; padding: 3px 3px 3px 10px; border-radius: 14px; background: var(--bg-3); color: var(--text-2); }
+.cf-g-search .q { flex: 1; min-width: 0; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-g-search .ai { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; color: #fff; background: var(--accent); }
+.cf-g-result { padding: 8px 10px; border-radius: 10px; background: var(--accent-soft); }
+.cf-g-result div { display: flex; gap: 6px; align-items: baseline; }
+.cf-g-result div span { margin-inline-start: auto; font-size: 11px; color: var(--text-2); }
+.cf-g-result p { margin: 2px 0 0; color: var(--text-2); }
+.cf-g-note { display: flex; gap: 9px; align-items: flex-start; padding: 9px 10px; border-radius: 14px; background: var(--bg-3); }
+.cf-g-note div { display: flex; flex-direction: column; gap: 1px; }
+.cf-g-note small { font-size: 11px; color: var(--text-2); }
+.cf-g-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; color: #fff; background: linear-gradient(135deg, #38bdf8, #2563eb); }
+.cf-g-big { display: flex; align-items: baseline; gap: 6px; }
+.cf-g-big b { font-size: 34px; line-height: 1.05; background: linear-gradient(135deg, #38bdf8, #2563eb); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cf-g-big span { color: var(--text-2); }
+.cf-g-bar { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--text-2); }
+.cf-g-bar i { display: block; height: 7px; border-radius: 4px; background: var(--text-2); opacity: 0.45; }
+.cf-g-bar.pro i { background: var(--accent); opacity: 1; }
+.cf-g-player-title { display: flex; align-items: center; gap: 6px; color: var(--ultra, #7d4fed); }
+.cf-g-player-title strong { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-g-track { height: 4px; border-radius: 2px; background: var(--bg-3); overflow: hidden; }
+.cf-g-track i { display: block; height: 100%; background: var(--ultra, #7d4fed); }
+.cf-g-times { display: flex; justify-content: space-between; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.cf-g-controls { display: flex; align-items: center; justify-content: center; gap: 18px; color: var(--ultra, #7d4fed); }
+.cf-g-controls .skip { position: relative; display: inline-flex; }
+.cf-g-controls .skip small { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; }
+.cf-g-controls .play { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: var(--ultra-on, #fff); background: var(--ultra, #7d4fed); }
+.cf-g-controls .speed { padding: 2px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 650; color: var(--ultra-text, #5b2fd1); background: var(--ultra-soft, rgba(139, 92, 246, 0.12)); }
+.cf-g-rows { display: flex; flex-direction: column; gap: 6px; }
+.cf-g-row { display: flex; align-items: center; gap: 6px; padding: 7px 9px; border-radius: 9px; background: var(--bg-3); }
+.cf-g-row .n { flex: 1; min-width: 0; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-g-row .tag { padding: 0 6px; border-radius: 8px; font-size: 10.5px; font-weight: 650; color: var(--ultra-text, #5b2fd1); background: var(--ultra-soft, rgba(139, 92, 246, 0.12)); }
+.cf-g-row s { font-size: 11px; color: var(--text-2); }
+.cf-g-row b { font-variant-numeric: tabular-nums; }
+.cf-g-more { margin: 0 0 0 4px; color: var(--text-2); }
+.cf[data-theme="dark"] .cf-g-row .tag { color: #c4b5fd; }
+@media (prefers-color-scheme: dark) { .cf:not([data-theme]) .cf-g-row .tag { color: #c4b5fd; } }
+
+/* Build 93: the bar at the bottom of the chats list while something plays, the speaker on the row of the chat that
+   plays, and on the circle while it plays with the panel closed. No animation: nothing runs while it shows. */
+.cf-listen-dock { flex-shrink: 0; padding: 8px 12px 10px; border-top: 1px solid var(--border); background: var(--bg); }
+.cf-listen-dock .cf-listen { margin: 0; }
+.cf-thread-audio { display: inline-flex; vertical-align: -2px; margin-inline-end: 5px; color: var(--accent); }
+.cf-fab-audio { position: absolute; bottom: 0; inset-inline-start: 0; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent, #3b82f6); color: #fff; border: 2px solid #fff; }
+.cf-listen .cf-listen-close { font-size: 20px; line-height: 1; }
+
+/* Build 94: what plays, on its own line at the top of the bar; a tap goes back to its chat and message. And the quiet
+   check by Listen on a text heard to its end here (replaying it costs no minutes). */
+.cf-listen { flex-wrap: wrap; row-gap: 4px; }
+.cf-listen-name { flex: 1 0 100%; min-width: 0; margin: 0; padding: 0 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: start; font: inherit; font-size: 12px; font-weight: 600; color: var(--text); background: none; border: 0; }
+button.cf-listen-name { cursor: pointer; }
+button.cf-listen-name:hover { color: var(--accent-text); text-decoration: underline; }
+button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 4px; }
+.cf[data-touch] .cf-listen-name { font-size: 13px; }
+.cf-msg-tools button .cf-voiced { display: inline-flex; margin-inline-start: 3px; opacity: 0.8; }
+/* Build 98 release: made in full, not all heard: a lighter check (a replay charges the stretches never heard). */
+.cf-msg-tools button .cf-voiced.made { opacity: 0.38; }
+/* What the mark means, after a long press on Listen (no tooltip on a touch screen). */
+.cf-listen-said { margin: 2px 2px 0; font-size: 12px; line-height: 1.35; color: var(--text-2); }
+.cf[data-touch] .cf-listen-said { font-size: 13px; }
+.cf-msg-tools button.cf-listen-btn { -webkit-touch-callout: none; }

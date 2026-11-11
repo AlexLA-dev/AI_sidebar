@@ -2,7 +2,7 @@
 // ContextFlow/Shared (App)/Organize.swift (built here with tests/organize-parity/main.swift) give the same
 // results. Skipped where there's no Swift compiler.
 import assert from "node:assert/strict"
-import { execFileSync, spawnSync } from "node:child_process"
+import { execFileSync, spawn, spawnSync } from "node:child_process"
 import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -10,10 +10,11 @@ import { test } from "node:test"
 
 import { entryKey, entryTimes, withPageChanges, type Entry } from "../src/shared/conversation.ts"
 import {
-  embedText, hostOf, judgedTags, judgeText, looksMixed, missingVectors, movesAllowed, organizeConfig, packVector, refusedTags, scoredBlocks,
-  suggestMove, tagCandidates, tagTargets, unpackVector, type TagCandidate, type VectorOf
+  embedText, hostOf, judgedTags, organizeScan, judgeText, looksMixed, missingVectors, movesAllowed, nameCheckKey, nameStateAfter, nameText, nearName, openMove, openName, openTags,
+  organizeConfig, orgStateFor, packVector, refusedTags, scoredBlocks, suggestMove, tagCandidates, tagTargets, turnedDownName, unpackVector, wantsNameCheck, type TagCandidate,
+  type VectorOf
 } from "../src/shared/organize.ts"
-import { moveEntries, pageBlocks, sweepMoved, undoMove, type Thread, type Threads } from "../src/shared/threads.ts"
+import { cleanOrgState, moveEntries, pageBlocks, sweepMoved, threadName, undoMove, type Thread, type Threads } from "../src/shared/threads.ts"
 
 const root = new URL("..", import.meta.url).pathname
 const swiftc = spawnSync("which", ["swiftc"]).status === 0
@@ -48,8 +49,31 @@ function js(c: Case): unknown {
       return organizeConfig(c.raw)
     case "embedText":
       return (c.m as Entry[]).map(embedText)
+    case "nameText":
+      return nameText(c.m as Entry[])
+    case "wantsNameCheck":
+      return wantsNameCheck(c.chat as Thread)
+    case "org": {
+      // As the panel reads a chat back (threadFromCloud cleans its "org").
+      const org = cleanOrgState(chat.org)
+      const t: Thread = { ...chat, org }
+      return {
+        clean: org ?? null,
+        move: openMove(t, chats) ?? null,
+        tags: openTags(t),
+        name: openName(t) ?? null,
+        after: nameStateAfter(org?.nm, c.key as string, c.answer as { fits: boolean; title: string }, c.current as string),
+        state: orgStateFor(t, suggestMove(t, chats, vectorsOf(c.vectors), cfg), ((c.tg ?? []) as Array<[string, string]>).map(([key, tag]) => ({ key, tag })), org?.nm),
+        key: nameCheckKey(t)
+      }
+    }
     case "hostOf":
       return (c.urls as Array<string | null>).map(hostOf)
+    case "names":
+      return {
+        near: (c.pairs as Array<[string, string]>).map(([a, b]) => nearName(a, b)),
+        down: (c.downs as Array<[string[], string]>).map(([no, name]) => turnedDownName(no, name))
+      }
     case "pack": {
       const packed = (c.vectors as number[][]).map((v) => packVector(v))
       return { packed, unpacked: packed.map((p) => numbers(unpackVector(p))) }
@@ -57,14 +81,18 @@ function js(c: Case): unknown {
     case "unpack":
       return (c.packed as string[]).map((p) => numbers(unpackVector(p)))
     case "scoredBlocks":
-      return scoredBlocks(c.m as Entry[], vectorsOf(c.vectors)).map((b) => ({ ...b, v: numbers(b.v) }))
+      return scoredBlocks(c.m as Entry[], vectorsOf(c.vectors)).map((b) => ({ ...b, v: numbers(b.v), a: numbers(b.a) }))
     case "movesAllowed":
       return movesAllowed(chat, chats, cfg)
     case "suggestMove":
       return suggestMove(chat, chats, vectorsOf(c.vectors), cfg)
+    case "scan": {
+      const vectorOf = vectorsOf(c.vectors)
+      return organizeScan(chat, chats, vectorOf, cfg, suggestMove(chat, chats, vectorOf, cfg))
+    }
     case "tags": {
       const vectorOf = vectorsOf(c.vectors)
-      return tagTargets(chat, cfg).map((i) => {
+      return tagTargets(chat, cfg, chats, vectorOf).map((i) => {
         const candidates = tagCandidates(chat, i, chats, vectorOf, cfg)
         return { i, judge: judgeText(chat.m, i), candidates, judged: judgedTags(candidates, (c.verdicts ?? []) as Verdict[], cfg) }
       })
@@ -113,11 +141,39 @@ function js(c: Case): unknown {
   return null
 }
 
-function swift(cases: Case[]): unknown[] {
+// A run takes about half a second, the build under a minute. The binary reads its input to the end first: with
+// execFileSync(bin, { input }) it was seen on this Mac waiting in read() for an end of input that never came (0 % CPU,
+// for hours). So the input goes in through spawn and stdin.end(), and a run that doesn't answer fails the test after
+// RUN_MS, killed, instead of holding the suite.
+const BUILD_MS = 300_000
+const RUN_MS = 60_000
+
+async function swift(cases: Case[]): Promise<unknown[]> {
   const dir = mkdtempSync(join(tmpdir(), "cf-organize-"))
   const bin = join(dir, "organize")
-  execFileSync("swiftc", ["-O", join(root, "ContextFlow/Shared (App)/Organize.swift"), join(root, "tests/organize-parity/main.swift"), "-o", bin], { stdio: "pipe" })
-  return JSON.parse(execFileSync(bin, { input: JSON.stringify(cases) }).toString())
+  execFileSync("swiftc", ["-O", join(root, "ContextFlow/Shared (App)/Organize.swift"), join(root, "tests/organize-parity/main.swift"), "-o", bin], { stdio: "pipe", timeout: BUILD_MS, killSignal: "SIGKILL" })
+  const child = spawn(bin, { stdio: "pipe" })
+  const out: Buffer[] = []
+  const err: Buffer[] = []
+  child.stdout.on("data", (b: Buffer) => out.push(b))
+  child.stderr.on("data", (b: Buffer) => err.push(b))
+  child.stdin.on("error", () => undefined)
+  child.stdin.end(JSON.stringify(cases))
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const done = new Promise<number | null>((resolve, reject) => {
+    child.on("error", reject)
+    child.on("close", (code) => resolve(code))
+  })
+  const late = new Promise<"late">((resolve) => { timer = setTimeout(() => resolve("late"), RUN_MS) })
+  const code = await Promise.race([done, late]).finally(() => clearTimeout(timer))
+  if (code === "late") {
+    child.kill("SIGKILL")
+    child.unref()
+    for (const stream of [child.stdin, child.stdout, child.stderr]) stream.destroy()
+    throw new Error(`the Swift side didn't answer in ${RUN_MS / 1000} s (pid ${child.pid}, killed): ${Buffer.concat(err).toString().slice(0, 500)}`)
+  }
+  if (code !== 0) throw new Error(`the Swift side exited with ${code}: ${Buffer.concat(err).toString().slice(0, 500)}`)
+  return JSON.parse(Buffer.concat(out).toString())
 }
 
 // ------------------------------------------------------------ cases
@@ -294,6 +350,237 @@ const site = thread("site", [...react(), ...qa("sofa", "https://www.ikea.example
 move(site, [site, ikea, japan])
 move(site, [site, ikea, ikea2, japan])
 move(site, [site, ikea, japan], { cfg: { siteT: 0.99 } })
+// 2.6: a note-only chat on a page joins the chat with questions about it (a short note by the page alone, a longer
+// one by its topic), never the other way; off-topic blocks leave a mix for the one-topic chat, which never goes into
+// the mix; of two one-block chats only the smaller joins.
+function noteOn(topic: string, url: string, text: string): Entry {
+  count++
+  clock += 1_000
+  const e: Entry = { role: "user", content: text, note: true, page: { url, title: `${topic} page`, at: clock }, id: `n${count}`, t: clock }
+  table[e.id!] = vectorFor(topic)
+  return e
+}
+const service = thread("service", [...qa("cf", "https://context-flow.example/"), ...qa("cf", "https://context-flow.example/")])
+const memo = thread("memo", [noteOn("cf", "https://context-flow.example/", "FAQ for pricing")])
+const memo2 = thread("memo2", [noteOn("cf", "https://context-flow.example/blog", "Write the post about sorting chats by topic, before and after")])
+move(memo, [service, memo])
+move(memo, [service, memo], { vectors: {} })
+move(service, [service, memo])
+move(memo2, [service, memo2])
+move(memo2, [service, memo2], { cfg: { topicT: 0.99 } })
+const mix = thread("mix", [...qa("cars", "https://cars.example/1"), ...qa("cars", "https://cars.example/2"), ...qa("analytics", "https://stats.example/1"), ...qa("analytics", "https://stats.example/2")])
+const lone = thread("lone", qa("analytics", "https://stats.example/3"))
+const most = thread("most", [...qa("cars", "https://cars.example/1"), ...qa("analytics", "https://stats.example/1"), ...qa("analytics", "https://stats.example/2"), ...qa("analytics", "https://stats.example/4")])
+move(mix, [mix, lone])
+move(lone, [mix, lone])
+move(lone, [most, lone])
+move(most, [most, lone])
+move(lone, [mix, lone], { cfg: { topicT: 0.01 } })
+const twin = thread("twin", qa("bread", "https://bread.example/8"))
+const twin2 = thread("twin2", [...qa("bread", "https://bread.example/9"), ...qa("bread", "https://bread.example/9")])
+move(twin, [twin, twin2])
+move(twin2, [twin, twin2])
+move(twin, [twin, { ...twin2, m: twin2.m.slice(0, 2), a: 99_000_000 }])
+// 2.6: what the AI reads to name a chat (pages, questions, notes, answers' starts; a long chat's first and latest
+// pages), and when a name is checked by itself (never the user's).
+const longChat = thread("long", Array.from({ length: 30 }, (_, i) => qa(`t${i % 4}`, `https://long.example/${i}`, { question: `Question ${i} ${"детали ".repeat(60)}` })).flat())
+suggestions.push(
+  { op: "nameText", m: [...service.m, ...memo.m, { role: "assistant", content: "**" }, { role: "user", content: "", label: "Summarize", page: { url: "https://s.example/", title: "" } }] },
+  { op: "nameText", m: longChat.m },
+  { op: "nameText", m: [] },
+  { op: "wantsNameCheck", chat: service },
+  { op: "wantsNameCheck", chat: memo },
+  { op: "wantsNameCheck", chat: { ...service, title: "Mine", aiTitle: "Theirs", ait: "Theirs" } },
+  { op: "wantsNameCheck", chat: { ...service, title: "Theirs", aiTitle: "Theirs", ait: "Theirs" } },
+  { op: "wantsNameCheck", chat: history(service) }
+)
+// 2.6 (91): a one-block chat on a site joins the chat with the most of that site (a short note by its site alone);
+// not a chat about something else on one video site; of two site chats, the one with more of it.
+const cfSite = thread("cfsite", [...qa("cf", "https://context-flow.example/"), ...qa("cf", "https://context-flow.example/pricing"), ...qa("cf", "https://context-flow.example/support")])
+const cfSmall = thread("cfsmall", [...qa("cf", "https://context-flow.example/blog"), ...qa("cf", "https://context-flow.example/faq")])
+const changelog = thread("changelog", [noteOn("cf", "https://context-flow.example/changelog", "Release notes")])
+move(changelog, [cfSite, cfSmall, changelog])
+move(changelog, [cfSmall, changelog])
+move(changelog, [cfSite, changelog], { vectors: {} })
+move(cfSite, [cfSite, changelog])
+const videoCars = thread("videocars", [...qa("cars", "https://video.example/1"), ...qa("cars", "https://video.example/2")])
+const borsch = thread("borsch", [noteOn("borsch", "https://video.example/3", "Try this borsch recipe with smoked pears on Sunday, for the guests")])
+move(borsch, [videoCars, borsch])
+// 2.6 (93): the questions about a site all on one page (one block) take a lone note on another page of it; two lone
+// notes don't join; one video's question doesn't take a note on another topic.
+const cfHome = thread("cfhome", [...qa("cf", "https://context-flow.example/"), ...qa("cf", "https://context-flow.example/"), ...qa("cf", "https://context-flow.example/")])
+const blogNote = thread("blognote", [noteOn("cf", "https://context-flow.example/blog", "Post about sorting")])
+move(changelog, [cfHome, changelog])
+move(cfHome, [cfHome, changelog])
+move(blogNote, [blogNote, changelog])
+move(borsch, [thread("videoone", qa("cars", "https://video.example/7")), borsch])
+// 2.6 (93): the match shown with moves by topic and site, and the minimum; a page needs none.
+move(pile, [pile, japan, bread], { cfg: { minMatch: 99.5 } })
+move(pile, [pile, japan, bread], { cfg: { matchLo: 0.5, matchHi: 0.9 } })
+move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
+// 2.6 (94): an answer off the chat's topic asked on the same page (one block): to the chat about it, from minMatch,
+// else a new chat; one a mix fits gets nothing; two off-topic answers alike go together; something has to stay; asked
+// in the app (no page) as well; turned down, never again.
+{
+  const page = "https://react.example/1"
+  const offTail = thread("offtail", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa("japan", page)])
+  move(offTail, [offTail, japan, bread])
+  move(offTail, [offTail, bread])
+  move(offTail, [offTail, pile, bread])
+  move(offTail, [offTail, japan, bread], { cfg: { minMatch: 100.5 } })
+  move(thread("offtwo", [...qa("react", page), ...qa("react", page), ...qa("japan", page), ...qa("japan", page)]), [bread])
+  move(thread("offmixed", [...qa("react", page), ...qa("react", page), ...qa("japan", page), ...qa("bread", page)]), [bread])
+  move(thread("offshort", [...qa("react", page), ...qa("japan", page)]), [bread])
+  move(thread("offtwoblocks", [...qa("react", "https://react.example/2"), ...qa("react", page), ...qa("japan", page)]), [bread])
+  const appQ = qa("japan", page).map((e) => (e.role === "user" ? { ...e, page: undefined } : e))
+  move(thread("offapp", [...qa("react", page), ...qa("react", "https://react.example/2"), ...appQ]), [bread])
+  move(thread("offno", [...qa("react", page), ...qa("react", page), ...no(qa("japan", page))]), [bread])
+  move(thread("offwindow", [...qa("react", page), ...qa("react", page), ...qa("japan", page), ...qa("react", "https://react.example/5"), ...qa("react", "https://react.example/6"), ...qa("react", "https://react.example/7")]), [bread])
+}
+// 2.6 (94): a chat on the topic and pages of a newer one joins it whole; not into a chat of one block, not when turned
+// down, not into an older one, not on other pages or another topic.
+{
+  const fresh = thread("freshjapan", [...qa("japan", "https://jg.example/1"), ...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/4")])
+  move(japan, [japan, fresh, bread])
+  move(fresh, [japan, fresh, bread])
+  move({ ...japan, org: { n: japan.m.length, k: entryKey(japan.m[japan.m.length - 1]), mx: ["freshjapan"] } }, [japan, fresh])
+  move(japan, [japan, thread("onejapan", qa("japan", "https://jg.example/1"))])
+  move(japan, [japan, thread("elsewhere", [...qa("japan", "https://other.example/1"), ...qa("japan", "https://other.example/2")])])
+  move(japan, [japan, thread("breadjg", [...qa("bread", "https://jg.example/1"), ...qa("bread", "https://jg.example/2"), ...qa("bread", "https://jg.example/3")])])
+  move(japan, [japan, fresh], { cfg: { minMatch: 100.5 } })
+  move(thread("lonejapan", qa("japan", "https://jg.example/2")), [japan, fresh])
+  move(thread("oldlone", [noteOn("japan", "https://jg.example/1", "A note about the rail pass for the trip")]), [fresh])
+  move(no(japan.m).length ? { ...japan, m: [...japan.m.slice(0, 2), ...no(japan.m.slice(2, 4)), ...japan.m.slice(4)] } : japan, [japan, fresh])
+}
+// 2.6 (95): the newer chat shows the merge too (an older chat joins it); one shared page is enough and the newer chat
+// may be one block; the answers decide (questions on a shared page are mostly its title); a chat of two pages on two
+// topics: the newer page goes; an end of a block whose answer fits another chat far better; a site's chat takes a
+// question chat on its topic only.
+{
+  const qa2 = (qTopic: string, aTopic: string, url: string): Entry[] => {
+    const [q, a] = qa(qTopic, url)
+    table[a.id!] = vectorFor(aTopic)
+    return [q, a]
+  }
+  const fresh = thread("freshjapan2", [...qa("japan", "https://jg.example/1"), ...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/4")])
+  move(fresh, [japan, fresh, bread])
+  move(fresh, [{ ...japan, org: { n: japan.m.length, k: entryKey(japan.m[japan.m.length - 1]), mx: ["freshjapan2"] } }, fresh])
+  move(japan, [japan, thread("onejapan2", [...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/2")])])
+  move(japan, [japan, thread("titleonly", [...qa2("japan", "bread", "https://jg.example/1"), ...qa2("japan", "bread", "https://jg.example/5")])])
+  move(japan, [japan, fresh], { cfg: { mergeA: 0.99 } })
+  // Answers partly on the topic, questions on another: the answers fit, the match shown (by both) is below minMatch.
+  const halfOn = (url: string): Entry[] => {
+    const [q, a] = qa("bread", url)
+    const j = vectorFor("japan"), b = vectorFor("bread")
+    const v = j.map((x, i) => x * 0.6 + b[i] * 0.8)
+    const n = Math.sqrt(v.reduce((t, x) => t + x * x, 0))
+    table[a.id!] = v.map((x) => x / n)
+    return [q, a]
+  }
+  const halfJapan = thread("halfjapan", [...halfOn("https://jg.example/1"), ...halfOn("https://jg.example/5")])
+  move(japan, [japan, halfJapan])
+  move(halfJapan, [japan, halfJapan])
+  move(japan, [japan, halfJapan], { cfg: { minMatch: 0 } })
+  // 2.6 (96): the block's last answer against the person's usual fit (on by default, tailRelCap 0.35; off with 0); a new
+  // chat only; three other chats at least.
+  const kombuchaChat = thread("kombuchachat", [...qa("kombucha", "https://k.example/1"), ...qa("kombucha", "https://k.example/2")])
+  const tentsChat = thread("tentschat", [...qa("tents", "https://tents.example/1"), ...qa("tents", "https://tents.example/2")])
+  const usualHost = thread("usualhost", [...qa("react", "https://react.example/9"), ...qa("react", "https://react.example/9"), ...qa("react", "https://react.example/9"), ...qa2("react", "japan", "https://react.example/9")])
+  move(usualHost, [usualHost, bread, kombuchaChat, tentsChat])
+  move(usualHost, [usualHost, bread, kombuchaChat, tentsChat], { cfg: { tailRelCap: 0 } })
+  move(usualHost, [usualHost, bread, kombuchaChat, tentsChat], { cfg: { tailRelCap: 0.35, tailRelD: 0.05 } })
+  move(usualHost, [usualHost, bread, kombuchaChat, tentsChat], { cfg: { tailRelCap: 0.35, tailRelD: 0 } })
+  move(usualHost, [usualHost, bread, kombuchaChat], { cfg: { tailRelCap: 0.35, tailRelD: 0.05 } })
+  move(usualHost, [usualHost, bread, kombuchaChat, tentsChat, japan], { cfg: { tailRelCap: 0.35, tailRelD: 0.05 } })
+  move(usualHost, [usualHost, bread, kombuchaChat, tentsChat], { cfg: { tailRelCap: 0.01, tailRelD: 0.05 } })
+  const tents = thread("tents", [...qa("tents", "https://outdoor.example/tents"), ...qa("tents", "https://campshop.example/2p")])
+  const camera = thread("cameramix", [...qa("camera", "https://shop.example/camera-x"), ...qa("camera", "https://shop.example/camera-x"), ...qa("tents", "https://other.example/tent-y")])
+  move(camera, [camera, tents, bread])
+  move(camera, [camera, bread])
+  move(camera, [camera, bread], { cfg: { splitMin: 3 } })
+  move(thread("backagain", [...qa("camera", "https://shop.example/camera-x"), ...qa("kombucha", "https://kitchn.example/k"), ...qa2("camera", "kombucha", "https://shop.example/camera-x")]), [bread])
+  const monitors = thread("monitors", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://lg.example/27")])
+  const vpage = "https://roborock.example/s8"
+  const vacuum = thread("vacuum", [...qa("vacuum", vpage), ...qa("vacuum", vpage), ...qa("vacuum", vpage), ...qa2("vacuum", "monitor", vpage)])
+  move(vacuum, [vacuum, monitors, bread])
+  move(vacuum, [vacuum, bread])
+  move(vacuum, [vacuum, monitors, bread], { cfg: { moveD: 0.9 } })
+  const oneQ = thread("oneq", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://rtings.example/dell")])
+  move(vacuum, [vacuum, oneQ, bread])
+  // A page with one question on the chat's topic and then one on another: only the latter goes.
+  move(thread("narrow", [...qa("react", "https://react.example/1"), ...qa("react", "https://react.example/2"), ...qa("react", "https://react.example/9"), ...qa("kombucha", "https://react.example/9")]), [bread])
+  move(thread("narrow2", [...qa("react", "https://react.example/1"), ...qa("react", "https://react.example/2"), ...qa("react", "https://react.example/9"), ...qa("japan", "https://react.example/9")]), [japan, bread])
+  const headphones = thread("headphones", [...qa("headphones", "https://rtings.example/xm5"), ...qa("headphones", "https://rtings.example/airpods"), ...qa("headphones", "https://apple.example/airpods")])
+  move(thread("monitorq", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://rtings.example/dell")]), [headphones])
+  move(thread("monitorq2", [...qa("headphones", "https://rtings.example/dell"), ...qa("headphones", "https://rtings.example/dell")]), [headphones])
+}
+// 2.6 (93): organizing's state kept with the chat, as another device reads it back: the move while the chat is as it
+// was, the tags still open, the name unless turned down or typed by the user; junk dropped part by part.
+{
+  const kept = (chat: Thread, org: unknown, extra: Record<string, unknown> = {}) =>
+    suggestions.push({ op: "org", chat: { ...chat, org } as Thread, chats: [chat, japan, bread], name: threadName({ ...chat, org: undefined }), key: "k2", answer: { fits: false, title: "Japan, by rail" }, current: threadName(chat), tg: [], ...extra })
+  const last = (t: Thread) => entryKey(t.m[t.m.length - 1])
+  const n = pile.m.length
+  const mv = { s: 6, e: 7, to: "japan", why: "topic", mt: 91 }
+  kept(pile, { n, k: last(pile), mv, tg: [[entryKey(pile.m[1]), "React"], [entryKey(pile.m[7]), "Travel"]], nm: { k: "k1", t: "React and a trip" } }, { tg: [[entryKey(pile.m[1]), "React"]] })
+  kept(pile, { n: n - 1, k: last(pile), mv }) // a message since: not that move any more
+  kept(pile, { n, k: "other", mv: { ...mv, to: null, why: "apart" } })
+  kept(pile, { n, k: last(pile), mv: { ...mv, to: "gone" } })
+  kept(pile, { n, k: last(pile), mv: { ...mv, s: 7, e: 6 } })
+  // 2.6 (95): a merge into this chat (fr) while the older chat is there and didn't turn it down; a name hidden while a
+  // move is open; an older-chat merge turned down here (mx) isn't open.
+  kept(japan, { n: japan.m.length, k: last(japan), mv: { s: 5, e: 5, to: "japan", why: "merge", mt: 88, fr: "bread" }, nm: { k: "k1", t: "Japan, by rail" } })
+  kept(japan, { n: japan.m.length, k: last(japan), mv: { s: 5, e: 5, to: "japan", why: "merge", mt: 88, fr: "gone" } })
+  kept(japan, { n: japan.m.length, k: last(japan), mv: { s: 5, e: 5, to: "japan", why: "merge", fr: "" } })
+  kept(pile, { n, k: last(pile), mv: { s: 0, e: 7, to: "japan", why: "merge", mt: 80 }, mx: ["japan"], nm: { k: "k1", t: "React and a trip" } })
+  // 2.6 (98): a name turned down stays turned down when it comes back reworded, in any script; another name comes.
+  const named = (t: string, no: string[], title = "Japan, by rail") => kept(pile, { n, k: last(pile), nm: { k: "k1", t, no } }, { answer: { fits: false, title } })
+// 2.6 (98, the review's S5): names alike by their content words in the 14 languages, rewordings and other names
+// sharing words; odd input (decomposed letters, scripts mixed in a word, only function words, emoji); only the last
+// five turned down block near repeats.
+suggestions.push({
+  op: "names",
+  pairs: [
+    ["Flights and hotels in Rome", "Hotels and museums in Rome"], ["Tips for the garden", "Tips for the kitchen"], ["Travel", "Travel insurance for Japan"],
+    ["Choosing a road bike", "Road bike: choosing one"], ["Kyoto", "kyoto"], ["Travel", "Travels"],
+    ["Поездка в Японию", "Поездки по Японии"], ["Ремонт кухни", "Ремонт ванной"], ["Оформлення закордонного паспорта", "Закордонний паспорт: оформлення"],
+    ["Balkonkraftwerk Anmeldung", "Anmeldung des Balkonkraftwerks"], ["Kita Anmeldung Berlin", "Kita Anmeldung München"],
+    ["Recette de gâteau au chocolat", "Recettes de gâteaux au chocolat"], ["Location d'appartement à Lyon", "Appartements en location à Lyon"],
+    ["Rutas de senderismo en Asturias", "Senderismo en Asturias: rutas"], ["Seguro de coche", "Seguro de hogar"],
+    ["Ricette di pasta fresca", "Pasta fresca: ricette"], ["Financiamento de imóveis", "Imóvel: financiamento"],
+    ["Mẹo chăm sóc vườn", "Mẹo chăm sóc da"], ["Học tiếng Anh cho trẻ em", "Trẻ em học tiếng Anh"], ["Mua xe máy Honda Vision", "Bảo dưỡng xe máy Honda Vision"],
+    ["京都の紅葉旅行", "紅葉の京都旅行"], ["東京のホテル", "京都のホテル"], ["京都旅行", "京都旅行のプラン"], ["京都", "京都旅行"],
+    ["교토 여행", "교토의 여행 계획"], ["제주도 맛집", "제주도의 맛집 추천"], ["서울 아파트 시세", "부산 아파트 시세"],
+    ["日本旅行攻略", "日本的旅行攻略"], ["上海租房", "北京租房"], ["台北美食推薦", "台北的美食"],
+    ["سيارة كهربائية", "السيارات الكهربائية"], ["شقق للإيجار في دبي", "شقق للإيجار في القاهرة"],
+    ["Cafe\u0301 in Paris", "Café in Paris"], ["iPad mini 7のケース", "iPad mini 7 ケース"], ["iPhone 15 Pro case", "iPhone 15 case"],
+    ["The and of", "For the"], ["🚲 Bike trips", "Bike trips 🚲"], ["", "Kyoto"]
+  ],
+  downs: [
+    [["Kyoto", "Osaka", "Nara", "Kobe", "Nagoya", "Sapporo", "Fukuoka"], "kyoto"],
+    [["Kyoto trip", "Osaka", "Nara", "Kobe", "Nagoya", "Sapporo", "Fukuoka"], "Kyoto trips"],
+    [["Osaka", "Nara", "Kobe", "Nagoya", "Kyoto trip", "Sapporo", "Fukuoka"], "Kyoto trips"],
+    [[], "Kyoto"]
+  ]
+})
+  named("A trip to Japan and React", ["React and a trip to Japan"])
+  named("Kyoto ryokans", ["Japan by rail"], "Japan, by rail: passes and seats")
+  named("Kyoto ryokans", ["Japan by rail"], "Ryokans and onsen in Kyoto")
+  named("Поездка в Японию на поезде", ["Поездка в Японию по железной дороге"], "Поездка в Японию: поезда")
+  named("京都の紅葉と旅館", ["京都の紅葉旅行"], "京都の紅葉と旅館のプラン")
+  named("교토 단풍 여행", ["교토 단풍 여행 계획"], "부산 맛집")
+  named("رحلة إلى اليابان", ["رحلة إلى اليابان بالقطار"], "رحلة إلى اليابان بالقطار والفنادق")
+  kept({ ...pile, m: pile.m.map((e, i) => (i === 7 ? { ...e, dismissed: { move: true as const, tags: ["travel"] } } : i === 1 ? { ...e, tags: ["react"] } : e)) },
+    { n, k: last(pile), mv, tg: [[entryKey(pile.m[1]), "React"], [entryKey(pile.m[7]), "TRAVEL"], ["nope", "X"]] })
+  kept(pile, { n, k: last(pile), nm: { k: "k1", t: "React and a trip", no: ["react AND a trip"] } }, { answer: { fits: false, title: "REACT and a trip" } })
+  kept({ ...pile, title: "Mine", aiTitle: "Mine", ait: "Mine" } as Thread, { n, k: last(pile), nm: { k: "k1", t: "Mine" } }, { answer: { fits: true, title: "Whatever" } })
+  kept({ ...pile, title: "Japan trip", aiTitle: "Japan trip", ait: "Japan trip" } as Thread, { n, k: last(pile) }, { answer: { fits: false, title: "JAPAN Trip" }, current: "Japan trip" })
+  kept({ ...pile, title: "Typed", aiTitle: "AI's", ait: "AI's" } as Thread, { n, k: last(pile), nm: { k: "k1", t: "React and a trip" } }, { current: "Typed" })
+  for (const junk of [null, 5, "x", [], { n: "2", k: "" }, { n: true, k: "" }, { n: 1 }, { n: 1, k: "", mv: { s: 0, e: 0, to: 3, why: "topic" }, tg: [["a", 1], ["b", "B", "extra"], "c", ["d"]], nm: { k: "z", t: "", no: [1, "N"] } },
+    { n: 1, k: "", mx: ["a", 5, "", "b"], mv: { s: 0, e: 3, to: "x", why: "merge", mt: 80 } }, { n: 1, k: "", mx: "a" },
+    { n: 1, k: "", mv: { s: 0, e: 0, why: "topic" } }, { n: 1, k: "", mv: { s: 0, e: 0, to: null, why: "elsewhere" } }, { n: 1, k: "", mv: { s: 0, e: 1, to: null, why: "apart", mt: "84" } }, { n: 1, k: "", mv: { s: 0, e: 1, to: "x", why: "site", mt: 57.5 }, nm: { t: "no key" } }])
+    kept(bread, junk)
+}
 // Short questions, moved-in and turned-down blocks get nothing.
 const thanks: Entry[] = [{ role: "user", content: "ok thanks", id: "ok", t: 1_999_999 }, { role: "assistant", content: "You're welcome", id: "ok2", t: 1_999_999 }]
 table.ok = vectorFor("japan")
@@ -327,6 +614,21 @@ const packedJapan = thread("pj", [...qa("japan", "https://pj.example/1", { packe
 const packedPile = thread("pp", [...react(), ...qa("japan", "https://pp.example/9", { packed: true })])
 move(packedPile, [packedPile, packedJapan])
 suggestions.push({ op: "scoredBlocks", m: [...notes.m, ...thanks, ...movedIn(qa("x", "https://x.example/9"), "y", 5), ...no(qa("x", "https://x.example/9")), ...olden.m] }, { op: "scoredBlocks", m: mixed })
+// Dense scripts count three times a character: short Chinese, Japanese and Korean questions and notes in the app say
+// enough; as short a question in English, or a Chinese one shorter still, doesn't. A Han character outside the BMP.
+{
+  const asked = (content: string, i: number): Entry[] => [
+    { role: "user", content, id: `cjk${i}q`, t: 3_000_000 + i * 100 },
+    { role: "assistant", content: `answer ${i}`, id: `cjk${i}a`, t: 3_000_000 + i * 100 + 10 }
+  ]
+  const noted = (content: string, i: number): Entry => ({ role: "user", content, note: true, id: `cjk${i}n`, t: 3_000_000 + i * 100 })
+  const cjk = [
+    ...asked("京都哪里好玩？", 1), ...asked("京都のおすすめは？", 2), ...asked("교토 어디가 좋아요?", 3), ...asked("Kyoto tips?", 4),
+    ...asked("多少钱？", 5), ...asked("𠮷野家の牛丼、いくら？", 6), noted("京都的红叶季节要提前订酒店。", 7), noted("Book the hotel early.", 8)
+  ]
+  for (const e of cjk) table[e.id!] = vectorFor("japan")
+  suggestions.push({ op: "scoredBlocks", m: cjk })
+}
 
 // Tags: the user's tags with two examples or more that are alike; not on messages (or chats) that have them.
 const work = thread("work", [...qa("work", "https://w.example/1", { tags: ["work"] }), ...qa("work", "https://w.example/2", { tags: ["Work"] }), ...qa("work", "https://w.example/3")])
@@ -347,6 +649,47 @@ suggestions.push(
   { op: "tags", chat: plan, chats: [plan, trip, japan, bread] },
   { op: "tags", chat: { ...plan, tags: ["japan TRIP"] }, chats: [plan, trip, bread] }
 )
+// 2.6 (98): a tag on one message (just made): offered on the messages like it, on its page too and earlier in a long
+// chat (twice the window); not on other topics; an established tag (three examples) keeps its margin.
+{
+  const fresh = thread("freshtag", [...qa("garden", "https://g2.example/1", { tags: ["garden"] }), ...qa("garden", "https://g2.example/1"), ...Array.from({ length: 6 }, (_, i) => qa(i % 2 ? "garden" : "bread", `https://g2.example/${i + 2}`)).flat()])
+  suggestions.push({ op: "tags", chat: fresh, chats: [fresh, japan, bread], verdicts: [{ tag: "garden", fits: true, confidence: 0.9 }] })
+  suggestions.push({ op: "tags", chat: fresh, chats: [fresh, japan, bread], cfg: { tagT1: 0.99 } })
+  const three = thread("threetags", [...qa("garden", "https://g3.example/1", { tags: ["garden"] }), ...qa("garden", "https://g3.example/1", { tags: ["garden"] }), ...qa("garden", "https://g3.example/2", { tags: ["garden"] }), ...qa("garden", "https://g3.example/1")])
+  suggestions.push({ op: "tags", chat: three, chats: [three, japan, bread] })
+}
+// 2.6 (98, «Не предлагает такую метку в других чатах, а надо»): a tag put on in one chat is offered on the messages
+// like it in another, older ones too (beyond its window), the closest first, at most the window more; not on a message
+// that turned it down, nor in a chat that has it; a tag on a message elsewhere (one example, then two).
+{
+  const tagged = thread("gtag", [...qa("garden", "https://gt.example/1", { tags: ["Garden"] }), ...qa("bread", "https://gt.example/2")])
+  const elsewhere = thread("gelse", [
+    ...Array.from({ length: 4 }, (_, i) => qa("garden", `https://ge.example/${i}`)).flat(),
+    ...qa("garden", "https://ge.example/near", { vector: vectorFor("garden").map((x, i) => (i % 9 ? x : x + 0.3)) }),
+    ...Array.from({ length: 6 }, (_, i) => qa(i % 2 ? "bread" : "japan", `https://ge.example/x${i}`)).flat()
+  ])
+  const chats = [elsewhere, tagged, japan, bread]
+  suggestions.push({ op: "tags", chat: elsewhere, chats, verdicts: [{ tag: "garden", fits: true, confidence: 0.9 }] })
+  const turned = thread("gelse", elsewhere.m.map((e, i) => (i === 3 ? { ...e, dismissed: { tags: ["garden"] } } : e)))
+  suggestions.push({ op: "tags", chat: turned, chats: [turned, tagged, japan, bread] })
+  suggestions.push({ op: "tags", chat: { ...elsewhere, tags: ["GARDEN"] }, chats })
+  suggestions.push({ op: "tags", chat: elsewhere, chats, cfg: { tagWindow: 2 } }, { op: "tags", chat: elsewhere, chats, cfg: { tagT1: 0.99 } })
+  const twice = thread("gtag2", [...qa("garden", "https://gt2.example/1", { tags: ["garden"] })])
+  suggestions.push({ op: "tags", chat: elsewhere, chats: [...chats, twice] })
+}
+// The review's S7 and S8: a tag on one page's messages only (three there, none elsewhere); a new and an established tag
+// on one message, ranked by how far each clears its bar; a new tag's two examples alike or not.
+{
+  const onePage = thread("onepage", Array.from({ length: 4 }, () => qa("garden", "https://op.example/1")).flat().map((e, i) => (i === 1 || i === 3 || i === 5 ? { ...e, tags: ["garden"] } : e)))
+  suggestions.push({ op: "tags", chat: onePage, chats: [onePage, japan, bread] })
+  const beds = thread("beds", [...qa("garden", "https://bd.example/1", { tags: ["plants"] }), ...qa("garden", "https://bd.example/2", { tags: ["plants"] }), ...qa("garden", "https://bd.example/3", { tags: ["plants"] })])
+  const roses = thread("roses", qa("garden", "https://rs.example/1", { tags: ["plants", "aroses"] }))
+  const target = thread("target", [...qa("bread", "https://tg.example/1"), ...qa("garden", "https://tg.example/2")])
+  suggestions.push({ op: "tags", chat: target, chats: [target, beds, roses, japan, bread] }, { op: "tagCandidates", chat: target, index: 3, chats: [target, beds, roses, japan, bread] })
+  const unlike = thread("unlike", [...qa("garden", "https://ul.example/1", { tags: ["later"] }), ...qa("japan", "https://ul.example/2", { tags: ["later"] })])
+  suggestions.push({ op: "tagCandidates", chat: target, index: 3, chats: [target, unlike] }, { op: "tagCandidates", chat: target, index: 3, chats: [target, unlike], cfg: { coherence: 0, tagCohD: 0 } })
+  for (const tagCohD of [0, 0.3, 0.6, 0.9]) suggestions.push({ op: "tagCandidates", chat: target, index: 3, chats: [target, beds, roses, japan, bread], cfg: { tagCohD } })
+}
 // Refused: on three messages without one taken; one taken after them; on the message itself.
 const refuse = (tag: string) => (e: Entry) => (e.role === "assistant" ? { ...e, dismissed: { tags: [tag] } } : e)
 const tiredTags = thread("tt", [...qa("x", "https://x.example/1").map(refuse("work")), ...qa("x", "https://x.example/2").map(refuse("work")), ...qa("x", "https://x.example/3").map(refuse("Work"))])
@@ -422,21 +765,37 @@ suggestions.push(
     { role: "assistant", content: long(900, "Long answer with [3](http://cite.example/a) a citation. ") },
     { role: "user", content: "[1](https://no-close.example/a b) [1]( https://space.example) \t [7](https://ok.example/a)tail" },
     { role: "user", content: "   ", note: true },
-    { role: "assistant", content: "_*_ ### >>> |||" }
+    { role: "assistant", content: "_*_ ### >>> |||" },
+    // 2.6 (95): Find similar, by what it's about.
+    { role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page: { url: "https://shop.example/r", title: "Earbuds **X** - Example Shop" } },
+    { role: "user", content: "Дешевле", label: "Дешевле", similarAsk: "в наличии", similarSel: "  палатка  на двоих ", page: { url: "https://x.example/1", title: "Палатка" } },
+    { role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page: { url: "https://x.example/2", title: "" } },
+    { role: "user", content: "Cheaper", similarAsk: "" },
+    { role: "assistant", content: "Wireless earbuds like the Earbuds X, some with noise cancelling.\n\n1. **[Buds One, Black](https://a.example/1)** (a.example) — ANC. The page states no price. _(Not confirmed)_\n2. **[Sound [2-in-1] Pod](https://a.example/2)** (b.example) — Case. _(59.00 USD · Not confirmed)_\n 3. **[Третий](https://a.example/3)** (x.ru) — y\n\nCheck the delivery before buying." },
+    { role: "assistant", content: "1. **[Only list](https://a.example/1)** (a) — x\n2. **[Second](https://a.example/2)** (b) — y" },
+    { role: "assistant", content: "1. **[One item](https://a.example/1)** (a) — x\nnot a list" }
   ] },
   { op: "hostOf", urls: ["https://jg/1", "https://www.Example.COM:8080/a?b#c", "https://user:pw@www.host.com/", "http://192.168.0.1/x", "https://sub.www.example.com/", "u", "", null, "about:blank", "mailto:a@b.com", "file:///Users/x", "https://e.example/😀"] },
   { op: "pack", vectors: [vectorFor("pack"), [1, tie(5), -tie(5), tie(60), -tie(60), 0, -0.0001, 0.25, -1], [0, 0, 0], [0.5, -0.25, 2, -3e-8, 1e-300], Array.from({ length: 256 }, (_, i) => Math.sin(i))] },
   { op: "unpack", packed: ["%%%", "", "AAAA", "AQID", " AQ ID\n", "AQI", "AQ", "A", "AQ==", "AQ=", "AQ===", "AR==", "/+8=", "gIGC", packVector(vectorFor("pack"))] },
   ...[{ moveT: 0.6, window: "5", nope: 1 }, { moveT: true, judge: false }, { moveT: -1, moveD: 1_001, moveT1: 1_000, siteT: 0 }, { splitMin: 2.5, maxTags: 0 }, null, [], "x", 5].map((raw) => ({ op: "config", raw }))
 )
+// 2.6 (98): each move case's scan too (what it compared, why nothing fired), as both engines report it.
+suggestions.push(...suggestions.filter((c) => c.op === "suggestMove").map((c) => ({ ...c, op: "scan" })))
 cases.push(...suggestions.map(withVectors))
 
-test("organizing gives the same results in the panel and in the app", { skip }, () => {
+test("organizing gives the same results in the panel and in the app", { skip }, async () => {
   // The cases reach every kind of move suggestion, and tags the judge confirms, or the parity would say little.
   const whys = new Set(cases.filter((c) => c.op === "suggestMove").map((c) => (js(c) as { why: string } | null)?.why ?? "none"))
-  assert.deepEqual([...whys].sort(), ["apart", "none", "page", "site", "topic"])
+  assert.deepEqual([...whys].sort(), ["apart", "merge", "none", "page", "site", "topic"])
+  // 2.6 (95): a merge into the chat shown, and one kept in a chat's record.
+  assert.ok(cases.some((c) => c.op === "suggestMove" && (js(c) as { from?: string } | null)?.from))
+  assert.ok(cases.some((c) => c.op === "org" && (js(c) as { move: { fr?: string } | null }).move?.fr))
   assert.ok(cases.some((c) => c.op === "tags" && (js(c) as Array<{ candidates: unknown[]; judged: string[] }>).some((t) => t.candidates.length === 3 && t.judged.length > 0)))
-  const fromSwift = swift(cases)
+  // And the kept state: a move, tags and a name still open in some, and junk in others.
+  const kept = cases.filter((c) => c.op === "org").map((c) => js(c) as { clean: unknown; move: unknown; tags: unknown[]; name: unknown })
+  assert.ok(kept.some((k) => k.move) && kept.some((k) => k.tags.length) && kept.some((k) => k.name) && kept.some((k) => !k.clean))
+  const fromSwift = await swift(cases)
   cases.forEach((c, i) => {
     // Through JSON, as the app reads and writes it.
     const fromJs = JSON.parse(JSON.stringify(js(c)))

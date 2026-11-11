@@ -11,6 +11,9 @@
  "languageName": {
   "message": "简体中文"
  },
+ "langCode": {
+  "message": "zh-Hans"
+ },
  "ctxPage": {
   "message": "此页面"
  },
@@ -302,6 +305,9 @@
  "uxRemindTitle": {
   "message": "什么时候提醒你？"
  },
+ "uxNoteWords": {
+  "message": "备注（可选）"
+ },
  "uxRemindAsked": {
   "message": "你让我提醒你：{0}"
  },
@@ -447,10 +453,10 @@
   "message": "ContextFlow 使用 AI 之前"
  },
  "consentBody": {
-  "message": "这项同意只需给出一次，适用于所有 AI 功能。每个功能只在你使用时，通过我们的服务器把所需内容发送给 Anthropic（Claude）。我们的服务器不保存任何内容，服务商也不会用它来训练模型。"
+  "message": "只需同意一次，适用于所有 AI 功能。每个功能只在你使用时，通过我们的服务器把所需内容发送给 Anthropic（Claude）、OpenAI（备用回答、建议）和 Google Gemini（Google 回答）。使用自己的 API 密钥时，直接发送给该服务商。服务器不保存任何内容，也不会用于训练。"
  },
  "consentAnswers": {
-  "message": "回答：你的问题、页面文本或所选内容，以及你填写的“关于我”。Claude 不可用时由 OpenAI 回答；Google 回答发送给 Google。"
+  "message": "回答：你的问题、页面文本或所选内容，以及你填写的“关于我”。Claude 不可用时由 OpenAI 回答；Google 回答发送给 Google Gemini。"
  },
  "consentChats": {
   "message": "“问问你的所有对话”和 AI 搜索（Pro）：你的对话的简短摘录。"
@@ -695,6 +701,132 @@
  "tourWholeBody": {
   "message": "当问题需要全部内容时，打开“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
  },
+ "tourMenuTitle": {
+  "message": "其他功能"
+ },
+ "tourMenuBody": {
+  "message": "提醒和关注的页面、使用技巧、设置以及重温基础教程，都在这个菜单里。"
+ },
+ "guideSumTitle": {
+  "message": "你的第一个回答"
+ },
+ "guideSumBody": {
+  "message": "点按“{0}”：ContextFlow 会阅读这个页面并为你总结。"
+ },
+ "guideConsentTitle": {
+  "message": "一次同意，适用于所有 AI 功能"
+ },
+ "guideConsentBody": {
+  "message": "在把任何内容发送给 AI 之前，ContextFlow 会询问一次。同意后即可获得总结。"
+ },
+ "guideAnswerTitle": {
+  "message": "这是你的总结"
+ },
+ "guideAnswerBody": {
+  "message": "滚动即可阅读。你随时可以在下方输入框里继续提问。"
+ },
+ "guideSelectTitle": {
+  "message": "现在问问其中一部分"
+ },
+ "guideSelectBodyTouch": {
+  "message": "长按页面上的一个词，把选择范围拖到几行，然后点按“{0}”。"
+ },
+ "guideSelectBodyMouse": {
+  "message": "在页面上选中几行，然后点击“{0}”。"
+ },
+ "guideSelectGo": {
+  "message": "试一试"
+ },
+ "guidePickTouch": {
+  "message": "长按页面上的一个词"
+ },
+ "guidePickMouse": {
+  "message": "在页面上选中几行"
+ },
+ "guideTapAskTouch": {
+  "message": "点按“{0}”，就所选内容提问。"
+ },
+ "guideTapAskMouse": {
+  "message": "点击“{0}”，就所选内容提问。"
+ },
+ "guideAskSelTitle": {
+  "message": "就所选内容提问"
+ },
+ "guideAskSelBody": {
+  "message": "选一个快捷操作，比如“{0}”，或输入你自己的问题。"
+ },
+ "uxShowIntro": {
+  "message": "重温基础教程"
+ },
+ "uxOther": {
+  "message": "其他…"
+ },
+ "uxRate": {
+  "message": "在 App Store 评分"
+ },
+ "tipClipNeedsApp": {
+  "message": "打开一次 ContextFlow App 即可观看此视频。"
+ },
+ "busyWorking": {
+  "message": "正在准备回答…"
+ },
+ "busyNew": {
+  "message": "有新回答"
+ },
+ "ptMenu": {
+  "message": "{0} 包含的功能"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro：视频和 PDF"
+ },
+ "ptProMediaBody": {
+  "message": "页面上有视频或 PDF 时，ContextFlow 现在也会读取：视频字幕和 PDF 正文。直接提问即可。"
+ },
+ "ptProFindTitle": {
+  "message": "用 AI 搜索聊天"
+ },
+ "ptProFindBody": {
+  "message": "打开搜索旁的 ✦，描述你记得的聊天，不需要原话。"
+ },
+ "ptProAskTitle": {
+  "message": "询问所有聊天"
+ },
+ "ptProAskBody": {
+  "message": "“{0}”会根据你读过和问过的所有内容回答：“我这周读了什么？”"
+ },
+ "ptProSortTitle": {
+  "message": "按主题整理"
+ },
+ "ptProSortBody": {
+  "message": "回答下方会出现一行建议，为聊天推荐标签或文件夹。点一下即可整理，也可以撤销。"
+ },
+ "ptProTemplatesTitle": {
+  "message": "模板"
+ },
+ "ptProTemplatesBody": {
+  "message": "选中文字后点“{0}”即可保存，之后可粘贴到任何输入框。想存多少都行。"
+ },
+ "ptProWatchTitle": {
+  "message": "关注最多 20 个页面"
+ },
+ "ptProWatchBody": {
+  "message": "在“…”里，“{0}”会在页面变化时通知你：价格、日期、新帖子。"
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra：听"
+ },
+ "ptUltraListenBody": {
+  "message": "点回答下方的“{0}”，或“…”里的“{1}”：文字会改写成适合收听的形式并朗读出来。"
+ },
+ "ptUltraSimilarBody": {
+  "message": "为你正在看的内容找到真实的替代选择，每个链接都打开并核实过。在这里或“…”里点“{0}”，也可以选中文字后点“{1}”。"
+ },
+ "ptUltraWatchTitle": {
+  "message": "关注最多 50 个页面"
+ },
+ "ptUltraWatchBody": {
+  "message": "现在，“…”里的“{0}”最多可同时关注 50 个页面。"
+ },
  "welcomeTitle": {
   "message": "ContextFlow 已准备就绪"
  },
@@ -715,6 +847,12 @@
  },
  "selQuestion": {
   "message": "输入你的问题…"
+ },
+ "selTranslateTo": {
+  "message": "翻译成{0}"
+ },
+ "selChips": {
+  "message": "快捷操作"
  },
  "selNote": {
   "message": "笔记"
@@ -758,6 +896,9 @@
  "usageProShort": {
   "message": "Pro · 本周剩余 {0}/{1}"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 本周剩余 {0}/{1}"
+ },
  "pinChat": {
   "message": "置顶对话"
  },
@@ -772,6 +913,12 @@
  },
  "chatNotes": {
   "message": "此对话中的笔记"
+ },
+ "chatWatches": {
+  "message": "此对话中关注的页面:{0}"
+ },
+ "chatReminder": {
+  "message": "此对话设有提醒"
  },
  "pages_one": {
   "message": "{0} 个页面"
@@ -800,7 +947,19 @@
  "pickNone": {
   "message": "取消全选"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
+ },
+ "limitFreeBack_two": {
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
+ },
+ "limitFreeBack_few": {
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
+ },
+ "limitFreeBack_many": {
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
+ },
+ "limitFreeBack_other": {
   "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
  },
  "limitFreePro": {
@@ -1346,6 +1505,63 @@
  "orgFirstWin": {
   "message": "完成。从现在起，我会主动给出建议。"
  },
+ "orgNameChat": {
+  "message": "按主题命名"
+ },
+ "orgNamed": {
+  "message": "已命名为“{0}”"
+ },
+ "orgNameFailed": {
+  "message": "暂时无法为对话命名，请稍后再试。"
+ },
+ "orgNameAs": {
+  "message": "将对话命名为“{0}”"
+ },
+ "orgMatch": {
+  "message": "匹配度 {0}%"
+ },
+ "orgMergeInto": {
+  "message": "合并到“{0}”"
+ },
+ "orgMergeA11y": {
+  "message": "将此对话合并到“{0}”"
+ },
+ "orgMerged": {
+  "message": "已合并到“{0}”"
+ },
+ "orgMergeHere": {
+  "message": "把“{0}”合并到这里"
+ },
+ "orgMergeHereA11y": {
+  "message": "把之前的聊天“{0}”合并到这个聊天"
+ },
+ "orgMergedHere": {
+  "message": "已把“{0}”合并到这里"
+ },
+ "orgBarOne": {
+  "message": "建议 · {0}"
+ },
+ "orgBarOf": {
+  "message": "建议 · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "此对话中的建议"
+ },
+ "recs_one": {
+  "message": "{0} 条建议"
+ },
+ "recs_two": {
+  "message": "{0} 条建议"
+ },
+ "recs_few": {
+  "message": "{0} 条建议"
+ },
+ "recs_many": {
+  "message": "{0} 条建议"
+ },
+ "recs_other": {
+  "message": "{0} 条建议"
+ },
  "orgConsentTitle": {
   "message": "按主题整理你的对话？"
  },
@@ -1393,6 +1609,9 @@
  },
  "watchWhen": {
   "message": "何时通知"
+ },
+ "watchNoteWords": {
+  "message": "备注（可选）"
  },
  "watchCondPrice": {
   "message": "价格变化时（现在 {0}）"
@@ -1508,6 +1727,552 @@
  "watchChangedBody": {
   "message": "现在：{0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "套餐"
+ },
+ "plansCompare": {
+  "message": "比较套餐"
+ },
+ "plansMonthly": {
+  "message": "月付"
+ },
+ "plansYearly": {
+  "message": "年付"
+ },
+ "plansSave": {
+  "message": "省 {0}%"
+ },
+ "plansCurrent": {
+  "message": "你的套餐"
+ },
+ "plansChoose": {
+  "message": "选择 {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0}/月"
+ },
+ "plansPerYear": {
+  "message": "{0}/年"
+ },
+ "plansNote": {
+  "message": "在 ContextFlow App 中订阅。升级到 Ultra 立即生效，Apple 会退还当前套餐剩余的部分。"
+ },
+ "plansCurrency": {
+  "message": "价格以 {0} 计，与 App Store 显示一致。"
+ },
+ "tierByok1": {
+  "message": "使用你自己的 OpenAI 或 Claude API 密钥，回答次数不限"
+ },
+ "tierByok2": {
+  "message": "页面上的一切：总结、解释、翻译"
+ },
+ "tierPro1": {
+  "message": "每周最多 {0} 个回答，无需 API 密钥"
+ },
+ "tierPro2": {
+  "message": "视频和 PDF、AI 搜索、“问问你的所有对话”、按主题整理"
+ },
+ "tierPro3": {
+  "message": "最多关注 {0} 个页面：降价和变化"
+ },
+ "tierUltra0": {
+  "message": "Pro 的全部功能，另外还有："
+ },
+ "tierUltra1": {
+  "message": "用自然的声音朗读回答和整个页面：每周 {0} 分钟"
+ },
+ "tierUltra2": {
+  "message": "查找相似：为任何页面找替代选择——更便宜、更新、有货或用你的语言，每周 {0} 次搜索"
+ },
+ "tierUltra3": {
+  "message": "最多关注 {0} 个页面"
+ },
+ "listen": {
+  "message": "朗读"
+ },
+ "listenPage": {
+  "message": "朗读此页面"
+ },
+ "listenPause": {
+  "message": "暂停"
+ },
+ "listenPlay": {
+  "message": "播放"
+ },
+ "listenStop": {
+  "message": "停止"
+ },
+ "listenClose": {
+  "message": "停止并关闭"
+ },
+ "listenPlayingHere": {
+  "message": "正在播放"
+ },
+ "listenVoiced": {
+  "message": "已朗读过：重听免费"
+ },
+ "listenMadeLeft": {
+  "message": "已朗读过：只扣除未听过的部分，{0}"
+ },
+ "listenGoTo": {
+  "message": "前往出处"
+ },
+ "listenLoading": {
+  "message": "正在准备语音…"
+ },
+ "listenUltraTitle": {
+  "message": "朗读是 Ultra 的功能"
+ },
+ "listenUltraBody": {
+  "message": "用自然的声音朗读回答和整个页面，支持 100 多种语言。在 iPhone 上锁屏后也会继续播放。"
+ },
+ "listenLimit": {
+  "message": "本周的 {0} 分钟朗读时长已用完，{1}恢复。"
+ },
+ "listenFailed": {
+  "message": "无法朗读，请稍后再试。"
+ },
+ "listenOffline": {
+  "message": "无网络连接：第一次朗读需要联网。"
+ },
+ "listenInApp": {
+  "message": "朗读在 ContextFlow App 中播放，所以锁屏后也会继续播放，戴着耳机也能一直听。"
+ },
+ "listenLeft": {
+  "message": "朗读：本周剩余 {0}/{1} 分钟"
+ },
+ "watchFullPro": {
+  "message": "Pro 最多同时关注 {0} 个页面，Ultra 最多 {1} 个。"
+ },
+ "watchMoreUltra": {
+  "message": "Ultra 可关注更多"
+ },
+ "seeUltra": {
+  "message": "了解 Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · 本周剩余回答：{0}/{1}"
+ },
+ "actSimilar": {
+  "message": "查找相似"
+ },
+ "selSimilar": {
+  "message": "查找相似"
+ },
+ "uxSimilar": {
+  "message": "查找相似…"
+ },
+ "similarTitle": {
+  "message": "查找相似"
+ },
+ "similarConditions": {
+  "message": "条件"
+ },
+ "similarCheaper": {
+  "message": "更便宜"
+ },
+ "similarInStock": {
+  "message": "有货"
+ },
+ "similarNewer": {
+  "message": "更新"
+ },
+ "similarFree": {
+  "message": "免费"
+ },
+ "similarMyLanguage": {
+  "message": "用我的语言"
+ },
+ "similarShorter": {
+  "message": "更短"
+ },
+ "similarInLanguage": {
+  "message": "用{0}"
+ },
+ "similarCustom": {
+  "message": "或说说你的需求（可选）"
+ },
+ "similarHint": {
+  "message": "现在真实存在的替代选择。每个链接我们都会先打开检查，再给你看。"
+ },
+ "similarFind": {
+  "message": "查找"
+ },
+ "similarAsked": {
+  "message": "查找相似"
+ },
+ "similarAskedWith": {
+  "message": "查找相似：{0}"
+ },
+ "similarStockIn": {
+  "message": "有货"
+ },
+ "similarStockOut": {
+  "message": "无货"
+ },
+ "similarFromList": {
+  "message": "评测中提到"
+ },
+ "similarNotConfirmed": {
+  "message": "未确认"
+ },
+ "similarNotOpened": {
+  "message": "无法打开页面进行检查"
+ },
+ "similarWatchPrice": {
+  "message": "关注价格"
+ },
+ "similarStepPlan": {
+  "message": "正在读取页面…"
+ },
+ "similarStepSearch": {
+  "message": "正在网上搜索…"
+ },
+ "similarStepCheck": {
+  "message": "正在检查页面…"
+ },
+ "similarStepCheckN": {
+  "message": "正在检查 {0} 个页面…"
+ },
+ "similarStepWrite": {
+  "message": "正在挑选最好的…"
+ },
+ "similarNone": {
+  "message": "没有找到这一页的已检查替代选择。换个条件或不加条件试试。"
+ },
+ "similarChecked": {
+  "message": "链接检查于 {0}"
+ },
+ "similarUpsellText": {
+  "message": "你正在看的东西的真实替代选择：商品、应用、文章、菜谱、地点。"
+ },
+ "similarUpsellChecked": {
+  "message": "每个链接都已打开并检查：没有失效或编造的页面。"
+ },
+ "similarUpsellConditions": {
+  "message": "更便宜、有货、更新、免费、用你的语言，或用你自己的话。"
+ },
+ "similarUpsellWatch": {
+  "message": "价格和库存与页面所示一致，还可关注价格。"
+ },
+ "similarGetUltra": {
+  "message": "获取 Ultra"
+ },
+ "similarOff": {
+  "message": "“查找相似”暂不可用。"
+ },
+ "similarLimit": {
+  "message": "本周的 {0} 次“查找相似”已用完，{1}恢复。"
+ },
+ "orgDemoQuestion": {
+  "message": "五月去里斯本的便宜机票？"
+ },
+ "orgDemoAnswer": {
+  "message": "五月从柏林到里斯本的往返机票约 90 欧元起，最好提前六到八周预订。"
+ },
+ "orgDemoTag": {
+  "message": "度假"
+ },
+ "orgDemoChat": {
+  "message": "旅行"
+ },
+ "listenSpeed": {
+  "message": "速度：{0}。轻点选择其他速度"
+ },
+ "plansYearlySave": {
+  "message": "年付 · 最多省 {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "每月 {0}，按年付费"
+ },
+ "plansSaveMoney": {
+  "message": "每年省 {0}"
+ },
+ "yearlyNudge": {
+  "message": "{0} 年付：每年省 {1}（{2}%）。"
+ },
+ "yearlyNudgeButton": {
+  "message": "改为年付"
+ },
+ "yearlyNudgeNote": {
+  "message": "年付将在你当前这个月结束时开始。"
+ },
+ "yearlyNudgeHide": {
+  "message": "隐藏"
+ },
+ "galleryTitle": {
+  "message": "包含的功能"
+ },
+ "galleryNext": {
+  "message": "下一张"
+ },
+ "galleryPrevious": {
+  "message": "上一张"
+ },
+ "gMediaTitle": {
+  "message": "视频和 PDF"
+ },
+ "gMediaLine": {
+  "message": "回答会依据视频文字稿和 PDF 的页面。"
+ },
+ "gMediaVideo": {
+  "message": "视频文字稿 · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "第三季度报告 · 3 页"
+ },
+ "gMediaAnswer": {
+  "message": "第三季度收入增长了 12%。在视频中，CEO 将其归功于新的订阅方案。"
+ },
+ "gSearchTitle": {
+  "message": "AI 搜索和“问问你的所有对话”"
+ },
+ "gSearchLine": {
+  "message": "描述一下就能找到对话，也可以向所有对话提问。"
+ },
+ "gSearchQuery": {
+  "message": "那篇关于睡眠和咖啡的文章"
+ },
+ "gSearchResult": {
+  "message": "咖啡因与睡眠"
+ },
+ "gSearchSnippet": {
+  "message": "下午两点后喝咖啡，深度睡眠减少了五分之一…"
+ },
+ "gSearchWhen": {
+  "message": "上周"
+ },
+ "gTemplatesTitle": {
+  "message": "模板不限次数"
+ },
+ "gTemplatesLine": {
+  "message": "你自己的提示词和回复，姓名和日期从网页上填好。"
+ },
+ "gTemplatesName": {
+  "message": "通话后跟进"
+ },
+ "gTemplatesBody": {
+  "message": "{0}，你好。感谢{1}的通话。按照约定，以下是接下来的步骤。"
+ },
+ "gTemplatesPerson": {
+  "message": "李娜"
+ },
+ "gTemplatesDay": {
+  "message": "周二"
+ },
+ "gWatchTitle": {
+  "message": "关注 {0} 个页面"
+ },
+ "gWatchLine": {
+  "message": "降价或页面变化时通知你。"
+ },
+ "gWatchChanged": {
+  "message": "已变化：价格"
+ },
+ "gWatchNow": {
+  "message": "现在：{0}（之前 {1}）"
+ },
+ "gWatchManyLine": {
+  "message": "同时关注最多 {0} 个页面的价格、库存和变化。"
+ },
+ "gWatchItem1": {
+  "message": "耳机"
+ },
+ "gWatchItem2": {
+  "message": "飞往里斯本的航班"
+ },
+ "gWatchMore": {
+  "message": "以及另外 {0} 个页面"
+ },
+ "gAnswersTitle": {
+  "message": "每周最多 {0} 个回答"
+ },
+ "gAnswersLine": {
+  "message": "更深入、更详细的回答，而非每天 {0} 个。"
+ },
+ "gAnswersWeek": {
+  "message": "每周"
+ },
+ "gAnswersFree": {
+  "message": "免费版：每天 {0} 个"
+ },
+ "gListenTitle": {
+  "message": "朗读"
+ },
+ "gListenLine": {
+  "message": "用自然的声音朗读回答和整个页面，语速随你调。"
+ },
+ "gListenSample": {
+  "message": "电动列车如何节省能源"
+ },
+ "gSimilarTitle": {
+  "message": "查找相似"
+ },
+ "gSimilarLine": {
+  "message": "为任何页面找替代选择：更便宜、更新、有货或用你的语言。"
+ },
+ "gSimilar1": {
+  "message": "网布办公椅"
+ },
+ "gSimilar2": {
+  "message": "同款椅子，2026 款"
+ },
+ "gSimilar3": {
+  "message": "带头枕的椅子"
+ },
+ "gSimilarInStock": {
+  "message": "有货"
+ },
+ "gSimilarNewer": {
+  "message": "更新"
+ },
+ "gSimilarCheaper": {
+  "message": "更便宜"
+ },
+ "listenMinLeft": {
+  "message": "剩余 {0} 分钟"
+ },
+ "listenMinLeftTitle": {
+  "message": "本周剩余 {0} 分钟朗读时长"
+ },
+ "listenLow": {
+  "message": "本周还剩约 {0} 分钟朗读时长，这段内容大约需要 {1} 分钟。时长用完时，朗读会在那里停止。"
+ },
+ "listenAnyway": {
+  "message": "仍然朗读"
+ },
+ "listenAway": {
+  "message": "在 ContextFlow 中继续收听 — 从 {0} 开始"
+ },
+ "listenNotifyAsk": {
+  "message": "打开通知，离开 Safari 或锁定屏幕时也能继续收听。否则，“朗读”会打开 App。"
+ },
+ "listenNotifyOn": {
+  "message": "打开通知"
+ },
+ "listenNotifyLater": {
+  "message": "以后再说"
+ },
+ "listenTaken": {
+  "message": "正在 ContextFlow App 中播放。"
+ },
+ "listenSeek": {
+  "message": "播放位置"
+ },
+ "plansUpgrade": {
+  "message": "升级到 {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "升级到年付"
+ },
+ "similarPayFree": {
+  "message": "免费，无 App 内购买"
+ },
+ "similarPayFreeStart": {
+  "message": "免费"
+ },
+ "similarPaySub": {
+  "message": "订阅 {0} 起"
+ },
+ "similarPayOnce": {
+  "message": "一次性购买 {0}"
+ },
+ "similarPayIap": {
+  "message": "App 内购买 {0} 起"
+ },
+ "similarPerWeek": {
+  "message": "{0}/周"
+ },
+ "similarPerMonth": {
+  "message": "{0}/月"
+ },
+ "similarPerYear": {
+  "message": "{0}/年"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro 记住整个对话"
+ },
+ "offerMemoryBody": {
+  "message": "免费回答只记住对话中最近的 {0} 条回答和笔记。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
+ },
+ "offerMemoryLong": {
+  "message": "这个对话的回答和笔记已超过免费回答能记住的 {0} 条。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
+ },
+ "offerRetryAt": {
+  "message": "回答将在 {0} 恢复。"
+ },
+ "similarWhere": {
+  "message": "搜索范围"
+ },
+ "similarWorld": {
+  "message": "全球"
+ },
+ "similarLocal": {
+  "message": "我附近"
+ },
+ "similarLocalIn": {
+  "message": "附近 · {0}"
+ },
+ "similarWhereHint": {
+  "message": "请先选择搜索范围。"
+ },
+ "similarLess": {
+  "message": "不太相似"
+ },
+ "similarPercent": {
+  "message": "相似度 {0}%"
+ },
+ "similarDiffers": {
+  "message": "不同之处：{0}"
+ },
+ "similarRegionLocked": {
+  "message": "你所在国家/地区的 App Store 中没有"
+ },
+ "similarShipListed": {
+  "message": "配送页面列出: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "未注明是否配送到{0}"
+ },
+ "similarRatings": {
+  "message": "{0} 个评分"
+ },
+ "similarReviewersSay": {
+  "message": "评价：{0}"
+ },
+ "similarNotifyTitle": {
+  "message": "相似项查找完成"
+ },
+ "similarNotifyFound": {
+  "message": "找到 {0} 个选项。轻点查看。"
+ },
+ "similarNotifyNone": {
+  "message": "没有合适的。轻点更改条件。"
+ },
+ "similarNotifyFailed": {
+  "message": "搜索未完成。轻点重试。"
+ },
+ "similarSay": {
+  "message": "评价："
+ },
+ "similarPros": {
+  "message": "好评：{0}"
+ },
+ "similarCons": {
+  "message": "差评：{0}"
+ },
+ "similarEstimated": {
+  "message": "根据描述估计"
+ },
+ "similarSame": {
+  "message": "同款商品，其他商店"
+ },
+ "similarMisses": {
+  "message": "不符合你选的条件"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },
@@ -1532,6 +2297,12 @@
  "tip_4acd9995ac": {
   "message": "点按页面上的 ✦ 或工具栏中的 ContextFlow 图标，或按下 Control-Shift-E。"
  },
+ "tip_af26b6788c": {
+  "message": "把 ✦ 挪开"
+ },
+ "tip_6d2694aec4": {
+  "message": "✦ 挡住了你正在读的内容？沿着边缘上下拖动它，或拖到另一侧：放在哪里就停在哪里。"
+ },
  "tip_2749afe54a": {
   "message": "一键抓住要点"
  },
@@ -1549,6 +2320,15 @@
  },
  "tip_fa1cdf5479": {
   "message": "在页面上选中文字后，可以直接在下方输入你的问题，或点按“笔记”把它连同页面保存到对话中。笔记不消耗回答次数。"
+ },
+ "tip_2f27bc2271": {
+  "message": "选中文字下方的快捷操作"
+ },
+ "tip_b4d2d0edad": {
+  "message": "在页面上选中文字后，下方的“输入你的问题…”栏里会出现“总结”“翻译”“查找相似”等操作。左右滑动，轻点一个即可，无需打字。"
+ },
+ "tip_2105cc684e": {
+  "message": "在页面上选中文字后，下方的“输入你的问题…”栏里会出现“总结”“翻译”“查找相似”等操作。用触控板或鼠标滚轮左右滚动，点按一个即可，无需打字。"
  },
  "tip_9000896590": {
   "message": "对话随你而行"
@@ -1612,6 +2392,24 @@
  },
  "tip_ff32d2c483": {
   "message": "使用 Pro 时，页面上显示或链接的 PDF 会随问题一起发送，回答会说明内容在哪一页。在 iPad 和 Mac 上，工具栏中的 ContextFlow 也能在 PDF 标签页中打开。免费回答只使用页面文字。"
+ },
+ "tip_de4adc7524": {
+  "message": "查找相似"
+ },
+ "tip_b2248495b1": {
+  "message": "在面板的操作中，或在面板顶部的“…”菜单中，轻点“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中轻点“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
+ },
+ "tip_31666a3aab": {
+  "message": "在面板的操作中，或在面板顶部的“…”菜单中，点按“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中点按“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
+ },
+ "tip_c518fb0674": {
+  "message": "朗读"
+ },
+ "tip_f26f3d2993": {
+  "message": "轻点回答下方的“朗读”，或在面板顶部的“…”菜单中选择“朗读此页面”。ContextFlow App 会用自然的声音朗读，锁屏后也会继续播放。在播放器中轻点速度，可选 1×、1.2×、1.5× 或 2×。"
+ },
+ "tip_4eab0ec0a2": {
+  "message": "点按回答下方的“朗读”，或在面板顶部的“…”菜单中选择“朗读此页面”。自然的声音会直接在面板中朗读。在播放器中点按速度，可选 1×、1.2×、1.5× 或 2×。"
  },
  "tip_328ee8ddce": {
   "message": "快速插入"
@@ -1688,8 +2486,8 @@
  "tip_4721064b09": {
   "message": "AI 搜索"
  },
- "tip_52a09ac884": {
-  "message": "点按搜索旁的 ✦，描述你记得的对话（“那篇关于睡眠和咖啡的文章”），即使没有确切字词也行。"
+ "tip_e4964f1718": {
+  "message": "描述你记得的对话（“那篇关于睡眠和咖啡的文章”），即使没有确切字词也行。在 App 中选择搜索下方的“按含义”；在 Safari 中点按旁边的 ✦。"
  },
  "tip_068fa58797": {
   "message": "问问你的所有对话"
@@ -1709,6 +2507,21 @@
  "tip_69a0bac728": {
   "message": "ContextFlow 会从你加标签的位置了解每个标签的含义，并在新的回答或笔记下方建议合适的那个。只用你自己的标签，只在合适时建议。"
  },
+ "tip_b96ddaab20": {
+  "message": "你的套餐"
+ },
+ "tip_b3282f43dd": {
+  "message": "月付或年付"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro 和 Ultra 可以月付或年付，一年比十二个月更便宜。在 App 或 Safari 中轻点套餐上方的“年付”，就能看到每个价格和能省多少。已经在月付？在“设置”→“你的套餐”中选择“改为年付”，当前这个月结束后开始年付。"
+ },
+ "tip_9288a85bb9": {
+  "message": "你的套餐增加了什么"
+ },
+ "tip_0f2289f887": {
+  "message": "购买 Pro 或 Ultra 后，ContextFlow 会一步一步展示你的套餐增加了哪些功能。想再看一遍，可以轻点面板顶部的“…”，再选“其他…”和“Pro 包含的功能”或“Ultra 包含的功能”。在 App 中，它在“设置”的“你的套餐”下。"
+ },
  "tip_3208aa35ac": {
   "message": "隐私与个性化"
  },
@@ -1718,11 +2531,11 @@
  "tip_e2d1d4abd0": {
   "message": "在“关于我”中写一句话，比如你的职业、喜欢的回答风格，ContextFlow 就会据此调整回答。"
  },
- "tip_10400d6345": {
-  "message": "按你的习惯使用 ✦ 按钮"
+ "tip_1e9a1535cb": {
+  "message": "不需要时隐藏 ✦"
  },
- "tip_4c60874441": {
-  "message": "✦ 挡住了页面上的内容？沿着边缘上下拖动它，或拖到另一侧，它会停在你松手的位置。也可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
+ "tip_6cc366173d": {
+  "message": "某个网站上用不到 ✦？可以只在该网站隐藏它，或在扩展设置中全部关闭。ContextFlow 仍可从 Safari 的扩展菜单打开。"
  },
  "tip_8a727e1bbe": {
   "message": "使用自己的 API 密钥"
@@ -1737,6 +2550,6 @@
   "message": "ContextFlow 只在你提问时读取页面，并且只发送页面文字来获取回答。你的对话保存在你的设备和 iCloud 中。开启建议后，新消息的文本也会发送到我们的服务器，用来判断它们该放在哪里；我们不会保存这些文本。"
  },
  "tip_clips": {
-  "message": "en"
+  "message": "zh_CN"
  }
 }

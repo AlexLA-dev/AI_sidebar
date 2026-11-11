@@ -156,10 +156,13 @@ test("the page script knows every indexable page by name and skips the rest", ()
   const names: Record<string, string> = {
     "/": "home", "/index.html": "home", "/features": "features", "/safari-ai-extension-iphone": "safari_ai", "/notes-while-reading-safari.html": "notes",
     "/safari-summary-vs-chatgpt": "compare", "/support": "support", "/support/": "support", "/privacy": "privacy", "/terms": "terms",
-    "/cases": "cases", "/cases/": "cases", "/cases/replies-and-forms": "case_fill", "/cases/studying.html": "case_study", "/cases/shopping": "case_shop", "/cases/planning": "case_plan"
+    "/cases": "cases", "/cases/": "cases", "/cases/replies-and-forms": "case_fill", "/cases/studying.html": "case_study", "/cases/shopping": "case_shop", "/cases/planning": "case_plan",
+    // The same pages in the other languages (2.6) count under the same names.
+    "/ru/": "home", "/ru": "home", "/zh-hant/index.html": "home", "/ar/features": "features", "/pt-br/cases/planning": "case_plan", "/vi/support/": "support"
   }
   for (const [path, page] of Object.entries(names)) assert.equal(load({ path }).sent[0]?.page, page, path)
   assert.deepEqual(load({ path: "/analytics" }).sent, [])
+  assert.deepEqual(load({ path: "/russia/features" }).sent, [])
   assert.deepEqual([...new Set(Object.values(names))].sort(), [...SITE_PAGES].sort())
 })
 

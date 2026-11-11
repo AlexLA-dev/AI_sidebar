@@ -1,0 +1,986 @@
+{
+ "about": "Rules that once went wrong, with what they must say now. currency: a price string on a shop's address; domain: a JSON-LD price with no currency on a country's domain; marketplace: a host and the marketplace it is ('' for a shop's own site); same: whether a name could be the very item they're on (backsSame).",
+ "currency": [
+  {
+   "text": "1,290元",
+   "url": "https://shop.example.com.tw/p",
+   "expect": "TWD",
+   "source": "review 2, S6: 元 is TWD in Taiwan"
+  },
+  {
+   "text": "499元",
+   "url": "https://shop.example.com.hk/p",
+   "expect": "HKD",
+   "source": "review 2, S6"
+  },
+  {
+   "text": "1,290元",
+   "url": "https://shop.example.cn/p",
+   "expect": "CNY",
+   "source": "review 2, S6"
+  },
+  {
+   "text": "¥3,980",
+   "url": "https://shop.example.co.jp/p",
+   "expect": "JPY",
+   "source": "review 1: a shared sign by domain"
+  },
+  {
+   "text": "¥89",
+   "url": "https://shop.example.cn/p",
+   "expect": "CNY",
+   "source": "review 1"
+  },
+  {
+   "text": "$129",
+   "url": "https://shop.example.ca/p",
+   "expect": "CAD",
+   "source": "review 1"
+  },
+  {
+   "text": "$129",
+   "url": "https://shop.example.com.au/p",
+   "expect": "AUD",
+   "source": "review 1"
+  },
+  {
+   "text": "$129",
+   "url": "https://shop.example.com.mx/p",
+   "expect": "MXN",
+   "source": "review 1"
+  },
+  {
+   "text": "kr 499",
+   "url": "https://shop.example.se/p",
+   "expect": "SEK",
+   "source": "review 1"
+  },
+  {
+   "text": "499 kr",
+   "url": "https://shop.example.no/p",
+   "expect": "NOK",
+   "source": "review 1"
+  },
+  {
+   "text": "CA$99",
+   "url": "",
+   "expect": "CAD",
+   "source": "review 2, S6: CA$ read as AUD"
+  },
+  {
+   "text": "AU$149",
+   "url": "",
+   "expect": "AUD",
+   "source": "review 2, S6"
+  },
+  {
+   "text": "3 990 ₽",
+   "url": "https://shop.example.ru/p",
+   "expect": "RUB",
+   "source": "every shipped country"
+  },
+  {
+   "text": "1 299 грн",
+   "url": "https://shop.example.com.ua/p",
+   "expect": "UAH",
+   "source": "every shipped country"
+  },
+  {
+   "text": "₩34,900",
+   "url": "https://shop.example.co.kr/p",
+   "expect": "KRW",
+   "source": "every shipped country"
+  },
+  {
+   "text": "30.990.000đ",
+   "url": "https://shop.example.vn/p",
+   "expect": "VND",
+   "source": "every shipped country"
+  },
+  {
+   "text": "399 ر.س",
+   "url": "https://shop.example.sa/p",
+   "expect": "SAR",
+   "source": "every shipped country"
+  },
+  {
+   "text": "R$ 62,99",
+   "url": "https://shop.example.com.br/p",
+   "expect": "BRL",
+   "source": "every shipped country"
+  },
+  {
+   "text": "€279.99",
+   "url": "https://shop.example.com/p",
+   "expect": "EUR",
+   "source": "every shipped country"
+  },
+  {
+   "text": "£999",
+   "url": "https://shop.example.co.uk/p",
+   "expect": "GBP",
+   "source": "every shipped country"
+  },
+  {
+   "text": "₹17,999",
+   "url": "https://shop.example.in/p",
+   "expect": "INR",
+   "source": "every shipped country"
+  }
+ ],
+ "domain": [
+  {
+   "url": "https://shop.example.com.cy/p",
+   "expect": "EUR",
+   "source": "owner, build 95: a price without a currency is in the country's money"
+  },
+  {
+   "url": "https://shop.example.gr/p",
+   "expect": "EUR",
+   "source": "owner, build 95: a price without a currency is in the country's money"
+  },
+  {
+   "url": "https://shop.example.co.jp/p",
+   "expect": "JPY",
+   "source": "owner, build 95: a price without a currency is in the country's money"
+  },
+  {
+   "url": "https://shop.example.com.br/p",
+   "expect": "BRL",
+   "source": "owner, build 95: a price without a currency is in the country's money"
+  },
+  {
+   "url": "https://shop.example.com/p",
+   "expect": "",
+   "source": "owner, build 95: a price without a currency is in the country's money"
+  }
+ ],
+ "marketplace": [
+  {
+   "host": "amazon.co.jp",
+   "expect": "amazon",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "www.ebay.co.uk",
+   "expect": "ebay",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "item.rakuten.co.jp",
+   "expect": "rakuten",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "store.shopping.yahoo.co.jp",
+   "expect": "shopping.yahoo",
+   "source": "2.6 run: two Yahoo Shopping listings"
+  },
+  {
+   "host": "market.yandex.ru",
+   "expect": "market.yandex",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "www.ozon.ru",
+   "expect": "ozon",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "www.coupang.com",
+   "expect": "coupang",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "www.prom.ua",
+   "expect": "prom",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "rozetka.com.ua",
+   "expect": "rozetka",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "www.olx.ua",
+   "expect": "olx",
+   "source": "review 2, S9"
+  },
+  {
+   "host": "www.gumtree.com",
+   "expect": "gumtree",
+   "source": "2.6 live check: two Gumtree listings in a UK answer"
+  },
+  {
+   "host": "www.leboncoin.fr",
+   "expect": "leboncoin",
+   "source": "classifieds"
+  },
+  {
+   "host": "www.kleinanzeigen.de",
+   "expect": "kleinanzeigen",
+   "source": "classifieds"
+  },
+  {
+   "host": "es.wallapop.com",
+   "expect": "wallapop",
+   "source": "classifieds"
+  },
+  {
+   "host": "www.subito.it",
+   "expect": "subito",
+   "source": "classifieds"
+  },
+  {
+   "host": "www.vinted.fr",
+   "expect": "vinted",
+   "source": "classifieds"
+  },
+  {
+   "host": "www.kijiji.ca",
+   "expect": "kijiji",
+   "source": "classifieds"
+  },
+  {
+   "host": "jmty.jp",
+   "expect": "jmty",
+   "source": "classifieds"
+  },
+  {
+   "host": "www.daangn.com",
+   "expect": "daangn",
+   "source": "classifieds"
+  },
+  {
+   "host": "www.chotot.com",
+   "expect": "chotot",
+   "source": "classifieds"
+  },
+  {
+   "host": "haraj.com.sa",
+   "expect": "haraj",
+   "source": "classifieds"
+  },
+  {
+   "host": "dubizzle.com",
+   "expect": "dubizzle",
+   "source": "classifieds"
+  },
+  {
+   "host": "m.bunjang.co.kr",
+   "expect": "bunjang",
+   "source": "classifieds"
+  },
+  {
+   "host": "kettles.example.de",
+   "expect": "",
+   "source": "a shop's own site"
+  },
+  {
+   "host": "www.decathlon.co.uk",
+   "expect": "",
+   "source": "a shop's own site"
+  },
+  {
+   "host": "www.boat-lifestyle.com",
+   "expect": "",
+   "source": "a brand's own site"
+  }
+ ],
+ "same": [
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "name": "LEGO® Klassischer Dampfzug",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "IKEA KALLAX shelving unit with 4 inserts 147x147 cm",
+   "name": "KALLAX Shelving unit with 4 inserts, white, 147x147 cm",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Thule Motion 3 XXL Low roof box 480 L",
+   "name": "Dachbox THULE Motion 3 XXL Low black schwarz glänzend 639500",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Philips LatteGo 5400 Series EP5447/90 espresso machine",
+   "name": "Philips 5400 EP5447/90 Αυτόματος Εσπρεσσομηχανή (LatteGo)",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Weber Spirit E-310 gas grill (liquid propane)",
+   "name": "Weber Spirit Gas Grill, E-310 3 Burner Propane Gas Grill with Wheels, Black",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "kindSearch": "Bausteine Dampfeisenbahn Set Kinder ab 7 Jahren",
+   "name": "LEGO City Classic Steam Train 60511",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "2-bedroom apartment for rent in Limassol",
+   "kindSearch": "2 bedroom apartment for rent Cyprus",
+   "name": "2 Bedroom Apartment for Rent in Limassol",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Philips LatteGo 5400 Series EP5447/90 espresso machine",
+   "kindSearch": "fully automatic bean to cup espresso machine with milk frother",
+   "name": "Philips 5400 EP5447/90 LatteGo",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Weber Spirit E-310 gas grill",
+   "kindSearch": "3-burner propane gas grill with cast iron grates",
+   "name": "Weber Spirit E-310 3-Burner Propane Gas Grill",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Havaianas Top Glitter Neon chinelo",
+   "kindSearch": "chinelo de dedo feminino borracha",
+   "name": "Chinelo Havaianas Top Glitter Neon",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Havaianas Top Glitter Neon chinelo",
+   "kindSearch": "chinelo de dedo feminino borracha",
+   "name": "Chinelo Havaianas Top Glitter Neon Feminino",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Jogo de Frigideiras Tramontina Turim 2 peças em alumínio com antiaderente Starflon Max",
+   "kindSearch": "jogo de frigideiras antiaderente de alumínio 2 peças",
+   "name": "Jogo Frigideiras Tramontina Turim Alumínio Antiaderente Vermelho 2 Peças",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Jogo de Frigideiras Tramontina Turim 2 peças em alumínio com antiaderente Starflon Max",
+   "kindSearch": "jogo de frigideiras antiaderente de alumínio 2 peças",
+   "name": "Tramontina Jogo de Frigideiras Turim em Alumínio Antiaderente Vermelho 2 Pç",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "KitchenAid Artisan Series 5 Quart Tilt-Head Stand Mixer",
+   "kindSearch": "5 quart tilt-head stand mixer with 10 speeds",
+   "name": "KitchenAid Artisan 5-Qt. Stand Mixer",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "KitchenAid Artisan Series 5 Quart Tilt-Head Stand Mixer",
+   "kindSearch": "5 quart tilt-head stand mixer with 10 speeds",
+   "name": "KitchenAid Artisan 5-Qt Tilt-Head Stand Mixer in Ink Blue",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Sony WH-1000XM6 Kopfhörer",
+   "name": "SONY WH-1000XM6 Premium Noise Cancelling, Over-ear Kopfhörer Bluetooth Midnight Blue",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Sony WH-1000XM6 Kopfhörer",
+   "name": "Sony WH-1000XM6 Black",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Garmin Forerunner 965 running watch",
+   "name": "Garmin Forerunner 965 black",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "kindSearch": "Bausatz Dampfeisenbahn Kinder ab 7 Jahren",
+   "name": "LEGO® City Klassischer Dampfzug (60511)",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Amy Cuddy TED talk \"Your body language may shape who you are\"",
+   "kindSearch": "사회심리학 자기계발 강연 영상 한국어",
+   "name": "에이미 커디(Amy Cuddy): 당신의 신체 언어가 자신의 모습을 결정한다.",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Let's build GPT: from scratch, in code, spelled out (Andrej Karpathy)",
+   "kindSearch": "обучающее видео трансформер языковая модель с нуля код",
+   "name": "Андрей Карпаты | Создание GPT с Нуля | Пошаговая Инструкция в Коде | ГПТ Шаг за Шагом",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "The Hoxton, Paris boutique hotel",
+   "kindSearch": "boutique design hotel Paris budget",
+   "name": "The Hoxton, Paris",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Coffee (beverage) overview",
+   "kindSearch": "مقال عن المشروبات الساخنة المحضرة من حبوب محمصة والكافيين",
+   "name": "قهوة - ويكيبيديا",
+   "expect": false,
+   "source": "saved answer: another page on the topic, in the language they asked"
+  },
+  {
+   "subject": "Pomodoro Technique time management method",
+   "kindSearch": "метод управления временем интервалы работы и короткие перерывы на русском",
+   "name": "Метод помидора",
+   "expect": false,
+   "source": "saved answer: another page on the topic, in the language they asked"
+  },
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "name": "LEGO® City Klassischer Dampfzug (60511); Bauset",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Weber Spirit E-310 gas grill",
+   "name": "Weber Spirit E-310 Liquid Propane Gas Grill in Black",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "name": "LEGO® City 60511",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Allbirds Men's Tree Runner sneakers",
+   "name": "Allbirds men’s Tree Runner everyday sneakers",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "KALLAX shelving unit with 4 inserts 147x147 cm",
+   "name": "KALLAX Shelving unit with 4 inserts, white, 147x147 cm",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Thule Motion 3 XXL Low roof box",
+   "name": "Thule Motion 3 XXL low",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "name": "LEGO® 60511 Klassischer Dampfzug",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Thule Motion 3 XXL Low roof box 480 L",
+   "name": "Thule Motion 3 XXL low",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "KALLAX shelving unit with 4 inserts 147x147 cm",
+   "name": "KALLAX Shelving unit, white stained oak effect, 147x147 cm",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "KitchenAid Artisan 5KSM125 Küchenmaschine mit kippbarem Motorkopf 4,7 L",
+   "name": "KitchenAid Artisan Küchenmaschine 5KSM125 Kontur Silber",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "chicken chow mein",
+   "kindSearch": "quick Chinese stir fried noodle recipe with chicken and vegetables",
+   "name": "Chicken Chow Mein",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Havaianas Top Glitter Neon chinelo",
+   "kindSearch": "chinelo de dedo feminino borracha glitter",
+   "name": "Chinelo Havaianas Feminino Top Glitter Neon Original Brilho Conforto Verão",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Jogo de Frigideiras Tramontina Turim 2 peças antiaderente em alumínio",
+   "kindSearch": "jogo de frigideiras antiaderente alumínio 2 peças",
+   "name": "Jogo Frigideiras Tramontina Turim Alumínio Antiaderente Vermelho 2 Peças",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Jogo de Frigideiras Tramontina Turim 2 peças antiaderente em alumínio",
+   "kindSearch": "jogo de frigideiras antiaderente alumínio 2 peças",
+   "name": "Jogo De Frigideiras 2 Peças Alumínio 20198760 Tramontina",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "iPhone 16 Pro Max 256GB",
+   "kindSearch": "điện thoại thông minh cao cấp màn hình OLED 6.9 inch camera tele 5x",
+   "name": "iPhone 16 Pro Max 256GB | Chính hãng VN/A",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "iPhone 16 Pro Max 256GB",
+   "kindSearch": "điện thoại thông minh cao cấp màn hình OLED 6.9 inch camera tele 5x",
+   "name": "iPhone 16 Pro Max 256GB chính hãng",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Peak Design Everyday Backpack 20L",
+   "kindSearch": "20L weatherproof everyday camera and laptop backpack with side access",
+   "name": "Peak Design Everyday Backpack 20L v3",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Brompton A Line 3-speed folding bike",
+   "kindSearch": "3-speed folding bike compact steel frame",
+   "name": "Brompton A Line",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "сырники из творога",
+   "kindSearch": "recipe for cottage cheese fritters breakfast",
+   "name": "Сырники из творога",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Let's build GPT: from scratch, in code, spelled out (Andrej Karpathy video)",
+   "kindSearch": "видео урок трансформер языковая модель с нуля код",
+   "name": "Андрей Карпаты | Создание GPT с Нуля | Пошаговая Инструкция в Коде | ГПТ Шаг за Шагом",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Beef stroganoff",
+   "kindSearch": "quick creamy skillet beef strips with mushroom sauce dinner recipe",
+   "name": "Beef Stroganoff",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "이니스프리 그린티 세럼",
+   "kindSearch": "민감성 피부 진정 수분 세럼 스킨케어",
+   "name": "라운드랩(ROUNDLAB) 소나무 진정 시카 앰플 30ml",
+   "expect": false,
+   "source": "saved answer: the writer called another brand's item the same, and it was dropped as the item itself"
+  },
+  {
+   "subject": "Apple iPad mini (A20 Pro, 8.5-inch OLED) tablet",
+   "name": "iPad mini Wi-Fi 128GB Standard Glass",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "La Roche-Posay Anthelios Invisible Fluid UVMune 400 LSF 50+ Gesichtssonnencreme",
+   "name": "La Roche Posay Anthelios Invisible Fluid UVMune 400 LSF 50+",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Sony WH-1000XM6 Kopfhörer",
+   "name": "Sony WH-1000XM6 Schwarz",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Herman Miller Aeron Chair",
+   "name": "HERMAN MILLER AERON BLACK REFURB TASK CHAIR \"B\"",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "KitchenAid Artisan 5KSM125 Küchenmaschine 4,7 L Milkshake",
+   "name": "KitchenAid Artisan 5KSM125-EMH Milkshake",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Philips LatteGo 5400 Series EP5447/90 espresso machine",
+   "name": "Philips 5400 Series Espresso Coffee Bean Machine",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Prometheus online career courses platform in Ukraine",
+   "kindSearch": "онлайн-курси професійного навчання для нової професії безкоштовно",
+   "name": "Основи тестування програмного забезпечення",
+   "expect": false,
+   "source": "saved answer: another page on the topic, in the language they asked"
+  },
+  {
+   "subject": "Fender Player II Stratocaster MN BLK electric guitar",
+   "kindSearch": "E-Gitarre Solidbody Single-Coil Strat-Typ Ahornhals",
+   "name": "Fender Player II Stratocaster Electric Guitar",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Logitech MX Master 3S wireless mouse",
+   "kindSearch": "ergonomic wireless productivity mouse Bluetooth multi-device",
+   "name": "MX Master 3s Wireless Mouse",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Logitech MX Master 3S wireless mouse",
+   "kindSearch": "ergonomic wireless productivity mouse Bluetooth multi-device",
+   "name": "MX Master 3S Bluetooth Edition Wireless Mouse",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Let's build GPT: from scratch, in code, spelled out (Karpathy video)",
+   "kindSearch": "видеоурок трансформер языковая модель с нуля программирование",
+   "name": "Андрей Карпаты | Создание GPT с Нуля | Пошаговая Инструкция в Коде | ГПТ Шаг за Шагом",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "POÄNG Sessel Birkenfurnier beige",
+   "kindSearch": "Relaxsessel mit Hocker Holzgestell Stoffbezug",
+   "name": "POÄNG Sessel und Hocker, Birkenfurnier/Kelinge beige",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "La Roche-Posay Anthelios Invisible Fluid UVMune 400 LSF 50+ Sonnencreme Gesicht",
+   "name": "La Roche Posay Anthelios Invisible Fluid UVMune 400 LSF 50+",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "name": "LEGO City 60511 Klassischer Dampfzug",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "ECOVACS DEEBOT X12 OmniCyclone robot vacuum and mop",
+   "name": "ECOVACS DEEBOT X12 OMNICYCLONE Robot Vacuum and Mop, 22,000Pa Suction, FocusJet, Bagless Station, Self-Washing Mop Roller With Smart Cover for Carpets",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Der Gesang der Flusskrebse by Delia Owens (paperback)",
+   "name": "Der Gesang der Flusskrebse",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Philips LatteGo 5400 Series EP5447/90 espresso machine",
+   "name": "Philips EP5447/90 LatteGo Series 5400 Automatic Espresso Machine & Water and Limescale Filter CA6903/22 Set of 2",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Quechua Fresh & Black 2 Seconds Easy 2-Personen-Zelt",
+   "name": "QUECHUA Wurfzelt Fresh & Black",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Apple iPad mini (A20 Pro) tablet",
+   "name": "iPad mini Wi-Fi 128GB Standard Glass",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Weber Spirit E-310 gas grill, liquid propane",
+   "name": "Weber Spirit E-310 3-Burner Propane Gas Grill",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Philips LatteGo 5400 Series EP5447/90 espresso machine",
+   "name": "Philips 5400 Series Αυτόματη Μηχανή Espresso 1500W Πίεσης 15bar για Cappuccino με Μύλο Άλεσης Μαύρη EP5447/90",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "name": "LEGO 60511 Klassischer Dampfzug",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "LEGO City Klassischer Dampfzug 60511",
+   "name": "Lego 60511",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Sony WH-1000XM6 Kopfhörer",
+   "name": "Sony WH-1000XM6 (Amazon Warehouse, Wie Neu)",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Philips Airfryer 5000 Series XXL HD9285/90 7.2 L",
+   "name": "Philips Airfryer 5000 Serie XXL, 7,2L (1,4Kg), 16-in-1 Airfryer, Wifi Verbunden, 90% Weniger Fett Mit Rapid Air Technologie, Rezepte-App (HD9285/90)",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Jogo de Frigideiras Tramontina Turim 2 peças em alumínio antiaderente",
+   "kindSearch": "jogo de frigideiras antiaderente de alumínio Brasil",
+   "name": "Jogo de Frigideiras Turim com 02 Peças em Alumínio com Revestimento em Antiaderente Starflon Max 20198660 Chumbo",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Brompton A Line 3-speed folding bike",
+   "kindSearch": "3-speed folding bike UK",
+   "name": "Brompton A-Line 3-Speed Folding Bike Bicycle",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "KitchenAid Artisan Series 5 Quart Tilt-Head Stand Mixer",
+   "kindSearch": "5 quart tilt-head stand mixer with 10 speeds",
+   "name": "KitchenAid Artisan Series 5-Quart Tilt-Head Stand Mixer",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "Innisfree skincare for sensitive skin",
+   "kindSearch": "민감성 피부 저자극 진정 크림 스킨케어",
+   "name": "[공식몰][최혜선PICK]라운드랩 소나무 진정 시카 앰플 30ml",
+   "expect": false,
+   "source": "saved answer: the writer called another brand's item the same, and it was dropped as the item itself"
+  },
+  {
+   "subject": "BALMUDA The Pot 電気ケトル",
+   "kindSearch": "小型 電気ケトル 細口 ドリップ用",
+   "name": "【BALMUDA / バルミューダ】The Pot 電気ケトル / ブラック",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "BALMUDA The Pot 電気ケトル",
+   "kindSearch": "小型 電気ケトル 細口 ドリップ用",
+   "name": "バルミューダ BALMUDA The Pot KPT01JP",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "KitchenAid Artisan 5KSM125 Küchenmaschine 4,7 L",
+   "name": "KitchenAid Artisan Küchenmaschine 5KSM125 Kontur Silber",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Nike Pegasus 42 SE running shoes",
+   "name": "Ghost 18 GTX Laufschuhe für Herren",
+   "expect": false,
+   "source": "saved answer: the writer called another brand's item the same, and it was dropped as the item itself"
+  },
+  {
+   "subject": "Apple iPad mini (A20 Pro) tablet",
+   "name": "iPad mini A20 Pro",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "KitchenAid Artisan 5KSM125 Küchenmaschine (4,7 L, kippbarer Motorkopf)",
+   "name": "KitchenAid Artisan 5KSM125EMH Küchenmaschine 4,8L",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Der Gesang der Flusskrebse Delia Owens Roman",
+   "name": "Der Gesang der Flusskrebse",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Weber Spirit E-310 gas grill, liquid propane",
+   "name": "Weber Spirit E-310 Liquid Propane Gas Grill in Black",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "The Ordinary Niacinamide 10% + Zinc 1% Oil Control Serum",
+   "name": "The Ordinary - 1.0 oz Niacinamide 10% + Zinc 1% Serum for Oily Skin",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Apple iPad mini (A20 Pro) 8.5-inch tablet",
+   "name": "iPad mini Wi-Fi 128GB Standard Glass",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Thule Motion 3 XXL Low roof box",
+   "name": "THULE Motion 3 XXL Low Dachbox Dachkoffer 480 Liter",
+   "expect": true,
+   "source": "saved answer: the writer's \"same\""
+  },
+  {
+   "subject": "2-bedroom apartment for rent in Limassol",
+   "name": "2-bedroom apartment to rent, Limassol",
+   "expect": true,
+   "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Sony Kopfhörer WH-1000XM5",
+   "traits": [
+    "kabellose Over-Ear-Kopfhörer",
+    "aktive Geräuschunterdrückung"
+   ],
+   "name": "Bose Kopfhörer QuietComfort Ultra",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Sony Kopfhörer WH-1000XM5",
+   "kindSearch": "kabellose Kopfhörer Geräuschunterdrückung",
+   "name": "Sony WH-1000XM5 Over-Ear, schwarz",
+   "expect": true,
+   "source": "the overfit review (S4): the same item named another way, in a language the bank lacked"
+  },
+  {
+   "subject": "Tefal Pfanne 28 cm Ingenio",
+   "kindSearch": "Bratpfanne beschichtet 28 cm",
+   "name": "WMF Pfanne 28 cm Permadur",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Bosch Waschmaschine Serie 6 WGG244A40",
+   "kindSearch": "Waschmaschine Frontlader 9 kg",
+   "name": "Siemens Waschmaschine iQ500 9 kg",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Рисоварка Redmond RMC-M90",
+   "traits": [
+    "рисоварка с антипригарной чашей",
+    "объём 5 литров"
+   ],
+   "name": "Рисоварка Polaris PMC 0517",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Рисоварка Redmond RMC-M90",
+   "kindSearch": "рисоварки мультиварки",
+   "name": "Redmond RMC-M90 мультиварка",
+   "expect": true,
+   "source": "the overfit review (S4): the same item named another way, in a language the bank lacked"
+  },
+  {
+   "subject": "Чайник Tefal KO 1,7 л",
+   "kindSearch": "электрический чайник 1,7 л",
+   "name": "Чайник Bosch TWK 1,7 л",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Пилосос Philips XC8043",
+   "kindSearch": "акумуляторний пилосос",
+   "name": "Пилосос Samsung VS20",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Nồi cơm điện Sharp KS-COM18V 1.8 lít",
+   "kindSearch": "nồi cơm điện 1.8 lít",
+   "name": "Nồi cơm điện Toshiba RC-18 1.8 lít",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Nồi cơm điện Sharp KS-COM18V",
+   "kindSearch": "nồi cơm điện",
+   "name": "Sharp KS-COM18V 1.8L",
+   "expect": true,
+   "source": "the overfit review (S4): the same item named another way, in a language the bank lacked"
+  },
+  {
+   "subject": "华为 FreeBuds Pro 3 无线耳机",
+   "kindSearch": "降噪 蓝牙耳机",
+   "name": "小米 Redmi Buds 5 无线耳机",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "华为 FreeBuds Pro 3 无线耳机",
+   "kindSearch": "降噪 蓝牙耳机",
+   "name": "HUAWEI FreeBuds Pro 3 真无线降噪耳机",
+   "expect": true,
+   "source": "the overfit review (S4): the same item named another way, in a language the bank lacked"
+  },
+  {
+   "subject": "象印 電子鍋 6人份",
+   "kindSearch": "微電腦 電子鍋",
+   "name": "虎牌 電子鍋 6人份",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "象印 圧力IH炊飯器 5.5合 NW-JX10",
+   "kindSearch": "圧力IH 炊飯器",
+   "name": "タイガー 圧力IH炊飯器 5.5合 JPI-Y100",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "쿠쿠 전기압력밥솥 6인용 CRP-P0660",
+   "kindSearch": "전기 압력밥솥",
+   "name": "쿠첸 IH 압력밥솥 6인용",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Zojirushi rice cooker 5.5 cup NS-TSC10",
+   "kindSearch": "rice cooker 5.5 cup",
+   "name": "Tiger rice cooker 5.5 cup JBV-A10U",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Aspirateur Dyson V15 Detect",
+   "kindSearch": "aspirateur balai sans fil",
+   "name": "Aspirateur Rowenta X-Force Flex",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "مكنسة كهربائية سامسونج",
+   "kindSearch": "مكنسة كهربائية لاسلكية",
+   "name": "مكنسة كهربائية فيليبس",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  }
+ ]
+}

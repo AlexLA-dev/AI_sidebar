@@ -921,7 +921,8 @@ const ACTION_RU = {
   start: "начали", done: "закончили", skip: "пропустили", view: "открыли", edit: "изменили", delete: "удалили", play: "смотрели ролик",
   ask: "спросили", action: "быстрое действие", question: "вопрос в поле", note: "заметка", remind: "напомнить", drag: "перетащили",
   hide_site: "скрыли на сайте", optin_accepted: "включили подсказки", optin_declined: "не включили подсказки",
-  pick: "выбрали пункт", daily: "сводка за день", list: "открыли список"
+  pick: "выбрали пункт", daily: "сводка за день", list: "открыли список",
+  due: "момент наступил", link: "нажали «Оценить в App Store»"
 }
 const VIA_RU = {
   toolbar: "кнопка Safari", shortcut: "сочетание клавиш", fab: "кнопка ✦", bubble: "кнопки у выделения", composer: "поле вопроса",
@@ -929,7 +930,10 @@ const VIA_RU = {
   deeplink: "ссылка", usage_line: "строка «осталось»", limit: "карточка лимита", pro_only: "отказ: только Pro", media: "видео и PDF",
   pro_card: "карточка Pro", settings: "настройки", button: "кнопка у поля", slash: "«/»", reminder: "напоминание",
   chat: "чат", google: "Google", find: "ИИ-поиск", app: "приложение", panel: "панель", remind: "напоминание", watch: "слежение",
-  menu: "меню «…»", link: "ссылка «Все напоминания»", tab: "вкладка приложения"
+  menu: "меню «…»", link: "ссылка «Все напоминания»", tab: "вкладка приложения",
+  app_answer: "ответы в приложении", ext_moment: "ответы в Safari", tour: "тур по тарифу", purchase: "после покупки",
+  similar: "«Найти похожее» в приложении", listen: "Listen до конца", whatsnew: "«Что нового»", organize: "приняли подсказку",
+  footer: "ссылки внизу"
 }
 const stepName = (step) => {
   if (step === "start") return "начало сессии"
@@ -984,6 +988,38 @@ function featuresPanel(rep, totalDays, redraw) {
     `Люди за ${totalDays} дн. (активных за период — ${n.format(rep.active || 0)}). «Из тех, у кого есть» — доля от активных на версиях, где функция есть и уже присылает шаги (у большинства функций это 2.5), там, где она есть: в Safari или в приложении. «2+ недели» — пользовались в двух и больше разных неделях. «Не используют» — функции, которыми за период пользовались не больше одного человека из 20 и больше, у кого она есть. ` +
     "Отдельные функции видны с 2.5: старые версии присылают только ответы, лимиты, отказы «только Pro», предложения Pro, вопрос о продлении, открытие приложения и включение расширения. " +
     "Нажмите на строку — откуда пришли, что сделали дальше, входы, устройства и недели. Без тестов, App Review и предпросмотров."))
+  return panel
+}
+
+// «Просьба оценки» by platform (cf_rate_report, 2.6 (100)): when a milestone of good answers was reached, when the app
+// asked Apple, and taps on "Rate in App Store".
+const RATE_VIA_ORDER = ["ext_moment", "app_answer", "tour", "purchase", "similar", "listen", "whatsnew", "organize", "settings", "footer", "menu"]
+function ratePanel(rep) {
+  const title = "Просьба оценки в App Store по платформам"
+  if (!rep) return table(title, [], [], "Нет данных: в базе ещё нет функции cf_rate_report (миграция 20261111160000).")
+  const platforms = unique([...(rep.by_platform || []).map((r) => r.platform)]).sort((a, b) =>
+    ["ios", "ipados", "macos", "chrome", "unknown"].indexOf(a) - ["ios", "ipados", "macos", "chrome", "unknown"].indexOf(b))
+  const cell = (platform, a) => {
+    const r = (rep.by_platform || []).find((x) => x.platform === platform && x.a === a)
+    return el("td", {}, r ? `${n.format(r.steps)} · ${n.format(r.people)} чел.` : "—")
+  }
+  const ways = (platform, a) => (rep.by_via || []).filter((x) => x.platform === platform && x.a === a)
+    .sort((x, y) => RATE_VIA_ORDER.indexOf(x.via) - RATE_VIA_ORDER.indexOf(y.via))
+    .map((x) => `${VIA_RU[x.via] || x.via || "—"} ${n.format(x.steps)}`).join(" · ") || "—"
+  const rows = platforms.map((p) => el("tr", {},
+    el("td", {}, p === "unknown" ? "не указано" : PLATFORMS[p] || p),
+    cell(p, "due"), cell(p, "ask"), cell(p, "link"),
+    el("td", {}, ways(p, "ask"))
+  ))
+  const moments = (rep.by_moment || []).filter((x) => x.a === "due")
+    .map((x) => `${VIA_RU[x.via] || x.via}: ${x.moment}-й — ${n.format(x.steps)}`).join(" · ")
+  const panel = table(title, ["Устройство", "Момент наступил", "Попросили Apple", "«Оценить в App Store»", "Почему попросили"], rows,
+    "За период ни одного шага: ни моментов, ни просьб. Их присылает 2.6 (100).", "num2")
+  panel.append(el("p", { class: "hint" },
+    "Шаги · люди. «Момент наступил» — 3-й, 10-й, 30-й, 100-й и 300-й удачный ответ: в Safari (его присылает расширение, а приложение спрашивает, когда его в следующий раз откроют) или в чатах самого приложения. " +
+    "«Попросили Apple» — приложение вызвало системную просьбу об оценке. Показала ли Apple своё окно, не узнать: не больше 3 раз за 365 дней, никогда в TestFlight. " +
+    "Просьба ждёт, пока на экране что-то делают (тур, покупка, плеер, вопрос об уведомлениях), и не идёт в первую сессию. " +
+    (moments ? `Моменты: ${moments}. ` : "") + "Без тестов, App Review и предпросмотров."))
   return panel
 }
 
@@ -1887,6 +1923,7 @@ function render(data, fx) {
     live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
     afterLimitPanel(data.after_limit),
     live((redraw) => featuresPanel(data.features, data.days, redraw)),
+    ratePanel(data.rate_report),
     funnelsPanel(data.feature_funnels),
     sessionsPanel(data.features),
     table("Код −50% и первая оплата по дням", ["День (UTC)", "Подписались по коду −50%", "Первая оплата"],

@@ -94,7 +94,7 @@ enum ChatAI {
         let object = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
         switch object?["code"] as? String {
         case "PRO_ONLY": return .proOnly
-        case "LIMIT_REACHED": return object?["plan"] as? String == "pro" ? .limitReached : .dailyLimit
+        case "LIMIT_REACHED": return ["pro", "ultra"].contains(object?["plan"] as? String ?? "") ? .limitReached : .dailyLimit
         case "BUSY", "UPSTREAM": return .busy
         default: return status == 403 ? .proOnly : .network
         }
@@ -168,6 +168,72 @@ enum ChatAI {
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
         let limits = object["limits"] as? [String: Any]
         return ((object["upgradeOffer"] as? [String: Any])?["discount"] as? Int, limits?["searchFreeDaily"] as? Int, limits?["searchProWeekly"] as? Int)
+    }
+
+    /// What the plans say (2.6), from the server: Pro's answers a week, Ultra's listening minutes and find-similar
+    /// searches a week, and the pages each plan watches; Ultra's listening left this week. nil without an answer.
+    @MainActor
+    static func planFacts() async -> PlanFacts? {
+        guard let request = try? request("api/v2/status", identity()),
+              let (data, response) = try? await URLSession.shared.data(for: request),
+              (response as? HTTPURLResponse)?.statusCode == 200,
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let limits = object["limits"] as? [String: Any] else { return nil }
+        let watch = limits["watch"] as? [String: Int] ?? [:]
+        let speak = (object["ultra"] as? [String: Any])?["speak"] as? [String: Any]
+        return PlanFacts(
+            proWeekly: limits["proWeekly"] as? Int ?? 375,
+            speakWeeklyMinutes: (limits["speakWeeklySeconds"] as? Int ?? 1800) / 60,
+            similarWeekly: limits["similarWeekly"] as? Int ?? 10,
+            watchPro: watch["pro"] ?? 20,
+            watchUltra: watch["ultra"] ?? 50,
+            speakLeftSeconds: speak.flatMap { s in (s["limit"] as? Int).map { max(0, $0 - (s["used"] as? Int ?? 0)) } }
+        )
+    }
+
+    struct PlanFacts: Equatable {
+        var proWeekly = 375
+        var speakWeeklyMinutes = 30
+        var similarWeekly = 10
+        var watchPro = 20
+        var watchUltra = 50
+        var speakLeftSeconds: Int?
+    }
+
+    /// Read aloud (2.6, Ultra): one part of the text, spoken by our server (/api/v2/speak), as 24 kHz 16-bit PCM.
+    @MainActor
+    /// `model`: the one the text's first part came from (X-CF-Model), so every part has the same voice (build 91).
+    static func speechRequest(text: String, lang: String, what: String, part: Int, parts: Int, model: String = "", heard: [[String: Any]] = []) throws -> URLRequest {
+        var body = identity()
+        body["text"] = text
+        body["lang"] = lang
+        body["what"] = what
+        body["part"] = part
+        body["parts"] = parts
+        if !model.isEmpty { body["model"] = model }
+        // What's been heard and not counted yet (build 92: the week's minutes count what's heard), counted first.
+        if !heard.isEmpty { body["heard"] = heard }
+        return try request("api/v2/speak", body)
+    }
+
+    /// Read aloud's seconds heard, by part key (build 92), to /api/v2/speak-heard.
+    @MainActor
+    static func heardRequest(_ items: [[String: Any]], texts: [[String: Any]] = []) throws -> URLRequest {
+        var body = identity()
+        body["items"] = items
+        // Build 95: the texts heard from, or a chat's answers: which are voiced, as the server counts them.
+        if !texts.isEmpty { body["texts"] = texts }
+        return try request("api/v2/speak-heard", body)
+    }
+
+    /// Read aloud: the text written for the ear by our server (/api/v2/speak-script, Claude Haiku), streamed as plain text.
+    @MainActor
+    static func scriptRequest(text: String, what: String, lang: String) throws -> URLRequest {
+        var body = identity()
+        body["text"] = text
+        body["what"] = what
+        body["lang"] = lang
+        return try request("api/v2/speak-script", body)
     }
 
     /// The server's signature for Pro's promotional offer (only for an active Own key subscription).
@@ -294,6 +360,8 @@ enum ChatAI {
         body["messages"] = messages
         body["stats"] = stats(turns: messages.count, pages: 0)
         body["history"] = digests(chats, perChat: 2_500, perAnswer: 500, total: 55_000)
+        // Build 94: the chats the answer names come as [name](chat:<id>), links that open them (RowMarks).
+        body["links"] = true
         try await stream(try request("api/v2/chat", body), onText: onText)
     }
 
@@ -378,6 +446,26 @@ extension ChatAI {
             guard let tag = v["tag"] as? String, let fits = v["fits"] as? Bool else { return nil }
             return Verdict(tag: tag, fits: fits, confidence: (v["confidence"] as? NSNumber)?.doubleValue ?? 0)
         }
+    }
+
+    /// A name for a chat by its topic (2.6, /api/v2/organize op "name"; `chat` is Organize.nameText), and whether
+    /// `current` still fits (false without one).
+    static func organizeName(chat: String, current: String?) async throws -> (title: String, fits: Bool) {
+        var body = identity()
+        body["op"] = "name"
+        body["chat"] = chat
+        if let current { body["current"] = current }
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/organize", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let title = (object["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else { throw failure(status, data) }
+        return (title, object["fits"] as? Bool ?? false)
+    }
+
+    /// A step in a feature ("use", src/shared/usage.ts): f, a and its allowed fields, never text (build 90: listen).
+    @MainActor
+    static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:]) {
+        reportOrganize("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 })
     }
 
     /// An organizing event (kind organize / organize_promo / organize_optin): what and where, never text.

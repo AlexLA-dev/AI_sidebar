@@ -11,6 +11,9 @@
  "languageName": {
   "message": "한국어"
  },
+ "langCode": {
+  "message": "ko"
+ },
  "ctxPage": {
   "message": "이 페이지"
  },
@@ -302,6 +305,9 @@
  "uxRemindTitle": {
   "message": "언제 알려 드릴까요?"
  },
+ "uxNoteWords": {
+  "message": "메모 (선택)"
+ },
  "uxRemindAsked": {
   "message": "알려 달라고 하셨던 내용: {0}"
  },
@@ -447,10 +453,10 @@
   "message": "ContextFlow가 AI를 사용하기 전에"
  },
  "consentBody": {
-  "message": "이 동의는 한 번만 하면 모든 AI 기능에 적용돼요. 각 기능은 사용할 때 필요한 것만 당사 서버를 거쳐 Anthropic(Claude)으로 보내요. 당사 서버에는 아무것도 저장되지 않으며, 제공업체는 이를 학습에 사용하지 않아요."
+  "message": "한 번만 동의하면 모든 AI 기능에 적용돼요. 각 기능은 사용할 때 필요한 것만 당사 서버를 거쳐 Anthropic(Claude), OpenAI(예비 답변, 추천), Google Gemini(Google 답변)로 보내요. 내 API 키를 쓰면 해당 제공업체로 바로 가요. 서버에 아무것도 남지 않고 학습에도 쓰이지 않아요."
  },
  "consentAnswers": {
-  "message": "답변: 질문, 페이지 텍스트나 선택한 부분, 그리고 작성했다면 ‘내 소개’. Claude를 사용할 수 없으면 OpenAI가 답하고, Google 답변은 Google로 가요."
+  "message": "답변: 질문, 페이지 텍스트나 선택한 부분, 그리고 작성했다면 ‘내 소개’. Claude를 사용할 수 없으면 OpenAI가 답하고, Google 답변은 Google Gemini로 가요."
  },
  "consentChats": {
   "message": "‘모든 채팅에 묻기’와 AI 검색(Pro): 채팅의 짧은 발췌."
@@ -695,6 +701,132 @@
  "tourWholeBody": {
   "message": "질문에 모든 내용이 필요할 때 '채팅 전체'를 켜세요: 모든 메시지, 메모, 이 채팅의 다른 페이지. 끄면: 최근 메시지와 이 페이지."
  },
+ "tourMenuTitle": {
+  "message": "그 밖의 기능"
+ },
+ "tourMenuBody": {
+  "message": "리마인더와 지켜보는 페이지, 팁, 설정, 기본 안내 다시 보기는 이 메뉴에 있어요."
+ },
+ "guideSumTitle": {
+  "message": "첫 번째 답변"
+ },
+ "guideSumBody": {
+  "message": "‘{0}’를 탭하면 ContextFlow가 이 페이지를 읽고 요약해 줘요."
+ },
+ "guideConsentTitle": {
+  "message": "모든 AI 기능에 한 번만 동의"
+ },
+ "guideConsentBody": {
+  "message": "AI로 무언가를 보내기 전에 ContextFlow가 한 번 물어봐요. 동의하면 요약을 받을 수 있어요."
+ },
+ "guideAnswerTitle": {
+  "message": "요약이 준비됐어요"
+ },
+ "guideAnswerBody": {
+  "message": "스크롤해서 읽어 보세요. 아래 입력란에서 언제든 이어서 질문할 수 있어요."
+ },
+ "guideSelectTitle": {
+  "message": "이제 일부분에 대해 물어보세요"
+ },
+ "guideSelectBodyTouch": {
+  "message": "페이지의 단어를 길게 누르고 선택 범위를 몇 줄로 늘린 다음 ‘{0}’를 탭하세요."
+ },
+ "guideSelectBodyMouse": {
+  "message": "페이지에서 몇 줄을 선택하고 ‘{0}’를 클릭하세요."
+ },
+ "guideSelectGo": {
+  "message": "해 보기"
+ },
+ "guidePickTouch": {
+  "message": "페이지의 단어를 길게 누르세요"
+ },
+ "guidePickMouse": {
+  "message": "페이지에서 몇 줄을 선택하세요"
+ },
+ "guideTapAskTouch": {
+  "message": "‘{0}’를 탭해서 선택한 부분에 대해 물어보세요."
+ },
+ "guideTapAskMouse": {
+  "message": "‘{0}’를 클릭해서 선택한 부분에 대해 물어보세요."
+ },
+ "guideAskSelTitle": {
+  "message": "선택한 부분에 대해 묻기"
+ },
+ "guideAskSelBody": {
+  "message": "‘{0}’ 같은 빠른 동작을 고르거나 직접 질문을 입력하세요."
+ },
+ "uxShowIntro": {
+  "message": "기본 안내 다시 보기"
+ },
+ "uxOther": {
+  "message": "기타…"
+ },
+ "uxRate": {
+  "message": "App Store에서 평가하기"
+ },
+ "tipClipNeedsApp": {
+  "message": "이 영상을 보려면 ContextFlow 앱을 한 번 열어 주세요."
+ },
+ "busyWorking": {
+  "message": "답변 준비 중…"
+ },
+ "busyNew": {
+  "message": "새 답변이 있습니다"
+ },
+ "ptMenu": {
+  "message": "{0}에 포함된 기능"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: 동영상과 PDF"
+ },
+ "ptProMediaBody": {
+  "message": "동영상이나 PDF가 있는 페이지에서는 그것도 읽습니다. 동영상 자막과 PDF 본문까지요. 그냥 물어보세요."
+ },
+ "ptProFindTitle": {
+  "message": "채팅 AI 검색"
+ },
+ "ptProFindBody": {
+  "message": "검색창 옆 ✦를 켜고 기억나는 채팅을 설명해 보세요. 정확한 단어가 아니어도 됩니다."
+ },
+ "ptProAskTitle": {
+  "message": "모든 채팅에 질문"
+ },
+ "ptProAskBody": {
+  "message": "‘{0}’ 기능은 읽고 물어본 모든 것에서 답합니다. 예: “이번 주에 뭘 읽었지?”"
+ },
+ "ptProSortTitle": {
+  "message": "주제별 정리"
+ },
+ "ptProSortBody": {
+  "message": "답변 아래에 채팅에 붙일 태그나 폴더가 제안됩니다. 한 번 탭하면 정리되고, 되돌릴 수도 있습니다."
+ },
+ "ptProTemplatesTitle": {
+  "message": "템플릿"
+ },
+ "ptProTemplatesBody": {
+  "message": "텍스트를 선택하고 ‘{0}’ 버튼을 탭해 저장한 뒤 어느 입력란에든 붙여 넣으세요. 원하는 만큼 저장할 수 있습니다."
+ },
+ "ptProWatchTitle": {
+  "message": "최대 20개 페이지 지켜보기"
+ },
+ "ptProWatchBody": {
+  "message": "‘…’ 메뉴의 ‘{0}’ 항목은 페이지가 바뀌면 알려 줍니다. 가격, 날짜, 새 글 등."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: 듣기"
+ },
+ "ptUltraListenBody": {
+  "message": "답변 아래 ‘{0}’ 버튼이나 ‘…’ 메뉴의 ‘{1}’ 항목을 탭하세요. 듣기 좋게 다시 쓴 글을 소리 내어 읽어 줍니다."
+ },
+ "ptUltraSimilarBody": {
+  "message": "보고 있는 것의 실제 대안을, 모든 링크를 열어 확인한 뒤 보여 줍니다. 여기나 ‘…’ 메뉴에서 ‘{0}’ 항목을 탭하거나, 텍스트를 선택하고 ‘{1}’ 칩을 탭하세요."
+ },
+ "ptUltraWatchTitle": {
+  "message": "최대 50개 페이지 지켜보기"
+ },
+ "ptUltraWatchBody": {
+  "message": "이제 ‘…’ 메뉴의 ‘{0}’ 항목으로 최대 50개 페이지를 한 번에 지켜볼 수 있습니다."
+ },
  "welcomeTitle": {
   "message": "ContextFlow가 준비됐어요"
  },
@@ -715,6 +847,12 @@
  },
  "selQuestion": {
   "message": "질문 입력…"
+ },
+ "selTranslateTo": {
+  "message": "{0}로 번역"
+ },
+ "selChips": {
+  "message": "빠른 동작"
  },
  "selNote": {
   "message": "메모"
@@ -758,6 +896,9 @@
  "usageProShort": {
   "message": "Pro · 이번 주 {0}/{1}개 남음"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 이번 주 {0}/{1}개 남음"
+ },
  "pinChat": {
   "message": "채팅 고정"
  },
@@ -772,6 +913,12 @@
  },
  "chatNotes": {
   "message": "이 채팅의 메모"
+ },
+ "chatWatches": {
+  "message": "이 채팅에서 지켜보는 페이지: {0}"
+ },
+ "chatReminder": {
+  "message": "이 채팅에 리마인더가 있어요"
  },
  "pages_one": {
   "message": "페이지 {0}개"
@@ -800,7 +947,19 @@
  "pickNone": {
   "message": "선택 해제"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
+ },
+ "limitFreeBack_two": {
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
+ },
+ "limitFreeBack_few": {
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
+ },
+ "limitFreeBack_many": {
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
+ },
+ "limitFreeBack_other": {
   "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
  },
  "limitFreePro": {
@@ -1346,6 +1505,63 @@
  "orgFirstWin": {
   "message": "완료. 이제부터 알아서 추천할게요."
  },
+ "orgNameChat": {
+  "message": "주제로 이름 짓기"
+ },
+ "orgNamed": {
+  "message": "‘{0}’(으)로 이름을 지었어요"
+ },
+ "orgNameFailed": {
+  "message": "지금은 채팅 이름을 짓지 못했어요. 나중에 다시 해 보세요."
+ },
+ "orgNameAs": {
+  "message": "채팅 이름을 ‘{0}’(으)로"
+ },
+ "orgMatch": {
+  "message": "{0}% 일치"
+ },
+ "orgMergeInto": {
+  "message": "‘{0}’에 합치기"
+ },
+ "orgMergeA11y": {
+  "message": "이 채팅을 ‘{0}’ 채팅에 합치기"
+ },
+ "orgMerged": {
+  "message": "‘{0}’에 합쳤어요"
+ },
+ "orgMergeHere": {
+  "message": "‘{0}’을 여기로 합치기"
+ },
+ "orgMergeHereA11y": {
+  "message": "이전 채팅 ‘{0}’을 이 채팅에 합치기"
+ },
+ "orgMergedHere": {
+  "message": "‘{0}’을 여기로 합쳤어요"
+ },
+ "orgBarOne": {
+  "message": "추천 · {0}"
+ },
+ "orgBarOf": {
+  "message": "추천 · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "이 채팅의 추천"
+ },
+ "recs_one": {
+  "message": "추천 {0}개"
+ },
+ "recs_two": {
+  "message": "추천 {0}개"
+ },
+ "recs_few": {
+  "message": "추천 {0}개"
+ },
+ "recs_many": {
+  "message": "추천 {0}개"
+ },
+ "recs_other": {
+  "message": "추천 {0}개"
+ },
  "orgConsentTitle": {
   "message": "채팅을 주제별로 정리할까요?"
  },
@@ -1393,6 +1609,9 @@
  },
  "watchWhen": {
   "message": "알려 줄 때"
+ },
+ "watchNoteWords": {
+  "message": "메모 (선택)"
  },
  "watchCondPrice": {
   "message": "가격이 바뀌면 (지금 {0})"
@@ -1508,6 +1727,552 @@
  "watchChangedBody": {
   "message": "지금: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "요금제"
+ },
+ "plansCompare": {
+  "message": "요금제 비교"
+ },
+ "plansMonthly": {
+  "message": "월간"
+ },
+ "plansYearly": {
+  "message": "연간"
+ },
+ "plansSave": {
+  "message": "{0}% 절약"
+ },
+ "plansCurrent": {
+  "message": "내 요금제"
+ },
+ "plansChoose": {
+  "message": "{0} 선택"
+ },
+ "plansPerMonth": {
+  "message": "{0}/월"
+ },
+ "plansPerYear": {
+  "message": "{0}/년"
+ },
+ "plansNote": {
+  "message": "구독은 ContextFlow 앱에서 해요. Ultra로 바꾸면 바로 시작되고, 현재 요금제의 남은 기간은 Apple이 환불해요."
+ },
+ "plansCurrency": {
+  "message": "가격은 {0} 기준이며 App Store에 표시된 그대로입니다."
+ },
+ "tierByok1": {
+  "message": "내 OpenAI 또는 Claude API 키로 답변 무제한"
+ },
+ "tierByok2": {
+  "message": "페이지의 모든 것: 요약, 설명, 번역"
+ },
+ "tierPro1": {
+  "message": "주당 최대 {0}개 답변, API 키 필요 없음"
+ },
+ "tierPro2": {
+  "message": "동영상과 PDF, AI 검색, '모든 채팅에 묻기', 주제별 정리"
+ },
+ "tierPro3": {
+  "message": "최대 {0}개 페이지 지켜보기: 가격 인하와 변화"
+ },
+ "tierUltra0": {
+  "message": "Pro의 모든 기능, 그리고:"
+ },
+ "tierUltra1": {
+  "message": "답변과 페이지 전체를 자연스러운 목소리로 듣기: 주당 {0}분"
+ },
+ "tierUltra2": {
+  "message": "비슷한 것 찾기: 어떤 페이지든 대안을 찾아 줍니다. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로. 주당 {0}회"
+ },
+ "tierUltra3": {
+  "message": "최대 {0}개 페이지 지켜보기"
+ },
+ "listen": {
+  "message": "듣기"
+ },
+ "listenPage": {
+  "message": "이 페이지 듣기"
+ },
+ "listenPause": {
+  "message": "일시정지"
+ },
+ "listenPlay": {
+  "message": "재생"
+ },
+ "listenStop": {
+  "message": "중지"
+ },
+ "listenClose": {
+  "message": "정지하고 닫기"
+ },
+ "listenPlayingHere": {
+  "message": "재생 중"
+ },
+ "listenVoiced": {
+  "message": "이미 읽어 준 내용: 다시 들어도 무료"
+ },
+ "listenMadeLeft": {
+  "message": "이미 읽어 준 내용: 듣지 않은 부분만 차감돼요, {0}"
+ },
+ "listenGoTo": {
+  "message": "원래 위치로 이동"
+ },
+ "listenLoading": {
+  "message": "음성을 준비하고 있어요…"
+ },
+ "listenUltraTitle": {
+  "message": "듣기는 Ultra에 포함돼요"
+ },
+ "listenUltraBody": {
+  "message": "답변과 페이지 전체를 자연스러운 목소리로 읽어 줘요. 100개 이상의 언어를 지원해요. iPhone에서는 화면을 잠가도 계속 재생돼요."
+ },
+ "listenLimit": {
+  "message": "이번 주 듣기 {0}분을 모두 사용했어요. {1}에 다시 채워져요."
+ },
+ "listenFailed": {
+  "message": "소리 내어 읽지 못했어요. 잠시 후 다시 시도해 주세요."
+ },
+ "listenOffline": {
+  "message": "인터넷에 연결되어 있지 않아요. 처음 들을 때는 인터넷이 필요해요."
+ },
+ "listenInApp": {
+  "message": "듣기는 ContextFlow 앱에서 재생되어서 화면을 잠가도, 헤드폰에서도 계속 재생돼요."
+ },
+ "listenLeft": {
+  "message": "듣기: 이번 주 {1}분 중 {0}분 남음"
+ },
+ "watchFullPro": {
+  "message": "Pro로는 페이지 {0}개까지 동시에 지켜볼 수 있어요. Ultra는 {1}개까지."
+ },
+ "watchMoreUltra": {
+  "message": "Ultra로 더 많이"
+ },
+ "seeUltra": {
+  "message": "Ultra 보기"
+ },
+ "usageUltra": {
+  "message": "Ultra · 이번 주 남은 답변 {0}/{1}개"
+ },
+ "actSimilar": {
+  "message": "비슷한 것 찾기"
+ },
+ "selSimilar": {
+  "message": "비슷한 것 찾기"
+ },
+ "uxSimilar": {
+  "message": "비슷한 것 찾기…"
+ },
+ "similarTitle": {
+  "message": "비슷한 것 찾기"
+ },
+ "similarConditions": {
+  "message": "조건"
+ },
+ "similarCheaper": {
+  "message": "더 저렴하게"
+ },
+ "similarInStock": {
+  "message": "재고 있음"
+ },
+ "similarNewer": {
+  "message": "더 최신"
+ },
+ "similarFree": {
+  "message": "무료"
+ },
+ "similarMyLanguage": {
+  "message": "내 언어로"
+ },
+ "similarShorter": {
+  "message": "더 짧게"
+ },
+ "similarInLanguage": {
+  "message": "{0}로"
+ },
+ "similarCustom": {
+  "message": "또는 원하는 것을 적어 주세요(선택)"
+ },
+ "similarHint": {
+  "message": "지금 실제로 있는 대안입니다. 보여 드리기 전에 모든 링크를 열어 확인합니다."
+ },
+ "similarFind": {
+  "message": "찾기"
+ },
+ "similarAsked": {
+  "message": "비슷한 것 찾기"
+ },
+ "similarAskedWith": {
+  "message": "비슷한 것 찾기: {0}"
+ },
+ "similarStockIn": {
+  "message": "재고 있음"
+ },
+ "similarStockOut": {
+  "message": "품절"
+ },
+ "similarFromList": {
+  "message": "리뷰에서 언급됨"
+ },
+ "similarNotConfirmed": {
+  "message": "확인되지 않음"
+ },
+ "similarNotOpened": {
+  "message": "페이지를 열어 확인하지 못했습니다"
+ },
+ "similarWatchPrice": {
+  "message": "가격 지켜보기"
+ },
+ "similarStepPlan": {
+  "message": "페이지를 읽는 중…"
+ },
+ "similarStepSearch": {
+  "message": "웹을 검색하는 중…"
+ },
+ "similarStepCheck": {
+  "message": "페이지를 확인하는 중…"
+ },
+ "similarStepCheckN": {
+  "message": "페이지 {0}개를 확인하는 중…"
+ },
+ "similarStepWrite": {
+  "message": "가장 좋은 것을 고르는 중…"
+ },
+ "similarNone": {
+  "message": "이 페이지에 대해 확인된 대안이 없습니다. 다른 조건으로 또는 조건 없이 해 보세요."
+ },
+ "similarChecked": {
+  "message": "{0}에 링크 확인됨"
+ },
+ "similarUpsellText": {
+  "message": "지금 보고 있는 것의 실제 대안: 상품, 앱, 기사, 레시피, 장소."
+ },
+ "similarUpsellChecked": {
+  "message": "모든 링크를 열어 확인: 죽은 페이지나 지어낸 페이지는 없습니다."
+ },
+ "similarUpsellConditions": {
+  "message": "더 저렴하게, 재고 있음, 더 최신, 무료, 내 언어로, 또는 직접 적어서."
+ },
+ "similarUpsellWatch": {
+  "message": "가격과 재고는 페이지에 나온 그대로, 가격 지켜보기도 됩니다."
+ },
+ "similarGetUltra": {
+  "message": "Ultra 받기"
+ },
+ "similarOff": {
+  "message": "'비슷한 것 찾기'는 아직 이용할 수 없습니다."
+ },
+ "similarLimit": {
+  "message": "이번 주 '비슷한 것 찾기' {0}회를 모두 사용했습니다. {1}에 다시 채워집니다."
+ },
+ "orgDemoQuestion": {
+  "message": "5월 리스본 저렴한 항공권?"
+ },
+ "orgDemoAnswer": {
+  "message": "5월 베를린–리스본 왕복 항공권은 약 90유로부터입니다. 6~8주 전에 예약하는 것이 좋아요."
+ },
+ "orgDemoTag": {
+  "message": "휴가"
+ },
+ "orgDemoChat": {
+  "message": "여행"
+ },
+ "listenSpeed": {
+  "message": "속도: {0}. 탭해서 다른 속도 선택"
+ },
+ "plansYearlySave": {
+  "message": "연간 · 최대 {0}% 절약"
+ },
+ "plansPerMonthYearly": {
+  "message": "월 {0}, 연간 결제"
+ },
+ "plansSaveMoney": {
+  "message": "1년에 {0} 절약"
+ },
+ "yearlyNudge": {
+  "message": "{0} 연간 결제 시 1년에 {1}({2}%) 절약돼요."
+ },
+ "yearlyNudgeButton": {
+  "message": "연간으로 전환"
+ },
+ "yearlyNudgeNote": {
+  "message": "연간 결제는 이번 달 이용 기간이 끝나면 시작돼요."
+ },
+ "yearlyNudgeHide": {
+  "message": "숨기기"
+ },
+ "galleryTitle": {
+  "message": "포함된 기능"
+ },
+ "galleryNext": {
+  "message": "다음"
+ },
+ "galleryPrevious": {
+  "message": "이전"
+ },
+ "gMediaTitle": {
+  "message": "동영상과 PDF"
+ },
+ "gMediaLine": {
+  "message": "동영상 자막과 PDF 페이지를 바탕으로 답해요."
+ },
+ "gMediaVideo": {
+  "message": "동영상 자막 · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "3분기 보고서 · 3쪽"
+ },
+ "gMediaAnswer": {
+  "message": "3분기 매출이 12% 늘었습니다. 동영상에서 CEO는 새 구독 요금제 덕분이라고 설명합니다."
+ },
+ "gSearchTitle": {
+  "message": "AI 검색과 '모든 채팅에 묻기'"
+ },
+ "gSearchLine": {
+  "message": "설명만으로 채팅을 찾거나, 모든 채팅에 한 번에 물어보세요."
+ },
+ "gSearchQuery": {
+  "message": "수면과 커피에 관한 그 기사"
+ },
+ "gSearchResult": {
+  "message": "카페인과 수면"
+ },
+ "gSearchSnippet": {
+  "message": "오후 2시 이후 커피가 깊은 수면을 5분의 1 줄였다…"
+ },
+ "gSearchWhen": {
+  "message": "지난주"
+ },
+ "gTemplatesTitle": {
+  "message": "제한 없는 템플릿"
+ },
+ "gTemplatesLine": {
+  "message": "나만의 프롬프트와 답장에 이름과 날짜를 페이지에서 채워 넣어요."
+ },
+ "gTemplatesName": {
+  "message": "통화 후 후속 연락"
+ },
+ "gTemplatesBody": {
+  "message": "{0} 님, 안녕하세요. {1} 통화 감사합니다. 말씀드린 대로 다음 단계를 보내 드려요."
+ },
+ "gTemplatesPerson": {
+  "message": "지은"
+ },
+ "gTemplatesDay": {
+  "message": "화요일"
+ },
+ "gWatchTitle": {
+  "message": "{0}개 페이지 지켜보기"
+ },
+ "gWatchLine": {
+  "message": "가격이 내리거나 페이지가 바뀌면 알려 드려요."
+ },
+ "gWatchChanged": {
+  "message": "바뀜: 가격"
+ },
+ "gWatchNow": {
+  "message": "지금: {0} (이전 {1})"
+ },
+ "gWatchManyLine": {
+  "message": "최대 {0}개 페이지의 가격, 재고, 변화를 한 번에 지켜봐요."
+ },
+ "gWatchItem1": {
+  "message": "헤드폰"
+ },
+ "gWatchItem2": {
+  "message": "리스본행 항공편"
+ },
+ "gWatchMore": {
+  "message": "외 {0}개 페이지"
+ },
+ "gAnswersTitle": {
+  "message": "주당 최대 {0}개 답변"
+ },
+ "gAnswersLine": {
+  "message": "하루 {0}개 대신, 더 깊이 있고 자세한 답변."
+ },
+ "gAnswersWeek": {
+  "message": "주당"
+ },
+ "gAnswersFree": {
+  "message": "무료: 하루 {0}개"
+ },
+ "gListenTitle": {
+  "message": "듣기"
+ },
+ "gListenLine": {
+  "message": "답변과 페이지 전체를 자연스러운 목소리로, 원하는 속도로 읽어 줘요."
+ },
+ "gListenSample": {
+  "message": "전기 열차가 에너지를 아끼는 방법"
+ },
+ "gSimilarTitle": {
+  "message": "비슷한 것 찾기"
+ },
+ "gSimilarLine": {
+  "message": "어떤 페이지든 대안을 찾아 줘요. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로."
+ },
+ "gSimilar1": {
+  "message": "메시 사무용 의자"
+ },
+ "gSimilar2": {
+  "message": "같은 의자, 2026년형"
+ },
+ "gSimilar3": {
+  "message": "헤드레스트 의자"
+ },
+ "gSimilarInStock": {
+  "message": "재고 있음"
+ },
+ "gSimilarNewer": {
+  "message": "더 최신"
+ },
+ "gSimilarCheaper": {
+  "message": "더 저렴하게"
+ },
+ "listenMinLeft": {
+  "message": "{0}분 남음"
+ },
+ "listenMinLeftTitle": {
+  "message": "이번 주 듣기 {0}분 남음"
+ },
+ "listenLow": {
+  "message": "이번 주 듣기가 약 {0}분 남았고, 이 텍스트는 약 {1}분 걸려요. 남은 시간이 끝나는 곳에서 멈춰요."
+ },
+ "listenAnyway": {
+  "message": "그래도 듣기"
+ },
+ "listenAway": {
+  "message": "ContextFlow에서 계속 듣기 — {0}부터"
+ },
+ "listenNotifyAsk": {
+  "message": "Safari를 떠나거나 화면을 잠가도 계속 들으려면 알림을 켜세요. 그렇지 않으면 '듣기'가 앱을 엽니다."
+ },
+ "listenNotifyOn": {
+  "message": "알림 켜기"
+ },
+ "listenNotifyLater": {
+  "message": "나중에"
+ },
+ "listenTaken": {
+  "message": "ContextFlow 앱에서 재생 중입니다."
+ },
+ "listenSeek": {
+  "message": "재생 위치"
+ },
+ "plansUpgrade": {
+  "message": "{0}로 업그레이드"
+ },
+ "plansUpgradeYearly": {
+  "message": "연간으로 업그레이드"
+ },
+ "similarPayFree": {
+  "message": "무료, 앱 내 구입 없음"
+ },
+ "similarPayFreeStart": {
+  "message": "무료"
+ },
+ "similarPaySub": {
+  "message": "구독 {0}부터"
+ },
+ "similarPayOnce": {
+  "message": "일회성 구입 {0}"
+ },
+ "similarPayIap": {
+  "message": "앱 내 구입 {0}부터"
+ },
+ "similarPerWeek": {
+  "message": "{0}/주"
+ },
+ "similarPerMonth": {
+  "message": "{0}/월"
+ },
+ "similarPerYear": {
+  "message": "{0}/년"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro는 채팅 전체를 기억합니다"
+ },
+ "offerMemoryBody": {
+  "message": "무료 답변은 채팅의 최근 답변과 메모 {0}개를 기억합니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지."
+ },
+ "offerMemoryLong": {
+  "message": "이 채팅에는 무료 답변이 기억하는 답변과 메모 {0}개보다 많은 내용이 있습니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지."
+ },
+ "offerRetryAt": {
+  "message": "{0}에 답변이 다시 가능합니다."
+ },
+ "similarWhere": {
+  "message": "찾을 범위"
+ },
+ "similarWorld": {
+  "message": "전 세계"
+ },
+ "similarLocal": {
+  "message": "내 주변"
+ },
+ "similarLocalIn": {
+  "message": "내 주변 · {0}"
+ },
+ "similarWhereHint": {
+  "message": "먼저 찾을 범위를 고르세요."
+ },
+ "similarLess": {
+  "message": "덜 비슷한 항목"
+ },
+ "similarPercent": {
+  "message": "{0}% 비슷함"
+ },
+ "similarDiffers": {
+  "message": "차이: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "내 국가의 App Store에 없음"
+ },
+ "similarShipListed": {
+  "message": "배송 페이지에 표시됨: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "{0} 배송 여부는 표시되지 않음"
+ },
+ "similarRatings": {
+  "message": "평가 {0}개"
+ },
+ "similarReviewersSay": {
+  "message": "리뷰: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "비슷한 항목 찾기 완료"
+ },
+ "similarNotifyFound": {
+  "message": "찾은 항목: {0}개. 탭하여 보기."
+ },
+ "similarNotifyNone": {
+  "message": "맞는 항목이 없습니다. 탭하여 조건을 변경하세요."
+ },
+ "similarNotifyFailed": {
+  "message": "검색이 끝나지 않았습니다. 탭하여 다시 시도하세요."
+ },
+ "similarSay": {
+  "message": "사용자 평:"
+ },
+ "similarPros": {
+  "message": "장점: {0}"
+ },
+ "similarCons": {
+  "message": "단점: {0}"
+ },
+ "similarEstimated": {
+  "message": "설명 기반 추정"
+ },
+ "similarSame": {
+  "message": "같은 상품, 다른 쇼핑몰"
+ },
+ "similarMisses": {
+  "message": "선택한 조건에 맞지 않음"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },
@@ -1532,6 +2297,12 @@
  "tip_4acd9995ac": {
   "message": "페이지의 ✦나 도구 막대의 ContextFlow 아이콘을 클릭하거나 Control-Shift-E를 누르세요."
  },
+ "tip_af26b6788c": {
+  "message": "✦ 버튼을 비켜 두기"
+ },
+ "tip_6d2694aec4": {
+  "message": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있습니다."
+ },
  "tip_2749afe54a": {
   "message": "한 번에 핵심만"
  },
@@ -1549,6 +2320,15 @@
  },
  "tip_fa1cdf5479": {
   "message": "페이지에서 텍스트를 선택하면 바로 아래에 직접 질문을 입력할 수 있습니다. ‘메모’를 탭하면 페이지와 함께 채팅에 저장됩니다. 메모는 답변 횟수를 쓰지 않습니다."
+ },
+ "tip_2f27bc2271": {
+  "message": "선택 영역 아래의 빠른 동작"
+ },
+ "tip_b4d2d0edad": {
+  "message": "페이지에서 텍스트를 선택하면 아래 ‘질문 입력…’ 칸에 요약, 번역, 비슷한 것 찾기 등이 나타나요. 옆으로 밀어 보고 하나를 탭하면 돼요. 입력할 필요가 없어요."
+ },
+ "tip_2105cc684e": {
+  "message": "페이지에서 텍스트를 선택하면 아래 ‘질문 입력…’ 칸에 요약, 번역, 비슷한 것 찾기 등이 나타나요. 트랙패드나 마우스 휠로 넘겨 보고 하나를 클릭하면 돼요. 입력할 필요가 없어요."
  },
  "tip_9000896590": {
   "message": "채팅이 따라옵니다"
@@ -1612,6 +2392,24 @@
  },
  "tip_ff32d2c483": {
   "message": "Pro에서는 페이지에 보이거나 링크된 PDF가 질문과 함께 가고, 답변은 어느 페이지 내용인지 알려 줘요. iPad와 Mac에서는 도구 막대의 ContextFlow가 PDF 탭에서도 열려요. 무료 답변은 페이지 텍스트를 써요."
+ },
+ "tip_de4adc7524": {
+  "message": "비슷한 것 찾기"
+ },
+ "tip_b2248495b1": {
+  "message": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 탭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 탭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
+ },
+ "tip_31666a3aab": {
+  "message": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 클릭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 클릭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
+ },
+ "tip_c518fb0674": {
+  "message": "듣기"
+ },
+ "tip_f26f3d2993": {
+  "message": "답변 아래 ‘듣기’를 탭하거나 패널 위쪽 ‘…’ 메뉴에서 ‘이 페이지 듣기’를 고르세요. ContextFlow 앱이 자연스러운 목소리로 읽어 주고, 화면을 잠가도 계속 재생돼요. 플레이어에서 속도를 탭해 1×, 1.2×, 1.5×, 2× 중에서 고르세요."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "답변 아래 ‘듣기’를 클릭하거나 패널 위쪽 ‘…’ 메뉴에서 ‘이 페이지 듣기’를 고르세요. 자연스러운 목소리가 패널에서 바로 읽어 줘요. 플레이어에서 속도를 클릭해 1×, 1.2×, 1.5×, 2× 중에서 고르세요."
  },
  "tip_328ee8ddce": {
   "message": "빠른 삽입"
@@ -1688,8 +2486,8 @@
  "tip_4721064b09": {
   "message": "AI 검색"
  },
- "tip_52a09ac884": {
-  "message": "검색 옆 ✦를 탭하고 기억나는 채팅을 설명하세요. ‘수면과 커피에 관한 그 기사’처럼 정확한 단어가 아니어도 돼요."
+ "tip_e4964f1718": {
+  "message": "기억나는 채팅을 설명하세요. ‘수면과 커피에 관한 그 기사’처럼 정확한 단어가 아니어도 돼요. 앱에서는 검색 아래의 ‘의미로’를, Safari에서는 검색 옆 ✦를 탭하세요."
  },
  "tip_068fa58797": {
   "message": "모든 채팅에 묻기"
@@ -1709,6 +2507,21 @@
  "tip_69a0bac728": {
   "message": "ContextFlow는 내가 태그를 단 곳을 보고 태그의 뜻을 배워, 새 답변이나 메모 아래에 알맞은 태그를 추천해요. 내 태그만, 어울릴 때만."
  },
+ "tip_b96ddaab20": {
+  "message": "내 요금제"
+ },
+ "tip_b3282f43dd": {
+  "message": "월간 또는 연간"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro와 Ultra는 월간이나 연간으로 이용할 수 있고, 연간이 12개월보다 저렴해요. 앱이나 Safari에서 요금제 위의 ‘연간’을 탭하면 가격과 절약 금액을 볼 수 있어요. 이미 월간이라면 ‘설정’ → ‘내 요금제’에서 ‘연간으로 전환’을 누르세요. 지금 한 달이 끝나면 연간이 시작돼요."
+ },
+ "tip_9288a85bb9": {
+  "message": "요금제로 더해지는 기능"
+ },
+ "tip_0f2289f887": {
+  "message": "Pro나 Ultra를 구입하면 ContextFlow가 요금제로 더해진 기능을 하나씩 보여 줘요. 다시 보려면 패널 위쪽 ‘…’을 탭한 다음 ‘기타…’에서 ‘Pro에 포함된 기능’이나 ‘Ultra에 포함된 기능’을 고르세요. 앱에서는 ‘설정’의 ‘내 요금제’에 있어요."
+ },
  "tip_3208aa35ac": {
   "message": "개인정보 및 맞춤 설정"
  },
@@ -1718,11 +2531,11 @@
  "tip_e2d1d4abd0": {
   "message": "‘내 소개’에 하는 일이나 원하는 답변 스타일을 한 줄 적어 두면 ContextFlow가 거기에 맞춰 답합니다."
  },
- "tip_10400d6345": {
-  "message": "✦ 버튼을 원하는 대로"
+ "tip_1e9a1535cb": {
+  "message": "필요 없을 때 ✦ 숨기기"
  },
- "tip_4c60874441": {
-  "message": "✦ 버튼이 페이지 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있습니다. 특정 사이트에서만 숨기거나, 확장 프로그램 설정에서 모든 곳에서 끌 수도 있습니다. 그래도 Safari의 확장 프로그램 메뉴에서 ContextFlow를 열 수 있어요."
+ "tip_6cc366173d": {
+  "message": "어떤 사이트에서 ✦ 버튼이 필요 없나요? 그 사이트에서만 숨기거나, 확장 프로그램 설정에서 모든 곳에서 끌 수 있습니다. 그래도 Safari의 확장 프로그램 메뉴에서 ContextFlow를 열 수 있어요."
  },
  "tip_8a727e1bbe": {
   "message": "내 API 키 사용하기"
@@ -1737,6 +2550,6 @@
   "message": "ContextFlow는 질문할 때만 페이지를 읽고, 답변을 위해 그 텍스트만 보냅니다. 채팅은 내 기기와 iCloud에만 남습니다. 추천을 켜면 새 메시지의 텍스트도 어디에 맞는지 찾기 위해 당사 서버로 전송됩니다. 당사는 이를 저장하지 않습니다."
  },
  "tip_clips": {
-  "message": "en"
+  "message": "ko"
  }
 }

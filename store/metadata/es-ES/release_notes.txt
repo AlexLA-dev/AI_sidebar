@@ -1,14 +1,14 @@
-Novedades de ContextFlow 2.5:
-• ¿Escribes las mismas respuestas una y otra vez? Guarda una como plantilla. ContextFlow marca lo que cambia, como un nombre o una fecha, y lo rellena con la página o la conversación abierta al insertarla. Revísalo y envíalo. En Gratis tienes unos cuantos rellenados al día; con Pro, sin límite
-• Toca un campo de texto y a su lado aparece el botón flotante de ContextFlow: lo que has copiado en Safari, tus plantillas y la última respuesta, a un toque. También funciona en los mensajes de las redes sociales y en las ventanas que se abren sobre la página
-• Lo copiado se queda en tu dispositivo durante 24 horas. No se guarda nada de los campos de contraseñas ni de tarjetas
-• Las respuestas y las notas tienen un botón nuevo: «Insertar en el campo»
-• En el Mac o en el iPad con teclado, escribe / y unas palabras de una plantilla en cualquier campo y pulsa Tab. Control-Shift-V abre la lista completa
-• ¿Esperas a que baje un precio o a que algo vuelva a estar disponible? Selecciona el precio o la línea de disponibilidad y toca el ojo. ContextFlow lo comprueba mientras usas Safari y te envía una notificación cuando cambie. Para toda la página: … → «Vigilar esta página»
-• ¿Quieres volver a una página más tarde? Selecciona una línea y toca la campana, o ve a … → «Recordarme esta página», y elige cuándo. También puedes poner un recordatorio en cualquier respuesta o nota
-• Selecciona una línea de una respuesta y toca «Resaltar». Las siguientes respuestas de ese chat tienen en cuenta lo que has resaltado
-• En el iPhone y el iPad, desliza una respuesta o una nota a la derecha para fijarla y a la izquierda para eliminarla. Las fijadas quedan en una barra arriba del chat
-• ¿Has eliminado un chat por error? Se queda 30 días en «Eliminados recientemente»
-• Con Pro, ContextFlow puede sugerir a qué chat va una respuesta o nota nueva, y una de tus etiquetas para ella. Esto lo activas tú
-• Los Consejos ahora están agrupados por tarea, con vídeos cortos, en la app y en el panel
-• Correcciones y mejoras: los chats ya no cambian de sitio en la lista
+Novedades de ContextFlow 2.6:
+• Ultra, un plan nuevo: todo lo de Pro, y además «Buscar similares» y «Escuchar»
+• Buscar similares: ¿estás viendo un producto, una app, un artículo, una receta o un lugar? Toca «Buscar similares» y verás alternativas reales: más baratas, más nuevas, en stock, gratis o en tu idioma, o di con tus palabras lo que necesitas. Cada enlace se abre y se comprueba antes de que lo veas, y puedes seguir el precio de cualquiera de ellos
+• Escuchar: toca «Escuchar» debajo de una respuesta, o ve a … → «Escuchar esta página». Una voz natural lee el texto en voz alta, en más de 100 idiomas. En el iPhone sigue sonando con la pantalla bloqueada
+• Chats que se ordenan solos (Pro): debajo de una respuesta o nota nueva, ContextFlow te sugiere el chat donde encaja, un chat nuevo para ella o una de tus propias etiquetas. La barra «Sugerencias» de arriba del chat las reúne todas. Un toque la mueve y «Deshacer» la devuelve a su sitio. Un chat también puede ponerse nombre según su tema
+• «Recordarme» y «Vigilar» ahora admiten una nota con tus palabras: qué revisar o de qué avisarte
+• Selecciona texto y las acciones rápidas te esperan en el propio campo «Tu pregunta…», justo debajo: «Resumir», «Traducir», «Explicar sencillo», «Buscar similares» y más
+• ¿El texto seleccionado ya está en tu idioma? «Traducir» ahora te ofrece otro idioma, como el inglés
+• «Chats» en la app: un solo campo de búsqueda, por palabras o por significado (Pro)
+• Planes anuales para Clave propia, Pro y Ultra. El cambio de Pro a Ultra empieza enseguida, y Apple te reembolsa lo que queda de Pro
+• ¿Es tu primera vez con ContextFlow? Una guía breve te acompaña hasta tu primera respuesta y no gasta tus respuestas del día
+• Tras una actualización, «Novedades» en la app muestra los cambios principales con vídeos cortos
+• ContextFlow ya habla chino tradicional, árabe y vietnamita: 14 idiomas en total
+• Correcciones: el panel y la Configuración ya se desplazan en Google, las últimas líneas de la Configuración ya no quedan debajo de la barra de herramientas de Safari, y los botones junto al texto seleccionado ya no se quedan en su sitio cuando solo se desplaza una parte de la página

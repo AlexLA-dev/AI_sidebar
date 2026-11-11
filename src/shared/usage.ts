@@ -18,8 +18,8 @@ interface Feature {
   actions: readonly string[]
   /** How people got to it. */
   via?: readonly string[]
-  /** Extra named values; "int" is a whole number 0–9999. */
-  fields?: Record<string, readonly string[] | "int">
+  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country). */
+  fields?: Record<string, readonly string[] | "int" | "code">
   /** Sent as its own event kind (or logged by the server), never as "use": named here for prev and reports. */
   own?: true
 }
@@ -38,13 +38,18 @@ export const FEATURES: Record<string, Feature> = {
     via: ["composer", "chip", "followup", "newpage", "bubble", "qi_adapt", "retry", "app_chat"]
   },
   ai_search: { since: "2.4", tracked: "2.4", actions: ["on", "answer", "error", "open"], fields: { hits: ["0", "1-5", "6+"] } },
-  ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error"] },
+  // Build 94: "link", a chat opened from a link to it in an answer.
+  ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error", "link"] },
   consent: {
     since: "2.0", actions: ["shown", "accepted", "declined"],
     via: ["ask", "find", "ask_chats", "qi", "organize"], fields: { step: "int" }
   },
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
-  bubble: { since: "2.0", on: "ext", actions: ["shown", "ask", "action", "question", "note", "template", "remind"] },
+  // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
+  bubble: {
+    since: "2.0", on: "ext", actions: ["shown", "ask", "action", "question", "note", "template", "remind"], via: ["chip", "button"],
+    fields: { what: ["sel_summarize", "sel_translate", "sel_explain", "sel_improve", "sel_reply", "sel_similar"] }
+  },
   fab: { since: "2.0", on: "ext", actions: ["tap", "drag", "hide_site"] },
   msg: { since: "2.0", actions: ["copy", "share"], fields: { what: ["answer", "note", "ask_chats"] } },
   share_chat: { since: "2.3", actions: ["open", "copy", "share"], fields: { picked: "int" } },
@@ -68,13 +73,23 @@ export const FEATURES: Record<string, Feature> = {
     fields: { feature: ["ai", "organize", "media", "limit", "qi", "google"] }
   },
   offer: { since: "2.4", actions: ["shown", "redeem", "later"] },
+  // The app's notifications screen before the system's question (2.6): why it came up, and what was answered.
+  notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen"], status: ["denied", "not_asked"] } },
   paywall: {
     since: "2.0", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
     via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew"],
     fields: { plan: ["monthly", "yearly", "own_key", "promo"] }
   },
   renewal: { since: "2.4", tracked: "2.4", actions: ["shown", "answer"] },
-  tour: { since: "2.3", actions: ["start", "step", "done", "skip"], fields: { step: "int" } },
+  // 2.6: the guided first request (src/content/Guide.tsx) reports these; "what" is the step it was on (or, for "exit",
+  // why it ended there), "via" how it started: the first open or the "…" menu.
+  tour: {
+    since: "2.3", tracked: "2.6", actions: ["start", "step", "done", "skip", "exit"], via: ["first", "menu", "plan", "plan_menu"],
+    fields: {
+      step: "int",
+      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
+    }
+  },
   hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats"] } },
   tab: { since: "2.0", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings"] } },
   tips: {
@@ -82,7 +97,9 @@ export const FEATURES: Record<string, Feature> = {
     fields: { what: ["summary", "translate", "selection", "note", "video", "pdf", "chats", "search", "tags", "ai_search", "ask_chats", "quick_insert", "templates", "copied", "organize"] }
   },
   setup: { since: "2.4", on: "app", actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap"] },
-  notif: { since: "2.4", on: "app", actions: ["tap"], fields: { what: ["remind", "remind_page", "setup", "watch"] } },
+  // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page
+  // its tap opened showed the panel on that chat (the chat named in the page's address, the panel's step).
+  notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"] } },
   app: {
     since: "2.4", tracked: "2.4", on: "app", actions: ["open"], via: ["icon", "deeplink", "notif"],
     fields: { what: ["subscribe", "manage", "tips", "chats", "chat", "templates", "open"] }
@@ -93,8 +110,40 @@ export const FEATURES: Record<string, Feature> = {
   // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel ("open"),
   // the "Reminders" list in the panel ("list": from the menu or the window's "All reminders" link) and in the
   // app ("open" from its tab), with how many reminders and watches the list held.
-  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings"] } },
-  later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab"], fields: { reminders: "int", watches: "int" } },
+  // Build 94: the chats list has its "…" too ("via": over a chat or over the list), with Recently Deleted ("trash").
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], via: ["chat", "list"], fields: { what: ["later", "reminders", "watching", "watch_page", "settings", "tips", "intro", "listen", "similar", "plan_tour", "name_chat", "trash", "rate"] } },
+  // 2.6: read aloud (Ultra) started from an answer or the page, handed to the app (iPhone, iPad), or refused (not
+  // Ultra: the plans sheet; the week's minutes used up). The parts themselves are logged by the server ("speak").
+  // Build 90 (the app): Apple's voice read a text the server couldn't start ("apple"), a text stopped short after
+  // ours had played ("interrupted"), "Try again" ("retry").
+  // "heard" (build 92): when a text stops or ends, the seconds heard and where its audio came from (this device's copy,
+  // iCloud, the server) and what the server charged up front, so minutes charged can be set against minutes heard.
+  // Build 93: the app sent the person back to Safari once notifications were on ("back_safari"), and the panel then
+  // played the text ("back_play").
+  // Build 94: what plays tapped in the panel's bar, back to its chat ("go"); a text heard to its end, now marked
+  // "already voiced" by Listen ("voiced").
+  // Build 95: a text whose audio played out but isn't marked ("unvoiced"), and why: skipped ahead here, skipped in Safari
+  // before it was carried on ("before"), or the end not reached by `gap_s` seconds ("short").
+  listen: {
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced"],
+    fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int", why: ["skipped", "before", "short"], gap_s: "int" }
+  },
+  // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
+  plans: {
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
+    via: ["listen", "settings", "watch", "limit", "similar"],
+    // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
+    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
+  },
+  // Build 91: the plans message in the chat — out of answers ("limit"), the chat's memory ("memory": the switch, or a
+  // free chat past its last messages), a Pro or Ultra feature refused; shown, and what was tapped: a plan and period
+  // (to the app), the discount, a note, the own key, Retry.
+  chat_plans: {
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
+    via: ["limit", "memory", "pro_only", "ultra_only"],
+    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
+  },
+  later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],
@@ -107,7 +156,28 @@ export const FEATURES: Record<string, Feature> = {
       active: "int"
     }
   },
-  rate: { since: "2.2", on: "app", actions: ["asked", "link"], via: ["moment", "app_answers", "purchase"] },
+  // 2.6 (100), the owner: «никому не предлагалось оценить приложение … Оно вообще работает?». "due": a milestone of
+  // good answers reached (3, 10, 30, 100, 300), in Safari ("ext_moment", sent by the extension, s "panel") or in the
+  // app's own chats ("app_answer"); "ask": the app asked Apple for its rating sheet (ReviewAsk.swift), and at what
+  // moment. Apple doesn't say whether the sheet showed (at most 3 times in 365 days, never in TestFlight): "ask" is our
+  // request, not a sheet seen. "link": the App Store's "Write a Review" tapped (Settings, the footer, the panel's "…").
+  rate: {
+    since: "2.2", tracked: "2.6", actions: ["due", "ask", "link"],
+    via: ["app_answer", "ext_moment", "tour", "purchase", "similar", "listen", "whatsnew", "organize", "settings", "footer", "menu"],
+    fields: { moment: "int" }
+  },
+  // 2.6 (97): the bar of a chat's open suggestions at its top: shown (once per set of suggestions in a chat), tapped.
+  org: {
+    since: "2.6", tracked: "2.6", actions: ["bar_shown", "bar_tap", "scan"],
+    // 2.6 (98) "scan": what one organizing run compared and why nothing fired (src/shared/organize.ts organizeScan):
+    // counts, a match %, the first rule the best candidates stopped at, the engine's version and the thresholds' key.
+    fields: {
+      chats: "int", msgs: "int", vec: "int", kb: "int", mg: "int", mga: "int", mv: "int", ev: "int", tv: "int",
+      mgw: ["none", "page", "notes", "settled", "refused", "answers", "match", "open"],
+      mvw: ["none", "window", "weak", "settled", "topic", "fit", "margin", "mix", "open"],
+      res: ["off", "none", "merge", "page", "site", "topic", "apart"]
+    }
+  },
 
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.
   ext: { since: "2.4", tracked: "2.4", on: "ext", actions: ["on"], own: true },
@@ -168,7 +238,8 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
   if (has(spec.via, body.via)) out.via = body.via
   for (const [name, allowed] of Object.entries(spec.fields ?? {})) {
     const value = allowed === "int" ? count(body[name]) : body[name]
-    if (allowed === "int" ? whole(value, 9999) : has(allowed, value)) out[name] = value
+    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : has(allowed, value)
+    if (ok) out[name] = value
   }
   return out
 }

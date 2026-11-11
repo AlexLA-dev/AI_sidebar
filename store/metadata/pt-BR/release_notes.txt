@@ -1,14 +1,14 @@
-Novidades do ContextFlow 2.5:
-• Escreve as mesmas respostas toda hora? Salve uma como modelo. O ContextFlow marca o que muda, como um nome ou uma data, e preenche isso pela página ou pela conversa aberta quando você insere o modelo. Confira e envie. No Grátis há alguns preenchimentos por dia; no Pro, sem limite
-• Toque em um campo de texto e o botão flutuante do ContextFlow aparece ao lado: o que você copiou no Safari, seus modelos e a última resposta ficam a um toque. Também funciona em mensagens nas redes sociais e em janelas que abrem sobre a página
-• O texto copiado fica no seu dispositivo por 24 horas. Nada é guardado de campos de senha ou de cartão
-• Respostas e notas têm um botão novo: “Inserir no campo”
-• No Mac ou no iPad com teclado, digite / e algumas palavras de um modelo em qualquer campo e pressione Tab. Control-Shift-V abre a lista toda
-• Esperando um preço baixar ou um produto voltar ao estoque? Selecione o preço ou a linha do estoque e toque no olho. O ContextFlow verifica enquanto você usa o Safari e manda uma notificação quando mudar. Para a página toda: … → “Acompanhar esta página”
-• Quer voltar a uma página mais tarde? Selecione uma linha e toque no sino, ou vá em … → “Me lembrar desta página” e escolha quando. Qualquer resposta ou nota também pode lembrar você
-• Selecione uma linha em uma resposta e toque em “Destacar”. As próximas respostas nessa conversa levam seus destaques em conta
-• No iPhone e no iPad, deslize uma resposta ou nota para a direita para fixá-la e para a esquerda para apagá-la. As fixadas ficam em uma barra no topo da conversa
-• Apagou uma conversa sem querer? Ela fica 30 dias em “Apagados Recentemente”
-• Com o Pro, o ContextFlow pode sugerir em qual conversa uma nova resposta ou nota deve ficar e uma das suas tags para ela. Você mesmo ativa isso
-• As dicas agora estão agrupadas por tarefa, com vídeos curtos, no app e no painel
-• Correções e melhorias: as conversas não trocam mais de lugar na lista
+Novidades do ContextFlow 2.6:
+• Ultra, um novo plano: tudo do Pro, mais “Encontrar parecidos” e “Ouvir”
+• Encontrar parecidos: está vendo um produto, um app, um artigo, uma receita ou um lugar? Toque em “Encontrar parecidos” para ver alternativas reais: mais baratas, mais novas, em estoque, grátis ou no seu idioma, ou diga com suas palavras o que você precisa. Cada link é aberto e verificado antes de você ver, e dá para acompanhar o preço de qualquer um deles
+• Ouvir: toque em “Ouvir” embaixo de uma resposta ou vá em … → “Ouvir esta página”. Uma voz natural lê o texto em voz alta, em mais de 100 idiomas. No iPhone, continua tocando com a tela bloqueada
+• Conversas que se organizam sozinhas (Pro): embaixo de uma nova resposta ou nota, o ContextFlow sugere a conversa certa para ela, uma conversa nova ou uma das suas próprias tags. A barra “Sugestões” no topo da conversa reúne todas. Um toque move, e “Desfazer” traz de volta. Uma conversa também pode se nomear pelo assunto
+• “Me lembrar” e “Acompanhar” agora aceitam uma nota com suas palavras: o que conferir ou do que lembrar você
+• Selecione um texto e as ações rápidas esperam no próprio campo “Sua pergunta…”, logo abaixo: “Resumir”, “Traduzir”, “Explicação simples”, “Encontrar parecidos” e mais
+• O texto selecionado já está no seu idioma? “Traduzir” agora oferece outro idioma, como o inglês
+• “Conversas” no app: um só campo de busca, por palavras ou por significado (Pro)
+• Planos anuais para Chave própria, Pro e Ultra. A mudança do Pro para o Ultra começa na hora, e a Apple reembolsa o que sobrou do Pro
+• Primeira vez no ContextFlow? Um guia curto acompanha você até a primeira resposta e não gasta suas respostas do dia
+• Depois de uma atualização, “Novidades” no app mostra as principais mudanças com vídeos curtos
+• O ContextFlow agora fala chinês tradicional, árabe e vietnamita: 14 idiomas no total
+• Correções: o painel e os Ajustes agora rolam no Google, as últimas linhas dos Ajustes não ficam mais escondidas sob a barra de ferramentas do Safari, e os botões ao lado do texto selecionado não ficam mais parados quando só uma parte da página rola

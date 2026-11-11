@@ -1,1 +1,1 @@
-summariser,webpage,article,tldr,extension,pdf,notes,shopping,clipboard,history,price,tracker,stock
+summariser,article,tldr,extension,pdf,notes,shopping,clipboard,price,tracker,stock,listen,translate

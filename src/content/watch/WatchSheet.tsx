@@ -11,9 +11,10 @@ import { t } from "../../shared/i18n"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
 import { conditionLine, shown } from "../../shared/watch/line"
-import type { WatchHow } from "../../shared/watch/messages"
+import type { WatchDraft, WatchHow } from "../../shared/watch/messages"
 import type { Watch } from "../../shared/watch/types"
 import { panelRoot } from "../root"
+import { NoteWords, SheetClose } from "../ux/MessageUx"
 import { Eye } from "./icons"
 import { ago } from "./list"
 import { grow, WatchSection } from "./WatchSection"
@@ -26,6 +27,8 @@ export interface WatchSheetProps {
   how: WatchHow
   // A page the background can't read: "Remind me to look" (the whole page's window, from the header's "…").
   remind?: () => void
+  // A page that isn't the one open ("Watch price" on a Find similar item): its draft, made from what our server read.
+  draft?: WatchDraft
 }
 
 let layer: HTMLDivElement | null = null
@@ -58,7 +61,7 @@ function show(make: (close: () => void) => VNode): void {
 export function openWatchSheet(p: WatchSheetProps): void {
   show((close) => (
     <Sheet label={t("watchSection")} close={close}>
-      <WatchSection url={p.url} title={p.title} selection={p.selection} how={p.how} close={close} remind={p.remind && (() => {
+      <WatchSection url={p.url} title={p.title} selection={p.selection} how={p.how} draft={p.draft} close={close} remind={p.remind && (() => {
         close()
         p.remind?.()
       })} />
@@ -96,13 +99,16 @@ const send = <T,>(message: unknown) => chrome.runtime.sendMessage(message) as Pr
 function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; changed(): void }): VNode {
   const [w, setW] = useState(watch)
   const [words, setWords] = useState(watch.condition)
+  // The person's own note (2.6 (97)): changed here with the words, or alone.
+  const [note, setNote] = useState(watch.note ?? "")
   const [state, setState] = useState<"edit" | "saving" | "failed" | "consent" | "consent-again">("edit")
+  const reworded = words.trim() !== w.condition.trim()
   const save = async () => {
-    // New words go to the AI: without the consent, the one card here first.
-    const consent = await loadConsent()
+    // New words go to the AI: without the consent, the one card here first. A new note alone goes nowhere.
+    const consent = reworded ? await loadConsent() : "ok"
     if (consent !== "ok") return setState(consent === "old" ? "consent-again" : "consent")
     setState("saving")
-    const reply = await send<{ ok: boolean; watch?: Watch }>({ type: "watchEdit", id: w.id, condition: words }).catch(() => null)
+    const reply = await send<{ ok: boolean; watch?: Watch }>({ type: "watchEdit", id: w.id, condition: reworded ? words : w.condition, note: note.trim() }).catch(() => null)
     if (!reply?.ok || !reply.watch) return setState("failed")
     setW(reply.watch)
     setState("edit")
@@ -118,18 +124,19 @@ function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; cha
     changed()
     close()
   }
-  const dirty = words.trim() && words.trim() !== w.condition.trim()
+  const dirty = words.trim() !== "" && (reworded || note.trim() !== (w.note ?? "").trim())
   return (
     <Sheet label={t("watchSection")} close={close}>
       <section class="cf-watch cf-watch-edit">
-        <div class="cf-sheet-title cf-watch-h"><Eye size={16} /> {w.title || w.host}</div>
+        <div class="cf-sheet-title cf-watch-h"><Eye size={16} /> <span class="cf-watch-h-name">{w.title || w.host}</span><SheetClose onClose={close} /></div>
         <p class="cf-watch-msg">{conditionLine(w)}</p>
         <p class="cf-watch-note">{status(w)}</p>
         <label class="cf-watch-l" for="cf-watch-edit">{t("watchWhen")}</label>
-        <textarea id="cf-watch-edit" class="cf-watch-cond" rows={2} maxLength={300} value={words} disabled={state === "saving"} ref={grow} onInput={(e) => {
+        <textarea id="cf-watch-edit" class="cf-watch-cond" dir="auto" rows={2} maxLength={300} value={words} disabled={state === "saving"} ref={grow} onInput={(e) => {
           setWords(e.currentTarget.value)
           grow(e.currentTarget)
         }} />
+        <NoteWords watch value={note} onInput={setNote} />
         {state === "failed" && <p class="cf-watch-msg">{t("watchFailed")}</p>}
         {(state === "consent" || state === "consent-again") && (
           <ConsentCard again={state === "consent-again"} onAccept={() => void giveConsent().then(save)} onDecline={() => setState("edit")} />

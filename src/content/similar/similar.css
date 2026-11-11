@@ -1,0 +1,86 @@
+/* Find similar (2.6, Ultra): the card to start it, the checked list, Ultra's card. */
+
+.cf-similar-pick .cf-similar-head,
+.cf-similar-upsell .cf-upsell-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: var(--accent-text); }
+.cf-similar-pick .cf-similar-head strong { flex: 1; margin: 0; color: var(--text); }
+.cf-similar-of { margin: 0 0 10px; font-size: 12.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-similar-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.cf-similar-chips .cf-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cf-similar-words {
+  width: 100%; box-sizing: border-box; padding: 9px 11px; margin-bottom: 8px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font: inherit; font-size: 13.5px;
+}
+.cf-similar-words:focus { outline: none; border-color: var(--accent); }
+/* iOS zooms the page into a field whose text is under 16px: never on a touch screen. */
+.cf[data-touch] .cf-similar-words { font-size: 16px; }
+.cf .cf-similar-hint { margin: 0 0 10px; font-size: 12px; color: var(--text-3); }
+.cf-similar-pick .cf-primary { display: inline-flex; align-items: center; gap: 6px; }
+
+.cf-similar { display: flex; flex-direction: column; gap: 6px; }
+.cf-similar-intro { margin: 0 0 2px; }
+.cf-similar-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cf-similar-item { display: flex; gap: 9px; padding: 10px 11px; border-radius: 12px; background: var(--bg-2); animation: cf-similar-in 0.22s ease-out; }
+@keyframes cf-similar-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .cf-similar-item { animation: none; } }
+.cf-similar-n {
+  flex: none; width: 20px; height: 20px; border-radius: 50%; margin-top: 1px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11.5px; font-weight: 700; color: var(--accent-text); background: var(--accent-soft);
+}
+.cf-similar-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.cf-similar-name { font-weight: 600; font-size: 14px; color: var(--accent-text); text-decoration: none; overflow-wrap: anywhere; }
+.cf-similar-name:hover { text-decoration: underline; text-underline-offset: 2px; }
+.cf-similar-host a { color: inherit; text-decoration: none; }
+.cf-similar-proof { color: inherit; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+.cf-similar-pay { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 2px; }
+.cf-similar-host a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.cf-similar-host { font-size: 11.5px; color: var(--text-3); }
+.cf .cf-similar-why, .cf .cf-similar-fit { margin: 0; font-size: 13px; line-height: 1.4; color: var(--text-2); }
+.cf .cf-similar-fit.ok { color: var(--ok); display: flex; gap: 5px; align-items: baseline; }
+.cf .cf-similar-fit.ok svg { flex: none; transform: translateY(2px); }
+.cf-similar-nc {
+  display: inline-block; padding: 0 6px; margin-inline-end: 4px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; color: var(--text-2); background: var(--border);
+}
+/* Build 95: their very item at another shop; a close item that misses the chip they tapped. */
+.cf-similar-host .cf-similar-same { color: var(--ok); font-weight: 600; }
+.cf .cf-similar-fit.no { color: var(--text-2); }
+.cf .cf-similar-fit.no .cf-similar-nc { color: var(--text-2); background: transparent; border: 1px solid var(--border); }
+.cf-similar-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--text); }
+.cf-similar-facts span + span::before, .cf-similar-facts .cf-similar-pay + span::before { content: "·"; margin-inline-end: 10px; color: var(--text-3); font-weight: 400; }
+.cf-similar-facts .cf-similar-unopened { font-weight: 500; color: var(--text-3); }
+.cf-similar-watch {
+  display: inline-flex; align-items: center; gap: 4px; margin-inline-start: auto; padding: 3px 9px;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--accent-text); font: inherit; font-size: 12px; font-weight: 600;
+}
+.cf-similar-watch:hover { background: var(--accent-soft); border-color: transparent; }
+.cf-similar-step { margin-top: 2px; }
+.cf .cf-similar-none, .cf .cf-similar-note { margin: 2px 0 0; color: var(--text-2); font-size: 13px; }
+.cf .cf-similar-checked { display: flex; align-items: center; gap: 5px; margin: 2px 0 0; font-size: 11.5px; color: var(--text-3); }
+
+.cf-page-menu .cf-page-similar { display: flex; align-items: center; }
+.cf-similar-upsell .cf-ultra-badge { margin-inline-start: auto; }
+.cf-similar-upsell > p { margin: 0 0 8px; }
+
+/* Build 93: where to look; the less similar ones apart; what reviewers say; not in their country's store. */
+.cf-similar-where { margin: 4px 0 8px; }
+.cf-similar-where-label { display: block; margin-bottom: 4px; font-size: 12px; color: var(--text-3); }
+.cf-similar-where .cf-seg { display: flex; width: 100%; }
+.cf-similar-where .cf-seg button { flex: 1; padding: 6px 8px; font-size: 13px; }
+.cf-similar-where-hint { margin: 4px 0 0; font-size: 12px; color: var(--accent-text); }
+.cf-similar-less { margin-top: 10px; }
+.cf-similar-less-head { margin: 0 0 6px; font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+.cf-similar-less .cf-similar-item { opacity: 0.92; }
+.cf-similar-differs { margin: 2px 0 0; font-size: 12.5px; color: var(--text-2); display: flex; flex-wrap: wrap; gap: 2px 8px; }
+.cf-similar-pct { font-weight: 600; color: var(--text); }
+.cf-similar-est { font-weight: 400; color: var(--text-2); }
+.cf-similar-locked { margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: #b45309; }
+/* 2.6: a shop abroad's delivery page: it lists their country (ok), or doesn't show it; the page linked. */
+.cf-similar-ship { margin: 2px 0 0; font-size: 12.5px; color: var(--text-2); }
+.cf-similar-ship.ok { color: var(--text); }
+/* One line, the same parts in the same order for every item: "What people say: ★ 4.6 · 1,204 ratings · like …". */
+.cf-similar-reviews { margin: 3px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--text-2); }
+.cf-similar-say { font-weight: 600; color: var(--text); margin-inline-end: 5px; }
+.cf-similar-dot { opacity: 0.6; }
+.cf-similar-stars { font-weight: 700; color: #b45309; }
+.cf-similar-src { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 2px; font-size: 12px; }

@@ -1,9 +1,9 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import type { Entry } from "../src/shared/conversation.ts"
+import { entryKey as entryKeyOf, type Entry } from "../src/shared/conversation.ts"
 import {
-  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, movesAllowed, organizeConfig, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, unpackVector, type VectorOf
+  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nearName, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, textSize, turnedDownName, unpackVector, wantsNameCheck, type VectorOf
 } from "../src/shared/organize.ts"
 import type { Thread } from "../src/shared/threads.ts"
 
@@ -91,7 +91,20 @@ test("short questions, moved-in and turned-down blocks, and \"Ask your chats\" g
   assert.equal(movesAllowed(tired, [tired, taken], cfg), true)
 })
 
-test("tags: only the user's tags with two examples or more that are alike; not intentions; not the ones it has", () => {
+test("short questions in Chinese, Japanese and Korean say enough: their characters count three times", () => {
+  assert.equal(textSize("Kyoto tips?"), 11)
+  assert.equal(textSize("京都哪里好玩？"), 19)
+  assert.equal(textSize("교토 어디가 좋아요?"), 27)
+  // Asked in the app (no page) about another chat's topic: a short Chinese, Japanese or Korean question moves, as short
+  // a question in English doesn't.
+  for (const [question, moves] of [["京都哪里好玩？", true], ["京都のおすすめは？", true], ["교토 어디가 좋아요?", true], ["Kyoto tips?", false]] as const) {
+    const asked = qa("japan", "https://jg/1", { question }).map((e) => (e.role === "user" ? { ...e, page: undefined } : e))
+    const pile = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...asked])
+    assert.equal(suggestMove(pile, [pile, japan, bread], vectorOf, cfg)?.to ?? null, moves ? "japan" : null, question)
+  }
+})
+
+test("tags: the user's tags that fit; an established one's examples alike; not intentions; not the ones it has", () => {
   const work = chat("work", [...qa("work", "https://w/1", { tags: ["work"] }), ...qa("work", "https://w/2", { tags: ["work"] }), ...qa("work", "https://w/3")])
   // "later" on unrelated answers: its examples aren't alike.
   const misc = chat("misc", [...qa("bread", "https://b/1", { tags: ["later"] }), ...qa("japan", "https://j/1", { tags: ["later"] }), ...qa("cars", "https://c/1", { tags: ["later"] })])
@@ -100,7 +113,9 @@ test("tags: only the user's tags with two examples or more that are alike; not i
   const target = tagCandidates(work, 5, all, vectorOf, cfg)
   assert.deepEqual(target.map((c) => c.tag), ["work"])
   assert.ok(target[0].examples.length >= 2)
-  assert.deepEqual(tagCandidates(once, 3, all, vectorOf, cfg), [], "one example is not enough")
+  // 2.6 (98): a tag on one message (just made) is offered on a message like it, here on the same page too; not on others.
+  assert.deepEqual(tagCandidates(once, 3, all, vectorOf, cfg).map((c) => c.tag), ["garden"])
+  assert.equal(tagCandidates(bread, 1, all, vectorOf, cfg).some((c) => c.tag === "garden"), false)
   assert.deepEqual(tagCandidates(misc, 1, all, vectorOf, cfg).map((c) => c.tag).includes("later"), false)
   assert.deepEqual(tagCandidates(work, 1, all, vectorOf, cfg), [], "it has the tag")
   // The judge decides: a confident yes only, at most two.
@@ -110,6 +125,57 @@ test("tags: only the user's tags with two examples or more that are alike; not i
   const two = [target[0], { ...target[0], tag: "dev" }]
   assert.deepEqual(judgedTags(two, [{ tag: "dev", fits: true, confidence: 0.95 }, { tag: "work", fits: true, confidence: 0.9 }], cfg), ["work"])
   assert.deepEqual(tagTargets(work, cfg), [1, 3, 5])
+})
+
+test("2.6 (98): a chat with the user's tag on a message: its earlier messages get tag suggestions too", () => {
+  const long = chat("long", [...qa("garden", "https://g/1", { tags: ["garden"] }), ...Array.from({ length: 7 }, (_, i) => qa("garden", `https://g/${i + 2}`)).flat()])
+  const targets = tagTargets(long, cfg)
+  assert.equal(targets.length, 7)
+  assert.ok(targets.includes(3), "an earlier untagged answer")
+  assert.equal(targets.includes(1), false, "the tagged one")
+  assert.deepEqual(tagTargets(chat("plain", Array.from({ length: 7 }, (_, i) => qa("garden", `https://p/${i}`)).flat()), cfg), [5, 7, 9, 11, 13])
+})
+
+test("2.6 (98): a tag put on in one chat is offered on the messages like it in the others, older ones too", () => {
+  // «Не предлагает такую метку в других чатах, а надо»: the tag on one answer in "roses"; "yard" has garden answers
+  // early on, then eight about bread: before, only its last five answers were looked at.
+  const roses = chat("roses", [...qa("garden", "https://r/1", { tags: ["Garden"] }), ...qa("japan", "https://r/2")])
+  const yard = chat("yard", [...qa("garden", "https://y/1"), ...qa("garden", "https://y/2"), ...Array.from({ length: 8 }, (_, i) => qa("bread", `https://y/b${i}`)).flat()])
+  const all = [roses, yard, japan, bread]
+  assert.deepEqual(tagTargets(yard, cfg), [11, 13, 15, 17, 19])
+  const targets = tagTargets(yard, cfg, all, vectorOf)
+  assert.ok(targets.includes(1) && targets.includes(3), "its garden answers")
+  assert.equal(targets.filter((i) => i < 11).length, 2, "not its bread answers")
+  for (const i of [1, 3]) assert.deepEqual(tagCandidates(yard, i, all, vectorOf, cfg).map((c) => c.tag), ["Garden"])
+  // Not where it was turned down, nor in a chat with that tag; at most the window more.
+  const turned = chat("yard", yard.m.map((e, i) => (i === 1 ? { ...e, dismissed: { tags: ["garden"] } } : e)))
+  assert.equal(tagTargets(turned, cfg, [roses, turned], vectorOf).includes(1), false)
+  assert.deepEqual(tagTargets({ ...yard, tags: ["garden"] }, cfg, all, vectorOf), [11, 13, 15, 17, 19])
+  assert.equal(tagTargets(yard, { ...cfg, tagWindow: 1 }, all, vectorOf).length, 2)
+  // Without vectors, as before.
+  assert.deepEqual(tagTargets(yard, cfg, all, () => null), [11, 13, 15, 17, 19])
+})
+
+test("the review's S7 and S8: a tag on one page's messages only; new and established tags on one scale; alike examples", () => {
+  // S7: three answers on one page tagged; the next one there still gets it (before: dropped at the third).
+  const page = chat("onepage", Array.from({ length: 4 }, () => qa("garden", "https://g/one")).flat().map((e, i) => (i === 1 || i === 3 || i === 5 ? { ...e, tags: ["garden"] } : e)))
+  assert.deepEqual(tagCandidates(page, 7, [page, japan, bread], vectorOf, cfg).map((c) => c.tag), ["garden"])
+  // S8: an established tag (three examples elsewhere, well clear of messages without it) ranks above a just-made one
+  // that fits as well; before, the new one came first (its margin was its whole fit).
+  const beds = chat("beds", [...qa("garden", "https://b/1", { tags: ["plants"] }), ...qa("garden", "https://b/2", { tags: ["plants"] }), ...qa("garden", "https://b/3", { tags: ["plants"] })])
+  const roses = chat("roses", qa("garden", "https://r/1", { tags: ["plants", "aroses"] }))
+  const target = chat("target", [...qa("bread", "https://t/1"), ...qa("garden", "https://t/2")])
+  const all = [target, beds, roses, japan, bread]
+  assert.deepEqual(tagCandidates(target, 3, all, vectorOf, cfg).map((c) => c.tag), ["plants", "aroses"])
+  // A new tag's two examples must be alike too; one example has nothing to compare.
+  const two = chat("two", [...qa("garden", "https://w/1", { tags: ["yard"] }), ...qa("garden", "https://w/2", { tags: ["yard"] })])
+  assert.deepEqual(tagCandidates(target, 3, [target, two], vectorOf, cfg).map((c) => c.tag), ["yard"])
+  assert.deepEqual(tagCandidates(target, 3, [target, two], vectorOf, { ...cfg, coherence: 1.01 }), [])
+  // Alike against how alike the person's messages are on average (here about 0.4): by 0.05 more, or by 0.7 more.
+  assert.equal(cfg.tagCohD, 0.05)
+  assert.deepEqual(tagCandidates(target, 3, [target, two], vectorOf, { ...cfg, tagCohD: 0.7 }), [])
+  const rose = chat("rose", qa("garden", "https://r/9", { tags: ["aroses"] }))
+  assert.deepEqual(tagCandidates(target, 3, [target, rose], vectorOf, { ...cfg, coherence: 1.01 }).map((c) => c.tag), ["aroses"])
 })
 
 test("a tag refused on three messages without one taken isn't suggested again", () => {
@@ -134,4 +200,360 @@ test("texts, packed vectors, thresholds and the pile signal", () => {
   const sites = chat("s", [...qa("a", "https://a.com/1"), ...qa("b", "https://b.com/1"), ...qa("c", "https://c.com/1")])
   assert.equal(looksMixed(sites, cfg), true)
   assert.equal(looksMixed(japan, cfg), false)
+})
+
+// 2.6 (90): notes count, and moves make chats more about one thing, in one direction.
+function note(topic: string, url: string, text: string): Entry {
+  topicOf.set(text, topic)
+  clock += 1_000
+  return { role: "user", content: text, note: true, page: { url, title: `${topic} page`, at: clock }, id: `n${++salt}`, t: clock }
+}
+
+test("a chat with only a note on a page joins the chat with questions about that page, not the other way", () => {
+  const site = chat("site", [...qa("cf", "https://context-flow.app/"), ...qa("cf", "https://context-flow.app/")])
+  // Too short to be judged by its words, but the page says where it belongs.
+  const memo = chat("memo", [note("cf", "https://context-flow.app/", "FAQ for pricing")])
+  const s = suggestMove(memo, [site, memo], vectorOf, cfg)!
+  assert.equal(s.to, "site")
+  assert.equal(s.why, "page")
+  assert.deepEqual([s.start, s.end], [0, 0])
+  assert.equal(suggestMove(site, [site, memo], vectorOf, cfg), null)
+  // A longer note on another page of the topic joins by topic.
+  const memo2 = chat("memo2", [note("cf", "https://context-flow.app/blog", "Write the post about sorting chats by topic, with the before and after")])
+  assert.equal(suggestMove(memo2, [site, memo2], vectorOf, cfg)?.to, "site")
+})
+
+test("off-topic messages leave a mixed chat for the single-topic one; the single-topic chat never goes into the mix", () => {
+  const mix = chat("mix", [...qa("cars", "https://cars/1"), ...qa("cars", "https://cars/2"), ...qa("analytics", "https://stats/1"), ...qa("analytics", "https://stats/2")])
+  const one = chat("one", qa("analytics", "https://stats/3"))
+  const s = suggestMove(mix, [mix, one], vectorOf, cfg)!
+  assert.equal(s.to, "one")
+  assert.deepEqual([s.start, s.end], [4, 7], "both analytics blocks, together")
+  assert.equal(suggestMove(one, [mix, one], vectorOf, cfg), null, "not into the mix")
+  // Mostly that analytics site (three of four): the one-topic chat joins it (where the mix is narrower), and its cars
+  // leave for a chat of their own.
+  const most = chat("most", [...qa("analytics", "https://stats/1"), ...qa("analytics", "https://stats/2"), ...qa("analytics", "https://stats/4"), ...qa("cars", "https://cars/1")])
+  assert.deepEqual([suggestMove(one, [most, one], vectorOf, cfg)?.to, suggestMove(one, [most, one], vectorOf, cfg)?.why], ["most", "site"])
+  const out = suggestMove(most, [most, one], vectorOf, cfg)!
+  assert.deepEqual([out.to, out.start, out.end], [null, 6, 7], "its analytics are at home; the cars leave")
+  const clean = chat("most", most.m.slice(0, 6))
+  assert.equal(suggestMove(one, [clean, one], vectorOf, cfg)?.to, "most")
+})
+
+test("two one-topic chats of one block each: only the smaller joins the larger", () => {
+  const a = chat("a", [...qa("bread", "https://bread/9"), { role: "user", content: "and rye?", id: "x1", t: 1 }, { role: "assistant", content: "rye too", id: "x2", t: 2 }])
+  const b = chat("b", qa("bread", "https://bread/8"))
+  topicOf.set("and rye?", "bread")
+  topicOf.set("rye too", "bread")
+  assert.equal(suggestMove(b, [a, b], vectorOf, cfg)?.to, "a")
+  assert.equal(suggestMove(a, [a, b], vectorOf, cfg), null)
+})
+
+test("naming (2.6): what the AI reads, when a name gets checked by itself, never over a name the user typed", () => {
+  const site = chat("site", [...qa("cf", "https://context-flow.app/"), note("cf", "https://context-flow.app/", "**Ask** about [1](https://x.example/a) the FAQ")])
+  const text = nameText(site.m)
+  assert.match(text, /^Page: cf page\nQuestion: cf question \d+ about something long enough\nAnswer: cf answer \d+ with details\nNote: Ask about the FAQ$/)
+  assert.equal(wantsNameCheck(site), true)
+  assert.equal(wantsNameCheck(chat("one", qa("cf", "https://context-flow.app/"))), false, "one question names it well enough")
+  assert.equal(wantsNameCheck({ ...site, title: "Mine" }), false, "typed by the user")
+  assert.equal(wantsNameCheck({ ...site, title: "Theirs", aiTitle: "Theirs" }), true, "the AI's own name")
+  assert.equal(wantsNameCheck({ ...site, title: "Mine", aiTitle: "Theirs" }), false, "renamed by the user after the AI")
+  assert.equal(wantsNameCheck({ ...site, kind: "history" }), false)
+  // Checked again when a page is added or the name changed; not for another answer on the same page.
+  const key = nameCheckKey(site)
+  const more = chat("site", [...site.m, ...qa("cars", "https://cars/1")])
+  assert.notEqual(nameCheckKey(more), key)
+  assert.notEqual(nameCheckKey(site, "Other"), key)
+  assert.equal(nameCheckKey({ ...site, m: [...site.m, { role: "assistant", content: "more", id: "z", t: 1 }] }), key)
+  // A long chat: its first page and the latest that fit.
+  const long = chat("long", Array.from({ length: 40 }, (_, i) => qa(`t${i}`, `https://long/${i}`, { question: `Question ${i} ${"words ".repeat(50)}` })).flat())
+  const cut = nameText(long.m)
+  assert.ok(cut.length <= 6_000)
+  assert.match(cut, /^Page: t0 page/)
+  assert.match(cut, /Question 39/)
+  assert.doesNotMatch(cut, /Question 20 /)
+})
+
+test("2.6 (91): a chat with one short note on a page of a site joins the chat with the most questions on that site", () => {
+  const site = chat("site", [...qa("cf", "https://context-flow.app/"), ...qa("cf", "https://context-flow.app/pricing"), ...qa("cf", "https://context-flow.app/support")])
+  const other = chat("other", [...qa("cf", "https://context-flow.app/blog"), ...qa("cars", "https://cars/9")])
+  // Its page isn't in either chat, and it's too short to be judged by its words.
+  const memo = chat("memo", [note("cf", "https://context-flow.app/changelog", "Release notes")])
+  const s = suggestMove(memo, [site, other, memo], vectorOf, cfg)!
+  assert.deepEqual([s.to, s.why, s.start, s.end], ["site", "site", 0, 0])
+  // The site's chat doesn't go into the note's chat.
+  assert.equal(suggestMove(site, [site, other, memo], vectorOf, cfg), null)
+  // A site chat about something else entirely (one video site, every topic) doesn't take a note on another topic.
+  const videos = chat("videos", [...qa("cars", "https://video.example/1"), ...qa("cars", "https://video.example/2")])
+  const cooking = chat("cooking", [note("borsch", "https://video.example/3", "Try this borsch recipe with smoked pears on Sunday, for the guests")])
+  assert.equal(suggestMove(cooking, [videos, cooking], vectorOf, cfg), null)
+})
+
+test("2.6 (93): the questions about a site may all be on one page (one block): a lone note there joins them, one way", () => {
+  const home = chat("home", [...qa("cf", "https://context-flow.app/"), ...qa("cf", "https://context-flow.app/"), ...qa("cf", "https://context-flow.app/")])
+  const memo = chat("memo", [note("cf", "https://context-flow.app/changelog", "Release notes")])
+  const s = suggestMove(memo, [home, memo], vectorOf, cfg)!
+  assert.deepEqual([s.to, s.why], ["home", "site"])
+  assert.equal(suggestMove(home, [home, memo], vectorOf, cfg), null)
+  // Two lone notes on one site: neither has more, nothing joins.
+  const blog = chat("blog", [note("cf", "https://context-flow.app/blog", "Post about sorting")])
+  assert.equal(suggestMove(blog, [blog, memo], vectorOf, cfg), null)
+  // One video's question doesn't take a note on another topic from the same video site.
+  const car = chat("car", qa("cars", "https://video.example/7"))
+  const cooking = chat("cooking", [note("borsch", "https://video.example/8", "Try this borsch recipe with smoked pears on Sunday, for the guests")])
+  assert.equal(suggestMove(cooking, [car, cooking], vectorOf, cfg), null)
+})
+
+// ------------------------------------------------------------ the match % (2.6 (93))
+
+test("the match %: 0 at what unrelated chats score, 100 at what a chat's own messages score; moveT is 78 %", () => {
+  assert.equal(matchPercent(0.17, cfg), 0)
+  assert.equal(matchPercent(0.66, cfg), 100)
+  assert.equal(matchPercent(0.55, cfg), 78)
+  assert.equal(matchPercent(0.05, cfg), 0)
+  assert.equal(matchPercent(0.9, cfg), 100)
+})
+
+test("a move to another chat says how well it matches; under the minimum it doesn't go there; a new chat has no %", () => {
+  const pile = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...qa("japan", "https://travel-blog/9")])
+  const s = suggestMove(pile, [pile, japan, bread], vectorOf, cfg)!
+  assert.equal(s.to, "japan")
+  assert.ok(s.match !== undefined && s.match >= cfg.minMatch && s.match <= 100, String(s.match))
+  // Under the minimum it doesn't go there (the block, not like its own chat either, is offered a new one).
+  assert.equal(suggestMove(pile, [pile, japan, bread], vectorOf, { ...cfg, minMatch: 100.5 })?.to, null)
+  const apart = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...qa("cars", "https://car/1")])
+  assert.equal(suggestMove(apart, [apart, japan, bread], vectorOf, cfg)!.match, undefined)
+})
+
+// ------------------------------------------------------------ organizing's state, kept with the chat (2.6 (93))
+
+test("the kept move shows while the chat is as it was, and goes when it changes, is turned down or its chat is gone", () => {
+  const pile = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...qa("japan", "https://travel-blog/9")])
+  const s = suggestMove(pile, [pile, japan, bread], vectorOf, cfg)!
+  const kept = { ...pile, org: orgStateFor(pile, s, [], undefined) }
+  assert.deepEqual(openMove(kept, [kept, japan, bread]), { s: 6, e: 7, to: "japan", why: "topic", mt: s.match })
+  // Another device, a message later: not this one any more (its own run says what now).
+  const more = { ...kept, m: [...kept.m, ...qa("react", "https://react/4")] }
+  assert.equal(openMove(more, [more, japan, bread]), undefined)
+  const refused = { ...kept, m: kept.m.map((e, i) => (i >= 6 ? { ...e, dismissed: { move: true as const } } : e)) }
+  assert.equal(openMove(refused, [refused, japan, bread]), undefined)
+  assert.equal(openMove(kept, [kept, { ...japan, deleted: true }, bread]), undefined)
+})
+
+test("kept tags show until taken or turned down", () => {
+  const m = [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")]
+  const keys = m.map((e) => e.id!)
+  const c = chat("c", m, { org: { n: m.length, k: keys[3], tg: [[keys[1], "Travel"], [keys[3], "Food"]] } })
+  assert.deepEqual(openTags(c).map((t) => t.tag), ["Travel", "Food"])
+  const taken = { ...c, m: c.m.map((e, i) => (i === 1 ? { ...e, tags: ["travel"] } : i === 3 ? { ...e, dismissed: { tags: ["food"] } } : e)) }
+  assert.deepEqual(openTags(taken), [])
+})
+
+test("a name turned down never comes back; a fitting name, or one the user typed, gets none", () => {
+  const m = [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")]
+  const c = chat("c", m)
+  const first = nameStateAfter(undefined, "k1", { fits: false, title: "Japan trip" }, "q")
+  assert.deepEqual(first, { k: "k1", t: "Japan trip" })
+  assert.equal(openName({ ...c, org: { n: 4, k: "", nm: first } }), "Japan trip")
+  // Turned down (store.settleNameSuggestion keeps it in `no`): the next check suggesting it again changes nothing.
+  const after = nameStateAfter({ k: "k1", no: ["Japan trip"] }, "k2", { fits: false, title: "japan trip" }, "q")
+  assert.deepEqual(after, { k: "k2", no: ["Japan trip"] })
+  assert.equal(openName({ ...c, org: { n: 4, k: "", nm: { k: "k2", t: "Japan trip", no: ["Japan trip"] } } }), undefined)
+  assert.deepEqual(nameStateAfter(undefined, "k1", { fits: true, title: "Japan trip" }, "q"), { k: "k1" })
+  assert.equal(openName({ ...c, title: "Mine", org: { n: 4, k: "", nm: first } }), undefined)
+})
+
+// 2.6 (94): an answer off its chat's topic at the end of a page block gets a suggestion of its own; chats on one topic
+// and the same pages merge, the older one into the newer one.
+test("an answer off the chat's topic on the same page goes to the chat about it, else to a new chat", () => {
+  const page = "https://react/1"
+  const off = chat("off", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa("japan", page)])
+  const there = suggestMove(off, [off, japan, bread], vectorOf, cfg)!
+  assert.deepEqual([there.to, there.why, there.start, there.end], ["japan", "topic", 6, 7])
+  assert.ok(there.match! >= cfg.minMatch)
+  const apart = suggestMove(off, [off, bread], vectorOf, cfg)!
+  assert.deepEqual([apart.to, apart.why, apart.start, apart.end], [null, "apart", 6, 7])
+  // Two off-topic answers alike go together; three on the topic stay; one staying is too little.
+  const two = chat("two", [...qa("react", page), ...qa("react", page), ...qa("japan", page), ...qa("japan", page)])
+  assert.deepEqual([suggestMove(two, [two, bread], vectorOf, cfg)?.start, suggestMove(two, [two, bread], vectorOf, cfg)?.end], [4, 7])
+  assert.equal(suggestMove(chat("fine", [...qa("react", page), ...qa("react", page), ...qa("react", page)]), [bread], vectorOf, cfg), null)
+  assert.equal(suggestMove(chat("short", [...qa("react", page), ...qa("japan", page)]), [bread], vectorOf, cfg), null)
+  // Asked in the app (no page): the same.
+  const inApp = qa("japan", page).map((e) => (e.role === "user" ? { ...e, page: undefined } : e))
+  assert.equal(suggestMove(chat("app", [...qa("react", page), ...qa("react", page), ...inApp]), [bread], vectorOf, cfg)?.why, "apart")
+  // Turned down: not again.
+  const refused = qa("japan", page).map((e) => ({ ...e, dismissed: { move: true as const } }))
+  assert.equal(suggestMove(chat("no", [...qa("react", page), ...qa("react", page), ...refused]), [bread], vectorOf, cfg), null)
+})
+
+test("a chat on the topic and pages of a newer one joins it whole; never the other way, nor into a lone note", () => {
+  const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
+  const newer = chat("newer", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2"), ...qa("japan", "https://jg/4")])
+  const s = suggestMove(older, [older, newer], vectorOf, cfg)!
+  assert.deepEqual([s.to, s.why, s.start, s.end], ["newer", "merge", 0, 3])
+  assert.ok(s.match! >= cfg.minMatch)
+  // 2.6 (95): the newer chat, where the person is, shows it too: the older one joins it here.
+  const into = suggestMove(newer, [older, newer], vectorOf, cfg)!
+  assert.deepEqual([into.why, into.from, into.to, into.start, into.end], ["merge", "older", "newer", 5, 5])
+  assert.deepEqual(orgStateFor(newer, into, [], undefined).mv, { s: 5, e: 5, to: "newer", why: "merge", mt: into.match, fr: "older" })
+  // Turned down (kept with the chat, on every device): not again, and carried by the next run's state.
+  const no = { ...older, org: { n: 4, k: "x", mx: ["newer"] } }
+  assert.equal(suggestMove(no, [no, newer], vectorOf, cfg), null)
+  assert.equal(suggestMove(newer, [no, newer], vectorOf, cfg), null)
+  assert.deepEqual(orgStateFor(no, null, [], undefined).mx, ["newer"])
+  // Other pages, another topic on the same pages: no merge.
+  const elsewhere = chat("elsewhere", [...qa("japan", "https://other/1"), ...qa("japan", "https://other/2")])
+  assert.notEqual(suggestMove(older, [older, elsewhere], vectorOf, cfg)?.why, "merge")
+  const breadOnJg = chat("breadjg", [...qa("bread", "https://jg/1"), ...qa("bread", "https://jg/2")])
+  assert.notEqual(suggestMove(older, [older, breadOnJg], vectorOf, cfg)?.why, "merge")
+  // A newer chat of one note joins the older one, as before (2.6 (91)).
+  const memo = chat("memo", [note("japan", "https://jg/1", "Rail pass: buy it before the trip, it costs less at home")])
+  assert.equal(suggestMove(memo, [older, memo], vectorOf, cfg)?.to, "older")
+  assert.equal(suggestMove(older, [older, memo], vectorOf, cfg), null)
+})
+
+// 2.6 (95): an exchange whose question and answer are on different topics (the question carries its page's title).
+function qa2(qTopic: string, aTopic: string, url: string): Entry[] {
+  const q = `${qTopic} question ${++salt} on the ${aTopic} subject, long enough`
+  const a = `${aTopic} answer ${salt} with details`
+  topicOf.set(q, qTopic)
+  topicOf.set(a, aTopic)
+  clock += 1_000
+  return [{ role: "user", content: q, page: { url, title: `${qTopic} page`, at: clock }, id: `q${salt}`, t: clock }, { role: "assistant", content: a, id: `a${salt}`, t: clock + 10 }]
+}
+
+test("2.6 (95): chats on a shared page merge when their answers are on one topic, not when only the page's title is", () => {
+  // The questions of both are mostly the page's title (japan); the newer chat's answers are about bread.
+  const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
+  const sameTopic = chat("same", [...qa2("japan", "japan", "https://jg/1"), ...qa2("japan", "japan", "https://jg/5")])
+  assert.equal(suggestMove(older, [older, sameTopic], vectorOf, cfg)?.to, "same")
+  const otherTopic = chat("other", [...qa2("japan", "bread", "https://jg/1"), ...qa2("japan", "bread", "https://jg/5")])
+  assert.notEqual(suggestMove(older, [older, otherTopic], vectorOf, cfg)?.why, "merge")
+  assert.notEqual(suggestMove(otherTopic, [older, otherTopic], vectorOf, cfg)?.why, "merge")
+  // One shared page of two is enough, and the newer chat may be one block.
+  const oneBlock = chat("oneblock", [...qa("japan", "https://jg/2"), ...qa("japan", "https://jg/2")])
+  assert.deepEqual([suggestMove(older, [older, oneBlock], vectorOf, cfg)?.why, suggestMove(older, [older, oneBlock], vectorOf, cfg)?.to], ["merge", "oneblock"])
+})
+
+test("2.6 (95): a merge needs the match it shows, by questions and answers, from minMatch % too", () => {
+  // The newer chat's questions are on another topic and its answers partly on the older chat's: the answers fit each
+  // other (mergeA), the questions and answers don't, and that is the % a merge shows.
+  const blend = (a: Float32Array, b: Float32Array) => { const v = a.map((x, i) => x * 0.6 + b[i] * 0.8); let n = 0; for (const x of v) n += x * x; return v.map((x) => x / Math.sqrt(n)) }
+  const custom = new Map<string, Float32Array>()
+  const vo: VectorOf = (e) => custom.get(e.content) ?? vectorOf(e)
+  const halfOn = (url: string) => { const m = qa2("bread", "japan", url); custom.set(m[1].content, blend(vectorFor("japan", 0), vectorFor("bread", 1))); return m }
+  const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
+  const newer = chat("newer", [...halfOn("https://jg/1"), ...halfOn("https://jg/5")])
+  const ungated = suggestMove(older, [older, newer], vo, { ...cfg, minMatch: 0 })!
+  assert.deepEqual([ungated.why, ungated.to], ["merge", "newer"])
+  assert.ok(ungated.match! < cfg.minMatch)
+  assert.notEqual(suggestMove(older, [older, newer], vo, cfg)?.why, "merge")
+  assert.notEqual(suggestMove(newer, [older, newer], vo, cfg)?.why, "merge")
+})
+
+test("2.6 (96): an answer no closer to its chat than to the person's other chats gets a new chat (on by default)", () => {
+  // Asked on the chat's page, the question carries the page's title: by question and answer it fits the chat.
+  const page = "https://react/1"
+  const host = chat("host", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa2("react", "japan", page)])
+  const tents = chat("tents", [...qa("tents", "https://tents/1"), ...qa("tents", "https://tents/2")])
+  const kombucha = chat("kombucha", [...qa("kombucha", "https://k/1"), ...qa("kombucha", "https://k/2")])
+  const on = { ...cfg, tailRelCap: 0.35, tailRelD: 0.05 }
+  const library = [host, bread, tents, kombucha]
+  assert.equal(cfg.tailRelCap, 0.35)
+  assert.equal(cfg.tailRelD, 0)
+  assert.equal(suggestMove(host, library, vectorOf, { ...cfg, tailRelCap: 0 }), null)
+  const s = suggestMove(host, library, vectorOf, on)!
+  assert.deepEqual([s.why, s.to, s.start, s.end], ["apart", null, 6, 7])
+  // With a chat about it, the other rules decide, as before.
+  assert.deepEqual(suggestMove(host, [...library, japan], vectorOf, on), suggestMove(host, [...library, japan], vectorOf, { ...cfg, tailRelCap: 0 }))
+  // Fewer than three other chats: no usual fit to go by.
+  assert.equal(suggestMove(host, [host, bread, tents], vectorOf, on), null)
+  // A chat's own last answer fits it far better than the person's other chats.
+  const own = chat("own", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa("react", page)])
+  assert.equal(suggestMove(own, [own, bread, tents, kombucha], vectorOf, on), null)
+})
+
+test("2.6 (98): a name turned down stays turned down when it comes back reworded; another name still comes", () => {
+  // The review's S5: by content words in the 14 languages, in any order and form; a word that differs makes another
+  // name however many words they share; one word more at most, none to a one-word name.
+  const same: Array<[string, string]> = [
+    ["Choosing a road bike", "Road bike: choosing one"], ["Kyoto", "kyoto"],
+    ["Поездка в Японию", "Поездки по Японии"], ["Ремонт кухни: плитка и смесители", "Плитка и смесители для кухни"],
+    ["Оформлення закордонного паспорта", "Закордонний паспорт: оформлення"], ["Balkonkraftwerk Anmeldung", "Anmeldung des Balkonkraftwerks"],
+    ["Recette de gâteau au chocolat", "Recettes de gâteaux au chocolat"], ["Rutas de senderismo en Asturias", "Senderismo en Asturias: rutas"],
+    ["Ricette di pasta fresca", "Pasta fresca: ricette"], ["Financiamento de imóveis", "Imóvel: financiamento"],
+    ["Học tiếng Anh cho trẻ em", "Trẻ em học tiếng Anh"], ["京都の紅葉旅行", "紅葉の京都旅行"], ["京都旅行", "京都旅行のプラン"],
+    ["교토 여행", "교토의 여행 계획"], ["제주도 맛집", "제주도의 맛집 추천"], ["日本旅行攻略", "日本的旅行攻略"], ["台北美食推薦", "台北的美食"],
+    ["سيارة كهربائية", "السيارات الكهربائية"], ["تعلم اللغة الإنجليزية", "اللغة الإنجليزية: تعلم"]
+  ]
+  const other: Array<[string, string]> = [
+    ["Flights and hotels in Rome", "Hotels and museums in Rome"], ["Tips for the garden", "Tips for the kitchen"],
+    ["Electric car comparison", "Electric car insurance"], ["Travel", "Travel insurance for Japan"], ["Ремонт кухни", "Ремонт ванной"],
+    ["Ціни на квартири у Львові", "Ціни на квартири у Києві"], ["Kita Anmeldung Berlin", "Kita Anmeldung München"],
+    ["Vacances en Bretagne", "Vacances en Provence"], ["Seguro de coche", "Seguro de hogar"], ["Treni per Milano", "Treni per Napoli"],
+    ["Plano de saúde para idosos", "Plano de celular para idosos"], ["Mẹo chăm sóc vườn", "Mẹo chăm sóc da"],
+    ["Mua xe máy Honda Vision", "Bảo dưỡng xe máy Honda Vision"], ["東京のホテル", "京都のホテル"], ["京都", "京都旅行"],
+    ["서울 아파트 시세", "부산 아파트 시세"], ["上海租房", "北京租房"], ["台北美食", "台南美食"], ["شقق للإيجار في دبي", "شقق للإيجار في القاهرة"]
+  ]
+  for (const [a, b] of same) assert.equal(nearName(a, b) && nearName(b, a), true, `${a} / ${b}`)
+  for (const [a, b] of other) assert.equal(nearName(a, b) || nearName(b, a), false, `${a} / ${b}`)
+  // Any name turned down blocks itself; only the last five block near repeats.
+  const no = ["Kyoto trip", "Osaka", "Nara", "Kobe", "Nagoya", "Sapporo"]
+  assert.equal(turnedDownName(no, "kyoto TRIP"), true)
+  assert.equal(turnedDownName(no, "Kyoto trips"), false)
+  assert.equal(turnedDownName(no.slice(1), "Osaka city"), false)
+  assert.equal(turnedDownName([...no, "Kyoto trip"], "Kyoto trips"), true)
+  const state = { k: "k1", no: ["Road bike sizes"] }
+  assert.equal(nameStateAfter(state, "k2", { fits: false, title: "Sizes of road bikes" }, "Chat").t, undefined)
+  assert.equal(nameStateAfter(state, "k2", { fits: false, title: "Road bike tyres" }, "Chat").t, "Road bike tyres")
+  const chat2 = chat("named", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")], { org: { n: 4, k: "", nm: { k: "k1", t: "Sizes of road bikes", no: state.no } } })
+  assert.equal(openName({ ...chat2, org: { ...chat2.org!, k: entryKeyOf(chat2.m[3]) } }), undefined)
+})
+
+test("2.6 (95): a chat of two pages on two topics: the newer page goes", () => {
+  const tents = chat("tents", [...qa("tents", "https://outdoor/tents"), ...qa("tents", "https://campshop/2p")])
+  const camera = chat("camera", [...qa("camera", "https://shop/camera-x"), ...qa("camera", "https://shop/camera-x"), ...qa("tents", "https://other/tent-y")])
+  const s = suggestMove(camera, [camera, tents, bread], vectorOf, cfg)!
+  assert.deepEqual([s.start, s.end, s.to, s.why], [4, 5, "tents", "topic"])
+  // No chat for it: a new chat, as two questions stay.
+  const alone = suggestMove(camera, [camera, bread], vectorOf, cfg)!
+  assert.deepEqual([alone.start, alone.end, alone.to, alone.why], [4, 5, null, "apart"])
+  // A block on a page the chat has elsewhere is that chat's.
+  const back = chat("back", [...qa("camera", "https://shop/camera-x"), ...qa("kombucha", "https://kitchn/k"), ...qa2("camera", "kombucha", "https://shop/camera-x")])
+  assert.ok(suggestMove(back, [back, bread], vectorOf, cfg)?.start !== 4)
+})
+
+test("2.6 (95): the end of a block whose answer fits another chat far better goes there, though its question has the page's title", () => {
+  const monitors = chat("monitors", [...qa("monitor", "https://rtings/dell"), ...qa("monitor", "https://lg/27up850")])
+  const vacuum = chat("vacuum", [...qa("vacuum", "https://roborock/s8"), ...qa("vacuum", "https://roborock/s8"), ...qa("vacuum", "https://roborock/s8"), ...qa2("vacuum", "monitor", "https://roborock/s8")])
+  const s = suggestMove(vacuum, [vacuum, monitors, bread], vectorOf, cfg)!
+  assert.deepEqual([s.start, s.end, s.to, s.why], [6, 7, "monitors", "topic"])
+  // Without that chat its question, with the page's title, keeps it with the page's chat (tailQA and tailA together).
+  assert.equal(suggestMove(vacuum, [vacuum, bread], vectorOf, cfg), null)
+})
+
+test("2.6 (95): a site's chat takes a chat of questions on that site only on its topic; a note's chat by its site as before", () => {
+  const headphones = chat("headphones", [...qa("headphones", "https://rtings/xm5"), ...qa("headphones", "https://rtings/airpods"), ...qa("headphones", "https://apple/airpods")])
+  const monitor = chat("monitor", [...qa("monitor", "https://rtings/dell"), ...qa("monitor", "https://rtings/dell")])
+  assert.equal(suggestMove(monitor, [monitor, headphones], vectorOf, cfg), null)
+})
+
+test("2.6 (95): a Find similar request and answer are embedded by what they're about, not by the condition and caveats", () => {
+  const page = { url: "https://shop.example/earbuds-x", title: "Earbuds X - Example Shop", at: 1 }
+  assert.equal(embedText({ role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page }), "Earbuds X - Example Shop")
+  assert.equal(embedText({ role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", similarSel: "the pro model", page }), "the pro model\nEarbuds X - Example Shop")
+  const list = "Wireless earbuds like the Earbuds X.\n\n1. **[Buds One](https://a.example/1)** (a.example) — Noise cancelling. The page states no price, so it's unclear whether it is cheaper than 99 EUR; it is not a local shop. _(Not confirmed)_\n2. **[Sound Pod 2](https://b.example/2)** (b.example) — Long battery. _(59.00 USD · Not confirmed)_\n\nCheck the price and delivery before buying."
+  assert.equal(embedText({ role: "assistant", content: list }), "Wireless earbuds like the Earbuds X.\nBuds One; Sound Pod 2")
+  // An answer that only has a numbered list of its own is embedded as before.
+  assert.equal(embedText({ role: "assistant", content: "1. Boil water\n2. Add pasta" }), "1. Boil water 2. Add pasta")
+})
+
+test("2.6 (95): a page with a question on the chat's topic and then one on another: only the latter goes", () => {
+  const sleep = chat("sleepchat", [...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/light"), ...qa("kombucha", "https://sleep/light")])
+  const s = suggestMove(sleep, [sleep, bread], vectorOf, cfg)!
+  assert.deepEqual([s.start, s.end, s.to], [6, 7, null])
+  // A page whose questions are all off the chat goes whole.
+  const two = chat("twoff", [...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/caffeine"), ...qa("kombucha", "https://k/1"), ...qa("kombucha", "https://k/1")])
+  const w = suggestMove(two, [two, bread], vectorOf, cfg)!
+  assert.deepEqual([w.start, w.end, w.to], [4, 7, null])
 })

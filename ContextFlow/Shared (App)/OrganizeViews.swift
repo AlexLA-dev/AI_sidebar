@@ -14,39 +14,75 @@ func messagesCount(_ n: Int) -> String {
 struct SuggestionRow: View {
     var tag: String?
     var move: OrganizeModel.Move?
+    /// 2.6 (91): a better name for the chat (under its last message).
+    var name: String?
+    /// 2.6 (97): the chip the bar at the top of the chat just opened: it flashes, as a pinned message does.
+    var lit: BarSuggestion.Kind? = nil
     let onTag: () -> Void
     let onTagNo: () -> Void
     let onMove: () -> Void
     let onMoveNo: () -> Void
+    var onName: () -> Void = {}
+    var onNameNo: () -> Void = {}
 
     var body: some View {
         OrganizeFlow(spacing: 6) {
             Text("Suggested").font(.caption).foregroundColor(.secondary).frame(height: 28)
             if let tag {
-                SuggestionChip(tint: Tags.color(tag), takeLabel: Text("Suggested tag “\(tag)”. Add it"), take: onTag, refuse: onTagNo) {
+                SuggestionChip(tint: Tags.color(tag), lit: lit == .tag, takeLabel: Text("Suggested tag “\(tag)”. Add it"), take: onTag, refuse: onTagNo) {
                     Text("#\(tag)").font(.footnote.weight(.semibold))
                 }
             }
             if let move {
-                SuggestionChip(tint: .secondary, takeLabel: move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
-                    (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
+                SuggestionChip(tint: .secondary, lit: lit == .move, takeLabel: move.from != nil ? Text("Merge the older chat “\(move.toName)” into this one") : move.why == .merge ? Text("Merge this chat into “\(move.toName)”") : move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
+                    HStack(spacing: 0) {
+                        (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
+                            .lineLimit(1)
+                        // 2.6 (93): how well it fits there, shown with the suggestion; a long name is cut, never this.
+                        if move.to != nil, let match = move.match {
+                            (Text(" · ").foregroundColor(.secondary) + Text("\(Int(match))% match").fontWeight(.semibold).foregroundColor(.accentColor))
+                                .lineLimit(1)
+                                .fixedSize()
+                        }
+                    }
+                    .font(.footnote)
+                }
+            }
+            if let name {
+                SuggestionChip(tint: .secondary, lit: lit == .name, takeLabel: Text("Name it “\(name)”"), take: onName, refuse: onNameNo) {
+                    (Text(Image(systemName: "pencil")) + Text(" ") + Text("Name it “\(Text(name).fontWeight(.semibold).foregroundColor(.primary))”"))
                         .font(.footnote)
                         .lineLimit(1)
                 }
             }
         }
+        // 2.6 (94): a light tint, so the suggestions stand out from the chat without weighing on it.
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.accentColor.opacity(0.07)))
         .padding(.top, 2)
         .transition(.opacity)
     }
 
+    /// 2.6 (97): a move as one line of plain text, as its chip says it (the bar at the top of the chat).
+    static func moveLine(_ move: OrganizeModel.Move) -> String {
+        let name = move.toName
+        if move.from != nil { return String(localized: "Bring “\(name)” here") }
+        if move.why == .merge { return String(localized: "Merge into “\(name)”") }
+        return move.to == nil ? String(localized: "To a new chat: “\(name)”") : String(localized: "\(messagesCount(move.count)) to “\(name)”")
+    }
+
     private func moveText(_ move: OrganizeModel.Move) -> Text {
         let name = Text(move.toName).fontWeight(.semibold).foregroundColor(.primary)
+        if move.from != nil { return Text("Bring “\(name)” here") }
+        if move.why == .merge { return Text("Merge into “\(name)”") }
         return move.to == nil ? Text("To a new chat: “\(name)”") : Text("\(messagesCount(move.count)) to “\(name)”")
     }
 }
 
 private struct SuggestionChip<Label: View>: View {
     let tint: Color
+    var lit = false
     // What VoiceOver reads for taking it; the ✕ reads "Dismiss".
     let takeLabel: Text
     let take: () -> Void
@@ -68,6 +104,83 @@ private struct SuggestionChip<Label: View>: View {
         .background(Capsule().fill(tint.opacity(0.06)))
         .overlay(Capsule().strokeBorder(tint.opacity(0.55), style: StrokeStyle(lineWidth: 1, dash: [3, 2.5])))
         .opacity(0.92)
+        .background(Capsule().fill(Color.accentColor.opacity(lit ? 0.22 : 0)).padding(-5))
+    }
+}
+
+// MARK: - 2.6 (97): the chat's open suggestions at its top, like the pinned messages' bar
+
+/// One open suggestion of the chat, for the bar: a tag, a move (a block, a new chat, a merge) or a name (a move and a
+/// name never at once), under message `index`.
+struct BarSuggestion: Equatable {
+    enum Kind: String { case tag, move, name }
+    let kind: Kind
+    let index: Int
+    let text: String
+
+    /// The chat's order: the earlier message first; under one message as its row shows them (a tag, a move, a name).
+    static func ordered(_ items: [BarSuggestion]) -> [BarSuggestion] {
+        let rank: [Kind: Int] = [.tag: 0, .move: 1, .name: 2]
+        return items.sorted { $0.index != $1.index ? $0.index < $1.index : rank[$0.kind]! < rank[$1.kind]! }
+    }
+}
+
+/// Easy to miss deep in a long chat (2.6 (97)): one line of the current one; a tap scrolls to it in the chat and
+/// flashes it, and the bar moves on to the next (after the last, the first again). No suggestion: no bar.
+/// `compact`: one line, with the pinned bar above it.
+struct SuggestionsBar: View {
+    let items: [BarSuggestion]
+    @Binding var at: Int
+    var compact = false
+    var open: (BarSuggestion) -> Void
+    var shown: () -> Void = {}
+
+    var body: some View {
+        let count = items.count
+        let pos = min(max(at, 0), count - 1)
+        let current = items[pos]
+        let label = count > 1 ? Text("Suggested · \(pos + 1)/\(count)") : Text("Suggested · \(count)")
+        Button {
+            open(current)
+            at = (pos + 1) % count
+        } label: {
+            HStack(alignment: .center, spacing: 9) {
+                segments(count, pos)
+                if compact {
+                    HStack(alignment: .firstTextBaseline, spacing: 7) {
+                        label.font(.caption.weight(.semibold)).foregroundColor(.accentColor).fixedSize()
+                        Text(current.text).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 1) {
+                        label.font(.caption.weight(.semibold)).foregroundColor(.accentColor)
+                        Text(current.text).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, compact ? 6 : 7).padding(.horizontal, 12)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityValue(Text(current.text))
+        .accessibilityHint(Text("Shows it in the chat"))
+        .background(.bar)
+        .overlay(alignment: .bottom) { Divider() }
+        .task(id: items) { shown() }
+        .onChange(of: items) { _ in at = 0 }
+    }
+
+    private func segments(_ count: Int, _ shown: Int) -> some View {
+        let first = min(max(0, shown - 3), max(0, count - 4))
+        let visible = Array(first..<min(count, first + 4))
+        return VStack(spacing: 2) {
+            ForEach(visible, id: \.self) { pos in
+                Capsule().fill(Color.accentColor.opacity(pos == shown ? 1 : 0.3)).frame(width: 2.5)
+            }
+        }
+        .frame(height: compact ? 18 : 34)
     }
 }
 
@@ -152,49 +265,74 @@ struct UndoBar: View {
     }
 }
 
-/// What organizing does, in a loop: messages of one chat slide into the chats and tags they belong to. With Reduce
-/// Motion it stands still.
-struct OrganizeAnimation: View {
-    var big = false
-    @State private var sorted = false
+/// What organizing does, drawn with its real pieces (2.6: abstract bars read as placeholder art): a
+/// question, the answer under it and the row the app really shows there, a suggested tag and "3 messages to “Trips”".
+/// In a gentle loop the move is taken and the bar after a move shows, then it starts again; with Reduce Motion (or
+/// `-CFStillPictures YES`, for screenshots) it stays on the suggestions. `compact`: the row alone, for small cards.
+struct OrganizePreview: View {
+    var compact = false
+    @State private var moved = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    private var tag: String { String(localized: "vacation", comment: "A sample tag in the picture of what organizing does") }
+    private var chat: String { String(localized: "Trips", comment: "A sample chat name in the picture of what organizing does") }
+    private var still: Bool {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFStillPictures") { return true }
+        #endif
+        return reduceMotion
+    }
+
     var body: some View {
-        let s: CGFloat = big ? 1.8 : 1
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 12 * s).fill(Color.cardFill)
-                .overlay(RoundedRectangle(cornerRadius: 12 * s).stroke(Color.primary.opacity(0.08)))
-            bar(.blue, y: 12, s: s)
-            bar(.green, y: 26, s: s).modifier(Slide(on: sorted, dx: 30 * s, dy: 0))
-            bar(.blue, y: 40, s: s)
-            bar(.orange, y: 54, s: s).modifier(Slide(on: sorted, dx: 30 * s, dy: 6 * s))
-            folder(.green, y: 22, s: s)
-            folder(.orange, y: 56, s: s)
+        Group {
+            if compact {
+                row
+            } else {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Spacer(minLength: 48)
+                        Text("Cheap flights to Lisbon in May?")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(RoundedRectangle(cornerRadius: 16).fill(brandBlue))
+                    }
+                    Text("In May, return flights from Berlin to Lisbon start at about 90 euros. It's best to book six to eight weeks ahead.")
+                        .font(.footnote)
+                        .fixedSize(horizontal: false, vertical: true)
+                    ZStack(alignment: .leading) {
+                        row.opacity(moved ? 0 : 1)
+                        UndoBar(text: String(localized: "Moved to “\(chat)”"), actions: [("Undo", {}), ("Open", {})])
+                            .opacity(moved ? 1 : 0)
+                            .scaleEffect(moved ? 1 : 0.96)
+                    }
+                    .frame(minHeight: 44, alignment: .leading)
+                }
+                .padding(14)
+                .background(RoundedRectangle(cornerRadius: 16).fill(Color.cardFill))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.primary.opacity(0.06)))
+            }
         }
-        .frame(width: 76 * s, height: 88 * s)
-        .clipShape(RoundedRectangle(cornerRadius: 12 * s))
+        .allowsHitTesting(false)
         .accessibilityHidden(true)
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 1.4).delay(0.6).repeatForever(autoreverses: true)) { sorted = true }
+        .task {
+            guard !compact, !still else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 2_800_000_000)
+                withAnimation(.easeInOut(duration: 0.35)) { moved = true }
+                try? await Task.sleep(nanoseconds: 2_200_000_000)
+                withAnimation(.easeInOut(duration: 0.35)) { moved = false }
+            }
         }
     }
 
-    private func bar(_ color: Color, y: CGFloat, s: CGFloat) -> some View {
-        RoundedRectangle(cornerRadius: 4 * s).fill(color.opacity(0.6)).frame(width: 36 * s, height: 8 * s).offset(x: 8 * s, y: y * s)
-    }
-
-    private func folder(_ color: Color, y: CGFloat, s: CGFloat) -> some View {
-        RoundedRectangle(cornerRadius: 3 * s).fill(color.opacity(0.25)).frame(width: 22 * s, height: 16 * s).offset(x: 47 * s, y: y * s)
-    }
-
-    private struct Slide: ViewModifier {
-        let on: Bool
-        let dx: CGFloat
-        let dy: CGFloat
-        func body(content: Content) -> some View {
-            content.scaleEffect(on ? 0.45 : 1).offset(x: on ? dx : 0, y: on ? dy : 0).opacity(on ? 0.15 : 1)
-        }
+    private var row: some View {
+        SuggestionRow(
+            tag: tag,
+            move: OrganizeModel.Move(start: 0, end: 2, to: "sample", toName: chat, why: .topic),
+            onTag: {}, onTagNo: {}, onMove: {}, onMoveNo: {}
+        )
     }
 }
 
@@ -210,7 +348,6 @@ struct OrganizeCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 12) {
-                if kind != .consent { OrganizeAnimation() }
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title).font(.subheadline.weight(.semibold))
                     Text(text).font(.footnote).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -222,6 +359,7 @@ struct OrganizeCard: View {
                         .accessibilityLabel(Text("Close"))
                 }
             }
+            if kind != .consent { OrganizePreview(compact: true) }
             HStack(spacing: 12) {
                 Button(action: primary) { Text(kind == .consent ? "Turn on" : "Try Pro") }
                     .buttonStyle(.borderedProminent)
@@ -271,6 +409,10 @@ final class OrganizeModel: ObservableObject {
         let to: String?
         let toName: String
         let why: Organize.MoveReason
+        /// How well it fits there, in % (2.6 (93)): shown with a move to another chat by topic or site.
+        var match: Double? = nil
+        /// 2.6 (95): an older chat joins this one whole (`toName` is its name).
+        var from: String? = nil
         var count: Int { end - start + 1 }
     }
 
@@ -281,9 +423,13 @@ final class OrganizeModel: ObservableObject {
         var move: Move?
         /// A tag per message index (and the message's key, to check it's still that message).
         var tags: [Int: (key: String, tag: String)]
+        /// 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one does.
+        var name: String?
+        /// 2.6 (93): what to keep with the chat after a run (ChatLibrary.keepOrg), so other devices show it at once.
+        var org: OrgState? = nil
 
         static func == (a: Suggestions, b: Suggestions) -> Bool {
-            a.chat == b.chat && a.length == b.length && a.move == b.move && a.tags.mapValues(\.tag) == b.tags.mapValues(\.tag)
+            a.chat == b.chat && a.length == b.length && a.move == b.move && a.tags.mapValues(\.tag) == b.tags.mapValues(\.tag) && a.name == b.name
         }
     }
 
@@ -295,24 +441,27 @@ final class OrganizeModel: ObservableObject {
 
     // Messages that get vectors in one run, sent in batches; tag checks remembered.
     private let maxEmbedPerRun = 640
+    // 2.6 (98): the scans already reported (a chat, its length, the library's size).
+    private var scanned = Set<String>()
     private let batch = 128
     private let maxVerdicts = 400
 
-    private struct VectorStore: Codable {
+    // The caches as files: nonisolated, so they're written off the main thread.
+    nonisolated private struct VectorStore: Codable {
         var space: String
         /// entryKey → "textKey:packed vector".
         var v: [String: String]
     }
 
-    private struct Verdicts: Codable {
+    nonisolated private struct Verdicts: Codable {
         struct Item: Codable { var tag: String; var fits: Bool; var confidence: Double; }
         var items: [String: [Item]] = [:]
         var at: [String: Double] = [:]
     }
 
+    // 2.6 (93): the name checks and the tags a chat showed are kept with the chat ("org"), no longer in files here.
     private var vectors = VectorStore(space: "", v: [:])
     private var verdicts = Verdicts()
-    private var unpacked: [String: [Float]] = [:]
     private var running: Task<Suggestions?, Never>?
 
     private init() {
@@ -322,16 +471,16 @@ final class OrganizeModel: ObservableObject {
 
     // MARK: Files (the app's caches: not synced, not in the App Group)
 
-    private static func file(_ name: String) -> URL? {
+    private nonisolated static func file(_ name: String) -> URL? {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?.appendingPathComponent(name)
     }
 
-    private static func load<T: Decodable>(_ name: String) -> T? {
+    private nonisolated static func load<T: Decodable>(_ name: String) -> T? {
         guard let url = file(name), let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(T.self, from: data)
     }
 
-    private static func save<T: Encodable>(_ value: T, _ name: String) {
+    private nonisolated static func save<T: Encodable>(_ value: T, _ name: String) {
         guard let url = file(name), let data = try? JSONEncoder().encode(value) else { return }
         try? data.write(to: url, options: .atomic)
     }
@@ -341,7 +490,6 @@ final class OrganizeModel: ObservableObject {
         guard !vectors.v.isEmpty || !verdicts.items.isEmpty else { return }
         vectors = VectorStore(space: space, v: [:])
         verdicts = Verdicts()
-        unpacked = [:]
         Self.save(vectors, "organize-vectors.json")
         Self.save(verdicts, "organize-verdicts.json")
     }
@@ -350,7 +498,11 @@ final class OrganizeModel: ObservableObject {
 
     /// Pro, the user turned them on, and the server has them on.
     func enabled(pro: Bool) -> Bool {
-        pro && serverOn && (SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false)
+        #if DEBUG
+        // Checks with a seeded library against a stand: -CFDebugOrganize YES.
+        if UserDefaults.standard.bool(forKey: "CFDebugOrganize") { return pro && serverOn }
+        #endif
+        return pro && serverOn && (SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false)
     }
 
     /// The switch and thresholds, asked again after half an hour.
@@ -376,59 +528,81 @@ final class OrganizeModel: ObservableObject {
         return await task.value
     }
 
-    private func run(_ thread: ChatThread, _ threads: [ChatThread]) async -> Suggestions? {
-        await refreshStatus()
-        guard serverOn, !thread.isHistory, let chat = thread.organized else { return nil }
-        let live = threads.filter { !$0.isHistory }.compactMap(\.organized)
-        if vectors.space != space && !space.isEmpty { vectors = VectorStore(space: space, v: [:]); unpacked = [:] }
+    // MARK: The work, off the main thread (2.6 (91): with hundreds of chats it hung the app for seconds)
 
-        // Vectors for what lacks them: this chat first, then the others (the list's order, latest first).
-        let order = [chat] + live.filter { $0.id != chat.id }
-        let todo = Organize.missingVectors(order, has: { key, text in self.vectors.v[key]?.hasPrefix(Organize.textKey(text) + ":") == true }, limit: maxEmbedPerRun)
+    private typealias Carry = OrganizeWork.Carry
+
+    /// The chats organizing reads, read off the main thread.
+    private func read(_ threads: [ChatThread]) async -> Carry<[OrganizeThread]> {
+        let sources = threads.filter { !$0.isHistory }.map { OrganizeWork.Source(id: $0.id, u: $0.updatedAt, data: $0.data) }
+        return await Task.detached(priority: .userInitiated) { Carry(value: OrganizeWork.read(sources)) }.value
+    }
+
+    /// Vectors for the messages of `live` that lack them, asked for in batches; false when chat `first` has none and
+    /// none could be had. What's missing and what's gone is worked out off the main thread.
+    private func embedMissing(_ first: String?, _ live: Carry<[OrganizeThread]>) async -> Bool {
+        if vectors.space != space && !space.isEmpty { vectors = VectorStore(space: space, v: [:]) }
+        let known = vectors.v
+        let limit = maxEmbedPerRun
+        let todo = await Task.detached(priority: .userInitiated) { Carry(value: OrganizeWork.missing(live.value, known: known, limit: limit)) }.value.value
         var start = 0
         while start < todo.count {
             let part = Array(todo[start..<min(start + batch, todo.count)])
             guard let result = try? await ChatAI.organizeEmbed(part.map(\.text)) else {
-                if start == 0 && !chat.entries.contains(where: { vectors.v[Organize.entryKey($0)] != nil }) { return nil }
+                let chat = first.flatMap { id in live.value.first { $0.id == id } }
+                if start == 0, let chat, !chat.entries.contains(where: { vectors.v[Organize.entryKey($0)] != nil }) { return false }
                 break
             }
-            if result.space != vectors.space { vectors = VectorStore(space: result.space, v: [:]); unpacked = [:] }
+            if result.space != vectors.space { vectors = VectorStore(space: result.space, v: [:]) }
             for (i, item) in part.enumerated() { vectors.v[item.key] = "\(Organize.textKey(item.text)):\(result.vectors[i])" }
             start += batch
         }
         // Vectors of messages no chat has any more go.
-        let keys = Set(live.flatMap { $0.entries.map(Organize.entryKey) })
-        vectors.v = vectors.v.filter { keys.contains($0.key) }
-        Self.save(vectors, "organize-vectors.json")
+        let current = vectors.v
+        vectors.v = await Task.detached(priority: .utility) { OrganizeWork.keep(current, live.value) }.value
+        let snapshot = vectors
+        Task.detached(priority: .utility) { Self.save(snapshot, "organize-vectors.json") }
+        return true
+    }
 
-        let vectorOf: Organize.VectorOf = { entry in
-            let text = Organize.embedText(entry)
-            guard !text.isEmpty, let hit = self.vectors.v[Organize.entryKey(entry)], let colon = hit.firstIndex(of: ":"),
-                  hit[..<colon] == Organize.textKey(text) else { return nil }
-            if let v = self.unpacked[hit] { return v }
-            let v = Organize.unpackVector(String(hit[hit.index(after: colon)...]))
-            self.unpacked[hit] = v
-            return v
+    /// The hash a tag check is remembered by.
+    private func verdictHash(_ message: String, _ candidates: [Organize.TagCandidate]) -> String {
+        Organize.textKey(String(data: (try? JSONSerialization.data(withJSONObject: [message, candidates.map { [$0.tag, $0.examples] }])) ?? Data(), encoding: .utf8) ?? message)
+    }
+
+    private func run(_ thread: ChatThread, _ threads: [ChatThread]) async -> Suggestions? {
+        await refreshStatus()
+        guard serverOn, !thread.isHistory else { return nil }
+        let chatId = thread.id
+        let live = await read(threads)
+        guard let chat = live.value.first(where: { $0.id == chatId }), await embedMissing(chatId, live) else { return nil }
+        let known = vectors.v
+        let cfg = config
+        guard let work = await Task.detached(priority: .userInitiated, operation: { Carry(value: OrganizeWork.suggest(chatId, live.value, known: known, cfg)) }).value.value else { return nil }
+        // 2.6 (98): what this run compared and why nothing fired, once per chat, length and library size.
+        let scanKey = "\(chatId):\(thread.entries.count):\(work.scan.chats)"
+        if !scanned.contains(scanKey) {
+            scanned.insert(scanKey)
+            ChatAI.reportUse("org", "scan", work.scan.fields)
         }
 
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
-        if let s = Organize.suggestMove(chat, live, vectorOf, config) {
-            let name = s.to.flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[s.start...s.end]))
-            out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why)
+        if let s = work.move {
+            // A merge into this chat names the older chat (2.6 (95)).
+            let named = (s.from ?? s.to).flatMap { id in threads.first { $0.id == id }?.name }
+            let name = named ?? ChatThread.title(of: Array(thread.entries[s.start...s.end]))
+            out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why, match: s.match, from: s.from)
         }
-        for index in Organize.tagTargets(chat, config) {
-            let candidates = Organize.tagCandidates(chat, index, live, vectorOf, config)
-            guard !candidates.isEmpty else { continue }
-            let message = Organize.judgeText(chat.entries, index)
-            let hash = Organize.textKey(String(data: (try? JSONSerialization.data(withJSONObject: [message, candidates.map { [$0.tag, $0.examples] }])) ?? Data(), encoding: .utf8) ?? message)
+        for tagging in work.tags {
+            let hash = verdictHash(tagging.message, tagging.candidates)
             if verdicts.items[hash] == nil {
-                guard let answer = try? await ChatAI.organizeTags(message: message, candidates: candidates.map { ($0.tag, $0.examples) }) else { break }
+                guard let answer = try? await ChatAI.organizeTags(message: tagging.message, candidates: tagging.candidates.map { ($0.tag, $0.examples) }) else { break }
                 verdicts.items[hash] = answer.map { .init(tag: $0.tag, fits: $0.fits, confidence: $0.confidence) }
                 verdicts.at[hash] = Date().timeIntervalSince1970
             }
             let said = (verdicts.items[hash] ?? []).map { Organize.TagVerdict(tag: $0.tag, fits: $0.fits, confidence: $0.confidence) }
-            if let tag = Organize.judgedTags(candidates, said, config).first {
-                out.tags[index] = (Organize.entryKey(chat.entries[index]), tag)
+            if let tag = Organize.judgedTags(tagging.candidates, said, config).first {
+                out.tags[tagging.index] = (Organize.entryKey(chat.entries[tagging.index]), tag)
             }
         }
         if verdicts.items.count > maxVerdicts {
@@ -436,8 +610,96 @@ final class OrganizeModel: ObservableObject {
             verdicts.items = verdicts.items.filter { keep.contains($0.key) }
             verdicts.at = verdicts.at.filter { keep.contains($0.key) }
         }
-        Self.save(verdicts, "organize-verdicts.json")
+        let kept = verdicts
+        Task.detached(priority: .utility) { Self.save(kept, "organize-verdicts.json") }
+
+        // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and
+        // again when it gets another page or a move changes it. A better one is a suggestion until taken or turned down
+        // (2.6 (91): never renamed by itself). 2.6 (93): the check is kept with the chat, so no device asks again what
+        // another did, and a name turned down on one never comes back on another.
+        var nm = chat.org?.nm
+        // 2.6 (95): first what moves out of the chat (or merges), then its name, once nothing is left to move (else a chat
+        // on two topics got names of both, and renames came and went). A name it had stays hidden meanwhile.
+        if work.move == nil, Organize.wantsNameCheck(chat) {
+            let key = Organize.nameCheckKey(chat)
+            if nm?.k != key, let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: thread.name) {
+                nm = Organize.nameState(after: nm, key: key, fits: answer.fits, title: answer.title, current: thread.name)
+            }
+        }
+        // What this chat shows, kept with it: the list counts it, other devices show it at once.
+        let shown = out.tags.sorted { $0.key < $1.key }.map { (key: $0.value.key, tag: $0.value.tag) }
+        let state = Organize.orgState(for: chat, move: work.move, tags: shown, nm: nm)
+        out.org = state
+        out.name = Organize.openName(chat, name: thread.name, org: state)
         return out
+    }
+
+    /// What the chat's own record suggests (worked out here or on another device, 2.6 (93)), shown at once while the
+    /// chat is still as it was then; this device's run follows. Nil without a record.
+    func kept(_ thread: ChatThread, in threads: [ChatThread]) -> Suggestions? {
+        guard !thread.isHistory, let org = thread.org, let chat = thread.organized else { return nil }
+        // The move's chats, if they're still here (openMove asks no more of the others): where it goes, and (2.6 (95))
+        // the older chat that joins this one.
+        let named = [org.mv?.to, org.mv?.fr].compactMap { $0 }.compactMap { id in threads.first { $0.id == id }?.organized }
+        var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
+        if let mv = Organize.openMove(chat, named) {
+            let name = (mv.fr ?? mv.to).flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[mv.s...mv.e]))
+            out.move = Move(start: mv.s, end: mv.e, to: mv.to, toName: name, why: mv.why, match: mv.mt, from: mv.fr)
+        }
+        for tag in Organize.openTags(chat) { out.tags[tag.index] = (tag.key, tag.tag) }
+        out.name = Organize.openName(chat, name: thread.name)
+        return out.move == nil && out.tags.isEmpty && out.name == nil ? nil : out
+    }
+
+    /// `s` without what was settled since, here or on another device (2.6 (94): a name taken on the iPhone stayed
+    /// suggested on the iPad, where nothing was left open in the chat's record to show instead): the name once it's
+    /// the chat's or turned down, a tag the message has or had turned down, a move whose messages were moved or turned
+    /// down (or, for a merge, turned down for that chat).
+    func settled(_ s: Suggestions, _ thread: ChatThread, in threads: [ChatThread] = []) -> Suggestions {
+        guard let chat = thread.organized else { return s }
+        var out = s
+        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || Organize.turnedDownName(thread.org?.nm?.no ?? [], name) { out.name = nil }
+        for (index, item) in s.tags {
+            guard chat.entries.indices.contains(index), Organize.entryKey(chat.entries[index]) == item.key else { out.tags[index] = nil; continue }
+            let e = thread.entries[index]
+            let has = { (list: [String]?) in (list ?? []).contains { $0.lowercased() == item.tag.lowercased() } }
+            if has(e.tags) || has((chat.entries[index]["dismissed"] as? [String: Any])?["tags"] as? [String]) { out.tags[index] = nil }
+        }
+        if let mv = s.move, let from = mv.from {
+            // 2.6 (95): a merge into this chat turned down (kept with the older chat) or that chat gone.
+            let older = threads.first { $0.id == from }
+            if older == nil || (older?.org?.mx ?? []).contains(thread.id) { out.move = nil }
+        } else if let mv = s.move {
+            let gone = mv.end >= chat.entries.count || chat.entries[mv.start...mv.end].contains {
+                Organize.truthy(($0["dismissed"] as? [String: Any])?["move"]) || Organize.truthy($0["from"])
+            }
+            if gone || (mv.why == .merge && mv.to.map { (thread.org?.mx ?? []).contains($0) } == true) { out.move = nil }
+        }
+        return out
+    }
+
+    /// The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, and the name and
+    /// tags its record (2.6 (93): kept with the chat, from any device) still suggests (2.6 (91): working out every
+    /// chat's tag candidates again, on the main thread, hung the app). Nothing is asked of the AI here but missing
+    /// vectors. Only chats with some.
+    func counts(in threads: [ChatThread]) async -> [String: Int] {
+        await refreshStatus()
+        _ = await running?.value
+        guard serverOn else { return [:] }
+        let live = await read(threads)
+        guard !live.value.isEmpty, await embedMissing(nil, live) else { return [:] }
+        let known = vectors.v
+        let cfg = config
+        let names = Dictionary(threads.map { ($0.id, $0.name) }, uniquingKeysWith: { a, _ in a })
+        return await Task.detached(priority: .utility) { OrganizeWork.counts(live.value, known: known, cfg, names: names) }.value
+    }
+
+    /// "Name by topic": a name for the chat by its topic now (nil: it couldn't be had).
+    func nameNow(_ thread: ChatThread) async -> String? {
+        await refreshStatus()
+        guard serverOn, !thread.isHistory, !thread.entries.isEmpty, let chat = thread.organized,
+              let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: nil) else { return nil }
+        return answer.title
     }
 
     // MARK: The cards (each once; closing is final)
@@ -503,7 +765,7 @@ struct OrganizeWhatsNew: View {
     var body: some View {
         VStack(spacing: 18) {
             Text("New in ContextFlow").font(.footnote.weight(.semibold)).foregroundColor(.secondary).padding(.top, 24)
-            OrganizeAnimation(big: true)
+            OrganizePreview()
             Text("Everything in one chat?").font(.title2.weight(.bold)).multilineTextAlignment(.center)
             Text("Under a new answer or note, ContextFlow suggests the chat it belongs in, or a new one, and one of your own tags. One tap, and it's there.")
                 .multilineTextAlignment(.center)
@@ -547,3 +809,49 @@ struct OrganizeWhatsNew: View {
         #endif
     }
 }
+
+#if DEBUG
+/// Debug builds, `-CFDebugHangLog YES` (2.6 (92): the app hung opening chats): each stall of the main thread over 250 ms,
+/// and each chat opened, with the time, in Library/Caches/cf-hangs.log.
+nonisolated enum DebugHangLog {
+    static let on = UserDefaults.standard.bool(forKey: "CFDebugHangLog")
+    static let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("cf-hangs.log")
+    private static let queue = DispatchQueue(label: "cf.hanglog")
+    nonisolated(unsafe) private static var started = false
+    nonisolated(unsafe) static var openScheduled = false
+
+    static func start() {
+        guard on else { return }
+        queue.async {
+            guard !started else { return }
+            started = true
+            try? Data().write(to: url)
+            Thread.detachNewThread {
+                while true {
+                    let sent = Date()
+                    let done = DispatchSemaphore(value: 0)
+                    DispatchQueue.main.async { done.signal() }
+                    done.wait()
+                    let ms = Date().timeIntervalSince(sent) * 1000
+                    if ms > 250 { write(String(format: "stall %.0f ms", ms)) }
+                    Thread.sleep(forTimeInterval: 0.1)
+                }
+            }
+        }
+    }
+
+    static func mark(_ what: String) {
+        if on { write(what) }
+    }
+
+    private static func write(_ line: String) {
+        let text = String(format: "%.3f %@\n", Date().timeIntervalSince1970, line)
+        queue.async {
+            guard let handle = try? FileHandle(forWritingTo: url) else { return }
+            handle.seekToEndOfFile()
+            handle.write(Data(text.utf8))
+            try? handle.close()
+        }
+    }
+}
+#endif

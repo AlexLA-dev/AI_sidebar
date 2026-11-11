@@ -1,5 +1,5 @@
 // The app's Tips, for the extension's Tips sheet (2.5 (78), the owner's note: the same Tips in the extension).
-// One source: the blocks, their order, the cards and the Pro badges come from TipGroup in ContentView.swift, the
+// One source: the blocks, their order, the cards and the Pro and Ultra badges come from TipGroup in ContentView.swift, the
 // translations from Localizable.xcstrings. The extension build reads both, so the sheet can't drift from the app:
 //   tipsData(root)            → { heading, intro, clipLang, lead, groups } in English, each text with its message key
 //   tipsMessages(root, data, lang) → { key: text } in an extension language (src/locales/<lang>.json's name)
@@ -14,11 +14,12 @@ import { join } from "node:path"
 const SWIFT = "ContextFlow/Shared (App)/ContentView.swift"
 const CATALOG = "ContextFlow/Shared (App)/Localizable.xcstrings"
 // The extension's languages (src/locales/<file>.json) and the app catalog's names for them.
-export const CATALOG_LANG = { de: "de", es: "es", fr: "fr", it: "it", ja: "ja", ko: "ko", pt_BR: "pt-BR", ru: "ru", uk: "uk", zh_CN: "zh-Hans" }
+export const CATALOG_LANG = { ar: "ar", de: "de", es: "es", fr: "fr", it: "it", ja: "ja", ko: "ko", pt_BR: "pt-BR", ru: "ru", uk: "uk", vi: "vi", zh_CN: "zh-Hans", zh_TW: "zh-Hant" }
 // The screen's own words, outside TipGroup.
 const HEADING = "Tips"
 const INTRO = "Quick answers to “how do I…?”"
-// The clips' language, as the app picks it: Russian, or English for every other language.
+// The panel's language for the clips: the extension language's own code ("de", "pt_BR"); the app picks the folder
+// (its clips in that language, else the person's next language that has them, else English: TipClipShare.language).
 const CLIP_LANG = "tip_clips"
 
 /** A message key for a text: the same English text, the same key (chrome.i18n allows [A-Za-z0-9_]). */
@@ -93,7 +94,7 @@ function clipArg(value) {
   return { ios: name, mac: name }
 }
 
-/** `Tip(symbol: …, title: "…", text: "…", clip: …, pro: true)` → { title, text, clip: { ios, mac }, pro }. */
+/** `Tip(symbol: …, title: "…", text: "…", clip: …, pro: true)` → { title, text, clip: { ios, mac }, pro, ultra }. */
 function tipCall(src) {
   const open = src.indexOf("Tip(")
   if (open < 0) throw new Error(`tips: no Tip(…) in ${src.slice(0, 60)}`)
@@ -101,7 +102,7 @@ function tipCall(src) {
     const at = a.indexOf(":")
     return [a.slice(0, at).trim(), a.slice(at + 1).trim()]
   }))
-  return { title: literal(args.title, "a Tip's title"), text: literal(args.text, "a Tip's text"), clip: clipArg(args.clip), pro: args.pro === "true" }
+  return { title: literal(args.title, "a Tip's title"), text: literal(args.text, "a Tip's text"), clip: clipArg(args.clip), pro: args.pro === "true", ultra: args.ultra === "true" }
 }
 
 /** A tip on iOS and on a Mac: one Tip(…), or `#if os(iOS) Tip(…) #else Tip(…) #endif`. */
@@ -124,6 +125,8 @@ function entry({ ios, mac }) {
     if (mac.clip) e.mac.clip = mac.clip
   }
   if (ios.pro || mac.pro) e.pro = true
+  // 2.6: Ultra's own features (Find similar, Listen) carry the Ultra badge.
+  if (ios.ultra || mac.ultra) e.ultra = true
   return e
 }
 
@@ -204,5 +207,5 @@ export function tipsMessages(root, data, lang) {
     return [t.key, unit?.state === "translated" && unit.value ? unit.value : t.en]
   }))
   // The clips' folder for this language, chosen through chrome.i18n like every text (so the two never disagree).
-  return { ...texts, [CLIP_LANG]: lang === "ru" ? "ru" : "en" }
+  return { ...texts, [CLIP_LANG]: lang }
 }

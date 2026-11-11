@@ -1,0 +1,584 @@
+{
+ "about": "Saved answers where a known error showed, replayed through today's answer checks (tests/similar-bank.helpers.mts): each listed item as the page the writer saw, and the writer's verdict as it wrote it. expect: what today's code shows and drops; the test also checks the rule the error broke. Since 2.6 (build 98) the final list is the closest first, then as the panel keeps it (finalList).",
+ "answers": [
+  {
+   "id": "before2/us-carmount",
+   "source": "three Amazon listings in one answer (build 94, before the cap held on the single-call search)",
+   "from": "run before2",
+   "plan": {
+    "category": "product",
+    "subject": "iOttie Easy One Touch Wireless 3 air vent car phone mount",
+    "traits": [
+     "air vent clip mount",
+     "one-touch spring grip",
+     "telescopic arm 6.5 to 11 inches",
+     "360 degree rotation and 260 degree pivot",
+     "universal smartphone fit"
+    ],
+    "condition": {
+     "kind": "cheaper",
+     "maxPrice": 0,
+     "currency": "",
+     "language": "",
+     "place": "United States"
+    },
+    "sourcePrice": 49.95,
+    "sourceCurrency": "USD",
+    "queries": [
+     "air vent car phone mount one touch cheaper alternative site:amazon.com",
+     "budget car phone mount air vent one-touch clip under $25 United States",
+     "iOttie alternative air vent car phone holder sale shop US",
+     "car vent phone mount best price US retailers Walmart Target"
+    ],
+    "language": "en-US"
+   },
+   "page": {
+    "url": "https://www.iottie.com/products/easy-one-touch-6-dash-windshield-mount",
+    "title": "Easy One Touch Wireless 3 Air Vent Car Mount – iOttie"
+   },
+   "items": [
+    {
+     "name": "vanva Universal Air Vent Car Mount, [ Big Phones & Thick Case Friendly ] Cell Phone Holder for Car Hands Free Clamp Cradle Vehicle fit for All Apple Smartphone",
+     "url": "https://www.amazon.com/vanva-Military-Grade-Protection-Universal-Compatible/dp/B0927D8S51/ref=pd_bxgy_d_sccl_1/138-8968935-6185948?pd_rd_w=PyGFM&content-id=amzn1.sym.a1314b7c-0add-4b9e-9106-1bfe04ddc9a2&pf_rd_p=a1314b7c-0add-4b9e-9106-1bfe04ddc9a2&pf_rd_r=V4N33SPV7M8NPW0CXQZF&pd_rd_wg=pICPw&pd_rd_r=9694f6dd-95b6-4f8a-ba18-d46f529d8a06&pd_rd_i=B0927D8S51&psc=1",
+     "title": "Amazon.com: vanva Universal Air Vent Car Mount, [ Big Phones & Thick Case Friendly ] Cell Phone Holder for Car Hands Free Clamp Cradle Vehicle fit for All Apple Smartphone : Cell Phones & Accessories",
+     "met": "unknown",
+     "checked": true,
+     "similarity": 40,
+     "source": "item"
+    },
+    {
+     "name": "vanva Universal Air Vent Car Mount, [Big Phones & Thick Case Friendly] Cell Phone Holder for Car Hands Free Clamp Cradle Vehicle fit for All Apple Smasung Galax",
+     "url": "https://www.amazon.com/vanva-Military-Grade-Universal-Friendly-Compatible/dp/B09B5NP66Q",
+     "title": "Amazon.com: vanva Universal Air Vent Car Mount, [ Big Phones & Thick Case Friendly ] Cell Phone Holder for Car Hands Free Clamp Cradle Vehicle fit for All Apple Smasung Galaxy : Cell Phones & Accessories",
+     "met": "yes",
+     "checked": true,
+     "price": "9.99 USD",
+     "similarity": 40,
+     "source": "item"
+    },
+    {
+     "name": "JOYROOM Car Phone Holder, Air Vent Car Mount Hands Free Automobile Clamp Phone Holder for Car, Fit for iPhone Samsung All Smartphones with Thick Case",
+     "url": "https://www.walmart.com/ip/JOYROOM-Car-Phone-Holder-Air-Vent-Car-Mount-Hands-Free-Automobile-Clamp-Phone-Holder-for-Car-Fit-for-iPhone-Samsung-All-Smartphones-with-Thick-Case/2016625331",
+     "title": "Tollefe Car Phone Holder, Air Vent Car Mount for Smartphones - Walmart.com",
+     "met": "yes",
+     "checked": true,
+     "price": "12.99 USD",
+     "similarity": 60,
+     "source": "item"
+    },
+    {
+     "name": "JOYROOM JR-ZS377 Car Phone Mount (Air Vent)",
+     "url": "https://www.joyroom.com/products/jr-zs377-car-phone-mount-for-air-vent",
+     "title": "JOYROOM JR-ZS377 Car Phone Mount (Air Vent)",
+     "met": "yes",
+     "checked": true,
+     "price": "8.99 USD",
+     "stock": "in",
+     "similarity": 60,
+     "source": "item"
+    },
+    {
+     "name": "Universal Air Vent Phone Holder for Car, 360° Rotation Smartphone Mount with Adjustable Grip, Quick Release Button",
+     "url": "https://www.amazon.com/Universal-Cellet-Compatible-rotational-Release/dp/B012I6A6HU",
+     "title": "Amazon.com: Universal Air Vent Phone Holder for Car, 360° Rotation Smartphone Mount with Adjustable Grip, Quick Release Button, Secure Cell Phone Stand for iPhone and Android : Cell Phones & Accessories",
+     "met": "yes",
+     "checked": true,
+     "price": "9.99 USD",
+     "similarity": 60,
+     "source": "item"
+    }
+   ],
+   "expect": {
+    "shown": [
+     "JOYROOM JR-ZS377 Car Phone Mount (Air Vent)",
+     "Universal Air Vent Phone Holder for Car, 360° Rotation Smartphone Mount with Adjustable Grip, Quick Release Button",
+     "JOYROOM Car Phone Holder, Air Vent Car Mount Hands Free Automobile Clamp Phone Holder for Car, Fit for iPhone Samsung All Smartphones with Thick Case"
+    ],
+    "dropped": [
+     [
+      "vanva Universal Air Vent Car Mount, [Big Phones & Thick Case Friendly] Cell Phone Holder for Car Hands Free Clamp Cradle Vehicle fit for All Apple Smasung Galax",
+      "duplicate"
+     ],
+     [
+      "vanva Universal Air Vent Car Mount, [ Big Phones & Thick Case Friendly ] Cell Phone Holder for Car Hands Free Clamp Cradle Vehicle fit for All Apple Smartphone",
+      "one listing per marketplace"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "before/cy-etsy",
+   "source": "three Etsy listings in one answer (build 94)",
+   "from": "run before",
+   "plan": {
+    "category": "product",
+    "subject": "handmade black vegetable-tanned leather wallet for men",
+    "traits": [
+     "handmade",
+     "full-grain or vegetable-tanned Italian leather",
+     "minimalist compact slim design",
+     "black",
+     "under 50 EUR"
+    ],
+    "condition": {
+     "kind": "nearby",
+     "maxPrice": 50,
+     "currency": "EUR",
+     "language": "",
+     "place": "Cyprus"
+    },
+    "sourcePrice": 39,
+    "sourceCurrency": "EUR",
+    "queries": [
+     "personalized leather wallet men Cyprus shop",
+     "δερμάτινο πορτοφόλι ανδρικό χειροποίητο προσωποποιημένο Κύπρος",
+     "personalized handmade leather wallet men deliver to Cyprus under 50 EUR",
+     "minimalist vegetable tanned leather wallet engraved men Cyprus Etsy"
+    ],
+    "language": "en-CY"
+   },
+   "page": {
+    "url": "",
+    "title": "Handmade Italian Leather Wallet for Men, Minimalist Black Design, Vegetable-tanned - Etsy Cyprus"
+   },
+   "items": [
+    {
+     "name": "ΧΕΙΡΟΠΟΙΗΤΟ ΔΕΡΜΑΤΙΝΟ ΠΟΡΤΟΦΟΛΙ",
+     "url": "https://www.efes-leather.com/product-category/products/%CE%B1%CE%BD%CE%B4%CF%81%CE%B9%CE%BA%CE%AC/%CE%B1%CE%BD%CE%B4%CF%81%CE%B9%CE%BA%CE%AC-%CF%80%CE%BF%CF%81%CF%84%CE%BF%CF%86%CF%8C%CE%BB%CE%B9%CE%B1/",
+     "title": "Ανδρικά Πορτοφόλια Archives | Efes Leather",
+     "met": "unknown",
+     "checked": true,
+     "similarity": 40,
+     "source": "list"
+    },
+    {
+     "name": "Personalized Leather Wallet: Handmade Slim Minimalist Wallet",
+     "url": "https://www.etsy.com/listing/572407627/personalized-leather-wallet-handmade",
+     "title": "Personalized Leather Wallet: Handmade Slim Minimalist Wallet - Etsy",
+     "met": "unknown",
+     "checked": false,
+     "similarity": 40,
+     "source": "item"
+    },
+    {
+     "name": "Handmade Vegetable Tanned Leather Bifold Wallet With ID Window ,minimalist Slim Mens Wallet,custom Engraved Groomsmen Gift,gift for Him",
+     "url": "https://www.etsy.com/listing/1183437191/handmade-vegetable-tanned-leather-bifold",
+     "title": "Handmade Vegetable Tanned Leather Bifold Wallet With ID Window ,minimalist Slim Mens Wallet,custom Engraved Groomsmen Gift,gift for Him - Etsy",
+     "met": "unknown",
+     "checked": false,
+     "similarity": 40,
+     "source": "item"
+    },
+    {
+     "name": "Handmade Veg Tan Leather Wallet",
+     "url": "https://www.etsy.com/listing/530512837/handmade-veg-tan-leather-wallet",
+     "title": "Handmade Veg Tan Leather Wallet",
+     "met": "unknown",
+     "checked": false,
+     "similarity": 40,
+     "source": "item"
+    },
+    {
+     "name": "Personalized Bi-Fold Leather Wallet | Black",
+     "url": "https://groomsmangear.com/collections/personalized-leather-wallets",
+     "title": "Personalized Leather Wallets for Men | Groomsman Gear",
+     "met": "unknown",
+     "checked": true,
+     "similarity": 80,
+     "source": "list"
+    }
+   ],
+   "expect": {
+    "shown": [
+     "Personalized Bi-Fold Leather Wallet | Black",
+     "ΧΕΙΡΟΠΟΙΗΤΟ ΔΕΡΜΑΤΙΝΟ ΠΟΡΤΟΦΟΛΙ",
+     "Personalized Leather Wallet: Handmade Slim Minimalist Wallet"
+    ],
+    "dropped": [
+     [
+      "Handmade Vegetable Tanned Leather Bifold Wallet With ID Window ,minimalist Slim Mens Wallet,custom Engraved Groomsmen Gift,gift for Him",
+      "one listing per marketplace"
+     ],
+     [
+      "Handmade Veg Tan Leather Wallet",
+      "one listing per marketplace"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "before/de-amazon",
+   "source": "three Amazon listings in one answer, a German shop near them (build 94)",
+   "from": "run before",
+   "plan": {
+    "category": "product",
+    "subject": "Philips Airfryer 5000 Series XXL HD9285/90 7.2 L",
+    "traits": [
+     "7.2 L XXL capacity",
+     "Rapid Air hot air frying",
+     "WiFi and HomeID recipe app",
+     "16 cooking presets",
+     "around 90 euro price range"
+    ],
+    "condition": {
+     "kind": "cheaper",
+     "maxPrice": 0,
+     "currency": "",
+     "language": "",
+     "place": "DE"
+    },
+    "sourcePrice": 96.99,
+    "sourceCurrency": "EUR",
+    "queries": [
+     "Philips Airfryer 5000 Series XXL HD9285 günstig kaufen",
+     "Heißluftfritteuse XXL 7 Liter WiFi günstig Angebot Deutschland",
+     "Philips Airfryer 5000 HD9285 Preisvergleich Versand nach Deutschland"
+    ],
+    "language": "de-DE"
+   },
+   "page": {
+    "url": "https://www.amazon.de/dp/B0BYP7CQ7Y",
+    "title": "Philips Airfryer 5000 Series Hot Air Fryer XXL, Black, 7.2 L | 90% Less Fat, Rapid Air Technology, WiFi Connected, Recipe App, 16-in-1 (HD9285/90) : Amazon.de: Home & Kitchen"
+   },
+   "items": [
+    {
+     "name": "Aigostar XXL Hot Air Fryer, Smart WiFi Airfryer 7L, 1900W, Black",
+     "url": "https://www.amazon.de/Aigostar-Hei%C3%9Fluftfritteuse-APP-Steuerung-Programmen-LED-Touchscreen/dp/B08W1MV85J",
+     "title": "Aigostar XXL Hot Air Fryer, Smart WiFi Airfryer 7L, 1900W, Black | Smart oil free air fryer with app control, 7 programs, keep warm & DIY menu, digital LED touch screen, for 6-10 people : Amazon.de: Home & Kitchen",
+     "met": "unknown",
+     "checked": true,
+     "similarity": 20,
+     "source": "item"
+    },
+    {
+     "name": "aigostar Hot air fryer",
+     "url": "https://www.amazon.de/-/en/aigostar-programs-function-recipes-without/dp/B0896YTRQS/ref=pd_sbs_d_sccl_1_1/700-2524641-9096765?pd_rd_w=5DJCv&content-id=amzn1.sym.a3262f15-f867-491e-909e-9c5989acfe7d&pf_rd_p=a3262f15-f867-491e-909e-9c5989acfe7d&pf_rd_r=YDB7J2WAJ3RQZY5SZCMV&pd_rd_wg=lkG47&pd_rd_r=4e88f1b4-96e2-4462-a5f9-4aba130bec51&pd_rd_i=B0896YTRQS&psc=1",
+     "title": "aigostar Hot air fryer | 1900 W, 7 programs, keep warm function, 20 recipes, without oil, for 6-10 people, digital LED touch screen, black : Amazon.de: Home & Kitchen",
+     "met": "unknown",
+     "checked": true,
+     "similarity": 20,
+     "source": "item"
+    },
+    {
+     "name": "Aigostar White Cube Hot Air Fryer 7L XXL Air Fryer 1900W",
+     "url": "https://www.amazon.de/-/en/Aigostar-Control-Programmes-Recipes-Digital/dp/B0BGRZPZFK",
+     "title": "Aigostar White Cube Hot Air Fryer 7L XXL Air Fryer 1900W | Smart fryer hot air with app control, 7 programs and keep warm, digital LED touch screen for 6-10 people, recipes : Amazon.de: Home & Kitchen",
+     "met": "unknown",
+     "checked": true,
+     "similarity": 40,
+     "source": "item"
+    }
+   ],
+   "expect": {
+    "shown": [
+     "Aigostar XXL Hot Air Fryer, Smart WiFi Airfryer 7L, 1900W, Black"
+    ],
+    "dropped": [
+     [
+      "aigostar Hot air fryer",
+      "duplicate"
+     ],
+     [
+      "Aigostar White Cube Hot Air Fryer 7L XXL Air Fryer 1900W",
+      "duplicate"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "before2/us-bestbuy",
+   "source": "two Walmart listings in one answer (build 94)",
+   "from": "run before2",
+   "plan": {
+    "category": "product",
+    "subject": "ECOVACS DEEBOT X12 OmniCyclone robot vacuum and mop",
+    "traits": [
+     "robot vacuum with mopping",
+     "22,000Pa suction",
+     "self-washing roller",
+     "bagless self-emptying station",
+     "silver"
+    ],
+    "condition": {
+     "kind": "cheaper",
+     "maxPrice": 0,
+     "currency": "",
+     "language": "",
+     "place": "United States"
+    },
+    "sourcePrice": 899.99,
+    "sourceCurrency": "USD",
+    "queries": [
+     "ECOVACS DEEBOT X12 OmniCyclone cheaper alternative robot vacuum mop self-emptying USA",
+     "best robot vacuum and mop with self-emptying station under $500 United States",
+     "robot vacuum mop self-washing roller bagless base sale USA Amazon Walmart",
+     "ECOVACS DEEBOT X12 alternative robot vacuum mop deal"
+    ],
+    "language": "en"
+   },
+   "page": {
+    "url": "https://www.amazon.com/dp/B0CB1RGB75",
+    "title": "ECOVACS Robotics DEEBOT X12 OmniCyclone Robot Vacuum & Mop, FocusJet Pre Spray, Self Washing Roller, 22,000Pa Suction, Bagless Station Silver - Best Buy"
+   },
+   "items": [
+    {
+     "name": "Eureka E20 Evo Plus Robot Vacuum and Mop Combo",
+     "url": "https://www.amazon.com/clp/B0FCDDFZMD",
+     "title": "open prime modal",
+     "met": "yes",
+     "checked": true,
+     "price": "399.99 USD",
+     "similarity": 40,
+     "source": "item"
+    },
+    {
+     "name": "Roborock Qrevo S5V Robot Vacuum and Mop",
+     "url": "https://www.walmart.com/ip/Roborock-Qrevo-S5V-Robot-Vacuum-Mop-FlexiArm-Edge-Mopping-12-000Pa-Suction-Dual-Zero-Tangle-System-Smart-Obstacle-Avoidance-10mm-Mop-Lifting-Auto-Mop/17225603973",
+     "title": "Roborock, Robot Vacuum and Mop, 12000Pa Suction, Self-Emptying, Black - Walmart.com",
+     "met": "yes",
+     "checked": true,
+     "price": "499.99 USD",
+     "similarity": 60,
+     "source": "item"
+    },
+    {
+     "name": "roborock Qrevo S5V Robot Vacuum and Mop (Renewed)",
+     "url": "https://www.amazon.com/clp/B0GLNH3LN2",
+     "title": "open prime modal",
+     "met": "unknown",
+     "checked": true,
+     "similarity": 60,
+     "source": "item"
+    },
+    {
+     "name": "Roborock Q7 series Robot Vacuum and Mop Combo",
+     "url": "https://www.walmart.com/ip/Roborock-Q7-series-Robot-Vacuum-and-Mop-Combo-8000Pa-Suction-Dual-Anti-Tangle-System-LiDAR-Navigation-Self-Charging-Robotic-Vacuum-Cleaner-Q7-L5/19543503915?athAsset=eyJhdGhjcGlkIjoiMTk1NDM1MDM5MTUiLCJhdGhzdGlkIjoiQ1M0Nzh%2BQ1MwMDQiLCJhdGhlZSI6eyJhIjo1LjcxLCJiIjozMTAuMjgwMDAwMDAwMDAwMDMsInciOjAuMDEzOTM0MzQ2OTEzOTk4ODIsImwiOjAuNX0sImF0aHBvc2IiOiIzMCIsImF0aGFuY2lkIjoiMTcyMjU2MDM5NzMiLCJhdGhyayI6MC4wfQ==&athena=true&ssp=TQIX",
+     "title": "Roborock Q7 Series Robot Vacuum and Mop, 8,000Pa Suction, LiDAR - Walmart.com",
+     "met": "unknown",
+     "checked": true,
+     "similarity": 20,
+     "source": "item"
+    }
+   ],
+   "expect": {
+    "shown": [
+     "Roborock Qrevo S5V Robot Vacuum and Mop",
+     "Eureka E20 Evo Plus Robot Vacuum and Mop Combo"
+    ],
+    "dropped": [
+     [
+      "roborock Qrevo S5V Robot Vacuum and Mop (Renewed)",
+      "duplicate"
+     ],
+     [
+      "Roborock Q7 series Robot Vacuum and Mop Combo",
+      "one listing per marketplace"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "s10-before/s10-ja-balmuda",
+   "source": "two Yahoo Shopping listings in one answer (2.6, before each marketplace counted on its own)",
+   "from": "run s10-before",
+   "plan": {
+    "category": "product",
+    "subject": "BALMUDA The Pot 電気ケトル",
+    "traits": [
+     "電気ケトル",
+     "550ml小型",
+     "お茶・コーヒー用の湯沸かし",
+     "デザイン重視"
+    ],
+    "condition": {
+     "kind": "cheaper",
+     "maxPrice": 0,
+     "currency": "",
+     "language": "",
+     "place": "日本",
+     "soft": true
+    },
+    "sourcePrice": 0,
+    "sourceCurrency": "",
+    "queries": [
+     "電気ケトル 550ml 小型 安い 通販",
+     "象印 タイガー 小型 電気ケトル おすすめ 比較",
+     "Electric kettle compact 550ml cheap Japan"
+    ],
+    "language": "ja-JP",
+    "kindSearch": "小型 電気ケトル 550ml 温度調節",
+    "money": {
+     "currency": "JPY",
+     "rates": null
+    }
+   },
+   "page": {
+    "url": "https://www.balmuda.com/jp/pot",
+    "title": "概要 | BALMUDA The Pot | BALMUDA（バルミューダ）公式サイト"
+   },
+   "items": [
+    {
+     "name": "電気ケトル ポータブル 海外対応 トラベルケトル 携帯 湯沸かしケトル 550ml大容量 400W 小型 6段階温度調節 ステンレス 二重構造 旅行 一人用 ギフト",
+     "url": "https://store.shopping.yahoo.co.jp/satoupc/24174.html",
+     "title": "電気ケトル ポータブル 海外対応 トラベルケトル 携帯 湯沸かしケトル 550ml大容量 400W 小型 6段階温度調節 ステンレス 二重構造 旅行 一人用 ギフト : 佐藤電気 - 通販 - Yahoo!ショッピング",
+     "met": "unknown",
+     "checked": true,
+     "price": "4480 JPY",
+     "stock": "in",
+     "similarity": 75,
+     "source": "item"
+    },
+    {
+     "name": "ONE STEP ポータブルケトル 電気ケトル 小型 温度調節 ステンレス 内側 持ち運び 保温 海外対応 トラベルケトル 携帯",
+     "url": "https://store.shopping.yahoo.co.jp/tenton-store/portablekettle01.html",
+     "title": "ONE STEP ポータブルケトル 電気ケトル 小型 温度調節 ステンレス 内側 持ち運び 保温 海外対応 トラベルケトル 携帯 : H2brothers - 通販 - Yahoo!ショッピング",
+     "met": "unknown",
+     "checked": true,
+     "price": "4980 JPY",
+     "stock": "in",
+     "similarity": 100,
+     "source": "item"
+    },
+    {
+     "name": "Yazawa Travel Electric Kettle 0 5L TVR53WH White AC100V-240V",
+     "url": "https://wafuu.com/en-us/products/yazawa-travel-electric-kettle-0-5l-tvr53wh-white-ac100v-240v",
+     "title": "Yazawa Travel Electric Kettle 0 5L TVR53WH White AC100V-240V &ndash; WAFUU JAPAN",
+     "met": "unknown",
+     "checked": true,
+     "price": "22 USD",
+     "stock": "in",
+     "similarity": 75,
+     "source": "item"
+    },
+    {
+     "name": "蒸気レス電気ケトル わく子 PCJ-H081-H [グレー]",
+     "url": "https://kakaku.com/item/K0001092011/?lid=itemview_review_product",
+     "title": "タイガー魔法瓶 蒸気レス電気ケトル わく子 PCJ-H081-H [グレー] 価格比較 - 価格.com",
+     "met": "unknown",
+     "checked": true,
+     "price": "7079 JPY",
+     "similarity": 50,
+     "source": "item"
+    }
+   ],
+   "expect": {
+    "shown": [
+     "ONE STEP ポータブルケトル 電気ケトル 小型 温度調節 ステンレス 内側 持ち運び 保温 海外対応 トラベルケトル 携帯",
+     "Yazawa Travel Electric Kettle 0 5L TVR53WH White AC100V-240V",
+     "蒸気レス電気ケトル わく子 PCJ-H081-H [グレー]"
+    ],
+    "dropped": [
+     [
+      "電気ケトル ポータブル 海外対応 トラベルケトル 携帯 湯沸かしケトル 550ml大容量 400W 小型 6段階温度調節 ステンレス 二重構造 旅行 一人用 ギフト",
+      "one listing per marketplace"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "ship6/s10-gb-brompton",
+   "source": "two Gumtree listings in one UK answer: classifieds weren't on the marketplace list (2.6 live check)",
+   "from": "run ship6",
+   "plan": {
+    "category": "product",
+    "subject": "Brompton A Line 3-speed folding bike",
+    "traits": [
+     "folding bike",
+     "3-speed hub gears",
+     "steel frame",
+     "mid handlebar",
+     "11.5 kg lightweight"
+    ],
+    "condition": {
+     "kind": "cheaper",
+     "maxPrice": 0,
+     "currency": "",
+     "language": "",
+     "place": "United Kingdom",
+     "soft": true
+    },
+    "sourcePrice": 999,
+    "sourceCurrency": "GBP",
+    "queries": [
+     "cheaper folding bike 3-speed steel frame UK",
+     "Dahon Brompton alternative 3-speed folding bike UK",
+     "folding bike 3 speed hub gears buy UK"
+    ],
+    "language": "en-GB",
+    "kindSearch": "3-speed folding bike UK",
+    "money": {
+     "currency": "GBP",
+     "rates": null
+    }
+   },
+   "page": {
+    "url": "https://www.brompton.com/p/1029/a-line-23",
+    "title": "A Line - 3-speed | Brompton UK"
+   },
+   "items": [
+    {
+     "name": "Brompton M3L 3 speed Folding Bike Superb Condition",
+     "url": "https://www.gumtree.com/for-sale/sports-leisure-travel/bicycles/uk/srpsearch+folding-bike-3-speed",
+     "title": "Folding-bike-3-speed for Sale | Other Bikes | Gumtree",
+     "met": "yes",
+     "checked": true,
+     "price": "325 GBP",
+     "stock": "in",
+     "similarity": 60,
+     "source": "list"
+    },
+    {
+     "name": "Brompton Folding Bike Green",
+     "url": "https://www.gumtree.com/for-sale/sports-leisure-travel/bicycles/uk/srpsearch+folding+bike",
+     "title": "Folding bike in the UK – Used & Cheap Deals | Bicycles | Gumtree",
+     "met": "yes",
+     "checked": true,
+     "price": "325 GBP",
+     "stock": "in",
+     "similarity": 40,
+     "source": "list"
+    },
+    {
+     "name": "PACTO Eleven",
+     "url": "https://www.amazon.co.uk/PACTO-Eleven-V-brakes-equipped-foldable/dp/B0B9K2MLZS",
+     "title": "PACTO Eleven - Folding Bike - Steel frame - Nexus 3 hub gears - V-brakes - Fully equipped - Dutch quality foldable bike - Black : Amazon.co.uk: Sports & Outdoors",
+     "met": "unknown",
+     "checked": false,
+     "similarity": 60,
+     "source": "item"
+    },
+    {
+     "name": "PACTO ELEVEN 20\" High Quality Folding Bike 27cm Steel Frame, Shimano Nexus 3",
+     "url": "https://www.ebay.co.uk/itm/388565365719",
+     "title": "PACTO ELEVEN 20\" High Quality Folding Bike 27cm Steel Frame, Shimano Nexus 3",
+     "met": "unknown",
+     "checked": false,
+     "similarity": 60,
+     "source": "item"
+    },
+    {
+     "name": "Folding Bikes",
+     "url": "https://www.decathlon.co.uk/sports/cycling/folding-bikes",
+     "title": "Folding Bikes",
+     "met": "unknown",
+     "checked": false,
+     "similarity": 20,
+     "source": "list"
+    }
+   ],
+   "expect": {
+    "shown": [
+     "Brompton M3L 3 speed Folding Bike Superb Condition",
+     "PACTO Eleven",
+     "PACTO ELEVEN 20\" High Quality Folding Bike 27cm Steel Frame, Shimano Nexus 3"
+    ],
+    "dropped": [
+     [
+      "Brompton Folding Bike Green",
+      "one listing per marketplace"
+     ]
+    ]
+   }
+  }
+ ]
+}

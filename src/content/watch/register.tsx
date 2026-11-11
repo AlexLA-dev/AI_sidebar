@@ -1,5 +1,5 @@
-// Page watch (2.5) in the panel, through chat UX's registries (ux/later.ts): the eye in the selection bubble (only
-// for a price, stock, a date or a status), after the bell, "Watch this page…" in the header's "…" (the whole page),
+// Page watch (2.5) in the panel, through chat UX's registries (ux/later.ts): the eye in the selection bubble and on
+// the panel's row over its field (on any selection since build 95), after the bell, "Watch this page…" in the header's "…" (the whole page),
 // and this device's watches in "Watching" (the header's "…"). Safari only: the checks and the notification need the
 // app. The eye and "Watch this page…" open watching alone (WatchSheet).
 // 2.5 (77), the director's split: reminders and watching are never one list or one window, so "Remind me about
@@ -40,8 +40,11 @@ if (TARGET === "safari") {
   setPageWatch((page) => openWatchSheet({ url: page.url, title: page.title, selection: null, how: "later", remind: () => openLater() }))
 
   addBubbleAction("watch", (ctx) => {
-    // A tap on "40" in "USD 40" selects only the number: the eye watches the price as the page writes it.
-    const value = watchableAt(ctx.selection, ctx.range)?.value
+    // The eye on every selection (build 95, the owner: «Важно вообще весь код проверить на наличие таких подгонов под
+    // меня, их быть не должно»; the director: Watch works on any selected text, not only on a price like the one he
+    // selected). A price, stock, a date or a status as the page writes it (a tap on "40" in "USD 40" selects only the
+    // number: the price is "USD 40"); any other text as it is, watched for a change (draft.ts: a "status").
+    const value = watchableAt(ctx.selection, ctx.range)?.value ?? ctx.selection.replace(/\s+/g, " ").trim()
     if (!value) return null
     return (
       <button
@@ -50,13 +53,14 @@ if (TARGET === "safari") {
         aria-label={t("watchEye")}
         title={t("watchEye")}
         {...press(() => {
-          openWatchSheet({ url: ctx.url, title: ctx.title, selection: value, how: "bubble" })
+          openWatchSheet({ url: ctx.url, title: ctx.title, selection: value, how: ctx.panel ? "panel" : "bubble" })
+          if (ctx.panel) return
           // The page's selection goes, and with it the system's edit menu that would stay over the window.
           document.getSelection()?.removeAllRanges()
           ctx.close()
         })}
       >
-        <Eye size={16} />
+        <Eye size={ctx.panel ? 14 : 16} />
         <span class="cf-sel-watch-l">{t("watchStart")}</span>
       </button>
     )

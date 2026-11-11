@@ -68,6 +68,9 @@ struct ChatEntry: Decodable, Hashable {
     var note: Bool?
     /// A note made from a page selection: its text starts with the quote.
     var quote: Bool?
+    /// 2.6 (97): such a note's selected text as it was quoted (src/shared/conversation.ts `cite`): the chat shows it as a
+    /// quote and the rest of the text as the person's own words. Older notes have none and look as they did.
+    var cite: String?
     var page: Page?
     var pageChanged: Bool?
     var grounding: Grounding?
@@ -88,6 +91,12 @@ struct ChatEntry: Decodable, Hashable {
     var marks: [ChatMark]?
     var pinned: Double?
     var remind: ChatRemind?
+    /// Find similar (2.6): on the question, the condition asked and where it looked; on the answer, the whole list
+    /// (build 95: the app draws the panel's cards from it, SimilarCards.swift).
+    var similarAsk: String?
+    var similarRegion: String?
+    var similarCountry: String?
+    var similar: SimilarAnswerData?
 
     struct From: Decodable, Hashable {
         var chat: String
@@ -105,6 +114,49 @@ struct ChatEntry: Decodable, Hashable {
 
     var isUser: Bool { role == "user" }
     var isNote: Bool { note == true }
+
+    /// Where a cited note's quote ends in its text (after the closing mark), or nil when the text doesn't start with it
+    /// (src/shared/conversation.ts citeEnd: the opening mark is “ « „ 「 or « with a space).
+    private var citeEnd: String.Index? {
+        guard let cite, !cite.isEmpty, let found = content.range(of: cite, options: .literal),
+              content.utf16.distance(from: content.startIndex, to: found.lowerBound) <= 3 else { return nil }
+        return content.range(of: "\n\n", options: .literal, range: found.upperBound..<content.endIndex)?.lowerBound ?? content.endIndex
+    }
+
+    /// A note made from a selection, apart (citedNote): its quote and the person's own words ("" for none); nil for any
+    /// other message, shown as its text.
+    var cited: (cite: String, note: String)? {
+        guard let end = citeEnd, let cite else { return nil }
+        return (cite, String(content[end...]).trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    /// What its reminder's notification says (src/shared/reminders.ts reminderNotice): a note on a selection's own words
+    /// when it has some, else its text, as before.
+    var reminderText: String {
+        guard let cited, !cited.note.isEmpty else { return content }
+        return cited.note
+    }
+
+    /// The person's own words on a reminder made with Remind on a selection or a page, as its window shows them to change
+    /// (remindWords): a cited note's after its quote; a page's note its text unless that's the page's name. Nil for any
+    /// other reminder.
+    var remindWords: String? {
+        guard isNote, remind?.page == true else { return nil }
+        if let cited { return cited.note }
+        if quote == true { return nil }
+        let names = [page?.title, page?.url].compactMap { $0 }.filter { !$0.isEmpty }
+        return names.contains(content.trimmingCharacters(in: .whitespacesAndNewlines)) ? "" : content
+    }
+
+    /// The text with the person's new words (withRemindWords): the quote and its marks stay; a page's note without words
+    /// says the page's name. Nil when the reminder has no words to change.
+    func withRemindWords(_ words: String) -> String? {
+        guard remindWords != nil else { return nil }
+        let own = words.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let end = citeEnd { return String(content[..<end]) + (own.isEmpty ? "" : "\n\n\(own)") }
+        if !own.isEmpty { return own }
+        return [page?.title, page?.url].compactMap { $0 }.first { !$0.isEmpty } ?? content
+    }
 }
 
 /// A chat (src/shared/threads.ts `Thread`), from its iCloud form `{title?, a?, pin?, m}`.
@@ -115,6 +167,9 @@ struct ChatThread: Identifiable, Hashable {
     /// The JSON the extension and iCloud store.
     let data: String
     let title: String?
+    /// The name the AI gave it (2.6, src/shared/threads.ts `aiTitle`, stored as "ait"): while `title` is still this one,
+    /// the AI may name it again; a name the user typed differs, and the AI never touches it.
+    let aiTitle: String?
     /// Last message (ms): the list order.
     let lastAt: Int64
     let pin: Double?
@@ -126,14 +181,25 @@ struct ChatThread: Identifiable, Hashable {
     /// In Recently Deleted since then (ms), or nil (src/shared/threads.ts `trashed`, 2.5 (83)): hidden everywhere,
     /// deleted for good `ChatLibrary.trashDays` later.
     let trashedAt: Int64?
+    /// What organizing suggested for it, kept with it so every device shows it at once and knows what was turned down
+    /// (2.6 (93), "org").
+    let org: OrgState?
+
+    /// A part read on its own: one that doesn't make sense is nil, the chat still reads.
+    private struct Lenient<T: Decodable>: Decodable {
+        let value: T?
+        init(from decoder: Decoder) throws { value = try? T(from: decoder) }
+    }
 
     private struct Stored: Decodable {
         var title: String?
+        var ait: String?
         var a: Int64?
         var pin: Double?
         var k: String?
         var tags: [String]?
         var trashed: Double?
+        var org: Lenient<OrgState>?
         var m: [ChatEntry]
     }
 
@@ -152,11 +218,13 @@ struct ChatThread: Identifiable, Hashable {
         self.updatedAt = updatedAt
         self.data = data
         title = stored.title?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+        aiTitle = stored.ait?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
         lastAt = stored.a ?? updatedAt
         pin = stored.pin
         isHistory = stored.k == "history"
         ownTags = Tags.clean(stored.tags ?? [])
         trashedAt = stored.trashed.flatMap { $0.isFinite && abs($0) < 9e15 ? Int64($0) : nil }
+        org = stored.org?.value
         entries = stored.m
     }
 
@@ -176,8 +244,11 @@ struct ChatThread: Identifiable, Hashable {
 
     var isPinned: Bool { pin != nil }
 
-    /// The user's name for it, or its first question (or quick action and its page).
+    /// The user's name for it (or the AI's), or its first question (or quick action and its page).
     var name: String { title ?? Self.title(of: entries) }
+
+    /// The user named it themselves: the AI never renames it (src/shared/threads.ts `namedByUser`).
+    var namedByUser: Bool { title != nil && title != aiTitle }
 
     /// A name for these messages, as a chat is named after its first question (src/shared/threads.ts `threadTitle`).
     static func title(of entries: [ChatEntry]) -> String {
@@ -191,7 +262,7 @@ struct ChatThread: Identifiable, Hashable {
     /// The last answer's first line.
     var snippet: String {
         guard let last = entries.last(where: { !$0.isUser }) ?? entries.last else { return "" }
-        let plain = last.content
+        let plain = RowMarks.unlinked(last.content)
             .replacingOccurrences(of: #"\s*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"[*_`]+"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"[#>|]+"#, with: " ", options: .regularExpression)
@@ -226,13 +297,18 @@ struct ChatThread: Identifiable, Hashable {
     /// The same chat with its name and pin changed, as of `updatedAt`. For each: nil keeps it,
     /// `.some(nil)` removes it, `.some(value)` sets it. `trashed` the same: in Recently Deleted since then, or out of it.
     /// Every other field stays as it is in the JSON, those this version doesn't know too.
-    func edited(title: String??, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
+    func edited(title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, org: OrgState?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
         let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
         guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
         switch title {
         case .none: break
         case .some(.none): object.removeValue(forKey: "title")
         case .some(.some(let value)): object["title"] = value
+        }
+        switch aiTitle {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "ait")
+        case .some(.some(let value)): object["ait"] = value
         }
         switch pin {
         case .none: break
@@ -251,6 +327,11 @@ struct ChatThread: Identifiable, Hashable {
         case .some(.none): object.removeValue(forKey: "trashed")
         case .some(.some(let value)): object["trashed"] = value
         }
+        switch org {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "org")
+        case .some(.some(let value)): object["org"] = value.json
+        }
         // Renaming, pinning, tagging, deleting or restoring keeps the chat's place by its last message.
         if object["a"] == nil { object["a"] = lastAt }
         guard let json = try? JSONSerialization.data(withJSONObject: object), let text = String(data: json, encoding: .utf8) else { return nil }
@@ -258,11 +339,7 @@ struct ChatThread: Identifiable, Hashable {
     }
 
     /// The chat as Organize works on it (its stored JSON).
-    var organized: OrganizeThread? {
-        let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
-        guard let object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
-        return OrganizeThread(id: id, u: updatedAt, object: object)
-    }
+    var organized: OrganizeThread? { OrganizeThread(id: id, u: updatedAt, data: data) }
 
     /// The same chat with `entries` (src/shared/conversation.ts `Entry` objects) after its messages,
     /// written at `updatedAt`: it moves to the top of the list like a chat continued in Safari.
@@ -294,6 +371,7 @@ enum ShareText {
     static let appLink = "https://apps.apple.com/app/contextflow-ai-web-assistant/id6759115793"
 
     private static let byLanguage: [String: Labels] = [
+        "ar": Labels(you: "أنت", note: "ملاحظة", sources: "المصادر", source: "المصدر", madeWith: "صُنع باستخدام ContextFlow"),
         "de": Labels(you: "Du", note: "Notiz", sources: "Quellen", source: "Quelle", madeWith: "Erstellt mit ContextFlow"),
         "en": Labels(you: "You", note: "Note", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow"),
         "es": Labels(you: "Tú", note: "Nota", sources: "Fuentes", source: "Fuente", madeWith: "Hecho con ContextFlow"),
@@ -304,20 +382,22 @@ enum ShareText {
         "pt_BR": Labels(you: "Você", note: "Nota", sources: "Fontes", source: "Fonte", madeWith: "Feito com o ContextFlow"),
         "ru": Labels(you: "Вы", note: "Заметка", sources: "Источники", source: "Источник", madeWith: "Сделано в ContextFlow"),
         "uk": Labels(you: "Ви", note: "Нотатка", sources: "Джерела", source: "Джерело", madeWith: "Зроблено в ContextFlow"),
-        "zh_CN": Labels(you: "你", note: "笔记", sources: "来源", source: "来源", madeWith: "由 ContextFlow 生成")
+        "vi": Labels(you: "Bạn", note: "Ghi chú", sources: "Nguồn", source: "Nguồn", madeWith: "Tạo bằng ContextFlow"),
+        "zh_CN": Labels(you: "你", note: "笔记", sources: "来源", source: "来源", madeWith: "由 ContextFlow 生成"),
+        "zh_TW": Labels(you: "你", note: "筆記", sources: "來源", source: "來源", madeWith: "用 ContextFlow 製作")
     ]
 
     /// The labels in the chat's language, or the app's.
     static func labels(for entries: [ChatEntry]) -> Labels {
         if let language = chatLanguage(entries), let labels = byLanguage[language] { return labels }
         let app = Bundle.main.preferredLocalizations.first ?? "en"
-        let code = app == "pt-BR" ? "pt_BR" : app.hasPrefix("zh") ? "zh_CN" : String(app.prefix(2))
+        let code = app == "pt-BR" ? "pt_BR" : app == "zh-Hant" ? "zh_TW" : app.hasPrefix("zh") ? "zh_CN" : String(app.prefix(2))
         return byLanguage[code] ?? byLanguage["en"]!
     }
 
     /// Plain text: Markdown syntax gone, structure and links kept.
     static func plain(_ text: String) -> String {
-        var out = replace(text, #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, "")
+        var out = replace(RowMarks.unlinked(text), #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, "")
         out = replace(out, #"```[a-z]*\n?"#, "", caseless: true)
         out = replace(out, #"(?m)^#{1,6}\s+"#, "")
         out = replace(out, #"\*\*([^*]+)\*\*"#, "$1")
@@ -395,8 +475,16 @@ enum ShareText {
         ("es", Set("el los las es son qué que cómo por y en un una del se está para con sobre trata eso esto".split(separator: " ").map(String.init)), "[ñ¿¡]"),
         ("fr", Set("le les est sont et que quoi comment pourquoi un une des du ce cet cette il elle pour dans avec sur qui parle".split(separator: " ").map(String.init)), "[œêâîôûëïç]"),
         ("it", Set("il lo gli è sono che cosa come perché di e un una del della per con su questo questa parla".split(separator: " ").map(String.init)), nil),
-        ("pt_BR", Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(separator: " ").map(String.init)), "[ãõ]")
+        ("pt_BR", Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(separator: " ").map(String.init)), "[ãõ]"),
+        ("vi", Set("là của và có không gì này những một các cho được trong về như thế nào sao bài trang tôi bạn với để khi đây đó nói".split(separator: " ").map(String.init)), "[ăđơư\\u1ea0-\\u1ef9]")
     ]
+    // The letters of Latin-script words: Vietnamese adds ă đ ĩ ũ ơ ư and its tone marks to French and German's.
+    private static let word = "[a-zà-ÿœăđĩũơư\\u1ea0-\\u1ef9]"
+
+    // Characters written one way in Traditional Chinese and another in Simplified (這/这, 們/们, 說/说…): which of the
+    // two a text uses more tells zh_TW from zh_CN (src/shared/share.ts has the same lists).
+    static let traditional = "這個們說麼時為會來嗎頁點與對關還讓價樣從種寫問題單開東車書長經現發學國總結網體請應該變處過實動頭義區記錄認識讀聽買賣錢氣電話視備帶獲據歡"
+    static let simplified = "这个们说么时为会来吗页点与对关还让价样从种写问题单开东车书长经现发学国总结网体请应该变处过实动头义区记录认识读听买卖钱气电话视备带获据欢"
 
     /// The language of a text, when it's clear: a locale code ("ru", "pt_BR"…).
     static func textLanguage(_ raw: String) -> String? {
@@ -404,15 +492,16 @@ enum ShareText {
         let count = { (pattern: String) in matches(text, pattern) }
         let scripts: [(String?, Int)] = [
             ("ko", count(#"[\uac00-\ud7af]"#)),
-            (count(#"[\u3040-\u30ff]"#) > 0 ? "ja" : "zh_CN", count(#"[\u3040-\u30ff\u4e00-\u9fff]"#)),
+            (count(#"[\u3040-\u30ff]"#) > 0 ? "ja" : count("[\(traditional)]") > count("[\(simplified)]") ? "zh_TW" : "zh_CN", count(#"[\u3040-\u30ff\u4e00-\u9fff]"#)),
+            ("ar", count(#"[\u0600-\u06ff\u0750-\u077f]"#)),
             (matches(text, #"[іїєґ]|(^|[^а-яё])(що|це|ця|цей|чому|який|яка|яке)(?![а-яё])"#, caseless: true) > 0 ? "uk" : "ru", matches(text, #"[а-яёіїєґ]"#, caseless: true)),
-            (nil, matches(text, #"[a-zà-ÿœ]"#, caseless: true))
+            (nil, matches(text, word, caseless: true))
         ]
         let (script, letters) = scripts.dropFirst().reduce(scripts[0]) { $1.1 > $0.1 ? $1 : $0 }
         guard letters >= 3 else { return nil }
         if let script { return script }
         let lower = text.lowercased()
-        let words = (try! NSRegularExpression(pattern: "[a-zà-ÿœ]+")).matches(in: lower, range: NSRange(lower.startIndex..., in: lower)).compactMap { Range($0.range, in: lower).map { String(lower[$0]) } }
+        let words = (try! NSRegularExpression(pattern: word + "+")).matches(in: lower, range: NSRange(lower.startIndex..., in: lower)).compactMap { Range($0.range, in: lower).map { String(lower[$0]) } }
         let scores = latin.map { language, common, letters in
             (language, words.filter { common.contains($0) }.count + (letters.map { matches(lower, $0) > 0 } == true ? 2 : 0))
         }
@@ -519,6 +608,10 @@ extension String {
 @MainActor
 final class ChatLibrary: ObservableObject {
     static let shared = ChatLibrary()
+    #if DEBUG
+    /// -CFDebugRemoteRename is done once per launch.
+    private static var remoteRenameScheduled = false
+    #endif
 
     enum Cloud: Equatable {
         /// Sync is switched off (here or in the extension's settings).
@@ -541,6 +634,8 @@ final class ChatLibrary: ObservableObject {
 
     private static let tokenKey = "cf_chats_cloud_token"
     private var cloudTask: Task<Void, Never>?
+    private var pollTask: Task<Void, Never>?
+    private var pulledAt = Date.distantPast
 
     private init() {
         reload()
@@ -555,6 +650,196 @@ final class ChatLibrary: ObservableObject {
 
     /// Re-reads the extension's copy, then asks iCloud for anything newer.
     func refresh() {
+        #if DEBUG
+        // Screenshots of a chat (build 90, Listen under an answer): -CFDebugSeedChat YES puts one sample chat here.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedChat"), ChatMirror.chats()["debug-seed"] == nil {
+            let at = Int64(Date().timeIntervalSince1970 * 1000)
+            let thread: [String: Any] = ["title": "Electric trains", "a": at, "m": [
+                ["role": "user", "content": "How do electric trains save energy?"],
+                ["role": "assistant", "content": "Electric trains draw power from overhead lines or a third rail, and modern ones return energy to the grid when they brake. That is why a high-speed line can use less energy per passenger than a short flight."]
+            ]]
+            if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-seed": ChatMirror.Item(updatedAt: at, data: text)])
+            }
+            // Build 94: a chat named after its first page, its last answer from another page (neutral pages, like
+            // the other seeds: build 95, no data of the owner's in the code).
+            let first: [String: Any] = ["url": "https://bikes.example/city-e3", "title": "City E3 – Bikes Example | Ride Further", "at": at - 60_000]
+            let second: [String: Any] = ["url": "https://dashboard.example/report", "title": "Monthly report — Dashboard Example", "at": at]
+            let pages: [String: Any] = ["title": "Google · City E3 – Bikes Example | Ride Further", "a": at + 1, "m": [
+                ["role": "user", "content": "Is the City E3 a good bike?", "id": "dp1", "t": at - 60_000, "page": first],
+                ["role": "assistant", "content": "The City E3 is a comfortable electric bike with a long range.", "id": "dp2", "t": at - 55_000],
+                ["role": "user", "content": "What does 03.04 mean here?", "id": "dp3", "t": at, "page": second, "mode": "google"],
+                ["role": "assistant", "content": "Most likely a date: the third of April, or the fourth of March where the month comes first.", "id": "dp4", "t": at + 1]
+            ]]
+            if let data = try? JSONSerialization.data(withJSONObject: pages), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-seed-pages": ChatMirror.Item(updatedAt: at + 1, data: text)])
+            }
+        }
+        // 2.6 (98) (messages jumped in a chat): -CFDebugSeedLong YES puts a chat with long answers here (paragraphs,
+        // bullets, bold), on a neutral page.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedLong"), ChatMirror.chats()["debug-long"] == nil {
+            let at = Int64(Date().timeIntervalSince1970 * 1000)
+            let page: [String: Any] = ["url": "https://trains.example/energy", "title": "How electric trains use energy", "at": at - 600_000]
+            let answer = "**In short:** electric trains are efficient because they draw power from the grid and give some of it back when they brake.\n\n- **Regenerative braking** returns energy to the line, often a fifth of what the train used.\n- **Light, long trains** carry many people per unit of energy.\n- **Steel wheels on steel rails** roll with little friction, so the train coasts far.\n\nA high-speed line can use less energy per passenger than a short flight, and less still when the grid is clean. The gain shrinks on lines with many stops, where the train keeps speeding up and slowing down, and on old lines that can't take energy back.\n\n**What to watch:** the share of renewables on the grid, the age of the rolling stock, and how full the trains run."
+            var m: [[String: Any]] = []
+            for i in 0..<6 {
+                m.append(["role": "user", "content": "Question \(i + 1): how do electric trains save energy?", "id": "lq\(i)", "t": at - 600_000 + Int64(i) * 60_000, "page": page])
+                m.append(["role": "assistant", "content": answer, "id": "la\(i)", "t": at - 590_000 + Int64(i) * 60_000])
+            }
+            let thread: [String: Any] = ["title": "Electric trains and energy", "a": at, "m": m]
+            if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-long": ChatMirror.Item(updatedAt: at, data: text)])
+            }
+        }
+        // A big library (2.6 (92): the app hung opening chats with hundreds of them): -CFDebugSeedChats 300 puts that
+        // many chats here, 40 topics over their sites, with page texts, notes and the user's tags.
+        DebugHangLog.start()
+        let many = UserDefaults.standard.integer(forKey: "CFDebugSeedChats")
+        if many > 0, ChatMirror.chats()["debug-many-0"] == nil {
+            var saves: [String: ChatMirror.Item] = [:]
+            var at = Int64(Date().timeIntervalSince1970 * 1000) - Int64(many) * 3_600_000
+            let topics = ["electric cars", "sourdough baking", "marathon training", "home espresso", "kyoto travel", "index funds", "react hooks", "kubernetes", "houseplants", "photography"]
+            let pageText = String(repeating: "A page about the topic, with the details a reader would ask about. ", count: 110)
+            for c in 0..<many {
+                let topic = topics[c % topics.count]
+                var m: [[String: Any]] = []
+                for t in 0..<(3 + c % 9) {
+                    at += 60_000
+                    let page: [String: Any] = ["url": "https://site\(c % 40).example/\(topic.replacingOccurrences(of: " ", with: "-"))/\(t % 3)", "title": "\(topic.capitalized), part \(t % 3)", "at": at, "text": t % 3 == 0 ? pageText : ""]
+                    m.append(["role": "user", "content": "Question \(t + 1) about \(topic): what matters most here, and why?", "id": "dq\(c)-\(t)", "t": at, "page": page])
+                    var answer: [String: Any] = ["role": "assistant", "content": "About \(topic): the main points are the basics, the common mistakes and what to try first.", "id": "da\(c)-\(t)", "t": at + 4000]
+                    if (c + t) % 6 == 0 { answer["tags"] = [topic.split(separator: " ").first.map(String.init) ?? "later"] }
+                    // 2.6 (97): chat 13 has an answer pinned (the pinned bar over the bar of suggestions).
+                    if c == 13, t == 3 { answer["pinned"] = Double(at) }
+                    m.append(answer)
+                    if t == 1 { m.append(["role": "user", "content": "Remember to come back to \(topic) later", "note": true, "id": "dn\(c)", "t": at + 8000, "page": page]) }
+                }
+                var object: [String: Any] = ["a": at, "m": m]
+                // 2.6 (93): chat 3 comes with organizing's record from "another device" (a name it suggests), shown
+                // at once when it opens and counted in the list without asking anything.
+                if c == 3, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), nm: .init(k: "seeded", t: "Espresso at home, from another device")).json
+                }
+                // 2.6 (94): chat 4 comes with a merge into chat 14 (same topic) suggested.
+                if c == 4, many > 14, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: 0, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88)).json
+                }
+                // 2.6 (97): and suggestions deep in it: two tags and its second page to chat 23 (the same topic). The bar
+                // at the top of the chat lists them.
+                if c == 13, many > 23, m.count > 10, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: 2, e: 4, to: "debug-many-23", why: .topic, mt: 86),
+                                             tg: [.init(key: Organize.entryKey(m[1]), tag: "coffee"), .init(key: Organize.entryKey(m[10]), tag: "grinders")]).json
+                }
+                // 2.6 (95): and chat 14, the newer one, shows it too: chat 4 joins it here.
+                if c == 14, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: m.count - 1, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88, fr: "debug-many-4")).json
+                }
+                if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
+                    saves["debug-many-\(c)"] = ChatMirror.Item(updatedAt: at, data: text)
+                }
+            }
+            _ = ChatMirror.apply(saves: saves)
+        }
+        // Build 94 (the chats list's rows and "Ask your chats" links): -CFDebugSeedRows YES puts four chats here, one on
+        // a watched page (RowMarks.debugWatched), one with a reminder ahead, one whose question was just asked in Safari,
+        // and an "Ask your chats" answer that names them.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedRows"), ChatMirror.chats()["debug-row-mug"] == nil {
+            let now = Int64(Date().timeIntervalSince1970 * 1000)
+            let page = { (url: String, title: String, at: Int64) -> [String: Any] in ["url": url, "title": title, "at": at] }
+            let chats: [String: [String: Any]] = [
+                "debug-row-mug": ["title": "Price of the mug", "a": now - 7_000_000, "m": [
+                    ["role": "user", "content": "How much is the mug?", "id": "rq1", "t": now - 7_200_000, "page": page("https://shop.example/mug", "ContextFlow mug", now - 7_200_000)],
+                    ["role": "assistant", "content": "The mug is €24 and in stock.", "id": "ra1", "t": now - 7_190_000],
+                    ["role": "user", "content": "What do the reviews say?", "id": "rq2", "t": now - 7_000_000, "page": page("https://shop.example/mug/reviews", "Reviews", now - 7_000_000)],
+                    ["role": "assistant", "content": "People like the size; a few say the print fades.", "id": "ra2", "t": now - 6_990_000]]],
+                "debug-row-rome": ["title": "Trip to Rome", "a": now - 5_000_000, "m": [
+                    ["role": "user", "content": "What to see in Rome in three days?", "id": "rq3", "t": now - 5_000_000, "page": page("https://rome.example/three-days", "Rome in three days", now - 5_000_000)],
+                    ["role": "assistant", "content": "The Colosseum, the Forum, the Vatican, and Trastevere in the evening.", "id": "ra3", "t": now - 4_990_000, "remind": ["at": Double(now + 86_400_000)]]]],
+                "debug-row-phones": ["title": "Headphones like Aero 2", "a": now - 10_000, "m": [
+                    ["role": "user", "content": "Find similar", "label": "Find similar", "similarAsk": "", "id": "rq4", "t": now - 10_000, "page": page("https://headphones.example/aero-2", "Aero 2", now - 10_000)]]],
+                "debug-row-history": ["k": "history", "a": now - 20_000_000, "m": [
+                    ["role": "user", "content": "What did I read this week?", "id": "rq5", "t": now - 20_010_000],
+                    ["role": "assistant", "content": "**From your chats (3):**\n- **[Trip to Rome](chat:debug-row-rome)**: three days, the Colosseum first\n- **[Price of the mug](chat:debug-row-mug)**: €24, in stock\n- **Headphones like Aero 2**: Find similar is still looking", "id": "ra5", "t": now - 20_000_000]]]
+            ]
+            var saves: [String: ChatMirror.Item] = [:]
+            for (id, object) in chats {
+                if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
+                    saves[id] = ChatMirror.Item(updatedAt: (object["a"] as? Int64) ?? now, data: text)
+                }
+            }
+            _ = ChatMirror.apply(saves: saves)
+        }
+        // Build 97 (a note on a selection as a quote with the person's words): -CFDebugSeedNotes YES puts a chat here with a
+        // reminder on a selection with words, one without, a page reminder with words, and a note on a selection made
+        // before (no cite: its text as it was).
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedNotes"), ChatMirror.chats()["debug-notes"] == nil {
+            let now = Int64(Date().timeIntervalSince1970 * 1000)
+            let page: [String: Any] = ["url": "https://desk.example/standing-140", "title": "Standing desk 140", "at": now - 3_600_000]
+            let object: [String: Any] = ["title": "Standing desk", "a": now - 60_000, "m": [
+                ["role": "user", "content": "“Width 140 cm, depth 70 cm, oak top”\n\nMeasure the wall by the window first", "note": true, "quote": true,
+                 "cite": "Width 140 cm, depth 70 cm, oak top", "id": "dn1", "t": now - 3_600_000, "page": page,
+                 "remind": ["at": Double(now + 86_400_000), "page": true]],
+                ["role": "user", "content": "“Delivery in 5–7 working days”", "note": true, "quote": true,
+                 "cite": "Delivery in 5–7 working days", "id": "dn2", "t": now - 3_000_000, "page": page],
+                ["role": "user", "content": "Ask whether the oak top comes in white", "note": true, "id": "dn3", "t": now - 2_000_000, "page": page,
+                 "remind": ["at": Double(now + 3 * 86_400_000), "page": true]],
+                ["role": "user", "content": "“Assembly takes about an hour”\n\ntwo people", "note": true, "quote": true, "id": "dn4", "t": now - 60_000, "page": page]]]
+            if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-notes": ChatMirror.Item(updatedAt: now, data: text)])
+            }
+        }
+        // Build 95 (a name taken on another device stayed offered here): -CFDebugRemoteRename <id>
+        // -CFDebugRemoteRenameAfter <s>: after so many seconds that chat gets the name its record suggests, as another
+        // device that took it writes it (the title, and the record without the suggestion), and the library reloads as
+        // after a pull from iCloud.
+        if let id = UserDefaults.standard.string(forKey: "CFDebugRemoteRename"), !Self.remoteRenameScheduled {
+            Self.remoteRenameScheduled = true
+            let after = max(1, UserDefaults.standard.double(forKey: "CFDebugRemoteRenameAfter"))
+            DispatchQueue.main.asyncAfter(deadline: .now() + after) { [weak self] in
+                guard let item = ChatMirror.chats()[id], var object = (try? JSONSerialization.jsonObject(with: Data(item.data.utf8))) as? [String: Any],
+                      var org = OrgState(object["org"]), let name = org.nm?.t else { return }
+                org.nm = OrgState.Name(k: org.nm!.k, t: nil, no: org.nm!.no)
+                object["title"] = name
+                object["aiTitle"] = name
+                object["org"] = org.json
+                guard let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) else { return }
+                _ = ChatMirror.apply(saves: [id: ChatMirror.Item(updatedAt: item.updatedAt + 1, data: text)])
+                DebugHangLog.mark("renamed \(id) elsewhere")
+                self?.reload()
+            }
+        }
+        // Build 95 (Find similar's cards in the app): -CFDebugSeedSimilar YES puts a real answer here (SimilarDebugSeed).
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedSimilar"), ChatMirror.chats()[SimilarDebugSeed.id] == nil,
+           var object = (try? JSONSerialization.jsonObject(with: Data(SimilarDebugSeed.json.utf8))) as? [String: Any],
+           var m = object["m"] as? [[String: Any]], m.count == 2 {
+            let now = Int64(Date().timeIntervalSince1970 * 1000)
+            m[0]["t"] = now - 60_000
+            if var page = m[0]["page"] as? [String: Any] {
+                page["at"] = now - 60_000
+                m[0]["page"] = page
+            }
+            m[1]["t"] = now
+            if var similar = m[1]["similar"] as? [String: Any] {
+                similar["at"] = now
+                m[1]["similar"] = similar
+            }
+            object["m"] = m
+            object["a"] = now
+            if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: [SimilarDebugSeed.id: ChatMirror.Item(updatedAt: now, data: text)])
+            }
+        }
+        // -CFDebugOpenChat <id> -CFDebugOpenAfter <s>: that chat opens after so many seconds (its first answer), as a tap
+        // on it would; the hang log has when it was asked for and when it showed.
+        if let id = UserDefaults.standard.string(forKey: "CFDebugOpenChat"), !DebugHangLog.openScheduled {
+            DebugHangLog.openScheduled = true
+            let after = max(1, UserDefaults.standard.double(forKey: "CFDebugOpenAfter"))
+            DispatchQueue.main.asyncAfter(deadline: .now() + after) {
+                DebugHangLog.mark("request \(id)")
+                ChatLinks.shared.pending = (id, id.replacingOccurrences(of: "debug-many-", with: "da") + "-0")
+            }
+        }
+        #endif
         reload()
         guard syncOn else {
             cloud = .off
@@ -562,6 +847,35 @@ final class ChatLibrary: ObservableObject {
         }
         cloudTask?.cancel()
         cloudTask = Task { await syncCloud([]) }
+        keepPolling()
+    }
+
+    /// 2.6 (94): while the app is in front, iCloud is asked every 20 s. A chat renamed on one device kept its old name
+    /// on another for minutes: the app asked only at launch, back in front, when its list showed again (never on an
+    /// iPad, where the list stays) and after its own changes.
+    private func keepPolling() {
+        guard pollTask == nil else { return }
+        pollTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 20_000_000_000)
+                guard let self else { return }
+                if self.syncOn, Self.inFront, Date().timeIntervalSince(self.pulledAt) >= 15 { await self.syncCloud([], quiet: true) }
+            }
+        }
+    }
+
+    /// A chat opened: what iCloud has for it now, unless just asked.
+    func pull() async {
+        guard syncOn, Date().timeIntervalSince(pulledAt) >= 3 else { return }
+        await syncCloud([], quiet: true)
+    }
+
+    private static var inFront: Bool {
+        #if os(iOS)
+        UIApplication.shared.applicationState == .active
+        #else
+        NSApplication.shared.isActive
+        #endif
     }
 
     /// Waits for the refresh from iCloud (pull to refresh).
@@ -577,8 +891,20 @@ final class ChatLibrary: ObservableObject {
         threads = all.filter { !$0.isTrashed }.sorted(by: Self.listOrder)
         trashed = all.filter(\.isTrashed).sorted { a, b in a.trashedAt != b.trashedAt ? a.trashedAt! > b.trashedAt! : a.id < b.id }
         loaded = true
-        // No chats left ("Delete all chats" in Safari): the messages' vectors (organizing) go with them.
-        if threads.isEmpty && trashed.isEmpty { OrganizeModel.shared.forget() }
+        // No chats left ("Delete all chats" in Safari): the messages' vectors (organizing) go with them, and what was
+        // read aloud (2.6) once there had been chats (a page heard with no chats at all keeps its audio).
+        let hadChats = UserDefaults.standard.bool(forKey: "cf_listen_had_chats")
+        if threads.isEmpty && trashed.isEmpty {
+            OrganizeModel.shared.forget()
+            if hadChats {
+                SpeechCache.clear()
+                HeardCover.clear()
+                Task { @MainActor in VoicedList.shared.clearMade() }
+                // And from the user's iCloud (2.6), for every device.
+                Task.detached(priority: .utility) { await SpeechSync.deleteAll() }
+            }
+        }
+        UserDefaults.standard.set(!threads.isEmpty || !trashed.isEmpty, forKey: "cf_listen_had_chats")
         // 30 days in Recently Deleted: deleted for good, as on any device that sees it first.
         let cutoff = now - Int64(Self.trashDays) * 86_400_000
         let expired = trashed.filter { $0.trashedAt! <= cutoff }
@@ -596,8 +922,11 @@ final class ChatLibrary: ObservableObject {
         }
     }
 
-    private func syncCloud(_ changes: [ChatSync.Change]) async {
-        if cloud != .ok { cloud = .syncing }
+    /// `quiet`: asked by itself (2.6 (94)), every 20 s or as a chat opens: offline, the Chats screen's note about iCloud
+    /// doesn't blink with each ask.
+    private func syncCloud(_ changes: [ChatSync.Change], quiet: Bool = false) async {
+        if cloud != .ok, !quiet { cloud = .syncing }
+        pulledAt = Date()
         let token = UserDefaults.standard.string(forKey: Self.tokenKey)
         do {
             let result = try await ChatSync.sync(token: token, changes: changes)
@@ -611,7 +940,7 @@ final class ChatLibrary: ObservableObject {
             UserDefaults.standard.set(result.token, forKey: Self.tokenKey)
             cloud = .ok
         } catch {
-            if !Task.isCancelled { cloud = .unavailable }
+            if !Task.isCancelled, !quiet || cloud != .ok { cloud = .unavailable }
         }
     }
 
@@ -620,11 +949,45 @@ final class ChatLibrary: ObservableObject {
     private var now: Int64 { Int64(Date().timeIntervalSince1970 * 1000) }
 
     /// Stores a changed chat here, for the extension, and in iCloud.
-    private func save(_ thread: ChatThread, title: String??, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil) {
+    /// `soft` (2.6 (94)): a change to organizing's record only, which never replaces a copy another device wrote since
+    /// this one (ChatSync.Snapshot `base`).
+    private func save(_ thread: ChatThread, title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, org: OrgState?? = nil, soft: Bool = false) {
         // Always later than the copy it replaces, whatever the clocks say.
         let at = max(now, thread.updatedAt + 1)
-        guard let item = thread.edited(title: title, pin: pin, tags: tags, entryTags: entryTags, updatedAt: at) else { return }
-        store(thread, item)
+        guard let item = thread.edited(title: title, aiTitle: aiTitle, pin: pin, tags: tags, entryTags: entryTags, org: org, updatedAt: at) else { return }
+        store(thread, item, base: soft ? thread.updatedAt : nil)
+    }
+
+    /// What organizing worked out for a chat (2.6 (93), src/content/store.ts `setOrgState`): kept with it, and so on
+    /// every device, when it says something new and the chat is still as it was then (a message since: the next run
+    /// keeps the new one).
+    func keepOrg(_ id: String, _ org: OrgState) {
+        guard let current = threads.first(where: { $0.id == id }), current.org != org, org.n == current.entries.count else { return }
+        save(current, title: nil, pin: nil, org: .some(org), soft: true)
+    }
+
+    /// A suggested name taken or turned down (src/content/store.ts `settleNameSuggestion`): it goes from the chat's
+    /// state; turned down, it joins the names never suggested again for it, on any device.
+    func settleName(_ id: String, taken: Bool) {
+        guard let current = threads.first(where: { $0.id == id }), var org = current.org, let nm = org.nm, let t = nm.t else { return }
+        let no = taken ? nm.no : Array((nm.no.filter { $0.lowercased() != t.lowercased() } + [t]).suffix(20))
+        // Taken: the check is about the chat under its new name (2.6 (95)), so no device asks again until the chat
+        // changes (else taking a name started a check of it, and renames followed one another). The name as nameByAI keeps it.
+        let named = String(t.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces).prefix(80))
+        let key = taken ? current.organized.map { Organize.nameCheckKey($0, title: named) } ?? nm.k : nm.k
+        org.nm = OrgState.Name(k: key, t: nil, no: no)
+        save(current, title: nil, pin: nil, org: .some(org), soft: taken ? false : true)
+    }
+
+    /// A merge into chat `to` turned down (2.6 (94), src/content/store.ts `refuseMerge`): kept with the chat, never
+    /// suggested again, on any device.
+    func refuseMerge(_ id: String, into to: String) {
+        guard let current = threads.first(where: { $0.id == id }) else { return }
+        var org = current.org ?? OrgState(n: current.entries.count, k: Organize.lastKey(current.organized?.entries ?? []))
+        guard !org.mx.contains(to) else { return }
+        org.mx = Array((org.mx + [to]).suffix(20))
+        if org.mv?.why == .merge { org.mv = nil }
+        save(current, title: nil, pin: nil, org: .some(org), soft: true)
     }
 
     /// Adds messages at the end of a chat (a question asked in the app and its answer, or a note).
@@ -634,12 +997,12 @@ final class ChatLibrary: ObservableObject {
         store(current, item)
     }
 
-    private func store(_ thread: ChatThread, _ item: ChatMirror.Item) {
+    private func store(_ thread: ChatThread, _ item: ChatMirror.Item, base: Int64? = nil) {
         ChatMirror.apply(saves: [thread.id: item])
-        ChatMirror.queue(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
+        ChatMirror.queue(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now), base: base))
         reload()
         if syncOn {
-            Task { await syncCloud([.save(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data))]) }
+            Task { await syncCloud([.save(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, base: base))]) }
         }
     }
 
@@ -649,6 +1012,23 @@ final class ChatLibrary: ObservableObject {
             .trimmingCharacters(in: .whitespaces).prefix(80))
         guard clean != (thread.title ?? "") else { return }
         save(thread, title: .some(clean.nilIfEmpty), pin: nil)
+    }
+
+    /// The AI's name for a chat (2.6): it becomes its name. By itself (its topic changed) never over a name the user
+    /// typed; asked for ("Name by topic"), over any. What the names were before, for Undo (nil: nothing changed).
+    func nameByAI(_ thread: ChatThread, _ name: String, asked: Bool = false) -> (title: String?, aiTitle: String?)? {
+        let current = threads.first { $0.id == thread.id } ?? thread
+        let clean = String(name.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespaces).prefix(80))
+        guard !clean.isEmpty, asked || !current.namedByUser, clean != current.title else { return nil }
+        save(current, title: .some(clean), aiTitle: .some(clean), pin: nil)
+        return (current.title, current.aiTitle)
+    }
+
+    /// Undo for nameByAI: the names as they were, if the chat still has the AI's one.
+    func unname(_ id: String, _ name: String, before: (title: String?, aiTitle: String?)) {
+        guard let current = threads.first(where: { $0.id == id }), current.title == name else { return }
+        save(current, title: .some(before.title), aiTitle: .some(before.aiTitle), pin: nil)
     }
 
     /// Pins a chat at the top of the list, or unpins it.
@@ -813,11 +1193,16 @@ final class ChatLibrary: ObservableObject {
         }
     }
 
-    /// Opens a page of a chat in Safari (not another default browser).
-    func open(_ url: String) {
-        guard let link = URL(string: url), ["http", "https"].contains(link.scheme?.lowercased() ?? "") else { return }
+    /// Opens a page of a chat in Safari (not another default browser). 2.6 (98), the owner: «Если новая страница
+    /// открывается по клику/тапу в расширении или приложении - надо чтобы сайдбар открывался там сразу и на том чате и
+    /// месте, где кликнули на страницу»: with `chat` (and `at`, its message: the id, else "i<index>") the page opens with
+    /// the panel on that chat, at that message (SimilarAway.pageOpening).
+    func open(_ url: String, chat: String? = nil, at: String? = nil) {
+        guard var link = URL(string: url), ["http", "https"].contains(link.scheme?.lowercased() ?? "") else { return }
+        if let chat { link = SimilarAway.pageOpening(link, thread: chat, at: at, mark: "cf-chat") }
+        let address = link.absoluteString
         #if os(iOS)
-        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(url)") {
+        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(address)") {
             UIApplication.shared.open(safari) { opened in
                 if !opened { UIApplication.shared.open(link) }
             }

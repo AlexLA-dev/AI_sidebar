@@ -2,19 +2,26 @@
 
 /* The suggestions: one row under the message's tools, dashed and a little faded, fading in. */
 .cf-org { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; animation: cf-org-in .45s ease-out both; }
-.cf-msg.user .cf-org { justify-content: flex-end; }
+/* 2.6 (94): a light tint, so the suggestions stand out from the chat without weighing on it. */
+.cf-org { padding: 5px 6px 5px 10px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 7%, transparent); }
+/* Under a note or question (2.6: a note's chat can join another): as wide as the message, so a long chat name ends in
+   an ellipsis instead of running off the panel's left edge. */
+.cf-msg.user .cf-org { justify-content: flex-end; align-self: stretch; min-width: 0; }
 .cf-msg.pickable .cf-org { display: none; }
 /* Text selected in the message: the row keeps its place but steps aside for the bubble by the selection. */
 .cf-org.quiet { visibility: hidden; }
 @keyframes cf-org-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
-.cf-org-label { font-size: 11.5px; color: var(--text-3); margin-right: 2px; }
-.cf-org-chip { --tag: 93, 90, 102; display: inline-flex; align-items: center; max-width: 100%; height: 26px; border-radius: 999px; border: 1px dashed rgba(var(--tag), 0.55); background: rgba(var(--tag), 0.05); color: rgb(var(--tag)); opacity: 0.92; }
+.cf-org-label { font-size: 11.5px; color: var(--text-3); margin-inline-end: 2px; }
+.cf-org-chip { --tag: 93, 90, 102; display: inline-flex; align-items: center; max-width: 100%; min-width: 0; height: 26px; border-radius: 999px; border: 1px dashed rgba(var(--tag), 0.55); background: rgba(var(--tag), 0.05); color: rgb(var(--tag)); opacity: 0.92; }
 .cf-org-chip.c0 { --tag: 37, 99, 235; } .cf-org-chip.c1 { --tag: 13, 148, 136; } .cf-org-chip.c2 { --tag: 202, 138, 4; } .cf-org-chip.c3 { --tag: 219, 39, 119; }
 .cf-org-chip.c4 { --tag: 124, 58, 237; } .cf-org-chip.c5 { --tag: 22, 163, 74; } .cf-org-chip.c6 { --tag: 234, 88, 12; } .cf-org-chip.c7 { --tag: 71, 85, 105; }
 .cf-org-chip.move { color: var(--text-2); }
 .cf-org-chip.move b { color: var(--text); font-weight: 600; }
 .cf-org-take { display: inline-flex; align-items: center; gap: 4px; min-width: 0; height: 100%; padding: 0 2px 0 10px; border-radius: 999px 0 0 999px; font-size: 12px; font-weight: 600; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-org-chip.move .cf-org-take { font-weight: 500; }
+/* 2.6 (93): how well it fits there, after the chat's name ("· 88% match"). */
+.cf-org-match { flex: none; margin-inline-start: 6px; font-size: 11.5px; font-weight: 600; color: var(--accent-text); }
+.cf-org-match::before { content: "· "; color: var(--text-3); font-weight: 400; }
 .cf-org-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .cf-org-take:hover { background: rgba(var(--tag), 0.08); }
 .cf-org-x { flex: none; display: grid; place-items: center; width: 26px; height: 100%; border-radius: 0 999px 999px 0; color: var(--text-3); }
@@ -23,42 +30,74 @@
 
 /* The undo bar: over the question field, until the next action. */
 /* Its colors are .cf-snack's (styles.css): one look for toasts and bars, in both themes. */
-.cf-undo-bar { position: absolute; left: 12px; right: 12px; bottom: calc(100% + 8px); z-index: 30; display: flex; align-items: center; gap: 2px; padding: 9px 6px 9px 14px; font-size: 13px; animation: cf-org-in .3s ease-out both; }
+.cf-undo-bar { position: absolute; left: 12px; right: 12px; bottom: calc(100% + 8px); z-index: 30; display: flex; align-items: center; gap: 2px; padding-block: 9px; padding-inline: 14px 6px; font-size: 13px; animation: cf-org-in .3s ease-out both; }
 .cf-undo-bar span { flex: 1; min-width: 0; }
 .cf-undo-bar button { flex: none; padding: 6px 9px; border-radius: 8px; font-size: 13px; }
 .cf-undo-bar button:hover { background: color-mix(in srgb, var(--snack-text) 10%, transparent); }
 
 /* The cards: turning suggestions on (Pro), and what they do (without Pro). */
 .cf-org-card { position: relative; margin-top: 10px; background: var(--accent-soft); animation: cf-org-in .45s ease-out both; }
-.cf-org-card.promo { padding-right: 34px; }
-.cf-org-close { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; color: var(--text-3); }
+.cf-org-card.promo { padding-inline-end: 34px; }
+.cf-org-close { position: absolute; top: 8px; inset-inline-end: 8px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; color: var(--text-3); }
 .cf-org-close svg { width: 13px; height: 13px; }
 .cf-org-promo { display: flex; gap: 12px; align-items: flex-start; }
 .cf-org-promo > div { flex: 1; min-width: 0; }
 
-/* What organizing does, in a loop: messages of one chat slide into the chats and tags they belong to. */
-.cf-org-anim { position: relative; flex: none; width: 76px; height: 88px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); overflow: hidden; }
-.cf-org-anim .m { position: absolute; left: 8px; width: 36px; height: 8px; border-radius: 4px; }
-.cf-org-anim .m1 { top: 12px; background: rgba(37, 99, 235, 0.55); }
-.cf-org-anim .m2 { top: 26px; background: rgba(22, 163, 74, 0.6); animation: cf-org-m2 4s ease-in-out infinite; }
-.cf-org-anim .m3 { top: 40px; background: rgba(37, 99, 235, 0.55); }
-.cf-org-anim .m4 { top: 54px; background: rgba(234, 88, 12, 0.6); animation: cf-org-m4 4s ease-in-out infinite; }
-.cf-org-anim .f { position: absolute; right: 7px; width: 22px; height: 16px; border-radius: 3px 4px 4px 4px; }
-.cf-org-anim .f::before { content: ""; position: absolute; left: 0; top: -4px; width: 10px; height: 5px; border-radius: 2px 2px 0 0; background: inherit; }
-.cf-org-anim .f1 { top: 22px; background: rgba(22, 163, 74, 0.25); }
-.cf-org-anim .f2 { top: 56px; background: rgba(234, 88, 12, 0.25); }
-@keyframes cf-org-m2 { 0%, 25% { transform: none; opacity: 1; } 50% { transform: translate(30px, 0) scale(0.45); opacity: 0.9; } 58%, 85% { transform: translate(30px, 0) scale(0.45); opacity: 0; } 100% { transform: none; opacity: 0; } }
-@keyframes cf-org-m4 { 0%, 45% { transform: none; opacity: 1; } 70% { transform: translate(30px, 6px) scale(0.45); opacity: 0.9; } 78%, 92% { transform: translate(30px, 6px) scale(0.45); opacity: 0; } 100% { transform: none; opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .cf-org-anim .m2, .cf-org-anim .m4, .cf-org, .cf-undo-bar, .cf-org-card { animation: none; } }
+/* Reduced motion: the suggestion, the bar and the card appear without sliding. */
+@media (prefers-reduced-motion: reduce) { .cf-org, .cf-undo-bar, .cf-org-card { animation: none; } }
 
 /* Settings: what the suggestions are, for those without Pro. */
 .cf-org-setting-pro { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-
-/* After the first suggestion taken: a line under the chat. */
-.cf-org-win { display: flex; align-items: center; gap: 6px; margin: 8px 2px 4px; font-size: 12.5px; color: var(--text-2); animation: cf-org-in .45s ease-out both; }
-.cf-org-win svg { color: var(--accent); }
-
 /* The Pro card: organizing first, with its loop. */
-.cf-upsell-organize { display: flex; gap: 12px; align-items: center; margin: 2px 0 10px; }
-.cf-upsell-organize strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
-.cf-upsell-organize span { color: var(--text-2); font-size: 13px; line-height: 1.4; }
+.cf-upsell-organize { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 10px; }
+.cf-upsell-organize > div:first-child strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
+.cf-upsell-organize > div:first-child span { color: var(--text-2); font-size: 13px; line-height: 1.4; }
+
+/* 2.6: what organizing does, with its real row (OrganizePreview): the question, the answer, the row; in a gentle loop
+   the bar after a move takes the row's place. */
+.cf-org-demo { pointer-events: none; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--border); }
+.cf-org-demo.compact { margin-top: 8px; padding: 0; background: none; border: 0; }
+.cf-org-demo .cf-org { animation: none; margin: 0; }
+.cf-org-demo-q { align-self: flex-end; max-width: 85%; padding: 6px 10px; border-radius: 14px; background: var(--accent); color: #fff; font-size: 12.5px; line-height: 1.35; }
+.cf-org-demo-a { font-size: 12.5px; line-height: 1.45; color: var(--text); }
+.cf-org-demo-swap { position: relative; min-height: 36px; }
+.cf-org-demo-row { animation: cf-org-demo-row 6s ease-in-out infinite; }
+.cf-org-demo-bar { position: absolute; inset-inline: 0; top: 0; display: flex; gap: 8px; align-items: center; padding: 8px 12px; font-size: 12.5px; opacity: 0; animation: cf-org-demo-bar 6s ease-in-out infinite; }
+.cf-org-demo-bar span { flex: 1; min-width: 0; }
+.cf-org-demo-bar b { color: var(--snack-action); }
+@keyframes cf-org-demo-row { 0%, 46% { opacity: 1; } 52%, 92% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes cf-org-demo-bar { 0%, 46% { opacity: 0; transform: scale(0.96); } 52%, 92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cf-org-demo-row { animation: none; } .cf-org-demo-bar { animation: none; opacity: 0; } }
+
+/* ---- 2.6 (97): the chat's open suggestions at its top, like the pinned messages' bar (SuggestionsBar.tsx) */
+/* Both bars in one sticky box at the very top of the list; with both, each is one line. */
+.cf-topbars {
+  position: sticky; top: -14px; z-index: 2; margin: -14px -14px 12px;
+  background: var(--bg);
+}
+.cf-topbars .cf-pinbar { position: relative; top: auto; margin: 0; }
+.cf-sugbar { display: flex; align-items: stretch; background: var(--bg); border-bottom: 1px solid var(--border); }
+.cf-sugbar-main { flex: 1; min-width: 0; display: flex; align-items: stretch; gap: 9px; padding-block: 7px; padding-inline: 8px 12px; text-align: start; }
+.cf-sugbar-segments { flex: none; display: flex; flex-direction: column; gap: 2px; width: 2.5px; padding: 1px 0; }
+.cf-sugbar-segments span { border-radius: 2px; background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.cf-sugbar-segments span.on { background: var(--accent); }
+.cf-sugbar-text { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.cf-sugbar-label { flex: none; font-size: 12px; font-weight: 600; color: var(--accent-text); white-space: nowrap; }
+.cf-sugbar-line { display: block; min-width: 0; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cf[data-touch] .cf-sugbar-line { font-size: 15px; }
+/* One line each when the pinned bar is there too. */
+.cf-sugbar.compact .cf-sugbar-main, .cf-topbars.both .cf-pinbar-main { padding-block: 6px; }
+.cf-sugbar.compact .cf-sugbar-text, .cf-topbars.both .cf-pinbar-text { flex-direction: row; align-items: baseline; gap: 7px; }
+.cf-topbars.both .cf-pinbar-label { flex: none; white-space: nowrap; }
+.cf-topbars.both .cf-pinbar-line { min-width: 0; }
+.cf-topbars.both .cf-pinbar-all { width: 34px; }
+/* A tap on the bar: the suggestion flashes in the chat, as a pinned message does. */
+.cf-org-chip.sug-flash { animation: cf-sug-flash 1.2s ease; }
+@keyframes cf-sug-flash { 0%, 55% { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); } 100% { box-shadow: 0 0 0 5px transparent; } }
+@media (prefers-reduced-motion: reduce) { .cf-org-chip.sug-flash { animation: none; outline: 2px solid var(--accent); outline-offset: 2px; } }
+
+/* 2.6 (98): the bars at the top without a negative sticky offset. The list's 14px top padding sat between the chat's
+   title and the bars in Safari on iPad (a strip of chat text showed through): with a bar there, the list has no top
+   padding and the bars stick at 0, so no WebKit scrolling path can leave room above them. */
+.cf-messages:has(> .cf-topbars), .cf-messages:has(> .cf-pinbar) { padding-top: 0; }
+.cf-messages > .cf-topbars, .cf-messages > .cf-pinbar { top: 0; margin-top: 0; }

@@ -4,10 +4,10 @@
 import type { VNode } from "preact"
 import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 
-import { entryKey, type Entry } from "../../shared/conversation"
+import { citedNote, entryKey, type Entry } from "../../shared/conversation"
 import { t } from "../../shared/i18n"
 import { addMark, removeMark } from "../../shared/marks"
-import { reminderNotice } from "../../shared/reminders"
+import { reminderNotice, remindWords, withRemindWords } from "../../shared/reminders"
 import { STORAGE } from "../../shared/types"
 import { copyRich, panelRange, richHtml, selectionIn } from "./marks"
 import { Bell, FloatAt, Marker, MessageMenu, More, PinIcon, RemindChip, RemindSheet, TrashIcon } from "./MessageUx"
@@ -176,9 +176,11 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     void send({ type: "uxEvent", kind: "ux_pin", action: "unpinned_all", how: "list" })
   }, [setMessages, send])
 
-  const setReminder = useCallback(async (idx: number, at: number | null, preset?: string) => {
-    const m = messagesRef.current[idx]
-    if (!m) return
+  const setReminder = useCallback(async (idx: number, at: number | null, preset?: string, words?: string) => {
+    const found = messagesRef.current[idx]
+    if (!found) return
+    // A reminder made with Remind on a selection or a page: its new words go with its new time (2.6 (97)).
+    const m = at === null ? found : withRemindWords(found, words)
     const outcome = await scheduleReminder(send, chatId(), m, at, chatTitle())
     if (at !== null && outcome !== "scheduled") {
       if (outcome === "denied") void send({ type: "uxEvent", kind: "ux_remind", action: "denied", what: remindWhat(m) })
@@ -188,7 +190,7 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     }
     const dev = await thisDevice()
     update(idx, (x) => {
-      const next = { ...x }
+      const next = at === null ? { ...x } : { ...withRemindWords(x, words) }
       if (at === null) delete next.remind
       else next.remind = { ...(x.remind?.page ? { page: true as const } : {}), at, ...(dev ? { dev } : {}) }
       return next
@@ -307,7 +309,9 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
         <RemindSheet
           current={messages[reminding.idx].remind?.at}
           note={reminding.note}
-          onPick={(at, preset) => void setReminder(reminding.idx, at, preset)}
+          quote={citedNote(messages[reminding.idx])?.cite}
+          words={remindWords(messages[reminding.idx])}
+          onPick={(at, preset, words) => void setReminder(reminding.idx, at, preset, words)}
           onCancel={() => void setReminder(reminding.idx, null)}
           onClose={() => setReminding(null)}
         />

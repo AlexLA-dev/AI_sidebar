@@ -117,20 +117,25 @@ test("an empty list says where its own are set", () => {
   assert.ok(text(w).includes("Select a price, stock or a date and tap the eye. For the whole page: … → Watch this page."))
 })
 
-test("the header's \"…\": Remind me about this page, Watch this page, Reminders · N, Watching · N where watching works, Settings", () => {
+test("the header's \"…\" (2.6 (91), the owner): each pair together, Remind me / Reminders · N, Watch this page / Watching · N where watching works, then Other… with Settings, folded", async () => {
   const safari = root()
   let watched = 0
   ui.menu(safari, 2, 3, () => watched++)
   const items = [...safari.querySelectorAll("[role=menuitem]")] as Element[]
   assert.deepEqual(items.map((b) => text(b).trim()), [
-    en.uxLater, en.uxWatchPage, en.uxRemindersN.replace("{0}", "2"), en.uxWatchingN.replace("{0}", "3"), en.settings
+    en.uxLater, en.uxRemindersN.replace("{0}", "2"), en.uxWatchPage, en.uxWatchingN.replace("{0}", "3"), en.uxOther
   ])
   // "Watch this page…" opens watching's window for the whole page.
-  ;(items[1] as HTMLElement).dispatchEvent(new dom.window.Event("click", { bubbles: true }))
+  ;(items[2] as HTMLElement).dispatchEvent(new dom.window.Event("click", { bubbles: true }))
   assert.equal(watched, 1)
+  // "Other…" unfolds Settings.
+  ;(items[4] as HTMLElement).dispatchEvent(new dom.window.Event("click", { bubbles: true }))
+  await Promise.resolve()
+  await Promise.resolve()
+  assert.deepEqual([...safari.querySelectorAll(".cf-page-more-group [role=menuitem]")].map((b: Element) => text(b).trim()), [en.settings])
   const chrome = root()
   ui.menu(chrome, 0, null)
-  assert.deepEqual([...chrome.querySelectorAll("[role=menuitem]")].map((b: Element) => text(b).trim()), [en.uxLater, en.uxReminders, en.settings])
+  assert.deepEqual([...chrome.querySelectorAll("[role=menuitem]")].map((b: Element) => text(b).trim()), [en.uxLater, en.uxReminders, en.uxOther])
 })
 
 test("the bubble's tip: once, one for both icons (the eye's line where watching works)", async () => {
@@ -173,5 +178,5 @@ test("\"Watch this page…\": the whole page in watching's window, a page that c
   assert.match(reg, /setPageWatch\(\(page\) => openWatchSheet\(\{ url: page\.url, title: page\.title, selection: null, how: "later", remind: \(\) => openLater\(\) \}\)\)/)
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   // Only where watching works, as "Watching · N".
-  assert.match(app, /onWatchPage=\{listsKind\("watch"\) && pageWatcher\(\) \?/)
+  assert.match(app, /onWatchPage=\{view === "chat" && listsKind\("watch"\) && pageWatcher\(\) \?/)
 })

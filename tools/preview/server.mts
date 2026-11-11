@@ -11,8 +11,25 @@
 //                                                              throwaway key: /api/v2/promo signs)
 //   PREVIEW_PLAN=pro …                                         (every request comes as Pro: a test-signed
 //                                                              subscription is added on the server side)
+//   PREVIEW_PLAN=ultra …                                       (the same as Ultra, 2.6: read aloud speaks a tone
+//                                                              as long as the text would take)
+//   SPEAK_PROXY=https://deploy-preview-57--aisidebar.netlify.app SPEAK_EVAL_KEY=<private key .pem> …
+//                                                              (read aloud with the real voices: /api/v2/speak goes
+//                                                              to that deploy preview, each request signed with the
+//                                                              measuring key, see netlify/shared/plan.mts evalCheck)
+//   ORGANIZE_PROXY=https://<deploy preview> SPEAK_EVAL_KEY=<private key .pem> …
+//                                                              (organizing with the real vectors, tag checks and chat
+//                                                              names: /api/v2/organize goes to that deploy preview,
+//                                                              signed the same way)
+//   PREVIEW_SPEAK_USED=1700 …                                  (Ultra: that many of the week's read-aloud seconds used)
+//   SPEAK_PACE=1.28 …                                          (read aloud: the voice that much slower than the words
+//                                                              say, as the owner heard on 97: 60 s shown, 77 s played)
+//   SPEAK_FAIL_FROM_PART=1 …                                   (read aloud: every part from that one on fails with
+//                                                              502, as a connection lost mid-text)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
 //                                                              it fail that way, so OpenAI answers; off: no key)
+//   STATUS_DELAY_MS=800 …                                      (/api/v2/status answers that late, as over a phone's
+//                                                              network: what waiting for the plan costs)
 //   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
 //                                                              stop the question before any of its answer)
 
@@ -29,9 +46,15 @@ process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 
 const counters = new Map<string, number>()
+// PREVIEW_SPEAK_USED=1700: the Ultra subscriber has used that many of the week's read-aloud seconds (the few-minutes-left note).
+if (process.env.PREVIEW_SPEAK_USED) counters.set("speak:tx:2000000888", Number(process.env.PREVIEW_SPEAK_USED))
+// The guided first request's free answers per install, ever (2.6: cf_tour_take in the 2.6 migration).
+const tours = new Map<string, number>()
 const aiRequests: string[] = []
 // The panel's funnel events since /reset ("media_notice:video"…), to check what it reports.
 const panelEvents: string[] = []
+// The last /api/v2/similar request body (GET /last-similar): the engine and the page the panel sent.
+let lastSimilarRequest: unknown = null
 // The last /api/v2/chat request body, for e2e checks of what the extension sends (GET /last-request).
 let lastChatRequest: unknown = null
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
@@ -55,7 +78,17 @@ const rpc: Record<string, (a: any) => unknown> = {
   cf_entitlement_upsert: ({ p }) => p,
   cf_entitlement_get: () => null,
   cf_entitlement_by_token: () => null,
-  cf_limited_before: () => process.env.LIMITED_BEFORE === "1"
+  cf_limited_before: () => process.env.LIMITED_BEFORE === "1",
+  cf_tour_take: ({ p_install, p_max }) => {
+    const n = tours.get(p_install) ?? 0
+    if (n >= p_max) return false
+    tours.set(p_install, n + 1)
+    return true
+  },
+  cf_tour_give_back: ({ p_install }) => {
+    tours.set(p_install, Math.max(0, (tours.get(p_install) ?? 0) - 1))
+    return null
+  }
 }
 
 // Delay between streamed words; the App Store preview video slows it down to a readable pace.
@@ -129,14 +162,17 @@ function geminiStream(lastQuestion: string): Response {
 }
 
 function findAnswer(system: string, query: string): string {
-  // Long words of the description (their stem: the first 5 letters); chats with most of them first,
-  // each "why" taken from the chat's first answer.
+  // Long words of the description (their stem: the first 5 letters); chats with most of them first. Each "why" is the
+  // chat's line with most of them, as the AI's why tells what fits (build 98: the result opens at that message), else
+  // the chat's first answer.
   const words = query.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 6).map((w) => w.slice(0, 5))
   const scored: Array<{ id: string; why: string; n: number }> = []
   for (const m of system.matchAll(/<<<CHAT \d+ id=(\S+)\nTitle: ([^\n]*)\n[\s\S]*?CHAT>>>/g)) {
     const text = m[0].toLowerCase()
     const n = words.filter((w) => text.includes(w)).length
-    const answer = /\nA: ([^\n]*)/.exec(m[0])?.[1]?.replace(/[*_]/g, "") ?? m[2]
+    const lines = [...m[0].matchAll(/\n(?:Q|A|Note): ([^\n]*)/g)].map((x) => x[1].replace(/[*_]/g, ""))
+    const fits = lines.map((line) => ({ line, k: words.filter((w) => line.toLowerCase().includes(w)).length })).sort((x, y) => y.k - x.k)[0]
+    const answer = fits && fits.k > 0 ? fits.line : /\nA: ([^\n]*)/.exec(m[0])?.[1]?.replace(/[*_]/g, "") ?? m[2]
     if (n) scored.push({ id: m[1], why: answer.length > 90 ? `${answer.slice(0, 89)}…` : answer, n })
   }
   return JSON.stringify({ results: scored.sort((a, b) => b.n - a.n).slice(0, 5).map(({ id, why }) => ({ id, why })) })
@@ -144,10 +180,12 @@ function findAnswer(system: string, query: string): string {
 
 // "Ask your chats": a short overview built from the chats the request carried.
 function historyAnswer(system: string, question: string): string {
-  const chats = [...system.matchAll(/<<<CHAT \d+ id=\S+\nTitle: ([^\n]*)\nDate: ([^\n]*)\n(?:Pages: ([^\n(]*))?/g)]
+  const chats = [...system.matchAll(/<<<CHAT \d+ id=(\S+)\nTitle: ([^\n]*)\nDate: ([^\n]*)\n(?:Pages: ([^\n(]*))?/g)]
   const ru = /[а-яё]/i.test(question)
+  // Build 94: a client that opens chats from the answer gets them as [name](chat:<id>), as the prompt asks.
+  const links = system.includes("[Title](chat:<id>)")
   const head = ru ? `**По вашим чатам (${chats.length}):**` : `**From your chats (${chats.length}):**`
-  const lines = chats.slice(0, 5).map((m) => `- **${m[1]}** — ${(m[3] ?? "").trim() || (ru ? "без страницы" : "no page")} *(${m[2].slice(0, 10)})*`)
+  const lines = chats.slice(0, 5).map((m) => `- **${links ? `[${m[2]}](chat:${m[1]})` : m[2]}** — ${(m[4] ?? "").trim() || (ru ? "без страницы" : "no page")} *(${m[3].slice(0, 10)})*`)
   const tail = ru ? "\n\nСпросите подробнее про любой из них — я отвечу по тому, что вы читали и записали." : "\n\nAsk about any of them for details: I answer from what you read and noted."
   return [head, ...lines].join("\n") + tail
 }
@@ -169,8 +207,8 @@ const DAYS = "понедельник|вторник|среду|четверг|п
 function scriptedInsert(system: string, content: string): unknown {
   const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
   const found = (text: string) => ({
-    // A conversation's title first (quick insert sends the one around the field: "Conversation with: Olga Lobova").
-    name: text.match(/^Conversation with: ([A-ZА-ЯЁ][a-zа-яё]+)/m)?.[1] ?? text.match(/(?:Здравствуйте|Привет|Добрый день|Hi|Hello|Dear),?\s+([A-ZА-ЯЁ][a-zа-яё]+)/)?.[1] ?? text.match(/^([A-ZА-ЯЁ][a-zа-яё]+)(?:\s+[A-ZА-ЯЁ][a-zа-яё]+)?:/m)?.[1] ?? "",
+    // A conversation's title first (quick insert sends the one around the field: "Conversation: Maria Keller").
+    name: text.match(/^Conversation: ([A-ZА-ЯЁ][a-zа-яё]+)/m)?.[1] ?? text.match(/(?:Здравствуйте|Привет|Добрый день|Hi|Hello|Dear),?\s+([A-ZА-ЯЁ][a-zа-яё]+)/)?.[1] ?? text.match(/^([A-ZА-ЯЁ][a-zа-яё]+)(?:\s+[A-ZА-ЯЁ][a-zа-яё]+)?:/m)?.[1] ?? "",
     date: text.match(new RegExp(`\\d{1,2}\\s+(?:${MONTHS})`))?.[0] ?? "",
     day: text.match(new RegExp(`(?:${DAYS})`, "i"))?.[0] ?? "",
     time: text.match(/\b\d{1,2}:\d{2}\b/)?.[0] ?? "",
@@ -224,6 +262,20 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const body = init?.body ? JSON.parse(String(init.body)) : {}
     return new Response(JSON.stringify(rpc[fn]?.(body) ?? null), { headers: { "Content-Type": "application/json" } })
   }
+  // Read aloud (2.6): a tone as long as the text takes to say (about 14 characters a second; SPEAK_PACE=1.28: that much
+  // slower, as a real voice can be), in three pieces.
+  if (url === "https://generativelanguage.googleapis.com/v1beta/interactions") {
+    const body = JSON.parse(String(init?.body))
+    const text = String(body.input?.[0]?.content?.[0]?.text ?? "")
+    const samples = Math.max(2400, Math.round((text.length / 14) * (Number(process.env.SPEAK_PACE) || 1) * 24_000))
+    const pcm = Buffer.alloc(samples * 2)
+    for (let i = 0; i < samples; i++) pcm.writeInt16LE(Math.round(Math.sin((i / 24_000) * 2 * Math.PI * 330) * 6000 * Math.min(1, (samples - i) / 2400)), i * 2)
+    const third = Math.ceil(pcm.length / 6) * 2
+    const frames = [0, 1, 2].map((k) => pcm.subarray(k * third, (k + 1) * third)).filter((b) => b.length).map((b) =>
+      `event: step.delta\ndata: ${JSON.stringify({ index: 0, delta: { type: "audio", data: b.toString("base64") }, event_type: "step.delta" })}\n\n`)
+    frames.push(`event: interaction.completed\ndata: ${JSON.stringify({ interaction: { status: "completed", usage: { total_input_tokens: Math.ceil(text.length / 4), total_output_tokens: Math.round((samples / 24_000) * 25) } }, event_type: "interaction.completed" })}\n\n`)
+    return new Response(frames.join(""), { headers: { "Content-Type": "text/event-stream" } })
+  }
   if (url.startsWith("https://generativelanguage.googleapis.com/v1beta/models")) {
     if (!url.includes(":streamGenerateContent")) return new Response(JSON.stringify({ models: [{ name: "models/gemini-3.8-flash", supportedGenerationMethods: ["generateContent"] }] }))
     const body = JSON.parse(String(init?.body))
@@ -240,6 +292,13 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   // so it is told from quick insert's and page watch's by its system prompt.
   const judging = (b: { stream?: boolean; system?: unknown; output_config?: { format?: unknown } }) =>
     !b.stream && (!b.output_config?.format || String(b.system).startsWith("You help a person keep their own tags"))
+  // Organizing's chat name (2.6): the first question's first words, and a name never "fits" (so the stand renames).
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && String(JSON.parse(String(init?.body)).system).startsWith("You name a person's chat")) {
+    const body = JSON.parse(String(init?.body))
+    const question = /(?:Question|Note): (.+)/.exec(String(body.messages[0].content))?.[1] ?? "Chat"
+    const title = question.split(/\s+/).slice(0, 4).join(" ").replace(/[?.!,]+$/, "")
+    return new Response(JSON.stringify({ id: "msg_name", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ fits: false, title: `Topic: ${title}` }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 900, output_tokens: 20 } }), { headers: { "Content-Type": "application/json" } })
+  }
   if (url.startsWith("https://api.anthropic.com/v1/messages") && judging(JSON.parse(String(init?.body)))) {
     const body = JSON.parse(String(init?.body))
     const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
@@ -326,14 +385,16 @@ if (process.env.PREVIEW_PROMO === "1") {
   process.env.PROMO_KEY_ID = "STANDKEY01"
   process.env.PROMO_PRIVATE_KEY = privateKey.export({ type: "pkcs8", format: "pem" }).toString()
 }
-if (process.env.PREVIEW_PLAN === "pro" || process.env.PREVIEW_PLAN === "byok") {
+if (process.env.PREVIEW_PLAN === "pro" || process.env.PREVIEW_PLAN === "byok" || process.env.PREVIEW_PLAN === "ultra") {
   const { signJws, transaction, TEST_ROOT_FINGERPRINT } = await import("../../tests/helpers.mts")
   // The test chain is only accepted in tests: this local stand counts as one.
   process.env.NODE_ENV = "test"
   ;(await import("../../netlify/shared/apple.mts")).setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
   proJws = signJws(transaction(process.env.PREVIEW_PLAN === "byok"
     ? { productId: "com.contextflow.byok.monthly", originalTransactionId: "2000000777", expiresDate: Date.now() + 30 * 86_400_000 }
-    : { expiresDate: Date.now() + 30 * 86_400_000 }))
+    : process.env.PREVIEW_PLAN === "ultra"
+      ? { productId: "com.contextflow.ultra.monthly", originalTransactionId: "2000000888", expiresDate: Date.now() + 30 * 86_400_000 }
+      : { expiresDate: Date.now() + 30 * 86_400_000 }))
 }
 
 const chat = (await import("../../netlify/functions/v2-chat.mts")).default
@@ -344,7 +405,49 @@ const promo = (await import("../../netlify/functions/v2-promo.mts")).default
 const insert = (await import("../../netlify/functions/v2-insert.mts")).default
 const organize = (await import("../../netlify/functions/v2-organize.mts")).default
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
-const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
+const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
+const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
+const speakHeard = (await import("../../netlify/functions/v2-speak-heard.mts")).default
+// Read aloud with the real voices (and the real text for listening): the deploy preview answers, this stand signs each
+// request as Ultra for it.
+const proxied = async (path: string, base = process.env.SPEAK_PROXY): Promise<typeof chat | null> => {
+  if (!base || !process.env.SPEAK_EVAL_KEY) return null
+  const { createPrivateKey, sign } = await import("node:crypto")
+  const key = createPrivateKey(readFileSync(process.env.SPEAK_EVAL_KEY))
+  return (async (req: Request) => {
+    const text = await req.text()
+    const installId = String(JSON.parse(text).installId ?? "")
+    const at = Date.now()
+    const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
+    // A dropped connection to the preview is the device's network trouble, not the stand's end.
+    const res = await realFetch(`${base}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+      .catch(() => Response.json({ code: "UPSTREAM" }, { status: 502 }))
+    // fetch has already unpacked a compressed body: passing Netlify's Content-Encoding on would break it in the browser.
+    const headers = new Headers(res.headers)
+    headers.delete("content-encoding")
+    headers.delete("content-length")
+    return new Response(res.body, { status: res.status, headers })
+  }) as typeof chat
+}
+const speakAny: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
+const organizeAny: typeof chat = (await proxied("/api/v2/organize", process.env.ORGANIZE_PROXY)) ?? organize
+// SPEAK_FAIL_FROM_PART=1: every part from that one on fails (502), as a lost connection mid-text would (build 90: the
+// device must stop in the same voice and offer "Try again", never hand the rest to another voice).
+const speak: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
+  const failFrom = Number(process.env.SPEAK_FAIL_FROM_PART ?? NaN)
+  if (!Number.isFinite(failFrom)) return speakAny(req, context)
+  const text = await req.text()
+  const part = Number(JSON.parse(text || "{}").part ?? 0)
+  if (part >= failFrom) return Response.json({ code: "UPSTREAM", message: "Read aloud is busy. Please try again in a moment." }, { status: 502 })
+  return speakAny(new Request(req.url, { method: req.method, headers: req.headers, body: text }), context)
+}) as typeof chat
+const speakScript: typeof chat = (await proxied("/api/v2/speak-script")) ?? localScript
+const STATUS_DELAY_MS = Number(process.env.STATUS_DELAY_MS ?? 0)
+const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
+  if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
+  return status(req, context)
+}) as typeof chat
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -374,6 +477,9 @@ const pages: Record<string, string> = {
   "/order-ru": "order-ru.html",
   "/product": "product.html",
   "/product-ru": "product-ru.html",
+  // An investor page with its quarterly report as a PDF (store-pages: the screens about PDFs).
+  "/report": "report.html",
+  "/report-ru": "report-ru.html",
   // Quick insert's fields inside open shadow roots, and the same editor outside them (the owner, 2.5 (77): LinkedIn).
   "/shadow-fields": "shadow-fields.html",
   // The reply box of private messages (the owner, 2.5 (77): "it was in chats"): ?layout=page|overlay.
@@ -397,11 +503,119 @@ const STRICT_CSP = "media-src 'self'; img-src 'self'"
 const pdfs: Record<string, string> = {
   "/files/report.pdf": "files/report.pdf",
   "/files/scan.pdf": "files/scan.pdf",
-  "/files/private.pdf": "files/report.pdf"
+  "/files/private.pdf": "files/report.pdf",
+  "/files/q3-report.pdf": "files/q3-report.pdf",
+  "/files/q3-report-ru.pdf": "files/q3-report-ru.pdf"
+}
+
+// Find similar (2.6): a scripted answer in /api/v2/similar's own events (the real engine needs the web and our keys,
+// tools/similar/eval.mts runs it on a deploy preview). Find similar is Ultra's: without PREVIEW_PLAN=ultra, PRO_ONLY.
+const SIMILAR_STEP_MS = Number(process.env.SIMILAR_STEP_MS ?? 700)
+function similarItems(condition: string, ru = false) {
+  const cond = Boolean(condition.trim())
+  // A Russian page (/product-ru) gets the same list written in Russian, its prices against the page's 12 990 ₽ (the
+  // Tips clip in Russian; the real engine answers in the person's language).
+  if (ru) return [
+    { name: "Soundcore Space One", why: "Накладные, с адаптивным шумоподавлением и LDAC, как Aero 2, но с более мягким и лёгким оголовьем.", fit: cond ? "Дешевле: 9 990 ₽ против 12 990 ₽, в наличии." : "", met: cond ? "yes" : "n/a", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "9990 RUB", stock: "in", watch: { source: "ld-price", value: "9990 RUB" } },
+    { name: "Sony WH-CH720N", why: "Лёгкие наушники с шумоподавлением и похожей батареей на 35 часов; кодеков меньше.", fit: cond ? "Дешевле: 8 990 ₽ против 12 990 ₽, в наличии." : "", met: cond ? "yes" : "n/a", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/whch720n-b", host: "electronics.sony.com", title: "WH-CH720N", source: "item", checked: true, price: "8990 RUB", stock: "in", date: "2026-08-14", watch: { source: "ld-price", value: "8990 RUB" } },
+    { name: "JLab JBuds Lux ANC", why: "Недорогой вариант с активным шумоподавлением и эквалайзером в приложении, из свежей подборки.", fit: cond ? "На странице нет цены, так что «дешевле» не подтверждено." : "", met: cond ? "unknown" : "n/a", url: "https://www.soundguys.com/best-budget-noise-cancelling-headphones-7142/", host: "soundguys.com", title: "Лучшие недорогие наушники с шумоподавлением", source: "list", checked: true, date: "2026-10-02" },
+    { name: "EarFun Wave Pro", why: "LDAC и мультипойнт, как у Aero 2, и батарея держит дольше.", fit: cond ? "Магазин не пускает серверы на страницу, так что цена и наличие не подтверждены." : "", met: cond ? "unknown" : "n/a", url: "https://www.amazon.com/dp/B0CSKDX2SQ", host: "amazon.com", title: "EarFun Wave Pro", source: "item", checked: false }
+  ]
+  return [
+    { name: "Soundcore Space One", why: "Over-ear, adaptive noise cancelling and LDAC like the Aero 2, with a softer, lighter headband.", fit: cond ? "Cheaper: $99.99 against $129, in stock." : "", met: cond ? "yes" : "n/a", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "99.99 USD", stock: "in", watch: { source: "ld-price", value: "99.99 USD" } },
+    { name: "Sony WH-CH720N", why: "Light noise-cancelling headphones with a similar 35-hour battery; fewer codecs.", fit: cond ? "Cheaper: $89.99 against $129, in stock." : "", met: cond ? "yes" : "n/a", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/whch720n-b", host: "electronics.sony.com", title: "WH-CH720N", source: "item", checked: true, price: "89.99 USD", stock: "in", date: "2026-08-14", watch: { source: "ld-price", value: "89.99 USD" } },
+    { name: "JLab JBuds Lux ANC", why: "A budget pick with active noise cancelling and app EQ, named in a recent round-up.", fit: cond ? "The page shows no price, so cheaper isn't confirmed." : "", met: cond ? "unknown" : "n/a", url: "https://www.soundguys.com/best-budget-noise-cancelling-headphones-7142/", host: "soundguys.com", title: "Best budget noise-cancelling headphones", source: "list", checked: true, date: "2026-10-02" },
+    { name: "EarFun Wave Pro", why: "LDAC and multipoint like the Aero 2, with a longer battery.", fit: cond ? "The shop doesn't let servers open the page, so price and stock aren't confirmed." : "", met: cond ? "unknown" : "n/a", url: "https://www.amazon.com/dp/B0CSKDX2SQ", host: "amazon.com", title: "EarFun Wave Pro", source: "item", checked: false }
+  ]
+}
+// Build 95 (SIMILAR_STUB=b95): the list with what 95 adds — their very item at another shop, a price in another
+// currency with ≈ theirs, a close one that misses the chip, what people say; their own words "fail once" end the first
+// search with an error (Retry).
+function similarItems95(): Array<Record<string, unknown>> {
+  return [
+    { name: "Aero 2", why: "The same headphones you're looking at.", fit: "Cheaper: $109 against $129, in stock.", met: "yes", url: "https://shop.example/aero-2", host: "shop.example", title: "Aero 2", source: "item", checked: true, price: "109 USD", stock: "in", same: true, similarity: 100, differs: "The same model, at Shop Example" },
+    { name: "Soundcore Space One", why: "Over-ear, adaptive noise cancelling and LDAC like the Aero 2.", fit: "Cheaper: €84 (≈ $97) against $129.", met: "yes", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "84 EUR", priceLocal: "97 USD", stock: "in", similarity: 80, differs: "Softer, lighter headband", reviews: { rating: { value: 4.5, best: 5, count: 1287 }, pros: "comfort, battery", cons: "bass-heavy sound", sources: ["https://www.soundcore.com/products/space-one-a3035011"] } },
+    { name: "Sony WH-1000XM6", why: "Noise cancelling over-ears with the same codecs and multipoint.", fit: "Not cheaper: $399 against $129.", met: "no", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/wh1000xm6-b", host: "electronics.sony.com", title: "WH-1000XM6", source: "item", checked: true, price: "399 USD", stock: "in", similarity: 100, differs: "Stronger noise cancelling, three times the price" }
+  ]
+}
+// Store screenshots and previews (SIMILAR_STUB=store): the same list with made-up products and shops, so the App Store
+// shows no real brand; prices against the page's $129 / 12 990 ₽.
+function similarItemsStore(condition: string, ru = false): Array<Record<string, unknown>> {
+  const cond = Boolean(condition.trim())
+  const rows = ru
+    ? [
+        ["Halden Quiet One", "halden-audio.store", "Накладные, с адаптивным шумоподавлением и LDAC, как Aero 2, но с более мягким и лёгким оголовьем.", "Дешевле: 9 990 ₽ против 12 990 ₽, в наличии.", "9990 RUB"],
+        ["Lumen Air 720", "lumen-sound.store", "Лёгкие наушники с шумоподавлением и похожей батареей на 35 часов; кодеков меньше.", "Дешевле: 8 990 ₽ против 12 990 ₽, в наличии.", "8990 RUB"],
+        ["Brook Lux ANC", "brook-audio.store", "Недорогие, с активным шумоподавлением и эквалайзером в приложении.", "Дешевле: 6 490 ₽ против 12 990 ₽, в наличии.", "6490 RUB"],
+        ["Veda Wave Pro", "veda.store", "LDAC и мультипойнт, как у Aero 2, и батарея держит дольше.", "Магазин не пускает серверы на страницу, так что цена и наличие не подтверждены.", ""]
+      ]
+    : [
+        ["Halden Quiet One", "halden-audio.store", "Over-ear, adaptive noise cancelling and LDAC like the Aero 2, with a softer, lighter headband.", "Cheaper: $99.99 against $129, in stock.", "99.99 USD"],
+        ["Lumen Air 720", "lumen-sound.store", "Light noise-cancelling headphones with a similar 35-hour battery; fewer codecs.", "Cheaper: $89.99 against $129, in stock.", "89.99 USD"],
+        ["Brook Lux ANC", "brook-audio.store", "A budget pick with active noise cancelling and app EQ.", "Cheaper: $69 against $129, in stock.", "69 USD"],
+        ["Veda Wave Pro", "veda.store", "LDAC and multipoint like the Aero 2, with a longer battery.", "The shop doesn't let servers open the page, so price and stock aren't confirmed.", ""]
+      ]
+  return rows.map(([name, host, why, fit, price], i) => ({
+    name, why, fit: cond ? fit : "", met: cond ? (price ? "yes" : "unknown") : "n/a", url: `https://${host}/${name.toLowerCase().replace(/ /g, "-")}`,
+    host, title: name, source: "item", checked: Boolean(price), ...(price ? { price, stock: "in", watch: { source: "ld-price", value: price } } : {}),
+    ...(i === 1 ? { date: "2026-08-14" } : {})
+  }))
+}
+let similarFailedOnce = false
+
+async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
+  if (process.env.PREVIEW_PLAN !== "ultra") {
+    res.writeHead(403, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ code: "PRO_ONLY", plan: "free", feature: "similar" }))
+    return
+  }
+  res.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-cache" })
+  const send = (e: unknown) => res.write(`data: ${JSON.stringify(e)}\n\n`)
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
+  const condition = typeof body.condition === "string" ? body.condition : ""
+  const ru = /[а-яё]/i.test(`${condition} ${typeof body.selection === "string" ? body.selection : ""} ${JSON.stringify(body.page ?? "").slice(0, 400)}`)
+  send({ type: "progress", step: "plan" })
+  await wait(SIMILAR_STEP_MS)
+  send({ type: "progress", step: "search", queries: [ru ? "беспроводные наушники с шумоподавлением как Aero 2" : "wireless noise cancelling headphones like Aero 2"] })
+  await wait(SIMILAR_STEP_MS * 2)
+  send({ type: "progress", step: "check", pages: 12 })
+  await wait(SIMILAR_STEP_MS)
+  send({ type: "progress", step: "write", verified: 9 })
+  if (process.env.SIMILAR_STUB === "b95" && /fail once/i.test(String(body.words ?? "")) && !similarFailedOnce) {
+    similarFailedOnce = true
+    send({ type: "error", code: "UPSTREAM" })
+    res.end()
+    return
+  }
+  const items = process.env.SIMILAR_STUB === "b95" ? similarItems95() : process.env.SIMILAR_STUB === "store" ? similarItemsStore(condition, ru) : similarItems(condition, ru)
+  for (const [i, item] of items.entries()) {
+    await wait(SIMILAR_STEP_MS * 0.7)
+    send({ type: "item", engine: "a", index: i, item })
+  }
+  await wait(200)
+  const intro = ru ? "Беспроводные наушники с шумоподавлением, похожие на Aero 2; каждую страницу мы только что открыли и проверили." : "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now."
+  send({ type: "result", engine: "a", intro, items, note: "", condition: condition ? "cheaper" : "none" })
+  send({ type: "done", ms: 9000, usd: 0 })
+  res.end()
 }
 
 createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost")
+  if (url.pathname === "/api/v2/similar" && req.method === "POST") {
+    const chunks: Buffer[] = []
+    for await (const c of req) chunks.push(c as Buffer)
+    let body: Record<string, unknown> = {}
+    try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")) } catch { /* not JSON */ }
+    aiRequests.push(url.pathname)
+    lastSimilarRequest = body
+    await similarStub(body, res)
+    return
+  }
+  if (url.pathname === "/last-similar") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(lastSimilarRequest))
+    return
+  }
   const handler = handlers[url.pathname] ?? null
   if (handler) {
     const chunks: Buffer[] = []
@@ -410,7 +624,9 @@ createServer(async (req, res) => {
     if (url.pathname === "/api/v2/event") {
       try {
         const sent = JSON.parse(Buffer.concat(chunks).toString("utf8"))
-        panelEvents.push(`${sent.kind}:${sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""}${sent.what ? `:${sent.what}` : ""}`)
+        // A feature step: "use:tour.step:pick" (f.a and what).
+        const what = sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""
+        panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}`)
       } catch {
         // not JSON
       }
@@ -435,10 +651,22 @@ createServer(async (req, res) => {
       headers: { ...(req.headers as Record<string, string>), "content-length": String(raw.length) },
       body: req.method === "POST" ? raw : undefined
     })
+    const t0 = Date.now()
     const response = await handler(request, { ip: "127.0.0.1", waitUntil: () => undefined } as any)
     res.writeHead(response.status, Object.fromEntries(response.headers))
-    if (response.body) for await (const c of response.body as any) res.write(c)
+    let bytes = 0
+    // Read aloud's minutes as the server counts them (build 92: what's heard), for the stand's log.
+    const heardReply: Buffer[] = []
+    if (response.body) for await (const c of response.body as any) {
+      bytes += c.length
+      res.write(c)
+      if (url.pathname === "/api/v2/speak-heard") heardReply.push(Buffer.from(c))
+    }
     res.end()
+    if (process.env.STAND_LOG === "1") {
+      const usage = response.headers.get("X-CF-Usage") ?? (heardReply.length ? Buffer.concat(heardReply).toString() : "")
+      console.log(`${new Date().toISOString().slice(11, 19)} ${url.pathname} ${response.status} ${bytes} B ${Date.now() - t0} ms${usage ? ` ${usage}` : ""}`)
+    }
     return
   }
   // The audit's pages (2.5): fields whose site keeps its own buttons inside them (a search like Amazon's, a
@@ -522,6 +750,7 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
   }
   if (url.pathname === "/reset") {
     counters.clear()
+    tours.clear()
     aiRequests.length = 0
     panelEvents.length = 0
     res.end("ok")
@@ -530,6 +759,12 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
   // Captions of the lecture video (the video itself isn't needed: the panel reads the captions).
   if (/^\/files\/lecture(-ru)?\.vtt$/.test(url.pathname)) {
     res.writeHead(200, { "Content-Type": "text/vtt; charset=utf-8" })
+    res.end(readFileSync(new URL(`.${url.pathname}`, import.meta.url)))
+    return
+  }
+  // The report's first page as a picture (report.html shows it, the PDF itself sits in an <embed>).
+  if (/^\/files\/[\w-]+\.png$/.test(url.pathname)) {
+    res.writeHead(200, { "Content-Type": "image/png" })
     res.end(readFileSync(new URL(`.${url.pathname}`, import.meta.url)))
     return
   }

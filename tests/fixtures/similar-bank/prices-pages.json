@@ -1,0 +1,1374 @@
+{
+ "about": "Shop item pages for the price reader, as plain HTML a server gets, cut to what the reader looks at (gzipped). The p pages: 2.6 eval pages our server read no price on (the director's render experiment), without the owner's own cases and with Cyprus cut to five (the overfit review, S11). The n pages: shops of the markets the set lacked (ru, uk, zh, zh-Hant, vi, ar, fr, es-MX), labelled by hand, blind. want: the item's price as a person sees it on the page (null: the page shows none). read: what the reader read when the case was banked. Scored: right, wrong (a price that isn't the item's: worse than none), none.",
+ "cases": [
+  {
+   "id": "p01",
+   "url": "https://fast-track-usa.com/products/airvent-one-touch",
+   "host": "fast-track-usa.com",
+   "country": "US",
+   "file": "prices-pages/p01.html.gz",
+   "want": null,
+   "note": "no shop on the page: sells through Amazon ('View on Amazon')",
+   "read": null
+  },
+  {
+   "id": "p02",
+   "url": "https://eastpak.com.cy/product/cabin-pakr-black/",
+   "host": "eastpak.com.cy",
+   "country": "CY",
+   "file": "prices-pages/p02.html.gz",
+   "want": 84.95,
+   "read": {
+    "amount": 84.95,
+    "currency": "EUR",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p03",
+   "url": "https://getvacpack.com/product/vacpack",
+   "host": "getvacpack.com",
+   "country": "",
+   "file": "prices-pages/p03.html.gz",
+   "want": 24.99,
+   "read": {
+    "amount": 24.99,
+    "currency": "USD",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p04",
+   "url": "https://ghsports.com/product/mens-brooks-ghost-17/",
+   "host": "ghsports.com",
+   "country": "US",
+   "file": "prices-pages/p04.html.gz",
+   "want": 109.95,
+   "read": {
+    "amount": 109.95,
+    "currency": "USD",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "p05",
+   "url": "https://book.yamazen.co.jp/product/detail/I00005742",
+   "host": "book.yamazen.co.jp",
+   "country": "JP",
+   "file": "prices-pages/p05.html.gz",
+   "want": null,
+   "note": "no shop on the page: maker's catalogue site, separate online shop",
+   "read": null
+  },
+  {
+   "id": "p06",
+   "url": "https://home.woot.com/offers/primula-classic-moka-pot-stovetop-espresso-and-coffee-maker-5",
+   "host": "home.woot.com",
+   "country": "IT",
+   "file": "prices-pages/p06.html.gz",
+   "want": null,
+   "note": "out of stock, no price shown: woot: Sold Out",
+   "read": {
+    "amount": 16.99,
+    "currency": "USD",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "p07",
+   "url": "https://prodevision.com/es/gafas-de-sol-arnette-an4242-fastball-20-0181",
+   "host": "prodevision.com",
+   "country": "ES",
+   "file": "prices-pages/p07.html.gz",
+   "want": 64.99,
+   "read": {
+    "amount": 64.99,
+    "currency": "EUR",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p08",
+   "url": "https://ergsolutionsonline.com/product/herman-miller-model-mirra-2-color-gray-refurbished-office-chair/",
+   "host": "ergsolutionsonline.com",
+   "country": "US",
+   "file": "prices-pages/p08.html.gz",
+   "want": 459.99,
+   "read": {
+    "amount": 459.99,
+    "currency": "USD",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p09",
+   "url": "https://kakaku.com/item/K0001613464/?lid=itemview_bbs_product",
+   "host": "kakaku.com",
+   "country": "JP",
+   "file": "prices-pages/p09.html.gz",
+   "want": null,
+   "note": "a comparison site's page: the prices on it are compared models' (the render took KPT03JP's for KPT01JP)",
+   "read": null
+  },
+  {
+   "id": "p10",
+   "url": "https://sailproof.shop/product/sp08x-high-end-8inch-android-rugged-tablet/",
+   "host": "sailproof.shop",
+   "country": "CY",
+   "file": "prices-pages/p10.html.gz",
+   "want": 912.5,
+   "note": "price range; the low end (912,50 €) is shown first",
+   "read": {
+    "amount": 912.5,
+    "currency": "EUR",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p11",
+   "url": "https://hottracks.kyobobook.co.kr/gift/detail/S000216256072",
+   "host": "hottracks.kyobobook.co.kr",
+   "country": "KR",
+   "file": "prices-pages/p11.html.gz",
+   "want": 38700,
+   "read": {
+    "amount": 38700,
+    "currency": "KRW",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p12",
+   "url": "https://us.roborock.com/pages/roborock-saros-20-flow",
+   "host": "us.roborock.com",
+   "country": "US",
+   "file": "prices-pages/p12.html.gz",
+   "want": null,
+   "note": "no shop on the page: marketing page with a 'Buy Now' link to the shop",
+   "read": null
+  },
+  {
+   "id": "p13",
+   "url": "https://veniceleathershop.com/product/antonio-made-in-italy-leather-wallet/",
+   "host": "veniceleathershop.com",
+   "country": "CY",
+   "file": "prices-pages/p13.html.gz",
+   "want": null,
+   "note": "out of stock, no price shown: Sold out",
+   "read": null
+  },
+  {
+   "id": "p14",
+   "url": "https://surfbox.de/dachboxen-shop/dachboxen/skiboxen/black-shark-die-flache-premium-dachbox-200-km-h/",
+   "host": "surfbox.de",
+   "country": "DE",
+   "file": "prices-pages/p14.html.gz",
+   "want": 899,
+   "read": {
+    "amount": 899,
+    "currency": "EUR",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p16",
+   "url": "https://whatsnewcyprus.com/balitsa-kampinas-10kg-me-4-rodes-gogo-luggage-arion",
+   "host": "whatsnewcyprus.com",
+   "country": "CY",
+   "file": "prices-pages/p16.html.gz",
+   "want": 37.9,
+   "read": null
+  },
+  {
+   "id": "p17",
+   "url": "https://wolt.com/en/cyp/nicosia/venue/migant-accessories/migant-design-leather-wallet-card-hold-itemid-663dd8461948b943b707cfea",
+   "host": "wolt.com",
+   "country": "CY",
+   "file": "prices-pages/p17.html.gz",
+   "want": 23.99,
+   "note": "the item's €23.99 sits in a dialog lower in the page; the venue's 'Min. order €15.00' isn't it",
+   "read": null
+  },
+  {
+   "id": "p18",
+   "url": "https://www.ariete.net/en/product/Ariete-air-fryer-airy-fryer-7l-metal-4628",
+   "host": "www.ariete.net",
+   "country": "DE",
+   "file": "prices-pages/p18.html.gz",
+   "want": null,
+   "note": "no shop on the page: maker's catalogue page",
+   "read": null
+  },
+  {
+   "id": "p19",
+   "url": "https://tr.aliexpress.com/item/1005007457887707.html?gatewayAdapt=glo2tur",
+   "host": "www.aliexpress.com",
+   "country": "US",
+   "file": "prices-pages/p19.html.gz",
+   "want": 4.65,
+   "note": "AliExpress answered this Mac in Turkish with EUR prices",
+   "read": null
+  },
+  {
+   "id": "p21",
+   "url": "https://systemsoffice.com/shop/steelcase-leap-v2-black/",
+   "host": "systemsoffice.com",
+   "country": "US",
+   "file": "prices-pages/p21.html.gz",
+   "want": 599,
+   "read": {
+    "amount": 599,
+    "currency": "USD",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p22",
+   "url": "https://www.avene.co.uk/p/eau-thermale-avene-ultra-fluid-invisible-3282770392654-b5405ca4",
+   "host": "www.avene.co.uk",
+   "country": "DE",
+   "file": "prices-pages/p22.html.gz",
+   "want": null,
+   "note": "no shop on the page: brand page, 'Buy online / Where to buy' links to retailers",
+   "read": null
+  },
+  {
+   "id": "p23",
+   "url": "https://www.balfesbikes.co.uk/bikes/folding-bikes/tern-link-b7-folding-bike-with-20-inch-wheels-2023-7-speed-in-light-blue__10567",
+   "host": "www.balfesbikes.co.uk",
+   "country": "GB",
+   "file": "prices-pages/p23.html.gz",
+   "want": 399,
+   "note": "item marked inactive, price still shown",
+   "read": {
+    "amount": 399,
+    "currency": "GBP",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p24",
+   "url": "https://www.angeloni.com.br/eletro/jogo-de-panelas-monaco-com-5-pecas-preto-tramontina-3708332/p",
+   "host": "www.angeloni.com.br",
+   "country": "BR",
+   "file": "prices-pages/p24.html.gz",
+   "want": 649.61,
+   "note": "PIX price; card price R$ 729,90",
+   "read": null
+  },
+  {
+   "id": "p25",
+   "url": "https://www.bose.com/p/holiday-sale/bose-lifestyle-ultra-speaker/LSULT-SPEAKERWIRELESS.html",
+   "host": "www.bose.com",
+   "country": "US",
+   "file": "prices-pages/p25.html.gz",
+   "want": 349,
+   "read": {
+    "amount": 349,
+    "currency": "USD",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p26",
+   "url": "https://www.brooksrunning.com/en_us/mens/shoes/road-running-shoes/ghost-18-gtx/110492.html",
+   "host": "www.brooksrunning.com",
+   "country": "DE",
+   "file": "prices-pages/p26.html.gz",
+   "want": 180,
+   "read": {
+    "amount": 180,
+    "currency": "USD",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p27",
+   "url": "https://www.bose.de/p/headphones/bose-quietcomfort-ultra-headphones-2nd-gen/QCUH2-HEADPHONEARN.html",
+   "host": "www.bose.de",
+   "country": "DE",
+   "file": "prices-pages/p27.html.gz",
+   "want": 449.95,
+   "read": {
+    "amount": 449.95,
+    "currency": "EUR",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p28",
+   "url": "https://www.caravanbacci.com/prodotto/caffettiera-moka-3-tazze/",
+   "host": "www.caravanbacci.com",
+   "country": "IT",
+   "file": "prices-pages/p28.html.gz",
+   "want": 15.9,
+   "note": "€15,90; the empty cart's '€0,00' isn't it",
+   "read": {
+    "amount": 15.9,
+    "currency": "EUR",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p30",
+   "url": "https://www.asus.com/us/laptops/for-home/zenbook/asus-zenbook-s-13-oled-ux5304/",
+   "host": "www.asus.com",
+   "country": "US",
+   "file": "prices-pages/p30.html.gz",
+   "want": null,
+   "note": "no shop on the page: marketing page",
+   "read": null
+  },
+  {
+   "id": "p32",
+   "url": "https://www.cyclesolutions.co.uk/bikes/folding-bikes/dahon-eezz-d3-16w-2018-folding-bike--dark-blue--16-wheel__33062",
+   "host": "www.cyclesolutions.co.uk",
+   "country": "GB",
+   "file": "prices-pages/p32.html.gz",
+   "want": 900,
+   "note": "item marked inactive, price still shown",
+   "read": {
+    "amount": 900,
+    "currency": "GBP",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p33",
+   "url": "https://www.dachbox.org/vdp/ca480-480-liter-carbon-look-dachbox/",
+   "host": "www.dachbox.org",
+   "country": "DE",
+   "file": "prices-pages/p33.html.gz",
+   "want": null,
+   "note": "not an item page: a roof-box review site",
+   "read": null
+  },
+  {
+   "id": "p34",
+   "url": "https://www.croma.com/croma-200w-bluetooth-party-speaker-with-uhf-mic-6000mah-power-bank-black-/p/305327",
+   "host": "www.croma.com",
+   "country": "IN",
+   "file": "prices-pages/p34.html.gz",
+   "want": null,
+   "note": "out of stock, no price shown: discontinued",
+   "read": null
+  },
+  {
+   "id": "p35",
+   "url": "https://www.de.eucerin.ch/produkte/sonnenschutz/eucerin-sun-face-photoaging-control-fluid-lsf50-plus",
+   "host": "www.de.eucerin.ch",
+   "country": "DE",
+   "file": "prices-pages/p35.html.gz",
+   "want": null,
+   "note": "no shop on the page: brand page, 'Händlersuche / Produkt kaufen'",
+   "read": null
+  },
+  {
+   "id": "p36",
+   "url": "https://www.discounto.de/Angebot/KitchenAid-Kuechenmaschine-5KSM175PSEPT-PISTAZIE-300-W-4-8-l-Schuessel-mit-Zubehoer-im-Wert-von-ca-112-UVP-8753512/",
+   "host": "www.discounto.de",
+   "country": "DE",
+   "file": "prices-pages/p36.html.gz",
+   "want": 515.28,
+   "note": "a deal-tracker page (price at OTTO)",
+   "read": {
+    "amount": 515.28,
+    "currency": "EUR",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p37",
+   "url": "https://www.dsw.com/product/brooks-ghost-17-running-shoe---mens/596785",
+   "host": "www.dsw.com",
+   "country": "US",
+   "file": "prices-pages/p37.html.gz",
+   "want": null,
+   "note": "blocked or bot check: dsw.com answers with an error page ('something went wrong'), plain and rendered",
+   "read": null
+  },
+  {
+   "id": "p38",
+   "url": "https://www.dermasence.com/products/solvineamed-sun-protection-facial-fluid-spf-50-plus",
+   "host": "www.dermasence.com",
+   "country": "DE",
+   "file": "prices-pages/p38.html.gz",
+   "want": null,
+   "note": "no shop on the page: brand page, 'Where to buy'",
+   "read": null
+  },
+  {
+   "id": "p39",
+   "url": "https://www.eau-thermale-avene.de/p/intense-protect-spf-50-3282770141214-0c591b54",
+   "host": "www.eau-thermale-avene.de",
+   "country": "DE",
+   "file": "prices-pages/p39.html.gz",
+   "want": null,
+   "note": "no shop on the page: brand page, 'Verkaufsstellen / Online kaufen'",
+   "read": null
+  },
+  {
+   "id": "p42",
+   "url": "https://www.edifier.com/global/p/bookshelf-speakers/s1000w",
+   "host": "www.edifier.com",
+   "country": "US",
+   "file": "prices-pages/p42.html.gz",
+   "want": null,
+   "note": "no shop on the page: brand page, 'Buy Now' to retailers",
+   "read": null
+  },
+  {
+   "id": "p43",
+   "url": "https://www.eprice.it/Moka-e-Caffetteria-Pezzetti-Caffettiera-Macchina-Per-Il-Caffe-Moka-Italexpress-3-Tazze-Alluminio-Tz03-8000743001205/d-55709247",
+   "host": "www.eprice.it",
+   "country": "IT",
+   "file": "prices-pages/p43.html.gz",
+   "want": 10.06,
+   "read": {
+    "amount": 10.06,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "p45",
+   "url": "https://www.eucerin.de/produkte/sonnenschutz/photoaging-control-face-sun-fluid-lsf-50",
+   "host": "www.eucerin.de",
+   "country": "DE",
+   "file": "prices-pages/p45.html.gz",
+   "want": null,
+   "note": "no shop on the page: brand page, 'Online bestellen / Apotheke finden'",
+   "read": null
+  },
+  {
+   "id": "p46",
+   "url": "https://www.elliottsboots.com/sperry-mens-seacycled-soletide-sneakers-white",
+   "host": "www.elliottsboots.com",
+   "country": "US",
+   "file": "prices-pages/p46.html.gz",
+   "want": 79.95,
+   "note": "out of stock, price still shown",
+   "read": {
+    "amount": 79.95,
+    "currency": "USD",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "p47",
+   "url": "https://www.expert.de/shop/unsere-produkte/haushalt-kuche/kuchengerate/kuchenmaschinen/36301129450-kuechenmaschine-5ksm125eac.html",
+   "host": "www.expert.de",
+   "country": "DE",
+   "file": "prices-pages/p47.html.gz",
+   "want": 378,
+   "note": "machine-readable 378 € right; the visible rule took an accessory's 58,99 € (the main price is written '378.-' with no € sign)",
+   "read": {
+    "amount": 378,
+    "currency": "EUR",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p48",
+   "url": "https://www.faradworld.com/de/p/2862-dachbox-farad-koral-schwarz-glanzend-480l/",
+   "host": "www.faradworld.com",
+   "country": "DE",
+   "file": "prices-pages/p48.html.gz",
+   "want": null,
+   "note": "no shop on the page: maker's page, 'Finden Sie den nächsten Händler'",
+   "read": null
+  },
+  {
+   "id": "p50",
+   "url": "https://www.geox.com/en-US/low_top_sneakers-black-spherica_ecub-1.1_abx_man-U56LUC00046C9999.html",
+   "host": "www.geox.com",
+   "country": "US",
+   "file": "prices-pages/p50.html.gz",
+   "want": null,
+   "note": "blocked or bot check: geox.com: 'not possible to purchase this item in the country you are currently in' (this Mac is in Cyprus)",
+   "read": null
+  },
+  {
+   "id": "p51",
+   "url": "https://www.home24.de/produkt/ohrensessel-classic-mit-hocker",
+   "host": "www.home24.de",
+   "country": "DE",
+   "file": "prices-pages/p51.html.gz",
+   "want": null,
+   "note": "out of stock, no price shown: 'zurzeit nicht verfügbar'",
+   "read": null
+  },
+  {
+   "id": "p52",
+   "url": "https://www.ferramentascuritiba.com.br/2204/conjunto-panelas-aluminio-5-pcs-aa-cereja-panelux-magnific",
+   "host": "www.ferramentascuritiba.com.br",
+   "country": "BR",
+   "file": "prices-pages/p52.html.gz",
+   "want": 168.3,
+   "read": {
+    "amount": 168.3,
+    "currency": "BRL",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "p53",
+   "url": "https://www.ikea.com/de/de/p/poaeng-sessel-und-hocker-eiche-kelinge-beige-s79625698/",
+   "host": "www.ikea.com",
+   "country": "DE",
+   "file": "prices-pages/p53.html.gz",
+   "want": 149,
+   "read": {
+    "amount": 149,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "p55",
+   "url": "https://www.irobot.com/en_US/roomba-max-875-combo-robot.html",
+   "host": "www.irobot.com",
+   "country": "US",
+   "file": "prices-pages/p55.html.gz",
+   "want": null,
+   "note": "no shop on the page: marketing page, 'Shop Max 875 Combo'",
+   "read": null
+  },
+  {
+   "id": "p56",
+   "url": "https://www.kikaustore.it/vendita-online/alessi-caffettiera-espresso-la-cupola/35204/",
+   "host": "www.kikaustore.it",
+   "country": "IT",
+   "file": "prices-pages/p56.html.gz",
+   "want": 95,
+   "note": "price of the variant selected by default (6 cups)",
+   "read": {
+    "amount": 95,
+    "currency": "EUR",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "p57",
+   "url": "https://www.larocheposay.co.kr/product/view/4794.do",
+   "host": "www.larocheposay.co.kr",
+   "country": "KR",
+   "file": "prices-pages/p57.html.gz",
+   "want": 59000,
+   "read": null
+  },
+  {
+   "id": "p58",
+   "url": "https://www.lojaspompeia.com/chinelo-havaianas-slim-glitter-neon-feminino-rosa-37191_158/p",
+   "host": "www.lojaspompeia.com",
+   "country": "BR",
+   "file": "prices-pages/p58.html.gz",
+   "want": null,
+   "note": "the item page now redirects to a listing; its prices are other items'",
+   "read": null
+  },
+  {
+   "id": "p59",
+   "url": "https://www.longho.it/prodotto/alessi-portabottiglie-noe-bianco/",
+   "host": "www.longho.it",
+   "country": "IT",
+   "file": "prices-pages/p59.html.gz",
+   "want": 68,
+   "read": {
+    "amount": 68,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "p60",
+   "url": "https://www.kenmore.com/products/kenmore-elite-5-qt-400-watt-blue-stand-mixer-with-extra-3-qt-bowl/",
+   "host": "www.kenmore.com",
+   "country": "US",
+   "file": "prices-pages/p60.html.gz",
+   "want": null,
+   "note": "no shop on the page: maker's page without a price",
+   "read": null
+  },
+  {
+   "id": "p61",
+   "url": "https://www.lotuselectronics.com/product/headphones/realme-wireless-ear-phone-buds-q2s-black/33673",
+   "host": "www.lotuselectronics.com",
+   "country": "IN",
+   "file": "prices-pages/p61.html.gz",
+   "want": 1899,
+   "note": "machine-readable only; the page writes '1,899' with no ₹ sign",
+   "read": null
+  },
+  {
+   "id": "p63",
+   "url": "https://www.neutrogena.com/products/neutrogena-hydro-boost-niacinamide-serum-fragrance-free/6810389",
+   "host": "www.neutrogena.com",
+   "country": "US",
+   "file": "prices-pages/p63.html.gz",
+   "want": null,
+   "note": "no shop on the page: brand page, 'Where to Buy'",
+   "read": null
+  },
+  {
+   "id": "p64",
+   "url": "https://www.nordicnest.it/marche/bodum/bollitore-bistro-swan-neck-8-tazze/",
+   "host": "www.nordicnest.it",
+   "country": "IT",
+   "file": "prices-pages/p64.html.gz",
+   "want": 82.95,
+   "read": {
+    "amount": 82.95,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "p65",
+   "url": "https://www.pittol.com.br/calcado-feminino",
+   "host": "www.pittol.com.br",
+   "country": "BR",
+   "file": "prices-pages/p65.html.gz",
+   "want": null,
+   "note": "the item page now redirects to a listing; its prices are other items'",
+   "read": null
+  },
+  {
+   "id": "p66",
+   "url": "https://www.sanitino.it/concept-bollitore-elettrico-volume-1-7-l-2200-w-acciaio-inox-rk3260",
+   "host": "www.sanitino.it",
+   "country": "IT",
+   "file": "prices-pages/p66.html.gz",
+   "want": 24.15,
+   "read": {
+    "amount": 24.15,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "p67",
+   "url": "https://www.secom-group.org/shop/casalinghi/bialetti-set-moka-together-macchinetta-macchina-moka-express-3-tazze-tazzine-caffe/",
+   "host": "www.secom-group.org",
+   "country": "IT",
+   "file": "prices-pages/p67.html.gz",
+   "want": 10.9,
+   "read": {
+    "amount": 10.9,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "p68",
+   "url": "https://www.tiger-corporation.com/ja/jpn/product/kettle-pot/pck-t/",
+   "host": "www.tiger-corporation.com",
+   "country": "JP",
+   "file": "prices-pages/p68.html.gz",
+   "want": null,
+   "note": "no shop on the page: maker's page; an old store price sits in commented-out HTML",
+   "read": {
+    "amount": 10800,
+    "currency": "JPY",
+    "from": "text"
+   }
+  },
+  {
+   "id": "p69",
+   "url": "https://www.torriden.com/goods/goods_view.php?goodsNo=58",
+   "host": "www.torriden.com",
+   "country": "KR",
+   "file": "prices-pages/p69.html.gz",
+   "want": null,
+   "note": "unclear: torriden.com: no product price in the rendered text; the plain text rule's 30,000원 is the free-shipping threshold",
+   "read": null
+  },
+  {
+   "id": "p70",
+   "url": "https://www.yazawa.co.jp/products/item/26467/",
+   "host": "www.yazawa.co.jp",
+   "country": "JP",
+   "file": "prices-pages/p70.html.gz",
+   "want": null,
+   "note": "out of stock, no price shown: 生産完了品 (discontinued)",
+   "read": null
+  },
+  {
+   "id": "p71",
+   "url": "https://www.zeroid.co.kr/web/product/product_detail.asp?idx=323",
+   "host": "www.zeroid.co.kr",
+   "country": "KR",
+   "file": "prices-pages/p71.html.gz",
+   "want": null,
+   "note": "no shop on the page: brand page, '판매처 찾기' (find a seller)",
+   "read": null
+  },
+  {
+   "id": "p72",
+   "url": "https://www.zojirushi-direct.com/item/CKDB08_CA.html",
+   "host": "www.zojirushi-direct.com",
+   "country": "JP",
+   "file": "prices-pages/p72.html.gz",
+   "want": 5478,
+   "read": {
+    "amount": 5478,
+    "currency": "JPY",
+    "from": "text"
+   }
+  },
+  {
+   "id": "n01",
+   "url": "https://www.divan.ru/product/divan-klajmar-velvet-terra",
+   "host": "www.divan.ru",
+   "country": "RU",
+   "file": "prices-pages/n01.html.gz",
+   "want": 57592,
+   "note": "sofa; three prices: big \"цена по промокоду\" 51 257 (code 1111 shown on page, until 15 Nov), \"Без промокода\" 57 592, 71 990 struck. Labelled the no-code price; promo price is arguable",
+   "read": {
+    "amount": 57592,
+    "currency": "RUB",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n02",
+   "url": "https://www.kuchenland.ru/product/butylka-dlya-masla-ili-uksusa-360-ml-s-dozatorom-keramika-d-stal-molochnaya-flavor-amour/",
+   "host": "www.kuchenland.ru",
+   "country": "RU",
+   "file": "prices-pages/n02.html.gz",
+   "want": 990,
+   "note": "oil bottle, single price 990 ₽; \"Рекомендуем\" block below has 1 290 ₽",
+   "read": {
+    "amount": 990,
+    "currency": "RUB",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n03",
+   "url": "https://www.detmir.ru/product/index/id/1709591/",
+   "host": "www.detmir.ru",
+   "country": "RU",
+   "file": "prices-pages/n03.html.gz",
+   "want": 139,
+   "note": "hygiene gel; 139 ₽ shown, −15%, 165 ₽ old; separate \"-15% на 3 и более\" multi-buy promo",
+   "read": {
+    "amount": 139,
+    "currency": "RUB",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n04",
+   "url": "https://zarina.ru/catalog/product/zr2611121902-50/",
+   "host": "zarina.ru",
+   "country": "RU",
+   "file": "prices-pages/n04.html.gz",
+   "want": 701,
+   "note": "lingerie; 701 ₽ vs old 899 ₽ (−22%), sizes 42–48; \"175.25 ₽ х 4 платежа\" installment; JSON-LD price is a nested object (common_price/discount_price)",
+   "read": {
+    "amount": 701,
+    "currency": "RUB",
+    "from": "text"
+   }
+  },
+  {
+   "id": "n05",
+   "url": "https://biggeek.ru/products/aramidnyj-cehol-dla-airpods-pro-3-magsafe-pitaka-aramid-fiber-case",
+   "host": "biggeek.ru",
+   "country": "RU",
+   "file": "prices-pages/n05.html.gz",
+   "want": 5590,
+   "note": "AirPods case; 5 590 ₽, five colour variants all 5 590 ₽",
+   "read": {
+    "amount": 5590,
+    "currency": "RUB",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n06",
+   "url": "https://polaris.ru/catalog/elektricheskie-zubnye-shchetki/polaris-petb-0220t-graphit/",
+   "host": "polaris.ru",
+   "country": "RU",
+   "file": "prices-pages/n06.html.gz",
+   "want": null,
+   "note": "manufacturer page: no price and no cart (page state price:null), only \"Где купить\" in footer",
+   "read": null
+  },
+  {
+   "id": "n07",
+   "url": "https://jabko.ua/product/apple-iphone-17-256gb-light-blue",
+   "host": "jabko.ua",
+   "country": "UA",
+   "file": "prices-pages/n07.html.gz",
+   "want": 44999,
+   "note": "iPhone 17 256GB; 49 999 грн old, -5 000 грн, 44 999 грн shown; 256/512GB and used-condition options; protection plans \"від 2 549 грн\" nearby",
+   "read": null
+  },
+  {
+   "id": "n08",
+   "url": "https://ardesto.com/products/mikroxvilova-pich-ardesto-go-s725w/",
+   "host": "ardesto.com",
+   "country": "UA",
+   "file": "prices-pages/n08.html.gz",
+   "want": 2699,
+   "note": "brand page, no cart: \"2 699 грн.* Рекомендована роздрібна ціна\" + \"Де купити\". RRP label",
+   "read": {
+    "amount": 2699,
+    "currency": "UAH",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n09",
+   "url": "https://www.brocard.ua/ua/product/baza-pid-makiyazh-guerlain-meteorites-cc-glow-30-ml-005441",
+   "host": "www.brocard.ua",
+   "country": "UA",
+   "file": "prices-pages/n09.html.gz",
+   "want": null,
+   "note": "\"Тимчасово немає в наявності\", no price on the page; JSON-LD still carries 2613.00 UAH",
+   "read": {
+    "amount": 2613,
+    "currency": "UAH",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n10",
+   "url": "https://prostor.ua/ua/product/kondicioner-la-ferme-laminaria-dlja-volossja-vidnovljujuchij-pine-eucalyptus-500-ml/",
+   "host": "prostor.ua",
+   "country": "UA",
+   "file": "prices-pages/n10.html.gz",
+   "want": 379,
+   "note": "hair conditioner; 379,00 ₴ vs 649,00 ₴ old, \"Вигода 270,00 ₴\", -41%",
+   "read": {
+    "amount": 379,
+    "currency": "UAH",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n11",
+   "url": "https://megasport.ua/ua/product/adidas_down-puf-vest_3b7d32298490/",
+   "host": "megasport.ua",
+   "country": "UA",
+   "file": "prices-pages/n11.html.gz",
+   "want": 6990,
+   "note": "down vest; \"6 990 грн повна ціна\" vs \"6 291 грн з клубною карткою\" (club-card price, members only)",
+   "read": {
+    "amount": 6990,
+    "currency": "UAH",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "n12",
+   "url": "https://sofino.ua/come-for-matras-relaks-premium-160-200/g-20977",
+   "host": "sofino.ua",
+   "country": "UA",
+   "file": "prices-pages/n12.html.gz",
+   "want": 9751,
+   "note": "mattress 160x200; old 11 725, current 9 751; currency sign is an empty CSS span (no ₴ text); size list, \"від 1951 грн / міс.\" credit",
+   "read": {
+    "amount": 9751,
+    "currency": "UAH",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n13",
+   "url": "https://www.dyson.cn/571452-01-571h-cnc-copper.html",
+   "host": "www.dyson.cn",
+   "country": "CN",
+   "file": "prices-pages/n13.html.gz",
+   "want": 3899,
+   "note": "Dyson Ontrac headphones; \"补货中\" (restocking) + \"建议零售价 ¥3,899\"; buy button \"前往购买\"",
+   "read": {
+    "amount": 3899,
+    "currency": "CNY",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "n14",
+   "url": "https://www.ikea.cn/cn/zh/p/klippan-ke-li-pa-shuang-ren-sha-fa-bang-si-ta-hei-se-10399315/",
+   "host": "www.ikea.cn",
+   "country": "CN",
+   "file": "prices-pages/n14.html.gz",
+   "want": 1999,
+   "note": "KLIPPAN sofa ¥1,999.00 (split into spans); first <h1> on page is a site-wide SEO title; \"商品暂时缺货\" text in the address/stock panel",
+   "read": {
+    "amount": 1999,
+    "currency": "CNY",
+    "from": "text"
+   }
+  },
+  {
+   "id": "n15",
+   "url": "https://www.apple.com.cn/iphone-17/",
+   "host": "www.apple.com.cn",
+   "country": "CN",
+   "file": "prices-pages/n15.html.gz",
+   "want": null,
+   "note": "marketing page, no price anywhere; only \"购买\" links",
+   "read": null
+  },
+  {
+   "id": "n16",
+   "url": "https://www.nike.com.cn/t/zoom-skylon-11-%E7%8E%8B%E5%98%89%E5%B0%94%E5%90%8C%E6%AC%BE%E8%80%90%E5%85%8B%E5%A4%A7%E7%99%BD%E7%89%99%E7%94%B7%E5%AD%90%E8%BF%90%E5%8A%A8%E9%9E%8B-eKdJSjDU/IU1869-101",
+   "host": "www.nike.com.cn",
+   "country": "CN",
+   "file": "prices-pages/n16.html.gz",
+   "want": 619,
+   "note": "sneakers; ¥619 sale vs ¥849, \"27% 折让\"",
+   "read": {
+    "amount": 619,
+    "currency": "CNY",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n17",
+   "url": "https://www.apple.com.cn/shop/product/hs462z/a",
+   "host": "www.apple.com.cn",
+   "country": "CN",
+   "file": "prices-pages/n17.html.gz",
+   "want": 1198,
+   "note": "game controller in Apple Store; \"RMB 1,198\" (currency as RMB text); installment \"RMB 50/月 (24 期)\"; h1 sits in a noscript-style header block",
+   "read": null
+  },
+  {
+   "id": "n18",
+   "url": "https://www.chanel.cn/cn/fragrance/p/120080/n5-extrait-set-floral-abstract-intense/",
+   "host": "www.chanel.cn",
+   "country": "CN",
+   "file": "prices-pages/n18.html.gz",
+   "want": 4000,
+   "note": "N°5 extrait; \"30 ml - ￥4,000\" (size + price on one line); button is \"联系我们\", not add-to-cart",
+   "read": {
+    "amount": 4000,
+    "currency": "CNY",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n19",
+   "url": "https://www.toysrus.com.tw/zh-tw/dan-da-dan%E8%86%BD%E5%A4%A7%E9%BB%A8-%E7%B5%A8%E6%AF%9B-%E9%AB%98%E9%80%9F%E5%A9%86%E5%A9%86%E8%B2%93%E7%89%88-%E8%88%9E%E7%8D%85%E7%89%88-10136809.html",
+   "host": "www.toysrus.com.tw",
+   "country": "TW",
+   "file": "prices-pages/n19.html.gz",
+   "want": 449,
+   "note": "plush toy; \"$449\" (bare $ = NT$); first <h1> is a nav heading \"選購受歡迎品牌\"; shipping text has $1500/$120/$300",
+   "read": {
+    "amount": 449,
+    "currency": "TWD",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n20",
+   "url": "https://www.ikea.com.tw/zh/products/cabinets/bookcases/billy-art-00522047",
+   "host": "www.ikea.com.tw",
+   "country": "TW",
+   "file": "prices-pages/n20.html.gz",
+   "want": 2290,
+   "note": "BILLY white; \"$ 2,290\"; other colours \"+$ 300\"",
+   "read": {
+    "amount": 2290,
+    "currency": "TWD",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "n21",
+   "url": "https://www.decathlon.tw/p/成人款中筒籃球鞋-canaveral-900-alex-sarr-簽名款-kipsta-8826698.html",
+   "host": "www.decathlon.tw",
+   "country": "TW",
+   "file": "prices-pages/n21.html.gz",
+   "want": 2999,
+   "note": "basketball shoe; Next.js page, no h1/price in static HTML text; price only in page JSON (value 2999 = referenceValue, 0% off). Label is what the rendered page would show",
+   "read": null
+  },
+  {
+   "id": "n22",
+   "url": "https://www.apple.com/tw/iphone-17/",
+   "host": "www.apple.com",
+   "country": "TW",
+   "file": "prices-pages/n22.html.gz",
+   "want": null,
+   "note": "marketing page, no item price; only a financing footnote \"NT$1,500 以上之購買金額\"",
+   "read": null
+  },
+  {
+   "id": "n23",
+   "url": "https://www.studioa.com.tw/products/000u3h",
+   "host": "www.studioa.com.tw",
+   "country": "TW",
+   "file": "prices-pages/n23.html.gz",
+   "want": 18400,
+   "note": "iPad 11 256GB at Apple reseller; \"網路價 NT$ 18,400\"; title/h1 contain gift value \"$2880\"",
+   "read": {
+    "amount": 18400,
+    "currency": "TWD",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n24",
+   "url": "https://www.drwu.com/products/ceramide-hydrating-serum-mask-4pcs",
+   "host": "www.drwu.com",
+   "country": "TW",
+   "file": "prices-pages/n24.html.gz",
+   "want": 499,
+   "note": "face mask 4pcs; NT$499; promo banners nearby: \"單件55折\" (for designated items), spend thresholds 11111/8111/4111…; JSON price_sale 0",
+   "read": {
+    "amount": 499,
+    "currency": "TWD",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n25",
+   "url": "https://cellphones.com.vn/iphone-16-pro-max.html",
+   "host": "cellphones.com.vn",
+   "country": "VN",
+   "file": "prices-pages/n25.html.gz",
+   "want": 30990000,
+   "note": "iPhone 16 Pro Max 256GB; 30.990.000đ vs 34.990.000đ struck; page body has long price-table article (30.790.000–46.990.000, iPhone 18 prices) that must be ignored",
+   "read": {
+    "amount": 30990000,
+    "currency": "VND",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n26",
+   "url": "https://nhaxinh.com/san-pham/armchair-flow-green/",
+   "host": "nhaxinh.com",
+   "country": "VN",
+   "file": "prices-pages/n26.html.gz",
+   "want": 13900001,
+   "note": "armchair; \"13,900,001 VND\" literally (odd trailing 1), comma thousands",
+   "read": {
+    "amount": 13900001,
+    "currency": "VND",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "n27",
+   "url": "https://elmich.vn/bo-noi-inox-lien-khoi-elmich-el2487in02-size-16-20-24-chao-24cm",
+   "host": "elmich.vn",
+   "country": "VN",
+   "file": "prices-pages/n27.html.gz",
+   "want": 2360000,
+   "note": "cookware set; 2.360.000₫ vs 2.949.000₫ struck, -20%",
+   "read": {
+    "amount": 2360000,
+    "currency": "VND",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "n28",
+   "url": "https://thegioiskinfood.com/products/sua-rua-mat-dang-dau-d-alba-white-truffle-return-oil-cream-cleanser",
+   "host": "thegioiskinfood.com",
+   "country": "VN",
+   "file": "prices-pages/n28.html.gz",
+   "want": 491000,
+   "note": "cleanser; \"SẮP VỀ HÀNG\" (coming back), 912,000₫ old (CSS strike) / 491,000₫; JSON-LD price 49100000.0 is x100 wrong",
+   "read": {
+    "amount": 491000,
+    "currency": "VND",
+    "from": "meta"
+   }
+  },
+  {
+   "id": "n29",
+   "url": "https://canifa.com/ao-khoac-active-nam-8ot25w024",
+   "host": "canifa.com",
+   "country": "VN",
+   "file": "prices-pages/n29.html.gz",
+   "want": 399500,
+   "note": "men jacket; 799.000 ₫ old, -50%, 399.500 ₫; sizes S–XXL",
+   "read": {
+    "amount": 399500,
+    "currency": "VND",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n30",
+   "url": "https://hoanghamobile.com/dien-thoai/samsung-galaxy-s25-ultra",
+   "host": "hoanghamobile.com",
+   "country": "VN",
+   "file": "prices-pages/n30.html.gz",
+   "want": 25390000,
+   "note": "Galaxy S25 Ultra 256GB; flash sale 25.390.000đ vs 33.990.000đ, -25%; installment \"2.962.000đ\", member discounts 305.000đ",
+   "read": {
+    "amount": 25390000,
+    "currency": "VND",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n31",
+   "url": "https://www.extra.com/ar-sa/small-appliances/home-environment-care/vacuum-cleaner/bissell-powerclean-drum-vacuum-cleaner-2000-watt-21-liter-with-blower-function/p/100009425",
+   "host": "www.extra.com",
+   "country": "SA",
+   "file": "prices-pages/n31.html.gz",
+   "want": 399,
+   "note": "drum vacuum; price rendered client-side: page JSON priceData 599, discountPrice 399 (33% off); no price in static text",
+   "read": {
+    "amount": 399,
+    "currency": "SAR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n32",
+   "url": "https://niceonesa.com/ar/beauty-creations-flawless-stay-concealer-n32070",
+   "host": "niceonesa.com",
+   "country": "SA",
+   "file": "prices-pages/n32.html.gz",
+   "want": 45,
+   "note": "concealer; \"45 شامل الضريبة\", currency shown as an icon (no SAR text); shade selector; recommendations below with 59, 41.40/69…",
+   "read": {
+    "amount": 45,
+    "currency": "SAR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n33",
+   "url": "https://www.ikea.com/eg/ar/p/dyvlinge-swivel-easy-chair-kelinge-orange-00581918/",
+   "host": "www.ikea.com",
+   "country": "EG",
+   "file": "prices-pages/n33.html.gz",
+   "want": 9995,
+   "note": "swivel chair; \"جنيه 9,995\"",
+   "read": {
+    "amount": 9995,
+    "currency": "EGP",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n34",
+   "url": "https://btech.com/ar/p/012251d6-c872-47db-be03-c4e12687f205?offering_id=682a006c-8f26-41ee-8ae6-f0d612be4837",
+   "host": "btech.com",
+   "country": "EG",
+   "file": "prices-pages/n34.html.gz",
+   "want": 9499,
+   "note": "Infinix Smart 20 128GB; \"9,499 ج.م\"; \"أسعار من بائعين آخرين من 9,330 ج.م\" (other sellers) is a trap; 64GB option",
+   "read": {
+    "amount": 9499,
+    "currency": "EGP",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n35",
+   "url": "https://www.danubehome.com/ae/ar/p/akira-stone-top-end-table-w-1-drawer-white-grey-810302600922",
+   "host": "www.danubehome.com",
+   "country": "AE",
+   "file": "prices-pages/n35.html.gz",
+   "want": 699,
+   "note": "end table; AED 699 vs 1,285, \"46% خص - لقد وفرت AED 586\"; Arabic UI but English product name; bundle item 1,799/2,855 right next to it",
+   "read": {
+    "amount": 699,
+    "currency": "AED",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n36",
+   "url": "https://www.mumzworld.com/ar/lego-duplo-animal-train",
+   "host": "www.mumzworld.com",
+   "country": "AE",
+   "file": "prices-pages/n36.html.gz",
+   "want": null,
+   "note": "\"غير متوفر في المخزون حالياً\", no price shown on page; JSON-LD/state still 199 AED",
+   "read": {
+    "amount": 199,
+    "currency": "AED",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n37",
+   "url": "https://www.tefal.fr/p/ingenio-preference-casserole-18-cm/2100125111",
+   "host": "www.tefal.fr",
+   "country": "FR",
+   "file": "prices-pages/n37.html.gz",
+   "want": 36.99,
+   "note": "saucepan 18 cm; \"Prix 36,99 €\"; page >1.5 MB, file is truncated",
+   "read": {
+    "amount": 36.99,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n38",
+   "url": "https://www.pradel-france.com/lot-de-3-casseroles-inox-1-poignee-amovible-p706.html",
+   "host": "www.pradel-france.com",
+   "country": "FR",
+   "file": "prices-pages/n38.html.gz",
+   "want": 99.9,
+   "note": "\"Prix public 99,90 € TTC\" vs \"Prix CSE -50% 49,95 €\" (works-council members only, \"Profiter de ce tarif\"); JSON-LD 83.25 is ex-VAT",
+   "read": {
+    "amount": 49.95,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n39",
+   "url": "https://www.petit-bateau.fr/bebe-fille/sous-vetements-et-nuit/pyjamas/pyjama-bebe-en-coton-uni-marquise/A0FIZ03.html",
+   "host": "www.petit-bateau.fr",
+   "country": "FR",
+   "file": "prices-pages/n39.html.gz",
+   "want": 19,
+   "note": "baby pyjama; 19,00€ for every size 1M–24M",
+   "read": {
+    "amount": 19,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n40",
+   "url": "https://www.yves-rocher.fr/corps-et-douche/soin-du-corps/creme-mains/baume-mains-reparateur-karite-marron-glace/p/01722",
+   "host": "www.yves-rocher.fr",
+   "country": "FR",
+   "file": "prices-pages/n40.html.gz",
+   "want": 6.99,
+   "note": "hand balm 75 ml; price only inside <yr-price price='{\"original\":\"6,99 €\"}'> web component; visible text has unit price \"9,32 € / 100ml\"; carousel cards with 24,99/36,77 etc.",
+   "read": null
+  },
+  {
+   "id": "n41",
+   "url": "https://www.joueclub.fr/jeux-de-constructions-maquettes/lego-75951-l-evasion-de-grindelwald-harry-potter-5702016110340.html",
+   "host": "www.joueclub.fr",
+   "country": "FR",
+   "file": "prices-pages/n41.html.gz",
+   "want": 29.99,
+   "note": "LEGO set, out of stock (schema OutOfStock); price block is an Angular template filled from page JSON valueWithTax 29.99",
+   "read": {
+    "amount": 29.99,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n42",
+   "url": "https://www.camif.fr/p/table-basse-bois-agatha-10040007",
+   "host": "www.camif.fr",
+   "country": "FR",
+   "file": "prices-pages/n42.html.gz",
+   "want": 199,
+   "note": "coffee table 199,00 € (\"Dont 1,44 € d'éco-part\"); delivery \"dès 14,90 €\"",
+   "read": {
+    "amount": 199,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n43",
+   "url": "https://www.atlantic.fr/Chauffer-l-eau/Chauffe-eau/Chauffe-eau-electrique/Lineo-Connecte",
+   "host": "www.atlantic.fr",
+   "country": "FR",
+   "file": "prices-pages/n43.html.gz",
+   "want": 744,
+   "note": "water heater brand page, no cart (\"Obtenez un devis\"); \"A partir de 744 € TTC*\" (reduced VAT) / 811 € TTC (20% VAT); 40 L first of 6 capacities",
+   "read": {
+    "amount": 744,
+    "currency": "EUR",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n44",
+   "url": "https://www.liverpool.com.mx/tienda/pdp/base-de-maquillaje-l%c3%adquido-coverage-mate/1192824484",
+   "host": "www.liverpool.com.mx",
+   "country": "MX",
+   "file": "prices-pages/n44.html.gz",
+   "want": 475.3,
+   "note": "foundation 30 ml; \"$ 475 . 30\" vs \"$ 679 . 00\" old; colours/size",
+   "read": {
+    "amount": 475,
+    "currency": "MXN",
+    "from": "text"
+   }
+  },
+  {
+   "id": "n45",
+   "url": "https://www.steren.com.mx/audifonos-bluetooth-multipunto-con-active-noise-cancelling.html",
+   "host": "www.steren.com.mx",
+   "country": "MX",
+   "file": "prices-pages/n45.html.gz",
+   "want": 556,
+   "note": "ANC headphones; \"Precio anterior: $695.00\", \"Ahorra $139 (20%)\", $556.00; SterenCard $55.60; JSON-LD price 239 is wrong",
+   "read": {
+    "amount": 556,
+    "currency": "MXN",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n46",
+   "url": "https://www.t-fal.com.mx/vaporizador-de-mano-t-fal-aerosteam-twist-con-succion-7211005601/p",
+   "host": "www.t-fal.com.mx",
+   "country": "MX",
+   "file": "prices-pages/n46.html.gz",
+   "want": 1999,
+   "note": "handheld steamer $1,999.00 (split spans); banner \"ENVÍO GRATIS DESDE $1,999\" has the same number",
+   "read": {
+    "amount": 1999,
+    "currency": "MXN",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n47",
+   "url": "https://www.juguetron.mx/barbie-doncellas-vestido-rosa-con-mariposas/p",
+   "host": "www.juguetron.mx",
+   "country": "MX",
+   "file": "prices-pages/n47.html.gz",
+   "want": 359,
+   "note": "Barbie doll $359.00; coupon text \"$100 … mayores a $999\"",
+   "read": {
+    "amount": 359,
+    "currency": "MXN",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n48",
+   "url": "https://www.marti.mx/pants-under-armour-entrenamiento-1127879695/p",
+   "host": "www.marti.mx",
+   "country": "MX",
+   "file": "prices-pages/n48.html.gz",
+   "want": 539.46,
+   "note": "UA pants; $539.46 vs $999.00 struck; badges -46% / -40% / -10%; sizes CH–EGD",
+   "read": {
+    "amount": 539.46,
+    "currency": "MXN",
+    "from": "ld"
+   }
+  },
+  {
+   "id": "n49",
+   "url": "https://www.mueblesamerica.mx/colchon-america-doral-individual-amer00727-1colc08917.html?childSku=AMER00727",
+   "host": "www.mueblesamerica.mx",
+   "country": "MX",
+   "file": "prices-pages/n49.html.gz",
+   "want": 3299,
+   "note": "mattress individual; \"Precio de contado De: $4,099.00 A: $3,299.00\"; \"Notificarme cuando esté disponible\" (likely out of stock); warranty $344, credit \"$104.00 semanales\"",
+   "read": null
+  }
+ ]
+}

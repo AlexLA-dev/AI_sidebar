@@ -46,5 +46,11 @@ export interface NativeEntitlement {
   // Own key: the first refusal this period (ms; in the app or the panel) and whether the discount was shown.
   byokRefusedAt?: number
   byokOfferShown?: boolean
+  // 2.6: the App Store's prices as the app last loaded them (product id → display price).
+  prices?: Record<string, string>
+  // Build 90: the last plan that started on this device (from, to: "free" | "byok" | "pro" | "ultra"; at: ms).
+  planChange?: { from?: string; to?: string; productId?: string; at?: number }
+  // Build 94: the texts heard to their end in the app on this device (shared/voiced.ts ids); taken out before it's kept.
+  voiced?: string[]
   jws: string | null
 }

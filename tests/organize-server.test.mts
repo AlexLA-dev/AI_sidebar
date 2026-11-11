@@ -14,7 +14,7 @@ type Item = { subject: string; period: string; limit: number | null }
 let counters = new Map<string, number>()
 let events: Array<{ kind: string; data: Record<string, unknown> }> = []
 let embeddings: { calls: number; status?: number; lastBody?: Record<string, any> } = { calls: 0 }
-let claude: { calls: number; status?: number; errorType?: string; text: string; stop?: string; lastBody?: Record<string, any> } = { calls: 0, text: "" }
+let claude: { calls: number; status?: number; errorType?: string; text: string; compare?: string; stop?: string; lastBody?: Record<string, any>; bodies: Array<Record<string, any>> } = { calls: 0, text: "", bodies: [] }
 let nano: { calls: number; status?: number; text: string; lastBody?: Record<string, any> } = { calls: 0, text: "" }
 
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
@@ -54,8 +54,11 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     claude.calls++
     claude.lastBody = body
+    claude.bodies.push(body)
     if (claude.status) return json({ type: "error", error: { type: claude.errorType ?? "api_error", message: "failed" } }, claude.status)
-    return json({ id: "msg_1", type: "message", role: "assistant", model: "claude-haiku-5-5", content: [{ type: "text", text: claude.text }], stop_reason: claude.stop ?? "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } })
+    // The comparison of two names (2.6 (94)) has its own answer.
+    const text = String(body.system).startsWith("You compare") ? claude.compare ?? '{"better":"same"}' : claude.text
+    return json({ id: "msg_1", type: "message", role: "assistant", model: "claude-haiku-5-5", content: [{ type: "text", text }], stop_reason: claude.stop ?? "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } })
   }
   if (url === "https://api.openai.com/v1/chat/completions") {
     nano.calls++
@@ -66,6 +69,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   throw new Error(`unexpected fetch ${url}`)
 }) as typeof fetch
 
+let setNameOrderForTests: (next: () => number) => void
 let organize: (req: Request, ctx: any) => Promise<Response>
 let status: (req: Request, ctx: any) => Promise<Response>
 let config: { anthropicKey: string; organize: { enabled: boolean; embedDaily: number; tagsDaily: number; thresholds: Record<string, number> } }
@@ -74,6 +78,7 @@ before(async () => {
   ;(await import("../netlify/shared/apple.mts")).setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
   config = (await import("../netlify/shared/config.mts")).config as never
   organize = (await import("../netlify/functions/v2-organize.mts")).default
+  setNameOrderForTests = (await import("../netlify/shared/organize.mts")).setNameOrderForTests
   status = (await import("../netlify/functions/v2-status.mts")).default
 })
 
@@ -81,12 +86,13 @@ beforeEach(() => {
   counters = new Map()
   events = []
   embeddings = { calls: 0 }
-  claude = { calls: 0, text: '{"tags":[{"tag":"work","fits":true,"confidence":0.9},{"tag":"#travel","fits":false,"confidence":0.8},{"tag":"invented","fits":true,"confidence":1}]}' }
+  claude = { calls: 0, bodies: [], text: '{"tags":[{"tag":"work","fits":true,"confidence":0.9},{"tag":"#travel","fits":false,"confidence":0.8},{"tag":"invented","fits":true,"confidence":1}]}' }
   nano = { calls: 0, text: '{"tags":[{"tag":"work","fits":true,"confidence":0.75}]}' }
   config.anthropicKey = "sk-ant-test"
   config.organize.enabled = true
   config.organize.embedDaily = 150
   config.organize.tagsDaily = 300
+  ;(config.organize as Record<string, unknown>).nameDaily = 200
 })
 
 function ctx() {
@@ -173,6 +179,87 @@ test("tags: when Claude fails, refuses or has no key, gpt-5-nano answers; both d
   assert.equal(r.res.status, 502)
   assert.equal(r.body.code, "UPSTREAM")
   assert.equal(counters.get("organize:tags:tx:2000000123"), 3)
+})
+
+test("name (2.6): Haiku names the chat in the person's words, checks the current name, and the text never reaches the logs", async () => {
+  claude.text = '{"fits":false,"title":"  «Sorting chats by topic.»  "}'
+  // 2.6 (94): the new name only when the comparison of both says it's better; the new one first here (A).
+  claude.compare = '{"better":"A"}'
+  setNameOrderForTests(() => 0.2)
+  const chat = "Page: ContextFlow\nQuestion: How do I sort my chats by topic?\nAnswer: Turn on suggestions"
+  const { res, body } = await call({ op: "name", chat, current: "what is this?" })
+  assert.equal(res.status, 200)
+  assert.deepEqual(body, { fits: false, title: "Sorting chats by topic" })
+  const [named, compared] = claude.bodies
+  assert.equal(named.output_config.format.schema.required.join(), "fits,title")
+  assert.match(named.messages[0].content, /<current>\nwhat is this\?\n<\/current>/)
+  assert.match(named.system, /language most of the person's own questions/)
+  assert.match(compared.messages[0].content, /<names>\nA: Sorting chats by topic\nB: what is this\?\n<\/names>/)
+  assert.equal(compared.output_config.format.schema.properties.better.enum.join(), "A,B,same")
+  assert.equal(counters.get("organize:name:tx:2000000123"), 1)
+  const logged = events.find((e) => e.kind === "organize_api")!.data
+  assert.equal(logged.op, "name")
+  assert.equal(logged.checked, true)
+  assert.equal(logged.compared, "new")
+  assert.equal(logged.prompt_tokens, 3200)
+  assert.ok(!JSON.stringify(events).includes("sort"))
+  // The current name wins or neither is better: it stays. The other order: the current one first (A).
+  setNameOrderForTests(() => 0.7)
+  claude.compare = '{"better":"A"}'
+  assert.deepEqual((await call({ op: "name", chat, current: "Chat sorting" })).body, { fits: true, title: "Sorting chats by topic" })
+  assert.match(claude.lastBody?.messages[0].content, /A: Chat sorting\nB: Sorting chats by topic/)
+  claude.compare = '{"better":"same"}'
+  assert.deepEqual((await call({ op: "name", chat, current: "Chat sorting" })).body, { fits: true, title: "Sorting chats by topic" })
+  claude.compare = '{"better":"B"}'
+  assert.deepEqual((await call({ op: "name", chat, current: "Chat sorting" })).body, { fits: false, title: "Sorting chats by topic" })
+  // The same name in other capitals: it stays, nothing compared.
+  const asked = claude.calls
+  assert.deepEqual((await call({ op: "name", chat, current: "sorting chats BY TOPIC" })).body, { fits: true, title: "Sorting chats by topic" })
+  assert.equal(claude.calls, asked + 1)
+  // It fits already: no comparison.
+  claude.text = '{"fits":true,"title":"Sorting chats"}'
+  const before = claude.calls
+  assert.deepEqual((await call({ op: "name", chat, current: "Chat sorting" })).body, { fits: true, title: "Sorting chats" })
+  assert.equal(claude.calls, before + 1)
+  // A comparison that says nothing: no answer (the quota comes back).
+  claude.text = '{"fits":false,"title":"Sorting chats"}'
+  claude.compare = '{"better":"maybe"}'
+  nano.text = '{"better":"maybe"}'
+  assert.equal((await call({ op: "name", chat, current: "Chat sorting" })).res.status, 502)
+  setNameOrderForTests(Math.random)
+  // No current name: never "fits".
+  claude.text = '{"fits":true,"title":"Sorting chats"}'
+  assert.deepEqual((await call({ op: "name", chat })).body, { fits: false, title: "Sorting chats" })
+  assert.match(claude.lastBody?.messages[0].content, /There is no current name/)
+  // Claude down: gpt-5-nano names it.
+  claude.status = 529
+  nano.text = '{"fits":true,"title":"Sorting chats"}'
+  assert.deepEqual((await call({ op: "name", chat, current: "Chats" })).body, { fits: true, title: "Sorting chats" })
+  assert.equal(nano.lastBody?.response_format.json_schema.name, "name")
+  claude.status = undefined
+  // An empty title is no answer.
+  claude.text = '{"fits":false,"title":"  "}'
+  nano.text = '{"fits":false,"title":""}'
+  assert.equal((await call({ op: "name", chat })).res.status, 502)
+  assert.equal((await call({ op: "name", chat: "  " })).res.status, 400)
+})
+
+test("a request signed with the measuring key counts as a subscriber on a deploy preview, never in production", async () => {
+  const { generateKeyPairSync, sign } = await import("node:crypto")
+  const { privateKey, publicKey } = generateKeyPairSync("ed25519")
+  process.env.CF_EVAL_PUBLIC_KEY = publicKey.export({ type: "spki", format: "der" }).toString("base64")
+  const asSigned = (deploy: string, key = privateKey) => {
+    const at = Date.now()
+    const req = request({ op: "embed", texts: ["a"], entitlement: null })
+    const signature = sign(null, Buffer.from(`${INSTALL}.${at}`), key).toString("base64url")
+    const signed = new Request(req, { headers: { ...Object.fromEntries(req.headers), "x-cf-eval": `${at}.${signature}` } })
+    return organize(signed, { ...ctx(), deploy: { context: deploy, id: "d1", published: false } })
+  }
+  assert.equal((await asSigned("deploy-preview")).status, 200)
+  assert.equal(counters.get(`organize:embed:tx:eval-${INSTALL}`), 1)
+  assert.equal((await asSigned("production")).status, 403)
+  assert.equal((await asSigned("deploy-preview", generateKeyPairSync("ed25519").privateKey)).status, 403)
+  delete process.env.CF_EVAL_PUBLIC_KEY
 })
 
 test("only Pro: free and Own key get PRO_ONLY before anything is charged or sent", async () => {

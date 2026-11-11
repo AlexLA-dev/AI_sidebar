@@ -29,11 +29,37 @@ import AppKit
 /// - `watch_notify` / `watch_permission` / `watch_sync` → page watch: the local notification when a watch's
 ///   condition came true, whether notifications are allowed, this device's watches for the app's list (back:
 ///   the ones stopped in the app), see WatchStore.
+/// - `listen` → read aloud on iPhone and iPad (2.6, Ultra): the text's parts go to the app through the App Group;
+///   answers the request's `id`, and the page opens contextflow://listen?id=… (the app plays it with the screen locked).
+/// - `tipClip` → a Tips clip for the panel (2.6 (91)): `name`, `lang` (the panel's language: its clips, else the
+///   person's next language that has them, else English), `offset`; answers `ok`, the clip's
+///   `total` size and up to 256 KB of it from `offset` (base64), read from the app's copy in the App Group.
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
 /// the panel sends when it opens, that it is in use), so the app can drop its setup guide and reminders.
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
+
+    /// Asked of the App Store at most once a minute, never in a reply's way.
+    nonisolated(unsafe) private static var pricesAskedAt: Date?
+
+    static func loadPricesSoon() {
+        if let at = pricesAskedAt, Date().timeIntervalSince(at) < 60 { return }
+        pricesAskedAt = Date()
+        Task.detached(priority: .utility) { await SafariWebExtensionHandler.loadPrices() }
+    }
+
+    /// The plans' prices from the App Store, into the App Group (at most 4 s; nothing when it can't answer).
+    static func loadPrices() async {
+        let load = Task { try? await Product.products(for: PlanProducts.all) }
+        let timeout = Task {
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            load.cancel()
+        }
+        let products = await load.value ?? []
+        timeout.cancel()
+        if !products.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(products, storefront: await Storefront.current?.countryCode)) }
+    }
 
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem
@@ -49,8 +75,18 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         switch command {
         case "getEntitlement":
             Task {
+                let started = Date()
+                // No prices from the app yet: the extension asks the App Store itself, in the background, for the next
+                // time (build 92: waiting for it here made the reply miss the panel's 6 s, so the panel showed Free,
+                // with no prices, until Safari was restarted).
+                if SharedDefaults.shared.readPrices().isEmpty { Self.loadPricesSoon() }
                 let entitlement = await Self.currentEntitlement()
-                Self.reply(context, ["success": true, "data": entitlement.dictionary])
+                var data = entitlement.dictionary
+                data["ms"] = Int(Date().timeIntervalSince(started) * 1000)
+                // Build 94: the texts heard to their end in the app on this device (Listen's "already voiced" mark).
+                let voiced = SharedDefaults.shared.voicedIds()
+                if !voiced.isEmpty { data["voiced"] = voiced }
+                Self.reply(context, ["success": true, "data": data])
             }
         case "openApp":
             #if os(macOS)
@@ -97,7 +133,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 guard let id = item["id"] as? String else { return nil }
                 if item["deleted"] as? Bool == true { return .delete(id) }
                 guard let updatedAt = (item["updatedAt"] as? NSNumber)?.int64Value, let data = item["data"] as? String else { return nil }
-                return .save(ChatSync.Snapshot(id: id, updatedAt: updatedAt, data: data))
+                return .save(ChatSync.Snapshot(id: id, updatedAt: updatedAt, data: data, base: (item["base"] as? NSNumber)?.int64Value))
             }
             Task {
                 let result = await Self.withTimeout(seconds: 18) { try await ChatSync.sync(token: token, changes: changes) }
@@ -200,6 +236,142 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // This device's watches for the app's list; back, the ones stopped in the app.
             let stopped = WatchStore.sync(message["watches"] as? [[String: Any]] ?? [])
             Self.reply(context, ["success": true, "data": ["cancelled": stopped]])
+        case "listen":
+            let parts = (message["parts"] as? [String] ?? []).prefix(80).map { String($0.prefix(4000)) }
+            guard !parts.isEmpty else {
+                Self.reply(context, ["success": false, "error": "no text"])
+                return
+            }
+            let id = SharedDefaults.shared.writeListenRequest([
+                "parts": Array(parts),
+                // The raw text, and whether the app writes it for the ear first (tables, lists, a page…).
+                "text": String((message["text"] as? String ?? "").prefix(24_000)),
+                "script": message["script"] as? Bool ?? false,
+                "lang": String((message["lang"] as? String ?? "").prefix(16)),
+                "what": message["what"] as? String == "page" ? "page" : "answer",
+                "title": String((message["title"] as? String ?? "").prefix(200)),
+                "url": String((message["url"] as? String ?? "").prefix(2000))
+            ], id: message["id"] as? String)
+            Self.reply(context, ["success": true, "data": ["id": id]])
+        // Read aloud on the user's devices (2.6): the Mac panel plays through Safari, so the extension reaches iCloud
+        // for it (SpeechSync). A part comes as AAC (the panel decodes it); a part made here goes up as PCM in pieces
+        // (native messages stay small), encoded and kept when the last piece is in.
+        case "speechGet":
+            let key = message["key"] as? String ?? ""
+            Task {
+                // Never more than 0.8 s (build 92: a native call held for seconds kept the plan waiting behind it).
+                let aac = key.isEmpty ? nil : await SpeechSync.fetchPartAAC(key, wait: min(0.8, (message["wait"] as? Double) ?? 0.8))
+                Self.reply(context, ["success": true, "data": aac.map { ["aac": $0.base64EncodedString()] } ?? [:]])
+            }
+        case "speechPut":
+            let key = message["key"] as? String ?? ""
+            let piece = (message["data"] as? String).flatMap { Data(base64Encoded: $0) } ?? Data()
+            let index = message["index"] as? Int ?? 0
+            let last = message["last"] as? Bool ?? true
+            guard key.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+                  let folder = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedDefaults.suiteName)?.appendingPathComponent("SpeechUp", isDirectory: true) else {
+                Self.reply(context, ["success": false])
+                return
+            }
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let file = folder.appendingPathComponent("\(key).pcm")
+            if index == 0 { try? FileManager.default.removeItem(at: file) }
+            if let handle = try? FileHandle(forWritingTo: file) {
+                handle.seekToEndOfFile()
+                handle.write(piece)
+                try? handle.close()
+            } else {
+                try? piece.write(to: file)
+            }
+            guard last else {
+                Self.reply(context, ["success": true])
+                return
+            }
+            let cache = (message["cache"] as? String).flatMap { $0.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil ? $0 : nil }
+            // Build 92: the reply comes at once. Encoding and iCloud happen after it (and the app finishes whatever is still
+            // waiting when it next runs): a native call held for seconds kept the plan waiting behind it.
+            if let pcm = try? Data(contentsOf: file) {
+                // The app on this device plays it from here (build 92: the panel's audio was made again for the app).
+                if let cache { SharedListenCache.write(cache, pcm) }
+                SpeechSync.queueUpload(key, from: file)
+            }
+            Self.reply(context, ["success": true])
+            Task.detached(priority: .utility) { await SpeechSync.uploadPending(limit: 2) }
+        case "speechTextGet":
+            let key = message["key"] as? String ?? ""
+            Task {
+                let text = key.isEmpty ? nil : await SpeechSync.fetchText(key, wait: min(0.8, (message["wait"] as? Double) ?? 0.8))
+                Self.reply(context, ["success": true, "data": text.map { ["text": $0] } ?? [:]])
+            }
+        // Read aloud in the panel on iPhone and iPad (2.6), carried on in the app when the page goes away (ListenAway).
+        case "notifStatus":
+            Task {
+                let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+                // With the app's "Not now" at Listen (build 95): the panel doesn't ask again that day either.
+                Self.reply(context, ["success": true, "data": ["status": ListenAway.name(status), "later": SharedDefaults.shared.listenNotifyLaterUntil()]])
+            }
+        case "listenState":
+            Task {
+                await ListenAway.state(message, now: false)
+                Self.reply(context, ["success": true])
+            }
+        case "listenAway":
+            Task {
+                await ListenAway.state(message, now: true)
+                Self.reply(context, ["success": true])
+            }
+        case "listenBack":
+            let id = (message["id"] as? String ?? "").lowercased()
+            ListenAway.withdraw()
+            Self.reply(context, ["success": true, "data": ["taken": SharedDefaults.shared.listenTaken(id)]])
+        case "listenStop":
+            ListenAway.withdraw()
+            Self.reply(context, ["success": true])
+        // Build 94: texts heard to their end in the panel; the app shows the same mark by Listen.
+        case "voiced":
+            SharedDefaults.shared.markVoiced((message["ids"] as? [String] ?? []).prefix(20).map { $0 })
+            Self.reply(context, ["success": true])
+        // Back on the page after a hand-off (build 93): whether the app sent the person back for this text, to play it
+        // in the panel (notifications just turned on), and whether the app has taken it over.
+        case "listenReturn":
+            let id = (message["id"] as? String ?? "").lowercased()
+            let back = SharedDefaults.shared.takeListenReturn(id)
+            Self.reply(context, ["success": true, "data": ["back": back.back, "play": back.play, "taken": SharedDefaults.shared.listenTaken(id)]])
+        case "speechClear":
+            // "Delete all chats" in the panel: what was read aloud goes from the App Group and iCloud too.
+            SharedListenCache.clear()
+            SharedDefaults.shared.clearVoiced()
+            Self.reply(context, ["success": true])
+            Task.detached(priority: .utility) { await SpeechSync.deleteAll() }
+        case "speechTextPut":
+            let key = message["key"] as? String ?? ""
+            let text = String((message["text"] as? String ?? "").prefix(40_000))
+            // The reply at once, iCloud after it (build 92: no native call held for seconds).
+            Self.reply(context, ["success": true])
+            if !key.isEmpty { Task.detached(priority: .utility) { await SpeechSync.saveText(key, text: text) } }
+        case "tipClip":
+            // A Tips clip for the panel, from the app's copy in the App Group (2.6 (91)), in parts of 256 KB (a multiple of 3 bytes, so the parts' base64 joins as is).
+            let name = message["name"] as? String ?? ""
+            let lang = message["lang"] as? String ?? "en"
+            let offset = (message["offset"] as? NSNumber)?.intValue ?? 0
+            guard let part = TipClipShare.read(name: name, lang: lang, offset: offset, length: 262_143) else {
+                Self.reply(context, ["success": true, "data": ["ok": false]])
+                return
+            }
+            Self.reply(context, ["success": true, "data": ["ok": true, "total": part.total, "offset": offset, "length": part.data.count, "data": part.data.base64EncodedString()]])
+        // Find similar after leaving Safari (build 94, SimilarAway): the app watches a search the person left mid-way,
+        // calls it off when they're back, says "found" at once when it ended before Safari was suspended.
+        case "similarAway":
+            SimilarAway.start(message)
+            Self.reply(context, ["success": true])
+        case "similarBack":
+            let open = SimilarAway.back()
+            Self.reply(context, ["success": true, "data": open.map { ["open": $0] } ?? [:]])
+        case "similarEnded":
+            Task {
+                await SimilarAway.ended(message)
+                Self.reply(context, ["success": true])
+            }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
@@ -250,10 +422,11 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     }
 
     private static func liveEntitlement() async -> SharedEntitlement? {
-        let products: Set<String> = ["com.contextflow.pro.monthly", "com.contextflow.pro.yearly", "com.contextflow.byok.monthly"]
+        let products = PlanProducts.all
         var best: (entitlement: SharedEntitlement, transaction: StoreKit.Transaction)?
         for await result in StoreKit.Transaction.currentEntitlements {
-            // An Own key subscription upgraded to Pro stays listed until it ends: Pro counts from the purchase.
+            // An Own key subscription upgraded to Pro (or Pro to Ultra) stays listed until it ends: the higher plan
+            // counts from the purchase.
             guard case .verified(let transaction) = result,
                   products.contains(transaction.productID),
                   transaction.revocationDate == nil, !transaction.isUpgraded else { continue }
@@ -271,5 +444,70 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         // Whether it renews: the panel asks a Pro user who turned auto-renew off what was missing.
         entitlement.autoRenew = await SharedEntitlement.autoRenew(of: transaction)
         return entitlement
+    }
+}
+
+// MARK: - Read aloud carried on in the app (iPhone, iPad; 2.6)
+
+/// While the panel plays (notifications on), the App Group keeps what the app needs to carry on: the parts as the
+/// panel speaks them (written for the ear when they were), where each one starts, and where it is. When the page goes
+/// away (another app, the screen locks), "Keep listening in ContextFlow — from m:ss" opens the app at that second.
+/// The panel says so on events only (the first sound, new parts, pause and play, a seek, leaving the page; build 92:
+/// it was every 4 s, with a notification waiting ahead, which cost energy). Pause, the end, or the page back: any
+/// notification is withdrawn.
+enum ListenAway {
+    static let identifier = "cf.listen.away"
+
+    static func name(_ status: UNAuthorizationStatus) -> String {
+        switch status {
+        case .authorized: return "authorized"
+        case .denied: return "denied"
+        case .notDetermined: return "notDetermined"
+        case .provisional: return "provisional"
+        #if os(iOS)
+        case .ephemeral: return "ephemeral"
+        #endif
+        @unknown default: return "unknown"
+        }
+    }
+
+    /// The panel's state (`now`: the page went away, and the notification goes at once).
+    static func state(_ message: [String: Any], now: Bool) async {
+        let id = (message["id"] as? String ?? "").lowercased()
+        guard id.range(of: "^[0-9a-f-]{8,64}$", options: .regularExpression) != nil else { return }
+        let at = max(0, (message["at"] as? NSNumber)?.doubleValue ?? 0)
+        var handoff: [String: Any] = ["position": at]
+        if let starts = message["starts"] as? [NSNumber] { handoff["starts"] = starts.prefix(80).map(\.doubleValue) }
+        if let speed = (message["speed"] as? NSNumber)?.doubleValue { handoff["speed"] = speed }
+        // Part of it skipped ahead in Safari (build 94): the app doesn't mark it heard to its end.
+        if message["skipped"] as? Bool == true { handoff["skipped"] = true }
+        var changes: [String: Any] = [:]
+        if let parts = message["parts"] as? [String], !parts.isEmpty {
+            changes["spoken"] = Array(parts.prefix(80).map { String($0.prefix(4000)) })
+            changes["spokenComplete"] = message["complete"] as? Bool ?? false
+        }
+        // Merged into what the panel stored when it started (the text, the title…): kept as given, the rest replaced.
+        let stored = SharedDefaults.shared.readListenRequest(id)?["handoff"] as? [String: Any] ?? [:]
+        changes["handoff"] = stored.merging(handoff) { _, new in new }
+        guard SharedDefaults.shared.updateListenRequest(id, changes), now else { return }
+
+        let center = UNUserNotificationCenter.current()
+        let status = await center.notificationSettings().authorizationStatus
+        guard status == .authorized || status == .provisional else { return }
+        let content = UNMutableNotificationContent()
+        let title = String((message["title"] as? String ?? "").prefix(200))
+        content.title = title.isEmpty ? "ContextFlow" : title
+        content.body = String((message["body"] as? String ?? "").prefix(200))
+        content.threadIdentifier = "cf.listen"
+        content.userInfo = ["listen": id, "link": "contextflow://listen?id=\(id)&at=\(Int(at))"]
+        // No sound: the user just left Safari, or locked the screen; it's there when they look.
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        try? await center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: nil))
+    }
+
+    static func withdraw() {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        center.removeDeliveredNotifications(withIdentifiers: [identifier])
     }
 }

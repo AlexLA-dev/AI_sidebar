@@ -118,7 +118,7 @@ test("the chat list ends with Recently Deleted · N while it has chats, also whe
 test("Recently Deleted has its words in every language, the days in each plural form", () => {
   const dir = new URL("../src/locales/", import.meta.url)
   const files = readdirSync(dir).filter((f) => f.endsWith(".json"))
-  assert.equal(files.length, 11)
+  assert.equal(files.length, 14)
   for (const file of files) {
     const s = JSON.parse(readFileSync(new URL(file, dir), "utf8")) as Record<string, string>
     for (const key of ["trashTitle", "trashRow", "trashNote", "trashRestore", "trashDeleteNow", "trashDeleteAll", "trashDeleteAllAsk", "trashDays_one", "trashDays_few", "trashDays_many", "trashDays_other"]) {

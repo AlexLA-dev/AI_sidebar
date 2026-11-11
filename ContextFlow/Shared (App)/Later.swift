@@ -20,6 +20,8 @@ struct LaterItem: Identifiable, Hashable {
     let url: URL?
     /// Ready to show: "Tomorrow 9:00" / "Watching: size 42 · checked an hour ago".
     let status: String
+    /// 2.6 (97): the person's own words on it (a reminder made with Remind on a selection or a page, a watch's note).
+    var detail: String? = nil
     /// A reminder: when it rings; a watch: its last check.
     let sortAt: Date
     /// A reminder: it rings on this device (it's set to ring where it was set).
@@ -54,9 +56,11 @@ final class LaterCenter {
 extension ChatLibrary {
     /// Sets (or with nil cancels) a message's reminder on this device; the chat keeps the bell. The chat screen and
     /// "Reminders" both go through here. False: notifications are off for ContextFlow.
-    func remind(_ thread: ChatThread, entry index: Int, at: Date?, preset: String?, how: String? = nil) async -> Bool {
+    /// `words`: a reminder made with Remind on a selection or a page gets the person's new words with its new time
+    /// (2.6 (97)); the notification says them.
+    func remind(_ thread: ChatThread, entry index: Int, at: Date?, preset: String?, how: String? = nil, words: String? = nil) async -> Bool {
         guard let raw = thread.organized?.entries, raw.indices.contains(index), thread.entries.indices.contains(index) else { return true }
-        let entry = thread.entries[index]
+        var entry = thread.entries[index]
         let key = Organize.entryKey(raw[index])
         var event: [String: String] = ["what": entry.remind?.page == true ? "page" : entry.isNote ? "note" : "answer"]
         if let how { event["how"] = how }
@@ -70,12 +74,15 @@ extension ChatLibrary {
         // (src/shared/reminders.ts reminderNotice).
         let title = entry.isNote ? (entry.page.map { $0.title.isEmpty ? $0.url : $0.title } ?? thread.name) : thread.name
         let page = entry.remind?.page == true ? entry.page.flatMap { URL(string: $0.url) } : nil
+        let worded = words.flatMap { entry.withRemindWords($0) }.flatMap { $0 == entry.content ? nil : $0 }
+        if let worded { entry.content = worded }
         let outcome = await MessageReminders.schedule(chat: thread.id, message: key, at: at, title: title,
-                                                      body: ReminderTimes.asked(entry.content), open: page, ask: true)
+                                                      body: ReminderTimes.asked(entry.reminderText), open: page, ask: true)
         guard outcome == .scheduled else {
             ChatAI.reportUx("ux_remind", event.merging(["action": "denied"]) { $1 })
             return false
         }
+        if let worded { setRemindWords(thread, entry: index, worded) }
         setRemind(thread, entry: index, ChatRemind(at: at.timeIntervalSince1970 * 1000, dev: String(Activation.shared.appId.prefix(12)), page: entry.remind?.page))
         ChatAI.reportUx("ux_remind", event.merging(["action": "set", "preset": preset ?? "custom"]) { $1 })
         return true
@@ -102,7 +109,7 @@ extension ChatLibrary {
             let key = Organize.entryKey(raw[index])
             Task {
                 _ = await MessageReminders.schedule(chat: thread.id, message: key, at: Date(timeIntervalSince1970: remind.at / 1000), title: title,
-                                                    body: ReminderTimes.asked(entry.content), open: page, ask: false)
+                                                    body: ReminderTimes.asked(entry.reminderText), open: page, ask: false)
             }
         }
     }
@@ -125,6 +132,7 @@ extension ChatLibrary {
                     title: page.map { $0.title.isEmpty ? host(of: $0.url) : $0.title } ?? thread.name,
                     url: remind.page == true ? page.flatMap { URL(string: $0.url) } : nil,
                     status: here ? ReminderTimes.label(at) : String(localized: "\(ReminderTimes.label(at)) · on another device"),
+                    detail: entry.remindWords.flatMap { $0.isEmpty ? nil : $0 },
                     sortAt: at,
                     here: here
                 ))
@@ -191,8 +199,8 @@ struct RemindersView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
             .sheet(item: $changing) { item in
-                RemindSheet(current: item.sortAt, note: note, pick: { at, preset in
-                    Task { await change(item, at: at, preset: preset) }
+                RemindSheet(current: item.sortAt, note: note, quote: reminderEntry(item)?.cited?.cite, words: reminderEntry(item)?.remindWords, pick: { at, preset, words in
+                    Task { await change(item, at: at, preset: preset, words: words) }
                 }, cancel: {
                     changing = nil
                     Task { await cancel(item) }
@@ -217,6 +225,7 @@ struct RemindersView: View {
                 .frame(width: 22)
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.title).lineLimit(1)
+                if let detail = item.detail { Text(detail).font(.subheadline).lineLimit(3) }
                 // All of it, wrapped (2.5 (75)): a watch's status can be long, and "Today 15:41 · on another device"
                 // doesn't fit one line at 375 pt in every language.
                 Text(item.status).font(.subheadline).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -260,9 +269,16 @@ struct RemindersView: View {
         await reload()
     }
 
-    private func change(_ item: LaterItem, at: Date, preset: String) async {
+    /// The message a reminder's row is on.
+    private func reminderEntry(_ item: LaterItem) -> ChatEntry? {
+        guard let ref = reminderKey(item), let found = library.find(messageKey: ref.key, hint: ref.chat),
+              found.thread.entries.indices.contains(found.index) else { return nil }
+        return found.thread.entries[found.index]
+    }
+
+    private func change(_ item: LaterItem, at: Date, preset: String, words: String? = nil) async {
         guard let ref = reminderKey(item), let found = library.find(messageKey: ref.key, hint: ref.chat) else { return }
-        if await library.remind(found.thread, entry: found.index, at: at, preset: preset, how: "list") {
+        if await library.remind(found.thread, entry: found.index, at: at, preset: preset, how: "list", words: words) {
             note = nil
             changing = nil
             await reload()
@@ -275,5 +291,95 @@ struct RemindersView: View {
     private func reminderKey(_ item: LaterItem) -> (chat: String, key: String)? {
         let parts = item.id.split(separator: ":", maxSplits: 2).map(String.init)
         return parts.count == 3 && parts[0] == "remind" ? (parts[1], parts[2]) : nil
+    }
+}
+
+// MARK: - The chats list's rows (build 94)
+
+/// A chat's row in the chats list, build 94 (the owner, on TestFlight 93: «на полоске чата хочется видеть глаз и число
+/// там где установлены наблюдения за изменениями и колокольчик, если напоминалка стоит»): the eye with how many of the
+/// chat's pages are watched, the bell while one of its reminders is still to ring, and a spinner while its last question
+/// is being answered in Safari (an answer or Find similar, on this device or another one). And the chats an "Ask your
+/// chats" answer names, as links that open them. The same rules as src/shared/chatMarks.ts and, for the spinner,
+/// pendingQuestion in src/shared/jobs.ts (tests/chatMarks.test.mts reads this file).
+enum RowMarks {
+    /// src/shared/jobs.ts ORPHAN_MS: by then a question without an answer isn't being answered any more.
+    static let orphan: TimeInterval = 120
+    /// A name shorter than this isn't looked for in an answer's text ("AI" or "Notes" would link ordinary words).
+    static let minName = 6
+    /// `[name](chat:<id>)`, as the server asks the model to write a chat it names.
+    static let chatLink = try! NSRegularExpression(pattern: #"\[([^\]\n]+)\]\(chat:([A-Za-z0-9_-]{1,64})\)"#)
+    private static let guarded = try! NSRegularExpression(pattern: #"```[\s\S]*?```|`[^`\n]*`|\[[^\]\n]*\]\([^)\n]*\)"#)
+
+    #if DEBUG
+    /// -CFDebugSeedRows YES (Chats.swift): the seeded mug chat's pages count as watched.
+    static var debugWatched: [String] {
+        UserDefaults.standard.bool(forKey: "CFDebugSeedRows") ? ["https://shop.example/mug", "https://shop.example/mug/reviews"] : []
+    }
+    #endif
+
+    /// Whether a reminder in the chat is still to ring: the bell.
+    static func remindsAhead(_ entries: [ChatEntry], now: Date = Date()) -> Bool {
+        let ms = now.timeIntervalSince1970 * 1000
+        return entries.contains { ($0.remind?.at ?? 0) > ms }
+    }
+
+    /// How many of `watched` (the watched pages' addresses) are pages of the chat: the eye's number.
+    static func watches(_ entries: [ChatEntry], watched: [String]) -> Int {
+        guard !watched.isEmpty else { return 0 }
+        let pages = Set(entries.compactMap { $0.isUser ? $0.page.map { urlKey($0.url) } : nil })
+        return pages.isEmpty ? 0 : watched.filter { pages.contains(urlKey($0)) }.count
+    }
+
+    /// The chat's last question still waits for its answer: asked under `orphan` ago, no answer after it yet.
+    static func pending(_ entries: [ChatEntry], now: Date = Date()) -> Bool {
+        guard let last = entries.last, last.isUser, !last.isNote, let at = last.t ?? last.page?.at else { return false }
+        let age = now.timeIntervalSince1970 - at / 1000
+        return age >= -60 && age < orphan
+    }
+
+    /// "The same page": no hash, no tracking parameters (src/shared/conversation.ts urlKey).
+    static func urlKey(_ href: String) -> String {
+        guard var parts = URLComponents(string: href) else { return href }
+        parts.fragment = nil
+        if let items = parts.queryItems {
+            let kept = items.filter { $0.name.range(of: #"^(utm_|fbclid|gclid|yclid|mc_|ref$|ref_src)"#, options: [.regularExpression, .caseInsensitive]) == nil }
+            parts.queryItems = kept.isEmpty ? nil : kept
+        }
+        if parts.path.isEmpty { parts.path = "/" }
+        return parts.string ?? href
+    }
+
+    /// The answer with the chats it names as links: the model's links kept for a chat that's there (else its name
+    /// alone), and a chat's name written out in full linked the first time it appears (answers from before the server
+    /// asked for links). Not in code, not inside a link, not inside a longer word; the longest names first.
+    static func linkChats(_ text: String, chats: [(id: String, name: String)]) -> String {
+        let known = Set(chats.map(\.id))
+        var out = text
+        var linked = Set<String>()
+        for match in chatLink.matches(in: out, range: NSRange(out.startIndex..., in: out)).reversed() {
+            guard let whole = Range(match.range, in: out), let label = Range(match.range(at: 1), in: out), let id = Range(match.range(at: 2), in: out) else { continue }
+            let chat = String(out[id])
+            if known.contains(chat) { linked.insert(chat) } else { out.replaceSubrange(whole, with: String(out[label])) }
+        }
+        let names = chats
+            .map { (id: $0.id, name: $0.name.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces)) }
+            .filter { $0.name.count >= minName && !linked.contains($0.id) }
+            .sorted { $0.name.count > $1.name.count }
+        for chat in names {
+            let pattern = #"(^|[^\p{L}\p{N}])("# + NSRegularExpression.escapedPattern(for: chat.name).replacingOccurrences(of: " ", with: #"\s+"#) + #")(?![\p{L}\p{N}])"#
+            guard let word = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            let all = NSRange(out.startIndex..., in: out)
+            let kept = guarded.matches(in: out, range: all).map(\.range)
+            guard let hit = word.matches(in: out, range: all).map({ $0.range(at: 2) }).first(where: { r in !kept.contains { NSIntersectionRange($0, r).length > 0 } }),
+                  let range = Range(hit, in: out) else { continue }
+            out.replaceSubrange(range, with: "[\(out[range])](chat:\(chat.id))")
+        }
+        return out
+    }
+
+    /// A chat link's name alone (copies, shares, snippets).
+    static func unlinked(_ text: String) -> String {
+        chatLink.stringByReplacingMatches(in: text, range: NSRange(text.startIndex..., in: text), withTemplate: "$1")
     }
 }
