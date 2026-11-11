@@ -185,6 +185,8 @@ export const config = {
     // not read. `shipsTo` reads refusals and country names in any form; on delivery pages it hadn't seen it still said
     // "ships there" wrongly about one time in eight, so a model reading the page with a quote that must be on it is next.
     shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "on").trim() !== "off",
+    // Who reads a delivery page: our rules, or a small model whose quote our code checks on the page (2.6).
+    shipReader: (env("SIMILAR_SHIP_READER") ?? "rules").trim() === "model" ? ("model" as const) : ("rules" as const),
     // A second search call beside the plan's, from the start, for things of the same kind (one search), instead of a
     // later round when few were found (SIMILAR_ALT_SEARCH=off: the later round).
     altSearch: (env("SIMILAR_ALT_SEARCH") ?? "on").trim() !== "off",
