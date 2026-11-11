@@ -83,6 +83,10 @@ func run(_ c: [String: Any]) -> Any {
                 "tags": Organize.openTags(chat).map { ["index": $0.index, "key": $0.key, "tag": $0.tag] as [String: Any] },
                 "name": Organize.openName(chat, name: c["name"] as? String ?? "") ?? NSNull(), "after": after.json, "state": state.json,
                 "key": Organize.nameCheckKey(chat)] as [String: Any]
+    case "names":
+        let pairs = (c["pairs"] as? [[String]] ?? []).map { Organize.nearName($0[0], $0[1]) }
+        let downs = (c["downs"] as? [[Any]] ?? []).map { Organize.turnedDownName($0[0] as? [String] ?? [], $0[1] as? String ?? "") }
+        return ["near": pairs, "down": downs]
     case "hostOf":
         return (c["urls"] as? [Any] ?? []).map { Organize.hostOf($0 as? String) }
     case "pack":

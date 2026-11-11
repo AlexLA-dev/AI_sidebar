@@ -1592,38 +1592,126 @@ nonisolated enum Organize {
         guard let nm = (org ?? chat.org)?.nm, let t = nm.t, wantsNameCheck(chat), lower(t) != lower(name) else { return nil }
         // 2.6 (95): first what moves, then the name.
         if moveOpen(chat, org ?? chat.org) != nil { return nil }
-        return nm.no.contains { nearName($0, t) } ? nil : t
+        return turnedDownName(nm.no, t) ? nil : t
     }
 
-    private static let wordRun = try! NSRegularExpression(pattern: "[\\p{L}\\p{N}]+")
-    private static let pairScript = try! NSRegularExpression(pattern: "[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]")
+    // MARK: Names turned down (2.6 (98), the review's S5; src/shared/organize.ts)
 
-    /// A name's words, to tell a name from a near repeat (src/shared/organize.ts `nameWords`): letters and digits, lower
-    /// case; a run of Chinese or Japanese characters as its pairs of characters.
-    private static func nameWords(_ name: String) -> Set<String> {
-        let text = name.lowercased()
-        var out = Set<String>()
-        for m in wordRun.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
-            guard let r = Range(m.range, in: text) else { continue }
-            let word = String(text[r])
-            let chars = word.unicodeScalars.map { String($0) }
-            if chars.count > 1, pairScript.firstMatch(in: word, range: NSRange(word.startIndex..., in: word)) != nil {
-                for i in 0..<(chars.count - 1) { out.insert(chars[i] + chars[i + 1]) }
-            } else {
-                out.insert(word)
+    /// Words that don't tell names apart, by script: the Latin languages' together, Vietnamese's apart, Cyrillic's,
+    /// Arabic's, Korean's (src/shared/organize.ts `NAME_STOP`).
+    private static let nameStopLatin: Set<String> = [
+        "the", "a", "an", "and", "or", "of", "for", "with", "by", "in", "on", "to", "at", "from", "vs", "my", "your", "our", "about", "how", "what",
+        "der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "einer", "und", "für", "mit", "von", "vom", "im", "am", "zum", "zur", "oder", "auf", "über", "bei", "zu", "wie", "was",
+        "le", "la", "les", "l", "un", "une", "et", "pour", "avec", "de", "d", "du", "en", "ou", "au", "aux", "sur", "dans", "par", "à",
+        "el", "los", "las", "una", "y", "para", "con", "del", "al", "por", "sobre",
+        "il", "lo", "i", "gli", "e", "per", "di", "della", "dei", "delle", "degli", "alla", "su", "da", "nel", "nella", "dell",
+        "o", "os", "as", "um", "uma", "com", "do", "dos", "das", "em", "no", "na", "nos", "nas", "ao"
+    ]
+    private static let nameStopVi: Set<String> = ["và", "cho", "của", "với", "các", "những", "về", "trong", "là", "một"]
+    private static let nameStopCyrillic: Set<String> = ["и", "в", "во", "на", "с", "со", "по", "для", "от", "до", "из", "или", "о", "об", "обо", "про", "к", "ко", "у", "за", "это", "как", "что",
+                                                        "і", "й", "та", "з", "із", "зі", "від", "або", "як", "що"]
+    private static let nameStopArabic: Set<String> = ["و", "في", "من", "على", "مع", "أو", "عن", "إلى"]
+    private static let nameStopHangul: Set<String> = ["및", "위한", "대한"]
+    private static let viLetter = try! NSRegularExpression(pattern: "[ăđơư\\x{1EA0}-\\x{1EF9}]")
+    private static let koParticles = ["에서", "으로", "에게", "까지", "부터", "의", "을", "를", "은", "는", "이", "가", "에", "로", "와", "과", "도", "만"]
+    private static let arArticles = ["وال", "بال", "لل", "ال"]
+    private static let denseJoin = Set("のをにはがとでへもや的和与與及".unicodeScalars)
+    private static let nameRun = try! NSRegularExpression(pattern: "[\\p{L}\\p{M}\\p{N}]+")
+    private static let denseChar = try! NSRegularExpression(pattern: "[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\x{30FC}]")
+    private static let hanChar = try! NSRegularExpression(pattern: "\\p{Script=Han}")
+    private static let cyrillicWord = try! NSRegularExpression(pattern: "\\p{Script=Cyrillic}")
+    private static let arabicWord = try! NSRegularExpression(pattern: "\\p{Script=Arabic}")
+    private static let hangulWord = try! NSRegularExpression(pattern: "\\p{Script=Hangul}")
+    private static let nameWord = 6, nameHan = 3, nameKana = 2
+    /// Only the last turned-down names block near repeats; any of them blocks itself.
+    static let nearTurnedDown = 5
+
+    private struct NameUnit {
+        let u: [Unicode.Scalar]
+        var alt: [Unicode.Scalar]? = nil
+        let w: Int
+        let char: Bool
+    }
+
+    private static func has(_ re: NSRegularExpression, _ text: String) -> Bool {
+        re.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil
+    }
+
+    /// A name's content (src/shared/organize.ts `nameUnits`): its words in lower case without the words that don't
+    /// tell names apart (Arabic's article off, a Korean word's particle as an alternative); Chinese and Japanese as
+    /// their characters without particles.
+    private static func nameUnits(_ name: String) -> [NameUnit] {
+        let text = name.lowercased().precomposedStringWithCanonicalMapping
+        let vi = has(viLetter, text)
+        var out: [NameUnit] = []
+        func word(_ raw: [Unicode.Scalar]) {
+            var w = raw
+            var alt: [Unicode.Scalar]?
+            let string = String(String.UnicodeScalarView(raw))
+            var stop = vi ? nameStopVi : nameStopLatin
+            if has(cyrillicWord, string) {
+                stop = nameStopCyrillic
+            } else if has(arabicWord, string) {
+                stop = nameStopArabic
+                if let p = arArticles.map({ Array($0.unicodeScalars) }).first(where: { w.starts(with: $0) && w.count - $0.count >= 3 }) { w = Array(w.dropFirst(p.count)) }
+            } else if has(hangulWord, string) {
+                stop = nameStopHangul
+                if let p = koParticles.map({ Array($0.unicodeScalars) }).first(where: { w.count > $0.count && Array(w.suffix($0.count)) == $0 }) { alt = Array(w.dropLast(p.count)) }
             }
+            if !stop.contains(String(String.UnicodeScalarView(w))) { out.append(NameUnit(u: w, alt: alt, w: nameWord, char: false)) }
+        }
+        for m in nameRun.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+            guard let r = Range(m.range, in: text) else { continue }
+            var plain: [Unicode.Scalar] = []
+            for c in text[r].unicodeScalars {
+                let one = String(c)
+                if !has(denseChar, one) {
+                    plain.append(c)
+                    continue
+                }
+                if !plain.isEmpty { word(plain) }
+                plain = []
+                if !denseJoin.contains(c) { out.append(NameUnit(u: [c], w: has(hanChar, one) ? nameHan : nameKana, char: true)) }
+            }
+            if !plain.isEmpty { word(plain) }
         }
         return out
     }
 
-    /// 2.6 (98): whether two names are the same or nearly (src/shared/organize.ts `nearName`): equal in lower case, or
-    /// two thirds of the shorter one's words are in the other.
+    /// Two words of names alike (src/shared/organize.ts `sameWord`): the same (a Korean one with or without its
+    /// particle), or a shared start of 4 letters or more that leaves at most 3 of the longer.
+    private static func sameWord(_ a: NameUnit, _ b: NameUnit) -> Bool {
+        if a.u == b.u { return true }
+        if a.char || b.char { return false }
+        if let alt = a.alt, alt == b.u || alt == b.alt { return true }
+        if let alt = b.alt, alt == a.u { return true }
+        var p = 0
+        while p < a.u.count, p < b.u.count, a.u[p] == b.u[p] { p += 1 }
+        return p >= 4 && p >= max(a.u.count, b.u.count) - 3
+    }
+
+    /// 2.6 (98): whether two names are the same or nearly (src/shared/organize.ts `nearName`): equal in lower case; or
+    /// every content word of the smaller one is in the other, in any order and form, and the other adds at most one
+    /// (none to a one-word name).
     static func nearName(_ a: String, _ b: String) -> Bool {
         if a.lowercased() == b.lowercased() { return true }
-        let x = nameWords(a), y = nameWords(b)
-        let fewer = min(x.count, y.count)
-        if fewer == 0 { return false }
-        return x.intersection(y).count * 3 >= fewer * 2
+        let x = nameUnits(a), y = nameUnits(b)
+        func weight(_ list: [NameUnit]) -> Int { list.reduce(0) { $0 + $1.w } }
+        let (small, large) = weight(x) <= weight(y) ? (x, y) : (y, x)
+        if small.isEmpty { return false }
+        var used = Set<Int>()
+        for u in small {
+            guard let j = large.indices.first(where: { !used.contains($0) && sameWord(u, large[$0]) }) else { return false }
+            used.insert(j)
+        }
+        let extra = large.indices.reduce(0) { $0 + (used.contains($1) ? 0 : large[$1].w) }
+        return extra <= (weight(small) >= nameWord + nameHan ? nameWord : 0)
+    }
+
+    /// Whether `name` was turned down for the chat (`no`, the oldest first): one of them, or a near repeat of one of
+    /// the last `nearTurnedDown` (src/shared/organize.ts `turnedDownName`).
+    static func turnedDownName(_ no: [String], _ name: String) -> Bool {
+        no.contains { $0.lowercased() == name.lowercased() } || no.suffix(nearTurnedDown).contains { nearName($0, name) }
     }
 
     /// The tags the chat's record says the check confirmed, still open: the message is there, without that tag, not
@@ -1668,7 +1756,7 @@ nonisolated enum Organize {
     /// names turned down.
     static func nameState(after previous: OrgState.Name?, key: String, fits: Bool, title: String, current: String) -> OrgState.Name {
         let no = previous?.no ?? []
-        let refused = no.contains { nearName($0, title) }
+        let refused = turnedDownName(no, title)
         // The same name in other capitals is no new one (2.6 (94)).
         return OrgState.Name(k: key, t: !fits && !title.isEmpty && lower(title) != lower(current) && !refused ? title : nil, no: no)
     }

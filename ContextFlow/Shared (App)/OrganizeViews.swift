@@ -658,7 +658,7 @@ final class OrganizeModel: ObservableObject {
     func settled(_ s: Suggestions, _ thread: ChatThread, in threads: [ChatThread] = []) -> Suggestions {
         guard let chat = thread.organized else { return s }
         var out = s
-        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || (thread.org?.nm?.no ?? []).contains(where: { Organize.nearName($0, name) }) { out.name = nil }
+        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || Organize.turnedDownName(thread.org?.nm?.no ?? [], name) { out.name = nil }
         for (index, item) in s.tags {
             guard chat.entries.indices.contains(index), Organize.entryKey(chat.entries[index]) == item.key else { out.tags[index] = nil; continue }
             let e = thread.entries[index]
