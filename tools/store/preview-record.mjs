@@ -120,7 +120,7 @@ async function go(url) {
   await wait(400)
   // The free-answers count under the field names the daily number, which the store page doesn't.
   // Nor "Get Pro" (the 2.6 page test labels Pro on the screens that show Pro features, not on every one).
-  await page.evaluate(shadow(`(r) => { const st = document.createElement("style"); st.textContent = ".cf-usage-text, .cf-usage .cf-link { visibility: hidden }"; r.appendChild(st) }`))
+  await page.evaluate(shadow(`(r) => { const st = document.createElement("style"); st.textContent = ".cf-usage-text, .cf-usage .cf-link, .cf-listen-left { visibility: hidden }"; r.appendChild(st) }`))
 }
 
 async function toggle() {
@@ -352,6 +352,90 @@ await touchTap(fillButton)
 await page.locator(".cf-qi-blank.filled").first().waitFor({ timeout: 15000 }); await wait(1300)
 await touchTap(page.locator(".cf-qi-fill button", { hasText: new RegExp(`^${ru ? "Вставить" : "Insert"}$`) }).first())
 await wait(1100)
+await end()
+}
+
+// ------------------------------------------------ 2.6 version takes (Ultra stand, SIMILAR_STUB=store)
+// Find similar: the product's name selected, Find similar among the chips under it, Cheaper, Find; the checked list.
+if (want("similar")) {
+await begin("similar", SHOP, async () => {
+  await page.evaluate(() => document.querySelector("h1").scrollIntoView({ block: "center" }))
+  await wait(300)
+})
+mark("caption", { key: "similar" })
+await wait(300)
+if (D.touch) await page.evaluate(() => getSelection().selectAllChildren(document.querySelector("h1")))
+else {
+  const b = await page.locator("h1").boundingBox()
+  mark("point", { x: b.x + 2, y: b.y + b.height / 2 })
+  await page.mouse.move(b.x + 2, b.y + b.height / 2); await page.mouse.down()
+  await page.mouse.move(b.x + b.width - 2, b.y + b.height / 2, { steps: 10 }); await page.mouse.up()
+}
+const simChip = page.locator(".cf-bubble .cf-sel-chip.ultra")
+await simChip.waitFor()
+await wait(1500)
+await simChip.evaluate((el) => { const f = el.closest(".cf-ask-field"); f.scrollTo({ left: el.offsetLeft + el.offsetWidth - f.clientWidth + 12, behavior: "smooth" }) })
+await wait(700)
+if (D.touch) await page.evaluate(() => document.addEventListener("pointerdown", () => getSelection().removeAllRanges(), { capture: true, once: true }))
+await touchTap(simChip)
+const pick = page.locator(".cf-similar-pick")
+await pick.waitFor(); await wait(700)
+await touchTap(pick.locator(".cf-similar-where .cf-seg button").first())
+await wait(400)
+await touchTap(pick.locator(".cf-chip", { hasText: ru ? "Дешевле" : "Cheaper" }).first())
+await wait(450)
+await touchTap(pick.locator(".cf-primary"))
+await page.waitForFunction(shadow(`(r) => r && !r.querySelector(".cf-send.stop") && r.querySelectorAll(".cf-similar-item").length >= 3`), null, { timeout: 30000 })
+await page.evaluate(shadow(`(r) => {
+  const list = r.querySelector(".cf-messages")
+  const asked = [...r.querySelectorAll(".cf-msg.user")].at(-1)
+  list.scrollTo({ top: list.scrollTop + asked.getBoundingClientRect().top - list.getBoundingClientRect().top - 8, behavior: "smooth" })
+}`))
+await wait(1700)
+await end()
+}
+
+// Organizing (Pro): the chat about banana bread ends with a question about the Tokyo trip; under it, the suggestion to
+// move it to "Trip to Japan"; a tap moves it, Open shows it there.
+if (want("organize")) {
+await begin("organize", ARTICLE_2, async () => {
+  const H = 3_600_000
+  const turn = (role, content, url, title, at) => ({ role, content, id: Math.random().toString(36).slice(2, 14), t: at, ...(url ? { page: { url, title, at } } : {}) })
+  const A = { id: "chat-japan", u: now - 30 * H, a: now - 30 * H, title: ru ? "Поездка в Японию" : "Trip to Japan", m: ru
+    ? [turn("user", "Храмы Киото для поездки в Японию в марте: какие посмотреть?", "https://travel.example/kyoto", "Киото за два дня", now - 50 * H), turn("assistant", "Для поездки в Японию в марте: Кинкаку-дзи и Фусими Инари в Киото, с утра — в сезон сакуры людей больше.", null, null, now - 50 * H + 5000),
+       turn("user", "JR Pass для поездки в Японию в марте: окупится из Токио?", "https://rail.example/jr-pass", "JR Pass в 2026", now - 30 * H), turn("assistant", "Для поездки в Японию в марте, Токио — Киото и обратно, да: окупится, если добавить ещё одну поездку.", null, null, now - 30 * H + 5000)]
+    : [turn("user", "Kyoto temples for the Japan trip in March: which to see?", "https://travel.example/kyoto", "Kyoto in two days", now - 50 * H), turn("assistant", "For the Japan trip in March, see Kinkaku-ji and Fushimi Inari in Kyoto early: crowds climb in cherry blossom season.", null, null, now - 50 * H + 5000),
+       turn("user", "JR Pass for the Japan trip in March: worth it from Tokyo?", "https://rail.example/jr-pass", "JR Pass in 2026", now - 30 * H), turn("assistant", "For the Japan trip in March, Tokyo to Kyoto and back, yes: it pays off with one more ride.", null, null, now - 30 * H + 5000)] }
+  const B = { id: "chat-bread", u: now - 60e3, a: now - 60e3, title: ru ? "Банановый хлеб" : "Banana bread", m: ru
+    ? [turn("user", "Сколько бананов на одну форму хлеба?", ARTICLE, "Банановый хлеб", now - 3 * H), turn("assistant", "Три очень спелых банана на форму 22 см.", null, null, now - 3 * H + 5000),
+       turn("user", "Перелёты в Токио для поездки в Японию в марте: когда покупать?", ARTICLE_2, "Перелёты в Токио", now - 2 * 60e3), turn("assistant", "Для поездки в Японию в марте билеты в Токио лучше брать за 2–3 месяца: в сезон сакуры цены растут.", null, null, now - 2 * 60e3 + 5000)]
+    : [turn("user", "How many bananas for one loaf of banana bread?", ARTICLE, "Banana bread", now - 3 * H), turn("assistant", "Three very ripe bananas for a 9-inch loaf pan.", null, null, now - 3 * H + 5000),
+       turn("user", "Flights to Tokyo for the Japan trip in March: when to book?", ARTICLE_2, "Flights to Tokyo", now - 2 * 60e3), turn("assistant", "For the Japan trip in March, book Tokyo flights 2–3 months ahead: prices climb in cherry blossom season.", null, null, now - 2 * 60e3 + 5000)] }
+  await sw.evaluate(({ threads }) => chrome.storage.local.set({ "cf:threads": threads, "cf:activeThread": { id: "chat-bread", at: Date.now() },
+    "cf:settings": { organize: true, textSize: "large", fab: "on" }, "cf:settingsUpdatedAt": Date.now(),
+    "cf:orgCards": { consent: "accepted", thirdTag: true, mess: { chats: [], at: 0, closed: true }, firstWin: true } }), { threads: { [B.id]: B, [A.id]: A } })
+  await go(ARTICLE_2)
+  // The suggestion is worked out before the take starts (it takes a few seconds the first time).
+  if (D.touch) await fab().click(); else await toggle()
+  await page.locator(".cf-panel.in").waitFor()
+  await page.locator(".cf-org-chip.move .cf-org-take").first().waitFor({ timeout: 30000 })
+  // Closed by the same message on every device (on iPhone and iPad the open panel hides the button).
+  await toggle()
+  await page.locator(".cf-panel.in").waitFor({ state: "detached" }).catch(() => undefined)
+  await wait(600)
+})
+mark("caption", { key: "organize" })
+await wait(300)
+await openPanel()
+const move = page.locator(".cf-org-chip.move .cf-org-take").first()
+await move.waitFor({ timeout: 15000 })
+await page.evaluate(shadow(`(r) => { const l = r.querySelector(".cf-messages"); l.scrollTo({ top: l.scrollHeight, behavior: "smooth" }) }`))
+await wait(1300)
+await touchTap(move)
+const openIt = page.locator(".cf-undo-bar button", { hasText: ru ? "Открыть" : "Open" })
+await openIt.waitFor(); await wait(900)
+await touchTap(openIt)
+await wait(1700)
 await end()
 }
 

@@ -1,18 +1,20 @@
 Chega de colar artigos em um chatbot. Pergunte à IA sobre qualquer página, responda com modelos que se preenchem sozinhos e receba uma notificação quando um preço mudar, sem sair do Safari. O chat vai com você de página em página e é o mesmo no iPhone, iPad e Mac.
 
 NOVIDADES DA 2.6
-• Ultra, um novo plano: “Ouvir” lê respostas e páginas inteiras com uma voz natural, em mais de 100 idiomas. No iPhone, continua tocando com a tela bloqueada
-• Encontrar parecidos (Ultra): alternativas reais a qualquer página, mais baratas, mais novas, em estoque, grátis ou no seu idioma. Cada link é aberto e verificado primeiro
-• Planos anuais para Chave própria, Pro e Ultra
-• Um guia curto para a sua primeira resposta, e o painel em chinês tradicional, árabe e vietnamita
+• Encontrar parecidos (Ultra): alternativas reais e verificadas a qualquer página, mais baratas, mais novas, em estoque, grátis ou no seu idioma
+• Ouvir (Ultra): respostas e páginas inteiras em voz natural, em mais de 100 idiomas, mesmo com o iPhone bloqueado
+• Conversas que se organizam sozinhas (Pro): sugestões de conversa, conversa nova ou tag para cada resposta ou nota, e nomes pelo assunto
+• Notas com suas palavras em lembretes e preços acompanhados
+• Planos anuais: Pro, Ultra e Chave própria
+• Um guia curto até a primeira resposta; o painel em chinês tradicional, árabe e vietnamita
 
 O QUE VOCÊ PODE FAZER
 • Resumir qualquer artigo, resenha, thread ou página de produto, ou extrair os fatos principais
 • Fazer suas próprias perguntas: “Qual é a pegadinha?”, “Vale a pena comprar?”
 • Explicar jargões em palavras simples ou traduzir a página para o seu idioma
 • Selecionar um texto para perguntar só sobre ele ou guardá-lo como nota
-• Respostas do Google: fatos atualizados da Pesquisa Google, com fontes que você pode abrir
-• Modelos para as respostas que você sempre escreve, preenchidos pela página. Toque em um campo e o botão flutuante traz os modelos, com o que você copiou
+• Respostas do Google: fatos atualizados da Pesquisa Google, com fontes
+• Modelos para as respostas que você sempre escreve, preenchidos pela página. Toque em um campo e o botão flutuante os traz, com o que você copiou
 • Esperando um preço baixar? Selecione e toque no olho: o ContextFlow avisa quando mudar. Toque no sino para voltar a uma página mais tarde
 
 NOTAS E CHATS
@@ -21,16 +23,16 @@ NOTAS E CHATS
 • Tags, pastas e busca nos seus chats
 • Copie, compartilhe ou marque com tag qualquer resposta ou nota, ou compartilhe o chat inteiro
 
-TODOS OS SEUS CHATS NO APP
+SEUS CHATS NO APP
 • O app ContextFlow no iPhone, iPad e Mac tem todos os chats do Safari: leia, pergunte sobre eles ou adicione uma nota
 • Chats e modelos são sincronizados entre seus dispositivos pelo iCloud
 
-FEITO PARA O SAFARI NO IPHONE, IPAD E MAC
+FEITO PARA O SAFARI
 • iPhone e iPad: toque no botão flutuante do ContextFlow em qualquer página, ou em “Perguntar à IA” no texto selecionado
-• Mac: uma barra lateral que abre pela barra de ferramentas, pelo botão flutuante ou com Control-Shift-E
+• Mac: uma barra lateral pela barra de ferramentas, pelo botão flutuante ou com Control-Shift-E
 • Dicas com vídeos curtos, modo claro e escuro, 14 idiomas
 
-PRIVACIDADE DESDE A CONCEPÇÃO
+PRIVACIDADE
 • Sem conta, sem cadastro, sem rastreamento
 • Uma página só é lida quando você pergunta sobre ela ou a acompanha
 • O texto das páginas nunca é armazenado em nossos servidores; suas conversas ficam nos seus dispositivos e são sincronizadas pelo seu iCloud com criptografia de ponta a ponta
@@ -44,7 +46,7 @@ PLANOS
 
 COMECE EM UM MINUTO
 1. Abra o app ContextFlow: ele mostra passo a passo como ativar a extensão no Safari.
-2. Abra qualquer site e toque no botão do ContextFlow (no Mac, clique no ícone do ContextFlow na barra de ferramentas).
+2. Abra qualquer site e toque no botão do ContextFlow (no Mac, no ícone na barra de ferramentas).
 
 A IA pode cometer erros. Verifique informações importantes.
 

@@ -1,17 +1,19 @@
 Schluss damit, Artikel in einen Chatbot zu kopieren. Frag die KI zu jeder Seite, antworte mit Vorlagen, die sich selbst ausfüllen, und bekomm Bescheid, wenn sich ein Preis ändert, ohne Safari zu verlassen. Der Chat folgt dir von Seite zu Seite und ist derselbe auf iPhone, iPad und Mac.
 
 NEU IN 2.6
-• Ultra, ein neuer Tarif: „Anhören“ liest Antworten und ganze Seiten mit natürlicher Stimme vor, in über 100 Sprachen, auf dem iPhone auch bei gesperrtem Bildschirm
-• Ähnliches finden (Ultra): echte Alternativen zu jeder Seite, günstiger, neuer, auf Lager, kostenlos oder in deiner Sprache. Jeden Link öffnen und prüfen wir vorher
-• Eigener Schlüssel, Pro und Ultra jetzt auch jährlich
-• Eine kurze Einführung zu deiner ersten Antwort und das Panel auf traditionellem Chinesisch, Arabisch und Vietnamesisch
+• Ähnliches finden (Ultra): echte, vorab geprüfte Alternativen zu jeder Seite, günstiger, neuer, auf Lager, kostenlos oder in deiner Sprache
+• Anhören (Ultra): Antworten und ganze Seiten in natürlicher Stimme, über 100 Sprachen, auch bei gesperrtem iPhone
+• Chats ordnen sich selbst (Pro): Vorschläge für Chat, neuen Chat oder Tag zu neuen Antworten und Notizen, Chatnamen nach Thema
+• Eigene Notizen zu Erinnerungen und beobachteten Preisen
+• Jahrestarife: Pro, Ultra, Eigener Schlüssel
+• Kurze Einführung zur ersten Antwort; Panel auf traditionellem Chinesisch, Arabisch und Vietnamesisch
 
-DAS KANNST DU DAMIT MACHEN
+DAS KANNST DU MACHEN
 • Artikel, Testberichte, Threads und Produktseiten zusammenfassen oder das Wichtigste herausziehen
 • Eigene Fragen stellen: „Wo ist der Haken?“, „Lohnt sich der Kauf?“
 • Fachbegriffe einfach erklären lassen oder die Seite in deine Sprache übersetzen
 • Text markieren, um nur dazu zu fragen oder ihn als Notiz zu behalten
-• Google-Antworten: aktuelle Fakten aus der Google-Suche mit Quellen zum Öffnen
+• Google-Antworten: aktuelle Fakten aus der Google-Suche mit Quellen
 • Vorlagen für wiederkehrende Antworten, von der Seite ausgefüllt. Tippe auf ein Textfeld: Die schwebende Taste bringt sie und dein Kopiertes
 • Wartest du, bis ein Preis sinkt? Markiere ihn und tippe auf das Auge: ContextFlow meldet jede Änderung. Die Glocke erinnert dich später an eine Seite
 
@@ -25,12 +27,12 @@ ALLE DEINE CHATS IN DER APP
 • Die ContextFlow-App auf iPhone, iPad und Mac hat jeden Chat aus Safari: Lies ihn, frag nach oder füg eine Notiz hinzu
 • Chats und Vorlagen synchronisieren sich per iCloud zwischen deinen Geräten
 
-GEMACHT FÜR SAFARI AUF IPHONE, IPAD UND MAC
+GEMACHT FÜR SAFARI
 • iPhone und iPad: die schwebende ContextFlow-Taste auf jeder Seite oder „KI fragen“ bei markiertem Text
 • Mac: eine Seitenleiste – über die Symbolleiste, die schwebende Taste oder Control-Shift-E
 • Tipps mit kurzen Clips, heller und dunkler Modus, 14 Sprachen
 
-DATENSCHUTZ VON ANFANG AN
+DATENSCHUTZ
 • Kein Konto, keine Registrierung, kein Tracking
 • Eine Seite wird nur gelesen, wenn du fragst oder sie beobachtest
 • Seitentexte werden nie auf unseren Servern gespeichert; deine Chats bleiben auf deinen Geräten und werden Ende-zu-Ende-verschlüsselt über deine iCloud synchronisiert
@@ -43,8 +45,8 @@ TARIFE
 • Pro, Ultra und Eigener Schlüssel: monatlich oder jährlich
 
 IN EINER MINUTE STARTKLAR
-1. Öffne die ContextFlow-App: Sie zeigt dir Schritt für Schritt, wie du die Erweiterung in Safari aktivierst.
-2. Öffne eine Website und tippe auf die ContextFlow-Taste (auf dem Mac: das ContextFlow-Symbol in der Symbolleiste).
+1. Öffne die ContextFlow-App: Sie zeigt Schritt für Schritt, wie du die Erweiterung in Safari aktivierst.
+2. Öffne eine Website und tippe auf die ContextFlow-Taste (auf dem Mac: das Symbol in der Symbolleiste).
 
 KI kann Fehler machen. Überprüfe wichtige Informationen.
 

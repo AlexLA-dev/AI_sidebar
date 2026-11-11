@@ -25,10 +25,10 @@ const file = (p) => pathToFileURL(p).href
 
 const FPS = 30
 const XFADE = 0.3 // cross-fade between takes, s
-const PPO = process.env.SET === "ppo"
-const SYNC = PPO ? 3.7 : 4.5 // closing shot: the chat on every device, s
+const PPO = process.env.SET === "ppo" || process.env.SET === "v26"
+const SYNC = process.env.SET === "v26" ? 3.4 : PPO ? 3.7 : 4.5 // closing shot: the chat on every device, s
 const HOLD = 0.35 // ...this device alone before the camera pulls back, s
-const PULL = process.env.SET === "ppo" ? 1.8 : 2.1 // ...the pull-back, s
+const PULL = PPO ? 1.8 : 2.1 // ...the pull-back, s
 const END = PPO ? 2.1 : 2.4 // closing card, s
 const CAP_OUT = 0.18 // old caption fades out, s
 const CAP_IN = 0.27 // then the new one rises in, s
@@ -62,6 +62,8 @@ const COPY = {
     price: ["Know when", "a price drops"],
     copies: ["Your last 5 copies", "in any Safari field"],
     fill: ["Templates fill in", "names and dates"],
+    similar: ["Cheaper options,", "every link checked", "Ultra"],
+    organize: ["Chats that keep", "themselves in order", "Pro"],
     synced: "Synced through iCloud",
     end: ["AI, notes and templates in Safari", "On iPhone, iPad and Mac"],
     banner: { title: "Changed: Price", body: "Now: $99", time: "now" },
@@ -79,6 +81,8 @@ const COPY = {
     price: ["Узнаете, когда", "цена упадёт"],
     copies: ["Последние 5 копий", "в любом поле Safari"],
     fill: ["Шаблон сам впишет", "имя и дату"],
+    similar: ["Найдёт дешевле", "и проверит ссылки", "Ultra"],
+    organize: ["Чаты сами", "наводят порядок", "Pro"],
     synced: "Синхронизация через iCloud",
     end: ["ИИ, заметки и шаблоны в Safari", "На iPhone, iPad и Mac"],
     banner: { title: "Изменилось: Цена", body: "Сейчас: 10 990 ₽", time: "сейчас" },
@@ -103,7 +107,14 @@ const [appName, appTagline] = readFileSync(join(root, `store/metadata/${lang ===
 // the site in the address bar. The 30 s preview ends on the chat on every device.
 // The 2.6 page test (SET=ppo, iPhone and iPad): summary → price drop with the notification → a field filled from
 // the last copies → a template filled from the page → the same chats on every device (Mac with its sidebar).
-const SEGMENTS = process.env.SET === "ppo"
+const SEGMENTS = process.env.SET === "v26"
+  ? [
+      { take: "main", from: 1.6, host: COPY.host },
+      { take: "similar", from: 1.2, cut: 0.8, host: COPY.shopHost },
+      { take: "watch", from: 0.8, host: COPY.shopHost },
+      { take: "organize", from: 0.6, host: COPY.host2 }
+    ]
+  : process.env.SET === "ppo"
   ? [
       { take: "main", from: 1.3, host: COPY.host },
       { take: "watch", from: 0.6, host: COPY.shopHost },
@@ -116,7 +127,9 @@ const SEGMENTS = process.env.SET === "ppo"
       { take: "follows", from: 0.8, host: COPY.host2 },
       { take: "notes", from: 0.55, host: COPY.host }
     ]
-const LAST_CAPTION = SEGMENTS.at(-1).take === "notes" ? "notes" : SEGMENTS.at(-1).take === "fill" ? "fill" : "notes"
+// A Mac shows no iOS notification banner: its 2.6 video goes summary → Find similar → organizing.
+if (process.env.SET === "v26" && device === "mac") SEGMENTS.splice(SEGMENTS.findIndex((s) => s.take === "watch"), 1)
+const LAST_CAPTION = SEGMENTS.at(-1).take
 
 // ------------------------------------------------------------ timeline
 let start = 0
@@ -124,7 +137,8 @@ for (const s of SEGMENTS) {
   const rec = JSON.parse(readFileSync(join(REC, `${s.take}.json`), "utf8"))
   s.frames = rec.frames
   s.events = rec.events
-  s.to = rec.events.find((e) => e.type === "end").t
+  // `cut`: seconds left off the take's end.
+  s.to = rec.events.find((e) => e.type === "end").t - (s.cut ?? 0)
   s.start = start
   s.dur = s.to - s.from
   start += s.dur - XFADE
@@ -356,9 +370,9 @@ function frameHtml(g) {
 </div>`
 }
 
-const capHtml = (l) => !l ? "" : F.oneLine
+const capHtml = (l) => !l ? "" : (l[2] ? `<span class="plan ${l[2] === "Ultra" ? "u" : ""}">${l[2]}</span> ` : "") + (F.oneLine
   ? `<span class="l1">${l[0]}</span> <span class="l2">${l[1]}</span>`
-  : `<span class="l1">${l[0]}</span><br><span class="l2">${l[1]}</span>`
+  : `<span class="l1">${l[0]}</span><br><span class="l2">${l[1]}</span>`)
 
 const html = `<!doctype html><html><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -369,6 +383,8 @@ html, body { width: ${W}px; height: ${H}px; overflow: hidden; }
 body { position: relative; background: linear-gradient(180deg, #F4F9FF 0%, #E7F0FF 55%, #E3EEFF 100%); font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
 .ribbon { position: absolute; inset: 0; }
 .cap { position: absolute; left: 0; right: 0; top: ${F.capTop}px; z-index: 5; text-align: center; font-weight: 800; font-size: ${F.capSize}px; line-height: 1.06; letter-spacing: -0.025em; color: #0B1530; font-optical-sizing: auto; will-change: transform, opacity; }
+.cap .plan { display: inline-block; vertical-align: .18em; margin-right: .25em; padding: .14em .5em .16em; border-radius: 999px; font-size: .42em; letter-spacing: .02em; color: #fff; background: linear-gradient(90deg, #0EA5E9, #2563EB 70%, #4F46E5); }
+.cap .plan.u { background: linear-gradient(90deg, #A78BFA, #7C3AED 70%, #4F46E5); }
 .cap .l2 { background: linear-gradient(90deg, #0EA5E9, #2563EB 70%, #4F46E5); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .scr { position: absolute; width: ${S.w}px; transform-origin: 0 0; overflow: hidden; background: #fff; }
 .scr.iphone { width: 1290px; height: 2796px; border-radius: 190px; }

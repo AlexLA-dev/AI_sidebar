@@ -1,11 +1,14 @@
 Novidades do ContextFlow 2.6:
-• Ultra, um novo plano: tudo do Pro, mais “Ouvir” e “Encontrar parecidos”
-• Ouvir: toque em “Ouvir” embaixo de uma resposta ou vá em … → “Ouvir esta página”. Uma voz natural lê o texto em voz alta, em mais de 100 idiomas. No iPhone, continua tocando com a tela bloqueada
+• Ultra, um novo plano: tudo do Pro, mais “Encontrar parecidos” e “Ouvir”
 • Encontrar parecidos: está vendo um produto, um app, um artigo, uma receita ou um lugar? Toque em “Encontrar parecidos” para ver alternativas reais: mais baratas, mais novas, em estoque, grátis ou no seu idioma, ou diga com suas palavras o que você precisa. Cada link é aberto e verificado antes de você ver, e dá para acompanhar o preço de qualquer um deles
-• O Ultra acompanha até 50 páginas ao mesmo tempo
-• Planos anuais para Chave própria, Pro e Ultra. A mudança do Pro para o Ultra começa na hora, e a Apple reembolsa o que sobrou do Pro
-• Primeira vez no ContextFlow? Um guia curto acompanha você até a primeira resposta e não gasta suas respostas do dia. Para rever: … → Outros… → “Refazer o tour básico”
-• Selecione um texto no iPhone ou no iPad e as ações rápidas ficam no próprio campo “Sua pergunta…”: deslize para ver “Resumir”, “Traduzir”, “Explicação simples” e mais
+• Ouvir: toque em “Ouvir” embaixo de uma resposta ou vá em … → “Ouvir esta página”. Uma voz natural lê o texto em voz alta, em mais de 100 idiomas. No iPhone, continua tocando com a tela bloqueada
+• Conversas que se organizam sozinhas (Pro): embaixo de uma nova resposta ou nota, o ContextFlow sugere a conversa certa para ela, uma conversa nova ou uma das suas próprias tags. A barra “Sugestões” no topo da conversa reúne todas. Um toque move, e “Desfazer” traz de volta. Uma conversa também pode se nomear pelo assunto
+• “Me lembrar” e “Acompanhar” agora aceitam uma nota com suas palavras: o que conferir ou do que lembrar você
+• Selecione um texto e as ações rápidas esperam no próprio campo “Sua pergunta…”, logo abaixo: “Resumir”, “Traduzir”, “Explicação simples”, “Encontrar parecidos” e mais
 • O texto selecionado já está no seu idioma? “Traduzir” agora oferece outro idioma, como o inglês
+• “Conversas” no app: um só campo de busca, por palavras ou por significado (Pro)
+• Planos anuais para Chave própria, Pro e Ultra. A mudança do Pro para o Ultra começa na hora, e a Apple reembolsa o que sobrou do Pro
+• Primeira vez no ContextFlow? Um guia curto acompanha você até a primeira resposta e não gasta suas respostas do dia
+• Depois de uma atualização, “Novidades” no app mostra as principais mudanças com vídeos curtos
 • O ContextFlow agora fala chinês tradicional, árabe e vietnamita: 14 idiomas no total
 • Correções: o painel e os Ajustes agora rolam no Google, as últimas linhas dos Ajustes não ficam mais escondidas sob a barra de ferramentas do Safari, e os botões ao lado do texto selecionado não ficam mais parados quando só uma parte da página rola

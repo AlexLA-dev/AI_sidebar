@@ -1,11 +1,14 @@
 What's new in ContextFlow 2.6:
-• Ultra, a new plan: everything in Pro, plus Listen and Find similar
-• Listen: tap Listen under an answer, or choose … → Listen to this page. A natural voice reads it in 100+ languages. On iPhone it keeps playing with the screen locked
+• Ultra, a new plan: everything in Pro, plus Find similar and Listen
 • Find similar: looking at a product, an app, an article, a recipe or a place? Tap Find similar for real alternatives: cheaper, newer, in stock, free or in your language, or say what you need in your own words. Every link is opened and checked before you see it, and you can watch the price of any of them
-• Ultra watches up to 50 pages at once
-• Yearly plans for Own key, Pro and Ultra. Moving up from Pro to Ultra starts at once, and Apple refunds what's left of Pro
-• New to ContextFlow? A short guide walks you through your first answer, and it doesn't use up your answers for the day. To see it again: … → Other… → Replay the basics tour
-• Select text on iPhone or iPad and quick actions sit right in the “Your question…” field: swipe for Summarize, Translate, Explain simply and more
+• Listen: tap Listen under an answer, or choose … → Listen to this page. A natural voice reads it in 100+ languages. On iPhone it keeps playing with the screen locked
+• Chats that keep themselves in order (Pro): under a new answer or note, ContextFlow suggests the chat it belongs in, a new chat for it, or one of your own tags. The Suggested bar at the top of the chat shows them all. One tap moves it, Undo puts it back. A chat can also name itself by its topic
+• Remind me and Watch now take a note in your own words: what to check, or what to remind you of
+• Select text and quick actions wait right in the “Your question…” field under it: Summarize, Translate, Explain simply, Find similar and more
 • Selected text already in your language? Translate now offers another language, like English
+• Chats in the app: one search field, by words or by meaning (Pro)
+• Yearly plans for Own key, Pro and Ultra. Moving up from Pro to Ultra starts at once, and Apple refunds what's left of Pro
+• New to ContextFlow? A short guide walks you through your first answer, and it doesn't use up your answers for the day
+• After an update, What's new in the app shows the main changes with short clips
 • ContextFlow now speaks Traditional Chinese, Arabic and Vietnamese: 14 languages in all
 • Fixes: the panel and Settings now scroll on Google, the last lines of Settings no longer hide under Safari's toolbar, and the buttons by selected text no longer stay behind when only part of a page scrolls

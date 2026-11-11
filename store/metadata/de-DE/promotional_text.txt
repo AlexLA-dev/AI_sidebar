@@ -1,1 +1,1 @@
-Neu: Vorlagen, die Namen und Daten selbst eintragen, Kopiertes in jedem Feld und eine Mitteilung, wenn sich ein Preis ändert.
+Neu in 2.6: „Ähnliches finden“ zeigt echte, geprüfte Alternativen zu dem, was du dir ansiehst, „Anhören“ liest jede Seite vor, und deine Chats ordnen sich selbst.

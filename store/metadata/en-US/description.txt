@@ -1,8 +1,10 @@
 Stop pasting articles into a chatbot. Ask AI about any page, reply with templates that fill themselves and get a notification when a price changes, without leaving Safari. The chat follows you from page to page, and the same chat is on your iPhone, iPad and Mac.
 
 NEW IN 2.6
-• Ultra, a new plan: Listen reads answers and whole pages aloud in a natural voice, in 100+ languages. On iPhone it keeps playing with the screen locked
 • Find similar (Ultra): real alternatives to any page, cheaper, newer, in stock, free or in your language. Every link is opened and checked before you see it
+• Listen (Ultra): answers and whole pages read aloud in a natural voice, in 100+ languages. On iPhone it keeps playing with the screen locked
+• Chats that keep themselves in order (Pro): ContextFlow suggests where a new answer or note belongs, a new chat for it or one of your tags, and names chats by topic
+• A note in your own words on any reminder or watched price
 • Yearly plans for Own key, Pro and Ultra
 • A short guide to your first answer, and the panel in Traditional Chinese, Arabic and Vietnamese
 

@@ -1,5 +1,21 @@
 [
   [
+    "Explain the selected text",
+    "**In plain words:** the companies let people work one day less each week for the same pay, as long as the work still got done. Then they checked whether it did."
+  ],
+  [
+    "Объясни выделенный",
+    "**Если проще:** компании разрешили работать на день меньше за ту же зарплату, при условии что работа всё равно будет сделана. А потом проверили, получилось ли."
+  ],
+  [
+    "Translate the selected text",
+    "The terms of the trial: cut hours by 20% without cutting pay, but keep the same output."
+  ],
+  [
+    "Переведи выделенный|Переведите выделенный",
+    "Условие эксперимента: сократить часы на 20% без снижения зарплаты, при условии что результат останется прежним."
+  ],
+  [
     "oxygen|chlorophyll|green",
     "**Chlorophyll absorbs red and blue light** and reflects green, which is why leaves look green *(1:30)*.\n\n- Photosynthesis runs in the **chloroplasts** of leaf cells *(0:40)*.\n- The **oxygen** comes from splitting **water**, not from CO₂ *(4:15)*.\n- The sugar is built later in the **Calvin cycle**, which doesn't need light *(7:50)*."
   ],
