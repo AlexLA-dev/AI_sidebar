@@ -2051,8 +2051,6 @@ struct ChatDetailView: View {
         }
     }
 
-    /// While sharing the chat, a message is a row to tick: a tap anywhere on it picks or unpicks it.
-    @ViewBuilder
     /// Links in a message (an answer's, a note's page, Find similar's cards): 2.6 (98), the page opens in Safari with the
     /// panel on this chat, at this message (ChatLibrary.open).
     private func pageLinks(_ thread: ChatThread, _ index: Int) -> OpenURLAction {
@@ -2064,6 +2062,8 @@ struct ChatDetailView: View {
         }
     }
 
+    /// While sharing the chat, a message is a row to tick: a tap anywhere on it picks or unpicks it.
+    @ViewBuilder
     private func pickRow<Content: View>(_ index: Int, @ViewBuilder _ content: () -> Content) -> some View {
         if let picked {
             let on = picked.contains(index)
