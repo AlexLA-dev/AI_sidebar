@@ -766,5 +766,7 @@
   "similarSay": "Mọi người nói:",
   "similarPros": "khen {0}",
   "similarCons": "chê {0}",
-  "similarEstimated": "ước tính theo mô tả"
+  "similarEstimated": "ước tính theo mô tả",
+  "similarSame": "Cùng sản phẩm, cửa hàng khác",
+  "similarMisses": "Không đúng lựa chọn của bạn"
 }

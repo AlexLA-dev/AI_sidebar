@@ -2225,6 +2225,12 @@
  "similarEstimated": {
   "message": "estimé d’après la description"
  },
+ "similarSame": {
+  "message": "Même article, autre boutique"
+ },
+ "similarMisses": {
+  "message": "Ne correspond pas à votre choix"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

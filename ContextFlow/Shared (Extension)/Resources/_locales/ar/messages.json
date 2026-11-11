@@ -2225,6 +2225,12 @@
  "similarEstimated": {
   "message": "تقدير من الوصف"
  },
+ "similarSame": {
+  "message": "المنتج نفسه، متجر آخر"
+ },
+ "similarMisses": {
+  "message": "لا يطابق اختيارك"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

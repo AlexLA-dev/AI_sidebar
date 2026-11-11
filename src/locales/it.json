@@ -766,5 +766,7 @@
   "similarSay": "Cosa dicono:",
   "similarPros": "piace: {0}",
   "similarCons": "non piace: {0}",
-  "similarEstimated": "stimato dalla descrizione"
+  "similarEstimated": "stimato dalla descrizione",
+  "similarSame": "Stesso articolo, altro negozio",
+  "similarMisses": "Non rispetta la scelta"
 }

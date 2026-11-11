@@ -5,7 +5,10 @@
 // Prices and stock are read with page watch's parser (src/shared/watch/extract.ts), so both read shops alike.
 // Nothing is stored: the page is read once and forgotten.
 
+import { currencyOf } from "./money.mts"
+import { AGO, GONE as GONE_WORDS, HELPFUL, NAME_STOP_SET, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, STARS, VERIFIED, pattern } from "./lexicon.mts"
 import { isOutOfStock } from "../../src/shared/watch/detect.ts"
+import { hasDate } from "../../src/shared/watch/detect.ts"
 import { pageText, parseNumber, structured } from "../../src/shared/watch/extract.ts"
 import { appStoreLink, appStorePricing, pricingLinks, type AppPricing } from "./apppricing.mts"
 
@@ -57,7 +60,7 @@ export interface CheckedPage {
   // to look next: the App Store page the app's site links to, the site's pricing page.
   pricing?: AppPricing
   // Build 93: the item's rating as the page states it for machines (JSON-LD AggregateRating); build 94: else its
-  // microdata, a reviews widget's own attributes (Judge.me, Loox, Stamped…) or "4.6 out of 5 · 687 reviews" in the
+  // microdata, a reviews widget's own attributes (Judge.me, Loox, Stamped…) or "4.3 out of 5 · 1,204 reviews" in the
   // product's header — always read by our code, never by a model.
   rating?: PageRating
   // Build 94: the page's own reviews (the text after its "Customer reviews" heading), for what reviewers say.
@@ -256,45 +259,44 @@ export function markupRating(html: string): PageRating | undefined {
   return undefined
 }
 
-const REVIEW_COUNT = /(\d[\d,.  ]{0,9}\d|\d)\s*\+?\s*(?:verified\s+)?(?:reviews?|ratings?|отзыв\p{L}*|оцен\p{L}*|bewertungen|rezensionen|avis|reseñas|valoraciones|recensioni|avaliações)/iu
 
 /**
- * Build 94: "4.6 out of 5 · 687 reviews" in the product's header (the start of the main text), read by our code: the
- * average on a 5 scale with how many next to it; marketing's "5 out of 5" without a count isn't taken.
+ * A rating with its count in the product's header (the start of the main text), read by our code, in any of the app's
+ * languages ("4.3 out of 5 · 1,204 reviews", "4,3 von 5 · 1.204 Bewertungen", "5つ星のうち4.3 · 1,204件の評価"): the average on
+ * a 5 scale with how many next to it; marketing's "5 out of 5" without a count isn't taken.
  */
 export function textRating(text: string): PageRating | undefined {
   const head = text.slice(0, 1_500)
-  const m = /(?<![\d.,])([1-5](?:[.,]\d{1,2})?)\s*(?:out of|of|\/|из|von|sur|su|de|di)\s*5(?![\d.,])/i.exec(head)
+  const m = RATING_OF_5.exec(head)
   if (!m) return undefined
-  // Around the average, without it ("4.6 of 5 rating from 687 ratings": the count is 687, not the 5).
+  const value = m.slice(1).find((g) => g !== undefined)
+  // Around the average, without it ("4.3 of 5 rating from 1,204 ratings": the count is 1,204, not the 5).
   const near = `${head.slice(Math.max(0, m.index - 80), m.index)} | ${head.slice(m.index + m[0].length, m.index + m[0].length + 100)}`
-  const count = REVIEW_COUNT.exec(near)?.[1]
-  if (!count) return undefined
-  const found = scaled(ratingNumber(m[1]), 5, countNumber(count))
+  const c = REVIEW_COUNT.exec(near)
+  const count = c?.[1] ?? c?.[2]
+  if (!value || !count) return undefined
+  const found = scaled(ratingNumber(value), 5, countNumber(count))
   return found?.count ? found : undefined
 }
 
-const REVIEWS_HEAD = /(customer reviews|reviews\s*\(\d|\d[\d,.]*\s+reviews|what (?:our )?customers (?:are )?say(?:ing)?|verified (?:buyer|purchase)|отзывы|kundenbewertungen|bewertungen|avis clients|avis vérifiés|reseñas|opiniones|recensioni|avaliações)/gi
-// What reviews themselves look like: a reviewer marked verified, "helpful", a date, a star rating, a reviewer's name line.
-const REVIEW_MARKS = [
-  /verified (?:buyer|purchase|customer|reviewer)|подтвержд[её]нн|verifizierte|achat vérifié|compra verificada/i,
-  /helpful|полезн|hilfreich|utile|útil/i,
-  /\b(?:\d{1,2}[./]\d{1,2}[./]\d{2,4}|\d{4}-\d{2}-\d{2}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4}|\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]* \d{4})\b/i,
-  /\b[1-5](?:[.,]\d)?\s*(?:out of 5|\/ ?5|stars?)\b|★/i,
-  /\b(?:days?|weeks?|months?|years?) ago\b|назад/i
-]
+const REVIEWS_HEAD = pattern(REVIEWS_HEAD_WORDS, "giu")
+// What reviews themselves look like, in any of the app's languages: a reviewer marked verified, "helpful", a date, a star
+// rating, "… ago".
+const REVIEW_MARKS: Array<{ test: (s: string) => boolean }> = [pattern(VERIFIED), pattern(HELPFUL), { test: hasDate }, STARS, pattern(AGO)]
 
 /**
- * Build 94 (the owner: «на сайте отзывов полно»): the page's own reviews — the text after a reviews heading, wherever
- * the theme puts it (often after <main>) — for what reviewers say. Only a part that reads like reviews (two of: a
- * verified reviewer, "helpful", dates, stars, "… ago"): a header's "687 reviews" or a marketing block isn't one.
+ * The page's own reviews — the text after a reviews heading, wherever the theme puts it (often after <main>) — for what
+ * reviewers say: a shop's own reviews are often richer than any review site. Only a part that reads like reviews (two of: a
+ * verified reviewer, "helpful", dates, stars, "… ago"): a header's "1,204 reviews" or a marketing block isn't one.
  */
 export function reviewsSection(html: string): string | undefined {
   const text = pageText(html.replace(/<(script|style|noscript|template|svg)[^>]*>[\s\S]*?<\/\1>/gi, " "))
   const tail = text.slice(400)
   for (const m of tail.matchAll(REVIEWS_HEAD)) {
     const out = tail.slice(m.index, m.index + 3_500).trim()
-    if (out.length > 300 && REVIEW_MARKS.filter((re) => re.test(out)).length >= 2) return out
+    // Dense scripts (Chinese, Japanese, Korean) say as much in a third of the characters.
+    const size = out.length + (out.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu)?.length ?? 0) * 2
+    if (size > 300 && REVIEW_MARKS.filter((re) => re.test(out)).length >= 2) return out
   }
   return undefined
 }
@@ -327,8 +329,16 @@ function isoDate(value: string | undefined): string | undefined {
   return Number.isFinite(t) ? new Date(t).toISOString() : undefined
 }
 
-/** A price as "34.50 EUR" (page watch's form) → number and currency; a bare number keeps an empty currency. */
-export function readPrice(raw: string | undefined, html = ""): PagePrice | undefined {
+/** Signs several currencies share: on a country's own domain, that country's ("$" on a .ca shop is CAD). */
+const SHARED_SIGN: Record<string, string[]> = {
+  $: ["USD", "CAD", "AUD", "NZD", "MXN", "SGD", "HKD", "TWD", "CLP", "COP", "ARS"], "¥": ["JPY", "CNY"], kr: ["SEK", "NOK", "DKK", "ISK"]
+}
+
+/**
+ * A price as "34.50 EUR" (page watch's form) → number and currency; a bare number keeps an empty currency. A sign
+ * several currencies share is read by the page's domain when it's a country's own.
+ */
+export function readPrice(raw: string | undefined, html = "", url = ""): PagePrice | undefined {
   if (!raw) return undefined
   const amount = parseNumber(raw)
   if (amount === null) return undefined
@@ -336,9 +346,20 @@ export function readPrice(raw: string | undefined, html = ""): PagePrice | undef
   if (!currency) currency = meta(html, "product:price:currency", "og:price:currency", "priceCurrency").toUpperCase().slice(0, 3)
   if (!currency) {
     const sym = /([$€£¥₽₴₹₩]|R\$|zł|kr)/.exec(raw)?.[1]
-    currency = sym ? ({ $: "USD", "€": "EUR", "£": "GBP", "¥": "JPY", "₽": "RUB", "₴": "UAH", "₹": "INR", "₩": "KRW", R$: "BRL", zł: "PLN", kr: "SEK" } as Record<string, string>)[sym] ?? "" : ""
+    const local = url ? domainCurrency(url) : ""
+    currency = sym && SHARED_SIGN[sym]?.includes(local) ? local
+      : sym ? ({ $: "USD", "€": "EUR", "£": "GBP", "¥": "JPY", "₽": "RUB", "₴": "UAH", "₹": "INR", "₩": "KRW", R$: "BRL", zł: "PLN", kr: "SEK" } as Record<string, string>)[sym] ?? "" : ""
   }
   return { amount, currency }
+}
+
+/** The money of a country's own domain (".cy" → EUR, ".co.uk" → GBP); "" for .com and the like. */
+export function domainCurrency(url: string): string {
+  let host = ""
+  try { host = new URL(url).hostname.toLowerCase() } catch { return "" }
+  const tld = host.split(".").pop() ?? ""
+  if (tld.length !== 2) return ""
+  return currencyOf(tld === "uk" ? "GB" : tld.toUpperCase())
 }
 
 // ------------------------------------------------------------ verdicts on a page
@@ -354,7 +375,8 @@ export const NOT_FOUND = new RegExp([
 ].join("|"), "i")
 
 // A product or listing that is gone though its page still answers (not a dead link: a gone item).
-const GONE = /(no longer available|this item is (?:no longer|not) available|product (?:is )?(?:discontinued|unavailable)|listing (?:has )?ended|this listing (?:was|has been) (?:removed|ended)|job (?:is )?no longer (?:available|accepting)|(?:this )?(?:position|job) has been filled|вакансия (?:в архиве|закрыта)|товар (?:снят с продажи|больше не продается)|nicht mehr verfügbar)/i
+// "No longer sold", a listing or a deal that has ended, in any of the app's languages.
+const GONE = pattern(GONE_WORDS)
 
 export const BOT_WALL = /(cf-chl-|challenge-platform|just a moment\.\.\.|attention required! \| cloudflare|px-captcha|captcha-delivery|datadome|<title>\s*access denied|pardon our interruption|are you a (?:robot|human)|robot or human\?|request unsuccessful\. incapsula|enable javascript and cookies to continue|verify you are human|unusual traffic from your computer|automated access|sorry, we just need to make sure you'?re not a robot|<title>\s*client challenge|ddos-guard|checking your browser|please wait while we verify)/i
 
@@ -576,7 +598,9 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
     text: text.slice(0, textChars),
     ms: 0
   }
-  const price = readPrice(priceRaw, html)
+  const price = readPrice(priceRaw, html, finalUrl)
+  // A price without a currency on a country's own domain (a .jp shop's "12800") is in that country's money.
+  if (price && !price.currency) price.currency = domainCurrency(finalUrl)
   if (price) {
     page.price = price
     page.priceRaw = priceRaw
@@ -711,8 +735,8 @@ export function languageCheck(want: string, page: Pick<CheckedPage, "lang" | "in
 
 // ------------------------------------------------------------ is it the item?
 
-const STOP = new Set(("the a an and or of for with by in on to at from vs best top new official site app apps free online buy shop review reviews " +
-  "и в на с по для от до из или о об для это как").split(" "))
+// Words that don't tell names apart: function words in the app's languages, and a shop title's usual extras.
+const STOP = new Set([...NAME_STOP_SET, ..."best top new official site app apps free online buy shop review reviews".split(" ")])
 
 /** Words of a name for matching: lower case, accents folded, letters and digits only. */
 export function nameTokens(s: string): string[] {

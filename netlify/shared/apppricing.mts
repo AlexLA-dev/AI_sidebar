@@ -1,10 +1,11 @@
-// What an app costs, as its pages state it (build 91, the owner: «пройти по странице и понять есть ли там подписки, или
-// на сайт источника… чуть глубже копнуть»). Two places, read without a model, so nothing is guessed:
+// What an app costs, as its pages state it: whether there are subscriptions, a one-time price or nothing to pay. Two
+// places, read without a model, so nothing is guessed:
 // - an App Store page: its price (JSON-LD) and its "In-App Purchases" list (each purchase's name and price);
 // - an app's pricing page on its own site: the plans' prices with their period, and whether there's a free plan.
 // Either gives: free (nothing to buy), a subscription from a price, a one-time purchase, or in-app purchases from a
 // price, with the page it came from.
 
+import { FREE, MONTH, ONE_TIME as ONE_TIME_WORDS, PRICING_LINK, SUBSCRIPTION as SUBSCRIPTION_WORDS, WEEK, YEAR, pattern } from "./lexicon.mts"
 import { parseNumber } from "../../src/shared/watch/extract.ts"
 
 export interface PricePoint {
@@ -29,14 +30,22 @@ export interface AppPricing {
   via: "app_store" | "pricing_page"
 }
 
-const SYMBOLS: Record<string, string> = { $: "USD", "US$": "USD", "€": "EUR", "£": "GBP", "¥": "JPY", "₽": "RUB", "₴": "UAH", "₹": "INR", "₩": "KRW", R$: "BRL", "zł": "PLN", "₺": "TRY", "₪": "ILS" }
+const SYMBOLS: Record<string, string> = {
+  $: "USD", "US$": "USD", "€": "EUR", "£": "GBP", "¥": "JPY", "￥": "JPY", "円": "JPY", "元": "CNY", "₽": "RUB", "руб": "RUB", "₴": "UAH", "грн": "UAH",
+  "₹": "INR", "₩": "KRW", "원": "KRW", R$: "BRL", "zł": "PLN", "₺": "TRY", "₪": "ILS", "₫": "VND", "đ": "VND", "vnđ": "VND"
+}
 
-const SUBSCRIPTION = /\b(week(ly)?|month(ly)?|year(ly)?|annual(ly)?|quarter(ly)?|\d+\s*(mo|mos|months?|yrs?|years?|weeks?|wks?)|subscription|sub)\b|abonnement|abo\b|подписк|месяц|недел|годов|год\b|mensual|anual|monatlich|jährlich|mensuel|annuel/i
-const ONE_TIME = /\b(lifetime|one[- ]time|forever|permanent|pay once|once)\b|навсегда|пожизн|einmalig|à vie|de por vida/i
+// What a subscription, its period and a one-time purchase are called, in any of the app's languages (lexicon.mts).
+// "3 months" is a pack, not a monthly price: only a plain period, or one of 1, counts.
+const SUBSCRIPTION = new RegExp(`${pattern(SUBSCRIPTION_WORDS).source}|${pattern(WEEK).source}|${pattern(MONTH).source}|${pattern(YEAR).source}|\\b(?:quarter(?:ly)?|1\\s*(?:mo|months?|yrs?|years?|weeks?|wks?))\\b`, "iu")
+const ONE_TIME = pattern(ONE_TIME_WORDS)
 
 // Words for how often a price is paid; the one nearest the price counts ("$10 per seat/month billed annually": monthly).
-// "3 months" is a pack, not a monthly price: only a plain period, or one of 1, counts.
-const PERIODS = /(?<week>\b(?:week(?:ly)?|wk|wks|1\s*weeks?)\b|недел|semana|woche|semaine)|(?<year>\b(?:year(?:ly)?|annual(?:ly)?|yr|yrs|1\s*years?)\b|годов|год\b|anual|jährlich|annuel|jahr)|(?<month>\b(?:month(?:ly)?|mo|mos|1\s*months?)\b|месяц|мес\b|mensual|monatlich|mensuel|monat|mois|mes\b)/gi
+const PERIODS = new RegExp(`(?<week>${pattern(WEEK).source})|(?<year>${pattern(YEAR).source})|(?<month>${pattern(MONTH).source})`, "giu")
+
+// A free plan, and a link that names an app's prices ("Pricing", "Тарифы", "料金プラン"): the app's languages.
+const FREE_PLAN = pattern(FREE)
+const PRICING_LABEL = new RegExp(`^(?:${pattern(PRICING_LINK).source})$`, "iu")
 
 function periodsIn(text: string): Period[] {
   return [...text.matchAll(PERIODS)].map((m) => (m.groups?.week ? "week" : m.groups?.year ? "year" : "month"))
@@ -52,7 +61,7 @@ export function pricePoint(shown: string, fallback = ""): PricePoint | null {
   const amount = parseNumber(shown)
   if (amount === null) return null
   const code = /\b([A-Z]{3})\b/.exec(shown)?.[1]
-  const sym = /(US\$|R\$|zł|[$€£¥₽₴₹₩₺₪])/.exec(shown)?.[1]
+  const sym = /(US\$|R\$|zł|руб|грн|vnđ|[$€£¥円元₽₴₹₩원₺₪₫đ])/i.exec(shown)?.[1]?.toLowerCase().replace(/^(us|r)\$$/, (m) => m.toUpperCase())
   // A plain "$" in another storefront is that storefront's dollar (CAD, AUD…): the page's currency wins.
   const currency = code ?? (sym && sym !== "$" ? SYMBOLS[sym] : "") ?? ""
   return { amount, currency: currency || fallback || (sym === "$" ? "USD" : "") }
@@ -141,13 +150,18 @@ export interface PlanSeen {
 }
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+// The signs a shown price may carry, before or after its number (pricePoint's currencies).
+const MONEY_SIGN = "US\\$|R\\$|zł|руб|грн|vnđ|[$€£¥円元₽₴₹₩원₺₪₫đ]"
+// Where the next price starts after one, or the previous one ends before it: another plan's words don't count.
+const NEXT_PRICE = new RegExp(`(?:${MONEY_SIGN})\\s?\\d|\\d\\s?(?:${MONEY_SIGN})`, "u")
+const PREV_PRICE = new RegExp(`(?:${MONEY_SIGN})\\s?\\d[\\d.,]*|\\d\\s?(?:${MONEY_SIGN})`, "u")
 
 /**
  * Where `shown` ("$10", "€9.50", "9,99 €") stands in `text` as a whole price (not part of a longer number), allowing a
  * space between the sign and the number as pages often have; -1 when it isn't there.
  */
 export function findPrice(text: string, shown: string): { at: number; end: number } | null {
-  const m = /^\s*(US\$|R\$|zł|[$€£¥₽₴₹₩₺₪]|[A-Z]{3})?\s?(\d[\d.,\s]*\d|\d)\s?(US\$|zł|[$€£¥₽₴₹₩₺₪]|[A-Z]{3})?\s*$/.exec(shown)
+  const m = new RegExp(`^\\s*(${MONEY_SIGN}|[A-Z]{3})?\\s?(\\d[\\d.,\\s]*\\d|\\d)\\s?(${MONEY_SIGN}|[A-Z]{3})?\\s*$`, "u").exec(shown)
   if (!m || (!m[1] && !m[3])) return null
   const num = m[2].replace(/\s+/g, "").split(/([.,])/).map((part) => (part === "." || part === "," ? `\\s?\\${part}\\s?` : part)).join("")
   const source = m[1] ? `${escape(m[1])}\\s?${num}(?![\\d])` : `(?<![\\d.,])${num}\\s?${escape(m[3]!)}`
@@ -168,14 +182,14 @@ export function plansPricing(plans: PlanSeen[], freePlan: boolean, text: string,
     const price = spot ? pricePoint(plan.price) : null
     if (!spot || !price || price.amount <= 0) continue
     // Its surroundings up to the next or previous price: another plan's words don't count for this one.
-    const after = text.slice(spot.end, spot.end + 40).split(/[$€£¥₽₹₺₪]\s?\d|\d\s?[€£₽]/)[0]
-    const before = text.slice(Math.max(0, spot.at - 24), spot.at).split(/[$€£¥₽₹₺₪]\s?\d[\d.,]*|\d\s?[€£₽]/).pop() ?? ""
+    const after = text.slice(spot.end, spot.end + 40).split(NEXT_PRICE)[0]
+    const before = text.slice(Math.max(0, spot.at - 24), spot.at).split(PREV_PRICE).pop() ?? ""
     const said = periodOf(after) ?? periodsIn(before).pop() ?? null
     const ok = plan.period === "one_time" ? ONE_TIME.test(`${before} ${after}`) : said === plan.period
     if (!ok) continue
     held.push({ name: plan.name.slice(0, 60), price, period: plan.period, around: `${plan.name.slice(0, 40)} ${plan.price}${plan.period === "one_time" ? " one-time" : `/${plan.period}`}` })
   }
-  const free = freePlan && /\bfree\b|[$€£]\s?0(?![\d.,])|бесплатн|gratuit|gratis|kostenlos/i.test(text)
+  const free = freePlan && (FREE_PLAN.test(text) || /[$€£¥₩]\s?0(?![\d.,])/.test(text))
   const options = held.slice(0, 8).map((h) => h.around)
   const periodic = held.filter((h): h is typeof h & { period: Period } => h.period !== "one_time")
   if (periodic.length) {
@@ -217,8 +231,8 @@ export function pricingLinks(html: string, pageUrl: string): string[] {
     const host = href.hostname.replace(/^www\./, "")
     if (host !== site && !host.endsWith(`.${site}`) && !site.endsWith(`.${host}`)) continue
     const path = href.pathname.toLowerCase()
-    const byPath = /\/(pricing|plans|prices|price|premium|upgrade|tarifs?|preise|precios|prezzi)(\/|\.html?)?$/.test(path)
-    const byLabel = /^(pricing|plans|prices|plans (&|and) pricing|premium|upgrade|тарифы|цены|preise|tarifs|precios)$/i.test(label)
+    const byPath = /\/(pricing|plans|prices|price|premium|upgrade|tarifs?|tarife|preise|prix|precios|planes|prezzi|piani|precos|planos|ryokin|price-plan)(\/|\.html?)?$/.test(path)
+    const byLabel = PRICING_LABEL.test(label.trim())
     if (!byPath && !byLabel) continue
     href.hash = ""
     const link = href.toString()

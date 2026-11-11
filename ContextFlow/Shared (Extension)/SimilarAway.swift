@@ -4,8 +4,8 @@ import UserNotifications
 import os
 #endif
 
-/// Find similar after leaving Safari (build 94, the owner: «Поиск прерывается, если выходишь из Safari, а надо, чтобы
-/// шел и приходила нотификация от приложения, когда найдено с переходом прямо к вариантам»).
+/// Find similar after leaving Safari: the search goes on, and a notification from the app, when it's done, opens the
+/// answer.
 ///
 /// Our server finishes a Find similar on its own and keeps the answer (/api/v2/similar-result). When the person leaves
 /// Safari mid-search, the extension starts a background download of that answer here: iOS carries it on while Safari's
@@ -233,17 +233,37 @@ nonisolated enum SimilarAway {
 
     // MARK: The app: the notification's tap
 
-    /// The chat opens in the panel (the next panel to ask takes it); the page to open in Safari (the app opens it:
-    /// UIApplication isn't an extension's).
+    /// The page to open in Safari (the app opens it: UIApplication isn't an extension's), with the chat in its address:
+    /// the tab it opens in shows the panel on that chat. Leaving the chat for "the next panel to ask" let the tab the
+    /// search started in take it first, behind the new one, and no page asked at all half an hour after the search.
     @MainActor
     static func opened(_ info: [AnyHashable: Any]) -> URL? {
         guard info["similar"] is String else { return nil }
         let thread = info["chat"] as? String ?? ""
-        if !thread.isEmpty {
-            ChatMirror.requestOpen(thread)
-            defaults.set(["thread": thread, "at": Date().timeIntervalSince1970], forKey: openKey)
+        guard let page = (info["open"] as? String).flatMap(URL.init(string:)), page.scheme == "https" || page.scheme == "http" else {
+            if isThread(thread) { ChatMirror.requestOpen(thread) }
+            return nil
         }
-        return (info["open"] as? String).flatMap(URL.init(string:)).flatMap { $0.scheme == "https" || $0.scheme == "http" ? $0 : nil }
+        guard isThread(thread) else { return page }
+        ChatMirror.requestOpen(thread)
+        return pageOpening(page, thread: thread)
+    }
+
+    /// The page with `#cf-similar=<chat>` (the panel takes it out at once); a page with an address fragment of its own
+    /// keeps it, and the chat waits for the next panel that asks instead.
+    static func pageOpening(_ page: URL, thread: String) -> URL {
+        if var parts = URLComponents(url: page, resolvingAgainstBaseURL: false), (parts.fragment ?? "").isEmpty {
+            parts.fragment = "cf-similar=\(thread)"
+            if let marked = parts.url { return marked }
+        }
+        defaults.set(["thread": thread, "at": Date().timeIntervalSince1970], forKey: openKey)
+        return page
+    }
+
+    private static let validThread = try? NSRegularExpression(pattern: "^[A-Za-z0-9_-]{1,80}$")
+
+    private static func isThread(_ s: String) -> Bool {
+        validThread?.firstMatch(in: s, range: NSRange(s.startIndex..., in: s)) != nil
     }
 
     /// The chat a notification's tap asked to open, once, if recent.

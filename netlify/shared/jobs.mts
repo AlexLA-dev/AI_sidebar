@@ -1,5 +1,4 @@
-// Build 94 (the owner: «Поиск прерывается, если выходишь из Safari, а надо, чтобы шел и приходила нотификация от
-// приложения, когда найдено»): a Find similar asked with its question's id runs to its end on our server even when the
+// A search shouldn't stop when the person leaves Safari, and they should hear when it's done: a Find similar asked with its question's id runs to its end on our server even when the
 // request goes away (iOS suspends Safari's extension when the person leaves Safari), and its answer waits here for
 // the extension, or the app woken by iOS, to pick it up (/api/v2/similar-result). Kept per install and question, a
 // day at most; the extension takes it away once it wrote the answer into the chat.

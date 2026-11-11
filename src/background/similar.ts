@@ -38,6 +38,9 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
         ...(req.payload.selection ? { selection: req.payload.selection } : {}),
         ...(req.payload.region ? { region: req.payload.region } : {}),
         ...(req.payload.country ? { country: req.payload.country } : {}),
+        // Build 95: the chip and their own words apart (sent when the panel set them; "" means none).
+        ...(req.payload.chip !== undefined ? { chip: req.payload.chip } : {}),
+        ...(req.payload.words !== undefined ? { words: req.payload.words } : {}),
         ...(req.job ? { job: req.job } : {})
       }),
       signal: timeout.signal

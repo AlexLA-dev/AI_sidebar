@@ -12,7 +12,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage, markupRating, reviewsSection, textRating } = await import("../netlify/shared/pagecheck.mts")
-const { Claims, distinctive, traitExcerpt, checkCondition, finishItems, localQueries, reviewWords, reviewsStep, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
+const { Claims, distinctive, loadUnsupportedCountries, useCountryStore, traitExcerpt, checkCondition, finishItems, localQueries, reviewWords, reviewsStep, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
 const { jobKey, jobState, sweepJobs, useJobStore, waitForJob, JOB_STALE_MS } = await import("../netlify/shared/jobs.mts")
 const { default: resultFn } = await import("../netlify/functions/v2-similar-result.mts")
 const { cleanItem } = await import("../src/shared/similar.ts")
@@ -39,21 +39,25 @@ const price = (amount: string, currency = "EUR", name = "") => ld({ "@type": "Pr
 
 // ---- where ------------------------------------------------------------------------------------
 
-test("near them in Cyprus (no search location there): the searches name the country, some stay open to shops that deliver", () => {
+test("near them in a country the search tool can't locate: once learned, every search names the country", async () => {
+  // Learned from the tool's refusal and kept (a store); nothing about any country is assumed beforehand.
+  const kept: string[][] = []
+  useCountryStore({ get: async () => ["CY"], set: async (codes) => { kept.push(codes) } })
+  await loadUnsupportedCountries()
   const cy = input({ region: "local", country: "CY" })
   assert.equal(searchLocation(cy), null)
-  // The planner named it already (in any language): as planned.
+  // The planner named it already (in English, the person's language, or the country's own): as planned.
   const named = ["vacuum compression rolling carry-on", "βαλίτσα trolley Κύπρος"]
   assert.deepEqual(localQueries(cy, plan({ queries: named })), named)
   assert.deepEqual(localQueries(cy, plan({ queries: ["a", "b CY shop"] })), ["a", "b CY shop"])
-  // No search names it: every other one does now.
-  assert.deepEqual(localQueries(cy, plan({ queries: ["vacuum compression rolling carry-on", "vacuum backpack trolley", "rollerbag cheaper"] })), [
-    "vacuum compression rolling carry-on", "vacuum backpack trolley Cyprus", "rollerbag cheaper"
+  // No search names it: every one does now (shops abroad that deliver there come in a second round, if needed).
+  assert.deepEqual(localQueries(cy, plan({ queries: ["vacuum compression rolling carry-on", "rollerbag cheaper"] })), [
+    "vacuum compression rolling carry-on Cyprus", "rollerbag cheaper Cyprus"
   ])
-  assert.deepEqual(localQueries(cy, plan({ queries: ["vacuum rollerbag"] })), ["vacuum rollerbag Cyprus"])
   // Where the search can be located, or worldwide: the searches as planned.
   assert.deepEqual(localQueries(input({ region: "local", country: "DE" }), plan()), plan().queries)
   assert.deepEqual(localQueries(input({ region: "world", country: "CY" }), plan()), plan().queries)
+  useCountryStore(null)
 })
 
 // ---- how close ----------------------------------------------------------------------------------
@@ -239,15 +243,18 @@ test("an item named on a list page doesn't take that page's price, stock or cond
   assert.doesNotMatch(writeMessage(input(), plan(), [checked]), /price 0\.89/)
 })
 
-// The real Backvac catalog's names (mybackvac.com/products.json, 2026-11-10), the Pro page linking none of its models.
-const CATALOG = [
-  ["Linen Laundry Bag", "linen-laundry-bag"], ["Blackout Mask", "eye-mask"], ["Backvac Flight Bundle", "backvac-flight-bundle"],
-  ["Backvac Flight Carry-on", "backvac-flight-carry-on"], ["Backvac Overnight Bag", "backvac-overnight-bag"], ["Backvac Vacuum Kit", "backvac-vacuum-kit"],
-  ["Backvac Pro", "backvacv1"], ["Backvac Pro Max Complete Kit", "backvac-pro-max-complete-travel-kit"], ["Backvac Pro Max - Travel Bundle", "backvac-pro-max-travel-bundle"],
-  ["Backvac Pro Max", "backvacpromax"], ["Backvac Pro Travel Cover", "travelcover"], ["Backvac® Pro", "backvacpro"], ["Portable Air Pump", "airpump"]
-].map(([title, handle]) => ({ title, handle }))
+// A shop's catalog as /products.json gives it (names, handles, product types, variant prices), the item's page linking
+// none of its models. Accessories are told by their product type and price, not by their names.
+const CATALOG = ([
+  ["Linen Laundry Bag", "linen-laundry-bag", "Accessories", "19"], ["Blackout Mask", "eye-mask", "Accessories", "15"],
+  ["Backvac Flight Bundle", "backvac-flight-bundle", "Bundles", "249"], ["Backvac Flight Carry-on", "backvac-flight-carry-on", "Backpacks", "199"],
+  ["Backvac Overnight Bag", "backvac-overnight-bag", "Backpacks", "149"], ["Backvac Vacuum Kit", "backvac-vacuum-kit", "Accessories", "39"],
+  ["Backvac Pro", "backvacv1", "Backpacks", "179.99"], ["Backvac Pro Max Complete Kit", "backvac-pro-max-complete-travel-kit", "Bundles", "399"],
+  ["Backvac Pro Max - Travel Bundle", "backvac-pro-max-travel-bundle", "Bundles", "349"], ["Backvac Pro Max", "backvacpromax", "Backpacks", "299.99"],
+  ["Backvac Pro Travel Cover", "travelcover", "Accessories", "29"], ["Backvac® Pro", "backvacpro", "Backpacks", "179.99"], ["Portable Air Pump", "airpump", "Accessories", "25"]
+] as const).map(([title, handle, product_type, price]) => ({ title, handle, product_type, variants: [{ price }] }))
 
-test("a Shopify shop: the brand's other models from its catalog when the page links none (the owner's Backvac Pro)", async () => {
+test("a Shopify shop: the brand's other models from its catalog when the page links none (a backpack shop)", async () => {
   const proPage = html("Backvac® Pro | Backvac", `<button>Compare Models</button><script src="https://cdn.shopify.com/s/files/theme.js"></script>`, `<meta property="og:site_name" content="Backvac">${price("179.99", "USD", "Backvac® Pro")}`)
   const c = candidate("https://mybackvac.com/products/backvacpro", proPage, "Backvac® Pro")
   assert.equal(c.page.shopify, true)
@@ -261,7 +268,7 @@ test("a Shopify shop: the brand's other models from its catalog when the page li
   }) as typeof fetch
   try {
     const catalog = await shopifyCatalog("https://mybackvac.com", 3_000)
-    // The model first; the item itself (an older listing of its name) left out; kits, bundles and covers after models.
+    // The model first; the item itself (an older listing of its name) left out; other product types (bundles, accessories) after models.
     assert.deepEqual(siblingLinks(c, catalog).slice(0, 3).map((l) => l.text), ["Backvac Pro Max", "Backvac Flight Carry-on", "Backvac Overnight Bag"])
     const out = await siblingsStep([c], plan(), {}, "en", 5_000)
     assert.deepEqual(out.checked[0].siblings!.map((s) => s.page.name), ["Backvac Pro Max", "Backvac Flight Carry-On"])
@@ -333,8 +340,10 @@ test("a model's excerpt keeps what it says of the traits, however far down the p
 })
 
 test("a review page is an item's when it names what sets the item apart, and when it isn't about two items at once", async () => {
-  assert.deepEqual(distinctive("Discoverer 60L Vacuum Backpack", plan()), ["discoverer"])
-  assert.deepEqual(distinctive("Backvac Pro Max", plan()), ["backvac", "pro", "max"])
+  // What the other names here share (a kind of thing) tells no item apart; worked out from this answer's own names.
+  const names = ["Discoverer 60L Vacuum Backpack", "Pioneer 55L Vacuum Backpack"]
+  assert.deepEqual(distinctive("Discoverer 60L Vacuum Backpack", plan(), names), ["discoverer"])
+  assert.deepEqual(distinctive("Backvac Pro Max", plan(), names), ["backvac", "pro", "max"])
   const a = candidate("https://nomadity.store/discoverer", html("Discoverer 60L Vacuum Backpack", "", price("119.99", "USD", "Discoverer 60L Vacuum Backpack")), "Discoverer 60L Vacuum Backpack")
   const b = candidate("https://nomadity.store/pioneer", html("Pioneer 55L Vacuum Backpack", "", price("139.99", "USD", "Pioneer 55L Vacuum Backpack")), "Pioneer 55L Vacuum Backpack")
   const generic = html("Vacuum Compression Backpack reviews", "<p>Customers rate this vacuum backpack 3.9 out of 5.</p>", ld({ "@type": "Product", name: "Vacuum Compression Backpack", aggregateRating: { ratingValue: 3.9, reviewCount: 101 } }))

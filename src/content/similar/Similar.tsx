@@ -7,7 +7,7 @@ import type { VNode } from "preact"
 import { useState } from "preact/hooks"
 
 import { t, uiLang } from "../../shared/i18n"
-import { closeAndLess, SIMILAR_CHIPS, type SimilarAnswer, type SimilarChip, type SimilarItem, type SimilarPricing, type SimilarStep } from "../../shared/similar"
+import { closeAndLess, SIMILAR_CHIPS, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarPricing, type SimilarStep } from "../../shared/similar"
 import { moneyIn } from "../../shared/watch/compare"
 import { parseNumber } from "../../shared/watch/extract"
 import * as Icon from "../icons"
@@ -61,7 +61,7 @@ function countryLabel(code: string): string {
   }
 }
 
-/** Where a Find similar looked, for its question line (build 94): «Рядом · Кипр», «По всему миру». */
+/** Where a Find similar looked, for its question line: near them (in their country) or worldwide. */
 export function whereLabel(region: "world" | "local", country?: string | null): string {
   if (region === "world") return t("similarWorld")
   return country ? t("similarLocalIn", countryLabel(country)) : t("similarLocal")
@@ -69,12 +69,11 @@ export function whereLabel(region: "world" | "local", country?: string | null): 
 
 export function SimilarPicker({ title, region, country, onRegion, onFind, onClose }: {
   title: string
-  // Build 93 (the owner: «уточнять worldwide нужно или локально»): where to look, as chosen last time (null: never
-  // chosen, asked now) and their country for "near me".
+  // Where to look, as chosen last time (null: never chosen, asked now) and their country for "near me".
   region?: "world" | "local" | null
   country?: string | null
   onRegion?: (region: "world" | "local") => void
-  onFind: (condition: string, label: string) => void
+  onFind: (condition: string, label: string, ask: SimilarAsk) => void
   onClose: () => void
 }): VNode {
   const [chip, setChip] = useState<SimilarChip | null>(null)
@@ -85,7 +84,8 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
     const condition = [chip ? chipCondition(chip) : "", words.trim()].filter(Boolean).join(", ").slice(0, 300)
     // The question's bubble: the person's own words (or the chip's), in whatever language they wrote them; the Find
     // similar icon beside it says what it is (2.6 build 90: "Find similar:" in an English panel before Russian words).
-    onFind(condition, condition || t("similarAsked"))
+    // Build 95: the chip and their own words apart too: the server weighs the chip softly, their words strictly.
+    onFind(condition, condition || t("similarAsked"), { ...(chip ? { chip } : {}), ...(words.trim() ? { words: words.trim().slice(0, 300) } : {}) })
   }
   return (
     <div class="cf-card cf-similar-pick" role="dialog" aria-label={t("similarTitle")}>
@@ -157,8 +157,8 @@ export function shownPrice(price: string): string {
 }
 
 /**
- * An item's link opens its page in a new tab the browser's own way (build 91, the owner: the titles opened nothing on
- * iPhone; a tab the extension opens may stay behind the one shown there). Only a page that stops links itself (its
+ * An item's link opens its page in a new tab the browser's own way (a tab
+ * the extension opens may open nothing on iPhone; a tab the extension opens may stay behind the one shown there). Only a page that stops links itself (its
  * own click handling) gets it opened by the background instead.
  */
 function opening(url: string, onOpen: (url: string) => void): (e: MouseEvent) => void {
@@ -194,9 +194,8 @@ function proofLink(item: SimilarItem, onOpen: (url: string) => void): VNode | nu
 }
 
 /**
- * What reviewers say, one line in the same order for every item (build 94, the owner: one item had reviews without a
- * rating, another a rating in its description and no reviews line): «Что говорят: ★ 4,6 · 687 оценок · хвалят … ·
- * ругают … · mybackvac.com».
+ * What reviewers say, one line in the same order for every item, whatever each page had (a rating, reviews,
+ * both): "What people say: ★ 4.6 · 1,204 ratings · like … · dislike … · site".
  */
 function Reviews({ item, onOpen }: { item: SimilarItem; onOpen: (url: string) => void }): VNode | null {
   const r = item.reviews
@@ -224,7 +223,8 @@ function Reviews({ item, onOpen }: { item: SimilarItem; onOpen: (url: string) =>
 function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n: number; onOpen: (url: string) => void; onWatch?: (item: SimilarItem) => void; less?: boolean }): VNode {
   const facts = [
     // An app's pricing says more than its store price ($0.00 for one with a subscription inside).
-    item.price && !item.pricing ? shownPrice(item.price) : "",
+    // Build 95: a price in another currency with ≈ theirs at the day's rate.
+    item.price && !item.pricing ? `${shownPrice(item.price)}${item.priceLocal ? ` ≈ ${shownPrice(item.priceLocal)}` : ""}` : "",
     item.stock === "in" ? t("similarStockIn") : item.stock === "out" ? t("similarStockOut") : "",
     item.date ? shortDate(item.date) : ""
   ].filter(Boolean)
@@ -238,13 +238,15 @@ function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n
         <span class="cf-similar-host">
           <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={opening(item.url, onOpen)}>{item.host}</a>
           {item.source === "list" ? ` · ${t("similarFromList")}` : ""}
+          {/* Build 95: their very item at another shop, cheaper or in stock there. */}
+          {item.same ? <span class="cf-similar-same"> · {t("similarSame")}</span> : null}
         </span>
         {item.why && <p class="cf-similar-why" dir="auto">{item.why}</p>}
-        {/* Build 94: on every item, the only one too (the owner: one item showed no share at all); a page that couldn't
+        {/* On every item, the only one too; a page that couldn't
             be opened is judged from its search result's description, and says so. */}
         {(item.similarity !== undefined || item.differs) && (
           <p class={`cf-similar-differs${less ? " less" : ""}`} dir="auto">
-            {item.similarity !== undefined && (
+            {item.similarity !== undefined && !item.same && (
               <span class="cf-similar-pct">{t("similarPercent", item.similarity)}{item.estimated ? <span class="cf-similar-est"> · {t("similarEstimated")}</span> : null}</span>
             )}
             {item.differs && <span>{t("similarDiffers", item.differs)}</span>}
@@ -256,6 +258,10 @@ function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n
           <p class="cf-similar-fit unknown" dir="auto"><span class="cf-similar-nc">{t("similarNotConfirmed")}</span>{item.fit ? ` ${item.fit}` : ""}</p>
         )}
         {item.met === "n/a" && item.fit && <p class="cf-similar-fit" dir="auto">{item.fit}</p>}
+        {/* Build 95: close, but it misses the chip they tapped (listed last, when few close ones meet it). */}
+        {item.met === "no" && (
+          <p class="cf-similar-fit no" dir="auto"><span class="cf-similar-nc">{t("similarMisses")}</span>{item.fit ? ` ${item.fit}` : ""}</p>
+        )}
         <Reviews item={item} onOpen={onOpen} />
         {(facts.length > 0 || item.pricing || !item.checked || (onWatch && item.watch)) && (
           <div class="cf-similar-facts">

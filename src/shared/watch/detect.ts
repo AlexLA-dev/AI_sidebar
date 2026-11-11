@@ -8,7 +8,7 @@ const MAX_LEN = 80
 
 // Symbols and words that sit right by a number, in any case ("40 usd" on some shops).
 const SYMBOLS =
-  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|лв\.?|руб\.?|р\.|грн\.?|円|元|원` +
+  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥￥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|лв\.?|руб\.?|р\.|грн\.?|円|元|원` +
   // Vietnamese dong as shops write it ("299.000đ", "299.000 VNĐ"); the Gulf's and Egypt's riyal, dirham, dinar, pound.
   String.raw`|vnđ|đ|ر\.\s?س\.?|د\.\s?إ\.?|ر\.\s?ع\.?|د\.\s?ك\.?|ر\.\s?ق\.?|د\.\s?ب\.?|ج\.\s?م\.?|ريال|درهم|دينار|جنيه|ل\.\s?س\.?`
 // The codes shops also write in small letters, which are never words.
@@ -36,6 +36,11 @@ const priceSource = (cur: string) =>
 const PRICE_ANY = new RegExp(priceSource(`${SYMBOLS}|${SMALL_CODES}`), "iu")
 const PRICE_CODE = new RegExp(priceSource(CODES), "u")
 const PRICE = { test: (s: string) => PRICE_ANY.test(s) || PRICE_CODE.test(s) }
+
+/** The first price a text states, in any of the panel's currencies and ways of writing them (null: none). */
+export function firstPrice(text: string): string | null {
+  return prices(text)[0] ?? null
+}
 
 /** Every price in a text, in order (both patterns). */
 function prices(text: string): string[] {
@@ -156,7 +161,7 @@ function withEndings(word: string): string {
 
 // Whole phrases: in scripts with spaces, not inside a longer word (Russian and Ukrainian words with their endings:
 // "заявление" also finds "заявления"); Chinese, Japanese and Korean words anywhere.
-function phrases(list: string[]): RegExp {
+export function phrases(list: string[]): RegExp {
   const spaced = list.filter((w) => !CJK.test(w)).map(withEndings)
   const dense = list.filter((w) => CJK.test(w)).map(escape)
   const parts = [`(?<![\\p{L}\\p{N}])(?:${spaced.join("|")})(?![\\p{L}\\p{N}])`]
@@ -215,6 +220,11 @@ const DATE = new RegExp(
   ].join("|"),
   "iu"
 )
+
+/** Whether a text states a date in any of the panel's languages ("4 March 2026", "4. März", "2026年3月4日"). */
+export function hasDate(text: string): boolean {
+  return DATE.test(text)
+}
 
 // A bare day and month, 04.11 or 4/11: both parts must fit, so "19.99" and "12.50" stay numbers, and "1/2"
 // (three digits at least) stays a fraction.

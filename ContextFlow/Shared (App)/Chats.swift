@@ -88,6 +88,12 @@ struct ChatEntry: Decodable, Hashable {
     var marks: [ChatMark]?
     var pinned: Double?
     var remind: ChatRemind?
+    /// Find similar (2.6): on the question, the condition asked and where it looked; on the answer, the whole list
+    /// (build 95: the app draws the panel's cards from it, SimilarCards.swift).
+    var similarAsk: String?
+    var similarRegion: String?
+    var similarCountry: String?
+    var similar: SimilarAnswerData?
 
     struct From: Decodable, Hashable {
         var chat: String
@@ -711,6 +717,27 @@ final class ChatLibrary: ObservableObject {
                 _ = ChatMirror.apply(saves: [id: ChatMirror.Item(updatedAt: item.updatedAt + 1, data: text)])
                 DebugHangLog.mark("renamed \(id) elsewhere")
                 self?.reload()
+            }
+        }
+        // Build 95 (Find similar's cards in the app): -CFDebugSeedSimilar YES puts a real answer here (SimilarDebugSeed).
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedSimilar"), ChatMirror.chats()[SimilarDebugSeed.id] == nil,
+           var object = (try? JSONSerialization.jsonObject(with: Data(SimilarDebugSeed.json.utf8))) as? [String: Any],
+           var m = object["m"] as? [[String: Any]], m.count == 2 {
+            let now = Int64(Date().timeIntervalSince1970 * 1000)
+            m[0]["t"] = now - 60_000
+            if var page = m[0]["page"] as? [String: Any] {
+                page["at"] = now - 60_000
+                m[0]["page"] = page
+            }
+            m[1]["t"] = now
+            if var similar = m[1]["similar"] as? [String: Any] {
+                similar["at"] = now
+                m[1]["similar"] = similar
+            }
+            object["m"] = m
+            object["a"] = now
+            if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: [SimilarDebugSeed.id: ChatMirror.Item(updatedAt: now, data: text)])
             }
         }
         // -CFDebugOpenChat <id> -CFDebugOpenAfter <s>: that chat opens after so many seconds (its first answer), as a tap

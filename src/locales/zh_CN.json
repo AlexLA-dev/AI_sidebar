@@ -766,5 +766,7 @@
   "similarSay": "评价：",
   "similarPros": "好评：{0}",
   "similarCons": "差评：{0}",
-  "similarEstimated": "根据描述估计"
+  "similarEstimated": "根据描述估计",
+  "similarSame": "同款商品，其他商店",
+  "similarMisses": "不符合你选的条件"
 }

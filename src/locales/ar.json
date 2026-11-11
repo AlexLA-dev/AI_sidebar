@@ -766,5 +766,7 @@
   "similarSay": "ماذا يقولون:",
   "similarPros": "يمدحون {0}",
   "similarCons": "ينتقدون {0}",
-  "similarEstimated": "تقدير من الوصف"
+  "similarEstimated": "تقدير من الوصف",
+  "similarSame": "المنتج نفسه، متجر آخر",
+  "similarMisses": "لا يطابق اختيارك"
 }

@@ -2225,6 +2225,12 @@
  "similarEstimated": {
   "message": "geschätzt anhand der Beschreibung"
  },
+ "similarSame": {
+  "message": "Gleicher Artikel, anderer Shop"
+ },
+ "similarMisses": {
+  "message": "Erfüllt deine Auswahl nicht"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

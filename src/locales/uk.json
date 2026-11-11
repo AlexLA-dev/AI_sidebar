@@ -766,5 +766,7 @@
   "similarSay": "Що кажуть:",
   "similarPros": "хвалять {0}",
   "similarCons": "критикують {0}",
-  "similarEstimated": "оцінка за описом"
+  "similarEstimated": "оцінка за описом",
+  "similarSame": "Той самий товар, інший магазин",
+  "similarMisses": "Не відповідає вибору"
 }

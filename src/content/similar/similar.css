@@ -11,7 +11,7 @@
   border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font: inherit; font-size: 13.5px;
 }
 .cf-similar-words:focus { outline: none; border-color: var(--accent); }
-/* iOS zooms the page into a field whose text is under 16px (build 89, the owner): never on a touch screen. */
+/* iOS zooms the page into a field whose text is under 16px: never on a touch screen. */
 .cf[data-touch] .cf-similar-words { font-size: 16px; }
 .cf .cf-similar-hint { margin: 0 0 10px; font-size: 12px; color: var(--text-3); }
 .cf-similar-pick .cf-primary { display: inline-flex; align-items: center; gap: 6px; }
@@ -42,6 +42,10 @@
   display: inline-block; padding: 0 6px; margin-inline-end: 4px; border-radius: 6px;
   font-size: 11px; font-weight: 600; color: var(--text-2); background: var(--border);
 }
+/* Build 95: their very item at another shop; a close item that misses the chip they tapped. */
+.cf-similar-host .cf-similar-same { color: var(--ok); font-weight: 600; }
+.cf .cf-similar-fit.no { color: var(--text-2); }
+.cf .cf-similar-fit.no .cf-similar-nc { color: var(--text-2); background: transparent; border: 1px solid var(--border); }
 .cf-similar-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--text); }
 .cf-similar-facts span + span::before, .cf-similar-facts .cf-similar-pay + span::before { content: "·"; margin-inline-end: 10px; color: var(--text-3); font-weight: 400; }
 .cf-similar-facts .cf-similar-unopened { font-weight: 500; color: var(--text-3); }
@@ -71,7 +75,7 @@
 .cf-similar-pct { font-weight: 600; color: var(--text); }
 .cf-similar-est { font-weight: 400; color: var(--text-2); }
 .cf-similar-locked { margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: #b45309; }
-/* Build 94: one line, the same parts in the same order for every item: «Что говорят: ★ 4,6 · 687 оценок · хвалят … ». */
+/* One line, the same parts in the same order for every item: "What people say: ★ 4.6 · 1,204 ratings · like …". */
 .cf-similar-reviews { margin: 3px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--text-2); }
 .cf-similar-say { font-weight: 600; color: var(--text); margin-inline-end: 5px; }
 .cf-similar-dot { opacity: 0.6; }
