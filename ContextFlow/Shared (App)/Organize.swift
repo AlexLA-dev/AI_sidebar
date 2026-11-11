@@ -510,9 +510,17 @@ nonisolated enum Organize {
 
     // MARK: Texts and vectors
 
-    // A question needs this much text (or a page) to be judged; a note this much.
+    // A question needs this much text (or a page) to be judged; a note this much. In characters of an alphabet: see
+    // `textSize`.
     private static let minQuestion = 15
     private static let minNote = 40
+    private static let dense = try! NSRegularExpression(pattern: "[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\p{Script=Hangul}]")
+
+    /// How much a text says, in characters of an alphabet (src/shared/organize.ts `textSize`): each character of a dense
+    /// script (Chinese, Japanese, Korean) counts three times. UTF-16 units, as JavaScript's `length`.
+    static func textSize(_ text: String) -> Int {
+        text.utf16.count + dense.numberOfMatches(in: text, range: NSRange(text.startIndex..., in: text)) * 2
+    }
     static let maxEmbedChars = 1_200
 
     // JavaScript's whitespace (`\s`, and what `trim` drops), spelled out: ICU's `\s` lacks U+000B and U+FEFF,
@@ -715,7 +723,7 @@ nonisolated enum Organize {
         let list = entries[start...end]
         var signal = 0
         for e in list where isUser(e) {
-            signal += plain(e["label"] as? String ?? content(e)).utf16.count + (pageTitle(e) != nil ? minQuestion : 0)
+            signal += textSize(plain(e["label"] as? String ?? content(e))) + (pageTitle(e) != nil ? minQuestion : 0)
         }
         let notesOnly = list.allSatisfy(isNote)
         let vectors = list.compactMap(vectorOf)
@@ -925,7 +933,8 @@ nonisolated enum Organize {
     /// 2.6 (94): whether chat `from` joins `to` whole, and how well it fits there (src/shared/organize.ts `mergeFit`): `to`
     /// is newer, `from` has a page `to` has too (2.6 (95): one is enough), `to` isn't a chat of notes only, nothing in
     /// `from` was turned down or moved in, that merge wasn't turned down (`org.mx`), and (2.6 (95)) their answers fit each
-    /// other from `mergeA` both ways; the match shown is by questions and answers.
+    /// other from `mergeA` both ways. The match shown is by questions and answers, like every move's, so a merge needs
+    /// `minMatch` % by them as well.
     private static func mergeFit(_ from: Other, _ to: Other, _ cfg: OrganizeConfig) -> (score: Double, match: Double)? {
         // The cheap checks first: every pair of chats is checked when the list counts.
         if !from.blocks.contains(where: { b in b.url.map { !$0.isEmpty } == true && to.blocks.contains { $0.url == b.url } }) { return nil }
@@ -941,7 +950,8 @@ nonisolated enum Organize {
         }
         if min(fit(mine, theirs, answers: true), fit(theirs, mine, answers: true)) < cfg.mergeA { return nil }
         let score = min(fit(mine, theirs, answers: false), fit(theirs, mine, answers: false))
-        return (score, matchPercent(score, cfg))
+        let match = matchPercent(score, cfg)
+        return match >= cfg.minMatch ? (score, match) : nil
     }
 
     /// 2.6 (94): the end of a block off its chat's topic — an answer about something else asked on the same page, or in

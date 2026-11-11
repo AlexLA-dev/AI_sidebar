@@ -3,7 +3,7 @@ import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
 import {
-  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf
+  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, textSize, unpackVector, wantsNameCheck, type VectorOf
 } from "../src/shared/organize.ts"
 import type { Thread } from "../src/shared/threads.ts"
 
@@ -89,6 +89,19 @@ test("short questions, moved-in and turned-down blocks, and \"Ask your chats\" g
   assert.equal(movesAllowed(tired, [tired], cfg), false)
   const taken = chat("t", qa("d", "https://d/1").map((e) => ({ ...e, from: { chat: "tired", at: 10_000_000 } })))
   assert.equal(movesAllowed(tired, [tired, taken], cfg), true)
+})
+
+test("short questions in Chinese, Japanese and Korean say enough: their characters count three times", () => {
+  assert.equal(textSize("Kyoto tips?"), 11)
+  assert.equal(textSize("京都哪里好玩？"), 19)
+  assert.equal(textSize("교토 어디가 좋아요?"), 27)
+  // Asked in the app (no page) about another chat's topic: a short Chinese, Japanese or Korean question moves, as short
+  // a question in English doesn't.
+  for (const [question, moves] of [["京都哪里好玩？", true], ["京都のおすすめは？", true], ["교토 어디가 좋아요?", true], ["Kyoto tips?", false]] as const) {
+    const asked = qa("japan", "https://jg/1", { question }).map((e) => (e.role === "user" ? { ...e, page: undefined } : e))
+    const pile = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...asked])
+    assert.equal(suggestMove(pile, [pile, japan, bread], vectorOf, cfg)?.to ?? null, moves ? "japan" : null, question)
+  }
 })
 
 test("tags: only the user's tags with two examples or more that are alike; not intentions; not the ones it has", () => {
@@ -367,6 +380,22 @@ test("2.6 (95): chats on a shared page merge when their answers are on one topic
   // One shared page of two is enough, and the newer chat may be one block.
   const oneBlock = chat("oneblock", [...qa("japan", "https://jg/2"), ...qa("japan", "https://jg/2")])
   assert.deepEqual([suggestMove(older, [older, oneBlock], vectorOf, cfg)?.why, suggestMove(older, [older, oneBlock], vectorOf, cfg)?.to], ["merge", "oneblock"])
+})
+
+test("2.6 (95): a merge needs the match it shows, by questions and answers, from minMatch % too", () => {
+  // The newer chat's questions are on another topic and its answers partly on the older chat's: the answers fit each
+  // other (mergeA), the questions and answers don't, and that is the % a merge shows.
+  const blend = (a: Float32Array, b: Float32Array) => { const v = a.map((x, i) => x * 0.6 + b[i] * 0.8); let n = 0; for (const x of v) n += x * x; return v.map((x) => x / Math.sqrt(n)) }
+  const custom = new Map<string, Float32Array>()
+  const vo: VectorOf = (e) => custom.get(e.content) ?? vectorOf(e)
+  const halfOn = (url: string) => { const m = qa2("bread", "japan", url); custom.set(m[1].content, blend(vectorFor("japan", 0), vectorFor("bread", 1))); return m }
+  const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
+  const newer = chat("newer", [...halfOn("https://jg/1"), ...halfOn("https://jg/5")])
+  const ungated = suggestMove(older, [older, newer], vo, { ...cfg, minMatch: 0 })!
+  assert.deepEqual([ungated.why, ungated.to], ["merge", "newer"])
+  assert.ok(ungated.match! < cfg.minMatch)
+  assert.notEqual(suggestMove(older, [older, newer], vo, cfg)?.why, "merge")
+  assert.notEqual(suggestMove(newer, [older, newer], vo, cfg)?.why, "merge")
 })
 
 test("2.6 (95): a chat of two pages on two topics: the newer page goes", () => {
