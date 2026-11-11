@@ -1,5 +1,5 @@
-// Build 95: prices in the person's currency. A shop abroad shows its own currency (amazon.com: dollars, to someone in
-// Cyprus who pays in euros), so "cheaper than 249 EUR" could never be settled. Their country's currency, and the
+// Prices in the person's currency. A shop abroad shows its own currency (dollars, to someone who pays in euros or
+// yen), so "cheaper than 249 EUR" could never be settled. Their country's currency, and the
 // European Central Bank's reference rates of the day (free, public, no key: one small XML a day, kept in memory).
 
 /** The currency people pay in, by country (two letters); "" when we don't know it. */
@@ -8,7 +8,11 @@ const OTHERS: Record<string, string> = {
   US: "USD", PR: "USD", EC: "USD", SV: "USD", PA: "USD", GB: "GBP", IM: "GBP", JE: "GBP", GG: "GBP", CH: "CHF", LI: "CHF",
   NO: "NOK", SE: "SEK", DK: "DKK", IS: "ISK", PL: "PLN", CZ: "CZK", HU: "HUF", RO: "RON", TR: "TRY", IL: "ILS",
   JP: "JPY", CN: "CNY", HK: "HKD", SG: "SGD", KR: "KRW", IN: "INR", ID: "IDR", MY: "MYR", PH: "PHP", TH: "THB",
-  AU: "AUD", NZ: "NZD", CA: "CAD", MX: "MXN", BR: "BRL", ZA: "ZAR", AE: "AED", SA: "SAR"
+  AU: "AUD", NZ: "NZD", CA: "CAD", MX: "MXN", BR: "BRL", ZA: "ZAR", AE: "AED", SA: "SAR",
+  RU: "RUB", UA: "UAH", BY: "BYN", KZ: "KZT", GE: "GEL", AM: "AMD", AZ: "AZN", UZ: "UZS", MD: "MDL", RS: "RSD",
+  BA: "BAM", MK: "MKD", AL: "ALL", VN: "VND", TW: "TWD", PK: "PKR", BD: "BDT", LK: "LKR", NP: "NPR",
+  AR: "ARS", CL: "CLP", CO: "COP", PE: "PEN", UY: "UYU", EG: "EGP", MA: "MAD", TN: "TND", DZ: "DZD",
+  NG: "NGN", KE: "KES", GH: "GHS", QA: "QAR", KW: "KWD", BH: "BHD", OM: "OMR", JO: "JOD"
 }
 
 export function currencyOf(country: string | undefined): string {
@@ -21,7 +25,7 @@ export function currencyOf(country: string | undefined): string {
 export type Rates = Record<string, number>
 
 // Currencies pegged to the dollar that the ECB doesn't list: their fixed rate to the dollar.
-const PEGGED: Record<string, number> = { AED: 3.6725, SAR: 3.75 }
+const PEGGED: Record<string, number> = { AED: 3.6725, SAR: 3.75, QAR: 3.64, BHD: 0.376, OMR: 0.3845, JOD: 0.709 }
 
 const ECB = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
 const KEEP_MS = 6 * 3_600_000

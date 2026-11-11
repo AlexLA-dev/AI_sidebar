@@ -61,7 +61,7 @@ function countryLabel(code: string): string {
   }
 }
 
-/** Where a Find similar looked, for its question line (build 94): «Рядом · Кипр», «По всему миру». */
+/** Where a Find similar looked, for its question line: near them (in their country) or worldwide. */
 export function whereLabel(region: "world" | "local", country?: string | null): string {
   if (region === "world") return t("similarWorld")
   return country ? t("similarLocalIn", countryLabel(country)) : t("similarLocal")
@@ -69,8 +69,7 @@ export function whereLabel(region: "world" | "local", country?: string | null): 
 
 export function SimilarPicker({ title, region, country, onRegion, onFind, onClose }: {
   title: string
-  // Build 93 (the owner: «уточнять worldwide нужно или локально»): where to look, as chosen last time (null: never
-  // chosen, asked now) and their country for "near me".
+  // Where to look, as chosen last time (null: never chosen, asked now) and their country for "near me".
   region?: "world" | "local" | null
   country?: string | null
   onRegion?: (region: "world" | "local") => void
@@ -158,8 +157,8 @@ export function shownPrice(price: string): string {
 }
 
 /**
- * An item's link opens its page in a new tab the browser's own way (build 91, the owner: the titles opened nothing on
- * iPhone; a tab the extension opens may stay behind the one shown there). Only a page that stops links itself (its
+ * An item's link opens its page in a new tab the browser's own way (a tab
+ * the extension opens may open nothing on iPhone; a tab the extension opens may stay behind the one shown there). Only a page that stops links itself (its
  * own click handling) gets it opened by the background instead.
  */
 function opening(url: string, onOpen: (url: string) => void): (e: MouseEvent) => void {
@@ -195,9 +194,8 @@ function proofLink(item: SimilarItem, onOpen: (url: string) => void): VNode | nu
 }
 
 /**
- * What reviewers say, one line in the same order for every item (build 94, the owner: one item had reviews without a
- * rating, another a rating in its description and no reviews line): «Что говорят: ★ 4,6 · 687 оценок · хвалят … ·
- * ругают … · mybackvac.com».
+ * What reviewers say, one line in the same order for every item, whatever each page had (a rating, reviews,
+ * both): "What people say: ★ 4.6 · 1,204 ratings · like … · dislike … · site".
  */
 function Reviews({ item, onOpen }: { item: SimilarItem; onOpen: (url: string) => void }): VNode | null {
   const r = item.reviews
@@ -244,7 +242,7 @@ function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n
           {item.same ? <span class="cf-similar-same"> · {t("similarSame")}</span> : null}
         </span>
         {item.why && <p class="cf-similar-why" dir="auto">{item.why}</p>}
-        {/* Build 94: on every item, the only one too (the owner: one item showed no share at all); a page that couldn't
+        {/* On every item, the only one too; a page that couldn't
             be opened is judged from its search result's description, and says so. */}
         {(item.similarity !== undefined || item.differs) && (
           <p class={`cf-similar-differs${less ? " less" : ""}`} dir="auto">

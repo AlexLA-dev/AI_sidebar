@@ -1,4 +1,4 @@
-// One or two pages deeper (build 91, the owner: «делать такое в принципе для всего где возможно»): when an item's
+// One or two pages deeper (build 91, for any kind of item): when an item's
 // first page doesn't show whether the person's condition holds, the pages it links to that would — a review's link to
 // the item's own page, the page in their language, the price, plans, rates, tickets or tuition page, the full recipe,
 // the syllabus, the listing on the company's site. Pure helpers: which links, and what a quote from a page proves.
@@ -9,16 +9,11 @@ import type { ConditionKind } from "./similar.mts"
 import type { CheckedPage, PageLink, PagePrice } from "./pagecheck.mts"
 import { nameTokens } from "./pagecheck.mts"
 import { pricePoint } from "./apppricing.mts"
+import { FREE as FREE_WORDS, HOURS_IN, IN_STOCK, LEADS as LEAD_WORDS, MINUTES_IN, NOT_FREE as NOT_FREE_WORDS, pattern } from "./lexicon.mts"
+import { firstPrice, isOutOfStock } from "../../src/shared/watch/detect.ts"
 
-// What a link's words or address say it leads to, for each kind of condition.
-const LEADS: Partial<Record<ConditionKind, RegExp>> = {
-  cheaper: /\b(pric(e|es|ing)|plans?|buy|shop|offers?|deals?|tuition|fees?|enrol(l|ment)?|tickets?|rates?|book(ing)?|order|cost|tarifs?|preise|precios)\b|цен|купить|тариф|стоимост/i,
-  free: /\b(pric(e|es|ing)|plans?|free|tuition|fees?|enrol(l|ment)?|tickets?|admission|cost|tarifs?|preise|precios)\b|цен|тариф|бесплатн|стоимост/i,
-  in_stock: /\b(buy|shop|offers?|availability|order|where to buy|retailers?|stores?)\b|купить|наличи|магазин/i,
-  newer: /\b(updated|changelog|release notes|what'?s new|latest|news|version)\b|обновлен|новост/i,
-  shorter: /\b(recipe|jump to recipe|full recipe|print|syllabus|curriculum|duration|schedule|course details|agenda)\b|рецепт|программ|длительност/i,
-  other: /\b(details|specs?|specifications|features|faq|apply|careers?|jobs?|rates?|rooms?|amenities|policies|pricing|plans?|syllabus|requirements)\b|подробн|характеристик|вакан/i
-}
+// What a link's words or address say it leads to, for each kind of condition, in any of the app's languages.
+const LEADS: Partial<Record<ConditionKind, RegExp>> = Object.fromEntries(Object.entries(LEAD_WORDS).map(([kind, words]) => [kind, pattern(words)]))
 
 /** How much of the item's name a link's words carry (0…1). */
 function namedIn(text: string, name: string): number {
@@ -103,28 +98,36 @@ export function quoteOn(text: string, quote: string): boolean {
 
 const MONTHS = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?"
 
-/** A date a quote states ("2026-03-04", "March 4, 2026", "4 March 2026"), as ISO. */
+/** A date a quote states ("2026-03-04", "March 4, 2026", "4 March 2026", "04.03.2026", "2026年3月4日", "2026년 3월 4일"), as ISO. */
 function dateIn(quote: string): string | undefined {
   const iso = /\b(\d{4}-\d{2}-\d{2})\b/.exec(quote)?.[1]
+  if (iso) return new Date(`${iso}T00:00:00Z`).toISOString()
+  // Year first with its marks (Chinese, Japanese, Korean), or day.month.year as most of Europe writes it.
+  const cjk = /(\d{4})\s*[年년.]\s*(\d{1,2})\s*[月월.]\s*(\d{1,2})/.exec(quote)
+  const dmy = /\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/.exec(quote)
+  const ymd = cjk ? [cjk[1], cjk[2], cjk[3]] : dmy ? [dmy[3], dmy[2], dmy[1]] : null
+  if (ymd) {
+    const t = Date.UTC(Number(ymd[0]), Number(ymd[1]) - 1, Number(ymd[2]))
+    return Number.isFinite(t) && Number(ymd[1]) <= 12 && Number(ymd[2]) <= 31 ? new Date(t).toISOString() : undefined
+  }
   const words = new RegExp(`\\b(?:(${MONTHS})\\.?\\s+(\\d{1,2}),?\\s+(\\d{4})|(\\d{1,2})\\s+(${MONTHS})\\.?,?\\s+(\\d{4}))\\b`, "i").exec(quote)
-  const raw = iso ?? (words ? (words[1] ? `${words[1]} ${words[2]}, ${words[3]}` : `${words[5]} ${words[4]}, ${words[6]}`) : "")
-  const t = raw ? Date.parse(iso ? `${raw}T00:00:00Z` : `${raw} UTC`) : NaN
+  const raw = words ? (words[1] ? `${words[1]} ${words[2]}, ${words[3]}` : `${words[5]} ${words[4]}, ${words[6]}`) : ""
+  const t = raw ? Date.parse(`${raw} UTC`) : NaN
   return Number.isFinite(t) ? new Date(t).toISOString() : undefined
 }
 
-/** A length a quote states ("1 hr 20 mins", "45 minutes", "2 h"), in seconds. */
+/** A length a quote states ("1 hr 20 mins", "45 Minuten", "1時間20分", "2 giờ"), in seconds. */
 function durationIn(quote: string): number | undefined {
-  const h = /(\d+(?:[.,]\d)?)\s*(?:h|hr|hrs|hours?|ч|час(?:а|ов)?)\b/i.exec(quote)
-  const m = /(\d+)\s*(?:m|min|mins|minutes?|мин(?:ут[аы]?)?)\b/i.exec(quote)
+  const h = HOURS_IN.exec(quote)
+  const m = MINUTES_IN.exec(quote)
   if (!h && !m) return undefined
   return Math.round((h ? Number(h[1].replace(",", ".")) * 3600 : 0) + (m ? Number(m[1]) * 60 : 0))
 }
 
-const MONEY = /(?:US\$|R\$|[$€£¥₽₹₺₪]|\b(?:USD|EUR|GBP)\b)\s?\d{1,6}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d{1,6}(?:[.,]\d{3})*(?:[.,]\d{1,2})?\s?(?:[€£₽₺₪]|\b(?:USD|EUR|GBP|руб)\b)/i
-const FREE = /\b(free|gratis|gratuit|kostenlos|gratuito)\b|бесплатн/i
-const NOT_FREE = /\bfree (shipping|delivery|returns?|trial|estimate|quote|consultation)\b|бесплатн(ая|ой) доставк/i
-const OUT = /\b(out of stock|sold out|unavailable|not available|discontinued|no longer (sold|available))\b|нет в наличии|распродан|закончил/i
-const IN = /\b(in stock|available now|available to order|ships (today|in|within)|add to (cart|bag|basket)|only \d+ left)\b|в наличии|доступно для заказа/i
+// Free, "free" that isn't the price (delivery, a trial), and stock a shop can sell now: the app's languages.
+const FREE = pattern(FREE_WORDS)
+const NOT_FREE = pattern(NOT_FREE_WORDS)
+const IN = pattern(IN_STOCK)
 
 /**
  * What a quote from a page proves for the condition `kind`, read by our code (never taken from the model): its price,
@@ -132,17 +135,17 @@ const IN = /\b(in stock|available now|available to order|ships (today|in|within)
  */
 export function quoteFacts(kind: ConditionKind, quote: string): Partial<Pick<CheckedPage, "price" | "stock" | "published" | "duration">> | null {
   if (kind === "cheaper") {
-    const shown = MONEY.exec(quote)?.[0]
-    const p = shown ? pricePoint(shown.replace(/руб/i, "₽")) : null
+    const shown = firstPrice(quote)
+    const p = shown ? pricePoint(shown) : null
     return p && p.amount > 0 ? { price: p as PagePrice } : null
   }
   if (kind === "free") {
-    const shown = MONEY.exec(quote)?.[0]
-    const p = shown ? pricePoint(shown.replace(/руб/i, "₽")) : null
+    const shown = firstPrice(quote)
+    const p = shown ? pricePoint(shown) : null
     if (FREE.test(quote) && !NOT_FREE.test(quote) && !(p && p.amount > 0)) return { price: { amount: 0, currency: p?.currency ?? "" } }
     return p && p.amount > 0 ? { price: p as PagePrice } : null
   }
-  if (kind === "in_stock") return OUT.test(quote) ? { stock: "out" } : IN.test(quote) ? { stock: "in" } : null
+  if (kind === "in_stock") return isOutOfStock(quote) ? { stock: "out" } : IN.test(quote) ? { stock: "in" } : null
   if (kind === "newer") {
     const d = dateIn(quote)
     return d ? { published: d } : null

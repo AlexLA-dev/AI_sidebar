@@ -4,8 +4,8 @@ import UserNotifications
 import os
 #endif
 
-/// Find similar after leaving Safari (build 94, the owner: «Поиск прерывается, если выходишь из Safari, а надо, чтобы
-/// шел и приходила нотификация от приложения, когда найдено с переходом прямо к вариантам»).
+/// Find similar after leaving Safari: the search goes on, and a notification from the app, when it's done, opens the
+/// answer.
 ///
 /// Our server finishes a Find similar on its own and keeps the answer (/api/v2/similar-result). When the person leaves
 /// Safari mid-search, the extension starts a background download of that answer here: iOS carries it on while Safari's
@@ -234,9 +234,8 @@ nonisolated enum SimilarAway {
     // MARK: The app: the notification's tap
 
     /// The page to open in Safari (the app opens it: UIApplication isn't an extension's), with the chat in its address:
-    /// the tab it opens in shows the panel on that chat (build 95, the owner: «Никогда не открывает расширение на
-    /// странице». Build 94 left the chat for "the next panel to ask", and the tab the search started in could take it
-    /// first, behind the new one; nor did a page ask at all half an hour after the search).
+    /// the tab it opens in shows the panel on that chat. Leaving the chat for "the next panel to ask" let the tab the
+    /// search started in take it first, behind the new one, and no page asked at all half an hour after the search.
     @MainActor
     static func opened(_ info: [AnyHashable: Any]) -> URL? {
         guard info["similar"] is String else { return nil }

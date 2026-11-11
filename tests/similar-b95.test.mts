@@ -42,7 +42,8 @@ test("their currency by country, the ECB's rates read and used, amounts rounded 
   assert.equal(currencyOf("BG"), "EUR")
   assert.equal(currencyOf("US"), "USD")
   assert.equal(currencyOf("GB"), "GBP")
-  assert.equal(currencyOf("RU"), "")
+  assert.equal(currencyOf("RU"), "RUB")
+  assert.equal(currencyOf("XX"), "")
   const xml = `<gesmes:Envelope><Cube><Cube time='2026-11-10'><Cube currency='USD' rate='1.1600'/><Cube currency='GBP' rate='0.8700'/></Cube></Cube></gesmes:Envelope>`
   const r = parseEcb(xml)!
   assert.equal(r.EUR, 1)
@@ -202,7 +203,9 @@ test("the one-call search keeps one marketplace listing at most; a rescue round 
   const taken = claims.take([c("https://www.amazon.com/a", "A"), c("https://www.amazon.de/b", "B"), c("https://www.walmart.com/c", "C"), c("https://shop.test/d", "D")])
   assert.deepEqual(taken.map((t) => t.name), ["A", "D"])
   const q = rescueQueries({ page: source, facts: {}, condition: "", locale: "en-CY", region: "local", country: "CY" }, plan())
-  assert.deepEqual(q, ["LEGO City Klassischer Dampfzug 60511 alternatives", "LEGO City set steam train Cyprus"])
+  // Near them, the second round looks at shops abroad that deliver there (the first looked at the country's own).
+  assert.deepEqual(q, ["LEGO City Klassischer Dampfzug 60511 alternatives delivery to Cyprus", "LEGO City set steam train shop delivers to Cyprus"])
+  assert.deepEqual(rescueQueries({ page: source, facts: {}, condition: "", locale: "en-US", region: "world" }, plan()), ["LEGO City Klassischer Dampfzug 60511 alternatives", "LEGO City set steam train"])
 })
 
 // ---- the notification's tap opens the panel ----------------------------------------------------------------

@@ -37,6 +37,11 @@ const PRICE_ANY = new RegExp(priceSource(`${SYMBOLS}|${SMALL_CODES}`), "iu")
 const PRICE_CODE = new RegExp(priceSource(CODES), "u")
 const PRICE = { test: (s: string) => PRICE_ANY.test(s) || PRICE_CODE.test(s) }
 
+/** The first price a text states, in any of the panel's currencies and ways of writing them (null: none). */
+export function firstPrice(text: string): string | null {
+  return prices(text)[0] ?? null
+}
+
 /** Every price in a text, in order (both patterns). */
 function prices(text: string): string[] {
   const found = [...text.matchAll(new RegExp(PRICE_ANY.source, "giu")), ...text.matchAll(new RegExp(PRICE_CODE.source, "gu"))]
@@ -156,7 +161,7 @@ function withEndings(word: string): string {
 
 // Whole phrases: in scripts with spaces, not inside a longer word (Russian and Ukrainian words with their endings:
 // "заявление" also finds "заявления"); Chinese, Japanese and Korean words anywhere.
-function phrases(list: string[]): RegExp {
+export function phrases(list: string[]): RegExp {
   const spaced = list.filter((w) => !CJK.test(w)).map(withEndings)
   const dense = list.filter((w) => CJK.test(w)).map(escape)
   const parts = [`(?<![\\p{L}\\p{N}])(?:${spaced.join("|")})(?![\\p{L}\\p{N}])`]
@@ -215,6 +220,11 @@ const DATE = new RegExp(
   ].join("|"),
   "iu"
 )
+
+/** Whether a text states a date in any of the panel's languages ("4 March 2026", "4. März", "2026年3月4日"). */
+export function hasDate(text: string): boolean {
+  return DATE.test(text)
+}
 
 // A bare day and month, 04.11 or 4/11: both parts must fit, so "19.99" and "12.50" stay numbers, and "1/2"
 // (three digits at least) stays a fraction.

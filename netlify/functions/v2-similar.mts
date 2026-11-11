@@ -60,7 +60,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const version = clip(client.version, 20)
   const locale = clip(client.locale, 12)
   const build = clientBuild(client)
-  // The panel's session fields come with the panel's UI (after the owner's choice); test traffic is marked.
+  // The panel's session fields come with the panel's UI; test traffic is marked.
   const step = client.audience === "test" ? { audience: "test" } : {}
 
   const input = readInput(body, locale, geoCountry(context))
