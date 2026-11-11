@@ -14,7 +14,7 @@ import { build } from "esbuild"
 import type { Entry } from "../src/shared/conversation.ts"
 import {
   activeJobs, afterRestart, extendsChat, hasUnread, interruption, keepingAnswers, ORPHAN_MS, prunedJobs, repeatsLast, RESUME_MS, runningThreads, seenIn,
-  unreadThreads, withAnswer, withoutQuestion, type Job, type Jobs
+  unreadThreads, withAnswer, withoutQuestion, withStoredEdits, type Job, type Jobs
 } from "../src/shared/jobs.ts"
 
 const q = (id: string, content = "Why?", extra: Partial<Entry> = {}): Entry => ({ role: "user", content, id, t: Date.now(), ...extra })
@@ -147,6 +147,29 @@ test("a chat with more messages after the ones shown is taken as it is", () => {
   assert.equal(extendsChat([...shown, a("a2")], shown), true)
   assert.equal(extendsChat(shown, shown), false)
   assert.equal(extendsChat([q("q1"), a("x"), q("q2"), a("a2")], shown), false)
+})
+
+test("2.6 (98): what changed on the chat's messages elsewhere shows on the chat open here; the rest stays as shown", () => {
+  const page = { url: "https://example.com/a", title: "A", at: 1 }
+  const shown = [q("q1", "Why?", { page: { ...page, text: "the page's text" } }), a("a1"), q("q2"), a("a2")]
+  // Nothing changed: the same array (no new render, no save).
+  assert.equal(withStoredEdits(shown, structuredClone(shown)), shown)
+  // A copy stored with its keys in another order (written by the app) and without the page's text is the same chat.
+  const reordered = shown.map((e) => Object.fromEntries(Object.entries(e).reverse()) as unknown as Entry)
+  reordered[0] = { ...reordered[0], page: { ...page } }
+  assert.equal(withStoredEdits(shown, reordered), shown)
+  // A tag put on in the app, another one taken off, a message pinned: they show; the page's text this copy has stays.
+  const tagged = [{ ...shown[0], page, tags: ["trips"] }, { ...shown[1], pinned: 5 }, ...structuredClone(shown.slice(2))]
+  const withTags = [{ ...shown[0], tags: ["old"] }, ...shown.slice(1)]
+  const next = withStoredEdits(withTags, tagged)
+  assert.deepEqual(next.map((e) => e.tags ?? []), [["trips"], [], [], []])
+  assert.equal(next[1].pinned, 5)
+  assert.equal(next[0].page?.text, "the page's text")
+  assert.equal(next[2], withTags[2])
+  // A message only this copy has (asked here a moment ago) or only the stored one has stays as shown.
+  const later = [...shown, q("q3")]
+  assert.deepEqual(withStoredEdits(later, [{ ...shown[1], tags: ["x"] }]).map((e) => e.tags ?? e.id), ["q1", ["x"], "q2", "a2", "q3"])
+  assert.deepEqual(withStoredEdits(shown, [...shown, a("a3")]).map((e) => e.id), ["q1", "a1", "q2", "a2"])
 })
 
 // ---- the background's runner -----------------------------------------------------------------
