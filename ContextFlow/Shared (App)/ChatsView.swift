@@ -87,6 +87,8 @@ struct ChatsView: View {
 
     var body: some View {
         List {
+            // The field's two ways, named, right under it while it's open (iOS 26 shows no system scope bar here).
+            SearchWayRow(way: $way, pro: isPro, typed: searching)
             if aiSearch && (searching || finding || found != nil) {
                 aiResults
             } else if searching {
@@ -111,10 +113,6 @@ struct ChatsView: View {
         .onReceive(links.$pending) { _ in openLinked() }
         .onChange(of: library.threads.count) { _ in openLinked() }
         .searchable(text: $query, prompt: aiSearch ? Text("Describe the chat you're looking for…") : Text("Search chats"))
-        .searchScopes($way) {
-            Text("By words").tag(SearchWay.words)
-            Text(isPro ? "By meaning" : "By meaning · Pro").tag(SearchWay.meaning)
-        }
         .onChange(of: way) { next in
             found = nil
             // Without Pro, "By meaning" opens Pro and the field stays on words.
@@ -581,6 +579,29 @@ struct RecentlyDeletedView: View {
         // Emptied (everything restored or deleted, here or elsewhere): back to the list, where its row goes too.
         .onChange(of: library.trashed.isEmpty) { empty in
             if empty { dismiss() }
+        }
+    }
+}
+
+/// The search field's two ways, "By words" and "By meaning" (2.6 (98)), as the list's first row while the field is open
+/// or has words in it.
+private struct SearchWayRow: View {
+    @Binding var way: ChatsView.SearchWay
+    let pro: Bool
+    let typed: Bool
+    @Environment(\.isSearching) private var isSearching
+
+    var body: some View {
+        if isSearching || typed {
+            Section {
+                Picker("Search", selection: $way) {
+                    Text("By words").tag(ChatsView.SearchWay.words)
+                    Text(pro ? "By meaning" : "By meaning · Pro").tag(ChatsView.SearchWay.meaning)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .accessibilityIdentifier("cf-search-way")
+            }
         }
     }
 }

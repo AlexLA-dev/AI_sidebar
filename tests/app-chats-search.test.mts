@@ -12,7 +12,9 @@ const catalog = JSON.parse(readFileSync(new URL("../ContextFlow/Shared (App)/Loc
 
 test("one field, its two ways named under it; no ✦ toggle in the toolbar", () => {
   assert.equal((screen.match(/\.searchable\(/g) ?? []).length, 1)
-  assert.match(screen, /\.searchScopes\(\$way\) \{\s*Text\("By words"\)\.tag\(SearchWay\.words\)\s*Text\(isPro \? "By meaning" : "By meaning · Pro"\)\.tag\(SearchWay\.meaning\)/)
+  // Named under the field as the list's first row while it's open (iOS 26 shows no system scope bar there).
+  assert.match(screen, /SearchWayRow\(way: \$way, pro: isPro, typed: searching\)/)
+  assert.match(screen, /if isSearching \|\| typed \{[\s\S]*?Text\("By words"\)\.tag\(ChatsView\.SearchWay\.words\)\s*Text\(pro \? "By meaning" : "By meaning · Pro"\)\.tag\(ChatsView\.SearchWay\.meaning\)[\s\S]*?\.pickerStyle\(\.segmented\)/)
   const toolbar = screen.slice(screen.indexOf(".toolbar {"), screen.indexOf(".toolbar {") + 600)
   assert.doesNotMatch(toolbar, /sparkles|aiSearch\.toggle/)
   // Without Pro, "By meaning" opens Pro and the field stays on words.
