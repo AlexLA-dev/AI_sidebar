@@ -1470,7 +1470,38 @@ nonisolated enum Organize {
         guard let nm = (org ?? chat.org)?.nm, let t = nm.t, wantsNameCheck(chat), lower(t) != lower(name) else { return nil }
         // 2.6 (95): first what moves, then the name.
         if moveOpen(chat, org ?? chat.org) != nil { return nil }
-        return nm.no.contains { lower($0) == lower(t) } ? nil : t
+        return nm.no.contains { nearName($0, t) } ? nil : t
+    }
+
+    private static let wordRun = try! NSRegularExpression(pattern: "[\\p{L}\\p{N}]+")
+    private static let pairScript = try! NSRegularExpression(pattern: "[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]")
+
+    /// A name's words, to tell a name from a near repeat (src/shared/organize.ts `nameWords`): letters and digits, lower
+    /// case; a run of Chinese or Japanese characters as its pairs of characters.
+    private static func nameWords(_ name: String) -> Set<String> {
+        let text = name.lowercased()
+        var out = Set<String>()
+        for m in wordRun.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+            guard let r = Range(m.range, in: text) else { continue }
+            let word = String(text[r])
+            let chars = word.unicodeScalars.map { String($0) }
+            if chars.count > 1, pairScript.firstMatch(in: word, range: NSRange(word.startIndex..., in: word)) != nil {
+                for i in 0..<(chars.count - 1) { out.insert(chars[i] + chars[i + 1]) }
+            } else {
+                out.insert(word)
+            }
+        }
+        return out
+    }
+
+    /// 2.6 (98): whether two names are the same or nearly (src/shared/organize.ts `nearName`): equal in lower case, or
+    /// two thirds of the shorter one's words are in the other.
+    static func nearName(_ a: String, _ b: String) -> Bool {
+        if a.lowercased() == b.lowercased() { return true }
+        let x = nameWords(a), y = nameWords(b)
+        let fewer = min(x.count, y.count)
+        if fewer == 0 { return false }
+        return x.intersection(y).count * 3 >= fewer * 2
     }
 
     /// The tags the chat's record says the check confirmed, still open: the message is there, without that tag, not
@@ -1515,7 +1546,7 @@ nonisolated enum Organize {
     /// names turned down.
     static func nameState(after previous: OrgState.Name?, key: String, fits: Bool, title: String, current: String) -> OrgState.Name {
         let no = previous?.no ?? []
-        let refused = no.contains { lower($0) == lower(title) }
+        let refused = no.contains { nearName($0, title) }
         // The same name in other capitals is no new one (2.6 (94)).
         return OrgState.Name(k: key, t: !fits && !title.isEmpty && lower(title) != lower(current) && !refused ? title : nil, no: no)
     }

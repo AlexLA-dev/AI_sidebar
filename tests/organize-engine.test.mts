@@ -1,9 +1,9 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import type { Entry } from "../src/shared/conversation.ts"
+import { entryKey as entryKeyOf, type Entry } from "../src/shared/conversation.ts"
 import {
-  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, textSize, unpackVector, wantsNameCheck, type VectorOf
+  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nearName, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, textSize, unpackVector, wantsNameCheck, type VectorOf
 } from "../src/shared/organize.ts"
 import type { Thread } from "../src/shared/threads.ts"
 
@@ -418,6 +418,20 @@ test("2.6 (96): an answer no closer to its chat than to the person's other chats
   // A chat's own last answer fits it far better than the person's other chats.
   const own = chat("own", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa("react", page)])
   assert.equal(suggestMove(own, [own, bread, tents, kombucha], vectorOf, on), null)
+})
+
+test("2.6 (98): a name turned down stays turned down when it comes back reworded; another name still comes", () => {
+  assert.equal(nearName("Productivity and AI web tools comparison", "AI web tools for productivity"), true)
+  assert.equal(nearName("Flights and hotels for Rome", "Hotels and museums in Rome"), false)
+  assert.equal(nearName("Kyoto", "kyoto"), true)
+  assert.equal(nearName("京都の紅葉旅行", "京都の紅葉と旅館のプラン"), true)
+  assert.equal(nearName("京都の紅葉旅行", "大阪のラーメン"), false)
+  assert.equal(nearName("Ремонт кухни: плитка и смесители", "Плитка и смесители для кухни"), true)
+  const no = { k: "k1", no: ["Productivity and AI web tools comparison"] }
+  assert.equal(nameStateAfter(no, "k2", { fits: false, title: "AI web tools for productivity" }, "Chat").t, undefined)
+  assert.equal(nameStateAfter(no, "k2", { fits: false, title: "Summer trip to Lisbon" }, "Chat").t, "Summer trip to Lisbon")
+  const chat2 = chat("named", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")], { org: { n: 4, k: "", nm: { k: "k1", t: "AI web tools for productivity", no: no.no } } })
+  assert.equal(openName({ ...chat2, org: { ...chat2.org!, k: entryKeyOf(chat2.m[3]) } }), undefined)
 })
 
 test("2.6 (95): a chat of two pages on two topics: the newer page goes", () => {

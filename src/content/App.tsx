@@ -49,7 +49,7 @@ import { inChatOrder, preview as barPreview, SuggestionsBar, type BarSuggestion 
 import { UndoBar } from "./UndoBar"
 import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
-import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags } from "../shared/organize"
+import { DEFAULT_ORGANIZE, looksMixed, nearName, openMove, openName, openTags } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
@@ -2768,7 +2768,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // or typed meanwhile, isn't offered.
   const hereChat = threadList.find((x) => x.id === threadRef.current)
   const orgName = orgNow?.name && !(hereChat && (namedByUser(hereChat) || orgNow.name.toLowerCase() === threadName(hereChat).toLowerCase() ||
-    (hereChat.org?.nm?.no ?? []).some((x) => x.toLowerCase() === orgNow.name!.toLowerCase()))) ? orgNow.name : null
+    (hereChat.org?.nm?.no ?? []).some((x) => nearName(x, orgNow.name!)))) ? orgNow.name : null
   // 2.6 (97): the open suggestions at the top of the chat, the ones the rows under the messages show.
   const barItems: BarSuggestion[] = !orgNow ? [] : inChatOrder([
     ...orgNow.tags
