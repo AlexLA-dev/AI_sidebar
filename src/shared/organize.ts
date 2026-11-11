@@ -512,6 +512,108 @@ function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread:
   return match >= cfg.minMatch ? { score, match } : null
 }
 
+/** The engine's version, sent with a scan's numbers (2.6 (98)). */
+export const ORGANIZE_ENGINE = 98
+
+/**
+ * 2.6 (98): what a scan of a chat compared and why nothing fired — numbers and named reasons only, for the diagnostic
+ * event (no text, no names): the chats and the share of messages with vectors; the closest other chat to merge with
+ * (its match by questions and answers both ways, its answers' fit ×100, and the first rule it stopped at); the
+ * strongest block to move anywhere in the chat (its match, and the first rule it stopped at); what fired; the
+ * thresholds' key.
+ */
+export interface OrganizeScan {
+  chats: number
+  msgs: number
+  vec: number
+  mg: number
+  mga: number
+  mgw: "none" | "page" | "notes" | "settled" | "refused" | "answers" | "match" | "open"
+  mv: number
+  mvw: "none" | "window" | "weak" | "settled" | "topic" | "fit" | "margin" | "mix" | "open"
+  res: "off" | "none" | MoveSuggestion["why"]
+  tv: number
+}
+
+/** A key of the thresholds in use (0–9972): their names in order, each value to a thousandth. */
+export function thresholdsKey(cfg: OrganizeConfig): number {
+  let h = 0
+  for (const key of (Object.keys(cfg) as Array<keyof OrganizeConfig>).sort()) h = (h * 31 + Math.round(cfg[key] * 1000)) % 9973
+  return (h + 9973) % 9973
+}
+
+/** The scan's numbers for chat `chat` among `chats`, with `found` the suggestion it gave (or null). */
+export function organizeScan(chat: Thread, chats: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig, found: MoveSuggestion | null): OrganizeScan {
+  const live = chats.filter((t) => t.id !== chat.id && !t.deleted && t.kind !== "history" && t.m.length > 0)
+  const blocks = scoredBlocks(chat.m, vectorOf)
+  const others = live.map((t) => ({ thread: t, blocks: scoredBlocks(t.m, vectorOf) }))
+  let all = 0
+  let have = 0
+  for (const t of [chat, ...live]) for (const e of t.m) {
+    if (!embedText(e)) continue
+    all++
+    if (vectorOf(e)) have++
+  }
+  // The closest chat to merge with: by questions and answers, both ways (the older one joins the newer).
+  const here = { thread: chat, blocks }
+  const fit = (a: ScoredBlock[], b: ScoredBlock[], by: "v" | "a") => a.reduce((n, x) => n + topMean(x[by]!, b.map((y) => ({ v: y[by]! })), 2), 0) / a.length
+  let merge: { qa: number; a: number; why: OrganizeScan["mgw"] } | null = null
+  for (const o of others) {
+    const [from, to] = newer(o.thread, chat) ? [here, o] : [o, here]
+    const mine = from.blocks.filter((b) => b.v)
+    const theirs = to.blocks.filter((b) => b.v)
+    if (!mine.length || !theirs.length) continue
+    const qa = Math.min(fit(mine, theirs, "v"), fit(theirs, mine, "v"))
+    if (merge && qa <= merge.qa) continue
+    const a = Math.min(fit(mine, theirs, "a"), fit(theirs, mine, "a"))
+    const why: OrganizeScan["mgw"] = !from.blocks.some((b) => b.url && to.blocks.some((x) => x.url === b.url)) ? "page"
+      : to.thread.m.every((e) => e.note) ? "notes"
+      : from.blocks.some((b) => b.settled || b.dismissed) ? "settled"
+      : (from.thread.org?.mx ?? []).includes(to.thread.id) ? "refused"
+      : a < cfg.mergeA ? "answers"
+      : matchPercent(qa, cfg) < cfg.minMatch ? "match"
+      : "open"
+    merge = { qa, a, why }
+  }
+  // The strongest block to move, anywhere in the chat, and the first rule it stops at.
+  const first = Math.max(0, blocks.length - cfg.window)
+  let move: { score: number; why: OrganizeScan["mvw"] } | null = null
+  blocks.forEach((b, i) => {
+    if (!b.v) return
+    const rest = blocks.filter((_, j) => j !== i)
+    const outside = blocks.filter((x, j) => j < blocks.length - cfg.window && j !== i && x.v)
+    const base = (outside.length ? outside : rest.filter((x) => x.v)).map((x) => ({ v: x.v! }))
+    const current = topMean(b.v, base, 2)
+    for (const o of others) {
+      const vs = o.blocks.filter((x) => x.v).map((x) => ({ v: x.v! }))
+      if (!vs.length) continue
+      const score = topMean(b.v, vs, 2)
+      if (move && score <= move.score) continue
+      const why: OrganizeScan["mvw"] = i < first ? "window"
+        : b.weak ? "weak"
+        : b.settled || b.dismissed ? "settled"
+        : rest.length > 0 && shareOn(b, rest, cfg).share >= 0.5 ? "topic"
+        : score < (vs.length >= 2 ? cfg.moveT : cfg.moveT1) || matchPercent(score, cfg) < cfg.minMatch ? "fit"
+        : score - current < cfg.moveD ? "margin"
+        : !goesTo(b, rest, chat, o, cfg) ? "mix"
+        : "open"
+      move = { score, why }
+    }
+  })
+  return {
+    chats: live.length,
+    msgs: chat.m.length,
+    vec: all ? Math.round((have * 100) / all) : 0,
+    mg: merge ? matchPercent(merge.qa, cfg) : 0,
+    mga: merge ? Math.max(0, Math.round(merge.a * 100)) : 0,
+    mgw: merge?.why ?? "none",
+    mv: move ? matchPercent((move as { score: number }).score, cfg) : 0,
+    mvw: move ? (move as { why: OrganizeScan["mvw"] }).why : "none",
+    res: !movesAllowed(chat, chats, cfg) ? "off" : found ? found.why : "none",
+    tv: thresholdsKey(cfg)
+  }
+}
+
 /**
  * 2.6 (94): the end of a block off its chat's topic — an answer about something else asked on the same page, or in the
  * app (no page), which stays in that page's block (a page block was only ever moved whole). Of the chat's last `window` blocks, the latest first: its longest run of last exchanges (`exchangesOf`) that

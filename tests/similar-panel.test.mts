@@ -93,6 +93,10 @@ test("the background asks engine A only, with the page and the condition", async
   assert.equal(sent[0].engine, "a")
   assert.equal(sent[0].condition, "cheaper")
   assert.deepEqual(events.map((e) => e.type), ["progress", "item", "result", "done"])
+  // Build 98: several chips go along (the first as `chip`, for a server before it).
+  await askSimilar({ installId: "i", client: {}, entitlement: null, payload: { page: { title: "T", url: "https://p.com", text: "x", facts: {} }, condition: "Cheaper, In stock", chip: "cheaper", chips: ["cheaper", "in_stock"], words: "" } }, () => undefined, new AbortController().signal)
+  assert.equal(sent[1].chip, "cheaper")
+  assert.deepEqual(sent[1].chips, ["cheaper", "in_stock"])
 })
 
 // ------------------------------------------------------------ the list, rendered
@@ -243,19 +247,30 @@ test("build 93: where to look is asked the first time (Find waits for it), then 
   assert.equal(again.querySelector(".cf-similar-pick .cf-primary").disabled, false)
 })
 
-test("the start: a chip is the condition (one at a time), the person's words join it", async () => {
+test("the start: chips are the condition, several at once (build 98), the person's words join them", async () => {
   const el = root()
-  const asked: Array<[string, string]> = []
-  ui.picker(el, (c: string, l: string) => asked.push([c, l]))
+  const asked: Array<[string, string, unknown]> = []
+  ui.picker(el, (c: string, l: string, ask: unknown) => asked.push([c, l, ask]))
   const chips = el.querySelectorAll(".cf-similar-chips .cf-chip")
   assert.equal(chips.length, 6)
   el.querySelector(".cf-primary").click()
-  assert.deepEqual(asked[0], ["", "Find similar"])
+  assert.deepEqual(asked[0].slice(0, 2), ["", "Find similar"])
   // A chip: the bubble says the chip's words, no "Find similar:" prefix (the icon says it; build 90).
   chips[0].click()
   await new Promise((r) => setTimeout(r, 20))
   el.querySelector(".cf-primary").click()
-  assert.deepEqual(asked[1], ["Cheaper", "Cheaper"])
+  assert.deepEqual(asked[1], ["Cheaper", "Cheaper", { chips: ["cheaper"] }])
+  // Two at once, in the panel's order whatever order they were tapped in; both stay on.
+  chips[1].click()
+  await new Promise((r) => setTimeout(r, 20))
+  assert.deepEqual([...el.querySelectorAll(".cf-similar-chips .cf-chip.on")].map((b: any) => b.textContent), ["Cheaper", "In stock"])
+  el.querySelector(".cf-primary").click()
+  assert.deepEqual(asked[2], ["Cheaper, In stock", "Cheaper, In stock", { chips: ["cheaper", "in_stock"] }])
+  // Tapped again: off.
+  chips[0].click()
+  await new Promise((r) => setTimeout(r, 20))
+  el.querySelector(".cf-primary").click()
+  assert.deepEqual(asked[3][2], { chips: ["in_stock"] })
 })
 
 test("no zoom on iOS: Find similar's field and quick insert's are 16px on touch screens", () => {

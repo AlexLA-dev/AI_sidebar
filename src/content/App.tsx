@@ -55,7 +55,7 @@ import { withRemindWords } from "../shared/reminders"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
-import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { factsFrom, SIMILAR_CHIPS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
 import { takeChatMark } from "./similar/mark"
 import { LINK_OPEN_KEY, linkOpen, messageAt, messageRef, takesLinkOpen, type LinkOpen } from "../shared/linkOpen"
@@ -1292,7 +1292,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!isQuestion(last)) return
     // Asked again where it looked the first time (build 94: Retry after a break searched worldwide), not wherever the
     // picker points now.
-    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined, last.similarChip !== undefined || last.similarWords !== undefined ? { chip: last.similarChip as SimilarChip | undefined, words: last.similarWords } : undefined)
+    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined, last.similarChip !== undefined || last.similarWords !== undefined ? { chips: (last.similarChip ?? "").split(",").filter((c): c is SimilarChip => (SIMILAR_CHIPS as readonly string[]).includes(c)), words: last.similarWords } : undefined)
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
@@ -1369,7 +1369,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const user: Turn = stamped({
       role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}),
       ...(region ? { similarRegion: region, ...(region === "local" && country ? { similarCountry: country } : {}) } : {}),
-      ...(ask?.chip ? { similarChip: ask.chip } : {}), ...(ask?.words ? { similarWords: ask.words } : {}),
+      ...(ask?.chips?.length ? { similarChip: ask.chips.join(",") } : {}), ...(ask?.words ? { similarWords: ask.words } : {}),
       page: { url: source.key(), title: source.title(), at: Date.now() }
     })
     const history: Turn[] = [...base, user]
@@ -1404,7 +1404,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(region ? { region } : {}),
           ...(country ? { country } : {}),
           // Build 95: the chip apart from their own words (an ask without them: all of the condition is their words).
-          ...(ask ? { chip: ask.chip ?? "", words: ask.words ?? "" } : {})
+          ...(ask ? { chip: ask.chips?.[0] ?? "", ...(ask.chips && ask.chips.length > 1 ? { chips: ask.chips } : {}), words: ask.words ?? "" } : {})
         }
       })
     })

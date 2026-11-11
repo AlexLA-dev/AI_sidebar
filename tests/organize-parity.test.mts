@@ -2,7 +2,7 @@
 // ContextFlow/Shared (App)/Organize.swift (built here with tests/organize-parity/main.swift) give the same
 // results. Skipped where there's no Swift compiler.
 import assert from "node:assert/strict"
-import { execFileSync, spawnSync } from "node:child_process"
+import { execFileSync, spawn, spawnSync } from "node:child_process"
 import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -10,7 +10,7 @@ import { test } from "node:test"
 
 import { entryKey, entryTimes, withPageChanges, type Entry } from "../src/shared/conversation.ts"
 import {
-  embedText, hostOf, judgedTags, judgeText, looksMixed, missingVectors, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags,
+  embedText, hostOf, judgedTags, organizeScan, judgeText, looksMixed, missingVectors, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags,
   organizeConfig, orgStateFor, packVector, refusedTags, scoredBlocks, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type TagCandidate,
   type VectorOf
 } from "../src/shared/organize.ts"
@@ -81,6 +81,10 @@ function js(c: Case): unknown {
       return movesAllowed(chat, chats, cfg)
     case "suggestMove":
       return suggestMove(chat, chats, vectorsOf(c.vectors), cfg)
+    case "scan": {
+      const vectorOf = vectorsOf(c.vectors)
+      return organizeScan(chat, chats, vectorOf, cfg, suggestMove(chat, chats, vectorOf, cfg))
+    }
     case "tags": {
       const vectorOf = vectorsOf(c.vectors)
       return tagTargets(chat, cfg).map((i) => {
@@ -132,11 +136,39 @@ function js(c: Case): unknown {
   return null
 }
 
-function swift(cases: Case[]): unknown[] {
+// A run takes about half a second, the build under a minute. A process stuck at 0 % CPU (a fresh binary whose launch
+// waits on the system's code checks on a busy Mac, or a pipe nobody drains) fails the test after these instead of
+// holding the suite for hours. The run is waited for asynchronously: a process stuck in its launch can't be killed
+// until the system lets it go, and a synchronous wait would hang with it.
+const BUILD_MS = 300_000
+const RUN_MS = 60_000
+
+async function swift(cases: Case[]): Promise<unknown[]> {
   const dir = mkdtempSync(join(tmpdir(), "cf-organize-"))
   const bin = join(dir, "organize")
-  execFileSync("swiftc", ["-O", join(root, "ContextFlow/Shared (App)/Organize.swift"), join(root, "tests/organize-parity/main.swift"), "-o", bin], { stdio: "pipe" })
-  return JSON.parse(execFileSync(bin, { input: JSON.stringify(cases) }).toString())
+  execFileSync("swiftc", ["-O", join(root, "ContextFlow/Shared (App)/Organize.swift"), join(root, "tests/organize-parity/main.swift"), "-o", bin], { stdio: "pipe", timeout: BUILD_MS, killSignal: "SIGKILL" })
+  const child = spawn(bin, { stdio: "pipe" })
+  const out: Buffer[] = []
+  const err: Buffer[] = []
+  child.stdout.on("data", (b: Buffer) => out.push(b))
+  child.stderr.on("data", (b: Buffer) => err.push(b))
+  child.stdin.on("error", () => undefined)
+  child.stdin.end(JSON.stringify(cases))
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const done = new Promise<number | null>((resolve, reject) => {
+    child.on("error", reject)
+    child.on("close", (code) => resolve(code))
+  })
+  const late = new Promise<"late">((resolve) => { timer = setTimeout(() => resolve("late"), RUN_MS) })
+  const code = await Promise.race([done, late]).finally(() => clearTimeout(timer))
+  if (code === "late") {
+    child.kill("SIGKILL")
+    child.unref()
+    for (const stream of [child.stdin, child.stdout, child.stderr]) stream.destroy()
+    throw new Error(`the Swift side didn't answer in ${RUN_MS / 1000} s (pid ${child.pid}, killed): ${Buffer.concat(err).toString().slice(0, 500)}`)
+  }
+  if (code !== 0) throw new Error(`the Swift side exited with ${code}: ${Buffer.concat(err).toString().slice(0, 500)}`)
+  return JSON.parse(Buffer.concat(out).toString())
 }
 
 // ------------------------------------------------------------ cases
@@ -683,9 +715,11 @@ suggestions.push(
   { op: "unpack", packed: ["%%%", "", "AAAA", "AQID", " AQ ID\n", "AQI", "AQ", "A", "AQ==", "AQ=", "AQ===", "AR==", "/+8=", "gIGC", packVector(vectorFor("pack"))] },
   ...[{ moveT: 0.6, window: "5", nope: 1 }, { moveT: true, judge: false }, { moveT: -1, moveD: 1_001, moveT1: 1_000, siteT: 0 }, { splitMin: 2.5, maxTags: 0 }, null, [], "x", 5].map((raw) => ({ op: "config", raw }))
 )
+// 2.6 (98): each move case's scan too (what it compared, why nothing fired), as both engines report it.
+suggestions.push(...suggestions.filter((c) => c.op === "suggestMove").map((c) => ({ ...c, op: "scan" })))
 cases.push(...suggestions.map(withVectors))
 
-test("organizing gives the same results in the panel and in the app", { skip }, () => {
+test("organizing gives the same results in the panel and in the app", { skip }, async () => {
   // The cases reach every kind of move suggestion, and tags the judge confirms, or the parity would say little.
   const whys = new Set(cases.filter((c) => c.op === "suggestMove").map((c) => (js(c) as { why: string } | null)?.why ?? "none"))
   assert.deepEqual([...whys].sort(), ["apart", "merge", "none", "page", "site", "topic"])
@@ -696,7 +730,7 @@ test("organizing gives the same results in the panel and in the app", { skip }, 
   // And the kept state: a move, tags and a name still open in some, and junk in others.
   const kept = cases.filter((c) => c.op === "org").map((c) => js(c) as { clean: unknown; move: unknown; tags: unknown[]; name: unknown })
   assert.ok(kept.some((k) => k.move) && kept.some((k) => k.tags.length) && kept.some((k) => k.name) && kept.some((k) => !k.clean))
-  const fromSwift = swift(cases)
+  const fromSwift = await swift(cases)
   cases.forEach((c, i) => {
     // Through JSON, as the app reads and writes it.
     const fromJs = JSON.parse(JSON.stringify(js(c)))
