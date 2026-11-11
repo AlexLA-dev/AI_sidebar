@@ -1981,6 +1981,8 @@ struct ChatDetailView: View {
         let added = Tags.clean(tags).filter { !known.contains($0.lowercased()) }.count
         library.setTags(thread, entry: index, tags)
         if known.count < 3, known.count + added >= 3, !store.isPro, organize.takeTagsCard() { withAnimation { tagsCard = true } }
+        // 2.6 (98): a tag put on: organizing looks again now, so it's offered on the messages like this one in seconds.
+        if !Tags.clean(tags).isEmpty { DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { organizeTick += 1 } }
     }
 
     /// Cards under the chat: turn suggestions on (Pro, off, the chat looks like it needs them), "Everything in one

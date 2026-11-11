@@ -575,6 +575,15 @@ suggestions.push(
   { op: "tags", chat: plan, chats: [plan, trip, japan, bread] },
   { op: "tags", chat: { ...plan, tags: ["japan TRIP"] }, chats: [plan, trip, bread] }
 )
+// 2.6 (98): a tag on one message (just made): offered on the messages like it, on its page too and earlier in a long
+// chat (twice the window); not on other topics; an established tag (three examples) keeps its margin.
+{
+  const fresh = thread("freshtag", [...qa("garden", "https://g2.example/1", { tags: ["garden"] }), ...qa("garden", "https://g2.example/1"), ...Array.from({ length: 6 }, (_, i) => qa(i % 2 ? "garden" : "bread", `https://g2.example/${i + 2}`)).flat()])
+  suggestions.push({ op: "tags", chat: fresh, chats: [fresh, japan, bread], verdicts: [{ tag: "garden", fits: true, confidence: 0.9 }] })
+  suggestions.push({ op: "tags", chat: fresh, chats: [fresh, japan, bread], cfg: { tagT1: 0.99 } })
+  const three = thread("threetags", [...qa("garden", "https://g3.example/1", { tags: ["garden"] }), ...qa("garden", "https://g3.example/1", { tags: ["garden"] }), ...qa("garden", "https://g3.example/2", { tags: ["garden"] }), ...qa("garden", "https://g3.example/1")])
+  suggestions.push({ op: "tags", chat: three, chats: [three, japan, bread] })
+}
 // Refused: on three messages without one taken; one taken after them; on the message itself.
 const refuse = (tag: string) => (e: Entry) => (e.role === "assistant" ? { ...e, dismissed: { tags: [tag] } } : e)
 const tiredTags = thread("tt", [...qa("x", "https://x.example/1").map(refuse("work")), ...qa("x", "https://x.example/2").map(refuse("work")), ...qa("x", "https://x.example/3").map(refuse("Work"))])
