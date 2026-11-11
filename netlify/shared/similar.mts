@@ -440,7 +440,7 @@ function sourcePlans(raw: unknown): SourcePlan[] {
   return (Array.isArray(raw) ? raw : []).map((p) => (p ?? {}) as Record<string, unknown>).flatMap((p) => {
     // A kind it doesn't know (an older planner's "own_key"): left out, not taken for a paid plan.
     if (p.kind !== "free" && p.kind !== "paid") return []
-    const kind = p.kind
+    const kind: SourcePlan["kind"] = p.kind
     const period = oneOf(p.period, ["month", "year", "week", "once"] as const, "month")
     const amount = num(p.price)
     const currency = str(p.currency, 3).toUpperCase()
