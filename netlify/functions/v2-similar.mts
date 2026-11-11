@@ -271,12 +271,14 @@ function readInput(body: Record<string, unknown>, locale: string, geo = ""): Sim
   // Build 95: the chip they tapped (weighed softly) and their own words (a must). An older panel sends only the
   // condition: all of it counts as their words, strict as before.
   const condition = clip(body.condition, MAX_CONDITION)
-  const chip = typeof body.chip === "string" ? CHIP_KINDS[body.chip] : undefined
-  const told = typeof body.chip === "string" || typeof body.words === "string"
+  // Build 98: several chips (`chips`); a panel before it sends one (`chip`).
+  const chips = [...new Set((Array.isArray(body.chips) ? body.chips : typeof body.chip === "string" ? [body.chip] : []).map((c) => (typeof c === "string" ? CHIP_KINDS[c] : undefined)).filter((k): k is NonNullable<typeof k> => Boolean(k)))].slice(0, 4)
+  const chip = chips[0]
+  const told = typeof body.chip === "string" || Array.isArray(body.chips) || typeof body.words === "string"
   const words = told ? clip(body.words, MAX_CONDITION).trim() : condition.trim()
   return {
     page, facts, condition, locale, ...(selection ? { selection } : {}), ...(region ? { region } : {}), ...(country ? { country } : {}),
-    ...(chip ? { chip } : {}), ...(words ? { words } : {})
+    ...(chip ? { chip } : {}), ...(chips.length > 1 ? { chips } : {}), ...(words ? { words } : {})
   }
 }
 

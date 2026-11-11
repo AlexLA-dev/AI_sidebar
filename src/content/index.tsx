@@ -41,6 +41,11 @@ function boot(): void {
       bus.dispatchEvent(new Event(message.type))
       sendResponse({ ok: true })
     }
+    // 2.6 (98): a link in a chat opened this page, already open in this tab: the panel opens on that chat.
+    if (message?.type === "openChat") {
+      bus.dispatchEvent(new CustomEvent("openChat", { detail: { chat: message.chat, at: message.at } }))
+      sendResponse({ ok: true })
+    }
     return false
   })
 

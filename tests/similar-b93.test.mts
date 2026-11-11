@@ -99,9 +99,11 @@ test("an App Store app from another store: not sold in theirs (marked), or linke
     { page: 1, name: "Glarity", why: "Summarizes pages.", fit: "", met: "n/a", shares: [1, 2], differs: "No translation" },
     { page: 2, name: "Merlin", why: "Summarizes pages.", fit: "", met: "n/a", shares: [1, 2, 3, 4], differs: "" }
   ], intro: "Apps like ContextFlow.", note: "" }, result, plan(), { title: "ContextFlow", url: "https://context-flow.app", text: "" })
-  assert.equal(written.items[0].regionLocked, true)
-  assert.equal(written.items[1].url, "https://apps.apple.com/ru/app/id222")
-  assert.equal(written.items[1].regionLocked, undefined)
+  // The closer one (Merlin) first (2.6: the closest first).
+  assert.deepEqual(written.items.map((i) => i.name), ["Merlin", "Glarity"])
+  assert.equal(written.items[1].regionLocked, true)
+  assert.equal(written.items[0].url, "https://apps.apple.com/ru/app/id222")
+  assert.equal(written.items[0].regionLocked, undefined)
 })
 
 // ---- how close ------------------------------------------------------------------------------------
@@ -115,13 +117,14 @@ test("how close: the share of the traits it has too, how it differs; the panel k
     { page: 2, name: "Beta", why: "Summarizes pages.", fit: "", met: "n/a", shares: [1, 9, 1], differs: "Chrome only, no translation" },
     { page: 3, name: "Gamma", why: "Explains terms.", fit: "", met: "n/a", shares: [4, 2], differs: "No summaries" }
   ], intro: "Here are a couple of options.", note: "" }, [a, b, c], plan(), { title: "ContextFlow", url: "https://context-flow.app", text: "" })
-  assert.deepEqual(result.items.map((i) => i.similarity), [100, 25, 50])
-  assert.equal(result.items[1].differs, "Chrome only, no translation")
+  // The closest first (2.6), whatever order the writer gave.
+  assert.deepEqual(result.items.map((i) => i.similarity), [100, 50, 25])
+  assert.equal(result.items[2].differs, "Chrome only, no translation")
   // "a couple": the intro never says how many.
   assert.equal(result.intro, "")
   const { close, less } = closeAndLess(result.items)
   assert.deepEqual(close.map((i) => i.name), ["Alpha"])
-  assert.deepEqual(less.map((i) => i.name), ["Beta", "Gamma"])
+  assert.deepEqual(less.map((i) => i.name), ["Gamma", "Beta"])
   // Three close ones: the less similar aren't needed; none close: the best leads.
   const many = [100, 90, 80, 30].map((n, i) => ({ ...result.items[0], name: `I${i}`, similarity: n }))
   assert.deepEqual(closeAndLess(many).less, [])

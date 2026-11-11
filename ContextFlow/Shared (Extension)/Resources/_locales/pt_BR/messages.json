@@ -306,7 +306,7 @@
   "message": "Quando devo lembrar você?"
  },
  "uxNoteWords": {
-  "message": "O que conferir ou do que lembrar você…"
+  "message": "O que conferir ou do que lembrar você (opcional)"
  },
  "uxRemindAsked": {
   "message": "Você pediu para lembrar: {0}"
@@ -1608,7 +1608,7 @@
   "message": "Quando avisar"
  },
  "watchNoteWords": {
-  "message": "O que conferir quando mudar…"
+  "message": "O que conferir quando mudar (opcional)"
  },
  "watchCondPrice": {
   "message": "quando o preço mudar (agora {0})"

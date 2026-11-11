@@ -101,6 +101,12 @@ func run(_ c: [String: Any]) -> Any {
     case "suggestMove":
         guard let chat = thread(c["chat"]) else { return NSNull() }
         return suggestion(Organize.suggestMove(chat, threads(c["chats"]), vectors(c["vectors"]), cfg))
+    case "scan":
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        let chats = threads(c["chats"])
+        let vectorOf = vectors(c["vectors"])
+        let s = Organize.organizeScan(chat, chats, vectorOf, cfg, Organize.suggestMove(chat, chats, vectorOf, cfg))
+        return ["chats": s.chats, "msgs": s.msgs, "vec": s.vec, "mg": s.mg, "mga": s.mga, "mgw": s.mgw, "mv": s.mv, "mvw": s.mvw, "res": s.res, "tv": s.tv]
     case "tags":
         // Each message that gets tag suggestions now: its candidates, the judge's text, and what the verdicts leave.
         guard let chat = thread(c["chat"]) else { return NSNull() }
