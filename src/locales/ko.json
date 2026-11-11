@@ -626,6 +626,7 @@
   "listenClose": "정지하고 닫기",
   "listenPlayingHere": "재생 중",
   "listenVoiced": "이미 읽어 준 내용: 다시 들어도 무료",
+  "listenMadeLeft": "이미 읽어 준 내용: 듣지 않은 부분만 차감돼요, {0}",
   "listenGoTo": "원래 위치로 이동",
   "listenLoading": "음성을 준비하고 있어요…",
   "listenUltraTitle": "듣기는 Ultra에 포함돼요",

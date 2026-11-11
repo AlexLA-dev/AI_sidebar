@@ -165,3 +165,9 @@ button.cf-listen-name:hover { color: var(--accent-text); text-decoration: underl
 button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 4px; }
 .cf[data-touch] .cf-listen-name { font-size: 13px; }
 .cf-msg-tools button .cf-voiced { display: inline-flex; margin-inline-start: 3px; opacity: 0.8; }
+/* Build 98 release: made in full, not all heard: a lighter check (a replay charges the stretches never heard). */
+.cf-msg-tools button .cf-voiced.made { opacity: 0.38; }
+/* What the mark means, after a long press on Listen (no tooltip on a touch screen). */
+.cf-listen-said { margin: 2px 2px 0; font-size: 12px; line-height: 1.35; color: var(--text-2); }
+.cf[data-touch] .cf-listen-said { font-size: 13px; }
+.cf-msg-tools button.cf-listen-btn { -webkit-touch-callout: none; }

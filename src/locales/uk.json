@@ -626,6 +626,7 @@
   "listenClose": "Зупинити й закрити",
   "listenPlayingHere": "Зараз грає",
   "listenVoiced": "Уже озвучено: повтор безкоштовно",
+  "listenMadeLeft": "Уже озвучено: спишеться лише недослухане, {0}",
   "listenGoTo": "Перейти туди, звідки це",
   "listenLoading": "Готую голос…",
   "listenUltraTitle": "Прослуховування входить до Ultra",

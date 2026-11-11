@@ -1811,6 +1811,9 @@
  "listenVoiced": {
   "message": "已朗讀過：重聽免費"
  },
+ "listenMadeLeft": {
+  "message": "已朗讀過：只扣除未聽過的部分，{0}"
+ },
  "listenGoTo": {
   "message": "前往出處"
  },

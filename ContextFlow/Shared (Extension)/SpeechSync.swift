@@ -10,9 +10,11 @@ import Foundation
 ///
 /// Zone "Speech". `SpeechPart`: recordName = the part's key (`key(voice:lang:text:)`, the same in the app and the panel),
 /// `audio` (asset, .m4a; CloudKit encrypts assets), `seconds`, `expiresAt`. `SpeechText`: recordName = the key of the
-/// text before writing it for the ear, `text` (encrypted, like the chats), `expiresAt`. Everything expires after 7 days, like the device's own copy; any device deletes what's
-/// expired (`sweep`, at most once a day, at launch and when listening starts); "Delete all chats" deletes the zone
-/// (`deleteAll`). It follows "Sync chats with iCloud": off, nothing is looked up or kept (what's there still expires).
+/// text before writing it for the ear, `text` (encrypted, like the chats), `expiresAt`. Parts expire after 7 days, like
+/// the device's own copy; texts stay as long as the chats (build 98 release: written again, a text gets new parts and a
+/// replay counts as new, so "already voiced" holds only while it's the same). Any device deletes what's expired and
+/// carries texts kept by older builds on (`sweep`, at most once a day, at launch and when listening starts); "Delete
+/// all chats" deletes the zone (`deleteAll`). It follows "Sync chats with iCloud": off, nothing is looked up or kept (what's there still expires).
 /// No account, no connection, or slower than the wait: as if it weren't there.
 enum SpeechSync {
     static let containerIdentifier = ChatSync.containerIdentifier
@@ -20,6 +22,8 @@ enum SpeechSync {
     static let partType = "SpeechPart"
     static let textType = "SpeechText"
     static let keepFor: TimeInterval = 7 * 86_400
+    /// Texts written for the ear: as long as the chats (until "Delete all chats").
+    static let textKeepFor: TimeInterval = 100 * 365 * 86_400
     /// The voice's sample rate and the AAC rate (see shots/ultra-26/aac-ab: 64 kbps is the encoder's best at 24 kHz).
     static let sampleRate = 24_000.0
     static let bitRate = 64_000
@@ -111,7 +115,7 @@ enum SpeechSync {
 
     // MARK: Texts written for the ear
 
-    /// The text written for the ear for this input, if a device of the user's wrote it in the last 7 days.
+    /// The text written for the ear for this input, if a device of the user's wrote it (and the chats weren't deleted).
     static func fetchText(_ key: String, wait: TimeInterval = 1.5) async -> String? {
         guard let record = await fetch(CKRecord.ID(recordName: key, zoneID: zoneID), wait: wait),
               (record["expiresAt"] as? Date ?? .distantPast) > Date() else { return nil }
@@ -123,13 +127,14 @@ enum SpeechSync {
         let record = CKRecord(recordType: textType, recordID: CKRecord.ID(recordName: key, zoneID: zoneID))
         // Encrypted like the chats (ChatSync): only the user's devices can read what a page or an answer said.
         record.encryptedValues["text"] = text
-        record["expiresAt"] = Date().addingTimeInterval(keepFor)
+        record["expiresAt"] = Date().addingTimeInterval(textKeepFor)
         await save(record)
     }
 
     // MARK: Expiry
 
-    /// Deletes this account's expired parts and texts (at most once a day, from any device).
+    /// Deletes this account's expired parts and texts, and carries older builds' texts on (at most once a day, from any
+    /// device).
     static func sweep() async {
         let last = UserDefaults.standard.double(forKey: sweptKey)
         guard Date().timeIntervalSince1970 - last > 86_400, await available() else { return }
@@ -140,6 +145,14 @@ enum SpeechSync {
             let ids = found.matchResults.map(\.0)
             if !ids.isEmpty { _ = try? await database.modifyRecords(saving: [], deleting: ids) }
         }
+        // Texts kept by builds before 98's release (7 days): carried on as long as the chats, while sync is on.
+        guard on else { return }
+        let soon = Date().addingTimeInterval(30 * 86_400)
+        let query = CKQuery(recordType: textType, predicate: NSPredicate(format: "expiresAt < %@", soon as NSDate))
+        guard let found = try? await database.records(matching: query, inZoneWith: zoneID, desiredKeys: ["expiresAt"], resultsLimit: 200) else { return }
+        let records = found.matchResults.compactMap { try? $0.1.get() }
+        for record in records { record["expiresAt"] = Date().addingTimeInterval(textKeepFor) }
+        if !records.isEmpty { _ = try? await database.modifyRecords(saving: records, deleting: [], savePolicy: .changedKeys, atomically: false) }
     }
 
     /// "Delete all chats": everything read aloud goes from iCloud too (the zone, on every device), whatever the setting.

@@ -626,6 +626,7 @@
   "listenClose": "Dừng và đóng",
   "listenPlayingHere": "Đang phát",
   "listenVoiced": "Đã đọc trước đó: nghe lại miễn phí",
+  "listenMadeLeft": "Đã đọc trước đó: chỉ trừ phần bạn chưa nghe, {0}",
   "listenGoTo": "Đến nơi phát",
   "listenLoading": "Đang chuẩn bị giọng đọc…",
   "listenUltraTitle": "Tính năng nghe có trong Ultra",

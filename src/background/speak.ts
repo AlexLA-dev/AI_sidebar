@@ -1,7 +1,7 @@
 // Read aloud (2.6, Ultra) in the background worker: the text written for the ear first (/api/v2/speak-script, when it
 // has tables, lists, code… or is a page), cut into parts as it streams, then /api/v2/speak part by part, the audio
-// passed to the panel (port "speak") as it comes. What was written and spoken is kept on this device (IndexedDB) for
-// up to 7 days, so playing it again costs nothing; "Delete all chats" clears it. A part is fetched only when the panel
+// passed to the panel (port "speak") as it comes. What was spoken is kept on this device (IndexedDB) for up to 7 days,
+// what was written for the ear as long as the chats; "Delete all chats" clears both. A part is fetched only when the panel
 // says what it has in hand is running short (build 92: one whole part ahead was charged even if nobody heard it), so
 // stopping early doesn't spend the week's minutes on parts nobody hears.
 
@@ -9,7 +9,7 @@ import { API_BASE } from "../shared/config"
 import { DEFAULT_VOICE, needsScript, PartSplitter, scriptChunks, SPEECH_RATE, speechParts, speechText, syncKey } from "../shared/speech"
 import type { Usage } from "../shared/types"
 import { coveredSeconds, listenPace, listenTotal, mergeRanges, type Ranges, slotMask } from "../shared/coverage"
-import { voicedId } from "../shared/voiced"
+import { madeTexts, voicedId, type MadeText } from "../shared/voiced"
 
 export interface SpeakDeps {
   installId: () => Promise<string>
@@ -22,6 +22,8 @@ export interface SpeakDeps {
   report?: (counts: { what: "answer" | "page"; heard_s: number; cache_s: number; icloud_s: number; server_s: number; charged_s: number }) => void
   // Texts the server now counts as voiced (build 95): every part counted, heard on any device, in one go or more.
   voiced?: (ids: string[]) => void
+  // Build 98 release: texts made in full, not all heard, with the seconds a replay would charge.
+  made?: (list: MadeText[]) => void
   sync?: {
     getPart: (key: string, wait: number) => Promise<string | null>
     // `cache`: the part's key on this device (the app's too): the extension keeps a copy in the App Group, so the app on
@@ -74,6 +76,11 @@ const STORE = "parts"
 // What the device keeps: about 25 minutes of audio (24 kHz, 16-bit), the oldest go first, nothing older than 7 days.
 const CACHE_BYTES = 75 * 1024 * 1024
 const CACHE_MS = 7 * 86_400_000
+// The texts written for the ear ("script|…") stay as long as the chats (build 98 release: written again, a text would
+// get new parts, and a replay would count as new; "already voiced" holds only while they're the same): the newest
+// SCRIPT_MAX, a few kilobytes each, outside the audio's cap.
+const SCRIPT_MAX = 2000
+const isScript = (key: string) => key.startsWith("script|")
 const CHUNK = 48_000
 
 function openDb(): Promise<IDBDatabase> {
@@ -222,9 +229,11 @@ async function sendHeard(deps: SpeakDeps): Promise<Usage | null> {
     if (!res.ok) return null
     await heardCounted(map)
     for (const [id] of texts) heardTexts.delete(id)
-    const body = (await res.json().catch(() => null)) as { usage?: Usage | null; voiced?: unknown } | null
+    const body = (await res.json().catch(() => null)) as { usage?: Usage | null; voiced?: unknown; made?: unknown } | null
     const voiced = Array.isArray(body?.voiced) ? body.voiced.filter((id): id is string => typeof id === "string") : []
     if (voiced.length) deps.voiced?.(voiced)
+    const made = madeTexts(body?.made)
+    if (made.length) deps.made?.(made)
     return body?.usage ?? null
   } catch {
     return null
@@ -263,13 +272,13 @@ async function speechKey(text: string, lang: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("")
 }
 
-/** A kept part's audio, or a kept text for listening; null when there's none (or it's older than 7 days). */
+/** A kept part's audio (7 days), or a kept text for listening (as long as the chats); null when there's none. */
 async function cached(key: string): Promise<Uint8Array | null> {
   try {
     const db = await openDb()
     return await new Promise((resolve) => {
       const req = db.transaction(STORE).objectStore(STORE).get(key)
-      req.onsuccess = () => resolve(req.result && Date.now() - (req.result.at as number) < CACHE_MS ? new Uint8Array(req.result.pcm as ArrayBuffer) : null)
+      req.onsuccess = () => resolve(req.result && (isScript(key) || Date.now() - (req.result.at as number) < CACHE_MS) ? new Uint8Array(req.result.pcm as ArrayBuffer) : null)
       req.onerror = () => resolve(null)
     })
   } catch {
@@ -283,15 +292,21 @@ async function keep(key: string, pcm: Uint8Array): Promise<void> {
     const tx = db.transaction(STORE, "readwrite")
     const store = tx.objectStore(STORE)
     store.put({ key, pcm: pcm.slice().buffer, bytes: pcm.length, at: Date.now() })
-    // Over the cap or older than 7 days: gone, the oldest first.
+    // Audio over the cap or older than 7 days: gone, the oldest first. Texts written for the ear: past the newest
+    // SCRIPT_MAX.
     let total = 0
+    let scripts = 0
     const now = Date.now()
     store.index("at").openCursor(null, "prev").onsuccess = (event) => {
       const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>).result
       if (!cursor) return
       const row = cursor.value as { key: string; bytes: number; at: number }
-      total += row.bytes
-      if (total > CACHE_BYTES || now - row.at > CACHE_MS) store.delete(row.key)
+      if (isScript(row.key)) {
+        if (++scripts > SCRIPT_MAX) store.delete(row.key)
+      } else {
+        total += row.bytes
+        if (total > CACHE_BYTES || now - row.at > CACHE_MS) store.delete(row.key)
+      }
       cursor.continue()
     }
     await new Promise<void>((resolve) => {

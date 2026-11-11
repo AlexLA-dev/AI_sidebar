@@ -7,6 +7,7 @@ import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { planOfProduct, type Plan } from "../shared/plan"
 import { keepingAnswers, type Jobs } from "../shared/jobs"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
+import type { MadeList } from "../shared/voiced"
 
 
 async function get<T>(key: string): Promise<T | undefined> {
@@ -176,9 +177,23 @@ export async function voicedNow(): Promise<Record<string, number>> {
 
 /** Calls `listener` with the new list when a text is marked heard (here, in another tab, or by the app). */
 export function onVoicedChanged(listener: (list: Record<string, number>) => void): () => void {
+  return onListChanged(STORAGE.voiced, listener)
+}
+
+/** Build 98 release: the texts made in full for the subscription, not all heard (shared/voiced.ts MadeList). */
+export async function madeNow(): Promise<MadeList> {
+  const list = await get<MadeList>(STORAGE.listenMade)
+  return list && typeof list === "object" ? list : {}
+}
+
+export function onMadeChanged(listener: (list: MadeList) => void): () => void {
+  return onListChanged(STORAGE.listenMade, listener)
+}
+
+function onListChanged<T extends object>(key: string, listener: (list: T) => void): () => void {
   const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
-    const change = changes[STORAGE.voiced]
-    if (area === "local" && change) listener(change.newValue && typeof change.newValue === "object" ? change.newValue as Record<string, number> : {})
+    const change = changes[key]
+    if (area === "local" && change) listener(change.newValue && typeof change.newValue === "object" ? change.newValue as T : {} as T)
   }
   try {
     chrome.storage.onChanged.addListener(handler)

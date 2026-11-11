@@ -1811,6 +1811,9 @@
  "listenVoiced": {
   "message": "Ya narrado: volver a escucharlo es gratis"
  },
+ "listenMadeLeft": {
+  "message": "Ya narrado: solo se descuenta lo que no has escuchado, {0}"
+ },
  "listenGoTo": {
   "message": "Ir a donde está"
  },

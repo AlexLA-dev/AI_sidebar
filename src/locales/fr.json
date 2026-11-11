@@ -626,6 +626,7 @@
   "listenClose": "Arrêter et fermer",
   "listenPlayingHere": "En cours de lecture",
   "listenVoiced": "Déjà lu à voix haute : la réécoute est gratuite",
+  "listenMadeLeft": "Déjà lu à voix haute : seule la partie non écoutée sera décomptée, {0}",
   "listenGoTo": "Aller à l’endroit d’où ça vient",
   "listenLoading": "Préparation de la voix…",
   "listenUltraTitle": "L’écoute fait partie d’Ultra",

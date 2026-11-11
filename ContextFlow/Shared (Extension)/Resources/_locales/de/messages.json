@@ -1811,6 +1811,9 @@
  "listenVoiced": {
   "message": "Schon vertont: erneut anhören ist gratis"
  },
+ "listenMadeLeft": {
+  "message": "Schon vertont: abgezogen wird nur, was du noch nicht gehört hast, {0}"
+ },
  "listenGoTo": {
   "message": "Zur Stelle, von der es stammt"
  },

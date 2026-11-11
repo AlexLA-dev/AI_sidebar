@@ -1811,6 +1811,9 @@
  "listenVoiced": {
   "message": "Già letto ad alta voce: riascoltarlo è gratis"
  },
+ "listenMadeLeft": {
+  "message": "Già letto ad alta voce: verrà scalato solo ciò che non hai ascoltato, {0}"
+ },
  "listenGoTo": {
   "message": "Vai al punto da cui viene"
  },

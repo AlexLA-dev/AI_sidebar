@@ -1811,6 +1811,9 @@
  "listenVoiced": {
   "message": "Déjà lu à voix haute : la réécoute est gratuite"
  },
+ "listenMadeLeft": {
+  "message": "Déjà lu à voix haute : seule la partie non écoutée sera décomptée, {0}"
+ },
  "listenGoTo": {
   "message": "Aller à l’endroit d’où ça vient"
  },

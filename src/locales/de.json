@@ -626,6 +626,7 @@
   "listenClose": "Stoppen und schließen",
   "listenPlayingHere": "Wird gerade abgespielt",
   "listenVoiced": "Schon vertont: erneut anhören ist gratis",
+  "listenMadeLeft": "Schon vertont: abgezogen wird nur, was du noch nicht gehört hast, {0}",
   "listenGoTo": "Zur Stelle, von der es stammt",
   "listenLoading": "Stimme wird vorbereitet…",
   "listenUltraTitle": "Anhören ist Teil von Ultra",

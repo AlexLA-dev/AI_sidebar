@@ -1289,7 +1289,7 @@ struct ChatDetailView: View {
                                                     // chat's name): the one its question was asked on, as in the panel.
                                                     ListenPlayer.shared.listen(answer: entry.content, id: "chat-\(thread.id)-\(index)", title: answerTitle(thread, index))
                                                 },
-                                                voiced: !entry.isNote && store.isUltra && voiced.has("answer", entry.content)
+                                                mark: !entry.isNote && store.isUltra ? voiced.mark("answer", entry.content) : nil
                                             )
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
@@ -2521,8 +2521,9 @@ private struct MessageTools: View {
     var actions: MessageActions? = nil
     /// Listen (build 90, answers): Ultra's, in Ultra's tint; without Ultra with a tiny "Ultra" mark.
     var listen: (() -> Void)? = nil
-    /// Build 94: heard to its end on this device, so replaying it costs no minutes: a quiet check by Listen.
-    var voiced = false
+    /// Build 94: heard in full, so replaying it costs no minutes: a quiet check by Listen. Build 98 release: made in
+    /// full but not all heard, a lighter check (a replay charges only what was never heard).
+    var mark: ListenMark? = nil
     @ObservedObject var store = StoreKitManager.shared
 
     var body: some View {
@@ -2570,20 +2571,26 @@ private struct MessageTools: View {
                         Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
                         if titles { Text("Listen").lineLimit(1) }
                         if !store.isUltra { UltraMark() }
-                        if voiced {
+                        if let mark {
                             Image(systemName: "checkmark.circle")
                                 .font(.caption2.weight(.semibold))
-                                .opacity(0.8)
-                                .accessibilityIdentifier("chat.listen.voiced")
+                                .opacity(mark == .free ? 0.8 : 0.38)
+                                .accessibilityIdentifier(mark == .free ? "chat.listen.voiced" : "chat.listen.made")
                         }
                     }
                     .foregroundColor(ultraTint)
                     .fixedSize()
                 }
-                .help(voiced ? Text("Already voiced: replay is free") : Text("Listen"))
+                .help(mark?.words ?? Text("Listen"))
                 .accessibilityLabel(Text("Listen"))
-                .accessibilityValue(voiced ? Text("Already voiced: replay is free") : Text(""))
+                .accessibilityValue(mark?.words ?? Text(""))
                 .accessibilityIdentifier("chat.listen")
+                // A long press says what the mark means (no tooltip on a touch screen).
+                .contextMenu {
+                    if let mark {
+                        mark.words
+                    }
+                }
             }
             if let tag {
                 Button(action: tag) { Label("Tag", systemImage: "tag") }

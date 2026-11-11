@@ -626,6 +626,7 @@
   "listenClose": "Interrompi e chiudi",
   "listenPlayingHere": "In riproduzione",
   "listenVoiced": "Già letto ad alta voce: riascoltarlo è gratis",
+  "listenMadeLeft": "Già letto ad alta voce: verrà scalato solo ciò che non hai ascoltato, {0}",
   "listenGoTo": "Vai al punto da cui viene",
   "listenLoading": "Preparo la voce…",
   "listenUltraTitle": "L’ascolto fa parte di Ultra",

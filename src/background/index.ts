@@ -37,7 +37,7 @@ import { organizeConfig } from "../shared/organize"
 import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
 import { base64 as speechBase64, clearSpeech, serveSpeak, textPartKeys, textVoicedId } from "./speak"
-import { withVoiced } from "../shared/voiced"
+import { madeTexts, withMade, withVoiced, type MadeList, type MadeText } from "../shared/voiced"
 import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
 import { t } from "../shared/i18n"
 import type { Job } from "../shared/jobs"
@@ -186,8 +186,27 @@ function keepVoiced(ids: string[], tellApp: boolean): Promise<void> {
     // Only what's new is written, and told to the app (build 95: the server's answer can name a text marked already).
     const fresh = ids.filter((id) => !list[id])
     if (!fresh.length) return
-    await chrome.storage.local.set({ [STORAGE.voiced]: withVoiced(list, fresh) }).catch(() => undefined)
+    const next = withVoiced(list, fresh)
+    // Heard in full now: no longer only made (build 98 release).
+    const made = (await chrome.storage.local.get(STORAGE.listenMade).catch(() => ({} as Record<string, unknown>)))[STORAGE.listenMade] as MadeList | undefined
+    const stillMade = made && typeof made === "object" && fresh.some((id) => made[id]) ? withMade(made, [], next) : null
+    await chrome.storage.local.set({ [STORAGE.voiced]: next, ...(stillMade ? { [STORAGE.listenMade]: stillMade } : {}) }).catch(() => undefined)
     if (tellApp && TARGET === "safari") await callNative("voiced", { ids: fresh }, 3000)
+  })
+  voicedLane = run.catch(() => undefined)
+  return run.catch(() => undefined)
+}
+
+/** Build 98 release: texts made in full for the subscription, not all heard, with the seconds a replay would charge
+ *  (the server's count now). In the same lane as the voiced list; written only when something changed. */
+function keepMade(list: MadeText[]): Promise<void> {
+  const run = voicedLane.then(async () => {
+    if (!list.length) return
+    const got = await chrome.storage.local.get([STORAGE.voiced, STORAGE.listenMade]).catch(() => ({} as Record<string, unknown>))
+    const voiced = (got[STORAGE.voiced] && typeof got[STORAGE.voiced] === "object" ? got[STORAGE.voiced] : {}) as Record<string, number>
+    const made = (got[STORAGE.listenMade] && typeof got[STORAGE.listenMade] === "object" ? got[STORAGE.listenMade] : {}) as MadeList
+    if (list.every(({ id, left }) => voiced[id] || made[id]?.left === left)) return
+    await chrome.storage.local.set({ [STORAGE.listenMade]: withMade(made, list, voiced) }).catch(() => undefined)
   })
   voicedLane = run.catch(() => undefined)
   return run.catch(() => undefined)
@@ -223,9 +242,10 @@ async function askVoiced(texts: Array<{ text: string; what: "answer" | "page"; l
       body: JSON.stringify({ installId: await installId(), client: await clientInfo(), entitlement: ent.jws, texts: asks })
     })
     if (!res.ok) return
-    const body = (await res.json().catch(() => null)) as { voiced?: unknown } | null
+    const body = (await res.json().catch(() => null)) as { voiced?: unknown; made?: unknown } | null
     const voiced = Array.isArray(body?.voiced) ? body.voiced.filter((id): id is string => typeof id === "string") : []
     if (voiced.length) await keepVoiced(voiced, true)
+    await keepMade(madeTexts(body?.made))
   } catch {
     // Offline: asked again next time (after the wait).
   }
@@ -444,6 +464,8 @@ chrome.runtime.onConnect.addListener((port) => {
       report: (counts) => void reportUse({ type: "useEvent", f: "listen", a: "heard", ...counts }),
       // Voiced now, as the server counts it (build 95): kept with this device's list, the app told.
       voiced: (ids) => void keepVoiced(ids, true),
+      // Made in full, not all heard (build 98 release): what a replay of each would charge.
+      made: (list) => void keepMade(list),
       // The user's iCloud through the app's extension (Safari): parts and texts made on their other devices. In their own
       // lane, one at a time and each short (build 92): the plan and the status never wait behind more than one.
       sync: TARGET === "safari" ? {
@@ -845,7 +867,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
       // The list of texts heard to their end goes with it (build 94; the app's side clears its copy on speechClear).
       if (TARGET === "safari") void callNative("speechClear", {}, 15_000)
-      voicedLane = voicedLane.then(() => chrome.storage.local.remove(STORAGE.voiced)).catch(() => undefined)
+      voicedLane = voicedLane.then(() => chrome.storage.local.remove([STORAGE.voiced, STORAGE.listenMade])).catch(() => undefined)
       clearSpeech().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "mediaNotice":

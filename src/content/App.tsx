@@ -65,13 +65,13 @@ import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
 import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
-import { voicedId } from "../shared/voiced"
+import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged, madeNow, onMadeChanged } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -1682,7 +1682,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
    * Under an answer and under a note, the same: its tags, then Copy, Share and Tag, then the tag
    * picker (`plain`: the text to copy, `shared`: the text to share).
    */
-  const messageFooter = (m: Entry, idx: number, plain: () => string, shared: () => string): VNode => (
+  const messageFooter = (m: Entry, idx: number, plain: () => string, shared: () => string): VNode => {
+    const mark = m.role === "assistant" && !m.note ? answerMark(m.content) : null
+    return (
     <>
       {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
       <div class={`cf-msg-tools ${hasField ? "has-insert" : ""}`}>
@@ -1719,15 +1721,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </button>
         )}
         {TARGET === "safari" && !m.note && m.role === "assistant" && (
-          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listenOn(`a:${idx}`) ? "on" : ""}`} data-voiced={voicedAnswer(m.content) ? "" : undefined} onClick={() => {
+          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listenOn(`a:${idx}`) ? "on" : ""}`} data-voiced={mark === "free" ? "" : mark ? "made" : undefined} onPointerDown={() => {
+            window.clearTimeout(markHold.current.timer)
+            markHold.current.held = false
+            if (mark) markHold.current.timer = window.setTimeout(() => {
+              markHold.current.held = true
+              setMarkSaid(idx)
+            }, 500)
+          }} onPointerUp={() => window.clearTimeout(markHold.current.timer)} onPointerLeave={() => window.clearTimeout(markHold.current.timer)} onPointerCancel={() => window.clearTimeout(markHold.current.timer)} onContextMenu={(e) => {
+            if (!mark) return
+            e.preventDefault()
+            e.stopPropagation()
+          }} onClick={() => {
+            // The press said what the mark means: it doesn't start Listen too.
+            if (markHold.current.held) {
+              markHold.current.held = false
+              return
+            }
             if (listenOn(`a:${idx}`)) return listen.stop()
             // Titled by the page the answer is about (build 93): the one its question was asked on, which may not be the
             // page open now. The link stays this page's: "Back to Safari" in the app comes back here.
             const page = lastPage(messages.slice(0, idx + 1))
             void listen.start(listenKey(`a:${idx}`), { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: page?.title || page?.url || source.title(), url: source.href() })
-          }} aria-label={voicedAnswer(m.content) ? `${t("listen")} · ${t("listenVoiced")}` : t("listen")} title={voicedAnswer(m.content) ? t("listenVoiced") : t("listen")}>
+          }} aria-label={mark ? `${t("listen")} · ${markWords(mark)}` : t("listen")} title={mark ? markWords(mark) : t("listen")}>
             <SpeakerIcon /> <span class="cf-tl">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
-            {voicedAnswer(m.content) && <span class="cf-voiced"><VoicedIcon /></span>}
+            {mark && <span class={`cf-voiced ${mark === "free" ? "" : "made"}`}><VoicedIcon /></span>}
           </button>
         )}
         <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
@@ -1735,10 +1753,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         </button>
         {ux.moreButton(m, idx)}
       </div>
+      {markSaid === idx && mark && <div class="cf-listen-said" role="status">{markWords(mark)}</div>}
       {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => userTags(idx, next)} onClose={() => setTagging(null)} />}
       {organizeRow(idx)}
     </>
-  )
+    )
+  }
 
   const renameChat = useCallback((id: string, name: string) => {
     void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => showLists(threads))
@@ -2428,13 +2448,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   })
   // Build 94: the texts heard to their end on this device (here or in the app): Listen shows replaying them is free.
   const [voiced, setVoiced] = useState<Record<string, number>>({})
+  // Build 98 release (the owner: the mark once the audio is made, not only once it's heard): made in full for the
+  // subscription, not all heard; the mark then says what a replay charges.
+  const [made, setMade] = useState<MadeList>({})
   useEffect(() => {
     if (TARGET !== "safari") return
     void voicedNow().then(setVoiced)
-    return onVoicedChanged(setVoiced)
+    void madeNow().then(setMade)
+    const offVoiced = onVoicedChanged(setVoiced)
+    const offMade = onMadeChanged(setMade)
+    return () => {
+      offVoiced()
+      offMade()
+    }
   }, [])
-  const anyVoiced = Object.keys(voiced).length > 0
-  const voicedAnswer = (text: string) => anyVoiced && isUltra(plan) && Boolean(voiced[voicedId("answer", text)])
+  const anyMark = Object.keys(voiced).length > 0 || Object.keys(made).length > 0
+  const answerMark = (text: string) => (anyMark && isUltra(plan) ? listenMark(voicedId("answer", text), voiced, made) : null)
+  const markWords = (mark: "free" | number) => (mark === "free" ? t("listenVoiced") : t("listenMadeLeft", markClock(mark)))
+  // A long press on Listen (iPhone, iPad: no tooltip there) says what its mark means, under the answer's tools.
+  const [markSaid, setMarkSaid] = useState<number | null>(null)
+  const markHold = useRef({ timer: 0, held: false })
+  useEffect(() => {
+    if (markSaid === null) return
+    const timer = window.setTimeout(() => setMarkSaid(null), 4000)
+    return () => window.clearTimeout(timer)
+  }, [markSaid])
   // Build 95 (the owner on 94: no mark anywhere; it was only set by a listen heard to its very end, on that device):
   // the chat's answers as the server counts them, heard on any device in any number of listens. Asked about when the
   // chat shows (each at most every 10 minutes: the background keeps track); the voiced ones join the list.
