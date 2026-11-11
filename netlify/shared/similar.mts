@@ -1850,6 +1850,7 @@ export class ItemFinisher {
   private selfName: string
   private selfHost: string
   private sameShops = 0
+  private marketItems = 0
   private pages: CheckedCandidate[]
   private plan: Plan
   private sourcePrice: number
@@ -1938,6 +1939,10 @@ export class ItemFinisher {
     // One model in colours, sizes or at two shops is one item, whatever the writer made of it.
     const model = modelKey(name)
     if (!same && model && this.models.some((m) => sameModel(m, model))) return drop("duplicate")
+    // One marketplace listing at most in the answer, however the item came (a review page's link to its listing too:
+    // the searches' own cap, Claims, sees only their results).
+    const market = MARKETPLACE.test(hostOf(url))
+    if (market && this.marketItems >= 1) return drop("one marketplace listing at most")
     // Their own words must hold; a chip they tapped is weighed softly (the item may come at the end, see softTail).
     // A condition its page proved (a price read, a quote on the page) wins over the writer's word (the writer can
     // weigh the wrong condition).
@@ -1950,6 +1955,7 @@ export class ItemFinisher {
     // Softly, not far off: a miss at most a fifth over the price to beat (several times the price answers no
     // "cheaper").
     if (fails && kind === "cheaper" && this.overBy(page.price) > 1.2) return drop("far from the chip")
+    if (market) this.marketItems++
     this.seenUrl.add(key)
     if (nameKey) this.seenName.add(nameKey)
     // The condition as the page showed it wins over the model's word; their words not shown on the page leave it open.
@@ -1963,6 +1969,7 @@ export class ItemFinisher {
     if (traits && Array.isArray(o.shares) && !shares.length && !same) {
       this.seenUrl.delete(key)
       if (nameKey) this.seenName.delete(nameKey)
+      if (market) this.marketItems--
       return drop("shares none of the traits")
     }
     if (model && !same) this.models.push(model)
