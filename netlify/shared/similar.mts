@@ -341,6 +341,7 @@ export const WRITE_SYSTEM = `You write ContextFlow's "Find similar" answer: a sh
 - Never write web addresses: the app adds the links.
 - name: the item's name as its page gives it, not translated, nothing added to it.
 - Up to 6 items, best first: every checked page that is a real alternative, the weaker ones too (they are shown apart, as less similar). Never the same item twice: colors, sizes, editions, bundles, open-box or refurbished offers of one model are one item (take one).
+- At most one listing of each marketplace (Amazon, eBay, a country's own; amazon.de and amazon.com are one): the closest to their item, then the one that holds their words and chip, then the cheaper.
 - The item the person is on: never as an alternative. When their condition is cheaper or in stock, the very same item at another shop whose page shows it cheaper (or in stock) is worth the most: set same to true, put it first (at most two such shops), and say in differs that it is the same item at that shop.
 - Their own words, when they wrote some, are a must: words_met "yes" when the item's page shows it, "no" when the page shows otherwise (never list such an item), "unknown" when the page doesn't say; "n/a" when they wrote none.
 - A quick choice they tapped (a chip) is weighed more softly: items that meet it first. A page marked "condition: no" misses it: list it only when it has most of the traits, after the ones that meet it, with met "no" and fit saying plainly how it misses ("not cheaper: <its price as the page shows it>").
