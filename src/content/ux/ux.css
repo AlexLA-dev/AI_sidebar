@@ -174,7 +174,9 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
   font: inherit; font-size: 14px; line-height: 1.4;
 }
 .cf-note-words:focus { outline: none; border-color: var(--accent); }
-.cf-note-words::placeholder { color: var(--text-3); }
+/* One line in every language (build 98, the owner: a hint on two lines in a one-line field sat low): short words, and
+   cut with … where a window is narrower still. */
+.cf-note-words::placeholder { color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* iPhone and iPad: 16 px, or Safari zooms the page in on focus. */
 .cf[data-touch] .cf-note-words { font-size: 16px; }
 .cf-watch .cf-note-words { width: 100%; margin: 6px 0 2px; }
