@@ -112,3 +112,18 @@ test("values as a person reads them: markup prices in their currency format, sto
   assert.equal(shownValue("Size 42: sold out", "en", words), "Size 42: sold out")
 })
 
+
+test("2.6: offers as shops write them: a price specification list (its struck-through entry skipped), no @type, lowPrice, microdata text", () => {
+  const ld = (data: unknown) => `<script type="application/ld+json">${JSON.stringify(data)}</script>`
+  // IKEA-like: the specification is a list; the struck-through one isn't the price.
+  assert.equal(structured(ld({ "@type": "Product", offers: { "@type": "Offer", priceCurrency: "EUR", priceSpecification: [{ "@type": "UnitPriceSpecification", priceType: "https://schema.org/StrikethroughPrice", price: 179 }, { "@type": "UnitPriceSpecification", price: 149, priceCurrency: "EUR" }] } })).ldPrice, "149 EUR")
+  // WooCommerce-like: a list without a price type; a price per unit (per kg) isn't the item's.
+  assert.equal(structured(ld({ "@type": "Product", offers: [{ "@type": "Offer", priceSpecification: [{ price: "4.20", priceCurrency: "EUR", referenceQuantity: { value: 1, unitCode: "KGM" } }, { price: "12.60", priceCurrency: "EUR" }] }] })).ldPrice, "12.60 EUR")
+  // An offer without @type under "offers", and an aggregate's lowest price.
+  assert.equal(structured(ld({ "@type": "Product", offers: { price: "28.00", priceCurrency: "EUR" } })).ldPrice, "28.00 EUR")
+  assert.equal(structured(ld({ "@type": "Product", offers: { "@type": "AggregateOffer", lowPrice: 912.5, highPrice: 1041.67, priceCurrency: "EUR" } })).ldPrice, "912.5 EUR")
+  // An app free to download: 0 is its price.
+  assert.equal(structured(ld({ "@type": "SoftwareApplication", offers: { "@type": "Offer", price: 0, priceCurrency: "USD" } })).ldPrice, "0 USD")
+  // Microdata with the price as the element's text.
+  assert.equal(structured('<meta itemprop="priceCurrency" content="EUR"><span class="hidden" itemprop="price">95.00</span>').metaPrice, "95.00 EUR")
+})

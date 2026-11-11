@@ -610,3 +610,152 @@ export const UNITS: Words = {
   ja: ["ギガ", "テラ", "ミリ", "センチ", "リットル", "グラム", "インチ"], ko: ["기가", "테라", "리터", "그램", "인치", "밀리"],
   zh: ["克", "升", "毫升", "英寸", "寸"], "zh-Hant": ["克", "升", "毫升", "英吋", "吋"], vi: ["inch"], ar: ["جيجا", "بوصة"]
 }
+
+// ------------------------------------------------------------ a price in an item page's text (2.6)
+
+/** Before a price that isn't the one to pay now: a was, list or recommended price. */
+export const PRICE_NOT_NOW: Words = {
+  en: ["was", "list price", "regular price", "original price", "rrp", "msrp", "compare at", "retail price", "reg."],
+  ru: ["было", "старая цена", "обычная цена", "без скидки"],
+  uk: ["було", "стара ціна", "звичайна ціна", "без знижки"],
+  de: ["statt", "uvp", "unverbindliche preisempfehlung", "streichpreis", "bisher", "ursprünglich"],
+  fr: ["au lieu de", "prix conseillé", "prix barré", "prix de référence", "prix initial"],
+  es: ["antes", "precio anterior", "precio original", "pvp recomendado", "precio de referencia"],
+  it: ["prezzo consigliato", "prezzo di listino", "invece di", "prezzo originale"],
+  pt: ["de", "antes", "preço original", "preço de tabela"],
+  ja: ["定価", "通常価格", "参考価格", "希望小売価格", "メーカー希望小売価格"],
+  ko: ["정가", "소비자가", "권장소비자가"],
+  zh: ["原价", "市场价", "参考价", "划线价"],
+  "zh-Hant": ["原價", "市價", "定價", "建議售價"],
+  vi: ["giá gốc", "giá niêm yết", "giá cũ", "giá thị trường"],
+  ar: ["السعر الأصلي", "كان", "السعر قبل", "بدلا من", "بدلاً من"]
+}
+
+/** Before a price that is a saving, not a price. */
+export const PRICE_SAVING: Words = {
+  en: ["save", "you save", "savings", "discount"],
+  ru: ["экономия", "скидка", "выгода"],
+  uk: ["економія", "знижка", "вигода"],
+  de: ["sparen", "sie sparen", "ersparnis", "rabatt"],
+  fr: ["économisez", "économie", "remise"],
+  es: ["ahorra", "ahorras", "ahorro", "descuento"],
+  it: ["risparmi", "risparmio", "sconto"],
+  pt: ["economize", "economia", "desconto"],
+  ja: ["お得", "割引", "オフ"],
+  ko: ["할인", "절약"],
+  zh: ["节省", "立省", "优惠"],
+  "zh-Hant": ["節省", "省下", "優惠"],
+  vi: ["tiết kiệm", "giảm"],
+  ar: ["وفر", "توفير", "خصم"]
+}
+
+/** Before or after a price paid by the month or in parts. */
+export const PRICE_MONTHLY: Words = {
+  en: ["per month", "a month", "/month", "/mo", "monthly", "installments", "instalments", "payments of", "pay in"],
+  ru: ["в месяц", "/мес", "ежемесячно", "рассрочка"],
+  uk: ["на місяць", "/міс", "щомісяця", "розстрочка"],
+  de: ["monatlich", "pro monat", "/monat", "/mtl", "raten", "ratenzahlung", "finanzierung"],
+  fr: ["par mois", "/mois", "mensuel", "mensualités"],
+  es: ["al mes", "/mes", "mensual", "cuotas", "plazos"],
+  it: ["al mese", "/mese", "mensile", "rate"],
+  pt: ["por mês", "/mês", "mensal", "parcelas", "sem juros"],
+  ja: ["月額", "/月", "分割"],
+  ko: ["/월", "할부", "무이자"],
+  zh: ["每月", "/月", "分期"],
+  "zh-Hant": ["每月", "/月", "分期"],
+  vi: ["mỗi tháng", "/tháng", "trả góp"],
+  ar: ["شهريا", "شهرياً", "/شهر", "أقساط", "تقسيط"]
+}
+
+/** After a price paid by the month ("$41.58/mo", "29 € al mese"): part payments' own words introduce the next price. */
+export const PRICE_PER_MONTH: Words = {
+  en: ["per month", "a month", "/month", "/mo", "monthly"],
+  ru: ["в месяц", "/мес", "ежемесячно"],
+  uk: ["на місяць", "/міс", "щомісяця"],
+  de: ["monatlich", "pro monat", "/monat", "/mtl", "mtl."],
+  fr: ["par mois", "/mois"],
+  es: ["al mes", "/mes"],
+  it: ["al mese", "/mese"],
+  pt: ["por mês", "/mês"],
+  ja: ["/月", "／月"],
+  ko: ["/월"],
+  zh: ["/月", "每月"],
+  "zh-Hant": ["/月", "每月"],
+  vi: ["/tháng"],
+  ar: ["شهريا", "شهرياً", "/شهر"]
+}
+
+/** Before a price that is a cart's, a total or an order minimum. */
+export const PRICE_CART: Words = {
+  en: ["cart", "basket", "subtotal", "total", "min. order", "minimum order", "minimum", "orders over", "orders above", "spend"],
+  ru: ["корзина", "итого", "минимальный заказ", "сумма заказа", "заказ от"],
+  uk: ["кошик", "разом", "мінімальне замовлення", "замовлення від"],
+  de: ["warenkorb", "zwischensumme", "gesamt", "summe", "mindestbestellwert", "mindestbestellung"],
+  fr: ["panier", "sous-total", "total", "commande minimum", "minimum de commande", "dès"],
+  es: ["carrito", "cesta", "subtotal", "total", "pedido mínimo", "pedidos superiores a"],
+  it: ["carrello", "subtotale", "totale", "ordine minimo"],
+  pt: ["carrinho", "sacola", "subtotal", "total", "pedido mínimo", "compras acima de"],
+  ja: ["カート", "小計", "合計", "最低注文"],
+  ko: ["장바구니", "합계", "총액", "최소 주문", "이상 구매"],
+  zh: ["购物车", "小计", "合计", "总计", "起送", "满"],
+  "zh-Hant": ["購物車", "小計", "合計", "總計", "滿"],
+  vi: ["giỏ hàng", "tạm tính", "tổng", "đơn tối thiểu", "đơn hàng từ"],
+  ar: ["السلة", "سلة", "المجموع", "الإجمالي", "الحد الأدنى"]
+}
+
+/** A section of other items after the item's own (related, accessories, recently viewed): reading stops there. */
+export const OTHER_ITEMS: Words = {
+  en: ["you may also like", "you might also like", "related products", "customers also bought", "customers also viewed", "similar products", "recommended for you", "frequently bought together", "accessories", "complete the look", "recently viewed"],
+  ru: ["похожие товары", "с этим товаром покупают", "рекомендуем", "аксессуары", "вы смотрели"],
+  uk: ["схожі товари", "з цим товаром купують", "рекомендуємо", "аксесуари"],
+  de: ["das könnte dir auch gefallen", "das könnte ihnen auch gefallen", "ähnliche produkte", "ähnliche artikel", "kunden kauften auch", "zubehör", "passend dazu", "zuletzt angesehen"],
+  fr: ["vous aimerez aussi", "produits similaires", "produits associés", "accessoires", "les clients ont aussi acheté"],
+  es: ["también te puede gustar", "productos relacionados", "productos similares", "accesorios", "otros clientes compraron"],
+  it: ["potrebbe piacerti anche", "prodotti correlati", "prodotti simili", "accessori", "chi ha acquistato"],
+  pt: ["você também pode gostar", "produtos relacionados", "produtos similares", "acessórios", "quem comprou"],
+  ja: ["関連商品", "おすすめ商品", "この商品を買った人", "最近チェックした"],
+  ko: ["관련 상품", "추천 상품", "함께 구매", "최근 본 상품"],
+  zh: ["相关商品", "猜你喜欢", "推荐商品", "看了又看"],
+  "zh-Hant": ["相關商品", "推薦商品", "猜你喜歡"],
+  vi: ["sản phẩm liên quan", "sản phẩm tương tự", "có thể bạn thích", "phụ kiện"],
+  ar: ["منتجات ذات صلة", "قد يعجبك أيضا", "منتجات مشابهة", "إكسسوارات"]
+}
+
+/** Before a number written without a sign, saying it is the price ("Preis: 378.-"). */
+export const PRICE_LABEL: Words = {
+  en: ["price", "our price", "sale price", "now"],
+  ru: ["цена"],
+  uk: ["ціна"],
+  de: ["preis", "jetzt", "nur"],
+  fr: ["prix"],
+  es: ["precio"],
+  it: ["prezzo"],
+  pt: ["preço", "por"],
+  ja: ["価格", "販売価格", "税込"],
+  ko: ["판매가", "가격"],
+  zh: ["价格", "售价"],
+  "zh-Hant": ["價格", "售價"],
+  vi: ["giá"],
+  ar: ["السعر"]
+}
+
+/**
+ * What a shop's item page has around its price: a buy button, a quantity, a size guide, a pre-order, the tax the
+ * price includes ("Add to cart", "inkl. MwSt.", "税込", "수량").
+ */
+export const ITEM_PAGE: Words = {
+  en: ["add to cart", "add to bag", "add to basket", "buy now", "buy it now", "add to trolley", "quantity", "qty", "size guide", "pre-order", "incl. vat", "inc. vat", "including vat", "tax included"],
+  ru: ["в корзину", "добавить в корзину", "купить", "купить сейчас", "количество", "таблица размеров", "предзаказ", "с ндс"],
+  uk: ["у кошик", "в кошик", "додати в кошик", "купити", "кількість", "таблиця розмірів", "передзамовлення", "з пдв"],
+  de: ["in den warenkorb", "jetzt kaufen", "zum warenkorb hinzufügen", "kaufen", "menge", "anzahl", "größentabelle", "vorbestellen", "inkl. mwst", "inkl. mwst.", "inkl. ust"],
+  fr: ["ajouter au panier", "acheter", "acheter maintenant", "quantité", "guide des tailles", "précommander", "ttc"],
+  es: ["añadir al carrito", "agregar al carrito", "añadir a la cesta", "comprar", "comprar ahora", "cantidad", "guía de tallas", "reservar", "iva incluido", "iva incluida"],
+  it: ["aggiungi al carrello", "acquista", "compra ora", "aggiungi al cestino", "quantità", "guida alle taglie", "preordina", "iva inclusa"],
+  pt: ["adicionar ao carrinho", "adicionar à sacola", "comprar", "comprar agora", "quantidade", "guia de tamanhos", "pré-venda", "iva incluído"],
+  ja: ["カートに入れる", "カートに追加", "購入する", "今すぐ購入", "買い物かごに入れる", "数量", "サイズガイド", "予約", "税込"],
+  ko: ["장바구니 담기", "장바구니", "바로구매", "구매하기", "수량", "사이즈 가이드", "예약구매", "부가세 포함"],
+  zh: ["加入购物车", "立即购买", "购买", "数量", "尺码表", "预售", "含税"],
+  "zh-Hant": ["加入購物車", "立即購買", "購買", "數量", "尺寸表", "預購", "含稅"],
+  vi: ["thêm vào giỏ", "mua ngay", "thêm vào giỏ hàng", "số lượng", "bảng size", "đặt trước", "đã bao gồm vat"],
+  ar: ["أضف إلى السلة", "اشتر الآن", "أضف للسلة", "شراء", "الكمية", "دليل المقاسات", "طلب مسبق", "شامل الضريبة"]
+}
