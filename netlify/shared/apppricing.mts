@@ -22,7 +22,11 @@ export interface AppPricing {
   // The cheapest way to pay (a subscription's per `period`); none for "free".
   from?: PricePoint
   period?: Period
-  // A free way in besides: free to download (the store), or a free plan (a pricing page).
+  // A subscription's cheapest price in each period it's sold by ("Plus Monthly 7.99", "Plus Yearly 39.99"), so a plan
+  // is set against one of the same period (the overfit review, X1). Absent on pricing read before it.
+  periods?: Partial<Record<Period, PricePoint>>
+  // A free way in besides: free to download (the store), or a free plan (a pricing page). Only a pricing page's says
+  // there's a free plan; the store's says the download is free, paywall or not.
   freeStart?: boolean
   // The options read, as the page names them ("Plus Monthly 11.99 USD"), for the writer.
   options: string[]
@@ -78,6 +82,13 @@ function fromOption<T extends { price: PricePoint; period: Period }>(options: T[
   return options[0]
 }
 
+/** The cheapest option of each period. */
+function byPeriod<T extends { price: PricePoint; period: Period }>(options: T[]): Partial<Record<Period, PricePoint>> {
+  const out: Partial<Record<Period, PricePoint>> = {}
+  for (const o of options) if (!out[o.period] || o.price.amount < out[o.period]!.amount) out[o.period] = o.price
+  return out
+}
+
 const fmt = (p: PricePoint) => `${Number.isInteger(p.amount) ? p.amount : p.amount.toFixed(2)}${p.currency ? ` ${p.currency}` : ""}`
 
 const unescapeJson = (s: string) => {
@@ -130,7 +141,7 @@ export function appStorePricing(html: string, url: string, price: PricePoint | u
   const periodic = subs.filter((s): s is typeof s & { period: Period } => s.period !== null)
   if (periodic.length) {
     const best = fromOption(periodic)
-    return { model: "subscription", from: best.price, period: best.period, freeStart: true, options, url, via: "app_store" }
+    return { model: "subscription", from: best.price, period: best.period, periods: byPeriod(periodic), freeStart: true, options, url, via: "app_store" }
   }
   const once = items.filter((i) => ONE_TIME.test(i.name))
   if (once.length && !subs.length) {
@@ -193,7 +204,7 @@ export function plansPricing(plans: PlanSeen[], freePlan: boolean, text: string,
   const periodic = held.filter((h): h is typeof h & { period: Period } => h.period !== "one_time")
   if (periodic.length) {
     const best = fromOption(periodic)
-    return { model: "subscription", from: best.price, period: best.period, ...(free ? { freeStart: true } : {}), options, url, via: "pricing_page" }
+    return { model: "subscription", from: best.price, period: best.period, periods: byPeriod(periodic), ...(free ? { freeStart: true } : {}), options, url, via: "pricing_page" }
   }
   if (held.length) {
     const best = held.reduce((a, b) => (b.price.amount < a.price.amount ? b : a))

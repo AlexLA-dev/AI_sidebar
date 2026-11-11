@@ -122,9 +122,9 @@ test("a close item that misses the chip is listed only when fewer than 3 close o
     ]
   }
   const { result, dropped } = finishItems(raw, pages, p, source)
-  // 2.6: the closest first — the Bosch has every trait (100 %), the Kenwood 4 of 5; the chip decides only between items
-  // about as close. 459 EUR is too far over 351.20 EUR.
-  assert.deepEqual(result.items.map((i) => [i.name, i.met]), [["Bosch MUM9 OptiMUM", "no"], ["Kenwood Chef Titanium", "yes"]])
+  // 2.6: the closest first, but one that misses the chip never above one that meets it (the overfit review, S3): the
+  // Kenwood (4 of 5 traits, cheaper) before the Bosch (every trait, not cheaper). 459 EUR is too far over 351.20 EUR.
+  assert.deepEqual(result.items.map((i) => [i.name, i.met]), [["Kenwood Chef Titanium", "yes"], ["Bosch MUM9 OptiMUM", "no"]])
   assert.ok(dropped.some((d) => d.name === "Smeg SMF03" && d.why === "far from the chip"))
   // Three close ones meet it: the one that misses isn't needed.
   const many = [0, 1, 2].map((i) => page(`https://m${i}.test/x`, `Mixer Model ${i}00`, offer("199"), p, mixer))
