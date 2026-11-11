@@ -452,8 +452,9 @@ function newer(a: Thread, b: Thread): boolean {
  * average and `to`'s fit `from` as well (the topic: the pages alone don't say it), and that merge wasn't turned down
  * (`org.mx`). The move puts the messages in by time.
  * 2.6 (95): one shared page is enough (an old and a new chat on a topic usually share one page of a few), and `to` may
- * be one block; a chat of notes only still gets joined the other way (`joins`, 2.6 (91)). The answers decide: on a
- * shared page the questions' vectors are mostly the page's title.
+ * be one block; a chat of notes only still gets joined the other way (`joins`, 2.6 (91)). The answers must fit too: on a
+ * shared page the questions' vectors are mostly the page's title. The match shown is by questions and answers, like
+ * every move's, so a merge needs `minMatch` % by them as well.
  */
 function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): { score: number; match: number } | null {
   // The cheap checks first: every pair of chats is checked when the list counts.
@@ -469,7 +470,8 @@ function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread:
   // chat asked on an espresso machine's page fit that chat 100 % by questions and answers, 0.2 by answers.
   if (Math.min(fit(mine, theirs, "a"), fit(theirs, mine, "a")) < cfg.mergeA) return null
   const score = Math.min(fit(mine, theirs, "v"), fit(theirs, mine, "v"))
-  return { score, match: matchPercent(score, cfg) }
+  const match = matchPercent(score, cfg)
+  return match >= cfg.minMatch ? { score, match } : null
 }
 
 /**
