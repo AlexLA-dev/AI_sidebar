@@ -39,3 +39,16 @@ test("\"Ask your chats\" stays its own named row; the new words in every languag
   assert.match(catalog["Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, “By meaning” finds a chat from a description."].localizations.ru.stringUnit.value, /«По смыслу»/)
   assert.doesNotMatch(JSON.stringify(Object.keys(catalog).filter((k) => k.startsWith("Tap a chat to read it"))), /✦/)
 })
+
+// Build 98, the owner on search by meaning: «Оно есть, но не понятно, что с этим делать» (words showed results as you
+// type, meaning waited for the keyboard's Search): a line under the ways says what each does, and By meaning has a button.
+test("a line under the ways says what each does; By meaning has its own Search button while the words have no results", () => {
+  const line = "By words shows results as you type. By meaning: describe the chat, then tap Search by meaning."
+  assert.match(screen, /\.accessibilityIdentifier\("cf-search-way"\)\s*\} footer: \{[\s\S]*?Text\("By words shows results as you type\./)
+  assert.match(screen, /if aiSearch && searching && !finding && found\?\.query != query\.trimmingCharacters\(in: \.whitespaces\) \{\s*Section \{\s*Button\(action: runFind\) \{\s*Label\("Search by meaning", systemImage: "sparkles"\)/)
+  // The keyboard's Search still runs it.
+  assert.match(screen, /\.onSubmit\(of: \.search\) \{ runFind\(\) \}/)
+  for (const key of [line, "Search by meaning"]) assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 13, key)
+  assert.equal(catalog["Search by meaning"].localizations.ru.stringUnit.value, "Искать по смыслу")
+  assert.match(catalog[line].localizations.ru.stringUnit.value, /«Искать по смыслу»/)
+})

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 import type { FindReply } from "../shared/types"
 
 import { t, uiLanguage } from "../shared/i18n"
+import { meaningSpotIn } from "../shared/meaningSpot"
 import { activity, allTags, groupByTag, hasTag, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTags, threadTitle, type SearchHit, type Thread } from "../shared/threads"
 import * as Icon from "./icons"
 import { TagChip, TagEditor } from "./Tags"
@@ -355,9 +356,12 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
         {reply?.ok && reply.results.map(({ id, why }) => {
           const thread = byId.get(id)
           if (!thread) return null
+          // Build 98 (the owner: a meaning result should land on what it refers to, highlighted like a pinned answer):
+          // the chat opens at the message sharing the description's and the why's words, else at its end.
+          const open = () => onOpen(id, meaningSpotIn(thread.m, found?.query ?? query, why))
           return (
             <div key={id} role="listitem" class={`cf-thread ${id === activeId ? "current" : ""}`}>
-              <div class="cf-thread-main" role="button" tabIndex={0} onClick={() => onOpen(id)} onKeyDown={(e) => { if (e.key === "Enter") onOpen(id) }}>
+              <div class="cf-thread-main" role="button" tabIndex={0} onClick={open} onKeyDown={(e) => { if (e.key === "Enter") open() }}>
                 <span class="cf-thread-title" dir="auto">{threadName(thread)}</span>
                 {why && <span class="cf-search-hit cf-find-why"><Icon.Sparkle size={11} /> {why}</span>}
                 <span class="cf-thread-meta"><span class="cf-thread-when">{when(activity(thread))}</span></span>
