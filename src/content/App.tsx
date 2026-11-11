@@ -3142,6 +3142,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     for (const m of messages) for (const tag of m.tags ?? []) known.add(tag.toLowerCase())
     const added = cleanTags(next).filter((tag) => !known.has(tag.toLowerCase())).length
     tagMessage(index, next)
+    // 2.6 (98): a tag put on: organizing looks again now, so it's offered on the messages like this one in seconds.
+    if (cleanTags(next).length) setTimeout(() => setOrgAgain((n) => n + 1), 600)
     if (known.size < 3 && known.size + added >= 3 && TARGET === "safari" && !hasPro(plan) && cards && !cards.thirdTag) {
       setTagsCard(true)
       void setOrganizeCards({ thirdTag: true }).then(setCards)

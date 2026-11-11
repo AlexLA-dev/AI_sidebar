@@ -50,6 +50,9 @@ export interface OrganizeConfig {
   // and the judge's confidence; at most `maxTags` per message (one: the best, so the chat stays uncluttered).
   tagT: number
   tagD: number
+  // 2.6 (98): a tag on one or two messages so far (just made, or new to these chats): the fit it needs, to its
+  // examples alone (no margin over the messages without it: those are the ones it should be offered on).
+  tagT1: number
   coherence: number
   judge: number
   maxTags: number
@@ -113,6 +116,10 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   tagWindow: 5,
   tagT: 0.3,
   tagD: 0,
+  // 2.6 (98), lib96 (organize-26/b96/tag96.mjs: one person's chat gets its topic's tag on one answer, every other
+  // message of the library a target): 0.5 offers it on 63% of the chat's other messages (80% on its page), 26% of a
+  // near topic's and 2% of the rest, before the judge. The margin over messages without the tag cut that to 30%.
+  tagT1: 0.5,
   coherence: 0.2,
   judge: 0.7,
   maxTags: 1,
@@ -791,9 +798,10 @@ export function judgeText(entries: Entry[], i: number): string {
 }
 
 /**
- * Tags to check for message `index` of `chat` (best first, at most 3): only tags the user put on at least two
- * other messages (their messages count fully, blocks of chats with that tag a little less), whose examples are
- * alike, that fit the message, and fit it better than the closest messages without the tag. Tags it (or its
+ * Tags to check for message `index` of `chat` (best first, at most 3): the user's tags on other messages (their
+ * messages count fully, blocks of chats with that tag a little less) that fit the message. A tag with three examples
+ * or more: its examples alike, and it fits better than the closest messages without it. 2.6 (98): a tag on one or two
+ * messages (just made): from `tagT1` to them, wherever they are (one on the same page counts too). Tags it (or its
  * chat) has, refused here, or refused too often are left out. The judge decides among them.
  */
 export function tagCandidates(chat: Thread, index: number, chats: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig): TagCandidate[] {
@@ -810,31 +818,39 @@ export function tagCandidates(chat: Thread, index: number, chats: Thread[], vect
   const out: TagCandidate[] = []
   for (const [key, tag] of tags) {
     if (skip.has(key)) continue
-    const examples: Array<{ v: Float32Array; w: number; text: string }> = []
+    const examples: Array<{ v: Float32Array; w: number; text: string; own: boolean }> = []
     const tagged = new Set<string>()
     for (const t of live) {
       const chatTagged = (t.tags ?? []).some((x) => x.toLowerCase() === key)
       if (chatTagged) tagged.add(t.id)
       t.m.forEach((x, j) => {
-        if (!x.tags?.some((y) => y.toLowerCase() === key) || inOwn(t, j)) return
+        if (!x.tags?.some((y) => y.toLowerCase() === key) || (t.id === chat.id && j === index)) return
         const xv = vectorOf(x)
-        if (xv) examples.push({ v: xv, w: 1, text: exampleText(t.m, j) })
+        if (xv) examples.push({ v: xv, w: 1, text: exampleText(t.m, j), own: inOwn(t, j) })
       })
       if (chatTagged && t.id !== chat.id) {
-        for (const b of scoredBlocks(t.m, vectorOf)) if (b.v && !b.weak) examples.push({ v: b.v, w: 0.9, text: exampleText(t.m, b.end) })
+        for (const b of scoredBlocks(t.m, vectorOf)) if (b.v && !b.weak) examples.push({ v: b.v, w: 0.9, text: exampleText(t.m, b.end), own: false })
       }
     }
-    if (examples.length < 2) continue
+    // 2.6 (98): a tag on one or two messages is a new one: it fits from tagT1, by its examples alone.
+    const fresh = examples.length < 3
+    if (!fresh) {
+      // An established tag: its examples outside this message's own page (one there says little about the topic).
+      const outside = examples.filter((x) => !x.own)
+      examples.length = 0
+      examples.push(...outside)
+      if (examples.length < 2) continue
+    }
     const list = examples.slice(0, 30)
     let s = 0
     let n = 0
     for (let a = 0; a < list.length; a++) for (let b = a + 1; b < list.length; b++) { s += dot(list[a].v, list[b].v); n++ }
     const coherence = n ? s / n : 0
-    if (coherence < cfg.coherence) continue
+    if (!fresh && coherence < cfg.coherence) continue
     const pos = topMean(v, examples, 3)
-    if (pos < cfg.tagT) continue
+    if (pos < (fresh ? cfg.tagT1 : cfg.tagT)) continue
     const negatives: Array<{ v: Float32Array }> = []
-    for (const t of live) {
+    for (const t of fresh ? [] : live) {
       if (tagged.has(t.id)) continue
       t.m.forEach((x, j) => {
         if (!isTaggable(x) || inOwn(t, j) || x.tags?.some((y) => y.toLowerCase() === key)) return
@@ -842,19 +858,28 @@ export function tagCandidates(chat: Thread, index: number, chats: Thread[], vect
         if (xv) negatives.push({ v: xv })
       })
     }
-    const neg = topMean(v, negatives, 3)
-    if (pos - neg < cfg.tagD) continue
+    const neg = fresh ? 0 : topMean(v, negatives, 3)
+    if (!fresh && pos - neg < cfg.tagD) continue
     const ranked = [...examples].sort((a, b) => dot(v, b.v) * b.w - dot(v, a.v) * a.w)
     out.push({ tag, pos, neg, coherence, examples: ranked.slice(0, 4).map((x) => x.text) })
   }
   return out.sort((a, b) => (b.pos - b.neg) - (a.pos - a.neg) || a.tag.localeCompare(b.tag)).slice(0, 3)
 }
 
-/** The messages that get tag suggestions now: the chat's last `tagWindow` answers and notes. */
+/**
+ * The messages that get tag suggestions now: the chat's last `tagWindow` answers and notes. 2.6 (98): in a chat with
+ * the user's tag on a message, its untagged ones too, up to twice that, the latest first (a tag put on one message
+ * is offered on the ones like it in this chat at once, not only on the last few).
+ */
 export function tagTargets(chat: Thread, cfg: OrganizeConfig): number[] {
   const out: number[] = []
-  for (let i = chat.m.length - 1; i >= 0 && out.length < cfg.tagWindow; i--) if (isTaggable(chat.m[i])) out.unshift(i)
-  return out
+  for (let i = chat.m.length - 1; i >= 0 && out.length < cfg.tagWindow; i--) if (isTaggable(chat.m[i])) out.push(i)
+  if (chat.m.some((e) => e.tags?.length)) {
+    for (let i = chat.m.length - 1; i >= 0 && out.length < cfg.tagWindow * 2; i--) {
+      if (isTaggable(chat.m[i]) && !chat.m[i].tags?.length && !out.includes(i)) out.push(i)
+    }
+  }
+  return out.sort((a, b) => a - b)
 }
 
 /** The judge's verdicts → the tags to show (confident yes only, at most `maxTags`, in the candidates' order). */
