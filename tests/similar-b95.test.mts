@@ -201,11 +201,11 @@ test("the answer's text carries the price ≈ theirs, how close, how it differs 
 
 // ---- the servers' one-call search ----------------------------------------------------------------------
 
-test("the one-call search keeps one listing per marketplace; a second round looks for alternatives, in the plan's language", () => {
+test("the one-call search opens a few listings per marketplace; a second round looks for alternatives, in the plan's language", () => {
   const claims = new Claims(source)
   const c = (url: string, name: string) => ({ url, name, kind: "item" as const, resultTitle: name, pageAge: null })
   const taken = claims.take([c("https://www.amazon.com/a", "A"), c("https://www.amazon.de/b", "B"), c("https://www.walmart.com/c", "C"), c("https://shop.test/d", "D")])
-  assert.deepEqual(taken.map((t) => t.name), ["A", "C", "D"])
+  assert.deepEqual(taken.map((t) => t.name), ["A", "B", "C", "D"])
   // The second round's searches in the plan's language, the country named in it: German for Austria…
   assert.deepEqual(rescueQueries({ page: source, facts: {}, condition: "", locale: "de-AT", region: "local", country: "AT" }, plan()), [
     "Bauwelt Klassischer Dampfzug 4210 Alternativen Lieferung nach Österreich", "Bauwelt construction set steam train Lieferung nach Österreich"
