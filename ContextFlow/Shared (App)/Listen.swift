@@ -1512,7 +1512,11 @@ final class ListenPlayer: NSObject, ObservableObject {
             ChatAI.reportUse("listen", "unvoiced", ["what": request.what == "page" ? "page" : "answer", "why": why, "gap_s": String(Int(gap.rounded()))])
             return
         }
-        if VoicedList.shared.mark(id) { ChatAI.reportUse("listen", "voiced", ["what": request.what == "page" ? "page" : "answer"]) }
+        if VoicedList.shared.mark(id) {
+            ChatAI.reportUse("listen", "voiced", ["what": request.what == "page" ? "page" : "answer"])
+            // Heard to its end: a good moment for a rating (2.6 (100)).
+            ReviewAsk.shared.ask(.listen)
+        }
     }
 
     /// Done, or stopped short: nothing keeps running and the audio session is let go (the phone can rest).

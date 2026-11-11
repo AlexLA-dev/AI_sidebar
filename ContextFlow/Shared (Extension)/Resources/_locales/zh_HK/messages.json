@@ -761,6 +761,9 @@
  "uxOther": {
   "message": "其他…"
  },
+ "uxRate": {
+  "message": "在 App Store 評分"
+ },
  "tipClipNeedsApp": {
   "message": "打開一次 ContextFlow App 即可觀看此影片。"
  },

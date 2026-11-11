@@ -16,7 +16,12 @@ enum Links {
     static let privacy = URL(string: "https://context-flow.app/privacy")!
     static let terms = URL(string: "https://context-flow.app/terms")!
     static let support = URL(string: "https://context-flow.app/support")!
+    /// The App Store's "Write a Review" (on a Mac, in the Mac App Store; a web page would open in the browser).
+    #if os(iOS)
     static let review = URL(string: "https://apps.apple.com/app/id6759115793?action=write-review")!
+    #else
+    static let review = URL(string: "macappstore://apps.apple.com/app/id6759115793?action=write-review")!
+    #endif
     static let manageSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
     // ContextFlow on X and Threads (the names aren't translated). Opens their app when it's installed.
     static let x = URL(string: "https://x.com/ContextFlowApp")!
@@ -38,6 +43,8 @@ final class DeepLinkRouter: ObservableObject {
 
     func handle(_ url: URL) {
         guard url.scheme == "contextflow" else { return }
+        // Opened to do something (buy, listen, the notifications question): no rating asked over it (2.6 (100)).
+        if ["subscribe", "manage", "listen", "notifications"].contains(url.host ?? "") { ReviewAsk.shared.taskLink() }
         pending = url
     }
 }
@@ -77,24 +84,6 @@ struct ContentView: View {
     /// energy). Only whether its sheet is up is.
     private let listen = ListenPlayer.shared
     @StateObject private var listenShown = ListenShown()
-
-    /// The extension counted enough good answers since the last time: ask for an App Store rating
-    /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch. On
-    /// launch and whenever the app comes back from Safari. `-CFDebugReview YES`: every time (Debug).
-    private func askForReviewIfDue() {
-        #if DEBUG
-        if UserDefaults.standard.bool(forKey: "CFDebugReview") {
-            requestReview()
-            return
-        }
-        #endif
-        guard let moment = SharedDefaults.shared.pendingReviewMoment() else { return }
-        SharedDefaults.shared.markReviewAsked(moment)
-        Task {
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            requestReview()
-        }
-    }
 
     /// What's new in 2.5 (organizing): once, to those who already have chats.
     @State private var whatsNew = false
@@ -158,10 +147,18 @@ struct ContentView: View {
     private func closeTour() {
         guard tour.close() else { return }
         // It stood in for "You're all set" after a purchase: the rating is asked as that alert did.
-        Task {
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
-            requestReview()
-        }
+        ReviewAsk.shared.ask(.tour, after: 1)
+    }
+
+    /// Apple's rating request, a moment after a good one (ReviewAsk), unless something is being done on screen: the
+    /// plan's tour, the notifications question, the setup guide, the 2.5 What's new sheet, Listen's player (unless a
+    /// text was just heard to its end in it). Safari's moment then waits for the next time the app comes to the front.
+    private func askForReview(_ request: ReviewAsk.Request) {
+        var busy = tour.run != nil || showingSetup || whatsNew || (listenShown.visible && request.via != .listen)
+        #if os(iOS)
+        if notify.ask != nil { busy = true }
+        #endif
+        if ReviewAsk.shared.take(request, busy: busy) { requestReview() }
     }
 
     var body: some View {
@@ -242,12 +239,12 @@ struct ContentView: View {
                 #endif
                 tour.debugStartIfAsked()
                 await store.refreshEntitlement()
-                askForReviewIfDue()
+                ReviewAsk.shared.cameToFront()
                 await activation.launched()
             }
             .onChange(of: scenePhase) { phase in
                 if phase == .active {
-                    askForReviewIfDue()
+                    ReviewAsk.shared.cameToFront()
                     Task.detached(priority: .background) { await WhatsNew.check() }
                     // What the panel heard to its end meanwhile (build 94): Listen's "already voiced" mark.
                     VoicedList.shared.reload()
@@ -258,10 +255,15 @@ struct ContentView: View {
                     #endif
                 }
             }
-            // What's new hides again once another tab is chosen (Tips is back in its place).
+            // What's new hides again once another tab is chosen (Tips is back in its place). Left after an update: a good
+            // moment for a rating (2.6 (100)).
             .onChange(of: tab) { next in
-                if next != .whatsNew { whatsNewShown = false }
+                if next != .whatsNew {
+                    if whatsNewShown { ReviewAsk.shared.ask(.whatsNew) }
+                    whatsNewShown = false
+                }
             }
+            .onReceive(ReviewAsk.shared.requests) { askForReview($0) }
             // The first chat arrived (or the last one went): show the right first tab.
             .onChange(of: hasChats) { has in
                 if has, tab == .home { tab = .chats }
@@ -312,7 +314,7 @@ struct ContentView: View {
                 await store.refreshEntitlement()
                 await activation.launched()
             }
-            askForReviewIfDue()
+            ReviewAsk.shared.cameToFront()
         }
         #else
         NavigationSplitView {
@@ -358,7 +360,7 @@ struct ContentView: View {
                 await store.refreshEntitlement()
                 await activation.launched()
             }
-            askForReviewIfDue()
+            ReviewAsk.shared.cameToFront()
         }
         #endif
     }
@@ -1027,7 +1029,6 @@ struct PlayerLayerView: NSViewRepresentable {
 struct ProView: View {
     @ObservedObject var store: StoreKitManager
     @ObservedObject private var paywall = Paywall.shared
-    @Environment(\.requestReview) private var requestReview
     @Environment(\.openURL) private var openURL
     @State private var busyProduct: String?
     @State private var restoring = false
@@ -1066,7 +1067,7 @@ struct ProView: View {
             Alert(
                 title: Text("You're all set"),
                 message: startsLater ? Text(verbatim: success ?? "") : Text("\(success ?? "Pro") is active. Open Safari and tap ✦ on any page."),
-                dismissButton: .default(Text("OK")) { requestReview() }
+                dismissButton: .default(Text("OK")) { ReviewAsk.shared.ask(.purchase, after: 0.5) }
             )
         }
     }
@@ -1675,6 +1676,10 @@ struct FooterLinks: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 14) {
                 Link("Rate ContextFlow", destination: Links.review)
+                    .environment(\.openURL, OpenURLAction { _ in
+                        ChatAI.reportUse("rate", "link", ["via": "footer"])
+                        return .systemAction
+                    })
                 Link("Support", destination: Links.support)
                 Link("Privacy Policy", destination: Links.privacy)
                 Link("Terms of Use", destination: Links.terms)
@@ -1879,6 +1884,18 @@ struct SettingsView: View {
 
             // With Pro there is no Pro tab: the plan and its subscription are managed here.
             if store.isPro { planSection.id("plan") }
+
+            // 2.6 (100): the App Store's "Write a Review", whenever the person wants to. Apple's own request comes by
+            // itself at good moments (ReviewAsk); nothing of ours asks for a rating (guideline 5.6.1).
+            Section {
+                Button {
+                    ChatAI.reportUse("rate", "link", ["via": "settings"])
+                    openURL(Links.review)
+                } label: {
+                    Label("Rate in App Store", systemImage: "star")
+                }
+                .accessibilityIdentifier("cf-rate")
+            }
         }
         .navigationTitle("Settings")
         #if os(iOS)

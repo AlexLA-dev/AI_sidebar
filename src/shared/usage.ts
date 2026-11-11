@@ -111,7 +111,7 @@ export const FEATURES: Record<string, Feature> = {
   // the "Reminders" list in the panel ("list": from the menu or the window's "All reminders" link) and in the
   // app ("open" from its tab), with how many reminders and watches the list held.
   // Build 94: the chats list has its "…" too ("via": over a chat or over the list), with Recently Deleted ("trash").
-  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], via: ["chat", "list"], fields: { what: ["later", "reminders", "watching", "watch_page", "settings", "tips", "intro", "listen", "similar", "plan_tour", "name_chat", "trash"] } },
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], via: ["chat", "list"], fields: { what: ["later", "reminders", "watching", "watch_page", "settings", "tips", "intro", "listen", "similar", "plan_tour", "name_chat", "trash", "rate"] } },
   // 2.6: read aloud (Ultra) started from an answer or the page, handed to the app (iPhone, iPad), or refused (not
   // Ultra: the plans sheet; the week's minutes used up). The parts themselves are logged by the server ("speak").
   // Build 90 (the app): Apple's voice read a text the server couldn't start ("apple"), a text stopped short after
@@ -156,7 +156,16 @@ export const FEATURES: Record<string, Feature> = {
       active: "int"
     }
   },
-  rate: { since: "2.2", on: "app", actions: ["asked", "link"], via: ["moment", "app_answers", "purchase"] },
+  // 2.6 (100), the owner: «никому не предлагалось оценить приложение … Оно вообще работает?». "due": a milestone of
+  // good answers reached (3, 10, 30, 100, 300), in Safari ("ext_moment", sent by the extension, s "panel") or in the
+  // app's own chats ("app_answer"); "ask": the app asked Apple for its rating sheet (ReviewAsk.swift), and at what
+  // moment. Apple doesn't say whether the sheet showed (at most 3 times in 365 days, never in TestFlight): "ask" is our
+  // request, not a sheet seen. "link": the App Store's "Write a Review" tapped (Settings, the footer, the panel's "…").
+  rate: {
+    since: "2.2", tracked: "2.6", actions: ["due", "ask", "link"],
+    via: ["app_answer", "ext_moment", "tour", "purchase", "similar", "listen", "whatsnew", "organize", "settings", "footer", "menu"],
+    fields: { moment: "int" }
+  },
   // 2.6 (97): the bar of a chat's open suggestions at its top: shown (once per set of suggestions in a chat), tapped.
   org: {
     since: "2.6", tracked: "2.6", actions: ["bar_shown", "bar_tap", "scan"],

@@ -720,7 +720,6 @@ struct HistoryChatView: View {
     @FocusState private var focused: Bool
     /// The answer just copied: "Copied" for a moment.
     @State private var copied: Int?
-    @Environment(\.requestReview) private var requestReview
     /// A chat opened from a link in an answer (build 94).
     @State private var openedChat: String?
 
@@ -861,7 +860,7 @@ struct HistoryChatView: View {
                 try await ChatAI.askHistory(history, chats: others) { piece in streaming = (streaming ?? "") + piece }
                 messages.append(["role": "assistant", "content": streaming ?? ""])
                 library.saveHistory(id: id, messages: messages)
-                askForReviewAfterAnswer(requestReview)
+                ReviewAsk.shared.appAnswered()
             } catch let error as ChatAI.Failure {
                 failure = error
                 if let partial = streaming, !partial.isEmpty { messages.append(["role": "assistant", "content": partial]) }
@@ -1236,7 +1235,6 @@ struct ChatDetailView: View {
     /// Sharing the chat: the messages picked (all at first); nil when not picking.
     @State private var picked: Set<Int>?
     @State private var chatCopied = false
-    @Environment(\.requestReview) private var requestReview
     @Environment(\.dismiss) private var dismiss
     @State private var renaming = false
     @State private var newName = ""
@@ -1698,7 +1696,7 @@ struct ChatDetailView: View {
             do {
                 try await ChatAI.ask(text, in: thread) { piece in streaming += piece }
                 save(streaming)
-                askForReviewAfterAnswer(requestReview)
+                ReviewAsk.shared.appAnswered()
             } catch {
                 failure = error as? ChatAI.Failure ?? .network
                 if streaming.isEmpty {
@@ -1760,9 +1758,11 @@ struct ChatDetailView: View {
     private func putName(_ thread: ChatThread, _ name: String, why: String) {
         guard let before = library.nameByAI(thread, name, asked: why == "asked") else { return }
         ChatAI.reportOrganize("organize", ["action": "accepted", "what": "name", "why": why])
+        ReviewAsk.shared.ask(.organize, after: UndoClock.move + UndoClock.grace + 1)
         let id = thread.id
         withAnimation {
             nameBar = NameBar(chat: id, text: String(localized: "Named “\(name)”"), undo: {
+                ReviewAsk.shared.cancel(.organize)
                 withAnimation { nameBar = nil }
                 library.unname(id, name, before: before)
                 ChatAI.reportOrganize("organize", ["action": "undone", "what": "name", "why": why])
@@ -1841,6 +1841,8 @@ struct ChatDetailView: View {
     /// not a line left at the end of the chat; after the bar of the move (its Undo comes first), if there is one.
     private func won() {
         if organize.takeFirstWin() { firstWin = currentId; showFirstWin() }
+        // A suggestion taken: a good moment for a rating (2.6 (100)), once its Undo bar has gone (Undo takes it back).
+        ReviewAsk.shared.ask(.organize, after: UndoClock.move + UndoClock.grace + 1)
     }
 
     private func showFirstWin() {
@@ -1924,6 +1926,7 @@ struct ChatDetailView: View {
     }
 
     private func undoMove(_ undo: Organize.MoveUndo) {
+        ReviewAsk.shared.cancel(.organize)
         withAnimation { undoBar = nil }
         library.undo(undo)
         // A merge into this chat taken back (2.6 (95)): this chat stays shown, and that merge isn't suggested again.
@@ -2781,20 +2784,6 @@ extension VerticalAlignment {
         let font = NSFont.preferredFont(forTextStyle: .body)
         return font.ascender - font.descender + font.leading + 18
         #endif
-    }
-}
-
-/// Counts an answer the app gave in a chat; on a milestone (the 3rd, 10th, 30th… answer) asks for an
-/// App Store rating a moment after it. Apple decides whether to show it (at most 3 times a year; never
-/// in TestFlight builds).
-@MainActor
-func askForReviewAfterAnswer(_ requestReview: RequestReviewAction) {
-    guard SharedDefaults.shared.countAppAnswer() else { return }
-    // A moment from Safari waiting for the next launch counts as asked: not twice in a row.
-    if let moment = SharedDefaults.shared.pendingReviewMoment() { SharedDefaults.shared.markReviewAsked(moment) }
-    Task {
-        try? await Task.sleep(nanoseconds: 1_500_000_000)
-        requestReview()
     }
 }
 

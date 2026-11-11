@@ -761,6 +761,9 @@
  "uxOther": {
   "message": "Khác…"
  },
+ "uxRate": {
+  "message": "Đánh giá trên App Store"
+ },
  "tipClipNeedsApp": {
   "message": "Mở ứng dụng ContextFlow một lần để xem video này."
  },

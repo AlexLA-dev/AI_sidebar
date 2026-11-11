@@ -50,14 +50,21 @@ export function watchSettings(): void {
   })
 }
 
-// The app asks for a rating (Apple shows it at most 3 times a year) after these many good answers.
-const REVIEW_MOMENTS = new Set([3, 10, 30, 100, 300])
+// The app asks for a rating (Apple shows it at most 3 times a year) after these many good answers (ReviewGate.swift
+// milestones, the same).
+export const REVIEW_MOMENTS = new Set([3, 10, 30, 100, 300])
 
-/** Counts a successful answer; on a milestone tells the app it's a good moment to ask for a rating. */
-export async function countValueMoment(): Promise<void> {
+/**
+ * Counts a successful answer (an answer streamed to its end, not an error, a refusal or a stop); on a milestone tells
+ * the app it's a good moment to ask for a rating (the App Group, read when the app next comes to the front) and returns
+ * the milestone, to be counted as due ("rate" "due", 2.6 (100)).
+ */
+export async function countValueMoment(): Promise<number | null> {
   const count = Number((await chrome.storage.local.get(STORAGE.valueMoments))[STORAGE.valueMoments] ?? 0) + 1
   await chrome.storage.local.set({ [STORAGE.valueMoments]: count })
-  if (REVIEW_MOMENTS.has(count)) await callNative("reviewMoment", { count })
+  if (!REVIEW_MOMENTS.has(count)) return null
+  await callNative("reviewMoment", { count })
+  return count
 }
 
 // ------------------------------------------------------------ threads in iCloud

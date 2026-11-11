@@ -761,6 +761,9 @@
  "uxOther": {
   "message": "기타…"
  },
+ "uxRate": {
+  "message": "App Store에서 평가하기"
+ },
  "tipClipNeedsApp": {
   "message": "이 영상을 보려면 ContextFlow 앱을 한 번 열어 주세요."
  },

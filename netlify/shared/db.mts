@@ -106,6 +106,8 @@ export const features = (days: number, base: Record<string, unknown>) =>
   rpc<Record<string, unknown>>("cf_features", { p_days: days, p_base: base })
 /** Feature funnels: who reached each step after the one before (cf_feature_funnels). */
 export const featureFunnels = (days: number) => rpc<Record<string, unknown>[]>("cf_feature_funnels", { p_days: days })
+/** The App Store rating request per platform: due, ask, link, why and at what milestone (cf_rate_report, 2.6 (100)). */
+export const rateReport = (days: number) => rpc<Record<string, unknown>>("cf_rate_report", { p_days: days })
 /** People who ran out of free answers and what they did next; paying installs and their last day (cf_after_limit). */
 export const afterLimit = (days: number) => rpc<Record<string, unknown>>("cf_after_limit", { p_days: days })
 

@@ -213,6 +213,9 @@ export type BackgroundRequest =
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
+  // 2.6 (100): the App Store's "Write a Review" from the panel's "…" (Other…). Mac: the Mac App Store, opened by the
+  // extension's app side; iPhone and iPad follow the link in the tap (src/content/App.tsx).
+  | { type: "rateApp" }
   // A page of the chat: its tab if it's open, else a new tab.
   // `chat`, `at`: the chat and message the link was in (2.6 (98), src/shared/linkOpen.ts): the page opens with the panel there.
   | { type: "openPage"; url: string; chat?: string; at?: string }
@@ -240,7 +243,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
