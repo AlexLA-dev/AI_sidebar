@@ -84,7 +84,7 @@ function cells(row: string): string[] {
   return row.replace(/^\||\|$/g, "").split("|").map((c) => c.replace(/(\*\*|__)(.+?)\1/g, "$2").trim())
 }
 
-/** One table row for the ear: "MARKUS: Price 299 dollars, Color dark gray." */
+/** One table row for the ear: "<item>: Price <price>, Color <colour>." */
 function tableRow(row: string[], header: string[] | null): string {
   const [head, ...rest] = row
   let line: string

@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 /// Read aloud's text as the panel makes it (build 95): src/shared/speech.ts (speechText, speechParts, needsScript,
@@ -83,7 +84,7 @@ nonisolated enum SpeechText {
         replace(row, #"^\||\|\z"#, "").components(separatedBy: "|").map { trim(replace($0, #"(\*\*|__)((DOT)+?)\1"#, "$2")) }
     }
 
-    /// One table row for the ear: "MARKUS: Price 299 dollars, Color dark gray."
+    /// One table row for the ear: "<item>: Price <price>, Color <colour>."
     private static func tableRow(_ row: [String], _ header: [String]?) -> String {
         let head = row.first ?? ""
         let rest = Array(row.dropFirst())
@@ -350,5 +351,85 @@ nonisolated final class PartSplitter {
         buffer = ""
         if !rest.isEmpty { first = false }
         return rest
+    }
+}
+
+/// "Already voiced", asked about when a chat opens (build 95): which of its answers to ask the server about, by id, and
+/// their parts' keys as Listen makes them. Hashing every answer, splitting, regular expressions, finding the language
+/// and reading kept scripts from disk run off the main thread (VoicedList.ask), so a chat opens at once on a tap.
+/// tests/speech-parity.test.mts builds this under Swift 6 with the app's default isolation (the main actor) and calls
+/// it from a detached task: the build fails if any of it needs the main actor.
+nonisolated enum VoicedQuery {
+    struct Answer: Sendable, Equatable {
+        let id: String
+        let text: String
+    }
+
+    struct Text: Sendable, Equatable {
+        let id: String
+        let keys: [String]
+    }
+
+    /// The text's id: cyrb53's two 32-bit lanes over "<what>|<its first 24,000 UTF-16 units>" (src/shared/voiced.ts).
+    static func id(what: String, text: String) -> String {
+        var h1: UInt32 = 0xdeadbeef
+        var h2: UInt32 = 0x41c6ce57
+        func mix(_ unit: UInt16) {
+            h1 = (h1 ^ UInt32(unit)) &* 2654435761
+            h2 = (h2 ^ UInt32(unit)) &* 1597334677
+        }
+        for unit in what.utf16 { mix(unit) }
+        mix(124) // "|"
+        var count = 0
+        for unit in text.utf16 {
+            if count == 24_000 { break }
+            mix(unit)
+            count += 1
+        }
+        h1 = (h1 ^ (h1 >> 16)) &* 2246822507
+        h1 ^= (h2 ^ (h2 >> 13)) &* 3266489909
+        h2 = (h2 ^ (h2 >> 16)) &* 2246822507
+        h2 ^= (h1 ^ (h1 >> 13)) &* 3266489909
+        return String(format: "%08x%08x", h2, h1)
+    }
+
+    /// A chat's last 30 answers with their ids: empty ones left out, each text once.
+    static func answers(_ list: [String]) -> [Answer] {
+        var out: [Answer] = []
+        for text in list.suffix(30) where !text.isEmpty {
+            let id = id(what: "answer", text: text)
+            if !out.contains(where: { $0.id == id }) { out.append(Answer(id: id, text: text)) }
+        }
+        return out
+    }
+
+    /// A part's key: sha256 of "v1|<language>|<its words>", as the server, the panel and the app's caches name it.
+    static func key(_ part: String, _ lang: String) -> String {
+        SHA256.hash(data: Data("v1|\(lang)|\(part)".utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+
+    /// Something a voice can say (a part without is skipped: never made, never heard).
+    static func speakable(_ part: String) -> Bool {
+        part.range(of: #"[\p{L}\p{N}]"#, options: .regularExpression) != nil
+    }
+
+    /// The keys of an answer's parts as Listen makes them (src/background/speak.ts textPartKeys): the same parts as
+    /// playing it would give. Written for the ear, it has them only when its writing is kept on this device (`kept`
+    /// reads "script|answer|<key>"); otherwise none, and the server answers by its id alone. The language is the
+    /// answer's, else the app's (`uiLanguage`).
+    static func keys(answer markdown: String, uiLanguage: String = SpeechText.uiLanguage, kept: (String) -> Data?) -> [String] {
+        let text = (markdown as NSString).length > SpeechText.maxChars ? (markdown as NSString).substring(to: SpeechText.maxChars) : markdown
+        let lang = SpeechText.language(markdown) ?? uiLanguage
+        var parts: [String] = []
+        if SpeechText.needsScript(text) {
+            for chunk in SpeechText.scriptChunks(text) {
+                guard let data = kept("script|answer|" + key(chunk, lang)), let script = String(data: data, encoding: .utf8) else { return [] }
+                let splitter = PartSplitter(first: parts.isEmpty)
+                parts += splitter.push(script) + splitter.end()
+            }
+        } else {
+            parts = Array(SpeechText.parts(SpeechText.text(text)).prefix(80))
+        }
+        return parts.filter(speakable).map { key($0, lang) }
     }
 }

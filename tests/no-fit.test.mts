@@ -64,3 +64,13 @@ test("the watch notification's example names no currency of its own", () => {
   assert.doesNotMatch(judge, /[€$£¥₽₴]|\b\d+ ?(EUR|USD|RUB)\b/)
   assert.match(judge, /as the page writes it/)
 })
+
+test("the read-aloud writer's examples name no product, brand or price of their own (build 95)", () => {
+  const server = readFileSync(new URL("../netlify/shared/speakscript.mts", import.meta.url), "utf8")
+  const prompt = server.slice(server.indexOf("export const SCRIPT_RULES"), server.indexOf("export interface ScriptStats"))
+  assert.ok(prompt.includes("ANSWER_RULE") && prompt.includes("PAGE_RULE"), "the whole prompt: the rules and both kinds of text")
+  // The table example is a form, not a row of the owner's eval set.
+  assert.match(prompt, /<item> costs <price>/)
+  assert.doesNotMatch(prompt, /MARKUS|Sihoo/i)
+  assert.doesNotMatch(prompt, /[€$£¥₽₴] ?\d|\d ?(dollars?|euros?|pounds?|roubles?|rubles?|hryvnias?|EUR|USD|RUB|CAD)\b/i)
+})
