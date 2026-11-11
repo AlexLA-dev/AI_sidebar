@@ -28,3 +28,14 @@ test("voiced: the list takes new ids only, leaves out anything else, and keeps t
   assert.equal(list["0000000000000000"], undefined)
   assert.equal(list[(VOICED_MAX + 4).toString(16).padStart(16, "0")], VOICED_MAX + 4)
 })
+
+test("listen (app): heard to its end, the server is told at once, so the minutes shown are this listen's (2.6 gate)", async () => {
+  const { readFileSync } = await import("node:fs")
+  const swift = readFileSync(new URL("../ContextFlow/Shared (App)/Listen.swift", import.meta.url), "utf8")
+  // The player's natural end: marked voiced, ended, and what was heard goes to the server before anything else happens
+  // (before, it went only once the player was closed: a replay right after showed the first listen's minute gone).
+  const end = swift.slice(swift.indexOf("            if fetchedAll {"), swift.indexOf("            } else if let reason = pendingReason {"))
+  assert.ok(end.includes("noteVoiced()") && end.includes("finish(.ended)"), "the natural end")
+  assert.ok(end.indexOf("keepHeard()") > end.indexOf("finish(.ended)"), "what was heard is kept at the end")
+  assert.match(end, /Task \{ await Self\.sendHeard\(\) \}/, "and sent at once")
+})
