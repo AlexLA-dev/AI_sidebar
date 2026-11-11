@@ -1,11 +1,14 @@
 Có gì mới trong ContextFlow 2.6:
-• Ultra, gói mới: mọi tính năng Pro, cùng với Nghe và Tìm tương tự
-• Nghe: chạm vào Nghe bên dưới câu trả lời, hoặc chọn … → Nghe trang này. Một giọng đọc tự nhiên sẽ đọc to cho bạn nghe, bằng hơn 100 ngôn ngữ. Trên iPhone, vẫn phát tiếp khi khóa màn hình
+• Ultra, gói mới: mọi tính năng Pro, cùng với Tìm tương tự và Nghe
 • Tìm tương tự: đang xem một sản phẩm, ứng dụng, bài viết, công thức nấu ăn hay địa điểm? Chạm vào Tìm tương tự để có những lựa chọn thay thế có thật: rẻ hơn, mới hơn, còn hàng, miễn phí hoặc bằng ngôn ngữ của bạn, hay tự nói bạn cần gì. Mọi liên kết đều được mở và kiểm tra trước khi bạn thấy, và bạn có thể theo dõi giá của bất kỳ lựa chọn nào
-• Ultra theo dõi tới 50 trang cùng lúc
-• Gói theo năm cho Khóa riêng, Pro và Ultra. Chuyển từ Pro lên Ultra sẽ bắt đầu ngay, và Apple hoàn tiền phần còn lại của Pro
-• Mới dùng ContextFlow? Một hướng dẫn ngắn đưa bạn đến câu trả lời đầu tiên, và không tính vào số câu trả lời trong ngày. Để xem lại: … → Khác… → Xem lại hướng dẫn cơ bản
-• Khi chọn văn bản trên iPhone hoặc iPad, các thao tác nhanh nằm ngay trong ô “Câu hỏi của bạn…”: vuốt để chọn Tóm tắt, Dịch, Giải thích đơn giản và nhiều thao tác khác
+• Nghe: chạm vào Nghe bên dưới câu trả lời, hoặc chọn … → Nghe trang này. Một giọng đọc tự nhiên sẽ đọc to cho bạn nghe, bằng hơn 100 ngôn ngữ. Trên iPhone, vẫn phát tiếp khi khóa màn hình
+• Cuộc trò chuyện tự sắp xếp (Pro): dưới câu trả lời hoặc ghi chú mới, ContextFlow gợi ý cuộc trò chuyện phù hợp, một cuộc trò chuyện mới cho nó, hoặc một thẻ của riêng bạn. Thanh Gợi ý ở đầu cuộc trò chuyện gom tất cả lại. Một lần chạm là chuyển xong, Hoàn tác để đưa về chỗ cũ. Cuộc trò chuyện cũng có thể tự đặt tên theo chủ đề
+• Nhắc tôi và Theo dõi giờ nhận thêm ghi chú bằng lời của bạn: cần kiểm tra gì, hoặc cần nhắc bạn điều gì
+• Chọn văn bản là các thao tác nhanh chờ sẵn ngay trong ô “Câu hỏi của bạn…” bên dưới: Tóm tắt, Dịch, Giải thích đơn giản, Tìm tương tự và nhiều thao tác khác
 • Văn bản đã chọn vốn là ngôn ngữ của bạn? Giờ nút Dịch sẽ gợi ý một ngôn ngữ khác, như tiếng Anh
+• Mục Trò chuyện trong ứng dụng: một ô tìm kiếm, theo từ hoặc theo ý nghĩa (Pro)
+• Gói theo năm cho Khóa riêng, Pro và Ultra. Chuyển từ Pro lên Ultra sẽ bắt đầu ngay, và Apple hoàn tiền phần còn lại của Pro
+• Mới dùng ContextFlow? Một hướng dẫn ngắn đưa bạn đến câu trả lời đầu tiên, và không tính vào số câu trả lời trong ngày
+• Sau khi cập nhật, mục Có gì mới trong ứng dụng cho bạn xem các thay đổi chính qua video ngắn
 • ContextFlow giờ đã có tiếng Việt, cùng tiếng Trung phồn thể và tiếng Ả Rập: tổng cộng 14 ngôn ngữ
 • Sửa lỗi: bảng ContextFlow và Cài đặt giờ cuộn được trên Google, những dòng cuối của Cài đặt không còn bị thanh công cụ của Safari che mất, và các nút cạnh văn bản đã chọn không còn bị bỏ lại khi chỉ một phần của trang cuộn

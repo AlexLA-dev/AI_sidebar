@@ -1,1 +1,1 @@
-Novità: modelli che compilano nomi e date, ciò che hai copiato in qualsiasi campo e una notifica quando un prezzo cambia.
+Novità della 2.6: “Trova simili” mostra alternative reali e verificate a ciò che guardi, “Ascolta” legge ogni pagina ad alta voce e le chat si ordinano da sole.

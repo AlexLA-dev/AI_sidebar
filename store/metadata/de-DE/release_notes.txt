@@ -1,11 +1,14 @@
 Neu in ContextFlow 2.6:
-• Ultra, ein neuer Tarif: alles aus Pro, dazu „Anhören“ und „Ähnliches finden“
-• Anhören: Tippe unter einer Antwort auf „Anhören“ oder wähle … → „Diese Seite anhören“. Eine natürliche Stimme liest vor, in über 100 Sprachen. Auf dem iPhone läuft es bei gesperrtem Bildschirm weiter
+• Ultra, ein neuer Tarif: alles aus Pro, dazu „Ähnliches finden“ und „Anhören“
 • Ähnliches finden: Du schaust dir ein Produkt, eine App, einen Artikel, ein Rezept oder einen Ort an? Tippe auf „Ähnliches finden“ und bekomm echte Alternativen: günstiger, neuer, auf Lager, kostenlos oder in deiner Sprache, oder sag in eigenen Worten, was du brauchst. Jeder Link wird geöffnet und geprüft, bevor du ihn siehst, und bei jedem kannst du den Preis beobachten
-• Ultra beobachtet bis zu 50 Seiten gleichzeitig
-• Eigener Schlüssel, Pro und Ultra gibt es jetzt auch jährlich. Der Wechsel von Pro zu Ultra gilt sofort, und Apple erstattet, was von Pro noch übrig ist
-• Neu bei ContextFlow? Eine kurze Einführung begleitet dich durch deine erste Antwort und zählt nicht zu deinen Antworten des Tages. Noch einmal ansehen: … → Weiteres … → „Grundlagen-Tour wiederholen“
-• Markiere auf dem iPhone oder iPad Text, und die Schnellaktionen stehen direkt im Feld „Deine Frage …“: Wisch durch „Zusammenfassen“, „Übersetzen“, „Einfach erklären“ und mehr
+• Anhören: Tippe unter einer Antwort auf „Anhören“ oder wähle … → „Diese Seite anhören“. Eine natürliche Stimme liest vor, in über 100 Sprachen. Auf dem iPhone läuft es bei gesperrtem Bildschirm weiter
+• Chats, die sich selbst ordnen (Pro): Unter einer neuen Antwort oder Notiz schlägt ContextFlow den passenden Chat vor, einen neuen Chat dafür oder einen deiner eigenen Tags. Die Leiste „Vorschläge“ oben im Chat zeigt alle zusammen. Ein Tippen verschiebt sie, „Widerrufen“ holt sie zurück. Ein Chat kann sich auch selbst nach seinem Thema benennen
+• „Erinnern“ und „Beobachten“ nehmen jetzt eine Notiz in deinen eigenen Worten: was du prüfen willst oder woran du erinnert werden möchtest
+• Markiere Text, und die Schnellaktionen warten direkt im Feld „Deine Frage …“ darunter: „Zusammenfassen“, „Übersetzen“, „Einfach erklären“, „Ähnliches finden“ und mehr
 • Markierter Text schon in deiner Sprache? „Übersetzen“ bietet jetzt eine andere Sprache an, etwa Englisch
+• „Chats“ in der App: ein Suchfeld, nach Wörtern oder nach Bedeutung (Pro)
+• Eigener Schlüssel, Pro und Ultra gibt es jetzt auch jährlich. Der Wechsel von Pro zu Ultra gilt sofort, und Apple erstattet, was von Pro noch übrig ist
+• Neu bei ContextFlow? Eine kurze Einführung begleitet dich durch deine erste Antwort und zählt nicht zu deinen Antworten des Tages
+• Nach einem Update zeigt „Neuigkeiten“ in der App die wichtigsten Änderungen mit kurzen Clips
 • ContextFlow spricht jetzt traditionelles Chinesisch, Arabisch und Vietnamesisch: insgesamt 14 Sprachen
 • Fehlerbehebungen: Panel und Einstellungen scrollen jetzt auf Google, die letzten Zeilen der Einstellungen verschwinden nicht mehr unter der Symbolleiste von Safari, und die Tasten neben markiertem Text bleiben nicht mehr stehen, wenn nur ein Teil der Seite scrollt

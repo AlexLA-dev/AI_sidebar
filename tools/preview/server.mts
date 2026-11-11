@@ -538,6 +538,29 @@ function similarItems95(): Array<Record<string, unknown>> {
     { name: "Sony WH-1000XM6", why: "Noise cancelling over-ears with the same codecs and multipoint.", fit: "Not cheaper: $399 against $129.", met: "no", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/wh1000xm6-b", host: "electronics.sony.com", title: "WH-1000XM6", source: "item", checked: true, price: "399 USD", stock: "in", similarity: 100, differs: "Stronger noise cancelling, three times the price" }
   ]
 }
+// Store screenshots and previews (SIMILAR_STUB=store): the same list with made-up products and shops, so the App Store
+// shows no real brand; prices against the page's $129 / 12 990 ₽.
+function similarItemsStore(condition: string, ru = false): Array<Record<string, unknown>> {
+  const cond = Boolean(condition.trim())
+  const rows = ru
+    ? [
+        ["Halden Quiet One", "halden-audio.store", "Накладные, с адаптивным шумоподавлением и LDAC, как Aero 2, но с более мягким и лёгким оголовьем.", "Дешевле: 9 990 ₽ против 12 990 ₽, в наличии.", "9990 RUB"],
+        ["Lumen Air 720", "lumen-sound.store", "Лёгкие наушники с шумоподавлением и похожей батареей на 35 часов; кодеков меньше.", "Дешевле: 8 990 ₽ против 12 990 ₽, в наличии.", "8990 RUB"],
+        ["Brook Lux ANC", "brook-audio.store", "Недорогие, с активным шумоподавлением и эквалайзером в приложении.", "Дешевле: 6 490 ₽ против 12 990 ₽, в наличии.", "6490 RUB"],
+        ["Veda Wave Pro", "veda.store", "LDAC и мультипойнт, как у Aero 2, и батарея держит дольше.", "Магазин не пускает серверы на страницу, так что цена и наличие не подтверждены.", ""]
+      ]
+    : [
+        ["Halden Quiet One", "halden-audio.store", "Over-ear, adaptive noise cancelling and LDAC like the Aero 2, with a softer, lighter headband.", "Cheaper: $99.99 against $129, in stock.", "99.99 USD"],
+        ["Lumen Air 720", "lumen-sound.store", "Light noise-cancelling headphones with a similar 35-hour battery; fewer codecs.", "Cheaper: $89.99 against $129, in stock.", "89.99 USD"],
+        ["Brook Lux ANC", "brook-audio.store", "A budget pick with active noise cancelling and app EQ.", "Cheaper: $69 against $129, in stock.", "69 USD"],
+        ["Veda Wave Pro", "veda.store", "LDAC and multipoint like the Aero 2, with a longer battery.", "The shop doesn't let servers open the page, so price and stock aren't confirmed.", ""]
+      ]
+  return rows.map(([name, host, why, fit, price], i) => ({
+    name, why, fit: cond ? fit : "", met: cond ? (price ? "yes" : "unknown") : "n/a", url: `https://${host}/${name.toLowerCase().replace(/ /g, "-")}`,
+    host, title: name, source: "item", checked: Boolean(price), ...(price ? { price, stock: "in", watch: { source: "ld-price", value: price } } : {}),
+    ...(i === 1 ? { date: "2026-08-14" } : {})
+  }))
+}
 let similarFailedOnce = false
 
 async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
@@ -564,7 +587,7 @@ async function similarStub(body: Record<string, unknown>, res: import("node:http
     res.end()
     return
   }
-  const items = process.env.SIMILAR_STUB === "b95" ? similarItems95() : similarItems(condition, ru)
+  const items = process.env.SIMILAR_STUB === "b95" ? similarItems95() : process.env.SIMILAR_STUB === "store" ? similarItemsStore(condition, ru) : similarItems(condition, ru)
   for (const [i, item] of items.entries()) {
     await wait(SIMILAR_STEP_MS * 0.7)
     send({ type: "item", engine: "a", index: i, item })

@@ -1,10 +1,12 @@
 Không cần dán bài viết vào chatbot nữa. Hỏi AI về bất kỳ trang nào, trả lời bằng mẫu tự điền và nhận thông báo khi giá thay đổi, mà không phải rời Safari. Cuộc trò chuyện đi theo bạn từ trang này sang trang khác, và cùng một cuộc trò chuyện có trên iPhone, iPad và Mac của bạn.
 
 MỚI TRONG BẢN 2.6
-• Ultra, gói mới: Nghe đọc to câu trả lời và cả trang bằng giọng tự nhiên, hơn 100 ngôn ngữ. Trên iPhone, vẫn phát tiếp khi khóa màn hình
-• Tìm tương tự (Ultra): lựa chọn thay thế có thật cho mọi trang — rẻ hơn, mới hơn, còn hàng, miễn phí hoặc bằng ngôn ngữ của bạn. Mọi liên kết đều được mở và kiểm tra trước khi bạn thấy
-• Gói theo năm cho Khóa riêng, Pro và Ultra
-• Một hướng dẫn ngắn cho câu trả lời đầu tiên, và bảng ContextFlow giờ có tiếng Việt, tiếng Trung phồn thể và tiếng Ả Rập
+• Tìm tương tự (Ultra): lựa chọn thay thế có thật cho mọi trang — rẻ hơn, mới hơn, còn hàng, miễn phí hoặc bằng ngôn ngữ của bạn. Mọi liên kết đều được mở và kiểm tra trước
+• Nghe (Ultra): đọc to câu trả lời và cả trang bằng giọng tự nhiên, hơn 100 ngôn ngữ, kể cả khi iPhone khóa màn hình
+• Cuộc trò chuyện tự sắp xếp (Pro): ContextFlow gợi ý cuộc trò chuyện, cuộc trò chuyện mới hay thẻ cho mỗi câu trả lời hoặc ghi chú mới, và đặt tên theo chủ đề
+• Ghi chú bằng lời của bạn cho lời nhắc và giá đang theo dõi
+• Gói theo năm: Pro, Ultra và Khóa riêng
+• Hướng dẫn ngắn đến câu trả lời đầu tiên; bảng ContextFlow có thêm tiếng Việt, tiếng Trung phồn thể và tiếng Ả Rập
 
 BẠN CÓ THỂ LÀM GÌ
 • Tóm tắt mọi bài viết, bài đánh giá, chuỗi thảo luận hay trang sản phẩm, hoặc rút ra các ý chính
@@ -25,12 +27,12 @@ MỌI CUỘC TRÒ CHUYỆN TRONG ỨNG DỤNG
 • Ứng dụng ContextFlow trên iPhone, iPad và Mac có mọi cuộc trò chuyện từ Safari: đọc lại, hỏi tiếp hoặc thêm ghi chú
 • Cuộc trò chuyện và mẫu được đồng bộ giữa các thiết bị qua iCloud
 
-DÀNH CHO SAFARI TRÊN IPHONE, IPAD VÀ MAC
+DÀNH CHO SAFARI
 • iPhone và iPad: chạm vào nút nổi ContextFlow trên bất kỳ trang nào, hoặc Hỏi AI trên văn bản đã chọn
 • Mac: thanh bên mở từ thanh công cụ, nút nổi hoặc Control-Shift-E
 • Mẹo kèm video ngắn, chế độ sáng và tối, 14 ngôn ngữ
 
-RIÊNG TƯ NGAY TỪ THIẾT KẾ
+RIÊNG TƯ
 • Không tài khoản, không đăng ký, không theo dõi người dùng
 • Trang chỉ được đọc khi bạn hỏi về trang đó hoặc theo dõi nó
 • Nội dung trang không bao giờ được lưu trên máy chủ của chúng tôi; cuộc trò chuyện nằm trên thiết bị của bạn và đồng bộ qua iCloud của bạn, được mã hóa đầu cuối
@@ -45,7 +47,6 @@ CÁC GÓI
 BẮT ĐẦU TRONG MỘT PHÚT
 1. Mở ứng dụng ContextFlow: ứng dụng hướng dẫn từng bước cách bật tiện ích mở rộng trong Safari.
 2. Mở trang web bất kỳ và chạm vào nút ContextFlow (trên Mac, bấm vào biểu tượng ContextFlow trên thanh công cụ).
-3. Chọn Tóm tắt, Ý chính, Giải thích đơn giản hoặc Dịch — hoặc cứ hỏi.
 
 AI có thể mắc lỗi. Hãy kiểm tra thông tin quan trọng.
 

@@ -1,1 +1,1 @@
-New: templates that fill in names and dates, what you copied in any field, and a notification when a price changes.
+New in 2.6: Find similar shows real, checked alternatives to what you're looking at, Listen reads any page aloud, and your chats keep themselves in order.

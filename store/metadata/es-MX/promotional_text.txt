@@ -1,1 +1,1 @@
-Nuevo: plantillas que rellenan nombres y fechas, lo que copiaste a un toque en cualquier campo y un aviso cuando cambia un precio.
+Nuevo en la 2.6: “Buscar similares” muestra alternativas reales y revisadas a lo que estás viendo, “Escuchar” lee cualquier página y tus chats se ordenan solos.
