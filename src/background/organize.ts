@@ -141,7 +141,7 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   void reportScan(chat, live, vectorOf, cfg, move, ctx)
   const verdicts = (stored[STORAGE.orgVerdicts] as Verdicts | undefined) ?? {}
   const tags: Array<{ index: number; key: string; tag: string }> = []
-  for (const index of tagTargets(chat, cfg)) {
+  for (const index of tagTargets(chat, cfg, live, vectorOf)) {
     const candidates = tagCandidates(chat, index, live, vectorOf, cfg)
     if (!candidates.length) continue
     const message = judgeText(chat.m, index)
