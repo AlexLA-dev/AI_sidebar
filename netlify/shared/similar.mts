@@ -24,7 +24,7 @@ import { plansPricing, pricingLine, type AppPricing, type PlanSeen } from "./app
 import { nextPages, quoteFacts, quoteOn } from "./dig.mts"
 import { MONEY_SIGN, convert, currencyOf, eurRates, roughAmount, type Rates } from "./money.mts"
 import { COLOURS, CONTRAST, COST, COUNTRY_ALIASES, EUROPE, EXCEPT, HOW_MANY, NEGATION, NOT_A_COUNTRY, ONLY, REVIEW_PAGE, SEARCH_WORDS, SHIP_VERBS, SHIPPING, SHOP_WORDS, UNITS, WORLDWIDE, appLang, foldedWords, pattern } from "./lexicon.mts"
-import type { Met, SimilarItem } from "../../src/shared/similar.ts"
+import { finalList, type Met, type SimilarItem } from "../../src/shared/similar.ts"
 
 export const MAX_PAGE_TEXT = 5_000
 export const MAX_CONDITION = 300
@@ -2453,7 +2453,7 @@ export function finishItems(raw: unknown, pages: CheckedCandidate[], plan: Plan,
   }
   f.softTail()
   const intro = stripUrls(str(r.intro, 300))
-  return { result: { intro: saysCount(intro) ? "" : intro, items: f.items, note: stripUrls(str(r.note, 300)) }, dropped: f.dropped }
+  return { result: { intro: saysCount(intro) ? "" : intro, items: finalList(f.items), note: stripUrls(str(r.note, 300)) }, dropped: f.dropped }
 }
 
 /**
@@ -2799,7 +2799,8 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     if (opts.debug) stats.written = written
     const r = (next.value.raw ?? {}) as Record<string, unknown>
     const intro = stripUrls(str(r.intro, 300))
-    result = { intro: saysCount(intro) ? "" : intro, items: finisher.items, note: stripUrls(str(r.note, 300)) }
+    // The final list as the chat shows it (and every count says it): the closest first, then as closeAndLess keeps.
+    result = { intro: saysCount(intro) ? "" : intro, items: finalList(finisher.items), note: stripUrls(str(r.note, 300)) }
     dropped = finisher.dropped
   } else {
     const written = await writeAnswer(input, plan, usable, Math.max(6_000, left() - 1_000), opts.signal, over)
