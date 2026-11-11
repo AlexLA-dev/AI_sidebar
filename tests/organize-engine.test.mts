@@ -136,6 +136,26 @@ test("2.6 (98): a chat with the user's tag on a message: its earlier messages ge
   assert.deepEqual(tagTargets(chat("plain", Array.from({ length: 7 }, (_, i) => qa("garden", `https://p/${i}`)).flat()), cfg), [5, 7, 9, 11, 13])
 })
 
+test("2.6 (98): a tag put on in one chat is offered on the messages like it in the others, older ones too", () => {
+  // «Не предлагает такую метку в других чатах, а надо»: the tag on one answer in "roses"; "yard" has garden answers
+  // early on, then eight about bread: before, only its last five answers were looked at.
+  const roses = chat("roses", [...qa("garden", "https://r/1", { tags: ["Garden"] }), ...qa("japan", "https://r/2")])
+  const yard = chat("yard", [...qa("garden", "https://y/1"), ...qa("garden", "https://y/2"), ...Array.from({ length: 8 }, (_, i) => qa("bread", `https://y/b${i}`)).flat()])
+  const all = [roses, yard, japan, bread]
+  assert.deepEqual(tagTargets(yard, cfg), [11, 13, 15, 17, 19])
+  const targets = tagTargets(yard, cfg, all, vectorOf)
+  assert.ok(targets.includes(1) && targets.includes(3), "its garden answers")
+  assert.equal(targets.filter((i) => i < 11).length, 2, "not its bread answers")
+  for (const i of [1, 3]) assert.deepEqual(tagCandidates(yard, i, all, vectorOf, cfg).map((c) => c.tag), ["Garden"])
+  // Not where it was turned down, nor in a chat with that tag; at most the window more.
+  const turned = chat("yard", yard.m.map((e, i) => (i === 1 ? { ...e, dismissed: { tags: ["garden"] } } : e)))
+  assert.equal(tagTargets(turned, cfg, [roses, turned], vectorOf).includes(1), false)
+  assert.deepEqual(tagTargets({ ...yard, tags: ["garden"] }, cfg, all, vectorOf), [11, 13, 15, 17, 19])
+  assert.equal(tagTargets(yard, { ...cfg, tagWindow: 1 }, all, vectorOf).length, 2)
+  // Without vectors, as before.
+  assert.deepEqual(tagTargets(yard, cfg, all, () => null), [11, 13, 15, 17, 19])
+})
+
 test("a tag refused on three messages without one taken isn't suggested again", () => {
   const no = (tag: string) => (e: Entry) => (e.role === "assistant" ? { ...e, dismissed: { tags: [tag] } } : e)
   const c = chat("c", [...qa("x", "https://x/1").map(no("work")), ...qa("x", "https://x/2").map(no("work")), ...qa("x", "https://x/3").map(no("Work"))])

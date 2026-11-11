@@ -971,9 +971,12 @@ export function tagCandidates(chat: Thread, index: number, chats: Thread[], vect
 /**
  * The messages that get tag suggestions now: the chat's last `tagWindow` answers and notes. 2.6 (98): in a chat with
  * the user's tag on a message, its untagged ones too, up to twice that, the latest first (a tag put on one message
- * is offered on the ones like it in this chat at once, not only on the last few).
+ * is offered on the ones like it in this chat at once, not only on the last few). And, the owner's note «Не предлагает
+ * такую метку в других чатах, а надо», up to `tagWindow` more: those a tag the user put on messages (in any of `chats`)
+ * fits from `tagT1`, the closest first, wherever they are in the chat; so a tag is offered in the other chats as they
+ * open, not only on their last messages. Whether it's offered is still tagCandidates' and the judge's.
  */
-export function tagTargets(chat: Thread, cfg: OrganizeConfig): number[] {
+export function tagTargets(chat: Thread, cfg: OrganizeConfig, chats: Thread[] = [], vectorOf: VectorOf = () => null): number[] {
   const out: number[] = []
   for (let i = chat.m.length - 1; i >= 0 && out.length < cfg.tagWindow; i--) if (isTaggable(chat.m[i])) out.push(i)
   if (chat.m.some((e) => e.tags?.length)) {
@@ -981,7 +984,41 @@ export function tagTargets(chat: Thread, cfg: OrganizeConfig): number[] {
       if (isTaggable(chat.m[i]) && !chat.m[i].tags?.length && !out.includes(i)) out.push(i)
     }
   }
+  for (const i of nearTagged(chat, chats, vectorOf, cfg).filter((i) => !out.includes(i)).slice(0, cfg.tagWindow)) out.push(i)
   return out.sort((a, b) => a - b)
+}
+
+/**
+ * The chat's answers and notes that one of the user's tags on messages (in `chats`, this one's included) fits from
+ * `tagT1`: the mean of its 3 closest tagged messages, as a new tag's rule (tagCandidates). The closest first, the later
+ * of equals first. Tags the message or its chat has, it turned down, or refused too often don't count.
+ */
+function nearTagged(chat: Thread, chats: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig): number[] {
+  if (chat.kind === "history") return []
+  const examples = new Map<string, Array<{ v: Float32Array }>>()
+  for (const t of chats) {
+    if (t.deleted || t.kind === "history") continue
+    for (const x of t.m) {
+      if (!x.tags?.length) continue
+      const xv = vectorOf(x)
+      if (!xv) continue
+      for (const key of new Set(x.tags.map((tag) => tag.toLowerCase()))) examples.set(key, [...(examples.get(key) ?? []), { v: xv }])
+    }
+  }
+  if (!examples.size) return []
+  const refused = refusedTags(chats, cfg)
+  const chatTags = (chat.tags ?? []).map((t) => t.toLowerCase())
+  const found: Array<{ i: number; fit: number }> = []
+  chat.m.forEach((e, i) => {
+    if (!isTaggable(e)) return
+    const v = vectorOf(e)
+    if (!v) return
+    const skip = new Set([...chatTags, ...[...(e.tags ?? []), ...(e.dismissed?.tags ?? [])].map((t) => t.toLowerCase())])
+    let fit = 0
+    for (const [key, list] of examples) if (!skip.has(key) && !refused.has(key)) fit = Math.max(fit, topMean(v, list, 3))
+    if (fit >= cfg.tagT1) found.push({ i, fit })
+  })
+  return found.sort((a, b) => b.fit - a.fit || b.i - a.i).map((x) => x.i)
 }
 
 /** The judge's verdicts → the tags to show (confident yes only, at most `maxTags`, in the candidates' order). */
