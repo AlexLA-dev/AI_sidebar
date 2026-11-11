@@ -12,6 +12,7 @@ import { needsScript, speechParts, speechSeconds, speechText } from "../../share
 import type { Platform, Usage } from "../../shared/types"
 import type { SpeakIn, SpeakOut } from "../../background/speak"
 import { SPEEDS, speedLabel, type Speed } from "../../shared/stretch"
+import { addRange, FULL, type Ranges, slotMask, spread } from "../../shared/coverage"
 import { voicedId } from "../../shared/voiced"
 import { isTouch } from "../page"
 import { listenBackNow, listenNotifyLater, listenNotifyLaterNow, listenSpeed, notifyKnown, setListenBack, setListenSpeed, setNotifyKnown } from "../store"
@@ -76,9 +77,10 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     // a part is still coming (its pieces make what's in hand look short: no "more" until it has all come).
     more?: number
     fetching?: boolean
-    // Seconds heard of each part (by index), the part being heard, and where the last tick was (build 92: the week's
-    // minutes count what's heard).
-    heard?: Record<number, number>
+    // The stretches heard of each part (by index, in its own seconds), the part being heard, and where the last tick was
+    // (build 92: the week's minutes count what's heard; build 98: a stretch heard twice counts once, one skipped over
+    // not at all, and listens in pieces add up on the server).
+    heard?: Record<number, Ranges>
     heardPart?: number
     lastPos?: number
     // iPhone and iPad with notifications: leaving the page, coming back, and what the app is told meanwhile.
@@ -141,6 +143,18 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
   // still the one (WebKit starts a page's sound only from a tap).
   const unlocked = useRef<PcmPlayer | null>(null)
 
+  /** What was heard of each part, for the background (it joins it with this device's earlier listens and tells the
+   *  server): the stretches played and, once the whole part is in, its length. */
+  const heardReport = (current: NonNullable<typeof run.current>): SpeakIn | null => {
+    if (!current.heard) return null
+    const heard: Record<number, { r: Ranges; d?: number }> = {}
+    for (const [index, ranges] of Object.entries(current.heard)) {
+      const length = partLength(current, Number(index))
+      heard[Number(index)] = { r: ranges.map(([a, b]) => [Math.round(a * 100) / 100, Math.round(b * 100) / 100]), ...(length ? { d: Math.round(length * 100) / 100 } : {}) }
+    }
+    return { type: "heard", heard }
+  }
+
   const stop = useCallback(() => {
     const current = run.current
     run.current = null
@@ -149,7 +163,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
       clearInterval(current.timer)
       try {
         // What was heard of each part, then the stop (the background sends it to the server).
-        if (current.heard) current.port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
+        const heard = heardReport(current)
+        if (heard) current.port.postMessage(heard)
         current.port.postMessage({ type: "stop", heard: current.player.position } satisfies SpeakIn)
         current.port.disconnect()
       } catch {
@@ -258,7 +273,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
         player.pause()
         current.clock?.(false)
         // What was heard here so far (the app counts what it plays from this second).
-        if (current.heard) port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
+        const heard = heardReport(current)
+        if (heard) port.postMessage(heard)
         // The clock is off: the bar is told itself (it showed Pause while the page was away), and the next tick after
         // coming back tells it again (build 94: it kept showing Play until the clock had moved).
         setState((s) => (s.at === "playing" ? { ...s, at: "paused" } : s))
@@ -317,17 +333,24 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     function tick() {
       if (run.current !== current) return
       current.handoff?.tick()
-      // Heard, part by part: the position moving on by about a tick's worth while it plays (a seek or a wait isn't).
+      // Heard, part by part: the stretch the position moved over by about a tick's worth while it plays (a seek or a wait
+      // isn't), laid on the parts it crossed.
+      const was = current.lastPos ?? 0
       const pos = player.position
-      const moved = pos - (current.lastPos ?? 0)
+      const moved = pos - was
       current.lastPos = pos
       if (!player.paused && moved > 0 && moved <= 1.5 && player.received > 0) {
         current.reached = Math.max(current.reached ?? 0, pos)
-        const heardPart = Math.max(0, player.part)
         current.heard = current.heard ?? {}
-        current.heard[heardPart] = (current.heard[heardPart] ?? 0) + moved
+        for (const piece of spread(was, pos, player.starts, player.received)) {
+          current.heard[piece.part] = addRange(current.heard[piece.part] ?? [], piece.from, piece.to)
+        }
+        const heardPart = Math.max(0, player.part)
         // A part heard to its end (the next one began): told now, so it counts even if the page goes.
-        if (current.heardPart !== undefined && current.heardPart !== heardPart) port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
+        if (current.heardPart !== undefined && current.heardPart !== heardPart) {
+          const heard = heardReport(current)
+          if (heard) port.postMessage(heard)
+        }
         current.heardPart = heardPart
       }
       const part = player.part
@@ -344,10 +367,11 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
         port.postMessage({ type: "more" } satisfies SpeakIn)
       }
       if (current.ended && player.drained && player.received > 0) {
-        // Heard to its end with nothing skipped (build 94): Listen shows it's voiced, here and in the app on this device.
-        // Not marked: why, for the record (build 95: the owner saw no mark on 94).
+        // Every part heard here, all of it, whatever was skipped and gone back to (build 98): Listen shows it's voiced,
+        // here and in the app on this device. Heard in pieces over several listens or devices, the server says so with
+        // the next report (sent as it stops). Not marked here: why, for the record (build 95: the owner saw no mark on 94).
         const gap = Math.max(0, player.received - (current.reached ?? 0))
-        if (!current.skipped && current.voiced && gap <= 1.5) {
+        if (current.voiced && wholeHeard(current)) {
           void send({ type: "listenVoiced", id: current.voiced })
           step("voiced")
         } else {
@@ -383,6 +407,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
       else if (message.type === "aac") player.pushAac(message.part, message.data)
       else if (message.type === "parts") current.handoff?.parts(message.parts, message.complete)
       else if (message.type === "partEnd") current.fetching = false
+      // Build 98: the whole text's length as it's known now (the audio made, the rest at this voice's pace).
+      else if (message.type === "total") current.total = message.seconds
       else if (message.type === "end") {
         current.ended = true
         player.end()
@@ -545,6 +571,28 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
 }
 
 /** What's read: an answer's words without its Markdown, or the page's text. */
+/** A part's length (seconds of its audio) once all of it is in: the next one has started, or the text has ended. */
+function partLength(current: { player: PcmPlayer; ended: boolean }, index: number): number | null {
+  const starts = current.player.starts
+  if (index >= starts.length) return null
+  const end = index + 1 < starts.length ? starts[index + 1] : current.ended ? current.player.received : null
+  return end === null ? null : Math.max(0, end - starts[index])
+}
+
+/** Every part of the text heard here, all of its tenths (build 98: seeking back and forth on the way is fine). */
+function wholeHeard(current: { player: PcmPlayer; ended: boolean; heard?: Record<number, Ranges> }): boolean {
+  const starts = current.player.starts
+  if (!current.ended || !starts.length) return false
+  for (let index = 0; index < starts.length; index++) {
+    const length = partLength(current, index)
+    if (length === null) return false
+    // A part with nothing to say has no audio.
+    if (length < 0.3) continue
+    if (slotMask(current.heard?.[index] ?? [], length) !== FULL) return false
+  }
+  return true
+}
+
 function plainText(item: ListenWhat): string {
   return item.what === "answer" ? speechText(item.text) : item.text.replace(/\s+\n/g, "\n").trim()
 }

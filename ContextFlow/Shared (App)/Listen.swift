@@ -208,7 +208,7 @@ struct ListenScrubber: View {
                 HStack {
                     Text(Self.clock(dragging ?? player.elapsed)).accessibilityIdentifier("listen.elapsed")
                     Spacer()
-                    Text(Self.clock(player.duration))
+                    Text(Self.clock(player.duration)).accessibilityIdentifier("listen.total")
                 }
                 .font(.caption.monospacedDigit())
                 .foregroundColor(.secondary)
@@ -366,7 +366,15 @@ final class ListenPlayer: NSObject, ObservableObject {
     private var partRanges: [(key: String, start: Int, end: Int)] = []
     /// The keys of the text's parts that can be said, in order (build 95: the server says from them whether it's voiced).
     private var textKeys: [String] = []
-    private var heardByKey: [String: Double] = [:]
+    /// The stretches heard of each part (by its key, in its own seconds; build 98: a stretch heard twice counts once, one
+    /// skipped over not at all, and listens in pieces add up on the server).
+    private var heardByKey: [String: HeardCoverage.Ranges] = [:]
+    /// Build 98, the text's length shown from the start: its parts as known here (from the first one here), each whole
+    /// part's seconds of audio, and the source written for the ear so far and still to be.
+    private var knownParts: [String] = []
+    private var partAudio: [Double?] = []
+    private var sourceWritten = ""
+    private var sourceLeft = ""
     private var lastHeardSample: Int?
     /// The player's own clock (samples since play from startSample): where the scheduled audio ends on it, and the
     /// silence it ran through while waiting for the next part. Without it a wait counted as heard: the clock ran
@@ -594,7 +602,12 @@ final class ListenPlayer: NSObject, ObservableObject {
         // Carried on from Safari: heard there up to this second (build 94: only a skip past what was heard counts).
         reached = base + request.skip
         skippedAhead = false
-        duration = base + Self.estimate(request.parts.joined(separator: " "))
+        knownParts = request.script ? [] : request.parts
+        partAudio = []
+        sourceWritten = ""
+        sourceLeft = request.script ? Self.scriptChunks(request.text).joined(separator: "\n") : ""
+        duration = 0
+        updateDuration()
         if secondsLeft == nil { secondsLeft = StoreKitManager.shared.planFacts.speakLeftSeconds }
         // The week's minutes not known yet (the app just opened, Settings not visited): asked first, for at most 2 s,
         // so the few-minutes note can come before it starts rather than the limit after.
@@ -783,6 +796,9 @@ final class ListenPlayer: NSObject, ObservableObject {
         pausedAt = nil
         elapsed = base + Double(startSample) / Self.rate
         if elapsed > reached + 1 { skippedAhead = true }
+        // A seek isn't heard (build 98: a jump of up to a second and a half counted as heard, so a short skip still
+        // made the text whole): what's heard counts again from here.
+        lastHeardSample = nil
         scheduleMore()
         if wasPlaying { play() } else { updateNowPlaying() }
     }
@@ -827,19 +843,58 @@ final class ListenPlayer: NSObject, ObservableObject {
         startSkippedIfShort()
     }
 
-    /// What's heard, part by part: the position moving on by about a tick's worth while it plays (a seek or a wait isn't).
+    /// What's heard, part by part: the stretch the position moved over by about a tick's worth while it plays (a seek or a
+    /// wait isn't), laid on the parts it crossed (build 98).
     private func noteHeard(at sample: Int) {
         defer { lastHeardSample = sample }
         guard state == .playing, let last = lastHeardSample else { return }
         let moved = sample - last
         guard moved > 0, Double(moved) <= Self.rate * 1.5 else { return }
         guard let part = partRanges.last(where: { $0.start <= sample - 1 && sample - 1 < $0.end }) else { return }
-        let before = heardByKey[part.key] ?? 0
-        let after = before + Double(moved) / Self.rate
-        heardByKey[part.key] = after
+        let before = HeardCoverage.covered(heardByKey[part.key] ?? [])
+        for range in partRanges where range.start < sample && last < min(range.end, samples.count) {
+            let end = min(range.end, samples.count)
+            let from = Double(max(last, range.start) - range.start) / Self.rate
+            let to = Double(min(sample, end) - range.start) / Self.rate
+            heardByKey[range.key] = HeardCoverage.add(heardByKey[range.key] ?? [], from: from, to: to)
+        }
+        let after = HeardCoverage.covered(heardByKey[part.key] ?? [])
         // A part heard to its end, or every 10 s of one: kept now, so it counts even if the app is closed while it plays.
         if let previous = partRanges.last(where: { $0.start <= last && last < $0.end }), previous.key != part.key { keepHeard() }
         else if Int(after / 10) != Int(before / 10) { keepHeard() }
+    }
+
+    /// A part's length (seconds of its audio) once all of it is in.
+    private func partLength(_ key: String) -> Double? {
+        guard let range = partRanges.last(where: { $0.key == key }), range.end != Int.max else { return nil }
+        return Double(range.end - range.start) / Self.rate
+    }
+
+    /// Every part of the text heard here, from its first, all of its tenths (build 98: seeking back and forth on the way
+    /// is fine). Carried on from Safari, the parts heard there aren't here: the server says (it adds the listens up).
+    private func wholeHeard() -> Bool {
+        guard request?.firstIndex == 0, !partRanges.isEmpty else { return false }
+        for range in partRanges {
+            guard range.end != Int.max else { return false }
+            let length = Double(range.end - range.start) / Self.rate
+            // A part with nothing to say has no audio.
+            if length < 0.3 { continue }
+            if HeardCoverage.mask(heardByKey[range.key] ?? [], length: length) != HeardCoverage.full { return false }
+        }
+        return true
+    }
+
+    /// The text's length as it's known now (build 98): never less than the audio in hand. Before any of its audio is in,
+    /// at the pace the voice had last time in this language; the pace this text has is kept for the next one.
+    private func updateDuration() {
+        let lang = request?.lang ?? ""
+        var paces = UserDefaults.standard.dictionary(forKey: "cf_listen_pace") as? [String: Double] ?? [:]
+        let total = HeardCoverage.total(parts: knownParts, audio: partAudio, unwritten: sourceLeft, written: sourceWritten, pace: paces[lang] ?? 1)
+        duration = max(base + total, received)
+        if let seen = HeardCoverage.pace(parts: knownParts, audio: partAudio), abs(seen - (paces[lang] ?? 0)) >= 0.02 {
+            paces[lang] = (seen * 100).rounded() / 100
+            UserDefaults.standard.set(paces, forKey: "cf_listen_pace")
+        }
     }
 
     /// All of the text's parts known here (from its first): the text goes with the next heard report, and the server
@@ -849,9 +904,14 @@ final class ListenPlayer: NSObject, ObservableObject {
         HeardStore.noteText(id, textKeys)
     }
 
-    /// Into the store the server is told from (by part key; it counts a part once, up to its length).
+    /// Into the store the server is told from (by part key; it counts a part once, up to its length): the seconds
+    /// covered, and once the whole part is in, its tenths heard and its length (build 98).
     private func keepHeard() {
-        for (key, seconds) in heardByKey { HeardStore.note(key, seconds) }
+        for (key, ranges) in heardByKey {
+            let length = partLength(key)
+            HeardCover.keep(key, ranges)
+            HeardStore.note(key, HeardCoverage.covered(ranges), slots: length.map { HeardCoverage.mask(ranges, length: $0) } ?? 0, length: length)
+        }
     }
 
     /// What's waiting goes to the server (when a text stops, and at launch for what didn't go); the minutes shown follow.
@@ -942,6 +1002,15 @@ final class ListenPlayer: NSObject, ObservableObject {
             let give = { (parts: [String]) in
                 for part in parts { out.yield(part) }
                 if !parts.isEmpty { first = false }
+                // The text's length shown follows what's written (build 98).
+                self.knownParts += parts
+                if !parts.isEmpty { self.updateDuration() }
+            }
+            // Counted as written once all of the chunk is (until then its source is still to come).
+            defer {
+                self.sourceWritten = chunks.prefix(index + 1).joined(separator: "\n")
+                self.sourceLeft = chunks.dropFirst(index + 1).joined(separator: "\n")
+                self.updateDuration()
             }
             let key = "script|\(request.what)|" + Self.cacheKey(chunk, request.lang)
             if let kept = SpeechCache.read(key), let script = String(data: kept, encoding: .utf8) {
@@ -998,7 +1067,20 @@ final class ListenPlayer: NSObject, ObservableObject {
         if Self.speakable(part) { textKeys.append(key) }
         // Where this part starts here (what's heard of it counts by its key).
         partRanges.append((key: key, start: samples.count, end: Int.max))
-        defer { if let last = partRanges.indices.last, partRanges[last].key == key { partRanges[last].end = samples.count } }
+        // What this device heard of this part on earlier listens (build 98): pieces add up.
+        if heardByKey[key] == nil, let earlier = HeardCover.ranges(key) { heardByKey[key] = earlier }
+        defer {
+            if let last = partRanges.indices.last, partRanges[last].key == key {
+                partRanges[last].end = samples.count
+                // Its length known: the text's length shown follows (build 98).
+                let at = index - request.firstIndex
+                if at >= 0 {
+                    while partAudio.count <= at { partAudio.append(nil) }
+                    partAudio[at] = Double(partRanges[last].end - partRanges[last].start) / Self.rate
+                    updateDuration()
+                }
+            }
+        }
         if let cached = SpeechCache.read(key) {
             counts.cache += Double(cached.count / 2) / Self.rate
             append(cached)
@@ -1365,9 +1447,11 @@ final class ListenPlayer: NSObject, ObservableObject {
     private func noteVoiced() {
         guard let request, let id = request.voiced else { return }
         let gap = max(0, base + Double(samples.count) / Self.rate - reached)
-        guard !skippedAhead, !request.skippedBefore, gap <= 1.5 else {
-            // Not marked: why, for the record (build 95: the owner saw no mark on 94).
-            let why = skippedAhead ? "skipped" : request.skippedBefore ? "before" : "short"
+        // Build 98: every part heard here, all of it, whatever was skipped and gone back to. Heard in pieces (other
+        // listens, Safari, another device), the server says so with the report sent at the end.
+        guard wholeHeard() else {
+            // Not marked here: why, for the record (build 95: the owner saw no mark on 94).
+            let why = skippedAhead ? "skipped" : request.firstIndex > 0 || request.skippedBefore ? "before" : "short"
             ChatAI.reportUse("listen", "unvoiced", ["what": request.what == "page" ? "page" : "answer", "why": why, "gap_s": String(Int(gap.rounded()))])
             return
         }
@@ -1582,22 +1666,77 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 }
 
+/// What this device heard of each part over its listens (build 98): the stretches, by part key, kept as long as the
+/// parts' audio (7 days), so pieces heard on different listens here add up exactly before they go to the server.
+nonisolated enum HeardCover {
+    private static let key = "cf_listen_cover"
+    private static let limit = 400
+    private static let maxAge: TimeInterval = 7 * 86_400
+
+    static func ranges(_ part: String) -> HeardCoverage.Ranges? {
+        guard let entry = (UserDefaults.standard.dictionary(forKey: key) as? [String: [Double]])?[part], entry.count >= 3,
+              Date().timeIntervalSince1970 - entry[0] < maxAge else { return nil }
+        var out: HeardCoverage.Ranges = []
+        var i = 1
+        while i + 1 < entry.count {
+            if entry[i + 1] > entry[i] { out.append(entry[i]...entry[i + 1]) }
+            i += 2
+        }
+        return out.isEmpty ? nil : out
+    }
+
+    static func keep(_ part: String, _ ranges: HeardCoverage.Ranges) {
+        var map = UserDefaults.standard.dictionary(forKey: key) as? [String: [Double]] ?? [:]
+        let now = Date().timeIntervalSince1970
+        let joined = HeardCoverage.merge(Self.ranges(part) ?? [], ranges)
+        map[part] = [now] + joined.flatMap { [($0.lowerBound * 100).rounded() / 100, ($0.upperBound * 100).rounded() / 100] }
+        if map.count > limit {
+            for old in map.sorted(by: { ($0.value.first ?? 0) < ($1.value.first ?? 0) }).prefix(map.count - limit) { map.removeValue(forKey: old.key) }
+        }
+        UserDefaults.standard.set(map, forKey: key)
+    }
+
+    /// "Delete all chats": gone with what was spoken.
+    static func clear() {
+        UserDefaults.standard.removeObject(forKey: key)
+    }
+}
+
 /// Read aloud's seconds heard, by part key, until the server has counted them (build 92: the week's minutes count what's
 /// heard). They go with the next part asked for, on their own when a text stops, and again at the next launch if they
 /// didn't; the server counts a part once, up to its length, so sending again never charges twice.
 enum HeardStore {
     private static let key = "cf_listen_heard"
 
-    static func note(_ part: String, _ seconds: Double) {
-        var map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
-        guard seconds > (map[part] ?? 0) else { return }
-        map[part] = (seconds * 10).rounded() / 10
-        UserDefaults.standard.set(map, forKey: key)
+    /// Build 98: the part's tenths heard (bits, joined over listens until counted) and its length, beside the seconds.
+    private static let slotsKey = "cf_listen_heard_slots"
+    private static let lengthKey = "cf_listen_heard_length"
+
+    static func note(_ part: String, _ seconds: Double, slots: Int = 0, length: Double? = nil) {
+        let defaults = UserDefaults.standard
+        var map = defaults.dictionary(forKey: key) as? [String: Double] ?? [:]
+        var slotMap = defaults.dictionary(forKey: slotsKey) as? [String: Int] ?? [:]
+        var lengthMap = defaults.dictionary(forKey: lengthKey) as? [String: Double] ?? [:]
+        let joined = (slotMap[part] ?? 0) | slots
+        guard seconds > (map[part] ?? 0) || joined != (slotMap[part] ?? 0) || (length != nil && lengthMap[part] == nil) else { return }
+        map[part] = max(map[part] ?? 0, (seconds * 10).rounded() / 10)
+        if joined != 0 { slotMap[part] = joined }
+        if let length { lengthMap[part] = (length * 10).rounded() / 10 }
+        defaults.set(map, forKey: key)
+        defaults.set(slotMap, forKey: slotsKey)
+        defaults.set(lengthMap, forKey: lengthKey)
     }
 
     static func items() -> [[String: Any]] {
         let map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
-        return map.prefix(80).map { ["key": $0.key, "s": $0.value] }
+        let slotMap = UserDefaults.standard.dictionary(forKey: slotsKey) as? [String: Int] ?? [:]
+        let lengthMap = UserDefaults.standard.dictionary(forKey: lengthKey) as? [String: Double] ?? [:]
+        return map.prefix(80).map { entry in
+            var item: [String: Any] = ["key": entry.key, "s": entry.value]
+            if let slots = slotMap[entry.key], slots != 0 { item["c"] = slots }
+            if let length = lengthMap[entry.key] { item["d"] = length }
+            return item
+        }
     }
 
     private static let textsKey = "cf_listen_heard_texts"
@@ -1625,10 +1764,19 @@ enum HeardStore {
     /// Takes out what the server counted (only where nothing more was heard meanwhile).
     static func counted(_ sent: [[String: Any]]) {
         var map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
+        var slotMap = UserDefaults.standard.dictionary(forKey: slotsKey) as? [String: Int] ?? [:]
+        var lengthMap = UserDefaults.standard.dictionary(forKey: lengthKey) as? [String: Double] ?? [:]
         for item in sent {
             guard let part = item["key"] as? String, let seconds = item["s"] as? Double else { continue }
-            if (map[part] ?? 0) <= seconds { map.removeValue(forKey: part) }
+            let sentSlots = item["c"] as? Int ?? 0
+            if (map[part] ?? 0) <= seconds && (slotMap[part] ?? 0) & ~sentSlots == 0 {
+                map.removeValue(forKey: part)
+                slotMap.removeValue(forKey: part)
+                lengthMap.removeValue(forKey: part)
+            }
         }
+        UserDefaults.standard.set(slotMap, forKey: slotsKey)
+        UserDefaults.standard.set(lengthMap, forKey: lengthKey)
         UserDefaults.standard.set(map, forKey: key)
     }
 }

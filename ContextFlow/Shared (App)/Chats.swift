@@ -898,6 +898,7 @@ final class ChatLibrary: ObservableObject {
             OrganizeModel.shared.forget()
             if hadChats {
                 SpeechCache.clear()
+                HeardCover.clear()
                 // And from the user's iCloud (2.6), for every device.
                 Task.detached(priority: .utility) { await SpeechSync.deleteAll() }
             }

@@ -16,31 +16,55 @@ const MAX_ITEMS = 80
 export interface HeardItem {
   key: string
   s: number
+  // Build 98: which tenths of the part were heard (bit i: [i/10, (i+1)/10) of its audio, at least 70% of it), as the
+  // device worked it out from what it played; seeking past a stretch leaves its tenths out. With `d`, the part's
+  // length there (seconds). Devices before 98 send `s` alone.
+  c?: number
+  d?: number
 }
+
+/** Tenths of a part (build 98): heard coverage is kept per tenth, so listens add up and nothing counts twice. */
+export const SLOTS = 10
+export const FULL_SLOTS = (1 << SLOTS) - 1
 
 const otidOf = (access: Access) => access.entitlement?.originalTransactionId ?? "none"
 export const partMadeSubject = (access: Access, key: string) => `speakpart:${otidOf(access)}:${key}`
 export const partHeardSubject = (access: Access, key: string) => `speakheard:${otidOf(access)}:${key}`
+export const partSlotSubject = (access: Access, key: string, slot: number) => `speakslot:${otidOf(access)}:${key}:${slot}`
 
 /** The reports as they came (anything else left out): at most MAX_ITEMS parts, each 0–600 s; one line per part. */
 export function heardItems(raw: unknown): HeardItem[] {
-  const out = new Map<string, number>()
+  const out = new Map<string, HeardItem>()
   for (const item of Array.isArray(raw) ? raw.slice(0, MAX_ITEMS) : []) {
     if (!item || typeof item !== "object") continue
-    const { key, s } = item as { key?: unknown; s?: unknown }
+    const { key, s, c, d } = item as { key?: unknown; s?: unknown; c?: unknown; d?: unknown }
     if (typeof key !== "string" || !KEY.test(key) || typeof s !== "number" || !Number.isFinite(s) || s <= 0) continue
-    out.set(key, Math.max(out.get(key) ?? 0, Math.min(600, s)))
+    const was = out.get(key)
+    const next: HeardItem = { key, s: Math.max(was?.s ?? 0, Math.min(600, s)) }
+    const slots = (Number.isInteger(c) && (c as number) > 0 && (c as number) <= FULL_SLOTS ? (c as number) : 0) | (was?.c ?? 0)
+    if (slots) next.c = slots
+    const length = typeof d === "number" && Number.isFinite(d) && d > 0 ? Math.min(600, d) : was?.d
+    if (length) next.d = length
+    out.set(key, next)
   }
-  return [...out].map(([key, s]) => ({ key, s }))
+  return [...out.values()]
+}
+
+const slotCount = (mask: number) => {
+  let n = 0
+  for (let i = 0; i < SLOTS; i++) if (mask & (1 << i)) n++
+  return n
 }
 
 /** Counts the reported seconds not counted before into the week's minutes (speak:tx); returns how many it added. */
 export async function applyHeard(access: Access, raw: unknown): Promise<number> {
   const items = heardItems(raw)
   if (!items.length) return 0
+  const ever = (subject: string): EverCounter => ({ subject, period: "ever", limit: null })
   const subjects = items.flatMap((i): EverCounter[] => [
-    { subject: partMadeSubject(access, i.key), period: "ever", limit: null },
-    { subject: partHeardSubject(access, i.key), period: "ever", limit: null }
+    ever(partMadeSubject(access, i.key)),
+    ever(partHeardSubject(access, i.key)),
+    ...(i.c ? Array.from({ length: SLOTS }, (_, slot) => ever(partSlotSubject(access, i.key, slot))) : [])
   ])
   const states = await peek(subjects)
   const n = (subject: string) => states.find((c) => c.subject === subject)?.n ?? 0
@@ -52,13 +76,31 @@ export async function applyHeard(access: Access, raw: unknown): Promise<number> 
     // Heard to its end before, give or take a second (build 94): hearing it again adds nothing. A device's clock and
     // rounding can make a replay report a little more than the first time; Listen says a replay is free, so it is.
     if (made && counted > 0 && counted >= made - 1) continue
-    const delta = Math.max(0, Math.round(Math.min(item.s, made || PART_MAX_S)) - counted)
+    const length = made || Math.min(PART_MAX_S, Math.ceil(item.d ?? PART_MAX_S))
+    let heard: number
+    if (item.c) {
+      // Build 98: the tenths heard on every listen and device so far, with this one's (a tenth is its own counter, set
+      // once: two reports at once can't undo each other). The part counts as heard as far as they cover it; all ten
+      // is the whole part, so listens in pieces add up to it, while a stretch skipped over never counts.
+      let have = 0
+      for (let slot = 0; slot < SLOTS; slot++) {
+        if (n(partSlotSubject(access, item.key, slot)) > 0) have |= 1 << slot
+        else if (item.c & (1 << slot)) writes.push({ ...ever(partSlotSubject(access, item.key, slot)), amount: 1 })
+      }
+      const slots = slotCount(have | item.c)
+      // Not all ten: kept at least 2 s short of the part, so it isn't taken as heard to its end (that allowance of a
+      // second is for the clocks of devices before 98); the rest counts when the stretch missing is heard.
+      heard = slots === SLOTS ? length : Math.max(0, Math.min(Math.floor((slots * length) / SLOTS), length - 2))
+    } else {
+      heard = Math.round(Math.min(item.s, length))
+    }
+    const delta = Math.max(0, Math.min(heard, length) - counted)
     if (!delta) continue
     writes.push({ subject: partHeardSubject(access, item.key), period: "ever", limit: null, amount: delta })
     added += delta
   }
-  if (!added) return 0
-  writes.push({ subject: `speak:tx:${otidOf(access)}`, period: "week", limit: null, amount: added })
+  if (!writes.length) return 0
+  if (added) writes.push({ subject: `speak:tx:${otidOf(access)}`, period: "week", limit: null, amount: added })
   await consume(writes)
   return added
 }

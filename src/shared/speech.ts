@@ -144,9 +144,9 @@ function splitLong(sentence: string, size: number): string[] {
 /**
  * How long the text takes to say, in seconds, for the allowance (charged before speaking; the server corrects it
  * with the real length afterwards). About 14 characters a second in alphabetic scripts, 5 in Chinese and Japanese,
- * 6 in Korean.
+ * 6 in Korean. `whole: false` (build 98, a length shown while the text is made): the seconds as they are, unrounded.
  */
-export function speechSeconds(text: string): number {
+export function speechSeconds(text: string, whole = true): number {
   let units = 0
   for (const ch of text) {
     const c = ch.codePointAt(0) ?? 0
@@ -154,7 +154,7 @@ export function speechSeconds(text: string): number {
     else if (c >= 0xac00 && c <= 0xd7af) units += 14 / 6
     else units += 1
   }
-  return Math.max(1, Math.ceil(units / 14))
+  return whole ? Math.max(1, Math.ceil(units / 14)) : units / 14
 }
 
 /** Seconds of audio in `bytes` of PCM from /api/v2/speak. */

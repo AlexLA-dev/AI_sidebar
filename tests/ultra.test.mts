@@ -506,6 +506,69 @@ test("heard: a text is voiced once every part is counted, over any listens and d
   assert.equal((await speakHeard(post("https://x/api/v2/speak-heard", { installId: INSTALL, entitlement: signJws(transaction()), texts: [{ id }] }), ctx())).status, 403)
 })
 
+test("heard (build 98): a part's tenths add up over listens and devices, each counted once; then the text is voiced", async () => {
+  const p1 = "U".repeat(70), p2 = "V".repeat(70)
+  for (const text of [p1, p2]) {
+    const c = ctx()
+    await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws() }), c))
+    await Promise.all(c.waits)
+  }
+  const keys = [partKey("en", p1), partKey("en", p2)]
+  const id = "1123456789abcdef"
+  const ask = (body: Record<string, unknown>, installId = INSTALL) => post("https://x/api/v2/speak-heard", { installId, entitlement: ultraJws(), ...body })
+  const send = async (items: unknown, installId = INSTALL) => (await (await speakHeard(ask({ items, texts: [{ id, keys }] }, installId), ctx())).json()) as { added: number; voiced: string[] }
+  // The first part whole; the first half of the second (its tenths 0–4): 3 s, then 1 s.
+  const first = await send([{ key: keys[0], s: 3, c: 1023, d: 3 }, { key: keys[1], s: 1.5, c: 0b0000011111, d: 3 }])
+  assert.deepEqual([first.added, first.voiced], [4, []])
+  // The same half again: nothing more, still not voiced.
+  assert.deepEqual([(await send([{ key: keys[1], s: 1.5, c: 0b0000011111, d: 3 }])).added], [0])
+  // The other half on another device (the panel there after the app here): the part is whole, the text voiced.
+  const other = "6f1d2c3b-4a59-4e6f-8a7b-9c0d1e2f3a4b"
+  const done = await send([{ key: keys[1], s: 1.5, c: 0b1111100000, d: 3 }], other)
+  assert.equal(done.added, 2)
+  assert.deepEqual(done.voiced, [id])
+  // Each of the second part's tenths is its own counter, set once.
+  assert.deepEqual(Array.from({ length: 10 }, (_, i) => counters.get(`speakslot:3000000001:${keys[1]}:${i}`)), Array(10).fill(1))
+  assert.equal(counters.get("speak:tx:3000000001"), 6)
+})
+
+test("heard (build 98): a stretch skipped over never counts, so the text isn't voiced until it's heard; replays stay free", async () => {
+  const text = "W".repeat(70)
+  const c = ctx()
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws() }), c))
+  await Promise.all(c.waits)
+  const key = partKey("en", text)
+  const id = "2123456789abcdef"
+  const ask = (items: unknown) => post("https://x/api/v2/speak-heard", { installId: INSTALL, entitlement: ultraJws(), items, texts: [{ id, keys: [key] }] })
+  const send = async (items: unknown) => (await (await speakHeard(ask(items), ctx())).json()) as { added: number; voiced: string[] }
+  // Seeked forward over tenths 5 and 6: 8 of 10 heard, not voiced (counted at least 2 s short of the part's 3 s, so
+  // the allowance of a second for older devices' clocks doesn't take it as whole).
+  const skipped = await send([{ key, s: 2.4, c: 0b1110011111, d: 3 }])
+  assert.deepEqual([skipped.added, skipped.voiced], [1, []])
+  // A report that says more seconds but the same tenths (seconds counted by a clock that ran over the skip) adds nothing.
+  assert.deepEqual([(await send([{ key, s: 3, c: 0b1110011111, d: 3 }])).added], [0])
+  // The skipped stretch heard later: voiced, the last second counted.
+  const later = await send([{ key, s: 0.6, c: 0b0001100000, d: 3 }])
+  assert.deepEqual([later.added, later.voiced], [2, [id]])
+  // Heard again whole: free.
+  assert.deepEqual([(await send([{ key, s: 3, c: 1023, d: 3 }])).added], [0])
+  assert.equal(counters.get("speak:tx:3000000001"), 3)
+})
+
+test("heard (build 98): nonsense tenths are left out (the seconds still count, as before)", async () => {
+  const text = "X".repeat(70)
+  const c = ctx()
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws() }), c))
+  await Promise.all(c.waits)
+  const key = partKey("en", text)
+  for (const bad of [-1, 1024, 2.5, "1023"]) {
+    const res = await (await speakHeard(heardReq([{ key, s: 1, c: bad, d: 3 }]), ctx())).json()
+    assert.equal(counters.get(`speakslot:3000000001:${key}:0`), undefined, String(bad))
+    assert.ok(res.ok)
+  }
+  assert.equal(counters.get("speak:tx:3000000001"), 1)
+})
+
 test("heard: reports come with the next part too, and count before it's decided; a part not on record counts at most 60 s", async () => {
   counters.set("speak:tx:3000000001", 100)
   // A part made before its length was kept: at most 60 s of it count; nonsense is left out.
