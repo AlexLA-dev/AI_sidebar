@@ -121,6 +121,10 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   // 2.6 (98), lib96 (organize-26/b96/tag96.mjs: one person's chat gets its topic's tag on one answer, every other
   // message of the library a target): 0.5 offers it on 63% of the chat's other messages (80% on its page), 26% of a
   // near topic's and 2% of the rest, before the judge. The margin over messages without the tag cut that to 30%.
+  // The review's S6 (organize-26/b98r/tag98r.mjs, lib96 and a second Russian, Korean and Italian person): 21–89% of the
+  // same topic by person. Mostly the person: Russian 35% and 56%, Italian 89% and 76%. Korean is low for both (30%,
+  // 21%): its vectors tell topics apart less (same topic against others 0.15–0.19 against about 0.3; not the texts'
+  // length). A cut of its own would be fitted on two people (0.38 and 0.44, 17% and 3% wrong), so it stays 0.5.
   tagT1: 0.5,
   // The review's S8 (organize-26/b98r/coh.mjs): a person's messages are alike by 0.23–0.39 on average by language
   // (lib96), so the flat 0.2 let two unrelated answers with one tag ("later") count as a topic in most languages (73 of
