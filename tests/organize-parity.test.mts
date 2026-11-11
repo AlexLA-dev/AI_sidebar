@@ -677,6 +677,19 @@ suggestions.push(
   const twice = thread("gtag2", [...qa("garden", "https://gt2.example/1", { tags: ["garden"] })])
   suggestions.push({ op: "tags", chat: elsewhere, chats: [...chats, twice] })
 }
+// The review's S7 and S8: a tag on one page's messages only (three there, none elsewhere); a new and an established tag
+// on one message, ranked by how far each clears its bar; a new tag's two examples alike or not.
+{
+  const onePage = thread("onepage", Array.from({ length: 4 }, () => qa("garden", "https://op.example/1")).flat().map((e, i) => (i === 1 || i === 3 || i === 5 ? { ...e, tags: ["garden"] } : e)))
+  suggestions.push({ op: "tags", chat: onePage, chats: [onePage, japan, bread] })
+  const beds = thread("beds", [...qa("garden", "https://bd.example/1", { tags: ["plants"] }), ...qa("garden", "https://bd.example/2", { tags: ["plants"] }), ...qa("garden", "https://bd.example/3", { tags: ["plants"] })])
+  const roses = thread("roses", qa("garden", "https://rs.example/1", { tags: ["plants", "aroses"] }))
+  const target = thread("target", [...qa("bread", "https://tg.example/1"), ...qa("garden", "https://tg.example/2")])
+  suggestions.push({ op: "tags", chat: target, chats: [target, beds, roses, japan, bread] }, { op: "tagCandidates", chat: target, index: 3, chats: [target, beds, roses, japan, bread] })
+  const unlike = thread("unlike", [...qa("garden", "https://ul.example/1", { tags: ["later"] }), ...qa("japan", "https://ul.example/2", { tags: ["later"] })])
+  suggestions.push({ op: "tagCandidates", chat: target, index: 3, chats: [target, unlike] }, { op: "tagCandidates", chat: target, index: 3, chats: [target, unlike], cfg: { coherence: 0, tagCohD: 0 } })
+  for (const tagCohD of [0, 0.3, 0.6, 0.9]) suggestions.push({ op: "tagCandidates", chat: target, index: 3, chats: [target, beds, roses, japan, bread], cfg: { tagCohD } })
+}
 // Refused: on three messages without one taken; one taken after them; on the message itself.
 const refuse = (tag: string) => (e: Entry) => (e.role === "assistant" ? { ...e, dismissed: { tags: [tag] } } : e)
 const tiredTags = thread("tt", [...qa("x", "https://x.example/1").map(refuse("work")), ...qa("x", "https://x.example/2").map(refuse("work")), ...qa("x", "https://x.example/3").map(refuse("Work"))])

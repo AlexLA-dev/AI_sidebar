@@ -33,7 +33,7 @@ test("delivery: no case that was right goes wrong, and wrong verdicts never grow
   })
   const broke = now.filter((c) => c.rules === c.truth && c.now !== c.truth)
   assert.deepEqual(broke.map((c) => `${c.id}: ${c.truth} → ${c.now}`), [])
-  for (const set of ["tuned", "held-out"]) {
+  for (const set of ["tuned", "held-out", "fresh"]) {
     const of = (list: typeof now, key: "rules" | "now", v: string) => list.filter((c) => c.set === set && c[key] === v && c.truth !== v).length
     assert.ok(of(now, "now", "yes") <= of(now, "rules", "yes"), `${set}: more wrong "ships there"`)
     assert.ok(of(now, "now", "no") <= of(now, "rules", "no"), `${set}: more wrong "doesn't ship"`)
@@ -122,10 +122,10 @@ test("the writer's 'the same item' is taken only when the names share the subjec
   assert.deepEqual(dropped, [{ name: "Trailrun TR5 men's", why: "the item itself" }])
 })
 
-test("prices: 72 item pages our server read no price on (2.6): right ones stay right, wrong ones never grow", async (t) => {
+test("prices: 111 item pages (2.6 pages our server read no price on, and shops of every market; the overfit review, S11): right ones stay right, wrong ones never grow", async (t) => {
   const { gunzipSync } = await import("node:zlib")
-  const { cases } = bank("prices72.json") as { cases: Array<{ id: string; url: string; file: string; want: number | null; read: { amount: number } | null }> }
-  assert.equal(cases.length, 72)
+  const { cases } = bank("prices-pages.json") as { cases: Array<{ id: string; url: string; file: string; want: number | null; read: { amount: number } | null }> }
+  assert.equal(cases.length, 111)
   const right = (amount: number | undefined, want: number | null) => amount !== undefined && want !== null && Math.abs(amount - want) <= 0.01 * Math.max(1, want)
   let r = 0, w = 0
   const broke: string[] = []

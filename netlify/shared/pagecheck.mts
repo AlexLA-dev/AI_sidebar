@@ -383,6 +383,12 @@ const decode = (s: string) => s.replace(/&(?:#(\d{1,6})|#x([\da-f]{1,6})|([a-z]{
 // A size or a quantity right before a price ("250 g – 590 ₽", "500 ml: $12", "5kg ¥3,980"): the units in every
 // shipped language (lexicon.mts), and clothes' sizes.
 const SIZE_UNITS = [...new Set(Object.values(UNITS).flat())].sort((a, b) => b.length - a.length).map((u) => u.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")
+// A unit price, not the item's: "9,32 € / 100ml", "3,99 €/kg", "1 kg = 3,99 €" (shops in the EU show one by most prices).
+// Measures only: a price per piece or per person ("29,99 € / Stück") is the item's.
+const COUNTS = new Set(["pcs", "шт", "stück", "stk", "人用", "人份", "인용", "인분", "người", "合", "cup", "cups", "tassen", "tasses", "tazas", "tazze", "xícaras", "杯"])
+const MEASURES = [...new Set(Object.values(UNITS).flat())].filter((u) => !COUNTS.has(u)).sort((a, b) => b.length - a.length).map((u) => u.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")
+const UNIT_AFTER = new RegExp(String.raw`^\s?(?:\/|per\b|pro\b|par\b|за\b)\s?(?:\d+(?:[.,]\d+)?\s?)?(?:${MEASURES})(?![\p{L}])`, "iu")
+const UNIT_BEFORE = new RegExp(String.raw`(?:\d+(?:[.,]\d+)?\s?)?(?:${MEASURES})\s?=\s?$`, "iu")
 const SIZE_BEFORE = new RegExp(String.raw`(?:\d+(?:[.,]\d+)?\s?(?:${SIZE_UNITS}|")|(?<![\p{L}])(?:xs|s|m|l|xl|xxl)(?![\p{L}]))\s*[:\-–]?\s*$`, "iu")
 
 /**
@@ -442,6 +448,7 @@ export function textPrice(html: string, url: string, names: string[], product = 
     // Shipping and cart words right by the price ("Versand: 4,95 €", "Free delivery over €50"), not a sentence away.
     if (CART_RE.test(before.slice(-16)) || SHIP_RE.test(before.slice(-16)) || SHIP_RE.test(after.slice(0, 12))) return false
     if (/^\s?(?:%|off\b)/i.test(after)) return false
+    if (UNIT_AFTER.test(after) || UNIT_BEFORE.test(before)) return false
     return true
   })
   let first = clean[0]

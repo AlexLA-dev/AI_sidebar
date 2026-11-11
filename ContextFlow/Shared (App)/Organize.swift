@@ -200,6 +200,8 @@ nonisolated struct OrganizeConfig: Sendable {
     var tagD = 0.0
     // 2.6 (98): a tag on one or two messages so far: the fit it needs, to its examples alone (src/shared/organize.ts).
     var tagT1 = 0.5
+    // The review's S8: a tag's examples alike by this much more than two of the person's messages are on average.
+    var tagCohD = 0.05
     var coherence = 0.2
     var judge = 0.7
     var maxTags = 1.0
@@ -228,7 +230,7 @@ nonisolated struct OrganizeConfig: Sendable {
     /// The fields by their names in /status.
     static let fields: [(name: String, path: WritableKeyPath<OrganizeConfig, Double>)] = [
         ("moveT", \.moveT), ("moveD", \.moveD), ("moveT1", \.moveT1), ("siteT", \.siteT), ("topicT", \.topicT), ("matchLo", \.matchLo), ("matchHi", \.matchHi), ("minMatch", \.minMatch), ("splitT", \.splitT),
-        ("splitMin", \.splitMin), ("tailQA", \.tailQA), ("tailA", \.tailA), ("tailAlike", \.tailAlike), ("tailRelCap", \.tailRelCap), ("tailRelD", \.tailRelD), ("mergeA", \.mergeA), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD), ("tagT1", \.tagT1),
+        ("splitMin", \.splitMin), ("tailQA", \.tailQA), ("tailA", \.tailA), ("tailAlike", \.tailAlike), ("tailRelCap", \.tailRelCap), ("tailRelD", \.tailRelD), ("mergeA", \.mergeA), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD), ("tagT1", \.tagT1), ("tagCohD", \.tagCohD),
         ("coherence", \.coherence), ("judge", \.judge), ("maxTags", \.maxTags), ("rollback", \.rollback),
         ("messSites", \.messSites), ("messBlocks", \.messBlocks), ("messHours", \.messHours)
     ]
@@ -1374,10 +1376,34 @@ nonisolated enum Organize {
         prefix16(exampleText(entries, i), 1_500)
     }
 
-    /// Tags to check for message `index` of `chat` (best first, at most 3): only tags the user put on at least two
-    /// other messages (their messages count fully, blocks of chats with that tag a little less), whose examples are
-    /// alike, that fit the message, and fit it better than the closest messages without the tag. Tags it (or its
-    /// chat) has, refused here, or refused too often are left out. The judge decides among them (`tagCandidates`).
+    /// How alike two of the person's answers and notes are on average: their vectors' mean dot over every pair, from the
+    /// sum of the vectors (src/shared/organize.ts `libraryMean`); 0 with fewer than two.
+    private static func libraryMean(_ live: [OrganizeThread], _ vectorOf: VectorOf) -> Double {
+        var sum: [Double]?
+        var selfDot = 0.0
+        var n = 0
+        for thread in live {
+            for x in thread.entries where isTaggable(x) {
+                guard let v = vectorOf(x) else { continue }
+                if sum == nil { sum = [Double](repeating: 0, count: v.count) }
+                for i in 0..<v.count {
+                    let d = Double(v[i])
+                    sum![i] += d
+                    selfDot += d * d
+                }
+                n += 1
+            }
+        }
+        guard let sum, n >= 2 else { return 0 }
+        let all = sum.reduce(0) { $0 + $1 * $1 }
+        return (all - selfDot) / Double(n * (n - 1))
+    }
+
+    /// Tags to check for message `index` of `chat` (best first, at most 3; src/shared/organize.ts `tagCandidates`): the
+    /// user's tags on other messages (their messages count fully, blocks of chats with that tag a little less) that fit
+    /// the message. Three examples or more: alike, and a better fit than the closest messages without it; a new tag (one
+    /// or two, or on this page's only): from tagT1, its two or more alike. Best first by how far each clears its rule's
+    /// bar. Tags it (or its chat) has, refused here, or refused too often are left out. The judge decides among them.
     static func tagCandidates(_ chat: OrganizeThread, _ index: Int, _ chats: [OrganizeThread], _ vectorOf: VectorOf, _ cfg: OrganizeConfig) -> [TagCandidate] {
         let m = chat.entries
         guard m.indices.contains(index), isTaggable(m[index]), !chat.isHistory, let v = vectorOf(m[index]) else { return [] }
@@ -1397,7 +1423,8 @@ nonisolated enum Organize {
                 keys.append(lower(tag))
             }
         }
-        var out: [TagCandidate] = []
+        var out: [(c: TagCandidate, margin: Double)] = []
+        var usual: Double?
         for key in keys where !skip.contains(key) {
             var examples: [(v: [Float], w: Double, text: String, own: Bool)] = []
             var tagged = Set<String>()
@@ -1415,11 +1442,12 @@ nonisolated enum Organize {
                 }
             }
             // 2.6 (98): a tag on one or two messages is a new one: it fits from tagT1, by its examples alone.
-            let fresh = examples.count < 3
+            var fresh = examples.count < 3
             if !fresh {
-                // An established tag: its examples outside this message's own page.
-                examples = examples.filter { !$0.own }
-                if examples.count < 2 { continue }
+                // An established tag: its examples outside this message's own page; one put on this page's messages
+                // only (fewer than 2 elsewhere) is judged as a new one, by all of them (the review's S7).
+                let outside = examples.filter { !$0.own }
+                if outside.count >= 2 { examples = outside } else { fresh = true }
             }
             let list = Array(examples.prefix(30))
             var s = 0.0
@@ -1431,7 +1459,13 @@ nonisolated enum Organize {
                 }
             }
             let coherence = n > 0 ? s / Double(n) : 0
-            if !fresh && coherence < cfg.coherence { continue }
+            // Examples that aren't alike say no topic, a new tag's two too, alike by more than the person's messages are
+            // on average (the review's S8).
+            if n > 0 {
+                if coherence < cfg.coherence { continue }
+                if usual == nil { usual = libraryMean(live, vectorOf) }
+                if coherence - usual! < cfg.tagCohD { continue }
+            }
             let pos = topMean(v, examples.map { ($0.v, $0.w) }, 3)
             if pos < (fresh ? cfg.tagT1 : cfg.tagT) { continue }
             var neg = 0.0
@@ -1449,17 +1483,18 @@ nonisolated enum Organize {
             let ranked = examples.enumerated()
                 .map { (fit: dot(v, $0.element.v) * $0.element.w, at: $0.offset, text: $0.element.text) }
                 .sorted { $0.fit != $1.fit ? $0.fit > $1.fit : $0.at < $1.at }
-            out.append(TagCandidate(tag: spelling[key] ?? key, pos: pos, neg: neg, coherence: coherence, examples: ranked.prefix(4).map(\.text)))
+            out.append((TagCandidate(tag: spelling[key] ?? key, pos: pos, neg: neg, coherence: coherence, examples: ranked.prefix(4).map(\.text)),
+                        fresh ? pos - cfg.tagT1 : pos - neg - cfg.tagD))
         }
-        // Equal margins go by name: the panel's `localeCompare` (the browser's language), here the device's
-        // `localizedCompare`; both give plain words the same order.
+        // By how far each clears its own rule's bar (the review's S8). Equal margins go by name: the panel's
+        // `localeCompare` (the browser's language), here the device's `localizedCompare`; both give plain words the same order.
         let sorted = out.enumerated().sorted { a, b in
             let x = a.element, y = b.element
-            if x.pos - x.neg != y.pos - y.neg { return x.pos - x.neg > y.pos - y.neg }
-            let names = x.tag.localizedCompare(y.tag)
+            if x.margin != y.margin { return x.margin > y.margin }
+            let names = x.c.tag.localizedCompare(y.c.tag)
             return names != .orderedSame ? names == .orderedAscending : a.offset < b.offset
         }
-        return sorted.prefix(3).map(\.element)
+        return sorted.prefix(3).map(\.element.c)
     }
 
     /// The messages that get tag suggestions now: the chat's last `tagWindow` answers and notes; 2.6 (98) in a chat with

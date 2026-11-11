@@ -53,6 +53,8 @@ export interface OrganizeConfig {
   // 2.6 (98): a tag on one or two messages so far (just made, or new to these chats): the fit it needs, to its
   // examples alone (no margin over the messages without it: those are the ones it should be offered on).
   tagT1: number
+  // The review's S8: a tag's examples must be alike by this much more than two of the person's messages are on average.
+  tagCohD: number
   coherence: number
   judge: number
   maxTags: number
@@ -119,7 +121,15 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   // 2.6 (98), lib96 (organize-26/b96/tag96.mjs: one person's chat gets its topic's tag on one answer, every other
   // message of the library a target): 0.5 offers it on 63% of the chat's other messages (80% on its page), 26% of a
   // near topic's and 2% of the rest, before the judge. The margin over messages without the tag cut that to 30%.
+  // The review's S6 (organize-26/b98r/tag98r.mjs, lib96 and a second Russian, Korean and Italian person): 21–89% of the
+  // same topic by person. Mostly the person: Russian 35% and 56%, Italian 89% and 76%. Korean is low for both (30%,
+  // 21%): its vectors tell topics apart less (same topic against others 0.15–0.19 against about 0.3; not the texts'
+  // length). A cut of its own would be fitted on two people (0.38 and 0.44, 17% and 3% wrong), so it stays 0.5.
   tagT1: 0.5,
+  // The review's S8 (organize-26/b98r/coh.mjs): a person's messages are alike by 0.23–0.39 on average by language
+  // (lib96), so the flat 0.2 let two unrelated answers with one tag ("later") count as a topic in most languages (73 of
+  // 98 such pairs). 0.05 over the person's average keeps all 98 pairs of answers on one topic and 23 of the 98 pairs.
+  tagCohD: 0.05,
   coherence: 0.2,
   judge: 0.7,
   maxTags: 1,
@@ -900,11 +910,37 @@ export function judgeText(entries: Entry[], i: number): string {
 }
 
 /**
+ * How alike two of the person's answers and notes are on average (their vectors' mean dot over every pair, from the
+ * sum of the vectors: no pairs walked); 0 with fewer than two.
+ */
+function libraryMean(live: Thread[], vectorOf: VectorOf): number {
+  let sum: number[] | null = null
+  let self = 0
+  let n = 0
+  for (const t of live) for (const x of t.m) {
+    if (!isTaggable(x)) continue
+    const v = vectorOf(x)
+    if (!v) continue
+    sum ??= new Array<number>(v.length).fill(0)
+    for (let i = 0; i < v.length; i++) {
+      sum[i] += v[i]
+      self += v[i] * v[i]
+    }
+    n++
+  }
+  if (!sum || n < 2) return 0
+  let all = 0
+  for (const x of sum) all += x * x
+  return (all - self) / (n * (n - 1))
+}
+
+/**
  * Tags to check for message `index` of `chat` (best first, at most 3): the user's tags on other messages (their
  * messages count fully, blocks of chats with that tag a little less) that fit the message. A tag with three examples
  * or more: its examples alike, and it fits better than the closest messages without it. 2.6 (98): a tag on one or two
- * messages (just made): from `tagT1` to them, wherever they are (one on the same page counts too). Tags it (or its
- * chat) has, refused here, or refused too often are left out. The judge decides among them.
+ * messages (just made), or on this page's only: from `tagT1` to them, wherever they are, its two or more alike. Best
+ * first by how far each clears its rule's bar. Tags it (or its chat) has, refused here, or refused too often are left
+ * out. The judge decides among them.
  */
 export function tagCandidates(chat: Thread, index: number, chats: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig): TagCandidate[] {
   const e = chat.m[index]
@@ -917,7 +953,8 @@ export function tagCandidates(chat: Thread, index: number, chats: Thread[], vect
   const live = chats.filter((t) => !t.deleted && t.kind !== "history")
   const tags = new Map<string, string>()
   for (const t of live) for (const tag of [...(t.tags ?? []), ...t.m.flatMap((x) => x.tags ?? [])]) if (!tags.has(tag.toLowerCase())) tags.set(tag.toLowerCase(), tag)
-  const out: TagCandidate[] = []
+  const out: Array<{ c: TagCandidate; margin: number }> = []
+  let usual: number | undefined
   for (const [key, tag] of tags) {
     if (skip.has(key)) continue
     const examples: Array<{ v: Float32Array; w: number; text: string; own: boolean }> = []
@@ -935,20 +972,25 @@ export function tagCandidates(chat: Thread, index: number, chats: Thread[], vect
       }
     }
     // 2.6 (98): a tag on one or two messages is a new one: it fits from tagT1, by its examples alone.
-    const fresh = examples.length < 3
+    let fresh = examples.length < 3
     if (!fresh) {
-      // An established tag: its examples outside this message's own page (one there says little about the topic).
+      // An established tag: its examples outside this message's own page (one there says little about the topic). The
+      // review's S7: one put on this page's messages only (fewer than 2 elsewhere) is judged as a new one, by all of
+      // them, so it isn't dropped here at its third example.
       const outside = examples.filter((x) => !x.own)
-      examples.length = 0
-      examples.push(...outside)
-      if (examples.length < 2) continue
+      if (outside.length >= 2) {
+        examples.length = 0
+        examples.push(...outside)
+      } else fresh = true
     }
     const list = examples.slice(0, 30)
     let s = 0
     let n = 0
     for (let a = 0; a < list.length; a++) for (let b = a + 1; b < list.length; b++) { s += dot(list[a].v, list[b].v); n++ }
     const coherence = n ? s / n : 0
-    if (!fresh && coherence < cfg.coherence) continue
+    // The review's S8: examples that aren't alike ("later" on two unrelated messages) say no topic, a new tag's two too;
+    // alike by more than the person's messages are on average.
+    if (n && (coherence < cfg.coherence || coherence - (usual ??= libraryMean(live, vectorOf)) < cfg.tagCohD)) continue
     const pos = topMean(v, examples, 3)
     if (pos < (fresh ? cfg.tagT1 : cfg.tagT)) continue
     const negatives: Array<{ v: Float32Array }> = []
@@ -963,9 +1005,11 @@ export function tagCandidates(chat: Thread, index: number, chats: Thread[], vect
     const neg = fresh ? 0 : topMean(v, negatives, 3)
     if (!fresh && pos - neg < cfg.tagD) continue
     const ranked = [...examples].sort((a, b) => dot(v, b.v) * b.w - dot(v, a.v) * a.w)
-    out.push({ tag, pos, neg, coherence, examples: ranked.slice(0, 4).map((x) => x.text) })
+    // The review's S8: ranked by how far each clears its own rule's bar (a new tag's tagT1; an established one's margin
+    // over the messages without it), so a just-made tag doesn't outrank every established one.
+    out.push({ c: { tag, pos, neg, coherence, examples: ranked.slice(0, 4).map((x) => x.text) }, margin: fresh ? pos - cfg.tagT1 : pos - neg - cfg.tagD })
   }
-  return out.sort((a, b) => (b.pos - b.neg) - (a.pos - a.neg) || a.tag.localeCompare(b.tag)).slice(0, 3)
+  return out.sort((a, b) => b.margin - a.margin || a.c.tag.localeCompare(b.c.tag)).slice(0, 3).map((x) => x.c)
 }
 
 /**
