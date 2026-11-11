@@ -10,8 +10,8 @@ import { test } from "node:test"
 
 import { entryKey, entryTimes, withPageChanges, type Entry } from "../src/shared/conversation.ts"
 import {
-  embedText, hostOf, judgedTags, organizeScan, judgeText, looksMixed, missingVectors, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags,
-  organizeConfig, orgStateFor, packVector, refusedTags, scoredBlocks, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type TagCandidate,
+  embedText, hostOf, judgedTags, organizeScan, judgeText, looksMixed, missingVectors, movesAllowed, nameCheckKey, nameStateAfter, nameText, nearName, openMove, openName, openTags,
+  organizeConfig, orgStateFor, packVector, refusedTags, scoredBlocks, suggestMove, tagCandidates, tagTargets, turnedDownName, unpackVector, wantsNameCheck, type TagCandidate,
   type VectorOf
 } from "../src/shared/organize.ts"
 import { cleanOrgState, moveEntries, pageBlocks, sweepMoved, threadName, undoMove, type Thread, type Threads } from "../src/shared/threads.ts"
@@ -69,6 +69,11 @@ function js(c: Case): unknown {
     }
     case "hostOf":
       return (c.urls as Array<string | null>).map(hostOf)
+    case "names":
+      return {
+        near: (c.pairs as Array<[string, string]>).map(([a, b]) => nearName(a, b)),
+        down: (c.downs as Array<[string[], string]>).map(([no, name]) => turnedDownName(no, name))
+      }
     case "pack": {
       const packed = (c.vectors as number[][]).map((v) => packVector(v))
       return { packed, unpacked: packed.map((p) => numbers(unpackVector(p))) }
@@ -530,6 +535,34 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   kept(pile, { n, k: last(pile), mv: { s: 0, e: 7, to: "japan", why: "merge", mt: 80 }, mx: ["japan"], nm: { k: "k1", t: "React and a trip" } })
   // 2.6 (98): a name turned down stays turned down when it comes back reworded, in any script; another name comes.
   const named = (t: string, no: string[], title = "Japan, by rail") => kept(pile, { n, k: last(pile), nm: { k: "k1", t, no } }, { answer: { fits: false, title } })
+// 2.6 (98, the review's S5): names alike by their content words in the 14 languages, rewordings and other names
+// sharing words; odd input (decomposed letters, scripts mixed in a word, only function words, emoji); only the last
+// five turned down block near repeats.
+suggestions.push({
+  op: "names",
+  pairs: [
+    ["Flights and hotels in Rome", "Hotels and museums in Rome"], ["Tips for the garden", "Tips for the kitchen"], ["Travel", "Travel insurance for Japan"],
+    ["Choosing a road bike", "Road bike: choosing one"], ["Kyoto", "kyoto"], ["Travel", "Travels"],
+    ["Поездка в Японию", "Поездки по Японии"], ["Ремонт кухни", "Ремонт ванной"], ["Оформлення закордонного паспорта", "Закордонний паспорт: оформлення"],
+    ["Balkonkraftwerk Anmeldung", "Anmeldung des Balkonkraftwerks"], ["Kita Anmeldung Berlin", "Kita Anmeldung München"],
+    ["Recette de gâteau au chocolat", "Recettes de gâteaux au chocolat"], ["Location d'appartement à Lyon", "Appartements en location à Lyon"],
+    ["Rutas de senderismo en Asturias", "Senderismo en Asturias: rutas"], ["Seguro de coche", "Seguro de hogar"],
+    ["Ricette di pasta fresca", "Pasta fresca: ricette"], ["Financiamento de imóveis", "Imóvel: financiamento"],
+    ["Mẹo chăm sóc vườn", "Mẹo chăm sóc da"], ["Học tiếng Anh cho trẻ em", "Trẻ em học tiếng Anh"], ["Mua xe máy Honda Vision", "Bảo dưỡng xe máy Honda Vision"],
+    ["京都の紅葉旅行", "紅葉の京都旅行"], ["東京のホテル", "京都のホテル"], ["京都旅行", "京都旅行のプラン"], ["京都", "京都旅行"],
+    ["교토 여행", "교토의 여행 계획"], ["제주도 맛집", "제주도의 맛집 추천"], ["서울 아파트 시세", "부산 아파트 시세"],
+    ["日本旅行攻略", "日本的旅行攻略"], ["上海租房", "北京租房"], ["台北美食推薦", "台北的美食"],
+    ["سيارة كهربائية", "السيارات الكهربائية"], ["شقق للإيجار في دبي", "شقق للإيجار في القاهرة"],
+    ["Cafe\u0301 in Paris", "Café in Paris"], ["iPad mini 7のケース", "iPad mini 7 ケース"], ["iPhone 15 Pro case", "iPhone 15 case"],
+    ["The and of", "For the"], ["🚲 Bike trips", "Bike trips 🚲"], ["", "Kyoto"]
+  ],
+  downs: [
+    [["Kyoto", "Osaka", "Nara", "Kobe", "Nagoya", "Sapporo", "Fukuoka"], "kyoto"],
+    [["Kyoto trip", "Osaka", "Nara", "Kobe", "Nagoya", "Sapporo", "Fukuoka"], "Kyoto trips"],
+    [["Osaka", "Nara", "Kobe", "Nagoya", "Kyoto trip", "Sapporo", "Fukuoka"], "Kyoto trips"],
+    [[], "Kyoto"]
+  ]
+})
   named("A trip to Japan and React", ["React and a trip to Japan"])
   named("Kyoto ryokans", ["Japan by rail"], "Japan, by rail: passes and seats")
   named("Kyoto ryokans", ["Japan by rail"], "Ryokans and onsen in Kyoto")
