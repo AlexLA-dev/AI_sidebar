@@ -29,8 +29,13 @@ struct ChatsView: View {
     /// Build 94: the "…" on the Chats screen opens Settings and Tips (their tabs).
     var openTab: (AppTab) -> Void = { _ in }
 
+    /// The search field's two ways (2.6 (98), the owner on TestFlight 97: «Не понятно, что это в приложении и зачем», of
+    /// the ✦ button and the "Describe what you remember…" row that looked like a second field): one field, its two
+    /// ways named under it, "By words" and "By meaning" (Pro, AI search). "Ask your chats" stays its own named row.
+    enum SearchWay: Hashable { case words, meaning }
+    @State private var way: SearchWay = .words
     // AI search (Pro): on, the query it ran, and its answer.
-    @State private var aiSearch = false
+    private var aiSearch: Bool { way == .meaning }
     @State private var finding = false
     @State private var found: (query: String, results: Result<[ChatAI.Found], ChatAI.Failure>)?
     /// The search waiting for the AI consent.
@@ -82,11 +87,15 @@ struct ChatsView: View {
 
     var body: some View {
         List {
-            if aiSearch {
+            // The field's two ways, named, right under it while it's open (iOS 26 shows no system scope bar here).
+            SearchWayRow(way: $way, pro: isPro, typed: searching)
+            if aiSearch && (searching || finding || found != nil) {
                 aiResults
             } else if searching {
                 searchResults
             } else {
+                // "By meaning" with nothing typed yet: what it does, over the chats.
+                if aiSearch { meaningHint }
                 chatList
             }
         }
@@ -104,31 +113,19 @@ struct ChatsView: View {
         .onReceive(links.$pending) { _ in openLinked() }
         .onChange(of: library.threads.count) { _ in openLinked() }
         .searchable(text: $query, prompt: aiSearch ? Text("Describe the chat you're looking for…") : Text("Search chats"))
+        .onChange(of: way) { next in
+            found = nil
+            // Without Pro, "By meaning" opens Pro and the field stays on words.
+            if next == .meaning && !isPro {
+                way = .words
+                openPro()
+            }
+        }
         .onSubmit(of: .search) { runFind() }
         .onChange(of: query) { value in
             if value.isEmpty { found = nil }
         }
         .toolbar {
-            ToolbarItem {
-                Button {
-                    if isPro {
-                        aiSearch.toggle()
-                        found = nil
-                    } else {
-                        openPro()
-                    }
-                } label: {
-                    HStack(spacing: 3) {
-                        Image(systemName: "sparkles")
-                        if !isPro { Image(systemName: "lock.fill").font(.caption2) }
-                    }
-                    .foregroundColor(aiSearch ? .white : brandBlue)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(aiSearch ? AnyShapeStyle(brandGradient) : AnyShapeStyle(Color.clear)))
-                }
-                .accessibilityLabel(Text(isPro ? "AI search" : "AI search — Pro"))
-            }
             // Build 94, the owner: «в меню чатов тоже нужно добавить кнопку <…> где будут подходящие функции, хотя бы
             // watch list, settings, tips, все про онбординг». The Safari panel's chats list has the same "…"
             // (src/content/ux/PageMenu.tsx): the lists (the bell, the eye; 2.5 (77): two words, two icons), Recently
@@ -343,8 +340,15 @@ struct ChatsView: View {
                 }
             }
         } else {
-            Label("Describe what you remember, in any words, and press Search: “the article about sleep and coffee from last week”.", systemImage: "sparkles")
-                .foregroundColor(.secondary)
+            meaningHint
+        }
+    }
+
+    /// What "By meaning" does, as words under the field, not a row that looks like another field (2.6 (98)).
+    private var meaningHint: some View {
+        Section {
+        } footer: {
+            Text("Describe what you remember, in any words, and press Search: “the article about sleep and coffee from last week”.")
         }
     }
 
@@ -400,7 +404,7 @@ struct ChatsView: View {
                         Label("Your chats from Safari", systemImage: "sparkles")
                             .font(.headline)
                             .foregroundColor(brandBlue)
-                        Text("Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, ✦ finds a chat from a description.")
+                        Text("Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, “By meaning” finds a chat from a description.")
                             .font(.callout)
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -575,6 +579,29 @@ struct RecentlyDeletedView: View {
         // Emptied (everything restored or deleted, here or elsewhere): back to the list, where its row goes too.
         .onChange(of: library.trashed.isEmpty) { empty in
             if empty { dismiss() }
+        }
+    }
+}
+
+/// The search field's two ways, "By words" and "By meaning" (2.6 (98)), as the list's first row while the field is open
+/// or has words in it.
+private struct SearchWayRow: View {
+    @Binding var way: ChatsView.SearchWay
+    let pro: Bool
+    let typed: Bool
+    @Environment(\.isSearching) private var isSearching
+
+    var body: some View {
+        if isSearching || typed {
+            Section {
+                Picker("Search", selection: $way) {
+                    Text("By words").tag(ChatsView.SearchWay.words)
+                    Text(pro ? "By meaning" : "By meaning · Pro").tag(ChatsView.SearchWay.meaning)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .accessibilityIdentifier("cf-search-way")
+            }
         }
     }
 }
