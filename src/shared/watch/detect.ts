@@ -48,6 +48,16 @@ function prices(text: string): string[] {
   return found.sort((a, b) => (a.index ?? 0) - (b.index ?? 0)).map((m) => m[0].trim())
 }
 
+/** Every price in a text with where it starts, in order (both patterns; one that overlaps an earlier one is left out). */
+export function priceMatches(text: string): Array<{ text: string; index: number }> {
+  const found = [...text.matchAll(new RegExp(PRICE_ANY.source, "giu")), ...text.matchAll(new RegExp(PRICE_CODE.source, "gu"))]
+    .map((m) => ({ text: m[0].trim(), index: (m.index ?? 0) + (m[0].length - m[0].trimStart().length) }))
+    .sort((a, b) => a.index - b.index)
+  const out: Array<{ text: string; index: number }> = []
+  for (const m of found) if (!out.length || m.index >= out[out.length - 1].index + out[out.length - 1].text.length) out.push(m)
+  return out
+}
+
 // Stock: phrases a shop shows by its buy button. Lower case; "#" stands for a number ("only 3 left").
 const STOCK_WORDS = [
   // en

@@ -356,3 +356,74 @@ export const NAME_STOP: Words = {
   ar: ["و", "في", "من", "على", "مع", "أو"]
 }
 export const NAME_STOP_SET = new Set(all(NAME_STOP))
+
+// ------------------------------------------------------------ a price in a page's text, delivery
+
+/** Words right before a price that isn't the price to pay: the old or list price, the saving. */
+export const NOT_THE_PRICE: Words = {
+  en: ["was", "regular price", "list price", "original price", "rrp", "msrp", "compare at", "save", "you save", "reg."],
+  ru: ["было", "старая цена", "вместо", "без скидки", "экономия"],
+  uk: ["було", "стара ціна", "замість", "без знижки", "економія"],
+  de: ["statt", "uvp", "unverbindliche preisempfehlung", "ursprünglich", "vorher", "streichpreis", "alter preis", "sie sparen", "ersparnis"],
+  fr: ["au lieu de", "prix barré", "ancien prix", "prix conseillé", "prix de référence", "économisez", "économie"],
+  es: ["antes", "precio anterior", "precio original", "pvp recomendado", "ahorra", "ahorro"],
+  it: ["invece di", "prezzo consigliato", "prezzo originale", "prima", "risparmi", "risparmia"],
+  pt: ["preço original", "preço anterior", "antes", "economize", "economia"],
+  ja: ["通常価格", "定価", "参考価格", "希望小売価格", "割引額"],
+  ko: ["정가", "원가", "소비자가", "정상가", "할인액"],
+  zh: ["原价", "市场价", "参考价", "节省", "立省"],
+  "zh-Hant": ["原價", "市價", "建議售價", "節省", "立省"],
+  vi: ["giá gốc", "giá cũ", "giá niêm yết", "tiết kiệm"],
+  ar: ["السعر الأصلي", "بدلاً من", "وفر", "توفير"]
+}
+
+/** Shipping and delivery, as a shop writes it by a price ("Versand 4,95 €") or on a link to its delivery page. */
+export const SHIPPING: Words = {
+  en: ["shipping", "delivery", "postage", "shipping policy", "shipping & returns", "shipping and returns", "delivery information"],
+  ru: ["доставка", "доставка и оплата"],
+  uk: ["доставка", "доставка і оплата", "доставка та оплата"],
+  de: ["versand", "lieferung", "versandkosten", "porto", "versand & lieferung", "lieferinformationen", "versandinformationen"],
+  fr: ["livraison", "frais de port", "expédition", "livraison et retours"],
+  es: ["envío", "envíos", "envio", "envios", "entrega", "gastos de envío"],
+  it: ["spedizione", "spedizioni", "consegna", "costi di spedizione"],
+  pt: ["frete", "envio", "entrega", "envios"],
+  ja: ["送料", "配送", "配達", "配送について"],
+  ko: ["배송", "배송비", "배송안내", "배송 정보", "택배"],
+  zh: ["运费", "配送", "快递", "邮费", "配送说明"],
+  "zh-Hant": ["運費", "配送", "宅配", "配送說明"],
+  vi: ["vận chuyển", "giao hàng", "phí ship", "chính sách giao hàng"],
+  ar: ["شحن", "الشحن", "توصيل", "التوصيل", "سياسة الشحن"]
+}
+
+/** A delivery page saying it ships anywhere. */
+export const WORLDWIDE: Words = {
+  en: ["worldwide", "international shipping", "ship internationally", "ships internationally", "all countries", "anywhere in the world", "international delivery"],
+  ru: ["по всему миру", "международная доставка", "во все страны"],
+  uk: ["по всьому світу", "міжнародна доставка", "у всі країни"],
+  de: ["weltweit", "internationaler versand", "in alle länder", "internationale lieferung"],
+  fr: ["dans le monde entier", "livraison internationale", "partout dans le monde", "expédition internationale"],
+  es: ["a todo el mundo", "envíos internacionales", "envío internacional"],
+  it: ["in tutto il mondo", "spedizioni internazionali", "spedizione internazionale"],
+  pt: ["para todo o mundo", "envio internacional", "envios internacionais"],
+  ja: ["海外発送", "世界中", "国際配送", "海外配送"],
+  ko: ["해외배송", "전 세계", "국제 배송", "해외 배송"],
+  zh: ["全球配送", "国际配送", "海外直邮", "全球发货"],
+  "zh-Hant": ["全球配送", "國際配送", "海外直送"],
+  vi: ["toàn cầu", "giao hàng quốc tế", "vận chuyển quốc tế"],
+  ar: ["جميع أنحاء العالم", "شحن دولي", "الشحن الدولي"]
+}
+
+/** A delivery page naming the European Union or Europe (for a country in it). */
+export const EUROPE: Words = {
+  en: ["europe", "european union", "eu countries", "within the eu", "to the eu"], ru: ["европа", "евросоюз", "страны ес"],
+  uk: ["європа", "євросоюз", "країни єс"], de: ["europa", "eu-länder", "europäische union", "innerhalb der eu"],
+  fr: ["europe", "union européenne", "pays de l'ue"], es: ["europa", "unión europea", "países de la ue"],
+  it: ["europa", "unione europea", "paesi ue"], pt: ["europa", "união europeia", "países da ue"], ja: ["ヨーロッパ", "欧州"],
+  ko: ["유럽"], zh: ["欧洲", "欧盟"], "zh-Hant": ["歐洲", "歐盟"], vi: ["châu âu"], ar: ["أوروبا", "الاتحاد الأوروبي"]
+}
+
+/** "Alternatives" as a search writes it, by language (the plan's). */
+export const ALTERNATIVES: Record<string, string> = {
+  en: "alternatives", ru: "аналоги", uk: "аналоги", de: "Alternativen", fr: "alternatives", es: "alternativas", it: "alternative",
+  pt: "alternativas", ja: "代わり", ko: "대안", zh: "替代品", "zh-Hant": "替代品", vi: "thay thế", ar: "بدائل"
+}

@@ -180,6 +180,12 @@ export const config = {
     // Build 94: before saying an item lacks something, the brand's other models on its site (SIMILAR_SIBLINGS=off: none).
     siblings: (env("SIMILAR_SIBLINGS") ?? "on").trim() !== "off",
     streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
+    // A page with no price for machines: the price its text shows after the item's name (SIMILAR_TEXT_PRICE).
+    textPrice: (env("SIMILAR_TEXT_PRICE") ?? "off").trim() === "on",
+    // Near them: a shop abroad is offered once its delivery page names their country (SIMILAR_SHIP_CHECK).
+    shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "off").trim() === "on",
+    // A second search call for alternatives beside the plan's, from the start, instead of a later round (SIMILAR_ALT_SEARCH).
+    altSearch: (env("SIMILAR_ALT_SEARCH") ?? "off").trim() === "on",
     budgetMs: int("SIMILAR_BUDGET_MS", 52_000),
     // Pages a site won't open to servers may fill a list that has fewer than 3 checked items (marked "not opened").
     allowUnchecked: (env("SIMILAR_ALLOW_UNCHECKED") ?? "on").trim() !== "off",

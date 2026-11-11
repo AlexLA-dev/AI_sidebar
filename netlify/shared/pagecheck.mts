@@ -6,8 +6,8 @@
 // Nothing is stored: the page is read once and forgotten.
 
 import { currencyOf } from "./money.mts"
-import { AGO, GONE as GONE_WORDS, HELPFUL, NAME_STOP_SET, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, STARS, VERIFIED, pattern } from "./lexicon.mts"
-import { isOutOfStock } from "../../src/shared/watch/detect.ts"
+import { AGO, GONE as GONE_WORDS, HELPFUL, MONTH, NAME_STOP_SET, NOT_THE_PRICE, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, SHIPPING, STARS, VERIFIED, pattern } from "./lexicon.mts"
+import { isOutOfStock, priceMatches } from "../../src/shared/watch/detect.ts"
 import { hasDate } from "../../src/shared/watch/detect.ts"
 import { pageText, parseNumber, structured } from "../../src/shared/watch/extract.ts"
 import { appStoreLink, appStorePricing, pricingLinks, type AppPricing } from "./apppricing.mts"
@@ -47,7 +47,10 @@ export interface CheckedPage {
   price?: PagePrice
   priceRaw?: string
   // Where the price was read: JSON-LD offers or product meta tags (page watch reads it from the same place).
-  priceFrom?: "ld" | "meta"
+  priceFrom?: "ld" | "meta" | "text"
+  // A page with no price for machines: the one its visible text shows after its heading (the item's name), as a
+  // person reads it (textPrice); used only for a page that is the item.
+  textPrice?: PagePrice
   stock?: "in" | "out" | "unknown"
   stockRaw?: string
   // ISO dates: when it was published and last changed; a job post's or offer's end.
@@ -353,6 +356,40 @@ export function readPrice(raw: string | undefined, html = "", url = ""): PagePri
   return { amount, currency }
 }
 
+// A struck-out price (the old one) in the markup: <del>, <s>, <strike>, or an element whose class says so.
+const STRUCK = /<(del|s|strike)\b[^>]*>[\s\S]*?<\/\1>/gi
+const STRUCK_CLASS = /<(\w+)\b[^>]*\bclass=["'][^"']*\b(?:was|old|compare|compare-at|regular|list|original|strike|striked|crossed|rrp|uvp|before)[-_ ]?price[^"']*["'][^>]*>[\s\S]*?<\/\1>/gi
+const NOT_PRICE = pattern(NOT_THE_PRICE)
+const SHIPPING_WORD = pattern(SHIPPING)
+const PER_MONTH = pattern(MONTH)
+
+/**
+ * The price a page's visible text shows for the item its heading names: the first after the heading, within a few
+ * lines, that isn't an old or list price (struck out, "was", "UVP", "定価"…), a saving, a shipping cost or a monthly
+ * payment. For pages that state no price for machines; read by our code, in any currency the panel knows.
+ */
+export function textPrice(html: string, heading: string, url: string): PagePrice | undefined {
+  const name = heading.replace(/\s+/g, " ").trim().slice(0, 80)
+  if (name.length < 3) return undefined
+  const text = mainText(html.replace(STRUCK, " ").replace(STRUCK_CLASS, " "))
+  const at = text.toLowerCase().indexOf(name.toLowerCase())
+  if (at < 0) return undefined
+  const window = text.slice(at + name.length, at + name.length + 400)
+  const found = priceMatches(window)
+  for (let i = 0; i < found.length; i++) {
+    const m = found[i]
+    const end = m.index + m.text.length
+    const before = window.slice(Math.max(i ? found[i - 1].index + found[i - 1].text.length : 0, m.index - 30), m.index)
+    const after = window.slice(end, Math.min(found[i + 1]?.index ?? Infinity, end + 16))
+    if (NOT_PRICE.test(before) || SHIPPING_WORD.test(before) || SHIPPING_WORD.test(after) || PER_MONTH.test(after)) continue
+    const price = readPrice(m.text, "", url)
+    if (!price || !(price.amount > 0)) continue
+    if (!price.currency) price.currency = domainCurrency(url)
+    return price.currency ? price : undefined
+  }
+  return undefined
+}
+
 /** The money of a country's own domain (".cy" → EUR, ".co.uk" → GBP); "" for .com and the like. */
 export function domainCurrency(url: string): string {
   let host = ""
@@ -605,6 +642,9 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
     page.price = price
     page.priceRaw = priceRaw
     page.priceFrom = st.ldPrice ? "ld" : "meta"
+  } else if (status === "ok" && heading) {
+    const shown = textPrice(html, heading, finalUrl)
+    if (shown) page.textPrice = shown
   }
   if (stockRaw) {
     page.stockRaw = stockRaw
