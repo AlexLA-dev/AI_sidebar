@@ -156,6 +156,28 @@ test("2.6 (98): a tag put on in one chat is offered on the messages like it in t
   assert.deepEqual(tagTargets(yard, cfg, all, () => null), [11, 13, 15, 17, 19])
 })
 
+test("the review's S7 and S8: a tag on one page's messages only; new and established tags on one scale; alike examples", () => {
+  // S7: three answers on one page tagged; the next one there still gets it (before: dropped at the third).
+  const page = chat("onepage", Array.from({ length: 4 }, () => qa("garden", "https://g/one")).flat().map((e, i) => (i === 1 || i === 3 || i === 5 ? { ...e, tags: ["garden"] } : e)))
+  assert.deepEqual(tagCandidates(page, 7, [page, japan, bread], vectorOf, cfg).map((c) => c.tag), ["garden"])
+  // S8: an established tag (three examples elsewhere, well clear of messages without it) ranks above a just-made one
+  // that fits as well; before, the new one came first (its margin was its whole fit).
+  const beds = chat("beds", [...qa("garden", "https://b/1", { tags: ["plants"] }), ...qa("garden", "https://b/2", { tags: ["plants"] }), ...qa("garden", "https://b/3", { tags: ["plants"] })])
+  const roses = chat("roses", qa("garden", "https://r/1", { tags: ["plants", "aroses"] }))
+  const target = chat("target", [...qa("bread", "https://t/1"), ...qa("garden", "https://t/2")])
+  const all = [target, beds, roses, japan, bread]
+  assert.deepEqual(tagCandidates(target, 3, all, vectorOf, cfg).map((c) => c.tag), ["plants", "aroses"])
+  // A new tag's two examples must be alike too; one example has nothing to compare.
+  const two = chat("two", [...qa("garden", "https://w/1", { tags: ["yard"] }), ...qa("garden", "https://w/2", { tags: ["yard"] })])
+  assert.deepEqual(tagCandidates(target, 3, [target, two], vectorOf, cfg).map((c) => c.tag), ["yard"])
+  assert.deepEqual(tagCandidates(target, 3, [target, two], vectorOf, { ...cfg, coherence: 1.01 }), [])
+  // Alike against how alike the person's messages are on average (here about 0.4): by 0.05 more, or by 0.7 more.
+  assert.equal(cfg.tagCohD, 0.05)
+  assert.deepEqual(tagCandidates(target, 3, [target, two], vectorOf, { ...cfg, tagCohD: 0.7 }), [])
+  const rose = chat("rose", qa("garden", "https://r/9", { tags: ["aroses"] }))
+  assert.deepEqual(tagCandidates(target, 3, [target, rose], vectorOf, { ...cfg, coherence: 1.01 }).map((c) => c.tag), ["aroses"])
+})
+
 test("a tag refused on three messages without one taken isn't suggested again", () => {
   const no = (tag: string) => (e: Entry) => (e.role === "assistant" ? { ...e, dismissed: { tags: [tag] } } : e)
   const c = chat("c", [...qa("x", "https://x/1").map(no("work")), ...qa("x", "https://x/2").map(no("work")), ...qa("x", "https://x/3").map(no("Work"))])
