@@ -1564,6 +1564,7 @@ function countryRe(code: string, langs: string[]): CountryMatcher | null {
     }
   }
   const found = matcher(names)
+  if (nameRes.size >= 2_000) nameRes.clear()
   nameRes.set(key, found)
   return found
 }
@@ -1578,11 +1579,19 @@ const regionCodes = (() => {
 })()
 
 const othersRes = new Map<string, Array<{ code: string; re: CountryMatcher }>>()
+// Each language set's patterns are some 250 regular expressions; a long-lived server process meets many sets (the
+// person's languages and each page's), so only the latest few are kept (a run over 105 bank cases ran out of memory).
+const LANG_SETS_KEPT = 6
 /** Every country's name in these languages, as patterns (cached); names that are common words left out. */
 function allCountries(langs: string[]): Array<{ code: string; re: CountryMatcher }> {
   const key = langs.join(",")
   let list = othersRes.get(key)
-  if (list) return list
+  if (list) {
+    othersRes.delete(key)
+    othersRes.set(key, list)
+    return list
+  }
+  while (othersRes.size >= LANG_SETS_KEPT) othersRes.delete(othersRes.keys().next().value!)
   list = []
   const taken = new Set<string>()
   for (const code of regionCodes) {
