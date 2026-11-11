@@ -3448,7 +3448,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </header>
           {/* 2.6 (94): the chat's name, the whole width (a suggested name is judged against it; next to the page in the
               header it was cut to a few letters on an iPhone). */}
-          {headerName && <div class="cf-chat-bar" dir="auto" title={headerName}>{headerName}</div>}
+          {/* 2.6 (98), the owner: «Не хватает кнопки Назад в шапке с названием чата … для перехода в меню чатов». */}
+          {headerName && (
+            <div class="cf-chat-bar">
+              <button type="button" class="cf-icon cf-chat-back" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}><Icon.Back /></button>
+              <span class="cf-chat-bar-name" dir="auto" title={headerName}>{headerName}</span>
+            </div>
+          )}
 
           {view === "threads" ? (
             <>
@@ -3700,9 +3706,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && messages.length < 3 && (
+                {/* The chat is about this page (2.6 (98), the owner: with the chat about this very page open there were no
+                    quick chips, while another page's chat had them under "Now on"): the same chips at the chat's end,
+                    without the divider, less those already asked about this page. */}
+                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && (
                   <div class="cf-actions follow">
-                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a))), 3).map((a) => chip(a, true))}
+                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a) && m.page?.url === pageUrl)), 4).map((a) => chip(a, true))}
                   </div>
                 )}
 
