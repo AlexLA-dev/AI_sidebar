@@ -5,6 +5,7 @@
 // once in the week's minutes (and the other way round). Skipped where there's no Swift compiler; run on a Mac.
 import assert from "node:assert/strict"
 import { execFileSync, spawnSync } from "node:child_process"
+import { createHash } from "node:crypto"
 import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -12,18 +13,24 @@ import { test } from "node:test"
 
 import { textLanguage } from "../src/shared/share.ts"
 import { needsScript, PartSplitter, scriptChunks, speechParts, speechText } from "../src/shared/speech.ts"
+import { voicedId } from "../src/shared/voiced.ts"
 
 const root = new URL("..", import.meta.url).pathname
 const swiftc = spawnSync("which", ["swiftc"]).status === 0
 const skip = process.platform !== "darwin" ? "the app's Foundation is Apple's: run on a Mac" : !swiftc && "no swiftc here"
 
-type Case = { op: string; s: string; first?: number | boolean; size?: number; step?: number }
+type Case = { op: string; s: string; first?: number | boolean; size?: number; step?: number; what?: string; list?: string[]; kept?: Record<string, string> }
 
 function swift(cases: Case[]): unknown[] {
   const dir = mkdtempSync(join(tmpdir(), "cf-speech-"))
   const bin = join(dir, "speech")
-  execFileSync("swiftc", ["-O", join(root, "ContextFlow/Shared (App)/SpeechText.swift"), join(root, "tests/speech-parity/main.swift"), "-o", bin], { stdio: "pipe" })
-  return JSON.parse(execFileSync(bin, { input: JSON.stringify(cases), maxBuffer: 64 * 1024 * 1024 }).toString())
+  // Built as the app is: Swift 6 checks, the main actor by default (VoicedQuery's work must not need it).
+  execFileSync("swiftc", ["-O", "-swift-version", "6", "-default-isolation", "MainActor", join(root, "ContextFlow/Shared (App)/SpeechText.swift"), join(root, "tests/speech-parity/main.swift"), "-o", bin], { stdio: "pipe" })
+  // Texts as UTF-16 units: Foundation's JSONSerialization drops a leading U+FEFF from a string, so the app would get
+  // another text than the panel.
+  const units = (text: string) => Array.from({ length: text.length }, (_, i) => text.charCodeAt(i))
+  const sent = cases.map(({ s, list, ...rest }) => ({ ...rest, u: units(s), ...(list ? { lu: list.map(units) } : {}) }))
+  return JSON.parse(execFileSync(bin, { input: JSON.stringify(sent), maxBuffer: 64 * 1024 * 1024 }).toString())
 }
 
 function split(s: string, step: number, first = true): string[] {
@@ -42,6 +49,37 @@ function split(s: string, step: number, first = true): string[] {
   return [...out, ...splitter.end()]
 }
 
+/** A part's key, as the server, the panel and the app name it. */
+const partKey = (part: string, lang: string) => createHash("sha256").update(`v1|${lang}|${part}`).digest("hex")
+
+/** src/background/speak.ts textPartKeys for an answer, with what's kept on the device given (the panel's language else "en"). */
+function textKeys(text: string, kept: Record<string, string>): string[] {
+  const source = text.slice(0, 24_000)
+  const lang = textLanguage(text) ?? "en"
+  let parts: string[] = []
+  if (needsScript(source)) {
+    for (const chunk of scriptChunks(source)) {
+      const script = kept[`script|answer|${partKey(chunk, lang)}`]
+      if (script === undefined) return []
+      const splitter = new PartSplitter(parts.length === 0)
+      parts.push(...splitter.push(script), ...splitter.end())
+    }
+  } else {
+    parts = speechParts(speechText(source)).slice(0, 80)
+  }
+  return parts.filter((part) => /[\p{L}\p{N}]/u.test(part)).map((part) => partKey(part, lang))
+}
+
+/** The scripts the panel or the app would have kept for an answer written for the ear (made up here, one per chunk). */
+function scriptsFor(text: string): Record<string, string> {
+  const lang = textLanguage(text) ?? "en"
+  const kept: Record<string, string> = {}
+  scriptChunks(text.slice(0, 24_000)).forEach((chunk, i) => {
+    kept[`script|answer|${partKey(chunk, lang)}`] = `Here is part ${i + 1}, written for listening. ${speechText(chunk).slice(0, 700)} That is all for this part.`
+  })
+  return kept
+}
+
 function js(c: Case): unknown {
   switch (c.op) {
     case "text": return speechText(c.s)
@@ -50,6 +88,17 @@ function js(c: Case): unknown {
     case "chunks": return scriptChunks(c.s)
     case "lang": return textLanguage(c.s) ?? null
     case "split": return split(c.s, c.step ?? 0, c.first !== false)
+    case "voicedId": return voicedId((c.what ?? "answer") as "answer" | "page", c.s)
+    case "answers": {
+      const out: string[][] = []
+      for (const text of (c.list ?? []).slice(-30)) {
+        if (!text) continue
+        const id = voicedId("answer", text)
+        if (!out.some(([known]) => known === id)) out.push([id, text])
+      }
+      return out
+    }
+    case "keys": return textKeys(c.s, c.kept ?? {})
     case "answer": {
       const text = c.s.slice(0, 24_000)
       return { parts: speechParts(speechText(text)).slice(0, 80), lang: textLanguage(c.s) ?? null, script: needsScript(text) }
@@ -175,4 +224,32 @@ test("a text written for the ear gives the same parts streamed in any pieces and
     if (JSON.stringify(app[i]) !== JSON.stringify(mine) && differ.length < 6) differ.push(`app vs panel, by ${c.step}: ${JSON.stringify(c.s.slice(0, 80))}\n  ${JSON.stringify(app[i]).slice(0, 300)}\n  ${JSON.stringify(mine).slice(0, 300)}`)
   })
   assert.equal(differ.length, 0, differ.join("\n"))
+})
+
+test("a chat's answers asked about as it opens: the same ids and parts' keys as the panel, worked out off the main thread (build 95)", { skip }, () => {
+  const cases: Case[] = []
+  for (const s of TEXTS) {
+    cases.push({ op: "voicedId", s, what: "answer" }, { op: "voicedId", s, what: "page" }, { op: "keys", s })
+    // Written for the ear: its parts' keys once its writing is kept here, none while a chunk's writing is missing.
+    if (needsScript(s.slice(0, 24_000))) {
+      const kept = scriptsFor(s)
+      cases.push({ op: "keys", s, kept })
+      const [first] = Object.keys(kept)
+      if (Object.keys(kept).length > 1) cases.push({ op: "keys", s, kept: Object.fromEntries(Object.entries(kept).filter(([k]) => k !== first)) })
+    }
+  }
+  const long = Array.from({ length: 30 }, (_, i) => ANSWERS[i % ANSWERS.length]).join("\n\n").repeat(3)
+  cases.push({ op: "voicedId", s: long }, { op: "keys", s: long }, { op: "keys", s: long, kept: scriptsFor(long) })
+  // The chat's last 30 answers, each once, empty ones left out.
+  cases.push({ op: "answers", s: "", list: [...TEXTS.slice(0, 40), "", TEXTS[39], TEXTS[38]] }, { op: "answers", s: "", list: ["", ANSWERS[0], ANSWERS[0]] })
+  const app = swift(cases)
+  const differ: string[] = []
+  cases.forEach((c, i) => {
+    const mine = js(c)
+    if (JSON.stringify(app[i]) !== JSON.stringify(mine) && differ.length < 6) differ.push(`${c.op} ${JSON.stringify(c.s.slice(0, 80))}\n  panel: ${JSON.stringify(mine).slice(0, 300)}\n  app:   ${JSON.stringify(app[i]).slice(0, 300)}`)
+  })
+  assert.equal(differ.length, 0, `the app differs from the panel:\n${differ.join("\n")}`)
+  // Not trivially equal: written for the ear, kept scripts give keys and a missing one gives none.
+  const keyed = cases.filter((c) => c.op === "keys" && c.kept && Object.keys(c.kept).length > 0)
+  assert.ok(keyed.some((c) => (js(c) as string[]).length > 0))
 })

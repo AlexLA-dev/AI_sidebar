@@ -1,6 +1,5 @@
 import AVFoundation
 import Combine
-import CryptoKit
 import MediaPlayer
 import NaturalLanguage
 import SwiftUI
@@ -84,18 +83,23 @@ final class VoicedList: ObservableObject {
     /// Build 95 (the owner on 94: no mark anywhere; it was set only by a listen heard to its very end, on that device):
     /// a chat's answers as the server counts them, heard on any device in any number of listens. Each is asked about at
     /// most every 10 minutes, with its parts' keys when they're known here (as Listen makes them), else by its id.
+    /// Called as a chat opens: the ids and keys (hashing, splitting, regular expressions, kept scripts read from disk)
+    /// are worked out off the main thread, and only what's known and asked about is touched here, on the main actor.
     func ask(answers: [String]) {
-        guard StoreKitManager.shared.isUltra else { return }
-        let now = Date()
-        var texts: [[String: Any]] = []
-        for text in answers.suffix(30) where !text.isEmpty {
-            let id = Self.id(what: "answer", text: text)
-            guard !ids.contains(id), now.timeIntervalSince(asked[id] ?? .distantPast) > 600, !texts.contains(where: { $0["id"] as? String == id }) else { continue }
-            asked[id] = now
-            texts.append(["id": id, "keys": ListenPlayer.partKeys(answer: text)])
-        }
-        guard !texts.isEmpty else { return }
+        guard StoreKitManager.shared.isUltra, !answers.isEmpty else { return }
+        let recent = Array(answers.suffix(30))
         Task {
+            let all = await Task.detached(priority: .utility) { VoicedQuery.answers(recent) }.value
+            // Back on the main actor: what's voiced here already or was asked about lately is left out. Two chats opened
+            // one after the other can't both ask about the same text: this runs on the main actor, one at a time.
+            let now = Date()
+            let todo = all.filter { !ids.contains($0.id) && now.timeIntervalSince(asked[$0.id] ?? .distantPast) > 600 }
+            guard !todo.isEmpty else { return }
+            for answer in todo { asked[answer.id] = now }
+            let found = await Task.detached(priority: .utility) {
+                todo.map { VoicedQuery.Text(id: $0.id, keys: VoicedQuery.keys(answer: $0.text, kept: SpeechCache.read)) }
+            }.value
+            let texts: [[String: Any]] = found.map { ["id": $0.id, "keys": $0.keys] }
             guard let request = try? ChatAI.heardRequest([], texts: texts),
                   let (data, response) = try? await URLSession.shared.data(for: request),
                   (response as? HTTPURLResponse)?.statusCode == 200,
@@ -104,27 +108,9 @@ final class VoicedList: ObservableObject {
         }
     }
 
-    /// The text's id: cyrb53's two 32-bit lanes over "<what>|<its first 24,000 UTF-16 units>" (src/shared/voiced.ts).
+    /// The text's id (src/shared/voiced.ts voicedId).
     nonisolated static func id(what: String, text: String) -> String {
-        var h1: UInt32 = 0xdeadbeef
-        var h2: UInt32 = 0x41c6ce57
-        func mix(_ unit: UInt16) {
-            h1 = (h1 ^ UInt32(unit)) &* 2654435761
-            h2 = (h2 ^ UInt32(unit)) &* 1597334677
-        }
-        for unit in what.utf16 { mix(unit) }
-        mix(124) // "|"
-        var count = 0
-        for unit in text.utf16 {
-            if count == 24_000 { break }
-            mix(unit)
-            count += 1
-        }
-        h1 = (h1 ^ (h1 >> 16)) &* 2246822507
-        h1 ^= (h2 ^ (h2 >> 13)) &* 3266489909
-        h2 = (h2 ^ (h2 >> 16)) &* 2246822507
-        h2 ^= (h1 ^ (h1 >> 13)) &* 3266489909
-        return String(format: "%08x%08x", h2, h1)
+        VoicedQuery.id(what: what, text: text)
     }
 }
 
@@ -1581,37 +1567,16 @@ final class ListenPlayer: NSObject, ObservableObject {
         return max(1, (units / 14).rounded(.up))
     }
 
-    static func cacheKey(_ text: String, _ lang: String) -> String {
-        SHA256.hash(data: Data("v1|\(lang)|\(text)".utf8)).map { String(format: "%02x", $0) }.joined()
+    nonisolated static func cacheKey(_ text: String, _ lang: String) -> String {
+        VoicedQuery.key(text, lang)
     }
 
     /// Something a voice can say (a part without is skipped: never made, never heard).
-    static func speakable(_ part: String) -> Bool {
-        part.range(of: #"[\p{L}\p{N}]"#, options: .regularExpression) != nil
-    }
-
-    /// The keys of an answer's parts as Listen makes them (build 95), for asking whether it's voiced: the same parts as
-    /// playing it would give. Written for the ear, it has them only when its writing is kept on this device; otherwise
-    /// none (the server answers by its id alone).
-    static func partKeys(answer markdown: String) -> [String] {
-        let text = (markdown as NSString).length > SpeechText.maxChars ? (markdown as NSString).substring(to: SpeechText.maxChars) : markdown
-        let lang = SpeechText.language(markdown) ?? SpeechText.uiLanguage
-        var parts: [String] = []
-        if SpeechText.needsScript(text) {
-            for chunk in SpeechText.scriptChunks(text) {
-                guard let kept = SpeechCache.read("script|answer|" + cacheKey(chunk, lang)), let script = String(data: kept, encoding: .utf8) else { return [] }
-                let splitter = PartSplitter(first: parts.isEmpty)
-                parts += splitter.push(script) + splitter.end()
-            }
-        } else {
-            parts = Array(SpeechText.parts(SpeechText.text(text)).prefix(80))
-        }
-        return parts.filter(speakable).map { cacheKey($0, lang) }
+    nonisolated static func speakable(_ part: String) -> Bool {
+        VoicedQuery.speakable(part)
     }
 }
 
-/// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
-/// for again): about 25 minutes of audio, nothing older than 7 days; gone with the chats ("Delete all chats").
 /// Read aloud's seconds heard, by part key, until the server has counted them (build 92: the week's minutes count what's
 /// heard). They go with the next part asked for, on their own when a text stops, and again at the next launch if they
 /// didn't; the server counts a part once, up to its length, so sending again never charges twice.
@@ -1663,7 +1628,10 @@ enum HeardStore {
     }
 }
 
-enum SpeechCache {
+/// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
+/// for again): about 25 minutes of audio, nothing older than 7 days; gone with the chats ("Delete all chats").
+/// Nonisolated (build 95): a chat being opened reads kept scripts off the main thread (VoicedList.ask).
+nonisolated enum SpeechCache {
     private static let limit = 75 * 1024 * 1024
     private static let maxAge: TimeInterval = 7 * 86_400
 

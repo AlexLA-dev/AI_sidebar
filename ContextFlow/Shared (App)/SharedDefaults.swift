@@ -112,7 +112,7 @@ struct SharedEntitlement: Equatable {
 
 final class SharedDefaults {
     static let shared = SharedDefaults()
-    static let suiteName = "group.com.contextflow.shared"
+    nonisolated static let suiteName = "group.com.contextflow.shared"
 
     private let defaults: UserDefaults
     private let entitlementKey = "cf_entitlement_v2"
@@ -520,8 +520,9 @@ enum TipClipShare {
 
 /// Parts the panel made (build 92), kept where the app on the same device finds them, under the key its own cache uses
 /// (sha256 of "v1|<language>|<text>"): a text handed from Safari to the app plays from here, nothing asked of iCloud or
-/// the server. About 40 MB of audio, nothing older than 7 days; gone with "Delete all chats".
-enum SharedListenCache {
+/// the server. About 40 MB of audio, nothing older than 7 days; gone with "Delete all chats". Nonisolated (build 95): the
+/// app reads it off the main thread too (a chat being opened, VoicedList.ask).
+nonisolated enum SharedListenCache {
     private static let limit = 40 * 1024 * 1024
     private static let maxAge: TimeInterval = 7 * 86_400
 
