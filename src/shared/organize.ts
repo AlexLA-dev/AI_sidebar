@@ -950,13 +950,40 @@ export function lastKey(entries: Entry[]): string {
   return entries.length ? entryKey(entries[entries.length - 1]) : ""
 }
 
-/** The name the chat's record suggests while it's open: not turned down, not its name already, not one the user typed. */
+/** A name's words, to tell a name from a near repeat: letters and digits, lower case; a run of Chinese or Japanese characters as its pairs of characters (they have no spaces). */
+function nameWords(name: string): Set<string> {
+  const out = new Set<string>()
+  for (const word of name.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []) {
+    const chars = Array.from(word)
+    if (chars.length > 1 && /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(word)) {
+      for (let i = 0; i + 1 < chars.length; i++) out.add(chars[i] + chars[i + 1])
+    } else out.add(word)
+  }
+  return out
+}
+
+/**
+ * 2.6 (98): whether two names are the same or nearly (a name turned down came back reworded after the chat changed a
+ * little): equal in lower case, or two thirds of the shorter one's words are in the other.
+ */
+export function nearName(a: string, b: string): boolean {
+  if (a.toLowerCase() === b.toLowerCase()) return true
+  const x = nameWords(a)
+  const y = nameWords(b)
+  const fewer = Math.min(x.size, y.size)
+  if (!fewer) return false
+  let shared = 0
+  for (const w of x) if (y.has(w)) shared++
+  return shared * 3 >= fewer * 2
+}
+
+/** The name the chat's record suggests while it's open: not turned down (nor nearly), not its name already, not one the user typed. */
 export function openName(thread: Thread): string | undefined {
   const nm = thread.org?.nm
   if (!nm?.t || !wantsNameCheck(thread) || nm.t.toLowerCase() === threadName(thread).toLowerCase()) return undefined
   // 2.6 (95): first what moves, then the name (a chat on two topics got names of both, and renames came and went).
   if (moveOpen(thread)) return undefined
-  if ((nm.no ?? []).some((x) => x.toLowerCase() === nm.t!.toLowerCase())) return undefined
+  if ((nm.no ?? []).some((x) => nearName(x, nm.t!))) return undefined
   return nm.t
 }
 
@@ -1005,10 +1032,13 @@ export function orgStateFor(thread: Thread, move: MoveSuggestion | null, tags: A
   }
 }
 
-/** The name check after asking: what it was about, the name it suggests (unless that one was turned down), and the names turned down. */
+/**
+ * The name check after asking: what it was about, the name it suggests (unless that one or a near repeat of it was
+ * turned down: 2.6 (98), they're kept with the chat for good), and the names turned down.
+ */
 export function nameStateAfter(previous: OrgState["nm"], key: string, answer: { fits: boolean; title: string }, current: string): NonNullable<OrgState["nm"]> {
   const no = previous?.no ?? []
-  const refused = no.some((x) => x.toLowerCase() === answer.title.toLowerCase())
+  const refused = no.some((x) => nearName(x, answer.title))
   // The same name in other capitals is no new one (2.6 (94)).
   const suggest = !answer.fits && answer.title && answer.title.toLowerCase() !== current.toLowerCase() && !refused
   return { k: key, ...(suggest ? { t: answer.title } : {}), ...(no.length ? { no } : {}) }
