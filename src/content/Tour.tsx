@@ -176,7 +176,8 @@ export const MENU_STEP: TourStep = { targets: [[".cf-page-more"]], icon: <More s
 export function tourSteps(sync: boolean, touch: boolean): TourStep[] {
   return [
     { targets: [[".cf-actions"], [".cf-input"]], icon: <Icon.Sparkle size={16} />, title: "tourAskTitle", body: "tourAskBody" },
-    { targets: [[".cf-title .cf-ctx", ".cf-title"]], icon: <Icon.Cursor />, title: "tourSelectTitle", body: "tourSelectBody" },
+    // Build 95: the label is over the field now.
+    { targets: [[".cf-ctx-row .cf-ctx", ".cf-ctx-row"]], icon: <Icon.Cursor />, title: "tourSelectTitle", body: "tourSelectBody" },
     { targets: [[".cf-mode"]], icon: <Icon.Search size={14} />, title: "tourGoogleTitle", body: "tourGoogleBody" },
     { targets: [[".cf-send-wrap"]], icon: <Icon.Pencil />, title: "tourNoteTitle", body: touch ? "tourNoteBodyTouch" : "tourNoteBodyMouse" },
     { targets: [[".cf-whole"]], icon: <Icon.Doc />, title: "tourWholeTitle", body: "tourWholeBody" },

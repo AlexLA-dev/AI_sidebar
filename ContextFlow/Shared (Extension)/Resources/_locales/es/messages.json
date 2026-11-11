@@ -2502,6 +2502,6 @@
   "message": "ContextFlow lee una página solo cuando preguntas y envía únicamente su texto para obtener la respuesta. Tus chats se quedan en tus dispositivos y en tu iCloud. Con las sugerencias activadas, el texto de los mensajes nuevos también va a nuestro servidor para ver dónde encajan; no lo guardamos."
  },
  "tip_clips": {
-  "message": "en"
+  "message": "es"
  }
 }

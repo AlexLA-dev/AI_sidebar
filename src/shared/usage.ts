@@ -140,7 +140,7 @@ export const FEATURES: Record<string, Feature> = {
     via: ["limit", "memory", "pro_only", "ultra_only"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
   },
-  later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab"], fields: { reminders: "int", watches: "int" } },
+  later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],

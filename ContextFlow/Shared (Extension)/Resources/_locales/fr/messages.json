@@ -2502,6 +2502,6 @@
   "message": "ContextFlow ne lit une page que lorsque vous posez une question, et n’envoie que son texte pour obtenir la réponse. Vos discussions restent sur vos appareils et dans votre iCloud. Si les suggestions sont activées, le texte des nouveaux messages est aussi envoyé à notre serveur pour trouver leur place ; nous ne le conservons pas."
  },
  "tip_clips": {
-  "message": "en"
+  "message": "fr"
  }
 }

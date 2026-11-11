@@ -107,9 +107,15 @@ export function titleFrom(text: string): string {
   return (words.length > 40 ? `${words.slice(0, 40).trimEnd()}…` : words) || "…"
 }
 
-/** Lower case, ё as е, no punctuation: what search compares. */
+/**
+ * Lower case, without accents, no punctuation: what search compares ("cafe" finds "Café", "e" finds "ё", "tai" finds
+ * "tải"). Build 95: the same for every language (it folded only «ё»): the accents that go on letters (Latin, Cyrillic,
+ * Greek, Vietnamese tones, Arabic short vowels) come off; a script whose marks are part of its letters keeps them
+ * (Korean syllables, Japanese voicing, Thai and Hindi vowels).
+ */
 export function normalize(text: string): string {
-  return text.toLowerCase().replace(/ё/g, "е").replace(/[^\p{L}\p{N}\s]+/gu, " ").replace(/\s+/g, " ").trim()
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\u064b-\u065f\u0670]/g, "").normalize("NFC")
+    .replace(/[^\p{L}\p{N}\p{M}\s]+/gu, " ").replace(/\s+/g, " ").trim()
 }
 
 function words(text: string): string[] {

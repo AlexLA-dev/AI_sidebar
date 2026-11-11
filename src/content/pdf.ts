@@ -30,10 +30,50 @@ function unwrapViewer(href: string): string {
   return href
 }
 
+// A link's text that says what to do, not what the file is ("Download", "PDF herunterladen", "Télécharger le PDF",
+// "下载 (2 MB)"): the file's name is used instead. Every language the extension speaks (build 95: it knew English
+// and «скачать» only). A text counts when every word of it is an action word or a small word around one.
+const ACTION_WORDS = new Set([
+  "download", "open", "view", "see", "get", "save", "click", "here", "file", "full", "text", // en
+  "скачать", "загрузить", "открыть", "смотреть", "просмотр", "посмотреть", "файл", "здесь", "тут", // ru
+  "завантажити", "відкрити", "переглянути", "перегляд", // uk
+  "herunterladen", "öffnen", "ansehen", "anzeigen", "datei", "hier", // de
+  "descargar", "abrir", "ver", "archivo", "aquí", // es
+  "télécharger", "ouvrir", "voir", "afficher", "fichier", "ici", // fr
+  "scarica", "scaricare", "apri", "aprire", "visualizza", "vedi", "qui", // it
+  "baixar", "descarregar", "transferir", "arquivo", "ficheiro", "aqui", // pt
+  "ダウンロード", "開く", "表示", "見る", "ファイル", "こちら", // ja
+  "다운로드", "열기", "보기", "파일", "여기", // ko
+  "下载", "下載", "打开", "打開", "查看", "预览", "預覽", "文件", "檔案", "这里", "這裡", // zh
+  "تحميل", "تنزيل", "فتح", "عرض", "ملف", "هنا", // ar
+  "tải", "xuống", "về", "mở", "xem", "tệp", "tại", "đây" // vi
+])
+// The small words around them: articles, "this", "the full", particles.
+const FILLER = new Set([
+  "a", "an", "the", "this", "as", "to", "in", "le", "la", "les", "l", "un", "une", "ce", "cette", "el", "los", "las",
+  "este", "esta", "il", "lo", "gli", "questo", "o", "os", "um", "uma", "das", "die", "der", "den", "dem", "diese",
+  "dieses", "ein", "eine", "als", "en", "de", "di", "do", "da", "в", "у", "на", "этот", "цей", "の", "を", "을", "를",
+  "此", "该", "該", "这个", "這個", "هذا", "هذه", "الملف"
+])
+
+/** Whether a link's text names no file: action words, alone or with "PDF", a size and small words. */
+export function actionLabel(text: string): boolean {
+  const words = text.toLowerCase()
+    .replace(/\(?\s*\d+(?:[.,]\d+)?\s*(?:[kmg]i?b|[кмг]б|bytes?|байт)\s*\)?/gu, " ")
+    .replace(/pdf/g, " ")
+    // A particle written on the word (Japanese, Korean): a word of its own here (only this check reads them).
+    .replace(/([をの]|을|를)/gu, " $1 ")
+    .replace(/[\s:·.,()[\]{}|/\\«»"“”'’–—-]+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+  return words.every((w) => ACTION_WORDS.has(w) || FILLER.has(w))
+}
+
 /** A readable name: the link's text or the file's name. */
 export function pdfName(href: string, label = ""): string {
   const text = label.replace(/\s+/g, " ").trim()
-  if (text.length >= 3 && text.length <= 120 && !/^(pdf|download|скачать|view pdf|open)$/i.test(text)) return text
+  if (text.length >= 3 && text.length <= 120 && !actionLabel(text)) return text
   try {
     const file = decodeURIComponent(new URL(href).pathname.split("/").filter(Boolean).pop() ?? "")
     return file || new URL(href).hostname

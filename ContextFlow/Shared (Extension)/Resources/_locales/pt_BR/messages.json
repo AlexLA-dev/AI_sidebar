@@ -2502,6 +2502,6 @@
   "message": "O ContextFlow lê uma página só quando você pergunta e envia apenas o texto dela para obter a resposta. Suas conversas ficam nos seus dispositivos e no seu iCloud. Com as sugestões ativadas, o texto das novas mensagens também vai para o nosso servidor para encontrar o lugar delas; não guardamos esse texto."
  },
  "tip_clips": {
-  "message": "en"
+  "message": "pt_BR"
  }
 }

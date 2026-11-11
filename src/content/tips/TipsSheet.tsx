@@ -142,7 +142,7 @@ export function TipsSheet({ mac, onClose }: { mac: boolean; onClose: () => void 
   }, [ready])
   if (!data) return null
   const heading = say(data.heading)
-  const lang = say(data.clipLang) === "ru" ? "ru" : "en"
+  const lang = say(data.clipLang)
   return (
     <div ref={back} class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="cf-sheet cf-tips" role="dialog" aria-label={heading}>

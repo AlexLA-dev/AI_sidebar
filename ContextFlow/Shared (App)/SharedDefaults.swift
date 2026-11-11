@@ -452,17 +452,48 @@ enum TipClipShare {
     }
 
     /// The extension: up to `length` bytes of a clip from `offset`, and its whole size; nil when the app hasn't put it
-    /// there (not run since the install, or a clip newer than its last run).
+    /// there (not run since the install, or a clip newer than its last run). The clip's language: the panel's
+    /// (`lang`), then the person's other languages, by `language`.
     nonisolated static func read(name: String, lang: String, offset: Int, length: Int) -> (data: Data, total: Int)? {
-        guard name.range(of: "^[a-z0-9-]{1,40}$", options: .regularExpression) != nil, lang == "en" || lang == "ru",
-              let url = folder?.appendingPathComponent(lang).appendingPathComponent("\(name).mp4"),
-              let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        guard name.range(of: "^[a-z0-9-]{1,40}$", options: .regularExpression) != nil, let folder else { return nil }
+        let chosen = language([lang] + Locale.preferredLanguages, available: languages(in: folder))
+        guard let handle = try? FileHandle(forReadingFrom: folder.appendingPathComponent(chosen).appendingPathComponent("\(name).mp4")) else { return nil }
         defer { try? handle.close() }
         guard let end = try? handle.seekToEnd() else { return nil }
         let start = UInt64(max(0, min(offset, Int(end))))
         try? handle.seek(toOffset: start)
         let data = (try? handle.read(upToCount: max(0, min(length, 1 << 20)))) ?? Data()
         return (data, Int(end))
+    }
+
+    /// The clips' languages: the folders in `folder` (TipClips/<language>/, the app's or the App Group's copy).
+    nonisolated static func languages(in folder: URL) -> [String] {
+        ((try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []).filter { name in
+            var dir: ObjCBool = false
+            return FileManager.default.fileExists(atPath: folder.appendingPathComponent(name).path, isDirectory: &dir) && dir.boolValue
+        }
+    }
+
+    /// The clips' language (build 95: no language is a special case): the first of `wanted` (most preferred first)
+    /// that has a folder in `available`, else English. A language matches its folder whole ("pt_BR", "zh-Hant"), by
+    /// language and script, or by language alone; Chinese by its script too ("zh-TW" → zh-Hant, "zh-CN" → zh-Hans).
+    /// Clips recorded in a new language are a new folder, nothing else.
+    nonisolated static func language(_ wanted: [String], available: [String]) -> String {
+        let key = { (tag: String) in tag.lowercased().replacingOccurrences(of: "_", with: "-") }
+        var folders: [String: String] = [:]
+        for name in available where folders[key(name)] == nil { folders[key(name)] = name }
+        for tag in wanted {
+            let parts = key(tag).split(separator: "-").map(String.init)
+            guard let lang = parts.first, lang.range(of: "^[a-z]{2,3}$", options: .regularExpression) != nil else { continue }
+            var candidates = [parts.joined(separator: "-")]
+            if parts.count > 2 { candidates.append("\(lang)-\(parts[1])") }
+            if lang == "zh", let region = parts.dropFirst().first(where: { $0.count == 2 }) {
+                candidates.append(["tw", "hk", "mo"].contains(region) ? "zh-hant" : "zh-hans")
+            }
+            candidates.append(lang)
+            if let hit = candidates.lazy.compactMap({ folders[$0] }).first { return hit }
+        }
+        return folders["en"] ?? "en"
     }
 }
 

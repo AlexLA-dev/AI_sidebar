@@ -587,7 +587,7 @@ struct Tip {
     let color: Color
     let title: LocalizedStringKey
     let text: LocalizedStringKey
-    // A short recording of the extension doing it (TipClips/<en|ru>/<clip>.mp4).
+    // A short recording of the extension doing it (TipClips/<language>/<clip>.mp4, TipClip.language).
     var clip: String? = nil
     // Organizing (2.5): Turn on or Try Pro under it.
     var organize = false
@@ -886,10 +886,15 @@ enum TipClip {
     static let aspect: CGFloat = 540.0 / 794.0
     static let width: CGFloat = 270 // at most; about 400 pt tall
 
-    /// The clip recorded in the app's language: Russian, or English for every other language.
+    /// The clips' language (build 95, one rule for every language, TipClipShare.language): the first of the app's
+    /// language and the person's other languages that has its clips (TipClips/<language>/), else English.
+    static let language: String = {
+        let folder = Bundle.main.url(forResource: "TipClips", withExtension: nil)
+        return TipClipShare.language(Bundle.main.preferredLocalizations + Locale.preferredLanguages, available: folder.map(TipClipShare.languages) ?? [])
+    }()
+
     static func url(_ name: String) -> URL? {
-        let lang = Bundle.main.preferredLocalizations.first?.hasPrefix("ru") == true ? "ru" : "en"
-        return Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(lang)")
+        Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(language)")
     }
 }
 
@@ -2102,11 +2107,23 @@ struct PlanTourView: View {
             return Info(symbol: "eye", color: .green, title: "Watch up to \(step == .ultraWatch ? facts.watchUltra : facts.watchPro) pages",
                         text: "In Safari, select a price, stock or a date and tap the eye. For the whole page: … → Watch this page.", clip: "watch")
         case .ultraListen:
+            // Build 95: the tour shows it working, as Tips do (its clip is the panel's player: a Mac's only).
+            #if os(iOS)
+            let clip: String? = nil
+            #else
+            let clip: String? = "listen"
+            #endif
             return Info(symbol: "speaker.wave.2.fill", color: Self.ultraColor, title: "Listen",
-                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.")
+                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.", clip: clip)
         case .ultraSimilar:
+            // Build 95: the tour shows it working, as Tips do (its clip is touch: iPhone and iPad only).
+            #if os(iOS)
+            let clip: String? = "similar"
+            #else
+            let clip: String? = nil
+            #endif
             return Info(symbol: "square.on.square", color: Self.ultraColor, title: "Find similar",
-                        text: "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.")
+                        text: "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.", clip: clip)
         }
     }
 
