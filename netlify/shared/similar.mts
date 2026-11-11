@@ -16,8 +16,8 @@
 import { createHmac } from "node:crypto"
 
 import Anthropic from "@anthropic-ai/sdk"
-import { getDeployStore, getStore } from "@netlify/blobs"
 
+import { scopedStore } from "./blobstore.mts"
 import { config } from "./config.mts"
 import { checkPage, languageCheck, nameScore, nameTokens, normalizeUrl, type CheckedPage, type PagePrice, type PageRating } from "./pagecheck.mts"
 import { plansPricing, pricingLine, type AppPricing, type PlanSeen } from "./apppricing.mts"
@@ -529,8 +529,7 @@ export function useCountryStore(store: typeof countryStore): void {
 function countries(): NonNullable<typeof countryStore> {
   if (countryStore) return countryStore
   // Off production, kept for that deploy only: a preview never writes what production reads.
-  const deploy = (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ?? process.env.CONTEXT
-  const store = deploy === "production" ? getStore({ name: COUNTRY_STORE, consistency: "strong" }) : getDeployStore({ name: COUNTRY_STORE, consistency: "strong" })
+  const store = scopedStore(COUNTRY_STORE)
   return {
     get: async () => ((await store.get(COUNTRY_KEY, { type: "json" })) as string[] | null) ?? null,
     set: async (codes) => { await store.setJSON(COUNTRY_KEY, codes) }
