@@ -207,3 +207,16 @@ test("no dig without an app and a price asked about, or when the page already sa
   const { result } = await withPages({}, () => digPricing([{ ...store, condition: checkCondition(plan(), {}, store.page) }], plan(), {}, "en", 3_000))
   assert.equal(result.dug, 0)
 })
+
+test("App Store: a pack of several months is bought once, in any language; one month is the subscription's period", () => {
+  const ru = appStorePricing(storePage(iap([["Премиум 3 месяца", "699 ₽"], ["Премиум 1 месяц", "299 ₽"]]), 0), "https://apps.apple.com/ru/app/x/id1", { amount: 0, currency: "RUB" })!
+  assert.equal(ru.model, "subscription")
+  assert.deepEqual([ru.from, ru.period], [{ amount: 299, currency: "RUB" }, "month"])
+  const ja = appStorePricing(storePage(iap([["プレミアム 6ヶ月", "¥3,000"], ["プレミアム 月額", "¥600"]]), 0), "https://apps.apple.com/jp/app/x/id1", { amount: 0, currency: "JPY" })!
+  assert.deepEqual([ja.from, ja.period], [{ amount: 600, currency: "JPY" }, "month"])
+  // Only packs: not a subscription.
+  const packs = appStorePricing(storePage(iap([["Pro 3 місяці", "199 грн"], ["Pro 12 місяців", "599 грн"]]), 0), "https://apps.apple.com/ua/app/x/id1", { amount: 0, currency: "UAH" })!
+  assert.notEqual(packs.model, "subscription")
+  // Quarterly, in German.
+  assert.equal(appStorePricing(storePage(iap([["Pro vierteljährlich", "9,99 €"]]), 0), "https://apps.apple.com/de/app/x/id1", { amount: 0, currency: "EUR" })!.model, "subscription")
+})
