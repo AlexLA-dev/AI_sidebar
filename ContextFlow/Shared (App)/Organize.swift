@@ -187,8 +187,8 @@ nonisolated struct OrganizeConfig: Sendable {
     // 2.6 (96): the block's last exchange is also off when its answer fits the rest of the chat less than `tailRelCap`
     // and no better than the person's other chats on average plus `tailRelD`; only a new chat (src/shared/organize.ts).
     // 0: off.
-    var tailRelCap = 0.0
-    var tailRelD = 0.05
+    var tailRelCap = 0.35
+    var tailRelD = 0.0
     // 2.6 (95): two chats on a shared page merge when their answers fit each other this well both ways (`mergeFit`).
     var mergeA = 0.45
     // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.

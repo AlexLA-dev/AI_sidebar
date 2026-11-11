@@ -444,12 +444,13 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   move(japan, [japan, halfJapan])
   move(halfJapan, [japan, halfJapan])
   move(japan, [japan, halfJapan], { cfg: { minMatch: 0 } })
-  // 2.6 (96): the block's last answer against the person's usual fit (off by default; on with tailRelCap); a new chat
-  // only; three other chats at least.
+  // 2.6 (96): the block's last answer against the person's usual fit (on by default, tailRelCap 0.35; off with 0); a new
+  // chat only; three other chats at least.
   const kombuchaChat = thread("kombuchachat", [...qa("kombucha", "https://k.example/1"), ...qa("kombucha", "https://k.example/2")])
   const tentsChat = thread("tentschat", [...qa("tents", "https://tents.example/1"), ...qa("tents", "https://tents.example/2")])
   const usualHost = thread("usualhost", [...qa("react", "https://react.example/9"), ...qa("react", "https://react.example/9"), ...qa("react", "https://react.example/9"), ...qa2("react", "japan", "https://react.example/9")])
   move(usualHost, [usualHost, bread, kombuchaChat, tentsChat])
+  move(usualHost, [usualHost, bread, kombuchaChat, tentsChat], { cfg: { tailRelCap: 0 } })
   move(usualHost, [usualHost, bread, kombuchaChat, tentsChat], { cfg: { tailRelCap: 0.35, tailRelD: 0.05 } })
   move(usualHost, [usualHost, bread, kombuchaChat, tentsChat], { cfg: { tailRelCap: 0.35, tailRelD: 0 } })
   move(usualHost, [usualHost, bread, kombuchaChat], { cfg: { tailRelCap: 0.35, tailRelD: 0.05 } })

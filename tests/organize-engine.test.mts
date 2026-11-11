@@ -398,7 +398,7 @@ test("2.6 (95): a merge needs the match it shows, by questions and answers, from
   assert.notEqual(suggestMove(newer, [older, newer], vo, cfg)?.why, "merge")
 })
 
-test("2.6 (96): an answer no closer to its chat than to the person's other chats gets a new chat, when that rule is on", () => {
+test("2.6 (96): an answer no closer to its chat than to the person's other chats gets a new chat (on by default)", () => {
   // Asked on the chat's page, the question carries the page's title: by question and answer it fits the chat.
   const page = "https://react/1"
   const host = chat("host", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa2("react", "japan", page)])
@@ -406,11 +406,13 @@ test("2.6 (96): an answer no closer to its chat than to the person's other chats
   const kombucha = chat("kombucha", [...qa("kombucha", "https://k/1"), ...qa("kombucha", "https://k/2")])
   const on = { ...cfg, tailRelCap: 0.35, tailRelD: 0.05 }
   const library = [host, bread, tents, kombucha]
-  assert.equal(suggestMove(host, library, vectorOf, cfg), null)
+  assert.equal(cfg.tailRelCap, 0.35)
+  assert.equal(cfg.tailRelD, 0)
+  assert.equal(suggestMove(host, library, vectorOf, { ...cfg, tailRelCap: 0 }), null)
   const s = suggestMove(host, library, vectorOf, on)!
   assert.deepEqual([s.why, s.to, s.start, s.end], ["apart", null, 6, 7])
   // With a chat about it, the other rules decide, as before.
-  assert.deepEqual(suggestMove(host, [...library, japan], vectorOf, on), suggestMove(host, [...library, japan], vectorOf, cfg))
+  assert.deepEqual(suggestMove(host, [...library, japan], vectorOf, on), suggestMove(host, [...library, japan], vectorOf, { ...cfg, tailRelCap: 0 }))
   // Fewer than three other chats: no usual fit to go by.
   assert.equal(suggestMove(host, [host, bread, tents], vectorOf, on), null)
   // A chat's own last answer fits it far better than the person's other chats.

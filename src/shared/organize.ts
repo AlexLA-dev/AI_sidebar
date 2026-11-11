@@ -98,10 +98,11 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   tailQA: 0.4,
   tailA: 0.22,
   tailAlike: 0.3,
-  // Off until a point of the trade-off is chosen (organize-96-report: more new chats for unrelated questions, a few
-  // for a chat's own generic follow-ups); the server can turn it on with ORGANIZE_THRESHOLDS.
-  tailRelCap: 0,
-  tailRelD: 0.05,
+  // The point chosen from organize-96-report's trade-off: lib96's "new chat" for an unrelated question 15 → 43 % (lib95
+  // 64 → 75 %, the 2.5 sample 69 %), at one more "new chat" for a chat's own generic follow-up in each set and no move
+  // to a wrong chat. ORGANIZE_THRESHOLDS can change it, or turn it off with tailRelCap 0.
+  tailRelCap: 0.35,
+  tailRelD: 0,
   // lib95 and the 2.5 sample (b95/merge-neg.mjs): different topics asked on the same pages 0.51 at most (two plant-care
   // chats), 99% below 0.40; the same topic again 0.45 at least (median 0.56), the lib's merge pairs 0.49–0.72.
   // 2.6 (96), the 14 libraries: the same topic from 75 % at 0.54 (5th percentile of 180); one person's neighbouring topics
