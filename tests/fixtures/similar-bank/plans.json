@@ -1,0 +1,76 @@
+{
+ "about": "\"Cheaper\" for apps and services with plans (build 98): the page's own plans (as the planner reads them) and a candidate's pricing (as its App Store or pricing page states it), compared plan with plan — free with free, the cheapest paid with the cheapest paid (per month, in the page's money), one-time with one-time; a plan with one's own API key is its own kind. expect: the verdict; mentions: words the note must carry (the plans it compared). Rates are units per euro.",
+ "rates": { "EUR": 1, "USD": 1.1, "GBP": 0.85, "JPY": 165 },
+ "cases": [
+  {
+   "id": "freemium-ai-extension",
+   "source": "build 97: another app's paid plan was set against the page's free plan, so a closer app read as not cheaper",
+   "mine": [{ "kind": "free", "amount": 0, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 8, "currency": "USD", "period": "month" }, { "kind": "own_key", "amount": 3, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 59.99, "currency": "USD" }, "period": "year", "freeStart": true, "via": "app_store" },
+   "expect": "yes", "mentions": ["free: both have a free plan", "paid:", "your own-key plan is its own kind"]
+  },
+  {
+   "id": "saas-notes",
+   "source": "a notes service with a free plan and a dearer team plan",
+   "mine": [{ "kind": "free", "amount": 0, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 10, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 12, "currency": "USD" }, "period": "month", "freeStart": true, "via": "pricing_page" },
+   "expect": "no", "mentions": ["free: both have a free plan", "paid:"]
+  },
+  {
+   "id": "streaming-yearly",
+   "source": "a streaming service paid by the year against one paid by the month",
+   "mine": [{ "kind": "paid", "amount": 11.99, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 99.99, "currency": "USD" }, "period": "year", "via": "app_store" },
+   "expect": "yes", "mentions": ["paid:", "/month"]
+  },
+  {
+   "id": "streaming-same",
+   "source": "two streaming services at about the same monthly price",
+   "mine": [{ "kind": "paid", "amount": 9.99, "currency": "EUR", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 10.49, "currency": "EUR" }, "period": "month", "via": "pricing_page" },
+   "expect": "unknown", "mentions": ["about the same"]
+  },
+  {
+   "id": "streaming-other-currency",
+   "source": "a monthly price in another currency, at the day's rate",
+   "mine": [{ "kind": "paid", "amount": 6.99, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 3.99, "currency": "GBP" }, "period": "month", "via": "app_store" },
+   "expect": "yes", "mentions": ["paid:", "USD/month"]
+  },
+  {
+   "id": "vpn-lifetime",
+   "source": "a VPN sold once for life against one paid by the year: no kind in common",
+   "mine": [{ "kind": "paid", "amount": 59.88, "currency": "USD", "period": "year" }],
+   "theirs": { "model": "one_time", "from": { "amount": 79, "currency": "USD" }, "via": "pricing_page" },
+   "expect": "unknown", "mentions": ["no kind in common"]
+  },
+  {
+   "id": "vpn-once-both",
+   "source": "two apps sold once",
+   "mine": [{ "kind": "paid", "amount": 39, "currency": "USD", "period": "once" }],
+   "theirs": { "model": "one_time", "from": { "amount": 29, "currency": "USD" }, "via": "app_store" },
+   "expect": "yes", "mentions": ["one-time:"]
+  },
+  {
+   "id": "free-vs-freemium",
+   "source": "an app free with nothing to buy against one with a free plan and a paid one: free with free is even",
+   "mine": [{ "kind": "free", "amount": 0, "currency": "USD", "period": "month" }, { "kind": "paid", "amount": 5, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "free", "via": "app_store" },
+   "expect": "unknown", "mentions": ["free: both have a free plan"]
+  },
+  {
+   "id": "free-vs-paid-only",
+   "source": "an app free with nothing to buy against one only sold by subscription",
+   "mine": [{ "kind": "paid", "amount": 4.99, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "free", "via": "app_store" },
+   "expect": "yes", "mentions": ["theirs is free, yours paid"]
+  },
+  {
+   "id": "own-key-only",
+   "source": "a free app whose other plan is with one's own API key, against a paid subscription: nothing paid to compare",
+   "mine": [{ "kind": "free", "amount": 0, "currency": "USD", "period": "month" }, { "kind": "own_key", "amount": 3, "currency": "USD", "period": "month" }],
+   "theirs": { "model": "subscription", "from": { "amount": 10, "currency": "USD" }, "period": "month", "via": "app_store" },
+   "expect": "unknown", "mentions": ["yours has a free plan; theirs none seen", "no kind in common", "own-key plan is its own kind"]
+  }
+ ]
+}
