@@ -260,9 +260,9 @@
   ]
  },
  {
-  "key": "98dbeeacd856",
+  "key": "25939581c9fe",
   "kind": "html",
-  "en": "Your own notes next to the page, highlights and pins in answers, the whole chat in one answer. Videos and PDFs on the page <span class=\"pro-badge\">Pro</span>",
+  "en": "Your own notes next to the page, highlights and pins in answers, the whole chat in one answer. Videos and PDFs on the page <span class=\"pro-badge\">Pro</span> Find similar and Listen <span class=\"ultra-badge\">Ultra</span>",
   "pages": [
    "index.html"
   ]
@@ -294,9 +294,9 @@
   ]
  },
  {
-  "key": "48614ae7d19b",
+  "key": "61fcecf317e0",
   "kind": "html",
-  "en": "The bell brings you back to a page at the time you pick. The eye tells you when a price drops or something is back in stock.",
+  "en": "Select any text, or take the whole page, and add a note to yourself if you like. The bell brings you back at the time you pick; the eye tells you when a price drops or something is back in stock.",
   "pages": [
    "index.html"
   ]
@@ -311,9 +311,9 @@
   ]
  },
  {
-  "key": "3acdb80fd163",
+  "key": "38de163ab198",
   "kind": "html",
-  "en": "Search, tags and folders, every chat in the app and on all your devices. AI search, questions over all your chats and tidying up <span class=\"pro-badge\">Pro</span>",
+  "en": "Search, tags and folders, every chat in the app and on all your devices. AI search, questions over all your chats, and suggestions that move messages to the right chat, merge chats and name them by topic <span class=\"pro-badge\">Pro</span>",
   "pages": [
    "index.html"
   ]
@@ -682,9 +682,9 @@
   ]
  },
  {
-  "key": "a0a5e129bc42",
+  "key": "6262cb922f90",
   "kind": "html",
-  "en": "Videos and PDFs, AI search, Ask your chats",
+  "en": "Videos and PDFs, AI search, Ask your chats, sorting by topic",
   "pages": [
    "index.html"
   ]
@@ -937,6 +937,22 @@
   ]
  },
  {
+  "key": "30ebc585de32",
+  "kind": "html",
+  "en": "What's new in 2.6?",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "2ab7a0b8f8dc",
+  "kind": "html",
+  "en": "Ultra, with Listen and Find similar; yearly plans; chats that sort themselves by topic, with a bar of suggestions at the top of the chat (Pro); a note of your own on reminders and watches; quick actions right under a selection; and the panel in Traditional Chinese, Arabic and Vietnamese. After the update, the ContextFlow app shows the main changes in short clips.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
   "key": "29e997ab56ce",
   "kind": "html",
   "en": "What does Ultra add to Pro?",
@@ -1107,6 +1123,70 @@
   "key": "0824d93169cb",
   "kind": "html",
   "en": "Listen and Find similar, with their clips, are under Deeper work →",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "c1c0346ce251",
+  "kind": "html",
+  "en": "New in 2.6",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "27fcc1a670c8",
+  "kind": "html",
+  "en": "What this version adds besides Ultra.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "0b9fa36a33bb",
+  "kind": "html",
+  "en": "Chats that sort themselves <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "1a9e1cd9fff7",
+  "kind": "html",
+  "en": "One chat drifting into three topics? With Suggestions on, a bar at the top of the chat offers to move messages to the chat they belong in, merge two chats about the same thing, name a chat by its topic, or put on one of your own tags. One tap does it; Undo puts it back. Turn Suggestions on in Settings.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "3dc1d3bb0c41",
+  "kind": "html",
+  "en": "A note on a reminder or a watch",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "ed3f38e4def7",
+  "kind": "html",
+  "en": "Want to remember why? Select any text, or take the whole page, tap the bell or the eye, and add a few words of your own, like what to check. The selection shows as a quote in the chat, and the notification says your note.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "bec01899f36c",
+  "kind": "html",
+  "en": "What's new, in short clips",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "9afdc322dfd6",
+  "kind": "html",
+  "en": "Not sure what changed? After an update, the ContextFlow app opens What's new once, with a short clip for each main change. When a new version is out, a notification says so.",
   "pages": [
    "features.html"
   ]
@@ -2692,9 +2772,9 @@
   ]
  },
  {
-  "key": "6dfe500f9c80",
+  "key": "7487a2bdacf3",
   "kind": "html",
-  "en": "Select the price or the stock status and tap the eye. Or choose Watch this page… in the … menu at the top of the panel, and say what you're waiting for, like “below $150”. ContextFlow tells you when it changes.",
+  "en": "Select the price or the stock status and tap the eye. Or choose Watch this page… in the … menu at the top of the panel, and say what you're waiting for, like “below $150”. Add a note to yourself if you like, such as “only the black one”. ContextFlow tells you when it changes.",
   "pages": [
    "cases/shopping.html"
   ]
@@ -3004,9 +3084,9 @@
   ]
  },
  {
-  "key": "c27f3528b8a4",
+  "key": "3325637b52d1",
   "kind": "html",
-  "en": "Pick a time with the bell, and the reminder brings you back to the page. Tag the chat, or turn on Folders, to keep the trip apart from work. Search finds a chat by any word in it. With iCloud on, the same chat is on your iPhone, iPad and Mac.",
+  "en": "Select the line that matters, or take the whole page, tap the bell, write what to check, and pick a time: the reminder brings you back to the page and says your note. Tag the chat, or turn on Folders, to keep the trip apart from work. Search finds a chat by any word in it. With iCloud on, the same chat is on your iPhone, iPad and Mac.",
   "pages": [
    "cases/planning.html"
   ]
@@ -3060,9 +3140,9 @@
   ]
  },
  {
-  "key": "48dbff98a1eb",
+  "key": "35a25ed44cbe",
   "kind": "html",
-  "en": "AI search over your chats, questions over all your chats, suggestions for where a chat belongs, and more answers.",
+  "en": "AI search over your chats, questions over all your chats, suggestions that sort messages into the right chats, merge chats and name them by topic, and more answers.",
   "pages": [
    "cases/planning.html"
   ]
@@ -3454,9 +3534,9 @@
   ]
  },
  {
-  "key": "be47008e0e17",
+  "key": "4d937378596e",
   "kind": "ld",
-  "en": "Not when you save them. They stay in the chat on your device, and in your iCloud if sync is on, end-to-end encrypted. A note goes to the AI only when you ask a question with Whole chat turned on, because then the answer takes the whole chat into account.",
+  "en": "Not when you save them. They stay in the chat on your device, and in your iCloud if sync is on, end-to-end encrypted. A note goes to the AI only when you ask a question with Whole chat turned on, because then the answer takes the whole chat into account. With Suggestions on (Pro), a new note's text is also sent to suggest the chat it belongs in, and isn't kept.",
   "pages": [
    "notes-while-reading-safari.html"
   ]
@@ -3662,9 +3742,9 @@
   ]
  },
  {
-  "key": "6c4113f0bf19",
+  "key": "0270d1730682",
   "kind": "html",
-  "en": "<strong>Coming back later:</strong> pin the chat, and the pages and your thoughts are still there next week.",
+  "en": "<strong>Coming back later:</strong> pin the chat, or set a reminder with a note to yourself, and the pages and your thoughts are still there next week.",
   "pages": [
    "notes-while-reading-safari.html"
   ]
@@ -4246,9 +4326,9 @@
   ]
  },
  {
-  "key": "8434673e6f87",
+  "key": "e3615cafaaab",
   "kind": "html",
-  "en": "Open the ContextFlow app once (it shares your subscription with the extension), then reopen the panel in Safari. If needed, tap <em>Restore Purchases</em> on the Pro screen.",
+  "en": "Open the ContextFlow app once (it shares your subscription with the extension), then reopen the panel in Safari. If needed, tap <em>Restore Purchases</em> on the plans screen.",
   "pages": [
    "support.html"
   ]
@@ -4265,6 +4345,22 @@
   "key": "fd08f3644902",
   "kind": "html",
   "en": "Yes — on every iPhone, iPad and Mac signed in to the same Apple Account. Open the ContextFlow app once on each device.",
+  "pages": [
+   "support.html"
+  ]
+ },
+ {
+  "key": "82156eb78dd2",
+  "kind": "html",
+  "en": "How do I switch to yearly, or move up to Ultra?",
+  "pages": [
+   "support.html"
+  ]
+ },
+ {
+  "key": "0cda7a6d1714",
+  "kind": "html",
+  "en": "In the ContextFlow app, open Settings → Your plan. Monthly to yearly starts when your current month ends. Moving up from Pro to Ultra starts at once, and Apple refunds what's left of Pro.",
   "pages": [
    "support.html"
   ]
@@ -4294,9 +4390,9 @@
   ]
  },
  {
-  "key": "5c055852d660",
+  "key": "fae0f62723ac",
   "kind": "html",
-  "en": "With the Pro or Own key plan, open the ContextFlow panel in Safari → Settings → Own API key and paste an OpenAI key (sk-…) or an Anthropic key (sk-ant-…). Under Model, pick Fast (newest Claude Haiku or GPT mini) or Smart (newest Claude Sonnet or GPT). Requests then go directly from your device to that provider.",
+  "en": "With Pro, Ultra or the Own key plan, open the ContextFlow panel in Safari → Settings → Own API key and paste an OpenAI key (sk-…) or an Anthropic key (sk-ant-…). Under Model, pick Fast (newest Claude Haiku or GPT mini) or Smart (newest Claude Sonnet or GPT). Requests then go directly from your device to that provider.",
   "pages": [
    "support.html"
   ]
