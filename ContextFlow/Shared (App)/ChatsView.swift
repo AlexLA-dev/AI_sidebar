@@ -585,6 +585,36 @@ struct RecentlyDeletedView: View {
 
 /// The search field's two ways, "By words" and "By meaning" (2.6 (98)), as the list's first row while the field is open
 /// or has words in it.
+/// A long press on Listen with a mark (build 98 release; no tooltip on a touch screen): the whole sentence, wrapped, as
+/// the menu's preview (a menu item cuts it at two lines, before the seconds a replay charges), and Listen below it.
+private struct ListenMarkMenu: ViewModifier {
+    let mark: ListenMark?
+    let listen: () -> Void
+
+    func body(content: Content) -> some View {
+        if let mark {
+            content.contextMenu {
+                Button(action: listen) { Label("Listen", systemImage: "speaker.wave.2.fill") }
+            } preview: {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Image(systemName: "checkmark.circle")
+                        .opacity(mark == .free ? 0.8 : 0.38)
+                    mark.words
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .font(.callout)
+                .foregroundColor(.primary)
+                .frame(width: 280, alignment: .leading)
+                .padding(16)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("chat.listen.said")
+            }
+        } else {
+            content
+        }
+    }
+}
+
 private struct SearchWayRow: View {
     @Binding var way: ChatsView.SearchWay
     let pro: Bool
@@ -2585,12 +2615,7 @@ private struct MessageTools: View {
                 .accessibilityLabel(Text("Listen"))
                 .accessibilityValue(mark?.words ?? Text(""))
                 .accessibilityIdentifier("chat.listen")
-                // A long press says what the mark means (no tooltip on a touch screen).
-                .contextMenu {
-                    if let mark {
-                        mark.words
-                    }
-                }
+                .modifier(ListenMarkMenu(mark: mark, listen: listen))
             }
             if let tag {
                 Button(action: tag) { Label("Tag", systemImage: "tag") }
