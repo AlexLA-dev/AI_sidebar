@@ -105,7 +105,7 @@ test("Fill without the consent: the card in the form (the background said CONSEN
 test("a template from a selection without the consent: the card at once, not a plain editor with nothing marked", async () => {
   stored = {}
   sent.length = 0
-  M.render(M.h(M.TemplateEditor, { start: { text: "Hi Olga, thanks for the invitation to 12 November.", from: "selection" }, touch: true, consent: "none", onConsent: async () => undefined, host: "chat.example", onDone() {} }), at())
+  M.render(M.h(M.TemplateEditor, { start: { text: "Hi Maria, thanks for the invitation to the March workshop.", from: "selection" }, touch: true, consent: "none", onConsent: async () => undefined, host: "chat.example", onDone() {} }), at())
   // Preact runs effects after a frame, or 100 ms without requestAnimationFrame (as here).
   await tick(160)
   assert.ok(card())
@@ -138,8 +138,8 @@ test("the rewrite's name: for this chat in a conversation, for this page elsewhe
     template, touch: true, sheet: true, field, copied: [], consent: "ok", free: false,
     onConsent: async () => undefined, onUpgrade() {}, onClose() {}, onInsert() {}, onAdapt() {}
   })
-  document.body.insertAdjacentHTML("beforeend", `<section id="convo" class="msg-convo-wrapper"><h2 class="msg-entity-lockup__entity-title">Olga Lobova</h2>
-<ul class="msg-s-message-list-content"><li>Olga Lobova: Got it, thank you!</li></ul><form class="msg-form"><div id="reply" contenteditable="true"></div></form></section>`)
+  document.body.insertAdjacentHTML("beforeend", `<section id="convo"><h2>Maria Keller</h2>
+<ul aria-label="Messages"><li>Maria Keller: Got it, thank you!</li></ul><form><div id="reply" contenteditable="true"></div></form></section>`)
   M.render(fill({ el: document.getElementById("reply") }), at())
   await tick(160)
   const link = () => at().querySelector(".cf-qi-fill-row .cf-link")
