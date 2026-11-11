@@ -179,3 +179,13 @@ test("a rated item without reviewers' words gets a review search in the plan's l
     globalThis.fetch = real
   }
 })
+
+test("one marketplace listing at most in the answer, also when a review page led to the listings", () => {
+  const p = plan({ subject: "Sony WH-1000XM5", traits: ["over-ear headphones", "noise cancelling"] })
+  const at = (url: string, name: string) => candidate(url, html(name, offer("99", "USD")), name, p)
+  const pages = [at("https://www.amazon.com/dp/B0D46JP795?tag=x-20", "KVIDIO Hybrid ANC Headphones"), at("https://www.walmart.com/ip/1", "JBL Tune 770NC"), at("https://www.amazon.co.uk/dp/B0C3HCD34R", "Soundcore Q20i"), at("https://audio.example.com/q45", "Soundcore Space Q45")]
+  const raw = { intro: "", note: "", items: pages.map((c, i) => ({ page: i + 1, name: c.name, why: "w", fit: "f", met: "n/a", words_met: "n/a", same: false, shares: [1, 2], differs: "" })) }
+  const { result, dropped } = finishItems(raw, pages, p, { title: "x", url: "https://electronics.example.com/x", text: "" })
+  assert.deepEqual(result.items.map((i) => i.host), ["amazon.com", "audio.example.com"])
+  assert.equal(dropped.filter((d) => d.why === "one marketplace listing at most").length, 2)
+})

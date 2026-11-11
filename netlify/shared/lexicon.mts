@@ -356,6 +356,53 @@ export const NAME_STOP: Words = {
   ar: ["و", "في", "من", "على", "مع", "أو"]
 }
 
+// ------------------------------------------------------------ delivery
+
+/** Shipping and delivery, as a shop writes it on a link to its delivery page. */
+export const SHIPPING: Words = {
+  en: ["shipping", "delivery", "postage", "shipping policy", "shipping & returns", "shipping and returns", "delivery information"],
+  ru: ["доставка", "доставка и оплата"],
+  uk: ["доставка", "доставка і оплата", "доставка та оплата"],
+  de: ["versand", "lieferung", "versandkosten", "porto", "versand & lieferung", "lieferinformationen", "versandinformationen"],
+  fr: ["livraison", "frais de port", "expédition", "livraison et retours"],
+  es: ["envío", "envíos", "envio", "envios", "entrega", "gastos de envío"],
+  it: ["spedizione", "spedizioni", "consegna", "costi di spedizione"],
+  pt: ["frete", "envio", "entrega", "envios"],
+  ja: ["送料", "配送", "配達", "配送について"],
+  ko: ["배송", "배송비", "배송안내", "배송 정보", "택배"],
+  zh: ["运费", "配送", "快递", "邮费", "配送说明"],
+  "zh-Hant": ["運費", "配送", "宅配", "配送說明"],
+  vi: ["vận chuyển", "giao hàng", "phí ship", "chính sách giao hàng"],
+  ar: ["شحن", "الشحن", "توصيل", "التوصيل", "سياسة الشحن"]
+}
+
+/** A delivery page saying it ships anywhere. */
+export const WORLDWIDE: Words = {
+  en: ["worldwide", "international shipping", "ship internationally", "ships internationally", "all countries", "anywhere in the world", "international delivery"],
+  ru: ["по всему миру", "международная доставка", "во все страны"],
+  uk: ["по всьому світу", "міжнародна доставка", "у всі країни"],
+  de: ["weltweit", "internationaler versand", "in alle länder", "internationale lieferung"],
+  fr: ["dans le monde entier", "livraison internationale", "partout dans le monde", "expédition internationale"],
+  es: ["a todo el mundo", "envíos internacionales", "envío internacional"],
+  it: ["in tutto il mondo", "spedizioni internazionali", "spedizione internazionale"],
+  pt: ["para todo o mundo", "envio internacional", "envios internacionais"],
+  ja: ["海外発送", "世界中", "国際配送", "海外配送"],
+  ko: ["해외배송", "전 세계", "국제 배송", "해외 배송"],
+  zh: ["全球配送", "国际配送", "海外直邮", "全球发货"],
+  "zh-Hant": ["全球配送", "國際配送", "海外直送"],
+  vi: ["toàn cầu", "giao hàng quốc tế", "vận chuyển quốc tế"],
+  ar: ["جميع أنحاء العالم", "شحن دولي", "الشحن الدولي"]
+}
+
+/** A delivery page naming the European Union or Europe (for a country in it). */
+export const EUROPE: Words = {
+  en: ["europe", "european union", "eu countries", "within the eu", "to the eu"], ru: ["европа", "евросоюз", "страны ес"],
+  uk: ["європа", "євросоюз", "країни єс"], de: ["europa", "eu-länder", "europäische union", "innerhalb der eu"],
+  fr: ["europe", "union européenne", "pays de l'ue"], es: ["europa", "unión europea", "países de la ue"],
+  it: ["europa", "unione europea", "paesi ue"], pt: ["europa", "união europeia", "países da ue"], ja: ["ヨーロッパ", "欧州"],
+  ko: ["유럽"], zh: ["欧洲", "欧盟"], "zh-Hant": ["歐洲", "歐盟"], vi: ["châu âu"], ar: ["أوروبا", "الاتحاد الأوروبي"]
+}
+
 // ------------------------------------------------------------ which language a text is in
 
 /**
