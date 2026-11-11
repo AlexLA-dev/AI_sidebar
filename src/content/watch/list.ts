@@ -38,7 +38,8 @@ export function watchRow(w: Watch, now = Date.now()): LaterItem {
   } else {
     status = t("watchRowNew", line)
   }
-  return { id: `${PREFIX}${w.id}`, kind: "watch", title: w.title || w.host, url: w.url, status, sortAt: w.metAt ?? w.checkedAt }
+  // The person's own note (2.6 (97)) over the status.
+  return { id: `${PREFIX}${w.id}`, kind: "watch", title: w.title || w.host, url: w.url, ...(w.note ? { text: w.note } : {}), status, sortAt: w.metAt ?? w.checkedAt }
 }
 
 /**

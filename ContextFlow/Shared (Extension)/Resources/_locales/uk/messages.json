@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "Коли нагадати?"
  },
+ "uxNoteWords": {
+  "message": "Що перевірити або про що нагадати…"
+ },
  "uxRemindAsked": {
   "message": "Ви просили нагадати: {0}"
  },
@@ -1594,6 +1597,9 @@
  },
  "watchWhen": {
   "message": "Коли повідомити"
+ },
+ "watchNoteWords": {
+  "message": "Що перевірити, коли зміниться…"
  },
  "watchCondPrice": {
   "message": "коли зміниться ціна (зараз {0})"

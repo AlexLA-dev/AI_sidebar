@@ -47,6 +47,10 @@ export interface LaterItem {
   at?: number
   text?: string
   question?: string
+  // A note on a selection (2.6 (97)): what was selected, shown as a quote; `text` is then the person's own words.
+  quote?: string
+  // A reminder made with Remind on a selection or a page: the person's own words, changed with its time ("" for none).
+  words?: string
 }
 
 /** Rows for a list in the panel (watching's, in "Watching"): listed, and stopped from the list. */

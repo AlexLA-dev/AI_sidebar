@@ -15,6 +15,8 @@ struct WatchEntry: Codable, Equatable, Identifiable {
     /// What is watched, a few words ("Size 42").
     var label: String
     var condition: String
+    /// 2.6 (97): the person's own note on it, optional (src/shared/watch/types.ts `note`). Older entries have none.
+    var note: String?
     /// What it waits for with the value now, ready to show ("when the price drops below 35 € · now 40 €"): the
     /// extension writes it in the person's language. Older entries have none.
     var line: String?
@@ -64,7 +66,8 @@ enum WatchStore {
         func ms(_ v: Any?) -> Double? { (v as? NSNumber)?.doubleValue }
         return WatchEntry(
             id: id, title: d["title"] as? String ?? "", url: url, label: d["label"] as? String ?? "",
-            condition: d["condition"] as? String ?? "", line: d["line"] as? String, what: d["what"] as? String ?? "page",
+            condition: d["condition"] as? String ?? "", note: (d["note"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+            line: d["line"] as? String, what: d["what"] as? String ?? "page",
             mode: d["mode"] as? String ?? "bg", checkedAt: ms(d["checkedAt"]) ?? 0,
             metAt: ms(d["metAt"]), metValue: d["metValue"] as? String
         )

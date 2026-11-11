@@ -14,6 +14,7 @@ import { conditionLine, shown } from "../../shared/watch/line"
 import type { WatchDraft, WatchHow } from "../../shared/watch/messages"
 import type { Watch } from "../../shared/watch/types"
 import { panelRoot } from "../root"
+import { NoteWords } from "../ux/MessageUx"
 import { Eye } from "./icons"
 import { ago } from "./list"
 import { grow, WatchSection } from "./WatchSection"
@@ -98,13 +99,16 @@ const send = <T,>(message: unknown) => chrome.runtime.sendMessage(message) as Pr
 function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; changed(): void }): VNode {
   const [w, setW] = useState(watch)
   const [words, setWords] = useState(watch.condition)
+  // The person's own note (2.6 (97)): changed here with the words, or alone.
+  const [note, setNote] = useState(watch.note ?? "")
   const [state, setState] = useState<"edit" | "saving" | "failed" | "consent" | "consent-again">("edit")
+  const reworded = words.trim() !== w.condition.trim()
   const save = async () => {
-    // New words go to the AI: without the consent, the one card here first.
-    const consent = await loadConsent()
+    // New words go to the AI: without the consent, the one card here first. A new note alone goes nowhere.
+    const consent = reworded ? await loadConsent() : "ok"
     if (consent !== "ok") return setState(consent === "old" ? "consent-again" : "consent")
     setState("saving")
-    const reply = await send<{ ok: boolean; watch?: Watch }>({ type: "watchEdit", id: w.id, condition: words }).catch(() => null)
+    const reply = await send<{ ok: boolean; watch?: Watch }>({ type: "watchEdit", id: w.id, condition: reworded ? words : w.condition, note: note.trim() }).catch(() => null)
     if (!reply?.ok || !reply.watch) return setState("failed")
     setW(reply.watch)
     setState("edit")
@@ -120,7 +124,7 @@ function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; cha
     changed()
     close()
   }
-  const dirty = words.trim() && words.trim() !== w.condition.trim()
+  const dirty = words.trim() !== "" && (reworded || note.trim() !== (w.note ?? "").trim())
   return (
     <Sheet label={t("watchSection")} close={close}>
       <section class="cf-watch cf-watch-edit">
@@ -132,6 +136,7 @@ function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; cha
           setWords(e.currentTarget.value)
           grow(e.currentTarget)
         }} />
+        <NoteWords watch value={note} onInput={setNote} />
         {state === "failed" && <p class="cf-watch-msg">{t("watchFailed")}</p>}
         {(state === "consent" || state === "consent-again") && (
           <ConsentCard again={state === "consent-again"} onAccept={() => void giveConsent().then(save)} onDecline={() => setState("edit")} />

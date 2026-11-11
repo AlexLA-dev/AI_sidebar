@@ -1,7 +1,8 @@
 // The reminders in the panel's "Reminders" list (2.5; 2.5 (75), the owner's notes: a row must say what the reminder
 // is about in full, not a title cut at the row's width). Pure, so it's tested without a page.
 
-import { entryKey, isQuestion, type Entry } from "../../shared/conversation.ts"
+import { citedNote, entryKey, isQuestion, type Entry } from "../../shared/conversation.ts"
+import { remindWords } from "../../shared/reminders.ts"
 import { toPlainText } from "../../shared/share.ts"
 import { threadTitle, type Threads } from "../../shared/threads.ts"
 import type { LaterItem } from "./later.ts"
@@ -9,10 +10,15 @@ import type { LaterItem } from "./later.ts"
 // An answer's start shown with its reminder; the whole answer is a tap away ("Open").
 const ANSWER_START = 280
 
-/** What a reminder on `m[idx]` is about: a note's text; for an answer, the question it answers and its start. */
-export function reminderText(m: Entry[], idx: number): { text?: string; question?: string } {
+/**
+ * What a reminder on `m[idx]` is about: a note's text (one on a selection: the person's words, and the quote apart,
+ * 2.6 (97)); for an answer, the question it answers and its start.
+ */
+export function reminderText(m: Entry[], idx: number): { text?: string; question?: string; quote?: string } {
   const entry = m[idx]
   if (!entry) return {}
+  const cited = citedNote(entry)
+  if (cited) return { quote: cited.cite, ...(cited.note ? { text: cited.note } : {}) }
   if (entry.role === "user") return entry.content.trim() ? { text: entry.content.trim() } : {}
   const before = m[idx - 1]
   const question = idx > 0 && isQuestion(before) ? (before.label ?? before.content).trim() : ""
@@ -44,7 +50,8 @@ export function reminderRows(threads: Threads, dev: string | undefined, now: num
         sortAt: m.remind.at,
         at: m.remind.at,
         here,
-        ...reminderText(thread.m, idx)
+        ...reminderText(thread.m, idx),
+        ...(remindWords(m) !== undefined ? { words: remindWords(m) } : {})
       })
     })
   }

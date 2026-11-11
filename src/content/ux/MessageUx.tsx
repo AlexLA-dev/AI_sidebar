@@ -81,7 +81,7 @@ export function RemindChip({ at, onClick }: { at: number; onClick: () => void })
  * In the panel it sits right above the question field (on iPhone, Safari's bar covers the panel's very
  * bottom); `page`: over the page (the bell by a selection, with the panel closed).
  */
-export function RemindSheet({ current, note, page = false, title, quote, later = false, flash = 0, children, onPick, onCancel, onClose }: {
+export function RemindSheet({ current, note, page = false, title, quote, words, later = false, flash = 0, children, onPick, onCancel, onClose }: {
   current?: number
   note?: string | null
   page?: boolean
@@ -90,15 +90,21 @@ export function RemindSheet({ current, note, page = false, title, quote, later =
   title?: string
   // What was selected (the bubble's bell, or a selection when the "…" was opened): the note will start with it.
   quote?: string
+  // 2.6 (97), the owner: «мне некуда приписать себе заметку, что именно я хочу проверить или напомнить о чём». A
+  // reminder on a selection or a page has the person's own words, optional (a time saves without them): "" for a new
+  // one, its words when its time is changed. Undefined: no field (a reminder on an answer).
+  words?: string
   later?: boolean
   // Changes when Remind should come into view and flash (LaterContext.remind).
   flash?: number
   children?: ComponentChildren
-  onPick: (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => void
+  onPick: (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom", words?: string) => void
   onCancel: () => void
   onClose: () => void
 }): VNode {
   const [custom, setCustom] = useState<string | null>(null)
+  const [own, setOwn] = useState(words ?? "")
+  const pick = (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => onPick(at, preset, words === undefined ? undefined : own.trim())
   const back = useRef<HTMLDivElement>(null)
   const remindTitle = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -116,9 +122,10 @@ export function RemindSheet({ current, note, page = false, title, quote, later =
         {title
           ? <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {title}</div>
           : <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {t("uxRemindTitle")}</div>}
-        {quote && <p class="cf-sheet-quote">“{quote.replace(/\s+/g, " ").trim()}”</p>}
+        {quote && <blockquote class="cf-sheet-quote" dir="auto">{quote.replace(/\s+/g, " ").trim()}</blockquote>}
+        {words !== undefined && <NoteWords value={own} onInput={setOwn} />}
         {remindPresets().filter((p) => !later || p.key !== "uxRemindHour").map((p) => (
-          <button type="button" key={p.key} class="cf-sheet-row" onClick={() => onPick(p.at, PRESET[p.key])}>
+          <button type="button" key={p.key} class="cf-sheet-row" onClick={() => pick(p.at, PRESET[p.key])}>
             <span>{t(p.key)}</span>
             <span class="cf-sheet-when">{remindLabel(p.at)}</span>
           </button>
@@ -130,7 +137,7 @@ export function RemindSheet({ current, note, page = false, title, quote, later =
         ) : (
           <div class="cf-sheet-pick">
             <input type="datetime-local" value={custom} min={localInput(Date.now())} onInput={(e) => setCustom((e.target as HTMLInputElement).value)} />
-            <button type="button" class="cf-primary cf-sheet-ok" disabled={!custom || new Date(custom).getTime() <= Date.now()} onClick={() => custom && onPick(new Date(custom).getTime(), "custom")}>
+            <button type="button" class="cf-primary cf-sheet-ok" disabled={!custom || new Date(custom).getTime() <= Date.now()} onClick={() => custom && pick(new Date(custom).getTime(), "custom")}>
               {t("uxRemindSet")}
             </button>
           </div>
@@ -142,6 +149,47 @@ export function RemindSheet({ current, note, page = false, title, quote, later =
         {children}
       </div>
     </div>
+  )
+}
+
+/**
+ * The person's own words on a reminder or a watch (2.6 (97)): optional, never focused by itself (a time or Watch saves
+ * at once, as before), as tall as its words; Return closes the keyboard and saves nothing, the page's shortcuts don't
+ * get the keys.
+ */
+export function NoteWords({ value, onInput, watch = false }: { value: string; onInput: (value: string) => void; watch?: boolean }): VNode {
+  const fit = (el: HTMLTextAreaElement | null) => {
+    if (!el) return
+    el.style.height = "auto"
+    el.style.height = `${Math.min(el.scrollHeight + 2, 110)}px`
+  }
+  const stop = (e: KeyboardEvent) => e.stopPropagation()
+  return (
+    <textarea
+      class="cf-note-words"
+      dir="auto"
+      rows={1}
+      maxLength={500}
+      value={value}
+      // The eye's window never speaks of reminders (2.5 (77): the bell and the eye are never one window).
+      placeholder={t(watch ? "watchNoteWords" : "uxNoteWords")}
+      aria-label={t(watch ? "watchNoteWords" : "uxNoteWords")}
+      enterkeyhint="done"
+      ref={fit}
+      onInput={(e) => {
+        onInput(e.currentTarget.value)
+        fit(e.currentTarget)
+      }}
+      onKeyDown={(e) => {
+        e.stopPropagation()
+        if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+          e.preventDefault()
+          e.currentTarget.blur()
+        }
+      }}
+      onKeyUp={stop}
+      onKeyPress={stop}
+    />
   )
 }
 

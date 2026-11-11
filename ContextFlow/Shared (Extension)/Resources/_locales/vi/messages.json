@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "Nhắc bạn lúc nào?"
  },
+ "uxNoteWords": {
+  "message": "Cần kiểm tra gì hoặc nhắc bạn điều gì…"
+ },
  "uxRemindAsked": {
   "message": "Bạn nhờ tôi nhắc: {0}"
  },
@@ -1594,6 +1597,9 @@
  },
  "watchWhen": {
   "message": "Khi nào báo cho bạn"
+ },
+ "watchNoteWords": {
+  "message": "Cần kiểm tra gì khi có thay đổi…"
  },
  "watchCondPrice": {
   "message": "khi giá thay đổi (hiện là {0})"

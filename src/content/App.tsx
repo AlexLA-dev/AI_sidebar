@@ -50,6 +50,7 @@ import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undo
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
 import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
+import { withRemindWords } from "../shared/reminders"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
@@ -74,6 +75,7 @@ import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
 import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
+import { NoteText } from "./ux/NoteText"
 import { PageMenu } from "./ux/PageMenu"
 import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageWatcher, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
 import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
@@ -1540,7 +1542,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const url = source.key()
     const page = source.quick()
     const ref = pageRef(fits && current ? current.m : [], url, page.title, page.text, keepsText)
-    let note: Entry = sel ? selectionNote(sel.text, comment, ref, (text) => t("noteQuote", text)) : stamped({ role: "user", content: page.title || source.href(), note: true, page: ref }, ref.at)
+    // The whole page (2.6 (97)): the person's own words when they wrote some, else the page's name, as before.
+    let note: Entry = sel ? selectionNote(sel.text, comment, ref, (text) => t("noteQuote", text)) : stamped({ role: "user", content: comment.trim() || page.title || source.href(), note: true, page: ref }, ref.at)
     if (remindAt) {
       // Set on this device first: the note keeps the bell only when the notification is really set.
       const outcome = await scheduleReminder(sendBackground, id, { ...note, remind: { at: remindAt, page: true } }, remindAt, "")
@@ -2496,9 +2499,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         flash={laterFlash}
         title={t(from.selection ? "uxRemind" : "uxLaterTitle")}
         quote={from.selection?.text}
-        onPick={(at, preset) => {
+        words=""
+        onPick={(at, preset, words) => {
           setLater(null)
-          void noteSelection(from.selection, "", at, preset)
+          void noteSelection(from.selection, words ?? "", at, preset)
         }}
         onCancel={() => setLater(null)}
         onClose={() => setLater(null)}
@@ -2572,11 +2576,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setLaterCount(countOf(items))
   }
   /** A reminder's new time, from the list (2.5 (75)): it rings on this device. Null once set, else why it isn't. */
-  const rescheduleLaterItem = async (item: LaterItem, at: number, preset: string): Promise<string | null> => {
+  const rescheduleLaterItem = async (item: LaterItem, at: number, preset: string, words?: string): Promise<string | null> => {
     const ref = reminderOf(item)
     const thread = ref ? (await loadThreads()).threads[ref.chat] : undefined
-    const entry = ref && thread?.m.find((m) => entryKey(m) === ref.key)
-    if (!ref || !thread || !entry) return null
+    const found = ref && thread?.m.find((m) => entryKey(m) === ref.key)
+    if (!ref || !thread || !found) return null
+    // New words go with the new time (2.6 (97)); the notification says them.
+    const entry = withRemindWords(found, words)
     const what = entry.remind?.page ? "page" : entry.note ? "note" : "answer"
     const outcome = await scheduleReminder(sendBackground, ref.chat, entry, at, thread.title || threadTitle(thread.m))
     if (outcome !== "scheduled") {
@@ -2584,8 +2590,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return t(outcome === "denied" ? "uxRemindOff" : "uxRemindNone")
     }
     const dev = await thisDevice()
-    await saveThread(ref.chat, withReminderAt(thread.m, ref.key, at, dev))
-    if (threadRef.current === ref.chat) setMessages((list) => withReminderAt(list, ref.key, at, dev))
+    const worded = (list: Entry[]) => list.map((m) => (entryKey(m) === ref.key ? withRemindWords(m, words) : m))
+    await saveThread(ref.chat, withReminderAt(worded(thread.m), ref.key, at, dev))
+    if (threadRef.current === ref.chat) setMessages((list) => withReminderAt(worded(list), ref.key, at, dev))
     void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "set", what, how: "list", preset })
     const items = await laterItems()
     setLaterList(items)
@@ -3573,7 +3580,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {m.note ? (
                         ux.wrap(m, idx, (
                           <div class="cf-bubble-note" dir="auto">
-                            <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
+                            <NoteText entry={m} />
                           </div>
                         ), !picked)
                       ) : (

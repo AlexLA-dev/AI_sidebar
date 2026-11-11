@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "要在什麼時候提醒你？"
  },
+ "uxNoteWords": {
+  "message": "要確認什麼，或要提醒你什麼…"
+ },
  "uxRemindAsked": {
   "message": "你請我提醒你：{0}"
  },
@@ -1594,6 +1597,9 @@
  },
  "watchWhen": {
   "message": "何時通知你"
+ },
+ "watchNoteWords": {
+  "message": "變動時要確認什麼…"
  },
  "watchCondPrice": {
   "message": "價格變動時（目前 {0}）"
