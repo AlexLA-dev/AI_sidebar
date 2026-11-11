@@ -6,7 +6,7 @@
 // Nothing is stored: the page is read once and forgotten.
 
 import { MONEY_SIGN, currencyOf, currencyOfSign } from "./money.mts"
-import { AGO, GONE as GONE_WORDS, ITEM_PAGE, PRICE_PER_MONTH, HELPFUL, MARK_WORDS, NAME_EXTRAS, NAME_STOP, OTHER_ITEMS, PRICE_CART, PRICE_LABEL, PRICE_MONTHLY, PRICE_NOT_NOW, PRICE_SAVING, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, SHIPPING, SHOP_WORDS, STARS, VERIFIED, foldedPhrases, foldedWords, pattern } from "./lexicon.mts"
+import { AGO, GONE as GONE_WORDS, ITEM_PAGE, PRICE_PER_MONTH, HELPFUL, MARK_WORDS, NAME_EXTRAS, NAME_STOP, OTHER_ITEMS, PRICE_CART, PRICE_LABEL, PRICE_MONTHLY, PRICE_NOT_NOW, PRICE_SAVING, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, SHIPPING, SHOP_WORDS, STARS, UNITS, VERIFIED, foldedPhrases, foldedWords, pattern } from "./lexicon.mts"
 import { SIMPLIFIED, TRADITIONAL } from "../../src/shared/share.ts"
 import { isOutOfStock } from "../../src/shared/watch/detect.ts"
 import { hasDate } from "../../src/shared/watch/detect.ts"
@@ -347,10 +347,13 @@ export function readPrice(raw: string | undefined, html = "", url = ""): PagePri
 // ------------------------------------------------------------ a price in the item's text (2.6)
 
 const CODES = "EUR|USD|GBP|CHF|JPY|CNY|RMB|KRW|TWD|HKD|VND|SAR|AED|RUB|UAH|BRL|MXN|INR|CAD|AUD|SEK|NOK|DKK|PLN|CZK|TRY|ILS|THB|KZT|SGD|NZD"
-const NUM = String.raw`\d{1,3}(?:[ .,'  ]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?`
+// A number as a price writes it: thousands grouped by one kind of separator only ("$1,299 256 GB" is 1,299 and a size,
+// not 1.299256), Indian grouping ("₹1,23,456"), cents after a dot or a comma; or plain digits.
+const GROUPED = String.raw`(?:\d{1,2}(?:,\d{2})+,\d{3}|\d{1,3}(?:,\d{3})+|\d{1,3}(?:\.\d{3})+|\d{1,3}(?:[   ]\d{3})+|\d{1,3}(?:'\d{3})+)`
+const NUM = String.raw`${GROUPED}(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?`
 // A price as a page writes it: a sign or code before or after the number, or a number ending in ".-" (no sign).
 const TEXT_PRICE = new RegExp(String.raw`(?<![\p{L}\p{N}])(?:(${MONEY_SIGN}|${CODES}|Fr\.)\s?(${NUM})|(${NUM})\s?(${MONEY_SIGN}|${CODES})(?![\p{L}])|(${NUM})[.,][-–](?![\p{N}]))`, "gu")
-const BARE_LABELLED = new RegExp(String.raw`(?:${pattern(PRICE_LABEL).source})\s?:?\s?(\d{1,3}(?:[ .,'  ]\d{3})+(?:[.,]\d{1,2})?|\d+[.,]\d{2})(?![\p{L}\p{N}])`, "giu")
+const BARE_LABELLED = new RegExp(String.raw`(?:${pattern(PRICE_LABEL).source})\s?:?\s?(${GROUPED}(?:[.,]\d{1,2})?|\d+[.,]\d{2})(?![\p{L}\p{N}])`, "giu")
 const NOT_NOW_RE = pattern(PRICE_NOT_NOW)
 const SAVING_RE = pattern(PRICE_SAVING)
 const MONTHLY_RE = pattern(PRICE_MONTHLY)
@@ -377,7 +380,10 @@ const decode = (s: string) => s.replace(/&(?:#(\d{1,6})|#x([\da-f]{1,6})|([a-z]{
   if (code >= 0) return code > 0 && code < 0x110000 ? String.fromCodePoint(code) : " "
   return ENTITY[name.toLowerCase()] ?? " "
 })
-const SIZE_BEFORE = /(?:\d+(?:[.,]\d+)?\s?(?:ml|l|kg|g|cm|mm|oz|lb|gb|tb|"|in|cups?|pcs?)|\b(?:xs|s|m|l|xl|xxl)\b)\s*[:\-–]?\s*$/iu
+// A size or a quantity right before a price ("250 g – 590 ₽", "500 ml: $12", "5kg ¥3,980"): the units in every
+// shipped language (lexicon.mts), and clothes' sizes.
+const SIZE_UNITS = [...new Set(Object.values(UNITS).flat())].sort((a, b) => b.length - a.length).map((u) => u.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")
+const SIZE_BEFORE = new RegExp(String.raw`(?:\d+(?:[.,]\d+)?\s?(?:${SIZE_UNITS}|")|(?<![\p{L}])(?:xs|s|m|l|xl|xxl)(?![\p{L}]))\s*[:\-–]?\s*$`, "iu")
 
 /**
  * The item's price from its text, when the page states none for machines (2.6): the first clean price after the
