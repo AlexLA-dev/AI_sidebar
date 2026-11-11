@@ -626,6 +626,7 @@
   "listenClose": "停止并关闭",
   "listenPlayingHere": "正在播放",
   "listenVoiced": "已朗读过：重听免费",
+  "listenMadeLeft": "已朗读过：只扣除未听过的部分，{0}",
   "listenGoTo": "前往出处",
   "listenLoading": "正在准备语音…",
   "listenUltraTitle": "朗读是 Ultra 的功能",

@@ -1811,6 +1811,9 @@
  "listenVoiced": {
   "message": "読み上げ済み：もう一度聞いても無料です"
  },
+ "listenMadeLeft": {
+  "message": "読み上げ済み：差し引かれるのはまだ聞いていない部分だけです（{0}）"
+ },
  "listenGoTo": {
   "message": "元の場所へ移動"
  },

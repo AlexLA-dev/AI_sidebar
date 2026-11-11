@@ -151,35 +151,71 @@ export function heardTexts(raw: unknown): HeardText[] {
   return [...out].map(([id, keys]) => ({ id, keys }))
 }
 
-/** Which of `texts` are voiced for this subscription; the ones found voiced by their parts are kept as voiced. */
-export async function voicedTexts(access: Access, texts: HeardText[]): Promise<string[]> {
-  if (!texts.length) return []
+/**
+ * Build 98 release (the owner: «после генерации аудио… сразу ставить такую галочку, а не только после прослушки»): a
+ * text whose every part has been made here is "already voiced" even before it's all been heard, and the devices say
+ * what a replay costs. Minutes still count what's heard (2026-11-09), so a replay of such a text charges only the
+ * stretches never heard: `left`, in seconds. The text's made and heard seconds are kept by its id too, so a device
+ * that can't work out its parts (written for the ear on another device) still answers; both only ever grow.
+ */
+export const textMadeSubject = (access: Access, id: string) => `speakmadetext:${otidOf(access)}:${id}`
+export const textHeardSubject = (access: Access, id: string) => `speakheardtext:${otidOf(access)}:${id}`
+
+export interface TextStates {
+  // Every part heard: a replay is free.
+  voiced: string[]
+  // Every part made, not all of it heard: a replay charges `left` seconds, no more.
+  made: Array<{ id: string; left: number }>
+}
+
+/** Which of `texts` are voiced or made for this subscription; what's found by their parts is kept by their ids. */
+export async function textStates(access: Access, texts: HeardText[]): Promise<TextStates> {
+  if (!texts.length) return { voiced: [], made: [] }
+  const ever = (subject: string): EverCounter => ({ subject, period: "ever", limit: null })
   const keys = [...new Set(texts.flatMap((t) => t.keys))]
   const states = await peek([
-    ...texts.map((t): EverCounter => ({ subject: textVoicedSubject(access, t.id), period: "ever", limit: null })),
-    ...keys.flatMap((key): EverCounter[] => [
-      { subject: partMadeSubject(access, key), period: "ever", limit: null },
-      { subject: partHeardSubject(access, key), period: "ever", limit: null }
-    ])
+    ...texts.flatMap((t) => [ever(textVoicedSubject(access, t.id)), ever(textMadeSubject(access, t.id)), ever(textHeardSubject(access, t.id))]),
+    ...keys.flatMap((key) => [ever(partMadeSubject(access, key)), ever(partHeardSubject(access, key))])
   ])
   const n = (subject: string) => states.find((c) => c.subject === subject)?.n ?? 0
-  const voiced: string[] = []
+  const out: TextStates = { voiced: [], made: [] }
   const kept: EverCounter[] = []
+  const grow = (subject: string, value: number) => {
+    const more = Math.round(value) - n(subject)
+    if (more > 0) kept.push({ ...ever(subject), amount: more })
+  }
   for (const text of texts) {
     if (n(textVoicedSubject(access, text.id)) > 0) {
-      voiced.push(text.id)
+      out.voiced.push(text.id)
       continue
     }
-    // Every part made here and heard to within a second of its length (as applyHeard counts it).
-    const whole = text.keys.length > 0 && text.keys.every((key) => {
-      const made = n(partMadeSubject(access, key))
-      const counted = n(partHeardSubject(access, key))
-      return made > 0 && counted > 0 && counted >= made - 1
-    })
-    if (!whole) continue
-    voiced.push(text.id)
-    kept.push({ subject: textVoicedSubject(access, text.id), period: "ever", limit: null, amount: 1 })
+    if (!text.keys.length) {
+      // Asked by its id alone: as it was when last asked with its parts.
+      const made = n(textMadeSubject(access, text.id))
+      if (made > 0) out.made.push({ id: text.id, left: Math.max(1, made - n(textHeardSubject(access, text.id))) })
+      continue
+    }
+    // Every part made here (a part made before build 92 isn't on record: not made).
+    const parts = text.keys.map((key) => ({ made: n(partMadeSubject(access, key)), counted: n(partHeardSubject(access, key)) }))
+    if (!parts.every((p) => p.made > 0)) continue
+    // Heard to within a second of its length (as applyHeard counts it): the part is whole.
+    const whole = (p: { made: number; counted: number }) => p.counted > 0 && p.counted >= p.made - 1
+    if (parts.every(whole)) {
+      out.voiced.push(text.id)
+      kept.push({ ...ever(textVoicedSubject(access, text.id)), amount: 1 })
+      continue
+    }
+    const made = parts.reduce((sum, p) => sum + p.made, 0)
+    const heard = parts.reduce((sum, p) => sum + (whole(p) ? p.made : Math.min(p.counted, p.made)), 0)
+    out.made.push({ id: text.id, left: made - heard })
+    grow(textMadeSubject(access, text.id), made)
+    grow(textHeardSubject(access, text.id), heard)
   }
   if (kept.length) await consume(kept)
-  return voiced
+  return out
+}
+
+/** Which of `texts` are voiced for this subscription (every part heard). */
+export async function voicedTexts(access: Access, texts: HeardText[]): Promise<string[]> {
+  return (await textStates(access, texts)).voiced
 }

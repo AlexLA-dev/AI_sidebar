@@ -42,3 +42,47 @@ export function withVoiced(list: Record<string, number>, add: string[], now = Da
   if (entries.length <= VOICED_MAX) return next
   return Object.fromEntries(entries.sort((a, b) => b[1] - a[1]).slice(0, VOICED_MAX))
 }
+
+// Build 98 release (the owner: «после генерации аудио… сразу ставить такую галочку»): a text whose every part has been
+// made for the subscription, but not all heard, is "already voiced" too, as the server counts it. Minutes count what's
+// heard, so its mark says what a replay costs: the seconds never heard (`left`). id → { left, at }, newest kept.
+export interface MadeText {
+  id: string
+  left: number
+}
+export type MadeList = Record<string, { left: number; at: number }>
+
+/** The server's `made` as it came (anything else left out). */
+export function madeTexts(raw: unknown): MadeText[] {
+  const out: MadeText[] = []
+  for (const item of Array.isArray(raw) ? raw.slice(0, 80) : []) {
+    const { id, left } = (item ?? {}) as { id?: unknown; left?: unknown }
+    if (typeof id === "string" && /^[0-9a-f]{16}$/.test(id) && typeof left === "number" && Number.isFinite(left) && left > 0) {
+      out.push({ id, left: Math.min(36_000, Math.ceil(left)) })
+    }
+  }
+  return out
+}
+
+/** The list with these made: each one's seconds left as the server says now; the voiced ones out (heard in full). */
+export function withMade(list: MadeList, add: MadeText[], voiced: Record<string, number> = {}, now = Date.now()): MadeList {
+  const next: MadeList = {}
+  for (const [id, row] of Object.entries(list)) if (!voiced[id]) next[id] = row
+  for (const { id, left } of add) if (!voiced[id]) next[id] = { left, at: now }
+  const entries = Object.entries(next)
+  if (entries.length <= VOICED_MAX) return next
+  return Object.fromEntries(entries.sort((a, b) => b[1].at - a[1].at).slice(0, VOICED_MAX))
+}
+
+/** What Listen's mark says for a text: "free" (heard in full), the seconds a replay charges (made), or null (none). */
+export function listenMark(id: string, voiced: Record<string, number>, made: MadeList): "free" | number | null {
+  if (voiced[id]) return "free"
+  const left = made[id]?.left
+  return typeof left === "number" && left > 0 ? left : null
+}
+
+/** Seconds as the players show them (the app's ListenScrubber.clock too): 0:12, 3:05, 75:03. */
+export function markClock(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds))
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`
+}

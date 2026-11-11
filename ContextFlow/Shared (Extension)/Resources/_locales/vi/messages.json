@@ -1811,6 +1811,9 @@
  "listenVoiced": {
   "message": "Đã đọc trước đó: nghe lại miễn phí"
  },
+ "listenMadeLeft": {
+  "message": "Đã đọc trước đó: chỉ trừ phần bạn chưa nghe, {0}"
+ },
  "listenGoTo": {
   "message": "Đến nơi phát"
  },

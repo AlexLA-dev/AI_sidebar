@@ -49,9 +49,14 @@ struct ListenRequest: Equatable {
 final class VoicedList: ObservableObject {
     static let shared = VoicedList()
     @Published private(set) var ids: Set<String>
+    /// Build 98 release (the owner: the mark once the audio is made, not only once it's heard): texts whose every part
+    /// has been made for the subscription, not all heard, as the server counts them: id → the seconds a replay charges.
+    @Published private(set) var made: [String: Int]
+    private static let madeKey = "cf_listen_made"
 
     private init() {
         ids = Set(SharedDefaults.shared.voicedIds())
+        made = (UserDefaults.standard.dictionary(forKey: Self.madeKey) as? [String: [Double]] ?? [:]).compactMapValues { $0.first.map { Int($0) } }
     }
 
     func reload() {
@@ -61,6 +66,41 @@ final class VoicedList: ObservableObject {
 
     func has(_ what: String, _ text: String) -> Bool {
         !ids.isEmpty && ids.contains(Self.id(what: what, text: text))
+    }
+
+    /// What Listen's mark says for a text: heard in full (a replay is free), made (a replay charges `left`), or none.
+    func mark(_ what: String, _ text: String) -> ListenMark? {
+        guard !ids.isEmpty || !made.isEmpty else { return nil }
+        let id = Self.id(what: what, text: text)
+        if ids.contains(id) { return .free }
+        if let left = made[id], left > 0 { return .left(left) }
+        return nil
+    }
+
+    /// The server's `made` (build 98 release): kept on this device, the newest 400; the ones voiced here left out.
+    func markMade(_ raw: Any?) {
+        let list = (raw as? [[String: Any]] ?? []).prefix(80).compactMap { item -> (String, Int)? in
+            guard let id = item["id"] as? String, id.count == 16, id.allSatisfy(\.isHexDigit),
+                  let left = (item["left"] as? NSNumber)?.doubleValue, left.isFinite, left > 0 else { return nil }
+            return (id, Int(min(36_000, left.rounded(.up))))
+        }
+        guard !list.isEmpty else { return }
+        var stored = UserDefaults.standard.dictionary(forKey: Self.madeKey) as? [String: [Double]] ?? [:]
+        let now = Date().timeIntervalSince1970
+        for (id, left) in list where !ids.contains(id) { stored[id] = [Double(left), now] }
+        for id in stored.keys where ids.contains(id) { stored[id] = nil }
+        if stored.count > 400 {
+            stored = Dictionary(uniqueKeysWithValues: stored.sorted { ($0.value.last ?? 0) > ($1.value.last ?? 0) }.prefix(400).map { ($0.key, $0.value) })
+        }
+        UserDefaults.standard.set(stored, forKey: Self.madeKey)
+        let next = stored.compactMapValues { $0.first.map { Int($0) } }
+        if next != made { made = next }
+    }
+
+    /// "Delete all chats".
+    func clearMade() {
+        UserDefaults.standard.removeObject(forKey: Self.madeKey)
+        made = [:]
     }
 
     /// False when it was marked already.
@@ -105,12 +145,28 @@ final class VoicedList: ObservableObject {
                   (response as? HTTPURLResponse)?.statusCode == 200,
                   let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
             self.markAll((body["voiced"] as? [String]) ?? [])
+            self.markMade(body["made"])
         }
     }
 
     /// The text's id (src/shared/voiced.ts voicedId).
     nonisolated static func id(what: String, text: String) -> String {
         VoicedQuery.id(what: what, text: text)
+    }
+}
+
+/// Listen's mark on a text (build 98 release): heard in full, so a replay is free; or made in full, so a replay charges
+/// only the seconds never heard.
+enum ListenMark: Equatable {
+    case free
+    case left(Int)
+
+    /// What it says (the tooltip, the long press, VoiceOver).
+    var words: Text {
+        switch self {
+        case .free: return Text("Already voiced: replay is free")
+        case .left(let seconds): return Text("Already voiced: only the unheard part is charged, \(ListenScrubber.clock(Double(seconds)))")
+        }
     }
 }
 
@@ -928,8 +984,9 @@ final class ListenPlayer: NSObject, ObservableObject {
             lastUsage = (used, limit)
             shared.secondsLeft = max(0, limit - used)
         }
-        // Voiced now, as the server counts it (build 95).
+        // Voiced now, as the server counts it (build 95); made in full, not all heard (build 98 release).
         VoicedList.shared.markAll((body?["voiced"] as? [String]) ?? [])
+        VoicedList.shared.markMade(body?["made"])
     }
 
     /// Where the minutes went for this text, once, when it stops: heard, from where, and charged up front.
@@ -1781,12 +1838,15 @@ enum HeardStore {
     }
 }
 
-/// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
-/// for again): about 25 minutes of audio, nothing older than 7 days; gone with the chats ("Delete all chats").
+/// The parts already spoken, in Caches (the system may clear them; then they're asked for again): about 25 minutes of
+/// audio, nothing older than 7 days. The texts written for the ear, in Application Support, as long as the chats
+/// (build 98 release: written again, a text gets new parts and a replay counts as new, so "already voiced" holds only
+/// while it's the same): the newest `scriptLimit`. All gone with the chats ("Delete all chats").
 /// Nonisolated (build 95): a chat being opened reads kept scripts off the main thread (VoicedList.ask).
 nonisolated enum SpeechCache {
     private static let limit = 75 * 1024 * 1024
     private static let maxAge: TimeInterval = 7 * 86_400
+    private static let scriptLimit = 2000
 
     private static var folder: URL? {
         guard let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
@@ -1795,7 +1855,21 @@ nonisolated enum SpeechCache {
         return folder
     }
 
+    private static var scriptFolder: URL? {
+        guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
+        let folder = support.appendingPathComponent("ListenScripts", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder
+    }
+
+    private static func isScript(_ key: String) -> Bool {
+        key.hasPrefix("script|")
+    }
+
     static func read(_ key: String) -> Data? {
+        if isScript(key), let file = scriptFolder?.appendingPathComponent("\(name(key)).txt"), let data = try? Data(contentsOf: file), !data.isEmpty {
+            return data
+        }
         // Made by the panel on this device (build 92): from the App Group, as if it were here.
         guard let file = folder?.appendingPathComponent("\(name(key)).pcm"), let data = try? Data(contentsOf: file), !data.isEmpty else {
             return SharedListenCache.read(key)
@@ -1805,14 +1879,21 @@ nonisolated enum SpeechCache {
             try? FileManager.default.removeItem(at: file)
             return nil
         }
+        // Written for the ear by a build before 98's release (in Caches): kept from now on as long as the chats.
+        if isScript(key) {
+            write(key, data)
+            try? FileManager.default.removeItem(at: file)
+        }
         return data
     }
 
     /// "Delete all chats": everything read aloud goes.
     static func clear() {
         SharedListenCache.clear()
-        guard let folder, let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return }
-        for file in files { try? FileManager.default.removeItem(at: file) }
+        for folder in [folder, scriptFolder].compactMap({ $0 }) {
+            guard let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { continue }
+            for file in files { try? FileManager.default.removeItem(at: file) }
+        }
     }
 
     /// File names from keys ("script|page|<hash>" has bars).
@@ -1821,6 +1902,10 @@ nonisolated enum SpeechCache {
     }
 
     static func write(_ key: String, _ data: Data) {
+        if isScript(key) {
+            writeScript(key, data)
+            return
+        }
         guard let folder, !data.isEmpty else { return }
         try? data.write(to: folder.appendingPathComponent("\(name(key)).pcm"), options: .atomic)
         // Over the limit: the parts played longest ago go.
@@ -1835,6 +1920,16 @@ nonisolated enum SpeechCache {
             total += row.2
             if total > limit || Date().timeIntervalSince(row.1) > maxAge { try? FileManager.default.removeItem(at: row.0) }
         }
+    }
+
+    /// A text written for the ear; past the newest `scriptLimit`, the oldest go.
+    private static func writeScript(_ key: String, _ data: Data) {
+        guard let scriptFolder, !data.isEmpty else { return }
+        try? data.write(to: scriptFolder.appendingPathComponent("\(name(key)).txt"), options: .atomic)
+        guard let files = try? FileManager.default.contentsOfDirectory(at: scriptFolder, includingPropertiesForKeys: [.contentModificationDateKey]),
+              files.count > scriptLimit else { return }
+        let dated = files.map { ($0, (try? $0.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast) }
+        for row in dated.sorted(by: { $0.1 > $1.1 }).dropFirst(scriptLimit) { try? FileManager.default.removeItem(at: row.0) }
     }
 }
 

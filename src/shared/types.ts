@@ -331,6 +331,8 @@ export const STORAGE = {
   // Build 94: the texts heard to their end on this device, in the panel or the app ({ [id]: ms }, shared/voiced.ts):
   // Listen shows that replaying them costs no minutes.
   voiced: "cf:voiced",
+  // Build 98 release: texts made in full for the subscription, not all heard (src/shared/voiced.ts MadeList).
+  listenMade: "cf:listenMade",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.

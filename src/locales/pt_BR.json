@@ -626,6 +626,7 @@
   "listenClose": "Parar e fechar",
   "listenPlayingHere": "Tocando agora",
   "listenVoiced": "Já narrado: ouvir de novo é grátis",
+  "listenMadeLeft": "Já narrado: só será descontado o que você não ouviu, {0}",
   "listenGoTo": "Ir para onde está",
   "listenLoading": "Preparando a voz…",
   "listenUltraTitle": "Ouvir faz parte do Ultra",

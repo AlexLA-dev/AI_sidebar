@@ -47300,6 +47300,88 @@
         }
       }
     },
+    "Already voiced: only the unheard part is charged, %@": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تمت قراءته من قبل: يُخصم فقط الجزء الذي لم تستمع إليه، %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schon vertont: abgezogen wird nur, was du noch nicht gehört hast, %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya narrado: solo se descuenta lo que no has escuchado, %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déjà lu à voix haute : seule la partie non écoutée sera décomptée, %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Già letto ad alta voce: verrà scalato solo ciò che non hai ascoltato, %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み上げ済み：差し引かれるのはまだ聞いていない部分だけです（%@）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이미 읽어 준 내용: 듣지 않은 부분만 차감돼요, %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Já narrado: só será descontado o que você não ouviu, %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уже озвучено: спишется только недослушанное, %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уже озвучено: спишеться лише недослухане, %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã đọc trước đó: chỉ trừ phần bạn chưa nghe, %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已朗读过：只扣除未听过的部分，%@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已朗讀過：只扣除未聽過的部分，%@"
+          }
+        }
+      }
+    },
     "Playback position": {
       "localizations": {
         "ar": {

@@ -608,6 +608,36 @@ struct RecentlyDeletedView: View {
 
 /// The search field's two ways, "By words" and "By meaning" (2.6 (98)), as the list's first row while the field is open
 /// or has words in it.
+/// A long press on Listen with a mark (build 98 release; no tooltip on a touch screen): the whole sentence, wrapped, as
+/// the menu's preview (a menu item cuts it at two lines, before the seconds a replay charges), and Listen below it.
+private struct ListenMarkMenu: ViewModifier {
+    let mark: ListenMark?
+    let listen: () -> Void
+
+    func body(content: Content) -> some View {
+        if let mark {
+            content.contextMenu {
+                Button(action: listen) { Label("Listen", systemImage: "speaker.wave.2.fill") }
+            } preview: {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Image(systemName: "checkmark.circle")
+                        .opacity(mark == .free ? 0.8 : 0.38)
+                    mark.words
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .font(.callout)
+                .foregroundColor(.primary)
+                .frame(width: 280, alignment: .leading)
+                .padding(16)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("chat.listen.said")
+            }
+        } else {
+            content
+        }
+    }
+}
+
 private struct SearchWayRow: View {
     @Binding var way: ChatsView.SearchWay
     let pro: Bool
@@ -1315,7 +1345,7 @@ struct ChatDetailView: View {
                                                     // chat's name): the one its question was asked on, as in the panel.
                                                     ListenPlayer.shared.listen(answer: entry.content, id: "chat-\(thread.id)-\(index)", title: answerTitle(thread, index))
                                                 },
-                                                voiced: !entry.isNote && store.isUltra && voiced.has("answer", entry.content)
+                                                mark: !entry.isNote && store.isUltra ? voiced.mark("answer", entry.content) : nil
                                             )
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
@@ -2547,8 +2577,9 @@ private struct MessageTools: View {
     var actions: MessageActions? = nil
     /// Listen (build 90, answers): Ultra's, in Ultra's tint; without Ultra with a tiny "Ultra" mark.
     var listen: (() -> Void)? = nil
-    /// Build 94: heard to its end on this device, so replaying it costs no minutes: a quiet check by Listen.
-    var voiced = false
+    /// Build 94: heard in full, so replaying it costs no minutes: a quiet check by Listen. Build 98 release: made in
+    /// full but not all heard, a lighter check (a replay charges only what was never heard).
+    var mark: ListenMark? = nil
     @ObservedObject var store = StoreKitManager.shared
 
     var body: some View {
@@ -2596,20 +2627,21 @@ private struct MessageTools: View {
                         Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
                         if titles { Text("Listen").lineLimit(1) }
                         if !store.isUltra { UltraMark() }
-                        if voiced {
+                        if let mark {
                             Image(systemName: "checkmark.circle")
                                 .font(.caption2.weight(.semibold))
-                                .opacity(0.8)
-                                .accessibilityIdentifier("chat.listen.voiced")
+                                .opacity(mark == .free ? 0.8 : 0.38)
+                                .accessibilityIdentifier(mark == .free ? "chat.listen.voiced" : "chat.listen.made")
                         }
                     }
                     .foregroundColor(ultraTint)
                     .fixedSize()
                 }
-                .help(voiced ? Text("Already voiced: replay is free") : Text("Listen"))
+                .help(mark?.words ?? Text("Listen"))
                 .accessibilityLabel(Text("Listen"))
-                .accessibilityValue(voiced ? Text("Already voiced: replay is free") : Text(""))
+                .accessibilityValue(mark?.words ?? Text(""))
                 .accessibilityIdentifier("chat.listen")
+                .modifier(ListenMarkMenu(mark: mark, listen: listen))
             }
             if let tag {
                 Button(action: tag) { Label("Tag", systemImage: "tag") }

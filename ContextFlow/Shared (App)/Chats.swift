@@ -899,6 +899,7 @@ final class ChatLibrary: ObservableObject {
             if hadChats {
                 SpeechCache.clear()
                 HeardCover.clear()
+                Task { @MainActor in VoicedList.shared.clearMade() }
                 // And from the user's iCloud (2.6), for every device.
                 Task.detached(priority: .utility) { await SpeechSync.deleteAll() }
             }

@@ -569,6 +569,40 @@ test("heard (build 98): nonsense tenths are left out (the seconds still count, a
   assert.equal(counters.get("speak:tx:3000000001"), 1)
 })
 
+test("heard (98 release): a text made in full gets the mark before it's all heard, saying what a replay charges; by its id too", async () => {
+  const p1 = "Y".repeat(70), p2 = "Z".repeat(70)
+  for (const text of [p1, p2]) {
+    const c = ctx()
+    await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws() }), c))
+    await Promise.all(c.waits)
+  }
+  const keys = [partKey("en", p1), partKey("en", p2)]
+  const id = "3123456789abcdef"
+  const other = "6f1d2c3b-4a59-4e6f-8a7b-9c0d1e2f3a4b"
+  type States = { added: number; voiced: string[]; made: Array<{ id: string; left: number }> }
+  const send = async (body: Record<string, unknown>, installId = INSTALL) =>
+    (await (await speakHeard(post("https://x/api/v2/speak-heard", { installId, entitlement: ultraJws(), ...body }), ctx())).json()) as States
+  // Both parts made (a listen that made them and stopped), nothing heard: made, all 6 s left.
+  const none = await send({ texts: [{ id, keys }] })
+  assert.deepEqual([none.voiced, none.made], [[], [{ id, left: 6 }]])
+  // The first part heard, the second with tenths 5 and 6 skipped (1 s of its 3 counted): 2 s left.
+  const partial = await send({ items: [{ key: keys[0], s: 3, c: 1023, d: 3 }, { key: keys[1], s: 2.4, c: 0b1110011111, d: 3 }], texts: [{ id, keys }] })
+  assert.deepEqual([partial.added, partial.voiced, partial.made], [4, [], [{ id, left: 2 }]])
+  // Asked by its id alone (written for the ear on another device: its parts not known there): the same.
+  const byId = await send({ texts: [{ id }] }, other)
+  assert.deepEqual([byId.voiced, byId.made], [[], [{ id, left: 2 }]])
+  assert.deepEqual([counters.get(`speakmadetext:3000000001:${id}`), counters.get(`speakheardtext:3000000001:${id}`)], [6, 4])
+  // A replay in full charges what the mark said, 2 s; then the text is voiced, by its id too.
+  const replay = await send({ items: [{ key: keys[0], s: 3, c: 1023, d: 3 }, { key: keys[1], s: 3, c: 1023, d: 3 }], texts: [{ id, keys }] })
+  assert.deepEqual([replay.added, replay.voiced, replay.made], [2, [id], []])
+  const later = await send({ texts: [{ id }] }, other)
+  assert.deepEqual([later.voiced, later.made], [[id], []])
+  assert.equal(counters.get("speak:tx:3000000001"), 6)
+  // A text with a part never made, or an id never asked with its parts: no mark.
+  const none2 = await send({ texts: [{ id: "4123456789abcdef", keys: [keys[0], partKey("en", "never made")] }, { id: "5123456789abcdef" }] })
+  assert.deepEqual([none2.voiced, none2.made], [[], []])
+})
+
 test("heard: reports come with the next part too, and count before it's decided; a part not on record counts at most 60 s", async () => {
   counters.set("speak:tx:3000000001", 100)
   // A part made before its length was kept: at most 60 s of it count; nonsense is left out.
