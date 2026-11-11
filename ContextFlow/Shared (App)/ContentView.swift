@@ -979,6 +979,9 @@ struct ProView: View {
     @State private var restoring = false
     @State private var message: String?
     @State private var success: String?
+    /// A change that starts at the next renewal (a lower plan, or the same plan yearly): `success` then says when, not
+    /// "is active" (the 2.6 gate: choosing Pro on Ultra said "Pro is active" while Ultra went on to the renewal).
+    @State private var startsLater = false
 
     var body: some View {
         ScrollViewReader { scroller in
@@ -1008,7 +1011,7 @@ struct ProView: View {
         .alert(isPresented: Binding(get: { success != nil }, set: { if !$0 { success = nil } })) {
             Alert(
                 title: Text("You're all set"),
-                message: Text("\(success ?? "Pro") is active. Open Safari and tap ✦ on any page."),
+                message: startsLater ? Text(verbatim: success ?? "") : Text("\(success ?? "Pro") is active. Open Safari and tap ✦ on any page."),
                 dismissButton: .default(Text("OK")) { requestReview() }
             )
         }
@@ -1105,7 +1108,7 @@ struct ProView: View {
             do {
                 switch try await store.upgradeWithOffer() {
                 // The plan's tour, when it starts now, takes the place of "You're all set".
-                case .purchased: if !PlanTour.shared.takesOverPurchase() { success = String(localized: "Pro") }
+                case .purchased: if !PlanTour.shared.takesOverPurchase() { startsLater = false; success = String(localized: "Pro") }
                 case .pending: message = String(localized: "Your purchase is waiting for approval.")
                 case .cancelled: break
                 }
@@ -1263,7 +1266,17 @@ struct ProView: View {
             do {
                 switch try await store.purchase(product) {
                 // The plan's tour, when it starts now, takes the place of "You're all set".
-                case .purchased: if !PlanTour.shared.takesOverPurchase() { success = planName(product.id) }
+                case .purchased:
+                    // Bought, but another plan stays on until the renewal (the App Store's sheet said so): said here too.
+                    if store.entitlement.active, let current = store.entitlement.productId, current != product.id {
+                        startsLater = true
+                        success = PlanProducts.plan(of: current) == PlanProducts.plan(of: product.id) && product.id.hasSuffix(".yearly")
+                            ? String(localized: "Yearly starts when your current month ends.")
+                            : String(localized: "\(planName(product.id)) starts when your current plan renews.")
+                    } else if !PlanTour.shared.takesOverPurchase() {
+                        startsLater = false
+                        success = planName(product.id)
+                    }
                 case .pending: message = String(localized: "Your purchase is waiting for approval.")
                 case .cancelled: break
                 }
