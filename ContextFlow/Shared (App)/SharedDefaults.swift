@@ -367,12 +367,23 @@ final class SharedDefaults {
         defaults.set(count, forKey: reviewAskedKey)
     }
 
-    /// Counts an answer the app gave in a chat; true on the 3rd, 10th, 30th, 100th and 300th: a moment to
+    /// Counts an answer the app gave in a chat; on the 3rd, 10th, 30th, 100th and 300th, that count: a moment to
     /// ask for a rating (the extension's answers are counted in Safari).
-    func countAppAnswer() -> Bool {
+    func countAppAnswer() -> Int? {
         let count = defaults.integer(forKey: appAnswersKey) + 1
         defaults.set(count, forKey: appAnswersKey)
-        return [3, 10, 30, 100, 300].contains(count)
+        return [3, 10, 30, 100, 300].contains(count) ? count : nil
+    }
+
+    /// Good answers so far (2.6 (100)): the app's own, or Safari's latest milestone, whichever is more.
+    func goodAnswers() -> Int {
+        let safari = defaults.dictionary(forKey: reviewMomentKey)?["count"] as? Int ?? 0
+        return max(defaults.integer(forKey: appAnswersKey), safari)
+    }
+
+    /// When the app was first launched (since 2.4), for the rating's "never in the first session".
+    func appFirstLaunch() -> Double? {
+        defaults.dictionary(forKey: appKey)?["firstLaunch"] as? Double
     }
 
     // MARK: Setup

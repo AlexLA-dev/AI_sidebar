@@ -39,7 +39,8 @@ test("the tab is hidden until it opens; after an update it opens once by itself,
   assert.match(content, /case home, chats, templates, tips, pro, settings, whatsNew/)
   // In Tips' place on iPhone and iPad (five tabs: a sixth would put Chats under More), hidden again once left.
   assert.equal((content.match(/if whatsNewShown \{ whatsNewTab \} else \{ tipsTab \}/g) ?? []).length, 2)
-  assert.match(content, /\.onChange\(of: tab\) \{ next in\s*if next != \.whatsNew \{ whatsNewShown = false \}/)
+  // 2.6 (100): left after an update, a good moment for a rating (tests/review-ask.test.mts).
+  assert.match(content, /\.onChange\(of: tab\) \{ next in\s*if next != \.whatsNew \{\s*if whatsNewShown \{ ReviewAsk\.shared\.ask\(\.whatsNew\) \}\s*whatsNewShown = false\s*\}/)
   assert.match(content, /if whatsNewShown \{ Label\("What's new", systemImage: "sparkles\.rectangle\.stack"\)\.tag\(AppTab\.whatsNew\) \}/)
   assert.match(whatsNew, /guard seen != now else \{ return false \}\s*defaults\.set\(now, forKey: seenKey\)\s*guard seen != nil \|\| existingUser else \{ return false \}/)
   // Before the 2.5 sheet, which then doesn't show.

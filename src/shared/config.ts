@@ -20,6 +20,9 @@ export const LINKS = {
   threads: "https://www.threads.com/@contextflowapp",
   appStore: "https://apps.apple.com/app/id6759115793",
   review: "https://apps.apple.com/app/id6759115793?action=write-review",
+  // 2.6 (100): the same in the App Store app (iPhone, iPad: a link followed in the tap) and in the Mac App Store.
+  reviewApp: "itms-apps://apps.apple.com/app/id6759115793?action=write-review",
+  reviewMac: "macappstore://apps.apple.com/app/id6759115793?action=write-review",
   // Shared answers end with this link (no storefront, so it opens the reader's own App Store).
   appStoreShare: "https://apps.apple.com/app/contextflow-ai-web-assistant/id6759115793",
   manageSubscriptions: "https://apps.apple.com/account/subscriptions",

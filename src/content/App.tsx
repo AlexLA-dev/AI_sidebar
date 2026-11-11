@@ -2041,6 +2041,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     openAppFromTap(touch, { target, feature })
   }, [touch])
 
+  // 2.6 (100): the App Store's "Write a Review", when tapped (the "…" menu's Other…, Settings' links). iPhone and iPad:
+  // the App Store app's link, followed in the tap itself (Safari asks "Open in App Store?" only then); a Mac: the Mac
+  // App Store, opened by the app side (a web page would open in Safari). Chrome: the App Store's page, as before.
+  const rateApp = useCallback((via: "menu" | "settings") => {
+    void sendBackground({ type: "useEvent", f: "rate", a: "link", via })
+    if (TARGET === "safari" && touch) followLink(LINKS.reviewApp)
+    else if (TARGET === "safari") void sendBackground({ type: "rateApp" })
+    else void sendBackground({ type: "openUrl", url: LINKS.review })
+  }, [touch])
+
   // The App Store's sheet for the offer code: the discount and the price after it, then the purchase.
   const redeemOffer = useCallback((code: string) => {
     void sendBackground({ type: "openUrl", url: offerUrl(code) })
@@ -3545,6 +3555,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "intro" })
                       startGuideRef.current("menu")
                     } : undefined}
+                    onRate={TARGET === "safari" ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "rate" })
+                      rateApp("menu")
+                    } : undefined}
                     trash={view === "threads" ? trashList.length : 0}
                     onTrash={view === "threads" ? () => {
                       setPageMenu(false)
@@ -3670,7 +3685,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
-              onOpenUrl={(url) => void sendBackground({ type: "openUrl", url })}
+              onOpenUrl={(url) => (url === LINKS.review ? rateApp("settings") : void sendBackground({ type: "openUrl", url }))}
               onOpenTemplates={() => setView("templates")}
               onSocial={(network) => {
                 reportInsert({ kind: "social_open", network })

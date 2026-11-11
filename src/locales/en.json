@@ -264,6 +264,7 @@
   "guideAskSelBody": "Pick a quick action, like {0}, or type your own question.",
   "uxShowIntro": "Replay the basics tour",
   "uxOther": "Other…",
+  "uxRate": "Rate in App Store",
   "tipClipNeedsApp": "Open the ContextFlow app once to see this clip.",
   "busyWorking": "Working on it…",
   "busyNew": "New answer ready",

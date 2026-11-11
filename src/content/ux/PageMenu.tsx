@@ -8,7 +8,8 @@
 // What's in Pro/Ultra, Show the intro again) under "Other…", folded until it's tapped. Build 94, the owner: «в меню
 // чатов тоже нужно добавить кнопку <…> где будут подходящие функции, хотя бы watch list, settings, tips, все про
 // онбординг»: the chats list has this menu too, without what's about the page (Remind me about this page, Watch this
-// page, Find similar, Name by topic, Listen), with Recently Deleted after the lists.
+// page, Find similar, Name by topic, Listen), with Recently Deleted after the lists. 2.6 (100): "Rate in App Store" last
+// under Other… (the App Store's "Write a Review", only when tapped: Apple's own request comes by itself in the app).
 
 import type { VNode } from "preact"
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
@@ -21,7 +22,7 @@ import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell, More } from "./MessageUx"
 import { SpeakerIcon } from "../listen/useListen"
 
-export function PageMenu({ reminders, watches, trash = 0, onLater, onWatchPage, onSimilar, similarLocked, onNameChat, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onTrash, onClose }: {
+export function PageMenu({ reminders, watches, trash = 0, onLater, onWatchPage, onSimilar, similarLocked, onNameChat, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onTrash, onRate, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
@@ -49,6 +50,8 @@ export function PageMenu({ reminders, watches, trash = 0, onLater, onWatchPage, 
   // 2.6: read the page aloud (Ultra; without it, the plans sheet). Absent: nothing to read here.
   onListen?: () => void
   ultra?: boolean
+  // 2.6 (100): the App Store's "Write a Review" (Safari only; absent elsewhere).
+  onRate?: () => void
   onClose: () => void
 }): VNode {
   const ref = useRef<HTMLDivElement>(null)
@@ -111,6 +114,7 @@ export function PageMenu({ reminders, watches, trash = 0, onLater, onWatchPage, 
           {tips && <button type="button" role="menuitem" class="cf-page-tips" onClick={onTips}><TipsIcon size={16} /> {tips}</button>}
           {planTour && <button type="button" role="menuitem" class="cf-page-plan-tour" onClick={planTour.start}><Icon.Sparkle size={15} /> {planTour.label}</button>}
           {onIntro && <button type="button" role="menuitem" class="cf-page-intro" onClick={onIntro}><Icon.Sparkle size={15} /> {t("uxShowIntro")}</button>}
+          {onRate && <button type="button" role="menuitem" class="cf-page-rate" onClick={onRate}><Icon.Star size={16} /> {t("uxRate")}</button>}
         </div>
       )}
     </div>

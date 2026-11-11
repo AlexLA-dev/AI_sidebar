@@ -140,6 +140,12 @@ struct SimilarCardsView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // A finished answer with alternatives, opened in the app within two days of its search: a good moment for a
+        // rating (2.6 (100)).
+        .onAppear {
+            guard !close.isEmpty, let at = answer.at, Date().timeIntervalSince1970 - at / 1000 < 2 * 86_400 else { return }
+            ReviewAsk.shared.ask(.similar, after: 2)
+        }
     }
 }
 

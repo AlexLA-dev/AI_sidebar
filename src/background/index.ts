@@ -495,7 +495,12 @@ chrome.runtime.onConnect.addListener((port) => {
     asked = true
     const run = (emit: (event: StreamEvent) => void, signal: AbortSignal) =>
       runChat(message.payload, (event) => {
-        if (event.type === "done") void countValueMoment().catch(() => undefined)
+        // A milestone in Safari (2.6 (100)): counted as due; the app asks when it next comes to the front.
+        if (event.type === "done") {
+          void countValueMoment().then((moment) => {
+            if (moment && TARGET === "safari") void reportUse({ type: "useEvent", f: "rate", a: "due", via: "ext_moment", moment })
+          }).catch(() => undefined)
+        }
         emit(event)
       }, signal)
     servePort(port, message.job ? { ...message.job, kind: "chat" } : null, run as Run)
@@ -694,6 +699,13 @@ async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
 
 // --------------------------------------------------------------- open app
 
+/** The App Store's "Write a Review" on a Mac (2.6 (100)): the Mac App Store, opened by the extension's app side (a web
+ *  page would open in Safari). When it can't: the App Store's page in a tab. */
+async function rateApp(): Promise<void> {
+  const opened = TARGET === "safari" ? (await callNative<{ opened?: boolean }>("openApp", { url: LINKS.reviewMac }))?.opened : false
+  if (!opened) await chrome.tabs.create({ url: LINKS.review })
+}
+
 async function openApp(
   target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period
 ): Promise<{ opened: boolean; url: string }> {
@@ -773,7 +785,7 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
       heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s,
       cur: message.cur, sf: message.sf,
       // Listen's "unvoiced" (build 95): why it wasn't marked, and how far from the end (build 98: they never left the panel).
-      why: message.why, gap_s: message.gap_s, s: "panel"
+      why: message.why, gap_s: message.gap_s, moment: message.moment, s: "panel"
     })
   }).catch(() => undefined)
 }
@@ -894,6 +906,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       if (/^https:\/\//.test(message.url)) chrome.tabs.create({ url: message.url })
       sendResponse({ ok: true })
       return false
+    case "rateApp":
+      rateApp().finally(() => sendResponse({ ok: true }))
+      return true
     case "openPage":
       openPage(message.url, message.chat, message.at).finally(() => sendResponse({ ok: true }))
       return true
