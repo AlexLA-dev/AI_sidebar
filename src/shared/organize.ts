@@ -35,6 +35,12 @@ export interface OrganizeConfig {
   tailQA: number
   tailA: number
   tailAlike: number
+  // 2.6 (96): the block's last exchange is also off when its answer fits the rest of the chat less than `tailRelCap` and
+  // no better than it fits the person's other chats on average, plus `tailRelD` (three other chats at least). One
+  // person's unrelated chats look alike in their language, so the fixed tailQA/tailA rarely fire there, and a question
+  // asked on a chat's page carries that page's title. Such an end only ever gets a new chat. `tailRelCap` 0: off.
+  tailRelCap: number
+  tailRelD: number
   // 2.6 (95): two chats on a shared page merge when their answers fit each other this well both ways (`mergeFit`).
   mergeA: number
   // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
@@ -92,6 +98,10 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   tailQA: 0.4,
   tailA: 0.22,
   tailAlike: 0.3,
+  // Off until a point of the trade-off is chosen (organize-96-report: more new chats for unrelated questions, a few
+  // for a chat's own generic follow-ups); the server can turn it on with ORGANIZE_THRESHOLDS.
+  tailRelCap: 0,
+  tailRelD: 0.05,
   // lib95 and the 2.5 sample (b95/merge-neg.mjs): different topics asked on the same pages 0.51 at most (two plant-care
   // chats), 99% below 0.40; the same topic again 0.45 at least (median 0.56), the lib's merge pairs 0.49–0.72.
   // 2.6 (96), the 14 libraries: the same topic from 75 % at 0.54 (5th percentile of 180); one person's neighbouring topics
@@ -521,6 +531,12 @@ function tailMove(chat: Thread, blocks: ScoredBlock[], others: Array<{ thread: T
     }
     return best
   }
+  // 2.6 (96): how well an answer fits the person's chats in general: its mean fit to the other chats' answers.
+  const usualFit = (a: Float32Array): number | null => {
+    if (!(cfg.tailRelCap > 0)) return null
+    const fits = others.map((o) => o.blocks.filter((y) => y.a).map((y) => ({ v: y.a! }))).filter((vs) => vs.length).map((vs) => topMean(a, vs, 2))
+    return fits.length >= 3 ? fits.reduce((s, x) => s + x, 0) / fits.length : null
+  }
   for (let i = blocks.length - 1; i >= first; i--) {
     if (only !== undefined && i !== only) continue
     const b = blocks[i]
@@ -534,8 +550,9 @@ function tailMove(chat: Thread, blocks: ScoredBlock[], others: Array<{ thread: T
     // Narrowing a block's move (`only`): its first exchange has to be on the rest of the chat's topic.
     if (only !== undefined && (!outer.length || !xs[0].v || (topMean(xs[0].v, outer, 2) < cfg.tailQA && topMean(xs[0].a!, outerA, 2) < cfg.tailA))) continue
     const elsewhere = answers.map((a) => (a ? fitsElsewhere(a) : null))
-    // The longest such end.
+    // The longest such end; `apartOnly`: its last exchange is off by the person's usual fit alone.
     let from = -1
+    let apartOnly = false
     for (let k = 1; k < xs.length && from < 0; k++) {
       const part = xs.slice(k)
       if (part.some((x) => !x.v || x.settled || x.dismissed) || asksOutside(chat.m, part[0].start, part[part.length - 1].end) < cfg.splitMin) continue
@@ -549,9 +566,24 @@ function tailMove(chat: Thread, blocks: ScoredBlock[], others: Array<{ thread: T
         const there = elsewhere[z]
         return there !== null && there - topMean(answers[z]!, restA, 1) >= cfg.moveD
       }
-      if (!part.every((x, z) => off(x, k + z))) continue
+      // 2.6 (96): the block's last answer, against the person's usual fit (off when tailRelCap is 0).
+      const offUsual = (z: number) => {
+        if (z !== xs.length - 1) return false
+        const own = topMean(answers[z]!, restA, 2)
+        const usual = own < cfg.tailRelCap ? usualFit(answers[z]!) : null
+        return usual !== null && own - usual < cfg.tailRelD
+      }
+      let byUsual = false
+      const offAll = part.every((x, z) => {
+        if (off(x, k + z)) return true
+        if (!offUsual(k + z)) return false
+        byUsual = true
+        return true
+      })
+      if (!offAll) continue
       if (part.some((_, a) => part.some((_, z) => z > a && dot(answers[k + a]!, answers[k + z]!) < cfg.tailAlike))) continue
       from = k
+      apartOnly = byUsual
     }
     if (from < 0 || xs.slice(from).every((x) => x.weak)) continue
     const part = xs.slice(from)
@@ -577,7 +609,7 @@ function tailMove(chat: Thread, blocks: ScoredBlock[], others: Array<{ thread: T
       if (shareOn(x, o.blocks, cfg).share <= 0.5 || (o.blocks.length === 1 && joins(o.blocks[0], o.thread, staying, cfg))) continue
       if (!best || score > best.score) best = { to: o.thread.id, score, margin }
     }
-    if (best && best.margin >= cfg.moveD) return { start: x.start, end: x.end, to: best.to, why: "topic", score: best.score, current, match: matchPercent(best.score, cfg) }
+    if (best && best.margin >= cfg.moveD && !apartOnly) return { start: x.start, end: x.end, to: best.to, why: "topic", score: best.score, current, match: matchPercent(best.score, cfg) }
     if (!fits) return { start: x.start, end: x.end, to: null, why: "apart", score: 0, current }
   }
   return null

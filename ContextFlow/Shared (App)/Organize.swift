@@ -184,6 +184,11 @@ nonisolated struct OrganizeConfig: Sendable {
     var tailQA = 0.4
     var tailA = 0.22
     var tailAlike = 0.3
+    // 2.6 (96): the block's last exchange is also off when its answer fits the rest of the chat less than `tailRelCap`
+    // and no better than the person's other chats on average plus `tailRelD`; only a new chat (src/shared/organize.ts).
+    // 0: off.
+    var tailRelCap = 0.0
+    var tailRelD = 0.05
     // 2.6 (95): two chats on a shared page merge when their answers fit each other this well both ways (`mergeFit`).
     var mergeA = 0.45
     // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
@@ -221,7 +226,7 @@ nonisolated struct OrganizeConfig: Sendable {
     /// The fields by their names in /status.
     static let fields: [(name: String, path: WritableKeyPath<OrganizeConfig, Double>)] = [
         ("moveT", \.moveT), ("moveD", \.moveD), ("moveT1", \.moveT1), ("siteT", \.siteT), ("topicT", \.topicT), ("matchLo", \.matchLo), ("matchHi", \.matchHi), ("minMatch", \.minMatch), ("splitT", \.splitT),
-        ("splitMin", \.splitMin), ("tailQA", \.tailQA), ("tailA", \.tailA), ("tailAlike", \.tailAlike), ("mergeA", \.mergeA), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD),
+        ("splitMin", \.splitMin), ("tailQA", \.tailQA), ("tailA", \.tailA), ("tailAlike", \.tailAlike), ("tailRelCap", \.tailRelCap), ("tailRelD", \.tailRelD), ("mergeA", \.mergeA), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD),
         ("coherence", \.coherence), ("judge", \.judge), ("maxTags", \.maxTags), ("rollback", \.rollback),
         ("messSites", \.messSites), ("messBlocks", \.messBlocks), ("messHours", \.messHours)
     ]
@@ -974,6 +979,12 @@ nonisolated enum Organize {
             }
             return best
         }
+        // 2.6 (96): how well an answer fits the person's chats in general: its mean fit to the other chats' answers.
+        func usualFit(_ a: [Float]) -> Double? {
+            guard cfg.tailRelCap > 0 else { return nil }
+            let fits = others.map { o in o.blocks.compactMap(\.a).map { (v: $0, w: 1.0) } }.filter { !$0.isEmpty }.map { topMean(a, $0, 2) }
+            return fits.count >= 3 ? fits.reduce(0, +) / Double(fits.count) : nil
+        }
         for i in stride(from: blocks.count - 1, through: first, by: -1) {
             if let only, i != only { continue }
             let b = blocks[i]
@@ -990,8 +1001,9 @@ nonisolated enum Organize {
                 if topMean(head, outer, 2) < cfg.tailQA && topMean(xs[0].a!, outerA, 2) < cfg.tailA { continue }
             }
             let elsewhere = answers.map { $0.flatMap(fitsElsewhere) }
-            // The longest such end.
+            // The longest such end; `apartOnly`: its last exchange is off by the person's usual fit alone.
             var from = -1
+            var apartOnly = false
             for k in 1..<xs.count {
                 let part = Array(xs[k...])
                 if part.contains(where: { $0.v == nil || $0.settled || $0.dismissed }) || Double(asksOutside(chat.entries, part[0].start, part[part.count - 1].end)) < cfg.splitMin { continue }
@@ -1004,9 +1016,22 @@ nonisolated enum Organize {
                     guard let there = elsewhere[z] else { return false }
                     return there - topMean(answers[z]!, restA, 1) >= cfg.moveD
                 }
-                if !part.indices.allSatisfy({ off(k + $0) }) { continue }
+                // 2.6 (96): the block's last answer, against the person's usual fit.
+                func offUsual(_ z: Int) -> Bool {
+                    guard z == xs.count - 1 else { return false }
+                    let own = topMean(answers[z]!, restA, 2)
+                    guard own < cfg.tailRelCap, let usual = usualFit(answers[z]!) else { return false }
+                    return own - usual < cfg.tailRelD
+                }
+                var byUsual = false
+                if !part.indices.allSatisfy({ z in
+                    if off(k + z) { return true }
+                    if offUsual(k + z) { byUsual = true; return true }
+                    return false
+                }) { continue }
                 if part.indices.contains(where: { a in part.indices.contains { z in z > a && dot(answers[k + a]!, answers[k + z]!) < cfg.tailAlike } }) { continue }
                 from = k
+                apartOnly = byUsual
                 break
             }
             if from < 0 || xs[from...].allSatisfy(\.weak) { continue }
@@ -1043,7 +1068,7 @@ nonisolated enum Organize {
                 if shareOn(x, o.blocks, cfg).share <= 0.5 || (o.blocks.count == 1 && joins(o.blocks[0], o.thread, staying, cfg)) { continue }
                 if best == nil || score > best!.score { best = (o.thread.id, score, margin) }
             }
-            if let best, best.margin >= cfg.moveD {
+            if let best, best.margin >= cfg.moveD, !apartOnly {
                 return MoveSuggestion(start: x.start, end: x.end, to: best.to, why: .topic, score: best.score, current: current, match: matchPercent(best.score, cfg))
             }
             if !fits { return MoveSuggestion(start: x.start, end: x.end, to: nil, why: .apart, score: 0, current: current) }
