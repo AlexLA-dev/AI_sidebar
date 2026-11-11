@@ -6,8 +6,9 @@ import { marketplaceOf } from "../../netlify/shared/similar.mts"
 export interface LiveItem { name: string; url: string; host?: string; why?: string; fit?: string; met?: string }
 export type LiveCheck = "answer" | "one-per-marketplace" | "no-delivery-claim" | "chip-order" | `language:${string}`
 
-// "It delivers / ships there", in the app's languages: delivery has its own line (only what its page shows).
-const CLAIMS = /\b(?:deliver(?:s|ed|y to)?|ships? (?:to|worldwide)|livr(?:e|ent|aison)|envía|envio|envían|spedisce|spedizione|liefert|versendet|entrega|envia)\b|доставля|доставка в|доставляє|配送します|発送します|배송(?:합니다|됩니다)|配送到|配送至|giao hàng đến|يشحن|توصيل إلى/iu
+// "It delivers / ships there", in the app's languages: delivery has its own line (only what its page shows). The
+// verbs only: "delivery to the UK isn't shown" is honest.
+const CLAIMS = /\b(?:deliver(?:s|ed)?(?= to| worldwide| there)|ships (?:to|worldwide)|livre (?:en|au|à|dans)|livrent|envía a|envían a|spedisce|spediscono|liefert (?:nach|in)|versendet (?:nach|in)|entrega (?:em|no|na) (?!não)|envia para)\b|доставля(?:ет|ют|ем) (?:в|по)|доставляє|配送します|発送します|배송(?:합니다|됩니다)|giao hàng đến|يشحن إلى/iu
 
 export function liveFailures(items: LiveItem[], checks: LiveCheck[]): string[] {
   const out: string[] = []

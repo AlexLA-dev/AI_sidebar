@@ -102,7 +102,8 @@ test("live: the error subset names pages of the eval set and rules the checks kn
   assert.equal(liveFailures([{ name: "A", url: "https://www.gumtree.com/a" }, { name: "B", url: "https://www.gumtree.com/b" }], ["one-per-marketplace"]).length, 1)
   assert.equal(liveFailures([{ name: "A", url: "https://a.example", why: "It delivers to Austria." }], ["no-delivery-claim"]).length, 1)
   assert.equal(liveFailures([{ name: "A", url: "https://a.example", met: "no" }, { name: "B", url: "https://b.example", met: "yes" }], ["chip-order"]).length, 1)
-  assert.deepEqual(liveFailures([{ name: "A", url: "https://a.example", why: "Its delivery page lists Austria." }], ["no-delivery-claim"]), [])
+  assert.deepEqual(liveFailures([{ name: "A", url: "https://a.example", why: "Its delivery page lists Austria." }, { name: "B", url: "https://b.example", fit: "In stock, but delivery to the UK isn't shown." }], ["no-delivery-claim"]), [])
+  assert.equal(liveFailures([{ name: "C", url: "https://c.example", fit: "Ships to the UK in 3 days." }, { name: "D", url: "https://d.example", why: "Доставляет в Россию." }], ["no-delivery-claim"]).length, 2)
 })
 
 test("the writer's 'the same item' is taken only when the names share the subject's brand or model word", async () => {

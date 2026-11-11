@@ -186,7 +186,9 @@ async function run() {
     const s = snapshots[t.id]
     const page = { title: s.title, url: t.url, text: s.text, facts: s.facts }
     const asked = { ...options, ...(t.region ? { region: t.region } : {}), ...(t.country ? { country: t.country } : {}) }
-    const call = await callSimilar(base, e, page, t.condition, t.locale, asked)
+    // A case whose check is a chip's (cheaper, in stock, newer, free, shorter) is that chip, as the panel sends it.
+    const chip = t.check && ["cheaper", "in_stock", "newer", "free", "shorter"].includes(t.check.kind) ? t.check.kind : ""
+    const call = await callSimilar(base, e, page, t.condition, t.locale, asked, undefined, chip ? { chip } : { words: t.condition })
     const usd = callSpend(call)
     addSpend(`${TAG}/${e}/${t.id}`, usd)
     writeJson(path, { test: t, options: asked, call })
