@@ -758,6 +758,8 @@
   "similarPercent": "Схоже на {0}%",
   "similarDiffers": "Відмінність: {0}",
   "similarRegionLocked": "Немає в App Store вашої країни",
+  "similarShipListed": "У списку країн доставки: {0}",
+  "similarShipUnshown": "Не вказано, чи доставляють у країну: {0}",
   "similarRatings": "Оцінок: {0}",
   "similarReviewersSay": "Відгуки: {0}",
   "similarNotifyTitle": "Пошук схожого завершено",

@@ -2198,6 +2198,12 @@
  "similarRegionLocked": {
   "message": "내 국가의 App Store에 없음"
  },
+ "similarShipListed": {
+  "message": "배송 페이지에 표시됨: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "{0} 배송 여부는 표시되지 않음"
+ },
  "similarRatings": {
   "message": "평가 {0}개"
  },

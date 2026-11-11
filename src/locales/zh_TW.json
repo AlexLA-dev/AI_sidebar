@@ -758,6 +758,8 @@
   "similarPercent": "相似度 {0}%",
   "similarDiffers": "不同之處：{0}",
   "similarRegionLocked": "你所在國家／地區的 App Store 沒有",
+  "similarShipListed": "配送頁面列出: {0}",
+  "similarShipUnshown": "未註明是否配送到{0}",
   "similarRatings": "{0} 則評分",
   "similarReviewersSay": "評價：{0}",
   "similarNotifyTitle": "相似項目搜尋完成",

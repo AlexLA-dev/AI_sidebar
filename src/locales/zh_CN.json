@@ -758,6 +758,8 @@
   "similarPercent": "相似度 {0}%",
   "similarDiffers": "不同之处：{0}",
   "similarRegionLocked": "你所在国家/地区的 App Store 中没有",
+  "similarShipListed": "配送页面列出: {0}",
+  "similarShipUnshown": "未注明是否配送到{0}",
   "similarRatings": "{0} 个评分",
   "similarReviewersSay": "评价：{0}",
   "similarNotifyTitle": "相似项查找完成",

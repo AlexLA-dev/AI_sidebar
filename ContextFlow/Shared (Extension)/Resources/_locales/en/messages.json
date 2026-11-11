@@ -2198,6 +2198,12 @@
  "similarRegionLocked": {
   "message": "Not in your country's App Store"
  },
+ "similarShipListed": {
+  "message": "Its delivery page lists {0}"
+ },
+ "similarShipUnshown": {
+  "message": "Delivery to {0} isn't shown"
+ },
  "similarRatings": {
   "message": "{0} ratings"
  },

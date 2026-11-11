@@ -758,6 +758,8 @@
   "similarPercent": "Похоже на {0}%",
   "similarDiffers": "Отличие: {0}",
   "similarRegionLocked": "Нет в App Store вашей страны",
+  "similarShipListed": "В списке стран доставки: {0}",
+  "similarShipUnshown": "Не указано, доставляют ли в страну: {0}",
   "similarRatings": "Оценок: {0}",
   "similarReviewersSay": "Отзывы: {0}",
   "similarNotifyTitle": "Поиск похожего завершён",

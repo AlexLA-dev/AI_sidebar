@@ -758,6 +758,8 @@
   "similarPercent": "{0}% 비슷함",
   "similarDiffers": "차이: {0}",
   "similarRegionLocked": "내 국가의 App Store에 없음",
+  "similarShipListed": "배송 페이지에 표시됨: {0}",
+  "similarShipUnshown": "{0} 배송 여부는 표시되지 않음",
   "similarRatings": "평가 {0}개",
   "similarReviewersSay": "리뷰: {0}",
   "similarNotifyTitle": "비슷한 항목 찾기 완료",

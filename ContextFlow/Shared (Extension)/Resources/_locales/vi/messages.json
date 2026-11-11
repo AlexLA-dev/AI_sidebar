@@ -2198,6 +2198,12 @@
  "similarRegionLocked": {
   "message": "Không có trong App Store ở quốc gia của bạn"
  },
+ "similarShipListed": {
+  "message": "Trang giao hàng có liệt kê: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "Không ghi rõ có giao đến {0} hay không"
+ },
  "similarRatings": {
   "message": "{0} lượt đánh giá"
  },

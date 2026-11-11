@@ -2198,6 +2198,12 @@
  "similarRegionLocked": {
   "message": "你所在国家/地区的 App Store 中没有"
  },
+ "similarShipListed": {
+  "message": "配送页面列出: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "未注明是否配送到{0}"
+ },
  "similarRatings": {
   "message": "{0} 个评分"
  },

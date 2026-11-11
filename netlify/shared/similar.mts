@@ -157,7 +157,8 @@ export interface CheckedCandidate extends Candidate {
   // Build 94: the brand's other models on the same site (opened now), so "it lacks X" names the model that has X.
   siblings?: Sibling[]
   // Near them, a shop abroad: whether its delivery page names their country (yes), names others only (no), or neither.
-  delivery?: { to: string; ships: "yes" | "no" | "unknown"; url?: string }
+  // `to` is the country's name in English (for the writer), `code` its ISO code (for the panel).
+  delivery?: { to: string; code: string; ships: "yes" | "no" | "unknown"; url?: string }
 }
 
 export interface Sibling {
@@ -345,6 +346,7 @@ export const WRITE_SYSTEM = `You write ContextFlow's "Find similar" answer: a sh
 - Before saying an item lacks something their item has, look at its "other models on its site": when one of them has it, say so in differs with that model's name and price and whether it fits their condition, in this shape: "No <feature>; the brand's <other model> has it, at <price as its page shows it> — <how that fits their condition>". Only what those pages show; never say a brand has no such model.
 - Reviews: when a page has a "reviews" fact, weigh it: among items that fit as well, the better rated first, a poorly rated one lower. Use only the facts given; never invent a rating.
 - An item marked "not in their country's App Store" can't be had there: say so in fit and put it after the ones they can get.
+- A shop abroad: what its delivery page shows has a line of its own (the app adds it, with that page). Never write in why or fit that it delivers or ships anywhere. Put one whose delivery page doesn't show their country after the ones they can get.
 - fit: how it meets their condition, using only the facts given for that page (price, stock, date, length, language). If the facts don't show it, say so plainly and set met to "unknown"; met "n/a" when there is no condition. With no chip, their condition is their own words: met and words_met say the same. A page's "condition: yes" is settled: never set met "no" for it. Never invent prices, ratings, dates or features.
 - For an app with a "pricing" fact, fit says plainly what it costs from that fact: free (nothing to buy), free with a subscription from a price, a one-time purchase, or in-app purchases from a price.
 - intro: one short sentence on what the list is; never say how many items there are. note: optional, one short sentence; never mention items that aren't in the list.
@@ -1539,7 +1541,7 @@ export async function deliveryStep(checked: CheckedCandidate[], country: string,
       }
     }
     stats[ships]++
-    const delivery = { to, ships, ...(url ? { url } : {}) }
+    const delivery = { to, code: country, ships, ...(url ? { url } : {}) }
     next[i] = ships === "no" ? { ...c, delivery, kept: false, why: `doesn't deliver to ${to}` } : { ...c, delivery }
   }))
   return { checked: next, stats }
@@ -1939,7 +1941,8 @@ function pageLine(n: number, c: CheckedCandidate, traits: string[] = [], money?:
     c.proof ? `settled on another page (${c.proof.url})${c.proof.quote ? `: "${c.proof.quote}"` : ""}` : "",
     c.reviews ? `reviews: ${reviewsLine(c.reviews)}` : "",
     c.region?.available === false ? "not in their country's App Store" : "",
-    c.delivery?.ships === "yes" ? `delivers to ${c.delivery.to} (its delivery page says so)` : c.delivery?.ships === "unknown" ? `a shop abroad: its delivery to ${c.delivery.to} isn't shown` : "",
+    // What its delivery page shows, never more: a page that names a country may still not ship there (2.6).
+    c.delivery?.ships === "yes" ? `a shop abroad whose delivery page lists ${c.delivery.to}` : c.delivery?.ships === "unknown" ? `a shop abroad: its delivery page doesn't show ${c.delivery.to}` : "",
     c.condition.met !== "n/a" ? `condition: ${c.condition.met}${c.condition.note ? ` (${c.condition.note})` : ""}` : ""
   ].filter(Boolean).join(" | ")
   const host = (() => { try { return new URL(p.finalUrl).hostname.replace(/^www\./, "") } catch { return "" } })()
@@ -2138,6 +2141,8 @@ export class ItemFinisher {
       ...(same ? { same: true as const, similarity: 100 } : traits ? { similarity: Math.round((shares.length / traits) * 100), ...(unchecked ? { estimated: true as const } : {}) } : {}),
       ...(differs ? { differs } : {}),
       ...(c.region?.available === false ? { regionLocked: true as const } : {}),
+      // Near them, a shop abroad: what its delivery page shows, on a line of its own with that page linked (2.6).
+      ...(c.delivery && c.delivery.ships !== "no" && /^[A-Z]{2}$/.test(c.delivery.code) ? { delivery: { to: c.delivery.code, ships: c.delivery.ships, ...(c.delivery.url ? { url: c.delivery.url } : {}) } } : {}),
       ...(c.reviews && (c.reviews.rating || c.reviews.pros || c.reviews.cons || c.reviews.summary) ? { reviews: itemReviews(c.reviews) } : {})
     }
     // Missed the chip: held for the end (softTail), not shown as it comes.
