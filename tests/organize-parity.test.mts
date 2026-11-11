@@ -515,6 +515,21 @@ const packedJapan = thread("pj", [...qa("japan", "https://pj.example/1", { packe
 const packedPile = thread("pp", [...react(), ...qa("japan", "https://pp.example/9", { packed: true })])
 move(packedPile, [packedPile, packedJapan])
 suggestions.push({ op: "scoredBlocks", m: [...notes.m, ...thanks, ...movedIn(qa("x", "https://x.example/9"), "y", 5), ...no(qa("x", "https://x.example/9")), ...olden.m] }, { op: "scoredBlocks", m: mixed })
+// Dense scripts count three times a character: short Chinese, Japanese and Korean questions and notes in the app say
+// enough; as short a question in English, or a Chinese one shorter still, doesn't. A Han character outside the BMP.
+{
+  const asked = (content: string, i: number): Entry[] => [
+    { role: "user", content, id: `cjk${i}q`, t: 3_000_000 + i * 100 },
+    { role: "assistant", content: `answer ${i}`, id: `cjk${i}a`, t: 3_000_000 + i * 100 + 10 }
+  ]
+  const noted = (content: string, i: number): Entry => ({ role: "user", content, note: true, id: `cjk${i}n`, t: 3_000_000 + i * 100 })
+  const cjk = [
+    ...asked("京都哪里好玩？", 1), ...asked("京都のおすすめは？", 2), ...asked("교토 어디가 좋아요?", 3), ...asked("Kyoto tips?", 4),
+    ...asked("多少钱？", 5), ...asked("𠮷野家の牛丼、いくら？", 6), noted("京都的红叶季节要提前订酒店。", 7), noted("Book the hotel early.", 8)
+  ]
+  for (const e of cjk) table[e.id!] = vectorFor("japan")
+  suggestions.push({ op: "scoredBlocks", m: cjk })
+}
 
 // Tags: the user's tags with two examples or more that are alike; not on messages (or chats) that have them.
 const work = thread("work", [...qa("work", "https://w.example/1", { tags: ["work"] }), ...qa("work", "https://w.example/2", { tags: ["Work"] }), ...qa("work", "https://w.example/3")])

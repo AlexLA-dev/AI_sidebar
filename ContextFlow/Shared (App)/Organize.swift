@@ -510,9 +510,17 @@ nonisolated enum Organize {
 
     // MARK: Texts and vectors
 
-    // A question needs this much text (or a page) to be judged; a note this much.
+    // A question needs this much text (or a page) to be judged; a note this much. In characters of an alphabet: see
+    // `textSize`.
     private static let minQuestion = 15
     private static let minNote = 40
+    private static let dense = try! NSRegularExpression(pattern: "[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\p{Script=Hangul}]")
+
+    /// How much a text says, in characters of an alphabet (src/shared/organize.ts `textSize`): each character of a dense
+    /// script (Chinese, Japanese, Korean) counts three times. UTF-16 units, as JavaScript's `length`.
+    static func textSize(_ text: String) -> Int {
+        text.utf16.count + dense.numberOfMatches(in: text, range: NSRange(text.startIndex..., in: text)) * 2
+    }
     static let maxEmbedChars = 1_200
 
     // JavaScript's whitespace (`\s`, and what `trim` drops), spelled out: ICU's `\s` lacks U+000B and U+FEFF,
@@ -715,7 +723,7 @@ nonisolated enum Organize {
         let list = entries[start...end]
         var signal = 0
         for e in list where isUser(e) {
-            signal += plain(e["label"] as? String ?? content(e)).utf16.count + (pageTitle(e) != nil ? minQuestion : 0)
+            signal += textSize(plain(e["label"] as? String ?? content(e))) + (pageTitle(e) != nil ? minQuestion : 0)
         }
         let notesOnly = list.allSatisfy(isNote)
         let vectors = list.compactMap(vectorOf)

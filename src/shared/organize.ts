@@ -113,9 +113,18 @@ export function organizeConfig(raw: unknown): OrganizeConfig {
 
 // ------------------------------------------------------------ texts and vectors
 
-// A question needs this much text (or a page) to be judged; a note this much.
+// A question needs this much text (or a page) to be judged; a note this much. In characters of an alphabet: see `textSize`.
 const MIN_QUESTION = 15
 const MIN_NOTE = 40
+const DENSE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu
+
+/**
+ * How much a text says, in characters of an alphabet (Latin, Cyrillic, Arabic…): dense scripts (Chinese, Japanese,
+ * Korean) say as much in about a third of the characters, so each of their characters counts three times.
+ */
+export function textSize(text: string): number {
+  return text.length + (text.match(DENSE)?.length ?? 0) * 2
+}
 export const MAX_EMBED_CHARS = 1_200
 
 const plain = (text: string) => stripCitations(text).replace(/[*_`#>|]+/g, " ").replace(/\s+/g, " ").trim()
@@ -270,7 +279,7 @@ function scoreBlocks(entries: Entry[], vectorOf: VectorOf): ScoredBlock[] {
 function scored(entries: Entry[], times: Array<number | null>, b: PageBlock, vectorOf: VectorOf): ScoredBlock {
   const list = entries.slice(b.start, b.end + 1)
   let signal = 0
-  for (const e of list) if (e.role === "user") signal += plain(e.label ?? e.content).length + (e.page?.title ? MIN_QUESTION : 0)
+  for (const e of list) if (e.role === "user") signal += textSize(plain(e.label ?? e.content)) + (e.page?.title ? MIN_QUESTION : 0)
   const notesOnly = list.every((e) => e.note)
   const vectors = list.map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
   const answers = list.filter((e) => e.role === "assistant").map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
