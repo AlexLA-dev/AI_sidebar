@@ -100,7 +100,7 @@ export function quoteOn(text: string, quote: string): boolean {
 // "4 de marzo de 2026", "March 4, 2026", "4 مارس 2026"; and Vietnamese, which writes the month's number.
 const DAY_FIRST = new RegExp(String.raw`(?<![\p{L}\d])(\d{1,2})(?:\.|st|nd|rd|th|er)?\s?(?:de\s)?(${MONTH_WORD})\.?,?\s?(?:de\s)?(\d{4})(?!\d)`, "iu")
 const MONTH_FIRST = new RegExp(String.raw`(?<![\p{L}\d])(${MONTH_WORD})\.?\s(\d{1,2})(?:st|nd|rd|th)?,?\s(\d{4})(?!\d)`, "iu")
-const VI_DATE = /(?<![\p{L}\d])(?:ngày\s)?(\d{1,2})\s?tháng\s?(\d{1,2})(?:,?\s?năm)?\s?(\d{4})(?!\d)/iu
+const VI_DATE = /(?<![\p{L}\d])(?:ngày\s)?(\d{1,2})\s?tháng\s?(\d{1,2})(?:,?\s?năm)?,?\s?(\d{4})(?!\d)/iu
 
 const isoOf = (y: number, m: number, d: number): string | undefined => {
   if (!(m >= 1 && m <= 12 && d >= 1 && d <= 31)) return undefined

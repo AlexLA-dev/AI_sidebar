@@ -412,7 +412,8 @@ export const EUROPE: Words = {
  */
 export const MARK_WORDS: Record<"en" | "de" | "fr" | "es" | "it" | "pt" | "ru" | "uk", string[]> = {
   en: ["the", "and", "with", "your", "this", "that", "are", "from", "our", "will", "you", "have", "about", "which", "what", "how"],
-  de: ["der", "die", "das", "und", "ist", "mit", "für", "nicht", "auf", "ein", "eine", "sie", "sich", "auch", "wir", "werden", "bei", "oder", "zum", "nach"],
+  // Not "die" (Dutch writes it as often).
+  de: ["der", "das", "und", "ist", "mit", "für", "nicht", "auf", "ein", "eine", "sie", "sich", "auch", "wir", "werden", "bei", "oder", "zum", "nach"],
   fr: ["les", "et", "est", "des", "pour", "avec", "dans", "sur", "pas", "vous", "nous", "qui", "aux", "cette", "sont", "leur", "très"],
   es: ["los", "las", "y", "es", "por", "sus", "más", "como", "pero", "también", "muy", "del", "hay", "puede", "usted"],
   it: ["gli", "è", "per", "della", "che", "sono", "più", "anche", "nel", "alla", "delle", "questo", "questa", "degli", "molto"],
@@ -456,13 +457,13 @@ export function appLang(tag: string | undefined): Lang {
 /** Colours a shop adds to a model's name. */
 export const COLOURS: Words = {
   en: ["black", "white", "grey", "gray", "blue", "green", "red", "silver", "beige"],
-  ru: ["черный", "чёрный", "белый", "серый", "синий", "зеленый", "зелёный", "красный", "серебристый", "бежевый"],
-  uk: ["чорний", "білий", "сірий", "синій", "зелений", "червоний", "сріблястий", "бежевий"],
+  ru: ["черный", "чёрный", "белый", "серый", "синий", "зеленый", "зелёный", "красный", "серебристый", "бежевый", "черная", "чёрная", "черное", "чёрное", "черные", "чёрные", "белая", "белое", "белые", "серая", "серое", "серые", "синяя", "синее", "синие", "зеленая", "зелёная", "зеленое", "зелёное", "зеленые", "зелёные", "красная", "красное", "красные", "серебристая", "серебристое", "серебристые", "бежевая", "бежевое", "бежевые"],
+  uk: ["чорний", "білий", "сірий", "синій", "зелений", "червоний", "сріблястий", "бежевий", "чорна", "чорне", "чорні", "біла", "біле", "білі", "сіра", "сіре", "сірі", "синя", "синє", "сині", "зелена", "зелене", "зелені", "червона", "червоне", "червоні", "срібляста", "сріблясте", "сріблясті", "бежева", "бежеве", "бежеві"],
   de: ["schwarz", "weiß", "weiss", "grau", "blau", "grün", "rot", "silber", "beige"],
-  fr: ["noir", "blanc", "gris", "bleu", "vert", "rouge", "argent", "beige"],
-  es: ["negro", "blanco", "gris", "azul", "verde", "rojo", "plata", "beige"],
-  it: ["nero", "bianco", "grigio", "blu", "verde", "rosso", "argento", "beige"],
-  pt: ["preto", "branco", "cinza", "azul", "verde", "vermelho", "prata", "bege"],
+  fr: ["noir", "blanc", "gris", "bleu", "vert", "rouge", "argent", "beige", "noire", "noirs", "noires", "blanche", "blancs", "blanches", "grise", "grises", "bleue", "bleus", "bleues", "verte", "verts", "vertes", "rouges", "argentée", "argenté"],
+  es: ["negro", "blanco", "gris", "azul", "verde", "rojo", "plata", "beige", "negra", "negros", "negras", "blanca", "blancos", "blancas", "grises", "azules", "verdes", "roja", "rojos", "rojas", "plateado", "plateada"],
+  it: ["nero", "bianco", "grigio", "blu", "verde", "rosso", "argento", "beige", "nera", "neri", "nere", "bianca", "bianchi", "bianche", "grigia", "grigi", "grigie", "verdi", "rossa", "rossi", "rosse", "argentata", "argentato"],
+  pt: ["preto", "branco", "cinza", "azul", "verde", "vermelho", "prata", "bege", "preta", "pretos", "pretas", "branca", "brancos", "brancas", "cinzas", "azuis", "verdes", "vermelha", "vermelhos", "vermelhas", "prateado", "prateada"],
   ja: ["ブラック", "ホワイト", "グレー", "ブルー", "グリーン", "レッド", "シルバー", "ベージュ"],
   ko: ["블랙", "화이트", "그레이", "블루", "그린", "레드", "실버", "베이지", "검정", "흰색"],
   zh: ["黑色", "白色", "灰色", "蓝色", "绿色", "红色", "银色", "米色"],
@@ -474,13 +475,13 @@ export const COLOURS: Words = {
 /** What a shop adds to any name: new, buy, sale, edition, set, kit. */
 export const SHOP_WORDS: Words = {
   en: ["new", "shop", "buy", "sale", "edition", "set", "kit"],
-  ru: ["новый", "новинка", "купить", "магазин", "распродажа", "издание", "набор", "комплект"],
-  uk: ["новий", "новинка", "купити", "магазин", "розпродаж", "видання", "набір", "комплект"],
+  ru: ["новый", "новинка", "купить", "магазин", "распродажа", "издание", "набор", "комплект", "новая", "новое", "новые"],
+  uk: ["новий", "новинка", "купити", "магазин", "розпродаж", "видання", "набір", "комплект", "нова", "нове", "нові"],
   de: ["neu", "kaufen", "shop", "angebot", "edition", "set", "kit"],
-  fr: ["nouveau", "acheter", "boutique", "soldes", "édition", "coffret", "kit"],
-  es: ["nuevo", "comprar", "tienda", "oferta", "edición", "set", "kit"],
-  it: ["nuovo", "acquista", "negozio", "offerta", "edizione", "set", "kit"],
-  pt: ["novo", "comprar", "loja", "oferta", "edição", "kit"],
+  fr: ["nouveau", "acheter", "boutique", "soldes", "édition", "coffret", "kit", "nouvelle", "nouveaux", "nouvelles"],
+  es: ["nuevo", "comprar", "tienda", "oferta", "edición", "set", "kit", "nueva", "nuevos", "nuevas"],
+  it: ["nuovo", "acquista", "negozio", "offerta", "edizione", "set", "kit", "nuova", "nuovi", "nuove"],
+  pt: ["novo", "comprar", "loja", "oferta", "edição", "kit", "nova", "novos", "novas"],
   ja: ["新品", "新作", "購入", "通販", "セール", "限定", "セット"],
   ko: ["신상", "신제품", "구매", "할인", "세트", "에디션"],
   zh: ["新款", "购买", "促销", "套装", "限量版"],
@@ -503,12 +504,18 @@ export const NAME_EXTRAS: Words = {
   ko: ["추천", "공식", "사이트", "앱", "무료", "온라인", "리뷰", "후기"],
   zh: ["推荐", "官方", "官网", "应用", "免费", "在线", "评测"],
   "zh-Hant": ["推薦", "官方", "官網", "應用程式", "免費", "線上", "評測"],
-  vi: ["tốt nhất", "chính hãng", "trang", "ứng dụng", "miễn phí", "trực tuyến", "đánh giá"],
+  vi: ["tốt nhất", "chính hãng", "trang web", "ứng dụng", "miễn phí", "trực tuyến", "đánh giá"],
   ar: ["أفضل", "رسمي", "موقع", "تطبيق", "مجاني", "أونلاين", "مراجعة"]
 }
 
-/** Every word of these lists as names are compared: lower case, accents folded (pagecheck.mts nameTokens). */
-export const foldedWords = (...lists: Words[]): string[] => [...new Set(lists.flatMap(all).flatMap((w) => w.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().split(/[^\p{L}\p{N}]+/u)).filter(Boolean))]
+const foldName = (w: string) => w.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean)
+/** These lists' one-word entries as names are compared: lower case, accents folded (pagecheck.mts nameTokens). */
+export const foldedWords = (...lists: Words[]): string[] => [...new Set(lists.flatMap(all).map(foldName).filter((t) => t.length === 1).map((t) => t[0]))]
+/**
+ * Their entries of several words, folded the same way and kept whole («chính hãng», "en ligne"): a name loses the
+ * phrase, not each of its words (Vietnamese words are syllables: «bàn», «gia dụng» would go too).
+ */
+export const foldedPhrases = (...lists: Words[]): string[] => [...new Set(lists.flatMap(all).map(foldName).filter((t) => t.length > 1).map((t) => t.join(" ")))]
 
 /** Paid every three months. */
 export const QUARTER: Words = {
@@ -592,4 +599,14 @@ export const COST: Words = {
   it: ["costo", "costi", "prezzo", "tariffa", "gratis", "gratuita"], pt: ["custo", "preço", "taxa", "grátis", "gratuito"],
   ja: ["送料", "料金", "無料"], ko: ["배송비", "요금", "무료"], zh: ["运费", "费用", "免费", "包邮"], "zh-Hant": ["運費", "費用", "免費"],
   vi: ["phí", "miễn phí", "giá"], ar: ["رسوم", "تكلفة", "مجاني", "مجانا"]
+}
+
+/** Units a size or capacity is written with (a shop writes "128 GB", «128 ГБ», "128기가" its own way). */
+export const UNITS: Words = {
+  en: ["gb", "tb", "mb", "kb", "mm", "cm", "m", "l", "ml", "w", "kw", "mah", "kg", "g", "in", "inch", "hz", "mp"],
+  ru: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймов", "гц", "мп"],
+  uk: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймів", "гц", "мп"],
+  de: ["zoll"], fr: ["pouces", "po"], es: ["pulgadas"], it: ["pollici"], pt: ["polegadas"],
+  ja: ["ギガ", "テラ", "ミリ", "センチ", "リットル", "グラム", "インチ"], ko: ["기가", "테라", "리터", "그램", "인치", "밀리"],
+  zh: ["克", "升", "毫升", "英寸", "寸"], "zh-Hant": ["克", "升", "毫升", "英吋", "吋"], vi: ["inch"], ar: ["جيجا", "بوصة"]
 }
