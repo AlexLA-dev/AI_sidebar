@@ -3,7 +3,7 @@ import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
 import {
-  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf
+  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, textSize, unpackVector, wantsNameCheck, type VectorOf
 } from "../src/shared/organize.ts"
 import type { Thread } from "../src/shared/threads.ts"
 
@@ -89,6 +89,19 @@ test("short questions, moved-in and turned-down blocks, and \"Ask your chats\" g
   assert.equal(movesAllowed(tired, [tired], cfg), false)
   const taken = chat("t", qa("d", "https://d/1").map((e) => ({ ...e, from: { chat: "tired", at: 10_000_000 } })))
   assert.equal(movesAllowed(tired, [tired, taken], cfg), true)
+})
+
+test("short questions in Chinese, Japanese and Korean say enough: their characters count three times", () => {
+  assert.equal(textSize("Kyoto tips?"), 11)
+  assert.equal(textSize("京都哪里好玩？"), 19)
+  assert.equal(textSize("교토 어디가 좋아요?"), 27)
+  // Asked in the app (no page) about another chat's topic: a short Chinese, Japanese or Korean question moves, as short
+  // a question in English doesn't.
+  for (const [question, moves] of [["京都哪里好玩？", true], ["京都のおすすめは？", true], ["교토 어디가 좋아요?", true], ["Kyoto tips?", false]] as const) {
+    const asked = qa("japan", "https://jg/1", { question }).map((e) => (e.role === "user" ? { ...e, page: undefined } : e))
+    const pile = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...asked])
+    assert.equal(suggestMove(pile, [pile, japan, bread], vectorOf, cfg)?.to ?? null, moves ? "japan" : null, question)
+  }
 })
 
 test("tags: only the user's tags with two examples or more that are alike; not intentions; not the ones it has", () => {
