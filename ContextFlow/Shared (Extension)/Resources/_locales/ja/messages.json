@@ -941,7 +941,19 @@
  "pickNone": {
   "message": "選択を解除"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
+ },
+ "limitFreeBack_two": {
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
+ },
+ "limitFreeBack_few": {
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
+ },
+ "limitFreeBack_many": {
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
+ },
+ "limitFreeBack_other": {
   "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
  },
  "limitFreePro": {

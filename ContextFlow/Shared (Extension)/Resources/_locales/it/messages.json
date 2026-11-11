@@ -941,7 +941,19 @@
  "pickNone": {
   "message": "Deseleziona tutto"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{0} nuova risposta gratuita alle {1}, tra {2}."
+ },
+ "limitFreeBack_two": {
+  "message": "{0} nuove risposte gratuite alle {1}, tra {2}."
+ },
+ "limitFreeBack_few": {
+  "message": "{0} nuove risposte gratuite alle {1}, tra {2}."
+ },
+ "limitFreeBack_many": {
+  "message": "{0} nuove risposte gratuite alle {1}, tra {2}."
+ },
+ "limitFreeBack_other": {
   "message": "{0} nuove risposte gratuite alle {1}, tra {2}."
  },
  "limitFreePro": {

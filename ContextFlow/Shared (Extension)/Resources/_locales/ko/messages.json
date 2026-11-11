@@ -941,7 +941,19 @@
  "pickNone": {
   "message": "선택 해제"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
+ },
+ "limitFreeBack_two": {
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
+ },
+ "limitFreeBack_few": {
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
+ },
+ "limitFreeBack_many": {
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
+ },
+ "limitFreeBack_other": {
   "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
  },
  "limitFreePro": {
