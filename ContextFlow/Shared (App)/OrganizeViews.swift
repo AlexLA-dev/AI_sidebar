@@ -441,6 +441,8 @@ final class OrganizeModel: ObservableObject {
 
     // Messages that get vectors in one run, sent in batches; tag checks remembered.
     private let maxEmbedPerRun = 640
+    // 2.6 (98): the scans already reported (a chat, its length, the library's size).
+    private var scanned = Set<String>()
     private let batch = 128
     private let maxVerdicts = 400
 
@@ -577,6 +579,12 @@ final class OrganizeModel: ObservableObject {
         let known = vectors.v
         let cfg = config
         guard let work = await Task.detached(priority: .userInitiated, operation: { Carry(value: OrganizeWork.suggest(chatId, live.value, known: known, cfg)) }).value.value else { return nil }
+        // 2.6 (98): what this run compared and why nothing fired, once per chat, length and library size.
+        let scanKey = "\(chatId):\(thread.entries.count):\(work.scan.chats)"
+        if !scanned.contains(scanKey) {
+            scanned.insert(scanKey)
+            ChatAI.reportUse("org", "scan", work.scan.fields)
+        }
 
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
         if let s = work.move {

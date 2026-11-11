@@ -841,6 +841,109 @@ nonisolated enum Organize {
 
     private typealias Other = (thread: OrganizeThread, blocks: [ScoredBlock])
 
+    /// The engine's version, sent with a scan's numbers (2.6 (98)).
+    static let engineVersion = 98
+
+    /// 2.6 (98): what a scan of a chat compared and why nothing fired (src/shared/organize.ts `organizeScan`): numbers
+    /// and named reasons only.
+    struct Scan: Equatable {
+        var chats: Int
+        var msgs: Int
+        var vec: Int
+        var mg: Int
+        var mga: Int
+        var mgw: String
+        var mv: Int
+        var mvw: String
+        var res: String
+        var tv: Int
+
+        /// As the event sends them (the server reads whole numbers from strings).
+        var fields: [String: String] {
+            ["chats": "\(chats)", "msgs": "\(msgs)", "vec": "\(vec)", "mg": "\(mg)", "mga": "\(mga)", "mgw": mgw, "mv": "\(mv)", "mvw": mvw, "res": res, "tv": "\(tv)", "ev": "\(Organize.engineVersion)"]
+        }
+    }
+
+    /// A key of the thresholds in use (0–9972): their names in order, each value to a thousandth (`thresholdsKey`).
+    static func thresholdsKey(_ cfg: OrganizeConfig) -> Int {
+        var h = 0
+        for field in OrganizeConfig.fields.sorted(by: { $0.name < $1.name }) {
+            h = (h * 31 + Int(jsRound(cfg[keyPath: field.path] * 1000))) % 9973
+        }
+        return (h + 9973) % 9973
+    }
+
+    /// The scan's numbers for `chat` among `chats`, with `found` the suggestion it gave (src/shared/organize.ts).
+    static func organizeScan(_ chat: OrganizeThread, _ chats: [OrganizeThread], _ vectorOf: VectorOf, _ cfg: OrganizeConfig, _ found: MoveSuggestion?) -> Scan {
+        let live = chats.filter { $0.id != chat.id && !$0.isDeleted && !$0.isHistory && !$0.entries.isEmpty }
+        let blocks = scoredBlocks(chat.entries, vectorOf)
+        let others: [Other] = live.map { ($0, scoredBlocks($0.entries, vectorOf)) }
+        var all = 0
+        var have = 0
+        for t in [chat] + live {
+            for e in t.entries where !embedText(e).isEmpty {
+                all += 1
+                if vectorOf(e) != nil { have += 1 }
+            }
+        }
+        // The closest chat to merge with: by questions and answers, both ways (the older one joins the newer).
+        let here: Other = (chat, blocks)
+        func fit(_ a: [ScoredBlock], _ b: [ScoredBlock], answers: Bool) -> Double {
+            let list = b.map { (v: (answers ? $0.a : $0.v)!, w: 1.0) }
+            return a.reduce(0) { $0 + topMean((answers ? $1.a : $1.v)!, list, 2) } / Double(a.count)
+        }
+        var merge: (qa: Double, a: Double, why: String)?
+        for o in others {
+            let (from, to) = newer(o.thread, chat) ? (here, o) : (o, here)
+            let mine = from.blocks.filter { $0.v != nil }
+            let theirs = to.blocks.filter { $0.v != nil }
+            if mine.isEmpty || theirs.isEmpty { continue }
+            let qa = min(fit(mine, theirs, answers: false), fit(theirs, mine, answers: false))
+            if let m = merge, qa <= m.qa { continue }
+            let a = min(fit(mine, theirs, answers: true), fit(theirs, mine, answers: true))
+            let why: String
+            if !from.blocks.contains(where: { b in b.url.map { !$0.isEmpty } == true && to.blocks.contains { $0.url == b.url } }) { why = "page" }
+            else if to.thread.entries.allSatisfy(isNote) { why = "notes" }
+            else if from.blocks.contains(where: { $0.settled || $0.dismissed }) { why = "settled" }
+            else if (from.thread.org?.mx ?? []).contains(to.thread.id) { why = "refused" }
+            else if a < cfg.mergeA { why = "answers" }
+            else if matchPercent(qa, cfg) < cfg.minMatch { why = "match" }
+            else { why = "open" }
+            merge = (qa, a, why)
+        }
+        // The strongest block to move, anywhere in the chat, and the first rule it stops at.
+        let first = Int(max(0, Double(blocks.count) - cfg.window).rounded(.up))
+        var move: (score: Double, why: String)?
+        for (i, b) in blocks.enumerated() {
+            guard let bv = b.v else { continue }
+            let rest = blocks.enumerated().filter { $0.offset != i }.map(\.element)
+            let outside = blocks.enumerated().filter { Double($0.offset) < Double(blocks.count) - cfg.window && $0.offset != i && $0.element.v != nil }.map(\.element)
+            let base = (outside.isEmpty ? rest.filter { $0.v != nil } : outside).map { (v: $0.v!, w: 1.0) }
+            let current = topMean(bv, base, 2)
+            for o in others {
+                let vs = o.blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
+                if vs.isEmpty { continue }
+                let score = topMean(bv, vs, 2)
+                if let m = move, score <= m.score { continue }
+                let why: String
+                if i < first { why = "window" }
+                else if b.weak { why = "weak" }
+                else if b.settled || b.dismissed { why = "settled" }
+                else if !rest.isEmpty && shareOn(b, rest, cfg).share >= 0.5 { why = "topic" }
+                else if score < (vs.count >= 2 ? cfg.moveT : cfg.moveT1) || matchPercent(score, cfg) < cfg.minMatch { why = "fit" }
+                else if score - current < cfg.moveD { why = "margin" }
+                else if !goesTo(b, rest, chat, o, cfg) { why = "mix" }
+                else { why = "open" }
+                move = (score, why)
+            }
+        }
+        return Scan(
+            chats: live.count, msgs: chat.entries.count, vec: all > 0 ? Int(jsRound(Double(have) * 100 / Double(all))) : 0,
+            mg: merge.map { Int(matchPercent($0.qa, cfg)) } ?? 0, mga: merge.map { max(0, Int(jsRound($0.a * 100))) } ?? 0, mgw: merge?.why ?? "none",
+            mv: move.map { Int(matchPercent($0.score, cfg)) } ?? 0, mvw: move?.why ?? "none",
+            res: !movesAllowed(chat, chats, cfg) ? "off" : found?.why.rawValue ?? "none", tv: thresholdsKey(cfg))
+    }
+
     /// The one move to suggest in `chat` now (or nil): of its last `window` blocks, those nobody decided about yet
     /// are checked — first whether the same page is in another chat (no vectors needed; a short note or question
     /// will do), then, for those that say enough, the same site, then the topic; a block that fits no chat and not
@@ -1578,8 +1681,9 @@ nonisolated enum OrganizeWork {
         let candidates: [Organize.TagCandidate]
     }
 
-    /// Chat `chatId`'s move, and its messages with tag candidates (the judge's answers come from the network).
-    static func suggest(_ chatId: String, _ live: [OrganizeThread], known: [String: String], _ cfg: OrganizeConfig) -> (move: Organize.MoveSuggestion?, tags: [Tagging])? {
+    /// Chat `chatId`'s move, its messages with tag candidates (the judge's answers come from the network), and (2.6 (98))
+    /// the scan's numbers for the diagnostic event.
+    static func suggest(_ chatId: String, _ live: [OrganizeThread], known: [String: String], _ cfg: OrganizeConfig) -> (move: Organize.MoveSuggestion?, tags: [Tagging], scan: Organize.Scan)? {
         guard let chat = live.first(where: { $0.id == chatId }) else { return nil }
         let vectorOf = reader(known)
         let move = Organize.suggestMove(chat, live, vectorOf, cfg, Organize.MoveCache())
@@ -1587,7 +1691,7 @@ nonisolated enum OrganizeWork {
             let candidates = Organize.tagCandidates(chat, index, live, vectorOf, cfg)
             return candidates.isEmpty ? nil : Tagging(index: index, message: Organize.judgeText(chat.entries, index), candidates: candidates)
         }
-        return (move, tags)
+        return (move, tags, Organize.organizeScan(chat, live, vectorOf, cfg, move))
     }
 
     /// Every chat's open suggestions, for the chats list ("N recommendations"): its move (every chat scored once), and
