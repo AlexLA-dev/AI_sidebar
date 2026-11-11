@@ -90,6 +90,37 @@ test("one plan only (an Ultra feature, or Pro at its limit): no plan switch; wit
   assert.equal(el.querySelector(".cf-plan-price"), null)
 })
 
+test("prices in a currency other than USD written with a bare \"$\" (build 95, the App Store of Canada): the currency is said", async () => {
+  const shown = async (prices: Record<string, string>) => {
+    const el = dom.document.createElement("div")
+    dom.document.body.appendChild(el)
+    ui.offer(el, { place: "ultra_only", status: { ...STATUS, store: { active: false, productId: null, prices } }, title: "Listen", plans: ["ultra"], onChoose() {}, onEvent() {} })
+    await tick()
+    const line = el.querySelector(".cf-plans-currency")?.textContent ?? null
+    ui.clear(el)
+    return line
+  }
+  // Canadian dollars read "$12.99", as dollars of the US do: "CAD" is said.
+  assert.match(await shown({ ...PRICES, "#currency": "CAD" }) ?? "", /CAD/)
+  // US dollars, or a price that says its currency itself ("CA$", "12,99 €"), or no currency known: nothing more.
+  assert.equal(await shown({ ...PRICES, "#currency": "USD" }), null)
+  assert.equal(await shown({ "com.contextflow.ultra.monthly": "CA$12.99", "com.contextflow.ultra.yearly": "CA$119.99", "#currency": "CAD" }), null)
+  assert.equal(await shown({ "com.contextflow.ultra.monthly": "12,99 €", "com.contextflow.ultra.yearly": "119,99 €", "#currency": "EUR" }), null)
+  assert.equal(await shown(PRICES), null)
+})
+
+test("yearly (build 95): twelve months of the monthly plan, struck through, when the app shared it", async () => {
+  const el = dom.document.createElement("div")
+  dom.document.body.appendChild(el)
+  const prices = { ...PRICES, "com.contextflow.ultra.yearly#perMonth": "$10.00", "com.contextflow.ultra.yearly#twelve": "$155.88" }
+  ui.offer(el, { place: "ultra_only", status: { ...STATUS, store: { active: false, productId: null, prices } }, title: "Listen", plans: ["ultra"], onChoose() {}, onEvent() {} })
+  await tick()
+  const seg = [...el.querySelectorAll(".cf-offer-period button")]
+  if (seg.length) await click(seg[seg.length - 1])
+  assert.equal(el.querySelector(".cf-plan-year s")?.textContent, "$155.88")
+  ui.clear(el)
+})
+
 test("Retry: off until the answers are back, then the question goes again", async () => {
   const el = dom.document.createElement("div")
   dom.document.body.appendChild(el)
@@ -151,4 +182,12 @@ test("listen (build 94): back to what plays from the bar, and a text marked alre
   const { useFields } = await import("../src/shared/usage.ts")
   assert.deepEqual(useFields({ f: "listen", a: "go", what: "answer" }), { f: "listen", a: "go", what: "answer" })
   assert.deepEqual(useFields({ f: "listen", a: "voiced", what: "page" }), { f: "listen", a: "voiced", what: "page" })
+})
+
+test("listen (build 95): a text played out but not marked, and why (the app sends its numbers as strings)", async () => {
+  const { useFields } = await import("../src/shared/usage.ts")
+  assert.deepEqual(useFields({ f: "listen", a: "unvoiced", what: "answer", why: "short", gap_s: 4 }), { f: "listen", a: "unvoiced", what: "answer", why: "short", gap_s: 4 })
+  assert.deepEqual(useFields({ f: "listen", a: "unvoiced", what: "answer", why: "before", gap_s: "0" }), { f: "listen", a: "unvoiced", what: "answer", why: "before", gap_s: 0 })
+  // Anything else is left out.
+  assert.deepEqual(useFields({ f: "listen", a: "unvoiced", what: "answer", why: "because", gap_s: -1 }), { f: "listen", a: "unvoiced", what: "answer" })
 })

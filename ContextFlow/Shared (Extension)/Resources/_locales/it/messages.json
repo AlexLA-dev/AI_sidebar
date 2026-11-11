@@ -1730,6 +1730,9 @@
  "plansNote": {
   "message": "L’abbonamento si fa nell’app ContextFlow. Il passaggio a Ultra parte subito e Apple rimborsa quello che resta del piano attuale."
  },
+ "plansCurrency": {
+  "message": "Prezzi in {0}, come li indica l’App Store."
+ },
  "tierByok1": {
   "message": "Risposte illimitate con la tua chiave API di OpenAI o Claude"
  },
@@ -2112,7 +2115,7 @@
   "message": "Continua ad ascoltare in ContextFlow — da {0}"
  },
  "listenNotifyAsk": {
-  "message": "Attiva le notifiche per continuare ad ascoltare quando esci da Safari o blocchi lo schermo. Altrimenti Listen apre l’app."
+  "message": "Attiva le notifiche per continuare ad ascoltare quando esci da Safari o blocchi lo schermo. Altrimenti «Ascolta» apre l’app."
  },
  "listenNotifyOn": {
   "message": "Attiva le notifiche"

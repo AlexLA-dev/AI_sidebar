@@ -1730,6 +1730,9 @@
  "plansNote": {
   "message": "الاشتراك يكون في تطبيق ContextFlow. الانتقال إلى Ultra يبدأ فورًا، وتعيد لك Apple قيمة ما تبقّى من خطتك الحالية."
  },
+ "plansCurrency": {
+  "message": "الأسعار بعملة {0}، كما يعرضها App Store."
+ },
  "tierByok1": {
   "message": "إجابات بلا حدود بمفتاح API الخاص بك من OpenAI أو Claude"
  },
@@ -2112,7 +2115,7 @@
   "message": "تابِع الاستماع في ContextFlow — من {0}"
  },
  "listenNotifyAsk": {
-  "message": "فعّل الإشعارات لتواصل الاستماع عند مغادرة Safari أو قفل الشاشة. وإلا فسيفتح Listen التطبيق."
+  "message": "فعّل الإشعارات لتواصل الاستماع عند مغادرة Safari أو قفل الشاشة. وإلا فسيفتح «استماع» التطبيق."
  },
  "listenNotifyOn": {
   "message": "تفعيل الإشعارات"

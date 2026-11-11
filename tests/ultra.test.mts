@@ -477,6 +477,35 @@ test("heard: a replay costs nothing, on this device or another of the subscriber
   assert.equal(counters.get("speak:tx:3000000001"), 3)
 })
 
+test("heard: a text is voiced once every part is counted, over any listens and devices; then its id alone answers (build 95)", async () => {
+  const p1 = "S".repeat(70), p2 = "T".repeat(70)
+  for (const text of [p1, p2]) {
+    const c = ctx()
+    await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws() }), c))
+    await Promise.all(c.waits)
+  }
+  const id = "0123456789abcdef"
+  const keys = [partKey("en", p1), partKey("en", p2)]
+  const ask = (body: Record<string, unknown>, installId = INSTALL) => post("https://x/api/v2/speak-heard", { installId, entitlement: ultraJws(), ...body })
+  // Nothing heard yet: not voiced. A query only (texts, no items) reads no minutes.
+  const none = await (await speakHeard(ask({ texts: [{ id, keys }] }), ctx())).json()
+  assert.deepEqual([none.ok, none.voiced, none.usage], [true, [], undefined])
+  // The first part heard on this device, a little of the second on another: not yet.
+  const other = "6f1d2c3b-4a59-4e6f-8a7b-9c0d1e2f3a4b"
+  assert.deepEqual((await (await speakHeard(ask({ items: [{ key: keys[0], s: 3 }], texts: [{ id, keys }] }), ctx())).json()).voiced, [])
+  assert.deepEqual((await (await speakHeard(ask({ items: [{ key: keys[1], s: 1 }], texts: [{ id, keys }] }, other), ctx())).json()).voiced, [])
+  // The rest of the second part, later, give or take a second: voiced, and kept.
+  const done = await (await speakHeard(ask({ items: [{ key: keys[1], s: 2.4 }], texts: [{ id, keys }] }, other), ctx())).json()
+  assert.deepEqual(done.voiced, [id])
+  assert.equal(counters.get(`speakvoiced:3000000001:${id}`), 1)
+  // From then on its id alone answers, on any device; another text, a part never made or a bad id: no.
+  const later = await (await speakHeard(ask({ texts: [{ id }, { id: "fedcba9876543210", keys: [partKey("en", "never made")] }, { id: "nothex" }] }), ctx())).json()
+  assert.deepEqual(later.voiced, [id])
+  // Neither list: a 400; without Ultra: 403.
+  assert.equal((await speakHeard(ask({ texts: [] }), ctx())).status, 400)
+  assert.equal((await speakHeard(post("https://x/api/v2/speak-heard", { installId: INSTALL, entitlement: signJws(transaction()), texts: [{ id }] }), ctx())).status, 403)
+})
+
 test("heard: reports come with the next part too, and count before it's decided; a part not on record counts at most 60 s", async () => {
   counters.set("speak:tx:3000000001", 100)
   // A part made before its length was kept: at most 60 s of it count; nonsense is left out.
@@ -539,6 +568,18 @@ test("speak: a text keeps its first part's model; a 400 never moves it to anothe
   tts.failStatus = [400]
   const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Too long a part.", lang: "en", entitlement: ultraJws() }), ctx())
   assert.equal(res.status, 502)
+  assert.deepEqual(tts.calls.map((x) => x.model), ["gemini-3.8-flash-lite-tts"])
+})
+
+test("speak: a text begun on the full model keeps it for a part Flash-Lite could say (build 95: one voice per text)", async () => {
+  tts.calls = []
+  tts.failStatus = undefined
+  // The text's first part went to the full model (a language Flash-Lite lacks); this part is plain English.
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Plain English this time.", lang: "en", part: 2, parts: 3, model: "gemini-3.8-flash-tts", entitlement: ultraJws() }), ctx()))
+  assert.deepEqual(tts.calls.map((x) => x.model), ["gemini-3.8-flash-tts"])
+  // Without a model of its own (a first part), plain English goes to Flash-Lite as before.
+  tts.calls = []
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Plain English this time.", lang: "en", entitlement: ultraJws() }), ctx()))
   assert.deepEqual(tts.calls.map((x) => x.model), ["gemini-3.8-flash-lite-tts"])
 })
 

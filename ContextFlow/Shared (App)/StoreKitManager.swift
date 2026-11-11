@@ -110,6 +110,14 @@ final class StoreKitManager: ObservableObject {
         Tier.allCases.compactMap { yearlyDeal($0)?.percent }.max()
     }
 
+    /// The App Store's currency when its prices don't say it themselves (build 95, the owner's App Store of Canada: CAD
+    /// reads "$12.99", the same as dollars of the US): a currency other than USD written with a bare "$" (as the panel).
+    var unclearCurrency: String? {
+        guard let code = products.first?.priceFormatStyle.currencyCode.uppercased(), code.count == 3, code != "USD" else { return nil }
+        let bare = products.contains { $0.displayPrice.contains("$") && !$0.displayPrice.contains(where: \.isLetter) }
+        return bare ? code : nil
+    }
+
     /// A monthly Pro or Ultra subscriber whose plan is also sold yearly: what switching saves (Settings, the panel).
     /// Gone once the switch is made (yearly starts at the renewal; until then the month runs on).
     var yearlySwitch: (tier: Tier, deal: YearlyDeal, product: Product)? {

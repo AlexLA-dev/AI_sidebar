@@ -1730,6 +1730,9 @@
  "plansNote": {
   "message": "구독은 ContextFlow 앱에서 해요. Ultra로 바꾸면 바로 시작되고, 현재 요금제의 남은 기간은 Apple이 환불해요."
  },
+ "plansCurrency": {
+  "message": "가격은 {0} 기준이며 App Store에 표시된 그대로입니다."
+ },
  "tierByok1": {
   "message": "내 OpenAI 또는 Claude API 키로 답변 무제한"
  },
@@ -2112,7 +2115,7 @@
   "message": "ContextFlow에서 계속 듣기 — {0}부터"
  },
  "listenNotifyAsk": {
-  "message": "Safari를 떠나거나 화면을 잠가도 계속 들으려면 알림을 켜세요. 그렇지 않으면 Listen이 앱을 엽니다."
+  "message": "Safari를 떠나거나 화면을 잠가도 계속 들으려면 알림을 켜세요. 그렇지 않으면 '듣기'가 앱을 엽니다."
  },
  "listenNotifyOn": {
   "message": "알림 켜기"

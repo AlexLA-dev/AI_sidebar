@@ -71,3 +71,73 @@ export async function recordPartMade(access: Access, key: string, seconds: numbe
   const more = Math.ceil(seconds) - (state?.n ?? 0)
   if (more > 0) await consume([{ subject, period: "ever", limit: null, amount: more }])
 }
+
+/**
+ * "Already voiced" (build 95, the owner on 94: «Ничего такого не вижу»; promised on 93: «и так на любом вашем
+ * устройстве»): a text is voiced for the subscription once every part of it has been counted here to within a second
+ * of its length, heard on any device, in one go or over several. Hearing it again then adds nothing to the week's
+ * minutes. The devices ask about the texts they show by the text's id (src/shared/voiced.ts) and, when they can work
+ * them out, its parts' keys; a text found voiced is kept as such (speakvoiced), so its id alone answers from then on,
+ * on every device.
+ */
+const TEXT_ID = /^[0-9a-f]{16}$/
+const MAX_TEXTS = 40
+const MAX_TEXT_KEYS = 80
+const MAX_KEYS = 400
+
+export interface HeardText {
+  id: string
+  keys: string[]
+}
+
+export const textVoicedSubject = (access: Access, id: string) => `speakvoiced:${otidOf(access)}:${id}`
+
+/** The texts as they came (anything else left out): at most MAX_TEXTS, their keys at most MAX_TEXT_KEYS each and
+ *  MAX_KEYS in all (a text past that is asked by its id alone). */
+export function heardTexts(raw: unknown): HeardText[] {
+  const out = new Map<string, string[]>()
+  let total = 0
+  for (const item of Array.isArray(raw) ? raw.slice(0, MAX_TEXTS) : []) {
+    if (!item || typeof item !== "object") continue
+    const { id, keys } = item as { id?: unknown; keys?: unknown }
+    if (typeof id !== "string" || !TEXT_ID.test(id) || out.has(id)) continue
+    let list = [...new Set(Array.isArray(keys) ? keys.filter((k): k is string => typeof k === "string" && KEY.test(k)) : [])]
+    if (list.length > MAX_TEXT_KEYS || total + list.length > MAX_KEYS) list = []
+    total += list.length
+    out.set(id, list)
+  }
+  return [...out].map(([id, keys]) => ({ id, keys }))
+}
+
+/** Which of `texts` are voiced for this subscription; the ones found voiced by their parts are kept as voiced. */
+export async function voicedTexts(access: Access, texts: HeardText[]): Promise<string[]> {
+  if (!texts.length) return []
+  const keys = [...new Set(texts.flatMap((t) => t.keys))]
+  const states = await peek([
+    ...texts.map((t): EverCounter => ({ subject: textVoicedSubject(access, t.id), period: "ever", limit: null })),
+    ...keys.flatMap((key): EverCounter[] => [
+      { subject: partMadeSubject(access, key), period: "ever", limit: null },
+      { subject: partHeardSubject(access, key), period: "ever", limit: null }
+    ])
+  ])
+  const n = (subject: string) => states.find((c) => c.subject === subject)?.n ?? 0
+  const voiced: string[] = []
+  const kept: EverCounter[] = []
+  for (const text of texts) {
+    if (n(textVoicedSubject(access, text.id)) > 0) {
+      voiced.push(text.id)
+      continue
+    }
+    // Every part made here and heard to within a second of its length (as applyHeard counts it).
+    const whole = text.keys.length > 0 && text.keys.every((key) => {
+      const made = n(partMadeSubject(access, key))
+      const counted = n(partHeardSubject(access, key))
+      return made > 0 && counted > 0 && counted >= made - 1
+    })
+    if (!whole) continue
+    voiced.push(text.id)
+    kept.push({ subject: textVoicedSubject(access, text.id), period: "ever", limit: null, amount: 1 })
+  }
+  if (kept.length) await consume(kept)
+  return voiced
+}

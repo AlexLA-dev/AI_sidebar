@@ -199,6 +199,8 @@ export type BackgroundRequest =
   | { type: "listenReturn"; id: string }
   // Build 94: a text heard to its end here (shared/voiced.ts id): kept, and told to the app on this device.
   | { type: "listenVoiced"; id: string }
+  // Build 95: which of a chat's answers are voiced, as the server counts them (any device, any listens).
+  | { type: "voicedAsk"; texts: Array<{ text: string; what: "answer" | "page"; lang: string }> }
   // Build 94: a page went away, or shows again, while a Find similar works (the app's "found" notification).
   | { type: "similarAway" }
   | { type: "similarBack" }

@@ -2368,6 +2368,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [])
   const anyVoiced = Object.keys(voiced).length > 0
   const voicedAnswer = (text: string) => anyVoiced && isUltra(plan) && Boolean(voiced[voicedId("answer", text)])
+  // Build 95 (the owner on 94: no mark anywhere; it was only set by a listen heard to its very end, on that device):
+  // the chat's answers as the server counts them, heard on any device in any number of listens. Asked about when the
+  // chat shows (each at most every 10 minutes: the background keeps track); the voiced ones join the list.
+  const unvoicedShown = useMemo(() => {
+    if (TARGET !== "safari" || view !== "chat" || streaming || !isUltra(plan)) return []
+    return messages.filter((m) => m.role === "assistant" && !m.note && m.content && !voiced[voicedId("answer", m.content)]).slice(-30)
+  }, [messages, voiced, view, streaming, plan])
+  const unvoicedKey = unvoicedShown.map((m) => voicedId("answer", m.content)).join(",")
+  useEffect(() => {
+    if (!unvoicedKey) return
+    const timer = setTimeout(() => {
+      void sendBackground({ type: "voicedAsk", texts: unvoicedShown.map((m) => ({ text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode") })) })
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [unvoicedKey])
   // A tap on what plays, in the bar (build 94): back to its chat, at the message (the page's: the chat's end).
   const listenGo = () => {
     const key = "key" in listen.state ? listen.state.key : ""
@@ -2385,7 +2400,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const listenSounds = listen.state.at === "playing" || listen.state.at === "paused" || listen.state.at === "loading"
   const playingChat = listenSounds && "key" in listen.state ? listen.state.key.split("|")[0] : null
   // The bar: under the chat's question field, and at the bottom of the chats list while something plays (build 93).
-  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onRetry={listen.retry} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
   // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
   // in the bar when the panel opens again).
   // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.

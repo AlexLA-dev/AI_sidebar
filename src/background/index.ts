@@ -35,7 +35,7 @@ import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./org
 import { organizeConfig } from "../shared/organize"
 import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
-import { base64 as speechBase64, clearSpeech, serveSpeak } from "./speak"
+import { base64 as speechBase64, clearSpeech, serveSpeak, textPartKeys, textVoicedId } from "./speak"
 import { withVoiced } from "../shared/voiced"
 import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
 import { t } from "../shared/i18n"
@@ -182,12 +182,52 @@ function keepVoiced(ids: string[], tellApp: boolean): Promise<void> {
     if (!ids.length) return
     const stored = (await chrome.storage.local.get(STORAGE.voiced).catch(() => ({} as Record<string, unknown>)))[STORAGE.voiced]
     const list = stored && typeof stored === "object" ? stored as Record<string, number> : {}
-    const next = withVoiced(list, ids)
-    if (Object.keys(next).some((id) => !list[id])) await chrome.storage.local.set({ [STORAGE.voiced]: next }).catch(() => undefined)
-    if (tellApp && TARGET === "safari") await callNative("voiced", { ids }, 3000)
+    // Only what's new is written, and told to the app (build 95: the server's answer can name a text marked already).
+    const fresh = ids.filter((id) => !list[id])
+    if (!fresh.length) return
+    await chrome.storage.local.set({ [STORAGE.voiced]: withVoiced(list, fresh) }).catch(() => undefined)
+    if (tellApp && TARGET === "safari") await callNative("voiced", { ids: fresh }, 3000)
   })
   voicedLane = run.catch(() => undefined)
   return run.catch(() => undefined)
+}
+
+// When each text was last asked about (build 95): a chat shown again soon after asks nothing; a text heard since is told
+// of by the heard report itself.
+const voicedAsked = new Map<string, number>()
+const VOICED_ASK_MS = 10 * 60_000
+
+/** Which of these texts are voiced, as the server counts them: by their parts' keys when they're known here (the same
+ *  parts Listen would make), else by the text's id; the voiced ones go into this device's list (the app told). */
+async function askVoiced(texts: Array<{ text: string; what: "answer" | "page"; lang: string }>): Promise<void> {
+  const now = Date.now()
+  const known = (await chrome.storage.local.get(STORAGE.voiced).catch(() => ({} as Record<string, unknown>)))[STORAGE.voiced] as Record<string, number> | undefined
+  const asks: Array<{ id: string; keys: string[] }> = []
+  for (const item of texts.slice(0, 40)) {
+    if (typeof item?.text !== "string" || !item.text.trim()) continue
+    const what = item.what === "page" ? "page" : "answer"
+    const id = textVoicedId(what, item.text)
+    if (known?.[id] || now - (voicedAsked.get(id) ?? 0) < VOICED_ASK_MS || asks.some((a) => a.id === id)) continue
+    voicedAsked.set(id, now)
+    asks.push({ id, keys: await textPartKeys(item.text, what, String(item.lang ?? "").slice(0, 16)).catch(() => []) })
+  }
+  if (!asks.length) return
+  if (voicedAsked.size > 2000) for (const [id, at] of voicedAsked) if (now - at > VOICED_ASK_MS) voicedAsked.delete(id)
+  try {
+    const ent = await entitlement()
+    if (!ent?.active) return
+    const res = await fetch(`${API_BASE}/api/v2/speak-heard`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ installId: await installId(), client: await clientInfo(), entitlement: ent.jws, texts: asks })
+    })
+    if (!res.ok) return
+    const body = (await res.json().catch(() => null)) as { voiced?: unknown } | null
+    const voiced = Array.isArray(body?.voiced) ? body.voiced.filter((id): id is string => typeof id === "string") : []
+    if (voiced.length) await keepVoiced(voiced, true)
+  } catch {
+    // Offline: asked again next time (after the wait).
+  }
 }
 
 async function lastEntitlement(): Promise<NativeEntitlement | null> {
@@ -401,6 +441,8 @@ chrome.runtime.onConnect.addListener((port) => {
       },
       // Where a text's minutes went (build 92): heard, from this device, iCloud or the server, and charged up front.
       report: (counts) => void reportUse({ type: "useEvent", f: "listen", a: "heard", ...counts }),
+      // Voiced now, as the server counts it (build 95): kept with this device's list, the app told.
+      voiced: (ids) => void keepVoiced(ids, true),
       // The user's iCloud through the app's extension (Safari): parts and texts made on their other devices. In their own
       // lane, one at a time and each short (build 92): the plan and the status never wait behind more than one.
       sync: TARGET === "safari" ? {
@@ -751,7 +793,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         sendResponse({ status: "none" })
         return false
       }
-      callNative<{ status?: string }>("notifStatus", {}, 3000).then((r) => sendResponse({ status: r?.status ?? "unknown" }), () => sendResponse({ status: "unknown" }))
+      callNative<{ status?: string; later?: number }>("notifStatus", {}, 3000).then((r) => sendResponse({ status: r?.status ?? "unknown", ...(typeof r?.later === "number" && r.later > Date.now() ? { later: r.later } : {}) }), () => sendResponse({ status: "unknown" }))
       return true
     case "listenHandoff": {
       if (TARGET !== "safari" || !/^[0-9a-f-]{8,64}$/i.test(message.id)) {
@@ -779,6 +821,15 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       callNative<{ back?: boolean; play?: boolean; taken?: boolean }>("listenReturn", { id: message.id }, 3000)
         .then((r) => sendResponse({ back: r?.back === true, play: r?.play === true, taken: r?.taken === true }), () => sendResponse({ back: false }))
       return true
+    case "voicedAsk":
+      // Build 95: a chat's answers, asked about once in a while each (the server keeps a voiced text for good).
+      if (TARGET !== "safari" || !Array.isArray(message.texts)) {
+        sendResponse({ ok: false })
+        return false
+      }
+      void askVoiced(message.texts)
+      sendResponse({ ok: true })
+      return false
     case "listenVoiced":
       if (!/^[0-9a-f]{16}$/.test(message.id)) {
         sendResponse({ ok: false })
