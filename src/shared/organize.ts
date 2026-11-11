@@ -113,9 +113,18 @@ export function organizeConfig(raw: unknown): OrganizeConfig {
 
 // ------------------------------------------------------------ texts and vectors
 
-// A question needs this much text (or a page) to be judged; a note this much.
+// A question needs this much text (or a page) to be judged; a note this much. In characters of an alphabet: see `textSize`.
 const MIN_QUESTION = 15
 const MIN_NOTE = 40
+const DENSE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu
+
+/**
+ * How much a text says, in characters of an alphabet (Latin, Cyrillic, Arabic…): dense scripts (Chinese, Japanese,
+ * Korean) say as much in about a third of the characters, so each of their characters counts three times.
+ */
+export function textSize(text: string): number {
+  return text.length + (text.match(DENSE)?.length ?? 0) * 2
+}
 export const MAX_EMBED_CHARS = 1_200
 
 const plain = (text: string) => stripCitations(text).replace(/[*_`#>|]+/g, " ").replace(/\s+/g, " ").trim()
@@ -270,7 +279,7 @@ function scoreBlocks(entries: Entry[], vectorOf: VectorOf): ScoredBlock[] {
 function scored(entries: Entry[], times: Array<number | null>, b: PageBlock, vectorOf: VectorOf): ScoredBlock {
   const list = entries.slice(b.start, b.end + 1)
   let signal = 0
-  for (const e of list) if (e.role === "user") signal += plain(e.label ?? e.content).length + (e.page?.title ? MIN_QUESTION : 0)
+  for (const e of list) if (e.role === "user") signal += textSize(plain(e.label ?? e.content)) + (e.page?.title ? MIN_QUESTION : 0)
   const notesOnly = list.every((e) => e.note)
   const vectors = list.map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
   const answers = list.filter((e) => e.role === "assistant").map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
@@ -452,8 +461,9 @@ function newer(a: Thread, b: Thread): boolean {
  * average and `to`'s fit `from` as well (the topic: the pages alone don't say it), and that merge wasn't turned down
  * (`org.mx`). The move puts the messages in by time.
  * 2.6 (95): one shared page is enough (an old and a new chat on a topic usually share one page of a few), and `to` may
- * be one block; a chat of notes only still gets joined the other way (`joins`, 2.6 (91)). The answers decide: on a
- * shared page the questions' vectors are mostly the page's title.
+ * be one block; a chat of notes only still gets joined the other way (`joins`, 2.6 (91)). The answers must fit too: on a
+ * shared page the questions' vectors are mostly the page's title. The match shown is by questions and answers, like
+ * every move's, so a merge needs `minMatch` % by them as well.
  */
 function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): { score: number; match: number } | null {
   // The cheap checks first: every pair of chats is checked when the list counts.
@@ -469,7 +479,8 @@ function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread:
   // chat asked on an espresso machine's page fit that chat 100 % by questions and answers, 0.2 by answers.
   if (Math.min(fit(mine, theirs, "a"), fit(theirs, mine, "a")) < cfg.mergeA) return null
   const score = Math.min(fit(mine, theirs, "v"), fit(theirs, mine, "v"))
-  return { score, match: matchPercent(score, cfg) }
+  const match = matchPercent(score, cfg)
+  return match >= cfg.minMatch ? { score, match } : null
 }
 
 /**
