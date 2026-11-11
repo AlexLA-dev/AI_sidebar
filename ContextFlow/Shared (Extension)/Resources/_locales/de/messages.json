@@ -306,7 +306,7 @@
   "message": "Wann soll ich dich erinnern?"
  },
  "uxNoteWords": {
-  "message": "Was prüfen oder woran erinnern …"
+  "message": "Was prüfen oder woran erinnern (optional)"
  },
  "uxRemindAsked": {
   "message": "Du wolltest erinnert werden: {0}"
@@ -1608,7 +1608,7 @@
   "message": "Wann melden"
  },
  "watchNoteWords": {
-  "message": "Was prüfen, wenn es sich ändert …"
+  "message": "Was prüfen, wenn es sich ändert (optional)"
  },
  "watchCondPrice": {
   "message": "wenn sich der Preis ändert (jetzt {0})"
@@ -2480,8 +2480,8 @@
  "tip_4721064b09": {
   "message": "KI-Suche"
  },
- "tip_52a09ac884": {
-  "message": "Tippe auf ✦ neben der Suche und beschreibe den Chat, an den du dich erinnerst – „der Artikel über Schlaf und Kaffee“ – auch ohne die genauen Wörter."
+ "tip_e4964f1718": {
+  "message": "Beschreibe den Chat, an den du dich erinnerst – „der Artikel über Schlaf und Kaffee“ – auch ohne die genauen Wörter. In der App wählst du unter der Suche „Nach Bedeutung“, in Safari tippst du auf ✦ daneben."
  },
  "tip_068fa58797": {
   "message": "Frag deine Chats"

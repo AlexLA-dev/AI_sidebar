@@ -190,8 +190,8 @@ test("the app's reminder notifications say the words too, and its windows change
   assert.match(later, /words: reminderEntry\(item\)\?\.remindWords/)
   assert.match(read("../ContextFlow/Shared (App)/ChatsView.swift"), /words: thread\.entries\[index\]\.remindWords/)
   const ux = read("../ContextFlow/Shared (App)/ChatUX.swift")
-  assert.match(ux, /TextField\("What to check, or what to remind you of…"/)
-  const catalog = JSON.parse(read("../ContextFlow/Shared (App)/Localizable.xcstrings")).strings["What to check, or what to remind you of…"]
+  assert.match(ux, /TextField\("What to check, or what to remind you of \(optional\)"/)
+  const catalog = JSON.parse(read("../ContextFlow/Shared (App)/Localizable.xcstrings")).strings["What to check, or what to remind you of (optional)"]
   assert.equal(Object.keys(catalog.localizations).length, 13)
 })
 
@@ -212,7 +212,7 @@ test("the Remind window has the person's words, optional and not focused; a time
   render(h(RemindSheet, { later: true, quote: "Width 140 cm", words: "", onPick: (...a: any[]) => picks.push(a), onCancel: () => undefined, onClose: () => undefined }), box)
   const field = box.querySelector("textarea.cf-note-words")
   assert.ok(field, "the field")
-  assert.equal(field.getAttribute("placeholder"), "What to check, or what to remind you of…")
+  assert.equal(field.getAttribute("placeholder"), "What to check, or what to remind you of (optional)")
   assert.notEqual(doc.activeElement, field, "not focused by itself")
   assert.equal(box.querySelector("blockquote.cf-sheet-quote")?.textContent, "Width 140 cm", "the selection as a quote")
   const rows = () => [...box.querySelectorAll(".cf-sheet-row")] as any[]
@@ -248,4 +248,21 @@ test("everywhere a reminder is made or changed in the panel, the words go with i
   assert.match(ux, /const m = at === null \? found : withRemindWords\(found, words\)/)
   assert.match(read("../src/content/ux/RemindersSheet.tsx"), /words=\{changing\.item\.words\}/)
   assert.match(app, /<NoteText entry=\{m\} \/>/)
+})
+
+// 2.6 (98), the owner on TestFlight 97: «в поле ввода заметки надо дописать "(optional)" чтобы пользователь понимал».
+test("the note fields say they're optional, in all 14 languages", () => {
+  const optional: Record<string, RegExp> = {
+    "en.json": /\(optional\)$/, "ru.json": /\(необязательно\)$/, "uk.json": /\(необов'язково\)$/, "de.json": /\(optional\)$/,
+    "fr.json": /\(facultatif\)$/, "es.json": /\(opcional\)$/, "it.json": /\(facoltativo\)$/, "pt_BR.json": /\(opcional\)$/,
+    "ja.json": /（任意）$/, "ko.json": /\(선택\)$/, "zh_CN.json": /（可选）$/, "zh_TW.json": /（選填）$/,
+    "vi.json": /\(không bắt buộc\)$/, "ar.json": /\(اختياري\)$/
+  }
+  assert.deepEqual(Object.keys(optional).sort(), [...locales].sort())
+  for (const file of locales) {
+    for (const key of ["uxNoteWords", "watchNoteWords"]) assert.match(strings(file)[key], optional[file], `${file} ${key}`)
+  }
+  const catalog = JSON.parse(read("../ContextFlow/Shared (App)/Localizable.xcstrings")).strings["What to check, or what to remind you of (optional)"]
+  const app = { ru: "ru.json", uk: "uk.json", de: "de.json", fr: "fr.json", es: "es.json", it: "it.json", "pt-BR": "pt_BR.json", ja: "ja.json", ko: "ko.json", "zh-Hans": "zh_CN.json", "zh-Hant": "zh_TW.json", vi: "vi.json", ar: "ar.json" } as Record<string, string>
+  for (const [lang, file] of Object.entries(app)) assert.equal(catalog.localizations[lang].stringUnit.value, strings(file).uxNoteWords, lang)
 })

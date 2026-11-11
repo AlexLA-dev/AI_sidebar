@@ -104,7 +104,7 @@ test("the plan: a chip is the kind and weighed softly; a price their words name 
   ])
 })
 
-test("a close item that misses the chip comes last, only when fewer than 3 close ones meet it; their words must hold", () => {
+test("a close item that misses the chip is listed only when fewer than 3 close ones meet it, in its place by how close it is; their words must hold", () => {
   const p = plan({ subject: "KitchenAid Artisan 5KSM125", traits: ["stand mixer", "4.7 L bowl", "tilt head", "10 speeds", "metal body"], sourcePrice: 351.2 })
   const mixer = { price: { amount: 351.2, currency: "EUR" } }
   const pages = [
@@ -122,7 +122,9 @@ test("a close item that misses the chip comes last, only when fewer than 3 close
     ]
   }
   const { result, dropped } = finishItems(raw, pages, p, source)
-  assert.deepEqual(result.items.map((i) => [i.name, i.met]), [["Kenwood Chef Titanium", "yes"], ["Bosch MUM9 OptiMUM", "no"]], "399 EUR comes last; 459 EUR is too far over 351.20 EUR")
+  // 2.6: the closest first — the Bosch has every trait (100 %), the Kenwood 4 of 5; the chip decides only between items
+  // about as close. 459 EUR is too far over 351.20 EUR.
+  assert.deepEqual(result.items.map((i) => [i.name, i.met]), [["Bosch MUM9 OptiMUM", "no"], ["Kenwood Chef Titanium", "yes"]])
   assert.ok(dropped.some((d) => d.name === "Smeg SMF03" && d.why === "far from the chip"))
   // Three close ones meet it: the one that misses isn't needed.
   const many = [0, 1, 2].map((i) => page(`https://m${i}.test/x`, `Mixer Model ${i}00`, offer("199"), p, mixer))
@@ -228,7 +230,9 @@ test("the page the notification opens names its chat in the address; the panel t
     g.location = { hash, pathname: "/collections/standing-desks", search: "?v=1", href: "" }
     g.history = { state: null, replaceState: (_s, _t, u) => urls.push(u) }
   }
-  const { takeSimilarMark } = await import("../src/content/similar/mark.ts")
+  // 2.6 (98): the same for any link in the app (takeChatMark, cf-chat), Find similar's own mark still read.
+  const { takeChatMark } = await import("../src/content/similar/mark.ts")
+  const takeSimilarMark = () => takeChatMark()?.chat ?? null
   at("#cf-similar=5f2c9e1a-4b7d-4c1e-9f00-1a2b3c4d5e6f")
   assert.equal(takeSimilarMark(), "5f2c9e1a-4b7d-4c1e-9f00-1a2b3c4d5e6f")
   assert.equal(urls.pop(), "/collections/standing-desks?v=1")

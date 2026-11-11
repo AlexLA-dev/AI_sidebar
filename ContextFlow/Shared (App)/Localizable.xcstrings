@@ -16419,6 +16419,252 @@
         }
       }
     },
+    "By words": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بالكلمات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach Wörtern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por palabras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par mots"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per parole"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "単語で"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "단어로"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por palavras"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По словам"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За словами"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theo từ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按字词"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按字詞"
+          }
+        }
+      }
+    },
+    "By meaning": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بالمعنى"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach Bedeutung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por significado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par sens"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per significato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意味で"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "의미로"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por significado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По смыслу"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За змістом"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theo ý nghĩa"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按含义"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按含義"
+          }
+        }
+      }
+    },
+    "By meaning · Pro": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بالمعنى · Pro"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach Bedeutung · Pro"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por significado · Pro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par sens · Pro"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per significato · Pro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意味で · Pro"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "의미로 · Pro"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por significado · Pro"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По смыслу · Pro"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За змістом · Pro"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theo ý nghĩa · Pro"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按含义 · Pro"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按含義 · Pro"
+          }
+        }
+      }
+    },
     "No chats found for “%@”": {
       "localizations": {
         "ar": {
@@ -19207,84 +19453,84 @@
         }
       }
     },
-    "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.": {
+    "Describe the chat you remember — “that article about sleep and coffee” — even without the exact words. In the app, choose By meaning under the search; in Safari, tap ✦ next to it.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "اضغط على ✦ بجانب البحث وصِف المحادثة التي تتذكرها — «ذلك المقال عن النوم والقهوة» — حتى دون الكلمات الدقيقة."
+            "value": "صِف المحادثة التي تتذكرها — «ذلك المقال عن النوم والقهوة» — حتى دون الكلمات الدقيقة. في التطبيق، اختر «بالمعنى» تحت البحث؛ وفي Safari، اضغط على ✦ بجانبه."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tippe auf ✦ neben der Suche und beschreibe den Chat, an den du dich erinnerst – „der Artikel über Schlaf und Kaffee“ – auch ohne die genauen Wörter."
+            "value": "Beschreibe den Chat, an den du dich erinnerst – „der Artikel über Schlaf und Kaffee“ – auch ohne die genauen Wörter. In der App wählst du unter der Suche „Nach Bedeutung“, in Safari tippst du auf ✦ daneben."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toca ✦ junto a la búsqueda y describe el chat que recuerdas —«ese artículo sobre el sueño y el café»—, aunque no uses las palabras exactas."
+            "value": "Describe el chat que recuerdas —«ese artículo sobre el sueño y el café»—, aunque no uses las palabras exactas. En la app, elige «Por significado» bajo la búsqueda; en Safari, toca ✦ junto a ella."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Touchez ✦ à côté de la recherche et décrivez la discussion dont vous vous souvenez — « l’article sur le sommeil et le café » — même sans les mots exacts."
+            "value": "Décrivez la discussion dont vous vous souvenez — « l’article sur le sommeil et le café » — même sans les mots exacts. Dans l’app, choisissez « Par sens » sous la recherche ; dans Safari, touchez ✦ à côté."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tocca ✦ accanto alla ricerca e descrivi la chat che ricordi — «quell’articolo su sonno e caffè» — anche senza le parole esatte."
+            "value": "Descrivi la chat che ricordi — «quell’articolo su sonno e caffè» — anche senza le parole esatte. Nell’app, scegli «Per significato» sotto la ricerca; in Safari, tocca ✦ accanto."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "検索の横の ✦ をタップし、覚えているチャットを説明します（「睡眠とコーヒーの記事」など）。正確な言葉でなくても大丈夫です。"
+            "value": "覚えているチャットを説明します（「睡眠とコーヒーの記事」など）。正確な言葉でなくても大丈夫です。アプリでは検索の下の「意味で」を、Safari では検索の横の ✦ を選びます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "검색 옆 ✦를 탭하고 기억나는 채팅을 설명하세요. ‘수면과 커피에 관한 그 기사’처럼 정확한 단어가 아니어도 돼요."
+            "value": "기억나는 채팅을 설명하세요. ‘수면과 커피에 관한 그 기사’처럼 정확한 단어가 아니어도 돼요. 앱에서는 검색 아래의 ‘의미로’를, Safari에서는 검색 옆 ✦를 탭하세요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toque em ✦ ao lado da busca e descreva a conversa de que se lembra — “aquele artigo sobre sono e café” — mesmo sem as palavras exatas."
+            "value": "Descreva a conversa de que se lembra — “aquele artigo sobre sono e café” — mesmo sem as palavras exatas. No app, escolha “Por significado” sob a busca; no Safari, toque em ✦ ao lado."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нажмите ✦ рядом с поиском и опишите чат, который помните, — «та статья про сон и кофе», — даже без точных слов."
+            "value": "Опишите чат, который помните, — «та статья про сон и кофе», — даже без точных слов. В приложении выберите «По смыслу» под поиском, в Safari нажмите ✦ рядом с ним."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Натисніть ✦ поруч із пошуком і опишіть чат, який пам’ятаєте, — «та стаття про сон і каву», — навіть без точних слів."
+            "value": "Опишіть чат, який пам’ятаєте, — «та стаття про сон і каву», — навіть без точних слів. У застосунку виберіть «За змістом» під пошуком, у Safari натисніть ✦ поруч із ним."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chạm vào ✦ cạnh ô tìm kiếm và mô tả cuộc trò chuyện bạn nhớ, như “bài viết về giấc ngủ và cà phê”, kể cả khi không nhớ đúng từ."
+            "value": "Mô tả cuộc trò chuyện bạn nhớ, như “bài viết về giấc ngủ và cà phê”, kể cả khi không nhớ đúng từ. Trong ứng dụng, chọn “Theo ý nghĩa” dưới ô tìm kiếm; trong Safari, chạm vào ✦ bên cạnh."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点按搜索旁的 ✦，描述你记得的对话（“那篇关于睡眠和咖啡的文章”），即使没有确切字词也行。"
+            "value": "描述你记得的对话（“那篇关于睡眠和咖啡的文章”），即使没有确切字词也行。在 App 中选择搜索下方的“按含义”；在 Safari 中点按旁边的 ✦。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "點一下搜尋旁的 ✦，描述你記得的對話（「那篇關於睡眠和咖啡的文章」），就算沒有確切的字詞也行。"
+            "value": "描述你記得的對話（「那篇關於睡眠和咖啡的文章」），就算沒有確切的字詞也行。在 App 中選擇搜尋下方的「按含義」；在 Safari 中點一下旁邊的 ✦。"
           }
         }
       }
@@ -19453,84 +19699,84 @@
         }
       }
     },
-    "Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, ✦ finds a chat from a description.": {
+    "Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, “By meaning” finds a chat from a description.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "اضغط على محادثة لقراءتها، أو اسحبها لتثبيتها أو وسمها أو حذفها، أو اضغط عليها مطولًا لمزيد من الخيارات. ابحث بالكلمات أو بـ #وسم، وشغّل «المجلدات» للتجميع حسب الوسم. في Pro، يعثر ✦ على محادثة من وصفها."
+            "value": "اضغط على محادثة لقراءتها، أو اسحبها لتثبيتها أو وسمها أو حذفها، أو اضغط عليها مطولًا لمزيد من الخيارات. ابحث بالكلمات أو بـ #وسم، وشغّل «المجلدات» للتجميع حسب الوسم. في Pro، يجد البحث «بالمعنى» المحادثة من وصفها."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tippe auf einen Chat zum Lesen, wische zum Anheften, Taggen oder Löschen, oder halte ihn gedrückt für mehr. Such nach Wörtern oder #Tag und schalte „Ordner“ ein, um nach Tags zu gruppieren. Mit Pro findet ✦ einen Chat anhand einer Beschreibung."
+            "value": "Tippe auf einen Chat zum Lesen, wische zum Anheften, Taggen oder Löschen, oder halte ihn gedrückt für mehr. Such nach Wörtern oder #Tag und schalte „Ordner“ ein, um nach Tags zu gruppieren. In Pro findet „Nach Bedeutung“ einen Chat anhand einer Beschreibung."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toca un chat para leerlo, deslízalo para fijarlo, etiquetarlo o eliminarlo, o mantenlo pulsado para más. Busca por palabras o #etiqueta y activa Carpetas para agrupar. Con Pro, ✦ encuentra un chat a partir de una descripción."
+            "value": "Toca un chat para leerlo, deslízalo para fijarlo, etiquetarlo o eliminarlo, o mantenlo pulsado para más. Busca por palabras o #etiqueta y activa Carpetas para agrupar. En Pro, «Por significado» encuentra un chat a partir de una descripción."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Touchez une discussion pour la lire, balayez-la pour l’épingler, la taguer ou la supprimer, ou maintenez-la pour plus d’options. Cherchez par mots ou #tag, et activez Dossiers pour regrouper. Avec Pro, ✦ retrouve une discussion à partir d’une description."
+            "value": "Touchez une discussion pour la lire, balayez-la pour l’épingler, la taguer ou la supprimer, ou maintenez-la pour plus d’options. Cherchez par mots ou #tag, et activez Dossiers pour regrouper. Avec Pro, « Par sens » retrouve une discussion d’après une description."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tocca una chat per leggerla, scorrila per fissarla, taggarla o eliminarla, o tienila premuta per altro. Cerca per parole o #tag e attiva Cartelle per raggruppare. Con Pro, ✦ trova una chat da una descrizione."
+            "value": "Tocca una chat per leggerla, scorrila per fissarla, taggarla o eliminarla, o tienila premuta per altro. Cerca per parole o #tag e attiva Cartelle per raggruppare. In Pro, «Per significato» trova una chat da una descrizione."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "チャットをタップで読み、スワイプでピン留め・タグ付け・削除、長押しでその他の操作。単語や #タグ で検索し、「フォルダ」でタグごとにまとめます。Pro なら ✦ が説明からチャットを見つけます。"
+            "value": "チャットをタップで読み、スワイプでピン留め・タグ付け・削除、長押しでその他の操作。単語や #タグ で検索し、「フォルダ」でタグごとにまとめます。Pro なら「意味で」が説明からチャットを見つけます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "채팅을 탭하면 읽고, 밀면 고정·태그·삭제, 길게 누르면 더 많은 작업이 나와요. 단어나 #태그로 검색하고 ‘폴더’로 태그별로 묶어요. Pro에서는 ✦가 설명만으로 채팅을 찾아요."
+            "value": "채팅을 탭하면 읽고, 밀면 고정·태그·삭제, 길게 누르면 더 많은 작업이 나와요. 단어나 #태그로 검색하고 ‘폴더’로 태그별로 묶어요. Pro에서는 ‘의미로’ 검색이 설명만으로 채팅을 찾아요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toque numa conversa para ler, deslize para fixar, marcar ou apagar, ou toque e segure para mais. Busque por palavras ou #tag e ative Pastas para agrupar. No Pro, ✦ encontra uma conversa por descrição."
+            "value": "Toque numa conversa para ler, deslize para fixar, marcar ou apagar, ou toque e segure para mais. Busque por palavras ou #tag e ative Pastas para agrupar. No Pro, “Por significado” encontra uma conversa a partir de uma descrição."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нажмите на чат, чтобы прочитать его; смахните, чтобы закрепить, поставить тег или удалить; долгое нажатие — ещё действия. Ищите по словам или #тегу и включите «Папки», чтобы сгруппировать. В Pro ✦ найдёт чат по описанию."
+            "value": "Нажмите на чат, чтобы прочитать его; смахните, чтобы закрепить, поставить тег или удалить; долгое нажатие — ещё действия. Ищите по словам или #тегу и включите «Папки», чтобы сгруппировать. В Pro поиск «По смыслу» находит чат по описанию."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Натисніть чат, щоб прочитати; змахніть, щоб закріпити, поставити тег чи видалити; довге натискання — ще дії. Шукайте за словами або #тегом і ввімкніть «Папки», щоб згрупувати. У Pro ✦ знайде чат за описом."
+            "value": "Натисніть чат, щоб прочитати; змахніть, щоб закріпити, поставити тег чи видалити; довге натискання — ще дії. Шукайте за словами або #тегом і ввімкніть «Папки», щоб згрупувати. У Pro пошук «За змістом» знаходить чат за описом."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chạm vào cuộc trò chuyện để đọc, vuốt để ghim, gắn thẻ hoặc xóa, hoặc chạm và giữ để xem thêm. Tìm theo từ hoặc #thẻ, và bật Thư mục để nhóm theo thẻ. Với Pro, ✦ tìm cuộc trò chuyện từ một mô tả."
+            "value": "Chạm vào cuộc trò chuyện để đọc, vuốt để ghim, gắn thẻ hoặc xóa, hoặc chạm và giữ để xem thêm. Tìm theo từ hoặc #thẻ, và bật Thư mục để nhóm theo thẻ. Với Pro, “Theo ý nghĩa” tìm cuộc trò chuyện từ một mô tả."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点按对话即可阅读，轻扫可置顶、加标签或删除，长按查看更多操作。按字词或 #标签 搜索，打开“文件夹”按标签分组。Pro 中，✦ 能根据描述找到对话。"
+            "value": "点按对话即可阅读，轻扫可置顶、加标签或删除，长按查看更多操作。按字词或 #标签 搜索，打开“文件夹”按标签分组。Pro 中，“按含义”能根据描述找到对话。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "點一下對話即可閱讀，滑動可釘選、加上標籤或刪除，按住可查看更多選項。用字詞或 #標籤 搜尋，開啟「資料夾」可依標籤分組。在 Pro 中，✦ 能依描述找到對話。"
+            "value": "點一下對話即可閱讀，滑動可釘選、加上標籤或刪除，按住可查看更多選項。用字詞或 #標籤 搜尋，開啟「資料夾」可依標籤分組。在 Pro 中，「按含義」能依描述找到對話。"
           }
         }
       }
@@ -29761,84 +30007,84 @@
         }
       }
     },
-    "What to check, or what to remind you of…": {
+    "What to check, or what to remind you of (optional)": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ما الذي تريد التحقق منه أو التذكير به…"
+            "value": "ما الذي تريد التحقق منه أو التذكير به (اختياري)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Was prüfen oder woran erinnern …"
+            "value": "Was prüfen oder woran erinnern (optional)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qué revisar o de qué avisarte…"
+            "value": "Qué revisar o de qué avisarte (opcional)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quoi vérifier, ou de quoi vous rappeler…"
+            "value": "Quoi vérifier, ou de quoi vous rappeler (facultatif)"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cosa controllare o di cosa ricordarti…"
+            "value": "Cosa controllare o di cosa ricordarti (facoltativo)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "確認したいこと、リマインドしたいこと…"
+            "value": "確認したいこと、リマインドしたいこと（任意）"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "확인할 것이나 알려 줄 내용…"
+            "value": "확인할 것이나 알려 줄 내용 (선택)"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O que conferir ou do que lembrar você…"
+            "value": "O que conferir ou do que lembrar você (opcional)"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Что проверить или о чём напомнить…"
+            "value": "Что проверить или о чём напомнить (необязательно)"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Що перевірити або про що нагадати…"
+            "value": "Що перевірити або про що нагадати (необов'язково)"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cần kiểm tra gì hoặc nhắc bạn điều gì…"
+            "value": "Cần kiểm tra gì hoặc nhắc bạn điều gì (không bắt buộc)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "要检查什么，或要提醒你什么…"
+            "value": "要检查什么，或要提醒你什么（可选）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "要確認什麼，或要提醒你什麼…"
+            "value": "要確認什麼，或要提醒你什麼（選填）"
           }
         }
       }
@@ -38260,84 +38506,84 @@
         }
       }
     },
-    "In Chats, tap ✦ by the search and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once.": {
+    "In Chats, open the search, choose By meaning and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "في المحادثات، اضغط على ✦ بجانب البحث وصِف المحادثة التي تتذكرها. «اسأل محادثاتك» في أعلى القائمة يجيب من كل محادثاتك دفعة واحدة."
+            "value": "في المحادثات، افتح البحث واختر «بالمعنى» وصِف المحادثة التي تتذكرها. «اسأل محادثاتك» في أعلى القائمة يجيب من كل محادثاتك دفعة واحدة."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tippe in „Chats“ auf ✦ neben der Suche und beschreibe den Chat, an den du dich erinnerst. „Frag deine Chats“ ganz oben in der Liste antwortet aus allen Chats zugleich."
+            "value": "Öffne in „Chats“ die Suche, wähle „Nach Bedeutung“ und beschreibe den Chat, an den du dich erinnerst. „Frag deine Chats“ ganz oben in der Liste antwortet aus allen Chats zugleich."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En Chats, toca ✦ junto a la búsqueda y describe el chat que recuerdas. «Pregunta a tus chats», arriba en la lista, responde a partir de todos tus chats a la vez."
+            "value": "En Chats, abre la búsqueda, elige «Por significado» y describe el chat que recuerdas. «Pregunta a tus chats», arriba en la lista, responde a partir de todos tus chats a la vez."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dans Discussions, touchez ✦ à côté de la recherche et décrivez la discussion dont vous vous souvenez. « Interroger vos discussions », en haut de la liste, répond à partir de toutes vos discussions à la fois."
+            "value": "Dans Discussions, ouvrez la recherche, choisissez « Par sens » et décrivez la discussion dont vous vous souvenez. « Interroger vos discussions », en haut de la liste, répond à partir de toutes vos discussions à la fois."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "In Chat, tocca ✦ accanto alla ricerca e descrivi la chat che ricordi. «Chiedi alle tue chat», in cima all’elenco, risponde da tutte le chat insieme."
+            "value": "In Chat, apri la ricerca, scegli «Per significato» e descrivi la chat che ricordi. «Chiedi alle tue chat», in cima all’elenco, risponde da tutte le chat insieme."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「チャット」で検索の横の ✦ をタップし、覚えているチャットを説明します。リストの一番上の「すべてのチャットに質問」は、すべてのチャットからまとめて答えます。"
+            "value": "「チャット」で検索を開いて「意味で」を選び、覚えているチャットを説明します。リストの一番上の「すべてのチャットに質問」は、すべてのチャットからまとめて答えます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "채팅에서 검색 옆 ✦를 탭하고 기억나는 채팅을 설명하세요. 목록 맨 위의 ‘모든 채팅에 묻기’는 모든 채팅을 한꺼번에 보고 답해요."
+            "value": "채팅에서 검색을 열고 ‘의미로’를 고른 뒤 기억나는 채팅을 설명하세요. 목록 맨 위의 ‘모든 채팅에 묻기’는 모든 채팅을 한꺼번에 보고 답해요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Em Conversas, toque em ✦ ao lado da busca e descreva a conversa de que se lembra. “Pergunte às suas conversas”, no topo da lista, responde com base em todas as suas conversas de uma vez."
+            "value": "Em Conversas, abra a busca, escolha “Por significado” e descreva a conversa de que se lembra. “Pergunte às suas conversas”, no topo da lista, responde com base em todas as suas conversas de uma vez."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "В «Чатах» нажмите ✦ рядом с поиском и опишите чат, который помните. «Вопросы по всем чатам» вверху списка отвечают сразу по всем чатам."
+            "value": "В «Чатах» откройте поиск, выберите «По смыслу» и опишите чат, который помните. «Вопросы по всем чатам» вверху списка отвечают сразу по всем чатам."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "У «Чатах» натисніть ✦ поруч із пошуком і опишіть чат, який пам’ятаєте. «Питання про всі чати» вгорі списку відповідають одразу з усіх чатів."
+            "value": "У «Чатах» відкрийте пошук, виберіть «За змістом» і опишіть чат, який пам’ятаєте. «Питання про всі чати» вгорі списку відповідають одразу з усіх чатів."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trong Trò chuyện, chạm vào ✦ cạnh ô tìm kiếm và mô tả cuộc trò chuyện bạn nhớ. “Hỏi các cuộc trò chuyện” ở đầu danh sách trả lời dựa trên tất cả cuộc trò chuyện cùng lúc."
+            "value": "Trong Trò chuyện, mở ô tìm kiếm, chọn “Theo ý nghĩa” và mô tả cuộc trò chuyện bạn nhớ. “Hỏi các cuộc trò chuyện” ở đầu danh sách trả lời dựa trên tất cả cuộc trò chuyện cùng lúc."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在“对话”中点按搜索旁的 ✦，描述你记得的对话。列表顶部的“问问你的所有对话”会一次根据你所有的对话来回答。"
+            "value": "在“对话”中打开搜索，选择“按含义”，描述你记得的对话。列表顶部的“问问你的所有对话”会一次根据你所有的对话来回答。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在「對話」中點一下搜尋旁的 ✦，描述你記得的對話。列表頂端的「詢問你的所有對話」會一次根據你所有的對話來回答。"
+            "value": "在「對話」中打開搜尋，選擇「按含義」，描述你記得的對話。列表頂端的「詢問你的所有對話」會一次根據你所有的對話來回答。"
           }
         }
       }
@@ -49592,6 +49838,580 @@
           "stringUnit": {
             "state": "translated",
             "value": "價格以 %@ 計，與 App Store 顯示一致。"
+          }
+        }
+      }
+    },
+    "What's new": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الجديد"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuigkeiten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novedades"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveautés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novità"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新機能"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새로운 기능"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novidades"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что нового"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Що нового"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Có gì mới"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新功能"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新功能"
+          }
+        }
+      }
+    },
+    "New in ContextFlow %@": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الجديد في ContextFlow %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu in ContextFlow %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novedades de ContextFlow %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveautés de ContextFlow %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novità di ContextFlow %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ の新機能"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ 새 기능"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novidades do ContextFlow %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новое в ContextFlow %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нове в ContextFlow %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Có gì mới trong ContextFlow %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ 新功能"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ 新功能"
+          }
+        }
+      }
+    },
+    "The main things this version brings, each shown in a short clip.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أبرز ما في هذا الإصدار، ولكل منها مقطع قصير."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Wichtigste dieser Version, jeweils mit einem kurzen Clip."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo principal de esta versión, cada cosa con un vídeo corto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’essentiel de cette version, chaque nouveauté en courte vidéo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le novità principali di questa versione, ognuna con un breve video."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このバージョンの主な新機能を、短い動画で紹介します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이번 버전의 주요 기능을 짧은 영상으로 보여 드려요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O principal desta versão, cada novidade com um vídeo curto."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Главное в этой версии, каждое — в коротком ролике."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Головне в цій версії, кожне — у короткому ролику."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Những điểm chính của phiên bản này, mỗi điểm kèm một đoạn video ngắn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个版本的主要新功能，每项都有一段短视频。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個版本的主要新功能，每項都有一段短片。"
+          }
+        }
+      }
+    },
+    "ContextFlow %@ is here": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ متاح الآن"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ ist da"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya está aquí ContextFlow %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ est arrivé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "È arrivato ContextFlow %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ が公開されました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ 출시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow %@ chegou"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вышел ContextFlow %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вийшов ContextFlow %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ đã ra mắt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ 来了"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow %@ 推出了"
+          }
+        }
+      }
+    },
+    "See what's new in this version.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اطّلع على الجديد في هذا الإصدار."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieh dir an, was neu ist."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mira las novedades de esta versión."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Découvrez les nouveautés de cette version."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scopri le novità di questa versione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このバージョンの新機能をご覧ください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이번 버전의 새 기능을 확인해 보세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veja as novidades desta versão."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Посмотрите, что нового."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подивіться, що нового."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xem có gì mới trong phiên bản này."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看看这个版本有什么新功能。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看看這個版本有哪些新功能。"
+          }
+        }
+      }
+    },
+    "Version %@ is in the App Store": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإصدار %@ متاح في App Store"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@ ist im App Store"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La versión %@ está en el App Store"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La version %@ est sur l’App Store"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La versione %@ è nell’App Store"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バージョン %@ が App Store にあります"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Store에 버전 %@이(가) 나왔어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A versão %@ está na App Store"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Версия %@ уже в App Store"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Версія %@ уже в App Store"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phiên bản %@ đã có trên App Store"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本 %@ 已在 App Store 上架"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本 %@ 已在 App Store 上架"
+          }
+        }
+      }
+    },
+    "Update": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحديث"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettre à jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiorna"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アップデート"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atualizar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обновить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оновити"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cập nhật"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
           }
         }
       }

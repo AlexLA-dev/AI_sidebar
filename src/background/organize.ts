@@ -6,7 +6,7 @@
 import { hasPro } from "../shared/plan"
 import { API_BASE } from "../shared/config"
 import { entryKey, textKey, type Entry } from "../shared/conversation"
-import { embedText, judgedTags, judgeText, nameCheckKey, nameStateAfter, nameText, openName, openTags, orgStateFor, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf } from "../shared/organize"
+import { embedText, judgedTags, judgeText, nameCheckKey, nameStateAfter, nameText, openName, openTags, ORGANIZE_ENGINE, organizeScan, orgStateFor, suggestMove, tagCandidates, tagTargets, unpackVector, type MoveSuggestion, type OrganizeConfig, type VectorOf, wantsNameCheck } from "../shared/organize"
 import { cleanTitle, liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
 import { STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type StatusInfo } from "../shared/types"
 
@@ -138,6 +138,7 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   const cfg = org.config
 
   const move = suggestMove(chat, live, vectorOf, cfg)
+  void reportScan(chat, live, vectorOf, cfg, move, ctx)
   const verdicts = (stored[STORAGE.orgVerdicts] as Verdicts | undefined) ?? {}
   const tags: Array<{ index: number; key: string; tag: string }> = []
   for (const index of tagTargets(chat, cfg)) {
@@ -231,6 +232,25 @@ export async function nameChatNow(chatId: string, ctx: Context): Promise<Organiz
 }
 
 /** An organizing event for the funnel (/api/v2/event): what and where, never text. */
+// 2.6 (98): the scans already reported (a chat, its length and the library's size), so a run again sends nothing.
+const scanned = new Set<string>()
+
+/** What this run compared and why nothing fired (organizeScan): numbers and named reasons only, once per state. */
+async function reportScan(chat: Thread, live: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig, move: MoveSuggestion | null, ctx: Context): Promise<void> {
+  const key = `${chat.id}:${chat.m.length}:${live.length}`
+  if (scanned.has(key)) return
+  scanned.add(key)
+  const scan = organizeScan(chat, live, vectorOf, cfg, move)
+  // How much of the extension's storage is used (its vectors live there), when the browser says.
+  const used = await (chrome.storage.local as { getBytesInUse?: (keys: null) => Promise<number> }).getBytesInUse?.(null).catch(() => undefined)
+  const kb = typeof used === "number" ? { kb: Math.min(9999, Math.round(used / 1024)) } : {}
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "use", installId: ctx.installId, client: ctx.client, f: "org", a: "scan", ...scan, ...kb, ev: ORGANIZE_ENGINE, s: "panel" })
+  }).catch(() => undefined)
+}
+
 export async function reportOrganize(event: OrganizeEvent, installId: string, client: Record<string, unknown>): Promise<void> {
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",

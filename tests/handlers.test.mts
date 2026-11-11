@@ -419,6 +419,24 @@ test("App Store notification names the offer code a subscription started with", 
   assert.deepEqual([logged?.data.offer, logged?.data.offer_id, logged?.data.discount], [3, "Limit hitters: first month 50% off", "PAY_AS_YOU_GO"])
 })
 
+test("App Store notification logs what the next renewal costs and whether it's on", async () => {
+  const signedTransactionInfo = signJws(transaction({ originalTransactionId: "n4", offerType: 3, offerDiscountType: "PAY_AS_YOU_GO", price: 3490, currency: "USD" }))
+  const signedRenewalInfo = signJws({ originalTransactionId: "n4", autoRenewStatus: 1, autoRenewProductId: "com.contextflow.pro.monthly", renewalPrice: 6990, currency: "USD", renewalDate: Date.parse("2026-12-10T10:00:00Z"), signedDate: Date.now() })
+  const signedPayload = signJws({ notificationType: "SUBSCRIBED", subtype: "INITIAL_BUY", notificationUUID: "u4", data: { bundleId: "com.contextflow.app", signedTransactionInfo, signedRenewalInfo }, signedDate: Date.now() })
+  assert.equal((await notify(post("/.netlify/functions/appstore-verify", { signedPayload }), ctx())).status, 200)
+  const logged = events.find((e) => e.kind === "appstore_notification" && e.data.otid === "n4")
+  assert.deepEqual(
+    [logged?.data.price, logged?.data.auto_renew, logged?.data.renewal_product, logged?.data.renewal_price, logged?.data.renewal_currency, logged?.data.renewal_offer, logged?.data.renewal_at],
+    [3490, true, "com.contextflow.pro.monthly", 6990, "USD", null, "2026-12-10T10:00:00.000Z"])
+  // Renewal info that doesn't verify is left out; the notification still counts.
+  const rogue = signJws({ autoRenewStatus: 0 }, { leaf: "rogue" })
+  const second = signJws({ notificationType: "DID_CHANGE_RENEWAL_STATUS", subtype: "AUTO_RENEW_DISABLED", notificationUUID: "u5", data: { bundleId: "com.contextflow.app", signedTransactionInfo, signedRenewalInfo: rogue }, signedDate: Date.now() })
+  assert.equal((await notify(post("/.netlify/functions/appstore-verify", { signedPayload: second }), ctx())).status, 200)
+  const off = events.find((e) => e.kind === "appstore_notification" && e.data.uuid === "u5")
+  assert.equal(off?.data.type, "DID_CHANGE_RENEWAL_STATUS")
+  assert.equal("auto_renew" in (off?.data ?? {}), false)
+})
+
 test("Google mode streams a grounded answer with citations, sources and Search Suggestions", async () => {
   const c = ctx()
   const res = await chat(ask({ mode: "google", page: { kind: "selection", title: "T", url: "https://example.com", text: "capital of France" } }), c)

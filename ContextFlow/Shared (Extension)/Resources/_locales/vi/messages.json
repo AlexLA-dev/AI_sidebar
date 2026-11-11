@@ -306,7 +306,7 @@
   "message": "Nhắc bạn lúc nào?"
  },
  "uxNoteWords": {
-  "message": "Cần kiểm tra gì hoặc nhắc bạn điều gì…"
+  "message": "Cần kiểm tra gì hoặc nhắc bạn điều gì (không bắt buộc)"
  },
  "uxRemindAsked": {
   "message": "Bạn nhờ tôi nhắc: {0}"
@@ -1608,7 +1608,7 @@
   "message": "Khi nào báo cho bạn"
  },
  "watchNoteWords": {
-  "message": "Cần kiểm tra gì khi có thay đổi…"
+  "message": "Cần kiểm tra gì khi có thay đổi (không bắt buộc)"
  },
  "watchCondPrice": {
   "message": "khi giá thay đổi (hiện là {0})"
@@ -2480,8 +2480,8 @@
  "tip_4721064b09": {
   "message": "Tìm kiếm AI"
  },
- "tip_52a09ac884": {
-  "message": "Chạm vào ✦ cạnh ô tìm kiếm và mô tả cuộc trò chuyện bạn nhớ, như “bài viết về giấc ngủ và cà phê”, kể cả khi không nhớ đúng từ."
+ "tip_e4964f1718": {
+  "message": "Mô tả cuộc trò chuyện bạn nhớ, như “bài viết về giấc ngủ và cà phê”, kể cả khi không nhớ đúng từ. Trong ứng dụng, chọn “Theo ý nghĩa” dưới ô tìm kiếm; trong Safari, chạm vào ✦ bên cạnh."
  },
  "tip_068fa58797": {
   "message": "Hỏi các cuộc trò chuyện"

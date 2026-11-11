@@ -49,15 +49,16 @@ import { inChatOrder, preview as barPreview, SuggestionsBar, type BarSuggestion 
 import { UndoBar } from "./UndoBar"
 import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
-import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags } from "../shared/organize"
+import { DEFAULT_ORGANIZE, looksMixed, nearName, openMove, openName, openTags } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
-import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { factsFrom, SIMILAR_CHIPS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
-import { takeSimilarMark } from "./similar/mark"
+import { takeChatMark } from "./similar/mark"
+import { LINK_OPEN_KEY, linkOpen, messageAt, messageRef, takesLinkOpen, type LinkOpen } from "../shared/linkOpen"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
@@ -98,7 +99,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { allTags, chatDigests, chatForPage, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -528,8 +529,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ open/close
   // `captured`: the selection our selection button saw (on iPhone the tap itself clears it).
-  const show = useCallback((captured?: SelectionInfo) => {
+  // Opened with the circle or Safari's toolbar button (2.6 (98)): the panel opens on this page's latest chat
+  // (chatForPage), not on a selection's Ask AI, a link or a notification, which bring their own chat.
+  const pageChatRef = useRef(false)
+  const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }) => {
     openedAt.current = Date.now()
+    pageChatRef.current = Boolean(how?.pageChat && !captured)
     if (captured) {
       rememberSelection(captured)
       // On iPhone and iPad the system edit menu stays up while text is selected, over our panel.
@@ -569,8 +574,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [])
 
   useEffect(() => {
-    const onToggle = () => (open ? hide() : show())
-    const onOpen = () => show()
+    const onToggle = () => (open ? hide() : show(undefined, { pageChat: true }))
+    const onOpen = () => show(undefined, { pageChat: true })
     bus.addEventListener("toggle", onToggle)
     bus.addEventListener("open", onOpen)
     return () => {
@@ -592,14 +597,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         const list = listRef.current
         if (list) list.scrollTop = list.scrollHeight
       })
-      loadingRef.current = loadThreads().then(({ threads, active }) => {
+      const pageChat = pageChatRef.current
+      pageChatRef.current = false
+      loadingRef.current = loadThreads().then(async ({ threads, active: was }) => {
         loadedRef.current = true
+        // The circle on a page already talked about: its latest chat (or the site's); else the chat as it was. Stored
+        // before the sync below reads which chat is open.
+        const found = pageChat ? chatForPage(threads, key) : null
+        const active = found && found !== was.id ? { id: found, at: Date.now() } : was
+        if (active !== was) await setActiveThread(active.id)
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
         const entries = threads[active.id]?.m ?? []
         showLists(threads)
         setMessages(entries)
-        scrollToEnd()
+        // Opened from a link in this chat (2.6 (98)): at the message the link was in.
+        const at = messageAt(entries, openAtRef.current)
+        openAtRef.current = undefined
+        if (at !== undefined) requestAnimationFrame(() => requestAnimationFrame(() => showMessageRef.current(at)))
+        else scrollToEnd()
         // Its last question still being answered (asked before the panel closed), or lost meanwhile (build 91).
         resumeRef.current(entries, active.id)
         // Other devices may have continued a chat (iCloud), or the ContextFlow app asked to continue one
@@ -1276,7 +1292,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!isQuestion(last)) return
     // Asked again where it looked the first time (build 94: Retry after a break searched worldwide), not wherever the
     // picker points now.
-    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined, last.similarChip !== undefined || last.similarWords !== undefined ? { chip: last.similarChip as SimilarChip | undefined, words: last.similarWords } : undefined)
+    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined, last.similarChip !== undefined || last.similarWords !== undefined ? { chips: (last.similarChip ?? "").split(",").filter((c): c is SimilarChip => (SIMILAR_CHIPS as readonly string[]).includes(c)), words: last.similarWords } : undefined)
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
@@ -1353,7 +1369,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const user: Turn = stamped({
       role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}),
       ...(region ? { similarRegion: region, ...(region === "local" && country ? { similarCountry: country } : {}) } : {}),
-      ...(ask?.chip ? { similarChip: ask.chip } : {}), ...(ask?.words ? { similarWords: ask.words } : {}),
+      ...(ask?.chips?.length ? { similarChip: ask.chips.join(",") } : {}), ...(ask?.words ? { similarWords: ask.words } : {}),
       page: { url: source.key(), title: source.title(), at: Date.now() }
     })
     const history: Turn[] = [...base, user]
@@ -1388,7 +1404,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(region ? { region } : {}),
           ...(country ? { country } : {}),
           // Build 95: the chip apart from their own words (an ask without them: all of the condition is their words).
-          ...(ask ? { chip: ask.chip ?? "", words: ask.words ?? "" } : {})
+          ...(ask ? { chip: ask.chips?.[0] ?? "", ...(ask.chips && ask.chips.length > 1 ? { chips: ask.chips } : {}), words: ask.words ?? "" } : {})
         }
       })
     })
@@ -1642,6 +1658,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     target.classList.add("found")
     setTimeout(() => target.classList.remove("found"), 1600)
   }
+  const showMessageRef = useRef(showMessage)
+  showMessageRef.current = showMessage
 
   // Tags: of a chat (from the list), of an answer or a note (`tagging`: the message's index).
   const [tagging, setTagging] = useState<number | null>(null)
@@ -1818,7 +1836,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ notes
   /** A page of the chat: its tab when it's open somewhere, else a new tab. */
-  const openPage = useCallback((url: string) => void sendBackground({ type: "openPage", url }), [])
+  // A chat's page (2.6 (98)): with the chat (and the message) it's in, so the page opens with the panel there.
+  const openPage = useCallback((url: string, chat?: string, at?: string) => void sendBackground({ type: "openPage", url, chat: chat ?? threadRef.current, ...(at ? { at } : {}) }), [])
+  /** A link in the chat's message `index` (or the chat's own page link): what the page that opens from it needs. */
+  const noteLink = (href: string, index?: number) => {
+    if (popup) return
+    const note = linkOpen(href, threadRef.current, index !== undefined ? messageRef(messages, index) : undefined, Date.now())
+    if (note) void chrome.storage.local.set({ [LINK_OPEN_KEY]: note }).catch(() => undefined)
+  }
+  /** Any link clicked in the panel (answers, sources, notes' pages, Find similar's items) notes its chat and message. */
+  const noteLinkClick = (e: MouseEvent) => {
+    // The panel's own listener, in its root: the press's target is the panel's element itself.
+    const a = e.target instanceof Element ? e.target.closest<HTMLAnchorElement>("a[href]") : null
+    const href = a?.getAttribute("href")
+    if (!a || !href || !/^https?:\/\//i.test(href) || view !== "chat") return
+    const row = a.closest<HTMLElement>("[data-index]")
+    noteLink(href, row ? Number(row.dataset.index) : undefined)
+  }
 
   // The send button flips between asking and writing a note: swipe it up or down (touch), scroll on it
   // (trackpad, mouse wheel) or hold it. `switched` swallows the click that ends a hold.
@@ -2040,22 +2074,51 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [popup, similarAtWork, show])
   // A "found" notification's tap opens the page with the chat in its address (#cf-similar=<chat>, SimilarAway.swift):
   // this tab, the one Safari shows, opens the panel on it, however long after the search; the mark leaves the address
-  // at once.
+  // at once. 2.6 (98), the owner: «Если новая страница открывается по клику/тапу в расширении или приложении - надо
+  // чтобы сайдбар открывался там сразу и на том чате и месте, где кликнули на страницу»: any link in the app names its
+  // chat and message (#cf-chat=…&cf-at=…), a link in the panel leaves a note (src/shared/linkOpen.ts), and a tab already
+  // showing the page is told; each opens the panel on that chat, at that message.
   const openThreadRef = useRef(openThread)
   openThreadRef.current = openThread
+  const threadListRef = useRef(threadList)
+  threadListRef.current = threadList
+  const openAtRef = useRef<string | undefined>(undefined)
+  const openChatAt = useCallback((chat: string, at?: string) => {
+    openAtRef.current = at
+    void setActiveThread(chat).then(() => {
+      if (!openNowRef.current) return show()
+      openAtRef.current = undefined
+      openThreadRef.current(chat, messageAt(threadListRef.current.find((th) => th.id === chat)?.m ?? [], at))
+    }, () => show())
+  }, [show])
   useEffect(() => {
     if (popup) return
     const take = () => {
-      const chat = takeSimilarMark()
-      if (!chat) return
-      void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "similar" })
-      void setActiveThread(chat).then(() => (openNowRef.current ? openThreadRef.current(chat) : show()), () => show())
+      const mark = takeChatMark()
+      if (!mark) return
+      if (mark.similar) void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "similar" })
+      openChatAt(mark.chat, mark.at)
     }
     take()
     // Safari may show the page in the tab that already had it: then only the address's fragment changes.
     window.addEventListener("hashchange", take)
-    return () => window.removeEventListener("hashchange", take)
-  }, [popup, show])
+    // A link in the panel (this browser) opened this page: its note, taken once.
+    void chrome.storage.local.get(LINK_OPEN_KEY).then((stored) => {
+      const note = stored[LINK_OPEN_KEY] as LinkOpen | undefined
+      if (!takesLinkOpen(note, location.href, Date.now())) return
+      void chrome.storage.local.remove(LINK_OPEN_KEY)
+      openChatAt(note!.chat, note!.at)
+    }, () => undefined)
+    const told = (e: Event) => {
+      const detail = (e as CustomEvent<{ chat: string; at?: string }>).detail
+      if (detail?.chat) openChatAt(detail.chat, detail.at)
+    }
+    bus.addEventListener("openChat", told)
+    return () => {
+      window.removeEventListener("hashchange", take)
+      bus.removeEventListener("openChat", told)
+    }
+  }, [popup, openChatAt, bus])
   // Build 94, the owner: «в чате про чаты нужно делать ссылки на чаты, на которые ссылается ответ»: the chats an "Ask
   // your chats" answer names open from it (src/shared/chatMarks.ts).
   const chatNames = useMemo(() => threadList.filter((th) => th.kind !== "history").map((th) => ({ id: th.id, name: threadName(th) })), [threadList])
@@ -2152,7 +2215,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setDragY(null)
       updateSettings({ fabY: Math.round(y), fabSide: e.clientX < window.innerWidth / 2 ? "left" : "right" })
     } else {
-      show()
+      show(undefined, { pageChat: true })
     }
   }
 
@@ -2768,7 +2831,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // or typed meanwhile, isn't offered.
   const hereChat = threadList.find((x) => x.id === threadRef.current)
   const orgName = orgNow?.name && !(hereChat && (namedByUser(hereChat) || orgNow.name.toLowerCase() === threadName(hereChat).toLowerCase() ||
-    (hereChat.org?.nm?.no ?? []).some((x) => x.toLowerCase() === orgNow.name!.toLowerCase()))) ? orgNow.name : null
+    (hereChat.org?.nm?.no ?? []).some((x) => nearName(x, orgNow.name!)))) ? orgNow.name : null
   // 2.6 (97): the open suggestions at the top of the chat, the ones the rows under the messages show.
   const barItems: BarSuggestion[] = !orgNow ? [] : inChatOrder([
     ...orgNow.tags
@@ -3131,6 +3194,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     for (const m of messages) for (const tag of m.tags ?? []) known.add(tag.toLowerCase())
     const added = cleanTags(next).filter((tag) => !known.has(tag.toLowerCase())).length
     tagMessage(index, next)
+    // 2.6 (98): a tag put on: organizing looks again now, so it's offered on the messages like this one in seconds.
+    if (cleanTags(next).length) setTimeout(() => setOrgAgain((n) => n + 1), 600)
     if (known.size < 3 && known.size + added >= 3 && TARGET === "safari" && !hasPro(plan) && cards && !cards.thirdTag) {
       setTagsCard(true)
       void setOrganizeCards({ thirdTag: true }).then(setCards)
@@ -3321,6 +3386,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <section
           ref={panelRef}
           class={`cf-panel ${visible ? "in" : ""}`}
+          onClickCapture={noteLinkClick}
           role="dialog"
           aria-label="ContextFlow"
           style={layout === "sheet" && keyboard ? { bottom: `${keyboard}px`, maxHeight: `${window.visualViewport?.height ?? window.innerHeight}px` } : undefined}
@@ -3448,7 +3514,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </header>
           {/* 2.6 (94): the chat's name, the whole width (a suggested name is judged against it; next to the page in the
               header it was cut to a few letters on an iPhone). */}
-          {headerName && <div class="cf-chat-bar" dir="auto" title={headerName}>{headerName}</div>}
+          {/* 2.6 (98), the owner: «Не хватает кнопки Назад в шапке с названием чата … для перехода в меню чатов». */}
+          {headerName && (
+            <div class="cf-chat-bar">
+              <button type="button" class="cf-icon cf-chat-back" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}><Icon.Back /></button>
+              <span class="cf-chat-bar-name" dir="auto" title={headerName}>{headerName}</span>
+            </div>
+          )}
 
           {view === "threads" ? (
             <>
@@ -3613,7 +3685,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
                     <div class={`cf-msg user ${m.note ? "note" : ""} ${m.pinned ? "pinned-msg" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)} onContextMenu={m.note && !picked ? ux.contextMenu(idx) : undefined}>
-                      <PageDivider entries={messages} index={idx} onOpen={openPage} />
+                      <PageDivider entries={messages} index={idx} onOpen={(url) => openPage(url, threadRef.current, messageRef(messages, idx))} />
                       {m.note ? (
                         ux.wrap(m, idx, (
                           <div class="cf-bubble-note" dir="auto">
@@ -3637,7 +3709,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <>
                           {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                           {m.similar ? (
-                            <SimilarList answer={m.similar} items={m.similar.items} onOpen={openPage} onWatch={listsKind("watch") ? watchItem : undefined} />
+                            <SimilarList answer={m.similar} items={m.similar.items} onOpen={(url) => openPage(url, threadRef.current, messageRef(messages, idx))} onWatch={listsKind("watch") ? watchItem : undefined} />
                           ) : (
                             <Markdown text={historyMode ? linkChats(m.content, chatNames) : m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} onChat={historyMode ? openChatLink : undefined} />
                           )}
@@ -3700,9 +3772,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && messages.length < 3 && (
+                {/* The chat is about this page (2.6 (98), the owner: with the chat about this very page open there were no
+                    quick chips, while another page's chat had them under "Now on"): the same chips at the chat's end,
+                    without the divider, less those already asked about this page. */}
+                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && (
                   <div class="cf-actions follow">
-                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a))), 3).map((a) => chip(a, true))}
+                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a) && m.page?.url === pageUrl)), 4).map((a) => chip(a, true))}
                   </div>
                 )}
 

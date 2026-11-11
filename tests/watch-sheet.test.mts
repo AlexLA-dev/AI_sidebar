@@ -104,7 +104,7 @@ test("the eye's window has the person's own note, optional; a watch's window cha
   const eye = [...root.children].at(-1)
   const field = eye.querySelector("textarea.cf-note-words")
   assert.ok(field, "the note field")
-  assert.equal(field.getAttribute("placeholder"), "What to check when it changes…")
+  assert.equal(field.getAttribute("placeholder"), "What to check when it changes (optional)")
   assert.notEqual(eye.ownerDocument.activeElement, field, "not focused by itself")
   assert.equal(eye.querySelector(".cf-primary").disabled, false, "Watch works without a note")
 

@@ -441,6 +441,8 @@ final class OrganizeModel: ObservableObject {
 
     // Messages that get vectors in one run, sent in batches; tag checks remembered.
     private let maxEmbedPerRun = 640
+    // 2.6 (98): the scans already reported (a chat, its length, the library's size).
+    private var scanned = Set<String>()
     private let batch = 128
     private let maxVerdicts = 400
 
@@ -577,6 +579,12 @@ final class OrganizeModel: ObservableObject {
         let known = vectors.v
         let cfg = config
         guard let work = await Task.detached(priority: .userInitiated, operation: { Carry(value: OrganizeWork.suggest(chatId, live.value, known: known, cfg)) }).value.value else { return nil }
+        // 2.6 (98): what this run compared and why nothing fired, once per chat, length and library size.
+        let scanKey = "\(chatId):\(thread.entries.count):\(work.scan.chats)"
+        if !scanned.contains(scanKey) {
+            scanned.insert(scanKey)
+            ChatAI.reportUse("org", "scan", work.scan.fields)
+        }
 
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
         if let s = work.move {
@@ -650,7 +658,7 @@ final class OrganizeModel: ObservableObject {
     func settled(_ s: Suggestions, _ thread: ChatThread, in threads: [ChatThread] = []) -> Suggestions {
         guard let chat = thread.organized else { return s }
         var out = s
-        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || (thread.org?.nm?.no ?? []).contains(where: { $0.lowercased() == name.lowercased() }) { out.name = nil }
+        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || (thread.org?.nm?.no ?? []).contains(where: { Organize.nearName($0, name) }) { out.name = nil }
         for (index, item) in s.tags {
             guard chat.entries.indices.contains(index), Organize.entryKey(chat.entries[index]) == item.key else { out.tags[index] = nil; continue }
             let e = thread.entries[index]

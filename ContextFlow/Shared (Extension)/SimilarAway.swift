@@ -250,10 +250,12 @@ nonisolated enum SimilarAway {
     }
 
     /// The page with `#cf-similar=<chat>` (the panel takes it out at once); a page with an address fragment of its own
-    /// keeps it, and the chat waits for the next panel that asks instead.
-    static func pageOpening(_ page: URL, thread: String) -> URL {
+    /// keeps it, and the chat waits for the next panel that asks instead. 2.6 (98): any link in a chat in the app names
+    /// its chat and message the same way (`mark` "cf-chat", `at`: the message's id or "i<index>"; src/shared/linkOpen.ts).
+    static func pageOpening(_ page: URL, thread: String, at: String? = nil, mark: String = "cf-similar") -> URL {
         if var parts = URLComponents(url: page, resolvingAgainstBaseURL: false), (parts.fragment ?? "").isEmpty {
-            parts.fragment = "cf-similar=\(thread)"
+            let place = at.flatMap { isThread($0) ? "&cf-at=\($0)" : nil } ?? ""
+            parts.fragment = "\(mark)=\(thread)\(place)"
             if let marked = parts.url { return marked }
         }
         defaults.set(["thread": thread, "at": Date().timeIntervalSince1970], forKey: openKey)

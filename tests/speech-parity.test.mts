@@ -12,6 +12,7 @@ import { join } from "node:path"
 import { test } from "node:test"
 
 import { textLanguage } from "../src/shared/share.ts"
+import { addRange, coveredSeconds, listenPace, listenTotal, type Ranges, slotMask, spread } from "../src/shared/coverage.ts"
 import { needsScript, PartSplitter, scriptChunks, speechParts, speechText } from "../src/shared/speech.ts"
 import { voicedId } from "../src/shared/voiced.ts"
 
@@ -19,7 +20,13 @@ const root = new URL("..", import.meta.url).pathname
 const swiftc = spawnSync("which", ["swiftc"]).status === 0
 const skip = process.platform !== "darwin" ? "the app's Foundation is Apple's: run on a Mac" : !swiftc && "no swiftc here"
 
-type Case = { op: string; s: string; first?: number | boolean; size?: number; step?: number; what?: string; list?: string[]; kept?: Record<string, string> }
+type Case = {
+  op: string; s: string; first?: number | boolean; size?: number; step?: number; what?: string; list?: string[]; kept?: Record<string, string>
+  // Build 98, "listen": a listen's stretches over parts that start at `starts` (audio in hand to `end`), what was heard
+  // before, the parts' lengths; and the text's length from its parts' words and audio.
+  starts?: number[]; end?: number; lengths?: number[]; before?: Record<string, Ranges>; stretches?: Ranges
+  parts?: string[]; audio?: Array<number | null>; unwritten?: string; written?: string; pace?: number
+}
 
 function swift(cases: Case[]): unknown[] {
   const dir = mkdtempSync(join(tmpdir(), "cf-speech-"))
@@ -29,7 +36,10 @@ function swift(cases: Case[]): unknown[] {
   // Texts as UTF-16 units: Foundation's JSONSerialization drops a leading U+FEFF from a string, so the app would get
   // another text than the panel.
   const units = (text: string) => Array.from({ length: text.length }, (_, i) => text.charCodeAt(i))
-  const sent = cases.map(({ s, list, ...rest }) => ({ ...rest, u: units(s), ...(list ? { lu: list.map(units) } : {}) }))
+  const sent = cases.map(({ s, list, parts, unwritten, written, ...rest }) => ({
+    ...rest, u: units(s), ...(list ? { lu: list.map(units) } : {}),
+    ...(parts ? { parts: parts.map(units) } : {}), ...(unwritten !== undefined ? { unwritten: units(unwritten) } : {}), ...(written !== undefined ? { written: units(written) } : {})
+  }))
   return JSON.parse(execFileSync(bin, { input: JSON.stringify(sent), maxBuffer: 64 * 1024 * 1024 }).toString())
 }
 
@@ -99,6 +109,20 @@ function js(c: Case): unknown {
       return out
     }
     case "keys": return textKeys(c.s, c.kept ?? {})
+    case "listen": {
+      const ranges: Record<number, Ranges> = {}
+      for (const [part, list] of Object.entries(c.before ?? {})) ranges[Number(part)] = list.map(([a, b]) => [a, b])
+      for (const [a, b] of c.stretches ?? []) {
+        for (const piece of spread(a, b, c.starts ?? [], c.end ?? 0)) ranges[piece.part] = addRange(ranges[piece.part] ?? [], piece.from, piece.to)
+      }
+      const round = (v: number) => Math.round(v * 1000) / 1000
+      const parts = (c.starts ?? []).map((_, part) => {
+        const r = ranges[part] ?? []
+        return { r: r.map(([a, b]) => [round(a), round(b)]), s: coveredSeconds(r), c: slotMask(r, c.lengths?.[part] ?? 0) }
+      })
+      const audio = (c.audio ?? []).map((v) => v ?? undefined)
+      return { parts, total: listenTotal({ parts: c.parts ?? [], audio, unwritten: c.unwritten ?? "", written: c.written ?? "", pace: c.pace ?? 1 }), pace: listenPace(c.parts ?? [], audio) }
+    }
     case "answer": {
       const text = c.s.slice(0, 24_000)
       return { parts: speechParts(speechText(text)).slice(0, 80), lang: textLanguage(c.s) ?? null, script: needsScript(text) }
@@ -252,4 +276,49 @@ test("a chat's answers asked about as it opens: the same ids and parts' keys as 
   // Not trivially equal: written for the ear, kept scripts give keys and a missing one gives none.
   const keyed = cases.filter((c) => c.op === "keys" && c.kept && Object.keys(c.kept).length > 0)
   assert.ok(keyed.some((c) => (js(c) as string[]).length > 0))
+})
+
+test("a listen's stretches, the parts' tenths and the text's length: the same in the app as in the panel (build 98)", { skip }, () => {
+  // Seeded, so a failure repeats.
+  let seed = 98
+  const rand = () => ((seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31)
+  const cases: Case[] = []
+  for (let n = 0; n < 160; n++) {
+    const lengths = Array.from({ length: 1 + Math.floor(rand() * 6) }, () => Math.round((0.2 + rand() * 25) * 100) / 100)
+    const starts: number[] = []
+    let at = 0
+    for (const length of lengths) {
+      starts.push(Math.round(at * 100) / 100)
+      at += length
+    }
+    const end = Math.round(at * 100) / 100
+    // Plays in ticks, with seeks forward and back, at 1× to 2×.
+    const stretches: Ranges = []
+    let pos = rand() < 0.7 ? 0 : rand() * end
+    for (let step = 0; step < 200 && pos < end; step++) {
+      if (rand() < 0.04) pos = Math.max(0, Math.min(end - 0.1, pos + (rand() - 0.4) * 12))
+      const next = Math.min(end, pos + 0.25 * (1 + Math.floor(rand() * 4) * 0.25))
+      stretches.push([Math.round(pos * 1000) / 1000, Math.round(next * 1000) / 1000])
+      pos = next
+    }
+    const before: Record<string, Ranges> = rand() < 0.4 ? { "0": [[0, Math.round(rand() * lengths[0] * 100) / 100]] } : {}
+    const parts = Array.from({ length: lengths.length }, (_, i) => TEXTS[(n * 7 + i) % TEXTS.length].slice(0, 400))
+    const audio = parts.map((p) => (rand() < 0.5 ? null : Math.round(rand() * 40 * 10) / 10))
+    const written = rand() < 0.5 ? TEXTS[(n * 3) % TEXTS.length].slice(0, 300) : ""
+    const unwritten = written ? TEXTS[(n * 5) % TEXTS.length].slice(0, 500) : ""
+    cases.push({ op: "listen", s: "", starts, end, lengths, before, stretches, parts, audio, unwritten, written, pace: Math.round((0.5 + rand() * 1.5) * 100) / 100 })
+  }
+  const app = swift(cases)
+  const differ: string[] = []
+  cases.forEach((c, i) => {
+    try {
+      assert.deepEqual(app[i], js(c))
+    } catch {
+      if (differ.length < 4) differ.push(`case ${i}\n  panel: ${JSON.stringify(js(c)).slice(0, 400)}\n  app:   ${JSON.stringify(app[i]).slice(0, 400)}`)
+    }
+  })
+  assert.equal(differ.length, 0, `the app differs from the panel:\n${differ.join("\n")}`)
+  // Not trivially equal: some parts whole, some not; some totals from audio, some from words.
+  const results = cases.map(js) as Array<{ parts: Array<{ c: number }> }>
+  assert.ok(results.some((r) => r.parts.some((p) => p.c === 1023)) && results.some((r) => r.parts.some((p) => p.c !== 1023 && p.c !== 0)))
 })

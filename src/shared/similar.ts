@@ -70,6 +70,40 @@ export function closeAndLess(items: SimilarItem[]): { close: SimilarItem[]; less
   return { close, less: less.slice(0, 3) }
 }
 
+/** Items within this many points of each other are about as close: their condition, then their price, decide. */
+export const SIMILARITY_BAND = 10
+
+/** An item's price for ordering: the ≈ amount in their money when shown, else its own ("123.5 USD"). */
+function amountOf(i: SimilarItem): { n: number; currency: string } | null {
+  const m = /^(\d+(?:\.\d+)?) ([A-Z]{3})$/.exec(i.priceLocal || i.price || "")
+  return m ? { n: Number(m[1]), currency: m[2] } : null
+}
+
+/**
+ * The answer's final list, as the chat shows it and every count says it (2.6): the closest first (the same item at
+ * another shop leads); among items about as close (SIMILARITY_BAND), the one that meets their condition, then the
+ * cheaper one; then as closeAndLess keeps them. The notification counts this list, so it says what the chat shows.
+ */
+export function finalList(items: SimilarItem[]): SimilarItem[] {
+  const close = (i: SimilarItem) => (i.same ? 101 : i.similarity ?? 100)
+  const met = (i: SimilarItem) => (i.met === "yes" ? 0 : i.met === "no" ? 2 : 1)
+  const cheaper = (a: SimilarItem, b: SimilarItem) => {
+    const pa = amountOf(a), pb = amountOf(b)
+    return pa && pb && pa.currency === pb.currency ? pa.n - pb.n : 0
+  }
+  const ranked = items.map((item, at) => ({ item, at })).sort((a, b) => close(b.item) - close(a.item) || a.at - b.at)
+  const ordered: SimilarItem[] = []
+  for (let k = 0; k < ranked.length;) {
+    const top = close(ranked[k].item)
+    let j = k
+    while (j < ranked.length && top - close(ranked[j].item) < SIMILARITY_BAND) j++
+    ordered.push(...ranked.slice(k, j).sort((a, b) => Number(Boolean(b.item.same)) - Number(Boolean(a.item.same)) || met(a.item) - met(b.item) || cheaper(a.item, b.item) || a.at - b.at).map((x) => x.item))
+    k = j
+  }
+  const { close: near, less } = closeAndLess(ordered)
+  return [...near, ...less]
+}
+
 export interface SimilarPricing {
   model: "free" | "subscription" | "one_time" | "in_app"
   // "11.99 USD"
@@ -113,6 +147,8 @@ export interface SimilarPayload {
   country?: string
   // Build 95: the chip ("" for none) and their own words apart; `condition` stays both joined, for older servers.
   chip?: SimilarChip | ""
+  // Build 98: every chip they tapped (`chip` is the first, for a server before it).
+  chips?: SimilarChip[]
   words?: string
 }
 
@@ -138,7 +174,8 @@ export type SimilarChip = (typeof SIMILAR_CHIPS)[number]
 
 /** Build 95: what they asked, the chip apart from their own words (the server weighs one softly, the other strictly). */
 export interface SimilarAsk {
-  chip?: SimilarChip
+  // Build 98: several at once, in the panel's order.
+  chips?: SimilarChip[]
   words?: string
 }
 

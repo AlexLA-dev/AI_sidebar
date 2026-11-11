@@ -1,7 +1,7 @@
 // Chats as threads: several conversations, each continued from any page, tab or device until the
 // user starts a new one. Pure helpers shared by the content script, the background and tests.
 
-import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, trimSavedPages, withoutText, withPageChanges, type Entry } from "./conversation.ts"
+import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, trimSavedPages, urlKey, withoutText, withPageChanges, type Entry } from "./conversation.ts"
 import { marksLine } from "./marks.ts"
 import { unaccent } from "./fold.ts"
 import type { ChatDigest } from "./history.ts"
@@ -238,6 +238,38 @@ export function pinAt(pinned: Thread[], index: number): number {
 }
 
 /** The pages the chat was on, in the order it first came to them. */
+/**
+ * The chat to open on a page (2.6 (98), the owner: «Когда я нахожусь на странице, которую уже обсуждал в чатах, при
+ * нажатии на кружочек сайдбара нужно открывать чат последний, где обсуждалась эта страница (или домен)»): the most
+ * recently active chat with a question or note on this page, else on this site (the same host); null when none has
+ * (the panel then opens as before). Chats in Recently Deleted and "Ask your chats" aren't about a page.
+ */
+export function chatForPage(threads: Threads, href: string): string | null {
+  const key = urlKey(href)
+  const host = hostOf(href)
+  let page: Thread | null = null
+  let site: Thread | null = null
+  for (const thread of liveThreads(threads)) {
+    if (thread.kind === "history" || thread.m.length === 0) continue
+    const pages = threadPages(thread.m)
+    if (pages.some((p) => urlKey(p.url) === key)) {
+      if (!page || activity(thread) > activity(page)) page = thread
+    } else if (host && pages.some((p) => hostOf(p.url) === host)) {
+      if (!site || activity(thread) > activity(site)) site = thread
+    }
+  }
+  return (page ?? site)?.id ?? null
+}
+
+/** A page's host without "www." ("" for an address that isn't one). */
+function hostOf(href: string): string {
+  try {
+    return new URL(href).hostname.replace(/^www\./, "").toLowerCase()
+  } catch {
+    return ""
+  }
+}
+
 export function threadPages(entries: Entry[]): Array<{ url: string; title: string }> {
   const pages = new Map<string, string>()
   for (const e of entries) if (e.role === "user" && e.page && !pages.has(e.page.url)) pages.set(e.page.url, e.page.title)
