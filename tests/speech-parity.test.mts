@@ -4,7 +4,7 @@
 // its words and language, so this is what lets an answer heard in Safari play in the app from what's kept, and count
 // once in the week's minutes (and the other way round). Skipped where there's no Swift compiler; run on a Mac.
 import assert from "node:assert/strict"
-import { execFileSync, spawnSync } from "node:child_process"
+import { execFileSync, spawn, spawnSync } from "node:child_process"
 import { createHash } from "node:crypto"
 import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
@@ -28,11 +28,24 @@ type Case = {
   parts?: string[]; audio?: Array<number | null>; unwritten?: string; written?: string; pace?: number
 }
 
-function swift(cases: Case[]): unknown[] {
-  const dir = mkdtempSync(join(tmpdir(), "cf-speech-"))
-  const bin = join(dir, "speech")
-  // Built as the app is: Swift 6 checks, the main actor by default (VoicedQuery's work must not need it).
-  execFileSync("swiftc", ["-O", "-swift-version", "6", "-default-isolation", "MainActor", join(root, "ContextFlow/Shared (App)/SpeechText.swift"), join(root, "tests/speech-parity/main.swift"), "-o", bin], { stdio: "pipe" })
+// A run takes about a second, the build under a minute. A process stuck at 0 % CPU (a fresh binary whose launch waits
+// on the system's code checks on a busy Mac, or a pipe nobody drains) fails the test after these instead of holding
+// the suite for hours, as organize-parity does (#133). The run is waited for asynchronously: a process stuck in its
+// launch can't be killed until the system lets it go, and a synchronous wait would hang with it.
+const BUILD_MS = 300_000
+const RUN_MS = 60_000
+
+// Built once for every test here, as the app is: Swift 6 checks, the main actor by default (VoicedQuery's work must
+// not need it).
+let built: string | null = null
+function binary(): string {
+  if (built) return built
+  const bin = join(mkdtempSync(join(tmpdir(), "cf-speech-")), "speech")
+  execFileSync("swiftc", ["-O", "-swift-version", "6", "-default-isolation", "MainActor", join(root, "ContextFlow/Shared (App)/SpeechText.swift"), join(root, "tests/speech-parity/main.swift"), "-o", bin], { stdio: "pipe", timeout: BUILD_MS, killSignal: "SIGKILL" })
+  return (built = bin)
+}
+
+async function swift(cases: Case[]): Promise<unknown[]> {
   // Texts as UTF-16 units: Foundation's JSONSerialization drops a leading U+FEFF from a string, so the app would get
   // another text than the panel.
   const units = (text: string) => Array.from({ length: text.length }, (_, i) => text.charCodeAt(i))
@@ -40,7 +53,28 @@ function swift(cases: Case[]): unknown[] {
     ...rest, u: units(s), ...(list ? { lu: list.map(units) } : {}),
     ...(parts ? { parts: parts.map(units) } : {}), ...(unwritten !== undefined ? { unwritten: units(unwritten) } : {}), ...(written !== undefined ? { written: units(written) } : {})
   }))
-  return JSON.parse(execFileSync(bin, { input: JSON.stringify(sent), maxBuffer: 64 * 1024 * 1024 }).toString())
+  const child = spawn(binary(), { stdio: "pipe" })
+  const out: Buffer[] = []
+  const err: Buffer[] = []
+  child.stdout.on("data", (b: Buffer) => out.push(b))
+  child.stderr.on("data", (b: Buffer) => err.push(b))
+  child.stdin.on("error", () => undefined)
+  child.stdin.end(JSON.stringify(sent))
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const done = new Promise<number | null>((resolve, reject) => {
+    child.on("error", reject)
+    child.on("close", (code) => resolve(code))
+  })
+  const late = new Promise<"late">((resolve) => { timer = setTimeout(() => resolve("late"), RUN_MS) })
+  const code = await Promise.race([done, late]).finally(() => clearTimeout(timer))
+  if (code === "late") {
+    child.kill("SIGKILL")
+    child.unref()
+    for (const stream of [child.stdin, child.stdout, child.stderr]) stream.destroy()
+    throw new Error(`the Swift side didn't answer in ${RUN_MS / 1000} s (pid ${child.pid}, killed): ${Buffer.concat(err).toString().slice(0, 500)}`)
+  }
+  if (code !== 0) throw new Error(`the Swift side exited with ${code}: ${Buffer.concat(err).toString().slice(0, 500)}`)
+  return JSON.parse(Buffer.concat(out).toString())
 }
 
 function split(s: string, step: number, first = true): string[] {
@@ -208,7 +242,7 @@ function generated(count: number, seed = 95): string[] {
 
 const TEXTS = [...ANSWERS, ...generated(300)]
 
-test("the app makes the same text for listening as the panel: plain text, parts, language, written for the ear", { skip }, () => {
+test("the app makes the same text for listening as the panel: plain text, parts, language, written for the ear", { skip }, async () => {
   const cases: Case[] = []
   for (const s of TEXTS) {
     cases.push({ op: "text", s }, { op: "needsScript", s }, { op: "lang", s }, { op: "chunks", s }, { op: "answer", s })
@@ -218,7 +252,7 @@ test("the app makes the same text for listening as the panel: plain text, parts,
   // Long texts: chunks for writing them for the ear, cut between paragraphs (and sentences, when a paragraph is longer).
   const long = Array.from({ length: 30 }, (_, i) => ANSWERS[i % ANSWERS.length]).join("\n\n")
   cases.push({ op: "chunks", s: long }, { op: "chunks", s: long.replace(/\n\n/g, " ") }, { op: "answer", s: long.repeat(12) })
-  const app = swift(cases)
+  const app = await swift(cases)
   const differ: string[] = []
   cases.forEach((c, i) => {
     const mine = js(c)
@@ -231,7 +265,7 @@ test("the app makes the same text for listening as the panel: plain text, parts,
   assert.equal(differ.length, 0, `the app differs from the panel:\n${differ.join("\n")}`)
 })
 
-test("a text written for the ear gives the same parts streamed in any pieces and whole (its replay), here and in the app", { skip }, () => {
+test("a text written for the ear gives the same parts streamed in any pieces and whole (its replay), here and in the app", { skip }, async () => {
   const scripts = [
     "Here are the three options. The first one, the Backvac Pro, costs 189 euros and folds flat for travel. The second, the Pro Max, has wheels and a bigger frame, but it costs 272 euros and weighs more. The third is the Lite, which is the cheapest at 129 euros, though it has no rain cover. If you want wheels under 200 euros, none of these fits; the Pro is the closest. Overall the Pro is the best value for most people who fly a few times a year.",
     ...ANSWERS.map(speechText).filter((s) => s.length > 60),
@@ -239,7 +273,7 @@ test("a text written for the ear gives the same parts streamed in any pieces and
   ]
   const cases: Case[] = []
   for (const s of scripts) for (const step of [0, 1, 3, 7, 16, 41, 97]) for (const first of [true, false]) cases.push({ op: "split", s, step, first })
-  const app = swift(cases)
+  const app = await swift(cases)
   const differ: string[] = []
   cases.forEach((c, i) => {
     const mine = js(c)
@@ -250,7 +284,7 @@ test("a text written for the ear gives the same parts streamed in any pieces and
   assert.equal(differ.length, 0, differ.join("\n"))
 })
 
-test("a chat's answers asked about as it opens: the same ids and parts' keys as the panel, worked out off the main thread (build 95)", { skip }, () => {
+test("a chat's answers asked about as it opens: the same ids and parts' keys as the panel, worked out off the main thread (build 95)", { skip }, async () => {
   const cases: Case[] = []
   for (const s of TEXTS) {
     cases.push({ op: "voicedId", s, what: "answer" }, { op: "voicedId", s, what: "page" }, { op: "keys", s })
@@ -266,7 +300,7 @@ test("a chat's answers asked about as it opens: the same ids and parts' keys as 
   cases.push({ op: "voicedId", s: long }, { op: "keys", s: long }, { op: "keys", s: long, kept: scriptsFor(long) })
   // The chat's last 30 answers, each once, empty ones left out.
   cases.push({ op: "answers", s: "", list: [...TEXTS.slice(0, 40), "", TEXTS[39], TEXTS[38]] }, { op: "answers", s: "", list: ["", ANSWERS[0], ANSWERS[0]] })
-  const app = swift(cases)
+  const app = await swift(cases)
   const differ: string[] = []
   cases.forEach((c, i) => {
     const mine = js(c)
@@ -278,7 +312,7 @@ test("a chat's answers asked about as it opens: the same ids and parts' keys as 
   assert.ok(keyed.some((c) => (js(c) as string[]).length > 0))
 })
 
-test("a listen's stretches, the parts' tenths and the text's length: the same in the app as in the panel (build 98)", { skip }, () => {
+test("a listen's stretches, the parts' tenths and the text's length: the same in the app as in the panel (build 98)", { skip }, async () => {
   // Seeded, so a failure repeats.
   let seed = 98
   const rand = () => ((seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31)
@@ -308,7 +342,7 @@ test("a listen's stretches, the parts' tenths and the text's length: the same in
     const unwritten = written ? TEXTS[(n * 5) % TEXTS.length].slice(0, 500) : ""
     cases.push({ op: "listen", s: "", starts, end, lengths, before, stretches, parts, audio, unwritten, written, pace: Math.round((0.5 + rand() * 1.5) * 100) / 100 })
   }
-  const app = swift(cases)
+  const app = await swift(cases)
   const differ: string[] = []
   cases.forEach((c, i) => {
     try {

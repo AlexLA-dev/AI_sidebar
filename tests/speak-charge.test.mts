@@ -71,6 +71,11 @@ function port() {
 }
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 30))
+/** Until `ready()` holds, at most 10 s: on a busy machine the background's steps take longer than a fixed pause. */
+async function until(ready: () => boolean, ms = 10_000): Promise<void> {
+  const end = Date.now() + ms
+  while (!ready() && Date.now() < end) await new Promise((resolve) => setTimeout(resolve, 10))
+}
 // Three plain sentences of about 200 characters each: three parts, none written for the ear.
 const sentence = (n: number) => `Sentence number ${n} goes on about electric trains and how they return energy to the grid when they brake, which a busy line does many times an hour, every day of the week.`
 const TEXT = [sentence(1), sentence(2), sentence(3), sentence(4)].join(" ")
@@ -122,14 +127,16 @@ test("parts in the user's iCloud are played without asking the server (nothing c
     putText: async () => undefined
   }
   serveSpeak(p.port, deps(reports, sync))
+  const fromCloud = () => p.out.filter((m) => m.type === "aac").length
   p.send({ type: "play", text: TEXT, lang: "en", what: "answer" })
-  await settle()
+  await until(() => fromCloud() >= 1)
   p.send({ type: "more" })
-  await settle()
+  // The second part from iCloud too (a fixed pause flipped this on a loaded Mac: one part in, 1 s instead of 2).
+  await until(() => fromCloud() >= 2)
   assert.equal(asked.length, 0)
-  assert.ok(p.out.some((m) => m.type === "aac"))
+  assert.equal(fromCloud(), 2)
   p.send({ type: "stop", heard: 1 })
-  await settle()
+  await until(() => reports.length > 0)
   assert.equal(reports[0].charged_s, 0)
   assert.equal(reports[0].server_s, 0)
   assert.equal(reports[0].icloud_s, 2)
@@ -153,18 +160,18 @@ test("what's heard goes to the server by part key: with the next part, and on it
   const p = port()
   serveSpeak(p.port, deps([]))
   p.send({ type: "play", text: TEXT, lang: "en", what: "answer" })
-  await settle()
-  // 1.5 s of the first part heard; the next part asked for carries it.
-  p.send({ type: "heard", heard: { 0: 1.5 } })
-  await settle()
-  p.send({ type: "more" })
-  await settle()
+  await until(() => asked.some((a) => a.part === 0))
   const first = asked.find((a) => a.part === 0)!.text
+  // 1.5 s of the first part heard (kept, then) the next part asked for carries it.
+  p.send({ type: "heard", heard: { 0: 1.5 } })
+  await until(() => Boolean((store["cf:speakHeard"] as Record<string, unknown> | undefined)?.[keyOf(first)]))
+  p.send({ type: "more" })
+  await until(() => asked.some((a) => a.part === 1))
   assert.deepEqual(asked.find((a) => a.part === 1)?.heard, [{ key: keyOf(first), s: 1.5 }])
   // Then 2 s of the first and 0.7 of the second; stopped: sent on its own.
   p.send({ type: "heard", heard: { 0: 2, 1: 0.7 } })
   p.send({ type: "stop", heard: 2.7 })
-  await new Promise((resolve) => setTimeout(resolve, 400))
+  await until(() => heardSent.length > 0 && Object.keys((store["cf:speakHeard"] as object | undefined) ?? {}).length === 0)
   const second = asked.find((a) => a.part === 1)!.text
   assert.deepEqual(heardSent.at(-1), [{ key: keyOf(first), s: 2 }, { key: keyOf(second), s: 0.7 }])
   // Counted: nothing left waiting.
