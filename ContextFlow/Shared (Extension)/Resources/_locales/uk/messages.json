@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "Коли нагадати?"
  },
+ "uxNoteWords": {
+  "message": "Що перевірити або про що нагадати…"
+ },
  "uxRemindAsked": {
   "message": "Ви просили нагадати: {0}"
  },
@@ -1532,6 +1535,15 @@
  "orgMergedHere": {
   "message": "«{0}» приєднано сюди"
  },
+ "orgBarOne": {
+  "message": "Підказки · {0}"
+ },
+ "orgBarOf": {
+  "message": "Підказки · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Підказки в цьому чаті"
+ },
  "recs_one": {
   "message": "{0} рекомендація"
  },
@@ -1594,6 +1606,9 @@
  },
  "watchWhen": {
   "message": "Коли повідомити"
+ },
+ "watchNoteWords": {
+  "message": "Що перевірити, коли зміниться…"
  },
  "watchCondPrice": {
   "message": "коли зміниться ціна (зараз {0})"

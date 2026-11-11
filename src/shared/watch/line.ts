@@ -28,3 +28,12 @@ export function conditionLine(w: Pick<Watch, "what" | "condition" | "value" | "l
   }
   return now ? `${condition} · ${t("watchRowNow", now)}` : condition
 }
+
+/**
+ * The change notification's text (2.6 (97)): the person's own note first when they wrote one, then what changed, as
+ * before; without a note, what changed alone.
+ */
+export function watchBody(note: string | undefined, changed: string): string {
+  const own = (note ?? "").trim()
+  return own ? `${own}\n${changed}` : changed
+}

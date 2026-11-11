@@ -68,6 +68,9 @@ struct ChatEntry: Decodable, Hashable {
     var note: Bool?
     /// A note made from a page selection: its text starts with the quote.
     var quote: Bool?
+    /// 2.6 (97): such a note's selected text as it was quoted (src/shared/conversation.ts `cite`): the chat shows it as a
+    /// quote and the rest of the text as the person's own words. Older notes have none and look as they did.
+    var cite: String?
     var page: Page?
     var pageChanged: Bool?
     var grounding: Grounding?
@@ -111,6 +114,49 @@ struct ChatEntry: Decodable, Hashable {
 
     var isUser: Bool { role == "user" }
     var isNote: Bool { note == true }
+
+    /// Where a cited note's quote ends in its text (after the closing mark), or nil when the text doesn't start with it
+    /// (src/shared/conversation.ts citeEnd: the opening mark is “ « „ 「 or « with a space).
+    private var citeEnd: String.Index? {
+        guard let cite, !cite.isEmpty, let found = content.range(of: cite, options: .literal),
+              content.utf16.distance(from: content.startIndex, to: found.lowerBound) <= 3 else { return nil }
+        return content.range(of: "\n\n", options: .literal, range: found.upperBound..<content.endIndex)?.lowerBound ?? content.endIndex
+    }
+
+    /// A note made from a selection, apart (citedNote): its quote and the person's own words ("" for none); nil for any
+    /// other message, shown as its text.
+    var cited: (cite: String, note: String)? {
+        guard let end = citeEnd, let cite else { return nil }
+        return (cite, String(content[end...]).trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    /// What its reminder's notification says (src/shared/reminders.ts reminderNotice): a note on a selection's own words
+    /// when it has some, else its text, as before.
+    var reminderText: String {
+        guard let cited, !cited.note.isEmpty else { return content }
+        return cited.note
+    }
+
+    /// The person's own words on a reminder made with Remind on a selection or a page, as its window shows them to change
+    /// (remindWords): a cited note's after its quote; a page's note its text unless that's the page's name. Nil for any
+    /// other reminder.
+    var remindWords: String? {
+        guard isNote, remind?.page == true else { return nil }
+        if let cited { return cited.note }
+        if quote == true { return nil }
+        let names = [page?.title, page?.url].compactMap { $0 }.filter { !$0.isEmpty }
+        return names.contains(content.trimmingCharacters(in: .whitespacesAndNewlines)) ? "" : content
+    }
+
+    /// The text with the person's new words (withRemindWords): the quote and its marks stay; a page's note without words
+    /// says the page's name. Nil when the reminder has no words to change.
+    func withRemindWords(_ words: String) -> String? {
+        guard remindWords != nil else { return nil }
+        let own = words.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let end = citeEnd { return String(content[..<end]) + (own.isEmpty ? "" : "\n\n\(own)") }
+        if !own.isEmpty { return own }
+        return [page?.title, page?.url].compactMap { $0 }.first { !$0.isEmpty } ?? content
+    }
 }
 
 /// A chat (src/shared/threads.ts `Thread`), from its iCloud form `{title?, a?, pin?, m}`.
@@ -647,6 +693,8 @@ final class ChatLibrary: ObservableObject {
                     m.append(["role": "user", "content": "Question \(t + 1) about \(topic): what matters most here, and why?", "id": "dq\(c)-\(t)", "t": at, "page": page])
                     var answer: [String: Any] = ["role": "assistant", "content": "About \(topic): the main points are the basics, the common mistakes and what to try first.", "id": "da\(c)-\(t)", "t": at + 4000]
                     if (c + t) % 6 == 0 { answer["tags"] = [topic.split(separator: " ").first.map(String.init) ?? "later"] }
+                    // 2.6 (97): chat 13 has an answer pinned (the pinned bar over the bar of suggestions).
+                    if c == 13, t == 3 { answer["pinned"] = Double(at) }
                     m.append(answer)
                     if t == 1 { m.append(["role": "user", "content": "Remember to come back to \(topic) later", "note": true, "id": "dn\(c)", "t": at + 8000, "page": page]) }
                 }
@@ -659,6 +707,12 @@ final class ChatLibrary: ObservableObject {
                 // 2.6 (94): chat 4 comes with a merge into chat 14 (same topic) suggested.
                 if c == 4, many > 14, let last = m.last {
                     object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: 0, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88)).json
+                }
+                // 2.6 (97): and suggestions deep in it: two tags and its second page to chat 23 (the same topic). The bar
+                // at the top of the chat lists them.
+                if c == 13, many > 23, m.count > 10, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: 2, e: 4, to: "debug-many-23", why: .topic, mt: 86),
+                                             tg: [.init(key: Organize.entryKey(m[1]), tag: "coffee"), .init(key: Organize.entryKey(m[10]), tag: "grinders")]).json
                 }
                 // 2.6 (95): and chat 14, the newer one, shows it too: chat 4 joins it here.
                 if c == 14, let last = m.last {
@@ -698,6 +752,25 @@ final class ChatLibrary: ObservableObject {
                 }
             }
             _ = ChatMirror.apply(saves: saves)
+        }
+        // Build 97 (a note on a selection as a quote with the person's words): -CFDebugSeedNotes YES puts a chat here with a
+        // reminder on a selection with words, one without, a page reminder with words, and a note on a selection made
+        // before (no cite: its text as it was).
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedNotes"), ChatMirror.chats()["debug-notes"] == nil {
+            let now = Int64(Date().timeIntervalSince1970 * 1000)
+            let page: [String: Any] = ["url": "https://desk.example/standing-140", "title": "Standing desk 140", "at": now - 3_600_000]
+            let object: [String: Any] = ["title": "Standing desk", "a": now - 60_000, "m": [
+                ["role": "user", "content": "“Width 140 cm, depth 70 cm, oak top”\n\nMeasure the wall by the window first", "note": true, "quote": true,
+                 "cite": "Width 140 cm, depth 70 cm, oak top", "id": "dn1", "t": now - 3_600_000, "page": page,
+                 "remind": ["at": Double(now + 86_400_000), "page": true]],
+                ["role": "user", "content": "“Delivery in 5–7 working days”", "note": true, "quote": true,
+                 "cite": "Delivery in 5–7 working days", "id": "dn2", "t": now - 3_000_000, "page": page],
+                ["role": "user", "content": "Ask whether the oak top comes in white", "note": true, "id": "dn3", "t": now - 2_000_000, "page": page,
+                 "remind": ["at": Double(now + 3 * 86_400_000), "page": true]],
+                ["role": "user", "content": "“Assembly takes about an hour”\n\ntwo people", "note": true, "quote": true, "id": "dn4", "t": now - 60_000, "page": page]]]
+            if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-notes": ChatMirror.Item(updatedAt: now, data: text)])
+            }
         }
         // Build 95 (a name taken on another device stayed offered here): -CFDebugRemoteRename <id>
         // -CFDebugRemoteRenameAfter <s>: after so many seconds that chat gets the name its record suggests, as another

@@ -20,6 +20,8 @@ struct LaterItem: Identifiable, Hashable {
     let url: URL?
     /// Ready to show: "Tomorrow 9:00" / "Watching: size 42 · checked an hour ago".
     let status: String
+    /// 2.6 (97): the person's own words on it (a reminder made with Remind on a selection or a page, a watch's note).
+    var detail: String? = nil
     /// A reminder: when it rings; a watch: its last check.
     let sortAt: Date
     /// A reminder: it rings on this device (it's set to ring where it was set).
@@ -54,9 +56,11 @@ final class LaterCenter {
 extension ChatLibrary {
     /// Sets (or with nil cancels) a message's reminder on this device; the chat keeps the bell. The chat screen and
     /// "Reminders" both go through here. False: notifications are off for ContextFlow.
-    func remind(_ thread: ChatThread, entry index: Int, at: Date?, preset: String?, how: String? = nil) async -> Bool {
+    /// `words`: a reminder made with Remind on a selection or a page gets the person's new words with its new time
+    /// (2.6 (97)); the notification says them.
+    func remind(_ thread: ChatThread, entry index: Int, at: Date?, preset: String?, how: String? = nil, words: String? = nil) async -> Bool {
         guard let raw = thread.organized?.entries, raw.indices.contains(index), thread.entries.indices.contains(index) else { return true }
-        let entry = thread.entries[index]
+        var entry = thread.entries[index]
         let key = Organize.entryKey(raw[index])
         var event: [String: String] = ["what": entry.remind?.page == true ? "page" : entry.isNote ? "note" : "answer"]
         if let how { event["how"] = how }
@@ -70,12 +74,15 @@ extension ChatLibrary {
         // (src/shared/reminders.ts reminderNotice).
         let title = entry.isNote ? (entry.page.map { $0.title.isEmpty ? $0.url : $0.title } ?? thread.name) : thread.name
         let page = entry.remind?.page == true ? entry.page.flatMap { URL(string: $0.url) } : nil
+        let worded = words.flatMap { entry.withRemindWords($0) }.flatMap { $0 == entry.content ? nil : $0 }
+        if let worded { entry.content = worded }
         let outcome = await MessageReminders.schedule(chat: thread.id, message: key, at: at, title: title,
-                                                      body: ReminderTimes.asked(entry.content), open: page, ask: true)
+                                                      body: ReminderTimes.asked(entry.reminderText), open: page, ask: true)
         guard outcome == .scheduled else {
             ChatAI.reportUx("ux_remind", event.merging(["action": "denied"]) { $1 })
             return false
         }
+        if let worded { setRemindWords(thread, entry: index, worded) }
         setRemind(thread, entry: index, ChatRemind(at: at.timeIntervalSince1970 * 1000, dev: String(Activation.shared.appId.prefix(12)), page: entry.remind?.page))
         ChatAI.reportUx("ux_remind", event.merging(["action": "set", "preset": preset ?? "custom"]) { $1 })
         return true
@@ -102,7 +109,7 @@ extension ChatLibrary {
             let key = Organize.entryKey(raw[index])
             Task {
                 _ = await MessageReminders.schedule(chat: thread.id, message: key, at: Date(timeIntervalSince1970: remind.at / 1000), title: title,
-                                                    body: ReminderTimes.asked(entry.content), open: page, ask: false)
+                                                    body: ReminderTimes.asked(entry.reminderText), open: page, ask: false)
             }
         }
     }
@@ -125,6 +132,7 @@ extension ChatLibrary {
                     title: page.map { $0.title.isEmpty ? host(of: $0.url) : $0.title } ?? thread.name,
                     url: remind.page == true ? page.flatMap { URL(string: $0.url) } : nil,
                     status: here ? ReminderTimes.label(at) : String(localized: "\(ReminderTimes.label(at)) · on another device"),
+                    detail: entry.remindWords.flatMap { $0.isEmpty ? nil : $0 },
                     sortAt: at,
                     here: here
                 ))
@@ -191,8 +199,8 @@ struct RemindersView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
             .sheet(item: $changing) { item in
-                RemindSheet(current: item.sortAt, note: note, pick: { at, preset in
-                    Task { await change(item, at: at, preset: preset) }
+                RemindSheet(current: item.sortAt, note: note, quote: reminderEntry(item)?.cited?.cite, words: reminderEntry(item)?.remindWords, pick: { at, preset, words in
+                    Task { await change(item, at: at, preset: preset, words: words) }
                 }, cancel: {
                     changing = nil
                     Task { await cancel(item) }
@@ -217,6 +225,7 @@ struct RemindersView: View {
                 .frame(width: 22)
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.title).lineLimit(1)
+                if let detail = item.detail { Text(detail).font(.subheadline).lineLimit(3) }
                 // All of it, wrapped (2.5 (75)): a watch's status can be long, and "Today 15:41 · on another device"
                 // doesn't fit one line at 375 pt in every language.
                 Text(item.status).font(.subheadline).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -260,9 +269,16 @@ struct RemindersView: View {
         await reload()
     }
 
-    private func change(_ item: LaterItem, at: Date, preset: String) async {
+    /// The message a reminder's row is on.
+    private func reminderEntry(_ item: LaterItem) -> ChatEntry? {
+        guard let ref = reminderKey(item), let found = library.find(messageKey: ref.key, hint: ref.chat),
+              found.thread.entries.indices.contains(found.index) else { return nil }
+        return found.thread.entries[found.index]
+    }
+
+    private func change(_ item: LaterItem, at: Date, preset: String, words: String? = nil) async {
         guard let ref = reminderKey(item), let found = library.find(messageKey: ref.key, hint: ref.chat) else { return }
-        if await library.remind(found.thread, entry: found.index, at: at, preset: preset, how: "list") {
+        if await library.remind(found.thread, entry: found.index, at: at, preset: preset, how: "list", words: words) {
             note = nil
             changing = nil
             await reload()

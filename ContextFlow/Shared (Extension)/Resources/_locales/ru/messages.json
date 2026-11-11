@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "Когда напомнить?"
  },
+ "uxNoteWords": {
+  "message": "Что проверить или о чём напомнить…"
+ },
  "uxRemindAsked": {
   "message": "Вы просили напомнить: {0}"
  },
@@ -1532,6 +1535,15 @@
  "orgMergedHere": {
   "message": "«{0}» присоединён сюда"
  },
+ "orgBarOne": {
+  "message": "Подсказки · {0}"
+ },
+ "orgBarOf": {
+  "message": "Подсказки · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Подсказки в этом чате"
+ },
  "recs_one": {
   "message": "{0} рекомендация"
  },
@@ -1594,6 +1606,9 @@
  },
  "watchWhen": {
   "message": "Когда сообщить"
+ },
+ "watchNoteWords": {
+  "message": "Что проверить, когда изменится…"
  },
  "watchCondPrice": {
   "message": "когда изменится цена (сейчас {0})"

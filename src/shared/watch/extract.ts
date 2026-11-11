@@ -33,24 +33,50 @@ export function readPage(html: string): PageRead {
   return { html, text: pageText(html) }
 }
 
-function walk(node: unknown, found: Structured) {
+// Price kinds that aren't the price to pay now: a struck-through, list or recommended price (schema.org priceType).
+const NOT_NOW = /Strikethrough|ListPrice|MSRP|SRP|InvoicePrice|MinimumAdvertised|WasPrice/i
+
+/** A price given (a number or a string; 0 is a price too: an app free to download). */
+function usable(v: unknown): v is string | number {
+  return v !== undefined && v !== null && v !== "" && (typeof v === "number" || typeof v === "string")
+}
+
+/**
+ * An offer's price to pay now: its own price (or an aggregate's lowest), else its price specification — one object
+ * or a list (WooCommerce, IKEA), skipping struck-through, list and recommended prices and prices per unit.
+ */
+function offerPrice(o: Record<string, unknown>): { price: string | number; currency: unknown } | null {
+  const own = usable(o.price) ? o.price : usable(o.lowPrice) ? o.lowPrice : undefined
+  if (own !== undefined) return { price: own, currency: o.priceCurrency }
+  const specs = (Array.isArray(o.priceSpecification) ? o.priceSpecification : [o.priceSpecification])
+    .filter((x): x is Record<string, unknown> => Boolean(x) && typeof x === "object")
+  for (const spec of specs) {
+    if (NOT_NOW.test(String(spec.priceType ?? ""))) continue
+    if (spec.referenceQuantity && typeof spec.referenceQuantity === "object") continue
+    const price = usable(spec.price) ? spec.price : usable(spec.minPrice) ? spec.minPrice : undefined
+    if (price !== undefined) return { price, currency: spec.priceCurrency ?? o.priceCurrency }
+  }
+  return null
+}
+
+function walk(node: unknown, found: Structured, key = "") {
   if (Array.isArray(node)) {
-    for (const n of node) walk(n, found)
+    for (const n of node) walk(n, found, key)
     return
   }
   if (!node || typeof node !== "object") return
   const o = node as Record<string, unknown>
   const types = (Array.isArray(o["@type"]) ? o["@type"] : [o["@type"]]) as unknown[]
-  if (types.some((t) => t === "Offer" || t === "AggregateOffer")) {
-    let price = o.price ?? o.lowPrice
-    const spec = o.priceSpecification as Record<string, unknown> | undefined
-    if ((price === undefined || price === "") && spec && typeof spec === "object") price = spec.price
-    if (price !== undefined && price !== null && price !== "" && !found.ldPrice) {
-      found.ldPrice = `${price}${o.priceCurrency ? ` ${o.priceCurrency}` : ""}`
-    }
+  // An offer: typed as one, or an untyped object under "offers" or with a price and its currency (some shops omit
+  // the type).
+  const offer = types.some((t) => t === "Offer" || t === "AggregateOffer") ||
+    (o["@type"] === undefined && (key === "offers" || ("priceCurrency" in o && ("price" in o || "priceSpecification" in o || "lowPrice" in o))))
+  if (offer) {
+    const p = offerPrice(o)
+    if (p && !found.ldPrice) found.ldPrice = `${p.price}${p.currency ? ` ${p.currency}` : ""}`
     if (o.availability && !found.ldStock) found.ldStock = String(o.availability).split("/").pop()
   }
-  for (const v of Object.values(o)) if (v && typeof v === "object") walk(v, found)
+  for (const [k, v] of Object.entries(o)) if (v && typeof v === "object") walk(v, found, k)
 }
 
 function metaContent(html: string, prop: string): string | undefined {
@@ -82,6 +108,14 @@ export function structured(html: string): Structured {
   if (!found.metaPrice) {
     const m = /itemprop=["']price["'][^>]*content=["']([^"']+)/i.exec(html)
     if (m) found.metaPrice = m[1]
+  }
+  // Microdata whose price is the element's own text (<span itemprop="price">95.00</span>), with its currency's.
+  if (!found.metaPrice) {
+    const m = /<(?:span|div|p|b|strong|bdi|data)\b[^>]*itemprop=["']price["'][^>]*>\s*([^<]{1,30}?)\s*</i.exec(html)
+    if (m && /\d/.test(m[1])) {
+      const cur = /itemprop=["']priceCurrency["'][^>]*content=["']([A-Za-z]{3})["']/i.exec(html)?.[1]
+      found.metaPrice = cur && !/[A-Za-z]{3}/.test(m[1]) ? `${m[1].trim()} ${cur.toUpperCase()}` : m[1].trim()
+    }
   }
   for (const prop of ["product:availability", "og:availability", "availability"]) {
     const v = metaContent(html, prop)

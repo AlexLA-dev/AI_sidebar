@@ -157,6 +157,8 @@ export const FEATURES: Record<string, Feature> = {
     }
   },
   rate: { since: "2.2", on: "app", actions: ["asked", "link"], via: ["moment", "app_answers", "purchase"] },
+  // 2.6 (97): the bar of a chat's open suggestions at its top: shown (once per set of suggestions in a chat), tapped.
+  org: { since: "2.6", tracked: "2.6", actions: ["bar_shown", "bar_tap"] },
 
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.
   ext: { since: "2.4", tracked: "2.4", on: "ext", actions: ["on"], own: true },

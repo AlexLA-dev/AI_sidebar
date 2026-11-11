@@ -1187,6 +1187,10 @@ struct ChatDetailView: View {
     // bar, and whether text is being selected (no swiping then).
     @State private var pinAt = Int.max
     @State private var pinLock = Date.distantPast
+    // 2.6 (97): the bar of open suggestions: the one it shows, the chip flashing after a tap, the sets counted as shown.
+    @State private var sugAt = 0
+    @State private var sugLit: BarSuggestion?
+    @State private var sugSeen = Set<String>()
     @State private var reminding: Int?
     @State private var remindNote: String?
     // `whole`: they were the chat's last messages, still kept until the bar goes (see deleteMessage).
@@ -1333,18 +1337,37 @@ struct ChatDetailView: View {
                     }
                     .safeAreaInset(edge: .top, spacing: 0) {
                         let pinned = pinnedItems(thread)
-                        if !pinned.isEmpty, picked == nil {
-                            PinnedBar(items: pinned, at: Binding(get: { min(pinAt, pinned.count - 1) }, set: { pinAt = $0 }), open: { index in
-                                pinLock = Date().addingTimeInterval(1)
-                                withAnimation { proxy.scrollTo(index, anchor: .center) }
-                                flashMessage(index)
-                                ChatAI.reportUx("ux_pin", ["action": "bar_tap", "how": "bar"])
-                            }, unpin: { index in
-                                togglePin(thread, index, how: "list")
-                            }, unpinAll: {
-                                library.unpinAll(thread)
-                                ChatAI.reportUx("ux_pin", ["action": "unpinned_all", "how": "list"])
-                            })
+                        let sugs = barSuggestions(thread, raw)
+                        if picked == nil, !pinned.isEmpty || !sugs.isEmpty {
+                            // 2.6 (97): with both, one line each.
+                            VStack(spacing: 0) {
+                                if !pinned.isEmpty {
+                                    PinnedBar(items: pinned, at: Binding(get: { min(pinAt, pinned.count - 1) }, set: { pinAt = $0 }), open: { index in
+                                        pinLock = Date().addingTimeInterval(1)
+                                        withAnimation { proxy.scrollTo(index, anchor: .center) }
+                                        flashMessage(index)
+                                        ChatAI.reportUx("ux_pin", ["action": "bar_tap", "how": "bar"])
+                                    }, unpin: { index in
+                                        togglePin(thread, index, how: "list")
+                                    }, unpinAll: {
+                                        library.unpinAll(thread)
+                                        ChatAI.reportUx("ux_pin", ["action": "unpinned_all", "how": "list"])
+                                    }, compact: !sugs.isEmpty)
+                                }
+                                if !sugs.isEmpty {
+                                    SuggestionsBar(items: sugs, at: Binding(get: { min(sugAt, sugs.count - 1) }, set: { sugAt = $0 }), compact: !pinned.isEmpty, open: { item in
+                                        pinLock = Date().addingTimeInterval(1)
+                                        ChatAI.reportUse("org", "bar_tap")
+                                        // The suggestion is under its message: the message's end on screen.
+                                        withAnimation { proxy.scrollTo(item.index, anchor: .bottom) }
+                                        withAnimation(.easeOut(duration: 0.2)) { sugLit = item }
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { withAnimation(.easeIn(duration: 0.4)) { if sugLit == item { sugLit = nil } } }
+                                    }, shown: {
+                                        let key = "\(thread.id)|" + sugs.map { "\($0.kind.rawValue)\($0.index):\($0.text)" }.joined(separator: ",")
+                                        if sugSeen.insert(key).inserted { ChatAI.reportUse("org", "bar_shown") }
+                                    })
+                                }
+                            }
                         }
                     }
                     .onAppear {
@@ -1406,8 +1429,9 @@ struct ChatDetailView: View {
                 .sheet(isPresented: Binding(get: { reminding != nil }, set: { if !$0 { reminding = nil } })) {
                     if let index = reminding, thread.entries.indices.contains(index) {
                         let current = thread.entries[index].remind.map { Date(timeIntervalSince1970: $0.at / 1000) }
-                        RemindSheet(current: current, note: remindNote, pick: { at, preset in
-                            Task { await setReminder(thread, index, at: at, preset: preset) }
+                        RemindSheet(current: current, note: remindNote, quote: thread.entries[index].cited?.cite,
+                                    words: thread.entries[index].remindWords, pick: { at, preset, words in
+                            Task { await setReminder(thread, index, at: at, preset: preset, words: words) }
                         }, cancel: {
                             Task { await setReminder(thread, index, at: nil, preset: nil) }
                         })
@@ -1686,6 +1710,18 @@ struct ChatDetailView: View {
         return s
     }
 
+    /// 2.6 (97): the open suggestions for the bar at the top: the ones the rows under the messages show.
+    private func barSuggestions(_ thread: ChatThread, _ raw: [[String: Any]]) -> [BarSuggestion] {
+        guard let s = current(thread) else { return [] }
+        var items: [BarSuggestion] = []
+        for (index, item) in s.tags where raw.indices.contains(index) && Organize.entryKey(raw[index]) == item.key {
+            items.append(BarSuggestion(kind: .tag, index: index, text: "#\(item.tag) · \(ReminderTimes.text(thread.entries[index].content, max: 80))"))
+        }
+        if let move = s.move, thread.entries.indices.contains(move.end) { items.append(BarSuggestion(kind: .move, index: move.end, text: SuggestionRow.moveLine(move))) }
+        if let name = s.name, !thread.entries.isEmpty { items.append(BarSuggestion(kind: .name, index: thread.entries.count - 1, text: String(localized: "Name it “\(name)”"))) }
+        return BarSuggestion.ordered(items)
+    }
+
     @ViewBuilder
     private func organizeRow(_ thread: ChatThread, _ raw: [[String: Any]], _ index: Int) -> some View {
         if let s = current(thread) {
@@ -1696,6 +1732,7 @@ struct ChatDetailView: View {
             if tag != nil || move != nil || name != nil {
                 SuggestionRow(
                     tag: tag, move: move, name: name,
+                    lit: sugLit?.index == index ? sugLit?.kind : nil,
                     onTag: { if let tag { takeTag(thread, index, tag) } },
                     onTagNo: { if let tag { refuseTag(thread, index, tag) } },
                     onMove: { if let move { takeMove(thread, move) } },
@@ -1931,8 +1968,8 @@ struct ChatDetailView: View {
     }
 
     /// Sets (or with nil cancels) a message's reminder on this device; the chat keeps the bell (ChatLibrary.remind).
-    private func setReminder(_ thread: ChatThread, _ index: Int, at: Date?, preset: String?) async {
-        if await library.remind(thread, entry: index, at: at, preset: preset) {
+    private func setReminder(_ thread: ChatThread, _ index: Int, at: Date?, preset: String?, words: String? = nil) async {
+        if await library.remind(thread, entry: index, at: at, preset: preset, words: words) {
             reminding = nil
         } else {
             remindNote = String(localized: "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow.")
@@ -2135,6 +2172,46 @@ private struct PageDivider: View {
     }
 }
 
+/// A note's text (2.6 (97), the owner: «то, что выделено, было оформлено как цитата, и … можно было написать свою
+/// заметку к ней»): a note made on a selection shows what was selected as a quote and the person's own words under it;
+/// any other note (and one on a selection made before) its text, as before. The panel draws the same
+/// (src/content/ux/NoteText.tsx).
+struct NoteBody: View {
+    let entry: ChatEntry
+
+    var body: some View {
+        if let cited = entry.cited {
+            VStack(alignment: .leading, spacing: 6) {
+                QuoteBlock(text: cited.cite)
+                if !cited.note.isEmpty {
+                    Text(cited.note).textSelection(.enabled)
+                }
+            }
+        } else {
+            Text(entry.content).textSelection(.enabled)
+        }
+    }
+}
+
+/// A quote: a bar at the leading edge and the text in the secondary color, as the panel's (.cf-note-cite).
+struct QuoteBlock: View {
+    let text: String
+    var lines: Int? = nil
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            RoundedRectangle(cornerRadius: 1.5).fill(Color.orange.opacity(0.75)).frame(width: 3)
+            Text(text)
+                .font(.callout)
+                .foregroundColor(.secondary)
+                .lineLimit(lines)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
 private struct MessageView: View {
     let entry: ChatEntry
     /// Answers in a chat: selectable, with "Highlight" (2.5); nil: as plain Markdown (an answer coming in).
@@ -2148,8 +2225,7 @@ private struct MessageView: View {
                     Image(systemName: "pencil")
                         .foregroundColor(.orange)
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(entry.content)
-                            .textSelection(.enabled)
+                        NoteBody(entry: entry)
                         // The page the note was made on (2.5): what a reminder on it brings you back to.
                         if let page = entry.page, let url = URL(string: page.url) {
                             Link(destination: url) {

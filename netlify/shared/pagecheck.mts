@@ -6,7 +6,7 @@
 // Nothing is stored: the page is read once and forgotten.
 
 import { MONEY_SIGN, currencyOf, currencyOfSign } from "./money.mts"
-import { AGO, GONE as GONE_WORDS, HELPFUL, MARK_WORDS, NAME_EXTRAS, NAME_STOP, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, SHOP_WORDS, STARS, VERIFIED, foldedPhrases, foldedWords, pattern } from "./lexicon.mts"
+import { AGO, GONE as GONE_WORDS, ITEM_PAGE, PRICE_PER_MONTH, HELPFUL, MARK_WORDS, NAME_EXTRAS, NAME_STOP, OTHER_ITEMS, PRICE_CART, PRICE_LABEL, PRICE_MONTHLY, PRICE_NOT_NOW, PRICE_SAVING, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, SHIPPING, SHOP_WORDS, STARS, VERIFIED, foldedPhrases, foldedWords, pattern } from "./lexicon.mts"
 import { SIMPLIFIED, TRADITIONAL } from "../../src/shared/share.ts"
 import { isOutOfStock } from "../../src/shared/watch/detect.ts"
 import { hasDate } from "../../src/shared/watch/detect.ts"
@@ -48,7 +48,7 @@ export interface CheckedPage {
   price?: PagePrice
   priceRaw?: string
   // Where the price was read: JSON-LD offers or product meta tags (page watch reads it from the same place).
-  priceFrom?: "ld" | "meta"
+  priceFrom?: "ld" | "meta" | "text"
   stock?: "in" | "out" | "unknown"
   stockRaw?: string
   // ISO dates: when it was published and last changed; a job post's or offer's end.
@@ -344,6 +344,111 @@ export function readPrice(raw: string | undefined, html = "", url = ""): PagePri
   return { amount, currency }
 }
 
+// ------------------------------------------------------------ a price in the item's text (2.6)
+
+const CODES = "EUR|USD|GBP|CHF|JPY|CNY|RMB|KRW|TWD|HKD|VND|SAR|AED|RUB|UAH|BRL|MXN|INR|CAD|AUD|SEK|NOK|DKK|PLN|CZK|TRY|ILS|THB|KZT|SGD|NZD"
+const NUM = String.raw`\d{1,3}(?:[ .,'  ]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?`
+// A price as a page writes it: a sign or code before or after the number, or a number ending in ".-" (no sign).
+const TEXT_PRICE = new RegExp(String.raw`(?<![\p{L}\p{N}])(?:(${MONEY_SIGN}|${CODES}|Fr\.)\s?(${NUM})|(${NUM})\s?(${MONEY_SIGN}|${CODES})(?![\p{L}])|(${NUM})[.,][-–](?![\p{N}]))`, "gu")
+const BARE_LABELLED = new RegExp(String.raw`(?:${pattern(PRICE_LABEL).source})\s?:?\s?(\d{1,3}(?:[ .,'  ]\d{3})+(?:[.,]\d{1,2})?|\d+[.,]\d{2})(?![\p{L}\p{N}])`, "giu")
+const NOT_NOW_RE = pattern(PRICE_NOT_NOW)
+const SAVING_RE = pattern(PRICE_SAVING)
+const MONTHLY_RE = pattern(PRICE_MONTHLY)
+const PER_MONTH_RE = pattern(PRICE_PER_MONTH)
+const CART_RE = pattern(PRICE_CART)
+const SHIP_RE = pattern(SHIPPING)
+const OTHERS_RE = pattern(OTHER_ITEMS)
+const ITEM_PAGE_RE = pattern(ITEM_PAGE)
+// Elements a page uses for a struck-through, was or compare-at price.
+const STRUCK_TAG = /<(del|s|strike)\b[^>]*>[\s\S]*?<\/\1>/gi
+const STRUCK_CLASS = /<(\w+)\b[^>]*(?:class|id)=["'][^"']*(?:(?:old|was|compare|strike|regular|list|original|crossed|before|rrp|msrp|uvp)[-_]?price|price[-_]?(?:old|was|compare|regular|before|list|original|strike)|line-through|strikethrough)[^"']*["'][^>]*>[\s\S]*?<\/\1>/gi
+const STRUCK_STYLE = /<(\w+)\b[^>]*style=["'][^"']*line-through[^"']*["'][^>]*>[\s\S]*?<\/\1>/gi
+// Text a person doesn't see: hidden by its class, the hidden attribute or display:none.
+const HIDDEN = /<(\w+)\b[^>]*(?:class=["'](?:[^"']*\s)?(?:hidden|d-none|sr-only|visually-hidden|is-hidden|u-hidden)(?:\s[^"']*)?["']|\shidden(?=[\s>])|style=["'][^"']*display\s*:\s*none)[^>]*>[\s\S]*?<\/\1>/gi
+// Entities a shop's HTML writes prices with ("&euro; 84,95", "&#36; 459.99", "&#163;399"): numeric ones and the usual
+// named ones, decoded for reading a price.
+const ENTITY: Record<string, string> = {
+  euro: "€", pound: "£", yen: "¥", cent: "¢", curren: "¤", dollar: "$", nbsp: " ", ndash: "–", mdash: "—", minus: "−", times: "×",
+  hellip: "…", rsaquo: "›", lsaquo: "‹", raquo: "»", laquo: "«", rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "”", amp: "&", lt: "<", gt: ">",
+  quot: '"', apos: "'", copy: "©", reg: "®", trade: "™", deg: "°", middot: "·", bull: "•", thinsp: " ", ensp: " ", emsp: " "
+}
+const decode = (s: string) => s.replace(/&(?:#(\d{1,6})|#x([\da-f]{1,6})|([a-z]{2,8}));/gi, (all, dec: string, hex: string, name: string) => {
+  const code = dec ? Number(dec) : hex ? parseInt(hex, 16) : -1
+  if (code >= 0) return code > 0 && code < 0x110000 ? String.fromCodePoint(code) : " "
+  return ENTITY[name.toLowerCase()] ?? " "
+})
+const SIZE_BEFORE = /(?:\d+(?:[.,]\d+)?\s?(?:ml|l|kg|g|cm|mm|oz|lb|gb|tb|"|in|cups?|pcs?)|\b(?:xs|s|m|l|xl|xxl)\b)\s*[:\-–]?\s*$/iu
+
+/**
+ * The item's price from its text, when the page states none for machines (2.6): the first clean price after the
+ * item's heading, before any section of other items. Skipped: struck-through, was, list and recommended prices,
+ * savings, shipping, per-month and part payments, cart totals and order minimums, zero. A number with no sign only as
+ * "378.-" or after a price label, in the shop's country's money. Only on a shop's item page: a buy button, a
+ * quantity, a size guide or the tax included after the heading, or the page typed a product (not a pricing, tuition or article page, nor the App Store, read by its own
+ * reader). A heading that isn't the item's name, or a run of sized prices (an options list), gives none: when unsure,
+ * no price rather than a wrong one.
+ */
+export function textPrice(html: string, url: string, names: string[], product = false): PagePrice | undefined {
+  if (/^https?:\/\/apps\.apple\.com\//i.test(url)) return undefined
+  // Commented-out HTML isn't on the page (an old shop's price left in a comment).
+  const live = html.replace(/<!--[\s\S]*?-->/g, " ")
+  // The first heading that is the item's: most of its words in the page's name or title (a "Shopping cart" or a
+  // brand's banner heading isn't).
+  // Most words of the shorter of the two shared: a long heading with the item's accessories still names it.
+  const nameSets = names.map((n) => nameTokens(decode(n))).filter((t) => t.length)
+  const h1 = [...live.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].find((m) => {
+    const own = nameTokens(decode(pageText(m[1])))
+    return own.length > 0 && nameSets.some((n) => own.filter((w) => n.includes(w)).length >= Math.ceil(Math.min(own.length, n.length) / 2))
+  })
+  if (!h1 || h1.index === undefined) return undefined
+  const after = live.slice(h1.index + h1[0].length, h1.index + h1[0].length + 80_000)
+    .replace(/<(script|style|noscript|template|svg|iframe)[^>]*>[\s\S]*?<\/\1>/gi, " ")
+    .replace(STRUCK_TAG, " ").replace(STRUCK_CLASS, " ").replace(STRUCK_STYLE, " ").replace(HIDDEN, " ")
+  let text = decode(pageText(after)).replace(/\s+/g, " ")
+  if (!product && !ITEM_PAGE_RE.test(text.slice(0, 6_000))) return undefined
+  const stop = text.search(OTHERS_RE)
+  if (stop >= 0) text = text.slice(0, stop)
+  text = text.slice(0, 2_000)
+  const local = domainCurrency(url)
+  const found: Array<{ at: number; end: number; amount: number; currency: string }> = []
+  for (const m of text.matchAll(TEXT_PRICE)) {
+    const raw = m[2] ?? m[3] ?? m[5]
+    const sign = m[1] ?? m[4] ?? ""
+    const amount = parseNumber(raw)
+    if (amount === null) continue
+    const code = sign.toUpperCase()
+    const currency = !sign ? local : code === "RMB" ? "CNY" : code === "FR." ? "CHF" : new RegExp(`^(?:${CODES})$`).test(code) ? code : currencyOfSign(sign, local)
+    if (!currency) continue
+    found.push({ at: m.index!, end: m.index! + m[0].length, amount, currency })
+  }
+  for (const m of text.matchAll(BARE_LABELLED)) {
+    const amount = parseNumber(m[1])
+    if (amount !== null && amount > 0 && local && !found.some((f) => f.at <= m.index! + m[0].length && f.end >= m.index!)) found.push({ at: m.index! + m[0].length - m[1].length, end: m.index! + m[0].length, amount, currency: local })
+  }
+  found.sort((a, b) => a.at - b.at)
+  const clean = found.filter((f, i) => {
+    // A zero (an empty cart's "€0,00") is no price, but a boundary: its words don't reach the next.
+    if (f.amount <= 0) return false
+    // The words since the price before it: a word by one price doesn't reach the next ("You save $20 — $79").
+    const before = text.slice(Math.max(0, f.at - 28, i > 0 ? found[i - 1].end : 0), f.at)
+    const after = text.slice(f.end, f.end + 18)
+    if (NOT_NOW_RE.test(before.slice(-14)) || SAVING_RE.test(before) || MONTHLY_RE.test(before.slice(-16)) || PER_MONTH_RE.test(after.slice(0, 10))) return false
+    // Shipping and cart words right by the price ("Versand: 4,95 €", "Free delivery over €50"), not a sentence away.
+    if (CART_RE.test(before.slice(-16)) || SHIP_RE.test(before.slice(-16)) || SHIP_RE.test(after.slice(0, 12))) return false
+    if (/^\s?(?:%|off\b)/i.test(after)) return false
+    return true
+  })
+  let first = clean[0]
+  if (!first) return undefined
+  // Two prices side by side ("1.290,00 € 899,00 €"): an old price and the one to pay; the lower is the one to pay.
+  const next = clean[1]
+  if (next && next.at - first.end <= 4 && next.currency === first.currency && next.amount < first.amount) first = next
+  // Prices of sizes or options one after another: which one is theirs isn't told.
+  const sized = (f: { at: number }) => SIZE_BEFORE.test(text.slice(Math.max(0, f.at - 14), f.at))
+  if (sized(first) && clean.slice(1).some((f) => f.at - first.at < 160 && f.amount !== first.amount && sized(f))) return undefined
+  return { amount: first.amount, currency: first.currency }
+}
+
 /** The money of a country's own domain (".pt" → EUR, ".co.uk" → GBP, ".co.jp" → JPY); "" for .com and the like. */
 export function domainCurrency(url: string): string {
   let host = ""
@@ -596,6 +701,13 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
     page.price = price
     page.priceRaw = priceRaw
     page.priceFrom = st.ldPrice ? "ld" : "meta"
+  } else if (status === "ok") {
+    // None stated for machines: the first clean price after the item's heading (2.6).
+    const fromText = textPrice(html, finalUrl, [ld.name ?? "", title, meta(html, "og:title", "twitter:title")], [...ld.types].some((t) => /^(?:Product|ProductGroup|IndividualProduct|ProductModel)$/.test(t)) || ogType === "product")
+    if (fromText) {
+      page.price = fromText
+      page.priceFrom = "text"
+    }
   }
   if (stockRaw) {
     page.stockRaw = stockRaw

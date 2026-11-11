@@ -68,3 +68,30 @@
 @keyframes cf-org-demo-row { 0%, 46% { opacity: 1; } 52%, 92% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes cf-org-demo-bar { 0%, 46% { opacity: 0; transform: scale(0.96); } 52%, 92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .cf-org-demo-row { animation: none; } .cf-org-demo-bar { animation: none; opacity: 0; } }
+
+/* ---- 2.6 (97): the chat's open suggestions at its top, like the pinned messages' bar (SuggestionsBar.tsx) */
+/* Both bars in one sticky box at the very top of the list; with both, each is one line. */
+.cf-topbars {
+  position: sticky; top: -14px; z-index: 2; margin: -14px -14px 12px;
+  background: var(--bg);
+}
+.cf-topbars .cf-pinbar { position: relative; top: auto; margin: 0; }
+.cf-sugbar { display: flex; align-items: stretch; background: var(--bg); border-bottom: 1px solid var(--border); }
+.cf-sugbar-main { flex: 1; min-width: 0; display: flex; align-items: stretch; gap: 9px; padding-block: 7px; padding-inline: 8px 12px; text-align: start; }
+.cf-sugbar-segments { flex: none; display: flex; flex-direction: column; gap: 2px; width: 2.5px; padding: 1px 0; }
+.cf-sugbar-segments span { border-radius: 2px; background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.cf-sugbar-segments span.on { background: var(--accent); }
+.cf-sugbar-text { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.cf-sugbar-label { flex: none; font-size: 12px; font-weight: 600; color: var(--accent-text); white-space: nowrap; }
+.cf-sugbar-line { display: block; min-width: 0; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cf[data-touch] .cf-sugbar-line { font-size: 15px; }
+/* One line each when the pinned bar is there too. */
+.cf-sugbar.compact .cf-sugbar-main, .cf-topbars.both .cf-pinbar-main { padding-block: 6px; }
+.cf-sugbar.compact .cf-sugbar-text, .cf-topbars.both .cf-pinbar-text { flex-direction: row; align-items: baseline; gap: 7px; }
+.cf-topbars.both .cf-pinbar-label { flex: none; white-space: nowrap; }
+.cf-topbars.both .cf-pinbar-line { min-width: 0; }
+.cf-topbars.both .cf-pinbar-all { width: 34px; }
+/* A tap on the bar: the suggestion flashes in the chat, as a pinned message does. */
+.cf-org-chip.sug-flash { animation: cf-sug-flash 1.2s ease; }
+@keyframes cf-sug-flash { 0%, 55% { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); } 100% { box-shadow: 0 0 0 5px transparent; } }
+@media (prefers-reduced-motion: reduce) { .cf-org-chip.sug-flash { animation: none; outline: 2px solid var(--accent); outline-offset: 2px; } }

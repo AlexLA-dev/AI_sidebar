@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "متى أذكّرك؟"
  },
+ "uxNoteWords": {
+  "message": "ما الذي تريد التحقق منه أو التذكير به…"
+ },
  "uxRemindAsked": {
   "message": "طلبت التذكير: {0}"
  },
@@ -1532,6 +1535,15 @@
  "orgMergedHere": {
   "message": "أُضيفت «{0}» هنا"
  },
+ "orgBarOne": {
+  "message": "مقترحات · {0}"
+ },
+ "orgBarOf": {
+  "message": "مقترحات · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "مقترحات في هذه المحادثة"
+ },
  "recs_one": {
   "message": "توصية واحدة"
  },
@@ -1594,6 +1606,9 @@
  },
  "watchWhen": {
   "message": "متى أخبرك"
+ },
+ "watchNoteWords": {
+  "message": "ما الذي تريد التحقق منه عند التغيير…"
  },
  "watchCondPrice": {
   "message": "عند تغيّر السعر (الآن {0})"

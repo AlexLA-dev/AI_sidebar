@@ -121,3 +121,23 @@ test("the writer's 'the same item' is taken only when the names share the subjec
   assert.deepEqual(result.items.map((i) => i.name), ["Strider S9 GTX running shoes"])
   assert.deepEqual(dropped, [{ name: "Trailrun TR5 men's", why: "the item itself" }])
 })
+
+test("prices: 72 item pages our server read no price on (2.6): right ones stay right, wrong ones never grow", async (t) => {
+  const { gunzipSync } = await import("node:zlib")
+  const { cases } = bank("prices72.json") as { cases: Array<{ id: string; url: string; file: string; want: number | null; read: { amount: number } | null }> }
+  assert.equal(cases.length, 72)
+  const right = (amount: number | undefined, want: number | null) => amount !== undefined && want !== null && Math.abs(amount - want) <= 0.01 * Math.max(1, want)
+  let r = 0, w = 0
+  const broke: string[] = []
+  for (const c of cases) {
+    const html = gunzipSync(readFileSync(new URL(`./fixtures/similar-bank/${c.file}`, import.meta.url))).toString("utf8")
+    const amount = describePage(html, c.url, c.url, 200, 0).price?.amount
+    if (right(amount, c.want)) r++
+    else if (amount !== undefined) w++
+    if (right(c.read?.amount, c.want) && !right(amount, c.want)) broke.push(`${c.id}: ${c.want} → ${amount ?? "none"}`)
+  }
+  assert.deepEqual(broke, [])
+  const bankedWrong = cases.filter((c) => c.read && !right(c.read.amount, c.want)).length
+  assert.ok(w <= bankedWrong, `wrong prices ${w}, banked ${bankedWrong}`)
+  t.diagnostic(`right ${r} of ${cases.filter((c) => c.want !== null).length} with a price; wrong ${w}; none on ${cases.length - r - w}`)
+})

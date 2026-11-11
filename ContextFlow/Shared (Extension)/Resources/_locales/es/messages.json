@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "¿Cuándo te lo recuerdo?"
  },
+ "uxNoteWords": {
+  "message": "Qué revisar o de qué avisarte…"
+ },
  "uxRemindAsked": {
   "message": "Pediste que te lo recordara: {0}"
  },
@@ -1532,6 +1535,15 @@
  "orgMergedHere": {
   "message": "«{0}» traído aquí"
  },
+ "orgBarOne": {
+  "message": "Sugerencias · {0}"
+ },
+ "orgBarOf": {
+  "message": "Sugerencias · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Sugerencias en este chat"
+ },
  "recs_one": {
   "message": "{0} recomendación"
  },
@@ -1594,6 +1606,9 @@
  },
  "watchWhen": {
   "message": "Cuándo avisarte"
+ },
+ "watchNoteWords": {
+  "message": "Qué revisar cuando cambie…"
  },
  "watchCondPrice": {
   "message": "cuando cambie el precio (ahora {0})"

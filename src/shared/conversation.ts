@@ -60,6 +60,11 @@ export interface Entry extends ChatTurn {
   note?: boolean
   // A note made from a page selection: its text starts with the selected text in quotes.
   quote?: boolean
+  // 2.6 (97), the owner: «то, что выделено, было оформлено как цитата, и … можно было написать свою заметку к ней».
+  // Such a note's selected text as it was quoted: the chat shows it as a quote and the rest of the text (the person's
+  // own words) as the note (citedNote). The text keeps the quote too, so older versions show it as before. Notes
+  // made before have none and look as they did.
+  cite?: string
   // User turns: videos and PDFs read along with the page (shown under the question).
   sources?: SourceNote[]
   // User turns: the page had a video or PDFs that weren't read (not Pro); the answer gets a line about it.
@@ -190,7 +195,40 @@ export function selectionNote(selected: string, comment: string, page: PageRef, 
   if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
   const quote = quoted(text)
   const note = comment.trim()
-  return stamped({ role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }, page.at)
+  return stamped({ role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, cite: text, page }, page.at)
+}
+
+/** Where a cited note's quote ends in its text (after the closing quote mark), or -1 when the text doesn't start with it. */
+function citeEnd(entry: Entry): number {
+  if (!entry.cite) return -1
+  const at = entry.content.indexOf(entry.cite)
+  // The opening mark: “ « „ 「 or « with a space (French).
+  if (at < 0 || at > 3) return -1
+  const end = at + entry.cite.length
+  const gap = entry.content.indexOf("\n\n", end)
+  return gap < 0 ? entry.content.length : gap
+}
+
+/**
+ * A note made from a selection, apart (2.6 (97)): its quote and the person's own words ("" for none). Null for any
+ * other message, and for a note whose text doesn't start with its quote: it's shown as its text, as before.
+ */
+export function citedNote(entry: Entry): { cite: string; note: string } | null {
+  const end = citeEnd(entry)
+  return end < 0 ? null : { cite: entry.cite!, note: entry.content.slice(end).trim() }
+}
+
+/** The person's own words on a note: a cited note's after its quote, any other note's whole text. */
+export function noteWords(entry: Entry): string {
+  return citedNote(entry)?.note ?? entry.content
+}
+
+/** A cited note with new words of the person's (the quote and its marks stay as they were written). */
+export function withNoteWords(entry: Entry, words: string): Entry {
+  const end = citeEnd(entry)
+  if (end < 0) return entry
+  const note = words.trim()
+  return { ...entry, content: entry.content.slice(0, end) + (note ? `\n\n${note}` : "") }
 }
 
 /**

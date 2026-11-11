@@ -189,6 +189,14 @@ extension ChatLibrary {
         }
     }
 
+    /// A reminder's new words (2.6 (97), ChatEntry.withRemindWords): the message's text, every other field kept.
+    func setRemindWords(_ thread: ChatThread, entry index: Int, _ content: String) {
+        editEntries(thread) { entries in
+            guard entries.indices.contains(index) else { return }
+            entries[index]["content"] = content
+        }
+    }
+
     func setRemind(_ thread: ChatThread, entry index: Int, _ remind: ChatRemind?) {
         editEntries(thread) { entries in
             guard entries.indices.contains(index) else { return }
@@ -782,6 +790,8 @@ struct PinnedBar: View {
     var open: (Int) -> Void
     var unpin: (Int) -> Void
     var unpinAll: () -> Void
+    /// 2.6 (97): one line, with the bar of suggestions under it.
+    var compact = false
     @State private var listing = false
 
     var body: some View {
@@ -795,13 +805,20 @@ struct PinnedBar: View {
             } label: {
                 HStack(alignment: .center, spacing: 9) {
                     segments(count, shown)
-                    VStack(alignment: .leading, spacing: 1) {
-                        (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple)
-                        Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                    if compact {
+                        HStack(alignment: .firstTextBaseline, spacing: 7) {
+                            (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple).fixedSize()
+                            Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 1) {
+                            (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple)
+                            Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                        }
                     }
                     Spacer(minLength: 0)
                 }
-                .padding(.vertical, 7).padding(.leading, 12)
+                .padding(.vertical, compact ? 6 : 7).padding(.leading, 12)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -809,7 +826,7 @@ struct PinnedBar: View {
             .accessibilityValue(Text(ReminderTimes.text(current.entry.content)))
             if count > 1 {
                 Button { listing = true } label: {
-                    Image(systemName: "list.bullet").frame(width: 44, height: 40)
+                    Image(systemName: "list.bullet").frame(width: 44, height: compact ? 30 : 40)
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(.secondary)
@@ -829,7 +846,7 @@ struct PinnedBar: View {
                 Capsule().fill(Color.purple.opacity(pos == shown ? 1 : 0.3)).frame(width: 2.5)
             }
         }
-        .frame(height: 34)
+        .frame(height: compact ? 18 : 34)
     }
 
     private func list(_ shown: Int) -> some View {
@@ -872,18 +889,39 @@ struct RemindSheet: View {
     var current: Date?
     /// Why the last try didn't set it (notifications off).
     var note: String?
-    var pick: (Date, String) -> Void
+    /// 2.6 (97): a note on a selection's quote, shown over its words.
+    var quote: String? = nil
+    /// The person's own words on a reminder made with Remind on a selection or a page (ChatEntry.remindWords), changed
+    /// with its time; optional, a time saves without them. Nil: no field (a reminder on an answer).
+    var words: String? = nil
+    var pick: (Date, String, String?) -> Void
     var cancel: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var custom = Date().addingTimeInterval(86400)
     @State private var picking = false
+    @State private var own = ""
+    @State private var started = false
+
+    private func picked(_ at: Date, _ preset: String) {
+        pick(at, preset, words == nil ? nil : own.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
 
     var body: some View {
         NavigationStack {
             List {
+                if quote != nil || words != nil {
+                    Section {
+                        if let quote { QuoteBlock(text: quote, lines: 3) }
+                        if words != nil {
+                            // Never focused by itself: a time saves at once, as before.
+                            TextField("What to check, or what to remind you of…", text: $own, axis: .vertical)
+                                .lineLimit(1...4)
+                        }
+                    }
+                }
                 ForEach(ReminderTimes.presets(), id: \.preset) { item in
                     Button {
-                        pick(item.at, item.preset.rawValue)
+                        picked(item.at, item.preset.rawValue)
                     } label: {
                         HStack {
                             Text(ReminderTimes.title(item.preset)).foregroundColor(.primary)
@@ -894,7 +932,7 @@ struct RemindSheet: View {
                 }
                 if picking {
                     DatePicker("Date", selection: $custom, in: Date()..., displayedComponents: [.date, .hourAndMinute])
-                    Button("Remind") { pick(custom, "custom") }
+                    Button("Remind") { picked(custom, "custom") }
                         .disabled(custom <= Date())
                 } else {
                     Button("Pick a date") { picking = true }
@@ -916,6 +954,11 @@ struct RemindSheet: View {
         }
         .presentationDetents([.medium, .large])
         .frame(minWidth: 320, minHeight: 340)
+        .onAppear {
+            guard !started else { return }
+            started = true
+            own = words ?? ""
+        }
     }
 }
 

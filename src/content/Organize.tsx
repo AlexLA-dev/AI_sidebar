@@ -53,6 +53,13 @@ export function panelSelectionStart(root: ShadowRoot): Node | null {
   return !range.collapsed && root.contains(range.startContainer) ? range.startContainer : null
 }
 
+/** 2.6 (97): a move as one line of text, as its chip says it (the bar at the top of the chat). */
+export function moveLine(move: OrganizeMove): string {
+  if (move.from) return t("orgMergeHere", move.toName)
+  if (move.why === "merge") return t("orgMergeInto", move.toName)
+  return move.to ? t("orgMoveTo", messagesCount(move.count), move.toName) : t("orgSplit", move.toName)
+}
+
 /**
  * Under an answer or a note: what organizing suggests for it, dashed — one of the user's tags (a tap adds it) and,
  * under a block's last message, a better chat or a new one (a tap moves the block); ✕ turns either down.
@@ -75,13 +82,13 @@ export function OrganizeRow({ tag, move, name, quiet, onTag, onTagNo, onMove, on
     <div class={`cf-org${quiet ? " quiet" : ""}`} role="group" aria-label={t("orgSuggested")}>
       <span class="cf-org-label">{t("orgSuggested")}</span>
       {tag && (
-        <span class={`cf-org-chip c${tagColor(tag)}`}>
+        <span class={`cf-org-chip c${tagColor(tag)}`} data-sug="tag">
           <button type="button" class="cf-org-take" onClick={onTag} aria-label={t("orgTagA11y", tag)}>#{tag}</button>
           <button type="button" class="cf-org-x" onClick={onTagNo} aria-label={t("orgNoA11y")}><Icon.Close /></button>
         </span>
       )}
       {move && (
-        <span class="cf-org-chip move">
+        <span class="cf-org-chip move" data-sug="move">
           <button type="button" class="cf-org-take" onClick={onMove} aria-label={move.from ? t("orgMergeHereA11y", move.toName) : move.why === "merge" ? t("orgMergeA11y", move.toName) : move.to ? t("orgMoveA11y", messagesCount(move.count), move.toName) : t("orgSplitA11y", move.toName)}>
             <Arrow /><span class="cf-org-text">{move.from ? withName("orgMergeHere", move.toName) : move.why === "merge" ? withName("orgMergeInto", move.toName) : move.to ? withName("orgMoveTo", move.toName, messagesCount(move.count)) : withName("orgSplit", move.toName)}</span>
             {move.to && move.match !== undefined && <span class="cf-org-match">{t("orgMatch", move.match)}</span>}
@@ -90,7 +97,7 @@ export function OrganizeRow({ tag, move, name, quiet, onTag, onTagNo, onMove, on
         </span>
       )}
       {name && (
-        <span class="cf-org-chip move name">
+        <span class="cf-org-chip move name" data-sug="name">
           <button type="button" class="cf-org-take" onClick={onName} aria-label={t("orgNameAs", name)}>
             <Icon.Pencil /><span class="cf-org-text">{withName("orgNameAs", name)}</span>
           </button>

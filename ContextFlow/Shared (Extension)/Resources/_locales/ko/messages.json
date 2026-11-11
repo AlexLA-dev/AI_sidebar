@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "언제 알려 드릴까요?"
  },
+ "uxNoteWords": {
+  "message": "확인할 것이나 알려 줄 내용…"
+ },
  "uxRemindAsked": {
   "message": "알려 달라고 하셨던 내용: {0}"
  },
@@ -1532,6 +1535,15 @@
  "orgMergedHere": {
   "message": "‘{0}’을 여기로 합쳤어요"
  },
+ "orgBarOne": {
+  "message": "추천 · {0}"
+ },
+ "orgBarOf": {
+  "message": "추천 · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "이 채팅의 추천"
+ },
  "recs_one": {
   "message": "추천 {0}개"
  },
@@ -1594,6 +1606,9 @@
  },
  "watchWhen": {
   "message": "알려 줄 때"
+ },
+ "watchNoteWords": {
+  "message": "바뀌면 확인할 것…"
  },
  "watchCondPrice": {
   "message": "가격이 바뀌면 (지금 {0})"

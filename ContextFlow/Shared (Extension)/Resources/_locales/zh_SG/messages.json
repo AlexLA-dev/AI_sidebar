@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "什么时候提醒你？"
  },
+ "uxNoteWords": {
+  "message": "要检查什么，或要提醒你什么…"
+ },
  "uxRemindAsked": {
   "message": "你让我提醒你：{0}"
  },
@@ -1532,6 +1535,15 @@
  "orgMergedHere": {
   "message": "已把“{0}”合并到这里"
  },
+ "orgBarOne": {
+  "message": "建议 · {0}"
+ },
+ "orgBarOf": {
+  "message": "建议 · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "此对话中的建议"
+ },
  "recs_one": {
   "message": "{0} 条建议"
  },
@@ -1594,6 +1606,9 @@
  },
  "watchWhen": {
   "message": "何时通知"
+ },
+ "watchNoteWords": {
+  "message": "变化时要检查什么…"
  },
  "watchCondPrice": {
   "message": "价格变化时（现在 {0}）"

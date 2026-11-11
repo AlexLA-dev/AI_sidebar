@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "Nhắc bạn lúc nào?"
  },
+ "uxNoteWords": {
+  "message": "Cần kiểm tra gì hoặc nhắc bạn điều gì…"
+ },
  "uxRemindAsked": {
   "message": "Bạn nhờ tôi nhắc: {0}"
  },
@@ -1532,6 +1535,15 @@
  "orgMergedHere": {
   "message": "Đã gộp “{0}” vào đây"
  },
+ "orgBarOne": {
+  "message": "Gợi ý · {0}"
+ },
+ "orgBarOf": {
+  "message": "Gợi ý · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Gợi ý trong cuộc trò chuyện này"
+ },
  "recs_one": {
   "message": "{0} gợi ý"
  },
@@ -1594,6 +1606,9 @@
  },
  "watchWhen": {
   "message": "Khi nào báo cho bạn"
+ },
+ "watchNoteWords": {
+  "message": "Cần kiểm tra gì khi có thay đổi…"
  },
  "watchCondPrice": {
   "message": "khi giá thay đổi (hiện là {0})"
