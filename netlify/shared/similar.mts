@@ -1226,7 +1226,7 @@ export function comparePlans(mine: SourcePlan[], theirs: AppPricing, rates: Rate
     if (inOurs !== null && inOurs !== undefined) {
       met = inOurs <= ourMonthly.n * 0.9 ? "yes" : inOurs >= ourMonthly.n * 1.1 ? "no" : "unknown"
       told.push(`paid: theirs from ${fmtPrice(theirs.from)}${theirs.period ? `/${theirs.period}` : ""} (≈ ${fmtM(inOurs, ourMonthly.cur)}) vs your cheapest paid plan ${fmtM(ourMonthly.n, ourMonthly.cur)}${met === "unknown" ? ", about the same" : ""}`)
-    }
+    } else told.push(`paid: theirs from ${fmtPrice(theirs.from)}${theirs.period ? `/${theirs.period}` : ""} vs your cheapest paid plan ${fmtM(ourMonthly.n, ourMonthly.cur)}, in another currency without today's rate`)
   } else if (theirs.from && theirs.model === "one_time" && ourOnce) {
     const inOurs = theirs.from.currency === ourOnce.currency ? theirs.from.amount : convert(theirs.from.amount, theirs.from.currency, ourOnce.currency, rates)
     if (inOurs !== null && inOurs !== undefined) {
@@ -1236,7 +1236,8 @@ export function comparePlans(mine: SourcePlan[], theirs: AppPricing, rates: Rate
   } else if (theirs.model === "free" && !ourFree && paid.length) {
     met = "yes"
     told.push("theirs is free, yours paid")
-  } else told.push(`their plans (${pricingLine(theirs)}) and yours have no kind in common to compare`)
+  } else if (theirs.model === "free" && ourFree) told.push("theirs is free with nothing to buy, as your free plan is: the same, not cheaper")
+  else told.push(`their plans (${pricingLine(theirs)}) and yours have no kind in common to compare`)
   if (mine.some((p) => p.kind === "own_key")) told.push("your own-key plan is its own kind (not compared)")
   return { met, note: `plans compared — ${told.join("; ")}` }
 }
@@ -2360,7 +2361,10 @@ export class ItemFinisher {
     const fromWords = !this.plan.condition.soft && kind === "other"
     const wordsMet = this.plan.words ? oneOf(o.words_met, ["yes", "no", "unknown", "n/a"] as const, "unknown") : "n/a"
     if (wordsMet === "no" && !(proved && fromWords)) return drop("fails their words")
-    const fails = c.condition.met === "no" || (met === "no" && !proved)
+    // Plans compared that settled nothing (no kind in common, the same): the writer's "not cheaper" doesn't count —
+    // it would set a paid plan against a free one (build 98).
+    const planOpen = c.condition.met === "unknown" && c.condition.note.startsWith("plans compared")
+    const fails = c.condition.met === "no" || (met === "no" && !proved && !planOpen)
     if (fails && !this.plan.condition.soft) return drop("fails the condition")
     // Softly, not far off: a miss at most a fifth over the price to beat (several times the price answers no
     // "cheaper").
@@ -2383,6 +2387,7 @@ export class ItemFinisher {
     // The condition as the page showed it wins over the model's word; their words not shown on the page leave it open.
     let finalMet: Met = fails ? "no" : kind === "none" ? "n/a" : c.condition.met === "yes" ? "yes" : met === "n/a" ? "unknown" : c.condition.met === "unknown" && met === "yes" ? "unknown" : met
     if (!fails && wordsMet === "unknown" && (finalMet === "yes" || finalMet === "n/a")) finalMet = "unknown"
+    if (planOpen && finalMet === "no") finalMet = "unknown"
     if (model && !same) this.models.push(model)
     if (same) this.sameShops++
     const differs = stripUrls(str(o.differs, 240))

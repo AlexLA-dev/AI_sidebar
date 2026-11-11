@@ -40,3 +40,19 @@ test("the planner's plans are checked; the condition and the writer use them", (
   assert.match(met.note, /free: both have a free plan; paid: theirs from 59\.99 USD\/year \(≈ 5(?:\.00)? USD\/month\) vs your cheapest paid plan 8(?:\.00)? USD\/month/)
   assert.match(writeMessage(input, plan, []), /Their item's plans: free; paid 8 USD\/month; with their own API key 3 USD\/month/)
 })
+
+test("what plans can't settle stays not confirmed: the writer's 'not cheaper' for a free app or a paid one against a free plan doesn't count", async () => {
+  const { finishItems } = await import("../netlify/shared/similar.mts")
+  const plan = { category: "app", subject: "Phrase App", traits: ["language learning app"], condition: { kind: "cheaper", maxPrice: 0, currency: "", language: "", place: "", soft: true }, sourcePrice: 0, sourceCurrency: "", queries: ["q"], language: "en",
+    plans: [{ kind: "free", amount: 0, currency: "USD", period: "month" }] } as unknown as Plan
+  const app = (name: string, pricing: Record<string, unknown>) => {
+    const page = { ...describePage(`<html><head><title>${name}</title></head><body><h1>${name}</h1></body></html>`, `https://apps.apple.com/us/app/${name.toLowerCase()}/id1`, `https://apps.apple.com/us/app/${name.toLowerCase()}/id1`, 200, 0), pricing: { options: [], url: "https://apps.apple.com", via: "app_store", ...pricing } }
+    return { url: page.url, name, kind: "item" as const, resultTitle: name, pageAge: null, page, score: 1, condition: checkCondition(plan, {}, page as never), kept: true, why: "ok" }
+  }
+  const pages = [app("Lingo", { model: "subscription", from: { amount: 6.99, currency: "USD" }, period: "month", freeStart: true }), app("Talky", { model: "free" })]
+  assert.equal(pages[0].condition.met, "unknown")
+  assert.match(pages[1].condition.note, /theirs is free with nothing to buy, as your free plan is: the same, not cheaper/)
+  const raw = { intro: "", note: "", items: pages.map((c, i) => ({ page: i + 1, name: c.name, why: "w", fit: "Not cheaper than your free app.", met: "no", words_met: "n/a", same: false, shares: [1], differs: "" })) }
+  const { result } = finishItems(raw, pages as never, plan, { title: "Phrase App", url: "https://phrase.example", text: "" })
+  assert.deepEqual(result.items.map((i) => [i.name, i.met]), [["Lingo", "unknown"], ["Talky", "unknown"]])
+})
