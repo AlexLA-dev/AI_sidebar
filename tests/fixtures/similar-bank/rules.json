@@ -849,6 +849,138 @@
    "name": "2-bedroom apartment to rent, Limassol",
    "expect": true,
    "source": "saved answer: the writer's \"itself\""
+  },
+  {
+   "subject": "Sony Kopfhörer WH-1000XM5",
+   "traits": [
+    "kabellose Over-Ear-Kopfhörer",
+    "aktive Geräuschunterdrückung"
+   ],
+   "name": "Bose Kopfhörer QuietComfort Ultra",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Sony Kopfhörer WH-1000XM5",
+   "kindSearch": "kabellose Kopfhörer Geräuschunterdrückung",
+   "name": "Sony WH-1000XM5 Over-Ear, schwarz",
+   "expect": true,
+   "source": "the overfit review (S4): the same item named another way, in a language the bank lacked"
+  },
+  {
+   "subject": "Tefal Pfanne 28 cm Ingenio",
+   "kindSearch": "Bratpfanne beschichtet 28 cm",
+   "name": "WMF Pfanne 28 cm Permadur",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Bosch Waschmaschine Serie 6 WGG244A40",
+   "kindSearch": "Waschmaschine Frontlader 9 kg",
+   "name": "Siemens Waschmaschine iQ500 9 kg",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Рисоварка Redmond RMC-M90",
+   "traits": [
+    "рисоварка с антипригарной чашей",
+    "объём 5 литров"
+   ],
+   "name": "Рисоварка Polaris PMC 0517",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Рисоварка Redmond RMC-M90",
+   "kindSearch": "рисоварки мультиварки",
+   "name": "Redmond RMC-M90 мультиварка",
+   "expect": true,
+   "source": "the overfit review (S4): the same item named another way, in a language the bank lacked"
+  },
+  {
+   "subject": "Чайник Tefal KO 1,7 л",
+   "kindSearch": "электрический чайник 1,7 л",
+   "name": "Чайник Bosch TWK 1,7 л",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Пилосос Philips XC8043",
+   "kindSearch": "акумуляторний пилосос",
+   "name": "Пилосос Samsung VS20",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Nồi cơm điện Sharp KS-COM18V 1.8 lít",
+   "kindSearch": "nồi cơm điện 1.8 lít",
+   "name": "Nồi cơm điện Toshiba RC-18 1.8 lít",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Nồi cơm điện Sharp KS-COM18V",
+   "kindSearch": "nồi cơm điện",
+   "name": "Sharp KS-COM18V 1.8L",
+   "expect": true,
+   "source": "the overfit review (S4): the same item named another way, in a language the bank lacked"
+  },
+  {
+   "subject": "华为 FreeBuds Pro 3 无线耳机",
+   "kindSearch": "降噪 蓝牙耳机",
+   "name": "小米 Redmi Buds 5 无线耳机",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "华为 FreeBuds Pro 3 无线耳机",
+   "kindSearch": "降噪 蓝牙耳机",
+   "name": "HUAWEI FreeBuds Pro 3 真无线降噪耳机",
+   "expect": true,
+   "source": "the overfit review (S4): the same item named another way, in a language the bank lacked"
+  },
+  {
+   "subject": "象印 電子鍋 6人份",
+   "kindSearch": "微電腦 電子鍋",
+   "name": "虎牌 電子鍋 6人份",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "象印 圧力IH炊飯器 5.5合 NW-JX10",
+   "kindSearch": "圧力IH 炊飯器",
+   "name": "タイガー 圧力IH炊飯器 5.5合 JPI-Y100",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "쿠쿠 전기압력밥솥 6인용 CRP-P0660",
+   "kindSearch": "전기 압력밥솥",
+   "name": "쿠첸 IH 압력밥솥 6인용",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Zojirushi rice cooker 5.5 cup NS-TSC10",
+   "kindSearch": "rice cooker 5.5 cup",
+   "name": "Tiger rice cooker 5.5 cup JBV-A10U",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "Aspirateur Dyson V15 Detect",
+   "kindSearch": "aspirateur balai sans fil",
+   "name": "Aspirateur Rowenta X-Force Flex",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
+  },
+  {
+   "subject": "مكنسة كهربائية سامسونج",
+   "kindSearch": "مكنسة كهربائية لاسلكية",
+   "name": "مكنسة كهربائية فيليبس",
+   "expect": false,
+   "source": "the overfit review (S4): other brands sharing a kind word, a capitalised noun, an inflected form or a size"
   }
  ]
 }

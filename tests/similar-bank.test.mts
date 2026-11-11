@@ -76,7 +76,7 @@ test("rules: currency by sign and domain, marketplaces (classifieds too), the ve
   const ld = `<html lang="en"><head><title>Desk</title><script type="application/ld+json">${JSON.stringify({ "@type": "Product", name: "Desk", offers: { "@type": "Offer", price: "599.99" } })}</script></head><body><main><h1>Desk</h1><p>A desk.</p></main></body></html>`
   for (const d of rules.domain) assert.equal(describePage(ld, d.url, d.url, 200, 0).price?.currency ?? "", d.expect, d.url)
   for (const m of rules.marketplace) assert.equal(marketplaceOf(m.host), m.expect, m.host)
-  for (const s of rules.same) assert.equal(backsSame(s.name, { subject: s.subject, kindSearch: s.kindSearch, traits: [] } as unknown as Plan), s.expect, `${s.subject} / ${s.name}`)
+  for (const s of rules.same) assert.equal(backsSame(s.name, { subject: s.subject, kindSearch: s.kindSearch, traits: s.traits ?? [] } as unknown as Plan), s.expect, `${s.subject} / ${s.name}`)
 })
 
 test("answers: saved answers where an error showed, replayed: what's shown and dropped, one listing per marketplace", () => {

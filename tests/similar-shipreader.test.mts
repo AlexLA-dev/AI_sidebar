@@ -9,7 +9,7 @@ process.env.SUPABASE_URL = "https://db.test"
 process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
-const { checkShipQuote, shipExcerpt } = await import("../netlify/shared/similar.mts")
+const { checkShipQuote, shipExcerpt, shipsTo } = await import("../netlify/shared/similar.mts")
 
 const page = [
   "Shipping and returns.",
@@ -71,4 +71,32 @@ test("the error bank: the reader's recorded responses on 103 labelled delivery p
     const n = now.filter((c) => c.set === set)
     t.diagnostic(`${set}: ${n.filter((c) => c.now === c.truth).length}/${n.length} right; wrong "ships there" ${wrong("now", "yes")}, wrong "doesn't ship" ${wrong("now", "no")}; real yes ${n.filter((c) => c.now === "yes" && c.truth === "yes").length}/${n.filter((c) => c.truth === "yes").length}`)
   }
+})
+
+test("a refusal after the country's name, in any language (the overfit review, S9): rules and the reader's quote", () => {
+  const refusals: Array<[string, string, string[]]> = [
+    ["Nach Österreich liefern wir leider nicht.", "AT", ["de"]],
+    ["В Казахстан доставка не осуществляется.", "KZ", ["ru"]],
+    ["До Польщі доставка не здійснюється.", "PL", ["uk"]],
+    ["Giao hàng đến Lào hiện không hỗ trợ.", "LA", ["vi"]],
+    ["Delivery to Canada: not available.", "CA", ["en"]],
+    ["Envíos a México: no disponibles por ahora.", "MX", ["es"]],
+    ["Spedizioni in Svizzera non disponibili.", "CH", ["it"]],
+    ["Livraison en Suisse : non disponible.", "CH", ["fr"]],
+    ["Entregas para Angola não estão disponíveis.", "AO", ["pt"]],
+    ["الشحن إلى لبنان غير متاح حاليا.", "LB", ["ar"]]
+  ]
+  for (const [text, country, langs] of refusals) {
+    assert.equal(shipsTo(text, country, langs), "no", `rules: ${text}`)
+    // The reader saying so is taken; the reader saying it ships, on that quote, isn't.
+    assert.equal(checkShipQuote("doesnt", text, text, country, langs), "no", `doesnt: ${text}`)
+    assert.equal(checkShipQuote("ships", text, text, country, langs), "unknown", `ships: ${text}`)
+  }
+  // A "not" about another part of the sentence (between other commas) or about a cost isn't a refusal.
+  assert.equal(shipsTo("We ship to Canada, no minimum order.", "CA", ["en"]), "yes")
+  assert.equal(shipsTo("Wir liefern nach Österreich, nicht aber auf Inseln.", "AT", ["de"]), "yes")
+  assert.equal(shipsTo("Livraison en France, pas de frais cachés.", "FR", ["fr"]), "yes")
+  assert.equal(shipsTo("Shipping to Canada isn't free.", "CA", ["en"]), "unknown")
+  assert.equal(checkShipQuote("ships", "Shipping to Canada isn't free.", "Shipping to Canada isn't free.", "CA", ["en"]), "unknown")
+  assert.equal(checkShipQuote("ships", "We ship to Canada.", "We ship to Canada.", "CA", ["en"]), "yes")
 })
