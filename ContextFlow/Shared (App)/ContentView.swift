@@ -98,7 +98,8 @@ struct ContentView: View {
 
     /// What's new in 2.5 (organizing): once, to those who already have chats.
     @State private var whatsNew = false
-    /// The "What's new" tab (2.6 (98), WhatsNew.swift): shown once it has opened, until the app quits.
+    /// The "What's new" tab (2.6 (98), WhatsNew.swift): shown when it opens, in Tips' place on iPhone and iPad, until
+    /// another tab is chosen.
     @State private var whatsNewShown = false
 
     private func openWhatsNew() {
@@ -257,6 +258,10 @@ struct ContentView: View {
                     #endif
                 }
             }
+            // What's new hides again once another tab is chosen (Tips is back in its place).
+            .onChange(of: tab) { next in
+                if next != .whatsNew { whatsNewShown = false }
+            }
             // The first chat arrived (or the last one went): show the right first tab.
             .onChange(of: hasChats) { has in
                 if has, tab == .home { tab = .chats }
@@ -270,9 +275,10 @@ struct ContentView: View {
         // With chats: Settings · Tips · Pro · Chats (Chats where the thumb is). Without: the setup guide first.
         TabView(selection: $tab) {
             if hasChats {
-                if whatsNewShown { whatsNewTab }
                 settingsTab
-                tipsTab
+                // What's new stands in Tips' place while it shows: an iPhone shows five tabs, a sixth would put Chats
+                // under More.
+                if whatsNewShown { whatsNewTab } else { tipsTab }
                 if showsPro { proTab }
                 templatesTab
                 // A stack: chats open by value, so a chat's screen stays when its row moves (see ChatRoute).
@@ -285,10 +291,9 @@ struct ContentView: View {
                     .tabItem { Label("Get Started", systemImage: "sparkles") }
                     .tag(AppTab.home)
                 templatesTab
-                tipsTab
+                if whatsNewShown { whatsNewTab } else { tipsTab }
                 if showsPro { proTab }
                 settingsTab
-                if whatsNewShown { whatsNewTab }
             }
         }
         // Build 93: the player's bar while a text plays on with its sheet closed.
