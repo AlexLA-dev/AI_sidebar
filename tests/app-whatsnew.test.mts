@@ -3,7 +3,6 @@
 // как в Tips». The director: a background App Store check with a local notification (no server push), once per version and
 // none with notifications off; a tap opens a hidden "What's new" tab with Tips' clips; after an update it opens once itself.
 import assert from "node:assert/strict"
-import { execFileSync } from "node:child_process"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
@@ -16,10 +15,10 @@ test("the App Store's version, read at most every 12 hours, in the background to
   assert.match(whatsNew, /static let every: TimeInterval = 12 \* 3600/)
   assert.match(whatsNew, /guard force \|\| now - defaults\.double\(forKey: checkedKey\) > every else \{ return \}/)
   assert.match(whatsNew, /URLComponents\(string: "https:\/\/itunes\.apple\.com\/lookup"\)/)
-  const plist = execFileSync("plutil", ["-convert", "json", "-o", "-", "ContextFlow/iOS (App)/Info.plist"], { cwd: new URL("..", import.meta.url).pathname, encoding: "utf8" })
-  const info = JSON.parse(plist)
-  assert.deepEqual(info.BGTaskSchedulerPermittedIdentifiers, ["com.contextflow.app.versioncheck"])
-  assert.ok(info.UIBackgroundModes.includes("fetch") && info.UIBackgroundModes.includes("audio"))
+  // The plist as text (CI runs on Linux, without plutil).
+  const plist = read("../ContextFlow/iOS (App)/Info.plist")
+  assert.match(plist, /<key>BGTaskSchedulerPermittedIdentifiers<\/key>\s*<array>\s*<string>com\.contextflow\.app\.versioncheck<\/string>\s*<\/array>/)
+  assert.match(plist, /<key>UIBackgroundModes<\/key>\s*<array>\s*<string>audio<\/string>\s*<string>fetch<\/string>\s*<\/array>/)
   assert.match(whatsNew, /static let taskId = "com\.contextflow\.app\.versioncheck"/)
   assert.match(read("../ContextFlow/iOS (App)/AppDelegate.swift"), /WhatsNew\.registerBackground\(\)/)
 })
