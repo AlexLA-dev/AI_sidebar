@@ -4,7 +4,8 @@
 // (STORAGE.jobs) for the panel (still working, interrupted), the chats list (a chat working, a chat with news) and the
 // floating button's dot. Pure helpers shared by the background, the content script and tests.
 
-import { entryKey, isQuestion, type Entry } from "./conversation.ts"
+import { entryKey, isQuestion, withoutText, type Entry } from "./conversation.ts"
+import { sortedJson } from "./stored.ts"
 
 export type JobKind = "chat" | "similar"
 // "waiting" (build 94): a Find similar whose request was cut (Safari left, the background suspended) while our server
@@ -187,4 +188,25 @@ export function repeatsLast(entries: Entry[], next: Pick<Entry, "content" | "sim
 /** Whether `stored` is `shown` with more messages after it (an answer written meanwhile): the panel takes it. */
 export function extendsChat(stored: Entry[], shown: Entry[]): boolean {
   return stored.length > shown.length && shown.every((e, i) => entryKey(e) === entryKey(stored[i]))
+}
+
+/**
+ * 2.6 (98), the owner's note «Метку поставил в приложении… она так и не подтянулась на этом сообщение в расширении»: the
+ * chat shown with what its stored copy changed on the messages both have, made elsewhere (in the app, on another device,
+ * in another tab): a tag, a pinned message, a highlight, a reminder, a suggestion turned down. Until then the open panel
+ * took a stored copy only when it was longer, and its next save wrote the old messages back over the change. A page
+ * text this copy has and the stored one doesn't stays (a stored copy keeps the latest pages' texts only); messages only
+ * one of the two has stay as they are. `shown` itself when nothing changed.
+ */
+export function withStoredEdits(shown: Entry[], stored: Entry[]): Entry[] {
+  const byKey = new Map<string, Entry>()
+  for (const e of stored) if (!byKey.has(entryKey(e))) byKey.set(entryKey(e), e)
+  let changed = false
+  const next = shown.map((e) => {
+    const s = byKey.get(entryKey(e))
+    if (!s || sortedJson(withoutText(s)) === sortedJson(withoutText(e))) return e
+    changed = true
+    return e.page?.text && s.page && !s.page.text ? { ...s, page: { ...s.page, text: e.page.text } } : s
+  })
+  return changed ? next : shown
 }
