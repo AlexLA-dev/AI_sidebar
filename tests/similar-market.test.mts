@@ -107,7 +107,8 @@ test("their words and the chip come first: a listing that holds them wins over a
   const fr = (id: string, name: string, price: string) => at(`https://www.cdiscount.com/p/${id}`, name, "Lampe de bureau", cheaper, [price, "EUR"], "fr")
   const pages = [fr("1", "Lampe Alpha", "55"), fr("2", "Lampe Beta", "42"), at("https://lamps.example/c", "Lampe Gamma", "Lampe", cheaper, ["35", "EUR"], "fr")]
   const { result } = finishItems(written(pages, [[1, 2], [1, 2], [1, 2]]), pages, cheaper, source)
-  assert.deepEqual(result.items.map((i) => i.name), ["Lampe Beta", "Lampe Gamma"])
+  // As close as each other and both meet it: the cheaper first (2.6).
+  assert.deepEqual(result.items.map((i) => i.name), ["Lampe Gamma", "Lampe Beta"])
 })
 
 test("streamed: a better listing that comes later takes the first one's place in the answer, not a new place", () => {

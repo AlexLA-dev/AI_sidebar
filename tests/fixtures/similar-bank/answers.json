@@ -1,5 +1,5 @@
 {
- "about": "Saved answers where a known error showed, replayed through today's answer checks (tests/similar-bank.helpers.mts): each listed item as the page the writer saw, and the writer's verdict as it wrote it. expect: what today's code shows and drops; the test also checks the rule the error broke.",
+ "about": "Saved answers where a known error showed, replayed through today's answer checks (tests/similar-bank.helpers.mts): each listed item as the page the writer saw, and the writer's verdict as it wrote it. expect: what today's code shows and drops; the test also checks the rule the error broke. Since 2.6 (build 98) the final list is the closest first, then as the panel keeps it (finalList).",
  "answers": [
   {
    "id": "before2/us-carmount",
@@ -90,9 +90,9 @@
    ],
    "expect": {
     "shown": [
+     "JOYROOM JR-ZS377 Car Phone Mount (Air Vent)",
      "Universal Air Vent Phone Holder for Car, 360° Rotation Smartphone Mount with Adjustable Grip, Quick Release Button",
-     "JOYROOM Car Phone Holder, Air Vent Car Mount Hands Free Automobile Clamp Phone Holder for Car, Fit for iPhone Samsung All Smartphones with Thick Case",
-     "JOYROOM JR-ZS377 Car Phone Mount (Air Vent)"
+     "JOYROOM Car Phone Holder, Air Vent Car Mount Hands Free Automobile Clamp Phone Holder for Car, Fit for iPhone Samsung All Smartphones with Thick Case"
     ],
     "dropped": [
      [
@@ -190,9 +190,9 @@
    ],
    "expect": {
     "shown": [
+     "Personalized Bi-Fold Leather Wallet | Black",
      "ΧΕΙΡΟΠΟΙΗΤΟ ΔΕΡΜΑΤΙΝΟ ΠΟΡΤΟΦΟΛΙ",
-     "Personalized Leather Wallet: Handmade Slim Minimalist Wallet",
-     "Personalized Bi-Fold Leather Wallet | Black"
+     "Personalized Leather Wallet: Handmade Slim Minimalist Wallet"
     ],
     "dropped": [
      [
@@ -362,8 +362,8 @@
    ],
    "expect": {
     "shown": [
-     "Eureka E20 Evo Plus Robot Vacuum and Mop Combo",
-     "Roborock Qrevo S5V Robot Vacuum and Mop"
+     "Roborock Qrevo S5V Robot Vacuum and Mop",
+     "Eureka E20 Evo Plus Robot Vacuum and Mop Combo"
     ],
     "dropped": [
      [
@@ -570,8 +570,7 @@
     "shown": [
      "Brompton M3L 3 speed Folding Bike Superb Condition",
      "PACTO Eleven",
-     "PACTO ELEVEN 20\" High Quality Folding Bike 27cm Steel Frame, Shimano Nexus 3",
-     "Folding Bikes"
+     "PACTO ELEVEN 20\" High Quality Folding Bike 27cm Steel Frame, Shimano Nexus 3"
     ],
     "dropped": [
      [
