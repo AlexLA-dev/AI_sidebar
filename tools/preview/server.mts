@@ -22,6 +22,8 @@
 //                                                              names: /api/v2/organize goes to that deploy preview,
 //                                                              signed the same way)
 //   PREVIEW_SPEAK_USED=1700 …                                  (Ultra: that many of the week's read-aloud seconds used)
+//   SPEAK_PACE=1.28 …                                          (read aloud: the voice that much slower than the words
+//                                                              say, as the owner heard on 97: 60 s shown, 77 s played)
 //   SPEAK_FAIL_FROM_PART=1 …                                   (read aloud: every part from that one on fails with
 //                                                              502, as a connection lost mid-text)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
@@ -257,11 +259,12 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const body = init?.body ? JSON.parse(String(init.body)) : {}
     return new Response(JSON.stringify(rpc[fn]?.(body) ?? null), { headers: { "Content-Type": "application/json" } })
   }
-  // Read aloud (2.6): a tone as long as the text takes to say (about 14 characters a second), in three pieces.
+  // Read aloud (2.6): a tone as long as the text takes to say (about 14 characters a second; SPEAK_PACE=1.28: that much
+  // slower, as a real voice can be), in three pieces.
   if (url === "https://generativelanguage.googleapis.com/v1beta/interactions") {
     const body = JSON.parse(String(init?.body))
     const text = String(body.input?.[0]?.content?.[0]?.text ?? "")
-    const samples = Math.max(2400, Math.round((text.length / 14) * 24_000))
+    const samples = Math.max(2400, Math.round((text.length / 14) * (Number(process.env.SPEAK_PACE) || 1) * 24_000))
     const pcm = Buffer.alloc(samples * 2)
     for (let i = 0; i < samples; i++) pcm.writeInt16LE(Math.round(Math.sin((i / 24_000) * 2 * Math.PI * 330) * 6000 * Math.min(1, (samples - i) / 2400)), i * 2)
     const third = Math.ceil(pcm.length / 6) * 2

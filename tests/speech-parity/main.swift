@@ -71,6 +71,32 @@ func run(_ c: [String: Any]) -> Any {
         // An answer's parts' keys, the texts written for the ear kept on this device as given ("script|answer|<key>").
         let kept = c["kept"] as? [String: String] ?? [:]
         return offMain { VoicedQuery.keys(answer: s, uiLanguage: "en", kept: { kept[$0].map { Data($0.utf8) } }) }
+    case "listen":
+        // Build 98: a listen's stretches laid on its parts (`starts`, `end`), joined per part with what was heard before
+        // (`before`), each part's seconds and tenths (`lengths`); and the text's length from its parts and their audio.
+        let starts = (c["starts"] as? [NSNumber] ?? []).map(\.doubleValue)
+        let end = (c["end"] as? NSNumber)?.doubleValue ?? 0
+        let lengths = (c["lengths"] as? [NSNumber] ?? []).map(\.doubleValue)
+        var ranges = [Int: HeardCoverage.Ranges]()
+        for (part, list) in (c["before"] as? [String: [[NSNumber]]] ?? [:]) {
+            ranges[Int(part) ?? 0] = list.map { $0[0].doubleValue...$0[1].doubleValue }
+        }
+        for stretch in (c["stretches"] as? [[NSNumber]] ?? []) {
+            for piece in HeardCoverage.spread(from: stretch[0].doubleValue, to: stretch[1].doubleValue, starts: starts, end: end) {
+                ranges[piece.part] = HeardCoverage.add(ranges[piece.part] ?? [], from: piece.from, to: piece.to)
+            }
+        }
+        let parts = (c["parts"] as? [Any] ?? []).map(text)
+        let audio = (c["audio"] as? [Any] ?? []).map { ($0 as? NSNumber)?.doubleValue }
+        let unwritten = text(c["unwritten"])
+        let written = text(c["written"])
+        let perPart: [Any] = (0..<starts.count).map { part in
+            let r = ranges[part] ?? []
+            let length = part < lengths.count ? lengths[part] : 0
+            return ["r": r.map { [($0.lowerBound * 1000).rounded() / 1000, ($0.upperBound * 1000).rounded() / 1000] }, "s": HeardCoverage.covered(r), "c": HeardCoverage.mask(r, length: length)] as [String: Any]
+        }
+        let pace = (c["pace"] as? NSNumber)?.doubleValue ?? 1
+        return ["parts": perPart, "total": HeardCoverage.total(parts: parts, audio: audio, unwritten: unwritten, written: written, pace: pace), "pace": HeardCoverage.pace(parts: parts, audio: audio) ?? NSNull()] as [String: Any]
     default: return NSNull()
     }
 }

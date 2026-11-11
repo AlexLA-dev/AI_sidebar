@@ -433,3 +433,137 @@ nonisolated enum VoicedQuery {
         return parts.filter(speakable).map { key($0, lang) }
     }
 }
+
+/// Read aloud, what was heard of each part (build 98, the owner on 97: «не вижу галочек… Возможно, она не появляется,
+/// если проматываю?»): the stretches of the part played, not the seconds. A seek forward leaves a stretch out, hearing
+/// a stretch again adds nothing, and listens in pieces add up: on the device exactly (HeardCover keeps what it heard of
+/// a part over its listens), over devices on the server (the part's tenths). The panel's rules
+/// (src/shared/coverage.ts); tests/speech-parity checks they agree.
+nonisolated enum HeardCoverage {
+    typealias Ranges = [ClosedRange<Double>]
+    static let slots = 10
+    static let full = (1 << slots) - 1
+    /// A tenth counts as heard at 40% of it: two listens that meet inside a tenth always give one of them that much.
+    private static let slotShare = 0.4
+    private static let join = 0.05
+    /// For the tenths: a gap this short isn't a skip (coming back to about where it stopped).
+    private static let close = 0.75
+
+    /// `ranges` with [from, to) heard too: sorted, none overlapping.
+    static func add(_ ranges: Ranges, from: Double, to: Double) -> Ranges {
+        guard to > from else { return ranges }
+        var start = from
+        var end = to
+        var out: Ranges = []
+        for range in ranges {
+            if range.upperBound < start - join || range.lowerBound > end + join { out.append(range) }
+            else {
+                start = min(start, range.lowerBound)
+                end = max(end, range.upperBound)
+            }
+        }
+        out.append(start...end)
+        return out.sorted { $0.lowerBound < $1.lowerBound }
+    }
+
+    /// Two lists of stretches as one.
+    static func merge(_ a: Ranges, _ b: Ranges) -> Ranges {
+        b.reduce(a) { add($0, from: $1.lowerBound, to: $1.upperBound) }
+    }
+
+    /// Seconds of the part heard (each stretch once).
+    static func covered(_ ranges: Ranges) -> Double {
+        (ranges.reduce(0) { $0 + ($1.upperBound - $1.lowerBound) } * 10).rounded() / 10
+    }
+
+    /// The part's tenths heard, as bits (`length`: its audio in seconds).
+    static func mask(_ ranges: Ranges, length: Double) -> Int {
+        guard length > 0 else { return 0 }
+        let width = length / Double(slots)
+        // Short gaps closed first: coming back to about where it stopped isn't skipping.
+        var closed: Ranges = []
+        for range in ranges {
+            if let last = closed.last, range.lowerBound - last.upperBound < close {
+                closed[closed.count - 1] = last.lowerBound...max(last.upperBound, range.upperBound)
+            } else {
+                closed.append(range)
+            }
+        }
+        var mask = 0
+        for slot in 0..<slots {
+            let from = Double(slot) * width
+            let to = from + width
+            var heard = 0.0
+            for range in closed { heard += max(0, min(range.upperBound, to) - max(range.lowerBound, from)) }
+            if heard >= slotShare * width - 1e-9 { mask |= 1 << slot }
+        }
+        return mask
+    }
+
+    /// The stretch [from, to) of the whole text's clock laid on its parts (`starts[i]`: where part i starts, `end`: where
+    /// the audio in hand ends): each part's piece, in its own seconds.
+    static func spread(from: Double, to: Double, starts: [Double], end: Double) -> [(part: Int, from: Double, to: Double)] {
+        var out: [(part: Int, from: Double, to: Double)] = []
+        for (part, start) in starts.enumerated() {
+            let stop = part + 1 < starts.count ? starts[part + 1] : end
+            let a = max(from, start)
+            let b = min(to, stop)
+            if b > a { out.append((part, a - start, b - start)) }
+        }
+        return out
+    }
+
+    /// The whole text's length while it's being made (build 98, the owner: «показывает длительность минуту… и
+    /// добавляется ещё 17 секунд»): the audio made so far as it is, the rest from its words at the pace this voice has
+    /// had on this text so far, and what's still to be written for the ear at the length the writing has had so far
+    /// (src/shared/coverage.ts listenTotal).
+    static func total(parts: [String], audio: [Double?], unwritten: String = "", written: String = "", pace before: Double = 1) -> Double {
+        let (made, seen) = madeAndPace(parts, audio)
+        // The voice's pace on this text once a few seconds of it are in; until then the one seen last time.
+        let pace = seen ?? bounded(before)
+        var total = made
+        for (i, part) in parts.enumerated() where i >= audio.count || audio[i] == nil { total += guess(part) * pace }
+        if !unwritten.isEmpty {
+            let sourceGuess = guess(written)
+            let writtenGuess = parts.reduce(0) { $0 + guess($1) }
+            let stretch = sourceGuess >= 4 ? min(4, max(0.5, writtenGuess / sourceGuess)) : 1
+            total += guess(unwritten) * stretch * pace
+        }
+        return (total * 10).rounded() / 10
+    }
+
+    /// The voice's pace on this text so far, once a few seconds of it are in (nil: too little yet): kept per language for
+    /// the next text's length at its start.
+    static func pace(parts: [String], audio: [Double?]) -> Double? {
+        madeAndPace(parts, audio).pace
+    }
+
+    private static func madeAndPace(_ parts: [String], _ audio: [Double?]) -> (made: Double, pace: Double?) {
+        var made = 0.0
+        var madeGuess = 0.0
+        for (i, part) in parts.enumerated() {
+            guard i < audio.count, let seconds = audio[i] else { continue }
+            made += seconds
+            madeGuess += guess(part)
+        }
+        return (made, madeGuess >= 4 ? bounded(made / madeGuess) : nil)
+    }
+
+    private static func bounded(_ pace: Double) -> Double {
+        pace.isFinite ? min(1.8, max(0.6, pace)) : 1
+    }
+
+    /// A part's seconds from its words, unrounded (about 14 characters a second; 5 in Chinese and Japanese, 6 in
+    /// Korean: src/shared/speech.ts speechSeconds); 0 for nothing to say.
+    static func guess(_ text: String) -> Double {
+        guard text.range(of: #"[\p{L}\p{N}]"#, options: .regularExpression) != nil else { return 0 }
+        var units = 0.0
+        for scalar in text.unicodeScalars {
+            let c = scalar.value
+            if (0x3040...0x30FF).contains(c) || (0x3400...0x9FFF).contains(c) || (0xF900...0xFAFF).contains(c) { units += 14.0 / 5 }
+            else if (0xAC00...0xD7AF).contains(c) { units += 14.0 / 6 }
+            else { units += 1 }
+        }
+        return units / 14
+    }
+}
