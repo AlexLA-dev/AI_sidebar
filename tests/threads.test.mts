@@ -21,7 +21,6 @@ import {
   threadTags,
   withMessages,
   namedByUser,
-  foldText,
   liveThreads,
   markMirrored,
   markSent,
@@ -291,7 +290,7 @@ test("searchThreads: every word, accents and case ignored, named chats first, ex
   assert.equal(hit.at, 1)
   assert.ok(!hit.excerpt.includes("**"))
   const [s, e] = hit.marks[0]
-  assert.equal(foldText(hit.excerpt.slice(s, e)), "хвойное")
+  assert.equal(hit.excerpt.slice(s, e), "хвойное")
   // A page title counts too.
   assert.deepEqual(searchThreads(threads, "news.example").map((r) => r.thread.id), ["a", "b", "c"])
   assert.deepEqual(queryWords('"capital of" France'), ["capital of", "france"])
