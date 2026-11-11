@@ -28,3 +28,16 @@ test("each case's check is one the eval knows", () => {
   const KINDS = new Set(["cheaper", "max_price", "in_stock", "free", "newer", "shorter", "language", "judgment"])
   for (const c of cases) if (c.check) assert.ok(KINDS.has(c.check.kind), `${c.id}: ${c.check.kind}`)
 })
+
+test("a product case is one item's page, not a shop's home page", () => {
+  for (const c of cases.filter((c) => c.category === "product")) {
+    const path = new URL(c.url).pathname.split("/").filter(Boolean)
+    assert.ok(path.length > 1 || (path.length === 1 && !/^[a-z]{2}(?:[-_][a-z]{2})?$/i.test(path[0])) || new URL(c.url).search, `${c.id}: ${c.url}`)
+  }
+})
+
+test("the language check is asked in many of the app's languages, not only in one or two", () => {
+  const asked = new Set(cases.filter((c) => c.check?.kind === "language").map((c) => (c.check as { lang?: string }).lang))
+  assert.ok(asked.size >= 6, `language asked in ${[...asked].join(", ")}`)
+  for (const l of SHIPPED) assert.ok(cases.filter((c) => lang(c.locale) === l).length >= 2, `fewer than two cases in ${l}`)
+})

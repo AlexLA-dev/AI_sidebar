@@ -10,10 +10,10 @@
   }
  },
  {
-  "id": "p-markus",
+  "id": "p-mixer",
   "category": "product",
   "locale": "en-US",
-  "url": "https://www.ikea.com/us/en/p/markus-office-chair-vissle-dark-gray-90289172/",
+  "url": "https://www.kitchenaid.com/countertop-appliances/stand-mixers/tilt-head-stand-mixers/p.artisan-series-5-quart-tilt-head-stand-mixer.ksm150psob.html",
   "condition": "cheaper",
   "check": {
    "kind": "cheaper"
@@ -441,7 +441,7 @@
   "id": "fr-cristel",
   "category": "product",
   "locale": "fr-FR",
-  "url": "https://www.cristel.com/",
+  "url": "https://www.cristel.com/fr/produits/serie-3-casseroles-en-inox-brosse-1826-fixe",
   "condition": "compatible induction, moins de 100 €",
   "check": {
    "kind": "max_price",
@@ -455,7 +455,7 @@
   "id": "es-hawkers",
   "category": "product",
   "locale": "es-ES",
-  "url": "https://www.hawkersco.com/",
+  "url": "https://www.hawkersco.com/gafas-de-sol/ocean-coral-petite-400027.html",
   "condition": "Más barato",
   "check": {
    "kind": "cheaper"
@@ -467,7 +467,7 @@
   "id": "es-pompeii",
   "category": "product",
   "locale": "es-ES",
-  "url": "https://www.pompeiibrand.com/",
+  "url": "https://pompeiibrand.com/products/vega-leather-coffee",
   "condition": "veganas",
   "check": {
    "kind": "judgment"
@@ -479,7 +479,7 @@
   "id": "it-bialetti",
   "category": "product",
   "locale": "it-IT",
-  "url": "https://www.bialetti.com/it_it/",
+  "url": "https://www.bialetti.com/it_it/set-moka-express-the-north-face-bialetti.html",
   "condition": "Più economico",
   "check": {
    "kind": "cheaper"
@@ -501,7 +501,7 @@
   "id": "it-alessi",
   "category": "product",
   "locale": "it-IT",
-  "url": "https://www.alessi.com/it/",
+  "url": "https://shop.mohd.it/it/plisse-bollitore-elettrico-170cl.html",
   "condition": "",
   "region": "local",
   "country": "IT"
@@ -510,7 +510,7 @@
   "id": "pt-havaianas",
   "category": "product",
   "locale": "pt-BR",
-  "url": "https://www.havaianas.com.br/",
+  "url": "https://www.havaianas.com.br/products/chinelo-havaianas-top-glitter-neon-4150303_4622",
   "condition": "Mais barato",
   "check": {
    "kind": "cheaper"
@@ -522,7 +522,7 @@
   "id": "pt-tramontina",
   "category": "product",
   "locale": "pt-BR",
-  "url": "https://www.tramontina.com.br/",
+  "url": "https://www.tramontina.com.br/jogo-de-frigideiras-tramontina-turim-em-aluminio-com-revestimento-interno-e-externo-em-antiaderente-starflon-max-chumbo-2-pecas/20198660.html",
   "condition": "Mais barato",
   "check": {
    "kind": "cheaper"
@@ -580,7 +580,7 @@
   "id": "ko-10x10",
   "category": "product",
   "locale": "ko-KR",
-  "url": "https://www.10x10.co.kr/",
+  "url": "https://www.10x10.co.kr/shopping/category_prd.asp?itemid=6000000",
   "condition": "",
   "region": "local",
   "country": "KR"
@@ -601,7 +601,7 @@
   "id": "ko-innisfree",
   "category": "product",
   "locale": "ko-KR",
-  "url": "https://www.innisfree.com/kr/ko/",
+  "url": "https://www.costco.co.kr/p/630863",
   "condition": "민감한 피부용",
   "check": {
    "kind": "judgment"
@@ -620,6 +620,35 @@
   },
   "region": "local",
   "country": "CN"
+ },
+ {
+  "id": "zh-airpods",
+  "category": "product",
+  "locale": "zh-CN",
+  "url": "https://www.apple.com.cn/airpods-4/",
+  "condition": "更便宜",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "CN"
+ },
+ {
+  "id": "zh-sspai",
+  "category": "article",
+  "locale": "zh-CN",
+  "url": "https://sspai.com/post/73215",
+  "condition": "更新的",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "zh-tomato",
+  "category": "article",
+  "locale": "zh-CN",
+  "url": "https://zh.wikipedia.org/zh-cn/番茄炒蛋",
+  "condition": ""
  },
  {
   "id": "tw-line",
@@ -659,7 +688,7 @@
   "id": "vi-cellphones",
   "category": "product",
   "locale": "vi-VN",
-  "url": "https://cellphones.com.vn/",
+  "url": "https://cellphones.com.vn/iphone-16-pro-max.html",
   "condition": "",
   "region": "local",
   "country": "VN"
@@ -668,7 +697,7 @@
   "id": "vi-monngon",
   "category": "recipe",
   "locale": "vi-VN",
-  "url": "https://www.monngonmoingay.com/",
+  "url": "https://monngonmoingay.com/rau-cu-luoc-xot-nam/",
   "condition": ""
  },
  {
@@ -687,7 +716,7 @@
   "id": "ar-extra",
   "category": "product",
   "locale": "ar-SA",
-  "url": "https://www.extra.com/ar-sa/",
+  "url": "https://www.extra.com/ar-sa/small-appliances/home-environment-care/vacuum-cleaner/bissell-powerclean-drum-vacuum-cleaner-2000-watt-21-liter-with-blower-function/p/100009425",
   "condition": "",
   "region": "local",
   "country": "SA"
@@ -696,7 +725,7 @@
   "id": "ar-fatafeat",
   "category": "recipe",
   "locale": "ar-EG",
-  "url": "https://www.fatafeat.com/",
+  "url": "https://www.fatafeat.com/recipe/122460/طريقة-عمل-الكبيبه-في-الصينية",
   "condition": ""
  },
  {
@@ -724,7 +753,7 @@
   "id": "uk-prometheus",
   "category": "course",
   "locale": "uk-UA",
-  "url": "https://prometheus.org.ua/",
+  "url": "https://prometheus.org.ua/prometheus-free/kubernetes-basics/",
   "condition": "Безкоштовно",
   "check": {
    "kind": "free"
@@ -736,7 +765,7 @@
   "id": "gb-brompton",
   "category": "product",
   "locale": "en-GB",
-  "url": "https://www.brompton.com/",
+  "url": "https://www.brompton.com/p/1029/a-line-23",
   "condition": "Cheaper",
   "check": {
    "kind": "cheaper"
@@ -748,7 +777,7 @@
   "id": "in-boat",
   "category": "product",
   "locale": "en-IN",
-  "url": "https://www.boat-lifestyle.com/",
+  "url": "https://www.boat-lifestyle.com/products/boat-partypal-500",
   "condition": "Cheaper",
   "check": {
    "kind": "cheaper"
@@ -767,5 +796,60 @@
   },
   "region": "local",
   "country": "MX"
+ },
+ {
+  "id": "uk-lang",
+  "category": "article",
+  "locale": "uk-UA",
+  "url": "https://en.wikipedia.org/wiki/Photosynthesis",
+  "condition": "українською",
+  "check": {
+   "kind": "language",
+   "lang": "uk"
+  }
+ },
+ {
+  "id": "tw-lang",
+  "category": "video",
+  "locale": "zh-TW",
+  "url": "https://www.youtube.com/watch?v=arj7oStGLkU",
+  "condition": "繁體中文",
+  "check": {
+   "kind": "language",
+   "lang": "zh-Hant"
+  }
+ },
+ {
+  "id": "ja-lang",
+  "category": "course",
+  "locale": "ja-JP",
+  "url": "https://www.coursera.org/learn/learning-how-to-learn",
+  "condition": "日本語で",
+  "check": {
+   "kind": "language",
+   "lang": "ja"
+  }
+ },
+ {
+  "id": "ko-lang",
+  "category": "video",
+  "locale": "ko-KR",
+  "url": "https://www.ted.com/talks/amy_cuddy_your_body_language_may_shape_who_you_are",
+  "condition": "한국어로",
+  "check": {
+   "kind": "language",
+   "lang": "ko"
+  }
+ },
+ {
+  "id": "ar-lang",
+  "category": "article",
+  "locale": "ar-SA",
+  "url": "https://en.wikipedia.org/wiki/Coffee",
+  "condition": "باللغة العربية",
+  "check": {
+   "kind": "language",
+   "lang": "ar"
+  }
  }
 ]

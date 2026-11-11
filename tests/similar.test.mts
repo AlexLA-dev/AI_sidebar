@@ -205,7 +205,7 @@ test("the evaluation token is derived, never configured", () => {
 })
 
 test("soft-404: a redirect that drops the item's id or slug, or lands on ?error=true", () => {
-  assert.equal(softNotFound("https://www.ikea.com/us/en/p/markus-office-chair-vissle-dark-gray-70261150/", "https://www.ikea.com/us/en/cat/products-products/", "Products - IKEA", "", ""), "redirected away from the item")
+  assert.equal(softNotFound("https://shop.example.com/us/en/p/stand-mixer-5-quart-onyx-70261150/", "https://shop.example.com/us/en/cat/products-products/", "Products - Shop", "", ""), "redirected away from the item")
   assert.equal(softNotFound("https://job-boards.greenhouse.io/contentful/jobs/7725939", "https://job-boards.greenhouse.io/contentful?error=true", "Jobs at Contentful", "", ""), "redirected to an error page")
   assert.equal(softNotFound("https://job-boards.greenhouse.io/greenhouse/jobs/7846916", "https://www.greenhouse.com/careers/opportunities", "Opportunities", "", ""), "redirected away from the item")
   // A successor that keeps words of the slug, a locale added, a short link: left to the name check.
