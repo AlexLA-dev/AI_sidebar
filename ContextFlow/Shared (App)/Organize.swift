@@ -162,7 +162,7 @@ nonisolated struct OrganizeConfig: Sendable {
     // Move: the block's fit to the other chat (mean of the two best block similarities), the margin over
     // its fit to its own chat, and the fit needed when the other chat has a single block.
     var moveT = 0.55
-    var moveD = 0.1
+    var moveD = 0.08
     var moveT1 = 0.65
     // Same site: the fit to the one other chat about that site.
     var siteT = 0.35
