@@ -52,7 +52,11 @@ function requestBody(model: string, text: string): string {
  */
 export async function startSpeech(text: string, kind: "lite" | "full", signal?: AbortSignal, prefer = ""): Promise<Speech> {
   let lastError: UpstreamError | null = null
-  const kinds: Array<"lite" | "full"> = kind === "lite" ? ["lite", "full"] : ["full"]
+  // A text begun on the full model stays on it (build 95): a later part that Flash-Lite could say (a part without the
+  // words of a language it lacks) went to Flash-Lite, another voice mid-text. The full model says every language. (The
+  // other way, a part in a language Flash-Lite lacks still goes to the full model: said right over the same voice.)
+  const textOnFull = kind === "lite" && Boolean(prefer) && (await ttsModels("full")).includes(prefer) && !(await ttsModels("lite")).includes(prefer)
+  const kinds: Array<"lite" | "full"> = kind === "lite" && !textOnFull ? ["lite", "full"] : ["full"]
   for (const k of kinds) {
     let languageRefused = false
     const models = await ttsModels(k)

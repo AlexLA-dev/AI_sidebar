@@ -199,6 +199,8 @@ export type BackgroundRequest =
   | { type: "listenReturn"; id: string }
   // Build 94: a text heard to its end here (shared/voiced.ts id): kept, and told to the app on this device.
   | { type: "listenVoiced"; id: string }
+  // Build 95: which of a chat's answers are voiced, as the server counts them (any device, any listens).
+  | { type: "voicedAsk"; texts: Array<{ text: string; what: "answer" | "page"; lang: string }> }
   // Build 94: a page went away, or shows again, while a Find similar works (the app's "found" notification).
   | { type: "similarAway" }
   | { type: "similarBack" }
@@ -237,7 +239,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -250,8 +252,9 @@ export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: bo
 export type OrganizeReply =
   | {
       ok: true
-      // `match`: how well it fits there, in % (a move by topic or site, 2.6 (93)).
-      move: { start: number; end: number; to: string | null; toName: string; why: "merge" | "page" | "site" | "topic" | "apart"; count: number; match?: number } | null
+      // `match`: how well it fits there, in % (a move by topic or site, 2.6 (93)). `from` (2.6 (95)): an older chat joins
+      // this one whole (`toName` is its name, `count` its messages).
+      move: { start: number; end: number; to: string | null; toName: string; why: "merge" | "page" | "site" | "topic" | "apart"; count: number; match?: number; from?: string } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
       // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one would. A suggestion, like a

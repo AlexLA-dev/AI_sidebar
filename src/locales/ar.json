@@ -524,6 +524,9 @@
   "orgMergeInto": "ادمج مع «{0}»",
   "orgMergeA11y": "ادمج هذه المحادثة مع «{0}»",
   "orgMerged": "دُمجت مع «{0}»",
+  "orgMergeHere": "أضف «{0}» هنا",
+  "orgMergeHereA11y": "أضف المحادثة الأقدم «{0}» إلى هذه المحادثة",
+  "orgMergedHere": "أُضيفت «{0}» هنا",
   "recs_one": "توصية واحدة",
   "recs_two": "توصيتان",
   "recs_few": "{0} توصيات",
@@ -596,6 +599,7 @@
   "plansPerMonth": "{0} / شهر",
   "plansPerYear": "{0} / سنة",
   "plansNote": "الاشتراك يكون في تطبيق ContextFlow. الانتقال إلى Ultra يبدأ فورًا، وتعيد لك Apple قيمة ما تبقّى من خطتك الحالية.",
+  "plansCurrency": "الأسعار بعملة {0}، كما يعرضها App Store.",
   "tierByok1": "إجابات بلا حدود بمفتاح API الخاص بك من OpenAI أو Claude",
   "tierByok2": "كل ما في الصفحة: ملخصات وشروح وترجمات",
   "tierPro1": "حتى {0} إجابة أسبوعيًا، دون حاجة إلى مفتاح API",
@@ -726,7 +730,7 @@
   "listenLow": "تبقّى نحو {0} د من الاستماع هذا الأسبوع، وهذا النص يستغرق نحو {1} د. يتوقف التشغيل عند نفاد الدقائق.",
   "listenAnyway": "استمع على أي حال",
   "listenAway": "تابِع الاستماع في ContextFlow — من {0}",
-  "listenNotifyAsk": "فعّل الإشعارات لتواصل الاستماع عند مغادرة Safari أو قفل الشاشة. وإلا فسيفتح Listen التطبيق.",
+  "listenNotifyAsk": "فعّل الإشعارات لتواصل الاستماع عند مغادرة Safari أو قفل الشاشة. وإلا فسيفتح «استماع» التطبيق.",
   "listenNotifyOn": "تفعيل الإشعارات",
   "listenNotifyLater": "ليس الآن",
   "listenTaken": "يُشغَّل في تطبيق ContextFlow.",
@@ -763,5 +767,7 @@
   "similarSay": "ماذا يقولون:",
   "similarPros": "يمدحون {0}",
   "similarCons": "ينتقدون {0}",
-  "similarEstimated": "تقدير من الوصف"
+  "similarEstimated": "تقدير من الوصف",
+  "similarSame": "المنتج نفسه، متجر آخر",
+  "similarMisses": "لا يطابق اختيارك"
 }

@@ -216,12 +216,16 @@ test("soft-404: a redirect that drops the item's id or slug, or lands on ?error=
   assert.equal(isBotWall(200, "<title>Client Challenge</title>"), true)
 })
 
-test("language: the content's own, else the script of its title and text, the site's only to confirm", async () => {
+test("language: the content's own, else the language of its title and text, the site's only when they can't tell", async () => {
   const { languageCheck } = await import("../netlify/shared/pagecheck.mts")
   const yt = (title: string) => ({ lang: "en", title, text: "", inLanguage: undefined })
   assert.equal(languageCheck("ru", yt("Нейронные сети с нуля: пишем GPT своими руками и разбираемся")), "yes")
+  // The same Russian title isn't Ukrainian, though the script is the same.
+  assert.equal(languageCheck("uk", yt("Нейронные сети с нуля: пишем GPT своими руками и разбираемся")), "no")
   assert.equal(languageCheck("ru", yt("Let's build GPT: from scratch, in code, spelled out by Andrej")), "no")
-  assert.equal(languageCheck("de", yt("Python lernen für Anfänger – der komplette Kurs auf Deutsch")), "unknown")
+  // A German title on a site whose interface is English: German, by its words.
+  assert.equal(languageCheck("de", yt("Python lernen für Anfänger – der komplette Kurs auf Deutsch")), "yes")
+  assert.equal(languageCheck("de", yt("Learn Python for beginners – the complete course from scratch")), "no")
   // A Russian repository on GitHub: its title is Russian, the interface around it English.
   assert.equal(languageCheck("ru", { lang: "en", title: "Математика LLM — Создаём ChatGPT своими руками", text: "Skip to content Navigation Menu Product Solutions Resources Open Source Enterprise Pricing Sign in Sign up", inLanguage: undefined }), "yes")
   assert.equal(languageCheck("de", { lang: "de", title: "Python lernen für Anfänger – der komplette Kurs", text: "", inLanguage: undefined }), "yes")

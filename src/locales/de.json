@@ -524,6 +524,9 @@
   "orgMergeInto": "Mit „{0}“ zusammenführen",
   "orgMergeA11y": "Diesen Chat mit „{0}“ zusammenführen",
   "orgMerged": "Mit „{0}“ zusammengeführt",
+  "orgMergeHere": "„{0}“ hierher holen",
+  "orgMergeHereA11y": "Den älteren Chat „{0}“ mit diesem zusammenführen",
+  "orgMergedHere": "„{0}“ hierher geholt",
   "recs_one": "{0} Empfehlung",
   "recs_two": "{0} Empfehlungen",
   "recs_few": "{0} Empfehlungen",
@@ -596,6 +599,7 @@
   "plansPerMonth": "{0}/Monat",
   "plansPerYear": "{0}/Jahr",
   "plansNote": "Das Abo schließt du in der ContextFlow-App ab. Der Wechsel zu Ultra gilt sofort, und Apple erstattet den Rest deines aktuellen Tarifs.",
+  "plansCurrency": "Preise in {0}, so wie der App Store sie angibt.",
   "tierByok1": "Unbegrenzte Antworten mit deinem eigenen OpenAI- oder Claude-API-Schlüssel",
   "tierByok2": "Alles auf der Seite: Zusammenfassungen, Erklärungen, Übersetzungen",
   "tierPro1": "Bis zu {0} Antworten pro Woche, ohne API-Schlüssel",
@@ -726,7 +730,7 @@
   "listenLow": "Diese Woche bleiben noch etwa {0} Min. Anhören, dieser Text dauert etwa {1} Min. Das Vorlesen endet dort, wo die Minuten aufgebraucht sind.",
   "listenAnyway": "Trotzdem anhören",
   "listenAway": "In ContextFlow weiterhören – ab {0}",
-  "listenNotifyAsk": "Aktiviere Mitteilungen, um weiterzuhören, wenn du Safari verlässt oder den Bildschirm sperrst. Sonst öffnet Listen die App.",
+  "listenNotifyAsk": "Aktiviere Mitteilungen, um weiterzuhören, wenn du Safari verlässt oder den Bildschirm sperrst. Sonst öffnet „Anhören“ die App.",
   "listenNotifyOn": "Mitteilungen aktivieren",
   "listenNotifyLater": "Nicht jetzt",
   "listenTaken": "Läuft in der ContextFlow-App.",
@@ -763,5 +767,7 @@
   "similarSay": "Was andere sagen:",
   "similarPros": "gelobt: {0}",
   "similarCons": "kritisiert: {0}",
-  "similarEstimated": "geschätzt anhand der Beschreibung"
+  "similarEstimated": "geschätzt anhand der Beschreibung",
+  "similarSame": "Gleicher Artikel, anderer Shop",
+  "similarMisses": "Erfüllt deine Auswahl nicht"
 }

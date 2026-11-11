@@ -524,6 +524,9 @@
   "orgMergeInto": "Fusionner avec « {0} »",
   "orgMergeA11y": "Fusionner cette discussion avec « {0} »",
   "orgMerged": "Fusionné avec « {0} »",
+  "orgMergeHere": "Ramener « {0} » ici",
+  "orgMergeHereA11y": "Fusionner l’ancien chat « {0} » avec celui-ci",
+  "orgMergedHere": "« {0} » ramené ici",
   "recs_one": "{0} recommandation",
   "recs_two": "{0} recommandations",
   "recs_few": "{0} recommandations",
@@ -596,6 +599,7 @@
   "plansPerMonth": "{0}/mois",
   "plansPerYear": "{0}/an",
   "plansNote": "L’abonnement se fait dans l’app ContextFlow. Le passage à Ultra démarre aussitôt, et Apple rembourse ce qui reste de votre forfait actuel.",
+  "plansCurrency": "Prix en {0}, tels que l’App Store les donne.",
   "tierByok1": "Réponses illimitées avec votre propre clé API OpenAI ou Claude",
   "tierByok2": "Tout sur la page : résumés, explications, traductions",
   "tierPro1": "Jusqu’à {0} réponses par semaine, sans clé API",
@@ -726,7 +730,7 @@
   "listenLow": "Il reste environ {0} min d’écoute cette semaine, et ce texte dure environ {1} min. La lecture s’arrêtera une fois les minutes épuisées.",
   "listenAnyway": "Écouter quand même",
   "listenAway": "Continuer l’écoute dans ContextFlow — à partir de {0}",
-  "listenNotifyAsk": "Activez les notifications pour continuer l’écoute quand vous quittez Safari ou verrouillez l’écran. Sinon, Listen ouvre l’app.",
+  "listenNotifyAsk": "Activez les notifications pour continuer l’écoute quand vous quittez Safari ou verrouillez l’écran. Sinon, « Écouter » ouvre l’app.",
   "listenNotifyOn": "Activer les notifications",
   "listenNotifyLater": "Plus tard",
   "listenTaken": "Lecture dans l’app ContextFlow.",
@@ -763,5 +767,7 @@
   "similarSay": "Ce qu’on en dit :",
   "similarPros": "apprécié : {0}",
   "similarCons": "critiqué : {0}",
-  "similarEstimated": "estimé d’après la description"
+  "similarEstimated": "estimé d’après la description",
+  "similarSame": "Même article, autre boutique",
+  "similarMisses": "Ne correspond pas à votre choix"
 }

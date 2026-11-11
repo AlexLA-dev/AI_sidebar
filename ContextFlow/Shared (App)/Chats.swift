@@ -88,6 +88,12 @@ struct ChatEntry: Decodable, Hashable {
     var marks: [ChatMark]?
     var pinned: Double?
     var remind: ChatRemind?
+    /// Find similar (2.6): on the question, the condition asked and where it looked; on the answer, the whole list
+    /// (build 95: the app draws the panel's cards from it, SimilarCards.swift).
+    var similarAsk: String?
+    var similarRegion: String?
+    var similarCountry: String?
+    var similar: SimilarAnswerData?
 
     struct From: Decodable, Hashable {
         var chat: String
@@ -556,6 +562,10 @@ extension String {
 @MainActor
 final class ChatLibrary: ObservableObject {
     static let shared = ChatLibrary()
+    #if DEBUG
+    /// -CFDebugRemoteRename is done once per launch.
+    private static var remoteRenameScheduled = false
+    #endif
 
     enum Cloud: Equatable {
         /// Sync is switched off (here or in the extension's settings).
@@ -605,14 +615,15 @@ final class ChatLibrary: ObservableObject {
             if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
                 _ = ChatMirror.apply(saves: ["debug-seed": ChatMirror.Item(updatedAt: at, data: text)])
             }
-            // Build 94 (the owner's case): a chat named after its first page, its last answer from another page.
-            let first: [String: Any] = ["url": "https://carhome.example/deepal-s05", "title": "Deepal S05 – CarHome | Drive Your Dream", "at": at - 60_000]
-            let second: [String: Any] = ["url": "https://context-flow.app/analytics", "title": "Analytics — ContextFlow", "at": at]
-            let pages: [String: Any] = ["title": "Google · Deepal S05 – CarHome | Drive Your Dream", "a": at + 1, "m": [
-                ["role": "user", "content": "Is the Deepal S05 a good car?", "id": "dp1", "t": at - 60_000, "page": first],
-                ["role": "assistant", "content": "The Deepal S05 is a comfortable electric crossover with a long range.", "id": "dp2", "t": at - 55_000],
-                ["role": "user", "content": "What does 11.02 mean here?", "id": "dp3", "t": at, "page": second, "mode": "google"],
-                ["role": "assistant", "content": "Most likely a date: the eleventh of February.", "id": "dp4", "t": at + 1]
+            // Build 94: a chat named after its first page, its last answer from another page (neutral pages, like
+            // the other seeds: build 95, no data of the owner's in the code).
+            let first: [String: Any] = ["url": "https://bikes.example/city-e3", "title": "City E3 – Bikes Example | Ride Further", "at": at - 60_000]
+            let second: [String: Any] = ["url": "https://dashboard.example/report", "title": "Monthly report — Dashboard Example", "at": at]
+            let pages: [String: Any] = ["title": "Google · City E3 – Bikes Example | Ride Further", "a": at + 1, "m": [
+                ["role": "user", "content": "Is the City E3 a good bike?", "id": "dp1", "t": at - 60_000, "page": first],
+                ["role": "assistant", "content": "The City E3 is a comfortable electric bike with a long range.", "id": "dp2", "t": at - 55_000],
+                ["role": "user", "content": "What does 03.04 mean here?", "id": "dp3", "t": at, "page": second, "mode": "google"],
+                ["role": "assistant", "content": "Most likely a date: the third of April, or the fourth of March where the month comes first.", "id": "dp4", "t": at + 1]
             ]]
             if let data = try? JSONSerialization.data(withJSONObject: pages), let text = String(data: data, encoding: .utf8) {
                 _ = ChatMirror.apply(saves: ["debug-seed-pages": ChatMirror.Item(updatedAt: at + 1, data: text)])
@@ -649,6 +660,10 @@ final class ChatLibrary: ObservableObject {
                 if c == 4, many > 14, let last = m.last {
                     object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: 0, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88)).json
                 }
+                // 2.6 (95): and chat 14, the newer one, shows it too: chat 4 joins it here.
+                if c == 14, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: m.count - 1, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88, fr: "debug-many-4")).json
+                }
                 if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
                     saves["debug-many-\(c)"] = ChatMirror.Item(updatedAt: at, data: text)
                 }
@@ -684,6 +699,47 @@ final class ChatLibrary: ObservableObject {
             }
             _ = ChatMirror.apply(saves: saves)
         }
+        // Build 95 (a name taken on another device stayed offered here): -CFDebugRemoteRename <id>
+        // -CFDebugRemoteRenameAfter <s>: after so many seconds that chat gets the name its record suggests, as another
+        // device that took it writes it (the title, and the record without the suggestion), and the library reloads as
+        // after a pull from iCloud.
+        if let id = UserDefaults.standard.string(forKey: "CFDebugRemoteRename"), !Self.remoteRenameScheduled {
+            Self.remoteRenameScheduled = true
+            let after = max(1, UserDefaults.standard.double(forKey: "CFDebugRemoteRenameAfter"))
+            DispatchQueue.main.asyncAfter(deadline: .now() + after) { [weak self] in
+                guard let item = ChatMirror.chats()[id], var object = (try? JSONSerialization.jsonObject(with: Data(item.data.utf8))) as? [String: Any],
+                      var org = OrgState(object["org"]), let name = org.nm?.t else { return }
+                org.nm = OrgState.Name(k: org.nm!.k, t: nil, no: org.nm!.no)
+                object["title"] = name
+                object["aiTitle"] = name
+                object["org"] = org.json
+                guard let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) else { return }
+                _ = ChatMirror.apply(saves: [id: ChatMirror.Item(updatedAt: item.updatedAt + 1, data: text)])
+                DebugHangLog.mark("renamed \(id) elsewhere")
+                self?.reload()
+            }
+        }
+        // Build 95 (Find similar's cards in the app): -CFDebugSeedSimilar YES puts a real answer here (SimilarDebugSeed).
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedSimilar"), ChatMirror.chats()[SimilarDebugSeed.id] == nil,
+           var object = (try? JSONSerialization.jsonObject(with: Data(SimilarDebugSeed.json.utf8))) as? [String: Any],
+           var m = object["m"] as? [[String: Any]], m.count == 2 {
+            let now = Int64(Date().timeIntervalSince1970 * 1000)
+            m[0]["t"] = now - 60_000
+            if var page = m[0]["page"] as? [String: Any] {
+                page["at"] = now - 60_000
+                m[0]["page"] = page
+            }
+            m[1]["t"] = now
+            if var similar = m[1]["similar"] as? [String: Any] {
+                similar["at"] = now
+                m[1]["similar"] = similar
+            }
+            object["m"] = m
+            object["a"] = now
+            if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: [SimilarDebugSeed.id: ChatMirror.Item(updatedAt: now, data: text)])
+            }
+        }
         // -CFDebugOpenChat <id> -CFDebugOpenAfter <s>: that chat opens after so many seconds (its first answer), as a tap
         // on it would; the hang log has when it was asked for and when it showed.
         if let id = UserDefaults.standard.string(forKey: "CFDebugOpenChat"), !DebugHangLog.openScheduled {
@@ -705,9 +761,9 @@ final class ChatLibrary: ObservableObject {
         keepPolling()
     }
 
-    /// 2.6 (94): while the app is in front, iCloud is asked every 20 s. The owner renamed a chat on the iPhone and the
-    /// iPad still had the old name and the suggestion after five minutes: the app asked only at launch, back in front,
-    /// when its list showed again (never on an iPad, where the list stays) and after its own changes.
+    /// 2.6 (94): while the app is in front, iCloud is asked every 20 s. A chat renamed on one device kept its old name
+    /// on another for minutes: the app asked only at launch, back in front, when its list showed again (never on an
+    /// iPad, where the list stays) and after its own changes.
     private func keepPolling() {
         guard pollTask == nil else { return }
         pollTask = Task { [weak self] in
@@ -824,7 +880,11 @@ final class ChatLibrary: ObservableObject {
     func settleName(_ id: String, taken: Bool) {
         guard let current = threads.first(where: { $0.id == id }), var org = current.org, let nm = org.nm, let t = nm.t else { return }
         let no = taken ? nm.no : Array((nm.no.filter { $0.lowercased() != t.lowercased() } + [t]).suffix(20))
-        org.nm = OrgState.Name(k: nm.k, t: nil, no: no)
+        // Taken: the check is about the chat under its new name (2.6 (95)), so no device asks again until the chat
+        // changes (else taking a name started a check of it, and renames followed one another). The name as nameByAI keeps it.
+        let named = String(t.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces).prefix(80))
+        let key = taken ? current.organized.map { Organize.nameCheckKey($0, title: named) } ?? nm.k : nm.k
+        org.nm = OrgState.Name(k: key, t: nil, no: no)
         save(current, title: nil, pin: nil, org: .some(org), soft: taken ? false : true)
     }
 

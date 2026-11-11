@@ -524,6 +524,9 @@
   "orgMergeInto": "合併到「{0}」",
   "orgMergeA11y": "把此對話合併到「{0}」",
   "orgMerged": "已合併到「{0}」",
+  "orgMergeHere": "把「{0}」合併到這裡",
+  "orgMergeHereA11y": "把之前的聊天「{0}」合併到這個聊天",
+  "orgMergedHere": "已把「{0}」合併到這裡",
   "recs_one": "{0} 則建議",
   "recs_two": "{0} 則建議",
   "recs_few": "{0} 則建議",
@@ -596,6 +599,7 @@
   "plansPerMonth": "{0}/月",
   "plansPerYear": "{0}/年",
   "plansNote": "在 ContextFlow App 中訂閱。升級到 Ultra 會立即生效，Apple 會退還目前方案剩餘的部分。",
+  "plansCurrency": "價格以 {0} 計，與 App Store 顯示一致。",
   "tierByok1": "使用你自己的 OpenAI 或 Claude API 金鑰，回答次數不限",
   "tierByok2": "頁面上的一切：摘要、解釋、翻譯",
   "tierPro1": "每週最多 {0} 個回答，不需要 API 金鑰",
@@ -726,7 +730,7 @@
   "listenLow": "本週還剩約 {0} 分鐘朗讀時間，這段內容大約需要 {1} 分鐘。時間用完時，朗讀會在那裡停止。",
   "listenAnyway": "仍然朗讀",
   "listenAway": "在 ContextFlow 中繼續收聽 — 從 {0} 開始",
-  "listenNotifyAsk": "開啟通知，離開 Safari 或鎖定螢幕時也能繼續收聽。否則，Listen 會打開 App。",
+  "listenNotifyAsk": "開啟通知，離開 Safari 或鎖定螢幕時也能繼續收聽。否則，「朗讀」會打開 App。",
   "listenNotifyOn": "開啟通知",
   "listenNotifyLater": "以後再說",
   "listenTaken": "正在 ContextFlow App 中播放。",
@@ -763,5 +767,7 @@
   "similarSay": "評價：",
   "similarPros": "好評：{0}",
   "similarCons": "負評：{0}",
-  "similarEstimated": "依描述估計"
+  "similarEstimated": "依描述估計",
+  "similarSame": "同款商品，其他商店",
+  "similarMisses": "不符合你選的條件"
 }

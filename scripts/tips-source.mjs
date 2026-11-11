@@ -18,7 +18,8 @@ export const CATALOG_LANG = { ar: "ar", de: "de", es: "es", fr: "fr", it: "it", 
 // The screen's own words, outside TipGroup.
 const HEADING = "Tips"
 const INTRO = "Quick answers to “how do I…?”"
-// The clips' language, as the app picks it: Russian, or English for every other language.
+// The panel's language for the clips: the extension language's own code ("de", "pt_BR"); the app picks the folder
+// (its clips in that language, else the person's next language that has them, else English: TipClipShare.language).
 const CLIP_LANG = "tip_clips"
 
 /** A message key for a text: the same English text, the same key (chrome.i18n allows [A-Za-z0-9_]). */
@@ -206,5 +207,5 @@ export function tipsMessages(root, data, lang) {
     return [t.key, unit?.state === "translated" && unit.value ? unit.value : t.en]
   }))
   // The clips' folder for this language, chosen through chrome.i18n like every text (so the two never disagree).
-  return { ...texts, [CLIP_LANG]: lang === "ru" ? "ru" : "en" }
+  return { ...texts, [CLIP_LANG]: lang }
 }

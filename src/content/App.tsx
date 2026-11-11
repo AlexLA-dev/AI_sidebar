@@ -53,7 +53,9 @@ import { entryKey } from "../shared/conversation"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
-import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { markdownWords } from "../shared/similarWords"
+import { takeSimilarMark } from "./similar/mark"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
@@ -93,7 +95,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatList, cleanTags, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -152,12 +154,12 @@ const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
 
 /** The chips in the selection buttons' field on iPhone and iPad (2.6, the owner): the panel's selection actions in his
  * order, without Google (the buttons have their own). */
-/** Ultra's actions (2.6, build 90, the owner: "colour Similar so it's clear it's an Ultra feature"): in Ultra's colour
+/** Ultra's actions (2.6), so it's clear they're Ultra's: in Ultra's colour
  * (--ultra) everywhere they show, with a small "Ultra" for anyone without it. */
 const ULTRA_ACTIONS = new Set(["similar", "sel_similar"])
 
-/** The first `n` quick actions, and Find similar after them wherever it falls in the list (2.6 (92), the owner: the
- * rows under "Now on…" and under an answer showed the first few only, never Find similar). */
+/** The first `n` quick actions, and Find similar after them wherever it falls in the list (2.6: the
+ * rows under "Now on…" and under an answer show the first few only, which would leave Find similar out). */
 function withUltra(list: Action[], n: number): Action[] {
   const ultra = list.find((a) => ULTRA_ACTIONS.has(a.id))
   const rest = list.filter((a) => !ULTRA_ACTIONS.has(a.id)).slice(0, n)
@@ -367,7 +369,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
-  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string } | null>(null)
+  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string; similarAsk?: SimilarAsk } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   // For closing the panel: whether it was about a selection, and whether it was open before (92: the buttons come back).
   const keptSelectionRef = useRef<SelectionInfo | null>(null)
@@ -1271,14 +1273,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!isQuestion(last)) return
     // Asked again where it looked the first time (build 94: Retry after a break searched worldwide), not wherever the
     // picker points now.
-    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined)
+    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined, last.similarChip !== undefined || last.similarWords !== undefined ? { chip: last.similarChip as SimilarChip | undefined, words: last.similarWords } : undefined)
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
 
   const runAction = useCallback((picked: Action) => {
     if (picked.id === "similar") return openSimilarRef.current("chip")
-    // 2.6 (build 89, the owner): Find similar from a selection: alternatives to what it describes, the page as context.
+    // 2.6: Find similar from a selection: alternatives to what it describes, the page as context.
     if (picked.id === "sel_similar") return openSimilarRef.current("selection", selection?.text)
     // Translate by a selection: into English (or the next language) when the text is in the interface's already.
     const action = (selection && forSelection(picked, selection.text)) || picked
@@ -1319,7 +1321,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (entry || answer) {
       // The list as the background wrote it into the chat (build 91), else as it came.
       const full: SimilarAnswer | null = entry ? null : { ...answer!, asked, at: Date.now() }
-      const content = full ? similarMarkdown(full, { inStock: t("similarStockIn"), outOfStock: t("similarStockOut"), notConfirmed: t("similarNotConfirmed"), notOpened: t("similarNotOpened") }) : ""
+      const content = full ? similarMarkdown(full, markdownWords()) : ""
       const next: Turn[] = [...history, entry ?? stamped({ role: "assistant", content, similar: full! })]
       setMessages(next)
       void saveThread(threadRef.current, next)
@@ -1328,11 +1330,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   /** Asks our server for checked alternatives to this page (engine A only); the list streams in as items pass. */
-  const findSimilar = (condition: string, label: string, again = false, subject?: string, where?: { region: "world" | "local"; country?: string }) => {
+  const findSimilar = (condition: string, label: string, again = false, subject?: string, where?: { region: "world" | "local"; country?: string }, ask?: SimilarAsk) => {
     if (portRef.current || askToken.current) return
     setSimilarCard(null)
     if (consent !== "ok") {
-      setPending({ text: label, label, action: "similar", similar: condition, ...(subject ? { similarSel: subject } : {}) })
+      setPending({ text: label, label, action: "similar", similar: condition, ...(subject ? { similarSel: subject } : {}), ...(ask ? { similarAsk: ask } : {}) })
       return
     }
     // Where to look: as asked the first time (Retry), else as the picker says; their country, the server's view of it
@@ -1348,6 +1350,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const user: Turn = stamped({
       role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}),
       ...(region ? { similarRegion: region, ...(region === "local" && country ? { similarCountry: country } : {}) } : {}),
+      ...(ask?.chip ? { similarChip: ask.chip } : {}), ...(ask?.words ? { similarWords: ask.words } : {}),
       page: { url: source.key(), title: source.title(), at: Date.now() }
     })
     const history: Turn[] = [...base, user]
@@ -1380,7 +1383,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}),
           // Build 93: where to look, and their country (the server's view of it, else the device's region).
           ...(region ? { region } : {}),
-          ...(country ? { country } : {})
+          ...(country ? { country } : {}),
+          // Build 95: the chip apart from their own words (an ask without them: all of the condition is their words).
+          ...(ask ? { chip: ask.chip ?? "", words: ask.words ?? "" } : {})
         }
       })
     })
@@ -1445,7 +1450,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setConsent("ok")
     const p = pending
     setPending(null)
-    if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text, false, p.similarSel), 0)
+    if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text, false, p.similarSel, undefined, p.similarAsk), 0)
     else if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
   }, [pending])
   // "Not now": the question stays in the box, nothing is sent.
@@ -2029,6 +2034,24 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (document.visibilityState === "visible") onVisibility()
     return () => document.removeEventListener("visibilitychange", onVisibility)
   }, [popup, similarAtWork, show])
+  // A "found" notification's tap opens the page with the chat in its address (#cf-similar=<chat>, SimilarAway.swift):
+  // this tab, the one Safari shows, opens the panel on it, however long after the search; the mark leaves the address
+  // at once.
+  const openThreadRef = useRef(openThread)
+  openThreadRef.current = openThread
+  useEffect(() => {
+    if (popup) return
+    const take = () => {
+      const chat = takeSimilarMark()
+      if (!chat) return
+      void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "similar" })
+      void setActiveThread(chat).then(() => (openNowRef.current ? openThreadRef.current(chat) : show()), () => show())
+    }
+    take()
+    // Safari may show the page in the tab that already had it: then only the address's fragment changes.
+    window.addEventListener("hashchange", take)
+    return () => window.removeEventListener("hashchange", take)
+  }, [popup, show])
   // Build 94, the owner: «в чате про чаты нужно делать ссылки на чаты, на которые ссылается ответ»: the chats an "Ask
   // your chats" answer names open from it (src/shared/chatMarks.ts).
   const chatNames = useMemo(() => threadList.filter((th) => th.kind !== "history").map((th) => ({ id: th.id, name: threadName(th) })), [threadList])
@@ -2312,7 +2335,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
   const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
     setPlansOpen(focus)
-    // The prices' currency and App Store country as the app's side gave them (build 93: the owner saw USD).
+    // The prices' currency and App Store country as the app's side gave them (a wrong currency can be traced from them).
     const prices = statusRef.current?.store?.prices ?? {}
     void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus, cur: prices["#currency"], sf: prices["#storefront"] })
   }, [])
@@ -2345,6 +2368,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [])
   const anyVoiced = Object.keys(voiced).length > 0
   const voicedAnswer = (text: string) => anyVoiced && isUltra(plan) && Boolean(voiced[voicedId("answer", text)])
+  // Build 95 (the owner on 94: no mark anywhere; it was only set by a listen heard to its very end, on that device):
+  // the chat's answers as the server counts them, heard on any device in any number of listens. Asked about when the
+  // chat shows (each at most every 10 minutes: the background keeps track); the voiced ones join the list.
+  const unvoicedShown = useMemo(() => {
+    if (TARGET !== "safari" || view !== "chat" || streaming || !isUltra(plan)) return []
+    return messages.filter((m) => m.role === "assistant" && !m.note && m.content && !voiced[voicedId("answer", m.content)]).slice(-30)
+  }, [messages, voiced, view, streaming, plan])
+  const unvoicedKey = unvoicedShown.map((m) => voicedId("answer", m.content)).join(",")
+  useEffect(() => {
+    if (!unvoicedKey) return
+    const timer = setTimeout(() => {
+      void sendBackground({ type: "voicedAsk", texts: unvoicedShown.map((m) => ({ text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode") })) })
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [unvoicedKey])
   // A tap on what plays, in the bar (build 94): back to its chat, at the message (the page's: the chat's end).
   const listenGo = () => {
     const key = "key" in listen.state ? listen.state.key : ""
@@ -2362,7 +2400,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const listenSounds = listen.state.at === "playing" || listen.state.at === "paused" || listen.state.at === "loading"
   const playingChat = listenSounds && "key" in listen.state ? listen.state.key.split("|")[0] : null
   // The bar: under the chat's question field, and at the bottom of the chats list while something plays (build 93).
-  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onRetry={listen.retry} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
   // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
   // in the bar when the panel opens again).
   // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.
@@ -2575,7 +2613,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       <span class="cf-sel-remind-l">{t("uxRemind")}</span>
     </button>
   )
-  // The actions added to the selection bubble, after the bell (watching's eye); none for plain text.
+  // The actions added to the selection bubble, after the bell (watching's eye, on any selection where watching works).
   const bubbleExtras: VNode[] = bubble?.rect && !open && !popup
     ? bubbleActions().flatMap((render, i) => {
         const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: bubble.text, range: selectedRange(), close: () => setBubble(null) }
@@ -2583,6 +2621,65 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         return node ? [<Fragment key={i}>{node}</Fragment>] : []
       })
     : []
+
+  // Build 95, the owner on TestFlight 94: «перенести указание выделенного текста или всю страницу из шапки сайдбара
+  // вниз, куда-то над окошком для ввода запроса, чтобы вводя текст было понятно к чему он относится. При этом свечение
+  // при выборе текста оставить» and «около окна ввода запроса нужно добавить какие-то чипы или кнопки Watch и Remind»
+  // (with the panel open on a selected price, they were only in the pop-up). The row over the field: what the question
+  // is about (with its ring for a selection) and, by any selection, the pop-up's bell and eye, doing the same.
+  const panelSelActs: VNode[] = open && !popup && view === "chat" && !historyMode && contextKind === "selection" && selection
+    ? [
+        <button
+          type="button"
+          key="remind"
+          class="cf-ctx-act cf-ctx-remind"
+          aria-label={t("uxRemind")}
+          title={t("uxRemind")}
+          onClick={() => {
+            void sendBackground({ type: "useEvent", f: "later", a: "open", via: "panel" })
+            setLater({ selection, range: selectionRange() })
+          }}
+        >
+          <Bell size={13} />
+          <span class="cf-ctx-act-l">{t("uxRemind")}</span>
+        </button>,
+        ...bubbleActions().flatMap((render, i) => {
+          const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: selection.text, range: selectionRange(), close: () => undefined, panel: true }
+          const node = render(ctx)
+          return node ? [<Fragment key={i}>{node}</Fragment>] : []
+        })
+      ]
+    : []
+  // A narrow panel (an iPhone) with a few words selected: when the label would be cut ("Выделено …"), the two buttons
+  // keep only the bell and the eye, as in the pop-up on a phone. Measured once per selection with their words shown.
+  const ctxRowRef = useRef<HTMLDivElement>(null)
+  const ctxKey = selection ? `${selection.at}:${selection.text.length}` : ""
+  const [ctxTight, setCtxTight] = useState("")
+  useLayoutEffect(() => {
+    if (!panelSelActs.length || ctxTight === ctxKey) return
+    const text = ctxRowRef.current?.querySelector<HTMLElement>(".cf-ctx-text")
+    if (text && text.scrollWidth > text.clientWidth + 1) setCtxTight(ctxKey)
+  })
+  const ctxRow = (
+    <div ref={ctxRowRef} class={`cf-ctx-row${panelSelActs.length && ctxTight === ctxKey ? " tight" : ""}`}>
+      {historyMode ? (
+        <span class="cf-ctx history"><Icon.Sparkle size={13} /> <span class="cf-ctx-text">{t("askHistory")}</span></span>
+      ) : (
+        <ContextChip
+          kind={contextKind}
+          media={source.kind()}
+          title={source.title()}
+          words={selection?.words ?? 0}
+          text={selection?.text ?? ""}
+          onClear={() => {
+            forgetSelection()
+            setSelection(null)
+          }}
+        />
+      )}
+      {panelSelActs.length > 0 && <span class="cf-ctx-acts">{panelSelActs}</span>}
+    </div>
+  )
 
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
@@ -2610,6 +2707,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [tagsCard, setTagsCard] = useState(false)
   const [firstWin, setFirstWin] = useState<string | null>(null)
   const orgSeen = useRef(new Set<string>())
+  // 2.6 (95): a move turned down asks again (the name comes once nothing is left to move).
+  const [orgAgain, setOrgAgain] = useState(0)
   const messagesRef = useRef(messages)
   messagesRef.current = messages
   const orgEvent = (event: OrganizeEvent) => void sendBackground({ type: "organizeEvent", event })
@@ -2628,10 +2727,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!kept?.org) return
     const shown: Thread = { ...kept, m: messages }
     const mv = openMove(shown, threadList)
-    const target = mv?.to ? threadList.find((x) => x.id === mv.to) : undefined
+    // The chat the move names: where it goes, or (2.6 (95)) the older chat that joins this one.
+    const target = mv?.fr ? threadList.find((x) => x.id === mv.fr) : mv?.to ? threadList.find((x) => x.id === mv.to) : undefined
     setOrg({
       chat, length: messages.length,
-      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}) } : null,
+      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.fr && target ? target.m.length : mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}), ...(mv.fr ? { from: mv.fr } : {}) } : null,
       tags: openTags(shown),
       name: openName(shown) ?? null
     })
@@ -2653,9 +2753,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       })
     }, 900)
     return () => clearTimeout(timer)
-  }, [open, orgOn, streaming, historyMode, messages.length, threadRef.current])
+  }, [open, orgOn, streaming, historyMode, messages.length, threadRef.current, orgAgain])
 
   const orgNow = org && orgOn && org.chat === threadRef.current && org.length === messages.length && !picked && !streaming ? org : null
+  // 2.6 (95): a name that is the chat's by now (taken on another device, the record not here yet), turned down
+  // or typed meanwhile, isn't offered.
+  const hereChat = threadList.find((x) => x.id === threadRef.current)
+  const orgName = orgNow?.name && !(hereChat && (namedByUser(hereChat) || orgNow.name.toLowerCase() === threadName(hereChat).toLowerCase() ||
+    (hereChat.org?.nm?.no ?? []).some((x) => x.toLowerCase() === orgNow.name!.toLowerCase()))) ? orgNow.name : null
   // Each suggestion is counted once as shown.
   useEffect(() => {
     if (!orgNow) return
@@ -2664,13 +2769,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       seen.push([`m:${entryKey(messages[orgNow.move.start])}:${orgNow.move.to}`, { kind: "organize", action: "shown", what: orgNow.move.to ? "move" : "new", why: orgNow.move.why }])
     }
     for (const x of orgNow.tags) seen.push([`t:${x.key}:${x.tag}`, { kind: "organize", action: "shown", what: "tag" }])
-    if (orgNow.name) seen.push([`n:${orgNow.chat}:${orgNow.name}`, { kind: "organize", action: "shown", what: "name", why: "drift" }])
+    if (orgName) seen.push([`n:${orgNow.chat}:${orgName}`, { kind: "organize", action: "shown", what: "name", why: "drift" }])
     for (const [id, event] of seen) {
       if (orgSeen.current.has(id)) continue
       orgSeen.current.add(id)
       orgEvent(event)
     }
-  }, [orgNow])
+  }, [orgNow, orgName])
 
   // 2.6: the chat named by its topic, by "Name by topic" or by taking a suggested name (never over a name the user
   // typed, unless they asked): the list shows it, and a bar says so, with Undo. Never by itself (2.6 (91)).
@@ -2729,13 +2834,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [open, orgOn, view, threadList])
 
-  // The first suggestion taken: a line that from now on they come by themselves (once).
+  // The first suggestion taken: that from now on they come by themselves (once). 2.6 (95): a bar that goes by itself,
+  // not a line left at the end of the chat; after the bar of the move (its Undo comes first), if there is one.
   const won = () => {
     if (!cards || cards.firstWin) return
     setFirstWin(threadRef.current)
     void setOrganizeCards({ firstWin: true }).then(setCards)
     orgEvent({ kind: "organize_promo", action: "shown", where: "first_win" })
   }
+  useEffect(() => {
+    if (!firstWin || undoBar || !open || view !== "chat") return
+    // As long as a move's bar (5 s, and a scroll takes it): a confirmation, nothing to act on.
+    if (firstWin === threadRef.current && orgOn) setUndoBar({ text: t("orgFirstWin"), actions: [], kind: "move" })
+    setFirstWin(null)
+  }, [firstWin, undoBar, open, view])
 
   const takeTag = (index: number, tag: string) => {
     setMessages((list) => list.map((m, i) => (i !== index ? m : {
@@ -2776,6 +2888,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     orgEvent({ kind: "organize", action: "undone", what: undo.before.target ? "move" : "new" })
   }
   const takeMove = async (move: OrganizeMove) => {
+    if (move.from) return void takeMergeHere(move, move.from)
     const source = threadRef.current
     const target = move.to ?? newThreadId()
     setOrg(null)
@@ -2799,10 +2912,41 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
     won()
   }
+  // 2.6 (95): the older chat joins this one (the merge shown in the newer chat, where the person is): its messages come
+  // in by time, the panel stays here; Undo puts it back and the merge isn't suggested again.
+  const takeMergeHere = async (move: OrganizeMove, from: string) => {
+    const here = threadRef.current
+    setOrg(null)
+    const older = (await loadThreads()).threads[from]
+    if (!older || older.deleted) return
+    const moved = await moveBlock(from, 0, older.m.length - 1, here)
+    if (!moved) return
+    showLists(moved.threads)
+    if (moved.threads[here]) setMessages(moved.threads[here].m)
+    orgEvent({ kind: "organize", action: "accepted", what: "move", why: "merge" })
+    setUndoBar({
+      text: t("orgMergedHere", move.toName),
+      kind: "move",
+      actions: [{
+        label: t("orgUndo"),
+        run: () => {
+          setUndoBar(null)
+          void undoBlockMove(moved.undo).then(async (threads) => {
+            await refuseMerge(from, here)
+            showLists(threads)
+            if (threadRef.current === here && threads[here]) setMessages(threads[here].m)
+            orgEvent({ kind: "organize", action: "undone", what: "move" })
+          })
+        }
+      }]
+    })
+    won()
+  }
   const refuseMove = (move: OrganizeMove) => {
-    // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere.
+    // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere. 2.6 (95):
+    // turned down in the newer chat, it's kept with the older one, so neither shows it again.
     if (move.why === "merge" && move.to) {
-      void refuseMerge(threadRef.current, move.to)
+      void (move.from ? refuseMerge(move.from, threadRef.current) : refuseMerge(threadRef.current, move.to)).then(() => setOrgAgain((n) => n + 1))
       setOrg((o) => o && { ...o, move: null })
       orgEvent({ kind: "organize", action: "dismissed", what: "move", why: move.why })
       return
@@ -2810,6 +2954,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setMessages((list) => list.map((m, i) => (i < move.start || i > move.end ? m : { ...m, dismissed: { ...m.dismissed, move: true as const } })))
     setOrg((o) => o && { ...o, move: null })
     orgEvent({ kind: "organize", action: "dismissed", what: move.to ? "move" : "new", why: move.why })
+    // Once the turned-down messages are saved, the run looks again (2.6 (95): then the name, if nothing else moves).
+    setTimeout(() => setOrgAgain((n) => n + 1), 1_200)
   }
 
   // The bar lives its seconds (undoClock.ts), then goes; before that an action takes it: a question, a note, another
@@ -2884,7 +3030,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!orgNow) return null
     const tag = orgNow.tags.find((x) => x.index === idx && messages[idx] && entryKey(messages[idx]) === x.key)?.tag
     const move = orgNow.move && orgNow.move.end === idx ? orgNow.move : undefined
-    const name = orgNow.name && idx === messages.length - 1 ? orgNow.name : undefined
+    const name = orgName && idx === messages.length - 1 ? orgName : undefined
     if (!tag && !move && !name) return null
     return (
       <OrganizeRow
@@ -2988,7 +3134,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {tagsCard && !messCard && promoOk && (
         <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
       )}
-      {firstWin === threadRef.current && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
     </>
   )
 
@@ -3153,23 +3298,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
+            {/* Build 95: in a chat, what the question is about (the selection, the page, the chats) is over the field
+                (ctxRow), not here. */}
             <div class="cf-title">
-              {view !== "chat" ? (
+              {view !== "chat" && (
                 <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : view === "trash" ? t("trashTitle") : t("chatsTitle")}</strong>
-              ) : (
-                historyMode ? (
-                  <span class="cf-ctx history"><Icon.Sparkle size={13} /> <span class="cf-ctx-text">{t("askHistory")}</span></span>
-                ) : <ContextChip
-                  kind={contextKind}
-                  media={source.kind()}
-                  title={source.title()}
-                  words={selection?.words ?? 0}
-                  text={selection?.text ?? ""}
-                  onClear={() => {
-                    forgetSelection()
-                    setSelection(null)
-                  }}
-                />
               )}
             </div>
             {view === "chat" && messages.length > 0 && partial === null && (
@@ -3274,8 +3407,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
-          {/* 2.6 (94): the chat's name, the whole width (the owner: in the chat its name wasn't seen, so a suggested one
-              couldn't be judged; next to the page in the header it was cut to a few letters on an iPhone). */}
+          {/* 2.6 (94): the chat's name, the whole width (a suggested name is judged against it; next to the page in the
+              header it was cut to a few letters on an iPhone). */}
           {headerName && <div class="cf-chat-bar" dir="auto" title={headerName}>{headerName}</div>}
 
           {view === "threads" ? (
@@ -3485,11 +3618,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     region={settings.similarRegion ?? null}
                     country={status?.country ?? localeCountry()}
                     onRegion={(r) => updateSettings({ similarRegion: r })}
-                    onFind={(condition, label) => {
-                      if (!similarSubject) return findSimilar(condition, label)
+                    onFind={(condition, label, ask) => {
+                      if (!similarSubject) return findSimilar(condition, label, false, undefined, undefined, ask)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).
                       const quote = t("noteQuote", clip(similarSubject, 60))
-                      findSimilar(condition, condition ? `${quote} · ${label}` : quote, false, similarSubject)
+                      findSimilar(condition, condition ? `${quote} · ${label}` : quote, false, similarSubject, undefined, ask)
                     }}
                     onClose={() => setSimilarCard(null)}
                   />
@@ -3756,6 +3889,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
+                  {ctxRow}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
                     {!noteMode && !historyMode && (
                       <button

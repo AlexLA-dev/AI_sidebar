@@ -50,7 +50,8 @@ export type WatchRequest =
   | { type: "watchLive"; url: string; values: Record<string, string | null>; text?: string }
 
 /** Where a watch was made: the eye by a selection, or "Come back later…". */
-export type WatchHow = "bubble" | "later"
+// "panel" (build 95): the eye on the panel's row over its field, with the panel open on the selection.
+export type WatchHow = "bubble" | "later" | "panel"
 
 /**
  * A page watch step for the counters: the "use" kind with f "watch", in the analytics registry's words

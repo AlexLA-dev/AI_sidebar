@@ -202,8 +202,8 @@ const DAYS = "понедельник|вторник|среду|четверг|п
 function scriptedInsert(system: string, content: string): unknown {
   const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
   const found = (text: string) => ({
-    // A conversation's title first (quick insert sends the one around the field: "Conversation with: Olga Lobova").
-    name: text.match(/^Conversation with: ([A-ZА-ЯЁ][a-zа-яё]+)/m)?.[1] ?? text.match(/(?:Здравствуйте|Привет|Добрый день|Hi|Hello|Dear),?\s+([A-ZА-ЯЁ][a-zа-яё]+)/)?.[1] ?? text.match(/^([A-ZА-ЯЁ][a-zа-яё]+)(?:\s+[A-ZА-ЯЁ][a-zа-яё]+)?:/m)?.[1] ?? "",
+    // A conversation's title first (quick insert sends the one around the field: "Conversation: Maria Keller").
+    name: text.match(/^Conversation: ([A-ZА-ЯЁ][a-zа-яё]+)/m)?.[1] ?? text.match(/(?:Здравствуйте|Привет|Добрый день|Hi|Hello|Dear),?\s+([A-ZА-ЯЁ][a-zа-яё]+)/)?.[1] ?? text.match(/^([A-ZА-ЯЁ][a-zа-яё]+)(?:\s+[A-ZА-ЯЁ][a-zа-яё]+)?:/m)?.[1] ?? "",
     date: text.match(new RegExp(`\\d{1,2}\\s+(?:${MONTHS})`))?.[0] ?? "",
     day: text.match(new RegExp(`(?:${DAYS})`, "i"))?.[0] ?? "",
     time: text.match(/\b\d{1,2}:\d{2}\b/)?.[0] ?? "",
@@ -522,6 +522,18 @@ function similarItems(condition: string, ru = false) {
     { name: "EarFun Wave Pro", why: "LDAC and multipoint like the Aero 2, with a longer battery.", fit: cond ? "The shop doesn't let servers open the page, so price and stock aren't confirmed." : "", met: cond ? "unknown" : "n/a", url: "https://www.amazon.com/dp/B0CSKDX2SQ", host: "amazon.com", title: "EarFun Wave Pro", source: "item", checked: false }
   ]
 }
+// Build 95 (SIMILAR_STUB=b95): the list with what 95 adds — their very item at another shop, a price in another
+// currency with ≈ theirs, a close one that misses the chip, what people say; their own words "fail once" end the first
+// search with an error (Retry).
+function similarItems95(): Array<Record<string, unknown>> {
+  return [
+    { name: "Aero 2", why: "The same headphones you're looking at.", fit: "Cheaper: $109 against $129, in stock.", met: "yes", url: "https://shop.example/aero-2", host: "shop.example", title: "Aero 2", source: "item", checked: true, price: "109 USD", stock: "in", same: true, similarity: 100, differs: "The same model, at Shop Example" },
+    { name: "Soundcore Space One", why: "Over-ear, adaptive noise cancelling and LDAC like the Aero 2.", fit: "Cheaper: €84 (≈ $97) against $129.", met: "yes", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "84 EUR", priceLocal: "97 USD", stock: "in", similarity: 80, differs: "Softer, lighter headband", reviews: { rating: { value: 4.5, best: 5, count: 1287 }, pros: "comfort, battery", cons: "bass-heavy sound", sources: ["https://www.soundcore.com/products/space-one-a3035011"] } },
+    { name: "Sony WH-1000XM6", why: "Noise cancelling over-ears with the same codecs and multipoint.", fit: "Not cheaper: $399 against $129.", met: "no", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/wh1000xm6-b", host: "electronics.sony.com", title: "WH-1000XM6", source: "item", checked: true, price: "399 USD", stock: "in", similarity: 100, differs: "Stronger noise cancelling, three times the price" }
+  ]
+}
+let similarFailedOnce = false
+
 async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
   if (process.env.PREVIEW_PLAN !== "ultra") {
     res.writeHead(403, { "Content-Type": "application/json" })
@@ -540,7 +552,13 @@ async function similarStub(body: Record<string, unknown>, res: import("node:http
   send({ type: "progress", step: "check", pages: 12 })
   await wait(SIMILAR_STEP_MS)
   send({ type: "progress", step: "write", verified: 9 })
-  const items = similarItems(condition, ru)
+  if (process.env.SIMILAR_STUB === "b95" && /fail once/i.test(String(body.words ?? "")) && !similarFailedOnce) {
+    similarFailedOnce = true
+    send({ type: "error", code: "UPSTREAM" })
+    res.end()
+    return
+  }
+  const items = process.env.SIMILAR_STUB === "b95" ? similarItems95() : similarItems(condition, ru)
   for (const [i, item] of items.entries()) {
     await wait(SIMILAR_STEP_MS * 0.7)
     send({ type: "item", engine: "a", index: i, item })

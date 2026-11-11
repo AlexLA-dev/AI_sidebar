@@ -84,7 +84,7 @@ function cells(row: string): string[] {
   return row.replace(/^\||\|$/g, "").split("|").map((c) => c.replace(/(\*\*|__)(.+?)\1/g, "$2").trim())
 }
 
-/** One table row for the ear: "MARKUS: Price 299 dollars, Color dark gray." */
+/** One table row for the ear: "<item>: Price <price>, Color <colour>." */
 function tableRow(row: string[], header: string[] | null): string {
   const [head, ...rest] = row
   let line: string
@@ -259,12 +259,18 @@ export class PartSplitter {
       const limit = this.first ? FIRST_PART_CHARS : PART_CHARS
       let cut = -1
       let firstEnd = -1
+      let early = -1
       for (const m of this.buffer.matchAll(SENTENCE_END)) {
         const end = (m.index ?? 0) + m[0].length
         if (firstEnd < 0) firstEnd = end
+        if (this.first && early < 0 && end >= this.min && end <= limit) early = end
         if (end <= limit) cut = end
         else break
       }
+      // The very first part ends at its first sentence end that says something, however the text came (build 95):
+      // streamed the first time, whole from the device or iCloud the next. Cut otherwise, a replay was new parts, made
+      // and counted again.
+      if (this.first && early >= 0) cut = early
       if (cut < 0 && firstEnd >= 0 && this.buffer.length > limit) cut = firstEnd
       if (cut < 0) break
       // A part waits until it's full, except the very first, which goes as soon as it says something.

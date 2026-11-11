@@ -31,7 +31,8 @@ import AppKit
 ///   the ones stopped in the app), see WatchStore.
 /// - `listen` → read aloud on iPhone and iPad (2.6, Ultra): the text's parts go to the app through the App Group;
 ///   answers the request's `id`, and the page opens contextflow://listen?id=… (the app plays it with the screen locked).
-/// - `tipClip` → a Tips clip for the panel (2.6 (91)): `name`, `lang` (en|ru), `offset`; answers `ok`, the clip's
+/// - `tipClip` → a Tips clip for the panel (2.6 (91)): `name`, `lang` (the panel's language: its clips, else the
+///   person's next language that has them, else English), `offset`; answers `ok`, the clip's
 ///   `total` size and up to 256 KB of it from `offset` (base64), read from the app's copy in the App Group.
 /// - `ping` → health check.
 ///
@@ -306,7 +307,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "notifStatus":
             Task {
                 let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
-                Self.reply(context, ["success": true, "data": ["status": ListenAway.name(status)]])
+                // With the app's "Not now" at Listen (build 95): the panel doesn't ask again that day either.
+                Self.reply(context, ["success": true, "data": ["status": ListenAway.name(status), "later": SharedDefaults.shared.listenNotifyLaterUntil()]])
             }
         case "listenState":
             Task {

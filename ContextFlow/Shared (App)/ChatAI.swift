@@ -218,9 +218,11 @@ enum ChatAI {
 
     /// Read aloud's seconds heard, by part key (build 92), to /api/v2/speak-heard.
     @MainActor
-    static func heardRequest(_ items: [[String: Any]]) throws -> URLRequest {
+    static func heardRequest(_ items: [[String: Any]], texts: [[String: Any]] = []) throws -> URLRequest {
         var body = identity()
         body["items"] = items
+        // Build 95: the texts heard from, or a chat's answers: which are voiced, as the server counts them.
+        if !texts.isEmpty { body["texts"] = texts }
         return try request("api/v2/speak-heard", body)
     }
 

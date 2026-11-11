@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "Unito a «{0}»"
  },
+ "orgMergeHere": {
+  "message": "Porta qui «{0}»"
+ },
+ "orgMergeHereA11y": {
+  "message": "Unisci la chat precedente «{0}» a questa"
+ },
+ "orgMergedHere": {
+  "message": "«{0}» portata qui"
+ },
  "recs_one": {
   "message": "{0} consiglio"
  },
@@ -1720,6 +1729,9 @@
  },
  "plansNote": {
   "message": "L’abbonamento si fa nell’app ContextFlow. Il passaggio a Ultra parte subito e Apple rimborsa quello che resta del piano attuale."
+ },
+ "plansCurrency": {
+  "message": "Prezzi in {0}, come li indica l’App Store."
  },
  "tierByok1": {
   "message": "Risposte illimitate con la tua chiave API di OpenAI o Claude"
@@ -2103,7 +2115,7 @@
   "message": "Continua ad ascoltare in ContextFlow — da {0}"
  },
  "listenNotifyAsk": {
-  "message": "Attiva le notifiche per continuare ad ascoltare quando esci da Safari o blocchi lo schermo. Altrimenti Listen apre l’app."
+  "message": "Attiva le notifiche per continuare ad ascoltare quando esci da Safari o blocchi lo schermo. Altrimenti «Ascolta» apre l’app."
  },
  "listenNotifyOn": {
   "message": "Attiva le notifiche"
@@ -2215,6 +2227,12 @@
  },
  "similarEstimated": {
   "message": "stimato dalla descrizione"
+ },
+ "similarSame": {
+  "message": "Stesso articolo, altro negozio"
+ },
+ "similarMisses": {
+  "message": "Non rispetta la scelta"
  },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
@@ -2493,6 +2511,6 @@
   "message": "ContextFlow legge una pagina solo quando chiedi e invia solo il suo testo per ottenere la risposta. Le tue chat restano sui tuoi dispositivi e nel tuo iCloud. Con i suggerimenti attivi, il testo dei nuovi messaggi va anche al nostro server per capire dove vanno; non lo conserviamo."
  },
  "tip_clips": {
-  "message": "en"
+  "message": "it"
  }
 }

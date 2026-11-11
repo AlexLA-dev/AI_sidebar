@@ -46,12 +46,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             await MainActor.run { WatchOpen.handle(info) }
             return
         }
-        // Find similar is done (build 94): its chat opens in the panel, on its page in Safari.
+        // Find similar is done: its chat opens in the panel, on its page in Safari (another default browser has no
+        // panel; the chat is in the page's address, SimilarAway.pageOpening).
         if info["similar"] is String {
             await MainActor.run {
                 ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "similar", "s": "notif"])
                 if let page = SimilarAway.opened(info) {
-                    UIApplication.shared.open(page)
+                    if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
+                        UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
+                    } else {
+                        UIApplication.shared.open(page)
+                    }
                 } else if let chats = URL(string: "contextflow://chats") {
                     DeepLinkRouter.shared.handle(chats)
                 }

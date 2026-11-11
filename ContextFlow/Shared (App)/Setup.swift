@@ -243,6 +243,8 @@ final class NotifyAsk: ObservableObject {
 
     func notNow() {
         if let ask { ChatAI.reportUse("notify", "later", ["why": ask.reason.rawValue]) }
+        // Asked at Listen (build 95): not again today, here or in the panel (it asks at most once a day).
+        if ask?.listen != nil { SharedDefaults.shared.setListenNotifyLater() }
         finish()
     }
 

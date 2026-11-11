@@ -8,6 +8,7 @@
 import { API_BASE } from "../shared/config"
 import { DEFAULT_VOICE, needsScript, PartSplitter, scriptChunks, SPEECH_RATE, speechParts, speechText, syncKey } from "../shared/speech"
 import type { Usage } from "../shared/types"
+import { voicedId } from "../shared/voiced"
 
 export interface SpeakDeps {
   installId: () => Promise<string>
@@ -18,6 +19,8 @@ export interface SpeakDeps {
   // made here for the others (PCM), the same for texts written for the ear. Missing: no sync (Chrome).
   // When a text stops: the seconds heard and where its audio came from, in whole seconds (build 92, the minutes audit).
   report?: (counts: { what: "answer" | "page"; heard_s: number; cache_s: number; icloud_s: number; server_s: number; charged_s: number }) => void
+  // Texts the server now counts as voiced (build 95): every part counted, heard on any device, in one go or more.
+  voiced?: (ids: string[]) => void
   sync?: {
     getPart: (key: string, wait: number) => Promise<string | null>
     // `cache`: the part's key on this device (the app's too): the extension keeps a copy in the App Group, so the app on
@@ -123,24 +126,60 @@ const heardNow = () => heardLane.then(pendingHeard)
 
 const heardItems = (map: Record<string, number>) => Object.entries(map).slice(0, 80).map(([key, s]) => ({ key, s }))
 
+// The texts heard from since the last report, with all their parts' keys (build 95): the server says which of them are
+// voiced now, counting every listen, on every device. Kept in memory only: a chat shown asks again anyway.
+const heardTexts = new Map<string, string[]>()
+
 /** Sends what's waiting to /api/v2/speak-heard; the week's minutes as the server now counts them, or null. */
 async function sendHeard(deps: SpeakDeps): Promise<Usage | null> {
   const map = await heardNow()
-  if (!Object.keys(map).length) return null
+  const texts = [...heardTexts].slice(0, 20)
+  if (!Object.keys(map).length && !texts.length) return null
   try {
     const [installId, client, jws] = await Promise.all([deps.installId(), deps.client(), deps.jws()])
     const res = await fetch(`${API_BASE}/api/v2/speak-heard`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ installId, client, entitlement: jws, items: heardItems(map) })
+      body: JSON.stringify({ installId, client, entitlement: jws, items: heardItems(map), texts: texts.map(([id, keys]) => ({ id, keys })) })
     })
     if (!res.ok) return null
     await heardCounted(map)
-    return ((await res.json().catch(() => null)) as { usage?: Usage | null } | null)?.usage ?? null
+    for (const [id] of texts) heardTexts.delete(id)
+    const body = (await res.json().catch(() => null)) as { usage?: Usage | null; voiced?: unknown } | null
+    const voiced = Array.isArray(body?.voiced) ? body.voiced.filter((id): id is string => typeof id === "string") : []
+    if (voiced.length) deps.voiced?.(voiced)
+    return body?.usage ?? null
   } catch {
     return null
   }
 }
+
+/** Something a voice can say (a part without is skipped: never made, never heard). */
+const speakable = (part: string) => /[\p{L}\p{N}]/u.test(part)
+
+/**
+ * The keys of a text's parts as Listen makes them (build 95), for asking the server whether it's voiced: the same
+ * parts as playing it would give. A text written for the ear has them only when its writing is kept on this device;
+ * otherwise none (the server answers by the text's id alone).
+ */
+export async function textPartKeys(text: string, what: "answer" | "page", lang: string): Promise<string[]> {
+  const source = String(text ?? "").slice(0, 24_000)
+  let parts: string[] = []
+  if (what === "page" || needsScript(source)) {
+    for (const chunk of scriptChunks(source)) {
+      const kept = await cached(`script|${what}|${await speechKey(chunk, lang)}`)
+      if (!kept) return []
+      const splitter = new PartSplitter(parts.length === 0)
+      parts.push(...splitter.push(new TextDecoder().decode(kept)), ...splitter.end())
+    }
+  } else {
+    parts = speechParts(speechText(source)).slice(0, 80)
+  }
+  return Promise.all(parts.filter(speakable).map((part) => speechKey(part, lang)))
+}
+
+/** The text's id for "already voiced" (src/shared/voiced.ts), as the panel works it out. */
+export const textVoicedId = (what: "answer" | "page", text: string) => voicedId(what, text)
 
 async function speechKey(text: string, lang: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`v1|${lang}|${text}`))
@@ -230,6 +269,8 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
   let stopped = false
   // The parts are all known (the text for listening is written, or wasn't needed).
   let written = false
+  // The text's id for "already voiced" (build 95).
+  let textId = ""
   let controller: AbortController | null = null
   const scriptAbort = new AbortController()
   // The model the text's first part came from: every later part asks for it (one voice per text, build 91).
@@ -467,6 +508,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       const text = String(message.text ?? "").slice(0, 24_000)
       lang = String(message.lang ?? "").slice(0, 16)
       what = message.what === "page" ? "page" : "answer"
+      textId = voicedId(what, text)
       next = 0
       playing = -1
       allowed = 0
@@ -498,6 +540,13 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
         const text = parts[Number(index)]
         if (typeof text === "string" && typeof seconds === "number" && seconds > 0) await noteHeard(await speechKey(text, lang), seconds)
       }))
+      // Which text these parts are of, once all of its parts are known: the server says whether it's voiced now.
+      if (written && textId && forParts.length) {
+        const all = parts.slice()
+        void Promise.all(all.filter(speakable).map((part) => speechKey(part, lang))).then((keys) => {
+          if (keys.length) heardTexts.set(textId, keys)
+        })
+      }
     } else if (message.type === "stop") {
       stopped = true
       controller?.abort()

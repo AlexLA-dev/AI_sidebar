@@ -524,6 +524,9 @@
   "orgMergeInto": "Gộp vào “{0}”",
   "orgMergeA11y": "Gộp cuộc trò chuyện này vào “{0}”",
   "orgMerged": "Đã gộp vào “{0}”",
+  "orgMergeHere": "Gộp “{0}” vào đây",
+  "orgMergeHereA11y": "Gộp cuộc trò chuyện cũ “{0}” vào cuộc này",
+  "orgMergedHere": "Đã gộp “{0}” vào đây",
   "recs_one": "{0} gợi ý",
   "recs_two": "{0} gợi ý",
   "recs_few": "{0} gợi ý",
@@ -596,6 +599,7 @@
   "plansPerMonth": "{0}/tháng",
   "plansPerYear": "{0}/năm",
   "plansNote": "Bạn đăng ký trong ứng dụng ContextFlow. Chuyển lên Ultra sẽ bắt đầu ngay, và Apple hoàn tiền phần còn lại của gói hiện tại.",
+  "plansCurrency": "Giá tính bằng {0}, đúng như App Store đưa ra.",
   "tierByok1": "Không giới hạn câu trả lời với khóa API OpenAI hoặc Claude của riêng bạn",
   "tierByok2": "Mọi thứ trên trang: tóm tắt, giải thích, dịch",
   "tierPro1": "Tối đa {0} câu trả lời mỗi tuần, không cần khóa API",
@@ -726,7 +730,7 @@
   "listenLow": "Tuần này còn khoảng {0} phút nghe, còn nội dung này cần khoảng {1} phút. Phần đọc sẽ dừng ở chỗ hết phút.",
   "listenAnyway": "Vẫn nghe",
   "listenAway": "Nghe tiếp trong ContextFlow — từ {0}",
-  "listenNotifyAsk": "Bật thông báo để nghe tiếp khi bạn rời Safari hoặc khóa màn hình. Nếu không, Listen sẽ mở ứng dụng.",
+  "listenNotifyAsk": "Bật thông báo để nghe tiếp khi bạn rời Safari hoặc khóa màn hình. Nếu không, “Nghe” sẽ mở ứng dụng.",
   "listenNotifyOn": "Bật thông báo",
   "listenNotifyLater": "Để sau",
   "listenTaken": "Đang phát trong ứng dụng ContextFlow.",
@@ -763,5 +767,7 @@
   "similarSay": "Mọi người nói:",
   "similarPros": "khen {0}",
   "similarCons": "chê {0}",
-  "similarEstimated": "ước tính theo mô tả"
+  "similarEstimated": "ước tính theo mô tả",
+  "similarSame": "Cùng sản phẩm, cửa hàng khác",
+  "similarMisses": "Không đúng lựa chọn của bạn"
 }

@@ -14,7 +14,7 @@
     latest message, a read receipt under it, suggested replies (chips) right above the reply bar, the bar fixed at
     the bottom with Send beside the box: nothing free around the box. ?chips=0 without the suggested replies.
   - ?layout=desk: the /messaging page of a wide screen (iPad, Mac), as the owner's note on 2.5 (81) shows it: the
-    list of conversations on the left (each with the other person's name and their last line, "Nikola: Hey
+    list of conversations on the left (each with the other person's name and their last line, "Tom: Hey
     Alexander…"), the open conversation on the right with its title (the person's name and headline), the messages
     and the reply box. "Fill" must take the name from the open conversation, never from the list.
   window.stand.reply: the reply box; window.stand.sent(): whether Send is on.
@@ -80,8 +80,8 @@
   </aside>
   <section class="msg-convo-wrapper" aria-label="Conversation">
     <div class="msg-title-bar">
-      <h2 class="msg-entity-lockup__entity-title" id="convo-title">Olga Lobova</h2>
-      <div class="msg-entity-lockup__subtitle">Events Manager | Corporate Events, Conferences &amp; Live Production</div>
+      <h2 class="msg-entity-lockup__entity-title" id="convo-title">Maria Keller</h2>
+      <div class="msg-entity-lockup__subtitle">Events Manager</div>
     </div>
     <ul class="msg-s-message-list-content" id="desk-list"></ul>
     <form class="msg-form" onsubmit="return false">
@@ -111,19 +111,19 @@ window.stand = {}
 if (layout === "desk") {
   document.getElementById("desk").hidden = false
   const people = [
-    ["Elias P.", "Sponsored · Alexander Lubchenko, a quick question about your ad budget"],
-    ["Niki Chen", "You: Hi Niki, Thanks for reaching out. Sounds interesting"],
-    ["Olga Lobova", "Olga: Got it, thank you!"],
-    ["Paul Kneebone", "You: Hi Paul, Thanks for reaching out. Sounds good"],
-    ["Nikola Cavic", "Nikola: Hey Alexander, Hope all is well! Seeing as you are"],
-    ["Barbara Horak", "Barbara: Hi Alexander, I'm reaching out about"]
+    ["Lea M.", "Sponsored · A quick question about your ad budget"],
+    ["Kai Lund", "You: Hi Kai, thanks for reaching out. Sounds interesting"],
+    ["Maria Keller", "Maria: Got it, thank you!"],
+    ["Ben Ortiz", "You: Hi Ben, thanks for reaching out. Sounds good"],
+    ["Tom Becker", "Tom: Hey, hope all is well! Seeing as you are"],
+    ["Sara Lind", "Sara: Hi, I'm reaching out about"]
   ]
   document.getElementById("conversations").innerHTML = people.map(([name, last]) =>
-    `<li class="msg-conversation-listitem ${name === "Olga Lobova" ? "active" : ""}"><span class="avatar"></span><div><h3 class="msg-conversation-listitem__participant-names">${name}</h3><p>${last}</p></div></li>`).join("")
+    `<li class="msg-conversation-listitem ${name === "Maria Keller" ? "active" : ""}"><span class="avatar"></span><div><h3 class="msg-conversation-listitem__participant-names">${name}</h3><p>${last}</p></div></li>`).join("")
   const convo = [
-    ["Olga Lobova", "3:38 PM", "Good afternoon! I thought golf might interest you as a venue for client and partner events. On 12 November at Elea Golf Club we'll show what the format can do. I'd be glad to meet and invite you!"],
-    ["Alexander Lubchenko", "3:46 PM", "Good afternoon, Olga! Sounds very interesting, but it isn't relevant for us right now."],
-    ["Olga Lobova", "3:47 PM", "Got it, thank you!"]
+    ["Maria Keller", "3:38 PM", "Good afternoon! Would a workshop venue in March work for your team? I'd be glad to show you around."],
+    ["You", "3:46 PM", "Thanks, Maria! Sounds interesting, but it isn't relevant for us right now."],
+    ["Maria Keller", "3:47 PM", "Got it, thank you!"]
   ]
   document.getElementById("desk-list").innerHTML = convo.map(([who, at, text]) =>
     `<li class="msg-s-message-list__event"><div class="msg-s-event-listitem"><b>${who}</b> <span class="meta">${at}</span><p>${text}</p></div></li>`).join("")

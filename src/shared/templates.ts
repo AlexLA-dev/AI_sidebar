@@ -6,6 +6,8 @@
 // and a deleted template stays as a tombstone so an older copy on another device can't bring it back.
 // How often a template was used on a site stays on the device (counts would be lost by newest-wins).
 
+import { unaccent } from "./fold.ts"
+
 export interface Template {
   id: string
   title: string
@@ -107,9 +109,15 @@ export function titleFrom(text: string): string {
   return (words.length > 40 ? `${words.slice(0, 40).trimEnd()}…` : words) || "…"
 }
 
-/** Lower case, ё as е, no punctuation: what search compares. */
+/**
+ * Lower case, without accents, no punctuation: what search compares ("cafe" finds "Café", "e" finds "ё", "tai" finds
+ * "tải"). Build 95: the same for every language (it folded only «ё»): the accents that go on letters (Latin, Cyrillic,
+ * Greek, Vietnamese tones, Arabic short vowels) come off; a script whose marks are part of its letters keeps them
+ * (Korean syllables, Japanese voicing, Thai and Hindi vowels). The accents rule is fold.ts's, shared with chat search.
+ */
 export function normalize(text: string): string {
-  return text.toLowerCase().replace(/ё/g, "е").replace(/[^\p{L}\p{N}\s]+/gu, " ").replace(/\s+/g, " ").trim()
+  return unaccent(text)
+    .replace(/[^\p{L}\p{N}\p{M}\s]+/gu, " ").replace(/\s+/g, " ").trim()
 }
 
 function words(text: string): string[] {

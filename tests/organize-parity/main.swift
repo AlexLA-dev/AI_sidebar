@@ -42,6 +42,7 @@ func suggestion(_ s: Organize.MoveSuggestion?) -> Any {
     guard let s else { return NSNull() }
     var out: [String: Any] = ["start": s.start, "end": s.end, "to": s.to ?? NSNull(), "why": s.why.rawValue, "score": s.score, "current": s.current]
     if let match = s.match { out["match"] = match }
+    if let from = s.from { out["from"] = from }
     return out
 }
 
@@ -91,7 +92,7 @@ func run(_ c: [String: Any]) -> Any {
         return (c["packed"] as? [String] ?? []).map { numbers(Organize.unpackVector($0)) }
     case "scoredBlocks":
         return Organize.scoredBlocks(c["m"] as? [[String: Any]] ?? [], vectors(c["vectors"])).map { b -> [String: Any] in
-            ["start": b.start, "end": b.end, "url": b.url ?? NSNull(), "v": numbers(b.v), "weak": b.weak, "t": b.t.map(Organize.whole) ?? NSNull(),
+            ["start": b.start, "end": b.end, "url": b.url ?? NSNull(), "v": numbers(b.v), "a": numbers(b.a), "weak": b.weak, "t": b.t.map(Organize.whole) ?? NSNull(),
              "host": b.host, "settled": b.settled, "dismissed": b.dismissed]
         }
     case "movesAllowed":

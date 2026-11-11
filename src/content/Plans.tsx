@@ -24,6 +24,15 @@ export function priceValue(display: string | undefined): number | null {
   return Number.isFinite(value) && value > 0 ? value : null
 }
 
+/** The App Store's currency, when its prices don't say it themselves (build 95, the owner's App Store of Canada: CAD
+ *  reads "$12.99", the same as dollars of the US): a currency other than USD written with a bare "$". Null otherwise. */
+export function currencyCode(prices: Record<string, string>): string | null {
+  const code = (prices["#currency"] ?? "").toUpperCase()
+  if (!/^[A-Z]{3}$/.test(code) || code === "USD") return null
+  const shown = Object.entries(prices).filter(([key, value]) => !key.includes("#") && value).map(([, value]) => value)
+  return shown.some((price) => price.includes("$") && !/\p{L}/u.test(price)) ? code : null
+}
+
 /** Percent saved by paying yearly instead of 12 months, when both prices are known (at least 5%). */
 export function yearlySaving(monthly: string | undefined, yearly: string | undefined): number | null {
   const m = priceValue(monthly)
@@ -89,6 +98,8 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
           // A month of the yearly plan and the money it saves, as the App Store writes them (shared by the app).
           const perMonth = shownPeriod === "yearly" ? prices[`${yearlyId}#perMonth`] : undefined
           const saved = shownPeriod === "yearly" ? prices[`${yearlyId}#save`] : undefined
+          // Twelve months of the monthly plan, struck through (build 95: promised on 90, the app's cards had it).
+          const twelve = shownPeriod === "yearly" ? prices[`${yearlyId}#twelve`] : undefined
           const current = currentPlan === plan && (periodOfProduct(currentProduct) ?? "monthly") === shownPeriod
           // A lower plan than the current one is still a choice (it starts at the next renewal), just not pushed.
           const lower = PLAN_RANK[plan] < PLAN_RANK[currentPlan]
@@ -104,7 +115,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
                 {saving !== null && <span class="cf-plan-save">{t("plansSave", String(saving))}</span>}
                 {price && <span class="cf-plan-price">{shownPeriod === "yearly" ? t("plansPerYear", price) : t("plansPerMonth", price)}</span>}
               </div>
-              {perMonth && <div class="cf-plan-year"><span>{t("plansPerMonthYearly", perMonth)}</span></div>}
+              {perMonth && <div class="cf-plan-year"><span>{t("plansPerMonthYearly", perMonth)}</span>{twelve && <s aria-hidden="true">{twelve}</s>}</div>}
               {plan === "ultra" && currentPlan === "ultra" && status?.ultra?.speak && (
                 <p class="cf-plan-left">{t("listenLeft", String(Math.max(0, Math.floor((status.ultra.speak.limit - status.ultra.speak.used) / 60))), String(Math.round(status.ultra.speak.limit / 60)))}</p>
               )}
@@ -125,6 +136,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
           )
         })}
       </div>
+      {currencyCode(prices) && <p class="cf-hint cf-plans-currency">{t("plansCurrency", currencyCode(prices)!)}</p>}
       <Gallery facts={facts} ultra={focus === "ultra"} />
       <p class="cf-hint">{t("plansNote")}</p>
     </div>

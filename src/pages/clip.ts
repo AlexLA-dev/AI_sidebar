@@ -1,4 +1,4 @@
-export {}
+import { clipLanguage } from "../shared/clipLanguage"
 
 // A Tips clip, played in the extension's own page (2.6 (91)). The panel shows it in a frame of this page: the clip's
 // bytes come from the app (src/background/tipClips.ts), and a page's own media rules (GitHub's, X's) don't apply to
@@ -7,7 +7,7 @@ export {}
 
 const q = new URLSearchParams(location.search)
 const clip = q.get("name") ?? ""
-const lang = q.get("lang") === "ru" ? "ru" : "en"
+const lang = clipLanguage(q.get("lang"))
 let still = q.get("still") === "1"
 const video = document.querySelector("video") as HTMLVideoElement
 const tell = (state: "ready" | "missing") => parent.postMessage({ cfClip: state, name: clip }, "*")

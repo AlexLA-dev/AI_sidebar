@@ -184,7 +184,7 @@ function GuideClip({ name }: { name: string }): VNode | null {
   const [gone, setGone] = useState(false)
   const data = tipsData()
   if (!data || gone) return null
-  const lang = say(data.clipLang) === "ru" ? "ru" : "en"
+  const lang = say(data.clipLang)
   let still = false
   try {
     still = matchMedia("(prefers-reduced-motion: reduce)").matches

@@ -82,8 +82,8 @@ export function OrganizeRow({ tag, move, name, quiet, onTag, onTagNo, onMove, on
       )}
       {move && (
         <span class="cf-org-chip move">
-          <button type="button" class="cf-org-take" onClick={onMove} aria-label={move.why === "merge" ? t("orgMergeA11y", move.toName) : move.to ? t("orgMoveA11y", messagesCount(move.count), move.toName) : t("orgSplitA11y", move.toName)}>
-            <Arrow /><span class="cf-org-text">{move.why === "merge" ? withName("orgMergeInto", move.toName) : move.to ? withName("orgMoveTo", move.toName, messagesCount(move.count)) : withName("orgSplit", move.toName)}</span>
+          <button type="button" class="cf-org-take" onClick={onMove} aria-label={move.from ? t("orgMergeHereA11y", move.toName) : move.why === "merge" ? t("orgMergeA11y", move.toName) : move.to ? t("orgMoveA11y", messagesCount(move.count), move.toName) : t("orgSplitA11y", move.toName)}>
+            <Arrow /><span class="cf-org-text">{move.from ? withName("orgMergeHere", move.toName) : move.why === "merge" ? withName("orgMergeInto", move.toName) : move.to ? withName("orgMoveTo", move.toName, messagesCount(move.count)) : withName("orgSplit", move.toName)}</span>
             {move.to && move.match !== undefined && <span class="cf-org-match">{t("orgMatch", move.match)}</span>}
           </button>
           <button type="button" class="cf-org-x" onClick={onMoveNo} aria-label={t("orgNoA11y")}><Icon.Close /></button>
@@ -104,7 +104,7 @@ export function OrganizeRow({ tag, move, name, quiet, onTag, onTagNo, onMove, on
 const still = () => undefined
 
 /**
- * What organizing does, drawn with its real pieces (2.6, the owner: the abstract bars read as placeholder art): a
+ * What organizing does, drawn with its real pieces (2.6: abstract bars read as placeholder art): a
  * question, the answer and the row the panel really shows under it, a suggested tag and "3 messages to “Trips”"; in a
  * gentle loop the bar after a move takes its place (organize.css; it stays on the row with Reduce Motion). `compact`:
  * the row alone, for the small cards. Not interactive.

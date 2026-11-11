@@ -1,6 +1,6 @@
-// Synthetic chats for calibrating "organizing" (2.5) without anybody's data: 32 topic chats in English, Russian and
+// Synthetic chats for calibrating "organizing" (2.5) without anybody's data: 31 topic chats in English, Russian and
 // Korean (some questions about pages in another language), the user's tags on some answers and notes (plus "later"-
-// like tags that mean an intention, not a topic), and four "everything in one chat" piles like the owner's. Written
+// like tags that mean an intention, not a topic), and three "everything in one chat" piles. Written
 // in the app's chats.json format ({id: {updatedAt, data}}), messages with 2.5 ids and times or without (older ones).
 //   node tools/organize/make-sample.mjs <out.json>
 // Next to it, <out>.truth.json: for each pile, which chat each of its blocks belongs in (null: none, a new chat).
@@ -62,13 +62,6 @@ const topics = {
       ["How do I photograph stars without trails?", "Use the 500 rule as a start: 500 divided by the focal length gives the longest exposure in seconds; shoot wide open at ISO 3200."],
       ["What shutter speed freezes a running dog?", "1/1000 s or faster with continuous autofocus and burst mode."],
       ["RAW or JPEG for travel photos?", "RAW keeps more room to fix exposure and white balance; shoot RAW+JPEG if you want quick sharing too."]] },
-  ev: { tag: "cars", pages: [["https://www.deepal.com/s05/specs", "Deepal S05 specifications"], ["https://insideevs.com/reviews/deepal-s05-range-test/", "Deepal S05 range test"], ["https://ev-database.org/compare/deepal-s05-vs-tesla-model-y", "Deepal S05 vs Tesla Model Y"]],
-    qa: [["What's the real winter range of the Deepal S05?", "Tests show about 380 km on the motorway in winter against the 520 km rated, roughly 25–30% less, mostly from heating and cold battery."],
-      ["How fast does it charge from 10 to 80%?", "About 30 minutes on a fast charger that can deliver 150 kW or more; slower chargers stretch it to about an hour."],
-      ["Deepal S05 or Tesla Model Y for a family?", "The Model Y has more boot space and a stronger charging network; the S05 costs less and is better equipped at its price."],
-      ["Is a heat pump important in an EV?", "Yes in cold climates: it can save 10–20% of the range lost to heating in winter."],
-      ["Does the Deepal S05 support vehicle-to-load?", "Yes, with the V2L adapter it powers devices up to about 3.3 kW, enough for a kettle or camping gear."],
-      ["What warranty does the S05 battery have?", "Eight years or 160,000 km for the battery, with at least 70% capacity guaranteed over that time."]] },
   sleep: { tag: "health", pages: [["https://www.sleepfoundation.org/nutrition/caffeine-and-sleep", "Caffeine and sleep"], ["https://www.health.harvard.edu/staying-healthy/blue-light-has-a-dark-side", "Blue light has a dark side"]],
     qa: [["How many hours after coffee can I fall asleep easily?", "Caffeine's half-life is about five hours, so the last cup is best at least eight hours before bed."],
       ["Do phone screens really hurt sleep?", "Bright light late in the evening delays melatonin; dim the screen and stop scrolling 30–60 minutes before sleep."],
@@ -79,10 +72,6 @@ const topics = {
       ["Which standing desk is stable at full height?", "Frames with two motors and a crossbar, like the Uplift V2 or the Fully Jarvis, wobble least when raised."],
       ["How high should my desk be for typing?", "With elbows at about 90° and shoulders relaxed; for most people around 70–75 cm sitting."],
       ["Is a sofa cover worth it with a cat?", "A tightly woven or microfibre cover resists claws better than loose weaves and can be washed."]] },
-  kosmos: { tag: "work", pages: [["https://kosmos.example/privacy", "Kosmos — Privacy Policy"]],
-    qa: [["What data does this privacy policy say they collect?", "Account details, usage analytics and device identifiers; payment data goes to the payment processor, not to them."],
-      ["Do they share data with advertisers?", "Only aggregated analytics; the policy says personal data isn't sold, and you can opt out of analytics."],
-      ["How long do they keep my data after I delete the account?", "Up to 30 days in backups, then it's erased; billing records are kept as the law requires."]] },
 
   // ---------------------------------------------------------------- Russian
   vychet: { tag: "деньги", pages: [["https://www.nalog.gov.ru/rn77/taxation/taxes/ndfl/nalog_vichet/", "Налоговые вычеты"], ["https://www.banki.ru/news/daytheme/?id=10985361", "Вычет за лечение"]],
@@ -191,7 +180,7 @@ const topics = {
 }
 
 // The chats' languages and names; the piles at the end.
-const lang = { japan: "en", sourdough: "en", react: "en", kubernetes: "en", marathon: "en", espresso: "en", mortgage: "en", garden: "en", photo: "en", ev: "en", sleep: "en", home: "en", kosmos: "en",
+const lang = { japan: "en", sourdough: "en", react: "en", kubernetes: "en", marathon: "en", espresso: "en", mortgage: "en", garden: "en", photo: "en", sleep: "en", home: "en",
   vychet: "ru", rust: "ru", remont: "ru", gruzia: "ru", ielts: "ru", shenok: "ru", iis: "ru", beg: "ru", noutbuk: "ru", borsh: "ru",
   jeju: "ko", kimchi: "ko", etf: "ko", toeic: "ko", iphonephoto: "ko", diet: "ko", jeonse: "ko", python: "ko", dog: "ko", cafe: "ko" }
 // Tags meaning an intention, not a topic: on unrelated answers. They shouldn't be suggested.
@@ -237,7 +226,7 @@ let n = 0
 for (const topic of order) {
   const t = topics[topic]
   const m = []
-  const blocks = topic === "kosmos" ? 2 : 3
+  const blocks = 3
   for (let k = 0; k < blocks; k++) {
     m.push(...block(topic, k, {
       modern: k > 0,
@@ -268,19 +257,6 @@ tick(48)
 pile("pile-en", [["react", 3], ["japan", 3], ["sleep", 3], ["espresso", 3]])
 pile("pile-ru", [["remont", 3], ["iis", 3], ["shenok", 3], ["borsh", 3]])
 pile("pile-ko", [["jeju", 3], ["etf", 3], ["kimchi", 3], ["dog", 3]])
-// Like the owner's chat: a sofa, a calendar service, three questions about a car, an analytics page and two
-// notes on the privacy page another chat is about. The calendar and the analytics page belong nowhere.
-topics.calendar = { tag: "work", pages: [["https://www.taskcal.example/features", "TaskCal — calendar for tasks"]], qa: [["Can TaskCal sync tasks to Google Calendar both ways?", "Yes, two-way sync is in the paid plan; the free plan only shows tasks as read-only events."]] }
-topics.analytics = { tag: "work", pages: [["https://analytics.example/dashboard/retention", "Retention dashboard"]], qa: [["Why does day-7 retention drop for the iOS cohort?", "The iOS cohort came mostly from one ad campaign whose users installed and left; segment by source before comparing."]] }
-lang.calendar = "en"
-lang.analytics = "en"
-pile("pile-owner", [
-  ["home", 3, { page: ["https://www.ikea.com/us/en/p/kivik-sofa-hillared-anthracite-s59305616/", "KIVIK Sofa - IKEA"] }],
-  ["calendar", 0, { expect: null }],
-  ["ev", 3], ["ev", 4], ["ev", 5],
-  ["analytics", 0, { expect: null }],
-  ["kosmos", 2, { notes: ["Тест заметки: проверить раздел про cookies и сроки хранения", "Ещё одна заметка к политике: сравнить с нашей"] }]
-])
 
 writeFileSync(out, JSON.stringify(chats, null, 1))
 writeFileSync(out.replace(/\.json$/, "") + ".truth.json", JSON.stringify(truth, null, 1))

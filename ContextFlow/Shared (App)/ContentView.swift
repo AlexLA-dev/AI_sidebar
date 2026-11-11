@@ -587,7 +587,7 @@ struct Tip {
     let color: Color
     let title: LocalizedStringKey
     let text: LocalizedStringKey
-    // A short recording of the extension doing it (TipClips/<en|ru>/<clip>.mp4).
+    // A short recording of the extension doing it (TipClips/<language>/<clip>.mp4, TipClip.language).
     var clip: String? = nil
     // Organizing (2.5): Turn on or Try Pro under it.
     var organize = false
@@ -886,10 +886,15 @@ enum TipClip {
     static let aspect: CGFloat = 540.0 / 794.0
     static let width: CGFloat = 270 // at most; about 400 pt tall
 
-    /// The clip recorded in the app's language: Russian, or English for every other language.
+    /// The clips' language (build 95, one rule for every language, TipClipShare.language): the first of the app's
+    /// language and the person's other languages that has its clips (TipClips/<language>/), else English.
+    static let language: String = {
+        let folder = Bundle.main.url(forResource: "TipClips", withExtension: nil)
+        return TipClipShare.language(Bundle.main.preferredLocalizations + Locale.preferredLanguages, available: folder.map(TipClipShare.languages) ?? [])
+    }()
+
     static func url(_ name: String) -> URL? {
-        let lang = Bundle.main.preferredLocalizations.first?.hasPrefix("ru") == true ? "ru" : "en"
-        return Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(lang)")
+        Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(language)")
     }
 }
 
@@ -994,6 +999,9 @@ struct ProView: View {
             }
             .onAppear { scrollToFocus(scroller) }
             .onChange(of: paywall.focus) { _ in scrollToFocus(scroller) }
+            .onAppear { buyChosen() }
+            .onChange(of: paywall.buyNow) { _ in buyChosen() }
+            .onChange(of: store.products.count) { _ in buyChosen() }
         }
         .navigationTitle("ContextFlow Pro")
         .task { await store.refreshPlanFacts() }
@@ -1004,6 +1012,15 @@ struct ProView: View {
                 dismissButton: .default(Text("OK")) { requestReview() }
             )
         }
+    }
+
+    /// Chosen in the panel (contextflow://subscribe?plan=…&period=…): its purchase opens at once, once the plans have
+    /// loaded and are on screen (build 95). Not the subscription the person already has.
+    private func buyChosen() {
+        guard let id = paywall.buyNow, busyProduct == nil, let product = store.products.first(where: { $0.id == id }) else { return }
+        paywall.buyNow = nil
+        guard !(store.entitlement.active && store.entitlement.productId == id) else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { buy(product) }
     }
 
     /// From the panel's plans sheet (contextflow://subscribe?plan=…&period=…): the chosen plan in view.
@@ -1170,6 +1187,13 @@ struct ProView: View {
                         .foregroundColor(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                if let code = store.unclearCurrency {
+                    Text("Prices in \(code), as the App Store gives them.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("plans.currency")
+                }
             }
         }
         if let message {
@@ -1266,12 +1290,18 @@ final class Paywall: ObservableObject {
     }
     @Published var focus: StoreKitManager.Tier?
     @Published var yearly = true
+    /// The product to buy at once (build 95, the owner since 91: "Choose…" in the panel and "Buy" in the chat open the
+    /// App Store's purchase of that plan and period, not the plans with one more tap to go).
+    @Published var buyNow: String?
 
     func open(_ url: URL) {
         let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
         let value = { (name: String) in items.first { $0.name == name }?.value }
-        if let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:)) { focus = plan }
+        let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:))
+        if let plan { focus = plan }
         if let period = value("period") { yearly = period == "yearly" }
+        // A plan and a period named: that product is bought now (the plans stay behind the App Store's sheet).
+        if let plan, let period = value("period") { buyNow = "com.contextflow.\(plan.rawValue).\(period == "yearly" ? "yearly" : "monthly")" }
     }
 }
 
@@ -1365,6 +1395,14 @@ struct TierCard: View {
                 Text("You save \(deal.saving) a year")
                     .font(.footnote.weight(.semibold))
                     .foregroundColor(.green)
+            }
+            // An Ultra subscriber: this week's listening on Ultra's card too, as in the panel's plans (build 95; the owner
+            // asked for the minutes left in the player, Settings and the plans).
+            if tier == .ultra, currentTier == .ultra, let left = facts.speakLeftSeconds {
+                Text("Listening: \(left / 60) of \(facts.speakWeeklyMinutes) min left this week")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .accessibilityIdentifier("plans.listen.left")
             }
             ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
                 Feature(systemImage: line.0, text: line.1)
@@ -2102,11 +2140,23 @@ struct PlanTourView: View {
             return Info(symbol: "eye", color: .green, title: "Watch up to \(step == .ultraWatch ? facts.watchUltra : facts.watchPro) pages",
                         text: "In Safari, select a price, stock or a date and tap the eye. For the whole page: … → Watch this page.", clip: "watch")
         case .ultraListen:
+            // Build 95: the tour shows it working, as Tips do (its clip is the panel's player: a Mac's only).
+            #if os(iOS)
+            let clip: String? = nil
+            #else
+            let clip: String? = "listen"
+            #endif
             return Info(symbol: "speaker.wave.2.fill", color: Self.ultraColor, title: "Listen",
-                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.")
+                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.", clip: clip)
         case .ultraSimilar:
+            // Build 95: the tour shows it working, as Tips do (its clip is touch: iPhone and iPad only).
+            #if os(iOS)
+            let clip: String? = "similar"
+            #else
+            let clip: String? = nil
+            #endif
             return Info(symbol: "square.on.square", color: Self.ultraColor, title: "Find similar",
-                        text: "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.")
+                        text: "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.", clip: clip)
         }
     }
 

@@ -3,6 +3,7 @@
 // and are kept a while for the clip page (src/pages/clip.ts). Only Safari has the app; elsewhere there are none.
 
 import { TARGET } from "../shared/config"
+import { clipLanguage } from "../shared/clipLanguage"
 import { callNative } from "./native"
 
 type Part = { ok: boolean; total?: number; offset?: number; length?: number; data?: string }
@@ -15,7 +16,8 @@ const KEEP = 12
 /** A clip's bytes (base64), or not ok when the app hasn't shared it (not opened since the install or the update). */
 export async function tipClip(name: string, lang: string): Promise<TipClipReply> {
   if (TARGET !== "safari" || !/^[a-z0-9-]{1,40}$/.test(name)) return { ok: false }
-  const which = lang === "ru" ? "ru" : "en"
+  // The panel's language, any (build 95): the app picks the folder, its clips or the next language's, else English.
+  const which = clipLanguage(lang)
   const key = `${which}/${name}`
   const hit = kept.get(key)
   if (hit) return { ok: true, data: hit }

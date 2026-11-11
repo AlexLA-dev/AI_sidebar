@@ -49,6 +49,9 @@ export interface Entry extends ChatTurn {
   // them in their country (two letters).
   similarRegion?: "world" | "local"
   similarCountry?: string
+  // Build 95: the chip they tapped and their own words apart (the server weighs the chip softly, their words strictly).
+  similarChip?: string
+  similarWords?: string
   similar?: SimilarAnswer
   // User turns: where they were asked, and whether the page had changed since the last question there.
   page?: PageRef

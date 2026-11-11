@@ -28,6 +28,9 @@ export interface BubbleContext {
   selection: string
   range: Range | null
   close(): void
+  // The same action in the panel, on the row over its field (build 95, the owner: with the panel open on a selected
+  // price, Watch and Remind were only in the pop-up): the page keeps its selection, and nothing closes.
+  panel?: true
 }
 
 /** A row in the "Reminders" list (a reminder, the bell) or in "Watching" (something watched, the eye). */

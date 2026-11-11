@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "「{0}」に統合しました"
  },
+ "orgMergeHere": {
+  "message": "「{0}」をここに統合"
+ },
+ "orgMergeHereA11y": {
+  "message": "前のチャット「{0}」をこのチャットに統合"
+ },
+ "orgMergedHere": {
+  "message": "「{0}」をここに統合しました"
+ },
  "recs_one": {
   "message": "おすすめ {0} 件"
  },
@@ -1720,6 +1729,9 @@
  },
  "plansNote": {
   "message": "登録はContextFlowアプリで行います。Ultraへの切り替えはすぐに始まり、現在のプランの残り分はAppleが返金します。"
+ },
+ "plansCurrency": {
+  "message": "価格は{0}です（App Storeの表示どおり）。"
  },
  "tierByok1": {
   "message": "自分のOpenAIまたはClaudeのAPIキーで、回答数は無制限"
@@ -2103,7 +2115,7 @@
   "message": "ContextFlowで続きを聴く — {0}から"
  },
  "listenNotifyAsk": {
-  "message": "Safariを離れたり画面をロックしたりしても聴き続けるには、通知をオンにしてください。オフの場合、Listenはアプリを開きます。"
+  "message": "Safariを離れたり画面をロックしたりしても聴き続けるには、通知をオンにしてください。オフの場合、「読み上げ」はアプリを開きます。"
  },
  "listenNotifyOn": {
   "message": "通知をオンにする"
@@ -2215,6 +2227,12 @@
  },
  "similarEstimated": {
   "message": "説明文からの推定"
+ },
+ "similarSame": {
+  "message": "同じ商品・別のショップ"
+ },
+ "similarMisses": {
+  "message": "選んだ条件に合いません"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"
@@ -2493,6 +2511,6 @@
   "message": "ContextFlowがページを読むのは質問したときだけで、回答のために送るのはそのテキストのみです。チャットはあなたのデバイスとiCloudに保存されます。提案をオンにすると、新しいメッセージのテキストも、どこに入るかを見つけるために当社のサーバーに送られます。当社は保存しません。"
  },
  "tip_clips": {
-  "message": "en"
+  "message": "ja"
  }
 }

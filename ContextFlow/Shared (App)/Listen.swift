@@ -1,6 +1,5 @@
 import AVFoundation
 import Combine
-import CryptoKit
 import MediaPlayer
 import NaturalLanguage
 import SwiftUI
@@ -72,27 +71,46 @@ final class VoicedList: ObservableObject {
         return added
     }
 
-    /// The text's id: cyrb53's two 32-bit lanes over "<what>|<its first 24,000 UTF-16 units>" (src/shared/voiced.ts).
+    /// Voiced as the server counts it (build 95): kept with this device's list (the panel's too, through the App Group).
+    func markAll(_ list: [String]) {
+        guard !list.isEmpty, SharedDefaults.shared.markVoiced(list) else { return }
+        reload()
+    }
+
+    /// When each text was last asked about: a chat opened again soon after asks nothing.
+    private var asked: [String: Date] = [:]
+
+    /// Build 95 (the owner on 94: no mark anywhere; it was set only by a listen heard to its very end, on that device):
+    /// a chat's answers as the server counts them, heard on any device in any number of listens. Each is asked about at
+    /// most every 10 minutes, with its parts' keys when they're known here (as Listen makes them), else by its id.
+    /// Called as a chat opens: the ids and keys (hashing, splitting, regular expressions, kept scripts read from disk)
+    /// are worked out off the main thread, and only what's known and asked about is touched here, on the main actor.
+    func ask(answers: [String]) {
+        guard StoreKitManager.shared.isUltra, !answers.isEmpty else { return }
+        let recent = Array(answers.suffix(30))
+        Task {
+            let all = await Task.detached(priority: .utility) { VoicedQuery.answers(recent) }.value
+            // Back on the main actor: what's voiced here already or was asked about lately is left out. Two chats opened
+            // one after the other can't both ask about the same text: this runs on the main actor, one at a time.
+            let now = Date()
+            let todo = all.filter { !ids.contains($0.id) && now.timeIntervalSince(asked[$0.id] ?? .distantPast) > 600 }
+            guard !todo.isEmpty else { return }
+            for answer in todo { asked[answer.id] = now }
+            let found = await Task.detached(priority: .utility) {
+                todo.map { VoicedQuery.Text(id: $0.id, keys: VoicedQuery.keys(answer: $0.text, kept: SpeechCache.read)) }
+            }.value
+            let texts: [[String: Any]] = found.map { ["id": $0.id, "keys": $0.keys] }
+            guard let request = try? ChatAI.heardRequest([], texts: texts),
+                  let (data, response) = try? await URLSession.shared.data(for: request),
+                  (response as? HTTPURLResponse)?.statusCode == 200,
+                  let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+            self.markAll((body["voiced"] as? [String]) ?? [])
+        }
+    }
+
+    /// The text's id (src/shared/voiced.ts voicedId).
     nonisolated static func id(what: String, text: String) -> String {
-        var h1: UInt32 = 0xdeadbeef
-        var h2: UInt32 = 0x41c6ce57
-        func mix(_ unit: UInt16) {
-            h1 = (h1 ^ UInt32(unit)) &* 2654435761
-            h2 = (h2 ^ UInt32(unit)) &* 1597334677
-        }
-        for unit in what.utf16 { mix(unit) }
-        mix(124) // "|"
-        var count = 0
-        for unit in text.utf16 {
-            if count == 24_000 { break }
-            mix(unit)
-            count += 1
-        }
-        h1 = (h1 ^ (h1 >> 16)) &* 2246822507
-        h1 ^= (h2 ^ (h2 >> 13)) &* 3266489909
-        h2 = (h2 ^ (h2 >> 16)) &* 2246822507
-        h2 ^= (h1 ^ (h1 >> 13)) &* 3266489909
-        return String(format: "%08x%08x", h2, h1)
+        VoicedQuery.id(what: what, text: text)
     }
 }
 
@@ -346,6 +364,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Each part's samples here (its key on the devices and the server), and the seconds heard of each (build 92: the
     /// week's minutes count what's heard; HeardStore keeps them until the server has).
     private var partRanges: [(key: String, start: Int, end: Int)] = []
+    /// The keys of the text's parts that can be said, in order (build 95: the server says from them whether it's voiced).
+    private var textKeys: [String] = []
     private var heardByKey: [String: Double] = [:]
     private var lastHeardSample: Int?
     /// The player's own clock (samples since play from startSample): where the scheduled audio ends on it, and the
@@ -360,7 +380,11 @@ final class ListenPlayer: NSObject, ObservableObject {
     private var timer: Timer?
     private var wired = false
     private let synth = AVSpeechSynthesizer()
-    /// What Apple's voice reads when the server can't at a text's start (out of minutes, or offline).
+    private lazy var appleEnd = AppleVoiceEnd { [weak self] in
+        Task { @MainActor in self?.appleFinished() }
+    }
+    /// What Apple's voice reads when the server can't at a text's start (out of minutes, or offline), and why.
+    private var appleReason: State?
     private var appleText: String?
     private var appleStarted = false
     /// The parts not yet spoken when the rest couldn't come ("Try again" asks for them), and the first one's index.
@@ -430,46 +454,16 @@ final class ListenPlayer: NSObject, ObservableObject {
         guard request == nil, let text = given, !text.isEmpty else { return }
         let lang = UserDefaults.standard.string(forKey: "CFDebugListenLang") ?? "en"
         // -CFDebugListenScript YES: written for the ear first, as a page or an answer with a table would be.
-        start(ListenRequest(id: "debug", parts: Self.sentenceParts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains"),
+        start(ListenRequest(id: "debug", parts: SpeechText.parts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains"),
                             text: text, script: UserDefaults.standard.bool(forKey: "CFDebugListenScript")))
         // -CFDebugListenMini YES (build 93): as after Done, the bar at the bottom (frames of it on the Mac).
         if UserDefaults.standard.bool(forKey: "CFDebugListenMini") { visible = false }
         #endif
     }
 
-    /// Sentences gathered into parts like the panel's (src/shared/speech.ts): a short first one, then up to 500.
-    nonisolated static func sentenceParts(_ text: String, first: Bool = true) -> [String] {
-        var parts: [String] = []
-        var current = ""
-        text.enumerateSubstrings(in: text.startIndex..., options: .bySentences) { sentence, _, _, _ in
-            guard let sentence else { return }
-            let limit = parts.isEmpty && first ? 240 : Self.partChars
-            if !current.isEmpty, current.count + sentence.count > limit {
-                parts.append(current.trimmingCharacters(in: .whitespaces))
-                current = ""
-            }
-            current += sentence
-        }
-        if !current.trimmingCharacters(in: .whitespaces).isEmpty { parts.append(current.trimmingCharacters(in: .whitespaces)) }
-        return parts
-    }
-
-    /// A long text for /api/v2/speak-script in pieces of at most 5000 characters, cut between paragraphs.
+    /// A long text for /api/v2/speak-script in pieces of at most 5000 characters, cut between paragraphs (the panel's).
     nonisolated static func scriptChunks(_ text: String, size: Int = 5000) -> [String] {
-        var chunks: [String] = []
-        var current = ""
-        for paragraph in text.components(separatedBy: "\n\n") {
-            let pieces = paragraph.utf16.count > size ? sentenceParts(paragraph, first: false) : [paragraph]
-            for piece in pieces {
-                if !current.isEmpty, current.utf16.count + piece.utf16.count + 2 > size {
-                    chunks.append(current.trimmingCharacters(in: .whitespacesAndNewlines))
-                    current = ""
-                }
-                current += (current.isEmpty ? "" : "\n\n") + piece
-            }
-        }
-        if !current.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { chunks.append(current.trimmingCharacters(in: .whitespacesAndNewlines)) }
-        return chunks
+        SpeechText.scriptChunks(text, size: size)
     }
 
     /// Listen under an answer in the app's own chats (build 90): Ultra plays it here; without Ultra the sheet says
@@ -479,7 +473,6 @@ final class ListenPlayer: NSObject, ObservableObject {
             visible = true
             return
         }
-        let plain = Self.plainText(markdown)
         guard StoreKitManager.shared.isUltra else {
             stop()
             self.request = ListenRequest(id: id, parts: [], lang: "", what: "answer", title: title, url: nil)
@@ -487,32 +480,14 @@ final class ListenPlayer: NSObject, ObservableObject {
             visible = true
             return
         }
-        let parts = Self.sentenceParts(plain)
+        // As the panel makes them (build 95): the same parts, language and text for the ear, so a text heard in Safari
+        // plays here from what's kept and isn't counted again (and the other way round).
+        let text = (markdown as NSString).length > SpeechText.maxChars ? (markdown as NSString).substring(to: SpeechText.maxChars) : markdown
+        let parts = Array(SpeechText.parts(SpeechText.text(text)).prefix(80))
         guard !parts.isEmpty else { return }
         ChatAI.reportUse("listen", "start", ["what": "answer"])
-        start(ListenRequest(id: id, parts: parts, lang: Self.language(of: plain), what: "answer", title: title, url: nil,
-                            text: markdown, script: Self.needsScript(markdown), voiced: VoicedList.id(what: "answer", text: markdown)))
-    }
-
-    /// An answer's Markdown as plain sentences (no marks, links' words only).
-    nonisolated static func plainText(_ markdown: String) -> String {
-        var text = markdown.replacingOccurrences(of: #"```[\s\S]*?```"#, with: " ", options: .regularExpression)
-        text = text.replacingOccurrences(of: #"\[([^\]]+)\]\([^)]*\)"#, with: "$1", options: .regularExpression)
-        text = text.replacingOccurrences(of: #"(?m)^\s{0,3}(#{1,6}|[-*+]|\d+[.)]|>)\s+"#, with: "", options: .regularExpression)
-        text = text.replacingOccurrences(of: #"[*_`~|]+"#, with: " ", options: .regularExpression)
-        return text.replacingOccurrences(of: #"[ \t]+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// Tables, lists, headings or code: written for the ear first (src/shared/speech.ts needsScript, roughly).
-    nonisolated static func needsScript(_ markdown: String) -> Bool {
-        markdown.range(of: #"(?m)^\s*(\|.*\||#{1,6}\s|[-*+]\s|\d+[.)]\s|```)"#, options: .regularExpression) != nil
-    }
-
-    /// The text's language ("en", "ru"…), for the voice.
-    nonisolated static func language(of text: String) -> String {
-        let recognizer = NLLanguageRecognizer()
-        recognizer.processString(String(text.prefix(1000)))
-        return recognizer.dominantLanguage?.rawValue ?? (Locale.current.language.languageCode?.identifier ?? "en")
+        start(ListenRequest(id: id, parts: parts, lang: SpeechText.language(markdown) ?? SpeechText.uiLanguage, what: "answer", title: title, url: nil,
+                            text: text, script: SpeechText.needsScript(text), voiced: VoicedList.id(what: "answer", text: markdown)))
     }
 
     func open(_ url: URL) {
@@ -672,6 +647,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         Task { await Self.sendHeard() }
         reportHeard()
         partRanges = []
+        textKeys = []
         heardByKey = [:]
         lastHeardSample = nil
         waitTask?.cancel()
@@ -694,6 +670,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         pausedAt = nil
         fetchedAll = false
         appleText = nil
+        appleReason = nil
         pendingReason = nil
         appleStarted = false
         elapsed = 0
@@ -708,7 +685,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         switch state {
         case .playing: pause()
         case .paused: play()
-        case .ended: seek(to: 0)
+        case .ended:
+            if samples.isEmpty, appleText != nil, let reason = appleReason {
+                state = reason
+                speakWithApple()
+            } else {
+                seek(to: 0)
+            }
         // Stopped short: play is "Try again" (what was heard can be heard again with ‹15).
         case .interrupted: rest.isEmpty ? seek(to: 0) : retryRest()
         default:
@@ -840,6 +823,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             }
         }
         fetchedAll = true
+        noteText(request)
         startSkippedIfShort()
     }
 
@@ -858,6 +842,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         else if Int(after / 10) != Int(before / 10) { keepHeard() }
     }
 
+    /// All of the text's parts known here (from its first): the text goes with the next heard report, and the server
+    /// says whether it's voiced now (build 95). Carried on from a later part, the panel tells it.
+    private func noteText(_ request: ListenRequest) {
+        guard request.firstIndex == 0, let id = request.voiced, !textKeys.isEmpty else { return }
+        HeardStore.noteText(id, textKeys)
+    }
+
     /// Into the store the server is told from (by part key; it counts a part once, up to its length).
     private func keepHeard() {
         for (key, seconds) in heardByKey { HeardStore.note(key, seconds) }
@@ -866,15 +857,19 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// What's waiting goes to the server (when a text stops, and at launch for what didn't go); the minutes shown follow.
     static func sendHeard() async {
         let items = HeardStore.items()
-        guard !items.isEmpty, let request = try? ChatAI.heardRequest(items),
+        let texts = HeardStore.texts()
+        guard !items.isEmpty || !texts.isEmpty, let request = try? ChatAI.heardRequest(items, texts: texts),
               let (data, response) = try? await URLSession.shared.data(for: request),
               (response as? HTTPURLResponse)?.statusCode == 200 else { return }
         HeardStore.counted(items)
-        if let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let usage = body["usage"] as? [String: Any],
-           let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
+        HeardStore.textsSent(texts.compactMap { $0["id"] as? String })
+        let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        if let usage = body?["usage"] as? [String: Any], let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
             lastUsage = (used, limit)
             shared.secondsLeft = max(0, limit - used)
         }
+        // Voiced now, as the server counts it (build 95).
+        VoicedList.shared.markAll((body?["voiced"] as? [String]) ?? [])
     }
 
     /// Where the minutes went for this text, once, when it stops: heard, from where, and charged up front.
@@ -932,6 +927,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             }
         }
         fetchedAll = true
+        noteText(request)
         startSkippedIfShort()
     }
 
@@ -982,7 +978,7 @@ final class ListenPlayer: NSObject, ObservableObject {
                     // Nothing written: the panel's own parts (its rules), as before this was written for the ear.
                     give(request.parts)
                 } else {
-                    give(Self.sentenceParts(chunk, first: first))
+                    give(SpeechText.parts(SpeechText.text(chunk)))
                 }
             }
         }
@@ -999,6 +995,7 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// again twice before it counts.
     private func speakPart(_ part: String, index: Int, request: ListenRequest) async -> Spoken {
         let key = Self.cacheKey(part, request.lang)
+        if Self.speakable(part) { textKeys.append(key) }
         // Where this part starts here (what's heard of it counts by its key).
         partRanges.append((key: key, start: samples.count, end: Int.max))
         defer { if let last = partRanges.indices.last, partRanges[last].key == key { partRanges[last].end = samples.count } }
@@ -1298,9 +1295,13 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// The rest can't come. Nothing of ours played yet: Apple's voice reads the text (out of minutes, offline). Ours
     /// has played: no other voice takes over mid-text; what came plays to its end, then "Try again".
     private func fallBack(parts: [String], index: Int, _ reason: State) {
-        ChatAI.reportUse("listen", samples.isEmpty ? "apple" : "interrupted", ["what": request?.what == "page" ? "page" : "answer"])
-        if samples.isEmpty {
+        // Carried on from Safari (build 95): our voice has played there, so Apple's doesn't take over mid-text either.
+        let carriedOn = (request?.base ?? 0) + (request?.skip ?? 0) > 0
+        let apple = samples.isEmpty && !carriedOn
+        ChatAI.reportUse("listen", apple ? "apple" : "interrupted", ["what": request?.what == "page" ? "page" : "answer"])
+        if apple {
             appleText = parts.joined(separator: " ")
+            appleReason = reason
             state = reason
             speakWithApple()
             return
@@ -1312,7 +1313,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         if case .limit = reason { limited = true } else { limited = false }
         restLimited = limited
         pendingReason = .interrupted(limit: limited)
-        if state != .playing { state = .interrupted(limit: limited) }
+        if samples.isEmpty {
+            // Nothing of it here yet (carried on from Safari): "Try again" at once, nothing left running.
+            pendingReason = nil
+            finish(.interrupted(limit: limited))
+        } else if state != .playing {
+            state = .interrupted(limit: limited)
+        }
     }
 
     private var pendingReason: State?
@@ -1351,8 +1358,14 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Heard to its end with nothing skipped, here and in Safari before (build 94): Listen marks it "already voiced", in
     /// the app and in the panel on this device.
     private func noteVoiced() {
-        guard let request, let id = request.voiced, !skippedAhead, !request.skippedBefore,
-              reached >= base + Double(samples.count) / Self.rate - 1.5 else { return }
+        guard let request, let id = request.voiced else { return }
+        let gap = max(0, base + Double(samples.count) / Self.rate - reached)
+        guard !skippedAhead, !request.skippedBefore, gap <= 1.5 else {
+            // Not marked: why, for the record (build 95: the owner saw no mark on 94).
+            let why = skippedAhead ? "skipped" : request.skippedBefore ? "before" : "short"
+            ChatAI.reportUse("listen", "unvoiced", ["what": request.what == "page" ? "page" : "answer", "why": why, "gap_s": String(Int(gap.rounded()))])
+            return
+        }
         if VoicedList.shared.mark(id) { ChatAI.reportUse("listen", "voiced", ["what": request.what == "page" ? "page" : "answer"]) }
     }
 
@@ -1374,10 +1387,23 @@ final class ListenPlayer: NSObject, ObservableObject {
         guard let request, let text = appleText, !text.isEmpty, !appleStarted else { return }
         appleStarted = true
         activateSession()
+        synth.delegate = appleEnd
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = Self.bestVoice(request.lang, gender: UserDefaults.standard.string(forKey: "cf_voice_gender") ?? "female")
         utterance.rate = Self.appleRate(speed)
         synth.speak(utterance)
+    }
+
+    /// Apple's voice read it to its end: the text has ended (the bar goes, the audio session is let go); Play reads it
+    /// again.
+    private func appleFinished() {
+        guard appleStarted, request != nil else { return }
+        switch state {
+        case .appleVoice, .limit: break
+        default: return
+        }
+        appleStarted = false
+        finish(.ended)
     }
 
     /// Apple's rate for our speeds (its scale isn't linear: 0.5 is normal speech).
@@ -1541,13 +1567,16 @@ final class ListenPlayer: NSObject, ObservableObject {
         return max(1, (units / 14).rounded(.up))
     }
 
-    static func cacheKey(_ text: String, _ lang: String) -> String {
-        SHA256.hash(data: Data("v1|\(lang)|\(text)".utf8)).map { String(format: "%02x", $0) }.joined()
+    nonisolated static func cacheKey(_ text: String, _ lang: String) -> String {
+        VoicedQuery.key(text, lang)
+    }
+
+    /// Something a voice can say (a part without is skipped: never made, never heard).
+    nonisolated static func speakable(_ part: String) -> Bool {
+        VoicedQuery.speakable(part)
     }
 }
 
-/// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
-/// for again): about 25 minutes of audio, nothing older than 7 days; gone with the chats ("Delete all chats").
 /// Read aloud's seconds heard, by part key, until the server has counted them (build 92: the week's minutes count what's
 /// heard). They go with the next part asked for, on their own when a text stops, and again at the next launch if they
 /// didn't; the server counts a part once, up to its length, so sending again never charges twice.
@@ -1566,6 +1595,28 @@ enum HeardStore {
         return map.prefix(80).map { ["key": $0.key, "s": $0.value] }
     }
 
+    private static let textsKey = "cf_listen_heard_texts"
+
+    /// A text heard from, with all its parts' keys (build 95): told with the next report, the server says if it's voiced.
+    static func noteText(_ id: String, _ keys: [String]) {
+        var map = UserDefaults.standard.dictionary(forKey: textsKey) as? [String: [String]] ?? [:]
+        map[id] = Array(keys.prefix(80))
+        if map.count > 20 { map = Dictionary(uniqueKeysWithValues: map.prefix(20).map { ($0.key, $0.value) }) }
+        UserDefaults.standard.set(map, forKey: textsKey)
+    }
+
+    static func texts() -> [[String: Any]] {
+        let map = UserDefaults.standard.dictionary(forKey: textsKey) as? [String: [String]] ?? [:]
+        return map.prefix(20).map { ["id": $0.key, "keys": $0.value] }
+    }
+
+    static func textsSent(_ ids: [String]) {
+        guard !ids.isEmpty else { return }
+        var map = UserDefaults.standard.dictionary(forKey: textsKey) as? [String: [String]] ?? [:]
+        for id in ids { map.removeValue(forKey: id) }
+        UserDefaults.standard.set(map, forKey: textsKey)
+    }
+
     /// Takes out what the server counted (only where nothing more was heard meanwhile).
     static func counted(_ sent: [[String: Any]]) {
         var map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
@@ -1577,7 +1628,10 @@ enum HeardStore {
     }
 }
 
-enum SpeechCache {
+/// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
+/// for again): about 25 minutes of audio, nothing older than 7 days; gone with the chats ("Delete all chats").
+/// Nonisolated (build 95): a chat being opened reads kept scripts off the main thread (VoicedList.ask).
+nonisolated enum SpeechCache {
     private static let limit = 75 * 1024 * 1024
     private static let maxAge: TimeInterval = 7 * 86_400
 
@@ -1803,50 +1857,15 @@ struct ListenView: View {
     }
 }
 
-/// Cuts text that streams in into parts as soon as they're complete, at sentence ends: the very first part as soon as
-/// a sentence of `min` characters is there, then parts of up to 500 (src/shared/speech.ts PartSplitter).
-final class PartSplitter {
-    private var buffer = ""
-    private var first: Bool
-    private let min: Int
-    private static let sentenceEnd = try! NSRegularExpression(pattern: "[.!?…。！？؟।][\"'»”)\\]]*\\s+|\\n+")
+/// Tells the player when Apple's voice has read its text to the end (build 95).
+nonisolated final class AppleVoiceEnd: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable {
+    private let done: @Sendable () -> Void
 
-    init(first: Bool = true, min: Int = 40) {
-        self.first = first
-        self.min = min
+    init(_ done: @escaping @Sendable () -> Void) {
+        self.done = done
     }
 
-    func push(_ text: String) -> [String] {
-        buffer += text
-        var out: [String] = []
-        while true {
-            let limit = first ? 240 : ListenPlayer.partChars
-            let ns = buffer as NSString
-            var cut = -1
-            var firstEnd = -1
-            for match in Self.sentenceEnd.matches(in: buffer, range: NSRange(location: 0, length: ns.length)) {
-                let end = match.range.location + match.range.length
-                if firstEnd < 0 { firstEnd = end }
-                if end <= limit { cut = end } else { break }
-            }
-            if cut < 0, firstEnd >= 0, ns.length > limit { cut = firstEnd }
-            guard cut >= 0, ns.length >= limit || (first && cut >= min) else { break }
-            let part = ns.substring(to: cut).trimmingCharacters(in: .whitespacesAndNewlines)
-            buffer = ns.substring(from: cut)
-            if !part.isEmpty {
-                out.append(part)
-                first = false
-            }
-        }
-        return out
-    }
-
-    func end() -> [String] {
-        let rest = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-        buffer = ""
-        guard !rest.isEmpty else { return [] }
-        let parts = ListenPlayer.sentenceParts(rest, first: first)
-        if !parts.isEmpty { first = false }
-        return parts
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        done()
     }
 }

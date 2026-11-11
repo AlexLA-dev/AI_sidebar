@@ -13,7 +13,8 @@ export interface SimilarItem {
   name: string
   why: string
   fit: string
-  // The person's condition as the item's page shows it: "yes" checked, "unknown" not confirmed, "n/a" none asked.
+  // The person's condition as the item's page shows it: "yes" checked, "unknown" not confirmed, "n/a" none asked;
+  // "no" (build 95): close, but misses the chip they tapped (listed last, when few close ones meet it).
   met: Met
   url: string
   host: string
@@ -41,6 +42,10 @@ export interface SimilarItem {
   differs?: string
   // Build 93: an App Store app not sold in their country's store.
   regionLocked?: true
+  // Build 95: a price in another currency, in theirs at the day's rate ("114 EUR", shown as ≈); the very item they're
+  // on at another shop that sells it cheaper or has it in stock.
+  priceLocal?: string
+  same?: true
   // Build 93: what its reviewers say — the rating its pages state, where it was read; build 94: what they like (pros)
   // and dislike (cons), borne out by their words on those pages (build 93's one-sentence summary in answers kept since).
   reviews?: { rating?: { value: number; best: number; count?: number }; pros?: string; cons?: string; summary?: string; sources: string[] }
@@ -103,6 +108,9 @@ export interface SimilarPayload {
   // Build 93: where to look (anywhere, or near them) and their country (two letters).
   region?: "world" | "local"
   country?: string
+  // Build 95: the chip ("" for none) and their own words apart; `condition` stays both joined, for older servers.
+  chip?: SimilarChip | ""
+  words?: string
 }
 
 /** The longest selection sent as Find similar's subject. */
@@ -125,6 +133,12 @@ export function similarAllowed(plan: Plan | string | null | undefined): boolean 
 export const SIMILAR_CHIPS = ["cheaper", "in_stock", "newer", "free", "language", "shorter"] as const
 export type SimilarChip = (typeof SIMILAR_CHIPS)[number]
 
+/** Build 95: what they asked, the chip apart from their own words (the server weighs one softly, the other strictly). */
+export interface SimilarAsk {
+  chip?: SimilarChip
+  words?: string
+}
+
 /** What the page the person is on states for machines (page watch's reader), as the server takes it. */
 export function factsFrom(st: Structured, lang: string): SimilarFacts {
   const facts: SimilarFacts = {}
@@ -141,20 +155,54 @@ export function factsFrom(st: Structured, lang: string): SimilarFacts {
   return facts
 }
 
+/** The words of the answer's text, in the person's language (src/shared/similarWords.ts builds them). */
+export interface MarkdownWords {
+  inStock: string
+  outOfStock: string
+  notConfirmed: string
+  notOpened: string
+  // Build 95: the rest of what the panel shows, so the app's copy (and a copy or share) carries it too.
+  percent?: (n: number) => string
+  estimated?: string
+  differs?: (s: string) => string
+  say?: string
+  ratings?: (n: number) => string
+  pros?: (s: string) => string
+  cons?: (s: string) => string
+  same?: string
+  misses?: string
+  money?: (price: string) => string
+}
+
 /**
- * The answer as Markdown: the chat turn's text, for copying, sharing and the app, which show no cards. Links are
- * the checked pages'.
+ * The answer as Markdown: the chat turn's text, for copying, sharing and the app before build 95 (which shows no
+ * cards). Links are the checked pages'. Build 95: each item with what the panel shows — its price (≈ theirs), how
+ * close it is, how it differs and what people say.
  */
-export function similarMarkdown(a: Pick<SimilarAnswer, "intro" | "items" | "note">, words: { inStock: string; outOfStock: string; notConfirmed: string; notOpened: string }): string {
+export function similarMarkdown(a: Pick<SimilarAnswer, "intro" | "items" | "note">, words: MarkdownWords): string {
   const lines = a.intro ? [a.intro, ""] : []
+  const money = words.money ?? ((p: string) => p)
   a.items.forEach((it, i) => {
     const facts = [
-      it.price,
+      it.same && words.same ? words.same : "",
+      it.price ? `${money(it.price)}${it.priceLocal ? ` (≈ ${money(it.priceLocal)})` : ""}` : "",
       it.stock === "in" ? words.inStock : it.stock === "out" ? words.outOfStock : "",
-      it.met === "unknown" ? words.notConfirmed : "",
+      it.similarity !== undefined && words.percent && !it.same ? `${words.percent(it.similarity)}${it.estimated && words.estimated ? `, ${words.estimated}` : ""}` : "",
+      it.met === "unknown" ? words.notConfirmed : it.met === "no" && words.misses ? words.misses : "",
       it.checked ? "" : words.notOpened
     ].filter(Boolean).join(" · ")
-    lines.push(`${i + 1}. **[${it.name.replace(/[[\]]/g, "")}](${it.url})** (${it.host}) — ${it.why}${it.fit ? ` ${it.fit}` : ""}${facts ? ` _(${facts})_` : ""}`)
+    const r = it.reviews
+    const said = r && words.say ? [
+      r.rating ? `★ ${r.rating.value}${r.rating.best !== 5 ? `/${r.rating.best}` : ""}${r.rating.count && words.ratings ? ` · ${words.ratings(r.rating.count)}` : ""}` : "",
+      r.pros && words.pros ? words.pros(r.pros) : "",
+      r.cons && words.cons ? words.cons(r.cons) : "",
+      !r.pros && !r.cons && r.summary ? r.summary : ""
+    ].filter(Boolean).join(" · ") : ""
+    lines.push([
+      `${i + 1}. **[${it.name.replace(/[[\]]/g, "")}](${it.url})** (${it.host}) — ${it.why}${it.fit ? ` ${it.fit}` : ""}${facts ? ` _(${facts})_` : ""}`,
+      it.differs && words.differs ? ` ${words.differs(it.differs)}.` : "",
+      said ? ` ${words.say} ${said}.` : ""
+    ].join(""))
   })
   if (a.note) lines.push("", a.note)
   return lines.join("\n")
@@ -180,6 +228,8 @@ export function cleanItem(raw: unknown): SimilarItem | null {
     ...(typeof o.similarity === "number" && o.similarity >= 0 && o.similarity <= 100 ? { similarity: Math.round(o.similarity), ...(o.estimated === true ? { estimated: true as const } : {}) } : {}),
     ...(s(o.differs, 200) ? { differs: s(o.differs, 200) } : {}),
     ...(o.regionLocked === true ? { regionLocked: true as const } : {}),
+    ...(/^\d+(?:\.\d+)? [A-Z]{3}$/.test(s(o.priceLocal, 24)) ? { priceLocal: s(o.priceLocal, 24) } : {}),
+    ...(o.same === true ? { same: true as const } : {}),
     ...(cleanReviews(o.reviews) ?? {})
   }
 }

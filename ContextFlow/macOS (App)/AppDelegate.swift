@@ -25,16 +25,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().delegate = self
         // Page watch: this device's watches in Watching, and the notification question when they need it.
         WatchOpen.start()
+        // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare), as on iOS. Until
+        // build 95 this sat in the Debug-only launch below, so a Mac from TestFlight or the App Store had none.
+        DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
     }
 
     // A reminder on a message (set here or in the panel): the app opens on that message. A page reminder
     // (the bell by a selection) opens its page in Safari; its note stays in the chat.
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let info = response.notification.request.content.userInfo
-        // Find similar is done (build 94): its chat opens in the panel, on its page in Safari (SimilarAway).
+        // Find similar is done: its chat opens in the panel, on its page in Safari (SimilarAway), not another default
+        // browser, which has no panel.
         if info["similar"] is String {
             await MainActor.run {
-                if let page = SimilarAway.opened(info) { _ = NSWorkspace.shared.open(page) }
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "similar", "s": "notif"])
+                guard let page = SimilarAway.opened(info) else { return }
+                if let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") {
+                    NSWorkspace.shared.open([page], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration())
+                } else {
+                    _ = NSWorkspace.shared.open(page)
+                }
             }
             return
         }
@@ -86,8 +96,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     // development environment, checks it comes back with the changes, deletes it, prints the result
     // and quits.
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare).
-        DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
         guard CommandLine.arguments.contains("--cf-sync-selftest") else { return }
         Task {
             let id = "selftest-\(UUID().uuidString)"

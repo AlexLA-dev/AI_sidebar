@@ -53,10 +53,13 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
 })
 
 test("every card's clip, as the app shows it: on iPhone and iPad, on a Mac only where the app has one there", () => {
-  const app = (lang: string) => readdirSync(join(root, "ContextFlow/Shared (App)/TipClips", lang)).filter((f) => f.endsWith(".mp4")).map((f) => f.replace(/\.mp4$/, "")).sort()
-  // Every app clip is shown by a card, and every card's clip is there in both languages.
-  assert.deepEqual(tipClips(data), app("en"))
-  assert.deepEqual(tipClips(data), app("ru"))
+  const folder = join(root, "ContextFlow/Shared (App)/TipClips")
+  const app = (lang: string) => readdirSync(join(folder, lang)).filter((f) => f.endsWith(".mp4")).map((f) => f.replace(/\.mp4$/, "")).sort()
+  // Every app clip is shown by a card, and every card's clip is there in every language the app has clips in (build
+  // 95: whatever folders there are, English always; none of them a special case in the code).
+  const langs = readdirSync(folder, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+  assert.ok(langs.includes("en"))
+  for (const lang of langs) assert.deepEqual(tipClips(data), app(lang), lang)
   const tip = (title: string) => data.groups.flatMap((g: any) => g.tips).find((t: any) => t.title.en === title)
   assert.equal(tip("Share what you found").clip, "share")
   // 2.6 (93): moving ✦ aside is a first-block card with the clip; hiding it, under personalization, has none.
@@ -104,7 +107,8 @@ test("each extension language gets every Tips text, under keys no panel string u
     for (const key of keys) assert.ok(!(key in own), `${lang}: ${key} is a panel string too`)
     // The clips are in the extension now: no "With videos: in the app" line.
     assert.ok(!("tipsVideos" in own), `${lang}: tipsVideos`)
-    assert.equal(tips[data.clipLang.key], lang === "ru" ? "ru" : "en", lang)
+    // The panel's own language for the clips (build 95): the app picks the folder from it.
+    assert.equal(tips[data.clipLang.key], lang, lang)
     if (lang !== "en") assert.notEqual(tips[data.groups[0].title.key], "Get started", `${lang}: translated`)
   }
   assert.equal(tipsMessages(root, data, "ru")[data.groups.at(-1).title.key], "Приватность и персонализация")
@@ -316,6 +320,13 @@ test("the clips: in the panel's language; a Mac's own; the open block's first th
   ui.sheet(ru, false)
   await tick()
   assert.equal(src(ru.querySelector(".cf-tip-clip")), "ext://cf/dist/clip.html?name=open&lang=ru")
+  // Any language goes as it is (build 95): the app picks its clips, else the next language's that has them, else
+  // English. Russian isn't a special case.
+  messages = { [data.clipLang.key]: "pt_BR" }
+  const pt = box()
+  ui.sheet(pt, false)
+  await tick()
+  assert.equal(src(pt.querySelector(".cf-tip-clip")), "ext://cf/dist/clip.html?name=open&lang=pt_BR")
   messages = {}
   // A Mac: no clip where the app has none (opening it by a tap), so the first three start a card later.
   const mac = box()
@@ -356,4 +367,27 @@ test("the header's \"…\": Tips under Other… (2.6 (91)), right after Settings
   click([...without.querySelectorAll("[role=menuitem]")].at(-1) as Element)
   await flush()
   assert.ok(![...without.querySelectorAll("[role=menuitem]")].some((b: any) => text(b).trim() === "Tips"))
+})
+
+test("the clips' language: one rule for every language, in the panel, the extension and the app (build 95)", async () => {
+  const { clipLanguage } = await import("../src/shared/clipLanguage.ts")
+  for (const ok of ["en", "ru", "de", "pt_BR", "zh_TW", "zh-Hant-TW"]) assert.equal(clipLanguage(ok), ok)
+  for (const bad of ["", "../en", "en/../ru", "x", "english language", null, undefined]) assert.equal(clipLanguage(bad), "en")
+  const read = (path: string) => readFileSync(join(root, path), "utf8")
+  const code = [
+    "src/background/tipClips.ts", "src/pages/clip.ts", "src/content/tips/ClipFrame.tsx", "src/content/tips/TipsSheet.tsx",
+    "src/content/Guide.tsx", "scripts/tips-source.mjs", "ContextFlow/Shared (App)/ContentView.swift"
+  ].map(read).join("\n")
+  assert.doesNotMatch(code, /=== "ru" \? "ru" : "en"|hasPrefix\("ru"\) == true \? "ru" : "en"/)
+  const app = read("ContextFlow/Shared (App)/SharedDefaults.swift")
+  const ext = read("ContextFlow/Shared (Extension)/SharedDefaults.swift")
+  const share = (s: string) => s.slice(s.indexOf("enum TipClipShare"), s.indexOf("// MARK: - Read aloud made in the panel"))
+  assert.equal(share(app), share(ext), "the app's and the extension's TipClipShare are the same")
+  assert.doesNotMatch(share(app), /lang == "en" \|\| lang == "ru"/)
+  assert.match(share(app), /language\(\[lang\] \+ Locale\.preferredLanguages, available: languages\(in: folder\)\)/)
+  assert.match(read("ContextFlow/Shared (App)/ContentView.swift"), /TipClipShare\.language\(Bundle\.main\.preferredLocalizations \+ Locale\.preferredLanguages/)
+  // The Mac shares its clips with the panel in every build, not only Debug ones.
+  const mac = read("ContextFlow/macOS (App)/AppDelegate.swift")
+  const debug = mac.indexOf("#if DEBUG")
+  assert.ok(mac.indexOf("TipClipShare.publish()") > 0 && mac.indexOf("TipClipShare.publish()") < debug)
 })

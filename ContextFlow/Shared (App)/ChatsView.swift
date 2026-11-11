@@ -1119,7 +1119,8 @@ struct ExtensionOffBanner: View {
 
 // MARK: - A chat
 
-/// "Named “…” · Undo" (2.6), or why the chat couldn't be named (no Undo).
+/// "Named “…” · Undo" (2.6), or why the chat couldn't be named (no Undo), or (2.6 (95)) that suggestions now come by
+/// themselves, after the first one taken.
 private struct NameBar {
     let id = UUID()
     let chat: String
@@ -1166,6 +1167,8 @@ struct ChatDetailView: View {
     @ObservedObject private var voiced = VoicedList.shared
     @State private var suggestions: OrganizeModel.Suggestions?
     @State private var undoBar: (text: String, undo: Organize.MoveUndo)?
+    /// 2.6 (95): the older chat just merged into this one (its Undo keeps this chat shown).
+    @State private var mergedHere: String?
     // When that bar came, when it goes and where the chat was scrolled to (a class: scrolling doesn't redraw), and
     // whether a pointer holds it.
     @State private var undoBarClock = MovedBarClock()
@@ -1193,6 +1196,12 @@ struct ChatDetailView: View {
 
     private var currentId: String { shownId ?? threadId }
     private var thread: ChatThread? { library.threads.first { $0.id == currentId } }
+
+    /// The chat's answers, asked about whether they're voiced (build 95); not while one is still being written.
+    private func askVoiced(_ thread: ChatThread) {
+        guard streaming.isEmpty else { return }
+        voiced.ask(answers: thread.entries.filter { !$0.isUser && !$0.isNote }.map(\.content))
+    }
 
     var body: some View {
         Group {
@@ -1342,6 +1351,8 @@ struct ChatDetailView: View {
                         #if DEBUG
                         DebugHangLog.mark("open \(threadId)")
                         #endif
+                        // Build 95: which answers are already voiced, as the server counts them (any device, any listens).
+                        askVoiced(thread)
                         guard let scrollTo else { return }
                         DispatchQueue.main.async { proxy.scrollTo(scrollTo, anchor: .center) }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { flashMessage(scrollTo) }
@@ -1352,6 +1363,7 @@ struct ChatDetailView: View {
                         proxy.scrollTo("end", anchor: .bottom)
                         // Another message came: start picking again.
                         picked = nil
+                        askVoiced(thread)
                     }
                     // The tag picker opened: all of it in view (above the keyboard).
                     .onChange(of: tagging) { index in
@@ -1404,10 +1416,16 @@ struct ChatDetailView: View {
                 .task(id: "\(thread.id):\(thread.entries.count):\(asking == nil):\(organizeTick)") { await suggest(thread) }
                 // 2.6 (94): what iCloud has for it now (another device may have renamed it or settled a suggestion).
                 .task(id: thread.id) { await library.pull() }
-                // 2.6 (93): the chat's record came from another device while it's open: shown at once too.
-                .onChange(of: thread.org) { _ in showKept(thread) }
+                // 2.6 (93): the chat's record came from another device while it's open: shown at once too. 2.6 (95): read
+                // afresh by its id (this closure's `thread` is the chat as it was before the change: a name taken on another
+                // device stayed offered), and on a rename too.
+                .onChange(of: thread.org) { _ in showKept(thread.id) }
+                .onChange(of: thread.name) { _ in showKept(thread.id) }
                 // The bar after a move goes on the next action: a question, a note, another suggestion, leaving the chat.
                 .onDisappear { undoBar = nil }
+                // 2.6 (95): the first suggestion's bar waits for the bar of its move.
+                .onChange(of: undoBar == nil) { gone in if gone { showFirstWin() } }
+                .onChange(of: nameBar == nil) { gone in if gone { showFirstWin() } }
                 .safeAreaInset(edge: .bottom) {
                     if let picked {
                         pickBar(thread, picked, labels)
@@ -1594,7 +1612,7 @@ struct ChatDetailView: View {
         guard asking == nil, !thread.isHistory else { return }
         await organize.refreshStatus()
         guard organize.enabled(pro: store.isPro) else { suggestions = nil; return }
-        showKept(thread)
+        showKept(thread.id)
         try? await Task.sleep(nanoseconds: 900_000_000)
         guard !Task.isCancelled, let found = await organize.suggestions(for: thread, in: library.threads) else { return }
         // Kept with the chat even if it's no longer shown: the list counts it, other devices show it at once.
@@ -1615,12 +1633,12 @@ struct ChatDetailView: View {
 
     /// What the chat's own record suggests (worked out here or on another device, 2.6 (93)), at once: the run that
     /// follows has the last word.
-    private func showKept(_ thread: ChatThread) {
-        guard asking == nil, organize.enabled(pro: store.isPro) else { return }
+    private func showKept(_ id: String) {
+        guard asking == nil, organize.enabled(pro: store.isPro), let thread = library.threads.first(where: { $0.id == id }) else { return }
         guard let kept = organize.kept(thread, in: library.threads) else {
             // Nothing open in the record (2.6 (94)): what was settled meanwhile goes from what's shown.
             if let s = suggestions, s.chat == thread.id {
-                let left = organize.settled(s, thread)
+                let left = organize.settled(s, thread, in: library.threads)
                 if left != s { withAnimation(.easeOut(duration: 0.25)) { suggestions = left } }
             }
             return
@@ -1660,7 +1678,11 @@ struct ChatDetailView: View {
 
     /// The suggestions as they are now for this chat (gone once it changed, or while sharing or asking).
     private func current(_ thread: ChatThread) -> OrganizeModel.Suggestions? {
-        guard let s = suggestions, s.chat == thread.id, s.length == thread.entries.count, picked == nil, asking == nil else { return nil }
+        guard var s = suggestions, s.chat == thread.id, s.length == thread.entries.count, picked == nil, asking == nil else { return nil }
+        // 2.6 (95): a name that is the chat's by now (taken on another device), turned down or typed meanwhile isn't offered.
+        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || (thread.org?.nm?.no ?? []).contains(where: { $0.lowercased() == name.lowercased() }) {
+            s.name = nil
+        }
         return s
     }
 
@@ -1694,8 +1716,17 @@ struct ChatDetailView: View {
         }
     }
 
+    /// The first suggestion taken: that from now on they come by themselves (once). 2.6 (95): a bar that goes by itself,
+    /// not a line left at the end of the chat; after the bar of the move (its Undo comes first), if there is one.
     private func won() {
-        if organize.takeFirstWin() { withAnimation { firstWin = currentId } }
+        if organize.takeFirstWin() { firstWin = currentId; showFirstWin() }
+    }
+
+    private func showFirstWin() {
+        guard let chat = firstWin, undoBar == nil, nameBar == nil else { return }
+        firstWin = nil
+        guard chat == currentId, organize.enabled(pro: store.isPro) else { return }
+        withAnimation { nameBar = NameBar(chat: chat, text: String(localized: "Done. From now on I'll suggest on my own."), undo: nil) }
     }
 
     private func takeTag(_ thread: ChatThread, _ index: Int, _ tag: String) {
@@ -1725,6 +1756,7 @@ struct ChatDetailView: View {
     }
 
     private func takeMove(_ thread: ChatThread, _ move: OrganizeModel.Move) {
+        if let from = move.from { return takeMergeHere(thread, move, from) }
         suggestions = nil
         guard let undo = library.move(thread, move.start, move.end, to: move.to) else { return }
         ChatAI.reportOrganize("organize", ["action": "accepted", "what": move.to == nil ? "new" : "move", "why": move.why.rawValue])
@@ -1733,6 +1765,20 @@ struct ChatDetailView: View {
         undoBarClock.start()
         undoBarHeld = false
         withAnimation { undoBar = (move.why == .merge ? String(localized: "Merged into “\(move.toName)”") : String(localized: "Moved to “\(move.toName)”"), undo) }
+        won()
+    }
+
+    /// 2.6 (95): the older chat joins this one (the merge shown in the newer chat, where the person is): its messages come
+    /// in by time, this chat stays shown; Undo puts it back and the merge isn't suggested again.
+    private func takeMergeHere(_ thread: ChatThread, _ move: OrganizeModel.Move, _ from: String) {
+        suggestions = nil
+        guard let older = library.threads.first(where: { $0.id == from }), !older.entries.isEmpty,
+              let undo = library.move(older, 0, older.entries.count - 1, to: thread.id) else { return }
+        ChatAI.reportOrganize("organize", ["action": "accepted", "what": "move", "why": move.why.rawValue])
+        mergedHere = from
+        undoBarClock.start()
+        undoBarHeld = false
+        withAnimation { undoBar = (String(localized: "Brought “\(move.toName)” here"), undo) }
         won()
     }
 
@@ -1759,6 +1805,13 @@ struct ChatDetailView: View {
     private func undoMove(_ undo: Organize.MoveUndo) {
         withAnimation { undoBar = nil }
         library.undo(undo)
+        // A merge into this chat taken back (2.6 (95)): this chat stays shown, and that merge isn't suggested again.
+        if mergedHere == undo.source, undo.target == currentId {
+            mergedHere = nil
+            library.refuseMerge(undo.source, into: undo.target)
+            ChatAI.reportOrganize("organize", ["action": "undone", "what": "move"])
+            return
+        }
         shownId = undo.source == threadId ? nil : undo.source
         // Taken back: the same move isn't suggested again.
         let keys = Set(undo.keys)
@@ -1776,11 +1829,13 @@ struct ChatDetailView: View {
 
     private func refuseMove(_ thread: ChatThread, _ move: OrganizeModel.Move) {
         undoBar = nil
-        // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere.
+        // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere. 2.6
+        // (95): turned down in the newer chat, it's kept with the older one, so neither shows it again.
         if move.why == .merge, let to = move.to {
-            library.refuseMerge(thread.id, into: to)
+            if let from = move.from { library.refuseMerge(from, into: thread.id) } else { library.refuseMerge(thread.id, into: to) }
             suggestions?.move = nil
             ChatAI.reportOrganize("organize", ["action": "dismissed", "what": "move", "why": move.why.rawValue])
+            organizeTick += 1
             return
         }
         library.editEntries(thread) { entries in
@@ -1792,6 +1847,8 @@ struct ChatDetailView: View {
         }
         suggestions?.move = nil
         ChatAI.reportOrganize("organize", ["action": "dismissed", "what": move.to == nil ? "new" : "move", "why": move.why.rawValue])
+        // 2.6 (95): the run looks again (the name comes once nothing is left to move).
+        organizeTick += 1
     }
 
     /// Tags the user set on a message: after their third tag in all, what organizing does (without Pro, once).
@@ -1924,11 +1981,6 @@ struct ChatDetailView: View {
                 ChatAI.reportOrganize("organize_promo", ["action": "tap", "where": "third_tag"])
                 openPro()
             }, close: { withAnimation { tagsCard = false } })
-        }
-        if firstWin == thread.id, organize.enabled(pro: store.isPro) {
-            Label("Done. From now on I'll suggest on my own.", systemImage: "sparkles")
-                .font(.footnote)
-                .foregroundColor(.secondary)
         }
     }
 
@@ -2126,6 +2178,10 @@ private struct MessageView: View {
                 ForEach(entry.sources ?? [], id: \.self) { read in
                     ReadChip(read: read)
                 }
+                // Find similar: where it looked, as in the panel (build 95).
+                if entry.similarAsk != nil, let region = entry.similarRegion {
+                    SimilarWhereLine(region: region, country: entry.similarCountry)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.leading, 40)
@@ -2136,7 +2192,10 @@ private struct MessageView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.secondary)
                 }
-                if let onMarks {
+                if let similar = entry.similar, !similar.items.isEmpty {
+                    // Find similar's list as the panel shows it (build 95), not its Markdown copy.
+                    SimilarCardsView(answer: similar)
+                } else if let onMarks {
                     AnswerText(text: entry.content, marks: entry.marks ?? [], onChange: onMarks, onSelecting: onSelecting)
                 } else {
                     MarkdownView(text: entry.content)

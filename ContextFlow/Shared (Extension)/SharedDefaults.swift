@@ -31,7 +31,8 @@ enum PlanProducts {
     }
 
     /// The panel's price table (2.6): each product's display price, and for each yearly plan a month of it, what it
-    /// saves a year and in percent ("<id>#perMonth", "<id>#save", "<id>#percent"), all in the App Store's own format.
+    /// saves a year and in percent ("<id>#perMonth", "<id>#save", "<id>#percent"), and twelve months of the monthly
+    /// plan ("<id>#twelve", build 95), all in the App Store's own format.
     /// Built by the app when it loads the plans, and by the extension itself when the app hasn't yet (build 91: the
     /// panel's plans sheet showed no prices).
     /// Build 93: also the prices' currency ("#currency", e.g. "USD") and, given, the App Store country ("#storefront",
@@ -51,6 +52,8 @@ enum PlanProducts {
             table["\(yearly.id)#perMonth"] = (yearly.price / 12).formatted(style)
             table["\(yearly.id)#save"] = (full - yearly.price).formatted(style)
             table["\(yearly.id)#percent"] = String(percent)
+            // Twelve months of the monthly plan, struck through by the yearly price (build 95: the app's cards had it).
+            table["\(yearly.id)#twelve"] = full.formatted(style)
         }
         return table
     }
@@ -109,7 +112,7 @@ struct SharedEntitlement: Equatable {
 
 final class SharedDefaults {
     static let shared = SharedDefaults()
-    static let suiteName = "group.com.contextflow.shared"
+    nonisolated static let suiteName = "group.com.contextflow.shared"
 
     private let defaults: UserDefaults
     private let entitlementKey = "cf_entitlement_v2"
@@ -274,6 +277,22 @@ final class SharedDefaults {
     /// "Delete all chats": the list goes with what was read aloud.
     func clearVoiced() {
         defaults.removeObject(forKey: voicedKey)
+    }
+
+    // MARK: "Not now" to notifications at Listen (build 95)
+
+    private let listenNotifyLaterKey = "cf_listen_notify_later"
+
+    /// Until when "Not now" to notifications at Listen holds (ms since 1970; the next local midnight): said in the app,
+    /// the panel doesn't ask again that day either.
+    func listenNotifyLaterUntil() -> Double {
+        defaults.double(forKey: listenNotifyLaterKey)
+    }
+
+    func setListenNotifyLater() {
+        let calendar = Calendar.current
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: Date())) ?? Date().addingTimeInterval(86_400)
+        defaults.set(tomorrow.timeIntervalSince1970 * 1000, forKey: listenNotifyLaterKey)
     }
 
     // MARK: The question when auto-renew is off
@@ -452,11 +471,12 @@ enum TipClipShare {
     }
 
     /// The extension: up to `length` bytes of a clip from `offset`, and its whole size; nil when the app hasn't put it
-    /// there (not run since the install, or a clip newer than its last run).
+    /// there (not run since the install, or a clip newer than its last run). The clip's language: the panel's
+    /// (`lang`), then the person's other languages, by `language`.
     nonisolated static func read(name: String, lang: String, offset: Int, length: Int) -> (data: Data, total: Int)? {
-        guard name.range(of: "^[a-z0-9-]{1,40}$", options: .regularExpression) != nil, lang == "en" || lang == "ru",
-              let url = folder?.appendingPathComponent(lang).appendingPathComponent("\(name).mp4"),
-              let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        guard name.range(of: "^[a-z0-9-]{1,40}$", options: .regularExpression) != nil, let folder else { return nil }
+        let chosen = language([lang] + Locale.preferredLanguages, available: languages(in: folder))
+        guard let handle = try? FileHandle(forReadingFrom: folder.appendingPathComponent(chosen).appendingPathComponent("\(name).mp4")) else { return nil }
         defer { try? handle.close() }
         guard let end = try? handle.seekToEnd() else { return nil }
         let start = UInt64(max(0, min(offset, Int(end))))
@@ -464,14 +484,45 @@ enum TipClipShare {
         let data = (try? handle.read(upToCount: max(0, min(length, 1 << 20)))) ?? Data()
         return (data, Int(end))
     }
+
+    /// The clips' languages: the folders in `folder` (TipClips/<language>/, the app's or the App Group's copy).
+    nonisolated static func languages(in folder: URL) -> [String] {
+        ((try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []).filter { name in
+            var dir: ObjCBool = false
+            return FileManager.default.fileExists(atPath: folder.appendingPathComponent(name).path, isDirectory: &dir) && dir.boolValue
+        }
+    }
+
+    /// The clips' language (build 95: no language is a special case): the first of `wanted` (most preferred first)
+    /// that has a folder in `available`, else English. A language matches its folder whole ("pt_BR", "zh-Hant"), by
+    /// language and script, or by language alone; Chinese by its script too ("zh-TW" → zh-Hant, "zh-CN" → zh-Hans).
+    /// Clips recorded in a new language are a new folder, nothing else.
+    nonisolated static func language(_ wanted: [String], available: [String]) -> String {
+        let key = { (tag: String) in tag.lowercased().replacingOccurrences(of: "_", with: "-") }
+        var folders: [String: String] = [:]
+        for name in available where folders[key(name)] == nil { folders[key(name)] = name }
+        for tag in wanted {
+            let parts = key(tag).split(separator: "-").map(String.init)
+            guard let lang = parts.first, lang.range(of: "^[a-z]{2,3}$", options: .regularExpression) != nil else { continue }
+            var candidates = [parts.joined(separator: "-")]
+            if parts.count > 2 { candidates.append("\(lang)-\(parts[1])") }
+            if lang == "zh", let region = parts.dropFirst().first(where: { $0.count == 2 }) {
+                candidates.append(["tw", "hk", "mo"].contains(region) ? "zh-hant" : "zh-hans")
+            }
+            candidates.append(lang)
+            if let hit = candidates.lazy.compactMap({ folders[$0] }).first { return hit }
+        }
+        return folders["en"] ?? "en"
+    }
 }
 
 // MARK: - Read aloud made in the panel, for the app on this device
 
 /// Parts the panel made (build 92), kept where the app on the same device finds them, under the key its own cache uses
 /// (sha256 of "v1|<language>|<text>"): a text handed from Safari to the app plays from here, nothing asked of iCloud or
-/// the server. About 40 MB of audio, nothing older than 7 days; gone with "Delete all chats".
-enum SharedListenCache {
+/// the server. About 40 MB of audio, nothing older than 7 days; gone with "Delete all chats". Nonisolated (build 95): the
+/// app reads it off the main thread too (a chat being opened, VoicedList.ask).
+nonisolated enum SharedListenCache {
     private static let limit = 40 * 1024 * 1024
     private static let maxAge: TimeInterval = 7 * 86_400
 

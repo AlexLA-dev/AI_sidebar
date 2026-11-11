@@ -524,6 +524,9 @@
   "orgMergeInto": "Unisci a «{0}»",
   "orgMergeA11y": "Unisci questa chat a «{0}»",
   "orgMerged": "Unito a «{0}»",
+  "orgMergeHere": "Porta qui «{0}»",
+  "orgMergeHereA11y": "Unisci la chat precedente «{0}» a questa",
+  "orgMergedHere": "«{0}» portata qui",
   "recs_one": "{0} consiglio",
   "recs_two": "{0} consigli",
   "recs_few": "{0} consigli",
@@ -596,6 +599,7 @@
   "plansPerMonth": "{0}/mese",
   "plansPerYear": "{0}/anno",
   "plansNote": "L’abbonamento si fa nell’app ContextFlow. Il passaggio a Ultra parte subito e Apple rimborsa quello che resta del piano attuale.",
+  "plansCurrency": "Prezzi in {0}, come li indica l’App Store.",
   "tierByok1": "Risposte illimitate con la tua chiave API di OpenAI o Claude",
   "tierByok2": "Tutto sulla pagina: riassunti, spiegazioni, traduzioni",
   "tierPro1": "Fino a {0} risposte a settimana, senza chiave API",
@@ -726,7 +730,7 @@
   "listenLow": "Questa settimana restano circa {0} min di ascolto, e questo testo dura circa {1} min. La lettura si ferma dove finiscono i minuti.",
   "listenAnyway": "Ascolta comunque",
   "listenAway": "Continua ad ascoltare in ContextFlow — da {0}",
-  "listenNotifyAsk": "Attiva le notifiche per continuare ad ascoltare quando esci da Safari o blocchi lo schermo. Altrimenti Listen apre l’app.",
+  "listenNotifyAsk": "Attiva le notifiche per continuare ad ascoltare quando esci da Safari o blocchi lo schermo. Altrimenti «Ascolta» apre l’app.",
   "listenNotifyOn": "Attiva le notifiche",
   "listenNotifyLater": "Non ora",
   "listenTaken": "In riproduzione nell’app ContextFlow.",
@@ -763,5 +767,7 @@
   "similarSay": "Cosa dicono:",
   "similarPros": "piace: {0}",
   "similarCons": "non piace: {0}",
-  "similarEstimated": "stimato dalla descrizione"
+  "similarEstimated": "stimato dalla descrizione",
+  "similarSame": "Stesso articolo, altro negozio",
+  "similarMisses": "Non rispetta la scelta"
 }

@@ -10,6 +10,7 @@
 // when the text reaches the corner, the button goes. A single-line input never gets it inside. When there's no
 // spot at all, there's no button: "/" and ⌃⇧V still open the list.
 
+import { unaccent } from "../../shared/fold.ts"
 import { closestComposed, shadowRootsOf } from "./shadow.ts"
 
 /** The button's size and the gap it keeps from the field. */
@@ -211,7 +212,38 @@ function innermostAt(top: Element, x: number, y: number): Element {
   return el
 }
 
-const SEARCH_WORDS = /search|query|\bq\b|поиск|найти|пошук|suche|suchen|recherche|rechercher|buscar|búsqueda|cerca|ricerca|pesquis|busca|検索|검색|搜索/i
+/**
+ * "Search" in a field's name, id, label or hint, in each of the 14 languages the app speaks (build 95, the owner:
+ * «Важно вообще весь код проверить на наличие таких подгонов под меня, их быть не должно»; Vietnamese, Arabic and
+ * Traditional Chinese had none). Compared with accents off (fold.ts), so "Busqueda" is "Búsqueda". Parts of a word
+ * count ("recherche" in "rechercher", "pesquis" in "pesquisar").
+ */
+export const SEARCH_WORDS = {
+  en: ["search", "query"],
+  ru: ["поиск", "найти", "искать"],
+  uk: ["пошук", "знайти", "шукати"],
+  de: ["suche", "suchbegriff"],
+  fr: ["recherche"],
+  es: ["buscar", "búsqueda"],
+  it: ["cerca"],
+  pt: ["pesquis", "busca"],
+  ja: ["検索"],
+  ko: ["검색"],
+  zh: ["搜索", "查询"],
+  "zh-Hant": ["搜尋", "查詢"],
+  vi: ["tìm kiếm"],
+  ar: ["بحث"]
+} as const
+
+// `q`, the name search forms give their field, in any language.
+const SEARCH_NAMED = new RegExp(
+  `${Object.values(SEARCH_WORDS).flat().map((w) => unaccent(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}|\\bq\\b`
+)
+
+/** Whether a field's name, id, label or hint says it's a search, in any of the app's languages. */
+export function searchNamed(text: string): boolean {
+  return SEARCH_NAMED.test(unaccent(text))
+}
 
 /**
  * Fields the button stays away from: searches (a template is rarely what goes there, and the site's own
@@ -232,7 +264,7 @@ export function noButtonField(el: Element): boolean {
   // a research-notes editor).
   if (shadowRootsOf(el).some((root) => /(^|-)search(-|$)/i.test(root.host.tagName))) return true
   const named = `${el.getAttribute("name") ?? ""} ${el.id} ${el.getAttribute("aria-label") ?? ""} ${el.getAttribute("placeholder") ?? ""}`
-  return el.tagName.toUpperCase() === "INPUT" && SEARCH_WORDS.test(named)
+  return el.tagName.toUpperCase() === "INPUT" && searchNamed(named)
 }
 
 // ------------------------------------------------------------ quick insert's windows (place.ts)
