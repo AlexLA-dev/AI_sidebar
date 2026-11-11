@@ -4,6 +4,7 @@ import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
 import { appLink, planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
+import { LINK_OPEN_KEY, linkOpen } from "../shared/linkOpen"
 import { uiLanguage } from "../shared/i18n"
 import { keyProvider, OWN_KEY_PATTERN } from "../shared/models"
 import {
@@ -870,7 +871,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       sendResponse({ ok: true })
       return false
     case "openPage":
-      openPage(message.url).finally(() => sendResponse({ ok: true }))
+      openPage(message.url, message.chat, message.at).finally(() => sendResponse({ ok: true }))
       return true
     case "find":
       findChats(message.query, message.chats).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
@@ -931,18 +932,25 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
 // ------------------------------------------------------- toolbar / shortcut
 
 /** A page of a chat: switches to its tab when it's open (this window first), else opens it in a new tab. */
-async function openPage(url: string): Promise<void> {
+/**
+ * Opens a chat's page: the tab that shows it, else a new one. 2.6 (98): with the chat (and message) the link was in, the
+ * page opens with the panel there: a tab that shows it is told at once; a new one takes the note (src/shared/linkOpen.ts).
+ */
+async function openPage(url: string, chat?: string, at?: string): Promise<void> {
   if (!/^https?:\/\//.test(url)) return
   const key = urlKey(url)
   const tabs = await chrome.tabs.query({}).catch(() => [] as chrome.tabs.Tab[])
   const open = tabs.filter((t) => t.id !== undefined && t.url && urlKey(t.url) === key)
   const tab = open.find((t) => t.active && t.lastAccessed !== undefined) ?? open.find((t) => t.active) ?? open[0]
   if (!tab?.id) {
+    const note = chat ? linkOpen(url, chat, at, Date.now()) : null
+    if (note) await chrome.storage.local.set({ [LINK_OPEN_KEY]: note }).catch(() => undefined)
     await chrome.tabs.create({ url })
     return
   }
   await chrome.tabs.update(tab.id, { active: true })
   if (tab.windowId !== undefined) await chrome.windows?.update(tab.windowId, { focused: true }).catch(() => undefined)
+  if (chat) await withTimeout(chrome.tabs.sendMessage(tab.id, { type: "openChat", chat, ...(at ? { at } : {}) }), 1500).catch(() => undefined)
 }
 
 /** `work`, or a rejection after `ms` (Safari never answers a message sent to a tab showing a PDF). */

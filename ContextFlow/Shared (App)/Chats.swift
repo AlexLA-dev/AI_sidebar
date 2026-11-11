@@ -1191,11 +1191,16 @@ final class ChatLibrary: ObservableObject {
         }
     }
 
-    /// Opens a page of a chat in Safari (not another default browser).
-    func open(_ url: String) {
-        guard let link = URL(string: url), ["http", "https"].contains(link.scheme?.lowercased() ?? "") else { return }
+    /// Opens a page of a chat in Safari (not another default browser). 2.6 (98), the owner: «Если новая страница
+    /// открывается по клику/тапу в расширении или приложении - надо чтобы сайдбар открывался там сразу и на том чате и
+    /// месте, где кликнули на страницу»: with `chat` (and `at`, its message: the id, else "i<index>") the page opens with
+    /// the panel on that chat, at that message (SimilarAway.pageOpening).
+    func open(_ url: String, chat: String? = nil, at: String? = nil) {
+        guard var link = URL(string: url), ["http", "https"].contains(link.scheme?.lowercased() ?? "") else { return }
+        if let chat { link = SimilarAway.pageOpening(link, thread: chat, at: at, mark: "cf-chat") }
+        let address = link.absoluteString
         #if os(iOS)
-        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(url)") {
+        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(address)") {
             UIApplication.shared.open(safari) { opened in
                 if !opened { UIApplication.shared.open(link) }
             }

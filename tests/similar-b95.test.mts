@@ -230,7 +230,9 @@ test("the page the notification opens names its chat in the address; the panel t
     g.location = { hash, pathname: "/collections/standing-desks", search: "?v=1", href: "" }
     g.history = { state: null, replaceState: (_s, _t, u) => urls.push(u) }
   }
-  const { takeSimilarMark } = await import("../src/content/similar/mark.ts")
+  // 2.6 (98): the same for any link in the app (takeChatMark, cf-chat), Find similar's own mark still read.
+  const { takeChatMark } = await import("../src/content/similar/mark.ts")
+  const takeSimilarMark = () => takeChatMark()?.chat ?? null
   at("#cf-similar=5f2c9e1a-4b7d-4c1e-9f00-1a2b3c4d5e6f")
   assert.equal(takeSimilarMark(), "5f2c9e1a-4b7d-4c1e-9f00-1a2b3c4d5e6f")
   assert.equal(urls.pop(), "/collections/standing-desks?v=1")
