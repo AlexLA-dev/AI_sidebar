@@ -3,7 +3,7 @@
 // the extension, or the app woken by iOS, to pick it up (/api/v2/similar-result). Kept per install and question, a
 // day at most; the extension takes it away once it wrote the answer into the chat.
 
-import { getStore } from "@netlify/blobs"
+import { scopedStore } from "./blobstore.mts"
 
 import type { SimilarItem } from "../../src/shared/similar.ts"
 
@@ -24,7 +24,7 @@ export interface StoredJob {
   code?: string
 }
 
-/** Where the jobs are kept: Netlify Blobs in production, a map in tests. */
+/** Where the jobs are kept: Netlify Blobs (production's own store; a preview's, that deploy's), a map in tests. */
 export interface JobStore {
   get(key: string): Promise<StoredJob | null>
   set(key: string, job: StoredJob): Promise<void>
@@ -45,9 +45,13 @@ export function useJobStore(store: JobStore | null): void {
   testStore = store
 }
 
+/** The Blobs store's name: production's stays the same across deploys, so jobs running during a deploy are kept. */
+export const JOB_STORE = "similar-jobs"
+
 export function jobStore(): JobStore {
   if (testStore) return testStore
-  const store = getStore({ name: "similar-jobs", consistency: "strong" })
+  // Off production, that deploy's store: a preview's test searches never write what production reads.
+  const store = scopedStore(JOB_STORE)
   return {
     get: async (key) => ((await store.get(key, { type: "json" })) as StoredJob | null) ?? null,
     set: async (key, job) => {
