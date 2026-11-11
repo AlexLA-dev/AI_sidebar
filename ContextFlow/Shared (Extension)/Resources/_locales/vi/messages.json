@@ -941,7 +941,19 @@
  "pickNone": {
   "message": "Bỏ chọn tất cả"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "Có {0} câu trả lời miễn phí mới lúc {1}, sau {2} nữa."
+ },
+ "limitFreeBack_two": {
+  "message": "Có {0} câu trả lời miễn phí mới lúc {1}, sau {2} nữa."
+ },
+ "limitFreeBack_few": {
+  "message": "Có {0} câu trả lời miễn phí mới lúc {1}, sau {2} nữa."
+ },
+ "limitFreeBack_many": {
+  "message": "Có {0} câu trả lời miễn phí mới lúc {1}, sau {2} nữa."
+ },
+ "limitFreeBack_other": {
   "message": "Có {0} câu trả lời miễn phí mới lúc {1}, sau {2} nữa."
  },
  "limitFreePro": {
@@ -2197,6 +2209,12 @@
  },
  "similarRegionLocked": {
   "message": "Không có trong App Store ở quốc gia của bạn"
+ },
+ "similarShipListed": {
+  "message": "Trang giao hàng có liệt kê: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "Không ghi rõ có giao đến {0} hay không"
  },
  "similarRatings": {
   "message": "{0} lượt đánh giá"

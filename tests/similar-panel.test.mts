@@ -23,7 +23,9 @@ const KEYS = ["actSimilar", "uxSimilar", "similarTitle", "similarConditions", "s
   // Build 93: where to look, the less similar ones, their country's store, what reviewers say.
   "similarWhere", "similarWorld", "similarLocal", "similarLocalIn", "similarWhereHint", "similarLess", "similarPercent", "similarDiffers", "similarRegionLocked", "similarRatings", "similarReviewersSay",
   // Build 94: one line of what people say, the share estimated from a description, the app's "found" notification.
-  "similarSay", "similarPros", "similarCons", "similarEstimated", "similarNotifyTitle", "similarNotifyFound", "similarNotifyNone", "similarNotifyFailed"]
+  "similarSay", "similarPros", "similarCons", "similarEstimated", "similarNotifyTitle", "similarNotifyFound", "similarNotifyNone", "similarNotifyFailed",
+  // 2.6: a shop abroad's delivery page, as it shows it.
+  "similarShipListed", "similarShipUnshown"]
 
 test("every language has Find similar's words, with their placeholders", () => {
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
@@ -31,7 +33,7 @@ test("every language has Find similar's words, with their placeholders", () => {
   for (const file of files) {
     const s = JSON.parse(readFileSync(new URL(file, locales), "utf8")) as Record<string, string>
     for (const key of KEYS) assert.ok(s[key]?.trim(), `${file}: ${key}`)
-    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear", "similarLocalIn", "similarPercent", "similarDiffers", "similarRatings", "similarReviewersSay", "similarPros", "similarCons", "similarNotifyFound"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
+    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear", "similarLocalIn", "similarPercent", "similarDiffers", "similarRatings", "similarReviewersSay", "similarPros", "similarCons", "similarNotifyFound", "similarShipListed", "similarShipUnshown"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
     assert.match(s.similarLimit, /\{1\}/, `${file}: similarLimit's day`)
     // The menu item is the action's name with an ellipsis (it opens a card first).
     assert.equal(s.uxSimilar.replace(/…$/, ""), s.actSimilar, file)
@@ -302,4 +304,29 @@ test("build 94: the question line says where it looked", () => {
   assert.equal(ui.whereLabel("local", "JP"), "Near me · Japan")
   assert.equal(ui.whereLabel("local", "BR"), "Near me · Brazil")
   assert.equal(ui.whereLabel("local"), "Near me")
+})
+
+test("2.6: a shop abroad's delivery as its page shows it, that page linked; never that it delivers", async () => {
+  const el = root()
+  const base = { title: "A", why: "Same kind.", fit: "", met: "n/a", source: "item", checked: true }
+  const items = [
+    { ...base, name: "Kettle One", url: "https://kettles.example.de/one", host: "kettles.example.de", delivery: { to: "AT", ships: "yes", url: "https://kettles.example.de/versand" } },
+    { ...base, name: "Kettle Two", url: "https://shop.example.fr/two", host: "shop.example.fr", delivery: { to: "AT", ships: "unknown" } },
+    { ...base, name: "Kettle Three", url: "https://local.example.at/three", host: "local.example.at" }
+  ].map((i) => cleanItem(i)!)
+  ui.list(el, { answer: { intro: "", items, note: "", condition: "none", asked: "", at: Date.now() }, items, onOpen() {} })
+  const lines = [...el.querySelectorAll(".cf-similar-ship")]
+  assert.equal(lines.length, 2)
+  assert.match(lines[0].textContent, /^Its delivery page lists Austria · kettles\.example\.de$/)
+  assert.equal(lines[0].querySelector("a").getAttribute("href"), "https://kettles.example.de/versand")
+  assert.match(lines[1].textContent, /^Delivery to Austria isn't shown$/)
+  assert.doesNotMatch(el.textContent as string, /\bdelivers\b|\bships to\b/i)
+  // Only what a page can show reaches the panel: a country code and yes or not shown.
+  assert.equal(cleanItem({ name: "X", url: "https://x.example", delivery: { to: "Austria", ships: "yes" } })?.delivery, undefined)
+  assert.equal(cleanItem({ name: "X", url: "https://x.example", delivery: { to: "AT", ships: "no" } })?.delivery, undefined)
+  assert.deepEqual(cleanItem({ name: "X", url: "https://x.example", delivery: { to: "AT", ships: "yes", url: "javascript:1" } })?.delivery, { to: "AT", ships: "yes" })
+  // The copy (the chat's text, a share) says the same, with the delivery page linked.
+  const md = similarMarkdown({ intro: "", items: items.slice(0, 2), note: "" }, { inStock: "", outOfStock: "", notConfirmed: "", notOpened: "", delivery: (d) => (d.ships === "yes" ? `Its delivery page lists ${d.to}` : `Delivery to ${d.to} isn't shown`) })
+  assert.match(md, /\[Its delivery page lists AT\]\(https:\/\/kettles\.example\.de\/versand\)\./)
+  assert.match(md, /Delivery to AT isn't shown\./)
 })

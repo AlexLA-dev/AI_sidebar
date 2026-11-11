@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
-import { t, uiLanguage, type MessageKey } from "../shared/i18n"
+import { freeAnswersBack, t, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
@@ -3728,7 +3728,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         title={long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : t("limitFreeTitle")}
                         body={<>
                           {long && `${t("limitLongBody", error.weight!, left)} `}
-                          {hasPro(plan) ? t("limitProBody", timeUntil(resetsAt)) : t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))}
+                          {hasPro(plan) ? t("limitProBody", timeUntil(resetsAt)) : freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))}
                         </>}
                         plans={hasPro(plan) ? ["ultra"] : ["pro", "ultra"]}
                         retryAt={resetsAt ? Date.parse(resetsAt) : null}
@@ -3760,8 +3760,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         {hasPro(plan)
                           ? t("limitProBody", timeUntil(resetsAt))
                           : byok
-                            ? `${t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))} ${status?.hasOwnKey ? t("byokLimitGoogle", back, PRO_WEEKLY) : t("byokLimitNoKey", back, PRO_WEEKLY)}`
-                            : `${t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
+                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${status?.hasOwnKey ? t("byokLimitGoogle", back, PRO_WEEKLY) : t("byokLimitNoKey", back, PRO_WEEKLY)}`
+                            : `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
                       </p>
                       <p class="cf-limit-notes">
                         <Icon.Pencil /> {t("limitNotes")}{" "}

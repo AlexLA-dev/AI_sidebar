@@ -49,6 +49,9 @@ export interface SimilarItem {
   // Build 93: what its reviewers say — the rating its pages state, where it was read; build 94: what they like (pros)
   // and dislike (cons), borne out by their words on those pages (build 93's one-sentence summary in answers kept since).
   reviews?: { rating?: { value: number; best: number; count?: number }; pros?: string; cons?: string; summary?: string; sources: string[] }
+  // 2.6: near them, a shop abroad's delivery page (`url`): it lists their country (`to`, an ISO code) or doesn't show
+  // it. Only what the page shows: the panel says "its delivery page lists …", never that it delivers.
+  delivery?: { to: string; ships: "yes" | "unknown"; url?: string }
 }
 
 /**
@@ -172,6 +175,8 @@ export interface MarkdownWords {
   same?: string
   misses?: string
   money?: (price: string) => string
+  // 2.6: a shop abroad's delivery as its page shows it ("Its delivery page lists Austria").
+  delivery?: (d: NonNullable<SimilarItem["delivery"]>) => string
 }
 
 /**
@@ -201,7 +206,8 @@ export function similarMarkdown(a: Pick<SimilarAnswer, "intro" | "items" | "note
     lines.push([
       `${i + 1}. **[${it.name.replace(/[[\]]/g, "")}](${it.url})** (${it.host}) — ${it.why}${it.fit ? ` ${it.fit}` : ""}${facts ? ` _(${facts})_` : ""}`,
       it.differs && words.differs ? ` ${words.differs(it.differs)}.` : "",
-      said ? ` ${words.say} ${said}.` : ""
+      said ? ` ${words.say} ${said}.` : "",
+      it.delivery && words.delivery ? ` ${it.delivery.url ? `[${words.delivery(it.delivery)}](${it.delivery.url})` : words.delivery(it.delivery)}.` : ""
     ].join(""))
   })
   if (a.note) lines.push("", a.note)
@@ -230,8 +236,16 @@ export function cleanItem(raw: unknown): SimilarItem | null {
     ...(o.regionLocked === true ? { regionLocked: true as const } : {}),
     ...(/^\d+(?:\.\d+)? [A-Z]{3}$/.test(s(o.priceLocal, 24)) ? { priceLocal: s(o.priceLocal, 24) } : {}),
     ...(o.same === true ? { same: true as const } : {}),
-    ...(cleanReviews(o.reviews) ?? {})
+    ...(cleanReviews(o.reviews) ?? {}),
+    ...(cleanDelivery(o.delivery) ?? {})
   }
+}
+
+function cleanDelivery(raw: unknown): { delivery: NonNullable<SimilarItem["delivery"]> } | null {
+  const d = (raw ?? null) as Record<string, unknown> | null
+  if (!d || typeof d !== "object" || typeof d.to !== "string" || !/^[A-Z]{2}$/.test(d.to) || (d.ships !== "yes" && d.ships !== "unknown")) return null
+  const url = typeof d.url === "string" && /^https?:\/\//i.test(d.url) ? d.url.slice(0, 2_000) : ""
+  return { delivery: { to: d.to, ships: d.ships, ...(url ? { url } : {}) } }
 }
 
 function cleanReviews(raw: unknown): { reviews: NonNullable<SimilarItem["reviews"]> } | null {

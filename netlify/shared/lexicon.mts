@@ -378,25 +378,25 @@ export const SHIPPING: Words = {
 
 /** A delivery page saying it ships anywhere. */
 export const WORLDWIDE: Words = {
-  en: ["worldwide", "international shipping", "ship internationally", "ships internationally", "all countries", "anywhere in the world", "international delivery"],
-  ru: ["по всему миру", "международная доставка", "во все страны"],
-  uk: ["по всьому світу", "міжнародна доставка", "у всі країни"],
-  de: ["weltweit", "internationaler versand", "in alle länder", "internationale lieferung"],
-  fr: ["dans le monde entier", "livraison internationale", "partout dans le monde", "expédition internationale"],
-  es: ["a todo el mundo", "envíos internacionales", "envío internacional"],
-  it: ["in tutto il mondo", "spedizioni internazionali", "spedizione internazionale"],
-  pt: ["para todo o mundo", "envio internacional", "envios internacionais"],
-  ja: ["海外発送", "世界中", "国際配送", "海外配送"],
-  ko: ["해외배송", "전 세계", "국제 배송", "해외 배송"],
-  zh: ["全球配送", "国际配送", "海外直邮", "全球发货"],
-  "zh-Hant": ["全球配送", "國際配送", "海外直送"],
-  vi: ["toàn cầu", "giao hàng quốc tế", "vận chuyển quốc tế"],
-  ar: ["جميع أنحاء العالم", "شحن دولي", "الشحن الدولي"]
+  en: ["worldwide", "international shipping", "ship internationally", "ships internationally", "all countries", "anywhere in the world", "international delivery", "abroad", "overseas", "internationally", "rest of the world"],
+  ru: ["по всему миру", "международная доставка", "во все страны", "за границу", "за рубеж", "остальной мир", "остального мира"],
+  uk: ["по всьому світу", "міжнародна доставка", "у всі країни", "за кордон", "решта світу"],
+  de: ["weltweit", "internationaler versand", "in alle länder", "internationale lieferung", "ins ausland", "ausland", "rest der welt"],
+  fr: ["dans le monde entier", "livraison internationale", "partout dans le monde", "expédition internationale", "à l'étranger", "international", "reste du monde"],
+  es: ["a todo el mundo", "envíos internacionales", "envío internacional", "al extranjero", "internacional", "resto del mundo"],
+  it: ["in tutto il mondo", "spedizioni internazionali", "spedizione internazionale", "all'estero", "internazionale", "resto del mondo"],
+  pt: ["para todo o mundo", "envio internacional", "envios internacionais", "para o exterior", "internacional", "resto do mundo"],
+  ja: ["海外発送", "世界中", "国際配送", "海外配送", "海外"],
+  ko: ["해외배송", "전 세계", "국제 배송", "해외 배송", "해외"],
+  zh: ["全球配送", "国际配送", "海外直邮", "全球发货", "海外", "国际"],
+  "zh-Hant": ["全球配送", "國際配送", "海外直送", "海外", "國際"],
+  vi: ["toàn cầu", "giao hàng quốc tế", "vận chuyển quốc tế", "nước ngoài", "quốc tế"],
+  ar: ["جميع أنحاء العالم", "شحن دولي", "الشحن الدولي", "خارج", "دولي", "دولية", "بقية العالم"]
 }
 
 /** A delivery page naming the European Union or Europe (for a country in it). */
 export const EUROPE: Words = {
-  en: ["europe", "european union", "eu countries", "within the eu", "to the eu"], ru: ["европа", "евросоюз", "страны ес"],
+  en: ["europe", "european union", "eu countries", "within the eu", "to the eu", "eu"], ru: ["европа", "евросоюз", "страны ес"],
   uk: ["європа", "євросоюз", "країни єс"], de: ["europa", "eu-länder", "europäische union", "innerhalb der eu"],
   fr: ["europe", "union européenne", "pays de l'ue"], es: ["europa", "unión europea", "países de la ue"],
   it: ["europa", "unione europea", "paesi ue"], pt: ["europa", "união europeia", "países da ue"], ja: ["ヨーロッパ", "欧州"],
@@ -412,7 +412,8 @@ export const EUROPE: Words = {
  */
 export const MARK_WORDS: Record<"en" | "de" | "fr" | "es" | "it" | "pt" | "ru" | "uk", string[]> = {
   en: ["the", "and", "with", "your", "this", "that", "are", "from", "our", "will", "you", "have", "about", "which", "what", "how"],
-  de: ["der", "die", "das", "und", "ist", "mit", "für", "nicht", "auf", "ein", "eine", "sie", "sich", "auch", "wir", "werden", "bei", "oder", "zum", "nach"],
+  // Not "die" (Dutch writes it as often).
+  de: ["der", "das", "und", "ist", "mit", "für", "nicht", "auf", "ein", "eine", "sie", "sich", "auch", "wir", "werden", "bei", "oder", "zum", "nach"],
   fr: ["les", "et", "est", "des", "pour", "avec", "dans", "sur", "pas", "vous", "nous", "qui", "aux", "cette", "sont", "leur", "très"],
   es: ["los", "las", "y", "es", "por", "sus", "más", "como", "pero", "también", "muy", "del", "hay", "puede", "usted"],
   it: ["gli", "è", "per", "della", "che", "sono", "più", "anche", "nel", "alla", "delle", "questo", "questa", "degli", "molto"],
@@ -456,13 +457,13 @@ export function appLang(tag: string | undefined): Lang {
 /** Colours a shop adds to a model's name. */
 export const COLOURS: Words = {
   en: ["black", "white", "grey", "gray", "blue", "green", "red", "silver", "beige"],
-  ru: ["черный", "чёрный", "белый", "серый", "синий", "зеленый", "зелёный", "красный", "серебристый", "бежевый"],
-  uk: ["чорний", "білий", "сірий", "синій", "зелений", "червоний", "сріблястий", "бежевий"],
+  ru: ["черный", "чёрный", "белый", "серый", "синий", "зеленый", "зелёный", "красный", "серебристый", "бежевый", "черная", "чёрная", "черное", "чёрное", "черные", "чёрные", "белая", "белое", "белые", "серая", "серое", "серые", "синяя", "синее", "синие", "зеленая", "зелёная", "зеленое", "зелёное", "зеленые", "зелёные", "красная", "красное", "красные", "серебристая", "серебристое", "серебристые", "бежевая", "бежевое", "бежевые"],
+  uk: ["чорний", "білий", "сірий", "синій", "зелений", "червоний", "сріблястий", "бежевий", "чорна", "чорне", "чорні", "біла", "біле", "білі", "сіра", "сіре", "сірі", "синя", "синє", "сині", "зелена", "зелене", "зелені", "червона", "червоне", "червоні", "срібляста", "сріблясте", "сріблясті", "бежева", "бежеве", "бежеві"],
   de: ["schwarz", "weiß", "weiss", "grau", "blau", "grün", "rot", "silber", "beige"],
-  fr: ["noir", "blanc", "gris", "bleu", "vert", "rouge", "argent", "beige"],
-  es: ["negro", "blanco", "gris", "azul", "verde", "rojo", "plata", "beige"],
-  it: ["nero", "bianco", "grigio", "blu", "verde", "rosso", "argento", "beige"],
-  pt: ["preto", "branco", "cinza", "azul", "verde", "vermelho", "prata", "bege"],
+  fr: ["noir", "blanc", "gris", "bleu", "vert", "rouge", "argent", "beige", "noire", "noirs", "noires", "blanche", "blancs", "blanches", "grise", "grises", "bleue", "bleus", "bleues", "verte", "verts", "vertes", "rouges", "argentée", "argenté"],
+  es: ["negro", "blanco", "gris", "azul", "verde", "rojo", "plata", "beige", "negra", "negros", "negras", "blanca", "blancos", "blancas", "grises", "azules", "verdes", "roja", "rojos", "rojas", "plateado", "plateada"],
+  it: ["nero", "bianco", "grigio", "blu", "verde", "rosso", "argento", "beige", "nera", "neri", "nere", "bianca", "bianchi", "bianche", "grigia", "grigi", "grigie", "verdi", "rossa", "rossi", "rosse", "argentata", "argentato"],
+  pt: ["preto", "branco", "cinza", "azul", "verde", "vermelho", "prata", "bege", "preta", "pretos", "pretas", "branca", "brancos", "brancas", "cinzas", "azuis", "verdes", "vermelha", "vermelhos", "vermelhas", "prateado", "prateada"],
   ja: ["ブラック", "ホワイト", "グレー", "ブルー", "グリーン", "レッド", "シルバー", "ベージュ"],
   ko: ["블랙", "화이트", "그레이", "블루", "그린", "레드", "실버", "베이지", "검정", "흰색"],
   zh: ["黑色", "白色", "灰色", "蓝色", "绿色", "红色", "银色", "米色"],
@@ -474,13 +475,13 @@ export const COLOURS: Words = {
 /** What a shop adds to any name: new, buy, sale, edition, set, kit. */
 export const SHOP_WORDS: Words = {
   en: ["new", "shop", "buy", "sale", "edition", "set", "kit"],
-  ru: ["новый", "новинка", "купить", "магазин", "распродажа", "издание", "набор", "комплект"],
-  uk: ["новий", "новинка", "купити", "магазин", "розпродаж", "видання", "набір", "комплект"],
+  ru: ["новый", "новинка", "купить", "магазин", "распродажа", "издание", "набор", "комплект", "новая", "новое", "новые"],
+  uk: ["новий", "новинка", "купити", "магазин", "розпродаж", "видання", "набір", "комплект", "нова", "нове", "нові"],
   de: ["neu", "kaufen", "shop", "angebot", "edition", "set", "kit"],
-  fr: ["nouveau", "acheter", "boutique", "soldes", "édition", "coffret", "kit"],
-  es: ["nuevo", "comprar", "tienda", "oferta", "edición", "set", "kit"],
-  it: ["nuovo", "acquista", "negozio", "offerta", "edizione", "set", "kit"],
-  pt: ["novo", "comprar", "loja", "oferta", "edição", "kit"],
+  fr: ["nouveau", "acheter", "boutique", "soldes", "édition", "coffret", "kit", "nouvelle", "nouveaux", "nouvelles"],
+  es: ["nuevo", "comprar", "tienda", "oferta", "edición", "set", "kit", "nueva", "nuevos", "nuevas"],
+  it: ["nuovo", "acquista", "negozio", "offerta", "edizione", "set", "kit", "nuova", "nuovi", "nuove"],
+  pt: ["novo", "comprar", "loja", "oferta", "edição", "kit", "nova", "novos", "novas"],
   ja: ["新品", "新作", "購入", "通販", "セール", "限定", "セット"],
   ko: ["신상", "신제품", "구매", "할인", "세트", "에디션"],
   zh: ["新款", "购买", "促销", "套装", "限量版"],
@@ -503,16 +504,109 @@ export const NAME_EXTRAS: Words = {
   ko: ["추천", "공식", "사이트", "앱", "무료", "온라인", "리뷰", "후기"],
   zh: ["推荐", "官方", "官网", "应用", "免费", "在线", "评测"],
   "zh-Hant": ["推薦", "官方", "官網", "應用程式", "免費", "線上", "評測"],
-  vi: ["tốt nhất", "chính hãng", "trang", "ứng dụng", "miễn phí", "trực tuyến", "đánh giá"],
+  vi: ["tốt nhất", "chính hãng", "trang web", "ứng dụng", "miễn phí", "trực tuyến", "đánh giá"],
   ar: ["أفضل", "رسمي", "موقع", "تطبيق", "مجاني", "أونلاين", "مراجعة"]
 }
 
-/** Every word of these lists as names are compared: lower case, accents folded (pagecheck.mts nameTokens). */
-export const foldedWords = (...lists: Words[]): string[] => [...new Set(lists.flatMap(all).flatMap((w) => w.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().split(/[^\p{L}\p{N}]+/u)).filter(Boolean))]
+const foldName = (w: string) => w.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean)
+/** These lists' one-word entries as names are compared: lower case, accents folded (pagecheck.mts nameTokens). */
+export const foldedWords = (...lists: Words[]): string[] => [...new Set(lists.flatMap(all).map(foldName).filter((t) => t.length === 1).map((t) => t[0]))]
+/**
+ * Their entries of several words, folded the same way and kept whole («chính hãng», "en ligne"): a name loses the
+ * phrase, not each of its words (Vietnamese words are syllables: «bàn», «gia dụng» would go too).
+ */
+export const foldedPhrases = (...lists: Words[]): string[] => [...new Set(lists.flatMap(all).map(foldName).filter((t) => t.length > 1).map((t) => t.join(" ")))]
 
 /** Paid every three months. */
 export const QUARTER: Words = {
   en: ["quarter", "quarterly"], ru: ["квартал", "ежеквартально"], uk: ["квартал", "щокварталу"], de: ["quartal", "vierteljährlich"],
   fr: ["trimestre", "trimestriel"], es: ["trimestre", "trimestral"], it: ["trimestre", "trimestrale"], pt: ["trimestre", "trimestral"],
   ja: ["四半期"], ko: ["분기"], zh: ["季度", "季付"], "zh-Hant": ["季度", "季繳"], vi: ["quý"], ar: ["ربع سنوي"]
+}
+
+// ------------------------------------------------------------ what a delivery page says
+
+/** Words that make a sentence about shipping (with SHIPPING's): to ship, to deliver, to send. */
+export const SHIP_VERBS: Words = {
+  en: ["ship", "ships", "shipped", "shipment", "shipments", "deliver", "delivers", "delivered", "dispatch", "dispatched", "send", "sends", "delivery address", "shipping address"],
+  ru: ["доставляем", "доставим", "доставляет", "доставляются", "отправляем", "отправим", "отправка", "адрес доставки"],
+  uk: ["доставляємо", "доставимо", "доставляє", "відправляємо", "відправимо", "відправка", "адреса доставки"],
+  de: ["liefern", "geliefert", "versenden", "versendet", "verschicken", "verschickt", "lieferadresse", "versandadresse"],
+  fr: ["livrons", "livré", "livrés", "expédions", "expédié", "expédiés", "envoyons", "adresse de livraison"],
+  es: ["enviamos", "enviado", "enviados", "entregamos", "entregado", "dirección de envío", "dirección de entrega"],
+  it: ["spediamo", "spedito", "spediti", "consegniamo", "consegnato", "indirizzo di consegna", "indirizzo di spedizione"],
+  pt: ["enviamos", "enviado", "enviados", "entregamos", "entregue", "endereço de entrega"],
+  ja: ["発送", "お届け", "配達", "配送先"], ko: ["발송", "배달", "배송지"], zh: ["发货", "寄送", "送货", "邮寄", "收货地址"], "zh-Hant": ["出貨", "寄送", "送貨", "郵寄", "收件地址"],
+  vi: ["gửi hàng", "ship", "địa chỉ giao hàng"], ar: ["نشحن", "يشحن", "نوصل", "يتم الشحن", "يتم التوصيل", "عنوان الشحن"]
+}
+
+/** A clause that says no: we don't, not available, impossible (Japanese, Korean, Chinese: as a shop writes a refusal). */
+export const NEGATION: Words = {
+  en: ["not", "don't", "don’t", "do not", "doesn't", "doesn’t", "does not", "cannot", "can't", "can’t", "unable", "unavailable", "isn't", "isn’t", "aren't", "won't", "won’t", "never", "no longer"],
+  ru: ["не", "нет", "невозможна", "невозможно", "недоступна", "недоступно"],
+  uk: ["не", "немає", "неможлива", "неможливо", "недоступна", "недоступно"],
+  de: ["nicht", "kein", "keine", "keinen", "keinerlei", "nie"],
+  fr: ["pas", "aucun", "aucune", "jamais", "impossible", "indisponible"],
+  es: ["no", "ningún", "ninguna", "nunca", "imposible"],
+  it: ["non", "nessun", "nessuna", "mai", "impossibile"],
+  pt: ["não", "nenhum", "nenhuma", "nunca", "impossível"],
+  ja: ["しておりません", "できません", "いたしません", "対象外", "不可"],
+  ko: ["불가", "하지 않", "되지 않", "지 않습니다"],
+  zh: ["不配送", "不发货", "不支持", "暂不", "无法", "不提供", "不寄送", "不送"],
+  "zh-Hant": ["不配送", "不出貨", "不支援", "暫不", "無法", "不提供", "不寄送", "不送"],
+  vi: ["không", "chưa"], ar: ["لا", "غير", "ليس", "لم", "لن"]
+}
+
+/** "Except": the country after it is left out ("worldwide except Russia"). */
+export const EXCEPT: Words = {
+  en: ["except", "excluding", "other than", "with the exception of"], ru: ["кроме", "за исключением"], uk: ["крім", "окрім", "за винятком"],
+  de: ["außer", "ausgenommen", "mit ausnahme von"], fr: ["sauf", "hors", "à l'exception de"], es: ["excepto", "salvo", "menos"],
+  it: ["tranne", "eccetto", "escluso", "esclusi"], pt: ["exceto", "salvo", "menos"], ja: ["を除く", "除く", "以外"], ko: ["제외"],
+  zh: ["除外", "除了", "不包括"], "zh-Hant": ["除外", "除了", "不包括"], vi: ["ngoại trừ", "trừ"], ar: ["باستثناء", "عدا", "ما عدا"]
+}
+
+/** "Only": a sentence that names where it ships and nowhere else. */
+export const ONLY: Words = {
+  en: ["only", "exclusively", "must be in", "must be within"], ru: ["только", "лишь", "исключительно", "должен быть в", "должна быть в"], uk: ["лише", "тільки", "виключно", "має бути в", "повинна бути в"], de: ["nur", "ausschließlich", "muss in", "muss innerhalb"],
+  fr: ["uniquement", "seulement", "exclusivement", "doit être en", "doit être situé"], es: ["solo", "sólo", "únicamente", "exclusivamente", "debe estar en"],
+  it: ["solo", "soltanto", "esclusivamente", "unicamente", "deve essere in", "deve trovarsi in"], pt: ["apenas", "somente", "exclusivamente", "deve ser em", "deve estar em"], ja: ["のみ", "限定"],
+  ko: ["에서만", "에만", "한정"], zh: ["仅", "只", "仅限"], "zh-Hant": ["僅", "只", "僅限"], vi: ["chỉ"], ar: ["فقط"]
+}
+
+/** "But": where a sentence turns ("we ship to Germany, but not to Austria"). */
+export const CONTRAST: Words = {
+  en: ["but", "however"], ru: ["но", "однако"], uk: ["але", "однак", "проте"], de: ["aber", "jedoch"], fr: ["mais", "cependant"],
+  es: ["pero", "sin embargo"], it: ["ma", "però", "tuttavia"], pt: ["mas", "porém", "contudo"], ja: ["ただし", "しかし"],
+  ko: ["하지만", "다만", "그러나"], zh: ["但是", "不过", "但"], "zh-Hant": ["但是", "不過", "但"], vi: ["nhưng", "tuy nhiên"], ar: ["لكن", "ولكن"]
+}
+
+/** Short names pages use for a country besides the one Intl gives (by its code). */
+export const COUNTRY_ALIASES: Record<string, string[]> = {
+  US: ["USA", "U.S.", "US", "США", "美国", "美國", "アメリカ", "미국", "EE. UU.", "EUA", "الولايات المتحدة"],
+  GB: ["UK", "U.K.", "Britain", "Great Britain"], AE: ["UAE", "الإمارات", "الامارات", "ОАЭ"], SA: ["KSA", "السعودية"],
+  RU: ["РФ"], KR: ["한국", "韓国", "韩国", "韓國", "South Korea"], TW: ["台湾", "台灣", "臺灣"], CN: ["中国", "中國"], HK: ["香港"],
+  JP: ["日本"], NL: ["Holland"], CZ: ["Czech Republic"], VN: ["Việt Nam", "Vietnam"]
+}
+
+/** Country names that are also common words in some language («того» "of that"), never counted as a named country. */
+export const NOT_A_COUNTRY = ["того", "чад", "мали", "chad", "jersey", "georgia", "turkey", "guinea", "jordan", "panama", "togo", "chile", "china", "niger", "mali", "man"]
+
+/** What delivery costs: a rate, a fee, free (a sentence about cost limits a price, not where it ships). */
+export const COST: Words = {
+  en: ["rate", "rates", "cost", "costs", "price", "prices", "fee", "fees", "charge", "charges", "free"], ru: ["стоимость", "цена", "тариф", "бесплатно", "бесплатная"],
+  uk: ["вартість", "ціна", "тариф", "безкоштовно", "безкоштовна"], de: ["kosten", "preis", "preise", "gebühr", "gebühren", "kostenlos", "versandkostenfrei"],
+  fr: ["frais", "tarif", "tarifs", "prix", "gratuit", "gratuite"], es: ["costo", "coste", "precio", "tarifa", "gratis", "gratuito"],
+  it: ["costo", "costi", "prezzo", "tariffa", "gratis", "gratuita"], pt: ["custo", "preço", "taxa", "grátis", "gratuito"],
+  ja: ["送料", "料金", "無料"], ko: ["배송비", "요금", "무료"], zh: ["运费", "费用", "免费", "包邮"], "zh-Hant": ["運費", "費用", "免費"],
+  vi: ["phí", "miễn phí", "giá"], ar: ["رسوم", "تكلفة", "مجاني", "مجانا"]
+}
+
+/** Units a size or capacity is written with (a shop writes "128 GB", «128 ГБ», "128기가" its own way). */
+export const UNITS: Words = {
+  en: ["gb", "tb", "mb", "kb", "mm", "cm", "m", "l", "ml", "w", "kw", "mah", "kg", "g", "in", "inch", "hz", "mp"],
+  ru: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймов", "гц", "мп"],
+  uk: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймів", "гц", "мп"],
+  de: ["zoll"], fr: ["pouces", "po"], es: ["pulgadas"], it: ["pollici"], pt: ["polegadas"],
+  ja: ["ギガ", "テラ", "ミリ", "センチ", "リットル", "グラム", "インチ"], ko: ["기가", "테라", "리터", "그램", "인치", "밀리"],
+  zh: ["克", "升", "毫升", "英寸", "寸"], "zh-Hant": ["克", "升", "毫升", "英吋", "吋"], vi: ["inch"], ar: ["جيجا", "بوصة"]
 }

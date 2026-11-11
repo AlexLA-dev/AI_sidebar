@@ -941,7 +941,19 @@
  "pickNone": {
   "message": "Auswahl aufheben"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{0} neue Gratis-Antwort um {1}, in {2}."
+ },
+ "limitFreeBack_two": {
+  "message": "{0} neue Gratis-Antworten um {1}, in {2}."
+ },
+ "limitFreeBack_few": {
+  "message": "{0} neue Gratis-Antworten um {1}, in {2}."
+ },
+ "limitFreeBack_many": {
+  "message": "{0} neue Gratis-Antworten um {1}, in {2}."
+ },
+ "limitFreeBack_other": {
   "message": "{0} neue Gratis-Antworten um {1}, in {2}."
  },
  "limitFreePro": {
@@ -2197,6 +2209,12 @@
  },
  "similarRegionLocked": {
   "message": "Nicht im App Store deines Landes"
+ },
+ "similarShipListed": {
+  "message": "Die Versandseite nennt: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "Versand in dieses Land nicht angegeben: {0}"
  },
  "similarRatings": {
   "message": "{0} Bewertungen"

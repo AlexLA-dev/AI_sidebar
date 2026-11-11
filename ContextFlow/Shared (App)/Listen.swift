@@ -1341,6 +1341,11 @@ final class ListenPlayer: NSObject, ObservableObject {
             if fetchedAll {
                 noteVoiced()
                 finish(.ended)
+                // Heard to its end: the server is told now, so the minutes under the player are this listen's while it
+                // shows the end, and a replay shows the same (the 2.6 gate: they followed only once the player was
+                // closed, so the replay looked like it had cost a minute). Sent again on closing, it adds nothing.
+                keepHeard()
+                Task { await Self.sendHeard() }
                 return
             } else if let reason = pendingReason {
                 pendingReason = nil

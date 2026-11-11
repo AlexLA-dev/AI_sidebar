@@ -1,0 +1,260 @@
+{
+ "about": "Item pages of the eval set as a server gets them (plain GET), cut to what the reader looks at: the html tag, title, meta tags, JSON-LD, microdata tags, the h1 and the first 12,000 characters of text. Each cut reads the same price, stock, language, name and title as the whole page did. expect: what the page states for machines, checked against the visible page (notes where they differ).",
+ "cases": [
+  {
+   "id": "ar-extra",
+   "url": "https://www.extra.com/ar-sa/small-appliances/home-environment-care/vacuum-cleaner/bissell-powerclean-drum-vacuum-cleaner-2000-watt-21-liter-with-blower-function/p/100009425",
+   "file": "pages/ar-extra.html",
+   "expect": {
+    "price": {
+     "amount": 399,
+     "currency": "SAR"
+    },
+    "stock": "in",
+    "lang": "ar"
+   }
+  },
+  {
+   "id": "es-hawkers",
+   "url": "https://www.hawkersco.com/gafas-de-sol/ocean-coral-petite-400027.html",
+   "file": "pages/es-hawkers.html",
+   "expect": {
+    "price": {
+     "amount": 35.99,
+     "currency": "EUR"
+    },
+    "stock": "in",
+    "lang": "es"
+   }
+  },
+  {
+   "id": "fr-cristel",
+   "url": "https://www.cristel.com/fr/produits/serie-3-casseroles-en-inox-brosse-1826-fixe",
+   "file": "pages/fr-cristel.html",
+   "expect": {
+    "price": {
+     "amount": 219.9,
+     "currency": "EUR"
+    },
+    "stock": "in",
+    "lang": "fr"
+   }
+  },
+  {
+   "id": "gb-brompton",
+   "url": "https://www.brompton.com/p/1029/a-line-23",
+   "file": "pages/gb-brompton.html",
+   "expect": {
+    "price": {
+     "amount": 999,
+     "currency": "GBP"
+    },
+    "stock": "in",
+    "lang": "en"
+   }
+  },
+  {
+   "id": "it-alessi",
+   "url": "https://shop.mohd.it/it/plisse-bollitore-elettrico-170cl.html",
+   "file": "pages/it-alessi.html",
+   "expect": {
+    "price": {
+     "amount": 82.5,
+     "currency": "EUR"
+    },
+    "stock": "in",
+    "lang": "it"
+   }
+  },
+  {
+   "id": "it-bialetti",
+   "url": "https://www.bialetti.com/it_it/set-moka-express-the-north-face-bialetti.html",
+   "file": "pages/it-bialetti.html",
+   "expect": {
+    "price": {
+     "amount": 150,
+     "currency": "EUR"
+    },
+    "stock": "in",
+    "lang": "it"
+   }
+  },
+  {
+   "id": "ja-balmuda",
+   "url": "https://www.balmuda.com/jp/pot",
+   "file": "pages/ja-balmuda.html",
+   "expect": {
+    "price": null,
+    "stock": null,
+    "lang": "ja"
+   },
+   "note": "No price in the HTML a server gets (the page draws it with script)."
+  },
+  {
+   "id": "ko-10x10",
+   "url": "https://www.10x10.co.kr/shopping/category_prd.asp?itemid=6000000",
+   "file": "pages/ko-10x10.html",
+   "expect": {
+    "price": {
+     "amount": 34900,
+     "currency": "KRW"
+    },
+    "stock": "out",
+    "lang": "ko"
+   },
+   "note": "JSON-LD says Discontinued."
+  },
+  {
+   "id": "ko-innisfree",
+   "url": "https://www.costco.co.kr/p/630863",
+   "file": "pages/ko-innisfree.html",
+   "expect": {
+    "price": {
+     "amount": 24990,
+     "currency": "KRW"
+    },
+    "stock": "in",
+    "lang": "ko"
+   },
+   "note": "The site's markup (JSON-LD, og) says 24,990; the page shows 29,990 with delivery included. We read the markup."
+  },
+  {
+   "id": "p-era100",
+   "url": "https://www.sonos.com/en-us/shop/era-100",
+   "file": "pages/p-era100.html",
+   "expect": {
+    "price": {
+     "amount": 219,
+     "currency": "USD"
+    },
+    "stock": "in",
+    "lang": "en-us"
+   }
+  },
+  {
+   "id": "p-everyday",
+   "url": "https://www.peakdesign.com/products/everyday-backpack",
+   "file": "pages/p-everyday.html",
+   "expect": {
+    "price": {
+     "amount": 327.36,
+     "currency": "EUR"
+    },
+    "stock": "out",
+    "lang": "en"
+   },
+   "note": "Fetched from Europe: the shop serves euros there. Out of stock is shown on the page too."
+  },
+  {
+   "id": "p-macbook",
+   "url": "https://www.apple.com/macbook-air/",
+   "file": "pages/p-macbook.html",
+   "expect": {
+    "price": null,
+    "stock": null,
+    "lang": "en-US"
+   },
+   "note": "A product's overview page: no single price stated for machines."
+  },
+  {
+   "id": "p-mxmaster",
+   "url": "https://www.logitech.com/en-us/shop/p/mx-master-3s",
+   "file": "pages/p-mxmaster.html",
+   "expect": {
+    "price": {
+     "amount": 89.99,
+     "currency": "USD"
+    },
+    "stock": "in",
+    "lang": "en-us"
+   }
+  },
+  {
+   "id": "p-notesleeve",
+   "url": "https://bellroy.com/products/note-sleeve-wallet",
+   "file": "pages/p-notesleeve.html",
+   "expect": {
+    "price": null,
+    "stock": null,
+    "lang": "en"
+   },
+   "note": "No price in the HTML a server gets (the page draws it with script)."
+  },
+  {
+   "id": "p-pocket3",
+   "url": "https://www.dji.com/osmo-pocket-3",
+   "file": "pages/p-pocket3.html",
+   "expect": {
+    "price": null,
+    "stock": null,
+    "lang": "en"
+   },
+   "note": "A product's overview page: no price stated for machines."
+  },
+  {
+   "id": "p-q45",
+   "url": "https://www.soundcore.com/products/space-q45-a3040011",
+   "file": "pages/p-q45.html",
+   "expect": {
+    "price": {
+     "amount": 129.99,
+     "currency": "USD"
+    },
+    "stock": "in",
+    "lang": "en-US"
+   }
+  },
+  {
+   "id": "p-thomann",
+   "url": "https://www.thomann.de/de/fender_player_ii_strat_mn_blk.htm",
+   "file": "pages/p-thomann.html",
+   "expect": {
+    "price": {
+     "amount": 769,
+     "currency": "EUR"
+    },
+    "stock": "out",
+    "lang": "de"
+   },
+   "note": "Microdata says OutOfStock; the page says it ships at short notice (2–5 days)."
+  },
+  {
+   "id": "pt-tramontina",
+   "url": "https://www.tramontina.com.br/jogo-de-frigideiras-tramontina-turim-em-aluminio-com-revestimento-interno-e-externo-em-antiaderente-starflon-max-chumbo-2-pecas/20198660.html",
+   "file": "pages/pt-tramontina.html",
+   "expect": {
+    "price": {
+     "amount": 88.25,
+     "currency": "BRL"
+    },
+    "stock": "in",
+    "lang": "pt"
+   }
+  },
+  {
+   "id": "vi-cellphones",
+   "url": "https://cellphones.com.vn/iphone-16-pro-max.html",
+   "file": "pages/vi-cellphones.html",
+   "expect": {
+    "price": {
+     "amount": 30990000,
+     "currency": "VND"
+    },
+    "stock": "out",
+    "lang": "vi"
+   },
+   "note": "The page says temporarily out of stock (TẠM HẾT HÀNG)."
+  },
+  {
+   "id": "zh-airpods",
+   "url": "https://www.apple.com.cn/airpods-4/",
+   "file": "pages/zh-airpods.html",
+   "expect": {
+    "price": null,
+    "stock": null,
+    "lang": "zh-CN"
+   },
+   "note": "A product's overview page: no price stated for machines."
+  }
+ ]
+}

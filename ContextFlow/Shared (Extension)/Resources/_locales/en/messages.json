@@ -941,7 +941,19 @@
  "pickNone": {
   "message": "Deselect all"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{0} new free answer at {1}, in {2}."
+ },
+ "limitFreeBack_two": {
+  "message": "{0} new free answers at {1}, in {2}."
+ },
+ "limitFreeBack_few": {
+  "message": "{0} new free answers at {1}, in {2}."
+ },
+ "limitFreeBack_many": {
+  "message": "{0} new free answers at {1}, in {2}."
+ },
+ "limitFreeBack_other": {
   "message": "{0} new free answers at {1}, in {2}."
  },
  "limitFreePro": {
@@ -2197,6 +2209,12 @@
  },
  "similarRegionLocked": {
   "message": "Not in your country's App Store"
+ },
+ "similarShipListed": {
+  "message": "Its delivery page lists {0}"
+ },
+ "similarShipUnshown": {
+  "message": "Delivery to {0} isn't shown"
  },
  "similarRatings": {
   "message": "{0} ratings"

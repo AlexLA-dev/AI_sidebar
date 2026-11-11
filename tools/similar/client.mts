@@ -29,7 +29,7 @@ export interface PageInput {
   facts?: Record<string, unknown>
 }
 
-export async function callSimilar(base: string, engine: "a" | "b", page: PageInput, condition: string, locale: string, options: Record<string, string> = {}, timeoutMs = 75_000): Promise<SimilarCall> {
+export async function callSimilar(base: string, engine: "a" | "b", page: PageInput, condition: string, locale: string, options: Record<string, string> = {}, timeoutMs = 75_000, ask: { chip?: string; words?: string } = {}): Promise<SimilarCall> {
   const started = Date.now()
   let firstMs: number | null = null
   const events: Array<Record<string, unknown>> = []
@@ -44,6 +44,10 @@ export async function callSimilar(base: string, engine: "a" | "b", page: PageInp
         engine,
         page,
         condition,
+        // Build 95: the chip they tapped and their own words apart, as the panel sends them (a chip weighs softly,
+        // words strictly; an older server reads only `condition`).
+        ...(ask.chip ? { chip: ask.chip } : {}),
+        ...(ask.words?.trim() ? { words: ask.words.trim() } : {}),
         // Build 93: where to look and the country are the request's own fields, not engine options.
         ...(options.region ? { region: options.region } : {}),
         ...(options.country ? { country: options.country } : {}),

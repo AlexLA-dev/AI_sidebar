@@ -1,0 +1,154 @@
+{
+ "about": "The live error subset: pages of the eval set (tools/similar/testset.json) where an error showed, with the rules their answers must keep (tools/similar/bankchecks.mts). Before a release: eval.mts snapshot --bank, run --bank --engines=a --base=<preview> --tag=bank-<name>, then bank --tag=bank-<name> (about $2 a pass).",
+ "cases": [
+  {
+   "id": "gb-brompton",
+   "checks": [
+    "answer",
+    "one-per-marketplace",
+    "no-delivery-claim"
+   ],
+   "why": "two Gumtree listings in one UK answer (classifieds weren't marketplaces)"
+  },
+  {
+   "id": "ja-balmuda",
+   "checks": [
+    "answer",
+    "one-per-marketplace"
+   ],
+   "why": "two Yahoo Shopping listings in one Japanese answer"
+  },
+  {
+   "id": "p-q45",
+   "checks": [
+    "answer",
+    "one-per-marketplace",
+    "chip-order"
+   ],
+   "why": "cheaper headphones: marketplace listings beside the shops' own pages (round 3 found three in one answer, through review pages' links)"
+  },
+  {
+   "id": "p-mxmaster",
+   "checks": [
+    "answer",
+    "one-per-marketplace",
+    "chip-order"
+   ],
+   "why": "marketplace listings beside the brand's own (in stock)"
+  },
+  {
+   "id": "es-pompeii",
+   "checks": [
+    "answer",
+    "no-delivery-claim"
+   ],
+   "why": "near them, a shop abroad whose delivery page refuses Spain"
+  },
+  {
+   "id": "fr-cristel",
+   "checks": [
+    "answer",
+    "no-delivery-claim"
+   ],
+   "why": "near them, a shop abroad whose delivery page doesn't show France"
+  },
+  {
+   "id": "es-hawkers",
+   "checks": [
+    "answer",
+    "no-delivery-claim",
+    "chip-order"
+   ],
+   "why": "near them, cheaper; shops abroad"
+  },
+  {
+   "id": "in-boat",
+   "checks": [
+    "answer",
+    "chip-order",
+    "one-per-marketplace"
+   ],
+   "why": "cheaper near them in India: a near miss listed"
+  },
+  {
+   "id": "ko-lang",
+   "checks": [
+    "answer",
+    "language:ko"
+   ],
+   "why": "an empty answer for 'in Korean' on a thin video page (2.6 final pass)"
+  },
+  {
+   "id": "uk-lang",
+   "checks": [
+    "answer",
+    "language:uk"
+   ],
+   "why": "in Ukrainian on an English page (Ukrainian vs Russian)"
+  },
+  {
+   "id": "tw-lang",
+   "checks": [
+    "answer",
+    "language:zh-Hant"
+   ],
+   "why": "in Traditional Chinese on an English video (zh-Hant vs zh vs ja)"
+  },
+  {
+   "id": "ar-lang",
+   "checks": [
+    "answer",
+    "language:ar"
+   ],
+   "why": "in Arabic on an English article"
+  },
+  {
+   "id": "r-pomodoro",
+   "checks": [
+    "answer",
+    "language:ru"
+   ],
+   "why": "in Russian on an English article"
+  },
+  {
+   "id": "pt-havaianas",
+   "checks": [
+    "answer",
+    "chip-order"
+   ],
+   "why": "an empty answer before (Shopify shop, cheaper)"
+  },
+  {
+   "id": "v-3b1b",
+   "checks": [
+    "answer"
+   ],
+   "why": "an empty answer before (shorter video)"
+  },
+  {
+   "id": "ko-innisfree",
+   "checks": [
+    "answer",
+    "one-per-marketplace"
+   ],
+   "why": "a Korean product near them, where people buy mostly on marketplaces"
+  },
+  {
+   "id": "vi-cellphones",
+   "checks": [
+    "answer",
+    "one-per-marketplace"
+   ],
+   "why": "a Vietnamese product near them, where people buy mostly on marketplaces"
+  },
+  {
+   "id": "zh-airpods",
+   "checks": [
+    "answer",
+    "one-per-marketplace",
+    "chip-order"
+   ],
+   "why": "a Chinese product near them; its own page states no price"
+  }
+ ]
+}

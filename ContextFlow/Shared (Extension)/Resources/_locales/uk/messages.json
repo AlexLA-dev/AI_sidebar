@@ -941,8 +941,20 @@
  "pickNone": {
   "message": "Зняти вибір"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{0} безкоштовна відповідь знову буде о {1}, через {2}."
+ },
+ "limitFreeBack_two": {
+  "message": "{0} безкоштовні відповіді знову будуть о {1}, через {2}."
+ },
+ "limitFreeBack_few": {
+  "message": "{0} безкоштовні відповіді знову будуть о {1}, через {2}."
+ },
+ "limitFreeBack_many": {
   "message": "{0} безкоштовних відповідей знову будуть о {1}, через {2}."
+ },
+ "limitFreeBack_other": {
+  "message": "{0} безкоштовні відповіді знову будуть о {1}, через {2}."
  },
  "limitFreePro": {
   "message": "У Pro — до {0} відповідей на тиждень, відео та PDF на сторінці, ШІ-пошук і питання одразу про всі чати."
@@ -2197,6 +2209,12 @@
  },
  "similarRegionLocked": {
   "message": "Немає в App Store вашої країни"
+ },
+ "similarShipListed": {
+  "message": "У списку країн доставки: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "Не вказано, чи доставляють у країну: {0}"
  },
  "similarRatings": {
   "message": "Оцінок: {0}"

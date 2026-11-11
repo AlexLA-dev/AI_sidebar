@@ -941,7 +941,19 @@
  "pickNone": {
   "message": "取消全选"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
+ },
+ "limitFreeBack_two": {
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
+ },
+ "limitFreeBack_few": {
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
+ },
+ "limitFreeBack_many": {
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
+ },
+ "limitFreeBack_other": {
   "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
  },
  "limitFreePro": {
@@ -2197,6 +2209,12 @@
  },
  "similarRegionLocked": {
   "message": "你所在国家/地区的 App Store 中没有"
+ },
+ "similarShipListed": {
+  "message": "配送页面列出: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "未注明是否配送到{0}"
  },
  "similarRatings": {
   "message": "{0} 个评分"

@@ -76,14 +76,16 @@ test("the brand's other model's words about a trait, however far down its page (
   assert.match(out, /LatteGo milk frother/)
 })
 
-test("one marketplace listing at most, from any region's marketplaces", () => {
+test("a few listings per marketplace, the same rule for every region's marketplaces", () => {
   const claims = new Claims({ title: "", url: "https://shop.example/kettle", text: "" })
   const c = (url: string, name: string) => ({ url, name, kind: "item" as const, resultTitle: name, pageAge: null })
   const taken = claims.take([
-    c("https://item.rakuten.co.jp/shop/kettle", "Tiger Kettle"), c("https://www.mercadolivre.com.br/chaleira", "Chaleira Elétrica"),
-    c("https://allegro.pl/oferta/czajnik", "Czajnik"), c("https://www.zojirushi.com/kettle", "Zojirushi Kettle"), c("https://www.coupang.com/vp/1", "전기포트")
+    c("https://item.rakuten.co.jp/shop/kettle", "Tiger Kettle"), c("https://item.rakuten.co.jp/other/kettle2", "Zojirushi Kettle CK"),
+    c("https://www.ozon.ru/product/1", "Чайник Bosch"), c("https://market.yandex.ru/product/2", "Чайник Tefal"), c("https://www.wildberries.ru/catalog/3", "Чайник Xiaomi"),
+    c("https://www.ozon.ru/product/4", "Чайник Polaris"), c("https://www.zojirushi.com/kettle", "Zojirushi Kettle"), c("https://www.gmarket.co.kr/item/5", "전기포트"),
+    c("https://tiki.vn/am-sieu-toc", "Ấm siêu tốc"), c("https://rozetka.com.ua/ua/6", "Електрочайник")
   ])
-  assert.deepEqual(taken.map((t) => new URL(t.url).hostname), ["item.rakuten.co.jp", "www.zojirushi.com"])
+  assert.deepEqual(taken.map((t) => new URL(t.url).hostname), ["item.rakuten.co.jp", "item.rakuten.co.jp", "www.ozon.ru", "market.yandex.ru", "www.wildberries.ru", "www.ozon.ru", "www.zojirushi.com", "www.gmarket.co.kr", "tiki.vn", "rozetka.com.ua"])
 })
 
 test("an item that shares none of the traits isn't an alternative (0 %), in any category", () => {
@@ -180,12 +182,13 @@ test("a rated item without reviewers' words gets a review search in the plan's l
   }
 })
 
-test("one marketplace listing at most in the answer, also when a review page led to the listings", () => {
+test("one listing per marketplace in the answer, also when a review page led to the listings", () => {
   const p = plan({ subject: "Sony WH-1000XM5", traits: ["over-ear headphones", "noise cancelling"] })
   const at = (url: string, name: string) => candidate(url, html(name, offer("99", "USD")), name, p)
   const pages = [at("https://www.amazon.com/dp/B0D46JP795?tag=x-20", "KVIDIO Hybrid ANC Headphones"), at("https://www.walmart.com/ip/1", "JBL Tune 770NC"), at("https://www.amazon.co.uk/dp/B0C3HCD34R", "Soundcore Q20i"), at("https://audio.example.com/q45", "Soundcore Space Q45")]
   const raw = { intro: "", note: "", items: pages.map((c, i) => ({ page: i + 1, name: c.name, why: "w", fit: "f", met: "n/a", words_met: "n/a", same: false, shares: [1, 2], differs: "" })) }
   const { result, dropped } = finishItems(raw, pages, p, { title: "x", url: "https://electronics.example.com/x", text: "" })
-  assert.deepEqual(result.items.map((i) => i.host), ["amazon.com", "audio.example.com"])
-  assert.equal(dropped.filter((d) => d.why === "one marketplace listing at most").length, 2)
+  // One per marketplace: amazon.co.uk is Amazon again; Walmart is a marketplace of its own.
+  assert.deepEqual(result.items.map((i) => i.host), ["amazon.com", "walmart.com", "audio.example.com"])
+  assert.equal(dropped.filter((d) => d.why === "one listing per marketplace").length, 1)
 })

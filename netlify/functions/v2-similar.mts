@@ -9,7 +9,7 @@ import { buildGrounding, type GoogleStats } from "../shared/google.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { blockReason, resolveAccess, similarCountersFor, ultraUsage, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
-import { CHIP_KINDS, MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
+import { CHIP_KINDS, MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, probeShipping, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
 import { JOB_ID, jobKey, jobStore, sweepJobs, type StoredResult } from "../shared/jobs.mts"
 // Who may find similar things (Ultra in 2.6): one seam with the panel (src/shared/similar.ts).
@@ -47,6 +47,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const body = await readJson(req, 120_000)
   if (!body) return json({ code: "BAD_REQUEST", message: "Invalid JSON" }, 400)
   const evaluating = evaluation(req, context)
+  // The evaluation's measure of the delivery reader on labelled pages (off production only).
+  if (evaluating && body.probe === "delivery") {
+    if (!settings.anthropicKey) return json({ code: "UNAVAILABLE", message: "no Anthropic key" }, 503)
+    return json(await probeShipping(body.cases))
+  }
   const engine = body.engine === "b" ? "b" : body.engine === "a" ? "a" : null
   if (!engine) return json({ code: "BAD_REQUEST", message: "engine a or b" }, 400)
   if (!evaluating && !settings.similar.engines.includes(engine)) return json({ code: "UNAVAILABLE", engine }, 404)
@@ -233,7 +238,8 @@ function overridesOf(raw: unknown): EngineOverrides {
     ...(o.reviews === "off" ? { reviews: false } : o.reviews === "on" ? { reviews: true } : {}),
     ...(o.siblings === "off" ? { siblings: false } : o.siblings === "on" ? { siblings: true } : {}),
     ...(o.shipCheck === "off" ? { shipCheck: false } : o.shipCheck === "on" ? { shipCheck: true } : {}),
-    ...(o.altSearch === "off" ? { altSearch: false } : o.altSearch === "on" ? { altSearch: true } : {})
+    ...(o.altSearch === "off" ? { altSearch: false } : o.altSearch === "on" ? { altSearch: true } : {}),
+    ...(o.shipReader === "model" || o.shipReader === "rules" ? { shipReader: o.shipReader } : {})
   }
 }
 

@@ -182,6 +182,25 @@ export function payText(p: SimilarPricing): string {
 }
 
 /** Where the condition was settled when it's another page than the item's (build 91): its site, as a link. */
+/** 2.6: near them, a shop abroad: what its delivery page shows (it lists their country, or doesn't), that page linked. */
+function deliveryLine(item: SimilarItem, onOpen: (url: string) => void): VNode | null {
+  const d = item.delivery
+  if (!d) return null
+  const country = countryLabel(d.to)
+  let host = ""
+  try {
+    host = d.url ? new URL(d.url).hostname.replace(/^www\./, "") : ""
+  } catch {
+    host = ""
+  }
+  return (
+    <p class={`cf-similar-ship${d.ships === "yes" ? " ok" : ""}`} dir="auto">
+      {d.ships === "yes" ? t("similarShipListed", country) : t("similarShipUnshown", country)}
+      {host && <> · <a class="cf-similar-proof" href={d.url} target="_blank" rel="noopener noreferrer" onClick={opening(d.url!, onOpen)}>{host}</a></>}
+    </p>
+  )
+}
+
 function proofLink(item: SimilarItem, onOpen: (url: string) => void): VNode | null {
   if (!item.proof || item.pricing?.url === item.proof) return null
   let host = ""
@@ -262,6 +281,7 @@ function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n
         {item.met === "no" && (
           <p class="cf-similar-fit no" dir="auto"><span class="cf-similar-nc">{t("similarMisses")}</span>{item.fit ? ` ${item.fit}` : ""}</p>
         )}
+        {deliveryLine(item, onOpen)}
         <Reviews item={item} onOpen={onOpen} />
         {(facts.length > 0 || item.pricing || !item.checked || (onWatch && item.watch)) && (
           <div class="cf-similar-facts">

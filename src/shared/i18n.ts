@@ -25,6 +25,25 @@ export function uiLanguage(): string {
 }
 
 /**
+ * The plural form `count` takes in `lang` (the UI language by default), for the panel's keys with one form each
+ * (<key>_one, _two, _few, _many, _other; a language without a form repeats its other). Zero goes to other.
+ */
+export function pluralForm(count: number, lang?: string): "one" | "two" | "few" | "many" | "other" {
+  let rule: Intl.LDMLPluralRule
+  try {
+    rule = new Intl.PluralRules(lang ?? uiLanguage()).select(count)
+  } catch {
+    rule = count === 1 ? "one" : "other"
+  }
+  return rule === "zero" ? "other" : rule
+}
+
+/** "5 new free answers at 2:00, in 17 h", in the form the number takes (2.6: Russian said «1 бесплатных ответов»). */
+export function freeAnswersBack(count: number, at: string, until: string, lang?: string): string {
+  return t(`limitFreeBack_${pluralForm(count, lang)}`, count, at, until)
+}
+
+/**
  * The panel strings' language as a BCP 47 tag ("ar", "zh-Hant", "pt-BR"): their own langCode, so it's the language the
  * browser actually loaded. On the panel's root as lang (Traditional Chinese gets PingFang TC's glyphs, 2.6).
  */

@@ -83,7 +83,7 @@ export function roughAmount(amount: number, currency: string): string {
 /** The currency a sign or a short word by a price stands for (as detect.ts reads prices: every shipped language). */
 const SIGN_CURRENCY: Record<string, string> = {
   $: "USD", "US$": "USD", "C$": "CAD", "A$": "AUD", "HK$": "HKD", "NZ$": "NZD", "S$": "SGD", "NT$": "TWD", "MX$": "MXN", "R$": "BRL",
-  "€": "EUR", "£": "GBP", "¥": "JPY", "￥": "JPY", "円": "JPY", "元": "CNY", "₽": "RUB", "руб": "RUB", "₴": "UAH", "грн": "UAH",
+  "CA$": "CAD", "AU$": "AUD", "€": "EUR", "£": "GBP", "¥": "JPY", "￥": "JPY", "円": "JPY", "元": "CNY", "圓": "TWD", "₽": "RUB", "руб": "RUB", "₴": "UAH", "грн": "UAH",
   "₹": "INR", "₩": "KRW", "원": "KRW", "₫": "VND", "đ": "VND", "vnđ": "VND", "₺": "TRY", "₪": "ILS", "฿": "THB", "₸": "KZT",
   "₾": "GEL", "₼": "AZN", "₱": "PHP", "zł": "PLN", kr: "SEK",
   // The Gulf's, Egypt's: the abbreviation, and the word (riyal, dirham, dinar, pound).
@@ -94,12 +94,14 @@ const SIGN_CURRENCY: Record<string, string> = {
 /** Signs several currencies share: on a country's own domain, that country's ("$" on a .ca shop is CAD). */
 const SHARED_SIGN: Record<string, string[]> = {
   $: ["USD", "CAD", "AUD", "NZD", "MXN", "SGD", "HKD", "TWD", "CLP", "COP", "ARS"], "¥": ["JPY", "CNY"], "￥": ["JPY", "CNY"],
+  // 元 is the yuan, and Taiwan's, Hong Kong's and Macau's dollar as their shops write it.
+  "元": ["CNY", "TWD", "HKD", "MOP"], "圓": ["TWD", "HKD", "MOP"],
   kr: ["SEK", "NOK", "DKK", "ISK"], "ريال": ["SAR", "QAR", "OMR", "YER"], "درهم": ["AED", "MAD"],
   "دينار": ["KWD", "BHD", "JOD", "IQD", "LYD", "TND", "DZD", "RSD"], "جنيه": ["EGP", "SDG", "GBP"]
 }
 
 /** The signs and short words a price may carry, before or after its number, as a pattern's source (match with "iu"). */
-export const MONEY_SIGN = "US\\$|C\\$|A\\$|HK\\$|NZ\\$|S\\$|NT\\$|MX\\$|R\\$|zł|kr|руб|грн|vnđ|ر\\.\\s?س|د\\.\\s?إ|ر\\.\\s?ق|د\\.\\s?ك|ر\\.\\s?ع|د\\.\\s?ب|ج\\.\\s?م|ريال|درهم|دينار|جنيه|[$€£¥￥円元₽₴₹₩원₫₺₪฿₸₾₼₱đ]"
+export const MONEY_SIGN = "US\\$|CA\\$|AU\\$|C\\$|A\\$|HK\\$|NZ\\$|S\\$|NT\\$|MX\\$|R\\$|zł|kr|руб|грн|vnđ|ر\\.\\s?س|د\\.\\s?إ|ر\\.\\s?ق|د\\.\\s?ك|ر\\.\\s?ع|د\\.\\s?ب|ج\\.\\s?م|ريال|درهم|دينار|جنيه|[$€£¥￥円元圓₽₴₹₩원₫₺₪฿₸₾₼₱đ]"
 
 /** The currency of a sign by a price; `local` (a country domain's currency) wins for a sign it shares. "" for none. */
 export function currencyOfSign(sign: string, local = ""): string {

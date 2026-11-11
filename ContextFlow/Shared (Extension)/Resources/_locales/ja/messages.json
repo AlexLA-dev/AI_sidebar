@@ -941,7 +941,19 @@
  "pickNone": {
   "message": "選択を解除"
  },
- "limitFreeBack": {
+ "limitFreeBack_one": {
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
+ },
+ "limitFreeBack_two": {
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
+ },
+ "limitFreeBack_few": {
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
+ },
+ "limitFreeBack_many": {
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
+ },
+ "limitFreeBack_other": {
   "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
  },
  "limitFreePro": {
@@ -2197,6 +2209,12 @@
  },
  "similarRegionLocked": {
   "message": "お住まいの国の App Store にはありません"
+ },
+ "similarShipListed": {
+  "message": "配送ページに記載あり: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "{0}への配送は記載なし"
  },
  "similarRatings": {
   "message": "{0}件の評価"
