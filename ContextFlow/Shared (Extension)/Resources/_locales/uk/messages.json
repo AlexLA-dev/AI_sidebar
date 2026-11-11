@@ -1535,6 +1535,15 @@
  "orgMergedHere": {
   "message": "«{0}» приєднано сюди"
  },
+ "orgBarOne": {
+  "message": "Підказки · {0}"
+ },
+ "orgBarOf": {
+  "message": "Підказки · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Підказки в цьому чаті"
+ },
  "recs_one": {
   "message": "{0} рекомендація"
  },

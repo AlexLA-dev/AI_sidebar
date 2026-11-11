@@ -1535,6 +1535,15 @@
  "orgMergedHere": {
   "message": "Đã gộp “{0}” vào đây"
  },
+ "orgBarOne": {
+  "message": "Gợi ý · {0}"
+ },
+ "orgBarOf": {
+  "message": "Gợi ý · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Gợi ý trong cuộc trò chuyện này"
+ },
  "recs_one": {
   "message": "{0} gợi ý"
  },

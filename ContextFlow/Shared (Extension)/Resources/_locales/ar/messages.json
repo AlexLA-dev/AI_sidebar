@@ -1535,6 +1535,15 @@
  "orgMergedHere": {
   "message": "أُضيفت «{0}» هنا"
  },
+ "orgBarOne": {
+  "message": "مقترحات · {0}"
+ },
+ "orgBarOf": {
+  "message": "مقترحات · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "مقترحات في هذه المحادثة"
+ },
  "recs_one": {
   "message": "توصية واحدة"
  },

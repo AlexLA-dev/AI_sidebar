@@ -1187,6 +1187,10 @@ struct ChatDetailView: View {
     // bar, and whether text is being selected (no swiping then).
     @State private var pinAt = Int.max
     @State private var pinLock = Date.distantPast
+    // 2.6 (97): the bar of open suggestions: the one it shows, the chip flashing after a tap, the sets counted as shown.
+    @State private var sugAt = 0
+    @State private var sugLit: BarSuggestion?
+    @State private var sugSeen = Set<String>()
     @State private var reminding: Int?
     @State private var remindNote: String?
     // `whole`: they were the chat's last messages, still kept until the bar goes (see deleteMessage).
@@ -1333,18 +1337,37 @@ struct ChatDetailView: View {
                     }
                     .safeAreaInset(edge: .top, spacing: 0) {
                         let pinned = pinnedItems(thread)
-                        if !pinned.isEmpty, picked == nil {
-                            PinnedBar(items: pinned, at: Binding(get: { min(pinAt, pinned.count - 1) }, set: { pinAt = $0 }), open: { index in
-                                pinLock = Date().addingTimeInterval(1)
-                                withAnimation { proxy.scrollTo(index, anchor: .center) }
-                                flashMessage(index)
-                                ChatAI.reportUx("ux_pin", ["action": "bar_tap", "how": "bar"])
-                            }, unpin: { index in
-                                togglePin(thread, index, how: "list")
-                            }, unpinAll: {
-                                library.unpinAll(thread)
-                                ChatAI.reportUx("ux_pin", ["action": "unpinned_all", "how": "list"])
-                            })
+                        let sugs = barSuggestions(thread, raw)
+                        if picked == nil, !pinned.isEmpty || !sugs.isEmpty {
+                            // 2.6 (97): with both, one line each.
+                            VStack(spacing: 0) {
+                                if !pinned.isEmpty {
+                                    PinnedBar(items: pinned, at: Binding(get: { min(pinAt, pinned.count - 1) }, set: { pinAt = $0 }), open: { index in
+                                        pinLock = Date().addingTimeInterval(1)
+                                        withAnimation { proxy.scrollTo(index, anchor: .center) }
+                                        flashMessage(index)
+                                        ChatAI.reportUx("ux_pin", ["action": "bar_tap", "how": "bar"])
+                                    }, unpin: { index in
+                                        togglePin(thread, index, how: "list")
+                                    }, unpinAll: {
+                                        library.unpinAll(thread)
+                                        ChatAI.reportUx("ux_pin", ["action": "unpinned_all", "how": "list"])
+                                    }, compact: !sugs.isEmpty)
+                                }
+                                if !sugs.isEmpty {
+                                    SuggestionsBar(items: sugs, at: Binding(get: { min(sugAt, sugs.count - 1) }, set: { sugAt = $0 }), compact: !pinned.isEmpty, open: { item in
+                                        pinLock = Date().addingTimeInterval(1)
+                                        ChatAI.reportUse("org", "bar_tap")
+                                        // The suggestion is under its message: the message's end on screen.
+                                        withAnimation { proxy.scrollTo(item.index, anchor: .bottom) }
+                                        withAnimation(.easeOut(duration: 0.2)) { sugLit = item }
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { withAnimation(.easeIn(duration: 0.4)) { if sugLit == item { sugLit = nil } } }
+                                    }, shown: {
+                                        let key = "\(thread.id)|" + sugs.map { "\($0.kind.rawValue)\($0.index):\($0.text)" }.joined(separator: ",")
+                                        if sugSeen.insert(key).inserted { ChatAI.reportUse("org", "bar_shown") }
+                                    })
+                                }
+                            }
                         }
                     }
                     .onAppear {
@@ -1687,6 +1710,18 @@ struct ChatDetailView: View {
         return s
     }
 
+    /// 2.6 (97): the open suggestions for the bar at the top: the ones the rows under the messages show.
+    private func barSuggestions(_ thread: ChatThread, _ raw: [[String: Any]]) -> [BarSuggestion] {
+        guard let s = current(thread) else { return [] }
+        var items: [BarSuggestion] = []
+        for (index, item) in s.tags where raw.indices.contains(index) && Organize.entryKey(raw[index]) == item.key {
+            items.append(BarSuggestion(kind: .tag, index: index, text: "#\(item.tag) · \(ReminderTimes.text(thread.entries[index].content, max: 80))"))
+        }
+        if let move = s.move, thread.entries.indices.contains(move.end) { items.append(BarSuggestion(kind: .move, index: move.end, text: SuggestionRow.moveLine(move))) }
+        if let name = s.name, !thread.entries.isEmpty { items.append(BarSuggestion(kind: .name, index: thread.entries.count - 1, text: String(localized: "Name it “\(name)”"))) }
+        return BarSuggestion.ordered(items)
+    }
+
     @ViewBuilder
     private func organizeRow(_ thread: ChatThread, _ raw: [[String: Any]], _ index: Int) -> some View {
         if let s = current(thread) {
@@ -1697,6 +1732,7 @@ struct ChatDetailView: View {
             if tag != nil || move != nil || name != nil {
                 SuggestionRow(
                     tag: tag, move: move, name: name,
+                    lit: sugLit?.index == index ? sugLit?.kind : nil,
                     onTag: { if let tag { takeTag(thread, index, tag) } },
                     onTagNo: { if let tag { refuseTag(thread, index, tag) } },
                     onMove: { if let move { takeMove(thread, move) } },

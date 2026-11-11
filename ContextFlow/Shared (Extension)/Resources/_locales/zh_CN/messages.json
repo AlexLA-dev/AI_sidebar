@@ -1535,6 +1535,15 @@
  "orgMergedHere": {
   "message": "已把“{0}”合并到这里"
  },
+ "orgBarOne": {
+  "message": "建议 · {0}"
+ },
+ "orgBarOf": {
+  "message": "建议 · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "此对话中的建议"
+ },
  "recs_one": {
   "message": "{0} 条建议"
  },

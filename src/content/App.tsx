@@ -44,7 +44,8 @@ import {
   type SelectionInfo
 } from "./page"
 import { Hint } from "./Hint"
-import { OrganizeCard, OrganizeRow, panelSelectionStart, type OrganizeMove } from "./Organize"
+import { moveLine, OrganizeCard, OrganizeRow, panelSelectionStart, type OrganizeMove } from "./Organize"
+import { inChatOrder, preview as barPreview, SuggestionsBar, type BarSuggestion } from "./SuggestionsBar"
 import { UndoBar } from "./UndoBar"
 import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
@@ -2768,6 +2769,37 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const hereChat = threadList.find((x) => x.id === threadRef.current)
   const orgName = orgNow?.name && !(hereChat && (namedByUser(hereChat) || orgNow.name.toLowerCase() === threadName(hereChat).toLowerCase() ||
     (hereChat.org?.nm?.no ?? []).some((x) => x.toLowerCase() === orgNow.name!.toLowerCase()))) ? orgNow.name : null
+  // 2.6 (97): the open suggestions at the top of the chat, the ones the rows under the messages show.
+  const barItems: BarSuggestion[] = !orgNow ? [] : inChatOrder([
+    ...orgNow.tags
+      .filter((x, i, all) => messages[x.index] && entryKey(messages[x.index]) === x.key && all.findIndex((y) => y.index === x.index) === i)
+      .map((x) => ({ kind: "tag" as const, key: `t:${x.key}:${x.tag}`, index: x.index, text: `#${x.tag} · ${barPreview(messages[x.index].content)}` })),
+    ...(orgNow.move && messages[orgNow.move.start] && messages[orgNow.move.end]
+      ? [{ kind: "move" as const, key: `m:${entryKey(messages[orgNow.move.start])}:${orgNow.move.to ?? ""}:${orgNow.move.from ?? ""}`, index: orgNow.move.end, text: moveLine(orgNow.move) }]
+      : []),
+    ...(orgName && messages.length ? [{ kind: "name" as const, key: `n:${orgName}`, index: messages.length - 1, text: t("orgNameAs", orgName) }] : [])
+  ])
+  const barKeys = barItems.map((x) => x.key).join(",")
+  const barSeen = useRef(new Set<string>())
+  useEffect(() => {
+    if (!barKeys || view !== "chat" || !open) return
+    const id = `${threadRef.current}|${barKeys}`
+    if (barSeen.current.has(id)) return
+    barSeen.current.add(id)
+    void sendBackground({ type: "useEvent", f: "org", a: "bar_shown" })
+  }, [barKeys, view, open])
+  const openSuggestion = (item: BarSuggestion) => {
+    void sendBackground({ type: "useEvent", f: "org", a: "bar_tap" })
+    const el = listRef.current?.querySelector<HTMLElement>(`[data-index="${item.index}"] [data-sug="${item.kind}"]`) ?? listRef.current?.querySelector<HTMLElement>(`[data-sug="${item.kind}"]`)
+    if (!el) return
+    el.scrollIntoView({ block: "center", behavior: "smooth" })
+    el.classList.remove("sug-flash")
+    void el.offsetWidth
+    el.classList.add("sug-flash")
+    setTimeout(() => el.classList.remove("sug-flash"), 1200)
+  }
+  const pinnedCount = messages.filter((m) => m.pinned && (m.role === "assistant" || m.note)).length
+
   // Each suggestion is counted once as shown.
   useEffect(() => {
     if (!orgNow) return
@@ -3544,7 +3576,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ) : (
             <>
               <div class="cf-messages" ref={listRef} onClick={ux.onListClick}>
-                {!picked && ux.strip}
+                {!picked && (barItems.length ? (
+                  <div class={`cf-topbars${pinnedCount ? " both" : ""}`}>
+                    {ux.strip}
+                    <SuggestionsBar items={barItems} compact={pinnedCount > 0} onOpen={openSuggestion} />
+                  </div>
+                ) : ux.strip)}
                 {historyMode && messages.length === 0 && partial === null && (
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>

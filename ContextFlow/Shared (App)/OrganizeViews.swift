@@ -16,6 +16,8 @@ struct SuggestionRow: View {
     var move: OrganizeModel.Move?
     /// 2.6 (91): a better name for the chat (under its last message).
     var name: String?
+    /// 2.6 (97): the chip the bar at the top of the chat just opened: it flashes, as a pinned message does.
+    var lit: BarSuggestion.Kind? = nil
     let onTag: () -> Void
     let onTagNo: () -> Void
     let onMove: () -> Void
@@ -27,12 +29,12 @@ struct SuggestionRow: View {
         OrganizeFlow(spacing: 6) {
             Text("Suggested").font(.caption).foregroundColor(.secondary).frame(height: 28)
             if let tag {
-                SuggestionChip(tint: Tags.color(tag), takeLabel: Text("Suggested tag “\(tag)”. Add it"), take: onTag, refuse: onTagNo) {
+                SuggestionChip(tint: Tags.color(tag), lit: lit == .tag, takeLabel: Text("Suggested tag “\(tag)”. Add it"), take: onTag, refuse: onTagNo) {
                     Text("#\(tag)").font(.footnote.weight(.semibold))
                 }
             }
             if let move {
-                SuggestionChip(tint: .secondary, takeLabel: move.from != nil ? Text("Merge the older chat “\(move.toName)” into this one") : move.why == .merge ? Text("Merge this chat into “\(move.toName)”") : move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
+                SuggestionChip(tint: .secondary, lit: lit == .move, takeLabel: move.from != nil ? Text("Merge the older chat “\(move.toName)” into this one") : move.why == .merge ? Text("Merge this chat into “\(move.toName)”") : move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
                     HStack(spacing: 0) {
                         (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
                             .lineLimit(1)
@@ -47,7 +49,7 @@ struct SuggestionRow: View {
                 }
             }
             if let name {
-                SuggestionChip(tint: .secondary, takeLabel: Text("Name it “\(name)”"), take: onName, refuse: onNameNo) {
+                SuggestionChip(tint: .secondary, lit: lit == .name, takeLabel: Text("Name it “\(name)”"), take: onName, refuse: onNameNo) {
                     (Text(Image(systemName: "pencil")) + Text(" ") + Text("Name it “\(Text(name).fontWeight(.semibold).foregroundColor(.primary))”"))
                         .font(.footnote)
                         .lineLimit(1)
@@ -62,6 +64,14 @@ struct SuggestionRow: View {
         .transition(.opacity)
     }
 
+    /// 2.6 (97): a move as one line of plain text, as its chip says it (the bar at the top of the chat).
+    static func moveLine(_ move: OrganizeModel.Move) -> String {
+        let name = move.toName
+        if move.from != nil { return String(localized: "Bring “\(name)” here") }
+        if move.why == .merge { return String(localized: "Merge into “\(name)”") }
+        return move.to == nil ? String(localized: "To a new chat: “\(name)”") : String(localized: "\(messagesCount(move.count)) to “\(name)”")
+    }
+
     private func moveText(_ move: OrganizeModel.Move) -> Text {
         let name = Text(move.toName).fontWeight(.semibold).foregroundColor(.primary)
         if move.from != nil { return Text("Bring “\(name)” here") }
@@ -72,6 +82,7 @@ struct SuggestionRow: View {
 
 private struct SuggestionChip<Label: View>: View {
     let tint: Color
+    var lit = false
     // What VoiceOver reads for taking it; the ✕ reads "Dismiss".
     let takeLabel: Text
     let take: () -> Void
@@ -93,6 +104,83 @@ private struct SuggestionChip<Label: View>: View {
         .background(Capsule().fill(tint.opacity(0.06)))
         .overlay(Capsule().strokeBorder(tint.opacity(0.55), style: StrokeStyle(lineWidth: 1, dash: [3, 2.5])))
         .opacity(0.92)
+        .background(Capsule().fill(Color.accentColor.opacity(lit ? 0.22 : 0)).padding(-5))
+    }
+}
+
+// MARK: - 2.6 (97): the chat's open suggestions at its top, like the pinned messages' bar
+
+/// One open suggestion of the chat, for the bar: a tag, a move (a block, a new chat, a merge) or a name (a move and a
+/// name never at once), under message `index`.
+struct BarSuggestion: Equatable {
+    enum Kind: String { case tag, move, name }
+    let kind: Kind
+    let index: Int
+    let text: String
+
+    /// The chat's order: the earlier message first; under one message as its row shows them (a tag, a move, a name).
+    static func ordered(_ items: [BarSuggestion]) -> [BarSuggestion] {
+        let rank: [Kind: Int] = [.tag: 0, .move: 1, .name: 2]
+        return items.sorted { $0.index != $1.index ? $0.index < $1.index : rank[$0.kind]! < rank[$1.kind]! }
+    }
+}
+
+/// Easy to miss deep in a long chat (2.6 (97)): one line of the current one; a tap scrolls to it in the chat and
+/// flashes it, and the bar moves on to the next (after the last, the first again). No suggestion: no bar.
+/// `compact`: one line, with the pinned bar above it.
+struct SuggestionsBar: View {
+    let items: [BarSuggestion]
+    @Binding var at: Int
+    var compact = false
+    var open: (BarSuggestion) -> Void
+    var shown: () -> Void = {}
+
+    var body: some View {
+        let count = items.count
+        let pos = min(max(at, 0), count - 1)
+        let current = items[pos]
+        let label = count > 1 ? Text("Suggested · \(pos + 1)/\(count)") : Text("Suggested · \(count)")
+        Button {
+            open(current)
+            at = (pos + 1) % count
+        } label: {
+            HStack(alignment: .center, spacing: 9) {
+                segments(count, pos)
+                if compact {
+                    HStack(alignment: .firstTextBaseline, spacing: 7) {
+                        label.font(.caption.weight(.semibold)).foregroundColor(.accentColor).fixedSize()
+                        Text(current.text).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 1) {
+                        label.font(.caption.weight(.semibold)).foregroundColor(.accentColor)
+                        Text(current.text).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, compact ? 6 : 7).padding(.horizontal, 12)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityValue(Text(current.text))
+        .accessibilityHint(Text("Shows it in the chat"))
+        .background(.bar)
+        .overlay(alignment: .bottom) { Divider() }
+        .task(id: items) { shown() }
+        .onChange(of: items) { _ in at = 0 }
+    }
+
+    private func segments(_ count: Int, _ shown: Int) -> some View {
+        let first = min(max(0, shown - 3), max(0, count - 4))
+        let visible = Array(first..<min(count, first + 4))
+        return VStack(spacing: 2) {
+            ForEach(visible, id: \.self) { pos in
+                Capsule().fill(Color.accentColor.opacity(pos == shown ? 1 : 0.3)).frame(width: 2.5)
+            }
+        }
+        .frame(height: compact ? 18 : 34)
     }
 }
 

@@ -1535,6 +1535,15 @@
  "orgMergedHere": {
   "message": "「{0}」をここに統合しました"
  },
+ "orgBarOne": {
+  "message": "提案 · {0}"
+ },
+ "orgBarOf": {
+  "message": "提案 · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "このチャットの提案"
+ },
  "recs_one": {
   "message": "おすすめ {0} 件"
  },
