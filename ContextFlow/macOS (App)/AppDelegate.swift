@@ -96,17 +96,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     // development environment, checks it comes back with the changes, deletes it, prints the result
     // and quits.
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // -CFDebugSnapshot <png path> -CFDebugSnapshotAfter <s> (frames for a pull request, build 97): the app draws its
-        // front window into a PNG itself (no screen recording permission), so many seconds after launch.
-        if let path = UserDefaults.standard.string(forKey: "CFDebugSnapshot") {
-            let after = max(1, UserDefaults.standard.double(forKey: "CFDebugSnapshotAfter"))
-            DispatchQueue.main.asyncAfter(deadline: .now() + after) {
-                guard let view = (NSApp.keyWindow ?? NSApp.windows.first { $0.isVisible })?.contentView,
-                      let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
-                view.cacheDisplay(in: view.bounds, to: rep)
-                try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
-            }
-        }
         guard CommandLine.arguments.contains("--cf-sync-selftest") else { return }
         Task {
             let id = "selftest-\(UUID().uuidString)"
