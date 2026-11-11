@@ -10,7 +10,7 @@ import type { CheckedPage, PageLink, PagePrice } from "./pagecheck.mts"
 import { nameTokens } from "./pagecheck.mts"
 import { pricePoint } from "./apppricing.mts"
 import { FREE as FREE_WORDS, HOURS_IN, IN_STOCK, LEADS as LEAD_WORDS, MINUTES_IN, NOT_FREE as NOT_FREE_WORDS, pattern } from "./lexicon.mts"
-import { firstPrice, isOutOfStock } from "../../src/shared/watch/detect.ts"
+import { MONTH_WORD, firstPrice, isOutOfStock, monthOf } from "../../src/shared/watch/detect.ts"
 
 // What a link's words or address say it leads to, for each kind of condition, in any of the app's languages.
 const LEADS: Partial<Record<ConditionKind, RegExp>> = Object.fromEntries(Object.entries(LEAD_WORDS).map(([kind, words]) => [kind, pattern(words)]))
@@ -96,24 +96,40 @@ export function quoteOn(text: string, quote: string): boolean {
   return q.length >= 6 && fold(text).includes(q)
 }
 
-const MONTHS = "jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?"
+// Day, month's name and year in any shipped language (detect.ts MONTH_WORD): "4 марта 2026", "4. März 2026",
+// "4 de marzo de 2026", "March 4, 2026", "4 مارس 2026"; and Vietnamese, which writes the month's number.
+const DAY_FIRST = new RegExp(String.raw`(?<![\p{L}\d])(\d{1,2})(?:\.|st|nd|rd|th|er)?\s?(?:de\s)?(${MONTH_WORD})\.?,?\s?(?:de\s)?(\d{4})(?!\d)`, "iu")
+const MONTH_FIRST = new RegExp(String.raw`(?<![\p{L}\d])(${MONTH_WORD})\.?\s(\d{1,2})(?:st|nd|rd|th)?,?\s(\d{4})(?!\d)`, "iu")
+const VI_DATE = /(?<![\p{L}\d])(?:ngày\s)?(\d{1,2})\s?tháng\s?(\d{1,2})(?:,?\s?năm)?\s?(\d{4})(?!\d)/iu
 
-/** A date a quote states ("2026-03-04", "March 4, 2026", "4 March 2026", "04.03.2026", "2026年3月4日", "2026년 3월 4일"), as ISO. */
+const isoOf = (y: number, m: number, d: number): string | undefined => {
+  if (!(m >= 1 && m <= 12 && d >= 1 && d <= 31)) return undefined
+  const t = Date.UTC(y, m - 1, d)
+  return Number.isFinite(t) ? new Date(t).toISOString() : undefined
+}
+
+/** A date a quote states ("2026-03-04", "March 4, 2026", "4 марта 2026", "04.03.2026", "2026年3月4日", "4 tháng 3 năm 2026"), as ISO. */
 function dateIn(quote: string): string | undefined {
   const iso = /\b(\d{4}-\d{2}-\d{2})\b/.exec(quote)?.[1]
   if (iso) return new Date(`${iso}T00:00:00Z`).toISOString()
   // Year first with its marks (Chinese, Japanese, Korean), or day.month.year as most of Europe writes it.
   const cjk = /(\d{4})\s*[年년.]\s*(\d{1,2})\s*[月월.]\s*(\d{1,2})/.exec(quote)
+  if (cjk) return isoOf(Number(cjk[1]), Number(cjk[2]), Number(cjk[3]))
   const dmy = /\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/.exec(quote)
-  const ymd = cjk ? [cjk[1], cjk[2], cjk[3]] : dmy ? [dmy[3], dmy[2], dmy[1]] : null
-  if (ymd) {
-    const t = Date.UTC(Number(ymd[0]), Number(ymd[1]) - 1, Number(ymd[2]))
-    return Number.isFinite(t) && Number(ymd[1]) <= 12 && Number(ymd[2]) <= 31 ? new Date(t).toISOString() : undefined
+  if (dmy) return isoOf(Number(dmy[3]), Number(dmy[2]), Number(dmy[1]))
+  const vi = VI_DATE.exec(quote)
+  if (vi) return isoOf(Number(vi[3]), Number(vi[2]), Number(vi[1]))
+  const dayFirst = DAY_FIRST.exec(quote)
+  if (dayFirst) {
+    const m = monthOf(dayFirst[2])
+    if (m) return isoOf(Number(dayFirst[3]), m, Number(dayFirst[1]))
   }
-  const words = new RegExp(`\\b(?:(${MONTHS})\\.?\\s+(\\d{1,2}),?\\s+(\\d{4})|(\\d{1,2})\\s+(${MONTHS})\\.?,?\\s+(\\d{4}))\\b`, "i").exec(quote)
-  const raw = words ? (words[1] ? `${words[1]} ${words[2]}, ${words[3]}` : `${words[5]} ${words[4]}, ${words[6]}`) : ""
-  const t = raw ? Date.parse(`${raw} UTC`) : NaN
-  return Number.isFinite(t) ? new Date(t).toISOString() : undefined
+  const monthFirst = MONTH_FIRST.exec(quote)
+  if (monthFirst) {
+    const m = monthOf(monthFirst[1])
+    if (m) return isoOf(Number(monthFirst[3]), m, Number(monthFirst[2]))
+  }
+  return undefined
 }
 
 /** A length a quote states ("1 hr 20 mins", "45 Minuten", "1時間20分", "2 giờ"), in seconds. */

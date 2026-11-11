@@ -1,4 +1,4 @@
-// Build 95, Find similar (the owner's notes on 94): a chip is weighed softly, their own words strictly; the very item
+// Build 95, Find similar: a chip is weighed softly, their own words strictly; the very item
 // at another shop when they asked for it cheaper or in stock; prices in their currency (the ECB's rates of the day);
 // the servers' one-call search keeps the same rules as the parallel one (one marketplace listing at most).
 import assert from "node:assert/strict"
@@ -17,15 +17,15 @@ type Plan = import("../netlify/shared/similar.mts").Plan
 type CheckedCandidate = import("../netlify/shared/similar.mts").CheckedCandidate
 
 const rates = { EUR: 1, USD: 1.16, GBP: 0.87 }
-const words = "A 575-piece LEGO City steam train with a tender and two carriages, for kids from 7. ".repeat(4)
+const words = "A 575-piece Bauwelt steam train construction set with a tender and two carriages, for kids from 7. ".repeat(4)
 const html = (title: string, head = "") => `<html lang="de"><head><title>${title}</title>${head}</head><body><main><h1>${title}</h1><p>${words}</p></main></body></html>`
 const offer = (amount: string, currency = "EUR", stock = "InStock") => `<script type="application/ld+json">${JSON.stringify({ "@type": "Product", offers: { "@type": "Offer", price: amount, priceCurrency: currency, availability: `https://schema.org/${stock}` } })}</script>`
 const plan = (over: Partial<Plan> = {}): Plan => ({
-  category: "product", subject: "LEGO City Klassischer Dampfzug 60511", traits: ["LEGO City set", "steam train", "575 pieces", "age 7+", "about 90 EUR"],
+  category: "product", subject: "Bauwelt Klassischer Dampfzug 4210", traits: ["Bauwelt construction set", "steam train", "575 pieces", "age 7+", "about 90 EUR"],
   condition: { kind: "cheaper", maxPrice: 0, currency: "EUR", language: "", place: "", soft: true }, sourcePrice: 89.99, sourceCurrency: "EUR",
-  queries: ["LEGO 60511 günstig"], language: "de", money: { currency: "EUR", rates }, ...over
+  queries: ["Bauwelt 4210 günstig"], language: "de", money: { currency: "EUR", rates }, ...over
 })
-const source = { title: "Klassischer Dampfzug 60511 | LEGO", url: "https://www.lego.com/de-de/product/vintage-steam-train-60511", text: "LEGO City Klassischer Dampfzug" }
+const source = { title: "Klassischer Dampfzug 4210 | Bauwelt", url: "https://www.bauwelt.example/de-de/product/klassischer-dampfzug-4210", text: "Bauwelt Klassischer Dampfzug" }
 const facts = { price: { amount: 89.99, currency: "EUR" } }
 
 function page(url: string, title: string, head: string, p = plan(), f: typeof facts = facts): CheckedCandidate {
@@ -37,7 +37,9 @@ function page(url: string, title: string, head: string, p = plan(), f: typeof fa
 // ---- their money ----------------------------------------------------------------------------------
 
 test("their currency by country, the ECB's rates read and used, amounts rounded as people read them", () => {
-  assert.equal(currencyOf("CY"), "EUR")
+  assert.equal(currencyOf("PT"), "EUR")
+  assert.equal(currencyOf("JP"), "JPY")
+  assert.equal(currencyOf("BR"), "BRL")
   assert.equal(currencyOf("de"), "EUR")
   assert.equal(currencyOf("BG"), "EUR")
   assert.equal(currencyOf("US"), "USD")
@@ -70,9 +72,11 @@ test("cheaper across currencies: at the day's rate with a margin either way; wit
 })
 
 test("near them: shops that sell there, in their money; a shop abroad comes last", () => {
-  const line = whereLine({ page: source, facts: {}, condition: "", locale: "en-CY", region: "local", country: "CY" })
-  assert.match(line, /Cyprus \(CY\)/)
+  const line = whereLine({ page: source, facts: {}, condition: "", locale: "pt-PT", region: "local", country: "PT" })
+  assert.match(line, /Portugal \(PT\)/)
   assert.match(line, /prices in EUR/)
+  assert.match(whereLine({ page: source, facts: {}, condition: "", locale: "ja-JP", region: "local", country: "JP" }), /Japan \(JP\).*prices in JPY/)
+  assert.match(whereLine({ page: source, facts: {}, condition: "", locale: "es-MX", region: "local", country: "MX" }), /Mexico \(MX\).*prices in MXN/)
   assert.match(line, /another country or another currency comes last/)
 })
 
@@ -140,22 +144,22 @@ test("a close item that misses the chip comes last, only when fewer than 3 close
 test("their very item at another shop that sells it cheaper: first, 100 %, at most two shops; never when it isn't cheaper", () => {
   const p = plan()
   const pages = [
-    page("https://steinehelden.de/LEGO-Klassischer-Dampfzug-60511/60511", "LEGO City Klassischer Dampfzug 60511", offer("62.89")),
-    page("https://www.spielemax.de/lego-60511", "LEGO City Klassischer Dampfzug 60511 Bauset", offer("94.99")),
-    page("https://www.lego.com/de-de/product/vintage-steam-train-60511", "LEGO City Klassischer Dampfzug 60511", offer("89.99")),
-    page("https://toys.test/train", "Playmobil Dampflok 70179", offer("49.99"))
+    page("https://spielwaren-a.example.de/bauwelt-klassischer-dampfzug-4210", "Bauwelt Klassischer Dampfzug 4210", offer("62.89")),
+    page("https://spielwaren-b.example.de/bauwelt-4210", "Bauwelt Klassischer Dampfzug 4210 Bauset", offer("94.99")),
+    page("https://www.bauwelt.example/de-de/product/klassischer-dampfzug-4210", "Bauwelt Klassischer Dampfzug 4210", offer("89.99")),
+    page("https://toys.test/train", "Spielfix Dampflok 7017", offer("49.99"))
   ]
   const raw = {
     intro: "", note: "",
     items: [
-      { page: 1, name: "LEGO City Klassischer Dampfzug 60511", why: "w", fit: "62,89 €", met: "yes", words_met: "n/a", same: true, shares: [1, 2, 3, 4, 5], differs: "das gleiche Set bei Steinehelden" },
-      { page: 2, name: "LEGO City Klassischer Dampfzug 60511 Bauset", why: "w", fit: "f", met: "no", words_met: "n/a", same: true, shares: [1, 2, 3, 4, 5], differs: "" },
-      { page: 3, name: "LEGO City Klassischer Dampfzug 60511", why: "w", fit: "f", met: "no", words_met: "n/a", same: true, shares: [1, 2, 3], differs: "" },
-      { page: 4, name: "Playmobil Dampflok 70179", why: "w", fit: "f", met: "yes", words_met: "n/a", same: false, shares: [2, 4], differs: "" }
+      { page: 1, name: "Bauwelt Klassischer Dampfzug 4210", why: "w", fit: "62,89 €", met: "yes", words_met: "n/a", same: true, shares: [1, 2, 3, 4, 5], differs: "das gleiche Set bei Spielwaren A" },
+      { page: 2, name: "Bauwelt Klassischer Dampfzug 4210 Bauset", why: "w", fit: "f", met: "no", words_met: "n/a", same: true, shares: [1, 2, 3, 4, 5], differs: "" },
+      { page: 3, name: "Bauwelt Klassischer Dampfzug 4210", why: "w", fit: "f", met: "no", words_met: "n/a", same: true, shares: [1, 2, 3], differs: "" },
+      { page: 4, name: "Spielfix Dampflok 7017", why: "w", fit: "f", met: "yes", words_met: "n/a", same: false, shares: [2, 4], differs: "" }
     ]
   }
   const { result, dropped } = finishItems(raw, pages, p, source)
-  assert.deepEqual(result.items.map((i) => [i.host, i.same ?? false, i.similarity]), [["steinehelden.de", true, 100], ["toys.test", false, 40]])
+  assert.deepEqual(result.items.map((i) => [i.host, i.same ?? false, i.similarity]), [["spielwaren-a.example.de", true, 100], ["toys.test", false, 40]])
   assert.ok(dropped.filter((d) => d.why === "the item itself").length >= 2, "the dearer shop and the page they're on")
   // Without cheaper or in stock, their item is never one of the alternatives.
   const none = plan({ condition: { kind: "none", maxPrice: 0, currency: "", language: "", place: "" } })
@@ -167,13 +171,13 @@ test("their very item at another shop that sells it cheaper: first, 100 %, at mo
 
 test("the writer is told the chip, their words and their currency; prices abroad come with ≈ theirs", () => {
   const p = plan({ words: "mit Anhänger" })
-  const usd = page("https://us.test/train", "LEGO Steam Train 60511", offer("70", "USD"), p)
+  const usd = page("https://us.test/train", "Bauwelt Steam Train 4210", offer("70", "USD"), p)
   const msg = writeMessage({ page: source, facts, condition: "Günstiger, mit Anhänger", locale: "de-DE", chip: "cheaper", words: "mit Anhänger" }, p, [usd])
   assert.match(msg, /a quick choice they tapped — cheaper \(weighed softly\)/)
   assert.match(msg, /Their own words \(a must\): "mit Anhänger"/)
   assert.match(msg, /Their currency: EUR/)
   assert.match(msg, /price 70 USD \(≈ 60 EUR at today's rate\)/)
-  const { result } = finishItems({ intro: "", note: "", items: [{ page: 1, name: "LEGO Steam Train 60511", why: "w", fit: "f", met: "yes", words_met: "yes", same: false, shares: [1, 2], differs: "" }] }, [usd], p, source)
+  const { result } = finishItems({ intro: "", note: "", items: [{ page: 1, name: "Bauwelt Steam Train 4210", why: "w", fit: "f", met: "yes", words_met: "yes", same: false, shares: [1, 2], differs: "" }] }, [usd], p, source)
   assert.equal(result.items[0].priceLocal, "60 EUR")
   assert.equal(cleanItem({ ...result.items[0] })?.priceLocal, "60 EUR")
   assert.equal(cleanItem({ ...result.items[0], priceLocal: "≈ lots" })?.priceLocal, undefined)
@@ -184,28 +188,35 @@ test("the answer's text carries the price ≈ theirs, how close, how it differs 
     intro: "Ähnliche Züge.",
     note: "",
     items: [
-      { name: "LEGO 60511", why: "Gleiches Set.", fit: "62,89 €.", met: "yes", url: "https://s.test/a", host: "s.test", title: "t", source: "item", checked: true, price: "62.89 EUR", same: true, similarity: 100 },
-      { name: "Playmobil 70179", why: "Dampflok.", fit: "", met: "unknown", url: "https://p.test/b", host: "p.test", title: "t", source: "item", checked: true, price: "70 USD", priceLocal: "60 EUR", similarity: 40, differs: "kein LEGO", reviews: { rating: { value: 4.6, best: 5, count: 687 }, pros: "stabil", sources: ["https://p.test/r"] } }
+      { name: "Bauwelt 4210", why: "Gleiches Set.", fit: "62,89 €.", met: "yes", url: "https://s.test/a", host: "s.test", title: "t", source: "item", checked: true, price: "62.89 EUR", same: true, similarity: 100 },
+      { name: "Spielfix 7017", why: "Dampflok.", fit: "", met: "unknown", url: "https://p.test/b", host: "p.test", title: "t", source: "item", checked: true, price: "70 USD", priceLocal: "60 EUR", similarity: 40, differs: "kein Bauwelt", reviews: { rating: { value: 4.6, best: 5, count: 412 }, pros: "stabil", sources: ["https://p.test/r"] } }
     ]
   }, {
     inStock: "Auf Lager", outOfStock: "Nicht auf Lager", notConfirmed: "Nicht bestätigt", notOpened: "x", percent: (n) => `${n} % ähnlich`, differs: (s) => `Unterschied: ${s}`,
     say: "Was andere sagen:", ratings: (n) => `${n} Bewertungen`, pros: (s) => `gelobt: ${s}`, cons: (s) => `kritisiert: ${s}`, same: "Gleicher Artikel, anderer Shop", misses: "m"
   })
-  assert.match(md, /1\. \*\*\[LEGO 60511\]\(https:\/\/s\.test\/a\)\*\* \(s\.test\) — Gleiches Set\. 62,89 €\. _\(Gleicher Artikel, anderer Shop · 62\.89 EUR\)_/)
-  assert.match(md, /_\(70 USD \(≈ 60 EUR\) · 40 % ähnlich · Nicht bestätigt\)_ Unterschied: kein LEGO\. Was andere sagen: ★ 4\.6 · 687 Bewertungen · gelobt: stabil\./)
+  assert.match(md, /1\. \*\*\[Bauwelt 4210\]\(https:\/\/s\.test\/a\)\*\* \(s\.test\) — Gleiches Set\. 62,89 €\. _\(Gleicher Artikel, anderer Shop · 62\.89 EUR\)_/)
+  assert.match(md, /_\(70 USD \(≈ 60 EUR\) · 40 % ähnlich · Nicht bestätigt\)_ Unterschied: kein Bauwelt\. Was andere sagen: ★ 4\.6 · 412 Bewertungen · gelobt: stabil\./)
 })
 
 // ---- the servers' one-call search ----------------------------------------------------------------------
 
-test("the one-call search keeps one marketplace listing at most; a rescue round looks for alternatives near them", () => {
+test("the one-call search keeps one marketplace listing at most; a second round looks for alternatives, in the plan's language", () => {
   const claims = new Claims(source)
   const c = (url: string, name: string) => ({ url, name, kind: "item" as const, resultTitle: name, pageAge: null })
   const taken = claims.take([c("https://www.amazon.com/a", "A"), c("https://www.amazon.de/b", "B"), c("https://www.walmart.com/c", "C"), c("https://shop.test/d", "D")])
   assert.deepEqual(taken.map((t) => t.name), ["A", "D"])
-  const q = rescueQueries({ page: source, facts: {}, condition: "", locale: "en-CY", region: "local", country: "CY" }, plan())
-  // Near them, the second round looks at shops abroad that deliver there (the first looked at the country's own).
-  assert.deepEqual(q, ["LEGO City Klassischer Dampfzug 60511 alternatives delivery to Cyprus", "LEGO City set steam train shop delivers to Cyprus"])
-  assert.deepEqual(rescueQueries({ page: source, facts: {}, condition: "", locale: "en-US", region: "world" }, plan()), ["LEGO City Klassischer Dampfzug 60511 alternatives", "LEGO City set steam train"])
+  // The second round's searches in the plan's language, the country named in it: German for Austria…
+  assert.deepEqual(rescueQueries({ page: source, facts: {}, condition: "", locale: "de-AT", region: "local", country: "AT" }, plan()), [
+    "Bauwelt Klassischer Dampfzug 4210 Alternativen Lieferung nach Österreich", "Bauwelt construction set steam train Lieferung nach Österreich"
+  ])
+  assert.deepEqual(rescueQueries({ page: source, facts: {}, condition: "", locale: "en-US", region: "world" }, plan()), ["Bauwelt Klassischer Dampfzug 4210 Alternativen", "Bauwelt construction set steam train"])
+  // …Japanese for Japan, Arabic for Saudi Arabia, English where the plan is.
+  const kettle = plan({ subject: "象印 電気ケトル CK-DAQ10", traits: ["電気ケトル", "1.0L"], language: "ja" })
+  assert.deepEqual(rescueQueries({ page: source, facts: {}, condition: "", locale: "ja-JP", region: "local", country: "JP" }, kettle), ["象印 電気ケトル CK-DAQ10 代わり 日本 配送", "電気ケトル 1.0L 日本 配送"])
+  const sa = new Intl.DisplayNames(["ar"], { type: "region" }).of("SA")
+  assert.deepEqual(rescueQueries({ page: source, facts: {}, condition: "", locale: "ar-SA", region: "local", country: "SA" }, plan({ subject: "قلاية هوائية", traits: ["قلاية هوائية"], language: "ar" })), [`قلاية هوائية بدائل توصيل إلى ${sa}`, `قلاية هوائية توصيل إلى ${sa}`])
+  assert.deepEqual(rescueQueries({ page: source, facts: {}, condition: "", locale: "en-US", region: "world" }, plan({ subject: "Weber Spirit E-310", traits: ["gas grill"], language: "en-US" })), ["Weber Spirit E-310 alternatives", "gas grill"])
 })
 
 // ---- the notification's tap opens the panel ----------------------------------------------------------------
@@ -214,16 +225,16 @@ test("the page the notification opens names its chat in the address; the panel t
   const g = globalThis as unknown as { location: { hash: string; pathname: string; search: string; href: string }; history: { state: unknown; replaceState: (s: unknown, t: string, u: string) => void } }
   const urls: string[] = []
   const at = (hash: string) => {
-    g.location = { hash, pathname: "/collections/vacuum-rollerbags", search: "?v=1", href: "" }
+    g.location = { hash, pathname: "/collections/standing-desks", search: "?v=1", href: "" }
     g.history = { state: null, replaceState: (_s, _t, u) => urls.push(u) }
   }
   const { takeSimilarMark } = await import("../src/content/similar/mark.ts")
   at("#cf-similar=5f2c9e1a-4b7d-4c1e-9f00-1a2b3c4d5e6f")
   assert.equal(takeSimilarMark(), "5f2c9e1a-4b7d-4c1e-9f00-1a2b3c4d5e6f")
-  assert.equal(urls.pop(), "/collections/vacuum-rollerbags?v=1")
+  assert.equal(urls.pop(), "/collections/standing-desks?v=1")
   at("#reviews&cf-similar=abc_123")
   assert.equal(takeSimilarMark(), "abc_123")
-  assert.equal(urls.pop(), "/collections/vacuum-rollerbags?v=1#reviews")
+  assert.equal(urls.pop(), "/collections/standing-desks?v=1#reviews")
   at("#reviews")
   assert.equal(takeSimilarMark(), null)
   at("#cf-similar=../../etc")
@@ -250,26 +261,28 @@ test("one model in colours or at two shops is one item; other models of a brand 
 })
 
 test("their very item: by its model words, else by the words that name it, not by its kind", () => {
-  const lego = plan()
-  assert.ok(sameAsSubject("LEGO® City Klassischer Dampfzug (60511); Bauset", lego))
-  assert.ok(!sameAsSubject("LEGO City Güterzug 60336", lego))
-  const chair = plan({ subject: "POÄNG Sessel mit Hocker", traits: ["Birkenfurnier-Gestell", "Bezug in Beige", "Mit Fußhocker", "Bequemer Relaxsessel", "Preis unter 200 €"] })
-  assert.ok(sameAsSubject("IKEA POÄNG Sessel mit Hocker, beige", chair))
+  const train = plan()
+  assert.ok(sameAsSubject("Bauwelt® Klassischer Dampfzug (4210); Bauset", train))
+  assert.ok(!sameAsSubject("Bauwelt Güterzug 4336", train))
+  const chair = plan({ subject: "LIEGO Sessel mit Hocker", traits: ["Birkenfurnier-Gestell", "Bezug in Beige", "Mit Fußhocker", "Bequemer Relaxsessel", "Preis unter 200 €"] })
+  assert.ok(sameAsSubject("Nordhaus LIEGO Sessel mit Hocker, beige", chair))
   assert.ok(!sameAsSubject("SVITA Charles Relaxsessel Hocker Sessel Fernsehsessel", chair))
 })
 
 test("a price without a currency on a country's own domain is in that country's money", async () => {
   const { domainCurrency } = await import("../netlify/shared/pagecheck.mts")
-  assert.equal(domainCurrency("https://www.stephanis.com.cy/en/products/1"), "EUR")
+  assert.equal(domainCurrency("https://www.loja.example.pt/produtos/1"), "EUR")
+  assert.equal(domainCurrency("https://www.kaden.example.co.jp/item/1"), "JPY")
+  assert.equal(domainCurrency("https://sklep.example.pl/p/1"), "PLN")
   assert.equal(domainCurrency("https://shop.example.co.uk/x"), "GBP")
   assert.equal(domainCurrency("https://www.example.com/x"), "")
   const meta = `<meta property="product:price:amount" content="599.99">`
-  const p = describePage(html("Philips EP3249", meta), "https://www.superhome.com.cy/p/1", "https://www.superhome.com.cy/p/1", 200, 0)
-  assert.deepEqual(p.price, { amount: 599.99, currency: "EUR" })
+  const p = describePage(html("Philips EP3249", meta), "https://www.casa.example.com.br/p/1", "https://www.casa.example.com.br/p/1", 200, 0)
+  assert.deepEqual(p.price, { amount: 599.99, currency: "BRL" })
 })
 
 test("an expired deal is no offer", () => {
-  const p = describePage(html("LEGO 60511 for 56.99 EUR", offer("56.99")).replace("</main>", "<p>This deal has expired.</p></main>"), "https://deals.test/1", "https://deals.test/1", 200, 0)
+  const p = describePage(html("Bauwelt 4210 for 56.99 EUR", offer("56.99")).replace("</main>", "<p>This deal has expired.</p></main>"), "https://deals.test/1", "https://deals.test/1", 200, 0)
   assert.equal(p.reason, "unavailable")
   assert.equal(checkCondition(plan(), facts, p).met, "no")
 })

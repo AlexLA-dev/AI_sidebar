@@ -5,8 +5,9 @@
 // Either gives: free (nothing to buy), a subscription from a price, a one-time purchase, or in-app purchases from a
 // price, with the page it came from.
 
-import { FREE, MONTH, ONE_TIME as ONE_TIME_WORDS, PRICING_LINK, SUBSCRIPTION as SUBSCRIPTION_WORDS, WEEK, YEAR, pattern } from "./lexicon.mts"
+import { FREE, MONTH, ONE_TIME as ONE_TIME_WORDS, PRICING_LINK, QUARTER, SUBSCRIPTION as SUBSCRIPTION_WORDS, WEEK, YEAR, pattern } from "./lexicon.mts"
 import { parseNumber } from "../../src/shared/watch/extract.ts"
+import { MONEY_SIGN as SIGN, currencyOfSign } from "./money.mts"
 
 export interface PricePoint {
   amount: number
@@ -30,14 +31,12 @@ export interface AppPricing {
   via: "app_store" | "pricing_page"
 }
 
-const SYMBOLS: Record<string, string> = {
-  $: "USD", "US$": "USD", "€": "EUR", "£": "GBP", "¥": "JPY", "￥": "JPY", "円": "JPY", "元": "CNY", "₽": "RUB", "руб": "RUB", "₴": "UAH", "грн": "UAH",
-  "₹": "INR", "₩": "KRW", "원": "KRW", R$: "BRL", "zł": "PLN", "₺": "TRY", "₪": "ILS", "₫": "VND", "đ": "VND", "vnđ": "VND"
-}
 
 // What a subscription, its period and a one-time purchase are called, in any of the app's languages (lexicon.mts).
-// "3 months" is a pack, not a monthly price: only a plain period, or one of 1, counts.
-const SUBSCRIPTION = new RegExp(`${pattern(SUBSCRIPTION_WORDS).source}|${pattern(WEEK).source}|${pattern(MONTH).source}|${pattern(YEAR).source}|\\b(?:quarter(?:ly)?|1\\s*(?:mo|months?|yrs?|years?|weeks?|wks?))\\b`, "iu")
+// "3 months", "3 месяца", "6ヶ月" is a pack bought once, not a monthly price: only a plain period, or one of 1, counts.
+const PERIOD_WORD = `${pattern(WEEK).source}|${pattern(MONTH).source}|${pattern(YEAR).source}`
+const SUBSCRIPTION = new RegExp(`${pattern(SUBSCRIPTION_WORDS).source}|${PERIOD_WORD}|${pattern(QUARTER).source}|\\b1\\s*(?:mo|months?|yrs?|years?|weeks?|wks?)\\b`, "iu")
+const PACK = new RegExp(`(?<![\\d.,])(?:[2-9]|[1-9]\\d+)\\s*(?:${PERIOD_WORD}|months|years|weeks)`, "iu")
 const ONE_TIME = pattern(ONE_TIME_WORDS)
 
 // Words for how often a price is paid; the one nearest the price counts ("$10 per seat/month billed annually": monthly).
@@ -61,10 +60,10 @@ export function pricePoint(shown: string, fallback = ""): PricePoint | null {
   const amount = parseNumber(shown)
   if (amount === null) return null
   const code = /\b([A-Z]{3})\b/.exec(shown)?.[1]
-  const sym = /(US\$|R\$|zł|руб|грн|vnđ|[$€£¥円元₽₴₹₩원₺₪₫đ])/i.exec(shown)?.[1]?.toLowerCase().replace(/^(us|r)\$$/, (m) => m.toUpperCase())
-  // A plain "$" in another storefront is that storefront's dollar (CAD, AUD…): the page's currency wins.
-  const currency = code ?? (sym && sym !== "$" ? SYMBOLS[sym] : "") ?? ""
-  return { amount, currency: currency || fallback || (sym === "$" ? "USD" : "") }
+  const sym = new RegExp(`(${SIGN})`, "iu").exec(shown)?.[1]
+  // A sign several currencies share ("$", "¥", "kr", "ريال") in a storefront of one of them: the page's currency wins.
+  const currency = code ?? (sym ? currencyOfSign(sym, fallback) : "")
+  return { amount, currency: currency || fallback }
 }
 
 /**
@@ -127,7 +126,7 @@ export function appStorePricing(html: string, url: string, price: PricePoint | u
   // Paid to download: a one-time purchase (with purchases inside, which the options list).
   if (price.amount > 0) return { model: "one_time", from: price, options, url, via: "app_store" }
   if (!items.length) return null
-  const subs = items.filter((i) => SUBSCRIPTION.test(i.name) && !ONE_TIME.test(i.name)).map((i) => ({ ...i, period: periodOf(i.name) }))
+  const subs = items.filter((i) => SUBSCRIPTION.test(i.name) && !PACK.test(i.name) && !ONE_TIME.test(i.name)).map((i) => ({ ...i, period: periodOf(i.name) }))
   const periodic = subs.filter((s): s is typeof s & { period: Period } => s.period !== null)
   if (periodic.length) {
     const best = fromOption(periodic)
@@ -150,8 +149,8 @@ export interface PlanSeen {
 }
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-// The signs a shown price may carry, before or after its number (pricePoint's currencies).
-const MONEY_SIGN = "US\\$|R\\$|zł|руб|грн|vnđ|[$€£¥円元₽₴₹₩원₺₪₫đ]"
+// The signs a shown price may carry, before or after its number (money.mts: every shipped language's).
+const MONEY_SIGN = SIGN
 // Where the next price starts after one, or the previous one ends before it: another plan's words don't count.
 const NEXT_PRICE = new RegExp(`(?:${MONEY_SIGN})\\s?\\d|\\d\\s?(?:${MONEY_SIGN})`, "u")
 const PREV_PRICE = new RegExp(`(?:${MONEY_SIGN})\\s?\\d[\\d.,]*|\\d\\s?(?:${MONEY_SIGN})`, "u")

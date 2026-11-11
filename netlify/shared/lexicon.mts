@@ -355,4 +355,117 @@ export const NAME_STOP: Words = {
   vi: ["và", "cho", "của", "với", "các", "những"],
   ar: ["و", "في", "من", "على", "مع", "أو"]
 }
-export const NAME_STOP_SET = new Set(all(NAME_STOP))
+
+// ------------------------------------------------------------ which language a text is in
+
+/**
+ * Short words that mark a language in running text, for the languages that share a script with others (Latin,
+ * Cyrillic): each list keeps words the others don't use, so counting them tells the language apart. The other
+ * shipped languages are told by their letters (pagecheck.mts textLanguage).
+ */
+export const MARK_WORDS: Record<"en" | "de" | "fr" | "es" | "it" | "pt" | "ru" | "uk", string[]> = {
+  en: ["the", "and", "with", "your", "this", "that", "are", "from", "our", "will", "you", "have", "about", "which", "what", "how"],
+  de: ["der", "die", "das", "und", "ist", "mit", "für", "nicht", "auf", "ein", "eine", "sie", "sich", "auch", "wir", "werden", "bei", "oder", "zum", "nach"],
+  fr: ["les", "et", "est", "des", "pour", "avec", "dans", "sur", "pas", "vous", "nous", "qui", "aux", "cette", "sont", "leur", "très"],
+  es: ["los", "las", "y", "es", "por", "sus", "más", "como", "pero", "también", "muy", "del", "hay", "puede", "usted"],
+  it: ["gli", "è", "per", "della", "che", "sono", "più", "anche", "nel", "alla", "delle", "questo", "questa", "degli", "molto"],
+  pt: ["os", "é", "com", "uma", "dos", "das", "não", "você", "mais", "são", "pelo", "pela", "seu", "sua", "também", "muito"],
+  ru: ["что", "это", "как", "или", "все", "они", "мы", "его", "только", "если", "уже", "при"],
+  uk: ["що", "це", "як", "або", "всі", "вони", "ми", "його", "тільки", "якщо", "вже", "при"]
+}
+
+// ------------------------------------------------------------ the words of a search, by language
+
+/** Words our own searches add, in the plan's language: "<subject> alternatives", "delivery to <country>", "<item>
+ * review", and what an item's own page is for an app, a recipe, a course or a book. */
+export interface SearchWords { alternatives: string; deliveryTo: (country: string) => string; review: string; app: string; recipe: string; course: string; book: string }
+export const SEARCH_WORDS: Record<Lang, SearchWords> = {
+  en: { alternatives: "alternatives", deliveryTo: (c) => `delivery to ${c}`, review: "review", app: "app", recipe: "recipe", course: "course", book: "book" },
+  ru: { alternatives: "аналоги", deliveryTo: (c) => `доставка ${c}`, review: "отзывы", app: "приложение", recipe: "рецепт", course: "курс", book: "книга" },
+  uk: { alternatives: "аналоги", deliveryTo: (c) => `доставка ${c}`, review: "відгуки", app: "застосунок", recipe: "рецепт", course: "курс", book: "книга" },
+  de: { alternatives: "Alternativen", deliveryTo: (c) => `Lieferung nach ${c}`, review: "Test", app: "App", recipe: "Rezept", course: "Kurs", book: "Buch" },
+  fr: { alternatives: "alternatives", deliveryTo: (c) => `livraison ${c}`, review: "avis", app: "application", recipe: "recette", course: "cours", book: "livre" },
+  es: { alternatives: "alternativas", deliveryTo: (c) => `envío a ${c}`, review: "opiniones", app: "app", recipe: "receta", course: "curso", book: "libro" },
+  it: { alternatives: "alternative", deliveryTo: (c) => `spedizione ${c}`, review: "recensione", app: "app", recipe: "ricetta", course: "corso", book: "libro" },
+  pt: { alternatives: "alternativas", deliveryTo: (c) => `entrega ${c}`, review: "avaliação", app: "app", recipe: "receita", course: "curso", book: "livro" },
+  ja: { alternatives: "代わり", deliveryTo: (c) => `${c} 配送`, review: "レビュー", app: "アプリ", recipe: "レシピ", course: "講座", book: "本" },
+  ko: { alternatives: "대안", deliveryTo: (c) => `${c} 배송`, review: "후기", app: "앱", recipe: "레시피", course: "강좌", book: "책" },
+  zh: { alternatives: "替代品", deliveryTo: (c) => `配送到${c}`, review: "评测", app: "应用", recipe: "食谱", course: "课程", book: "书" },
+  "zh-Hant": { alternatives: "替代品", deliveryTo: (c) => `配送到${c}`, review: "評測", app: "應用程式", recipe: "食譜", course: "課程", book: "書" },
+  vi: { alternatives: "thay thế", deliveryTo: (c) => `giao hàng ${c}`, review: "đánh giá", app: "ứng dụng", recipe: "công thức", course: "khóa học", book: "sách" },
+  ar: { alternatives: "بدائل", deliveryTo: (c) => `توصيل إلى ${c}`, review: "مراجعة", app: "تطبيق", recipe: "وصفة", course: "دورة", book: "كتاب" }
+}
+
+/** A BCP 47 tag ("pt-BR", "zh-TW", "uk") as one of the app's languages; English for the others. */
+export function appLang(tag: string | undefined): Lang {
+  const t = (tag ?? "").replace("_", "-").toLowerCase()
+  if (t.startsWith("zh")) return /hant|-tw|-hk|-mo/.test(t) ? "zh-Hant" : "zh"
+  const base = t.split("-")[0] as Lang
+  return (LANGS as readonly string[]).includes(base) ? base : "en"
+}
+
+// ------------------------------------------------------------ words that don't tell names apart
+
+/** Colours a shop adds to a model's name. */
+export const COLOURS: Words = {
+  en: ["black", "white", "grey", "gray", "blue", "green", "red", "silver", "beige"],
+  ru: ["черный", "чёрный", "белый", "серый", "синий", "зеленый", "зелёный", "красный", "серебристый", "бежевый"],
+  uk: ["чорний", "білий", "сірий", "синій", "зелений", "червоний", "сріблястий", "бежевий"],
+  de: ["schwarz", "weiß", "weiss", "grau", "blau", "grün", "rot", "silber", "beige"],
+  fr: ["noir", "blanc", "gris", "bleu", "vert", "rouge", "argent", "beige"],
+  es: ["negro", "blanco", "gris", "azul", "verde", "rojo", "plata", "beige"],
+  it: ["nero", "bianco", "grigio", "blu", "verde", "rosso", "argento", "beige"],
+  pt: ["preto", "branco", "cinza", "azul", "verde", "vermelho", "prata", "bege"],
+  ja: ["ブラック", "ホワイト", "グレー", "ブルー", "グリーン", "レッド", "シルバー", "ベージュ"],
+  ko: ["블랙", "화이트", "그레이", "블루", "그린", "레드", "실버", "베이지", "검정", "흰색"],
+  zh: ["黑色", "白色", "灰色", "蓝色", "绿色", "红色", "银色", "米色"],
+  "zh-Hant": ["黑色", "白色", "灰色", "藍色", "綠色", "紅色", "銀色", "米色"],
+  vi: ["đen", "trắng", "xám", "xanh", "đỏ", "bạc", "be"],
+  ar: ["أسود", "أبيض", "رمادي", "أزرق", "أخضر", "أحمر", "فضي", "بيج"]
+}
+
+/** What a shop adds to any name: new, buy, sale, edition, set, kit. */
+export const SHOP_WORDS: Words = {
+  en: ["new", "shop", "buy", "sale", "edition", "set", "kit"],
+  ru: ["новый", "новинка", "купить", "магазин", "распродажа", "издание", "набор", "комплект"],
+  uk: ["новий", "новинка", "купити", "магазин", "розпродаж", "видання", "набір", "комплект"],
+  de: ["neu", "kaufen", "shop", "angebot", "edition", "set", "kit"],
+  fr: ["nouveau", "acheter", "boutique", "soldes", "édition", "coffret", "kit"],
+  es: ["nuevo", "comprar", "tienda", "oferta", "edición", "set", "kit"],
+  it: ["nuovo", "acquista", "negozio", "offerta", "edizione", "set", "kit"],
+  pt: ["novo", "comprar", "loja", "oferta", "edição", "kit"],
+  ja: ["新品", "新作", "購入", "通販", "セール", "限定", "セット"],
+  ko: ["신상", "신제품", "구매", "할인", "세트", "에디션"],
+  zh: ["新款", "购买", "促销", "套装", "限量版"],
+  "zh-Hant": ["新款", "購買", "促銷", "套裝", "限量版"],
+  vi: ["mới", "mua", "cửa hàng", "khuyến mãi", "phiên bản", "bộ"],
+  ar: ["جديد", "شراء", "متجر", "تخفيضات", "إصدار", "مجموعة"]
+}
+
+/** A page title's usual extras around a name: best, top, official site, app, free, online, review. */
+export const NAME_EXTRAS: Words = {
+  en: ["best", "top", "new", "official", "site", "app", "apps", "free", "online", "buy", "shop", "review", "reviews"],
+  ru: ["лучший", "лучшие", "топ", "официальный", "сайт", "приложение", "бесплатно", "онлайн", "купить", "отзывы", "обзор"],
+  uk: ["найкращий", "найкращі", "топ", "офіційний", "сайт", "застосунок", "безкоштовно", "онлайн", "купити", "відгуки", "огляд"],
+  de: ["beste", "besten", "top", "offiziell", "offizielle", "app", "kostenlos", "online", "kaufen", "test", "bewertungen"],
+  fr: ["meilleur", "meilleurs", "top", "officiel", "site", "application", "gratuit", "en ligne", "acheter", "avis"],
+  es: ["mejor", "mejores", "top", "oficial", "sitio", "aplicación", "gratis", "online", "comprar", "opiniones"],
+  it: ["migliore", "migliori", "top", "ufficiale", "sito", "app", "gratis", "online", "acquista", "recensioni"],
+  pt: ["melhor", "melhores", "top", "oficial", "site", "aplicativo", "grátis", "online", "comprar", "avaliações"],
+  ja: ["おすすめ", "公式", "サイト", "アプリ", "無料", "オンライン", "レビュー", "通販"],
+  ko: ["추천", "공식", "사이트", "앱", "무료", "온라인", "리뷰", "후기"],
+  zh: ["推荐", "官方", "官网", "应用", "免费", "在线", "评测"],
+  "zh-Hant": ["推薦", "官方", "官網", "應用程式", "免費", "線上", "評測"],
+  vi: ["tốt nhất", "chính hãng", "trang", "ứng dụng", "miễn phí", "trực tuyến", "đánh giá"],
+  ar: ["أفضل", "رسمي", "موقع", "تطبيق", "مجاني", "أونلاين", "مراجعة"]
+}
+
+/** Every word of these lists as names are compared: lower case, accents folded (pagecheck.mts nameTokens). */
+export const foldedWords = (...lists: Words[]): string[] => [...new Set(lists.flatMap(all).flatMap((w) => w.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().split(/[^\p{L}\p{N}]+/u)).filter(Boolean))]
+
+/** Paid every three months. */
+export const QUARTER: Words = {
+  en: ["quarter", "quarterly"], ru: ["квартал", "ежеквартально"], uk: ["квартал", "щокварталу"], de: ["quartal", "vierteljährlich"],
+  fr: ["trimestre", "trimestriel"], es: ["trimestre", "trimestral"], it: ["trimestre", "trimestrale"], pt: ["trimestre", "trimestral"],
+  ja: ["四半期"], ko: ["분기"], zh: ["季度", "季付"], "zh-Hant": ["季度", "季繳"], vi: ["quý"], ar: ["ربع سنوي"]
+}

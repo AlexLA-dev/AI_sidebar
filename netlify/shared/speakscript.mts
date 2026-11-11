@@ -12,7 +12,7 @@ Rewrite the text so it sounds natural when spoken, in the same language as the t
 
 Rules:
 - Keep every fact, number, name, date and conclusion. Add nothing that isn't in the text: no greeting, no opinion, no summary, no remark about the rewriting.
-- Tables: say them as short sentences, row by row, naming what each value is ("The MARKUS costs 299 dollars and comes in dark gray; the Sihoo M18 costs 169 and is in stock."). For a large table, first say in one sentence what it compares.
+- Tables: say them as short sentences, row by row, naming what each value is ("The first one costs <its price> and comes in <its colour>; the second costs <its price> and is in stock."). For a large table, first say in one sentence what it compares.
 - Lists: join the items so they sound like speech ("There are three steps. First, … Then, … Finally, …"). Fold nested lists into sentences.
 - Headings: turn into a short spoken transition ("Now, the prices.") or leave out when the next sentence already says it.
 - Code, commands, formulas, file paths, IP addresses, port numbers in code, long identifiers: never read them out character by character or slash by slash; say what they are or do in plain words ("the nginx error log", "a command that restarts the server", "port 80").
