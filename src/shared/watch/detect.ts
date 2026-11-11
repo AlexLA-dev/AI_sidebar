@@ -8,7 +8,7 @@ const MAX_LEN = 80
 
 // Symbols and words that sit right by a number, in any case ("40 usd" on some shops).
 const SYMBOLS =
-  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|лв\.?|руб\.?|р\.|грн\.?|円|元|원` +
+  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥￥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|лв\.?|руб\.?|р\.|грн\.?|円|元|원` +
   // Vietnamese dong as shops write it ("299.000đ", "299.000 VNĐ"); the Gulf's and Egypt's riyal, dirham, dinar, pound.
   String.raw`|vnđ|đ|ر\.\s?س\.?|د\.\s?إ\.?|ر\.\s?ع\.?|د\.\s?ك\.?|ر\.\s?ق\.?|د\.\s?ب\.?|ج\.\s?م\.?|ريال|درهم|دينار|جنيه|ل\.\s?س\.?`
 // The codes shops also write in small letters, which are never words.

@@ -31,7 +31,7 @@ export interface AppPricing {
 }
 
 const SYMBOLS: Record<string, string> = {
-  $: "USD", "US$": "USD", "€": "EUR", "£": "GBP", "¥": "JPY", "円": "JPY", "元": "CNY", "₽": "RUB", "руб": "RUB", "₴": "UAH", "грн": "UAH",
+  $: "USD", "US$": "USD", "€": "EUR", "£": "GBP", "¥": "JPY", "￥": "JPY", "円": "JPY", "元": "CNY", "₽": "RUB", "руб": "RUB", "₴": "UAH", "грн": "UAH",
   "₹": "INR", "₩": "KRW", "원": "KRW", R$: "BRL", "zł": "PLN", "₺": "TRY", "₪": "ILS", "₫": "VND", "đ": "VND", "vnđ": "VND"
 }
 

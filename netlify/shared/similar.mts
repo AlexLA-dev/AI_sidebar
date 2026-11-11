@@ -442,7 +442,7 @@ export function planMessage(input: SimilarInput): string {
   return [
     `Today: ${new Date().toISOString().slice(0, 10)}. Device locale: ${input.locale || "unknown"}.`,
     ...askedLines(input),
-    whereLine(input) ? `${whereLine(input)}${input.region === "local" ? " Search that country's own shops (in its language when that finds better results); shops abroad that deliver there are searched later, if these find too little." : ""}` : "",
+    whereLine(input) ? `${whereLine(input)}${input.region === "local" ? " Search shops that sell there (in its language when that finds better results)." : ""}` : "",
     selection ? `They selected this on the page: alternatives to what it describes, the page is context.\n<selection>\n${selection}\n</selection>` : "",
     `The page: ${input.page.title || "(untitled)"}\n${input.page.url}`,
     facts ? `The page states for machines: ${facts}${selection ? " (about the page's main item, which may not be what they selected)" : ""}` : "",

@@ -69,8 +69,8 @@ test("where to look: worldwide searches from nowhere, near them from their count
   assert.match(whereLine(input({ region: "local", country: "DE" })), /near them, in Germany \(DE\)/)
   assert.match(whereLine(input({ region: "world" })), /anywhere in the world/)
   assert.equal(whereLine(input()), "")
-  // Near them: the country's own shops first; shops abroad that deliver there only when those find too little.
-  assert.match(planMessage(input({ region: "local", country: "RU" })), /Where: near them, in Russia \(RU\).*Search that country's own shops.*searched later, if these find too little/)
+  // Near them: shops that sell there (shops abroad that deliver there come in a second round, only when too few).
+  assert.match(planMessage(input({ region: "local", country: "RU" })), /Where: near them, in Russia \(RU\).*with prices in RUB.*Search shops that sell there/)
   assert.match(writeMessage(input({ region: "world" }), plan(), []), /Where: anywhere in the world/)
   // The writer gets the traits numbered: it says which an item shares.
   assert.match(writeMessage(input(), plan(), []), /What makes an alternative:\n1\. summarizes pages\n2\. works in Safari/)
