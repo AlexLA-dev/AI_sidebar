@@ -48,7 +48,13 @@ test("the tab is hidden until it opens; after an update it opens once by itself,
 })
 
 test("its cards are Tips' (their words and clips, in every language); a version not installed yet shows its notes and Update", () => {
-  assert.match(whatsNew, /\[TipGroup\.similarTip, TipGroup\.listenTip, TipGroup\.chipsTip, TipGroup\.remindTip, TipGroup\.watchTip\]/)
+  // Build 98 (the owner: «Почему в What's new нет видео про Listen?»): every card with its clip, organizing too.
+  assert.match(whatsNew, /\[TipGroup\.similarTip, TipGroup\.organizeTip, TipGroup\.listenTip, TipGroup\.chipsTip, TipGroup\.remindTip, TipGroup\.watchTip\]/)
+  for (const name of ["similarTip", "organizeTip", "listenTip", "chipsTip", "remindTip", "watchTip"]) {
+    const body = content.slice(content.indexOf(`static var ${name}: Tip {`), content.indexOf("\n    }\n", content.indexOf(`static var ${name}: Tip {`)))
+    const ios = body.includes("#if os(iOS)") ? body.slice(0, body.indexOf("#else")) : body
+    assert.match(ios, /clip: "[\w-]+"/, `${name}: a clip on iPhone and iPad`)
+  }
   assert.match(whatsNew, /TipCard\(tip: WhatsNew\.items\[i\]\)/)
   assert.match(whatsNew, /if let store, WhatsNew\.newer\(store\.version, than: WhatsNew\.installed\)/)
   for (const key of ["What's new", "New in ContextFlow %@", "The main things this version brings, each shown in a short clip.", "ContextFlow %@ is here", "See what's new in this version.", "Version %@ is in the App Store", "Update"]) {

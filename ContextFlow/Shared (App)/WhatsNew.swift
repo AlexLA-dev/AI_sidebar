@@ -42,9 +42,11 @@ enum WhatsNew {
         return false
     }
 
-    /// The main features of 2.6, as Tips shows them (the same words and clips).
+    /// The main features of 2.6, as Tips shows them (the same words and clips). Build 98: organizing too (its clip
+    /// starts at 2.6's Suggestions bar), and Listen's clip on iPhone and iPad; the clips of Remind me and Watch show the
+    /// note of your own.
     static var items: [Tip] {
-        [TipGroup.similarTip, TipGroup.listenTip, TipGroup.chipsTip, TipGroup.remindTip, TipGroup.watchTip]
+        [TipGroup.similarTip, TipGroup.organizeTip, TipGroup.listenTip, TipGroup.chipsTip, TipGroup.remindTip, TipGroup.watchTip]
     }
 
     /// Whether the tab opens by itself now: the first launch of this version after an update (`existingUser`: the app
