@@ -70,4 +70,8 @@ test("numbers as prices write them: one kind of separator, Indian grouping; a si
   assert.equal(read(page("お米 R", "<p>5kg ¥3,980 10kg ¥7,480</p><button>カートに入れる</button>", "ja"), "https://shop.example.co.jp/item"), undefined)
   assert.equal(read(page("우유 M", "<p>1리터 3,900원 2리터 6,900원</p><button>장바구니 담기</button>", "ko"), "https://shop.example.co.kr/item"), undefined)
   assert.equal(read(page("Café C", `<p>250 g – 5,90 € 1 kg – 19,90 €</p>${cart}`, "fr"), "https://shop.example.fr/item"), undefined)
+  // A unit price isn't the item's ("9,32 € / 100ml", "1 kg = 15,96 €"); a price per piece is.
+  assert.deepEqual(read(page("Baume B", `<p>Tube 75 ml (9,32 € / 100ml)</p><p>6,99 €</p>${cart}`, "fr"), "https://shop.example.fr/item"), { amount: 6.99, currency: "EUR" })
+  assert.deepEqual(read(page("Kaffee K", `<p>1 kg = 15,96 €</p><p>3,99 €</p>${cart}`, "de"), "https://shop.example.de/item"), { amount: 3.99, currency: "EUR" })
+  assert.deepEqual(read(page("Becher B", `<p>4,99 € / Stück</p>${cart}`, "de"), "https://shop.example.de/item"), { amount: 4.99, currency: "EUR" })
 })
