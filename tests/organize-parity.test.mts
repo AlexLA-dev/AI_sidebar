@@ -136,10 +136,10 @@ function js(c: Case): unknown {
   return null
 }
 
-// A run takes about half a second, the build under a minute. A process stuck at 0 % CPU (a fresh binary whose launch
-// waits on the system's code checks on a busy Mac, or a pipe nobody drains) fails the test after these instead of
-// holding the suite for hours. The run is waited for asynchronously: a process stuck in its launch can't be killed
-// until the system lets it go, and a synchronous wait would hang with it.
+// A run takes about half a second, the build under a minute. The binary reads its input to the end first: with
+// execFileSync(bin, { input }) it was seen on this Mac waiting in read() for an end of input that never came (0 % CPU,
+// for hours). So the input goes in through spawn and stdin.end(), and a run that doesn't answer fails the test after
+// RUN_MS, killed, instead of holding the suite.
 const BUILD_MS = 300_000
 const RUN_MS = 60_000
 
