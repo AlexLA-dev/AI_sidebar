@@ -71,8 +71,9 @@ test("every card's clip, as the app shows it: on iPhone and iPad, on a Mac only 
     assert.ok(tip(title).clip, title)
     assert.ok(tip(title).mac && !tip(title).mac.clip, `${title}: none on a Mac`)
   }
-  // Listen: iPhone and iPad hand it to the app, so the panel's player (the clip) is a Mac's only.
-  assert.ok(!tip("Listen").clip && tip("Listen").mac.clip === "listen")
+  // Listen (build 98): the panel's player, on iPhone and iPad too (with notifications on it plays there).
+  assert.ok(tip("Listen").clip === "listen" && (!tip("Listen").mac || tip("Listen").mac.clip === "listen"))
+  assert.equal(tip("Where it belongs").clip, "organize")
   assert.equal(tip("Monthly or yearly").clip, "yearly")
   assert.ok(!tip("What your plan adds").clip, "the tour's card has no clip yet")
   // The site's web versions (/features): English, each with its still.

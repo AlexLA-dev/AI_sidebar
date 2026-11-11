@@ -38,7 +38,9 @@ const L = ru
       find: "исследование про выгорание",
       selq: "Сколько компаний вернулись к пятидневке?",
       pdf: "Что в отчёте про выручку?",
-      settings: "Настройки", morning: "Завтра утром", fill: "Заполнить со страницы", insert: "Вставить", open: "Открыть"
+      settings: "Настройки", morning: "Завтра утром", fill: "Заполнить со страницы", insert: "Вставить", open: "Открыть",
+      remindNote: "Попробовать фокус-блоки в команде",
+      watchNote: "Купить до поездки, если подешевеют"
     }
   : {
       summarize: "Summarize", key: "Key takeaways", explain: "Explain",
@@ -52,7 +54,9 @@ const L = ru
       find: "that study where burnout dropped",
       selq: "How many companies went back to five days?",
       pdf: "What does the report say about revenue?",
-      settings: "Settings", morning: "Tomorrow morning", fill: "Fill from the page", insert: "Insert", open: "Open"
+      settings: "Settings", morning: "Tomorrow morning", fill: "Fill from the page", insert: "Insert", open: "Open",
+      remindNote: "Try focus blocks with the team",
+      watchNote: "Buy before the trip if they drop"
     }
 
 // macOS Chromium ignores --lang: a copy of the build with only the wanted locale shows the UI in it (English too: a
@@ -114,6 +118,7 @@ async function fresh(url, threads = null, extra = {}, entitlement = null) {
     globalThis.browser = { runtime: { sendNativeMessage: async (_id, msg) => {
       if (msg.command === "remind") return { success: true, data: { outcome: "scheduled" } }
       if (msg.command === "watch_permission") return { success: true, data: { outcome: "ok" } }
+      if (msg.command === "notifStatus") return { success: true, data: { status: "authorized" } }
       if (msg.command === "pdfText") return { success: true, data: { ok: true, pages: 3, title: "Q3 report", text: "Northwind Q3 report. Revenue rose 12% to $48.2M; subscriptions $31.5M (+18%), services $16.7M." } }
       if (msg.command === "getEntitlement" && entitlement) return { success: true, data: entitlement }
       return { success: false }
@@ -206,7 +211,9 @@ function chat({ pins = [], url = PAGE_1 } = {}) {
   return { c1: { id: "c1", u: now - 60e3, a: now - 60e3, m, title: ru ? "Исследование четырёхдневки" : "Four-day week research" } }
 }
 
-/** Organizing (Pro): two chats; the shown one ends with a block that belongs in the other. */
+/** Organizing (Pro): two chats; the shown one ends with a block that belongs in the other. The stand's vectors come from
+ * shared words, so the block and the trip's chat share theirs (build 98's move needs a 75% match), and the trip's chat
+ * has two pages (a chat of one page block needs 0.65, more than word vectors give). */
 function organizeChats() {
   const now = Date.now()
   const H = 3_600_000
@@ -214,15 +221,15 @@ function organizeChats() {
   const japan = ru ? "Поездка в Японию" : "Trip to Japan"
   const bread = ru ? "Банановый хлеб" : "Banana bread"
   const A = { id: "chat-japan", u: now - 30 * H, a: now - 30 * H, title: japan, m: ru
-    ? [turn("user", "Какие храмы в Киото посмотреть в Токио-поездке?", `${BASE}/article-2-ru`, "Киото за два дня", now - 50 * H), turn("assistant", "Кинкаку-дзи, Фусими Инари и Киёмидзу-дэра — по утрам, пока мало людей.", null, null, now - 50 * H + 5000),
-       turn("user", "Окупится ли JR Pass для поездки Токио — Киото?", `${BASE}/article-2-ru`, "JR Pass в 2026", now - 30 * H), turn("assistant", "Для поездки Токио — Киото туда и обратно — да, если добавить хотя бы одну поездку.", null, null, now - 30 * H + 5000)]
-    : [turn("user", "Which Kyoto temples to see on the Tokyo trip?", `${BASE}/article-2`, "Kyoto in two days", now - 50 * H), turn("assistant", "Kinkaku-ji, Fushimi Inari and Kiyomizu-dera, early in the morning before the crowds.", null, null, now - 50 * H + 5000),
-       turn("user", "Is the JR Pass worth it for a Tokyo to Kyoto trip?", `${BASE}/article-2`, "JR Pass in 2026", now - 30 * H), turn("assistant", "For a Tokyo to Kyoto round trip, yes, if you add at least one more ride.", null, null, now - 30 * H + 5000)] }
+    ? [turn("user", "Храмы Киото для поездки в Японию в марте: какие посмотреть?", "https://travel.example/kyoto", "Киото за два дня", now - 50 * H), turn("assistant", "Для поездки в Японию в марте: Кинкаку-дзи и Фусими Инари в Киото, с утра — в сезон сакуры людей больше.", null, null, now - 50 * H + 5000),
+       turn("user", "JR Pass для поездки в Японию в марте: окупится из Токио?", "https://rail.example/jr-pass", "JR Pass в 2026", now - 30 * H), turn("assistant", "Для поездки в Японию в марте, Токио — Киото и обратно, да: окупится, если добавить ещё одну поездку.", null, null, now - 30 * H + 5000)]
+    : [turn("user", "Kyoto temples for the Japan trip in March: which to see?", "https://travel.example/kyoto", "Kyoto in two days", now - 50 * H), turn("assistant", "For the Japan trip in March, see Kinkaku-ji and Fushimi Inari in Kyoto early: crowds climb in cherry blossom season.", null, null, now - 50 * H + 5000),
+       turn("user", "JR Pass for the Japan trip in March: worth it from Tokyo?", "https://rail.example/jr-pass", "JR Pass in 2026", now - 30 * H), turn("assistant", "For the Japan trip in March, Tokyo to Kyoto and back, yes: it pays off with one more ride.", null, null, now - 30 * H + 5000)] }
   const B = { id: "chat-bread", u: now - 60e3, a: now - 60e3, title: bread, m: ru
     ? [turn("user", "Сколько бананов на одну форму хлеба?", `${BASE}/article-ru`, "Банановый хлеб", now - 3 * H), turn("assistant", "Три очень спелых банана на форму 22 см.", null, null, now - 3 * H + 5000),
-       turn("user", "Перелёты в Токио в марте: когда покупать билеты для поездки?", `${BASE}/article-2-ru`, "Перелёты в Токио", now - 2 * 60e3), turn("assistant", "Для поездки в Токио в марте билеты лучше брать за 2–3 месяца: в сезон сакуры цены растут.", null, null, now - 2 * 60e3 + 5000)]
+       turn("user", "Перелёты в Токио для поездки в Японию в марте: когда покупать?", `${BASE}/article-2-ru`, "Перелёты в Токио", now - 2 * 60e3), turn("assistant", "Для поездки в Японию в марте билеты в Токио лучше брать за 2–3 месяца: в сезон сакуры цены растут.", null, null, now - 2 * 60e3 + 5000)]
     : [turn("user", "How many bananas for one loaf of banana bread?", `${BASE}/article`, "Banana bread", now - 3 * H), turn("assistant", "Three very ripe bananas for a 9-inch loaf pan.", null, null, now - 3 * H + 5000),
-       turn("user", "Flights to Tokyo in March: when to book for the trip?", `${BASE}/article-2`, "Flights to Tokyo", now - 2 * 60e3), turn("assistant", "For a Tokyo trip in March, book 2–3 months ahead: prices climb in cherry blossom season.", null, null, now - 2 * 60e3 + 5000)] }
+       turn("user", "Flights to Tokyo for the Japan trip in March: when to book?", `${BASE}/article-2`, "Flights to Tokyo", now - 2 * 60e3), turn("assistant", "For the Japan trip in March, book Tokyo flights 2–3 months ahead: prices climb in cherry blossom season.", null, null, now - 2 * 60e3 + 5000)] }
   return { [B.id]: B, [A.id]: A }
 }
 /** Suggested tags (Pro): two chats you tagged Work, and the shown one about the same kind of thing, untagged. */
@@ -738,7 +745,8 @@ const takes = {
     await touch(row)
     await wait(1400)
   },
-  // Page watch: the price selected, the eye, its window with the condition, Watch.
+  // Page watch: the price selected, the eye, its window with the condition and a note of your own (2.6 (97): shown with
+  // the watch and in its notification), Watch.
   async watch() {
     await fresh(PRODUCT)
     await page.locator("#price").scrollIntoViewIfNeeded()
@@ -752,24 +760,39 @@ const takes = {
     await touch(eye)
     const go = page.locator(".cf-watch .cf-sheet-actions .cf-primary")
     await go.waitFor()
-    await wait(1100)
+    await wait(900)
+    await tap(page.locator(".cf-watch .cf-note-words")); await type(L.watchNote)
+    await wait(500)
     await touch(go)
     await page.locator(".cf-watch-ok").waitFor({ timeout: 20000 })
     await wait(1500)
   },
-  // Come back later: … at the top of the panel, Come back later…, Tomorrow morning.
+  // Remind me (2.6 (97)): a line selected, the bell, the window with the line as a quote and a note of your own,
+  // Tomorrow morning; ✦ shows the note in the chat, under its quote, with the reminder's time.
   async later() {
-    await fresh(PAGE_1, chat())
-    await openPanel(false)
+    await fresh(PAGE_1)
+    await page.evaluate(() => document.querySelectorAll("main p")[4].scrollIntoView({ block: "center" }))
+    await wait(400)
     await record("later")
-    await touch(page.locator(".cf-page-more"))
-    await wait(500)
-    await touch(page.locator(".cf-page-menu button").first())
-    const row = page.locator(".cf-sheet .cf-sheet-row", { hasText: L.morning }).first()
-    await row.waitFor()
+    const bubble = page.locator(".cf-bubble")
+    await selectText(4, "^", ":", false)
+    const bell = bubble.locator(".cf-sel-remind")
+    await bell.waitFor()
     await wait(800)
+    await tapClears()
+    await touch(bell)
+    const words = page.locator(".cf-sheet .cf-note-words")
+    await words.waitFor()
+    await wait(700)
+    await tap(words); await type(L.remindNote)
+    await wait(400)
+    const row = page.locator(".cf-sheet .cf-sheet-row", { hasText: L.morning }).first()
     await touch(row)
-    await wait(1700)
+    await page.locator(".cf-sheet").waitFor({ state: "detached", timeout: 8000 }).catch(() => undefined)
+    await wait(900)
+    await openPanel()
+    await inRoot(`(r) => { const l = r.querySelector(".cf-messages"); if (l) l.scrollTop = l.scrollHeight }`)
+    await wait(1900)
   },
   // Highlights: a line of an answer selected, Highlight, a yellow mark.
   async highlight() {
@@ -838,14 +861,22 @@ const takes = {
     await touch(undo)
     await wait(1400)
   },
-  // Organizing (Pro): the suggestion under the last answer, a tap moves the block, Open shows it in its chat.
+  // Organizing (Pro): the Suggestions bar at the top of the chat (2.6 (97)); a tap on it brings the suggestion under the
+  // answer it's about, a tap there moves the block, Open shows it in its chat.
   async organize() {
     await fresh(PAGE_2, organizeChats(), ORGANIZE_ON)
     await openPanel(false)
-    await record("organize")
     const move = page.locator(".cf-org-chip.move .cf-org-take")
     await move.waitFor({ timeout: 15000 })
-    await wait(1100)
+    // From the top of the chat, where the bar is (the suggestion is under the last answer, out of sight).
+    await inRoot(`(r) => { const l = r.querySelector(".cf-messages"); if (l) l.scrollTop = 0 }`)
+    await wait(500)
+    await record("organize")
+    const bar = page.locator(".cf-sugbar-main")
+    await bar.waitFor({ timeout: 15000 })
+    await wait(1200)
+    await touch(bar)
+    await wait(1300)
     await touch(move)
     const open = page.locator(".cf-undo-bar button", { hasText: L.open })
     await open.waitFor()
@@ -930,22 +961,27 @@ const takes = {
     }`)
     await wait(2200)
   },
-  // Listen (Ultra): Listen under an answer, the player over the question field, its speed tapped to 1.2× and 1.5×.
+  // Listen (Ultra): Listen under an answer, the player over the question field, its speed tapped to 1.2× and 1.5×;
+  // heard to its end, Listen gets its tick (2.6 (94–98): already voiced, hearing it again costs no minutes). On iPhone
+  // and iPad it plays in the panel when notifications are on (they are here: the app's answer), as on a Mac.
   async listen() {
-    await fresh(PAGE_1, chat())
+    await fresh(PAGE_1, chat(), { "cf:notifyOn": true })
     await openPanel(false)
-    await inRoot(`(r) => r.querySelectorAll(".cf-msg.ai")[0].scrollIntoView({ block: "start" })`)
+    // A short answer, heard to its end within the clip.
+    await inRoot(`(r) => r.querySelectorAll(".cf-msg.ai")[1].scrollIntoView({ block: "center" })`)
     await wait(400)
     await record("listen")
     await wait(500)
-    await touch(page.locator(".cf-msg.ai .cf-listen-btn").first())
+    const listen = page.locator(".cf-msg.ai .cf-listen-btn").nth(1)
+    await touch(listen)
     await page.locator(".cf-listen .cf-listen-time").waitFor({ timeout: 15000 })
-    await wait(1600)
+    await wait(1200)
     const speed = page.locator(".cf-listen-speed")
     await touch(speed)
-    await wait(1100)
+    await wait(800)
     await touch(speed)
-    await wait(2000)
+    await listen.locator(".cf-voiced").waitFor({ timeout: 20000 })
+    await wait(2200)
   },
   // Monthly or yearly (any plan; recorded on Free): Listen without Ultra opens the plans, Yearly first with what
   // each plan saves; Monthly, then Yearly again.
