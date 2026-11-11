@@ -378,25 +378,25 @@ export const SHIPPING: Words = {
 
 /** A delivery page saying it ships anywhere. */
 export const WORLDWIDE: Words = {
-  en: ["worldwide", "international shipping", "ship internationally", "ships internationally", "all countries", "anywhere in the world", "international delivery"],
-  ru: ["по всему миру", "международная доставка", "во все страны"],
-  uk: ["по всьому світу", "міжнародна доставка", "у всі країни"],
-  de: ["weltweit", "internationaler versand", "in alle länder", "internationale lieferung"],
-  fr: ["dans le monde entier", "livraison internationale", "partout dans le monde", "expédition internationale"],
-  es: ["a todo el mundo", "envíos internacionales", "envío internacional"],
-  it: ["in tutto il mondo", "spedizioni internazionali", "spedizione internazionale"],
-  pt: ["para todo o mundo", "envio internacional", "envios internacionais"],
-  ja: ["海外発送", "世界中", "国際配送", "海外配送"],
-  ko: ["해외배송", "전 세계", "국제 배송", "해외 배송"],
-  zh: ["全球配送", "国际配送", "海外直邮", "全球发货"],
-  "zh-Hant": ["全球配送", "國際配送", "海外直送"],
-  vi: ["toàn cầu", "giao hàng quốc tế", "vận chuyển quốc tế"],
-  ar: ["جميع أنحاء العالم", "شحن دولي", "الشحن الدولي"]
+  en: ["worldwide", "international shipping", "ship internationally", "ships internationally", "all countries", "anywhere in the world", "international delivery", "abroad", "overseas", "internationally", "rest of the world"],
+  ru: ["по всему миру", "международная доставка", "во все страны", "за границу", "за рубеж", "остальной мир", "остального мира"],
+  uk: ["по всьому світу", "міжнародна доставка", "у всі країни", "за кордон", "решта світу"],
+  de: ["weltweit", "internationaler versand", "in alle länder", "internationale lieferung", "ins ausland", "ausland", "rest der welt"],
+  fr: ["dans le monde entier", "livraison internationale", "partout dans le monde", "expédition internationale", "à l'étranger", "international", "reste du monde"],
+  es: ["a todo el mundo", "envíos internacionales", "envío internacional", "al extranjero", "internacional", "resto del mundo"],
+  it: ["in tutto il mondo", "spedizioni internazionali", "spedizione internazionale", "all'estero", "internazionale", "resto del mondo"],
+  pt: ["para todo o mundo", "envio internacional", "envios internacionais", "para o exterior", "internacional", "resto do mundo"],
+  ja: ["海外発送", "世界中", "国際配送", "海外配送", "海外"],
+  ko: ["해외배송", "전 세계", "국제 배송", "해외 배송", "해외"],
+  zh: ["全球配送", "国际配送", "海外直邮", "全球发货", "海外", "国际"],
+  "zh-Hant": ["全球配送", "國際配送", "海外直送", "海外", "國際"],
+  vi: ["toàn cầu", "giao hàng quốc tế", "vận chuyển quốc tế", "nước ngoài", "quốc tế"],
+  ar: ["جميع أنحاء العالم", "شحن دولي", "الشحن الدولي", "خارج", "دولي", "دولية", "بقية العالم"]
 }
 
 /** A delivery page naming the European Union or Europe (for a country in it). */
 export const EUROPE: Words = {
-  en: ["europe", "european union", "eu countries", "within the eu", "to the eu"], ru: ["европа", "евросоюз", "страны ес"],
+  en: ["europe", "european union", "eu countries", "within the eu", "to the eu", "eu"], ru: ["европа", "евросоюз", "страны ес"],
   uk: ["європа", "євросоюз", "країни єс"], de: ["europa", "eu-länder", "europäische union", "innerhalb der eu"],
   fr: ["europe", "union européenne", "pays de l'ue"], es: ["europa", "unión europea", "países de la ue"],
   it: ["europa", "unione europea", "paesi ue"], pt: ["europa", "união europeia", "países da ue"], ja: ["ヨーロッパ", "欧州"],
@@ -515,4 +515,81 @@ export const QUARTER: Words = {
   en: ["quarter", "quarterly"], ru: ["квартал", "ежеквартально"], uk: ["квартал", "щокварталу"], de: ["quartal", "vierteljährlich"],
   fr: ["trimestre", "trimestriel"], es: ["trimestre", "trimestral"], it: ["trimestre", "trimestrale"], pt: ["trimestre", "trimestral"],
   ja: ["四半期"], ko: ["분기"], zh: ["季度", "季付"], "zh-Hant": ["季度", "季繳"], vi: ["quý"], ar: ["ربع سنوي"]
+}
+
+// ------------------------------------------------------------ what a delivery page says
+
+/** Words that make a sentence about shipping (with SHIPPING's): to ship, to deliver, to send. */
+export const SHIP_VERBS: Words = {
+  en: ["ship", "ships", "shipped", "shipment", "shipments", "deliver", "delivers", "delivered", "dispatch", "dispatched", "send", "sends", "delivery address", "shipping address"],
+  ru: ["доставляем", "доставим", "доставляет", "доставляются", "отправляем", "отправим", "отправка", "адрес доставки"],
+  uk: ["доставляємо", "доставимо", "доставляє", "відправляємо", "відправимо", "відправка", "адреса доставки"],
+  de: ["liefern", "geliefert", "versenden", "versendet", "verschicken", "verschickt", "lieferadresse", "versandadresse"],
+  fr: ["livrons", "livré", "livrés", "expédions", "expédié", "expédiés", "envoyons", "adresse de livraison"],
+  es: ["enviamos", "enviado", "enviados", "entregamos", "entregado", "dirección de envío", "dirección de entrega"],
+  it: ["spediamo", "spedito", "spediti", "consegniamo", "consegnato", "indirizzo di consegna", "indirizzo di spedizione"],
+  pt: ["enviamos", "enviado", "enviados", "entregamos", "entregue", "endereço de entrega"],
+  ja: ["発送", "お届け", "配達", "配送先"], ko: ["발송", "배달", "배송지"], zh: ["发货", "寄送", "送货", "邮寄", "收货地址"], "zh-Hant": ["出貨", "寄送", "送貨", "郵寄", "收件地址"],
+  vi: ["gửi hàng", "ship", "địa chỉ giao hàng"], ar: ["نشحن", "يشحن", "نوصل", "يتم الشحن", "يتم التوصيل", "عنوان الشحن"]
+}
+
+/** A clause that says no: we don't, not available, impossible (Japanese, Korean, Chinese: as a shop writes a refusal). */
+export const NEGATION: Words = {
+  en: ["not", "don't", "don’t", "do not", "doesn't", "doesn’t", "does not", "cannot", "can't", "can’t", "unable", "unavailable", "isn't", "isn’t", "aren't", "won't", "won’t", "never", "no longer"],
+  ru: ["не", "нет", "невозможна", "невозможно", "недоступна", "недоступно"],
+  uk: ["не", "немає", "неможлива", "неможливо", "недоступна", "недоступно"],
+  de: ["nicht", "kein", "keine", "keinen", "keinerlei", "nie"],
+  fr: ["pas", "aucun", "aucune", "jamais", "impossible", "indisponible"],
+  es: ["no", "ningún", "ninguna", "nunca", "imposible"],
+  it: ["non", "nessun", "nessuna", "mai", "impossibile"],
+  pt: ["não", "nenhum", "nenhuma", "nunca", "impossível"],
+  ja: ["しておりません", "できません", "いたしません", "対象外", "不可"],
+  ko: ["불가", "하지 않", "되지 않", "지 않습니다"],
+  zh: ["不配送", "不发货", "不支持", "暂不", "无法", "不提供", "不寄送", "不送"],
+  "zh-Hant": ["不配送", "不出貨", "不支援", "暫不", "無法", "不提供", "不寄送", "不送"],
+  vi: ["không", "chưa"], ar: ["لا", "غير", "ليس", "لم", "لن"]
+}
+
+/** "Except": the country after it is left out ("worldwide except Russia"). */
+export const EXCEPT: Words = {
+  en: ["except", "excluding", "other than", "with the exception of"], ru: ["кроме", "за исключением"], uk: ["крім", "окрім", "за винятком"],
+  de: ["außer", "ausgenommen", "mit ausnahme von"], fr: ["sauf", "hors", "à l'exception de"], es: ["excepto", "salvo", "menos"],
+  it: ["tranne", "eccetto", "escluso", "esclusi"], pt: ["exceto", "salvo", "menos"], ja: ["を除く", "除く", "以外"], ko: ["제외"],
+  zh: ["除外", "除了", "不包括"], "zh-Hant": ["除外", "除了", "不包括"], vi: ["ngoại trừ", "trừ"], ar: ["باستثناء", "عدا", "ما عدا"]
+}
+
+/** "Only": a sentence that names where it ships and nowhere else. */
+export const ONLY: Words = {
+  en: ["only", "exclusively", "must be in", "must be within"], ru: ["только", "лишь", "исключительно", "должен быть в", "должна быть в"], uk: ["лише", "тільки", "виключно", "має бути в", "повинна бути в"], de: ["nur", "ausschließlich", "muss in", "muss innerhalb"],
+  fr: ["uniquement", "seulement", "exclusivement", "doit être en", "doit être situé"], es: ["solo", "sólo", "únicamente", "exclusivamente", "debe estar en"],
+  it: ["solo", "soltanto", "esclusivamente", "unicamente", "deve essere in", "deve trovarsi in"], pt: ["apenas", "somente", "exclusivamente", "deve ser em", "deve estar em"], ja: ["のみ", "限定"],
+  ko: ["에서만", "에만", "한정"], zh: ["仅", "只", "仅限"], "zh-Hant": ["僅", "只", "僅限"], vi: ["chỉ"], ar: ["فقط"]
+}
+
+/** "But": where a sentence turns ("we ship to Germany, but not to Austria"). */
+export const CONTRAST: Words = {
+  en: ["but", "however"], ru: ["но", "однако"], uk: ["але", "однак", "проте"], de: ["aber", "jedoch"], fr: ["mais", "cependant"],
+  es: ["pero", "sin embargo"], it: ["ma", "però", "tuttavia"], pt: ["mas", "porém", "contudo"], ja: ["ただし", "しかし"],
+  ko: ["하지만", "다만", "그러나"], zh: ["但是", "不过", "但"], "zh-Hant": ["但是", "不過", "但"], vi: ["nhưng", "tuy nhiên"], ar: ["لكن", "ولكن"]
+}
+
+/** Short names pages use for a country besides the one Intl gives (by its code). */
+export const COUNTRY_ALIASES: Record<string, string[]> = {
+  US: ["USA", "U.S.", "US", "США", "美国", "美國", "アメリカ", "미국", "EE. UU.", "EUA", "الولايات المتحدة"],
+  GB: ["UK", "U.K.", "Britain", "Great Britain"], AE: ["UAE", "الإمارات", "الامارات", "ОАЭ"], SA: ["KSA", "السعودية"],
+  RU: ["РФ"], KR: ["한국", "韓国", "韩国", "韓國", "South Korea"], TW: ["台湾", "台灣", "臺灣"], CN: ["中国", "中國"], HK: ["香港"],
+  JP: ["日本"], NL: ["Holland"], CZ: ["Czech Republic"], VN: ["Việt Nam", "Vietnam"]
+}
+
+/** Country names that are also common words in some language («того» "of that"), never counted as a named country. */
+export const NOT_A_COUNTRY = ["того", "чад", "мали", "chad", "jersey", "georgia", "turkey", "guinea", "jordan", "panama", "togo", "chile", "china", "niger", "mali", "man"]
+
+/** What delivery costs: a rate, a fee, free (a sentence about cost limits a price, not where it ships). */
+export const COST: Words = {
+  en: ["rate", "rates", "cost", "costs", "price", "prices", "fee", "fees", "charge", "charges", "free"], ru: ["стоимость", "цена", "тариф", "бесплатно", "бесплатная"],
+  uk: ["вартість", "ціна", "тариф", "безкоштовно", "безкоштовна"], de: ["kosten", "preis", "preise", "gebühr", "gebühren", "kostenlos", "versandkostenfrei"],
+  fr: ["frais", "tarif", "tarifs", "prix", "gratuit", "gratuite"], es: ["costo", "coste", "precio", "tarifa", "gratis", "gratuito"],
+  it: ["costo", "costi", "prezzo", "tariffa", "gratis", "gratuita"], pt: ["custo", "preço", "taxa", "grátis", "gratuito"],
+  ja: ["送料", "料金", "無料"], ko: ["배송비", "요금", "무료"], zh: ["运费", "费用", "免费", "包邮"], "zh-Hant": ["運費", "費用", "免費"],
+  vi: ["phí", "miễn phí", "giá"], ar: ["رسوم", "تكلفة", "مجاني", "مجانا"]
 }

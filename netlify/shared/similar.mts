@@ -22,8 +22,8 @@ import { config } from "./config.mts"
 import { checkPage, languageCheck, nameScore, nameTokens, normalizeUrl, type CheckedPage, type PagePrice, type PageRating } from "./pagecheck.mts"
 import { plansPricing, pricingLine, type AppPricing, type PlanSeen } from "./apppricing.mts"
 import { nextPages, quoteFacts, quoteOn } from "./dig.mts"
-import { convert, currencyOf, eurRates, roughAmount, type Rates } from "./money.mts"
-import { COLOURS, EUROPE, HOW_MANY, REVIEW_PAGE, SEARCH_WORDS, SHIPPING, SHOP_WORDS, WORLDWIDE, appLang, foldedWords, pattern } from "./lexicon.mts"
+import { MONEY_SIGN, convert, currencyOf, eurRates, roughAmount, type Rates } from "./money.mts"
+import { COLOURS, CONTRAST, COST, COUNTRY_ALIASES, EUROPE, EXCEPT, HOW_MANY, NEGATION, NOT_A_COUNTRY, ONLY, REVIEW_PAGE, SEARCH_WORDS, SHIP_VERBS, SHIPPING, SHOP_WORDS, WORLDWIDE, appLang, foldedWords, pattern } from "./lexicon.mts"
 import type { Met, SimilarItem } from "../../src/shared/similar.ts"
 
 export const MAX_PAGE_TEXT = 5_000
@@ -1313,48 +1313,170 @@ export function shopCountry(url: string): string {
   return tld === "uk" ? "GB" : tld.toUpperCase()
 }
 
-/** A country's names as pages write them, in these languages (lower case). */
-function countryNames(code: string, langs: string[]): string[] {
-  return [...new Set(langs.flatMap((l) => {
-    try { return [new Intl.DisplayNames([l], { type: "region", fallback: "none" }).of(code) ?? ""] } catch { return [""] }
-  }).filter((n) => n.length >= 3).map((n) => n.toLowerCase()))]
+const DENSE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u
+const CYRILLIC = /\p{Script=Cyrillic}/u
+const ARABIC = /\p{Script=Arabic}/u
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+const NOT_COUNTRIES = new Set(NOT_A_COUNTRY)
+
+/**
+ * A country's name as a pattern's source, the way pages write it in its script: Han, kana and Hangul anywhere (two
+ * characters are a name: 日本, 한국); Cyrillic with the endings a sentence gives it («России», «Україні»); Arabic with
+ * the article and the prefixes that join it («والإمارات», «للسعودية»); Latin and the rest as whole words (a German
+ * genitive "s" too). "" for a name too short to tell (under three letters outside dense scripts).
+ */
+function namePattern(name: string): string {
+  const n = name.trim()
+  if (DENSE.test(n)) return n.length >= 2 ? escapeRe(n) : ""
+  if (n.length < 3) return ""
+  if (CYRILLIC.test(n)) {
+    const words = n.split(/\s+/)
+    const last = words.pop()!
+    const tail = last.length >= 5 ? `${escapeRe(last.replace(/[аяеёиыоуюьйії]$/u, ""))}\\p{L}{0,3}` : escapeRe(last)
+    return `(?<![\\p{L}])${[...words.map(escapeRe), tail].join("\\s+")}(?![\\p{L}])`
+  }
+  if (ARABIC.test(n)) {
+    const core = n.replace(/^ال/u, "")
+    return `(?<![\\p{L}])[وف]?(?:بال|لل|كال|ال|ب|ل|ك)?${escapeRe(core)}(?![\\p{L}])`
+  }
+  return `(?<![\\p{L}])${escapeRe(n)}s?(?![\\p{L}])`
 }
 
-const namedIn = (text: string, name: string) => /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(name)
-  ? text.includes(name)
-  : new RegExp(`(?<![\\p{L}])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "u").test(text)
+/** Names written in capitals ("UK", "US", "KSA", "РФ"): matched as written ("us" is a word), as whole words. */
+const capitalsOnly = (n: string) => n.length <= 3 && /^[\p{Lu}.\s]+$/u.test(n) && /\p{Lu}/u.test(n)
 
-const regionNames = new Map<string, Array<{ code: string; name: string }>>()
-/** Every country's name in a language (cached). */
-function allCountries(lang: string): Array<{ code: string; name: string }> {
-  let list = regionNames.get(lang)
-  if (list) return list
-  list = []
-  let names: Intl.DisplayNames | null = null
-  try { names = new Intl.DisplayNames([lang], { type: "region", fallback: "none" }) } catch { /* not a language Intl knows */ }
-  for (let a = 65; a <= 90 && names; a++) {
-    for (let b = 65; b <= 90; b++) {
-      const code = String.fromCharCode(a, b)
-      if (code === "EU" || code === "UN" || code === "EZ" || code === "QO" || code === "XK" || code === "ZZ") continue
-      const name = names.of(code)
-      if (name && name.length >= 4 && name !== code) list.push({ code, name: name.toLowerCase() })
+/** Where in a text a country is named (-1: nowhere): its names, and its capitals-only names as written. */
+interface CountryMatcher { search(text: string): number }
+function matcher(names: Iterable<string>): CountryMatcher | null {
+  const all = [...names]
+  const loose = all.filter((n) => !capitalsOnly(n)).map(namePattern).filter(Boolean)
+  const exact = all.filter(capitalsOnly).map((n) => `(?<![\\p{L}])${escapeRe(n)}(?![\\p{L}])`)
+  const res = [loose.length ? new RegExp(loose.join("|"), "iu") : null, exact.length ? new RegExp(exact.join("|"), "u") : null].filter((r): r is RegExp => Boolean(r))
+  if (!res.length) return null
+  return {
+    search: (text) => {
+      let first = -1
+      for (const r of res) {
+        const at = text.search(r)
+        if (at >= 0 && (first < 0 || at < first)) first = at
+      }
+      return first
     }
   }
-  regionNames.set(lang, list)
+}
+
+const nameRes = new Map<string, CountryMatcher | null>()
+/** A country's names in these languages, Intl's long and short and the usual short ones (cached). */
+function countryRe(code: string, langs: string[]): CountryMatcher | null {
+  const key = `${code}|${langs.join(",")}`
+  if (nameRes.has(key)) return nameRes.get(key)!
+  const names = new Set<string>(COUNTRY_ALIASES[code] ?? [])
+  for (const l of langs) {
+    for (const style of ["long", "short"] as const) {
+      try {
+        const n = new Intl.DisplayNames([l], { type: "region", style, fallback: "none" }).of(code)
+        if (n && n !== code) names.add(n)
+      } catch {
+        // not a language Intl knows
+      }
+    }
+  }
+  const found = matcher(names)
+  nameRes.set(key, found)
+  return found
+}
+
+const regionCodes = (() => {
+  const out: string[] = []
+  for (let a = 65; a <= 90; a++) for (let b = 65; b <= 90; b++) out.push(String.fromCharCode(a, b))
+  // Not countries (EU, UN…), and retired codes Intl still names like the countries that took their place (SU is
+  // "Russia", YU, CS…).
+  const skip = new Set(["EU", "UN", "EZ", "QO", "XK", "ZZ", "XA", "XB", "SU", "DD", "YU", "ZR", "TP", "BU", "CS", "NT", "YD", "AN", "DY", "FX", "HV", "NH", "RH", "VD", "QU", "UK"])
+  return out.filter((c) => !skip.has(c))
+})()
+
+const othersRes = new Map<string, Array<{ code: string; re: CountryMatcher }>>()
+/** Every country's name in these languages, as patterns (cached); names that are common words left out. */
+function allCountries(langs: string[]): Array<{ code: string; re: CountryMatcher }> {
+  const key = langs.join(",")
+  let list = othersRes.get(key)
+  if (list) return list
+  list = []
+  const taken = new Set<string>()
+  for (const code of regionCodes) {
+    const names = new Set<string>((COUNTRY_ALIASES[code] ?? []).filter((n) => !NOT_COUNTRIES.has(n.toLowerCase())))
+    for (const l of langs) {
+      try {
+        const n = new Intl.DisplayNames([l], { type: "region", fallback: "none" }).of(code)
+        if (n && n !== code && !NOT_COUNTRIES.has(n.toLowerCase()) && (DENSE.test(n) || n.length >= 4)) names.add(n)
+      } catch {
+        // not a language Intl knows
+      }
+    }
+    // A name another code has already (an old code, an overseas part) counts once.
+    for (const n of [...names]) if (taken.has(n.toLowerCase())) names.delete(n)
+    for (const n of names) taken.add(n.toLowerCase())
+    const found = matcher(names)
+    if (found) list.push({ code, re: found })
+  }
+  othersRes.set(key, list)
   return list
 }
 
+const SHIP_TALK_RE = new RegExp(`${pattern(SHIPPING).source}|${pattern(SHIP_VERBS).source}`, "iu")
+const NEGATION_RE = pattern(NEGATION)
+const EXCEPT_RE = pattern(EXCEPT)
+const ONLY_RE = pattern(ONLY)
+const CONTRAST_RE = new RegExp(pattern(CONTRAST).source, "giu")
+const COST_RE = new RegExp(`${pattern(COST).source}|\\d\\s?(?:${MONEY_SIGN})|(?:${MONEY_SIGN})\\s?\\d`, "iu")
+// Sentences: a full stop (not inside a number or an abbreviation like "U.S."), ! ? ; and the CJK marks, new lines.
+const SENTENCES = /(?<=[.!?;。！？])\s+|[;。！？\n]+/u
+
 /**
- * Whether a delivery page ships to `country`: "yes" when it names the country, ships worldwide, or ships within the EU
- * to an EU country; "no" when it names two or more other countries and not this one; else "unknown".
+ * Whether a delivery page ships to `country`, from its sentences about shipping only (a shop's "trusted worldwide"
+ * says nothing of it):
+ * - "no" when such a sentence refuses it — a negation or "except" before the country's name ("we don't ship to X",
+ *   "worldwide except X"), "we do not ship internationally / outside the UK", or "only" (or "must be in") with other
+ *   countries named;
+ * - "yes" when one names the country, ships worldwide or (for an EU country) within the EU, and says no "not";
+ * - else "unknown": other countries named alone mean nothing (shops list their own regions and per-country prices).
+ * Clauses split where a sentence turns ("…, but not to X"). Words in the 14 languages (lexicon.mts).
  */
 export function shipsTo(text: string, country: string, langs: string[]): "yes" | "no" | "unknown" {
-  const t = text.toLowerCase()
-  if (countryNames(country, langs).some((n) => namedIn(t, n))) return "yes"
-  if (WORLDWIDE_RE.test(text) || (EU.has(country) && EUROPE_RE.test(text))) return "yes"
-  const others = new Set<string>()
-  for (const l of langs) for (const { code, name } of allCountries(l)) if (code !== country && namedIn(t, name)) others.add(code)
-  return others.size >= 2 ? "no" : "unknown"
+  const ours = countryRe(country, langs)
+  let yes = false
+  let refused = false
+  for (const sentence of text.split(SENTENCES)) {
+    if (!SHIP_TALK_RE.test(sentence)) continue
+    const only = ONLY_RE.test(sentence)
+    const named = new Set<string>()
+    for (const clause of sentence.split(CONTRAST_RE).filter((c) => c && c.trim())) {
+      const at = ours ? ours.search(clause) : -1
+      const neg = NEGATION_RE.exec(clause)
+      const negAt = neg ? neg.index : -1
+      const exceptAt = clause.search(EXCEPT_RE)
+      if (at >= 0) {
+        // A "not" before the name refuses it ("we don't ship to X"); in Japanese and Korean the refusal ends the clause
+        // («韓国への発送はしておりません»), so there it refuses wherever it is.
+        const refuses = neg !== null && (negAt < at || DENSE.test(neg[0]))
+        if (refuses || (exceptAt >= 0 && exceptAt < at)) return "no"
+        yes = true
+        continue
+      }
+      const here = new Set<string>()
+      for (const { code, re } of allCountries(langs)) if (code !== country && re.search(clause) >= 0) here.add(code)
+      for (const c of here) named.add(c)
+      const wide = WORLDWIDE_RE.test(clause) || (EU.has(country) && EUROPE_RE.test(clause))
+      if (wide && negAt >= 0) refused = true
+      // "Abroad" with a list of other countries is that list ("international destinations, including: …"), not
+      // everywhere.
+      else if (wide && !only && here.size < 2) yes = true
+    }
+    // "Only" in a sentence about cost limits a rate ("these rates apply within the UK only"), not where it ships.
+    if (only && named.size && !yes && !COST_RE.test(sentence)) refused = true
+  }
+  if (yes) return "yes"
+  return refused ? "no" : "unknown"
 }
 
 /** A shop's delivery page: a link on the item's page that says so, else a Shopify shop's shipping policy. */
@@ -1397,7 +1519,9 @@ export async function deliveryStep(checked: CheckedCandidate[], country: string,
         const page = await checkPage(url, { timeoutMs, lang, signal, textChars: 12_000 })
         if (page.status === "ok") {
           stats.opened++
-          const langs = [...new Set(["en", (page.lang || "").split("-")[0], lang.split("-")[0], own].filter(Boolean))]
+          // Names in English, the page's language, theirs and their country's (traditional Chinese as such).
+          const base = (tag: string) => (/^zh[-_](hant|tw|hk|mo)/i.test(tag) ? "zh-Hant" : tag.split(/[-_]/)[0])
+          const langs = [...new Set(["en", base(page.lang || ""), base(lang), own].filter(Boolean))]
           ships = shipsTo(`${page.title}\n${page.text}`, country, langs)
         }
       } catch {

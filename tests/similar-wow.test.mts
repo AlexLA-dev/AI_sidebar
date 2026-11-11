@@ -30,11 +30,14 @@ test("a shop's country from its domain; generic domains name none", () => {
 })
 
 test("whether a delivery page ships to their country, in its language or theirs", () => {
-  assert.equal(shipsTo("We ship to Germany, Austria and Switzerland.", "CY", ["en"]), "no")
+  // Other countries named alone say nothing of theirs: not "no" (shops list their own regions and prices too).
+  assert.equal(shipsTo("We ship to Germany, Austria and Switzerland.", "CY", ["en"]), "unknown")
+  assert.equal(shipsTo("We only ship to Germany, Austria and Switzerland.", "CY", ["en"]), "no")
   assert.equal(shipsTo("We ship worldwide with tracked delivery.", "BR", ["en", "pt"]), "yes")
   assert.equal(shipsTo("Livraison dans toute l'Union européenne sous 5 jours.", "PT", ["fr", "pt"]), "yes")
   assert.equal(shipsTo("Livraison dans toute l'Union européenne sous 5 jours.", "CH", ["fr", "de"]), "unknown")
-  assert.equal(shipsTo("Wir liefern nach Deutschland und Österreich.", "IT", ["de", "it"]), "no")
+  assert.equal(shipsTo("Wir liefern nach Deutschland und Österreich.", "IT", ["de", "it"]), "unknown")
+  assert.equal(shipsTo("Wir liefern nur nach Deutschland und Österreich.", "IT", ["de", "it"]), "no")
   assert.equal(shipsTo("Wir liefern nach Deutschland, Österreich und Italien.", "IT", ["de", "it"]), "yes")
   assert.equal(shipsTo("We deliver to Kenya, Uganda and Tanzania.", "KE", ["en", "sw"]), "yes")
   assert.equal(shipsTo("海外発送も承ります。", "KR", ["ja", "ko"]), "yes")
@@ -67,4 +70,47 @@ test("the planner's search for the kind is kept when it gives one, and left out 
   const raw = { category: "product", subject: "Philips HD9285", traits: ["air fryer"], condition: { kind: "none", max_price: 0, currency: "", language: "", place: "" }, source_price: 0, source_currency: "", queries: ["Heißluftfritteuse günstig"], language: "de" }
   assert.equal(checkPlan({ ...raw, kind_search: "Heißluftfritteuse 7 Liter" }, input()).kindSearch, "Heißluftfritteuse 7 Liter")
   assert.equal(checkPlan(raw, input()).kindSearch, undefined)
+})
+
+test("a delivery page's refusals are refusals; a word only counts in a sentence about shipping (the review's phrases)", () => {
+  const cases: Array<[string, string, string[], "yes" | "no" | "unknown"]> = [
+    // "Outside" alone isn't read: it's also "outside our control", "outside the contiguous US" for one service.
+    ["Delivery may be affected by circumstances outside our reasonable control.", "DE", ["en", "de"], "unknown"],
+    ["Die Lieferadresse muss in Österreich liegen.", "DE", ["de"], "no"],
+    ["For select international destinations we offer free shipping, including: Australia, Belgium, Brazil.", "RU", ["en", "ru"], "unknown"],
+    ["For shipments to the UK and EU, see our terms.", "IT", ["en", "it"], "yes"],
+    ["We do not ship internationally.", "DE", ["en", "de"], "no"],
+    ["International shipping is not available at this time.", "FR", ["en", "fr"], "no"],
+    ["We don't ship to Cyprus or Malta.", "CY", ["en", "el"], "no"],
+    ["Trusted by customers worldwide.", "IT", ["en", "it"], "unknown"],
+    ["We ship from Europe to the UK only.", "PT", ["en", "pt"], "no"],
+    ["We ship worldwide, except Russia.", "RU", ["en", "ru"], "no"],
+    ["We ship worldwide, except Russia.", "DE", ["en", "de"], "yes"],
+    ["We ship to Germany, but not to Austria.", "DE", ["en", "de"], "yes"],
+    ["We ship to Germany, but not to Austria.", "AT", ["en", "de"], "no"],
+    ["Free shipping to Germany, except islands.", "DE", ["en", "de"], "yes"],
+    ["Kein Versand ins Ausland.", "AT", ["de"], "no"],
+    ["Wir liefern nur innerhalb Deutschlands.", "AT", ["de"], "no"],
+    ["Envío gratis a España, no incluye Canarias.", "ES", ["es"], "yes"],
+    ["Contact us about shipping.", "US", ["en"], "unknown"],
+    ["Ship with us: delivery to Canada and Mexico.", "US", ["en"], "unknown"],
+    ["Delivery takes 3–5 working days.", "MX", ["en", "es"], "unknown"]
+  ]
+  for (const [text, country, langs, want] of cases) assert.equal(shipsTo(text, country, langs), want, `${country}: ${text}`)
+})
+
+test("country names as sentences write them: endings, prefixes, two-character names; common words aren't countries", () => {
+  assert.equal(shipsTo("Доставляем по России, в Казахстан и Беларусь.", "RU", ["ru"]), "yes")
+  assert.equal(shipsTo("Доставка по Україні, у Польщу та Німеччину.", "UA", ["uk"]), "yes")
+  assert.equal(shipsTo("نشحن إلى السعودية والإمارات", "SA", ["ar"]), "yes")
+  assert.equal(shipsTo("نشحن إلى السعودية والإمارات", "AE", ["ar"]), "yes")
+  assert.equal(shipsTo("日本全国に配送します", "JP", ["ja"]), "yes")
+  assert.equal(shipsTo("配送到香港、澳门、台湾", "TW", ["zh", "zh-Hant"]), "yes")
+  assert.equal(shipsTo("국내 배송: 한국 전 지역", "KR", ["ko"]), "yes")
+  // «того» is "of that", not Togo.
+  assert.equal(shipsTo("Доставка по Германии и Франции; того, кто заказал, уведомим.", "TG", ["ru", "fr"]), "unknown")
+  // Other countries named alone don't mean "not there": shops list their own regions and per-country prices.
+  assert.equal(shipsTo("Shipping to the Channel Islands, Northern Ireland and Guam: £25.", "FR", ["en", "fr"]), "unknown")
+  // Not one of the app's languages: its shipping words aren't read, so nothing is claimed.
+  assert.equal(shipsTo("Wysyłamy do Polski, Czech i na Słowację.", "PL", ["pl"]), "unknown")
 })
