@@ -725,16 +725,26 @@ struct TipGroup {
     }
 
     // Listen (2.6, Ultra): on iPhone and iPad the app plays it (it goes on with the screen locked), on a Mac the panel
-    // does. The clip is the panel's player, so a Mac's only.
+    // does. The clip is the panel's player (build 98, the owner on 98: «Почему в What's new нет видео про Listen?
+    // Должно быть»): with notifications on, iPhone and iPad play it there too, and the app carries it on when the page
+    // goes; heard to its end, Listen gets its tick.
     // Also in What's new (2.6 (98), WhatsNew.items).
     static var listenTip: Tip {
         #if os(iOS)
         Tip(symbol: "speaker.wave.2.fill", color: ultraViolet, title: "Listen",
-            text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. The ContextFlow app reads it in a natural voice, and it keeps playing with the screen locked. Tap the speed in the player for 1×, 1.2×, 1.5× or 2×.", ultra: true)
+            text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. The ContextFlow app reads it in a natural voice, and it keeps playing with the screen locked. Tap the speed in the player for 1×, 1.2×, 1.5× or 2×.", clip: "listen", ultra: true)
         #else
         Tip(symbol: "speaker.wave.2.fill", color: ultraViolet, title: "Listen",
             text: "Click Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it right in the panel. Click the speed in the player for 1×, 1.2×, 1.5× or 2×.", clip: "listen", ultra: true)
         #endif
+    }
+
+    // Organizing (2.5, Pro): the chat it belongs in. The clip (build 98) starts at the Suggestions bar at the top of the
+    // chat (2.6 (97)), which brings the suggestion under its answer.
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var organizeTip: Tip {
+        Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs",
+            text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true, pro: true)
     }
 
     private static func iOSClip(_ name: String) -> String? {
@@ -807,8 +817,7 @@ struct TipGroup {
                 text: "Describe the chat you remember — “that article about sleep and coffee” — even without the exact words. In the app, choose By meaning under the search; in Safari, tap ✦ next to it.", clip: "aisearch", pro: true),
             Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats",
                 text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history", pro: true),
-            Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs",
-                text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true, pro: true),
+            organizeTip,
             Tip(symbol: "tag", color: .purple, title: "Your tags, suggested",
                 text: "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.", clip: "suggested-tags", organize: true, pro: true)
         ]),
@@ -2198,14 +2207,9 @@ struct PlanTourView: View {
             return Info(symbol: "eye", color: .green, title: "Watch up to \(step == .ultraWatch ? facts.watchUltra : facts.watchPro) pages",
                         text: "In Safari, select a price, stock or a date and tap the eye. For the whole page: … → Watch this page.", clip: "watch")
         case .ultraListen:
-            // Build 95: the tour shows it working, as Tips do (its clip is the panel's player: a Mac's only).
-            #if os(iOS)
-            let clip: String? = nil
-            #else
-            let clip: String? = "listen"
-            #endif
+            // Build 95: the tour shows it working, as Tips do (build 98: on iPhone and iPad too, as Tips).
             return Info(symbol: "speaker.wave.2.fill", color: Self.ultraColor, title: "Listen",
-                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.", clip: clip)
+                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.", clip: "listen")
         case .ultraSimilar:
             // Build 95: the tour shows it working, as Tips do (its clip is touch: iPhone and iPad only).
             #if os(iOS)

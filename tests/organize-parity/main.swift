@@ -112,7 +112,7 @@ func run(_ c: [String: Any]) -> Any {
         guard let chat = thread(c["chat"]) else { return NSNull() }
         let chats = threads(c["chats"])
         let vectorOf = vectors(c["vectors"])
-        return Organize.tagTargets(chat, cfg).map { i -> [String: Any] in
+        return Organize.tagTargets(chat, cfg, chats, vectorOf).map { i -> [String: Any] in
             let candidates = Organize.tagCandidates(chat, i, chats, vectorOf, cfg)
             return ["i": i, "judge": Organize.judgeText(chat.entries, i), "candidates": candidates.map(candidate),
                     "judged": Organize.judgedTags(candidates, verdicts(c["verdicts"]), cfg)]

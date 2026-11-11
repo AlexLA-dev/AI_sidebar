@@ -190,8 +190,8 @@ test("the app's reminder notifications say the words too, and its windows change
   assert.match(later, /words: reminderEntry\(item\)\?\.remindWords/)
   assert.match(read("../ContextFlow/Shared (App)/ChatsView.swift"), /words: thread\.entries\[index\]\.remindWords/)
   const ux = read("../ContextFlow/Shared (App)/ChatUX.swift")
-  assert.match(ux, /TextField\("What to check, or what to remind you of \(optional\)"/)
-  const catalog = JSON.parse(read("../ContextFlow/Shared (App)/Localizable.xcstrings")).strings["What to check, or what to remind you of (optional)"]
+  assert.match(ux, /TextField\("Your note \(optional\)"/)
+  const catalog = JSON.parse(read("../ContextFlow/Shared (App)/Localizable.xcstrings")).strings["Your note (optional)"]
   assert.equal(Object.keys(catalog.localizations).length, 13)
 })
 
@@ -212,7 +212,7 @@ test("the Remind window has the person's words, optional and not focused; a time
   render(h(RemindSheet, { later: true, quote: "Width 140 cm", words: "", onPick: (...a: any[]) => picks.push(a), onCancel: () => undefined, onClose: () => undefined }), box)
   const field = box.querySelector("textarea.cf-note-words")
   assert.ok(field, "the field")
-  assert.equal(field.getAttribute("placeholder"), "What to check, or what to remind you of (optional)")
+  assert.equal(field.getAttribute("placeholder"), "Your note (optional)")
   assert.notEqual(doc.activeElement, field, "not focused by itself")
   assert.equal(box.querySelector("blockquote.cf-sheet-quote")?.textContent, "Width 140 cm", "the selection as a quote")
   const rows = () => [...box.querySelectorAll(".cf-sheet-row")] as any[]
@@ -228,6 +228,14 @@ test("the Remind window has the person's words, optional and not focused; a time
   assert.equal(box.querySelector("textarea.cf-note-words"), null)
   rows()[0].dispatchEvent(new (globalThis as any).window.Event("click"))
   assert.equal(picks[2][2], undefined)
+  // Build 98 (the owner: «приходится угадывать как закрыть»): a ✕ at the end of the title closes it.
+  let closed = 0
+  render(h(RemindSheet, { later: true, words: "", onPick: () => undefined, onCancel: () => undefined, onClose: () => { closed++ } }), box)
+  const x = box.querySelector(".cf-sheet-title .cf-sheet-close")
+  assert.ok(x, "the ✕")
+  assert.equal(x.getAttribute("aria-label"), "Close")
+  x.dispatchEvent(new (globalThis as any).window.Event("click"))
+  assert.equal(closed, 1)
   render(null, box)
 })
 
@@ -261,8 +269,10 @@ test("the note fields say they're optional, in all 14 languages", () => {
   assert.deepEqual(Object.keys(optional).sort(), [...locales].sort())
   for (const file of locales) {
     for (const key of ["uxNoteWords", "watchNoteWords"]) assert.match(strings(file)[key], optional[file], `${file} ${key}`)
+    // Build 98 (the owner: a hint on two lines sat low in its one-line field): short, one line in every language.
+    for (const key of ["uxNoteWords", "watchNoteWords"]) assert.ok([...strings(file)[key]].length <= 30, `${file} ${key}: ${strings(file)[key]}`)
   }
-  const catalog = JSON.parse(read("../ContextFlow/Shared (App)/Localizable.xcstrings")).strings["What to check, or what to remind you of (optional)"]
+  const catalog = JSON.parse(read("../ContextFlow/Shared (App)/Localizable.xcstrings")).strings["Your note (optional)"]
   const app = { ru: "ru.json", uk: "uk.json", de: "de.json", fr: "fr.json", es: "es.json", it: "it.json", "pt-BR": "pt_BR.json", ja: "ja.json", ko: "ko.json", "zh-Hans": "zh_CN.json", "zh-Hant": "zh_TW.json", vi: "vi.json", ar: "ar.json" } as Record<string, string>
   for (const [lang, file] of Object.entries(app)) assert.equal(catalog.localizations[lang].stringUnit.value, strings(file).uxNoteWords, lang)
 })

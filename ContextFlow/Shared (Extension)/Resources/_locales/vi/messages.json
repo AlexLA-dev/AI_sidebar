@@ -306,7 +306,7 @@
   "message": "Nhắc bạn lúc nào?"
  },
  "uxNoteWords": {
-  "message": "Cần kiểm tra gì hoặc nhắc bạn điều gì (không bắt buộc)"
+  "message": "Ghi chú (không bắt buộc)"
  },
  "uxRemindAsked": {
   "message": "Bạn nhờ tôi nhắc: {0}"
@@ -1608,7 +1608,7 @@
   "message": "Khi nào báo cho bạn"
  },
  "watchNoteWords": {
-  "message": "Cần kiểm tra gì khi có thay đổi (không bắt buộc)"
+  "message": "Ghi chú (không bắt buộc)"
  },
  "watchCondPrice": {
   "message": "khi giá thay đổi (hiện là {0})"

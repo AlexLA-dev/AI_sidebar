@@ -56,3 +56,18 @@ test("when unsure, no price: a heading that isn't the item's, other items' secti
   assert.equal(read(page("Tuition", "<p>The full course costs $149 for the year.</p>")), undefined)
   assert.equal(textPrice(page("Notes App", `<p>$11.99</p>${cart}`), "https://apps.apple.com/us/app/notes/id1", ["Notes App"], true), undefined)
 })
+
+test("numbers as prices write them: one kind of separator, Indian grouping; a size before a price in any language (the overfit review, S12)", () => {
+  const cart = "<button>Add to cart</button>"
+  // "$1,299 256 GB" is 1,299 and a capacity, not 1.299256; "₹1,23,456" is a lakh grouping, not 1.23.
+  assert.deepEqual(read(page("Phone P1", `<p>$1,299 256 GB</p>${cart}`)), { amount: 1299, currency: "USD" })
+  assert.deepEqual(read(page("Phone P1", `<p>₹1,23,456</p>${cart}`), "https://shop.example.in/item"), { amount: 123456, currency: "INR" })
+  assert.deepEqual(read(page("Phone P1", `<p>₹12,34,567.50</p>${cart}`), "https://shop.example.in/item"), { amount: 1234567.5, currency: "INR" })
+  assert.deepEqual(read(page("Чайник Ч", "<p>79 990 ₽</p><button>В корзину</button>", "ru"), "https://shop.example.ru/item"), { amount: 79990, currency: "RUB" })
+  assert.deepEqual(read(page("Nồi N", "<p>1.290.000₫</p><button>Thêm vào giỏ</button>", "vi"), "https://shop.example.vn/item"), { amount: 1290000, currency: "VND" })
+  // Sizes with their own prices, in the shop's language: which one is theirs isn't told.
+  assert.equal(read(page("Кофе К", "<p>250 г – 590 ₽ 500 г – 1 090 ₽</p><button>В корзину</button>", "ru"), "https://shop.example.ru/item"), undefined)
+  assert.equal(read(page("お米 R", "<p>5kg ¥3,980 10kg ¥7,480</p><button>カートに入れる</button>", "ja"), "https://shop.example.co.jp/item"), undefined)
+  assert.equal(read(page("우유 M", "<p>1리터 3,900원 2리터 6,900원</p><button>장바구니 담기</button>", "ko"), "https://shop.example.co.kr/item"), undefined)
+  assert.equal(read(page("Café C", `<p>250 g – 5,90 € 1 kg – 19,90 €</p>${cart}`, "fr"), "https://shop.example.fr/item"), undefined)
+})

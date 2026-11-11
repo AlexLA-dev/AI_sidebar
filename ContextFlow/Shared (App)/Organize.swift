@@ -1463,8 +1463,10 @@ nonisolated enum Organize {
     }
 
     /// The messages that get tag suggestions now: the chat's last `tagWindow` answers and notes; 2.6 (98) in a chat with
-    /// the user's tag on a message, its untagged ones too, up to twice that, the latest first (src/shared/organize.ts).
-    static func tagTargets(_ chat: OrganizeThread, _ cfg: OrganizeConfig) -> [Int] {
+    /// the user's tag on a message, its untagged ones too, up to twice that, the latest first; and up to `tagWindow` more
+    /// that a tag the user put on messages in any of `chats` fits from `tagT1`, the closest first («Не предлагает такую
+    /// метку в других чатах, а надо», src/shared/organize.ts).
+    static func tagTargets(_ chat: OrganizeThread, _ cfg: OrganizeConfig, _ chats: [OrganizeThread] = [], _ vectorOf: VectorOf = { _ in nil }) -> [Int] {
         let m = chat.entries
         var out: [Int] = []
         var i = m.count - 1
@@ -1479,7 +1481,44 @@ nonisolated enum Organize {
                 i -= 1
             }
         }
+        var more = 0
+        for j in nearTagged(chat, chats, vectorOf, cfg) where !out.contains(j) && Double(more) < cfg.tagWindow {
+            out.append(j)
+            more += 1
+        }
         return out.sorted()
+    }
+
+    /// The chat's answers and notes that one of the user's tags on messages (in `chats`, this one's included) fits from
+    /// `tagT1` (the mean of its 3 closest tagged messages), the closest first, the later of equals first; tags the message
+    /// or its chat has, it turned down, or refused too often don't count (src/shared/organize.ts `nearTagged`).
+    private static func nearTagged(_ chat: OrganizeThread, _ chats: [OrganizeThread], _ vectorOf: VectorOf, _ cfg: OrganizeConfig) -> [Int] {
+        guard !chat.isHistory else { return [] }
+        var keys: [String] = []
+        var examples: [String: [(v: [Float], w: Double)]] = [:]
+        for thread in chats where !thread.isDeleted && !thread.isHistory {
+            for x in thread.entries {
+                let tags = strings(x["tags"])
+                guard !tags.isEmpty, let xv = vectorOf(x) else { continue }
+                var seen = Set<String>()
+                for key in tags.map(lower) where seen.insert(key).inserted {
+                    if examples[key] == nil { keys.append(key) }
+                    examples[key, default: []].append((xv, 1))
+                }
+            }
+        }
+        guard !keys.isEmpty else { return [] }
+        let refused = refusedTags(chats, cfg)
+        let chatTags = strings(chat.object["tags"]).map(lower)
+        var found: [(i: Int, fit: Double)] = []
+        for (i, e) in chat.entries.enumerated() where isTaggable(e) {
+            guard let v = vectorOf(e) else { continue }
+            let skip = Set(chatTags + (strings(e["tags"]) + strings((e["dismissed"] as? [String: Any])?["tags"])).map(lower))
+            var fit = 0.0
+            for key in keys where !skip.contains(key) && !refused.contains(key) { fit = max(fit, topMean(v, examples[key] ?? [], 3)) }
+            if fit >= cfg.tagT1 { found.append((i, fit)) }
+        }
+        return found.sorted { $0.fit != $1.fit ? $0.fit > $1.fit : $0.i > $1.i }.map(\.i)
     }
 
     /// The judge's verdicts → the tags to show (confident yes only, at most `maxTags`, in the candidates' order).
@@ -1737,7 +1776,7 @@ nonisolated enum OrganizeWork {
         guard let chat = live.first(where: { $0.id == chatId }) else { return nil }
         let vectorOf = reader(known)
         let move = Organize.suggestMove(chat, live, vectorOf, cfg, Organize.MoveCache())
-        let tags = Organize.tagTargets(chat, cfg).compactMap { index -> Tagging? in
+        let tags = Organize.tagTargets(chat, cfg, live, vectorOf).compactMap { index -> Tagging? in
             let candidates = Organize.tagCandidates(chat, index, live, vectorOf, cfg)
             return candidates.isEmpty ? nil : Tagging(index: index, message: Organize.judgeText(chat.entries, index), candidates: candidates)
         }

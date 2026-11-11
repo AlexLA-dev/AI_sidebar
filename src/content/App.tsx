@@ -87,7 +87,7 @@ import { TipsSheet } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
-import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads } from "../shared/jobs"
+import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads, withStoredEdits } from "../shared/jobs"
 import { linkChats, remindsAhead, watchesOn } from "../shared/chatMarks"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
@@ -434,6 +434,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const loadedRef = useRef(false)
+  // The messages of the chat shown as last stored (2.6 (98)): while the shown ones are others, a change here isn't stored yet.
+  const savedRef = useRef<{ id: string; m: Entry[] } | null>(null)
   const openedAt = useRef(0)
   // The chat being loaded as the panel opens: a question typed by the selection waits for it.
   const loadingRef = useRef<Promise<void>>(Promise.resolve())
@@ -678,9 +680,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // An answer the background wrote into the shown chat while this panel didn't follow it (another tab asked, or
       // this one lost the thread of it): it shows (build 91).
       const shown = threads[threadRef.current]
-      if (shown && !portRef.current && !askToken.current && extendsChat(shown.m, nowRef.current.messages)) {
+      const here = nowRef.current.messages
+      if (shown && !portRef.current && !askToken.current && extendsChat(shown.m, here)) {
         setMessages(shown.m)
         setError(null)
+      } else if (shown && !portRef.current && !askToken.current && savedRef.current?.id === threadRef.current && savedRef.current.m === here) {
+        // 2.6 (98): a tag (a pin, a highlight…) put on its messages elsewhere shows here too, unless something changed
+        // here that isn't stored yet (it would be lost: it's stored in a moment, and the next change comes with it).
+        const next = withStoredEdits(here, shown.m)
+        if (next !== here) setMessages(next)
       }
       // The chat shown went to Recently Deleted in another tab or on another device: it goes from here too, as when
       // it's deleted here (not while an answer is coming in).
@@ -735,12 +743,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => clearTimeout(timer)
   }, [open, visible, messages])
 
-  // Persist the chat shown.
+  // Persist the chat shown; once stored, those messages are what changes made elsewhere apply to (2.6 (98)).
   useEffect(() => {
     if (!loadedRef.current) return
     const id = threadRef.current
     const kind = historyRef.current ? "history" : undefined
-    const timer = setTimeout(() => void saveThread(id, messages, kind), 300)
+    const shown = messages
+    const timer = setTimeout(() => void saveThread(id, shown, kind).then(() => { savedRef.current = { id, m: shown } }, () => undefined), 300)
     return () => clearTimeout(timer)
   }, [messages])
 

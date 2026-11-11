@@ -15,6 +15,15 @@ export const Bell = ({ size = 15 }: { size?: number }): VNode => (
 export const Marker = ({ size = 15 }: { size?: number }): VNode => (
   <svg {...base} width={size} height={size}><path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" /></svg>
 )
+/**
+ * The ✕ at the end of a sheet's title (build 98, the owner: no ✕ or Cancel on Remind me and Watch, «приходится угадывать
+ * как закрыть»): the same button as the lists of reminders and watches have (RemindersSheet).
+ */
+export const SheetClose = ({ onClose }: { onClose: () => void }): VNode => (
+  <button type="button" class="cf-icon cf-sheet-close" onClick={onClose} aria-label={t("close")} title={t("close")}>
+    <svg {...base} width={16} height={16}><path d="M18 6 6 18M6 6l12 12" /></svg>
+  </button>
+)
 export const More = ({ size = 15 }: { size?: number }): VNode => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" /></svg>
 )
@@ -120,8 +129,8 @@ export function RemindSheet({ current, note, page = false, title, quote, words, 
     <div ref={back} class={`cf-sheet-back ${page ? "page" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="cf-sheet" role="dialog" aria-label={title ?? t("uxRemindTitle")}>
         {title
-          ? <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {title}</div>
-          : <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {t("uxRemindTitle")}</div>}
+          ? <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {title}<SheetClose onClose={onClose} /></div>
+          : <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {t("uxRemindTitle")}<SheetClose onClose={onClose} /></div>}
         {quote && <blockquote class="cf-sheet-quote" dir="auto">{quote.replace(/\s+/g, " ").trim()}</blockquote>}
         {words !== undefined && <NoteWords value={own} onInput={setOwn} />}
         {remindPresets().filter((p) => !later || p.key !== "uxRemindHour").map((p) => (

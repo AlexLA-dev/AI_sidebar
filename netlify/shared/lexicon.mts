@@ -367,7 +367,7 @@ export const SHIPPING: Words = {
   fr: ["livraison", "frais de port", "expédition", "livraison et retours"],
   es: ["envío", "envíos", "envio", "envios", "entrega", "gastos de envío"],
   it: ["spedizione", "spedizioni", "consegna", "costi di spedizione"],
-  pt: ["frete", "envio", "entrega", "envios"],
+  pt: ["frete", "envio", "entrega", "envios", "entregas"],
   ja: ["送料", "配送", "配達", "配送について"],
   ko: ["배송", "배송비", "배송안내", "배송 정보", "택배"],
   zh: ["运费", "配送", "快递", "邮费", "配送说明"],
@@ -546,7 +546,7 @@ export const NEGATION: Words = {
   ru: ["не", "нет", "невозможна", "невозможно", "недоступна", "недоступно"],
   uk: ["не", "немає", "неможлива", "неможливо", "недоступна", "недоступно"],
   de: ["nicht", "kein", "keine", "keinen", "keinerlei", "nie"],
-  fr: ["pas", "aucun", "aucune", "jamais", "impossible", "indisponible"],
+  fr: ["pas", "non", "aucun", "aucune", "jamais", "impossible", "indisponible"],
   es: ["no", "ningún", "ninguna", "nunca", "imposible"],
   it: ["non", "nessun", "nessuna", "mai", "impossibile"],
   pt: ["não", "nenhum", "nenhuma", "nunca", "impossível"],
@@ -603,12 +603,12 @@ export const COST: Words = {
 
 /** Units a size or capacity is written with (a shop writes "128 GB", «128 ГБ», "128기가" its own way). */
 export const UNITS: Words = {
-  en: ["gb", "tb", "mb", "kb", "mm", "cm", "m", "l", "ml", "w", "kw", "mah", "kg", "g", "in", "inch", "hz", "mp"],
-  ru: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймов", "гц", "мп"],
-  uk: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймів", "гц", "мп"],
-  de: ["zoll"], fr: ["pouces", "po"], es: ["pulgadas"], it: ["pollici"], pt: ["polegadas"],
-  ja: ["ギガ", "テラ", "ミリ", "センチ", "リットル", "グラム", "インチ"], ko: ["기가", "테라", "리터", "그램", "인치", "밀리"],
-  zh: ["克", "升", "毫升", "英寸", "寸"], "zh-Hant": ["克", "升", "毫升", "英吋", "吋"], vi: ["inch"], ar: ["جيجا", "بوصة"]
+  en: ["gb", "tb", "mb", "kb", "mm", "cm", "m", "l", "ml", "w", "kw", "mah", "kg", "g", "in", "inch", "hz", "mp", "oz", "lb", "lbs", "cup", "cups", "qt", "pcs"],
+  ru: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймов", "гц", "мп", "шт", "литра", "литров"],
+  uk: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймів", "гц", "мп", "шт", "літра", "літрів"],
+  de: ["zoll", "liter", "stück", "stk", "tassen"], fr: ["pouces", "po", "litres", "tasses"], es: ["pulgadas", "litros", "tazas"], it: ["pollici", "litri", "tazze"], pt: ["polegadas", "litros", "xícaras"],
+  ja: ["ギガ", "テラ", "ミリ", "センチ", "リットル", "グラム", "インチ", "合", "人用"], ko: ["기가", "테라", "리터", "그램", "인치", "밀리", "인용", "인분"],
+  zh: ["克", "升", "毫升", "英寸", "寸", "人份", "杯"], "zh-Hant": ["克", "升", "毫升", "英吋", "吋", "人份", "杯"], vi: ["inch", "lít", "người"], ar: ["جيجا", "بوصة", "لتر", "مل", "كجم", "جرام"]
 }
 
 // ------------------------------------------------------------ a price in an item page's text (2.6)

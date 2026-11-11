@@ -87,7 +87,7 @@ function js(c: Case): unknown {
     }
     case "tags": {
       const vectorOf = vectorsOf(c.vectors)
-      return tagTargets(chat, cfg).map((i) => {
+      return tagTargets(chat, cfg, chats, vectorOf).map((i) => {
         const candidates = tagCandidates(chat, i, chats, vectorOf, cfg)
         return { i, judge: judgeText(chat.m, i), candidates, judged: judgedTags(candidates, (c.verdicts ?? []) as Verdict[], cfg) }
       })
@@ -624,6 +624,25 @@ suggestions.push(
   suggestions.push({ op: "tags", chat: fresh, chats: [fresh, japan, bread], cfg: { tagT1: 0.99 } })
   const three = thread("threetags", [...qa("garden", "https://g3.example/1", { tags: ["garden"] }), ...qa("garden", "https://g3.example/1", { tags: ["garden"] }), ...qa("garden", "https://g3.example/2", { tags: ["garden"] }), ...qa("garden", "https://g3.example/1")])
   suggestions.push({ op: "tags", chat: three, chats: [three, japan, bread] })
+}
+// 2.6 (98, «Не предлагает такую метку в других чатах, а надо»): a tag put on in one chat is offered on the messages
+// like it in another, older ones too (beyond its window), the closest first, at most the window more; not on a message
+// that turned it down, nor in a chat that has it; a tag on a message elsewhere (one example, then two).
+{
+  const tagged = thread("gtag", [...qa("garden", "https://gt.example/1", { tags: ["Garden"] }), ...qa("bread", "https://gt.example/2")])
+  const elsewhere = thread("gelse", [
+    ...Array.from({ length: 4 }, (_, i) => qa("garden", `https://ge.example/${i}`)).flat(),
+    ...qa("garden", "https://ge.example/near", { vector: vectorFor("garden").map((x, i) => (i % 9 ? x : x + 0.3)) }),
+    ...Array.from({ length: 6 }, (_, i) => qa(i % 2 ? "bread" : "japan", `https://ge.example/x${i}`)).flat()
+  ])
+  const chats = [elsewhere, tagged, japan, bread]
+  suggestions.push({ op: "tags", chat: elsewhere, chats, verdicts: [{ tag: "garden", fits: true, confidence: 0.9 }] })
+  const turned = thread("gelse", elsewhere.m.map((e, i) => (i === 3 ? { ...e, dismissed: { tags: ["garden"] } } : e)))
+  suggestions.push({ op: "tags", chat: turned, chats: [turned, tagged, japan, bread] })
+  suggestions.push({ op: "tags", chat: { ...elsewhere, tags: ["GARDEN"] }, chats })
+  suggestions.push({ op: "tags", chat: elsewhere, chats, cfg: { tagWindow: 2 } }, { op: "tags", chat: elsewhere, chats, cfg: { tagT1: 0.99 } })
+  const twice = thread("gtag2", [...qa("garden", "https://gt2.example/1", { tags: ["garden"] })])
+  suggestions.push({ op: "tags", chat: elsewhere, chats: [...chats, twice] })
 }
 // Refused: on three messages without one taken; one taken after them; on the message itself.
 const refuse = (tag: string) => (e: Entry) => (e.role === "assistant" ? { ...e, dismissed: { tags: [tag] } } : e)

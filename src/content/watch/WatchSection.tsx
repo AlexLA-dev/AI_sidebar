@@ -10,7 +10,7 @@ import { t } from "../../shared/i18n"
 import { WATCH_LIMIT, type WatchDraft, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
-import { NoteWords } from "../ux/MessageUx"
+import { NoteWords, SheetClose } from "../ux/MessageUx"
 import { draftFor } from "./draft"
 import { Eye } from "./icons"
 import { detectPlatform, isTouch, openAppFromTap } from "../page"
@@ -80,7 +80,7 @@ export function WatchSection(p: WatchSectionProps) {
   return (
     <section class="cf-watch" aria-label={t("watchSection")}>
       {/* The eye beside the title, as the bell beside Remind: the same class and size. */}
-      <div class="cf-sheet-title cf-watch-h"><Eye size={16} /> {t("watchSection")}</div>
+      <div class="cf-sheet-title cf-watch-h"><Eye size={16} /> {t("watchSection")}<SheetClose onClose={p.close} /></div>
       {(state.at === "edit" || state.at === "checking" || state.at === "failed" || state.at === "full" || state.at === "consent") && (
         <>
           <label class="cf-watch-l" for="cf-watch-cond">{t("watchWhen")}</label>

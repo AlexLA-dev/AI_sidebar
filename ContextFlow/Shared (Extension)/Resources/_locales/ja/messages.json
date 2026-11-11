@@ -306,7 +306,7 @@
   "message": "いつリマインドしますか？"
  },
  "uxNoteWords": {
-  "message": "確認したいこと、リマインドしたいこと（任意）"
+  "message": "メモ（任意）"
  },
  "uxRemindAsked": {
   "message": "リマインドのご依頼：{0}"
@@ -1608,7 +1608,7 @@
   "message": "知らせるタイミング"
  },
  "watchNoteWords": {
-  "message": "変わったときに確認したいこと（任意）"
+  "message": "メモ（任意）"
  },
  "watchCondPrice": {
   "message": "価格が変わったら（現在 {0}）"

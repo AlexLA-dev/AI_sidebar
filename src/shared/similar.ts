@@ -82,7 +82,9 @@ function amountOf(i: SimilarItem): { n: number; currency: string } | null {
 /**
  * The answer's final list, as the chat shows it and every count says it (2.6): the closest first (the same item at
  * another shop leads); among items about as close (SIMILARITY_BAND), the one that meets their condition, then the
- * cheaper one; then as closeAndLess keeps them. The notification counts this list, so it says what the chat shows.
+ * cheaper one. One that misses their condition never goes above one that meets it (the overfit review, S3): a "yes"
+ * moves up to just above the first "no" ahead of it, the rest keeping their order. Then as closeAndLess keeps them.
+ * The notification counts this list, so it says what the chat shows.
  */
 export function finalList(items: SimilarItem[]): SimilarItem[] {
   const close = (i: SimilarItem) => (i.same ? 101 : i.similarity ?? 100)
@@ -100,7 +102,13 @@ export function finalList(items: SimilarItem[]): SimilarItem[] {
     ordered.push(...ranked.slice(k, j).sort((a, b) => Number(Boolean(b.item.same)) - Number(Boolean(a.item.same)) || met(a.item) - met(b.item) || cheaper(a.item, b.item) || a.at - b.at).map((x) => x.item))
     k = j
   }
-  const { close: near, less } = closeAndLess(ordered)
+  const settled: SimilarItem[] = []
+  for (const i of ordered) {
+    const miss = i.met === "yes" && !i.same ? settled.findIndex((x) => x.met === "no" && !x.same) : -1
+    if (miss >= 0) settled.splice(miss, 0, i)
+    else settled.push(i)
+  }
+  const { close: near, less } = closeAndLess(settled)
   return [...near, ...less]
 }
 
