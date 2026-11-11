@@ -6,7 +6,7 @@
 // Nothing is stored: the page is read once and forgotten.
 
 import { MONEY_SIGN, currencyOf, currencyOfSign } from "./money.mts"
-import { AGO, GONE as GONE_WORDS, HELPFUL, MARK_WORDS, NAME_EXTRAS, NAME_STOP, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, STARS, VERIFIED, foldedWords, pattern } from "./lexicon.mts"
+import { AGO, GONE as GONE_WORDS, HELPFUL, MARK_WORDS, NAME_EXTRAS, NAME_STOP, RATING_OF_5, REVIEW_COUNT, REVIEWS_HEAD as REVIEWS_HEAD_WORDS, SHOP_WORDS, STARS, VERIFIED, foldedPhrases, foldedWords, pattern } from "./lexicon.mts"
 import { SIMPLIFIED, TRADITIONAL } from "../../src/shared/share.ts"
 import { isOutOfStock } from "../../src/shared/watch/detect.ts"
 import { hasDate } from "../../src/shared/watch/detect.ts"
@@ -705,7 +705,9 @@ export function scriptOf(text: string): string {
 // Letters only one of the languages that share a script has.
 const UK_LETTERS = /[іїєґ]/giu
 const RU_LETTERS = /[ыэъё]/giu
-const VI_LETTERS = /[ăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/giu
+// Vietnamese by the letters only it writes: ơ, ư and the vowels with a tone mark below or a hook (ạ ả ấ … ỹ); not ă
+// (Romanian's commonest) nor đ (Croatian, Serbian).
+const VI_LETTERS = /[ơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/giu
 const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/gu
 const HANGUL = /\p{Script=Hangul}/gu
 const HAN = /\p{Script=Han}/gu
@@ -751,8 +753,14 @@ export function textLanguage(text: string, short = false): { lang: string; scrip
     return { lang: "", script }
   }
   if (script === "cjk") {
-    if (count(sample, HANGUL) >= need) return { lang: "ko", script }
-    if (count(sample, KANA) >= need) return { lang: "ja", script }
+    // By share of the dense characters, not a count: a Taiwanese shop's text with one Japanese product name, or a
+    // Japanese one with a Korean brand, stays in its own language. Korean is mostly Hangul; Japanese prose and titles
+    // carry kana among their kanji.
+    const hangul = count(sample, HANGUL)
+    const kana = count(sample, KANA)
+    const dense = hangul + kana + count(sample, HAN)
+    if (hangul >= need && hangul / dense >= 0.3) return { lang: "ko", script }
+    if (kana >= need && kana / dense >= 0.15) return { lang: "ja", script }
     // Han alone: Chinese only in running text (Japanese sentences always carry kana); a title of a few Han
     // characters may be either.
     if (!short && count(sample, HAN) >= 20) {
@@ -810,10 +818,14 @@ export function languageCheck(want: string, page: Pick<CheckedPage, "lang" | "in
 
 // Words that don't tell names apart: function words in the app's languages, and a shop title's usual extras.
 const STOP = new Set(foldedWords(NAME_STOP, NAME_EXTRAS))
+// A title's extras and a shop's words of several words, taken out of a name whole before it's split into words.
+const PHRASES = foldedPhrases(NAME_STOP, NAME_EXTRAS, SHOP_WORDS).sort((a, b) => b.length - a.length)
+const PHRASE_RE = PHRASES.length ? new RegExp(`(?<![\\p{L}\\p{N}])(?:${PHRASES.map((p) => p.split(" ").map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[^\\p{L}\\p{N}]+")).join("|")})(?![\\p{L}\\p{N}])`, "gu") : null
 
 /** Words of a name for matching: lower case, accents folded, letters and digits only. */
 export function nameTokens(s: string): string[] {
-  return s.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase()
+  const folded = s.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase()
+  return (PHRASE_RE ? folded.replace(PHRASE_RE, " ") : folded)
     .split(/[^\p{L}\p{N}]+/u)
     .filter((w) => w && !STOP.has(w) && (w.length >= 2 || /\d/.test(w)))
 }

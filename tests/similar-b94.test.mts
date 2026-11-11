@@ -278,7 +278,7 @@ test("a Shopify shop: the brand's other models from its catalog when the page li
   }
 })
 
-test("one marketplace listing at most across all searches: their pages can't be checked", () => {
+test("one listing per marketplace across all searches: their pages can't be checked", () => {
   const claims = new Claims({ title: "", url: "https://liftdesk.example/collections/standing-desks", text: "" })
   const c = (url: string, name: string) => ({ url, name, kind: "item" as const, resultTitle: name, pageAge: null })
   const taken = claims.take([
@@ -288,7 +288,8 @@ test("one marketplace listing at most across all searches: their pages can't be 
     c("https://deskwise.example/p", "Deskwise Pro"),
     c("https://deskora.example/products/deskorapro", "Deskora Pro")
   ])
-  assert.deepEqual(taken.map((t) => new URL(t.url).hostname), ["www.amazon.com", "deskwise.example", "deskora.example"])
+  // One listing per marketplace (the second Amazon one goes), a brand's own shops as many as they come.
+  assert.deepEqual(taken.map((t) => new URL(t.url).hostname), ["www.amazon.com", "www.ebay.com", "deskwise.example", "deskora.example"])
 })
 
 test("a rated item without reviewers' words on its page still gets a review page looked for (412 ratings, no words)", async () => {

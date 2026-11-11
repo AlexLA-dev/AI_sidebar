@@ -23,7 +23,7 @@ import { checkPage, languageCheck, nameScore, nameTokens, normalizeUrl, type Che
 import { plansPricing, pricingLine, type AppPricing, type PlanSeen } from "./apppricing.mts"
 import { nextPages, quoteFacts, quoteOn } from "./dig.mts"
 import { MONEY_SIGN, convert, currencyOf, eurRates, roughAmount, type Rates } from "./money.mts"
-import { COLOURS, CONTRAST, COST, COUNTRY_ALIASES, EUROPE, EXCEPT, HOW_MANY, NEGATION, NOT_A_COUNTRY, ONLY, REVIEW_PAGE, SEARCH_WORDS, SHIP_VERBS, SHIPPING, SHOP_WORDS, WORLDWIDE, appLang, foldedWords, pattern } from "./lexicon.mts"
+import { COLOURS, CONTRAST, COST, COUNTRY_ALIASES, EUROPE, EXCEPT, HOW_MANY, NEGATION, NOT_A_COUNTRY, ONLY, REVIEW_PAGE, SEARCH_WORDS, SHIP_VERBS, SHIPPING, SHOP_WORDS, UNITS, WORLDWIDE, appLang, foldedWords, pattern } from "./lexicon.mts"
 import type { Met, SimilarItem } from "../../src/shared/similar.ts"
 
 export const MAX_PAGE_TEXT = 5_000
@@ -862,7 +862,15 @@ export function interleave<T>(lists: T[][]): T[] {
 // Marketplaces: their listings are many sellers' copies, often closed to servers and without a price our code can
 // read, so at most one of them across all searches (a brand's or a shop's own page is checked first). The large ones of
 // every region, not only one country's.
-const MARKETPLACE = /(^|\.)(amazon|ebay|aliexpress|temu|walmart|etsy|rakuten|mercadolibre|mercadolivre|allegro|flipkart|coupang|taobao|tmall|jd|shopee|lazada|tokopedia|ozon|wildberries|avito|noon|trendyol|hepsiburada|bol|cdiscount|kaufland|olx|craigslist|wish|shein)\.[a-z.]+$/i
+// Marketplaces, where listings are other sellers' (their pages can't be held to a brand's): the global ones and each
+// shipped language's market's own (Yandex Market, Ozon, Wildberries, Rozetka, Prom, Kaspi, Coupang, Gmarket, 11st,
+// Mercari, Yahoo Shopping, Rakuten, Tiki, Sendo, Shopee, Pinduoduo, Noon…).
+const MARKETPLACE = /(?:^|\.)(amazon|ebay|aliexpress|temu|walmart|etsy|rakuten|mercadolibre|mercadolivre|allegro|flipkart|coupang|gmarket|11st|auction|ssg|lotteon|taobao|tmall|jd|pinduoduo|yangkeduo|shopee|lazada|tokopedia|bukalapak|blibli|tiki|sendo|ozon|wildberries|avito|market\.yandex|rozetka|prom|kaspi|mercari|shopping\.yahoo|paypaymall|qoo10|noon|jumia|takealot|trendyol|hepsiburada|bol|cdiscount|kaufland|olx|craigslist|wish|shein)\.[a-z.]+$/i
+
+/** Which marketplace a host is ("amazon" for amazon.de and amazon.co.jp alike); "" for a shop of its own. */
+export function marketplaceOf(host: string): string {
+  return MARKETPLACE.exec(host)?.[1]?.toLowerCase() ?? ""
+}
 
 /** Which candidates still get opened: each address and each item once across all searches, at most 3 a site, 1 a marketplace. */
 export class Claims {
@@ -879,11 +887,13 @@ export class Claims {
       const key = normalizeUrl(c.url)
       const name = nameTokens(c.name).join(" ")
       if (this.urls.has(key) || (c.kind === "item" && name && this.names.has(name))) return false
-      const market = MARKETPLACE.test(host)
-      if ((this.hosts.get(market ? "marketplace" : host) ?? 0) >= (market ? 1 : 3)) return false
+      // One listing per marketplace (one Amazon, one Ozon…), at most three pages of a shop's own site.
+      const market = marketplaceOf(host)
+      const slot = market ? `marketplace:${market}` : host
+      if ((this.hosts.get(slot) ?? 0) >= (market ? 1 : 3)) return false
       this.urls.add(key)
       if (c.kind === "item" && name) this.names.add(name)
-      this.hosts.set(market ? "marketplace" : host, (this.hosts.get(market ? "marketplace" : host) ?? 0) + 1)
+      this.hosts.set(slot, (this.hosts.get(slot) ?? 0) + 1)
       return true
     })
   }
@@ -1500,7 +1510,7 @@ export async function deliveryStep(checked: CheckedCandidate[], country: string,
   const money = plan.money?.currency ?? ""
   const abroad = (c: CheckedCandidate) => {
     const url = c.page.finalUrl || c.url
-    if (MARKETPLACE.test(hostOf(url))) return false
+    if (marketplaceOf(hostOf(url))) return false
     const shop = shopCountry(url)
     if (shop) return shop !== country
     const cur = c.page.price?.currency
@@ -1679,12 +1689,16 @@ export function distinctive(name: string, plan: Plan, others: string[] = []): st
  * "Pixel 9") all there, else the first two words that name the item itself rather than its kind ("LIEGO Sessel mit
  * Hocker": liego and sessel — another armchair with a footstool isn't it).
  */
+// Units in every shipped language, as names are compared (folded), alone and after a number.
+const UNIT_WORDS = new Set(foldedWords(UNITS))
+const SIZE_RE = new RegExp(`^\\d+(?:[.,]\\d+)?(?:${[...UNIT_WORDS].sort((a, b) => b.length - a.length).map((u) => u.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})$`, "u")
+
 export function sameAsSubject(name: string, plan: Plan): boolean {
   const subject = nameTokens(plan.subject)
   const words = new Set(nameTokens(name))
-  // Every word with a digit that names the model ("4210", "daq10", the "9" of "Pixel 9"), not a size or a capacity
-  // a shop may write its own way ("128gb", "1l").
-  const models = subject.filter((w) => /\d/.test(w) && !/^\d+(?:[.,]\d+)?(?:gb|tb|mb|mm|cm|m|l|ml|w|kw|mah|kg|g|in|inch|hz)$/.test(w))
+  // Every word with a digit that names the model ("4210", "daq10", the "9" of "Pixel 9"), not a size or a capacity a
+  // shop may write its own way: "128gb", «128гб», "128기가", or a number before a unit word ("128 ГБ").
+  const models = subject.filter((w, i) => /\d/.test(w) && !SIZE_RE.test(w) && !(/^\d+(?:[.,]\d+)?$/.test(w) && UNIT_WORDS.has(subject[i + 1] ?? "")))
   if (models.length) return models.every((w) => words.has(w))
   const kind = new Set(plan.traits.flatMap((t) => nameTokens(t)))
   const marks = subject.filter((w) => w.length >= 3 && !GENERIC.has(w) && !kind.has(w)).slice(0, 2)
@@ -1824,7 +1838,7 @@ export async function siblingsStep(checked: CheckedCandidate[], plan: Plan, fact
   // Nor is the site of the page they're on: its other models are what they see there already, and they would take the
   // places of the alternatives' own brands.
   const self = hostOf(sourceUrl)
-  const due = checked.map((c, i) => ({ c, i })).filter(({ c }) => c.kept && c.kind === "item" && c.page.status === "ok" && !MARKETPLACE.test(hostOf(c.page.finalUrl || c.url)) && !(self && hostOf(c.page.finalUrl || c.url) === self)).slice(0, SIBLING_ITEMS)
+  const due = checked.map((c, i) => ({ c, i })).filter(({ c }) => c.kept && c.kind === "item" && c.page.status === "ok" && !marketplaceOf(hostOf(c.page.finalUrl || c.url)) && !(self && hostOf(c.page.finalUrl || c.url) === self)).slice(0, SIBLING_ITEMS)
   const known = new Set(checked.map((c) => normalizeUrl(c.page.finalUrl || c.url)))
   const jobs: Array<{ i: number; url: string }> = []
   const taken = new Set<string>()
@@ -1973,7 +1987,7 @@ export class ItemFinisher {
   private selfName: string
   private selfHost: string
   private sameShops = 0
-  private marketItems = 0
+  private marketItems = new Map<string, number>()
   private pages: CheckedCandidate[]
   private plan: Plan
   private sourcePrice: number
@@ -2062,10 +2076,11 @@ export class ItemFinisher {
     // One model in colours, sizes or at two shops is one item, whatever the writer made of it.
     const model = modelKey(name)
     if (!same && model && this.models.some((m) => sameModel(m, model))) return drop("duplicate")
-    // One marketplace listing at most in the answer, however the item came (a review page's link to its listing too:
-    // the searches' own cap, Claims, sees only their results).
-    const market = MARKETPLACE.test(hostOf(url))
-    if (market && this.marketItems >= 1) return drop("one marketplace listing at most")
+    // One listing per marketplace in the answer, however the item came (a review page's link to its listing too: the
+    // searches' own cap, Claims, sees only their results). The same everywhere: a country that buys mostly on
+    // marketplaces keeps one of each of its own, as a US answer keeps one Amazon and one Walmart.
+    const market = marketplaceOf(hostOf(url))
+    if (market && (this.marketItems.get(market) ?? 0) >= 1) return drop("one listing per marketplace")
     // Their own words must hold; a chip they tapped is weighed softly (the item may come at the end, see softTail).
     // A condition its page proved (a price read, a quote on the page) wins over the writer's word (the writer can
     // weigh the wrong condition).
@@ -2078,7 +2093,7 @@ export class ItemFinisher {
     // Softly, not far off: a miss at most a fifth over the price to beat (several times the price answers no
     // "cheaper").
     if (fails && kind === "cheaper" && this.overBy(page.price) > 1.2) return drop("far from the chip")
-    if (market) this.marketItems++
+    if (market) this.marketItems.set(market, (this.marketItems.get(market) ?? 0) + 1)
     this.seenUrl.add(key)
     if (nameKey) this.seenName.add(nameKey)
     // The condition as the page showed it wins over the model's word; their words not shown on the page leave it open.
@@ -2092,7 +2107,7 @@ export class ItemFinisher {
     if (traits && Array.isArray(o.shares) && !shares.length && !same) {
       this.seenUrl.delete(key)
       if (nameKey) this.seenName.delete(nameKey)
-      if (market) this.marketItems--
+      if (market) this.marketItems.set(market, (this.marketItems.get(market) ?? 1) - 1)
       return drop("shares none of the traits")
     }
     if (model && !same) this.models.push(model)

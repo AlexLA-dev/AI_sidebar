@@ -173,20 +173,21 @@ const STOCK = phrases(STOCK_WORDS)
 const STATUS = phrases(STATUS_WORDS)
 
 // Month names in every shipped language, January first (en, ru, uk, de, fr, es, it, pt and ar, with their
-// abbreviations; the Arabic ones also as the Levant and Iraq name them). Vietnamese writes the month's number ("tháng 3").
+// abbreviations and the spellings without accents; the Arabic ones also as the Levant, Iraq and the Maghreb name them,
+// with and without hamza). Vietnamese writes the month's number ("tháng 3").
 const MONTH_NAMES: string[][] = [
-  ["jan(?:uary)?", "январ[яь]", "янв", "січ(?:ня|ень)", "januar", "jän(?:ner)?", "janvier", "janv", "enero", "ene", "gennaio", "gen", "janeiro", "يناير", "كانون الثاني"],
-  ["feb(?:ruary)?", "феврал[яь]", "фев", "лют(?:ого|ий)", "februar", "février", "févr", "febrero", "febbraio", "fevereiro", "fev", "فبراير", "شباط"],
-  ["mar(?:ch)?", "марта?", "берез(?:ня|ень)", "märz", "mars", "marzo", "março", "مارس", "آذار"],
-  ["apr(?:il)?", "апрел[яь]", "апр", "квіт(?:ня|ень)", "avril", "avr", "abril", "abr", "aprile", "أبريل", "إبريل", "نيسان"],
-  ["may", "мая", "май", "трав(?:ня|ень)", "mai", "mayo", "maggio", "mag", "maio", "مايو", "أيار"],
-  ["june?", "июн[яь]", "черв(?:ня|ень)", "juni", "juin", "junio", "giugno", "giu", "junho", "يونيو", "حزيران"],
-  ["july?", "июл[яь]", "лип(?:ня|ень)", "juli", "juillet", "juil", "julio", "luglio", "lug", "julho", "يوليو", "تموز"],
-  ["aug(?:ust)?", "августа?", "авг", "серп(?:ня|ень)", "août", "agosto", "ago", "أغسطس", "آب"],
-  ["sep(?:t(?:ember)?)?", "сентябр[яь]", "сент?", "верес(?:ня|ень)", "septembre", "septiembre", "setiembre", "settembre", "setembro", "set", "سبتمبر", "أيلول"],
-  ["oct(?:ober)?", "октябр[яь]", "окт", "жовт(?:ня|ень)", "oktober", "okt", "octobre", "octubre", "ottobre", "ott", "outubro", "out", "أكتوبر", "تشرين الأول"],
-  ["nov(?:ember)?", "ноябр[яь]", "ноя", "листопада?", "novembre", "noviembre", "novembro", "نوفمبر", "تشرين الثاني"],
-  ["dec(?:ember)?", "декабр[яь]", "дек", "груд(?:ня|ень)", "dezember", "dez", "décembre", "déc", "diciembre", "dic", "dicembre", "dezembro", "ديسمبر", "كانون الأول"]
+  ["jan(?:uary)?", "январ[яь]", "янв", "січ(?:ня|ень)", "січ", "januar", "jän(?:ner)?", "janvier", "janv", "enero", "ene", "gennaio", "gen", "janeiro", "يناير", "كانون الثاني", "جانفي"],
+  ["feb(?:ruary)?", "феврал[яь]", "фев", "лют(?:ого|ий)", "лют", "februar", "février", "fevrier", "févr", "fevr", "fév", "fev", "febrero", "febbraio", "fevereiro", "فبراير", "شباط", "فيفري", "فبراير"],
+  ["mar(?:ch)?", "марта?", "мар", "берез(?:ня|ень)", "бер", "märz", "mär", "mrz", "mars", "marzo", "março", "marco", "مارس", "آذار", "اذار"],
+  ["apr(?:il)?", "апрел[яь]", "апр", "квіт(?:ня|ень)", "квіт", "avril", "avr", "abril", "abr", "aprile", "أبريل", "إبريل", "ابريل", "نيسان", "أفريل", "افريل"],
+  ["may", "мая", "май", "трав(?:ня|ень)", "трав", "mai", "mayo", "maggio", "mag", "maio", "مايو", "أيار", "ايار", "ماي"],
+  ["june?", "июн[яь]", "июн", "черв(?:ня|ень)", "черв", "juni", "juin", "junio", "giugno", "giu", "junho", "يونيو", "حزيران", "جوان", "يونيه"],
+  ["july?", "июл[яь]", "июл", "лип(?:ня|ень)", "лип", "juli", "juillet", "juil", "julio", "luglio", "lug", "julho", "يوليو", "تموز", "جويلية", "يوليوز", "يوليه"],
+  ["aug(?:ust)?", "августа?", "авг", "серп(?:ня|ень)", "серп", "août", "aout", "agosto", "ago", "أغسطس", "اغسطس", "آب", "اب", "أوت", "اوت", "غشت"],
+  ["sep(?:t(?:ember)?)?", "сентябр[яь]", "сент?", "верес(?:ня|ень)", "вер", "septembre", "septiembre", "setiembre", "settembre", "setembro", "set", "سبتمبر", "أيلول", "ايلول", "شتنبر"],
+  ["oct(?:ober)?", "октябр[яь]", "окт", "жовт(?:ня|ень)", "жовт", "oktober", "okt", "octobre", "octubre", "ottobre", "ott", "outubro", "out", "أكتوبر", "اكتوبر", "تشرين الأول", "تشرين الاول"],
+  ["nov(?:ember)?", "ноябр[яь]", "ноя", "листопада?", "лист", "novembre", "noviembre", "novembro", "نوفمبر", "تشرين الثاني", "نونبر"],
+  ["dec(?:ember)?", "декабр[яь]", "дек", "груд(?:ня|ень)", "груд", "dezember", "dez", "décembre", "decembre", "déc", "dec", "diciembre", "dic", "dicembre", "dezembro", "ديسمبر", "كانون الأول", "كانون الاول", "دجنبر"]
 ]
 const MONTHS = [...MONTH_NAMES.flat(), "tháng\\s?\\d{1,2}"]
 /** A month's name in any shipped language, as a pattern's source (no flags; match with "iu"). */
