@@ -1532,6 +1532,15 @@
  "orgMergedHere": {
   "message": "«{0}» traído aquí"
  },
+ "orgBarOne": {
+  "message": "Sugerencias · {0}"
+ },
+ "orgBarOf": {
+  "message": "Sugerencias · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Sugerencias en este chat"
+ },
  "recs_one": {
   "message": "{0} recomendación"
  },

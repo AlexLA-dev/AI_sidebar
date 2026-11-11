@@ -782,6 +782,8 @@ struct PinnedBar: View {
     var open: (Int) -> Void
     var unpin: (Int) -> Void
     var unpinAll: () -> Void
+    /// 2.6 (97): one line, with the bar of suggestions under it.
+    var compact = false
     @State private var listing = false
 
     var body: some View {
@@ -795,13 +797,20 @@ struct PinnedBar: View {
             } label: {
                 HStack(alignment: .center, spacing: 9) {
                     segments(count, shown)
-                    VStack(alignment: .leading, spacing: 1) {
-                        (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple)
-                        Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                    if compact {
+                        HStack(alignment: .firstTextBaseline, spacing: 7) {
+                            (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple).fixedSize()
+                            Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 1) {
+                            (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple)
+                            Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
+                        }
                     }
                     Spacer(minLength: 0)
                 }
-                .padding(.vertical, 7).padding(.leading, 12)
+                .padding(.vertical, compact ? 6 : 7).padding(.leading, 12)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -809,7 +818,7 @@ struct PinnedBar: View {
             .accessibilityValue(Text(ReminderTimes.text(current.entry.content)))
             if count > 1 {
                 Button { listing = true } label: {
-                    Image(systemName: "list.bullet").frame(width: 44, height: 40)
+                    Image(systemName: "list.bullet").frame(width: 44, height: compact ? 30 : 40)
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(.secondary)
@@ -829,7 +838,7 @@ struct PinnedBar: View {
                 Capsule().fill(Color.purple.opacity(pos == shown ? 1 : 0.3)).frame(width: 2.5)
             }
         }
-        .frame(height: 34)
+        .frame(height: compact ? 18 : 34)
     }
 
     private func list(_ shown: Int) -> some View {
