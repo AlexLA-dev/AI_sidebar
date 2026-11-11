@@ -31,10 +31,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     // (the bell by a selection) opens its page in Safari; its note stays in the chat.
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let info = response.notification.request.content.userInfo
-        // Find similar is done (build 94): its chat opens in the panel, on its page in Safari (SimilarAway).
+        // Find similar is done: its chat opens in the panel, on its page in Safari (SimilarAway), not another default
+        // browser, which has no panel.
         if info["similar"] is String {
             await MainActor.run {
-                if let page = SimilarAway.opened(info) { _ = NSWorkspace.shared.open(page) }
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "similar", "s": "notif"])
+                guard let page = SimilarAway.opened(info) else { return }
+                if let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") {
+                    NSWorkspace.shared.open([page], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration())
+                } else {
+                    _ = NSWorkspace.shared.open(page)
+                }
             }
             return
         }

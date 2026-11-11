@@ -97,8 +97,9 @@ export const FEATURES: Record<string, Feature> = {
     fields: { what: ["summary", "translate", "selection", "note", "video", "pdf", "chats", "search", "tags", "ai_search", "ask_chats", "quick_insert", "templates", "copied", "organize"] }
   },
   setup: { since: "2.4", on: "app", actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap"] },
-  // Build 94: "similar" — Find similar's "found" notification (the search ended after the person left Safari).
-  notif: { since: "2.4", on: "app", actions: ["tap"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"] } },
+  // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page
+  // its tap opened showed the panel on that chat (the chat named in the page's address, the panel's step).
+  notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"] } },
   app: {
     since: "2.4", tracked: "2.4", on: "app", actions: ["open"], via: ["icon", "deeplink", "notif"],
     fields: { what: ["subscribe", "manage", "tips", "chats", "chat", "templates", "open"] }

@@ -154,12 +154,12 @@ const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
 
 /** The chips in the selection buttons' field on iPhone and iPad (2.6, the owner): the panel's selection actions in his
  * order, without Google (the buttons have their own). */
-/** Ultra's actions (2.6, build 90, the owner: "colour Similar so it's clear it's an Ultra feature"): in Ultra's colour
+/** Ultra's actions (2.6), so it's clear they're Ultra's: in Ultra's colour
  * (--ultra) everywhere they show, with a small "Ultra" for anyone without it. */
 const ULTRA_ACTIONS = new Set(["similar", "sel_similar"])
 
-/** The first `n` quick actions, and Find similar after them wherever it falls in the list (2.6 (92), the owner: the
- * rows under "Now on…" and under an answer showed the first few only, never Find similar). */
+/** The first `n` quick actions, and Find similar after them wherever it falls in the list (2.6: the
+ * rows under "Now on…" and under an answer show the first few only, which would leave Find similar out). */
 function withUltra(list: Action[], n: number): Action[] {
   const ultra = list.find((a) => ULTRA_ACTIONS.has(a.id))
   const rest = list.filter((a) => !ULTRA_ACTIONS.has(a.id)).slice(0, n)
@@ -1280,7 +1280,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   const runAction = useCallback((picked: Action) => {
     if (picked.id === "similar") return openSimilarRef.current("chip")
-    // 2.6 (build 89, the owner): Find similar from a selection: alternatives to what it describes, the page as context.
+    // 2.6: Find similar from a selection: alternatives to what it describes, the page as context.
     if (picked.id === "sel_similar") return openSimilarRef.current("selection", selection?.text)
     // Translate by a selection: into English (or the next language) when the text is in the interface's already.
     const action = (selection && forSelection(picked, selection.text)) || picked
@@ -2034,9 +2034,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (document.visibilityState === "visible") onVisibility()
     return () => document.removeEventListener("visibilitychange", onVisibility)
   }, [popup, similarAtWork, show])
-  // Build 95, the owner: «Никогда не открывает расширение на странице — нужно этого добиться». A "found" notification's
-  // tap opens the page with the chat in its address (#cf-similar=<chat>, SimilarAway.swift): this tab, the one Safari
-  // shows, opens the panel on it, however long after the search; the mark leaves the address at once.
+  // A "found" notification's tap opens the page with the chat in its address (#cf-similar=<chat>, SimilarAway.swift):
+  // this tab, the one Safari shows, opens the panel on it, however long after the search; the mark leaves the address
+  // at once.
   const openThreadRef = useRef(openThread)
   openThreadRef.current = openThread
   useEffect(() => {
@@ -2044,6 +2044,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const take = () => {
       const chat = takeSimilarMark()
       if (!chat) return
+      void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "similar" })
       void setActiveThread(chat).then(() => (openNowRef.current ? openThreadRef.current(chat) : show()), () => show())
     }
     take()
@@ -2334,7 +2335,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
   const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
     setPlansOpen(focus)
-    // The prices' currency and App Store country as the app's side gave them (build 93: the owner saw USD).
+    // The prices' currency and App Store country as the app's side gave them (a wrong currency can be traced from them).
     const prices = statusRef.current?.store?.prices ?? {}
     void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus, cur: prices["#currency"], sf: prices["#storefront"] })
   }, [])
