@@ -117,3 +117,65 @@ test("the money people pay in, for the countries of every language the app speak
   const want: Record<string, string> = { RU: "RUB", UA: "UAH", VN: "VND", TW: "TWD", KR: "KRW", JP: "JPY", CN: "CNY", BR: "BRL", PT: "EUR", MX: "MXN", EG: "EGP", SA: "SAR", FR: "EUR", IT: "EUR", GB: "GBP" }
   for (const [cc, cur] of Object.entries(want)) assert.equal(currencyOf(cc), cur, cc)
 })
+
+// ---- rules the build-94/95 tests cover, in other categories, countries and currencies ---------------------------
+
+const offerLd = (amount: string, currency: string) => offer(amount, currency)
+
+test("their very item by its model words, a phone in English and a kettle in Japanese", async () => {
+  const { sameAsSubject } = await import("../netlify/shared/similar.mts")
+  const phone = plan({ subject: "Google Pixel 9 Pro", traits: ["Android smartphone", "6.3-inch display"] })
+  assert.ok(sameAsSubject("Google Pixel 9 Pro 128GB, Obsidian", phone))
+  assert.ok(!sameAsSubject("Google Pixel 9a 128GB", phone))
+  const kettle = plan({ subject: "象印 電気ケトル CK-DAQ10", traits: ["電気ケトル", "1.0L"], language: "ja" })
+  assert.ok(sameAsSubject("象印 CK-DAQ10 電気ケトル 1.0L ブラック", kettle))
+  assert.ok(!sameAsSubject("タイガー 電気ケトル PCJ-A101", kettle))
+})
+
+test("their very item cheaper at another shop, in dollars: first and 100 %; the dearer shop and their own page left out", () => {
+  const p = plan({ subject: "Sony WH-1000XM5", traits: ["over-ear headphones", "noise cancelling", "30-hour battery"], condition: { kind: "cheaper", maxPrice: 0, currency: "USD", language: "", place: "", soft: true }, sourcePrice: 399.99, sourceCurrency: "USD", money: { currency: "USD", rates: { EUR: 1, USD: 1.16 } } })
+  const source = { title: "Sony WH-1000XM5 | Sony US", url: "https://electronics.example.com/wh1000xm5", text: "Sony WH-1000XM5" }
+  const facts = { price: { amount: 399.99, currency: "USD" } }
+  const at = (url: string, name: string, amount: string) => {
+    const checked = describePage(html(name, offerLd(amount, "USD")), url, url, 200, 0)
+    return { url, name, kind: "item" as const, resultTitle: name, pageAge: null, page: checked, score: 1, condition: checkCondition(p, facts, checked), kept: true, why: "ok" }
+  }
+  const pages = [at("https://shop-a.example.com/wh1000xm5", "Sony WH-1000XM5", "279.99"), at("https://shop-b.example.com/wh1000xm5", "Sony WH-1000XM5 Wireless", "429.99"), at("https://audio.example.com/q45", "Soundcore Space Q45", "149.99")]
+  const raw = { intro: "", note: "", items: [
+    { page: 1, name: "Sony WH-1000XM5", why: "w", fit: "f", met: "yes", words_met: "n/a", same: true, shares: [1, 2, 3], differs: "" },
+    { page: 2, name: "Sony WH-1000XM5 Wireless", why: "w", fit: "f", met: "no", words_met: "n/a", same: true, shares: [1, 2, 3], differs: "" },
+    { page: 3, name: "Soundcore Space Q45", why: "w", fit: "f", met: "yes", words_met: "n/a", same: false, shares: [1, 2], differs: "" }
+  ] }
+  const { result } = finishItems(raw, pages, p, source)
+  assert.deepEqual(result.items.map((i) => [i.host, i.same ?? false, i.similarity]), [["shop-a.example.com", true, 100], ["audio.example.com", false, 67]])
+})
+
+test("a name the writer added words to after a dash keeps the item's own name, in Japanese too", () => {
+  const p = plan({ subject: "電気ケトル", traits: ["電気ケトル"] })
+  const c = candidate("https://kaden.example.jp/kt1", html("象印 電気ケトル CK-DAQ10", offerLd("6980", "JPY"), "ja"), "象印 電気ケトル CK-DAQ10", p)
+  const { result } = finishItems({ intro: "", note: "", items: [{ page: 1, name: "象印 電気ケトル CK-DAQ10 — 1.0L、温度調節つき", why: "", fit: "", met: "yes", words_met: "n/a", same: false, shares: [1], differs: "" }] }, [c], p, { title: "x", url: "https://other.example/x", text: "" })
+  assert.equal(result.items[0].name, "象印 電気ケトル CK-DAQ10")
+})
+
+test("a rated item without reviewers' words gets a review search in the plan's language", async () => {
+  const { reviewsStep } = await import("../netlify/shared/similar.mts")
+  const p = plan({ subject: "電気ケトル", traits: ["電気ケトル"], language: "ja" })
+  const rated = candidate("https://kaden.example.jp/kt1", html("象印 電気ケトル CK-DAQ10", `<script type="application/ld+json">${JSON.stringify({ "@type": "Product", name: "象印 電気ケトル CK-DAQ10", aggregateRating: { ratingValue: 4.4, reviewCount: 230 } })}</script>`, "ja"), "象印 電気ケトル CK-DAQ10", p)
+  const asked: string[] = []
+  const real = globalThis.fetch
+  globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+    const u = String(url instanceof Request ? url.url : url)
+    if (u.startsWith("https://api.anthropic.com/")) {
+      const body = JSON.parse(String(init?.body ?? "{}"))
+      asked.push(JSON.stringify(body.messages))
+      return new Response(JSON.stringify({ id: "m", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: "done" }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 10, output_tokens: 10 } }), { headers: { "content-type": "application/json" } })
+    }
+    return new Response("<title>Not found</title>", { status: 404, headers: { "content-type": "text/html" } })
+  }) as typeof fetch
+  try {
+    await reviewsStep([rated], p, input({ locale: "ja-JP" }), "ja", 15_000)
+    assert.match(asked[0] ?? "", /象印 電気ケトル CK-DAQ10 レビュー/)
+  } finally {
+    globalThis.fetch = real
+  }
+})

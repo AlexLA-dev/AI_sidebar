@@ -426,5 +426,346 @@
   "locale": "en-US",
   "url": "https://calnewport.com/deep-work-rules-for-focused-success-in-a-distracted-world/",
   "condition": ""
+ },
+ {
+  "id": "fr-crepes",
+  "category": "recipe",
+  "locale": "fr-FR",
+  "url": "https://www.marmiton.org/recettes/recette_crepes-faciles_12372.aspx",
+  "condition": "sans lait",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "fr-cristel",
+  "category": "product",
+  "locale": "fr-FR",
+  "url": "https://www.cristel.com/",
+  "condition": "compatible induction, moins de 100 €",
+  "check": {
+   "kind": "max_price",
+   "value": 100,
+   "currency": "EUR"
+  },
+  "region": "local",
+  "country": "FR"
+ },
+ {
+  "id": "es-hawkers",
+  "category": "product",
+  "locale": "es-ES",
+  "url": "https://www.hawkersco.com/",
+  "condition": "Más barato",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "ES"
+ },
+ {
+  "id": "es-pompeii",
+  "category": "product",
+  "locale": "es-ES",
+  "url": "https://www.pompeiibrand.com/",
+  "condition": "veganas",
+  "check": {
+   "kind": "judgment"
+  },
+  "region": "local",
+  "country": "ES"
+ },
+ {
+  "id": "it-bialetti",
+  "category": "product",
+  "locale": "it-IT",
+  "url": "https://www.bialetti.com/it_it/",
+  "condition": "Più economico",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "IT"
+ },
+ {
+  "id": "it-tiramisu",
+  "category": "recipe",
+  "locale": "it-IT",
+  "url": "https://www.misya.info/ricetta/tiramisu.htm",
+  "condition": "senza uova",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "it-alessi",
+  "category": "product",
+  "locale": "it-IT",
+  "url": "https://www.alessi.com/it/",
+  "condition": "",
+  "region": "local",
+  "country": "IT"
+ },
+ {
+  "id": "pt-havaianas",
+  "category": "product",
+  "locale": "pt-BR",
+  "url": "https://www.havaianas.com.br/",
+  "condition": "Mais barato",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "BR"
+ },
+ {
+  "id": "pt-tramontina",
+  "category": "product",
+  "locale": "pt-BR",
+  "url": "https://www.tramontina.com.br/",
+  "condition": "Mais barato",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "BR"
+ },
+ {
+  "id": "pt-mbway",
+  "category": "app",
+  "locale": "pt-PT",
+  "url": "https://apps.apple.com/pt/app/mb-way/id918126133?l=pt-PT",
+  "condition": "Grátis",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "PT"
+ },
+ {
+  "id": "ja-chiffon",
+  "category": "recipe",
+  "locale": "ja-JP",
+  "url": "https://cookpad.com/jp/recipes/17612633",
+  "condition": "もっと短い",
+  "check": {
+   "kind": "shorter"
+  }
+ },
+ {
+  "id": "ja-line",
+  "category": "app",
+  "locale": "ja-JP",
+  "url": "https://apps.apple.com/jp/app/line/id443904275",
+  "condition": "無料",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "JP"
+ },
+ {
+  "id": "ja-balmuda",
+  "category": "product",
+  "locale": "ja-JP",
+  "url": "https://www.balmuda.com/jp/pot",
+  "condition": "もっと安い",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "JP"
+ },
+ {
+  "id": "ko-10x10",
+  "category": "product",
+  "locale": "ko-KR",
+  "url": "https://www.10x10.co.kr/",
+  "condition": "",
+  "region": "local",
+  "country": "KR"
+ },
+ {
+  "id": "ko-kakao",
+  "category": "app",
+  "locale": "ko-KR",
+  "url": "https://apps.apple.com/kr/app/kakaotalk/id362057947",
+  "condition": "무료",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "KR"
+ },
+ {
+  "id": "ko-innisfree",
+  "category": "product",
+  "locale": "ko-KR",
+  "url": "https://www.innisfree.com/kr/ko/",
+  "condition": "민감한 피부용",
+  "check": {
+   "kind": "judgment"
+  },
+  "region": "local",
+  "country": "KR"
+ },
+ {
+  "id": "zh-wechat",
+  "category": "app",
+  "locale": "zh-CN",
+  "url": "https://apps.apple.com/cn/app/id414478124",
+  "condition": "免费",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "CN"
+ },
+ {
+  "id": "tw-line",
+  "category": "app",
+  "locale": "zh-TW",
+  "url": "https://apps.apple.com/tw/app/line/id443904275",
+  "condition": "免費",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "TW"
+ },
+ {
+  "id": "tw-potato",
+  "category": "recipe",
+  "locale": "zh-TW",
+  "url": "https://icook.tw/recipes/440345",
+  "condition": "更短",
+  "check": {
+   "kind": "shorter"
+  }
+ },
+ {
+  "id": "vi-zalo",
+  "category": "app",
+  "locale": "vi-VN",
+  "url": "https://apps.apple.com/vn/app/zalo/id579523206?l=vi",
+  "condition": "Miễn phí",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "VN"
+ },
+ {
+  "id": "vi-cellphones",
+  "category": "product",
+  "locale": "vi-VN",
+  "url": "https://cellphones.com.vn/",
+  "condition": "",
+  "region": "local",
+  "country": "VN"
+ },
+ {
+  "id": "vi-monngon",
+  "category": "recipe",
+  "locale": "vi-VN",
+  "url": "https://www.monngonmoingay.com/",
+  "condition": ""
+ },
+ {
+  "id": "ar-careem",
+  "category": "app",
+  "locale": "ar-SA",
+  "url": "https://apps.apple.com/sa/app/careem-rides-food-more/id592978487?l=ar",
+  "condition": "مجاني",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "SA"
+ },
+ {
+  "id": "ar-extra",
+  "category": "product",
+  "locale": "ar-SA",
+  "url": "https://www.extra.com/ar-sa/",
+  "condition": "",
+  "region": "local",
+  "country": "SA"
+ },
+ {
+  "id": "ar-fatafeat",
+  "category": "recipe",
+  "locale": "ar-EG",
+  "url": "https://www.fatafeat.com/",
+  "condition": ""
+ },
+ {
+  "id": "ar-almosafer",
+  "category": "other",
+  "locale": "ar-SA",
+  "url": "https://www.almosafer.com/ar",
+  "condition": "",
+  "region": "local",
+  "country": "SA"
+ },
+ {
+  "id": "uk-monobank",
+  "category": "app",
+  "locale": "uk-UA",
+  "url": "https://apps.apple.com/ua/app/monobank/id1287005205?l=uk",
+  "condition": "Безкоштовно",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "UA"
+ },
+ {
+  "id": "uk-prometheus",
+  "category": "course",
+  "locale": "uk-UA",
+  "url": "https://prometheus.org.ua/",
+  "condition": "Безкоштовно",
+  "check": {
+   "kind": "free"
+  },
+  "region": "world",
+  "country": "UA"
+ },
+ {
+  "id": "gb-brompton",
+  "category": "product",
+  "locale": "en-GB",
+  "url": "https://www.brompton.com/",
+  "condition": "Cheaper",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "GB"
+ },
+ {
+  "id": "in-boat",
+  "category": "product",
+  "locale": "en-IN",
+  "url": "https://www.boat-lifestyle.com/",
+  "condition": "Cheaper",
+  "check": {
+   "kind": "cheaper"
+  },
+  "region": "local",
+  "country": "IN"
+ },
+ {
+  "id": "mx-duolingo",
+  "category": "app",
+  "locale": "es-MX",
+  "url": "https://apps.apple.com/mx/app/duolingo-language-lessons/id570060128",
+  "condition": "Gratis",
+  "check": {
+   "kind": "free"
+  },
+  "region": "local",
+  "country": "MX"
  }
 ]

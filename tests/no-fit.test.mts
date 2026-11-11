@@ -64,3 +64,22 @@ test("the watch notification's example names no currency of its own", () => {
   assert.doesNotMatch(judge, /[€$£¥₽₴]|\b\d+ ?(EUR|USD|RUB)\b/)
   assert.match(judge, /as the page writes it/)
 })
+
+test("Find similar's prompts and the read-aloud rules carry no price, currency or test case of their own", async () => {
+  process.env.SUPABASE_URL ??= "https://db.test"
+  process.env.SUPABASE_SERVICE_ROLE_KEY ??= "service-key"
+  process.env.ANTHROPIC_API_KEY ??= "test-key"
+  const similar = await import("../netlify/shared/similar.mts")
+  const { SCRIPT_RULES } = await import("../netlify/shared/speakscript.mts")
+  const prompts: Record<string, string> = {
+    PLAN_SYSTEM: similar.PLAN_SYSTEM, SEARCH_SYSTEM: similar.SEARCH_SYSTEM, WRITE_SYSTEM: similar.WRITE_SYSTEM, SEARCH_ONE_SYSTEM: similar.SEARCH_ONE_SYSTEM,
+    SEARCH_OWN_SYSTEM: similar.SEARCH_OWN_SYSTEM, PRICING_SYSTEM: similar.PRICING_SYSTEM, READ_SYSTEM: similar.READ_SYSTEM,
+    REVIEW_SEARCH_SYSTEM: similar.REVIEW_SEARCH_SYSTEM, REVIEW_READ_SYSTEM: similar.REVIEW_READ_SYSTEM, SCRIPT_RULES
+  }
+  for (const [name, text] of Object.entries(prompts)) {
+    assert.ok(text && text.length > 100, name)
+    // A price in an example teaches the model that price; placeholders say "<its price as the page shows it>".
+    assert.doesNotMatch(text, /[€£¥₽₴₹₩₫]\s?\d|\d\s?[€£¥₽₴₹₩₫]|\$\s?\d|\b\d+(?:[.,]\d+)? ?(?:EUR|USD|GBP|RUB|UAH|JPY|dollars|euros)\b/i, name)
+    assert.doesNotMatch(text, /airback|backvac|vacpack|fanwoli|ryden|markus|sihoo|kallax|poäng|lego|ikea|cyprus|кипр|stephanis/i, name)
+  }
+})

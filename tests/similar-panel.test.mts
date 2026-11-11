@@ -214,7 +214,7 @@ test("build 93: the less similar ones apart with how close and how they differ, 
   // An answer kept from build 93: its one-sentence summary on the same line, after "What people say:".
   assert.match(el.querySelector(".cf-similar-reviews").textContent, /^What people say:★ 4\.6 · 1,234 ratings · Fast summaries; the free plan is limited\. · apps\.apple\.com · techreview\.example$/)
   assert.deepEqual([...el.querySelectorAll(".cf-similar-src")].map((a: any) => [a.textContent, a.getAttribute("target")]), [["apps.apple.com", "_blank"], ["techreview.example", "_blank"]])
-  // Build 94: the close one says how close too (the owner: the only item showed no share).
+  // Build 94: the close one says how close too (an only item shows its share as well).
   assert.match(el.querySelector(".cf-similar-list .cf-similar-pct").textContent, /^100% similar$/)
   assert.equal(el.querySelector(".cf-similar-list .cf-similar-pct").closest(".cf-similar-less"), null)
 })
@@ -281,24 +281,25 @@ test("build 94: every item's share, estimated when its page wasn't opened; one l
   const el = root()
   const base = { why: "Same idea.", fit: "", met: "n/a", source: "item", checked: true, title: "" }
   const items = [
-    { ...base, name: "Fanwoli Rolling Vacuum Backpack", url: "https://www.amazon.com/dp/B0X", host: "amazon.com", checked: false, similarity: 75, estimated: true },
-    { ...base, name: "Backvac Pro", url: "https://mybackvac.com/products/backvacpro", host: "mybackvac.com", similarity: 50, differs: "No trolley; the brand's Pro Max has one, at 272.95 EUR — over your budget",
-      reviews: { rating: { value: 4.6, best: 5, count: 687 }, pros: "compression, sturdy zips", cons: "the price", sources: ["https://mybackvac.com/products/backvacpro"] } },
-    { ...base, name: "PacknTrip ProPack", url: "https://packntrip.store/p", host: "packntrip.store", similarity: 50, reviews: { pros: "carry-on fit", sources: ["https://packntrip.store/p"] } }
+    { ...base, name: "Ergoplus Electric Standing Desk", url: "https://www.amazon.com/dp/B0X", host: "amazon.com", checked: false, similarity: 75, estimated: true },
+    { ...base, name: "Deskora Pro", url: "https://deskora.example/products/deskorapro", host: "deskora.example", similarity: 50, differs: "No presets; the brand's Pro Max has them, at 272.95 EUR — over your budget",
+      reviews: { rating: { value: 4.6, best: 5, count: 412 }, pros: "quiet motors, sturdy frame", cons: "the price", sources: ["https://deskora.example/products/deskorapro"] } },
+    { ...base, name: "Deskwise Pro", url: "https://deskwise.example/p", host: "deskwise.example", similarity: 50, reviews: { pros: "stable at full height", sources: ["https://deskwise.example/p"] } }
   ]
   ui.list(el, { answer: { intro: "", items, note: "", condition: "cheaper", asked: "", at: Date.now() }, items, onOpen() {} })
   const pct = [...el.querySelectorAll(".cf-similar-pct")].map((p: any) => p.textContent)
   assert.deepEqual(pct, ["75% similar · estimated from the description", "50% similar", "50% similar"])
   const lines = [...el.querySelectorAll(".cf-similar-reviews")].map((p: any) => p.textContent)
   assert.deepEqual(lines, [
-    "What people say:★ 4.6 · 687 ratings · like compression, sturdy zips · dislike the price · mybackvac.com",
-    "What people say:like carry-on fit · packntrip.store"
+    "What people say:★ 4.6 · 412 ratings · like quiet motors, sturdy frame · dislike the price · deskora.example",
+    "What people say:like stable at full height · deskwise.example"
   ])
-  assert.match(el.textContent, /Differs: No trolley; the brand's Pro Max has one/)
+  assert.match(el.textContent, /Differs: No presets; the brand's Pro Max has them/)
 })
 
 test("build 94: the question line says where it looked", () => {
   assert.equal(ui.whereLabel("world"), "Worldwide")
-  assert.equal(ui.whereLabel("local", "CY"), "Near me · Cyprus")
+  assert.equal(ui.whereLabel("local", "JP"), "Near me · Japan")
+  assert.equal(ui.whereLabel("local", "BR"), "Near me · Brazil")
   assert.equal(ui.whereLabel("local"), "Near me")
 })

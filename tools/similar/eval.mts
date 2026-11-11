@@ -48,6 +48,9 @@ interface Test {
   // How the condition is checked from the item's page: cheaper, max_price (value, currency), in_stock, free, newer,
   // shorter, language (lang), or judgment (the judge reads the item's page).
   check?: { kind: string; value?: number; currency?: string; lang?: string; also?: string }
+  // Where to look: near them in that country ("local") or anywhere ("world"); the --region/--country flags otherwise.
+  region?: "world" | "local"
+  country?: string
 }
 
 interface Snapshot {
@@ -178,10 +181,11 @@ async function run() {
     }
     const s = snapshots[t.id]
     const page = { title: s.title, url: t.url, text: s.text, facts: s.facts }
-    const call = await callSimilar(base, e, page, t.condition, t.locale, options)
+    const asked = { ...options, ...(t.region ? { region: t.region } : {}), ...(t.country ? { country: t.country } : {}) }
+    const call = await callSimilar(base, e, page, t.condition, t.locale, asked)
     const usd = callSpend(call)
     addSpend(`${TAG}/${e}/${t.id}`, usd)
-    writeJson(path, { test: t, options, call })
+    writeJson(path, { test: t, options: asked, call })
     const { items } = itemsOf(e, call)
     console.log(`${t.id.padEnd(14)} ${e} ${call.ok ? "ok " : "ERR"} ${String(call.ms).padStart(6)} ms  $${usd.toFixed(4)}  items=${items.length}${call.error ? `  ${call.error.slice(0, 120)}` : ""}`)
   })

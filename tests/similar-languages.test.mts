@@ -77,3 +77,92 @@ for (const lang of LANGS) {
     assert.equal(saysCount(s.howMany), true, "an intro that says how many")
   })
 }
+
+// ---- which language a page is in --------------------------------------------------------------------------------
+
+const PROSE: Record<string, string> = {
+  en: "This guide explains how to choose a kettle that fits your kitchen, with tips about the size and what you need.",
+  ru: "Это руководство объясняет, как выбрать чайник для вашей кухни, и что важно учесть при покупке.",
+  uk: "Цей посібник пояснює, як вибрати чайник для вашої кухні, і що важливо врахувати під час покупки.",
+  de: "Dieser Ratgeber erklärt, wie Sie einen Wasserkocher für die Küche finden, der zu Ihnen passt und nicht zu groß ist.",
+  fr: "Ce guide explique comment choisir une bouilloire pour votre cuisine, avec des conseils sur la taille et les matériaux.",
+  es: "Esta guía explica cómo elegir un hervidor para su cocina, con consejos sobre el tamaño y los materiales más útiles.",
+  it: "Questa guida spiega come scegliere un bollitore per la cucina, con consigli sulla dimensione e sui materiali più adatti.",
+  pt: "Este guia explica como escolher uma chaleira para a sua cozinha, com dicas sobre o tamanho e os materiais mais úteis.",
+  ja: "このガイドでは、キッチンに合った電気ケトルの選び方と、サイズや素材のポイントを説明します。",
+  ko: "이 가이드는 주방에 맞는 전기 주전자를 고르는 방법과 크기, 소재에 대한 팁을 설명합니다.",
+  "zh-Hans": "这份指南说明如何为你的厨房选择电热水壶，以及关于尺寸和材料的建议，帮助你买到合适的产品。",
+  "zh-Hant": "這份指南說明如何為你的廚房選擇電熱水壺，以及關於尺寸和材料的建議，幫助你買到合適的產品。",
+  vi: "Hướng dẫn này giải thích cách chọn ấm đun nước cho nhà bếp của bạn, với các mẹo về kích thước và chất liệu.",
+  ar: "يشرح هذا الدليل كيفية اختيار غلاية كهربائية لمطبخك، مع نصائح حول الحجم والمواد المناسبة."
+}
+
+test("a page in each of the 14 languages is in that language and in no other (the site's interface in English)", async () => {
+  const { languageCheck } = await import("../netlify/shared/pagecheck.mts")
+  const page = (text: string) => ({ lang: "en", title: "", text, inLanguage: undefined })
+  for (const want of Object.keys(PROSE)) for (const [lang, text] of Object.entries(PROSE)) {
+    assert.equal(languageCheck(want, page(text)), want === lang ? "yes" : "no", `${want} wanted, page in ${lang}`)
+  }
+  // A wanted language given as the panel sends it: a region or a script subtag.
+  assert.equal(languageCheck("pt-BR", page(PROSE.pt)), "yes")
+  assert.equal(languageCheck("zh-TW", page(PROSE["zh-Hant"])), "yes")
+  assert.equal(languageCheck("zh-CN", page(PROSE["zh-Hant"])), "no")
+  assert.equal(languageCheck("zh", page(PROSE["zh-Hant"])), "yes")
+})
+
+test("the title leads when it's in another script than the page's interface; the site's language only when words can't tell", async () => {
+  const { languageCheck } = await import("../netlify/shared/pagecheck.mts")
+  const ui = "Skip to content Navigation Menu Product Solutions Resources Open Source Enterprise Pricing Sign in Sign up"
+  assert.equal(languageCheck("uk", { lang: "en", title: "Як вибрати електрочайник: поради для кухні", text: ui, inLanguage: undefined }), "yes")
+  assert.equal(languageCheck("ja", { lang: "en", title: "電気ケトルの選び方｜キッチン家電ガイド", text: ui, inLanguage: undefined }), "yes")
+  assert.equal(languageCheck("ko", { lang: "en", title: "電気ケトルの選び方｜キッチン家電ガイド", text: ui, inLanguage: undefined }), "no")
+  // Words that tell nothing (a model name): the site's own language.
+  assert.equal(languageCheck("fr", { lang: "fr", title: "Bosch MUM5", text: "MUM5 1000 W 3,9 l", inLanguage: undefined }), "yes")
+  assert.equal(languageCheck("es", { lang: "fr", title: "Bosch MUM5", text: "MUM5 1000 W 3,9 l", inLanguage: undefined }), "no")
+  assert.equal(languageCheck("es", { lang: "", title: "Bosch MUM5", text: "MUM5 1000 W 3,9 l", inLanguage: undefined }), "unknown")
+  // The content's own stated language decides.
+  assert.equal(languageCheck("vi", { lang: "en", title: "", text: PROSE.en, inLanguage: "vi" }), "yes")
+})
+
+test("newer: a date a page states, in each of the 14 languages (4 March 2026)", async () => {
+  const { quoteFacts } = await import("../netlify/shared/dig.mts")
+  const dates: Record<string, string> = {
+    en: "Updated March 4, 2026", ru: "Обновлено 4 марта 2026 г.", uk: "Оновлено 4 березня 2026", de: "Aktualisiert am 4. März 2026",
+    fr: "Mis à jour le 4 mars 2026", es: "Actualizado el 4 de marzo de 2026", it: "Aggiornato il 4 marzo 2026",
+    pt: "Atualizado em 4 de março de 2026", ja: "更新日 2026年3月4日", ko: "2026년 3월 4일 업데이트", zh: "更新于 2026年3月4日",
+    "zh-Hant": "更新於 2026年3月4日", vi: "Cập nhật ngày 4 tháng 3 năm 2026", ar: "تم التحديث 4 مارس 2026"
+  }
+  for (const [lang, quote] of Object.entries(dates)) assert.deepEqual(quoteFacts("newer", quote), { published: "2026-03-04T00:00:00.000Z" }, lang)
+  assert.equal(quoteFacts("newer", "Bestseller 2026"), null)
+})
+
+test("words that don't tell names apart, in each of the 14 languages: colours, a shop's extras", async () => {
+  const { nameTokens } = await import("../netlify/shared/pagecheck.mts")
+  const { distinctive } = await import("../netlify/shared/similar.mts")
+  const plan = { category: "product", subject: "Acme K1", traits: [], condition: { kind: "none", maxPrice: 0, currency: "", language: "", place: "" }, sourcePrice: 0, sourceCurrency: "", queries: [], language: "en" } as never
+  const black: Record<string, string> = { en: "black", ru: "черный", uk: "чорний", de: "schwarz", fr: "noir", es: "negro", it: "nero", pt: "preto", ja: "ブラック", ko: "블랙", zh: "黑色", "zh-Hant": "黑色", vi: "đen", ar: "أسود" }
+  const official: Record<string, string> = { en: "official", ru: "официальный", uk: "офіційний", de: "offizielle", fr: "officiel", es: "oficial", it: "ufficiale", pt: "oficial", ja: "公式", ko: "공식", zh: "官方", "zh-Hant": "官方", vi: "chính hãng", ar: "رسمي" }
+  for (const lang of Object.keys(black)) {
+    assert.deepEqual(distinctive(`Zento K1 ${black[lang]}`, plan), ["zento"], `${lang} colour`)
+    assert.deepEqual(nameTokens(`${official[lang]} Zento K1`), ["zento", "k1"], `${lang} extra`)
+  }
+})
+
+test("an address without its scheme leaves the writer's text, for any country's domain", async () => {
+  const { stripUrls } = await import("../netlify/shared/similar.mts")
+  for (const url of ["rozetka.com.ua/ua/item/123", "kakaku.com/item/K0001", "shop.example.co.kr/goods/1", "store.example.com.vn/p/1", "souq.example.sa/ar/p/1", "shop.example.com.tw/p", "loja.example.pt/p/1", "shop.example.cy/p/1"]) {
+    assert.equal(stripUrls(`Mehr auf ${url} lesen`).replace(/\s+/g, " ").trim(), "Mehr auf lesen", url)
+  }
+  // A domain alone (a shop's name) stays.
+  assert.match(stripUrls("from rozetka.com.ua"), /rozetka\.com\.ua/)
+})
+
+test("a price's sign in every shipped language's money, the shared ones by the shop's domain", async () => {
+  const { readPrice } = await import("../netlify/shared/pagecheck.mts")
+  const cases: Array<[string, string, string]> = [
+    ["299.000₫", "", "VND"], ["299.000đ", "", "VND"], ["NT$1,290", "", "TWD"], ["HK$499", "", "HKD"], ["149 ر.س", "", "SAR"], ["99 د.إ", "", "AED"],
+    ["1.299 جنيه", "", "EGP"], ["250 ريال", "https://shop.example.qa/p", "QAR"], ["3 999 ₽", "", "RUB"], ["1 299 грн", "", "UAH"], ["¥3,999", "https://shop.example.cn/p", "CNY"],
+    ["¥3,999", "", "JPY"], ["₩29,000", "", "KRW"], ["R$ 379,90", "", "BRL"], ["$249", "https://shop.example.com.au/p", "AUD"]
+  ]
+  for (const [raw, url, currency] of cases) assert.equal(readPrice(raw, "", url)?.currency, currency, raw)
+})

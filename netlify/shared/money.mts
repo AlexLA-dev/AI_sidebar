@@ -1,5 +1,5 @@
 // Prices in the person's currency. A shop abroad shows its own currency (dollars, to someone who pays in euros or
-// yen), so "cheaper than 249 EUR" could never be settled. Their country's currency, and the
+// yen), so "cheaper than <their item's price>" could never be settled. Their country's currency, and the
 // European Central Bank's reference rates of the day (free, public, no key: one small XML a day, kept in memory).
 
 /** The currency people pay in, by country (two letters); "" when we don't know it. */
@@ -76,4 +76,35 @@ export function convert(amount: number, from: string, to: string, rates: Rates |
 export function roughAmount(amount: number, currency: string): string {
   const n = amount >= 10 ? String(Math.round(amount)) : amount.toFixed(2)
   return `${n} ${currency}`
+}
+
+// ------------------------------------------------------------ currency signs
+
+/** The currency a sign or a short word by a price stands for (as detect.ts reads prices: every shipped language). */
+const SIGN_CURRENCY: Record<string, string> = {
+  $: "USD", "US$": "USD", "C$": "CAD", "A$": "AUD", "HK$": "HKD", "NZ$": "NZD", "S$": "SGD", "NT$": "TWD", "MX$": "MXN", "R$": "BRL",
+  "€": "EUR", "£": "GBP", "¥": "JPY", "￥": "JPY", "円": "JPY", "元": "CNY", "₽": "RUB", "руб": "RUB", "₴": "UAH", "грн": "UAH",
+  "₹": "INR", "₩": "KRW", "원": "KRW", "₫": "VND", "đ": "VND", "vnđ": "VND", "₺": "TRY", "₪": "ILS", "฿": "THB", "₸": "KZT",
+  "₾": "GEL", "₼": "AZN", "₱": "PHP", "zł": "PLN", kr: "SEK",
+  // The Gulf's, Egypt's: the abbreviation, and the word (riyal, dirham, dinar, pound).
+  "ر.س": "SAR", "د.إ": "AED", "ر.ق": "QAR", "د.ك": "KWD", "ر.ع": "OMR", "د.ب": "BHD", "ج.م": "EGP",
+  "ريال": "SAR", "درهم": "AED", "دينار": "KWD", "جنيه": "EGP"
+}
+
+/** Signs several currencies share: on a country's own domain, that country's ("$" on a .ca shop is CAD). */
+const SHARED_SIGN: Record<string, string[]> = {
+  $: ["USD", "CAD", "AUD", "NZD", "MXN", "SGD", "HKD", "TWD", "CLP", "COP", "ARS"], "¥": ["JPY", "CNY"], "￥": ["JPY", "CNY"],
+  kr: ["SEK", "NOK", "DKK", "ISK"], "ريال": ["SAR", "QAR", "OMR", "YER"], "درهم": ["AED", "MAD"],
+  "دينار": ["KWD", "BHD", "JOD", "IQD", "LYD", "TND", "DZD", "RSD"], "جنيه": ["EGP", "SDG", "GBP"]
+}
+
+/** The signs and short words a price may carry, before or after its number, as a pattern's source (match with "iu"). */
+export const MONEY_SIGN = "US\\$|C\\$|A\\$|HK\\$|NZ\\$|S\\$|NT\\$|MX\\$|R\\$|zł|kr|руб|грн|vnđ|ر\\.\\s?س|د\\.\\s?إ|ر\\.\\s?ق|د\\.\\s?ك|ر\\.\\s?ع|د\\.\\s?ب|ج\\.\\s?م|ريال|درهم|دينار|جنيه|[$€£¥￥円元₽₴₹₩원₫₺₪฿₸₾₼₱đ]"
+
+/** The currency of a sign by a price; `local` (a country domain's currency) wins for a sign it shares. "" for none. */
+export function currencyOfSign(sign: string, local = ""): string {
+  const key = sign.replace(/\s+/g, "")
+  const found = Object.keys(SIGN_CURRENCY).find((k) => k === key || k.toLowerCase() === key.toLowerCase())
+  if (!found) return ""
+  return local && SHARED_SIGN[found]?.includes(local) ? local : SIGN_CURRENCY[found]
 }

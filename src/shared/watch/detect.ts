@@ -172,37 +172,31 @@ export function phrases(list: string[]): RegExp {
 const STOCK = phrases(STOCK_WORDS)
 const STATUS = phrases(STATUS_WORDS)
 
-const MONTHS = [
-  // en
-  "jan(?:uary)?", "feb(?:ruary)?", "mar(?:ch)?", "apr(?:il)?", "may", "june?", "july?", "aug(?:ust)?",
-  "sep(?:t(?:ember)?)?", "oct(?:ober)?", "nov(?:ember)?", "dec(?:ember)?",
-  // ru
-  "январ[яь]", "феврал[яь]", "марта?", "апрел[яь]", "мая", "май", "июн[яь]", "июл[яь]", "августа?", "сентябр[яь]",
-  "октябр[яь]", "ноябр[яь]", "декабр[яь]", "янв", "фев", "апр", "авг", "сент?", "окт", "ноя", "дек",
-  // uk
-  "січ(?:ня|ень)", "лют(?:ого|ий)", "берез(?:ня|ень)", "квіт(?:ня|ень)", "трав(?:ня|ень)", "черв(?:ня|ень)",
-  "лип(?:ня|ень)", "серп(?:ня|ень)", "верес(?:ня|ень)", "жовт(?:ня|ень)", "листопада?", "груд(?:ня|ень)",
-  // de
-  "januar", "februar", "märz", "mai", "juni", "juli", "oktober", "dezember", "jän(?:ner)?", "okt", "dez",
-  // fr
-  "janvier", "février", "mars", "avril", "juin", "juillet", "août", "septembre", "octobre", "novembre",
-  "décembre", "janv", "févr", "avr", "juil", "déc",
-  // es
-  "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "setiembre", "octubre",
-  "noviembre", "diciembre", "ene", "abr", "ago", "dic",
-  // it
-  "gennaio", "febbraio", "aprile", "maggio", "giugno", "luglio", "settembre", "ottobre", "dicembre", "gen", "mag",
-  "giu", "lug", "ott",
-  // pt
-  "janeiro", "fevereiro", "março", "maio", "junho", "julho", "setembro", "outubro", "novembro", "dezembro", "fev",
-  "set", "out",
-  // ar (the Gregorian names, and the Levantine and Iraqi ones)
-  "يناير", "فبراير", "مارس", "أبريل", "إبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
-  "كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني",
-  "كانون الأول",
-  // vi: "tháng 3" is March
-  "tháng\\s?\\d{1,2}"
+// Month names in every shipped language, January first (en, ru, uk, de, fr, es, it, pt and ar, with their
+// abbreviations; the Arabic ones also as the Levant and Iraq name them). Vietnamese writes the month's number ("tháng 3").
+const MONTH_NAMES: string[][] = [
+  ["jan(?:uary)?", "январ[яь]", "янв", "січ(?:ня|ень)", "januar", "jän(?:ner)?", "janvier", "janv", "enero", "ene", "gennaio", "gen", "janeiro", "يناير", "كانون الثاني"],
+  ["feb(?:ruary)?", "феврал[яь]", "фев", "лют(?:ого|ий)", "februar", "février", "févr", "febrero", "febbraio", "fevereiro", "fev", "فبراير", "شباط"],
+  ["mar(?:ch)?", "марта?", "берез(?:ня|ень)", "märz", "mars", "marzo", "março", "مارس", "آذار"],
+  ["apr(?:il)?", "апрел[яь]", "апр", "квіт(?:ня|ень)", "avril", "avr", "abril", "abr", "aprile", "أبريل", "إبريل", "نيسان"],
+  ["may", "мая", "май", "трав(?:ня|ень)", "mai", "mayo", "maggio", "mag", "maio", "مايو", "أيار"],
+  ["june?", "июн[яь]", "черв(?:ня|ень)", "juni", "juin", "junio", "giugno", "giu", "junho", "يونيو", "حزيران"],
+  ["july?", "июл[яь]", "лип(?:ня|ень)", "juli", "juillet", "juil", "julio", "luglio", "lug", "julho", "يوليو", "تموز"],
+  ["aug(?:ust)?", "августа?", "авг", "серп(?:ня|ень)", "août", "agosto", "ago", "أغسطس", "آب"],
+  ["sep(?:t(?:ember)?)?", "сентябр[яь]", "сент?", "верес(?:ня|ень)", "septembre", "septiembre", "setiembre", "settembre", "setembro", "set", "سبتمبر", "أيلول"],
+  ["oct(?:ober)?", "октябр[яь]", "окт", "жовт(?:ня|ень)", "oktober", "okt", "octobre", "octubre", "ottobre", "ott", "outubro", "out", "أكتوبر", "تشرين الأول"],
+  ["nov(?:ember)?", "ноябр[яь]", "ноя", "листопада?", "novembre", "noviembre", "novembro", "نوفمبر", "تشرين الثاني"],
+  ["dec(?:ember)?", "декабр[яь]", "дек", "груд(?:ня|ень)", "dezember", "dez", "décembre", "déc", "diciembre", "dic", "dicembre", "dezembro", "ديسمبر", "كانون الأول"]
 ]
+const MONTHS = [...MONTH_NAMES.flat(), "tháng\\s?\\d{1,2}"]
+/** A month's name in any shipped language, as a pattern's source (no flags; match with "iu"). */
+export const MONTH_WORD = `(?:${MONTH_NAMES.flat().join("|")})`
+const MONTH_EXACT = MONTH_NAMES.map((names) => new RegExp(`^(?:${names.join("|")})\\.?$`, "iu"))
+/** Which month (1–12) a name stands for in any shipped language ("марта", "März", "déc."); null when it's none. */
+export function monthOf(word: string): number | null {
+  const i = MONTH_EXACT.findIndex((re) => re.test(word.trim()))
+  return i >= 0 ? i + 1 : null
+}
 const MONTH = `(?:${MONTHS.join("|")})\\.?`
 const DATE = new RegExp(
   [
