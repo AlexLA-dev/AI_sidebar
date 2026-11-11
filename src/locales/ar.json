@@ -758,6 +758,8 @@
   "similarPercent": "متشابه بنسبة {0}٪",
   "similarDiffers": "الاختلاف: {0}",
   "similarRegionLocked": "غير متوفر في App Store بلدك",
+  "similarShipListed": "صفحة الشحن تذكر: {0}",
+  "similarShipUnshown": "لم يُذكر إن كان الشحن إلى {0} متاحًا",
   "similarRatings": "{0} تقييم",
   "similarReviewersSay": "المراجعات: {0}",
   "similarNotifyTitle": "اكتمل البحث عن المشابه",

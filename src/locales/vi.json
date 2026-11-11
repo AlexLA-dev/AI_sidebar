@@ -758,6 +758,8 @@
   "similarPercent": "Giống {0}%",
   "similarDiffers": "Khác biệt: {0}",
   "similarRegionLocked": "Không có trong App Store ở quốc gia của bạn",
+  "similarShipListed": "Trang giao hàng có liệt kê: {0}",
+  "similarShipUnshown": "Không ghi rõ có giao đến {0} hay không",
   "similarRatings": "{0} lượt đánh giá",
   "similarReviewersSay": "Nhận xét: {0}",
   "similarNotifyTitle": "Đã tìm xong mục tương tự",

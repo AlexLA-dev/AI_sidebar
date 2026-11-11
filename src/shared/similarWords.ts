@@ -31,6 +31,15 @@ export function markdownWords(): MarkdownWords {
     cons: (s) => t("similarCons", s),
     same: t("similarSame"),
     misses: t("similarMisses"),
-    money: moneyText
+    money: moneyText,
+    delivery: (d) => {
+      let country = d.to
+      try {
+        country = new Intl.DisplayNames([uiLang()], { type: "region" }).of(d.to) ?? d.to
+      } catch {
+        // the code itself
+      }
+      return d.ships === "yes" ? t("similarShipListed", country) : t("similarShipUnshown", country)
+    }
   }
 }

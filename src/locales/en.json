@@ -758,6 +758,8 @@
   "similarPercent": "{0}% similar",
   "similarDiffers": "Differs: {0}",
   "similarRegionLocked": "Not in your country's App Store",
+  "similarShipListed": "Its delivery page lists {0}",
+  "similarShipUnshown": "Delivery to {0} isn't shown",
   "similarRatings": "{0} ratings",
   "similarReviewersSay": "Reviewers: {0}",
   "similarNotifyTitle": "Find similar is done",

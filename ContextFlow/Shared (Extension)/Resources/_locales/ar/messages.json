@@ -2198,6 +2198,12 @@
  "similarRegionLocked": {
   "message": "غير متوفر في App Store بلدك"
  },
+ "similarShipListed": {
+  "message": "صفحة الشحن تذكر: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "لم يُذكر إن كان الشحن إلى {0} متاحًا"
+ },
  "similarRatings": {
   "message": "{0} تقييم"
  },

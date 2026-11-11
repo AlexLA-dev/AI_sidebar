@@ -758,6 +758,8 @@
   "similarPercent": "{0}% parecido",
   "similarDiffers": "Diferença: {0}",
   "similarRegionLocked": "Não está na App Store do seu país",
+  "similarShipListed": "A página de entrega lista: {0}",
+  "similarShipUnshown": "Não informa se entrega neste país: {0}",
   "similarRatings": "{0} avaliações",
   "similarReviewersSay": "Avaliações: {0}",
   "similarNotifyTitle": "Busca de similares concluída",

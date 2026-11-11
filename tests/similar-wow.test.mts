@@ -9,7 +9,8 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage } = await import("../netlify/shared/pagecheck.mts")
-const { altQueries, checkPlan, deliveryPage, shipsTo, shopCountry, useCountryStore, loadUnsupportedCountries } = await import("../netlify/shared/similar.mts")
+const { WRITE_SYSTEM, altQueries, checkCondition, checkPlan, deliveryPage, finishItems, shipsTo, shopCountry, useCountryStore, loadUnsupportedCountries, writeMessage } = await import("../netlify/shared/similar.mts")
+type CheckedCandidate = import("../netlify/shared/similar.mts").CheckedCandidate
 type Plan = import("../netlify/shared/similar.mts").Plan
 
 const filler = "<p>" + "What it is, what it does and how to care for it, in a few plain sentences. ".repeat(8) + "</p>"
@@ -113,4 +114,25 @@ test("country names as sentences write them: endings, prefixes, two-character na
   assert.equal(shipsTo("Shipping to the Channel Islands, Northern Ireland and Guam: £25.", "FR", ["en", "fr"]), "unknown")
   // Not one of the app's languages: its shipping words aren't read, so nothing is claimed.
   assert.equal(shipsTo("Wysyłamy do Polski, Czech i na Słowację.", "PL", ["pl"]), "unknown")
+})
+
+test("2.6: what a delivery page shows, never more: the writer is told the page lists the country, the item carries that page", () => {
+  const p = plan({ subject: "Kettle K", traits: ["electric kettle"], condition: { kind: "none", maxPrice: 0, currency: "", language: "", place: "" } })
+  const at = (url: string, name: string, delivery?: CheckedCandidate["delivery"]): CheckedCandidate => {
+    const checked = describePage(page(name, ""), url, url, 200, 0)
+    return { url, name, kind: "item", resultTitle: name, pageAge: null, page: checked, score: 1, condition: checkCondition(p, {}, checked), kept: true, why: "ok", ...(delivery ? { delivery } : {}) }
+  }
+  const pages = [
+    at("https://kettles.example.de/one", "Kettle One", { to: "Austria", code: "AT", ships: "yes", url: "https://kettles.example.de/versand" }),
+    at("https://shop.example.fr/two", "Kettle Two", { to: "Austria", code: "AT", ships: "unknown" }),
+    at("https://local.example.at/three", "Kettle Three")
+  ]
+  const message = writeMessage(input({ region: "local", country: "AT", locale: "de-AT" }), p, pages)
+  assert.match(message, /a shop abroad whose delivery page lists Austria/)
+  assert.match(message, /a shop abroad: its delivery page doesn't show Austria/)
+  assert.doesNotMatch(message, /delivers to/)
+  assert.match(WRITE_SYSTEM, /Never write in why or fit that it delivers or ships anywhere/)
+  const raw = { intro: "", note: "", items: pages.map((c, i) => ({ page: i + 1, name: c.name, why: "w", fit: "", met: "n/a", words_met: "n/a", same: false, shares: [1], differs: "" })) }
+  const { result } = finishItems(raw, pages, p, { title: "x", url: "https://brand.example.com/x", text: "" })
+  assert.deepEqual(result.items.map((i) => i.delivery), [{ to: "AT", ships: "yes", url: "https://kettles.example.de/versand" }, { to: "AT", ships: "unknown" }, undefined])
 })

@@ -2198,6 +2198,12 @@
  "similarRegionLocked": {
   "message": "お住まいの国の App Store にはありません"
  },
+ "similarShipListed": {
+  "message": "配送ページに記載あり: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "{0}への配送は記載なし"
+ },
  "similarRatings": {
   "message": "{0}件の評価"
  },
