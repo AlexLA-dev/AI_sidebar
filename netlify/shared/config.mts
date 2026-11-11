@@ -183,6 +183,9 @@ export const config = {
     // Near them: a shop abroad's delivery page is read before it's offered; one that ships only elsewhere is dropped
     // (SIMILAR_SHIP_CHECK=off: not read).
     shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "on").trim() !== "off",
+    // A second search call beside the plan's, from the start, for things of the same kind (one search), instead of a
+    // later round when few were found (SIMILAR_ALT_SEARCH=off: the later round).
+    altSearch: (env("SIMILAR_ALT_SEARCH") ?? "on").trim() !== "off",
     budgetMs: int("SIMILAR_BUDGET_MS", 52_000),
     // Pages a site won't open to servers may fill a list that has fewer than 3 checked items (marked "not opened").
     allowUnchecked: (env("SIMILAR_ALLOW_UNCHECKED") ?? "on").trim() !== "off",

@@ -1,4 +1,5 @@
-// Find similar: a shop abroad's delivery page, in any language, country and currency.
+// Find similar: a shop abroad's delivery page, and the alternatives search beside the plan's — in any language,
+// country and currency.
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
@@ -8,7 +9,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage } = await import("../netlify/shared/pagecheck.mts")
-const { deliveryPage, shipsTo, shopCountry } = await import("../netlify/shared/similar.mts")
+const { altQueries, checkPlan, deliveryPage, shipsTo, shopCountry, useCountryStore, loadUnsupportedCountries } = await import("../netlify/shared/similar.mts")
 type Plan = import("../netlify/shared/similar.mts").Plan
 
 const filler = "<p>" + "What it is, what it does and how to care for it, in a few plain sentences. ".repeat(8) + "</p>"
@@ -48,5 +49,22 @@ test("a shop's delivery page: a link that says so, in any of the app's languages
   assert.equal(deliveryPage(read([], true)), "https://shop.example.de/policies/shipping-policy")
 })
 
+// ---- the alternatives search beside the plan's ------------------------------------------------------------------
 
+test("the search beside the plan's: things of the same kind (the planner's, else the first traits), the country named where it can't be located", async () => {
+  assert.deepEqual(altQueries(input(), plan({ subject: "Zojirushi CK-DAQ10", traits: ["electric kettle", "1 litre", "keep warm"], language: "ja" })), ["electric kettle 1 litre"])
+  assert.deepEqual(altQueries(input(), plan({ subject: "Bosch MUM5", traits: ["Küchenmaschine"], language: "de" })), ["Küchenmaschine"])
+  assert.deepEqual(altQueries(input(), plan({ subject: "Some App", traits: [], language: "es" })), ["Some App"])
+  // The planner's own search for the kind, in the language of its searches, comes first.
+  assert.deepEqual(altQueries(input(), plan({ subject: "Bosch MUM5", traits: ["stand mixer"], language: "de", kindSearch: "Küchenmaschine mit Rührschüssel 5 Liter" })), ["Küchenmaschine mit Rührschüssel 5 Liter"])
+  useCountryStore({ get: async () => ["KE"], set: async () => undefined })
+  await loadUnsupportedCountries()
+  assert.deepEqual(altQueries(input({ region: "local", country: "KE", locale: "en-KE" }), plan({ subject: "Solar lantern S2", traits: ["solar lantern", "USB charging"] })), ["solar lantern USB charging Kenya"])
+  useCountryStore(null)
+})
 
+test("the planner's search for the kind is kept when it gives one, and left out when it doesn't", () => {
+  const raw = { category: "product", subject: "Philips HD9285", traits: ["air fryer"], condition: { kind: "none", max_price: 0, currency: "", language: "", place: "" }, source_price: 0, source_currency: "", queries: ["Heißluftfritteuse günstig"], language: "de" }
+  assert.equal(checkPlan({ ...raw, kind_search: "Heißluftfritteuse 7 Liter" }, input()).kindSearch, "Heißluftfritteuse 7 Liter")
+  assert.equal(checkPlan(raw, input()).kindSearch, undefined)
+})

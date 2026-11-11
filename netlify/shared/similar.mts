@@ -108,6 +108,8 @@ export interface Plan {
   // Build 95: their own words (a must for every item), and their money with the day's rates.
   words?: string
   money?: Money
+  // A search for things of the same kind (no brand or model), in the language of the queries: run beside them.
+  kindSearch?: string
 }
 
 /** Their currency and the day's rates (null: the ECB couldn't be reached; prices are then compared as they are). */
@@ -205,8 +207,9 @@ export interface EngineOverrides {
   reviews?: boolean
   // Build 94: the brand's other models on or off.
   siblings?: boolean
-  // The delivery page of a shop abroad, before it's offered near them.
+  // The delivery page of a shop abroad; the alternatives search beside the plan's.
   shipCheck?: boolean
+  altSearch?: boolean
 }
 
 export interface EngineStats {
@@ -236,6 +239,8 @@ export interface EngineStats {
   rescue?: { queries: string[]; candidates: number }
   // The delivery pages of shops abroad (near them): items looked at, pages opened, and what they said.
   delivery?: { items: number; opened: number; yes: number; no: number; unknown: number }
+  // The alternatives search beside the plan's: its searches, candidates it added, and whether it came in time.
+  alt?: { queries: string[]; candidates: number; late: boolean; ms: number }
 }
 
 export type SimilarEvent =
@@ -276,6 +281,7 @@ Work out, once, what to search for:
 - condition: kind (none, cheaper, in_stock, free, newer, shorter, nearby, language, other); max_price when they named a number (else 0); currency (3 letters, else ""); language they want the results in (BCP 47, else ""); place for nearby (else "");
 - source_price: the price the page itself shows for its item, as a plain number (else 0), and source_currency; a page that lists several items (a category or collection) — the lowest price it shows;
 - queries: 2 to 4 web searches that find the alternatives themselves — their own pages (a shop's product page, the app's site or store page, the recipe, the article, the course page, the listing) — not pages about the item on screen. Mix a direct one with ones that carry the condition. When they want it cheaper or in stock, at most one search may look for this very item at other shops; the others always find alternatives to it (other brands and models). For a branded product, one search names the competing brands or models you know (\"<rival brand> <model> <kind of thing>\"), so the results aren't the same brand again. Write each in the language that finds the best results for this person (usually theirs; English is fine for global products and software);
+- kind_search: one more web search, for things of the same kind from any brand: what the thing is and its one or two key traits, the way shops name such a category, with no brand, model or name of the item on screen; in the language of your queries, with their condition only if it's about where;
 - language: the person's language (BCP 47), from their words, else the device locale.
 They may have tapped a quick choice (a chip: cheaper, in stock, newer, free, their language, shorter) and written their own words; both can come together. Their own words are what they need most: a price, a language or anything else they wrote goes into the condition and the searches.
 When they selected a part of the page, the subject is what the selection describes (a product, an app, a place, an idea… named or described in it), not the page's main item; the page is context. Then source_price is the price the selection itself shows (else 0).
@@ -302,9 +308,10 @@ const PLAN_SCHEMA = {
     source_price: { type: "number" },
     source_currency: { type: "string" },
     queries: { type: "array", items: { type: "string" } },
+    kind_search: { type: "string" },
     language: { type: "string" }
   },
-  required: ["category", "subject", "traits", "condition", "source_price", "source_currency", "queries", "language"],
+  required: ["category", "subject", "traits", "condition", "source_price", "source_currency", "queries", "kind_search", "language"],
   additionalProperties: false
 }
 
@@ -422,7 +429,8 @@ export function checkPlan(raw: unknown, input: SimilarInput): Plan {
     sourceCurrency: str(r.source_currency, 3).toUpperCase(),
     queries: [...new Set(queries)].slice(0, 4).length ? [...new Set(queries)].slice(0, 4) : [`${subject} alternatives`],
     language: str(r.language, 12) || input.locale,
-    ...(words ? { words: words.slice(0, MAX_CONDITION) } : {})
+    ...(words ? { words: words.slice(0, MAX_CONDITION) } : {}),
+    ...(str(r.kind_search, 200) ? { kindSearch: str(r.kind_search, 200) } : {})
   }
 }
 
@@ -770,6 +778,18 @@ export function rescueQueries(input: SimilarInput, plan: Plan): string[] {
   return [...new Set([`${plan.subject} ${words.alternatives}`, kind])].map((q) => q.slice(0, 200))
 }
 
+// After the plan's searches are back, how long the alternatives search may still take before it's left out.
+const ALT_GRACE_MS = 3_000
+
+/**
+ * The search run beside the plan's from the start (one call, one search, no follow-ups): things of the same kind from
+ * any brand, as the planner wrote it in the language of its searches (else the subject's first traits); near them
+ * where the search can't be located, with the country named, as the plan's are.
+ */
+export function altQueries(input: SimilarInput, plan: Plan): string[] {
+  const kind = (plan.kindSearch || plan.traits.slice(0, 2).join(" ") || plan.subject).slice(0, 200)
+  return localQueries(input, { ...plan, queries: [kind] })
+}
 
 function contextLines(input: SimilarInput, plan: Plan): string[] {
   const cond = plan.condition.kind === "none" ? "none" : `${plan.condition.kind} — in their words: "${input.condition.trim()}"`
@@ -2244,14 +2264,34 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
   t = Date.now()
   const mode = over.searchMode ?? config.similar.searchMode
   let checked: CheckedCandidate[]
+  let lateSpend: Promise<void> | null = null
+  const settleSpend = async () => { if (lateSpend) await Promise.race([lateSpend, new Promise((resolve) => setTimeout(resolve, 1_500))]) }
   if (mode === "single") {
-    // Before 2.6's speed-up: one model runs every search, then every page is opened.
+    // Before 2.6's speed-up: one model runs every search, then every page is opened. Beside it, from the start, one
+    // call for alternatives to the subject (its own few searches), taken when it's back in time.
+    const altQ = (over.altSearch ?? config.similar.altSearch) ? altQueries(input, plan) : null
+    const altT = Date.now()
+    const altP = altQ
+      ? searchWith(input, { ...plan, queries: altQ }, Math.max(8_000, Math.min(30_000, left() - 16_000)), opts.signal, { ...over, followUps: 0 }, 1).catch((err) => {
+          if (opts.signal?.aborted) throw err
+          return null
+        })
+      : null
     const found = await searchWith(input, plan, Math.max(8_000, Math.min(30_000, left() - 16_000)), opts.signal, over)
-    stats.spend.search = found.spend
+    let alt: Awaited<NonNullable<typeof altP>> = null
+    if (altP) {
+      let late = false
+      alt = await Promise.race([altP, new Promise<null>((resolve) => setTimeout(() => { late = true; resolve(null) }, ALT_GRACE_MS))])
+      if (alt) found.candidates.push(...alt.candidates)
+      // Late: left out, but what it cost still counts once it's back (by the end of the answer, or never).
+      else if (late) lateSpend = altP.then((r) => { if (r) stats.spend.altLate = r.spend }, () => undefined)
+      stats.alt = { queries: altQ!, candidates: alt?.candidates.length ?? 0, late, ms: Date.now() - altT }
+    }
+    stats.spend.search = alt ? addSpend(found.spend, alt.spend) : found.spend
     stats.candidates = found.candidates.length
     mark("search", t)
     if (opts.debug) {
-      stats.results = found.results
+      stats.results = [...found.results, ...(alt?.results ?? [])]
       stats.tool = found.tool
     }
     // The same rules as the parallel searches, for the servers' one-call search: each item once, at most one
@@ -2263,7 +2303,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     // Few candidates that could be items of their own (not their very item at other shops, not list pages): one
     // more search for alternatives at once, beside the checks (an answer of one shop or none compares nothing).
     const likely = taken.filter((c) => c.kind === "item" && !sameAsSubject(`${c.name} ${c.resultTitle}`, plan)).length
-    const rescueQ = likely < 3 && left() > 30_000 ? rescueQueries(input, plan) : null
+    const rescueQ = !altQ && likely < 3 && left() > 30_000 ? rescueQueries(input, plan) : null
     // At most RESCUE_MS, one call: a slow round is dropped rather than eat the writer's time (a round with no limit
     // can push the whole answer past its time).
     const rescue = rescueQ
@@ -2360,6 +2400,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
   }
 
   if (!usable.length) {
+    await settleSpend()
     stats.usd = Math.round(Object.values(stats.spend).reduce((n, s) => n + s.usd, 0) * 1e6) / 1e6
     yield { type: "result", engine: "a", intro: "", items: [], note: "", condition: plan.condition.kind }
     return
@@ -2400,6 +2441,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
   }
   mark("write", t)
   if (opts.debug) stats.dropped = [...(stats.dropped ?? []), ...dropped]
+  await settleSpend()
   stats.usd = Math.round(Object.values(stats.spend).reduce((n, s) => n + s.usd, 0) * 1e6) / 1e6
   yield { type: "result", engine: "a", ...result, condition: plan.condition.kind }
 }
