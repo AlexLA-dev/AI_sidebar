@@ -496,6 +496,15 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   kept(japan, { n: japan.m.length, k: last(japan), mv: { s: 5, e: 5, to: "japan", why: "merge", mt: 88, fr: "gone" } })
   kept(japan, { n: japan.m.length, k: last(japan), mv: { s: 5, e: 5, to: "japan", why: "merge", fr: "" } })
   kept(pile, { n, k: last(pile), mv: { s: 0, e: 7, to: "japan", why: "merge", mt: 80 }, mx: ["japan"], nm: { k: "k1", t: "React and a trip" } })
+  // 2.6 (98): a name turned down stays turned down when it comes back reworded, in any script; another name comes.
+  const named = (t: string, no: string[], title = "Japan, by rail") => kept(pile, { n, k: last(pile), nm: { k: "k1", t, no } }, { answer: { fits: false, title } })
+  named("A trip to Japan and React", ["React and a trip to Japan"])
+  named("Kyoto ryokans", ["Japan by rail"], "Japan, by rail: passes and seats")
+  named("Kyoto ryokans", ["Japan by rail"], "Ryokans and onsen in Kyoto")
+  named("Поездка в Японию на поезде", ["Поездка в Японию по железной дороге"], "Поездка в Японию: поезда")
+  named("京都の紅葉と旅館", ["京都の紅葉旅行"], "京都の紅葉と旅館のプラン")
+  named("교토 단풍 여행", ["교토 단풍 여행 계획"], "부산 맛집")
+  named("رحلة إلى اليابان", ["رحلة إلى اليابان بالقطار"], "رحلة إلى اليابان بالقطار والفنادق")
   kept({ ...pile, m: pile.m.map((e, i) => (i === 7 ? { ...e, dismissed: { move: true as const, tags: ["travel"] } } : i === 1 ? { ...e, tags: ["react"] } : e)) },
     { n, k: last(pile), mv, tg: [[entryKey(pile.m[1]), "React"], [entryKey(pile.m[7]), "TRAVEL"], ["nope", "X"]] })
   kept(pile, { n, k: last(pile), nm: { k: "k1", t: "React and a trip", no: ["react AND a trip"] } }, { answer: { fits: false, title: "REACT and a trip" } })
@@ -575,6 +584,15 @@ suggestions.push(
   { op: "tags", chat: plan, chats: [plan, trip, japan, bread] },
   { op: "tags", chat: { ...plan, tags: ["japan TRIP"] }, chats: [plan, trip, bread] }
 )
+// 2.6 (98): a tag on one message (just made): offered on the messages like it, on its page too and earlier in a long
+// chat (twice the window); not on other topics; an established tag (three examples) keeps its margin.
+{
+  const fresh = thread("freshtag", [...qa("garden", "https://g2.example/1", { tags: ["garden"] }), ...qa("garden", "https://g2.example/1"), ...Array.from({ length: 6 }, (_, i) => qa(i % 2 ? "garden" : "bread", `https://g2.example/${i + 2}`)).flat()])
+  suggestions.push({ op: "tags", chat: fresh, chats: [fresh, japan, bread], verdicts: [{ tag: "garden", fits: true, confidence: 0.9 }] })
+  suggestions.push({ op: "tags", chat: fresh, chats: [fresh, japan, bread], cfg: { tagT1: 0.99 } })
+  const three = thread("threetags", [...qa("garden", "https://g3.example/1", { tags: ["garden"] }), ...qa("garden", "https://g3.example/1", { tags: ["garden"] }), ...qa("garden", "https://g3.example/2", { tags: ["garden"] }), ...qa("garden", "https://g3.example/1")])
+  suggestions.push({ op: "tags", chat: three, chats: [three, japan, bread] })
+}
 // Refused: on three messages without one taken; one taken after them; on the message itself.
 const refuse = (tag: string) => (e: Entry) => (e.role === "assistant" ? { ...e, dismissed: { tags: [tag] } } : e)
 const tiredTags = thread("tt", [...qa("x", "https://x.example/1").map(refuse("work")), ...qa("x", "https://x.example/2").map(refuse("work")), ...qa("x", "https://x.example/3").map(refuse("Work"))])

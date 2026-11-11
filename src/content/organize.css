@@ -95,3 +95,9 @@
 .cf-org-chip.sug-flash { animation: cf-sug-flash 1.2s ease; }
 @keyframes cf-sug-flash { 0%, 55% { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); } 100% { box-shadow: 0 0 0 5px transparent; } }
 @media (prefers-reduced-motion: reduce) { .cf-org-chip.sug-flash { animation: none; outline: 2px solid var(--accent); outline-offset: 2px; } }
+
+/* 2.6 (98): the bars at the top without a negative sticky offset. The list's 14px top padding sat between the chat's
+   title and the bars in Safari on iPad (a strip of chat text showed through): with a bar there, the list has no top
+   padding and the bars stick at 0, so no WebKit scrolling path can leave room above them. */
+.cf-messages:has(> .cf-topbars), .cf-messages:has(> .cf-pinbar) { padding-top: 0; }
+.cf-messages > .cf-topbars, .cf-messages > .cf-pinbar { top: 0; margin-top: 0; }

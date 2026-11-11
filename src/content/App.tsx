@@ -49,7 +49,7 @@ import { inChatOrder, preview as barPreview, SuggestionsBar, type BarSuggestion 
 import { UndoBar } from "./UndoBar"
 import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
-import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags } from "../shared/organize"
+import { DEFAULT_ORGANIZE, looksMixed, nearName, openMove, openName, openTags } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
@@ -98,7 +98,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { allTags, chatDigests, chatForPage, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -528,8 +528,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ open/close
   // `captured`: the selection our selection button saw (on iPhone the tap itself clears it).
-  const show = useCallback((captured?: SelectionInfo) => {
+  // Opened with the circle or Safari's toolbar button (2.6 (98)): the panel opens on this page's latest chat
+  // (chatForPage), not on a selection's Ask AI, a link or a notification, which bring their own chat.
+  const pageChatRef = useRef(false)
+  const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }) => {
     openedAt.current = Date.now()
+    pageChatRef.current = Boolean(how?.pageChat && !captured)
     if (captured) {
       rememberSelection(captured)
       // On iPhone and iPad the system edit menu stays up while text is selected, over our panel.
@@ -569,8 +573,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [])
 
   useEffect(() => {
-    const onToggle = () => (open ? hide() : show())
-    const onOpen = () => show()
+    const onToggle = () => (open ? hide() : show(undefined, { pageChat: true }))
+    const onOpen = () => show(undefined, { pageChat: true })
     bus.addEventListener("toggle", onToggle)
     bus.addEventListener("open", onOpen)
     return () => {
@@ -592,8 +596,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         const list = listRef.current
         if (list) list.scrollTop = list.scrollHeight
       })
-      loadingRef.current = loadThreads().then(({ threads, active }) => {
+      const pageChat = pageChatRef.current
+      pageChatRef.current = false
+      loadingRef.current = loadThreads().then(async ({ threads, active: was }) => {
         loadedRef.current = true
+        // The circle on a page already talked about: its latest chat (or the site's); else the chat as it was. Stored
+        // before the sync below reads which chat is open.
+        const found = pageChat ? chatForPage(threads, key) : null
+        const active = found && found !== was.id ? { id: found, at: Date.now() } : was
+        if (active !== was) await setActiveThread(active.id)
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
         const entries = threads[active.id]?.m ?? []
@@ -2152,7 +2163,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setDragY(null)
       updateSettings({ fabY: Math.round(y), fabSide: e.clientX < window.innerWidth / 2 ? "left" : "right" })
     } else {
-      show()
+      show(undefined, { pageChat: true })
     }
   }
 
@@ -2768,7 +2779,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // or typed meanwhile, isn't offered.
   const hereChat = threadList.find((x) => x.id === threadRef.current)
   const orgName = orgNow?.name && !(hereChat && (namedByUser(hereChat) || orgNow.name.toLowerCase() === threadName(hereChat).toLowerCase() ||
-    (hereChat.org?.nm?.no ?? []).some((x) => x.toLowerCase() === orgNow.name!.toLowerCase()))) ? orgNow.name : null
+    (hereChat.org?.nm?.no ?? []).some((x) => nearName(x, orgNow.name!)))) ? orgNow.name : null
   // 2.6 (97): the open suggestions at the top of the chat, the ones the rows under the messages show.
   const barItems: BarSuggestion[] = !orgNow ? [] : inChatOrder([
     ...orgNow.tags
@@ -3131,6 +3142,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     for (const m of messages) for (const tag of m.tags ?? []) known.add(tag.toLowerCase())
     const added = cleanTags(next).filter((tag) => !known.has(tag.toLowerCase())).length
     tagMessage(index, next)
+    // 2.6 (98): a tag put on: organizing looks again now, so it's offered on the messages like this one in seconds.
+    if (cleanTags(next).length) setTimeout(() => setOrgAgain((n) => n + 1), 600)
     if (known.size < 3 && known.size + added >= 3 && TARGET === "safari" && !hasPro(plan) && cards && !cards.thirdTag) {
       setTagsCard(true)
       void setOrganizeCards({ thirdTag: true }).then(setCards)
@@ -3448,7 +3461,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </header>
           {/* 2.6 (94): the chat's name, the whole width (a suggested name is judged against it; next to the page in the
               header it was cut to a few letters on an iPhone). */}
-          {headerName && <div class="cf-chat-bar" dir="auto" title={headerName}>{headerName}</div>}
+          {/* 2.6 (98), the owner: «Не хватает кнопки Назад в шапке с названием чата … для перехода в меню чатов». */}
+          {headerName && (
+            <div class="cf-chat-bar">
+              <button type="button" class="cf-icon cf-chat-back" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}><Icon.Back /></button>
+              <span class="cf-chat-bar-name" dir="auto" title={headerName}>{headerName}</span>
+            </div>
+          )}
 
           {view === "threads" ? (
             <>
@@ -3700,9 +3719,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && messages.length < 3 && (
+                {/* The chat is about this page (2.6 (98), the owner: with the chat about this very page open there were no
+                    quick chips, while another page's chat had them under "Now on"): the same chips at the chat's end,
+                    without the divider, less those already asked about this page. */}
+                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && (
                   <div class="cf-actions follow">
-                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a))), 3).map((a) => chip(a, true))}
+                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a) && m.page?.url === pageUrl)), 4).map((a) => chip(a, true))}
                   </div>
                 )}
 
