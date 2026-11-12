@@ -1658,6 +1658,9 @@
  "watchSetLive": {
   "message": "C'est noté. Ce site ne l'affiche que lorsque vous ouvrez la page : je vérifierai à ce moment-là."
  },
+ "watchNotifyWhy": {
+  "message": "Activez les notifications pour que je puisse vous prévenir quand ça change."
+ },
  "watchUnreadable": {
   "message": "Ce site ne se laisse pas vérifier en arrière-plan. Je peux vérifier quand vous ouvrez la page, ou vous rappeler d'y jeter un œil."
  },

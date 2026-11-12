@@ -1658,6 +1658,9 @@
  "watchSetLive": {
   "message": "追蹤中。這個網站只在你開啟頁面時才顯示這項資訊，所以我會在那時檢查。"
  },
+ "watchNotifyWhy": {
+  "message": "請開啟通知，這樣有變化時我才能通知你。"
+ },
  "watchUnreadable": {
   "message": "這個網站不讓我在背景檢查。我可以在你開啟頁面時檢查，或提醒你去看。"
  },

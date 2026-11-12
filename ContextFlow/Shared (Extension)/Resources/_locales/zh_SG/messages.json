@@ -1658,6 +1658,9 @@
  "watchSetLive": {
   "message": "已关注。这个网站只在你打开页面时显示，届时我会检查。"
  },
+ "watchNotifyWhy": {
+  "message": "请打开通知，这样有变化时我能告诉你。"
+ },
  "watchUnreadable": {
   "message": "这个网站不允许在后台检查。我可以在你打开页面时检查，或提醒你去看看。"
  },

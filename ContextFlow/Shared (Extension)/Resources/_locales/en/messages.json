@@ -1658,6 +1658,9 @@
  "watchSetLive": {
   "message": "Watching. This site only shows it when you open the page, so I'll check then."
  },
+ "watchNotifyWhy": {
+  "message": "Turn on notifications so I can tell you when it changes."
+ },
  "watchUnreadable": {
   "message": "This site doesn't let me check it in the background. I can check when you open the page, or remind you to look."
  },
