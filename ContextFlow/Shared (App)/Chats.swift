@@ -611,6 +611,8 @@ final class ChatLibrary: ObservableObject {
     #if DEBUG
     /// -CFDebugRemoteRename is done once per launch.
     private static var remoteRenameScheduled = false
+    /// -CFDebugOrgSteps too.
+    private static var orgStepsScheduled = false
     #endif
 
     enum Cloud: Equatable {
@@ -836,7 +838,19 @@ final class ChatLibrary: ObservableObject {
             let after = max(1, UserDefaults.standard.double(forKey: "CFDebugOpenAfter"))
             DispatchQueue.main.asyncAfter(deadline: .now() + after) {
                 DebugHangLog.mark("request \(id)")
-                ChatLinks.shared.pending = (id, id.replacingOccurrences(of: "debug-many-", with: "da") + "-0")
+                // -CFDebugOpenMessage <message id>: at that message (2.6 (100)).
+                let message = UserDefaults.standard.string(forKey: "CFDebugOpenMessage") ?? id.replacingOccurrences(of: "debug-many-", with: "da") + "-0"
+                ChatLinks.shared.pending = (id, message)
+            }
+        }
+        // 2.6 (100): -CFDebugOrgSteps "8|chat=debug-long&tags=1:trains;14|chat=debug-long" gives the chat those records so
+        // many seconds after launch (debugOrg), as another device writes them while the chat is read.
+        if let steps = UserDefaults.standard.string(forKey: "CFDebugOrgSteps"), !Self.orgStepsScheduled {
+            Self.orgStepsScheduled = true
+            for step in steps.split(separator: ";") {
+                let parts = step.split(separator: "|", maxSplits: 1).map(String.init)
+                guard let after = Double(parts[0]), let url = URL(string: "contextflow://debug-org?" + (parts.count > 1 ? parts[1] : "")) else { continue }
+                DispatchQueue.main.asyncAfter(deadline: .now() + after) { [weak self] in self?.debugOrg(url) }
             }
         }
         #endif
@@ -910,6 +924,33 @@ final class ChatLibrary: ObservableObject {
         let expired = trashed.filter { $0.trashedAt! <= cutoff }
         if !expired.isEmpty { deleteNow(expired) }
     }
+
+    #if DEBUG
+    /// 2.6 (100) (the chat jumped to its start when a suggestion came): contextflow://debug-org?chat=<id>&tags=1:trains,3:rail
+    /// &move=4-5:<chat> gives that chat a record with those tags suggested on those messages (by index) and that block's
+    /// move, as another device writes it, and the library reloads as after a pull from iCloud. Neither: the record goes.
+    func debugOrg(_ url: URL) {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let value = { (name: String) in items.first { $0.name == name }?.value ?? "" }
+        guard let item = ChatMirror.chats()[value("chat")], var object = (try? JSONSerialization.jsonObject(with: Data(item.data.utf8))) as? [String: Any],
+              let m = object["m"] as? [[String: Any]], let last = m.last else { return }
+        let tags: [OrgState.Tag] = value("tags").split(separator: ",").compactMap { pair in
+            let parts = pair.split(separator: ":")
+            guard parts.count == 2, let i = Int(parts[0]), m.indices.contains(i) else { return nil }
+            return OrgState.Tag(key: Organize.entryKey(m[i]), tag: String(parts[1]))
+        }
+        var move: OrgState.Move?
+        let spec = value("move").split(separator: ":")
+        if spec.count == 2, case let ends = spec[0].split(separator: "-").compactMap({ Int($0) }), ends.count == 2 {
+            move = OrgState.Move(s: ends[0], e: ends[1], to: String(spec[1]), why: .topic, mt: 90)
+        }
+        object["org"] = tags.isEmpty && move == nil ? nil : OrgState(n: m.count, k: Organize.entryKey(last), mv: move, tg: tags).json
+        guard let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) else { return }
+        _ = ChatMirror.apply(saves: [value("chat"): ChatMirror.Item(updatedAt: item.updatedAt + 1, data: text)])
+        DebugHangLog.mark("org \(value("chat")) tags \(tags.count) move \(move == nil ? 0 : 1)")
+        reload()
+    }
+    #endif
 
     /// Pinned chats first in their order, then the others, the latest first (the extension's order); the same pin or
     /// time, by id: the chats come from a dictionary, in no set order, and the list mustn't change between reloads.
