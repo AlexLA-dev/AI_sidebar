@@ -555,8 +555,10 @@ function similarItemsStore(condition: string, ru = false): Array<Record<string, 
         ["Brook Lux ANC", "brook-audio.store", "A budget pick with active noise cancelling and app EQ.", "Cheaper: $69 against $129, in stock.", "69 USD"],
         ["Veda Wave Pro", "veda.store", "LDAC and multipoint like the Aero 2, with a longer battery.", "The shop doesn't let servers open the page, so price and stock aren't confirmed.", ""]
       ]
-  return rows.map(([name, host, why, fit, price], i) => ({
-    name, why, fit: cond ? fit : "", met: cond ? (price ? "yes" : "unknown") : "n/a", url: `https://${host}/${name.toLowerCase().replace(/ /g, "-")}`,
+  // iOS 27 header and search assets (STORE_BANNER=1): the same list without prices (Apple takes none there).
+  const noPrice = process.env.STORE_BANNER === "1"
+  return rows.map(([name, host, why, fitText, price], i) => ({
+    name, why, fit: cond ? (noPrice && price ? (ru ? "Дешевле, в наличии." : "Cheaper, in stock.") : fitText) : "", met: cond ? (price ? "yes" : "unknown") : "n/a", url: `https://${host}/${name.toLowerCase().replace(/ /g, "-")}`,
     host, title: name, source: "item", checked: Boolean(price), ...(price ? { price, stock: "in", watch: { source: "ld-price", value: price } } : {}),
     ...(i === 1 ? { date: "2026-08-14" } : {})
   }))
