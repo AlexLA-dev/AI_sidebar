@@ -19,6 +19,7 @@
 		CF9810000000000000000002 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
 		CF1000000000000000000002 /* ReviewGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000001 /* ReviewGate.swift */; };
 		CF1000000000000000000005 /* ReviewAsk.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000004 /* ReviewAsk.swift */; };
+		CF1000000000000000000008 /* ShareButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000007 /* ShareButton.swift */; };
 		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000003 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
 		CF9500000000000000000003 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
@@ -26,6 +27,7 @@
 		CF9810000000000000000003 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
 		CF1000000000000000000003 /* ReviewGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000001 /* ReviewGate.swift */; };
 		CF1000000000000000000006 /* ReviewAsk.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000004 /* ReviewAsk.swift */; };
+		CF1000000000000000000009 /* ShareButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000007 /* ShareButton.swift */; };
 		CFE200000000000000000002 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
 		CFE200000000000000000003 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
 		CFE600000000000000000002 /* SpeechText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE600000000000000000001 /* SpeechText.swift */; };
@@ -177,6 +179,7 @@
 		CF9810000000000000000001 /* MeaningSpot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningSpot.swift; sourceTree = "<group>"; };
 		CF1000000000000000000001 /* ReviewGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewGate.swift; sourceTree = "<group>"; };
 		CF1000000000000000000004 /* ReviewAsk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewAsk.swift; sourceTree = "<group>"; };
+		CF1000000000000000000007 /* ShareButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareButton.swift; sourceTree = "<group>"; };
 		CFE200000000000000000001 /* Listen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Listen.swift; sourceTree = "<group>"; };
 		CFE600000000000000000001 /* SpeechText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechText.swift; sourceTree = "<group>"; };
 		CF5000000000000000000001 /* PdfText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PdfText.swift; sourceTree = "<group>"; };
@@ -303,6 +306,7 @@
 				CF9810000000000000000001 /* MeaningSpot.swift */,
 				CF1000000000000000000001 /* ReviewGate.swift */,
 				CF1000000000000000000004 /* ReviewAsk.swift */,
+				CF1000000000000000000007 /* ShareButton.swift */,
 				CFE200000000000000000001 /* Listen.swift */,
 				CFE600000000000000000001 /* SpeechText.swift */,
 				410D88912F41EE9800684748 /* ContentView.swift */,
@@ -634,6 +638,7 @@
 				CF9810000000000000000002 /* MeaningSpot.swift in Sources */,
 				CF1000000000000000000002 /* ReviewGate.swift in Sources */,
 				CF1000000000000000000005 /* ReviewAsk.swift in Sources */,
+				CF1000000000000000000008 /* ShareButton.swift in Sources */,
 				CFE200000000000000000002 /* Listen.swift in Sources */,
 				CFE600000000000000000002 /* SpeechText.swift in Sources */,
 				CF6000000000000000000002 /* Chats.swift in Sources */,
@@ -670,6 +675,7 @@
 				CF9810000000000000000003 /* MeaningSpot.swift in Sources */,
 				CF1000000000000000000003 /* ReviewGate.swift in Sources */,
 				CF1000000000000000000006 /* ReviewAsk.swift in Sources */,
+				CF1000000000000000000009 /* ShareButton.swift in Sources */,
 				CFE200000000000000000003 /* Listen.swift in Sources */,
 				CFE600000000000000000003 /* SpeechText.swift in Sources */,
 				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
