@@ -91,7 +91,7 @@ export function OrganizeRow({ tag, move, name, quiet, onTag, onTagNo, onMove, on
         <span class="cf-org-chip move" data-sug="move">
           <button type="button" class="cf-org-take" onClick={onMove} aria-label={move.from ? t("orgMergeHereA11y", move.toName) : move.why === "merge" ? t("orgMergeA11y", move.toName) : move.to ? t("orgMoveA11y", messagesCount(move.count), move.toName) : t("orgSplitA11y", move.toName)}>
             <Arrow /><span class="cf-org-text">{move.from ? withName("orgMergeHere", move.toName) : move.why === "merge" ? withName("orgMergeInto", move.toName) : move.to ? withName("orgMoveTo", move.toName, messagesCount(move.count)) : withName("orgSplit", move.toName)}</span>
-            {move.to && move.match !== undefined && <span class="cf-org-match">{t("orgMatch", move.match)}</span>}
+            {move.to && move.match !== undefined && <span class="cf-org-match">{t(move.topic ? "orgMatchTopic" : "orgMatch", move.match)}</span>}
           </button>
           <button type="button" class="cf-org-x" onClick={onMoveNo} aria-label={t("orgNoA11y")}><Icon.Close /></button>
         </span>

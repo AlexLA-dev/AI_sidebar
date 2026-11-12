@@ -527,6 +527,7 @@
   "orgNameFailed": "目前無法為對話命名，請稍後再試。",
   "orgNameAs": "將對話命名為「{0}」",
   "orgMatch": "相符度 {0}%",
+  "orgMatchTopic": "同一主題，相符度 {0}%",
   "orgMergeInto": "合併到「{0}」",
   "orgMergeA11y": "把此對話合併到「{0}」",
   "orgMerged": "已合併到「{0}」",

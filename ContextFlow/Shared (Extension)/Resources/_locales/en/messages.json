@@ -1520,6 +1520,9 @@
  "orgMatch": {
   "message": "{0}% match"
  },
+ "orgMatchTopic": {
+  "message": "same topic, {0}% match"
+ },
  "orgMergeInto": {
   "message": "Merge into “{0}”"
  },

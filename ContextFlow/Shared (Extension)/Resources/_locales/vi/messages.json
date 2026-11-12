@@ -1520,6 +1520,9 @@
  "orgMatch": {
   "message": "khớp {0}%"
  },
+ "orgMatchTopic": {
+  "message": "cùng chủ đề, khớp {0}%"
+ },
  "orgMergeInto": {
   "message": "Gộp vào “{0}”"
  },

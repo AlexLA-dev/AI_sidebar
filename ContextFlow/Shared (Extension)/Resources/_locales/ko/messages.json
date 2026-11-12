@@ -1520,6 +1520,9 @@
  "orgMatch": {
   "message": "{0}% 일치"
  },
+ "orgMatchTopic": {
+  "message": "같은 주제, {0}% 일치"
+ },
  "orgMergeInto": {
   "message": "‘{0}’에 합치기"
  },

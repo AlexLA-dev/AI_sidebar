@@ -43,6 +43,7 @@ func suggestion(_ s: Organize.MoveSuggestion?) -> Any {
     var out: [String: Any] = ["start": s.start, "end": s.end, "to": s.to ?? NSNull(), "why": s.why.rawValue, "score": s.score, "current": s.current]
     if let match = s.match { out["match"] = match }
     if let from = s.from { out["from"] = from }
+    if s.topic { out["topic"] = true }
     return out
 }
 

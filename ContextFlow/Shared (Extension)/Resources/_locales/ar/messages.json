@@ -1520,6 +1520,9 @@
  "orgMatch": {
   "message": "تطابق {0}٪"
  },
+ "orgMatchTopic": {
+  "message": "الموضوع نفسه، تطابق {0}٪"
+ },
  "orgMergeInto": {
   "message": "ادمج مع «{0}»"
  },

@@ -2866,7 +2866,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const target = mv?.fr ? threadList.find((x) => x.id === mv.fr) : mv?.to ? threadList.find((x) => x.id === mv.to) : undefined
     setOrg({
       chat, length: messages.length,
-      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.fr && target ? target.m.length : mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}), ...(mv.fr ? { from: mv.fr } : {}) } : null,
+      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.fr && target ? target.m.length : mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}), ...(mv.fr ? { from: mv.fr } : {}), ...(mv.tp ? { topic: true as const } : {}) } : null,
       tags: openTags(shown),
       name: openName(shown) ?? null
     })

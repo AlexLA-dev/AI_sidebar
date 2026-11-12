@@ -452,6 +452,23 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   move(thread("oldlone", [noteOn("japan", "https://jg.example/1", "A note about the rail pass for the trip")]), [fresh])
   move(no(japan.m).length ? { ...japan, m: [...japan.m.slice(0, 2), ...no(japan.m.slice(2, 4)), ...japan.m.slice(4)] } : japan, [japan, fresh])
 }
+// 2.6 (100): chats on one topic merge without a shared page from mergeTopic %; off at 0; not above the match; the answers'
+// mergeTopicA; never a larger chat into a newer chat of one block; turned down; a kept record with tp.
+{
+  const rail = thread("railjapan", [...qa("japan", "https://rail.example/7"), ...qa("japan", "https://rail.example/8"), ...qa("japan", "https://rail.example/9")])
+  move(japan, [japan, rail, bread])
+  move(rail, [japan, rail, bread])
+  move(japan, [japan, rail], { cfg: { mergeTopic: 0 } })
+  move(japan, [japan, rail], { cfg: { mergeTopic: 101 } })
+  move(japan, [japan, rail], { cfg: { mergeTopicA: 1.01 } })
+  move(japan, [japan, rail], { cfg: { mergeTopic: 60, mergeTopicA: 0 } })
+  move(japan, [japan, thread("lonerail", qa("japan", "https://rail.example/7"))])
+  move(thread("lonerail2", qa("japan", "https://rail.example/7")), [japan])
+  move({ ...japan, org: { n: japan.m.length, k: entryKey(japan.m[japan.m.length - 1]), mx: ["railjapan"] } }, [japan, rail])
+  move(japan, [japan, thread("breadrail", [...qa("bread", "https://rail.example/7"), ...qa("bread", "https://rail.example/8")])])
+  const org = { n: rail.m.length, k: entryKey(rail.m[rail.m.length - 1]), mv: { s: 5, e: 5, to: "railjapan", why: "merge", mt: 100, fr: "japan", tp: true } }
+  suggestions.push({ op: "org", chat: { ...rail, org } as Thread, chats: [rail, japan, bread], name: threadName(rail), key: "k2", answer: { fits: false, title: "Japan, by rail" }, current: threadName(rail), tg: [] })
+}
 // 2.6 (95): the newer chat shows the merge too (an older chat joins it); one shared page is enough and the newer chat
 // may be one block; the answers decide (questions on a shared page are mostly its title); a chat of two pages on two
 // topics: the newer page goes; an end of a block whose answer fits another chat far better; a site's chat takes a
@@ -778,7 +795,7 @@ suggestions.push(
   { op: "hostOf", urls: ["https://jg/1", "https://www.Example.COM:8080/a?b#c", "https://user:pw@www.host.com/", "http://192.168.0.1/x", "https://sub.www.example.com/", "u", "", null, "about:blank", "mailto:a@b.com", "file:///Users/x", "https://e.example/😀"] },
   { op: "pack", vectors: [vectorFor("pack"), [1, tie(5), -tie(5), tie(60), -tie(60), 0, -0.0001, 0.25, -1], [0, 0, 0], [0.5, -0.25, 2, -3e-8, 1e-300], Array.from({ length: 256 }, (_, i) => Math.sin(i))] },
   { op: "unpack", packed: ["%%%", "", "AAAA", "AQID", " AQ ID\n", "AQI", "AQ", "A", "AQ==", "AQ=", "AQ===", "AR==", "/+8=", "gIGC", packVector(vectorFor("pack"))] },
-  ...[{ moveT: 0.6, window: "5", nope: 1 }, { moveT: true, judge: false }, { moveT: -1, moveD: 1_001, moveT1: 1_000, siteT: 0 }, { splitMin: 2.5, maxTags: 0 }, null, [], "x", 5].map((raw) => ({ op: "config", raw }))
+  ...[{ moveT: 0.6, window: "5", nope: 1 }, { moveT: true, judge: false }, { moveT: -1, moveD: 1_001, moveT1: 1_000, siteT: 0 }, { splitMin: 2.5, maxTags: 0 }, { mergeTopic: 85, mergeTopicA: 0.6 }, { mergeTopic: 0 }, null, [], "x", 5].map((raw) => ({ op: "config", raw }))
 )
 // 2.6 (98): each move case's scan too (what it compared, why nothing fired), as both engines report it.
 suggestions.push(...suggestions.filter((c) => c.op === "suggestMove").map((c) => ({ ...c, op: "scan" })))
@@ -791,6 +808,9 @@ test("organizing gives the same results in the panel and in the app", { skip }, 
   // 2.6 (95): a merge into the chat shown, and one kept in a chat's record.
   assert.ok(cases.some((c) => c.op === "suggestMove" && (js(c) as { from?: string } | null)?.from))
   assert.ok(cases.some((c) => c.op === "org" && (js(c) as { move: { fr?: string } | null }).move?.fr))
+  // 2.6 (100): a merge by topic, in a suggestion and kept in a chat's record.
+  assert.ok(cases.some((c) => c.op === "suggestMove" && (js(c) as { topic?: boolean } | null)?.topic))
+  assert.ok(cases.some((c) => c.op === "org" && (js(c) as { move: { tp?: boolean } | null }).move?.tp))
   assert.ok(cases.some((c) => c.op === "tags" && (js(c) as Array<{ candidates: unknown[]; judged: string[] }>).some((t) => t.candidates.length === 3 && t.judged.length > 0)))
   // And the kept state: a move, tags and a name still open in some, and junk in others.
   const kept = cases.filter((c) => c.op === "org").map((c) => js(c) as { clean: unknown; move: unknown; tags: unknown[]; name: unknown })
