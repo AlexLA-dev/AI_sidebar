@@ -1,4 +1,8 @@
-Novidades do ContextFlow 2.6:
+Novidades do ContextFlow 2.6.1:
+• No painel do Safari, a conversa agora fica onde você está lendo quando aparece uma sugestão
+• Conversas sobre o mesmo assunto agora recebem a sugestão de juntar, mesmo que não sejam da mesma página (Pro)
+
+Novidades da 2.6:
 • Ultra, um novo plano: tudo do Pro, mais “Encontrar parecidos” e “Ouvir”
 • Encontrar parecidos: está vendo um produto, um app, um artigo, uma receita ou um lugar? Toque em “Encontrar parecidos” para ver alternativas reais: mais baratas, mais novas, em estoque, grátis ou no seu idioma, ou diga com suas palavras o que você precisa. Cada link é aberto e verificado antes de você ver, e dá para acompanhar o preço de qualquer um deles
 • Ouvir: toque em “Ouvir” embaixo de uma resposta ou vá em … → “Ouvir esta página”. Uma voz natural lê o texto em voz alta, em mais de 100 idiomas. No iPhone, continua tocando com a tela bloqueada
@@ -11,4 +15,3 @@ Novidades do ContextFlow 2.6:
 • Primeira vez no ContextFlow? Um guia curto acompanha você até a primeira resposta e não gasta suas respostas do dia
 • Depois de uma atualização, “Novidades” no app mostra as principais mudanças com vídeos curtos
 • O ContextFlow agora fala chinês tradicional, árabe e vietnamita: 14 idiomas no total
-• Correções: o painel e os Ajustes agora rolam no Google, as últimas linhas dos Ajustes não ficam mais escondidas sob a barra de ferramentas do Safari, e os botões ao lado do texto selecionado não ficam mais parados quando só uma parte da página rola
