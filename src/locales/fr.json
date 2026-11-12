@@ -527,6 +527,7 @@
   "orgNameFailed": "Je n’ai pas pu nommer la discussion pour l’instant. Réessayez plus tard.",
   "orgNameAs": "Nommer la discussion « {0} »",
   "orgMatch": "correspond à {0} %",
+  "orgMatchTopic": "même sujet, correspond à {0} %",
   "orgMergeInto": "Fusionner avec « {0} »",
   "orgMergeA11y": "Fusionner cette discussion avec « {0} »",
   "orgMerged": "Fusionné avec « {0} »",

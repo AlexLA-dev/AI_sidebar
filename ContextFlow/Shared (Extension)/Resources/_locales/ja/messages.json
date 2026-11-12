@@ -1520,6 +1520,9 @@
  "orgMatch": {
   "message": "一致度 {0}%"
  },
+ "orgMatchTopic": {
+  "message": "同じテーマ・一致度 {0}%"
+ },
  "orgMergeInto": {
   "message": "「{0}」に統合"
  },

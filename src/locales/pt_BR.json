@@ -527,6 +527,7 @@
   "orgNameFailed": "Não consegui nomear a conversa agora. Tente de novo mais tarde.",
   "orgNameAs": "Chamar a conversa de “{0}”",
   "orgMatch": "{0}% de correspondência",
+  "orgMatchTopic": "mesmo assunto, {0}% de correspondência",
   "orgMergeInto": "Juntar com “{0}”",
   "orgMergeA11y": "Juntar esta conversa com “{0}”",
   "orgMerged": "Juntado com “{0}”",

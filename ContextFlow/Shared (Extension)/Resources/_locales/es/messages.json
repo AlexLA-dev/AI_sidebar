@@ -1520,6 +1520,9 @@
  "orgMatch": {
   "message": "coincide en un {0} %"
  },
+ "orgMatchTopic": {
+  "message": "mismo tema, coincide en un {0} %"
+ },
  "orgMergeInto": {
   "message": "Unir con «{0}»"
  },

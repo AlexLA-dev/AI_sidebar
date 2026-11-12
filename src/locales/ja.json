@@ -527,6 +527,7 @@
   "orgNameFailed": "今はチャットに名前を付けられませんでした。あとでもう一度お試しください。",
   "orgNameAs": "チャット名を「{0}」にする",
   "orgMatch": "一致度 {0}%",
+  "orgMatchTopic": "同じテーマ・一致度 {0}%",
   "orgMergeInto": "「{0}」に統合",
   "orgMergeA11y": "このチャットを「{0}」に統合",
   "orgMerged": "「{0}」に統合しました",

@@ -258,7 +258,7 @@ export type OrganizeReply =
       ok: true
       // `match`: how well it fits there, in % (a move by topic or site, 2.6 (93)). `from` (2.6 (95)): an older chat joins
       // this one whole (`toName` is its name, `count` its messages).
-      move: { start: number; end: number; to: string | null; toName: string; why: "merge" | "page" | "site" | "topic" | "apart"; count: number; match?: number; from?: string } | null
+      move: { start: number; end: number; to: string | null; toName: string; why: "merge" | "page" | "site" | "topic" | "apart"; count: number; match?: number; from?: string; topic?: true } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
       // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one would. A suggestion, like a

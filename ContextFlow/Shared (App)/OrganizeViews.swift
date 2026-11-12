@@ -40,7 +40,7 @@ struct SuggestionRow: View {
                             .lineLimit(1)
                         // 2.6 (93): how well it fits there, shown with the suggestion; a long name is cut, never this.
                         if move.to != nil, let match = move.match {
-                            (Text(" · ").foregroundColor(.secondary) + Text("\(Int(match))% match").fontWeight(.semibold).foregroundColor(.accentColor))
+                            (Text(" · ").foregroundColor(.secondary) + (move.topic ? Text("same topic, \(Int(match))% match") : Text("\(Int(match))% match")).fontWeight(.semibold).foregroundColor(.accentColor))
                                 .lineLimit(1)
                                 .fixedSize()
                         }
@@ -413,6 +413,8 @@ final class OrganizeModel: ObservableObject {
         var match: Double? = nil
         /// 2.6 (95): an older chat joins this one whole (`toName` is its name).
         var from: String? = nil
+        /// 2.6 (100): chats on one topic without a shared page: the match says "same topic".
+        var topic = false
         var count: Int { end - start + 1 }
     }
 
@@ -591,7 +593,7 @@ final class OrganizeModel: ObservableObject {
             // A merge into this chat names the older chat (2.6 (95)).
             let named = (s.from ?? s.to).flatMap { id in threads.first { $0.id == id }?.name }
             let name = named ?? ChatThread.title(of: Array(thread.entries[s.start...s.end]))
-            out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why, match: s.match, from: s.from)
+            out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why, match: s.match, from: s.from, topic: s.topic)
         }
         for tagging in work.tags {
             let hash = verdictHash(tagging.message, tagging.candidates)
@@ -644,7 +646,7 @@ final class OrganizeModel: ObservableObject {
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
         if let mv = Organize.openMove(chat, named) {
             let name = (mv.fr ?? mv.to).flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[mv.s...mv.e]))
-            out.move = Move(start: mv.s, end: mv.e, to: mv.to, toName: name, why: mv.why, match: mv.mt, from: mv.fr)
+            out.move = Move(start: mv.s, end: mv.e, to: mv.to, toName: name, why: mv.why, match: mv.mt, from: mv.fr, topic: mv.tp)
         }
         for tag in Organize.openTags(chat) { out.tags[tag.index] = (tag.key, tag.tag) }
         out.name = Organize.openName(chat, name: thread.name)

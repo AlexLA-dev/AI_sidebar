@@ -527,6 +527,7 @@
   "orgNameFailed": "Mình chưa đặt được tên cho cuộc trò chuyện. Hãy thử lại sau.",
   "orgNameAs": "Đặt tên “{0}”",
   "orgMatch": "khớp {0}%",
+  "orgMatchTopic": "cùng chủ đề, khớp {0}%",
   "orgMergeInto": "Gộp vào “{0}”",
   "orgMergeA11y": "Gộp cuộc trò chuyện này vào “{0}”",
   "orgMerged": "Đã gộp vào “{0}”",

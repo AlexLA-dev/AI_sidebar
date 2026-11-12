@@ -43,6 +43,10 @@ export interface OrganizeConfig {
   tailRelD: number
   // 2.6 (95): two chats on a shared page merge when their answers fit each other this well both ways (`mergeFit`).
   mergeA: number
+  // 2.6 (100), the owner: whole chats on one topic merge without a shared page too, from this match (by questions and
+  // answers, the % shown) and the answers' `mergeTopicA` (never below `mergeA`). 0: only chats on a shared page merge.
+  mergeTopic: number
+  mergeTopicA: number
   // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
   window: number
   tagWindow: number
@@ -114,6 +118,13 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   // asked on each other's pages up to 0.53, mostly in Latin and CJK scripts (23 of 135 from 0.45). 0.48 would drop 14 of
   // those but 4 real merges of the 2.5 sample (English and Russian, 0.45–0.47): it stays.
   mergeA: 0.45,
+  // 2.6 (100), the owner's 80 (organize-26/b100/topicmerge.mjs: lib96 and three more people, the 2.5 sample without his
+  // chats, lib95). Each chat with two pages or more cut where they differ, 98: joined 61 → 80 (75 % 81, 85 % 79, 90 % 75).
+  // Chats on different topics merged, one person's neighbouring topics first: 24 pairs (14 neighbouring, 2 a mix and the
+  // chat its part is about, 8 others; 75 % 30, 85 % 16, 90 % 12). Of the chats' suggestions as they are, one move gives
+  // way to a merge. The answers decide nothing more: their cut at 0.6 drops as many pairs as 90 % does, and more joins.
+  mergeTopic: 80,
+  mergeTopicA: 0.45,
   window: 3,
   tagWindow: 5,
   tagT: 0.3,
@@ -363,6 +374,8 @@ export interface MoveSuggestion {
   // 2.6 (95): the other way round, an older chat joins this one whole (`to` is this chat; shown under message `end`).
   // People work in the newer chat: a merge shown only in the older one goes unseen.
   from?: string
+  // 2.6 (100): a merge of chats on one topic without a shared page (`mergeTopic`): the suggestion says so.
+  topic?: true
 }
 
 /** A block's fit to a chat as people read it: 0–100 %, 0 at what unrelated chats share, 100 at a chat's own messages. */
@@ -415,7 +428,7 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
   const others = chats
     .filter((t) => t.id !== chat.id && !t.deleted && t.kind !== "history" && t.m.length > 0)
     .map((t) => ({ thread: t, blocks: scoredBlocks(t.m, vectorOf) }))
-  let merge: { to: string; from?: string; score: number; match: number } | null = null
+  let merge: { to: string; from?: string; score: number; match: number; topic?: true } | null = null
   for (const o of others) {
     const out = mergeFit({ thread: chat, blocks }, o, cfg)
     if (out && (!merge || out.score > merge.score)) merge = { to: o.thread.id, ...out }
@@ -424,9 +437,9 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
   }
   if (merge?.from) {
     const last = chat.m.length - 1
-    return { start: last, end: last, to: chat.id, from: merge.from, why: "merge", score: merge.score, current: 0, match: merge.match }
+    return { start: last, end: last, to: chat.id, from: merge.from, why: "merge", score: merge.score, current: 0, match: merge.match, ...(merge.topic ? { topic: true as const } : {}) }
   }
-  if (merge) return { start: 0, end: chat.m.length - 1, to: merge.to, why: "merge", score: merge.score, current: 0, match: merge.match }
+  if (merge) return { start: 0, end: chat.m.length - 1, to: merge.to, why: "merge", score: merge.score, current: 0, match: merge.match, ...(merge.topic ? { topic: true as const } : {}) }
   const first = Math.max(0, blocks.length - cfg.window)
   const found: Array<MoveSuggestion & { index: number }> = []
   for (let i = first; i < blocks.length; i++) {
@@ -503,22 +516,30 @@ function newer(a: Thread, b: Thread): boolean {
  * be one block; a chat of notes only still gets joined the other way (`joins`, 2.6 (91)). The answers must fit too: on a
  * shared page the questions' vectors are mostly the page's title. The match shown is by questions and answers, like
  * every move's, so a merge needs `minMatch` % by them as well.
+ * 2.6 (100), the owner: «если тематика, контекст довольно сильно пересекаются (как я до этого писал - 80%+)». Without a
+ * shared page the chats merge from `mergeTopic` % (0: never), the other rules as they are; the suggestion says it's the
+ * same topic (`topic`).
  */
-function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): { score: number; match: number } | null {
+function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): { score: number; match: number; topic?: true } | null {
   // The cheap checks first: every pair of chats is checked when the list counts.
-  if (!from.blocks.some((b) => b.url && to.blocks.some((x) => x.url === b.url))) return null
+  const page = from.blocks.some((b) => b.url && to.blocks.some((x) => x.url === b.url))
+  if (!page && !(cfg.mergeTopic > 0)) return null
   if (to.thread.m.every((e) => e.note)) return null
   if (from.blocks.some((b) => b.settled || b.dismissed) || (from.thread.org?.mx ?? []).includes(to.thread.id) || !newer(to.thread, from.thread)) return null
   const mine = from.blocks.filter((b) => b.v)
   const theirs = to.blocks.filter((b) => b.v)
   if (!mine.length || !theirs.length) return null
+  // By topic, never a larger chat into a newer chat of one block: that one joins the larger by the move rules (the
+  // smaller into the larger), not the other way round.
+  if (!page && to.blocks.length < 2 && from.thread.m.length > to.thread.m.length) return null
   // Both ways: one chat on a topic and a pile that has it too aren't one chat.
   const fit = (a: ScoredBlock[], b: ScoredBlock[], by: "v" | "a") => a.reduce((s, x) => s + topMean(x[by]!, b.map((y) => ({ v: y[by]! })), 2), 0) / a.length
   // 2.6 (95): decided by the answers. On shared pages the questions' vectors are mostly the page's title: a monitor
   // chat asked on an espresso machine's page fit that chat 100 % by questions and answers, 0.2 by answers.
-  if (Math.min(fit(mine, theirs, "a"), fit(theirs, mine, "a")) < cfg.mergeA) return null
+  if (Math.min(fit(mine, theirs, "a"), fit(theirs, mine, "a")) < (page ? cfg.mergeA : Math.max(cfg.mergeA, cfg.mergeTopicA))) return null
   const score = Math.min(fit(mine, theirs, "v"), fit(theirs, mine, "v"))
   const match = matchPercent(score, cfg)
+  if (!page) return match >= cfg.mergeTopic && match >= cfg.minMatch ? { score, match, topic: true } : null
   return match >= cfg.minMatch ? { score, match } : null
 }
 
@@ -576,11 +597,13 @@ export function organizeScan(chat: Thread, chats: Thread[], vectorOf: VectorOf, 
     const qa = Math.min(fit(mine, theirs, "v"), fit(theirs, mine, "v"))
     if (merge && qa <= merge.qa) continue
     const a = Math.min(fit(mine, theirs, "a"), fit(theirs, mine, "a"))
-    const why: OrganizeScan["mgw"] = !from.blocks.some((b) => b.url && to.blocks.some((x) => x.url === b.url)) ? "page"
+    // No shared page: "page" unless they're on one topic from `mergeTopic` % (2.6 (100)).
+    const page = from.blocks.some((b) => b.url && to.blocks.some((x) => x.url === b.url))
+    const why: OrganizeScan["mgw"] = !page && (!(cfg.mergeTopic > 0) || matchPercent(qa, cfg) < cfg.mergeTopic) ? "page"
       : to.thread.m.every((e) => e.note) ? "notes"
       : from.blocks.some((b) => b.settled || b.dismissed) ? "settled"
       : (from.thread.org?.mx ?? []).includes(to.thread.id) ? "refused"
-      : a < cfg.mergeA ? "answers"
+      : a < (page ? cfg.mergeA : Math.max(cfg.mergeA, cfg.mergeTopicA)) ? "answers"
       : matchPercent(qa, cfg) < cfg.minMatch ? "match"
       : "open"
     merge = { qa, a, why }
@@ -1331,7 +1354,7 @@ export function orgStateFor(thread: Thread, move: MoveSuggestion | null, tags: A
   return {
     n: thread.m.length,
     k: lastKey(thread.m),
-    ...(move ? { mv: { s: move.start, e: move.end, to: move.to, why: move.why, ...(move.match !== undefined ? { mt: move.match } : {}), ...(move.from ? { fr: move.from } : {}) } } : {}),
+    ...(move ? { mv: { s: move.start, e: move.end, to: move.to, why: move.why, ...(move.match !== undefined ? { mt: move.match } : {}), ...(move.from ? { fr: move.from } : {}), ...(move.topic ? { tp: true as const } : {}) } } : {}),
     ...(tags.length ? { tg: tags.map((t) => [t.key, t.tag] as [string, string]) } : {}),
     ...(nm ? { nm } : {}),
     ...(thread.org?.mx?.length ? { mx: thread.org.mx } : {})

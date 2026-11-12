@@ -527,6 +527,7 @@
   "orgNameFailed": "Ich konnte den Chat gerade nicht benennen. Versuch es später noch einmal.",
   "orgNameAs": "Chat „{0}“ nennen",
   "orgMatch": "{0} % passend",
+  "orgMatchTopic": "gleiches Thema, {0} % passend",
   "orgMergeInto": "Mit „{0}“ zusammenführen",
   "orgMergeA11y": "Diesen Chat mit „{0}“ zusammenführen",
   "orgMerged": "Mit „{0}“ zusammengeführt",
