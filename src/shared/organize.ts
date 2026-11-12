@@ -118,12 +118,13 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   // asked on each other's pages up to 0.53, mostly in Latin and CJK scripts (23 of 135 from 0.45). 0.48 would drop 14 of
   // those but 4 real merges of the 2.5 sample (English and Russian, 0.45–0.47): it stays.
   mergeA: 0.45,
-  // 2.6 (100), the owner's 80 (organize-26/b100/topicmerge.mjs: lib96 and three more people, the 2.5 sample without his
-  // chats, lib95). Each chat with two pages or more cut where they differ, 98: joined 61 → 80 (75 % 81, 85 % 79, 90 % 75).
-  // Chats on different topics merged, one person's neighbouring topics first: 24 pairs (14 neighbouring, 2 a mix and the
-  // chat its part is about, 8 others; 75 % 30, 85 % 16, 90 % 12). Of the chats' suggestions as they are, one move gives
-  // way to a merge. The answers decide nothing more: their cut at 0.6 drops as many pairs as 90 % does, and more joins.
-  mergeTopic: 80,
+  // 2.6 (100), the owner asked for 80 and chose 85 from these numbers (organize-26/b100/topicmerge.mjs: lib96 and three more
+  // people, the 2.5 sample without his chats, lib95). Each chat with two pages or more cut where they differ, 98: joined
+  // 61 → 79 (75 % 81, 80 % 80, 90 % 75). Chats on different topics merged, one person's neighbouring topics first: 16 pairs
+  // (11 neighbouring, 1 a mix and the chat its part is about, 4 others; 75 % 30, 80 % 24, 90 % 12). Of the chats'
+  // suggestions as they are, one move gives way to a merge. The answers decide nothing more: their cut at 0.6 drops as
+  // many pairs as 90 % does, and more joins.
+  mergeTopic: 85,
   mergeTopicA: 0.45,
   window: 3,
   tagWindow: 5,

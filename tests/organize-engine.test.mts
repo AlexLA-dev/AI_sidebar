@@ -567,6 +567,8 @@ test("2.6 (95): a page with a question on the chat's topic and then one on anoth
 // 2.6 (100), the owner: «если тематика, контекст довольно сильно пересекаются (как я до этого писал - 80%+)». Whole chats on
 // one topic merge without a shared page from mergeTopic % (by questions and answers, the % shown); the other rules stay.
 test("2.6 (100): chats on one topic merge without a shared page from mergeTopic %, and the suggestion says it's the topic", () => {
+  // The owner asked for 80 and chose 85 from the measurements («85%»).
+  assert.equal(DEFAULT_ORGANIZE.mergeTopic, 85)
   const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
   const newer = chat("newer", [...qa("japan", "https://rail/7"), ...qa("japan", "https://rail/8"), ...qa("japan", "https://rail/9")])
   const s = suggestMove(older, [older, newer], vectorOf, cfg)!

@@ -196,7 +196,7 @@ nonisolated struct OrganizeConfig: Sendable {
     var mergeA = 0.45
     // 2.6 (100), the owner: whole chats on one topic merge without a shared page too, from this match (the % shown) and
     // the answers' `mergeTopicA` (never below `mergeA`). 0: only chats on a shared page merge (src/shared/organize.ts).
-    var mergeTopic = 80.0
+    var mergeTopic = 85.0
     var mergeTopicA = 0.45
     // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
     var window = 3.0
