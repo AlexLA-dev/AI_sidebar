@@ -1438,6 +1438,8 @@ function retentionPanel(report, redraw) {
 
 // After the limit (cf_after_limit): who ran out of free answers, what came next. "Ready" = ran out before today (UTC).
 const AL_REASON = { limit: "ответы на день", search: "ответы Google на день" }
+const AL_SHORT = { limit: "На день", search: "Google" }
+const answersText = (k) => `${n.format(k)} ${k % 10 === 1 && k % 100 !== 11 ? "ответ" : [2, 3, 4].includes(k % 10) && ![12, 13, 14].includes(k % 100) ? "ответа" : "ответов"}`
 const dayDiff = (from, to) => Math.round((Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) / 86_400_000)
 function agoText(day, today) {
   const d = dayDiff(day, today)
@@ -1509,9 +1511,14 @@ function afterLimitPanel(after) {
         return el("td", { title: p.locale ? `Язык системы и регион в настройках устройства: ${p.locale}` : "" },
           region ? nameOf(regions, region) : "—", lang && el("small", {}, lang))
       })(),
-      el("td", {}, (p.reasons || []).map((r) => AL_REASON[r] || r).join(" + ")),
-      el("td", {}, `${n.format(p.before)} ${p.before === 1 ? "ответ" : p.before >= 2 && p.before <= 4 ? "ответа" : "ответов"}${p.secs != null ? ` · ${duration(p.secs)}` : ""}`,
-        p.google_before > 0 && el("small", {}, `из них Google: ${n.format(p.google_before)}`)),
+      // In the order they were hit, when the report says (limits).
+      el("td", {}, ((p.limits || []).length ? p.limits.map((l) => l.reason) : p.reasons || []).map((r) => AL_REASON[r] || r).join(" + ")),
+      // Both limits that day (cf_after_limit's "limits", migration 20261112120000): the answers before each one.
+      (p.limits || []).length > 1
+        ? el("td", {}, p.limits.map((l, i) => el(i ? "small" : "div", {},
+            `${AL_SHORT[l.reason] || l.reason}: ${answersText(l.before)}${l.google_before > 0 ? `, из них Google: ${n.format(l.google_before)}` : ""}${i === 0 && p.secs != null ? ` · ${duration(p.secs)}` : ""}`)))
+        : el("td", {}, `${answersText(p.before)}${p.secs != null ? ` · ${duration(p.secs)}` : ""}`,
+            p.google_before > 0 && el("small", {}, `из них Google: ${n.format(p.google_before)}`)),
       next
     )
   })
@@ -1523,7 +1530,7 @@ function afterLimitPanel(after) {
           el("tbody", {}, rows)))]
       : el("p", { class: "empty" }, `За ${after.days} дн. никто не упирался в бесплатный лимит.`),
     el("p", { class: "hint" },
-      `Один человек — одна установка расширения, по первому отказу за ${after.days} дн. Лимит — «ответы на день» (все бесплатные ответы) или «ответы Google на день» (свой потолок у ответов Google; они же тратят и общие). «До лимита» — бесплатные ответы в тот день до отказа и сколько прошло от первого ответа дня. «Купил подписку» — подписка Pro или «Свой ключ», купленная на этом устройстве после отказа (пробный период и коды — если потом оплачены); подписка с другого устройства не считается. Страна — регион в настройках устройства (из языка системы, например uk-UA — Украина), не страна App Store. «Вернулись» и «Ушли» в сводках — без купивших и без упёршихся сегодня. «Вернулся» — открывал панель в другие дни после дня отказа. Код −50 % на первый месяц показывают только версии 2.4 и новее. Видел ли человек экран оплаты, станет видно с версии 2.5. Последний день подписчиков — в столбце «Последний раз» таблицы «Подписки».`)
+      `Один человек — одна установка расширения, по первому отказу за ${after.days} дн. Лимит — «ответы на день» (все бесплатные ответы) или «ответы Google на день» (свой потолок у ответов Google; они же тратят и общие). «До лимита» — бесплатные ответы, заданные в тот день до отказа (ответ, который ещё писался в момент отказа, тоже считается), и сколько прошло от первого ответа дня. Если за день сработали оба лимита, «До лимита» — отдельно до каждого. «Купил подписку» — подписка Pro или «Свой ключ», купленная на этом устройстве после отказа (пробный период и коды — если потом оплачены); подписка с другого устройства не считается. Страна — регион в настройках устройства (из языка системы, например uk-UA — Украина), не страна App Store. «Вернулись» и «Ушли» в сводках — без купивших и без упёршихся сегодня. «Вернулся» — открывал панель в другие дни после дня отказа. Код −50 % на первый месяц показывают только версии 2.4 и новее. Видел ли человек экран оплаты, станет видно с версии 2.5. Последний день подписчиков — в столбце «Последний раз» таблицы «Подписки».`)
   )
   return panel
 }
