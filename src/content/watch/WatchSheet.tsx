@@ -32,11 +32,14 @@ export interface WatchSheetProps {
 }
 
 let layer: HTMLDivElement | null = null
+let toastTimer: ReturnType<typeof setTimeout> | undefined
 
 /** Draws a window in the panel's root, with the panel's theme (light or dark, text size, touch). */
 function show(make: (close: () => void) => VNode): void {
   const root = panelRoot()
   if (!root) return
+  // A new window replaces "Watching: …", and its timer never closes the window.
+  clearTimeout(toastTimer)
   if (!layer || !layer.isConnected) {
     layer = document.createElement("div")
     root.appendChild(layer)
@@ -61,12 +64,28 @@ function show(make: (close: () => void) => VNode): void {
 export function openWatchSheet(p: WatchSheetProps): void {
   show((close) => (
     <Sheet label={t("watchSection")} close={close}>
-      <WatchSection url={p.url} title={p.title} selection={p.selection} how={p.how} draft={p.draft} close={close} remind={p.remind && (() => {
+      <WatchSection url={p.url} title={p.title} selection={p.selection} how={p.how} draft={p.draft} close={close} saved={watching} remind={p.remind && (() => {
         close()
         p.remind?.()
       })} />
     </Sheet>
   ))
+}
+
+/**
+ * "Watching: when it drops below $750 · now $799.99" over the page for a few seconds, once the eye's window is gone
+ * (2.6.1: "Watching." inside the window went by unseen). .cf-toast's place and look, as the page reminder's.
+ */
+function watching(line: string): void {
+  show((close) => {
+    toastTimer = setTimeout(close, 4000)
+    const viewport = window.visualViewport
+    return (
+      <div class="cf-toast cf-snack cf-watch-toast" role="status" style={{ top: `${(viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight) - 64}px` }}>
+        <Eye size={14} /> <span class="cf-watch-toast-line">{line}</span>
+      </div>
+    )
+  })
 }
 
 /** A watch from the list: its words in full, the value now, change the words or stop it. */

@@ -574,6 +574,7 @@
   "watchChecking": "Guardo la pagina…",
   "watchSet": "Fatto. Ti avviso quando cambia.",
   "watchSetLive": "Fatto. Questo sito lo mostra solo quando apri la pagina, quindi controllo allora.",
+  "watchNotifyWhy": "Attiva le notifiche, così posso avvisarti quando cambia.",
   "watchUnreadable": "Questo sito non si lascia controllare in background. Posso controllare quando apri la pagina o ricordarti di guardare.",
   "watchRemindInstead": "Ricordami di guardare",
   "watchLiveOk": "Controlla quando apro la pagina",

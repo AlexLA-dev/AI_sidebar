@@ -121,6 +121,21 @@ beforeEach(() => {
   events = []
 })
 
+// 2.6.1, filmed for X: the system's question about notifications came in the middle of the first Watch (the window
+// said "Looking at the page…"). Saving only reads whether they're allowed; the question has its own message, sent when
+// the person taps "Turn on notifications" under the set watch.
+test("a watch is saved without the system's question; it's asked on its own message", async () => {
+  nativeReply = { watch_permission: { outcome: "not-asked" } }
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
+  const saved = await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })
+  assert.equal(saved.ok, true)
+  assert.equal(saved.notify, "not-asked")
+  assert.deepEqual(native.filter((m) => m.command === "watch_permission").map((m) => m.ask), [false])
+  nativeReply = { watch_permission: { outcome: "ok" } }
+  assert.deepEqual(await send({ type: "watchNotifyAsk" }), { notify: "ok" })
+  assert.deepEqual(native.filter((m) => m.command === "watch_permission").map((m) => m.ask), [false, true])
+})
+
 test("a watch: planned once, read by the background, checked by the alarm, met once", async () => {
   const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
   assert.equal(prepared.readable, true)

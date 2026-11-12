@@ -574,6 +574,7 @@
   "watchChecking": "Đang xem trang…",
   "watchSet": "Đang theo dõi. Tôi sẽ báo khi có thay đổi.",
   "watchSetLive": "Đang theo dõi. Trang web này chỉ hiển thị thông tin đó khi bạn mở trang, nên tôi sẽ kiểm tra vào lúc đó.",
+  "watchNotifyWhy": "Hãy bật thông báo để tôi báo cho bạn khi có thay đổi.",
   "watchUnreadable": "Trang web này không cho tôi kiểm tra ở chế độ nền. Tôi có thể kiểm tra khi bạn mở trang, hoặc nhắc bạn vào xem.",
   "watchRemindInstead": "Nhắc tôi vào xem",
   "watchLiveOk": "Kiểm tra khi tôi mở trang",
