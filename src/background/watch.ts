@@ -195,10 +195,18 @@ async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: strin
   void report({ a: "create", via: how, what: w.what, site: w.site, mode: w.mode })
   await ensureAlarm()
   void syncApp()
-  // Whether "Changed: …" can show here: asked right now in Safari the first time, as for a reminder (the system
-  // may be asking meanwhile: wait for the answer).
-  const allowed = TARGET === "safari" ? (await callNative<{ outcome?: string }>("watch_permission", { ask: true }, 90_000))?.outcome : "ok"
+  // Whether "Changed: …" can show here, without asking: the system's question no longer comes in the middle of the
+  // first Watch (2.6.1, filmed for X); the panel says why and asks after the watch is set (notifyAsk).
+  const allowed = TARGET === "safari" ? (await callNative<{ outcome?: string }>("watch_permission", { ask: false }))?.outcome : "ok"
   return { ok: true, id: w.id, notify: allowed ?? "ok" }
+}
+
+/** The system's question about notifications, when the person taps "Turn on notifications" under a set watch. */
+async function notifyAsk(): Promise<{ notify: string }> {
+  if (TARGET !== "safari") return { notify: "ok" }
+  // The system may be asking meanwhile: wait for the answer.
+  const outcome = (await callNative<{ outcome?: string }>("watch_permission", { ask: true }, 90_000))?.outcome
+  return { notify: outcome ?? "not-asked" }
 }
 
 async function cancel(id: string, via: "panel" | "list" | "app"): Promise<void> {
@@ -461,6 +469,9 @@ export function startWatch(d: WatchDeps): void {
         return true
       case "watchSave":
         save(message.draft, message.prepared, message.how, message.note).then(sendResponse, () => sendResponse({ ok: false }))
+        return true
+      case "watchNotifyAsk":
+        notifyAsk().then(sendResponse, () => sendResponse({ notify: "not-asked" }))
         return true
       case "watchList":
         load().then(sendResponse, () => sendResponse([]))

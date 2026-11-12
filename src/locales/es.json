@@ -574,6 +574,7 @@
   "watchChecking": "Miro la página…",
   "watchSet": "Hecho. Te aviso cuando cambie.",
   "watchSetLive": "Hecho. Este sitio solo lo muestra cuando abres la página, así que lo compruebo entonces.",
+  "watchNotifyWhy": "Activa las notificaciones para que pueda avisarte cuando cambie.",
   "watchUnreadable": "Este sitio no deja comprobarlo en segundo plano. Puedo comprobarlo cuando abras la página o recordarte que mires.",
   "watchRemindInstead": "Recordarme que mire",
   "watchLiveOk": "Comprobar cuando abra la página",

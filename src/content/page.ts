@@ -4,6 +4,7 @@ import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
 import { appLink, type PaidPlan, type Period } from "../shared/plan"
 import type { Platform } from "../shared/types"
+import { proseCover } from "./proseCover"
 import { shadowSelection } from "./selectionShadow"
 import { unfoldCollapsed } from "./unfold"
 
@@ -182,8 +183,9 @@ function cleanText(text: string): string {
     .trim()
 }
 
-function fallbackText(): string {
-  const clone = document.body?.cloneNode(true) as HTMLElement | undefined
+/** The text of `part` of the page (its body by default), without scripts, menus, side columns and the panel. */
+function fallbackText(part: Element | null = document.body): string {
+  const clone = part?.cloneNode(true) as HTMLElement | undefined
   if (!clone) return ""
   unfoldCollapsed(clone)
   clone.querySelectorAll(
@@ -205,24 +207,28 @@ export function privateBrowsing(): boolean {
  * Readable text of the page (Readability for articles, cleaned body text otherwise), with its folded sections
  * unfolded (see unfold.ts), up to `max` characters: a question reads all of it (readTab).
  * Read fresh every time: pages load more content after the first look (feeds, SPAs, live updates).
+ * When Readability keeps too little of the page's prose (a list of picks lost to one long FAQ, 2.6.1), the part of the
+ * page that holds most of it is read instead (proseCover.ts).
  */
-export function extractPage(max = MAX_PAGE_CHARS): { title: string; text: string } {
-  let title = document.title
+export function extractPage(max = MAX_PAGE_CHARS, page: Document = document): { title: string; text: string } {
+  let title = page.title
   let text = ""
   try {
-    const doc = document.cloneNode(true) as Document
+    const doc = page.cloneNode(true) as Document
     doc.querySelectorAll(HOST_TAG).forEach((el) => el.remove())
     unfoldCollapsed(doc)
     const article = new Readability(doc, { charThreshold: 300 }).parse()
     if (article?.textContent && article.textContent.trim().length > 400) {
       text = article.textContent
       title = article.title || title
+      const cover = proseCover(page, text, HOST_TAG)
+      if (cover) text = fallbackText(cover)
     }
   } catch {
     // Readability can throw on unusual documents; use the fallback.
   }
-  if (!text) text = fallbackText()
-  const description = document.querySelector<HTMLMetaElement>('meta[name="description"],meta[property="og:description"]')?.content
+  if (!text) text = fallbackText(page.body)
+  const description = page.querySelector<HTMLMetaElement>('meta[name="description"],meta[property="og:description"]')?.content
   text = cleanText(text)
   if (text.length < 200 && description) text = `${description}\n\n${text}`.trim()
   return { title: title.slice(0, 300), text: text.slice(0, max) }

@@ -574,6 +574,7 @@
   "watchChecking": "Ich sehe mir die Seite an…",
   "watchSet": "Ich behalte es im Blick und melde mich bei einer Änderung.",
   "watchSetLive": "Ich behalte es im Blick. Diese Seite zeigt es nur, wenn du sie öffnest – dann prüfe ich.",
+  "watchNotifyWhy": "Schalte Mitteilungen ein, damit ich dir Bescheid geben kann, wenn es sich ändert.",
   "watchUnreadable": "Diese Seite lässt sich nicht im Hintergrund prüfen. Ich kann prüfen, wenn du sie öffnest, oder dich erinnern, nachzusehen.",
   "watchRemindInstead": "Ans Nachsehen erinnern",
   "watchLiveOk": "Prüfen, wenn ich sie öffne",

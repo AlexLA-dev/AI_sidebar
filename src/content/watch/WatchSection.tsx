@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { TARGET } from "../../shared/config"
 import { t } from "../../shared/i18n"
+import { conditionLine } from "../../shared/watch/line"
 import { WATCH_LIMIT, type WatchDraft, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
@@ -25,13 +26,17 @@ export interface WatchSectionProps {
   close(): void
   // "Remind me to look" for a site the background can't read: chat UX's part of the same window.
   remind?: () => void
+  // The watch is set and nothing is left to read here: the window goes, and "Watching: …" says what's watched and on
+  // what condition (2.6.1: "Watching." in the window was missed). Without it, the window says it and closes itself.
+  saved?: (line: string) => void
 }
 
 type State =
   | { at: "edit" }
   | { at: "checking" }
   | { at: "unreadable"; prepared: WatchPrepared }
-  | { at: "set"; live: boolean; notify: string }
+  // `notify`: "ok", "denied" (off in Settings) or "not-asked" (the system never asked: the window says why and asks).
+  | { at: "set"; live: boolean; notify: string; line: string; asking?: boolean }
   // The owner's limit: Free 5 at once, Pro 20.
   | { at: "full"; limit: number; paid: boolean; ultra: boolean }
   | { at: "failed" }
@@ -60,18 +65,38 @@ export function WatchSection(p: WatchSectionProps) {
   const closing = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => () => clearTimeout(closing.current), [])
 
-  const save = async (prepared: WatchPrepared, live: boolean) => {
+  // The watch is set: the window goes, saying what's watched and on what condition.
+  const done = (line: string) => {
+    if (p.saved) return p.saved(line)
+    closing.current = setTimeout(p.close, 1800)
+  }
+
+  // `value`: what the background read itself (the watch keeps it), else the page's own.
+  const save = async (prepared: WatchPrepared & { value?: string | null }, live: boolean) => {
     const reply = await send<{ ok: boolean; full?: boolean; limit?: number; paid?: boolean; plan?: string; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how, live, ...(note.trim() ? { note: note.trim() } : {}) }).catch(() => null)
     if (!reply?.ok) return setState(reply?.full ? { at: "full", limit: reply.limit ?? 5, paid: reply.paid === true, ultra: reply.plan === "ultra" } : { at: "failed" })
-    setState({ at: "set", live, notify: reply.notify ?? "ok" })
-    if ((reply.notify ?? "ok") === "ok") closing.current = setTimeout(p.close, 1800)
+    // "Watching: when it drops below $750 · now $799.99", as the Watching list says it.
+    const watched = conditionLine({ what: prepared.what, condition, value: prepared.value ?? draft.value, label: prepared.label })
+    const line = t(live ? "watchRowLive" : "watchRowNew", watched)
+    const notify = reply.notify ?? "ok"
+    setState({ at: "set", live, notify, line })
+    if (notify === "ok") done(line)
+  }
+
+  // "Turn on notifications" under a set watch: only now the system's question (never in the middle of Watch).
+  const askNotify = async (set: Extract<State, { at: "set" }>) => {
+    if (set.asking) return
+    setState({ ...set, asking: true })
+    const reply = await send<{ notify?: string }>({ type: "watchNotifyAsk" }).catch(() => null)
+    if (reply?.notify === "denied") return setState({ ...set, notify: "denied", asking: false })
+    done(set.line)
   }
 
   const start = async () => {
     const consent = await loadConsent()
     if (consent !== "ok") return setState({ at: "consent", again: consent === "old" })
     setState({ at: "checking" })
-    const prepared = await send<WatchPrepared & { ok?: boolean }>({ type: "watchPrepare", draft: { ...draft, condition }, how }).catch(() => null)
+    const prepared = await send<WatchPrepared & { ok?: boolean; value?: string | null }>({ type: "watchPrepare", draft: { ...draft, condition }, how }).catch(() => null)
     if (!prepared?.ok) return setState({ at: "failed" })
     if (!prepared.readable) return setState({ at: "unreadable", prepared })
     await save(prepared, false)
@@ -141,8 +166,18 @@ export function WatchSection(p: WatchSectionProps) {
       {state.at === "set" && (
         <>
           <p class="cf-watch-msg cf-watch-ok">{t(state.live ? "watchSetLive" : "watchSet")}</p>
-          {/* Asked in Safari at "Watch", as Remind asks; turned off: the one text Remind shows too. */}
+          {/* Turned off: the one text Remind shows too. */}
           {state.notify === "denied" && <p class="cf-watch-note">{t("uxRemindOff")}</p>}
+          {/* Never asked: why, then the system's question on a tap (2.6.1: it came in the middle of the first Watch). */}
+          {state.notify === "not-asked" && (
+            <>
+              <p class="cf-watch-note">{t("watchNotifyWhy")}</p>
+              <div class="cf-sheet-actions">
+                <button type="button" class="cf-primary cf-watch-notify" disabled={state.asking} onClick={() => void askNotify(state)}>{t("listenNotifyOn")}</button>
+                <button type="button" class="cf-secondary" disabled={state.asking} onClick={() => done(state.line)}>{t("listenNotifyLater")}</button>
+              </div>
+            </>
+          )}
         </>
       )}
     </section>

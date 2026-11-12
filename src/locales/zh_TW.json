@@ -574,6 +574,7 @@
   "watchChecking": "正在查看頁面…",
   "watchSet": "追蹤中。有變化時我會通知你。",
   "watchSetLive": "追蹤中。這個網站只在你開啟頁面時才顯示這項資訊，所以我會在那時檢查。",
+  "watchNotifyWhy": "請開啟通知，這樣有變化時我才能通知你。",
   "watchUnreadable": "這個網站不讓我在背景檢查。我可以在你開啟頁面時檢查，或提醒你去看。",
   "watchRemindInstead": "提醒我去看",
   "watchLiveOk": "開啟頁面時檢查",

@@ -574,6 +574,7 @@
   "watchChecking": "正在查看页面…",
   "watchSet": "已关注，变化时通知你。",
   "watchSetLive": "已关注。这个网站只在你打开页面时显示，届时我会检查。",
+  "watchNotifyWhy": "请打开通知，这样有变化时我能告诉你。",
   "watchUnreadable": "这个网站不允许在后台检查。我可以在你打开页面时检查，或提醒你去看看。",
   "watchRemindInstead": "提醒我去看",
   "watchLiveOk": "打开页面时检查",

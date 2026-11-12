@@ -22,3 +22,6 @@ textarea.cf-watch-cond { display: block; resize: none; line-height: 1.35; min-he
 /* The eye's own window (WatchSheet): watching alone, so no line over its title. */
 .cf-watch-sheet .cf-watch { padding-top: 4px; border-top: 0; }
 .cf-watch-h-name { min-width: 0; overflow-wrap: anywhere; }
+/* "Watching: …" over the page once the window is gone (2.6.1): two lines at most, the eye beside them. */
+.cf-watch-toast svg { flex-shrink: 0; }
+.cf-watch-toast-line { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
