@@ -564,27 +564,6 @@ enum Clipboard {
     }
 }
 
-#if os(iOS)
-/// The share sheet for text, with a call when it closes (shared or not).
-@MainActor
-enum ShareSheet {
-    static func present(_ text: String, done: @escaping () -> Void) {
-        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first { $0.activationState == .foregroundActive }
-        guard var top = scene?.windows.first(where: \.isKeyWindow)?.rootViewController else { return done() }
-        while let shown = top.presentedViewController { top = shown }
-        let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
-        sheet.completionWithItemsHandler = { _, _, _, _ in done() }
-        if let popover = sheet.popoverPresentationController {
-            // iPad: from the bar at the bottom.
-            popover.sourceView = top.view
-            popover.sourceRect = CGRect(x: top.view.bounds.maxX - 80, y: top.view.bounds.maxY - 40, width: 1, height: 1)
-            popover.permittedArrowDirections = .down
-        }
-        top.present(sheet, animated: true)
-    }
-}
-#endif
-
 func host(of url: String) -> String {
     guard let host = URL(string: url)?.host else { return "" }
     return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
@@ -686,7 +665,10 @@ final class ChatLibrary: ObservableObject {
             var m: [[String: Any]] = []
             for i in 0..<6 {
                 m.append(["role": "user", "content": "Question \(i + 1): how do electric trains save energy?", "id": "lq\(i)", "t": at - 600_000 + Int64(i) * 60_000, "page": page])
-                m.append(["role": "assistant", "content": answer, "id": "la\(i)", "t": at - 590_000 + Int64(i) * 60_000])
+                var reply: [String: Any] = ["role": "assistant", "content": answer, "id": "la\(i)", "t": at - 590_000 + Int64(i) * 60_000]
+                // 2.6.1 (Share on an iPad): one answer with a highlight, shared as rich text.
+                if i == 2 { reply["marks"] = [["s": 0, "e": 0, "q": "a fifth of what the train used"]] }
+                m.append(reply)
             }
             let thread: [String: Any] = ["title": "Electric trains and energy", "a": at, "m": m]
             if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
