@@ -1,0 +1,340 @@
+{
+  "app": {
+    "adamId": "6759115793",
+    "name": "ContextFlow: AI for Safari"
+  },
+  "currency": "USD",
+  "guards": {
+    "totalBudget": 75,
+    "maxBid": 0.8,
+    "since": "2026-11-13",
+    "rules": {
+      "pauseTapsWithoutInstall": 12,
+      "pauseSpendWithoutInstall": 3,
+      "lowTtrImpressions": 300,
+      "lowTtr": 0.025,
+      "targetCpi": 1.0,
+      "raiseStep": 0,
+      "lowerStep": 0.2,
+      "minBid": 0.2,
+      "underspend": 0
+    }
+  },
+  "campaigns": [
+    {
+      "name": "CF · TW · 摘要",
+      "status": "ENABLED",
+      "countries": [
+        "TW"
+      ],
+      "dailyBudget": 1.8,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [],
+      "adGroups": [
+        {
+          "name": "摘要 · exact",
+          "bid": 0.5,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "文章摘要",
+              "bid": 0.6
+            },
+            {
+              "text": "總結",
+              "bid": 0.5
+            },
+            {
+              "text": "影片摘要",
+              "bid": 0.6
+            },
+            {
+              "text": "網頁翻譯",
+              "bid": 0.6
+            },
+            {
+              "text": "摘要",
+              "bid": 0.4
+            },
+            {
+              "text": "重點摘要",
+              "bid": 0.4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · IT · riassunto",
+      "status": "ENABLED",
+      "countries": [
+        "IT"
+      ],
+      "dailyBudget": 1.3,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [],
+      "adGroups": [
+        {
+          "name": "riassunto · exact",
+          "bid": 0.5,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "riassumere testo",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto articolo",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto video",
+              "bid": 0.55
+            },
+            {
+              "text": "tradurre pagina web",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto",
+              "bid": 0.35
+            },
+            {
+              "text": "riassunto testo",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunti testi",
+              "bid": 0.5
+            },
+            {
+              "text": "riassunti video",
+              "bid": 0.55
+            },
+            {
+              "text": "riassumere",
+              "bid": 0.35
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · FR · résumé",
+      "status": "ENABLED",
+      "countries": [
+        "FR"
+      ],
+      "dailyBudget": 1.0,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [],
+      "adGroups": [
+        {
+          "name": "résumé · exact",
+          "bid": 0.55,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "résumer texte",
+              "bid": 0.6
+            },
+            {
+              "text": "résumé article",
+              "bid": 0.6
+            },
+            {
+              "text": "résumé vidéo",
+              "bid": 0.6
+            },
+            {
+              "text": "extension safari",
+              "bid": 0.45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · DE · zusammenfassen",
+      "status": "ENABLED",
+      "countries": [
+        "DE"
+      ],
+      "dailyBudget": 1.0,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [],
+      "adGroups": [
+        {
+          "name": "zusammenfassen · exact",
+          "bid": 0.55,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "text zusammenfassen",
+              "bid": 0.6
+            },
+            {
+              "text": "artikel zusammenfassen",
+              "bid": 0.6
+            },
+            {
+              "text": "video zusammenfassen",
+              "bid": 0.6
+            },
+            {
+              "text": "webseite übersetzen",
+              "bid": 0.6
+            },
+            {
+              "text": "zusammenfassen",
+              "bid": 0.45
+            },
+            {
+              "text": "texte zusammenfassen",
+              "bid": 0.6
+            },
+            {
+              "text": "safari übersetzer",
+              "bid": 0.35
+            },
+            {
+              "text": "safari translate",
+              "bid": 0.35
+            },
+            {
+              "text": "zusammenfassung",
+              "bid": 0.35
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · TR · özet",
+      "status": "ENABLED",
+      "countries": [
+        "TR"
+      ],
+      "dailyBudget": 0.8,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [],
+      "adGroups": [
+        {
+          "name": "özet · exact",
+          "bid": 0.45,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "metin özetleme",
+              "bid": 0.45
+            },
+            {
+              "text": "makale özetleme",
+              "bid": 0.45
+            },
+            {
+              "text": "web sayfası çeviri",
+              "bid": 0.45
+            },
+            {
+              "text": "video özetleme",
+              "bid": 0.45
+            },
+            {
+              "text": "özet",
+              "bid": 0.3
+            },
+            {
+              "text": "summarize article",
+              "bid": 0.4
+            },
+            {
+              "text": "pdf özetleme",
+              "bid": 0.45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · AR+MX · resumir",
+      "status": "ENABLED",
+      "countries": [
+        "AR",
+        "MX"
+      ],
+      "dailyBudget": 0.6,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [],
+      "adGroups": [
+        {
+          "name": "resumir · exact",
+          "bid": 0.4,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "resumir texto",
+              "bid": 0.4
+            },
+            {
+              "text": "resumidor",
+              "bid": 0.4
+            },
+            {
+              "text": "resumir video",
+              "bid": 0.4
+            },
+            {
+              "text": "traducir página web",
+              "bid": 0.4
+            },
+            {
+              "text": "resumir",
+              "bid": 0.3
+            },
+            {
+              "text": "resumen de texto",
+              "bid": 0.4
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
