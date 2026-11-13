@@ -110,6 +110,22 @@
             {
               "text": "riassunto",
               "bid": 0.35
+            },
+            {
+              "text": "riassunto testo",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunti testi",
+              "bid": 0.5
+            },
+            {
+              "text": "riassunti video",
+              "bid": 0.55
+            },
+            {
+              "text": "riassumere",
+              "bid": 0.35
             }
           ]
         }
@@ -196,6 +212,22 @@
             {
               "text": "zusammenfassen",
               "bid": 0.45
+            },
+            {
+              "text": "texte zusammenfassen",
+              "bid": 0.6
+            },
+            {
+              "text": "safari übersetzer",
+              "bid": 0.35
+            },
+            {
+              "text": "safari translate",
+              "bid": 0.35
+            },
+            {
+              "text": "zusammenfassung",
+              "bid": 0.35
             }
           ]
         }
@@ -245,6 +277,10 @@
             {
               "text": "summarize article",
               "bid": 0.4
+            },
+            {
+              "text": "pdf özetleme",
+              "bid": 0.45
             }
           ]
         }
@@ -291,6 +327,10 @@
             {
               "text": "resumir",
               "bid": 0.3
+            },
+            {
+              "text": "resumen de texto",
+              "bid": 0.4
             }
           ]
         }
