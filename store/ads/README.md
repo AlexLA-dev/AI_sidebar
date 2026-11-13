@@ -78,3 +78,12 @@ node tools/ads/asa.mjs stop --yes           # всё на паузу
 | Запрос из Discovery или broad потратил $1.50 без установок | минус-слово |
 
 Ключ, который привёл подписчика, на паузу не ставится. Подписчики по ключам берутся из Supabase (`cf_ads_funnel`), если в приложении есть атрибуция AdServices.
+
+## Arc (13–22.11.2026)
+
+`plan-arc.json` — отдельный план теста для тех, кто уходит с Arc: кампания «CF · Arc · Search», iPhone и iPad, 10 стран (как в Google), $4/день до 23.11 00:00 по Никосии = $40. Группа «Arc»: exact «arc search», «arc browser», «browse for me» по $1.20 и broad «arc search alternative» по $1.00, только новые пользователи, стандартная страница продукта (своя страница «Moving from Arc» — после одобрения Apple). Запущена 13.11 с «да» владельца.
+
+```
+node tools/ads/asa.mjs status --plan store/ads/plan-arc.json
+node tools/ads/asa.mjs report --plan store/ads/plan-arc.json
+```
