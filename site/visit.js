@@ -25,7 +25,13 @@
     "/cases/replies-and-forms": "case_fill",
     "/cases/studying": "case_study",
     "/cases/shopping": "case_shop",
-    "/cases/planning": "case_plan"
+    "/cases/planning": "case_plan",
+    "/alternatives": "alternatives",
+    "/harpa-ai-alternative-safari": "alt_harpa",
+    "/text-blaze-alternative-safari": "alt_textblaze",
+    "/arc-to-safari": "arc_safari",
+    "/arc-search-browse-for-me-safari": "arc_search",
+    "/visualping-alternative-iphone": "alt_watch"
   }
   const OWN = /(^|\.)(context-flow\.app|aisidebar\.netlify\.app)$/
   // A referrer's host or a utm_source value → the source; the first match wins (Gemini before Google).

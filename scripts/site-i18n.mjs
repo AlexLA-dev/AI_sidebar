@@ -14,7 +14,7 @@
 //   node scripts/site-i18n.mjs status    → per language: how many segments are translated
 //
 // A segment with no translation yet stays English on that language's page, and the build says which ones.
-// Privacy and terms stay English only: they're the binding texts.
+// Privacy and terms stay English only: they're the binding texts. So do the alternative pages for now (ENGLISH_ONLY).
 
 import { createHash } from "node:crypto"
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs"
@@ -53,8 +53,12 @@ export const PAGES = [
   "cases/planning.html", "safari-ai-extension-iphone.html", "notes-while-reading-safari.html", "safari-summary-vs-chatgpt.html",
   "support.html"
 ]
-/** English only, still in the sitemap. */
-export const ENGLISH_ONLY = ["privacy.html", "terms.html"]
+/** English only, still in the sitemap: privacy and terms (the binding texts), and the alternative pages (2.7), which
+ * come in other languages only when search data asks for it. */
+export const ENGLISH_ONLY = [
+  "privacy.html", "terms.html", "alternatives.html", "arc-to-safari.html", "arc-search-browse-for-me-safari.html",
+  "harpa-ai-alternative-safari.html", "text-blaze-alternative-safari.html", "visualping-alternative-iphone.html"
+]
 
 /** A page's URL path in a language: "/", "/features", "/ru/", "/ru/cases/planning". */
 export function urlPath(file, language = ENGLISH) {

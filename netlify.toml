@@ -219,6 +219,78 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/alternatives"
+  to = "https://context-flow.app/alternatives"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/alternatives.html"
+  to = "https://context-flow.app/alternatives"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/harpa-ai-alternative-safari"
+  to = "https://context-flow.app/harpa-ai-alternative-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/harpa-ai-alternative-safari.html"
+  to = "https://context-flow.app/harpa-ai-alternative-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/text-blaze-alternative-safari"
+  to = "https://context-flow.app/text-blaze-alternative-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/text-blaze-alternative-safari.html"
+  to = "https://context-flow.app/text-blaze-alternative-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/arc-to-safari"
+  to = "https://context-flow.app/arc-to-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/arc-to-safari.html"
+  to = "https://context-flow.app/arc-to-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/arc-search-browse-for-me-safari"
+  to = "https://context-flow.app/arc-search-browse-for-me-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/arc-search-browse-for-me-safari.html"
+  to = "https://context-flow.app/arc-search-browse-for-me-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/visualping-alternative-iphone"
+  to = "https://context-flow.app/visualping-alternative-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/visualping-alternative-iphone.html"
+  to = "https://context-flow.app/visualping-alternative-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/sitemap.xml"
   to = "https://context-flow.app/sitemap.xml"
   status = 301

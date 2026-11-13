@@ -48,11 +48,12 @@ test("each language page says its language and direction, keeps the counter, and
       assert.ok(tag.includes(` lang="${language.lang}"`), `${file}: ${tag}`)
       assert.equal(tag.includes(' dir="rtl"'), !!language.rtl, `${file}: ${tag}`)
       assert.ok(html.includes('<script src="/visit.js" defer></script>'), `${file}: visit.js`)
-      // Internal links stay in the language; privacy and terms are English only; the language links go anywhere.
+      // Internal links stay in the language; privacy, terms and the alternative pages are English only; the language
+      // links go anywhere.
       const body = html.replace(/<nav class="langs"[\s\S]*?<\/nav>/, "")
       for (const [, href] of body.matchAll(/href="(\/[^"]*)"/g)) {
         if (/^\/(icon|style|cases\.css|clips)/.test(href)) continue
-        if (/^\/(privacy|terms)$/.test(href)) continue
+        if (ENGLISH_ONLY.some((page: string) => href === urlPath(page))) continue
         assert.ok(href.startsWith(`/${language.path}/`), `${file}: ${href} leaves the language`)
       }
       // Never an /api or /.netlify link, never a redirect script.
