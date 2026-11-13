@@ -933,6 +933,10 @@ for (const name of ["iphone", "ipad", "mac"]) {
       ["google", () => google(s), [".cf-panel", ".cf-sources-title", ".cf-source-list"]],
       ["pdf", () => pdf(s), [".cf-panel", ".cf-used", ".cf-msg.ai"]],
       ["shopask", () => askAbout(s, SHOP, L.shopAsk), [".cf-panel", ".cf-msg.ai"]],
+      // 2.7, the page for people moving to Safari: a question about the article answered from it, and the summary
+      // again with the answer's own rect (its key points magnified).
+      ["askpage", () => askAbout(s, ARTICLE, lang === "ru" ? "Сработает ли это в стартапе из 10 человек?" : "Would this work for a 10-person startup?"), [".cf-panel", ".cf-msg.user", ".cf-msg.ai"]],
+      ["keypoints", async () => { await fresh(s); await open(s); await chip(s, L.summarize); await waitAnswer(s) }, [".cf-panel", ".cf-msg.ai"]],
       ["pins", () => pins(s), [".cf-panel", ".cf-pinbar", ".cf-msg.ai"]],
       ["notes", () => notes(s), [".cf-panel", ".cf-bubble-note", ".cf-input"]],
       ["translatesel", () => selAction(s, FOREIGN, "actTranslate"), [".cf-panel", ".cf-msg.ai"]],

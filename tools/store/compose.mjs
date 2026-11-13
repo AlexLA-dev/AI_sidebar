@@ -65,6 +65,10 @@ const COPY = {
     qiButton: "The ContextFlow button by any field",
     qiShortcut: "⌃⇧V in any field",
     v26Similar: ["Cheaper options,", "every link checked"],
+    // 2.7: the custom page for people moving to Safari (English only; the browser they leave is never named).
+    arcAsk: ["AI on the page,", "right in Safari"],
+    arcKeys: ["The key points", "of any page"],
+    arcWeb: ["Ask the web, get", "answers with sources"],
     v26Organize: ["Chats that keep", "themselves in order"],
     v26Listen: ["Listen to any page", "or answer"],
     v26AskChats: ["Ask all your chats", "at once"],
@@ -372,6 +376,28 @@ const V26 = (k) => {
     devices: { ...TRIO(k), caption: COPY.ppoDevices }
   }
 }
+// 2.7: the page for people moving to Safari. Ask the page first (the app's icon and "No sign-up needed", as on the
+// version's first screen), then the summary's key points, web answers with sources, the same chats everywhere,
+// Find similar.
+const ARC27 = (k) => {
+  const phone = k === "iphone"
+  const G = PPO_GEO[k]
+  const geo = (at) => ({ scale: G.scale, x: G.at[at], y: G.y })
+  const v = (iphone, ipad) => (phone ? iphone : ipad)
+  const all = V26(k)
+  return {
+    askpage: { name: "askpage", shot: `${k}-askpage`, caption: COPY.arcAsk, icon: phone, geo: geo("center"), pills: [{ text: COPY.nosignup, icon: "✓", center: true, y: v(515, 490) }],
+      callout: { select: [".cf-msg.user", ".cf-msg.ai"], clip: CLIP27[k].ask, pad: 10, mag: v(1.3, 1.6), maxW: v(1190, 1400) } },
+    keypoints: { name: "keypoints", shot: `${k}-keypoints`, caption: COPY.arcKeys, geo: geo("right"),
+      callout: { select: [".cf-msg.ai"], clip: CLIP27[k].keys, pad: 10, mag: v(1.3, 1.6), maxW: v(1190, 1400) } },
+    web: { ...all.google, name: "web", caption: COPY.arcWeb },
+    devices: all.devices,
+    similar: all.similar
+  }
+}
+// Where the magnified card stops (CSS px of the capture): the question and the answer's first lines; the summary's
+// "In short" and first points.
+const CLIP27 = { iphone: { ask: [328, 602], keys: [0, 600] }, ipad: { ask: [155, 450], keys: [0, 450] } }
 const V26_ORDER = ["summary", "similar", "price", "organize", "listen", "askchats", "chips", "templates", "remind", "devices"]
 const SETS_V26 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => [k, V26_ORDER.map((n) => V26(k)[n])]))
 // Custom product pages (iPhone and iPad), one audience each.
@@ -383,6 +409,8 @@ const CPP26 = {
   "cpp-lang": ["foreign", "translate", "explain", "listen", "chips"]
 }
 const cppSets = (names) => Object.fromEntries(["iphone", "ipad"].map((k) => [k, names.map((n) => V26(k)[n])]))
+CPP26["cpp-arc"] = ["askpage", "keypoints", "web", "devices", "similar"]
+const arcSets = () => Object.fromEntries(["iphone", "ipad"].map((k) => [k, CPP26["cpp-arc"].map((n) => ARC27(k)[n])]))
 
 const SETS_24 = {
   iphone: [
@@ -711,9 +739,10 @@ function callout(kind, shot, spec, dark, geo = GEO[kind]) {
   if (rects.length === 0) throw new Error(`${shot}: none of ${spec.select.join(", ")} was captured`)
   const ms = meta.scale
   const x0 = Math.min(...rects.map((r) => r.x)) - spec.pad
-  const y0 = Math.min(...rects.map((r) => r.y)) - spec.pad
   const x1 = Math.max(...rects.map((r) => r.x + r.width)) + spec.pad
-  const y1 = Math.max(...rects.map((r) => r.y + r.height)) + spec.pad
+  // `clip`: [top, bottom] in CSS px, the part of a tall element that proves the caption (2.7: a summary's first points).
+  const y0 = Math.max(Math.min(...rects.map((r) => r.y)) - spec.pad, spec.clip?.[0] ?? -Infinity)
+  const y1 = Math.min(Math.max(...rects.map((r) => r.y + r.height)) + spec.pad, spec.clip?.[1] ?? Infinity)
   const g = geo
   const { W, H } = DEVICES[kind]
   // The element on the canvas…
@@ -884,7 +913,7 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(set === "v26" ? SETS_V26 : CPP26[set] ? cppSets(CPP26[set]) : set === "ppo" ? SETS_PPO : set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
+for (const [kind, specs] of Object.entries(set === "v26" ? SETS_V26 : set === "cpp-arc" ? arcSets() : CPP26[set] ? cppSets(CPP26[set]) : set === "ppo" ? SETS_PPO : set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)
