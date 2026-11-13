@@ -46,7 +46,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -63,7 +66,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -81,7 +87,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -99,7 +108,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -117,7 +129,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -150,7 +165,10 @@
    "cases/planning.html",
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
-   "safari-summary-vs-chatgpt.html"
+   "safari-summary-vs-chatgpt.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -622,7 +640,9 @@
    "cases/studying.html",
    "cases/shopping.html",
    "cases/planning.html",
-   "safari-summary-vs-chatgpt.html"
+   "safari-summary-vs-chatgpt.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html"
   ]
  },
  {
@@ -835,7 +855,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -861,7 +884,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -900,7 +926,10 @@
    "cases/planning.html",
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
-   "safari-summary-vs-chatgpt.html"
+   "safari-summary-vs-chatgpt.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -999,7 +1028,31 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "aea91ba22e41",
+  "kind": "html",
+  "en": "Coming from Arc or Chrome",
+  "pages": [
+   "index.html",
+   "features.html",
+   "cases.html",
+   "cases/replies-and-forms.html",
+   "cases/studying.html",
+   "cases/shopping.html",
+   "cases/planning.html",
+   "safari-ai-extension-iphone.html",
+   "notes-while-reading-safari.html",
+   "safari-summary-vs-chatgpt.html",
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -1017,7 +1070,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -1035,7 +1091,10 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
-   "support.html"
+   "support.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -1968,7 +2027,9 @@
    "cases/replies-and-forms.html",
    "cases/shopping.html",
    "cases/planning.html",
-   "safari-ai-extension-iphone.html"
+   "safari-ai-extension-iphone.html",
+   "youtube-transcript-safari.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -3242,7 +3303,10 @@
   "pages": [
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
-   "safari-summary-vs-chatgpt.html"
+   "safari-summary-vs-chatgpt.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -3402,7 +3466,8 @@
   "kind": "html",
   "en": "Where it falls short",
   "pages": [
-   "safari-ai-extension-iphone.html"
+   "safari-ai-extension-iphone.html",
+   "youtube-transcript-safari.html"
   ]
  },
  {
@@ -3994,7 +4059,10 @@
   "kind": "html",
   "en": "Side by side",
   "pages": [
-   "safari-summary-vs-chatgpt.html"
+   "safari-summary-vs-chatgpt.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -4066,7 +4134,10 @@
   "kind": "html",
   "en": "Yes",
   "pages": [
-   "safari-summary-vs-chatgpt.html"
+   "safari-summary-vs-chatgpt.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -4082,7 +4153,10 @@
   "kind": "html",
   "en": "No",
   "pages": [
-   "safari-summary-vs-chatgpt.html"
+   "safari-summary-vs-chatgpt.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -4194,7 +4268,10 @@
   "kind": "html",
   "en": "Price",
   "pages": [
-   "safari-summary-vs-chatgpt.html"
+   "safari-summary-vs-chatgpt.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -4435,6 +4512,902 @@
   "en": "E-mail us from the address you signed up with and we'll delete it within 30 days. Version 2.0 no longer uses accounts.",
   "pages": [
    "support.html"
+  ]
+ },
+ {
+  "key": "80e52b72d287",
+  "kind": "title",
+  "en": "YouTube transcript in Safari: ask a video what was said, with the moment it was said — ContextFlow",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "227bc07c1f15",
+  "kind": "meta",
+  "en": "Watching YouTube in Safari on iPhone, iPad or Mac? ContextFlow reads the video's captions so you can ask for the gist, or for what was said about one thing, with the moment it was said. It needs captions and Pro. The free ways to get a transcript, too.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "1bbf5307b4f1",
+  "kind": "meta",
+  "en": "Ask a YouTube video what was said, in Safari",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "ee5665a524f6",
+  "kind": "meta",
+  "en": "The gist of a video, or what was said about one thing, with the moment it was said. What it needs, and the free alternatives.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "eeb49f3a5069",
+  "kind": "ld",
+  "en": "Does it work on iPhone?",
+  "pages": [
+   "youtube-transcript-safari.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "5109503724f8",
+  "kind": "ld",
+  "en": "Yes, in Safari on the YouTube website, on iPhone, iPad and Mac. It doesn't work inside the YouTube app.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "412ed6a9c3c1",
+  "kind": "ld",
+  "en": "What if the video has no captions?",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "fa89909d4a12",
+  "kind": "ld",
+  "en": "Then the answer uses the video's title and description, and ContextFlow tells you it had no transcript to read.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "df01993e9a99",
+  "kind": "ld",
+  "en": "Can I get the whole transcript as text?",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "70d3d5ce34bc",
+  "kind": "ld",
+  "en": "Not as a file: ContextFlow answers from the transcript. For the full text, open the description on youtube.com and choose Show transcript.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "b7635325cc5c",
+  "kind": "ld",
+  "en": "Questions about the page are free to start, but reading the video's transcript is Pro. On Free, answers use the video's title and description.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "f90f39eef545",
+  "kind": "html",
+  "en": "You don't want to watch 40 minutes to find the two that matter. In Safari on iPhone, iPad or Mac, ContextFlow reads the video's transcript and answers from it, pointing to the moment, like [4:15]. I make ContextFlow, so I'm not neutral. Two things up front: it needs Pro, and it needs the video to have captions.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "365e1a863010",
+  "kind": "html",
+  "en": "Open the video on the YouTube website in Safari. On iPhone, YouTube's mobile site works too.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "4acea6e48e39",
+  "kind": "html",
+  "en": "Tap the ContextFlow button, then Summarize, or ask your own question: “what did she say about pricing?”, “list the tools he mentions”.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "9a327759f1f1",
+  "kind": "html",
+  "en": "The answer comes from the transcript and points to the moments it's from, like [4:15].",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "340ee411b649",
+  "kind": "html",
+  "en": "Videos on other sites work too when they use the standard web video player with a captions file.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "86845bebadd7",
+  "kind": "html",
+  "en": "What it needs",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "79c83acefce8",
+  "kind": "html",
+  "en": "<strong>Captions.</strong> ContextFlow reads the captions the video's player loads, the same ones you'd turn on with CC. If a video has none, the answer uses its title and description, and says so.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "aaf09fa7fb40",
+  "kind": "html",
+  "en": "<strong>Pro.</strong> On Free, answers use what the page shows: the title and the description, not the transcript.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "3ef34b068570",
+  "kind": "html",
+  "en": "<strong>The YouTube website,</strong> not the YouTube app: ContextFlow lives in Safari.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "62351c67233b",
+  "kind": "html",
+  "en": "Free ways first",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "1e3374bd0e32",
+  "kind": "html",
+  "en": "<strong>YouTube's own transcript:</strong> on youtube.com, open the description and choose Show transcript. It's free and gives you the full text with timestamps, but you read it yourself.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "74caf018cfc0",
+  "kind": "html",
+  "en": "<strong>Transcript websites:</strong> paste a link, get the text. If you want the words themselves, to copy or to save, they're the right tool.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "9cdfc03ba7cc",
+  "kind": "html",
+  "en": "<strong>ContextFlow</strong> is for when you want an answer, not a wall of text: the gist, or one part of the video, with the moment it's from.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "22ec37007448",
+  "kind": "html",
+  "en": "It doesn't hand you the full transcript as a file: it answers from it.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "4917e5f012ef",
+  "kind": "html",
+  "en": "A very long video, like a three-hour podcast, is read only in part.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "c48b09c2a522",
+  "kind": "html",
+  "en": "YouTube videos embedded in other sites and players that draw their own captions, like Vimeo's, aren't covered.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "80cc1b0226a7",
+  "kind": "html",
+  "en": "When YouTube changes its pages, reading the transcript can fail for a while. Then the answer says so and uses the title and description.",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "0f03dccac727",
+  "kind": "html",
+  "en": "YouTube's Show transcript",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "90d3cc9f7d1e",
+  "kind": "html",
+  "en": "The full text of the video",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "5f201b603c67",
+  "kind": "html",
+  "en": "Yes, with timestamps",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "6abbe0a94a93",
+  "kind": "html",
+  "en": "No, it answers from it",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "5020d9e83d27",
+  "kind": "html",
+  "en": "Questions about the video",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "965b8a6765ec",
+  "kind": "html",
+  "en": "Yes, with the moment it was said",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "24b250943b99",
+  "kind": "html",
+  "en": "Needs captions",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "2e2567e06698",
+  "kind": "html",
+  "en": "Pro: $6.99 a month or $59.99 a year",
+  "pages": [
+   "youtube-transcript-safari.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "c549675da743",
+  "kind": "html",
+  "en": "More: <a href=\"/read-aloud-safari-iphone\">Listen to a web page in Safari</a>",
+  "pages": [
+   "youtube-transcript-safari.html"
+  ]
+ },
+ {
+  "key": "4ceca9278c62",
+  "kind": "html",
+  "en": "Summarize a PDF in Safari",
+  "pages": [
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "a82408b672ce",
+  "kind": "html",
+  "en": "Every feature",
+  "pages": [
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "3e366ce8a80c",
+  "kind": "title",
+  "en": "Read a web page aloud in Safari on iPhone: three ways, two of them free — ContextFlow",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "5fd16459441b",
+  "kind": "meta",
+  "en": "Want Safari on iPhone to read an article to you? Safari's free Listen to Page, iPhone's Speak Screen, and ContextFlow's Listen (Ultra), which reads pages and answers in a natural voice. What each one is good for.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "a360b92379d0",
+  "kind": "meta",
+  "en": "Listen to a web page in Safari on iPhone",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "50ff14884956",
+  "kind": "meta",
+  "en": "Three ways to have Safari on iPhone read to you, two of them free, and when each one is the right pick.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f476c597b864",
+  "kind": "ld",
+  "en": "Does ContextFlow keep reading with the screen locked?",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "814a6dc452b9",
+  "kind": "ld",
+  "en": "Yes. On iPhone and iPad, Listen plays in the ContextFlow app, so it keeps going with the screen locked and in your headphones. Allow notifications, and it carries on when you leave Safari; otherwise Listen opens the app.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "baaee0f40c01",
+  "kind": "ld",
+  "en": "How much listening does Ultra include?",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e918a98357e2",
+  "kind": "ld",
+  "en": "30 minutes a week. Hearing something again that's already been voiced is free, and the panel shows how many minutes are left.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "046baebd9244",
+  "kind": "ld",
+  "en": "Does it need the internet?",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "522a119d3e5c",
+  "kind": "ld",
+  "en": "Yes, the first time something is read. The voice is made online.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "6c22c0b0c554",
+  "kind": "html",
+  "en": "You'd rather hear that long article on a walk than read it on a small screen. There are three ways to do that in Safari on iPhone, and two of them are free. I make the third, ContextFlow, so weigh that.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f305ce3e4c17",
+  "kind": "html",
+  "en": "Safari's own Listen to Page",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "318c534018dd",
+  "kind": "html",
+  "en": "Since iOS 17, Safari can read an article aloud: open the page menu in the address bar and choose Listen to Page.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "d310c285d58b",
+  "kind": "html",
+  "en": "<strong>Good:</strong> free and built in, nothing to install.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "700a150239da",
+  "kind": "html",
+  "en": "<strong>Limits:</strong> it's greyed out on some pages, and it reads the page as it is, word for word.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e7ea0be7f21b",
+  "kind": "html",
+  "en": "Speak Screen",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e0e141eda8e5",
+  "kind": "html",
+  "en": "Turn it on in Settings › Accessibility › Spoken Content › Speak Screen. Then swipe down with two fingers from the top of the screen, and iPhone reads what's on it.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "6abb87f4f459",
+  "kind": "html",
+  "en": "<strong>Good:</strong> free, and it works in any app, not only Safari.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "904e7e05df7a",
+  "kind": "html",
+  "en": "<strong>Limits:</strong> it reads everything on the screen, menus and buttons included.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f3275cd50b89",
+  "kind": "html",
+  "en": "ContextFlow's Listen",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "cbc0ac52792f",
+  "kind": "html",
+  "en": "In the ContextFlow panel, choose Listen to this page in the … menu, or tap Listen under an answer.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "81d02cbdd1f4",
+  "kind": "html",
+  "en": "<strong>A natural voice</strong> in 100+ languages, at 1×, 1.2×, 1.5× or 2×. Tables, lists and code are rewritten for the ear first.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "192919e7fb64",
+  "kind": "html",
+  "en": "<strong>The screen can be locked.</strong> On iPhone and iPad, Listen plays in the ContextFlow app, so it keeps going with the screen locked and in your headphones. On a Mac, it plays right in the panel.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e484c56ee079",
+  "kind": "html",
+  "en": "<strong>A summary instead of the whole page:</strong> tap Summarize first, then Listen under the answer.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "90dee76feb7c",
+  "kind": "html",
+  "en": "<strong>Ultra:</strong> 30 minutes of listening a week. Hearing something again that's already been voiced is free. $12.99 a month or $119.99 a year.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "af6e01999a54",
+  "kind": "html",
+  "en": "Which to pick",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "cd0b0471b70b",
+  "kind": "html",
+  "en": "<strong>An article read to you, free:</strong> Safari's Listen to Page.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "fe8d35c40617",
+  "kind": "html",
+  "en": "<strong>Anything on the screen, in any app:</strong> Speak Screen.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e2cd00e2172f",
+  "kind": "html",
+  "en": "<strong>A natural voice in your language, answers read aloud too,</strong> or a summary read to you instead of the whole thing: ContextFlow's Listen, with Ultra.",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "bfc1274a5de4",
+  "kind": "html",
+  "en": "Safari's Listen to Page",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "525f61b67292",
+  "kind": "html",
+  "en": "Where",
+  "pages": [
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "95fae1311144",
+  "kind": "html",
+  "en": "Safari, on article pages",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "b1abd48348fc",
+  "kind": "html",
+  "en": "Any app",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "8168bafa8379",
+  "kind": "html",
+  "en": "Safari pages and ContextFlow's answers",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "3091c8446f8d",
+  "kind": "html",
+  "en": "Voice",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "be944baf48f7",
+  "kind": "html",
+  "en": "Your iPhone's voices",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "7cc310216c64",
+  "kind": "html",
+  "en": "A natural voice, 100+ languages",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "73c4347128d3",
+  "kind": "html",
+  "en": "A summary read instead of the page",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "2ec12d29ba52",
+  "kind": "html",
+  "en": "Ultra, 30 minutes a week",
+  "pages": [
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f6252c2f67da",
+  "kind": "html",
+  "en": "More: <a href=\"/youtube-transcript-safari\">Ask a YouTube video what was said</a>",
+  "pages": [
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "a1fb5c0af379",
+  "kind": "title",
+  "en": "Summarize a PDF in Safari on iPhone, iPad or Mac, and ask it questions — ContextFlow",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "2c3a45a1a259",
+  "kind": "meta",
+  "en": "A PDF on a web page, or a PDF open in Safari: with Pro, ContextFlow reads it, sums it up and says which page each answer comes from. What it can't read, and the other options.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "00e14044c4ba",
+  "kind": "meta",
+  "en": "Ask a PDF what you need to know and get the page it's on. What it can't read, and when uploading to a chatbot is better.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "1f43558327fa",
+  "kind": "ld",
+  "en": "Yes, for PDFs shown on a web page or linked from it. A PDF open in its own tab works on iPad and Mac.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "bd7548629bd1",
+  "kind": "ld",
+  "en": "Can it read a scanned PDF?",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "5491b639f299",
+  "kind": "ld",
+  "en": "No. If the pages are images with no text, ContextFlow says so and answers without the PDF.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "786865cc84b3",
+  "kind": "ld",
+  "en": "Reading PDFs is Pro. On Free, answers use the page's own text, not the PDFs on it.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "604a59dbf41f",
+  "kind": "html",
+  "en": "The details are in a 40-page PDF and you need two of them. With Pro, ContextFlow reads PDFs in Safari and answers with the page each answer comes from. I make ContextFlow, so I'm not neutral, and I'll say where something else is the better pick.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "c3b0c28beb78",
+  "kind": "html",
+  "en": "<strong>A PDF on a web page, or linked from it:</strong> open the page, tap the ContextFlow button and ask. The PDFs shown or linked on the page go with your question.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "906cb1e45f14",
+  "kind": "html",
+  "en": "<strong>A PDF open in its own tab:</strong> on iPad and Mac, ContextFlow works there too. On iPhone, ask from the page that links to it.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "744ee1b66d46",
+  "kind": "html",
+  "en": "<strong>Answers say which page of the PDF</strong> they come from, so you can check.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "42747ae5bf93",
+  "kind": "html",
+  "en": "Summarize, Key takeaways and Explain simply work on a PDF like on any page, and so do your own questions: “what's the cancellation fee?”, “what changed from last year?”.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "662dc97ef0c7",
+  "kind": "html",
+  "en": "What it can't read",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "38e7999b272b",
+  "kind": "html",
+  "en": "<strong>Scanned PDFs.</strong> If the pages are pictures with no text, ContextFlow says so and answers without the PDF.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "1b4b45c96566",
+  "kind": "html",
+  "en": "<strong>Very long PDFs</strong> are read only in part, so answers can miss what's near the end.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "09515ebd01de",
+  "kind": "html",
+  "en": "<strong>On Free,</strong> answers use the page's own text, not the PDFs on it.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "ca8db8f7ce0d",
+  "kind": "html",
+  "en": "When something else is better",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "a92542f67697",
+  "kind": "html",
+  "en": "<strong>A long session with one big PDF:</strong> uploading it to a chatbot app like ChatGPT or Claude gives you more room for back-and-forth. You download it and upload it first.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "e0c284c60585",
+  "kind": "html",
+  "en": "<strong>A PDF on your phone, not on a web page:</strong> ContextFlow works in Safari, not in the Files app.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "6df0d311fb15",
+  "kind": "html",
+  "en": "<strong>A quick look in Safari:</strong> ContextFlow saves you the download and the upload, and keeps the answer in a chat with the page it came from.",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "1fb01cfd4d6a",
+  "kind": "html",
+  "en": "Uploading to a chatbot",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "3e003bb0c656",
+  "kind": "html",
+  "en": "The chatbot's app or site",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "b7ca54102d21",
+  "kind": "html",
+  "en": "In Safari, on the page with the PDF",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "cdde4f20ba31",
+  "kind": "html",
+  "en": "Steps",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "77982e475096",
+  "kind": "html",
+  "en": "Download, upload, ask",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "9563a34eb800",
+  "kind": "html",
+  "en": "Tap the button, ask",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "5909fa9c21dc",
+  "kind": "html",
+  "en": "Which page an answer is from",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "6f71922a91e9",
+  "kind": "html",
+  "en": "Depends on the chatbot",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "034789cd4eb4",
+  "kind": "html",
+  "en": "Scanned PDFs",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "551f9e47cbe5",
+  "kind": "html",
+  "en": "Some chatbots read them",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "67655a881bf2",
+  "kind": "html",
+  "en": "Free tiers and paid plans",
+  "pages": [
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "700a72272847",
+  "kind": "html",
+  "en": "Listen to a web page in Safari",
+  "pages": [
+   "summarize-pdf-safari.html"
   ]
  }
 ]

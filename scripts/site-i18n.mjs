@@ -59,6 +59,22 @@ export const ENGLISH_ONLY = [
   "privacy.html", "terms.html", "alternatives.html", "arc-to-safari.html", "arc-search-browse-for-me-safari.html",
   "harpa-ai-alternative-safari.html", "text-blaze-alternative-safari.html", "visualping-alternative-iphone.html"
 ]
+/** Pages in English and a few other languages only (2.7): where search data shows demand in that language. */
+export const SOME_LANGUAGES = {
+  "youtube-transcript-safari.html": ["ru"],
+  "read-aloud-safari-iphone.html": ["ru"],
+  "summarize-pdf-safari.html": []
+}
+const SOME = Object.keys(SOME_LANGUAGES)
+
+/** Whether a page comes in a language: PAGES in all, SOME_LANGUAGES in English and the ones listed, the rest in English. */
+export function inLanguage(file, language) {
+  if (PAGES.includes(file)) return true
+  if (!language.path) return true
+  return (SOME_LANGUAGES[file] ?? []).includes(language.path)
+}
+/** The languages a page comes in, English first. */
+export const languagesOf = (file) => LANGUAGES.filter((l) => inLanguage(file, l))
 
 /** A page's URL path in a language: "/", "/features", "/ru/", "/ru/cases/planning". */
 export function urlPath(file, language = ENGLISH) {
@@ -197,7 +213,7 @@ function sourceDocument(file) {
 
 export function extract() {
   const seen = new Map()
-  for (const file of PAGES) {
+  for (const file of [...PAGES, ...SOME]) {
     for (const s of segments(sourceDocument(file))) {
       const known = seen.get(s.key)
       if (known) known.pages.includes(file) || known.pages.push(file)
@@ -217,7 +233,7 @@ function localLink(href, language) {
   const m = /^\/([a-z0-9/-]*)(#[\w-]+)?$/.exec(href)
   if (!m) return href
   const file = m[1] === "" ? "index.html" : `${m[1].replace(/\/$/, "")}.html`
-  if (!PAGES.includes(file)) return href
+  if (!inLanguage(file, language) || !(PAGES.includes(file) || SOME.includes(file))) return href
   return urlPath(file, language) + (m[2] ?? "")
 }
 
@@ -235,18 +251,19 @@ const GENERATED = [/^<link rel="alternate" hreflang="[^"]+" href="[^"]+" \/>\n/g
 const strip = (html) => GENERATED.reduce((h, re) => h.replace(re, ""), html)
 
 function addGenerated(html, file, language) {
-  if (PAGES.includes(file)) {
-    const alternates = LANGUAGES.flatMap((l) => [l.hreflang, ...(l.also ?? [])].map((code) => `<link rel="alternate" hreflang="${code}" href="${pageUrl(file, l)}" />\n`))
+  const versions = languagesOf(file)
+  if (versions.length > 1) {
+    const alternates = versions.flatMap((l) => [l.hreflang, ...(l.also ?? [])].map((code) => `<link rel="alternate" hreflang="${code}" href="${pageUrl(file, l)}" />\n`))
     alternates.push(`<link rel="alternate" hreflang="x-default" href="${pageUrl(file)}" />\n`)
     html = html.replace(/(<link rel="canonical" href="[^"]+" \/>\n)/, `$1${alternates.join("")}`)
     html = html.replace(/(<meta property="og:url" content="[^"]+" \/>\n)/, `$1<meta property="og:locale" content="${language.og}" />\n`)
   }
   // The language links at the end of the footer: the same page in every language (crawlable, no redirect).
-  const target = PAGES.includes(file) ? file : "index.html"
+  // A language the page doesn't come in links to that language's home page (an English-only page: every link does).
   const links = LANGUAGES.map((l) =>
-    l === language && PAGES.includes(file)
+    l === language && versions.length > 1
       ? `<span lang="${l.lang}" aria-current="page">${l.name}</span>`
-      : `<a href="${urlPath(target, l)}" hreflang="${l.hreflang}" lang="${l.lang}">${l.name}</a>`
+      : `<a href="${urlPath(versions.length > 1 && versions.includes(l) ? file : "index.html", l)}" hreflang="${l.hreflang}" lang="${l.lang}">${l.name}</a>`
   ).join("")
   return html.replace(/<\/footer>/, `<nav class="langs" aria-label="Language" data-i18n-generated>${links}</nav></footer>`)
 }
@@ -313,6 +330,11 @@ function sitemap() {
     alternates.push(`<xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(file)}" />`)
     for (const l of LANGUAGES) lines.push(`  <url><loc>${pageUrl(file, l)}</loc><lastmod>${lastmod(file)}</lastmod>${alternates.join("")}</url>`)
   }
+  for (const file of SOME) {
+    const versions = languagesOf(file)
+    const alternates = versions.length > 1 ? [...versions.flatMap((l) => [l.hreflang, ...(l.also ?? [])].map((code) => `<xhtml:link rel="alternate" hreflang="${code}" href="${pageUrl(file, l)}" />`)), `<xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(file)}" />`] : []
+    for (const l of versions) lines.push(`  <url><loc>${pageUrl(file, l)}</loc><lastmod>${lastmod(file)}</lastmod>${alternates.join("")}</url>`)
+  }
   for (const file of ENGLISH_ONLY) lines.push(`  <url><loc>${pageUrl(file)}</loc><lastmod>${lastmod(file)}</lastmod></url>`)
   lines.push("</urlset>", "")
   return lines.join("\n")
@@ -322,9 +344,9 @@ function sitemap() {
 export function outputs() {
   const files = {}
   const missing = {}
-  for (const file of [...PAGES, ...ENGLISH_ONLY]) files[file] = render(file, ENGLISH).html
+  for (const file of [...PAGES, ...SOME, ...ENGLISH_ONLY]) files[file] = render(file, ENGLISH).html
   for (const language of TRANSLATED) {
-    for (const file of PAGES) {
+    for (const file of [...PAGES, ...SOME].filter((f) => inLanguage(f, language))) {
       const page = render(file, language)
       files[`${language.path}/${file}`] = page.html
       if (page.missing.length) (missing[language.path] ??= new Set()) && page.missing.forEach((k) => missing[language.path].add(k))
@@ -351,7 +373,7 @@ export function problems(language, source = extract()) {
     if (s.kind !== "html" && /<[a-z]/i.test(t)) out.push(`${key}: markup in a plain text`)
     if (/✦/.test(s.en) !== /✦/.test(t)) out.push(`${key}: ✦ ${/✦/.test(s.en) ? "lost" : "added"}`)
   }
-  const missing = source.filter((s) => !(s.key in dict)).map((s) => s.key)
+  const missing = source.filter((s) => s.pages.some((page) => inLanguage(page, language)) && !(s.key in dict)).map((s) => s.key)
   return { problems: out, missing }
 }
 
@@ -379,7 +401,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     let bad = 0
     for (const l of TRANSLATED.filter((x) => !only || x.path === only)) {
       const { problems: p, missing } = problems(l, source)
-      console.log(`${l.path}: ${source.length - missing.length}/${source.length} translated${p.length ? `, ${p.length} problems` : ""}`)
+      const own = source.filter((s) => s.pages.some((page) => inLanguage(page, l))).length
+      console.log(`${l.path}: ${own - missing.length}/${own} translated${p.length ? `, ${p.length} problems` : ""}`)
       if (command === "check") for (const line of p) console.log("  " + line)
       bad += p.length
     }

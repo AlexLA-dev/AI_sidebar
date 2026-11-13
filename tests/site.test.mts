@@ -25,7 +25,7 @@ test("every App Store button is a campaign link with its own short label", () =>
       labels.add(m[1])
     }
   }
-  assert.deepEqual([...labels].sort(), ["arc", "page_alt_harpa", "page_alt_textblaze", "page_alt_watch", "page_alternatives", "page_compare", "page_features", "page_notes", "page_safari_ai", "site_case_fill", "site_case_plan", "site_case_shop", "site_case_study", "site_cases", "site_footer", "site_hero", "site_pricing"])
+  assert.deepEqual([...labels].sort(), ["arc", "listen", "page_alt_harpa", "page_alt_textblaze", "page_alt_watch", "page_alternatives", "page_compare", "page_features", "page_notes", "page_safari_ai", "pdf", "site_case_fill", "site_case_plan", "site_case_shop", "site_case_study", "site_cases", "site_footer", "site_hero", "site_pricing", "yt"])
 })
 
 test("the Smart App Banner carries the campaign and provider tokens on every indexable page", () => {
