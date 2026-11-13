@@ -1,0 +1,21 @@
+{
+  "cpp-arc": {
+    "name": "2.7 Moving from Arc",
+    "audience": "People leaving Arc for Safari (Arc Search on iPhone loses its AI, then Arc for Mac stops) who want AI on the page again. The images and texts never name Arc (guideline 2.3.7).",
+    "promo": {
+      "en-US": "Going back to Safari? ContextFlow puts AI on every page: ask about it, get the key points, search with sources, and keep the same chats on iPhone, iPad and Mac."
+    },
+    "keywords": {
+      "en-US": [
+        "extension"
+      ]
+    },
+    "screens": [
+      "askpage",
+      "keypoints",
+      "web",
+      "devices",
+      "similar"
+    ]
+  }
+}

@@ -35,6 +35,9 @@ const C = {
   locked: T(["Keep listening with", "the screen locked"], ["Слушайте даже", "с выключенным экраном"]),
   foreign: T(["Read any language", "in yours"], ["Любой язык —", "по-русски"]),
   translate: T(["Translate just", "the part you need"], ["Переведёт только", "нужный кусок"]),
+  // 2.7: the page for people moving to Safari (English only).
+  arcAsk: ["AI on the page,", "right in Safari"],
+  arcKeys: ["The key points", "of any page"],
   // Under the main header's caption: what 2.6 adds, quieter than the caption.
   newLabel: T("New", "Новое"),
   news: T([["Find similar", "Ultra"], ["Listen", "Ultra"], ["Chats in order", "Pro"]], [["Найти похожее", "Ultra"], ["Слушать", "Ultra"], ["Порядок в чатах", "Pro"]]),
@@ -68,6 +71,12 @@ const PAGES = {
   "cpp-listen": {
     header: { caption: C.listen, plan: "Ultra", shot: "iphone-listenbtn", card: R(["[data-cf=listen-row]"]), top: 290, pad: 8, inner: "[data-cf-btn]" },
     search: { caption: C.locked, plan: "Ultra", lock: true }
+  },
+  // English only (render with the page filter: en cpp-arc). The search asset is the summary's key points, so it
+  // doesn't repeat the first screenshot (a question asked about the page).
+  "cpp-arc": {
+    header: { caption: C.arcAsk, shot: "iphone-askpage", card: [6, 328, 424, 602] },
+    search: { caption: C.arcKeys, shot: "iphone-keypoints", card: [6, 380, 424, 600] }
   },
   "cpp-lang": {
     header: { caption: C.foreign, shot: "iphone-foreign", card: ru ? [6, 230, 424, 548] : [6, 230, 424, 498] },
