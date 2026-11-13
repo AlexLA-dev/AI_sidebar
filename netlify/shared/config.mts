@@ -210,6 +210,9 @@ export const config = {
 
   // Bearer token for GET /api/v2/admin/usage (the /analytics page). Unset = endpoint disabled.
   adminToken: (env("ADMIN_TOKEN") ?? "").trim(),
+  // X App Conversion API (X Ads Manager → Send events to X App Conversion API → Generate access token).
+  // Unset = nothing is sent to X.
+  xAppConversionToken: (env("X_APP_CONVERSION_TOKEN") ?? "").trim(),
   // Own-key usage reports accepted per install per day (they only feed analytics).
   ownKeyReportDailyLimit: int("OWN_KEY_REPORT_DAILY_LIMIT", 1000),
   // Funnel events (app opened, extension switched on) accepted per id per day.
