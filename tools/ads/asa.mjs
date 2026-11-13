@@ -149,7 +149,7 @@ async function main() {
       if (opt("json")) writeFileSync(resolve(opt("json")), JSON.stringify({ from, to, plan, ...rep, funnel: funnel?.rows ?? null }, null, 2))
       return
     }
-    const proposals = optimize(plan, { keywords: rep.keywords, searchTerms: rep.searchTerms, subs: funnel?.subs ?? {}, lastDaySpend: await lastDaySpend(live, plan) })
+    const proposals = optimize(plan, { keywords: rep.keywords, searchTerms: rep.searchTerms, adGroups: rep.adGroups, subs: funnel?.subs ?? {}, lastDaySpend: await lastDaySpend(live, plan) })
     if (!proposals.length) return console.log("No changes suggested by the rules.")
     for (const p of proposals) console.log(`- ${p.action.padEnd(8)} ${p.text}${p.adGroup ? ` (${p.adGroup})` : ""}${p.to != null ? ` → $${p.to}` : ""}: ${p.why}`)
     if (!flag("write")) return console.log("\nAdd --write to put these into the plan, then run plan / apply.")

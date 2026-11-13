@@ -269,7 +269,16 @@ export const DEFAULT_RULES = {
   negativeSpendWithoutInstall: 1.5,
   // Pacing: a running campaign that spent less than this share of its daily budget on the last full
   // day gets all its bids raised by raiseStep (up to maxBid), so the budget is used by the end date.
-  underspend: 0.6
+  underspend: 0.6,
+  // Stage 1 of a use-case test (ad group with "stage": 1): the group has enough data at
+  // stageImpressions impressions or stageTaps taps. It is paused when people skip the ad (TTR under
+  // lowTtr) or the page doesn't convert (stageMaxInstalls installs or fewer on stageTaps taps), and
+  // passes at stagePassTtr TTR and stagePassTapInstall tap → install. Only pauses, never raises.
+  stageImpressions: 300,
+  stageTaps: 20,
+  stageMaxInstalls: 2,
+  stagePassTtr: 0.05,
+  stagePassTapInstall: 0.3
 }
 
 const round2 = (x) => Math.round(x * 100 + 1e-6) / 100
@@ -278,17 +287,39 @@ const round2 = (x) => Math.round(x * 100 + 1e-6) / 100
  * Proposes plan edits from keyword and search-term rows. Each proposal says why and what it
  * changes in plan.json; applyProposals() writes them in. `subs` maps keyword id → paid subscribers
  * (from AdServices attribution), when known: a keyword that brought a subscriber is never paused.
- * `lastDaySpend` maps campaign name → spend on the last full day, for the pacing rule.
+ * `lastDaySpend` maps campaign name → spend on the last full day, for the pacing rule. `adGroups`
+ * are ad-group report rows, for the stage 1 rule; a stage group's bids are never changed.
  */
-export function optimize(plan, { keywords = [], searchTerms = [], subs = {}, lastDaySpend = {} }, rules = {}) {
+export function optimize(plan, { keywords = [], searchTerms = [], adGroups = [], subs = {}, lastDaySpend = {} }, rules = {}) {
   const r = { ...DEFAULT_RULES, ...(plan.guards?.rules ?? {}), ...rules }
   const maxBid = plan.guards?.maxBid ?? Infinity
   const out = []
   for (const c of plan.campaigns) {
+    for (const g of c.adGroups ?? []) {
+      if (g.stage !== 1 || g.status === "PAUSED") continue
+      const row = adGroups.find((x) => x.campaignName === c.name && (x.metadata?.name ?? x.metadata?.adGroupName) === g.name)
+      if (!row) continue
+      const x = metrics(row)
+      const paid = keywords.filter((k) => k.campaignName === c.name && k.metadata?.adGroup?.name === g.name).reduce((n, k) => n + (subs[k.metadata?.id] ?? 0), 0)
+      const tapInstall = x.taps ? x.installs / x.taps : 0
+      const pct = (v) => `${(v * 100).toFixed(1)}%`
+      const at = { campaign: c.name, adGroup: g.name, text: g.name, match: "EXACT" }
+      if (paid === 0 && x.impressions >= r.stageImpressions && x.ttr < r.lowTtr) {
+        out.push({ ...at, action: "grouppause", why: `stage 1: TTR ${pct(x.ttr)} on ${x.impressions} impressions, people skip this ad` })
+      } else if (paid === 0 && x.taps >= r.stageTaps && x.installs <= r.stageMaxInstalls) {
+        out.push({ ...at, action: "grouppause", why: `stage 1: ${x.installs} install(s) on ${x.taps} taps, the page doesn't convert` })
+      } else if (x.impressions >= r.stageImpressions || x.taps >= r.stageTaps) {
+        const passed = x.ttr >= r.stagePassTtr && tapInstall >= r.stagePassTapInstall
+        const stats = `TTR ${pct(x.ttr)}, tap → install ${pct(tapInstall)}, ${paid} subscriber(s)`
+        out.push({ ...at, action: "hold", stage: passed ? "passed" : "unclear", why: passed ? `passed stage 1 (${stats}): bids stay, waiting for the owner's tick for stage 2` : `stage 1 data is in, between the thresholds (${stats}): bids stay, decide by hand` })
+      }
+    }
+  }
+  for (const c of plan.campaigns) {
     const spent = lastDaySpend[c.name]
     if (c.status !== "ENABLED" || spent == null || spent >= r.underspend * c.dailyBudget) continue
     for (const g of c.adGroups) {
-      if (g.status === "PAUSED" || g.bid >= maxBid) continue
+      if (g.status === "PAUSED" || g.stage != null || g.bid >= maxBid) continue
       const to = round2(Math.min(maxBid, g.bid * (1 + r.raiseStep)))
       out.push({ campaign: c.name, adGroup: g.name, text: g.name, match: "EXACT", action: "groupbid", from: g.bid, to, why: `campaign spent $${spent.toFixed(2)} of $${c.dailyBudget} yesterday: bids +${Math.round(r.raiseStep * 100)}% to use the budget` })
     }
@@ -311,6 +342,8 @@ export function optimize(plan, { keywords = [], searchTerms = [], subs = {}, las
       out.push({ ...at, action: "pause", why: `${x.taps} taps, $${x.spend.toFixed(2)} spent, 0 installs` })
     } else if (paid === 0 && x.impressions >= r.lowTtrImpressions && x.ttr < r.lowTtr) {
       out.push({ ...at, action: "pause", why: `TTR ${(x.ttr * 100).toFixed(1)}% on ${x.impressions} impressions: people skip this ad` })
+    } else if (g.stage != null) {
+      // A stage test measures at fixed bids: keywords may be paused, their bids are not moved.
     } else if (x.cpi != null && (x.cpi <= r.targetCpi || paid > 0) && bid < maxBid) {
       const next = round2(Math.min(maxBid, bid * (1 + r.raiseStep)))
       if (next > bid) out.push({ ...at, action: "bid", from: bid, to: next, why: paid > 0 ? `${paid} subscriber(s), CPI $${x.cpi.toFixed(2)}` : `CPI $${x.cpi.toFixed(2)} ≤ target $${r.targetCpi}` })
@@ -354,6 +387,8 @@ export function applyProposals(plan, proposals) {
     }
     const g = c.adGroups.find((x) => x.name === p.adGroup)
     if (!g) continue
+    if (p.action === "grouppause") g.status = "PAUSED"
+    if (p.action === "grouppause" || p.action === "hold") continue
     if (p.action === "groupbid") {
       // The group bid and every keyword bid that overrides it move by the same factor.
       const factor = p.to / p.from
