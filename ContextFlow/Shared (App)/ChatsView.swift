@@ -124,6 +124,17 @@ struct ChatsView: View {
         }
         .onReceive(links.$pending) { _ in openLinked() }
         .onChange(of: library.threads.count) { _ in openLinked() }
+        #if DEBUG
+        // 2.6 (100) (the chat jumped when a suggestion came): -CFDebugOpenHere <chat id> -CFDebugOpenMessage <message id>
+        // opens that chat from this list at that message, a moment after the list shows (with -CFDebugOrgSteps: the
+        // suggestions coming while it's read).
+        .task {
+            guard let id = UserDefaults.standard.string(forKey: "CFDebugOpenHere") else { return }
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            let message = UserDefaults.standard.string(forKey: "CFDebugOpenMessage") ?? ""
+            if let found = library.find(messageKey: message, hint: id) { linked = (found.thread.id, found.index) }
+        }
+        #endif
         .searchable(text: $query, prompt: aiSearch ? Text("Describe the chat you're looking for…") : Text("Search chats"))
         .onChange(of: way) { next in
             found = nil
@@ -756,7 +767,7 @@ struct HistoryChatView: View {
                             } else {
                                 VStack(alignment: .leading, spacing: 8) {
                                     MarkdownView(text: RowMarks.linkChats(m["content"] ?? "", chats: chatNames))
-                                    MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels), copy: {
+                                    MessageTools(tags: [], copied: copied == index, share: { [ShareText.answer(entries, index, labels)] }, copy: {
                                         Clipboard.copy(ShareText.plain(m["content"] ?? ""))
                                         copied = index
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copied == index { copied = nil } }
@@ -1314,7 +1325,14 @@ struct ChatDetailView: View {
                                                 tags: entry.tags ?? [],
                                                 copied: copied == index,
                                                 tagging: tagging == index,
-                                                shareText: entry.isNote ? ShareText.note(thread.entries, index, labels) : ShareText.answer(thread.entries, index, labels),
+                                                share: {
+                                                    if !entry.isNote, let marks = entry.marks, !marks.isEmpty {
+                                                        // Highlights go as bold to apps that take rich text.
+                                                        ChatAI.reportUx("ux_mark", ["action": "shared"])
+                                                        return [RichAnswer.bold(entry.content, marks: marks)]
+                                                    }
+                                                    return [entry.isNote ? ShareText.note(thread.entries, index, labels) : ShareText.answer(thread.entries, index, labels)]
+                                                },
                                                 copy: {
                                                     if !entry.isNote, let marks = entry.marks, !marks.isEmpty {
                                                         // Highlights go as bold to apps that take rich text.
@@ -1327,10 +1345,6 @@ struct ChatDetailView: View {
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copied == index { copied = nil } }
                                                 },
                                                 tag: { withAnimation(.easeOut(duration: 0.15)) { tagging = tagging == index ? nil : index } },
-                                                shareRich: !entry.isNote && !(entry.marks ?? []).isEmpty ? {
-                                                    RichAnswer.share(RichAnswer.bold(entry.content, marks: entry.marks ?? []), plain: ShareText.plain(entry.content))
-                                                    ChatAI.reportUx("ux_mark", ["action": "shared"])
-                                                } : nil,
                                                 actions: MessageActions(
                                                     pinned: entry.pinned != nil,
                                                     reminded: entry.remind != nil,
@@ -2198,9 +2212,9 @@ struct ChatDetailView: View {
             .buttonStyle(.bordered)
             .disabled(picked.isEmpty)
             #if os(iOS)
-            Button {
-                ShareSheet.present(text()) { self.picked = nil }
-            } label: { Label("Share", systemImage: "square.and.arrow.up").lineLimit(1).fixedSize() }
+            ShareButton(items: { [text()] }, done: { self.picked = nil }) {
+                Label("Share", systemImage: "square.and.arrow.up").lineLimit(1).fixedSize()
+            }
             .buttonStyle(.borderedProminent)
             .disabled(picked.isEmpty)
             #else
@@ -2570,12 +2584,12 @@ private struct MessageTools: View {
     let tags: [String]
     let copied: Bool
     var tagging = false
-    let shareText: String
+    /// What Share sends, made when tapped: the text with its links, or an answer with highlights as rich text, the
+    /// highlights in bold (2.5).
+    let share: () -> [Any]
     let copy: () -> Void
     /// Opens or closes the tag picker; nil: no tags here ("Ask your chats").
     var tag: (() -> Void)?
-    /// An answer with highlights: shared as rich text, the highlights in bold (2.5).
-    var shareRich: (() -> Void)? = nil
     /// Pin, remind and delete in "…" (2.5); nil: none ("Ask your chats").
     var actions: MessageActions? = nil
     /// Listen (build 90, answers): Ultra's, in Ultra's tint; without Ultra with a tiny "Ultra" mark.
@@ -2619,11 +2633,8 @@ private struct MessageTools: View {
             Button(action: copy) {
                 Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
             }
-            if let shareRich {
-                Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
-            } else {
-                ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
-            }
+            // From this button: on an iPad its popover hangs from it (2.6.1).
+            ShareButton(items: share) { Label("Share", systemImage: "square.and.arrow.up") }
             if let listen {
                 Button(action: listen) {
                     HStack(spacing: 3) {

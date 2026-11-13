@@ -1520,6 +1520,9 @@
  "orgMatch": {
   "message": "khớp {0}%"
  },
+ "orgMatchTopic": {
+  "message": "cùng chủ đề, khớp {0}%"
+ },
  "orgMergeInto": {
   "message": "Gộp vào “{0}”"
  },
@@ -1654,6 +1657,9 @@
  },
  "watchSetLive": {
   "message": "Đang theo dõi. Trang web này chỉ hiển thị thông tin đó khi bạn mở trang, nên tôi sẽ kiểm tra vào lúc đó."
+ },
+ "watchNotifyWhy": {
+  "message": "Hãy bật thông báo để tôi báo cho bạn khi có thay đổi."
  },
  "watchUnreadable": {
   "message": "Trang web này không cho tôi kiểm tra ở chế độ nền. Tôi có thể kiểm tra khi bạn mở trang, hoặc nhắc bạn vào xem."

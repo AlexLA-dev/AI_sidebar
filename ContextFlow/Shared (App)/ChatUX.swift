@@ -789,26 +789,6 @@ enum RichAnswer {
         board.setString(plain, forType: .string)
         #endif
     }
-
-    /// Share: the attributed text (apps that take rich text get the bold) and the plain text.
-    @MainActor
-    static func share(_ attributed: NSAttributedString, plain: String) {
-        #if os(iOS)
-        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first { $0.activationState == .foregroundActive }
-        guard var top = scene?.windows.first(where: \.isKeyWindow)?.rootViewController else { return }
-        while let shown = top.presentedViewController { top = shown }
-        let sheet = UIActivityViewController(activityItems: [attributed], applicationActivities: nil)
-        if let popover = sheet.popoverPresentationController {
-            popover.sourceView = top.view
-            popover.sourceRect = CGRect(x: top.view.bounds.midX, y: top.view.bounds.maxY - 80, width: 1, height: 1)
-        }
-        top.present(sheet, animated: true)
-        #else
-        guard let view = NSApp.keyWindow?.contentView else { return }
-        let point = view.convert(NSApp.keyWindow?.mouseLocationOutsideOfEventStream ?? .zero, from: nil)
-        NSSharingServicePicker(items: [attributed]).show(relativeTo: NSRect(origin: point, size: CGSize(width: 1, height: 1)), of: view, preferredEdge: .minY)
-        #endif
-    }
 }
 
 // MARK: - Pinned messages: one bar at the top of the chat, as in Telegram

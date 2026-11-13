@@ -45,7 +45,8 @@ export type Threads = Record<string, Thread>
 export interface OrgState {
   n: number
   k: string
-  mv?: { s: number; e: number; to: string | null; why: "merge" | "page" | "site" | "topic" | "apart"; mt?: number; fr?: string }
+  // tp (2.6 (100)): a merge of chats on one topic without a shared page.
+  mv?: { s: number; e: number; to: string | null; why: "merge" | "page" | "site" | "topic" | "apart"; mt?: number; fr?: string; tp?: true }
   tg?: Array<[string, string]>
   nm?: { k: string; t?: string; no?: string[] }
   // 2.6 (94): the chats a merge into was turned down for (never suggested again).
@@ -60,7 +61,7 @@ export function cleanOrgState(raw: unknown): OrgState | undefined {
   const out: OrgState = { n: o.n, k: o.k }
   const mv = o.mv as Record<string, unknown> | undefined
   if (mv && typeof mv.s === "number" && typeof mv.e === "number" && (typeof mv.to === "string" || mv.to === null) && ["merge", "page", "site", "topic", "apart"].includes(String(mv.why))) {
-    out.mv = { s: mv.s, e: mv.e, to: mv.to as string | null, why: mv.why as "page", ...(typeof mv.mt === "number" ? { mt: mv.mt } : {}), ...(typeof mv.fr === "string" && mv.fr ? { fr: mv.fr } : {}) }
+    out.mv = { s: mv.s, e: mv.e, to: mv.to as string | null, why: mv.why as "page", ...(typeof mv.mt === "number" ? { mt: mv.mt } : {}), ...(typeof mv.fr === "string" && mv.fr ? { fr: mv.fr } : {}), ...(mv.tp === true ? { tp: true as const } : {}) }
   }
   if (Array.isArray(o.tg)) {
     const tg = o.tg.filter((x): x is [string, string] => Array.isArray(x) && typeof x[0] === "string" && typeof x[1] === "string").map((x) => [x[0], x[1]] as [string, string])

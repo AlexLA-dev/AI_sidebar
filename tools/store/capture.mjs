@@ -126,6 +126,9 @@ async function go(s, url) {
   // The free-answers count under the field names the daily number, which the store page doesn't.
   // No Pro on the 2.5 shots either (the owner): the footer's "Get Pro" (or an offer) is hidden too.
   if (process.env.KEEP_USAGE !== "1") await s.page.evaluate(shadow(`(r) => { const st = document.createElement("style"); st.textContent = ".cf-usage-text, .cf-usage .cf-link, .cf-listen-left { visibility: hidden }"; r.appendChild(st) }`))
+  // iOS 27 header and search assets (BANNER=1): Apple allows no prices, web addresses or "free" there, so the
+  // shops' hosts, the price row, the copies' sources and Find similar's "Free" condition are left out.
+  if (process.env.BANNER === "1") await s.page.evaluate(shadow(`(r) => { const st = document.createElement("style"); st.textContent = ".cf-similar-host, .cf-similar-facts, .cf-qi-meta, .cf-similar-chips > :nth-child(4) { display: none !important }"; r.appendChild(st) }`))
 }
 
 async function open(s) {
@@ -663,7 +666,11 @@ async function watchPage(s) {
 function copied5() {
   const now = Date.now()
   const ru = lang === "ru"
-  const items = (ru
+  // The banners' list (BANNER=1) has no street address, e-mail or phone: Apple's creative assets take no addresses.
+  const banner = process.env.BANNER === "1"
+  const items = (banner ? (ru
+    ? [["PX-7741-2093", "", 4], ["Заказ 48213", "", 18], ["Спасибо, Мария! До созвона 14 ноября.", "", 35], ["Отчёт за квартал, финальная версия", "", 52], ["Созвон переносится на 15:30", "", 80]]
+    : [["PX-7741-2093", "", 4], ["Order 48213", "", 18], ["Thanks, Maria! Talk on 14 November.", "", 35], ["Quarterly report, final version", "", 52], ["Our call moves to 15:30", "", 80]]) : ru
     ? [["PX-7741-2093", "parcelly.studio", 4], ["Москва, ул. Лесная, 12, кв. 4", "contacts.sevveter.studio", 18], ["Заказ 48213", "shop.sevveter.studio", 35], ["maria.lopez@sevveter.studio", "mail.sevveter.studio", 52], ["+7 495 555-01-42", "contacts.sevveter.studio", 80]]
     : [["PX-7741-2093", "parcelly.studio", 4], ["12 Linden Street, Apt 4, Boston, MA 02118", "contacts.northwind.studio", 18], ["Order 48213", "shop.northwind.studio", 35], ["maria.lopez@northwind.studio", "mail.northwind.studio", 52], ["+1 617 555 0142", "contacts.northwind.studio", 80]])
     .map(([text, host, min], i) => ({ id: `k${i}`, text, host, at: now - min * 60e3, from: "page" }))

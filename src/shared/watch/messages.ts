@@ -42,6 +42,8 @@ export type WatchRequest =
   | { type: "watchPrepare"; draft: WatchDraft; how: WatchHow }
   // `note`: the person's own note (2.6 (97)), optional.
   | { type: "watchSave"; draft: WatchDraft; prepared: WatchPrepared; how: WatchHow; live: boolean; note?: string }
+  // After a watch is set, the person taps "Turn on notifications": the system's question (2.6.1).
+  | { type: "watchNotifyAsk" }
   | { type: "watchList" }
   | { type: "watchCancel"; id: string; via: "panel" | "list" }
   // New words for what a watch waits for, from the list: the rule is planned again; what's read stays. `note`: the

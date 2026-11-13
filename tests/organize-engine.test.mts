@@ -5,7 +5,7 @@ import { entryKey as entryKeyOf, type Entry } from "../src/shared/conversation.t
 import {
   DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nearName, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, textSize, turnedDownName, unpackVector, wantsNameCheck, type VectorOf
 } from "../src/shared/organize.ts"
-import type { Thread } from "../src/shared/threads.ts"
+import { cleanOrgState, type Thread } from "../src/shared/threads.ts"
 
 // Vectors by topic: every message's vector is its topic's direction plus a little of its own, so messages on
 // one topic are alike (≈0.8) and on different topics are not (≈0.05).
@@ -233,9 +233,15 @@ test("off-topic messages leave a mixed chat for the single-topic one; the single
   // Mostly that analytics site (three of four): the one-topic chat joins it (where the mix is narrower), and its cars
   // leave for a chat of their own.
   const most = chat("most", [...qa("analytics", "https://stats/1"), ...qa("analytics", "https://stats/2"), ...qa("analytics", "https://stats/4"), ...qa("cars", "https://cars/1")])
-  assert.deepEqual([suggestMove(one, [most, one], vectorOf, cfg)?.to, suggestMove(one, [most, one], vectorOf, cfg)?.why], ["most", "site"])
-  const out = suggestMove(most, [most, one], vectorOf, cfg)!
+  const pagesOnly = { ...cfg, mergeTopic: 0 }
+  assert.deepEqual([suggestMove(one, [most, one], vectorOf, pagesOnly)?.to, suggestMove(one, [most, one], vectorOf, pagesOnly)?.why], ["most", "site"])
+  // 2.6 (100): on its topic from mergeTopic %, the older chat joins the newer whole, which says so.
+  const byTopic = suggestMove(one, [most, one], vectorOf, cfg)!
+  assert.deepEqual([byTopic.to, byTopic.why, byTopic.topic], ["most", "merge", true])
+  const out = suggestMove(most, [most, one], vectorOf, pagesOnly)!
   assert.deepEqual([out.to, out.start, out.end], [null, 6, 7], "its analytics are at home; the cars leave")
+  // By topic, the newer chat shows the older one joining it first.
+  assert.deepEqual([suggestMove(most, [most, one], vectorOf, cfg)?.from, suggestMove(most, [most, one], vectorOf, cfg)?.topic], ["one", true])
   const clean = chat("most", most.m.slice(0, 6))
   assert.equal(suggestMove(one, [clean, one], vectorOf, cfg)?.to, "most")
 })
@@ -401,9 +407,9 @@ test("a chat on the topic and pages of a newer one joins it whole; never the oth
   assert.equal(suggestMove(no, [no, newer], vectorOf, cfg), null)
   assert.equal(suggestMove(newer, [no, newer], vectorOf, cfg), null)
   assert.deepEqual(orgStateFor(no, null, [], undefined).mx, ["newer"])
-  // Other pages, another topic on the same pages: no merge.
+  // Other pages (with merges by topic off: 2.6 (100)), another topic on the same pages: no merge.
   const elsewhere = chat("elsewhere", [...qa("japan", "https://other/1"), ...qa("japan", "https://other/2")])
-  assert.notEqual(suggestMove(older, [older, elsewhere], vectorOf, cfg)?.why, "merge")
+  assert.notEqual(suggestMove(older, [older, elsewhere], vectorOf, { ...cfg, mergeTopic: 0 })?.why, "merge")
   const breadOnJg = chat("breadjg", [...qa("bread", "https://jg/1"), ...qa("bread", "https://jg/2")])
   assert.notEqual(suggestMove(older, [older, breadOnJg], vectorOf, cfg)?.why, "merge")
   // A newer chat of one note joins the older one, as before (2.6 (91)).
@@ -556,4 +562,51 @@ test("2.6 (95): a page with a question on the chat's topic and then one on anoth
   const two = chat("twoff", [...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/caffeine"), ...qa("kombucha", "https://k/1"), ...qa("kombucha", "https://k/1")])
   const w = suggestMove(two, [two, bread], vectorOf, cfg)!
   assert.deepEqual([w.start, w.end, w.to], [4, 7, null])
+})
+
+// 2.6 (100), the owner: «если тематика, контекст довольно сильно пересекаются (как я до этого писал - 80%+)». Whole chats on
+// one topic merge without a shared page from mergeTopic % (by questions and answers, the % shown); the other rules stay.
+test("2.6 (100): chats on one topic merge without a shared page from mergeTopic %, and the suggestion says it's the topic", () => {
+  // The owner asked for 80 and chose 85 from the measurements («85%»).
+  assert.equal(DEFAULT_ORGANIZE.mergeTopic, 85)
+  const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
+  const newer = chat("newer", [...qa("japan", "https://rail/7"), ...qa("japan", "https://rail/8"), ...qa("japan", "https://rail/9")])
+  const s = suggestMove(older, [older, newer], vectorOf, cfg)!
+  assert.deepEqual([s.why, s.to, s.start, s.end, s.topic], ["merge", "newer", 0, 3, true])
+  assert.ok(s.match! >= cfg.mergeTopic)
+  // The newer chat shows it too, and the record keeps it (tp), read back as it was.
+  const into = suggestMove(newer, [older, newer], vectorOf, cfg)!
+  assert.deepEqual([into.why, into.from, into.topic], ["merge", "older", true])
+  const state = orgStateFor(newer, into, [], undefined)
+  assert.deepEqual(state.mv, { s: 5, e: 5, to: "newer", why: "merge", mt: into.match, fr: "older", tp: true })
+  assert.deepEqual(cleanOrgState(JSON.parse(JSON.stringify(state)))?.mv?.tp, true)
+  assert.equal(openMove({ ...newer, org: state }, [older, newer])?.tp, true)
+  // On a shared page it's a merge as before, not "the same topic".
+  const shared = chat("shared", [...qa("japan", "https://jg/2"), ...qa("japan", "https://rail/8")])
+  assert.deepEqual([suggestMove(older, [older, shared], vectorOf, cfg)?.why, suggestMove(older, [older, shared], vectorOf, cfg)?.topic], ["merge", undefined])
+  // 0 turns it off; above the match, none; the answers need mergeTopicA (never less than mergeA).
+  assert.notEqual(suggestMove(older, [older, newer], vectorOf, { ...cfg, mergeTopic: 0 })?.why, "merge")
+  assert.notEqual(suggestMove(older, [older, newer], vectorOf, { ...cfg, mergeTopic: s.match! + 1 })?.why, "merge")
+  // (One topic's answers fit each other 1 here: above any real cut.)
+  assert.notEqual(suggestMove(older, [older, newer], vectorOf, { ...cfg, mergeTopicA: 1.01 })?.why, "merge")
+  assert.equal(suggestMove(older, [older, newer], vectorOf, { ...cfg, mergeTopicA: 0 })?.why, "merge")
+  // Another topic on other pages: none.
+  const breadElsewhere = chat("breadrail", [...qa("bread", "https://rail/7"), ...qa("bread", "https://rail/8")])
+  assert.notEqual(suggestMove(older, [older, breadElsewhere], vectorOf, cfg)?.why, "merge")
+})
+
+test("2.6 (100): a merge by topic keeps the other rules: turned down, settled, notes only, never the larger into a newer chat of one block", () => {
+  const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
+  const newer = chat("newer", [...qa("japan", "https://rail/7"), ...qa("japan", "https://rail/8"), ...qa("japan", "https://rail/9")])
+  const no = { ...older, org: { n: 4, k: "x", mx: ["newer"] } }
+  assert.notEqual(suggestMove(no, [no, newer], vectorOf, cfg)?.why, "merge")
+  assert.notEqual(suggestMove(newer, [no, newer], vectorOf, cfg)?.why, "merge")
+  const settled = { ...older, m: older.m.map((e) => (e.role === "user" ? { ...e, dismissed: { move: true as const } } : e)) }
+  assert.notEqual(suggestMove(settled, [settled, newer], vectorOf, cfg)?.why, "merge")
+  const notes = chat("notes", [note("japan", "https://rail/7", "Rail pass: buy it before the trip, it costs less at home"), note("japan", "https://rail/8", "Shinkansen seats: book the window side on the way to Kyoto")])
+  assert.notEqual(suggestMove(older, [older, notes], vectorOf, cfg)?.why, "merge")
+  // A newer chat of one question on the topic: the older, larger chat doesn't go into it; that one joins the older.
+  const lone = chat("lone", qa("japan", "https://rail/7"))
+  assert.notEqual(suggestMove(older, [older, lone], vectorOf, cfg)?.why, "merge")
+  assert.equal(suggestMove(lone, [older, lone], vectorOf, cfg)?.to, "older")
 })

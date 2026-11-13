@@ -119,3 +119,30 @@ test("a number selected next to its code: the eye shows and watches the whole pr
   assert.equal(firstValue("price", "Was USD 55, now USD 40"), "USD 55")
   assert.equal(lastValue("price", "Was USD 55, now USD 40"), "USD 40")
 })
+
+// 2.6.1, filmed for X: a long press on "$799.99" (the cents set apart, smaller) selected "799", and Watch started
+// from "when the status changes (now 799)". The price's whole units take the whole price, in every way shops write it.
+test("a price's whole units selected alone are the whole price", () => {
+  const cases: [string, string, string][] = [
+    ["799", "$799.99 Add to Cart Buy Now", "$799.99"],
+    ["1,299", "Now $1,299.99", "$1,299.99"],
+    ["1.299", "Preis 1.299,99 € inkl. MwSt.", "1.299,99 €"],
+    ["1 299", "Цена 1 299,90 ₽", "1 299,90 ₽"],
+    ["1.299", "R$ 1.299,90 à vista", "R$ 1.299,90"],
+    ["1'299", "CHF 1'299.95", "CHF 1'299.95"],
+    ["129", "129,00 € TTC", "129,00 €"],
+    ["45", "45,99 zł", "45,99 zł"],
+    ["2", "$2.50 off", "$2.50"],
+    ["1.990.000", "1.990.000 ₫", "1.990.000 ₫"],
+    ["12,800", "¥12,800 税込", "¥12,800"]
+  ]
+  for (const [sel, around, price] of cases) {
+    assert.equal(priceAround(sel, around), price, `${sel} in ${around}`)
+    assert.equal(eyeFor(sel, around), "price", `${sel} in ${around}`)
+  }
+  // Not its cents, not part of a bigger number, not a number's first digits.
+  assert.equal(priceAround("99", "$799.99"), null)
+  assert.equal(priceAround("799", "$1,799.99"), null)
+  assert.equal(priceAround("79", "$799.99"), null)
+  assert.equal(priceAround("299", "1.299,99 €"), null)
+})

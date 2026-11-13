@@ -46,6 +46,7 @@ import {
 import { Hint } from "./Hint"
 import { moveLine, OrganizeCard, OrganizeRow, panelSelectionStart, type OrganizeMove } from "./Organize"
 import { inChatOrder, preview as barPreview, SuggestionsBar, type BarSuggestion } from "./SuggestionsBar"
+import { keepReadingPlace, readingPlace, type ReadingPlace } from "./readingPlace"
 import { UndoBar } from "./UndoBar"
 import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
@@ -800,10 +801,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => window.removeEventListener("keydown", onKey, true)
   }, [open, hide, endTour])
 
+  // A move taken or undone in this chat (2.6 (100)): the length it leaves, so its messages coming or going don't scroll
+  // the chat to its end; the place being read stays (readingPlace.ts).
+  const keepPlaceFor = useRef(-1)
   // Keep the newest text in view while streaming (not when a message only got tags: the chat stays put).
   useEffect(() => {
     const list = listRef.current
     if (!list) return
+    const keep = keepPlaceFor.current === messages.length
+    keepPlaceFor.current = -1
+    if (keep) return
     list.scrollTop = list.scrollHeight
     // The limit's card taller than the view (a long page's, in some languages): its title in view, not its end.
     const card = error ? list.querySelector<HTMLElement>(".cf-card.limit") : null
@@ -2859,7 +2866,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const target = mv?.fr ? threadList.find((x) => x.id === mv.fr) : mv?.to ? threadList.find((x) => x.id === mv.to) : undefined
     setOrg({
       chat, length: messages.length,
-      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.fr && target ? target.m.length : mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}), ...(mv.fr ? { from: mv.fr } : {}) } : null,
+      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.fr && target ? target.m.length : mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}), ...(mv.fr ? { from: mv.fr } : {}), ...(mv.tp ? { topic: true as const } : {}) } : null,
       tags: openTags(shown),
       name: openName(shown) ?? null
     })
@@ -2919,6 +2926,30 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setTimeout(() => el.classList.remove("sug-flash"), 1200)
   }
   const pinnedCount = messages.filter((m) => m.pinned && (m.role === "assistant" || m.note)).length
+
+  // 2.6 (100), the owner: «при обнаружении в чате предложения по структурированию чат перескакивает вверх, в начало».
+  // What changes the chat above the place being read: the bars at the top, the suggestions' rows under messages, the
+  // tags on messages, a move taken or undone. When it changes, where the list is read is noted before the render
+  // reaches it and put back after (Safari has no scroll anchoring).
+  const shownRef = useRef<Entry[]>(messages)
+  const rowsKey = orgNow ? `${orgNow.tags.map((x) => x.index).join(",")}/${orgNow.move ? `${orgNow.move.start}-${orgNow.move.end}` : ""}/${orgName ?? ""}` : ""
+  const placeKey = [
+    picked ? "picking" : "", pinnedCount, barItems.length, rowsKey,
+    messages.map((m) => (m.tags ?? []).join(",")).join(";"),
+    keepPlaceFor.current === messages.length ? messages.length : ""
+  ].join("|")
+  const placeRef = useRef<{ key: string; place: ReadingPlace | null }>({ key: placeKey, place: null })
+  if (placeRef.current.key !== placeKey) {
+    const list = listRef.current
+    placeRef.current = { key: placeKey, place: list ? readingPlace(list, (i) => (shownRef.current[i] ? entryKey(shownRef.current[i]) : undefined)) : null }
+  }
+  useLayoutEffect(() => {
+    shownRef.current = messages
+    const { place } = placeRef.current
+    placeRef.current.place = null
+    const list = listRef.current
+    if (place && list) keepReadingPlace(list, place, (key) => messages.findIndex((m) => entryKey(m) === key))
+  }, [placeKey, messages])
 
   // Each suggestion is counted once as shown.
   useEffect(() => {
@@ -3038,7 +3069,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const threads = await undoBlockMove(undo)
     showLists(threads)
     const here = threadRef.current
-    if (here === undo.source || here === undo.target) showChat(threads[undo.source] && !threads[undo.source].deleted ? undo.source : here, threads)
+    if (here === undo.source || here === undo.target) {
+      const show = threads[undo.source] && !threads[undo.source].deleted ? undo.source : here
+      if (show === here) keepPlaceFor.current = threads[here]?.m.length ?? -1
+      showChat(show, threads)
+    }
     // Taken back: the same move isn't suggested again.
     const keys = new Set(undo.keys)
     if (threadRef.current === undo.source) {
@@ -3058,8 +3093,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // The panel stays on this chat ("Open" goes to the other one), unless nothing is left in it: then it's
     // the other one already, without "Open".
     const stays = left && !left.deleted ? left : null
-    if (stays) setMessages(stays.m)
-    else showChat(target, moved.threads)
+    if (stays) {
+      keepPlaceFor.current = stays.m.length
+      setMessages(stays.m)
+    } else showChat(target, moved.threads)
     orgEvent({ kind: "organize", action: "accepted", what: move.to ? "move" : "new", why: move.why })
     setUndoBar({
       text: t(move.why === "merge" ? "orgMerged" : "orgMoved", move.toName),
@@ -3081,7 +3118,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const moved = await moveBlock(from, 0, older.m.length - 1, here)
     if (!moved) return
     showLists(moved.threads)
-    if (moved.threads[here]) setMessages(moved.threads[here].m)
+    if (moved.threads[here]) {
+      keepPlaceFor.current = moved.threads[here].m.length
+      setMessages(moved.threads[here].m)
+    }
     orgEvent({ kind: "organize", action: "accepted", what: "move", why: "merge" })
     setUndoBar({
       text: t("orgMergedHere", move.toName),
@@ -3093,7 +3133,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           void undoBlockMove(moved.undo).then(async (threads) => {
             await refuseMerge(from, here)
             showLists(threads)
-            if (threadRef.current === here && threads[here]) setMessages(threads[here].m)
+            if (threadRef.current === here && threads[here]) {
+              keepPlaceFor.current = threads[here].m.length
+              setMessages(threads[here].m)
+            }
             orgEvent({ kind: "organize", action: "undone", what: "move" })
           })
         }
@@ -3710,12 +3753,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ) : (
             <>
               <div class="cf-messages" ref={listRef} onClick={ux.onListClick}>
-                {!picked && (barItems.length ? (
-                  <div class={`cf-topbars${pinnedCount ? " both" : ""}`}>
+                {/* 2.6 (100): the bars in one place of their own, kept by its key. When the suggestions bar came, the list's
+                    first child turned from the pinned bar into this box, and Preact took every message out and put it
+                    back in: the chat jumped to its start (the owner on build 100). */}
+                {!picked && (pinnedCount > 0 || barItems.length > 0) && (
+                  <div key="topbars" class={`cf-topbars${pinnedCount && barItems.length ? " both" : ""}`}>
                     {ux.strip}
                     <SuggestionsBar items={barItems} compact={pinnedCount > 0} onOpen={openSuggestion} />
                   </div>
-                ) : ux.strip)}
+                )}
                 {historyMode && messages.length === 0 && partial === null && (
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>

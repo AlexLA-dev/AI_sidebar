@@ -380,14 +380,23 @@ export function eyeFor(selection: string, around: string, eventMarkup = false): 
 
 /**
  * A bare number selected next to its currency: a tap on "40" in "USD 40" or "40 EUR" selects only the number (the
- * code is a word of its own; "$40" comes whole). The price as the page writes it, from the selection's paragraph or
- * row; null when the number has no currency right by it.
+ * code is a word of its own; "$40" comes whole). A long press may take only the price's whole units, too: "799" of
+ * "$799.99", "1.299" of "1.299,99 €" (2.6.1: shops set the cents apart, smaller, and iOS selects the number before
+ * them). The price as the page writes it, from the selection's paragraph or row; null when the number has no currency
+ * right by it.
  */
 export function priceAround(selection: string, around: string): string | null {
   const sel = selection.replace(/\s+/g, " ").trim()
   if (!/^\d[\d \u00a0\u202f.,']*$/.test(sel) || sel.length > 20) return null
   const text = around.replace(/\s+/g, " ")
   const digits = sel.replace(/\D/g, "")
-  for (const price of prices(text)) if (price.replace(/\D/g, "") === digits && price.includes(sel)) return price
+  for (const price of prices(text)) {
+    if (!price.includes(sel)) continue
+    if (price.replace(/\D/g, "") === digits) return price
+    // Its whole units: the number without the cents after its last "." or ",".
+    const number = new RegExp(NUMBER, "u").exec(price)?.[0] ?? ""
+    const whole = number.replace(/[.,]\d{1,2}$/, "")
+    if (whole !== number && whole.replace(/\D/g, "") === digits && price.includes(whole) && whole.endsWith(sel)) return price
+  }
   return null
 }

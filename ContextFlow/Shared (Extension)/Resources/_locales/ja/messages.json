@@ -1520,6 +1520,9 @@
  "orgMatch": {
   "message": "一致度 {0}%"
  },
+ "orgMatchTopic": {
+  "message": "同じテーマ・一致度 {0}%"
+ },
  "orgMergeInto": {
   "message": "「{0}」に統合"
  },
@@ -1654,6 +1657,9 @@
  },
  "watchSetLive": {
   "message": "見守ります。このサイトはページを開いたときだけ表示するので、そのときに確認します。"
+ },
+ "watchNotifyWhy": {
+  "message": "変わったときにお知らせできるよう、通知をオンにしてください。"
  },
  "watchUnreadable": {
   "message": "このサイトはバックグラウンドで確認できません。ページを開いたときに確認するか、見に行くようリマインドできます。"

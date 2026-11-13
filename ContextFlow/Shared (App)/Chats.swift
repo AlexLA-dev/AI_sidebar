@@ -564,27 +564,6 @@ enum Clipboard {
     }
 }
 
-#if os(iOS)
-/// The share sheet for text, with a call when it closes (shared or not).
-@MainActor
-enum ShareSheet {
-    static func present(_ text: String, done: @escaping () -> Void) {
-        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first { $0.activationState == .foregroundActive }
-        guard var top = scene?.windows.first(where: \.isKeyWindow)?.rootViewController else { return done() }
-        while let shown = top.presentedViewController { top = shown }
-        let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
-        sheet.completionWithItemsHandler = { _, _, _, _ in done() }
-        if let popover = sheet.popoverPresentationController {
-            // iPad: from the bar at the bottom.
-            popover.sourceView = top.view
-            popover.sourceRect = CGRect(x: top.view.bounds.maxX - 80, y: top.view.bounds.maxY - 40, width: 1, height: 1)
-            popover.permittedArrowDirections = .down
-        }
-        top.present(sheet, animated: true)
-    }
-}
-#endif
-
 func host(of url: String) -> String {
     guard let host = URL(string: url)?.host else { return "" }
     return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
@@ -611,6 +590,8 @@ final class ChatLibrary: ObservableObject {
     #if DEBUG
     /// -CFDebugRemoteRename is done once per launch.
     private static var remoteRenameScheduled = false
+    /// -CFDebugOrgSteps too.
+    private static var orgStepsScheduled = false
     #endif
 
     enum Cloud: Equatable {
@@ -684,7 +665,10 @@ final class ChatLibrary: ObservableObject {
             var m: [[String: Any]] = []
             for i in 0..<6 {
                 m.append(["role": "user", "content": "Question \(i + 1): how do electric trains save energy?", "id": "lq\(i)", "t": at - 600_000 + Int64(i) * 60_000, "page": page])
-                m.append(["role": "assistant", "content": answer, "id": "la\(i)", "t": at - 590_000 + Int64(i) * 60_000])
+                var reply: [String: Any] = ["role": "assistant", "content": answer, "id": "la\(i)", "t": at - 590_000 + Int64(i) * 60_000]
+                // 2.6.1 (Share on an iPad): one answer with a highlight, shared as rich text.
+                if i == 2 { reply["marks"] = [["s": 0, "e": 0, "q": "a fifth of what the train used"]] }
+                m.append(reply)
             }
             let thread: [String: Any] = ["title": "Electric trains and energy", "a": at, "m": m]
             if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
@@ -836,7 +820,19 @@ final class ChatLibrary: ObservableObject {
             let after = max(1, UserDefaults.standard.double(forKey: "CFDebugOpenAfter"))
             DispatchQueue.main.asyncAfter(deadline: .now() + after) {
                 DebugHangLog.mark("request \(id)")
-                ChatLinks.shared.pending = (id, id.replacingOccurrences(of: "debug-many-", with: "da") + "-0")
+                // -CFDebugOpenMessage <message id>: at that message (2.6 (100)).
+                let message = UserDefaults.standard.string(forKey: "CFDebugOpenMessage") ?? id.replacingOccurrences(of: "debug-many-", with: "da") + "-0"
+                ChatLinks.shared.pending = (id, message)
+            }
+        }
+        // 2.6 (100): -CFDebugOrgSteps "8|chat=debug-long&tags=1:trains;14|chat=debug-long" gives the chat those records so
+        // many seconds after launch (debugOrg), as another device writes them while the chat is read.
+        if let steps = UserDefaults.standard.string(forKey: "CFDebugOrgSteps"), !Self.orgStepsScheduled {
+            Self.orgStepsScheduled = true
+            for step in steps.split(separator: ";") {
+                let parts = step.split(separator: "|", maxSplits: 1).map(String.init)
+                guard let after = Double(parts[0]), let url = URL(string: "contextflow://debug-org?" + (parts.count > 1 ? parts[1] : "")) else { continue }
+                DispatchQueue.main.asyncAfter(deadline: .now() + after) { [weak self] in self?.debugOrg(url) }
             }
         }
         #endif
@@ -910,6 +906,33 @@ final class ChatLibrary: ObservableObject {
         let expired = trashed.filter { $0.trashedAt! <= cutoff }
         if !expired.isEmpty { deleteNow(expired) }
     }
+
+    #if DEBUG
+    /// 2.6 (100) (the chat jumped to its start when a suggestion came): contextflow://debug-org?chat=<id>&tags=1:trains,3:rail
+    /// &move=4-5:<chat> gives that chat a record with those tags suggested on those messages (by index) and that block's
+    /// move, as another device writes it, and the library reloads as after a pull from iCloud. Neither: the record goes.
+    func debugOrg(_ url: URL) {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let value = { (name: String) in items.first { $0.name == name }?.value ?? "" }
+        guard let item = ChatMirror.chats()[value("chat")], var object = (try? JSONSerialization.jsonObject(with: Data(item.data.utf8))) as? [String: Any],
+              let m = object["m"] as? [[String: Any]], let last = m.last else { return }
+        let tags: [OrgState.Tag] = value("tags").split(separator: ",").compactMap { pair in
+            let parts = pair.split(separator: ":")
+            guard parts.count == 2, let i = Int(parts[0]), m.indices.contains(i) else { return nil }
+            return OrgState.Tag(key: Organize.entryKey(m[i]), tag: String(parts[1]))
+        }
+        var move: OrgState.Move?
+        let spec = value("move").split(separator: ":")
+        if spec.count == 2, case let ends = spec[0].split(separator: "-").compactMap({ Int($0) }), ends.count == 2 {
+            move = OrgState.Move(s: ends[0], e: ends[1], to: String(spec[1]), why: .topic, mt: 90)
+        }
+        object["org"] = tags.isEmpty && move == nil ? nil : OrgState(n: m.count, k: Organize.entryKey(last), mv: move, tg: tags).json
+        guard let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) else { return }
+        _ = ChatMirror.apply(saves: [value("chat"): ChatMirror.Item(updatedAt: item.updatedAt + 1, data: text)])
+        DebugHangLog.mark("org \(value("chat")) tags \(tags.count) move \(move == nil ? 0 : 1)")
+        reload()
+    }
+    #endif
 
     /// Pinned chats first in their order, then the others, the latest first (the extension's order); the same pin or
     /// time, by id: the chats come from a dictionary, in no set order, and the list mustn't change between reloads.

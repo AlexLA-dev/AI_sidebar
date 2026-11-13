@@ -59,6 +59,8 @@ nonisolated struct OrgState: Hashable, Decodable {
         var mt: Double?
         /// 2.6 (95): an older chat joins this one whole (`to` is this chat; shown under message `e`).
         var fr: String? = nil
+        /// 2.6 (100): a merge of chats on one topic without a shared page.
+        var tp = false
     }
 
     struct Tag: Hashable {
@@ -95,7 +97,7 @@ nonisolated struct OrgState: Hashable, Decodable {
         self = read
     }
 
-    private enum Keys: String, CodingKey { case n, k, mv, tg, nm, mx, s, e, to, why, mt, fr, t, no }
+    private enum Keys: String, CodingKey { case n, k, mv, tg, nm, mx, s, e, to, why, mt, fr, tp, t, no }
 
     /// Each part on its own: one that doesn't make sense is left out, the rest kept.
     private struct Maybe<T: Decodable>: Decodable {
@@ -112,7 +114,7 @@ nonisolated struct OrgState: Hashable, Decodable {
            let why = (try? m.decode(String.self, forKey: .why)).flatMap(Organize.MoveReason.init(rawValue:)) {
             let to: String?? = (try? m.decodeNil(forKey: .to)) == true ? .some(nil) : (try? m.decode(String.self, forKey: .to)).map { .some($0) }
             let fr = (try? m.decode(String.self, forKey: .fr)).flatMap { $0.isEmpty ? nil : $0 }
-            if let to { mv = Move(s: s, e: e, to: to, why: why, mt: try? m.decode(Double.self, forKey: .mt), fr: fr) }
+            if let to { mv = Move(s: s, e: e, to: to, why: why, mt: try? m.decode(Double.self, forKey: .mt), fr: fr, tp: (try? m.decode(Bool.self, forKey: .tp)) == true) }
         }
         let pairs = (try? c.decode([Maybe<[Maybe<String>]>].self, forKey: .tg)) ?? []
         tg = pairs.compactMap { pair in
@@ -143,6 +145,7 @@ nonisolated extension OrgState.Move {
         var out: [String: Any] = ["s": s, "e": e, "to": to ?? NSNull(), "why": why.rawValue]
         if let mt { out["mt"] = Organize.whole(mt) }
         if let fr { out["fr"] = fr }
+        if tp { out["tp"] = true }
         return out
     }
 }
@@ -191,6 +194,10 @@ nonisolated struct OrganizeConfig: Sendable {
     var tailRelD = 0.0
     // 2.6 (95): two chats on a shared page merge when their answers fit each other this well both ways (`mergeFit`).
     var mergeA = 0.45
+    // 2.6 (100), the owner: whole chats on one topic merge without a shared page too, from this match (the % shown) and
+    // the answers' `mergeTopicA` (never below `mergeA`). 0: only chats on a shared page merge (src/shared/organize.ts).
+    var mergeTopic = 85.0
+    var mergeTopicA = 0.45
     // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
     var window = 3.0
     var tagWindow = 5.0
@@ -230,7 +237,7 @@ nonisolated struct OrganizeConfig: Sendable {
     /// The fields by their names in /status.
     static let fields: [(name: String, path: WritableKeyPath<OrganizeConfig, Double>)] = [
         ("moveT", \.moveT), ("moveD", \.moveD), ("moveT1", \.moveT1), ("siteT", \.siteT), ("topicT", \.topicT), ("matchLo", \.matchLo), ("matchHi", \.matchHi), ("minMatch", \.minMatch), ("splitT", \.splitT),
-        ("splitMin", \.splitMin), ("tailQA", \.tailQA), ("tailA", \.tailA), ("tailAlike", \.tailAlike), ("tailRelCap", \.tailRelCap), ("tailRelD", \.tailRelD), ("mergeA", \.mergeA), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD), ("tagT1", \.tagT1), ("tagCohD", \.tagCohD),
+        ("splitMin", \.splitMin), ("tailQA", \.tailQA), ("tailA", \.tailA), ("tailAlike", \.tailAlike), ("tailRelCap", \.tailRelCap), ("tailRelD", \.tailRelD), ("mergeA", \.mergeA), ("mergeTopic", \.mergeTopic), ("mergeTopicA", \.mergeTopicA), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD), ("tagT1", \.tagT1), ("tagCohD", \.tagCohD),
         ("coherence", \.coherence), ("judge", \.judge), ("maxTags", \.maxTags), ("rollback", \.rollback),
         ("messSites", \.messSites), ("messBlocks", \.messBlocks), ("messHours", \.messHours)
     ]
@@ -787,6 +794,8 @@ nonisolated enum Organize {
         var match: Double? = nil
         /// 2.6 (95): the other way round, an older chat joins this one whole (`to` is this chat; shown under `end`).
         var from: String? = nil
+        /// 2.6 (100): a merge of chats on one topic without a shared page (`mergeTopic`): the suggestion says so.
+        var topic = false
     }
 
     /// A block's fit to a chat as people read it (src/shared/organize.ts `matchPercent`).
@@ -905,12 +914,14 @@ nonisolated enum Organize {
             let qa = min(fit(mine, theirs, answers: false), fit(theirs, mine, answers: false))
             if let m = merge, qa <= m.qa { continue }
             let a = min(fit(mine, theirs, answers: true), fit(theirs, mine, answers: true))
+            // No shared page: "page" unless they're on one topic from `mergeTopic` % (2.6 (100)).
+            let page = from.blocks.contains(where: { b in b.url.map { !$0.isEmpty } == true && to.blocks.contains { $0.url == b.url } })
             let why: String
-            if !from.blocks.contains(where: { b in b.url.map { !$0.isEmpty } == true && to.blocks.contains { $0.url == b.url } }) { why = "page" }
+            if !page && (!(cfg.mergeTopic > 0) || matchPercent(qa, cfg) < cfg.mergeTopic) { why = "page" }
             else if to.thread.entries.allSatisfy(isNote) { why = "notes" }
             else if from.blocks.contains(where: { $0.settled || $0.dismissed }) { why = "settled" }
             else if (from.thread.org?.mx ?? []).contains(to.thread.id) { why = "refused" }
-            else if a < cfg.mergeA { why = "answers" }
+            else if a < (page ? cfg.mergeA : max(cfg.mergeA, cfg.mergeTopicA)) { why = "answers" }
             else if matchPercent(qa, cfg) < cfg.minMatch { why = "match" }
             else { why = "open" }
             merge = (qa, a, why)
@@ -962,17 +973,17 @@ nonisolated enum Organize {
         let others: [Other] = chats
             .filter { $0.id != chat.id && !$0.isDeleted && !$0.isHistory && !$0.entries.isEmpty }
             .map { ($0, cache?.scored($0, vectorOf) ?? scoredBlocks($0.entries, vectorOf)) }
-        var merge: (to: String, from: String?, score: Double, match: Double)?
+        var merge: (to: String, from: String?, score: Double, match: Double, topic: Bool)?
         for o in others {
-            if let out = mergeFit((chat, blocks), o, cfg), merge == nil || out.score > merge!.score { merge = (o.thread.id, nil, out.score, out.match) }
-            if let into = mergeFit(o, (chat, blocks), cfg), merge == nil || into.score > merge!.score { merge = (chat.id, o.thread.id, into.score, into.match) }
+            if let out = mergeFit((chat, blocks), o, cfg), merge == nil || out.score > merge!.score { merge = (o.thread.id, nil, out.score, out.match, out.topic) }
+            if let into = mergeFit(o, (chat, blocks), cfg), merge == nil || into.score > merge!.score { merge = (chat.id, o.thread.id, into.score, into.match, into.topic) }
         }
         if let merge, let from = merge.from {
             let last = chat.entries.count - 1
-            return MoveSuggestion(start: last, end: last, to: chat.id, why: .merge, score: merge.score, current: 0, match: merge.match, from: from)
+            return MoveSuggestion(start: last, end: last, to: chat.id, why: .merge, score: merge.score, current: 0, match: merge.match, from: from, topic: merge.topic)
         }
         if let merge {
-            return MoveSuggestion(start: 0, end: chat.entries.count - 1, to: merge.to, why: .merge, score: merge.score, current: 0, match: merge.match)
+            return MoveSuggestion(start: 0, end: chat.entries.count - 1, to: merge.to, why: .merge, score: merge.score, current: 0, match: merge.match, topic: merge.topic)
         }
         // `window` is a whole number (the panel stops at a fraction; here it starts at the next whole block).
         let first = Int(max(0, Double(blocks.count) - cfg.window).rounded(.up))
@@ -1046,24 +1057,30 @@ nonisolated enum Organize {
     /// is newer, `from` has a page `to` has too (2.6 (95): one is enough), `to` isn't a chat of notes only, nothing in
     /// `from` was turned down or moved in, that merge wasn't turned down (`org.mx`), and (2.6 (95)) their answers fit each
     /// other from `mergeA` both ways. The match shown is by questions and answers, like every move's, so a merge needs
-    /// `minMatch` % by them as well.
-    private static func mergeFit(_ from: Other, _ to: Other, _ cfg: OrganizeConfig) -> (score: Double, match: Double)? {
+    /// `minMatch` % by them as well. 2.6 (100), the owner: without a shared page they merge from `mergeTopic` % (0: never), the
+    /// answers from `mergeTopicA`; the suggestion says it's the same topic (`topic`).
+    private static func mergeFit(_ from: Other, _ to: Other, _ cfg: OrganizeConfig) -> (score: Double, match: Double, topic: Bool)? {
         // The cheap checks first: every pair of chats is checked when the list counts.
-        if !from.blocks.contains(where: { b in b.url.map { !$0.isEmpty } == true && to.blocks.contains { $0.url == b.url } }) { return nil }
+        let page = from.blocks.contains(where: { b in b.url.map { !$0.isEmpty } == true && to.blocks.contains { $0.url == b.url } })
+        if !page && !(cfg.mergeTopic > 0) { return nil }
         if to.thread.entries.allSatisfy(isNote) { return nil }
         if from.blocks.contains(where: { $0.settled || $0.dismissed }) || (from.thread.org?.mx ?? []).contains(to.thread.id) || !newer(to.thread, from.thread) { return nil }
         let mine = from.blocks.filter { $0.v != nil }
         let theirs = to.blocks.filter { $0.v != nil }
         if mine.isEmpty || theirs.isEmpty { return nil }
+        // By topic, never a larger chat into a newer chat of one block: that one joins the larger by the move rules (the
+        // smaller into the larger), not the other way round.
+        if !page && to.blocks.count < 2 && from.thread.entries.count > to.thread.entries.count { return nil }
         // Both ways: one chat on a topic and a pile that has it too aren't one chat.
         func fit(_ a: [ScoredBlock], _ b: [ScoredBlock], answers: Bool) -> Double {
             let list = b.map { (v: (answers ? $0.a : $0.v)!, w: 1.0) }
             return a.reduce(0) { $0 + topMean((answers ? $1.a : $1.v)!, list, 2) } / Double(a.count)
         }
-        if min(fit(mine, theirs, answers: true), fit(theirs, mine, answers: true)) < cfg.mergeA { return nil }
+        if min(fit(mine, theirs, answers: true), fit(theirs, mine, answers: true)) < (page ? cfg.mergeA : max(cfg.mergeA, cfg.mergeTopicA)) { return nil }
         let score = min(fit(mine, theirs, answers: false), fit(theirs, mine, answers: false))
         let match = matchPercent(score, cfg)
-        return match >= cfg.minMatch ? (score, match) : nil
+        if !page { return match >= cfg.mergeTopic && match >= cfg.minMatch ? (score, match, true) : nil }
+        return match >= cfg.minMatch ? (score, match, false) : nil
     }
 
     /// 2.6 (94): the end of a block off its chat's topic — an answer about something else asked on the same page, or in
@@ -1822,7 +1839,7 @@ nonisolated enum Organize {
     /// The state to keep with the chat after a run: the move and tags worked out now, and the name check as it stands.
     static func orgState(for chat: OrganizeThread, move: MoveSuggestion?, tags: [(key: String, tag: String)], nm: OrgState.Name?) -> OrgState {
         OrgState(n: chat.entries.count, k: lastKey(chat.entries),
-                 mv: move.map { OrgState.Move(s: $0.start, e: $0.end, to: $0.to, why: $0.why, mt: $0.match, fr: $0.from) },
+                 mv: move.map { OrgState.Move(s: $0.start, e: $0.end, to: $0.to, why: $0.why, mt: $0.match, fr: $0.from, tp: $0.topic) },
                  tg: tags.map { OrgState.Tag(key: $0.key, tag: $0.tag) }, nm: nm, mx: chat.org?.mx ?? [])
     }
 
