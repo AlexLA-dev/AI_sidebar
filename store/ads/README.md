@@ -87,3 +87,15 @@ node tools/ads/asa.mjs stop --yes           # всё на паузу
 node tools/ads/asa.mjs status --plan store/ads/plan-arc.json
 node tools/ads/asa.mjs report --plan store/ads/plan-arc.json
 ```
+
+## $100 на окупаемость (с 13.11.2026)
+
+Владелец 13.11: на весь маркетинг $100, они должны окупиться подписками с этого трафика. Окупаемость при ~$10 выручки на платящего за 3 месяца — установка до ~$1, касание до $0.30–0.50 (economics.md в ~/ContextFlow-work/director/marketing-100). Поэтому:
+
+- `plan-arc.json` поставлен на паузу (англоязычные страны, ставка $1.20; на английском iPhone платят ~2.5 % скачавших). Потрачено $0.
+- `plan-local.json`: 6 кампаний, только exact на местных языках там, где уже платят — TW, IT, FR, DE, TR, AR+MX. iPhone + iPad, новые пользователи, Search Match выключен, ставки $0.30–0.60 (потолок $0.80), $6.50/день до 27.11 00:00 по Никосии = $91. Остаток $100 — резерв на ключи, которые приведут платящих.
+
+```
+node tools/ads/asa.mjs status --plan store/ads/plan-local.json
+node tools/ads/asa.mjs report --plan store/ads/plan-local.json
+```

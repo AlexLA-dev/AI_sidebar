@@ -17,26 +17,53 @@
   "campaigns": [
     {
       "name": "CF · Arc · Search",
-      "status": "ENABLED",
-      "countries": ["US", "GB", "CA", "AU", "NZ", "IE", "DE", "NL", "SE", "CH"],
+      "status": "PAUSED",
+      "countries": [
+        "US",
+        "GB",
+        "CA",
+        "AU",
+        "NZ",
+        "IE",
+        "DE",
+        "NL",
+        "SE",
+        "CH"
+      ],
       "dailyBudget": 4,
       "start": "2026-11-13",
       "end": "2026-11-22T22:00:00.000",
       "negatives": [
-        { "text": "free", "match": "EXACT" }
+        {
+          "text": "free",
+          "match": "EXACT"
+        }
       ],
       "adGroups": [
         {
           "name": "Arc",
           "bid": 1.2,
-          "devices": ["IPHONE", "IPAD"],
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
           "newUsersOnly": true,
           "productPage": "default",
           "keywords": [
-            { "text": "arc search" },
-            { "text": "arc browser" },
-            { "text": "browse for me" },
-            { "text": "arc search alternative", "match": "BROAD", "bid": 1 }
+            {
+              "text": "arc search"
+            },
+            {
+              "text": "arc browser"
+            },
+            {
+              "text": "browse for me"
+            },
+            {
+              "text": "arc search alternative",
+              "match": "BROAD",
+              "bid": 1
+            }
           ]
         }
       ]
