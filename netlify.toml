@@ -291,6 +291,42 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/youtube-transcript-safari"
+  to = "https://context-flow.app/youtube-transcript-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/youtube-transcript-safari.html"
+  to = "https://context-flow.app/youtube-transcript-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/read-aloud-safari-iphone"
+  to = "https://context-flow.app/read-aloud-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/read-aloud-safari-iphone.html"
+  to = "https://context-flow.app/read-aloud-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/summarize-pdf-safari"
+  to = "https://context-flow.app/summarize-pdf-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/summarize-pdf-safari.html"
+  to = "https://context-flow.app/summarize-pdf-safari"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/sitemap.xml"
   to = "https://context-flow.app/sitemap.xml"
   status = 301
