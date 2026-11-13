@@ -2,8 +2,9 @@ import type { Config, Context } from "@netlify/functions"
 
 import { attributionFields, resolveAdToken } from "../shared/adservices.mts"
 import { config as settings } from "../shared/config.mts"
-import { consume, logEvent } from "../shared/db.mts"
+import { consume, isTestTraffic, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
+import { iosInstall, sendXConversions } from "../shared/xconversions.mts"
 import { isRenewalReason } from "../../src/shared/renewal.ts"
 import { sessionFields, useFields } from "../../src/shared/usage.ts"
 
@@ -43,13 +44,16 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
  *         client: {version, build?, platform, locale}, audience?: "test" (debug and TestFlight builds),
  *         extension?: "off"|"on"|"in_use", notifications?,
  *         adToken?: <AdServices attribution token, app_open only>, media?: "video"|"pdf"|"video,pdf",
+ *         newInstall?: true, att?: "authorized"|"denied"|"restricted"|"not_determined", idfa?: <IDFA>
+ *           (app_open only: the first launch of a new install, and the person's answer to the system's
+ *           tracking question; the IDFA only after "authorized", passed on to X and never stored),
  *         renewal_off: reason (src/shared/renewal.ts), product, days_left, from: "app"|"panel",
  *         use: f, a, via?, …the feature's own fields (src/shared/usage.ts),
  *         insert_*, social_open, organize*, ux_*: their counts (below), never text or sites,
  *         any kind: sid, n, prev, dt, s, psid (the session the step belongs to) }
  * or { batch: [{kind, …}, …up to 25], installId?, appId?, client, audience? } — steps sent together;
  * a step that isn't allowed is left out, the rest are kept.
- * Nothing else is accepted: no page content, no Apple ID, no device identifiers.
+ * Nothing else is accepted: no page content, no Apple ID, no device identifiers but that IDFA.
  * With adToken the answer carries ads: "attributed" | "organic" | "pending" (the app sends the
  * token again on a later launch while it's pending).
  */
@@ -93,6 +97,12 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   context.waitUntil(Promise.all(steps.map((s) => logEvent(s.kind, installId, s.data))))
   if (batch) return json({ ok: true, kept: steps.length, left_out: items.length - steps.length })
+
+  // X ads: a new iOS install, for someone who allowed tracking (see shared/xconversions.mts).
+  if (body.kind === "app_open" && body.newInstall === true && (shared.platform === "ios" || shared.platform === "ipados") && !isTestTraffic(shared)) {
+    const install = iosInstall(new Date(), body.idfa, body.att)
+    if (install) context.waitUntil(sendXConversions([install]))
+  }
 
   // Apple Ads attribution: which campaign / ad group / keyword brought this download, so
   // subscriptions can be joined to keywords (rpc cf_ads_funnel).

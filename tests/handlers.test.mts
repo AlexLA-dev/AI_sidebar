@@ -147,9 +147,16 @@ const ADS: Record<string, { status: number; body?: Record<string, unknown> }> = 
   "tok-organic": { status: 200, body: { attribution: false } }
 }
 let adsCalls = 0
+// What the fake X App Conversion API was sent: the token header and the conversions of each request.
+let xCalls: { token: string | null; conversions: Record<string, unknown>[] }[] = []
 
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
+  if (url === "https://ads-api.x.com/12/accounts/18ce55yj09v/measurement/app_conversions") {
+    const conversions = JSON.parse(String(init?.body)).conversions as Record<string, unknown>[]
+    xCalls.push({ token: new Headers(init?.headers).get("X-App-Conversion-Token"), conversions })
+    return new Response(JSON.stringify({ data: { conversions_processed: conversions.length, debug_id: "dbg" } }), { headers: { "Content-Type": "application/json" } })
+  }
   if (url === "https://api-adservices.apple.com/api/v1/") {
     adsCalls++
     const hit = ADS[String(init?.body)] ?? { status: 404 }
@@ -203,7 +210,7 @@ let adminUsage: (req: Request) => Promise<Response>
 let resetModelList: () => void
 let resetClaudeCooldown: () => void
 let serverConfig: {
-  geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
+  geminiKey: string; adminToken: string; xAppConversionToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
   anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number; freeDailyLimit: number
   ultra: { speakWeeklySeconds: number; similarWeekly: number }
 }
@@ -695,6 +702,60 @@ test("an Apple Ads attribution token is resolved and only campaign ids are kept"
   const calls = adsCalls
   assert.deepEqual(await (await send({ kind: "ext_on", installId: INSTALL, adToken: "tok-ad" })).json(), { ok: true })
   assert.equal(adsCalls, calls)
+})
+
+test("a new iOS install is sent to X only with the IDFA of someone who allowed tracking", async () => {
+  const APP = "3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+  const IDFA = "38400000-8CF0-11BD-B23E-10B96E40000D"
+  const sendX = async (body: Record<string, unknown>) => {
+    const c = ctx()
+    const res = await event(post("/api/v2/event", { kind: "app_open", appId: APP, client: { platform: "ios", version: "2.7" }, ...body }), c)
+    await Promise.all(c.pending)
+    return res
+  }
+  xCalls = []
+  serverConfig.xAppConversionToken = "x-token"
+  const before = Date.now()
+  assert.equal((await sendX({ newInstall: true, att: "authorized", idfa: IDFA })).status, 200)
+  assert.equal(xCalls.length, 1)
+  assert.equal(xCalls[0].token, "x-token")
+  const [sent] = xCalls[0].conversions
+  assert.ok((sent.conversion_timestamp as number) >= before && (sent.conversion_timestamp as number) <= Date.now())
+  assert.deepEqual({ ...sent, conversion_timestamp: 0 }, {
+    app_id: "6759115793", os_type: "IOS", event_name: "INSTALL", conversion_timestamp: 0,
+    identifiers: [{ device_id: IDFA }], limit_ad_tracking: false
+  })
+  // The IDFA goes to X only, never into our events.
+  assert.ok(!JSON.stringify(events).includes(IDFA))
+
+  // Nothing to match with, not an install, not iOS, a test build, or no token: nothing is sent.
+  assert.equal((await sendX({ newInstall: true, att: "denied", idfa: IDFA })).status, 200)
+  await sendX({ newInstall: true, att: "authorized", idfa: "00000000-0000-0000-0000-000000000000" })
+  await sendX({ newInstall: true, att: "authorized" })
+  await sendX({ att: "authorized", idfa: IDFA })
+  await sendX({ newInstall: true, att: "authorized", idfa: IDFA, client: { platform: "macos", version: "2.7" } })
+  await sendX({ newInstall: true, att: "authorized", idfa: IDFA, audience: "test" })
+  serverConfig.xAppConversionToken = ""
+  assert.equal((await sendX({ newInstall: true, att: "authorized", idfa: IDFA })).status, 200)
+  assert.equal(xCalls.length, 1)
+})
+
+test("X conversions go out 500 per request; emails and phones are normalized before hashing", async () => {
+  const x = await import("../netlify/shared/xconversions.mts")
+  xCalls = []
+  const one = x.iosInstall(new Date(1792576800000), "38400000-8cf0-11bd-b23e-10b96e40000d", "authorized")!
+  const result = await x.sendXConversions(Array.from({ length: 1001 }, () => one), "x-token")
+  assert.deepEqual(xCalls.map((c) => c.conversions.length), [500, 500, 1])
+  assert.deepEqual(result, { processed: 1001, failed: 0 })
+  assert.deepEqual(await x.sendXConversions([one], ""), { processed: 0, failed: 0, skipped: "no_token" })
+
+  assert.equal(x.hashEmail("  John.Doe@Example.COM "), x.sha256Hex("john.doe@example.com"))
+  assert.equal(x.hashEmail("not an email"), null)
+  assert.equal(x.toE164("+1 (555) 123-4567"), "+15551234567")
+  assert.equal(x.toE164("0049 30 1234567"), "+49301234567")
+  assert.equal(x.toE164("555-1234"), null)
+  assert.equal(x.hashPhone("+1 555 123 4567"), x.sha256Hex("+15551234567"))
+  assert.equal(x.sha256Hex("abc"), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
 })
 
 test("an attribution record Apple doesn't have yet is retried once, then reported as pending", async () => {

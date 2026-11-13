@@ -127,6 +127,11 @@ export async function logEvent(kind: string, installId: string | null, data: Rec
 // (with the install or app they came from).
 const OUR_VERSIONS = new Set(["dev-check", "calibrate"])
 
+/** Debug and TestFlight builds, deploy previews and our own scripts: kept out of reports and of ad networks. */
+export function isTestTraffic(data: Record<string, unknown>): boolean {
+  return data.audience === "test" || testMark(data).audience === "test"
+}
+
 function testMark(data: Record<string, unknown>): Record<string, unknown> {
   const deploy = (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ??
     process.env.CONTEXT
