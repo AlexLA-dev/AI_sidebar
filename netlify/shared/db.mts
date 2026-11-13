@@ -79,6 +79,12 @@ export const entitlementByToken = (token: string) => rpc<EntitlementRow | null>(
  * is shown to it once more when the panel opens. */
 export const limitedBefore = (installId: string) => rpc<boolean>("cf_limited_before", { p_install: installId })
 
+/** An app's conversions X hasn't had yet, from the last `days` days (cf_x_due, shared/xconversions.mts): its first
+ * launch as a new install, its first answer, its first time out of free answers and its first subscription, each with
+ * when it happened. Our test installs and apps get none. */
+export const xDue = (app: string, install: string | null, days: number) =>
+  rpc<{ event: string; at: string }[]>("cf_x_due", { p_app: app, p_install: install, p_days: days })
+
 /** Usage analytics for the last `days` days (see cf_usage_report in supabase/migrations). */
 export const usageReport = (days: number) => rpc<Record<string, unknown>>("cf_usage_report", { p_days: days })
 /** New users' way from opening the app to paying, by day (cf_setup_funnel). */

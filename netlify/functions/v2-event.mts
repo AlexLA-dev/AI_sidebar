@@ -4,7 +4,7 @@ import { attributionFields, resolveAdToken } from "../shared/adservices.mts"
 import { config as settings } from "../shared/config.mts"
 import { consume, isTestTraffic, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { iosInstall, sendXConversions } from "../shared/xconversions.mts"
+import { sendDueConversions } from "../shared/xconversions.mts"
 import { isRenewalReason } from "../../src/shared/renewal.ts"
 import { sessionFields, useFields } from "../../src/shared/usage.ts"
 
@@ -13,9 +13,10 @@ import { sessionFields, useFields } from "../../src/shared/usage.ts"
 // it skipped the page's video or PDFs (Pro reads them); "media_notice_pro": its "Try Pro" was tapped.
 // "renewal_off": a Pro user who turned auto-renew off said what was missing (or put the question off).
 // "byok_upsell": an Own key subscriber was shown Pro (at a refusal, or the discount a day later) or tapped it.
-// These few a day per id share one small allowance; everything else ("use": a step in a feature, see
-// src/shared/usage.ts) has its own, larger one.
-const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro", "renewal_off", "byok_upsell"])
+// "ads_sync": the app checks in for ad networks between its daily "app_open" (with its ATT answer and IDFA; see
+// shared/xconversions.mts). These few a day per id share one small allowance; everything else ("use": a step in a
+// feature, see src/shared/usage.ts) has its own, larger one.
+const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro", "renewal_off", "byok_upsell", "ads_sync"])
 const STEP_KINDS = new Set(["use"])
 // Quick insert (2.5), counts only, no text and no sites: "insert_copied" / "insert_template" / "insert_answer"
 // something went into a field (how the list was opened, the template's blanks and how they were filled);
@@ -44,9 +45,10 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
  *         client: {version, build?, platform, locale}, audience?: "test" (debug and TestFlight builds),
  *         extension?: "off"|"on"|"in_use", notifications?,
  *         adToken?: <AdServices attribution token, app_open only>, media?: "video"|"pdf"|"video,pdf",
- *         newInstall?: true, att?: "authorized"|"denied"|"restricted"|"not_determined", idfa?: <IDFA>
- *           (app_open only: the first launch of a new install, and the person's answer to the system's
- *           tracking question; the IDFA only after "authorized", passed on to X and never stored),
+ *         newInstall?: true (app_open only: the first launch of a new install),
+ *         att?: "authorized"|"denied"|"restricted"|"not_determined", idfa?: <IDFA> (app_open and ads_sync, from
+ *           the app: the person's answer to the system's tracking question and, only after "authorized", the
+ *           IDFA, passed on to X with the app's due conversions and never stored; shared/xconversions.mts),
  *         renewal_off: reason (src/shared/renewal.ts), product, days_left, from: "app"|"panel",
  *         use: f, a, via?, …the feature's own fields (src/shared/usage.ts),
  *         insert_*, social_open, organize*, ux_*: their counts (below), never text or sites,
@@ -95,13 +97,15 @@ export default async (req: Request, context: Context): Promise<Response> => {
   ]).catch(() => null)
   if (quota && !quota.allowed) return json({ code: "LIMIT_REACHED" }, 429)
 
-  context.waitUntil(Promise.all(steps.map((s) => logEvent(s.kind, installId, s.data))))
+  const logged = Promise.all(steps.map((s) => logEvent(s.kind, installId, s.data)))
+  context.waitUntil(logged)
   if (batch) return json({ ok: true, kept: steps.length, left_out: items.length - steps.length })
 
-  // X ads: a new iOS install, for someone who allowed tracking (see shared/xconversions.mts).
-  if (body.kind === "app_open" && body.newInstall === true && (shared.platform === "ios" || shared.platform === "ipados") && !isTestTraffic(shared)) {
-    const install = iosInstall(new Date(), body.idfa, body.att)
-    if (install) context.waitUntil(sendXConversions([install]))
+  // X ads: the app's install, first answer, first limit and first subscription that X hasn't had yet, for someone
+  // who allowed tracking (shared/xconversions.mts); after this request's own step is logged, so a new install counts.
+  if ((body.kind === "app_open" || body.kind === "ads_sync") && appId && body.att === "authorized") {
+    const checkIn = { app: appId, install: installId, att: body.att, idfa: body.idfa, platform: String(shared.platform), test: isTestTraffic(shared) }
+    context.waitUntil(logged.then(() => sendDueConversions(checkIn)))
   }
 
   // Apple Ads attribution: which campaign / ad group / keyword brought this download, so
@@ -140,6 +144,8 @@ function step(raw: unknown, shared: Record<string, unknown>): Step | null {
     data: {
       ...shared,
       ...(STATES.has(extension) ? { extension } : {}),
+      // The first launch of a new install (an ad network's install, shared/xconversions.mts).
+      ...(kind === "app_open" && item.newInstall === true ? { new_install: true } : {}),
       ...(NOTIFICATIONS.has(notifications) ? { notifications } : {}),
       ...(kind.startsWith("media_notice") && MEDIA.has(media) ? { media } : {}),
       ...(kind === "renewal_off" ? renewalFields(item) : {}),
