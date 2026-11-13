@@ -66,8 +66,8 @@ test("a live account that matches the plan needs no changes; drift becomes updat
     for (const n of c.negatives) live.negatives.push({ id: id++, campaignId: cid, text: n.text, matchType: n.match ?? "BROAD" })
     for (const g of c.adGroups) {
       const gid = id++
-      live.adGroups.push({ id: gid, campaignId: cid, name: g.name, status: "ENABLED", bidStrategy: { bid: { amount: String(g.bid) } }, automatedKeywordsOptIn: Boolean(g.searchMatch), targeting: { deviceClass: { include: g.devices }, appDownloader: { exclude: ["6759115793"] } } })
-      for (const k of g.keywords) live.keywords.push({ id: id++, adGroupId: gid, text: k.text, matchType: k.match ?? "EXACT", status: "ENABLED", bid: { amount: String(k.bid ?? g.bid) } })
+      live.adGroups.push({ id: gid, campaignId: cid, name: g.name, status: g.status ?? "ENABLED", bidStrategy: { bid: { amount: String(g.bid) } }, automatedKeywordsOptIn: Boolean(g.searchMatch), targeting: { deviceClass: { include: g.devices }, appDownloader: { exclude: ["6759115793"] } } })
+      for (const k of g.keywords) live.keywords.push({ id: id++, adGroupId: gid, text: k.text, matchType: k.match ?? "EXACT", status: k.status ?? "ENABLED", bid: { amount: String(k.bid ?? g.bid) } })
       live.ads.push({ id: id++, adGroupId: gid, status: "ENABLED", productPage: "default" })
       for (const n of g.negatives ?? []) live.negatives.push({ id: id++, adGroupId: gid, text: n.text, matchType: n.match ?? "BROAD" })
       if (g.negateCampaignExact) for (const o of c.adGroups) if (o !== g) for (const k of o.keywords) if ((k.match ?? "EXACT") === "EXACT") live.negatives.push({ id: id++, adGroupId: gid, text: k.text, matchType: "EXACT" })
@@ -123,7 +123,8 @@ test("rules pause dead keywords, raise cheap ones, promote and block search term
     { campaignName: "CF · iPad · EN · Search", metadata: { searchTermText: "safari gpt sidebar", searchTermSource: "AUTO" }, totalMetrics: { taps: 2, impressions: 20, localSpend: { amount: "0.80" }, totalInstalls: 1 } },
     { campaignName: "CF · iPad · EN · Search", metadata: { searchTermText: "pdf reader", searchTermSource: "AUTO" }, totalMetrics: { taps: 4, impressions: 30, localSpend: { amount: "2.00" }, totalInstalls: 0 } }
   ]
-  const proposals = optimize(plan, { keywords, searchTerms })
+  // The shipped plan switches bid raises off (guards.rules); the rules themselves are tested with the code defaults.
+  const proposals = optimize(plan, { keywords, searchTerms }, { raiseStep: 0.15, underspend: 0.6 })
   const by = (t: string) => proposals.find((p: { text: string }) => p.text === t)
   assert.equal(by("safari ai")?.action, "pause")
   assert.equal(by("ai summarizer")?.action, "bid")
@@ -165,9 +166,9 @@ test("pacing raises every bid of a campaign that underspent yesterday, within th
   const p = structuredClone(plan)
   p.campaigns[0].status = "ENABLED"
   p.campaigns[1].status = "ENABLED"
-  const proposals = optimize(p, { lastDaySpend: { [p.campaigns[0].name]: 0.4, [p.campaigns[1].name]: p.campaigns[1].dailyBudget } })
+  const proposals = optimize(p, { lastDaySpend: { [p.campaigns[0].name]: 0.4, [p.campaigns[1].name]: p.campaigns[1].dailyBudget } }, { raiseStep: 0.15, underspend: 0.6 })
   assert.ok(proposals.every((x) => x.action === "groupbid" && x.campaign === p.campaigns[0].name))
-  assert.equal(proposals.length, p.campaigns[0].adGroups.length)
+  assert.equal(proposals.length, p.campaigns[0].adGroups.filter((g: { status?: string }) => g.status !== "PAUSED").length)
   const next = applyProposals(p, proposals)
   const g = next.campaigns[0].adGroups[0]
   assert.equal(g.bid, Math.round(p.campaigns[0].adGroups[0].bid * 115) / 100)
