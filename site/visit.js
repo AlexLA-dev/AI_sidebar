@@ -29,7 +29,8 @@
     "/alternatives": "alternatives",
     "/harpa-ai-alternative-safari": "alt_harpa",
     "/text-blaze-alternative-safari": "alt_textblaze",
-    "/arc-max-safari": "alt_arc",
+    "/arc-to-safari": "arc_safari",
+    "/arc-search-browse-for-me-safari": "arc_search",
     "/visualping-alternative-iphone": "alt_watch"
   }
   const OWN = /(^|\.)(context-flow\.app|aisidebar\.netlify\.app)$/

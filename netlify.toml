@@ -255,14 +255,26 @@
   force = true
 
 [[redirects]]
-  from = "https://aisidebar.netlify.app/arc-max-safari"
-  to = "https://context-flow.app/arc-max-safari"
+  from = "https://aisidebar.netlify.app/arc-to-safari"
+  to = "https://context-flow.app/arc-to-safari"
   status = 301
   force = true
 
 [[redirects]]
-  from = "https://aisidebar.netlify.app/arc-max-safari.html"
-  to = "https://context-flow.app/arc-max-safari"
+  from = "https://aisidebar.netlify.app/arc-to-safari.html"
+  to = "https://context-flow.app/arc-to-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/arc-search-browse-for-me-safari"
+  to = "https://context-flow.app/arc-search-browse-for-me-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/arc-search-browse-for-me-safari.html"
+  to = "https://context-flow.app/arc-search-browse-for-me-safari"
   status = 301
   force = true
 

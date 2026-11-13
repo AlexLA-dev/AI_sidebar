@@ -56,8 +56,8 @@ export const PAGES = [
 /** English only, still in the sitemap: privacy and terms (the binding texts), and the alternative pages (2.7), which
  * come in other languages only when search data asks for it. */
 export const ENGLISH_ONLY = [
-  "privacy.html", "terms.html", "alternatives.html", "harpa-ai-alternative-safari.html", "text-blaze-alternative-safari.html",
-  "arc-max-safari.html", "visualping-alternative-iphone.html"
+  "privacy.html", "terms.html", "alternatives.html", "arc-to-safari.html", "arc-search-browse-for-me-safari.html",
+  "harpa-ai-alternative-safari.html", "text-blaze-alternative-safari.html", "visualping-alternative-iphone.html"
 ]
 
 /** A page's URL path in a language: "/", "/features", "/ru/", "/ru/cases/planning". */

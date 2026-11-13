@@ -159,7 +159,7 @@ test("the page script knows every indexable page by name and skips the rest", ()
     "/cases": "cases", "/cases/": "cases", "/cases/replies-and-forms": "case_fill", "/cases/studying.html": "case_study", "/cases/shopping": "case_shop", "/cases/planning": "case_plan",
     // The English-first alternative pages (2.7).
     "/alternatives": "alternatives", "/harpa-ai-alternative-safari": "alt_harpa", "/text-blaze-alternative-safari.html": "alt_textblaze",
-    "/arc-max-safari": "alt_arc", "/visualping-alternative-iphone/": "alt_watch",
+    "/arc-to-safari": "arc_safari", "/arc-search-browse-for-me-safari": "arc_search", "/visualping-alternative-iphone/": "alt_watch",
     // The same pages in the other languages (2.6) count under the same names.
     "/ru/": "home", "/ru": "home", "/zh-hant/index.html": "home", "/ar/features": "features", "/pt-br/cases/planning": "case_plan", "/vi/support/": "support"
   }
