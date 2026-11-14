@@ -277,7 +277,9 @@ function scriptedWrite(system: string, content: string): unknown {
   const message = between("message")
   const context = `${between("conversation")}\n${between("page")}`
   const names = [...new Set(context.match(/(?<![\p{L}])\p{Lu}\p{Ll}{2,}(?![\p{L}])/gu) ?? [])]
-  const firstName = names.find((n) => !/^(From|To|Subject|Hi|Hello|Dear|Thanks|The|This|Re|Fwd)$/.test(n)) ?? ""
+  // Whom the message greets, spelled as the page spells them.
+  const greeted = /^(?:hi|hey|hello|dear)\s+(\p{Lu}\p{L}+)/iu.exec(message)?.[1] ?? ""
+  const firstName = greeted ? names.find((n) => n === greeted || nearName(n, greeted)) ?? greeted : ""
   if (system.startsWith("You proofread")) {
     let text = message.replace(/\p{L}+/gu, (w) => {
       const fix = TYPOS[w.toLowerCase()]
@@ -290,7 +292,7 @@ function scriptedWrite(system: string, content: string): unknown {
   const sentences = message.split(/(?<=[.!?])\s+/).filter(Boolean)
   if (/Make it shorter/.test(content)) return { text: sentences.slice(0, 2).join(" ") }
   if (/warmer/.test(content)) return { text: `Hi ${firstName || "there"}, thanks so much for getting back to me!\n\n${message}\n\nHave a great day!` }
-  if (/more formal/.test(content)) return { text: `Dear ${firstName || "Sir or Madam"},\n\n${message.replace(/^(hi|hey|hello)[^\n]*\n+/i, "")}\n\nKind regards` }
+  if (/more formal/.test(content)) return { text: `Dear ${firstName || "Sir or Madam"},\n\n${message.replace(/^(hi|hey|hello)[^\n]*\n+/i, "").replace(/\p{L}+/gu, (w) => TYPOS[w] ?? w)}` }
   return { text: message.replace(/\b(I think|maybe|just|sorry,? ?|I was wondering if)\s*/gi, "").replace(/\s+([,.])/g, "$1") }
 }
 
@@ -498,7 +500,11 @@ const speakAny: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
 // «Проверить» и «Переписать» with the real model: WRITE_PROXY=<a deploy preview> (each request counted there as usual).
 const write: typeof chat = process.env.WRITE_PROXY
   ? (async (req: Request) => {
-    const res = await realFetch(`${process.env.WRITE_PROXY}/api/v2/write`, { method: "POST", headers: { "Content-Type": "application/json" }, body: await req.text() })
+    // Headless Chromium has no app, so no build number: the stand gives one (the server answers only builds whose
+    // consent screen names Claude), and marks the request a test.
+    const body = JSON.parse(await req.text())
+    body.client = { build: "999", ...body.client, audience: "test" }
+    const res = await realFetch(`${process.env.WRITE_PROXY}/api/v2/write`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       .catch(() => Response.json({ code: "UPSTREAM" }, { status: 502 }))
     return new Response(await res.text(), { status: res.status, headers: { "Content-Type": "application/json" } })
   }) as typeof chat

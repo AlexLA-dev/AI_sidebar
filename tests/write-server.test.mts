@@ -121,6 +121,7 @@ test("a rewrite needs its tone, which goes in the prompt; a page (not a conversa
   const { body } = await call({ action: "rewrite", tone: "short", page: { title: "Senior Product Designer · Lumen Health", url: "https://jobs.example/1", text: "We're hiring a Senior Product Designer.", conversation: false } })
   assert.equal(body.text, "Friday works. Deck tomorrow.")
   assert.match(claude.lastBody!.system, /^You rewrite/)
+  assert.match(claude.lastBody!.system, /never add a sign-off/, "the field's own signature isn't doubled")
   const prompt = String(claude.lastBody!.messages[0].content)
   assert.ok(prompt.includes("What to do: Make it shorter"))
   assert.ok(prompt.includes("The page: Senior Product Designer · Lumen Health\nhttps://jobs.example/1\n<page>"))

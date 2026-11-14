@@ -219,7 +219,12 @@ export function QuickInsert(props: Props): VNode | null {
   const keepWritten = () => {
     const w = written.current
     written.current = null
-    if (w && worthWriting(w.text)) void keepWriting(location.hostname, w.text)
+    clearTimeout(writtenTimer.current)
+    if (!w) return
+    // Left with text in it: as it is now (the last moment's typing, or a fix just made); sent: as it was read.
+    const now = w.el.isConnected ? readText(w.el as Field["el"]).text.trim() : ""
+    const text = now || w.text
+    if (worthWriting(text)) void keepWriting(location.hostname, text)
   }
 
   const lookForPhrase = (f: Field) => {
@@ -419,7 +424,9 @@ export function QuickInsert(props: Props): VNode | null {
   const vp = viewport(touch)
   let buttonPos: { top: number; left: number } | null = null
   // A Mac: the circle for «Проверить» и «Переписать», once the field has a few words (2.7). Where the iPhone's button goes.
-  const canWrite = (f: Field | null) => Boolean(f && settings.writing && f.el.isConnected && !noButtonField(f.el) && writableField(f.el) && worthWriting(readText(f.el).text))
+  // Read cheaply on every render (each keystroke): the value, or the editor's text as the DOM has it.
+  const canWrite = (f: Field | null) => Boolean(f && settings.writing && f.el.isConnected && !noButtonField(f.el) && writableField(f.el) &&
+    worthWriting(isControl(f.el) ? (f.el as HTMLInputElement).value : f.el.textContent ?? ""))
   const showDot = Boolean(!touch && !mode && canWrite(field) && !siteExcluded(location.hostname, settings.buttonOffSites) && (!props.panelOpen || props.panelAside))
   // Outside the field, where nothing of the site's lies underneath (spot.ts); none on searches and codes.
   if ((showButton || showDot) && field && !noButtonField(field.el)) {
