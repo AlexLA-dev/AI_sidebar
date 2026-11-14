@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "Couldn't translate"
  },
+ "spacesTitle": {
+  "message": "Spaces"
+ },
+ "spaceSwitcher": {
+  "message": "Space: {0}. Switch"
+ },
+ "spaceFirst": {
+  "message": "Personal"
+ },
+ "spaceNew": {
+  "message": "New space"
+ },
+ "spaceEdit": {
+  "message": "Edit “{0}”"
+ },
+ "spaceName": {
+  "message": "Name"
+ },
+ "spaceNamePlaceholder": {
+  "message": "For example, Work"
+ },
+ "spaceColor": {
+  "message": "Color"
+ },
+ "spaceColorBlue": {
+  "message": "Blue"
+ },
+ "spaceColorGreen": {
+  "message": "Green"
+ },
+ "spaceColorOrange": {
+  "message": "Orange"
+ },
+ "spaceColorPink": {
+  "message": "Pink"
+ },
+ "spaceColorViolet": {
+  "message": "Violet"
+ },
+ "spaceColorGraphite": {
+  "message": "Graphite"
+ },
+ "spaceCreate": {
+  "message": "Create"
+ },
+ "spaceDelete": {
+  "message": "Delete space"
+ },
+ "spaceDeleteNote": {
+  "message": "Its chats go to “{0}”."
+ },
+ "spaceBind": {
+  "message": "Open {0} here"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} opens in “{1}”. Open it here"
+ },
+ "spaceMoveTo": {
+  "message": "Move to…"
+ },
+ "spaceMoved": {
+  "message": "Moved to “{0}”"
+ },
+ "spaceIn": {
+  "message": "You're in “{0}”"
+ },
+ "spaceLimit": {
+  "message": "Spaces in Free: {0}. With Pro, as many as you like."
+ },
+ "spaceEmpty": {
+  "message": "No chats in “{0}” yet. A new chat goes here."
+ },
+ "setSpaces": {
+  "message": "Spaces"
+ },
+ "setSpacesHint": {
+  "message": "Work, Personal, Shopping: each with its own chats and color. Off: every chat in one list, and your spaces stay."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

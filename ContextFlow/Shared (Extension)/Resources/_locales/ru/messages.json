@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "Не удалось перевести"
  },
+ "spacesTitle": {
+  "message": "Пространства"
+ },
+ "spaceSwitcher": {
+  "message": "Пространство: {0}. Переключить"
+ },
+ "spaceFirst": {
+  "message": "Личное"
+ },
+ "spaceNew": {
+  "message": "Новое пространство"
+ },
+ "spaceEdit": {
+  "message": "Изменить «{0}»"
+ },
+ "spaceName": {
+  "message": "Название"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Например, Работа"
+ },
+ "spaceColor": {
+  "message": "Цвет"
+ },
+ "spaceColorBlue": {
+  "message": "Синий"
+ },
+ "spaceColorGreen": {
+  "message": "Зелёный"
+ },
+ "spaceColorOrange": {
+  "message": "Оранжевый"
+ },
+ "spaceColorPink": {
+  "message": "Розовый"
+ },
+ "spaceColorViolet": {
+  "message": "Фиолетовый"
+ },
+ "spaceColorGraphite": {
+  "message": "Графит"
+ },
+ "spaceCreate": {
+  "message": "Создать"
+ },
+ "spaceDelete": {
+  "message": "Удалить пространство"
+ },
+ "spaceDeleteNote": {
+  "message": "Его чаты перейдут в «{0}»."
+ },
+ "spaceBind": {
+  "message": "Открывать {0} здесь"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} открывается в «{1}». Открывать здесь"
+ },
+ "spaceMoveTo": {
+  "message": "Переместить в…"
+ },
+ "spaceMoved": {
+  "message": "Перенесено в «{0}»"
+ },
+ "spaceIn": {
+  "message": "Вы в «{0}»"
+ },
+ "spaceLimit": {
+  "message": "Бесплатно пространств: {0}. В Pro — сколько угодно."
+ },
+ "spaceEmpty": {
+  "message": "В «{0}» пока нет чатов. Новый чат появится здесь."
+ },
+ "setSpaces": {
+  "message": "Пространства"
+ },
+ "setSpacesHint": {
+  "message": "Работа, Личное, Покупки: в каждом свои чаты и свой цвет. Выключите — все чаты снова в одном списке, пространства сохранятся."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

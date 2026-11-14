@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "無法翻譯"
  },
+ "spacesTitle": {
+  "message": "空間"
+ },
+ "spaceSwitcher": {
+  "message": "空間：{0}。切換"
+ },
+ "spaceFirst": {
+  "message": "個人"
+ },
+ "spaceNew": {
+  "message": "新增空間"
+ },
+ "spaceEdit": {
+  "message": "編輯「{0}」"
+ },
+ "spaceName": {
+  "message": "名稱"
+ },
+ "spaceNamePlaceholder": {
+  "message": "例如：工作"
+ },
+ "spaceColor": {
+  "message": "顏色"
+ },
+ "spaceColorBlue": {
+  "message": "藍色"
+ },
+ "spaceColorGreen": {
+  "message": "綠色"
+ },
+ "spaceColorOrange": {
+  "message": "橘色"
+ },
+ "spaceColorPink": {
+  "message": "粉紅色"
+ },
+ "spaceColorViolet": {
+  "message": "紫色"
+ },
+ "spaceColorGraphite": {
+  "message": "石墨色"
+ },
+ "spaceCreate": {
+  "message": "建立"
+ },
+ "spaceDelete": {
+  "message": "刪除空間"
+ },
+ "spaceDeleteNote": {
+  "message": "其中的對話會移到「{0}」。"
+ },
+ "spaceBind": {
+  "message": "在這裡打開 {0}"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} 會在「{1}」中打開。改在這裡打開"
+ },
+ "spaceMoveTo": {
+  "message": "移到…"
+ },
+ "spaceMoved": {
+  "message": "已移到「{0}」"
+ },
+ "spaceIn": {
+  "message": "你在「{0}」中"
+ },
+ "spaceLimit": {
+  "message": "免費版空間：{0} 個。Pro 不限數量。"
+ },
+ "spaceEmpty": {
+  "message": "「{0}」中還沒有對話。新對話會放在這裡。"
+ },
+ "setSpaces": {
+  "message": "空間"
+ },
+ "setSpacesHint": {
+  "message": "工作、個人、購物：每個空間有自己的對話和顏色。關閉後所有對話回到同一個列表，空間會保留。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

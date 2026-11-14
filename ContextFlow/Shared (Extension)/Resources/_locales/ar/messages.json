@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "تعذّرت الترجمة"
  },
+ "spacesTitle": {
+  "message": "المساحات"
+ },
+ "spaceSwitcher": {
+  "message": "المساحة: {0}. تبديل"
+ },
+ "spaceFirst": {
+  "message": "شخصي"
+ },
+ "spaceNew": {
+  "message": "مساحة جديدة"
+ },
+ "spaceEdit": {
+  "message": "تعديل «{0}»"
+ },
+ "spaceName": {
+  "message": "الاسم"
+ },
+ "spaceNamePlaceholder": {
+  "message": "مثلًا: العمل"
+ },
+ "spaceColor": {
+  "message": "اللون"
+ },
+ "spaceColorBlue": {
+  "message": "أزرق"
+ },
+ "spaceColorGreen": {
+  "message": "أخضر"
+ },
+ "spaceColorOrange": {
+  "message": "برتقالي"
+ },
+ "spaceColorPink": {
+  "message": "وردي"
+ },
+ "spaceColorViolet": {
+  "message": "بنفسجي"
+ },
+ "spaceColorGraphite": {
+  "message": "رمادي داكن"
+ },
+ "spaceCreate": {
+  "message": "إنشاء"
+ },
+ "spaceDelete": {
+  "message": "حذف المساحة"
+ },
+ "spaceDeleteNote": {
+  "message": "ستنتقل محادثاتها إلى «{0}»."
+ },
+ "spaceBind": {
+  "message": "افتح {0} هنا"
+ },
+ "spaceBoundElsewhere": {
+  "message": "يُفتح {0} في «{1}». افتحه هنا"
+ },
+ "spaceMoveTo": {
+  "message": "نقل إلى…"
+ },
+ "spaceMoved": {
+  "message": "نُقلت إلى «{0}»"
+ },
+ "spaceIn": {
+  "message": "أنت في «{0}»"
+ },
+ "spaceLimit": {
+  "message": "المساحات في الخطة المجانية: {0}. مع Pro، العدد الذي تريده."
+ },
+ "spaceEmpty": {
+  "message": "لا محادثات في «{0}» بعد. ستظهر المحادثة الجديدة هنا."
+ },
+ "setSpaces": {
+  "message": "المساحات"
+ },
+ "setSpacesHint": {
+  "message": "العمل، الشخصي، التسوق: لكل مساحة محادثاتها ولونها. عند الإيقاف تعود كل المحادثات إلى قائمة واحدة وتبقى مساحاتك محفوظة."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

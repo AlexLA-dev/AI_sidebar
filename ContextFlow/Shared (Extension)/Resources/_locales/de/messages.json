@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "Übersetzung fehlgeschlagen"
  },
+ "spacesTitle": {
+  "message": "Bereiche"
+ },
+ "spaceSwitcher": {
+  "message": "Bereich: {0}. Wechseln"
+ },
+ "spaceFirst": {
+  "message": "Privat"
+ },
+ "spaceNew": {
+  "message": "Neuer Bereich"
+ },
+ "spaceEdit": {
+  "message": "„{0}“ bearbeiten"
+ },
+ "spaceName": {
+  "message": "Name"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Zum Beispiel Arbeit"
+ },
+ "spaceColor": {
+  "message": "Farbe"
+ },
+ "spaceColorBlue": {
+  "message": "Blau"
+ },
+ "spaceColorGreen": {
+  "message": "Grün"
+ },
+ "spaceColorOrange": {
+  "message": "Orange"
+ },
+ "spaceColorPink": {
+  "message": "Pink"
+ },
+ "spaceColorViolet": {
+  "message": "Violett"
+ },
+ "spaceColorGraphite": {
+  "message": "Graphit"
+ },
+ "spaceCreate": {
+  "message": "Erstellen"
+ },
+ "spaceDelete": {
+  "message": "Bereich löschen"
+ },
+ "spaceDeleteNote": {
+  "message": "Seine Chats kommen nach „{0}“."
+ },
+ "spaceBind": {
+  "message": "{0} hier öffnen"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} öffnet sich in „{1}“. Hier öffnen"
+ },
+ "spaceMoveTo": {
+  "message": "Verschieben nach …"
+ },
+ "spaceMoved": {
+  "message": "Nach „{0}“ verschoben"
+ },
+ "spaceIn": {
+  "message": "Du bist in „{0}“"
+ },
+ "spaceLimit": {
+  "message": "Bereiche in Free: {0}. Mit Pro so viele du willst."
+ },
+ "spaceEmpty": {
+  "message": "In „{0}“ gibt es noch keine Chats. Ein neuer Chat landet hier."
+ },
+ "setSpaces": {
+  "message": "Bereiche"
+ },
+ "setSpacesHint": {
+  "message": "Arbeit, Privat, Einkaufen: jeder mit eigenen Chats und eigener Farbe. Aus: alle Chats in einer Liste, deine Bereiche bleiben erhalten."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

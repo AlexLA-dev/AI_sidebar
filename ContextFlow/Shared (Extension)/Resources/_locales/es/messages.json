@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "No se pudo traducir"
  },
+ "spacesTitle": {
+  "message": "Espacios"
+ },
+ "spaceSwitcher": {
+  "message": "Espacio: {0}. Cambiar"
+ },
+ "spaceFirst": {
+  "message": "Personal"
+ },
+ "spaceNew": {
+  "message": "Nuevo espacio"
+ },
+ "spaceEdit": {
+  "message": "Editar «{0}»"
+ },
+ "spaceName": {
+  "message": "Nombre"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Por ejemplo, Trabajo"
+ },
+ "spaceColor": {
+  "message": "Color"
+ },
+ "spaceColorBlue": {
+  "message": "Azul"
+ },
+ "spaceColorGreen": {
+  "message": "Verde"
+ },
+ "spaceColorOrange": {
+  "message": "Naranja"
+ },
+ "spaceColorPink": {
+  "message": "Rosa"
+ },
+ "spaceColorViolet": {
+  "message": "Violeta"
+ },
+ "spaceColorGraphite": {
+  "message": "Grafito"
+ },
+ "spaceCreate": {
+  "message": "Crear"
+ },
+ "spaceDelete": {
+  "message": "Eliminar espacio"
+ },
+ "spaceDeleteNote": {
+  "message": "Sus chats pasarán a «{0}»."
+ },
+ "spaceBind": {
+  "message": "Abrir {0} aquí"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} se abre en «{1}». Abrir aquí"
+ },
+ "spaceMoveTo": {
+  "message": "Mover a…"
+ },
+ "spaceMoved": {
+  "message": "Movido a «{0}»"
+ },
+ "spaceIn": {
+  "message": "Estás en «{0}»"
+ },
+ "spaceLimit": {
+  "message": "Espacios gratis: {0}. Con Pro, todos los que quieras."
+ },
+ "spaceEmpty": {
+  "message": "Todavía no hay chats en «{0}». Un chat nuevo aparecerá aquí."
+ },
+ "setSpaces": {
+  "message": "Espacios"
+ },
+ "setSpacesHint": {
+  "message": "Trabajo, Personal, Compras: cada uno con sus chats y su color. Desactivado: todos los chats en una lista, y tus espacios se guardan."
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

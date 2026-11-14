@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "翻訳できませんでした"
  },
+ "spacesTitle": {
+  "message": "スペース"
+ },
+ "spaceSwitcher": {
+  "message": "スペース：{0}。切り替える"
+ },
+ "spaceFirst": {
+  "message": "プライベート"
+ },
+ "spaceNew": {
+  "message": "新しいスペース"
+ },
+ "spaceEdit": {
+  "message": "「{0}」を編集"
+ },
+ "spaceName": {
+  "message": "名前"
+ },
+ "spaceNamePlaceholder": {
+  "message": "例：仕事"
+ },
+ "spaceColor": {
+  "message": "色"
+ },
+ "spaceColorBlue": {
+  "message": "青"
+ },
+ "spaceColorGreen": {
+  "message": "緑"
+ },
+ "spaceColorOrange": {
+  "message": "オレンジ"
+ },
+ "spaceColorPink": {
+  "message": "ピンク"
+ },
+ "spaceColorViolet": {
+  "message": "紫"
+ },
+ "spaceColorGraphite": {
+  "message": "グラファイト"
+ },
+ "spaceCreate": {
+  "message": "作成"
+ },
+ "spaceDelete": {
+  "message": "スペースを削除"
+ },
+ "spaceDeleteNote": {
+  "message": "このスペースのチャットは「{0}」に移ります。"
+ },
+ "spaceBind": {
+  "message": "{0} をここで開く"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} は「{1}」で開きます。ここで開く"
+ },
+ "spaceMoveTo": {
+  "message": "移動先…"
+ },
+ "spaceMoved": {
+  "message": "「{0}」に移動しました"
+ },
+ "spaceIn": {
+  "message": "「{0}」にいます"
+ },
+ "spaceLimit": {
+  "message": "無料版のスペース：{0}。Proなら無制限です。"
+ },
+ "spaceEmpty": {
+  "message": "「{0}」にはまだチャットがありません。新しいチャットはここに入ります。"
+ },
+ "setSpaces": {
+  "message": "スペース"
+ },
+ "setSpacesHint": {
+  "message": "仕事、プライベート、買い物：それぞれに専用のチャットと色。オフにすると全チャットが1つのリストに戻り、スペースは保存されます。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
