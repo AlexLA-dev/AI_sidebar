@@ -2654,6 +2654,90 @@
  "phSimilarBodyUpBoth": {
   "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
  },
+ "invTitle": {
+  "message": "Invite a friend"
+ },
+ "invHint": {
+  "message": "Your friend gets bonus answers: +{0} a day for their first week. You get {1}% off the first month of Pro or Ultra once they've asked questions on two different days."
+ },
+ "invButton": {
+  "message": "Get my code and link"
+ },
+ "invYourCode": {
+  "message": "Your code"
+ },
+ "invCopy": {
+  "message": "Copy"
+ },
+ "invCopied": {
+  "message": "Copied"
+ },
+ "invShare": {
+  "message": "Share"
+ },
+ "invShareText": {
+  "message": "I use ContextFlow, AI right on the page in Safari. With my code {0} you get bonus answers for your first week: {1}"
+ },
+ "invFriends": {
+  "message": "Came with your code: {0} · using it: {1}"
+ },
+ "invRewardTitle": {
+  "message": "A friend you invited is using ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Thank you: {0}% off the first month of Pro or Ultra, your choice. The App Store applies it if you haven't used this discount before."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "Used both discounts? Take bonus answers instead: +{0} a day for a week"
+ },
+ "invAnswersOn": {
+  "message": "Your bonus answers run until {0}."
+ },
+ "invEnterTitle": {
+  "message": "Have a friend's code?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Code or link"
+ },
+ "invEnter": {
+  "message": "Enter"
+ },
+ "invEntered": {
+  "message": "Code accepted: bonus answers, +{0} a day, until {1}."
+ },
+ "invEnteredOn": {
+  "message": "You came with a friend's code: bonus answers, +{0} a day, until {1}."
+ },
+ "invErrUnknown": {
+  "message": "There's no such code. Check it and try again."
+ },
+ "invErrOwn": {
+  "message": "That's your own code. Send it to a friend."
+ },
+ "invErrAlready": {
+  "message": "A friend's code has already been entered here."
+ },
+ "invErrLate": {
+  "message": "A friend's code works in the first week after installing."
+ },
+ "invErrFull": {
+  "message": "This code has reached its limit."
+ },
+ "invErrDevice": {
+  "message": "A friend's code has already been used on this device."
+ },
+ "invErrCheck": {
+  "message": "Couldn't check this device. Try entering the code in the ContextFlow app."
+ },
+ "invErrLater": {
+  "message": "Couldn't do that right now. Try again later."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
