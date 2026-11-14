@@ -2822,6 +2822,141 @@
  "invErrLater": {
   "message": "现在无法完成，请稍后再试。"
  },
+ "colAdd": {
+  "message": "加入合集"
+ },
+ "colTab": {
+  "message": "合集"
+ },
+ "colChat": {
+  "message": "对话"
+ },
+ "colSuggestAi": {
+  "message": "AI 建议"
+ },
+ "colSuggestWords": {
+  "message": "最合适"
+ },
+ "colNewSection": {
+  "message": "+ 新建分区"
+ },
+ "colNewCollection": {
+  "message": "+ 新建合集"
+ },
+ "colNamePlaceholder": {
+  "message": "名称，例如：日本之旅"
+ },
+ "colSectionPlaceholder": {
+  "message": "分区名称"
+ },
+ "colFirstSection": {
+  "message": "笔记"
+ },
+ "colCreate": {
+  "message": "创建"
+ },
+ "colAdded": {
+  "message": "已加入“{0}”→ {1}"
+ },
+ "colCards_one": {
+  "message": "{0} 张卡片"
+ },
+ "colCards_two": {
+  "message": "{0} 张卡片"
+ },
+ "colCards_few": {
+  "message": "{0} 张卡片"
+ },
+ "colCards_many": {
+  "message": "{0} 张卡片"
+ },
+ "colCards_other": {
+  "message": "{0} 张卡片"
+ },
+ "colEmpty": {
+  "message": "还没有合集。点按回答或笔记下方的“加入合集”。"
+ },
+ "colEmptyCards": {
+  "message": "还没有卡片。"
+ },
+ "colToChat": {
+  "message": "← 回到对话"
+ },
+ "colCompare": {
+  "message": "比较"
+ },
+ "colCompareN": {
+  "message": "比较 {0} 项"
+ },
+ "colComparePick": {
+  "message": "选择 2 到 8 张卡片"
+ },
+ "colSummary": {
+  "message": "总结"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "打开对话"
+ },
+ "colMoveTo": {
+  "message": "移到“{0}”"
+ },
+ "colRemove": {
+  "message": "从合集中移除"
+ },
+ "colThisPage": {
+  "message": "此页面"
+ },
+ "colNote": {
+  "message": "笔记"
+ },
+ "colComparison": {
+  "message": "对比"
+ },
+ "colLimitCollections": {
+  "message": "免费版可建 1 个合集。Pro 不限数量。"
+ },
+ "colLimitCards": {
+  "message": "免费版每个合集最多 {0} 张卡片。Pro 最多 {1} 张。"
+ },
+ "colProOnly": {
+  "message": "比较和总结属于 Pro。"
+ },
+ "colWorking": {
+  "message": "正在处理…"
+ },
+ "colFailed": {
+  "message": "这次没有成功，请稍后再试。"
+ },
+ "colLimitDay": {
+  "message": "今天就到这里：明天再试。"
+ },
+ "colGone": {
+  "message": "此合集已删除。"
+ },
+ "colPdfMadeWith": {
+  "message": "整理自"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — Safari 的 AI 助手"
+ },
+ "colPdfOpenChat": {
+  "message": "在 ContextFlow 中打开对话"
+ },
+ "colPdfFooter": {
+  "message": "用 ContextFlow 制作"
+ },
+ "colPdfSave": {
+  "message": "存储为 PDF"
+ },
+ "colPick": {
+  "message": "合集：{0}。切换"
+ },
+ "colCardMenu": {
+  "message": "卡片操作"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

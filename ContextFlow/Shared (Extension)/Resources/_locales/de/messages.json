@@ -2822,6 +2822,141 @@
  "invErrLater": {
   "message": "Das hat gerade nicht geklappt. Versuche es später noch einmal."
  },
+ "colAdd": {
+  "message": "In Sammlung"
+ },
+ "colTab": {
+  "message": "Sammlungen"
+ },
+ "colChat": {
+  "message": "Chat"
+ },
+ "colSuggestAi": {
+  "message": "KI-Vorschlag"
+ },
+ "colSuggestWords": {
+  "message": "passt am besten"
+ },
+ "colNewSection": {
+  "message": "+ neuer Abschnitt"
+ },
+ "colNewCollection": {
+  "message": "+ Neue Sammlung"
+ },
+ "colNamePlaceholder": {
+  "message": "Name, zum Beispiel Japanreise"
+ },
+ "colSectionPlaceholder": {
+  "message": "Name des Abschnitts"
+ },
+ "colFirstSection": {
+  "message": "Notizen"
+ },
+ "colCreate": {
+  "message": "Erstellen"
+ },
+ "colAdded": {
+  "message": "Zu „{0}“ hinzugefügt → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} Karte"
+ },
+ "colCards_two": {
+  "message": "{0} Karten"
+ },
+ "colCards_few": {
+  "message": "{0} Karten"
+ },
+ "colCards_many": {
+  "message": "{0} Karten"
+ },
+ "colCards_other": {
+  "message": "{0} Karten"
+ },
+ "colEmpty": {
+  "message": "Noch keine Sammlungen. Tippe unter einer Antwort oder Notiz auf „In Sammlung“."
+ },
+ "colEmptyCards": {
+  "message": "Noch keine Karten."
+ },
+ "colToChat": {
+  "message": "← Zum Chat"
+ },
+ "colCompare": {
+  "message": "Vergleichen"
+ },
+ "colCompareN": {
+  "message": "{0} vergleichen"
+ },
+ "colComparePick": {
+  "message": "Tippe 2 bis 8 Karten an"
+ },
+ "colSummary": {
+  "message": "Zusammenfassung"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Chat öffnen"
+ },
+ "colMoveTo": {
+  "message": "Nach „{0}“ verschieben"
+ },
+ "colRemove": {
+  "message": "Aus der Sammlung entfernen"
+ },
+ "colThisPage": {
+  "message": "diese Seite"
+ },
+ "colNote": {
+  "message": "Notiz"
+ },
+ "colComparison": {
+  "message": "Vergleich"
+ },
+ "colLimitCollections": {
+  "message": "In Free gibt es eine Sammlung. Mit Pro so viele du willst."
+ },
+ "colLimitCards": {
+  "message": "In Free fasst eine Sammlung {0} Karten. Mit Pro bis zu {1}."
+ },
+ "colProOnly": {
+  "message": "Vergleichen und Zusammenfassung gibt es in Pro."
+ },
+ "colWorking": {
+  "message": "Einen Moment …"
+ },
+ "colFailed": {
+  "message": "Hat gerade nicht geklappt. Versuch es später noch einmal."
+ },
+ "colLimitDay": {
+  "message": "Für heute ist Schluss: morgen wieder."
+ },
+ "colGone": {
+  "message": "Diese Sammlung wurde gelöscht."
+ },
+ "colPdfMadeWith": {
+  "message": "erstellt mit"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — KI für Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Chat in ContextFlow öffnen"
+ },
+ "colPdfFooter": {
+  "message": "Erstellt mit ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Als PDF sichern"
+ },
+ "colPick": {
+  "message": "Sammlung: {0}. Wechseln"
+ },
+ "colCardMenu": {
+  "message": "Kartenaktionen"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

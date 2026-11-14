@@ -37,6 +37,7 @@ import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
+import { collectAi } from "./collect"
 import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
 import { base64 as speechBase64, clearSpeech, serveSpeak, textPartKeys, textVoicedId } from "./speak"
@@ -819,19 +820,20 @@ async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>
 }
 
 /** A step for the feature counters ("use", f and a, src/shared/usage.ts): the panel's, named values only. */
+/** A "use" step's own fields: everything but the message's type. */
+function useStep(message: Extract<BackgroundRequest, { type: "useEvent" }>): Record<string, unknown> {
+  const { type: _type, ...fields } = message
+  return fields
+}
+
 async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" }>): Promise<void> {
   const [id, client] = await Promise.all([installId(), clientInfo()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders,
-      watches: message.watches, plan: message.plan, period: message.period,
-      heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s,
-      cur: message.cur, sf: message.sf,
-      // Listen's "unvoiced" (build 95): why it wasn't marked, and how far from the end (build 98: they never left the panel).
-      why: message.why, screens: message.screens, gap_s: message.gap_s, moment: message.moment, s: "panel"
-    })
+    // Every field the step carries: the server keeps only the feature's own (src/shared/usage.ts useFields), so a
+    // feature's new count (2.7: a space's val and spaces, the matching chat's match, a collection's cards) isn't lost here.
+    body: JSON.stringify({ ...useStep(message), kind: "use", installId: id, client, s: "panel" })
   }).catch(() => undefined)
 }
 
@@ -991,6 +993,16 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         .then(([now, id, ent, client, prefs, agreed]) => matchTopic(message.title, message.chats, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse(null))
       return true
+    case "collect":
+      // Pro and the one consent: the background checks both again (collect.ts).
+      Promise.all([status(), installId(), entitlement(), clientInfo(), consented()])
+        .then(([now, id, ent, client, agreed]) => collectAi(message.op, message.body, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "openCollection":
+      if (/^cf-col-[\w-]{8,64}$/.test(message.id)) void chrome.tabs.create({ url: chrome.runtime.getURL(`dist/collection.html?id=${encodeURIComponent(message.id)}`) })
+      sendResponse({ ok: true })
+      return false
     case "organizeEvent":
       Promise.all([installId(), clientInfo()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)
       sendResponse({ ok: true })

@@ -2822,6 +2822,141 @@
  "invErrLater": {
   "message": "Ça n'a pas marché pour l'instant. Réessayez plus tard."
  },
+ "colAdd": {
+  "message": "Dans une collection"
+ },
+ "colTab": {
+  "message": "Collections"
+ },
+ "colChat": {
+  "message": "Discussion"
+ },
+ "colSuggestAi": {
+  "message": "suggéré par l’IA"
+ },
+ "colSuggestWords": {
+  "message": "le plus proche"
+ },
+ "colNewSection": {
+  "message": "+ nouvelle section"
+ },
+ "colNewCollection": {
+  "message": "+ Nouvelle collection"
+ },
+ "colNamePlaceholder": {
+  "message": "Nom, par exemple Voyage au Japon"
+ },
+ "colSectionPlaceholder": {
+  "message": "Nom de la section"
+ },
+ "colFirstSection": {
+  "message": "Notes"
+ },
+ "colCreate": {
+  "message": "Créer"
+ },
+ "colAdded": {
+  "message": "Ajouté à « {0} » → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} carte"
+ },
+ "colCards_two": {
+  "message": "{0} cartes"
+ },
+ "colCards_few": {
+  "message": "{0} cartes"
+ },
+ "colCards_many": {
+  "message": "{0} cartes"
+ },
+ "colCards_other": {
+  "message": "{0} cartes"
+ },
+ "colEmpty": {
+  "message": "Pas encore de collection. Touchez « Dans une collection » sous une réponse ou une note."
+ },
+ "colEmptyCards": {
+  "message": "Pas encore de carte."
+ },
+ "colToChat": {
+  "message": "← Discussion"
+ },
+ "colCompare": {
+  "message": "Comparer"
+ },
+ "colCompareN": {
+  "message": "Comparer {0}"
+ },
+ "colComparePick": {
+  "message": "Touchez de 2 à 8 cartes"
+ },
+ "colSummary": {
+  "message": "Synthèse"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Ouvrir la discussion"
+ },
+ "colMoveTo": {
+  "message": "Déplacer vers « {0} »"
+ },
+ "colRemove": {
+  "message": "Retirer de la collection"
+ },
+ "colThisPage": {
+  "message": "cette page"
+ },
+ "colNote": {
+  "message": "note"
+ },
+ "colComparison": {
+  "message": "Comparaison"
+ },
+ "colLimitCollections": {
+  "message": "En version gratuite, une collection. Avec Pro, autant que vous voulez."
+ },
+ "colLimitCards": {
+  "message": "En version gratuite, {0} cartes par collection. Avec Pro, jusqu’à {1}."
+ },
+ "colProOnly": {
+  "message": "Comparer et Synthèse sont dans Pro."
+ },
+ "colWorking": {
+  "message": "Un instant…"
+ },
+ "colFailed": {
+  "message": "Ça n’a pas marché cette fois. Réessayez plus tard."
+ },
+ "colLimitDay": {
+  "message": "C’est tout pour aujourd’hui : réessayez demain."
+ },
+ "colGone": {
+  "message": "Cette collection a été supprimée."
+ },
+ "colPdfMadeWith": {
+  "message": "créé avec"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — l’IA pour Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Ouvrir la discussion dans ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "Créé avec ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Enregistrer en PDF"
+ },
+ "colPick": {
+  "message": "Collection : {0}. Changer"
+ },
+ "colCardMenu": {
+  "message": "Actions de la carte"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

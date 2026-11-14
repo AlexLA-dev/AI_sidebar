@@ -2822,6 +2822,141 @@
  "invErrLater": {
   "message": "تعذّر ذلك الآن. حاول لاحقًا."
  },
+ "colAdd": {
+  "message": "إلى مجموعة"
+ },
+ "colTab": {
+  "message": "المجموعات"
+ },
+ "colChat": {
+  "message": "المحادثة"
+ },
+ "colSuggestAi": {
+  "message": "يقترحه الذكاء الاصطناعي"
+ },
+ "colSuggestWords": {
+  "message": "الأنسب"
+ },
+ "colNewSection": {
+  "message": "+ قسم جديد"
+ },
+ "colNewCollection": {
+  "message": "+ مجموعة جديدة"
+ },
+ "colNamePlaceholder": {
+  "message": "الاسم، مثلًا: رحلة إلى اليابان"
+ },
+ "colSectionPlaceholder": {
+  "message": "اسم القسم"
+ },
+ "colFirstSection": {
+  "message": "ملاحظات"
+ },
+ "colCreate": {
+  "message": "إنشاء"
+ },
+ "colAdded": {
+  "message": "أُضيفت إلى «{0}» ← {1}"
+ },
+ "colCards_one": {
+  "message": "بطاقة واحدة"
+ },
+ "colCards_two": {
+  "message": "بطاقتان"
+ },
+ "colCards_few": {
+  "message": "{0} بطاقات"
+ },
+ "colCards_many": {
+  "message": "{0} بطاقة"
+ },
+ "colCards_other": {
+  "message": "{0} بطاقة"
+ },
+ "colEmpty": {
+  "message": "لا مجموعات بعد. اضغط «إلى مجموعة» تحت إجابة أو ملاحظة."
+ },
+ "colEmptyCards": {
+  "message": "لا بطاقات بعد."
+ },
+ "colToChat": {
+  "message": "→ إلى المحادثة"
+ },
+ "colCompare": {
+  "message": "مقارنة"
+ },
+ "colCompareN": {
+  "message": "مقارنة {0}"
+ },
+ "colComparePick": {
+  "message": "اختر من 2 إلى 8 بطاقات"
+ },
+ "colSummary": {
+  "message": "الخلاصة"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "فتح المحادثة"
+ },
+ "colMoveTo": {
+  "message": "نقل إلى «{0}»"
+ },
+ "colRemove": {
+  "message": "إزالة من المجموعة"
+ },
+ "colThisPage": {
+  "message": "هذه الصفحة"
+ },
+ "colNote": {
+  "message": "ملاحظة"
+ },
+ "colComparison": {
+  "message": "مقارنة"
+ },
+ "colLimitCollections": {
+  "message": "في الخطة المجانية مجموعة واحدة. مع Pro، العدد الذي تريده."
+ },
+ "colLimitCards": {
+  "message": "في الخطة المجانية تتسع المجموعة لـ {0} بطاقات. مع Pro، حتى {1}."
+ },
+ "colProOnly": {
+  "message": "المقارنة والخلاصة في Pro."
+ },
+ "colWorking": {
+  "message": "لحظة…"
+ },
+ "colFailed": {
+  "message": "لم ينجح ذلك هذه المرة. حاول لاحقًا."
+ },
+ "colLimitDay": {
+  "message": "هذا يكفي لليوم: حاول غدًا."
+ },
+ "colGone": {
+  "message": "حُذفت هذه المجموعة."
+ },
+ "colPdfMadeWith": {
+  "message": "صُنعت بـ"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — ذكاء اصطناعي لـ Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "فتح المحادثة في ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "صُنع بـ ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "حفظ بتنسيق PDF"
+ },
+ "colPick": {
+  "message": "المجموعة: {0}. تبديل"
+ },
+ "colCardMenu": {
+  "message": "إجراءات البطاقة"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

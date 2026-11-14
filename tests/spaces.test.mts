@@ -210,3 +210,15 @@ test("the background syncs the list with the chats and keeps it apart from them"
   assert.match(organize, /const live = spacePeers\(stored\)\(chat, all\)/)
   assert.match(organize, /suggestMove\(chat, peers\(chat, live\), vectors\.vectorOf, org\.config\)/)
 })
+
+test("a space's toggle reaches the server with its val and spaces (the background forwards every field of a step)", () => {
+  // The panel sends them (Settings' switch).
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.match(app, /sendBackground\(\{ type: "useEvent", f: "space", a: "toggle", via: "settings", val: patch\.spaces \? "on" : "off", spaces: spaces\.count\(\) \}\)/)
+  // The background passes the whole step on, only its message type left out.
+  const bg = readFileSync(new URL("../src/background/index.ts", import.meta.url), "utf8")
+  assert.match(bg, /function useStep\([^)]*\)[^{]*\{\s*const \{ type: _type, \.\.\.fields \} = message\s*return fields\s*\}/)
+  assert.match(bg, /body: JSON\.stringify\(\{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}\)/)
+  // The server keeps them.
+  assert.deepEqual(useFields({ f: "space", a: "toggle", via: "settings", val: "off", spaces: 3 }), { f: "space", a: "toggle", via: "settings", val: "off", spaces: 3 })
+})

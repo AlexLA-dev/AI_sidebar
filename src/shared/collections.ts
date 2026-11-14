@@ -433,22 +433,31 @@ export function applyLayout(rec: Collection, layout: { sections: Array<{ id: str
 
 /** A card's gist: the text's first sentences without Markdown or citations, up to MAX_GIST characters. */
 export function gistOf(text: string): string {
-  const plain = stripCitations(text)
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-    .replace(/^\s{0,3}(#{1,6}|>|[-*+]|\d+[.)])\s+/gm, "")
-    .replace(/[*_`~|]+/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
+  const raw = stripCitations(text).replace(/```[\s\S]*?```/g, "\n").split("\n")
+  const lines: string[] = []
+  raw.forEach((line, i) => {
+    // A table is no gist; neither is a title line (a heading, or bold alone) with text after it.
+    if (/^\s*\|/.test(line)) return
+    if (/^\s{0,3}(#{1,6}\s+\S.*|\*\*[^*]+\*\*:?)\s*$/.test(line) && raw.slice(i + 1).some((x) => x.trim() && !/^\s*\|/.test(x))) return
+    const plain = line
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/^\s{0,3}(#{1,6}|>|[-*+]|\d+[.)])\s+/, "")
+      .replace(/[*_`~|]+/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+    // Each line or bullet is a sentence of its own.
+    if (plain) lines.push(/[.!?。！？:：…]$/.test(plain) ? plain : `${plain}.`)
+  })
+  const joined = lines.join(" ")
+  const plain = joined || stripCitations(text).replace(/[*_`~|#>-]+/g, " ").replace(/\s+/g, " ").trim()
   if (plain.length <= MAX_GIST) return plain
-  const sentences = plain.match(/[^.!?。！？]+[.!?。！？]+(\s|$)/g) ?? []
+  // Whole sentences from the start (a decimal point isn't the end of one).
   let out = ""
-  for (const s of sentences) {
-    if ((out + s).trim().length > MAX_GIST) break
-    out += s
+  for (const s of plain.split(/(?<=[.!?])\s+|(?<=[。！？])/)) {
+    if ((out ? `${out} ${s}` : s).length > MAX_GIST) break
+    out = out ? `${out} ${s}` : s
   }
-  out = out.trim()
   return out.length >= 40 ? out : `${plain.slice(0, MAX_GIST - 1).trimEnd()}…`
 }
 
@@ -501,4 +510,50 @@ export function suggestPlace(collections: Collection[], card: { t: string; src?:
     if (!best || score > best.score) best = { collection: rec.id, section: top.section, score }
   }
   return best
+}
+
+// ------------------------------------------------------------ «В подборку» with the AI (Pro): what it's shown, what it says
+
+/** A page's host without "www.", for a card's source line and the AI's view of it. */
+export function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "")
+  } catch {
+    return ""
+  }
+}
+
+/** What the AI is shown to place a card: the card, and the space's collections with their sections and gists. */
+export function placeBody(card: Pick<Card, "t" | "x" | "src">, shown: Collection[], lang: string): Record<string, unknown> {
+  return {
+    card: { gist: card.t, text: card.x ?? "", title: card.src?.title ?? "", site: card.src ? hostOf(card.src.url) : "" },
+    collections: shown.slice(0, 20).map((c) => ({
+      id: c.id, name: c.n,
+      sections: liveSections(c).map((s) => ({ id: s.id, name: s.n, cards: cardsIn(c, s.id).slice(0, 8).map((x) => x.t) }))
+    })),
+    lang
+  }
+}
+
+/** A suggestion in the sheet: an existing section, a new section in a collection, or a new collection. */
+export interface Place {
+  collection: string | null
+  section: string | null
+  newSection?: string
+  newCollection?: string
+  by: "ai" | "words"
+}
+
+/** The AI's answer as a place among `shown` (ids it didn't get are dropped), or null. */
+export function placeFromAi(body: Record<string, unknown>, shown: Collection[]): Place | null {
+  const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined)
+  const rec = shown.find((c) => c.id === body.collection)
+  if (rec) {
+    const sec = liveSections(rec).find((s) => s.id === body.section)
+    if (sec) return { collection: rec.id, section: sec.id, by: "ai" }
+    const name = str(body.newSection)
+    return name ? { collection: rec.id, section: null, newSection: name, by: "ai" } : null
+  }
+  const named = str(body.newCollection)
+  return named ? { collection: null, section: null, newCollection: named, newSection: str(body.newSection), by: "ai" } : null
 }

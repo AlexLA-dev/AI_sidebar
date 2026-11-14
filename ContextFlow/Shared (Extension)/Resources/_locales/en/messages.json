@@ -2822,6 +2822,141 @@
  "invErrLater": {
   "message": "Couldn't do that right now. Try again later."
  },
+ "colAdd": {
+  "message": "To collection"
+ },
+ "colTab": {
+  "message": "Collections"
+ },
+ "colChat": {
+  "message": "Chat"
+ },
+ "colSuggestAi": {
+  "message": "AI suggests"
+ },
+ "colSuggestWords": {
+  "message": "best fit"
+ },
+ "colNewSection": {
+  "message": "+ new section"
+ },
+ "colNewCollection": {
+  "message": "+ New collection"
+ },
+ "colNamePlaceholder": {
+  "message": "Name, for example Trip to Japan"
+ },
+ "colSectionPlaceholder": {
+  "message": "Section name"
+ },
+ "colFirstSection": {
+  "message": "Notes"
+ },
+ "colCreate": {
+  "message": "Create"
+ },
+ "colAdded": {
+  "message": "Added to “{0}” → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} card"
+ },
+ "colCards_two": {
+  "message": "{0} cards"
+ },
+ "colCards_few": {
+  "message": "{0} cards"
+ },
+ "colCards_many": {
+  "message": "{0} cards"
+ },
+ "colCards_other": {
+  "message": "{0} cards"
+ },
+ "colEmpty": {
+  "message": "No collections yet. Tap “To collection” under an answer or a note."
+ },
+ "colEmptyCards": {
+  "message": "No cards yet."
+ },
+ "colToChat": {
+  "message": "← To chat"
+ },
+ "colCompare": {
+  "message": "Compare"
+ },
+ "colCompareN": {
+  "message": "Compare {0}"
+ },
+ "colComparePick": {
+  "message": "Tap 2 to 8 cards"
+ },
+ "colSummary": {
+  "message": "Summary"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Open chat"
+ },
+ "colMoveTo": {
+  "message": "Move to “{0}”"
+ },
+ "colRemove": {
+  "message": "Remove from collection"
+ },
+ "colThisPage": {
+  "message": "this page"
+ },
+ "colNote": {
+  "message": "note"
+ },
+ "colComparison": {
+  "message": "Comparison"
+ },
+ "colLimitCollections": {
+  "message": "Free has one collection. With Pro, as many as you like."
+ },
+ "colLimitCards": {
+  "message": "Free holds {0} cards in a collection. With Pro, up to {1}."
+ },
+ "colProOnly": {
+  "message": "Compare and Summary are in Pro."
+ },
+ "colWorking": {
+  "message": "Working…"
+ },
+ "colFailed": {
+  "message": "Didn't work this time. Try again later."
+ },
+ "colLimitDay": {
+  "message": "That's enough for today: try again tomorrow."
+ },
+ "colGone": {
+  "message": "This collection was deleted."
+ },
+ "colPdfMadeWith": {
+  "message": "made with"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — AI for Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Open chat in ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "Made with ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Save as PDF"
+ },
+ "colPick": {
+  "message": "Collection: {0}. Switch"
+ },
+ "colCardMenu": {
+  "message": "Card actions"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
