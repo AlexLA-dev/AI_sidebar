@@ -115,7 +115,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       try {
         send({ type: "meta", charged: charged.length > 0, usage })
         outcome = await runTranslation(blocks, {
-          to, from, first, call: haikuCall(stats, effort), stats, signal: abort.signal,
+          to, from, first, call: haikuCall(stats, effort), again: haikuCall(stats, effort === "low" ? "medium" : effort), stats, signal: abort.signal,
           batchChars: first ? settings.translate.firstBatchChars : settings.translate.batchChars,
           parallel: Math.max(1, settings.translate.parallel),
           onItems: (items) => {

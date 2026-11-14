@@ -37,7 +37,7 @@ const rpc: Record<string, (a: Record<string, any>) => unknown> = {
 }
 
 // ---- Claude Haiku, streamed: each "§n text" line of the request comes back as `answer(text)` -----------------------
-let haiku: { calls: Array<{ model: string; system: string; content: string }>; answer: (text: string, call: number) => string | null; status?: number }
+let haiku: { calls: Array<{ model: string; system: string; content: string; effort?: string }>; answer: (text: string, call: number) => string | null; status?: number }
 const ru: Record<string, string> = {
   "Die Stadt hat die Brücke <1>über den Fluss</1> eröffnet.": "Город открыл мост <1>через реку</1>.",
   "Mehr dazu <1>hier</1>.<2/>Neue Zeile.": "Подробнее <1>здесь</1>.<2/>Новая строка.",
@@ -73,7 +73,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     return new Response(JSON.stringify(rpc[fn](body)), { headers: { "Content-Type": "application/json" } })
   }
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
-    haiku.calls.push({ model: body.model, system: body.system, content: body.messages[0].content })
+    haiku.calls.push({ model: body.model, system: body.system, content: body.messages[0].content, effort: body.output_config?.effort })
     if (haiku.status) return new Response(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }), { status: haiku.status, headers: { "Content-Type": "application/json" } })
     return stream(body.messages[0].content, haiku.calls.length)
   }
@@ -137,8 +137,8 @@ test("a page is one answer: charged on its first request, its tags kept, streame
   assert.equal(out.at(-1)!.type, "done")
   assert.equal(counters.get(`install:${INSTALL}`), 1)
   assert.equal(haiku.calls[0].model, "claude-haiku-5-5")
-  assert.ok(haiku.calls[0].system.includes("into Russian") && haiku.calls[0].system.includes("mostly in German"))
-  assert.ok(haiku.calls[0].content.startsWith("Translate each line into Russian:\n§1 Die Stadt"))
+  assert.ok(haiku.calls[0].system.includes("into Russian"))
+  assert.ok(haiku.calls[0].content.startsWith("Translate each line from German into Russian (русский):\n§1 Die Stadt"), haiku.calls[0].content.slice(0, 80))
   const log = events.find((e) => e.kind === "translate")!
   assert.equal(log.data.charged, true)
   assert.equal(log.data.done, 3)
@@ -212,7 +212,8 @@ test("a line written back in its own language (Japanese rewritten in Japanese) i
   const out = await call({ to: "ru", from: "ja", blocks: ja })
   assert.equal(items(out.events).j1, "Проблема устранена около 14:27. Причиной была ошибка в приложении.")
   assert.deepEqual(out.events.find((e) => e.type === "skip")!.ids, ["j2"])
-  assert.ok(haiku.calls.every((c) => c.content.startsWith("Translate each line into Russian:")), "the language named right before the lines")
+  assert.ok(haiku.calls.every((c) => c.content.startsWith("Translate each line from Japanese into Russian (русский):")), "the direction named right before the lines")
+  assert.deepEqual(haiku.calls.map((c) => c.effort), ["low", "medium"], "the second try thinks more")
 })
 
 test("not translated: a short CJK heading back unchanged, a sentence rewritten in its own language; names and the target's own words pass", () => {
