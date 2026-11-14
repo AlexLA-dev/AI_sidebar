@@ -33,7 +33,7 @@ interface Props {
 }
 
 /** What the field is for, from its label (helps the AI pick the right values; no text of the field). */
-function fieldLabel(field: Field | null): string {
+export function fieldLabel(field: Field | null): string {
   const el = field?.el
   if (!el) return ""
   const doc = el.ownerDocument

@@ -208,6 +208,18 @@ export const FEATURES: Record<string, Feature> = {
     fields: { what: ["reminder", "event"] }
   },
 
+  // 2.7: «Проверить» и «Переписать» by a field (src/content/insert/Write.tsx), counts only: never the text, the page or the
+  // site. "menu": the Mac's circle opened its menu; "check" and "rewrite": asked for (what: the rewrite's tone); "shown":
+  // changes or a rewrite to look at; "clean": nothing to fix; "applied", "failed" (some didn't go in), "manual" (none
+  // did: copied to paste); "undone", "undo_failed"; "changed" (typed on before applying); "too_long", "limit", "plans"
+  // (Pro tapped there), "consent", "error". The server logs each request ("write") and the limit.
+  write: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error"],
+    via: ["circle", "list"],
+    fields: { what: ["check", "short", "warm", "formal", "confident"] }
+  },
+
   // 2.7: Spaces (src/shared/spaces.ts), counts only: never a space's name or colour, nor a site. "switch": how (the
   // header's list, the app's list, a bound site, a chat opened from another space, a search hit); "bind" and "toggle":
   // on or off (Settings' switch); "limit": Free asked for one more than it has; "spaces": how many there are then.

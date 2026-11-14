@@ -3,6 +3,7 @@
 
 import { COPIED_DEFAULT_ON } from "./copied.ts"
 import type { ErrorCode, ProOffer, Usage } from "./types.ts"
+import type { WriteAsk } from "./writing.ts"
 
 export const INSERT_STORAGE = {
   settings: "cf:insert",
@@ -14,7 +15,9 @@ export const INSERT_STORAGE = {
   // The first-touch tip by a field was shown (after the update).
   tipSeen: "cf:insertTipSeen",
   // The line under the fill form's buttons, telling "Fill again" from the rewrite, was shown (2.5 (81)).
-  rewriteHintSeen: "cf:insertRewriteHintSeen"
+  rewriteHintSeen: "cf:insertRewriteHintSeen",
+  // «Проверить» и «Переписать» (2.7): how the person wrote on each site before (their style), on this device only.
+  samples: "cf:writingSamples"
 } as const
 
 export interface InsertSettings {
@@ -28,6 +31,9 @@ export interface InsertSettings {
   copiedOffSites: string[]
   // Sites where the button by fields doesn't show.
   buttonOffSites: string[]
+  // «Проверить» и «Переписать» by fields (2.7): the circle on a Mac, the row atop the list on iPhone and iPad; and
+  // keeping how the person writes on each site (on this device) for their style.
+  writing: boolean
 }
 
 export const DEFAULT_INSERT_SETTINGS: InsertSettings = {
@@ -35,7 +41,8 @@ export const DEFAULT_INSERT_SETTINGS: InsertSettings = {
   copied: COPIED_DEFAULT_ON,
   sign: "/",
   copiedOffSites: [],
-  buttonOffSites: []
+  buttonOffSites: [],
+  writing: true
 }
 
 /** How a list was opened, and where an insert came from: for the counters (no text). */
@@ -82,5 +89,7 @@ export type InsertRequest =
   | { type: "qiMark"; text: string }
   | { type: "qiFill"; text: string; blanks: string[]; page: { title: string; url: string; text: string }; field: string }
   | { type: "qiFind"; query: string; templates: Array<{ id: string; title: string; keywords: string[] }> }
+  // «Проверить» и «Переписать» (2.7): the field's text with the page and the style (WriteReply back).
+  | { type: "qiWrite"; ask: WriteAsk }
 
 export type InsertContentMessage = { type: "quickInsert" }

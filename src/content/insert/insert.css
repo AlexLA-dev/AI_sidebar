@@ -181,3 +181,59 @@
 @media (pointer: coarse) {
   .cf-qi-area, .cf-qi-blank, .cf-qi-fill-text { font-size: 16px; }
 }
+
+/* ---------------------------------------------- «Проверить» и «Переписать» (2.7) */
+/* A Mac: the circle above the field (the iPhone button's look and place); its menu opens under it. */
+.cf-wr-dot-wrap { position: fixed; width: 30px; height: 30px; z-index: 4; }
+.cf-wr-dot-wrap .cf-wr-dot { position: absolute; top: 0; left: 0; }
+.cf-wr-menu.pop {
+  position: absolute; top: 34px; right: 0; width: 230px;
+  padding: 5px; border-radius: 12px;
+  background: var(--bg); border: 1px solid var(--border); box-shadow: var(--shadow);
+  animation: cf-pop 0.12s ease-out;
+}
+/* Its own start edge at the field's right: the menu opens leftwards, under the circle. */
+:host([dir="rtl"]) .cf-wr-menu.pop { right: auto; left: 0; }
+.cf-wr-menu.pop .cf-wr-two { display: flex; flex-direction: column; gap: 2px; }
+.cf-wr-menu.pop .cf-wr-item {
+  display: flex; align-items: center; gap: 8px; width: 100%; height: 34px; padding: 0 10px;
+  border-radius: 8px; color: var(--text); font-size: 14px; font-weight: 550; text-align: start;
+}
+.cf-wr-menu.pop .cf-wr-item:hover, .cf-wr-menu.pop .cf-wr-item.on { background: var(--accent-soft); color: var(--accent-text); }
+.cf-wr-item svg { flex: none; color: var(--accent); }
+.cf-wr-more { margin-inline-start: auto; color: var(--text-3); }
+.cf-wr-menu.pop .cf-wr-tones { padding: 4px 6px 4px; }
+/* iPhone and iPad: a row atop quick insert's list. */
+.cf-wr-menu.row { padding: 2px 10px 6px; }
+.cf-wr-menu.row .cf-wr-two { display: flex; gap: 8px; }
+.cf-wr-menu.row .cf-wr-item {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 40px;
+  border-radius: 12px; background: var(--accent-soft); color: var(--accent-text); font-size: 15px; font-weight: 600;
+}
+.cf-wr-menu.row .cf-wr-item.on { background: var(--accent); color: #fff; }
+.cf-wr-menu.row .cf-wr-item.on svg, .cf-wr-menu.row .cf-wr-item.on .cf-wr-more { color: #fff; }
+.cf-wr-tones { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 8px; }
+.cf-wr-tone {
+  height: 30px; padding: 0 12px; border-radius: 15px;
+  border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font-size: 13.5px; font-weight: 500;
+}
+.cf-wr-tone:hover { border-color: var(--accent); color: var(--accent-text); }
+.cf-wr-menu.row .cf-wr-tone { height: 34px; padding: 0 14px; border-radius: 17px; font-size: 14.5px; }
+
+/* The result by the field (a sheet on iPhone): a check's changes marked word by word, in our colour. */
+.cf-wr { padding: 10px 12px 12px; gap: 8px; }
+.cf-wr .cf-qi-fill-head span { display: inline-flex; align-items: center; gap: 6px; }
+.cf-wr .cf-qi-fill-head svg { color: var(--accent); }
+.cf-wr-body { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+.cf-wr-text {
+  white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14.5px; line-height: 1.5; color: var(--text);
+  max-height: 260px; overflow-y: auto; padding: 8px 10px; border-radius: 10px; background: var(--bg-2);
+}
+.cf-wr-text del { color: var(--text-3); text-decoration: line-through; text-decoration-color: var(--text-3); }
+.cf-wr-text del + ins { margin-inline-start: 3px; }
+.cf-wr-text ins { text-decoration: none; color: var(--accent-text); background: var(--accent-soft); border-radius: 4px; padding: 0 2px; box-shadow: inset 0 -2px 0 var(--accent); }
+.cf-wr-meta, .cf-wr-note { font-size: 12.5px; color: var(--text-3); margin-top: 6px; }
+.cf-wr-note { font-size: 14px; color: var(--text-2); margin: 4px 0; }
+.cf-wr-tones.inline { padding-top: 8px; }
+.cf-wr-row { padding-top: 4px; }
+.cf-wr-made button { margin-inline-start: 6px; }
