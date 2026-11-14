@@ -1188,10 +1188,12 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 /* A Mac: the circle above the field (the iPhone button's look and place); its menu opens under it. */
 .cf-wr-dot-wrap { position: fixed; width: 30px; height: 30px; z-index: 4; }
 .cf-wr-dot-wrap .cf-wr-dot { position: absolute; top: 0; left: 0; }
+/* Opaque, as the Check card: the field's text never shows through it (2.7, the director on the first screenshots). */
 .cf-wr-menu.pop {
   position: absolute; top: 34px; right: 0; width: 230px;
   padding: 5px; border-radius: 12px;
-  background: var(--bg); border: 1px solid var(--border); box-shadow: var(--shadow);
+  background-color: var(--bg, #fff); border: 1px solid var(--border); box-shadow: var(--shadow);
+  isolation: isolate;
   animation: cf-pop 0.12s ease-out;
 }
 /* Its own start edge at the field's right: the menu opens leftwards, under the circle. */
@@ -1250,7 +1252,7 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-ul.on { height: 3px; opacity: 1; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14); }
 .cf-ul-pop {
   position: fixed; z-index: 5; width: 240px; padding: 10px 12px;
-  border-radius: 12px; background: var(--bg); border: 1px solid var(--border); box-shadow: var(--shadow);
+  border-radius: 12px; background-color: var(--bg, #fff); border: 1px solid var(--border); box-shadow: var(--shadow);
   animation: cf-pop 0.12s ease-out;
 }
 .cf-ul-fix { font-size: 15px; line-height: 1.4; margin-bottom: 8px; overflow-wrap: anywhere; }
