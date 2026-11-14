@@ -873,5 +873,20 @@
   "writeSettingHint": "Las correcciones tienen en cuenta la página: el correo que respondes, la publicación que comentas. Cada toque cuenta como una respuesta. Cómo escribes en cada sitio se queda en este dispositivo y ayuda a respetar tu estilo.",
   "writeSkip": "Ignorar",
   "underlineSetting": "Subrayar errores al escribir",
-  "underlineSettingHint": "Pro y Ultra: tras una pausa al escribir, solo se revisa el párrafo que cambiaste, teniendo en cuenta la página. Señala un subrayado (tócalo en iPhone y iPad) para corregirlo. No cuenta como respuesta."
+  "underlineSettingHint": "Pro y Ultra: tras una pausa al escribir, solo se revisa el párrafo que cambiaste, teniendo en cuenta la página. Señala un subrayado (tócalo en iPhone y iPad) para corregirlo. No cuenta como respuesta.",
+  "shotSwitch": "Captura de la página",
+  "shotVisible": "Área visible",
+  "shotFull": "Página completa",
+  "shotProOnly": "La página completa está en Pro y Ultra.",
+  "shotTaking": "Haciendo la captura…",
+  "shotTakingFull": "Captura: pantalla {0} de {1}…",
+  "shotFailed": "No se pudo hacer una captura aquí. La nota se guardó sin ella.",
+  "shotCut": "La página es larga: la captura tiene sus primeras {0} pantallas.",
+  "shotOpen": "Abrir la captura",
+  "shotNote": "Captura de la página",
+  "shotCrop": "Recortar",
+  "shotCropDone": "Listo",
+  "shotCropReset": "Captura completa",
+  "shotLoading": "Abriendo la captura…",
+  "shotMissing": "Esta captura aún no está en este dispositivo. Llega por iCloud si tus chats se sincronizan allí."
 }

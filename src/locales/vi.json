@@ -873,5 +873,20 @@
   "writeSettingHint": "Bản sửa có tính đến trang: email bạn đang trả lời, bài đăng bạn bình luận. Mỗi lần chạm tính là một câu trả lời. Cách bạn viết trên từng trang web chỉ lưu trên thiết bị này và giúp giữ đúng văn phong của bạn.",
   "writeSkip": "Bỏ qua",
   "underlineSetting": "Gạch chân lỗi khi gõ",
-  "underlineSettingHint": "Pro và Ultra: sau khi bạn ngừng gõ, chỉ đoạn vừa sửa được kiểm tra, có tính đến trang. Trỏ vào gạch chân (chạm trên iPhone và iPad) để sửa. Không tính là câu trả lời."
+  "underlineSettingHint": "Pro và Ultra: sau khi bạn ngừng gõ, chỉ đoạn vừa sửa được kiểm tra, có tính đến trang. Trỏ vào gạch chân (chạm trên iPhone và iPad) để sửa. Không tính là câu trả lời.",
+  "shotSwitch": "Ảnh chụp trang",
+  "shotVisible": "Vùng đang hiển thị",
+  "shotFull": "Toàn trang",
+  "shotProOnly": "Chụp toàn trang có trong Pro và Ultra.",
+  "shotTaking": "Đang chụp…",
+  "shotTakingFull": "Ảnh chụp: màn hình {0}/{1}…",
+  "shotFailed": "Không chụp được ở đây. Ghi chú đã được lưu mà không có ảnh.",
+  "shotCut": "Trang dài: ảnh chụp gồm {0} màn hình đầu tiên.",
+  "shotOpen": "Mở ảnh chụp",
+  "shotNote": "Ảnh chụp trang",
+  "shotCrop": "Cắt",
+  "shotCropDone": "Xong",
+  "shotCropReset": "Toàn bộ ảnh",
+  "shotLoading": "Đang mở ảnh chụp…",
+  "shotMissing": "Ảnh chụp này chưa có trên thiết bị. Ảnh sẽ đến qua iCloud nếu các cuộc trò chuyện được đồng bộ ở đó."
 }

@@ -873,5 +873,20 @@
   "writeSettingHint": "修改會參考頁面內容:你正在回覆的郵件、你留言的貼文。每次點按算一次回答。你在各網站的寫法只存在這台裝置上,用來貼近你的風格。",
   "writeSkip": "忽略",
   "underlineSetting": "輸入時為錯誤加底線",
-  "underlineSettingHint": "Pro 和 Ultra:輸入停頓後,只參考頁面內容檢查你改動的段落。把指標移到底線上(在 iPhone 和 iPad 上點一下)即可修正。不計入回答次數。"
+  "underlineSettingHint": "Pro 和 Ultra:輸入停頓後,只參考頁面內容檢查你改動的段落。把指標移到底線上(在 iPhone 和 iPad 上點一下)即可修正。不計入回答次數。",
+  "shotSwitch": "頁面快照",
+  "shotVisible": "可見區域",
+  "shotFull": "整頁",
+  "shotProOnly": "整頁快照需 Pro 或 Ultra。",
+  "shotTaking": "正在拍攝快照…",
+  "shotTakingFull": "快照:第 {0} 個畫面,共 {1} 個…",
+  "shotFailed": "這裡無法拍攝快照。筆記已儲存,不含快照。",
+  "shotCut": "頁面較長:快照包含前 {0} 個畫面。",
+  "shotOpen": "打開快照",
+  "shotNote": "頁面快照",
+  "shotCrop": "裁切",
+  "shotCropDone": "完成",
+  "shotCropReset": "完整快照",
+  "shotLoading": "正在打開快照…",
+  "shotMissing": "這張快照還沒到這台裝置。如果聊天透過 iCloud 同步,它會隨之送達。"
 }

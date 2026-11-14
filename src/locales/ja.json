@@ -873,5 +873,20 @@
   "writeSettingHint": "修正はページの内容を踏まえます: 返信中のメール、コメント先の投稿など。1回のタップで回答1件として数えます。各サイトでの書き方はこのデバイスにだけ保存され、あなたの文体に合わせるために使われます。",
   "writeSkip": "無視",
   "underlineSetting": "入力中の誤りに下線を引く",
-  "underlineSettingHint": "Pro と Ultra: 入力が止まると、変更した段落だけをページの内容を踏まえてチェックします。下線にポインタを合わせる(iPhone と iPad ではタップ)と修正できます。回答数には数えません。"
+  "underlineSettingHint": "Pro と Ultra: 入力が止まると、変更した段落だけをページの内容を踏まえてチェックします。下線にポインタを合わせる(iPhone と iPad ではタップ)と修正できます。回答数には数えません。",
+  "shotSwitch": "ページのスナップショット",
+  "shotVisible": "表示範囲",
+  "shotFull": "ページ全体",
+  "shotProOnly": "ページ全体は Pro と Ultra で使えます。",
+  "shotTaking": "スナップショットを撮影中…",
+  "shotTakingFull": "スナップショット: {1} 画面中 {0}…",
+  "shotFailed": "ここではスナップショットを撮れませんでした。メモはスナップショットなしで保存されました。",
+  "shotCut": "ページが長いため、最初の {0} 画面までを撮影しました。",
+  "shotOpen": "スナップショットを開く",
+  "shotNote": "ページのスナップショット",
+  "shotCrop": "切り取る",
+  "shotCropDone": "完了",
+  "shotCropReset": "全体を表示",
+  "shotLoading": "スナップショットを開いています…",
+  "shotMissing": "このスナップショットはまだこのデバイスにありません。チャットを iCloud と同期していれば届きます。"
 }

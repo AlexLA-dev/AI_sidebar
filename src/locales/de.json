@@ -873,5 +873,20 @@
   "writeSettingHint": "Korrekturen berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen.",
   "writeSkip": "Ignorieren",
   "underlineSetting": "Fehler beim Tippen unterstreichen",
-  "underlineSettingHint": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
+  "underlineSettingHint": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort.",
+  "shotSwitch": "Seiten-Schnappschuss",
+  "shotVisible": "Sichtbarer Bereich",
+  "shotFull": "Ganze Seite",
+  "shotProOnly": "Die ganze Seite gibt es mit Pro und Ultra.",
+  "shotTaking": "Schnappschuss wird erstellt…",
+  "shotTakingFull": "Schnappschuss: Bildschirm {0} von {1}…",
+  "shotFailed": "Hier ließ sich kein Schnappschuss machen. Die Notiz ist ohne ihn gespeichert.",
+  "shotCut": "Die Seite ist lang: Der Schnappschuss zeigt ihre ersten {0} Bildschirme.",
+  "shotOpen": "Schnappschuss öffnen",
+  "shotNote": "Schnappschuss der Seite",
+  "shotCrop": "Zuschneiden",
+  "shotCropDone": "Fertig",
+  "shotCropReset": "Ganzer Schnappschuss",
+  "shotLoading": "Schnappschuss wird geöffnet…",
+  "shotMissing": "Dieser Schnappschuss ist noch nicht auf diesem Gerät. Er kommt über iCloud, wenn deine Chats dort synchronisiert werden."
 }

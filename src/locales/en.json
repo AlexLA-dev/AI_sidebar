@@ -873,5 +873,20 @@
   "writeSettingHint": "Fixes and rewrites take the page into account: the email you're answering, the post you comment on. Each tap counts as one answer. How you write on each site stays on this device and helps match your style.",
   "writeSkip": "Ignore",
   "underlineSetting": "Underline mistakes as I type",
-  "underlineSettingHint": "Pro and Ultra: after a pause in typing, only the paragraph you changed is checked, with the page in mind. Point at an underline (tap on iPhone and iPad) to fix it. Not counted as answers."
+  "underlineSettingHint": "Pro and Ultra: after a pause in typing, only the paragraph you changed is checked, with the page in mind. Point at an underline (tap on iPhone and iPad) to fix it. Not counted as answers.",
+  "shotSwitch": "Page snapshot",
+  "shotVisible": "Visible area",
+  "shotFull": "Whole page",
+  "shotProOnly": "The whole page is in Pro and Ultra.",
+  "shotTaking": "Taking a snapshot…",
+  "shotTakingFull": "Snapshot: screen {0} of {1}…",
+  "shotFailed": "Couldn't take a snapshot here. The note is saved without it.",
+  "shotCut": "The page is long: the snapshot has its first {0} screens.",
+  "shotOpen": "Open the snapshot",
+  "shotNote": "Snapshot of the page",
+  "shotCrop": "Crop",
+  "shotCropDone": "Done",
+  "shotCropReset": "Whole snapshot",
+  "shotLoading": "Opening the snapshot…",
+  "shotMissing": "This snapshot isn't on this device yet. It comes through iCloud when your chats sync there."
 }

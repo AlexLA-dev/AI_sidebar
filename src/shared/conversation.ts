@@ -2,6 +2,7 @@
 // Pure helpers shared by the content script and tests.
 
 import type { MediaKind } from "./attachments.ts"
+import type { Shot } from "./shots.ts"
 import { markedContent, type Mark } from "./marks.ts"
 import type { SimilarAnswer } from "./similar.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
@@ -60,6 +61,9 @@ export interface Entry extends ChatTurn {
   note?: boolean
   // A note made from a page selection: its text starts with the selected text in quotes.
   quote?: boolean
+  // 2.7, notes: a picture of the page it was written on (shots.ts): its thumbnail and crop go with the chat; the picture
+  // itself is kept on the device and in iCloud apart from it.
+  shot?: Shot
   // 2.6 (97), the owner: «то, что выделено, было оформлено как цитата, и … можно было написать свою заметку к ней».
   // Such a note's selected text as it was quoted: the chat shows it as a quote and the rest of the text (the person's
   // own words) as the note (citedNote). The text keeps the quote too, so older versions show it as before. Notes

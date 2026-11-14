@@ -873,5 +873,20 @@
   "writeSettingHint": "Les corrections tiennent compte de la page : l'e-mail auquel vous répondez, la publication que vous commentez. Chaque appui compte comme une réponse. Votre façon d'écrire sur chaque site reste sur cet appareil et aide à respecter votre style.",
   "writeSkip": "Ignorer",
   "underlineSetting": "Souligner les fautes pendant la saisie",
-  "underlineSettingHint": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse."
+  "underlineSettingHint": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse.",
+  "shotSwitch": "Capture de la page",
+  "shotVisible": "Zone visible",
+  "shotFull": "Page entière",
+  "shotProOnly": "La page entière est incluse dans Pro et Ultra.",
+  "shotTaking": "Capture en cours…",
+  "shotTakingFull": "Capture : écran {0} sur {1}…",
+  "shotFailed": "Impossible de faire une capture ici. La note est enregistrée sans elle.",
+  "shotCut": "La page est longue : la capture montre ses {0} premiers écrans.",
+  "shotOpen": "Ouvrir la capture",
+  "shotNote": "Capture de la page",
+  "shotCrop": "Recadrer",
+  "shotCropDone": "OK",
+  "shotCropReset": "Capture entière",
+  "shotLoading": "Ouverture de la capture…",
+  "shotMissing": "Cette capture n'est pas encore sur cet appareil. Elle arrive via iCloud si vos discussions y sont synchronisées."
 }
