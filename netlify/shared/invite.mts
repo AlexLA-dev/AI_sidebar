@@ -1,5 +1,5 @@
 // Invite a friend (2.7, plan section 5): codes, friends, the friend's extra answers and the inviter's reward, kept in
-// contextflow.invite_codes and contextflow.invites (supabase/migrations/20261114120000_contextflow_invites.sql) and
+// contextflow.invite_codes and contextflow.invites (supabase/migrations/20261114130000_contextflow_invites.sql) and
 // reached through the cf_invite_* functions. Until that migration is applied the calls fail: /api/v2/invite answers
 // UNAVAILABLE and every answer counts as before (no extra answers).
 
