@@ -502,3 +502,49 @@ export function suggestPlace(collections: Collection[], card: { t: string; src?:
   }
   return best
 }
+
+// ------------------------------------------------------------ «В подборку» with the AI (Pro): what it's shown, what it says
+
+/** A page's host without "www.", for a card's source line and the AI's view of it. */
+export function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "")
+  } catch {
+    return ""
+  }
+}
+
+/** What the AI is shown to place a card: the card, and the space's collections with their sections and gists. */
+export function placeBody(card: Pick<Card, "t" | "x" | "src">, shown: Collection[], lang: string): Record<string, unknown> {
+  return {
+    card: { gist: card.t, text: card.x ?? "", title: card.src?.title ?? "", site: card.src ? hostOf(card.src.url) : "" },
+    collections: shown.slice(0, 20).map((c) => ({
+      id: c.id, name: c.n,
+      sections: liveSections(c).map((s) => ({ id: s.id, name: s.n, cards: cardsIn(c, s.id).slice(0, 8).map((x) => x.t) }))
+    })),
+    lang
+  }
+}
+
+/** A suggestion in the sheet: an existing section, a new section in a collection, or a new collection. */
+export interface Place {
+  collection: string | null
+  section: string | null
+  newSection?: string
+  newCollection?: string
+  by: "ai" | "words"
+}
+
+/** The AI's answer as a place among `shown` (ids it didn't get are dropped), or null. */
+export function placeFromAi(body: Record<string, unknown>, shown: Collection[]): Place | null {
+  const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined)
+  const rec = shown.find((c) => c.id === body.collection)
+  if (rec) {
+    const sec = liveSections(rec).find((s) => s.id === body.section)
+    if (sec) return { collection: rec.id, section: sec.id, by: "ai" }
+    const name = str(body.newSection)
+    return name ? { collection: rec.id, section: null, newSection: name, by: "ai" } : null
+  }
+  const named = str(body.newCollection)
+  return named ? { collection: null, section: null, newCollection: named, newSection: str(body.newSection), by: "ai" } : null
+}

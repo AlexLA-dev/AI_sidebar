@@ -9,7 +9,7 @@
 //   CF_OPEN_SHADOW=1       the panel's shadow root left open for Playwright checks (test builds only)
 //
 // Output layout (stable file names, so the Xcode project never needs edits):
-//   manifest.json  welcome.html  popup.html  dist/*.js  dist/clip.html  icons/*.png  _locales/<lang>/messages.json
+//   manifest.json  welcome.html  popup.html  dist/*.js  dist/clip.html  dist/collection.html  icons/*.png  _locales/<lang>/messages.json
 
 import { context, build } from "esbuild"
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
@@ -114,6 +114,8 @@ function statics() {
   cpSync(join(root, "extension/icons"), join(out, "icons"), { recursive: true })
   mkdirSync(join(out, "dist"), { recursive: true })
   cpSync(join(root, "src/pages/clip.html"), join(out, "dist/clip.html"))
+  // A collection's printable page (2.7 «Подборки»): the panel's «PDF» opens it in a tab.
+  cpSync(join(root, "src/pages/collection.html"), join(out, "dist/collection.html"))
   locales()
   clips()
 }
@@ -125,7 +127,8 @@ const options = {
     content: "src/content/index.tsx",
     popup: "src/popup/index.tsx",
     welcome: "src/pages/welcome.ts",
-    clip: "src/pages/clip.ts"
+    clip: "src/pages/clip.ts",
+    collection: "src/pages/collection.ts"
   },
   outdir: join(out, "dist"),
   bundle: true,

@@ -73,8 +73,10 @@ test("Safari counts answers and, on a milestone, tells the app and returns it (c
 test("the background counts only an answer that streamed to its end, and sends due from Safari with the milestone", () => {
   const bg = read("src/background/index.ts")
   assert.match(bg, /if \(event\.type === "done"\) \{\s*void countValueMoment\(\)\.then\(\(moment\) => \{\s*if \(moment && TARGET === "safari"\) void reportUse\(\{ type: "useEvent", f: "rate", a: "due", via: "ext_moment", moment \}\)/)
-  // reportUse passes the milestone on (s "panel": Safari's side).
-  assert.match(bg, /gap_s: message\.gap_s, moment: message\.moment, s: "panel"/)
+  // reportUse passes the milestone on (s "panel": Safari's side): every field of the step but its type (2.7), the
+  // server keeping the feature's own (usage.ts useFields).
+  assert.match(bg, /body: JSON\.stringify\(\{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}\)/)
+  assert.match(bg, /function useStep\([^)]*\)[^{]*\{\s*const \{ type: _type, \.\.\.fields \} = message\s*return fields/)
   // An error, a refusal or a stop never emits "done" (chat.ts): only a finished answer counts.
   const chat = read("src/background/chat.ts")
   assert.match(chat, /else if \(event\.type === "done"\) \{\s*finished = true\s*emit\(\{ type: "done"/)

@@ -236,6 +236,10 @@ export type BackgroundRequest =
   | { type: "organizeCounts" }
   // 2.7: «Подходящий чат» by meaning (Pro, organizing on): the page title against these chats (match.ts).
   | { type: "matchTopic"; title: string; chats: string[] }
+  // 2.7 «Подборки» with the AI (Pro, the one consent; src/background/collect.ts): answers a CollectReply.
+  | { type: "collect"; op: CollectOp; body: Record<string, unknown> }
+  // 2.7: a collection's printable page (dist/collection.html) in a new tab: «PDF».
+  | { type: "openCollection"; id: string }
   // Organizing: a suggestion shown, taken, turned down or undone; a promotion shown or tapped; suggestions
   // switched on or declined. Counts only, never text.
   | { type: "organizeEvent"; event: OrganizeEvent }
@@ -258,7 +262,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "collect"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; cards?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -286,6 +290,10 @@ export type OrganizeReply =
   | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 
 export type OrganizeCountsReply = { ok: true; counts: Record<string, number> } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+/** «Подборки» with the AI (2.7): the server's answer for the op, or why there is none. */
+export type CollectOp = "place" | "layout" | "compare" | "summary"
+export type CollectReply = { ok: true; body: Record<string, unknown> } | { ok: false; code: "CONSENT" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" | "OFF" }
 
 export type OrganizeNameReply = { ok: true; name: string } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 

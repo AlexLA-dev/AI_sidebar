@@ -131,7 +131,7 @@ export const FEATURES: Record<string, Feature> = {
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
-    via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces"],
+    via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces", "collections"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
     fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
   },

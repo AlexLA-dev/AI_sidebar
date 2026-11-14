@@ -95,7 +95,7 @@ function host(url: string): string {
 }
 
 /** "5 min ago", "yesterday", or a date for older chats. */
-function when(at: number): string {
+export function when(at: number): string {
   const minutes = Math.round((Date.now() - at) / 60_000)
   const rtf = new Intl.RelativeTimeFormat(uiLanguage(), { numeric: "auto" })
   if (minutes < 60) return rtf.format(-Math.max(0, minutes), "minute")

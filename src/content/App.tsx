@@ -53,7 +53,7 @@ import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type Organiz
 import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags, turnedDownName } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
-import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
+import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
 import { factsFrom, SIMILAR_CHIPS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
@@ -106,6 +106,8 @@ import { TranslatePill } from "./translate/TranslatePill"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
 import { SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
+import { CollectionsWindow, CollectSheet, useCollections, type CollectAsk, type CollectPro, type CollectReport } from "./Collections"
+import type { Card } from "../shared/collections"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -308,7 +310,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [open, setOpen] = useState(popup)
   const [visible, setVisible] = useState(popup)
   // "trash": Recently Deleted, opened from the end of the chat list (its back goes to the list).
-  const [view, setView] = useState<"chat" | "settings" | "threads" | "templates" | "trash">("chat")
+  const [view, setView] = useState<"chat" | "settings" | "threads" | "templates" | "trash" | "collections">("chat")
   // Quick insert: the page has a field the user typed in (answers and notes can go there).
   const hasField = useHasField() && !popup
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
@@ -1808,6 +1810,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         </button>
         {ux.moreButton(m, idx)}
       </div>
+      {/* 2.7 «Подборки»: its own line, as in the prototype. */}
+      {!historyMode && (
+        <button type="button" class="cf-collect-link" onClick={() => setCollecting(idx)}>
+          <Icon.ToCollection /> {t("colAdd")}
+        </button>
+      )}
       {markSaid === idx && mark && <div class="cf-listen-said" role="status">{markWords(mark)}</div>}
       {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => userTags(idx, next)} onClose={() => setTagging(null)} />}
       {organizeRow(idx)}
@@ -2485,7 +2493,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     ? <button type="button" key={a.id} class={`cf-chip ultra${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={small ? 12 : 13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
     : <button type="button" key={a.id} class={`cf-chip${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
-  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "translate" | "spaces" = "listen") => {
+  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "translate" | "spaces" | "collections" = "listen") => {
     setPlansOpen(focus)
     // The prices' currency and App Store country as the app's side gave them (a wrong currency can be traced from them).
     const prices = statusRef.current?.store?.prices ?? {}
@@ -2514,6 +2522,45 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     report: (a, fields) => void sendBackground({ type: "useEvent", f: "space", a, ...fields, spaces: spacesRef.current?.count() })
   })
   spacesRef.current = spaces
+  // Подборки (2.7, Collections.tsx): the space's collections, «В подборку» on a message (its index), the line after.
+  const cols = useCollections(spaces.list, spaces.current.id, settings.spaces !== false)
+  const [collecting, setCollecting] = useState<number | null>(null)
+  const [colToast, setColToast] = useState<string | null>(null)
+  const colToastTimer = useRef<ReturnType<typeof setTimeout>>()
+  const reportCollect: CollectReport = (a, fields) => void sendBackground({ type: "useEvent", f: "collect", a, ...fields })
+  const askCollect: CollectAsk = (op, body) =>
+    sendBackground<CollectReply>({ type: "collect", op, body }).then((reply) => reply ?? { ok: false as const, code: "NETWORK" as const })
+  const collectPro: CollectPro = () => {
+    setCollecting(null)
+    openPlans("pro", "collections")
+  }
+  /** The AI consent for «Сравнить» and «Сводка»: asked in the window when it isn't given. */
+  const collectConsent = async (): Promise<boolean> => {
+    if (consentRef.current === "ok") return true
+    const agreed = await new Promise<boolean>((resolve) => setFindConsent({ resolve }))
+    setFindConsent(null)
+    if (!agreed) return false
+    await giveConsent()
+    setConsent("ok")
+    return true
+  }
+  const showColToast = (text: string) => {
+    clearTimeout(colToastTimer.current)
+    setColToast(text)
+    colToastTimer.current = setTimeout(() => setColToast(null), 1900)
+  }
+  /** A card's «Открыть чат»: the chat at the card's message, back in the chat view. */
+  const openCard = (card: Card) => {
+    const thread = threadList.find((th) => th.id === card.chat)
+    if (!thread) {
+      if (card.src) openPage(card.src.url)
+      return
+    }
+    const at = card.msg ? thread.m.findIndex((e) => entryKey(e) === card.msg) : -1
+    spaces.followChat(thread)
+    openThread(thread.id, at >= 0 ? at : undefined)
+    setView("chat")
+  }
   // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
   const choosePlan = (choice: OfferChoice) => {
     openAppFromTap(touch, { target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
@@ -3576,7 +3623,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         >
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
           <header class="cf-header">
-            {view !== "chat" ? (
+            {view === "collections" ? (
+              <span class="cf-logo"><Icon.Sparkle size={18} /></span>
+            ) : view !== "chat" ? (
               <button type="button" class="cf-icon" onClick={() => {
                 // Settings opened from the chats list's "…" (build 94) goes back to the list.
                 const back = view === "trash" ? "threads" : view === "settings" ? settingsBack.current : "chat"
@@ -3589,7 +3638,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             {/* Build 95: in a chat, what the question is about (the selection, the page, the chats) is over the field
                 (ctxRow), not here. 2.7: with two spaces or more, the space's switcher over a chat and the chats list. */}
             <div class="cf-title">
-              {spaces.multi && (view === "chat" || view === "threads") ? (
+              {/* 2.7 «Подборки»: the window's tabs «Чат | Подборки». */}
+              {view === "collections" ? (
+                <div class="cf-col-tabs" role="tablist">
+                  <button type="button" role="tab" aria-selected="false" onClick={() => setView("chat")}>{t("colChat")}</button>
+                  <button type="button" role="tab" aria-selected="true">{t("colTab")}</button>
+                </div>
+              ) : spaces.multi && (view === "chat" || view === "threads") ? (
                 <SpaceSwitcher
                   spaces={spaces.spaces}
                   current={spaces.current}
@@ -3604,6 +3659,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               )}
             </div>
             {spaces.toast && <SpaceToast space={spaces.toast.space} text={spaces.toast.text} />}
+            {colToast && <div class="cf-space-toast" role="status"><span>{colToast}</span></div>}
+            {/* 2.7: the collections window, once the space has a collection (the first comes from «В подборку»). */}
+            {view === "chat" && cols.shown.length > 0 && (
+              <button type="button" class="cf-icon cf-col-open" onClick={() => setView("collections")} aria-label={t("colTab")} title={t("colTab")}><Icon.Collections /></button>
+            )}
             {view === "chat" && messages.length > 0 && partial === null && (
               <button type="button" class="cf-icon" onClick={() => (picked ? setPicked(null) : pickMessages())} aria-pressed={Boolean(picked)} aria-label={t("shareChat")} title={chatCopied ? t("copied") : t("shareChat")}>
                 {chatCopied ? <Icon.Check /> : <Icon.Share />}
@@ -3805,6 +3865,30 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               />
               <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
               {listen.state.at !== "idle" && <footer class="cf-listen-dock">{listenBar}</footer>}
+            </>
+          ) : view === "collections" ? (
+            <>
+              {findConsent && (
+                <div class="cf-upsell-wrap">
+                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                </div>
+              )}
+              <CollectionsWindow
+                all={cols.all}
+                shown={cols.shown}
+                space={spaces.current.id}
+                pro={hasPro(plan)}
+                lang={t("langCode")}
+                pageUrl={source.href()}
+                ask={askCollect}
+                askConsent={collectConsent}
+                onPro={collectPro}
+                onOpenCard={openCard}
+                onOpenPage={(url) => openPage(url)}
+                onPdf={(id) => void sendBackground({ type: "openCollection", id })}
+                onBack={() => setView("chat")}
+                report={reportCollect}
+              />
             </>
           ) : view === "trash" ? (
             <TrashView
@@ -4352,6 +4436,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined })
               }}
               onClose={() => setPlansOpen(null)}
+            />
+          )}
+          {view === "chat" && collecting !== null && messages[collecting] && (
+            <CollectSheet
+              entries={messages}
+              index={collecting}
+              chat={threadRef.current}
+              all={cols.all}
+              shown={cols.shown}
+              space={spaces.current.id}
+              pro={hasPro(plan)}
+              ai={hasPro(plan) && consent === "ok"}
+              lang={t("langCode")}
+              ask={askCollect}
+              onPro={collectPro}
+              onAdded={(text) => {
+                setCollecting(null)
+                showColToast(text)
+              }}
+              onClose={() => setCollecting(null)}
+              report={reportCollect}
             />
           )}
           {spaces.sheet && (

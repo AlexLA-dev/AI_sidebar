@@ -469,7 +469,29 @@ const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof
   if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
   return status(req, context)
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item }
+// «Подборки» (2.7): /api/v2/collect scripted (the real op needs our model key; tests/collect-server.test.mts covers it):
+// "place" takes the section sharing a word with the card, else a new section «See»; "compare" a row per card;
+// "summary" one line. Pro only, as the real one.
+const collect: typeof chat = (async (req: Request) => {
+  if (!["pro", "ultra"].includes(process.env.PREVIEW_PLAN ?? "")) return Response.json({ code: "PRO_ONLY" }, { status: 403 })
+  const body = JSON.parse((await req.text()) || "{}") as Record<string, any>
+  const words = (text: string) => new Set(String(text).toLowerCase().match(/[\p{L}\p{N}]{4,}/gu) ?? [])
+  if (body.op === "place") {
+    const mine = words(`${body.card?.gist ?? ""} ${body.card?.title ?? ""}`)
+    for (const c of body.collections ?? []) for (const sec of c.sections ?? []) {
+      if ([...words(`${sec.name} ${(sec.cards ?? []).join(" ")}`)].some((w) => mine.has(w))) return Response.json({ collection: c.id, section: sec.id })
+    }
+    const first = (body.collections ?? [])[0]
+    return Response.json(first ? { collection: first.id, section: null, newSection: "See" } : { collection: null, section: null, newCollection: "Trip to Japan", newSection: "Stay" })
+  }
+  if (body.op === "compare") {
+    const cards = (body.cards ?? []) as Array<{ gist: string; site?: string }>
+    return Response.json({ h: ["Option", "Where", "Note"], r: cards.map((c) => [c.gist.split(/[:,.]/)[0].slice(0, 40), c.site || "—", c.gist.length > 60 ? "long read" : "short"]), note: "Asakusa is the cheaper of the two." })
+  }
+  if (body.op === "summary") return Response.json({ text: "Fly in late March for the blossom; stay in Asakusa to save, in Shinjuku for the first trip." })
+  return Response.json({ code: "BAD_REQUEST" }, { status: 400 })
+}) as typeof chat
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/collect": collect }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
