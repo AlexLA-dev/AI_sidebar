@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
 import {
-  addCard, addComparison, addSection, applyLayout, canAddCard, canAddCollection, cardFrom, cardsIn, changedCollection, collectionChanges, collectionForCloud, collectionFromCloud,
+  addCard, addComparison, addSection, applyLayout, canAddCard, canAddCollection, cardFrom, cardsIn, changedCollection, cleanCollection, collectionChanges, collectionForCloud, collectionFromCloud,
   COLLECTION_PREFIX, countedCards, deleteCard, deleteCollection, deleteSection, FREE_CARDS, FREE_COLLECTIONS, gistOf, isCollectionId, liveCollections, liveSections, MAX_GIST,
   mergeCollections, moveCard, moveSection, newCollection, renameSection, sameCollection, setSummary, suggestPlace, takeCollection, type Collection
 } from "../src/shared/collections.ts"
@@ -198,4 +198,16 @@ test("usage: counts only", () => {
   const spec = FEATURES.collect
   assert.equal(spec.since, "2.7")
   assert.deepEqual(useFields({ f: "collect", a: "add", via: "app", name: "Trip", cards: 3 }), { f: "collect", a: "add", via: "app", cards: 3 })
+})
+
+test("a collection kept on this device loads back and takes the next edit (its stored form has no kind)", () => {
+  const rec = addCard(newCollection("cf-col-1", "Trip", undefined, 1000, { id: "s", name: "Stay" }), { id: "c", sec: "s", k: "answer", t: "Shinjuku", at: 1000 }, 1001)
+  const stored = changedCollection(undefined, rec, 1002)
+  // The panel's load and saveCollection read it this way (store.ts collectionsOf).
+  const back = cleanCollection(stored.rec, "cf-col-1")
+  assert.ok(back)
+  assert.deepEqual(back!.c.map((c) => c.t), ["Shinjuku"])
+  assert.ok(sameCollection(back!, rec))
+  // A copy that says it's something else isn't one.
+  assert.equal(cleanCollection({ ...rec, kind: "chat" }, "cf-col-1"), null)
 })

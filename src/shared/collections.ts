@@ -106,7 +106,8 @@ function id(value: unknown): string | null {
 export function cleanCollection(raw: unknown, recordId?: string): Collection | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null
   const o = raw as Record<string, unknown>
-  if (o.kind !== "collection" || !Array.isArray(o.s) || !Array.isArray(o.c)) return null
+  // iCloud's and the app's copy says kind "collection"; the one kept on this device (StoredCollection.rec) doesn't.
+  if ((o.kind !== undefined && o.kind !== "collection") || !Array.isArray(o.s) || !Array.isArray(o.c)) return null
   const cid = id(o.id) ?? recordId ?? null
   const mu = num(o.mu)
   if (!cid || mu === undefined) return null
