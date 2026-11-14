@@ -50826,6 +50826,1002 @@
         }
       }
     },
+    "Also in Reminders": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أيضًا في التذكيرات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auch in Erinnerungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "También en Recordatorios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aussi dans Rappels"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anche in Promemoria"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーにも追加"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "미리 알림에도 추가"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Também no Lembretes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Также в Напоминания"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Також у Нагадування"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thêm vào Lời nhắc"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同时加入提醒事项"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同時加入提醒事項"
+          }
+        }
+      }
+    },
+    "In the Reminders app, on all your devices.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في تطبيق التذكيرات، على كل أجهزتك."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der App „Erinnerungen“ auf all deinen Geräten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En la app Recordatorios, en todos tus dispositivos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans l’app Rappels, sur tous vos appareils."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nell’app Promemoria, su tutti i tuoi dispositivi."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべてのデバイスのリマインダーアプリに。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 기기의 미리 알림 앱에."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No app Lembretes, em todos os seus dispositivos."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В приложении «Напоминания», на всех ваших устройствах."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У застосунку «Нагадування», на всіх ваших пристроях."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong ứng dụng Lời nhắc, trên mọi thiết bị của bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在你所有设备的“提醒事项”App 中。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在你所有裝置的「提醒事項」App 中。"
+          }
+        }
+      }
+    },
+    "ContextFlow has no access to Reminders. Turn it on in Settings.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يملك ContextFlow إذنًا بالوصول إلى التذكيرات. فعّله في الإعدادات."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow hat keinen Zugriff auf Erinnerungen. Aktiviere ihn in den Einstellungen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow no tiene acceso a Recordatorios. Actívalo en Ajustes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow n’a pas accès à Rappels. Activez-le dans Réglages."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow non ha accesso a Promemoria. Attivalo in Impostazioni."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow はリマインダーにアクセスできません。設定でオンにしてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow가 미리 알림에 접근할 수 없습니다. 설정에서 켜 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow não tem acesso ao Lembretes. Ative em Ajustes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У ContextFlow нет доступа к Напоминаниям. Включите его в Настройках."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow не має доступу до Нагадувань. Увімкніть його в Параметрах."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow không có quyền truy cập Lời nhắc. Hãy bật trong Cài đặt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 无权访问提醒事项。请在“设置”中打开。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 無權存取提醒事項。請在「設定」中開啟。"
+          }
+        }
+      }
+    },
+    "ContextFlow has no access to Reminders. Turn it on in Settings, then try again in Safari.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يملك ContextFlow إذنًا بالوصول إلى التذكيرات. فعّله في الإعدادات، ثم حاول مجددًا في Safari."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow hat keinen Zugriff auf Erinnerungen. Aktiviere ihn in den Einstellungen und versuche es dann in Safari erneut."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow no tiene acceso a Recordatorios. Actívalo en Ajustes y vuelve a intentarlo en Safari."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow n’a pas accès à Rappels. Activez-le dans Réglages, puis réessayez dans Safari."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow non ha accesso a Promemoria. Attivalo in Impostazioni, poi riprova in Safari."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow はリマインダーにアクセスできません。設定でオンにしてから、Safari でもう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow가 미리 알림에 접근할 수 없습니다. 설정에서 켠 다음 Safari에서 다시 시도해 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow não tem acesso ao Lembretes. Ative em Ajustes e tente de novo no Safari."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У ContextFlow нет доступа к Напоминаниям. Включите его в Настройках и повторите в Safari."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow не має доступу до Нагадувань. Увімкніть його в Параметрах і спробуйте ще раз у Safari."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow không có quyền truy cập Lời nhắc. Hãy bật trong Cài đặt rồi thử lại trong Safari."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 无权访问提醒事项。请在“设置”中打开，然后在 Safari 中重试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 無權存取提醒事項。請在「設定」中開啟，然後在 Safari 中重試。"
+          }
+        }
+      }
+    },
+    "ContextFlow has no access to Calendar. Turn it on in Settings, then try again in Safari.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يملك ContextFlow إذنًا بالوصول إلى التقويم. فعّله في الإعدادات، ثم حاول مجددًا في Safari."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow hat keinen Zugriff auf den Kalender. Aktiviere ihn in den Einstellungen und versuche es dann in Safari erneut."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow no tiene acceso a Calendario. Actívalo en Ajustes y vuelve a intentarlo en Safari."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow n’a pas accès à Calendrier. Activez-le dans Réglages, puis réessayez dans Safari."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow non ha accesso a Calendario. Attivalo in Impostazioni, poi riprova in Safari."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow はカレンダーにアクセスできません。設定でオンにしてから、Safari でもう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow가 캘린더에 접근할 수 없습니다. 설정에서 켠 다음 Safari에서 다시 시도해 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow não tem acesso ao Calendário. Ative em Ajustes e tente de novo no Safari."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У ContextFlow нет доступа к Календарю. Включите его в Настройках и повторите в Safari."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow не має доступу до Календаря. Увімкніть його в Параметрах і спробуйте ще раз у Safari."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow không có quyền truy cập Lịch. Hãy bật trong Cài đặt rồi thử lại trong Safari."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 无权访问日历。请在“设置”中打开，然后在 Safari 中重试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 無權存取行事曆。請在「設定」中開啟，然後在 Safari 中重試。"
+          }
+        }
+      }
+    },
+    "Added to Reminders.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أُضيف إلى التذكيرات."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu Erinnerungen hinzugefügt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadido a Recordatorios."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouté à Rappels."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunto a Promemoria."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーに追加しました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "미리 알림에 추가했습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionado ao Lembretes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлено в Напоминания."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Додано до Нагадувань."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã thêm vào Lời nhắc."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已添加到提醒事项。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加入提醒事項。"
+          }
+        }
+      }
+    },
+    "Added to Reminders: %@.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أُضيف إلى التذكيرات: %@."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu Erinnerungen hinzugefügt: %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadido a Recordatorios: %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouté à Rappels : %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunto a Promemoria: %@."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーに追加しました：%@。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "미리 알림에 추가했습니다: %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionado ao Lembretes: %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлено в Напоминания: %@."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Додано до Нагадувань: %@."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã thêm vào Lời nhắc: %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已添加到提醒事项：%@。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加入提醒事項：%@。"
+          }
+        }
+      }
+    },
+    "Added to Calendar.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أُضيف إلى التقويم."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Kalender hinzugefügt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadido al Calendario."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouté au Calendrier."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunto al Calendario."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダーに追加しました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더에 추가했습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionado ao Calendário."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавлено в Календарь."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Додано до Календаря."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã thêm vào Lịch."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已添加到日历。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加入行事曆。"
+          }
+        }
+      }
+    },
+    "To go back, tap ◀ Safari at the top left.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "للعودة، اضغط ◀ Safari في أعلى اليسار."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe oben links auf ◀ Safari, um zurückzugehen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para volver, toca ◀ Safari arriba a la izquierda."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour revenir, touchez ◀ Safari en haut à gauche."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per tornare indietro, tocca ◀ Safari in alto a sinistra."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "戻るには、左上の ◀ Safari をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "돌아가려면 왼쪽 상단의 ◀ Safari를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para voltar, toque em ◀ Safari no canto superior esquerdo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы вернуться, нажмите ◀ Safari слева вверху."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб повернутися, натисніть ◀ Safari ліворуч угорі."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để quay lại, chạm vào ◀ Safari ở góc trên bên trái."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "若要返回，请轻点左上角的“◀ Safari”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "若要返回，請點一下左上角的「◀ Safari」。"
+          }
+        }
+      }
+    },
+    "Couldn't add it. Try again in Safari.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذّرت الإضافة. حاول مجددًا في Safari."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinzufügen nicht möglich. Versuche es in Safari erneut."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo añadir. Vuelve a intentarlo en Safari."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de l’ajouter. Réessayez dans Safari."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile aggiungerlo. Riprova in Safari."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加できませんでした。Safari でもう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가하지 못했습니다. Safari에서 다시 시도해 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível adicionar. Tente de novo no Safari."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось добавить. Повторите в Safari."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося додати. Спробуйте ще раз у Safari."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể thêm. Hãy thử lại trong Safari."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法添加。请在 Safari 中重试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法加入。請在 Safari 中重試。"
+          }
+        }
+      }
+    },
+    "This is no longer here. Tap Add in Safari again.": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يعد هذا متاحًا. اضغط إضافة في Safari مجددًا."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das ist nicht mehr da. Tippe in Safari erneut auf „Hinzufügen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto ya no está. Vuelve a tocar Añadir en Safari."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce n’est plus disponible. Touchez à nouveau Ajouter dans Safari."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è più disponibile. Tocca di nuovo Aggiungi in Safari."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これはもうありません。Safari でもう一度「追加」をタップしてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "더 이상 없습니다. Safari에서 추가를 다시 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isso não está mais aqui. Toque em Adicionar no Safari de novo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этого уже нет. Нажмите «Добавить» в Safari ещё раз."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цього вже немає. Натисніть «Додати» в Safari ще раз."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mục này không còn nữa. Hãy chạm Thêm trong Safari lần nữa."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此内容已不在。请在 Safari 中再次轻点“添加”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此內容已不在。請在 Safari 中再次點一下「加入」。"
+          }
+        }
+      }
+    },
+    "Calendar": {
+      "comment": "Calendar and Reminders (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التقويم"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalender"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendrier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendario"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendário"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Календарь"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Календар"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lịch"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日历"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行事曆"
+          }
+        }
+      }
+    },
     "Spaces": {
       "localizations": {
         "ar": {

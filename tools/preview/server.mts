@@ -192,6 +192,10 @@ function historyAnswer(system: string, question: string): string {
 
 /** The scripted answer to the last question, whichever model is asked. */
 function scripted(system: string, last: string): string {
+  // 2.7: asked for a reminder by a client that can add one: a short answer and the marker for the card.
+  if (JSON.stringify(system).includes("[[cf:add]]") && /remind me|напомни/i.test(last)) {
+    return /напомни/i.test(last) ? "Хорошо: напоминание в пятницу в 9:00 — забронировать отель. Проверьте и добавьте.\n\n[[cf:add]]" : "Sure: a reminder on Friday at 9:00 to book the hotel. Check it and tap Add.\n\n[[cf:add]]"
+  }
   // AI search: the chats that share a word (4+ letters) with the description, as JSON.
   if (system.startsWith("You find chats")) return findAnswer(system, last)
   if (system.includes("asking about their own earlier ContextFlow chats")) return historyAnswer(system, last)
@@ -235,6 +239,21 @@ function scriptedInsert(system: string, content: string): unknown {
 
 // Page watch's scripted Haiku: the price from the page's markup when it's there, a threshold when the words
 // have a number ("below 40"), any change otherwise; after a change, met unless the words say a number it isn't under.
+// Calendar and Reminders (2.7): /api/v2/item's Haiku, scripted from the device's "now" in its message: a hotel to book
+// next Friday at 9 (a guess), a flight on the 14th of next month, 10:40 to 13:10 from Sheremetyevo.
+function scriptedItems(content: string): unknown {
+  const now = /Now on their device: \w+, (\d{4})-(\d{2})-(\d{2})T/.exec(content)
+  const today = now ? new Date(Number(now[1]), Number(now[2]) - 1, Number(now[3])) : new Date()
+  const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+  const friday = new Date(today)
+  friday.setDate(today.getDate() + (((5 - today.getDay() + 7) % 7) || 7))
+  const flight = new Date(today.getFullYear(), today.getMonth() + 1, 14)
+  const items = []
+  if (/hotel|отел/i.test(content)) items.push({ kind: "reminder", title: /отел/i.test(content) ? "Забронировать отель" : "Book the hotel", date: ymd(friday), time: "09:00", confidence: "guess" })
+  if (/flight|рейс|SU ?\d/i.test(content)) items.push({ kind: "event", title: "Flight SU 1234 Moscow → Sochi", date: ymd(flight), time: "10:40", end_time: "13:10", location: "Sheremetyevo, Terminal B", notes: "Seat 12A", confidence: "sure" })
+  return { items }
+}
+
 function scriptedWatch(system: string, content: string): unknown {
   const words = content.match(/in their words: (.*)/)?.[1] ?? ""
   const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
@@ -310,7 +329,9 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     // Quick insert and page watch (JSON answers, not streamed): a scripted Haiku.
     if (body.output_config?.format) {
       const system = String(body.system)
-      const answer = system.startsWith("Someone on a web page") || system.startsWith("A value someone watches")
+      const answer = system.startsWith("Someone wants to keep something")
+        ? scriptedItems(String(body.messages[0].content))
+        : system.startsWith("Someone on a web page") || system.startsWith("A value someone watches")
         ? scriptedWatch(system, String(body.messages[0].content))
         : scriptedInsert(system, String(body.messages[0].content))
       return new Response(JSON.stringify({
@@ -405,6 +426,7 @@ const promo = (await import("../../netlify/functions/v2-promo.mts")).default
 const insert = (await import("../../netlify/functions/v2-insert.mts")).default
 const organize = (await import("../../netlify/functions/v2-organize.mts")).default
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
+const item = (await import("../../netlify/functions/v2-item.mts")).default
 const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
 const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
 const speakHeard = (await import("../../netlify/functions/v2-speak-heard.mts")).default
@@ -447,7 +469,7 @@ const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof
   if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
   return status(req, context)
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch }
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the

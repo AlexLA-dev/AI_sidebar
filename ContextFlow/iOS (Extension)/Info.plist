@@ -9,5 +9,7 @@
 		<key>NSExtensionPrincipalClass</key>
 		<string>$(PRODUCT_MODULE_NAME).SafariWebExtensionHandler</string>
 	</dict>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>ContextFlow adds the reminders you confirm. It doesn't read your reminders or send them anywhere.</string>
 </dict>
 </plist>

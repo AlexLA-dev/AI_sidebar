@@ -179,6 +179,19 @@ export const FEATURES: Record<string, Feature> = {
     }
   },
 
+  // 2.7, Calendar and Reminders (appleItems.ts). The AI's card: opened by the chat's marker ("chat"), the message's "…"
+  // ("menu") or the chip under an answer ("chip"); what it found ("shown", "nothing"); each Add tapped in it ("card"):
+  // written on the device ("added"), handed to the app ("app"), no access ("denied"), "failed", "unavailable",
+  // "not_asked". «Также в Напоминания» ("remind"): turned on or off, and each reminder it put in Reminders. The app's
+  // side of a handed-over item ("app"): "added", "denied", "failed", the event editor closed ("dismissed").
+  // Counts only: never a title, a date or a list.
+  apple: {
+    since: "2.7", tracked: "2.7",
+    actions: ["open", "shown", "nothing", "added", "app", "denied", "failed", "unavailable", "not_asked", "dismissed", "also_on", "also_off"],
+    via: ["chat", "menu", "chip", "card", "remind", "app"],
+    fields: { what: ["reminder", "event"] }
+  },
+
   // 2.7: Spaces (src/shared/spaces.ts), counts only: never a space's name or colour, nor a site. "switch": how (the
   // header's list, the app's list, a bound site, a chat opened from another space, a search hit); "bind" and "toggle":
   // on or off (Settings' switch); "limit": Free asked for one more than it has; "spaces": how many there are then.

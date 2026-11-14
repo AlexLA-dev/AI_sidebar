@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "Não atende à sua escolha"
  },
+ "appleTitle": {
+  "message": "Calendário e Lembretes"
+ },
+ "appleMenu": {
+  "message": "Adicionar ao Calendário ou Lembretes"
+ },
+ "appleReading": {
+  "message": "Procurando a data e a hora…"
+ },
+ "appleNothing": {
+  "message": "Nada para adicionar aqui: sem data nem tarefa."
+ },
+ "appleError": {
+  "message": "Não foi possível ler a data."
+ },
+ "appleRetry": {
+  "message": "Tentar de novo"
+ },
+ "appleReminder": {
+  "message": "Lembrete"
+ },
+ "appleEvent": {
+  "message": "Evento"
+ },
+ "appleWhat": {
+  "message": "O quê"
+ },
+ "appleDate": {
+  "message": "Data"
+ },
+ "appleTime": {
+  "message": "Hora"
+ },
+ "appleList": {
+  "message": "Lista"
+ },
+ "appleRemindersApp": {
+  "message": "No Lembretes"
+ },
+ "appleCalendarPick": {
+  "message": "Você escolhe o calendário na próxima etapa"
+ },
+ "appleCalendarDefault": {
+  "message": "Seu calendário padrão"
+ },
+ "appleGuess": {
+  "message": "Confira a data e a hora: são uma estimativa."
+ },
+ "applePast": {
+  "message": "Esse horário já passou. Confira a data."
+ },
+ "appleAdd": {
+  "message": "Adicionar"
+ },
+ "appleAdded": {
+  "message": "Adicionado ao Lembretes"
+ },
+ "appleAddedEvent": {
+  "message": "Adicionado ao Calendário"
+ },
+ "appleOpening": {
+  "message": "Abrindo o ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "O ContextFlow não tem acesso. Ative em Ajustes."
+ },
+ "appleFailed": {
+  "message": "Não foi possível adicionar. Tente de novo."
+ },
+ "appleAlso": {
+  "message": "Também no Lembretes"
+ },
+ "appleRemindersOff": {
+  "message": "O ContextFlow não tem acesso ao Lembretes. Ative em Ajustes."
+ },
+ "appleAskOnce": {
+  "message": "Na primeira vez, o ContextFlow abre para pedir acesso."
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

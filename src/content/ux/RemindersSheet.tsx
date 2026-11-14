@@ -21,7 +21,7 @@ export function RemindersSheet({ kind, items, onOpen, onCancel, onReschedule, on
   onOpen: (item: LaterItem) => void
   onCancel: (item: LaterItem) => void
   // A reminder's new time: null once it's set, else why it couldn't be (no notifications on this device).
-  onReschedule: (item: LaterItem, at: number, preset: "hour" | "evening" | "morning" | "week" | "custom", words?: string) => Promise<string | null>
+  onReschedule: (item: LaterItem, at: number, preset: "hour" | "evening" | "morning" | "week" | "custom", words?: string, apple?: boolean) => Promise<string | null>
   onClose: () => void
 }): VNode {
   const back = useRef<HTMLDivElement>(null)
@@ -100,9 +100,9 @@ export function RemindersSheet({ kind, items, onOpen, onCancel, onReschedule, on
           note={changing.note}
           quote={changing.item.quote}
           words={changing.item.words}
-          onPick={(at, preset, words) => {
+          onPick={(at, preset, words, apple) => {
             const item = changing.item
-            void onReschedule(item, at, preset, words).then((note) => setChanging(note ? { item, note } : null))
+            void onReschedule(item, at, preset, words, apple).then((note) => setChanging(note ? { item, note } : null))
           }}
           onCancel={() => {
             const item = changing.item

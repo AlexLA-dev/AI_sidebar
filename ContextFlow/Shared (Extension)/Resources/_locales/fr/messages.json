@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "Ne correspond pas à votre choix"
  },
+ "appleTitle": {
+  "message": "Calendrier et Rappels"
+ },
+ "appleMenu": {
+  "message": "Ajouter au Calendrier ou aux Rappels"
+ },
+ "appleReading": {
+  "message": "Je cherche la date et l’heure…"
+ },
+ "appleNothing": {
+  "message": "Rien à ajouter ici : ni date ni tâche."
+ },
+ "appleError": {
+  "message": "Impossible de lire la date."
+ },
+ "appleRetry": {
+  "message": "Réessayer"
+ },
+ "appleReminder": {
+  "message": "Rappel"
+ },
+ "appleEvent": {
+  "message": "Événement"
+ },
+ "appleWhat": {
+  "message": "Quoi"
+ },
+ "appleDate": {
+  "message": "Date"
+ },
+ "appleTime": {
+  "message": "Heure"
+ },
+ "appleList": {
+  "message": "Liste"
+ },
+ "appleRemindersApp": {
+  "message": "Dans Rappels"
+ },
+ "appleCalendarPick": {
+  "message": "Vous choisirez le calendrier à l’étape suivante"
+ },
+ "appleCalendarDefault": {
+  "message": "Votre calendrier par défaut"
+ },
+ "appleGuess": {
+  "message": "Vérifiez la date et l’heure : elles sont estimées."
+ },
+ "applePast": {
+  "message": "Cette heure est passée. Vérifiez la date."
+ },
+ "appleAdd": {
+  "message": "Ajouter"
+ },
+ "appleAdded": {
+  "message": "Ajouté à Rappels"
+ },
+ "appleAddedEvent": {
+  "message": "Ajouté au Calendrier"
+ },
+ "appleOpening": {
+  "message": "Ouverture de ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow n’a pas accès. Activez-le dans Réglages."
+ },
+ "appleFailed": {
+  "message": "Impossible de l’ajouter. Réessayez."
+ },
+ "appleAlso": {
+  "message": "Aussi dans Rappels"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow n’a pas accès à Rappels. Activez-le dans Réglages."
+ },
+ "appleAskOnce": {
+  "message": "La première fois, ContextFlow s’ouvre pour demander l’accès."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },
