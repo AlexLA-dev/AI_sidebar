@@ -15,9 +15,11 @@ enum BoardPDF {
     static let site = "https://context-flow.app"
 
     static func openChatLink(_ chat: String, _ msg: String?) -> String {
-        let id = chat.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? chat
+        // As encodeURIComponent (the panel's openChatLink): letters, digits and - _ . ! ~ * ' ( ) stay.
+        let kept = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_.!~*'()"))
+        let id = chat.addingPercentEncoding(withAllowedCharacters: kept) ?? chat
         guard let msg, !msg.isEmpty else { return "\(site)/open-chat?id=\(id)" }
-        return "\(site)/open-chat?id=\(id)&m=\(msg.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? msg)"
+        return "\(site)/open-chat?id=\(id)&m=\(msg.addingPercentEncoding(withAllowedCharacters: kept) ?? msg)"
     }
 
     static func esc(_ s: String) -> String {
@@ -182,12 +184,13 @@ body.native main { padding: 0; max-width: none; }
         let loader = Loader(width: width)
         try await loader.load(html)
         let script = """
-        JSON.stringify({ h: document.documentElement.scrollHeight,
+        JSON.stringify({ h: Math.ceil(document.querySelector('main').getBoundingClientRect().bottom + scrollY),
           b: [...document.querySelectorAll('.card, .sum, .meta')].map((e) => e.getBoundingClientRect().bottom + scrollY)
             .concat([...document.querySelectorAll('section')].map((e) => e.getBoundingClientRect().top + scrollY - 1)),
           a: [...document.querySelectorAll('a[href]')].flatMap((e) => [...e.getClientRects()].map((r) => [e.href, r.left, r.top + scrollY, r.width, r.height])) })
         """
-        // Measured at the page's full height: shorter, a scrollbar (Mac) narrows the text and moves everything.
+        // The content's own height (a short page's document is as tall as the view on iOS), measured with the view
+        // that tall: shorter, a scrollbar (Mac) narrows the text and moves everything.
         var page: [String: Any] = [:]
         var height: CGFloat = 0
         for _ in 0..<3 {
