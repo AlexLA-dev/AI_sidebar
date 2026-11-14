@@ -298,6 +298,41 @@ function scriptedWrite(system: string, content: string): unknown {
   return { text: message.replace(/\b(I think|maybe|just|sorry,? ?|I was wondering if)\s*/gi, "").replace(/\s+([,.])/g, "$1") }
 }
 
+const TRANSLATIONS: Record<string, Record<string, string>> = JSON.parse(readFileSync(new URL("./translations.json", import.meta.url), "utf8"))
+/** The scripted translation of a batch ("§n text" lines): each known line in the system prompt's language, its tags renumbered as the page's. */
+function scriptedTranslation(system: string, content: string): string {
+  const to = /into Russian/.test(system) ? "ru" : "en"
+  const out: string[] = []
+  for (const m of content.matchAll(/^§(\d+) (.*)$/gm)) {
+    const src = m[2]
+    const plain = src.replace(/<\/?\d+\/?>/g, "").replace(/\s+/g, " ").trim()
+    const tags = [...src.matchAll(/<(\d+)>/g)].map((t) => t[1])
+    const known = TRANSLATIONS[plain]?.[to]
+    out.push(`§${m[1]} ${known ? known.replace(/<(\/?)(\d+)>/g, (_, slash, k) => `<${slash}${tags[Number(k) - 1] ?? k}>`) : src}`)
+  }
+  return out.join("\n")
+}
+/** A Claude answer streamed as server-sent events, a few words at a time. */
+function claudeStream(model: string, text: string): Response {
+  const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
+  const words = text.match(/\S+\s*|\s+/g) ?? []
+  const stream = new ReadableStream({
+    async start(c) {
+      const enc = new TextEncoder()
+      c.enqueue(enc.encode(ev("message_start", { message: { id: "msg_local", type: "message", role: "assistant", model, content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 900, output_tokens: 1 } } })))
+      c.enqueue(enc.encode(ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } })))
+      for (const w of words) {
+        c.enqueue(enc.encode(ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })))
+        await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))
+      }
+      c.enqueue(enc.encode(ev("content_block_stop", { index: 0 })))
+      c.enqueue(enc.encode(ev("message_delta", { delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: words.length } }) + ev("message_stop")))
+      c.close()
+    }
+  })
+  return new Response(stream, { headers: { "Content-Type": "text/event-stream" } })
+}
+
 function scriptedWatch(system: string, content: string): unknown {
   const words = content.match(/in their words: (.*)/)?.[1] ?? ""
   const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
@@ -366,6 +401,12 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body))
     const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
     return new Response(JSON.stringify({ id: "msg_judge", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ tags }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } }), { headers: { "Content-Type": "application/json" } })
+  }
+  // In-page translation (2.7): es-guide.html's lines from translations.json, streamed line by line like the real
+  // Haiku; a line it doesn't know comes back as it is (the page then keeps the original there).
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && String(JSON.parse(String(init?.body)).system).startsWith("You translate the text of a web page into")) {
+    const body = JSON.parse(String(init?.body))
+    return claudeStream(body.model, scriptedTranslation(String(body.system), String(body.messages[body.messages.length - 1].content)))
   }
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     const body = JSON.parse(String(init?.body))
@@ -474,6 +515,8 @@ const organize = (await import("../../netlify/functions/v2-organize.mts")).defau
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
 const item = (await import("../../netlify/functions/v2-item.mts")).default
 const localWrite = (await import("../../netlify/functions/v2-write.mts")).default
+// In-page translation (2.7): the real function, with the scripted Haiku below (store and site captures).
+const translatePage = (await import("../../netlify/functions/v2-translate.mts")).default
 const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
 const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
 const speakHeard = (await import("../../netlify/functions/v2-speak-heard.mts")).default
@@ -528,7 +571,7 @@ const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof
   if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
   return status(req, context)
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write }
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/translate": translatePage }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -571,6 +614,8 @@ const pages: Record<string, string> = {
   "/post-comment": "post-comment.html",
   // «Снимок страницы в заметке» (2.7): a long page (a sticky header, five coloured sections, a fixed cookie bar).
   "/long-page": "long-page.html",
+  // In-page translation (2.7): a travel guide in Spanish, translated by the scripted Haiku (translations.json).
+  "/es-guide": "es-guide.html",
   // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
   "/spa/messaging": "spa.html",
   "/spa/feed": "spa.html",
@@ -715,7 +760,7 @@ createServer(async (req, res) => {
         const sent = JSON.parse(Buffer.concat(chunks).toString("utf8"))
         // A feature step: "use:tour.step:pick" (f.a and what).
         const what = sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""
-        panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}`)
+        panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}${sent.why ? `:${sent.why}` : ""}`)
         eventIds.push(`${sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.kind}${sent.appId ? " app" : ""}${sent.installId ? " install" : ""}`)
       } catch {
         // not JSON
