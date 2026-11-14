@@ -20,6 +20,8 @@ let anthropicCalls = 0
 let anthropicBodies: Array<Record<string, any>> = []
 // The plan step answers (2.7's light search test): the run reaches its search, which fails.
 let planAnswers = false
+// The search answers with nothing found (2.7: the light search's empty answer is given back).
+let searchEmpty = false
 
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
@@ -54,6 +56,9 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const plan = { category: "product", subject: "Acme Q1 headphones", traits: ["wireless headphones"], condition: { kind: "cheaper", max_price: 0, currency: "", language: "", place: "" }, source_price: 0, source_currency: "", queries: ["q one", "q two", "q three", "q four"], kind_search: "wireless headphones", plans: [], language: "en" }
       return new Response(JSON.stringify({ id: "m", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify(plan) }], stop_reason: "end_turn", usage: { input_tokens: 10, output_tokens: 10 } }), { headers: { "Content-Type": "application/json" } })
     }
+    if (searchEmpty && Array.isArray(body.tools)) {
+      return new Response(JSON.stringify({ id: "m", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: "[]" }], stop_reason: "end_turn", usage: { input_tokens: 10, output_tokens: 2 } }), { headers: { "Content-Type": "application/json" } })
+    }
     return new Response(JSON.stringify({ type: "error", error: { type: "api_error", message: "down" } }), { status: 500, headers: { "Content-Type": "application/json" } })
   }
   throw new Error(`unexpected fetch ${url}`)
@@ -83,6 +88,21 @@ beforeEach(() => {
   anthropicCalls = 0
   anthropicBodies = []
   planAnswers = false
+  searchEmpty = false
+})
+
+test("2.7, the light search found nothing: the answer comes, and the week's free search is given back", async () => {
+  planAnswers = true
+  searchEmpty = true
+  const c = ctx()
+  const res = await ask(null, c)
+  assert.equal(res.status, 200)
+  const text = await res.text()
+  assert.match(text, /"type":"result"/)
+  assert.match(text, /"light":true/)
+  assert.match(text, /"type":"done"/)
+  await Promise.all(c.waits)
+  assert.equal(counters.get(`similarfree:${INSTALL}`), 0)
 })
 
 test("2.7, Free and Pro: the light search, one of the week's free searches per device charged first, given back when nothing came", async () => {

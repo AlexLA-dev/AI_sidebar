@@ -203,7 +203,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (kept) context.waitUntil(done)
   if (!evaluating) {
     context.waitUntil(done.then(() => Promise.all([
-      ...(ok ? [] : [refund(counters).catch(() => undefined)]),
+      // Nothing came, or (2.7) the light search found nothing: the search is given back.
+      ...(ok && (items > 0 || !light) ? [] : [refund(counters).catch(() => undefined)]),
       logEvent("similar", installId, {
         engine, ok, items, model: engine === "a" ? overrides.writeModel || settings.similar.writeModel : model, mode: light ? "light" : "full",
         ...(category ? { category } : {}), ...(condition ? { condition } : {}),
