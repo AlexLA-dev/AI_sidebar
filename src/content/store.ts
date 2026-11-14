@@ -9,6 +9,7 @@ import { keepingAnswers, type Jobs } from "../shared/jobs"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import type { MadeList } from "../shared/voiced"
 import { changedSpaces, cleanSpaceList, currentSpace, emptySpaces, FIRST_SPACE, spaceOfChat, type SpaceList, type StoredSpaces } from "../shared/spaces"
+import { changedCollection, cleanCollection, type Collection, type StoredCollections } from "../shared/collections"
 
 
 async function get<T>(key: string): Promise<T | undefined> {
@@ -398,6 +399,47 @@ export async function saveSpaces(change: (list: SpaceList) => SpaceList): Promis
 export function onSpacesChanged(listener: (list: SpaceList) => void): () => void {
   const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
     if (area === "local" && changes[STORAGE.spaces]) listener(spaceListOf(changes[STORAGE.spaces].newValue))
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
+}
+
+// ------------------------------------------------------------ collections (2.7)
+
+function collectionsOf(raw: unknown): Collection[] {
+  const all = (raw && typeof raw === "object" ? raw : {}) as StoredCollections
+  return Object.entries(all).flatMap(([cid, s]) => {
+    const rec = cleanCollection(s?.rec, cid)
+    return rec ? [rec] : []
+  })
+}
+
+/** Every collection this device has, deleted ones too (callers show the live ones). */
+export async function loadCollections(): Promise<Collection[]> {
+  return collectionsOf(await get<StoredCollections>(STORAGE.collections))
+}
+
+/**
+ * Changes one collection (`change` gets it as stored, or undefined for a new one) and stores it newer than its copy,
+ * so it goes to iCloud and the app. Returns it as stored, or null when nothing changed.
+ */
+export async function saveCollection(cid: string, change: (rec: Collection | undefined) => Collection | null): Promise<Collection | null> {
+  const all = (await get<StoredCollections>(STORAGE.collections)) ?? {}
+  const before = all[cid] ? cleanCollection(all[cid].rec, cid) ?? undefined : undefined
+  const next = change(before)
+  if (!next || next === before) return null
+  await set(STORAGE.collections, { ...all, [cid]: changedCollection(all[cid], next) })
+  return next
+}
+
+/** Calls `listener` with every collection when one changes (here, in another tab, from iCloud or the app). */
+export function onCollectionsChanged(listener: (all: Collection[]) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area === "local" && changes[STORAGE.collections]) listener(collectionsOf(changes[STORAGE.collections].newValue))
   }
   try {
     chrome.storage.onChanged.addListener(handler)

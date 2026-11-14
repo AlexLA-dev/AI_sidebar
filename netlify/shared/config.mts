@@ -302,6 +302,18 @@ export const config = {
     judgePriceIn: Number(env("ORGANIZE_JUDGE_PRICE_IN") ?? 0.1),
     judgePriceOut: Number(env("ORGANIZE_JUDGE_PRICE_OUT") ?? 0.5)
   },
+  // Collections (2.7, Pro, under the one AI consent): /api/v2/collect places a card, lays out a collection's sections,
+  // compares cards and sums a collection up, with the organizing model above (Claude Haiku 5.5, OpenAI's smallest
+  // when Claude can't), and keeps nothing. COLLECT=off switches the AI parts off (the devices get OFF).
+  collect: {
+    enabled: (env("COLLECT") ?? "on").trim() !== "off",
+    // Requests a Pro subscriber may make a day, per op, and all together.
+    placeDaily: int("COLLECT_PLACE_DAILY", 200),
+    layoutDaily: int("COLLECT_LAYOUT_DAILY", 30),
+    compareDaily: int("COLLECT_COMPARE_DAILY", 40),
+    summaryDaily: int("COLLECT_SUMMARY_DAILY", 40),
+    globalDaily: int("COLLECT_GLOBAL_DAILY", 20_000)
+  },
   // Site counter (/api/v2/site): visits and App Store taps accepted per address per day, and in all per day.
   siteDailyLimit: int("SITE_DAILY_LIMIT", 300),
   siteGlobalDailyLimit: int("SITE_GLOBAL_DAILY_LIMIT", 20000)

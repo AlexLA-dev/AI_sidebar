@@ -622,6 +622,9 @@ final class ChatLibrary: ObservableObject {
     /// Spaces (2.7, SpaceRecord): the list as the extension, iCloud and this app keep it.
     @Published private(set) var spaceList = SpaceRecord.List()
     private var spaceItem: ChatMirror.Item?
+    /// Подборки (2.7, Collections.swift): every collection, deleted ones too, and each record's time here.
+    @Published private(set) var boards: [Board] = []
+    private(set) var boardTimes: [String: Int64] = [:]
     /// The space the Chats screen shows (this device's app; Safari's panel keeps its own).
     @Published var currentSpace: String = UserDefaults.standard.string(forKey: "cf_space_current") ?? SpaceRecord.first {
         didSet { UserDefaults.standard.set(currentSpace, forKey: "cf_space_current") }
@@ -691,6 +694,42 @@ final class ChatLibrary: ObservableObject {
             if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
                 _ = ChatMirror.apply(saves: ["debug-long": ChatMirror.Item(updatedAt: at, data: text)])
             }
+        }
+        // 2.7 Collections (screenshots): -CFDebugSeedBoard YES puts two sample chats and a collection made from them here
+        // (sections, cards, a comparison, a summary), on neutral pages.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedBoard"), ChatMirror.chats()["debug-trip"] == nil {
+            let at = Int64(Date().timeIntervalSince1970 * 1000) - 3_600_000
+            func page(_ url: String, _ title: String, _ t: Int64) -> [String: Any] { ["url": url, "title": title, "at": t] }
+            let qa: [(String, String, String, String)] = [
+                ("https://guide.example/tokyo/shinjuku", "Shinjuku area guide", "Is Shinjuku good for a first visit?", "Shinjuku is easy for a first visit: many metro lines, lively until late."),
+                ("https://guide.example/tokyo/asakusa", "Asakusa area guide", "And Asakusa?", "Asakusa is quieter and cheaper, near old Tokyo and the train to Nikko."),
+                ("https://flights.example/tokyo-march", "Flights to Tokyo in March", "When should I book for March?", "Tickets to Tokyo for March are cheaper two or three months ahead: prices rise in cherry blossom season."),
+                ("https://visit.example/sakura", "Cherry blossom forecast", "Where to see the blossom?", "Blossom in Tokyo usually peaks at the end of March; Ueno Park and the Meguro River are the best spots.")
+            ]
+            var m: [[String: Any]] = []
+            for (i, x) in qa.enumerated() {
+                let t = at + Int64(i) * 60_000
+                m.append(["role": "user", "content": x.2, "id": "tq\(i)", "t": t, "page": page(x.0, x.1, t)])
+                m.append(["role": "assistant", "content": x.3, "id": "ta\(i)", "t": t + 5_000, "tags": i == 2 ? ["trip"] : []])
+            }
+            m.append(["role": "user", "content": "Bring a plug adapter for US sockets", "note": true, "id": "tn0", "t": at + 300_000])
+            let trip: [String: Any] = ["title": "Trip to Japan", "a": at + 300_000, "m": m]
+            if let data = try? JSONSerialization.data(withJSONObject: trip), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-trip": ChatMirror.Item(updatedAt: at + 300_000, data: text)])
+            }
+            let now = Double(at + 400_000)
+            var board = Board(id: CollectionRecord.prefix + "debug-trip", name: "Trip to Japan", space: nil, now: now, first: ("stay", "Where to stay"))
+            board.addSection("fly", "Flights", now: now, ai: true)
+            board.addSection("see", "What to see", now: now, ai: true)
+            board.addSection("money", "Money and phone", now: now)
+            if let thread = ChatThread(id: "debug-trip", updatedAt: at + 300_000, data: (try? String(data: JSONSerialization.data(withJSONObject: trip), encoding: .utf8) ?? "") ?? "") {
+                for (index, sec) in [(1, "stay"), (3, "stay"), (5, "fly"), (7, "see"), (8, "money")] {
+                    if let card = Board.card(from: thread, index, id: "debug-card-\(index)", section: sec, now: now) { board.addCard(card, now: now) }
+                }
+                board.addComparison("debug-compare", of: ["debug-card-1", "debug-card-3"], table: BoardTable(h: ["Area", "Night", "Metro"], r: [["Shinjuku", "≈ ¥22,000", "3 min"], ["Asakusa", "≈ ¥14,000", "5 min"]], note: "Asakusa: a third cheaper, a little farther"), now: now)
+            }
+            board.setSummary("Fly at the end of March for the blossom and book the tickets now. Stay in Shinjuku or Asakusa. Get a Suica card and an eSIM first.", now: now)
+            if let data = board.json { _ = ChatMirror.apply(saves: [board.id: ChatMirror.Item(updatedAt: Int64(now), data: data)]) }
         }
         // A big library (2.6 (92): the app hung opening chats with hundreds of them): -CFDebugSeedChats 300 puts that
         // many chats here, 40 topics over their sites, with page texts, notes and the user's tags.
@@ -902,7 +941,11 @@ final class ChatLibrary: ObservableObject {
         // The spaces' list (2.7) is kept next to the chats; it isn't one.
         spaceItem = items[SpaceRecord.id]
         spaceList = spaceItem.flatMap { SpaceRecord.parse($0.data) } ?? SpaceRecord.List()
-        let all = items.compactMap { id, item in id == SpaceRecord.id ? nil : ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
+        // The collections (2.7) too: records of their own, not chats.
+        let collections = items.filter { CollectionRecord.isCollection($0.key) }
+        boards = collections.compactMap { Board(id: $0.key, data: $0.value.data) }
+        boardTimes = collections.mapValues(\.updatedAt)
+        let all = items.compactMap { id, item in id == SpaceRecord.id || CollectionRecord.isCollection(id) ? nil : ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
             .filter { !$0.entries.isEmpty }
         threads = all.filter { !$0.isTrashed }.sorted(by: Self.listOrder)
         trashed = all.filter(\.isTrashed).sorted { a, b in a.trashedAt != b.trashedAt ? a.trashedAt! > b.trashedAt! : a.id < b.id }
@@ -1166,12 +1209,17 @@ final class ChatLibrary: ObservableObject {
         let at = Double(max(now, (spaceItem?.updatedAt ?? 0) + 1))
         change(&list, at)
         guard list != spaceList else { return }
-        let item = ChatMirror.Item(updatedAt: Int64(at), data: SpaceRecord.json(list))
-        ChatMirror.apply(saves: [SpaceRecord.id: item])
-        ChatMirror.queue(.init(id: SpaceRecord.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
+        storeRecord(SpaceRecord.id, ChatMirror.Item(updatedAt: Int64(at), data: SpaceRecord.json(list)))
+    }
+
+    /// A record that isn't a chat (the spaces' list, a collection): here, for the extension, and in iCloud, as a chat's
+    /// change goes. ChatMirror and ChatSync merge it with the copies already there.
+    func storeRecord(_ id: String, _ item: ChatMirror.Item) {
+        ChatMirror.apply(saves: [id: item])
+        ChatMirror.queue(.init(id: id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
         reload()
         if syncOn {
-            Task { await syncCloud([.save(.init(id: SpaceRecord.id, updatedAt: item.updatedAt, data: item.data))]) }
+            Task { await syncCloud([.save(.init(id: id, updatedAt: item.updatedAt, data: item.data))]) }
         }
     }
 

@@ -52,6 +52,8 @@ final class DeepLinkRouter: ObservableObject {
 enum AppTab: Hashable {
     // whatsNew (2.6 (98)): hidden until it opens by itself after an update or from the "is here" notification.
     case home, chats, templates, tips, pro, settings, whatsNew
+    /// 2.7: Подборки, the Mac's sidebar (on iPhone and iPad they open from the Chats screen).
+    case collections
 }
 
 // MARK: - Root
@@ -336,6 +338,7 @@ struct ContentView: View {
             List(selection: Binding<AppTab?>(get: { tab }, set: { tab = $0 ?? (hasChats ? .chats : .home) })) {
                 if hasChats {
                     Label("Chats", systemImage: "bubble.left.and.bubble.right").tag(AppTab.chats)
+                    Label("Collections", systemImage: "square.grid.2x2").tag(AppTab.collections)
                 } else {
                     Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
                 }
@@ -353,6 +356,8 @@ struct ContentView: View {
             case .templates: NavigationStack { TemplatesView() }
             case .tips: TipsView(openPro: { tab = .pro })
             case .whatsNew: NavigationStack { WhatsNewView() }
+            case .collections:
+                NavigationStack { CollectionsView(library: chats, openPro: { tab = .pro }) }
             case .pro: ProView(store: store)
             case .settings: SettingsView(showPlan: $showPlan)
             }

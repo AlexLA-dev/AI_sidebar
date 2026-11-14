@@ -384,7 +384,12 @@ export const STORAGE = {
   // Spaces (2.7, src/shared/spaces.ts): the list ({ u, list }), and the time of the copy iCloud and the app have.
   spaces: "cf:spaces",
   spacesSynced: "cf:spacesSynced",
-  spacesMirrored: "cf:spacesMirrored"
+  spacesMirrored: "cf:spacesMirrored",
+  // Подборки (2.7, src/shared/collections.ts): each collection ({ [id]: { u, rec } }), and the time of each copy iCloud
+  // and the app have.
+  collections: "cf:collections",
+  collectionsSynced: "cf:collectionsSynced",
+  collectionsMirrored: "cf:collectionsMirrored"
 } as const
 
 export interface Settings {
