@@ -129,7 +129,7 @@ async function find(message: Extract<InsertRequest, { type: "qiFind" }>): Promis
  * «Проверить» и «Переписать» (2.7): the field's text, the page around it and the person's style to /api/v2/write.
  * A tap is one answer: the panel's usage line is asked again after it.
  */
-const WRITE_CODES = new Set<WriteFailureCode>(["LIMIT_REACHED", "TOO_LONG", "BUSY", "UPSTREAM", "UNAVAILABLE", "BAD_REQUEST"])
+const WRITE_CODES = new Set<WriteFailureCode>(["LIMIT_REACHED", "TOO_LONG", "BUSY", "UPSTREAM", "UNAVAILABLE", "BAD_REQUEST", "PRO_ONLY"])
 
 async function write(ask: WriteAsk): Promise<WriteReply> {
   if (!(await deps.consented())) return { ok: false, code: "CONSENT" }
@@ -147,7 +147,8 @@ async function write(ask: WriteAsk): Promise<WriteReply> {
   }
   const body = (await res.json().catch(() => ({}))) as { ok?: boolean; text?: unknown; code?: string; usage?: Usage | null; offer?: ProOffer | null }
   if (res.ok && body.ok === true && typeof body.text === "string") {
-    deps.statusChanged()
+    // A live check isn't an answer: the usage line stays as it is.
+    if (!ask.live) deps.statusChanged()
     return { ok: true, text: body.text, usage: body.usage ?? null }
   }
   const code = WRITE_CODES.has(body.code as WriteFailureCode) ? (body.code as WriteFailureCode) : res.status === 404 ? "UNAVAILABLE" : res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"

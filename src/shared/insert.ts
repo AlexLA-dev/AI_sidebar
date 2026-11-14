@@ -34,6 +34,8 @@ export interface InsertSettings {
   // «Проверить» и «Переписать» by fields (2.7): the circle on a Mac, the row atop the list on iPhone and iPad; and
   // keeping how the person writes on each site (on this device) for their style.
   writing: boolean
+  // Live underlines (2.7, Pro and Ultra): what a check would change, underlined after a pause in typing.
+  underline: boolean
 }
 
 export const DEFAULT_INSERT_SETTINGS: InsertSettings = {
@@ -42,7 +44,8 @@ export const DEFAULT_INSERT_SETTINGS: InsertSettings = {
   sign: "/",
   copiedOffSites: [],
   buttonOffSites: [],
-  writing: true
+  writing: true,
+  underline: true
 }
 
 /** How a list was opened, and where an insert came from: for the counters (no text). */

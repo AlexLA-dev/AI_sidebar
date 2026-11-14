@@ -870,5 +870,8 @@
   "writeUndone": "已復原",
   "writeUndoFailed": "無法復原:文字已改動。",
   "writeSetting": "輸入框旁的「檢查」和「改寫」",
-  "writeSettingHint": "修改會參考頁面內容:你正在回覆的郵件、你留言的貼文。每次點按算一次回答。你在各網站的寫法只存在這台裝置上,用來貼近你的風格。"
+  "writeSettingHint": "修改會參考頁面內容:你正在回覆的郵件、你留言的貼文。每次點按算一次回答。你在各網站的寫法只存在這台裝置上,用來貼近你的風格。",
+  "writeSkip": "忽略",
+  "underlineSetting": "輸入時為錯誤加底線",
+  "underlineSettingHint": "Pro 和 Ultra:輸入停頓後,只參考頁面內容檢查你改動的段落。把指標移到底線上(在 iPhone 和 iPad 上點一下)即可修正。不計入回答次數。"
 }

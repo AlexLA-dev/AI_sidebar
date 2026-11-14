@@ -4370,6 +4370,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           consent={consent}
           onConsent={agreeQuietly}
           free={plan === "free" && !ownKeyActive}
+          live={plan === "pro" || plan === "ultra"}
           onUpgrade={() => void openApp("subscribe")}
           onOpenTemplates={() => {
             show()

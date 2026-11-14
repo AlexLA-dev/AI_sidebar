@@ -7,7 +7,7 @@ import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/ht
 import { askHaiku, InsertAiError, insertCost, type AiCall } from "../shared/insert.mts"
 import { blockReason, countersFor, hasPro, proOffer, resolveAccess, visibleUsage, type Access, type Usage } from "../shared/plan.mts"
 import { checkWrite, readAsk, tooLong, writeMessage, writeTask } from "../shared/writing.mts"
-import { diffWords } from "../../src/shared/writing.ts"
+import { diffWords, LIVE } from "../../src/shared/writing.ts"
 import { sessionFields } from "../../src/shared/usage.ts"
 
 /**
@@ -20,6 +20,8 @@ import { sessionFields } from "../../src/shared/usage.ts"
  *   "confident", a rewrite's), text, page: {title, url, text, conversation}, field, style: {about?, samples, templates} }
  * → { ok, text, usage } (a check's text is the whole corrected text; the device works out the changes).
  * A tap is one answer (the owner's rule): Free's 5 a day or the Pro and Ultra week; given back when nothing came.
+ * live: true (a check of one paragraph after a pause in typing, for the underlines): Pro and Ultra only (PRO_ONLY 402
+ * otherwise), not counted as an answer, under hidden caps (BUSY when one runs out: the underlines stop for the day).
  * Errors: {code} with LIMIT_REACHED (402, {usage, offer}), TOO_LONG (413), BAD_REQUEST (400), UNAVAILABLE (400: an old
  * build; 503: off), BUSY (503), UPSTREAM (502).
  */
@@ -31,9 +33,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!body) return json({ code: "BAD_REQUEST", message: "Invalid JSON" }, 400)
   const installId = body.installId
   if (!isUuid(installId)) return json({ code: "BAD_REQUEST", message: "installId required" }, 400)
-  if (typeof body.text === "string" && tooLong(body.text)) return json({ code: "TOO_LONG" }, 413)
+  const live = body.live === true
+  if (typeof body.text === "string" && (live ? body.text.length > LIVE.maxChars : tooLong(body.text))) return json({ code: "TOO_LONG" }, 413)
   const ask = readAsk(body)
-  if (!ask) return json({ code: "BAD_REQUEST", message: "action, text (and a rewrite's tone) required" }, 400)
+  if (!ask || (live && ask.action !== "check")) return json({ code: "BAD_REQUEST", message: "action, text (and a rewrite's tone) required" }, 400)
+  if (live) ask.page.text = ask.page.text.slice(0, LIVE.pageChars)
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
@@ -45,9 +49,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!settings.write.enabled || !settings.anthropicKey) return json({ code: "UNAVAILABLE" }, 503)
 
   const access = await resolveAccess(body.entitlement, installId)
-  const counters = writeCounters(access, installId, ipSubject(context.ip))
+  if (live && !(hasPro(access.plan) && access.entitlement)) return json({ code: "PRO_ONLY", plan: access.plan }, 402)
+  const counters = live ? liveCounters(access, ipSubject(context.ip)) : writeCounters(access, installId, ipSubject(context.ip))
   const base = {
-    action: ask.action, ...(ask.tone ? { tone: ask.tone } : {}), plan: access.plan, chars_in: ask.text.length,
+    action: ask.action, ...(ask.tone ? { tone: ask.tone } : {}), ...(live ? { live: true } : {}), plan: access.plan, chars_in: ask.text.length,
     page: ask.page.conversation ? "conversation" : ask.page.text.trim() ? "page" : "none", page_chars: ask.page.text.length,
     about: ask.style.about ? 1 : 0, samples: ask.style.samples.length, templates: ask.style.templates.length,
     platform, version, build, ...test, ...sessionFields(body.ui as Record<string, unknown>)
@@ -61,7 +66,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     if (!result.allowed) {
       const safety = counters.safety.some((c) => c.subject === result.blocked)
       const reason = safety ? "busy" : blockReason(result.blocked)
-      context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, mode: "write", platform, version, ...test }))
+      context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, mode: live ? "write_live" : "write", platform, version, ...test }))
       if (reason === "busy") return json({ code: "BUSY" }, 503)
       return json({ code: "LIMIT_REACHED", plan: access.plan, usage: visibleUsage(access, result.counters), offer: proOffer(access) }, 402)
     }
@@ -101,7 +106,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     logEvent("write", installId, {
       ...base,
       ok: true,
-      charged: charged.length > 0,
+      charged: !live && charged.length > 0,
       chars_out: text.length,
       // A check's changes, counted (never what they are).
       ...(ask.action === "check" ? { edits: diffWords(ask.text, text).length } : {}),
@@ -114,9 +119,21 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...(access.entitlement ? { otid: access.entitlement.originalTransactionId } : {})
     }),
     // A tap is a request like an answer (the install's last use, its language).
-    touchInstall(installId, platform, version, locale, charged.length > 0 ? 1 : 0).catch(() => undefined)
+    touchInstall(installId, platform, version, locale, !live && charged.length > 0 ? 1 : 0).catch(() => undefined)
   ]))
-  return json({ ok: true, text, usage })
+  return json({ ok: true, text, usage: live ? null : usage })
+}
+
+/** Live underlines: no answer, only the hidden caps (the subscription's day, the address's, everyone's). */
+export function liveCounters(access: Access, ip: string): { answer: Counter[]; safety: Counter[] } {
+  return {
+    answer: [],
+    safety: [
+      { subject: `wlive:tx:${access.entitlement?.originalTransactionId ?? "none"}`, period: "day", limit: settings.write.liveDaily },
+      { subject: `wlive${ip}`, period: "day", limit: settings.write.liveIpDaily },
+      { subject: "global:wlive", period: "day", limit: settings.write.liveGlobalDaily }
+    ]
+  }
 }
 
 /** One answer (Free's day, or the Pro and Ultra week), and the hidden caps: per owner a day, per address, for everyone. */

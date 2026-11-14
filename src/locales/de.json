@@ -870,5 +870,8 @@
   "writeUndone": "Widerrufen",
   "writeUndoFailed": "Widerrufen nicht möglich: Der Text hat sich geändert.",
   "writeSetting": "Prüfen und Umschreiben bei Feldern",
-  "writeSettingHint": "Korrekturen berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen."
+  "writeSettingHint": "Korrekturen berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen.",
+  "writeSkip": "Ignorieren",
+  "underlineSetting": "Fehler beim Tippen unterstreichen",
+  "underlineSettingHint": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
 }

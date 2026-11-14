@@ -870,5 +870,8 @@
   "writeUndone": "Deshecho",
   "writeUndoFailed": "No se pudo deshacer: el texto ya cambió.",
   "writeSetting": "Revisar y Reescribir junto a los campos",
-  "writeSettingHint": "Las correcciones tienen en cuenta la página: el correo que respondes, la publicación que comentas. Cada toque cuenta como una respuesta. Cómo escribes en cada sitio se queda en este dispositivo y ayuda a respetar tu estilo."
+  "writeSettingHint": "Las correcciones tienen en cuenta la página: el correo que respondes, la publicación que comentas. Cada toque cuenta como una respuesta. Cómo escribes en cada sitio se queda en este dispositivo y ayuda a respetar tu estilo.",
+  "writeSkip": "Ignorar",
+  "underlineSetting": "Subrayar errores al escribir",
+  "underlineSettingHint": "Pro y Ultra: tras una pausa al escribir, solo se revisa el párrafo que cambiaste, teniendo en cuenta la página. Señala un subrayado (tócalo en iPhone y iPad) para corregirlo. No cuenta como respuesta."
 }
