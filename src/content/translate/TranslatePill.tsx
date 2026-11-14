@@ -39,10 +39,16 @@ export interface PageOffer {
 }
 
 let offerNow: PageOffer | null = null
+let foreignNow = false
 
 /** The page is in another language and the pill offers to translate it (plan section 6 reads it). */
 export function pageTranslateOffer(): PageOffer | null {
   return offerNow
+}
+
+/** The page is in another language, whether or not the pill is hidden on this site: page hints never show there. */
+export function pageIsForeign(): boolean {
+  return foreignNow
 }
 
 const site = () => location.hostname.replace(/^www\./, "")
@@ -106,6 +112,7 @@ function useOffer(): [PageOffer | null, () => void] {
     const look = async () => {
       if (!alive) return
       const found = judge()
+      foreignNow = found !== null
       const off = found ? await hiddenHere() : false
       if (!alive) return
       setHidden(off)

@@ -21,6 +21,8 @@ import tipsStyles from "./tips/tips.css"
 import similarStyles from "./similar/similar.css"
 import listenStyles from "./listen/listen.css"
 import translateStyles from "./translate/translate.css"
+import sideStyles from "./side/side.css"
+import pageHintStyles from "./pagehints/hints.css"
 import spacesStyles from "./spaces.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
@@ -72,7 +74,9 @@ ${tipsStyles}
 ${similarStyles}
 ${listenStyles}
 ${translateStyles}
-${spacesStyles}`
+${spacesStyles}
+${sideStyles}
+${pageHintStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

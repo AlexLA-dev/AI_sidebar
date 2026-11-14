@@ -2456,6 +2456,249 @@
  "matchContinue": {
   "message": "Je continue"
  },
+ "writeCircle": {
+  "message": "Vérifier ou réécrire"
+ },
+ "writeCheck": {
+  "message": "Vérifier"
+ },
+ "writeRewrite": {
+  "message": "Réécrire"
+ },
+ "writeToneShort": {
+  "message": "Plus court"
+ },
+ "writeToneWarm": {
+  "message": "Plus chaleureux"
+ },
+ "writeToneFormal": {
+  "message": "Plus formel"
+ },
+ "writeToneConfident": {
+  "message": "Plus assuré"
+ },
+ "writeChecking": {
+  "message": "Vérification en tenant compte de la page…"
+ },
+ "writeRewriting": {
+  "message": "Réécriture en tenant compte de la page…"
+ },
+ "writeFixes": {
+  "message": "Corrections : {0}"
+ },
+ "writeLeft": {
+  "message": "Réponses gratuites restantes aujourd'hui : {0}"
+ },
+ "writeClean": {
+  "message": "Aucune faute trouvée."
+ },
+ "writeEmpty": {
+  "message": "Il n'y a pas encore de texte ici."
+ },
+ "writeTooLong": {
+  "message": "C'est beaucoup d'un coup. Sélectionnez une partie et réessayez."
+ },
+ "writeChanged": {
+  "message": "Le texte a changé depuis."
+ },
+ "writeFix": {
+  "message": "Corriger"
+ },
+ "writeReplace": {
+  "message": "Remplacer"
+ },
+ "writeFixed": {
+  "message": "Corrigé"
+ },
+ "writeFixedSome": {
+  "message": "Corrigé, sauf ce que le champ n'a pas accepté"
+ },
+ "writeReplaced": {
+  "message": "Remplacé"
+ },
+ "writeUndo": {
+  "message": "Annuler"
+ },
+ "writeUndone": {
+  "message": "Annulé"
+ },
+ "writeUndoFailed": {
+  "message": "Impossible d'annuler : le texte a changé."
+ },
+ "writeSetting": {
+  "message": "Vérifier et Réécrire près des champs"
+ },
+ "writeSettingHint": {
+  "message": "Les corrections tiennent compte de la page : l'e-mail auquel vous répondez, la publication que vous commentez. Chaque appui compte comme une réponse. Votre façon d'écrire sur chaque site reste sur cet appareil et aide à respecter votre style."
+ },
+ "writeSkip": {
+  "message": "Ignorer"
+ },
+ "underlineSetting": {
+  "message": "Souligner les fautes pendant la saisie"
+ },
+ "underlineSettingHint": {
+  "message": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse."
+ },
+ "setSide": {
+  "message": "Côté de l’écran"
+ },
+ "sideRight": {
+  "message": "Droite"
+ },
+ "sideLeft": {
+  "message": "Gauche"
+ },
+ "hintSideTitle": {
+  "message": "Vous pouvez glisser le panneau et le bouton ✦ vers l’autre bord"
+ },
+ "hintSideTitleSheet": {
+  "message": "Vous pouvez glisser le bouton ✦ vers l’autre bord"
+ },
+ "hintSideBody": {
+  "message": "Faites glisser le panneau par son en-tête, ou glissez le bouton. Vous pouvez aussi choisir le côté dans les réglages."
+ },
+ "hintSideBodySheet": {
+  "message": "Glissez-le à gauche ou à droite. Vous pouvez aussi choisir le côté dans les réglages."
+ },
+ "phSimilar": {
+  "message": "Le trouver moins cher ?"
+ },
+ "phWatch": {
+  "message": "Surveiller le prix ?"
+ },
+ "phSummary": {
+  "message": "Résumer cette page ?"
+ },
+ "phListen": {
+  "message": "Écouter l’article ?"
+ },
+ "phVideo": {
+  "message": "Poser une question sur la vidéo ?"
+ },
+ "phTemplates": {
+  "message": "Répondre avec un modèle ?"
+ },
+ "phRemind": {
+  "message": "Vous le rappeler ?"
+ },
+ "phCalendar": {
+  "message": "Ajouter au calendrier ?"
+ },
+ "phClose": {
+  "message": "Masquer l’astuce"
+ },
+ "phSimilarTitle": {
+  "message": "Le trouver moins cher"
+ },
+ "phSimilarBody": {
+  "message": "Sélectionnez le nom du produit → « Trouver similaire », ou touchez le bouton mis en avant : le même produit moins cher, et des similaires."
+ },
+ "phSimilarBodyUp": {
+  "message": "C’est dans Ultra : le même produit moins cher, et des similaires d’autres boutiques. Touchez le bouton mis en avant."
+ },
+ "phWatchTitle": {
+  "message": "Surveiller le prix"
+ },
+ "phWatchBody": {
+  "message": "Sélectionnez le prix : un œil apparaît à côté. Ou « … » (mis en avant) → « Surveiller cette page… ». Je vous préviens quand il change."
+ },
+ "phSummaryTitle": {
+  "message": "Résumé de la page"
+ },
+ "phSummaryBody": {
+  "message": "Touchez « Résumer », mis en avant : l’essentiel de la page en quelques lignes."
+ },
+ "phListenTitle": {
+  "message": "Écouter l’article"
+ },
+ "phListenBody": {
+  "message": "Ouvrez « … » (mis en avant) → « Écouter cette page » : l’article est lu à voix haute."
+ },
+ "phListenBodyUp": {
+  "message": "La lecture à voix haute est dans Ultra. Ouvrez « … » (mis en avant) → « Écouter cette page »."
+ },
+ "phVideoTitle": {
+  "message": "Question sur la vidéo"
+ },
+ "phVideoBody": {
+  "message": "Posez votre question sur la vidéo dans le champ mis en avant : je réponds d’après ses sous-titres."
+ },
+ "phVideoBodyUp": {
+  "message": "Les réponses d’après les sous-titres sont dans Pro. Posez votre question dans le champ mis en avant."
+ },
+ "phTemplatesTitle": {
+  "message": "Répondre avec un modèle"
+ },
+ "phTemplatesBody": {
+  "message": "Placez le curseur dans un champ de la page : le bouton des modèles apparaît à côté. Vos modèles : « … » (mis en avant) → « Réglages » → « Modèles »."
+ },
+ "phRemindTitle": {
+  "message": "Rappel"
+ },
+ "phRemindBody": {
+  "message": "Écrivez dans le champ mis en avant, par exemple « rappelle-moi demain à 9 h », et je propose un rappel."
+ },
+ "phCalendarTitle": {
+  "message": "Au calendrier"
+ },
+ "phCalendarBody": {
+  "message": "Écrivez « ajoute au calendrier » dans le champ mis en avant et je propose un événement à la date de la page."
+ },
+ "setPageHints": {
+  "message": "Astuces près du bouton ✦"
+ },
+ "setPageHintsHint": {
+  "message": "Les premiers jours, elles montrent ce que vous pouvez faire sur une page."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "C’est dans Pro et Ultra : dans Pro la recherche rapide, dans Ultra la complète. Le même produit moins cher, et des similaires d’autres boutiques. Touchez le bouton mis en avant."
+ },
+ "shotSwitch": {
+  "message": "Capture de la page"
+ },
+ "shotVisible": {
+  "message": "Zone visible"
+ },
+ "shotFull": {
+  "message": "Page entière"
+ },
+ "shotProOnly": {
+  "message": "La page entière est incluse dans Pro et Ultra."
+ },
+ "shotTaking": {
+  "message": "Capture en cours…"
+ },
+ "shotTakingFull": {
+  "message": "Capture : écran {0} sur {1}…"
+ },
+ "shotFailed": {
+  "message": "Impossible de faire une capture ici. La note est enregistrée sans elle."
+ },
+ "shotCut": {
+  "message": "La page est longue : la capture montre ses {0} premiers écrans."
+ },
+ "shotOpen": {
+  "message": "Ouvrir la capture"
+ },
+ "shotNote": {
+  "message": "Capture de la page"
+ },
+ "shotCrop": {
+  "message": "Recadrer"
+ },
+ "shotCropDone": {
+  "message": "OK"
+ },
+ "shotCropReset": {
+  "message": "Capture entière"
+ },
+ "shotLoading": {
+  "message": "Ouverture de la capture…"
+ },
+ "shotMissing": {
+  "message": "Cette capture n'est pas encore sur cet appareil. Elle arrive via iCloud si vos discussions y sont synchronisées."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

@@ -57,6 +57,8 @@ const panelEvents: string[] = []
 let lastSimilarRequest: unknown = null
 // The last /api/v2/chat request body, for e2e checks of what the extension sends (GET /last-request).
 let lastChatRequest: unknown = null
+// The last /api/v2/write request body («Проверить» и «Переписать», GET /last-write).
+let lastWriteRequest: unknown = null
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
 let lastAnswerEvent: unknown = null
 type Item = { subject: string; limit: number | null; amount?: number }
@@ -254,6 +256,46 @@ function scriptedItems(content: string): unknown {
   return { items }
 }
 
+// «Проверить» и «Переписать» (2.7): /api/v2/write's Haiku, scripted. A check fixes common typos and the names the page
+// spells differently (one or two letters off); a rewrite follows its tone plainly. WRITE_PROXY=<deploy preview> sends
+// the requests there instead (the real model).
+const TYPOS: Record<string, string> = {
+  teh: "the", recieve: "receive", definately: "definitely", tommorow: "tomorrow", wich: "which", untill: "until", occured: "occurred",
+  seperate: "separate", thier: "their", alot: "a lot", wierd: "weird", adress: "address", accomodation: "accommodation",
+  dashbord: "dashboard", aply: "apply",
+  "сдесь": "здесь", "извените": "извините", "прийду": "приду", "вобщем": "в общем", "расчитываю": "рассчитываю", "впринципе": "в принципе"
+}
+function nearName(a: string, b: string): boolean {
+  if (a === b || a[0] !== b[0] || Math.abs(a.length - b.length) > 2) return false
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
+  for (let j = 1; j <= b.length; j++) d[0][j] = j
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+  return d[a.length][b.length] <= 2
+}
+function scriptedWrite(system: string, content: string): unknown {
+  const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
+  const message = between("message")
+  const context = `${between("conversation")}\n${between("page")}`
+  const names = [...new Set(context.match(/(?<![\p{L}])\p{Lu}\p{Ll}{2,}(?![\p{L}])/gu) ?? [])]
+  // Whom the message greets, spelled as the page spells them.
+  const greeted = /^(?:hi|hey|hello|dear)\s+(\p{Lu}\p{L}+)/iu.exec(message)?.[1] ?? ""
+  const firstName = greeted ? names.find((n) => n === greeted || nearName(n, greeted)) ?? greeted : ""
+  if (system.startsWith("You proofread")) {
+    let text = message.replace(/\p{L}+/gu, (w) => {
+      const fix = TYPOS[w.toLowerCase()]
+      return fix ? (w[0] === w[0].toUpperCase() ? fix[0].toUpperCase() + fix.slice(1) : fix) : w
+    })
+    text = text.replace(/(?<![\p{L}])\p{Lu}\p{Ll}{2,}(?![\p{L}])/gu, (w) => names.find((n) => nearName(n, w)) ?? w)
+    text = text.replace(/(^|\s)i(?=[\s'’])/g, "$1I").replace(/ {2,}/g, " ")
+    return { text }
+  }
+  const sentences = message.split(/(?<=[.!?])\s+/).filter(Boolean)
+  if (/Make it shorter/.test(content)) return { text: sentences.slice(0, 2).join(" ") }
+  if (/warmer/.test(content)) return { text: `Hi ${firstName || "there"}, thanks so much for getting back to me!\n\n${message}\n\nHave a great day!` }
+  if (/more formal/.test(content)) return { text: `Dear ${firstName || "Sir or Madam"},\n\n${message.replace(/^(hi|hey|hello)[^\n]*\n+/i, "").replace(/\p{L}+/gu, (w) => TYPOS[w] ?? w)}` }
+  return { text: message.replace(/\b(I think|maybe|just|sorry,? ?|I was wondering if)\s*/gi, "").replace(/\s+([,.])/g, "$1") }
+}
+
 function scriptedWatch(system: string, content: string): unknown {
   const words = content.match(/in their words: (.*)/)?.[1] ?? ""
   const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
@@ -331,6 +373,8 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const system = String(body.system)
       const answer = system.startsWith("Someone wants to keep something")
         ? scriptedItems(String(body.messages[0].content))
+        : system.startsWith("You proofread") || system.startsWith("You rewrite")
+        ? scriptedWrite(system, String(body.messages[0].content))
         : system.startsWith("Someone on a web page") || system.startsWith("A value someone watches")
         ? scriptedWatch(system, String(body.messages[0].content))
         : scriptedInsert(system, String(body.messages[0].content))
@@ -427,6 +471,7 @@ const insert = (await import("../../netlify/functions/v2-insert.mts")).default
 const organize = (await import("../../netlify/functions/v2-organize.mts")).default
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
 const item = (await import("../../netlify/functions/v2-item.mts")).default
+const localWrite = (await import("../../netlify/functions/v2-write.mts")).default
 const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
 const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
 const speakHeard = (await import("../../netlify/functions/v2-speak-heard.mts")).default
@@ -452,6 +497,18 @@ const proxied = async (path: string, base = process.env.SPEAK_PROXY): Promise<ty
   }) as typeof chat
 }
 const speakAny: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
+// «Проверить» и «Переписать» with the real model: WRITE_PROXY=<a deploy preview> (each request counted there as usual).
+const write: typeof chat = process.env.WRITE_PROXY
+  ? (async (req: Request) => {
+    // Headless Chromium has no app, so no build number: the stand gives one (the server answers only builds whose
+    // consent screen names Claude), and marks the request a test.
+    const body = JSON.parse(await req.text())
+    body.client = { build: "999", ...body.client, audience: "test" }
+    const res = await realFetch(`${process.env.WRITE_PROXY}/api/v2/write`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .catch(() => Response.json({ code: "UPSTREAM" }, { status: 502 }))
+    return new Response(await res.text(), { status: res.status, headers: { "Content-Type": "application/json" } })
+  }) as typeof chat
+  : localWrite
 const organizeAny: typeof chat = (await proxied("/api/v2/organize", process.env.ORGANIZE_PROXY)) ?? organize
 // SPEAK_FAIL_FROM_PART=1: every part from that one on fails (502), as a lost connection mid-text would (build 90: the
 // device must stop in the same voice and offer "Try again", never hand the rest to another voice).
@@ -469,7 +526,7 @@ const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof
   if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
   return status(req, context)
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item }
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -506,6 +563,12 @@ const pages: Record<string, string> = {
   "/shadow-fields": "shadow-fields.html",
   // The reply box of private messages (the owner, 2.5 (77): "it was in chats"): ?layout=page|overlay.
   "/messaging": "messaging.html",
+  // «Проверить» и «Переписать» (2.7): a mail being answered (Gmail's reply box, its signature and quote inside it), and a
+  // comment under a job post (LinkedIn's Quill editor).
+  "/mail-reply": "mail-reply.html",
+  "/post-comment": "post-comment.html",
+  // «Снимок страницы в заметке» (2.7): a long page (a sticky header, five coloured sections, a fixed cookie bar).
+  "/long-page": "long-page.html",
   // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
   "/spa/messaging": "spa.html",
   "/spa/feed": "spa.html",
@@ -662,6 +725,13 @@ createServer(async (req, res) => {
         lastChatRequest = null
       }
     }
+    if (url.pathname === "/api/v2/write") {
+      try {
+        lastWriteRequest = JSON.parse(Buffer.concat(chunks).toString("utf8"))
+      } catch {
+        lastWriteRequest = null
+      }
+    }
     let raw = Buffer.concat(chunks)
     if (proJws && req.method === "POST") {
       try {
@@ -754,6 +824,11 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
   if (url.pathname === "/last-claude") {
     res.writeHead(200, { "Content-Type": "application/json" })
     res.end(JSON.stringify(lastClaudeRequest))
+    return
+  }
+  if (url.pathname === "/last-write") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(lastWriteRequest))
     return
   }
   if (url.pathname === "/last-request") {

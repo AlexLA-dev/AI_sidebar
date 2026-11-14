@@ -401,3 +401,40 @@ export function viewport(touch: boolean): { top: number; left: number; width: nu
   const dy = touch ? vv?.offsetTop ?? 0 : 0
   return { top: dy, left: dx, width, height, dx, dy }
 }
+
+/**
+ * Where the characters [from, to) of an input or a textarea are (top page coordinates, a rect per line they wrap on),
+ * measured on a copy of the field's text laid out as the field lays it out; scrolled as the field is.
+ */
+export function controlRects(el: HTMLInputElement | HTMLTextAreaElement, from: number, to: number): DOMRect[] {
+  const doc = el.ownerDocument
+  const style = doc.defaultView!.getComputedStyle(el)
+  const mirror = doc.createElement("div")
+  for (const key of MIRROR_STYLES) (mirror.style as unknown as Record<string, string>)[key] = style[key as keyof CSSStyleDeclaration] as string
+  const multi = el.tagName.toUpperCase() === "TEXTAREA"
+  mirror.style.position = "absolute"
+  mirror.style.visibility = "hidden"
+  mirror.style.top = "0"
+  mirror.style.left = "-9999px"
+  mirror.style.whiteSpace = multi ? "pre-wrap" : "pre"
+  mirror.style.overflowWrap = multi ? "break-word" : "normal"
+  // The borders take their room as the field's do (their widths are copied; a style is needed for them to count).
+  mirror.style.borderStyle = "solid"
+  mirror.style.borderColor = "transparent"
+  mirror.textContent = el.value.slice(0, from)
+  const mark = doc.createElement("span")
+  mark.textContent = el.value.slice(from, to) || "​"
+  mirror.appendChild(mark)
+  mirror.appendChild(doc.createTextNode(el.value.slice(to)))
+  doc.body.appendChild(mirror)
+  const base = mirror.getBoundingClientRect()
+  const rects = Array.from(mark.getClientRects()).map((r) => new DOMRect(r.left - base.left, r.top - base.top, r.width, r.height))
+  mirror.remove()
+  const r = pageRect(el)
+  return rects.map((x) => new DOMRect(r.left + x.left - el.scrollLeft, r.top + x.top - el.scrollTop, x.width, x.height))
+}
+
+/** A range's rects in an editor (top page coordinates, a rect per line). */
+export function rangeRects(el: Element, range: Range): DOMRect[] {
+  return Array.from(range.getClientRects()).filter((r) => r.width > 0 && r.height > 0).map((r) => offsetByFrame(el, r))
+}

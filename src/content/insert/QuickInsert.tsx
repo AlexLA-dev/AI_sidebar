@@ -7,6 +7,7 @@ import { t } from "../../shared/i18n"
 import type { InsertSettings, InsertVia } from "../../shared/insert"
 import { DEFAULT_INSERT_SETTINGS, type FindResult, type AiFailure } from "../../shared/insert"
 import { blanks, searchTemplates, titleStarts, type Template, type TemplateUse } from "../../shared/templates"
+import { worthWriting, type Tone, type WriteAction } from "../../shared/writing"
 import type { Platform } from "../../shared/types"
 import type { ConsentStatus } from "../../shared/consent"
 import { ConsentCard } from "../Consent"
@@ -18,13 +19,16 @@ import { clipboardKeeper } from "./capture"
 import { activeIn, copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
 import { FillForm } from "./FillForm"
 import * as QIcon from "./icons"
-import { clearCopied, countUse, keepCopied, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
+import { clearCopied, countUse, keepCopied, keepWriting, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
 import { rememberField, setButtonShown, setPanelInserter } from "./target"
 import { TemplateEditor, type EditorStart } from "./TemplateEditor"
 import { BUTTON, buttonPlace, fieldPointFree, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, type Probe } from "./spot"
 import { codeField, phraseWorthLooking, signFor, siteMenuOpen, typedPhrase } from "./trigger"
 import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { caretRect, fieldText, pageRect, viewport, watchFields } from "./watch"
+import { readText } from "./fieldtext"
+import { undoEdits, writableField, WriteCard, WriteDot, WriteMenu, writeStep, type Undo, type WriteJob } from "./Write"
+import { Underlines } from "./Underlines"
 
 /** What the panel asks of quick insert, through the bus (the selection's "Template" button, Settings). */
 export const QI_EVENTS = { newTemplate: "qi-new-template", editTemplate: "qi-edit-template", insertTemplate: "qi-insert-template" } as const
@@ -38,6 +42,8 @@ type Mode =
   // A template with blanks: filled in (by hand, from Copied, or by AI), then inserted.
   | { kind: "fill"; template: Template; via: InsertVia; replace: number }
   | { kind: "editor"; start: EditorStart }
+  // «Проверить» или «Переписать» (2.7): the result by the field.
+  | { kind: "write"; job: WriteJob }
 
 interface Props {
   platform: Platform
@@ -52,6 +58,8 @@ interface Props {
   // Resolves once the consent is stored (the background checks it before sending anything).
   onConsent: () => Promise<void>
   free: boolean
+  // Pro or Ultra: live underlines (2.7).
+  live: boolean
   onUpgrade: () => void
   onOpenTemplates: () => void
   onAdapt: (text: string, conversation: string | null) => void
@@ -82,6 +90,8 @@ export function QuickInsert(props: Props): VNode | null {
     setModeState(m)
   }
   const [toast, setToast] = useState<string | null>(null)
+  // A check or a rewrite just made: the toast offers to take it back.
+  const [made, setMade] = useState<{ text: string; undo: Undo; at: number } | null>(null)
   const [tip, setTip] = useState(false)
   const tipChecked = useRef(false)
   const [, setTick] = useState(0)
@@ -89,6 +99,10 @@ export function QuickInsert(props: Props): VNode | null {
   const sign = signFor(location.hostname, settings.sign)
   const dismissed = useRef<number | null>(null)
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  // What the person has written in the field in use (read a moment after they stop): kept as a sample of their style
+  // once it's sent (the field empties) or left (it loses the focus). On this device only.
+  const written = useRef<{ el: Element; text: string } | null>(null)
+  const writtenTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const placeFrame = useRef(0)
 
   // ------------------------------------------------------------ data
@@ -158,6 +172,7 @@ export function QuickInsert(props: Props): VNode | null {
   useEffect(() => {
     const stop = watchFields({
       focus(f) {
+        if (written.current && written.current.el !== f.el) keepWritten()
         fieldRef.current = f
         setField(f)
         rememberField(f)
@@ -165,6 +180,7 @@ export function QuickInsert(props: Props): VNode | null {
         if (modeRef.current?.kind === "suggest") setMode(null)
       },
       blur() {
+        keepWritten()
         setField(null)
         if (modeRef.current?.kind === "suggest") setMode(null)
       },
@@ -176,6 +192,7 @@ export function QuickInsert(props: Props): VNode | null {
           setTick((n) => n + 1)
         })
         if (composing) return
+        noteWritten(f)
         // Korean on iOS replaces the syllable as it grows (delete + insert): look a moment later.
         clearTimeout(suggestTimer.current)
         suggestTimer.current = setTimeout(() => lookForPhrase(f), 100)
@@ -189,6 +206,29 @@ export function QuickInsert(props: Props): VNode | null {
     })
     return stop
   }, [])
+
+  // ------------------------------------------------------------ how the person writes here (their style)
+  const sampling = (f: Field) => settingsRef.current.writing && !privateBrowsing() && !noButtonField(f.el) && writableField(f.el)
+  const noteWritten = (f: Field) => {
+    clearTimeout(writtenTimer.current)
+    writtenTimer.current = setTimeout(() => {
+      if (!f.el.isConnected || !sampling(f)) return
+      const text = readText(f.el).text.trim()
+      // The field emptied after a message: it was sent.
+      if (!text && written.current?.el === f.el) keepWritten()
+      else if (text) written.current = { el: f.el, text }
+    }, 700)
+  }
+  const keepWritten = () => {
+    const w = written.current
+    written.current = null
+    clearTimeout(writtenTimer.current)
+    if (!w) return
+    // Left with text in it: as it is now (the last moment's typing, or a fix just made); sent: as it was read.
+    const now = w.el.isConnected ? readText(w.el as Field["el"]).text.trim() : ""
+    const text = now || w.text
+    if (worthWriting(text)) void keepWriting(location.hostname, text)
+  }
 
   const lookForPhrase = (f: Field) => {
     const current = updateCaret(f)
@@ -222,6 +262,13 @@ export function QuickInsert(props: Props): VNode | null {
   // The list's keys come before the page's editor: arrows, Tab, Enter (only when chosen), Esc.
   const onKey = (e: KeyboardEvent) => {
     const m = modeRef.current
+    // A check or a rewrite by the field: Esc closes it (the field keeps the keys otherwise).
+    if (m?.kind === "write" && e.key === "Escape" && !e.isComposing) {
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      setMode(null)
+      return
+    }
     if (!m || m.kind !== "suggest" || e.isComposing) return
     const stop = () => {
       e.preventDefault()
@@ -301,6 +348,35 @@ export function QuickInsert(props: Props): VNode | null {
     }
   }, [props.bus, insertTemplate])
 
+  // ------------------------------------------------------------ «Проверить» и «Переписать»
+  const startWrite = (action: WriteAction, tone: Tone | undefined, via: WriteJob["via"]) => {
+    const f = fieldRef.current
+    if (f) fieldRef.current = updateCaret(f)
+    setMade(null)
+    setMode({ kind: "write", job: { action, ...(tone ? { tone } : {}), via } })
+  }
+  const writeDone = (undo: Undo | null, action: WriteAction, failed: boolean) => {
+    const f = fieldRef.current
+    setMode(null)
+    if (f && f.el.isConnected) restoreCaret(updateCaret(f))
+    if (!undo) return showToast(t("qiPasteManually"))
+    setMade({ text: t(failed ? "writeFixedSome" : action === "check" ? "writeFixed" : "writeReplaced"), undo, at: Date.now() })
+  }
+  // The toast with «Отменить» stays a while, then goes.
+  useEffect(() => {
+    if (!made) return
+    const timer = setTimeout(() => setMade((m) => (m === made ? null : m)), 9000)
+    return () => clearTimeout(timer)
+  }, [made])
+  const takeBack = async () => {
+    const m = made
+    setMade(null)
+    if (!m) return
+    const ok = await undoEdits(m.undo)
+    writeStep(ok ? "undone" : "undo_failed")
+    showToast(t(ok ? "writeUndone" : "writeUndoFailed"))
+  }
+
   const closeTo = (back: boolean) => {
     const f = fieldRef.current
     setMode(null)
@@ -350,8 +426,13 @@ export function QuickInsert(props: Props): VNode | null {
 
   const vp = viewport(touch)
   let buttonPos: { top: number; left: number } | null = null
+  // A Mac: the circle for «Проверить» и «Переписать», once the field has a few words (2.7). Where the iPhone's button goes.
+  // Read cheaply on every render (each keystroke): the value, or the editor's text as the DOM has it.
+  const canWrite = (f: Field | null) => Boolean(f && settings.writing && f.el.isConnected && !noButtonField(f.el) && writableField(f.el) &&
+    worthWriting(isControl(f.el) ? (f.el as HTMLInputElement).value : f.el.textContent ?? ""))
+  const showDot = Boolean(!touch && !mode && canWrite(field) && !siteExcluded(location.hostname, settings.buttonOffSites) && (!props.panelOpen || props.panelAside))
   // Outside the field, where nothing of the site's lies underneath (spot.ts); none on searches and codes.
-  if (showButton && field && !noButtonField(field.el)) {
+  if ((showButton || showDot) && field && !noButtonField(field.el)) {
     const r = pageRect(field.el)
     // Our host, wherever it is (inside a site's modal window while one is open: topLayer.ts).
     const host = panelRoot()?.host ?? document.querySelector(HOST_TAG)
@@ -388,7 +469,11 @@ export function QuickInsert(props: Props): VNode | null {
   const m = mode
   return (
     <>
-      {buttonPos && (
+      {props.live && settings.underline && !mode && field && canWrite(field) && (
+        <Underlines field={field} host={host} touch={touch} onFixed={(undo) => setMade({ text: t("writeFixed"), undo, at: Date.now() })} />
+      )}
+      {buttonPos && showDot && !showButton && <WriteDot at={buttonPos} onPick={(action, tone) => startWrite(action, tone, "circle")} />}
+      {buttonPos && showButton && (
         <button
           ref={buttonEl}
           type="button"
@@ -445,6 +530,25 @@ export function QuickInsert(props: Props): VNode | null {
           }}
           onSettings={(patch) => void saveInsertSettings(patch).then(setSettings)}
           onClear={() => void clearCopied().then(() => setCopied([]))}
+          // iPhone and iPad: «Проверить» и «Переписать» atop the list, when the field has text to work on.
+          onWrite={canWrite(fieldRef.current) ? (action, tone) => startWrite(action, tone, "list") : null}
+        />
+      )}
+
+      {m?.kind === "write" && fieldRef.current && (
+        <WriteCard
+          job={m.job}
+          field={fieldRef.current}
+          host={host}
+          touch={touch}
+          sheet={m.job.via === "list"}
+          consent={props.consent}
+          onConsent={props.onConsent}
+          free={props.free}
+          onUpgrade={props.onUpgrade}
+          onClose={() => closeTo(true)}
+          onJob={(job) => setMode({ kind: "write", job })}
+          onDone={writeDone}
         />
       )}
 
@@ -482,9 +586,14 @@ export function QuickInsert(props: Props): VNode | null {
         />
       )}
 
-      {toast && (
+      {toast && !made && (
         <div class="cf-qi-toast cf-snack" role="status" style={{ top: `${vp.dy + vp.height - 64}px` }}>
           <Icon.Copy /> {toast}
+        </div>
+      )}
+      {made && (
+        <div class="cf-qi-toast cf-snack cf-wr-made" role="status" style={{ top: `${vp.dy + vp.height - 64}px` }} onPointerDown={(e) => e.preventDefault()}>
+          <Icon.Check /> {made.text} <button type="button" onClick={() => void takeBack()}>{t("writeUndo")}</button>
         </div>
       )}
     </>
@@ -598,6 +707,8 @@ interface ListProps {
   onAll: () => void
   onSettings: (patch: Partial<InsertSettings>) => void
   onClear: () => void
+  // «Проверить» и «Переписать» for the field's text (null: no text to work on, or turned off).
+  onWrite: ((action: WriteAction, tone?: Tone) => void) | null
 }
 
 type Row = { kind: "copied"; item: CopiedItem } | { kind: "template"; item: Template } | { kind: "reply"; item: LastReply }
@@ -727,6 +838,7 @@ function InsertList(p: ListProps): VNode {
         <button type="button" class="cf-qi-x" aria-label={t("close")} title={t("close")} onClick={p.onClose}><Icon.Close /></button>
       </div>
       <div class="cf-qi-body">
+        {p.onWrite && !q && <WriteMenu row onPick={p.onWrite} />}
         <div class="cf-qi-sec">
           <span>{t("qiCopied")}</span>
           {p.settings.copied && copied.length > 0 && !q && <button type="button" onClick={p.onClear}>{t("qiClear")}</button>}
