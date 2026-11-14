@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "Continuing"
  },
+ "writeCircle": {
+  "message": "Check or rewrite"
+ },
+ "writeCheck": {
+  "message": "Check"
+ },
+ "writeRewrite": {
+  "message": "Rewrite"
+ },
+ "writeToneShort": {
+  "message": "Shorter"
+ },
+ "writeToneWarm": {
+  "message": "Warmer"
+ },
+ "writeToneFormal": {
+  "message": "More formal"
+ },
+ "writeToneConfident": {
+  "message": "More confident"
+ },
+ "writeChecking": {
+  "message": "Checking with this page in mind…"
+ },
+ "writeRewriting": {
+  "message": "Rewriting with this page in mind…"
+ },
+ "writeFixes": {
+  "message": "Fixes: {0}"
+ },
+ "writeLeft": {
+  "message": "Free answers left today: {0}"
+ },
+ "writeClean": {
+  "message": "No mistakes found."
+ },
+ "writeEmpty": {
+  "message": "There's no text here to work on yet."
+ },
+ "writeTooLong": {
+  "message": "That's a lot at once. Select a part and try again."
+ },
+ "writeChanged": {
+  "message": "The text has changed since."
+ },
+ "writeFix": {
+  "message": "Fix"
+ },
+ "writeReplace": {
+  "message": "Replace"
+ },
+ "writeFixed": {
+  "message": "Fixed"
+ },
+ "writeFixedSome": {
+  "message": "Fixed, except where the field wouldn't take it"
+ },
+ "writeReplaced": {
+  "message": "Replaced"
+ },
+ "writeUndo": {
+  "message": "Undo"
+ },
+ "writeUndone": {
+  "message": "Undone"
+ },
+ "writeUndoFailed": {
+  "message": "Couldn't undo: the text has changed since."
+ },
+ "writeSetting": {
+  "message": "Check and Rewrite by fields"
+ },
+ "writeSettingHint": {
+  "message": "Fixes and rewrites take the page into account: the email you're answering, the post you comment on. Each tap counts as one answer. How you write on each site stays on this device and helps match your style."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

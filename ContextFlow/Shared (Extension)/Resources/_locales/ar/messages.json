@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "متابعة"
  },
+ "writeCircle": {
+  "message": "تدقيق أو إعادة صياغة"
+ },
+ "writeCheck": {
+  "message": "تدقيق"
+ },
+ "writeRewrite": {
+  "message": "إعادة صياغة"
+ },
+ "writeToneShort": {
+  "message": "أقصر"
+ },
+ "writeToneWarm": {
+  "message": "أكثر وُدًّا"
+ },
+ "writeToneFormal": {
+  "message": "أكثر رسمية"
+ },
+ "writeToneConfident": {
+  "message": "أكثر ثقة"
+ },
+ "writeChecking": {
+  "message": "جارٍ التدقيق مع مراعاة الصفحة…"
+ },
+ "writeRewriting": {
+  "message": "جارٍ إعادة الصياغة مع مراعاة الصفحة…"
+ },
+ "writeFixes": {
+  "message": "التصحيحات: {0}"
+ },
+ "writeLeft": {
+  "message": "الإجابات المجانية المتبقية اليوم: {0}"
+ },
+ "writeClean": {
+  "message": "لم يُعثر على أخطاء."
+ },
+ "writeEmpty": {
+  "message": "لا يوجد نص هنا بعد."
+ },
+ "writeTooLong": {
+  "message": "هذا كثير دفعة واحدة. حدّد جزءًا وحاول مرة أخرى."
+ },
+ "writeChanged": {
+  "message": "تغيّر النص منذ ذلك الحين."
+ },
+ "writeFix": {
+  "message": "تصحيح"
+ },
+ "writeReplace": {
+  "message": "استبدال"
+ },
+ "writeFixed": {
+  "message": "تم التصحيح"
+ },
+ "writeFixedSome": {
+  "message": "تم التصحيح، عدا ما لم يقبله الحقل"
+ },
+ "writeReplaced": {
+  "message": "تم الاستبدال"
+ },
+ "writeUndo": {
+  "message": "تراجع"
+ },
+ "writeUndone": {
+  "message": "تم التراجع"
+ },
+ "writeUndoFailed": {
+  "message": "تعذّر التراجع: تغيّر النص."
+ },
+ "writeSetting": {
+  "message": "التدقيق وإعادة الصياغة بجانب الحقول"
+ },
+ "writeSettingHint": {
+  "message": "تراعي التصحيحات الصفحة: الرسالة التي ترد عليها، والمنشور الذي تعلّق عليه. كل نقرة تُحتسب إجابة واحدة. طريقة كتابتك في كل موقع تبقى على هذا الجهاز وتساعد على مجاراة أسلوبك."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

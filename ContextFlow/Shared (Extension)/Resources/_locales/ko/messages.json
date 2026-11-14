@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "이어서"
  },
+ "writeCircle": {
+  "message": "검사 또는 다시 쓰기"
+ },
+ "writeCheck": {
+  "message": "검사"
+ },
+ "writeRewrite": {
+  "message": "다시 쓰기"
+ },
+ "writeToneShort": {
+  "message": "더 짧게"
+ },
+ "writeToneWarm": {
+  "message": "더 따뜻하게"
+ },
+ "writeToneFormal": {
+  "message": "더 격식 있게"
+ },
+ "writeToneConfident": {
+  "message": "더 자신 있게"
+ },
+ "writeChecking": {
+  "message": "페이지 내용을 고려해 검사하는 중…"
+ },
+ "writeRewriting": {
+  "message": "페이지 내용을 고려해 다시 쓰는 중…"
+ },
+ "writeFixes": {
+  "message": "수정: {0}개"
+ },
+ "writeLeft": {
+  "message": "오늘 남은 무료 답변: {0}"
+ },
+ "writeClean": {
+  "message": "오류를 찾지 못했습니다."
+ },
+ "writeEmpty": {
+  "message": "아직 텍스트가 없습니다."
+ },
+ "writeTooLong": {
+  "message": "한 번에 처리하기엔 너무 깁니다. 일부를 선택해 다시 시도하세요."
+ },
+ "writeChanged": {
+  "message": "그사이 텍스트가 바뀌었습니다."
+ },
+ "writeFix": {
+  "message": "수정"
+ },
+ "writeReplace": {
+  "message": "바꾸기"
+ },
+ "writeFixed": {
+  "message": "수정됨"
+ },
+ "writeFixedSome": {
+  "message": "수정됨(입력란이 받지 않은 부분 제외)"
+ },
+ "writeReplaced": {
+  "message": "바뀜"
+ },
+ "writeUndo": {
+  "message": "실행 취소"
+ },
+ "writeUndone": {
+  "message": "취소됨"
+ },
+ "writeUndoFailed": {
+  "message": "실행 취소할 수 없습니다: 텍스트가 바뀌었습니다."
+ },
+ "writeSetting": {
+  "message": "입력란의 검사 및 다시 쓰기"
+ },
+ "writeSettingHint": {
+  "message": "수정 시 페이지 내용을 고려합니다: 답장하는 이메일, 댓글을 다는 게시물 등. 한 번 누를 때마다 답변 1개로 계산됩니다. 사이트별 글쓰기 방식은 이 기기에만 저장되며 내 문체에 맞추는 데 쓰입니다."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

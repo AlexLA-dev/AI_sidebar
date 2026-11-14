@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "Weiter in"
  },
+ "writeCircle": {
+  "message": "Prüfen oder umschreiben"
+ },
+ "writeCheck": {
+  "message": "Prüfen"
+ },
+ "writeRewrite": {
+  "message": "Umschreiben"
+ },
+ "writeToneShort": {
+  "message": "Kürzer"
+ },
+ "writeToneWarm": {
+  "message": "Herzlicher"
+ },
+ "writeToneFormal": {
+  "message": "Förmlicher"
+ },
+ "writeToneConfident": {
+  "message": "Selbstbewusster"
+ },
+ "writeChecking": {
+  "message": "Prüfe mit Blick auf die Seite…"
+ },
+ "writeRewriting": {
+  "message": "Schreibe mit Blick auf die Seite um…"
+ },
+ "writeFixes": {
+  "message": "Korrekturen: {0}"
+ },
+ "writeLeft": {
+  "message": "Kostenlose Antworten heute noch: {0}"
+ },
+ "writeClean": {
+  "message": "Keine Fehler gefunden."
+ },
+ "writeEmpty": {
+  "message": "Hier steht noch kein Text."
+ },
+ "writeTooLong": {
+  "message": "Das ist viel auf einmal. Markiere einen Teil und versuche es erneut."
+ },
+ "writeChanged": {
+  "message": "Der Text hat sich inzwischen geändert."
+ },
+ "writeFix": {
+  "message": "Korrigieren"
+ },
+ "writeReplace": {
+  "message": "Ersetzen"
+ },
+ "writeFixed": {
+  "message": "Korrigiert"
+ },
+ "writeFixedSome": {
+  "message": "Korrigiert, bis auf das, was das Feld nicht annahm"
+ },
+ "writeReplaced": {
+  "message": "Ersetzt"
+ },
+ "writeUndo": {
+  "message": "Widerrufen"
+ },
+ "writeUndone": {
+  "message": "Widerrufen"
+ },
+ "writeUndoFailed": {
+  "message": "Widerrufen nicht möglich: Der Text hat sich geändert."
+ },
+ "writeSetting": {
+  "message": "Prüfen und Umschreiben bei Feldern"
+ },
+ "writeSettingHint": {
+  "message": "Korrekturen berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

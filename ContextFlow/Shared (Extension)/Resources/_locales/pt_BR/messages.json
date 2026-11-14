@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "Continuando"
  },
+ "writeCircle": {
+  "message": "Revisar ou reescrever"
+ },
+ "writeCheck": {
+  "message": "Revisar"
+ },
+ "writeRewrite": {
+  "message": "Reescrever"
+ },
+ "writeToneShort": {
+  "message": "Mais curto"
+ },
+ "writeToneWarm": {
+  "message": "Mais caloroso"
+ },
+ "writeToneFormal": {
+  "message": "Mais formal"
+ },
+ "writeToneConfident": {
+  "message": "Mais confiante"
+ },
+ "writeChecking": {
+  "message": "Revisando com a página em mente…"
+ },
+ "writeRewriting": {
+  "message": "Reescrevendo com a página em mente…"
+ },
+ "writeFixes": {
+  "message": "Correções: {0}"
+ },
+ "writeLeft": {
+  "message": "Respostas grátis restantes hoje: {0}"
+ },
+ "writeClean": {
+  "message": "Nenhum erro encontrado."
+ },
+ "writeEmpty": {
+  "message": "Ainda não há texto aqui."
+ },
+ "writeTooLong": {
+  "message": "É muito de uma vez. Selecione uma parte e tente de novo."
+ },
+ "writeChanged": {
+  "message": "O texto mudou desde então."
+ },
+ "writeFix": {
+  "message": "Corrigir"
+ },
+ "writeReplace": {
+  "message": "Substituir"
+ },
+ "writeFixed": {
+  "message": "Corrigido"
+ },
+ "writeFixedSome": {
+  "message": "Corrigido, exceto o que o campo não aceitou"
+ },
+ "writeReplaced": {
+  "message": "Substituído"
+ },
+ "writeUndo": {
+  "message": "Desfazer"
+ },
+ "writeUndone": {
+  "message": "Desfeito"
+ },
+ "writeUndoFailed": {
+  "message": "Não foi possível desfazer: o texto mudou."
+ },
+ "writeSetting": {
+  "message": "Revisar e Reescrever nos campos"
+ },
+ "writeSettingHint": {
+  "message": "As correções levam a página em conta: o e-mail que você responde, o post que comenta. Cada toque conta como uma resposta. Como você escreve em cada site fica neste aparelho e ajuda a manter seu estilo."
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

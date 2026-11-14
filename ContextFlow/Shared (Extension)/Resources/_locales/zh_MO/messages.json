@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "繼續："
  },
+ "writeCircle": {
+  "message": "檢查或改寫"
+ },
+ "writeCheck": {
+  "message": "檢查"
+ },
+ "writeRewrite": {
+  "message": "改寫"
+ },
+ "writeToneShort": {
+  "message": "更簡短"
+ },
+ "writeToneWarm": {
+  "message": "更親切"
+ },
+ "writeToneFormal": {
+  "message": "更正式"
+ },
+ "writeToneConfident": {
+  "message": "更有自信"
+ },
+ "writeChecking": {
+  "message": "正在參考頁面內容檢查…"
+ },
+ "writeRewriting": {
+  "message": "正在參考頁面內容改寫…"
+ },
+ "writeFixes": {
+  "message": "修改:{0} 處"
+ },
+ "writeLeft": {
+  "message": "今天剩餘免費回答:{0}"
+ },
+ "writeClean": {
+  "message": "沒有發現錯誤。"
+ },
+ "writeEmpty": {
+  "message": "這裡還沒有文字。"
+ },
+ "writeTooLong": {
+  "message": "一次內容太多。請選取一部分後再試一次。"
+ },
+ "writeChanged": {
+  "message": "文字已經改動過。"
+ },
+ "writeFix": {
+  "message": "修正"
+ },
+ "writeReplace": {
+  "message": "取代"
+ },
+ "writeFixed": {
+  "message": "已修正"
+ },
+ "writeFixedSome": {
+  "message": "已修正,輸入框不接受的部分除外"
+ },
+ "writeReplaced": {
+  "message": "已取代"
+ },
+ "writeUndo": {
+  "message": "復原"
+ },
+ "writeUndone": {
+  "message": "已復原"
+ },
+ "writeUndoFailed": {
+  "message": "無法復原:文字已改動。"
+ },
+ "writeSetting": {
+  "message": "輸入框旁的「檢查」和「改寫」"
+ },
+ "writeSettingHint": {
+  "message": "修改會參考頁面內容:你正在回覆的郵件、你留言的貼文。每次點按算一次回答。你在各網站的寫法只存在這台裝置上,用來貼近你的風格。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

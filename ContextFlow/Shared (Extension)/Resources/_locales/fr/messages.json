@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "Je continue"
  },
+ "writeCircle": {
+  "message": "Vérifier ou réécrire"
+ },
+ "writeCheck": {
+  "message": "Vérifier"
+ },
+ "writeRewrite": {
+  "message": "Réécrire"
+ },
+ "writeToneShort": {
+  "message": "Plus court"
+ },
+ "writeToneWarm": {
+  "message": "Plus chaleureux"
+ },
+ "writeToneFormal": {
+  "message": "Plus formel"
+ },
+ "writeToneConfident": {
+  "message": "Plus assuré"
+ },
+ "writeChecking": {
+  "message": "Vérification en tenant compte de la page…"
+ },
+ "writeRewriting": {
+  "message": "Réécriture en tenant compte de la page…"
+ },
+ "writeFixes": {
+  "message": "Corrections : {0}"
+ },
+ "writeLeft": {
+  "message": "Réponses gratuites restantes aujourd'hui : {0}"
+ },
+ "writeClean": {
+  "message": "Aucune faute trouvée."
+ },
+ "writeEmpty": {
+  "message": "Il n'y a pas encore de texte ici."
+ },
+ "writeTooLong": {
+  "message": "C'est beaucoup d'un coup. Sélectionnez une partie et réessayez."
+ },
+ "writeChanged": {
+  "message": "Le texte a changé depuis."
+ },
+ "writeFix": {
+  "message": "Corriger"
+ },
+ "writeReplace": {
+  "message": "Remplacer"
+ },
+ "writeFixed": {
+  "message": "Corrigé"
+ },
+ "writeFixedSome": {
+  "message": "Corrigé, sauf ce que le champ n'a pas accepté"
+ },
+ "writeReplaced": {
+  "message": "Remplacé"
+ },
+ "writeUndo": {
+  "message": "Annuler"
+ },
+ "writeUndone": {
+  "message": "Annulé"
+ },
+ "writeUndoFailed": {
+  "message": "Impossible d'annuler : le texte a changé."
+ },
+ "writeSetting": {
+  "message": "Vérifier et Réécrire près des champs"
+ },
+ "writeSettingHint": {
+  "message": "Les corrections tiennent compte de la page : l'e-mail auquel vous répondez, la publication que vous commentez. Chaque appui compte comme une réponse. Votre façon d'écrire sur chaque site reste sur cet appareil et aide à respecter votre style."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },
