@@ -2531,6 +2531,15 @@
  "writeSettingHint": {
   "message": "Korrekturen berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen."
  },
+ "writeSkip": {
+  "message": "Ignorieren"
+ },
+ "underlineSetting": {
+  "message": "Fehler beim Tippen unterstreichen"
+ },
+ "underlineSettingHint": {
+  "message": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
