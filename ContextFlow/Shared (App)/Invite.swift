@@ -1,3 +1,4 @@
+import Combine
 import DeviceCheck
 import SwiftUI
 
@@ -45,7 +46,7 @@ final class InviteModel: ObservableObject {
     var offersEntry: Bool {
         if enteredUntil != nil || Self.keptUntil() != nil { return false }
         guard let first = SharedDefaults.shared.appFirstLaunch() else { return true }
-        return !first.updated && Date().timeIntervalSince(first.at) < 7 * 86_400
+        return !SharedDefaults.shared.appUpdatedInstall() && Date().timeIntervalSince1970 - first < 7 * 86_400
     }
 
     /// The first screen's card was put away ("Not now").

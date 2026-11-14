@@ -196,11 +196,10 @@ final class SharedDefaults {
         defaults.set(stored, forKey: inviteKey)
     }
 
-    /// When the app first ran on this device and whether that was an update of an older version (a friend's code is
-    /// offered to a new install only).
-    func appFirstLaunch() -> (at: Date, updated: Bool)? {
-        guard let stored = defaults.dictionary(forKey: appKey), let at = stored["firstLaunch"] as? Double else { return nil }
-        return (Date(timeIntervalSince1970: at), stored["updated"] as? Bool ?? false)
+    /// The app's first run on this device came with an update of an older version (2.7: a friend's code is offered to a
+    /// new install only; when it first ran is appFirstLaunch()).
+    func appUpdatedInstall() -> Bool {
+        defaults.dictionary(forKey: appKey)?["updated"] as? Bool ?? false
     }
 
     // MARK: Plan changes (build 90)
