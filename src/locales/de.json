@@ -845,5 +845,12 @@
   "spaceEmpty": "In „{0}“ gibt es noch keine Chats. Ein neuer Chat landet hier.",
   "setSpaces": "Bereiche",
   "setSpacesHint": "Arbeit, Privat, Einkaufen: jeder mit eigenen Chats und eigener Farbe. Aus: alle Chats in einer Liste, deine Bereiche bleiben erhalten.",
-  "matchContinue": "Weiter in"
+  "matchContinue": "Weiter in",
+  "setSide": "Bildschirmseite",
+  "sideRight": "Rechts",
+  "sideLeft": "Links",
+  "hintSideTitle": "Panel und ✦-Taste lassen sich an den anderen Rand ziehen",
+  "hintSideTitleSheet": "Die ✦-Taste lässt sich an den anderen Rand ziehen",
+  "hintSideBody": "Zieh das Panel an seiner Kopfzeile oder zieh die Taste. Die Seite kannst du auch in den Einstellungen wählen.",
+  "hintSideBodySheet": "Zieh sie nach links oder rechts. Die Seite kannst du auch in den Einstellungen wählen."
 }

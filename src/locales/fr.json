@@ -845,5 +845,12 @@
   "spaceEmpty": "Pas encore de discussion dans « {0} ». Une nouvelle discussion arrivera ici.",
   "setSpaces": "Espaces",
   "setSpacesHint": "Travail, Perso, Achats : chacun avec ses discussions et sa couleur. Désactivé : toutes les discussions dans une seule liste, vos espaces sont conservés.",
-  "matchContinue": "Je continue"
+  "matchContinue": "Je continue",
+  "setSide": "Côté de l’écran",
+  "sideRight": "Droite",
+  "sideLeft": "Gauche",
+  "hintSideTitle": "Vous pouvez glisser le panneau et le bouton ✦ vers l’autre bord",
+  "hintSideTitleSheet": "Vous pouvez glisser le bouton ✦ vers l’autre bord",
+  "hintSideBody": "Faites glisser le panneau par son en-tête, ou glissez le bouton. Vous pouvez aussi choisir le côté dans les réglages.",
+  "hintSideBodySheet": "Glissez-le à gauche ou à droite. Vous pouvez aussi choisir le côté dans les réglages."
 }

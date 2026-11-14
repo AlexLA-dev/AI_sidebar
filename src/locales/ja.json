@@ -845,5 +845,12 @@
   "spaceEmpty": "「{0}」にはまだチャットがありません。新しいチャットはここに入ります。",
   "setSpaces": "スペース",
   "setSpacesHint": "仕事、プライベート、買い物：それぞれに専用のチャットと色。オフにすると全チャットが1つのリストに戻り、スペースは保存されます。",
-  "matchContinue": "続き："
+  "matchContinue": "続き：",
+  "setSide": "画面の左右",
+  "sideRight": "右",
+  "sideLeft": "左",
+  "hintSideTitle": "パネルと✦ボタンは反対側の端へドラッグできます",
+  "hintSideTitleSheet": "✦ボタンは反対側の端へドラッグできます",
+  "hintSideBody": "パネルは上部をつかんで、ボタンはそのままドラッグします。左右は設定でも選べます。",
+  "hintSideBodySheet": "左右どちらかへドラッグします。左右は設定でも選べます。"
 }

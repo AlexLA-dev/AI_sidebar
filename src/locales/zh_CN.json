@@ -845,5 +845,12 @@
   "spaceEmpty": "“{0}”中还没有对话。新对话会放在这里。",
   "setSpaces": "空间",
   "setSpacesHint": "工作、个人、购物：每个空间有自己的对话和颜色。关闭后所有对话回到同一个列表，空间会保留。",
-  "matchContinue": "继续："
+  "matchContinue": "继续：",
+  "setSide": "屏幕侧边",
+  "sideRight": "右侧",
+  "sideLeft": "左侧",
+  "hintSideTitle": "面板和 ✦ 按钮可以拖到另一侧",
+  "hintSideTitleSheet": "✦ 按钮可以拖到另一侧",
+  "hintSideBody": "按住面板顶部拖动，或直接拖动按钮。也可以在设置中选择侧边。",
+  "hintSideBodySheet": "把它拖到左侧或右侧。也可以在设置中选择侧边。"
 }

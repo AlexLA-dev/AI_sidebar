@@ -149,6 +149,11 @@ export function SettingsView(props: Props): VNode {
           <Segmented value={settings.fab === "off" ? "off" : "on"} options={[["on", t("fabOn")], ["off", t("fabOff")]]} onChange={(fab) => onChange({ fab })} />
         </div>
         <p class="cf-hint">{t("setFabHint")}</p>
+        {/* 2.7: the side of the screen for the circle and, on iPad and Mac, the panel (they can be dragged there too). */}
+        <div class="cf-row">
+          <span class="cf-label">{t("setSide")}</span>
+          <Segmented value={settings.fabSide === "left" ? "left" : "right"} options={[["right", t("sideRight")], ["left", t("sideLeft")]]} onChange={(fabSide) => onChange({ fabSide })} />
+        </div>
         <div class="cf-row">
           <button
             type="button"

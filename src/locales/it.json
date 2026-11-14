@@ -845,5 +845,12 @@
   "spaceEmpty": "Ancora nessuna chat in «{0}». Una nuova chat finisce qui.",
   "setSpaces": "Spazi",
   "setSpacesHint": "Lavoro, Personale, Acquisti: ognuno con le sue chat e il suo colore. Disattivati: tutte le chat in un’unica lista, e i tuoi spazi restano.",
-  "matchContinue": "Continuo"
+  "matchContinue": "Continuo",
+  "setSide": "Lato dello schermo",
+  "sideRight": "Destra",
+  "sideLeft": "Sinistra",
+  "hintSideTitle": "Puoi trascinare il pannello e il pulsante ✦ sull’altro bordo",
+  "hintSideTitleSheet": "Puoi trascinare il pulsante ✦ sull’altro bordo",
+  "hintSideBody": "Trascina il pannello dall’intestazione, oppure trascina il pulsante. Puoi scegliere il lato anche nelle Impostazioni.",
+  "hintSideBodySheet": "Trascinalo a sinistra o a destra. Puoi scegliere il lato anche nelle Impostazioni."
 }

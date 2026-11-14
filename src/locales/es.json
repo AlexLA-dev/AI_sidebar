@@ -845,5 +845,12 @@
   "spaceEmpty": "Todavía no hay chats en «{0}». Un chat nuevo aparecerá aquí.",
   "setSpaces": "Espacios",
   "setSpacesHint": "Trabajo, Personal, Compras: cada uno con sus chats y su color. Desactivado: todos los chats en una lista, y tus espacios se guardan.",
-  "matchContinue": "Sigo en"
+  "matchContinue": "Sigo en",
+  "setSide": "Lado de la pantalla",
+  "sideRight": "Derecha",
+  "sideLeft": "Izquierda",
+  "hintSideTitle": "Puedes arrastrar el panel y el botón ✦ al otro borde",
+  "hintSideTitleSheet": "Puedes arrastrar el botón ✦ al otro borde",
+  "hintSideBody": "Arrastra el panel por su cabecera, o arrastra el botón. También puedes elegir el lado en Ajustes.",
+  "hintSideBodySheet": "Arrástralo a la izquierda o a la derecha. También puedes elegir el lado en Ajustes."
 }

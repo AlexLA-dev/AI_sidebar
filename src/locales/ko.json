@@ -845,5 +845,12 @@
   "spaceEmpty": "‘{0}’에 아직 채팅이 없습니다. 새 채팅이 여기에 들어갑니다.",
   "setSpaces": "스페이스",
   "setSpacesHint": "업무, 개인, 쇼핑: 각자 자기 채팅과 색상이 있습니다. 끄면 모든 채팅이 한 목록으로 돌아가고 스페이스는 그대로 남습니다.",
-  "matchContinue": "이어서"
+  "matchContinue": "이어서",
+  "setSide": "화면 방향",
+  "sideRight": "오른쪽",
+  "sideLeft": "왼쪽",
+  "hintSideTitle": "패널과 ✦ 버튼을 반대쪽 가장자리로 끌어 옮길 수 있어요",
+  "hintSideTitleSheet": "✦ 버튼을 반대쪽 가장자리로 끌어 옮길 수 있어요",
+  "hintSideBody": "패널은 상단을 잡고, 버튼은 그대로 끌어 옮기세요. 방향은 설정에서도 고를 수 있어요.",
+  "hintSideBodySheet": "왼쪽이나 오른쪽으로 끌어 옮기세요. 방향은 설정에서도 고를 수 있어요."
 }

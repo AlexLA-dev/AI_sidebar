@@ -845,5 +845,12 @@
   "spaceEmpty": "“{0}” chưa có cuộc trò chuyện nào. Cuộc trò chuyện mới sẽ ở đây.",
   "setSpaces": "Không gian",
   "setSpacesHint": "Công việc, Cá nhân, Mua sắm: mỗi không gian có cuộc trò chuyện và màu riêng. Tắt: mọi cuộc trò chuyện về một danh sách, các không gian vẫn được giữ.",
-  "matchContinue": "Tiếp tục"
+  "matchContinue": "Tiếp tục",
+  "setSide": "Cạnh màn hình",
+  "sideRight": "Phải",
+  "sideLeft": "Trái",
+  "hintSideTitle": "Bạn có thể kéo bảng và nút ✦ sang cạnh bên kia",
+  "hintSideTitleSheet": "Bạn có thể kéo nút ✦ sang cạnh bên kia",
+  "hintSideBody": "Kéo bảng bằng phần đầu, hoặc kéo nút. Bạn cũng có thể chọn cạnh trong Cài đặt.",
+  "hintSideBodySheet": "Kéo nút sang trái hoặc phải. Bạn cũng có thể chọn cạnh trong Cài đặt."
 }

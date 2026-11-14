@@ -845,5 +845,12 @@
   "spaceEmpty": "No chats in “{0}” yet. A new chat goes here.",
   "setSpaces": "Spaces",
   "setSpacesHint": "Work, Personal, Shopping: each with its own chats and color. Off: every chat in one list, and your spaces stay.",
-  "matchContinue": "Continuing"
+  "matchContinue": "Continuing",
+  "setSide": "Screen side",
+  "sideRight": "Right",
+  "sideLeft": "Left",
+  "hintSideTitle": "You can drag the panel and the ✦ button to the other edge",
+  "hintSideTitleSheet": "You can drag the ✦ button to the other edge",
+  "hintSideBody": "Drag the panel by its header, or drag the button. You can also pick the side in Settings.",
+  "hintSideBodySheet": "Drag it left or right. You can also pick the side in Settings."
 }

@@ -845,5 +845,12 @@
   "spaceEmpty": "Ainda não há conversas em “{0}”. Uma conversa nova vem para cá.",
   "setSpaces": "Espaços",
   "setSpacesHint": "Trabalho, Pessoal, Compras: cada um com suas conversas e sua cor. Desligado: todas as conversas numa lista só, e seus espaços continuam salvos.",
-  "matchContinue": "Continuando"
+  "matchContinue": "Continuando",
+  "setSide": "Lado da tela",
+  "sideRight": "Direita",
+  "sideLeft": "Esquerda",
+  "hintSideTitle": "Você pode arrastar o painel e o botão ✦ para a outra borda",
+  "hintSideTitleSheet": "Você pode arrastar o botão ✦ para a outra borda",
+  "hintSideBody": "Arraste o painel pelo cabeçalho, ou arraste o botão. Você também pode escolher o lado nos Ajustes.",
+  "hintSideBodySheet": "Arraste-o para a esquerda ou para a direita. Você também pode escolher o lado nos Ajustes."
 }
