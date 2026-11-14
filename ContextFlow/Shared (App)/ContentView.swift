@@ -262,6 +262,8 @@ struct ContentView: View {
                     // What the panel heard to its end meanwhile (build 94): Listen's "already voiced" mark.
                     VoicedList.shared.reload()
                     // Back from Settings or Safari: whether ContextFlow is on now (2.6), and the guide over Settings goes.
+                    // 2.7: "back" first, so the server has it before "enabled".
+                    activation.cameBack()
                     Task { await activation.refresh() }
                     #if os(iOS)
                     SettingsPiP.shared.stop()
@@ -500,6 +502,7 @@ struct HomeView: View {
                     .foregroundColor(.secondary)
             }
             Button {
+                activation.wentToSettings("card")
                 SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { _ in }
             } label: {
                 Label("Open Safari Settings", systemImage: "gearshape")

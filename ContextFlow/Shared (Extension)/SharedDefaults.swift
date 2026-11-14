@@ -424,6 +424,11 @@ final class SharedDefaults {
         return status
     }
 
+    /// The app's random id once the app has been opened (never made here: the extension's side only reads it).
+    func appId() -> String? {
+        defaults.dictionary(forKey: appKey)?["id"] as? String
+    }
+
     /// The app's random id, made on its first launch, and whether this launch is the first one of a new
     /// install (rather than the first after updating from a version that kept no such record).
     func appLaunch() -> (id: String, newInstall: Bool) {
