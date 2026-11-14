@@ -811,5 +811,11 @@
   "appleFailed": "Không thể thêm. Hãy thử lại.",
   "appleAlso": "Thêm vào Lời nhắc",
   "appleRemindersOff": "ContextFlow không có quyền truy cập Lời nhắc. Hãy bật trong Cài đặt.",
-  "appleAskOnce": "Lần đầu, ContextFlow sẽ mở ra để xin quyền truy cập."
+  "appleAskOnce": "Lần đầu, ContextFlow sẽ mở ra để xin quyền truy cập.",
+  "trOffer": "Dịch sang tiếng Việt?",
+  "trOfferTo": "Dịch sang {0}?",
+  "trHide": "Ẩn trên trang này",
+  "trWorking": "Đang dịch…",
+  "trOriginal": "Bản gốc",
+  "trFailed": "Không dịch được"
 }

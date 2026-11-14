@@ -811,5 +811,11 @@
   "appleFailed": "추가하지 못했습니다. 다시 시도해 주세요.",
   "appleAlso": "미리 알림에도 추가",
   "appleRemindersOff": "ContextFlow가 미리 알림에 접근할 수 없습니다. 설정에서 켜 주세요.",
-  "appleAskOnce": "처음에는 접근 권한을 묻기 위해 ContextFlow가 열립니다."
+  "appleAskOnce": "처음에는 접근 권한을 묻기 위해 ContextFlow가 열립니다.",
+  "trOffer": "한국어로 번역할까요?",
+  "trOfferTo": "{0}(으)로 번역할까요?",
+  "trHide": "이 사이트에서 숨기기",
+  "trWorking": "번역 중…",
+  "trOriginal": "원문",
+  "trFailed": "번역하지 못했습니다"
 }

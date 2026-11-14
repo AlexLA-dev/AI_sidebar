@@ -811,5 +811,11 @@
   "appleFailed": "追加できませんでした。もう一度お試しください。",
   "appleAlso": "リマインダーにも追加",
   "appleRemindersOff": "ContextFlow はリマインダーにアクセスできません。設定でオンにしてください。",
-  "appleAskOnce": "初回は ContextFlow が開いてアクセスを確認します。"
+  "appleAskOnce": "初回は ContextFlow が開いてアクセスを確認します。",
+  "trOffer": "日本語に翻訳しますか？",
+  "trOfferTo": "{0}に翻訳しますか？",
+  "trHide": "このサイトでは表示しない",
+  "trWorking": "翻訳中…",
+  "trOriginal": "原文",
+  "trFailed": "翻訳できませんでした"
 }

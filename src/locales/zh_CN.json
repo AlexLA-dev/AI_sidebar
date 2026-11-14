@@ -811,5 +811,11 @@
   "appleFailed": "无法添加。请重试。",
   "appleAlso": "同时加入提醒事项",
   "appleRemindersOff": "ContextFlow 无权访问提醒事项。请在“设置”中打开。",
-  "appleAskOnce": "第一次会打开 ContextFlow 来请求访问权限。"
+  "appleAskOnce": "第一次会打开 ContextFlow 来请求访问权限。",
+  "trOffer": "翻译成中文？",
+  "trOfferTo": "翻译成{0}？",
+  "trHide": "在此网站隐藏",
+  "trWorking": "正在翻译…",
+  "trOriginal": "原文",
+  "trFailed": "无法翻译"
 }

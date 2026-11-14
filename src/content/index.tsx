@@ -20,6 +20,7 @@ import watchStyles from "./watch/watch.css"
 import tipsStyles from "./tips/tips.css"
 import similarStyles from "./similar/similar.css"
 import listenStyles from "./listen/listen.css"
+import translateStyles from "./translate/translate.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -68,7 +69,8 @@ ${uxStyles}
 ${watchStyles}
 ${tipsStyles}
 ${similarStyles}
-${listenStyles}`
+${listenStyles}
+${translateStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

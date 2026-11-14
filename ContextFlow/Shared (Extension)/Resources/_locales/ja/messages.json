@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "初回は ContextFlow が開いてアクセスを確認します。"
  },
+ "trOffer": {
+  "message": "日本語に翻訳しますか？"
+ },
+ "trOfferTo": {
+  "message": "{0}に翻訳しますか？"
+ },
+ "trHide": {
+  "message": "このサイトでは表示しない"
+ },
+ "trWorking": {
+  "message": "翻訳中…"
+ },
+ "trOriginal": {
+  "message": "原文"
+ },
+ "trFailed": {
+  "message": "翻訳できませんでした"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

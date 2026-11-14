@@ -32,6 +32,7 @@ import { daysLeft, type RenewalReason } from "../shared/renewal"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
+import { startTranslate } from "./translate"
 import { startWatch } from "./watch"
 import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
@@ -1127,6 +1128,17 @@ if (TARGET === "safari") {
 }
 // Quick insert: templates with the app and iCloud, its AI and counters, the ⌃⇧V shortcut.
 startInsert({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  consented,
+  statusChanged: () => (statusCache = null)
+})
+// A page translated in place (2.7): the page's requests to the server, and the pill's counters.
+startTranslate({
   installId,
   entitlementJws: async () => {
     const ent = await entitlement()

@@ -102,6 +102,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
+import { TranslatePill } from "./translate/TranslatePill"
 import { allTags, chatDigests, chatForPage, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
@@ -2452,7 +2453,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     ? <button type="button" key={a.id} class={`cf-chip ultra${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={small ? 12 : 13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
     : <button type="button" key={a.id} class={`cf-chip${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
-  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
+  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "translate" = "listen") => {
     setPlansOpen(focus)
     // The prices' currency and App Store country as the app's side gave them (a wrong currency can be traced from them).
     const prices = statusRef.current?.store?.prices ?? {}
@@ -3356,6 +3357,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const shownThreadNow = threadList.find((x) => x.id === threadRef.current)
   const headerName = view === "chat" && !historyMode && messages.length > 0 ? (shownThreadNow ? threadName(shownThreadNow) : threadTitle(messages)) : null
 
+  // The circle's height, and the in-page translation pill's beside it (2.7).
+  const fabTop = dragY !== null ? `${dragY}%` : fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
+
   // ------------------------------------------------------------ render
   return (
     <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-touch={touch ? "1" : undefined}>
@@ -3364,7 +3368,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           type="button"
           ref={fabRef}
           class={`cf-fab ${settings.fabSide === "left" ? "left" : "right"} ${dragY === null ? "glide" : ""}`}
-          style={{ top: dragY !== null ? `${dragY}%` : fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%` }}
+          style={{ top: fabTop }}
           aria-label={t("fabLabel")}
           title={t("fabLabel")}
           onPointerDown={onFabDown}
@@ -3380,6 +3384,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {/* Something plays with the panel closed (build 93): a speaker on the circle. */}
           {!open && (listen.state.at === "playing" || listen.state.at === "loading") && <span class="cf-fab-audio" role="status" aria-label={t("listenPlayingHere")}><SpeakerIcon size={11} /></span>}
         </button>
+      )}
+
+      {/* A page in another language (2.7): the pill to translate it in place, beside the circle on its side. */}
+      {!popup && fabEnabled && !settings.fabHiddenSites.includes(source.site()) && (
+        <TranslatePill
+          side={settings.fabSide === "left" ? "left" : "right"}
+          top={fabTop}
+          show={fabVisible && dragY === null && !bubble?.rect}
+          free={!hasPro(plan)}
+          onPlans={() => {
+            show()
+            openPlans("pro", "translate")
+          }}
+        />
       )}
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}

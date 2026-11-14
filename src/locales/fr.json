@@ -811,5 +811,11 @@
   "appleFailed": "Impossible de l’ajouter. Réessayez.",
   "appleAlso": "Aussi dans Rappels",
   "appleRemindersOff": "ContextFlow n’a pas accès à Rappels. Activez-le dans Réglages.",
-  "appleAskOnce": "La première fois, ContextFlow s’ouvre pour demander l’accès."
+  "appleAskOnce": "La première fois, ContextFlow s’ouvre pour demander l’accès.",
+  "trOffer": "Traduire en français ?",
+  "trOfferTo": "Traduire en {0} ?",
+  "trHide": "Masquer sur ce site",
+  "trWorking": "Traduction…",
+  "trOriginal": "Original",
+  "trFailed": "Échec de la traduction"
 }
