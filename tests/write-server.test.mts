@@ -122,6 +122,7 @@ test("a rewrite needs its tone, which goes in the prompt; a page (not a conversa
   assert.equal(body.text, "Friday works. Deck tomorrow.")
   assert.match(claude.lastBody!.system, /^You rewrite/)
   assert.match(claude.lastBody!.system, /never add a sign-off/, "the field's own signature isn't doubled")
+  assert.match(claude.lastBody!.system, /Spell every name, product and term the way the page spells it/)
   const prompt = String(claude.lastBody!.messages[0].content)
   assert.ok(prompt.includes("What to do: Make it shorter"))
   assert.ok(prompt.includes("The page: Senior Product Designer · Lumen Health\nhttps://jobs.example/1\n<page>"))
