@@ -3,7 +3,9 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { applyEdits, clipAsk, diffParts, diffWords, keepSample, SAMPLES, samplesFor, styleTemplates, tokens, trimmedSpan, worthWriting, WRITE_LIMITS, type Samples } from "../src/shared/writing.ts"
+import { readFileSync } from "node:fs"
+
+import { applyEdits, clipAsk, diffParts, diffWords, freeLeft, keepSample, SAMPLES, samplesFor, styleTemplates, tokens, trimmedSpan, worthWriting, WRITE_LIMITS, type Samples } from "../src/shared/writing.ts"
 import type { Template } from "../src/shared/templates.ts"
 
 test("a check's changes land on the words that changed, nothing else", () => {
@@ -108,4 +110,36 @@ test("what goes to the server is clipped to its limits", () => {
   assert.deepEqual(ask.style.samples, ["s1", "s2", "s3"])
   assert.equal(ask.style.templates[0].length, WRITE_LIMITS.templateChars)
   assert.equal(clipAsk({ ...ask, action: "check" }).tone, undefined, "a check has no tone")
+})
+
+// 2.7, the director from the store captures: on Ultra (and Pro) the card said «Free answers left today: 374», the
+// subscription's week in Free's words. Free keeps its line; Pro, Ultra and Own key get none on the card, as the fill card
+// (the panel's usage line has the week).
+test("the card's «left today» is Free's only, whatever the page thinks the plan is", () => {
+  const day = { used: 1, limit: 5, period: "day" as const }
+  const week = { used: 1, limit: 375, period: "week" as const }
+  // Free: the day's remainder, even when the page hasn't heard its status yet.
+  assert.equal(freeLeft({ plan: "free", usage: day }, true), 4)
+  assert.equal(freeLeft({ plan: "free", usage: day }, false), 4)
+  assert.equal(freeLeft({ plan: "free", usage: { used: 7, limit: 5, period: "day" } }, true), 0)
+  assert.equal(freeLeft({ plan: "free", usage: null }, true), null)
+  // Pro and Ultra: nothing, though the page still thinks Free (the captures' case).
+  for (const plan of ["pro", "ultra"]) {
+    assert.equal(freeLeft({ plan, usage: week }, true), null, plan)
+    assert.equal(freeLeft({ plan, usage: week }, false), null, plan)
+  }
+  // Own key: nothing, with its own key (no usage) or on ContextFlow's day without one.
+  assert.equal(freeLeft({ plan: "byok", usage: null }, true), null)
+  assert.equal(freeLeft({ plan: "byok", usage: day }, true), null)
+  // A server that doesn't say the plan yet: only a day's allowance on a page that thinks Free.
+  assert.equal(freeLeft({ usage: day }, true), 4)
+  assert.equal(freeLeft({ usage: week }, true), null)
+  assert.equal(freeLeft({ usage: day }, false), null)
+  // The card goes by it.
+  const card = readFileSync(new URL("../src/content/insert/Write.tsx", import.meta.url), "utf8")
+  assert.match(card, /const left = freeLeft\(reply, p\.free\)/)
+  assert.doesNotMatch(card, /p\.free && reply\.usage/)
+  // The background hands the server's plan on to the card (it used to keep only the text and the usage).
+  const bg = readFileSync(new URL("../src/background/insert.ts", import.meta.url), "utf8")
+  assert.match(bg, /return \{ ok: true, text: body\.text, \.\.\.\(typeof body\.plan === "string" \? \{ plan: body\.plan \} : \{\}\), usage: body\.usage \?\? null \}/)
 })
