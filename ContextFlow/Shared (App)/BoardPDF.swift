@@ -54,7 +54,8 @@ enum BoardPDF {
             let rows = table.r.map { "<tr>" + $0.map { "<td dir=\"auto\">\(esc($0))</td>" }.joined() + "</tr>" }.joined()
             body = "<p class=\"gist\"><b>\(esc(String(localized: "Comparison"))).</b> <span dir=\"auto\">\(esc(card.gist))</span></p>"
                 + "<table><thead><tr>\(head)</tr></thead><tbody>\(rows)</tbody></table>"
-                + (table.note.map { "<p class=\"note\" dir=\"auto\">\(esc($0))</p>" } ?? "")
+                // The note is the card's gist when the AI gave one: not twice.
+                + (table.note.flatMap { $0 == card.gist ? nil : "<p class=\"note\" dir=\"auto\">\(esc($0))</p>" } ?? "")
         }
         let tags = card.tags.isEmpty ? "" : "<p class=\"tags\">" + card.tags.map { "<span dir=\"auto\">\(esc($0))</span>" }.joined() + "</p>"
         return "<div class=\"card\">\(body)\(tags)\(links.isEmpty ? "" : "<p class=\"links\">\(links.joined())</p>")</div>"

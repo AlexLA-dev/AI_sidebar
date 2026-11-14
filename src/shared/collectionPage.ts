@@ -64,7 +64,8 @@ function cardHtml(card: Card, rec: Collection, w: PageWords): string {
     const rows = card.tbl.r.map((r) => `<tr>${r.map((v) => `<td dir="auto">${esc(v)}</td>`).join("")}</tr>`).join("")
     body = `<p class="gist"><b>${esc(w.comparison)}.</b> <span dir="auto">${esc(card.t)}</span></p>`
       + `<table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`
-      + (card.tbl.note ? `<p class="note" dir="auto">${esc(card.tbl.note)}</p>` : "")
+      // The note is the card's gist when the AI gave one: not twice.
+      + (card.tbl.note && card.tbl.note !== card.t ? `<p class="note" dir="auto">${esc(card.tbl.note)}</p>` : "")
   }
   const tags = card.tags?.length ? `<p class="tags">${card.tags.map((x) => `<span dir="auto">${esc(x)}</span>`).join("")}</p>` : ""
   return `<div class="card">${body}${tags}${links.length ? `<p class="links">${links.join("")}</p>` : ""}</div>`

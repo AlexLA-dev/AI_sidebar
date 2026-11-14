@@ -43,6 +43,8 @@ test("a comparison in the PDF is its table, and it opens the first compared card
   const html = collectionHtml(rec, WORDS)
   assert.match(html, /<p class="gist"><b>Comparison\.<\/b> <span dir="auto">Asakusa is cheaper<\/span><\/p><table><thead><tr><th dir="auto">Area<\/th><th dir="auto">Night<\/th><\/tr><\/thead>/)
   assert.match(html, /<td dir="auto">¥14,000<\/td>/)
+  // Its note is its gist: shown once.
+  assert.equal(html.split("Asakusa is cheaper").length - 1, 1)
   const table = html.slice(html.indexOf("Comparison."))
   assert.match(table.slice(0, table.indexOf("</div>")), /open-chat\?id=chat-1&amp;m=k1/)
 })
