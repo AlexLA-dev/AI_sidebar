@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "Tiếp tục"
  },
+ "writeCircle": {
+  "message": "Kiểm tra hoặc viết lại"
+ },
+ "writeCheck": {
+  "message": "Kiểm tra"
+ },
+ "writeRewrite": {
+  "message": "Viết lại"
+ },
+ "writeToneShort": {
+  "message": "Ngắn hơn"
+ },
+ "writeToneWarm": {
+  "message": "Thân thiện hơn"
+ },
+ "writeToneFormal": {
+  "message": "Trang trọng hơn"
+ },
+ "writeToneConfident": {
+  "message": "Tự tin hơn"
+ },
+ "writeChecking": {
+  "message": "Đang kiểm tra theo nội dung trang…"
+ },
+ "writeRewriting": {
+  "message": "Đang viết lại theo nội dung trang…"
+ },
+ "writeFixes": {
+  "message": "Sửa: {0}"
+ },
+ "writeLeft": {
+  "message": "Câu trả lời miễn phí còn lại hôm nay: {0}"
+ },
+ "writeClean": {
+  "message": "Không tìm thấy lỗi."
+ },
+ "writeEmpty": {
+  "message": "Chưa có văn bản ở đây."
+ },
+ "writeTooLong": {
+  "message": "Quá nhiều cùng lúc. Hãy chọn một phần rồi thử lại."
+ },
+ "writeChanged": {
+  "message": "Văn bản đã thay đổi kể từ đó."
+ },
+ "writeFix": {
+  "message": "Sửa"
+ },
+ "writeReplace": {
+  "message": "Thay thế"
+ },
+ "writeFixed": {
+  "message": "Đã sửa"
+ },
+ "writeFixedSome": {
+  "message": "Đã sửa, trừ phần ô nhập không nhận"
+ },
+ "writeReplaced": {
+  "message": "Đã thay thế"
+ },
+ "writeUndo": {
+  "message": "Hoàn tác"
+ },
+ "writeUndone": {
+  "message": "Đã hoàn tác"
+ },
+ "writeUndoFailed": {
+  "message": "Không thể hoàn tác: văn bản đã thay đổi."
+ },
+ "writeSetting": {
+  "message": "Kiểm tra và Viết lại cạnh ô nhập"
+ },
+ "writeSettingHint": {
+  "message": "Bản sửa có tính đến trang: email bạn đang trả lời, bài đăng bạn bình luận. Mỗi lần chạm tính là một câu trả lời. Cách bạn viết trên từng trang web chỉ lưu trên thiết bị này và giúp giữ đúng văn phong của bạn."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

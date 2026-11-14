@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "続き："
  },
+ "writeCircle": {
+  "message": "チェックまたは書き直し"
+ },
+ "writeCheck": {
+  "message": "チェック"
+ },
+ "writeRewrite": {
+  "message": "書き直す"
+ },
+ "writeToneShort": {
+  "message": "短く"
+ },
+ "writeToneWarm": {
+  "message": "温かく"
+ },
+ "writeToneFormal": {
+  "message": "丁寧に"
+ },
+ "writeToneConfident": {
+  "message": "自信をもって"
+ },
+ "writeChecking": {
+  "message": "ページの内容を踏まえてチェック中…"
+ },
+ "writeRewriting": {
+  "message": "ページの内容を踏まえて書き直し中…"
+ },
+ "writeFixes": {
+  "message": "修正: {0}件"
+ },
+ "writeLeft": {
+  "message": "今日の無料回答の残り: {0}"
+ },
+ "writeClean": {
+  "message": "誤りは見つかりませんでした。"
+ },
+ "writeEmpty": {
+  "message": "まだテキストがありません。"
+ },
+ "writeTooLong": {
+  "message": "一度に扱うには長すぎます。一部を選択してもう一度お試しください。"
+ },
+ "writeChanged": {
+  "message": "その後テキストが変更されました。"
+ },
+ "writeFix": {
+  "message": "修正"
+ },
+ "writeReplace": {
+  "message": "置き換え"
+ },
+ "writeFixed": {
+  "message": "修正しました"
+ },
+ "writeFixedSome": {
+  "message": "修正しました(入力欄が受け付けなかった箇所を除く)"
+ },
+ "writeReplaced": {
+  "message": "置き換えました"
+ },
+ "writeUndo": {
+  "message": "取り消す"
+ },
+ "writeUndone": {
+  "message": "取り消しました"
+ },
+ "writeUndoFailed": {
+  "message": "取り消せません: テキストが変更されています。"
+ },
+ "writeSetting": {
+  "message": "入力欄の「チェック」と「書き直す」"
+ },
+ "writeSettingHint": {
+  "message": "修正はページの内容を踏まえます: 返信中のメール、コメント先の投稿など。1回のタップで回答1件として数えます。各サイトでの書き方はこのデバイスにだけ保存され、あなたの文体に合わせるために使われます。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
