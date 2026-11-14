@@ -1,0 +1,24 @@
+/* The panel and the circle on either side (2.7, plan section 9). The side is the circle's setting (data-side on .cf):
+   the side panel on iPad and Mac opens there and slides in from there. On iPhone the panel is a sheet at the bottom. */
+.cf[data-layout="side"][data-side="left"] .cf-panel { right: auto; left: 10px; transform: translateX(-24px); }
+.cf[data-layout="side"][data-side="left"] .cf-panel.in { transform: none; }
+
+/* The panel is dragged by its header (its buttons stay buttons). */
+.cf[data-layout="side"] .cf-header { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.cf[data-layout="side"] .cf-panel.dragging { box-shadow: 0 24px 70px rgba(20, 14, 40, 0.32); }
+.cf[data-layout="side"] .cf-panel.dragging .cf-header { cursor: grabbing; }
+
+/* The edge it will land on, while dragged. */
+.cf-edge-glow {
+  position: fixed; top: 0; bottom: 0; width: 5px;
+  z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0) 0%, #38bdf8 25%, #2563eb 75%, rgba(37, 99, 235, 0) 100%);
+  box-shadow: 0 0 22px 6px rgba(37, 99, 235, 0.38);
+  animation: cf-edge-in 0.16s ease;
+}
+.cf-edge-glow.left { left: 0; border-radius: 0 4px 4px 0; }
+.cf-edge-glow.right { right: 0; border-radius: 4px 0 0 4px; }
+/* A dragged circle is over everything of ours. */
+.cf-fab.dragged { z-index: 5; opacity: 1; transform: scale(1.08); cursor: grabbing; }
+@keyframes cf-edge-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cf-edge-glow { animation: none; } }

@@ -95,7 +95,7 @@ export async function markPlanToursSeen(plans: string[]): Promise<void> {
   await set(STORAGE.planTours, [...new Set([...seen, ...plans])])
 }
 
-export type HintKey = "chats" | "video" | "pdf"
+export type HintKey = "chats" | "video" | "pdf" | "side"
 
 /** The "first time here" hints already shown. */
 export async function seenHints(): Promise<HintKey[]> {

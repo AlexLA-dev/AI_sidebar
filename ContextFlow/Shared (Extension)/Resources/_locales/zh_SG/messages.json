@@ -2456,6 +2456,249 @@
  "matchContinue": {
   "message": "继续："
  },
+ "writeCircle": {
+  "message": "检查或改写"
+ },
+ "writeCheck": {
+  "message": "检查"
+ },
+ "writeRewrite": {
+  "message": "改写"
+ },
+ "writeToneShort": {
+  "message": "更简短"
+ },
+ "writeToneWarm": {
+  "message": "更亲切"
+ },
+ "writeToneFormal": {
+  "message": "更正式"
+ },
+ "writeToneConfident": {
+  "message": "更自信"
+ },
+ "writeChecking": {
+  "message": "正在结合页面内容检查…"
+ },
+ "writeRewriting": {
+  "message": "正在结合页面内容改写…"
+ },
+ "writeFixes": {
+  "message": "修改:{0} 处"
+ },
+ "writeLeft": {
+  "message": "今天剩余免费回答:{0}"
+ },
+ "writeClean": {
+  "message": "没有发现错误。"
+ },
+ "writeEmpty": {
+  "message": "这里还没有文字。"
+ },
+ "writeTooLong": {
+  "message": "一次内容太多。请选中一部分后重试。"
+ },
+ "writeChanged": {
+  "message": "文字已经改动过。"
+ },
+ "writeFix": {
+  "message": "修正"
+ },
+ "writeReplace": {
+  "message": "替换"
+ },
+ "writeFixed": {
+  "message": "已修正"
+ },
+ "writeFixedSome": {
+  "message": "已修正,输入框不接受的部分除外"
+ },
+ "writeReplaced": {
+  "message": "已替换"
+ },
+ "writeUndo": {
+  "message": "撤销"
+ },
+ "writeUndone": {
+  "message": "已撤销"
+ },
+ "writeUndoFailed": {
+  "message": "无法撤销:文字已改动。"
+ },
+ "writeSetting": {
+  "message": "输入框旁的“检查”和“改写”"
+ },
+ "writeSettingHint": {
+  "message": "修改会结合页面内容:你正在回复的邮件、你评论的帖子。每次点按计为一次回答。你在各网站的写法只保存在这台设备上,用来贴合你的风格。"
+ },
+ "writeSkip": {
+  "message": "忽略"
+ },
+ "underlineSetting": {
+  "message": "输入时给错误加下划线"
+ },
+ "underlineSettingHint": {
+  "message": "Pro 和 Ultra:输入停顿后,只结合页面内容检查你改动的段落。把指针移到下划线上(在 iPhone 和 iPad 上轻点)即可修正。不计入回答次数。"
+ },
+ "setSide": {
+  "message": "屏幕侧边"
+ },
+ "sideRight": {
+  "message": "右侧"
+ },
+ "sideLeft": {
+  "message": "左侧"
+ },
+ "hintSideTitle": {
+  "message": "面板和 ✦ 按钮可以拖到另一侧"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ 按钮可以拖到另一侧"
+ },
+ "hintSideBody": {
+  "message": "按住面板顶部拖动，或直接拖动按钮。也可以在设置中选择侧边。"
+ },
+ "hintSideBodySheet": {
+  "message": "把它拖到左侧或右侧。也可以在设置中选择侧边。"
+ },
+ "phSimilar": {
+  "message": "找更便宜的？"
+ },
+ "phWatch": {
+  "message": "关注价格？"
+ },
+ "phSummary": {
+  "message": "总结这个页面？"
+ },
+ "phListen": {
+  "message": "听这篇文章？"
+ },
+ "phVideo": {
+  "message": "问问这个视频？"
+ },
+ "phTemplates": {
+  "message": "用模板回复？"
+ },
+ "phRemind": {
+  "message": "设个提醒？"
+ },
+ "phCalendar": {
+  "message": "添加到日历？"
+ },
+ "phClose": {
+  "message": "隐藏提示"
+ },
+ "phSimilarTitle": {
+  "message": "找更便宜的"
+ },
+ "phSimilarBody": {
+  "message": "选中商品名称 → “查找相似”，或点高亮的按钮：同款更便宜的，还有相似的。"
+ },
+ "phSimilarBodyUp": {
+  "message": "这是 Ultra 功能：同款更便宜的，以及其他商店的相似商品。点高亮的按钮。"
+ },
+ "phWatchTitle": {
+  "message": "关注价格"
+ },
+ "phWatchBody": {
+  "message": "选中价格，旁边会出现一只眼睛。或“…”（已高亮）→“关注这个页面…”。价格变了会告诉你。"
+ },
+ "phSummaryTitle": {
+  "message": "页面总结"
+ },
+ "phSummaryBody": {
+  "message": "点高亮的“总结”：几行看懂页面要点。"
+ },
+ "phListenTitle": {
+  "message": "听文章"
+ },
+ "phListenBody": {
+  "message": "打开“…”（已高亮）→“朗读此页面”：文章会被朗读出来。"
+ },
+ "phListenBodyUp": {
+  "message": "朗读是 Ultra 功能。打开“…”（已高亮）→“朗读此页面”。"
+ },
+ "phVideoTitle": {
+  "message": "关于视频的问题"
+ },
+ "phVideoBody": {
+  "message": "在高亮的输入框里问这个视频：我根据字幕回答。"
+ },
+ "phVideoBodyUp": {
+  "message": "根据视频字幕回答是 Pro 功能。在高亮的输入框里提问。"
+ },
+ "phTemplatesTitle": {
+  "message": "用模板回复"
+ },
+ "phTemplatesBody": {
+  "message": "把光标放进页面上的输入框，旁边会出现模板按钮。你的模板：“…”（已高亮）→“设置”→“模板”。"
+ },
+ "phRemindTitle": {
+  "message": "提醒"
+ },
+ "phRemindBody": {
+  "message": "在高亮的输入框里写，比如“明天9点提醒我”，我会建议一个提醒。"
+ },
+ "phCalendarTitle": {
+  "message": "加入日历"
+ },
+ "phCalendarBody": {
+  "message": "在高亮的输入框里写“添加到日历”，我会用页面上的日期建议一个日程。"
+ },
+ "setPageHints": {
+  "message": "✦ 按钮旁的提示"
+ },
+ "setPageHintsHint": {
+  "message": "刚开始的几天，提示你在页面上能做什么。"
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "这是 Pro 和 Ultra 的功能：Pro 是快速搜索，Ultra 是完整搜索。同款更便宜的，以及其他商店的相似商品。点高亮的按钮。"
+ },
+ "shotSwitch": {
+  "message": "页面快照"
+ },
+ "shotVisible": {
+  "message": "可见区域"
+ },
+ "shotFull": {
+  "message": "整页"
+ },
+ "shotProOnly": {
+  "message": "整页快照需 Pro 或 Ultra。"
+ },
+ "shotTaking": {
+  "message": "正在拍摄快照…"
+ },
+ "shotTakingFull": {
+  "message": "快照:第 {0} 屏,共 {1} 屏…"
+ },
+ "shotFailed": {
+  "message": "这里无法拍摄快照。笔记已保存,不含快照。"
+ },
+ "shotCut": {
+  "message": "页面较长:快照包含前 {0} 屏。"
+ },
+ "shotOpen": {
+  "message": "打开快照"
+ },
+ "shotNote": {
+  "message": "页面快照"
+ },
+ "shotCrop": {
+  "message": "裁剪"
+ },
+ "shotCropDone": {
+  "message": "完成"
+ },
+ "shotCropReset": {
+  "message": "完整快照"
+ },
+ "shotLoading": {
+  "message": "正在打开快照…"
+ },
+ "shotMissing": {
+  "message": "这张快照还没到这台设备。如果聊天通过 iCloud 同步,它会随之送达。"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

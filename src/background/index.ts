@@ -44,6 +44,7 @@ import { madeTexts, withMade, withVoiced, type MadeList, type MadeText } from ".
 import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
 import { t } from "../shared/i18n"
 import type { Job } from "../shared/jobs"
+import { captureTab, getShot, putShot, sweepShots } from "./shots"
 
 // ---------------------------------------------------------------- identity
 
@@ -833,6 +834,15 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
   switch (message?.type) {
+    case "shotCapture":
+      void captureTab(_sender.tab?.windowId).then(sendResponse, () => sendResponse({ ok: false, code: "FAILED" }))
+      return true
+    case "shotPut":
+      void putShot(message.id, message.data).then(sendResponse, () => sendResponse({ ok: false }))
+      return true
+    case "shotGet":
+      void getShot(message.id, message.parts).then(sendResponse, () => sendResponse({ ok: false, code: "UNAVAILABLE" }))
+      return true
     case "tipClip":
       void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
       return true
@@ -1143,6 +1153,8 @@ void reportSwitchedOn().catch(() => undefined)
 if (TARGET === "safari") {
   watchThreads()
   setTimeout(() => void mirrorOnStart().catch(() => undefined), 1_500)
+  // Pictures of notes made here that no note has any more (a week on), here and in iCloud.
+  setTimeout(() => void sweepShots().catch(() => undefined), 60_000)
 }
 // Quick insert: templates with the app and iCloud, its AI and counters, the ⌃⇧V shortcut.
 startInsert({

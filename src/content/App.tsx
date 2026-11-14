@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
-import { freeAnswersBack, t, uiLanguage, type MessageKey } from "../shared/i18n"
+import { freeAnswersBack, t, uiDirection, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
@@ -79,6 +79,9 @@ import { TrashView } from "./Trash"
 import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
 import { NoteText } from "./ux/NoteText"
+import { ShotSwitch, ShotThumb, ShotViewer } from "./ux/ShotUi"
+import { keepShot, takeShot } from "./shot"
+import { DEFAULT_SHOT_PREF, SHOT_PREF_KEY, type Shot, type ShotPref } from "../shared/shots"
 import { PageMenu } from "./ux/PageMenu"
 import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageWatcher, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
 import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
@@ -103,6 +106,10 @@ import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill } from "./translate/TranslatePill"
+import { useFabDrag, usePanelDrag } from "./side/drag"
+import { EdgeGlow } from "./side/EdgeGlow"
+import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
+import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
 import { SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
@@ -384,6 +391,34 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [draft, setDraft] = useState("")
   // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
   const [noteMode, setNoteMode] = useState(false)
+  // «Снимок страницы в заметке» (2.7): the switch over the note field (remembered), a picture being taken, one open.
+  const [shotPref, setShotPrefState] = useState<ShotPref>(DEFAULT_SHOT_PREF)
+  const shotPrefRef = useRef(shotPref)
+  shotPrefRef.current = shotPref
+  const [shotBusy, setShotBusy] = useState<string | null>(null)
+  const [shotOpen, setShotOpen] = useState<number | null>(null)
+  const proRef = useRef(false)
+  useEffect(() => {
+    try {
+      chrome.storage.local.get(SHOT_PREF_KEY, (r) => {
+        const v = r?.[SHOT_PREF_KEY] as Partial<ShotPref> | undefined
+        if (v) setShotPrefState({ on: v.on === true, kind: v.kind === "full" ? "full" : "visible" })
+      })
+    } catch {
+      // storage unavailable: the switch starts off
+    }
+  }, [])
+  const setShotPref = (next: ShotPref) => {
+    const was = shotPrefRef.current
+    setShotPrefState(next)
+    try {
+      void chrome.storage.local.set({ [SHOT_PREF_KEY]: next })
+    } catch {
+      // kept for this page only
+    }
+    if (next.on !== was.on) void sendBackground({ type: "useEvent", f: "shot", a: next.on ? "on" : "off" })
+    else if (next.kind !== was.kind) void sendBackground({ type: "useEvent", f: "shot", a: next.kind })
+  }
   const [noteHint, setNoteHint] = useState(false)
   const [error, setError] = useState<ChatError | null>(null)
   // The Pro offer, shown once more to an install that ran out of free answers before.
@@ -413,7 +448,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [googleMode, setGoogleMode] = useState(false)
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
-  const [dragY, setDragY] = useState<number | null>(null)
   // The round button out of the selection buttons' way while they show (fabDodge.ts): its center, in px; null at home.
   const fabRef = useRef<HTMLButtonElement>(null)
   const fabHome = useRef<DOMRect | null>(null)
@@ -1262,14 +1296,35 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [partial === null])
 
   /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
-  const saveNote = useCallback((text: string) => {
+  const saveNote = useCallback(async (text: string) => {
     const content = text.trim()
-    if (!content || portRef.current || askToken.current) return
+    if (!content || portRef.current || askToken.current || shotBusyRef.current) return
     setUndoBar(null)
     setFirstWin(null)
     const url = source.key()
     const full = source.quick()
-    const next: Turn[] = [...messages, stamped({ role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) })]
+    // With «Снимок страницы» on: the picture first (the panel steps away for it), then the note with it.
+    let shot: Shot | undefined
+    if (shotPrefRef.current.on) {
+      const kind = shotPrefRef.current.kind === "full" && proRef.current ? "full" : "visible"
+      shotBusyRef.current = true
+      setShotBusy(t("shotTaking"))
+      const taken = await takeShot(kind, (screen, of) => setShotBusy(t("shotTakingFull", screen, of)))
+      const parts = taken.ok ? await keepShot(taken.shot.id, taken.data) : null
+      shotBusyRef.current = false
+      setShotBusy(null)
+      if (taken.ok && parts) {
+        shot = { ...taken.shot, parts }
+        void sendBackground({ type: "useEvent", f: "shot", a: "taken", what: kind, ...(kind === "full" ? { screens: taken.screens } : {}) })
+        if (taken.cut) setUndoBar({ text: t("shotCut", taken.screens), actions: [] })
+      } else {
+        void sendBackground({ type: "useEvent", f: "shot", a: "failed", what: kind, why: taken.ok ? "keep" : taken.code.toLowerCase() })
+        setUndoBar({ text: t("shotFailed"), actions: [] })
+      }
+    }
+    // The chat as it is now (the picture took a moment).
+    const now = nowRef.current.messages
+    const next: Turn[] = [...now, stamped({ role: "user", content, note: true, page: pageRef(now, url, full.title, full.text, keepsText), ...(shot ? { shot } : {}) })]
     setMessages(next)
     void saveThread(threadRef.current, next)
     void rememberPageText(url, full.title, full.text)
@@ -1278,8 +1333,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setError(null)
     setNoteMode(false)
   }, [messages, source])
+  const shotBusyRef = useRef(false)
 
-  const submit = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
+  /** A note's picture cropped (or back to the whole picture): kept on the note, so it reaches the other devices. */
+  const cropShot = (idx: number, crop: Shot["crop"]) => {
+    const m = messages[idx]
+    if (!m?.shot) return
+    const shot: Shot = { ...m.shot }
+    if (crop) shot.crop = crop
+    else delete shot.crop
+    const next = messages.map((x, i) => (i === idx ? { ...x, shot } : x))
+    setMessages(next)
+    void saveThread(threadRef.current, next)
+    void sendBackground({ type: "useEvent", f: "shot", a: crop ? "crop" : "uncrop" })
+  }
+
+  const submit = () => (noteMode ? void saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
 
   // The chat and the field as they are now, for stop() (2.5 (75)).
   const nowRef = useRef({ messages, draft })
@@ -2285,32 +2354,32 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setFabDodge(null)
     fabHome.current = null
   }, [settings.fabY, settings.fabSide])
-  const dragRef = useRef<{ startY: number; startX: number; moved: boolean; pointer: number } | null>(null)
-
-  const onFabDown = (e: PointerEvent) => {
-    dragRef.current = { startY: e.clientY, startX: e.clientX, moved: false, pointer: e.pointerId }
-    ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
-  }
-  const onFabMove = (e: PointerEvent) => {
-    const d = dragRef.current
-    if (!d) return
-    if (!d.moved && Math.abs(e.clientY - d.startY) + Math.abs(e.clientX - d.startX) < 8) return
-    d.moved = true
-    e.preventDefault()
-    setDragY(Math.min(92, Math.max(8, (e.clientY / window.innerHeight) * 100)))
-  }
-  const onFabUp = (e: PointerEvent) => {
-    const d = dragRef.current
-    dragRef.current = null
-    if (!d) return
-    if (d.moved) {
-      const y = Math.min(92, Math.max(8, (e.clientY / window.innerHeight) * 100))
-      setDragY(null)
-      updateSettings({ fabY: Math.round(y), fabSide: e.clientX < window.innerWidth / 2 ? "left" : "right" })
-    } else {
-      show(undefined, { pageChat: true })
+  // 2.7 (plan section 9): the circle follows the finger and lands on the nearer edge; on iPad and Mac the panel is dragged
+  // by its header the same way. One side for both (the circle's setting): the panel opens where the circle is.
+  // Until the person picks one, the interface's direction decides (left in Arabic); a drag or Settings is a choice.
+  const side: Side = resolveSide(settings, uiDirection())
+  const sideRef = useRef(side)
+  sideRef.current = side
+  const fabDrag = useFabDrag({
+    fab: fabRef,
+    onDrop: (to, fabY) => {
+      if (to !== sideRef.current) void sendBackground({ type: "useEvent", f: "side", a: "drag_fab", what: to })
+      updateSettings({ fabY, fabSide: to, fabSideChosen: true })
+    },
+    onTap: () => show(undefined, { pageChat: true })
+  })
+  // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
+  const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
+  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, open: openFromHint })
+  const panelDrag = usePanelDrag({
+    panel: panelRef,
+    side,
+    enabled: layout === "side",
+    onSide: (to) => {
+      void sendBackground({ type: "useEvent", f: "side", a: "drag_panel", what: to })
+      updateSettings({ fabSide: to, fabSideChosen: true })
     }
-  }
+  })
 
   // ------------------------------------------------------------ derived
   const contextKind: "selection" | "page" | "none" = selection ? "selection" : pageReadable ? "page" : "none"
@@ -2485,6 +2554,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
   }, [planTourDue, open, guide, touring, view, streaming, partial])
   const plan = status?.plan ?? keptPlan ?? "free"
+  proRef.current = plan === "pro" || plan === "ultra"
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
   const markUltra = status !== null && !isUltra(plan)
@@ -3463,26 +3533,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const matchShown = Boolean(matchLine && matchLine.chat === threadRef.current && messages.length === matchLine.length)
 
   // The circle's height, and the in-page translation pill's beside it (2.7).
-  const fabTop = dragY !== null ? `${dragY}%` : fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
+  const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
 
   // ------------------------------------------------------------ render
   return (
-    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-touch={touch ? "1" : undefined}>
+    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined}>
+      <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
       {fabVisible && (
         <button
           type="button"
           ref={fabRef}
-          class={`cf-fab ${settings.fabSide === "left" ? "left" : "right"} ${dragY === null ? "glide" : ""}`}
+          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}`}
           style={{ top: fabTop, ...(spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
           title={t("fabLabel")}
-          onPointerDown={onFabDown}
-          onPointerMove={onFabMove}
-          onPointerUp={onFabUp}
-          onPointerCancel={() => {
-            dragRef.current = null
-            setDragY(null)
-          }}
+          {...fabDrag.handlers}
         >
           <Icon.Sparkle size={22} />
           {jobs.unread.size > 0 && <span class="cf-fab-dot" role="status" aria-label={t("busyNew")} />}
@@ -3494,9 +3559,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {/* A page in another language (2.7): the pill to translate it in place, beside the circle on its side. */}
       {!popup && fabEnabled && !settings.fabHiddenSites.includes(source.site()) && (
         <TranslatePill
-          side={settings.fabSide === "left" ? "left" : "right"}
+          side={side}
           top={fabTop}
-          show={fabVisible && dragY === null && !bubble?.rect}
+          show={fabVisible && !fabDrag.state.dragging && !bubble?.rect}
           free={!hasPro(plan)}
           onPlans={() => {
             show()
@@ -3505,7 +3570,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         />
       )}
 
+      {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
+      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && (
+        <HintLine id={pageHints.line} side={side} top={fabTop} onTap={pageHints.tap} onClose={pageHints.close} />
+      )}
+
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
+      {shotOpen !== null && messages[shotOpen]?.shot && (
+        <ShotViewer shot={messages[shotOpen].shot!} onClose={() => setShotOpen(null)} onCrop={(crop) => cropShot(shotOpen, crop)} />
+      )}
       {remindSaved !== null && !bubble?.rect && !open && (
         <div class="cf-toast cf-snack" role="status" style={{ top: `${(window.visualViewport?.offsetTop ?? 0) + (window.visualViewport?.height ?? window.innerHeight) - 64}px` }}>
           <Bell size={14} /> {remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}
@@ -3622,7 +3695,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           style={{ ...(spaces.multi ? spaceVars(spaces.current.color) : {}), ...(layout === "sheet" && keyboard ? { bottom: `${keyboard}px`, maxHeight: `${window.visualViewport?.height ?? window.innerHeight}px` } : {}) }}
         >
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
-          <header class="cf-header">
+          <header class="cf-header" {...panelDrag.handlers}>
             {view === "collections" ? (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             ) : view !== "chat" ? (
@@ -3919,6 +3992,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 if (patch.organize === true) turnOnOrganize("settings")
                 else updateSettings(patch)
                 if (patch.spaces !== undefined) void sendBackground({ type: "useEvent", f: "space", a: "toggle", via: "settings", val: patch.spaces ? "on" : "off", spaces: spaces.count() })
+                if (patch.fabSide) void sendBackground({ type: "useEvent", f: "side", a: "setting", what: patch.fabSide })
               }}
               onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
@@ -4000,6 +4074,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         ux.wrap(m, idx, (
                           <div class="cf-bubble-note" dir="auto">
                             <NoteText entry={m} />
+                            {m.shot && <ShotThumb shot={m.shot} onOpen={() => {
+                              setShotOpen(idx)
+                              void sendBackground({ type: "useEvent", f: "shot", a: "open", what: m.shot!.kind })
+                            }} />}
                           </div>
                         ), !picked)
                       ) : (
@@ -4279,7 +4357,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {!historyMode && partial === null && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
+                {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
+                {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
                   <Hint
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
@@ -4287,6 +4366,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   >
                     {/* Free answers don't read them: the hint says Pro does. */}
                     {t(source.kind() === "video" ? (mediaOn ? "hintVideoBody" : "hintVideoBodyFree") : mediaOn ? "hintPdfBody" : "hintPdfBodyFree")}
+                  </Hint>
+                )}
+
+                {/* 2.7 (plan section 9): once, that the circle (and on iPad and Mac the panel) moves to the other edge. */}
+                {/* 2.7 (plan section 6): the page hint's how-to, after its line was tapped; its button glows (data-glow). */}
+                {pageHints.chat && !historyMode && partial === null && (() => {
+                  const how = hintText(pageHints.chat, pageHints.has(pageHints.chat))
+                  return <div ref={revealOnce}><Hint icon={<Icon.Sparkle size={16} />} title={how.title} onDone={pageHints.doneChat}>{how.body}</Hint></div>
+                })()}
+                {!historyMode && partial === null && !pending && !pageHints.chat && hintDue("side") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                  <Hint
+                    icon={<Icon.Sparkle size={16} />}
+                    title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}
+                    onDone={() => doneHint("side")}
+                  >
+                    {t(layout === "side" ? "hintSideBody" : "hintSideBodySheet")}
                   </Hint>
                 )}
 
@@ -4321,6 +4416,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
                   {ctxRow}
+                  {(noteMode || shotBusy) && (
+                    <ShotSwitch
+                      pref={shotPref}
+                      pro={plan === "pro" || plan === "ultra"}
+                      busy={shotBusy}
+                      onChange={setShotPref}
+                      onPlans={() => {
+                        void sendBackground({ type: "useEvent", f: "shot", a: "plans" })
+                        void openApp("subscribe")
+                      }}
+                    />
+                  )}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
                     {!noteMode && !historyMode && (
                       <button
@@ -4475,6 +4582,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           consent={consent}
           onConsent={agreeQuietly}
           free={plan === "free" && !ownKeyActive}
+          live={plan === "pro" || plan === "ultra"}
           onUpgrade={() => void openApp("subscribe")}
           onOpenTemplates={() => {
             show()

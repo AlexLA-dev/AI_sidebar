@@ -179,6 +179,20 @@ export const config = {
     ipDaily: int("WATCH_IP_DAILY", 1000),
     globalDaily: int("WATCH_GLOBAL_DAILY", 40_000)
   },
+  // «Проверить» и «Переписать» (2.7, /api/v2/write; the same Haiku as quick insert). The owner's rule: a tap is one
+  // answer, from Free's 5 a day or the Pro and Ultra week. These caps are safety only (nobody sees them): taps per
+  // subscription or install a day, per address a day and for everyone a day.
+  write: {
+    enabled: (env("WRITE") ?? "on").trim() !== "off",
+    tapDaily: int("WRITE_TAP_DAILY", 300),
+    ipDaily: int("WRITE_IP_DAILY", 3000),
+    globalDaily: int("WRITE_GLOBAL_DAILY", 80_000),
+    // Live underlines (Pro and Ultra, not counted as answers): paragraphs checked per subscription a day, per address,
+    // for everyone. When one runs out the underlines stop for the day without a word.
+    liveDaily: int("WRITE_LIVE_DAILY", 1500),
+    liveIpDaily: int("WRITE_LIVE_IP_DAILY", 6000),
+    liveGlobalDaily: int("WRITE_LIVE_GLOBAL_DAILY", 400_000)
+  },
   // Calendar and Reminders (2.7, /api/v2/item; the same Haiku): free for everyone and not counted against answers
   // (the owner's choice); these caps only stop runaway clients.
   items: {
