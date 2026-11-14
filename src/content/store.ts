@@ -94,16 +94,19 @@ export async function markPlanToursSeen(plans: string[]): Promise<void> {
   await set(STORAGE.planTours, [...new Set([...seen, ...plans])])
 }
 
-export type HintKey = "chats" | "video" | "pdf" | "side"
+// "new27": once, what 2.7 brought, for people who had ContextFlow before (a new install marks it seen: background).
+export type HintKey = "chats" | "video" | "pdf" | "side" | "new27"
 
 /** The "first time here" hints already shown. */
 export async function seenHints(): Promise<HintKey[]> {
   return (await get<HintKey[]>(STORAGE.hintsSeen)) ?? []
 }
 
-export async function markHintSeen(key: HintKey): Promise<void> {
+/** Marks one or more hints seen in one write (two writes at once would each keep only their own). */
+export async function markHintSeen(key: HintKey | HintKey[]): Promise<void> {
   const seen = await seenHints()
-  if (!seen.includes(key)) await set(STORAGE.hintsSeen, [...seen, key])
+  const add = (Array.isArray(key) ? key : [key]).filter((k) => !seen.includes(k))
+  if (add.length) await set(STORAGE.hintsSeen, [...seen, ...add])
 }
 
 /** Read aloud's last speed (1× until one is chosen). */

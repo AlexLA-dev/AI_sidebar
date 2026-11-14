@@ -2561,6 +2561,30 @@
  "hintSideBodySheet": {
   "message": "Arraste-o para a esquerda ou para a direita. Você também pode escolher o lado nos Ajustes."
  },
+ "hintNewTitle": {
+  "message": "Novidades do ContextFlow 2.7"
+ },
+ "hintNewTranslate": {
+  "message": "Página em outro idioma: a linha “Traduzir para português?” ao lado do ✦ passa a própria página para o seu idioma."
+ },
+ "hintNewWrite": {
+  "message": "Ao lado do campo em que você escreve: “Revisar” e “Reescrever”, com a página em mente."
+ },
+ "hintNewSpaces": {
+  "message": "Espaços separam trabalho e casa: “Novo espaço” fica no fim da lista de conversas."
+ },
+ "hintNewApple": {
+  "message": "“Adicionar ao Calendário ou Lembretes” fica no menu “…” de cada resposta."
+ },
+ "hintNewShot": {
+  "message": "“Captura da página”: a nota pode guardar uma imagem da página."
+ },
+ "hintNewSide": {
+  "message": "O ✦ vai para qualquer uma das bordas: arraste-o para o outro lado."
+ },
+ "hintAllTips": {
+  "message": "Todas as dicas"
+ },
  "phSimilar": {
   "message": "Achar mais barato?"
  },
@@ -2726,14 +2750,26 @@
  "tip_af26b6788c": {
   "message": "Tire o ✦ do caminho"
  },
- "tip_6d2694aec4": {
-  "message": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar."
+ "tip_1b3fa8b31a": {
+  "message": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. No iPad, arraste também o painel pela barra superior para levá-lo ao outro lado. “Lado da tela”, nos ajustes da extensão, faz o mesmo."
+ },
+ "tip_cbec05fbfd": {
+  "message": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. Arraste também o painel pela barra superior para levá-lo ao outro lado, ou escolha “Lado da tela” nos ajustes da extensão."
  },
  "tip_2749afe54a": {
   "message": "O essencial em um toque"
  },
  "tip_487a14e710": {
   "message": "“Resumir”, “Pontos-chave”, “Explicação simples” e “Traduzir” funcionam na página inteira — sem precisar escrever um prompt."
+ },
+ "tip_33e83f4818": {
+  "message": "Leia uma página no seu idioma"
+ },
+ "tip_f8f753be8a": {
+  "message": "Numa página em outro idioma, toque na linha “Traduzir para português?” ao lado do ✦: a própria página passa para o seu idioma, com links e tudo, e continua assim enquanto você rola. “Original” traz cada palavra de volta. Cada página conta como uma resposta por semana, não importa quantas vezes você a traduza."
+ },
+ "tip_22f41ab2de": {
+  "message": "Numa página em outro idioma, clique na linha “Traduzir para português?” ao lado do ✦: a própria página passa para o seu idioma, com links e tudo, e continua assim enquanto você rola. “Original” traz cada palavra de volta. Cada página conta como uma resposta por semana, não importa quantas vezes você a traduza."
  },
  "tip_d22c90dac1": {
   "message": "Pergunte sobre um trecho"
@@ -2776,6 +2812,15 @@
  },
  "tip_6a92f6c633": {
   "message": "Deslize o botão de enviar para cima ou para baixo (no Mac, role sobre ele) para escrever uma nota em vez de perguntar. Ela fica no chat com a página, sincroniza com ele e não gasta respostas."
+ },
+ "tip_ac13420c59": {
+  "message": "Uma captura com a sua nota"
+ },
+ "tip_dff446b7cc": {
+  "message": "Escrevendo uma nota? Ative “Captura da página” acima do campo e a nota guarda uma imagem da página: a parte que está na tela ou, com o Pro, a página inteira. Toque na imagem para abri-la em tela cheia e recortá-la. Ela fica nos seus dispositivos e no seu iCloud."
+ },
+ "tip_3ca344f02e": {
+  "message": "Escrevendo uma nota? Ative “Captura da página” acima do campo e a nota guarda uma imagem da página: a parte que está na tela ou, com o Pro, a página inteira. Clique na imagem para abri-la em tela cheia e recortá-la. Ela fica nos seus dispositivos e no seu iCloud."
  },
  "tip_654fb12e51": {
   "message": "Destaque o que importa"
@@ -2822,11 +2867,11 @@
  "tip_de4adc7524": {
   "message": "Encontrar parecidos"
  },
- "tip_b2248495b1": {
-  "message": "Toque em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e toque em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+ "tip_2c6d9f34e3": {
+  "message": "Toque em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e toque em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser. O Ultra faz a busca completa e abre cada link para verificá-lo antes de você ver. O Pro tem a busca rápida, até 5 por semana, e cada uma conta como 10 respostas."
  },
- "tip_31666a3aab": {
-  "message": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+ "tip_9bb47159a4": {
+  "message": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser. O Ultra faz a busca completa e abre cada link para verificá-lo antes de você ver. O Pro tem a busca rápida, até 5 por semana, e cada uma conta como 10 respostas."
  },
  "tip_c518fb0674": {
   "message": "Ouvir"
@@ -2849,6 +2894,24 @@
  "tip_a8e1d14e5b": {
   "message": "Em qualquer campo de uma página, digite / e algumas palavras de um modelo e pressione Tab. Control-Shift-V abre a lista inteira: o que você copiou em outras abas, seus modelos e a última resposta do ContextFlow."
  },
+ "tip_8213493414": {
+  "message": "Revise ou reescreva antes de enviar"
+ },
+ "tip_4a10311c4a": {
+  "message": "Escrevendo um e-mail ou um comentário? Toque no botão do ContextFlow ao lado do campo: “Revisar” e “Reescrever” estão no topo da lista. “Revisar” corrige erros; “Reescrever” deixa o texto mais curto, mais caloroso, mais formal ou mais confiante. Os dois levam a página em conta, como o e-mail que você está respondendo, e “Desfazer” traz suas palavras de volta. Cada toque conta como uma resposta."
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "Escrevendo um e-mail ou um comentário? Depois de escrever algumas palavras, aponte para o círculo acima do campo: “Revisar” corrige erros; “Reescrever” deixa o texto mais curto, mais caloroso, mais formal ou mais confiante. Os dois levam a página em conta, como o e-mail que você está respondendo, e “Desfazer” traz suas palavras de volta. Cada um conta como uma resposta."
+ },
+ "tip_898fe0f06c": {
+  "message": "Erros sublinhados enquanto você digita"
+ },
+ "tip_b9954518f0": {
+  "message": "Com o Pro ou o Ultra, faça uma pausa ao digitar e um erro no parágrafo que você alterou fica sublinhado. Toque no sublinhado para ver a correção e depois em “Corrigir” ou “Ignorar”. Isso não gasta respostas, e dá para desativar nos ajustes da extensão."
+ },
+ "tip_7e0eabc91c": {
+  "message": "Com o Pro ou o Ultra, faça uma pausa ao digitar e um erro no parágrafo que você alterou fica sublinhado. Aponte para o sublinhado para ver a correção e clique em “Corrigir” ou “Ignorar”. Isso não gasta respostas, e dá para desativar nos ajustes da extensão."
+ },
  "tip_451fa9ccb6": {
   "message": "Copiados, guardados por um dia"
  },
@@ -2870,6 +2933,12 @@
  "tip_b5d4d7711a": {
   "message": "Lendo algo que quer terminar depois? Selecione uma linha e toque no sino, ou toque em “…” no topo do painel, depois em “Me lembrar desta página…”, e escolha um horário: o lembrete abre esta página. Respostas e notas têm “Me lembrar” no menu “…”."
  },
+ "tip_529cd4b087": {
+  "message": "Adicionar ao Calendário ou Lembretes"
+ },
+ "tip_c20a65b22a": {
+  "message": "Peça “me lembre de ligar para o banco na sexta” ou pergunte sobre uma data da página: a resposta vem com um cartão para conferir a data e a hora, e “Adicionar” coloca no Calendário ou no Lembretes. Toda resposta ou nota tem “Adicionar ao Calendário ou Lembretes” no menu “…”. Em “Me lembrar”, “Também no Lembretes” põe o lembrete também no app Lembretes da Apple."
+ },
  "tip_74c328b672": {
   "message": "Saiba quando um preço cair"
  },
@@ -2884,6 +2953,18 @@
  },
  "tip_623811ea30": {
   "message": "Comece uma nova conversa com +. As anteriores ficam na lista de conversas: abra uma para continuar de onde parou, renomeie com o lápis ou apague."
+ },
+ "tip_827a76a38d": {
+  "message": "Espaços para trabalho e casa"
+ },
+ "tip_6bf925510c": {
+  "message": "Separe trabalho, casa e compras. “Novo espaço”, no fim da lista de conversas, cria um com sua própria cor. O seletor no topo da lista alterna entre eles, e uma conversa nova vai para o espaço em que você está. No seletor, “Abrir amazon.com aqui” mantém esse site neste espaço. No plano Grátis há um limite; com o Pro ou o Ultra, quantos quiser."
+ },
+ "tip_3512a4ae8c": {
+  "message": "A conversa desta página"
+ },
+ "tip_05b9621aed": {
+  "message": "Abra o painel numa página e o ContextFlow escolhe a conversa sobre ela: a que tem esta página ou uma sobre o mesmo assunto. “Continuando”, no topo, mostra qual conversa ele escolheu; “Nova conversa”, ali mesmo, começa outra."
  },
  "tip_c4b432e2e9": {
   "message": "Busque nas suas conversas"
@@ -2962,6 +3043,12 @@
  },
  "tip_6cc366173d": {
   "message": "Não precisa do ✦ em um site? Oculte-o nesse site ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+ },
+ "tip_cc54dd5946": {
+  "message": "Dicas no botão ✦"
+ },
+ "tip_325d207bb4": {
+  "message": "Nos primeiros dias, uma linha curta ao lado do ✦ sugere algo para a página em que você está: o resumo de um artigo longo, um preço para acompanhar, uma data para o calendário. Toque nela para ver como. Desative essas linhas nos ajustes da extensão, em “Dicas no botão ✦”."
  },
  "tip_8a727e1bbe": {
   "message": "Use sua própria chave de API"

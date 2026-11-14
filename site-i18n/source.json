@@ -404,8 +404,7 @@
   "kind": "html",
   "en": "Find similar <span class=\"ultra-badge\">Ultra</span>",
   "pages": [
-   "index.html",
-   "features.html"
+   "index.html"
   ]
  },
  {
@@ -1283,9 +1282,9 @@
   ]
  },
  {
-  "key": "beb31c6eb1e7",
+  "key": "a47f9807cac6",
   "kind": "html",
-  "en": "Is the ✦ button covering what you're reading? Drag it up or down along the edge, or over to the other side, and it stays there.",
+  "en": "Is the ✦ button covering what you're reading? Drag it up or down along the edge, or over to the other side, and it stays there. On iPad and Mac the panel moves too: drag it by its top bar.",
   "pages": [
    "features.html"
   ]
@@ -1302,6 +1301,22 @@
   "key": "2c76cca91d64",
   "kind": "html",
   "en": "Long article and no time? Summarize, Key takeaways, Explain simply and Translate work on the whole page. You don't have to write a prompt.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "33e83f481866",
+  "kind": "html",
+  "en": "Read a page in your language",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "ae497044dc80",
+  "kind": "html",
+  "en": "A news site in German, a forum in Japanese? Tap the “Translate to English?” line by ✦ and the page itself switches to your language, links and all, as you scroll. Original brings every word back. A page counts as one answer a week.",
   "pages": [
    "features.html"
   ]
@@ -1411,6 +1426,22 @@
   ]
  },
  {
+  "key": "ac13420c5931",
+  "kind": "html",
+  "en": "A snapshot with your note",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "273a3deaa737",
+  "kind": "html",
+  "en": "Turn on Page snapshot when you write a note, and it keeps a picture of the page: the part on screen, or with Pro the whole page. Open it full screen and crop it. It stays on your devices and in your iCloud.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "654fb12e519d",
   "kind": "html",
   "en": "Highlight what matters",
@@ -1507,9 +1538,17 @@
   ]
  },
  {
-  "key": "ea488f6eb0df",
+  "key": "73563198e068",
   "kind": "html",
-  "en": "Wondering what else is out there? Tap Find similar in the panel, or select a product's name and tap Find similar under it. Add a condition like Cheaper or In stock if you want. Every alternative is a real page, opened and checked before you see it.",
+  "en": "Find similar <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "eb682d84cfd4",
+  "kind": "html",
+  "en": "Wondering what else is out there? Tap Find similar in the panel, or select a product's name and tap Find similar under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every alternative to check it before you see it; Pro has a quick search, up to 5 a week.",
   "pages": [
    "features.html"
   ]
@@ -1542,6 +1581,38 @@
   "key": "360fe19a35b3",
   "kind": "html",
   "en": "Typing the same things into forms? Tap a text field on a page, then the ContextFlow button by it: what you copied in other tabs, your templates and the last answer are one tap away. With a keyboard, type / and a few words of a template, then Tab. On Mac, Control-Shift-V opens the whole list.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "8213493414fa",
+  "kind": "html",
+  "en": "Check or rewrite before you send",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "ad9714f4928a",
+  "kind": "html",
+  "en": "Writing an email or a comment? On iPhone and iPad, tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. On Mac, point at the circle above the field. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident, with the page in mind. Each one counts as one answer.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "b2ca695d57ed",
+  "kind": "html",
+  "en": "Mistakes underlined as you type <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "1ba16433ba94",
+  "kind": "html",
+  "en": "Pause while typing and a mistake in the paragraph you changed gets underlined. Tap it (on Mac, point at it) to see the fix. It doesn't count as answers.",
   "pages": [
    "features.html"
   ]
@@ -1603,6 +1674,22 @@
   ]
  },
  {
+  "key": "529cd4b087a6",
+  "kind": "html",
+  "en": "Add to Calendar or Reminders",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "0938be8c9b67",
+  "kind": "html",
+  "en": "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card where you check the date and time, then Add. Any answer or note has Add to Calendar or Reminders in its … menu.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "74c328b672ba",
   "kind": "html",
   "en": "Know when a price drops",
@@ -1638,6 +1725,38 @@
   "key": "ac55460aac9d",
   "kind": "html",
   "en": "New topic? Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "827a76a38df9",
+  "kind": "html",
+  "en": "Spaces for work and home",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "a5c7d9e3601a",
+  "kind": "html",
+  "en": "Keep work, home and shopping apart, each with its own chats and color. New space is at the end of the chat list, the switcher at the top. A site can always open in its own space. Free has a limit; Pro and Ultra, as many as you like.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "3512a4ae8c6d",
+  "kind": "html",
+  "en": "The chat for this page",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "3bbba66422c3",
+  "kind": "html",
+  "en": "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top tells you which, and New chat starts a fresh one.",
   "pages": [
    "features.html"
   ]
@@ -1846,6 +1965,22 @@
   "key": "eead011c5123",
   "kind": "html",
   "en": "Don't need the ✦ button on a site? Hide it there, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "cc54dd594630",
+  "kind": "html",
+  "en": "Tips by the ✦ button",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "e90e5a24917d",
+  "kind": "html",
+  "en": "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how, or turn the lines off in the extension settings.",
   "pages": [
    "features.html"
   ]

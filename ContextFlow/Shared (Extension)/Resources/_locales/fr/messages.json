@@ -2561,6 +2561,30 @@
  "hintSideBodySheet": {
   "message": "Glissez-le à gauche ou à droite. Vous pouvez aussi choisir le côté dans les réglages."
  },
+ "hintNewTitle": {
+  "message": "Nouveautés de ContextFlow 2.7"
+ },
+ "hintNewTranslate": {
+  "message": "Une page dans une autre langue : la ligne « Traduire en français ? » près de ✦ passe la page elle-même dans votre langue."
+ },
+ "hintNewWrite": {
+  "message": "Près du champ où vous écrivez : « Vérifier » et « Réécrire », en tenant compte de la page."
+ },
+ "hintNewSpaces": {
+  "message": "Les espaces séparent le travail et la maison : « Nouvel espace » est à la fin de la liste des discussions."
+ },
+ "hintNewApple": {
+  "message": "« Ajouter au Calendrier ou aux Rappels » est dans le menu « … » d’une réponse."
+ },
+ "hintNewShot": {
+  "message": "« Capture de la page » : une note peut garder une image de la page."
+ },
+ "hintNewSide": {
+  "message": "✦ va sur l’un ou l’autre bord : faites-le glisser."
+ },
+ "hintAllTips": {
+  "message": "Toutes les astuces"
+ },
  "phSimilar": {
   "message": "Le trouver moins cher ?"
  },
@@ -2726,14 +2750,26 @@
  "tip_af26b6788c": {
   "message": "Écartez ✦ de votre lecture"
  },
- "tip_6d2694aec4": {
-  "message": "✦ cache ce que vous lisez ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez."
+ "tip_1b3fa8b31a": {
+  "message": "✦ cache ce que vous lisez ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Sur iPad, faites aussi glisser le panneau par son en-tête pour le passer de l’autre côté. « Côté de l’écran », dans les réglages de l’extension, fait la même chose."
+ },
+ "tip_cbec05fbfd": {
+  "message": "✦ cache ce que vous lisez ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Faites aussi glisser le panneau par son en-tête pour le passer de l’autre côté, ou choisissez « Côté de l’écran » dans les réglages de l’extension."
  },
  "tip_2749afe54a": {
   "message": "L’essentiel en un geste"
  },
  "tip_487a14e710": {
   "message": "« Résumer », « Points clés », « En termes simples » et « Traduire » portent sur toute la page — inutile d’écrire une consigne."
+ },
+ "tip_33e83f4818": {
+  "message": "Lisez une page dans votre langue"
+ },
+ "tip_f8f753be8a": {
+  "message": "Sur une page dans une autre langue, touchez la ligne « Traduire en français ? » près de ✦ : la page elle-même passe dans votre langue, liens compris, et la traduction suit pendant que vous faites défiler. « Original » remet chaque mot comme avant. Une page compte comme une réponse par semaine, même si vous la traduisez plusieurs fois."
+ },
+ "tip_22f41ab2de": {
+  "message": "Sur une page dans une autre langue, cliquez sur la ligne « Traduire en français ? » près de ✦ : la page elle-même passe dans votre langue, liens compris, et la traduction suit pendant que vous faites défiler. « Original » remet chaque mot comme avant. Une page compte comme une réponse par semaine, même si vous la traduisez plusieurs fois."
  },
  "tip_d22c90dac1": {
   "message": "Questionner un passage"
@@ -2776,6 +2812,15 @@
  },
  "tip_6a92f6c633": {
   "message": "Faites glisser le bouton d’envoi vers le haut ou le bas (sur Mac, faites défiler dessus) pour écrire une note au lieu de poser une question. Elle reste dans la discussion avec sa page, se synchronise avec elle et ne consomme aucune réponse."
+ },
+ "tip_ac13420c59": {
+  "message": "Une capture avec votre note"
+ },
+ "tip_dff446b7cc": {
+  "message": "Vous écrivez une note ? Activez « Capture de la page » au-dessus du champ, et la note garde une image de la page : la zone visible ou, avec Pro, la page entière. Touchez l’image pour l’ouvrir en plein écran et la recadrer. Elle reste sur vos appareils et dans votre iCloud."
+ },
+ "tip_3ca344f02e": {
+  "message": "Vous écrivez une note ? Activez « Capture de la page » au-dessus du champ, et la note garde une image de la page : la zone visible ou, avec Pro, la page entière. Cliquez sur l’image pour l’ouvrir en plein écran et la recadrer. Elle reste sur vos appareils et dans votre iCloud."
  },
  "tip_654fb12e51": {
   "message": "Surlignez l’essentiel"
@@ -2822,11 +2867,11 @@
  "tip_de4adc7524": {
   "message": "Trouver similaire"
  },
- "tip_b2248495b1": {
-  "message": "Touchez « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et touchez « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+ "tip_2c6d9f34e3": {
+  "message": "Touchez « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et touchez « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez. Ultra fait la recherche complète et ouvre chaque lien pour le vérifier avant que vous ne le voyiez. Pro a la recherche rapide, jusqu’à 5 par semaine, chacune comptant comme 10 réponses."
  },
- "tip_31666a3aab": {
-  "message": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+ "tip_9bb47159a4": {
+  "message": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez. Ultra fait la recherche complète et ouvre chaque lien pour le vérifier avant que vous ne le voyiez. Pro a la recherche rapide, jusqu’à 5 par semaine, chacune comptant comme 10 réponses."
  },
  "tip_c518fb0674": {
   "message": "Écouter"
@@ -2849,6 +2894,24 @@
  "tip_a8e1d14e5b": {
   "message": "Dans n’importe quel champ d’une page, tapez / et quelques mots d’un modèle, puis Tab. Contrôle-Maj-V ouvre la liste complète : ce que vous avez copié dans d’autres onglets, vos modèles et la dernière réponse de ContextFlow."
  },
+ "tip_8213493414": {
+  "message": "Vérifier ou réécrire avant d’envoyer"
+ },
+ "tip_4a10311c4a": {
+  "message": "Vous écrivez un e-mail ou un commentaire ? Touchez le bouton ContextFlow près du champ : « Vérifier » et « Réécrire » sont en haut de la liste. « Vérifier » corrige les fautes ; « Réécrire » rend le texte plus court, plus chaleureux, plus formel ou plus assuré. Les deux tiennent compte de la page, comme l’e-mail auquel vous répondez, et « Annuler » vous rend vos mots. Chaque appui compte comme une réponse."
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "Vous écrivez un e-mail ou un commentaire ? Après quelques mots, pointez le cercle au-dessus du champ : « Vérifier » corrige les fautes ; « Réécrire » rend le texte plus court, plus chaleureux, plus formel ou plus assuré. Les deux tiennent compte de la page, comme l’e-mail auquel vous répondez, et « Annuler » vous rend vos mots. Chacun compte comme une réponse."
+ },
+ "tip_898fe0f06c": {
+  "message": "Les fautes soulignées pendant la saisie"
+ },
+ "tip_b9954518f0": {
+  "message": "Avec Pro ou Ultra, faites une pause pendant la saisie : une faute dans le paragraphe modifié est soulignée. Touchez le soulignement pour voir la correction, puis « Corriger » ou « Ignorer ». Cela ne consomme aucune réponse, et vous pouvez le désactiver dans les réglages de l’extension."
+ },
+ "tip_7e0eabc91c": {
+  "message": "Avec Pro ou Ultra, faites une pause pendant la saisie : une faute dans le paragraphe modifié est soulignée. Pointez le soulignement pour voir la correction, puis « Corriger » ou « Ignorer ». Cela ne consomme aucune réponse, et vous pouvez le désactiver dans les réglages de l’extension."
+ },
  "tip_451fa9ccb6": {
   "message": "Le texte copié, gardé une journée"
  },
@@ -2870,6 +2933,12 @@
  "tip_b5d4d7711a": {
   "message": "Vous lisez quelque chose à finir plus tard ? Sélectionnez une ligne et touchez la cloche, ou touchez « … » en haut du panneau, puis « Me rappeler cette page… », et choisissez une heure : le rappel ouvre cette page. Les réponses et les notes ont « Me le rappeler » dans leur menu « … »."
  },
+ "tip_529cd4b087": {
+  "message": "Ajouter au Calendrier ou aux Rappels"
+ },
+ "tip_c20a65b22a": {
+  "message": "Demandez « rappelle-moi d’appeler la banque vendredi », ou posez une question sur une date de la page : la réponse arrive avec une carte pour vérifier la date et l’heure, et « Ajouter » la place dans Calendrier ou Rappels. Chaque réponse ou note a « Ajouter au Calendrier ou aux Rappels » dans son menu « … ». Dans « Me le rappeler », « Aussi dans Rappels » ajoute en plus votre rappel à l’app Rappels d’Apple."
+ },
  "tip_74c328b672": {
   "message": "Sachez quand un prix baisse"
  },
@@ -2884,6 +2953,18 @@
  },
  "tip_623811ea30": {
   "message": "Commencez une nouvelle discussion avec +. Les précédentes vous attendent dans la liste : ouvrez-en une pour reprendre où vous en étiez, renommez-la avec le crayon ou supprimez-la."
+ },
+ "tip_827a76a38d": {
+  "message": "Des espaces pour le travail et la maison"
+ },
+ "tip_6bf925510c": {
+  "message": "Séparez le travail, la maison et les achats. « Nouvel espace », à la fin de la liste des discussions, en crée un avec sa propre couleur. Le sélecteur en haut de la liste permet de passer de l’un à l’autre, et une nouvelle discussion va dans l’espace où vous êtes. Dans le sélecteur, « Ouvrir amazon.com ici » garde ce site dans cet espace. La version gratuite a une limite ; avec Pro ou Ultra, autant que vous voulez."
+ },
+ "tip_3512a4ae8c": {
+  "message": "La discussion de cette page"
+ },
+ "tip_05b9621aed": {
+  "message": "Ouvrez le panneau sur une page et ContextFlow choisit la discussion qui en parle : celle qui contient cette page, ou une autre sur le même sujet. « Je continue », en haut, indique laquelle il a choisie ; « Nouveau chat », juste à côté, en commence une nouvelle."
  },
  "tip_c4b432e2e9": {
   "message": "Cherchez dans vos discussions"
@@ -2962,6 +3043,12 @@
  },
  "tip_6cc366173d": {
   "message": "Pas besoin de ✦ sur un site ? Masquez-le sur ce site ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+ },
+ "tip_cc54dd5946": {
+  "message": "Astuces près du bouton ✦"
+ },
+ "tip_325d207bb4": {
+  "message": "Les premiers jours, une courte ligne près de ✦ vous suggère quelque chose pour la page où vous êtes : le résumé d’un long article, un prix à surveiller, une date pour votre calendrier. Touchez-la pour voir comment faire. Désactivez ces lignes dans les réglages de l’extension, sous « Astuces près du bouton ✦ »."
  },
  "tip_8a727e1bbe": {
   "message": "Utilisez votre clé d’API"

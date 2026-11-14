@@ -44138,88 +44138,6 @@
         }
       }
     },
-    "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "اضغط على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، واضغط على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toca «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y toca «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Touchez « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et touchez « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をタップします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をタップします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 탭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 탭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toque em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e toque em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите «Найти похожее» среди быстрых действий под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии»: альтернативы настоящие, и каждую ссылку мы открываем и проверяем, прежде чем показать."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть «Знайти схоже» серед швидких дій під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності»: альтернативи справжні, і кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi chạm vào Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在面板的操作中，或在面板顶部的“…”菜单中，轻点“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中轻点“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在面板的動作中，或在面板頂部的「…」選單中，點一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中點一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
-          }
-        }
-      }
-    },
     "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. The ContextFlow app reads it in a natural voice, and it keeps playing with the screen locked. Tap the speed in the player for 1×, 1.2×, 1.5× or 2×.": {
       "localizations": {
         "ar": {
@@ -45906,88 +45824,6 @@
         }
       }
     },
-    "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "هل يغطي ✦ ما تقرؤه؟ اسحبه لأعلى أو لأسفل على طول الحافة، أو إلى الجانب الآخر: يبقى حيث تتركه."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿✦ tapa lo que estás leyendo? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ cache ce que vous lisez ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있습니다."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ закрывает то, что вы читаете? Перетащите кнопку вверх или вниз вдоль края или на другую сторону — она останется там, где вы её отпустите."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ закриває те, що ви читаєте? Перетягніть кнопку вгору чи вниз уздовж краю або на інший бік — вона залишиться там, де ви її відпустите."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ 挡住了你正在读的内容？沿着边缘上下拖动它，或拖到另一侧：放在哪里就停在哪里。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ 擋住了你正在讀的內容？沿著邊緣上下拖動它，或拖到另一側：放在哪裡就停在哪裡。"
-          }
-        }
-      }
-    },
     "Hide ✦ when you don't need it": {
       "localizations": {
         "ar": {
@@ -46230,88 +46066,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "在頁面上選取文字後，下方的「你的問題…」欄位中會出現「摘要」、「翻譯」、「尋找相似」等動作。用觸控板或滑鼠滾輪左右捲動，按一下其中一個就行，不用打字。"
-          }
-        }
-      }
-    },
-    "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "انقر على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، وانقر على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 클릭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 클릭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите «Найти похожее» среди быстрых действий под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии»: альтернативы настоящие, и каждую ссылку мы открываем и проверяем, прежде чем показать."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть «Знайти схоже» серед швидких дій під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності»: альтернативи справжні, і кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在面板的操作中，或在面板顶部的“…”菜单中，点按“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中点按“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中按一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
           }
         }
       }
@@ -53551,6 +53305,2056 @@
           "stringUnit": {
             "state": "translated",
             "value": "石墨色"
+          }
+        }
+      }
+    },
+    "Read a page in your language": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اقرأ الصفحة بلغتك"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Seite in deiner Sprache lesen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lee una página en tu idioma"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisez une page dans votre langue"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggi una pagina nella tua lingua"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページを自分の言語で読む"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 언어로 페이지 읽기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leia uma página no seu idioma"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читайте страницу на своём языке"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читайте сторінку своєю мовою"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đọc trang bằng ngôn ngữ của bạn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用你的语言阅读网页"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用你的語言閱讀頁面"
+          }
+        }
+      }
+    },
+    "On a page in another language, tap the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في صفحة بلغة أخرى، اضغط على سطر «ترجمة إلى العربية؟» بجانب ✦: تتحول الصفحة نفسها إلى لغتك، بروابطها وكل ما فيها، وتستمر الترجمة وأنت تمرّر. «الأصل» يعيد كل كلمة كما كانت. تُحتسب الصفحة إجابة واحدة في الأسبوع، مهما كرّرت ترجمتها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ist eine Seite in einer anderen Sprache, tippe auf die Zeile „Auf Deutsch übersetzen?“ an der ✦-Taste: Die Seite selbst wechselt samt Links in deine Sprache, und die Übersetzung läuft beim Scrollen weiter. „Original“ holt jedes Wort zurück. Eine Seite zählt als eine Antwort pro Woche, egal wie oft du sie übersetzt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En una página en otro idioma, toca la línea «¿Traducir al español?» junto a ✦: la propia página pasa a tu idioma, enlaces incluidos, y sigue traduciéndose mientras te desplazas. «Original» deja cada palabra como estaba. Una página cuenta como una respuesta a la semana, aunque la traduzcas varias veces."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur une page dans une autre langue, touchez la ligne « Traduire en français ? » près de ✦ : la page elle-même passe dans votre langue, liens compris, et la traduction suit pendant que vous faites défiler. « Original » remet chaque mot comme avant. Une page compte comme une réponse par semaine, même si vous la traduisez plusieurs fois."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su una pagina in un’altra lingua, tocca la riga «Tradurre in italiano?» accanto a ✦: la pagina stessa passa alla tua lingua, link compresi, e la traduzione continua mentre scorri. «Originale» rimette ogni parola com’era. Una pagina vale una risposta a settimana, anche se la traduci più volte."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ほかの言語のページでは、✦ の横の「日本語に翻訳しますか？」をタップします。リンクも含めてページそのものがあなたの言語に切り替わり、スクロールしても翻訳が続きます。「原文」ですべての言葉が元に戻ります。1つのページは、何度翻訳しても週に回答1回分です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 언어로 된 페이지에서 ✦ 옆의 ‘한국어로 번역할까요?’를 탭하세요. 링크까지 포함해 페이지 자체가 내 언어로 바뀌고, 스크롤해도 계속 번역돼요. ‘원문’을 누르면 모든 단어가 원래대로 돌아와요. 몇 번을 번역해도 한 페이지는 일주일에 답변 1개로 계산돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numa página em outro idioma, toque na linha “Traduzir para português?” ao lado do ✦: a própria página passa para o seu idioma, com links e tudo, e continua assim enquanto você rola. “Original” traz cada palavra de volta. Cada página conta como uma resposta por semana, não importa quantas vezes você a traduza."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Если страница на другом языке, нажмите строку «Перевести на русский?» у кнопки ✦: сама страница вместе со ссылками перейдёт на ваш язык и будет переводиться дальше по мере прокрутки. «Оригинал» вернёт каждое слово. Одна страница — один ответ в неделю, сколько бы раз вы её ни переводили."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Якщо сторінка іншою мовою, натисніть рядок «Перекласти українською?» біля кнопки ✦: сама сторінка разом із посиланнями перейде на вашу мову й перекладатиметься далі під час прокручування. «Оригінал» поверне кожне слово. Одна сторінка — одна відповідь на тиждень, хоч би скільки разів ви її перекладали."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trên trang bằng ngôn ngữ khác, chạm vào dòng “Dịch sang tiếng Việt?” cạnh ✦: chính trang đó chuyển sang ngôn ngữ của bạn, kể cả các liên kết, và tiếp tục dịch khi bạn cuộn. Bản gốc đưa mọi chữ trở lại như cũ. Mỗi trang tính là một câu trả lời mỗi tuần, dù bạn dịch bao nhiêu lần."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在其他语言的网页上，轻点 ✦ 旁的“翻译成中文？”：网页本身会切换成你的语言，连链接也一样，滚动时会继续翻译。“原文”能把每个字都恢复原样。同一个网页不论翻译多少次，每周都只计为一次回答。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在其他語言的頁面上，點一下 ✦ 旁的「翻譯成中文？」：頁面本身會換成你的語言，連結也一樣，捲動時也會繼續翻譯。「原文」能把每個字都換回來。同一個頁面不論翻譯幾次，每週都只算一次回答。"
+          }
+        }
+      }
+    },
+    "On a page in another language, click the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في صفحة بلغة أخرى، انقر على سطر «ترجمة إلى العربية؟» بجانب ✦: تتحول الصفحة نفسها إلى لغتك، بروابطها وكل ما فيها، وتستمر الترجمة وأنت تمرّر. «الأصل» يعيد كل كلمة كما كانت. تُحتسب الصفحة إجابة واحدة في الأسبوع، مهما كرّرت ترجمتها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ist eine Seite in einer anderen Sprache, klick auf die Zeile „Auf Deutsch übersetzen?“ an der ✦-Taste: Die Seite selbst wechselt samt Links in deine Sprache, und die Übersetzung läuft beim Scrollen weiter. „Original“ holt jedes Wort zurück. Eine Seite zählt als eine Antwort pro Woche, egal wie oft du sie übersetzt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En una página en otro idioma, haz clic en la línea «¿Traducir al español?» junto a ✦: la propia página pasa a tu idioma, enlaces incluidos, y sigue traduciéndose mientras te desplazas. «Original» deja cada palabra como estaba. Una página cuenta como una respuesta a la semana, aunque la traduzcas varias veces."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur une page dans une autre langue, cliquez sur la ligne « Traduire en français ? » près de ✦ : la page elle-même passe dans votre langue, liens compris, et la traduction suit pendant que vous faites défiler. « Original » remet chaque mot comme avant. Une page compte comme une réponse par semaine, même si vous la traduisez plusieurs fois."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su una pagina in un’altra lingua, fai clic sulla riga «Tradurre in italiano?» accanto a ✦: la pagina stessa passa alla tua lingua, link compresi, e la traduzione continua mentre scorri. «Originale» rimette ogni parola com’era. Una pagina vale una risposta a settimana, anche se la traduci più volte."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ほかの言語のページでは、✦ の横の「日本語に翻訳しますか？」をクリックします。リンクも含めてページそのものがあなたの言語に切り替わり、スクロールしても翻訳が続きます。「原文」ですべての言葉が元に戻ります。1つのページは、何度翻訳しても週に回答1回分です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 언어로 된 페이지에서 ✦ 옆의 ‘한국어로 번역할까요?’를 클릭하세요. 링크까지 포함해 페이지 자체가 내 언어로 바뀌고, 스크롤해도 계속 번역돼요. ‘원문’을 누르면 모든 단어가 원래대로 돌아와요. 몇 번을 번역해도 한 페이지는 일주일에 답변 1개로 계산돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numa página em outro idioma, clique na linha “Traduzir para português?” ao lado do ✦: a própria página passa para o seu idioma, com links e tudo, e continua assim enquanto você rola. “Original” traz cada palavra de volta. Cada página conta como uma resposta por semana, não importa quantas vezes você a traduza."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Если страница на другом языке, нажмите строку «Перевести на русский?» у кнопки ✦: сама страница вместе со ссылками перейдёт на ваш язык и будет переводиться дальше по мере прокрутки. «Оригинал» вернёт каждое слово. Одна страница — один ответ в неделю, сколько бы раз вы её ни переводили."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Якщо сторінка іншою мовою, натисніть рядок «Перекласти українською?» біля кнопки ✦: сама сторінка разом із посиланнями перейде на вашу мову й перекладатиметься далі під час прокручування. «Оригінал» поверне кожне слово. Одна сторінка — одна відповідь на тиждень, хоч би скільки разів ви її перекладали."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trên trang bằng ngôn ngữ khác, bấm vào dòng “Dịch sang tiếng Việt?” cạnh ✦: chính trang đó chuyển sang ngôn ngữ của bạn, kể cả các liên kết, và tiếp tục dịch khi bạn cuộn. Bản gốc đưa mọi chữ trở lại như cũ. Mỗi trang tính là một câu trả lời mỗi tuần, dù bạn dịch bao nhiêu lần."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在其他语言的网页上，点按 ✦ 旁的“翻译成中文？”：网页本身会切换成你的语言，连链接也一样，滚动时会继续翻译。“原文”能把每个字都恢复原样。同一个网页不论翻译多少次，每周都只计为一次回答。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在其他語言的頁面上，按一下 ✦ 旁的「翻譯成中文？」：頁面本身會換成你的語言，連結也一樣，捲動時也會繼續翻譯。「原文」能把每個字都換回來。同一個頁面不論翻譯幾次，每週都只算一次回答。"
+          }
+        }
+      }
+    },
+    "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. On iPad, drag the panel by its top bar to move it to the other side too. Screen side in the extension settings does the same.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل يغطي ✦ ما تقرؤه؟ اسحبه لأعلى أو لأسفل على طول الحافة، أو إلى الجانب الآخر: يبقى حيث تتركه. على iPad، اسحب اللوحة أيضًا من شريطها العلوي لنقلها إلى الجانب الآخر. وخيار «جانب الشاشة» في إعدادات الامتداد يفعل الشيء نفسه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Auf dem iPad kannst du auch das Panel an seiner Kopfzeile auf die andere Seite ziehen. „Bildschirmseite“ in den Erweiterungseinstellungen macht dasselbe."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿✦ tapa lo que estás leyendo? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes. En el iPad, arrastra también el panel por su cabecera para pasarlo al otro lado. «Lado de la pantalla», en los ajustes de la extensión, hace lo mismo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ cache ce que vous lisez ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Sur iPad, faites aussi glisser le panneau par son en-tête pour le passer de l’autre côté. « Côté de l’écran », dans les réglages de l’extension, fait la même chose."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci. Su iPad, trascina anche il pannello dall’intestazione per spostarlo dall’altro lato. «Lato dello schermo», nelle impostazioni dell’estensione, fa lo stesso."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。iPad では、パネルも上部をつかんでドラッグすれば反対側へ移せます。拡張機能の設定の「画面の左右」でも同じことができます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. iPad에서는 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있어요. 확장 프로그램 설정의 ‘화면 방향’으로도 똑같이 할 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. No iPad, arraste também o painel pela barra superior para levá-lo ao outro lado. “Lado da tela”, nos ajustes da extensão, faz o mesmo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ закрывает то, что вы читаете? Перетащите кнопку вверх или вниз вдоль края или на другую сторону — она останется там, где вы её отпустите. На iPad панель тоже можно перенести на другую сторону: потяните её за шапку. То же самое делает пункт «Сторона экрана» в настройках расширения."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ закриває те, що ви читаєте? Перетягніть кнопку вгору чи вниз уздовж краю або на інший бік — вона залишиться там, де ви її відпустите. На iPad панель теж можна перенести на інший бік: потягніть її за шапку. Те саме робить пункт «Бік екрана» в налаштуваннях розширення."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả. Trên iPad, bạn cũng có thể kéo bảng bằng thanh trên cùng để chuyển bảng sang phía bên kia. Cạnh màn hình trong phần cài đặt tiện ích mở rộng cũng làm được như vậy."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 挡住了你正在读的内容？沿着边缘上下拖动它，或拖到另一侧：放在哪里就停在哪里。在 iPad 上，按住面板顶部拖动，也能把面板移到另一侧。扩展设置中的“屏幕侧边”也能做到。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 擋住了你正在讀的內容？沿著邊緣上下拖動它，或拖到另一側：放在哪裡就停在哪裡。在 iPad 上，按住面板頂部拖動，也能把面板移到另一側。延伸功能設定中的「螢幕側邊」也能做到。"
+          }
+        }
+      }
+    },
+    "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. Drag the panel by its top bar to move it to the other side too, or choose Screen side in the extension settings.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل يغطي ✦ ما تقرؤه؟ اسحبه لأعلى أو لأسفل على طول الحافة، أو إلى الجانب الآخر: يبقى حيث تتركه. اسحب اللوحة أيضًا من شريطها العلوي لنقلها إلى الجانب الآخر، أو اختر «جانب الشاشة» في إعدادات الامتداد."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Auch das Panel kannst du an seiner Kopfzeile auf die andere Seite ziehen, oder du wählst „Bildschirmseite“ in den Erweiterungseinstellungen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿✦ tapa lo que estás leyendo? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes. Arrastra también el panel por su cabecera para pasarlo al otro lado, o elige «Lado de la pantalla» en los ajustes de la extensión."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ cache ce que vous lisez ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Faites aussi glisser le panneau par son en-tête pour le passer de l’autre côté, ou choisissez « Côté de l’écran » dans les réglages de l’extension."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci. Trascina anche il pannello dall’intestazione per spostarlo dall’altro lato, oppure scegli «Lato dello schermo» nelle impostazioni dell’estensione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。パネルも上部をつかんでドラッグすれば反対側へ移せます。拡張機能の設定の「画面の左右」でも選べます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있고, 확장 프로그램 설정의 ‘화면 방향’에서 고를 수도 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. Arraste também o painel pela barra superior para levá-lo ao outro lado, ou escolha “Lado da tela” nos ajustes da extensão."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ закрывает то, что вы читаете? Перетащите кнопку вверх или вниз вдоль края или на другую сторону — она останется там, где вы её отпустите. Панель тоже можно перенести на другую сторону: потяните её за шапку или выберите «Сторона экрана» в настройках расширения."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ закриває те, що ви читаєте? Перетягніть кнопку вгору чи вниз уздовж краю або на інший бік — вона залишиться там, де ви її відпустите. Панель теж можна перенести на інший бік: потягніть її за шапку або виберіть «Бік екрана» в налаштуваннях розширення."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả. Bạn cũng có thể kéo bảng bằng thanh trên cùng để chuyển bảng sang phía bên kia, hoặc chọn Cạnh màn hình trong phần cài đặt tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 挡住了你正在读的内容？沿着边缘上下拖动它，或拖到另一侧：放在哪里就停在哪里。按住面板顶部拖动，也能把面板移到另一侧，或在扩展设置中选择“屏幕侧边”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 擋住了你正在讀的內容？沿著邊緣上下拖動它，或拖到另一側：放在哪裡就停在哪裡。按住面板頂部拖動，也能把面板移到另一側，或在延伸功能設定中選擇「螢幕側邊」。"
+          }
+        }
+      }
+    },
+    "Check or rewrite before you send": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دقّق أو أعد الصياغة قبل الإرسال"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vor dem Senden prüfen oder umschreiben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisar o reescribir antes de enviar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier ou réécrire avant d’envoyer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlla o riscrivi prima di inviare"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送る前にチェック・書き直し"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보내기 전에 검사하거나 다시 쓰기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revise ou reescreva antes de enviar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверьте или перепишите перед отправкой"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перевірте або перепишіть перед надсиланням"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiểm tra hoặc viết lại trước khi gửi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送前检查或改写"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "傳送前檢查或改寫"
+          }
+        }
+      }
+    },
+    "Writing an email or a comment? Tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each tap counts as one answer.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تكتب رسالة بريد إلكتروني أو تعليقًا؟ اضغط على زر ContextFlow بجانب الحقل: «تدقيق» و«إعادة صياغة» في أعلى القائمة. «تدقيق» يصحح الأخطاء، و«إعادة صياغة» تجعل النص أقصر أو أكثر وُدًّا أو أكثر رسمية أو أكثر ثقة. كلاهما يراعي الصفحة، مثل الرسالة التي ترد عليها، و«تراجع» يعيد كلماتك. كل ضغطة تُحتسب إجابة واحدة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du schreibst eine E-Mail oder einen Kommentar? Tippe auf die ContextFlow-Taste neben dem Feld: „Prüfen“ und „Umschreiben“ stehen ganz oben in der Liste. „Prüfen“ korrigiert Fehler, „Umschreiben“ macht den Text kürzer, herzlicher, förmlicher oder selbstbewusster. Beide berücksichtigen die Seite, etwa die E-Mail, auf die du antwortest, und „Widerrufen“ holt deine Worte zurück. Jedes Tippen zählt als eine Antwort."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Escribes un correo o un comentario? Toca el botón de ContextFlow junto al campo: «Revisar» y «Reescribir» son lo primero de la lista. «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo que respondes, y «Deshacer» te devuelve tus palabras. Cada toque cuenta como una respuesta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous écrivez un e-mail ou un commentaire ? Touchez le bouton ContextFlow près du champ : « Vérifier » et « Réécrire » sont en haut de la liste. « Vérifier » corrige les fautes ; « Réécrire » rend le texte plus court, plus chaleureux, plus formel ou plus assuré. Les deux tiennent compte de la page, comme l’e-mail auquel vous répondez, et « Annuler » vous rend vos mots. Chaque appui compte comme une réponse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai scrivendo un’email o un commento? Tocca il pulsante di ContextFlow accanto al campo: «Controlla» e «Riscrivi» sono in cima all’elenco. «Controlla» corregge gli errori; «Riscrivi» rende il testo più breve, più caloroso, più formale o più sicuro. Entrambi tengono conto della pagina, come l’email a cui rispondi, e «Annulla» ti ridà le tue parole. Ogni tocco vale una risposta."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールやコメントを書いているときは、入力欄の横の ContextFlow ボタンをタップします。リストの一番上に「チェック」と「書き直す」があります。「チェック」は誤りを直し、「書き直す」は文章を短く、温かく、丁寧に、または自信をもって書き直します。どちらも返信中のメールなどページの内容を踏まえ、「取り消す」で元の文章に戻せます。1回のタップで回答1回分です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일이나 댓글을 쓰고 있나요? 입력란 옆의 ContextFlow 버튼을 탭하면 목록 맨 위에 ‘검사’와 ‘다시 쓰기’가 있어요. ‘검사’는 실수를 고치고, ‘다시 쓰기’는 글을 더 짧게, 더 따뜻하게, 더 격식 있게, 또는 더 자신 있게 바꿔요. 둘 다 답장하는 이메일 같은 페이지 내용을 고려하고, ‘실행 취소’로 원래 글을 되돌릴 수 있어요. 한 번 탭할 때마다 답변 1개로 계산돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escrevendo um e-mail ou um comentário? Toque no botão do ContextFlow ao lado do campo: “Revisar” e “Reescrever” estão no topo da lista. “Revisar” corrige erros; “Reescrever” deixa o texto mais curto, mais caloroso, mais formal ou mais confiante. Os dois levam a página em conta, como o e-mail que você está respondendo, e “Desfazer” traz suas palavras de volta. Cada toque conta como uma resposta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пишете письмо или комментарий? Нажмите кнопку ContextFlow рядом с полем: «Проверить» и «Переписать» — вверху списка. «Проверить» исправляет ошибки, «Переписать» делает текст короче, теплее, официальнее или увереннее. Обе команды учитывают страницу, например письмо, на которое вы отвечаете, а «Отменить» вернёт ваши слова. Каждое нажатие — один ответ."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пишете лист або коментар? Натисніть кнопку ContextFlow поруч із полем: «Перевірити» й «Переписати» — угорі списку. «Перевірити» виправляє помилки, «Переписати» робить текст коротшим, теплішим, офіційнішим або впевненішим. Обидві дії враховують сторінку, як-от лист, на який ви відповідаєте, а «Скасувати» поверне ваші слова. Кожне натискання — одна відповідь."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang viết email hay bình luận? Chạm vào nút ContextFlow cạnh ô nhập: Kiểm tra và Viết lại nằm ở đầu danh sách. Kiểm tra sửa lỗi; Viết lại làm văn bản ngắn hơn, thân thiện hơn, trang trọng hơn hoặc tự tin hơn. Cả hai đều tính đến trang, như email bạn đang trả lời, và Hoàn tác sẽ trả lại chữ của bạn. Mỗi lần chạm tính là một câu trả lời."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在写邮件或评论？轻点输入框旁的 ContextFlow 按钮：“检查”和“改写”就在列表顶部。“检查”会修正错误；“改写”能让文字更简短、更亲切、更正式或更自信。两者都会结合页面内容，比如你正在回复的邮件，“撤销”能恢复你原来的文字。每次轻点计为一次回答。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在寫郵件或留言？點一下欄位旁的 ContextFlow 按鈕：「檢查」和「改寫」就在列表最上方。「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「復原」能換回你原本的文字。每點一下算一次回答。"
+          }
+        }
+      }
+    },
+    "Writing an email or a comment? Once you've written a few words, point at the circle above the field: Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each one counts as one answer.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تكتب رسالة بريد إلكتروني أو تعليقًا؟ بعد أن تكتب بضع كلمات، مرّر المؤشر فوق الدائرة أعلى الحقل: «تدقيق» يصحح الأخطاء، و«إعادة صياغة» تجعل النص أقصر أو أكثر وُدًّا أو أكثر رسمية أو أكثر ثقة. كلاهما يراعي الصفحة، مثل الرسالة التي ترد عليها، و«تراجع» يعيد كلماتك. كل استخدام يُحتسب إجابة واحدة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du schreibst eine E-Mail oder einen Kommentar? Sobald ein paar Wörter dastehen, zeig auf den Kreis über dem Feld: „Prüfen“ korrigiert Fehler, „Umschreiben“ macht den Text kürzer, herzlicher, förmlicher oder selbstbewusster. Beide berücksichtigen die Seite, etwa die E-Mail, auf die du antwortest, und „Widerrufen“ holt deine Worte zurück. Jeder Klick zählt als eine Antwort."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Escribes un correo o un comentario? Cuando lleves unas palabras, señala el círculo encima del campo: «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo que respondes, y «Deshacer» te devuelve tus palabras. Cada uno cuenta como una respuesta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous écrivez un e-mail ou un commentaire ? Après quelques mots, pointez le cercle au-dessus du champ : « Vérifier » corrige les fautes ; « Réécrire » rend le texte plus court, plus chaleureux, plus formel ou plus assuré. Les deux tiennent compte de la page, comme l’e-mail auquel vous répondez, et « Annuler » vous rend vos mots. Chacun compte comme une réponse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai scrivendo un’email o un commento? Dopo qualche parola, punta il cerchio sopra il campo: «Controlla» corregge gli errori; «Riscrivi» rende il testo più breve, più caloroso, più formale o più sicuro. Entrambi tengono conto della pagina, come l’email a cui rispondi, e «Annulla» ti ridà le tue parole. Ognuno vale una risposta."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールやコメントを書いているときは、少し入力してから入力欄の上の丸にポインタを合わせます。「チェック」は誤りを直し、「書き直す」は文章を短く、温かく、丁寧に、または自信をもって書き直します。どちらも返信中のメールなどページの内容を踏まえ、「取り消す」で元の文章に戻せます。どちらも1回ごとに回答1回分です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일이나 댓글을 쓰고 있나요? 몇 단어를 쓴 뒤 입력란 위의 동그라미에 포인터를 올리세요. ‘검사’는 실수를 고치고, ‘다시 쓰기’는 글을 더 짧게, 더 따뜻하게, 더 격식 있게, 또는 더 자신 있게 바꿔요. 둘 다 답장하는 이메일 같은 페이지 내용을 고려하고, ‘실행 취소’로 원래 글을 되돌릴 수 있어요. 한 번 쓸 때마다 답변 1개로 계산돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escrevendo um e-mail ou um comentário? Depois de escrever algumas palavras, aponte para o círculo acima do campo: “Revisar” corrige erros; “Reescrever” deixa o texto mais curto, mais caloroso, mais formal ou mais confiante. Os dois levam a página em conta, como o e-mail que você está respondendo, e “Desfazer” traz suas palavras de volta. Cada um conta como uma resposta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пишете письмо или комментарий? Когда наберёте несколько слов, наведите указатель на кружок над полем: «Проверить» исправляет ошибки, «Переписать» делает текст короче, теплее, официальнее или увереннее. Обе команды учитывают страницу, например письмо, на которое вы отвечаете, а «Отменить» вернёт ваши слова. Каждое нажатие — один ответ."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пишете лист або коментар? Коли наберете кілька слів, наведіть вказівник на кружечок над полем: «Перевірити» виправляє помилки, «Переписати» робить текст коротшим, теплішим, офіційнішим або впевненішим. Обидві дії враховують сторінку, як-от лист, на який ви відповідаєте, а «Скасувати» поверне ваші слова. Кожне натискання — одна відповідь."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang viết email hay bình luận? Khi đã viết vài chữ, di con trỏ lên vòng tròn phía trên ô nhập: Kiểm tra sửa lỗi; Viết lại làm văn bản ngắn hơn, thân thiện hơn, trang trọng hơn hoặc tự tin hơn. Cả hai đều tính đến trang, như email bạn đang trả lời, và Hoàn tác sẽ trả lại chữ của bạn. Mỗi lần dùng tính là một câu trả lời."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在写邮件或评论？写下几个字后，把指针移到输入框上方的圆圈上：“检查”会修正错误；“改写”能让文字更简短、更亲切、更正式或更自信。两者都会结合页面内容，比如你正在回复的邮件，“撤销”能恢复你原来的文字。每次使用计为一次回答。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在寫郵件或留言？寫下幾個字後，把指標移到欄位上方的圓圈上：「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「復原」能換回你原本的文字。每次使用算一次回答。"
+          }
+        }
+      }
+    },
+    "Mistakes underlined as you type": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تسطير الأخطاء أثناء الكتابة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehler beim Tippen unterstrichen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Errores subrayados al escribir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fautes soulignées pendant la saisie"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Errori sottolineati mentre scrivi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力中の誤りに下線"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "입력 중 오류에 밑줄"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erros sublinhados enquanto você digita"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ошибки подчёркиваются при наборе"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помилки підкреслюються під час набору"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gạch chân lỗi khi gõ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入时给错误加下划线"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入時為錯誤加底線"
+          }
+        }
+      }
+    },
+    "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Tap the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مع Pro أو Ultra، توقّف قليلًا أثناء الكتابة فيُسطَّر الخطأ في الفقرة التي غيّرتها. اضغط على الخط لترى التصحيح، ثم «تصحيح» أو «تجاهل». لا يُحتسب من الإجابات، ويمكنك إيقافه في إعدادات الامتداد."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Pro oder Ultra reicht eine Tipppause, und ein Fehler im geänderten Absatz wird unterstrichen. Tippe auf die Unterstreichung, um die Korrektur zu sehen, dann auf „Korrigieren“ oder „Ignorieren“. Das zählt nicht als Antwort, und du kannst es in den Erweiterungseinstellungen ausschalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro o Ultra, haz una pausa al escribir y se subraya un error en el párrafo que cambiaste. Toca el subrayado para ver la corrección y luego «Corregir» o «Ignorar». No gasta respuestas, y puedes desactivarlo en los ajustes de la extensión."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec Pro ou Ultra, faites une pause pendant la saisie : une faute dans le paragraphe modifié est soulignée. Touchez le soulignement pour voir la correction, puis « Corriger » ou « Ignorer ». Cela ne consomme aucune réponse, et vous pouvez le désactiver dans les réglages de l’extension."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro o Ultra, fai una pausa mentre scrivi e un errore nel paragrafo che hai modificato viene sottolineato. Tocca la sottolineatura per vedere la correzione, poi «Correggi» o «Ignora». Non consuma risposte, e puoi disattivarlo nelle impostazioni dell’estensione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro か Ultra なら、入力の手を止めると、変更した段落の誤りに下線が引かれます。下線をタップすると修正案が表示され、「修正」か「無視」を選べます。回答回数には数えず、拡張機能の設定でオフにできます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro나 Ultra에서는 입력을 잠시 멈추면 바꾼 문단의 오류에 밑줄이 그어져요. 밑줄을 탭해 수정안을 보고 ‘수정’이나 ‘무시’를 고르세요. 답변으로 계산되지 않으며, 확장 프로그램 설정에서 끌 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o Pro ou o Ultra, faça uma pausa ao digitar e um erro no parágrafo que você alterou fica sublinhado. Toque no sublinhado para ver a correção e depois em “Corrigir” ou “Ignorar”. Isso não gasta respostas, e dá para desativar nos ajustes da extensão."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С Pro или Ultra достаточно паузы в наборе, и ошибка в изменённом абзаце будет подчёркнута. Нажмите на подчёркивание, чтобы увидеть исправление, затем — «Исправить» или «Пропустить». Ответы на это не тратятся, а выключить подчёркивание можно в настройках расширения."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "З Pro або Ultra досить паузи в наборі, і помилку в зміненому абзаці буде підкреслено. Натисніть підкреслення, щоб побачити виправлення, потім — «Виправити» або «Пропустити». Відповіді на це не витрачаються, а вимкнути підкреслення можна в налаштуваннях розширення."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Với Pro hoặc Ultra, khi bạn ngừng gõ một chút, lỗi trong đoạn bạn vừa sửa sẽ được gạch chân. Chạm vào gạch chân để xem bản sửa, rồi chọn Sửa hoặc Bỏ qua. Tính năng này không tốn câu trả lời, và bạn có thể tắt trong phần cài đặt tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 或 Ultra 时，输入停顿后，你改动的段落中的错误会被加上下划线。轻点下划线查看修正建议，再选择“修正”或“忽略”。不计入回答次数，也可以在扩展设置中关闭。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 或 Ultra 時，輸入停頓後，你改動的段落中的錯誤會加上底線。點一下底線查看修正建議，再選擇「修正」或「忽略」。不計入回答次數，也可以在延伸功能設定中關閉。"
+          }
+        }
+      }
+    },
+    "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Point at the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مع Pro أو Ultra، توقّف قليلًا أثناء الكتابة فيُسطَّر الخطأ في الفقرة التي غيّرتها. مرّر المؤشر فوق الخط لترى التصحيح، ثم «تصحيح» أو «تجاهل». لا يُحتسب من الإجابات، ويمكنك إيقافه في إعدادات الامتداد."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Pro oder Ultra reicht eine Tipppause, und ein Fehler im geänderten Absatz wird unterstrichen. Zeig auf die Unterstreichung, um die Korrektur zu sehen, dann klick auf „Korrigieren“ oder „Ignorieren“. Das zählt nicht als Antwort, und du kannst es in den Erweiterungseinstellungen ausschalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro o Ultra, haz una pausa al escribir y se subraya un error en el párrafo que cambiaste. Señala el subrayado para ver la corrección y luego «Corregir» o «Ignorar». No gasta respuestas, y puedes desactivarlo en los ajustes de la extensión."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec Pro ou Ultra, faites une pause pendant la saisie : une faute dans le paragraphe modifié est soulignée. Pointez le soulignement pour voir la correction, puis « Corriger » ou « Ignorer ». Cela ne consomme aucune réponse, et vous pouvez le désactiver dans les réglages de l’extension."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro o Ultra, fai una pausa mentre scrivi e un errore nel paragrafo che hai modificato viene sottolineato. Punta la sottolineatura per vedere la correzione, poi «Correggi» o «Ignora». Non consuma risposte, e puoi disattivarlo nelle impostazioni dell’estensione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro か Ultra なら、入力の手を止めると、変更した段落の誤りに下線が引かれます。下線にポインタを合わせると修正案が表示され、「修正」か「無視」を選べます。回答回数には数えず、拡張機能の設定でオフにできます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro나 Ultra에서는 입력을 잠시 멈추면 바꾼 문단의 오류에 밑줄이 그어져요. 밑줄에 포인터를 올려 수정안을 보고 ‘수정’이나 ‘무시’를 고르세요. 답변으로 계산되지 않으며, 확장 프로그램 설정에서 끌 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o Pro ou o Ultra, faça uma pausa ao digitar e um erro no parágrafo que você alterou fica sublinhado. Aponte para o sublinhado para ver a correção e clique em “Corrigir” ou “Ignorar”. Isso não gasta respostas, e dá para desativar nos ajustes da extensão."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С Pro или Ultra достаточно паузы в наборе, и ошибка в изменённом абзаце будет подчёркнута. Наведите указатель на подчёркивание, чтобы увидеть исправление, затем — «Исправить» или «Пропустить». Ответы на это не тратятся, а выключить подчёркивание можно в настройках расширения."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "З Pro або Ultra досить паузи в наборі, і помилку в зміненому абзаці буде підкреслено. Наведіть вказівник на підкреслення, щоб побачити виправлення, потім — «Виправити» або «Пропустити». Відповіді на це не витрачаються, а вимкнути підкреслення можна в налаштуваннях розширення."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Với Pro hoặc Ultra, khi bạn ngừng gõ một chút, lỗi trong đoạn bạn vừa sửa sẽ được gạch chân. Trỏ vào gạch chân để xem bản sửa, rồi chọn Sửa hoặc Bỏ qua. Tính năng này không tốn câu trả lời, và bạn có thể tắt trong phần cài đặt tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 或 Ultra 时，输入停顿后，你改动的段落中的错误会被加上下划线。把指针移到下划线上查看修正建议，再选择“修正”或“忽略”。不计入回答次数，也可以在扩展设置中关闭。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 或 Ultra 時，輸入停頓後，你改動的段落中的錯誤會加上底線。把指標移到底線上查看修正建議，再選擇「修正」或「忽略」。不計入回答次數，也可以在延伸功能設定中關閉。"
+          }
+        }
+      }
+    },
+    "A snapshot with your note": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لقطة مع ملاحظتك"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Schnappschuss zur Notiz"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una captura con tu nota"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une capture avec votre note"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un’istantanea con la tua nota"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモにスナップショットを添える"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 페이지 스냅샷 남기기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma captura com a sua nota"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Снимок к заметке"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знімок до нотатки"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ảnh chụp trang kèm ghi chú"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "给笔记附上页面快照"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "為筆記附上頁面快照"
+          }
+        }
+      }
+    },
+    "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Tap the picture to open it full screen and crop it. It stays on your devices and in your iCloud.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تكتب ملاحظة؟ شغّل «لقطة الصفحة» فوق الحقل فتحتفظ الملاحظة بصورة للصفحة: الجزء الظاهر على الشاشة، أو الصفحة كاملة مع Pro. اضغط على الصورة لفتحها بملء الشاشة وقصّها. تبقى على أجهزتك وفي iCloud الخاص بك."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du schreibst eine Notiz? Schalte „Seiten-Schnappschuss“ über dem Feld ein, und die Notiz behält ein Bild der Seite: den sichtbaren Bereich oder mit Pro die ganze Seite. Tippe auf das Bild, um es im Vollbild zu öffnen und zuzuschneiden. Es bleibt auf deinen Geräten und in deiner iCloud."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Escribes una nota? Activa «Captura de la página» encima del campo y la nota guarda una imagen de la página: el área visible o, con Pro, la página completa. Toca la imagen para abrirla a pantalla completa y recortarla. Se queda en tus dispositivos y en tu iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous écrivez une note ? Activez « Capture de la page » au-dessus du champ, et la note garde une image de la page : la zone visible ou, avec Pro, la page entière. Touchez l’image pour l’ouvrir en plein écran et la recadrer. Elle reste sur vos appareils et dans votre iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai scrivendo una nota? Attiva «Istantanea della pagina» sopra il campo e la nota conserva un’immagine della pagina: l’area visibile o, con Pro, la pagina intera. Tocca l’immagine per aprirla a schermo intero e ritagliarla. Resta sui tuoi dispositivi e nel tuo iCloud."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモを書くときに入力欄の上の「ページのスナップショット」をオンにすると、メモにページの画像が残ります。画面の表示範囲か、Pro ならページ全体です。画像をタップすると全画面で開き、切り取ることもできます。画像はあなたのデバイスと iCloud に保存されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모를 쓰고 있나요? 입력란 위의 ‘페이지 스냅샷’을 켜면 메모에 페이지 이미지가 남아요. 화면에 보이는 영역, 또는 Pro에서는 페이지 전체예요. 이미지를 탭하면 전체 화면으로 열리고 자를 수도 있어요. 이미지는 내 기기와 iCloud에 남아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escrevendo uma nota? Ative “Captura da página” acima do campo e a nota guarda uma imagem da página: a parte que está na tela ou, com o Pro, a página inteira. Toque na imagem para abri-la em tela cheia e recortá-la. Ela fica nos seus dispositivos e no seu iCloud."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пишете заметку? Включите «Снимок страницы» над полем, и заметка сохранит изображение страницы: видимую область, а с Pro — страницу целиком. Нажмите на снимок, чтобы открыть его на весь экран и обрезать. Он остаётся на ваших устройствах и в вашем iCloud."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пишете нотатку? Увімкніть «Знімок сторінки» над полем, і нотатка збереже зображення сторінки: видиму область, а з Pro — сторінку повністю. Натисніть знімок, щоб відкрити його на весь екран і обрізати. Він залишається на ваших пристроях і у вашому iCloud."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang viết ghi chú? Bật Ảnh chụp trang phía trên ô nhập, ghi chú sẽ giữ một hình ảnh của trang: phần đang hiển thị trên màn hình, hoặc toàn trang với Pro. Chạm vào ảnh để mở toàn màn hình và cắt ảnh. Ảnh nằm trên thiết bị của bạn và trong iCloud của bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在写笔记？打开输入框上方的“页面快照”，笔记就会保存一张页面图片：屏幕上可见的部分，或在 Pro 中保存整页。轻点图片可全屏打开并裁剪。图片保存在你的设备和 iCloud 中。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。點一下圖片可全螢幕打開並裁切。圖片留在你的裝置和 iCloud 中。"
+          }
+        }
+      }
+    },
+    "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Click the picture to open it full screen and crop it. It stays on your devices and in your iCloud.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تكتب ملاحظة؟ شغّل «لقطة الصفحة» فوق الحقل فتحتفظ الملاحظة بصورة للصفحة: الجزء الظاهر على الشاشة، أو الصفحة كاملة مع Pro. انقر على الصورة لفتحها بملء الشاشة وقصّها. تبقى على أجهزتك وفي iCloud الخاص بك."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du schreibst eine Notiz? Schalte „Seiten-Schnappschuss“ über dem Feld ein, und die Notiz behält ein Bild der Seite: den sichtbaren Bereich oder mit Pro die ganze Seite. Klick auf das Bild, um es im Vollbild zu öffnen und zuzuschneiden. Es bleibt auf deinen Geräten und in deiner iCloud."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Escribes una nota? Activa «Captura de la página» encima del campo y la nota guarda una imagen de la página: el área visible o, con Pro, la página completa. Haz clic en la imagen para abrirla a pantalla completa y recortarla. Se queda en tus dispositivos y en tu iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous écrivez une note ? Activez « Capture de la page » au-dessus du champ, et la note garde une image de la page : la zone visible ou, avec Pro, la page entière. Cliquez sur l’image pour l’ouvrir en plein écran et la recadrer. Elle reste sur vos appareils et dans votre iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai scrivendo una nota? Attiva «Istantanea della pagina» sopra il campo e la nota conserva un’immagine della pagina: l’area visibile o, con Pro, la pagina intera. Fai clic sull’immagine per aprirla a schermo intero e ritagliarla. Resta sui tuoi dispositivi e nel tuo iCloud."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモを書くときに入力欄の上の「ページのスナップショット」をオンにすると、メモにページの画像が残ります。画面の表示範囲か、Pro ならページ全体です。画像をクリックすると全画面で開き、切り取ることもできます。画像はあなたのデバイスと iCloud に保存されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모를 쓰고 있나요? 입력란 위의 ‘페이지 스냅샷’을 켜면 메모에 페이지 이미지가 남아요. 화면에 보이는 영역, 또는 Pro에서는 페이지 전체예요. 이미지를 클릭하면 전체 화면으로 열리고 자를 수도 있어요. 이미지는 내 기기와 iCloud에 남아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escrevendo uma nota? Ative “Captura da página” acima do campo e a nota guarda uma imagem da página: a parte que está na tela ou, com o Pro, a página inteira. Clique na imagem para abri-la em tela cheia e recortá-la. Ela fica nos seus dispositivos e no seu iCloud."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пишете заметку? Включите «Снимок страницы» над полем, и заметка сохранит изображение страницы: видимую область, а с Pro — страницу целиком. Нажмите на снимок, чтобы открыть его на весь экран и обрезать. Он остаётся на ваших устройствах и в вашем iCloud."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пишете нотатку? Увімкніть «Знімок сторінки» над полем, і нотатка збереже зображення сторінки: видиму область, а з Pro — сторінку повністю. Натисніть знімок, щоб відкрити його на весь екран і обрізати. Він залишається на ваших пристроях і у вашому iCloud."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang viết ghi chú? Bật Ảnh chụp trang phía trên ô nhập, ghi chú sẽ giữ một hình ảnh của trang: phần đang hiển thị trên màn hình, hoặc toàn trang với Pro. Bấm vào ảnh để mở toàn màn hình và cắt ảnh. Ảnh nằm trên thiết bị của bạn và trong iCloud của bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在写笔记？打开输入框上方的“页面快照”，笔记就会保存一张页面图片：屏幕上可见的部分，或在 Pro 中保存整页。点按图片可全屏打开并裁剪。图片保存在你的设备和 iCloud 中。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。按一下圖片可全螢幕打開並裁切。圖片留在你的裝置和 iCloud 中。"
+          }
+        }
+      }
+    },
+    "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، واضغط على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت. يبحث Ultra بحثًا كاملًا ويفتح كل رابط ليتحقق منه قبل أن تراه. وفي Pro بحث سريع، حتى 5 مرات في الأسبوع، ويُحتسب كل بحث بمقدار 10 إجابات."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu. Ultra sucht vollständig und öffnet jeden Link, um ihn zu prüfen, bevor du ihn siehst. Pro hat eine schnelle Suche, bis zu 5 pro Woche, und jede zählt als 10 Antworten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y toca «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres. Ultra hace la búsqueda completa y abre cada enlace para comprobarlo antes de que lo veas. Pro tiene la búsqueda rápida, hasta 5 a la semana, y cada una cuenta como 10 respuestas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et touchez « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez. Ultra fait la recherche complète et ouvre chaque lien pour le vérifier avant que vous ne le voyiez. Pro a la recherche rapide, jusqu’à 5 par semaine, chacune comptant comme 10 réponses."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca veloce, fino a 5 a settimana, e ognuna vale 10 risposte."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をタップします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をタップします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。Ultra はフル検索で、表示する前にすべてのリンクを開いて確認します。Pro はクイック検索で週に5回まで、1回につき回答10回分です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 탭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 탭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. Ultra는 전체 검색을 하고, 보여 드리기 전에 모든 링크를 열어 확인해요. Pro는 빠른 검색으로 일주일에 5회까지이고, 한 번에 답변 10개로 계산돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e toque em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser. O Ultra faz a busca completa e abre cada link para verificá-lo antes de você ver. O Pro tem a busca rápida, até 5 por semana, e cada uma conta como 10 respostas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите «Найти похожее» среди быстрых действий под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии». Ultra делает полный поиск и открывает каждую ссылку, чтобы проверить её, прежде чем показать. В Pro — быстрый поиск, до 5 в неделю, и каждый считается за 10 ответов."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть «Знайти схоже» серед швидких дій під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності». Ultra робить повний пошук і відкриває кожне посилання, щоб перевірити його, перш ніж показати. У Pro — швидкий пошук, до 5 на тиждень, і кожен рахується за 10 відповідей."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi chạm vào Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn. Ultra tìm đầy đủ và mở từng liên kết để kiểm tra trước khi bạn xem. Pro có tìm nhanh, tối đa 5 lượt mỗi tuần, mỗi lượt tính bằng 10 câu trả lời."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的操作中，或在面板顶部的“…”菜单中，轻点“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中轻点“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件。Ultra 会完整搜索，给你看之前会打开每个链接检查。Pro 提供快速搜索，每周最多 5 次，每次计为 10 次回答。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的動作中，或在面板頂部的「…」選單中，點一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中點一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件。Ultra 會完整搜尋，給你看之前會開啟每個連結檢查。Pro 有快速搜尋，每週最多 5 次，每次算作 10 個回答。"
+          }
+        }
+      }
+    },
+    "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انقر على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، وانقر على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت. يبحث Ultra بحثًا كاملًا ويفتح كل رابط ليتحقق منه قبل أن تراه. وفي Pro بحث سريع، حتى 5 مرات في الأسبوع، ويُحتسب كل بحث بمقدار 10 إجابات."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu. Ultra sucht vollständig und öffnet jeden Link, um ihn zu prüfen, bevor du ihn siehst. Pro hat eine schnelle Suche, bis zu 5 pro Woche, und jede zählt als 10 Antworten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres. Ultra hace la búsqueda completa y abre cada enlace para comprobarlo antes de que lo veas. Pro tiene la búsqueda rápida, hasta 5 a la semana, y cada una cuenta como 10 respuestas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez. Ultra fait la recherche complète et ouvre chaque lien pour le vérifier avant que vous ne le voyiez. Pro a la recherche rapide, jusqu’à 5 par semaine, chacune comptant comme 10 réponses."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca veloce, fino a 5 a settimana, e ognuna vale 10 risposte."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。Ultra はフル検索で、表示する前にすべてのリンクを開いて確認します。Pro はクイック検索で週に5回まで、1回につき回答10回分です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 클릭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 클릭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. Ultra는 전체 검색을 하고, 보여 드리기 전에 모든 링크를 열어 확인해요. Pro는 빠른 검색으로 일주일에 5회까지이고, 한 번에 답변 10개로 계산돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser. O Ultra faz a busca completa e abre cada link para verificá-lo antes de você ver. O Pro tem a busca rápida, até 5 por semana, e cada uma conta como 10 respostas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите «Найти похожее» среди быстрых действий под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии». Ultra делает полный поиск и открывает каждую ссылку, чтобы проверить её, прежде чем показать. В Pro — быстрый поиск, до 5 в неделю, и каждый считается за 10 ответов."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть «Знайти схоже» серед швидких дій під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності». Ultra робить повний пошук і відкриває кожне посилання, щоб перевірити його, перш ніж показати. У Pro — швидкий пошук, до 5 на тиждень, і кожен рахується за 10 відповідей."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn. Ultra tìm đầy đủ và mở từng liên kết để kiểm tra trước khi bạn xem. Pro có tìm nhanh, tối đa 5 lượt mỗi tuần, mỗi lượt tính bằng 10 câu trả lời."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的操作中，或在面板顶部的“…”菜单中，点按“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中点按“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件。Ultra 会完整搜索，给你看之前会打开每个链接检查。Pro 提供快速搜索，每周最多 5 次，每次计为 10 次回答。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中按一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件。Ultra 會完整搜尋，給你看之前會開啟每個連結檢查。Pro 有快速搜尋，每週最多 5 次，每次算作 10 個回答。"
+          }
+        }
+      }
+    },
+    "Add to Calendar or Reminders": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إضافة إلى التقويم أو التذكيرات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu Kalender oder Erinnerungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir a Calendario o Recordatorios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter au Calendrier ou aux Rappels"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi a Calendario o Promemoria"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダーかリマインダーに追加"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더나 미리 알림에 추가"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar ao Calendário ou Lembretes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Календарь или Напоминания"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "До Календаря або Нагадувань"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thêm vào Lịch hoặc Lời nhắc"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加到日历或提醒事项"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入行事曆或提醒事項"
+          }
+        }
+      }
+    },
+    "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card to check the date and time, and Add puts it in Calendar or Reminders. Any answer or note has Add to Calendar or Reminders in its … menu. In Remind me, Also in Reminders puts your reminder in Apple Reminders too.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اطلب «ذكّرني بالاتصال بالبنك يوم الجمعة»، أو اسأل عن تاريخ في الصفحة: تأتي الإجابة مع بطاقة لتتحقق من التاريخ والوقت، و«إضافة» تضعه في التقويم أو التذكيرات. وفي قائمة … لأي إجابة أو ملاحظة يوجد «إضافة إلى التقويم أو التذكيرات». وفي «ذكّرني»، يضع «أيضًا في التذكيرات» تذكيرك في تطبيق التذكيرات من Apple كذلك."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreib „erinnere mich, am Freitag die Bank anzurufen“ oder frag nach einem Datum auf der Seite: Die Antwort kommt mit einer Karte, auf der du Datum und Uhrzeit prüfst, und „Hinzufügen“ trägt es in Kalender oder Erinnerungen ein. Jede Antwort und Notiz hat „Zu Kalender oder Erinnerungen“ in ihrem Menü „…“. Unter „Erinnern“ legt „Auch in Erinnerungen“ deine Erinnerung zusätzlich in der Erinnerungen-App von Apple an."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pide «recuérdame llamar al banco el viernes», o pregunta por una fecha de la página: la respuesta llega con una tarjeta para revisar la fecha y la hora, y «Añadir» la pone en Calendario o Recordatorios. Cualquier respuesta o nota tiene «Añadir a Calendario o Recordatorios» en su menú «…». En «Recordarme», «También en Recordatorios» pone tu recordatorio también en la app Recordatorios de Apple."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demandez « rappelle-moi d’appeler la banque vendredi », ou posez une question sur une date de la page : la réponse arrive avec une carte pour vérifier la date et l’heure, et « Ajouter » la place dans Calendrier ou Rappels. Chaque réponse ou note a « Ajouter au Calendrier ou aux Rappels » dans son menu « … ». Dans « Me le rappeler », « Aussi dans Rappels » ajoute en plus votre rappel à l’app Rappels d’Apple."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi «ricordami di chiamare la banca venerdì», o chiedi di una data nella pagina: la risposta arriva con una scheda per controllare data e ora, e «Aggiungi» la mette in Calendario o Promemoria. Ogni risposta o nota ha «Aggiungi a Calendario o Promemoria» nel suo menu «…». In «Ricordamelo», «Anche in Promemoria» mette il tuo promemoria anche nell’app Promemoria di Apple."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「金曜日に銀行に電話するようリマインドして」と頼むか、ページ上の日付について質問すると、日付と時刻を確認するカードが回答に付き、「追加」でカレンダーかリマインダーに入ります。どの回答やメモも、「…」メニューに「カレンダーかリマインダーに追加」があります。「リマインド」で「リマインダーにも追加」を選ぶと、Apple の「リマインダー」にも入ります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘금요일에 은행에 전화하라고 알려 줘’라고 하거나 페이지에 있는 날짜에 대해 물어보세요. 답변에 날짜와 시간을 확인하는 카드가 함께 나오고, ‘추가’를 누르면 캘린더나 미리 알림에 들어가요. 모든 답변과 메모의 ‘…’ 메뉴에 ‘캘린더나 미리 알림에 추가’가 있어요. ‘리마인더 설정’에서 ‘미리 알림에도 추가’를 켜면 리마인더가 Apple 미리 알림에도 들어가요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peça “me lembre de ligar para o banco na sexta” ou pergunte sobre uma data da página: a resposta vem com um cartão para conferir a data e a hora, e “Adicionar” coloca no Calendário ou no Lembretes. Toda resposta ou nota tem “Adicionar ao Calendário ou Lembretes” no menu “…”. Em “Me lembrar”, “Também no Lembretes” põe o lembrete também no app Lembretes da Apple."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напишите «напомни позвонить в банк в пятницу» или спросите о дате на странице: в ответе будет карточка, где можно проверить дату и время, а «Добавить» отправит всё в Календарь или Напоминания. У любого ответа или заметки в меню «…» есть «В Календарь или Напоминания». В «Напомнить» пункт «Также в Напоминания» добавит ваше напоминание и в Напоминания Apple."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напишіть «нагадай зателефонувати в банк у п’ятницю» або запитайте про дату на сторінці: у відповіді буде картка, де можна перевірити дату й час, а «Додати» відправить усе до Календаря або Нагадувань. У будь-якої відповіді чи нотатки в меню «…» є «До Календаря або Нагадувань». У «Нагадати» пункт «Також у Нагадування» додасть ваше нагадування й до Нагадувань Apple."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viết “nhắc tôi gọi cho ngân hàng vào thứ Sáu”, hoặc hỏi về một ngày trên trang: câu trả lời kèm một thẻ để kiểm tra ngày giờ, và Thêm sẽ đưa vào Lịch hoặc Lời nhắc. Mọi câu trả lời hay ghi chú đều có Thêm vào Lịch hoặc Lời nhắc trong menu … của chúng. Trong Nhắc tôi, Thêm vào Lời nhắc sẽ đưa lời nhắc của bạn vào cả ứng dụng Lời nhắc của Apple."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "问“提醒我周五给银行打电话”，或问问网页上的某个日期：回答会附带一张卡片，供你核对日期和时间，“添加”会把它放进日历或提醒事项。每个回答或笔记的“…”菜单里都有“添加到日历或提醒事项”。在“提醒我”中，“同时加入提醒事项”会把你的提醒也放进 Apple 的提醒事项。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "問「提醒我星期五打電話給銀行」，或詢問頁面上的某個日期：回答會附上一張卡片，讓你核對日期和時間，「加入」會把它放進行事曆或提醒事項。每個回答或筆記的「…」選單裡都有「加入行事曆或提醒事項」。在「提醒我」中，「同時加入提醒事項」會把你的提醒也放進 Apple 的提醒事項。"
+          }
+        }
+      }
+    },
+    "Spaces for work and home": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مساحات للعمل والمنزل"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bereiche für Arbeit und Privates"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espacios para el trabajo y la casa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des espaces pour le travail et la maison"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spazi per lavoro e casa"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仕事とプライベートのスペース"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업무용과 개인용 스페이스"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espaços para trabalho e casa"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пространства для работы и дома"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Простори для роботи й дому"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không gian cho công việc và gia đình"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作和个人的空间"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作和個人的空間"
+          }
+        }
+      }
+    },
+    "Keep work, home and shopping apart. New space, at the end of the chat list, makes one in its own color. The switcher at the top of the list moves between them, and a new chat goes into the space you're in. In the switcher, Open amazon.com here keeps that site in this space. Free has a limit; with Pro or Ultra, as many as you like.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افصل بين العمل والمنزل والتسوق. «مساحة جديدة» في آخر قائمة المحادثات تنشئ مساحة بلونها الخاص. ومبدّل المساحات أعلى القائمة ينقلك بينها، والمحادثة الجديدة تذهب إلى المساحة التي أنت فيها. وفي المبدّل، يُبقي «افتح amazon.com هنا» ذلك الموقع في هذه المساحة. للخطة المجانية حد، ومع Pro أو Ultra العدد الذي تريده."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte Arbeit, Privates und Einkaufen auseinander. „Neuer Bereich“ am Ende der Chatliste legt einen neuen in eigener Farbe an. Mit dem Umschalter oben in der Liste wechselst du zwischen ihnen, und ein neuer Chat landet im Bereich, in dem du gerade bist. Im Umschalter hält „amazon.com hier öffnen“ diese Website in diesem Bereich. Kostenlos ist ihre Zahl begrenzt, mit Pro oder Ultra so viele du willst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Separa el trabajo, la casa y las compras. «Nuevo espacio», al final de la lista de chats, crea uno con su propio color. El selector de arriba de la lista pasa de uno a otro, y un chat nuevo va al espacio en el que estás. En el selector, «Abrir amazon.com aquí» mantiene ese sitio en este espacio. El plan Gratis tiene un límite; con Pro o Ultra, todos los que quieras."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séparez le travail, la maison et les achats. « Nouvel espace », à la fin de la liste des discussions, en crée un avec sa propre couleur. Le sélecteur en haut de la liste permet de passer de l’un à l’autre, et une nouvelle discussion va dans l’espace où vous êtes. Dans le sélecteur, « Ouvrir amazon.com ici » garde ce site dans cet espace. La version gratuite a une limite ; avec Pro ou Ultra, autant que vous voulez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni separati lavoro, casa e acquisti. «Nuovo spazio», in fondo all’elenco delle chat, ne crea uno con il suo colore. Il selettore in cima all’elenco passa dall’uno all’altro, e una nuova chat va nello spazio in cui sei. Nel selettore, «Apri amazon.com qui» tiene quel sito in questo spazio. Con Gratis c’è un limite; con Pro o Ultra, quanti ne vuoi."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仕事、プライベート、買い物を分けておけます。チャット一覧の最後にある「新しいスペース」で、専用の色のスペースを作れます。一覧の上部の切り替えでスペースを移動でき、新しいチャットは今いるスペースに入ります。切り替えで「amazon.com をここで開く」を選ぶと、そのサイトはこのスペースで開くようになります。無料版には上限があり、Pro か Ultra なら無制限です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업무, 개인, 쇼핑을 따로 두세요. 채팅 목록 맨 끝의 ‘새 스페이스’로 고유한 색의 스페이스를 만들어요. 목록 맨 위의 전환 메뉴로 스페이스를 오가고, 새 채팅은 지금 있는 스페이스에 들어가요. 전환 메뉴에서 ‘amazon.com을(를) 여기서 열기’를 고르면 그 사이트는 이 스페이스에서 열려요. 무료에서는 개수에 제한이 있고, Pro나 Ultra에서는 원하는 만큼 만들 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Separe trabalho, casa e compras. “Novo espaço”, no fim da lista de conversas, cria um com sua própria cor. O seletor no topo da lista alterna entre eles, e uma conversa nova vai para o espaço em que você está. No seletor, “Abrir amazon.com aqui” mantém esse site neste espaço. No plano Grátis há um limite; com o Pro ou o Ultra, quantos quiser."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держите работу, дом и покупки отдельно. «Новое пространство» в конце списка чатов создаёт ещё одно, со своим цветом. Переключатель вверху списка — для перехода между ними, а новый чат попадает в пространство, где вы сейчас. В переключателе пункт «Открывать amazon.com здесь» закрепит этот сайт за текущим пространством. В бесплатном тарифе их число ограничено, в Pro и Ultra — сколько угодно."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тримайте роботу, дім і покупки окремо. «Новий простір» у кінці списку чатів створює ще один, зі своїм кольором. Перемикач угорі списку — для переходу між ними, а новий чат потрапляє в простір, де ви зараз. У перемикачі пункт «Відкривати amazon.com тут» закріпить цей сайт за поточним простором. На безкоштовному тарифі їх кількість обмежена, у Pro та Ultra — скільки завгодно."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tách riêng công việc, gia đình và mua sắm. Không gian mới, ở cuối danh sách cuộc trò chuyện, tạo một không gian với màu riêng. Bộ chuyển ở đầu danh sách giúp chuyển qua lại giữa các không gian, và cuộc trò chuyện mới sẽ vào không gian bạn đang ở. Trong bộ chuyển, Mở amazon.com ở đây giữ trang đó trong không gian này. Gói Miễn phí có giới hạn; với Pro hoặc Ultra, bao nhiêu cũng được."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把工作、个人和购物分开。对话列表末尾的“新建空间”会新建一个有自己颜色的空间。列表顶部的切换器可以在空间之间切换，新对话会放进你当前所在的空间。在切换器中选择“在这里打开 amazon.com”，以后这个网站就会在这个空间打开。免费版有数量限制；Pro 或 Ultra 不限数量。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把工作、個人和購物分開。對話列表最後的「新增空間」會建立一個有自己顏色的空間。列表頂部的切換器可以在空間之間切換，新對話會放進你目前所在的空間。在切換器中選擇「在這裡打開 amazon.com」，之後這個網站就會在這個空間打開。免費版有數量限制；使用 Pro 或 Ultra 則不限數量。"
+          }
+        }
+      }
+    },
+    "The chat for this page": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "محادثة هذه الصفحة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Chat zu dieser Seite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El chat de esta página"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La discussion de cette page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La chat di questa pagina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このページのチャット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 페이지의 채팅"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A conversa desta página"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чат для этой страницы"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чат для цієї сторінки"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuộc trò chuyện cho trang này"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个页面的对话"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個頁面的對話"
+          }
+        }
+      }
+    },
+    "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top says which chat it picked; New chat there starts a fresh one.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح اللوحة في صفحة فيختار ContextFlow المحادثة المتعلقة بها: التي فيها هذه الصفحة، أو محادثة عن الموضوع نفسه. «متابعة» في الأعلى يوضح أي محادثة اختار، و«محادثة جديدة» هناك تبدأ محادثة أخرى."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne das Panel auf einer Seite, und ContextFlow wählt den Chat dazu: den mit dieser Seite oder einen zum selben Thema. „Weiter in“ oben zeigt, welchen Chat es gewählt hat; „Neuer Chat“ daneben startet einen frischen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre el panel en una página y ContextFlow elige el chat que trata de ella: el que tiene esta página, o uno sobre el mismo tema. «Sigo en», arriba, dice cuál eligió; «Nuevo chat», ahí mismo, empieza uno nuevo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez le panneau sur une page et ContextFlow choisit la discussion qui en parle : celle qui contient cette page, ou une autre sur le même sujet. « Je continue », en haut, indique laquelle il a choisie ; « Nouveau chat », juste à côté, en commence une nouvelle."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri il pannello su una pagina e ContextFlow sceglie la chat che ne parla: quella con questa pagina, o una sullo stesso argomento. «Continuo», in alto, dice quale ha scelto; «Nuova chat», lì accanto, ne inizia una nuova."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページでパネルを開くと、ContextFlow がそのページについてのチャットを選びます。このページを含むチャットか、同じ話題のチャットです。上部の「続き：」にどのチャットを選んだかが表示され、そこの「新規チャット」で新しく始められます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 패널을 열면 ContextFlow가 그 페이지에 관한 채팅을 골라요. 이 페이지가 있는 채팅이나 같은 주제의 채팅이에요. 맨 위의 ‘이어서’에 어떤 채팅을 골랐는지 나오고, 거기 있는 ‘새 채팅’으로 새로 시작할 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra o painel numa página e o ContextFlow escolhe a conversa sobre ela: a que tem esta página ou uma sobre o mesmo assunto. “Continuando”, no topo, mostra qual conversa ele escolheu; “Nova conversa”, ali mesmo, começa outra."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Откройте панель на странице, и ContextFlow выберет чат о ней: тот, где есть эта страница, или чат на ту же тему. «Продолжаю» вверху показывает, какой чат выбран, а «Новый чат» там же начинает с чистого листа."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрийте панель на сторінці, і ContextFlow вибере чат про неї: той, де є ця сторінка, або чат на ту саму тему. «Продовжую» вгорі показує, який чат вибрано, а «Новий чат» там само починає з чистого аркуша."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở bảng trên một trang, ContextFlow sẽ chọn cuộc trò chuyện về trang đó: cuộc có trang này, hoặc cuộc cùng chủ đề. Tiếp tục ở trên cùng cho biết cuộc trò chuyện nào được chọn; Cuộc trò chuyện mới ở đó sẽ bắt đầu cuộc mới."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在网页上打开面板，ContextFlow 会挑出与它相关的对话：包含这个页面的对话，或同一主题的对话。顶部的“继续：”会说明选了哪个对话；那里的“新对话”可以开始一个新的。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在頁面上打開面板，ContextFlow 會挑出跟它有關的對話：含有這個頁面的對話，或同一主題的對話。頂部的「繼續：」會說明挑了哪段對話；那裡的「新對話」可以開始一段新的。"
+          }
+        }
+      }
+    },
+    "Tips by the ✦ button": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تلميحات بجانب الزر ✦"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tipps an der ✦-Taste"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consejos junto al botón ✦"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Astuces près du bouton ✦"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggerimenti accanto al pulsante ✦"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ボタンのヒント"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 버튼 팁"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dicas no botão ✦"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подсказки у кнопки ✦"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підказки біля кнопки ✦"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gợi ý cạnh nút ✦"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 按钮旁的提示"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 按鈕旁的提示"
+          }
+        }
+      }
+    },
+    "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how. Turn the lines off in the extension settings, under Tips by the ✦ button.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في أيامك الأولى، يقترح سطر قصير بجانب ✦ شيئًا للصفحة التي أنت فيها: ملخصًا لمقال طويل، أو سعرًا لمراقبته، أو تاريخًا لتقويمك. اضغط عليه لترى الطريقة. أوقف هذه الأسطر من إعدادات الامتداد، ضمن «تلميحات بجانب الزر ✦»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In den ersten Tagen schlägt eine kurze Zeile an der ✦-Taste etwas für die Seite vor, auf der du bist: eine Zusammenfassung eines langen Artikels, einen Preis zum Beobachten, ein Datum für deinen Kalender. Tippe darauf, um zu sehen, wie es geht. Die Zeilen schaltest du in den Erweiterungseinstellungen unter „Tipps an der ✦-Taste“ ab."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En tus primeros días, una línea corta junto a ✦ te sugiere algo para la página en la que estás: el resumen de un artículo largo, un precio que vigilar, una fecha para tu calendario. Tócala para ver cómo. Desactiva estas líneas en los ajustes de la extensión, en «Consejos junto al botón ✦»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les premiers jours, une courte ligne près de ✦ vous suggère quelque chose pour la page où vous êtes : le résumé d’un long article, un prix à surveiller, une date pour votre calendrier. Touchez-la pour voir comment faire. Désactivez ces lignes dans les réglages de l’extension, sous « Astuces près du bouton ✦ »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nei primi giorni, una breve riga accanto a ✦ ti suggerisce qualcosa per la pagina in cui sei: il riassunto di un articolo lungo, un prezzo da seguire, una data per il calendario. Toccala per vedere come si fa. Disattiva le righe nelle impostazioni dell’estensione, in «Suggerimenti accanto al pulsante ✦»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使い始めの数日は、✦ の横に短い一行が出て、開いているページでできることを提案します。長い記事の要約、見守る価格、カレンダーに入れる日付などです。タップすると方法が分かります。この一行は拡張機能の設定の「✦ボタンのヒント」でオフにできます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "처음 며칠 동안은 ✦ 옆에 짧은 한 줄이 나와 지금 보는 페이지에서 할 만한 일을 제안해요. 긴 기사 요약, 지켜볼 가격, 캘린더에 넣을 날짜 같은 것이에요. 탭하면 방법을 보여 줘요. 이 줄은 확장 프로그램 설정의 ‘✦ 버튼 팁’에서 끌 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nos primeiros dias, uma linha curta ao lado do ✦ sugere algo para a página em que você está: o resumo de um artigo longo, um preço para acompanhar, uma data para o calendário. Toque nela para ver como. Desative essas linhas nos ajustes da extensão, em “Dicas no botão ✦”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В первые дни короткая строка у кнопки ✦ подсказывает, что можно сделать на этой странице: кратко пересказать длинную статью, следить за ценой, внести дату в календарь. Нажмите на неё, чтобы увидеть как. Выключить строки можно в настройках расширения, в пункте «Подсказки у кнопки ✦»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У перші дні короткий рядок біля кнопки ✦ підказує, що можна зробити на цій сторінці: стисло переказати довгу статтю, стежити за ціною, внести дату в календар. Натисніть його, щоб побачити як. Вимкнути рядки можна в налаштуваннях розширення, у пункті «Підказки біля кнопки ✦»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong những ngày đầu, một dòng ngắn cạnh ✦ gợi ý một việc cho trang bạn đang xem: tóm tắt bài viết dài, một mức giá để theo dõi, một ngày để thêm vào lịch. Chạm vào để xem cách làm. Tắt các dòng này trong phần cài đặt tiện ích mở rộng, ở mục Gợi ý cạnh nút ✦."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刚开始的几天，✦ 旁会出现一行简短提示，建议你在当前页面能做什么：总结一篇长文章、关注一个价格、把一个日期加入日历。轻点它看看怎么做。可以在扩展设置的“✦ 按钮旁的提示”中关闭这些提示。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "剛開始的幾天，✦ 旁會出現一行簡短提示，建議你在目前的頁面能做什麼：長文章的摘要、要追蹤的價格、要加進行事曆的日期。點一下看看怎麼做。可以在延伸功能設定的「✦ 按鈕旁的提示」中關閉這些提示。"
+          }
+        }
+      }
+    },
+    "The main things this version brings.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أهم ما يأتي به هذا الإصدار."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Wichtigste dieser Version."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo principal de esta versión."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’essentiel de cette version."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le novità principali di questa versione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このバージョンの主な新機能です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이번 버전의 주요 기능이에요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O principal que esta versão traz."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Главное в этой версии."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Головне в цій версії."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Những điểm chính của phiên bản này."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个版本的主要新功能。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個版本的主要新功能。"
           }
         }
       }

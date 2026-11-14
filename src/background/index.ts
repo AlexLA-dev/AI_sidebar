@@ -1122,9 +1122,18 @@ async function migrateFromV1(): Promise<void> {
   await chrome.storage.local.remove(legacy)
 }
 
+/** A new install never gets the panel's «New in 2.7» card (the hint key "new27", src/content/store.ts). */
+async function markNewSeen(): Promise<void> {
+  const seen = (await chrome.storage.local.get(STORAGE.hintsSeen))[STORAGE.hintsSeen]
+  const list = Array.isArray(seen) ? seen : []
+  if (!list.includes("new27")) await chrome.storage.local.set({ [STORAGE.hintsSeen]: [...list, "new27"] })
+}
+
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     void installId()
+    // 2.7: the panel's «New in 2.7» card is for people who had ContextFlow before; a new install has the tour.
+    void markNewSeen().catch(() => undefined)
     void chrome.storage.local.set({ [STORAGE.extOnPending]: false }).then(reportSwitchedOn).catch(() => undefined)
     void chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })
   } else if (details.reason === "update") {

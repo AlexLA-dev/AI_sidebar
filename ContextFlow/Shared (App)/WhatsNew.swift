@@ -16,7 +16,7 @@ import BackgroundTasks
 // - After an update the tab opens once by itself (not on a first install: that has the setup guide).
 enum WhatsNew {
     /// The version the cards are about (major.minor).
-    static let version = "2.6"
+    static let version = "2.7"
     /// The version whose tab was shown (or that was installed first).
     static let seenKey = "cf_whatsnew_seen"
     /// The App Store version a notification was sent for: one per version.
@@ -42,11 +42,17 @@ enum WhatsNew {
         return false
     }
 
-    /// The main features of 2.6, as Tips shows them (the same words and clips). Build 98: organizing too (its clip
-    /// starts at 2.6's Suggestions bar), and Listen's clip on iPhone and iPad; the clips of Remind me and Watch show the
-    /// note of your own.
+    /// The main features of 2.7, as Tips shows them (the same words, in every language): the five that everyone has,
+    /// the strongest first (the director, from the owner: «не забыть включить новые функции … в онбординг с Tips»).
+    /// Their clips aren't made yet: each card plays one as soon as its Tip names it (the owner on 2.6: What's new has a
+    /// video wherever there is one), and the line under the heading says so only when all of them do.
     static var items: [Tip] {
-        [TipGroup.similarTip, TipGroup.organizeTip, TipGroup.listenTip, TipGroup.chipsTip, TipGroup.remindTip, TipGroup.watchTip]
+        [TipGroup.translateTip, TipGroup.writeTip, TipGroup.spacesTip, TipGroup.appleTip, TipGroup.shotTip]
+    }
+
+    /// Every card has its clip in this language.
+    static var allClips: Bool {
+        items.allSatisfy { tip in tip.clip.flatMap(TipClip.url) != nil }
     }
 
     /// Whether the tab opens by itself now: the first launch of this version after an update (`existingUser`: the app
@@ -171,7 +177,7 @@ struct WhatsNewView: View {
                 }
                 Text("New in ContextFlow \(WhatsNew.version)")
                     .font(.title2.weight(.bold))
-                Text("The main things this version brings, each shown in a short clip.")
+                Text(WhatsNew.allClips ? LocalizedStringKey("The main things this version brings, each shown in a short clip.") : LocalizedStringKey("The main things this version brings."))
                     .font(.callout)
                     .foregroundColor(.secondary)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
