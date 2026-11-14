@@ -72,8 +72,51 @@ final class Activation: ObservableObject {
             if !enabled { next = .off } else if next == .off { next = .on }
         }
         #endif
+        let before = state
         state = next
         if next != .off { SetupReminders.cancel() }
+        if before == .off, next != .off { reportEnabled() }
+    }
+
+    // MARK: The way to switching it on (2.7, plan section 8 «Активация»): counts only, f "activation" in usage.ts.
+
+    private enum Trip { case going, away }
+    private var trip: Trip?
+    /// The last step sent: each waits for the one before, so they reach the server in their order.
+    private var lastStep: Task<Void, Never>?
+    private static let enabledReportedKey = "cf_activation_enabled_reported"
+
+    private func step(_ action: String, _ fields: [String: String] = [:]) {
+        lastStep = ChatAI.reportUse("activation", action, fields, after: lastStep)
+    }
+
+    /// The guide's video started floating over Settings (iPhone, iPad).
+    func guideStarted() { step("video") }
+
+    /// Settings opened from the app to switch ContextFlow on: "card" (the home screen's), "chats" (their empty state, Mac).
+    func wentToSettings(_ via: String) {
+        trip = .going
+        step("settings", ["via": via])
+    }
+
+    /// The app is no longer in front (Settings is).
+    func wentAway() {
+        if trip == .going { trip = .away }
+    }
+
+    /// In front again after the trip to Settings: once a trip.
+    func cameBack() {
+        guard trip == .away else { return }
+        trip = nil
+        step("back")
+    }
+
+    /// The app first saw it switched on, once an install (an update that had it on before never sends it).
+    private func reportEnabled() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: Self.enabledReportedKey) else { return }
+        defaults.set(true, forKey: Self.enabledReportedKey)
+        step("enabled")
     }
 
     #if os(iOS)
@@ -134,7 +177,8 @@ final class Activation: ObservableObject {
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         let adToken = Self.adAttributionToken()
         if let adToken { body["adToken"] = adToken }
-        var request = URLRequest(url: URL(string: "https://aisidebar.netlify.app/api/v2/event")!)
+        // Production; a debug build's local stand (-CFApiBase) too, so test runs stay out of the real counts (2.7).
+        var request = URLRequest(url: ChatAI.base.appendingPathComponent("api/v2/event"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
@@ -452,6 +496,7 @@ struct SetupCard: View {
     }
 
     private func openExtensionSettings() {
+        activation.wentToSettings("card")
         let appSettings = {
             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
         }
@@ -853,7 +898,10 @@ final class SettingsPiP: NSObject {
 
 extension SettingsPiP: AVPictureInPictureControllerDelegate {
     nonisolated func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
-        Task { @MainActor in self.openPending() }
+        Task { @MainActor in
+            Activation.shared.guideStarted()
+            self.openPending()
+        }
     }
 
     nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {

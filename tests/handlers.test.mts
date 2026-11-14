@@ -1332,6 +1332,23 @@ test("feature steps: only registry features, actions and values are kept, with t
   assert.ok(!JSON.stringify(events).includes("secret"))
 })
 
+test("activation steps (2.7): the app's with its id, the extension side's link with both ids, nothing else", async () => {
+  events = []
+  const client = { platform: "ios", version: "2.7", locale: "en-US" }
+  assert.equal((await event(post("/api/v2/event", { kind: "use", f: "activation", a: "settings", via: "card", s: "app", appId: APP_ID, client }), ctx())).status, 200)
+  assert.equal((await event(post("/api/v2/event", { kind: "use", f: "activation", a: "back", s: "app", appId: APP_ID, client, screen: "Settings" }), ctx())).status, 200)
+  assert.equal((await event(post("/api/v2/event", { kind: "use", f: "activation", a: "linked", s: "app", appId: APP_ID, installId: INSTALL, client }), ctx())).status, 200)
+  assert.equal((await event(post("/api/v2/event", { kind: "use", f: "activation", a: "removed", appId: APP_ID, client }), ctx())).status, 400)
+  await new Promise((r) => setTimeout(r, 0))
+  const logged = events.filter((e) => e.kind === "use")
+  assert.deepEqual(logged.map((e) => [e.install ?? null, e.data.app, e.data.f, e.data.a, e.data.via ?? null]), [
+    [null, APP_ID, "activation", "settings", "card"],
+    [null, APP_ID, "activation", "back", null],
+    [INSTALL, APP_ID, "activation", "linked", null]
+  ])
+  assert.ok(!JSON.stringify(events).includes("Settings"))
+})
+
 test("feature steps in a batch: each kept or left out on its own, one request counted, the app's session linked", async () => {
   events = []
   const body = {

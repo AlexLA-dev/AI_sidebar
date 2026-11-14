@@ -1258,6 +1258,7 @@ struct ExtensionOffBanner: View {
                 .font(.callout)
                 .foregroundColor(.secondary)
             Button("Open Safari Settings") {
+                Activation.shared.wentToSettings("chats")
                 SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { _ in }
             }
             .buttonStyle(.bordered)
