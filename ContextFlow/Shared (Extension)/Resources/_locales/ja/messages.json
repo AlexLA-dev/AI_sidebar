@@ -1973,6 +1973,15 @@
  "similarLimit": {
   "message": "今週の「似たものを探す」{0}回を使い切りました。{1}に戻ります。"
  },
+ "similarLightNote": {
+  "message": "クイック検索：無料で週{0}回。Ultraはより広く探し、レビューを読み、配送も確認します。"
+ },
+ "similarLightFoot": {
+  "message": "クイック検索です。Ultraはより広く探し、レビューを読み、配送も確認します。"
+ },
+ "similarFreeLimit": {
+  "message": "今週の無料検索{0}回を使い切りました。{1}に戻ります。Ultraなら週{2}回、より広く探します。"
+ },
  "orgDemoQuestion": {
   "message": "5月のリスボン行き格安航空券は？"
  },

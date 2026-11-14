@@ -2447,7 +2447,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const plan = status?.plan ?? keptPlan ?? "free"
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
-  const markUltra = status !== null && !isUltra(plan)
+  // 2.7: Find similar is everyone's (the light search but on Ultra): no "Ultra" mark on it any more.
+  const markUltra = status !== null && !isUltra(plan) && !similarAllowed(plan)
   /** A quick action's chip: Ultra's in Ultra's colour with its icon (and "Ultra" without it), in every row of them. */
   const chip = (a: Action, small: boolean) => ULTRA_ACTIONS.has(a.id)
     ? <button type="button" key={a.id} class={`cf-chip ultra${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={small ? 12 : 13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>

@@ -1973,6 +1973,15 @@
  "similarLimit": {
   "message": "本周的 {0} 次“查找相似”已用完，{1}恢复。"
  },
+ "similarLightNote": {
+  "message": "快速搜索：每周免费 {0} 次。Ultra 搜索范围更广，会读评价并核对配送。"
+ },
+ "similarLightFoot": {
+  "message": "快速搜索。Ultra 搜索范围更广，会读评价并核对配送。"
+ },
+ "similarFreeLimit": {
+  "message": "本周的 {0} 次免费搜索已用完，{1}恢复。Ultra 每周 {2} 次，搜索范围更广。"
+ },
  "orgDemoQuestion": {
   "message": "五月去里斯本的便宜机票？"
  },

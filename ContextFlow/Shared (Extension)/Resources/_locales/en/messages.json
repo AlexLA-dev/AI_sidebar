@@ -2012,6 +2012,15 @@
  "similarLimit": {
   "message": "This week's {0} Find similar searches are used. They come back on {1}."
  },
+ "similarLightNote": {
+  "message": "Quick search: {0} a week for free. Ultra searches wider, reads reviews and checks delivery."
+ },
+ "similarLightFoot": {
+  "message": "Quick search. Ultra searches wider, reads reviews and checks delivery."
+ },
+ "similarFreeLimit": {
+  "message": "This week's {0} free searches are used. They come back on {1}. Ultra has {2} a week, and searches wider."
+ },
  "orgDemoQuestion": {
   "message": "Cheap flights to Lisbon in May?"
  },

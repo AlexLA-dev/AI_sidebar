@@ -32,6 +32,11 @@
 //                                                              network: what waiting for the plan costs)
 //   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
 //                                                              stop the question before any of its answer)
+//   SIMILAR_PROXY=https://<deploy preview> SIMILAR_EVAL_TOKEN_FILE=<file with the preview's eval token> …
+//                                                              (2.7: Find similar for real, through that deploy
+//                                                              preview's evaluation path: the light search for any
+//                                                              plan but PREVIEW_PLAN=ultra, its week counted here,
+//                                                              SIMILAR_FREE_WEEKLY a week per device, default 3)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -565,6 +570,40 @@ function similarItemsStore(condition: string, ru = false): Array<Record<string, 
 }
 let similarFailedOnce = false
 
+// 2.7, SIMILAR_PROXY: the real engine on a deploy preview (its evaluation path counts nothing), the light search's week
+// counted here per device as the server counts it (LIMIT_REACHED with light and the week's usage).
+const similarFreeUsed = new Map<string, number>()
+async function similarProxied(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
+  const light = process.env.PREVIEW_PLAN !== "ultra"
+  const install = String(body.installId ?? "")
+  const limit = Number(process.env.SIMILAR_FREE_WEEKLY ?? 3)
+  const used = similarFreeUsed.get(install) ?? 0
+  if (light && used >= limit) {
+    const next = new Date()
+    next.setUTCDate(next.getUTCDate() + ((8 - next.getUTCDay()) % 7 || 7))
+    next.setUTCHours(0, 0, 0, 0)
+    res.writeHead(402, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ code: "LIMIT_REACHED", plan: "free", light: true, usage: { used, limit, period: "week", resetsAt: next.toISOString() } }))
+    return
+  }
+  if (light) similarFreeUsed.set(install, used + 1)
+  const token = readFileSync(process.env.SIMILAR_EVAL_TOKEN_FILE!, "utf8").trim()
+  const upstream = await realFetch(`${process.env.SIMILAR_PROXY}/api/v2/similar`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ ...body, options: light ? { light: "on" } : {} })
+  }).catch(() => null)
+  if (!upstream?.ok || !upstream.body) {
+    if (light) similarFreeUsed.set(install, used)
+    res.writeHead(upstream?.status ?? 502, { "Content-Type": "application/json" })
+    res.end(upstream ? await upstream.text() : JSON.stringify({ code: "UPSTREAM" }))
+    return
+  }
+  res.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-cache" })
+  for await (const chunk of upstream.body as unknown as AsyncIterable<Uint8Array>) res.write(chunk)
+  res.end()
+}
+
 async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
   if (process.env.PREVIEW_PLAN !== "ultra") {
     res.writeHead(403, { "Content-Type": "application/json" })
@@ -610,7 +649,8 @@ createServer(async (req, res) => {
     try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")) } catch { /* not JSON */ }
     aiRequests.push(url.pathname)
     lastSimilarRequest = body
-    await similarStub(body, res)
+    if (process.env.SIMILAR_PROXY && process.env.SIMILAR_EVAL_TOKEN_FILE) await similarProxied(body, res)
+    else await similarStub(body, res)
     return
   }
   if (url.pathname === "/last-similar") {

@@ -1973,6 +1973,15 @@
  "similarLimit": {
   "message": "Ya usaste las {0} búsquedas de «Buscar similares» de esta semana. Vuelven el {1}."
  },
+ "similarLightNote": {
+  "message": "Búsqueda rápida: {0} a la semana gratis. Ultra busca más amplio, lee reseñas y comprueba el envío."
+ },
+ "similarLightFoot": {
+  "message": "Búsqueda rápida. Ultra busca más amplio, lee reseñas y comprueba el envío."
+ },
+ "similarFreeLimit": {
+  "message": "Ya usaste las {0} búsquedas gratis de esta semana. Vuelven el {1}. Ultra tiene {2} a la semana y busca más amplio."
+ },
  "orgDemoQuestion": {
   "message": "¿Vuelos baratos a Lisboa en mayo?"
  },

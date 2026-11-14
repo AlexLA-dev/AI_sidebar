@@ -1973,6 +1973,15 @@
  "similarLimit": {
   "message": "이번 주 '비슷한 것 찾기' {0}회를 모두 사용했습니다. {1}에 다시 채워집니다."
  },
+ "similarLightNote": {
+  "message": "빠른 검색: 무료로 주 {0}회. Ultra는 더 넓게 찾고, 리뷰를 읽고, 배송까지 확인합니다."
+ },
+ "similarLightFoot": {
+  "message": "빠른 검색입니다. Ultra는 더 넓게 찾고, 리뷰를 읽고, 배송까지 확인합니다."
+ },
+ "similarFreeLimit": {
+  "message": "이번 주 무료 검색 {0}회를 모두 사용했습니다. {1}에 다시 채워집니다. Ultra는 주 {2}회, 더 넓게 찾습니다."
+ },
  "orgDemoQuestion": {
   "message": "5월 리스본 저렴한 항공권?"
  },
