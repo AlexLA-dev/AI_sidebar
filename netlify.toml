@@ -327,6 +327,30 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/translate-web-page-safari-iphone"
+  to = "https://context-flow.app/translate-web-page-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/translate-web-page-safari-iphone.html"
+  to = "https://context-flow.app/translate-web-page-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/proofread-safari-iphone"
+  to = "https://context-flow.app/proofread-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/proofread-safari-iphone.html"
+  to = "https://context-flow.app/proofread-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/sitemap.xml"
   to = "https://context-flow.app/sitemap.xml"
   status = 301

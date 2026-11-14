@@ -34,7 +34,9 @@
     "/visualping-alternative-iphone": "alt_watch",
     "/youtube-transcript-safari": "video",
     "/read-aloud-safari-iphone": "listen",
-    "/summarize-pdf-safari": "pdf"
+    "/summarize-pdf-safari": "pdf",
+    "/translate-web-page-safari-iphone": "translate",
+    "/proofread-safari-iphone": "proofread"
   }
   const OWN = /(^|\.)(context-flow\.app|aisidebar\.netlify\.app)$/
   // A referrer's host or a utm_source value → the source; the first match wins (Gemini before Google).

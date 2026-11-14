@@ -63,7 +63,9 @@ export const ENGLISH_ONLY = [
 export const SOME_LANGUAGES = {
   "youtube-transcript-safari.html": ["ru"],
   "read-aloud-safari-iphone.html": ["ru"],
-  "summarize-pdf-safari.html": []
+  "summarize-pdf-safari.html": [],
+  "translate-web-page-safari-iphone.html": ["ru", "de", "es", "fr", "it", "zh-hant"],
+  "proofread-safari-iphone.html": ["ru"]
 }
 const SOME = Object.keys(SOME_LANGUAGES)
 
