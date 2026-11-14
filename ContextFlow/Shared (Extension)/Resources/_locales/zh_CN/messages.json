@@ -1974,13 +1974,19 @@
   "message": "本周的 {0} 次“查找相似”已用完，{1}恢复。"
  },
  "similarLightNote": {
-  "message": "快速搜索：每周免费 {0} 次。Ultra 搜索范围更广，会读评价并核对配送。"
+  "message": "快速搜索：每周最多 {0} 次。"
+ },
+ "similarLightNotePro": {
+  "message": "快速搜索：每周最多 {0} 次，每次算作 {1} 个回答。"
  },
  "similarLightFoot": {
   "message": "快速搜索。Ultra 搜索范围更广，会读评价并核对配送。"
  },
- "similarFreeLimit": {
-  "message": "本周的 {0} 次免费搜索已用完，{1}恢复。Ultra 每周 {2} 次，搜索范围更广。"
+ "similarLightLimit": {
+  "message": "本周的 {0} 次快速搜索已用完，{1}恢复。Ultra 每周 {2} 次，搜索范围更广。"
+ },
+ "similarAnswersShort": {
+  "message": "一次快速搜索算作 {0} 个回答，你还剩 {1} 个。"
  },
  "orgDemoQuestion": {
   "message": "五月去里斯本的便宜机票？"

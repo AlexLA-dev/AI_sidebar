@@ -1974,13 +1974,19 @@
   "message": "Đã dùng hết {0} lượt «Tìm tương tự» của tuần này. Sẽ có lại vào {1}."
  },
  "similarLightNote": {
-  "message": "Tìm nhanh: {0} lượt mỗi tuần miễn phí. Ultra tìm rộng hơn, đọc đánh giá và kiểm tra giao hàng."
+  "message": "Tìm nhanh: tối đa {0} lượt mỗi tuần."
+ },
+ "similarLightNotePro": {
+  "message": "Tìm nhanh: tối đa {0} lượt mỗi tuần, mỗi lượt tính bằng {1} câu trả lời."
  },
  "similarLightFoot": {
   "message": "Tìm nhanh. Ultra tìm rộng hơn, đọc đánh giá và kiểm tra giao hàng."
  },
- "similarFreeLimit": {
-  "message": "Đã dùng hết {0} lượt tìm miễn phí của tuần này. Sẽ có lại vào {1}. Ultra có {2} lượt mỗi tuần và tìm rộng hơn."
+ "similarLightLimit": {
+  "message": "Đã dùng hết {0} lượt tìm nhanh của tuần này. Sẽ có lại vào {1}. Ultra có {2} lượt mỗi tuần và tìm rộng hơn."
+ },
+ "similarAnswersShort": {
+  "message": "Một lượt tìm nhanh tính bằng {0} câu trả lời, và bạn còn {1}."
  },
  "orgDemoQuestion": {
   "message": "Vé máy bay giá rẻ đi Lisbon tháng 5?"
