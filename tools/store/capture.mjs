@@ -7,7 +7,7 @@
 // The 2.5 product page: the default run (summary, quick insert, page watch, reminders, selection, pins and highlights,
 // notes) on the free stand, then SET=pro25 (organizing suggestions, the lecture video) on the Pro stand.
 import { chromium } from "playwright"
-import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 
@@ -40,7 +40,9 @@ const site = (host, path) => `${BASE.replace("localhost", host)}/${lang === "ru"
 const INBOX = site(lang === "ru" ? "mail.sevveter.studio" : "mail.northwind.studio", "inbox")
 const SHOP = site(lang === "ru" ? "zvukodom.store" : "soundhouse.store", "product")
 // The build's own words (menu items the 2.5 scenes look for), in the capture's language.
-const messages = JSON.parse(readFileSync(join(extArg, "_locales", lang === "ru" ? "ru" : "en", "messages.json"), "utf8"))
+const messages = JSON.parse(readFileSync(join(extArg, "_locales", existsSync(join(extArg, "_locales", lang)) ? lang : "en", "messages.json"), "utf8"))
+// The browser's locale for the capture's language (2.7's localized first screens: de, fr, it, es, zh_TW).
+const LOCALE = { en: "en-US", ru: "ru-RU", de: "de-DE", fr: "fr-FR", it: "it-IT", es: "es-ES", zh_TW: "zh-TW" }[lang] ?? "en-US"
 const msg = (key, ...args) => args.reduce((text, a, i) => text.replace(`{${i}}`, a), messages[key].message)
 
 const DEVICES = {
@@ -74,6 +76,8 @@ const L = lang === "ru"
       shopAsk: "Worth buying? What's the catch?", shopReviews: "What do the reviews really say?", shopSel: "Why does this matter?",
       callTpl: "Confirm the call", orderTpl: "Thanks for the order", marks: [["61 companies", ","], ["Revenue held steady", "."]] }
 
+// Other languages (2.7's localized first screens): the chips' words from the build's own strings.
+if (!["en", "ru"].includes(lang)) Object.assign(L, { summarize: msg("actSummarize"), key: msg("actKeyPoints") ?? L.key })
 const shadow = (js) => `(() => { const r = document.querySelector("contextflow-root")?.shadowRoot; return (${js})(r) })()`
 
 async function session(name) {
@@ -82,8 +86,8 @@ async function session(name) {
     headless: true,
     // Full Chromium: the default headless shell can't load extensions.
     ...(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : { channel: "chromium" }),
-    args: [`--disable-extensions-except=${extDir}`, `--load-extension=${extDir}`, `--lang=${lang === "en" ? "en-US" : lang}`, "--host-resolver-rules=MAP *.example 127.0.0.1, MAP *.studio 127.0.0.1, MAP *.store 127.0.0.1"],
-    locale: lang === "ru" ? "ru-RU" : "en-US",
+    args: [`--disable-extensions-except=${extDir}`, `--load-extension=${extDir}`, `--lang=${LOCALE}`, "--host-resolver-rules=MAP *.example 127.0.0.1, MAP *.studio 127.0.0.1, MAP *.store 127.0.0.1"],
+    locale: LOCALE,
     userAgent: d.ua, viewport: d.viewport, deviceScaleFactor: d.scale, hasTouch: d.touch
   })
   let [sw] = ctx.serviceWorkers()
@@ -99,25 +103,27 @@ async function session(name) {
 async function fresh(s, { dark = false, url = ARTICLE, threads = null, extra = {} } = {}) {
   await s.page.goto("about:blank")
   await fetch(`${BASE}/reset`)
-  await s.sw.evaluate(async ({ threads, extra }) => {
+  // The device's lists in Reminders, in its language.
+  const lists = lang === "ru" ? [{ id: "L1", title: "Напоминания" }, { id: "L2", title: "Поездки" }] : [{ id: "L1", title: "Reminders" }, { id: "L2", title: "Travel" }]
+  await s.sw.evaluate(async ({ threads, extra, lists }) => {
     // Chromium has no app behind the extension: its answers stand in (a reminder is scheduled, notifications allowed).
     globalThis.browser = { runtime: { sendNativeMessage: async (_id, msg) => {
       if (msg?.command === "remind") return { success: true, data: { outcome: "scheduled" } }
       if (msg?.command === "watch_permission") return { success: true, data: { outcome: "ok" } }
       // Calendar and Reminders (2.7): the app's answers, as on a device that allowed both.
-      if (msg?.command === "apple_status") return { success: true, data: { available: true, platform: "ios", reminders: "write", events: "write", lists: [{ id: "L1", title: "Reminders" }, { id: "L2", title: "Travel" }], defaultList: "L1" } }
+      if (msg?.command === "apple_status") return { success: true, data: { available: true, platform: "ios", reminders: "write", events: "write", lists: lists, defaultList: "L1" } }
       if (msg?.command === "apple_add") return { success: true, data: { outcome: "saved", place: "Reminders" } }
       return { success: false }
     } } }
     await chrome.storage.local.clear()
     const { "cf:settings": settings = {}, ...rest } = extra
-    await chrome.storage.local.set({ "cf:consent": 3, "cf:tourSeen": true, "cf:noteHint": -1, "cf:selHint": -1, "cf:hintsSeen": ["chats", "video", "pdf", "side"],
+    await chrome.storage.local.set({ "cf:consent": 3, "cf:tourSeen": true, "cf:noteHint": -1, "cf:selHint": -1, "cf:hintsSeen": ["chats", "video", "pdf", "side", "new27"],
       // 2.5's first-time tips (the eye and the bell, the button by a field) and organizing's Free cards stay out of the shots.
       "cf:watchTips": { eye: true, later: true }, "cf:selIconsTip": true, "cf:insertTipSeen": true,
       "cf:orgCards": { thirdTag: true, mess: { chats: [], at: 0, closed: true } },
       "cf:settings": { textSize: "large", fab: "on", ...settings }, "cf:settingsUpdatedAt": Date.now(), ...rest })
     if (threads) await chrome.storage.local.set({ "cf:threads": threads, "cf:activeThread": { id: Object.keys(threads)[0], at: Date.now() } })
-  }, { threads, extra })
+  }, { threads, extra, lists })
   await s.page.emulateMedia({ colorScheme: dark ? "dark" : "light" })
   await go(s, url)
 }
@@ -127,7 +133,7 @@ async function go(s, url) {
   await s.page.waitForSelector("contextflow-root", { state: "attached" })
   // A date field takes its format from the language around it: the panel's own, as Safari's comes from the device
   // (a page in Spanish would otherwise show a Spanish date in an English panel).
-  await s.page.evaluate((l) => document.querySelector("contextflow-root")?.setAttribute("lang", l), lang === "ru" ? "ru-RU" : "en-US")
+  await s.page.evaluate((l) => document.querySelector("contextflow-root")?.setAttribute("lang", l), LOCALE)
   await s.page.waitForTimeout(300)
   // The free-answers count under the field names the daily number, which the store page doesn't.
   // No Pro on the 2.5 shots either (the owner): the footer's "Get Pro" (or an offer) is hidden too.
@@ -778,7 +784,8 @@ async function similar(s) {
   else await dragSelect(s, s.page.locator("h1"))
   const bubble = s.page.locator(".cf-bubble")
   await bubble.waitFor()
-  const chipEl = bubble.locator(".cf-sel-chip.ultra")
+  // By its words: on Ultra the chip loses its upsell class once the plan is known (2.7).
+  const chipEl = bubble.locator(".cf-sel-chip", { hasText: msg("selSimilar") }).first()
   await chipEl.waitFor()
   await s.page.waitForTimeout(1700)
   await chipEl.evaluate((el) => {
@@ -914,7 +921,8 @@ async function selAction(s, url, key) {
 
 // ---------------------------------------------------------------- 2.7 (SET=v27): the version's new features, for the
 // store's 2.7 screenshots and the site's feature cards (stand on Ultra; the build with CF_OPEN_SHADOW=1).
-const ES_GUIDE = `${BASE}/es-guide`
+// A Spanish interface reads the same guide in English (Translate only offers a page that isn't in yours).
+const ES_GUIDE = lang === "es" ? `${BASE}/en-guide` : `${BASE}/es-guide`
 // On hosts of their own, so the panel names a site, not localhost (the mail page is in English only).
 const MAIL = lang === "ru" ? `${BASE.replace("localhost", "mail.sevveter.studio")}/mail-reply-ru` : `${BASE.replace("localhost", "mail.northwind.studio")}/mail-reply`
 const ARTICLE_SITE = `${BASE.replace("localhost", "weeklyreview.example")}/${lang === "ru" ? "article-ru" : "article"}`
@@ -966,7 +974,17 @@ async function translatePage(s) {
   await press(s, pill.locator(".cf-tr-btn").first())
   await s.page.locator(".cf-tr .cf-tr-btn.quiet").waitFor({ timeout: 20000 })
   await s.page.locator(".cf-tr-spin").waitFor({ state: "detached", timeout: 20000 }).catch(() => undefined)
+  // What's below the screen is translated as it scrolls into view: down to the end and back, so every block is.
+  await s.page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+  await s.page.waitForTimeout(1800)
   await s.page.evaluate(() => window.scrollTo(0, 0))
+  await s.page.waitForTimeout(500)
+  // The translated paragraph with its links clear of the "Original" button (it stays by ✦).
+  const tr = await s.page.locator(".cf-tr").boundingBox()
+  await s.page.evaluate((top) => {
+    const p = document.getElementById("p1").getBoundingClientRect()
+    if (p.bottom > top - 16) window.scrollBy(0, p.bottom - top + 24)
+  }, tr.y)
   await s.page.waitForTimeout(700)
 }
 
@@ -1074,6 +1092,49 @@ async function spacesSwitcher(s) {
   await s.page.waitForTimeout(500)
 }
 
+// Collections (2.7): a trip to Lisbon gathered from the guide and other pages, sorted into sections by the AI, with
+// a comparison (Pro) and the summary on top; the panel's collections window open.
+function collectionsData() {
+  const now = Date.now()
+  const ru = lang === "ru"
+  const guide = { url: ES_GUIDE, title: ru ? "Лиссабон за три дня" : "Lisbon in three days" }
+  const hotels = { url: "https://staylisbon.example/central", title: ru ? "Где жить в Лиссабоне" : "Where to stay in Lisbon" }
+  const sec = (id, n, o) => ({ id, n, o, u: now - 5e6, ai: true })
+  const card = (id, s, o, k, t, src, ago) => ({ id, sec: s, o, u: now - ago, k, t, ...(src ? { src } : {}), at: now - ago, x: t })
+  const T = ru
+    ? {
+        name: "Поездка в Лиссабон", sum: "Жить в Байше: ровно и всё рядом. Белен и дворец Пена — с утра, билеты в Пену заранее; трамвай 28 — после обеда, когда очередь короче.",
+        s: ["Где жить", "Что посмотреть", "Как передвигаться"],
+        c: [["Байша ровная и в центре, Алфама красивая, но с чемоданом по её холмам тяжело.", hotels], ["Отель у площади Россиу: завтрак на крыше, 4 минуты до метро.", hotels],
+          ["Монастырь Жеронимуш: прийти до 10, потом группы.", guide], ["Пена: билеты на утро купить заранее", null, "note"], ["Беленская башня — 15 минут пешком вдоль реки.", guide],
+          ["Трамвай 28 после обеда, когда очередь короче.", guide], ["Поезд в Синтру от Росиу — с утра пораньше", null, "note"]],
+        cmp: { t: "Байша и Алфама", h: ["", "Байша", "Алфама"], r: [["До главного пешком", "5–10 мин", "до 15 мин, в гору"], ["Ночью", "Оживлённо", "Тихо"], ["Кому", "Первый приезд", "Второй приезд"]] }
+      }
+    : {
+        name: "Lisbon trip", sum: "Stay in Baixa: flat and central. Belém and Pena Palace in the morning, with Pena tickets booked ahead; tram 28 after lunch, when the line is shorter.",
+        s: ["Where to stay", "What to see", "Getting around"],
+        c: [["Baixa is flat and central; Alfama is lovely but steep with luggage.", hotels], ["Hotel by Rossio square: rooftop breakfast, 4 min to the metro.", hotels],
+          ["Jerónimos Monastery: get there before 10, groups after.", guide], ["Pena Palace: book a morning slot ahead", null, "note"], ["Belém Tower is a 15-minute walk along the river.", guide],
+          ["Tram 28 after lunch, when the line is shorter.", guide], ["Train to Sintra from Rossio, first thing", null, "note"]],
+        cmp: { t: "Baixa vs Alfama", h: ["", "Baixa", "Alfama"], r: [["Walk to the sights", "5–10 min", "up to 15 min, uphill"], ["At night", "Lively", "Quiet"], ["Best for", "A first visit", "A second visit"]] }
+      }
+  const where = [0, 0, 1, 1, 1, 2, 2]
+  const cards = T.c.map(([t, src, k], i) => card(`k${i + 1}`, `s${where[i] + 1}`, i, k ?? "answer", t, src, (8 - i) * 36e5))
+  cards.push({ id: "k9", sec: "s1", o: 9, u: now - 6e5, k: "compare", t: T.cmp.t, at: now - 6e5, of: ["k1", "k2"], tbl: { h: T.cmp.h, r: T.cmp.r } })
+  const id = "cf-col-0f3a9c2e-lisbon"
+  const rec = { id, n: T.name, mu: now - 5e6, sum: { t: T.sum, u: now - 3e5 }, s: T.s.map((n, i) => sec(`s${i + 1}`, n, i)), c: cards }
+  return { "cf:collections": { [id]: { u: now - 3e5, rec } } }
+}
+async function collections(s) {
+  await fresh(s, { url: ES_GUIDE, extra: { ...ULTRA(), ...collectionsData() } })
+  await open(s)
+  await s.page.locator(".cf-panel.in").waitFor()
+  await s.page.waitForTimeout(800)
+  await press(s, s.page.locator(".cf-col-open").first())
+  await s.page.locator(".cf-col-window .cf-col-section").first().waitFor({ timeout: 8000 })
+  await s.page.waitForTimeout(600)
+}
+
 // Calendar and Reminders: on the translated guide, "remind me on Friday to book the hotel"; the AI's card under the
 // answer (what, when, which list, Add).
 async function appleCard(s) {
@@ -1085,6 +1146,28 @@ async function appleCard(s) {
   await s.page.locator(".cf-msg.ai .md").first().waitFor({ timeout: 20000 })
   await s.page.locator(".cf-add-card .cf-add-item").first().waitFor({ timeout: 20000 })
   await s.page.locator(".cf-add-card").scrollIntoViewIfNeeded()
+  // Safari's own date and time controls show the date in words ("Nov 20, 2026"); Chromium's take the Mac's region. The
+  // fields keep their values (the panel would put them back); the date and time as Safari shows them are written over.
+  await s.page.evaluate(shadow(`(r) => {
+    const over = (i, text) => {
+      const cs = getComputedStyle(i)
+      i.style.color = "transparent"
+      const sp = document.createElement("span")
+      sp.textContent = text
+      sp.style.cssText = "position:absolute;pointer-events:none;white-space:nowrap;display:flex;align-items:center;"
+        + "font:" + cs.font + ";color:" + getComputedStyle(i.closest(".cf-add-card") ?? i).color + ";left:" + (i.offsetLeft + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth)) + "px;"
+        + "top:" + i.offsetTop + "px;height:" + i.offsetHeight + "px"
+      i.offsetParent.appendChild(sp)
+    }
+    for (const i of r.querySelectorAll('.cf-add-when input[type=date]')) {
+      const [y, m, d] = i.value.split("-").map(Number)
+      over(i, new Intl.DateTimeFormat("${LOCALE}", { month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d)))
+    }
+    for (const i of r.querySelectorAll('.cf-add-when input[type=time]')) {
+      const [h, mi] = i.value.split(":").map(Number)
+      over(i, new Intl.DateTimeFormat("${LOCALE}", { hour: "numeric", minute: "2-digit" }).format(new Date(2026, 0, 1, h, mi)))
+    }
+  }`))
   // The answer's first line clear of the question over the list.
   await s.page.evaluate(shadow(`(r) => { const l = r.querySelector(".cf-messages"); l.scrollTop -= 13 }`))
   await s.page.waitForTimeout(500)
@@ -1141,7 +1224,8 @@ for (const name of ["iphone", "ipad", "mac"]) {
       ["underlines", () => underlines(s), [".cf-ul-pop", "all:.cf-ul", "@#body"]],
       ["spaces", () => spacesSwitcher(s), [".cf-panel", "[role=menu]"]],
       ["calendar", () => appleCard(s), [".cf-panel", ".cf-add-card", ".cf-msg.ai"]],
-      ["snapshot", () => noteShot(s), [".cf-panel", ".cf-shot-thumb", ".cf-msg.user"]]
+      ["snapshot", () => noteShot(s), [".cf-panel", ".cf-shot-thumb", ".cf-msg.user"]],
+      ["collections", () => collections(s), [".cf-panel", ".cf-col-window", ".cf-col-summary", "all:.cf-col-section", ".cf-col-table"]]
     ]
     for (const [name, run, sels] of v27) {
       if (process.env.SCENES && !process.env.SCENES.split(",").includes(name)) continue

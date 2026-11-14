@@ -310,7 +310,8 @@ function scriptedWrite(system: string, content: string): unknown {
 const TRANSLATIONS: Record<string, Record<string, string>> = JSON.parse(readFileSync(new URL("./translations.json", import.meta.url), "utf8"))
 /** The scripted translation of a batch ("§n text" lines): each known line in the system prompt's language, its tags renumbered as the page's. */
 function scriptedTranslation(system: string, content: string): string {
-  const to = /into Russian/.test(system) ? "ru" : "en"
+  const into = /web page into ([^.]+)\./.exec(system)?.[1] ?? "English"
+  const to = /Russian/.test(into) ? "ru" : /German/.test(into) ? "de" : /French/.test(into) ? "fr" : /Italian/.test(into) ? "it" : /Spanish/.test(into) ? "es" : /Chinese/.test(into) ? "zh" : "en"
   const out: string[] = []
   for (const m of content.matchAll(/^§(\d+) (.*)$/gm)) {
     const src = m[2]
@@ -632,6 +633,8 @@ const pages: Record<string, string> = {
   "/long-page": "long-page.html",
   // In-page translation (2.7): a travel guide in Spanish, translated by the scripted Haiku (translations.json).
   "/es-guide": "es-guide.html",
+  // The same guide in English, for a Spanish interface (its translation is the Spanish original).
+  "/en-guide": "en-guide.html",
   // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
   "/spa/messaging": "spa.html",
   "/spa/feed": "spa.html",
@@ -688,9 +691,44 @@ function similarItems95(): Array<Record<string, unknown>> {
 }
 // Store screenshots and previews (SIMILAR_STUB=store): the same list with made-up products and shops, so the App Store
 // shows no real brand; prices against the page's $129 / 12 990 ₽.
+// The store's localized first screens (STAND_LANG=de|fr|it|es|zh): the same four in the interface's language, prices
+// as the (American) shop page shows them.
+const SIMILAR_STORE_LANG: Record<string, string[][]> = {
+  de: [
+    ["Halden Quiet One", "halden-audio.store", "Over-Ear mit adaptiver Geräuschunterdrückung und LDAC wie der Aero 2, mit weicherem, leichterem Bügel.", "Günstiger: 99,99 $ statt 129 $, auf Lager.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Leichte Kopfhörer mit Geräuschunterdrückung und ähnlichem 35-Stunden-Akku; weniger Codecs.", "Günstiger: 89,99 $ statt 129 $, auf Lager.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Preiswert, mit aktiver Geräuschunterdrückung und App-Equalizer.", "Günstiger: 69 $ statt 129 $, auf Lager.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC und Multipoint wie beim Aero 2, mit längerem Akku.", "Der Shop lässt keine Server auf die Seite, Preis und Bestand sind nicht bestätigt.", ""]
+  ],
+  fr: [
+    ["Halden Quiet One", "halden-audio.store", "Circum-auriculaire, réduction de bruit adaptative et LDAC comme le Aero 2, avec un arceau plus souple et plus léger.", "Moins cher : 99,99 $ au lieu de 129 $, en stock.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Casque léger à réduction de bruit, autonomie similaire de 35 heures ; moins de codecs.", "Moins cher : 89,99 $ au lieu de 129 $, en stock.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Petit prix, réduction de bruit active et égaliseur dans l'app.", "Moins cher : 69 $ au lieu de 129 $, en stock.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC et multipoint comme le Aero 2, avec une meilleure autonomie.", "La boutique bloque les serveurs : prix et stock non confirmés.", ""]
+  ],
+  it: [
+    ["Halden Quiet One", "halden-audio.store", "Over-ear, cancellazione del rumore adattiva e LDAC come le Aero 2, con un archetto più morbido e leggero.", "Più economiche: 99,99 $ invece di 129 $, disponibili.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Cuffie leggere con cancellazione del rumore e batteria simile da 35 ore; meno codec.", "Più economiche: 89,99 $ invece di 129 $, disponibili.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Economiche, con cancellazione attiva del rumore ed equalizzatore nell'app.", "Più economiche: 69 $ invece di 129 $, disponibili.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC e multipoint come le Aero 2, con una batteria più lunga.", "Il negozio non lascia entrare i server: prezzo e disponibilità non confermati.", ""]
+  ],
+  es: [
+    ["Halden Quiet One", "halden-audio.store", "Supraaurales, con cancelación de ruido adaptativa y LDAC como los Aero 2, y una diadema más suave y ligera.", "Más baratos: 99,99 $ frente a 129 $, en stock.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Auriculares ligeros con cancelación de ruido y una batería parecida de 35 horas; menos códecs.", "Más baratos: 89,99 $ frente a 129 $, en stock.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Económicos, con cancelación activa de ruido y ecualizador en la app.", "Más baratos: 69 $ frente a 129 $, en stock.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC y multipunto como los Aero 2, con más batería.", "La tienda no deja entrar a los servidores: precio y stock sin confirmar.", ""]
+  ],
+  zh: [
+    ["Halden Quiet One", "halden-audio.store", "耳罩式，和 Aero 2 一樣有自適應降噪和 LDAC，頭帶更柔軟、更輕。", "更便宜：US$99.99，原價 US$129，有現貨。", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "輕巧的降噪耳機，電池同樣約 35 小時；支援的編碼較少。", "更便宜：US$89.99，原價 US$129，有現貨。", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "平價款，有主動降噪和 App 等化器。", "更便宜：US$69，原價 US$129，有現貨。", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "和 Aero 2 一樣支援 LDAC 和多點連線，續航更長。", "這家商店不讓伺服器開啟頁面，價格和庫存未確認。", ""]
+  ]
+}
 function similarItemsStore(condition: string, ru = false): Array<Record<string, unknown>> {
   const cond = Boolean(condition.trim())
-  const rows = ru
+  const local = SIMILAR_STORE_LANG[process.env.STAND_LANG ?? ""]
+  const rows = local ? local : ru
     ? [
         ["Halden Quiet One", "halden-audio.store", "Накладные, с адаптивным шумоподавлением и LDAC, как Aero 2, но с более мягким и лёгким оголовьем.", "Дешевле: 9 990 ₽ против 12 990 ₽, в наличии.", "9990 RUB"],
         ["Lumen Air 720", "lumen-sound.store", "Лёгкие наушники с шумоподавлением и похожей батареей на 35 часов; кодеков меньше.", "Дешевле: 8 990 ₽ против 12 990 ₽, в наличии.", "8990 RUB"],
