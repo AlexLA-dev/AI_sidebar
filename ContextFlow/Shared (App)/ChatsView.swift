@@ -71,6 +71,7 @@ struct ChatsView: View {
     // Build 94: Recently Deleted from the "…"; the watched pages' addresses (the rows' eyes); a tick every 30 s while the
     // list shows, so a reminder that rang loses its bell and an answered or abandoned question its spinner.
     @State private var showingTrash = false
+    /// 2.7: Подборки, over the chats (iPhone, iPad).
     @State private var watched: [String] = []
     @State private var tick = Date()
 
@@ -155,6 +156,14 @@ struct ChatsView: View {
             // watch list, settings, tips, все про онбординг». The Safari panel's chats list has the same "…"
             // (src/content/ux/PageMenu.tsx): the lists (the bell, the eye; 2.5 (77): two words, two icons), Recently
             // Deleted, and the rest under "Other…". The bell and the eye were toolbar buttons of their own until 93.
+            // 2.7: Подборки (on a Mac they're in the sidebar).
+            #if os(iOS)
+            ToolbarItem {
+                // By value, like the rows' chats: a third isPresented destination on this list didn't always open.
+                NavigationLink(value: BoardsRoute()) { Label("Collections", systemImage: "square.grid.2x2") }
+                    .accessibilityIdentifier("cf-collections")
+            }
+            #endif
             ToolbarItem { listMenu }
         }
         .overlay {
@@ -172,6 +181,7 @@ struct ChatsView: View {
         }
         .sheet(item: $showingList) { kind in RemindersView(library: library, kind: kind) }
         .navigationDestination(isPresented: $showingTrash) { RecentlyDeletedView(library: library) }
+        .navigationDestination(for: BoardsRoute.self) { _ in CollectionsView(library: library, openPro: openPro) }
         // The rows' eyes and the tick (build 94).
         .task(id: listShown) {
             while listShown && !Task.isCancelled {
@@ -1258,6 +1268,7 @@ struct ExtensionOffBanner: View {
                 .font(.callout)
                 .foregroundColor(.secondary)
             Button("Open Safari Settings") {
+                Activation.shared.wentToSettings("chats")
                 SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { _ in }
             }
             .buttonStyle(.bordered)
@@ -1298,6 +1309,8 @@ struct ChatDetailView: View {
     /// The answer or note whose tag picker is open (under it, as in the Safari panel).
     @State private var tagging: Int?
     @State private var taggingChat = false
+    /// 2.7: the answer or note going «В подборку».
+    @State private var collecting: Int?
     /// The answer or note just copied: "Copied" for a moment.
     @State private var copied: Int?
     /// Sharing the chat: the messages picked (all at first); nil when not picking.
@@ -1407,7 +1420,8 @@ struct ChatDetailView: View {
                                                     reminded: entry.remind != nil,
                                                     pin: { togglePin(thread, index, how: "menu") },
                                                     remind: { remindNote = nil; reminding = index },
-                                                    delete: { deleteMessage(thread, index, how: "menu") }
+                                                    delete: { deleteMessage(thread, index, how: "menu") },
+                                                    collect: { collecting = index }
                                                 ),
                                                 listen: entry.isNote ? nil : {
                                                     // Titled by the page the answer is about (build 94, the owner: it had the
@@ -1445,6 +1459,7 @@ struct ChatDetailView: View {
                                     if !entry.isUser || entry.isNote, picked == nil {
                                         Button { togglePin(thread, index, how: "menu") } label: { Label(entry.pinned != nil ? "Unpin" : "Pin", systemImage: entry.pinned != nil ? "pin.slash" : "pin") }
                                         Button { remindNote = nil; reminding = index } label: { Label(entry.remind != nil ? "Change reminder" : "Remind me", systemImage: "bell") }
+                                        Button { collecting = index } label: { Label("To collection", systemImage: "square.grid.2x2") }
                                         Button(role: .destructive) { deleteMessage(thread, index, how: "menu") } label: { Label("Delete", systemImage: "trash") }
                                     }
                                 }
@@ -1578,6 +1593,9 @@ struct ChatDetailView: View {
                                 withAnimation { if nameBar?.id == bar.id { nameBar = nil } }
                             }
                     }
+                }
+                .sheet(isPresented: Binding(get: { collecting != nil }, set: { if !$0 { collecting = nil } })) {
+                    if let index = collecting { AddToBoardSheet(library: library, thread: thread, index: index, openPro: openPro) }
                 }
                 .sheet(isPresented: Binding(get: { reminding != nil }, set: { if !$0 { reminding = nil } })) {
                     if let index = reminding, thread.entries.indices.contains(index) {
@@ -2723,6 +2741,7 @@ private struct MessageTools: View {
                 Menu {
                     Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
                     Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
+                    if let collect = actions.collect { Button(action: collect) { Label("To collection", systemImage: "square.grid.2x2") } }
                     Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
                 } label: {
                     Label("More", systemImage: "ellipsis")

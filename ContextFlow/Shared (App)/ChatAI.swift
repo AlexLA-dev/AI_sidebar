@@ -462,15 +462,46 @@ extension ChatAI {
         return (title, object["fits"] as? Bool ?? false)
     }
 
+    /// Подборки (2.7): one op of /api/v2/collect (Pro; netlify/functions/v2-collect.mts), its answer as JSON. The texts
+    /// go for this request only (the AI consent), nothing is kept.
+    @MainActor
+    static func collect(_ op: String, _ fields: [String: Any]) async throws -> [String: Any] {
+        var body = identity()
+        body["op"] = op
+        for (key, value) in fields { body[key] = value }
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/collect", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw failure(status, data) }
+        return object
+    }
+
     /// A step in a feature ("use", src/shared/usage.ts): f, a and its allowed fields, never text (build 90: listen).
     @MainActor
     static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:]) {
         reportOrganize("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 })
     }
 
+    /// The same, sent `delay` seconds from now (2.7, the activation funnel: steps a moment apart are spaced, so they
+    /// reach the server in their order without one waiting on another's answer).
+    @MainActor
+    static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:], after delay: TimeInterval) {
+        guard var request = eventRequest("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 }) else { return }
+        request.timeoutInterval = 15
+        Task {
+            if delay > 0 { try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) }
+            _ = try? await URLSession.shared.data(for: request)
+        }
+    }
+
     /// An organizing event (kind organize / organize_promo / organize_optin): what and where, never text.
     @MainActor
     static func reportOrganize(_ kind: String, _ fields: [String: String]) {
+        guard let request = eventRequest(kind, fields) else { return }
+        Task { _ = try? await URLSession.shared.data(for: request) }
+    }
+
+    @MainActor
+    private static func eventRequest(_ kind: String, _ fields: [String: String]) -> URLRequest? {
         var body: [String: Any] = [
             "kind": kind,
             "appId": Activation.shared.appId,
@@ -479,7 +510,6 @@ extension ChatAI {
         ]
         for (key, value) in fields { body[key] = value }
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
-        guard let request = try? request("api/v2/event", body) else { return }
-        Task { _ = try? await URLSession.shared.data(for: request) }
+        return try? request("api/v2/event", body)
     }
 }
