@@ -611,6 +611,7 @@ const pages: Record<string, string> = {
   // «Проверить» и «Переписать» (2.7): a mail being answered (Gmail's reply box, its signature and quote inside it), and a
   // comment under a job post (LinkedIn's Quill editor).
   "/mail-reply": "mail-reply.html",
+  "/mail-reply-ru": "mail-reply-ru.html",
   "/post-comment": "post-comment.html",
   // «Снимок страницы в заметке» (2.7): a long page (a sticky header, five coloured sections, a fixed cookie bar).
   "/long-page": "long-page.html",

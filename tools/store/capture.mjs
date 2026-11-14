@@ -125,6 +125,9 @@ async function fresh(s, { dark = false, url = ARTICLE, threads = null, extra = {
 async function go(s, url) {
   await s.page.goto(url)
   await s.page.waitForSelector("contextflow-root", { state: "attached" })
+  // A date field takes its format from the language around it: the panel's own, as Safari's comes from the device
+  // (a page in Spanish would otherwise show a Spanish date in an English panel).
+  await s.page.evaluate((l) => document.querySelector("contextflow-root")?.setAttribute("lang", l), lang === "ru" ? "ru-RU" : "en-US")
   await s.page.waitForTimeout(300)
   // The free-answers count under the field names the daily number, which the store page doesn't.
   // No Pro on the 2.5 shots either (the owner): the footer's "Get Pro" (or an offer) is hidden too.
@@ -913,7 +916,7 @@ async function selAction(s, url, key) {
 // store's 2.7 screenshots and the site's feature cards (stand on Ultra; the build with CF_OPEN_SHADOW=1).
 const ES_GUIDE = `${BASE}/es-guide`
 // On hosts of their own, so the panel names a site, not localhost (the mail page is in English only).
-const MAIL = `${BASE.replace("localhost", "mail.northwind.studio")}/mail-reply`
+const MAIL = lang === "ru" ? `${BASE.replace("localhost", "mail.sevveter.studio")}/mail-reply-ru` : `${BASE.replace("localhost", "mail.northwind.studio")}/mail-reply`
 const ARTICLE_SITE = `${BASE.replace("localhost", "weeklyreview.example")}/${lang === "ru" ? "article-ru" : "article"}`
 const ULTRA = () => ({ "cf:lastEntitlement": { value: { active: true, productId: "com.contextflow.ultra.monthly", expiresAt: null }, at: Date.now() } })
 const ABOUT = lang === "ru" ? "Продуктовый дизайнер в Northwind Studio. Короткие дружелюбные письма." : "Product designer at Northwind Studio. Short, friendly emails."
@@ -1020,11 +1023,11 @@ async function underlines(s) {
     getSelection().addRange(r)
   })
   await s.page.keyboard.press("Enter")
-  await s.page.keyboard.type(lang === "ru" ? "PS прийду с слайдами завтра утром, вобщем всё в силе." : "PS i will send teh slides tommorow morning.", { delay: 4 })
+  await s.page.keyboard.type(lang === "ru" ? "PS расчитываю начать ровно в 11, прийду пораньше." : "PS i will send teh slides tommorow morning.", { delay: 4 })
   await s.page.waitForFunction(shadow(`(r) => r && r.querySelectorAll(".cf-ul").length > 0`), null, { timeout: 20000 })
   await s.page.waitForTimeout(500)
   await shot(s, `${s.k}-underlined`); await rect(s, `${s.k}-underlined`, ["all:.cf-ul", "@#body"])
-  const w = await wordRect(s, "#body", lang === "ru" ? "прийду" : "teh", lang === "ru" ? 0 : 1)
+  const w = await wordRect(s, "#body", lang === "ru" ? "расчитываю" : "teh", lang === "ru" ? 0 : 1)
   if (s.d.touch) await s.page.touchscreen.tap(w.x + w.width / 2, w.y + w.height / 2)
   else await s.page.mouse.move(w.x + w.width / 2, w.y + w.height / 2)
   await s.page.locator(".cf-ul-pop").waitFor({ timeout: 6000 })
@@ -1059,7 +1062,8 @@ function spacesData() {
   return { "cf:threads": threads, "cf:activeThread": { id: "w1", at: now - 50_000 }, "cf:spaces": spaces }
 }
 async function spacesSwitcher(s) {
-  await fresh(s, { url: ARTICLE_SITE, extra: { ...ULTRA(), ...spacesData() } })
+  const side = s.k === "iphone" ? {} : { "cf:settings": { fabSide: "left", fabSideChosen: true } }
+  await fresh(s, { url: ARTICLE_SITE, extra: { ...ULTRA(), ...spacesData(), ...side } })
   await open(s)
   await s.page.locator(".cf-panel.in").waitFor()
   await s.page.waitForTimeout(2600)
@@ -1132,12 +1136,12 @@ for (const name of ["iphone", "ipad", "mac"]) {
   // 2.7: the version's new features (Ultra stand): SCENES picks some of them.
   if (process.env.SET === "v27") {
     const v27 = [
-      ["translate", () => translatePage(s), [".cf-tr", ".cf-fab", "@main"]],
+      ["translate", () => translatePage(s), [".cf-tr", ".cf-fab", "@main", "@#p1"]],
       ["check", () => checkMail(s), [".cf-wr", ".cf-wr-text", "@#body"]],
       ["underlines", () => underlines(s), [".cf-ul-pop", "all:.cf-ul", "@#body"]],
       ["spaces", () => spacesSwitcher(s), [".cf-panel", "[role=menu]"]],
       ["calendar", () => appleCard(s), [".cf-panel", ".cf-add-card", ".cf-msg.ai"]],
-      ["snapshot", () => noteShot(s), [".cf-panel", ".cf-shot-thumb"]]
+      ["snapshot", () => noteShot(s), [".cf-panel", ".cf-shot-thumb", ".cf-msg.user"]]
     ]
     for (const [name, run, sels] of v27) {
       if (process.env.SCENES && !process.env.SCENES.split(",").includes(name)) continue

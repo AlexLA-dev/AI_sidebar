@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Переносим созвон на пятницу - alex@sevveter.studio - Почта</title>
+<!-- «Проверить» и «Переписать» (2.7): a mail being answered, as Gmail draws it. The thread above (role="list", each
+     message with its sender and time), the reply box below: a contenteditable with role="textbox", the draft, then the
+     signature (div.gmail_signature) and the quoted mail (div.gmail_quote) inside it, as Gmail keeps them. -->
+<style>
+  body { margin: 0; font: 15px/1.5 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f1f1f; background: #f6f8fc; }
+  header { display: flex; align-items: center; gap: 10px; padding: 10px 18px; background: #f6f8fc; }
+  header .logo { width: 28px; height: 22px; border-radius: 4px; background: linear-gradient(135deg, #ea4335 0 33%, #fbbc04 33% 66%, #34a853 66%); }
+  header .search { flex: 1; max-width: 560px; height: 40px; border-radius: 20px; background: #e9eef6; color: #5f6368; display: flex; align-items: center; padding: 0 16px; font-size: 15px; }
+  main { max-width: 760px; margin: 0 auto 120px; background: #fff; border-radius: 16px; padding: 18px 22px 22px; }
+  h2 { font-size: 21px; font-weight: 400; margin: 2px 0 14px; }
+  .msg { padding: 10px 0 14px; border-bottom: 1px solid #edf0f4; }
+  .who { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 600; }
+  .name { font-weight: 600; }
+  .addr { color: #5f6368; font-size: 13px; }
+  time { margin-left: auto; color: #5f6368; font-size: 13px; }
+  .body { margin: 8px 0 0 44px; white-space: pre-line; }
+  .reply { margin-top: 16px; border: 1px solid #dadce0; border-radius: 12px; box-shadow: 0 1px 3px rgba(60,64,67,.15); }
+  .reply .to { padding: 10px 14px; color: #5f6368; border-bottom: 1px solid #edf0f4; font-size: 14px; }
+  .editable { min-height: 180px; padding: 12px 14px; outline: none; }
+  .gmail_signature { color: #5f6368; }
+  .gmail_quote { color: #5f6368; display: none; }
+  .bar { display: flex; gap: 10px; padding: 10px 14px; border-top: 1px solid #edf0f4; }
+  .send { background: #0b57d0; color: #fff; border: 0; border-radius: 18px; font: 600 14px -apple-system, sans-serif; padding: 9px 22px; }
+</style>
+</head>
+<body>
+<header><span class="logo"></span><span class="search">Поиск в почте</span></header>
+<main>
+  <h2>Переносим созвон на пятницу</h2>
+  <div role="list" aria-label="Письма в переписке">
+    <div class="msg" role="listitem">
+      <div class="who"><span class="avatar" style="background:#8e24aa">Е</span><span><span class="name">Екатерина Вишневская</span> <span class="addr">&lt;e.vishnevskaya@lumenhealth.io&gt;</span></span><time datetime="2026-11-13T16:42">Чт 16:42</time></div>
+      <div class="body">Привет, Алексей!
+
+Можно перенести наш созвон по дизайну со среды на пятницу, на 11:00? Наш технический директор Матвей Оберлендер хочет присоединиться, а он в командировке до четверга.
+
+И захвати, пожалуйста, последний прототип онбординга Lumen. Его больше всего интересует часть с панелью для клиники.
+
+Спасибо,
+Екатерина</div>
+    </div>
+  </div>
+  <div class="reply">
+    <div class="to">Кому: Екатерина Вишневская</div>
+    <div class="editable" id="body" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Текст письма"><div dir="ltr">Привет, Екатирина!<br><br>Пятница в 11 мне подходит, прийду с последним прототипом и покажу панель для клиники.<br><br>Вобщем, до встречи!</div><br><span class="gmail_signature_prefix">-- </span><div class="gmail_signature" data-smartmail="gmail_signature">Алексей Смирнов<br>Продуктовый дизайнер, Northwind Studio</div><div class="gmail_quote">В чт, Екатерина Вишневская написала:<blockquote>Можно перенести наш созвон…</blockquote></div></div>
+    <div class="bar"><button class="send" type="button">Отправить</button></div>
+  </div>
+</main>
+</body>
+</html>
