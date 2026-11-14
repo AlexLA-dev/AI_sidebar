@@ -1,0 +1,186 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSRemindersFullAccessUsageDescription": {
+      "comment": "Calendar and Reminders (2.7): why ContextFlow asks for access.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow adds the reminders you confirm. It doesn't read your reminders or send them anywhere."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يضيف ContextFlow التذكيرات التي تؤكدها. ولا يقرأ تذكيراتك ولا يرسلها إلى أي مكان."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow fügt die Erinnerungen hinzu, die du bestätigst. Es liest deine Erinnerungen nicht und sendet sie nirgendwohin."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow añade los recordatorios que confirmas. No lee tus recordatorios ni los envía a ningún sitio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow ajoute les rappels que vous confirmez. Il ne lit pas vos rappels et ne les envoie nulle part."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow aggiunge i promemoria che confermi. Non legge i tuoi promemoria e non li invia da nessuna parte."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow は、あなたが確認したリマインダーを追加します。リマインダーを読んだり、どこかへ送ったりはしません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow는 확인한 미리 알림만 추가합니다. 미리 알림을 읽거나 다른 곳으로 보내지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow adiciona os lembretes que você confirma. Ele não lê seus lembretes nem os envia para lugar nenhum."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow добавляет напоминания, которые вы подтвердили. Он не читает ваши напоминания и никуда их не отправляет."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow додає нагадування, які ви підтвердили. Він не читає ваші нагадування й нікуди їх не надсилає."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow thêm các lời nhắc mà bạn xác nhận. Ứng dụng không đọc lời nhắc của bạn và không gửi chúng đi đâu cả."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 会添加你确认的提醒事项。它不会读取你的提醒事项，也不会将其发送到任何地方。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 會加入你確認的提醒事項。它不會讀取你的提醒事項，也不會將其傳送到任何地方。"
+          }
+        }
+      }
+    },
+    "NSCalendarsWriteOnlyAccessUsageDescription": {
+      "comment": "Calendar and Reminders (2.7): why ContextFlow asks for access.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow adds the events you confirm to your calendar. It can't see your calendar."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يضيف ContextFlow الأحداث التي تؤكدها إلى تقويمك. ولا يمكنه رؤية تقويمك."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow fügt die Termine, die du bestätigst, deinem Kalender hinzu. Deinen Kalender sieht es nicht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow añade a tu calendario los eventos que confirmas. No puede ver tu calendario."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow ajoute à votre calendrier les événements que vous confirmez. Il ne peut pas voir votre calendrier."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow aggiunge al calendario gli eventi che confermi. Non può vedere il tuo calendario."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow は、あなたが確認したイベントをカレンダーに追加します。カレンダーの内容は見えません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow는 확인한 이벤트를 캘린더에 추가합니다. 캘린더 내용은 볼 수 없습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow adiciona ao seu calendário os eventos que você confirma. Ele não consegue ver seu calendário."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow добавляет в календарь события, которые вы подтвердили. Ваш календарь он не видит."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow додає до календаря події, які ви підтвердили. Ваш календар він не бачить."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow thêm vào lịch các sự kiện mà bạn xác nhận. Ứng dụng không thể xem lịch của bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 会把你确认的日程添加到日历。它看不到你的日历。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 會把你確認的行程加入行事曆。它看不到你的行事曆。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

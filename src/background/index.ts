@@ -1,4 +1,5 @@
 import { tipClip } from "./tipClips"
+import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
 import { appLink, planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
@@ -764,6 +765,41 @@ async function remind(message: Extract<BackgroundRequest, { type: "remind" }>): 
   return { outcome: reply?.outcome ?? "unavailable" }
 }
 
+// ---------------------------------------------------------------- Calendar and Reminders (2.7)
+
+/** Whether reminders and events can be added on this device, and how (AppleItems.swift). Safari, iOS 17+ and macOS 14+. */
+async function appleStatus(): Promise<Record<string, unknown>> {
+  if (TARGET !== "safari") return { available: false }
+  return (await callNative<Record<string, unknown>>("apple_status")) ?? { available: false }
+}
+
+/** A reminder or an event written on the device, or handed to the app (`handoff`; a Mac opens the app from here). */
+async function appleAdd(message: Extract<BackgroundRequest, { type: "appleAdd" }>): Promise<{ outcome: string }> {
+  if (TARGET !== "safari") return { outcome: "unavailable" }
+  const item = { ...message.item, notes: message.notes, url: message.url ?? "", list: message.list ?? "" }
+  const reply = await callNative<{ outcome?: string }>("apple_add", { item, ...(message.key ? { key: message.key } : {}), ...(message.handoff ? { handoff: message.handoff } : {}) }, 15_000)
+  return { outcome: reply?.outcome ?? "unavailable" }
+}
+
+/** The date and time of a reminder or an event read out of a text (/api/v2/item, nothing kept there), in this device's time. */
+async function itemsRead(message: Extract<BackgroundRequest, { type: "itemsRead" }>): Promise<{ items?: unknown[]; error?: string }> {
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  try {
+    const res = await fetch(`${API_BASE}/api/v2/item`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        installId: id, client, text: message.text.slice(0, 6_000), words: (message.words ?? "").slice(0, 1_000),
+        ...(message.kind ? { kind: message.kind } : {}), title: (message.title ?? "").slice(0, 300), ...deviceNow()
+      })
+    })
+    const body = (await res.json().catch(() => ({}))) as { items?: unknown[]; code?: string }
+    return res.ok && Array.isArray(body.items) ? { items: body.items } : { error: body.code ?? "UPSTREAM" }
+  } catch {
+    return { error: "NETWORK" }
+  }
+}
+
 /** A chat UX count (2.5): kind, action and a few words from fixed lists; never text or sites. */
 async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>): Promise<void> {
   const [id, client] = await Promise.all([installId(), clientInfo()])
@@ -953,6 +989,18 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void reportUse(message)
       sendResponse({ ok: true })
       return false
+    case "appleStatus":
+      appleStatus().then(sendResponse, () => sendResponse({ available: false }))
+      return true
+    case "appleAdd":
+      appleAdd(message).then(sendResponse, () => sendResponse({ outcome: "unavailable" }))
+      return true
+    case "appleRemove":
+      void (TARGET === "safari" ? callNative("apple_remove", { key: message.key }) : Promise.resolve(null)).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
+      return true
+    case "itemsRead":
+      itemsRead(message).then(sendResponse, () => sendResponse({ error: "NETWORK" }))
+      return true
     case "syncThreads":
       if (TARGET !== "safari") {
         sendResponse({ changed: false })

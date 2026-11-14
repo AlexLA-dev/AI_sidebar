@@ -27,11 +27,13 @@ struct ChatMark: Codable, Hashable {
     var q: String
 }
 
-/// A reminder on a message (ms); `dev`: the device that rings; `page`: a page reminder (opens the page).
+/// A reminder on a message (ms); `dev`: the device that rings; `page`: a page reminder (opens the page); `apple` (2.7):
+/// it's in Apple Reminders too («Также в Напоминания», on the device that set it).
 struct ChatRemind: Codable, Hashable {
     var at: Double
     var dev: String?
     var page: Bool?
+    var apple: Bool? = nil
 }
 
 enum ChatMarks {
@@ -204,6 +206,7 @@ extension ChatLibrary {
                 var object: [String: Any] = ["at": remind.at]
                 if let dev = remind.dev { object["dev"] = dev }
                 if remind.page == true { object["page"] = true }
+                if remind.apple == true { object["apple"] = true }
                 entries[index]["remind"] = object
             } else {
                 entries[index].removeValue(forKey: "remind")
@@ -912,6 +915,8 @@ struct RemindSheet: View {
     @State private var picking = false
     @State private var own = ""
     @State private var started = false
+    /// «Также в Напоминания» (2.7): the reminder goes into Apple Reminders as well (iOS 17+, macOS 14+); remembered.
+    @AppStorage(AppleItems.alsoKey) private var alsoReminders = false
 
     private func picked(_ at: Date, _ preset: String) {
         pick(at, preset, words == nil ? nil : own.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -947,6 +952,15 @@ struct RemindSheet: View {
                         .disabled(custom <= Date())
                 } else {
                     Button("Pick a date") { picking = true }
+                }
+                if AppleItems.available {
+                    Section {
+                        Toggle("Also in Reminders", isOn: $alsoReminders)
+                    } footer: {
+                        Text(AppleItems.access(.reminder) == .denied
+                             ? LocalizedStringKey("ContextFlow has no access to Reminders. Turn it on in Settings.")
+                             : LocalizedStringKey("In the Reminders app, on all your devices."))
+                    }
                 }
                 if current != nil {
                     Button("Don't remind", role: .destructive, action: cancel)

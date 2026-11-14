@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "Не подходит под выбор"
  },
+ "appleTitle": {
+  "message": "Календарь и Напоминания"
+ },
+ "appleMenu": {
+  "message": "В Календарь или Напоминания"
+ },
+ "appleReading": {
+  "message": "Ищу дату и время…"
+ },
+ "appleNothing": {
+  "message": "Здесь нечего добавить: нет даты или дела."
+ },
+ "appleError": {
+  "message": "Не получилось прочитать дату."
+ },
+ "appleRetry": {
+  "message": "Ещё раз"
+ },
+ "appleReminder": {
+  "message": "Напоминание"
+ },
+ "appleEvent": {
+  "message": "Событие"
+ },
+ "appleWhat": {
+  "message": "Что"
+ },
+ "appleDate": {
+  "message": "Дата"
+ },
+ "appleTime": {
+  "message": "Время"
+ },
+ "appleList": {
+  "message": "Список"
+ },
+ "appleRemindersApp": {
+  "message": "В Напоминания"
+ },
+ "appleCalendarPick": {
+  "message": "Календарь выберете в следующем окне"
+ },
+ "appleCalendarDefault": {
+  "message": "Ваш календарь по умолчанию"
+ },
+ "appleGuess": {
+  "message": "Проверьте дату и время: они угаданы."
+ },
+ "applePast": {
+  "message": "Это время уже прошло. Проверьте дату."
+ },
+ "appleAdd": {
+  "message": "Добавить"
+ },
+ "appleAdded": {
+  "message": "Добавлено в Напоминания"
+ },
+ "appleAddedEvent": {
+  "message": "Добавлено в Календарь"
+ },
+ "appleOpening": {
+  "message": "Открываю ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "У ContextFlow нет доступа. Включите его в Настройках."
+ },
+ "appleFailed": {
+  "message": "Не получилось добавить. Попробуйте ещё раз."
+ },
+ "appleAlso": {
+  "message": "Также в Напоминания"
+ },
+ "appleRemindersOff": {
+  "message": "У ContextFlow нет доступа к Напоминаниям. Включите его в Настройках."
+ },
+ "appleAskOnce": {
+  "message": "В первый раз откроется ContextFlow, чтобы спросить доступ."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

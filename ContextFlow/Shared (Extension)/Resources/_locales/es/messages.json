@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "No cumple tu elección"
  },
+ "appleTitle": {
+  "message": "Calendario y Recordatorios"
+ },
+ "appleMenu": {
+  "message": "Añadir a Calendario o Recordatorios"
+ },
+ "appleReading": {
+  "message": "Buscando la fecha y la hora…"
+ },
+ "appleNothing": {
+  "message": "Aquí no hay nada que añadir: no hay fecha ni tarea."
+ },
+ "appleError": {
+  "message": "No se pudo leer la fecha."
+ },
+ "appleRetry": {
+  "message": "Reintentar"
+ },
+ "appleReminder": {
+  "message": "Recordatorio"
+ },
+ "appleEvent": {
+  "message": "Evento"
+ },
+ "appleWhat": {
+  "message": "Qué"
+ },
+ "appleDate": {
+  "message": "Fecha"
+ },
+ "appleTime": {
+  "message": "Hora"
+ },
+ "appleList": {
+  "message": "Lista"
+ },
+ "appleRemindersApp": {
+  "message": "En Recordatorios"
+ },
+ "appleCalendarPick": {
+  "message": "El calendario lo eliges en el siguiente paso"
+ },
+ "appleCalendarDefault": {
+  "message": "Tu calendario predeterminado"
+ },
+ "appleGuess": {
+  "message": "Revisa la fecha y la hora: son una suposición."
+ },
+ "applePast": {
+  "message": "Esa hora ya pasó. Revisa la fecha."
+ },
+ "appleAdd": {
+  "message": "Añadir"
+ },
+ "appleAdded": {
+  "message": "Añadido a Recordatorios"
+ },
+ "appleAddedEvent": {
+  "message": "Añadido al Calendario"
+ },
+ "appleOpening": {
+  "message": "Abriendo ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow no tiene acceso. Actívalo en Ajustes."
+ },
+ "appleFailed": {
+  "message": "No se pudo añadir. Vuelve a intentarlo."
+ },
+ "appleAlso": {
+  "message": "También en Recordatorios"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow no tiene acceso a Recordatorios. Actívalo en Ajustes."
+ },
+ "appleAskOnce": {
+  "message": "La primera vez se abre ContextFlow para pedir acceso."
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },
