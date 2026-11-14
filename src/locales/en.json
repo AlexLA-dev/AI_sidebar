@@ -694,6 +694,11 @@
   "similarGetUltra": "Get Ultra",
   "similarOff": "Find similar isn't available yet.",
   "similarLimit": "This week's {0} Find similar searches are used. They come back on {1}.",
+  "similarLightNote": "Quick search: up to {0} a week.",
+  "similarLightNotePro": "Quick search: up to {0} a week, each one counts as {1} answers.",
+  "similarLightFoot": "Quick search. Ultra searches wider, reads reviews and checks delivery.",
+  "similarLightLimit": "This week's {0} quick searches are used. They come back on {1}. Ultra has {2} a week, and searches wider.",
+  "similarAnswersShort": "A quick search counts as {0} answers, and you have {1} left.",
 
   "orgDemoQuestion": "Cheap flights to Lisbon in May?",
   "orgDemoAnswer": "In May, return flights from Berlin to Lisbon start at about 90 euros. It's best to book six to eight weeks ahead.",
