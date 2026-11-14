@@ -53,8 +53,8 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
   }
   clearTimeout(timer)
   if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => ({}))) as { code?: string; plan?: Plan; usage?: Usage | null }
-    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), ...(body.plan ? { plan: body.plan } : {}), ...(body.usage ? { usage: body.usage } : {}) })
+    const body = (await res.json().catch(() => ({}))) as { code?: string; plan?: Plan; usage?: Usage | null; answers?: number }
+    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), ...(body.plan ? { plan: body.plan } : {}), ...(body.usage ? { usage: body.usage } : {}), ...(typeof body.answers === "number" ? { answers: body.answers } : {}) })
     return
   }
   let finished = false
@@ -75,7 +75,7 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
       } else if (e.type === "result") {
         const items = (Array.isArray(e.items) ? e.items : []).map(cleanItem).filter((i): i is NonNullable<typeof i> => i !== null)
         const s = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : "")
-        emit({ type: "result", answer: { intro: s(e.intro, 300), items, note: s(e.note, 300), condition: s(e.condition, 20) } })
+        emit({ type: "result", answer: { intro: s(e.intro, 300), items, note: s(e.note, 300), condition: s(e.condition, 20), ...(e.light === true ? { light: true } : {}) } })
       } else if (e.type === "done") {
         finished = true
         emit({ type: "done" })
@@ -117,5 +117,5 @@ export async function keptSimilar(installId: string, job: string, waitSeconds: n
   const r = (body.result ?? {}) as Record<string, unknown>
   const s = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : "")
   const items = (Array.isArray(r.items) ? r.items : []).map(cleanItem).filter((i): i is NonNullable<typeof i> => i !== null)
-  return { state: "done", result: { intro: s(r.intro, 300), items, note: s(r.note, 300), condition: s(r.condition, 20) } }
+  return { state: "done", result: { intro: s(r.intro, 300), items, note: s(r.note, 300), condition: s(r.condition, 20), ...(r.light === true ? { light: true } : {}) } }
 }

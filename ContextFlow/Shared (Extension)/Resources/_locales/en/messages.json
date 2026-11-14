@@ -2012,6 +2012,21 @@
  "similarLimit": {
   "message": "This week's {0} Find similar searches are used. They come back on {1}."
  },
+ "similarLightNote": {
+  "message": "Quick search: up to {0} a week."
+ },
+ "similarLightNotePro": {
+  "message": "Quick search: up to {0} a week, each one counts as {1} answers."
+ },
+ "similarLightFoot": {
+  "message": "Quick search. Ultra searches wider, reads reviews and checks delivery."
+ },
+ "similarLightLimit": {
+  "message": "This week's {0} quick searches are used. They come back on {1}. Ultra has {2} a week, and searches wider."
+ },
+ "similarAnswersShort": {
+  "message": "A quick search counts as {0} answers, and you have {1} left."
+ },
  "orgDemoQuestion": {
   "message": "Cheap flights to Lisbon in May?"
  },

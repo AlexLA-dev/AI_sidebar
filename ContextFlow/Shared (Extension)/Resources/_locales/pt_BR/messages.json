@@ -1973,6 +1973,21 @@
  "similarLimit": {
   "message": "As {0} buscas de \"Encontrar parecidos\" desta semana acabaram. Elas voltam na {1}."
  },
+ "similarLightNote": {
+  "message": "Busca rápida: até {0} por semana."
+ },
+ "similarLightNotePro": {
+  "message": "Busca rápida: até {0} por semana, cada uma conta como {1} respostas."
+ },
+ "similarLightFoot": {
+  "message": "Busca rápida. O Ultra busca mais amplo, lê avaliações e confere a entrega."
+ },
+ "similarLightLimit": {
+  "message": "As {0} buscas rápidas desta semana acabaram. Elas voltam na {1}. O Ultra tem {2} por semana e busca mais amplo."
+ },
+ "similarAnswersShort": {
+  "message": "Uma busca rápida conta como {0} respostas, e você tem {1} restantes."
+ },
  "orgDemoQuestion": {
   "message": "Voos baratos para Lisboa em maio?"
  },

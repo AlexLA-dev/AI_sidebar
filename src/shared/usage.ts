@@ -144,6 +144,10 @@ export const FEATURES: Record<string, Feature> = {
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
+  // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
+  // ("pick"), a search asked ("find"), the light search's week or Pro's answers used ("limit"); the panel and the app: an
+  // item opened ("open"). Each search itself, its plan and cost, is logged by the server ("similar", with `mode`).
+  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full"] } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],

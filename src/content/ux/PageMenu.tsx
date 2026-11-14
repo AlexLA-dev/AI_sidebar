@@ -100,7 +100,7 @@ export function PageMenu({ reminders, watches, trash = 0, onLater, onWatchPage, 
       {onTrash && trash > 0 && <button type="button" role="menuitem" class="cf-page-trash" onClick={onTrash}><Icon.Trash /> {t("trashRow", trash)}</button>}
       {onSimilar && (
         <button type="button" role="menuitem" class="cf-page-similar" onClick={onSimilar}>
-          <SimilarIcon size={16} /> {t("uxSimilar")}{similarLocked && <span class="cf-ultra-badge">Ultra</span>}
+          <SimilarIcon size={16} /> {t("uxSimilar")}{similarLocked && <span class="cf-ultra-badge">Pro</span>}
         </button>
       )}
       {onNameChat && <button type="button" role="menuitem" class="cf-page-name" onClick={onNameChat}><Icon.Sparkle size={15} /> {t("orgNameChat")}</button>}

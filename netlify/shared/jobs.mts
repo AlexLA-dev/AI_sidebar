@@ -12,6 +12,8 @@ export interface StoredResult {
   items: SimilarItem[]
   note: string
   condition: string
+  // 2.7: a light search (not Ultra).
+  light?: boolean
 }
 
 export interface StoredJob {

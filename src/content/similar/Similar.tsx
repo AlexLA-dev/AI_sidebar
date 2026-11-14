@@ -11,6 +11,7 @@ import { closeAndLess, SIMILAR_CHIPS, type SimilarAnswer, type SimilarAsk, type 
 import { moneyIn } from "../../shared/watch/compare"
 import { parseNumber } from "../../shared/watch/extract"
 import * as Icon from "../icons"
+import { sendBackground } from "../insert/store"
 
 /** A price worth watching: a real one (a free app's 0 has nowhere to go). */
 export function watchable(price: string): boolean {
@@ -67,7 +68,7 @@ export function whereLabel(region: "world" | "local", country?: string | null): 
   return country ? t("similarLocalIn", countryLabel(country)) : t("similarLocal")
 }
 
-export function SimilarPicker({ title, region, country, onRegion, onFind, onClose }: {
+export function SimilarPicker({ title, region, country, onRegion, onFind, onClose, light }: {
   title: string
   // Where to look, as chosen last time (null: never chosen, asked now) and their country for "near me".
   region?: "world" | "local" | null
@@ -75,11 +76,14 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
   onRegion?: (region: "world" | "local") => void
   onFind: (condition: string, label: string, ask: SimilarAsk) => void
   onClose: () => void
+  // 2.7: the light search (Own key and Pro), with its searches a week and, for Pro, the answers one counts as: said, and
+  // no "where" (it looks anywhere).
+  light?: { weekly: number; answers?: number }
 }): VNode {
   // Build 98: several chips at once ("cheaper" and "in stock"), each checked.
   const [chips, setChips] = useState<SimilarChip[]>([])
   const [words, setWords] = useState("")
-  const asks = onRegion !== undefined
+  const asks = onRegion !== undefined && light === undefined
   const find = () => {
     if (asks && !region) return
     const condition = [...chips.map(chipCondition), words.trim()].filter(Boolean).join(", ").slice(0, 300)
@@ -130,6 +134,7 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
         </div>
       )}
       <p class="cf-similar-hint">{t("similarHint")}</p>
+      {light !== undefined && <p class="cf-similar-light">{light.answers ? t("similarLightNotePro", String(light.weekly), String(light.answers)) : t("similarLightNote", String(light.weekly))}</p>}
       <div class="cf-card-actions">
         <button type="button" class="cf-primary" onClick={find} disabled={asks && !region}><SimilarIcon size={14} /> {t("similarFind")}</button>
         <button type="button" class="cf-secondary" onClick={onClose}>{t("cancel")}</button>
@@ -240,7 +245,16 @@ function Reviews({ item, onOpen }: { item: SimilarItem; onOpen: (url: string) =>
   )
 }
 
-function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n: number; onOpen: (url: string) => void; onWatch?: (item: SimilarItem) => void; less?: boolean }): VNode {
+/** 2.7: an item opened from the list, counted (the light search's or the full one's; no address, no name). */
+function counted(url: string, onOpen: (url: string) => void, light: boolean): (e: MouseEvent) => void {
+  const open = opening(url, onOpen)
+  return (e) => {
+    void sendBackground({ type: "useEvent", f: "similar", a: "open", what: light ? "light" : "full" })
+    open(e)
+  }
+}
+
+function Item({ item, n, onOpen, onWatch, less = false, light = false }: { item: SimilarItem; n: number; onOpen: (url: string) => void; onWatch?: (item: SimilarItem) => void; less?: boolean; light?: boolean }): VNode {
   const facts = [
     // An app's pricing says more than its store price ($0.00 for one with a subscription inside).
     // Build 95: a price in another currency with ≈ theirs at the day's rate.
@@ -252,11 +266,11 @@ function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n
     <li class="cf-similar-item">
       <span class="cf-similar-n">{n}</span>
       <div class="cf-similar-body">
-        <a class="cf-similar-name" href={item.url} target="_blank" rel="noopener noreferrer" dir="auto" onClick={opening(item.url, onOpen)}>
+        <a class="cf-similar-name" href={item.url} target="_blank" rel="noopener noreferrer" dir="auto" onClick={counted(item.url, onOpen, light)}>
           {item.name}
         </a>
         <span class="cf-similar-host">
-          <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={opening(item.url, onOpen)}>{item.host}</a>
+          <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={counted(item.url, onOpen, light)}>{item.host}</a>
           {item.source === "list" ? ` · ${t("similarFromList")}` : ""}
           {/* Build 95: their very item at another shop, cheaper or in stock there. */}
           {item.same ? <span class="cf-similar-same"> · {t("similarSame")}</span> : null}
@@ -312,15 +326,18 @@ const STEP_TEXT: Record<SimilarStep, Parameters<typeof t>[0]> = {
  * The answer: the list (items as they come, while `step` is set), the note, and when the pages were checked.
  * `onWatch` absent: no page watch here (not Safari).
  */
-export function SimilarList({ answer, items, step, pages, onOpen, onWatch }: {
+export function SimilarList({ answer, items, step, pages, onOpen, onWatch, light: running = false }: {
   answer?: SimilarAnswer
   items: SimilarItem[]
   step?: SimilarStep | null
   pages?: number
   onOpen: (url: string) => void
   onWatch?: (item: SimilarItem) => void
+  // 2.7: a light search under way (a finished answer says so itself).
+  light?: boolean
 }): VNode {
   const streaming = Boolean(step)
+  const light = answer ? answer.light === true : running
   return (
     <div class="cf-similar" aria-busy={streaming}>
       {answer?.intro && <p class="cf-similar-intro" dir="auto">{answer.intro}</p>}
@@ -330,13 +347,13 @@ export function SimilarList({ answer, items, step, pages, onOpen, onWatch }: {
         return (
           <>
             <ol class="cf-similar-list">
-              {close.map((it, i) => <Item key={it.url + it.name} item={it} n={i + 1} onOpen={onOpen} onWatch={onWatch} />)}
+              {close.map((it, i) => <Item key={it.url + it.name} item={it} n={i + 1} onOpen={onOpen} onWatch={onWatch} light={light} />)}
             </ol>
             {less.length > 0 && (
               <div class="cf-similar-less">
                 <p class="cf-similar-less-head">{t("similarLess")}</p>
                 <ol class="cf-similar-list">
-                  {less.map((it, i) => <Item key={it.url + it.name} item={it} n={close.length + i + 1} onOpen={onOpen} onWatch={onWatch} less />)}
+                  {less.map((it, i) => <Item key={it.url + it.name} item={it} n={close.length + i + 1} onOpen={onOpen} onWatch={onWatch} less light={light} />)}
                 </ol>
               </div>
             )}
@@ -351,6 +368,7 @@ export function SimilarList({ answer, items, step, pages, onOpen, onWatch }: {
       {!streaming && answer && items.length > 0 && (
         <p class="cf-similar-checked"><Tick size={12} /> {t("similarChecked", new Intl.DateTimeFormat(uiLang(), { hour: "numeric", minute: "2-digit" }).format(new Date(answer.at)))}</p>
       )}
+      {!streaming && answer?.light && <p class="cf-similar-light">{t("similarLightFoot")}</p>}
     </div>
   )
 }

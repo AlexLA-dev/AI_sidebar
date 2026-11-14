@@ -192,8 +192,24 @@ export function similarCountersFor(access: Access): Counter[] {
   return [{ subject: `similar:tx:${otid}`, period: "week", limit: config.ultra.similarWeekly }]
 }
 
-/** An Ultra allowance as the clients show it: used of limit this week, and when it starts again. */
-export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:"): Usage | null {
+/**
+ * Find similar's light search (2.7, Own key and Pro): the week's searches per device, a wider week per network address,
+ * a day for everyone; and for Pro, SIMILAR_PRO_ANSWERS of the week's answers (the answers' own counters, charged with
+ * that amount, so the usage line shows it; all of it or none). LIMIT_REACHED shows ultraUsage(…, "similarlight:") for
+ * the searches, visibleUsage() for the answers.
+ */
+export function similarLightCounters(access: Access, installId: string, ip: string): Counter[] {
+  const searches: Counter[] = [
+    { subject: `similarlight:${installId}`, period: "week", limit: config.similar.lightWeekly },
+    { subject: `similarlight:ip:${ip}`, period: "week", limit: config.similar.lightIpWeekly },
+    { subject: "global:similarlight", period: "day", limit: config.similar.lightGlobalDaily }
+  ]
+  if (access.plan !== "pro" || !access.entitlement) return searches
+  return [...searches, ...countersFor(access, installId, ip).map((c) => ({ ...c, amount: config.similar.proAnswers }))]
+}
+
+/** An Ultra allowance (or the light search's week) as the clients show it: used of limit, and when it starts again. */
+export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:" | "similarlight:"): Usage | null {
   const own = counters.find((c) => c.subject.startsWith(prefix) && !c.subject.startsWith("global:"))
   if (!own || own.limit === null) return null
   // The allowance as sold (a text's finishing room isn't shown).
@@ -236,6 +252,6 @@ export function blockReason(blocked: string | null): "limit" | "busy" | "ip" | "
   if (blocked.startsWith("ip:")) return "ip"
   if (blocked.startsWith("search:")) return "search"
   if (blocked.startsWith("speak:")) return "speak"
-  if (blocked.startsWith("similar:")) return "similar"
+  if (blocked.startsWith("similar:") || blocked.startsWith("similarlight:")) return "similar"
   return "limit"
 }

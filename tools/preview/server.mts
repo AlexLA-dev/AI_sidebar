@@ -32,6 +32,11 @@
 //                                                              network: what waiting for the plan costs)
 //   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
 //                                                              stop the question before any of its answer)
+//   SIMILAR_PROXY=https://<deploy preview> SIMILAR_EVAL_TOKEN_FILE=<file with the preview's eval token> …
+//                                                              (2.7: Find similar for real, through that deploy
+//                                                              preview's evaluation path: Free none, Own key and Pro
+//                                                              the light search counted here as the server counts it
+//                                                              (SIMILAR_LIGHT_WEEKLY, a Pro one 10 answers), Ultra full)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -68,7 +73,11 @@ const rpc: Record<string, (a: any) => unknown> = {
     if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
   },
-  cf_refund: () => null,
+  // As cf_refund: each item's amount given back (the stand's Find similar gives back a search that found nothing).
+  cf_refund: ({ p_items }) => {
+    for (const i of p_items as Item[]) counters.set(i.subject, Math.max(0, (counters.get(i.subject) ?? 0) - (i.amount ?? 1)))
+    return null
+  },
   cf_peek: ({ p_items }) => (p_items as Item[]).map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })),
   cf_touch_install: () => null,
   cf_log: ({ p_kind, p_data }) => {
@@ -406,17 +415,23 @@ if (process.env.PREVIEW_PROMO === "1") {
   process.env.PROMO_KEY_ID = "STANDKEY01"
   process.env.PROMO_PRIVATE_KEY = privateKey.export({ type: "pkcs8", format: "pem" }).toString()
 }
-if (process.env.PREVIEW_PLAN === "pro" || process.env.PREVIEW_PLAN === "byok" || process.env.PREVIEW_PLAN === "ultra") {
+/** Every request as this plan from now on (PREVIEW_PLAN at the start; GET /set-plan?plan=… later, 2.7). */
+async function setPlan(plan: string | undefined): Promise<void> {
+  if (plan !== "pro" && plan !== "byok" && plan !== "ultra") {
+    proJws = null
+    return
+  }
   const { signJws, transaction, TEST_ROOT_FINGERPRINT } = await import("../../tests/helpers.mts")
   // The test chain is only accepted in tests: this local stand counts as one.
   process.env.NODE_ENV = "test"
   ;(await import("../../netlify/shared/apple.mts")).setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
-  proJws = signJws(transaction(process.env.PREVIEW_PLAN === "byok"
+  proJws = signJws(transaction(plan === "byok"
     ? { productId: "com.contextflow.byok.monthly", originalTransactionId: "2000000777", expiresDate: Date.now() + 30 * 86_400_000 }
-    : process.env.PREVIEW_PLAN === "ultra"
+    : plan === "ultra"
       ? { productId: "com.contextflow.ultra.monthly", originalTransactionId: "2000000888", expiresDate: Date.now() + 30 * 86_400_000 }
       : { expiresDate: Date.now() + 30 * 86_400_000 }))
 }
+await setPlan(process.env.PREVIEW_PLAN)
 
 const chat = (await import("../../netlify/functions/v2-chat.mts")).default
 const status = (await import("../../netlify/functions/v2-status.mts")).default
@@ -587,6 +602,50 @@ function similarItemsStore(condition: string, ru = false): Array<Record<string, 
 }
 let similarFailedOnce = false
 
+// 2.7, SIMILAR_PROXY: the real engine on a deploy preview (its evaluation path counts nothing); who may and what it
+// costs decided here by the server's own code (plan.mts) on this stand's counters: Free none (PRO_ONLY), Own key and Pro
+// the light search, its week per device, a Pro one SIMILAR_PRO_ANSWERS of the week's answers; Ultra the full search.
+async function similarProxied(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
+  const { blockReason, isUltra, resolveAccess, similarCountersFor, similarLightCounters, ultraUsage, visibleUsage } = await import("../../netlify/shared/plan.mts")
+  const { consume, refund } = await import("../../netlify/shared/db.mts")
+  const { similarAllowed } = await import("../../src/shared/similar.ts")
+  const install = String(body.installId ?? "")
+  const access = await resolveAccess(proJws ?? (body.entitlement as string | null) ?? null, install)
+  const reply = (status: number, payload: unknown) => {
+    res.writeHead(status, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(payload))
+  }
+  if (!similarAllowed(access.plan)) return reply(403, { code: "PRO_ONLY", plan: access.plan, feature: "similar" })
+  const light = !isUltra(access.plan)
+  const counters = light ? similarLightCounters(access, install, "ip:stand") : similarCountersFor(access)
+  const quota = await consume(counters)
+  if (!quota.allowed) {
+    const reason = blockReason(quota.blocked)
+    if (reason === "similar") return reply(402, { code: "LIMIT_REACHED", plan: access.plan, ...(light ? { light: true } : {}), usage: ultraUsage(quota.counters, light ? "similarlight:" : "similar:") })
+    if (reason === "limit" && light) return reply(402, { code: "LIMIT_REACHED", plan: access.plan, light: true, answers: counters.find((c) => c.amount)?.amount, usage: visibleUsage(access, quota.counters) })
+    return reply(503, { code: "BUSY" })
+  }
+  const token = readFileSync(process.env.SIMILAR_EVAL_TOKEN_FILE!, "utf8").trim()
+  const upstream = await realFetch(`${process.env.SIMILAR_PROXY}/api/v2/similar`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ ...body, options: light ? { light: "on" } : {} })
+  }).catch(() => null)
+  if (!upstream?.ok || !upstream.body) {
+    await refund(counters)
+    return reply(upstream?.status ?? 502, upstream ? JSON.parse((await upstream.text()) || "{}") : { code: "UPSTREAM" })
+  }
+  res.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-cache" })
+  // As the server: nothing found by the light search is given back (an item event means something came).
+  let found = false
+  for await (const chunk of upstream.body as unknown as AsyncIterable<Uint8Array>) {
+    if (!found && Buffer.from(chunk).toString("utf8").includes('"type":"item"')) found = true
+    res.write(chunk)
+  }
+  res.end()
+  if (light && !found) await refund(counters)
+}
+
 async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
   if (process.env.PREVIEW_PLAN !== "ultra") {
     res.writeHead(403, { "Content-Type": "application/json" })
@@ -632,7 +691,15 @@ createServer(async (req, res) => {
     try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")) } catch { /* not JSON */ }
     aiRequests.push(url.pathname)
     lastSimilarRequest = body
-    await similarStub(body, res)
+    if (process.env.SIMILAR_PROXY && process.env.SIMILAR_EVAL_TOKEN_FILE) await similarProxied(body, res)
+    else await similarStub(body, res)
+    return
+  }
+  // 2.7: the plan every request comes as from now on (free, byok, pro, ultra), for a check of several plans in one run.
+  if (url.pathname === "/set-plan") {
+    await setPlan(url.searchParams.get("plan") ?? "")
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ plan: url.searchParams.get("plan") ?? "free" }))
     return
   }
   if (url.pathname === "/last-similar") {
