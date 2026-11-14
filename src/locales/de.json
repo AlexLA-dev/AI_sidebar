@@ -873,5 +873,12 @@
   "writeSettingHint": "Korrekturen berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen.",
   "writeSkip": "Ignorieren",
   "underlineSetting": "Fehler beim Tippen unterstreichen",
-  "underlineSettingHint": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
+  "underlineSettingHint": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort.",
+  "setSide": "Bildschirmseite",
+  "sideRight": "Rechts",
+  "sideLeft": "Links",
+  "hintSideTitle": "Panel und ✦-Taste lassen sich an den anderen Rand ziehen",
+  "hintSideTitleSheet": "Die ✦-Taste lässt sich an den anderen Rand ziehen",
+  "hintSideBody": "Zieh das Panel an seiner Kopfzeile oder zieh die Taste. Die Seite kannst du auch in den Einstellungen wählen.",
+  "hintSideBodySheet": "Zieh sie nach links oder rechts. Die Seite kannst du auch in den Einstellungen wählen."
 }

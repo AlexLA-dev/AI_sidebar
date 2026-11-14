@@ -875,9 +875,7 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 /* The host carries dir (the panel's language, never the page's). Layout uses logical properties; what's left here moves
    along x: the Mac sidebar sits at the left and slides in from there, switches are on at the start side, the back chevron points to
    the start. Code stays left to right in any language. Swipes and the floating button stay physical (a finger's way). */
-/* The sidebar is fixed to the viewport, whose direction is the page's: physical sides, mirrored here. */
-:host([dir="rtl"]) .cf[data-layout="side"] .cf-panel { right: auto; left: 10px; transform: translateX(-24px); }
-:host([dir="rtl"]) .cf[data-layout="side"] .cf-panel.in { transform: none; }
+/* The sidebar's side is the circle's (2.7, side/side.css), in any language: it no longer moves left by itself in Arabic. */
 :host([dir="rtl"]) .cf-whole input:checked + .cf-switch::after { transform: translateX(-10px); }
 :host([dir="rtl"]) .cf-flip { transform: scaleX(-1); }
 .md pre, .md code { direction: ltr; unicode-bidi: isolate; }

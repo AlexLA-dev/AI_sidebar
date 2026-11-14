@@ -2540,6 +2540,27 @@
  "underlineSettingHint": {
   "message": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
  },
+ "setSide": {
+  "message": "Bildschirmseite"
+ },
+ "sideRight": {
+  "message": "Rechts"
+ },
+ "sideLeft": {
+  "message": "Links"
+ },
+ "hintSideTitle": {
+  "message": "Panel und ✦-Taste lassen sich an den anderen Rand ziehen"
+ },
+ "hintSideTitleSheet": {
+  "message": "Die ✦-Taste lässt sich an den anderen Rand ziehen"
+ },
+ "hintSideBody": {
+  "message": "Zieh das Panel an seiner Kopfzeile oder zieh die Taste. Die Seite kannst du auch in den Einstellungen wählen."
+ },
+ "hintSideBodySheet": {
+  "message": "Zieh sie nach links oder rechts. Die Seite kannst du auch in den Einstellungen wählen."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

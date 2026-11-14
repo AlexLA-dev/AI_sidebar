@@ -873,5 +873,12 @@
   "writeSettingHint": "Les corrections tiennent compte de la page : l'e-mail auquel vous répondez, la publication que vous commentez. Chaque appui compte comme une réponse. Votre façon d'écrire sur chaque site reste sur cet appareil et aide à respecter votre style.",
   "writeSkip": "Ignorer",
   "underlineSetting": "Souligner les fautes pendant la saisie",
-  "underlineSettingHint": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse."
+  "underlineSettingHint": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse.",
+  "setSide": "Côté de l’écran",
+  "sideRight": "Droite",
+  "sideLeft": "Gauche",
+  "hintSideTitle": "Vous pouvez glisser le panneau et le bouton ✦ vers l’autre bord",
+  "hintSideTitleSheet": "Vous pouvez glisser le bouton ✦ vers l’autre bord",
+  "hintSideBody": "Faites glisser le panneau par son en-tête, ou glissez le bouton. Vous pouvez aussi choisir le côté dans les réglages.",
+  "hintSideBodySheet": "Glissez-le à gauche ou à droite. Vous pouvez aussi choisir le côté dans les réglages."
 }

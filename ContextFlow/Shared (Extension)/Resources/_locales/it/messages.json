@@ -2540,6 +2540,27 @@
  "underlineSettingHint": {
   "message": "Pro e Ultra: dopo una pausa nella digitazione si controlla solo il paragrafo modificato, tenendo conto della pagina. Punta una sottolineatura (toccala su iPhone e iPad) per correggere. Non conta come risposta."
  },
+ "setSide": {
+  "message": "Lato dello schermo"
+ },
+ "sideRight": {
+  "message": "Destra"
+ },
+ "sideLeft": {
+  "message": "Sinistra"
+ },
+ "hintSideTitle": {
+  "message": "Puoi trascinare il pannello e il pulsante ✦ sull’altro bordo"
+ },
+ "hintSideTitleSheet": {
+  "message": "Puoi trascinare il pulsante ✦ sull’altro bordo"
+ },
+ "hintSideBody": {
+  "message": "Trascina il pannello dall’intestazione, oppure trascina il pulsante. Puoi scegliere il lato anche nelle Impostazioni."
+ },
+ "hintSideBodySheet": {
+  "message": "Trascinalo a sinistra o a destra. Puoi scegliere il lato anche nelle Impostazioni."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

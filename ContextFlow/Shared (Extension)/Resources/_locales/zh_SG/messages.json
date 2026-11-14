@@ -2540,6 +2540,27 @@
  "underlineSettingHint": {
   "message": "Pro 和 Ultra:输入停顿后,只结合页面内容检查你改动的段落。把指针移到下划线上(在 iPhone 和 iPad 上轻点)即可修正。不计入回答次数。"
  },
+ "setSide": {
+  "message": "屏幕侧边"
+ },
+ "sideRight": {
+  "message": "右侧"
+ },
+ "sideLeft": {
+  "message": "左侧"
+ },
+ "hintSideTitle": {
+  "message": "面板和 ✦ 按钮可以拖到另一侧"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ 按钮可以拖到另一侧"
+ },
+ "hintSideBody": {
+  "message": "按住面板顶部拖动，或直接拖动按钮。也可以在设置中选择侧边。"
+ },
+ "hintSideBodySheet": {
+  "message": "把它拖到左侧或右侧。也可以在设置中选择侧边。"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

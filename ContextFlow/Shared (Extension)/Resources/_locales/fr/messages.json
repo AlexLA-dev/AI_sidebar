@@ -2540,6 +2540,27 @@
  "underlineSettingHint": {
   "message": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse."
  },
+ "setSide": {
+  "message": "Côté de l’écran"
+ },
+ "sideRight": {
+  "message": "Droite"
+ },
+ "sideLeft": {
+  "message": "Gauche"
+ },
+ "hintSideTitle": {
+  "message": "Vous pouvez glisser le panneau et le bouton ✦ vers l’autre bord"
+ },
+ "hintSideTitleSheet": {
+  "message": "Vous pouvez glisser le bouton ✦ vers l’autre bord"
+ },
+ "hintSideBody": {
+  "message": "Faites glisser le panneau par son en-tête, ou glissez le bouton. Vous pouvez aussi choisir le côté dans les réglages."
+ },
+ "hintSideBodySheet": {
+  "message": "Glissez-le à gauche ou à droite. Vous pouvez aussi choisir le côté dans les réglages."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

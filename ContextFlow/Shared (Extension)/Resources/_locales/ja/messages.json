@@ -2540,6 +2540,27 @@
  "underlineSettingHint": {
   "message": "Pro と Ultra: 入力が止まると、変更した段落だけをページの内容を踏まえてチェックします。下線にポインタを合わせる(iPhone と iPad ではタップ)と修正できます。回答数には数えません。"
  },
+ "setSide": {
+  "message": "画面の左右"
+ },
+ "sideRight": {
+  "message": "右"
+ },
+ "sideLeft": {
+  "message": "左"
+ },
+ "hintSideTitle": {
+  "message": "パネルと✦ボタンは反対側の端へドラッグできます"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ボタンは反対側の端へドラッグできます"
+ },
+ "hintSideBody": {
+  "message": "パネルは上部をつかんで、ボタンはそのままドラッグします。左右は設定でも選べます。"
+ },
+ "hintSideBodySheet": {
+  "message": "左右どちらかへドラッグします。左右は設定でも選べます。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

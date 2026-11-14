@@ -873,5 +873,12 @@
   "writeSettingHint": "Fixes and rewrites take the page into account: the email you're answering, the post you comment on. Each tap counts as one answer. How you write on each site stays on this device and helps match your style.",
   "writeSkip": "Ignore",
   "underlineSetting": "Underline mistakes as I type",
-  "underlineSettingHint": "Pro and Ultra: after a pause in typing, only the paragraph you changed is checked, with the page in mind. Point at an underline (tap on iPhone and iPad) to fix it. Not counted as answers."
+  "underlineSettingHint": "Pro and Ultra: after a pause in typing, only the paragraph you changed is checked, with the page in mind. Point at an underline (tap on iPhone and iPad) to fix it. Not counted as answers.",
+  "setSide": "Screen side",
+  "sideRight": "Right",
+  "sideLeft": "Left",
+  "hintSideTitle": "You can drag the panel and the ✦ button to the other edge",
+  "hintSideTitleSheet": "You can drag the ✦ button to the other edge",
+  "hintSideBody": "Drag the panel by its header, or drag the button. You can also pick the side in Settings.",
+  "hintSideBodySheet": "Drag it left or right. You can also pick the side in Settings."
 }

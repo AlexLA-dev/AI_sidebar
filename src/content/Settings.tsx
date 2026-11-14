@@ -2,13 +2,14 @@ import type { VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
 import { LINKS, TARGET, VERSION } from "../shared/config"
-import { t } from "../shared/i18n"
+import { t, uiDirection } from "../shared/i18n"
 import { OWN_KEY_PATTERN } from "../shared/models"
 import { hasPro, isUltra, periodOfProduct, productOf } from "../shared/plan"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
 import * as Icon from "./icons"
 import { deleteAllChats, hideYearly, yearlyHiddenNow } from "./store"
 import { InsertSettingsGroup } from "./insert/InsertSettings"
+import { resolveSide } from "./side/snap"
 
 interface Props {
   settings: Settings
@@ -149,6 +150,11 @@ export function SettingsView(props: Props): VNode {
           <Segmented value={settings.fab === "off" ? "off" : "on"} options={[["on", t("fabOn")], ["off", t("fabOff")]]} onChange={(fab) => onChange({ fab })} />
         </div>
         <p class="cf-hint">{t("setFabHint")}</p>
+        {/* 2.7: the side of the screen for the circle and, on iPad and Mac, the panel (they can be dragged there too). */}
+        <div class="cf-row">
+          <span class="cf-label">{t("setSide")}</span>
+          <Segmented value={resolveSide(settings, uiDirection())} options={[["right", t("sideRight")], ["left", t("sideLeft")]]} onChange={(fabSide) => onChange({ fabSide, fabSideChosen: true })} />
+        </div>
         <div class="cf-row">
           <button
             type="button"

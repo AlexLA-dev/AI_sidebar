@@ -2540,6 +2540,27 @@
  "underlineSettingHint": {
   "message": "Pro e Ultra: após uma pausa na digitação, só o parágrafo alterado é revisado, com a página em mente. Aponte para um sublinhado (toque no iPhone e no iPad) para corrigir. Não conta como resposta."
  },
+ "setSide": {
+  "message": "Lado da tela"
+ },
+ "sideRight": {
+  "message": "Direita"
+ },
+ "sideLeft": {
+  "message": "Esquerda"
+ },
+ "hintSideTitle": {
+  "message": "Você pode arrastar o painel e o botão ✦ para a outra borda"
+ },
+ "hintSideTitleSheet": {
+  "message": "Você pode arrastar o botão ✦ para a outra borda"
+ },
+ "hintSideBody": {
+  "message": "Arraste o painel pelo cabeçalho, ou arraste o botão. Você também pode escolher o lado nos Ajustes."
+ },
+ "hintSideBodySheet": {
+  "message": "Arraste-o para a esquerda ou para a direita. Você também pode escolher o lado nos Ajustes."
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

@@ -873,5 +873,12 @@
   "writeSettingHint": "수정 시 페이지 내용을 고려합니다: 답장하는 이메일, 댓글을 다는 게시물 등. 한 번 누를 때마다 답변 1개로 계산됩니다. 사이트별 글쓰기 방식은 이 기기에만 저장되며 내 문체에 맞추는 데 쓰입니다.",
   "writeSkip": "무시",
   "underlineSetting": "입력 중 오류에 밑줄 표시",
-  "underlineSettingHint": "Pro 및 Ultra: 입력을 멈추면 바뀐 문단만 페이지 내용을 고려해 검사합니다. 밑줄에 포인터를 올리면(iPhone과 iPad에서는 탭) 수정할 수 있습니다. 답변으로 계산되지 않습니다."
+  "underlineSettingHint": "Pro 및 Ultra: 입력을 멈추면 바뀐 문단만 페이지 내용을 고려해 검사합니다. 밑줄에 포인터를 올리면(iPhone과 iPad에서는 탭) 수정할 수 있습니다. 답변으로 계산되지 않습니다.",
+  "setSide": "화면 방향",
+  "sideRight": "오른쪽",
+  "sideLeft": "왼쪽",
+  "hintSideTitle": "패널과 ✦ 버튼을 반대쪽 가장자리로 끌어 옮길 수 있어요",
+  "hintSideTitleSheet": "✦ 버튼을 반대쪽 가장자리로 끌어 옮길 수 있어요",
+  "hintSideBody": "패널은 상단을 잡고, 버튼은 그대로 끌어 옮기세요. 방향은 설정에서도 고를 수 있어요.",
+  "hintSideBodySheet": "왼쪽이나 오른쪽으로 끌어 옮기세요. 방향은 설정에서도 고를 수 있어요."
 }
