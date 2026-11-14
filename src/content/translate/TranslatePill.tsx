@@ -206,7 +206,11 @@ export function TranslatePill({ side, top, show, free, onPlans }: TranslatePillP
 
   const label = useMemo(() => {
     if (!offer) return ""
-    return baseLanguage(offer.to) === baseLanguage(uiLang()) ? t("trOffer") : t("trOfferTo", languageName(offer.to, uiLang()))
+    if (baseLanguage(offer.to) === baseLanguage(uiLang())) return t("trOffer")
+    // Mid-sentence, a language's name is a common noun in most of the panel's languages («на язык: английский»);
+    // Safari's names may come capitalized. German keeps its capital.
+    const name = languageName(offer.to, uiLang())
+    return t("trOfferTo", /^(de|ja|ko|zh|ar)/.test(uiLang()) ? name : name.charAt(0).toLocaleLowerCase(uiLang()) + name.slice(1))
   }, [offer])
 
   if (!visible && consent === null) return null
