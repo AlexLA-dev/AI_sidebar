@@ -1,0 +1,43 @@
+{
+ "images": [
+  {
+   "productId": "com.contextflow.pro.monthly",
+   "file": "pro-monthly.png",
+   "size": 478746,
+   "md5": "1f755c524601684b460ef6079f592692"
+  },
+  {
+   "productId": "com.contextflow.pro.yearly",
+   "file": "pro-yearly.png",
+   "size": 494613,
+   "md5": "10491cdcb6f9325eb84cb919d2781ca7"
+  },
+  {
+   "productId": "com.contextflow.ultra.monthly",
+   "file": "ultra-monthly.png",
+   "size": 410364,
+   "md5": "b053cc9a292253f231de05155ebf7a84"
+  },
+  {
+   "productId": "com.contextflow.ultra.yearly",
+   "file": "ultra-yearly.png",
+   "size": 422509,
+   "md5": "78f92714aa30ec40cab1cc2594778869"
+  },
+  {
+   "productId": "com.contextflow.byok.monthly",
+   "file": "byok-monthly.png",
+   "size": 427624,
+   "md5": "0200da01642149d4a898eaf54602bd7c"
+  },
+  {
+   "productId": "com.contextflow.byok.yearly",
+   "file": "byok-yearly.png",
+   "size": 433776,
+   "md5": "69e4aee332a69a9b0dedae316dddba91"
+  }
+ ],
+ "pixels": "1024x1024",
+ "mode": "RGB",
+ "text": "English, only the UI's own labels and the plan pill"
+}

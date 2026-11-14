@@ -849,6 +849,20 @@ async function aiSearch(s) {
   await s.page.waitForTimeout(700)
 }
 
+// Settings, scrolled to the own key section, with a made-up key in storage (shown as "OpenAI · sk-••••").
+async function ownKeySettings(s) {
+  await fresh(s, { extra: { "cf:ownKey": "sk-test-store-artwork-not-a-real-key-0000" } }); await open(s)
+  await press(s, s.page.locator(".cf-page-more"))
+  await s.page.waitForTimeout(300)
+  // Settings sits under "Other…" in the "…" menu.
+  await press(s, s.page.locator("[role=menu] button, [role=menuitem]", { hasText: lang === "ru" ? "Другое" : "Other" }).first())
+  await s.page.waitForTimeout(300)
+  await press(s, s.page.locator("[role=menu] button, [role=menuitem]", { hasText: lang === "ru" ? "Настройки" : "Settings" }).first())
+  await s.page.locator(".cf-key").waitFor()
+  await s.page.evaluate(shadow(`(r) => r.querySelector(".cf-key").closest(".cf-group").scrollIntoView({ block: "center" })`))
+  await s.page.waitForTimeout(500)
+}
+
 // Remind me with your own words (2.6): a line selected, the bell, the window with the quote and a note typed.
 async function remindNote(s) {
   await fresh(s)
@@ -937,6 +951,10 @@ for (const name of ["iphone", "ipad", "mac"]) {
       // again with the answer's own rect (its key points magnified).
       ["askpage", () => askAbout(s, ARTICLE, lang === "ru" ? "Сработает ли это в стартапе из 10 человек?" : "Would this work for a 10-person startup?"), [".cf-panel", ".cf-msg.user", ".cf-msg.ai"]],
       ["keypoints", async () => { await fresh(s); await open(s); await chip(s, L.summarize); await waitAnswer(s) }, [".cf-panel", ".cf-msg.ai"]],
+      // 2.7 in-app purchase artwork: the chats list with its tags (Pro), and Settings' own key section with a
+      // made-up test key, which the panel shows masked (Own key).
+      ["chatlist", async () => { await fresh(s, { threads: history() }); await open(s); await press(s, s.page.locator(".cf-chats-button")); await s.page.waitForTimeout(900) }, [".cf-panel", "all:.cf-thread", ".cf-tag"]],
+      ["ownkey", () => ownKeySettings(s), [".cf-panel", ".cf-group:has(.cf-key)", ".cf-key"]],
       ["pins", () => pins(s), [".cf-panel", ".cf-pinbar", ".cf-msg.ai"]],
       ["notes", () => notes(s), [".cf-panel", ".cf-bubble-note", ".cf-input"]],
       ["translatesel", () => selAction(s, FOREIGN, "actTranslate"), [".cf-panel", ".cf-msg.ai"]],
