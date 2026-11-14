@@ -243,14 +243,15 @@ test("everywhere a reminder is made or changed in the panel, the words go with i
   const app = read("../src/content/App.tsx")
   const laterSheet = app.slice(app.indexOf("const laterSheet = (page: boolean)"), app.indexOf("const laterItems = async"))
   assert.match(laterSheet, /words=""/)
-  assert.match(laterSheet, /noteSelection\(from\.selection, words \?\? "", at, preset\)/)
+  // 2.7: with «Также в Напоминания» (the window's checkbox).
+  assert.match(laterSheet, /noteSelection\(from\.selection, words \?\? "", at, preset, apple\)/)
   // The whole page: the person's words, else the page's name.
   assert.match(app, /content: comment\.trim\(\) \|\| page\.title \|\| source\.href\(\)/)
   // The panel's row over the field (build 95) opens the same window.
   assert.match(app, /setLater\(\{ selection, range: selectionRange\(\) \}\)/)
   const reschedule = app.slice(app.indexOf("const rescheduleLaterItem"), app.indexOf("const remindButton"))
   assert.match(reschedule, /const entry = withRemindWords\(found, words\)/)
-  assert.match(reschedule, /withReminderAt\(worded\(thread\.m\), ref\.key, at, dev\)/)
+  assert.match(reschedule, /withReminderAt\(worded\(thread\.m\), ref\.key, at, dev, apple\)/)
   const ux = read("../src/content/ux/useMessageUx.tsx")
   assert.match(ux, /words=\{remindWords\(messages\[reminding\.idx\]\)\}/)
   assert.match(ux, /const m = at === null \? found : withRemindWords\(found, words\)/)

@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "Non rispetta la scelta"
  },
+ "appleTitle": {
+  "message": "Calendario e Promemoria"
+ },
+ "appleMenu": {
+  "message": "Aggiungi a Calendario o Promemoria"
+ },
+ "appleReading": {
+  "message": "Cerco data e ora…"
+ },
+ "appleNothing": {
+  "message": "Niente da aggiungere: nessuna data o attività."
+ },
+ "appleError": {
+  "message": "Impossibile leggere la data."
+ },
+ "appleRetry": {
+  "message": "Riprova"
+ },
+ "appleReminder": {
+  "message": "Promemoria"
+ },
+ "appleEvent": {
+  "message": "Evento"
+ },
+ "appleWhat": {
+  "message": "Cosa"
+ },
+ "appleDate": {
+  "message": "Data"
+ },
+ "appleTime": {
+  "message": "Ora"
+ },
+ "appleList": {
+  "message": "Elenco"
+ },
+ "appleRemindersApp": {
+  "message": "In Promemoria"
+ },
+ "appleCalendarPick": {
+  "message": "Il calendario lo scegli al passaggio successivo"
+ },
+ "appleCalendarDefault": {
+  "message": "Il tuo calendario predefinito"
+ },
+ "appleGuess": {
+  "message": "Controlla data e ora: sono una stima."
+ },
+ "applePast": {
+  "message": "Quest’ora è già passata. Controlla la data."
+ },
+ "appleAdd": {
+  "message": "Aggiungi"
+ },
+ "appleAdded": {
+  "message": "Aggiunto a Promemoria"
+ },
+ "appleAddedEvent": {
+  "message": "Aggiunto al Calendario"
+ },
+ "appleOpening": {
+  "message": "Apertura di ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow non ha accesso. Attivalo in Impostazioni."
+ },
+ "appleFailed": {
+  "message": "Impossibile aggiungerlo. Riprova."
+ },
+ "appleAlso": {
+  "message": "Anche in Promemoria"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow non ha accesso a Promemoria. Attivalo in Impostazioni."
+ },
+ "appleAskOnce": {
+  "message": "La prima volta si apre ContextFlow per chiedere l’accesso."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

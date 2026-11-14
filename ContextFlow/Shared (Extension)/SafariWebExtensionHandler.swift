@@ -34,6 +34,9 @@ import AppKit
 /// - `tipClip` → a Tips clip for the panel (2.6 (91)): `name`, `lang` (the panel's language: its clips, else the
 ///   person's next language that has them, else English), `offset`; answers `ok`, the clip's
 ///   `total` size and up to 256 KB of it from `offset` (base64), read from the app's copy in the App Group.
+/// - `apple_status` / `apple_add` / `apple_remove` → Calendar and Reminders (2.7, see AppleItems): whether they can be
+///   added here and how; an item written on the device when access is given, else handed to the app (`handoff`: the id
+///   the panel's link already named; on a Mac the app is opened here); «Также в Напоминания» taken back by its key.
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -372,6 +375,47 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 await SimilarAway.ended(message)
                 Self.reply(context, ["success": true])
             }
+        case "apple_status":
+            Self.reply(context, ["success": true, "data": AppleItems.status()])
+        case "apple_add":
+            guard AppleItems.available, let item = (message["item"] as? [String: Any]).flatMap(AppleItems.Item.init) else {
+                Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.unavailable.rawValue]])
+                return
+            }
+            let key = (message["key"] as? String).map { String($0.prefix(200)) }
+            // The panel already followed contextflow://add?id=… (iPhone, iPad: only a tap can open the app).
+            if let id = AppleItems.validId(message["handoff"] as? String) {
+                AppleItems.handOff(item, key: key, id: id)
+                Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.app.rawValue]])
+                return
+            }
+            switch AppleItems.access(item.kind) {
+            case .write:
+                do {
+                    let place = try AppleItems.save(item, key: key)
+                    Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.saved.rawValue, "place": place]])
+                } catch {
+                    AppleItems.log("save failed: \(error)")
+                    Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.failed.rawValue]])
+                }
+            case .denied:
+                Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.denied.rawValue]])
+            case .none, .editor:
+                #if os(macOS)
+                // The app asks for access, then adds it.
+                let id = UUID().uuidString.lowercased()
+                AppleItems.handOff(item, key: key, id: id)
+                DispatchQueue.main.async {
+                    let opened = NSWorkspace.shared.open(URL(string: "contextflow://add?id=\(id)")!)
+                    Self.reply(context, ["success": true, "data": ["outcome": (opened ? AppleItems.Outcome.app : .failed).rawValue]])
+                }
+                #else
+                Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.notAsked.rawValue]])
+                #endif
+            }
+        case "apple_remove":
+            if let key = message["key"] as? String { AppleItems.remove(key: key) }
+            Self.reply(context, ["success": true])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""

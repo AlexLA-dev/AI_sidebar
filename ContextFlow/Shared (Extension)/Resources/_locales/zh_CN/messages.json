@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "不符合你选的条件"
  },
+ "appleTitle": {
+  "message": "日历和提醒事项"
+ },
+ "appleMenu": {
+  "message": "添加到日历或提醒事项"
+ },
+ "appleReading": {
+  "message": "正在查找日期和时间…"
+ },
+ "appleNothing": {
+  "message": "没有可添加的内容：找不到日期或事项。"
+ },
+ "appleError": {
+  "message": "无法读取日期。"
+ },
+ "appleRetry": {
+  "message": "重试"
+ },
+ "appleReminder": {
+  "message": "提醒事项"
+ },
+ "appleEvent": {
+  "message": "日程"
+ },
+ "appleWhat": {
+  "message": "内容"
+ },
+ "appleDate": {
+  "message": "日期"
+ },
+ "appleTime": {
+  "message": "时间"
+ },
+ "appleList": {
+  "message": "列表"
+ },
+ "appleRemindersApp": {
+  "message": "添加到提醒事项"
+ },
+ "appleCalendarPick": {
+  "message": "日历将在下一步选择"
+ },
+ "appleCalendarDefault": {
+  "message": "你的默认日历"
+ },
+ "appleGuess": {
+  "message": "请核对日期和时间：这是推测的。"
+ },
+ "applePast": {
+  "message": "这个时间已经过去。请核对日期。"
+ },
+ "appleAdd": {
+  "message": "添加"
+ },
+ "appleAdded": {
+  "message": "已添加到提醒事项"
+ },
+ "appleAddedEvent": {
+  "message": "已添加到日历"
+ },
+ "appleOpening": {
+  "message": "正在打开 ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow 没有访问权限。请在“设置”中打开。"
+ },
+ "appleFailed": {
+  "message": "无法添加。请重试。"
+ },
+ "appleAlso": {
+  "message": "同时加入提醒事项"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow 无权访问提醒事项。请在“设置”中打开。"
+ },
+ "appleAskOnce": {
+  "message": "第一次会打开 ContextFlow 来请求访问权限。"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

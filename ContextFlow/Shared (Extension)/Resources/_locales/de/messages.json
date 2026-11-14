@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "Erfüllt deine Auswahl nicht"
  },
+ "appleTitle": {
+  "message": "Kalender und Erinnerungen"
+ },
+ "appleMenu": {
+  "message": "Zu Kalender oder Erinnerungen"
+ },
+ "appleReading": {
+  "message": "Suche Datum und Uhrzeit …"
+ },
+ "appleNothing": {
+  "message": "Hier gibt es nichts hinzuzufügen: kein Datum, keine Aufgabe."
+ },
+ "appleError": {
+  "message": "Das Datum ließ sich nicht lesen."
+ },
+ "appleRetry": {
+  "message": "Erneut versuchen"
+ },
+ "appleReminder": {
+  "message": "Erinnerung"
+ },
+ "appleEvent": {
+  "message": "Termin"
+ },
+ "appleWhat": {
+  "message": "Was"
+ },
+ "appleDate": {
+  "message": "Datum"
+ },
+ "appleTime": {
+  "message": "Uhrzeit"
+ },
+ "appleList": {
+  "message": "Liste"
+ },
+ "appleRemindersApp": {
+  "message": "In Erinnerungen"
+ },
+ "appleCalendarPick": {
+  "message": "Den Kalender wählst du im nächsten Schritt"
+ },
+ "appleCalendarDefault": {
+  "message": "Dein Standardkalender"
+ },
+ "appleGuess": {
+  "message": "Prüfe Datum und Uhrzeit: Sie sind geschätzt."
+ },
+ "applePast": {
+  "message": "Diese Zeit ist vorbei. Prüfe das Datum."
+ },
+ "appleAdd": {
+  "message": "Hinzufügen"
+ },
+ "appleAdded": {
+  "message": "Zu Erinnerungen hinzugefügt"
+ },
+ "appleAddedEvent": {
+  "message": "Zum Kalender hinzugefügt"
+ },
+ "appleOpening": {
+  "message": "ContextFlow wird geöffnet …"
+ },
+ "appleDenied": {
+  "message": "ContextFlow hat keinen Zugriff. Aktiviere ihn in den Einstellungen."
+ },
+ "appleFailed": {
+  "message": "Hinzufügen nicht möglich. Versuche es erneut."
+ },
+ "appleAlso": {
+  "message": "Auch in Erinnerungen"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow hat keinen Zugriff auf Erinnerungen. Aktiviere ihn in den Einstellungen."
+ },
+ "appleAskOnce": {
+  "message": "Beim ersten Mal öffnet sich ContextFlow, um nach Zugriff zu fragen."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

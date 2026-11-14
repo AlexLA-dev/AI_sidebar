@@ -6,11 +6,15 @@ import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 import type { Entry } from "../../shared/conversation"
 import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
+import { alsoReminders, appleNow, handoffInTap, loadApple, setAlsoReminders, type AppleStatus } from "./apple"
 
 const base = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" } as const
 
 export const Bell = ({ size = 15 }: { size?: number }): VNode => (
   <svg {...base} width={size} height={size}><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+)
+export const CalendarIcon = ({ size = 15 }: { size?: number }): VNode => (
+  <svg {...base} width={size} height={size}><rect x="3" y="4.5" width="18" height="16.5" rx="2.5" /><path d="M3 9.5h18M8 2.5v4M16 2.5v4M12 13v5M9.5 15.5h5" /></svg>
 )
 export const Marker = ({ size = 15 }: { size?: number }): VNode => (
   <svg {...base} width={size} height={size}><path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" /></svg>
@@ -107,13 +111,27 @@ export function RemindSheet({ current, note, page = false, title, quote, words, 
   // Changes when Remind should come into view and flash (LaterContext.remind).
   flash?: number
   children?: ComponentChildren
-  onPick: (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom", words?: string) => void
+  // `apple` (2.7): «Также в Напоминания» is on: the reminder goes into Apple Reminders as well.
+  onPick: (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom", words?: string, apple?: boolean) => void
   onCancel: () => void
   onClose: () => void
 }): VNode {
   const [custom, setCustom] = useState<string | null>(null)
   const [own, setOwn] = useState(words ?? "")
-  const pick = (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => onPick(at, preset, words === undefined ? undefined : own.trim())
+  // «Также в Напоминания» (2.7): shown where Apple Reminders can be reached (Safari, iOS 17+, macOS 14+); this device
+  // remembers the choice.
+  const [apple, setApple] = useState<AppleStatus | null>(appleNow())
+  const [also, setAlso] = useState(false)
+  useEffect(() => {
+    void loadApple().then(setApple)
+    void alsoReminders().then(setAlso)
+  }, [])
+  const mirror = also && apple?.available === true && apple.reminders !== "denied"
+  const pick = (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => {
+    // The app opens in this very tap when it must ask for access (iPhone, iPad); the reminder follows it there.
+    if (mirror) handoffInTap("reminder")
+    onPick(at, preset, words === undefined ? undefined : own.trim(), mirror)
+  }
   const back = useRef<HTMLDivElement>(null)
   const remindTitle = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -133,6 +151,24 @@ export function RemindSheet({ current, note, page = false, title, quote, words, 
           : <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {t("uxRemindTitle")}<SheetClose onClose={onClose} /></div>}
         {quote && <blockquote class="cf-sheet-quote" dir="auto">{quote.replace(/\s+/g, " ").trim()}</blockquote>}
         {words !== undefined && <NoteWords value={own} onInput={setOwn} />}
+        {apple?.available && (
+          <label class="cf-sheet-row cf-sheet-also">
+            <span>{t("appleAlso")}</span>
+            <input
+              type="checkbox"
+              checked={mirror}
+              disabled={apple.reminders === "denied"}
+              onChange={(e) => {
+                const on = e.currentTarget.checked
+                setAlso(on)
+                setAlsoReminders(on)
+                void chrome.runtime.sendMessage({ type: "useEvent", f: "apple", a: on ? "also_on" : "also_off", via: "remind" }).catch(() => undefined)
+              }}
+            />
+          </label>
+        )}
+        {apple?.available && apple.reminders === "denied" && <p class="cf-sheet-note">{t("appleRemindersOff")}</p>}
+        {mirror && apple?.reminders === "none" && <p class="cf-sheet-note">{t("appleAskOnce")}</p>}
         {remindPresets().filter((p) => !later || p.key !== "uxRemindHour").map((p) => (
           <button type="button" key={p.key} class="cf-sheet-row" onClick={() => pick(p.at, PRESET[p.key])}>
             <span>{t(p.key)}</span>
@@ -226,12 +262,14 @@ export function useAboveComposer(back: { current: HTMLElement | null }, enabled 
  * A small menu by a message: pin, remind, delete. `at`: where a right-click was (Mac), else under "…", or over it
  * when the chat has no room below (the last answer, right above the question field).
  */
-export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onDelete, onClose }: {
+export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onAdd, onDelete, onClose }: {
   at?: { x: number; y: number }
   pinned: boolean
   reminded: boolean
   onPin: () => void
   onRemind: () => void
+  // 2.7: "Add to Calendar or Reminders" (where they can be reached).
+  onAdd?: () => void
   onDelete: () => void
   onClose: () => void
 }): VNode {
@@ -278,6 +316,7 @@ export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onDelete, o
     <div ref={ref} class={`cf-msg-menu ${at ? "at" : ""}`} role="menu">
       <button type="button" role="menuitem" onClick={onPin}><PinIcon size={15} filled={pinned} /> {t(pinned ? "uxUnpin" : "uxPin")}</button>
       <button type="button" role="menuitem" onClick={onRemind}><Bell size={15} /> {t(reminded ? "uxRemindChange" : "uxRemind")}</button>
+      {onAdd && <button type="button" role="menuitem" onClick={onAdd}><CalendarIcon size={15} /> {t("appleMenu")}</button>}
       <button type="button" role="menuitem" class="danger" onClick={onDelete}><TrashIcon size={15} /> {t("uxDelete")}</button>
     </div>
   )
