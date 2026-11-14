@@ -47,8 +47,10 @@ test("only the circle and Safari's toolbar button pick it; Ask AI on a selection
   assert.match(app, /const onOpen = \(\) => show\(undefined, \{ pageChat: true \}\)/)
   assert.match(app, /\} else \{\n\s*show\(undefined, \{ pageChat: true \}\)\n\s*\}/)
   assert.match(app, /pageChatRef\.current = Boolean\(how\?\.pageChat && !captured\)/)
-  assert.match(app, /const found = pageChat \? chatForPage\(threads, key\) : null/)
+  // 2.7: chatForPage inside the space the panel is in, or the site's bound space (pageChatPlace, tests/spaces.test.mts).
+  assert.match(app, /const place = pageChat \? pageChatPlace\(threads, was, key, await loadSpaces\(\), settingsRef\.current\.spaces !== false\) : null/)
+  assert.match(app, /const found = place \? place\.chat \?\? newThreadId\(\) : null/)
   // Stored before the sync reads which chat is open.
-  assert.match(app, /if \(active !== was\) await setActiveThread\(active\.id\)/)
+  assert.match(app, /if \(active !== was\) await setActiveThread\(active\.id, place\?\.space\)/)
   assert.equal((app.match(/pageChat: true/g) ?? []).length, 3)
 })

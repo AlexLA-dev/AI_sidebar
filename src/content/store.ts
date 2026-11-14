@@ -8,6 +8,7 @@ import { planOfProduct, type Plan } from "../shared/plan"
 import { keepingAnswers, type Jobs } from "../shared/jobs"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import type { MadeList } from "../shared/voiced"
+import { changedSpaces, cleanSpaceList, currentSpace, emptySpaces, FIRST_SPACE, spaceOfChat, type SpaceList, type StoredSpaces } from "../shared/spaces"
 
 
 async function get<T>(key: string): Promise<T | undefined> {
@@ -321,20 +322,97 @@ async function legacyThreads(): Promise<Threads> {
   return { [id]: { id, u, m: entries } }
 }
 
-/** Shows this thread on this device (a new id = a new, still empty thread). */
-export async function setActiveThread(id: string): Promise<void> {
-  await set(STORAGE.activeThread, { id, at: Date.now() })
+/**
+ * Shows this thread on this device (a new id = a new, still empty thread), in a space (2.7): a stored chat's own, else
+ * `space` when given (switching spaces), else the space this device is in now. Kept with it (`sp`), so the ✦ circle
+ * has the space's colour on any page without reading the chats, and a new chat's first message knows where it goes.
+ */
+export async function setActiveThread(id: string, space?: string): Promise<void> {
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.activeThread, STORAGE.settings, STORAGE.spaces]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const on = (stored[STORAGE.settings] as Partial<Settings> | undefined)?.spaces ?? DEFAULT_SETTINGS.spaces
+  const was = stored[STORAGE.activeThread] as ActiveThread | undefined
+  const list = spaceListOf(stored[STORAGE.spaces])
+  const shown = threads[id] && !threads[id].deleted ? threads[id] : undefined
+  const prior = was ? threads[was.id] : undefined
+  const sp = !on ? undefined : shown ? spaceOfChat(list, shown) : space ?? currentSpace(list, prior && !prior.deleted ? prior : undefined, was ?? {}, on)
+  await set(STORAGE.activeThread, { id, at: Date.now(), ...(sp && sp !== FIRST_SPACE ? { sp } : {}) })
+}
+
+/** The space this device is in, as the open chat last said, without reading the chats (the ✦ circle's colour). */
+export async function activeSpaceNow(): Promise<string | undefined> {
+  return (await get<ActiveThread>(STORAGE.activeThread))?.sp
+}
+
+/** Calls `listener` with the space this device is in when the open chat changes (here, in another tab). */
+export function onActiveSpaceChanged(listener: (space: string | undefined) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area === "local" && changes[STORAGE.activeThread]) listener((changes[STORAGE.activeThread].newValue as ActiveThread | undefined)?.sp)
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
 }
 
 /** Stores a chat's messages; `kind` marks a new "Ask your chats" chat (a chat keeps its kind). */
 export async function saveThread(id: string, entries: Entry[], kind?: "history"): Promise<void> {
-  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.jobs]).catch(() => ({} as Record<string, unknown>))
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.jobs, STORAGE.activeThread]).catch(() => ({} as Record<string, unknown>))
   const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
   // Answers the background wrote into this chat meanwhile stay (build 91): this copy may be from before them.
   const kept = threads[id] ? keepingAnswers(entries, threads[id].m, (stored[STORAGE.jobs] as Jobs | undefined) ?? {}, id) : entries
+  // A new chat goes into the space it was started in (2.7).
+  const active = stored[STORAGE.activeThread] as ActiveThread | undefined
+  const sp = active?.id === id ? active.sp : undefined
   // Only real changes get a new time: it decides which device's copy wins (iCloud sync).
-  const next = savedThread(threads[id], id, kept, Date.now(), kind)
+  const next = savedThread(threads[id], id, kept, Date.now(), kind, sp)
   if (next) await set(STORAGE.threads, prune({ ...threads, [id]: next }))
+}
+
+// ------------------------------------------------------------ spaces (2.7)
+
+function spaceListOf(raw: unknown): SpaceList {
+  return cleanSpaceList((raw as StoredSpaces | undefined)?.list) ?? emptySpaces()
+}
+
+/** The spaces this device has (none stored yet: just the first one). */
+export async function loadSpaces(): Promise<SpaceList> {
+  return spaceListOf(await get<StoredSpaces>(STORAGE.spaces))
+}
+
+/** Stores a changed list of spaces: newer than the copy it replaces, so it goes to iCloud and the app. */
+export async function saveSpaces(change: (list: SpaceList) => SpaceList): Promise<SpaceList> {
+  const stored = await get<StoredSpaces>(STORAGE.spaces)
+  const list = spaceListOf(stored)
+  const next = change(list)
+  if (next !== list) await set(STORAGE.spaces, changedSpaces(stored, next))
+  return next
+}
+
+/** Calls `listener` when the spaces change (here, in another tab, from iCloud or the app). */
+export function onSpacesChanged(listener: (list: SpaceList) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area === "local" && changes[STORAGE.spaces]) listener(spaceListOf(changes[STORAGE.spaces].newValue))
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
+}
+
+/** «Переместить в…»: the chat goes into `space` (the first: it has none); it keeps its place in the list. */
+export async function moveChatToSpace(id: string, space: string): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted || (stored.sp ?? FIRST_SPACE) === space) return
+  const next: Thread = { ...stored, u: Math.max(Date.now(), stored.u + 1), a: activity(stored) }
+  if (space === FIRST_SPACE) delete next.sp
+  else next.sp = space
+  await set(STORAGE.threads, { ...threads, [id]: next })
 }
 
 /** The free chats that had the memory message once (build 91). */

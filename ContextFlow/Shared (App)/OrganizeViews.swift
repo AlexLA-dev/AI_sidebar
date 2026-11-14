@@ -580,7 +580,9 @@ final class OrganizeModel: ObservableObject {
         guard let chat = live.value.first(where: { $0.id == chatId }), await embedMissing(chatId, live) else { return nil }
         let known = vectors.v
         let cfg = config
-        guard let work = await Task.detached(priority: .userInitiated, operation: { Carry(value: OrganizeWork.suggest(chatId, live.value, known: known, cfg)) }).value.value else { return nil }
+        // 2.7: compared with its own space's chats only (vectors are kept for every chat).
+        let peers = Carry(value: Self.inItsSpace(chat, live.value))
+        guard let work = await Task.detached(priority: .userInitiated, operation: { Carry(value: OrganizeWork.suggest(chatId, peers.value, known: known, cfg)) }).value.value else { return nil }
         // 2.6 (98): what this run compared and why nothing fired, once per chat, length and library size.
         let scanKey = "\(chatId):\(thread.entries.count):\(work.scan.chats)"
         if !scanned.contains(scanKey) {
@@ -693,7 +695,28 @@ final class OrganizeModel: ObservableObject {
         let known = vectors.v
         let cfg = config
         let names = Dictionary(threads.map { ($0.id, $0.name) }, uniquingKeysWith: { a, _ in a })
-        return await Task.detached(priority: .utility) { OrganizeWork.counts(live.value, known: known, cfg, names: names) }.value
+        // 2.7: each space's chats on their own.
+        let groups = Carry(value: Self.bySpace(live.value))
+        return await Task.detached(priority: .utility) {
+            groups.value.reduce(into: [String: Int]()) { out, group in out.merge(OrganizeWork.counts(group, known: known, cfg, names: names)) { a, _ in a } }
+        }.value
+    }
+
+    /// 2.7: the chats `chat` is compared with: its own space's (with Spaces off, or one space, every chat).
+    private static func inItsSpace(_ chat: OrganizeThread, _ live: [OrganizeThread]) -> [OrganizeThread] {
+        let library = ChatLibrary.shared
+        guard library.hasSpaces else { return live }
+        let list = library.spaceList
+        let here = SpaceRecord.resolve(list, chat.space)
+        return live.filter { SpaceRecord.resolve(list, $0.space) == here }
+    }
+
+    /// 2.7: the chats in groups by space (one group with Spaces off, or one space).
+    private static func bySpace(_ live: [OrganizeThread]) -> [[OrganizeThread]] {
+        let library = ChatLibrary.shared
+        guard library.hasSpaces else { return [live] }
+        let list = library.spaceList
+        return Array(Dictionary(grouping: live) { SpaceRecord.resolve(list, $0.space) }.values)
     }
 
     /// "Name by topic": a name for the chat by its topic now (nil: it couldn't be had).

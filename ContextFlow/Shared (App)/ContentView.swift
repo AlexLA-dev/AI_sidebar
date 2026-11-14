@@ -1726,6 +1726,8 @@ final class ExtensionSettings: ObservableObject {
     @Published var keepCopied = true { didSet { save() } }
     /// Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until turned on (the consent).
     @Published var organize = false { didSet { save() } }
+    /// 2.7: Spaces, on by default (nothing shows while there's one); off: one list again, nothing lost.
+    @Published var spaces = true { didSet { save() } }
 
     /// Turns suggestions on from outside the Settings screen (the card in a chat, What's new): that's the consent.
     static func setOrganize(_ on: Bool) {
@@ -1762,6 +1764,7 @@ final class ExtensionSettings: ObservableObject {
         insertButton = stored["insertButton"] as? Bool ?? true
         keepCopied = stored["keepCopied"] as? Bool ?? true
         organize = stored["organize"] as? Bool ?? false
+        spaces = stored["spaces"] as? Bool ?? true
     }
 
     private func save() {
@@ -1778,8 +1781,14 @@ final class ExtensionSettings: ObservableObject {
         stored["insertButton"] = insertButton
         stored["keepCopied"] = keepCopied
         stored["organize"] = organize
+        let spacesChanged = (stored["spaces"] as? Bool ?? true) != spaces
+        stored["spaces"] = spaces
         SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
         if syncChanged { ChatLibrary.shared.refresh() }
+        if spacesChanged {
+            ChatLibrary.shared.objectWillChange.send()
+            ChatAI.reportUse("space", "toggle", ["via": "settings", "val": spaces ? "on" : "off"])
+        }
     }
 }
 
@@ -1849,6 +1858,13 @@ struct SettingsView: View {
                 footer: Text("Your chats continue on your iPhone, iPad and Mac signed in to the same Apple Account. They're end-to-end encrypted in iCloud: only your devices can read them.")
             ) {
                 Toggle("Sync chats with iCloud", isOn: $settings.syncChats)
+            }
+
+            // 2.7: Spaces (the owner: «Давай сделаем Пространства выключаемой опцией в настройках»).
+            Section(
+                footer: Text("Work, Personal, Shopping: each with its own chats and color. Off: every chat in one list, and your spaces stay.")
+            ) {
+                Toggle("Spaces", isOn: $settings.spaces)
             }
 
             Section(

@@ -72,7 +72,7 @@ import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged, madeNow, onMadeChanged } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, loadSpaces, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged, madeNow, onMadeChanged } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -100,7 +100,9 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatForPage, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { pageChatPlace } from "../shared/spaces"
+import { SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -327,6 +329,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setTrashList(trashedThreads(threads))
   }
   const threadRef = useRef("")
+  // Spaces (2.7, useSpaces below): read where the panel opens on a page.
+  const spacesRef = useRef<ReturnType<typeof useSpaces> | null>(null)
   const [partial, setPartial] = useState<string | null>(null)
   // Before asking: a video's transcript or a PDF being read (shown instead of "Reading the page…").
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
@@ -605,10 +609,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       loadingRef.current = loadThreads().then(async ({ threads, active: was }) => {
         loadedRef.current = true
         // The circle on a page already talked about: its latest chat (or the site's); else the chat as it was. Stored
-        // before the sync below reads which chat is open.
-        const found = pageChat ? chatForPage(threads, key) : null
+        // before the sync below reads which chat is open. 2.7: in the space the panel is in, or the space the site is
+        // bound to (a new chat there when it has none: the header says where it went).
+        const place = pageChat ? pageChatPlace(threads, was, key, await loadSpaces(), settingsRef.current.spaces !== false) : null
+        const found = place ? place.chat ?? newThreadId() : null
         const active = found && found !== was.id ? { id: found, at: Date.now() } : was
-        if (active !== was) await setActiveThread(active.id)
+        if (active !== was) await setActiveThread(active.id, place?.space)
+        if (place?.bound) spacesRef.current?.flashSite(place.space, key)
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
         const entries = threads[active.id]?.m ?? []
@@ -1493,20 +1500,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const askRef = useRef(ask)
   askRef.current = ask
 
-  /** Starts a new thread; the previous one stays in the list. */
-  const newChat = useCallback(() => {
+  /** Starts a new thread; the previous one stays in the list. `space` (2.7): in that space, else the one it's in. */
+  const newChatIn = useCallback((space?: string) => {
     stop()
     setUndoBar(null)
     setFirstWin(null)
     const id = newThreadId()
     threadRef.current = id
     setKind(undefined)
-    void setActiveThread(id)
+    void setActiveThread(id, space)
     setMessages([])
     setError(null)
     setMemoryOffer(null)
     setView("chat")
   }, [stop])
+  const newChat = useCallback(() => newChatIn(), [newChatIn])
 
   // ------------------------------------------------------------ the field and Note by a selection
   // The first time the selection buttons show on a page (three page visits, until one is used): what's new in them.
@@ -2446,13 +2454,35 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     ? <button type="button" key={a.id} class={`cf-chip ultra${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={small ? 12 : 13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
     : <button type="button" key={a.id} class={`cf-chip${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
-  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
+  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "spaces" = "listen") => {
     setPlansOpen(focus)
     // The prices' currency and App Store country as the app's side gave them (a wrong currency can be traced from them).
     const prices = statusRef.current?.store?.prices ?? {}
     void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus, cur: prices["#currency"], sf: prices["#storefront"] })
   }, [])
   if (status?.plan) planKnownRef.current = status.plan
+  // Spaces (2.7, Spaces.tsx): the space the panel is in, its chats, the switcher's steps.
+  const spaces = useSpaces({
+    on: settings.spaces !== false,
+    threads: threadList,
+    shownId: threadRef.current,
+    pro: hasPro(plan),
+    href: () => source.href(),
+    // A switch from the chats list stays in the list (the new space's chats), as in the mockup.
+    openChat: (id) => {
+      const list = view === "threads"
+      openThread(id)
+      if (list) setView("threads")
+    },
+    newChatIn: (space) => {
+      const list = view === "threads"
+      newChatIn(space)
+      if (list) setView("threads")
+    },
+    onPro: () => openPlans("pro", "spaces"),
+    report: (a, fields) => void sendBackground({ type: "useEvent", f: "space", a, ...fields, spaces: spacesRef.current?.count() })
+  })
+  spacesRef.current = spaces
   // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
   const choosePlan = (choice: OfferChoice) => {
     openAppFromTap(touch, { target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
@@ -2861,7 +2891,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const kept = threadList.find((x) => x.id === chat)
     if (!kept?.org) return
     const shown: Thread = { ...kept, m: messages }
-    const mv = openMove(shown, threadList)
+    // 2.7: a move or merge only within the chat's space.
+    const mv = openMove(shown, spaces.inSpace)
     // The chat the move names: where it goes, or (2.6 (95)) the older chat that joins this one.
     const target = mv?.fr ? threadList.find((x) => x.id === mv.fr) : mv?.to ? threadList.find((x) => x.id === mv.to) : undefined
     setOrg({
@@ -3358,7 +3389,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           type="button"
           ref={fabRef}
           class={`cf-fab ${settings.fabSide === "left" ? "left" : "right"} ${dragY === null ? "glide" : ""}`}
-          style={{ top: dragY !== null ? `${dragY}%` : fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%` }}
+          style={{ top: dragY !== null ? `${dragY}%` : fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`, ...(spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
           title={t("fabLabel")}
           onPointerDown={onFabDown}
@@ -3487,9 +3518,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ref={panelRef}
           class={`cf-panel ${visible ? "in" : ""}`}
           onClickCapture={noteLinkClick}
+          data-space={spaces.multi ? spaces.current.color : undefined}
           role="dialog"
           aria-label="ContextFlow"
-          style={layout === "sheet" && keyboard ? { bottom: `${keyboard}px`, maxHeight: `${window.visualViewport?.height ?? window.innerHeight}px` } : undefined}
+          style={{ ...(spaces.multi ? spaceVars(spaces.current.color) : {}), ...(layout === "sheet" && keyboard ? { bottom: `${keyboard}px`, maxHeight: `${window.visualViewport?.height ?? window.innerHeight}px` } : {}) }}
         >
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
           <header class="cf-header">
@@ -3500,16 +3532,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 settingsBack.current = "chat"
                 setView(back)
               }} aria-label={t("back")}><Icon.Back /></button>
-            ) : (
+            ) : spaces.multi ? null : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
             {/* Build 95: in a chat, what the question is about (the selection, the page, the chats) is over the field
-                (ctxRow), not here. */}
+                (ctxRow), not here. 2.7: with two spaces or more, the space's switcher over a chat and the chats list. */}
             <div class="cf-title">
-              {view !== "chat" && (
+              {spaces.multi && (view === "chat" || view === "threads") ? (
+                <SpaceSwitcher
+                  spaces={spaces.spaces}
+                  current={spaces.current}
+                  counts={spaces.counts}
+                  bind={spaces.bind}
+                  onPick={spaces.pick}
+                  onNew={() => spaces.openNew("header")}
+                  onEdit={spaces.openEdit}
+                />
+              ) : view !== "chat" && (
                 <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : view === "trash" ? t("trashTitle") : t("chatsTitle")}</strong>
               )}
             </div>
+            {spaces.toast && <SpaceToast space={spaces.toast.space} text={spaces.toast.text} />}
             {view === "chat" && messages.length > 0 && partial === null && (
               <button type="button" class="cf-icon" onClick={() => (picked ? setPicked(null) : pickMessages())} aria-pressed={Boolean(picked)} aria-label={t("shareChat")} title={chatCopied ? t("copied") : t("shareChat")}>
                 {chatCopied ? <Icon.Check /> : <Icon.Share />}
@@ -3519,7 +3562,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             {view === "chat" && (threadList.length > 0 || trashList.length > 0) && (
               <button type="button" class="cf-icon cf-chats-button" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}>
                 <Icon.Chats />
-                {threadList.length > 0 && <span class="cf-badge">{threadList.length}</span>}
+                {spaces.inSpace.length > 0 && <span class="cf-badge">{spaces.inSpace.length}</span>}
               </button>
             )}
             {((view === "chat" && messages.length > 0) || view === "threads") && (
@@ -3652,10 +3695,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </div>
               )}
               <ThreadsView
-                threads={threadList}
+                threads={spaces.inSpace}
                 activeId={threadRef.current}
                 onOpen={(id, at) => {
                   if (orgOn && recs[id]) orgEvent({ kind: "organize", action: "tap", what: "badge" })
+                  spaces.followChat(threadList.find((x) => x.id === id))
                   openThread(id, at)
                 }}
                 onRename={renameChat}
@@ -3685,6 +3729,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 }}
                 recs={orgOn ? recs : undefined}
                 playing={playingChat}
+                spaces={settings.spaces !== false ? {
+                  all: threadList,
+                  list: spaces.spaces,
+                  current: spaces.current,
+                  multi: spaces.multi,
+                  of: spaces.of,
+                  onMove: (id, space) => void spaces.move(id, space),
+                  onNew: () => spaces.openNew("list")
+                } : null}
               />
               <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
               {listen.state.at !== "idle" && <footer class="cf-listen-dock">{listenBar}</footer>}
@@ -3717,6 +3770,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onChange={(patch) => {
                 if (patch.organize === true) turnOnOrganize("settings")
                 else updateSettings(patch)
+                if (patch.spaces !== undefined) void sendBackground({ type: "useEvent", f: "space", a: "toggle", via: "settings", val: patch.spaces ? "on" : "off", spaces: spaces.count() })
               }}
               onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
@@ -4233,6 +4287,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               }}
               onClose={() => setPlansOpen(null)}
             />
+          )}
+          {spaces.sheet && (
+            <SpaceSheet mode={spaces.sheet} onSave={(name, color) => void spaces.save(name, color)} onDelete={() => void spaces.remove()} onPro={spaces.pro} onCancel={() => spaces.setSheet(null)} />
           )}
         </section>
       )}

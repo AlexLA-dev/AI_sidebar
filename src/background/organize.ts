@@ -8,7 +8,8 @@ import { API_BASE } from "../shared/config"
 import { entryKey, textKey, type Entry } from "../shared/conversation"
 import { embedText, judgedTags, judgeText, nameCheckKey, nameStateAfter, nameText, openName, openTags, ORGANIZE_ENGINE, organizeScan, orgStateFor, suggestMove, tagCandidates, tagTargets, unpackVector, type MoveSuggestion, type OrganizeConfig, type VectorOf, wantsNameCheck } from "../shared/organize"
 import { cleanTitle, liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
-import { STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type StatusInfo } from "../shared/types"
+import { chatsInSpace, cleanSpaceList, emptySpaces, spaceOfChat, type StoredSpaces } from "../shared/spaces"
+import { DEFAULT_SETTINGS, STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type Settings, type StatusInfo } from "../shared/types"
 
 interface Context {
   status: StatusInfo
@@ -127,15 +128,16 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   const org = ctx.status.organize
   if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
   if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
-  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgVerdicts])
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgVerdicts, STORAGE.settings, STORAGE.spaces])
   const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
   const chat = threads[chatId]
   if (!chat || chat.deleted || chat.kind === "history" || chat.m.length === 0) return { ok: true, move: null, tags: [] }
-  const live = liveThreads(threads).filter((t) => t.kind !== "history")
-  const vectors = await vectorsFor(chat, live, ctx, stored)
+  const all = liveThreads(threads).filter((t) => t.kind !== "history")
+  const vectors = await vectorsFor(chat, all, ctx, stored)
   if ("code" in vectors) return { ok: false, code: vectors.code }
   const { vectorOf } = vectors
   const cfg = org.config
+  const live = spacePeers(stored)(chat, all)
 
   const move = suggestMove(chat, live, vectorOf, cfg)
   void reportScan(chat, live, vectorOf, cfg, move, ctx)
@@ -205,13 +207,14 @@ async function countsOnce(ctx: Context): Promise<OrganizeCountsReply> {
   const org = ctx.status.organize
   if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
   if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
-  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors])
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.settings, STORAGE.spaces])
   const live = liveThreads((stored[STORAGE.threads] as Threads | undefined) ?? {}).filter((t) => t.kind !== "history")
   const vectors = await vectorsFor(null, live, ctx, stored)
   if ("code" in vectors) return { ok: false, code: vectors.code }
   const counts: Record<string, number> = {}
+  const peers = spacePeers(stored)
   for (const chat of live) {
-    const n = (suggestMove(chat, live, vectors.vectorOf, org.config) ? 1 : 0) + (openName(chat) ? 1 : 0) + openTags(chat).length
+    const n = (suggestMove(chat, peers(chat, live), vectors.vectorOf, org.config) ? 1 : 0) + (openName(chat) ? 1 : 0) + openTags(chat).length
     if (n) counts[chat.id] = n
   }
   return { ok: true, counts }
@@ -234,6 +237,16 @@ export async function nameChatNow(chatId: string, ctx: Context): Promise<Organiz
 /** An organizing event for the funnel (/api/v2/event): what and where, never text. */
 // 2.6 (98): the scans already reported (a chat, its length and the library's size), so a run again sends nothing.
 const scanned = new Set<string>()
+
+/**
+ * 2.7: the chats a chat is compared with: its own space's (suggestions never mix spaces; with Spaces off, or a single
+ * space, every chat). Its vectors are still made and kept for every chat.
+ */
+function spacePeers(stored: Record<string, unknown>): (chat: Thread, live: Thread[]) => Thread[] {
+  const on = (stored[STORAGE.settings] as Partial<Settings> | undefined)?.spaces ?? DEFAULT_SETTINGS.spaces
+  const list = cleanSpaceList((stored[STORAGE.spaces] as StoredSpaces | undefined)?.list) ?? emptySpaces()
+  return (chat, live) => chatsInSpace(live, list, spaceOfChat(list, chat), on)
+}
 
 /** What this run compared and why nothing fired (organizeScan): numbers and named reasons only, once per state. */
 async function reportScan(chat: Thread, live: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig, move: MoveSuggestion | null, ctx: Context): Promise<void> {

@@ -120,7 +120,8 @@
   border-radius: 24px;
   display: flex; align-items: center; justify-content: center;
   color: #fff !important;
-  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+  /* 2.7: the space's colour when there are spaces (--space-2, --space; spaces.css), else the blue it always had. */
+  background: linear-gradient(135deg, var(--space-2, #38bdf8) 0%, var(--space, #2563eb) 100%) !important;
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42), 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 3;
   touch-action: none !important;

@@ -5,17 +5,22 @@ import type { VNode } from "preact"
 import { useEffect, useLayoutEffect, useRef } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
+import type { Space } from "../../shared/spaces"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
+import { MoveToSpace } from "../Spaces"
 import { More, PinIcon, TrashIcon } from "./MessageUx"
 
-export function ThreadMenu({ pinned, onPin, onRename, onTags, onDelete, onClose }: {
+export function ThreadMenu({ pinned, onPin, onRename, onTags, onDelete, onClose, moveTo, onMoveTo }: {
   pinned: boolean
   onPin: () => void
   onRename: () => void
   onTags: () => void
   onDelete: () => void
   onClose: () => void
+  // 2.7: «Переместить в…», the other spaces (none with one space, or Spaces off).
+  moveTo?: Space[]
+  onMoveTo?: (space: string) => void
 }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   // Under "…"; over it when it doesn't fit below but does above (the last chats); else under it, with the list
@@ -57,6 +62,7 @@ export function ThreadMenu({ pinned, onPin, onRename, onTags, onDelete, onClose 
       <button type="button" role="menuitem" onClick={item(onPin)}><PinIcon size={15} filled={pinned} /> {t(pinned ? "unpinChat" : "pinChat")}</button>
       <button type="button" role="menuitem" onClick={item(onRename)}><Icon.Pencil /> {t("renameChat")}</button>
       <button type="button" role="menuitem" onClick={item(onTags)}><Icon.Tag /> {t("tagsEdit")}</button>
+      {moveTo && moveTo.length > 0 && onMoveTo && <MoveToSpace spaces={moveTo} onMove={(id) => item(() => onMoveTo(id))()} />}
       <button type="button" role="menuitem" class="danger" onClick={item(onDelete)}><TrashIcon size={15} /> {t("deleteChat")}</button>
     </div>
   )

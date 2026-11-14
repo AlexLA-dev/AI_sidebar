@@ -1,0 +1,104 @@
+/* Spaces (2.7, Spaces.tsx): the header's switcher and its list, the sheet that makes a space, the line in the header,
+   a search hit's space. The colour comes in as --space (base), --space-2 (light) and --space-soft (11 % of it). */
+
+.cf-space-dot { display: inline-block; flex: none; border-radius: 50%; }
+
+/* The header in the space's colour: a stripe on top and a tint, so it's plain which space this is. */
+.cf-panel[data-space] .cf-header { background: var(--space-soft); box-shadow: inset 0 3px 0 var(--space); }
+.cf-header { position: relative; }
+
+.cf-space-wrap { position: static; display: flex; min-width: 0; }
+.cf-space-switch {
+  display: inline-flex; align-items: center; gap: 7px; min-width: 0; max-width: 100%;
+  padding: 5px 8px; margin-inline-start: -4px; border-radius: 9px;
+  font-size: 15px; font-weight: 650; color: var(--text);
+}
+.cf-space-switch:hover, .cf-space-switch[aria-expanded="true"] { background: var(--space-soft, var(--bg-2)); }
+.cf-space-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.cf-space-chev { font-size: 10px; color: var(--text-3); }
+
+.cf-space-pop {
+  position: absolute; inset-inline: 8px; top: calc(100% + 4px); z-index: 6;
+  display: flex; flex-direction: column; gap: 2px; padding: 6px;
+  max-height: min(60vh, 420px); overflow-y: auto;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+.cf-space-item { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 9px; font-size: 14px; text-align: start; color: var(--text); }
+.cf-space-item:hover { background: var(--bg-2); }
+.cf-space-item-name { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-space-item small { color: var(--text-3); font-size: 12px; }
+.cf-space-check { color: var(--space, var(--accent)); display: flex; }
+.cf-space-add, .cf-space-edit { color: var(--accent-text); font-weight: 600; }
+.cf-space-edit { color: var(--text-2); font-weight: 500; font-size: 13px; }
+.cf-space-edit span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.cf-space-bind {
+  display: flex; align-items: center; gap: 10px; margin-top: 4px; padding: 11px 10px 7px;
+  border-top: 1px solid var(--border); font-size: 13px; text-align: start; color: var(--text);
+}
+.cf-space-bind span { flex: 1; min-width: 0; line-height: 1.35; overflow-wrap: anywhere; }
+.cf-space-toggle { position: relative; flex: none; width: 38px; height: 22px; border-radius: 11px; background: var(--bg-3); transition: background 0.2s; }
+.cf-space-toggle::after { content: ""; position: absolute; top: 2px; inset-inline-start: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: inset-inline-start 0.2s; }
+.cf-space-toggle.on { background: var(--ok); }
+.cf-space-toggle.on::after { inset-inline-start: 18px; }
+
+/* "notion.so → Work", "You're in Work" for a moment over the header. */
+.cf-space-toast {
+  position: absolute; inset: 6px 8px; z-index: 7;
+  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 10px;
+  border-radius: 10px; background: var(--snack-bg); color: var(--snack-text);
+  font-size: 13.5px; font-weight: 600; text-align: center;
+  animation: cf-space-toast 1.9s ease both;
+}
+.cf-space-toast span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+@keyframes cf-space-toast { 0% { opacity: 0; } 10%, 85% { opacity: 1; } 100% { opacity: 0; } }
+
+/* The sheet over the panel: from the bottom on iPhone and iPad, in the middle on a Mac. */
+.cf-space-veil { position: absolute; inset: 0; z-index: 8; display: flex; align-items: flex-end; background: rgba(10, 12, 18, 0.35); }
+.cf[data-layout="side"] .cf-space-veil, .cf[data-layout="popup"] .cf-space-veil { align-items: center; justify-content: center; }
+.cf-space-sheet {
+  box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 8px;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0;
+  background: var(--bg); color: var(--text);
+}
+.cf[data-layout="side"] .cf-space-sheet, .cf[data-layout="popup"] .cf-space-sheet { width: min(320px, calc(100% - 32px)); border-radius: 14px; padding-bottom: 16px; box-shadow: var(--shadow); }
+.cf-space-sheet strong { font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.cf-space-label { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+.cf-space-input {
+  font: inherit; font-size: 16px; color: var(--text); background: var(--bg-2);
+  border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; outline: none;
+}
+.cf-space-input:focus { border-color: var(--accent); }
+.cf-space-colors { display: flex; flex-wrap: wrap; gap: 10px; padding: 2px 0; }
+.cf-space-color { width: 30px; height: 30px; border-radius: 50%; }
+.cf[data-touch] .cf-space-color { width: 36px; height: 36px; }
+.cf-space-color.on { outline: 2.5px solid var(--text); outline-offset: 2px; }
+.cf-space-note { margin: 0; font-size: 13.5px; color: var(--text-2); line-height: 1.45; }
+.cf-space-buttons { display: flex; gap: 8px; margin-top: 8px; }
+.cf-space-buttons button { flex: 1; justify-content: center; padding: 10px; border-radius: 11px; font-size: 14px; font-weight: 600; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); }
+.cf-space-buttons .cf-primary { border-color: transparent; }
+.cf-space-delete { align-self: flex-start; font-size: 13px; color: var(--danger); padding: 4px 0; }
+.cf-space-delete-ask { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-2); }
+.cf-space-delete-ask span { flex: 1; }
+.cf-space-delete-ask .danger { color: #fff; background: var(--danger); padding: 7px 10px; border-radius: 9px; font-weight: 600; }
+
+/* "+ New space" at the end of the chats list. */
+.cf-space-new {
+  display: flex; align-items: center; justify-content: center; gap: 6px; margin: 10px 12px 14px; padding: 9px;
+  border: 1.5px dashed var(--border); border-radius: 10px; font-size: 13.5px; font-weight: 600; color: var(--text-2);
+}
+.cf-space-new:hover { color: var(--accent-text); border-color: var(--accent); }
+
+/* A search hit's space, and «Переместить в…». */
+.cf-space-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-3); white-space: nowrap; margin-inline-end: 8px; }
+.cf-space-move { display: flex; flex-direction: column; gap: 2px; padding: 2px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 2px 0; }
+.cf-space-move-title { font-size: 11.5px; color: var(--text-3); padding: 4px 10px 2px; }
+.cf-space-move button { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: var(--text); text-align: start; }
+.cf-space-move button:hover { background: var(--bg-2); }
+.cf-space-move-pop .cf-space-move { border: 0; margin: 0; }
+.cf-thread-moveto.on { color: var(--accent-text); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-space-toggle, .cf-space-toggle::after { transition: none; }
+  .cf-space-toast { animation: none; }
+}
