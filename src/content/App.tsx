@@ -104,7 +104,7 @@ import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill } from "./translate/TranslatePill"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
-import { matchable, matchChat, type ChatMatch } from "../shared/match"
+import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
 import { SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
@@ -628,7 +628,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         if (place && place.why !== "page" && orgOnRef.current) {
           const chats = matchable(threads, list, place.space, on).map((t) => t.id)
           const meaning = await Promise.race([
-            sendBackground<{ chat: string; match: number } | null>({ type: "matchTopic", title: source.title(), chats }),
+            sendBackground<MeaningMatches | null>({ type: "matchTopic", title: source.title(), chats }),
             new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 1200))
           ])
           if (meaning !== undefined) place = matchChat(threads, was, key, source.title(), list, on, meaning ?? null)
