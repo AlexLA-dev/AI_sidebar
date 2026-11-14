@@ -185,6 +185,8 @@ export interface RunOptions {
   batchChars: number
   parallel: number
   onItems: (items: TranslateBlock[]) => void
+  // Deploy previews only (never production): each line turned down, and why, for tuning the prompt.
+  onRejected?: (line: { id: string; text: string; why: "tags" | "language" }) => void
 }
 
 /**
@@ -211,6 +213,7 @@ export async function runTranslation(blocks: TranslateBlock[], o: RunOptions): P
         if (!read || !block || done.has(block.id)) continue
         const text = restoreVoids(block.text, read.text)
         if (text === null || sameLanguageBack(block.text, text, o.to)) {
+          o.onRejected?.({ id: block.id, text: read.text, why: text === null ? "tags" : "language" })
           failedTags.add(block.id)
           continue
         }

@@ -43,7 +43,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const first = body.first === true
   // Off production only (deploy previews, netlify dev): a request may name the model's effort, to compare them.
   const deploy = (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ?? process.env.CONTEXT
-  const effort: Effort = deploy && deploy !== "production" && ["low", "medium", "high"].includes(String(body.effort)) ? (body.effort as Effort) : settings.translate.effort
+  const preview = Boolean(deploy && deploy !== "production")
+  const effort: Effort = preview && ["low", "medium", "high"].includes(String(body.effort)) ? (body.effort as Effort) : settings.translate.effort
+  // Deploy previews only: the lines turned down, to see why (the page's text never goes to production logs either).
+  const debug = preview && body.debug === true
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
@@ -118,6 +121,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
           to, from, first, call: haikuCall(stats, effort), again: haikuCall(stats, effort === "low" ? "medium" : effort), stats, signal: abort.signal,
           batchChars: first ? settings.translate.firstBatchChars : settings.translate.batchChars,
           parallel: Math.max(1, settings.translate.parallel),
+          ...(debug ? { onRejected: (line: { id: string; text: string; why: string }) => send({ type: "rejected", ...line }) } : {}),
           onItems: (items) => {
             charsOut += items.reduce((n, i) => n + i.text.length, 0)
             send({ type: "items", items })
