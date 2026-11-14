@@ -2,7 +2,7 @@ import { tipClip } from "./tipClips"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
-import { appLink, planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
+import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { LINK_OPEN_KEY, linkOpen } from "../shared/linkOpen"
@@ -33,6 +33,7 @@ import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
+import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
@@ -87,8 +88,8 @@ function appBuild(): Promise<string> {
 }
 
 async function clientInfo() {
-  const [build, os] = await Promise.all([appBuild(), platform()])
-  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage() }
+  const [build, os, invite] = await Promise.all([appBuild(), platform(), inviteMarks().catch(() => ({}))])
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite }
 }
 
 // ---------------------------------------------------- App Store subscription
@@ -311,12 +312,15 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       organize?: { on?: unknown; space?: unknown; config?: unknown }
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
       country?: string
+      invite?: { active?: unknown } | null
     }
     value = {
       plan: body.plan,
       ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
       ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
+      // 2.7: friends who came with this install's code and asked on two days (only once it has a code).
+      ...(body.invite && typeof body.invite.active === "number" ? { invite: { active: body.invite.active } } : {}),
       plans: planFacts(body.limits),
       searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false,
@@ -364,7 +368,7 @@ async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): P
 const SEARCH_LIMITS = { freeDaily: 3, proWeekly: 50 }
 
 /** What the plans sheet says about each plan: the server's numbers, these when it can't be reached. */
-function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> } | undefined): PlanFacts {
+function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; similarLightWeekly?: number; similarProAnswers?: number; watch?: Record<Plan, number> } | undefined): PlanFacts {
   const n = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d)
   return {
     freeDaily: n(limits?.freeDaily, 5),
@@ -373,6 +377,8 @@ function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly
     searchProWeekly: n(limits?.searchProWeekly, SEARCH_LIMITS.proWeekly),
     speakWeeklySeconds: n(limits?.speakWeeklySeconds, ULTRA_DEFAULTS.speakWeeklySeconds),
     similarWeekly: n(limits?.similarWeekly, ULTRA_DEFAULTS.similarWeekly),
+    similarLightWeekly: n(limits?.similarLightWeekly, SIMILAR_LIGHT_WEEKLY),
+    similarProAnswers: n(limits?.similarProAnswers, SIMILAR_PRO_ANSWERS),
     watch: { ...WATCH_LIMITS, ...(limits?.watch ?? {}) }
   }
 }
@@ -1122,9 +1128,18 @@ async function migrateFromV1(): Promise<void> {
   await chrome.storage.local.remove(legacy)
 }
 
+/** A new install never gets the panel's «New in 2.7» card (the hint key "new27", src/content/store.ts). */
+async function markNewSeen(): Promise<void> {
+  const seen = (await chrome.storage.local.get(STORAGE.hintsSeen))[STORAGE.hintsSeen]
+  const list = Array.isArray(seen) ? seen : []
+  if (!list.includes("new27")) await chrome.storage.local.set({ [STORAGE.hintsSeen]: [...list, "new27"] })
+}
+
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     void installId()
+    // 2.7: the panel's «New in 2.7» card is for people who had ContextFlow before; a new install has the tour.
+    void markNewSeen().catch(() => undefined)
     void chrome.storage.local.set({ [STORAGE.extOnPending]: false }).then(reportSwitchedOn).catch(() => undefined)
     void chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })
   } else if (details.reason === "update") {
@@ -1157,6 +1172,16 @@ startInsert({
   statusChanged: () => (statusCache = null)
 })
 // A page translated in place (2.7): the page's requests to the server, and the pill's counters.
+startInvite({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  statusChanged: () => (statusCache = null)
+})
+
 startTranslate({
   installId,
   entitlementJws: async () => {

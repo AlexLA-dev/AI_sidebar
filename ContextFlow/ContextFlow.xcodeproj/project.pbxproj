@@ -32,6 +32,7 @@
 		CF9800000000000000000002 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CF9810000000000000000002 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
 		CF27A0000000000000000002 /* SpacesViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27A0000000000000000001 /* SpacesViews.swift */; };
+		CF27D0000000000000000002 /* Invite.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27D0000000000000000001 /* Invite.swift */; };
 		CF27C0000000000000000002 /* CollectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27C0000000000000000001 /* CollectionsView.swift */; };
 		CF27B0000000000000000002 /* Collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27B0000000000000000001 /* Collections.swift */; };
 		CF1000000000000000000002 /* ReviewGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000001 /* ReviewGate.swift */; };
@@ -43,6 +44,7 @@
 		CF9800000000000000000003 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CF9810000000000000000003 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
 		CF27A0000000000000000003 /* SpacesViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27A0000000000000000001 /* SpacesViews.swift */; };
+		CF27D0000000000000000003 /* Invite.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27D0000000000000000001 /* Invite.swift */; };
 		CF27C0000000000000000003 /* CollectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27C0000000000000000001 /* CollectionsView.swift */; };
 		CF27B0000000000000000003 /* Collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27B0000000000000000001 /* Collections.swift */; };
 		CF1000000000000000000003 /* ReviewGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000001 /* ReviewGate.swift */; };
@@ -202,6 +204,7 @@
 		CF9800000000000000000001 /* WhatsNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNew.swift; sourceTree = "<group>"; };
 		CF9810000000000000000001 /* MeaningSpot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningSpot.swift; sourceTree = "<group>"; };
 		CF27A0000000000000000001 /* SpacesViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacesViews.swift; sourceTree = "<group>"; };
+		CF27D0000000000000000001 /* Invite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invite.swift; sourceTree = "<group>"; };
 		CF27C0000000000000000001 /* CollectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsView.swift; sourceTree = "<group>"; };
 		CF27B0000000000000000001 /* Collections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collections.swift; sourceTree = "<group>"; };
 		CF1000000000000000000001 /* ReviewGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewGate.swift; sourceTree = "<group>"; };
@@ -334,6 +337,7 @@
 				CF9800000000000000000001 /* WhatsNew.swift */,
 				CF9810000000000000000001 /* MeaningSpot.swift */,
 				CF27A0000000000000000001 /* SpacesViews.swift */,
+				CF27D0000000000000000001 /* Invite.swift */,
 				CF27C0000000000000000001 /* CollectionsView.swift */,
 				CF27B0000000000000000001 /* Collections.swift */,
 				CF1000000000000000000001 /* ReviewGate.swift */,
@@ -678,6 +682,7 @@
 				CF9800000000000000000002 /* WhatsNew.swift in Sources */,
 				CF9810000000000000000002 /* MeaningSpot.swift in Sources */,
 				CF27A0000000000000000002 /* SpacesViews.swift in Sources */,
+				CF27D0000000000000000002 /* Invite.swift in Sources */,
 				CF27C0000000000000000002 /* CollectionsView.swift in Sources */,
 				CF27B0000000000000000002 /* Collections.swift in Sources */,
 				CF1000000000000000000002 /* ReviewGate.swift in Sources */,
@@ -721,6 +726,7 @@
 				CF9800000000000000000003 /* WhatsNew.swift in Sources */,
 				CF9810000000000000000003 /* MeaningSpot.swift in Sources */,
 				CF27A0000000000000000003 /* SpacesViews.swift in Sources */,
+				CF27D0000000000000000003 /* Invite.swift in Sources */,
 				CF27C0000000000000000003 /* CollectionsView.swift in Sources */,
 				CF27B0000000000000000003 /* Collections.swift in Sources */,
 				CF1000000000000000000003 /* ReviewGate.swift in Sources */,

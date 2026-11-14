@@ -2,7 +2,7 @@
 // (Project configuration → Environment variables) without a code change.
 
 import { organizeConfig } from "../../src/shared/organize.ts"
-import { PLAN_PRODUCTS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
+import { PLAN_PRODUCTS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
 
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
@@ -22,6 +22,9 @@ function int(name: string, fallback: number): number {
   const value = raw ? Number.parseInt(raw, 10) : Number.NaN
   return Number.isFinite(value) ? value : fallback
 }
+
+// 2.7: Find similar's light searches a week (Own key and Pro); its guards scale with it.
+const LIGHT_WEEKLY = int("SIMILAR_LIGHT_WEEKLY", SIMILAR_LIGHT_WEEKLY)
 
 export const config = {
   supabaseUrl: env("SUPABASE_URL") ?? "",
@@ -241,6 +244,15 @@ export const config = {
     // Safety caps (the Ultra allowance itself comes with the Ultra plan): per install a day, and for everyone.
     installDaily: int("SIMILAR_INSTALL_DAILY", 40),
     globalDaily: int("SIMILAR_GLOBAL_DAILY", 5_000),
+    // 2.7: the light search for Own key and Pro (the owner): searches a week per device; a week per network address
+    // (several devices behind one) and for everyone a day scale with it (they only stop runaway spend); a Pro search
+    // also counts as this many of Pro's answers. Its writer is the small model; it searches twice, opens 6 pages, and
+    // skips reviews, "near me" and the delivery check.
+    lightWeekly: LIGHT_WEEKLY,
+    lightIpWeekly: int("SIMILAR_LIGHT_IP_WEEKLY", LIGHT_WEEKLY * 5),
+    lightGlobalDaily: int("SIMILAR_LIGHT_GLOBAL_DAILY", LIGHT_WEEKLY * 200),
+    proAnswers: int("SIMILAR_PRO_ANSWERS", SIMILAR_PRO_ANSWERS),
+    lightWriteModel: (env("SIMILAR_LIGHT_WRITE_MODEL") ?? "claude-haiku-5-5").trim(),
     // USD, for the spend in the logs: Anthropic web search per search; Gemini 3.8 Flash per million tokens
     // (to 2026-12-31; $1.50/$7.50 from 2027) and Google Search grounding per query (after 5,000 free a month).
     searchPrice: Number(env("SIMILAR_SEARCH_PRICE") ?? 0.01),
@@ -301,6 +313,38 @@ export const config = {
     embedPrice: Number(env("ORGANIZE_EMBED_PRICE") ?? 0.02),
     judgePriceIn: Number(env("ORGANIZE_JUDGE_PRICE_IN") ?? 0.1),
     judgePriceOut: Number(env("ORGANIZE_JUDGE_PRICE_OUT") ?? 0.5)
+  },
+  // Invite a friend (2.7, plan section 5; /api/v2/invite). The friend: extra free answers a day for the first days.
+  // The inviter: the App Store offer codes below (first month off, rule 3.1.1) once a friend has asked on two
+  // different days. INVITE=off hides it (the panel and the app don't show it; codes already entered keep their bonus).
+  invite: {
+    enabled: (env("INVITE") ?? "on").trim() !== "off",
+    friendDaily: int("INVITE_FRIEND_DAILY", 5),
+    friendDays: int("INVITE_FRIEND_DAYS", 7),
+    // A code can be entered while the install is this new (days).
+    newDays: int("INVITE_NEW_DAYS", 7),
+    // Days with answers that make a friend active.
+    activeDays: int("INVITE_ACTIVE_DAYS", 2),
+    // Friends one code takes in all, and a day (a cap per inviter).
+    cap: int("INVITE_CAP", 20),
+    codeDaily: int("INVITE_CODE_DAILY", 10),
+    // Codes entered and invite screens asked for, per install or address a day.
+    triesDaily: int("INVITE_TRIES_DAILY", 10),
+    stateDaily: int("INVITE_STATE_DAILY", 200),
+    // Ultra's offer code, set up in App Store Connect like Pro's (proOfferCode); empty: only Pro is offered.
+    ultraOfferCode: (env("ULTRA_OFFER_CODE") ?? "").trim(),
+    ultraOfferDiscount: int("ULTRA_OFFER_DISCOUNT", 50),
+    // The director's proposal, not decided by the owner yet: when both discounts are used, the inviter takes extra
+    // answers like the friend's instead (one week per active friend). Off until INVITE_INVITER_ANSWERS=on.
+    inviterAnswers: (env("INVITE_INVITER_ANSWERS") ?? "off").trim() === "on"
+  },
+  // Apple DeviceCheck (invite a friend: one friend's bonus per device). A DeviceCheck key from developer.apple.com →
+  // Keys; until it's set, codes are entered without the device check (address and install limits still hold).
+  deviceCheck: {
+    keyId: (env("DEVICECHECK_KEY_ID") ?? "").trim(),
+    teamId: (env("DEVICECHECK_TEAM_ID") ?? "P9NCXXTCU8").trim(),
+    // The key's .p8 text (PEM); newlines may come as "\n".
+    privateKey: (env("DEVICECHECK_PRIVATE_KEY") ?? "").replace(/\\n/g, "\n").trim()
   },
   // Collections (2.7, Pro, under the one AI consent): /api/v2/collect places a card, lays out a collection's sections,
   // compares cards and sums a collection up, with the organizing model above (Claude Haiku 5.5, OpenAI's smallest

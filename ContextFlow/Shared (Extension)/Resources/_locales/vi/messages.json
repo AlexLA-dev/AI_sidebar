@@ -1973,6 +1973,21 @@
  "similarLimit": {
   "message": "Đã dùng hết {0} lượt «Tìm tương tự» của tuần này. Sẽ có lại vào {1}."
  },
+ "similarLightNote": {
+  "message": "Tìm nhanh: tối đa {0} lượt mỗi tuần."
+ },
+ "similarLightNotePro": {
+  "message": "Tìm nhanh: tối đa {0} lượt mỗi tuần, mỗi lượt tính bằng {1} câu trả lời."
+ },
+ "similarLightFoot": {
+  "message": "Tìm nhanh. Ultra tìm rộng hơn, đọc đánh giá và kiểm tra giao hàng."
+ },
+ "similarLightLimit": {
+  "message": "Đã dùng hết {0} lượt tìm nhanh của tuần này. Sẽ có lại vào {1}. Ultra có {2} lượt mỗi tuần và tìm rộng hơn."
+ },
+ "similarAnswersShort": {
+  "message": "Một lượt tìm nhanh tính bằng {0} câu trả lời, và bạn còn {1}."
+ },
  "orgDemoQuestion": {
   "message": "Vé máy bay giá rẻ đi Lisbon tháng 5?"
  },
@@ -2561,6 +2576,30 @@
  "hintSideBodySheet": {
   "message": "Kéo nút sang trái hoặc phải. Bạn cũng có thể chọn cạnh trong Cài đặt."
  },
+ "hintNewTitle": {
+  "message": "Có gì mới trong ContextFlow 2.7"
+ },
+ "hintNewTranslate": {
+  "message": "Trang bằng ngôn ngữ khác: dòng “Dịch sang tiếng Việt?” cạnh ✦ chuyển chính trang đó sang ngôn ngữ của bạn."
+ },
+ "hintNewWrite": {
+  "message": "Cạnh ô bạn đang viết: Kiểm tra và Viết lại, có tính đến trang."
+ },
+ "hintNewSpaces": {
+  "message": "Không gian tách riêng công việc và gia đình: Không gian mới nằm ở cuối danh sách cuộc trò chuyện."
+ },
+ "hintNewApple": {
+  "message": "Thêm vào Lịch hoặc Lời nhắc nằm trong menu … của câu trả lời."
+ },
+ "hintNewShot": {
+  "message": "Ảnh chụp trang: ghi chú có thể giữ một hình ảnh của trang."
+ },
+ "hintNewSide": {
+  "message": "✦ có thể ở cạnh nào cũng được: kéo nút sang phía bên kia."
+ },
+ "hintAllTips": {
+  "message": "Tất cả mẹo"
+ },
  "phSimilar": {
   "message": "Tìm chỗ rẻ hơn?"
  },
@@ -2699,6 +2738,90 @@
  "shotMissing": {
   "message": "Ảnh chụp này chưa có trên thiết bị. Ảnh sẽ đến qua iCloud nếu các cuộc trò chuyện được đồng bộ ở đó."
  },
+ "invTitle": {
+  "message": "Mời bạn bè"
+ },
+ "invHint": {
+  "message": "Bạn của bạn nhận câu trả lời thưởng: +{0} mỗi ngày trong tuần đầu tiên. Bạn được giảm {1}% tháng đầu của Pro hoặc Ultra khi họ đặt câu hỏi vào hai ngày khác nhau."
+ },
+ "invButton": {
+  "message": "Lấy mã và liên kết"
+ },
+ "invYourCode": {
+  "message": "Mã của bạn"
+ },
+ "invCopy": {
+  "message": "Sao chép"
+ },
+ "invCopied": {
+  "message": "Đã sao chép"
+ },
+ "invShare": {
+  "message": "Chia sẻ"
+ },
+ "invShareText": {
+  "message": "Mình đang dùng ContextFlow, AI ngay trên trang trong Safari. Với mã {0} của mình, bạn có câu trả lời thưởng trong tuần đầu: {1}"
+ },
+ "invFriends": {
+  "message": "Đến bằng mã của bạn: {0} · đang dùng: {1}"
+ },
+ "invRewardTitle": {
+  "message": "Một người bạn bạn mời đang dùng ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Cảm ơn bạn: giảm {0}% tháng đầu của Pro hoặc Ultra, tùy bạn chọn. App Store sẽ áp dụng nếu bạn chưa dùng ưu đãi này."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "Đã dùng cả hai ưu đãi? Nhận câu trả lời thưởng: +{0} mỗi ngày trong một tuần"
+ },
+ "invAnswersOn": {
+  "message": "Câu trả lời thưởng của bạn có hiệu lực đến {0}."
+ },
+ "invEnterTitle": {
+  "message": "Có mã của bạn bè?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Mã hoặc liên kết"
+ },
+ "invEnter": {
+  "message": "Nhập"
+ },
+ "invEntered": {
+  "message": "Đã nhận mã: câu trả lời thưởng, +{0} mỗi ngày, đến {1}."
+ },
+ "invEnteredOn": {
+  "message": "Bạn đến bằng mã của bạn bè: câu trả lời thưởng, +{0} mỗi ngày, đến {1}."
+ },
+ "invErrUnknown": {
+  "message": "Không có mã này. Hãy kiểm tra và thử lại."
+ },
+ "invErrOwn": {
+  "message": "Đây là mã của chính bạn. Hãy gửi cho bạn bè."
+ },
+ "invErrAlready": {
+  "message": "Mã của bạn bè đã được nhập ở đây."
+ },
+ "invErrLate": {
+  "message": "Mã của bạn bè dùng được trong tuần đầu sau khi cài đặt."
+ },
+ "invErrFull": {
+  "message": "Mã này đã đạt giới hạn."
+ },
+ "invErrDevice": {
+  "message": "Mã của bạn bè đã được dùng trên thiết bị này."
+ },
+ "invErrCheck": {
+  "message": "Không kiểm tra được thiết bị. Hãy thử nhập mã trong ứng dụng ContextFlow."
+ },
+ "invErrLater": {
+  "message": "Hiện chưa làm được. Hãy thử lại sau."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },
@@ -2726,14 +2849,26 @@
  "tip_af26b6788c": {
   "message": "Dời ✦ ra chỗ khác"
  },
- "tip_6d2694aec4": {
-  "message": "✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả."
+ "tip_1b3fa8b31a": {
+  "message": "✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả. Trên iPad, bạn cũng có thể kéo bảng bằng thanh trên cùng để chuyển bảng sang phía bên kia. Cạnh màn hình trong phần cài đặt tiện ích mở rộng cũng làm được như vậy."
+ },
+ "tip_cbec05fbfd": {
+  "message": "✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả. Bạn cũng có thể kéo bảng bằng thanh trên cùng để chuyển bảng sang phía bên kia, hoặc chọn Cạnh màn hình trong phần cài đặt tiện ích mở rộng."
  },
  "tip_2749afe54a": {
   "message": "Nắm ý chính chỉ với một chạm"
  },
  "tip_487a14e710": {
   "message": "Tóm tắt, Ý chính, Giải thích đơn giản và Dịch dùng cho cả trang, không cần viết câu lệnh."
+ },
+ "tip_33e83f4818": {
+  "message": "Đọc trang bằng ngôn ngữ của bạn"
+ },
+ "tip_f8f753be8a": {
+  "message": "Trên trang bằng ngôn ngữ khác, chạm vào dòng “Dịch sang tiếng Việt?” cạnh ✦: chính trang đó chuyển sang ngôn ngữ của bạn, kể cả các liên kết, và tiếp tục dịch khi bạn cuộn. Bản gốc đưa mọi chữ trở lại như cũ. Mỗi trang tính là một câu trả lời mỗi tuần, dù bạn dịch bao nhiêu lần."
+ },
+ "tip_22f41ab2de": {
+  "message": "Trên trang bằng ngôn ngữ khác, bấm vào dòng “Dịch sang tiếng Việt?” cạnh ✦: chính trang đó chuyển sang ngôn ngữ của bạn, kể cả các liên kết, và tiếp tục dịch khi bạn cuộn. Bản gốc đưa mọi chữ trở lại như cũ. Mỗi trang tính là một câu trả lời mỗi tuần, dù bạn dịch bao nhiêu lần."
  },
  "tip_d22c90dac1": {
   "message": "Hỏi về một đoạn"
@@ -2776,6 +2911,15 @@
  },
  "tip_6a92f6c633": {
   "message": "Vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút đó) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó, được đồng bộ cùng cuộc trò chuyện và không tốn câu trả lời nào."
+ },
+ "tip_ac13420c59": {
+  "message": "Ảnh chụp trang kèm ghi chú"
+ },
+ "tip_dff446b7cc": {
+  "message": "Đang viết ghi chú? Bật Ảnh chụp trang phía trên ô nhập, ghi chú sẽ giữ một hình ảnh của trang: phần đang hiển thị trên màn hình, hoặc toàn trang với Pro. Chạm vào ảnh để mở toàn màn hình và cắt ảnh. Ảnh nằm trên thiết bị của bạn và trong iCloud của bạn."
+ },
+ "tip_3ca344f02e": {
+  "message": "Đang viết ghi chú? Bật Ảnh chụp trang phía trên ô nhập, ghi chú sẽ giữ một hình ảnh của trang: phần đang hiển thị trên màn hình, hoặc toàn trang với Pro. Bấm vào ảnh để mở toàn màn hình và cắt ảnh. Ảnh nằm trên thiết bị của bạn và trong iCloud của bạn."
  },
  "tip_654fb12e51": {
   "message": "Đánh dấu điều quan trọng"
@@ -2822,11 +2966,11 @@
  "tip_de4adc7524": {
   "message": "Tìm tương tự"
  },
- "tip_b2248495b1": {
-  "message": "Chạm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi chạm vào Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+ "tip_2c6d9f34e3": {
+  "message": "Chạm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi chạm vào Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn. Ultra tìm đầy đủ và mở từng liên kết để kiểm tra trước khi bạn xem. Pro có tìm nhanh, tối đa 5 lượt mỗi tuần, mỗi lượt tính bằng 10 câu trả lời."
  },
- "tip_31666a3aab": {
-  "message": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+ "tip_9bb47159a4": {
+  "message": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn. Ultra tìm đầy đủ và mở từng liên kết để kiểm tra trước khi bạn xem. Pro có tìm nhanh, tối đa 5 lượt mỗi tuần, mỗi lượt tính bằng 10 câu trả lời."
  },
  "tip_c518fb0674": {
   "message": "Nghe"
@@ -2849,6 +2993,24 @@
  "tip_a8e1d14e5b": {
   "message": "Trong ô bất kỳ trên trang, gõ / và vài từ của một mẫu, rồi nhấn Tab. Control-Shift-V mở toàn bộ danh sách: những gì bạn đã sao chép ở các tab khác, các mẫu của bạn và câu trả lời gần nhất của ContextFlow."
  },
+ "tip_8213493414": {
+  "message": "Kiểm tra hoặc viết lại trước khi gửi"
+ },
+ "tip_4a10311c4a": {
+  "message": "Đang viết email hay bình luận? Chạm vào nút ContextFlow cạnh ô nhập: Kiểm tra và Viết lại nằm ở đầu danh sách. Kiểm tra sửa lỗi; Viết lại làm văn bản ngắn hơn, thân thiện hơn, trang trọng hơn hoặc tự tin hơn. Cả hai đều tính đến trang, như email bạn đang trả lời, và Hoàn tác sẽ trả lại chữ của bạn. Mỗi lần chạm tính là một câu trả lời."
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "Đang viết email hay bình luận? Khi đã viết vài chữ, di con trỏ lên vòng tròn phía trên ô nhập: Kiểm tra sửa lỗi; Viết lại làm văn bản ngắn hơn, thân thiện hơn, trang trọng hơn hoặc tự tin hơn. Cả hai đều tính đến trang, như email bạn đang trả lời, và Hoàn tác sẽ trả lại chữ của bạn. Mỗi lần dùng tính là một câu trả lời."
+ },
+ "tip_898fe0f06c": {
+  "message": "Gạch chân lỗi khi gõ"
+ },
+ "tip_b9954518f0": {
+  "message": "Với Pro hoặc Ultra, khi bạn ngừng gõ một chút, lỗi trong đoạn bạn vừa sửa sẽ được gạch chân. Chạm vào gạch chân để xem bản sửa, rồi chọn Sửa hoặc Bỏ qua. Tính năng này không tốn câu trả lời, và bạn có thể tắt trong phần cài đặt tiện ích mở rộng."
+ },
+ "tip_7e0eabc91c": {
+  "message": "Với Pro hoặc Ultra, khi bạn ngừng gõ một chút, lỗi trong đoạn bạn vừa sửa sẽ được gạch chân. Trỏ vào gạch chân để xem bản sửa, rồi chọn Sửa hoặc Bỏ qua. Tính năng này không tốn câu trả lời, và bạn có thể tắt trong phần cài đặt tiện ích mở rộng."
+ },
  "tip_451fa9ccb6": {
   "message": "Đã sao chép: giữ trong một ngày"
  },
@@ -2870,6 +3032,12 @@
  "tip_b5d4d7711a": {
   "message": "Đang đọc dở thứ gì muốn đọc nốt sau? Chọn một dòng và chạm vào hình chuông, hoặc chạm vào … ở đầu bảng, rồi chọn Nhắc tôi về trang này… và chọn thời gian: lời nhắc sẽ mở trang này. Câu trả lời và ghi chú có mục Nhắc tôi trong menu … của chúng."
  },
+ "tip_529cd4b087": {
+  "message": "Thêm vào Lịch hoặc Lời nhắc"
+ },
+ "tip_c20a65b22a": {
+  "message": "Viết “nhắc tôi gọi cho ngân hàng vào thứ Sáu”, hoặc hỏi về một ngày trên trang: câu trả lời kèm một thẻ để kiểm tra ngày giờ, và Thêm sẽ đưa vào Lịch hoặc Lời nhắc. Mọi câu trả lời hay ghi chú đều có Thêm vào Lịch hoặc Lời nhắc trong menu … của chúng. Trong Nhắc tôi, Thêm vào Lời nhắc sẽ đưa lời nhắc của bạn vào cả ứng dụng Lời nhắc của Apple."
+ },
  "tip_74c328b672": {
   "message": "Biết khi giá giảm"
  },
@@ -2884,6 +3052,18 @@
  },
  "tip_623811ea30": {
   "message": "Bắt đầu cuộc trò chuyện mới bằng nút +. Các cuộc trò chuyện trước vẫn nằm trong danh sách: mở một cuộc để tiếp tục từ chỗ bạn dừng, đổi tên bằng hình bút chì hoặc xóa đi."
+ },
+ "tip_827a76a38d": {
+  "message": "Không gian cho công việc và gia đình"
+ },
+ "tip_6bf925510c": {
+  "message": "Tách riêng công việc, gia đình và mua sắm. Không gian mới, ở cuối danh sách cuộc trò chuyện, tạo một không gian với màu riêng. Bộ chuyển ở đầu danh sách giúp chuyển qua lại giữa các không gian, và cuộc trò chuyện mới sẽ vào không gian bạn đang ở. Trong bộ chuyển, Mở amazon.com ở đây giữ trang đó trong không gian này. Gói Miễn phí có giới hạn; với Pro hoặc Ultra, bao nhiêu cũng được."
+ },
+ "tip_3512a4ae8c": {
+  "message": "Cuộc trò chuyện cho trang này"
+ },
+ "tip_05b9621aed": {
+  "message": "Mở bảng trên một trang, ContextFlow sẽ chọn cuộc trò chuyện về trang đó: cuộc có trang này, hoặc cuộc cùng chủ đề. Tiếp tục ở trên cùng cho biết cuộc trò chuyện nào được chọn; Cuộc trò chuyện mới ở đó sẽ bắt đầu cuộc mới."
  },
  "tip_c4b432e2e9": {
   "message": "Tìm trong cuộc trò chuyện"
@@ -2948,6 +3128,12 @@
  "tip_0f2289f887": {
   "message": "Sau khi bạn mua Pro hoặc Ultra, ContextFlow giới thiệu từng bước những gì gói của bạn có thêm. Muốn xem lại, chạm vào … ở đầu bảng, rồi Khác… và Pro có gì hoặc Ultra có gì. Trong ứng dụng, mục này nằm trong Cài đặt, ở phần Gói của bạn."
  },
+ "tip_3ee4fbeeb2": {
+  "message": "Mời bạn bè"
+ },
+ "tip_0e8493432d": {
+  "message": "Cài đặt → Mời bạn bè, trong ứng dụng hoặc trong Safari, cho bạn một mã và một liên kết để gửi. Bạn của bạn nhận câu trả lời thưởng mỗi ngày trong tuần đầu tiên. Khi họ đặt câu hỏi vào hai ngày khác nhau, bạn được giảm giá tháng đầu của Pro hoặc Ultra."
+ },
  "tip_3208aa35ac": {
   "message": "Quyền riêng tư và cá nhân hóa"
  },
@@ -2962,6 +3148,12 @@
  },
  "tip_6cc366173d": {
   "message": "Không cần ✦ trên một trang web? Ẩn nút trên trang đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
+ },
+ "tip_cc54dd5946": {
+  "message": "Gợi ý cạnh nút ✦"
+ },
+ "tip_325d207bb4": {
+  "message": "Trong những ngày đầu, một dòng ngắn cạnh ✦ gợi ý một việc cho trang bạn đang xem: tóm tắt bài viết dài, một mức giá để theo dõi, một ngày để thêm vào lịch. Chạm vào để xem cách làm. Tắt các dòng này trong phần cài đặt tiện ích mở rộng, ở mục Gợi ý cạnh nút ✦."
  },
  "tip_8a727e1bbe": {
   "message": "Dùng khóa API riêng"

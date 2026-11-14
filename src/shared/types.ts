@@ -60,6 +60,9 @@ export interface StatusInfo {
   offline: boolean
   // Organizing the chats (2.5): switched on on the server, the vector space and the thresholds; null offline.
   organize: { on: boolean; space: string; config: OrganizeConfig } | null
+  // 2.7, invite a friend: friends who came with this install's code and asked on two different days (only once the
+  // install has a code).
+  invite?: { active: number }
 }
 
 /** What each plan gives, for the plans sheet (2.6): the server's numbers. */
@@ -70,6 +73,9 @@ export interface PlanFacts {
   searchProWeekly: number
   speakWeeklySeconds: number
   similarWeekly: number
+  // 2.7: the light Find similar's searches a week (Own key and Pro), and what one costs Pro in answers.
+  similarLightWeekly: number
+  similarProAnswers: number
   watch: Record<Plan, number>
 }
 
@@ -262,7 +268,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; screens?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; screens?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =

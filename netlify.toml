@@ -43,6 +43,12 @@
   to = "/.netlify/functions/email-confirmed"
   status = 200
 
+# 2.7, invite a friend: context-flow.app/i/<code> is one page that reads the code from the address.
+[[redirects]]
+  from = "/i/*"
+  to = "/i.html"
+  status = 200
+
 [[redirects]]
   from = "/confirm"
   to = "/.netlify/functions/email-confirmed"
@@ -323,6 +329,18 @@
 [[redirects]]
   from = "https://aisidebar.netlify.app/summarize-pdf-safari.html"
   to = "https://context-flow.app/summarize-pdf-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/i"
+  to = "https://context-flow.app/i"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/i.html"
+  to = "https://context-flow.app/i"
   status = 301
   force = true
 

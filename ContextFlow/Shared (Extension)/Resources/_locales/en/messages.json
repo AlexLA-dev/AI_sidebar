@@ -2012,6 +2012,21 @@
  "similarLimit": {
   "message": "This week's {0} Find similar searches are used. They come back on {1}."
  },
+ "similarLightNote": {
+  "message": "Quick search: up to {0} a week."
+ },
+ "similarLightNotePro": {
+  "message": "Quick search: up to {0} a week, each one counts as {1} answers."
+ },
+ "similarLightFoot": {
+  "message": "Quick search. Ultra searches wider, reads reviews and checks delivery."
+ },
+ "similarLightLimit": {
+  "message": "This week's {0} quick searches are used. They come back on {1}. Ultra has {2} a week, and searches wider."
+ },
+ "similarAnswersShort": {
+  "message": "A quick search counts as {0} answers, and you have {1} left."
+ },
  "orgDemoQuestion": {
   "message": "Cheap flights to Lisbon in May?"
  },
@@ -2561,6 +2576,30 @@
  "hintSideBodySheet": {
   "message": "Drag it left or right. You can also pick the side in Settings."
  },
+ "hintNewTitle": {
+  "message": "New in ContextFlow 2.7"
+ },
+ "hintNewTranslate": {
+  "message": "A page in another language: the “Translate to English?” line by ✦ switches the page itself to your language."
+ },
+ "hintNewWrite": {
+  "message": "By a field you're writing in: Check and Rewrite, with the page in mind."
+ },
+ "hintNewSpaces": {
+  "message": "Spaces keep work and home apart: New space is at the end of the chat list."
+ },
+ "hintNewApple": {
+  "message": "Add to Calendar or Reminders is in an answer's … menu."
+ },
+ "hintNewShot": {
+  "message": "Page snapshot: a note can keep a picture of the page."
+ },
+ "hintNewSide": {
+  "message": "✦ goes to either edge: drag it across."
+ },
+ "hintAllTips": {
+  "message": "All tips"
+ },
  "phSimilar": {
   "message": "Find it cheaper?"
  },
@@ -2699,6 +2738,90 @@
  "shotMissing": {
   "message": "This snapshot isn't on this device yet. It comes through iCloud when your chats sync there."
  },
+ "invTitle": {
+  "message": "Invite a friend"
+ },
+ "invHint": {
+  "message": "Your friend gets bonus answers: +{0} a day for their first week. You get {1}% off the first month of Pro or Ultra once they've asked questions on two different days."
+ },
+ "invButton": {
+  "message": "Get my code and link"
+ },
+ "invYourCode": {
+  "message": "Your code"
+ },
+ "invCopy": {
+  "message": "Copy"
+ },
+ "invCopied": {
+  "message": "Copied"
+ },
+ "invShare": {
+  "message": "Share"
+ },
+ "invShareText": {
+  "message": "I use ContextFlow, AI right on the page in Safari. With my code {0} you get bonus answers for your first week: {1}"
+ },
+ "invFriends": {
+  "message": "Came with your code: {0} · using it: {1}"
+ },
+ "invRewardTitle": {
+  "message": "A friend you invited is using ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Thank you: {0}% off the first month of Pro or Ultra, your choice. The App Store applies it if you haven't used this discount before."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "Used both discounts? Take bonus answers instead: +{0} a day for a week"
+ },
+ "invAnswersOn": {
+  "message": "Your bonus answers run until {0}."
+ },
+ "invEnterTitle": {
+  "message": "Have a friend's code?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Code or link"
+ },
+ "invEnter": {
+  "message": "Enter"
+ },
+ "invEntered": {
+  "message": "Code accepted: bonus answers, +{0} a day, until {1}."
+ },
+ "invEnteredOn": {
+  "message": "You came with a friend's code: bonus answers, +{0} a day, until {1}."
+ },
+ "invErrUnknown": {
+  "message": "There's no such code. Check it and try again."
+ },
+ "invErrOwn": {
+  "message": "That's your own code. Send it to a friend."
+ },
+ "invErrAlready": {
+  "message": "A friend's code has already been entered here."
+ },
+ "invErrLate": {
+  "message": "A friend's code works in the first week after installing."
+ },
+ "invErrFull": {
+  "message": "This code has reached its limit."
+ },
+ "invErrDevice": {
+  "message": "A friend's code has already been used on this device."
+ },
+ "invErrCheck": {
+  "message": "Couldn't check this device. Try entering the code in the ContextFlow app."
+ },
+ "invErrLater": {
+  "message": "Couldn't do that right now. Try again later."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
@@ -2726,14 +2849,26 @@
  "tip_af26b6788c": {
   "message": "Move ✦ out of the way"
  },
- "tip_6d2694aec4": {
-  "message": "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it."
+ "tip_1b3fa8b31a": {
+  "message": "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. On iPad, drag the panel by its top bar to move it to the other side too. Screen side in the extension settings does the same."
+ },
+ "tip_cbec05fbfd": {
+  "message": "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. Drag the panel by its top bar to move it to the other side too, or choose Screen side in the extension settings."
  },
  "tip_2749afe54a": {
   "message": "One tap for the gist"
  },
  "tip_487a14e710": {
   "message": "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt."
+ },
+ "tip_33e83f4818": {
+  "message": "Read a page in your language"
+ },
+ "tip_f8f753be8a": {
+  "message": "On a page in another language, tap the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it."
+ },
+ "tip_22f41ab2de": {
+  "message": "On a page in another language, click the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it."
  },
  "tip_d22c90dac1": {
   "message": "Ask about a part"
@@ -2776,6 +2911,15 @@
  },
  "tip_6a92f6c633": {
   "message": "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers."
+ },
+ "tip_ac13420c59": {
+  "message": "A snapshot with your note"
+ },
+ "tip_dff446b7cc": {
+  "message": "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Tap the picture to open it full screen and crop it. It stays on your devices and in your iCloud."
+ },
+ "tip_3ca344f02e": {
+  "message": "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Click the picture to open it full screen and crop it. It stays on your devices and in your iCloud."
  },
  "tip_654fb12e51": {
   "message": "Highlight what matters"
@@ -2822,11 +2966,11 @@
  "tip_de4adc7524": {
   "message": "Find similar"
  },
- "tip_b2248495b1": {
-  "message": "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it."
+ "tip_2c6d9f34e3": {
+  "message": "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers."
  },
- "tip_31666a3aab": {
-  "message": "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it."
+ "tip_9bb47159a4": {
+  "message": "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers."
  },
  "tip_c518fb0674": {
   "message": "Listen"
@@ -2849,6 +2993,24 @@
  "tip_a8e1d14e5b": {
   "message": "In any field on a page, type / and a few words of a template, then Tab. Control-Shift-V opens the whole list: what you copied in other tabs, your templates and ContextFlow's last answer."
  },
+ "tip_8213493414": {
+  "message": "Check or rewrite before you send"
+ },
+ "tip_4a10311c4a": {
+  "message": "Writing an email or a comment? Tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each tap counts as one answer."
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "Writing an email or a comment? Once you've written a few words, point at the circle above the field: Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each one counts as one answer."
+ },
+ "tip_898fe0f06c": {
+  "message": "Mistakes underlined as you type"
+ },
+ "tip_b9954518f0": {
+  "message": "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Tap the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings."
+ },
+ "tip_7e0eabc91c": {
+  "message": "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Point at the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings."
+ },
  "tip_451fa9ccb6": {
   "message": "Copied, kept for a day"
  },
@@ -2870,6 +3032,12 @@
  "tip_b5d4d7711a": {
   "message": "Reading something you want to finish later? Select a line and tap the bell, or tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu."
  },
+ "tip_529cd4b087": {
+  "message": "Add to Calendar or Reminders"
+ },
+ "tip_c20a65b22a": {
+  "message": "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card to check the date and time, and Add puts it in Calendar or Reminders. Any answer or note has Add to Calendar or Reminders in its … menu. In Remind me, Also in Reminders puts your reminder in Apple Reminders too."
+ },
  "tip_74c328b672": {
   "message": "Know when a price drops"
  },
@@ -2884,6 +3052,18 @@
  },
  "tip_623811ea30": {
   "message": "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it."
+ },
+ "tip_827a76a38d": {
+  "message": "Spaces for work and home"
+ },
+ "tip_6bf925510c": {
+  "message": "Keep work, home and shopping apart. New space, at the end of the chat list, makes one in its own color. The switcher at the top of the list moves between them, and a new chat goes into the space you're in. In the switcher, Open amazon.com here keeps that site in this space. Free has a limit; with Pro or Ultra, as many as you like."
+ },
+ "tip_3512a4ae8c": {
+  "message": "The chat for this page"
+ },
+ "tip_05b9621aed": {
+  "message": "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top says which chat it picked; New chat there starts a fresh one."
  },
  "tip_c4b432e2e9": {
   "message": "Search your chats"
@@ -2948,6 +3128,12 @@
  "tip_0f2289f887": {
   "message": "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan."
  },
+ "tip_3ee4fbeeb2": {
+  "message": "Invite a friend"
+ },
+ "tip_0e8493432d": {
+  "message": "Settings → Invite a friend, in the app or in Safari, gives you a code and a link to send. Your friend gets bonus answers every day of their first week. Once they've asked questions on two different days, you get a discount on your first month of Pro or Ultra."
+ },
  "tip_3208aa35ac": {
   "message": "Privacy & personalization"
  },
@@ -2962,6 +3148,12 @@
  },
  "tip_6cc366173d": {
   "message": "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."
+ },
+ "tip_cc54dd5946": {
+  "message": "Tips by the ✦ button"
+ },
+ "tip_325d207bb4": {
+  "message": "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how. Turn the lines off in the extension settings, under Tips by the ✦ button."
  },
  "tip_8a727e1bbe": {
   "message": "Use your own API key"

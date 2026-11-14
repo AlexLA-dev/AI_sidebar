@@ -100,6 +100,13 @@ export const FEATURES: Record<string, Feature> = {
   // 2.7 (plan section 9): the circle dragged to the other edge, the panel dragged by its header (iPad, Mac), the side
   // picked in Settings; what: the side it went to.
   side: { since: "2.7", tracked: "2.7", on: "ext", actions: ["drag_fab", "drag_panel", "setting"], fields: { what: ["left", "right"] } },
+  // 2.7 (plan section 5): invite a friend — the group or screen opened, the code shared or copied, a friend's code
+  // entered (taken or refused), the reward shown (the card when a friend became active) and taken (Pro's or Ultra's
+  // offer code, or extra answers). Codes entered, friends active and purchases are counted by the server.
+  invite: {
+    since: "2.7", tracked: "2.7", actions: ["open", "share", "copy", "code_ok", "code_bad", "reward_shown", "reward_pro", "reward_ultra", "reward_answers"],
+    via: ["settings", "card", "app", "first_screen"]
+  },
   tab: { since: "2.0", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings"] } },
   tips: {
     since: "2.0", on: "app", actions: ["open", "play"],
@@ -169,6 +176,10 @@ export const FEATURES: Record<string, Feature> = {
     actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error"]
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
+  // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
+  // ("pick"), a search asked ("find"), the light search's week or Pro's answers used ("limit"); the panel and the app: an
+  // item opened ("open"). Each search itself, its plan and cost, is logged by the server ("similar", with `mode`).
+  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full"] } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],

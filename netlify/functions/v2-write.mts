@@ -6,6 +6,7 @@ import { consume, logEvent, refund, touchInstall, type ConsumeResult, type Count
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { askHaiku, InsertAiError, insertCost, type AiCall } from "../shared/insert.mts"
 import { blockReason, countersFor, hasPro, proOffer, resolveAccess, visibleUsage, type Access, type Usage } from "../shared/plan.mts"
+import { inviteExtra } from "../shared/invite.mts"
 import { checkWrite, readAsk, tooLong, writeMessage, writeTask } from "../shared/writing.mts"
 import { diffWords, LIVE } from "../../src/shared/writing.ts"
 import { sessionFields } from "../../src/shared/usage.ts"
@@ -50,7 +51,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   const access = await resolveAccess(body.entitlement, installId)
   if (live && !(hasPro(access.plan) && access.entitlement)) return json({ code: "PRO_ONLY", plan: access.plan }, 402)
-  const counters = live ? liveCounters(access, ipSubject(context.ip)) : writeCounters(access, installId, ipSubject(context.ip))
+  const counters = live ? liveCounters(access, ipSubject(context.ip)) : writeCounters(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
   const base = {
     action: ask.action, ...(ask.tone ? { tone: ask.tone } : {}), ...(live ? { live: true } : {}), plan: access.plan, chars_in: ask.text.length,
     page: ask.page.conversation ? "conversation" : ask.page.text.trim() ? "page" : "none", page_chars: ask.page.text.length,
@@ -137,10 +138,10 @@ export function liveCounters(access: Access, ip: string): { answer: Counter[]; s
 }
 
 /** One answer (Free's day, or the Pro and Ultra week), and the hidden caps: per owner a day, per address, for everyone. */
-export function writeCounters(access: Access, installId: string, ip: string): { answer: Counter[]; safety: Counter[] } {
+export function writeCounters(access: Access, installId: string, ip: string, extra = 0): { answer: Counter[]; safety: Counter[] } {
   const owner = hasPro(access.plan) && access.entitlement ? `tx:${access.entitlement.originalTransactionId}` : `install:${installId}`
   return {
-    answer: countersFor(access, installId, ip),
+    answer: countersFor(access, installId, ip, extra),
     safety: [
       { subject: `write:${owner}`, period: "day", limit: settings.write.tapDaily },
       { subject: `write${ip}`, period: "day", limit: settings.write.ipDaily },
