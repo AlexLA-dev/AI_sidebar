@@ -1140,6 +1140,8 @@ struct MessageActions {
     var pin: () -> Void
     var remind: () -> Void
     var delete: () -> Void
+    /// 2.7: «В подборку» (Collections).
+    var collect: (() -> Void)? = nil
 }
 
 /// Where the pinned messages are in the chat's scroll view (their tops), for the bar while scrolling.

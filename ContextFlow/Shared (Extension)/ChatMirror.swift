@@ -98,7 +98,13 @@ enum ChatMirror {
                 chats[id] = next
                 changed = true
             }
-            for (id, item) in saves where id != SpaceRecord.id && (chats[id]?.updatedAt ?? -1) < item.updatedAt {
+            // Collections (2.7) are merged too, section by section and card by card.
+            for (id, item) in saves where CollectionRecord.isCollection(id) {
+                guard let next = CollectionRecord.take(chats[id], item) else { continue }
+                chats[id] = next
+                changed = true
+            }
+            for (id, item) in saves where id != SpaceRecord.id && !CollectionRecord.isCollection(id) && (chats[id]?.updatedAt ?? -1) < item.updatedAt {
                 chats[id] = item
                 changed = true
             }
@@ -317,5 +323,80 @@ nonisolated enum SpaceRecord {
     static func resolve(_ list: List, _ id: String?) -> String {
         guard let id, id != first, let x = list.spaces[id], !x.d else { return first }
         return id
+    }
+}
+
+/// Collections (2.7, src/shared/collections.ts): one record each (`cf-col-<uuid>`) next to the chats, with its sections and
+/// cards inside. Copies merge item by item, newest wins (the same as `mergeCollections`): each section and card by its own
+/// `u`, the name, space, order and deletion by `mu`, the summary by its `u`; deletions are kept as items with `d`.
+nonisolated enum CollectionRecord {
+    static let prefix = "cf-col-"
+
+    static func isCollection(_ id: String) -> Bool { id.hasPrefix(prefix) }
+
+    static func parse(_ data: String) -> [String: Any]? {
+        guard let object = (try? JSONSerialization.jsonObject(with: Data(data.utf8))) as? [String: Any],
+              object["kind"] as? String == "collection", object["s"] is [Any], object["c"] is [Any],
+              (object["mu"] as? NSNumber) != nil else { return nil }
+        return object
+    }
+
+    static func json(_ object: [String: Any]) -> String? {
+        var out = object
+        for key in ["s", "c"] {
+            out[key] = ((object[key] as? [[String: Any]]) ?? []).sorted { ($0["id"] as? String ?? "") < ($1["id"] as? String ?? "") }
+        }
+        guard let data = try? JSONSerialization.data(withJSONObject: out, options: [.sortedKeys]) else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    private static func time(_ value: Any?) -> Double { (value as? NSNumber)?.doubleValue ?? -1 }
+
+    private static func key(_ value: Any) -> String {
+        guard JSONSerialization.isValidJSONObject(["k": value]),
+              let data = try? JSONSerialization.data(withJSONObject: ["k": value], options: [.sortedKeys]) else { return "" }
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    /// The newer of two copies of one item by `field`; the same time, the one whose JSON sorts first.
+    private static func newest(_ x: [String: Any]?, _ y: [String: Any]?, _ field: String = "u") -> [String: Any]? {
+        guard let x else { return y }
+        guard let y else { return x }
+        let a = time(x[field]), b = time(y[field])
+        if a != b { return a > b ? x : y }
+        return key(x) <= key(y) ? x : y
+    }
+
+    static func merge(_ a: [String: Any], _ b: [String: Any]) -> [String: Any] {
+        var out = a
+        let metaKeys = ["n", "sp", "o", "d"]
+        func meta(_ o: [String: Any]) -> [String: Any] { o.filter { metaKeys.contains($0.key) } }
+        let ma = time(a["mu"]), mb = time(b["mu"])
+        let metaFrom = ma != mb ? (ma > mb ? a : b) : (key(meta(a)) <= key(meta(b)) ? a : b)
+        for k in metaKeys { out[k] = metaFrom[k] }
+        out["mu"] = metaFrom["mu"]
+        out["sum"] = newest(a["sum"] as? [String: Any], b["sum"] as? [String: Any])
+        for list in ["s", "c"] {
+            var byId: [String: [String: Any]] = [:]
+            for item in (a[list] as? [[String: Any]] ?? []) + (b[list] as? [[String: Any]] ?? []) {
+                guard let id = item["id"] as? String else { continue }
+                byId[id] = newest(byId[id], item)
+            }
+            out[list] = byId.keys.sorted().compactMap { byId[$0] }
+        }
+        return out.filter { !($0.value is NSNull) }
+    }
+
+    /// Another copy taken in where `current` is kept (src/shared/collections.ts takeCollection): nil when it says nothing
+    /// new here; the copy itself when it has everything (its time never going back); else the merge, newer than both.
+    static func take(_ current: ChatMirror.Item?, _ theirs: ChatMirror.Item) -> ChatMirror.Item? {
+        guard let incoming = parse(theirs.data) else { return nil }
+        guard let current, let mine = parse(current.data) else { return theirs }
+        let merged = merge(mine, incoming)
+        let same = { (x: [String: Any], y: [String: Any]) in json(x) == json(y) }
+        if same(merged, mine) && current.updatedAt >= theirs.updatedAt { return nil }
+        if same(merged, incoming) { return ChatMirror.Item(updatedAt: max(theirs.updatedAt, current.updatedAt), data: theirs.data) }
+        guard let data = json(merged) else { return nil }
+        return ChatMirror.Item(updatedAt: max(current.updatedAt, theirs.updatedAt) + 1, data: data)
     }
 }
