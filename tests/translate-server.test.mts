@@ -136,7 +136,7 @@ test("a page is one answer: charged on its first request, its tags kept, streame
   assert.equal(counters.get(`install:${INSTALL}`), 1)
   assert.equal(haiku.calls[0].model, "claude-haiku-5-5")
   assert.ok(haiku.calls[0].system.includes("into Russian") && haiku.calls[0].system.includes("mostly in German"))
-  assert.ok(haiku.calls[0].content.startsWith("§1 Die Stadt"))
+  assert.ok(haiku.calls[0].content.startsWith("Translate each line into Russian:\n§1 Die Stadt"))
   const log = events.find((e) => e.kind === "translate")!
   assert.equal(log.data.charged, true)
   assert.equal(log.data.done, 3)
@@ -193,11 +193,24 @@ test("a line that loses its link's tags is asked once more; still lost: left as 
   const out = await call({})
   assert.deepEqual(Object.keys(items(out.events)).sort(), ["b1", "b3"])
   assert.deepEqual(out.events.find((e) => e.type === "skip")!.ids, ["b2"])
-  assert.ok(haiku.calls.some((c) => c.content === "§1 Mehr dazu <1>hier</1>.<2/>Neue Zeile."), "asked again alone")
+  assert.ok(haiku.calls.some((c) => c.content.endsWith("\n§1 Mehr dazu <1>hier</1>.<2/>Neue Zeile.")), "asked again alone")
 
   haiku = { calls: [], answer: (text, n) => text.startsWith("Mehr dazu") && n === 1 ? "Подробнее здесь." : ru[text] ?? null }
   const fixed = await call({ page: "d".repeat(32) })
   assert.equal(items(fixed.events).b2, ru[BLOCKS[1].text], "the second try kept them")
+})
+
+test("a line written back in its own language (Japanese rewritten in Japanese) is asked again; still so: left as it is", async () => {
+  const ja = [
+    { id: "j1", text: "本件は14:27ごろに解消いたしました。原因はアプリケーションの不具合によるものでした。" },
+    { id: "j2", text: "はてなブログで、あなたの思いを残す" }
+  ]
+  haiku.answer = (text, n) => text.startsWith("本件") ? (n === 1 ? "本件は14:27頃に解消しました。原因はアプリケーションの不具合でした。" : "Проблема устранена около 14:27. Причиной была ошибка в приложении.")
+    : "はてなブログで、あなたの想いを残そう"
+  const out = await call({ to: "ru", from: "ja", blocks: ja })
+  assert.equal(items(out.events).j1, "Проблема устранена около 14:27. Причиной была ошибка в приложении.")
+  assert.deepEqual(out.events.find((e) => e.type === "skip")!.ids, ["j2"])
+  assert.ok(haiku.calls.every((c) => c.content.startsWith("Translate each line into Russian:")), "the language named right before the lines")
 })
 
 test("nothing translated (Claude down): an error, and the page, the answer and the caps are given back", async () => {
