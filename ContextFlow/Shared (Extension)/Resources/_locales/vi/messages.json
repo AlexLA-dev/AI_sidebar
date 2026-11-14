@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "Lần đầu, ContextFlow sẽ mở ra để xin quyền truy cập."
  },
+ "trOffer": {
+  "message": "Dịch sang tiếng Việt?"
+ },
+ "trOfferTo": {
+  "message": "Dịch sang {0}?"
+ },
+ "trHide": {
+  "message": "Ẩn trên trang này"
+ },
+ "trWorking": {
+  "message": "Đang dịch…"
+ },
+ "trOriginal": {
+  "message": "Bản gốc"
+ },
+ "trFailed": {
+  "message": "Không dịch được"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "В первый раз откроется ContextFlow, чтобы спросить доступ."
  },
+ "trOffer": {
+  "message": "Перевести на русский?"
+ },
+ "trOfferTo": {
+  "message": "Перевести на язык: {0}?"
+ },
+ "trHide": {
+  "message": "Скрыть на этом сайте"
+ },
+ "trWorking": {
+  "message": "Перевожу…"
+ },
+ "trOriginal": {
+  "message": "Оригинал"
+ },
+ "trFailed": {
+  "message": "Не удалось перевести"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

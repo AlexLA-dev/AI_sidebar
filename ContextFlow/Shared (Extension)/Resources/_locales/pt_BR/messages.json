@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "Na primeira vez, o ContextFlow abre para pedir acesso."
  },
+ "trOffer": {
+  "message": "Traduzir para português?"
+ },
+ "trOfferTo": {
+  "message": "Traduzir para {0}?"
+ },
+ "trHide": {
+  "message": "Ocultar neste site"
+ },
+ "trWorking": {
+  "message": "Traduzindo…"
+ },
+ "trOriginal": {
+  "message": "Original"
+ },
+ "trFailed": {
+  "message": "Não foi possível traduzir"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

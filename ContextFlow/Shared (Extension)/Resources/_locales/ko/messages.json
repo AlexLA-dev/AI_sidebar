@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "처음에는 접근 권한을 묻기 위해 ContextFlow가 열립니다."
  },
+ "trOffer": {
+  "message": "한국어로 번역할까요?"
+ },
+ "trOfferTo": {
+  "message": "{0}(으)로 번역할까요?"
+ },
+ "trHide": {
+  "message": "이 사이트에서 숨기기"
+ },
+ "trWorking": {
+  "message": "번역 중…"
+ },
+ "trOriginal": {
+  "message": "원문"
+ },
+ "trFailed": {
+  "message": "번역하지 못했습니다"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

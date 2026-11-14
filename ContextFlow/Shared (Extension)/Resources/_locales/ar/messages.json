@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "في المرة الأولى يُفتح ContextFlow ليطلب الإذن."
  },
+ "trOffer": {
+  "message": "ترجمة إلى العربية؟"
+ },
+ "trOfferTo": {
+  "message": "ترجمة إلى {0}؟"
+ },
+ "trHide": {
+  "message": "إخفاء على هذا الموقع"
+ },
+ "trWorking": {
+  "message": "جارٍ الترجمة…"
+ },
+ "trOriginal": {
+  "message": "الأصل"
+ },
+ "trFailed": {
+  "message": "تعذّرت الترجمة"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },
