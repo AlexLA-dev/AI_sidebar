@@ -26,8 +26,13 @@ export interface WatchHandlers {
   input(field: Field, composing: boolean): void
   // Every key, before the page's editor sees it (window, capture): the list's own keys.
   keydown(e: KeyboardEvent): void
+  // A copy or a cut (⌘C, ⌘X, the edit menu's Copy and Cut; `e.type` tells which), twice: at capture on the
+  // document, before a site's editor removes cut text, and at bubble on the window, after the site's handlers.
   copy(e: ClipboardEvent, doc: Document, phase: "capture" | "bubble"): void
 }
+
+/** What goes to Copied: copies and cuts alike. */
+const CLIPBOARD = ["copy", "cut"] as const
 
 /** Starts watching; returns the function that stops it. */
 export function watchFields(h: WatchHandlers): () => void {
@@ -156,8 +161,10 @@ export function watchFields(h: WatchHandlers): () => void {
     doc.addEventListener("input", onInput, true)
     doc.addEventListener("compositionend", onCompositionEnd, true)
     win?.addEventListener("keydown", onKey, true)
-    doc.addEventListener("copy", onCopyCapture, true)
-    win?.addEventListener("copy", onCopyBubble)
+    for (const type of CLIPBOARD) {
+      doc.addEventListener(type, onCopyCapture, true)
+      win?.addEventListener(type, onCopyBubble)
+    }
     stops.push(() => {
       doc.removeEventListener("focusin", onFocus, true)
       doc.removeEventListener("focusout", onBlur, true)
@@ -165,8 +172,10 @@ export function watchFields(h: WatchHandlers): () => void {
       doc.removeEventListener("input", onInput, true)
       doc.removeEventListener("compositionend", onCompositionEnd, true)
       win?.removeEventListener("keydown", onKey, true)
-      doc.removeEventListener("copy", onCopyCapture, true)
-      win?.removeEventListener("copy", onCopyBubble)
+      for (const type of CLIPBOARD) {
+        doc.removeEventListener(type, onCopyCapture, true)
+        win?.removeEventListener(type, onCopyBubble)
+      }
     })
   }
 
