@@ -116,6 +116,7 @@ test("wiring: never on a page in another language, the glow on the right button,
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   assert.match(app, /data-glow=\{pageHints\.glow \?\? undefined\}/)
   assert.match(app, /<HintLine id=\{pageHints\.line\} side=\{side\} top=\{fabTop\}/)
+  assert.match(app, /partial === null && !pageHints\.chat && contextKind === "page" && source\.kind\(\) !== "page" && hintDue/, "one hint at a time: the video's or PDF's waits")
   const css = readFileSync(new URL("../src/content/pagehints/hints.css", import.meta.url), "utf8")
   for (const target of ["summarize", "similar", "menu", "composer"]) assert.match(css, new RegExp(`\\.cf\\[data-glow="${target}"\\]`), target)
   assert.match(css, /\.cf-ph\.left \{ left:/)

@@ -4196,7 +4196,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {!historyMode && partial === null && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
+                {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
+                {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
                   <Hint
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
