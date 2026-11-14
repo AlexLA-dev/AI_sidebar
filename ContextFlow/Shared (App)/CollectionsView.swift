@@ -12,6 +12,9 @@ private func now() -> Double { Double(Date().timeIntervalSince1970 * 1000) }
 /// The text the AI gets for a card, and the language its answers come in (the app's).
 private var appLanguage: String { String(Locale.current.identifier.prefix(2)) }
 
+/// The Chats screen's «Подборки» (iPhone, iPad): pushed by value, like a chat (ChatRoute).
+struct BoardsRoute: Hashable {}
+
 struct CollectionsView: View {
     @ObservedObject var library: ChatLibrary
     @ObservedObject var store = StoreKitManager.shared

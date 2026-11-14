@@ -72,7 +72,6 @@ struct ChatsView: View {
     // list shows, so a reminder that rang loses its bell and an answered or abandoned question its spinner.
     @State private var showingTrash = false
     /// 2.7: Подборки, over the chats (iPhone, iPad).
-    @State private var showingBoards = false
     @State private var watched: [String] = []
     @State private var tick = Date()
 
@@ -160,7 +159,8 @@ struct ChatsView: View {
             // 2.7: Подборки (on a Mac they're in the sidebar).
             #if os(iOS)
             ToolbarItem {
-                Button { showingBoards = true } label: { Label("Collections", systemImage: "square.grid.2x2") }
+                // By value, like the rows' chats: a third isPresented destination on this list didn't always open.
+                NavigationLink(value: BoardsRoute()) { Label("Collections", systemImage: "square.grid.2x2") }
                     .accessibilityIdentifier("cf-collections")
             }
             #endif
@@ -181,7 +181,7 @@ struct ChatsView: View {
         }
         .sheet(item: $showingList) { kind in RemindersView(library: library, kind: kind) }
         .navigationDestination(isPresented: $showingTrash) { RecentlyDeletedView(library: library) }
-        .navigationDestination(isPresented: $showingBoards) { CollectionsView(library: library, openPro: openPro) }
+        .navigationDestination(for: BoardsRoute.self) { _ in CollectionsView(library: library, openPro: openPro) }
         // The rows' eyes and the tick (build 94).
         .task(id: listShown) {
             while listShown && !Task.isCancelled {
