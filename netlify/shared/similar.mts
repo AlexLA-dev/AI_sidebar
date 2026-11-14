@@ -228,6 +228,8 @@ export interface EngineOverrides {
   maxPages?: number
   maxQueries?: number
   regionCheck?: boolean
+  // The search model's turns: a long search pauses its turn, resumed once (2); the light search doesn't resume (1).
+  searchTurns?: number
 }
 
 /**
@@ -238,7 +240,7 @@ export interface EngineOverrides {
 export function lightOverrides(): EngineOverrides {
   return {
     writeModel: config.similar.lightWriteModel, searchMode: "single", followUps: 0, altSearch: false,
-    reviews: false, siblings: false, shipCheck: false, regionCheck: false, maxPages: 6, maxQueries: 2
+    reviews: false, siblings: false, shipCheck: false, regionCheck: false, maxPages: 6, maxQueries: 2, searchTurns: 1
   }
 }
 
@@ -759,7 +761,7 @@ export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: num
   let input_tokens = 0
   let output_tokens = 0
   // A long server-side search loop pauses the turn: it's resumed once, as is (the rescue round: never).
-  for (let turn = 0; turn < turns; turn++) {
+  for (let turn = 0; turn < (over.searchTurns ?? turns); turn++) {
     const response = await createSearch(client, {
       model,
       max_tokens: 4_000,

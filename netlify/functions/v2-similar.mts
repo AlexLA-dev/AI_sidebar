@@ -97,7 +97,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   // The light search looks anywhere (no "near me").
   if (light) input = { ...input, region: "world" }
-  const overrides: EngineOverrides = { ...(light ? lightOverrides() : {}), ...(evaluating ? overridesOf(body.options) : {}) }
+  // An evaluation's own switches over the light search's (only those it sets: an unset one keeps the light search's).
+  const asked = evaluating ? Object.fromEntries(Object.entries(overridesOf(body.options)).filter(([, v]) => v !== undefined)) : {}
+  const overrides: EngineOverrides = { ...(light ? lightOverrides() : {}), ...asked }
 
   // Build 94: kept for the asker to pick up if it goes away meanwhile (a store that can't be written: as before).
   const jobId = engine === "a" && typeof body.job === "string" && JOB_ID.test(body.job) ? body.job : ""

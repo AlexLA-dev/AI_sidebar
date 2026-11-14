@@ -158,3 +158,21 @@ test("Ultra with the week's searches used: LIMIT_REACHED with the week's usage, 
   assert.equal(body.usage.period, "week")
   assert.equal(anthropicCalls, 0)
 })
+
+test("2.7, an evaluation asking for the light search gets it whole (its unset switches don't undo the light search's)", async () => {
+  planAnswers = true
+  process.env.CONTEXT = "deploy-preview"
+  const { similarEvalToken } = await import("../netlify/shared/similar.mts")
+  const c = { ...ctx(), deploy: { context: "deploy-preview" } }
+  const res = await similar(new Request("https://x/api/v2/similar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${similarEvalToken("service-key")}` },
+    body: JSON.stringify({ installId: INSTALL, client: { version: "2.7", platform: "ios", locale: "en-US", build: "1" }, engine: "a", page: { title: "Acme Q1", url: "https://shop.example/q1", text: "Headphones." }, chip: "cheaper", words: "", options: { light: "on" } })
+  }), c)
+  await res.text()
+  delete process.env.CONTEXT
+  const searches = anthropicBodies.filter((b) => Array.isArray(b.tools) && b.tools.some((t: { name?: string }) => t.name === "web_search"))
+  assert.ok(searches.length >= 1)
+  for (const call of searches) assert.equal(call.tools[0].max_uses, 2)
+  assert.equal(consumed.length, 0, "an evaluation counts nothing")
+})
