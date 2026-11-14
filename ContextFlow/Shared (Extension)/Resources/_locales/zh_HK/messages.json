@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "不符合你選的條件"
  },
+ "appleTitle": {
+  "message": "行事曆和提醒事項"
+ },
+ "appleMenu": {
+  "message": "加入行事曆或提醒事項"
+ },
+ "appleReading": {
+  "message": "正在尋找日期和時間…"
+ },
+ "appleNothing": {
+  "message": "沒有可加入的內容：找不到日期或事項。"
+ },
+ "appleError": {
+  "message": "無法讀取日期。"
+ },
+ "appleRetry": {
+  "message": "重試"
+ },
+ "appleReminder": {
+  "message": "提醒事項"
+ },
+ "appleEvent": {
+  "message": "行程"
+ },
+ "appleWhat": {
+  "message": "內容"
+ },
+ "appleDate": {
+  "message": "日期"
+ },
+ "appleTime": {
+  "message": "時間"
+ },
+ "appleList": {
+  "message": "列表"
+ },
+ "appleRemindersApp": {
+  "message": "加入提醒事項"
+ },
+ "appleCalendarPick": {
+  "message": "行事曆將在下一步選擇"
+ },
+ "appleCalendarDefault": {
+  "message": "你的預設行事曆"
+ },
+ "appleGuess": {
+  "message": "請核對日期和時間：這是推測的。"
+ },
+ "applePast": {
+  "message": "這個時間已經過去。請核對日期。"
+ },
+ "appleAdd": {
+  "message": "加入"
+ },
+ "appleAdded": {
+  "message": "已加入提醒事項"
+ },
+ "appleAddedEvent": {
+  "message": "已加入行事曆"
+ },
+ "appleOpening": {
+  "message": "正在打開 ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow 沒有存取權限。請在「設定」中開啟。"
+ },
+ "appleFailed": {
+  "message": "無法加入。請重試。"
+ },
+ "appleAlso": {
+  "message": "同時加入提醒事項"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow 無權存取提醒事項。請在「設定」中開啟。"
+ },
+ "appleAskOnce": {
+  "message": "第一次會打開 ContextFlow 來要求存取權限。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

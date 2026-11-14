@@ -2279,6 +2279,84 @@
  "similarMisses": {
   "message": "Не відповідає вибору"
  },
+ "appleTitle": {
+  "message": "Календар і Нагадування"
+ },
+ "appleMenu": {
+  "message": "До Календаря або Нагадувань"
+ },
+ "appleReading": {
+  "message": "Шукаю дату й час…"
+ },
+ "appleNothing": {
+  "message": "Тут нічого додати: немає дати чи справи."
+ },
+ "appleError": {
+  "message": "Не вдалося прочитати дату."
+ },
+ "appleRetry": {
+  "message": "Ще раз"
+ },
+ "appleReminder": {
+  "message": "Нагадування"
+ },
+ "appleEvent": {
+  "message": "Подія"
+ },
+ "appleWhat": {
+  "message": "Що"
+ },
+ "appleDate": {
+  "message": "Дата"
+ },
+ "appleTime": {
+  "message": "Час"
+ },
+ "appleList": {
+  "message": "Список"
+ },
+ "appleRemindersApp": {
+  "message": "У Нагадування"
+ },
+ "appleCalendarPick": {
+  "message": "Календар виберете в наступному вікні"
+ },
+ "appleCalendarDefault": {
+  "message": "Ваш календар за замовчуванням"
+ },
+ "appleGuess": {
+  "message": "Перевірте дату й час: їх вгадано."
+ },
+ "applePast": {
+  "message": "Цей час уже минув. Перевірте дату."
+ },
+ "appleAdd": {
+  "message": "Додати"
+ },
+ "appleAdded": {
+  "message": "Додано до Нагадувань"
+ },
+ "appleAddedEvent": {
+  "message": "Додано до Календаря"
+ },
+ "appleOpening": {
+  "message": "Відкриваю ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow не має доступу. Увімкніть його в Параметрах."
+ },
+ "appleFailed": {
+  "message": "Не вдалося додати. Спробуйте ще раз."
+ },
+ "appleAlso": {
+  "message": "Також у Нагадування"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow не має доступу до Нагадувань. Увімкніть його в Параметрах."
+ },
+ "appleAskOnce": {
+  "message": "Першого разу відкриється ContextFlow, щоб запитати доступ."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },
