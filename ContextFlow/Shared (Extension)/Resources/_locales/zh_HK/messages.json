@@ -2456,6 +2456,27 @@
  "matchContinue": {
   "message": "繼續："
  },
+ "setSide": {
+  "message": "螢幕側邊"
+ },
+ "sideRight": {
+  "message": "右側"
+ },
+ "sideLeft": {
+  "message": "左側"
+ },
+ "hintSideTitle": {
+  "message": "面板和 ✦ 按鈕可以拖到另一側"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ 按鈕可以拖到另一側"
+ },
+ "hintSideBody": {
+  "message": "按住面板頂部拖動，或直接拖動按鈕。也可以在設定中選擇側邊。"
+ },
+ "hintSideBodySheet": {
+  "message": "把它拖到左側或右側。也可以在設定中選擇側邊。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

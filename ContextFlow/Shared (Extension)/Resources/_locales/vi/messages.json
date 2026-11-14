@@ -2456,6 +2456,27 @@
  "matchContinue": {
   "message": "Tiếp tục"
  },
+ "setSide": {
+  "message": "Cạnh màn hình"
+ },
+ "sideRight": {
+  "message": "Phải"
+ },
+ "sideLeft": {
+  "message": "Trái"
+ },
+ "hintSideTitle": {
+  "message": "Bạn có thể kéo bảng và nút ✦ sang cạnh bên kia"
+ },
+ "hintSideTitleSheet": {
+  "message": "Bạn có thể kéo nút ✦ sang cạnh bên kia"
+ },
+ "hintSideBody": {
+  "message": "Kéo bảng bằng phần đầu, hoặc kéo nút. Bạn cũng có thể chọn cạnh trong Cài đặt."
+ },
+ "hintSideBodySheet": {
+  "message": "Kéo nút sang trái hoặc phải. Bạn cũng có thể chọn cạnh trong Cài đặt."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

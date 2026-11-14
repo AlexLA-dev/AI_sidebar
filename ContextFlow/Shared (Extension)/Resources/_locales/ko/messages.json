@@ -2456,6 +2456,27 @@
  "matchContinue": {
   "message": "이어서"
  },
+ "setSide": {
+  "message": "화면 방향"
+ },
+ "sideRight": {
+  "message": "오른쪽"
+ },
+ "sideLeft": {
+  "message": "왼쪽"
+ },
+ "hintSideTitle": {
+  "message": "패널과 ✦ 버튼을 반대쪽 가장자리로 끌어 옮길 수 있어요"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ 버튼을 반대쪽 가장자리로 끌어 옮길 수 있어요"
+ },
+ "hintSideBody": {
+  "message": "패널은 상단을 잡고, 버튼은 그대로 끌어 옮기세요. 방향은 설정에서도 고를 수 있어요."
+ },
+ "hintSideBodySheet": {
+  "message": "왼쪽이나 오른쪽으로 끌어 옮기세요. 방향은 설정에서도 고를 수 있어요."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

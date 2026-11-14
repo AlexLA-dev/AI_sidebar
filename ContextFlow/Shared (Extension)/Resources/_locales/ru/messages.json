@@ -2456,6 +2456,27 @@
  "matchContinue": {
   "message": "Продолжаю"
  },
+ "setSide": {
+  "message": "Сторона экрана"
+ },
+ "sideRight": {
+  "message": "Справа"
+ },
+ "sideLeft": {
+  "message": "Слева"
+ },
+ "hintSideTitle": {
+  "message": "Панель и кружок ✦ можно перетащить к другому краю"
+ },
+ "hintSideTitleSheet": {
+  "message": "Кружок ✦ можно перетащить к другому краю"
+ },
+ "hintSideBody": {
+  "message": "Потяните за шапку панели или за кружок. Сторону можно выбрать и в настройках."
+ },
+ "hintSideBodySheet": {
+  "message": "Потяните его влево или вправо. Сторону можно выбрать и в настройках."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

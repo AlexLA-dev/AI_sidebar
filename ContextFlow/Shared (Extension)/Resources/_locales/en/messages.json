@@ -2456,6 +2456,27 @@
  "matchContinue": {
   "message": "Continuing"
  },
+ "setSide": {
+  "message": "Screen side"
+ },
+ "sideRight": {
+  "message": "Right"
+ },
+ "sideLeft": {
+  "message": "Left"
+ },
+ "hintSideTitle": {
+  "message": "You can drag the panel and the ✦ button to the other edge"
+ },
+ "hintSideTitleSheet": {
+  "message": "You can drag the ✦ button to the other edge"
+ },
+ "hintSideBody": {
+  "message": "Drag the panel by its header, or drag the button. You can also pick the side in Settings."
+ },
+ "hintSideBodySheet": {
+  "message": "Drag it left or right. You can also pick the side in Settings."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

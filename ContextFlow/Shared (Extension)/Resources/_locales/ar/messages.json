@@ -2456,6 +2456,27 @@
  "matchContinue": {
   "message": "متابعة"
  },
+ "setSide": {
+  "message": "جانب الشاشة"
+ },
+ "sideRight": {
+  "message": "اليمين"
+ },
+ "sideLeft": {
+  "message": "اليسار"
+ },
+ "hintSideTitle": {
+  "message": "يمكنك سحب اللوحة والزر ✦ إلى الحافة الأخرى"
+ },
+ "hintSideTitleSheet": {
+  "message": "يمكنك سحب الزر ✦ إلى الحافة الأخرى"
+ },
+ "hintSideBody": {
+  "message": "اسحب اللوحة من رأسها، أو اسحب الزر. ويمكنك أيضًا اختيار الجانب من الإعدادات."
+ },
+ "hintSideBodySheet": {
+  "message": "اسحبه يسارًا أو يمينًا. ويمكنك أيضًا اختيار الجانب من الإعدادات."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

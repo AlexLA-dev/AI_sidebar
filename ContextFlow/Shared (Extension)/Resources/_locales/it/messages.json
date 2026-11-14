@@ -2456,6 +2456,27 @@
  "matchContinue": {
   "message": "Continuo"
  },
+ "setSide": {
+  "message": "Lato dello schermo"
+ },
+ "sideRight": {
+  "message": "Destra"
+ },
+ "sideLeft": {
+  "message": "Sinistra"
+ },
+ "hintSideTitle": {
+  "message": "Puoi trascinare il pannello e il pulsante ✦ sull’altro bordo"
+ },
+ "hintSideTitleSheet": {
+  "message": "Puoi trascinare il pulsante ✦ sull’altro bordo"
+ },
+ "hintSideBody": {
+  "message": "Trascina il pannello dall’intestazione, oppure trascina il pulsante. Puoi scegliere il lato anche nelle Impostazioni."
+ },
+ "hintSideBodySheet": {
+  "message": "Trascinalo a sinistra o a destra. Puoi scegliere il lato anche nelle Impostazioni."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

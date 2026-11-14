@@ -2456,6 +2456,27 @@
  "matchContinue": {
   "message": "Продовжую"
  },
+ "setSide": {
+  "message": "Бік екрана"
+ },
+ "sideRight": {
+  "message": "Праворуч"
+ },
+ "sideLeft": {
+  "message": "Ліворуч"
+ },
+ "hintSideTitle": {
+  "message": "Панель і кнопку ✦ можна перетягнути до іншого краю"
+ },
+ "hintSideTitleSheet": {
+  "message": "Кнопку ✦ можна перетягнути до іншого краю"
+ },
+ "hintSideBody": {
+  "message": "Потягніть за шапку панелі або за кнопку. Бік можна вибрати й у налаштуваннях."
+ },
+ "hintSideBodySheet": {
+  "message": "Потягніть її ліворуч або праворуч. Бік можна вибрати й у налаштуваннях."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },
