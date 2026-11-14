@@ -844,5 +844,6 @@
   "spaceLimit": "Espaces en version gratuite : {0}. Avec Pro, autant que vous voulez.",
   "spaceEmpty": "Pas encore de discussion dans « {0} ». Une nouvelle discussion arrivera ici.",
   "setSpaces": "Espaces",
-  "setSpacesHint": "Travail, Perso, Achats : chacun avec ses discussions et sa couleur. Désactivé : toutes les discussions dans une seule liste, vos espaces sont conservés."
+  "setSpacesHint": "Travail, Perso, Achats : chacun avec ses discussions et sa couleur. Désactivé : toutes les discussions dans une seule liste, vos espaces sont conservés.",
+  "matchContinue": "Je continue"
 }

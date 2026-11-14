@@ -844,5 +844,6 @@
   "spaceLimit": "Spaces in Free: {0}. With Pro, as many as you like.",
   "spaceEmpty": "No chats in “{0}” yet. A new chat goes here.",
   "setSpaces": "Spaces",
-  "setSpacesHint": "Work, Personal, Shopping: each with its own chats and color. Off: every chat in one list, and your spaces stay."
+  "setSpacesHint": "Work, Personal, Shopping: each with its own chats and color. Off: every chat in one list, and your spaces stay.",
+  "matchContinue": "Continuing"
 }

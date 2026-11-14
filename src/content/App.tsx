@@ -104,7 +104,7 @@ import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill } from "./translate/TranslatePill"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
-import { pageChatPlace } from "../shared/spaces"
+import { matchable, matchChat, type ChatMatch } from "../shared/match"
 import { SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
@@ -334,6 +334,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const threadRef = useRef("")
   // Spaces (2.7, useSpaces below): read where the panel opens on a page.
   const spacesRef = useRef<ReturnType<typeof useSpaces> | null>(null)
+  // «Подходящий чат» (2.7, match.ts): organizing on (by meaning then), and the line «Продолжаю «…» · Новый чат» over the
+  // chat the panel opened on (until something is asked in it), with when, for "other" (left at once for another chat).
+  const orgOnRef = useRef(false)
+  const [matchLine, setMatchLine] = useState<{ chat: string; why: ChatMatch["why"]; at: number; length: number } | null>(null)
+  const matchLineRef = useRef(matchLine)
+  matchLineRef.current = matchLine
   const [partial, setPartial] = useState<string | null>(null)
   // Before asking: a video's transcript or a PDF being read (shown instead of "Reading the page…").
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
@@ -614,11 +620,29 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         // The circle on a page already talked about: its latest chat (or the site's); else the chat as it was. Stored
         // before the sync below reads which chat is open. 2.7: in the space the panel is in, or the space the site is
         // bound to (a new chat there when it has none: the header says where it went).
-        const place = pageChat ? pageChatPlace(threads, was, key, await loadSpaces(), settingsRef.current.spaces !== false) : null
+        // 2.7 (match.ts): this page's chat, else one on its topic (85 %+), else one about this site alone, else a new
+        // chat. Pro with organizing on: the topic by meaning, waited for 1.2 s at most (else by the title's words).
+        const list = await loadSpaces()
+        const on = settingsRef.current.spaces !== false
+        let place = pageChat ? matchChat(threads, was, key, source.title(), list, on) : null
+        if (place && place.why !== "page" && orgOnRef.current) {
+          const chats = matchable(threads, list, place.space, on).map((t) => t.id)
+          const meaning = await Promise.race([
+            sendBackground<{ chat: string; match: number } | null>({ type: "matchTopic", title: source.title(), chats }),
+            new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 1200))
+          ])
+          if (meaning !== undefined) place = matchChat(threads, was, key, source.title(), list, on, meaning ?? null)
+        }
         const found = place ? place.chat ?? newThreadId() : null
-        const active = found && found !== was.id ? { id: found, at: Date.now() } : was
+        const active = found && (found !== was.id || place?.bound) ? { id: found, at: Date.now() } : was
         if (active !== was) await setActiveThread(active.id, place?.space)
         if (place?.bound) spacesRef.current?.flashSite(place.space, key)
+        // Only when it picked another chat than the one open (reopened on the same chat, nothing was guessed).
+        if (place && active !== was) {
+          const fits = place.why !== "new" && place.chat !== null
+          setMatchLine(fits ? { chat: active.id, why: place.why, at: Date.now(), length: threads[active.id]?.m.length ?? 0 } : null)
+          void sendBackground({ type: "useEvent", f: "match", a: fits ? "shown" : "new", ...(fits ? { why: place.why } : {}), ...(place.match !== undefined ? { match: place.match } : {}) })
+        }
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
         const entries = threads[active.id]?.m ?? []
@@ -2871,6 +2895,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // opens. They belong to the chat as it was (its length) and go when it changes; at most one row under a message.
   const orgCfg = status?.organize?.config ?? DEFAULT_ORGANIZE
   const orgOn = TARGET === "safari" && hasPro(plan) && Boolean(status?.organize?.on) && settings.organize
+  orgOnRef.current = orgOn
   const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }>; name: string | null } | null>(null)
   const [cards, setCards] = useState<OrganizeCards | null>(null)
   // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken
@@ -3387,6 +3412,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The chat's name over the page in the header (2.6 (94)): as the chats list shows it.
   const shownThreadNow = threadList.find((x) => x.id === threadRef.current)
   const headerName = view === "chat" && !historyMode && messages.length > 0 ? (shownThreadNow ? threadName(shownThreadNow) : threadTitle(messages)) : null
+  // The line over the chat the panel opened on by itself (2.7, match.ts), until something is asked or written in it.
+  const matchShown = Boolean(matchLine && matchLine.chat === threadRef.current && messages.length === matchLine.length)
 
   // The circle's height, and the in-page translation pill's beside it (2.7).
   const fabTop = dragY !== null ? `${dragY}%` : fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
@@ -3690,7 +3717,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {headerName && (
             <div class="cf-chat-bar">
               <button type="button" class="cf-icon cf-chat-back" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}><Icon.Back /></button>
+              {matchShown && <span class="cf-match-label">{t("matchContinue")}</span>}
               <span class="cf-chat-bar-name" dir="auto" title={headerName}>{headerName}</span>
+              {/* 2.7: «Продолжаю «…» · Новый чат»: one tap if the chat it opened on isn't the one. */}
+              {matchShown && <button type="button" class="cf-match-new" onClick={() => {
+                void sendBackground({ type: "useEvent", f: "match", a: "line_new", why: matchLine!.why })
+                setMatchLine(null)
+                newChat()
+              }}>{t("newChat")}</button>}
             </div>
           )}
 
@@ -3724,6 +3758,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onOpen={(id, at) => {
                   if (orgOn && recs[id]) orgEvent({ kind: "organize", action: "tap", what: "badge" })
                   spaces.followChat(threadList.find((x) => x.id === id))
+                  // Another chat right after the panel opened on one by itself (2.7): it didn't fit.
+                  const line = matchLineRef.current
+                  if (line && id !== line.chat && Date.now() - line.at < 120_000) {
+                    void sendBackground({ type: "useEvent", f: "match", a: "other", why: line.why })
+                    setMatchLine(null)
+                  }
                   openThread(id, at)
                 }}
                 onRename={renameChat}

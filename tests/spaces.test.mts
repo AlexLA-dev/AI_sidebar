@@ -7,7 +7,7 @@ import { test } from "node:test"
 
 import {
   addSpace, bindSite, boundSpace, canAddSpace, chatsInSpace, currentSpace, deleteSpace, editSpace, emptySpaces, FIRST_SPACE, FREE_SPACES, hasSpaces, liveSpaces,
-  mergeSpaces, nextColor, pageChatPlace, resolveSpace, sameSpaces, siteKey, spaceCount, spaceOfChat, spacesChange, spacesForCloud, spacesFromCloud, SPACES_RECORD,
+  mergeSpaces, nextColor, resolveSpace, sameSpaces, siteKey, spaceCount, spaceOfChat, spacesChange, spacesForCloud, spacesFromCloud, SPACES_RECORD,
   takeSpaces, type SpaceList, type StoredSpaces
 } from "../src/shared/spaces.ts"
 import { applyRemote, chatList, moveEntries, savedThread, threadForCloud, threadFromCloud, withMessages, type Thread, type Threads } from "../src/shared/threads.ts"
@@ -176,32 +176,7 @@ test("the chats list, matching and organizing stay inside a space; switched off,
   assert.equal(currentSpace(list, w, { sp: "shop" }, false), FIRST_SPACE)
 })
 
-test("where the panel opens on a page: inside its space; a bound site switches to its space, a new chat there if it has none", () => {
-  let list = twoSpaces()
-  const threads: Threads = {
-    p: chat("p", 1_000, "https://notion.so/doc"),
-    w: chat("w", 2_000, "https://mail.example/inbox", "work"),
-    s: chat("s", 3_000, "https://shop.example/desk", "shop")
-  }
-  const inPersonal = { id: "p", at: 1 }
-  // The page was talked about in another space: not opened from here (the panel stays where it is).
-  assert.equal(pageChatPlace(threads, inPersonal, "https://shop.example/desk", list, true), null)
-  // In its own space: opened.
-  assert.deepEqual(pageChatPlace(threads, { id: "s", at: 1 }, "https://shop.example/desk", list, true), { chat: "s", space: "shop", bound: false })
-  // Bound: the panel goes to the site's space, to its chat for the site…
-  list = bindSite(list, "mail.example", "work", 5_000)
-  assert.deepEqual(pageChatPlace(threads, inPersonal, "https://www.mail.example/other", list, true), { chat: "w", space: "work", bound: true })
-  // …or to a new chat there.
-  list = bindSite(list, "notion.so", "shop", 6_000)
-  assert.deepEqual(pageChatPlace(threads, inPersonal, "https://notion.so/doc", list, true), { chat: null, space: "shop", bound: true })
-  // Already in the bound space: no switch to tell about.
-  assert.equal(pageChatPlace(threads, { id: "new", at: 1, sp: "shop" }, "https://notion.so/other", list, true), null)
-  // Spaces off: bindings and spaces don't count, as in 2.6.
-  assert.deepEqual(pageChatPlace(threads, inPersonal, "https://shop.example/desk", list, false), { chat: "s", space: FIRST_SPACE, bound: false })
-  assert.deepEqual(pageChatPlace(threads, inPersonal, "https://notion.so/doc", list, false), { chat: "p", space: FIRST_SPACE, bound: false })
-  assert.equal(siteKey("https://WWW.Notion.so/x"), "notion.so")
-  assert.equal(siteKey("file:///x"), "")
-})
+// Where the panel opens on a page, inside a space and in a bound site's space: tests/match.test.mts (2.7 «Подходящий чат»).
 
 test("moving a chat to another space is an edit: newer, its place in the list kept", () => {
   const store = readFileSync(new URL("../src/content/store.ts", import.meta.url), "utf8")

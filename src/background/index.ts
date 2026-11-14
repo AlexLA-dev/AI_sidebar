@@ -34,7 +34,7 @@ import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThrea
 import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
 import { startWatch } from "./watch"
-import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
+import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
@@ -967,6 +967,12 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
         .then(([now, id, ent, client, prefs, agreed]) => organizeCounts({ status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "matchTopic":
+      // The same switch and consent as organizing: the title is sent only with both.
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => matchTopic(message.title, message.chats, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse(null))
       return true
     case "organizeEvent":
       Promise.all([installId(), clientInfo()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)

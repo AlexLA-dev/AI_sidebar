@@ -9,8 +9,6 @@
 // `SPACES_RECORD` in the chats' zone, the chats' record type and fields: no CloudKit schema change). Design note:
 // ~/ContextFlow-work/spaces-27/design.md.
 
-import { chatForPage, type ActiveThread, type Threads } from "./threads.ts"
-
 /** The first space: always there, never deleted; every chat without a space of its own is in it. */
 export const FIRST_SPACE = "first"
 
@@ -310,26 +308,3 @@ export function currentSpace(list: SpaceList, shown: { sp?: string } | undefined
   return shown ? spaceOfChat(list, shown) : resolveSpace(list, active.sp)
 }
 
-/** Where the panel opens on a page: the chat (null: a new one) and the space; `bound`: it switched to the site's space. */
-export interface PagePlace {
-  chat: string | null
-  space: string
-  bound: boolean
-}
-
-/**
- * Where the panel opens on a page from the ✦ circle or Safari's toolbar button (2.6 (98) `chatForPage`, inside a space
- * since 2.7): in the space the site is bound to («Открывать этот сайт здесь»), else in the space it's in; there, the
- * latest chat on this page, else on this site. A bound site with neither: a new chat in its space. Otherwise null: the
- * panel stays on the chat it had.
- */
-export function pageChatPlace(threads: Threads, active: ActiveThread, href: string, list: SpaceList, on: boolean): PagePlace | null {
-  const shown = threads[active.id] && !threads[active.id].deleted && threads[active.id].trashed === undefined ? threads[active.id] : undefined
-  const here = currentSpace(list, shown, active, on)
-  const spaced = on && hasSpaces(list)
-  const bound = spaced ? boundSpace(list, siteKey(href)) : null
-  const space = bound ?? here
-  const chat = chatForPage(threads, href, spaced ? (t) => spaceOfChat(list, t) === space : undefined)
-  if (chat) return { chat, space, bound: space !== here }
-  return space !== here ? { chat: null, space, bound: true } : null
-}

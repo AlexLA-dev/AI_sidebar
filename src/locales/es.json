@@ -844,5 +844,6 @@
   "spaceLimit": "Espacios gratis: {0}. Con Pro, todos los que quieras.",
   "spaceEmpty": "Todavía no hay chats en «{0}». Un chat nuevo aparecerá aquí.",
   "setSpaces": "Espacios",
-  "setSpacesHint": "Trabajo, Personal, Compras: cada uno con sus chats y su color. Desactivado: todos los chats en una lista, y tus espacios se guardan."
+  "setSpacesHint": "Trabajo, Personal, Compras: cada uno con sus chats y su color. Desactivado: todos los chats en una lista, y tus espacios se guardan.",
+  "matchContinue": "Sigo en"
 }
