@@ -2561,6 +2561,30 @@
  "hintSideBodySheet": {
   "message": "Zieh sie nach links oder rechts. Die Seite kannst du auch in den Einstellungen wählen."
  },
+ "hintNewTitle": {
+  "message": "Neu in ContextFlow 2.7"
+ },
+ "hintNewTranslate": {
+  "message": "Eine Seite in einer anderen Sprache: Die Zeile „Auf Deutsch übersetzen?“ an der ✦-Taste stellt die Seite selbst auf deine Sprache um."
+ },
+ "hintNewWrite": {
+  "message": "An einem Feld, in dem du schreibst: „Prüfen“ und „Umschreiben“, mit Blick auf die Seite."
+ },
+ "hintNewSpaces": {
+  "message": "Bereiche trennen Arbeit und Privates: „Neuer Bereich“ steht am Ende der Chatliste."
+ },
+ "hintNewApple": {
+  "message": "„Zu Kalender oder Erinnerungen“ steht im Menü „…“ einer Antwort."
+ },
+ "hintNewShot": {
+  "message": "„Seiten-Schnappschuss“: Eine Notiz kann ein Bild der Seite behalten."
+ },
+ "hintNewSide": {
+  "message": "Die ✦-Taste geht an beide Ränder: Zieh sie hinüber."
+ },
+ "hintAllTips": {
+  "message": "Alle Tipps"
+ },
  "phSimilar": {
   "message": "Günstiger finden?"
  },
@@ -2810,14 +2834,26 @@
  "tip_af26b6788c": {
   "message": "✦ aus dem Weg schieben"
  },
- "tip_6d2694aec4": {
-  "message": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt."
+ "tip_1b3fa8b31a": {
+  "message": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Auf dem iPad kannst du auch das Panel an seiner Kopfzeile auf die andere Seite ziehen. „Bildschirmseite“ in den Erweiterungseinstellungen macht dasselbe."
+ },
+ "tip_cbec05fbfd": {
+  "message": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Auch das Panel kannst du an seiner Kopfzeile auf die andere Seite ziehen, oder du wählst „Bildschirmseite“ in den Erweiterungseinstellungen."
  },
  "tip_2749afe54a": {
   "message": "Das Wesentliche mit einem Tipp"
  },
  "tip_487a14e710": {
   "message": "„Zusammenfassen“, „Das Wichtigste“, „Einfach erklären“ und „Übersetzen“ arbeiten mit der ganzen Seite – ganz ohne Prompt."
+ },
+ "tip_33e83f4818": {
+  "message": "Eine Seite in deiner Sprache lesen"
+ },
+ "tip_f8f753be8a": {
+  "message": "Ist eine Seite in einer anderen Sprache, tippe auf die Zeile „Auf Deutsch übersetzen?“ an der ✦-Taste: Die Seite selbst wechselt samt Links in deine Sprache, und die Übersetzung läuft beim Scrollen weiter. „Original“ holt jedes Wort zurück. Eine Seite zählt als eine Antwort pro Woche, egal wie oft du sie übersetzt."
+ },
+ "tip_22f41ab2de": {
+  "message": "Ist eine Seite in einer anderen Sprache, klick auf die Zeile „Auf Deutsch übersetzen?“ an der ✦-Taste: Die Seite selbst wechselt samt Links in deine Sprache, und die Übersetzung läuft beim Scrollen weiter. „Original“ holt jedes Wort zurück. Eine Seite zählt als eine Antwort pro Woche, egal wie oft du sie übersetzt."
  },
  "tip_d22c90dac1": {
   "message": "Nach einem Teil fragen"
@@ -2860,6 +2896,15 @@
  },
  "tip_6a92f6c633": {
   "message": "Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten."
+ },
+ "tip_ac13420c59": {
+  "message": "Ein Schnappschuss zur Notiz"
+ },
+ "tip_dff446b7cc": {
+  "message": "Du schreibst eine Notiz? Schalte „Seiten-Schnappschuss“ über dem Feld ein, und die Notiz behält ein Bild der Seite: den sichtbaren Bereich oder mit Pro die ganze Seite. Tippe auf das Bild, um es im Vollbild zu öffnen und zuzuschneiden. Es bleibt auf deinen Geräten und in deiner iCloud."
+ },
+ "tip_3ca344f02e": {
+  "message": "Du schreibst eine Notiz? Schalte „Seiten-Schnappschuss“ über dem Feld ein, und die Notiz behält ein Bild der Seite: den sichtbaren Bereich oder mit Pro die ganze Seite. Klick auf das Bild, um es im Vollbild zu öffnen und zuzuschneiden. Es bleibt auf deinen Geräten und in deiner iCloud."
  },
  "tip_654fb12e51": {
   "message": "Das Wichtige hervorheben"
@@ -2906,11 +2951,11 @@
  "tip_de4adc7524": {
   "message": "Ähnliches finden"
  },
- "tip_b2248495b1": {
-  "message": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+ "tip_2c6d9f34e3": {
+  "message": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu. Ultra sucht vollständig und öffnet jeden Link, um ihn zu prüfen, bevor du ihn siehst. Pro hat eine schnelle Suche, bis zu 5 pro Woche, und jede zählt als 10 Antworten."
  },
- "tip_31666a3aab": {
-  "message": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+ "tip_9bb47159a4": {
+  "message": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu. Ultra sucht vollständig und öffnet jeden Link, um ihn zu prüfen, bevor du ihn siehst. Pro hat eine schnelle Suche, bis zu 5 pro Woche, und jede zählt als 10 Antworten."
  },
  "tip_c518fb0674": {
   "message": "Anhören"
@@ -2933,6 +2978,24 @@
  "tip_a8e1d14e5b": {
   "message": "Tippe in einem beliebigen Feld auf einer Seite / und ein paar Wörter einer Vorlage, dann Tab. Control-Umschalt-V öffnet die ganze Liste: was du in anderen Tabs kopiert hast, deine Vorlagen und die letzte Antwort von ContextFlow."
  },
+ "tip_8213493414": {
+  "message": "Vor dem Senden prüfen oder umschreiben"
+ },
+ "tip_4a10311c4a": {
+  "message": "Du schreibst eine E-Mail oder einen Kommentar? Tippe auf die ContextFlow-Taste neben dem Feld: „Prüfen“ und „Umschreiben“ stehen ganz oben in der Liste. „Prüfen“ korrigiert Fehler, „Umschreiben“ macht den Text kürzer, herzlicher, förmlicher oder selbstbewusster. Beide berücksichtigen die Seite, etwa die E-Mail, auf die du antwortest, und „Widerrufen“ holt deine Worte zurück. Jedes Tippen zählt als eine Antwort."
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "Du schreibst eine E-Mail oder einen Kommentar? Sobald ein paar Wörter dastehen, zeig auf den Kreis über dem Feld: „Prüfen“ korrigiert Fehler, „Umschreiben“ macht den Text kürzer, herzlicher, förmlicher oder selbstbewusster. Beide berücksichtigen die Seite, etwa die E-Mail, auf die du antwortest, und „Widerrufen“ holt deine Worte zurück. Jeder Klick zählt als eine Antwort."
+ },
+ "tip_898fe0f06c": {
+  "message": "Fehler beim Tippen unterstrichen"
+ },
+ "tip_b9954518f0": {
+  "message": "Mit Pro oder Ultra reicht eine Tipppause, und ein Fehler im geänderten Absatz wird unterstrichen. Tippe auf die Unterstreichung, um die Korrektur zu sehen, dann auf „Korrigieren“ oder „Ignorieren“. Das zählt nicht als Antwort, und du kannst es in den Erweiterungseinstellungen ausschalten."
+ },
+ "tip_7e0eabc91c": {
+  "message": "Mit Pro oder Ultra reicht eine Tipppause, und ein Fehler im geänderten Absatz wird unterstrichen. Zeig auf die Unterstreichung, um die Korrektur zu sehen, dann klick auf „Korrigieren“ oder „Ignorieren“. Das zählt nicht als Antwort, und du kannst es in den Erweiterungseinstellungen ausschalten."
+ },
  "tip_451fa9ccb6": {
   "message": "Kopiertes, einen Tag lang"
  },
@@ -2954,6 +3017,12 @@
  "tip_b5d4d7711a": {
   "message": "Du liest etwas, das du später zu Ende lesen willst? Markiere eine Zeile und tippe auf die Glocke, oder tippe oben im Panel auf „…“, dann auf „An diese Seite erinnern…“, und wähle eine Zeit: Die Erinnerung öffnet diese Seite. Antworten und Notizen haben „Erinnern“ in ihrem Menü „…“."
  },
+ "tip_529cd4b087": {
+  "message": "Zu Kalender oder Erinnerungen"
+ },
+ "tip_c20a65b22a": {
+  "message": "Schreib „erinnere mich, am Freitag die Bank anzurufen“ oder frag nach einem Datum auf der Seite: Die Antwort kommt mit einer Karte, auf der du Datum und Uhrzeit prüfst, und „Hinzufügen“ trägt es in Kalender oder Erinnerungen ein. Jede Antwort und Notiz hat „Zu Kalender oder Erinnerungen“ in ihrem Menü „…“. Unter „Erinnern“ legt „Auch in Erinnerungen“ deine Erinnerung zusätzlich in der Erinnerungen-App von Apple an."
+ },
  "tip_74c328b672": {
   "message": "Wissen, wann der Preis fällt"
  },
@@ -2968,6 +3037,18 @@
  },
  "tip_623811ea30": {
   "message": "Mit + startest du einen neuen Chat. Frühere warten in der Chatliste: Öffne einen, um weiterzumachen, benenne ihn mit dem Stift um oder lösche ihn."
+ },
+ "tip_827a76a38d": {
+  "message": "Bereiche für Arbeit und Privates"
+ },
+ "tip_6bf925510c": {
+  "message": "Halte Arbeit, Privates und Einkaufen auseinander. „Neuer Bereich“ am Ende der Chatliste legt einen neuen in eigener Farbe an. Mit dem Umschalter oben in der Liste wechselst du zwischen ihnen, und ein neuer Chat landet im Bereich, in dem du gerade bist. Im Umschalter hält „amazon.com hier öffnen“ diese Website in diesem Bereich. Kostenlos ist ihre Zahl begrenzt, mit Pro oder Ultra so viele du willst."
+ },
+ "tip_3512a4ae8c": {
+  "message": "Der Chat zu dieser Seite"
+ },
+ "tip_05b9621aed": {
+  "message": "Öffne das Panel auf einer Seite, und ContextFlow wählt den Chat dazu: den mit dieser Seite oder einen zum selben Thema. „Weiter in“ oben zeigt, welchen Chat es gewählt hat; „Neuer Chat“ daneben startet einen frischen."
  },
  "tip_c4b432e2e9": {
   "message": "Durchsuche deine Chats"
@@ -3032,6 +3113,12 @@
  "tip_0f2289f887": {
   "message": "Nach dem Kauf von Pro oder Ultra zeigt dir ContextFlow Schritt für Schritt, was dein Tarif bietet. Um es noch einmal zu sehen, tippe oben im Panel auf „…“, dann auf „Weiteres …“ und „Was Pro bietet“ oder „Was Ultra bietet“. In der App findest du es in den „Einstellungen“ unter „Dein Tarif“."
  },
+ "tip_3ee4fbeeb2": {
+  "message": "Freunde einladen"
+ },
+ "tip_0e8493432d": {
+  "message": "„Einstellungen“ → „Freunde einladen“, in der App oder in Safari, gibt dir einen Code und einen Link zum Verschicken. Dein Freund bekommt in seiner ersten Woche jeden Tag Bonusantworten. Sobald er an zwei verschiedenen Tagen Fragen gestellt hat, bekommst du Rabatt auf den ersten Monat Pro oder Ultra."
+ },
  "tip_3208aa35ac": {
   "message": "Datenschutz & Personalisierung"
  },
@@ -3046,6 +3133,12 @@
  },
  "tip_6cc366173d": {
   "message": "Brauchst du ✦ auf einer Website nicht? Blende die Taste dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+ },
+ "tip_cc54dd5946": {
+  "message": "Tipps an der ✦-Taste"
+ },
+ "tip_325d207bb4": {
+  "message": "In den ersten Tagen schlägt eine kurze Zeile an der ✦-Taste etwas für die Seite vor, auf der du bist: eine Zusammenfassung eines langen Artikels, einen Preis zum Beobachten, ein Datum für deinen Kalender. Tippe darauf, um zu sehen, wie es geht. Die Zeilen schaltest du in den Erweiterungseinstellungen unter „Tipps an der ✦-Taste“ ab."
  },
  "tip_8a727e1bbe": {
   "message": "Eigenen API-Schlüssel nutzen"
