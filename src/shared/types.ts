@@ -256,7 +256,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -374,7 +374,11 @@ export const STORAGE = {
   // the tag checks' answers ({[hash]: tags}), and the cards about it already shown or closed.
   orgVectors: "cf:orgVectors",
   orgVerdicts: "cf:orgVerdicts",
-  orgCards: "cf:orgCards"
+  orgCards: "cf:orgCards",
+  // Spaces (2.7, src/shared/spaces.ts): the list ({ u, list }), and the time of the copy iCloud and the app have.
+  spaces: "cf:spaces",
+  spacesSynced: "cf:spacesSynced",
+  spacesMirrored: "cf:spacesMirrored"
 } as const
 
 export interface Settings {
@@ -410,6 +414,10 @@ export interface Settings {
   // and keeping what's copied on pages for its list. Its other settings stay on this device (cf:insert).
   insertButton: boolean
   keepCopied: boolean
+  // 2.7: Spaces (the owner: «Давай сделаем Пространства выключаемой опцией в настройках»). On by default, and still
+  // nothing shows while there's one space. Off: no switcher, colours or site bindings, every chat in one list; the
+  // spaces and which chat is in which stay, for when it's on again. Shared with the app, like the rest.
+  spaces: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -429,7 +437,8 @@ export const DEFAULT_SETTINGS: Settings = {
   organize: false,
   shareMarks: false,
   insertButton: true,
-  keepCopied: COPIED_DEFAULT_ON
+  keepCopied: COPIED_DEFAULT_ON,
+  spaces: true
 }
 
 /** AI search's answer: the matching chats with a reason, or why there are none. */

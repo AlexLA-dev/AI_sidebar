@@ -256,6 +256,12 @@ export function SettingsView(props: Props): VNode {
           </div>
         ))}
         {TARGET === "safari" && !hasPro(plan) && <p class="cf-hint">{t("setOrganizePro")}</p>}
+        {/* 2.7: Spaces, on by default (nothing shows while there's one). Off: one list again, nothing lost. */}
+        <label class="cf-row toggle">
+          <span class="cf-label">{t("setSpaces")}</span>
+          <input type="checkbox" checked={settings.spaces !== false} onChange={(e) => onChange({ spaces: e.currentTarget.checked })} />
+        </label>
+        <p class="cf-hint">{t("setSpacesHint")}</p>
         {TARGET === "safari" && (
           <>
             <label class="cf-row toggle">

@@ -184,6 +184,8 @@ struct ChatThread: Identifiable, Hashable {
     /// What organizing suggested for it, kept with it so every device shows it at once and knows what was turned down
     /// (2.6 (93), "org").
     let org: OrgState?
+    /// 2.7: the space it's in ("sp"); nil, or a space there isn't (deleted, not here yet): the first (SpaceRecord).
+    let space: String?
 
     /// A part read on its own: one that doesn't make sense is nil, the chat still reads.
     private struct Lenient<T: Decodable>: Decodable {
@@ -200,6 +202,7 @@ struct ChatThread: Identifiable, Hashable {
         var tags: [String]?
         var trashed: Double?
         var org: Lenient<OrgState>?
+        var sp: String?
         var m: [ChatEntry]
     }
 
@@ -225,6 +228,7 @@ struct ChatThread: Identifiable, Hashable {
         ownTags = Tags.clean(stored.tags ?? [])
         trashedAt = stored.trashed.flatMap { $0.isFinite && abs($0) < 9e15 ? Int64($0) : nil }
         org = stored.org?.value
+        space = stored.sp.flatMap { $0.isEmpty || $0.count > 64 ? nil : $0 }
         entries = stored.m
     }
 
@@ -297,7 +301,7 @@ struct ChatThread: Identifiable, Hashable {
     /// The same chat with its name and pin changed, as of `updatedAt`. For each: nil keeps it,
     /// `.some(nil)` removes it, `.some(value)` sets it. `trashed` the same: in Recently Deleted since then, or out of it.
     /// Every other field stays as it is in the JSON, those this version doesn't know too.
-    func edited(title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, org: OrgState?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
+    func edited(title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, org: OrgState?? = nil, space: String?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
         let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
         guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
         switch title {
@@ -331,6 +335,12 @@ struct ChatThread: Identifiable, Hashable {
         case .none: break
         case .some(.none): object.removeValue(forKey: "org")
         case .some(.some(let value)): object["org"] = value.json
+        }
+        // 2.7: «Переместить в…» (the first space: none).
+        switch space {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "sp")
+        case .some(.some(let value)): object["sp"] = value
         }
         // Renaming, pinning, tagging, deleting or restoring keeps the chat's place by its last message.
         if object["a"] == nil { object["a"] = lastAt }
@@ -609,6 +619,13 @@ final class ChatLibrary: ObservableObject {
     @Published private(set) var trashed: [ChatThread] = []
     @Published private(set) var cloud: Cloud = .off
     @Published private(set) var loaded = false
+    /// Spaces (2.7, SpaceRecord): the list as the extension, iCloud and this app keep it.
+    @Published private(set) var spaceList = SpaceRecord.List()
+    private var spaceItem: ChatMirror.Item?
+    /// The space the Chats screen shows (this device's app; Safari's panel keeps its own).
+    @Published var currentSpace: String = UserDefaults.standard.string(forKey: "cf_space_current") ?? SpaceRecord.first {
+        didSet { UserDefaults.standard.set(currentSpace, forKey: "cf_space_current") }
+    }
 
     /// How long a deleted chat stays in Recently Deleted (src/shared/threads.ts TRASH_DAYS).
     static let trashDays = 30
@@ -882,7 +899,10 @@ final class ChatLibrary: ObservableObject {
 
     private func reload() {
         let items = ChatMirror.chats()
-        let all = items.compactMap { id, item in ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
+        // The spaces' list (2.7) is kept next to the chats; it isn't one.
+        spaceItem = items[SpaceRecord.id]
+        spaceList = spaceItem.flatMap { SpaceRecord.parse($0.data) } ?? SpaceRecord.List()
+        let all = items.compactMap { id, item in id == SpaceRecord.id ? nil : ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
             .filter { !$0.entries.isEmpty }
         threads = all.filter { !$0.isTrashed }.sorted(by: Self.listOrder)
         trashed = all.filter(\.isTrashed).sorted { a, b in a.trashedAt != b.trashedAt ? a.trashedAt! > b.trashedAt! : a.id < b.id }
@@ -1095,6 +1115,107 @@ final class ChatLibrary: ObservableObject {
         }
     }
 
+    // MARK: Spaces (2.7)
+
+    /// Settings' switch, shared with Safari's panel (on by default). Off: one list of every chat, no switcher; the
+    /// spaces and which chat is in which stay.
+    var spacesOn: Bool {
+        get { SharedDefaults.shared.readSettings()?.settings["spaces"] as? Bool ?? true }
+        set {
+            var stored = SharedDefaults.shared.readSettings()?.settings ?? [:]
+            stored["spaces"] = newValue
+            SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+            objectWillChange.send()
+        }
+    }
+
+    /// The spaces there are, the first one always.
+    var spaces: [SpaceRecord.Shown] { SpaceRecord.live(spaceList, firstName: String(localized: "Personal", comment: "The first space's name until it's renamed (2.7 Spaces)")) }
+
+    /// More than one space, Spaces on: only then do the switcher, the colours and moving chats show.
+    var hasSpaces: Bool { spacesOn && spaces.count > 1 }
+
+    /// The space the Chats screen is in (a deleted one: the first).
+    var shownSpace: String { spacesOn ? SpaceRecord.resolve(spaceList, currentSpace) : SpaceRecord.first }
+
+    /// The space a chat is in.
+    func spaceOf(_ thread: ChatThread) -> SpaceRecord.Shown {
+        let id = SpaceRecord.resolve(spaceList, thread.space)
+        return spaces.first { $0.id == id } ?? spaces[0]
+    }
+
+    /// The chats of the space shown (every chat with Spaces off, or one space).
+    func inSpace(_ list: [ChatThread]) -> [ChatThread] {
+        guard hasSpaces else { return list }
+        let here = shownSpace
+        return list.filter { SpaceRecord.resolve(spaceList, $0.space) == here }
+    }
+
+    /// Whether another space can be made: Free has SpaceRecord.freeSpaces (the first counts), Pro and Ultra no limit.
+    func canAddSpace(pro: Bool) -> Bool { pro || spaces.count < SpaceRecord.freeSpaces }
+
+    /// The colour a new space starts with: the first one no space has.
+    var nextColor: String {
+        let used = Set(spaces.map(\.color))
+        return SpaceRecord.colors.first { !used.contains($0.name) }?.name ?? SpaceRecord.colors[spaces.count % SpaceRecord.colors.count].name
+    }
+
+    /// Changes the list and stores it here, for the extension and in iCloud, as a chat's change goes.
+    private func changeSpaces(_ change: (inout SpaceRecord.List, Double) -> Void) {
+        var list = spaceList
+        let at = Double(max(now, (spaceItem?.updatedAt ?? 0) + 1))
+        change(&list, at)
+        guard list != spaceList else { return }
+        let item = ChatMirror.Item(updatedAt: Int64(at), data: SpaceRecord.json(list))
+        ChatMirror.apply(saves: [SpaceRecord.id: item])
+        ChatMirror.queue(.init(id: SpaceRecord.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
+        reload()
+        if syncOn {
+            Task { await syncCloud([.save(.init(id: SpaceRecord.id, updatedAt: item.updatedAt, data: item.data))]) }
+        }
+    }
+
+    /// A new space, at the end of the list; the Chats screen goes into it.
+    func addSpace(name: String, color: String) {
+        let id = UUID().uuidString.lowercased()
+        let order = (spaces.map(\.order).max() ?? 0) + 1
+        let clean = SpaceRecord.cleanName(name)
+        changeSpaces { list, at in
+            list.spaces[id] = SpaceRecord.Space(id: id, n: clean.isEmpty ? nil : clean, c: color, o: order, u: at)
+        }
+        currentSpace = id
+    }
+
+    /// A space renamed or recoloured (the first one too: under its default name it keeps none).
+    func editSpace(_ id: String, name: String, color: String, firstName: String) {
+        let clean = SpaceRecord.cleanName(name)
+        changeSpaces { list, at in
+            let stored = list.spaces[id]
+            guard stored?.d != true, stored != nil || id == SpaceRecord.first else { return }
+            let n = id == SpaceRecord.first && clean == firstName ? nil : (clean.isEmpty ? nil : clean)
+            list.spaces[id] = SpaceRecord.Space(id: id, n: n, c: color, o: stored?.o, u: max(at, (stored?.u ?? 0) + 1))
+        }
+    }
+
+    /// A space deleted: its chats are in the first space from now on, its sites open as any other.
+    func deleteSpace(_ id: String) {
+        guard id != SpaceRecord.first else { return }
+        changeSpaces { list, at in
+            guard let stored = list.spaces[id], !stored.d else { return }
+            list.spaces[id] = SpaceRecord.Space(id: id, u: max(at, stored.u + 1), d: true)
+            for (host, binding) in list.bindings where binding.s == id { list.bindings[host] = SpaceRecord.Binding(s: nil, u: max(at, binding.u + 1)) }
+        }
+        if currentSpace == id { currentSpace = SpaceRecord.first }
+    }
+
+    /// «Переместить в…»: the chat goes into `space`; its place in the list stays.
+    func moveChat(_ thread: ChatThread, to space: String) {
+        guard SpaceRecord.resolve(spaceList, thread.space) != space else { return }
+        let at = max(now, thread.updatedAt + 1)
+        guard let item = thread.edited(title: nil, pin: nil, space: .some(space == SpaceRecord.first ? nil : space), updatedAt: at) else { return }
+        store(thread, item)
+    }
+
     // MARK: Organizing (2.5)
 
     /// Moves messages `start`…`end` of a chat (a page block) to another chat, or to a new one (nil), as
@@ -1202,6 +1323,8 @@ final class ChatLibrary: ObservableObject {
         let previous = threads.first { $0.id == id }
         // The stored JSON with the new messages: its name, pin, tags and the fields a newer version wrote stay.
         var object = previous.flatMap { (try? JSONSerialization.jsonObject(with: Data($0.data.utf8))) as? [String: Any] } ?? [:]
+        // 2.7: a new one goes into the space the Chats screen is in.
+        if previous == nil, spacesOn, shownSpace != SpaceRecord.first { object["sp"] = shownSpace }
         object["k"] = "history"
         object["a"] = at
         object["m"] = messages

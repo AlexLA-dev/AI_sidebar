@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "Не вдалося перекласти"
  },
+ "spacesTitle": {
+  "message": "Простори"
+ },
+ "spaceSwitcher": {
+  "message": "Простір: {0}. Перемкнути"
+ },
+ "spaceFirst": {
+  "message": "Особисте"
+ },
+ "spaceNew": {
+  "message": "Новий простір"
+ },
+ "spaceEdit": {
+  "message": "Змінити «{0}»"
+ },
+ "spaceName": {
+  "message": "Назва"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Наприклад, Робота"
+ },
+ "spaceColor": {
+  "message": "Колір"
+ },
+ "spaceColorBlue": {
+  "message": "Синій"
+ },
+ "spaceColorGreen": {
+  "message": "Зелений"
+ },
+ "spaceColorOrange": {
+  "message": "Помаранчевий"
+ },
+ "spaceColorPink": {
+  "message": "Рожевий"
+ },
+ "spaceColorViolet": {
+  "message": "Фіолетовий"
+ },
+ "spaceColorGraphite": {
+  "message": "Графіт"
+ },
+ "spaceCreate": {
+  "message": "Створити"
+ },
+ "spaceDelete": {
+  "message": "Видалити простір"
+ },
+ "spaceDeleteNote": {
+  "message": "Його чати перейдуть до «{0}»."
+ },
+ "spaceBind": {
+  "message": "Відкривати {0} тут"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} відкривається в «{1}». Відкривати тут"
+ },
+ "spaceMoveTo": {
+  "message": "Перемістити до…"
+ },
+ "spaceMoved": {
+  "message": "Перенесено до «{0}»"
+ },
+ "spaceIn": {
+  "message": "Ви в «{0}»"
+ },
+ "spaceLimit": {
+  "message": "Безкоштовно просторів: {0}. У Pro — скільки завгодно."
+ },
+ "spaceEmpty": {
+  "message": "У «{0}» поки немає чатів. Новий чат з’явиться тут."
+ },
+ "setSpaces": {
+  "message": "Простори"
+ },
+ "setSpacesHint": {
+  "message": "Робота, Особисте, Покупки: у кожному свої чати й свій колір. Вимкніть — усі чати знову в одному списку, простори збережуться."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "Không dịch được"
  },
+ "spacesTitle": {
+  "message": "Không gian"
+ },
+ "spaceSwitcher": {
+  "message": "Không gian: {0}. Chuyển"
+ },
+ "spaceFirst": {
+  "message": "Cá nhân"
+ },
+ "spaceNew": {
+  "message": "Không gian mới"
+ },
+ "spaceEdit": {
+  "message": "Sửa “{0}”"
+ },
+ "spaceName": {
+  "message": "Tên"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Ví dụ: Công việc"
+ },
+ "spaceColor": {
+  "message": "Màu"
+ },
+ "spaceColorBlue": {
+  "message": "Xanh dương"
+ },
+ "spaceColorGreen": {
+  "message": "Xanh lá"
+ },
+ "spaceColorOrange": {
+  "message": "Cam"
+ },
+ "spaceColorPink": {
+  "message": "Hồng"
+ },
+ "spaceColorViolet": {
+  "message": "Tím"
+ },
+ "spaceColorGraphite": {
+  "message": "Than chì"
+ },
+ "spaceCreate": {
+  "message": "Tạo"
+ },
+ "spaceDelete": {
+  "message": "Xóa không gian"
+ },
+ "spaceDeleteNote": {
+  "message": "Các cuộc trò chuyện của nó sẽ chuyển sang “{0}”."
+ },
+ "spaceBind": {
+  "message": "Mở {0} ở đây"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} mở trong “{1}”. Mở ở đây"
+ },
+ "spaceMoveTo": {
+  "message": "Chuyển đến…"
+ },
+ "spaceMoved": {
+  "message": "Đã chuyển đến “{0}”"
+ },
+ "spaceIn": {
+  "message": "Bạn đang ở “{0}”"
+ },
+ "spaceLimit": {
+  "message": "Số không gian miễn phí: {0}. Với Pro, bao nhiêu cũng được."
+ },
+ "spaceEmpty": {
+  "message": "“{0}” chưa có cuộc trò chuyện nào. Cuộc trò chuyện mới sẽ ở đây."
+ },
+ "setSpaces": {
+  "message": "Không gian"
+ },
+ "setSpacesHint": {
+  "message": "Công việc, Cá nhân, Mua sắm: mỗi không gian có cuộc trò chuyện và màu riêng. Tắt: mọi cuộc trò chuyện về một danh sách, các không gian vẫn được giữ."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

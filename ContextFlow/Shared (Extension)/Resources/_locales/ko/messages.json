@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "번역하지 못했습니다"
  },
+ "spacesTitle": {
+  "message": "스페이스"
+ },
+ "spaceSwitcher": {
+  "message": "스페이스: {0}. 전환"
+ },
+ "spaceFirst": {
+  "message": "개인"
+ },
+ "spaceNew": {
+  "message": "새 스페이스"
+ },
+ "spaceEdit": {
+  "message": "‘{0}’ 편집"
+ },
+ "spaceName": {
+  "message": "이름"
+ },
+ "spaceNamePlaceholder": {
+  "message": "예: 업무"
+ },
+ "spaceColor": {
+  "message": "색상"
+ },
+ "spaceColorBlue": {
+  "message": "파랑"
+ },
+ "spaceColorGreen": {
+  "message": "초록"
+ },
+ "spaceColorOrange": {
+  "message": "주황"
+ },
+ "spaceColorPink": {
+  "message": "분홍"
+ },
+ "spaceColorViolet": {
+  "message": "보라"
+ },
+ "spaceColorGraphite": {
+  "message": "그래파이트"
+ },
+ "spaceCreate": {
+  "message": "만들기"
+ },
+ "spaceDelete": {
+  "message": "스페이스 삭제"
+ },
+ "spaceDeleteNote": {
+  "message": "이 스페이스의 채팅은 ‘{0}’(으)로 옮겨집니다."
+ },
+ "spaceBind": {
+  "message": "{0}을(를) 여기서 열기"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0}은(는) ‘{1}’에서 열립니다. 여기서 열기"
+ },
+ "spaceMoveTo": {
+  "message": "이동…"
+ },
+ "spaceMoved": {
+  "message": "‘{0}’(으)로 옮김"
+ },
+ "spaceIn": {
+  "message": "‘{0}’에 있습니다"
+ },
+ "spaceLimit": {
+  "message": "무료 스페이스: {0}개. Pro에서는 원하는 만큼."
+ },
+ "spaceEmpty": {
+  "message": "‘{0}’에 아직 채팅이 없습니다. 새 채팅이 여기에 들어갑니다."
+ },
+ "setSpaces": {
+  "message": "스페이스"
+ },
+ "setSpacesHint": {
+  "message": "업무, 개인, 쇼핑: 각자 자기 채팅과 색상이 있습니다. 끄면 모든 채팅이 한 목록으로 돌아가고 스페이스는 그대로 남습니다."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

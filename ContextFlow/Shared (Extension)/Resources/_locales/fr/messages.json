@@ -2375,6 +2375,84 @@
  "trFailed": {
   "message": "Échec de la traduction"
  },
+ "spacesTitle": {
+  "message": "Espaces"
+ },
+ "spaceSwitcher": {
+  "message": "Espace : {0}. Changer"
+ },
+ "spaceFirst": {
+  "message": "Perso"
+ },
+ "spaceNew": {
+  "message": "Nouvel espace"
+ },
+ "spaceEdit": {
+  "message": "Modifier « {0} »"
+ },
+ "spaceName": {
+  "message": "Nom"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Par exemple, Travail"
+ },
+ "spaceColor": {
+  "message": "Couleur"
+ },
+ "spaceColorBlue": {
+  "message": "Bleu"
+ },
+ "spaceColorGreen": {
+  "message": "Vert"
+ },
+ "spaceColorOrange": {
+  "message": "Orange"
+ },
+ "spaceColorPink": {
+  "message": "Rose"
+ },
+ "spaceColorViolet": {
+  "message": "Violet"
+ },
+ "spaceColorGraphite": {
+  "message": "Graphite"
+ },
+ "spaceCreate": {
+  "message": "Créer"
+ },
+ "spaceDelete": {
+  "message": "Supprimer l’espace"
+ },
+ "spaceDeleteNote": {
+  "message": "Ses discussions iront dans « {0} »."
+ },
+ "spaceBind": {
+  "message": "Ouvrir {0} ici"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} s’ouvre dans « {1} ». L’ouvrir ici"
+ },
+ "spaceMoveTo": {
+  "message": "Déplacer vers…"
+ },
+ "spaceMoved": {
+  "message": "Déplacé vers « {0} »"
+ },
+ "spaceIn": {
+  "message": "Vous êtes dans « {0} »"
+ },
+ "spaceLimit": {
+  "message": "Espaces en version gratuite : {0}. Avec Pro, autant que vous voulez."
+ },
+ "spaceEmpty": {
+  "message": "Pas encore de discussion dans « {0} ». Une nouvelle discussion arrivera ici."
+ },
+ "setSpaces": {
+  "message": "Espaces"
+ },
+ "setSpacesHint": {
+  "message": "Travail, Perso, Achats : chacun avec ses discussions et sa couleur. Désactivé : toutes les discussions dans une seule liste, vos espaces sont conservés."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

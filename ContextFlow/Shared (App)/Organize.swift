@@ -36,6 +36,8 @@ nonisolated struct OrganizeThread {
     var activity: Double { (object["a"] as? NSNumber)?.doubleValue ?? Double(u) }
     /// What organizing suggested for it, kept with it (2.6 (93), "org").
     var org: OrgState? { OrgState(object["org"]) }
+    /// 2.7: the space it's in ("sp"), as stored.
+    var space: String? { object["sp"] as? String }
 
     func with(u: Int64, a: Double, m: [[String: Any]]) -> OrganizeThread {
         var next = object
@@ -427,7 +429,8 @@ nonisolated enum Organize {
             // The chat the block goes to keeps its place in the list (2.5 (77): a move isn't a new message).
             nextTarget = target.with(u: later(target.u, now), a: target.activity, m: m)
         } else {
-            nextTarget = OrganizeThread(id: targetId, u: now, object: [:]).with(u: now, a: newest ?? source.activity, m: m)
+            // A new chat stays in the source's space (2.7, "sp").
+            nextTarget = OrganizeThread(id: targetId, u: now, object: source.object["sp"].map { ["sp": $0] } ?? [:]).with(u: now, a: newest ?? source.activity, m: m)
         }
         let nextSource = rest.isEmpty ? nil : source.with(u: later(source.u, now), a: entryTimes(rest).last.flatMap { $0 } ?? source.activity, m: rest)
         let undo = MoveUndo(source: source.id, target: targetId, keys: moved.map { $0["id"] as? String ?? "" },

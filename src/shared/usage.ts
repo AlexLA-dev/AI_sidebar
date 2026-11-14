@@ -62,7 +62,7 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.0", actions: ["open", "change"],
     fields: {
       key: ["theme", "text_size", "fab", "bubble", "share_marks", "about_me", "icloud", "organize", "copied", "qi_button",
-        "qi_sign", "key_model", "own_key", "show_tips", "delete_all"],
+        "qi_sign", "key_model", "own_key", "show_tips", "delete_all", "spaces"],
       val: ["on", "off", "set", "clear"]
     }
   },
@@ -131,7 +131,7 @@ export const FEATURES: Record<string, Feature> = {
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
-    via: ["listen", "settings", "watch", "limit", "similar", "translate"],
+    via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
     fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
   },
@@ -197,6 +197,15 @@ export const FEATURES: Record<string, Feature> = {
     actions: ["open", "shown", "nothing", "added", "app", "denied", "failed", "unavailable", "not_asked", "dismissed", "also_on", "also_off"],
     via: ["chat", "menu", "chip", "card", "remind", "app"],
     fields: { what: ["reminder", "event"] }
+  },
+
+  // 2.7: Spaces (src/shared/spaces.ts), counts only: never a space's name or colour, nor a site. "switch": how (the
+  // header's list, the app's list, a bound site, a chat opened from another space, a search hit); "bind" and "toggle":
+  // on or off (Settings' switch); "limit": Free asked for one more than it has; "spaces": how many there are then.
+  space: {
+    since: "2.7", tracked: "2.7", actions: ["create", "switch", "move", "bind", "toggle", "edit", "delete", "limit"],
+    via: ["header", "app", "site", "chat", "list", "settings"],
+    fields: { val: ["on", "off"], spaces: "int" }
   },
 
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.
