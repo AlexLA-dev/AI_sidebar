@@ -113,6 +113,15 @@ export const FEATURES: Record<string, Feature> = {
     fields: { what: ["summary", "translate", "selection", "note", "video", "pdf", "chats", "search", "tags", "ai_search", "ask_chats", "quick_insert", "templates", "copied", "organize"] }
   },
   setup: { since: "2.4", on: "app", actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap"] },
+  // 2.7 (plan section 8, «Активация»): the way from the app to ContextFlow switched on, counted, never what's on screen.
+  // "video": the guide started floating over Settings (iPhone, iPad); "settings": Settings opened from the app (the
+  // home card, or on a Mac the chats' empty state too); "back": the app in front again after that trip; "enabled": the
+  // app saw ContextFlow switched on (once an install). "linked": once, the extension's own side, when the panel first
+  // gives it the install id, sends it with the app's id (both random), so the steps in the app join the ones Safari's
+  // side logs: switched on there (ext_on) and the first answer.
+  activation: {
+    since: "2.7", tracked: "2.7", on: "app", actions: ["video", "settings", "back", "enabled", "linked"], via: ["card", "chats"]
+  },
   // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page
   // its tap opened showed the panel on that chat (the chat named in the page's address, the panel's step).
   notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"] } },
@@ -257,6 +266,15 @@ export const FEATURES: Record<string, Feature> = {
   match: {
     since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "other"],
     fields: { why: ["page", "topic", "meaning", "site"], match: "int" }
+  },
+
+  // 2.7: Подборки (src/shared/collections.ts), counts only: never a name, a gist, a site. "add": a card put in (via the
+  // panel, the app, the suggestion taken or another place picked); "limit": Free asked for more than one collection or
+  // ten cards; "layout", "compare", "summary": the AI's (Pro); "pdf": exported; "open": the collections window or screen.
+  collect: {
+    since: "2.7", tracked: "2.7", actions: ["create", "add", "move", "section_add", "section_rename", "section_delete", "delete", "layout", "compare", "summary", "pdf", "open", "limit"],
+    via: ["panel", "app", "suggested", "picked", "header", "list", "sidebar"],
+    fields: { cards: "int", what: ["collection", "card"] }
   },
 
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.

@@ -48,6 +48,16 @@ final class Activation: ObservableObject {
         appId = launch.id
         newInstall = launch.newInstall
         state = Self.recordedState()
+        // 2.7: the app left for Settings. From the system itself: SwiftUI's scene phase doesn't reach the views once the
+        // app is in the background (the simulator run saw only the way back).
+        #if os(iOS)
+        let left = UIApplication.didEnterBackgroundNotification
+        #else
+        let left = NSApplication.didResignActiveNotification
+        #endif
+        NotificationCenter.default.addObserver(forName: left, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.wentAway() }
+        }
     }
 
     private static func recordedState() -> State {
@@ -72,8 +82,63 @@ final class Activation: ObservableObject {
             if !enabled { next = .off } else if next == .off { next = .on }
         }
         #endif
+        let before = state
         state = next
         if next != .off { SetupReminders.cancel() }
+        if before == .off, next != .off { reportEnabled() }
+    }
+
+    // MARK: The way to switching it on (2.7, plan section 8 «Активация»): counts only, f "activation" in usage.ts.
+
+    /// Leaving for Settings (still in front) or gone. Also kept on disk while it lasts: switching ContextFlow on in
+    /// Settings can end the app's process, and the relaunch is still the way back.
+    private enum Trip { case going, away }
+    private var trip: Trip?
+    private static let tripKey = "cf_activation_trip_at"
+    /// When the next step may go: a second after the one before, so the server gets them in their order (the video and
+    /// Settings come a moment apart), and none waits on another's answer (one in flight as the app leaves can hang).
+    private var nextStepAt = Date.distantPast
+    private static let enabledReportedKey = "cf_activation_enabled_reported"
+
+    private func step(_ action: String, _ fields: [String: String] = [:]) {
+        let now = Date()
+        let at = max(now, nextStepAt)
+        nextStepAt = at.addingTimeInterval(1)
+        ChatAI.reportUse("activation", action, fields, after: at.timeIntervalSince(now))
+    }
+
+    /// The guide's video started floating over Settings (iPhone, iPad).
+    func guideStarted() { step("video") }
+
+    /// Settings opened from the app to switch ContextFlow on: "card" (the home screen's), "chats" (their empty state, Mac).
+    func wentToSettings(_ via: String) {
+        trip = .going
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.tripKey)
+        step("settings", ["via": via])
+    }
+
+    /// The app is no longer in front (Settings is).
+    private func wentAway() {
+        if trip == .going { trip = .away }
+    }
+
+    /// In front again after the trip to Settings: once a trip, within the hour. After a relaunch nothing is in memory,
+    /// and the trip on disk is the sign the app left.
+    func cameBack() {
+        let defaults = UserDefaults.standard
+        let at = defaults.double(forKey: Self.tripKey)
+        guard at > 0, trip != .going else { return }
+        trip = nil
+        defaults.removeObject(forKey: Self.tripKey)
+        if Date().timeIntervalSince1970 - at < 3600 { step("back") }
+    }
+
+    /// The app first saw it switched on, once an install (an update that had it on before never sends it).
+    private func reportEnabled() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: Self.enabledReportedKey) else { return }
+        defaults.set(true, forKey: Self.enabledReportedKey)
+        step("enabled")
     }
 
     #if os(iOS)
@@ -91,6 +156,8 @@ final class Activation: ObservableObject {
     /// On every launch: offer the reminders once on a new install that isn't set up yet, then report
     /// "app opened" (once a day).
     func launched() async {
+        // Back from Settings in a new process (2.7): before refresh, which may count it switched on.
+        cameBack()
         await refresh()
         let defaults = UserDefaults.standard
         if newInstall, state == .off, !defaults.bool(forKey: Self.remindersOfferedKey) {
@@ -134,7 +201,8 @@ final class Activation: ObservableObject {
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         let adToken = Self.adAttributionToken()
         if let adToken { body["adToken"] = adToken }
-        var request = URLRequest(url: URL(string: "https://aisidebar.netlify.app/api/v2/event")!)
+        // Production; a debug build's local stand (-CFApiBase) too, so test runs stay out of the real counts (2.7).
+        var request = URLRequest(url: ChatAI.base.appendingPathComponent("api/v2/event"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
@@ -452,6 +520,7 @@ struct SetupCard: View {
     }
 
     private func openExtensionSettings() {
+        activation.wentToSettings("card")
         let appSettings = {
             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
         }
@@ -853,7 +922,10 @@ final class SettingsPiP: NSObject {
 
 extension SettingsPiP: AVPictureInPictureControllerDelegate {
     nonisolated func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
-        Task { @MainActor in self.openPending() }
+        Task { @MainActor in
+            Activation.shared.guideStarted()
+            self.openPending()
+        }
     }
 
     nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {

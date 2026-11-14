@@ -199,10 +199,11 @@ test("the usage events: counts only, never a name, colour or site", () => {
 test("the background syncs the list with the chats and keeps it apart from them", () => {
   const sync = readFileSync(new URL("../src/background/sync.ts", import.meta.url), "utf8")
   // iCloud: sent with the chats' changes, taken from what comes back, never into the chats.
-  assert.match(sync, /changes: spacesSent \? \[\.\.\.sent, spacesSent\] : sent/)
-  assert.match(sync, /applyRemote\(afterSend\.threads, afterSend\.synced, changes\.filter\(\(c\) => c\.id !== SPACES_RECORD\)/)
+  assert.match(sync, /changes: \[\.\.\.sent, \.\.\.\(spacesSent \? \[spacesSent\] : \[\]\), \.\.\.collectionsSent\]/)
+  assert.match(sync, /function sideRecord\(id: string\): boolean \{\s*return id === SPACES_RECORD \|\| isCollectionId\(id\)/)
+  assert.match(sync, /applyRemote\(afterSend\.threads, afterSend\.synced, changes\.filter\(\(c\) => !sideRecord\(c\.id\)\)/)
   // The app: mirrored with the chats, its changes merged in.
-  assert.match(sync, /applyAppChanges\(now, synced, reply\.appChanges\.filter\(\(c\) => c\.id !== SPACES_RECORD\)\)/)
+  assert.match(sync, /applyAppChanges\(now, synced, reply\.appChanges\.filter\(\(c\) => !sideRecord\(c\.id\)\)\)/)
   assert.match(sync, /const taken = takeSpaces\(current, appSpaces\)/)
   // Organizing compares a chat with its own space's chats only.
   const organize = readFileSync(new URL("../src/background/organize.ts", import.meta.url), "utf8")

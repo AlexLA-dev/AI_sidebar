@@ -4,6 +4,8 @@ import StoreKit
 import UserNotifications
 #if os(macOS)
 import AppKit
+#else
+import UIKit
 #endif
 
 /// Native side of the Safari extension. The extension's background script calls
@@ -68,15 +70,47 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         if !products.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(products, storefront: await Storefront.current?.countryCode)) }
     }
 
+    /// 2.7 (the activation funnel, src/shared/usage.ts "activation"): once, when the panel first gives this side its
+    /// install id, the server gets it with the app's id, so the steps in the app (Settings, back) join Safari's (switched
+    /// on, the first answer). Both ids are random; nothing else goes.
+    private static func reportLinked(app: String, install: String, base: String) {
+        #if DEBUG
+        let allowed = base.hasPrefix("https://") || base.hasPrefix("http://localhost:")
+        #else
+        let allowed = base.hasPrefix("https://")
+        #endif
+        guard allowed, let url = URL(string: base + "/api/v2/event") else { return }
+        #if os(macOS)
+        let platform = "macos"
+        #else
+        let platform = UIDevice.current.userInterfaceIdiom == .pad ? "ipados" : "ios"
+        #endif
+        let body: [String: Any] = [
+            "kind": "use", "f": "activation", "a": "linked", "s": "app", "appId": app, "installId": install,
+            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""]
+        ]
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        request.timeoutInterval = 15
+        Task { _ = try? await URLSession.shared.data(for: request) }
+    }
+
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any] ?? [:]
         let command = message["command"] as? String ?? ""
+        let knewInstall = command == "getEntitlement" ? SharedDefaults.shared.readExtensionStatus().installId : nil
         if SharedDefaults.shared.recordExtensionSeen(used: command == "getEntitlement", installId: message["installId"] as? String) {
             // Switched on: the reminders to finish setup the app scheduled are no longer needed.
             let center = UNUserNotificationCenter.current()
             center.removePendingNotificationRequests(withIdentifiers: SharedDefaults.setupReminderIds)
             center.removeDeliveredNotifications(withIdentifiers: SharedDefaults.setupReminderIds)
+        }
+        if command == "getEntitlement", knewInstall == nil, let install = SharedDefaults.shared.readExtensionStatus().installId,
+           let app = SharedDefaults.shared.appId() {
+            Self.reportLinked(app: app, install: install, base: message["base"] as? String ?? "")
         }
 
         switch command {
