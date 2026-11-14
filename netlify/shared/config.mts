@@ -156,6 +156,8 @@ export const config = {
   translate: {
     enabled: (env("TRANSLATE") ?? "on").trim() !== "off",
     model: (env("TRANSLATE_MODEL") ?? env("INSERT_MODEL") ?? "claude-haiku-5-5").trim(),
+    // How much the model thinks first: "low" is the quickest; "medium" or "high" if translations need more care.
+    effort: (["low", "medium", "high"].includes((env("TRANSLATE_EFFORT") ?? "").trim()) ? (env("TRANSLATE_EFFORT") ?? "").trim() : "low") as "low" | "medium" | "high",
     pageChars: int("TRANSLATE_PAGE_CHARS", 300_000),
     dailyChars: int("TRANSLATE_DAILY_CHARS", 3_000_000),
     ipDailyChars: int("TRANSLATE_IP_DAILY_CHARS", 6_000_000),

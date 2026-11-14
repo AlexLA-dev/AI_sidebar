@@ -45,12 +45,36 @@ export function batchInput(to: string, texts: string[]): string {
   return `Translate each line into ${languageEnglish(to)}:\n${texts.map((t, i) => modelLine(i + 1, t)).join("\n")}`
 }
 
+/** The script most of a text's letters are in (by Unicode script), or null without letters. */
+export function scriptOf(text: string): string | null {
+  const counts = new Map<string, number>()
+  for (const ch of plainText(text)) {
+    const s = /\p{Script=Latin}/u.test(ch) ? "latin" : /\p{Script=Cyrillic}/u.test(ch) ? "cyrillic"
+      : /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(ch) ? "cjk" : /\p{Script=Hangul}/u.test(ch) ? "hangul"
+      : /\p{Script=Arabic}/u.test(ch) ? "arabic" : /\p{Script=Hebrew}/u.test(ch) ? "hebrew" : /\p{Script=Greek}/u.test(ch) ? "greek"
+      : /\p{Script=Thai}/u.test(ch) ? "thai" : /\p{Script=Devanagari}/u.test(ch) ? "devanagari" : /\p{L}/u.test(ch) ? "other" : null
+    if (s) counts.set(s, (counts.get(s) ?? 0) + 1)
+  }
+  let best: string | null = null
+  for (const [s, n] of counts) if (!best || n > (counts.get(best) ?? 0)) best = s
+  return best
+}
+
+const SCRIPT_OF_LANG: Record<string, string> = {
+  ru: "cyrillic", uk: "cyrillic", bg: "cyrillic", sr: "cyrillic", be: "cyrillic", kk: "cyrillic", mk: "cyrillic",
+  ja: "cjk", zh: "cjk", ko: "hangul", ar: "arabic", fa: "arabic", ur: "arabic", he: "hebrew", el: "greek", th: "thai", hi: "devanagari"
+}
+
 /**
  * A line that came back in its own language instead of the target (the model rewrote a Japanese line in Japanese):
  * told by the letters and commonest words of both (src/content/translateTarget.ts), only when both are clear.
  */
 export function sameLanguageBack(source: string, translation: string, to: string): boolean {
   const target = to.toLowerCase().split("-")[0]
+  // Unchanged, in letters the target doesn't use (a short Japanese heading into Russian): not translated. Latin words
+  // may stay (names, brands, "Microsoft 365").
+  const from = scriptOf(source)
+  if (plainText(source).trim() === plainText(translation).trim() && from && from !== "latin" && from !== (SCRIPT_OF_LANG[target] ?? "latin")) return true
   const was = guessLanguage(plainText(source))
   if (!was || was === target) return false
   return guessLanguage(plainText(translation)) === was
@@ -87,8 +111,10 @@ export interface TranslateStats {
 /** One call: the model's text as it comes. Tests pass their own. */
 export type ModelCall = (system: string, lines: string, maxTokens: number, signal: AbortSignal) => AsyncIterable<string>
 
+export type Effort = "low" | "medium" | "high"
+
 /** Claude Haiku, streamed (the address pinned, one retry for a hiccup). */
-export function haikuCall(stats: TranslateStats): ModelCall {
+export function haikuCall(stats: TranslateStats, effort: Effort = config.translate.effort): ModelCall {
   return async function* (system, lines, maxTokens, signal) {
     if (!config.anthropicKey) throw new Error("no Anthropic key")
     const client = new Anthropic({ apiKey: config.anthropicKey, baseURL: "https://api.anthropic.com", maxRetries: 1, timeout: 40_000 })
@@ -97,7 +123,7 @@ export function haikuCall(stats: TranslateStats): ModelCall {
       max_tokens: maxTokens,
       system,
       messages: [{ role: "user", content: lines }],
-      output_config: { effort: "low" }
+      output_config: { effort }
     }, { signal })
     for await (const event of stream) {
       if (event.type === "message_start") {
@@ -162,7 +188,6 @@ export async function runTranslation(blocks: TranslateBlock[], o: RunOptions): P
     try {
       const chars = batch.reduce((n, b) => n + b.text.length, 0)
       const input = batchInput(o.to, batch.map((b) => b.text))
-      const good: TranslateBlock[] = []
       for await (const line of lines(o.call(system, input, maxTokensFor(chars), o.signal))) {
         const read = readModelLine(line)
         const block = read && byN.get(read.n)
@@ -175,9 +200,8 @@ export async function runTranslation(blocks: TranslateBlock[], o: RunOptions): P
         failedTags.delete(block.id)
         done.add(block.id)
         if (o.stats.firstMs === null) o.stats.firstMs = Date.now() - started
-        good.push({ id: block.id, text })
-        // Lines go out as they come; a few at a time when they come together.
-        if (good.length) o.onItems(good.splice(0))
+        // Each line goes out as soon as it's checked.
+        o.onItems([{ id: block.id, text }])
       }
       for (const b of batch) if (!done.has(b.id) && !failedTags.has(b.id)) failedCall.add(b.id)
     } catch {

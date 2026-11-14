@@ -81,6 +81,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
 }) as typeof fetch
 
 let translate: (req: Request, ctx: any) => Promise<Response>
+let sameLanguageBack: (source: string, translation: string, to: string) => boolean
 let readBlocks: (raw: unknown) => Array<{ id: string; text: string }>
 let settings: { claudeMinBuild: number; translate: { pageChars: number; parallel: number } }
 
@@ -91,6 +92,7 @@ before(async () => {
   const mod = await import("../netlify/functions/v2-translate.mts")
   translate = mod.default
   readBlocks = mod.readBlocks
+  sameLanguageBack = (await import("../netlify/shared/translate.mts")).sameLanguageBack
 })
 
 beforeEach(() => {
@@ -211,6 +213,16 @@ test("a line written back in its own language (Japanese rewritten in Japanese) i
   assert.equal(items(out.events).j1, "Проблема устранена около 14:27. Причиной была ошибка в приложении.")
   assert.deepEqual(out.events.find((e) => e.type === "skip")!.ids, ["j2"])
   assert.ok(haiku.calls.every((c) => c.content.startsWith("Translate each line into Russian:")), "the language named right before the lines")
+})
+
+test("not translated: a short CJK heading back unchanged, a sentence rewritten in its own language; names and the target's own words pass", () => {
+  assert.equal(sameLanguageBack("追記", "追記", "ru"), true)
+  assert.equal(sameLanguageBack("カテゴリー", "カテゴリー", "en"), true)
+  assert.equal(sameLanguageBack("本件は14:27ごろに解消いたしました。", "本件は14:27頃に解消しました。", "ru"), true)
+  assert.equal(sameLanguageBack("追記", "Дополнение", "ru"), false)
+  assert.equal(sameLanguageBack("Microsoft 365", "Microsoft 365", "ru"), false, "a Latin name may stay")
+  assert.equal(sameLanguageBack("追記", "追記", "ja"), false, "already in the target")
+  assert.equal(sameLanguageBack("Привет, мир", "Привет, мир", "ru"), false)
 })
 
 test("nothing translated (Claude down): an error, and the page, the answer and the caps are given back", async () => {

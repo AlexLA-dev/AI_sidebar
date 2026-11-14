@@ -5,7 +5,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type ConsumeResult, type Counter } from "../shared/db.mts"
 import { clip, corsHeaders, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { blockReason, hasPro, proOffer, resolveAccess, visibleUsage, type Usage } from "../shared/plan.mts"
-import { haikuCall, runTranslation, safetyReason, translateCost, translateCounters, type TranslateStats } from "../shared/translate.mts"
+import { haikuCall, runTranslation, type Effort, safetyReason, translateCost, translateCounters, type TranslateStats } from "../shared/translate.mts"
 import { sessionFields } from "../../src/shared/usage.ts"
 import { TRANSLATE_LIMITS, type TranslateBlock } from "../../src/shared/translate.ts"
 
@@ -41,6 +41,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!blocks.length) return json({ code: "BAD_REQUEST", message: "blocks required" }, 400)
   const chars = blocks.reduce((n, b) => n + b.text.length, 0)
   const first = body.first === true
+  // Off production only (deploy previews, netlify dev): a request may name the model's effort, to compare them.
+  const deploy = (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ?? process.env.CONTEXT
+  const effort: Effort = deploy && deploy !== "production" && ["low", "medium", "high"].includes(String(body.effort)) ? (body.effort as Effort) : settings.translate.effort
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
@@ -112,7 +115,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       try {
         send({ type: "meta", charged: charged.length > 0, usage })
         outcome = await runTranslation(blocks, {
-          to, from, first, call: haikuCall(stats), stats, signal: abort.signal,
+          to, from, first, call: haikuCall(stats, effort), stats, signal: abort.signal,
           batchChars: first ? settings.translate.firstBatchChars : settings.translate.batchChars,
           parallel: Math.max(1, settings.translate.parallel),
           onItems: (items) => {
@@ -153,6 +156,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       left: outcome.left.length,
       chars_out: charsOut,
       model: stats.model,
+      effort,
       calls: stats.calls,
       failed_calls: stats.failedCalls,
       retried: stats.retried,
