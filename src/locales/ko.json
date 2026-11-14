@@ -910,5 +910,6 @@
   "phCalendarTitle": "캘린더에",
   "phCalendarBody": "강조된 입력란에 ‘캘린더에 추가해 줘’라고 쓰면 페이지의 날짜로 일정을 제안해요.",
   "setPageHints": "✦ 버튼 팁",
-  "setPageHintsHint": "처음 며칠 동안 페이지에서 할 수 있는 일을 알려 줘요."
+  "setPageHintsHint": "처음 며칠 동안 페이지에서 할 수 있는 일을 알려 줘요.",
+  "phSimilarBodyUpBoth": "Pro와 Ultra 기능이에요. Pro는 빠른 검색, Ultra는 전체 검색. 같은 상품을 더 싸게, 다른 쇼핑몰의 비슷한 상품도 찾아요. 강조된 버튼을 누르세요."
 }

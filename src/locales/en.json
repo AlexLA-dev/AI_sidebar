@@ -910,5 +910,6 @@
   "phCalendarTitle": "Add to Calendar",
   "phCalendarBody": "Type “add to calendar” in the highlighted field and I'll suggest an event with the page's date.",
   "setPageHints": "Tips by the ✦ button",
-  "setPageHintsHint": "In your first days, they show what you can do on a page."
+  "setPageHintsHint": "In your first days, they show what you can do on a page.",
+  "phSimilarBodyUpBoth": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
 }

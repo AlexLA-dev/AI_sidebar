@@ -12,6 +12,7 @@
 // none; two ✕ in a row turn them off (and Settings has the switch); not while typing, not right as the page opens.
 // Pure, for tests (tests/page-hints.test.mts).
 
+import { similarAllowed } from "../../shared/similar"
 import type { PageKind } from "./detect"
 
 export type HintId = "similar" | "watch" | "summary" | "listen" | "video" | "templates" | "remind" | "calendar"
@@ -104,8 +105,20 @@ export function pickHint(kind: PageKind | null, plan: Plan, state: HintsState, n
   return candidates(kind, plan).find((id) => !state.used.includes(id) && (state.shownIds[id] ?? 0) < MAX_EACH) ?? null
 }
 
+/**
+ * The offer's text for someone without the feature. Find similar's names both plans once Pro has its light search
+ * (#167: «В Pro — быстрый поиск, в Ultra — полный»); until then, Ultra's.
+ */
+export function offerKey(id: HintId): string | undefined {
+  if (id === "similar" && similarAllowed("pro")) return "phSimilarBodyUpBoth"
+  return HINTS[id].bodyUp
+}
+
 /** Whether the person's plan has the feature (or it's offered to them). */
 export function hasFeature(id: HintId, plan: Plan): boolean {
+  // Find similar: who has it is the feature's own rule (src/shared/similar.ts): Ultra in 2.6; with #167 Pro and Own key
+  // get a light search too.
+  if (id === "similar") return similarAllowed(plan)
   const needs = HINTS[id].needs
   if (needs === "ultra") return plan === "ultra"
   if (needs === "pro") return plan === "pro" || plan === "ultra"

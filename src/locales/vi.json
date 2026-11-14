@@ -910,5 +910,6 @@
   "phCalendarTitle": "Vào Lịch",
   "phCalendarBody": "Viết “thêm vào lịch” vào ô được làm nổi bật, tôi sẽ gợi ý sự kiện theo ngày trên trang.",
   "setPageHints": "Gợi ý cạnh nút ✦",
-  "setPageHintsHint": "Trong những ngày đầu, gợi ý cho bạn biết có thể làm gì trên trang."
+  "setPageHintsHint": "Trong những ngày đầu, gợi ý cho bạn biết có thể làm gì trên trang.",
+  "phSimilarBodyUpBoth": "Tính năng này có trong Pro và Ultra: Pro tìm nhanh, Ultra tìm đầy đủ. Cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
 }

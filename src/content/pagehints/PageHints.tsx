@@ -10,7 +10,7 @@ import { panelRoot } from "../root"
 import { sendBackground } from "../insert/store"
 import { pageIsForeign } from "../translate/TranslatePill"
 import { pageKind } from "./detect"
-import { afterClose, afterShown, afterTap, afterUsed, hasFeature, HINTS, pickHint, type GlowTarget, type HintId, type Plan } from "./rules"
+import { afterClose, afterShown, afterTap, afterUsed, hasFeature, HINTS, offerKey, pickHint, type GlowTarget, type HintId, type Plan } from "./rules"
 import { loadHints, saveHints, seeded } from "./store"
 
 // Not right as the page opens: a look after this long, and again while the circle is busy elsewhere.
@@ -183,5 +183,6 @@ export function HintLine({ id, side, top, onTap, onClose }: { id: HintId; side: 
 /** The how-to's title and text for the chat (the offer's text for a plan the person doesn't have). */
 export function hintText(id: HintId, has: boolean): { title: string; body: string } {
   const spec = HINTS[id]
-  return { title: t(spec.title as MessageKey), body: t((has || !spec.bodyUp ? spec.body : spec.bodyUp) as MessageKey) }
+  const offer = offerKey(id)
+  return { title: t(spec.title as MessageKey), body: t((has || !offer ? spec.body : offer) as MessageKey) }
 }

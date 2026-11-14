@@ -18,7 +18,7 @@ before(async () => {
   const dir = mkdtempSync(join(tmpdir(), "cf-page-hints-"))
   const src = new URL("../src/content/pagehints/", import.meta.url).pathname
   const entry = join(dir, "entry.ts")
-  writeFileSync(entry, `export * from "${src}detect.ts"\nexport * from "${src}rules.ts"\nexport { usedFrom } from "${src}store.ts"\n`)
+  writeFileSync(entry, `export * from "${src}detect.ts"\nexport * from "${src}rules.ts"\nexport { usedFrom } from "${src}store.ts"\nexport { similarAllowed } from "${new URL("../src/shared/similar.ts", import.meta.url).pathname}"\n`)
   const out = join(dir, "lib.mjs")
   await build({ entryPoints: [entry], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent" })
   lib = await import(pathToFileURL(out).href)
@@ -51,9 +51,13 @@ test("the hint by plan: Free toward spending answers and the paid features, Pro 
   assert.deepEqual(lib.candidates("video", "free"), ["video"])
   assert.deepEqual(lib.candidates("event", "free"), ["calendar", "remind"])
   // Free has no Find similar now: its line offers Ultra (the how-to says so).
+  // Who has Find similar is its own rule (src/shared/similar.ts): Ultra; with #167 also Pro and Own key (light).
   assert.equal(lib.hasFeature("similar", "free"), false)
-  assert.equal(lib.hasFeature("similar", "pro"), false)
+  assert.equal(lib.hasFeature("similar", "pro"), lib.similarAllowed("pro"))
   assert.equal(lib.hasFeature("similar", "ultra"), true)
+  // Free's offer names both plans once Pro has the light search («В Pro — быстрый поиск, в Ultra — полный»).
+  assert.equal(lib.offerKey("similar"), lib.similarAllowed("pro") ? "phSimilarBodyUpBoth" : "phSimilarBodyUp")
+  assert.equal(lib.offerKey("video"), "phVideoBodyUp")
   assert.equal(lib.hasFeature("video", "pro"), true)
   assert.equal(lib.hasFeature("video", "free"), false)
   assert.equal(lib.hasFeature("summary", "free"), true)
@@ -98,7 +102,7 @@ test("earlier use, read once from what the device keeps: Find similar and remind
 })
 
 test("every hint's line, how-to and offer is in all 14 languages; the switch too", () => {
-  const keys = new Set<string>(["phClose", "setPageHints", "setPageHintsHint"])
+  const keys = new Set<string>(["phClose", "setPageHints", "setPageHintsHint", "phSimilarBodyUpBoth"])
   for (const spec of Object.values(lib.HINTS) as any[]) for (const k of [spec.bubble, spec.title, spec.body, spec.bodyUp]) if (k) keys.add(k)
   const dir = new URL("../src/locales/", import.meta.url)
   for (const file of readdirSync(dir)) {
