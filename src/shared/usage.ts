@@ -217,6 +217,15 @@ export const FEATURES: Record<string, Feature> = {
     fields: { why: ["page", "topic", "meaning", "site"], match: "int" }
   },
 
+  // 2.7: Подборки (src/shared/collections.ts), counts only: never a name, a gist, a site. "add": a card put in (via the
+  // panel, the app, the suggestion taken or another place picked); "limit": Free asked for more than one collection or
+  // ten cards; "layout", "compare", "summary": the AI's (Pro); "pdf": exported; "open": the collections window or screen.
+  collect: {
+    since: "2.7", tracked: "2.7", actions: ["create", "add", "move", "section_add", "section_rename", "section_delete", "delete", "layout", "compare", "summary", "pdf", "open", "limit"],
+    via: ["panel", "app", "suggested", "picked", "header", "list", "sidebar"],
+    fields: { cards: "int", what: ["collection", "card"] }
+  },
+
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.
   ext: { since: "2.4", tracked: "2.4", on: "ext", actions: ["on"], own: true },
   limit: { since: "2.0", tracked: "2.0", actions: ["hit"], own: true },

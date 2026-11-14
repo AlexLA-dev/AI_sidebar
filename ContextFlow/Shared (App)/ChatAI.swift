@@ -462,6 +462,19 @@ extension ChatAI {
         return (title, object["fits"] as? Bool ?? false)
     }
 
+    /// Подборки (2.7): one op of /api/v2/collect (Pro; netlify/functions/v2-collect.mts), its answer as JSON. The texts
+    /// go for this request only (the AI consent), nothing is kept.
+    @MainActor
+    static func collect(_ op: String, _ fields: [String: Any]) async throws -> [String: Any] {
+        var body = identity()
+        body["op"] = op
+        for (key, value) in fields { body[key] = value }
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/collect", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw failure(status, data) }
+        return object
+    }
+
     /// A step in a feature ("use", src/shared/usage.ts): f, a and its allowed fields, never text (build 90: listen).
     @MainActor
     static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:]) {

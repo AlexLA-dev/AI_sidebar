@@ -107,9 +107,9 @@ export interface Judged {
 }
 
 /** A JSON answer from the AI: what it says, who answered, and the tokens. */
-type Asked<T> = Omit<Judged, "verdicts"> & { answer: T }
+export type Asked<T> = Omit<Judged, "verdicts"> & { answer: T }
 
-interface Ask<T> {
+export interface Ask<T> {
   name: string
   system: string
   prompt: string
@@ -152,7 +152,7 @@ function judgePrompt(check: TagCheck): string {
   return lines.join("\n")
 }
 
-function parsedJson(text: string): Record<string, unknown> {
+export function parsedJson(text: string): Record<string, unknown> {
   let parsed: unknown
   try {
     parsed = JSON.parse(text)
@@ -308,7 +308,7 @@ async function askOpenAI<T>(ask: Ask<T>, fallback: string, signal?: AbortSignal)
 }
 
 /** Claude Haiku 5.5, else OpenAI's smallest model. */
-async function askJson<T>(ask: Ask<T>, signal?: AbortSignal): Promise<Asked<T>> {
+export async function askJson<T>(ask: Ask<T>, signal?: AbortSignal): Promise<Asked<T>> {
   let fallback: string
   if (!config.anthropicKey) fallback = "no_key"
   else if (!config.claudeEnabled) fallback = "off"
