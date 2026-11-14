@@ -911,5 +911,20 @@
   "phCalendarBody": "Scrivi «aggiungi al calendario» nel campo evidenziato e ti propongo un evento con la data della pagina.",
   "setPageHints": "Suggerimenti accanto al pulsante ✦",
   "setPageHintsHint": "Nei primi giorni mostrano cosa puoi fare su una pagina.",
-  "phSimilarBodyUpBoth": "È in Pro e Ultra: in Pro la ricerca veloce, in Ultra quella completa. Lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
+  "phSimilarBodyUpBoth": "È in Pro e Ultra: in Pro la ricerca veloce, in Ultra quella completa. Lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato.",
+  "shotSwitch": "Istantanea della pagina",
+  "shotVisible": "Area visibile",
+  "shotFull": "Pagina intera",
+  "shotProOnly": "La pagina intera è inclusa in Pro e Ultra.",
+  "shotTaking": "Scatto l'istantanea…",
+  "shotTakingFull": "Istantanea: schermata {0} di {1}…",
+  "shotFailed": "Non è stato possibile fare un'istantanea qui. La nota è salvata senza.",
+  "shotCut": "La pagina è lunga: l'istantanea contiene le prime {0} schermate.",
+  "shotOpen": "Apri l'istantanea",
+  "shotNote": "Istantanea della pagina",
+  "shotCrop": "Ritaglia",
+  "shotCropDone": "Fine",
+  "shotCropReset": "Istantanea intera",
+  "shotLoading": "Apro l'istantanea…",
+  "shotMissing": "Questa istantanea non è ancora su questo dispositivo. Arriva tramite iCloud se le chat vi sono sincronizzate."
 }

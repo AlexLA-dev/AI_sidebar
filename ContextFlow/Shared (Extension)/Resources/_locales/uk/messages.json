@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "Це в Pro та Ultra: у Pro — швидкий пошук, в Ultra — повний. Той самий товар дешевше і схожі варіанти з інших магазинів. Натисніть підсвічену кнопку."
  },
+ "shotSwitch": {
+  "message": "Знімок сторінки"
+ },
+ "shotVisible": {
+  "message": "Видима область"
+ },
+ "shotFull": {
+  "message": "Повністю"
+ },
+ "shotProOnly": {
+  "message": "Сторінка повністю — у Pro та Ultra."
+ },
+ "shotTaking": {
+  "message": "Знімаю сторінку…"
+ },
+ "shotTakingFull": {
+  "message": "Знімок: екран {0} з {1}…"
+ },
+ "shotFailed": {
+  "message": "Знімок тут не вдався. Нотатку збережено без нього."
+ },
+ "shotCut": {
+  "message": "Сторінка довга: у знімку її перші {0} екранів."
+ },
+ "shotOpen": {
+  "message": "Відкрити знімок"
+ },
+ "shotNote": {
+  "message": "Знімок сторінки"
+ },
+ "shotCrop": {
+  "message": "Обрізати"
+ },
+ "shotCropDone": {
+  "message": "Готово"
+ },
+ "shotCropReset": {
+  "message": "Весь знімок"
+ },
+ "shotLoading": {
+  "message": "Відкриваю знімок…"
+ },
+ "shotMissing": {
+  "message": "Цього знімка ще немає на пристрої. Він прийде через iCloud, якщо чати синхронізуються там."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

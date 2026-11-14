@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "È in Pro e Ultra: in Pro la ricerca veloce, in Ultra quella completa. Lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
  },
+ "shotSwitch": {
+  "message": "Istantanea della pagina"
+ },
+ "shotVisible": {
+  "message": "Area visibile"
+ },
+ "shotFull": {
+  "message": "Pagina intera"
+ },
+ "shotProOnly": {
+  "message": "La pagina intera è inclusa in Pro e Ultra."
+ },
+ "shotTaking": {
+  "message": "Scatto l'istantanea…"
+ },
+ "shotTakingFull": {
+  "message": "Istantanea: schermata {0} di {1}…"
+ },
+ "shotFailed": {
+  "message": "Non è stato possibile fare un'istantanea qui. La nota è salvata senza."
+ },
+ "shotCut": {
+  "message": "La pagina è lunga: l'istantanea contiene le prime {0} schermate."
+ },
+ "shotOpen": {
+  "message": "Apri l'istantanea"
+ },
+ "shotNote": {
+  "message": "Istantanea della pagina"
+ },
+ "shotCrop": {
+  "message": "Ritaglia"
+ },
+ "shotCropDone": {
+  "message": "Fine"
+ },
+ "shotCropReset": {
+  "message": "Istantanea intera"
+ },
+ "shotLoading": {
+  "message": "Apro l'istantanea…"
+ },
+ "shotMissing": {
+  "message": "Questa istantanea non è ancora su questo dispositivo. Arriva tramite iCloud se le chat vi sono sincronizzate."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

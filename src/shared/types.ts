@@ -177,6 +177,10 @@ export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
   | { type: "tipClip"; name: string; lang: string }
+  // «Снимок страницы в заметке» (2.7): the tab's visible area captured; a note's picture kept, and fetched to open it.
+  | { type: "shotCapture" }
+  | { type: "shotPut"; id: string; data: string }
+  | { type: "shotGet"; id: string; parts: number }
   // Build 91: the jobs the background is running now (ids), to follow one again after the panel was closed.
   | { type: "liveJobs" }
   // …and the panel showed this chat: its jobs' outcomes were seen (the chats list's and the floating button's dot go).
@@ -258,7 +262,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; screens?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =

@@ -911,5 +911,20 @@
   "phCalendarBody": "Escribe «añadir al calendario» en el campo resaltado y te propongo un evento con la fecha de la página.",
   "setPageHints": "Consejos junto al botón ✦",
   "setPageHintsHint": "En tus primeros días muestran qué puedes hacer en una página.",
-  "phSimilarBodyUpBoth": "Está en Pro y Ultra: en Pro, la búsqueda rápida; en Ultra, la completa. El mismo producto más barato y otros parecidos de otras tiendas. Toca el botón resaltado."
+  "phSimilarBodyUpBoth": "Está en Pro y Ultra: en Pro, la búsqueda rápida; en Ultra, la completa. El mismo producto más barato y otros parecidos de otras tiendas. Toca el botón resaltado.",
+  "shotSwitch": "Captura de la página",
+  "shotVisible": "Área visible",
+  "shotFull": "Página completa",
+  "shotProOnly": "La página completa está en Pro y Ultra.",
+  "shotTaking": "Haciendo la captura…",
+  "shotTakingFull": "Captura: pantalla {0} de {1}…",
+  "shotFailed": "No se pudo hacer una captura aquí. La nota se guardó sin ella.",
+  "shotCut": "La página es larga: la captura tiene sus primeras {0} pantallas.",
+  "shotOpen": "Abrir la captura",
+  "shotNote": "Captura de la página",
+  "shotCrop": "Recortar",
+  "shotCropDone": "Listo",
+  "shotCropReset": "Captura completa",
+  "shotLoading": "Abriendo la captura…",
+  "shotMissing": "Esta captura aún no está en este dispositivo. Llega por iCloud si tus chats se sincronizan allí."
 }

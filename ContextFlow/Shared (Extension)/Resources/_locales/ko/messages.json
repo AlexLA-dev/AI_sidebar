@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "Pro와 Ultra 기능이에요. Pro는 빠른 검색, Ultra는 전체 검색. 같은 상품을 더 싸게, 다른 쇼핑몰의 비슷한 상품도 찾아요. 강조된 버튼을 누르세요."
  },
+ "shotSwitch": {
+  "message": "페이지 스냅샷"
+ },
+ "shotVisible": {
+  "message": "보이는 영역"
+ },
+ "shotFull": {
+  "message": "페이지 전체"
+ },
+ "shotProOnly": {
+  "message": "페이지 전체는 Pro와 Ultra에서 사용할 수 있습니다."
+ },
+ "shotTaking": {
+  "message": "스냅샷을 찍는 중…"
+ },
+ "shotTakingFull": {
+  "message": "스냅샷: {1}개 화면 중 {0}…"
+ },
+ "shotFailed": {
+  "message": "여기서는 스냅샷을 찍지 못했습니다. 메모는 스냅샷 없이 저장되었습니다."
+ },
+ "shotCut": {
+  "message": "페이지가 길어서 처음 {0}개 화면까지 담았습니다."
+ },
+ "shotOpen": {
+  "message": "스냅샷 열기"
+ },
+ "shotNote": {
+  "message": "페이지 스냅샷"
+ },
+ "shotCrop": {
+  "message": "자르기"
+ },
+ "shotCropDone": {
+  "message": "완료"
+ },
+ "shotCropReset": {
+  "message": "전체 스냅샷"
+ },
+ "shotLoading": {
+  "message": "스냅샷을 여는 중…"
+ },
+ "shotMissing": {
+  "message": "이 스냅샷은 아직 이 기기에 없습니다. 채팅을 iCloud와 동기화하면 전달됩니다."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

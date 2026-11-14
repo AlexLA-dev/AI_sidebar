@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "Está en Pro y Ultra: en Pro, la búsqueda rápida; en Ultra, la completa. El mismo producto más barato y otros parecidos de otras tiendas. Toca el botón resaltado."
  },
+ "shotSwitch": {
+  "message": "Captura de la página"
+ },
+ "shotVisible": {
+  "message": "Área visible"
+ },
+ "shotFull": {
+  "message": "Página completa"
+ },
+ "shotProOnly": {
+  "message": "La página completa está en Pro y Ultra."
+ },
+ "shotTaking": {
+  "message": "Haciendo la captura…"
+ },
+ "shotTakingFull": {
+  "message": "Captura: pantalla {0} de {1}…"
+ },
+ "shotFailed": {
+  "message": "No se pudo hacer una captura aquí. La nota se guardó sin ella."
+ },
+ "shotCut": {
+  "message": "La página es larga: la captura tiene sus primeras {0} pantallas."
+ },
+ "shotOpen": {
+  "message": "Abrir la captura"
+ },
+ "shotNote": {
+  "message": "Captura de la página"
+ },
+ "shotCrop": {
+  "message": "Recortar"
+ },
+ "shotCropDone": {
+  "message": "Listo"
+ },
+ "shotCropReset": {
+  "message": "Captura completa"
+ },
+ "shotLoading": {
+  "message": "Abriendo la captura…"
+ },
+ "shotMissing": {
+  "message": "Esta captura aún no está en este dispositivo. Llega por iCloud si tus chats se sincronizan allí."
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

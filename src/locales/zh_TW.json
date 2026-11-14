@@ -911,5 +911,20 @@
   "phCalendarBody": "在亮起的輸入框裡寫「加入行事曆」，我會用頁面上的日期建議一個活動。",
   "setPageHints": "✦ 按鈕旁的提示",
   "setPageHintsHint": "剛開始的幾天，提示你在頁面上能做什麼。",
-  "phSimilarBodyUpBoth": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點亮起的按鈕。"
+  "phSimilarBodyUpBoth": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點亮起的按鈕。",
+  "shotSwitch": "頁面快照",
+  "shotVisible": "可見區域",
+  "shotFull": "整頁",
+  "shotProOnly": "整頁快照需 Pro 或 Ultra。",
+  "shotTaking": "正在拍攝快照…",
+  "shotTakingFull": "快照:第 {0} 個畫面,共 {1} 個…",
+  "shotFailed": "這裡無法拍攝快照。筆記已儲存,不含快照。",
+  "shotCut": "頁面較長:快照包含前 {0} 個畫面。",
+  "shotOpen": "打開快照",
+  "shotNote": "頁面快照",
+  "shotCrop": "裁切",
+  "shotCropDone": "完成",
+  "shotCropReset": "完整快照",
+  "shotLoading": "正在打開快照…",
+  "shotMissing": "這張快照還沒到這台裝置。如果聊天透過 iCloud 同步,它會隨之送達。"
 }

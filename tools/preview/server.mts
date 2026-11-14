@@ -567,6 +567,8 @@ const pages: Record<string, string> = {
   // comment under a job post (LinkedIn's Quill editor).
   "/mail-reply": "mail-reply.html",
   "/post-comment": "post-comment.html",
+  // «Снимок страницы в заметке» (2.7): a long page (a sticky header, five coloured sections, a fixed cookie bar).
+  "/long-page": "long-page.html",
   // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
   "/spa/messaging": "spa.html",
   "/spa/feed": "spa.html",

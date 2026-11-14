@@ -911,5 +911,20 @@
   "phCalendarBody": "Escreva “adicionar ao calendário” no campo destacado e eu sugiro um evento com a data da página.",
   "setPageHints": "Dicas no botão ✦",
   "setPageHintsHint": "Nos primeiros dias, mostram o que você pode fazer numa página.",
-  "phSimilarBodyUpBoth": "Isso está no Pro e no Ultra: no Pro, a busca rápida; no Ultra, a completa. O mesmo produto mais barato e parecidos de outras lojas. Toque no botão destacado."
+  "phSimilarBodyUpBoth": "Isso está no Pro e no Ultra: no Pro, a busca rápida; no Ultra, a completa. O mesmo produto mais barato e parecidos de outras lojas. Toque no botão destacado.",
+  "shotSwitch": "Captura da página",
+  "shotVisible": "Área visível",
+  "shotFull": "Página inteira",
+  "shotProOnly": "A página inteira está no Pro e no Ultra.",
+  "shotTaking": "Fazendo a captura…",
+  "shotTakingFull": "Captura: tela {0} de {1}…",
+  "shotFailed": "Não foi possível fazer a captura aqui. A nota foi salva sem ela.",
+  "shotCut": "A página é longa: a captura mostra as primeiras {0} telas.",
+  "shotOpen": "Abrir a captura",
+  "shotNote": "Captura da página",
+  "shotCrop": "Recortar",
+  "shotCropDone": "OK",
+  "shotCropReset": "Captura inteira",
+  "shotLoading": "Abrindo a captura…",
+  "shotMissing": "Esta captura ainda não está neste aparelho. Ela chega pelo iCloud se suas conversas são sincronizadas lá."
 }

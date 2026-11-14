@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "C’est dans Pro et Ultra : dans Pro la recherche rapide, dans Ultra la complète. Le même produit moins cher, et des similaires d’autres boutiques. Touchez le bouton mis en avant."
  },
+ "shotSwitch": {
+  "message": "Capture de la page"
+ },
+ "shotVisible": {
+  "message": "Zone visible"
+ },
+ "shotFull": {
+  "message": "Page entière"
+ },
+ "shotProOnly": {
+  "message": "La page entière est incluse dans Pro et Ultra."
+ },
+ "shotTaking": {
+  "message": "Capture en cours…"
+ },
+ "shotTakingFull": {
+  "message": "Capture : écran {0} sur {1}…"
+ },
+ "shotFailed": {
+  "message": "Impossible de faire une capture ici. La note est enregistrée sans elle."
+ },
+ "shotCut": {
+  "message": "La page est longue : la capture montre ses {0} premiers écrans."
+ },
+ "shotOpen": {
+  "message": "Ouvrir la capture"
+ },
+ "shotNote": {
+  "message": "Capture de la page"
+ },
+ "shotCrop": {
+  "message": "Recadrer"
+ },
+ "shotCropDone": {
+  "message": "OK"
+ },
+ "shotCropReset": {
+  "message": "Capture entière"
+ },
+ "shotLoading": {
+  "message": "Ouverture de la capture…"
+ },
+ "shotMissing": {
+  "message": "Cette capture n'est pas encore sur cet appareil. Elle arrive via iCloud si vos discussions y sont synchronisées."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

@@ -224,6 +224,16 @@ export const FEATURES: Record<string, Feature> = {
     fields: { what: ["check", "short", "warm", "formal", "confident"] }
   },
 
+  // 2.7: «Снимок страницы в заметке» (src/shared/shots.ts), counts only: never the page, the picture or its size beyond
+  // screens. "on"/"off": the switch over the note field; "visible"/"full": what it takes; "taken" (what, and a whole
+  // page's screens), "failed" (why: unavailable, failed, keep); "open", "crop", "uncrop" in the chat; "plans": Free
+  // tapped the whole page's Pro.
+  shot: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["on", "off", "visible", "full", "taken", "failed", "open", "crop", "uncrop", "plans"],
+    fields: { what: ["visible", "full"], why: ["unavailable", "failed", "keep"], screens: "int" }
+  },
+
   // 2.7: Spaces (src/shared/spaces.ts), counts only: never a space's name or colour, nor a site. "switch": how (the
   // header's list, the app's list, a bound site, a chat opened from another space, a search hit); "bind" and "toggle":
   // on or off (Settings' switch); "limit": Free asked for one more than it has; "spaces": how many there are then.

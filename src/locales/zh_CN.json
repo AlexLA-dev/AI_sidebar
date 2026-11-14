@@ -911,5 +911,20 @@
   "phCalendarBody": "在高亮的输入框里写“添加到日历”，我会用页面上的日期建议一个日程。",
   "setPageHints": "✦ 按钮旁的提示",
   "setPageHintsHint": "刚开始的几天，提示你在页面上能做什么。",
-  "phSimilarBodyUpBoth": "这是 Pro 和 Ultra 的功能：Pro 是快速搜索，Ultra 是完整搜索。同款更便宜的，以及其他商店的相似商品。点高亮的按钮。"
+  "phSimilarBodyUpBoth": "这是 Pro 和 Ultra 的功能：Pro 是快速搜索，Ultra 是完整搜索。同款更便宜的，以及其他商店的相似商品。点高亮的按钮。",
+  "shotSwitch": "页面快照",
+  "shotVisible": "可见区域",
+  "shotFull": "整页",
+  "shotProOnly": "整页快照需 Pro 或 Ultra。",
+  "shotTaking": "正在拍摄快照…",
+  "shotTakingFull": "快照:第 {0} 屏,共 {1} 屏…",
+  "shotFailed": "这里无法拍摄快照。笔记已保存,不含快照。",
+  "shotCut": "页面较长:快照包含前 {0} 屏。",
+  "shotOpen": "打开快照",
+  "shotNote": "页面快照",
+  "shotCrop": "裁剪",
+  "shotCropDone": "完成",
+  "shotCropReset": "完整快照",
+  "shotLoading": "正在打开快照…",
+  "shotMissing": "这张快照还没到这台设备。如果聊天通过 iCloud 同步,它会随之送达。"
 }

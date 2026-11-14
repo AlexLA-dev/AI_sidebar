@@ -911,5 +911,20 @@
   "phCalendarBody": "Écrivez « ajoute au calendrier » dans le champ mis en avant et je propose un événement à la date de la page.",
   "setPageHints": "Astuces près du bouton ✦",
   "setPageHintsHint": "Les premiers jours, elles montrent ce que vous pouvez faire sur une page.",
-  "phSimilarBodyUpBoth": "C’est dans Pro et Ultra : dans Pro la recherche rapide, dans Ultra la complète. Le même produit moins cher, et des similaires d’autres boutiques. Touchez le bouton mis en avant."
+  "phSimilarBodyUpBoth": "C’est dans Pro et Ultra : dans Pro la recherche rapide, dans Ultra la complète. Le même produit moins cher, et des similaires d’autres boutiques. Touchez le bouton mis en avant.",
+  "shotSwitch": "Capture de la page",
+  "shotVisible": "Zone visible",
+  "shotFull": "Page entière",
+  "shotProOnly": "La page entière est incluse dans Pro et Ultra.",
+  "shotTaking": "Capture en cours…",
+  "shotTakingFull": "Capture : écran {0} sur {1}…",
+  "shotFailed": "Impossible de faire une capture ici. La note est enregistrée sans elle.",
+  "shotCut": "La page est longue : la capture montre ses {0} premiers écrans.",
+  "shotOpen": "Ouvrir la capture",
+  "shotNote": "Capture de la page",
+  "shotCrop": "Recadrer",
+  "shotCropDone": "OK",
+  "shotCropReset": "Capture entière",
+  "shotLoading": "Ouverture de la capture…",
+  "shotMissing": "Cette capture n'est pas encore sur cet appareil. Elle arrive via iCloud si vos discussions y sont synchronisées."
 }

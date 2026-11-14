@@ -911,5 +911,20 @@
   "phCalendarBody": "ハイライトされた欄に「カレンダーに追加」と入力すると、ページの日付でイベントを提案します。",
   "setPageHints": "✦ボタンのヒント",
   "setPageHintsHint": "最初の数日、ページでできることを教えてくれます。",
-  "phSimilarBodyUpBoth": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。"
+  "phSimilarBodyUpBoth": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。",
+  "shotSwitch": "ページのスナップショット",
+  "shotVisible": "表示範囲",
+  "shotFull": "ページ全体",
+  "shotProOnly": "ページ全体は Pro と Ultra で使えます。",
+  "shotTaking": "スナップショットを撮影中…",
+  "shotTakingFull": "スナップショット: {1} 画面中 {0}…",
+  "shotFailed": "ここではスナップショットを撮れませんでした。メモはスナップショットなしで保存されました。",
+  "shotCut": "ページが長いため、最初の {0} 画面までを撮影しました。",
+  "shotOpen": "スナップショットを開く",
+  "shotNote": "ページのスナップショット",
+  "shotCrop": "切り取る",
+  "shotCropDone": "完了",
+  "shotCropReset": "全体を表示",
+  "shotLoading": "スナップショットを開いています…",
+  "shotMissing": "このスナップショットはまだこのデバイスにありません。チャットを iCloud と同期していれば届きます。"
 }

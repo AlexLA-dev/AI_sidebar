@@ -911,5 +911,20 @@
   "phCalendarBody": "Type “add to calendar” in the highlighted field and I'll suggest an event with the page's date.",
   "setPageHints": "Tips by the ✦ button",
   "setPageHintsHint": "In your first days, they show what you can do on a page.",
-  "phSimilarBodyUpBoth": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
+  "phSimilarBodyUpBoth": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button.",
+  "shotSwitch": "Page snapshot",
+  "shotVisible": "Visible area",
+  "shotFull": "Whole page",
+  "shotProOnly": "The whole page is in Pro and Ultra.",
+  "shotTaking": "Taking a snapshot…",
+  "shotTakingFull": "Snapshot: screen {0} of {1}…",
+  "shotFailed": "Couldn't take a snapshot here. The note is saved without it.",
+  "shotCut": "The page is long: the snapshot has its first {0} screens.",
+  "shotOpen": "Open the snapshot",
+  "shotNote": "Snapshot of the page",
+  "shotCrop": "Crop",
+  "shotCropDone": "Done",
+  "shotCropReset": "Whole snapshot",
+  "shotLoading": "Opening the snapshot…",
+  "shotMissing": "This snapshot isn't on this device yet. It comes through iCloud when your chats sync there."
 }
