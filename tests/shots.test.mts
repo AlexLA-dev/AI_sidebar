@@ -4,38 +4,50 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { chunks, cleanCrop, cropView, dragCrop, fitSize, newShotId, orphanShots, pageRows, SHOT_LIMITS, shotsInUse, stitchPlan, validShotId } from "../src/shared/shots.ts"
+import { chunks, cleanCrop, cropView, dragCrop, fitSize, markedRows, MARK_RGB, newShotId, nextScreen, orphanShots, pageRows, SHOT_LIMITS, shotsInUse, validShotId } from "../src/shared/shots.ts"
 
 test("a page screen by screen: each screen adds what the one before didn't show; the last scrolls only to the end", () => {
-  const { steps, height, cut } = stitchPlan(3000, 800)
-  assert.deepEqual(steps.map((s) => [s.scrollY, s.from, s.to, s.height]), [[0, 0, 0, 800], [800, 0, 800, 800], [1600, 0, 1600, 800], [2200, 200, 2400, 600]])
-  assert.equal(height, 3000)
-  assert.equal(cut, false)
-  // Every page row once, in order.
-  let at = 0
-  for (const s of steps) {
-    assert.equal(s.to, at)
-    assert.equal(s.scrollY + s.from, s.to, "the screen's part is the page at its place")
-    at += s.height
+  const steps = []
+  let shown = 0
+  for (let s = nextScreen(shown, 3000, 800); s; s = nextScreen(shown, 3000, 800)) {
+    steps.push([s.scrollY, s.from, s.height])
+    shown += s.height
   }
+  assert.deepEqual(steps, [[0, 0, 800], [800, 0, 800], [1600, 0, 800], [2200, 200, 600]])
+  assert.equal(shown, 3000)
 })
 
-test("a sticky header: in the first screen only; later screens add what's under it", () => {
-  const { steps, height } = stitchPlan(2000, 800, 10, 60)
-  for (const s of steps.slice(1)) {
-    assert.ok(s.from >= 60, "below the header")
-    assert.equal(s.scrollY + s.from, s.to)
+test("Safari's bars fold as the page scrolls (754 → 714 tall, the simulator): every row once, none missed", () => {
+  const page = 4564
+  const views = [754, 754, 714, 714, 714, 714, 714, 714]
+  let shown = 0
+  let i = 0
+  for (let s = nextScreen(shown, page, views[0]); s; s = nextScreen(shown, page, views[++i] ?? 714)) {
+    assert.equal(s.scrollY + s.from, shown, "the screen's part starts at the next unseen row")
+    assert.ok(s.from + s.height <= (views[i] ?? 714))
+    shown += s.height
   }
-  assert.equal(height, 2000)
+  assert.equal(shown, page)
+  assert.equal(nextScreen(500, 500, 800), null)
 })
 
-test("at most 10 screens: a longer page is cut; a short one is one screen", () => {
-  const long = stitchPlan(50_000, 800)
-  assert.equal(long.steps.length, SHOT_LIMITS.screens)
-  assert.equal(long.cut, true)
-  assert.equal(long.height, 8000)
-  const short = stitchPlan(500, 800)
-  assert.deepEqual([short.steps.length, short.height, short.cut], [1, 800, false])
+test("where the page is in a capture: between the marks (iPhone: the status bar above, the toolbar below)", () => {
+  const column = (height: number, marks: Array<[number, number]>) => {
+    const px = new Uint8ClampedArray(height * 4)
+    for (let y = 0; y < height; y++) px.set([20, 20, 20, 255], y * 4)
+    for (const [from, to] of marks) for (let y = from; y < to; y++) px.set([...MARK_RGB, 255], y * 4)
+    return px
+  }
+  // 2622 rows: status bar 186, the page 754×3 = 2262, the toolbar below.
+  assert.deepEqual(markedRows(column(2622, [[186, 198], [2436, 2448]]), 2622), { top: 186, height: 2262 })
+  // A Mac: the capture is the page.
+  assert.deepEqual(markedRows(column(1600, [[0, 8], [1592, 1600]]), 1600), { top: 0, height: 1600 })
+  // JPEG's slight smudge is fine; no marks, or one, isn't an answer.
+  const smudged = column(1000, [[0, 8], [992, 1000]])
+  smudged.set([240, 18, 220, 255], 0)
+  assert.deepEqual(markedRows(smudged, 1000), { top: 0, height: 1000 })
+  assert.equal(markedRows(column(1000, []), 1000), null)
+  assert.equal(markedRows(column(1000, [[0, 8]]), 1000), null)
 })
 
 test("the picture's size: within the width and the pixels iOS allows", () => {

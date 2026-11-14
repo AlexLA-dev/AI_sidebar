@@ -3,7 +3,7 @@
 // ours, in one host) hide for the moment it takes, so they're not in it. What stays put at the top of the page (a
 // sticky header) is in the picture once, at its top; what stays at the bottom (a cookie bar) isn't in a whole page's.
 
-import { fitSize, newShotId, pageRows, SHOT_LIMITS, stitchPlan, type Shot, type ShotKind } from "../shared/shots"
+import { fitSize, markedRows, MARK_RGB, newShotId, nextScreen, pageRows, SHOT_LIMITS, type Shot, type ShotKind } from "../shared/shots"
 import { HOST_TAG } from "./page"
 import { panelRoot } from "./root"
 
@@ -55,6 +55,38 @@ function staying(): HTMLElement[] {
   return out
 }
 
+/** Mark size (CSS px): the marks sit in the viewport's left corners, top and bottom, for the capture only. */
+const MARK = 4
+
+/** Marks at the viewport's top and bottom left corners: they tell where the page is in the capture. */
+function placeMarks(): () => void {
+  const marks = (["top", "bottom"] as const).map((side) => {
+    const el = document.createElement("div")
+    el.setAttribute("aria-hidden", "true")
+    el.style.cssText = `all:initial;display:block;position:fixed;left:0;${side}:0;width:${MARK}px;height:${MARK}px;background:rgb(${MARK_RGB.join(",")});z-index:2147483647;pointer-events:none`
+    document.documentElement.appendChild(el)
+    return el
+  })
+  return () => marks.forEach((m) => m.remove())
+}
+
+/** The rows of a capture that are the page, from the marks; else from its size (the page is all of it, or below). */
+function pageIn(img: HTMLImageElement): { top: number; height: number } {
+  const c = document.createElement("canvas")
+  c.width = 1
+  c.height = img.naturalHeight
+  const ctx = c.getContext("2d", { willReadFrequently: true })!
+  const x = Math.max(1, Math.floor((img.naturalWidth / window.innerWidth) * MARK / 2))
+  ctx.drawImage(img, x, 0, 1, img.naturalHeight, 0, 0, 1, img.naturalHeight)
+  return markedRows(ctx.getImageData(0, 0, 1, img.naturalHeight).data, img.naturalHeight)
+    ?? pageRows({ width: img.naturalWidth, height: img.naturalHeight }, { width: window.innerWidth, height: window.innerHeight })
+}
+
+/** The marks painted over in the picture: each corner patch takes the pixels just beside it. */
+function unmark(ctx: CanvasRenderingContext2D, rows: Array<{ y: number; h: number }>, size: number): void {
+  for (const r of rows) if (r.h > 0) ctx.drawImage(ctx.canvas, size, r.y, size, r.h, 0, r.y, size, r.h)
+}
+
 async function capture(): Promise<HTMLImageElement> {
   // Never longer than this: everything of ours is hidden meanwhile.
   const reply = await Promise.race([
@@ -101,60 +133,95 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
     let canvas: HTMLCanvasElement
     let cut = false
     let screens = 1
-    if (kind === "visible") {
-      const img = await capture()
-      const rows = pageRows({ width: img.naturalWidth, height: img.naturalHeight }, { width: window.innerWidth, height: window.innerHeight })
-      const size = fitSize(img.naturalWidth, rows.height, SHOT_LIMITS.width)
-      canvas = document.createElement("canvas")
-      canvas.width = size.w
-      canvas.height = size.h
-      canvas.getContext("2d")!.drawImage(img, 0, rows.top, img.naturalWidth, rows.height, 0, 0, size.w, size.h)
-    } else {
-      const view = window.innerHeight
-      const page = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight ?? 0)
-      const plan = stitchPlan(page, view)
-      cut = plan.cut
-      screens = plan.steps.length
-      let ctx: CanvasRenderingContext2D | null = null
-      let scale = 1
-      let lastShot = 0
-      for (let i = 0; i < plan.steps.length; i++) {
-        const step = plan.steps[i]
-        progress?.(i + 1, plan.steps.length)
-        window.scrollTo({ left: 0, top: step.scrollY, behavior: "instant" as ScrollBehavior })
-        // What stays put at the bottom (a cookie bar, a "Buy" bar) would land mid-picture: never in it. What stays at
-        // the top (a header) is in the first screen only.
-        if (i <= 1) for (const el of staying()) {
-          if (hidden.some((h) => h.el === el) || (i === 0 && el.getBoundingClientRect().top < view * 0.5)) continue
-          hidden.push({ el, was: el.style.visibility })
-          el.style.setProperty("visibility", "hidden", "important")
-        }
-        // The page settles (lazy pictures, the scroll's last frame); and captures are at most two a second.
-        await frame()
-        await frame()
-        await wait(Math.max(160, 520 - (Date.now() - lastShot)))
+    const unplace = placeMarks()
+    try {
+      if (kind === "visible") {
         const img = await capture()
-        lastShot = Date.now()
-        // Device pixels per CSS pixel (from the width: iPhone's capture is taller than the page by the status bar),
-        // and where this screen's part really is (a page may not scroll exactly there).
-        const rows = pageRows({ width: img.naturalWidth, height: img.naturalHeight }, { width: window.innerWidth, height: view })
-        const dpr = rows.height / view
-        const actual = window.scrollY
-        const from = Math.max(0, Math.min(view - step.height, step.to - actual))
-        if (!ctx) {
-          const size = fitSize(img.naturalWidth, plan.height * dpr, SHOT_LIMITS.fullWidth)
-          scale = size.scale
-          canvas = document.createElement("canvas")
-          canvas.width = size.w
-          canvas.height = size.h
-          ctx = canvas.getContext("2d")!
-          ctx.fillStyle = "#fff"
-          ctx.fillRect(0, 0, size.w, size.h)
+        const rows = pageIn(img)
+        const size = fitSize(img.naturalWidth, rows.height, SHOT_LIMITS.width)
+        canvas = document.createElement("canvas")
+        canvas.width = size.w
+        canvas.height = size.h
+        const ctx = canvas.getContext("2d")!
+        ctx.drawImage(img, 0, rows.top, img.naturalWidth, rows.height, 0, 0, size.w, size.h)
+        const mark = Math.ceil((size.w / window.innerWidth) * MARK) + 1
+        unmark(ctx, [{ y: 0, h: mark }, { y: size.h - mark, h: mark }], mark)
+      } else {
+        const page = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight ?? 0)
+        // At most so many screens, as tall as the viewport is now (or a little more, should Safari's bars fold away).
+        const most = Math.min(page, Math.ceil(window.innerHeight * 1.25) * SHOT_LIMITS.screens)
+        let ctx: CanvasRenderingContext2D | null = null
+        let scale = 1
+        let dpr = 1
+        let shown = 0
+        let lastShot = 0
+        const marks: Array<{ y: number; h: number }> = []
+        for (let i = 0; i < SHOT_LIMITS.screens; i++) {
+          const step = nextScreen(shown, page, window.innerHeight)
+          if (!step) break
+          progress?.(i + 1, Math.min(SHOT_LIMITS.screens, i + 1 + Math.ceil((page - shown - step.height) / Math.max(1, window.innerHeight))))
+          window.scrollTo({ left: 0, top: step.scrollY, behavior: "instant" as ScrollBehavior })
+          // What stays put at the bottom (a cookie bar, a "Buy" bar) would land mid-picture: never in it. What stays at
+          // the top (a header) is in the first screen only.
+          if (i <= 1) for (const el of staying()) {
+            if (hidden.some((h) => h.el === el) || (i === 0 && el.getBoundingClientRect().top < window.innerHeight * 0.5)) continue
+            hidden.push({ el, was: el.style.visibility })
+            el.style.setProperty("visibility", "hidden", "important")
+          }
+          // The page settles (lazy pictures, the scroll's last frame, Safari's bars); captures at most two a second.
+          await frame()
+          await frame()
+          await wait(Math.max(200, 520 - (Date.now() - lastShot)))
+          const img = await capture()
+          lastShot = Date.now()
+          // Where the page is in this capture, and where this screen's new rows really are (the page may not have
+          // scrolled exactly there, and the viewport may be another height than a moment ago).
+          const rows = pageIn(img)
+          // The scale from the width (it doesn't change), the viewport's height as captured from the marks (Safari's bar
+          // may have moved since).
+          dpr = img.naturalWidth / window.innerWidth
+          const view = Math.round(rows.height / dpr)
+          const from = Math.max(0, shown - window.scrollY)
+          const height = Math.min(view - from, page - shown)
+          if (height <= 0) break
+          if (!ctx) {
+            const size = fitSize(img.naturalWidth, most * dpr, SHOT_LIMITS.fullWidth)
+            scale = size.scale
+            canvas = document.createElement("canvas")
+            canvas.width = size.w
+            canvas.height = size.h
+            ctx = canvas.getContext("2d")!
+            ctx.fillStyle = "#fff"
+            ctx.fillRect(0, 0, size.w, size.h)
+          }
+          const y = Math.round(shown * dpr * scale)
+          const h = Math.min(Math.round(height * dpr * scale), canvas!.height - y)
+          if (h <= 0) break
+          ctx.drawImage(img, 0, rows.top + from * dpr, img.naturalWidth, (h / scale), 0, y, Math.round(img.naturalWidth * scale), h)
+          // The marks: the top one when this part starts at the viewport's top, the bottom one when it reaches its end.
+          const mark = Math.ceil(dpr * scale * MARK) + 1
+          if (from < MARK) marks.push({ y, h: Math.min(h, mark) })
+          if (from + height > view - MARK) marks.push({ y: Math.max(y, y + h - mark), h: Math.min(h, mark) })
+          shown += height
+          screens = i + 1
         }
-        ctx.drawImage(img, 0, rows.top + from * dpr, img.naturalWidth, step.height * dpr, 0, Math.round(step.to * dpr * scale), Math.round(img.naturalWidth * scale), Math.round(step.height * dpr * scale))
+        cut = shown < page
+        if (!ctx) throw Object.assign(new Error("no screen"), { code: "FAILED" })
+        unmark(ctx, marks, Math.ceil(dpr * scale * MARK) + 1)
+        // Down to what was taken.
+        const total = Math.min(canvas!.height, Math.round(shown * dpr * scale))
+        if (total < canvas!.height) {
+          const done = document.createElement("canvas")
+          done.width = canvas!.width
+          done.height = total
+          done.getContext("2d")!.drawImage(canvas!, 0, 0, canvas!.width, total, 0, 0, canvas!.width, total)
+          canvas = done
+        }
       }
-      canvas = canvas!
+    } finally {
+      unplace()
     }
+    canvas = canvas!
     const data = jpeg(canvas, SHOT_LIMITS.quality)
     return { ok: true, shot: { id: newShotId(), kind, w: canvas.width, h: canvas.height, th: thumbnail(canvas) }, data, cut, screens }
   } catch (err) {

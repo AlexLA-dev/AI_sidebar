@@ -62,40 +62,37 @@ export function validShotId(id: unknown): id is string {
 
 // ------------------------------------------------------------ the whole page, screen by screen
 
-export interface StitchStep {
-  // Where the page is scrolled to for this screen (CSS px).
-  scrollY: number
-  // What of this screen goes into the picture: from `from` down `height` CSS px of the visible area, placed at `to`.
-  from: number
-  to: number
-  height: number
+/**
+ * The next screen of a page `page` tall when `shown` CSS px of it are in the picture and the viewport is `view` tall now
+ * (Safari's toolbars change it as the page scrolls): where to scroll, and the part of the screen that adds the next
+ * rows (the last screen scrolls only to the page's end). Null when the page is all in.
+ */
+export function nextScreen(shown: number, page: number, view: number): { scrollY: number; from: number; height: number } | null {
+  if (shown >= page || view <= 0) return null
+  const scrollY = Math.max(0, Math.min(shown, page - view))
+  const from = shown - scrollY
+  const height = Math.min(view - from, page - shown)
+  return height > 0 ? { scrollY, from, height } : null
 }
 
+/** The colour of the two marks put at the viewport's top and bottom left corners for a capture. */
+export const MARK_RGB = [255, 0, 238] as const
+
 /**
- * The screens of a page `pageHeight` tall seen `viewHeight` at a time, at most `screens`: each screen scrolled to, and
- * the part of it that goes into the picture (the last screen scrolls only to the page's end: its part is what the one
- * before didn't show). `top`: the height of what stays at the top (a sticky header): left out of every screen but the
- * first, as the page under it is shown by the screen before.
+ * Where the page is in a capture, from a column of its pixels (RGBA) at the marks: the rows from the top mark's first to
+ * the bottom mark's last. iPhone's Safari captures the whole screen (the status bar above the page, its toolbar below);
+ * a Mac's, the page only. Null when the marks aren't both there.
  */
-export function stitchPlan(pageHeight: number, viewHeight: number, screens: number = SHOT_LIMITS.screens, top = 0): { steps: StitchStep[]; height: number; cut: boolean } {
-  const view = Math.max(1, Math.floor(viewHeight))
-  const sticky = Math.max(0, Math.min(Math.floor(top), Math.floor(view / 2)))
-  const page = Math.max(view, Math.floor(pageHeight))
-  // Each screen after the first adds what's below the sticky part.
-  const add = view - sticky
-  const steps: StitchStep[] = [{ scrollY: 0, from: 0, to: 0, height: view }]
-  let shown = view
-  while (shown < page && steps.length < screens) {
-    // Scrolled so the page's next unseen pixel is just under the sticky part, but never past the end.
-    const want = shown - sticky
-    const scrollY = Math.min(want, page - view)
-    const from = sticky + (want - scrollY)
-    const height = Math.min(add - (want - scrollY), page - shown)
-    if (height <= 0) break
-    steps.push({ scrollY, from, to: shown, height })
-    shown += height
+export function markedRows(column: ArrayLike<number>, height: number, tolerance = 48): { top: number; height: number } | null {
+  const marked = (y: number) => MARK_RGB.every((v, c) => Math.abs(column[y * 4 + c] - v) <= tolerance)
+  let first = -1
+  let last = -1
+  for (let y = 0; y < height; y++) if (marked(y)) {
+    if (first < 0) first = y
+    last = y
   }
-  return { steps, height: shown, cut: shown < page }
+  if (first < 0 || last - first < 8) return null
+  return { top: first, height: last - first + 1 }
 }
 
 /** The picture's size for a capture `w`×`h` (device px), within the width and pixel caps. */
