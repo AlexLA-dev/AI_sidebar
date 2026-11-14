@@ -230,17 +230,20 @@ export interface EngineOverrides {
   regionCheck?: boolean
   // The search model's turns: a long search pauses its turn, resumed once (2); the light search doesn't resume (1).
   searchTurns?: number
+  // The later round of searches when the first found few (without the alternatives search beside it): off for the
+  // light search.
+  rescue?: boolean
 }
 
 /**
  * Find similar's light search (2.7, everyone not on Ultra): the small model writes, the plan's first two searches only
- * (no follow-ups, no search for alternatives beside them), 6 pages opened, no reviews, no brand's other models, no
- * region or delivery check. Each page is still opened and checked; about a quarter of a full search's cost.
+ * (no follow-ups, no search for alternatives beside them, no later round), 6 pages opened, no reviews, no brand's other
+ * models, no region or delivery check. Each page is still opened and checked; about a quarter of a full search's cost.
  */
 export function lightOverrides(): EngineOverrides {
   return {
     writeModel: config.similar.lightWriteModel, searchMode: "single", followUps: 0, altSearch: false,
-    reviews: false, siblings: false, shipCheck: false, regionCheck: false, maxPages: 6, maxQueries: 2, searchTurns: 1
+    reviews: false, siblings: false, shipCheck: false, regionCheck: false, maxPages: 6, maxQueries: 2, searchTurns: 1, rescue: false
   }
 }
 
@@ -2882,7 +2885,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     // Few candidates that could be items of their own (not their very item at other shops, not list pages): one
     // more search for alternatives at once, beside the checks (an answer of one shop or none compares nothing).
     const likely = taken.filter((c) => c.kind === "item" && !sameAsSubject(`${c.name} ${c.resultTitle}`, plan)).length
-    const rescueQ = !altQ && likely < 3 && left() > 30_000 ? rescueQueries(input, plan) : null
+    const rescueQ = !altQ && (over.rescue ?? true) && likely < 3 && left() > 30_000 ? rescueQueries(input, plan) : null
     // At most RESCUE_MS, one call: a slow round is dropped rather than eat the writer's time (a round with no limit
     // can push the whole answer past its time).
     const rescue = rescueQ
