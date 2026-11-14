@@ -294,24 +294,43 @@ struct Board: Identifiable, Hashable {
 
     /// A card's gist: the text's first sentences without Markdown or citations, up to `maxGist` characters.
     static func gist(_ text: String) -> String {
-        var plain = RowMarks.unlinked(text)
-        for (pattern, template) in [
-            (#"\s*\[\d{1,2}\]\(https?:[^)\s]+\)"#, ""), (#"(?s)```.*?```"#, " "), (#"!\[[^\]]*\]\([^)]*\)"#, " "),
-            (#"\[([^\]]+)\]\([^)]*\)"#, "$1"), (#"(?m)^\s{0,3}(#{1,6}|>|[-*+]|\d+[.)])\s+"#, ""), (#"[*_`~|]+"#, ""), (#"\s+"#, " ")
-        ] {
-            plain = plain.replacingOccurrences(of: pattern, with: template, options: .regularExpression)
+        let source = RowMarks.unlinked(text)
+            .replacingOccurrences(of: #"\s*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"(?s)```.*?```"#, with: "\n", options: .regularExpression)
+        let raw = source.components(separatedBy: "\n")
+        let isTable = { (line: String) in line.range(of: #"^\s*\|"#, options: .regularExpression) != nil }
+        var lines: [String] = []
+        for (i, line) in raw.enumerated() {
+            // A table is no gist; neither is a title line (a heading, or bold alone) with text after it.
+            if isTable(line) { continue }
+            if line.range(of: #"^\s{0,3}(#{1,6}\s+\S.*|\*\*[^*]+\*\*:?)\s*$"#, options: .regularExpression) != nil,
+               raw[(i + 1)...].contains(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty && !isTable($0) }) { continue }
+            var plain = line
+            for (pattern, template) in [
+                (#"!\[[^\]]*\]\([^)]*\)"#, " "), (#"\[([^\]]+)\]\([^)]*\)"#, "$1"), (#"^\s{0,3}(#{1,6}|>|[-*+]|\d+[.)])\s+"#, ""),
+                (#"[*_`~|]+"#, ""), (#"\s+"#, " ")
+            ] {
+                plain = plain.replacingOccurrences(of: pattern, with: template, options: .regularExpression)
+            }
+            plain = plain.trimmingCharacters(in: .whitespaces)
+            guard !plain.isEmpty else { continue }
+            // Each line or bullet is a sentence of its own.
+            lines.append(plain.range(of: #"[.!?。！？:：…]$"#, options: .regularExpression) != nil ? plain : plain + ".")
         }
-        plain = plain.trimmingCharacters(in: .whitespaces)
+        let joined = lines.joined(separator: " ")
+        let plain = joined.isEmpty
+            ? source.replacingOccurrences(of: #"[*_`~|#>-]+"#, with: " ", options: .regularExpression)
+                .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces)
+            : joined
         guard plain.count > BoardLimits.maxGist else { return plain }
+        // Whole sentences from the start (a decimal point isn't the end of one).
         var out = ""
-        let sentence = try? NSRegularExpression(pattern: #"[^.!?。！？]+[.!?。！？]+(\s|$)"#)
-        let ns = plain as NSString
-        for m in sentence?.matches(in: plain, range: NSRange(location: 0, length: ns.length)) ?? [] {
-            let s = ns.substring(with: m.range)
-            if (out + s).trimmingCharacters(in: .whitespaces).count > BoardLimits.maxGist { break }
-            out += s
+        let pieces = plain.replacingOccurrences(of: #"(?<=[.!?])\s+|(?<=[。！？])"#, with: "\u{1}", options: .regularExpression).components(separatedBy: "\u{1}")
+        for piece in pieces where !piece.isEmpty {
+            let next = out.isEmpty ? piece : out + " " + piece
+            if next.count > BoardLimits.maxGist { break }
+            out = next
         }
-        out = out.trimmingCharacters(in: .whitespaces)
         return out.count >= 40 ? out : String(plain.prefix(BoardLimits.maxGist - 1)).trimmingCharacters(in: .whitespaces) + "…"
     }
 

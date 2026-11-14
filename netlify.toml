@@ -105,6 +105,18 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/open-chat"
+  to = "https://context-flow.app/open-chat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/open-chat.html"
+  to = "https://context-flow.app/open-chat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/analytics"
   to = "https://context-flow.app/analytics"
   status = 301

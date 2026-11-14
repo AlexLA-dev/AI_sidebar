@@ -212,6 +212,10 @@ struct BoardView: View {
         Menu {
             Button { Task { await layout() } } label: { Label("Sort into sections", systemImage: "rectangle.3.group") }
                 .disabled((board?.countedCards ?? 0) < 2)
+            // 2.7: the collection as a PDF (the panel's page: BoardPDF), to share or save.
+            Button { Task { await exportPDF() } } label: { Label("PDF", systemImage: "doc.richtext") }
+                .disabled(working != nil || (board?.countedCards ?? 0) == 0)
+                .accessibilityIdentifier("cf-board-pdf")
             Button { name = ""; addingSection = true } label: { Label("New section", systemImage: "plus") }
             Button { name = board?.name ?? ""; renamingBoard = true } label: { Label("Rename collection", systemImage: "pencil") }
             Button(role: .destructive) { deleting = true } label: { Label("Delete collection", systemImage: "trash") }
@@ -414,6 +418,19 @@ struct BoardView: View {
             let table = try await BoardAI.compare(chosen)
             change { $0.addComparison(library.newItemId(), of: chosen.map(\.id), table: table, now: now()) }
             picked = []
+        }
+    }
+
+    private func exportPDF() async {
+        guard let board else { return }
+        working = "pdf"
+        defer { working = nil }
+        do {
+            let url = try await BoardPDF.make(board)
+            ChatAI.reportUse("collect", "pdf", ["via": "app", "cards": String(board.countedCards)])
+            ShareSheet.present([url], from: nil)
+        } catch {
+            problem = String(localized: "Couldn't make the PDF. Try again.", comment: "A collection's PDF failed (2.7)")
         }
     }
 
