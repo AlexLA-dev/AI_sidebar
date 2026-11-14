@@ -49268,6 +49268,88 @@
         }
       }
     },
+    "Quick search. Ultra searches wider, reads reviews and checks delivery.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بحث سريع. يبحث Ultra على نطاق أوسع ويقرأ المراجعات ويتحقق من التوصيل."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnelle Suche. Ultra sucht breiter, liest Bewertungen und prüft die Lieferung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Búsqueda rápida. Ultra busca más amplio, lee reseñas y comprueba el envío."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche rapide. Ultra cherche plus large, lit les avis et vérifie la livraison."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricerca rapida. Ultra cerca più a fondo, legge le recensioni e controlla la spedizione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クイック検索です。Ultraはより広く探し、レビューを読み、配送も確認します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "빠른 검색입니다. Ultra는 더 넓게 찾고, 리뷰를 읽고, 배송까지 확인합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Busca rápida. O Ultra busca mais amplo, lê avaliações e confere a entrega."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Быстрый поиск. Ultra ищет шире, читает отзывы и проверяет доставку."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Швидкий пошук. Ultra шукає ширше, читає відгуки й перевіряє доставку."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tìm nhanh. Ultra tìm rộng hơn, đọc đánh giá và kiểm tra giao hàng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速搜索。Ultra 搜索范围更广，会读评价并核对配送。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速搜尋。Ultra 搜尋範圍更廣，會讀評價並核對配送。"
+          }
+        }
+      }
+    },
     "Free, no in-app purchases": {
       "localizations": {
         "ar": {

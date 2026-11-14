@@ -680,6 +680,9 @@
   "similarGetUltra": "Ultraにする",
   "similarOff": "「似たものを探す」はまだご利用いただけません。",
   "similarLimit": "今週の「似たものを探す」{0}回を使い切りました。{1}に戻ります。",
+  "similarLightNote": "クイック検索：無料で週{0}回。Ultraはより広く探し、レビューを読み、配送も確認します。",
+  "similarLightFoot": "クイック検索です。Ultraはより広く探し、レビューを読み、配送も確認します。",
+  "similarFreeLimit": "今週の無料検索{0}回を使い切りました。{1}に戻ります。Ultraなら週{2}回、より広く探します。",
 
   "orgDemoQuestion": "5月のリスボン行き格安航空券は？",
   "orgDemoAnswer": "5月のベルリン〜リスボン往復は約90ユーロから。6〜8週間前の予約がおすすめです。",

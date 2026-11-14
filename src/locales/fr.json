@@ -680,6 +680,9 @@
   "similarGetUltra": "Passer à Ultra",
   "similarOff": "« Trouver similaire » n'est pas encore disponible.",
   "similarLimit": "Les {0} recherches « Trouver similaire » de la semaine sont utilisées. Elles reviennent {1}.",
+  "similarLightNote": "Recherche rapide : {0} par semaine gratuitement. Ultra cherche plus large, lit les avis et vérifie la livraison.",
+  "similarLightFoot": "Recherche rapide. Ultra cherche plus large, lit les avis et vérifie la livraison.",
+  "similarFreeLimit": "Les {0} recherches gratuites de la semaine sont utilisées. Elles reviennent {1}. Ultra en offre {2} par semaine et cherche plus large.",
 
   "orgDemoQuestion": "Vols pas chers pour Lisbonne en mai ?",
   "orgDemoAnswer": "En mai, les allers-retours Berlin–Lisbonne commencent vers 90 euros. Mieux vaut réserver six à huit semaines à l'avance.",

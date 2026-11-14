@@ -1,6 +1,6 @@
-// Find similar's access (2.6 release candidate): Ultra only, answered ULTRA_ONLY like read aloud; Ultra's weekly
-// searches charged before anything runs (with the engine's daily safety caps), given back when nothing came, and
-// LIMIT_REACHED with the week's usage once they're used.
+// Find similar's access: Ultra's full search (2.6) and, since 2.7, the light one for everyone else. The week's searches
+// (Ultra's per subscription, the light search's per device) are charged before anything runs (with the engine's daily
+// safety caps), given back when nothing came, and LIMIT_REACHED comes with the week's usage once they're used.
 import assert from "node:assert/strict"
 import { beforeEach, test } from "node:test"
 
@@ -17,6 +17,9 @@ type Item = { subject: string; period: string; limit: number | null; amount?: nu
 let counters = new Map<string, number>()
 let consumed: string[][] = []
 let anthropicCalls = 0
+let anthropicBodies: Array<Record<string, any>> = []
+// The plan step answers (2.7's light search test): the run reaches its search, which fails.
+let planAnswers = false
 
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
@@ -46,6 +49,11 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url.startsWith("https://api.anthropic.com/")) {
     // The engine's first step fails: the run ends with nothing, and the search is given back.
     anthropicCalls++
+    anthropicBodies.push(body)
+    if (planAnswers && body.output_config?.format) {
+      const plan = { category: "product", subject: "Acme Q1 headphones", traits: ["wireless headphones"], condition: { kind: "cheaper", max_price: 0, currency: "", language: "", place: "" }, source_price: 0, source_currency: "", queries: ["q one", "q two", "q three", "q four"], kind_search: "wireless headphones", plans: [], language: "en" }
+      return new Response(JSON.stringify({ id: "m", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify(plan) }], stop_reason: "end_turn", usage: { input_tokens: 10, output_tokens: 10 } }), { headers: { "Content-Type": "application/json" } })
+    }
     return new Response(JSON.stringify({ type: "error", error: { type: "api_error", message: "down" } }), { status: 500, headers: { "Content-Type": "application/json" } })
   }
   throw new Error(`unexpected fetch ${url}`)
@@ -73,17 +81,57 @@ beforeEach(() => {
   counters = new Map()
   consumed = []
   anthropicCalls = 0
+  anthropicBodies = []
+  planAnswers = false
 })
 
-test("Free and Pro: ULTRA_ONLY (403), nothing charged, nothing asked", async () => {
+test("2.7, Free and Pro: the light search, one of the week's free searches per device charged first, given back when nothing came", async () => {
   for (const entitlement of [null, jws("com.contextflow.pro.monthly"), jws("com.contextflow.byok.monthly")]) {
-    const res = await ask(entitlement)
-    assert.equal(res.status, 403)
-    const body = await res.json()
-    assert.equal(body.code, "ULTRA_ONLY")
-    assert.equal(body.feature, "similar")
+    counters = new Map()
+    consumed = []
+    const c = ctx()
+    const res = await ask(entitlement, c)
+    assert.equal(res.status, 200)
+    assert.deepEqual(consumed[0].slice(0, 3), [`similarfree:${INSTALL}`, "similarfree:ip:203.0.113.9", "global:similarfree"].map((s) => (s.includes(":ip:") ? consumed[0][1] : s)))
+    assert.match(consumed[0][1], /^similarfree:ip:/)
+    assert.equal(counters.get(`similarfree:${INSTALL}`), 1)
+    assert.ok(!consumed[0].some((s) => s.startsWith("similar:tx:")), "not Ultra's allowance")
+    await res.text()
+    await Promise.all(c.waits)
+    assert.equal(counters.get(`similarfree:${INSTALL}`), 0)
   }
-  assert.equal(consumed.length, 0)
+})
+
+test("2.7, the light search: two searches, no follow-ups, no search beside them, anywhere (no \"near me\")", async () => {
+  planAnswers = true
+  const c = ctx()
+  const res = await similar(new Request("https://x/api/v2/similar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ installId: INSTALL, client: { version: "2.7", platform: "ios", locale: "en-US", build: "1" }, engine: "a", entitlement: null, region: "local", country: "DE", page: { title: "Acme Q1", url: "https://shop.example/q1", text: "Headphones." }, chip: "cheaper", words: "" })
+  }), c)
+  await res.text()
+  await Promise.all(c.waits)
+  const searches = anthropicBodies.filter((b) => Array.isArray(b.tools) && b.tools.some((t: { name?: string }) => t.name === "web_search"))
+  // The one search call (the client tries a failed call once more): no search for alternatives beside it.
+  assert.ok(searches.length >= 1)
+  for (const call of searches) {
+    assert.equal(call.tools[0].max_uses, 2, "the plan's first two searches, no follow-ups")
+    assert.equal(call.tools[0].user_location, undefined, "anywhere")
+    const asked = JSON.stringify(call.messages)
+    assert.match(asked, /q one/)
+    assert.doesNotMatch(asked, /q three|1\. wireless headphones/, "only the plan's first two; no search for alternatives")
+  }
+})
+
+test("2.7, the light search's week used: LIMIT_REACHED, light, with the week's usage; nothing asked", async () => {
+  counters.set(`similarfree:${INSTALL}`, 3)
+  const res = await ask(null)
+  assert.equal(res.status, 402)
+  const body = await res.json()
+  assert.equal(body.code, "LIMIT_REACHED")
+  assert.equal(body.light, true)
+  assert.deepEqual([body.usage.used, body.usage.limit, body.usage.period], [3, 3, "week"])
   assert.equal(anthropicCalls, 0)
 })
 

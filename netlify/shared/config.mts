@@ -2,7 +2,7 @@
 // (Project configuration → Environment variables) without a code change.
 
 import { organizeConfig } from "../../src/shared/organize.ts"
-import { PLAN_PRODUCTS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
+import { PLAN_PRODUCTS, SIMILAR_FREE_WEEKLY, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
 
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
@@ -197,6 +197,13 @@ export const config = {
     // Safety caps (the Ultra allowance itself comes with the Ultra plan): per install a day, and for everyone.
     installDaily: int("SIMILAR_INSTALL_DAILY", 40),
     globalDaily: int("SIMILAR_GLOBAL_DAILY", 5_000),
+    // 2.7: the light search for everyone not on Ultra (a measure of demand): searches a week per device, a week per
+    // network address (several devices behind one), and for everyone a day (only stops runaway spend). Its writer is
+    // the small model; it searches twice, opens 6 pages, and skips reviews, "near me" and the delivery check.
+    freeWeekly: int("SIMILAR_FREE_WEEKLY", SIMILAR_FREE_WEEKLY),
+    freeIpWeekly: int("SIMILAR_FREE_IP_WEEKLY", SIMILAR_FREE_WEEKLY * 5),
+    freeGlobalDaily: int("SIMILAR_FREE_GLOBAL_DAILY", 1_000),
+    lightWriteModel: (env("SIMILAR_LIGHT_WRITE_MODEL") ?? "claude-haiku-5-5").trim(),
     // USD, for the spend in the logs: Anthropic web search per search; Gemini 3.8 Flash per million tokens
     // (to 2026-12-31; $1.50/$7.50 from 2027) and Google Search grounding per query (after 5,000 free a month).
     searchPrice: Number(env("SIMILAR_SEARCH_PRICE") ?? 0.01),

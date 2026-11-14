@@ -224,6 +224,22 @@ export interface EngineOverrides {
   shipCheck?: boolean
   altSearch?: boolean
   shipReader?: "rules" | "model"
+  // 2.7, the light search: pages opened, the plan's searches kept, and the deeper steps a light search leaves out.
+  maxPages?: number
+  maxQueries?: number
+  regionCheck?: boolean
+}
+
+/**
+ * Find similar's light search (2.7, everyone not on Ultra): the small model writes, the plan's first two searches only
+ * (no follow-ups, no search for alternatives beside them), 6 pages opened, no reviews, no brand's other models, no
+ * region or delivery check. Each page is still opened and checked; about a quarter of a full search's cost.
+ */
+export function lightOverrides(): EngineOverrides {
+  return {
+    writeModel: config.similar.lightWriteModel, searchMode: "single", followUps: 0, altSearch: false,
+    reviews: false, siblings: false, shipCheck: false, regionCheck: false, maxPages: 6, maxQueries: 2
+  }
 }
 
 export interface EngineStats {
@@ -762,7 +778,7 @@ export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: num
   }
   const results = resultsOf(content)
   const text = content.map((b) => (b.type === "text" ? b.text : "")).join("")
-  const candidates = pickCandidates(jsonIn(text), results, input.page, config.similar.maxPages)
+  const candidates = pickCandidates(jsonIn(text), results, input.page, over.maxPages ?? config.similar.maxPages)
   return { results, candidates, spend: spendOf(model, { input_tokens, output_tokens } as Anthropic.Usage, searches), tool: searchTool(model, over.searchTool) }
 }
 
@@ -2776,6 +2792,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
   // Near them where the search can't be located there: the country's name in the searches (build 94).
   await countriesP
   plan.queries = localQueries(input, plan)
+  if (over.maxQueries) plan.queries = plan.queries.slice(0, over.maxQueries)
   // Their money: their country's, else the page's own.
   plan.money = { currency: currencyOf(input.country) || input.facts.price?.currency || plan.sourceCurrency, rates: await ratesP }
   // A selection is the subject: from here on the page's own facts don't stand for it (subjectInput).
@@ -2792,7 +2809,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     const shipping = input.region === "local" && Boolean(input.country) && (over.shipCheck ?? config.similar.shipCheck) && budget > 3_000
     const [dug, region, reviewed, siblings, delivered] = await Promise.all([
       plan.condition.kind !== "none" && budget > 4_000 ? digDeeper(base, plan, input.condition, input.facts, lang(), Math.min(10_000, budget), opts.signal) : null,
-      country && budget > 2_000 ? regionCheck(base, country, lang(), Math.min(4_500, budget), opts.signal).catch(() => base) : null,
+      country && budget > 2_000 && (over.regionCheck ?? true) ? regionCheck(base, country, lang(), Math.min(4_500, budget), opts.signal).catch(() => base) : null,
       budget > 6_000 && (over.reviews ?? config.similar.reviews) ? reviewsStep(base, plan, input, lang(), budget, opts.signal).catch(() => null) : null,
       // Build 94: the brand's other models, so "it lacks X" names the one that has it.
       budget > 3_000 && (over.siblings ?? config.similar.siblings) ? siblingsStep(base, plan, input.facts, lang(), Math.min(5_000, budget), opts.signal, input.page.url).catch(() => null) : null,

@@ -7,16 +7,14 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { buildGrounding, type GoogleStats } from "../shared/google.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
-import { blockReason, resolveAccess, similarCountersFor, ultraUsage, type Access } from "../shared/plan.mts"
+import { blockReason, isUltra, resolveAccess, similarCountersFor, similarFreeCounters, ultraUsage, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
-import { CHIP_KINDS, MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, probeShipping, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
+import { CHIP_KINDS, MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, lightOverrides, probeShipping, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
 import { JOB_ID, jobKey, jobStore, sweepJobs, type StoredResult } from "../shared/jobs.mts"
-// Who may find similar things (Ultra in 2.6): one seam with the panel (src/shared/similar.ts).
-import { similarAllowed } from "../../src/shared/similar.ts"
-
 /**
- * POST /api/v2/similar — "Find similar" (2.6, Ultra): real alternatives to what the page is about, for any
+ * POST /api/v2/similar — "Find similar" (2.6, Ultra; 2.7: a light search for everyone else, SIMILAR_FREE_WEEKLY a week
+ * per device, lightOverrides): real alternatives to what the page is about, for any
  * page, with an optional condition in the person's words. Two engines, chosen per request:
  * - "a": ours. Claude Haiku plans the searches, Anthropic's web search finds candidates, our server opens and
  *   checks every page (dead links, soft-404s, the wrong item, price/stock/date against the condition), Claude
@@ -32,10 +30,11 @@ import { similarAllowed } from "../../src/shared/similar.ts"
  * With a job, the search runs to its end even when the request goes away (the person left Safari) and its answer is
  * kept for /api/v2/similar-result (netlify/shared/jobs.mts).
  * Response (SSE): {type:"progress", step, …} … then
- *   "a": {type:"result", engine:"a", intro, items:[{name, why, fit, met, url, host, title, source, checked, price?, stock?, date?}], note, condition}
+ *   "a": {type:"result", engine:"a", intro, items:[{name, why, fit, met, url, host, title, source, checked, price?, stock?, date?}], note, condition, light?}
  *   "b": {type:"delta", text} … {type:"grounding", text, grounding:{sources, suggestions, queries}}
  *   and {type:"done", ms, usd} — or {type:"error", code}. Before the stream: {code} with UNAVAILABLE (404: the
- *   engine is off), ULTRA_ONLY (403), LIMIT_REACHED (402, with the week's usage), BUSY (503), BAD_REQUEST (400).
+ *   engine is off), LIMIT_REACHED (402, with the week's usage; light: true for the light search's), BUSY (503),
+ *   BAD_REQUEST (400). (ULTRA_ONLY, 403, came from 2.6's servers to anyone not on Ultra.)
  * Production reaches only the engines in SIMILAR_ENGINES (none by default). Off production, the evaluation
  * script (tools/similar/eval.mts) reaches both with its token (see `evaluation`): no plan, no counters,
  * nothing logged, and the run's details (search results, every page's verdict, spend) come with "done".
@@ -68,21 +67,20 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // The panel's session fields come with the panel's UI; test traffic is marked.
   const step = client.audience === "test" ? { audience: "test" } : {}
 
-  const input = readInput(body, locale, geoCountry(context))
-  if (!input) return json({ code: "BAD_REQUEST", message: "page required" }, 400)
+  const read = readInput(body, locale, geoCountry(context))
+  if (!read) return json({ code: "BAD_REQUEST", message: "page required" }, 400)
+  let input: SimilarInput = read
 
   let access: Access | null = null
   let counters: Counter[] = []
+  // 2.7: everyone not on Ultra gets the light search (an evaluation asks for it with options.light).
+  let light = evaluating && (body.options as Record<string, unknown> | undefined)?.light === "on"
   if (!evaluating) {
     access = await resolveAccess(body.entitlement, installId)
-    if (!similarAllowed(access.plan)) {
-      context.waitUntil(logEvent("pro_only", installId, { feature: "similar", plan: access.plan, platform, version, ...step }))
-      // Ultra's own feature: the same code as read aloud's (the panel shows Ultra's card for it, and for PRO_ONLY
-      // from a server before 2.6's release candidate).
-      return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "similar" }, 403)
-    }
-    // Ultra's weekly searches (plan.mts) and the engine's daily safety caps, charged together before anything runs.
-    counters = [...similarCountersFor(access), ...similarCounters(installId, ipSubject(context.ip))]
+    light = !isUltra(access.plan)
+    // The week's searches — Ultra's per subscription, the light search's per device (plan.mts) — and the engine's
+    // daily safety caps, charged together before anything runs.
+    counters = [...(light ? similarFreeCounters(installId, ipSubject(context.ip)) : similarCountersFor(access)), ...similarCounters(installId, ipSubject(context.ip))]
     let quota: { allowed: boolean; blocked: string | null; counters: Array<Counter & { n: number }> } | null = null
     try {
       quota = await consume(counters)
@@ -91,11 +89,15 @@ export default async (req: Request, context: Context): Promise<Response> => {
     }
     if (quota && !quota.allowed) {
       const reason = blockReason(quota.blocked)
-      context.waitUntil(logEvent("limit", installId, { reason, plan: access.plan, platform, version, mode: "similar", ...step }))
-      if (reason === "similar") return json({ code: "LIMIT_REACHED", plan: access.plan, usage: ultraUsage(quota.counters, "similar:") }, 402)
+      context.waitUntil(logEvent("limit", installId, { reason, plan: access.plan, platform, version, mode: "similar", ...(light ? { light: true } : {}), ...step }))
+      if (reason === "similar") return json({ code: "LIMIT_REACHED", plan: access.plan, ...(light ? { light: true } : {}), usage: ultraUsage(quota.counters, light ? "similarfree:" : "similar:") }, 402)
       return json({ code: "BUSY" }, 503)
     }
   }
+
+  // The light search looks anywhere (no "near me").
+  if (light) input = { ...input, region: "world" }
+  const overrides: EngineOverrides = { ...(light ? lightOverrides() : {}), ...(evaluating ? overridesOf(body.options) : {}) }
 
   // Build 94: kept for the asker to pick up if it goes away meanwhile (a store that can't be written: as before).
   const jobId = engine === "a" && typeof body.job === "string" && JOB_ID.test(body.job) ? body.job : ""
@@ -142,13 +144,13 @@ export default async (req: Request, context: Context): Promise<Response> => {
       }, 5_000)
       try {
         if (engine === "a") {
-          for await (const event of runEngineA(input, statsA, { signal, debug: evaluating, overrides: evaluating ? overridesOf(body.options) : {} })) {
+          for await (const event of runEngineA(input, statsA, { signal, debug: evaluating, overrides })) {
             if (event.type === "result") {
               items = event.items.length
               condition = event.condition
-              result = { intro: event.intro, items: event.items, note: event.note, condition: event.condition }
+              result = { intro: event.intro, items: event.items, note: event.note, condition: event.condition, ...(light ? { light: true } : {}) }
             }
-            send(controller, event)
+            send(controller, light && event.type === "result" ? { ...event, light: true } : event)
           }
           category = statsA.plan?.category ?? ""
           ok = true
@@ -201,7 +203,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     context.waitUntil(done.then(() => Promise.all([
       ...(ok ? [] : [refund(counters).catch(() => undefined)]),
       logEvent("similar", installId, {
-        engine, ok, items, model: engine === "a" ? settings.similar.writeModel : model,
+        engine, ok, items, model: engine === "a" ? overrides.writeModel || settings.similar.writeModel : model, mode: light ? "light" : "full",
         ...(category ? { category } : {}), ...(condition ? { condition } : {}),
         ...(failure ? { message: failure } : {}),
         // Engine A's dollars from its steps, so a search that stopped halfway still counts what it spent (statsA.usd is

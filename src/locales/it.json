@@ -680,6 +680,9 @@
   "similarGetUltra": "Passa a Ultra",
   "similarOff": "«Trova simili» non è ancora disponibile.",
   "similarLimit": "Le {0} ricerche «Trova simili» di questa settimana sono finite. Tornano {1}.",
+  "similarLightNote": "Ricerca rapida: {0} a settimana gratis. Ultra cerca più a fondo, legge le recensioni e controlla la spedizione.",
+  "similarLightFoot": "Ricerca rapida. Ultra cerca più a fondo, legge le recensioni e controlla la spedizione.",
+  "similarFreeLimit": "Le {0} ricerche gratuite di questa settimana sono finite. Tornano {1}. Ultra ne ha {2} a settimana e cerca più a fondo.",
 
   "orgDemoQuestion": "Voli economici per Lisbona a maggio?",
   "orgDemoAnswer": "A maggio i voli andata e ritorno da Berlino a Lisbona partono da circa 90 euro. Meglio prenotare sei-otto settimane prima.",

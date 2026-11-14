@@ -1,7 +1,8 @@
-// "Find similar" (2.6, Ultra): what the panel, the background worker and the server share. The panel asks only
-// engine A (ours, every link opened and checked on our server); engine B (Google) stays off the panel's path.
+// "Find similar" (2.6, Ultra; 2.7: a light search for everyone else): what the panel, the background worker and the
+// server share. The panel asks only engine A (ours, every link opened and checked on our server); engine B (Google)
+// stays off the panel's path.
 
-import { isUltra, type Plan } from "./plan.ts"
+import { isUltra, SIMILAR_FREE_WEEKLY, type Plan } from "./plan.ts"
 import type { Usage } from "./types.ts"
 import { isOutOfStock } from "./watch/detect.ts"
 import { parseNumber, type Structured } from "./watch/extract.ts"
@@ -131,6 +132,8 @@ export interface SimilarAnswer {
   // The person's own words for it ("" for none), and when the pages were checked (ms).
   asked: string
   at: number
+  // 2.7: a light search (not Ultra): fewer searches and pages, no reviews or delivery check.
+  light?: boolean
 }
 
 export type SimilarStep = "plan" | "search" | "check" | "write"
@@ -171,10 +174,20 @@ export interface SimilarFacts {
   lang?: string
 }
 
-/** Who may find similar things: Ultra (2.6). One seam for the panel and the server. */
-export function similarAllowed(plan: Plan | string | null | undefined): boolean {
-  return isUltra(plan as Plan | null | undefined)
+/** Who may find similar things: everyone (2.7); Ultra's search is the full one. One seam for the panel and the server. */
+export function similarAllowed(_plan?: Plan | string | null): boolean {
+  return true
 }
+
+/**
+ * Find similar's search for a plan (2.7): Ultra's full one (10 a week, every step), or the light one for everyone else
+ * (SIMILAR_FREE_WEEKLY a week per device: fewer searches and pages, no reviews, no "near me", no delivery check).
+ */
+export function similarMode(plan: Plan | string | null | undefined): "full" | "light" {
+  return isUltra(plan as Plan | null | undefined) ? "full" : "light"
+}
+
+export { SIMILAR_FREE_WEEKLY }
 
 /** The condition chips, in the panel's order; "language" means the person's own. */
 export const SIMILAR_CHIPS = ["cheaper", "in_stock", "newer", "free", "language", "shorter"] as const

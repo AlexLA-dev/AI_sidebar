@@ -56,7 +56,7 @@ import { withRemindWords } from "../shared/reminders"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
-import { factsFrom, SIMILAR_CHIPS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { factsFrom, SIMILAR_CHIPS, SIMILAR_FREE_WEEKLY, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
 import { takeChatMark } from "./similar/mark"
 import { LINK_OPEN_KEY, linkOpen, messageAt, messageRef, takesLinkOpen, type LinkOpen } from "../shared/linkOpen"
@@ -68,7 +68,7 @@ import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
-import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
+import { hasPro, isUltra, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
@@ -351,7 +351,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
-  const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null } | null>(null)
+  const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null; light?: boolean } | null>(null)
   // Build 91: the chat's memory is Pro's — the plans message in the chat, from the switch ("switch") or once a free
   // chat is longer than the messages a free answer remembers ("long").
   const [memoryOffer, setMemoryOffer] = useState<"switch" | "long" | null>(null)
@@ -1331,7 +1331,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (via === "menu") void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "similar" })
     // The plan decides: as the panel knows it, or, tapped before the panel's status came, as the background tells it
     // (an Ultra subscriber must never see Ultra's card for being quick).
-    const decide = (plan: string | undefined) => setSimilarCard(similarAllowed(plan) ? "pick" : "upsell")
+    // 2.7: everyone may (the light search but on Ultra); the card opened is counted with which search it is.
+    const decide = (plan: string | undefined) => {
+      setSimilarCard(similarAllowed(plan) ? "pick" : "upsell")
+      void sendBackground({ type: "useEvent", f: "similar", a: "pick", what: similarMode(plan) })
+    }
     if (statusRef.current) decide(statusRef.current.plan)
     else void sendBackground<StatusInfo>({ type: "status", platform }).then((now) => decide(now?.plan ?? statusRef.current?.plan))
     setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
@@ -1350,7 +1354,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // Not in their plan after all (the server's word), or the week's searches are used: the question goes, a card
       // says so.
       setMessages(history.slice(0, -1))
-      setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null } : "upsell")
+      const light = similarMode(statusRef.current?.plan) === "light"
+      if (code === "LIMIT_REACHED") void sendBackground({ type: "useEvent", f: "similar", a: "limit", what: light ? "light" : "full" })
+      setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null, ...(light ? { light } : {}) } : "upsell")
       return
     }
     if (entry || answer) {
@@ -1376,6 +1382,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // else the device's region.
     const region = where?.region ?? settingsRef.current.similarRegion
     const country = where?.country ?? statusRef.current?.country ?? localeCountry()
+    void sendBackground({ type: "useEvent", f: "similar", a: "find", what: similarMode(statusRef.current?.plan) })
     setUndoBar(null)
     setFirstWin(null)
     setError(null)
@@ -3832,7 +3839,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} /> : partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
+                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan) === "light"} /> : partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
                   </div>
                 )}
 
@@ -3842,6 +3849,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     region={settings.similarRegion ?? null}
                     country={status?.country ?? localeCountry()}
                     onRegion={(r) => updateSettings({ similarRegion: r })}
+                    light={similarMode(plan) === "light" ? status?.plans.similarFreeWeekly ?? SIMILAR_FREE_WEEKLY : undefined}
                     onFind={(condition, label, ask) => {
                       if (!similarSubject) return findSimilar(condition, label, false, undefined, undefined, ask)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).
@@ -3864,7 +3872,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     onClose={() => setSimilarCard(null)}
                   />
                 )}
-                {similarCard !== null && typeof similarCard === "object" && (
+                {similarCard !== null && typeof similarCard === "object" && similarCard.light && (
+                  // 2.7: the light search's week used: when it comes back, and Ultra's searches.
+                  <PlanOffer
+                    place="similar_free"
+                    status={status}
+                    title={t("similarTitle")}
+                    body={t("similarFreeLimit", String(similarCard.limit?.limit ?? status?.plans.similarFreeWeekly ?? SIMILAR_FREE_WEEKLY), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : "", String(status?.plans.similarWeekly ?? ULTRA_DEFAULTS.similarWeekly))}
+                    lines={[t("similarUpsellChecked"), t("similarUpsellConditions"), t("similarUpsellWatch")]}
+                    plans={["ultra"]}
+                    onChoose={(choice) => { setSimilarCard(null); choosePlan(choice) }}
+                    onEvent={offerEvent("similar_free")}
+                    onClose={() => setSimilarCard(null)}
+                  />
+                )}
+                {similarCard !== null && typeof similarCard === "object" && !similarCard.light && (
                   <div class="cf-card limit cf-similar-limit">
                     <p>{t("similarLimit", String(similarCard.limit?.limit ?? ""), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : "")}</p>
                     <div class="cf-card-actions"><button type="button" class="cf-secondary" onClick={() => setSimilarCard(null)}>{t("close")}</button></div>

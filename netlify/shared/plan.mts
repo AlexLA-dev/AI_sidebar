@@ -192,8 +192,20 @@ export function similarCountersFor(access: Access): Counter[] {
   return [{ subject: `similar:tx:${otid}`, period: "week", limit: config.ultra.similarWeekly }]
 }
 
-/** An Ultra allowance as the clients show it: used of limit this week, and when it starts again. */
-export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:"): Usage | null {
+/**
+ * Find similar's light search (2.7, everyone not on Ultra): the week's free searches per device, a wider week per network
+ * address, and a day for everyone. LIMIT_REACHED shows ultraUsage(…, "similarfree:").
+ */
+export function similarFreeCounters(installId: string, ip: string): Counter[] {
+  return [
+    { subject: `similarfree:${installId}`, period: "week", limit: config.similar.freeWeekly },
+    { subject: `similarfree:ip:${ip}`, period: "week", limit: config.similar.freeIpWeekly },
+    { subject: "global:similarfree", period: "day", limit: config.similar.freeGlobalDaily }
+  ]
+}
+
+/** An Ultra allowance (or the light search's week) as the clients show it: used of limit, and when it starts again. */
+export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:" | "similarfree:"): Usage | null {
   const own = counters.find((c) => c.subject.startsWith(prefix) && !c.subject.startsWith("global:"))
   if (!own || own.limit === null) return null
   // The allowance as sold (a text's finishing room isn't shown).
@@ -236,6 +248,6 @@ export function blockReason(blocked: string | null): "limit" | "busy" | "ip" | "
   if (blocked.startsWith("ip:")) return "ip"
   if (blocked.startsWith("search:")) return "search"
   if (blocked.startsWith("speak:")) return "speak"
-  if (blocked.startsWith("similar:")) return "similar"
+  if (blocked.startsWith("similar:") || blocked.startsWith("similarfree:")) return "similar"
   return "limit"
 }
