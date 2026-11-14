@@ -56,7 +56,7 @@ import { withRemindWords } from "../shared/reminders"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
-import { factsFrom, SIMILAR_CHIPS, SIMILAR_FREE_WEEKLY, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { factsFrom, SIMILAR_CHIPS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
 import { takeChatMark } from "./similar/mark"
 import { LINK_OPEN_KEY, linkOpen, messageAt, messageRef, takesLinkOpen, type LinkOpen } from "../shared/linkOpen"
@@ -173,9 +173,9 @@ function withUltra(list: Action[], n: number): Action[] {
   return ultra ? [...rest, ultra] : rest
 }
 
-/** The small "Ultra" on an Ultra action, for someone without Ultra (a tap opens Ultra's card). */
+/** The small mark on Find similar for someone without it (2.7: Free; Pro has its light search; a tap opens the plans). */
 function UltraMark({ show }: { show: boolean }): VNode | null {
-  return show ? <span class="cf-ultra-mark">Ultra</span> : null
+  return show ? <span class="cf-ultra-mark">Pro</span> : null
 }
 
 /** The plans, low to high: an upgrade moves up (Own key is below Pro: it has none of Pro's features). */
@@ -353,7 +353,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
-  const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null; light?: boolean } | null>(null)
+  const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null; light?: boolean; answers?: number } | null>(null)
   // Build 91: the chat's memory is Pro's — the plans message in the chat, from the switch ("switch") or once a free
   // chat is longer than the messages a free answer remembers ("long").
   const [memoryOffer, setMemoryOffer] = useState<"switch" | "long" | null>(null)
@@ -1350,7 +1350,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   openSimilarRef.current = openSimilar
 
   /** Ends a Find similar: the checked list as the chat's answer, or why there isn't one. */
-  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null, entry?: Turn) => {
+  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null, entry?: Turn, answers?: number) => {
     portRef.current = null
     askToken.current = null
     partialRef.current = ""
@@ -1362,7 +1362,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setMessages(history.slice(0, -1))
       const light = similarMode(statusRef.current?.plan) === "light"
       if (code === "LIMIT_REACHED") void sendBackground({ type: "useEvent", f: "similar", a: "limit", what: light ? "light" : "full" })
-      setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null, ...(light ? { light } : {}) } : "upsell")
+      setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null, ...(light ? { light } : {}), ...(answers ? { answers } : {}) } : "upsell")
       return
     }
     if (entry || answer) {
@@ -1470,7 +1470,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         finishSimilar(history, answer ?? { intro: "", items, note: "", condition: "" }, condition, null, undefined, event.entry)
       } else if (event.type === "error") {
         settled = true
-        finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage, event.entry)
+        finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage, event.entry, event.answers)
       }
     })
     // Closed without an end: the background may still be answering it, so the chat is read again.
@@ -3858,7 +3858,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     region={settings.similarRegion ?? null}
                     country={status?.country ?? localeCountry()}
                     onRegion={(r) => updateSettings({ similarRegion: r })}
-                    light={similarMode(plan) === "light" ? status?.plans.similarFreeWeekly ?? SIMILAR_FREE_WEEKLY : undefined}
+                    light={similarMode(plan) === "light" ? { weekly: status?.plans.similarLightWeekly ?? SIMILAR_LIGHT_WEEKLY, ...(plan === "pro" ? { answers: status?.plans.similarProAnswers ?? SIMILAR_PRO_ANSWERS } : {}) } : undefined}
                     onFind={(condition, label, ask) => {
                       if (!similarSubject) return findSimilar(condition, label, false, undefined, undefined, ask)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).
@@ -3875,23 +3875,26 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     title={t("similarTitle")}
                     body={t("similarUpsellText")}
                     lines={[t("similarUpsellChecked"), t("similarUpsellConditions"), t("similarUpsellWatch")]}
-                    plans={["ultra"]}
+                    plans={["pro", "ultra"]}
                     onChoose={(choice) => { setSimilarCard(null); choosePlan(choice) }}
                     onEvent={offerEvent("ultra_only")}
                     onClose={() => setSimilarCard(null)}
                   />
                 )}
                 {similarCard !== null && typeof similarCard === "object" && similarCard.light && (
-                  // 2.7: the light search's week used: when it comes back, and Ultra's searches.
+                  // 2.7: the light search's week used (when it comes back), or Pro's answers too few for one (how many it
+                  // counts as, how many are left, when they're back); Ultra's searches.
                   <PlanOffer
-                    place="similar_free"
+                    place="limit"
                     status={status}
-                    title={t("similarTitle")}
-                    body={t("similarFreeLimit", String(similarCard.limit?.limit ?? status?.plans.similarFreeWeekly ?? SIMILAR_FREE_WEEKLY), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : "", String(status?.plans.similarWeekly ?? ULTRA_DEFAULTS.similarWeekly))}
+                    title={similarCard.answers ? t("limitProTitle") : t("similarTitle")}
+                    body={similarCard.answers
+                      ? `${t("similarAnswersShort", String(similarCard.answers), String(Math.max(0, (similarCard.limit?.limit ?? 0) - (similarCard.limit?.used ?? 0))))} ${t("limitProBody", timeUntil(similarCard.limit?.resetsAt))}`
+                      : t("similarLightLimit", String(similarCard.limit?.limit ?? status?.plans.similarLightWeekly ?? SIMILAR_LIGHT_WEEKLY), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : "", String(status?.plans.similarWeekly ?? ULTRA_DEFAULTS.similarWeekly))}
                     lines={[t("similarUpsellChecked"), t("similarUpsellConditions"), t("similarUpsellWatch")]}
                     plans={["ultra"]}
                     onChoose={(choice) => { setSimilarCard(null); choosePlan(choice) }}
-                    onEvent={offerEvent("similar_free")}
+                    onEvent={offerEvent("limit")}
                     onClose={() => setSimilarCard(null)}
                   />
                 )}

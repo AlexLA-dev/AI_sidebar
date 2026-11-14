@@ -16,6 +16,7 @@ process.env.SIMILAR_ENGINES = "a"
 type Item = { subject: string; period: string; limit: number | null; amount?: number }
 let counters = new Map<string, number>()
 let consumed: string[][] = []
+let consumedItems: Item[][] = []
 let anthropicCalls = 0
 let anthropicBodies: Array<Record<string, any>> = []
 // The plan step answers (2.7's light search test): the run reaches its search, which fails.
@@ -27,6 +28,7 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
     consumed.push(items.map((i) => i.subject))
+    consumedItems.push(items)
     const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
     if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
@@ -85,41 +87,77 @@ const ask = (entitlement: string | null, c = ctx()) =>
 beforeEach(() => {
   counters = new Map()
   consumed = []
+  consumedItems = []
   anthropicCalls = 0
   anthropicBodies = []
   planAnswers = false
   searchEmpty = false
 })
 
-test("2.7, the light search found nothing: the answer comes, and the week's free search is given back", async () => {
+const PRO = () => jws("com.contextflow.pro.monthly")
+const BYOK = () => jws("com.contextflow.byok.monthly")
+
+test("2.7, Free: no Find similar (PRO_ONLY, the plans that have it), nothing charged, nothing asked", async () => {
+  const res = await ask(null)
+  assert.equal(res.status, 403)
+  const body = await res.json()
+  assert.equal(body.code, "PRO_ONLY")
+  assert.equal(body.feature, "similar")
+  assert.equal(consumed.length, 0)
+  assert.equal(anthropicCalls, 0)
+})
+
+test("2.7, Own key: the light search, one of the week's 5 per device; no answers charged; given back when nothing came", async () => {
+  const c = ctx()
+  const res = await ask(BYOK(), c)
+  assert.equal(res.status, 200)
+  assert.deepEqual(consumed[0].slice(0, 3).map((s) => s.replace(/:ip:.*/, ":ip:")), [`similarlight:${INSTALL}`, "similarlight:ip:", "global:similarlight"])
+  assert.equal(counters.get(`similarlight:${INSTALL}`), 1)
+  assert.ok(!consumed[0].some((s) => s.startsWith("tx:") || s.startsWith("install:") || s.startsWith("similar:tx:")), "no answers, not Ultra's allowance")
+  await res.text()
+  await Promise.all(c.waits)
+  assert.equal(counters.get(`similarlight:${INSTALL}`), 0)
+})
+
+test("2.7, Pro: the light search counts as 10 of the week's answers, all or none; given back with the search", async () => {
+  const c = ctx()
+  const res = await ask(PRO(), c)
+  assert.equal(res.status, 200)
+  const tx = consumedItems[0].find((i) => i.subject === `tx:${OTID}`)
+  assert.ok(tx, "Pro's answers' own counter")
+  assert.equal(tx!.amount, 10)
+  assert.equal(counters.get(`tx:${OTID}`), 10)
+  assert.equal(counters.get(`similarlight:${INSTALL}`), 1)
+  await res.text()
+  await Promise.all(c.waits)
+  assert.equal(counters.get(`tx:${OTID}`), 0, "nothing came: the answers back too")
+  assert.equal(counters.get(`similarlight:${INSTALL}`), 0)
+  // Fewer than 10 of the week's 375 answers left: no search, nothing taken, the answers' usage for the card.
+  counters.set(`tx:${OTID}`, 370)
+  const short = await ask(PRO())
+  assert.equal(short.status, 402)
+  const body = await short.json()
+  assert.equal(body.code, "LIMIT_REACHED")
+  assert.equal(body.light, true)
+  assert.equal(body.answers, 10)
+  assert.deepEqual([body.usage.used, body.usage.limit], [370, 375])
+  assert.equal(counters.get(`tx:${OTID}`), 370)
+  assert.equal(counters.get(`similarlight:${INSTALL}`) ?? 0, 0)
+})
+
+test("2.7, the light search found nothing: the answer comes, and the search (and a Pro one's answers) is given back", async () => {
   planAnswers = true
   searchEmpty = true
   const c = ctx()
-  const res = await ask(null, c)
+  const res = await ask(PRO(), c)
   assert.equal(res.status, 200)
   const text = await res.text()
   assert.match(text, /"type":"result"/)
   assert.match(text, /"light":true/)
   assert.match(text, /"type":"done"/)
   await Promise.all(c.waits)
-  assert.equal(counters.get(`similarfree:${INSTALL}`), 0)
-})
-
-test("2.7, Free and Pro: the light search, one of the week's free searches per device charged first, given back when nothing came", async () => {
-  for (const entitlement of [null, jws("com.contextflow.pro.monthly"), jws("com.contextflow.byok.monthly")]) {
-    counters = new Map()
-    consumed = []
-    const c = ctx()
-    const res = await ask(entitlement, c)
-    assert.equal(res.status, 200)
-    assert.deepEqual(consumed[0].slice(0, 3), [`similarfree:${INSTALL}`, "similarfree:ip:203.0.113.9", "global:similarfree"].map((s) => (s.includes(":ip:") ? consumed[0][1] : s)))
-    assert.match(consumed[0][1], /^similarfree:ip:/)
-    assert.equal(counters.get(`similarfree:${INSTALL}`), 1)
-    assert.ok(!consumed[0].some((s) => s.startsWith("similar:tx:")), "not Ultra's allowance")
-    await res.text()
-    await Promise.all(c.waits)
-    assert.equal(counters.get(`similarfree:${INSTALL}`), 0)
-  }
+  assert.equal(counters.get(`similarlight:${INSTALL}`), 0)
+  assert.equal(counters.get(`tx:${OTID}`), 0)
 })
 
 test("2.7, the light search: two searches, no follow-ups, no search beside them, anywhere (no \"near me\")", async () => {
@@ -128,7 +166,7 @@ test("2.7, the light search: two searches, no follow-ups, no search beside them,
   const res = await similar(new Request("https://x/api/v2/similar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ installId: INSTALL, client: { version: "2.7", platform: "ios", locale: "en-US", build: "1" }, engine: "a", entitlement: null, region: "local", country: "DE", page: { title: "Acme Q1", url: "https://shop.example/q1", text: "Headphones." }, chip: "cheaper", words: "" })
+    body: JSON.stringify({ installId: INSTALL, client: { version: "2.7", platform: "ios", locale: "en-US", build: "1" }, engine: "a", entitlement: BYOK(), region: "local", country: "DE", page: { title: "Acme Q1", url: "https://shop.example/q1", text: "Headphones." }, chip: "cheaper", words: "" })
   }), c)
   await res.text()
   await Promise.all(c.waits)
@@ -144,14 +182,15 @@ test("2.7, the light search: two searches, no follow-ups, no search beside them,
   }
 })
 
-test("2.7, the light search's week used: LIMIT_REACHED, light, with the week's usage; nothing asked", async () => {
-  counters.set(`similarfree:${INSTALL}`, 3)
-  const res = await ask(null)
+test("2.7, the light search's week used (5): LIMIT_REACHED, light, with the week's usage; nothing asked", async () => {
+  counters.set(`similarlight:${INSTALL}`, 5)
+  const res = await ask(BYOK())
   assert.equal(res.status, 402)
   const body = await res.json()
   assert.equal(body.code, "LIMIT_REACHED")
   assert.equal(body.light, true)
-  assert.deepEqual([body.usage.used, body.usage.limit, body.usage.period], [3, 3, "week"])
+  assert.equal(body.answers, undefined)
+  assert.deepEqual([body.usage.used, body.usage.limit, body.usage.period], [5, 5, "week"])
   assert.equal(anthropicCalls, 0)
 })
 

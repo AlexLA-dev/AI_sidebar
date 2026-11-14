@@ -14,7 +14,7 @@ import { currencyCode, tierLines, yearlySaving } from "../Plans"
 import * as Icon from "../icons"
 import { lastPrices } from "../store"
 
-export type OfferPlace = "limit" | "memory" | "pro_only" | "ultra_only" | "similar_free"
+export type OfferPlace = "limit" | "memory" | "pro_only" | "ultra_only"
 
 export interface OfferChoice {
   plan: Exclude<PaidPlan, "byok">

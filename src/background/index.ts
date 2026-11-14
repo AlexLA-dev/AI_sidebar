@@ -2,7 +2,7 @@ import { tipClip } from "./tipClips"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
-import { appLink, planOfProduct, SIMILAR_FREE_WEEKLY, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
+import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { LINK_OPEN_KEY, linkOpen } from "../shared/linkOpen"
@@ -361,7 +361,7 @@ async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): P
 const SEARCH_LIMITS = { freeDaily: 3, proWeekly: 50 }
 
 /** What the plans sheet says about each plan: the server's numbers, these when it can't be reached. */
-function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; similarFreeWeekly?: number; watch?: Record<Plan, number> } | undefined): PlanFacts {
+function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; similarLightWeekly?: number; similarProAnswers?: number; watch?: Record<Plan, number> } | undefined): PlanFacts {
   const n = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d)
   return {
     freeDaily: n(limits?.freeDaily, 5),
@@ -370,7 +370,8 @@ function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly
     searchProWeekly: n(limits?.searchProWeekly, SEARCH_LIMITS.proWeekly),
     speakWeeklySeconds: n(limits?.speakWeeklySeconds, ULTRA_DEFAULTS.speakWeeklySeconds),
     similarWeekly: n(limits?.similarWeekly, ULTRA_DEFAULTS.similarWeekly),
-    similarFreeWeekly: n(limits?.similarFreeWeekly, SIMILAR_FREE_WEEKLY),
+    similarLightWeekly: n(limits?.similarLightWeekly, SIMILAR_LIGHT_WEEKLY),
+    similarProAnswers: n(limits?.similarProAnswers, SIMILAR_PRO_ANSWERS),
     watch: { ...WATCH_LIMITS, ...(limits?.watch ?? {}) }
   }
 }

@@ -140,14 +140,13 @@ export const FEATURES: Record<string, Feature> = {
   // (to the app), the discount, a note, the own key, Retry.
   chat_plans: {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
-    // 2.7 "similar_free": the light Find similar's week used, Ultra offered.
-    via: ["limit", "memory", "pro_only", "ultra_only", "similar_free"],
+    via: ["limit", "memory", "pro_only", "ultra_only"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
-  // 2.7: Find similar for everyone — Ultra's full search, the light one for everyone else (`what`). The panel: its card
-  // opened ("pick"), a search asked ("find"), the light search's week used ("limit"); the panel and the app: an item
-  // opened ("open"). Each search itself, its plan and cost, is logged by the server ("similar", with `mode`).
+  // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
+  // ("pick"), a search asked ("find"), the light search's week or Pro's answers used ("limit"); the panel and the app: an
+  // item opened ("open"). Each search itself, its plan and cost, is logged by the server ("similar", with `mode`).
   similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full"] } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],

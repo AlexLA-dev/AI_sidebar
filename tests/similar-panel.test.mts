@@ -26,8 +26,8 @@ const KEYS = ["actSimilar", "uxSimilar", "similarTitle", "similarConditions", "s
   "similarSay", "similarPros", "similarCons", "similarEstimated", "similarNotifyTitle", "similarNotifyFound", "similarNotifyNone", "similarNotifyFailed",
   // 2.6: a shop abroad's delivery page, as it shows it.
   "similarShipListed", "similarShipUnshown",
-  // 2.7: the light search for everyone not on Ultra.
-  "similarLightNote", "similarLightFoot", "similarFreeLimit"]
+  // 2.7: the light search for Own key and Pro.
+  "similarLightNote", "similarLightNotePro", "similarLightFoot", "similarLightLimit", "similarAnswersShort"]
 
 test("every language has Find similar's words, with their placeholders", () => {
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
@@ -38,20 +38,25 @@ test("every language has Find similar's words, with their placeholders", () => {
     for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear", "similarLocalIn", "similarPercent", "similarDiffers", "similarRatings", "similarReviewersSay", "similarPros", "similarCons", "similarNotifyFound", "similarShipListed", "similarShipUnshown"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
     assert.match(s.similarLimit, /\{1\}/, `${file}: similarLimit's day`)
     assert.match(s.similarLightNote, /\{0\}/, `${file}: similarLightNote's number`)
-    for (const k of ["{0}", "{1}", "{2}"]) assert.ok(s.similarFreeLimit.includes(k), `${file}: similarFreeLimit ${k}`)
+    for (const k of ["{0}", "{1}"]) assert.ok(s.similarLightNotePro.includes(k) && s.similarAnswersShort.includes(k), `${file}: similarLightNotePro, similarAnswersShort ${k}`)
+    for (const k of ["{0}", "{1}", "{2}"]) assert.ok(s.similarLightLimit.includes(k), `${file}: similarLightLimit ${k}`)
+    // No prices in the light search's words.
+    for (const k of ["similarLightNote", "similarLightNotePro", "similarLightLimit", "similarAnswersShort"]) assert.doesNotMatch(s[k], /[$€£¥₽]/, `${file}: ${k}`)
     // The menu item is the action's name with an ellipsis (it opens a card first).
     assert.equal(s.uxSimilar.replace(/…$/, ""), s.actSimilar, file)
   }
 })
 
-const { cleanItem, factsFrom, similarAllowed, similarMarkdown, similarMode, SIMILAR_FREE_WEEKLY } = await import("../src/shared/similar.ts")
+const { cleanItem, factsFrom, similarAllowed, similarMarkdown, similarMode, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS } = await import("../src/shared/similar.ts")
 
-test("the plan's seam (2.7): everyone finds similar things; Ultra's search is the full one, everyone else's the light one", () => {
-  for (const plan of ["ultra", "pro", "free", "byok", "search_pro", null, undefined]) assert.equal(similarAllowed(plan), true)
+test("the plan's seam (2.7, the owner): Ultra the full search, Pro and Own key the light one, Free none", () => {
+  for (const plan of ["ultra", "pro", "byok"]) assert.equal(similarAllowed(plan), true)
+  for (const plan of ["free", null, undefined]) assert.equal(similarAllowed(plan), false)
   assert.equal(similarMode("ultra"), "full")
-  for (const plan of ["pro", "free", "byok", "search_pro", null, undefined]) assert.equal(similarMode(plan), "light")
-  // The one number the panel says before the server's status came.
-  assert.equal(SIMILAR_FREE_WEEKLY, 3)
+  for (const plan of ["pro", "byok"]) assert.equal(similarMode(plan), "light")
+  // The numbers the panel says before the server's status came.
+  assert.equal(SIMILAR_LIGHT_WEEKLY, 5)
+  assert.equal(SIMILAR_PRO_ANSWERS, 10)
 })
 
 test("the page's own price and stock go along, read like page watch reads them", () => {
@@ -355,8 +360,12 @@ test("2.6: a shop abroad's delivery as its page shows it, that page linked; neve
 
 test("2.7, the light search: the card says what it is and asks no \"where\"; its answer says what Ultra adds", () => {
   const card = root()
-  ui.picker(card, () => undefined, { region: null, country: "DE", onRegion() {}, light: 3 })
-  assert.match(card.querySelector(".cf-similar-light").textContent, /3 a week for free/)
+  ui.picker(card, () => undefined, { region: null, country: "DE", onRegion() {}, light: { weekly: 5, answers: 10 } })
+  assert.equal(card.querySelector(".cf-similar-light").textContent, "Quick search: up to 5 a week, each one counts as 10 answers.")
+  // Own key: no answers line.
+  const own = root()
+  ui.picker(own, () => undefined, { region: null, country: "DE", onRegion() {}, light: { weekly: 5 } })
+  assert.equal(own.querySelector(".cf-similar-light").textContent, "Quick search: up to 5 a week.")
   assert.equal(card.querySelector(".cf-similar-where"), null, "anywhere: no near me")
   assert.equal(card.querySelector(".cf-primary").disabled, false, "nothing to choose first")
   // Ultra's card: the where, no light line.

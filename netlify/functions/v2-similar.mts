@@ -7,14 +7,16 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { buildGrounding, type GoogleStats } from "../shared/google.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
-import { blockReason, isUltra, resolveAccess, similarCountersFor, similarFreeCounters, ultraUsage, type Access } from "../shared/plan.mts"
+import { blockReason, isUltra, resolveAccess, similarCountersFor, similarLightCounters, ultraUsage, visibleUsage, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
 import { CHIP_KINDS, MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, lightOverrides, probeShipping, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
 import { JOB_ID, jobKey, jobStore, sweepJobs, type StoredResult } from "../shared/jobs.mts"
+import { similarAllowed } from "../../src/shared/similar.ts"
 /**
- * POST /api/v2/similar — "Find similar" (2.6, Ultra; 2.7: a light search for everyone else, SIMILAR_FREE_WEEKLY a week
- * per device, lightOverrides): real alternatives to what the page is about, for any
+ * POST /api/v2/similar — "Find similar" (2.6, Ultra; 2.7: a light search for Own key and Pro, SIMILAR_LIGHT_WEEKLY a
+ * week per device, a Pro one also SIMILAR_PRO_ANSWERS answers, lightOverrides; Free has none): real alternatives to
+ * what the page is about, for any
  * page, with an optional condition in the person's words. Two engines, chosen per request:
  * - "a": ours. Claude Haiku plans the searches, Anthropic's web search finds candidates, our server opens and
  *   checks every page (dead links, soft-404s, the wrong item, price/stock/date against the condition), Claude
@@ -33,8 +35,9 @@ import { JOB_ID, jobKey, jobStore, sweepJobs, type StoredResult } from "../share
  *   "a": {type:"result", engine:"a", intro, items:[{name, why, fit, met, url, host, title, source, checked, price?, stock?, date?}], note, condition, light?}
  *   "b": {type:"delta", text} … {type:"grounding", text, grounding:{sources, suggestions, queries}}
  *   and {type:"done", ms, usd} — or {type:"error", code}. Before the stream: {code} with UNAVAILABLE (404: the
- *   engine is off), LIMIT_REACHED (402, with the week's usage; light: true for the light search's), BUSY (503),
- *   BAD_REQUEST (400). (ULTRA_ONLY, 403, came from 2.6's servers to anyone not on Ultra.)
+ *   engine is off), PRO_ONLY (403: Free; 2.6's servers answered ULTRA_ONLY to anyone not on Ultra), LIMIT_REACHED (402,
+ *   with the week's usage; light: true for the light search's, answers: n when Pro's answers left are fewer than a
+ *   search counts as), BUSY (503), BAD_REQUEST (400).
  * Production reaches only the engines in SIMILAR_ENGINES (none by default). Off production, the evaluation
  * script (tools/similar/eval.mts) reaches both with its token (see `evaluation`): no plan, no counters,
  * nothing logged, and the run's details (search results, every page's verdict, spend) come with "done".
@@ -73,14 +76,19 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   let access: Access | null = null
   let counters: Counter[] = []
-  // 2.7: everyone not on Ultra gets the light search (an evaluation asks for it with options.light).
+  // 2.7: Own key and Pro get the light search (an evaluation asks for it with options.light); Free, none.
   let light = evaluating && (body.options as Record<string, unknown> | undefined)?.light === "on"
   if (!evaluating) {
     access = await resolveAccess(body.entitlement, installId)
+    if (!similarAllowed(access.plan)) {
+      context.waitUntil(logEvent("pro_only", installId, { feature: "similar", plan: access.plan, platform, version, ...step }))
+      // The panel shows the plans that have it (and so did 2.6's, for PRO_ONLY).
+      return json({ code: "PRO_ONLY", plan: access.plan, feature: "similar" }, 403)
+    }
     light = !isUltra(access.plan)
-    // The week's searches — Ultra's per subscription, the light search's per device (plan.mts) — and the engine's
-    // daily safety caps, charged together before anything runs.
-    counters = [...(light ? similarFreeCounters(installId, ipSubject(context.ip)) : similarCountersFor(access)), ...similarCounters(installId, ipSubject(context.ip))]
+    // The week's searches — Ultra's per subscription, the light search's per device and a Pro one's answers (plan.mts) —
+    // and the engine's daily safety caps, charged together before anything runs.
+    counters = [...(light ? similarLightCounters(access, installId, ipSubject(context.ip)) : similarCountersFor(access)), ...similarCounters(installId, ipSubject(context.ip))]
     let quota: { allowed: boolean; blocked: string | null; counters: Array<Counter & { n: number }> } | null = null
     try {
       quota = await consume(counters)
@@ -90,7 +98,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
     if (quota && !quota.allowed) {
       const reason = blockReason(quota.blocked)
       context.waitUntil(logEvent("limit", installId, { reason, plan: access.plan, platform, version, mode: "similar", ...(light ? { light: true } : {}), ...step }))
-      if (reason === "similar") return json({ code: "LIMIT_REACHED", plan: access.plan, ...(light ? { light: true } : {}), usage: ultraUsage(quota.counters, light ? "similarfree:" : "similar:") }, 402)
+      if (reason === "similar") return json({ code: "LIMIT_REACHED", plan: access.plan, ...(light ? { light: true } : {}), usage: ultraUsage(quota.counters, light ? "similarlight:" : "similar:") }, 402)
+      // Pro: fewer of the week's answers left than a light search counts as (none taken).
+      if (reason === "limit" && light) return json({ code: "LIMIT_REACHED", plan: access.plan, light: true, answers: settings.similar.proAnswers, usage: visibleUsage(access, quota.counters) }, 402)
       return json({ code: "BUSY" }, 503)
     }
   }

@@ -1,8 +1,8 @@
-// "Find similar" (2.6, Ultra; 2.7: a light search for everyone else): what the panel, the background worker and the
-// server share. The panel asks only engine A (ours, every link opened and checked on our server); engine B (Google)
+// "Find similar" (2.6, Ultra; 2.7: a light search for Own key and Pro, none for Free): what the panel, the background
+// worker and the server share. The panel asks only engine A (ours, every link opened and checked on our server); engine B (Google)
 // stays off the panel's path.
 
-import { isUltra, SIMILAR_FREE_WEEKLY, type Plan } from "./plan.ts"
+import { hasPro, isUltra, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, type Plan } from "./plan.ts"
 import type { Usage } from "./types.ts"
 import { isOutOfStock } from "./watch/detect.ts"
 import { parseNumber, type Structured } from "./watch/extract.ts"
@@ -145,7 +145,8 @@ export type SimilarStreamEvent =
   | { type: "result"; answer: Omit<SimilarAnswer, "asked" | "at"> }
   | { type: "done" }
   // LIMIT_REACHED: the week's searches are used (`usage`: how many, and when they come back).
-  | { type: "error"; code: string; plan?: Plan; usage?: Usage | null }
+  // 2.7, answers: Pro's answers left are fewer than a light search counts as (`usage`: the answers').
+  | { type: "error"; code: string; plan?: Plan; usage?: Usage | null; answers?: number }
 
 /** The request the panel makes: the page as it is now, and the condition in the person's words. */
 export interface SimilarPayload {
@@ -174,20 +175,24 @@ export interface SimilarFacts {
   lang?: string
 }
 
-/** Who may find similar things: everyone (2.7); Ultra's search is the full one. One seam for the panel and the server. */
-export function similarAllowed(_plan?: Plan | string | null): boolean {
-  return true
+/**
+ * Who may find similar things (2.7, the owner): Ultra (the full search), Pro and Own key (the light one); not Free, who
+ * sees the plans that have it. One seam for the panel and the server.
+ */
+export function similarAllowed(plan: Plan | string | null | undefined): boolean {
+  return hasPro(plan as Plan | null | undefined) || plan === "byok"
 }
 
 /**
- * Find similar's search for a plan (2.7): Ultra's full one (10 a week, every step), or the light one for everyone else
- * (SIMILAR_FREE_WEEKLY a week per device: fewer searches and pages, no reviews, no "near me", no delivery check).
+ * Find similar's search for a plan (2.7): Ultra's full one (10 a week, every step), or the light one for Own key and Pro
+ * (SIMILAR_LIGHT_WEEKLY a week per device, a Pro search counting as SIMILAR_PRO_ANSWERS answers: fewer searches and
+ * pages, no reviews, no "near me", no delivery check).
  */
 export function similarMode(plan: Plan | string | null | undefined): "full" | "light" {
   return isUltra(plan as Plan | null | undefined) ? "full" : "light"
 }
 
-export { SIMILAR_FREE_WEEKLY }
+export { SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS }
 
 /** The condition chips, in the panel's order; "language" means the person's own. */
 export const SIMILAR_CHIPS = ["cheaper", "in_stock", "newer", "free", "language", "shorter"] as const

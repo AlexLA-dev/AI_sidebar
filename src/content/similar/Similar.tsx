@@ -76,8 +76,9 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
   onRegion?: (region: "world" | "local") => void
   onFind: (condition: string, label: string, ask: SimilarAsk) => void
   onClose: () => void
-  // 2.7: the light search (not Ultra), with its searches a week: said, and no "where" (it looks anywhere).
-  light?: number
+  // 2.7: the light search (Own key and Pro), with its searches a week and, for Pro, the answers one counts as: said, and
+  // no "where" (it looks anywhere).
+  light?: { weekly: number; answers?: number }
 }): VNode {
   // Build 98: several chips at once ("cheaper" and "in stock"), each checked.
   const [chips, setChips] = useState<SimilarChip[]>([])
@@ -133,7 +134,7 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
         </div>
       )}
       <p class="cf-similar-hint">{t("similarHint")}</p>
-      {light !== undefined && <p class="cf-similar-light">{t("similarLightNote", String(light))}</p>}
+      {light !== undefined && <p class="cf-similar-light">{light.answers ? t("similarLightNotePro", String(light.weekly), String(light.answers)) : t("similarLightNote", String(light.weekly))}</p>}
       <div class="cf-card-actions">
         <button type="button" class="cf-primary" onClick={find} disabled={asks && !region}><SimilarIcon size={14} /> {t("similarFind")}</button>
         <button type="button" class="cf-secondary" onClick={onClose}>{t("cancel")}</button>

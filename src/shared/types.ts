@@ -70,8 +70,9 @@ export interface PlanFacts {
   searchProWeekly: number
   speakWeeklySeconds: number
   similarWeekly: number
-  // 2.7: the light Find similar's searches a week (everyone not on Ultra).
-  similarFreeWeekly: number
+  // 2.7: the light Find similar's searches a week (Own key and Pro), and what one costs Pro in answers.
+  similarLightWeekly: number
+  similarProAnswers: number
   watch: Record<Plan, number>
 }
 

@@ -53,8 +53,8 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
   }
   clearTimeout(timer)
   if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => ({}))) as { code?: string; plan?: Plan; usage?: Usage | null }
-    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), ...(body.plan ? { plan: body.plan } : {}), ...(body.usage ? { usage: body.usage } : {}) })
+    const body = (await res.json().catch(() => ({}))) as { code?: string; plan?: Plan; usage?: Usage | null; answers?: number }
+    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), ...(body.plan ? { plan: body.plan } : {}), ...(body.usage ? { usage: body.usage } : {}), ...(typeof body.answers === "number" ? { answers: body.answers } : {}) })
     return
   }
   let finished = false
