@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "Продолжаю"
  },
+ "writeCircle": {
+  "message": "Проверить или переписать"
+ },
+ "writeCheck": {
+  "message": "Проверить"
+ },
+ "writeRewrite": {
+  "message": "Переписать"
+ },
+ "writeToneShort": {
+  "message": "Короче"
+ },
+ "writeToneWarm": {
+  "message": "Теплее"
+ },
+ "writeToneFormal": {
+  "message": "Официальнее"
+ },
+ "writeToneConfident": {
+  "message": "Увереннее"
+ },
+ "writeChecking": {
+  "message": "Проверяю с учётом страницы…"
+ },
+ "writeRewriting": {
+  "message": "Переписываю с учётом страницы…"
+ },
+ "writeFixes": {
+  "message": "Исправлений: {0}"
+ },
+ "writeLeft": {
+  "message": "Бесплатных ответов на сегодня: {0}"
+ },
+ "writeClean": {
+  "message": "Ошибок не нашлось."
+ },
+ "writeEmpty": {
+  "message": "Здесь пока нет текста."
+ },
+ "writeTooLong": {
+  "message": "Слишком много сразу. Выделите часть и попробуйте снова."
+ },
+ "writeChanged": {
+  "message": "Текст с тех пор изменился."
+ },
+ "writeFix": {
+  "message": "Исправить"
+ },
+ "writeReplace": {
+  "message": "Заменить"
+ },
+ "writeFixed": {
+  "message": "Исправлено"
+ },
+ "writeFixedSome": {
+  "message": "Исправлено, кроме того, что поле не приняло"
+ },
+ "writeReplaced": {
+  "message": "Заменено"
+ },
+ "writeUndo": {
+  "message": "Отменить"
+ },
+ "writeUndone": {
+  "message": "Отменено"
+ },
+ "writeUndoFailed": {
+  "message": "Не получилось отменить: текст уже изменился."
+ },
+ "writeSetting": {
+  "message": "«Проверить» и «Переписать» у полей"
+ },
+ "writeSettingHint": {
+  "message": "Правка учитывает страницу: письмо, на которое вы отвечаете, пост под комментарием. Каждое нажатие — один ответ. То, как вы пишете на каждом сайте, хранится только на этом устройстве и помогает писать в вашем стиле."
+ },
  "setSide": {
   "message": "Сторона экрана"
  },

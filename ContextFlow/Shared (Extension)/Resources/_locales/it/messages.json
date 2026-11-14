@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "Continuo"
  },
+ "writeCircle": {
+  "message": "Controlla o riscrivi"
+ },
+ "writeCheck": {
+  "message": "Controlla"
+ },
+ "writeRewrite": {
+  "message": "Riscrivi"
+ },
+ "writeToneShort": {
+  "message": "Più breve"
+ },
+ "writeToneWarm": {
+  "message": "Più caloroso"
+ },
+ "writeToneFormal": {
+  "message": "Più formale"
+ },
+ "writeToneConfident": {
+  "message": "Più sicuro"
+ },
+ "writeChecking": {
+  "message": "Controllo tenendo conto della pagina…"
+ },
+ "writeRewriting": {
+  "message": "Riscrivo tenendo conto della pagina…"
+ },
+ "writeFixes": {
+  "message": "Correzioni: {0}"
+ },
+ "writeLeft": {
+  "message": "Risposte gratuite rimaste oggi: {0}"
+ },
+ "writeClean": {
+  "message": "Nessun errore trovato."
+ },
+ "writeEmpty": {
+  "message": "Qui non c'è ancora testo."
+ },
+ "writeTooLong": {
+  "message": "È troppo in una volta. Seleziona una parte e riprova."
+ },
+ "writeChanged": {
+  "message": "Il testo è cambiato nel frattempo."
+ },
+ "writeFix": {
+  "message": "Correggi"
+ },
+ "writeReplace": {
+  "message": "Sostituisci"
+ },
+ "writeFixed": {
+  "message": "Corretto"
+ },
+ "writeFixedSome": {
+  "message": "Corretto, tranne ciò che il campo non ha accettato"
+ },
+ "writeReplaced": {
+  "message": "Sostituito"
+ },
+ "writeUndo": {
+  "message": "Annulla"
+ },
+ "writeUndone": {
+  "message": "Annullato"
+ },
+ "writeUndoFailed": {
+  "message": "Impossibile annullare: il testo è cambiato."
+ },
+ "writeSetting": {
+  "message": "Controlla e Riscrivi accanto ai campi"
+ },
+ "writeSettingHint": {
+  "message": "Le correzioni tengono conto della pagina: l'email a cui rispondi, il post che commenti. Ogni tocco vale una risposta. Il modo in cui scrivi su ogni sito resta su questo dispositivo e aiuta a rispettare il tuo stile."
+ },
  "setSide": {
   "message": "Lato dello schermo"
  },

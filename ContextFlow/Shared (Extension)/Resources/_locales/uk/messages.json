@@ -2456,6 +2456,81 @@
  "matchContinue": {
   "message": "Продовжую"
  },
+ "writeCircle": {
+  "message": "Перевірити або переписати"
+ },
+ "writeCheck": {
+  "message": "Перевірити"
+ },
+ "writeRewrite": {
+  "message": "Переписати"
+ },
+ "writeToneShort": {
+  "message": "Коротше"
+ },
+ "writeToneWarm": {
+  "message": "Тепліше"
+ },
+ "writeToneFormal": {
+  "message": "Офіційніше"
+ },
+ "writeToneConfident": {
+  "message": "Упевненіше"
+ },
+ "writeChecking": {
+  "message": "Перевіряю з урахуванням сторінки…"
+ },
+ "writeRewriting": {
+  "message": "Переписую з урахуванням сторінки…"
+ },
+ "writeFixes": {
+  "message": "Виправлень: {0}"
+ },
+ "writeLeft": {
+  "message": "Безкоштовних відповідей на сьогодні: {0}"
+ },
+ "writeClean": {
+  "message": "Помилок не знайшлося."
+ },
+ "writeEmpty": {
+  "message": "Тут поки немає тексту."
+ },
+ "writeTooLong": {
+  "message": "Забагато одразу. Виділіть частину й спробуйте знову."
+ },
+ "writeChanged": {
+  "message": "Текст відтоді змінився."
+ },
+ "writeFix": {
+  "message": "Виправити"
+ },
+ "writeReplace": {
+  "message": "Замінити"
+ },
+ "writeFixed": {
+  "message": "Виправлено"
+ },
+ "writeFixedSome": {
+  "message": "Виправлено, крім того, що поле не прийняло"
+ },
+ "writeReplaced": {
+  "message": "Замінено"
+ },
+ "writeUndo": {
+  "message": "Скасувати"
+ },
+ "writeUndone": {
+  "message": "Скасовано"
+ },
+ "writeUndoFailed": {
+  "message": "Не вдалося скасувати: текст уже змінився."
+ },
+ "writeSetting": {
+  "message": "«Перевірити» й «Переписати» біля полів"
+ },
+ "writeSettingHint": {
+  "message": "Правка враховує сторінку: лист, на який ви відповідаєте, допис під коментарем. Кожне натискання — одна відповідь. Те, як ви пишете на кожному сайті, зберігається лише на цьому пристрої й допомагає писати у вашому стилі."
+ },
  "setSide": {
   "message": "Бік екрана"
  },
