@@ -270,7 +270,7 @@ function contents(field: Field): string {
 }
 
 /** The page's editor got to update its DOM (Draft.js and Lexical re-render after the event). */
-function settle(win: Window): Promise<void> {
+export function settle(win: Window): Promise<void> {
   return new Promise((resolve) => {
     let done = false
     const finish = () => {
@@ -294,7 +294,7 @@ function ways(field: Field, text: string): InsertWay[] {
   return text.includes("\n") ? ["paste", "typing"] : ["typing", "paste"]
 }
 
-function dispatchPaste(field: Field, text: string): void {
+export function dispatchPaste(field: Field, text: string): void {
   const doc = field.el.ownerDocument
   const win = doc.defaultView ?? window
   const data = new win.DataTransfer()
