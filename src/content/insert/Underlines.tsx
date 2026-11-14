@@ -202,8 +202,8 @@ export function Underlines({ field, host, touch, onFixed }: Props): VNode | null
     const result = await makeEdits(el, [{ from: issue.from, to: issue.to, text: issue.text }])
     if (!result.back.length) return writeStep("live_failed", "underline")
     // The paragraph's other underlines stay, moved by what this one changed; its new text isn't checked again for it.
+    // The old text keeps its underlines too: an Undo brings them back at once.
     const next = afterFix(issue.para, mem.checked.get(issue.para) ?? [], issue.rel)
-    mem.checked.delete(issue.para)
     mem.checked.set(next.para, next.edits)
     writeStep("live_fixed", "underline")
     onFixed({ el, after: result.after, back: result.back })
