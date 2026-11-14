@@ -29,5 +29,17 @@ export const panelSideFor = (rect: { left: number; width: number }, width: numbe
 /** A press moved far enough to be a drag. */
 export const isDrag = (dx: number, dy: number): boolean => Math.abs(dx) + Math.abs(dy) >= DRAG_START
 
+/**
+ * The side the circle (and on iPad and Mac the panel) is on: the person's choice in any language; until they choose,
+ * the interface's direction (left in Arabic, right elsewhere), so a later language switch still follows it. Before 2.7
+ * every settings save wrote "right", so a stored "right" without the choice mark isn't a choice; "left" only ever came
+ * from a drag.
+ */
+export function resolveSide(s: { fabSide?: Side; fabSideChosen?: boolean }, direction: "ltr" | "rtl"): Side {
+  if (s.fabSideChosen && s.fabSide) return s.fabSide
+  if (s.fabSide === "left") return "left"
+  return direction === "rtl" ? "left" : "right"
+}
+
 /** Taps inside the panel's header that are its controls, not a drag of the panel. */
 export const HEADER_CONTROLS = "button,a,input,select,textarea,label,[role=menu],[role=menuitem],[role=button],[contenteditable]"
