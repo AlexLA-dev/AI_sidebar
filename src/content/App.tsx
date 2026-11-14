@@ -105,6 +105,7 @@ import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill } from "./translate/TranslatePill"
 import { useFabDrag, usePanelDrag } from "./side/drag"
 import { EdgeGlow } from "./side/EdgeGlow"
+import { HintLine, hintText, usePageHints } from "./pagehints/PageHints"
 import type { Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
@@ -2290,6 +2291,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     },
     onTap: () => show(undefined, { pageChat: true })
   })
+  // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
+  const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
+  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, open: openFromHint })
   const panelDrag = usePanelDrag({
     panel: panelRef,
     side,
@@ -3416,7 +3420,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ render
   return (
-    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-touch={touch ? "1" : undefined}>
+    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined}>
       <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
       {fabVisible && (
         <button
@@ -3447,6 +3451,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             openPlans("pro", "translate")
           }}
         />
+      )}
+
+      {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
+      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && (
+        <HintLine id={pageHints.line} side={side} top={fabTop} onTap={pageHints.tap} onClose={pageHints.close} />
       )}
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
@@ -4199,7 +4208,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
 
                 {/* 2.7 (plan section 9): once, that the circle (and on iPad and Mac the panel) moves to the other edge. */}
-                {!historyMode && partial === null && !pending && hintDue("side") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                {/* 2.7 (plan section 6): the page hint's how-to, after its line was tapped; its button glows (data-glow). */}
+                {pageHints.chat && !historyMode && partial === null && (() => {
+                  const how = hintText(pageHints.chat, pageHints.has(pageHints.chat))
+                  return <Hint icon={<Icon.Sparkle size={16} />} title={how.title} onDone={pageHints.doneChat}>{how.body}</Hint>
+                })()}
+                {!historyMode && partial === null && !pending && !pageHints.chat && hintDue("side") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}

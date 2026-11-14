@@ -9,6 +9,8 @@ import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
 import * as Icon from "./icons"
 import { deleteAllChats, hideYearly, yearlyHiddenNow } from "./store"
 import { InsertSettingsGroup } from "./insert/InsertSettings"
+import { sendBackground } from "./insert/store"
+import { hintsOn, setHintsOn } from "./pagehints/store"
 
 interface Props {
   settings: Settings
@@ -163,6 +165,8 @@ export function SettingsView(props: Props): VNode {
             {hidden ? t("showOnSite", site) : t("hideOnSite", site)}
           </button>
         </div>
+        {/* 2.7 (plan section 6): the page hints by the circle, the first days (off: also by two ✕ in a row). */}
+        <PageHintsSwitch />
         <label class="cf-row toggle">
           <span class="cf-label">{t("setSelectionButton")}</span>
           <input type="checkbox" checked={settings.selectionButton} onChange={(e) => onChange({ selectionButton: e.currentTarget.checked })} />
@@ -302,5 +306,26 @@ export function SettingsView(props: Props): VNode {
         <span class="cf-version">{t("version", VERSION)}</span>
       </footer>
     </div>
+  )
+}
+
+/** The page hints' switch (2.7): kept with the hints' own state on this device (src/content/pagehints/store.ts). */
+function PageHintsSwitch(): VNode {
+  const [on, setOn] = useState<boolean | null>(null)
+  useEffect(() => void hintsOn().then(setOn), [])
+  if (on === null) return <></>
+  return (
+    <>
+      <label class="cf-row toggle">
+        <span class="cf-label">{t("setPageHints")}</span>
+        <input type="checkbox" checked={on} onChange={(e) => {
+          const next = e.currentTarget.checked
+          setOn(next)
+          void setHintsOn(next)
+          void sendBackground({ type: "useEvent", f: "page_hint", a: next ? "switch_on" : "switch_off" })
+        }} />
+      </label>
+      <p class="cf-hint">{t("setPageHintsHint")}</p>
+    </>
   )
 }

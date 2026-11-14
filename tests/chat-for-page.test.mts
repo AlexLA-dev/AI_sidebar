@@ -54,5 +54,7 @@ test("only the circle and Safari's toolbar button pick it; Ask AI on a selection
   assert.match(app, /const found = place \? place\.chat \?\? newThreadId\(\) : null/)
   // Stored before the sync reads which chat is open.
   assert.match(app, /if \(active !== was\) await setActiveThread\(active\.id, place\?\.space\)/)
-  assert.equal((app.match(/pageChat: true/g) ?? []).length, 3)
+  // 2.7 (plan section 6): a page hint's line sits by the circle and its tap opens the panel as the circle's does.
+  assert.match(app, /const openFromHint = useCallback\(\(\) => show\(undefined, \{ pageChat: true \}\), \[show\]\)/)
+  assert.equal((app.match(/pageChat: true/g) ?? []).length, 4)
 })
