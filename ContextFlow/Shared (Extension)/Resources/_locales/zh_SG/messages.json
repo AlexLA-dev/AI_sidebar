@@ -2531,6 +2531,15 @@
  "writeSettingHint": {
   "message": "修改会结合页面内容:你正在回复的邮件、你评论的帖子。每次点按计为一次回答。你在各网站的写法只保存在这台设备上,用来贴合你的风格。"
  },
+ "writeSkip": {
+  "message": "忽略"
+ },
+ "underlineSetting": {
+  "message": "输入时给错误加下划线"
+ },
+ "underlineSettingHint": {
+  "message": "Pro 和 Ultra:输入停顿后,只结合页面内容检查你改动的段落。把指针移到下划线上(在 iPhone 和 iPad 上轻点)即可修正。不计入回答次数。"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },
