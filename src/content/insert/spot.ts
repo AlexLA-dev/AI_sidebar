@@ -298,3 +298,17 @@ export function besideSpot(field: Edges, view: { width: number; height: number }
   if (left.width >= SIDE_MIN && clear(left.left, left.left + left.width)) return { top, ...left }
   return null
 }
+
+// ------------------------------------------------------------ live underlines' card (Underlines.tsx)
+
+/**
+ * The card's top for words at `r` (fixed coordinates): on touch above them when there's room (the keyboard sits below
+ * the text being typed), else below; with a pointer below them unless that runs off what's visible.
+ */
+export function cardTop(r: { top: number; bottom: number }, h: number, vp: { height: number; dy: number }, touch: boolean): number {
+  const above = r.top - h - 8
+  const below = r.bottom + 8
+  const roomAbove = above >= vp.dy + 8
+  if (touch) return roomAbove ? above : below
+  return below + h <= vp.dy + vp.height - 8 || !roomAbove ? below : above
+}

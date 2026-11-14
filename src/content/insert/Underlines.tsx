@@ -12,6 +12,7 @@ import { afterFix, diffWords, issueKey, liveIssues, LIVE, paragraphs, toCheck, t
 import { isControl, isOwnHost, updateCaret, type Field } from "./field"
 import { caretOf, domRange, readText, workRange, type FieldText } from "./fieldtext"
 import { sendBackground } from "./store"
+import { cardTop } from "./spot"
 import { controlRects, pageRect, rangeRects, viewport } from "./watch"
 import { askFor, makeEdits, writeStep, type Undo } from "./Write"
 
@@ -75,6 +76,7 @@ export function Underlines({ field, host, touch, onFixed }: Props): VNode | null
   const busy = useRef(false)
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const shownRef = useRef<Array<{ issue: Issue; rects: DOMRect[] }>>([])
+  const popRef = useRef<HTMLDivElement>(null)
 
   // ------------------------------------------------------------ a check after a pause in typing
   const check = async () => {
@@ -194,6 +196,13 @@ export function Underlines({ field, host, touch, onFixed }: Props): VNode | null
   useLayoutEffect(() => {
     if (open && !issues.some((i) => i.key === open.issue.key)) setOpen(null)
   })
+  // Placed once its height is known: on iPhone and iPad above the words (below them the keyboard covers it: the
+  // simulator, 2.7), on a Mac below them unless that runs off the bottom.
+  useLayoutEffect(() => {
+    const el = popRef.current
+    if (!el || !open) return
+    el.style.top = `${cardTop(open.rect, el.offsetHeight, viewport(touch), touch)}px`
+  })
 
   const fix = async (issue: Issue) => {
     setOpen(null)
@@ -227,6 +236,7 @@ export function Underlines({ field, host, touch, onFixed }: Props): VNode | null
       </div>
       {open && card && (
         <div
+          ref={popRef}
           class="cf-ul-pop"
           role="dialog"
           aria-label={t("writeCheck")}
@@ -254,12 +264,8 @@ export function Underlines({ field, host, touch, onFixed }: Props): VNode | null
   )
 }
 
-/** The card under the underlined words, or above them near the bottom of what's visible; kept on screen. */
+/** The card's first place (its top is set again once its height is known, cardTop); kept on screen sideways. */
 function placeCard(r: DOMRect, vp: { width: number; height: number; dx: number; dy: number }): { left: number; top: number } {
   const w = 240
-  const h = 96
-  const left = Math.max(vp.dx + 8, Math.min(r.left - 12, vp.dx + vp.width - w - 8))
-  const below = r.bottom + 6
-  const top = below + h > vp.dy + vp.height - 8 ? r.top - h - 6 : below
-  return { left, top: Math.max(vp.dy + 8, top) }
+  return { left: Math.max(vp.dx + 8, Math.min(r.left - 12, vp.dx + vp.width - w - 8)), top: r.bottom + 8 }
 }

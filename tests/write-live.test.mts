@@ -4,6 +4,7 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
+import { cardTop } from "../src/content/insert/spot.ts"
 import { afterFix, applyEdits, diffWords, issueKey, LIVE, liveIssues, liveWorthy, paragraphs, toCheck, type Edit } from "../src/shared/writing.ts"
 
 test("paragraphs: lines without their ends' white space, empty ones left out, places in the whole text", () => {
@@ -54,4 +55,12 @@ test("a fix keeps the paragraph's other underlines, moved by what it changed", (
   assert.equal(next.para, applyEdits(para, [first]))
   assert.equal(next.edits.length, edits.length - 1)
   assert.equal(applyEdits(next.para, next.edits), "I definitely receive the files tomorrow.")
+})
+
+test("the fix's card: above the words on touch (the keyboard is below them), below them with a pointer", () => {
+  const vp = { height: 500, dy: 0 }
+  assert.equal(cardTop({ top: 300, bottom: 320 }, 90, vp, true), 202, "touch: above")
+  assert.equal(cardTop({ top: 40, bottom: 60 }, 90, vp, true), 68, "touch, no room above: below")
+  assert.equal(cardTop({ top: 300, bottom: 320 }, 90, vp, false), 328, "pointer: below")
+  assert.equal(cardTop({ top: 440, bottom: 460 }, 90, vp, false), 342, "pointer near the bottom: above")
 })
