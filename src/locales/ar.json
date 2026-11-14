@@ -784,5 +784,11 @@
   "similarCons": "ينتقدون {0}",
   "similarEstimated": "تقدير من الوصف",
   "similarSame": "المنتج نفسه، متجر آخر",
-  "similarMisses": "لا يطابق اختيارك"
+  "similarMisses": "لا يطابق اختيارك",
+  "trOffer": "ترجمة إلى العربية؟",
+  "trOfferTo": "ترجمة إلى {0}؟",
+  "trHide": "إخفاء على هذا الموقع",
+  "trWorking": "جارٍ الترجمة…",
+  "trOriginal": "الأصل",
+  "trFailed": "تعذّرت الترجمة"
 }

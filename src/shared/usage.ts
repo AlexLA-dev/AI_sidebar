@@ -42,7 +42,7 @@ export const FEATURES: Record<string, Feature> = {
   ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error", "link"] },
   consent: {
     since: "2.0", actions: ["shown", "accepted", "declined"],
-    via: ["ask", "find", "ask_chats", "qi", "organize"], fields: { step: "int" }
+    via: ["ask", "find", "ask_chats", "qi", "organize", "translate"], fields: { step: "int" }
   },
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
   // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
@@ -131,7 +131,7 @@ export const FEATURES: Record<string, Feature> = {
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
-    via: ["listen", "settings", "watch", "limit", "similar"],
+    via: ["listen", "settings", "watch", "limit", "similar", "translate"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
     fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
   },
@@ -142,6 +142,13 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
     via: ["limit", "memory", "pro_only", "ultra_only"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
+  },
+  // 2.7: the page translated in place (src/content/translate): the pill by the circle shown on a page in another
+  // language, tapped, the consent asked from it, the translation shown, "Original", × (hidden on that site), the
+  // answers used up (and Pro tapped there), a failure. The server logs each request ("translate") and the limit.
+  translate_page: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error"]
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
   watch: {

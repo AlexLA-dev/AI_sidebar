@@ -784,5 +784,11 @@
   "similarCons": "負評：{0}",
   "similarEstimated": "依描述估計",
   "similarSame": "同款商品，其他商店",
-  "similarMisses": "不符合你選的條件"
+  "similarMisses": "不符合你選的條件",
+  "trOffer": "翻譯成中文？",
+  "trOfferTo": "翻譯成{0}？",
+  "trHide": "在此網站隱藏",
+  "trWorking": "正在翻譯…",
+  "trOriginal": "原文",
+  "trFailed": "無法翻譯"
 }

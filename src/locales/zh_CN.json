@@ -784,5 +784,11 @@
   "similarCons": "差评：{0}",
   "similarEstimated": "根据描述估计",
   "similarSame": "同款商品，其他商店",
-  "similarMisses": "不符合你选的条件"
+  "similarMisses": "不符合你选的条件",
+  "trOffer": "翻译成中文？",
+  "trOfferTo": "翻译成{0}？",
+  "trHide": "在此网站隐藏",
+  "trWorking": "正在翻译…",
+  "trOriginal": "原文",
+  "trFailed": "无法翻译"
 }

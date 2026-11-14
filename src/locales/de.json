@@ -784,5 +784,11 @@
   "similarCons": "kritisiert: {0}",
   "similarEstimated": "geschätzt anhand der Beschreibung",
   "similarSame": "Gleicher Artikel, anderer Shop",
-  "similarMisses": "Erfüllt deine Auswahl nicht"
+  "similarMisses": "Erfüllt deine Auswahl nicht",
+  "trOffer": "Auf Deutsch übersetzen?",
+  "trOfferTo": "Übersetzen in: {0}?",
+  "trHide": "Auf dieser Website ausblenden",
+  "trWorking": "Wird übersetzt…",
+  "trOriginal": "Original",
+  "trFailed": "Übersetzung fehlgeschlagen"
 }

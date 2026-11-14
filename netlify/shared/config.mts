@@ -148,6 +148,24 @@ export const config = {
     priceIn: Number(env("INSERT_PRICE_IN") ?? 0.1),
     priceOut: Number(env("INSERT_PRICE_OUT") ?? 0.5)
   },
+  // Translating a page in place (2.7, /api/v2/translate): the same fast Haiku as quick insert. The owner's rule: a
+  // page (one address in one language) counts as one answer, from Free's 5 a day or the Pro and Ultra week; more of
+  // the same page (scrolling, new blocks, translating again after "Original") doesn't count again that week. The
+  // character caps are safety only (nobody sees them): per page a week, per subscription or install a day, per
+  // address a day and for everyone a day.
+  translate: {
+    enabled: (env("TRANSLATE") ?? "on").trim() !== "off",
+    model: (env("TRANSLATE_MODEL") ?? env("INSERT_MODEL") ?? "claude-haiku-5-5").trim(),
+    pageChars: int("TRANSLATE_PAGE_CHARS", 300_000),
+    dailyChars: int("TRANSLATE_DAILY_CHARS", 3_000_000),
+    ipDailyChars: int("TRANSLATE_IP_DAILY_CHARS", 6_000_000),
+    globalDailyChars: int("TRANSLATE_GLOBAL_DAILY_CHARS", 150_000_000),
+    // A batch of blocks per model call (characters), the calls a request runs at once, and the whole request's time.
+    batchChars: int("TRANSLATE_BATCH_CHARS", 2_500),
+    firstBatchChars: int("TRANSLATE_FIRST_BATCH_CHARS", 900),
+    parallel: int("TRANSLATE_PARALLEL", 4),
+    budgetMs: int("TRANSLATE_BUDGET_MS", 50_000)
+  },
   // Page watch's AI (2.5, the same Haiku as quick insert, INSERT_MODEL): a plan when a watch is made, a judge
   // after a change. The owner's choice: not counted against answers; these caps only stop runaway clients.
   watch: {

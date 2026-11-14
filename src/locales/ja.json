@@ -784,5 +784,11 @@
   "similarCons": "不満：{0}",
   "similarEstimated": "説明文からの推定",
   "similarSame": "同じ商品・別のショップ",
-  "similarMisses": "選んだ条件に合いません"
+  "similarMisses": "選んだ条件に合いません",
+  "trOffer": "日本語に翻訳しますか？",
+  "trOfferTo": "{0}に翻訳しますか？",
+  "trHide": "このサイトでは表示しない",
+  "trWorking": "翻訳中…",
+  "trOriginal": "原文",
+  "trFailed": "翻訳できませんでした"
 }

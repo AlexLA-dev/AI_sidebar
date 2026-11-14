@@ -784,5 +784,11 @@
   "similarCons": "no gusta: {0}",
   "similarEstimated": "estimado por la descripción",
   "similarSame": "Mismo artículo, otra tienda",
-  "similarMisses": "No cumple tu elección"
+  "similarMisses": "No cumple tu elección",
+  "trOffer": "¿Traducir al español?",
+  "trOfferTo": "¿Traducir al {0}?",
+  "trHide": "Ocultar en este sitio",
+  "trWorking": "Traduciendo…",
+  "trOriginal": "Original",
+  "trFailed": "No se pudo traducir"
 }

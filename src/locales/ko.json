@@ -784,5 +784,11 @@
   "similarCons": "단점: {0}",
   "similarEstimated": "설명 기반 추정",
   "similarSame": "같은 상품, 다른 쇼핑몰",
-  "similarMisses": "선택한 조건에 맞지 않음"
+  "similarMisses": "선택한 조건에 맞지 않음",
+  "trOffer": "한국어로 번역할까요?",
+  "trOfferTo": "{0}(으)로 번역할까요?",
+  "trHide": "이 사이트에서 숨기기",
+  "trWorking": "번역 중…",
+  "trOriginal": "원문",
+  "trFailed": "번역하지 못했습니다"
 }
