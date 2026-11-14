@@ -65,8 +65,22 @@ export interface WriteAsk {
 export type WriteFailureCode = "LIMIT_REACHED" | "TOO_LONG" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT" | "PRO_ONLY"
 
 export type WriteReply =
-  | { ok: true; text: string; usage?: { used: number; limit: number; period: "day" | "week"; resetsAt: string } | null }
+  // plan: the server's own (2.7), so the card never takes a subscription's week for Free's day.
+  | { ok: true; text: string; plan?: string; usage?: { used: number; limit: number; period: "day" | "week"; resetsAt: string } | null }
   | { ok: false; code: WriteFailureCode; usage?: { used: number; limit: number; period: "day" | "week"; resetsAt: string } | null; offer?: { code: string; discount: number } | null }
+
+/**
+ * What the card says is left: «Free answers left today: N» on Free only. Pro and Ultra (a subscription's week) and Own key
+ * get nothing on the card, as the fill card does; the panel's usage line has the week. The page's own idea of the plan
+ * can still say Free before its status arrives (the store captures showed Ultra's 374 as Free's), so the server's plan
+ * wins; from a server that doesn't say it yet, only a day's allowance on a device that thinks it's Free.
+ */
+export function freeLeft(reply: { plan?: string; usage?: { used: number; limit: number; period: "day" | "week" } | null }, free: boolean): number | null {
+  const usage = reply.usage
+  if (!usage || usage.period !== "day") return null
+  const isFree = reply.plan !== undefined ? reply.plan === "free" : free
+  return isFree ? Math.max(0, usage.limit - usage.used) : null
+}
 
 /** The request as the server takes it: everything clipped to its limits, empty parts left out. */
 export function clipAsk(ask: WriteAsk): WriteAsk {

@@ -19,7 +19,7 @@ import { sessionFields } from "../../src/shared/usage.ts"
  *
  * Body: { installId, client, entitlement, action: "check" | "rewrite", tone? ("short" | "warm" | "formal" |
  *   "confident", a rewrite's), text, page: {title, url, text, conversation}, field, style: {about?, samples, templates} }
- * → { ok, text, usage } (a check's text is the whole corrected text; the device works out the changes).
+ * → { ok, text, plan, usage } (a check's text is the whole corrected text; the device works out the changes).
  * A tap is one answer (the owner's rule): Free's 5 a day or the Pro and Ultra week; given back when nothing came.
  * live: true (a check of one paragraph after a pause in typing, for the underlines): Pro and Ultra only (PRO_ONLY 402
  * otherwise), not counted as an answer, under hidden caps (BUSY when one runs out: the underlines stop for the day).
@@ -122,7 +122,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     // A tap is a request like an answer (the install's last use, its language).
     touchInstall(installId, platform, version, locale, !live && charged.length > 0 ? 1 : 0).catch(() => undefined)
   ]))
-  return json({ ok: true, text, usage: live ? null : usage })
+  // The plan too (2.7): the card's «left today» is Free's only, and the page can't always tell the plan yet.
+  return json({ ok: true, text, plan: access.plan, usage: live ? null : usage })
 }
 
 /** Live underlines: no answer, only the hidden caps (the subscription's day, the address's, everyone's). */

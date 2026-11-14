@@ -145,11 +145,12 @@ async function write(ask: WriteAsk): Promise<WriteReply> {
   } catch {
     return { ok: false, code: "NETWORK" }
   }
-  const body = (await res.json().catch(() => ({}))) as { ok?: boolean; text?: unknown; code?: string; usage?: Usage | null; offer?: ProOffer | null }
+  const body = (await res.json().catch(() => ({}))) as { ok?: boolean; text?: unknown; plan?: unknown; code?: string; usage?: Usage | null; offer?: ProOffer | null }
   if (res.ok && body.ok === true && typeof body.text === "string") {
     // A live check isn't an answer: the usage line stays as it is.
     if (!ask.live) deps.statusChanged()
-    return { ok: true, text: body.text, usage: body.usage ?? null }
+    // The server's plan with it (2.7): the card's «left today» is Free's only (shared/writing.ts freeLeft).
+    return { ok: true, text: body.text, ...(typeof body.plan === "string" ? { plan: body.plan } : {}), usage: body.usage ?? null }
   }
   const code = WRITE_CODES.has(body.code as WriteFailureCode) ? (body.code as WriteFailureCode) : res.status === 404 ? "UNAVAILABLE" : res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"
   if (code === "LIMIT_REACHED") deps.statusChanged()

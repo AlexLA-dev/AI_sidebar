@@ -98,6 +98,8 @@ test("a check: Haiku with the conversation, the style and the message last; one 
   assert.equal(res.status, 200)
   assert.equal(body.text, "Hi Katarzyna, Friday definitely works. I'll send the deck tomorrow.")
   assert.deepEqual([body.usage.used, body.usage.limit, body.usage.period], [1, 5, "day"])
+  // The plan too: the card says «left today» on Free only (2.7).
+  assert.equal(body.plan, "free")
   const sent = claude.lastBody!
   assert.equal(sent.model, "claude-haiku-5-5")
   assert.equal(sent.output_config.format.type, "json_schema")
@@ -145,7 +147,25 @@ test("Pro: a tap comes out of the subscription's week", async () => {
   const { body } = await call({ entitlement: jws })
   assert.equal(counters.get("tx:7000000002"), 1)
   assert.equal(body.usage.period, "week")
+  assert.equal(body.plan, "pro")
   assert.equal(counters.get(`install:${INSTALL}`) ?? 0, 0)
+})
+
+test("Own key: its plan said, so the card shows no «left today» on ContextFlow's day either", async () => {
+  claude.answer = { text: TEXT }
+  const jws = signJws(transaction({ productId: "com.contextflow.byok.monthly", originalTransactionId: "7000000004" }))
+  const { body } = await call({ entitlement: jws })
+  assert.equal(body.plan, "byok")
+  assert.equal(body.usage.period, "day")
+})
+
+test("Ultra: the week too, and the plan said, so the card shows no «left today»", async () => {
+  claude.answer = { text: TEXT }
+  const jws = signJws(transaction({ productId: "com.contextflow.ultra.monthly", originalTransactionId: "7000000003" }))
+  const { body } = await call({ entitlement: jws })
+  assert.equal(body.plan, "ultra")
+  assert.equal(body.usage.period, "week")
+  assert.equal(counters.get("tx:7000000003"), 1)
 })
 
 test("the hidden cap: BUSY and nothing counted; the model failing or answering nonsense gives the answer back", async () => {
