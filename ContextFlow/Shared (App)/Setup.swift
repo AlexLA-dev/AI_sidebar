@@ -48,6 +48,16 @@ final class Activation: ObservableObject {
         appId = launch.id
         newInstall = launch.newInstall
         state = Self.recordedState()
+        // 2.7: the app left for Settings. From the system itself: SwiftUI's scene phase doesn't reach the views once the
+        // app is in the background (the simulator run saw only the way back).
+        #if os(iOS)
+        let left = UIApplication.didEnterBackgroundNotification
+        #else
+        let left = NSApplication.didResignActiveNotification
+        #endif
+        NotificationCenter.default.addObserver(forName: left, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.wentAway() }
+        }
     }
 
     private static func recordedState() -> State {
@@ -80,14 +90,21 @@ final class Activation: ObservableObject {
 
     // MARK: The way to switching it on (2.7, plan section 8 «Активация»): counts only, f "activation" in usage.ts.
 
+    /// Leaving for Settings (still in front) or gone. Also kept on disk while it lasts: switching ContextFlow on in
+    /// Settings can end the app's process, and the relaunch is still the way back.
     private enum Trip { case going, away }
     private var trip: Trip?
-    /// The last step sent: each waits for the one before, so they reach the server in their order.
-    private var lastStep: Task<Void, Never>?
+    private static let tripKey = "cf_activation_trip_at"
+    /// When the next step may go: a second after the one before, so the server gets them in their order (the video and
+    /// Settings come a moment apart), and none waits on another's answer (one in flight as the app leaves can hang).
+    private var nextStepAt = Date.distantPast
     private static let enabledReportedKey = "cf_activation_enabled_reported"
 
     private func step(_ action: String, _ fields: [String: String] = [:]) {
-        lastStep = ChatAI.reportUse("activation", action, fields, after: lastStep)
+        let now = Date()
+        let at = max(now, nextStepAt)
+        nextStepAt = at.addingTimeInterval(1)
+        ChatAI.reportUse("activation", action, fields, after: at.timeIntervalSince(now))
     }
 
     /// The guide's video started floating over Settings (iPhone, iPad).
@@ -96,19 +113,24 @@ final class Activation: ObservableObject {
     /// Settings opened from the app to switch ContextFlow on: "card" (the home screen's), "chats" (their empty state, Mac).
     func wentToSettings(_ via: String) {
         trip = .going
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.tripKey)
         step("settings", ["via": via])
     }
 
     /// The app is no longer in front (Settings is).
-    func wentAway() {
+    private func wentAway() {
         if trip == .going { trip = .away }
     }
 
-    /// In front again after the trip to Settings: once a trip.
+    /// In front again after the trip to Settings: once a trip, within the hour. After a relaunch nothing is in memory,
+    /// and the trip on disk is the sign the app left.
     func cameBack() {
-        guard trip == .away else { return }
+        let defaults = UserDefaults.standard
+        let at = defaults.double(forKey: Self.tripKey)
+        guard at > 0, trip != .going else { return }
         trip = nil
-        step("back")
+        defaults.removeObject(forKey: Self.tripKey)
+        if Date().timeIntervalSince1970 - at < 3600 { step("back") }
     }
 
     /// The app first saw it switched on, once an install (an update that had it on before never sends it).
@@ -134,6 +156,8 @@ final class Activation: ObservableObject {
     /// On every launch: offer the reminders once on a new install that isn't set up yet, then report
     /// "app opened" (once a day).
     func launched() async {
+        // Back from Settings in a new process (2.7): before refresh, which may count it switched on.
+        cameBack()
         await refresh()
         let defaults = UserDefaults.standard
         if newInstall, state == .off, !defaults.bool(forKey: Self.remindersOfferedKey) {

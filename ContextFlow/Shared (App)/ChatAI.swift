@@ -468,14 +468,15 @@ extension ChatAI {
         reportOrganize("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 })
     }
 
-    /// The same, sent once `previous` has been answered, so steps that follow each other reach the server in their
-    /// order (2.7, the activation funnel: the guide's video, then Settings).
+    /// The same, sent `delay` seconds from now (2.7, the activation funnel: steps a moment apart are spaced, so they
+    /// reach the server in their order without one waiting on another's answer).
     @MainActor
-    static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:], after previous: Task<Void, Never>?) -> Task<Void, Never> {
-        let request = eventRequest("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 })
-        return Task {
-            await previous?.value
-            if let request { _ = try? await URLSession.shared.data(for: request) }
+    static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:], after delay: TimeInterval) {
+        guard var request = eventRequest("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 }) else { return }
+        request.timeoutInterval = 15
+        Task {
+            if delay > 0 { try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) }
+            _ = try? await URLSession.shared.data(for: request)
         }
     }
 

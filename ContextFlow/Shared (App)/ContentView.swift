@@ -268,8 +268,6 @@ struct ContentView: View {
                     #if os(iOS)
                     SettingsPiP.shared.stop()
                     #endif
-                } else {
-                    activation.wentAway()
                 }
             }
             // What's new hides again once another tab is chosen (Tips is back in its place). Left after an update: a good
