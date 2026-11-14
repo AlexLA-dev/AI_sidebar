@@ -79,6 +79,9 @@ import { TrashView } from "./Trash"
 import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
 import { NoteText } from "./ux/NoteText"
+import { ShotSwitch, ShotThumb, ShotViewer } from "./ux/ShotUi"
+import { keepShot, takeShot } from "./shot"
+import { DEFAULT_SHOT_PREF, SHOT_PREF_KEY, type Shot, type ShotPref } from "../shared/shots"
 import { PageMenu } from "./ux/PageMenu"
 import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageWatcher, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
 import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
@@ -395,6 +398,34 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [draft, setDraft] = useState("")
   // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
   const [noteMode, setNoteMode] = useState(false)
+  // «Снимок страницы в заметке» (2.7): the switch over the note field (remembered), a picture being taken, one open.
+  const [shotPref, setShotPrefState] = useState<ShotPref>(DEFAULT_SHOT_PREF)
+  const shotPrefRef = useRef(shotPref)
+  shotPrefRef.current = shotPref
+  const [shotBusy, setShotBusy] = useState<string | null>(null)
+  const [shotOpen, setShotOpen] = useState<number | null>(null)
+  const proRef = useRef(false)
+  useEffect(() => {
+    try {
+      chrome.storage.local.get(SHOT_PREF_KEY, (r) => {
+        const v = r?.[SHOT_PREF_KEY] as Partial<ShotPref> | undefined
+        if (v) setShotPrefState({ on: v.on === true, kind: v.kind === "full" ? "full" : "visible" })
+      })
+    } catch {
+      // storage unavailable: the switch starts off
+    }
+  }, [])
+  const setShotPref = (next: ShotPref) => {
+    const was = shotPrefRef.current
+    setShotPrefState(next)
+    try {
+      void chrome.storage.local.set({ [SHOT_PREF_KEY]: next })
+    } catch {
+      // kept for this page only
+    }
+    if (next.on !== was.on) void sendBackground({ type: "useEvent", f: "shot", a: next.on ? "on" : "off" })
+    else if (next.kind !== was.kind) void sendBackground({ type: "useEvent", f: "shot", a: next.kind })
+  }
   const [noteHint, setNoteHint] = useState(false)
   const [error, setError] = useState<ChatError | null>(null)
   // The Pro offer, shown once more to an install that ran out of free answers before.
@@ -1272,14 +1303,35 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [partial === null])
 
   /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
-  const saveNote = useCallback((text: string) => {
+  const saveNote = useCallback(async (text: string) => {
     const content = text.trim()
-    if (!content || portRef.current || askToken.current) return
+    if (!content || portRef.current || askToken.current || shotBusyRef.current) return
     setUndoBar(null)
     setFirstWin(null)
     const url = source.key()
     const full = source.quick()
-    const next: Turn[] = [...messages, stamped({ role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) })]
+    // With «Снимок страницы» on: the picture first (the panel steps away for it), then the note with it.
+    let shot: Shot | undefined
+    if (shotPrefRef.current.on) {
+      const kind = shotPrefRef.current.kind === "full" && proRef.current ? "full" : "visible"
+      shotBusyRef.current = true
+      setShotBusy(t("shotTaking"))
+      const taken = await takeShot(kind, (screen, of) => setShotBusy(t("shotTakingFull", screen, of)))
+      const parts = taken.ok ? await keepShot(taken.shot.id, taken.data) : null
+      shotBusyRef.current = false
+      setShotBusy(null)
+      if (taken.ok && parts) {
+        shot = { ...taken.shot, parts }
+        void sendBackground({ type: "useEvent", f: "shot", a: "taken", what: kind, ...(kind === "full" ? { screens: taken.screens } : {}) })
+        if (taken.cut) setUndoBar({ text: t("shotCut", taken.screens), actions: [] })
+      } else {
+        void sendBackground({ type: "useEvent", f: "shot", a: "failed", what: kind, why: taken.ok ? "keep" : taken.code.toLowerCase() })
+        setUndoBar({ text: t("shotFailed"), actions: [] })
+      }
+    }
+    // The chat as it is now (the picture took a moment).
+    const now = nowRef.current.messages
+    const next: Turn[] = [...now, stamped({ role: "user", content, note: true, page: pageRef(now, url, full.title, full.text, keepsText), ...(shot ? { shot } : {}) })]
     setMessages(next)
     void saveThread(threadRef.current, next)
     void rememberPageText(url, full.title, full.text)
@@ -1288,8 +1340,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setError(null)
     setNoteMode(false)
   }, [messages, source])
+  const shotBusyRef = useRef(false)
 
-  const submit = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
+  /** A note's picture cropped (or back to the whole picture): kept on the note, so it reaches the other devices. */
+  const cropShot = (idx: number, crop: Shot["crop"]) => {
+    const m = messages[idx]
+    if (!m?.shot) return
+    const shot: Shot = { ...m.shot }
+    if (crop) shot.crop = crop
+    else delete shot.crop
+    const next = messages.map((x, i) => (i === idx ? { ...x, shot } : x))
+    setMessages(next)
+    void saveThread(threadRef.current, next)
+    void sendBackground({ type: "useEvent", f: "shot", a: crop ? "crop" : "uncrop" })
+  }
+
+  const submit = () => (noteMode ? void saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
 
   // The chat and the field as they are now, for stop() (2.5 (75)).
   const nowRef = useRef({ messages, draft })
@@ -2489,6 +2555,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
   }, [planTourDue, open, guide, touring, view, streaming, partial])
   const plan = status?.plan ?? keptPlan ?? "free"
+  proRef.current = plan === "pro" || plan === "ultra"
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
   const markUltra = status !== null && !isUltra(plan)
@@ -3471,6 +3538,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       )}
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
+      {shotOpen !== null && messages[shotOpen]?.shot && (
+        <ShotViewer shot={messages[shotOpen].shot!} onClose={() => setShotOpen(null)} onCrop={(crop) => cropShot(shotOpen, crop)} />
+      )}
       {remindSaved !== null && !bubble?.rect && !open && (
         <div class="cf-toast cf-snack" role="status" style={{ top: `${(window.visualViewport?.offsetTop ?? 0) + (window.visualViewport?.height ?? window.innerHeight) - 64}px` }}>
           <Bell size={14} /> {remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}
@@ -3930,6 +4000,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         ux.wrap(m, idx, (
                           <div class="cf-bubble-note" dir="auto">
                             <NoteText entry={m} />
+                            {m.shot && <ShotThumb shot={m.shot} onOpen={() => {
+                              setShotOpen(idx)
+                              void sendBackground({ type: "useEvent", f: "shot", a: "open", what: m.shot!.kind })
+                            }} />}
                           </div>
                         ), !picked)
                       ) : (
@@ -4275,6 +4349,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
                   {ctxRow}
+                  {(noteMode || shotBusy) && (
+                    <ShotSwitch
+                      pref={shotPref}
+                      pro={plan === "pro" || plan === "ultra"}
+                      busy={shotBusy}
+                      onChange={setShotPref}
+                      onPlans={() => {
+                        void sendBackground({ type: "useEvent", f: "shot", a: "plans" })
+                        void openApp("subscribe")
+                      }}
+                    />
+                  )}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
                     {!noteMode && !historyMode && (
                       <button

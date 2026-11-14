@@ -38,6 +38,9 @@ import AppKit
 /// - `apple_status` / `apple_add` / `apple_remove` → Calendar and Reminders (2.7, see AppleItems): whether they can be
 ///   added here and how; an item written on the device when access is given, else handed to the app (`handoff`: the id
 ///   the panel's link already named; on a Mac the app is opened here); «Также в Напоминания» taken back by its key.
+/// - `shot_put` / `shot_get` / `shot_delete` → a note's picture of the page (2.7, see ShotStore): from the panel in parts
+///   (`id`, `part`, `of`, base64 `data`, `cloud`: chats sync with iCloud), kept in the App Group and in iCloud; back in
+///   parts of `ShotStore.readLength` bytes (`offset`; `total`), from iCloud when another device made it; deleted.
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -363,6 +366,46 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 return
             }
             Self.reply(context, ["success": true, "data": ["ok": true, "total": part.total, "offset": offset, "length": part.data.count, "data": part.data.base64EncodedString()]])
+        case "shot_put":
+            guard let id = ShotStore.validId(message["id"] as? String), let data = message["data"] as? String else {
+                Self.reply(context, ["success": true, "data": ["ok": false]])
+                return
+            }
+            let part = (message["part"] as? NSNumber)?.intValue ?? 0
+            let count = (message["of"] as? NSNumber)?.intValue ?? 1
+            let cloud = message["cloud"] as? Bool ?? false
+            Task {
+                // The last part writes the picture and keeps it in iCloud (waiting for the next call when offline).
+                let result = await Self.withTimeout(seconds: 28) { await ShotStore.put(id: id, part: part, of: count, data: data, cloud: cloud) }
+                var ok = false
+                if case .success(let done) = result { ok = done }
+                Self.reply(context, ["success": true, "data": ["ok": ok]])
+            }
+        case "shot_get":
+            guard let id = ShotStore.validId(message["id"] as? String) else {
+                Self.reply(context, ["success": true, "data": ["ok": false, "code": "not_found"]])
+                return
+            }
+            let parts = (message["parts"] as? NSNumber)?.intValue ?? 1
+            let offset = (message["offset"] as? NSNumber)?.intValue ?? 0
+            Task {
+                let result = await Self.withTimeout(seconds: 22) { await ShotStore.read(id: id, parts: parts, offset: offset) }
+                guard case .success(let read?) = result else {
+                    Self.reply(context, ["success": true, "data": ["ok": false, "code": "not_found"]])
+                    return
+                }
+                Self.reply(context, ["success": true, "data": ["ok": true, "total": read.total, "offset": offset, "length": read.data.count, "data": read.data.base64EncodedString()]])
+            }
+        case "shot_delete":
+            guard let id = ShotStore.validId(message["id"] as? String) else {
+                Self.reply(context, ["success": true])
+                return
+            }
+            let parts = (message["parts"] as? NSNumber)?.intValue ?? 0
+            Task {
+                _ = await Self.withTimeout(seconds: 12) { await ShotStore.delete(id: id, parts: parts) }
+                Self.reply(context, ["success": true])
+            }
         // Find similar after leaving Safari (build 94, SimilarAway): the app watches a search the person left mid-way,
         // calls it off when they're back, says "found" at once when it ended before Safari was suspended.
         case "similarAway":

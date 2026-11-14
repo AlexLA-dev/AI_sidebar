@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
  },
+ "shotSwitch": {
+  "message": "Page snapshot"
+ },
+ "shotVisible": {
+  "message": "Visible area"
+ },
+ "shotFull": {
+  "message": "Whole page"
+ },
+ "shotProOnly": {
+  "message": "The whole page is in Pro and Ultra."
+ },
+ "shotTaking": {
+  "message": "Taking a snapshot…"
+ },
+ "shotTakingFull": {
+  "message": "Snapshot: screen {0} of {1}…"
+ },
+ "shotFailed": {
+  "message": "Couldn't take a snapshot here. The note is saved without it."
+ },
+ "shotCut": {
+  "message": "The page is long: the snapshot has its first {0} screens."
+ },
+ "shotOpen": {
+  "message": "Open the snapshot"
+ },
+ "shotNote": {
+  "message": "Snapshot of the page"
+ },
+ "shotCrop": {
+  "message": "Crop"
+ },
+ "shotCropDone": {
+  "message": "Done"
+ },
+ "shotCropReset": {
+  "message": "Whole snapshot"
+ },
+ "shotLoading": {
+  "message": "Opening the snapshot…"
+ },
+ "shotMissing": {
+  "message": "This snapshot isn't on this device yet. It comes through iCloud when your chats sync there."
+ },
  "invTitle": {
   "message": "Invite a friend"
  },

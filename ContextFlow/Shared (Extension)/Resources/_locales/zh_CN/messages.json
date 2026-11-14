@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "这是 Pro 和 Ultra 的功能：Pro 是快速搜索，Ultra 是完整搜索。同款更便宜的，以及其他商店的相似商品。点高亮的按钮。"
  },
+ "shotSwitch": {
+  "message": "页面快照"
+ },
+ "shotVisible": {
+  "message": "可见区域"
+ },
+ "shotFull": {
+  "message": "整页"
+ },
+ "shotProOnly": {
+  "message": "整页快照需 Pro 或 Ultra。"
+ },
+ "shotTaking": {
+  "message": "正在拍摄快照…"
+ },
+ "shotTakingFull": {
+  "message": "快照:第 {0} 屏,共 {1} 屏…"
+ },
+ "shotFailed": {
+  "message": "这里无法拍摄快照。笔记已保存,不含快照。"
+ },
+ "shotCut": {
+  "message": "页面较长:快照包含前 {0} 屏。"
+ },
+ "shotOpen": {
+  "message": "打开快照"
+ },
+ "shotNote": {
+  "message": "页面快照"
+ },
+ "shotCrop": {
+  "message": "裁剪"
+ },
+ "shotCropDone": {
+  "message": "完成"
+ },
+ "shotCropReset": {
+  "message": "完整快照"
+ },
+ "shotLoading": {
+  "message": "正在打开快照…"
+ },
+ "shotMissing": {
+  "message": "这张快照还没到这台设备。如果聊天通过 iCloud 同步,它会随之送达。"
+ },
  "invTitle": {
   "message": "邀请朋友"
  },

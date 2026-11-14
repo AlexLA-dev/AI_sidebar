@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "Tính năng này có trong Pro và Ultra: Pro tìm nhanh, Ultra tìm đầy đủ. Cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
  },
+ "shotSwitch": {
+  "message": "Ảnh chụp trang"
+ },
+ "shotVisible": {
+  "message": "Vùng đang hiển thị"
+ },
+ "shotFull": {
+  "message": "Toàn trang"
+ },
+ "shotProOnly": {
+  "message": "Chụp toàn trang có trong Pro và Ultra."
+ },
+ "shotTaking": {
+  "message": "Đang chụp…"
+ },
+ "shotTakingFull": {
+  "message": "Ảnh chụp: màn hình {0}/{1}…"
+ },
+ "shotFailed": {
+  "message": "Không chụp được ở đây. Ghi chú đã được lưu mà không có ảnh."
+ },
+ "shotCut": {
+  "message": "Trang dài: ảnh chụp gồm {0} màn hình đầu tiên."
+ },
+ "shotOpen": {
+  "message": "Mở ảnh chụp"
+ },
+ "shotNote": {
+  "message": "Ảnh chụp trang"
+ },
+ "shotCrop": {
+  "message": "Cắt"
+ },
+ "shotCropDone": {
+  "message": "Xong"
+ },
+ "shotCropReset": {
+  "message": "Toàn bộ ảnh"
+ },
+ "shotLoading": {
+  "message": "Đang mở ảnh chụp…"
+ },
+ "shotMissing": {
+  "message": "Ảnh chụp này chưa có trên thiết bị. Ảnh sẽ đến qua iCloud nếu các cuộc trò chuyện được đồng bộ ở đó."
+ },
  "invTitle": {
   "message": "Mời bạn bè"
  },

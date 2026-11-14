@@ -2654,6 +2654,51 @@
  "phSimilarBodyUpBoth": {
   "message": "Это в Pro и Ultra: в Pro — быстрый поиск, в Ultra — полный. Тот же товар дешевле и похожие варианты из других магазинов. Нажмите подсвеченную кнопку."
  },
+ "shotSwitch": {
+  "message": "Снимок страницы"
+ },
+ "shotVisible": {
+  "message": "Видимая область"
+ },
+ "shotFull": {
+  "message": "Целиком"
+ },
+ "shotProOnly": {
+  "message": "Страница целиком — в Pro и Ultra."
+ },
+ "shotTaking": {
+  "message": "Снимаю страницу…"
+ },
+ "shotTakingFull": {
+  "message": "Снимок: экран {0} из {1}…"
+ },
+ "shotFailed": {
+  "message": "Снимок здесь не получился. Заметка сохранена без него."
+ },
+ "shotCut": {
+  "message": "Страница длинная: в снимке её первые {0} экранов."
+ },
+ "shotOpen": {
+  "message": "Открыть снимок"
+ },
+ "shotNote": {
+  "message": "Снимок страницы"
+ },
+ "shotCrop": {
+  "message": "Обрезать"
+ },
+ "shotCropDone": {
+  "message": "Готово"
+ },
+ "shotCropReset": {
+  "message": "Весь снимок"
+ },
+ "shotLoading": {
+  "message": "Открываю снимок…"
+ },
+ "shotMissing": {
+  "message": "Этого снимка пока нет на устройстве. Он придёт через iCloud, если чаты синхронизируются там."
+ },
  "invTitle": {
   "message": "Пригласить друга"
  },
