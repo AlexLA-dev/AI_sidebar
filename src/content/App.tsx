@@ -87,7 +87,7 @@ import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageW
 import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
 import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
-import { TipsSheet } from "./tips/TipsSheet"
+import { TipsSheet, tipsLabel } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
@@ -375,8 +375,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [invitedActive])
   useEffect(() => void seenHints().then(setHints), [])
   const hintDue = (key: HintKey) => hints !== null && !hints.includes(key) && !touring && tourSeen
-  const doneHint = (key: HintKey) => {
-    setHints((seen) => [...(seen ?? []), key])
+  const doneHint = (key: HintKey | HintKey[]) => {
+    setHints((seen) => [...(seen ?? []), ...(Array.isArray(key) ? key : [key])])
     void markHintSeen(key)
   }
   // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
@@ -537,6 +537,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [pageMenu, setPageMenu] = useState(false)
   // "…" → Tips: the app's Tips in a sheet (2.5 (78)).
   const [tipsOpen, setTipsOpen] = useState(false)
+  // 2.7: a hint's way on to the Tips sheet, so hints and Tips point to each other (none in a build without Tips).
+  const allTips = tipsLabel() ? { label: t("hintAllTips"), run: () => setTipsOpen(true) } : undefined
   // Where Settings' back arrow goes: the chats list when it was opened from the list's "…" (build 94).
   const settingsBack = useRef<"chat" | "threads">("chat")
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
@@ -4383,7 +4385,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* 2.7 (plan section 6): the page hint's how-to, after its line was tapped; its button glows (data-glow). */}
                 {pageHints.chat && !historyMode && partial === null && (() => {
                   const how = hintText(pageHints.chat, pageHints.has(pageHints.chat))
-                  return <div ref={revealOnce}><Hint icon={<Icon.Sparkle size={16} />} title={how.title} onDone={pageHints.doneChat}>{how.body}</Hint></div>
+                  return <div ref={revealOnce}><Hint icon={<Icon.Sparkle size={16} />} title={how.title} action={allTips} onDone={pageHints.doneChat}>{how.body}</Hint></div>
                 })()}
                 {/* 2.7 (plan section 5): a friend who came with this install's code became active: the reward, once. */}
                 {!historyMode && partial === null && !pending && !pageHints.chat && inviteNew && (
@@ -4392,7 +4394,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     void markActiveSeen(status?.invite?.active ?? 0)
                   }} />
                 )}
-                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                {/* 2.7: once, what this version brought, for people who had ContextFlow before (one hint at a time; it says
+                    the side too, so the side's own hint isn't shown after it). */}
+                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                  <Hint
+                    icon={<Icon.Sparkle size={16} />}
+                    title={t("hintNewTitle")}
+                    list={[t("hintNewTranslate"), t("hintNewWrite"), t("hintNewSpaces"), t("hintNewApple"), t("hintNewShot"), t("hintNewSide")]}
+                    action={allTips}
+                    onDone={() => doneHint(["new27", "side"])}
+                  />
+                )}
+                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}

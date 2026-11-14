@@ -49,16 +49,14 @@ test("the tab is hidden until it opens; after an update it opens once by itself,
 })
 
 test("its cards are Tips' (their words and clips, in every language); a version not installed yet shows its notes and Update", () => {
-  // Build 98 (the owner: «Почему в What's new нет видео про Listen?»): every card with its clip, organizing too.
-  assert.match(whatsNew, /\[TipGroup\.similarTip, TipGroup\.organizeTip, TipGroup\.listenTip, TipGroup\.chipsTip, TipGroup\.remindTip, TipGroup\.watchTip\]/)
-  for (const name of ["similarTip", "organizeTip", "listenTip", "chipsTip", "remindTip", "watchTip"]) {
-    const body = content.slice(content.indexOf(`static var ${name}: Tip {`), content.indexOf("\n    }\n", content.indexOf(`static var ${name}: Tip {`)))
-    const ios = body.includes("#if os(iOS)") ? body.slice(0, body.indexOf("#else")) : body
-    assert.match(ios, /clip: "[\w-]+"/, `${name}: a clip on iPhone and iPad`)
-  }
+  // Build 98 (the owner: «Почему в What's new нет видео про Listen?»): a card plays its clip wherever there is one. 2.7's
+  // five (tests/tips-27.test.mts) have none made yet: each plays one once its Tip names it, and the line under the heading
+  // says "each shown in a short clip" only then.
+  assert.match(whatsNew, /static var items: \[Tip\] \{\s*\[TipGroup\.\w+Tip(, TipGroup\.\w+Tip){3,4}\]/)
+  for (const name of [...whatsNew.matchAll(/TipGroup\.(\w+Tip)/g)].map((m) => m[1])) assert.match(content, new RegExp(`static var ${name}: Tip \\{`), name)
   assert.match(whatsNew, /TipCard\(tip: WhatsNew\.items\[i\]\)/)
   assert.match(whatsNew, /if let store, WhatsNew\.newer\(store\.version, than: WhatsNew\.installed\)/)
-  for (const key of ["What's new", "New in ContextFlow %@", "The main things this version brings, each shown in a short clip.", "ContextFlow %@ is here", "See what's new in this version.", "Version %@ is in the App Store", "Update"]) {
+  for (const key of ["What's new", "New in ContextFlow %@", "The main things this version brings, each shown in a short clip.", "The main things this version brings.", "ContextFlow %@ is here", "See what's new in this version.", "Version %@ is in the App Store", "Update"]) {
     assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 13, key)
   }
   // The project builds it for iPhone, iPad and Mac.

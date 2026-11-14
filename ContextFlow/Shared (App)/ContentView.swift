@@ -747,15 +747,15 @@ struct TipGroup {
     }
 
     // Find similar (2.6, Ultra): from the panel's actions or its … menu, or from a selection (a chip in its field, on a
-    // Mac too since 92). The clip is touch, so a Mac has none.
-    // Also in What's new (2.6 (98), WhatsNew.items).
+    // Mac too since 92). The clip is touch, so a Mac has none. 2.7 (#167, the owner): Pro has a quick search too, up to 5
+    // a week, each counting as 10 answers; Ultra the full one. The badge is the first plan that has it.
     static var similarTip: Tip {
         #if os(iOS)
         Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
-            text: "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", clip: "similar", ultra: true)
+            text: "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers.", clip: "similar", pro: true)
         #else
         Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
-            text: "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", ultra: true)
+            text: "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers.", pro: true)
         #endif
     }
 
@@ -782,6 +782,90 @@ struct TipGroup {
             text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true, pro: true)
     }
 
+    // 2.7: the new features, each where its block's readers look. No clips yet: a card takes one by naming it (clip:
+    // "translate") once TipClips/en and /ru and site/clips have it; What's new shows it then too.
+
+    // In-page translation (#168): the pill by ✦ on a page in another language. Also in What's new (2.7).
+    static var translateTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "character.bubble", color: .teal, title: "Read a page in your language",
+            text: "On a page in another language, tap the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.")
+        #else
+        Tip(symbol: "character.bubble", color: .teal, title: "Read a page in your language",
+            text: "On a page in another language, click the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.")
+        #endif
+    }
+
+    // ✦ and the panel on either side (#173). The clip shows ✦ dragged along the edge and across.
+    private static var sideTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
+            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. On iPad, drag the panel by its top bar to move it to the other side too. Screen side in the extension settings does the same.", clip: "button")
+        #else
+        Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
+            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. Drag the panel by its top bar to move it to the other side too, or choose Screen side in the extension settings.", clip: "button")
+        #endif
+    }
+
+    // Check and Rewrite (#174): atop quick insert's list on iPhone and iPad, the circle above the field on a Mac. Also in
+    // What's new (2.7).
+    static var writeTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "checkmark.bubble", color: .indigo, title: "Check or rewrite before you send",
+            text: "Writing an email or a comment? Tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each tap counts as one answer.")
+        #else
+        Tip(symbol: "checkmark.bubble", color: .indigo, title: "Check or rewrite before you send",
+            text: "Writing an email or a comment? Once you've written a few words, point at the circle above the field: Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each one counts as one answer.")
+        #endif
+    }
+
+    // Live underlines (#177, Pro and Ultra).
+    private static var underlineTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "textformat.abc.dottedunderline", color: .indigo, title: "Mistakes underlined as you type",
+            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Tap the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", pro: true)
+        #else
+        Tip(symbol: "textformat.abc.dottedunderline", color: .indigo, title: "Mistakes underlined as you type",
+            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Point at the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", pro: true)
+        #endif
+    }
+
+    // Page snapshot in a note (#178): the visible area for everyone, the whole page with Pro. Also in What's new (2.7).
+    static var shotTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "photo.on.rectangle", color: .orange, title: "A snapshot with your note",
+            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Tap the picture to open it full screen and crop it. It stays on your devices and in your iCloud.")
+        #else
+        Tip(symbol: "photo.on.rectangle", color: .orange, title: "A snapshot with your note",
+            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Click the picture to open it full screen and crop it. It stays on your devices and in your iCloud.")
+        #endif
+    }
+
+    // Calendar and Reminders (#170): the AI's card, the … menu, and Also in Reminders. Also in What's new (2.7).
+    static var appleTip: Tip {
+        Tip(symbol: "calendar.badge.plus", color: .red, title: "Add to Calendar or Reminders",
+            text: "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card to check the date and time, and Add puts it in Calendar or Reminders. Any answer or note has Add to Calendar or Reminders in its … menu. In Remind me, Also in Reminders puts your reminder in Apple Reminders too.")
+    }
+
+    // Spaces (#171). Free's number isn't named here (the owner hasn't settled it): the limit card says it. Also in
+    // What's new (2.7).
+    static var spacesTip: Tip {
+        Tip(symbol: "square.stack.3d.up", color: .purple, title: "Spaces for work and home",
+            text: "Keep work, home and shopping apart. New space, at the end of the chat list, makes one in its own color. The switcher at the top of the list moves between them, and a new chat goes into the space you're in. In the switcher, Open amazon.com here keeps that site in this space. Free has a limit; with Pro or Ultra, as many as you like.")
+    }
+
+    // The matching chat when the panel opens (#172).
+    private static var matchTip: Tip {
+        Tip(symbol: "doc.text.magnifyingglass", color: .teal, title: "The chat for this page",
+            text: "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top says which chat it picked; New chat there starts a fresh one.")
+    }
+
+    // The page hints by ✦ in the first days (#176, #179): Tips point to them, their how-to card points back to Tips.
+    private static var pageHintsTip: Tip {
+        Tip(symbol: "lightbulb", color: .yellow, title: "Tips by the ✦ button",
+            text: "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how. Turn the lines off in the extension settings, under Tips by the ✦ button.")
+    }
+
     private static func iOSClip(_ name: String) -> String? {
         #if os(iOS)
         name
@@ -795,11 +879,12 @@ struct TipGroup {
         TipGroup(id: "get-started", title: "Get started", tips: [
             openTip,
             // 2.6 (93), the owner, twice: «в Tips не видел… про возможность перемещать кружок для удобства чтения
-            // страниц». Moving ✦ aside is a first-block card with the clip; hiding it stays under personalization.
-            Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
-                text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it.", clip: "button"),
+            // страниц». Moving ✦ aside is a first-block card with the clip; hiding it stays under personalization. 2.7:
+            // the panel moves too (sideTip).
+            sideTip,
             Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",
                 text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt.", clip: "gist"),
+            translateTip,
             Tip(symbol: "text.cursor", color: .purple, title: "Ask about a part",
                 text: "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it.", clip: "part"),
             Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
@@ -813,6 +898,7 @@ struct TipGroup {
         TipGroup(id: "deeper-work", title: "Deeper work", tips: [
             Tip(symbol: "pencil.line", color: .orange, title: "Notes of your own",
                 text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
+            shotTip,
             Tip(symbol: "highlighter", color: .yellow, title: "Highlight what matters",
                 text: "Select a line in an answer and tap Highlight: it stays marked, like with a pen. Later answers in that chat take your highlights into account, and Copy keeps them in bold.", clip: "highlight"),
             Tip(symbol: "pin", color: .purple, title: "Pinned at the top",
@@ -829,17 +915,22 @@ struct TipGroup {
         ]),
         TipGroup(id: "quick-insert", title: "Quick insert", tips: [
             insertTip,
+            writeTip,
+            underlineTip,
             copiedTip,
             Tip(symbol: "curlybraces", color: .orange, title: "Templates that fill themselves",
                 text: "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check.", clip: "fill")
         ]),
         TipGroup(id: "watch-and-remind", title: "Watch and remind", tips: [
             remindTip,
+            appleTip,
             watchTip
         ]),
         TipGroup(id: "chats-in-order", title: "Chats in order", tips: [
             Tip(symbol: "square.and.pencil", color: .indigo, title: "Start fresh or go back",
                 text: "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.", clip: "chats"),
+            spacesTip,
+            matchTip,
             Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
                 text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
             Tip(symbol: "tag", color: .purple, title: "Tags and folders",
@@ -861,13 +952,18 @@ struct TipGroup {
             Tip(symbol: "calendar", color: .green, title: "Monthly or yearly",
                 text: "Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans, in the app or in Safari, to see each price and what you save. On monthly already? Switch to yearly is in Settings → Your plan: it starts when your current month ends.", clip: "yearly"),
             Tip(symbol: "crown", color: brandBlue, title: "What your plan adds",
-                text: "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan.")
+                text: "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan."),
+            // 2.7 (#181): the code and the link in Settings, the friend's bonus answers, the inviter's discount. No figures:
+            // the panel's and the app's own invite screens name them.
+            Tip(symbol: "gift", color: .pink, title: "Invite a friend",
+                text: "Settings → Invite a friend, in the app or in Safari, gives you a code and a link to send. Your friend gets bonus answers every day of their first week. Once they've asked questions on two different days, you get a discount on your first month of Pro or Ultra.")
         ]),
         TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
                 text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
             Tip(symbol: "eye.slash", color: .blue, title: "Hide ✦ when you don't need it",
                 text: "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."),
+            pageHintsTip,
             Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
                 text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),
             Tip(symbol: "lock.shield", color: .brown, title: "Private by design",
