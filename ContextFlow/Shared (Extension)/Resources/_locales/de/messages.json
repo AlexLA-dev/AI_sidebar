@@ -2453,6 +2453,9 @@
  "setSpacesHint": {
   "message": "Arbeit, Privat, Einkaufen: jeder mit eigenen Chats und eigener Farbe. Aus: alle Chats in einer Liste, deine Bereiche bleiben erhalten."
  },
+ "matchContinue": {
+  "message": "Weiter in"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

@@ -2453,6 +2453,9 @@
  "setSpacesHint": {
   "message": "Trabalho, Pessoal, Compras: cada um com suas conversas e sua cor. Desligado: todas as conversas numa lista só, e seus espaços continuam salvos."
  },
+ "matchContinue": {
+  "message": "Continuando"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

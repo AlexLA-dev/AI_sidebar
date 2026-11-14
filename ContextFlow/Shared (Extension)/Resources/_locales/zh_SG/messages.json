@@ -2453,6 +2453,9 @@
  "setSpacesHint": {
   "message": "工作、个人、购物：每个空间有自己的对话和颜色。关闭后所有对话回到同一个列表，空间会保留。"
  },
+ "matchContinue": {
+  "message": "继续："
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

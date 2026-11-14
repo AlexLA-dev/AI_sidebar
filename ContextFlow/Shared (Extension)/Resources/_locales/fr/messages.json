@@ -2453,6 +2453,9 @@
  "setSpacesHint": {
   "message": "Travail, Perso, Achats : chacun avec ses discussions et sa couleur. Désactivé : toutes les discussions dans une seule liste, vos espaces sont conservés."
  },
+ "matchContinue": {
+  "message": "Je continue"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

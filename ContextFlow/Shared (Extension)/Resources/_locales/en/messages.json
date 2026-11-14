@@ -2453,6 +2453,9 @@
  "setSpacesHint": {
   "message": "Work, Personal, Shopping: each with its own chats and color. Off: every chat in one list, and your spaces stay."
  },
+ "matchContinue": {
+  "message": "Continuing"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
