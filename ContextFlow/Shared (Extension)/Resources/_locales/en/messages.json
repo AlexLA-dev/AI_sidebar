@@ -2651,6 +2651,9 @@
  "setPageHintsHint": {
   "message": "In your first days, they show what you can do on a page."
  },
+ "phSimilarBodyUpBoth": {
+  "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

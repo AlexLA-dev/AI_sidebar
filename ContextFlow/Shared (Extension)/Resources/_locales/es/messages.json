@@ -2651,6 +2651,9 @@
  "setPageHintsHint": {
   "message": "En tus primeros días muestran qué puedes hacer en una página."
  },
+ "phSimilarBodyUpBoth": {
+  "message": "Está en Pro y Ultra: en Pro, la búsqueda rápida; en Ultra, la completa. El mismo producto más barato y otros parecidos de otras tiendas. Toca el botón resaltado."
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

@@ -2651,6 +2651,9 @@
  "setPageHintsHint": {
   "message": "Trong những ngày đầu, gợi ý cho bạn biết có thể làm gì trên trang."
  },
+ "phSimilarBodyUpBoth": {
+  "message": "Tính năng này có trong Pro và Ultra: Pro tìm nhanh, Ultra tìm đầy đủ. Cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

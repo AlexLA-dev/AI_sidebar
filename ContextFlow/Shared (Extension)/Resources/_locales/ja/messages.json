@@ -2651,6 +2651,9 @@
  "setPageHintsHint": {
   "message": "最初の数日、ページでできることを教えてくれます。"
  },
+ "phSimilarBodyUpBoth": {
+  "message": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
