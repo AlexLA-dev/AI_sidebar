@@ -57,7 +57,10 @@ function nativeName(code: string): string | null {
 export function batchInput(to: string, from: string | null, texts: string[]): string {
   const own = nativeName(to)
   const source = from && from !== to.split("-")[0] ? `from ${languageEnglish(from)} ` : ""
-  return `Translate each line ${source}into ${languageEnglish(to)}${own ? ` (${own})` : ""}:\n${texts.map((t, i) => modelLine(i + 1, t)).join("\n")}`
+  const target = `${languageEnglish(to)}${own ? ` (${own})` : ""}`
+  // The direction once more after the lines: a batch of notices in Japanese was otherwise "corrected" in Japanese.
+  return `Translate each line ${source}into ${target}:\n${texts.map((t, i) => modelLine(i + 1, t)).join("\n")}\n\n` +
+    `Now write all ${texts.length} lines in ${target}, each starting with its §number. Translate them; don't correct or rewrite them in their own language.`
 }
 
 /** The script most of a text's letters are in (by Unicode script), or null without letters. */
@@ -118,6 +121,10 @@ export interface TranslateStats {
   calls: number
   promptTokens: number
   completionTokens: number
+  // The second tries' model and tokens (priced apart: a bigger model).
+  retryModel?: string
+  retryPromptTokens?: number
+  retryCompletionTokens?: number
   firstMs: number | null
   failedCalls: number
   retried: number
@@ -128,13 +135,13 @@ export type ModelCall = (system: string, lines: string, maxTokens: number, signa
 
 export type Effort = "low" | "medium" | "high"
 
-/** Claude Haiku, streamed (the address pinned, one retry for a hiccup). */
-export function haikuCall(stats: TranslateStats, effort: Effort = config.translate.effort): ModelCall {
+/** Claude, streamed (the address pinned, one retry for a hiccup): Haiku for the page, `retry` for second tries. */
+export function haikuCall(stats: TranslateStats, effort: Effort = config.translate.effort, retry = false): ModelCall {
   return async function* (system, lines, maxTokens, signal) {
     if (!config.anthropicKey) throw new Error("no Anthropic key")
     const client = new Anthropic({ apiKey: config.anthropicKey, baseURL: "https://api.anthropic.com", maxRetries: 1, timeout: 40_000 })
     const stream = client.messages.stream({
-      model: config.translate.model,
+      model: retry ? config.translate.retryModel : config.translate.model,
       max_tokens: maxTokens,
       system,
       messages: [{ role: "user", content: lines }],
@@ -142,11 +149,18 @@ export function haikuCall(stats: TranslateStats, effort: Effort = config.transla
     }, { signal })
     for await (const event of stream) {
       if (event.type === "message_start") {
-        stats.model = event.message.model || stats.model
         const u = event.message.usage
-        stats.promptTokens += (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0)
+        const tokens = (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0)
+        if (retry) {
+          stats.retryModel = event.message.model || config.translate.retryModel
+          stats.retryPromptTokens = (stats.retryPromptTokens ?? 0) + tokens
+        } else {
+          stats.model = event.message.model || stats.model
+          stats.promptTokens += tokens
+        }
       } else if (event.type === "message_delta") {
-        stats.completionTokens += event.usage.output_tokens ?? 0
+        if (retry) stats.retryCompletionTokens = (stats.retryCompletionTokens ?? 0) + (event.usage.output_tokens ?? 0)
+        else stats.completionTokens += event.usage.output_tokens ?? 0
         if (event.delta.stop_reason === "refusal") throw new Error("refusal")
       } else if (event.type === "content_block_delta" && event.delta.type === "text_delta" && event.delta.text) {
         yield event.delta.text
@@ -293,7 +307,9 @@ export function safetyReason(blocked: string | null): "PAGE_CAP" | "BUSY" {
   return blocked?.startsWith("trchars:") ? "PAGE_CAP" : "BUSY"
 }
 
-/** USD, from the configured Haiku prices per million tokens (quick insert's). */
-export function translateCost(stats: Pick<TranslateStats, "promptTokens" | "completionTokens">): number {
-  return Math.round(((stats.promptTokens * config.insert.priceIn + stats.completionTokens * config.insert.priceOut) / 1e6) * 1e6) / 1e6
+/** USD: the page's calls at the configured Haiku prices (quick insert's), second tries at the bigger model's (answers'). */
+export function translateCost(stats: Pick<TranslateStats, "promptTokens" | "completionTokens" | "retryPromptTokens" | "retryCompletionTokens">): number {
+  const haiku = stats.promptTokens * config.insert.priceIn + stats.completionTokens * config.insert.priceOut
+  const retry = (stats.retryPromptTokens ?? 0) * config.claudePriceIn + (stats.retryCompletionTokens ?? 0) * config.claudePriceOut
+  return Math.round(((haiku + retry) / 1e6) * 1e6) / 1e6
 }

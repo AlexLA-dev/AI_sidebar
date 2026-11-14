@@ -118,7 +118,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       try {
         send({ type: "meta", charged: charged.length > 0, usage })
         outcome = await runTranslation(blocks, {
-          to, from, first, call: haikuCall(stats, effort), again: haikuCall(stats, effort === "low" ? "medium" : effort), stats, signal: abort.signal,
+          to, from, first, call: haikuCall(stats, effort), again: haikuCall(stats, effort, true), stats, signal: abort.signal,
           batchChars: first ? settings.translate.firstBatchChars : settings.translate.batchChars,
           parallel: Math.max(1, settings.translate.parallel),
           ...(debug ? { onRejected: (line: { id: string; text: string; why: string }) => send({ type: "rejected", ...line }) } : {}),
@@ -161,6 +161,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       chars_out: charsOut,
       model: stats.model,
       effort,
+      ...(stats.retryModel ? { retry_model: stats.retryModel, retry_prompt_tokens: stats.retryPromptTokens, retry_completion_tokens: stats.retryCompletionTokens } : {}),
       calls: stats.calls,
       failed_calls: stats.failedCalls,
       retried: stats.retried,

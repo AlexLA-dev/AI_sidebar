@@ -195,7 +195,7 @@ test("a line that loses its link's tags is asked once more; still lost: left as 
   const out = await call({})
   assert.deepEqual(Object.keys(items(out.events)).sort(), ["b1", "b3"])
   assert.deepEqual(out.events.find((e) => e.type === "skip")!.ids, ["b2"])
-  assert.ok(haiku.calls.some((c) => c.content.endsWith("\n§1 Mehr dazu <1>hier</1>.<2/>Neue Zeile.")), "asked again alone")
+  assert.ok(haiku.calls.some((c) => c.content.includes(":\n§1 Mehr dazu <1>hier</1>.<2/>Neue Zeile.\n\nNow write all 1 lines")), "asked again alone")
 
   haiku = { calls: [], answer: (text, n) => text.startsWith("Mehr dazu") && n === 1 ? "Подробнее здесь." : ru[text] ?? null }
   const fixed = await call({ page: "d".repeat(32) })
@@ -213,7 +213,7 @@ test("a line written back in its own language (Japanese rewritten in Japanese) i
   assert.equal(items(out.events).j1, "Проблема устранена около 14:27. Причиной была ошибка в приложении.")
   assert.deepEqual(out.events.find((e) => e.type === "skip")!.ids, ["j2"])
   assert.ok(haiku.calls.every((c) => c.content.startsWith("Translate each line from Japanese into Russian (русский):")), "the direction named right before the lines")
-  assert.deepEqual(haiku.calls.map((c) => c.effort), ["low", "medium"], "the second try thinks more")
+  assert.deepEqual(haiku.calls.map((c) => c.model), ["claude-haiku-5-5", "claude-sonnet-5-5"], "the second try with the bigger model")
 })
 
 test("not translated: a short CJK heading back unchanged, a sentence rewritten in its own language; names and the target's own words pass", () => {
