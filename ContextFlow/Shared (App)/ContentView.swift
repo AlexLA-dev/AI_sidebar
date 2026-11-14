@@ -233,6 +233,7 @@ struct ContentView: View {
             .task {
                 SharedDefaults.shared.removeLegacyData()
                 listen.debugStartIfAsked()
+                appleAdd.debugStartIfAsked()
                 // Read aloud kept in iCloud (2.6): what's older than 7 days goes (at most once a day, from any device).
                 // And the parts the panel made that are still waiting to go up (build 92: the extension no longer waits on it).
                 Task.detached(priority: .background) {

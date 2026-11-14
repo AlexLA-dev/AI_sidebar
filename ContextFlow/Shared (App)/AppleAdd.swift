@@ -1,3 +1,4 @@
+import Combine
 import EventKit
 import SwiftUI
 #if os(iOS)
@@ -35,6 +36,11 @@ final class AppleAdd: ObservableObject {
     @Published var request: Request?
     @Published var state: State = .working
     private var waitTask: Task<Void, Never>?
+    /// The item being added (its sheet shows only after the event editor, on iPhone and iPad).
+    private var current: Request?
+    #if os(iOS)
+    private let editorDelegate = EditorDelegate()
+    #endif
 
     func open(_ url: URL) {
         let id = AppleItems.validId(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "id" }?.value)
@@ -58,15 +64,18 @@ final class AppleAdd: ObservableObject {
     }
 
     private func run(_ r: Request) async {
-        request = r
+        current = r
         state = .working
         let kind = r.item.kind
         #if os(iOS)
+        // The system's editor runs outside the app and draws nothing inside a SwiftUI sheet: UIKit presents it.
         if kind == .event && AppleItems.access(.event) != .write {
             state = .editor
+            presentEditor(r.item)
             return
         }
         #endif
+        request = r
         if AppleItems.access(kind) == .none { _ = await AppleItems.ask(kind) }
         guard AppleItems.access(kind) == .write else {
             state = .denied
@@ -83,10 +92,11 @@ final class AppleAdd: ObservableObject {
         }
     }
 
-    /// The event editor closed: added, or cancelled.
+    /// The event editor closed: added (the sheet says so), or cancelled.
     func editorDone(_ saved: Bool) {
         if saved {
             state = .saved(place: "")
+            request = current
             report("added")
         } else {
             report("dismissed")
@@ -97,11 +107,78 @@ final class AppleAdd: ObservableObject {
     func close() {
         waitTask?.cancel()
         request = nil
+        current = nil
     }
 
+    #if os(iOS)
+    private func presentEditor(_ item: AppleItems.Item) {
+        let store = EKEventStore()
+        let controller = EKEventEditViewController()
+        controller.eventStore = store
+        controller.event = AppleItems.editorEvent(item, store: store)
+        controller.editViewDelegate = editorDelegate
+        editorDelegate.done = { [weak self] saved, editor in
+            editor.dismiss(animated: true) { self?.editorDone(saved) }
+        }
+        guard let top = Self.topController() else {
+            state = .failed
+            request = current
+            report("failed")
+            return
+        }
+        top.present(controller, animated: true)
+    }
+
+    private static func topController() -> UIViewController? {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        var top = (scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first)?.rootViewController
+        while let next = top?.presentedViewController { top = next }
+        return top
+    }
+
+    final class EditorDelegate: NSObject, EKEventEditViewDelegate {
+        var done: ((Bool, EKEventEditViewController) -> Void)?
+
+        func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
+            done?(action == .saved, controller)
+        }
+    }
+    #endif
+
     private func report(_ action: String) {
-        guard let kind = request?.item.kind else { return }
+        guard let kind = (current ?? request)?.item.kind else { return }
         ChatAI.reportUse("apple", action, ["what": kind.rawValue, "via": "app"])
+    }
+
+    /// -CFDebugAppleAdd reminder|event (DEBUG): what the panel would hand over (a reminder tomorrow at 9, a flight on
+    /// the 14th of next month), opened as its link would open it. -CFDebugAppleSave YES: written at once from here, as
+    /// the extension does when access is given (prints where it went).
+    func debugStartIfAsked() {
+        #if DEBUG
+        let kind = UserDefaults.standard.string(forKey: "CFDebugAppleAdd")
+        guard let kind = kind.flatMap(AppleItems.Item.Kind.init(rawValue:)) else { return }
+        let cal = Calendar.current
+        let day = cal.date(byAdding: kind == .reminder ? .day : .month, value: 1, to: Date()) ?? Date()
+        let wall = AppleItems.wall(cal.date(bySettingHour: kind == .reminder ? 9 : 10, minute: kind == .reminder ? 0 : 40, second: 0, of: day) ?? day)
+        var item = AppleItems.Item(kind: kind, title: kind == .reminder ? "Book the hotel in Sochi" : "Flight SU 1234 Moscow → Sochi")
+        item.date = kind == .reminder ? wall.date : String(wall.date.prefix(8)) + "14"
+        item.time = wall.time
+        item.location = kind == .event ? "Sheremetyevo, Terminal B" : ""
+        item.notes = "Seat 12A\n\nhttps://example.com/booking\n\ncontextflow://chat?id=debug&m=debug"
+        item.url = "https://example.com/booking"
+        if UserDefaults.standard.bool(forKey: "CFDebugAppleSave") {
+            do {
+                print("CFDebugAppleSave saved to: \(try AppleItems.save(item, key: "cf.remind.debug.debug")) access: \(AppleItems.status())")
+            } catch {
+                print("CFDebugAppleSave failed: \(error) access: \(AppleItems.status())")
+            }
+            return
+        }
+        let id = "0000aaaa-bbbb-cccc-dddd-a991e0000001"
+        AppleItems.handOff(item, key: nil, id: id)
+        open(URL(string: "contextflow://add?id=\(id)")!)
+        #endif
     }
 
     /// Settings, where access to Reminders or Calendar is turned on.
@@ -118,18 +195,7 @@ final class AppleAdd: ObservableObject {
 struct AppleAddView: View {
     @ObservedObject var model: AppleAdd
 
-    var body: some View {
-        #if os(iOS)
-        if model.state == .editor, let item = model.request?.item {
-            EventEditor(item: item) { saved in model.editorDone(saved) }
-                .ignoresSafeArea()
-        } else {
-            content
-        }
-        #else
-        content
-        #endif
-    }
+    var body: some View { content }
 
     private var kind: AppleItems.Item.Kind { model.request?.item.kind ?? .reminder }
 
@@ -179,33 +245,3 @@ struct AppleAddView: View {
         .frame(minWidth: 360, minHeight: 260)
     }
 }
-
-#if os(iOS)
-/// The system's event editor, filled in (iOS 17+: it runs outside the app and needs no access to Calendar).
-struct EventEditor: UIViewControllerRepresentable {
-    let item: AppleItems.Item
-    let done: (Bool) -> Void
-
-    func makeCoordinator() -> Coordinator { Coordinator(done: done) }
-
-    func makeUIViewController(context: Context) -> EKEventEditViewController {
-        let store = EKEventStore()
-        let controller = EKEventEditViewController()
-        controller.eventStore = store
-        controller.event = AppleItems.editorEvent(item, store: store)
-        controller.editViewDelegate = context.coordinator
-        return controller
-    }
-
-    func updateUIViewController(_ controller: EKEventEditViewController, context: Context) {}
-
-    final class Coordinator: NSObject, EKEventEditViewDelegate {
-        let done: (Bool) -> Void
-        init(done: @escaping (Bool) -> Void) { self.done = done }
-
-        func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
-            done(action == .saved)
-        }
-    }
-}
-#endif

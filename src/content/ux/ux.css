@@ -331,7 +331,7 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-add-title { width: 100%; box-sizing: border-box; font-weight: 550; }
 .cf-add-when { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .cf-add-when input[type="date"] { flex: 1 1 140px; }
-.cf-add-when input[type="time"] { flex: 0 1 110px; }
+.cf-add-when input[type="time"] { flex: 0 0 auto; min-width: 128px; }
 .cf-add-when.guess input { border-color: var(--warn, #d08a00); }
 .cf-add-zone, .cf-add-meta { font-size: 12.5px; color: var(--text-3); }
 .cf-add-list { width: 100%; }
