@@ -182,3 +182,33 @@ test("the model's text as the device can use it: no quotes or fence around it, n
   assert.equal(checkWrite({ text: "x".repeat(5000) }, "short"), null)
   assert.equal(checkWrite({ nope: 1 }, "short"), null)
 })
+
+test("live underlines: Pro and Ultra only; no answer counted; a hidden cap per subscription; less of the page goes", async () => {
+  claude.answer = { text: "Hi Katarzyna, Friday works." }
+  const free = await call({ live: true, text: "Hi Katarina, Friday works." })
+  assert.equal(free.res.status, 402)
+  assert.equal(free.body.code, "PRO_ONLY")
+  assert.equal(claude.calls, 0)
+
+  const jws = signJws(transaction({ productId: "com.contextflow.pro.monthly", originalTransactionId: "7000000003" }))
+  const long = { title: "Moving our sync", url: "https://mail.example/1", text: "Katarzyna Wiśniewska\n" + "x".repeat(9000), conversation: true }
+  const ok = await call({ live: true, entitlement: jws, text: "Hi Katarina, Friday works.", page: long })
+  assert.equal(ok.res.status, 200)
+  assert.equal(ok.body.text, "Hi Katarzyna, Friday works.")
+  assert.equal(ok.body.usage, null)
+  assert.equal(counters.get("tx:7000000003") ?? 0, 0, "not an answer")
+  assert.equal(counters.get("wlive:tx:7000000003"), 1)
+  const prompt = String(claude.lastBody!.messages[0].content)
+  assert.ok(prompt.length < 4000, "the page clipped for a live check")
+  const log = events.filter((e) => e.kind === "write").at(-1)!
+  assert.deepEqual([log.data.live, log.data.charged], [true, false])
+
+  settings.write.liveDaily = 1
+  const capped = await call({ live: true, entitlement: jws, text: "Another paragraph to check here." })
+  assert.equal(capped.res.status, 503)
+  assert.equal(capped.body.code, "BUSY")
+  settings.write.liveDaily = 1500
+
+  assert.equal((await call({ live: true, entitlement: jws, text: "word ".repeat(400) })).res.status, 413, "a paragraph, not a whole text")
+  assert.equal((await call({ live: true, entitlement: jws, action: "rewrite", tone: "short" })).res.status, 400, "live is a check only")
+})

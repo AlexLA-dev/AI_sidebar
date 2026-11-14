@@ -58,9 +58,11 @@ export interface WriteAsk {
   page: WritePage
   field: string
   style: WriteStyle
+  // A paragraph checked for the underlines (Pro and Ultra, not counted).
+  live?: true
 }
 
-export type WriteFailureCode = "LIMIT_REACHED" | "TOO_LONG" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT"
+export type WriteFailureCode = "LIMIT_REACHED" | "TOO_LONG" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT" | "PRO_ONLY"
 
 export type WriteReply =
   | { ok: true; text: string; usage?: { used: number; limit: number; period: "day" | "week"; resetsAt: string } | null }
@@ -80,7 +82,8 @@ export function clipAsk(ask: WriteAsk): WriteAsk {
     text: ask.text,
     page: { title: ask.page.title.slice(0, 300), url: ask.page.url.slice(0, 2000), text: ask.page.text.slice(0, WRITE_LIMITS.page), conversation: ask.page.conversation },
     field: ask.field.slice(0, WRITE_LIMITS.field),
-    style
+    style,
+    ...(ask.live ? { live: true as const } : {})
   }
 }
 
@@ -273,4 +276,95 @@ export function trimmedSpan(text: string): { from: number; to: number } {
   const from = text.length - text.trimStart().length
   const to = text.trimEnd().length
   return { from: Math.min(from, to), to }
+}
+
+// ------------------------------------------------------------ live underlines (Pro and Ultra)
+
+/**
+ * Underlines as the person writes (2.7, Pro and Ultra; not counted, a hidden cap): after a pause in typing, each
+ * paragraph changed since the field got the focus is checked on its own, and the changes come back as underlines in
+ * our colour. Hovering one (a tap on iPhone and iPad) shows the fix and «Исправить».
+ */
+export const LIVE = {
+  // The pause in typing before a check.
+  pauseMs: 1_500,
+  // A paragraph checked: from a few words, up to this long (longer ones wait for a tap on Check).
+  minChars: 12,
+  maxChars: 1_500,
+  // Less of the page goes along than for a tap (quicker, cheaper): the conversation or the page's start.
+  pageChars: 2_500,
+  // Paragraphs checked after one pause, the one with the caret first.
+  perPause: 3
+} as const
+
+export interface Paragraph {
+  from: number
+  to: number
+  text: string
+}
+
+/** The paragraphs of text[from, to): its lines, each without the white space at its ends, the empty ones left out. */
+export function paragraphs(text: string, from = 0, to = text.length): Paragraph[] {
+  const out: Paragraph[] = []
+  let at = from
+  for (const line of text.slice(from, to).split("\n")) {
+    const span = trimmedSpan(line)
+    if (span.to > span.from) out.push({ from: at + span.from, to: at + span.to, text: line.slice(span.from, span.to) })
+    at += line.length + 1
+  }
+  return out
+}
+
+/** A paragraph worth checking live: a few words, not too long. */
+export function liveWorthy(p: Paragraph): boolean {
+  return p.text.length >= LIVE.minChars && p.text.length <= LIVE.maxChars && worthWriting(p.text)
+}
+
+/** One underline: the characters [from, to) of the field's text, what they'd become; `key` names it for «Пропустить». */
+export interface Issue extends Edit {
+  key: string
+  // Its paragraph's text and its change within it (to keep the paragraph's other underlines once it's made).
+  para: string
+  rel: Edit
+}
+
+/** An underline's identity: its paragraph, and its change within it. */
+export function issueKey(para: string, e: Edit): string {
+  return `${e.from}:${e.to}:${e.text}\u0000${para}`
+}
+
+/**
+ * The underlines for the field's text as it is now: each checked paragraph (by its text) still in the field gives its
+ * changes at its current place; a paragraph typed in since gives none until it's checked again. Ignored ones stay out.
+ */
+export function liveIssues(checked: Map<string, Edit[]>, paras: Paragraph[], ignored: Set<string> = new Set()): Issue[] {
+  const out: Issue[] = []
+  for (const p of paras) {
+    for (const e of checked.get(p.text) ?? []) {
+      const key = issueKey(p.text, e)
+      if (!ignored.has(key)) out.push({ from: p.from + e.from, to: p.from + e.to, text: e.text, key, para: p.text, rel: e })
+    }
+  }
+  return out
+}
+
+/**
+ * The paragraphs to check after a pause: changed since the field got the focus (not in `before`), not checked yet, worth
+ * it; the one with the caret first; at most LIVE.perPause.
+ */
+export function toCheck(paras: Paragraph[], before: Set<string>, checked: Map<string, Edit[]>, caret: number | null): Paragraph[] {
+  const fresh = paras.filter((p) => !before.has(p.text) && !checked.has(p.text) && liveWorthy(p))
+  const here = caret === null ? -1 : fresh.findIndex((p) => caret >= p.from && caret <= p.to)
+  if (here > 0) fresh.unshift(...fresh.splice(here, 1))
+  return fresh.slice(0, LIVE.perPause)
+}
+
+/** A paragraph's checked changes once one of them is made: its new text and the others, moved by what it changed. */
+export function afterFix(para: string, edits: Edit[], made: Edit): { para: string; edits: Edit[] } {
+  const delta = made.text.length - (made.to - made.from)
+  return {
+    para: applyEdits(para, [made]),
+    edits: edits.filter((e) => e !== made && !(e.from === made.from && e.to === made.to && e.text === made.text))
+      .map((e) => (e.from >= made.to ? { from: e.from + delta, to: e.to + delta, text: e.text } : e))
+  }
 }

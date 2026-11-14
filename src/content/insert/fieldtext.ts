@@ -109,16 +109,15 @@ export function offsetOf(ft: FieldText, node: Node, offset: number): number | nu
  * What's worked on: the selection in the field, when there is one; else the part of the text with the caret (or the
  * longest), between signatures and quotes. Its white space at both ends is left out.
  */
-export function workRange(field: Field, ft: FieldText): { from: number; to: number; selected: boolean } {
-  let caret: number | null = null
-  if (field.control) {
-    if (field.end > field.start) return trimmed(ft.text, field.start, field.end, true)
-    caret = field.start
-  } else if (field.range) {
-    const a = offsetOf(ft, field.range.startContainer, field.range.startOffset)
-    const b = offsetOf(ft, field.range.endContainer, field.range.endOffset)
-    if (a !== null && b !== null && b > a && !field.range.collapsed) return trimmed(ft.text, a, b, true)
-    caret = a
+export function workRange(field: Field, ft: FieldText, wholePart = false): { from: number; to: number; selected: boolean } {
+  const caret = caretOf(field, ft)
+  if (!wholePart) {
+    if (field.control && field.end > field.start) return trimmed(ft.text, field.start, field.end, true)
+    if (!field.control && field.range && !field.range.collapsed) {
+      const a = offsetOf(ft, field.range.startContainer, field.range.startOffset)
+      const b = offsetOf(ft, field.range.endContainer, field.range.endOffset)
+      if (a !== null && b !== null && b > a) return trimmed(ft.text, a, b, true)
+    }
   }
   // The parts between what's skipped.
   const parts: Array<{ from: number; to: number }> = []
@@ -133,6 +132,12 @@ export function workRange(field: Field, ft: FieldText): { from: number; to: numb
     ?? withText.sort((x, y) => (y.to - y.from) - (x.to - x.from))[0]
     ?? { from: 0, to: 0 }
   return trimmed(ft.text, part.from, part.to, false)
+}
+
+/** Where the caret (the selection's start) is in the field's text, when it's known. */
+export function caretOf(field: Field, ft: FieldText): number | null {
+  if (field.control) return field.start
+  return field.range ? offsetOf(ft, field.range.startContainer, field.range.startOffset) : null
 }
 
 function trimmed(text: string, from: number, to: number, selected: boolean): { from: number; to: number; selected: boolean } {

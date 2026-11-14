@@ -2531,6 +2531,15 @@
  "writeSettingHint": {
   "message": "Bản sửa có tính đến trang: email bạn đang trả lời, bài đăng bạn bình luận. Mỗi lần chạm tính là một câu trả lời. Cách bạn viết trên từng trang web chỉ lưu trên thiết bị này và giúp giữ đúng văn phong của bạn."
  },
+ "writeSkip": {
+  "message": "Bỏ qua"
+ },
+ "underlineSetting": {
+  "message": "Gạch chân lỗi khi gõ"
+ },
+ "underlineSettingHint": {
+  "message": "Pro và Ultra: sau khi bạn ngừng gõ, chỉ đoạn vừa sửa được kiểm tra, có tính đến trang. Trỏ vào gạch chân (chạm trên iPhone và iPad) để sửa. Không tính là câu trả lời."
+ },
  "setSide": {
   "message": "Cạnh màn hình"
  },

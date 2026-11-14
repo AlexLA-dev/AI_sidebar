@@ -2531,6 +2531,15 @@
  "writeSettingHint": {
   "message": "Les corrections tiennent compte de la page : l'e-mail auquel vous répondez, la publication que vous commentez. Chaque appui compte comme une réponse. Votre façon d'écrire sur chaque site reste sur cet appareil et aide à respecter votre style."
  },
+ "writeSkip": {
+  "message": "Ignorer"
+ },
+ "underlineSetting": {
+  "message": "Souligner les fautes pendant la saisie"
+ },
+ "underlineSettingHint": {
+  "message": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse."
+ },
  "setSide": {
   "message": "Côté de l’écran"
  },

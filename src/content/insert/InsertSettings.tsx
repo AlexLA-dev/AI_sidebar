@@ -55,6 +55,15 @@ export function InsertSettingsGroup({ site, touch, onOpenTemplates }: { site: st
         }} />
       </label>
       <p class="cf-hint">{t("writeSettingHint")}</p>
+      {s.writing && (
+        <>
+          <label class="cf-row toggle">
+            <span class="cf-label">{t("underlineSetting")}</span>
+            <input type="checkbox" checked={s.underline} onChange={(e) => change({ underline: e.currentTarget.checked })} />
+          </label>
+          <p class="cf-hint">{t("underlineSettingHint")}</p>
+        </>
+      )}
       <label class="cf-row toggle">
         <span class="cf-label">{t("qiKeepCopied")}</span>
         <input type="checkbox" checked={s.copied} onChange={(e) => change({ copied: e.currentTarget.checked })} />

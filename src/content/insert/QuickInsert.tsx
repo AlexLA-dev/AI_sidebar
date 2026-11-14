@@ -28,6 +28,7 @@ import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { caretRect, fieldText, pageRect, viewport, watchFields } from "./watch"
 import { readText } from "./fieldtext"
 import { undoEdits, writableField, WriteCard, WriteDot, WriteMenu, writeStep, type Undo, type WriteJob } from "./Write"
+import { Underlines } from "./Underlines"
 
 /** What the panel asks of quick insert, through the bus (the selection's "Template" button, Settings). */
 export const QI_EVENTS = { newTemplate: "qi-new-template", editTemplate: "qi-edit-template", insertTemplate: "qi-insert-template" } as const
@@ -57,6 +58,8 @@ interface Props {
   // Resolves once the consent is stored (the background checks it before sending anything).
   onConsent: () => Promise<void>
   free: boolean
+  // Pro or Ultra: live underlines (2.7).
+  live: boolean
   onUpgrade: () => void
   onOpenTemplates: () => void
   onAdapt: (text: string, conversation: string | null) => void
@@ -466,6 +469,9 @@ export function QuickInsert(props: Props): VNode | null {
   const m = mode
   return (
     <>
+      {props.live && settings.underline && !mode && field && canWrite(field) && (
+        <Underlines field={field} host={host} touch={touch} onFixed={(undo) => setMade({ text: t("writeFixed"), undo, at: Date.now() })} />
+      )}
       {buttonPos && showDot && !showButton && <WriteDot at={buttonPos} onPick={(action, tone) => startWrite(action, tone, "circle")} />}
       {buttonPos && showButton && (
         <button
