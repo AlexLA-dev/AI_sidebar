@@ -58,16 +58,19 @@ enum ChatAI {
     }
 
     @MainActor
-    private static func identity() -> [String: Any] {
+    static func identity() -> [String: Any] {
+        // "build" tells the server this build's consent names Anthropic (build 67 and later).
+        var client: [String: Any] = [
+            "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+            "build": Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "",
+            "platform": platform,
+            "locale": Locale.current.identifier
+        ]
+        // 2.7: a friend's code's extra answers run (the server checks it; see Invite.swift).
+        if InviteModel.keptUntil() != nil { client["inv"] = 1 }
         var body: [String: Any] = [
             "installId": (Activation.shared.accountToken ?? UUID()).uuidString.lowercased(),
-            // "build" tells the server this build's consent names Anthropic (build 67 and later).
-            "client": [
-                "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
-                "build": Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "",
-                "platform": platform,
-                "locale": Locale.current.identifier
-            ]
+            "client": client
         ]
         if let jws = StoreKitManager.shared.entitlement.jws, StoreKitManager.shared.entitlement.active { body["entitlement"] = jws }
         return body
@@ -81,7 +84,7 @@ enum ChatAI {
         #endif
     }
 
-    private static func request(_ path: String, _ body: [String: Any]) throws -> URLRequest {
+    static func request(_ path: String, _ body: [String: Any]) throws -> URLRequest {
         var request = URLRequest(url: base.appendingPathComponent(path))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

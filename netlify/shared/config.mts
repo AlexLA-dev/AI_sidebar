@@ -302,6 +302,38 @@ export const config = {
     judgePriceIn: Number(env("ORGANIZE_JUDGE_PRICE_IN") ?? 0.1),
     judgePriceOut: Number(env("ORGANIZE_JUDGE_PRICE_OUT") ?? 0.5)
   },
+  // Invite a friend (2.7, plan section 5; /api/v2/invite). The friend: extra free answers a day for the first days.
+  // The inviter: the App Store offer codes below (first month off, rule 3.1.1) once a friend has asked on two
+  // different days. INVITE=off hides it (the panel and the app don't show it; codes already entered keep their bonus).
+  invite: {
+    enabled: (env("INVITE") ?? "on").trim() !== "off",
+    friendDaily: int("INVITE_FRIEND_DAILY", 5),
+    friendDays: int("INVITE_FRIEND_DAYS", 7),
+    // A code can be entered while the install is this new (days).
+    newDays: int("INVITE_NEW_DAYS", 7),
+    // Days with answers that make a friend active.
+    activeDays: int("INVITE_ACTIVE_DAYS", 2),
+    // Friends one code takes in all, and a day (a cap per inviter).
+    cap: int("INVITE_CAP", 20),
+    codeDaily: int("INVITE_CODE_DAILY", 10),
+    // Codes entered and invite screens asked for, per install or address a day.
+    triesDaily: int("INVITE_TRIES_DAILY", 10),
+    stateDaily: int("INVITE_STATE_DAILY", 200),
+    // Ultra's offer code, set up in App Store Connect like Pro's (proOfferCode); empty: only Pro is offered.
+    ultraOfferCode: (env("ULTRA_OFFER_CODE") ?? "").trim(),
+    ultraOfferDiscount: int("ULTRA_OFFER_DISCOUNT", 50),
+    // The director's proposal, not decided by the owner yet: when both discounts are used, the inviter takes extra
+    // answers like the friend's instead (one week per active friend). Off until INVITE_INVITER_ANSWERS=on.
+    inviterAnswers: (env("INVITE_INVITER_ANSWERS") ?? "off").trim() === "on"
+  },
+  // Apple DeviceCheck (invite a friend: one friend's bonus per device). A DeviceCheck key from developer.apple.com →
+  // Keys; until it's set, codes are entered without the device check (address and install limits still hold).
+  deviceCheck: {
+    keyId: (env("DEVICECHECK_KEY_ID") ?? "").trim(),
+    teamId: (env("DEVICECHECK_TEAM_ID") ?? "P9NCXXTCU8").trim(),
+    // The key's .p8 text (PEM); newlines may come as "\n".
+    privateKey: (env("DEVICECHECK_PRIVATE_KEY") ?? "").replace(/\\n/g, "\n").trim()
+  },
   // Site counter (/api/v2/site): visits and App Store taps accepted per address per day, and in all per day.
   siteDailyLimit: int("SITE_DAILY_LIMIT", 300),
   siteGlobalDailyLimit: int("SITE_GLOBAL_DAILY_LIMIT", 20000)

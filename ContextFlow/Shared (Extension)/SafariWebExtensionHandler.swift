@@ -1,3 +1,4 @@
+import DeviceCheck
 import SafariServices
 import StoreKit
 import UserNotifications
@@ -416,12 +417,39 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "apple_remove":
             if let key = message["key"] as? String { AppleItems.remove(key: key) }
             Self.reply(context, ["success": true])
+        // 2.7, invite a friend: what the app kept (a friend's code entered there, the inviter's own code), a DeviceCheck
+        // token for a code entered in the panel, and the panel's marks back (linked, its code).
+        case "invite":
+            switch message["op"] as? String {
+            case "token":
+                Task {
+                    let token = await Self.deviceToken()
+                    Self.reply(context, ["success": true, "data": token.map { ["token": $0] } ?? [:]])
+                }
+            case "linked":
+                SharedDefaults.shared.updateInvite(["linked": true])
+                Self.reply(context, ["success": true, "data": ["ok": true]])
+            case "code":
+                if let code = message["code"] as? String, code.count == 6 { SharedDefaults.shared.updateInvite(["code": code]) }
+                if let until = message["until"] as? Double { SharedDefaults.shared.updateInvite(["until": until, "linked": true]) }
+                Self.reply(context, ["success": true, "data": ["ok": true]])
+            default:
+                Self.reply(context, ["success": true, "data": SharedDefaults.shared.readInvite()])
+            }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
             Self.reply(context, ["success": true, "data": ["pong": true, "version": version, "build": build]])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])
+        }
+    }
+
+    /// A DeviceCheck token (2.7, a friend's code entered in the panel): nil where the device can't make one (a simulator).
+    static func deviceToken() async -> String? {
+        guard DCDevice.current.isSupported else { return nil }
+        return await withCheckedContinuation { done in
+            DCDevice.current.generateToken { data, _ in done.resume(returning: data?.base64EncodedString()) }
         }
     }
 

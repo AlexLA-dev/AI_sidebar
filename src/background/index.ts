@@ -33,6 +33,7 @@ import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
+import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
@@ -86,8 +87,8 @@ function appBuild(): Promise<string> {
 }
 
 async function clientInfo() {
-  const [build, os] = await Promise.all([appBuild(), platform()])
-  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage() }
+  const [build, os, invite] = await Promise.all([appBuild(), platform(), inviteMarks().catch(() => ({}))])
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite }
 }
 
 // ---------------------------------------------------- App Store subscription
@@ -309,12 +310,15 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       organize?: { on?: unknown; space?: unknown; config?: unknown }
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
       country?: string
+      invite?: { active?: unknown } | null
     }
     value = {
       plan: body.plan,
       ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
       ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
+      // 2.7: friends who came with this install's code and asked on two days (only once it has a code).
+      ...(body.invite && typeof body.invite.active === "number" ? { invite: { active: body.invite.active } } : {}),
       plans: planFacts(body.limits),
       searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false,
@@ -1144,6 +1148,16 @@ startInsert({
   statusChanged: () => (statusCache = null)
 })
 // A page translated in place (2.7): the page's requests to the server, and the pill's counters.
+startInvite({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  statusChanged: () => (statusCache = null)
+})
+
 startTranslate({
   installId,
   entitlementJws: async () => {

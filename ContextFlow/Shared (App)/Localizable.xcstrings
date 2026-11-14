@@ -53554,6 +53554,1974 @@
           }
         }
       }
+    },
+    "Your friend gets bonus answers: +%lld a day for their first week. You get %lld%% off the first month of Pro or Ultra once they've asked questions on two different days.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحصل صديقك على إجابات إضافية: ‎+%1$lld يوميًا في أسبوعه الأول. وتحصل أنت على خصم %2$lld%% على الشهر الأول من Pro أو Ultra بعد أن يطرح أسئلة في يومين مختلفين."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Freund bekommt Bonusantworten: +%1$lld pro Tag in der ersten Woche. Du bekommst %2$lld%% Rabatt auf den ersten Monat Pro oder Ultra, sobald er an zwei verschiedenen Tagen Fragen gestellt hat."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu amigo recibe respuestas extra: +%1$lld al día durante su primera semana. Tú recibes un %2$lld%% de descuento en el primer mes de Pro o Ultra cuando haya hecho preguntas en dos días distintos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre ami reçoit des réponses bonus : +%1$lld par jour pendant sa première semaine. Vous recevez %2$lld %% de réduction sur le premier mois de Pro ou Ultra dès qu'il a posé des questions sur deux jours différents."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo amico riceve risposte bonus: +%1$lld al giorno per la prima settimana. Tu ricevi il %2$lld%% di sconto sul primo mese di Pro o Ultra quando avrà fatto domande in due giorni diversi."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちには最初の1週間、1日あたり+%1$lld回のボーナス回答。友だちが2つの別の日に質問すると、あなたはProまたはUltraの最初の1か月が%2$lld%%オフになります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "친구는 첫 주 동안 하루 +%1$lld개의 보너스 답변을 받습니다. 친구가 서로 다른 이틀에 질문하면 Pro 또는 Ultra 첫 달 %2$lld%% 할인을 받습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu amigo ganha respostas bônus: +%1$lld por dia na primeira semana. Você ganha %2$lld%% de desconto no primeiro mês do Pro ou Ultra quando ele fizer perguntas em dois dias diferentes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Другу — бонусные ответы: +%1$lld в день на первую неделю. Вам — скидка %2$lld%% на первый месяц Pro или Ultra, когда друг задаст вопросы в два разных дня."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Другові — бонусні відповіді: +%1$lld на день на перший тиждень. Вам — знижка %2$lld%% на перший місяць Pro або Ultra, коли друг поставить запитання у два різні дні."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn của bạn nhận câu trả lời thưởng: +%1$lld mỗi ngày trong tuần đầu tiên. Bạn được giảm %2$lld%% tháng đầu của Pro hoặc Ultra khi họ đặt câu hỏi vào hai ngày khác nhau."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朋友在第一周每天额外获得 +%1$lld 次奖励回答。朋友在两个不同的日子提问后，你可获得 Pro 或 Ultra 首月 %2$lld%% 折扣。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朋友在第一週每天額外獲得 +%1$lld 次獎勵回答。朋友在兩個不同的日子提問後，你可獲得 Pro 或 Ultra 首月 %2$lld%% 折扣。"
+          }
+        }
+      }
+    },
+    "Your code": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رمزك"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Code"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu código"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre code"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo codice"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたのコード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 코드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu código"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваш код"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваш код"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mã của bạn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的邀请码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的邀請碼"
+          }
+        }
+      }
+    },
+    "Came with your code: %lld · using it: %lld": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاؤوا برمزك: %1$lld · يستخدمونه: %2$lld"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit deinem Code gekommen: %1$lld · nutzen es: %2$lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llegaron con tu código: %1$lld · lo usan: %2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Venus avec votre code : %1$lld · l'utilisent : %2$lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrivati con il tuo codice: %1$lld · lo usano: %2$lld"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたのコードで参加：%1$lld・利用中：%2$lld"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 코드로 온 친구: %1$lld · 사용 중: %2$lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vieram com seu código: %1$lld · usando: %2$lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пришли по вашему коду: %1$lld · пользуются: %2$lld"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прийшли за вашим кодом: %1$lld · користуються: %2$lld"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đến bằng mã của bạn: %1$lld · đang dùng: %2$lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过你的邀请码加入：%1$lld · 正在使用：%2$lld"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "透過你的邀請碼加入：%1$lld · 正在使用：%2$lld"
+          }
+        }
+      }
+    },
+    "Get my code and link": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "احصل على رمزي ورابطي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code und Link holen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtener mi código y enlace"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtenir mon code et mon lien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ottieni codice e link"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コードとリンクを取得"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "코드와 링크 받기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pegar meu código e link"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Получить код и ссылку"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отримати код і посилання"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lấy mã và liên kết"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获取我的邀请码和链接"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取得我的邀請碼和連結"
+          }
+        }
+      }
+    },
+    "A friend you invited is using ContextFlow": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "صديق دعوته يستخدم ContextFlow"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein eingeladener Freund nutzt ContextFlow"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un amigo al que invitaste usa ContextFlow"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un ami que vous avez invité utilise ContextFlow"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un amico che hai invitato usa ContextFlow"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待した友だちがContextFlowを使い始めました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대한 친구가 ContextFlow를 사용하고 있어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um amigo que você convidou está usando o ContextFlow"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Друг, которого вы пригласили, пользуется ContextFlow"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Друг, якого ви запросили, користується ContextFlow"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Một người bạn bạn mời đang dùng ContextFlow"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你邀请的朋友正在使用 ContextFlow"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你邀請的朋友正在使用 ContextFlow"
+          }
+        }
+      }
+    },
+    "Thank you: %lld%% off the first month of Pro or Ultra, your choice. The App Store applies it if you haven't used this discount before.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شكرًا لك: خصم %lld%% على الشهر الأول من Pro أو Ultra، حسب اختيارك. يطبّقه App Store إن لم تكن قد استخدمت هذا الخصم من قبل."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danke: %lld%% Rabatt auf den ersten Monat Pro oder Ultra, du wählst. Der App Store gewährt ihn, wenn du diesen Rabatt noch nicht genutzt hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gracias: un %lld%% de descuento en el primer mes de Pro o Ultra, a tu elección. El App Store lo aplica si aún no has usado este descuento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merci : %lld %% de réduction sur le premier mois de Pro ou Ultra, au choix. L'App Store l'applique si vous n'avez pas encore utilisé cette réduction."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grazie: %lld%% di sconto sul primo mese di Pro o Ultra, a tua scelta. L'App Store lo applica se non hai ancora usato questo sconto."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お礼として、ProまたはUltraの最初の1か月が%lld%%オフ（お好きな方）。この割引をまだ使っていなければApp Storeで適用されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "감사의 뜻으로 Pro 또는 Ultra 첫 달 %lld%% 할인을 드려요(원하는 쪽 선택). 이 할인을 아직 쓰지 않았다면 App Store에서 적용됩니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrigado: %lld%% de desconto no primeiro mês do Pro ou Ultra, você escolhe. A App Store aplica se você ainda não usou esse desconto."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спасибо от нас: скидка %lld%% на первый месяц Pro или Ultra, на выбор. App Store применит её, если вы ещё не пользовались этой скидкой."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дякуємо: знижка %lld%% на перший місяць Pro або Ultra, на вибір. App Store застосує її, якщо ви ще не користувалися цією знижкою."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cảm ơn bạn: giảm %lld%% tháng đầu của Pro hoặc Ultra, tùy bạn chọn. App Store sẽ áp dụng nếu bạn chưa dùng ưu đãi này."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "感谢你：Pro 或 Ultra 首月 %lld%% 折扣，任选其一。如果你还没用过这个折扣，App Store 会为你生效。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "感謝你：Pro 或 Ultra 首月 %lld%% 折扣，任選其一。如果你還沒用過這個折扣，App Store 會為你套用。"
+          }
+        }
+      }
+    },
+    "Used both discounts? Take bonus answers instead: +%lld a day for a week": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استخدمت الخصمين؟ خذ إجابات إضافية بدلًا من ذلك: ‎+%lld يوميًا لمدة أسبوع"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beide Rabatte schon genutzt? Nimm stattdessen Bonusantworten: +%lld pro Tag für eine Woche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Ya usaste los dos descuentos? Toma respuestas extra: +%lld al día durante una semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les deux réductions déjà utilisées ? Prenez des réponses bonus : +%lld par jour pendant une semaine"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai già usato entrambi gli sconti? Prendi risposte bonus: +%lld al giorno per una settimana"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "割引を両方使用済み？代わりにボーナス回答を：1週間、1日あたり+%lld回"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할인을 둘 다 쓰셨나요? 대신 보너스 답변을 받으세요: 일주일 동안 하루 +%lld개"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Já usou os dois descontos? Pegue respostas bônus: +%lld por dia por uma semana"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обе скидки уже использованы? Возьмите бонусные ответы: +%lld в день на неделю"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обидві знижки вже використано? Візьміть бонусні відповіді: +%lld на день на тиждень"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã dùng cả hai ưu đãi? Nhận câu trả lời thưởng: +%lld mỗi ngày trong một tuần"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "两个折扣都用过了？改领奖励回答：一周内每天 +%lld 次"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "兩個折扣都用過了？改領獎勵回答：一週內每天 +%lld 次"
+          }
+        }
+      }
+    },
+    "Your bonus answers run until %@.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إجاباتك الإضافية سارية حتى %@."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Bonusantworten gelten bis %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus respuestas extra duran hasta el %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos réponses bonus durent jusqu'au %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tue risposte bonus valgono fino al %@."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ボーナス回答は%@まで有効です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보너스 답변은 %@까지 유효합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas respostas bônus valem até %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бонусные ответы — до %@."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бонусні відповіді — до %@."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Câu trả lời thưởng của bạn có hiệu lực đến %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的奖励回答有效期至 %@。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的獎勵回答有效至 %@。"
+          }
+        }
+      }
+    },
+    "You came with a friend's code: bonus answers, +%lld a day, until %@.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جئت برمز صديق: إجابات إضافية، ‎+%1$lld يوميًا، حتى %2$@."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du bist mit dem Code eines Freundes gekommen: Bonusantworten, +%1$lld pro Tag, bis %2$@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llegaste con el código de un amigo: respuestas extra, +%1$lld al día, hasta el %2$@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous êtes venu avec le code d'un ami : réponses bonus, +%1$lld par jour, jusqu'au %2$@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei arrivato con il codice di un amico: risposte bonus, +%1$lld al giorno, fino al %2$@."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちのコードで参加しました：ボーナス回答、1日あたり+%1$lld回、%2$@まで。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "친구 코드로 시작했어요: 보너스 답변, 하루 +%1$lld개, %2$@까지."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Você veio com o código de um amigo: respostas bônus, +%1$lld por dia, até %2$@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вы пришли по коду друга: бонусные ответы, +%1$lld в день, до %2$@."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ви прийшли за кодом друга: бонусні відповіді, +%1$lld на день, до %2$@."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đến bằng mã của bạn bè: câu trả lời thưởng, +%1$lld mỗi ngày, đến %2$@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你通过朋友的邀请码加入：奖励回答，每天 +%1$lld 次，至 %2$@。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你透過朋友的邀請碼加入：獎勵回答，每天 +%1$lld 次，至 %2$@。"
+          }
+        }
+      }
+    },
+    "Have a friend's code?": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لديك رمز من صديق؟"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code von einem Freund?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Tienes el código de un amigo?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous avez le code d'un ami ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai il codice di un amico?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちのコードをお持ちですか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "친구 코드가 있나요?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem o código de um amigo?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Есть код друга?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Маєте код друга?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Có mã của bạn bè?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有朋友的邀请码？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有朋友的邀請碼？"
+          }
+        }
+      }
+    },
+    "Invite a friend": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ادعُ صديقًا"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freunde einladen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invitar a un amigo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inviter un ami"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invita un amico"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちを招待"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "친구 초대"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convidar um amigo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пригласить друга"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запросити друга"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mời bạn bè"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请朋友"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀請朋友"
+          }
+        }
+      }
+    },
+    "Code or link": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرمز أو الرابط"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code oder Link"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código o enlace"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code ou lien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codice o link"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コードまたはリンク"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "코드 또는 링크"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código ou link"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код или ссылка"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код або посилання"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mã hoặc liên kết"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请码或链接"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀請碼或連結"
+          }
+        }
+      }
+    },
+    "Enter": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إدخال"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eingeben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introducir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valider"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "입력"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserir"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ввести"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ввести"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhập"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入"
+          }
+        }
+      }
+    },
+    "Code accepted: bonus answers, +%lld a day, until %@.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم قبول الرمز: إجابات إضافية، ‎+%1$lld يوميًا، حتى %2$@."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code angenommen: Bonusantworten, +%1$lld pro Tag, bis %2$@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código aceptado: respuestas extra, +%1$lld al día, hasta el %2$@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code accepté : réponses bonus, +%1$lld par jour, jusqu'au %2$@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codice accettato: risposte bonus, +%1$lld al giorno, fino al %2$@."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コードを受け付けました：ボーナス回答、1日あたり+%1$lld回、%2$@まで。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "코드가 적용됐어요: 보너스 답변, 하루 +%1$lld개, %2$@까지."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código aceito: respostas bônus, +%1$lld por dia, até %2$@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код принят: бонусные ответы, +%1$lld в день, до %2$@."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код прийнято: бонусні відповіді, +%1$lld на день, до %2$@."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã nhận mã: câu trả lời thưởng, +%1$lld mỗi ngày, đến %2$@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请码已接受：奖励回答，每天 +%1$lld 次，至 %2$@。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀請碼已接受：獎勵回答，每天 +%1$lld 次，至 %2$@。"
+          }
+        }
+      }
+    },
+    "There's no such code. Check it and try again.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يوجد رمز كهذا. تحقّق منه وحاول مرة أخرى."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Code gibt es nicht. Prüfe ihn und versuche es noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese código no existe. Revísalo e inténtalo de nuevo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code n'existe pas. Vérifiez-le et réessayez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo codice non esiste. Controllalo e riprova."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "そのコードは存在しません。確認してもう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "없는 코드예요. 확인한 뒤 다시 시도해 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse código não existe. Confira e tente de novo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Такого кода нет. Проверьте его и попробуйте ещё раз."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Такого коду немає. Перевірте його і спробуйте ще раз."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không có mã này. Hãy kiểm tra và thử lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有这个邀请码。请检查后重试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有這個邀請碼。請檢查後再試一次。"
+          }
+        }
+      }
+    },
+    "That's your own code. Send it to a friend.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا رمزك أنت. أرسله إلى صديق."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das ist dein eigener Code. Schick ihn einem Freund."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese es tu propio código. Envíaselo a un amigo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est votre propre code. Envoyez-le à un ami."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "È il tuo codice. Mandalo a un amico."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これはあなた自身のコードです。友だちに送ってください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 코드예요. 친구에게 보내 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse é o seu próprio código. Envie para um amigo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это ваш собственный код — отправьте его другу."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це ваш власний код — надішліть його другові."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đây là mã của chính bạn. Hãy gửi cho bạn bè."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这是你自己的邀请码，请发给朋友。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這是你自己的邀請碼，請傳給朋友。"
+          }
+        }
+      }
+    },
+    "A friend's code has already been entered here.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سبق إدخال رمز صديق هنا."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hier wurde schon ein Code eines Freundes eingegeben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aquí ya se introdujo el código de un amigo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le code d'un ami a déjà été saisi ici."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qui è già stato inserito il codice di un amico."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ここでは友だちのコードがすでに入力されています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이곳에는 이미 친구 코드가 입력됐어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O código de um amigo já foi inserido aqui."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код друга здесь уже вводили."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код друга тут уже вводили."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mã của bạn bè đã được nhập ở đây."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这里已经输入过朋友的邀请码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這裡已經輸入過朋友的邀請碼。"
+          }
+        }
+      }
+    },
+    "A friend's code works in the first week after installing.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يعمل رمز الصديق في الأسبوع الأول بعد التثبيت."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Code eines Freundes gilt in der ersten Woche nach der Installation."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El código de un amigo vale durante la primera semana tras instalar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le code d'un ami fonctionne pendant la première semaine après l'installation."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il codice di un amico vale nella prima settimana dopo l'installazione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "友だちのコードはインストール後1週間以内に使えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "친구 코드는 설치 후 첫 주에만 쓸 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O código de um amigo vale na primeira semana após a instalação."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код друга действует в первую неделю после установки."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код друга діє протягом першого тижня після встановлення."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mã của bạn bè dùng được trong tuần đầu sau khi cài đặt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朋友的邀请码仅在安装后第一周内有效。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朋友的邀請碼僅在安裝後第一週內有效。"
+          }
+        }
+      }
+    },
+    "This code has reached its limit.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بلغ هذا الرمز حدّه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Code hat sein Limit erreicht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este código ha llegado a su límite."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code a atteint sa limite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo codice ha raggiunto il limite."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このコードは上限に達しました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 코드는 한도에 도달했어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este código atingiu o limite."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У этого кода закончился лимит."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У цього коду закінчився ліміт."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mã này đã đạt giới hạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个邀请码已达到上限。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個邀請碼已達上限。"
+          }
+        }
+      }
+    },
+    "A friend's code has already been used on this device.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سبق استخدام رمز صديق على هذا الجهاز."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf diesem Gerät wurde schon ein Code eines Freundes genutzt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En este dispositivo ya se usó el código de un amigo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le code d'un ami a déjà été utilisé sur cet appareil."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su questo dispositivo è già stato usato il codice di un amico."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスでは友だちのコードがすでに使われています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기기에서는 이미 친구 코드를 사용했어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O código de um amigo já foi usado neste dispositivo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На этом устройстве код друга уже использовали."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На цьому пристрої код друга вже використали."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mã của bạn bè đã được dùng trên thiết bị này."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台设备已经使用过朋友的邀请码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這台裝置已經使用過朋友的邀請碼。"
+          }
+        }
+      }
+    },
+    "Couldn't do that right now. Try again later.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذّر ذلك الآن. حاول لاحقًا."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das hat gerade nicht geklappt. Versuche es später noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahora no se pudo. Inténtalo más tarde."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ça n'a pas marché pour l'instant. Réessayez plus tard."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ora non è stato possibile. Riprova più tardi."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今はできませんでした。あとでもう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금은 할 수 없었어요. 나중에 다시 시도해 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não deu agora. Tente mais tarde."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сейчас не получилось. Попробуйте позже."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зараз не вдалося. Спробуйте пізніше."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện chưa làm được. Hãy thử lại sau."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现在无法完成，请稍后再试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在無法完成，請稍後再試。"
+          }
+        }
+      }
+    },
+    "I use ContextFlow, AI right on the page in Safari. With my code %@ you get bonus answers for your first week: %@": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أستخدم ContextFlow، الذكاء الاصطناعي مباشرة على الصفحة في Safari. برمزي %1$@ تحصل على إجابات إضافية في أسبوعك الأول: %2$@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ich nutze ContextFlow, KI direkt auf der Seite in Safari. Mit meinem Code %1$@ bekommst du in der ersten Woche Bonusantworten: %2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uso ContextFlow, IA directamente en la página en Safari. Con mi código %1$@ tienes respuestas extra durante tu primera semana: %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J'utilise ContextFlow, l'IA directement sur la page dans Safari. Avec mon code %1$@, tu as des réponses bonus pendant ta première semaine : %2$@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uso ContextFlow, l'IA direttamente sulla pagina in Safari. Con il mio codice %1$@ hai risposte bonus per la prima settimana: %2$@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SafariのページでそのままAIが使えるContextFlowを使っています。私のコード %1$@ で最初の1週間ボーナス回答がもらえます：%2$@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari 페이지에서 바로 쓰는 AI, ContextFlow를 쓰고 있어요. 내 코드 %1$@로 첫 주 동안 보너스 답변을 받을 수 있어요: %2$@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uso o ContextFlow, IA direto na página no Safari. Com meu código %1$@ você ganha respostas bônus na primeira semana: %2$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пользуюсь ContextFlow — ИИ прямо на странице в Safari. С моим кодом %1$@ у тебя будут бонусные ответы на первую неделю: %2$@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Користуюся ContextFlow — ШІ просто на сторінці в Safari. З моїм кодом %1$@ у тебе будуть бонусні відповіді на перший тиждень: %2$@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mình đang dùng ContextFlow, AI ngay trên trang trong Safari. Với mã %1$@ của mình, bạn có câu trả lời thưởng trong tuần đầu: %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我在用 ContextFlow，在 Safari 页面上直接用 AI。用我的邀请码 %1$@，第一周可获得奖励回答：%2$@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我在用 ContextFlow，在 Safari 頁面上直接用 AI。用我的邀請碼 %1$@，第一週可獲得獎勵回答：%2$@"
+          }
+        }
+      }
+    },
+    "Enter it for bonus answers in your first week.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أدخله لتحصل على إجابات إضافية في أسبوعك الأول."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib ihn ein und bekomm Bonusantworten in deiner ersten Woche."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introdúcelo para tener respuestas extra en tu primera semana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez-le pour avoir des réponses bonus pendant votre première semaine."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inseriscilo per avere risposte bonus nella prima settimana."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力すると、最初の1週間ボーナス回答がもらえます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "입력하면 첫 주 동안 보너스 답변을 받아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insira para ganhar respostas bônus na primeira semana."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Введите его — получите бонусные ответы на первую неделю."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Введіть його — отримаєте бонусні відповіді на перший тиждень."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhập mã để nhận câu trả lời thưởng trong tuần đầu."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入后，第一周可获得奖励回答。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入後，第一週可獲得獎勵回答。"
+          }
+        }
+      }
+    },
+    "Couldn't check this device. Try again later.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذّر التحقق من هذا الجهاز. حاول لاحقًا."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Gerät ließ sich nicht prüfen. Versuche es später noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo comprobar el dispositivo. Inténtalo más tarde."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de vérifier cet appareil. Réessayez plus tard."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile verificare il dispositivo. Riprova più tardi."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デバイスを確認できませんでした。あとでもう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기를 확인하지 못했어요. 나중에 다시 시도해 주세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível verificar o dispositivo. Tente mais tarde."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не получилось проверить устройство. Попробуйте позже."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося перевірити пристрій. Спробуйте пізніше."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không kiểm tra được thiết bị. Hãy thử lại sau."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法验证这台设备，请稍后再试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法驗證這台裝置，請稍後再試。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
