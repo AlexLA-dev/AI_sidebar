@@ -1476,6 +1476,16 @@
   ]
  },
  {
+  "key": "2ea21b70a819",
+  "kind": "attr",
+  "en": "A Spanish travel guide in Safari, translated into English in place, with the Original button next to ContextFlow's button",
+  "pages": [
+   "features.html",
+   "cases/studying.html",
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
   "key": "bbbf9acee8f1",
   "kind": "html",
   "en": "Reading a page in another language? A Translate button shows by ✦. Tap it, and the page reads in your language in its own layout, more of it as you scroll. Links still work, so you can keep going. Original brings back every word. Menus and buttons stay as they are. Each page you translate counts as one answer. Don't need it on a site? Hide it there.",
@@ -1489,6 +1499,16 @@
   "en": "Safari's own translation, and when each is the better pick →",
   "pages": [
    "features.html"
+  ]
+ },
+ {
+  "key": "d36060c21702",
+  "kind": "attr",
+  "en": "Check on an email reply: the misspelled names and typos struck out and fixed word by word",
+  "pages": [
+   "features.html",
+   "cases/replies-and-forms.html",
+   "proofread-safari-iphone.html"
   ]
  },
  {
@@ -1516,6 +1536,14 @@
   ]
  },
  {
+  "key": "95ba91e52a3b",
+  "kind": "attr",
+  "en": "A typo underlined in an email reply, with its fix and the Fix and Ignore buttons",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "b2ca695d57ed",
   "kind": "html",
   "en": "Mistakes underlined as you type <span class=\"pro-badge\">Pro</span>",
@@ -1527,6 +1555,14 @@
   "key": "1458d3152540",
   "kind": "html",
   "en": "Want to catch a typo before you send? Pause for a moment, and the paragraph you just changed is checked with the page in mind. Point at an underline (tap it on iPhone and iPad), then Fix or Ignore. Underlines don't count as answers. Turn them on or off in Settings: Underline mistakes as I type.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "6c1d3c291257",
+  "kind": "attr",
+  "en": "The space switcher in the panel: Personal, Work and Shopping, with a site set to open in Work",
   "pages": [
    "features.html"
   ]
@@ -1556,9 +1592,26 @@
   ]
  },
  {
+  "key": "cde323c4b132",
+  "kind": "attr",
+  "en": "The Calendar and Reminders card under an answer: a reminder to book the hotel, with its date, time and list",
+  "pages": [
+   "features.html",
+   "cases/planning.html"
+  ]
+ },
+ {
   "key": "32c442bfb626",
   "kind": "html",
   "en": "Ask “remind me on Friday to book the hotel”, or choose Add to Calendar or Reminders in the … menu of an answer or a note. A card shows what, the date and the time, and nothing is added until you tap Add. When you set a reminder with the bell, tick Also in Reminders to have it in Apple Reminders too. Your calendar and reminders never reach my server. Free, on iOS 17 and macOS 14 or later.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "371650e870cf",
+  "kind": "attr",
+  "en": "A note in the chat with a snapshot of the page it was written on",
   "pages": [
    "features.html"
   ]

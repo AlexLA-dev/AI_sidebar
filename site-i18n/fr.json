@@ -643,5 +643,11 @@
   "3ee4fbeeb2ae": "Inviter un ami",
   "3535c6dcd2e3": "Envoyez votre code à un ami&nbsp;: il reçoit des réponses bonus pendant sa première semaine, et vous obtenez une réduction sur Pro ou Ultra dès qu’il a utilisé ContextFlow deux jours différents.",
   "d983f26b858a": "Vous comparez trois hôtels ou cinq ordinateurs portables, éparpillés dans une douzaine de discussions&nbsp;? Touchez «&nbsp;Dans une collection&nbsp;» sous une réponse ou une note, et elle rejoint une collection, dans une section comme Hôtels ou Vols. Dans l’app, une collection se présente en colonnes entre lesquelles vous faites glisser les cartes sur iPad et Mac, et en liste sur iPhone. Chaque carte ouvre sa discussion à cette réponse. «&nbsp;PDF&nbsp;» enregistre toute la collection, avec des liens vers les sources. Gratuit offre une collection de 10 cartes. Avec Pro, vous en avez autant que vous voulez, plus «&nbsp;Comparer&nbsp;», qui place de 2 à 8 cartes côte à côte dans un tableau, et «&nbsp;Synthèse&nbsp;».",
-  "364b370261ec": "Vous connaissez quelqu’un qui lit beaucoup dans Safari&nbsp;? Dans les Réglages, «&nbsp;Inviter un ami&nbsp;» vous donne un code et un lien. Votre ami reçoit des réponses bonus&nbsp;: 5 de plus par jour pendant sa première semaine. Dès qu’il a posé des questions sur deux jours différents, vous obtenez une réduction sur le premier mois de Pro ou Ultra."
+  "364b370261ec": "Vous connaissez quelqu’un qui lit beaucoup dans Safari&nbsp;? Dans les Réglages, «&nbsp;Inviter un ami&nbsp;» vous donne un code et un lien. Votre ami reçoit des réponses bonus&nbsp;: 5 de plus par jour pendant sa première semaine. Dès qu’il a posé des questions sur deux jours différents, vous obtenez une réduction sur le premier mois de Pro ou Ultra.",
+  "2ea21b70a819": "Un guide de voyage espagnol dans Safari, traduit en anglais sur place, avec le bouton Original à côté du bouton ContextFlow",
+  "d36060c21702": "Vérifier dans une réponse à un e-mail : les noms mal orthographiés et les fautes de frappe barrés et corrigés mot à mot",
+  "95ba91e52a3b": "Une faute de frappe soulignée dans une réponse à un e-mail, avec sa correction et les boutons Corriger et Ignorer",
+  "6c1d3c291257": "Le sélecteur d’espaces dans le panneau : Perso, Travail et Achats, avec un site qui s’ouvre dans Travail",
+  "cde323c4b132": "La carte Calendrier et Rappels sous une réponse : un rappel pour réserver l’hôtel, avec sa date, son heure et sa liste",
+  "371650e870cf": "Une note dans la discussion avec une capture de la page où elle a été écrite"
 }
