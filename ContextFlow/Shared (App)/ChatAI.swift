@@ -481,9 +481,27 @@ extension ChatAI {
         reportOrganize("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 })
     }
 
+    /// The same, sent `delay` seconds from now (2.7, the activation funnel: steps a moment apart are spaced, so they
+    /// reach the server in their order without one waiting on another's answer).
+    @MainActor
+    static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:], after delay: TimeInterval) {
+        guard var request = eventRequest("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 }) else { return }
+        request.timeoutInterval = 15
+        Task {
+            if delay > 0 { try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) }
+            _ = try? await URLSession.shared.data(for: request)
+        }
+    }
+
     /// An organizing event (kind organize / organize_promo / organize_optin): what and where, never text.
     @MainActor
     static func reportOrganize(_ kind: String, _ fields: [String: String]) {
+        guard let request = eventRequest(kind, fields) else { return }
+        Task { _ = try? await URLSession.shared.data(for: request) }
+    }
+
+    @MainActor
+    private static func eventRequest(_ kind: String, _ fields: [String: String]) -> URLRequest? {
         var body: [String: Any] = [
             "kind": kind,
             "appId": Activation.shared.appId,
@@ -492,7 +510,6 @@ extension ChatAI {
         ]
         for (key, value) in fields { body[key] = value }
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
-        guard let request = try? request("api/v2/event", body) else { return }
-        Task { _ = try? await URLSession.shared.data(for: request) }
+        return try? request("api/v2/event", body)
     }
 }

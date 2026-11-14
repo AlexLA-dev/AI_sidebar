@@ -53,6 +53,8 @@ const tours = new Map<string, number>()
 const aiRequests: string[] = []
 // The panel's funnel events since /reset ("media_notice:video"…), to check what it reports.
 const panelEvents: string[] = []
+// Which ids each event since /reset carried (GET /event-ids, 2.7 activation): "f.a app install", never the ids themselves.
+const eventIds: string[] = []
 // The last /api/v2/similar request body (GET /last-similar): the engine and the page the panel sent.
 let lastSimilarRequest: unknown = null
 // The last /api/v2/chat request body, for e2e checks of what the extension sends (GET /last-request).
@@ -736,6 +738,7 @@ createServer(async (req, res) => {
         // A feature step: "use:tour.step:pick" (f.a and what).
         const what = sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""
         panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}`)
+        eventIds.push(`${sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.kind}${sent.appId ? " app" : ""}${sent.installId ? " install" : ""}`)
       } catch {
         // not JSON
       }
@@ -869,11 +872,17 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
     res.end(JSON.stringify(panelEvents))
     return
   }
+  if (url.pathname === "/event-ids") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(eventIds))
+    return
+  }
   if (url.pathname === "/reset") {
     counters.clear()
     tours.clear()
     aiRequests.length = 0
     panelEvents.length = 0
+    eventIds.length = 0
     res.end("ok")
     return
   }

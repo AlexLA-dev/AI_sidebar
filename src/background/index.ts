@@ -114,8 +114,9 @@ let entitlementAsking: Promise<NativeEntitlement | null> | null = null
 function askEntitlement(): Promise<NativeEntitlement | null> {
   entitlementAsking ??= (async () => {
     // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
-    // the panel is in use, so it stops showing the setup guide.
-    const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
+    // the panel is in use, so it stops showing the setup guide. 2.7: the server too, once, with the app's id (where to
+    // send it: base), for the activation funnel.
+    const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId(), base: API_BASE }, 6000)
     // What the app heard to its end on this device (build 94): kept with the panel's own, not with the entitlement.
     if (value && "voiced" in value) {
       const voiced = Array.isArray(value.voiced) ? value.voiced.filter((id): id is string => typeof id === "string") : []
