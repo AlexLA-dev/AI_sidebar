@@ -105,7 +105,7 @@ import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill } from "./translate/TranslatePill"
 import { useFabDrag, usePanelDrag } from "./side/drag"
 import { EdgeGlow } from "./side/EdgeGlow"
-import { HintLine, hintText, usePageHints } from "./pagehints/PageHints"
+import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
 import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
@@ -4215,7 +4215,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* 2.7 (plan section 6): the page hint's how-to, after its line was tapped; its button glows (data-glow). */}
                 {pageHints.chat && !historyMode && partial === null && (() => {
                   const how = hintText(pageHints.chat, pageHints.has(pageHints.chat))
-                  return <Hint icon={<Icon.Sparkle size={16} />} title={how.title} onDone={pageHints.doneChat}>{how.body}</Hint>
+                  return <div ref={revealOnce}><Hint icon={<Icon.Sparkle size={16} />} title={how.title} onDone={pageHints.doneChat}>{how.body}</Hint></div>
                 })()}
                 {!historyMode && partial === null && !pending && !pageHints.chat && hintDue("side") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint

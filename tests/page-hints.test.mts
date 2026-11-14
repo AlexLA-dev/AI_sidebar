@@ -119,6 +119,7 @@ test("wiring: never on a page in another language, the glow on the right button,
   assert.match(hook, /typing\(\)/, "not while typing")
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   assert.match(app, /data-glow=\{pageHints\.glow \?\? undefined\}/)
+  assert.match(app, /<div ref=\{revealOnce\}><Hint/, "the how-to scrolled into full view (it came under the question field on iPhone)")
   assert.match(app, /<HintLine id=\{pageHints\.line\} side=\{side\} top=\{fabTop\}/)
   assert.match(app, /partial === null && !pageHints\.chat && contextKind === "page" && source\.kind\(\) !== "page" && hintDue/, "one hint at a time: the video's or PDF's waits")
   const css = readFileSync(new URL("../src/content/pagehints/hints.css", import.meta.url), "utf8")

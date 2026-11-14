@@ -180,6 +180,13 @@ export function HintLine({ id, side, top, onTap, onClose }: { id: HintId; side: 
   )
 }
 
+/** The how-to in full view when it comes (on an iPhone's sheet it came under the question field). Once per element. */
+export function revealOnce(el: HTMLElement | null): void {
+  if (!el || el.dataset.revealed) return
+  el.dataset.revealed = "1"
+  requestAnimationFrame(() => el.scrollIntoView({ block: "nearest", behavior: "smooth" }))
+}
+
 /** The how-to's title and text for the chat (the offer's text for a plan the person doesn't have). */
 export function hintText(id: HintId, has: boolean): { title: string; body: string } {
   const spec = HINTS[id]
