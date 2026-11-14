@@ -2288,6 +2288,84 @@
  "similarMisses": {
   "message": "Không đúng lựa chọn của bạn"
  },
+ "appleTitle": {
+  "message": "Lịch và Lời nhắc"
+ },
+ "appleMenu": {
+  "message": "Thêm vào Lịch hoặc Lời nhắc"
+ },
+ "appleReading": {
+  "message": "Đang tìm ngày và giờ…"
+ },
+ "appleNothing": {
+  "message": "Không có gì để thêm: không có ngày hay việc cần làm."
+ },
+ "appleError": {
+  "message": "Không đọc được ngày."
+ },
+ "appleRetry": {
+  "message": "Thử lại"
+ },
+ "appleReminder": {
+  "message": "Lời nhắc"
+ },
+ "appleEvent": {
+  "message": "Sự kiện"
+ },
+ "appleWhat": {
+  "message": "Nội dung"
+ },
+ "appleDate": {
+  "message": "Ngày"
+ },
+ "appleTime": {
+  "message": "Giờ"
+ },
+ "appleList": {
+  "message": "Danh sách"
+ },
+ "appleRemindersApp": {
+  "message": "Vào Lời nhắc"
+ },
+ "appleCalendarPick": {
+  "message": "Bạn sẽ chọn lịch ở bước tiếp theo"
+ },
+ "appleCalendarDefault": {
+  "message": "Lịch mặc định của bạn"
+ },
+ "appleGuess": {
+  "message": "Hãy kiểm tra ngày giờ: đây là phỏng đoán."
+ },
+ "applePast": {
+  "message": "Thời điểm này đã qua. Hãy kiểm tra ngày."
+ },
+ "appleAdd": {
+  "message": "Thêm"
+ },
+ "appleAdded": {
+  "message": "Đã thêm vào Lời nhắc"
+ },
+ "appleAddedEvent": {
+  "message": "Đã thêm vào Lịch"
+ },
+ "appleOpening": {
+  "message": "Đang mở ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow không có quyền truy cập. Hãy bật trong Cài đặt."
+ },
+ "appleFailed": {
+  "message": "Không thể thêm. Hãy thử lại."
+ },
+ "appleAlso": {
+  "message": "Thêm vào Lời nhắc"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow không có quyền truy cập Lời nhắc. Hãy bật trong Cài đặt."
+ },
+ "appleAskOnce": {
+  "message": "Lần đầu, ContextFlow sẽ mở ra để xin quyền truy cập."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

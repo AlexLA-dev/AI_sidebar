@@ -14,7 +14,7 @@ import { listenAround } from "../around"
 import * as Icon from "../icons"
 import { HOST_TAG, privateBrowsing } from "../page"
 import { panelRoot } from "../root"
-import { copiedText } from "./capture"
+import { clipboardKeeper } from "./capture"
 import { activeIn, copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
 import { FillForm } from "./FillForm"
 import * as QIcon from "./icons"
@@ -247,25 +247,12 @@ export function QuickInsert(props: Props): VNode | null {
   }
 
   // ------------------------------------------------------------ Copied
-  const copyState = useRef<{ done: boolean } | null>(null)
+  // Copies and cuts on the page (capture.ts has when each is read).
+  const keeper = useMemo(() => clipboardKeeper((text) => void keepCopied(text, location.hostname, "page")), [])
   const onCopy = (e: ClipboardEvent, doc: Document, phase: "capture" | "bubble") => {
     const s = settingsRef.current
     if (!s.copied || privateBrowsing() || siteExcluded(location.hostname, s.copiedOffSites)) return
-    if (phase === "capture") {
-      // The page may stop the event before it bubbles up: the selection seen now is kept then.
-      const state = { done: false }
-      copyState.current = state
-      const early = copiedText(e, doc)
-      setTimeout(() => {
-        if (!state.done && early) void keepCopied(early, location.hostname, "page")
-      }, 0)
-      return
-    }
-    const state = copyState.current
-    if (state) state.done = true
-    // After the page's own handlers: a page that puts its own text on the clipboard is taken at its word.
-    const text = copiedText(e, doc)
-    if (text) void keepCopied(text, location.hostname, "page")
+    keeper(e, doc, phase)
   }
 
   // ------------------------------------------------------------ the list

@@ -91,6 +91,8 @@ import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads, withStoredEdits } from "../shared/jobs"
 import { linkChats, remindsAhead, watchesOn } from "../shared/chatMarks"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
+import { appleNow } from "./ux/apple"
+import { withoutItemMarker } from "../shared/appleItems"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
 import { GuideCard, GuidePill, ON_PAGE, PLAN_MENU, PLAN_STEPS, PLAN_VIEW, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
@@ -904,7 +906,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPartial(null)
     setStreamMode(null)
     if (entry || text) {
-      const next: Turn[] = [...history, entry ?? stamped(grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text })]
+      const shown = withoutItemMarker(text)
+      const answer: Turn = grounding ? { role: "assistant", content: shown.text, grounding } : { role: "assistant", content: shown.text }
+      const next: Turn[] = [...history, entry ?? stamped(shown.marked ? { ...answer, addable: true } : answer)]
       setMessages(next)
       const skipped = skippedFor(next, next.length - 1)
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
@@ -1072,6 +1076,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           stats,
           // Asked during the guided first request: the server doesn't count it, for an install's first few (2.6).
           ...(guideRef.current && !planTour.current ? { tour: true as const } : {}),
+          // 2.7: reminders and events can be added here, so the answer may suggest one (a card under it).
+          ...(appleNow()?.available ? { items: true as const } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
@@ -1567,7 +1573,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
    * `remindAt`: "Come back later" → Remind (2.5): the note gets a reminder that opens its page. Without a selection
    * the note is the page itself (its title).
    */
-  const noteSelection = async (sel: SelectionInfo | null, comment: string, remindAt?: number, remindPreset?: string) => {
+  const noteSelection = async (sel: SelectionInfo | null, comment: string, remindAt?: number, remindPreset?: string, apple?: boolean) => {
     if (noteHold.current) return
     noteHold.current = true
     if (sel) selFeatureUsed()
@@ -1586,9 +1592,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     let note: Entry = sel ? selectionNote(sel.text, comment, ref, (text) => t("noteQuote", text)) : stamped({ role: "user", content: comment.trim() || page.title || source.href(), note: true, page: ref }, ref.at)
     if (remindAt) {
       // Set on this device first: the note keeps the bell only when the notification is really set.
-      const outcome = await scheduleReminder(sendBackground, id, { ...note, remind: { at: remindAt, page: true } }, remindAt, "")
+      const outcome = await scheduleReminder(sendBackground, id, { ...note, remind: { at: remindAt, page: true } }, remindAt, "", apple === true)
       const dev = await thisDevice()
-      if (outcome === "scheduled") note = { ...note, remind: { at: remindAt, page: true, ...(dev ? { dev } : {}) } }
+      if (outcome === "scheduled") note = { ...note, remind: { at: remindAt, page: true, ...(dev ? { dev } : {}), ...(apple ? { apple: true as const } : {}) } }
       // A time when set; -1 when notifications are off for ContextFlow; 0 when there's no app to set it.
       setRemindSaved(outcome === "scheduled" ? remindAt : outcome === "denied" ? -1 : 0)
       void sendBackground({ type: "uxEvent", kind: "ux_remind", action: outcome === "scheduled" ? "set" : outcome === "denied" ? "denied" : "cancelled", what: "page", how: "later", ...(remindPreset ? { preset: remindPreset } : {}) })
@@ -2636,9 +2642,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         title={t(from.selection ? "uxRemind" : "uxLaterTitle")}
         quote={from.selection?.text}
         words=""
-        onPick={(at, preset, words) => {
+        onPick={(at, preset, words, apple) => {
           setLater(null)
-          void noteSelection(from.selection, words ?? "", at, preset)
+          void noteSelection(from.selection, words ?? "", at, preset, apple)
         }}
         onCancel={() => setLater(null)}
         onClose={() => setLater(null)}
@@ -2712,7 +2718,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setLaterCount(countOf(items))
   }
   /** A reminder's new time, from the list (2.5 (75)): it rings on this device. Null once set, else why it isn't. */
-  const rescheduleLaterItem = async (item: LaterItem, at: number, preset: string, words?: string): Promise<string | null> => {
+  const rescheduleLaterItem = async (item: LaterItem, at: number, preset: string, words?: string, apple?: boolean): Promise<string | null> => {
     const ref = reminderOf(item)
     const thread = ref ? (await loadThreads()).threads[ref.chat] : undefined
     const found = ref && thread?.m.find((m) => entryKey(m) === ref.key)
@@ -2720,15 +2726,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // New words go with the new time (2.6 (97)); the notification says them.
     const entry = withRemindWords(found, words)
     const what = entry.remind?.page ? "page" : entry.note ? "note" : "answer"
-    const outcome = await scheduleReminder(sendBackground, ref.chat, entry, at, thread.title || threadTitle(thread.m))
+    const outcome = await scheduleReminder(sendBackground, ref.chat, entry, at, thread.title || threadTitle(thread.m), apple === true)
     if (outcome !== "scheduled") {
       if (outcome === "denied") void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "denied", what })
       return t(outcome === "denied" ? "uxRemindOff" : "uxRemindNone")
     }
     const dev = await thisDevice()
     const worded = (list: Entry[]) => list.map((m) => (entryKey(m) === ref.key ? withRemindWords(m, words) : m))
-    await saveThread(ref.chat, withReminderAt(worded(thread.m), ref.key, at, dev))
-    if (threadRef.current === ref.chat) setMessages((list) => withReminderAt(worded(list), ref.key, at, dev))
+    await saveThread(ref.chat, withReminderAt(worded(thread.m), ref.key, at, dev, apple))
+    if (threadRef.current === ref.chat) setMessages((list) => withReminderAt(worded(list), ref.key, at, dev, apple))
     void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "set", what, how: "list", preset })
     const items = await laterItems()
     setLaterList(items)
@@ -3818,6 +3824,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
+                      {m.note && !picked && ux.addCard(m, idx)}
                     </div>
                   ) : (
                     <div class={`cf-msg ai ${m.pinned ? "pinned-msg" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)} onContextMenu={picked ? undefined : ux.contextMenu(idx)}>
@@ -3834,13 +3841,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         </>
                       ), !picked)}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
+                      {!picked && ux.addCard(m, idx)}
                     </div>
                   )
                 )}
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan) === "light"} /> : partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
+                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan) === "light"} /> : partial ? <Markdown text={withoutItemMarker(partial).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
                   </div>
                 )}
 

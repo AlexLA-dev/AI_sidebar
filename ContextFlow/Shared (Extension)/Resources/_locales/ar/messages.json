@@ -2288,6 +2288,84 @@
  "similarMisses": {
   "message": "لا يطابق اختيارك"
  },
+ "appleTitle": {
+  "message": "التقويم والتذكيرات"
+ },
+ "appleMenu": {
+  "message": "إضافة إلى التقويم أو التذكيرات"
+ },
+ "appleReading": {
+  "message": "أبحث عن التاريخ والوقت…"
+ },
+ "appleNothing": {
+  "message": "لا شيء لإضافته هنا: لا تاريخ ولا مهمة."
+ },
+ "appleError": {
+  "message": "تعذّرت قراءة التاريخ."
+ },
+ "appleRetry": {
+  "message": "إعادة المحاولة"
+ },
+ "appleReminder": {
+  "message": "تذكير"
+ },
+ "appleEvent": {
+  "message": "حدث"
+ },
+ "appleWhat": {
+  "message": "ماذا"
+ },
+ "appleDate": {
+  "message": "التاريخ"
+ },
+ "appleTime": {
+  "message": "الوقت"
+ },
+ "appleList": {
+  "message": "القائمة"
+ },
+ "appleRemindersApp": {
+  "message": "في التذكيرات"
+ },
+ "appleCalendarPick": {
+  "message": "ستختار التقويم في الخطوة التالية"
+ },
+ "appleCalendarDefault": {
+  "message": "تقويمك الافتراضي"
+ },
+ "appleGuess": {
+  "message": "تحقّق من التاريخ والوقت: إنهما تقديريان."
+ },
+ "applePast": {
+  "message": "مضى هذا الوقت. تحقّق من التاريخ."
+ },
+ "appleAdd": {
+  "message": "إضافة"
+ },
+ "appleAdded": {
+  "message": "أُضيف إلى التذكيرات"
+ },
+ "appleAddedEvent": {
+  "message": "أُضيف إلى التقويم"
+ },
+ "appleOpening": {
+  "message": "جارٍ فتح ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "لا يملك ContextFlow إذنًا بالوصول. فعّله في الإعدادات."
+ },
+ "appleFailed": {
+  "message": "تعذّرت الإضافة. حاول مرة أخرى."
+ },
+ "appleAlso": {
+  "message": "أيضًا في التذكيرات"
+ },
+ "appleRemindersOff": {
+  "message": "لا يملك ContextFlow إذنًا بالوصول إلى التذكيرات. فعّله في الإعدادات."
+ },
+ "appleAskOnce": {
+  "message": "في المرة الأولى يُفتح ContextFlow ليطلب الإذن."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

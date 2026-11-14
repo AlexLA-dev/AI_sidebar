@@ -2288,6 +2288,84 @@
  "similarMisses": {
   "message": "Doesn't meet your choice"
  },
+ "appleTitle": {
+  "message": "Calendar and Reminders"
+ },
+ "appleMenu": {
+  "message": "Add to Calendar or Reminders"
+ },
+ "appleReading": {
+  "message": "Looking for the date and time…"
+ },
+ "appleNothing": {
+  "message": "Nothing to add here: no date or task found."
+ },
+ "appleError": {
+  "message": "Couldn't read the date."
+ },
+ "appleRetry": {
+  "message": "Try again"
+ },
+ "appleReminder": {
+  "message": "Reminder"
+ },
+ "appleEvent": {
+  "message": "Event"
+ },
+ "appleWhat": {
+  "message": "What"
+ },
+ "appleDate": {
+  "message": "Date"
+ },
+ "appleTime": {
+  "message": "Time"
+ },
+ "appleList": {
+  "message": "List"
+ },
+ "appleRemindersApp": {
+  "message": "In Reminders"
+ },
+ "appleCalendarPick": {
+  "message": "Calendar: you'll choose it next"
+ },
+ "appleCalendarDefault": {
+  "message": "Your default calendar"
+ },
+ "appleGuess": {
+  "message": "Check the date and time: they're a guess."
+ },
+ "applePast": {
+  "message": "This time has passed. Check the date."
+ },
+ "appleAdd": {
+  "message": "Add"
+ },
+ "appleAdded": {
+  "message": "Added to Reminders"
+ },
+ "appleAddedEvent": {
+  "message": "Added to Calendar"
+ },
+ "appleOpening": {
+  "message": "Opening ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow has no access. Turn it on in Settings."
+ },
+ "appleFailed": {
+  "message": "Couldn't add it. Try again."
+ },
+ "appleAlso": {
+  "message": "Also in Reminders"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow has no access to Reminders. Turn it on in Settings."
+ },
+ "appleAskOnce": {
+  "message": "The first time, ContextFlow opens to ask for access."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

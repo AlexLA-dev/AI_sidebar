@@ -2288,6 +2288,84 @@
  "similarMisses": {
   "message": "선택한 조건에 맞지 않음"
  },
+ "appleTitle": {
+  "message": "캘린더 및 미리 알림"
+ },
+ "appleMenu": {
+  "message": "캘린더나 미리 알림에 추가"
+ },
+ "appleReading": {
+  "message": "날짜와 시간을 찾는 중…"
+ },
+ "appleNothing": {
+  "message": "추가할 내용이 없습니다: 날짜나 할 일이 없어요."
+ },
+ "appleError": {
+  "message": "날짜를 읽지 못했습니다."
+ },
+ "appleRetry": {
+  "message": "다시 시도"
+ },
+ "appleReminder": {
+  "message": "미리 알림"
+ },
+ "appleEvent": {
+  "message": "이벤트"
+ },
+ "appleWhat": {
+  "message": "내용"
+ },
+ "appleDate": {
+  "message": "날짜"
+ },
+ "appleTime": {
+  "message": "시간"
+ },
+ "appleList": {
+  "message": "목록"
+ },
+ "appleRemindersApp": {
+  "message": "미리 알림으로"
+ },
+ "appleCalendarPick": {
+  "message": "캘린더는 다음 화면에서 고릅니다"
+ },
+ "appleCalendarDefault": {
+  "message": "기본 캘린더"
+ },
+ "appleGuess": {
+  "message": "날짜와 시간을 확인하세요: 추정한 값입니다."
+ },
+ "applePast": {
+  "message": "이미 지난 시간입니다. 날짜를 확인하세요."
+ },
+ "appleAdd": {
+  "message": "추가"
+ },
+ "appleAdded": {
+  "message": "미리 알림에 추가했습니다"
+ },
+ "appleAddedEvent": {
+  "message": "캘린더에 추가했습니다"
+ },
+ "appleOpening": {
+  "message": "ContextFlow를 여는 중…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow에 접근 권한이 없습니다. 설정에서 켜 주세요."
+ },
+ "appleFailed": {
+  "message": "추가하지 못했습니다. 다시 시도해 주세요."
+ },
+ "appleAlso": {
+  "message": "미리 알림에도 추가"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow가 미리 알림에 접근할 수 없습니다. 설정에서 켜 주세요."
+ },
+ "appleAskOnce": {
+  "message": "처음에는 접근 권한을 묻기 위해 ContextFlow가 열립니다."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

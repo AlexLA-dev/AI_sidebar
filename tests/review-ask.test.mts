@@ -113,7 +113,8 @@ test("every ask goes through ReviewAsk: one requestReview, at the root, and each
   // Safari's moment: at launch and whenever the app comes to the front (iOS: twice over, one ask waits at a time).
   assert.equal([...content.matchAll(/ReviewAsk\.shared\.cameToFront\(\)/g)].length, 4)
   // A link from Safari to do something holds it.
-  assert.match(content, /\["subscribe", "manage", "listen", "notifications"\]\.contains\(url\.host \?\? ""\) \{ ReviewAsk\.shared\.taskLink\(\) \}/)
+  // 2.7: "add", a reminder or an event handed over from the panel.
+  assert.match(content, /\["subscribe", "manage", "listen", "notifications", "add"\]\.contains\(url\.host \?\? ""\) \{ ReviewAsk\.shared\.taskLink\(\) \}/)
 
   const ask = app("ReviewAsk.swift")
   assert.match(ask, /func take\(_ request: Request, busy: Bool\) -> Bool \{[\s\S]*?ReviewGate\.goesNow\(request\.via, state\)[\s\S]*?if let pending \{ SharedDefaults\.shared\.markReviewAsked\(pending\) \}[\s\S]*?ChatAI\.reportUse\("rate", "ask", fields\)/)

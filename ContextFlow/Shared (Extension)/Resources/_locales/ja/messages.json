@@ -2288,6 +2288,84 @@
  "similarMisses": {
   "message": "選んだ条件に合いません"
  },
+ "appleTitle": {
+  "message": "カレンダーとリマインダー"
+ },
+ "appleMenu": {
+  "message": "カレンダーかリマインダーに追加"
+ },
+ "appleReading": {
+  "message": "日付と時刻を探しています…"
+ },
+ "appleNothing": {
+  "message": "追加するものが見つかりません（日付や用事がありません）。"
+ },
+ "appleError": {
+  "message": "日付を読み取れませんでした。"
+ },
+ "appleRetry": {
+  "message": "再試行"
+ },
+ "appleReminder": {
+  "message": "リマインダー"
+ },
+ "appleEvent": {
+  "message": "イベント"
+ },
+ "appleWhat": {
+  "message": "内容"
+ },
+ "appleDate": {
+  "message": "日付"
+ },
+ "appleTime": {
+  "message": "時刻"
+ },
+ "appleList": {
+  "message": "リスト"
+ },
+ "appleRemindersApp": {
+  "message": "リマインダーへ"
+ },
+ "appleCalendarPick": {
+  "message": "カレンダーは次の画面で選びます"
+ },
+ "appleCalendarDefault": {
+  "message": "デフォルトのカレンダー"
+ },
+ "appleGuess": {
+  "message": "日付と時刻を確認してください（推定です）。"
+ },
+ "applePast": {
+  "message": "この時刻は過ぎています。日付を確認してください。"
+ },
+ "appleAdd": {
+  "message": "追加"
+ },
+ "appleAdded": {
+  "message": "リマインダーに追加しました"
+ },
+ "appleAddedEvent": {
+  "message": "カレンダーに追加しました"
+ },
+ "appleOpening": {
+  "message": "ContextFlow を開いています…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow にアクセス権がありません。設定でオンにしてください。"
+ },
+ "appleFailed": {
+  "message": "追加できませんでした。もう一度お試しください。"
+ },
+ "appleAlso": {
+  "message": "リマインダーにも追加"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow はリマインダーにアクセスできません。設定でオンにしてください。"
+ },
+ "appleAskOnce": {
+  "message": "初回は ContextFlow が開いてアクセスを確認します。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

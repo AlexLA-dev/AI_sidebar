@@ -156,6 +156,13 @@ export const config = {
     ipDaily: int("WATCH_IP_DAILY", 1000),
     globalDaily: int("WATCH_GLOBAL_DAILY", 40_000)
   },
+  // Calendar and Reminders (2.7, /api/v2/item; the same Haiku): free for everyone and not counted against answers
+  // (the owner's choice); these caps only stop runaway clients.
+  items: {
+    installDaily: int("ITEMS_INSTALL_DAILY", 60),
+    ipDaily: int("ITEMS_IP_DAILY", 600),
+    globalDaily: int("ITEMS_GLOBAL_DAILY", 30_000)
+  },
   // "Find similar" (2.6, Ultra; /api/v2/similar). SIMILAR_ENGINES says which engines people can reach in
   // production: "" (the default: none, the endpoint answers UNAVAILABLE), "a" (ours, checked), "b" (Google,
   // Gemini grounding, shown as is) or "a,b". Off production (deploy previews, `netlify dev`) the evaluation

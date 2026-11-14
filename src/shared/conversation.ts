@@ -86,8 +86,12 @@ export interface Entry extends ChatTurn {
   // 2.5, answers and notes: pinned at the top of the chat (when, ms).
   pinned?: number
   // 2.5, answers and notes: a reminder (ms). The notification rings only on the device that set it (`dev`).
-  // `page`: a note made from a selection with "Remind me": the notification opens its page.
-  remind?: { at: number; dev?: string; page?: true }
+  // `page`: a note made from a selection with "Remind me": the notification opens its page. `apple` (2.7): it's in
+  // Apple Reminders too («Также в Напоминания», on the device that set it).
+  remind?: { at: number; dev?: string; page?: true; apple?: true }
+  // 2.7, answers: the answer ended with the chat's marker (appleItems.ts ITEM_MARKER, taken out of the text): the
+  // person asked for a reminder or an event, or it gives a date to keep. The panel offers to add it (a card).
+  addable?: true
 }
 
 /** A new message's id: 12 random letters and digits. */

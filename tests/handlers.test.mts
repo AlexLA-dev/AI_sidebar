@@ -1418,3 +1418,16 @@ test("rows written by a deploy preview or our own scripts are marked as tests", 
   await new Promise((r) => setTimeout(r, 0))
   assert.deepEqual(events.map((e) => [e.data.audience, e.data.deploy]), [["test", "deploy-preview"], ["test", undefined], [undefined, undefined]])
 })
+
+// 2.7, Calendar and Reminders: only a client that can add them (Safari on iOS 17+ and macOS 14+ says `items: true`) is
+// told to end an answer with the marker for a card; others, and "Ask your chats", never get it.
+test("chat: the rule for a reminder or an event only for clients that can add them", async () => {
+  const systemNow = () => (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  await events$(await chat(ask({ items: true, messages: [{ role: "user", content: "remind me on Friday to book the hotel" }] }), ctx()))
+  assert.match(systemNow(), /\[\[cf:add\]\]/)
+  assert.ok(systemNow().indexOf("[[cf:add]]") < systemNow().indexOf("Content of the page"), "with the rules, before the page")
+  await events$(await chat(ask(), ctx()))
+  assert.doesNotMatch(systemNow(), /cf:add/)
+  await events$(await chat(ask({ items: "yes" }), ctx()))
+  assert.doesNotMatch(systemNow(), /cf:add/)
+})

@@ -1,6 +1,7 @@
 import type { Attachment, MediaKind } from "./attachments.ts"
 import { COPIED_DEFAULT_ON } from "./copied.ts"
 import type { ChatDigest } from "./history.ts"
+import type { AppleItem } from "./appleItems.ts"
 import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
@@ -109,6 +110,9 @@ export interface AskPayload {
   stats?: ChatStats
   // Asked during the guided first request (2.6): not counted against the free answers, for an install's first few.
   tour?: true
+  // 2.7: this device can add reminders and events (Safari, iOS 17+ and macOS 14+): the answer may end with the marker
+  // for a card (appleItems.ts ITEM_MARKER). Older clients don't send it and never get the marker.
+  items?: true
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
@@ -242,10 +246,19 @@ export type BackgroundRequest =
   // A reminder on an answer or a note (2.5): a local notification on this device (Safari); answers
   // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
   | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; url?: string; ask?: boolean }
+  // 2.7, Calendar and Reminders (appleItems.ts): whether this device can add them and with what access ("appleStatus");
+  // a reminder or an event written on the device, or handed to the app with `handoff` (its id, the link the page already
+  // followed) when the extension can't write it ("appleAdd" → { outcome: "saved" | "app" | "denied" | "failed" |
+  // "unavailable" }); a reminder «Также в Напоминания» added, taken back ("appleRemove", by its key); the date and time
+  // read out of a text by the server ("itemsRead" → { items } or { error }).
+  | { type: "appleStatus" }
+  | { type: "appleAdd"; item: AppleItem; notes: string; url?: string; list?: string; key?: string; handoff?: string }
+  | { type: "appleRemove"; key: string }
+  | { type: "itemsRead"; text: string; words?: string; kind?: AppleItem["kind"]; title?: string }
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "similar"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "similar"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
