@@ -494,6 +494,40 @@
   ]
  },
  {
+  "key": "4bbb632f02fd",
+  "kind": "html",
+  "en": "Collections",
+  "pages": [
+   "index.html",
+   "features.html"
+  ]
+ },
+ {
+  "key": "3d2621f831d8",
+  "kind": "html",
+  "en": "Gather answers and notes from your chats into a collection, like a trip or a purchase. Compare them in a table with Pro, and save the whole collection as a PDF.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "3ee4fbeeb2ae",
+  "kind": "html",
+  "en": "Invite a friend",
+  "pages": [
+   "index.html",
+   "features.html"
+  ]
+ },
+ {
+  "key": "3535c6dcd2e3",
+  "kind": "html",
+  "en": "Send a friend your code: they get bonus answers for their first week, and you get a discount on Pro or Ultra once they've used it on two different days.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
   "key": "de1fd9c7de83",
   "kind": "html",
   "en": "Everything new in 2.7 →",
@@ -1573,6 +1607,22 @@
   "key": "a56f95237dea",
   "kind": "html",
   "en": "Find similar isn't only Ultra's now. Pro and Own key get a quick search, up to 5 a week: fewer pages, and every one is still opened and checked. On Pro, each search counts as 10 answers. Ultra keeps the full search, 10 a week.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "d983f26b858a",
+  "kind": "html",
+  "en": "Comparing three hotels or five laptops across a dozen chats? Tap To collection under an answer or a note, and it goes into a collection, in a section like Hotels or Flights. In the app, a collection is columns you can drag between on iPad and Mac, and a list on iPhone. Each card opens its chat at that answer. PDF saves the whole collection, with links to the sources. Free has one collection of 10 cards. With Pro, you get as many as you like, Compare, which puts 2 to 8 cards side by side in a table, and Summary.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "364b370261ec",
+  "kind": "html",
+  "en": "Know someone who reads a lot in Safari? In Settings, Invite a friend gives you a code and a link. Your friend gets bonus answers: 5 more a day for their first week. Once they've asked questions on two different days, you get a discount on the first month of Pro or Ultra.",
   "pages": [
    "features.html"
   ]
