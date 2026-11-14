@@ -6,9 +6,10 @@
 import { hasPro } from "../shared/plan"
 import { API_BASE } from "../shared/config"
 import { entryKey, textKey, type Entry } from "../shared/conversation"
-import { embedText, judgedTags, judgeText, nameCheckKey, nameStateAfter, nameText, openName, openTags, ORGANIZE_ENGINE, organizeScan, orgStateFor, suggestMove, tagCandidates, tagTargets, unpackVector, type MoveSuggestion, type OrganizeConfig, type VectorOf, wantsNameCheck } from "../shared/organize"
+import { dot, embedText, judgedTags, judgeText, matchPercent, nameCheckKey, nameStateAfter, nameText, openName, openTags, ORGANIZE_ENGINE, organizeScan, orgStateFor, scoredBlocks, suggestMove, tagCandidates, tagTargets, unpackVector, type MoveSuggestion, type OrganizeConfig, type VectorOf, wantsNameCheck } from "../shared/organize"
 import { cleanTitle, liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
 import { chatsInSpace, cleanSpaceList, emptySpaces, spaceOfChat, type StoredSpaces } from "../shared/spaces"
+import { SITE_MATCH, type MeaningMatches } from "../shared/match"
 import { DEFAULT_SETTINGS, STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type Settings, type StatusInfo } from "../shared/types"
 
 interface Context {
@@ -270,4 +271,43 @@ export async function reportOrganize(event: OrganizeEvent, installId: string, cl
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...event, surface: "panel", installId, client })
   }).catch(() => undefined)
+}
+
+/**
+ * «Подходящий чат» by meaning (2.7, plan section 4; Pro with organizing on and its consent): the page title's vector
+ * against the blocks of `chats` (the space's, from the panel) by the vectors this device already has. The title goes to
+ * /api/v2/organize for its vector and isn't kept, here or there. Each chat at SITE_MATCH (60 %) or more, the best first,
+ * and the topic's threshold (mergeTopic, 85 %): the panel takes a chat by topic from that, and a same-site chat from 60.
+ * Null when it can't be asked (off, no Pro, no vectors, the network).
+ */
+export async function matchTopic(title: string, chats: string[], ctx: Context): Promise<MeaningMatches | null> {
+  const org = ctx.status.organize
+  const text = title.trim().slice(0, 300)
+  if (!org?.on || !ctx.on || !hasPro(ctx.status.plan) || !text || !chats.length) return null
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors])
+  const store = stored[STORAGE.orgVectors] as VectorStore | undefined
+  if (!store || store.space !== org.space) return null
+  const res = await api(ctx, { op: "embed", texts: [text] })
+  if (!res.ok || res.body.space !== store.space || typeof res.body.vectors?.[0] !== "string") return null
+  const page = unpackVector(res.body.vectors[0])
+  if (!page) return null
+  const vectorOf: VectorOf = (e: Entry) => {
+    const body = embedText(e)
+    const hit = body ? store.v[entryKey(e)] : undefined
+    const at = hit?.indexOf(":") ?? -1
+    if (!hit || at < 0 || hit.slice(0, at) !== textKey(body)) return null
+    return unpackVector(hit.slice(at + 1))
+  }
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const matches: Array<{ chat: string; match: number }> = []
+  for (const id of chats) {
+    const chat = threads[id]
+    if (!chat || chat.deleted || chat.kind === "history") continue
+    // The mean of its two closest blocks, as merging compares chats by their blocks.
+    const sims = scoredBlocks(chat.m, vectorOf).filter((b) => b.v).map((b) => dot(page, b.v!)).sort((a, b) => b - a).slice(0, 2)
+    if (!sims.length) continue
+    const match = matchPercent(sims.reduce((s, x) => s + x, 0) / sims.length, org.config)
+    if (match >= SITE_MATCH) matches.push({ chat: id, match })
+  }
+  return { matches: matches.sort((a, b) => b.match - a.match).slice(0, 20), topic: org.config.mergeTopic }
 }

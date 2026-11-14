@@ -2453,6 +2453,9 @@
  "setSpacesHint": {
   "message": "업무, 개인, 쇼핑: 각자 자기 채팅과 색상이 있습니다. 끄면 모든 채팅이 한 목록으로 돌아가고 스페이스는 그대로 남습니다."
  },
+ "matchContinue": {
+  "message": "이어서"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

@@ -2453,6 +2453,9 @@
  "setSpacesHint": {
   "message": "Lavoro, Personale, Acquisti: ognuno con le sue chat e il suo colore. Disattivati: tutte le chat in un’unica lista, e i tuoi spazi restano."
  },
+ "matchContinue": {
+  "message": "Continuo"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

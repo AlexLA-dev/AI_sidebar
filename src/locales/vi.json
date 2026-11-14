@@ -844,5 +844,6 @@
   "spaceLimit": "Số không gian miễn phí: {0}. Với Pro, bao nhiêu cũng được.",
   "spaceEmpty": "“{0}” chưa có cuộc trò chuyện nào. Cuộc trò chuyện mới sẽ ở đây.",
   "setSpaces": "Không gian",
-  "setSpacesHint": "Công việc, Cá nhân, Mua sắm: mỗi không gian có cuộc trò chuyện và màu riêng. Tắt: mọi cuộc trò chuyện về một danh sách, các không gian vẫn được giữ."
+  "setSpacesHint": "Công việc, Cá nhân, Mua sắm: mỗi không gian có cuộc trò chuyện và màu riêng. Tắt: mọi cuộc trò chuyện về một danh sách, các không gian vẫn được giữ.",
+  "matchContinue": "Tiếp tục"
 }

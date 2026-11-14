@@ -2453,6 +2453,9 @@
  "setSpacesHint": {
   "message": "Trabajo, Personal, Compras: cada uno con sus chats y su color. Desactivado: todos los chats en una lista, y tus espacios se guardan."
  },
+ "matchContinue": {
+  "message": "Sigo en"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

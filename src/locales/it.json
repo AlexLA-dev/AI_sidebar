@@ -844,5 +844,6 @@
   "spaceLimit": "Spazi gratis: {0}. Con Pro, quanti ne vuoi.",
   "spaceEmpty": "Ancora nessuna chat in «{0}». Una nuova chat finisce qui.",
   "setSpaces": "Spazi",
-  "setSpacesHint": "Lavoro, Personale, Acquisti: ognuno con le sue chat e il suo colore. Disattivati: tutte le chat in un’unica lista, e i tuoi spazi restano."
+  "setSpacesHint": "Lavoro, Personale, Acquisti: ognuno con le sue chat e il suo colore. Disattivati: tutte le chat in un’unica lista, e i tuoi spazi restano.",
+  "matchContinue": "Continuo"
 }
