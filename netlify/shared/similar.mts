@@ -224,6 +224,27 @@ export interface EngineOverrides {
   shipCheck?: boolean
   altSearch?: boolean
   shipReader?: "rules" | "model"
+  // 2.7, the light search: pages opened, the plan's searches kept, and the deeper steps a light search leaves out.
+  maxPages?: number
+  maxQueries?: number
+  regionCheck?: boolean
+  // The search model's turns: a long search pauses its turn, resumed once (2); the light search doesn't resume (1).
+  searchTurns?: number
+  // The later round of searches when the first found few (without the alternatives search beside it): off for the
+  // light search.
+  rescue?: boolean
+}
+
+/**
+ * Find similar's light search (2.7, everyone not on Ultra): the small model writes, the plan's first two searches only
+ * (no follow-ups, no search for alternatives beside them, no later round), 6 pages opened, no reviews, no brand's other
+ * models, no region or delivery check. Each page is still opened and checked; about a quarter of a full search's cost.
+ */
+export function lightOverrides(): EngineOverrides {
+  return {
+    writeModel: config.similar.lightWriteModel, searchMode: "single", followUps: 0, altSearch: false,
+    reviews: false, siblings: false, shipCheck: false, regionCheck: false, maxPages: 6, maxQueries: 2, searchTurns: 1, rescue: false
+  }
 }
 
 export interface EngineStats {
@@ -743,7 +764,7 @@ export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: num
   let input_tokens = 0
   let output_tokens = 0
   // A long server-side search loop pauses the turn: it's resumed once, as is (the rescue round: never).
-  for (let turn = 0; turn < turns; turn++) {
+  for (let turn = 0; turn < (over.searchTurns ?? turns); turn++) {
     const response = await createSearch(client, {
       model,
       max_tokens: 4_000,
@@ -762,7 +783,7 @@ export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: num
   }
   const results = resultsOf(content)
   const text = content.map((b) => (b.type === "text" ? b.text : "")).join("")
-  const candidates = pickCandidates(jsonIn(text), results, input.page, config.similar.maxPages)
+  const candidates = pickCandidates(jsonIn(text), results, input.page, over.maxPages ?? config.similar.maxPages)
   return { results, candidates, spend: spendOf(model, { input_tokens, output_tokens } as Anthropic.Usage, searches), tool: searchTool(model, over.searchTool) }
 }
 
@@ -2776,6 +2797,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
   // Near them where the search can't be located there: the country's name in the searches (build 94).
   await countriesP
   plan.queries = localQueries(input, plan)
+  if (over.maxQueries) plan.queries = plan.queries.slice(0, over.maxQueries)
   // Their money: their country's, else the page's own.
   plan.money = { currency: currencyOf(input.country) || input.facts.price?.currency || plan.sourceCurrency, rates: await ratesP }
   // A selection is the subject: from here on the page's own facts don't stand for it (subjectInput).
@@ -2792,7 +2814,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     const shipping = input.region === "local" && Boolean(input.country) && (over.shipCheck ?? config.similar.shipCheck) && budget > 3_000
     const [dug, region, reviewed, siblings, delivered] = await Promise.all([
       plan.condition.kind !== "none" && budget > 4_000 ? digDeeper(base, plan, input.condition, input.facts, lang(), Math.min(10_000, budget), opts.signal) : null,
-      country && budget > 2_000 ? regionCheck(base, country, lang(), Math.min(4_500, budget), opts.signal).catch(() => base) : null,
+      country && budget > 2_000 && (over.regionCheck ?? true) ? regionCheck(base, country, lang(), Math.min(4_500, budget), opts.signal).catch(() => base) : null,
       budget > 6_000 && (over.reviews ?? config.similar.reviews) ? reviewsStep(base, plan, input, lang(), budget, opts.signal).catch(() => null) : null,
       // Build 94: the brand's other models, so "it lacks X" names the one that has it.
       budget > 3_000 && (over.siblings ?? config.similar.siblings) ? siblingsStep(base, plan, input.facts, lang(), Math.min(5_000, budget), opts.signal, input.page.url).catch(() => null) : null,
@@ -2863,7 +2885,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     // Few candidates that could be items of their own (not their very item at other shops, not list pages): one
     // more search for alternatives at once, beside the checks (an answer of one shop or none compares nothing).
     const likely = taken.filter((c) => c.kind === "item" && !sameAsSubject(`${c.name} ${c.resultTitle}`, plan)).length
-    const rescueQ = !altQ && likely < 3 && left() > 30_000 ? rescueQueries(input, plan) : null
+    const rescueQ = !altQ && (over.rescue ?? true) && likely < 3 && left() > 30_000 ? rescueQueries(input, plan) : null
     // At most RESCUE_MS, one call: a slow round is dropped rather than eat the writer's time (a round with no limit
     // can push the whole answer past its time).
     const rescue = rescueQ

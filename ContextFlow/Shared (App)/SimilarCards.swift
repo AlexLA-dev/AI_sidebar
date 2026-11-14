@@ -13,14 +13,17 @@ struct SimilarAnswerData: Decodable, Hashable {
     var note = ""
     /// When its pages were checked (ms).
     var at: Double?
+    /// 2.7: a light search (not Ultra): fewer searches and pages, no reviews or delivery check.
+    var light = false
 
-    private enum Keys: String, CodingKey { case intro, items, note, at }
+    private enum Keys: String, CodingKey { case intro, items, note, at, light }
 
     init(from decoder: Decoder) throws {
         guard let c = try? decoder.container(keyedBy: Keys.self) else { return }
         intro = (try? c.decode(String.self, forKey: .intro)) ?? ""
         note = (try? c.decode(String.self, forKey: .note)) ?? ""
         at = try? c.decode(Double.self, forKey: .at)
+        light = (try? c.decode(Bool.self, forKey: .light)) ?? false
         items = ((try? c.decode([LenientItem].self, forKey: .items)) ?? []).compactMap(\.item)
     }
 
@@ -109,7 +112,7 @@ struct SimilarCardsView: View {
             }
             VStack(alignment: .leading, spacing: 14) {
                 ForEach(Array(close.enumerated()), id: \.offset) { index, item in
-                    SimilarItemCard(item: item, number: index + 1, less: false)
+                    SimilarItemCard(item: item, number: index + 1, less: false, light: answer.light)
                 }
             }
             if !less.isEmpty {
@@ -118,7 +121,7 @@ struct SimilarCardsView: View {
                         .font(.footnote.weight(.semibold))
                         .foregroundColor(.secondary)
                     ForEach(Array(less.enumerated()), id: \.offset) { index, item in
-                        SimilarItemCard(item: item, number: close.count + index + 1, less: true)
+                        SimilarItemCard(item: item, number: close.count + index + 1, less: true, light: answer.light)
                     }
                 }
                 .padding(.top, 2)
@@ -138,6 +141,12 @@ struct SimilarCardsView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
             }
+            if answer.light {
+                // 2.7: the light search, as the panel says under its answer.
+                Text("Quick search. Ultra searches wider, reads reviews and checks delivery.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         // A finished answer with alternatives, opened in the app within two days of its search: a good moment for a
@@ -153,6 +162,7 @@ private struct SimilarItemCard: View {
     let item: SimilarItemData
     let number: Int
     let less: Bool
+    var light = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -168,6 +178,8 @@ private struct SimilarItemCard: View {
                             .font(.body.weight(.semibold))
                             .multilineTextAlignment(.leading)
                     }
+                    // 2.7: an item opened from the app, counted ("use", src/shared/usage.ts: similar open).
+                    .simultaneousGesture(TapGesture().onEnded { ChatAI.reportUse("similar", "open", ["what": light ? "light" : "full"]) })
                 } else {
                     Text(item.name).font(.body.weight(.semibold))
                 }

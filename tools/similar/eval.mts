@@ -9,6 +9,7 @@
 //   run        both engines on every page through a deploy preview (--base=…, --engines=a,b, --only=ids,
 //              --tag=name for a variant, --search-model=…, --search-tool=…, --search-mode=single|parallel,
 //              --follow-ups=0..4, --stream=on|off, --reviews=on|off, --region=world|local, --country=XX, --force,
+//              --light=on (2.7: the light search, as everyone not on Ultra gets it),
 //              --concurrency=3)
 //   check      every link in every answer, opened independently of engine A's own checker (another browser
 //              identity, longer timeouts, redirects followed, a made-up address on the same site as a soft-404
@@ -174,7 +175,7 @@ async function run() {
   const base = (flag("base") ?? "https://deploy-preview-58--aisidebar.netlify.app").replace(/\/$/, "")
   const engines = (flag("engines") ?? "a,b").split(",") as Array<"a" | "b">
   const options: Record<string, string> = {}
-  for (const [f, k] of [["search-model", "searchModel"], ["search-tool", "searchTool"], ["write-model", "writeModel"], ["plan-model", "planModel"], ["search-mode", "searchMode"], ["follow-ups", "followUps"], ["stream", "stream"], ["reviews", "reviews"], ["region", "region"], ["country", "country"]]) if (flag(f)) options[k] = flag(f)!
+  for (const [f, k] of [["search-model", "searchModel"], ["search-tool", "searchTool"], ["write-model", "writeModel"], ["plan-model", "planModel"], ["search-mode", "searchMode"], ["follow-ups", "followUps"], ["stream", "stream"], ["reviews", "reviews"], ["region", "region"], ["country", "country"], ["light", "light"]]) if (flag(f)) options[k] = flag(f)!
   const tasks = chosen.filter((t) => snapshots[t.id]?.ok).flatMap((t) => engines.map((e) => ({ t, e })))
   await pool(tasks, Number(flag("concurrency") ?? 3), async ({ t, e }) => {
     const path = runPath(TAG, e, t.id)

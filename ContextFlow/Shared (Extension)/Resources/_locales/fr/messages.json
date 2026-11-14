@@ -1973,6 +1973,21 @@
  "similarLimit": {
   "message": "Les {0} recherches « Trouver similaire » de la semaine sont utilisées. Elles reviennent {1}."
  },
+ "similarLightNote": {
+  "message": "Recherche rapide : jusqu'à {0} par semaine."
+ },
+ "similarLightNotePro": {
+  "message": "Recherche rapide : jusqu'à {0} par semaine, chacune compte pour {1} réponses."
+ },
+ "similarLightFoot": {
+  "message": "Recherche rapide. Ultra cherche plus large, lit les avis et vérifie la livraison."
+ },
+ "similarLightLimit": {
+  "message": "Les {0} recherches rapides de la semaine sont utilisées. Elles reviennent {1}. Ultra en offre {2} par semaine et cherche plus large."
+ },
+ "similarAnswersShort": {
+  "message": "Une recherche rapide compte pour {0} réponses, et il vous en reste {1}."
+ },
  "orgDemoQuestion": {
   "message": "Vols pas chers pour Lisbonne en mai ?"
  },

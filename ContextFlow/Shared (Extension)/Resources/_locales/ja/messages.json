@@ -1973,6 +1973,21 @@
  "similarLimit": {
   "message": "今週の「似たものを探す」{0}回を使い切りました。{1}に戻ります。"
  },
+ "similarLightNote": {
+  "message": "クイック検索：週{0}回まで。"
+ },
+ "similarLightNotePro": {
+  "message": "クイック検索：週{0}回まで。1回につき回答{1}回分です。"
+ },
+ "similarLightFoot": {
+  "message": "クイック検索です。Ultraはより広く探し、レビューを読み、配送も確認します。"
+ },
+ "similarLightLimit": {
+  "message": "今週のクイック検索{0}回を使い切りました。{1}に戻ります。Ultraなら週{2}回、より広く探します。"
+ },
+ "similarAnswersShort": {
+  "message": "クイック検索は回答{0}回分です。残りは{1}回です。"
+ },
  "orgDemoQuestion": {
   "message": "5月のリスボン行き格安航空券は？"
  },
