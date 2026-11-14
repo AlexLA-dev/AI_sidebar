@@ -2,6 +2,7 @@
 // "own OpenAI key" path, so both behave the same.
 
 import type { Attachment, MediaKind } from "./attachments.ts"
+import { ITEM_MARKER } from "./appleItems.ts"
 import { fitTokens, GAP, PAGE_TOKENS } from "./pagefit.ts"
 
 export interface PageContext {
@@ -42,6 +43,22 @@ export const MULTI_PAGE_RULE =
 /** 2.5: the user's highlights in earlier answers. Only when the conversation has them, so older clients get the same prompt. */
 export const MARK_RULE =
   "- In your earlier answers, <mark>…</mark> wraps what the user highlighted as important to them: treat it as their emphasis. Don't write <mark> yourself and don't mention the marks."
+
+/**
+ * 2.7, Calendar and Reminders (appleItems.ts): the answer ends with ITEM_MARKER when the person asked for a reminder or
+ * an event, or when it gives them a date they'll want to keep. The panel hides the marker and shows a card to confirm.
+ * Only for clients that say they can add items (`items: true`), so older ones never show the marker.
+ */
+export const ITEM_RULE =
+  `- When the user asks you to remind them of something, or to put something in their calendar or reminders ("remind me on Friday to book the hotel", "add my flight to the calendar"), you can't create it yourself: ContextFlow shows them a card to confirm. Say in one short sentence what it will be and when, and end your answer with a line that is exactly ${ITEM_MARKER}. Also end with that line when your answer gives the user a specific upcoming date or time they will likely want to keep (their flight, a booking, a deadline, an appointment). Otherwise never write it, and never mention it.`
+
+/** The rules with ITEM_RULE when the client can add items (the first, cached part of systemPromptParts). */
+export function withItemRule(parts: [string, string], items: boolean): [string, string] {
+  if (!items) return parts
+  const [rules, rest] = parts
+  const at = rules.indexOf("\n\n", rules.indexOf("Rules:"))
+  return at < 0 ? [`${rules}\n${ITEM_RULE}`, rest] : [`${rules.slice(0, at)}\n${ITEM_RULE}${rules.slice(at)}`, rest]
+}
 
 /** Whether an earlier answer in the conversation carries the user's highlights (see MARK_RULE). */
 export function hasMarks(messages: ReadonlyArray<{ role: string; content: string }>): boolean {

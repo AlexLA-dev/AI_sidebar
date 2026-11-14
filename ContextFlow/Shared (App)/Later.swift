@@ -64,8 +64,10 @@ extension ChatLibrary {
         let key = Organize.entryKey(raw[index])
         var event: [String: String] = ["what": entry.remind?.page == true ? "page" : entry.isNote ? "note" : "answer"]
         if let how { event["how"] = how }
+        let appleKey = MessageReminders.identifier(chat: thread.id, message: key)
         guard let at else {
             MessageReminders.cancel(chat: thread.id, message: key)
+            if entry.remind?.apple == true { AppleItems.remove(key: appleKey) }
             setRemind(thread, entry: index, nil)
             ChatAI.reportUx("ux_remind", event.merging(["action": "cancelled"]) { $1 })
             return true
@@ -78,14 +80,48 @@ extension ChatLibrary {
         if let worded { entry.content = worded }
         let outcome = await MessageReminders.schedule(chat: thread.id, message: key, at: at, title: title,
                                                       body: ReminderTimes.asked(entry.reminderText), open: page, ask: true)
-        guard outcome == .scheduled else {
+        // «Также в Напоминания» (2.7): into Apple Reminders as well, asked for once; a time changed moves the same one.
+        let apple = await alsoInReminders(entry, chat: thread.id, message: key, at: at, key: appleKey, pageTitle: title)
+        guard outcome == .scheduled || apple else {
             ChatAI.reportUx("ux_remind", event.merging(["action": "denied"]) { $1 })
             return false
         }
         if let worded { setRemindWords(thread, entry: index, worded) }
-        setRemind(thread, entry: index, ChatRemind(at: at.timeIntervalSince1970 * 1000, dev: String(Activation.shared.appId.prefix(12)), page: entry.remind?.page))
+        setRemind(thread, entry: index, ChatRemind(at: at.timeIntervalSince1970 * 1000, dev: String(Activation.shared.appId.prefix(12)),
+                                                    page: entry.remind?.page, apple: apple ? true : nil))
         ChatAI.reportUx("ux_remind", event.merging(["action": "set", "preset": preset ?? "custom"]) { $1 })
         return true
+    }
+
+    /// «Также в Напоминания» (2.7), when it's on: the reminder in Apple Reminders too, with the page and a link back to
+    /// the message in its notes. True when it's there (asked for access first when never asked).
+    private func alsoInReminders(_ entry: ChatEntry, chat: String, message: String, at: Date, key: String, pageTitle: String) async -> Bool {
+        guard AppleItems.available, UserDefaults.standard.bool(forKey: AppleItems.alsoKey) else {
+            if entry.remind?.apple == true { AppleItems.remove(key: key) }
+            return false
+        }
+        if AppleItems.access(.reminder) == .none { _ = await AppleItems.ask(.reminder) }
+        guard AppleItems.access(.reminder) == .write else {
+            ChatAI.reportUse("apple", "denied", ["what": "reminder", "via": "remind"])
+            return false
+        }
+        var item = AppleItems.Item(kind: .reminder, title: String(entry.reminderText.prefix(120)))
+        let wall = AppleItems.wall(at)
+        item.date = wall.date
+        item.time = wall.time
+        let pageURL = entry.page.map { $0.url }.flatMap { $0.hasPrefix("http") ? $0 : nil }
+        item.notes = [pageURL.map { pageTitle.isEmpty || pageTitle == $0 ? $0 : "\(pageTitle)\n\($0)" },
+                      MessageReminders.link(chat: chat, message: message)?.absoluteString]
+            .compactMap { $0 }.joined(separator: "\n\n")
+        do {
+            try AppleItems.save(item, key: key)
+            ChatAI.reportUse("apple", "added", ["what": "reminder", "via": "remind"])
+            return true
+        } catch {
+            AppleItems.log("also in Reminders failed: \(error)")
+            ChatAI.reportUse("apple", "failed", ["what": "reminder", "via": "remind"])
+            return false
+        }
     }
 
     /// A chat going to Recently Deleted: its reminders don't ring on this device (the marks stay on the messages).

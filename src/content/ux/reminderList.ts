@@ -65,7 +65,10 @@ export function reminderOf(item: LaterItem): { chat: string; key: string } | nul
   return chat && key.length ? { chat, key: key.join(":") } : null
 }
 
-/** `m` with the reminder of the message `key` at `at` (rung on device `dev`, where it was set); a page's stays one. */
-export function withReminderAt(m: Entry[], key: string, at: number, dev: string | undefined): Entry[] {
-  return m.map((x) => (entryKey(x) === key ? { ...x, remind: { ...(x.remind?.page ? { page: true as const } : {}), at, ...(dev ? { dev } : {}) } } : x))
+/**
+ * `m` with the reminder of the message `key` at `at` (rung on device `dev`, where it was set); a page's stays one.
+ * `apple` (2.7): it's in Apple Reminders too.
+ */
+export function withReminderAt(m: Entry[], key: string, at: number, dev: string | undefined, apple?: boolean): Entry[] {
+  return m.map((x) => (entryKey(x) === key ? { ...x, remind: { ...(x.remind?.page ? { page: true as const } : {}), at, ...(dev ? { dev } : {}), ...(apple ? { apple: true as const } : {}) } } : x))
 }

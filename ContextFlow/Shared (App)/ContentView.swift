@@ -44,7 +44,7 @@ final class DeepLinkRouter: ObservableObject {
     func handle(_ url: URL) {
         guard url.scheme == "contextflow" else { return }
         // Opened to do something (buy, listen, the notifications question): no rating asked over it (2.6 (100)).
-        if ["subscribe", "manage", "listen", "notifications"].contains(url.host ?? "") { ReviewAsk.shared.taskLink() }
+        if ["subscribe", "manage", "listen", "notifications", "add"].contains(url.host ?? "") { ReviewAsk.shared.taskLink() }
         pending = url
     }
 }
@@ -84,6 +84,8 @@ struct ContentView: View {
     /// energy). Only whether its sheet is up is.
     private let listen = ListenPlayer.shared
     @StateObject private var listenShown = ListenShown()
+    /// Calendar and Reminders handed over by the Safari panel (2.7, contextflow://add?id=…).
+    @StateObject private var appleAdd = AppleAdd.shared
 
     /// What's new in 2.5 (organizing): once, to those who already have chats.
     @State private var whatsNew = false
@@ -130,7 +132,7 @@ struct ContentView: View {
         #if os(iOS)
         if notify.ask != nil { return true }
         #endif
-        return listenShown.visible || whatsNew || showingSetup
+        return listenShown.visible || whatsNew || showingSetup || appleAdd.request != nil
     }
 
     #if os(iOS)
@@ -171,6 +173,9 @@ struct ContentView: View {
                     tab = .pro
                 })
             }
+            .sheet(item: $appleAdd.request, onDismiss: { appleAdd.close() }) { _ in
+                AppleAddView(model: appleAdd)
+            }
             .sheet(isPresented: $whatsNew) {
                 OrganizeWhatsNew(pro: store.isPro, openPro: { whatsNew = false; tab = .pro }, close: { whatsNew = false })
             }
@@ -199,6 +204,9 @@ struct ContentView: View {
                     showPlan = store.isPro
                 case "listen":
                     listen.open(url)
+                // 2.7: a reminder or an event the panel couldn't add itself (access is asked here).
+                case "add":
+                    appleAdd.open(url)
                 #if os(iOS)
                 // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
                 case "notifications":

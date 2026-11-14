@@ -307,3 +307,38 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-offer-retry-at { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
 .cf-offer-own { margin: 6px 0 0; font-size: 13px; }
 .cf-whole .cf-pro-badge { margin-inline-start: 4px; }
+
+/* 2.7, Calendar and Reminders: «Также в Напоминания» in the Remind window, and the AI's card under an answer. */
+.cf-sheet-also { cursor: pointer; }
+.cf-sheet-also input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }
+.cf-add-offer { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-top: 6px; padding: 6px 11px; font-size: 13px; }
+.cf-add-card { margin-top: 8px; padding: 8px 10px 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-2); }
+.cf-add-head { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; color: var(--text); }
+.cf-add-head .cf-sheet-close { width: 28px; height: 28px; }
+.cf-add-note { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 4px 2px; font-size: 13px; color: var(--text-2); }
+.cf-add-dots { display: inline-flex; gap: 3px; }
+.cf-add-dots span { width: 5px; height: 5px; border-radius: 3px; background: var(--accent); opacity: 0.4; animation: cf-dot 1s infinite ease-in-out; }
+.cf-add-dots span:nth-child(2) { animation-delay: 0.15s; }
+.cf-add-dots span:nth-child(3) { animation-delay: 0.3s; }
+.cf-add-item { display: flex; flex-direction: column; gap: 7px; padding: 8px 0 2px; }
+.cf-add-item + .cf-add-item { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 10px; }
+.cf-add-kind { align-self: flex-start; }
+.cf-add-kind button { display: inline-flex; align-items: center; gap: 5px; }
+.cf-add-title, .cf-add-when input, .cf-add-list {
+  min-width: 0; height: 36px; padding: 0 9px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg);
+  color: var(--text); font: inherit; font-size: 14px;
+}
+.cf-add-title { width: 100%; box-sizing: border-box; font-weight: 550; }
+.cf-add-when { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cf-add-when input[type="date"] { flex: 1 1 140px; }
+.cf-add-when input[type="time"] { flex: 0 1 110px; }
+.cf-add-when.guess input { border-color: var(--warn, #d08a00); }
+.cf-add-zone, .cf-add-meta { font-size: 12.5px; color: var(--text-3); }
+.cf-add-list { width: 100%; }
+.cf-add-warn { margin: 0; font-size: 12.5px; color: var(--warn-text, #a86a00); }
+.cf-add-ok { margin: 0; font-size: 13px; color: var(--text-2); }
+.cf-add-go { align-self: flex-start; padding: 7px 16px; }
+.cf-add-go:disabled { opacity: 0.4; box-shadow: none; }
+.cf-add-item.done .cf-add-title, .cf-add-item.done .cf-add-when input { opacity: 0.7; }
+/* 16px on iPhone and iPad, or Safari zooms the page in on focus. */
+.cf[data-touch] .cf-add-title, .cf[data-touch] .cf-add-when input, .cf[data-touch] .cf-add-list { font-size: 16px; height: 40px; }
