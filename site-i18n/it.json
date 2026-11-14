@@ -545,5 +545,7 @@
   "3bbba66422c3": "Apri il pannello su una pagina e ContextFlow sceglie la chat che ne parla: quella con questa pagina, o una sullo stesso argomento. «Continuo», in alto, ti dice quale, e «Nuova chat» ne inizia una nuova.",
   "cc54dd594630": "Suggerimenti accanto al pulsante ✦",
   "e90e5a24917d": "Nei primi giorni, una breve riga accanto a ✦ ti suggerisce qualcosa per la pagina in cui sei: il riassunto di un articolo lungo, un prezzo da seguire, una data per il calendario. Toccala per vedere come si fa, o disattiva le righe nelle impostazioni dell’estensione.",
-  "73563198e068": "Trova simili <span class=\"pro-badge\">Pro</span>"
+  "73563198e068": "Trova simili <span class=\"pro-badge\">Pro</span>",
+  "3ee4fbeeb2ae": "Invita un amico",
+  "799d630e4a69": "Conosci qualcuno che legge molto in Safari? «Impostazioni» → «Invita un amico» ti dà un codice e un link da inviare. Riceve risposte bonus ogni giorno della prima settimana e, quando avrà fatto domande in due giorni diversi, ricevi uno sconto sul primo mese di Pro o Ultra."
 }

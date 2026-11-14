@@ -109,6 +109,7 @@ import { TranslatePill } from "./translate/TranslatePill"
 import { useFabDrag, usePanelDrag } from "./side/drag"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
+import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
@@ -362,6 +363,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   // "First time here" hints still to show (null until read from storage).
   const [hints, setHints] = useState<HintKey[] | null>(null)
+  // 2.7, invite a friend: a friend became active since the inviter last saw (the status counts them once the install
+  // has a code); the reward card shows once for each.
+  const [inviteNew, setInviteNew] = useState(false)
+  const invitedActive = status?.invite?.active ?? 0
+  useEffect(() => {
+    if (invitedActive < 1) return
+    void seenActive().then((seen) => setInviteNew(invitedActive > seen))
+  }, [invitedActive])
   useEffect(() => void seenHints().then(setHints), [])
   const hintDue = (key: HintKey) => hints !== null && !hints.includes(key) && !touring && tourSeen
   const doneHint = (key: HintKey | HintKey[]) => {
@@ -3922,6 +3931,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
+              onRedeem={redeemOffer}
               onOpenUrl={(url) => (url === LINKS.review ? rateApp("settings") : void sendBackground({ type: "openUrl", url }))}
               onOpenTemplates={() => setView("templates")}
               onSocial={(network) => {
@@ -4293,9 +4303,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   const how = hintText(pageHints.chat, pageHints.has(pageHints.chat))
                   return <div ref={revealOnce}><Hint icon={<Icon.Sparkle size={16} />} title={how.title} action={allTips} onDone={pageHints.doneChat}>{how.body}</Hint></div>
                 })()}
+                {/* 2.7 (plan section 5): a friend who came with this install's code became active: the reward, once. */}
+                {!historyMode && partial === null && !pending && !pageHints.chat && inviteNew && (
+                  <InviteRewardCard onRedeem={redeemOffer} onDone={() => {
+                    setInviteNew(false)
+                    void markActiveSeen(status?.invite?.active ?? 0)
+                  }} />
+                )}
                 {/* 2.7: once, what this version brought, for people who had ContextFlow before (one hint at a time; it says
                     the side too, so the side's own hint isn't shown after it). */}
-                {!historyMode && partial === null && !pending && !pageHints.chat && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint
                     icon={<Icon.Sparkle size={16} />}
                     title={t("hintNewTitle")}
@@ -4304,7 +4321,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     onDone={() => doneHint(["new27", "side"])}
                   />
                 )}
-                {!historyMode && partial === null && !pending && !pageHints.chat && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}

@@ -2723,6 +2723,90 @@
  "shotMissing": {
   "message": "Ảnh chụp này chưa có trên thiết bị. Ảnh sẽ đến qua iCloud nếu các cuộc trò chuyện được đồng bộ ở đó."
  },
+ "invTitle": {
+  "message": "Mời bạn bè"
+ },
+ "invHint": {
+  "message": "Bạn của bạn nhận câu trả lời thưởng: +{0} mỗi ngày trong tuần đầu tiên. Bạn được giảm {1}% tháng đầu của Pro hoặc Ultra khi họ đặt câu hỏi vào hai ngày khác nhau."
+ },
+ "invButton": {
+  "message": "Lấy mã và liên kết"
+ },
+ "invYourCode": {
+  "message": "Mã của bạn"
+ },
+ "invCopy": {
+  "message": "Sao chép"
+ },
+ "invCopied": {
+  "message": "Đã sao chép"
+ },
+ "invShare": {
+  "message": "Chia sẻ"
+ },
+ "invShareText": {
+  "message": "Mình đang dùng ContextFlow, AI ngay trên trang trong Safari. Với mã {0} của mình, bạn có câu trả lời thưởng trong tuần đầu: {1}"
+ },
+ "invFriends": {
+  "message": "Đến bằng mã của bạn: {0} · đang dùng: {1}"
+ },
+ "invRewardTitle": {
+  "message": "Một người bạn bạn mời đang dùng ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Cảm ơn bạn: giảm {0}% tháng đầu của Pro hoặc Ultra, tùy bạn chọn. App Store sẽ áp dụng nếu bạn chưa dùng ưu đãi này."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "Đã dùng cả hai ưu đãi? Nhận câu trả lời thưởng: +{0} mỗi ngày trong một tuần"
+ },
+ "invAnswersOn": {
+  "message": "Câu trả lời thưởng của bạn có hiệu lực đến {0}."
+ },
+ "invEnterTitle": {
+  "message": "Có mã của bạn bè?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Mã hoặc liên kết"
+ },
+ "invEnter": {
+  "message": "Nhập"
+ },
+ "invEntered": {
+  "message": "Đã nhận mã: câu trả lời thưởng, +{0} mỗi ngày, đến {1}."
+ },
+ "invEnteredOn": {
+  "message": "Bạn đến bằng mã của bạn bè: câu trả lời thưởng, +{0} mỗi ngày, đến {1}."
+ },
+ "invErrUnknown": {
+  "message": "Không có mã này. Hãy kiểm tra và thử lại."
+ },
+ "invErrOwn": {
+  "message": "Đây là mã của chính bạn. Hãy gửi cho bạn bè."
+ },
+ "invErrAlready": {
+  "message": "Mã của bạn bè đã được nhập ở đây."
+ },
+ "invErrLate": {
+  "message": "Mã của bạn bè dùng được trong tuần đầu sau khi cài đặt."
+ },
+ "invErrFull": {
+  "message": "Mã này đã đạt giới hạn."
+ },
+ "invErrDevice": {
+  "message": "Mã của bạn bè đã được dùng trên thiết bị này."
+ },
+ "invErrCheck": {
+  "message": "Không kiểm tra được thiết bị. Hãy thử nhập mã trong ứng dụng ContextFlow."
+ },
+ "invErrLater": {
+  "message": "Hiện chưa làm được. Hãy thử lại sau."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },
@@ -3028,6 +3112,12 @@
  },
  "tip_0f2289f887": {
   "message": "Sau khi bạn mua Pro hoặc Ultra, ContextFlow giới thiệu từng bước những gì gói của bạn có thêm. Muốn xem lại, chạm vào … ở đầu bảng, rồi Khác… và Pro có gì hoặc Ultra có gì. Trong ứng dụng, mục này nằm trong Cài đặt, ở phần Gói của bạn."
+ },
+ "tip_3ee4fbeeb2": {
+  "message": "Mời bạn bè"
+ },
+ "tip_0e8493432d": {
+  "message": "Cài đặt → Mời bạn bè, trong ứng dụng hoặc trong Safari, cho bạn một mã và một liên kết để gửi. Bạn của bạn nhận câu trả lời thưởng mỗi ngày trong tuần đầu tiên. Khi họ đặt câu hỏi vào hai ngày khác nhau, bạn được giảm giá tháng đầu của Pro hoặc Ultra."
  },
  "tip_3208aa35ac": {
   "message": "Quyền riêng tư và cá nhân hóa"

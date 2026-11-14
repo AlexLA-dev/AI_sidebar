@@ -545,5 +545,7 @@
   "3bbba66422c3": "Abre el panel en una página y ContextFlow elige el chat que trata de ella: el que tiene esta página, o uno sobre el mismo tema. «Sigo en», arriba, te dice cuál, y «Nuevo chat» empieza uno nuevo.",
   "cc54dd594630": "Consejos junto al botón ✦",
   "e90e5a24917d": "En tus primeros días, una línea corta junto a ✦ te sugiere algo para la página en la que estás: el resumen de un artículo largo, un precio que vigilar, una fecha para tu calendario. Tócala para ver cómo, o desactiva estas líneas en los ajustes de la extensión.",
-  "73563198e068": "Buscar similares <span class=\"pro-badge\">Pro</span>"
+  "73563198e068": "Buscar similares <span class=\"pro-badge\">Pro</span>",
+  "3ee4fbeeb2ae": "Invitar a un amigo",
+  "799d630e4a69": "¿Conoces a alguien que lee mucho en Safari? «Configuración» → «Invitar a un amigo» te da un código y un enlace para enviar. Recibe respuestas extra cada día de su primera semana y, cuando haya hecho preguntas en dos días distintos, tú recibes un descuento en el primer mes de Pro o Ultra."
 }

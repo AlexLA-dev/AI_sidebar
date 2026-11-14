@@ -128,8 +128,11 @@ function proLimit(plan: Plan): number {
   return isUltra(plan) ? config.ultra.weeklyLimit : config.proWeeklyLimit
 }
 
-/** Counters a request is charged against, by plan. */
-export function countersFor(access: Access, installId: string, ipSubject: string): Counter[] {
+/**
+ * Counters a request is charged against, by plan. `extra`: answers a day on top of the free ones (2.7, invite a friend:
+ * a friend's first week, see invite.mts inviteExtra); only the free allowance has them.
+ */
+export function countersFor(access: Access, installId: string, ipSubject: string, extra = 0): Counter[] {
   if (hasPro(access.plan) && access.entitlement) {
     // One counter per subscription: an upgrade Pro → Ultra keeps the original transaction, so what was used
     // this week carries over.
@@ -141,7 +144,7 @@ export function countersFor(access: Access, installId: string, ipSubject: string
   // Free and BYOK users share the free allowance when they use our server
   // (BYOK subscribers normally talk to OpenAI directly with their own key).
   return [
-    { subject: `install:${installId}`, period: "day", limit: config.freeDailyLimit },
+    { subject: `install:${installId}`, period: "day", limit: config.freeDailyLimit + Math.max(0, extra) },
     { subject: ipSubject, period: "day", limit: config.freeIpDailyLimit },
     { subject: "global:free", period: "day", limit: config.freeGlobalDailyLimit }
   ]

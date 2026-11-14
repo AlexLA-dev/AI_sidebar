@@ -2723,6 +2723,90 @@
  "shotMissing": {
   "message": "이 스냅샷은 아직 이 기기에 없습니다. 채팅을 iCloud와 동기화하면 전달됩니다."
  },
+ "invTitle": {
+  "message": "친구 초대"
+ },
+ "invHint": {
+  "message": "친구는 첫 주 동안 하루 +{0}개의 보너스 답변을 받습니다. 친구가 서로 다른 이틀에 질문하면 Pro 또는 Ultra 첫 달 {1}% 할인을 받습니다."
+ },
+ "invButton": {
+  "message": "코드와 링크 받기"
+ },
+ "invYourCode": {
+  "message": "내 코드"
+ },
+ "invCopy": {
+  "message": "복사"
+ },
+ "invCopied": {
+  "message": "복사됨"
+ },
+ "invShare": {
+  "message": "공유"
+ },
+ "invShareText": {
+  "message": "Safari 페이지에서 바로 쓰는 AI, ContextFlow를 쓰고 있어요. 내 코드 {0}로 첫 주 동안 보너스 답변을 받을 수 있어요: {1}"
+ },
+ "invFriends": {
+  "message": "내 코드로 온 친구: {0} · 사용 중: {1}"
+ },
+ "invRewardTitle": {
+  "message": "초대한 친구가 ContextFlow를 사용하고 있어요"
+ },
+ "invRewardBody": {
+  "message": "감사의 뜻으로 Pro 또는 Ultra 첫 달 {0}% 할인을 드려요(원하는 쪽 선택). 이 할인을 아직 쓰지 않았다면 App Store에서 적용됩니다."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "할인을 둘 다 쓰셨나요? 대신 보너스 답변을 받으세요: 일주일 동안 하루 +{0}개"
+ },
+ "invAnswersOn": {
+  "message": "보너스 답변은 {0}까지 유효합니다."
+ },
+ "invEnterTitle": {
+  "message": "친구 코드가 있나요?"
+ },
+ "invEnterPlaceholder": {
+  "message": "코드 또는 링크"
+ },
+ "invEnter": {
+  "message": "입력"
+ },
+ "invEntered": {
+  "message": "코드가 적용됐어요: 보너스 답변, 하루 +{0}개, {1}까지."
+ },
+ "invEnteredOn": {
+  "message": "친구 코드로 시작했어요: 보너스 답변, 하루 +{0}개, {1}까지."
+ },
+ "invErrUnknown": {
+  "message": "없는 코드예요. 확인한 뒤 다시 시도해 주세요."
+ },
+ "invErrOwn": {
+  "message": "내 코드예요. 친구에게 보내 주세요."
+ },
+ "invErrAlready": {
+  "message": "이곳에는 이미 친구 코드가 입력됐어요."
+ },
+ "invErrLate": {
+  "message": "친구 코드는 설치 후 첫 주에만 쓸 수 있어요."
+ },
+ "invErrFull": {
+  "message": "이 코드는 한도에 도달했어요."
+ },
+ "invErrDevice": {
+  "message": "이 기기에서는 이미 친구 코드를 사용했어요."
+ },
+ "invErrCheck": {
+  "message": "기기를 확인하지 못했어요. ContextFlow 앱에서 코드를 입력해 보세요."
+ },
+ "invErrLater": {
+  "message": "지금은 할 수 없었어요. 나중에 다시 시도해 주세요."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },
@@ -3028,6 +3112,12 @@
  },
  "tip_0f2289f887": {
   "message": "Pro나 Ultra를 구입하면 ContextFlow가 요금제로 더해진 기능을 하나씩 보여 줘요. 다시 보려면 패널 위쪽 ‘…’을 탭한 다음 ‘기타…’에서 ‘Pro에 포함된 기능’이나 ‘Ultra에 포함된 기능’을 고르세요. 앱에서는 ‘설정’의 ‘내 요금제’에 있어요."
+ },
+ "tip_3ee4fbeeb2": {
+  "message": "친구 초대"
+ },
+ "tip_0e8493432d": {
+  "message": "앱이나 Safari의 ‘설정’ → ‘친구 초대’에서 보낼 코드와 링크를 받을 수 있어요. 친구는 첫 주 동안 매일 보너스 답변을 받아요. 친구가 서로 다른 이틀에 질문하면 Pro 또는 Ultra 첫 달 할인을 받아요."
  },
  "tip_3208aa35ac": {
   "message": "개인정보 및 맞춤 설정"

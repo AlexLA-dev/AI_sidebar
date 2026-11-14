@@ -2723,6 +2723,90 @@
  "shotMissing": {
   "message": "このスナップショットはまだこのデバイスにありません。チャットを iCloud と同期していれば届きます。"
  },
+ "invTitle": {
+  "message": "友だちを招待"
+ },
+ "invHint": {
+  "message": "友だちには最初の1週間、1日あたり+{0}回のボーナス回答。友だちが2つの別の日に質問すると、あなたはProまたはUltraの最初の1か月が{1}%オフになります。"
+ },
+ "invButton": {
+  "message": "コードとリンクを取得"
+ },
+ "invYourCode": {
+  "message": "あなたのコード"
+ },
+ "invCopy": {
+  "message": "コピー"
+ },
+ "invCopied": {
+  "message": "コピーしました"
+ },
+ "invShare": {
+  "message": "共有"
+ },
+ "invShareText": {
+  "message": "SafariのページでそのままAIが使えるContextFlowを使っています。私のコード {0} で最初の1週間ボーナス回答がもらえます：{1}"
+ },
+ "invFriends": {
+  "message": "あなたのコードで参加：{0}・利用中：{1}"
+ },
+ "invRewardTitle": {
+  "message": "招待した友だちがContextFlowを使い始めました"
+ },
+ "invRewardBody": {
+  "message": "お礼として、ProまたはUltraの最初の1か月が{0}%オフ（お好きな方）。この割引をまだ使っていなければApp Storeで適用されます。"
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "割引を両方使用済み？代わりにボーナス回答を：1週間、1日あたり+{0}回"
+ },
+ "invAnswersOn": {
+  "message": "ボーナス回答は{0}まで有効です。"
+ },
+ "invEnterTitle": {
+  "message": "友だちのコードをお持ちですか？"
+ },
+ "invEnterPlaceholder": {
+  "message": "コードまたはリンク"
+ },
+ "invEnter": {
+  "message": "入力"
+ },
+ "invEntered": {
+  "message": "コードを受け付けました：ボーナス回答、1日あたり+{0}回、{1}まで。"
+ },
+ "invEnteredOn": {
+  "message": "友だちのコードで参加しました：ボーナス回答、1日あたり+{0}回、{1}まで。"
+ },
+ "invErrUnknown": {
+  "message": "そのコードは存在しません。確認してもう一度お試しください。"
+ },
+ "invErrOwn": {
+  "message": "これはあなた自身のコードです。友だちに送ってください。"
+ },
+ "invErrAlready": {
+  "message": "ここでは友だちのコードがすでに入力されています。"
+ },
+ "invErrLate": {
+  "message": "友だちのコードはインストール後1週間以内に使えます。"
+ },
+ "invErrFull": {
+  "message": "このコードは上限に達しました。"
+ },
+ "invErrDevice": {
+  "message": "このデバイスでは友だちのコードがすでに使われています。"
+ },
+ "invErrCheck": {
+  "message": "デバイスを確認できませんでした。ContextFlowアプリでコードを入力してみてください。"
+ },
+ "invErrLater": {
+  "message": "今はできませんでした。あとでもう一度お試しください。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
@@ -3028,6 +3112,12 @@
  },
  "tip_0f2289f887": {
   "message": "Pro または Ultra を購入すると、ContextFlow がプランで使えるようになった機能を1つずつ紹介します。もう一度見るには、パネル上部の「…」をタップし、「その他…」から「Proでできること」または「Ultraでできること」を選びます。アプリでは「設定」の「ご利用中のプラン」にあります。"
+ },
+ "tip_3ee4fbeeb2": {
+  "message": "友だちを招待"
+ },
+ "tip_0e8493432d": {
+  "message": "アプリまたはSafariの「設定」→「友だちを招待」で、送れるコードとリンクが手に入ります。友だちは最初の1週間、毎日ボーナス回答を受け取れます。友だちが2つの別の日に質問すると、あなたはProまたはUltraの最初の1か月が割引になります。"
  },
  "tip_3208aa35ac": {
   "message": "プライバシーとパーソナライズ"

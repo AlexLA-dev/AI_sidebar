@@ -2723,6 +2723,90 @@
  "shotMissing": {
   "message": "Cette capture n'est pas encore sur cet appareil. Elle arrive via iCloud si vos discussions y sont synchronisées."
  },
+ "invTitle": {
+  "message": "Inviter un ami"
+ },
+ "invHint": {
+  "message": "Votre ami reçoit des réponses bonus : +{0} par jour pendant sa première semaine. Vous recevez {1} % de réduction sur le premier mois de Pro ou Ultra dès qu'il a posé des questions sur deux jours différents."
+ },
+ "invButton": {
+  "message": "Obtenir mon code et mon lien"
+ },
+ "invYourCode": {
+  "message": "Votre code"
+ },
+ "invCopy": {
+  "message": "Copier"
+ },
+ "invCopied": {
+  "message": "Copié"
+ },
+ "invShare": {
+  "message": "Partager"
+ },
+ "invShareText": {
+  "message": "J'utilise ContextFlow, l'IA directement sur la page dans Safari. Avec mon code {0}, tu as des réponses bonus pendant ta première semaine : {1}"
+ },
+ "invFriends": {
+  "message": "Venus avec votre code : {0} · l'utilisent : {1}"
+ },
+ "invRewardTitle": {
+  "message": "Un ami que vous avez invité utilise ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Merci : {0} % de réduction sur le premier mois de Pro ou Ultra, au choix. L'App Store l'applique si vous n'avez pas encore utilisé cette réduction."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0} %"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0} %"
+ },
+ "invRewardAnswers": {
+  "message": "Les deux réductions déjà utilisées ? Prenez des réponses bonus : +{0} par jour pendant une semaine"
+ },
+ "invAnswersOn": {
+  "message": "Vos réponses bonus durent jusqu'au {0}."
+ },
+ "invEnterTitle": {
+  "message": "Vous avez le code d'un ami ?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Code ou lien"
+ },
+ "invEnter": {
+  "message": "Valider"
+ },
+ "invEntered": {
+  "message": "Code accepté : réponses bonus, +{0} par jour, jusqu'au {1}."
+ },
+ "invEnteredOn": {
+  "message": "Vous êtes venu avec le code d'un ami : réponses bonus, +{0} par jour, jusqu'au {1}."
+ },
+ "invErrUnknown": {
+  "message": "Ce code n'existe pas. Vérifiez-le et réessayez."
+ },
+ "invErrOwn": {
+  "message": "C'est votre propre code. Envoyez-le à un ami."
+ },
+ "invErrAlready": {
+  "message": "Le code d'un ami a déjà été saisi ici."
+ },
+ "invErrLate": {
+  "message": "Le code d'un ami fonctionne pendant la première semaine après l'installation."
+ },
+ "invErrFull": {
+  "message": "Ce code a atteint sa limite."
+ },
+ "invErrDevice": {
+  "message": "Le code d'un ami a déjà été utilisé sur cet appareil."
+ },
+ "invErrCheck": {
+  "message": "Impossible de vérifier cet appareil. Essayez de saisir le code dans l'app ContextFlow."
+ },
+ "invErrLater": {
+  "message": "Ça n'a pas marché pour l'instant. Réessayez plus tard."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },
@@ -3028,6 +3112,12 @@
  },
  "tip_0f2289f887": {
   "message": "Après l’achat de Pro ou d’Ultra, ContextFlow vous montre, étape par étape, ce qu’apporte votre forfait. Pour le revoir, touchez « … » en haut du panneau, puis « Autres… » et « Ce que Pro inclut » ou « Ce que Ultra inclut ». Dans l’app, c’est dans « Réglages », sous « Votre forfait »."
+ },
+ "tip_3ee4fbeeb2": {
+  "message": "Inviter un ami"
+ },
+ "tip_0e8493432d": {
+  "message": "« Réglages » → « Inviter un ami », dans l'app ou dans Safari, vous donne un code et un lien à envoyer. Votre ami reçoit des réponses bonus chaque jour de sa première semaine. Dès qu'il a posé des questions sur deux jours différents, vous recevez une réduction sur le premier mois de Pro ou Ultra."
  },
  "tip_3208aa35ac": {
   "message": "Confidentialité et personnalisation"

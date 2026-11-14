@@ -2723,6 +2723,90 @@
  "shotMissing": {
   "message": "Dieser Schnappschuss ist noch nicht auf diesem Gerät. Er kommt über iCloud, wenn deine Chats dort synchronisiert werden."
  },
+ "invTitle": {
+  "message": "Freunde einladen"
+ },
+ "invHint": {
+  "message": "Dein Freund bekommt Bonusantworten: +{0} pro Tag in der ersten Woche. Du bekommst {1}% Rabatt auf den ersten Monat Pro oder Ultra, sobald er an zwei verschiedenen Tagen Fragen gestellt hat."
+ },
+ "invButton": {
+  "message": "Code und Link holen"
+ },
+ "invYourCode": {
+  "message": "Dein Code"
+ },
+ "invCopy": {
+  "message": "Kopieren"
+ },
+ "invCopied": {
+  "message": "Kopiert"
+ },
+ "invShare": {
+  "message": "Teilen"
+ },
+ "invShareText": {
+  "message": "Ich nutze ContextFlow, KI direkt auf der Seite in Safari. Mit meinem Code {0} bekommst du in der ersten Woche Bonusantworten: {1}"
+ },
+ "invFriends": {
+  "message": "Mit deinem Code gekommen: {0} · nutzen es: {1}"
+ },
+ "invRewardTitle": {
+  "message": "Ein eingeladener Freund nutzt ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Danke: {0}% Rabatt auf den ersten Monat Pro oder Ultra, du wählst. Der App Store gewährt ihn, wenn du diesen Rabatt noch nicht genutzt hast."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "Beide Rabatte schon genutzt? Nimm stattdessen Bonusantworten: +{0} pro Tag für eine Woche"
+ },
+ "invAnswersOn": {
+  "message": "Deine Bonusantworten gelten bis {0}."
+ },
+ "invEnterTitle": {
+  "message": "Code von einem Freund?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Code oder Link"
+ },
+ "invEnter": {
+  "message": "Eingeben"
+ },
+ "invEntered": {
+  "message": "Code angenommen: Bonusantworten, +{0} pro Tag, bis {1}."
+ },
+ "invEnteredOn": {
+  "message": "Du bist mit dem Code eines Freundes gekommen: Bonusantworten, +{0} pro Tag, bis {1}."
+ },
+ "invErrUnknown": {
+  "message": "Diesen Code gibt es nicht. Prüfe ihn und versuche es noch einmal."
+ },
+ "invErrOwn": {
+  "message": "Das ist dein eigener Code. Schick ihn einem Freund."
+ },
+ "invErrAlready": {
+  "message": "Hier wurde schon ein Code eines Freundes eingegeben."
+ },
+ "invErrLate": {
+  "message": "Der Code eines Freundes gilt in der ersten Woche nach der Installation."
+ },
+ "invErrFull": {
+  "message": "Dieser Code hat sein Limit erreicht."
+ },
+ "invErrDevice": {
+  "message": "Auf diesem Gerät wurde schon ein Code eines Freundes genutzt."
+ },
+ "invErrCheck": {
+  "message": "Das Gerät ließ sich nicht prüfen. Gib den Code in der ContextFlow-App ein."
+ },
+ "invErrLater": {
+  "message": "Das hat gerade nicht geklappt. Versuche es später noch einmal."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
@@ -3028,6 +3112,12 @@
  },
  "tip_0f2289f887": {
   "message": "Nach dem Kauf von Pro oder Ultra zeigt dir ContextFlow Schritt für Schritt, was dein Tarif bietet. Um es noch einmal zu sehen, tippe oben im Panel auf „…“, dann auf „Weiteres …“ und „Was Pro bietet“ oder „Was Ultra bietet“. In der App findest du es in den „Einstellungen“ unter „Dein Tarif“."
+ },
+ "tip_3ee4fbeeb2": {
+  "message": "Freunde einladen"
+ },
+ "tip_0e8493432d": {
+  "message": "„Einstellungen“ → „Freunde einladen“, in der App oder in Safari, gibt dir einen Code und einen Link zum Verschicken. Dein Freund bekommt in seiner ersten Woche jeden Tag Bonusantworten. Sobald er an zwei verschiedenen Tagen Fragen gestellt hat, bekommst du Rabatt auf den ersten Monat Pro oder Ultra."
  },
  "tip_3208aa35ac": {
   "message": "Datenschutz & Personalisierung"

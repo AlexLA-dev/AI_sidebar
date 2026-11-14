@@ -47,7 +47,7 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
   assert.equal(chips.mac.title.en, "Quick actions under a selection")
   assert.match(chips.mac.text.en, /trackpad or the mouse wheel and click/)
   // The plan's own block, before the last one: monthly or yearly, then the plan's tour.
-  assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "What your plan adds"])
+  assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "What your plan adds", "Invite a friend"])
   assert.equal(data.groups.at(-2).title.en, "Your plan")
   assert.equal(data.heading.en, "Tips")
   assert.equal(data.groups[1].title.en, "Deeper work")

@@ -32,7 +32,9 @@ const NEW = {
   "Add to Calendar or Reminders": "watch-and-remind",
   "Spaces for work and home": "chats-in-order",
   "The chat for this page": "chats-in-order",
-  "Tips by the ✦ button": "privacy-and-personalization"
+  "Tips by the ✦ button": "privacy-and-personalization",
+  // #181, merged into 2.7: the code and the link in Settings.
+  "Invite a friend": "your-plan"
 } as const
 
 test("each 2.7 feature has its card in the block its readers look in, with the plan it needs and no prices", () => {
@@ -52,6 +54,9 @@ test("each 2.7 feature has its card in the block its readers look in, with the p
   // Whole page with Pro, said in the snapshot's card; Spaces never names Free's number (not settled).
   assert.match(card("A snapshot with your note").text.en, /or with Pro the whole page/)
   assert.match(card("Spaces for work and home").text.en, /Free has a limit; with Pro or Ultra, as many as you like\.$/)
+  // The invite: where it is, what each side gets, no figures (the invite screens name them).
+  assert.match(card("Invite a friend").text.en, /^Settings → Invite a friend, in the app or in Safari,[\s\S]*bonus answers[\s\S]*a discount on your first month of Pro or Ultra\.$/)
+  assert.doesNotMatch(card("Invite a friend").text.en, /\d/)
   // A tap on iPhone and iPad, a click or a pointer on a Mac.
   for (const title of ["Read a page in your language", "Check or rewrite before you send", "Mistakes underlined as you type", "A snapshot with your note", "Move ✦ out of the way"]) {
     assert.ok(card(title).mac, `${title}: a Mac's own words`)
@@ -103,7 +108,7 @@ test("the panel: what 2.7 brought, once, for people who had ContextFlow before; 
   assert.match(bg, /if \(!list\.includes\("new27"\)\) await chrome\.storage\.local\.set\(\{ \[STORAGE\.hintsSeen\]: \[\.\.\.list, "new27"\] \}\)/)
   // One hint at a time: not with a page hint's how-to or the video's or PDF's; it says the side too, so the side's own
   // hint isn't shown after it.
-  assert.match(app, /!pageHints\.chat && hintDue\("new27"\) && !\(contextKind === "page" && source\.kind\(\) !== "page" && hintDue\(source\.kind\(\) as HintKey\)\)/)
+  assert.match(app, /!pageHints\.chat && !inviteNew && hintDue\("new27"\) && !\(contextKind === "page" && source\.kind\(\) !== "page" && hintDue\(source\.kind\(\) as HintKey\)\)/)
   assert.match(app, /list=\{\[t\("hintNewTranslate"\), t\("hintNewWrite"\), t\("hintNewSpaces"\), t\("hintNewApple"\), t\("hintNewShot"\), t\("hintNewSide"\)\]\}/)
   assert.match(app, /onDone=\{\(\) => doneHint\(\["new27", "side"\]\)\}/)
   assert.match(app, /hintDue\("side"\) && !hintDue\("new27"\)/)

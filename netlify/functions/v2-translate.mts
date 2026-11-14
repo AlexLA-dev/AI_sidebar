@@ -5,6 +5,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type ConsumeResult, type Counter } from "../shared/db.mts"
 import { clip, corsHeaders, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { blockReason, hasPro, proOffer, resolveAccess, visibleUsage, type Usage } from "../shared/plan.mts"
+import { inviteExtra } from "../shared/invite.mts"
 import { haikuCall, runTranslation, type Effort, safetyReason, translateCost, translateCounters, type TranslateStats } from "../shared/translate.mts"
 import { sessionFields } from "../../src/shared/usage.ts"
 import { TRANSLATE_LIMITS, type TranslateBlock } from "../../src/shared/translate.ts"
@@ -58,7 +59,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!settings.translate.enabled || !settings.anthropicKey) return json({ code: "UNAVAILABLE" }, 503)
 
   const access = await resolveAccess(body.entitlement, installId)
-  const counters = translateCounters(access, installId, ipSubject(context.ip), page, chars)
+  const counters = translateCounters(access, installId, ipSubject(context.ip), page, chars, await inviteExtra(client, [installId], access.plan))
   const base = { plan: access.plan, to, ...(from ? { from } : {}), first, blocks: blocks.length, chars_in: chars, platform, version, build, ...test, ...sessionFields(body.ui as Record<string, unknown>) }
 
   // 1. The page: charged this week already, or charged now (one answer). 2. The hidden caps, in characters.

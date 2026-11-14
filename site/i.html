@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>A friend invites you to ContextFlow</title>
+<meta name="description" content="A friend's invite to ContextFlow, AI right on the page in Safari: bonus answers for your first week." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="/icon.png" />
+<link rel="apple-touch-icon" href="/icon-512.png" />
+<link rel="stylesheet" href="/style.css" />
+<meta property="og:title" content="A friend invites you to ContextFlow" />
+<meta property="og:description" content="AI right on the page in Safari: summaries, explanations, translation. Bonus answers for your first week." />
+<meta property="og:image" content="https://context-flow.app/icon-512.png" />
+<!-- 2.7, invite a friend (plan section 5): /i/<code> (netlify.toml) shows the code to paste on the app's first screen.
+     Counted by the site counter as page "invite" (and the App Store tap as ct=invite): no code, nothing about the visitor. -->
+<script src="/visit.js" defer data-invite></script>
+<style>
+  .invite { max-width: 560px; padding-top: 28px; }
+  .invite h1 { font-size: 34px; line-height: 1.15; }
+  .invite .code { margin: 26px 0 8px; padding: 18px 20px; border-radius: 18px; border: 1.5px dashed var(--border); background: var(--bg-2); display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .invite .code small { display: block; color: var(--text-2); font-size: 14px; }
+  .invite .code strong { font: 700 34px/1.2 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.14em; direction: ltr; unicode-bidi: isolate; }
+  .invite .copy { border: 0; border-radius: 12px; padding: 10px 16px; font: 600 16px/1.2 inherit; background: var(--text); color: var(--bg); cursor: pointer; }
+  .invite ol { padding-inline-start: 22px; margin: 22px 0; }
+  .invite ol li { margin: 10px 0; }
+  .invite .cta { margin-top: 4px; }
+  .invite .open { display: inline-block; margin-top: 6px; }
+  .invite .broken { color: var(--text-2); }
+  .invite [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<nav class="wrap"><a class="brand" href="/"><img src="/icon.png" alt="" />ContextFlow</a></nav>
+<main class="wrap doc invite">
+  <h1 data-t="title">A friend invites you to ContextFlow</h1>
+  <p class="lede" data-t="lead">AI right on the page in Safari: summaries, explanations, translation. On iPhone, iPad and Mac.</p>
+
+  <div class="code" id="code-box" hidden>
+    <div><small data-t="code">Your friend's code</small><strong id="code"></strong></div>
+    <button type="button" class="copy" id="copy" data-t="copy">Copy code</button>
+  </div>
+  <p class="broken" id="broken" data-t="broken" hidden>This invite link has no valid code. Ask your friend to send it again.</p>
+
+  <ol>
+    <li data-t="s1">Install ContextFlow from the App Store.</li>
+    <li data-t="s2">Open the app and paste the code on the first screen: bonus answers for your first week.</li>
+  </ol>
+  <a class="cta" href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=invite&amp;mt=8"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z"/></svg><span><small data-t="get">Download on the</small>App Store</span></a>
+  <p><span data-t="have">Already have ContextFlow?</span> <a class="open" id="open" data-t="open">Open the code in the app</a></p>
+  <p class="updated"><a href="/privacy" data-t="privacy">Privacy Policy</a></p>
+</main>
+<script>
+(() => {
+  // The code from the address (/i/ABC234): the same letters as src/shared/invite.ts (no 0, O, 1, I or L).
+  const match = /^\/i\/([A-Za-z0-9]{6})\/?$/.exec(location.pathname)
+  const code = match && /^[A-HJKMNP-Z2-9]{6}$/.test(match[1].toUpperCase()) ? match[1].toUpperCase() : null
+  const T = {
+    en: {},
+    ru: { title: "Друг приглашает вас в ContextFlow", lead: "ИИ прямо на странице в Safari: пересказ, объяснения, перевод. На iPhone, iPad и Mac.", code: "Код друга", copy: "Скопировать код", copied: "Скопировано", s1: "Установите ContextFlow из App Store.", s2: "Откройте приложение и вставьте код на первом экране: бонусные ответы на первую неделю.", have: "ContextFlow уже есть?", open: "Открыть код в приложении", broken: "В этой ссылке нет верного кода. Попросите друга прислать её ещё раз.", get: "Загрузите в", privacy: "Политика конфиденциальности" },
+    uk: { title: "Друг запрошує вас у ContextFlow", lead: "ШІ просто на сторінці в Safari: переказ, пояснення, переклад. На iPhone, iPad і Mac.", code: "Код друга", copy: "Скопіювати код", copied: "Скопійовано", s1: "Встановіть ContextFlow з App Store.", s2: "Відкрийте застосунок і вставте код на першому екрані: бонусні відповіді на перший тиждень.", have: "ContextFlow уже є?", open: "Відкрити код у застосунку", broken: "У цьому посиланні немає правильного коду. Попросіть друга надіслати його ще раз.", get: "Завантажте в", privacy: "Політика конфіденційності" },
+    de: { title: "Ein Freund lädt dich zu ContextFlow ein", lead: "KI direkt auf der Seite in Safari: Zusammenfassungen, Erklärungen, Übersetzungen. Auf iPhone, iPad und Mac.", code: "Code deines Freundes", copy: "Code kopieren", copied: "Kopiert", s1: "Installiere ContextFlow aus dem App Store.", s2: "Öffne die App und füge den Code auf dem ersten Bildschirm ein: Bonusantworten in deiner ersten Woche.", have: "Du hast ContextFlow schon?", open: "Code in der App öffnen", broken: "Dieser Link enthält keinen gültigen Code. Bitte deinen Freund, ihn noch einmal zu schicken.", get: "Laden im", privacy: "Datenschutzerklärung" },
+    es: { title: "Un amigo te invita a ContextFlow", lead: "IA directamente en la página en Safari: resúmenes, explicaciones, traducción. En iPhone, iPad y Mac.", code: "Código de tu amigo", copy: "Copiar código", copied: "Copiado", s1: "Instala ContextFlow desde el App Store.", s2: "Abre la app y pega el código en la primera pantalla: respuestas extra durante tu primera semana.", have: "¿Ya tienes ContextFlow?", open: "Abrir el código en la app", broken: "Este enlace no tiene un código válido. Pide a tu amigo que te lo envíe de nuevo.", get: "Descárgalo en el", privacy: "Política de privacidad" },
+    fr: { title: "Un ami vous invite sur ContextFlow", lead: "L'IA directement sur la page dans Safari : résumés, explications, traduction. Sur iPhone, iPad et Mac.", code: "Code de votre ami", copy: "Copier le code", copied: "Copié", s1: "Installez ContextFlow depuis l'App Store.", s2: "Ouvrez l'app et collez le code sur le premier écran : des réponses bonus pendant votre première semaine.", have: "Vous avez déjà ContextFlow ?", open: "Ouvrir le code dans l'app", broken: "Ce lien ne contient pas de code valide. Demandez à votre ami de vous le renvoyer.", get: "Télécharger dans l'", privacy: "Politique de confidentialité" },
+    it: { title: "Un amico ti invita su ContextFlow", lead: "L'IA direttamente sulla pagina in Safari: riassunti, spiegazioni, traduzioni. Su iPhone, iPad e Mac.", code: "Codice del tuo amico", copy: "Copia il codice", copied: "Copiato", s1: "Installa ContextFlow dall'App Store.", s2: "Apri l'app e incolla il codice nella prima schermata: risposte bonus nella prima settimana.", have: "Hai già ContextFlow?", open: "Apri il codice nell'app", broken: "Questo link non contiene un codice valido. Chiedi al tuo amico di rimandarlo.", get: "Scarica su", privacy: "Informativa sulla privacy" },
+    "pt-br": { title: "Um amigo convida você para o ContextFlow", lead: "IA direto na página no Safari: resumos, explicações, tradução. No iPhone, iPad e Mac.", code: "Código do seu amigo", copy: "Copiar código", copied: "Copiado", s1: "Instale o ContextFlow pela App Store.", s2: "Abra o app e cole o código na primeira tela: respostas bônus na primeira semana.", have: "Já tem o ContextFlow?", open: "Abrir o código no app", broken: "Este link não tem um código válido. Peça ao seu amigo para enviar de novo.", get: "Baixar na", privacy: "Política de Privacidade" },
+    vi: { title: "Một người bạn mời bạn dùng ContextFlow", lead: "AI ngay trên trang trong Safari: tóm tắt, giải thích, dịch. Trên iPhone, iPad và Mac.", code: "Mã của bạn bè", copy: "Sao chép mã", copied: "Đã sao chép", s1: "Cài ContextFlow từ App Store.", s2: "Mở ứng dụng và dán mã ở màn hình đầu tiên: câu trả lời thưởng trong tuần đầu.", have: "Đã có ContextFlow?", open: "Mở mã trong ứng dụng", broken: "Liên kết này không có mã hợp lệ. Hãy nhờ bạn gửi lại.", get: "Tải về trên", privacy: "Chính sách quyền riêng tư" },
+    ar: { title: "صديق يدعوك إلى ContextFlow", lead: "الذكاء الاصطناعي مباشرة على الصفحة في Safari: تلخيص وشرح وترجمة. على iPhone وiPad وMac.", code: "رمز صديقك", copy: "نسخ الرمز", copied: "تم النسخ", s1: "ثبّت ContextFlow من App Store.", s2: "افتح التطبيق والصق الرمز في الشاشة الأولى: إجابات إضافية في أسبوعك الأول.", have: "لديك ContextFlow بالفعل؟", open: "افتح الرمز في التطبيق", broken: "لا يحتوي هذا الرابط على رمز صالح. اطلب من صديقك إرساله مرة أخرى.", get: "حمّله من", privacy: "سياسة الخصوصية" },
+    ja: { title: "友だちからContextFlowへの招待", lead: "SafariのページでそのままAI：要約、説明、翻訳。iPhone、iPad、Macで。", code: "友だちのコード", copy: "コードをコピー", copied: "コピーしました", s1: "App StoreからContextFlowをインストールします。", s2: "アプリを開き、最初の画面でコードを貼り付けます：最初の1週間ボーナス回答がもらえます。", have: "ContextFlowをお持ちですか？", open: "アプリでコードを開く", broken: "このリンクには有効なコードがありません。友だちにもう一度送ってもらってください。", get: "ダウンロード", privacy: "プライバシーポリシー" },
+    ko: { title: "친구가 ContextFlow에 초대했어요", lead: "Safari 페이지에서 바로 쓰는 AI: 요약, 설명, 번역. iPhone, iPad, Mac에서.", code: "친구 코드", copy: "코드 복사", copied: "복사됨", s1: "App Store에서 ContextFlow를 설치하세요.", s2: "앱을 열고 첫 화면에 코드를 붙여 넣으세요: 첫 주 동안 보너스 답변을 받아요.", have: "이미 ContextFlow가 있나요?", open: "앱에서 코드 열기", broken: "이 링크에는 올바른 코드가 없어요. 친구에게 다시 보내 달라고 하세요.", get: "다운로드", privacy: "개인정보 처리방침" },
+    "zh-hans": { title: "朋友邀请你使用 ContextFlow", lead: "在 Safari 页面上直接用 AI：总结、解释、翻译。支持 iPhone、iPad 和 Mac。", code: "朋友的邀请码", copy: "复制邀请码", copied: "已复制", s1: "从 App Store 安装 ContextFlow。", s2: "打开 App，在第一个画面粘贴邀请码：第一周可获得奖励回答。", have: "已经有 ContextFlow？", open: "在 App 中打开邀请码", broken: "这个链接里没有有效的邀请码。请让朋友再发一次。", get: "下载于", privacy: "隐私政策" },
+    "zh-hant": { title: "朋友邀請你使用 ContextFlow", lead: "在 Safari 頁面上直接用 AI：摘要、解釋、翻譯。支援 iPhone、iPad 和 Mac。", code: "朋友的邀請碼", copy: "拷貝邀請碼", copied: "已拷貝", s1: "從 App Store 安裝 ContextFlow。", s2: "打開 App，在第一個畫面貼上邀請碼：第一週可獲得獎勵回答。", have: "已經有 ContextFlow？", open: "在 App 中打開邀請碼", broken: "這個連結裡沒有有效的邀請碼。請朋友再傳一次。", get: "下載於", privacy: "隱私權政策" }
+  }
+  const lang = (navigator.languages || [navigator.language || "en"]).map((l) => {
+    const low = String(l).toLowerCase()
+    if (low.startsWith("zh")) return /hant|tw|hk|mo/.test(low) ? "zh-hant" : "zh-hans"
+    if (low.startsWith("pt")) return "pt-br"
+    return low.slice(0, 2)
+  }).find((l) => T[l]) || "en"
+  const t = T[lang]
+  document.documentElement.lang = lang === "pt-br" ? "pt-BR" : lang
+  if (lang === "ar") document.documentElement.dir = "rtl"
+  if (t.title) document.title = t.title
+  for (const el of document.querySelectorAll("[data-t]")) if (t[el.dataset.t]) el.textContent = t[el.dataset.t]
+
+  const copyCode = () => navigator.clipboard && navigator.clipboard.writeText(code).catch(() => {})
+  if (code) {
+    document.getElementById("code").textContent = code
+    document.getElementById("code-box").hidden = false
+    const button = document.getElementById("copy")
+    button.addEventListener("click", () => {
+      copyCode()
+      button.textContent = t.copied || "Copied"
+    })
+    // The App Store button copies the code too, ready for the app's first screen.
+    document.querySelector(".cta").addEventListener("click", copyCode)
+    document.getElementById("open").href = "contextflow://invite?code=" + code
+  } else {
+    document.getElementById("broken").hidden = false
+    document.getElementById("open").parentElement.hidden = true
+  }
+})()
+</script>
+</body>
+</html>

@@ -545,5 +545,7 @@
   "3bbba66422c3": "Ouvrez le panneau sur une page et ContextFlow choisit la discussion qui en parle : celle qui contient cette page, ou une autre sur le même sujet. « Je continue », en haut, vous dit laquelle, et « Nouveau chat » en commence une nouvelle.",
   "cc54dd594630": "Astuces près du bouton ✦",
   "e90e5a24917d": "Les premiers jours, une courte ligne près de ✦ vous suggère quelque chose pour la page où vous êtes : le résumé d’un long article, un prix à surveiller, une date pour votre calendrier. Touchez-la pour voir comment faire, ou désactivez ces lignes dans les réglages de l’extension.",
-  "73563198e068": "Trouver similaire <span class=\"pro-badge\">Pro</span>"
+  "73563198e068": "Trouver similaire <span class=\"pro-badge\">Pro</span>",
+  "3ee4fbeeb2ae": "Inviter un ami",
+  "799d630e4a69": "Vous connaissez quelqu'un qui lit beaucoup dans Safari ? « Réglages » → « Inviter un ami » vous donne un code et un lien à envoyer. Il reçoit des réponses bonus chaque jour de sa première semaine, et dès qu'il a posé des questions sur deux jours différents, vous recevez une réduction sur le premier mois de Pro ou Ultra."
 }

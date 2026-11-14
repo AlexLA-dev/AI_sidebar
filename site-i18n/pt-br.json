@@ -545,5 +545,7 @@
   "3bbba66422c3": "Abra o painel numa página e o ContextFlow escolhe a conversa sobre ela: a que tem esta página ou uma sobre o mesmo assunto. “Continuando”, no topo, mostra qual, e “Nova conversa” começa outra.",
   "cc54dd594630": "Dicas no botão ✦",
   "e90e5a24917d": "Nos primeiros dias, uma linha curta ao lado do ✦ sugere algo para a página em que você está: o resumo de um artigo longo, um preço para acompanhar, uma data para o calendário. Toque nela para ver como, ou desative as linhas nos ajustes da extensão.",
-  "73563198e068": "Encontrar parecidos <span class=\"pro-badge\">Pro</span>"
+  "73563198e068": "Encontrar parecidos <span class=\"pro-badge\">Pro</span>",
+  "3ee4fbeeb2ae": "Convidar um amigo",
+  "799d630e4a69": "Conhece alguém que lê muito no Safari? “Ajustes” → “Convidar um amigo” dá um código e um link para enviar. A pessoa ganha respostas bônus todos os dias na primeira semana e, quando fizer perguntas em dois dias diferentes, você ganha um desconto no primeiro mês do Pro ou Ultra."
 }

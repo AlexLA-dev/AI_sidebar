@@ -123,6 +123,8 @@ struct ContentView: View {
 
     /// What a plan adds, after a purchase or an upgrade (2.6, build 89).
     @StateObject private var tour = PlanTour.shared
+    /// 2.7, invite a friend: the screen from Settings or from an invite link (contextflow://invite?code=…).
+    @StateObject private var invite = InviteModel.shared
     #if os(iOS)
     /// Notifications, asked with a reason (2.6): after the other sheets and the plan tour.
     @StateObject private var notify = NotifyAsk.shared
@@ -178,6 +180,9 @@ struct ContentView: View {
             .sheet(item: $appleAdd.request, onDismiss: { appleAdd.close() }) { _ in
                 AppleAddView(model: appleAdd)
             }
+            .sheet(isPresented: $invite.shown) {
+                InviteView()
+            }
             .sheet(isPresented: $whatsNew) {
                 OrganizeWhatsNew(pro: store.isPro, openPro: { whatsNew = false; tab = .pro }, close: { whatsNew = false })
             }
@@ -209,6 +214,11 @@ struct ContentView: View {
                 // 2.7: a reminder or an event the panel couldn't add itself (access is asked here).
                 case "add":
                     appleAdd.open(url)
+                // 2.7: a friend's invite link opened where the app is installed: the code goes into the field.
+                case "invite":
+                    let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "code" }?.value ?? ""
+                    invite.draft = InviteModel.parseCode(code) ?? ""
+                    if hasChats || !invite.offersEntry { invite.shown = true } else { tab = .home }
                 #if os(iOS)
                 // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
                 case "notifications":
@@ -444,6 +454,8 @@ struct HomeView: View {
                 #else
                 SetupCard(activation: activation, openSafari: openSafari)
                 #endif
+                // 2.7 (plan section 5): a new install enters a friend's code here (bonus answers for the first week).
+                FriendCodeCard()
                 howToCard
                 planCard
                 footer
@@ -940,7 +952,11 @@ struct TipGroup {
             Tip(symbol: "calendar", color: .green, title: "Monthly or yearly",
                 text: "Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans, in the app or in Safari, to see each price and what you save. On monthly already? Switch to yearly is in Settings → Your plan: it starts when your current month ends.", clip: "yearly"),
             Tip(symbol: "crown", color: brandBlue, title: "What your plan adds",
-                text: "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan.")
+                text: "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan."),
+            // 2.7 (#181): the code and the link in Settings, the friend's bonus answers, the inviter's discount. No figures:
+            // the panel's and the app's own invite screens name them.
+            Tip(symbol: "gift", color: .pink, title: "Invite a friend",
+                text: "Settings → Invite a friend, in the app or in Safari, gives you a code and a link to send. Your friend gets bonus answers every day of their first week. Once they've asked questions on two different days, you get a discount on your first month of Pro or Ultra.")
         ]),
         TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
@@ -2013,6 +2029,16 @@ struct SettingsView: View {
 
             // With Pro there is no Pro tab: the plan and its subscription are managed here.
             if store.isPro { planSection.id("plan") }
+
+            // 2.7 (plan section 5): invite a friend, optional; the friend gets answers, the inviter an App Store offer code.
+            Section {
+                Button {
+                    InviteModel.shared.shown = true
+                } label: {
+                    Label("Invite a friend", systemImage: "gift")
+                }
+                .accessibilityIdentifier("cf-invite")
+            }
 
             // 2.6 (100): the App Store's "Write a Review", whenever the person wants to. Apple's own request comes by
             // itself at good moments (ReviewAsk); nothing of ours asks for a rating (guideline 5.6.1).

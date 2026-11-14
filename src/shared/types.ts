@@ -60,6 +60,9 @@ export interface StatusInfo {
   offline: boolean
   // Organizing the chats (2.5): switched on on the server, the vector space and the thresholds; null offline.
   organize: { on: boolean; space: string; config: OrganizeConfig } | null
+  // 2.7, invite a friend: friends who came with this install's code and asked on two different days (only once the
+  // install has a code).
+  invite?: { active: number }
 }
 
 /** What each plan gives, for the plans sheet (2.6): the server's numbers. */
