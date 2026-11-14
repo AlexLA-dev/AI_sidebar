@@ -2540,6 +2540,51 @@
  "underlineSettingHint": {
   "message": "Pro и Ultra: после паузы в наборе проверяется только изменённый абзац, с учётом страницы. Наведите на подчёркивание (на iPhone и iPad — нажмите), чтобы исправить. Ответы не тратятся."
  },
+ "shotSwitch": {
+  "message": "Снимок страницы"
+ },
+ "shotVisible": {
+  "message": "Видимая область"
+ },
+ "shotFull": {
+  "message": "Целиком"
+ },
+ "shotProOnly": {
+  "message": "Страница целиком — в Pro и Ultra."
+ },
+ "shotTaking": {
+  "message": "Снимаю страницу…"
+ },
+ "shotTakingFull": {
+  "message": "Снимок: экран {0} из {1}…"
+ },
+ "shotFailed": {
+  "message": "Снимок здесь не получился. Заметка сохранена без него."
+ },
+ "shotCut": {
+  "message": "Страница длинная: в снимке её первые {0} экранов."
+ },
+ "shotOpen": {
+  "message": "Открыть снимок"
+ },
+ "shotNote": {
+  "message": "Снимок страницы"
+ },
+ "shotCrop": {
+  "message": "Обрезать"
+ },
+ "shotCropDone": {
+  "message": "Готово"
+ },
+ "shotCropReset": {
+  "message": "Весь снимок"
+ },
+ "shotLoading": {
+  "message": "Открываю снимок…"
+ },
+ "shotMissing": {
+  "message": "Этого снимка пока нет на устройстве. Он придёт через iCloud, если чаты синхронизируются там."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

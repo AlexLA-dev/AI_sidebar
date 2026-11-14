@@ -2540,6 +2540,51 @@
  "underlineSettingHint": {
   "message": "Pro 和 Ultra:輸入停頓後,只參考頁面內容檢查你改動的段落。把指標移到底線上(在 iPhone 和 iPad 上點一下)即可修正。不計入回答次數。"
  },
+ "shotSwitch": {
+  "message": "頁面快照"
+ },
+ "shotVisible": {
+  "message": "可見區域"
+ },
+ "shotFull": {
+  "message": "整頁"
+ },
+ "shotProOnly": {
+  "message": "整頁快照需 Pro 或 Ultra。"
+ },
+ "shotTaking": {
+  "message": "正在拍攝快照…"
+ },
+ "shotTakingFull": {
+  "message": "快照:第 {0} 個畫面,共 {1} 個…"
+ },
+ "shotFailed": {
+  "message": "這裡無法拍攝快照。筆記已儲存,不含快照。"
+ },
+ "shotCut": {
+  "message": "頁面較長:快照包含前 {0} 個畫面。"
+ },
+ "shotOpen": {
+  "message": "打開快照"
+ },
+ "shotNote": {
+  "message": "頁面快照"
+ },
+ "shotCrop": {
+  "message": "裁切"
+ },
+ "shotCropDone": {
+  "message": "完成"
+ },
+ "shotCropReset": {
+  "message": "完整快照"
+ },
+ "shotLoading": {
+  "message": "正在打開快照…"
+ },
+ "shotMissing": {
+  "message": "這張快照還沒到這台裝置。如果聊天透過 iCloud 同步,它會隨之送達。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

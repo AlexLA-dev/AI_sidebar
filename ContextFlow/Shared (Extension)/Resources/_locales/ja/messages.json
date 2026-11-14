@@ -2540,6 +2540,51 @@
  "underlineSettingHint": {
   "message": "Pro と Ultra: 入力が止まると、変更した段落だけをページの内容を踏まえてチェックします。下線にポインタを合わせる(iPhone と iPad ではタップ)と修正できます。回答数には数えません。"
  },
+ "shotSwitch": {
+  "message": "ページのスナップショット"
+ },
+ "shotVisible": {
+  "message": "表示範囲"
+ },
+ "shotFull": {
+  "message": "ページ全体"
+ },
+ "shotProOnly": {
+  "message": "ページ全体は Pro と Ultra で使えます。"
+ },
+ "shotTaking": {
+  "message": "スナップショットを撮影中…"
+ },
+ "shotTakingFull": {
+  "message": "スナップショット: {1} 画面中 {0}…"
+ },
+ "shotFailed": {
+  "message": "ここではスナップショットを撮れませんでした。メモはスナップショットなしで保存されました。"
+ },
+ "shotCut": {
+  "message": "ページが長いため、最初の {0} 画面までを撮影しました。"
+ },
+ "shotOpen": {
+  "message": "スナップショットを開く"
+ },
+ "shotNote": {
+  "message": "ページのスナップショット"
+ },
+ "shotCrop": {
+  "message": "切り取る"
+ },
+ "shotCropDone": {
+  "message": "完了"
+ },
+ "shotCropReset": {
+  "message": "全体を表示"
+ },
+ "shotLoading": {
+  "message": "スナップショットを開いています…"
+ },
+ "shotMissing": {
+  "message": "このスナップショットはまだこのデバイスにありません。チャットを iCloud と同期していれば届きます。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

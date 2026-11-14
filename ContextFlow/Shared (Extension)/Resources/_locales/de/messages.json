@@ -2540,6 +2540,51 @@
  "underlineSettingHint": {
   "message": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
  },
+ "shotSwitch": {
+  "message": "Seiten-Schnappschuss"
+ },
+ "shotVisible": {
+  "message": "Sichtbarer Bereich"
+ },
+ "shotFull": {
+  "message": "Ganze Seite"
+ },
+ "shotProOnly": {
+  "message": "Die ganze Seite gibt es mit Pro und Ultra."
+ },
+ "shotTaking": {
+  "message": "Schnappschuss wird erstellt…"
+ },
+ "shotTakingFull": {
+  "message": "Schnappschuss: Bildschirm {0} von {1}…"
+ },
+ "shotFailed": {
+  "message": "Hier ließ sich kein Schnappschuss machen. Die Notiz ist ohne ihn gespeichert."
+ },
+ "shotCut": {
+  "message": "Die Seite ist lang: Der Schnappschuss zeigt ihre ersten {0} Bildschirme."
+ },
+ "shotOpen": {
+  "message": "Schnappschuss öffnen"
+ },
+ "shotNote": {
+  "message": "Schnappschuss der Seite"
+ },
+ "shotCrop": {
+  "message": "Zuschneiden"
+ },
+ "shotCropDone": {
+  "message": "Fertig"
+ },
+ "shotCropReset": {
+  "message": "Ganzer Schnappschuss"
+ },
+ "shotLoading": {
+  "message": "Schnappschuss wird geöffnet…"
+ },
+ "shotMissing": {
+  "message": "Dieser Schnappschuss ist noch nicht auf diesem Gerät. Er kommt über iCloud, wenn deine Chats dort synchronisiert werden."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

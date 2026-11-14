@@ -2540,6 +2540,51 @@
  "underlineSettingHint": {
   "message": "Pro وUltra: بعد توقف عن الكتابة تُدقَّق الفقرة التي غيّرتها فقط مع مراعاة الصفحة. أشر إلى الخط (أو انقر عليه في iPhone وiPad) لتصحيحه. لا يُحتسب إجابة."
  },
+ "shotSwitch": {
+  "message": "لقطة الصفحة"
+ },
+ "shotVisible": {
+  "message": "المنطقة الظاهرة"
+ },
+ "shotFull": {
+  "message": "الصفحة كاملة"
+ },
+ "shotProOnly": {
+  "message": "الصفحة كاملة متاحة في Pro وUltra."
+ },
+ "shotTaking": {
+  "message": "جارٍ التقاط اللقطة…"
+ },
+ "shotTakingFull": {
+  "message": "اللقطة: الشاشة {0} من {1}…"
+ },
+ "shotFailed": {
+  "message": "تعذّر التقاط لقطة هنا. حُفظت الملاحظة بدونها."
+ },
+ "shotCut": {
+  "message": "الصفحة طويلة: تضم اللقطة أول {0} شاشات."
+ },
+ "shotOpen": {
+  "message": "فتح اللقطة"
+ },
+ "shotNote": {
+  "message": "لقطة الصفحة"
+ },
+ "shotCrop": {
+  "message": "قص"
+ },
+ "shotCropDone": {
+  "message": "تم"
+ },
+ "shotCropReset": {
+  "message": "اللقطة كاملة"
+ },
+ "shotLoading": {
+  "message": "جارٍ فتح اللقطة…"
+ },
+ "shotMissing": {
+  "message": "هذه اللقطة ليست على هذا الجهاز بعد. تصل عبر iCloud إذا كانت محادثاتك تُزامَن هناك."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },
