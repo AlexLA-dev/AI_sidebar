@@ -117,7 +117,7 @@ export function InviteGroup({ onRedeem, onStatusChange }: { onRedeem: (code: str
   return (
     <section class="cf-group cf-invite">
       <div class="cf-row">
-        <span class="cf-label"><Icon.Sparkle size={14} /> {t("invTitle")}</span>
+        <span class="cf-label">{t("invTitle")}</span>
       </div>
       <p class="cf-hint">{t("invHint", daily, INVITE_DISCOUNT)}</p>
       {state?.code && state.link ? (

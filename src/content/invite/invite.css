@@ -1,5 +1,4 @@
 /* Invite a friend (2.7, plan section 5): Settings' group and the one-time card when a friend becomes active. */
-.cf-invite .cf-label svg { vertical-align: -2px; color: var(--accent); }
 .cf-inv-code {
   display: flex;
   flex-direction: column;
@@ -23,7 +22,7 @@
 .cf-inv-reward-box p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; }
 .cf-inv-reward { flex-wrap: wrap; margin-top: 8px; }
 .cf-inv-enter-title { display: block; margin-top: 10px; }
-.cf-inv-input { text-transform: uppercase; letter-spacing: 0.08em; }
-.cf-inv-input::placeholder { text-transform: none; letter-spacing: normal; }
+.cf-inv-input { text-transform: uppercase; }
+.cf-inv-input::placeholder { text-transform: none; }
 .cf-inv-error { color: var(--danger); }
 .cf-inv-card .cf-inv-reward { margin-top: 6px; }
