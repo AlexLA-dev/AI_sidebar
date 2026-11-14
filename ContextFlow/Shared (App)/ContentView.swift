@@ -121,11 +121,11 @@ struct ContentView: View {
 
     /// What a plan adds, after a purchase or an upgrade (2.6, build 89).
     @StateObject private var tour = PlanTour.shared
+    /// 2.7, invite a friend: the screen from Settings or from an invite link (contextflow://invite?code=…).
+    @StateObject private var invite = InviteModel.shared
     #if os(iOS)
     /// Notifications, asked with a reason (2.6): after the other sheets and the plan tour.
     @StateObject private var notify = NotifyAsk.shared
-    /// 2.7, invite a friend: the screen from Settings or from an invite link (contextflow://invite?code=…).
-    @StateObject private var invite = InviteModel.shared
     #endif
 
     /// The plan tour waits while another sheet is up (Listen handed over from Safari, What's new, the setup guide),
