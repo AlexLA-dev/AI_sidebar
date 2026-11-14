@@ -224,6 +224,10 @@ test("not translated: a short CJK heading back unchanged, a sentence rewritten i
   assert.equal(sameLanguageBack("Microsoft 365", "Microsoft 365", "ru"), false, "a Latin name may stay")
   assert.equal(sameLanguageBack("追記", "追記", "ja"), false, "already in the target")
   assert.equal(sameLanguageBack("Привет, мир", "Привет, мир", "ru"), false)
+  const listing = "<1>Dieses Thema im Programm: </1>Das Erste | tagesthemen | 14.11.2026 | 21:45 Uhr, Das Erste | tagesschau | 14.11.2026 | 20:00 Uhr"
+  assert.equal(sameLanguageBack(listing, "<1>Эта тема в программе: </1>Das Erste | tagesthemen | 14.11.2026 | 21:45, Das Erste | tagesschau | 14.11.2026 | 20:00", "ru"), false, "programme names kept")
+  assert.equal(sameLanguageBack("Die Stadt hat am Montag die neue Brücke eröffnet.", "Die Stadt hat am Montag die neue Brücke eröffnet!", "en"), true, "German rewritten in German")
+  assert.equal(sameLanguageBack("Die Stadt hat am Montag die neue Brücke eröffnet.", "The city opened the new bridge on Monday.", "en"), false)
 })
 
 test("nothing translated (Claude down): an error, and the page, the answer and the caps are given back", async () => {

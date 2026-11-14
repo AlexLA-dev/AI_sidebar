@@ -83,19 +83,40 @@ const SCRIPT_OF_LANG: Record<string, string> = {
   ja: "cjk", zh: "cjk", ko: "hangul", ar: "arabic", fa: "arabic", ur: "arabic", he: "hebrew", el: "greek", th: "thai", hi: "devanagari"
 }
 
+/** Share of a text's letters written in `script` (scriptOf's names). */
+function scriptShare(text: string, script: string): number {
+  let all = 0
+  let hits = 0
+  for (const ch of plainText(text)) {
+    if (!/\p{L}/u.test(ch)) continue
+    all++
+    if (scriptOf(ch) === script) hits++
+  }
+  return all ? hits / all : 0
+}
+
+/** Words (single characters in Chinese and Japanese) of a text, lowercased. */
+const tokens = (text: string): string[] =>
+  (plainText(text).toLowerCase().match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]|[\p{L}\p{N}]+/gu) ?? [])
+
 /**
- * A line that came back in its own language instead of the target (the model rewrote a Japanese line in Japanese):
- * told by the letters and commonest words of both (src/content/translateTarget.ts), only when both are clear.
+ * A line that came back in its own language instead of the target (the model "corrected" a Japanese notice in
+ * Japanese). Not one that kept names, titles or a programme listing in the original (a Russian line about "Das Erste"):
+ * a fair share of the target's own letters, or new words, make it a translation.
  */
 export function sameLanguageBack(source: string, translation: string, to: string): boolean {
   const target = to.toLowerCase().split("-")[0]
+  const targetScript = SCRIPT_OF_LANG[target] ?? "latin"
   // Unchanged, in letters the target doesn't use (a short Japanese heading into Russian): not translated. Latin words
   // may stay (names, brands, "Microsoft 365").
   const from = scriptOf(source)
-  if (plainText(source).trim() === plainText(translation).trim() && from && from !== "latin" && from !== (SCRIPT_OF_LANG[target] ?? "latin")) return true
+  if (plainText(source).trim() === plainText(translation).trim() && from && from !== "latin" && from !== targetScript) return true
+  if (targetScript !== "latin" && scriptShare(translation, targetScript) >= 0.2) return false
   const was = guessLanguage(plainText(source))
-  if (!was || was === target) return false
-  return guessLanguage(plainText(translation)) === was
+  if (!was || was === target || guessLanguage(plainText(translation)) !== was) return false
+  const original = new Set(tokens(source))
+  const words = tokens(translation)
+  return words.length > 0 && words.filter((w) => original.has(w)).length / words.length >= 0.5
 }
 
 /** Batches of at most `maxChars` characters (a longer block goes alone) and 30 blocks, in page order. */
