@@ -2477,6 +2477,96 @@
  "hintSideBodySheet": {
   "message": "Trascinalo a sinistra o a destra. Puoi scegliere il lato anche nelle Impostazioni."
  },
+ "phSimilar": {
+  "message": "Trovarlo a meno?"
+ },
+ "phWatch": {
+  "message": "Seguire il prezzo?"
+ },
+ "phSummary": {
+  "message": "Riassumere la pagina?"
+ },
+ "phListen": {
+  "message": "Ascoltare l’articolo?"
+ },
+ "phVideo": {
+  "message": "Chiedere del video?"
+ },
+ "phTemplates": {
+  "message": "Rispondere con un modello?"
+ },
+ "phRemind": {
+  "message": "Ricordartelo?"
+ },
+ "phCalendar": {
+  "message": "Aggiungere al calendario?"
+ },
+ "phClose": {
+  "message": "Nascondi il suggerimento"
+ },
+ "phSimilarTitle": {
+  "message": "Trovarlo a meno"
+ },
+ "phSimilarBody": {
+  "message": "Seleziona il nome del prodotto → «Trova simili», oppure tocca il pulsante evidenziato: lo stesso prodotto a meno e altri simili."
+ },
+ "phSimilarBodyUp": {
+  "message": "È in Ultra: lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
+ },
+ "phWatchTitle": {
+  "message": "Seguire il prezzo"
+ },
+ "phWatchBody": {
+  "message": "Seleziona il prezzo: accanto compare un occhio. Oppure «…» (evidenziato) → «Segui questa pagina…». Ti avviso quando cambia."
+ },
+ "phSummaryTitle": {
+  "message": "Riassunto della pagina"
+ },
+ "phSummaryBody": {
+  "message": "Tocca «Riassumi», evidenziato: il succo della pagina in poche righe."
+ },
+ "phListenTitle": {
+  "message": "Ascoltare l’articolo"
+ },
+ "phListenBody": {
+  "message": "Apri «…» (evidenziato) → «Ascolta questa pagina»: l’articolo viene letto ad alta voce."
+ },
+ "phListenBodyUp": {
+  "message": "La lettura ad alta voce è in Ultra. Apri «…» (evidenziato) → «Ascolta questa pagina»."
+ },
+ "phVideoTitle": {
+  "message": "Domanda sul video"
+ },
+ "phVideoBody": {
+  "message": "Chiedi del video nel campo evidenziato: rispondo in base ai sottotitoli."
+ },
+ "phVideoBodyUp": {
+  "message": "Le risposte in base ai sottotitoli sono in Pro. Chiedi nel campo evidenziato."
+ },
+ "phTemplatesTitle": {
+  "message": "Rispondere con un modello"
+ },
+ "phTemplatesBody": {
+  "message": "Metti il cursore in un campo della pagina: accanto compare il pulsante dei modelli. I tuoi modelli: «…» (evidenziato) → «Impostazioni» → «Modelli»."
+ },
+ "phRemindTitle": {
+  "message": "Promemoria"
+ },
+ "phRemindBody": {
+  "message": "Scrivi nel campo evidenziato, per esempio «ricordamelo domani alle 9», e ti propongo un promemoria."
+ },
+ "phCalendarTitle": {
+  "message": "Nel calendario"
+ },
+ "phCalendarBody": {
+  "message": "Scrivi «aggiungi al calendario» nel campo evidenziato e ti propongo un evento con la data della pagina."
+ },
+ "setPageHints": {
+  "message": "Suggerimenti accanto al pulsante ✦"
+ },
+ "setPageHintsHint": {
+  "message": "Nei primi giorni mostrano cosa puoi fare su una pagina."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

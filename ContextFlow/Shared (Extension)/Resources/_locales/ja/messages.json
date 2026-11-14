@@ -2477,6 +2477,96 @@
  "hintSideBodySheet": {
   "message": "左右どちらかへドラッグします。左右は設定でも選べます。"
  },
+ "phSimilar": {
+  "message": "もっと安く探しますか？"
+ },
+ "phWatch": {
+  "message": "価格を見守りますか？"
+ },
+ "phSummary": {
+  "message": "このページを要約しますか？"
+ },
+ "phListen": {
+  "message": "記事を聞きますか？"
+ },
+ "phVideo": {
+  "message": "動画について質問しますか？"
+ },
+ "phTemplates": {
+  "message": "テンプレートで返信しますか？"
+ },
+ "phRemind": {
+  "message": "リマインダーを設定しますか？"
+ },
+ "phCalendar": {
+  "message": "カレンダーに追加しますか？"
+ },
+ "phClose": {
+  "message": "ヒントを隠す"
+ },
+ "phSimilarTitle": {
+  "message": "もっと安く探す"
+ },
+ "phSimilarBody": {
+  "message": "商品名を選択して「似たものを探す」、またはハイライトされたボタンをタップ。同じ商品をより安く、似た商品も探します。"
+ },
+ "phSimilarBodyUp": {
+  "message": "これはUltraの機能です。同じ商品をより安く、似た商品を他のお店から探します。ハイライトされたボタンをタップしてください。"
+ },
+ "phWatchTitle": {
+  "message": "価格を見守る"
+ },
+ "phWatchBody": {
+  "message": "価格を選択すると横に目のアイコンが出ます。または「…」（ハイライト）→「このページを見守る…」。変わったらお知らせします。"
+ },
+ "phSummaryTitle": {
+  "message": "ページの要約"
+ },
+ "phSummaryBody": {
+  "message": "ハイライトされた「要約」をタップ。ページの要点を数行で。"
+ },
+ "phListenTitle": {
+  "message": "記事を聞く"
+ },
+ "phListenBody": {
+  "message": "「…」（ハイライト）→「このページを読み上げ」で記事を読み上げます。"
+ },
+ "phListenBodyUp": {
+  "message": "読み上げはUltraの機能です。「…」（ハイライト）→「このページを読み上げ」。"
+ },
+ "phVideoTitle": {
+  "message": "動画について質問"
+ },
+ "phVideoBody": {
+  "message": "ハイライトされた欄で動画について質問してください。字幕をもとに答えます。"
+ },
+ "phVideoBodyUp": {
+  "message": "字幕をもとにした回答はProの機能です。ハイライトされた欄で質問してください。"
+ },
+ "phTemplatesTitle": {
+  "message": "テンプレートで返信"
+ },
+ "phTemplatesBody": {
+  "message": "ページの入力欄にカーソルを置くと、横にテンプレートのボタンが出ます。自分のテンプレート：「…」（ハイライト）→「設定」→「テンプレート」。"
+ },
+ "phRemindTitle": {
+  "message": "リマインダー"
+ },
+ "phRemindBody": {
+  "message": "ハイライトされた欄に、たとえば「明日9時に知らせて」と入力すると、リマインダーを提案します。"
+ },
+ "phCalendarTitle": {
+  "message": "カレンダーへ"
+ },
+ "phCalendarBody": {
+  "message": "ハイライトされた欄に「カレンダーに追加」と入力すると、ページの日付でイベントを提案します。"
+ },
+ "setPageHints": {
+  "message": "✦ボタンのヒント"
+ },
+ "setPageHintsHint": {
+  "message": "最初の数日、ページでできることを教えてくれます。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
