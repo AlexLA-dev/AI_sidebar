@@ -2699,6 +2699,141 @@
  "shotMissing": {
   "message": "Ảnh chụp này chưa có trên thiết bị. Ảnh sẽ đến qua iCloud nếu các cuộc trò chuyện được đồng bộ ở đó."
  },
+ "colAdd": {
+  "message": "Vào bộ sưu tập"
+ },
+ "colTab": {
+  "message": "Bộ sưu tập"
+ },
+ "colChat": {
+  "message": "Trò chuyện"
+ },
+ "colSuggestAi": {
+  "message": "AI gợi ý"
+ },
+ "colSuggestWords": {
+  "message": "hợp nhất"
+ },
+ "colNewSection": {
+  "message": "+ mục mới"
+ },
+ "colNewCollection": {
+  "message": "+ Bộ sưu tập mới"
+ },
+ "colNamePlaceholder": {
+  "message": "Tên, ví dụ: Chuyến đi Nhật Bản"
+ },
+ "colSectionPlaceholder": {
+  "message": "Tên mục"
+ },
+ "colFirstSection": {
+  "message": "Ghi chú"
+ },
+ "colCreate": {
+  "message": "Tạo"
+ },
+ "colAdded": {
+  "message": "Đã thêm vào “{0}” → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} thẻ"
+ },
+ "colCards_two": {
+  "message": "{0} thẻ"
+ },
+ "colCards_few": {
+  "message": "{0} thẻ"
+ },
+ "colCards_many": {
+  "message": "{0} thẻ"
+ },
+ "colCards_other": {
+  "message": "{0} thẻ"
+ },
+ "colEmpty": {
+  "message": "Chưa có bộ sưu tập nào. Chạm “Vào bộ sưu tập” dưới một câu trả lời hoặc ghi chú."
+ },
+ "colEmptyCards": {
+  "message": "Chưa có thẻ nào."
+ },
+ "colToChat": {
+  "message": "← Về trò chuyện"
+ },
+ "colCompare": {
+  "message": "So sánh"
+ },
+ "colCompareN": {
+  "message": "So sánh {0}"
+ },
+ "colComparePick": {
+  "message": "Chạm 2 đến 8 thẻ"
+ },
+ "colSummary": {
+  "message": "Tóm tắt"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Mở cuộc trò chuyện"
+ },
+ "colMoveTo": {
+  "message": "Chuyển đến “{0}”"
+ },
+ "colRemove": {
+  "message": "Bỏ khỏi bộ sưu tập"
+ },
+ "colThisPage": {
+  "message": "trang này"
+ },
+ "colNote": {
+  "message": "ghi chú"
+ },
+ "colComparison": {
+  "message": "So sánh"
+ },
+ "colLimitCollections": {
+  "message": "Bản miễn phí có một bộ sưu tập. Với Pro, bao nhiêu cũng được."
+ },
+ "colLimitCards": {
+  "message": "Bản miễn phí: mỗi bộ sưu tập {0} thẻ. Với Pro, tới {1}."
+ },
+ "colProOnly": {
+  "message": "So sánh và Tóm tắt có trong Pro."
+ },
+ "colWorking": {
+  "message": "Đang xử lý…"
+ },
+ "colFailed": {
+  "message": "Lần này chưa được. Hãy thử lại sau."
+ },
+ "colLimitDay": {
+  "message": "Hôm nay đủ rồi: hãy thử lại vào ngày mai."
+ },
+ "colGone": {
+  "message": "Bộ sưu tập này đã bị xóa."
+ },
+ "colPdfMadeWith": {
+  "message": "tạo bằng"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — AI cho Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Mở cuộc trò chuyện trong ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "Tạo bằng ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Lưu thành PDF"
+ },
+ "colPick": {
+  "message": "Bộ sưu tập: {0}. Chuyển"
+ },
+ "colCardMenu": {
+  "message": "Thao tác với thẻ"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

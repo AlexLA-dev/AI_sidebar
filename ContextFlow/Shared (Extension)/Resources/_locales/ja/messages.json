@@ -2699,6 +2699,141 @@
  "shotMissing": {
   "message": "このスナップショットはまだこのデバイスにありません。チャットを iCloud と同期していれば届きます。"
  },
+ "colAdd": {
+  "message": "コレクションへ"
+ },
+ "colTab": {
+  "message": "コレクション"
+ },
+ "colChat": {
+  "message": "チャット"
+ },
+ "colSuggestAi": {
+  "message": "AIのおすすめ"
+ },
+ "colSuggestWords": {
+  "message": "いちばん合う"
+ },
+ "colNewSection": {
+  "message": "+ 新しいセクション"
+ },
+ "colNewCollection": {
+  "message": "+ 新しいコレクション"
+ },
+ "colNamePlaceholder": {
+  "message": "名前（例：日本旅行）"
+ },
+ "colSectionPlaceholder": {
+  "message": "セクション名"
+ },
+ "colFirstSection": {
+  "message": "メモ"
+ },
+ "colCreate": {
+  "message": "作成"
+ },
+ "colAdded": {
+  "message": "「{0}」→ {1} に追加しました"
+ },
+ "colCards_one": {
+  "message": "カード {0} 枚"
+ },
+ "colCards_two": {
+  "message": "カード {0} 枚"
+ },
+ "colCards_few": {
+  "message": "カード {0} 枚"
+ },
+ "colCards_many": {
+  "message": "カード {0} 枚"
+ },
+ "colCards_other": {
+  "message": "カード {0} 枚"
+ },
+ "colEmpty": {
+  "message": "コレクションはまだありません。回答やメモの下の「コレクションへ」をタップしてください。"
+ },
+ "colEmptyCards": {
+  "message": "カードはまだありません。"
+ },
+ "colToChat": {
+  "message": "← チャットへ"
+ },
+ "colCompare": {
+  "message": "比較"
+ },
+ "colCompareN": {
+  "message": "{0}件を比較"
+ },
+ "colComparePick": {
+  "message": "カードを2〜8枚選んでください"
+ },
+ "colSummary": {
+  "message": "まとめ"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "チャットを開く"
+ },
+ "colMoveTo": {
+  "message": "「{0}」に移動"
+ },
+ "colRemove": {
+  "message": "コレクションから外す"
+ },
+ "colThisPage": {
+  "message": "このページ"
+ },
+ "colNote": {
+  "message": "メモ"
+ },
+ "colComparison": {
+  "message": "比較"
+ },
+ "colLimitCollections": {
+  "message": "無料版のコレクションは1つです。Proなら無制限です。"
+ },
+ "colLimitCards": {
+  "message": "無料版では1つのコレクションにカード{0}枚まで。Proなら{1}枚まで。"
+ },
+ "colProOnly": {
+  "message": "比較とまとめはProの機能です。"
+ },
+ "colWorking": {
+  "message": "処理中…"
+ },
+ "colFailed": {
+  "message": "今回はうまくいきませんでした。後でもう一度お試しください。"
+ },
+ "colLimitDay": {
+  "message": "今日はここまでです。明日もう一度お試しください。"
+ },
+ "colGone": {
+  "message": "このコレクションは削除されました。"
+ },
+ "colPdfMadeWith": {
+  "message": "作成："
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — Safari用AI"
+ },
+ "colPdfOpenChat": {
+  "message": "ContextFlowでチャットを開く"
+ },
+ "colPdfFooter": {
+  "message": "ContextFlowで作成"
+ },
+ "colPdfSave": {
+  "message": "PDFとして保存"
+ },
+ "colPick": {
+  "message": "コレクション：{0}。切り替える"
+ },
+ "colCardMenu": {
+  "message": "カードの操作"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

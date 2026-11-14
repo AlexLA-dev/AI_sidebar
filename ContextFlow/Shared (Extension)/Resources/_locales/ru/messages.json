@@ -2699,6 +2699,141 @@
  "shotMissing": {
   "message": "Этого снимка пока нет на устройстве. Он придёт через iCloud, если чаты синхронизируются там."
  },
+ "colAdd": {
+  "message": "В подборку"
+ },
+ "colTab": {
+  "message": "Подборки"
+ },
+ "colChat": {
+  "message": "Чат"
+ },
+ "colSuggestAi": {
+  "message": "предлагает ИИ"
+ },
+ "colSuggestWords": {
+  "message": "подходит лучше"
+ },
+ "colNewSection": {
+  "message": "+ новый раздел"
+ },
+ "colNewCollection": {
+  "message": "+ Новая подборка"
+ },
+ "colNamePlaceholder": {
+  "message": "Название, например Поездка в Японию"
+ },
+ "colSectionPlaceholder": {
+  "message": "Название раздела"
+ },
+ "colFirstSection": {
+  "message": "Заметки"
+ },
+ "colCreate": {
+  "message": "Создать"
+ },
+ "colAdded": {
+  "message": "Добавлено в «{0}» → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} карточка"
+ },
+ "colCards_two": {
+  "message": "{0} карточки"
+ },
+ "colCards_few": {
+  "message": "{0} карточки"
+ },
+ "colCards_many": {
+  "message": "{0} карточек"
+ },
+ "colCards_other": {
+  "message": "{0} карточки"
+ },
+ "colEmpty": {
+  "message": "Подборок пока нет. Нажмите «В подборку» под ответом или заметкой."
+ },
+ "colEmptyCards": {
+  "message": "Карточек пока нет."
+ },
+ "colToChat": {
+  "message": "← К чату"
+ },
+ "colCompare": {
+  "message": "Сравнить"
+ },
+ "colCompareN": {
+  "message": "Сравнить {0}"
+ },
+ "colComparePick": {
+  "message": "Отметьте от 2 до 8 карточек"
+ },
+ "colSummary": {
+  "message": "Сводка"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Открыть чат"
+ },
+ "colMoveTo": {
+  "message": "Перенести в «{0}»"
+ },
+ "colRemove": {
+  "message": "Убрать из подборки"
+ },
+ "colThisPage": {
+  "message": "эта страница"
+ },
+ "colNote": {
+  "message": "заметка"
+ },
+ "colComparison": {
+  "message": "Сравнение"
+ },
+ "colLimitCollections": {
+  "message": "Бесплатно — одна подборка. В Pro — сколько угодно."
+ },
+ "colLimitCards": {
+  "message": "Бесплатно — {0} карточек в подборке. В Pro — до {1}."
+ },
+ "colProOnly": {
+  "message": "Сравнение и сводка — в Pro."
+ },
+ "colWorking": {
+  "message": "Готовлю…"
+ },
+ "colFailed": {
+  "message": "Сейчас не получилось. Попробуйте позже."
+ },
+ "colLimitDay": {
+  "message": "На сегодня хватит: попробуйте завтра."
+ },
+ "colGone": {
+  "message": "Эта подборка удалена."
+ },
+ "colPdfMadeWith": {
+  "message": "собрано в"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — AI для Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Открыть чат в ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "Сделано в ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Сохранить PDF"
+ },
+ "colPick": {
+  "message": "Подборка: {0}. Переключить"
+ },
+ "colCardMenu": {
+  "message": "Действия с карточкой"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

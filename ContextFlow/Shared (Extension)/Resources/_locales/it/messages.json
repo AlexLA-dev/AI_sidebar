@@ -2699,6 +2699,141 @@
  "shotMissing": {
   "message": "Questa istantanea non è ancora su questo dispositivo. Arriva tramite iCloud se le chat vi sono sincronizzate."
  },
+ "colAdd": {
+  "message": "In una raccolta"
+ },
+ "colTab": {
+  "message": "Raccolte"
+ },
+ "colChat": {
+  "message": "Chat"
+ },
+ "colSuggestAi": {
+  "message": "suggerita dall’IA"
+ },
+ "colSuggestWords": {
+  "message": "la più adatta"
+ },
+ "colNewSection": {
+  "message": "+ nuova sezione"
+ },
+ "colNewCollection": {
+  "message": "+ Nuova raccolta"
+ },
+ "colNamePlaceholder": {
+  "message": "Nome, per esempio Viaggio in Giappone"
+ },
+ "colSectionPlaceholder": {
+  "message": "Nome della sezione"
+ },
+ "colFirstSection": {
+  "message": "Note"
+ },
+ "colCreate": {
+  "message": "Crea"
+ },
+ "colAdded": {
+  "message": "Aggiunta a «{0}» → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} scheda"
+ },
+ "colCards_two": {
+  "message": "{0} schede"
+ },
+ "colCards_few": {
+  "message": "{0} schede"
+ },
+ "colCards_many": {
+  "message": "{0} schede"
+ },
+ "colCards_other": {
+  "message": "{0} schede"
+ },
+ "colEmpty": {
+  "message": "Ancora nessuna raccolta. Tocca «In una raccolta» sotto una risposta o una nota."
+ },
+ "colEmptyCards": {
+  "message": "Ancora nessuna scheda."
+ },
+ "colToChat": {
+  "message": "← Alla chat"
+ },
+ "colCompare": {
+  "message": "Confronta"
+ },
+ "colCompareN": {
+  "message": "Confronta {0}"
+ },
+ "colComparePick": {
+  "message": "Tocca da 2 a 8 schede"
+ },
+ "colSummary": {
+  "message": "Sintesi"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Apri chat"
+ },
+ "colMoveTo": {
+  "message": "Sposta in «{0}»"
+ },
+ "colRemove": {
+  "message": "Togli dalla raccolta"
+ },
+ "colThisPage": {
+  "message": "questa pagina"
+ },
+ "colNote": {
+  "message": "nota"
+ },
+ "colComparison": {
+  "message": "Confronto"
+ },
+ "colLimitCollections": {
+  "message": "Gratis hai una raccolta. Con Pro, quante ne vuoi."
+ },
+ "colLimitCards": {
+  "message": "Gratis una raccolta contiene {0} schede. Con Pro, fino a {1}."
+ },
+ "colProOnly": {
+  "message": "Confronta e Sintesi sono in Pro."
+ },
+ "colWorking": {
+  "message": "Un attimo…"
+ },
+ "colFailed": {
+  "message": "Stavolta non ha funzionato. Riprova più tardi."
+ },
+ "colLimitDay": {
+  "message": "Per oggi basta: riprova domani."
+ },
+ "colGone": {
+  "message": "Questa raccolta è stata eliminata."
+ },
+ "colPdfMadeWith": {
+  "message": "fatta con"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow: l’IA per Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Apri la chat in ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "Fatto con ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Salva come PDF"
+ },
+ "colPick": {
+  "message": "Raccolta: {0}. Cambia"
+ },
+ "colCardMenu": {
+  "message": "Azioni della scheda"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

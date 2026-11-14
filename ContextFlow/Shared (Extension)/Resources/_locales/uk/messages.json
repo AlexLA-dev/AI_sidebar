@@ -2699,6 +2699,141 @@
  "shotMissing": {
   "message": "Цього знімка ще немає на пристрої. Він прийде через iCloud, якщо чати синхронізуються там."
  },
+ "colAdd": {
+  "message": "До добірки"
+ },
+ "colTab": {
+  "message": "Добірки"
+ },
+ "colChat": {
+  "message": "Чат"
+ },
+ "colSuggestAi": {
+  "message": "пропонує ШІ"
+ },
+ "colSuggestWords": {
+  "message": "підходить найкраще"
+ },
+ "colNewSection": {
+  "message": "+ новий розділ"
+ },
+ "colNewCollection": {
+  "message": "+ Нова добірка"
+ },
+ "colNamePlaceholder": {
+  "message": "Назва, наприклад Поїздка до Японії"
+ },
+ "colSectionPlaceholder": {
+  "message": "Назва розділу"
+ },
+ "colFirstSection": {
+  "message": "Нотатки"
+ },
+ "colCreate": {
+  "message": "Створити"
+ },
+ "colAdded": {
+  "message": "Додано до «{0}» → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} картка"
+ },
+ "colCards_two": {
+  "message": "{0} картки"
+ },
+ "colCards_few": {
+  "message": "{0} картки"
+ },
+ "colCards_many": {
+  "message": "{0} карток"
+ },
+ "colCards_other": {
+  "message": "{0} картки"
+ },
+ "colEmpty": {
+  "message": "Добірок поки немає. Натисніть «До добірки» під відповіддю або нотаткою."
+ },
+ "colEmptyCards": {
+  "message": "Карток поки немає."
+ },
+ "colToChat": {
+  "message": "← До чату"
+ },
+ "colCompare": {
+  "message": "Порівняти"
+ },
+ "colCompareN": {
+  "message": "Порівняти {0}"
+ },
+ "colComparePick": {
+  "message": "Позначте від 2 до 8 карток"
+ },
+ "colSummary": {
+  "message": "Підсумок"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Відкрити чат"
+ },
+ "colMoveTo": {
+  "message": "Перенести до «{0}»"
+ },
+ "colRemove": {
+  "message": "Прибрати з добірки"
+ },
+ "colThisPage": {
+  "message": "ця сторінка"
+ },
+ "colNote": {
+  "message": "нотатка"
+ },
+ "colComparison": {
+  "message": "Порівняння"
+ },
+ "colLimitCollections": {
+  "message": "Безкоштовно — одна добірка. У Pro — скільки завгодно."
+ },
+ "colLimitCards": {
+  "message": "Безкоштовно — {0} карток у добірці. У Pro — до {1}."
+ },
+ "colProOnly": {
+  "message": "Порівняння й підсумок — у Pro."
+ },
+ "colWorking": {
+  "message": "Готую…"
+ },
+ "colFailed": {
+  "message": "Зараз не вийшло. Спробуйте пізніше."
+ },
+ "colLimitDay": {
+  "message": "На сьогодні досить: спробуйте завтра."
+ },
+ "colGone": {
+  "message": "Цю добірку видалено."
+ },
+ "colPdfMadeWith": {
+  "message": "зібрано в"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — AI для Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Відкрити чат у ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "Зроблено в ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Зберегти PDF"
+ },
+ "colPick": {
+  "message": "Добірка: {0}. Перемкнути"
+ },
+ "colCardMenu": {
+  "message": "Дії з карткою"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

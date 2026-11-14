@@ -2699,6 +2699,141 @@
  "shotMissing": {
   "message": "Esta captura aún no está en este dispositivo. Llega por iCloud si tus chats se sincronizan allí."
  },
+ "colAdd": {
+  "message": "A una colección"
+ },
+ "colTab": {
+  "message": "Colecciones"
+ },
+ "colChat": {
+  "message": "Chat"
+ },
+ "colSuggestAi": {
+  "message": "sugerencia de la IA"
+ },
+ "colSuggestWords": {
+  "message": "la que mejor encaja"
+ },
+ "colNewSection": {
+  "message": "+ nueva sección"
+ },
+ "colNewCollection": {
+  "message": "+ Nueva colección"
+ },
+ "colNamePlaceholder": {
+  "message": "Nombre, por ejemplo Viaje a Japón"
+ },
+ "colSectionPlaceholder": {
+  "message": "Nombre de la sección"
+ },
+ "colFirstSection": {
+  "message": "Notas"
+ },
+ "colCreate": {
+  "message": "Crear"
+ },
+ "colAdded": {
+  "message": "Añadido a «{0}» → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} tarjeta"
+ },
+ "colCards_two": {
+  "message": "{0} tarjetas"
+ },
+ "colCards_few": {
+  "message": "{0} tarjetas"
+ },
+ "colCards_many": {
+  "message": "{0} tarjetas"
+ },
+ "colCards_other": {
+  "message": "{0} tarjetas"
+ },
+ "colEmpty": {
+  "message": "Aún no hay colecciones. Toca «A una colección» bajo una respuesta o una nota."
+ },
+ "colEmptyCards": {
+  "message": "Aún no hay tarjetas."
+ },
+ "colToChat": {
+  "message": "← Al chat"
+ },
+ "colCompare": {
+  "message": "Comparar"
+ },
+ "colCompareN": {
+  "message": "Comparar {0}"
+ },
+ "colComparePick": {
+  "message": "Toca de 2 a 8 tarjetas"
+ },
+ "colSummary": {
+  "message": "Resumen"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Abrir chat"
+ },
+ "colMoveTo": {
+  "message": "Mover a «{0}»"
+ },
+ "colRemove": {
+  "message": "Quitar de la colección"
+ },
+ "colThisPage": {
+  "message": "esta página"
+ },
+ "colNote": {
+  "message": "nota"
+ },
+ "colComparison": {
+  "message": "Comparación"
+ },
+ "colLimitCollections": {
+  "message": "Gratis tienes una colección. Con Pro, todas las que quieras."
+ },
+ "colLimitCards": {
+  "message": "Gratis, una colección tiene hasta {0} tarjetas. Con Pro, hasta {1}."
+ },
+ "colProOnly": {
+  "message": "Comparar y Resumen están en Pro."
+ },
+ "colWorking": {
+  "message": "Un momento…"
+ },
+ "colFailed": {
+  "message": "Esta vez no funcionó. Inténtalo más tarde."
+ },
+ "colLimitDay": {
+  "message": "Por hoy es suficiente: inténtalo mañana."
+ },
+ "colGone": {
+  "message": "Esta colección se eliminó."
+ },
+ "colPdfMadeWith": {
+  "message": "hecho con"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow: IA para Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Abrir el chat en ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "Hecho con ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Guardar como PDF"
+ },
+ "colPick": {
+  "message": "Colección: {0}. Cambiar"
+ },
+ "colCardMenu": {
+  "message": "Acciones de la tarjeta"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },
