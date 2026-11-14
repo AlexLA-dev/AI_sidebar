@@ -311,7 +311,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = JSON.parse(readFile
 /** The scripted translation of a batch ("§n text" lines): each known line in the system prompt's language, its tags renumbered as the page's. */
 function scriptedTranslation(system: string, content: string): string {
   const into = /web page into ([^.]+)\./.exec(system)?.[1] ?? "English"
-  const to = /Russian/.test(into) ? "ru" : /German/.test(into) ? "de" : /French/.test(into) ? "fr" : /Italian/.test(into) ? "it" : /Spanish/.test(into) ? "es" : /Chinese/.test(into) ? "zh" : "en"
+  const to = /Russian/.test(into) ? "ru" : /German/.test(into) ? "de" : /French/.test(into) ? "fr" : /Italian/.test(into) ? "it" : /Spanish/.test(into) ? "es" : /Chinese/.test(into) ? "zh" : /Turkish/.test(into) ? "tr" : "en"
   const out: string[] = []
   for (const m of content.matchAll(/^§(\d+) (.*)$/gm)) {
     const src = m[2]
@@ -713,7 +713,7 @@ function similarItems95(): Array<Record<string, unknown>> {
 }
 // Store screenshots and previews (SIMILAR_STUB=store): the same list with made-up products and shops, so the App Store
 // shows no real brand; prices against the page's $129 / 12 990 ₽.
-// The store's localized first screens (STAND_LANG=de|fr|it|es|zh): the same four in the interface's language, prices
+// The store's localized first screens (STAND_LANG=de|fr|it|es|zh|tr): the same four in the interface's language, prices
 // as the (American) shop page shows them.
 const SIMILAR_STORE_LANG: Record<string, string[][]> = {
   de: [
@@ -739,6 +739,12 @@ const SIMILAR_STORE_LANG: Record<string, string[][]> = {
     ["Lumen Air 720", "lumen-sound.store", "Auriculares ligeros con cancelación de ruido y una batería parecida de 35 horas; menos códecs.", "Más baratos: 89,99 $ frente a 129 $, en stock.", "89.99 USD"],
     ["Brook Lux ANC", "brook-audio.store", "Económicos, con cancelación activa de ruido y ecualizador en la app.", "Más baratos: 69 $ frente a 129 $, en stock.", "69 USD"],
     ["Veda Wave Pro", "veda.store", "LDAC y multipunto como los Aero 2, con más batería.", "La tienda no deja entrar a los servidores: precio y stock sin confirmar.", ""]
+  ],
+  tr: [
+    ["Halden Quiet One", "halden-audio.store", "Kulak üstü; Aero 2 gibi uyarlanabilir gürültü engelleme ve LDAC, daha yumuşak ve hafif bir kafa bandıyla.", "Daha ucuz: 129 $ yerine 99,99 $, stokta.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Hafif, gürültü engellemeli kulaklık; benzer 35 saatlik pil, daha az codec.", "Daha ucuz: 129 $ yerine 89,99 $, stokta.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Uygun fiyatlı; aktif gürültü engelleme ve uygulamada ekolayzer.", "Daha ucuz: 129 $ yerine 69 $, stokta.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "Aero 2 gibi LDAC ve çoklu bağlantı, daha uzun pil ömrüyle.", "Mağaza sunucuların sayfayı açmasına izin vermiyor; fiyat ve stok doğrulanmadı.", ""]
   ],
   zh: [
     ["Halden Quiet One", "halden-audio.store", "耳罩式，和 Aero 2 一樣有自適應降噪和 LDAC，頭帶更柔軟、更輕。", "更便宜：US$99.99，原價 US$129，有現貨。", "99.99 USD"],

@@ -20,9 +20,11 @@ function localizedExtension() {
   const dir = join(tmpdir(), `cf-capture-${lang}-${new URL(BASE).port}`)
   rmSync(dir, { recursive: true, force: true })
   cpSync(extArg, dir, { recursive: true })
-  for (const l of readdirSync(join(dir, "_locales"))) if (l !== lang) rmSync(join(dir, "_locales", l), { recursive: true })
+  // A language the panel doesn't speak (Turkish): its strings stay English, as on such a device.
+  const own = existsSync(join(dir, "_locales", lang)) ? lang : "en"
+  for (const l of readdirSync(join(dir, "_locales"))) if (l !== own) rmSync(join(dir, "_locales", l), { recursive: true })
   const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"))
-  writeFileSync(join(dir, "manifest.json"), JSON.stringify({ ...manifest, default_locale: lang }, null, 2))
+  writeFileSync(join(dir, "manifest.json"), JSON.stringify({ ...manifest, default_locale: own }, null, 2))
   return dir
 }
 const extDir = localizedExtension()
@@ -42,7 +44,7 @@ const SHOP = site(lang === "ru" ? "zvukodom.store" : "soundhouse.store", "produc
 // The build's own words (menu items the 2.5 scenes look for), in the capture's language.
 const messages = JSON.parse(readFileSync(join(extArg, "_locales", existsSync(join(extArg, "_locales", lang)) ? lang : "en", "messages.json"), "utf8"))
 // The browser's locale for the capture's language (2.7's localized first screens: de, fr, it, es, zh_TW).
-const LOCALE = { en: "en-US", ru: "ru-RU", de: "de-DE", fr: "fr-FR", it: "it-IT", es: "es-ES", zh_TW: "zh-TW" }[lang] ?? "en-US"
+const LOCALE = { en: "en-US", ru: "ru-RU", de: "de-DE", fr: "fr-FR", it: "it-IT", es: "es-ES", zh_TW: "zh-TW", tr: "tr-TR" }[lang] ?? "en-US"
 const msg = (key, ...args) => args.reduce((text, a, i) => text.replace(`{${i}}`, a), messages[key].message)
 
 const DEVICES = {
@@ -979,7 +981,10 @@ async function translatePage(s) {
   await s.page.waitForTimeout(1800)
   await s.page.evaluate(() => window.scrollTo(0, 0))
   await s.page.waitForTimeout(500)
-  // The translated paragraph with its links clear of the "Original" button (it stays by ✦).
+  // The page from its picture down (no half line under the status bar): the translated paragraph and its links under
+  // it, clear of the "Original" button by ✦. Should the button still sit on the paragraph, the page goes up a little.
+  await s.page.evaluate(() => { const h = document.querySelector(".hero"); window.scrollTo(0, h.getBoundingClientRect().top + window.scrollY) })
+  await s.page.waitForTimeout(300)
   const tr = await s.page.locator(".cf-tr").boundingBox()
   await s.page.evaluate((top) => {
     const p = document.getElementById("p1").getBoundingClientRect()
@@ -1252,7 +1257,15 @@ for (const name of ["iphone", "ipad", "mac"]) {
   // 2.6: the version's new shots and the custom pages' (Ultra stand, SIMILAR_STUB=store).
   if (process.env.SET === "v26") {
     const v26 = [
-      ["summary", async () => { await fresh(s); await open(s); await chip(s, L.summarize); await waitAnswer(s) }, [".cf-panel"]],
+      ["summary", async () => {
+        await fresh(s); await open(s)
+        // Turkish: the panel's chips are English (and answer in English); the question typed in Turkish is answered in it.
+        if (lang === "tr") {
+          await s.page.locator(".cf-input textarea").fill("Bu sayfayı 5–7 maddede özetle")
+          if (s.d.touch) await s.page.locator(".cf-send").click(); else await s.page.keyboard.press("Enter")
+        } else await chip(s, L.summarize)
+        await waitAnswer(s)
+      }, [".cf-panel"]],
       ["similar", () => similar(s), [".cf-panel", "all:.cf-similar-item"]],
       ["listen", () => listen(s), [".cf-panel", ".cf-listen", ".cf-msg.ai .cf-listen-btn"]],
       ["organize", () => organize(s), [".cf-panel", ".cf-org", ".cf-sugbar-main"]],

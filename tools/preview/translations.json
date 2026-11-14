@@ -6,7 +6,8 @@
     "de": "Reiseführer",
     "fr": "Guides de voyage",
     "it": "Guide di viaggio",
-    "zh": "旅遊指南"
+    "zh": "旅遊指南",
+    "tr": "Gezi rehberleri"
   },
   "Lisboa en tres días: lo que de verdad merece la pena": {
     "en": "Lisbon in three days: what's really worth it",
@@ -14,7 +15,8 @@
     "de": "Lissabon in drei Tagen: was sich wirklich lohnt",
     "fr": "Lisbonne en trois jours : ce qui vaut vraiment le détour",
     "it": "Lisbona in tre giorni: cosa vale davvero la pena",
-    "zh": "里斯本三日遊：真正值得一看的地方"
+    "zh": "里斯本三日遊：真正值得一看的地方",
+    "tr": "Üç günde Lizbon: gerçekten görmeye değer olanlar"
   },
   "Tranvías, miradores y pasteles de nata: una ruta tranquila para ver lo esencial sin correr de un lado a otro.": {
     "en": "Trams, viewpoints and custard tarts: an easy route to see the essentials without rushing around.",
@@ -22,7 +24,8 @@
     "de": "Straßenbahnen, Aussichtspunkte und Puddingtörtchen: eine entspannte Route, um das Wichtigste zu sehen, ohne zu hetzen.",
     "fr": "Tramways, belvédères et pastéis de nata : un itinéraire tranquille pour voir l'essentiel sans courir partout.",
     "it": "Tram, belvedere e pastéis de nata: un itinerario tranquillo per vedere l'essenziale senza correre da una parte all'altra.",
-    "zh": "電車、觀景台和葡式蛋塔：一條悠閒的路線，不必趕來趕去也能看到重點。"
+    "zh": "電車、觀景台和葡式蛋塔：一條悠閒的路線，不必趕來趕去也能看到重點。",
+    "tr": "Tramvaylar, seyir terasları ve muhallebili tartlar: koşturmadan önemli yerleri görmek için sakin bir rota."
   },
   "Por Lucía Ferrer · 7 min de lectura": {
     "en": "By Lucía Ferrer · 7 min read",
@@ -30,7 +33,8 @@
     "de": "Von Lucía Ferrer · 7 Min. Lesezeit",
     "fr": "Par Lucía Ferrer · 7 min de lecture",
     "it": "Di Lucía Ferrer · 7 min di lettura",
-    "zh": "Lucía Ferrer · 閱讀時間 7 分鐘"
+    "zh": "Lucía Ferrer · 閱讀時間 7 分鐘",
+    "tr": "Lucía Ferrer · 7 dk okuma"
   },
   "El primer día, sube a la Alfama a pie y deja el tranvía 28 para la tarde, cuando hay menos cola. Desde el mirador de Santa Luzia se ve todo el barrio hasta el río.": {
     "en": "On day one, walk up to Alfama and leave <1>tram 28</1> for the afternoon, when the line is shorter. From the <2>Santa Luzia viewpoint</2> you can see the whole neighborhood down to the river.",
@@ -38,7 +42,8 @@
     "de": "Am ersten Tag gehst du zu Fuß hinauf in die Alfama und hebst dir die <1>Straßenbahn 28</1> für den Nachmittag auf, wenn die Schlange kürzer ist. Vom <2>Aussichtspunkt Santa Luzia</2> siehst du das ganze Viertel bis hinunter zum Fluss.",
     "fr": "Le premier jour, montez à pied jusqu'à l'Alfama et gardez le <1>tram 28</1> pour l'après-midi, quand la file est plus courte. Depuis le <2>belvédère de Santa Luzia</2>, on voit tout le quartier jusqu'au fleuve.",
     "it": "Il primo giorno sali a piedi all'Alfama e tieni il <1>tram 28</1> per il pomeriggio, quando c'è meno coda. Dal <2>belvedere di Santa Luzia</2> si vede tutto il quartiere fino al fiume.",
-    "zh": "第一天步行登上阿爾法瑪區，把<1>28 號電車</1>留到下午，那時排隊的人比較少。從<2>聖露西亞觀景台</2>可以看到整個街區，一路延伸到河邊。"
+    "zh": "第一天步行登上阿爾法瑪區，把<1>28 號電車</1>留到下午，那時排隊的人比較少。從<2>聖露西亞觀景台</2>可以看到整個街區，一路延伸到河邊。",
+    "tr": "İlk gün Alfama'ya yürüyerek çıkın ve <1>28 numaralı tramvayı</1> sıranın kısaldığı öğleden sonraya bırakın. <2>Santa Luzia seyir terasından</2> tüm mahalle nehre kadar görünür."
   },
   "Para comer, busca una tasca pequeña con menú del día y pide sardinas a la brasa: en verano son casi obligatorias.": {
     "en": "For lunch, find a small tasca with a set menu and order grilled sardines: in summer they're almost a must.",
@@ -46,7 +51,8 @@
     "de": "Zum Mittagessen such dir eine kleine Tasca mit Tagesmenü und bestell gegrillte Sardinen: Im Sommer sind sie fast Pflicht.",
     "fr": "Pour déjeuner, cherchez une petite tasca avec un menu du jour et commandez des sardines grillées : en été, elles sont presque incontournables.",
     "it": "A pranzo cerca una piccola tasca con il menu del giorno e ordina le sardine alla brace: d'estate sono quasi d'obbligo.",
-    "zh": "午餐找一家有每日套餐的小餐館，點一份炭烤沙丁魚：夏天幾乎非吃不可。"
+    "zh": "午餐找一家有每日套餐的小餐館，點一份炭烤沙丁魚：夏天幾乎非吃不可。",
+    "tr": "Öğle yemeği için günün menüsü olan küçük bir tasca bulun ve ızgara sardalya isteyin: yazın neredeyse olmazsa olmaz."
   },
   "Día dos: Belém": {
     "en": "Day two: Belém",
@@ -54,7 +60,8 @@
     "de": "Tag zwei: Belém",
     "fr": "Jour deux : Belém",
     "it": "Giorno due: Belém",
-    "zh": "第二天：貝倫區"
+    "zh": "第二天：貝倫區",
+    "tr": "İkinci gün: Belém"
   },
   "Llega temprano al Monasterio de los Jerónimos; a las diez ya hay grupos. Después, la Torre de Belém está a quince minutos andando junto al río.": {
     "en": "Get to the <1>Jerónimos Monastery</1> early; by ten the tour groups are there. The Belém Tower is then a fifteen-minute walk along the river.",
@@ -62,7 +69,8 @@
     "de": "Sei früh am <1>Hieronymuskloster</1>; um zehn kommen schon die Gruppen. Danach ist der Turm von Belém fünfzehn Minuten zu Fuß am Fluss entlang.",
     "fr": "Arrivez tôt au <1>monastère des Hiéronymites</1> ; dès dix heures, les groupes sont là. La tour de Belém est ensuite à quinze minutes à pied le long du fleuve.",
     "it": "Arriva presto al <1>Monastero dos Jerónimos</1>: alle dieci ci sono già i gruppi. Poi la Torre di Belém è a quindici minuti a piedi lungo il fiume.",
-    "zh": "早點到<1>熱羅尼莫斯修道院</1>；十點就有旅行團了。之後沿著河邊走十五分鐘就到貝倫塔。"
+    "zh": "早點到<1>熱羅尼莫斯修道院</1>；十點就有旅行團了。之後沿著河邊走十五分鐘就到貝倫塔。",
+    "tr": "<1>Jerónimos Manastırı'na</1> erken gidin; saat onda gruplar gelmiş oluyor. Ardından Belém Kulesi nehir boyunca on beş dakika yürüme mesafesinde."
   },
   "No te vayas sin probar los pasteles de nata de la pastelería de siempre. Si la fila es larga, avanza rápido: compra media docena y cómelos en el jardín de enfrente.": {
     "en": "Don't leave without trying the custard tarts from the old bakery. If the line is long, it moves fast: buy half a dozen and eat them in the garden across the street.",
@@ -70,7 +78,8 @@
     "de": "Fahr nicht ab, ohne die Puddingtörtchen aus der alten Konditorei zu probieren. Ist die Schlange lang, geht es trotzdem schnell: Kauf ein halbes Dutzend und iss sie im Garten gegenüber.",
     "fr": "Ne partez pas sans goûter les pastéis de nata de la pâtisserie historique. Si la file est longue, elle avance vite : prenez-en une demi-douzaine et mangez-les dans le jardin d'en face.",
     "it": "Non andartene senza assaggiare i pastéis de nata della pasticceria storica. Se la fila è lunga, scorre veloce: prendine mezza dozzina e mangiali nel giardino di fronte.",
-    "zh": "別錯過老字號糕餅店的葡式蛋塔。隊伍再長也很快：買半打，到對面的花園裡吃。"
+    "zh": "別錯過老字號糕餅店的葡式蛋塔。隊伍再長也很快：買半打，到對面的花園裡吃。",
+    "tr": "Eski pastanenin muhallebili tartlarını tatmadan dönmeyin. Sıra uzunsa da hızlı ilerler: yarım düzine alın ve karşıdaki bahçede yiyin."
   },
   "Día tres: Sintra": {
     "en": "Day three: Sintra",
@@ -78,7 +87,8 @@
     "de": "Tag drei: Sintra",
     "fr": "Jour trois : Sintra",
     "it": "Giorno tre: Sintra",
-    "zh": "第三天：辛特拉"
+    "zh": "第三天：辛特拉",
+    "tr": "Üçüncü gün: Sintra"
   },
   "Coge el tren desde Rossio a primera hora y reserva la entrada del Palacio da Pena con antelación: en temporada alta se agotan los horarios de la mañana.": {
     "en": "Take the train from Rossio first thing and book your <1>Pena Palace</1> ticket ahead: in high season the morning slots sell out.",
@@ -86,7 +96,8 @@
     "de": "Nimm frühmorgens den Zug ab Rossio und buch dein Ticket für den <1>Palácio da Pena</1> im Voraus: In der Hochsaison sind die Vormittagszeiten schnell weg.",
     "fr": "Prenez le train à Rossio dès le matin et réservez votre billet pour le <1>palais de Pena</1> à l'avance : en haute saison, les créneaux du matin partent vite.",
     "it": "Prendi il treno da Rossio di prima mattina e prenota in anticipo l'ingresso al <1>Palazzo da Pena</1>: in alta stagione gli orari del mattino vanno esauriti.",
-    "zh": "一早從羅西歐站搭火車，並提前預訂<1>佩納宮</1>的門票：旺季時早上的時段很快就賣完。"
+    "zh": "一早從羅西歐站搭火車，並提前預訂<1>佩納宮</1>的門票：旺季時早上的時段很快就賣完。",
+    "tr": "Sabah erkenden Rossio'dan trene binin ve <1>Pena Sarayı</1> biletinizi önceden alın: yüksek sezonda sabah saatleri tükeniyor."
   },
   "Travel guides": {
     "es": "Guías de viaje"

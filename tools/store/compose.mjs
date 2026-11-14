@@ -242,6 +242,8 @@ const COPY_ALL = {
     v27Links: "I link funzionano ancora", v26Similar: ["Più economico,", "ogni link verificato"] },
   es: { hero: ["Resume cualquier", "página en Safari"], nosignup: "Sin registro", v27Translate: ["Traduce la página", "sin salir de ella"],
     v27Links: "Los enlaces siguen funcionando", v26Similar: ["Opciones más baratas,", "cada enlace comprobado"], guideHost: "slowtravel.com" },
+  tr: { hero: ["Safari'de her sayfayı", "özetleyin"], nosignup: "Kayıt gerekmez", v27Translate: ["Sayfayı olduğu yerde", "çevirin"],
+    v27Links: "Bağlantılar çalışmaya devam eder", v26Similar: ["Daha ucuz seçenekler,", "her bağlantı kontrol edildi"] },
   zh_TW: { hero: ["在 Safari 中", "摘要任何網頁"], nosignup: "無需註冊", v27Translate: ["直接在網頁上", "翻譯整頁"],
     v27Links: "連結照樣能點", v26Similar: ["更便宜的選擇，", "每個連結都已檢查"] }
 }
