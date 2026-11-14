@@ -168,6 +168,20 @@ test("a card from an answer or a note: its gist, the question's page, tags, the 
   assert.equal(gistOf("Short."), "Short.")
 })
 
+test("a card's gist: the answer's first sentences, not its title or table, from the start", () => {
+  const takeaways = "**Key takeaways**\n\n| Metric | Result |\n|---|---|\n| Revenue change | +1.4% |\n| Less burnout | 71% of staff |\n\n- Hours were cut **20% with full pay**, as long as output held.\n- Two firms went back to five days because of client expectations.\n- Results may be optimistic: participants **volunteered**."
+  assert.equal(gistOf(takeaways), "Hours were cut 20% with full pay, as long as output held. Two firms went back to five days because of client expectations.")
+  // Bullets without full stops are sentences too; a decimal point doesn't end one.
+  assert.equal(gistOf("## Prices\n- Revenue rose 1.4% on average\n- Churn fell"), "Revenue rose 1.4% on average. Churn fell.")
+  // A bold label that starts the text stays.
+  assert.match(gistOf("**In short:** a four-day week kept revenue flat."), /^In short: a four-day week/)
+  // A table alone is still something.
+  assert.ok(gistOf("| a | b |\n|---|---|\n| 1 | 2 |").length > 0)
+  // CJK sentences end without a space.
+  const ja = "浅草は静かで安いです。新宿は初めての旅行に便利で、地下鉄の路線が多く、夜遅くまでにぎやかです。".repeat(3)
+  assert.ok(gistOf(ja).endsWith("。") && gistOf(ja).length <= MAX_GIST)
+})
+
 test("«В подборку» by words: the collection and section that share most of the card's words", () => {
   const japan = trip()
   const phones = addCard(newCollection(`${COLLECTION_PREFIX}phones`, "New headphones", undefined, 1, { id: "anc", name: "Noise cancelling" }), card("anc", "The Aero 2 cancels noise well on planes."), 2)

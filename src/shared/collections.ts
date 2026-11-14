@@ -433,22 +433,31 @@ export function applyLayout(rec: Collection, layout: { sections: Array<{ id: str
 
 /** A card's gist: the text's first sentences without Markdown or citations, up to MAX_GIST characters. */
 export function gistOf(text: string): string {
-  const plain = stripCitations(text)
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-    .replace(/^\s{0,3}(#{1,6}|>|[-*+]|\d+[.)])\s+/gm, "")
-    .replace(/[*_`~|]+/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
+  const raw = stripCitations(text).replace(/```[\s\S]*?```/g, "\n").split("\n")
+  const lines: string[] = []
+  raw.forEach((line, i) => {
+    // A table is no gist; neither is a title line (a heading, or bold alone) with text after it.
+    if (/^\s*\|/.test(line)) return
+    if (/^\s{0,3}(#{1,6}\s+\S.*|\*\*[^*]+\*\*:?)\s*$/.test(line) && raw.slice(i + 1).some((x) => x.trim() && !/^\s*\|/.test(x))) return
+    const plain = line
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/^\s{0,3}(#{1,6}|>|[-*+]|\d+[.)])\s+/, "")
+      .replace(/[*_`~|]+/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+    // Each line or bullet is a sentence of its own.
+    if (plain) lines.push(/[.!?。！？:：…]$/.test(plain) ? plain : `${plain}.`)
+  })
+  const joined = lines.join(" ")
+  const plain = joined || stripCitations(text).replace(/[*_`~|#>-]+/g, " ").replace(/\s+/g, " ").trim()
   if (plain.length <= MAX_GIST) return plain
-  const sentences = plain.match(/[^.!?。！？]+[.!?。！？]+(\s|$)/g) ?? []
+  // Whole sentences from the start (a decimal point isn't the end of one).
   let out = ""
-  for (const s of sentences) {
-    if ((out + s).trim().length > MAX_GIST) break
-    out += s
+  for (const s of plain.split(/(?<=[.!?])\s+|(?<=[。！？])/)) {
+    if ((out ? `${out} ${s}` : s).length > MAX_GIST) break
+    out = out ? `${out} ${s}` : s
   }
-  out = out.trim()
   return out.length >= 40 ? out : `${plain.slice(0, MAX_GIST - 1).trimEnd()}…`
 }
 

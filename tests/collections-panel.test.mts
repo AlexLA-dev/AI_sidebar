@@ -137,9 +137,10 @@ test("the app's PDF is the panel's page: the same styles word for word, the same
   assert.match(swift, /static let site = "https:\/\/context-flow\.app"/)
   assert.match(swift, /return "\\\(site\)\/open-chat\?id=\\\(id\)&m=/)
   assert.match(swift, /<footer>\\\(esc\(footer\)\) · <a href=\\"\\\(site\)\\">context-flow\.app<\/a><\/footer>/)
-  // iOS draws the footer on each page itself (links kept), the Mac prints the page's own fixed one.
-  assert.match(swift, /override func drawFooterForPage\(at pageIndex: Int, in rect: CGRect\)[\s\S]*?UIGraphicsSetPDFContextURLForRect\(URL\(string: BoardPDF\.site\)!/)
-  assert.match(swift, /let data = try await render\(html\(board, native: true\)\)/)
+  // The app lays the web view's page onto A4 pages itself: each keeps its links and has the footer (with its link).
+  assert.match(swift, /try await render\(html\(board, native: true\)\)\.write\(to: url/)
+  assert.match(swift, /for link in links where link\.rect\.minY >= slice\.top - 1 && link\.rect\.maxY <= slice\.bottom \+ 1 \{\s*ctx\.setURL\(link\.url as CFURL/)
+  assert.match(swift, /ctx\.setURL\(URL\(string: BoardPDF\.site\)! as CFURL/)
   assert.match(ts, /body\.native footer \{ display: none; \}/)
   // The board's menu has it.
   assert.match(read("ContextFlow/Shared (App)/CollectionsView.swift"), /Button \{ Task \{ await exportPDF\(\) \} \} label: \{ Label\("PDF", systemImage: "doc\.richtext"\) \}/)

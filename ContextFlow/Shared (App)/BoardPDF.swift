@@ -86,10 +86,9 @@ enum BoardPDF {
 
     /// The page's styles: the panel's, word for word.
     static let css = """
-
 @page { margin: 16mm 16mm 20mm; }
 :root { color-scheme: light; }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body { margin: 0; background: #fff; color: #17151c; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
 main { max-width: 760px; margin: 0 auto; padding: 28px 20px 24px; }
@@ -112,6 +111,7 @@ footer { max-width: 760px; margin: 0 auto; padding: 14px 20px 28px; color: #5d5a
 .bar button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 18px; background: #2563eb; color: #fff; cursor: pointer; }
 /* The app draws its own footer on each page (BoardPDF.swift on iOS). */
 body.native footer { display: none; }
+body.native main { padding: 0; max-width: none; }
 @media print {
   .bar { display: none; }
   main { padding: 0; max-width: none; }
@@ -127,12 +127,7 @@ body.native footer { display: none; }
     static func make(_ board: Board) async throws -> URL {
         let name = board.name.replacingOccurrences(of: #"[/\\:?%*|"<>]"#, with: "-", options: .regularExpression)
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(name.isEmpty ? "ContextFlow" : name).pdf")
-        #if os(iOS)
-        let data = try await render(html(board, native: true))
-        try data.write(to: url, options: .atomic)
-        #else
-        try await renderMac(html(board), to: url)
-        #endif
+        try await render(html(board, native: true)).write(to: url, options: .atomic)
         return url
     }
 
@@ -156,74 +151,115 @@ body.native footer { display: none; }
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { done?.resume(throwing: error); done = nil }
     }
 
-    // A4 in points, the margins as the page's @page.
+    // A4 in points; the margins as the page's @page.
     static let paper = CGSize(width: 595.2, height: 841.8)
     static let margin: CGFloat = 45
+    static let footerRoom: CGFloat = 26
 
-    #if os(iOS)
-    /// Pages with the footer drawn on each, «n / N» on the right; links stay links.
-    private final class Pages: UIPrintPageRenderer {
-        let footer: String
-        init(footer: String) {
-            self.footer = footer
-            super.init()
-            footerHeight = 30
+    /// Where a page may end: under a card, the summary or the title's line, or above a section (content points).
+    static func slices(height: CGFloat, breaks: [CGFloat], page: CGFloat) -> [(top: CGFloat, bottom: CGFloat)] {
+        var out: [(top: CGFloat, bottom: CGFloat)] = []
+        var top: CGFloat = 0
+        while top < height - 1 {
+            let limit = top + page
+            if limit >= height {
+                out.append((top, height))
+                break
+            }
+            // The last break that fits, if it fills at least a third of the page; else cut where the page ends.
+            let bottom = breaks.filter { $0 > top + page / 3 && $0 <= limit }.max() ?? limit
+            out.append((top, bottom))
+            // The next page starts under the line a card ends with.
+            top = bottom + 1
         }
-        override func drawFooterForPage(at pageIndex: Int, in rect: CGRect) {
-            let font = UIFont.systemFont(ofSize: 9.5)
-            let color = UIColor(red: 0x5d / 255, green: 0x5a / 255, blue: 0x66 / 255, alpha: 1)
-            let line = CGRect(x: rect.minX, y: rect.minY + 6, width: rect.width, height: 0.5)
-            UIColor(red: 0xe6 / 255, green: 0xe4 / 255, blue: 0xec / 255, alpha: 1).setFill()
-            UIRectFill(line)
-            let text = NSAttributedString(string: footer, attributes: [.font: font, .foregroundColor: color])
-            let at = CGPoint(x: rect.minX, y: rect.minY + 12)
-            text.draw(at: at)
-            UIGraphicsSetPDFContextURLForRect(URL(string: BoardPDF.site)!, CGRect(origin: at, size: text.size()))
-            let page = NSAttributedString(string: "\(pageIndex + 1) / \(numberOfPages)", attributes: [.font: font, .foregroundColor: color])
-            page.draw(at: CGPoint(x: rect.maxX - page.size().width, y: rect.minY + 12))
-        }
+        return out
     }
 
+    /// The page drawn by the web view as one tall vector page, laid onto A4 pages: each page breaks between cards, keeps
+    /// its links (the sources, «Открыть чат в ContextFlow», the site) and has the footer with «n / N».
     static func render(_ html: String) async throws -> Data {
-        let loader = Loader(width: paper.width - margin * 2)
+        let width = paper.width - margin * 2
+        let loader = Loader(width: width)
         try await loader.load(html)
-        let pages = Pages(footer: "\(String(localized: "Made with ContextFlow", comment: "A collection's PDF: the footer on every page (2.7)")) · context-flow.app")
-        pages.addPrintFormatter(loader.view.viewPrintFormatter(), startingAtPageAt: 0)
-        let paperRect = CGRect(origin: .zero, size: paper)
-        pages.setValue(paperRect, forKey: "paperRect")
-        pages.setValue(paperRect.insetBy(dx: margin, dy: margin), forKey: "printableRect")
-        let data = NSMutableData()
-        UIGraphicsBeginPDFContextToData(data, paperRect, nil)
-        pages.prepare(forDrawingPages: NSRange(location: 0, length: pages.numberOfPages))
-        for i in 0..<pages.numberOfPages {
-            UIGraphicsBeginPDFPage()
-            pages.drawPage(at: i, in: UIGraphicsGetPDFContextBounds())
+        let script = """
+        JSON.stringify({ h: document.documentElement.scrollHeight,
+          b: [...document.querySelectorAll('.card, .sum, .meta')].map((e) => e.getBoundingClientRect().bottom + scrollY)
+            .concat([...document.querySelectorAll('section')].map((e) => e.getBoundingClientRect().top + scrollY - 1)),
+          a: [...document.querySelectorAll('a[href]')].flatMap((e) => [...e.getClientRects()].map((r) => [e.href, r.left, r.top + scrollY, r.width, r.height])) })
+        """
+        // Measured at the page's full height: shorter, a scrollbar (Mac) narrows the text and moves everything.
+        var page: [String: Any] = [:]
+        var height: CGFloat = 0
+        for _ in 0..<3 {
+            guard let json = try await loader.view.evaluateJavaScript(script) as? String,
+                  let measured = try? JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
+                  let h = (measured["h"] as? NSNumber).map({ CGFloat($0.doubleValue) }), h > 0 else { throw Failure.render }
+            page = measured
+            if abs(h - loader.view.frame.height) < 1 { break }
+            height = h
+            loader.view.frame.size.height = h
+            try? await Task.sleep(nanoseconds: 150_000_000)
         }
-        UIGraphicsEndPDFContext()
-        guard pages.numberOfPages > 0 else { throw Failure.render }
+        height = (page["h"] as? NSNumber).map { CGFloat($0.doubleValue) } ?? height
+        let breaks = (page["b"] as? [NSNumber] ?? []).map { CGFloat($0.doubleValue) }
+        let links: [(url: URL, rect: CGRect)] = (page["a"] as? [[Any]] ?? []).compactMap { a in
+            let n = a.dropFirst().compactMap { ($0 as? NSNumber).map { CGFloat($0.doubleValue) } }
+            guard a.count == 5, n.count == 4, let href = a[0] as? String, let url = URL(string: href), ["https", "http"].contains(url.scheme ?? "") else { return nil }
+            return (url, CGRect(x: n[0], y: n[1], width: n[2], height: n[3]))
+        }
+        let config = WKPDFConfiguration()
+        config.rect = CGRect(x: 0, y: 0, width: width, height: height)
+        let tall: Data = try await withCheckedThrowingContinuation { c in
+            loader.view.createPDF(configuration: config) { result in c.resume(with: result) }
+        }
+        guard let provider = CGDataProvider(data: tall as CFData), let doc = CGPDFDocument(provider), let source = doc.page(at: 1) else { throw Failure.render }
+        let drawn = source.getBoxRect(.mediaBox)
+        // The web view's points to the tall page's (the same unless it scaled).
+        let scale = drawn.width / width
+        let contentArea = paper.height - margin * 2 - footerRoom
+        let pages = slices(height: height, breaks: breaks, page: contentArea)
+
+        let data = NSMutableData()
+        var box = CGRect(origin: .zero, size: paper)
+        guard let consumer = CGDataConsumer(data: data as CFMutableData), let ctx = CGContext(consumer: consumer, mediaBox: &box, nil) else { throw Failure.render }
+        let top = paper.height - margin
+        let font = CTFontCreateUIFontForLanguage(.system, 9.5, nil) ?? CTFontCreateWithName("Helvetica" as CFString, 9.5, nil)
+        let grey = CGColor(red: 0x5d / 255, green: 0x5a / 255, blue: 0x66 / 255, alpha: 1)
+        let footer = "\(String(localized: "Made with ContextFlow", comment: "A collection's PDF: the footer on every page (2.7)")) · "
+        for (i, slice) in pages.enumerated() {
+            ctx.beginPDFPage(nil)
+            // The slice of the tall page, under the top margin (Core Graphics: y up).
+            ctx.saveGState()
+            ctx.clip(to: CGRect(x: margin, y: top - (slice.bottom - slice.top), width: width, height: slice.bottom - slice.top))
+            ctx.translateBy(x: margin, y: top + slice.top)
+            ctx.scaleBy(x: 1 / scale, y: 1 / scale)
+            ctx.translateBy(x: -drawn.minX, y: -drawn.maxY)
+            ctx.drawPDFPage(source)
+            ctx.restoreGState()
+            for link in links where link.rect.minY >= slice.top - 1 && link.rect.maxY <= slice.bottom + 1 {
+                ctx.setURL(link.url as CFURL, for: CGRect(x: margin + link.rect.minX, y: top - (link.rect.maxY - slice.top), width: link.rect.width, height: link.rect.height))
+            }
+            // The footer: a line, «Сделано в ContextFlow · context-flow.app» (a link), «n / N» on the right.
+            ctx.setFillColor(CGColor(red: 0xe6 / 255, green: 0xe4 / 255, blue: 0xec / 255, alpha: 1))
+            ctx.fill(CGRect(x: margin, y: margin - 6, width: width, height: 0.5))
+            let say = { (text: String, x: CGFloat, color: CGColor) -> CGFloat in
+                let line = CTLineCreateWithAttributedString(NSAttributedString(string: text, attributes: [
+                    NSAttributedString.Key(kCTFontAttributeName as String): font, NSAttributedString.Key(kCTForegroundColorAttributeName as String): color
+                ]))
+                ctx.textPosition = CGPoint(x: x, y: margin - 20)
+                CTLineDraw(line, ctx)
+                return CGFloat(CTLineGetTypographicBounds(line, nil, nil, nil))
+            }
+            let made = say(footer, margin, grey)
+            let site = say("context-flow.app", margin + made, CGColor(red: 0x25 / 255, green: 0x63 / 255, blue: 0xeb / 255, alpha: 1))
+            ctx.setURL(URL(string: BoardPDF.site)! as CFURL, for: CGRect(x: margin + made, y: margin - 24, width: site, height: 14))
+            let count = "\(i + 1) / \(pages.count)"
+            let countLine = CTLineCreateWithAttributedString(NSAttributedString(string: count, attributes: [NSAttributedString.Key(kCTFontAttributeName as String): font]))
+            _ = say(count, paper.width - margin - CGFloat(CTLineGetTypographicBounds(countLine, nil, nil, nil)), grey)
+            ctx.endPDFPage()
+        }
+        ctx.closePDF()
+        guard !pages.isEmpty else { throw Failure.render }
         return data as Data
     }
-    #else
-    /// The Mac prints the page to a PDF file (the footer is the page's own, fixed on each page).
-    static func renderMac(_ html: String, to url: URL) async throws {
-        let loader = Loader(width: paper.width - margin * 2)
-        try await loader.load(html)
-        let info = NSPrintInfo()
-        info.paperSize = paper
-        info.topMargin = margin
-        info.bottomMargin = margin
-        info.leftMargin = margin
-        info.rightMargin = margin
-        info.horizontalPagination = .fit
-        info.verticalPagination = .automatic
-        info.jobDisposition = .save
-        info.dictionary()[NSPrintInfo.AttributeKey.jobSavingURL] = url
-        let op = loader.view.printOperation(with: info)
-        op.showsPrintPanel = false
-        op.showsProgressPanel = false
-        // The view needs a size to lay the pages out.
-        op.view?.frame = CGRect(x: 0, y: 0, width: paper.width - margin * 2, height: paper.height - margin * 2)
-        guard op.run() else { throw Failure.render }
-    }
-    #endif
 }

@@ -89,7 +89,7 @@ export function collectionHtml(rec: Collection, w: PageWords): string {
 export const PAGE_CSS = `
 @page { margin: 16mm 16mm 20mm; }
 :root { color-scheme: light; }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body { margin: 0; background: #fff; color: #17151c; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
 main { max-width: 760px; margin: 0 auto; padding: 28px 20px 24px; }
@@ -112,6 +112,7 @@ footer { max-width: 760px; margin: 0 auto; padding: 14px 20px 28px; color: #5d5a
 .bar button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 18px; background: #2563eb; color: #fff; cursor: pointer; }
 /* The app draws its own footer on each page (BoardPDF.swift on iOS). */
 body.native footer { display: none; }
+body.native main { padding: 0; max-width: none; }
 @media print {
   .bar { display: none; }
   main { padding: 0; max-width: none; }
