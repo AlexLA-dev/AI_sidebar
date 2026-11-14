@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
-import { freeAnswersBack, t, uiLanguage, type MessageKey } from "../shared/i18n"
+import { freeAnswersBack, t, uiDirection, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
@@ -106,6 +106,10 @@ import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill } from "./translate/TranslatePill"
+import { useFabDrag, usePanelDrag } from "./side/drag"
+import { EdgeGlow } from "./side/EdgeGlow"
+import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
+import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
 import { SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
@@ -442,7 +446,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [googleMode, setGoogleMode] = useState(false)
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
-  const [dragY, setDragY] = useState<number | null>(null)
   // The round button out of the selection buttons' way while they show (fabDodge.ts): its center, in px; null at home.
   const fabRef = useRef<HTMLButtonElement>(null)
   const fabHome = useRef<DOMRect | null>(null)
@@ -2343,32 +2346,32 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setFabDodge(null)
     fabHome.current = null
   }, [settings.fabY, settings.fabSide])
-  const dragRef = useRef<{ startY: number; startX: number; moved: boolean; pointer: number } | null>(null)
-
-  const onFabDown = (e: PointerEvent) => {
-    dragRef.current = { startY: e.clientY, startX: e.clientX, moved: false, pointer: e.pointerId }
-    ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
-  }
-  const onFabMove = (e: PointerEvent) => {
-    const d = dragRef.current
-    if (!d) return
-    if (!d.moved && Math.abs(e.clientY - d.startY) + Math.abs(e.clientX - d.startX) < 8) return
-    d.moved = true
-    e.preventDefault()
-    setDragY(Math.min(92, Math.max(8, (e.clientY / window.innerHeight) * 100)))
-  }
-  const onFabUp = (e: PointerEvent) => {
-    const d = dragRef.current
-    dragRef.current = null
-    if (!d) return
-    if (d.moved) {
-      const y = Math.min(92, Math.max(8, (e.clientY / window.innerHeight) * 100))
-      setDragY(null)
-      updateSettings({ fabY: Math.round(y), fabSide: e.clientX < window.innerWidth / 2 ? "left" : "right" })
-    } else {
-      show(undefined, { pageChat: true })
+  // 2.7 (plan section 9): the circle follows the finger and lands on the nearer edge; on iPad and Mac the panel is dragged
+  // by its header the same way. One side for both (the circle's setting): the panel opens where the circle is.
+  // Until the person picks one, the interface's direction decides (left in Arabic); a drag or Settings is a choice.
+  const side: Side = resolveSide(settings, uiDirection())
+  const sideRef = useRef(side)
+  sideRef.current = side
+  const fabDrag = useFabDrag({
+    fab: fabRef,
+    onDrop: (to, fabY) => {
+      if (to !== sideRef.current) void sendBackground({ type: "useEvent", f: "side", a: "drag_fab", what: to })
+      updateSettings({ fabY, fabSide: to, fabSideChosen: true })
+    },
+    onTap: () => show(undefined, { pageChat: true })
+  })
+  // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
+  const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
+  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, open: openFromHint })
+  const panelDrag = usePanelDrag({
+    panel: panelRef,
+    side,
+    enabled: layout === "side",
+    onSide: (to) => {
+      void sendBackground({ type: "useEvent", f: "side", a: "drag_panel", what: to })
+      updateSettings({ fabSide: to, fabSideChosen: true })
     }
-  }
+  })
 
   // ------------------------------------------------------------ derived
   const contextKind: "selection" | "page" | "none" = selection ? "selection" : pageReadable ? "page" : "none"
@@ -3483,26 +3486,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const matchShown = Boolean(matchLine && matchLine.chat === threadRef.current && messages.length === matchLine.length)
 
   // The circle's height, and the in-page translation pill's beside it (2.7).
-  const fabTop = dragY !== null ? `${dragY}%` : fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
+  const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
 
   // ------------------------------------------------------------ render
   return (
-    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-touch={touch ? "1" : undefined}>
+    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined}>
+      <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
       {fabVisible && (
         <button
           type="button"
           ref={fabRef}
-          class={`cf-fab ${settings.fabSide === "left" ? "left" : "right"} ${dragY === null ? "glide" : ""}`}
+          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}`}
           style={{ top: fabTop, ...(spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
           title={t("fabLabel")}
-          onPointerDown={onFabDown}
-          onPointerMove={onFabMove}
-          onPointerUp={onFabUp}
-          onPointerCancel={() => {
-            dragRef.current = null
-            setDragY(null)
-          }}
+          {...fabDrag.handlers}
         >
           <Icon.Sparkle size={22} />
           {jobs.unread.size > 0 && <span class="cf-fab-dot" role="status" aria-label={t("busyNew")} />}
@@ -3514,15 +3512,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {/* A page in another language (2.7): the pill to translate it in place, beside the circle on its side. */}
       {!popup && fabEnabled && !settings.fabHiddenSites.includes(source.site()) && (
         <TranslatePill
-          side={settings.fabSide === "left" ? "left" : "right"}
+          side={side}
           top={fabTop}
-          show={fabVisible && dragY === null && !bubble?.rect}
+          show={fabVisible && !fabDrag.state.dragging && !bubble?.rect}
           free={!hasPro(plan)}
           onPlans={() => {
             show()
             openPlans("pro", "translate")
           }}
         />
+      )}
+
+      {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
+      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && (
+        <HintLine id={pageHints.line} side={side} top={fabTop} onTap={pageHints.tap} onClose={pageHints.close} />
       )}
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
@@ -3645,7 +3648,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           style={{ ...(spaces.multi ? spaceVars(spaces.current.color) : {}), ...(layout === "sheet" && keyboard ? { bottom: `${keyboard}px`, maxHeight: `${window.visualViewport?.height ?? window.innerHeight}px` } : {}) }}
         >
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
-          <header class="cf-header">
+          <header class="cf-header" {...panelDrag.handlers}>
             {view !== "chat" ? (
               <button type="button" class="cf-icon" onClick={() => {
                 // Settings opened from the chats list's "…" (build 94) goes back to the list.
@@ -3905,6 +3908,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 if (patch.organize === true) turnOnOrganize("settings")
                 else updateSettings(patch)
                 if (patch.spaces !== undefined) void sendBackground({ type: "useEvent", f: "space", a: "toggle", via: "settings", val: patch.spaces ? "on" : "off", spaces: spaces.count() })
+                if (patch.fabSide) void sendBackground({ type: "useEvent", f: "side", a: "setting", what: patch.fabSide })
               }}
               onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
@@ -4269,7 +4273,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {!historyMode && partial === null && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
+                {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
+                {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
                   <Hint
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
@@ -4277,6 +4282,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   >
                     {/* Free answers don't read them: the hint says Pro does. */}
                     {t(source.kind() === "video" ? (mediaOn ? "hintVideoBody" : "hintVideoBodyFree") : mediaOn ? "hintPdfBody" : "hintPdfBodyFree")}
+                  </Hint>
+                )}
+
+                {/* 2.7 (plan section 9): once, that the circle (and on iPad and Mac the panel) moves to the other edge. */}
+                {/* 2.7 (plan section 6): the page hint's how-to, after its line was tapped; its button glows (data-glow). */}
+                {pageHints.chat && !historyMode && partial === null && (() => {
+                  const how = hintText(pageHints.chat, pageHints.has(pageHints.chat))
+                  return <div ref={revealOnce}><Hint icon={<Icon.Sparkle size={16} />} title={how.title} onDone={pageHints.doneChat}>{how.body}</Hint></div>
+                })()}
+                {!historyMode && partial === null && !pending && !pageHints.chat && hintDue("side") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                  <Hint
+                    icon={<Icon.Sparkle size={16} />}
+                    title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}
+                    onDone={() => doneHint("side")}
+                  >
+                    {t(layout === "side" ? "hintSideBody" : "hintSideBodySheet")}
                   </Hint>
                 )}
 

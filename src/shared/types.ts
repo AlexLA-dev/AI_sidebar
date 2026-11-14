@@ -391,7 +391,11 @@ export interface Settings {
   // "auto" (2.0 / 2.1 default, iPhone and iPad only) is read as "on".
   fab: "auto" | "on" | "off"
   fabHiddenSites: string[]
-  fabSide: "left" | "right"
+  // The circle's side, and on iPad and Mac the panel's (2.7). Not chosen yet: the interface's direction decides (left
+  // in Arabic), src/content/side/snap.ts resolveSide. Before 2.7 every save wrote "right", so a stored "right" counts
+  // only once fabSideChosen is set (by a drag or Settings); a stored "left" only ever came from a drag.
+  fabSide?: "left" | "right"
+  fabSideChosen?: boolean
   fabY: number // percent of viewport height
   selectionButton: boolean
   textSize: "normal" | "large"
@@ -429,7 +433,6 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   fab: "on",
   fabHiddenSites: [],
-  fabSide: "right",
   fabY: 72,
   selectionButton: true,
   textSize: "normal",

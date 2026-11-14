@@ -2540,6 +2540,120 @@
  "underlineSettingHint": {
   "message": "Pro e Ultra: após uma pausa na digitação, só o parágrafo alterado é revisado, com a página em mente. Aponte para um sublinhado (toque no iPhone e no iPad) para corrigir. Não conta como resposta."
  },
+ "setSide": {
+  "message": "Lado da tela"
+ },
+ "sideRight": {
+  "message": "Direita"
+ },
+ "sideLeft": {
+  "message": "Esquerda"
+ },
+ "hintSideTitle": {
+  "message": "Você pode arrastar o painel e o botão ✦ para a outra borda"
+ },
+ "hintSideTitleSheet": {
+  "message": "Você pode arrastar o botão ✦ para a outra borda"
+ },
+ "hintSideBody": {
+  "message": "Arraste o painel pelo cabeçalho, ou arraste o botão. Você também pode escolher o lado nos Ajustes."
+ },
+ "hintSideBodySheet": {
+  "message": "Arraste-o para a esquerda ou para a direita. Você também pode escolher o lado nos Ajustes."
+ },
+ "phSimilar": {
+  "message": "Achar mais barato?"
+ },
+ "phWatch": {
+  "message": "Acompanhar o preço?"
+ },
+ "phSummary": {
+  "message": "Resumir esta página?"
+ },
+ "phListen": {
+  "message": "Ouvir o artigo?"
+ },
+ "phVideo": {
+  "message": "Perguntar sobre o vídeo?"
+ },
+ "phTemplates": {
+  "message": "Responder com um modelo?"
+ },
+ "phRemind": {
+  "message": "Lembrar você disso?"
+ },
+ "phCalendar": {
+  "message": "Adicionar ao calendário?"
+ },
+ "phClose": {
+  "message": "Ocultar dica"
+ },
+ "phSimilarTitle": {
+  "message": "Achar mais barato"
+ },
+ "phSimilarBody": {
+  "message": "Selecione o nome do produto → “Encontrar parecidos”, ou toque no botão destacado: o mesmo produto mais barato e parecidos."
+ },
+ "phSimilarBodyUp": {
+  "message": "Isso está no Ultra: o mesmo produto mais barato e parecidos de outras lojas. Toque no botão destacado."
+ },
+ "phWatchTitle": {
+  "message": "Acompanhar o preço"
+ },
+ "phWatchBody": {
+  "message": "Selecione o preço e um olho aparece ao lado. Ou “…” (destacado) → “Acompanhar esta página…”. Eu aviso quando mudar."
+ },
+ "phSummaryTitle": {
+  "message": "Resumo da página"
+ },
+ "phSummaryBody": {
+  "message": "Toque em “Resumir”, destacado: o principal da página em poucas linhas."
+ },
+ "phListenTitle": {
+  "message": "Ouvir o artigo"
+ },
+ "phListenBody": {
+  "message": "Abra “…” (destacado) → “Ouvir esta página”: o artigo é lido em voz alta."
+ },
+ "phListenBodyUp": {
+  "message": "A leitura em voz alta está no Ultra. Abra “…” (destacado) → “Ouvir esta página”."
+ },
+ "phVideoTitle": {
+  "message": "Pergunta sobre o vídeo"
+ },
+ "phVideoBody": {
+  "message": "Pergunte sobre o vídeo no campo destacado: respondo pelas legendas."
+ },
+ "phVideoBodyUp": {
+  "message": "Respostas pelas legendas do vídeo estão no Pro. Pergunte no campo destacado."
+ },
+ "phTemplatesTitle": {
+  "message": "Responder com modelo"
+ },
+ "phTemplatesBody": {
+  "message": "Coloque o cursor num campo da página e o botão de modelos aparece ao lado. Seus modelos: “…” (destacado) → “Ajustes” → “Modelos”."
+ },
+ "phRemindTitle": {
+  "message": "Lembrete"
+ },
+ "phRemindBody": {
+  "message": "Escreva no campo destacado, por exemplo “me lembre amanhã às 9”, e eu sugiro um lembrete."
+ },
+ "phCalendarTitle": {
+  "message": "No calendário"
+ },
+ "phCalendarBody": {
+  "message": "Escreva “adicionar ao calendário” no campo destacado e eu sugiro um evento com a data da página."
+ },
+ "setPageHints": {
+  "message": "Dicas no botão ✦"
+ },
+ "setPageHintsHint": {
+  "message": "Nos primeiros dias, mostram o que você pode fazer numa página."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "Isso está no Pro e no Ultra: no Pro, a busca rápida; no Ultra, a completa. O mesmo produto mais barato e parecidos de outras lojas. Toque no botão destacado."
+ },
  "shotSwitch": {
   "message": "Captura da página"
  },

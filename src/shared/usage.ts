@@ -90,7 +90,16 @@ export const FEATURES: Record<string, Feature> = {
       what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
     }
   },
-  hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats"] } },
+  hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side"] } },
+  // 2.7 (plan section 6): page hints in the first days — the line by the circle shown, tapped, ✕ (and two in a row
+  // turning them off), the feature used after it; the Settings switch. what: which hint (src/content/pagehints).
+  page_hint: {
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "tap", "dismiss", "off", "used", "switch_on", "switch_off"],
+    fields: { what: ["similar", "watch", "summary", "listen", "video", "templates", "remind", "calendar"] }
+  },
+  // 2.7 (plan section 9): the circle dragged to the other edge, the panel dragged by its header (iPad, Mac), the side
+  // picked in Settings; what: the side it went to.
+  side: { since: "2.7", tracked: "2.7", on: "ext", actions: ["drag_fab", "drag_panel", "setting"], fields: { what: ["left", "right"] } },
   tab: { since: "2.0", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings"] } },
   tips: {
     since: "2.0", on: "app", actions: ["open", "play"],

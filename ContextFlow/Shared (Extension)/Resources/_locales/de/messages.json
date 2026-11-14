@@ -2540,6 +2540,120 @@
  "underlineSettingHint": {
   "message": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
  },
+ "setSide": {
+  "message": "Bildschirmseite"
+ },
+ "sideRight": {
+  "message": "Rechts"
+ },
+ "sideLeft": {
+  "message": "Links"
+ },
+ "hintSideTitle": {
+  "message": "Panel und ✦-Taste lassen sich an den anderen Rand ziehen"
+ },
+ "hintSideTitleSheet": {
+  "message": "Die ✦-Taste lässt sich an den anderen Rand ziehen"
+ },
+ "hintSideBody": {
+  "message": "Zieh das Panel an seiner Kopfzeile oder zieh die Taste. Die Seite kannst du auch in den Einstellungen wählen."
+ },
+ "hintSideBodySheet": {
+  "message": "Zieh sie nach links oder rechts. Die Seite kannst du auch in den Einstellungen wählen."
+ },
+ "phSimilar": {
+  "message": "Günstiger finden?"
+ },
+ "phWatch": {
+  "message": "Preis beobachten?"
+ },
+ "phSummary": {
+  "message": "Seite zusammenfassen?"
+ },
+ "phListen": {
+  "message": "Artikel anhören?"
+ },
+ "phVideo": {
+  "message": "Zum Video fragen?"
+ },
+ "phTemplates": {
+  "message": "Mit Vorlage antworten?"
+ },
+ "phRemind": {
+  "message": "Daran erinnern?"
+ },
+ "phCalendar": {
+  "message": "Zum Kalender hinzufügen?"
+ },
+ "phClose": {
+  "message": "Tipp ausblenden"
+ },
+ "phSimilarTitle": {
+  "message": "Günstiger finden"
+ },
+ "phSimilarBody": {
+  "message": "Markiere den Produktnamen → „Ähnliches finden“ oder tippe auf die hervorgehobene Taste: dasselbe günstiger und Ähnliches."
+ },
+ "phSimilarBodyUp": {
+  "message": "Das ist in Ultra: dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
+ },
+ "phWatchTitle": {
+  "message": "Preis beobachten"
+ },
+ "phWatchBody": {
+  "message": "Markiere den Preis, daneben erscheint ein Auge. Oder „…“ (hervorgehoben) → „Diese Seite beobachten…“. Ich melde mich, wenn er sich ändert."
+ },
+ "phSummaryTitle": {
+  "message": "Zusammenfassung"
+ },
+ "phSummaryBody": {
+  "message": "Tippe auf das hervorgehobene „Zusammenfassen“: das Wichtigste der Seite in wenigen Zeilen."
+ },
+ "phListenTitle": {
+  "message": "Artikel anhören"
+ },
+ "phListenBody": {
+  "message": "Öffne „…“ (hervorgehoben) → „Diese Seite anhören“: Der Artikel wird vorgelesen."
+ },
+ "phListenBodyUp": {
+  "message": "Vorlesen ist in Ultra. Öffne „…“ (hervorgehoben) → „Diese Seite anhören“."
+ },
+ "phVideoTitle": {
+  "message": "Frage zum Video"
+ },
+ "phVideoBody": {
+  "message": "Frag im hervorgehobenen Feld nach dem Video: Ich antworte anhand der Untertitel."
+ },
+ "phVideoBodyUp": {
+  "message": "Antworten anhand der Untertitel gibt es in Pro. Frag im hervorgehobenen Feld."
+ },
+ "phTemplatesTitle": {
+  "message": "Mit Vorlage antworten"
+ },
+ "phTemplatesBody": {
+  "message": "Setz den Cursor in ein Feld auf der Seite, daneben erscheint die Vorlagen-Taste. Deine Vorlagen: „…“ (hervorgehoben) → „Einstellungen“ → „Vorlagen“."
+ },
+ "phRemindTitle": {
+  "message": "Erinnern"
+ },
+ "phRemindBody": {
+  "message": "Schreib ins hervorgehobene Feld, zum Beispiel „erinnere mich morgen um 9“, und ich schlage eine Erinnerung vor."
+ },
+ "phCalendarTitle": {
+  "message": "In den Kalender"
+ },
+ "phCalendarBody": {
+  "message": "Schreib „in den Kalender“ ins hervorgehobene Feld, und ich schlage einen Termin mit dem Datum der Seite vor."
+ },
+ "setPageHints": {
+  "message": "Tipps an der ✦-Taste"
+ },
+ "setPageHintsHint": {
+  "message": "In den ersten Tagen zeigen sie, was du auf einer Seite tun kannst."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
+ },
  "shotSwitch": {
   "message": "Seiten-Schnappschuss"
  },
