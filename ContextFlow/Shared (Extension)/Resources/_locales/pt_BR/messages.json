@@ -2699,6 +2699,90 @@
  "shotMissing": {
   "message": "Esta captura ainda não está neste aparelho. Ela chega pelo iCloud se suas conversas são sincronizadas lá."
  },
+ "invTitle": {
+  "message": "Convidar um amigo"
+ },
+ "invHint": {
+  "message": "Seu amigo ganha respostas bônus: +{0} por dia na primeira semana. Você ganha {1}% de desconto no primeiro mês do Pro ou Ultra quando ele fizer perguntas em dois dias diferentes."
+ },
+ "invButton": {
+  "message": "Pegar meu código e link"
+ },
+ "invYourCode": {
+  "message": "Seu código"
+ },
+ "invCopy": {
+  "message": "Copiar"
+ },
+ "invCopied": {
+  "message": "Copiado"
+ },
+ "invShare": {
+  "message": "Compartilhar"
+ },
+ "invShareText": {
+  "message": "Uso o ContextFlow, IA direto na página no Safari. Com meu código {0} você ganha respostas bônus na primeira semana: {1}"
+ },
+ "invFriends": {
+  "message": "Vieram com seu código: {0} · usando: {1}"
+ },
+ "invRewardTitle": {
+  "message": "Um amigo que você convidou está usando o ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Obrigado: {0}% de desconto no primeiro mês do Pro ou Ultra, você escolhe. A App Store aplica se você ainda não usou esse desconto."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "Já usou os dois descontos? Pegue respostas bônus: +{0} por dia por uma semana"
+ },
+ "invAnswersOn": {
+  "message": "Suas respostas bônus valem até {0}."
+ },
+ "invEnterTitle": {
+  "message": "Tem o código de um amigo?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Código ou link"
+ },
+ "invEnter": {
+  "message": "Inserir"
+ },
+ "invEntered": {
+  "message": "Código aceito: respostas bônus, +{0} por dia, até {1}."
+ },
+ "invEnteredOn": {
+  "message": "Você veio com o código de um amigo: respostas bônus, +{0} por dia, até {1}."
+ },
+ "invErrUnknown": {
+  "message": "Esse código não existe. Confira e tente de novo."
+ },
+ "invErrOwn": {
+  "message": "Esse é o seu próprio código. Envie para um amigo."
+ },
+ "invErrAlready": {
+  "message": "O código de um amigo já foi inserido aqui."
+ },
+ "invErrLate": {
+  "message": "O código de um amigo vale na primeira semana após a instalação."
+ },
+ "invErrFull": {
+  "message": "Este código atingiu o limite."
+ },
+ "invErrDevice": {
+  "message": "O código de um amigo já foi usado neste dispositivo."
+ },
+ "invErrCheck": {
+  "message": "Não foi possível verificar o dispositivo. Tente inserir o código no app ContextFlow."
+ },
+ "invErrLater": {
+  "message": "Não deu agora. Tente mais tarde."
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

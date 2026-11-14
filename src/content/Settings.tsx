@@ -12,6 +12,7 @@ import { InsertSettingsGroup } from "./insert/InsertSettings"
 import { sendBackground } from "./insert/store"
 import { hintsOn, setHintsOn } from "./pagehints/store"
 import { resolveSide } from "./side/snap"
+import { InviteGroup } from "./invite/Invite"
 
 interface Props {
   settings: Settings
@@ -37,6 +38,8 @@ interface Props {
   onSocial: (network: "x" | "threads") => void
   // Organizing (2.5) without Pro: what it does opens the Pro screen.
   onOrganizePro: () => void
+  // 2.7, invite a friend: an App Store offer code (the inviter's reward) to the App Store's redeem sheet.
+  onRedeem: (code: string) => void
 }
 
 function Segmented<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }): VNode {
@@ -295,6 +298,9 @@ export function SettingsView(props: Props): VNode {
       </section>
 
       {hasPro(plan) && planGroup}
+
+      {/* 2.7 (plan section 5): invite a friend, optional; a new install enters a friend's code here too. */}
+      {TARGET === "safari" && <InviteGroup onRedeem={props.onRedeem} onStatusChange={props.onStatusChange} />}
 
       <footer class="cf-links">
         <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>

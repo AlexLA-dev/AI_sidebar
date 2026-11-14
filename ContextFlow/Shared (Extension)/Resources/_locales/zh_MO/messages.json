@@ -2699,6 +2699,90 @@
  "shotMissing": {
   "message": "這張快照還沒到這台裝置。如果聊天透過 iCloud 同步,它會隨之送達。"
  },
+ "invTitle": {
+  "message": "邀請朋友"
+ },
+ "invHint": {
+  "message": "朋友在第一週每天額外獲得 +{0} 次獎勵回答。朋友在兩個不同的日子提問後，你可獲得 Pro 或 Ultra 首月 {1}% 折扣。"
+ },
+ "invButton": {
+  "message": "取得我的邀請碼和連結"
+ },
+ "invYourCode": {
+  "message": "你的邀請碼"
+ },
+ "invCopy": {
+  "message": "拷貝"
+ },
+ "invCopied": {
+  "message": "已拷貝"
+ },
+ "invShare": {
+  "message": "分享"
+ },
+ "invShareText": {
+  "message": "我在用 ContextFlow，在 Safari 頁面上直接用 AI。用我的邀請碼 {0}，第一週可獲得獎勵回答：{1}"
+ },
+ "invFriends": {
+  "message": "透過你的邀請碼加入：{0} · 正在使用：{1}"
+ },
+ "invRewardTitle": {
+  "message": "你邀請的朋友正在使用 ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "感謝你：Pro 或 Ultra 首月 {0}% 折扣，任選其一。如果你還沒用過這個折扣，App Store 會為你套用。"
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "兩個折扣都用過了？改領獎勵回答：一週內每天 +{0} 次"
+ },
+ "invAnswersOn": {
+  "message": "你的獎勵回答有效至 {0}。"
+ },
+ "invEnterTitle": {
+  "message": "有朋友的邀請碼？"
+ },
+ "invEnterPlaceholder": {
+  "message": "邀請碼或連結"
+ },
+ "invEnter": {
+  "message": "輸入"
+ },
+ "invEntered": {
+  "message": "邀請碼已接受：獎勵回答，每天 +{0} 次，至 {1}。"
+ },
+ "invEnteredOn": {
+  "message": "你透過朋友的邀請碼加入：獎勵回答，每天 +{0} 次，至 {1}。"
+ },
+ "invErrUnknown": {
+  "message": "沒有這個邀請碼。請檢查後再試一次。"
+ },
+ "invErrOwn": {
+  "message": "這是你自己的邀請碼，請傳給朋友。"
+ },
+ "invErrAlready": {
+  "message": "這裡已經輸入過朋友的邀請碼。"
+ },
+ "invErrLate": {
+  "message": "朋友的邀請碼僅在安裝後第一週內有效。"
+ },
+ "invErrFull": {
+  "message": "這個邀請碼已達上限。"
+ },
+ "invErrDevice": {
+  "message": "這台裝置已經使用過朋友的邀請碼。"
+ },
+ "invErrCheck": {
+  "message": "無法驗證這台裝置。請試著在 ContextFlow App 中輸入邀請碼。"
+ },
+ "invErrLater": {
+  "message": "現在無法完成，請稍後再試。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },
