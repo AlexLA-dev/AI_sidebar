@@ -910,5 +910,6 @@
   "phCalendarTitle": "In den Kalender",
   "phCalendarBody": "Schreib „in den Kalender“ ins hervorgehobene Feld, und ich schlage einen Termin mit dem Datum der Seite vor.",
   "setPageHints": "Tipps an der ✦-Taste",
-  "setPageHintsHint": "In den ersten Tagen zeigen sie, was du auf einer Seite tun kannst."
+  "setPageHintsHint": "In den ersten Tagen zeigen sie, was du auf einer Seite tun kannst.",
+  "phSimilarBodyUpBoth": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
 }

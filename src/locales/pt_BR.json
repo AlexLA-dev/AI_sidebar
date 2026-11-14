@@ -910,5 +910,6 @@
   "phCalendarTitle": "No calendário",
   "phCalendarBody": "Escreva “adicionar ao calendário” no campo destacado e eu sugiro um evento com a data da página.",
   "setPageHints": "Dicas no botão ✦",
-  "setPageHintsHint": "Nos primeiros dias, mostram o que você pode fazer numa página."
+  "setPageHintsHint": "Nos primeiros dias, mostram o que você pode fazer numa página.",
+  "phSimilarBodyUpBoth": "Isso está no Pro e no Ultra: no Pro, a busca rápida; no Ultra, a completa. O mesmo produto mais barato e parecidos de outras lojas. Toque no botão destacado."
 }

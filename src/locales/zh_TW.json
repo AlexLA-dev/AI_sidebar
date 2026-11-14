@@ -910,5 +910,6 @@
   "phCalendarTitle": "加入行事曆",
   "phCalendarBody": "在亮起的輸入框裡寫「加入行事曆」，我會用頁面上的日期建議一個活動。",
   "setPageHints": "✦ 按鈕旁的提示",
-  "setPageHintsHint": "剛開始的幾天，提示你在頁面上能做什麼。"
+  "setPageHintsHint": "剛開始的幾天，提示你在頁面上能做什麼。",
+  "phSimilarBodyUpBoth": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點亮起的按鈕。"
 }
