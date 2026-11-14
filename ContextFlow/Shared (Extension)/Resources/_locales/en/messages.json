@@ -2561,6 +2561,96 @@
  "hintSideBodySheet": {
   "message": "Drag it left or right. You can also pick the side in Settings."
  },
+ "phSimilar": {
+  "message": "Find it cheaper?"
+ },
+ "phWatch": {
+  "message": "Watch the price?"
+ },
+ "phSummary": {
+  "message": "Summarize this page?"
+ },
+ "phListen": {
+  "message": "Listen to this article?"
+ },
+ "phVideo": {
+  "message": "Ask about this video?"
+ },
+ "phTemplates": {
+  "message": "Reply with a template?"
+ },
+ "phRemind": {
+  "message": "Set a reminder?"
+ },
+ "phCalendar": {
+  "message": "Add to Calendar?"
+ },
+ "phClose": {
+  "message": "Hide this tip"
+ },
+ "phSimilarTitle": {
+  "message": "Find it cheaper"
+ },
+ "phSimilarBody": {
+  "message": "Select the product's name → “Find similar”, or tap the highlighted button: the same item for less, and similar ones."
+ },
+ "phSimilarBodyUp": {
+  "message": "This is in Ultra: the same item for less, and similar ones from other shops. Tap the highlighted button."
+ },
+ "phWatchTitle": {
+  "message": "Watch the price"
+ },
+ "phWatchBody": {
+  "message": "Select the price and an eye appears next to it. Or “…” (highlighted) → “Watch this page…”. I'll tell you when it changes."
+ },
+ "phSummaryTitle": {
+  "message": "Page summary"
+ },
+ "phSummaryBody": {
+  "message": "Tap the highlighted “Summarize”: the main points of the page in a few lines."
+ },
+ "phListenTitle": {
+  "message": "Listen to the article"
+ },
+ "phListenBody": {
+  "message": "Open “…” (highlighted) → “Listen to this page”: the article is read aloud."
+ },
+ "phListenBodyUp": {
+  "message": "Reading aloud is in Ultra. Open “…” (highlighted) → “Listen to this page”."
+ },
+ "phVideoTitle": {
+  "message": "Ask about the video"
+ },
+ "phVideoBody": {
+  "message": "Ask about the video in the highlighted field: I answer from its subtitles."
+ },
+ "phVideoBodyUp": {
+  "message": "Answers from a video's subtitles are in Pro. Ask about it in the highlighted field."
+ },
+ "phTemplatesTitle": {
+  "message": "Reply with a template"
+ },
+ "phTemplatesBody": {
+  "message": "Put the cursor in a field on the page and the templates button appears next to it. Your templates: “…” (highlighted) → “Settings” → “Templates”."
+ },
+ "phRemindTitle": {
+  "message": "Remind me"
+ },
+ "phRemindBody": {
+  "message": "Type in the highlighted field, for example “remind me tomorrow at 9”, and I'll suggest a reminder."
+ },
+ "phCalendarTitle": {
+  "message": "Add to Calendar"
+ },
+ "phCalendarBody": {
+  "message": "Type “add to calendar” in the highlighted field and I'll suggest an event with the page's date."
+ },
+ "setPageHints": {
+  "message": "Tips by the ✦ button"
+ },
+ "setPageHintsHint": {
+  "message": "In your first days, they show what you can do on a page."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

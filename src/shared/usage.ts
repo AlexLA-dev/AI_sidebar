@@ -91,6 +91,12 @@ export const FEATURES: Record<string, Feature> = {
     }
   },
   hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side"] } },
+  // 2.7 (plan section 6): page hints in the first days — the line by the circle shown, tapped, ✕ (and two in a row
+  // turning them off), the feature used after it; the Settings switch. what: which hint (src/content/pagehints).
+  page_hint: {
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "tap", "dismiss", "off", "used", "switch_on", "switch_off"],
+    fields: { what: ["similar", "watch", "summary", "listen", "video", "templates", "remind", "calendar"] }
+  },
   // 2.7 (plan section 9): the circle dragged to the other edge, the panel dragged by its header (iPad, Mac), the side
   // picked in Settings; what: the side it went to.
   side: { since: "2.7", tracked: "2.7", on: "ext", actions: ["drag_fab", "drag_panel", "setting"], fields: { what: ["left", "right"] } },

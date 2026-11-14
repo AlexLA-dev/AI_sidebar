@@ -2561,6 +2561,96 @@
  "hintSideBodySheet": {
   "message": "Kéo nút sang trái hoặc phải. Bạn cũng có thể chọn cạnh trong Cài đặt."
  },
+ "phSimilar": {
+  "message": "Tìm chỗ rẻ hơn?"
+ },
+ "phWatch": {
+  "message": "Theo dõi giá?"
+ },
+ "phSummary": {
+  "message": "Tóm tắt trang này?"
+ },
+ "phListen": {
+  "message": "Nghe bài viết?"
+ },
+ "phVideo": {
+  "message": "Hỏi về video?"
+ },
+ "phTemplates": {
+  "message": "Trả lời bằng mẫu?"
+ },
+ "phRemind": {
+  "message": "Nhắc bạn việc này?"
+ },
+ "phCalendar": {
+  "message": "Thêm vào Lịch?"
+ },
+ "phClose": {
+  "message": "Ẩn gợi ý"
+ },
+ "phSimilarTitle": {
+  "message": "Tìm chỗ rẻ hơn"
+ },
+ "phSimilarBody": {
+  "message": "Chọn tên sản phẩm → “Tìm tương tự”, hoặc chạm nút được làm nổi bật: cùng sản phẩm giá rẻ hơn và sản phẩm tương tự."
+ },
+ "phSimilarBodyUp": {
+  "message": "Tính năng này có trong Ultra: cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
+ },
+ "phWatchTitle": {
+  "message": "Theo dõi giá"
+ },
+ "phWatchBody": {
+  "message": "Chọn giá, một con mắt sẽ hiện bên cạnh. Hoặc “…” (được làm nổi bật) → “Theo dõi trang này…”. Tôi sẽ báo khi giá thay đổi."
+ },
+ "phSummaryTitle": {
+  "message": "Tóm tắt trang"
+ },
+ "phSummaryBody": {
+  "message": "Chạm “Tóm tắt” được làm nổi bật: ý chính của trang trong vài dòng."
+ },
+ "phListenTitle": {
+  "message": "Nghe bài viết"
+ },
+ "phListenBody": {
+  "message": "Mở “…” (được làm nổi bật) → “Nghe trang này”: bài viết sẽ được đọc to."
+ },
+ "phListenBodyUp": {
+  "message": "Đọc to có trong Ultra. Mở “…” (được làm nổi bật) → “Nghe trang này”."
+ },
+ "phVideoTitle": {
+  "message": "Hỏi về video"
+ },
+ "phVideoBody": {
+  "message": "Hỏi về video trong ô được làm nổi bật: tôi trả lời theo phụ đề."
+ },
+ "phVideoBodyUp": {
+  "message": "Trả lời theo phụ đề video có trong Pro. Hỏi trong ô được làm nổi bật."
+ },
+ "phTemplatesTitle": {
+  "message": "Trả lời bằng mẫu"
+ },
+ "phTemplatesBody": {
+  "message": "Đặt con trỏ vào một ô trên trang, nút mẫu sẽ hiện bên cạnh. Mẫu của bạn: “…” (được làm nổi bật) → “Cài đặt” → “Mẫu”."
+ },
+ "phRemindTitle": {
+  "message": "Nhắc nhở"
+ },
+ "phRemindBody": {
+  "message": "Viết vào ô được làm nổi bật, ví dụ “nhắc tôi 9 giờ sáng mai”, tôi sẽ gợi ý một lời nhắc."
+ },
+ "phCalendarTitle": {
+  "message": "Vào Lịch"
+ },
+ "phCalendarBody": {
+  "message": "Viết “thêm vào lịch” vào ô được làm nổi bật, tôi sẽ gợi ý sự kiện theo ngày trên trang."
+ },
+ "setPageHints": {
+  "message": "Gợi ý cạnh nút ✦"
+ },
+ "setPageHintsHint": {
+  "message": "Trong những ngày đầu, gợi ý cho bạn biết có thể làm gì trên trang."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },
