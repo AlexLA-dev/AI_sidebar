@@ -17,7 +17,8 @@
 .cf-space-switch:hover, .cf-space-switch[aria-expanded="true"] { background: var(--space-soft, var(--bg-2)); }
 .cf-space-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
 .cf[data-layout="sheet"] .cf-space-name { max-width: min(150px, 34vw); }
-.cf-space-chev { font-size: 10px; color: var(--text-3); }
+.cf-space-chev { flex: none; color: var(--text-2); transition: transform 0.15s ease; }
+.cf-space-switch[aria-expanded="true"] .cf-space-chev { transform: rotate(180deg); }
 
 .cf-space-pop {
   position: absolute; inset-inline: 8px; top: calc(100% + 4px); z-index: 6;
@@ -91,8 +92,14 @@
 }
 .cf-space-new:hover { color: var(--accent-text); border-color: var(--accent); }
 
-/* A search hit's space, and «Переместить в…». */
-.cf-space-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-3); white-space: nowrap; margin-inline-end: 8px; }
+/* A search hit's space, on its first line next to the name (the mockup's tag), and «Переместить в…». */
+.cf-hit-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cf-hit-head .cf-thread-title { flex: 1; min-width: 0; }
+.cf-space-tag {
+  flex: none; display: inline-flex; align-items: center; gap: 5px; max-width: 45%;
+  padding: 2px 8px; border-radius: 999px; background: var(--bg-2);
+  font-size: 11.5px; font-weight: 500; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .cf-space-move { display: flex; flex-direction: column; gap: 2px; padding: 2px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 2px 0; }
 .cf-space-move-title { font-size: 11.5px; color: var(--text-3); padding: 4px 10px 2px; }
 .cf-space-move button { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: var(--text); text-align: start; }
@@ -101,6 +108,6 @@
 .cf-thread-moveto.on { color: var(--accent-text); }
 
 @media (prefers-reduced-motion: reduce) {
-  .cf-space-toggle, .cf-space-toggle::after { transition: none; }
+  .cf-space-toggle, .cf-space-toggle::after, .cf-space-chev { transition: none; }
   .cf-space-toast { animation: none; }
 }

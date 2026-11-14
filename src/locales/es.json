@@ -812,6 +812,12 @@
   "appleAlso": "También en Recordatorios",
   "appleRemindersOff": "ContextFlow no tiene acceso a Recordatorios. Actívalo en Ajustes.",
   "appleAskOnce": "La primera vez se abre ContextFlow para pedir acceso.",
+  "trOffer": "¿Traducir al español?",
+  "trOfferTo": "¿Traducir al {0}?",
+  "trHide": "Ocultar en este sitio",
+  "trWorking": "Traduciendo…",
+  "trOriginal": "Original",
+  "trFailed": "No se pudo traducir",
 
   "spacesTitle": "Espacios",
   "spaceSwitcher": "Espacio: {0}. Cambiar",

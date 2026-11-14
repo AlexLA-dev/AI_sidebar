@@ -20,6 +20,7 @@ import watchStyles from "./watch/watch.css"
 import tipsStyles from "./tips/tips.css"
 import similarStyles from "./similar/similar.css"
 import listenStyles from "./listen/listen.css"
+import translateStyles from "./translate/translate.css"
 import spacesStyles from "./spaces.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
@@ -70,6 +71,7 @@ ${watchStyles}
 ${tipsStyles}
 ${similarStyles}
 ${listenStyles}
+${translateStyles}
 ${spacesStyles}`
     root.appendChild(style)
     const container = document.createElement("div")

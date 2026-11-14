@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "第一次会打开 ContextFlow 来请求访问权限。"
  },
+ "trOffer": {
+  "message": "翻译成中文？"
+ },
+ "trOfferTo": {
+  "message": "翻译成{0}？"
+ },
+ "trHide": {
+  "message": "在此网站隐藏"
+ },
+ "trWorking": {
+  "message": "正在翻译…"
+ },
+ "trOriginal": {
+  "message": "原文"
+ },
+ "trFailed": {
+  "message": "无法翻译"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

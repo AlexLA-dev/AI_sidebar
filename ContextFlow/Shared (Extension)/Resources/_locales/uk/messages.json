@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "Першого разу відкриється ContextFlow, щоб запитати доступ."
  },
+ "trOffer": {
+  "message": "Перекласти українською?"
+ },
+ "trOfferTo": {
+  "message": "Перекласти мовою: {0}?"
+ },
+ "trHide": {
+  "message": "Сховати на цьому сайті"
+ },
+ "trWorking": {
+  "message": "Перекладаю…"
+ },
+ "trOriginal": {
+  "message": "Оригінал"
+ },
+ "trFailed": {
+  "message": "Не вдалося перекласти"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

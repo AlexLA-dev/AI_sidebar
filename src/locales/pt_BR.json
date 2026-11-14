@@ -812,6 +812,12 @@
   "appleAlso": "Também no Lembretes",
   "appleRemindersOff": "O ContextFlow não tem acesso ao Lembretes. Ative em Ajustes.",
   "appleAskOnce": "Na primeira vez, o ContextFlow abre para pedir acesso.",
+  "trOffer": "Traduzir para português?",
+  "trOfferTo": "Traduzir para {0}?",
+  "trHide": "Ocultar neste site",
+  "trWorking": "Traduzindo…",
+  "trOriginal": "Original",
+  "trFailed": "Não foi possível traduzir",
 
   "spacesTitle": "Espaços",
   "spaceSwitcher": "Espaço: {0}. Trocar",

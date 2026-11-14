@@ -84,7 +84,8 @@ export function SpaceSwitcher({ spaces, current, counts, bind, onPick, onNew, on
       <button type="button" class="cf-space-switch" aria-haspopup="menu" aria-expanded={open} aria-label={t("spaceSwitcher", current.name)} title={t("spaceSwitcher", current.name)} onClick={() => setOpen(!open)}>
         <SpaceDot color={current.color} />
         <span class="cf-space-name" dir="auto">{current.name}</span>
-        <span class="cf-space-chev" aria-hidden="true">▾</span>
+        {/* A drawn chevron: the "▾" character came out as a dot at the header's size (the director on the 2.7 shots). */}
+        <svg class="cf-space-chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" /></svg>
       </button>
       {open && (
         <div class="cf-space-pop" role="menu" aria-label={t("spacesTitle")}>

@@ -403,9 +403,10 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
           return (
             <div key={id} role="listitem" class={`cf-thread ${id === activeId ? "current" : ""}`}>
               <div class="cf-thread-main" role="button" tabIndex={0} onClick={open} onKeyDown={(e) => { if (e.key === "Enter") open() }}>
-                <span class="cf-thread-title" dir="auto">{threadName(thread)}</span>
+                {/* 2.7: which space the hit is in, on its first line (the keyboard can cover the rest on iPhone). */}
+                <span class="cf-hit-head"><span class="cf-thread-title" dir="auto">{threadName(thread)}</span>{spaceTag(thread)}</span>
                 {why && <span class="cf-search-hit cf-find-why"><Icon.Sparkle size={11} /> {why}</span>}
-                <span class="cf-thread-meta">{spaceTag(thread)}<span class="cf-thread-when">{when(activity(thread))}</span></span>
+                <span class="cf-thread-meta"><span class="cf-thread-when">{when(activity(thread))}</span></span>
               </div>
             </div>
           )
@@ -434,7 +435,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                 onOpen(thread.id, hits[0]?.at)
               }}
             >
-              <span class="cf-thread-title" dir="auto">{threadName(thread)}</span>
+              <span class="cf-hit-head"><span class="cf-thread-title" dir="auto">{threadName(thread)}</span>{spaceTag(thread)}</span>
               {hits.map((hit, i) => (
                 <span
                   key={i}
@@ -447,7 +448,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                   <Excerpt hit={hit} />
                 </span>
               ))}
-              <span class="cf-thread-meta">{spaceTag(thread)}<span class="cf-thread-when">{when(activity(thread))}</span></span>
+              <span class="cf-thread-meta"><span class="cf-thread-when">{when(activity(thread))}</span></span>
             </div>
           </div>
         ))}

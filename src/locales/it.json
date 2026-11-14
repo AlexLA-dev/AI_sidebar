@@ -812,6 +812,12 @@
   "appleAlso": "Anche in Promemoria",
   "appleRemindersOff": "ContextFlow non ha accesso a Promemoria. Attivalo in Impostazioni.",
   "appleAskOnce": "La prima volta si apre ContextFlow per chiedere l’accesso.",
+  "trOffer": "Tradurre in italiano?",
+  "trOfferTo": "Tradurre in {0}?",
+  "trHide": "Nascondi su questo sito",
+  "trWorking": "Traduzione…",
+  "trOriginal": "Originale",
+  "trFailed": "Traduzione non riuscita",
 
   "spacesTitle": "Spazi",
   "spaceSwitcher": "Spazio: {0}. Cambia",

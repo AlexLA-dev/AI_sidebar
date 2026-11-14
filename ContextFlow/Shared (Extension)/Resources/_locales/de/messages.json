@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "Beim ersten Mal öffnet sich ContextFlow, um nach Zugriff zu fragen."
  },
+ "trOffer": {
+  "message": "Auf Deutsch übersetzen?"
+ },
+ "trOfferTo": {
+  "message": "Übersetzen in: {0}?"
+ },
+ "trHide": {
+  "message": "Auf dieser Website ausblenden"
+ },
+ "trWorking": {
+  "message": "Wird übersetzt…"
+ },
+ "trOriginal": {
+  "message": "Original"
+ },
+ "trFailed": {
+  "message": "Übersetzung fehlgeschlagen"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

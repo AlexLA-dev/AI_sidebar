@@ -2357,6 +2357,24 @@
  "appleAskOnce": {
   "message": "第一次會打開 ContextFlow 來要求存取權限。"
  },
+ "trOffer": {
+  "message": "翻譯成中文？"
+ },
+ "trOfferTo": {
+  "message": "翻譯成{0}？"
+ },
+ "trHide": {
+  "message": "在此網站隱藏"
+ },
+ "trWorking": {
+  "message": "正在翻譯…"
+ },
+ "trOriginal": {
+  "message": "原文"
+ },
+ "trFailed": {
+  "message": "無法翻譯"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

@@ -812,6 +812,12 @@
   "appleAlso": "أيضًا في التذكيرات",
   "appleRemindersOff": "لا يملك ContextFlow إذنًا بالوصول إلى التذكيرات. فعّله في الإعدادات.",
   "appleAskOnce": "في المرة الأولى يُفتح ContextFlow ليطلب الإذن.",
+  "trOffer": "ترجمة إلى العربية؟",
+  "trOfferTo": "ترجمة إلى {0}؟",
+  "trHide": "إخفاء على هذا الموقع",
+  "trWorking": "جارٍ الترجمة…",
+  "trOriginal": "الأصل",
+  "trFailed": "تعذّرت الترجمة",
 
   "spacesTitle": "المساحات",
   "spaceSwitcher": "المساحة: {0}. تبديل",

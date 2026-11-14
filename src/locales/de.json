@@ -812,6 +812,12 @@
   "appleAlso": "Auch in Erinnerungen",
   "appleRemindersOff": "ContextFlow hat keinen Zugriff auf Erinnerungen. Aktiviere ihn in den Einstellungen.",
   "appleAskOnce": "Beim ersten Mal öffnet sich ContextFlow, um nach Zugriff zu fragen.",
+  "trOffer": "Auf Deutsch übersetzen?",
+  "trOfferTo": "Übersetzen in: {0}?",
+  "trHide": "Auf dieser Website ausblenden",
+  "trWorking": "Wird übersetzt…",
+  "trOriginal": "Original",
+  "trFailed": "Übersetzung fehlgeschlagen",
 
   "spacesTitle": "Bereiche",
   "spaceSwitcher": "Bereich: {0}. Wechseln",

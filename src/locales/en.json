@@ -812,6 +812,12 @@
   "appleAlso": "Also in Reminders",
   "appleRemindersOff": "ContextFlow has no access to Reminders. Turn it on in Settings.",
   "appleAskOnce": "The first time, ContextFlow opens to ask for access.",
+  "trOffer": "Translate to English?",
+  "trOfferTo": "Translate to {0}?",
+  "trHide": "Hide on this site",
+  "trWorking": "Translating…",
+  "trOriginal": "Original",
+  "trFailed": "Couldn't translate",
 
   "spacesTitle": "Spaces",
   "spaceSwitcher": "Space: {0}. Switch",

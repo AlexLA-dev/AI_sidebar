@@ -812,6 +812,12 @@
   "appleAlso": "同時加入提醒事項",
   "appleRemindersOff": "ContextFlow 無權存取提醒事項。請在「設定」中開啟。",
   "appleAskOnce": "第一次會打開 ContextFlow 來要求存取權限。",
+  "trOffer": "翻譯成中文？",
+  "trOfferTo": "翻譯成{0}？",
+  "trHide": "在此網站隱藏",
+  "trWorking": "正在翻譯…",
+  "trOriginal": "原文",
+  "trFailed": "無法翻譯",
 
   "spacesTitle": "空間",
   "spaceSwitcher": "空間：{0}。切換",
