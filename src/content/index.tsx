@@ -23,6 +23,7 @@ import listenStyles from "./listen/listen.css"
 import translateStyles from "./translate/translate.css"
 import sideStyles from "./side/side.css"
 import pageHintStyles from "./pagehints/hints.css"
+import inviteStyles from "./invite/invite.css"
 import spacesStyles from "./spaces.css"
 import collectionsStyles from "./collections.css"
 
@@ -78,6 +79,7 @@ ${translateStyles}
 ${spacesStyles}
 ${sideStyles}
 ${pageHintStyles}
+${inviteStyles}
 ${collectionsStyles}`
     root.appendChild(style)
     const container = document.createElement("div")

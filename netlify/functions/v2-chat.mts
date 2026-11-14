@@ -3,6 +3,7 @@ import type { Config, Context } from "@netlify/functions"
 import { config as settings } from "../shared/config.mts"
 import { consume, giveTourAnswerBack, logEvent, maybeCleanup, peek, refund, takeTourAnswer, touchInstall, type ConsumeResult } from "../shared/db.mts"
 import { installCounter, tourAsked, tourCounters } from "../shared/tour.mts"
+import { inviteExtra } from "../shared/invite.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
 import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/answer.mts"
@@ -91,7 +92,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     ? await takeTourAnswer(installId, settings.tourFreeAnswers).catch(() => false)
     : false
   const giveBack = () => (tour ? giveTourAnswerBack(installId).catch(() => undefined) : Promise.resolve(undefined))
-  const own = countersFor(access, installId, ipSubject(context.ip))
+  // 2.7: a friend's first week (invite a friend) has extra free answers a day.
+  const own = countersFor(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
   const counters = [
     ...tourCounters(own, installId, tour).map((c) => (weight > 1 ? { ...c, amount: weight } : c)),
     ...(google ? searchCountersFor(access, installId) : [])

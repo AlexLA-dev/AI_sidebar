@@ -2699,6 +2699,90 @@
  "shotMissing": {
   "message": "هذه اللقطة ليست على هذا الجهاز بعد. تصل عبر iCloud إذا كانت محادثاتك تُزامَن هناك."
  },
+ "invTitle": {
+  "message": "ادعُ صديقًا"
+ },
+ "invHint": {
+  "message": "يحصل صديقك على إجابات إضافية: ‎+{0} يوميًا في أسبوعه الأول. وتحصل أنت على خصم {1}% على الشهر الأول من Pro أو Ultra بعد أن يطرح أسئلة في يومين مختلفين."
+ },
+ "invButton": {
+  "message": "احصل على رمزي ورابطي"
+ },
+ "invYourCode": {
+  "message": "رمزك"
+ },
+ "invCopy": {
+  "message": "نسخ"
+ },
+ "invCopied": {
+  "message": "تم النسخ"
+ },
+ "invShare": {
+  "message": "مشاركة"
+ },
+ "invShareText": {
+  "message": "أستخدم ContextFlow، الذكاء الاصطناعي مباشرة على الصفحة في Safari. برمزي {0} تحصل على إجابات إضافية في أسبوعك الأول: {1}"
+ },
+ "invFriends": {
+  "message": "جاؤوا برمزك: {0} · يستخدمونه: {1}"
+ },
+ "invRewardTitle": {
+  "message": "صديق دعوته يستخدم ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "شكرًا لك: خصم {0}% على الشهر الأول من Pro أو Ultra، حسب اختيارك. يطبّقه App Store إن لم تكن قد استخدمت هذا الخصم من قبل."
+ },
+ "invRewardPro": {
+  "message": "Pro ‎−{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra ‎−{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "استخدمت الخصمين؟ خذ إجابات إضافية بدلًا من ذلك: ‎+{0} يوميًا لمدة أسبوع"
+ },
+ "invAnswersOn": {
+  "message": "إجاباتك الإضافية سارية حتى {0}."
+ },
+ "invEnterTitle": {
+  "message": "لديك رمز من صديق؟"
+ },
+ "invEnterPlaceholder": {
+  "message": "الرمز أو الرابط"
+ },
+ "invEnter": {
+  "message": "إدخال"
+ },
+ "invEntered": {
+  "message": "تم قبول الرمز: إجابات إضافية، ‎+{0} يوميًا، حتى {1}."
+ },
+ "invEnteredOn": {
+  "message": "جئت برمز صديق: إجابات إضافية، ‎+{0} يوميًا، حتى {1}."
+ },
+ "invErrUnknown": {
+  "message": "لا يوجد رمز كهذا. تحقّق منه وحاول مرة أخرى."
+ },
+ "invErrOwn": {
+  "message": "هذا رمزك أنت. أرسله إلى صديق."
+ },
+ "invErrAlready": {
+  "message": "سبق إدخال رمز صديق هنا."
+ },
+ "invErrLate": {
+  "message": "يعمل رمز الصديق في الأسبوع الأول بعد التثبيت."
+ },
+ "invErrFull": {
+  "message": "بلغ هذا الرمز حدّه."
+ },
+ "invErrDevice": {
+  "message": "سبق استخدام رمز صديق على هذا الجهاز."
+ },
+ "invErrCheck": {
+  "message": "تعذّر التحقق من هذا الجهاز. جرّب إدخال الرمز في تطبيق ContextFlow."
+ },
+ "invErrLater": {
+  "message": "تعذّر ذلك الآن. حاول لاحقًا."
+ },
  "colAdd": {
   "message": "إلى مجموعة"
  },

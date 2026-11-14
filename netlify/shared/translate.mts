@@ -308,12 +308,12 @@ export interface TranslateCounters {
 }
 
 /** The counters a request is checked against. `page` is a hash of the page's address and language (never the address). */
-export function translateCounters(access: Access, installId: string, ip: string, page: string, chars: number): TranslateCounters {
+export function translateCounters(access: Access, installId: string, ip: string, page: string, chars: number, extra = 0): TranslateCounters {
   const owner = translateOwner(access, installId)
   const amount = Math.max(1, chars)
   return {
     page: { subject: `trpage:${owner}:${page}`, period: "week", limit: 1 },
-    answer: countersFor(access, installId, ip),
+    answer: countersFor(access, installId, ip, extra),
     safety: [
       { subject: `trchars:${owner}:${page}`, period: "week", limit: config.translate.pageChars, amount },
       { subject: `trday:${owner}`, period: "day", limit: config.translate.dailyChars, amount },

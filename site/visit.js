@@ -52,7 +52,8 @@
   // A page counts under the same name in every language (/ru/features is "features", /zh-hant/ is "home").
   const LANG = /^\/(de|es|fr|it|pt-br|ru|uk|vi|ar|ja|ko|zh-hans|zh-hant)(?=\/|$)/
   const path = (location.pathname.replace(LANG, "") || "/").replace(/\.html$/, "").replace(/^\/index$/, "/").replace(/(.)\/$/, "$1")
-  const page = PAGES[path]
+  // 2.7: a friend's invite (/i/<code>) counts as "invite", without the code.
+  const page = PAGES[path] || (/^\/i\/[A-Za-z0-9]{6}$/.test(path) ? "invite" : undefined)
   if (!page) return
   const src = source()
   send({ kind: "site_visit", src, page })
