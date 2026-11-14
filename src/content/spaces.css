@@ -8,13 +8,15 @@
 .cf-header { position: relative; }
 
 .cf-space-wrap { position: static; display: flex; min-width: 0; }
+/* Its own size, the name cut at 150 px: WebKit sized the button by the cut name's 0 and showed "W…" (2.7 simulator). */
 .cf-space-switch {
-  display: inline-flex; align-items: center; gap: 7px; min-width: 0; max-width: 100%;
+  flex: none; display: inline-flex; align-items: center; gap: 7px;
   padding: 5px 8px; margin-inline-start: -4px; border-radius: 9px;
   font-size: 15px; font-weight: 650; color: var(--text);
 }
 .cf-space-switch:hover, .cf-space-switch[aria-expanded="true"] { background: var(--space-soft, var(--bg-2)); }
-.cf-space-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.cf-space-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
+.cf[data-layout="sheet"] .cf-space-name { max-width: min(150px, 34vw); }
 .cf-space-chev { font-size: 10px; color: var(--text-3); }
 
 .cf-space-pop {
