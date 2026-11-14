@@ -45,16 +45,18 @@ export async function captureTab(windowId: number | undefined): Promise<{ ok: tr
     }))
   }
   if (!tries.length) return { ok: false, code: "UNAVAILABLE" }
+  // Each form a short while, all of them within 7 s (iPhone's Safari left one unanswered once, then took the next run).
+  const until = Date.now() + 7000
   let last = "unknown"
   for (const attempt of tries) {
+    const left = until - Date.now()
+    if (left < 500) break
     try {
-      const data = await within(5000, attempt())
+      const data = await within(Math.min(3000, left), attempt())
       if (typeof data === "string" && data.startsWith("data:image/")) return { ok: true, data }
       last = "no image"
     } catch (err) {
       last = err instanceof Error ? err.message.slice(0, 160) : String(err).slice(0, 160)
-      // Out of time: another form won't do better, and the page is waiting.
-      if (last === "timeout") break
     }
   }
   return { ok: false, code: "FAILED", error: last }

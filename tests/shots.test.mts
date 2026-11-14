@@ -4,7 +4,7 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { chunks, cleanCrop, cropView, dragCrop, fitSize, newShotId, orphanShots, SHOT_LIMITS, shotsInUse, stitchPlan, validShotId } from "../src/shared/shots.ts"
+import { chunks, cleanCrop, cropView, dragCrop, fitSize, newShotId, orphanShots, pageRows, SHOT_LIMITS, shotsInUse, stitchPlan, validShotId } from "../src/shared/shots.ts"
 
 test("a page screen by screen: each screen adds what the one before didn't show; the last scrolls only to the end", () => {
   const { steps, height, cut } = stitchPlan(3000, 800)
@@ -84,4 +84,13 @@ test("ids and parts", () => {
   assert.equal(validShotId("../etc/passwd"), false)
   assert.deepEqual(chunks("abcdefg", 3), ["abc", "def", "g"])
   assert.deepEqual(chunks(""), [""])
+})
+
+test("iPhone's capture is the whole screen: the status bar's strip on top is left out; elsewhere all of it is the page", () => {
+  // 402×874 pt at 3×, the page 402×812 (the status bar 62 pt above it).
+  assert.deepEqual(pageRows({ width: 1206, height: 2622 }, { width: 402, height: 812 }), { top: 186, height: 2436 })
+  assert.deepEqual(pageRows({ width: 2560, height: 1600 }, { width: 1280, height: 800 }), { top: 0, height: 1600 })
+  // Off by a pixel or far off (a zoomed page): all of it.
+  assert.deepEqual(pageRows({ width: 1000, height: 801 }, { width: 1000, height: 800 }), { top: 0, height: 801 })
+  assert.deepEqual(pageRows({ width: 1000, height: 3000 }, { width: 1000, height: 800 }), { top: 0, height: 3000 })
 })

@@ -3,7 +3,7 @@
 // ours, in one host) hide for the moment it takes, so they're not in it. What stays put at the top of the page (a
 // sticky header) is in the picture once, at its top; what stays at the bottom (a cookie bar) isn't in a whole page's.
 
-import { fitSize, newShotId, SHOT_LIMITS, stitchPlan, type Shot, type ShotKind } from "../shared/shots"
+import { fitSize, newShotId, pageRows, SHOT_LIMITS, stitchPlan, type Shot, type ShotKind } from "../shared/shots"
 import { HOST_TAG } from "./page"
 import { panelRoot } from "./root"
 
@@ -59,7 +59,7 @@ async function capture(): Promise<HTMLImageElement> {
   // Never longer than this: everything of ours is hidden meanwhile.
   const reply = await Promise.race([
     send<{ ok: boolean; data?: string; code?: ShotFailure; error?: string }>({ type: "shotCapture" }),
-    new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000))
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 9000))
   ])
   if (!reply?.ok || !reply.data) throw Object.assign(new Error(reply?.error ?? "capture"), { code: reply?.code ?? "FAILED", detail: reply?.error ?? (reply ? "" : "no reply") })
   return loadImage(reply.data)
@@ -103,11 +103,12 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
     let screens = 1
     if (kind === "visible") {
       const img = await capture()
-      const size = fitSize(img.naturalWidth, img.naturalHeight, SHOT_LIMITS.width)
+      const rows = pageRows({ width: img.naturalWidth, height: img.naturalHeight }, { width: window.innerWidth, height: window.innerHeight })
+      const size = fitSize(img.naturalWidth, rows.height, SHOT_LIMITS.width)
       canvas = document.createElement("canvas")
       canvas.width = size.w
       canvas.height = size.h
-      canvas.getContext("2d")!.drawImage(img, 0, 0, size.w, size.h)
+      canvas.getContext("2d")!.drawImage(img, 0, rows.top, img.naturalWidth, rows.height, 0, 0, size.w, size.h)
     } else {
       const view = window.innerHeight
       const page = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight ?? 0)
@@ -134,8 +135,10 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
         await wait(Math.max(160, 520 - (Date.now() - lastShot)))
         const img = await capture()
         lastShot = Date.now()
-        // Device pixels per CSS pixel, and where this screen's part really is (a page may not scroll exactly there).
-        const dpr = img.naturalHeight / view
+        // Device pixels per CSS pixel (from the width: iPhone's capture is taller than the page by the status bar),
+        // and where this screen's part really is (a page may not scroll exactly there).
+        const rows = pageRows({ width: img.naturalWidth, height: img.naturalHeight }, { width: window.innerWidth, height: view })
+        const dpr = rows.height / view
         const actual = window.scrollY
         const from = Math.max(0, Math.min(view - step.height, step.to - actual))
         if (!ctx) {
@@ -148,7 +151,7 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
           ctx.fillStyle = "#fff"
           ctx.fillRect(0, 0, size.w, size.h)
         }
-        ctx.drawImage(img, 0, from * dpr, img.naturalWidth, step.height * dpr, 0, Math.round(step.to * dpr * scale), Math.round(img.naturalWidth * scale), Math.round(step.height * dpr * scale))
+        ctx.drawImage(img, 0, rows.top + from * dpr, img.naturalWidth, step.height * dpr, 0, Math.round(step.to * dpr * scale), Math.round(img.naturalWidth * scale), Math.round(step.height * dpr * scale))
       }
       canvas = canvas!
     }

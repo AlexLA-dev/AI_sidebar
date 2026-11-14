@@ -106,6 +106,16 @@ export function fitSize(w: number, h: number, maxWidth: number, maxPixels: numbe
   return { w: Math.max(1, Math.floor(w * scale)), h: Math.max(1, Math.floor(h * scale)), scale }
 }
 
+/**
+ * The rows of a capture that are the page: iPhone's Safari gives the whole screen, the status bar's strip on top of the
+ * page (its height is what's beyond the page's own, at the capture's scale); elsewhere all of it.
+ */
+export function pageRows(capture: { width: number; height: number }, view: { width: number; height: number }): { top: number; height: number } {
+  const want = Math.round(view.height * (capture.width / Math.max(1, view.width)))
+  const extra = capture.height - want
+  return extra > 2 && extra < capture.height * 0.25 ? { top: extra, height: want } : { top: 0, height: capture.height }
+}
+
 // ------------------------------------------------------------ cropping
 
 /** A crop frame kept inside the picture and not smaller than 5 % of it each way; null when it's the whole picture. */
