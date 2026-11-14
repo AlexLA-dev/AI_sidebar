@@ -2372,6 +2372,348 @@
  "appleAskOnce": {
   "message": "Beim ersten Mal öffnet sich ContextFlow, um nach Zugriff zu fragen."
  },
+ "trOffer": {
+  "message": "Auf Deutsch übersetzen?"
+ },
+ "trOfferTo": {
+  "message": "Übersetzen in: {0}?"
+ },
+ "trHide": {
+  "message": "Auf dieser Website ausblenden"
+ },
+ "trWorking": {
+  "message": "Wird übersetzt…"
+ },
+ "trOriginal": {
+  "message": "Original"
+ },
+ "trFailed": {
+  "message": "Übersetzung fehlgeschlagen"
+ },
+ "spacesTitle": {
+  "message": "Bereiche"
+ },
+ "spaceSwitcher": {
+  "message": "Bereich: {0}. Wechseln"
+ },
+ "spaceFirst": {
+  "message": "Privat"
+ },
+ "spaceNew": {
+  "message": "Neuer Bereich"
+ },
+ "spaceEdit": {
+  "message": "„{0}“ bearbeiten"
+ },
+ "spaceName": {
+  "message": "Name"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Zum Beispiel Arbeit"
+ },
+ "spaceColor": {
+  "message": "Farbe"
+ },
+ "spaceColorBlue": {
+  "message": "Blau"
+ },
+ "spaceColorGreen": {
+  "message": "Grün"
+ },
+ "spaceColorOrange": {
+  "message": "Orange"
+ },
+ "spaceColorPink": {
+  "message": "Pink"
+ },
+ "spaceColorViolet": {
+  "message": "Violett"
+ },
+ "spaceColorGraphite": {
+  "message": "Graphit"
+ },
+ "spaceCreate": {
+  "message": "Erstellen"
+ },
+ "spaceDelete": {
+  "message": "Bereich löschen"
+ },
+ "spaceDeleteNote": {
+  "message": "Seine Chats kommen nach „{0}“."
+ },
+ "spaceBind": {
+  "message": "{0} hier öffnen"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} öffnet sich in „{1}“. Hier öffnen"
+ },
+ "spaceMoveTo": {
+  "message": "Verschieben nach …"
+ },
+ "spaceMoved": {
+  "message": "Nach „{0}“ verschoben"
+ },
+ "spaceIn": {
+  "message": "Du bist in „{0}“"
+ },
+ "spaceLimit": {
+  "message": "Bereiche in Free: {0}. Mit Pro so viele du willst."
+ },
+ "spaceEmpty": {
+  "message": "In „{0}“ gibt es noch keine Chats. Ein neuer Chat landet hier."
+ },
+ "setSpaces": {
+  "message": "Bereiche"
+ },
+ "setSpacesHint": {
+  "message": "Arbeit, Privat, Einkaufen: jeder mit eigenen Chats und eigener Farbe. Aus: alle Chats in einer Liste, deine Bereiche bleiben erhalten."
+ },
+ "matchContinue": {
+  "message": "Weiter in"
+ },
+ "writeCircle": {
+  "message": "Prüfen oder umschreiben"
+ },
+ "writeCheck": {
+  "message": "Prüfen"
+ },
+ "writeRewrite": {
+  "message": "Umschreiben"
+ },
+ "writeToneShort": {
+  "message": "Kürzer"
+ },
+ "writeToneWarm": {
+  "message": "Herzlicher"
+ },
+ "writeToneFormal": {
+  "message": "Förmlicher"
+ },
+ "writeToneConfident": {
+  "message": "Selbstbewusster"
+ },
+ "writeChecking": {
+  "message": "Prüfe mit Blick auf die Seite…"
+ },
+ "writeRewriting": {
+  "message": "Schreibe mit Blick auf die Seite um…"
+ },
+ "writeFixes": {
+  "message": "Korrekturen: {0}"
+ },
+ "writeLeft": {
+  "message": "Kostenlose Antworten heute noch: {0}"
+ },
+ "writeClean": {
+  "message": "Keine Fehler gefunden."
+ },
+ "writeEmpty": {
+  "message": "Hier steht noch kein Text."
+ },
+ "writeTooLong": {
+  "message": "Das ist viel auf einmal. Markiere einen Teil und versuche es erneut."
+ },
+ "writeChanged": {
+  "message": "Der Text hat sich inzwischen geändert."
+ },
+ "writeFix": {
+  "message": "Korrigieren"
+ },
+ "writeReplace": {
+  "message": "Ersetzen"
+ },
+ "writeFixed": {
+  "message": "Korrigiert"
+ },
+ "writeFixedSome": {
+  "message": "Korrigiert, bis auf das, was das Feld nicht annahm"
+ },
+ "writeReplaced": {
+  "message": "Ersetzt"
+ },
+ "writeUndo": {
+  "message": "Widerrufen"
+ },
+ "writeUndone": {
+  "message": "Widerrufen"
+ },
+ "writeUndoFailed": {
+  "message": "Widerrufen nicht möglich: Der Text hat sich geändert."
+ },
+ "writeSetting": {
+  "message": "Prüfen und Umschreiben bei Feldern"
+ },
+ "writeSettingHint": {
+  "message": "Korrekturen berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen."
+ },
+ "writeSkip": {
+  "message": "Ignorieren"
+ },
+ "underlineSetting": {
+  "message": "Fehler beim Tippen unterstreichen"
+ },
+ "underlineSettingHint": {
+  "message": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
+ },
+ "setSide": {
+  "message": "Bildschirmseite"
+ },
+ "sideRight": {
+  "message": "Rechts"
+ },
+ "sideLeft": {
+  "message": "Links"
+ },
+ "hintSideTitle": {
+  "message": "Panel und ✦-Taste lassen sich an den anderen Rand ziehen"
+ },
+ "hintSideTitleSheet": {
+  "message": "Die ✦-Taste lässt sich an den anderen Rand ziehen"
+ },
+ "hintSideBody": {
+  "message": "Zieh das Panel an seiner Kopfzeile oder zieh die Taste. Die Seite kannst du auch in den Einstellungen wählen."
+ },
+ "hintSideBodySheet": {
+  "message": "Zieh sie nach links oder rechts. Die Seite kannst du auch in den Einstellungen wählen."
+ },
+ "phSimilar": {
+  "message": "Günstiger finden?"
+ },
+ "phWatch": {
+  "message": "Preis beobachten?"
+ },
+ "phSummary": {
+  "message": "Seite zusammenfassen?"
+ },
+ "phListen": {
+  "message": "Artikel anhören?"
+ },
+ "phVideo": {
+  "message": "Zum Video fragen?"
+ },
+ "phTemplates": {
+  "message": "Mit Vorlage antworten?"
+ },
+ "phRemind": {
+  "message": "Daran erinnern?"
+ },
+ "phCalendar": {
+  "message": "Zum Kalender hinzufügen?"
+ },
+ "phClose": {
+  "message": "Tipp ausblenden"
+ },
+ "phSimilarTitle": {
+  "message": "Günstiger finden"
+ },
+ "phSimilarBody": {
+  "message": "Markiere den Produktnamen → „Ähnliches finden“ oder tippe auf die hervorgehobene Taste: dasselbe günstiger und Ähnliches."
+ },
+ "phSimilarBodyUp": {
+  "message": "Das ist in Ultra: dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
+ },
+ "phWatchTitle": {
+  "message": "Preis beobachten"
+ },
+ "phWatchBody": {
+  "message": "Markiere den Preis, daneben erscheint ein Auge. Oder „…“ (hervorgehoben) → „Diese Seite beobachten…“. Ich melde mich, wenn er sich ändert."
+ },
+ "phSummaryTitle": {
+  "message": "Zusammenfassung"
+ },
+ "phSummaryBody": {
+  "message": "Tippe auf das hervorgehobene „Zusammenfassen“: das Wichtigste der Seite in wenigen Zeilen."
+ },
+ "phListenTitle": {
+  "message": "Artikel anhören"
+ },
+ "phListenBody": {
+  "message": "Öffne „…“ (hervorgehoben) → „Diese Seite anhören“: Der Artikel wird vorgelesen."
+ },
+ "phListenBodyUp": {
+  "message": "Vorlesen ist in Ultra. Öffne „…“ (hervorgehoben) → „Diese Seite anhören“."
+ },
+ "phVideoTitle": {
+  "message": "Frage zum Video"
+ },
+ "phVideoBody": {
+  "message": "Frag im hervorgehobenen Feld nach dem Video: Ich antworte anhand der Untertitel."
+ },
+ "phVideoBodyUp": {
+  "message": "Antworten anhand der Untertitel gibt es in Pro. Frag im hervorgehobenen Feld."
+ },
+ "phTemplatesTitle": {
+  "message": "Mit Vorlage antworten"
+ },
+ "phTemplatesBody": {
+  "message": "Setz den Cursor in ein Feld auf der Seite, daneben erscheint die Vorlagen-Taste. Deine Vorlagen: „…“ (hervorgehoben) → „Einstellungen“ → „Vorlagen“."
+ },
+ "phRemindTitle": {
+  "message": "Erinnern"
+ },
+ "phRemindBody": {
+  "message": "Schreib ins hervorgehobene Feld, zum Beispiel „erinnere mich morgen um 9“, und ich schlage eine Erinnerung vor."
+ },
+ "phCalendarTitle": {
+  "message": "In den Kalender"
+ },
+ "phCalendarBody": {
+  "message": "Schreib „in den Kalender“ ins hervorgehobene Feld, und ich schlage einen Termin mit dem Datum der Seite vor."
+ },
+ "setPageHints": {
+  "message": "Tipps an der ✦-Taste"
+ },
+ "setPageHintsHint": {
+  "message": "In den ersten Tagen zeigen sie, was du auf einer Seite tun kannst."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
+ },
+ "shotSwitch": {
+  "message": "Seiten-Schnappschuss"
+ },
+ "shotVisible": {
+  "message": "Sichtbarer Bereich"
+ },
+ "shotFull": {
+  "message": "Ganze Seite"
+ },
+ "shotProOnly": {
+  "message": "Die ganze Seite gibt es mit Pro und Ultra."
+ },
+ "shotTaking": {
+  "message": "Schnappschuss wird erstellt…"
+ },
+ "shotTakingFull": {
+  "message": "Schnappschuss: Bildschirm {0} von {1}…"
+ },
+ "shotFailed": {
+  "message": "Hier ließ sich kein Schnappschuss machen. Die Notiz ist ohne ihn gespeichert."
+ },
+ "shotCut": {
+  "message": "Die Seite ist lang: Der Schnappschuss zeigt ihre ersten {0} Bildschirme."
+ },
+ "shotOpen": {
+  "message": "Schnappschuss öffnen"
+ },
+ "shotNote": {
+  "message": "Schnappschuss der Seite"
+ },
+ "shotCrop": {
+  "message": "Zuschneiden"
+ },
+ "shotCropDone": {
+  "message": "Fertig"
+ },
+ "shotCropReset": {
+  "message": "Ganzer Schnappschuss"
+ },
+ "shotLoading": {
+  "message": "Schnappschuss wird geöffnet…"
+ },
+ "shotMissing": {
+  "message": "Dieser Schnappschuss ist noch nicht auf diesem Gerät. Er kommt über iCloud, wenn deine Chats dort synchronisiert werden."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

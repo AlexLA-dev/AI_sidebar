@@ -2372,6 +2372,348 @@
  "appleAskOnce": {
   "message": "初回は ContextFlow が開いてアクセスを確認します。"
  },
+ "trOffer": {
+  "message": "日本語に翻訳しますか？"
+ },
+ "trOfferTo": {
+  "message": "{0}に翻訳しますか？"
+ },
+ "trHide": {
+  "message": "このサイトでは表示しない"
+ },
+ "trWorking": {
+  "message": "翻訳中…"
+ },
+ "trOriginal": {
+  "message": "原文"
+ },
+ "trFailed": {
+  "message": "翻訳できませんでした"
+ },
+ "spacesTitle": {
+  "message": "スペース"
+ },
+ "spaceSwitcher": {
+  "message": "スペース：{0}。切り替える"
+ },
+ "spaceFirst": {
+  "message": "プライベート"
+ },
+ "spaceNew": {
+  "message": "新しいスペース"
+ },
+ "spaceEdit": {
+  "message": "「{0}」を編集"
+ },
+ "spaceName": {
+  "message": "名前"
+ },
+ "spaceNamePlaceholder": {
+  "message": "例：仕事"
+ },
+ "spaceColor": {
+  "message": "色"
+ },
+ "spaceColorBlue": {
+  "message": "青"
+ },
+ "spaceColorGreen": {
+  "message": "緑"
+ },
+ "spaceColorOrange": {
+  "message": "オレンジ"
+ },
+ "spaceColorPink": {
+  "message": "ピンク"
+ },
+ "spaceColorViolet": {
+  "message": "紫"
+ },
+ "spaceColorGraphite": {
+  "message": "グラファイト"
+ },
+ "spaceCreate": {
+  "message": "作成"
+ },
+ "spaceDelete": {
+  "message": "スペースを削除"
+ },
+ "spaceDeleteNote": {
+  "message": "このスペースのチャットは「{0}」に移ります。"
+ },
+ "spaceBind": {
+  "message": "{0} をここで開く"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} は「{1}」で開きます。ここで開く"
+ },
+ "spaceMoveTo": {
+  "message": "移動先…"
+ },
+ "spaceMoved": {
+  "message": "「{0}」に移動しました"
+ },
+ "spaceIn": {
+  "message": "「{0}」にいます"
+ },
+ "spaceLimit": {
+  "message": "無料版のスペース：{0}。Proなら無制限です。"
+ },
+ "spaceEmpty": {
+  "message": "「{0}」にはまだチャットがありません。新しいチャットはここに入ります。"
+ },
+ "setSpaces": {
+  "message": "スペース"
+ },
+ "setSpacesHint": {
+  "message": "仕事、プライベート、買い物：それぞれに専用のチャットと色。オフにすると全チャットが1つのリストに戻り、スペースは保存されます。"
+ },
+ "matchContinue": {
+  "message": "続き："
+ },
+ "writeCircle": {
+  "message": "チェックまたは書き直し"
+ },
+ "writeCheck": {
+  "message": "チェック"
+ },
+ "writeRewrite": {
+  "message": "書き直す"
+ },
+ "writeToneShort": {
+  "message": "短く"
+ },
+ "writeToneWarm": {
+  "message": "温かく"
+ },
+ "writeToneFormal": {
+  "message": "丁寧に"
+ },
+ "writeToneConfident": {
+  "message": "自信をもって"
+ },
+ "writeChecking": {
+  "message": "ページの内容を踏まえてチェック中…"
+ },
+ "writeRewriting": {
+  "message": "ページの内容を踏まえて書き直し中…"
+ },
+ "writeFixes": {
+  "message": "修正: {0}件"
+ },
+ "writeLeft": {
+  "message": "今日の無料回答の残り: {0}"
+ },
+ "writeClean": {
+  "message": "誤りは見つかりませんでした。"
+ },
+ "writeEmpty": {
+  "message": "まだテキストがありません。"
+ },
+ "writeTooLong": {
+  "message": "一度に扱うには長すぎます。一部を選択してもう一度お試しください。"
+ },
+ "writeChanged": {
+  "message": "その後テキストが変更されました。"
+ },
+ "writeFix": {
+  "message": "修正"
+ },
+ "writeReplace": {
+  "message": "置き換え"
+ },
+ "writeFixed": {
+  "message": "修正しました"
+ },
+ "writeFixedSome": {
+  "message": "修正しました(入力欄が受け付けなかった箇所を除く)"
+ },
+ "writeReplaced": {
+  "message": "置き換えました"
+ },
+ "writeUndo": {
+  "message": "取り消す"
+ },
+ "writeUndone": {
+  "message": "取り消しました"
+ },
+ "writeUndoFailed": {
+  "message": "取り消せません: テキストが変更されています。"
+ },
+ "writeSetting": {
+  "message": "入力欄の「チェック」と「書き直す」"
+ },
+ "writeSettingHint": {
+  "message": "修正はページの内容を踏まえます: 返信中のメール、コメント先の投稿など。1回のタップで回答1件として数えます。各サイトでの書き方はこのデバイスにだけ保存され、あなたの文体に合わせるために使われます。"
+ },
+ "writeSkip": {
+  "message": "無視"
+ },
+ "underlineSetting": {
+  "message": "入力中の誤りに下線を引く"
+ },
+ "underlineSettingHint": {
+  "message": "Pro と Ultra: 入力が止まると、変更した段落だけをページの内容を踏まえてチェックします。下線にポインタを合わせる(iPhone と iPad ではタップ)と修正できます。回答数には数えません。"
+ },
+ "setSide": {
+  "message": "画面の左右"
+ },
+ "sideRight": {
+  "message": "右"
+ },
+ "sideLeft": {
+  "message": "左"
+ },
+ "hintSideTitle": {
+  "message": "パネルと✦ボタンは反対側の端へドラッグできます"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ボタンは反対側の端へドラッグできます"
+ },
+ "hintSideBody": {
+  "message": "パネルは上部をつかんで、ボタンはそのままドラッグします。左右は設定でも選べます。"
+ },
+ "hintSideBodySheet": {
+  "message": "左右どちらかへドラッグします。左右は設定でも選べます。"
+ },
+ "phSimilar": {
+  "message": "もっと安く探しますか？"
+ },
+ "phWatch": {
+  "message": "価格を見守りますか？"
+ },
+ "phSummary": {
+  "message": "このページを要約しますか？"
+ },
+ "phListen": {
+  "message": "記事を聞きますか？"
+ },
+ "phVideo": {
+  "message": "動画について質問しますか？"
+ },
+ "phTemplates": {
+  "message": "テンプレートで返信しますか？"
+ },
+ "phRemind": {
+  "message": "リマインダーを設定しますか？"
+ },
+ "phCalendar": {
+  "message": "カレンダーに追加しますか？"
+ },
+ "phClose": {
+  "message": "ヒントを隠す"
+ },
+ "phSimilarTitle": {
+  "message": "もっと安く探す"
+ },
+ "phSimilarBody": {
+  "message": "商品名を選択して「似たものを探す」、またはハイライトされたボタンをタップ。同じ商品をより安く、似た商品も探します。"
+ },
+ "phSimilarBodyUp": {
+  "message": "これはUltraの機能です。同じ商品をより安く、似た商品を他のお店から探します。ハイライトされたボタンをタップしてください。"
+ },
+ "phWatchTitle": {
+  "message": "価格を見守る"
+ },
+ "phWatchBody": {
+  "message": "価格を選択すると横に目のアイコンが出ます。または「…」（ハイライト）→「このページを見守る…」。変わったらお知らせします。"
+ },
+ "phSummaryTitle": {
+  "message": "ページの要約"
+ },
+ "phSummaryBody": {
+  "message": "ハイライトされた「要約」をタップ。ページの要点を数行で。"
+ },
+ "phListenTitle": {
+  "message": "記事を聞く"
+ },
+ "phListenBody": {
+  "message": "「…」（ハイライト）→「このページを読み上げ」で記事を読み上げます。"
+ },
+ "phListenBodyUp": {
+  "message": "読み上げはUltraの機能です。「…」（ハイライト）→「このページを読み上げ」。"
+ },
+ "phVideoTitle": {
+  "message": "動画について質問"
+ },
+ "phVideoBody": {
+  "message": "ハイライトされた欄で動画について質問してください。字幕をもとに答えます。"
+ },
+ "phVideoBodyUp": {
+  "message": "字幕をもとにした回答はProの機能です。ハイライトされた欄で質問してください。"
+ },
+ "phTemplatesTitle": {
+  "message": "テンプレートで返信"
+ },
+ "phTemplatesBody": {
+  "message": "ページの入力欄にカーソルを置くと、横にテンプレートのボタンが出ます。自分のテンプレート：「…」（ハイライト）→「設定」→「テンプレート」。"
+ },
+ "phRemindTitle": {
+  "message": "リマインダー"
+ },
+ "phRemindBody": {
+  "message": "ハイライトされた欄に、たとえば「明日9時に知らせて」と入力すると、リマインダーを提案します。"
+ },
+ "phCalendarTitle": {
+  "message": "カレンダーへ"
+ },
+ "phCalendarBody": {
+  "message": "ハイライトされた欄に「カレンダーに追加」と入力すると、ページの日付でイベントを提案します。"
+ },
+ "setPageHints": {
+  "message": "✦ボタンのヒント"
+ },
+ "setPageHintsHint": {
+  "message": "最初の数日、ページでできることを教えてくれます。"
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。"
+ },
+ "shotSwitch": {
+  "message": "ページのスナップショット"
+ },
+ "shotVisible": {
+  "message": "表示範囲"
+ },
+ "shotFull": {
+  "message": "ページ全体"
+ },
+ "shotProOnly": {
+  "message": "ページ全体は Pro と Ultra で使えます。"
+ },
+ "shotTaking": {
+  "message": "スナップショットを撮影中…"
+ },
+ "shotTakingFull": {
+  "message": "スナップショット: {1} 画面中 {0}…"
+ },
+ "shotFailed": {
+  "message": "ここではスナップショットを撮れませんでした。メモはスナップショットなしで保存されました。"
+ },
+ "shotCut": {
+  "message": "ページが長いため、最初の {0} 画面までを撮影しました。"
+ },
+ "shotOpen": {
+  "message": "スナップショットを開く"
+ },
+ "shotNote": {
+  "message": "ページのスナップショット"
+ },
+ "shotCrop": {
+  "message": "切り取る"
+ },
+ "shotCropDone": {
+  "message": "完了"
+ },
+ "shotCropReset": {
+  "message": "全体を表示"
+ },
+ "shotLoading": {
+  "message": "スナップショットを開いています…"
+ },
+ "shotMissing": {
+  "message": "このスナップショットはまだこのデバイスにありません。チャットを iCloud と同期していれば届きます。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

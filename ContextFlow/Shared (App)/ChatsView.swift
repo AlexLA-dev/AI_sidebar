@@ -53,6 +53,8 @@ struct ChatsView: View {
     @State private var tagFilter: String?
     /// The chat whose tags are being picked.
     @State private var tagging: ChatThread?
+    /// 2.7: the sheet that makes or edits a space.
+    @State private var spaceSheet: SpaceSheetMode?
 
     private var searching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
 
@@ -241,11 +243,24 @@ struct ChatsView: View {
         .sheet(item: $tagging) { thread in
             TagsSheet(tags: thread.ownTags, known: library.allTags) { library.setTags(thread, $0) }
         }
+        .sheet(item: $spaceSheet) { mode in SpaceSheet(library: library, mode: mode, openPro: openPro) }
     }
 
+    /// The chats of the space shown (2.7; every chat with Spaces off, or one space), with the tag picked.
     private var filteredThreads: [ChatThread] {
-        guard let tagFilter, library.allTags.contains(where: { $0.caseInsensitiveCompare(tagFilter) == .orderedSame }) else { return library.threads }
-        return library.threads.filter { $0.has(tag: tagFilter) }
+        let here = library.inSpace(library.threads)
+        guard let tagFilter, library.allTags.contains(where: { $0.caseInsensitiveCompare(tagFilter) == .orderedSame }) else { return here }
+        return here.filter { $0.has(tag: tagFilter) }
+    }
+
+    /// «+ Новое пространство»: the sheet, or in Free with its spaces all made, what Pro gives (2.7).
+    private func newSpace(_ via: String) {
+        guard library.canAddSpace(pro: isPro) else {
+            ChatAI.reportUse("space", "limit", ["via": via, "spaces": String(library.spaces.count)])
+            spaceSheet = .limit
+            return
+        }
+        spaceSheet = .new(color: library.nextColor)
     }
 
     /// The tags in use (tap one: only its chats) and the switch to show the list as folders by tag.
@@ -357,7 +372,12 @@ struct ChatsView: View {
                                         .foregroundColor(brandBlue)
                                         .lineLimit(2)
                                 }
-                                Text(thread.lastActivity, style: .relative).font(.caption).foregroundColor(.secondary)
+                                HStack(spacing: 8) {
+                                    if library.hasSpaces { SpaceTagView(space: library.spaceOf(thread)) }
+                                    Text(thread.lastActivity, style: .relative)
+                                }
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                             }
                             .padding(.vertical, 4)
                         }
@@ -415,9 +435,13 @@ struct ChatsView: View {
                             .foregroundColor(.secondary)
                             .lineLimit(2)
                     }
-                    Text(result.thread.lastActivity, style: .relative)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    HStack(spacing: 8) {
+                        // Search goes through every space (2.7): where each hit is.
+                        if library.hasSpaces { SpaceTagView(space: library.spaceOf(result.thread)) }
+                        Text(result.thread.lastActivity, style: .relative)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 }
                 .padding(.vertical, 4)
             }
@@ -426,6 +450,12 @@ struct ChatsView: View {
 
     @ViewBuilder
     private var chatList: some View {
+            // 2.7: the space's switcher over the list, once there are two (nothing new while there's one).
+            if library.hasSpaces {
+                Section {
+                    SpacesBar(library: library, onNew: { newSpace("header") }, onEdit: { spaceSheet = .edit($0) })
+                }
+            }
             if store.renewalOff != nil {
                 Section { RenewalQuestionCard() }
             }
@@ -478,7 +508,13 @@ struct ChatsView: View {
                     Section(header: Label("No tag", systemImage: "folder"), footer: footer) { chatRows(untagged) }
                 }
             } else {
-                Section(footer: footer) { chatRows(filteredThreads) }
+                Section(footer: footer) {
+                    if library.hasSpaces && filteredThreads.isEmpty && tagFilter == nil {
+                        let here = library.spaces.first { $0.id == library.shownSpace }?.name ?? ""
+                        Text("No chats in “\(here)” yet. A new chat goes here.").foregroundColor(.secondary)
+                    }
+                    chatRows(filteredThreads)
+                }
             }
             // Recently Deleted (2.5 (83)): at the end of the list, while it has chats.
             if tagFilter == nil && !library.trashed.isEmpty {
@@ -490,6 +526,13 @@ struct ChatsView: View {
                             Text(verbatim: String(library.trashed.count)).foregroundColor(.secondary).monospacedDigit()
                         }
                     }
+                }
+            }
+            // 2.7: «+ Новое пространство» at the end of the list, with one space too: it's how the second one is made.
+            if library.spacesOn && tagFilter == nil && !library.threads.isEmpty {
+                Section {
+                    Button { newSpace("list") } label: { Label("New space", systemImage: "plus") }
+                        .accessibilityIdentifier("cf-space-new")
                 }
             }
     }
@@ -542,6 +585,20 @@ struct ChatsView: View {
         Button { tagging = thread } label: { Label("Tags", systemImage: "tag") }
         Button { library.setPinned(thread, !thread.isPinned) } label: {
             Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
+        }
+        // 2.7: «Переместить в…», the other spaces.
+        if library.hasSpaces {
+            let here = library.spaceOf(thread).id
+            Menu {
+                ForEach(library.spaces.filter { $0.id != here }) { space in
+                    Button {
+                        library.moveChat(thread, to: space.id)
+                        ChatAI.reportUse("space", "move", ["via": "app"])
+                    } label: { Text(verbatim: space.name) }
+                }
+            } label: {
+                Label("Move to…", systemImage: "rectangle.portrait.and.arrow.right")
+            }
         }
         Button(role: .destructive) { deleting = thread } label: { Label("Delete", systemImage: "trash") }
     }

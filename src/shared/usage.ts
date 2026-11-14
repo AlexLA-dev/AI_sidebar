@@ -42,7 +42,7 @@ export const FEATURES: Record<string, Feature> = {
   ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error", "link"] },
   consent: {
     since: "2.0", actions: ["shown", "accepted", "declined"],
-    via: ["ask", "find", "ask_chats", "qi", "organize"], fields: { step: "int" }
+    via: ["ask", "find", "ask_chats", "qi", "organize", "translate"], fields: { step: "int" }
   },
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
   // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
@@ -62,7 +62,7 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.0", actions: ["open", "change"],
     fields: {
       key: ["theme", "text_size", "fab", "bubble", "share_marks", "about_me", "icloud", "organize", "copied", "qi_button",
-        "qi_sign", "key_model", "own_key", "show_tips", "delete_all"],
+        "qi_sign", "key_model", "own_key", "show_tips", "delete_all", "spaces"],
       val: ["on", "off", "set", "clear"]
     }
   },
@@ -90,7 +90,16 @@ export const FEATURES: Record<string, Feature> = {
       what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
     }
   },
-  hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats"] } },
+  hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side"] } },
+  // 2.7 (plan section 6): page hints in the first days — the line by the circle shown, tapped, ✕ (and two in a row
+  // turning them off), the feature used after it; the Settings switch. what: which hint (src/content/pagehints).
+  page_hint: {
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "tap", "dismiss", "off", "used", "switch_on", "switch_off"],
+    fields: { what: ["similar", "watch", "summary", "listen", "video", "templates", "remind", "calendar"] }
+  },
+  // 2.7 (plan section 9): the circle dragged to the other edge, the panel dragged by its header (iPad, Mac), the side
+  // picked in Settings; what: the side it went to.
+  side: { since: "2.7", tracked: "2.7", on: "ext", actions: ["drag_fab", "drag_panel", "setting"], fields: { what: ["left", "right"] } },
   tab: { since: "2.0", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings"] } },
   tips: {
     since: "2.0", on: "app", actions: ["open", "play"],
@@ -131,7 +140,7 @@ export const FEATURES: Record<string, Feature> = {
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
-    via: ["listen", "settings", "watch", "limit", "similar"],
+    via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
     fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
   },
@@ -142,6 +151,13 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
     via: ["limit", "memory", "pro_only", "ultra_only"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
+  },
+  // 2.7: the page translated in place (src/content/translate): the pill by the circle shown on a page in another
+  // language, tapped, the consent asked from it, the translation shown, "Original", × (hidden on that site), the
+  // answers used up (and Pro tapped there), a failure. The server logs each request ("translate") and the limit.
+  translate_page: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error"]
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
   // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
@@ -194,6 +210,50 @@ export const FEATURES: Record<string, Feature> = {
     actions: ["open", "shown", "nothing", "added", "app", "denied", "failed", "unavailable", "not_asked", "dismissed", "also_on", "also_off"],
     via: ["chat", "menu", "chip", "card", "remind", "app"],
     fields: { what: ["reminder", "event"] }
+  },
+
+  // 2.7: «Проверить» и «Переписать» by a field (src/content/insert/Write.tsx), counts only: never the text, the page or the
+  // site. "menu": the Mac's circle opened its menu; "check" and "rewrite": asked for (what: the rewrite's tone); "shown":
+  // changes or a rewrite to look at; "clean": nothing to fix; "applied", "failed" (some didn't go in), "manual" (none
+  // did: copied to paste); "undone", "undo_failed"; "changed" (typed on before applying); "too_long", "limit", "plans"
+  // (Pro tapped there), "consent", "error". The server logs each request ("write") and the limit.
+  write: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: [
+      "menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error",
+      // Live underlines (Pro and Ultra): a fix shown (hover or tap), made, set aside, not taken by the field; the hidden cap reached.
+      "live_shown", "live_fixed", "live_ignored", "live_failed", "live_cap"
+    ],
+    via: ["circle", "list", "underline"],
+    fields: { what: ["check", "short", "warm", "formal", "confident"] }
+  },
+
+  // 2.7: «Снимок страницы в заметке» (src/shared/shots.ts), counts only: never the page, the picture or its size beyond
+  // screens. "on"/"off": the switch over the note field; "visible"/"full": what it takes; "taken" (what, and a whole
+  // page's screens), "failed" (why: unavailable, failed, keep); "open", "crop", "uncrop" in the chat; "plans": Free
+  // tapped the whole page's Pro.
+  shot: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["on", "off", "visible", "full", "taken", "failed", "open", "crop", "uncrop", "plans"],
+    fields: { what: ["visible", "full"], why: ["unavailable", "failed", "keep"], screens: "int" }
+  },
+
+  // 2.7: Spaces (src/shared/spaces.ts), counts only: never a space's name or colour, nor a site. "switch": how (the
+  // header's list, the app's list, a bound site, a chat opened from another space, a search hit); "bind" and "toggle":
+  // on or off (Settings' switch); "limit": Free asked for one more than it has; "spaces": how many there are then.
+  space: {
+    since: "2.7", tracked: "2.7", actions: ["create", "switch", "move", "bind", "toggle", "edit", "delete", "limit"],
+    via: ["header", "app", "site", "chat", "list", "settings"],
+    fields: { val: ["on", "off"], spaces: "int" }
+  },
+
+  // 2.7: «Подходящий чат при открытии панели» (src/shared/match.ts). "shown": the panel opened on a chat that fits the
+  // page, and why (its page, its topic by words or by meaning, its site) with the topic's match %; "new": none fitted,
+  // a new chat. Then whether the person left it at once: "line_new" (the line's «Новый чат»), "other" (another chat
+  // opened within two minutes). Counts only.
+  match: {
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "other"],
+    fields: { why: ["page", "topic", "meaning", "site"], match: "int" }
   },
 
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.

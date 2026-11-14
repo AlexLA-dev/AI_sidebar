@@ -2372,6 +2372,348 @@
  "appleAskOnce": {
   "message": "Lần đầu, ContextFlow sẽ mở ra để xin quyền truy cập."
  },
+ "trOffer": {
+  "message": "Dịch sang tiếng Việt?"
+ },
+ "trOfferTo": {
+  "message": "Dịch sang {0}?"
+ },
+ "trHide": {
+  "message": "Ẩn trên trang này"
+ },
+ "trWorking": {
+  "message": "Đang dịch…"
+ },
+ "trOriginal": {
+  "message": "Bản gốc"
+ },
+ "trFailed": {
+  "message": "Không dịch được"
+ },
+ "spacesTitle": {
+  "message": "Không gian"
+ },
+ "spaceSwitcher": {
+  "message": "Không gian: {0}. Chuyển"
+ },
+ "spaceFirst": {
+  "message": "Cá nhân"
+ },
+ "spaceNew": {
+  "message": "Không gian mới"
+ },
+ "spaceEdit": {
+  "message": "Sửa “{0}”"
+ },
+ "spaceName": {
+  "message": "Tên"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Ví dụ: Công việc"
+ },
+ "spaceColor": {
+  "message": "Màu"
+ },
+ "spaceColorBlue": {
+  "message": "Xanh dương"
+ },
+ "spaceColorGreen": {
+  "message": "Xanh lá"
+ },
+ "spaceColorOrange": {
+  "message": "Cam"
+ },
+ "spaceColorPink": {
+  "message": "Hồng"
+ },
+ "spaceColorViolet": {
+  "message": "Tím"
+ },
+ "spaceColorGraphite": {
+  "message": "Than chì"
+ },
+ "spaceCreate": {
+  "message": "Tạo"
+ },
+ "spaceDelete": {
+  "message": "Xóa không gian"
+ },
+ "spaceDeleteNote": {
+  "message": "Các cuộc trò chuyện của nó sẽ chuyển sang “{0}”."
+ },
+ "spaceBind": {
+  "message": "Mở {0} ở đây"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} mở trong “{1}”. Mở ở đây"
+ },
+ "spaceMoveTo": {
+  "message": "Chuyển đến…"
+ },
+ "spaceMoved": {
+  "message": "Đã chuyển đến “{0}”"
+ },
+ "spaceIn": {
+  "message": "Bạn đang ở “{0}”"
+ },
+ "spaceLimit": {
+  "message": "Số không gian miễn phí: {0}. Với Pro, bao nhiêu cũng được."
+ },
+ "spaceEmpty": {
+  "message": "“{0}” chưa có cuộc trò chuyện nào. Cuộc trò chuyện mới sẽ ở đây."
+ },
+ "setSpaces": {
+  "message": "Không gian"
+ },
+ "setSpacesHint": {
+  "message": "Công việc, Cá nhân, Mua sắm: mỗi không gian có cuộc trò chuyện và màu riêng. Tắt: mọi cuộc trò chuyện về một danh sách, các không gian vẫn được giữ."
+ },
+ "matchContinue": {
+  "message": "Tiếp tục"
+ },
+ "writeCircle": {
+  "message": "Kiểm tra hoặc viết lại"
+ },
+ "writeCheck": {
+  "message": "Kiểm tra"
+ },
+ "writeRewrite": {
+  "message": "Viết lại"
+ },
+ "writeToneShort": {
+  "message": "Ngắn hơn"
+ },
+ "writeToneWarm": {
+  "message": "Thân thiện hơn"
+ },
+ "writeToneFormal": {
+  "message": "Trang trọng hơn"
+ },
+ "writeToneConfident": {
+  "message": "Tự tin hơn"
+ },
+ "writeChecking": {
+  "message": "Đang kiểm tra theo nội dung trang…"
+ },
+ "writeRewriting": {
+  "message": "Đang viết lại theo nội dung trang…"
+ },
+ "writeFixes": {
+  "message": "Sửa: {0}"
+ },
+ "writeLeft": {
+  "message": "Câu trả lời miễn phí còn lại hôm nay: {0}"
+ },
+ "writeClean": {
+  "message": "Không tìm thấy lỗi."
+ },
+ "writeEmpty": {
+  "message": "Chưa có văn bản ở đây."
+ },
+ "writeTooLong": {
+  "message": "Quá nhiều cùng lúc. Hãy chọn một phần rồi thử lại."
+ },
+ "writeChanged": {
+  "message": "Văn bản đã thay đổi kể từ đó."
+ },
+ "writeFix": {
+  "message": "Sửa"
+ },
+ "writeReplace": {
+  "message": "Thay thế"
+ },
+ "writeFixed": {
+  "message": "Đã sửa"
+ },
+ "writeFixedSome": {
+  "message": "Đã sửa, trừ phần ô nhập không nhận"
+ },
+ "writeReplaced": {
+  "message": "Đã thay thế"
+ },
+ "writeUndo": {
+  "message": "Hoàn tác"
+ },
+ "writeUndone": {
+  "message": "Đã hoàn tác"
+ },
+ "writeUndoFailed": {
+  "message": "Không thể hoàn tác: văn bản đã thay đổi."
+ },
+ "writeSetting": {
+  "message": "Kiểm tra và Viết lại cạnh ô nhập"
+ },
+ "writeSettingHint": {
+  "message": "Bản sửa có tính đến trang: email bạn đang trả lời, bài đăng bạn bình luận. Mỗi lần chạm tính là một câu trả lời. Cách bạn viết trên từng trang web chỉ lưu trên thiết bị này và giúp giữ đúng văn phong của bạn."
+ },
+ "writeSkip": {
+  "message": "Bỏ qua"
+ },
+ "underlineSetting": {
+  "message": "Gạch chân lỗi khi gõ"
+ },
+ "underlineSettingHint": {
+  "message": "Pro và Ultra: sau khi bạn ngừng gõ, chỉ đoạn vừa sửa được kiểm tra, có tính đến trang. Trỏ vào gạch chân (chạm trên iPhone và iPad) để sửa. Không tính là câu trả lời."
+ },
+ "setSide": {
+  "message": "Cạnh màn hình"
+ },
+ "sideRight": {
+  "message": "Phải"
+ },
+ "sideLeft": {
+  "message": "Trái"
+ },
+ "hintSideTitle": {
+  "message": "Bạn có thể kéo bảng và nút ✦ sang cạnh bên kia"
+ },
+ "hintSideTitleSheet": {
+  "message": "Bạn có thể kéo nút ✦ sang cạnh bên kia"
+ },
+ "hintSideBody": {
+  "message": "Kéo bảng bằng phần đầu, hoặc kéo nút. Bạn cũng có thể chọn cạnh trong Cài đặt."
+ },
+ "hintSideBodySheet": {
+  "message": "Kéo nút sang trái hoặc phải. Bạn cũng có thể chọn cạnh trong Cài đặt."
+ },
+ "phSimilar": {
+  "message": "Tìm chỗ rẻ hơn?"
+ },
+ "phWatch": {
+  "message": "Theo dõi giá?"
+ },
+ "phSummary": {
+  "message": "Tóm tắt trang này?"
+ },
+ "phListen": {
+  "message": "Nghe bài viết?"
+ },
+ "phVideo": {
+  "message": "Hỏi về video?"
+ },
+ "phTemplates": {
+  "message": "Trả lời bằng mẫu?"
+ },
+ "phRemind": {
+  "message": "Nhắc bạn việc này?"
+ },
+ "phCalendar": {
+  "message": "Thêm vào Lịch?"
+ },
+ "phClose": {
+  "message": "Ẩn gợi ý"
+ },
+ "phSimilarTitle": {
+  "message": "Tìm chỗ rẻ hơn"
+ },
+ "phSimilarBody": {
+  "message": "Chọn tên sản phẩm → “Tìm tương tự”, hoặc chạm nút được làm nổi bật: cùng sản phẩm giá rẻ hơn và sản phẩm tương tự."
+ },
+ "phSimilarBodyUp": {
+  "message": "Tính năng này có trong Ultra: cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
+ },
+ "phWatchTitle": {
+  "message": "Theo dõi giá"
+ },
+ "phWatchBody": {
+  "message": "Chọn giá, một con mắt sẽ hiện bên cạnh. Hoặc “…” (được làm nổi bật) → “Theo dõi trang này…”. Tôi sẽ báo khi giá thay đổi."
+ },
+ "phSummaryTitle": {
+  "message": "Tóm tắt trang"
+ },
+ "phSummaryBody": {
+  "message": "Chạm “Tóm tắt” được làm nổi bật: ý chính của trang trong vài dòng."
+ },
+ "phListenTitle": {
+  "message": "Nghe bài viết"
+ },
+ "phListenBody": {
+  "message": "Mở “…” (được làm nổi bật) → “Nghe trang này”: bài viết sẽ được đọc to."
+ },
+ "phListenBodyUp": {
+  "message": "Đọc to có trong Ultra. Mở “…” (được làm nổi bật) → “Nghe trang này”."
+ },
+ "phVideoTitle": {
+  "message": "Hỏi về video"
+ },
+ "phVideoBody": {
+  "message": "Hỏi về video trong ô được làm nổi bật: tôi trả lời theo phụ đề."
+ },
+ "phVideoBodyUp": {
+  "message": "Trả lời theo phụ đề video có trong Pro. Hỏi trong ô được làm nổi bật."
+ },
+ "phTemplatesTitle": {
+  "message": "Trả lời bằng mẫu"
+ },
+ "phTemplatesBody": {
+  "message": "Đặt con trỏ vào một ô trên trang, nút mẫu sẽ hiện bên cạnh. Mẫu của bạn: “…” (được làm nổi bật) → “Cài đặt” → “Mẫu”."
+ },
+ "phRemindTitle": {
+  "message": "Nhắc nhở"
+ },
+ "phRemindBody": {
+  "message": "Viết vào ô được làm nổi bật, ví dụ “nhắc tôi 9 giờ sáng mai”, tôi sẽ gợi ý một lời nhắc."
+ },
+ "phCalendarTitle": {
+  "message": "Vào Lịch"
+ },
+ "phCalendarBody": {
+  "message": "Viết “thêm vào lịch” vào ô được làm nổi bật, tôi sẽ gợi ý sự kiện theo ngày trên trang."
+ },
+ "setPageHints": {
+  "message": "Gợi ý cạnh nút ✦"
+ },
+ "setPageHintsHint": {
+  "message": "Trong những ngày đầu, gợi ý cho bạn biết có thể làm gì trên trang."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "Tính năng này có trong Pro và Ultra: Pro tìm nhanh, Ultra tìm đầy đủ. Cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
+ },
+ "shotSwitch": {
+  "message": "Ảnh chụp trang"
+ },
+ "shotVisible": {
+  "message": "Vùng đang hiển thị"
+ },
+ "shotFull": {
+  "message": "Toàn trang"
+ },
+ "shotProOnly": {
+  "message": "Chụp toàn trang có trong Pro và Ultra."
+ },
+ "shotTaking": {
+  "message": "Đang chụp…"
+ },
+ "shotTakingFull": {
+  "message": "Ảnh chụp: màn hình {0}/{1}…"
+ },
+ "shotFailed": {
+  "message": "Không chụp được ở đây. Ghi chú đã được lưu mà không có ảnh."
+ },
+ "shotCut": {
+  "message": "Trang dài: ảnh chụp gồm {0} màn hình đầu tiên."
+ },
+ "shotOpen": {
+  "message": "Mở ảnh chụp"
+ },
+ "shotNote": {
+  "message": "Ảnh chụp trang"
+ },
+ "shotCrop": {
+  "message": "Cắt"
+ },
+ "shotCropDone": {
+  "message": "Xong"
+ },
+ "shotCropReset": {
+  "message": "Toàn bộ ảnh"
+ },
+ "shotLoading": {
+  "message": "Đang mở ảnh chụp…"
+ },
+ "shotMissing": {
+  "message": "Ảnh chụp này chưa có trên thiết bị. Ảnh sẽ đến qua iCloud nếu các cuộc trò chuyện được đồng bộ ở đó."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

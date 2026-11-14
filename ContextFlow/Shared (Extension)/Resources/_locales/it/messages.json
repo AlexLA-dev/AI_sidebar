@@ -2372,6 +2372,348 @@
  "appleAskOnce": {
   "message": "La prima volta si apre ContextFlow per chiedere l’accesso."
  },
+ "trOffer": {
+  "message": "Tradurre in italiano?"
+ },
+ "trOfferTo": {
+  "message": "Tradurre in {0}?"
+ },
+ "trHide": {
+  "message": "Nascondi su questo sito"
+ },
+ "trWorking": {
+  "message": "Traduzione…"
+ },
+ "trOriginal": {
+  "message": "Originale"
+ },
+ "trFailed": {
+  "message": "Traduzione non riuscita"
+ },
+ "spacesTitle": {
+  "message": "Spazi"
+ },
+ "spaceSwitcher": {
+  "message": "Spazio: {0}. Cambia"
+ },
+ "spaceFirst": {
+  "message": "Personale"
+ },
+ "spaceNew": {
+  "message": "Nuovo spazio"
+ },
+ "spaceEdit": {
+  "message": "Modifica «{0}»"
+ },
+ "spaceName": {
+  "message": "Nome"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Per esempio, Lavoro"
+ },
+ "spaceColor": {
+  "message": "Colore"
+ },
+ "spaceColorBlue": {
+  "message": "Blu"
+ },
+ "spaceColorGreen": {
+  "message": "Verde"
+ },
+ "spaceColorOrange": {
+  "message": "Arancione"
+ },
+ "spaceColorPink": {
+  "message": "Rosa"
+ },
+ "spaceColorViolet": {
+  "message": "Viola"
+ },
+ "spaceColorGraphite": {
+  "message": "Grafite"
+ },
+ "spaceCreate": {
+  "message": "Crea"
+ },
+ "spaceDelete": {
+  "message": "Elimina spazio"
+ },
+ "spaceDeleteNote": {
+  "message": "Le sue chat passano in «{0}»."
+ },
+ "spaceBind": {
+  "message": "Apri {0} qui"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} si apre in «{1}». Aprilo qui"
+ },
+ "spaceMoveTo": {
+  "message": "Sposta in…"
+ },
+ "spaceMoved": {
+  "message": "Spostata in «{0}»"
+ },
+ "spaceIn": {
+  "message": "Sei in «{0}»"
+ },
+ "spaceLimit": {
+  "message": "Spazi gratis: {0}. Con Pro, quanti ne vuoi."
+ },
+ "spaceEmpty": {
+  "message": "Ancora nessuna chat in «{0}». Una nuova chat finisce qui."
+ },
+ "setSpaces": {
+  "message": "Spazi"
+ },
+ "setSpacesHint": {
+  "message": "Lavoro, Personale, Acquisti: ognuno con le sue chat e il suo colore. Disattivati: tutte le chat in un’unica lista, e i tuoi spazi restano."
+ },
+ "matchContinue": {
+  "message": "Continuo"
+ },
+ "writeCircle": {
+  "message": "Controlla o riscrivi"
+ },
+ "writeCheck": {
+  "message": "Controlla"
+ },
+ "writeRewrite": {
+  "message": "Riscrivi"
+ },
+ "writeToneShort": {
+  "message": "Più breve"
+ },
+ "writeToneWarm": {
+  "message": "Più caloroso"
+ },
+ "writeToneFormal": {
+  "message": "Più formale"
+ },
+ "writeToneConfident": {
+  "message": "Più sicuro"
+ },
+ "writeChecking": {
+  "message": "Controllo tenendo conto della pagina…"
+ },
+ "writeRewriting": {
+  "message": "Riscrivo tenendo conto della pagina…"
+ },
+ "writeFixes": {
+  "message": "Correzioni: {0}"
+ },
+ "writeLeft": {
+  "message": "Risposte gratuite rimaste oggi: {0}"
+ },
+ "writeClean": {
+  "message": "Nessun errore trovato."
+ },
+ "writeEmpty": {
+  "message": "Qui non c'è ancora testo."
+ },
+ "writeTooLong": {
+  "message": "È troppo in una volta. Seleziona una parte e riprova."
+ },
+ "writeChanged": {
+  "message": "Il testo è cambiato nel frattempo."
+ },
+ "writeFix": {
+  "message": "Correggi"
+ },
+ "writeReplace": {
+  "message": "Sostituisci"
+ },
+ "writeFixed": {
+  "message": "Corretto"
+ },
+ "writeFixedSome": {
+  "message": "Corretto, tranne ciò che il campo non ha accettato"
+ },
+ "writeReplaced": {
+  "message": "Sostituito"
+ },
+ "writeUndo": {
+  "message": "Annulla"
+ },
+ "writeUndone": {
+  "message": "Annullato"
+ },
+ "writeUndoFailed": {
+  "message": "Impossibile annullare: il testo è cambiato."
+ },
+ "writeSetting": {
+  "message": "Controlla e Riscrivi accanto ai campi"
+ },
+ "writeSettingHint": {
+  "message": "Le correzioni tengono conto della pagina: l'email a cui rispondi, il post che commenti. Ogni tocco vale una risposta. Il modo in cui scrivi su ogni sito resta su questo dispositivo e aiuta a rispettare il tuo stile."
+ },
+ "writeSkip": {
+  "message": "Ignora"
+ },
+ "underlineSetting": {
+  "message": "Sottolinea gli errori mentre scrivo"
+ },
+ "underlineSettingHint": {
+  "message": "Pro e Ultra: dopo una pausa nella digitazione si controlla solo il paragrafo modificato, tenendo conto della pagina. Punta una sottolineatura (toccala su iPhone e iPad) per correggere. Non conta come risposta."
+ },
+ "setSide": {
+  "message": "Lato dello schermo"
+ },
+ "sideRight": {
+  "message": "Destra"
+ },
+ "sideLeft": {
+  "message": "Sinistra"
+ },
+ "hintSideTitle": {
+  "message": "Puoi trascinare il pannello e il pulsante ✦ sull’altro bordo"
+ },
+ "hintSideTitleSheet": {
+  "message": "Puoi trascinare il pulsante ✦ sull’altro bordo"
+ },
+ "hintSideBody": {
+  "message": "Trascina il pannello dall’intestazione, oppure trascina il pulsante. Puoi scegliere il lato anche nelle Impostazioni."
+ },
+ "hintSideBodySheet": {
+  "message": "Trascinalo a sinistra o a destra. Puoi scegliere il lato anche nelle Impostazioni."
+ },
+ "phSimilar": {
+  "message": "Trovarlo a meno?"
+ },
+ "phWatch": {
+  "message": "Seguire il prezzo?"
+ },
+ "phSummary": {
+  "message": "Riassumere la pagina?"
+ },
+ "phListen": {
+  "message": "Ascoltare l’articolo?"
+ },
+ "phVideo": {
+  "message": "Chiedere del video?"
+ },
+ "phTemplates": {
+  "message": "Rispondere con un modello?"
+ },
+ "phRemind": {
+  "message": "Ricordartelo?"
+ },
+ "phCalendar": {
+  "message": "Aggiungere al calendario?"
+ },
+ "phClose": {
+  "message": "Nascondi il suggerimento"
+ },
+ "phSimilarTitle": {
+  "message": "Trovarlo a meno"
+ },
+ "phSimilarBody": {
+  "message": "Seleziona il nome del prodotto → «Trova simili», oppure tocca il pulsante evidenziato: lo stesso prodotto a meno e altri simili."
+ },
+ "phSimilarBodyUp": {
+  "message": "È in Ultra: lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
+ },
+ "phWatchTitle": {
+  "message": "Seguire il prezzo"
+ },
+ "phWatchBody": {
+  "message": "Seleziona il prezzo: accanto compare un occhio. Oppure «…» (evidenziato) → «Segui questa pagina…». Ti avviso quando cambia."
+ },
+ "phSummaryTitle": {
+  "message": "Riassunto della pagina"
+ },
+ "phSummaryBody": {
+  "message": "Tocca «Riassumi», evidenziato: il succo della pagina in poche righe."
+ },
+ "phListenTitle": {
+  "message": "Ascoltare l’articolo"
+ },
+ "phListenBody": {
+  "message": "Apri «…» (evidenziato) → «Ascolta questa pagina»: l’articolo viene letto ad alta voce."
+ },
+ "phListenBodyUp": {
+  "message": "La lettura ad alta voce è in Ultra. Apri «…» (evidenziato) → «Ascolta questa pagina»."
+ },
+ "phVideoTitle": {
+  "message": "Domanda sul video"
+ },
+ "phVideoBody": {
+  "message": "Chiedi del video nel campo evidenziato: rispondo in base ai sottotitoli."
+ },
+ "phVideoBodyUp": {
+  "message": "Le risposte in base ai sottotitoli sono in Pro. Chiedi nel campo evidenziato."
+ },
+ "phTemplatesTitle": {
+  "message": "Rispondere con un modello"
+ },
+ "phTemplatesBody": {
+  "message": "Metti il cursore in un campo della pagina: accanto compare il pulsante dei modelli. I tuoi modelli: «…» (evidenziato) → «Impostazioni» → «Modelli»."
+ },
+ "phRemindTitle": {
+  "message": "Promemoria"
+ },
+ "phRemindBody": {
+  "message": "Scrivi nel campo evidenziato, per esempio «ricordamelo domani alle 9», e ti propongo un promemoria."
+ },
+ "phCalendarTitle": {
+  "message": "Nel calendario"
+ },
+ "phCalendarBody": {
+  "message": "Scrivi «aggiungi al calendario» nel campo evidenziato e ti propongo un evento con la data della pagina."
+ },
+ "setPageHints": {
+  "message": "Suggerimenti accanto al pulsante ✦"
+ },
+ "setPageHintsHint": {
+  "message": "Nei primi giorni mostrano cosa puoi fare su una pagina."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "È in Pro e Ultra: in Pro la ricerca veloce, in Ultra quella completa. Lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
+ },
+ "shotSwitch": {
+  "message": "Istantanea della pagina"
+ },
+ "shotVisible": {
+  "message": "Area visibile"
+ },
+ "shotFull": {
+  "message": "Pagina intera"
+ },
+ "shotProOnly": {
+  "message": "La pagina intera è inclusa in Pro e Ultra."
+ },
+ "shotTaking": {
+  "message": "Scatto l'istantanea…"
+ },
+ "shotTakingFull": {
+  "message": "Istantanea: schermata {0} di {1}…"
+ },
+ "shotFailed": {
+  "message": "Non è stato possibile fare un'istantanea qui. La nota è salvata senza."
+ },
+ "shotCut": {
+  "message": "La pagina è lunga: l'istantanea contiene le prime {0} schermate."
+ },
+ "shotOpen": {
+  "message": "Apri l'istantanea"
+ },
+ "shotNote": {
+  "message": "Istantanea della pagina"
+ },
+ "shotCrop": {
+  "message": "Ritaglia"
+ },
+ "shotCropDone": {
+  "message": "Fine"
+ },
+ "shotCropReset": {
+  "message": "Istantanea intera"
+ },
+ "shotLoading": {
+  "message": "Apro l'istantanea…"
+ },
+ "shotMissing": {
+  "message": "Questa istantanea non è ancora su questo dispositivo. Arriva tramite iCloud se le chat vi sono sincronizzate."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

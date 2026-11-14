@@ -6,7 +6,9 @@ import type { FindReply } from "../shared/types"
 import { t, uiLanguage } from "../shared/i18n"
 import { meaningSpotIn } from "../shared/meaningSpot"
 import { activity, allTags, groupByTag, hasTag, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTags, threadTitle, type SearchHit, type Thread } from "../shared/threads"
+import type { Space } from "../shared/spaces"
 import * as Icon from "./icons"
+import { MoveToSpace, SpaceTag } from "./Spaces"
 import { TagChip, TagEditor } from "./Tags"
 import { Bell, PinIcon, TrashIcon } from "./ux/MessageUx"
 import { Swipe } from "./ux/Swipe"
@@ -56,6 +58,20 @@ interface Props {
   // стоит»: how many of a chat's pages are watched (the eye), and the chats with a reminder still to ring (the bell).
   watched?: Record<string, number>
   bells?: ReadonlySet<string>
+  // 2.7: Spaces (null when switched off). `threads` are the current space's; search goes through `all` and says which
+  // space each hit is in; a chat moves to another space from its menu; "+ New space" ends the list.
+  spaces?: SpacesInList | null
+}
+
+export interface SpacesInList {
+  all: Thread[]
+  list: Space[]
+  current: Space
+  // More than one space: the tags, the moves and the empty space's words show only then.
+  multi: boolean
+  of: (thread: Thread) => Space
+  onMove: (id: string, space: string) => void
+  onNew: () => void
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -256,7 +272,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs, playing, watched, bells }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs, playing, watched, bells, spaces }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -266,6 +282,11 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
   const known = tagsInUse.map((x) => x.tag)
   const filter = tagFilter && tagsInUse.some((x) => x.tag.toLowerCase() === tagFilter.toLowerCase()) ? tagFilter : null
   const shownThreads = filter ? threads.filter((th) => hasTag(th, filter)) : threads
+  // Search goes through every space (2.7), each hit with its space's mark.
+  const multi = Boolean(spaces?.multi)
+  const everywhere = multi ? spaces!.all : threads
+  const searched = filter ? everywhere.filter((th) => hasTag(th, filter)) : everywhere
+  const spaceTag = (thread: Thread) => (multi ? <SpaceTag space={spaces!.of(thread)} /> : null)
   const [ai, setAi] = useState(false)
   // AI search: the query asked, and its answer (null while it runs).
   const [found, setFound] = useState<{ query: string; reply: FindReply | null } | null>(null)
@@ -312,9 +333,23 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
   const [menuOf, setMenuOf] = useState<string | null>(null)
   const closeMenu = useCallback(() => setMenuOf(null), [])
   const [pagesOf, setPagesOf] = useState<string | null>(null)
+  // A Mac: the chat whose «Переместить в…» list is open (2.7).
+  const [movingOf, setMovingOf] = useState<string | null>(null)
+  const movePop = useRef<HTMLDivElement>(null)
   const [drag, setDrag] = useState<Drag | null>(null)
   const pop = useRef<HTMLDivElement>(null)
   const rows = useRef(new Map<string, HTMLDivElement>())
+
+  useEffect(() => {
+    const root = movePop.current?.getRootNode()
+    if (!movingOf || !root) return
+    const close = (e: Event) => {
+      const target = e.target as Element
+      if (!movePop.current?.contains(target) && !target.closest?.(".cf-thread-moveto")) setMovingOf(null)
+    }
+    root.addEventListener("pointerdown", close, true)
+    return () => root.removeEventListener("pointerdown", close, true)
+  }, [movingOf])
 
   // The page list closes on any press outside it (its own chip toggles it).
   useEffect(() => {
@@ -329,22 +364,28 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
   }, [pagesOf])
 
   const trashRow = trashCount > 0 && onOpenTrash && <TrashRow count={trashCount} onOpen={onOpenTrash} />
+  // «+ Новое пространство» at the end of the list (2.7), with one space too: it's how the second one is made.
+  const newSpace = spaces && (
+    <button type="button" class="cf-space-new" onClick={spaces.onNew}><Icon.Plus /> {t("spaceNew")}</button>
+  )
 
-  if (threads.length === 0) {
+  // No chats anywhere (with spaces: none in any space, else the list, its search and this space's empty words show).
+  if (threads.length === 0 && !(multi && spaces!.all.length > 0)) {
     return (
       <div class="cf-threads">
         <div class="cf-empty">
           <div class="cf-empty-icon"><Icon.Chats /></div>
-          <p>{t("chatsEmpty")}</p>
+          <p>{multi ? t("spaceEmpty", spaces!.current.name) : t("chatsEmpty")}</p>
           <button type="button" class="cf-primary" onClick={onNew}><Icon.Plus /> {t("newChat")}</button>
         </div>
         {trashRow && <div role="list">{trashRow}</div>}
+        {newSpace}
       </div>
     )
   }
 
   if (ai && (query.trim() || found)) {
-    const byId = new Map(threads.map((th) => [th.id, th]))
+    const byId = new Map(everywhere.map((th) => [th.id, th]))
     const reply = found?.reply
     return (
       <div class="cf-threads" role="list">
@@ -362,7 +403,8 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
           return (
             <div key={id} role="listitem" class={`cf-thread ${id === activeId ? "current" : ""}`}>
               <div class="cf-thread-main" role="button" tabIndex={0} onClick={open} onKeyDown={(e) => { if (e.key === "Enter") open() }}>
-                <span class="cf-thread-title" dir="auto">{threadName(thread)}</span>
+                {/* 2.7: which space the hit is in, on its first line (the keyboard can cover the rest on iPhone). */}
+                <span class="cf-hit-head"><span class="cf-thread-title" dir="auto">{threadName(thread)}</span>{spaceTag(thread)}</span>
                 {why && <span class="cf-search-hit cf-find-why"><Icon.Sparkle size={11} /> {why}</span>}
                 <span class="cf-thread-meta"><span class="cf-thread-when">{when(activity(thread))}</span></span>
               </div>
@@ -374,7 +416,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
   }
 
   if (query.trim()) {
-    const results = searchThreads(shownThreads, query)
+    const results = searchThreads(searched, query)
     return (
       <div class="cf-threads" role="list">
         {search}
@@ -393,7 +435,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                 onOpen(thread.id, hits[0]?.at)
               }}
             >
-              <span class="cf-thread-title" dir="auto">{threadName(thread)}</span>
+              <span class="cf-hit-head"><span class="cf-thread-title" dir="auto">{threadName(thread)}</span>{spaceTag(thread)}</span>
               {hits.map((hit, i) => (
                 <span
                   key={i}
@@ -561,6 +603,8 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                         onTags={() => setTagging(thread.id)}
                         onDelete={() => onDelete(thread.id)}
                         onClose={closeMenu}
+                        moveTo={multi ? spaces!.list.filter((x) => x.id !== spaces!.of(thread).id) : undefined}
+                        onMoveTo={(space) => spaces?.onMove(thread.id, space)}
                       />
                     )}
                   </span>
@@ -575,6 +619,11 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                     <button type="button" class="cf-icon cf-thread-tool" onClick={() => setEditing(thread.id)} aria-label={t("renameChat")} title={t("renameChat")}>
                       <Icon.Pencil />
                     </button>
+                    {multi && (
+                      <button type="button" class={`cf-icon cf-thread-tool cf-thread-moveto ${movingOf === thread.id ? "on" : ""}`} aria-haspopup="menu" aria-expanded={movingOf === thread.id} onClick={() => setMovingOf(movingOf === thread.id ? null : thread.id)} aria-label={t("spaceMoveTo")} title={t("spaceMoveTo")}>
+                        <Icon.MoveTo />
+                      </button>
+                    )}
                     <button type="button" class="cf-icon cf-thread-tool cf-thread-delete" onClick={() => onDelete(thread.id)} aria-label={t("deleteChat")} title={t("deleteChat")}>
                       <Icon.Trash />
                     </button>
@@ -584,6 +633,14 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
             )}
             {tagging === thread.id && (
               <TagEditor tags={thread.tags ?? []} known={known} onChange={(next) => onTags(thread.id, next)} onClose={() => setTagging(null)} />
+            )}
+            {movingOf === thread.id && multi && (
+              <div class="cf-pages-pop cf-space-move-pop" ref={movePop} role="menu">
+                <MoveToSpace spaces={spaces!.list.filter((x) => x.id !== spaces!.of(thread).id)} onMove={(space) => {
+                  setMovingOf(null)
+                  spaces!.onMove(thread.id, space)
+                }} />
+              </div>
             )}
             {pagesOf === thread.id && (
               <div class="cf-pages-pop" ref={pop} role="menu" aria-label={t("chatPages")}>
@@ -617,6 +674,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
       {search}
       {tagBar}
       {!filter && threads.some((th) => th.kind !== "history") && <AskHistoryRow pro={pro} onOpen={onAskHistory} />}
+      {multi && threads.length === 0 && <p class="cf-search-none">{t("spaceEmpty", spaces!.current.name)}</p>}
       {groups
         ? groups.map((g) => (
             <div key={g.tag ?? ""} class="cf-tag-group-section" role="group" aria-label={g.tag ?? t("tagsNone")}>
@@ -626,6 +684,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
           ))
         : shownThreads.map((thread, index) => row(thread, index, ""))}
       {!filter && trashRow}
+      {!filter && newSpace}
     </div>
   )
 }

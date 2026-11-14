@@ -32,8 +32,9 @@ import { daysLeft, type RenewalReason } from "../shared/renewal"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
+import { startTranslate } from "./translate"
 import { startWatch } from "./watch"
-import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
+import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
@@ -42,6 +43,7 @@ import { madeTexts, withMade, withVoiced, type MadeList, type MadeText } from ".
 import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
 import { t } from "../shared/i18n"
 import type { Job } from "../shared/jobs"
+import { captureTab, getShot, putShot, sweepShots } from "./shots"
 
 // ---------------------------------------------------------------- identity
 
@@ -823,7 +825,7 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
       heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s,
       cur: message.cur, sf: message.sf,
       // Listen's "unvoiced" (build 95): why it wasn't marked, and how far from the end (build 98: they never left the panel).
-      why: message.why, gap_s: message.gap_s, moment: message.moment, s: "panel"
+      why: message.why, screens: message.screens, gap_s: message.gap_s, moment: message.moment, s: "panel"
     })
   }).catch(() => undefined)
 }
@@ -832,6 +834,15 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
   switch (message?.type) {
+    case "shotCapture":
+      void captureTab(_sender.tab?.windowId).then(sendResponse, () => sendResponse({ ok: false, code: "FAILED" }))
+      return true
+    case "shotPut":
+      void putShot(message.id, message.data).then(sendResponse, () => sendResponse({ ok: false }))
+      return true
+    case "shotGet":
+      void getShot(message.id, message.parts).then(sendResponse, () => sendResponse({ ok: false, code: "UNAVAILABLE" }))
+      return true
     case "tipClip":
       void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
       return true
@@ -968,6 +979,12 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
         .then(([now, id, ent, client, prefs, agreed]) => organizeCounts({ status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "matchTopic":
+      // The same switch and consent as organizing: the title is sent only with both.
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => matchTopic(message.title, message.chats, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse(null))
       return true
     case "organizeEvent":
       Promise.all([installId(), clientInfo()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)
@@ -1126,9 +1143,22 @@ void reportSwitchedOn().catch(() => undefined)
 if (TARGET === "safari") {
   watchThreads()
   setTimeout(() => void mirrorOnStart().catch(() => undefined), 1_500)
+  // Pictures of notes made here that no note has any more (a week on), here and in iCloud.
+  setTimeout(() => void sweepShots().catch(() => undefined), 60_000)
 }
 // Quick insert: templates with the app and iCloud, its AI and counters, the ⌃⇧V shortcut.
 startInsert({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  consented,
+  statusChanged: () => (statusCache = null)
+})
+// A page translated in place (2.7): the page's requests to the server, and the pill's counters.
+startTranslate({
   installId,
   entitlementJws: async () => {
     const ent = await entitlement()

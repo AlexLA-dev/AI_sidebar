@@ -4,6 +4,7 @@
 // iCloud so they continue on their other devices.
 
 import { sortedJson } from "../shared/stored"
+import { spacesChange, SPACES_RECORD, takeSpaces, type StoredSpaces } from "../shared/spaces"
 import { applyAppChanges, applyRemote, markMirrored, markSent, mirrorChanges, pendingChanges, purgeTrash, type CloudChange, type Threads } from "../shared/threads"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import { callNative } from "./native"
@@ -84,6 +85,8 @@ let pushTimer: ReturnType<typeof setTimeout> | undefined
 // started the next one, every second or so, for as long as Safari ran; the open chat list was redrawn each time, and
 // chats with the same time traded places (2.5 (77)).
 let lastWritten = ""
+// The same for the spaces (2.7).
+let lastSpaces = ""
 
 async function syncEnabled(): Promise<boolean> {
   const stored = (await chrome.storage.local.get(STORAGE.settings))[STORAGE.settings] as Partial<Settings> | undefined
@@ -116,29 +119,52 @@ export function syncThreads(): Promise<boolean> {
 
 async function syncOnce(): Promise<boolean> {
   if (!(await syncEnabled())) return false
-  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads, STORAGE.syncToken])
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads, STORAGE.syncToken, STORAGE.spaces, STORAGE.spacesSynced])
   const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
   // Chats in Recently Deleted for 30 days go for good, their deletions with this sync (2.5 (83)).
   const at = Date.now()
   const threads = purgeTrash((stored[STORAGE.threads] as Threads | undefined) ?? {}, synced, at).threads
   const sent = pendingChanges(threads, synced)
-  const result = await callNative<CloudSync>("syncThreads", { token: stored[STORAGE.syncToken] ?? null, changes: sent }, 20_000)
+  // The spaces (2.7) go as one more record next to the chats (src/shared/spaces.ts); ChatSync.swift merges it with
+  // iCloud's copy before saving.
+  const spacesSynced = Number(stored[STORAGE.spacesSynced] ?? 0)
+  const spacesSent = spacesChange(stored[STORAGE.spaces] as StoredSpaces | undefined, spacesSynced)
+  const result = await callNative<CloudSync>("syncThreads", { token: stored[STORAGE.syncToken] ?? null, changes: spacesSent ? [...sent, spacesSent] : sent }, 20_000)
   if (!result?.available) return false // not in Safari, no iCloud account, or offline
 
   // Threads may have changed here while iCloud answered: apply to the current copy (purged the same way, so the
   // deletions just sent are forgotten, not sent again as chats).
   const now = purgeTrash((await chrome.storage.local.get(STORAGE.threads))[STORAGE.threads] as Threads | undefined ?? {}, synced, at).threads
   const afterSend = markSent(now, synced, sent)
-  const merged = applyRemote(afterSend.threads, afterSend.synced, result.changed ?? [], result.deleted ?? [])
+  const changes = result.changed ?? []
+  const merged = applyRemote(afterSend.threads, afterSend.synced, changes.filter((c) => c.id !== SPACES_RECORD), (result.deleted ?? []).filter((id) => id !== SPACES_RECORD))
+  const spaces = await takeCloudSpaces(changes.find((c) => c.id === SPACES_RECORD), spacesSent, spacesSynced)
   // Changed here during the sync, or newer here than iCloud's copy: send it right away.
-  if (pendingChanges(merged.threads, merged.synced).length > 0) again = true
+  if (pendingChanges(merged.threads, merged.synced).length > 0 || spaces.pending) again = true
   lastWritten = sortedJson(merged.threads)
   await chrome.storage.local.set({
     [STORAGE.threads]: merged.threads,
     [STORAGE.syncedThreads]: merged.synced,
     [STORAGE.syncToken]: result.token ?? null
   })
-  return merged.changed
+  return merged.changed || spaces.changed
+}
+
+/**
+ * The spaces after a sync: what was sent is in iCloud, and iCloud's copy, if one came, is merged with this device's
+ * (changed here meanwhile too). Whether the list here changed, and whether it still has to go up.
+ */
+async function takeCloudSpaces(theirs: { updatedAt: number; data: string } | undefined, sent: { updatedAt: number } | null, synced: number): Promise<{ changed: boolean; pending: boolean }> {
+  const stored = (await chrome.storage.local.get(STORAGE.spaces))[STORAGE.spaces] as StoredSpaces | undefined
+  const nextSynced = Math.max(synced, sent?.updatedAt ?? 0, theirs?.updatedAt ?? 0)
+  const taken = theirs ? takeSpaces(stored, theirs) : null
+  const update: Record<string, unknown> = { [STORAGE.spacesSynced]: nextSynced }
+  if (taken) {
+    lastSpaces = sortedJson(taken)
+    update[STORAGE.spaces] = taken
+  }
+  await chrome.storage.local.set(update)
+  return { changed: Boolean(taken), pending: Boolean(spacesChange(taken ?? stored, nextSynced)) }
 }
 
 /**
@@ -147,10 +173,12 @@ async function syncOnce(): Promise<boolean> {
  */
 export function watchThreads(): void {
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== "local" || !changes[STORAGE.threads]) return
+    if (area !== "local" || (!changes[STORAGE.threads] && !changes[STORAGE.spaces])) return
     clearTimeout(mirrorTimer)
     mirrorTimer = setTimeout(() => void mirrorThreads().catch(() => undefined), 1_200)
-    if (sortedJson(changes[STORAGE.threads].newValue ?? {}) === lastWritten) return
+    // The spaces (2.7) like the chats: a change made here goes up, the sync's own write doesn't start another.
+    const own = changes[STORAGE.threads] ? sortedJson(changes[STORAGE.threads].newValue ?? {}) === lastWritten : sortedJson(changes[STORAGE.spaces].newValue ?? {}) === lastSpaces
+    if (own) return
     clearTimeout(pushTimer)
     pushTimer = setTimeout(() => void syncThreads().catch(() => undefined), 800)
   })
@@ -198,26 +226,36 @@ async function mirrorOnce(takeOpen: boolean): Promise<string | null> {
   let ack: number | null = null
   // Big chats go over several calls; the app's changes come with the first answer.
   for (let round = 0; round < 20; round++) {
-    const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.mirroredThreads, STORAGE.syncedThreads])
+    const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.mirroredThreads, STORAGE.syncedThreads, STORAGE.spaces, STORAGE.spacesMirrored])
     const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
     const mirrored = (stored[STORAGE.mirroredThreads] as Record<string, number> | undefined) ?? {}
     const sent = mirrorChanges(threads, mirrored)
-    if (round > 0 && sent.length === 0 && ack === null) break
-    const reply: MirrorReply | null = await callNative<MirrorReply>("mirrorThreads", { changes: sent, ack, takeOpen: takeOpen && round === 0 }, 10_000)
+    // The spaces (2.7): the app keeps them next to the chats (Chats/chats.json, SPACES_RECORD).
+    const spacesSent = spacesChange(stored[STORAGE.spaces] as StoredSpaces | undefined, Number(stored[STORAGE.spacesMirrored] ?? 0))
+    if (round > 0 && sent.length === 0 && !spacesSent && ack === null) break
+    const reply: MirrorReply | null = await callNative<MirrorReply>("mirrorThreads", { changes: spacesSent ? [...sent, spacesSent] : sent, ack, takeOpen: takeOpen && round === 0 }, 10_000)
     if (!reply) return open // not in Safari, or an app without the bridge
     ack = null
     open = reply.open ?? open
     const update: Record<string, unknown> = { [STORAGE.mirroredThreads]: markMirrored(mirrored, sent), [STORAGE.mirroredAt]: Date.now() }
+    if (spacesSent) update[STORAGE.spacesMirrored] = spacesSent.updatedAt
     if (reply.appChanges?.length) {
       const now = (await chrome.storage.local.get(STORAGE.threads))[STORAGE.threads] as Threads | undefined ?? {}
       const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
-      const applied = applyAppChanges(now, synced, reply.appChanges)
+      const applied = applyAppChanges(now, synced, reply.appChanges.filter((c) => c.id !== SPACES_RECORD))
       if (applied.changed) update[STORAGE.threads] = applied.threads
+      // Spaces made, changed or deleted in the app: merged with this device's list; they go to iCloud from here too.
+      const appSpaces = reply.appChanges.find((c) => c.id === SPACES_RECORD)
+      if (appSpaces && !("deleted" in appSpaces)) {
+        const current = (await chrome.storage.local.get(STORAGE.spaces))[STORAGE.spaces] as StoredSpaces | undefined
+        const taken = takeSpaces(current, appSpaces)
+        if (taken) update[STORAGE.spaces] = taken
+      }
       // Applied: the app can forget them (next call).
       ack = reply.at ?? null
     }
     await chrome.storage.local.set(update)
-    if (sent.length === 0 && ack === null) break
+    if (sent.length === 0 && !spacesSent && ack === null) break
   }
   return open
 }

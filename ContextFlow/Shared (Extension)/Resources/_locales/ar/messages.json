@@ -2372,6 +2372,348 @@
  "appleAskOnce": {
   "message": "في المرة الأولى يُفتح ContextFlow ليطلب الإذن."
  },
+ "trOffer": {
+  "message": "ترجمة إلى العربية؟"
+ },
+ "trOfferTo": {
+  "message": "ترجمة إلى {0}؟"
+ },
+ "trHide": {
+  "message": "إخفاء على هذا الموقع"
+ },
+ "trWorking": {
+  "message": "جارٍ الترجمة…"
+ },
+ "trOriginal": {
+  "message": "الأصل"
+ },
+ "trFailed": {
+  "message": "تعذّرت الترجمة"
+ },
+ "spacesTitle": {
+  "message": "المساحات"
+ },
+ "spaceSwitcher": {
+  "message": "المساحة: {0}. تبديل"
+ },
+ "spaceFirst": {
+  "message": "شخصي"
+ },
+ "spaceNew": {
+  "message": "مساحة جديدة"
+ },
+ "spaceEdit": {
+  "message": "تعديل «{0}»"
+ },
+ "spaceName": {
+  "message": "الاسم"
+ },
+ "spaceNamePlaceholder": {
+  "message": "مثلًا: العمل"
+ },
+ "spaceColor": {
+  "message": "اللون"
+ },
+ "spaceColorBlue": {
+  "message": "أزرق"
+ },
+ "spaceColorGreen": {
+  "message": "أخضر"
+ },
+ "spaceColorOrange": {
+  "message": "برتقالي"
+ },
+ "spaceColorPink": {
+  "message": "وردي"
+ },
+ "spaceColorViolet": {
+  "message": "بنفسجي"
+ },
+ "spaceColorGraphite": {
+  "message": "رمادي داكن"
+ },
+ "spaceCreate": {
+  "message": "إنشاء"
+ },
+ "spaceDelete": {
+  "message": "حذف المساحة"
+ },
+ "spaceDeleteNote": {
+  "message": "ستنتقل محادثاتها إلى «{0}»."
+ },
+ "spaceBind": {
+  "message": "افتح {0} هنا"
+ },
+ "spaceBoundElsewhere": {
+  "message": "يُفتح {0} في «{1}». افتحه هنا"
+ },
+ "spaceMoveTo": {
+  "message": "نقل إلى…"
+ },
+ "spaceMoved": {
+  "message": "نُقلت إلى «{0}»"
+ },
+ "spaceIn": {
+  "message": "أنت في «{0}»"
+ },
+ "spaceLimit": {
+  "message": "المساحات في الخطة المجانية: {0}. مع Pro، العدد الذي تريده."
+ },
+ "spaceEmpty": {
+  "message": "لا محادثات في «{0}» بعد. ستظهر المحادثة الجديدة هنا."
+ },
+ "setSpaces": {
+  "message": "المساحات"
+ },
+ "setSpacesHint": {
+  "message": "العمل، الشخصي، التسوق: لكل مساحة محادثاتها ولونها. عند الإيقاف تعود كل المحادثات إلى قائمة واحدة وتبقى مساحاتك محفوظة."
+ },
+ "matchContinue": {
+  "message": "متابعة"
+ },
+ "writeCircle": {
+  "message": "تدقيق أو إعادة صياغة"
+ },
+ "writeCheck": {
+  "message": "تدقيق"
+ },
+ "writeRewrite": {
+  "message": "إعادة صياغة"
+ },
+ "writeToneShort": {
+  "message": "أقصر"
+ },
+ "writeToneWarm": {
+  "message": "أكثر وُدًّا"
+ },
+ "writeToneFormal": {
+  "message": "أكثر رسمية"
+ },
+ "writeToneConfident": {
+  "message": "أكثر ثقة"
+ },
+ "writeChecking": {
+  "message": "جارٍ التدقيق مع مراعاة الصفحة…"
+ },
+ "writeRewriting": {
+  "message": "جارٍ إعادة الصياغة مع مراعاة الصفحة…"
+ },
+ "writeFixes": {
+  "message": "التصحيحات: {0}"
+ },
+ "writeLeft": {
+  "message": "الإجابات المجانية المتبقية اليوم: {0}"
+ },
+ "writeClean": {
+  "message": "لم يُعثر على أخطاء."
+ },
+ "writeEmpty": {
+  "message": "لا يوجد نص هنا بعد."
+ },
+ "writeTooLong": {
+  "message": "هذا كثير دفعة واحدة. حدّد جزءًا وحاول مرة أخرى."
+ },
+ "writeChanged": {
+  "message": "تغيّر النص منذ ذلك الحين."
+ },
+ "writeFix": {
+  "message": "تصحيح"
+ },
+ "writeReplace": {
+  "message": "استبدال"
+ },
+ "writeFixed": {
+  "message": "تم التصحيح"
+ },
+ "writeFixedSome": {
+  "message": "تم التصحيح، عدا ما لم يقبله الحقل"
+ },
+ "writeReplaced": {
+  "message": "تم الاستبدال"
+ },
+ "writeUndo": {
+  "message": "تراجع"
+ },
+ "writeUndone": {
+  "message": "تم التراجع"
+ },
+ "writeUndoFailed": {
+  "message": "تعذّر التراجع: تغيّر النص."
+ },
+ "writeSetting": {
+  "message": "التدقيق وإعادة الصياغة بجانب الحقول"
+ },
+ "writeSettingHint": {
+  "message": "تراعي التصحيحات الصفحة: الرسالة التي ترد عليها، والمنشور الذي تعلّق عليه. كل نقرة تُحتسب إجابة واحدة. طريقة كتابتك في كل موقع تبقى على هذا الجهاز وتساعد على مجاراة أسلوبك."
+ },
+ "writeSkip": {
+  "message": "تجاهل"
+ },
+ "underlineSetting": {
+  "message": "تسطير الأخطاء أثناء الكتابة"
+ },
+ "underlineSettingHint": {
+  "message": "Pro وUltra: بعد توقف عن الكتابة تُدقَّق الفقرة التي غيّرتها فقط مع مراعاة الصفحة. أشر إلى الخط (أو انقر عليه في iPhone وiPad) لتصحيحه. لا يُحتسب إجابة."
+ },
+ "setSide": {
+  "message": "جانب الشاشة"
+ },
+ "sideRight": {
+  "message": "اليمين"
+ },
+ "sideLeft": {
+  "message": "اليسار"
+ },
+ "hintSideTitle": {
+  "message": "يمكنك سحب اللوحة والزر ✦ إلى الحافة الأخرى"
+ },
+ "hintSideTitleSheet": {
+  "message": "يمكنك سحب الزر ✦ إلى الحافة الأخرى"
+ },
+ "hintSideBody": {
+  "message": "اسحب اللوحة من رأسها، أو اسحب الزر. ويمكنك أيضًا اختيار الجانب من الإعدادات."
+ },
+ "hintSideBodySheet": {
+  "message": "اسحبه يسارًا أو يمينًا. ويمكنك أيضًا اختيار الجانب من الإعدادات."
+ },
+ "phSimilar": {
+  "message": "تجده أرخص؟"
+ },
+ "phWatch": {
+  "message": "مراقبة السعر؟"
+ },
+ "phSummary": {
+  "message": "تلخيص هذه الصفحة؟"
+ },
+ "phListen": {
+  "message": "الاستماع إلى المقال؟"
+ },
+ "phVideo": {
+  "message": "سؤال عن الفيديو؟"
+ },
+ "phTemplates": {
+  "message": "الرد بقالب؟"
+ },
+ "phRemind": {
+  "message": "تذكيرك بهذا؟"
+ },
+ "phCalendar": {
+  "message": "إضافة إلى التقويم؟"
+ },
+ "phClose": {
+  "message": "إخفاء التلميح"
+ },
+ "phSimilarTitle": {
+  "message": "تجده أرخص"
+ },
+ "phSimilarBody": {
+  "message": "حدّد اسم المنتج ← «ابحث عن مشابه»، أو اضغط الزر المميّز: المنتج نفسه بسعر أقل ومنتجات مشابهة."
+ },
+ "phSimilarBodyUp": {
+  "message": "هذه ميزة في Ultra: المنتج نفسه بسعر أقل ومنتجات مشابهة من متاجر أخرى. اضغط الزر المميّز."
+ },
+ "phWatchTitle": {
+  "message": "مراقبة السعر"
+ },
+ "phWatchBody": {
+  "message": "حدّد السعر فتظهر بجانبه عين. أو «…» (مميّز) ← «مراقبة هذه الصفحة…». سأخبرك عندما يتغيّر."
+ },
+ "phSummaryTitle": {
+  "message": "ملخّص الصفحة"
+ },
+ "phSummaryBody": {
+  "message": "اضغط «تلخيص» المميّز: أهم ما في الصفحة في بضعة أسطر."
+ },
+ "phListenTitle": {
+  "message": "الاستماع إلى المقال"
+ },
+ "phListenBody": {
+  "message": "افتح «…» (مميّز) ← «الاستماع إلى هذه الصفحة»: يُقرأ المقال بصوت عالٍ."
+ },
+ "phListenBodyUp": {
+  "message": "القراءة بصوت عالٍ ميزة في Ultra. افتح «…» (مميّز) ← «الاستماع إلى هذه الصفحة»."
+ },
+ "phVideoTitle": {
+  "message": "سؤال عن الفيديو"
+ },
+ "phVideoBody": {
+  "message": "اسأل عن الفيديو في الحقل المميّز: أجيب من ترجمته النصية."
+ },
+ "phVideoBodyUp": {
+  "message": "الإجابات من الترجمة النصية للفيديو ميزة في Pro. اسأل في الحقل المميّز."
+ },
+ "phTemplatesTitle": {
+  "message": "الرد بقالب"
+ },
+ "phTemplatesBody": {
+  "message": "ضع المؤشر في حقل على الصفحة فيظهر زر القوالب بجانبه. قوالبك: «…» (مميّز) ← «الإعدادات» ← «القوالب»."
+ },
+ "phRemindTitle": {
+  "message": "تذكير"
+ },
+ "phRemindBody": {
+  "message": "اكتب في الحقل المميّز مثلًا «ذكّرني غدًا الساعة 9» وسأقترح تذكيرًا."
+ },
+ "phCalendarTitle": {
+  "message": "إلى التقويم"
+ },
+ "phCalendarBody": {
+  "message": "اكتب «أضف إلى التقويم» في الحقل المميّز وسأقترح حدثًا بتاريخ الصفحة."
+ },
+ "setPageHints": {
+  "message": "تلميحات بجانب الزر ✦"
+ },
+ "setPageHintsHint": {
+  "message": "في أيامك الأولى تُريك ما يمكنك فعله في الصفحة."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "هذه ميزة في Pro وUltra: بحث سريع في Pro، وبحث كامل في Ultra. المنتج نفسه بسعر أقل ومنتجات مشابهة من متاجر أخرى. اضغط الزر المميّز."
+ },
+ "shotSwitch": {
+  "message": "لقطة الصفحة"
+ },
+ "shotVisible": {
+  "message": "المنطقة الظاهرة"
+ },
+ "shotFull": {
+  "message": "الصفحة كاملة"
+ },
+ "shotProOnly": {
+  "message": "الصفحة كاملة متاحة في Pro وUltra."
+ },
+ "shotTaking": {
+  "message": "جارٍ التقاط اللقطة…"
+ },
+ "shotTakingFull": {
+  "message": "اللقطة: الشاشة {0} من {1}…"
+ },
+ "shotFailed": {
+  "message": "تعذّر التقاط لقطة هنا. حُفظت الملاحظة بدونها."
+ },
+ "shotCut": {
+  "message": "الصفحة طويلة: تضم اللقطة أول {0} شاشات."
+ },
+ "shotOpen": {
+  "message": "فتح اللقطة"
+ },
+ "shotNote": {
+  "message": "لقطة الصفحة"
+ },
+ "shotCrop": {
+  "message": "قص"
+ },
+ "shotCropDone": {
+  "message": "تم"
+ },
+ "shotCropReset": {
+  "message": "اللقطة كاملة"
+ },
+ "shotLoading": {
+  "message": "جارٍ فتح اللقطة…"
+ },
+ "shotMissing": {
+  "message": "هذه اللقطة ليست على هذا الجهاز بعد. تصل عبر iCloud إذا كانت محادثاتك تُزامَن هناك."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

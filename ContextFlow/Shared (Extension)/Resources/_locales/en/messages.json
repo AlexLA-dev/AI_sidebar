@@ -2372,6 +2372,348 @@
  "appleAskOnce": {
   "message": "The first time, ContextFlow opens to ask for access."
  },
+ "trOffer": {
+  "message": "Translate to English?"
+ },
+ "trOfferTo": {
+  "message": "Translate to {0}?"
+ },
+ "trHide": {
+  "message": "Hide on this site"
+ },
+ "trWorking": {
+  "message": "Translating…"
+ },
+ "trOriginal": {
+  "message": "Original"
+ },
+ "trFailed": {
+  "message": "Couldn't translate"
+ },
+ "spacesTitle": {
+  "message": "Spaces"
+ },
+ "spaceSwitcher": {
+  "message": "Space: {0}. Switch"
+ },
+ "spaceFirst": {
+  "message": "Personal"
+ },
+ "spaceNew": {
+  "message": "New space"
+ },
+ "spaceEdit": {
+  "message": "Edit “{0}”"
+ },
+ "spaceName": {
+  "message": "Name"
+ },
+ "spaceNamePlaceholder": {
+  "message": "For example, Work"
+ },
+ "spaceColor": {
+  "message": "Color"
+ },
+ "spaceColorBlue": {
+  "message": "Blue"
+ },
+ "spaceColorGreen": {
+  "message": "Green"
+ },
+ "spaceColorOrange": {
+  "message": "Orange"
+ },
+ "spaceColorPink": {
+  "message": "Pink"
+ },
+ "spaceColorViolet": {
+  "message": "Violet"
+ },
+ "spaceColorGraphite": {
+  "message": "Graphite"
+ },
+ "spaceCreate": {
+  "message": "Create"
+ },
+ "spaceDelete": {
+  "message": "Delete space"
+ },
+ "spaceDeleteNote": {
+  "message": "Its chats go to “{0}”."
+ },
+ "spaceBind": {
+  "message": "Open {0} here"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} opens in “{1}”. Open it here"
+ },
+ "spaceMoveTo": {
+  "message": "Move to…"
+ },
+ "spaceMoved": {
+  "message": "Moved to “{0}”"
+ },
+ "spaceIn": {
+  "message": "You're in “{0}”"
+ },
+ "spaceLimit": {
+  "message": "Spaces in Free: {0}. With Pro, as many as you like."
+ },
+ "spaceEmpty": {
+  "message": "No chats in “{0}” yet. A new chat goes here."
+ },
+ "setSpaces": {
+  "message": "Spaces"
+ },
+ "setSpacesHint": {
+  "message": "Work, Personal, Shopping: each with its own chats and color. Off: every chat in one list, and your spaces stay."
+ },
+ "matchContinue": {
+  "message": "Continuing"
+ },
+ "writeCircle": {
+  "message": "Check or rewrite"
+ },
+ "writeCheck": {
+  "message": "Check"
+ },
+ "writeRewrite": {
+  "message": "Rewrite"
+ },
+ "writeToneShort": {
+  "message": "Shorter"
+ },
+ "writeToneWarm": {
+  "message": "Warmer"
+ },
+ "writeToneFormal": {
+  "message": "More formal"
+ },
+ "writeToneConfident": {
+  "message": "More confident"
+ },
+ "writeChecking": {
+  "message": "Checking with this page in mind…"
+ },
+ "writeRewriting": {
+  "message": "Rewriting with this page in mind…"
+ },
+ "writeFixes": {
+  "message": "Fixes: {0}"
+ },
+ "writeLeft": {
+  "message": "Free answers left today: {0}"
+ },
+ "writeClean": {
+  "message": "No mistakes found."
+ },
+ "writeEmpty": {
+  "message": "There's no text here to work on yet."
+ },
+ "writeTooLong": {
+  "message": "That's a lot at once. Select a part and try again."
+ },
+ "writeChanged": {
+  "message": "The text has changed since."
+ },
+ "writeFix": {
+  "message": "Fix"
+ },
+ "writeReplace": {
+  "message": "Replace"
+ },
+ "writeFixed": {
+  "message": "Fixed"
+ },
+ "writeFixedSome": {
+  "message": "Fixed, except where the field wouldn't take it"
+ },
+ "writeReplaced": {
+  "message": "Replaced"
+ },
+ "writeUndo": {
+  "message": "Undo"
+ },
+ "writeUndone": {
+  "message": "Undone"
+ },
+ "writeUndoFailed": {
+  "message": "Couldn't undo: the text has changed since."
+ },
+ "writeSetting": {
+  "message": "Check and Rewrite by fields"
+ },
+ "writeSettingHint": {
+  "message": "Fixes and rewrites take the page into account: the email you're answering, the post you comment on. Each tap counts as one answer. How you write on each site stays on this device and helps match your style."
+ },
+ "writeSkip": {
+  "message": "Ignore"
+ },
+ "underlineSetting": {
+  "message": "Underline mistakes as I type"
+ },
+ "underlineSettingHint": {
+  "message": "Pro and Ultra: after a pause in typing, only the paragraph you changed is checked, with the page in mind. Point at an underline (tap on iPhone and iPad) to fix it. Not counted as answers."
+ },
+ "setSide": {
+  "message": "Screen side"
+ },
+ "sideRight": {
+  "message": "Right"
+ },
+ "sideLeft": {
+  "message": "Left"
+ },
+ "hintSideTitle": {
+  "message": "You can drag the panel and the ✦ button to the other edge"
+ },
+ "hintSideTitleSheet": {
+  "message": "You can drag the ✦ button to the other edge"
+ },
+ "hintSideBody": {
+  "message": "Drag the panel by its header, or drag the button. You can also pick the side in Settings."
+ },
+ "hintSideBodySheet": {
+  "message": "Drag it left or right. You can also pick the side in Settings."
+ },
+ "phSimilar": {
+  "message": "Find it cheaper?"
+ },
+ "phWatch": {
+  "message": "Watch the price?"
+ },
+ "phSummary": {
+  "message": "Summarize this page?"
+ },
+ "phListen": {
+  "message": "Listen to this article?"
+ },
+ "phVideo": {
+  "message": "Ask about this video?"
+ },
+ "phTemplates": {
+  "message": "Reply with a template?"
+ },
+ "phRemind": {
+  "message": "Set a reminder?"
+ },
+ "phCalendar": {
+  "message": "Add to Calendar?"
+ },
+ "phClose": {
+  "message": "Hide this tip"
+ },
+ "phSimilarTitle": {
+  "message": "Find it cheaper"
+ },
+ "phSimilarBody": {
+  "message": "Select the product's name → “Find similar”, or tap the highlighted button: the same item for less, and similar ones."
+ },
+ "phSimilarBodyUp": {
+  "message": "This is in Ultra: the same item for less, and similar ones from other shops. Tap the highlighted button."
+ },
+ "phWatchTitle": {
+  "message": "Watch the price"
+ },
+ "phWatchBody": {
+  "message": "Select the price and an eye appears next to it. Or “…” (highlighted) → “Watch this page…”. I'll tell you when it changes."
+ },
+ "phSummaryTitle": {
+  "message": "Page summary"
+ },
+ "phSummaryBody": {
+  "message": "Tap the highlighted “Summarize”: the main points of the page in a few lines."
+ },
+ "phListenTitle": {
+  "message": "Listen to the article"
+ },
+ "phListenBody": {
+  "message": "Open “…” (highlighted) → “Listen to this page”: the article is read aloud."
+ },
+ "phListenBodyUp": {
+  "message": "Reading aloud is in Ultra. Open “…” (highlighted) → “Listen to this page”."
+ },
+ "phVideoTitle": {
+  "message": "Ask about the video"
+ },
+ "phVideoBody": {
+  "message": "Ask about the video in the highlighted field: I answer from its subtitles."
+ },
+ "phVideoBodyUp": {
+  "message": "Answers from a video's subtitles are in Pro. Ask about it in the highlighted field."
+ },
+ "phTemplatesTitle": {
+  "message": "Reply with a template"
+ },
+ "phTemplatesBody": {
+  "message": "Put the cursor in a field on the page and the templates button appears next to it. Your templates: “…” (highlighted) → “Settings” → “Templates”."
+ },
+ "phRemindTitle": {
+  "message": "Remind me"
+ },
+ "phRemindBody": {
+  "message": "Type in the highlighted field, for example “remind me tomorrow at 9”, and I'll suggest a reminder."
+ },
+ "phCalendarTitle": {
+  "message": "Add to Calendar"
+ },
+ "phCalendarBody": {
+  "message": "Type “add to calendar” in the highlighted field and I'll suggest an event with the page's date."
+ },
+ "setPageHints": {
+  "message": "Tips by the ✦ button"
+ },
+ "setPageHintsHint": {
+  "message": "In your first days, they show what you can do on a page."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
+ },
+ "shotSwitch": {
+  "message": "Page snapshot"
+ },
+ "shotVisible": {
+  "message": "Visible area"
+ },
+ "shotFull": {
+  "message": "Whole page"
+ },
+ "shotProOnly": {
+  "message": "The whole page is in Pro and Ultra."
+ },
+ "shotTaking": {
+  "message": "Taking a snapshot…"
+ },
+ "shotTakingFull": {
+  "message": "Snapshot: screen {0} of {1}…"
+ },
+ "shotFailed": {
+  "message": "Couldn't take a snapshot here. The note is saved without it."
+ },
+ "shotCut": {
+  "message": "The page is long: the snapshot has its first {0} screens."
+ },
+ "shotOpen": {
+  "message": "Open the snapshot"
+ },
+ "shotNote": {
+  "message": "Snapshot of the page"
+ },
+ "shotCrop": {
+  "message": "Crop"
+ },
+ "shotCropDone": {
+  "message": "Done"
+ },
+ "shotCropReset": {
+  "message": "Whole snapshot"
+ },
+ "shotLoading": {
+  "message": "Opening the snapshot…"
+ },
+ "shotMissing": {
+  "message": "This snapshot isn't on this device yet. It comes through iCloud when your chats sync there."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

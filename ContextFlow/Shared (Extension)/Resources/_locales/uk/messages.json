@@ -2372,6 +2372,348 @@
  "appleAskOnce": {
   "message": "Першого разу відкриється ContextFlow, щоб запитати доступ."
  },
+ "trOffer": {
+  "message": "Перекласти українською?"
+ },
+ "trOfferTo": {
+  "message": "Перекласти мовою: {0}?"
+ },
+ "trHide": {
+  "message": "Сховати на цьому сайті"
+ },
+ "trWorking": {
+  "message": "Перекладаю…"
+ },
+ "trOriginal": {
+  "message": "Оригінал"
+ },
+ "trFailed": {
+  "message": "Не вдалося перекласти"
+ },
+ "spacesTitle": {
+  "message": "Простори"
+ },
+ "spaceSwitcher": {
+  "message": "Простір: {0}. Перемкнути"
+ },
+ "spaceFirst": {
+  "message": "Особисте"
+ },
+ "spaceNew": {
+  "message": "Новий простір"
+ },
+ "spaceEdit": {
+  "message": "Змінити «{0}»"
+ },
+ "spaceName": {
+  "message": "Назва"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Наприклад, Робота"
+ },
+ "spaceColor": {
+  "message": "Колір"
+ },
+ "spaceColorBlue": {
+  "message": "Синій"
+ },
+ "spaceColorGreen": {
+  "message": "Зелений"
+ },
+ "spaceColorOrange": {
+  "message": "Помаранчевий"
+ },
+ "spaceColorPink": {
+  "message": "Рожевий"
+ },
+ "spaceColorViolet": {
+  "message": "Фіолетовий"
+ },
+ "spaceColorGraphite": {
+  "message": "Графіт"
+ },
+ "spaceCreate": {
+  "message": "Створити"
+ },
+ "spaceDelete": {
+  "message": "Видалити простір"
+ },
+ "spaceDeleteNote": {
+  "message": "Його чати перейдуть до «{0}»."
+ },
+ "spaceBind": {
+  "message": "Відкривати {0} тут"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} відкривається в «{1}». Відкривати тут"
+ },
+ "spaceMoveTo": {
+  "message": "Перемістити до…"
+ },
+ "spaceMoved": {
+  "message": "Перенесено до «{0}»"
+ },
+ "spaceIn": {
+  "message": "Ви в «{0}»"
+ },
+ "spaceLimit": {
+  "message": "Безкоштовно просторів: {0}. У Pro — скільки завгодно."
+ },
+ "spaceEmpty": {
+  "message": "У «{0}» поки немає чатів. Новий чат з’явиться тут."
+ },
+ "setSpaces": {
+  "message": "Простори"
+ },
+ "setSpacesHint": {
+  "message": "Робота, Особисте, Покупки: у кожному свої чати й свій колір. Вимкніть — усі чати знову в одному списку, простори збережуться."
+ },
+ "matchContinue": {
+  "message": "Продовжую"
+ },
+ "writeCircle": {
+  "message": "Перевірити або переписати"
+ },
+ "writeCheck": {
+  "message": "Перевірити"
+ },
+ "writeRewrite": {
+  "message": "Переписати"
+ },
+ "writeToneShort": {
+  "message": "Коротше"
+ },
+ "writeToneWarm": {
+  "message": "Тепліше"
+ },
+ "writeToneFormal": {
+  "message": "Офіційніше"
+ },
+ "writeToneConfident": {
+  "message": "Упевненіше"
+ },
+ "writeChecking": {
+  "message": "Перевіряю з урахуванням сторінки…"
+ },
+ "writeRewriting": {
+  "message": "Переписую з урахуванням сторінки…"
+ },
+ "writeFixes": {
+  "message": "Виправлень: {0}"
+ },
+ "writeLeft": {
+  "message": "Безкоштовних відповідей на сьогодні: {0}"
+ },
+ "writeClean": {
+  "message": "Помилок не знайшлося."
+ },
+ "writeEmpty": {
+  "message": "Тут поки немає тексту."
+ },
+ "writeTooLong": {
+  "message": "Забагато одразу. Виділіть частину й спробуйте знову."
+ },
+ "writeChanged": {
+  "message": "Текст відтоді змінився."
+ },
+ "writeFix": {
+  "message": "Виправити"
+ },
+ "writeReplace": {
+  "message": "Замінити"
+ },
+ "writeFixed": {
+  "message": "Виправлено"
+ },
+ "writeFixedSome": {
+  "message": "Виправлено, крім того, що поле не прийняло"
+ },
+ "writeReplaced": {
+  "message": "Замінено"
+ },
+ "writeUndo": {
+  "message": "Скасувати"
+ },
+ "writeUndone": {
+  "message": "Скасовано"
+ },
+ "writeUndoFailed": {
+  "message": "Не вдалося скасувати: текст уже змінився."
+ },
+ "writeSetting": {
+  "message": "«Перевірити» й «Переписати» біля полів"
+ },
+ "writeSettingHint": {
+  "message": "Правка враховує сторінку: лист, на який ви відповідаєте, допис під коментарем. Кожне натискання — одна відповідь. Те, як ви пишете на кожному сайті, зберігається лише на цьому пристрої й допомагає писати у вашому стилі."
+ },
+ "writeSkip": {
+  "message": "Пропустити"
+ },
+ "underlineSetting": {
+  "message": "Підкреслювати помилки під час набору"
+ },
+ "underlineSettingHint": {
+  "message": "Pro і Ultra: після паузи в наборі перевіряється лише змінений абзац, з урахуванням сторінки. Наведіть на підкреслення (на iPhone і iPad — торкніться), щоб виправити. Відповіді не витрачаються."
+ },
+ "setSide": {
+  "message": "Бік екрана"
+ },
+ "sideRight": {
+  "message": "Праворуч"
+ },
+ "sideLeft": {
+  "message": "Ліворуч"
+ },
+ "hintSideTitle": {
+  "message": "Панель і кнопку ✦ можна перетягнути до іншого краю"
+ },
+ "hintSideTitleSheet": {
+  "message": "Кнопку ✦ можна перетягнути до іншого краю"
+ },
+ "hintSideBody": {
+  "message": "Потягніть за шапку панелі або за кнопку. Бік можна вибрати й у налаштуваннях."
+ },
+ "hintSideBodySheet": {
+  "message": "Потягніть її ліворуч або праворуч. Бік можна вибрати й у налаштуваннях."
+ },
+ "phSimilar": {
+  "message": "Знайти схоже дешевше?"
+ },
+ "phWatch": {
+  "message": "Стежити за ціною?"
+ },
+ "phSummary": {
+  "message": "Переказати сторінку?"
+ },
+ "phListen": {
+  "message": "Послухати статтю?"
+ },
+ "phVideo": {
+  "message": "Запитати про відео?"
+ },
+ "phTemplates": {
+  "message": "Відповісти за шаблоном?"
+ },
+ "phRemind": {
+  "message": "Нагадати про це?"
+ },
+ "phCalendar": {
+  "message": "Додати в календар?"
+ },
+ "phClose": {
+  "message": "Сховати підказку"
+ },
+ "phSimilarTitle": {
+  "message": "Знайти схоже дешевше"
+ },
+ "phSimilarBody": {
+  "message": "Виділіть назву товару → «Знайти схоже» або натисніть підсвічену кнопку: той самий товар дешевше і схожі варіанти."
+ },
+ "phSimilarBodyUp": {
+  "message": "Це в Ultra: той самий товар дешевше і схожі варіанти з інших магазинів. Натисніть підсвічену кнопку."
+ },
+ "phWatchTitle": {
+  "message": "Стежити за ціною"
+ },
+ "phWatchBody": {
+  "message": "Виділіть ціну — поруч з'явиться око. Або «…» (підсвічено) → «Стежити за цією сторінкою…». Повідомлю, коли зміниться."
+ },
+ "phSummaryTitle": {
+  "message": "Переказ сторінки"
+ },
+ "phSummaryBody": {
+  "message": "Натисніть підсвічену «Коротко» — головне зі сторінки в кількох рядках."
+ },
+ "phListenTitle": {
+  "message": "Послухати статтю"
+ },
+ "phListenBody": {
+  "message": "Відкрийте «…» (підсвічено) → «Слухати цю сторінку» — статтю буде прочитано вголос."
+ },
+ "phListenBodyUp": {
+  "message": "Читання вголос — в Ultra. Відкрийте «…» (підсвічено) → «Слухати цю сторінку»."
+ },
+ "phVideoTitle": {
+  "message": "Питання про відео"
+ },
+ "phVideoBody": {
+  "message": "Запитайте про відео в підсвіченому полі — відповім за його субтитрами."
+ },
+ "phVideoBodyUp": {
+  "message": "Відповіді за субтитрами відео — в Pro. Запитайте про нього в підсвіченому полі."
+ },
+ "phTemplatesTitle": {
+  "message": "Відповідь за шаблоном"
+ },
+ "phTemplatesBody": {
+  "message": "Поставте курсор у поле на сторінці — поруч з'явиться кнопка шаблонів. Свої шаблони: «…» (підсвічено) → «Налаштування» → «Шаблони»."
+ },
+ "phRemindTitle": {
+  "message": "Нагадати"
+ },
+ "phRemindBody": {
+  "message": "Напишіть у підсвіченому полі, наприклад «нагадай завтра о 9», — я запропоную нагадування."
+ },
+ "phCalendarTitle": {
+  "message": "У календар"
+ },
+ "phCalendarBody": {
+  "message": "Напишіть у підсвіченому полі «додай у календар» — я запропоную подію з датою зі сторінки."
+ },
+ "setPageHints": {
+  "message": "Підказки біля кнопки ✦"
+ },
+ "setPageHintsHint": {
+  "message": "У перші дні підказують, що можна зробити на сторінці."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "Це в Pro та Ultra: у Pro — швидкий пошук, в Ultra — повний. Той самий товар дешевше і схожі варіанти з інших магазинів. Натисніть підсвічену кнопку."
+ },
+ "shotSwitch": {
+  "message": "Знімок сторінки"
+ },
+ "shotVisible": {
+  "message": "Видима область"
+ },
+ "shotFull": {
+  "message": "Повністю"
+ },
+ "shotProOnly": {
+  "message": "Сторінка повністю — у Pro та Ultra."
+ },
+ "shotTaking": {
+  "message": "Знімаю сторінку…"
+ },
+ "shotTakingFull": {
+  "message": "Знімок: екран {0} з {1}…"
+ },
+ "shotFailed": {
+  "message": "Знімок тут не вдався. Нотатку збережено без нього."
+ },
+ "shotCut": {
+  "message": "Сторінка довга: у знімку її перші {0} екранів."
+ },
+ "shotOpen": {
+  "message": "Відкрити знімок"
+ },
+ "shotNote": {
+  "message": "Знімок сторінки"
+ },
+ "shotCrop": {
+  "message": "Обрізати"
+ },
+ "shotCropDone": {
+  "message": "Готово"
+ },
+ "shotCropReset": {
+  "message": "Весь знімок"
+ },
+ "shotLoading": {
+  "message": "Відкриваю знімок…"
+ },
+ "shotMissing": {
+  "message": "Цього знімка ще немає на пристрої. Він прийде через iCloud, якщо чати синхронізуються там."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

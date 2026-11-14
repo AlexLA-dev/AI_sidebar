@@ -64,3 +64,7 @@ export const Tag = (): VNode => (
 export const Folder = (): VNode => (
   <svg {...base} width={13} height={13}><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
 )
+/** «Переместить в…» (2.7): a chat into another space. */
+export const MoveTo = (): VNode => (
+  <svg {...base} width={16} height={16}><rect x="3" y="4" width="13" height="13" rx="3" /><path d="M8 21h10a3 3 0 0 0 3-3V8" /><path d="M7 10.5h5.5M10.5 8l2.5 2.5-2.5 2.5" /></svg>
+)

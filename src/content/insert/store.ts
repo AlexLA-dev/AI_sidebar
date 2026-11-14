@@ -7,6 +7,7 @@ import { liveTemplates, noteUse, tombstone, type Template, type Templates, type 
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../../shared/types"
 import type { Threads } from "../../shared/threads"
 import { toPlainText } from "../../shared/share"
+import { keepSample, samplesFor, type Samples } from "../../shared/writing"
 
 async function get<T>(key: string): Promise<T | undefined> {
   try {
@@ -195,4 +196,27 @@ export async function lastReply(): Promise<LastReply | null> {
     }
   }
   return null
+}
+
+// ------------------------------------------------------------ the person's style («Проверить» и «Переписать», 2.7)
+
+/** What they wrote on `host` before, newest first (never the text being checked). Kept on this device only. */
+export async function loadSamples(host: string, current: string): Promise<string[]> {
+  return samplesFor((await get<Samples>(INSERT_STORAGE.samples)) ?? {}, siteKey(host), Date.now(), current)
+}
+
+/** Keeps what they wrote in a field on `host` (sent, or left when the field lost the focus). */
+export async function keepWriting(host: string, text: string): Promise<void> {
+  const all = (await get<Samples>(INSERT_STORAGE.samples)) ?? {}
+  const next = keepSample(all, siteKey(host), text, Date.now())
+  if (next !== all) await set({ [INSERT_STORAGE.samples]: next })
+}
+
+export async function clearSamples(): Promise<void> {
+  await set({ [INSERT_STORAGE.samples]: {} })
+}
+
+/** «О себе» from Settings. */
+export async function loadAbout(): Promise<string> {
+  return (await get<Partial<Settings>>(STORAGE.settings))?.aboutMe?.trim() ?? ""
 }

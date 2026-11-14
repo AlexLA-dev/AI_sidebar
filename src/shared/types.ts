@@ -180,6 +180,10 @@ export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
   | { type: "tipClip"; name: string; lang: string }
+  // «Снимок страницы в заметке» (2.7): the tab's visible area captured; a note's picture kept, and fetched to open it.
+  | { type: "shotCapture" }
+  | { type: "shotPut"; id: string; data: string }
+  | { type: "shotGet"; id: string; parts: number }
   // Build 91: the jobs the background is running now (ids), to follow one again after the panel was closed.
   | { type: "liveJobs" }
   // …and the panel showed this chat: its jobs' outcomes were seen (the chats list's and the floating button's dot go).
@@ -237,6 +241,8 @@ export type BackgroundRequest =
   | { type: "organizeName"; chat: string }
   // The chats list (2.6, Pro, with suggestions on): how many open suggestions each chat has; answers an OrganizeCountsReply.
   | { type: "organizeCounts" }
+  // 2.7: «Подходящий чат» by meaning (Pro, organizing on): the page title against these chats (match.ts).
+  | { type: "matchTopic"; title: string; chats: string[] }
   // Organizing: a suggestion shown, taken, turned down or undone; a promotion shown or tapped; suggestions
   // switched on or declined. Counts only, never text.
   | { type: "organizeEvent"; event: OrganizeEvent }
@@ -259,7 +265,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "similar"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; screens?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -377,14 +383,22 @@ export const STORAGE = {
   // the tag checks' answers ({[hash]: tags}), and the cards about it already shown or closed.
   orgVectors: "cf:orgVectors",
   orgVerdicts: "cf:orgVerdicts",
-  orgCards: "cf:orgCards"
+  orgCards: "cf:orgCards",
+  // Spaces (2.7, src/shared/spaces.ts): the list ({ u, list }), and the time of the copy iCloud and the app have.
+  spaces: "cf:spaces",
+  spacesSynced: "cf:spacesSynced",
+  spacesMirrored: "cf:spacesMirrored"
 } as const
 
 export interface Settings {
   // "auto" (2.0 / 2.1 default, iPhone and iPad only) is read as "on".
   fab: "auto" | "on" | "off"
   fabHiddenSites: string[]
-  fabSide: "left" | "right"
+  // The circle's side, and on iPad and Mac the panel's (2.7). Not chosen yet: the interface's direction decides (left
+  // in Arabic), src/content/side/snap.ts resolveSide. Before 2.7 every save wrote "right", so a stored "right" counts
+  // only once fabSideChosen is set (by a drag or Settings); a stored "left" only ever came from a drag.
+  fabSide?: "left" | "right"
+  fabSideChosen?: boolean
   fabY: number // percent of viewport height
   selectionButton: boolean
   textSize: "normal" | "large"
@@ -413,12 +427,15 @@ export interface Settings {
   // and keeping what's copied on pages for its list. Its other settings stay on this device (cf:insert).
   insertButton: boolean
   keepCopied: boolean
+  // 2.7: Spaces (the owner: «Давай сделаем Пространства выключаемой опцией в настройках»). On by default, and still
+  // nothing shows while there's one space. Off: no switcher, colours or site bindings, every chat in one list; the
+  // spaces and which chat is in which stay, for when it's on again. Shared with the app, like the rest.
+  spaces: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   fab: "on",
   fabHiddenSites: [],
-  fabSide: "right",
   fabY: 72,
   selectionButton: true,
   textSize: "normal",
@@ -432,7 +449,8 @@ export const DEFAULT_SETTINGS: Settings = {
   organize: false,
   shareMarks: false,
   insertButton: true,
-  keepCopied: COPIED_DEFAULT_ON
+  keepCopied: COPIED_DEFAULT_ON,
+  spaces: true
 }
 
 /** AI search's answer: the matching chats with a reason, or why there are none. */

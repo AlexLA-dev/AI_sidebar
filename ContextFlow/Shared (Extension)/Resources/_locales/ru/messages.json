@@ -2372,6 +2372,348 @@
  "appleAskOnce": {
   "message": "В первый раз откроется ContextFlow, чтобы спросить доступ."
  },
+ "trOffer": {
+  "message": "Перевести на русский?"
+ },
+ "trOfferTo": {
+  "message": "Перевести на язык: {0}?"
+ },
+ "trHide": {
+  "message": "Скрыть на этом сайте"
+ },
+ "trWorking": {
+  "message": "Перевожу…"
+ },
+ "trOriginal": {
+  "message": "Оригинал"
+ },
+ "trFailed": {
+  "message": "Не удалось перевести"
+ },
+ "spacesTitle": {
+  "message": "Пространства"
+ },
+ "spaceSwitcher": {
+  "message": "Пространство: {0}. Переключить"
+ },
+ "spaceFirst": {
+  "message": "Личное"
+ },
+ "spaceNew": {
+  "message": "Новое пространство"
+ },
+ "spaceEdit": {
+  "message": "Изменить «{0}»"
+ },
+ "spaceName": {
+  "message": "Название"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Например, Работа"
+ },
+ "spaceColor": {
+  "message": "Цвет"
+ },
+ "spaceColorBlue": {
+  "message": "Синий"
+ },
+ "spaceColorGreen": {
+  "message": "Зелёный"
+ },
+ "spaceColorOrange": {
+  "message": "Оранжевый"
+ },
+ "spaceColorPink": {
+  "message": "Розовый"
+ },
+ "spaceColorViolet": {
+  "message": "Фиолетовый"
+ },
+ "spaceColorGraphite": {
+  "message": "Графит"
+ },
+ "spaceCreate": {
+  "message": "Создать"
+ },
+ "spaceDelete": {
+  "message": "Удалить пространство"
+ },
+ "spaceDeleteNote": {
+  "message": "Его чаты перейдут в «{0}»."
+ },
+ "spaceBind": {
+  "message": "Открывать {0} здесь"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} открывается в «{1}». Открывать здесь"
+ },
+ "spaceMoveTo": {
+  "message": "Переместить в…"
+ },
+ "spaceMoved": {
+  "message": "Перенесено в «{0}»"
+ },
+ "spaceIn": {
+  "message": "Вы в «{0}»"
+ },
+ "spaceLimit": {
+  "message": "Бесплатно пространств: {0}. В Pro — сколько угодно."
+ },
+ "spaceEmpty": {
+  "message": "В «{0}» пока нет чатов. Новый чат появится здесь."
+ },
+ "setSpaces": {
+  "message": "Пространства"
+ },
+ "setSpacesHint": {
+  "message": "Работа, Личное, Покупки: в каждом свои чаты и свой цвет. Выключите — все чаты снова в одном списке, пространства сохранятся."
+ },
+ "matchContinue": {
+  "message": "Продолжаю"
+ },
+ "writeCircle": {
+  "message": "Проверить или переписать"
+ },
+ "writeCheck": {
+  "message": "Проверить"
+ },
+ "writeRewrite": {
+  "message": "Переписать"
+ },
+ "writeToneShort": {
+  "message": "Короче"
+ },
+ "writeToneWarm": {
+  "message": "Теплее"
+ },
+ "writeToneFormal": {
+  "message": "Официальнее"
+ },
+ "writeToneConfident": {
+  "message": "Увереннее"
+ },
+ "writeChecking": {
+  "message": "Проверяю с учётом страницы…"
+ },
+ "writeRewriting": {
+  "message": "Переписываю с учётом страницы…"
+ },
+ "writeFixes": {
+  "message": "Исправлений: {0}"
+ },
+ "writeLeft": {
+  "message": "Бесплатных ответов на сегодня: {0}"
+ },
+ "writeClean": {
+  "message": "Ошибок не нашлось."
+ },
+ "writeEmpty": {
+  "message": "Здесь пока нет текста."
+ },
+ "writeTooLong": {
+  "message": "Слишком много сразу. Выделите часть и попробуйте снова."
+ },
+ "writeChanged": {
+  "message": "Текст с тех пор изменился."
+ },
+ "writeFix": {
+  "message": "Исправить"
+ },
+ "writeReplace": {
+  "message": "Заменить"
+ },
+ "writeFixed": {
+  "message": "Исправлено"
+ },
+ "writeFixedSome": {
+  "message": "Исправлено, кроме того, что поле не приняло"
+ },
+ "writeReplaced": {
+  "message": "Заменено"
+ },
+ "writeUndo": {
+  "message": "Отменить"
+ },
+ "writeUndone": {
+  "message": "Отменено"
+ },
+ "writeUndoFailed": {
+  "message": "Не получилось отменить: текст уже изменился."
+ },
+ "writeSetting": {
+  "message": "«Проверить» и «Переписать» у полей"
+ },
+ "writeSettingHint": {
+  "message": "Правка учитывает страницу: письмо, на которое вы отвечаете, пост под комментарием. Каждое нажатие — один ответ. То, как вы пишете на каждом сайте, хранится только на этом устройстве и помогает писать в вашем стиле."
+ },
+ "writeSkip": {
+  "message": "Пропустить"
+ },
+ "underlineSetting": {
+  "message": "Подчёркивать ошибки при наборе"
+ },
+ "underlineSettingHint": {
+  "message": "Pro и Ultra: после паузы в наборе проверяется только изменённый абзац, с учётом страницы. Наведите на подчёркивание (на iPhone и iPad — нажмите), чтобы исправить. Ответы не тратятся."
+ },
+ "setSide": {
+  "message": "Сторона экрана"
+ },
+ "sideRight": {
+  "message": "Справа"
+ },
+ "sideLeft": {
+  "message": "Слева"
+ },
+ "hintSideTitle": {
+  "message": "Панель и кружок ✦ можно перетащить к другому краю"
+ },
+ "hintSideTitleSheet": {
+  "message": "Кружок ✦ можно перетащить к другому краю"
+ },
+ "hintSideBody": {
+  "message": "Потяните за шапку панели или за кружок. Сторону можно выбрать и в настройках."
+ },
+ "hintSideBodySheet": {
+  "message": "Потяните его влево или вправо. Сторону можно выбрать и в настройках."
+ },
+ "phSimilar": {
+  "message": "Найти похожее дешевле?"
+ },
+ "phWatch": {
+  "message": "Следить за ценой?"
+ },
+ "phSummary": {
+  "message": "Пересказать страницу?"
+ },
+ "phListen": {
+  "message": "Послушать статью?"
+ },
+ "phVideo": {
+  "message": "Спросить про видео?"
+ },
+ "phTemplates": {
+  "message": "Ответить по шаблону?"
+ },
+ "phRemind": {
+  "message": "Напомнить об этом?"
+ },
+ "phCalendar": {
+  "message": "Добавить в календарь?"
+ },
+ "phClose": {
+  "message": "Скрыть подсказку"
+ },
+ "phSimilarTitle": {
+  "message": "Найти похожее дешевле"
+ },
+ "phSimilarBody": {
+  "message": "Выделите название товара → «Найти похожее» или нажмите подсвеченную кнопку: тот же товар дешевле и похожие варианты."
+ },
+ "phSimilarBodyUp": {
+  "message": "Это в Ultra: тот же товар дешевле и похожие варианты из других магазинов. Нажмите подсвеченную кнопку."
+ },
+ "phWatchTitle": {
+  "message": "Следить за ценой"
+ },
+ "phWatchBody": {
+  "message": "Выделите цену — рядом появится глаз. Или «…» (подсвечено) → «Следить за этой страницей…». Сообщу, когда изменится."
+ },
+ "phSummaryTitle": {
+  "message": "Пересказ страницы"
+ },
+ "phSummaryBody": {
+  "message": "Нажмите подсвеченную «Кратко» — главное со страницы в нескольких строках."
+ },
+ "phListenTitle": {
+  "message": "Послушать статью"
+ },
+ "phListenBody": {
+  "message": "Откройте «…» (подсвечено) → «Слушать эту страницу» — статья прочитается вслух."
+ },
+ "phListenBodyUp": {
+  "message": "Чтение вслух — в Ultra. Откройте «…» (подсвечено) → «Слушать эту страницу»."
+ },
+ "phVideoTitle": {
+  "message": "Вопрос про видео"
+ },
+ "phVideoBody": {
+  "message": "Спросите о видео в подсвеченном поле — отвечу по его субтитрам."
+ },
+ "phVideoBodyUp": {
+  "message": "Ответы по субтитрам видео — в Pro. Спросите о нём в подсвеченном поле."
+ },
+ "phTemplatesTitle": {
+  "message": "Ответ по шаблону"
+ },
+ "phTemplatesBody": {
+  "message": "Поставьте курсор в поле на странице — рядом появится кнопка шаблонов. Свои шаблоны: «…» (подсвечено) → «Настройки» → «Шаблоны»."
+ },
+ "phRemindTitle": {
+  "message": "Напомнить"
+ },
+ "phRemindBody": {
+  "message": "Напишите в подсвеченном поле, например «напомни завтра в 9», — я предложу напоминание."
+ },
+ "phCalendarTitle": {
+  "message": "В календарь"
+ },
+ "phCalendarBody": {
+  "message": "Напишите в подсвеченном поле «добавь в календарь» — я предложу событие с датой со страницы."
+ },
+ "setPageHints": {
+  "message": "Подсказки у кнопки ✦"
+ },
+ "setPageHintsHint": {
+  "message": "В первые дни подсказывают, что можно сделать на странице."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "Это в Pro и Ultra: в Pro — быстрый поиск, в Ultra — полный. Тот же товар дешевле и похожие варианты из других магазинов. Нажмите подсвеченную кнопку."
+ },
+ "shotSwitch": {
+  "message": "Снимок страницы"
+ },
+ "shotVisible": {
+  "message": "Видимая область"
+ },
+ "shotFull": {
+  "message": "Целиком"
+ },
+ "shotProOnly": {
+  "message": "Страница целиком — в Pro и Ultra."
+ },
+ "shotTaking": {
+  "message": "Снимаю страницу…"
+ },
+ "shotTakingFull": {
+  "message": "Снимок: экран {0} из {1}…"
+ },
+ "shotFailed": {
+  "message": "Снимок здесь не получился. Заметка сохранена без него."
+ },
+ "shotCut": {
+  "message": "Страница длинная: в снимке её первые {0} экранов."
+ },
+ "shotOpen": {
+  "message": "Открыть снимок"
+ },
+ "shotNote": {
+  "message": "Снимок страницы"
+ },
+ "shotCrop": {
+  "message": "Обрезать"
+ },
+ "shotCropDone": {
+  "message": "Готово"
+ },
+ "shotCropReset": {
+  "message": "Весь снимок"
+ },
+ "shotLoading": {
+  "message": "Открываю снимок…"
+ },
+ "shotMissing": {
+  "message": "Этого снимка пока нет на устройстве. Он придёт через iCloud, если чаты синхронизируются там."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },
