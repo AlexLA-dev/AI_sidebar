@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
-import { freeAnswersBack, t, uiLanguage, type MessageKey } from "../shared/i18n"
+import { freeAnswersBack, t, uiDirection, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
@@ -106,7 +106,7 @@ import { TranslatePill } from "./translate/TranslatePill"
 import { useFabDrag, usePanelDrag } from "./side/drag"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, usePageHints } from "./pagehints/PageHints"
-import type { Side } from "./side/snap"
+import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
 import { SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
@@ -2282,12 +2282,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [settings.fabY, settings.fabSide])
   // 2.7 (plan section 9): the circle follows the finger and lands on the nearer edge; on iPad and Mac the panel is dragged
   // by its header the same way. One side for both (the circle's setting): the panel opens where the circle is.
-  const side: Side = settings.fabSide === "left" ? "left" : "right"
+  // Until the person picks one, the interface's direction decides (left in Arabic); a drag or Settings is a choice.
+  const side: Side = resolveSide(settings, uiDirection())
+  const sideRef = useRef(side)
+  sideRef.current = side
   const fabDrag = useFabDrag({
     fab: fabRef,
     onDrop: (to, fabY) => {
-      if (to !== settingsRef.current.fabSide) void sendBackground({ type: "useEvent", f: "side", a: "drag_fab", what: to })
-      updateSettings({ fabY, fabSide: to })
+      if (to !== sideRef.current) void sendBackground({ type: "useEvent", f: "side", a: "drag_fab", what: to })
+      updateSettings({ fabY, fabSide: to, fabSideChosen: true })
     },
     onTap: () => show(undefined, { pageChat: true })
   })
@@ -2300,7 +2303,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     enabled: layout === "side",
     onSide: (to) => {
       void sendBackground({ type: "useEvent", f: "side", a: "drag_panel", what: to })
-      updateSettings({ fabSide: to })
+      updateSettings({ fabSide: to, fabSideChosen: true })
     }
   })
 

@@ -5,7 +5,7 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { FAB_SIZE, fabLeftAt, fabLeftFor, HEADER_CONTROLS, heightPercent, isDrag, nearestSide, panelSideFor } from "../src/content/side/snap.ts"
+import { FAB_SIZE, fabLeftAt, fabLeftFor, HEADER_CONTROLS, heightPercent, isDrag, nearestSide, panelSideFor, resolveSide } from "../src/content/side/snap.ts"
 
 test("the circle lands on the nearer edge, at the height it was let go, never under the very top or bottom", () => {
   assert.equal(nearestSide(10, 390), "left")
@@ -33,6 +33,19 @@ test("a press that hardly moves is a tap (it opens the panel); the panel goes wh
   assert.equal(panelSideFor({ left: 500, width: 420 }, 1440), "left", "dragged just past the middle")
 })
 
+test("until the person picks a side, the interface's direction decides; their choice wins in any language", () => {
+  assert.equal(resolveSide({}, "rtl"), "left", "Arabic, nothing chosen: left")
+  assert.equal(resolveSide({ fabSide: "right", fabSideChosen: true }, "rtl"), "right", "Arabic, chose right: right")
+  assert.equal(resolveSide({}, "ltr"), "right", "English: right")
+  assert.equal(resolveSide({ fabSide: "left", fabSideChosen: true }, "ltr"), "left", "English, chose left: left")
+  // Before 2.7 every save wrote "right" (the old default), and only a drag wrote "left".
+  assert.equal(resolveSide({ fabSide: "right" }, "rtl"), "left", "a stored old default isn't a choice")
+  assert.equal(resolveSide({ fabSide: "left" }, "ltr"), "left", "an old drag to the left stays")
+  const types = readFileSync(new URL("../src/shared/types.ts", import.meta.url), "utf8")
+  const defaults = types.slice(types.indexOf("export const DEFAULT_SETTINGS"))
+  assert.doesNotMatch(defaults.slice(0, defaults.indexOf("}")), /fabSide/, "no side written at install")
+})
+
 test("the header's buttons stay buttons: a press on them never drags the panel", () => {
   for (const tag of ["button", "a", "input", "[role=menu]"]) assert.ok(HEADER_CONTROLS.includes(tag), tag)
 })
@@ -42,7 +55,9 @@ test("one side for both: the panel opens where the circle is, mirrored in CSS; i
   assert.match(app, /data-side=\{side\}/)
   assert.match(app, /<header class="cf-header" \{\.\.\.panelDrag\.handlers\}>/)
   assert.match(app, /usePanelDrag\(\{[\s\S]*?enabled: layout === "side"/)
-  assert.match(app, /onSide: \(to\) => \{[\s\S]*?updateSettings\(\{ fabSide: to \}\)/)
+  assert.match(app, /const side: Side = resolveSide\(settings, uiDirection\(\)\)/)
+  assert.match(app, /onSide: \(to\) => \{[\s\S]*?updateSettings\(\{ fabSide: to, fabSideChosen: true \}\)/)
+  assert.match(app, /updateSettings\(\{ fabY, fabSide: to, fabSideChosen: true \}\)/)
   assert.match(app, /<EdgeGlow side=\{fabDrag\.state\.glow \?\? panelDrag\.glow\} \/>/)
   assert.match(app, /<TranslatePill\s+side=\{side\}/, "the translate pill follows the side")
   const css = readFileSync(new URL("../src/content/side/side.css", import.meta.url), "utf8")
@@ -52,5 +67,5 @@ test("one side for both: the panel opens where the circle is, mirrored in CSS; i
   const index = readFileSync(new URL("../src/content/index.tsx", import.meta.url), "utf8")
   assert.match(index, /import sideStyles from "\.\/side\/side\.css"[\s\S]*?\$\{sideStyles\}/, "its styles are in the panel's style sheet")
   const settings = readFileSync(new URL("../src/content/Settings.tsx", import.meta.url), "utf8")
-  assert.match(settings, /t\("setSide"\)[\s\S]*?\["right", t\("sideRight"\)\], \["left", t\("sideLeft"\)\]/)
+  assert.match(settings, /t\("setSide"\)[\s\S]*?resolveSide\(settings, uiDirection\(\)\)[\s\S]*?\["right", t\("sideRight"\)\], \["left", t\("sideLeft"\)\][\s\S]*?onChange\(\{ fabSide, fabSideChosen: true \}\)/)
 })
