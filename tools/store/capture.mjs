@@ -1126,12 +1126,25 @@ function collectionsData() {
   return { "cf:collections": { [id]: { u: now - 3e5, rec } } }
 }
 async function collections(s) {
+  // The guide in the reader's language behind the panel, as the trip was planned on it.
   await fresh(s, { url: ES_GUIDE, extra: { ...ULTRA(), ...collectionsData() } })
+  const pill = s.page.locator(".cf-tr")
+  if (await pill.locator(".cf-tr-btn").first().waitFor({ timeout: 15000 }).then(() => true, () => false)) {
+    await press(s, pill.locator(".cf-tr-btn").first())
+    await s.page.locator(".cf-tr .cf-tr-btn.quiet").waitFor({ timeout: 20000 })
+    await s.page.waitForTimeout(800)
+  }
   await open(s)
   await s.page.locator(".cf-panel.in").waitFor()
   await s.page.waitForTimeout(800)
   await press(s, s.page.locator(".cf-col-open").first())
   await s.page.locator(".cf-col-window .cf-col-section").first().waitFor({ timeout: 8000 })
+  await s.page.waitForTimeout(400)
+  // The comparison whole above the window's footer.
+  await s.page.evaluate(shadow(`(r) => {
+    const box = r.querySelector(".cf-col-scroll"), t = r.querySelector(".cf-col-table")
+    if (box && t) box.scrollTop += t.getBoundingClientRect().bottom - box.getBoundingClientRect().bottom + 16
+  }`))
   await s.page.waitForTimeout(600)
 }
 
