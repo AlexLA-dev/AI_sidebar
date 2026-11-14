@@ -14,26 +14,50 @@ const LOCAL = (id: string) => `cf:shot:${id}`
 
 export type ShotCode = "UNAVAILABLE" | "FAILED" | "NOT_FOUND"
 
-/** What's on screen in the tab, as a JPEG data URL (device pixels). */
+type Capture = (windowId?: number | null, options?: object) => Promise<string>
+
+const within = <T>(ms: number, work: Promise<T>): Promise<T> =>
+  Promise.race([work, new Promise<T>((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))])
+
+/**
+ * What's on screen in the tab, as a JPEG data URL (device pixels). Safari's promise API first (its chrome.* callback
+ * form may never call back), with and without the window; Chrome's callback form else. Never waits more than a few
+ * seconds: the page has our panel hidden meanwhile.
+ */
 export async function captureTab(windowId: number | undefined): Promise<{ ok: true; data: string } | { ok: false; code: ShotCode; error?: string }> {
-  const capture = chrome.tabs?.captureVisibleTab
-  if (typeof capture !== "function") return { ok: false, code: "UNAVAILABLE" }
-  try {
-    const data = await new Promise<string>((resolve, reject) => {
-      const done = (url?: string) => {
+  const options = { format: "jpeg", quality: 92 }
+  const promised = (globalThis as { browser?: { tabs?: { captureVisibleTab?: Capture } } }).browser?.tabs?.captureVisibleTab
+  const callback = chrome.tabs?.captureVisibleTab as unknown as ((w: number | null, o: object, cb: (u?: string) => void) => void) | undefined
+  const tries: Array<() => Promise<string>> = []
+  if (typeof promised === "function") {
+    const tabs = (globalThis as unknown as { browser: { tabs: { captureVisibleTab: Capture } } }).browser.tabs
+    if (windowId !== undefined) tries.push(() => tabs.captureVisibleTab(windowId, options))
+    tries.push(() => tabs.captureVisibleTab(undefined, options))
+    tries.push(() => (tabs.captureVisibleTab as unknown as (o: object) => Promise<string>)(options))
+  }
+  if (typeof callback === "function") {
+    tries.push(() => new Promise<string>((resolve, reject) => {
+      callback.call(chrome.tabs, windowId ?? null, options, (url?: string) => {
         const err = chrome.runtime.lastError
         if (err || !url) reject(new Error(err?.message ?? "no image"))
         else resolve(url)
-      }
-      // Safari and Chrome take the window (or null for the current one) and the options.
-      const result = (capture as unknown as (w: number | null, o: object, cb: (u?: string) => void) => unknown)(windowId ?? null, { format: "jpeg", quality: 92 }, done)
-      // Safari's browser.* returns a promise and may not call back.
-      if (result && typeof (result as Promise<string>).then === "function") (result as Promise<string>).then(resolve, reject)
-    })
-    return { ok: true, data }
-  } catch (err) {
-    return { ok: false, code: "FAILED", error: err instanceof Error ? err.message.slice(0, 120) : "unknown" }
+      })
+    }))
   }
+  if (!tries.length) return { ok: false, code: "UNAVAILABLE" }
+  let last = "unknown"
+  for (const attempt of tries) {
+    try {
+      const data = await within(5000, attempt())
+      if (typeof data === "string" && data.startsWith("data:image/")) return { ok: true, data }
+      last = "no image"
+    } catch (err) {
+      last = err instanceof Error ? err.message.slice(0, 160) : String(err).slice(0, 160)
+      // Out of time: another form won't do better, and the page is waiting.
+      if (last === "timeout") break
+    }
+  }
+  return { ok: false, code: "FAILED", error: last }
 }
 
 async function cloudOn(): Promise<boolean> {

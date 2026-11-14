@@ -56,8 +56,12 @@ function staying(): HTMLElement[] {
 }
 
 async function capture(): Promise<HTMLImageElement> {
-  const reply = await send<{ ok: boolean; data?: string; code?: ShotFailure }>({ type: "shotCapture" })
-  if (!reply?.ok || !reply.data) throw Object.assign(new Error("capture"), { code: reply?.code ?? "FAILED" })
+  // Never longer than this: everything of ours is hidden meanwhile.
+  const reply = await Promise.race([
+    send<{ ok: boolean; data?: string; code?: ShotFailure; error?: string }>({ type: "shotCapture" }),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000))
+  ])
+  if (!reply?.ok || !reply.data) throw Object.assign(new Error(reply?.error ?? "capture"), { code: reply?.code ?? "FAILED", detail: reply?.error ?? (reply ? "" : "no reply") })
   return loadImage(reply.data)
 }
 
@@ -82,7 +86,7 @@ function thumbnail(source: HTMLCanvasElement): string {
  * on further). `progress` hears each screen of a whole page.
  */
 export async function takeShot(kind: ShotKind, progress?: (screen: number, of: number) => void): Promise<
-  { ok: true; shot: Omit<Shot, "parts">; data: string; cut: boolean; screens: number } | { ok: false; code: ShotFailure }
+  { ok: true; shot: Omit<Shot, "parts">; data: string; cut: boolean; screens: number } | { ok: false; code: ShotFailure; detail?: string }
 > {
   const host = ourHost()
   const hostVisibility = host?.style.visibility ?? ""
@@ -151,7 +155,7 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
     const data = jpeg(canvas, SHOT_LIMITS.quality)
     return { ok: true, shot: { id: newShotId(), kind, w: canvas.width, h: canvas.height, th: thumbnail(canvas) }, data, cut, screens }
   } catch (err) {
-    return { ok: false, code: ((err as { code?: ShotFailure }).code) ?? "FAILED" }
+    return { ok: false, code: ((err as { code?: ShotFailure }).code) ?? "FAILED", detail: (err as { detail?: string }).detail ?? (err instanceof Error ? err.message : "") }
   } finally {
     for (const h of hidden) {
       if (h.was) h.el.style.visibility = h.was
