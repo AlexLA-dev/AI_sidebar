@@ -215,8 +215,12 @@ export const FEATURES: Record<string, Feature> = {
   // (Pro tapped there), "consent", "error". The server logs each request ("write") and the limit.
   write: {
     since: "2.7", tracked: "2.7", on: "ext",
-    actions: ["menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error"],
-    via: ["circle", "list"],
+    actions: [
+      "menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error",
+      // Live underlines (Pro and Ultra): a fix shown (hover or tap), made, set aside, not taken by the field; the hidden cap reached.
+      "live_shown", "live_fixed", "live_ignored", "live_failed", "live_cap"
+    ],
+    via: ["circle", "list", "underline"],
     fields: { what: ["check", "short", "warm", "formal", "confident"] }
   },
 

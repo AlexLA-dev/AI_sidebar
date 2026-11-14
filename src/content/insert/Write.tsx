@@ -42,7 +42,7 @@ export interface Undo {
 const TONE_KEY: Record<Tone, MessageKey> = { short: "writeToneShort", warm: "writeToneWarm", formal: "writeToneFormal", confident: "writeToneConfident" }
 
 /** A use of «Проверить» и «Переписать», counted (usage.ts "write"): never the text, the page or the site. */
-export function writeStep(a: string, via?: WriteJob["via"], what?: string): void {
+export function writeStep(a: string, via?: WriteJob["via"] | "underline", what?: string): void {
   void sendBackground({ type: "useEvent", f: "write", a, ...(via ? { via } : {}), ...(what ? { what } : {}) })
 }
 
@@ -137,7 +137,7 @@ export function WriteDot({ at, onPick }: { at: { top: number; left: number }; on
 // ------------------------------------------------------------ the request
 
 /** The field's text with the page around it and the person's style, as /api/v2/write takes it. */
-async function askFor(field: Field, job: WriteJob, text: string, host: string): Promise<WriteAsk> {
+export async function askFor(field: Field, job: WriteJob, text: string, host: string): Promise<WriteAsk> {
   const conversation = conversationAround(field.el)
   const page = conversation
     ? { title: conversation.title || document.title, url: location.href, text: conversationText(conversation), conversation: true }
