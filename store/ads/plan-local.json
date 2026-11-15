@@ -30,7 +30,36 @@
       "dailyBudget": 1.8,
       "start": "2026-11-13",
       "end": "2026-11-23T22:00:00.000",
-      "negatives": [],
+      "negatives": [
+        {
+          "text": "免費",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        }
+      ],
       "adGroups": [
         {
           "name": "摘要 · exact",
@@ -66,6 +95,51 @@
               "text": "重點摘要",
               "bid": 0.4
             }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "摘要 · broad + Search Match",
+          "bid": 0.45,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "文章摘要",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "總結",
+              "match": "BROAD",
+              "bid": 0.5
+            },
+            {
+              "text": "影片摘要",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "網頁翻譯",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "摘要",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "重點摘要",
+              "match": "BROAD",
+              "bid": 0.4
+            }
           ]
         }
       ]
@@ -79,7 +153,36 @@
       "dailyBudget": 1.3,
       "start": "2026-11-13",
       "end": "2026-11-23T22:00:00.000",
-      "negatives": [],
+      "negatives": [
+        {
+          "text": "gratis",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        }
+      ],
       "adGroups": [
         {
           "name": "riassunto · exact",
@@ -127,6 +230,66 @@
               "text": "riassumere",
               "bid": 0.35
             }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "riassunto · broad + Search Match",
+          "bid": 0.4,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "riassumere testo",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto articolo",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto video",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "tradurre pagina web",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto",
+              "match": "BROAD",
+              "bid": 0.35
+            },
+            {
+              "text": "riassunto testo",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunti testi",
+              "match": "BROAD",
+              "bid": 0.5
+            },
+            {
+              "text": "riassunti video",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassumere",
+              "match": "BROAD",
+              "bid": 0.35
+            }
           ]
         }
       ]
@@ -140,7 +303,48 @@
       "dailyBudget": 1.0,
       "start": "2026-11-13",
       "end": "2026-11-23T22:00:00.000",
-      "negatives": [],
+      "negatives": [
+        {
+          "text": "gratuit",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        },
+        {
+          "text": "cv"
+        },
+        {
+          "text": "lettre de motivation"
+        },
+        {
+          "text": "bloqueur"
+        },
+        {
+          "text": "adblock"
+        }
+      ],
       "adGroups": [
         {
           "name": "résumé · exact",
@@ -168,6 +372,41 @@
               "text": "extension safari",
               "bid": 0.45
             }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "résumé · broad + Search Match",
+          "bid": 0.4,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "résumer texte",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "résumé article",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "résumé vidéo",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "extension safari",
+              "match": "BROAD",
+              "bid": 0.45
+            }
           ]
         }
       ]
@@ -181,7 +420,36 @@
       "dailyBudget": 1.0,
       "start": "2026-11-13",
       "end": "2026-11-23T22:00:00.000",
-      "negatives": [],
+      "negatives": [
+        {
+          "text": "kostenlos",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        }
+      ],
       "adGroups": [
         {
           "name": "zusammenfassen · exact",
@@ -229,6 +497,66 @@
               "text": "zusammenfassung",
               "bid": 0.35
             }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "zusammenfassen · broad + Search Match",
+          "bid": 0.4,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "text zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "artikel zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "video zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "webseite übersetzen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "texte zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "safari übersetzer",
+              "match": "BROAD",
+              "bid": 0.35
+            },
+            {
+              "text": "safari translate",
+              "match": "BROAD",
+              "bid": 0.35
+            },
+            {
+              "text": "zusammenfassung",
+              "match": "BROAD",
+              "bid": 0.35
+            }
           ]
         }
       ]
@@ -242,7 +570,45 @@
       "dailyBudget": 0.8,
       "start": "2026-11-13",
       "end": "2026-11-23T22:00:00.000",
-      "negatives": [],
+      "negatives": [
+        {
+          "text": "ücretsiz",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        },
+        {
+          "text": "maç"
+        },
+        {
+          "text": "futbol"
+        },
+        {
+          "text": "lig"
+        }
+      ],
       "adGroups": [
         {
           "name": "özet · exact",
@@ -282,6 +648,56 @@
               "text": "pdf özetleme",
               "bid": 0.45
             }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "özet · broad + Search Match",
+          "bid": 0.35,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "metin özetleme",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "makale özetleme",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "web sayfası çeviri",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "video özetleme",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "özet",
+              "match": "BROAD",
+              "bid": 0.3
+            },
+            {
+              "text": "summarize article",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "pdf özetleme",
+              "match": "BROAD",
+              "bid": 0.45
+            }
           ]
         }
       ]
@@ -296,7 +712,36 @@
       "dailyBudget": 0.6,
       "start": "2026-11-13",
       "end": "2026-11-23T22:00:00.000",
-      "negatives": [],
+      "negatives": [
+        {
+          "text": "gratis",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        }
+      ],
       "adGroups": [
         {
           "name": "resumir · exact",
@@ -330,6 +775,51 @@
             },
             {
               "text": "resumen de texto",
+              "bid": 0.4
+            }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "resumir · broad + Search Match",
+          "bid": 0.3,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "resumir texto",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "resumidor",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "resumir video",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "traducir página web",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "resumir",
+              "match": "BROAD",
+              "bid": 0.3
+            },
+            {
+              "text": "resumen de texto",
+              "match": "BROAD",
               "bid": 0.4
             }
           ]
