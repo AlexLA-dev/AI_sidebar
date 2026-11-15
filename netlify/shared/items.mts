@@ -11,7 +11,7 @@ export const MAX_ITEM_WORDS_CHARS = 1_000
 export const ITEM_SYSTEM = `Someone wants to keep something from a text in Apple Reminders or Apple Calendar. Read what to keep and when, for their device to add after they confirm.
 Return items (at most ${MAX_ITEMS}; none when nothing in the text has a task or a time worth keeping):
 - kind: "reminder" for something to do or a deadline ("book the hotel", "pay by the 15th"); "event" for something that happens at a time: a flight, a train, a meeting, an appointment, a booking, a concert. When they asked for one kind, use it.
-- title: short, in their language. A reminder says what to do ("Book the hotel"); an event names it ("Flight SU 1234 Moscow → Sochi").
+- title: short, in their language. A reminder says what to do ("Book the hotel"); an event names it ("Dentist appointment").
 - date and time: on their device's wall clock, from "Now" below: "today", "tomorrow", "on Friday" (the next one), "in two weeks", "next month" all count from it. date "YYYY-MM-DD", time "HH:MM" (24 h). Leave time out when the text gives no time (a whole-day reminder, an all-day event). A reminder may have no date at all when none is said. Never convert to UTC or to another zone.
 - tz: only when the text names a zone that isn't theirs ("15:00 PT", "10:00 London time"): its IANA name ("America/Los_Angeles"); the date and time stay as the text gives them, in that zone.
 - end_date and end_time: for an event, only when the text gives its end or length (a flight's arrival, "a 2-hour meeting").
