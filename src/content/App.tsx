@@ -68,6 +68,7 @@ import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
+import { setFixedProbe, toFixed } from "./fixedPlace"
 import { hasPro, isUltra, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
@@ -2359,7 +2360,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const fab = fabRef.current
     if (!fab) return
     // Its own place: measured while it's there (the drag's end or the settings move it there again).
-    if (fabDodgeRef.current === null) fabHome.current = fab.getBoundingClientRect()
+    if (fabDodgeRef.current === null) fabHome.current = toFixed(fab.getBoundingClientRect())
     const home = fabHome.current
     if (!home) return
     const vv = window.visualViewport
@@ -3566,6 +3567,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // ------------------------------------------------------------ render
   return (
     <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined}>
+      {/* Where fixed coordinates start, measured (fixedPlace.ts): the selection's buttons and ring are placed by it. */}
+      <i class="cf-origin" aria-hidden="true" ref={setFixedProbe} />
       <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
       {fabVisible && (
         <button
@@ -4827,7 +4830,9 @@ function SelectionGlow({ range }: { range: Range }): VNode | null {
     let frame = 0
     const place = () => {
       frame = 0
-      const r = range.getBoundingClientRect()
+      // In the ring's own coordinates (2.7, fixedPlace.ts: on a zoomed page Safari counts the range's rect from the
+      // visible part, and the ring sat that far from its text).
+      const r = toFixed(range.getBoundingClientRect())
       setBox(r.width > 0 || r.height > 0 ? r : null)
     }
     const soon = () => {
@@ -4878,7 +4883,7 @@ function SelectionBubble({ rect, touch, guide, onPlace, children }: { rect: DOMR
       if (row && row.scrollWidth > row.clientWidth + 1) el.classList.add("tight")
       el.style.left = `${Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
       el.style.top = `${bubbleTop(rect, touch, el.offsetHeight, up)}px`
-      onPlace?.(el.getBoundingClientRect(), rect)
+      onPlace?.(toFixed(el.getBoundingClientRect()), rect)
     }
     el.classList.remove("tight")
     place()
