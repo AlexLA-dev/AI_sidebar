@@ -97,6 +97,7 @@ import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { appleNow } from "./ux/apple"
 import { withoutItemMarker } from "../shared/appleItems"
 import { Tour, tourSteps } from "./Tour"
+import { answerLanguage, preferredLanguages, readerLanguageName, withAnswerLanguage } from "./answerLanguage"
 import { languageName, translateTarget } from "./translateTarget"
 import { GuideCard, GuidePill, ON_PAGE, PLAN_MENU, PLAN_STEPS, PLAN_VIEW, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
 import { ConsentCard } from "./Consent"
@@ -201,9 +202,11 @@ const SEL_CHIPS = ["sel_summarize", "sel_translate", "sel_similar", "sel_explain
  * person's next language) with a label that says so; null when there's nowhere to translate it (translateTarget.ts).
  */
 function translateFor(text: string): Action | null {
-  // The language the panel speaks (its messages'), not the browser's: they differ where we have no translation.
+  // The language the panel speaks (its messages'), for the label; the person's own for where the text goes (2.7: on a
+  // Polish device the panel speaks English, and Polish text goes into English, other text into Polish).
   const ui = t("langCode")
-  const to = translateTarget(text, ui, navigator.languages ?? [navigator.language])
+  const preferred = preferredLanguages(navigator, uiLanguage())
+  const to = translateTarget(text, answerLanguage(ui, preferred) ?? ui, preferred)
   const action = selAction("sel_translate")
   if (!to) return null
   if (!to.code) return action
@@ -1439,7 +1442,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (picked.id === "sel_similar") return openSimilarRef.current("selection", selection?.text)
     // Translate by a selection: into English (or the next language) when the text is in the interface's already.
     const action = (selection && forSelection(picked, selection.text)) || picked
-    ask(t(action.prompt, action.arg ?? t("languageName")), { label: action.text ?? t(action.label), action: action.id, mode: action.mode })
+    // 2.7: in the person's own language when the panel doesn't speak it (answerLanguage.ts); a typed question isn't touched.
+    const ui = t("langCode")
+    const reader = answerLanguage(ui, preferredLanguages(navigator, uiLanguage()))
+    const prompt = t(action.prompt, action.arg ?? readerLanguageName(reader, ui, t("languageName")))
+    ask(withAnswerLanguage(action.id, prompt, reader), { label: action.text ?? t(action.label), action: action.id, mode: action.mode })
   }, [ask, selection])
   runActionRef.current = runAction
 
