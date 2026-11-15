@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 import type { Entry } from "../../shared/conversation"
 import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
+import * as Icon from "../icons"
 import { alsoReminders, appleNow, handoffInTap, loadApple, setAlsoReminders, type AppleStatus } from "./apple"
 
 const base = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" } as const
@@ -262,8 +263,11 @@ export function useAboveComposer(back: { current: HTMLElement | null }, enabled 
  * A small menu by a message: pin, remind, delete. `at`: where a right-click was (Mac), else under "…", or over it
  * when the chat has no room below (the last answer, right above the question field).
  */
-export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onAdd, onDelete, onClose }: {
+export function MessageMenu({ at, pinned, reminded, onTag, onCollect, onPin, onRemind, onAdd, onDelete, onClose }: {
   at?: { x: number; y: number }
+  // 2.7 (the compact chat): Tag and To collection, which its row of buttons no longer shows.
+  onTag?: () => void
+  onCollect?: () => void
   pinned: boolean
   reminded: boolean
   onPin: () => void
@@ -314,6 +318,8 @@ export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onAdd, onDe
   }, [onClose])
   return (
     <div ref={ref} class={`cf-msg-menu ${at ? "at" : ""}`} role="menu">
+      {onTag && <button type="button" role="menuitem" class="cf-menu-tag" onClick={onTag}><Icon.Tag /> {t("tagsButton")}</button>}
+      {onCollect && <button type="button" role="menuitem" class="cf-menu-collect" onClick={onCollect}><Icon.ToCollection /> {t("colAdd")}</button>}
       <button type="button" role="menuitem" onClick={onPin}><PinIcon size={15} filled={pinned} /> {t(pinned ? "uxUnpin" : "uxPin")}</button>
       <button type="button" role="menuitem" onClick={onRemind}><Bell size={15} /> {t(reminded ? "uxRemindChange" : "uxRemind")}</button>
       {onAdd && <button type="button" role="menuitem" onClick={onAdd}><CalendarIcon size={15} /> {t("appleMenu")}</button>}

@@ -29,7 +29,8 @@ import { loadAbout, loadSamples, loadTemplates, loadUse, sendBackground } from "
 export interface WriteJob {
   action: WriteAction
   tone?: Tone
-  via: "circle" | "list"
+  // "panel": the panel's chip (2.7, quiet/chips.ts).
+  via: "circle" | "list" | "panel"
 }
 
 /** What a change did, to take it back: the field's text right after, and the changes that undo it. */

@@ -157,8 +157,8 @@
 .cf-panel { container-type: inline-size; }
 @container (max-width: 460px) {
   .cf-msg-tools.has-insert .cf-tl { display: none; }
-  /* Wraps rather than runs off the panel if something more joins the row. */
-  .cf-msg-tools.has-insert { gap: 2px; flex-wrap: wrap; }
+  /* 2.7 (after 107): the row never wraps; quiet/ToolsRow.tsx takes more words away when it still doesn't fit. */
+  .cf-msg-tools.has-insert { gap: 2px; }
   .cf-msg-tools.has-insert button { padding: 4px 6px; }
 }
 

@@ -858,7 +858,7 @@ struct TipGroup {
     // the app's), Compare and Summary with Pro, a PDF.
     static var collectionsTip: Tip {
         Tip(symbol: "square.grid.2x2", color: .orange, title: "Gather it in a collection",
-            text: "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.", clip: "collections")
+            text: "Planning a trip or a purchase? Choose To collection under an answer or a note, or in its … menu, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.", clip: "collections")
     }
 
     // The matching chat when the panel opens (#172).
@@ -904,7 +904,7 @@ struct TipGroup {
         ]),
         TipGroup(id: "deeper-work", title: "Deeper work", tips: [
             Tip(symbol: "pencil.line", color: .orange, title: "Notes of your own",
-                text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
+                text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking, or tap + by the field and choose Note. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
             shotTip,
             Tip(symbol: "highlighter", color: .yellow, title: "Highlight what matters",
                 text: "Select a line in an answer and tap Highlight: it stays marked, like with a pen. Later answers in that chat take your highlights into account, and Copy keeps them in bold.", clip: "highlight"),
@@ -912,7 +912,7 @@ struct TipGroup {
                 text: "Pin an answer or a note and it waits in the bar at the top of the chat. Tap the bar to jump to it, tap again for the next one.", clip: "pinned"),
             swipeTip,
             Tip(symbol: "rectangle.stack", color: .blue, title: "The whole chat in mind",
-                text: "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.", clip: "whole"),
+                text: "Turn on Whole chat under + by the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.", clip: "whole"),
             Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video",
                 text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video", pro: true),
             Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",
@@ -942,7 +942,7 @@ struct TipGroup {
             Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
                 text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
             Tip(symbol: "tag", color: .purple, title: "Tags and folders",
-                text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
+                text: "Tag a chat, an answer or a note with 🏷, or with Tag in its … menu. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
             Tip(symbol: "square.and.arrow.up", color: .pink, title: "Share what you found",
                 text: "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow.", clip: "share"),
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
