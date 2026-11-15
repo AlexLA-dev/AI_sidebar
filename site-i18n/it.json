@@ -597,14 +597,12 @@
   "f1b0386327e1": "Sì. Ogni link mantiene il suo indirizzo e apre la stessa pagina di prima. «Originale» rimette la pagina esattamente com’era.",
   "5c31d13e4031": "Ogni pagina che traduci conta come una risposta, e Gratis ne ha 5 al giorno. Pro ha fino a 375 risposte a settimana. La traduzione di Safari è gratis quando Safari la propone.",
   "671285c00bb7": "Quali lingue può tradurre?",
-  "af0293a2c258": "Dalla lingua della pagina, qualunque sia, alla lingua del tuo ContextFlow. È una delle 14 che parla, e segue la lingua del tuo iPhone.",
   "a6203d880a38": "Finisci su una pagina in tedesco, giapponese o francese e vuoi leggerla nella tua lingua senza perdere il segno. Safari spesso lo fa gratis, quindi parto da lì. ContextFlow lo sviluppo io, quindi non sono neutrale: anche lui traduce direttamente nella pagina, e qui sotto trovi dove è diverso.",
   "ba7395e84d53": "La traduzione di Safari",
   "531a97274c1c": "Apri il menu della pagina nella barra degli indirizzi e scegli la traduzione nella tua lingua. La pagina viene tradotta lì dov’è, e i suoi link continuano a funzionare.",
   "26e4e885fa1f": "<strong>Pregi:</strong> gratis, integrata, un solo tocco.",
   "161f255548a7": "<strong>Limiti:</strong> compare solo quando Safari sa tradurre la lingua della pagina, e non è disponibile in tutti i paesi o le regioni. Se non è nel menu, Safari non può tradurti quella pagina.",
   "960cbe518b2a": "Tradurre direttamente nella pagina con ContextFlow",
-  "54d9452749ec": "Su una pagina in un’altra lingua, accanto a ✦ compare un pulsante: «Tradurre in italiano?», nella lingua del tuo ContextFlow. Tocca «Traduci».",
   "2b21e4523f32": "La pagina si legge nella tua lingua, con il suo layout. Prima arriva ciò che è sullo schermo, il resto mentre scorri, e il testo che si carica dopo viene tradotto appena arriva.",
   "ab4fc94adb0b": "<strong>I link restano link.</strong> Aprono le stesse pagine di prima, così puoi continuare a leggere il sito. Restano anche grassetto e corsivo.",
   "b074023ee33e": "<strong>Originale</strong> riporta ogni parola della pagina.",
@@ -613,7 +611,6 @@
   "c00ca388e724": "Non ti serve su un sito? La × lo nasconde lì.",
   "5cdc93871c43": "Quali lingue",
   "eb6487d05170": "<strong>Da:</strong> qualsiasi lingua sia la pagina. ContextFlow la riconosce dal testo della pagina stessa, quindi un blog persiano o un forum polacco ricevono il pulsante come un sito di notizie tedesco.",
-  "4130b2c8b318": "<strong>In:</strong> la lingua del tuo ContextFlow, una delle 14 che parla. Segue la lingua del tuo iPhone.",
   "59bd1ff6f977": "Quanto costa",
   "b7ff74d65382": "Ogni pagina che traduci conta come una risposta. Gratis ha 5 risposte al giorno; Pro fino a 375 a settimana, a $6.99 al mese o $59.99 all’anno.",
   "2fd954126b5b": "Tornare su una pagina già tradotta nella stessa settimana non conta di nuovo.",
@@ -649,5 +646,8 @@
   "95ba91e52a3b": "Un refuso sottolineato in una risposta a un’email, con la correzione e i pulsanti Correggi e Ignora",
   "6c1d3c291257": "Il selettore degli spazi nel pannello: Personale, Lavoro e Acquisti, con un sito che si apre in Lavoro",
   "cde323c4b132": "La scheda Calendario e Promemoria sotto una risposta: un promemoria per prenotare l’hotel, con data, ora ed elenco",
-  "371650e870cf": "Una nota nella chat con un’istantanea della pagina su cui è stata scritta"
+  "371650e870cf": "Una nota nella chat con un’istantanea della pagina su cui è stata scritta",
+  "d0990723bfce": "Dalla lingua in cui è scritta la pagina, qualunque sia, alla lingua del tuo iPhone, quella che usa Safari.",
+  "0e252b073b98": "Su una pagina in un’altra lingua compare accanto a ✦ un pulsante che propone di tradurla nella lingua del tuo iPhone. Tocca «Traduci».",
+  "ae1526a33724": "<strong>In quale:</strong> nella lingua del tuo iPhone, quella che usa Safari."
 }

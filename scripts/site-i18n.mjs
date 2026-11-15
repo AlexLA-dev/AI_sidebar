@@ -35,6 +35,7 @@ export const LANGUAGES = [
   { path: "fr", hreflang: "fr", lang: "fr", og: "fr_FR", name: "Français" },
   { path: "it", hreflang: "it", lang: "it", og: "it_IT", name: "Italiano" },
   { path: "pt-br", hreflang: "pt-BR", lang: "pt-BR", og: "pt_BR", name: "Português (Brasil)" },
+  { path: "tr", hreflang: "tr", lang: "tr", og: "tr_TR", name: "Türkçe" },
   { path: "ru", hreflang: "ru", lang: "ru", og: "ru_RU", name: "Русский" },
   { path: "uk", hreflang: "uk", lang: "uk", og: "uk_UA", name: "Українська" },
   { path: "vi", hreflang: "vi", lang: "vi", og: "vi_VN", name: "Tiếng Việt" },
@@ -64,7 +65,7 @@ export const SOME_LANGUAGES = {
   "youtube-transcript-safari.html": ["ru"],
   "read-aloud-safari-iphone.html": ["ru"],
   "summarize-pdf-safari.html": [],
-  "translate-web-page-safari-iphone.html": ["ru", "de", "es", "fr", "it", "zh-hant"],
+  "translate-web-page-safari-iphone.html": ["ru", "de", "es", "fr", "it", "zh-hant", "tr"],
   "proofread-safari-iphone.html": ["ru"]
 }
 const SOME = Object.keys(SOME_LANGUAGES)

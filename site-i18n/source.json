@@ -6088,9 +6088,9 @@
   ]
  },
  {
-  "key": "af0293a2c258",
+  "key": "d0990723bfce",
   "kind": "ld",
-  "en": "From whatever language the page is in, into the language your ContextFlow is in. That's one of the 14 it speaks, and it follows your iPhone's language.",
+  "en": "From whatever language the page is in, into your iPhone's language, the one Safari uses.",
   "pages": [
    "translate-web-page-safari-iphone.html"
   ]
@@ -6144,9 +6144,9 @@
   ]
  },
  {
-  "key": "54d9452749ec",
+  "key": "0e252b073b98",
   "kind": "html",
-  "en": "On a page in another language, a button shows by ✦: “Translate to English?”, in whatever language your ContextFlow is in. Tap Translate.",
+  "en": "On a page in another language, a button shows by ✦ and offers to translate it into your iPhone's language. Tap Translate.",
   "pages": [
    "translate-web-page-safari-iphone.html"
   ]
@@ -6216,9 +6216,9 @@
   ]
  },
  {
-  "key": "4130b2c8b318",
+  "key": "ae1526a33724",
   "kind": "html",
-  "en": "<strong>Into:</strong> the language your ContextFlow is in, one of the 14 it speaks. It follows your iPhone's language.",
+  "en": "<strong>Into:</strong> your iPhone's language, the one Safari uses.",
   "pages": [
    "translate-web-page-safari-iphone.html"
   ]

@@ -597,14 +597,12 @@
   "f1b0386327e1": "Oui. Chaque lien garde son adresse et ouvre la même page qu’avant. « Original » remet la page exactement comme elle était.",
   "5c31d13e4031": "Chaque page traduite compte comme une réponse, et Gratuit en offre 5 par jour. Pro offre jusqu’à 375 réponses par semaine. La traduction intégrée de Safari est gratuite quand Safari la propose.",
   "671285c00bb7": "Quelles langues peut-il traduire ?",
-  "af0293a2c258": "De la langue de la page, quelle qu’elle soit, vers la langue de votre ContextFlow. C’est l’une des 14 qu’il parle, et elle suit la langue de votre iPhone.",
   "a6203d880a38": "Vous tombez sur une page en allemand, en japonais ou en italien et vous voulez la lire dans votre langue sans perdre le fil. Safari sait souvent le faire gratuitement, alors je commence par là. Je développe ContextFlow, donc je ne suis pas neutre&nbsp;: lui aussi traduit sur place, et voici en quoi il diffère.",
   "ba7395e84d53": "La traduction intégrée de Safari",
   "531a97274c1c": "Ouvrez le menu de la page dans la barre d’adresse et choisissez la traduction dans votre langue. La page est traduite sur place, et ses liens marchent toujours.",
   "26e4e885fa1f": "<strong>Points forts&nbsp;:</strong> gratuit, intégré, un seul toucher.",
   "161f255548a7": "<strong>Limites&nbsp;:</strong> elle n’apparaît que si Safari sait traduire la langue de la page, et elle n’est pas proposée dans tous les pays ou régions. Si elle n’est pas dans le menu, Safari ne peut pas traduire cette page pour vous.",
   "960cbe518b2a": "Traduire sur place avec ContextFlow",
-  "54d9452749ec": "Sur une page dans une autre langue, un bouton apparaît près de ✦&nbsp;: «&nbsp;Traduire en français&nbsp;?&nbsp;», dans la langue de votre ContextFlow. Touchez «&nbsp;Traduire&nbsp;».",
   "2b21e4523f32": "La page s’affiche dans votre langue, avec sa propre mise en page. Ce qui est à l’écran vient d’abord, le reste à mesure que vous faites défiler, et le texte qui se charge plus tard est traduit dès qu’il arrive.",
   "ab4fc94adb0b": "<strong>Les liens restent des liens.</strong> Ils ouvrent les mêmes pages qu’avant, vous pouvez donc continuer à lire le site. Le gras et l’italique restent aussi.",
   "b074023ee33e": "<strong>Original</strong> rétablit chaque mot de la page.",
@@ -613,7 +611,6 @@
   "c00ca388e724": "Pas besoin sur un site&nbsp;? Le × le masque sur ce site.",
   "5cdc93871c43": "Quelles langues",
   "eb6487d05170": "<strong>De&nbsp;:</strong> la langue de la page, quelle qu’elle soit. ContextFlow la reconnaît d’après le texte de la page lui-même, donc un blog persan ou un forum polonais a droit au bouton autant qu’un site d’actualité allemand.",
-  "4130b2c8b318": "<strong>Vers&nbsp;:</strong> la langue de votre ContextFlow, l’une des 14 qu’il parle. Elle suit la langue de votre iPhone.",
   "59bd1ff6f977": "Ce que ça coûte",
   "b7ff74d65382": "Chaque page traduite compte comme une réponse. Gratuit offre 5 réponses par jour&nbsp;; Pro, jusqu’à 375 par semaine, pour $6.99 par mois ou $59.99 par an.",
   "2fd954126b5b": "Revenir sur une page déjà traduite dans la semaine ne compte pas une deuxième fois.",
@@ -649,5 +646,8 @@
   "95ba91e52a3b": "Une faute de frappe soulignée dans une réponse à un e-mail, avec sa correction et les boutons Corriger et Ignorer",
   "6c1d3c291257": "Le sélecteur d’espaces dans le panneau : Perso, Travail et Achats, avec un site qui s’ouvre dans Travail",
   "cde323c4b132": "La carte Calendrier et Rappels sous une réponse : un rappel pour réserver l’hôtel, avec sa date, son heure et sa liste",
-  "371650e870cf": "Une note dans la discussion avec une capture de la page où elle a été écrite"
+  "371650e870cf": "Une note dans la discussion avec une capture de la page où elle a été écrite",
+  "d0990723bfce": "De la langue de la page, quelle qu’elle soit, vers la langue de votre iPhone, celle qu’utilise Safari.",
+  "0e252b073b98": "Sur une page dans une autre langue, un bouton apparaît à côté de ✦ et propose de la traduire dans la langue de votre iPhone. Touchez «&nbsp;Traduire&nbsp;».",
+  "ae1526a33724": "<strong>Vers&nbsp;:</strong> la langue de votre iPhone, celle qu’utilise Safari."
 }

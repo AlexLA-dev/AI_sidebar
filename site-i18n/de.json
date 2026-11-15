@@ -597,14 +597,12 @@
   "f1b0386327e1": "Ja. Jeder Link behält seine Adresse und öffnet dieselbe Seite wie vorher. „Original“ stellt die Seite genau so wieder her, wie sie war.",
   "5c31d13e4031": "Jede übersetzte Seite zählt als eine Antwort, und kostenlos gibt es 5 am Tag. Pro bietet bis zu 375 Antworten pro Woche. Die Übersetzung von Safari selbst ist kostenlos, wenn Safari sie anbietet.",
   "671285c00bb7": "Welche Sprachen kann es übersetzen?",
-  "af0293a2c258": "Aus der Sprache, in der die Seite ist, egal welcher, in die Sprache deines ContextFlow. Das ist eine der 14, die es spricht, und sie richtet sich nach der Sprache deines iPhone.",
   "a6203d880a38": "Du landest auf einer Seite auf Französisch, Japanisch oder Italienisch und willst sie in deiner Sprache lesen, ohne die Stelle zu verlieren. Safari kann das oft kostenlos, also fange ich damit an. Ich entwickle ContextFlow selbst, bin also nicht neutral: Es übersetzt ebenfalls an Ort und Stelle, und unten steht, worin es sich unterscheidet.",
   "ba7395e84d53": "Die Übersetzung von Safari selbst",
   "531a97274c1c": "Öffne das Seitenmenü in der Adressleiste und wähle dort die Übersetzung in deine Sprache. Die Seite wird an Ort und Stelle übersetzt, und ihre Links funktionieren weiter.",
   "26e4e885fa1f": "<strong>Gut:</strong> kostenlos, eingebaut, ein Tipp.",
   "161f255548a7": "<strong>Grenzen:</strong> Sie erscheint nur, wenn Safari die Sprache der Seite übersetzen kann, und wird nicht in jedem Land und jeder Region angeboten. Steht sie nicht im Menü, kann Safari diese Seite für dich nicht übersetzen.",
   "960cbe518b2a": "An Ort und Stelle übersetzen mit ContextFlow",
-  "54d9452749ec": "Auf einer Seite in einer anderen Sprache erscheint neben ✦ eine Taste: „Auf Deutsch übersetzen?“, in der Sprache, die dein ContextFlow spricht. Tippe auf „Übersetzen“.",
   "2b21e4523f32": "Die Seite erscheint in deiner Sprache, im eigenen Layout. Zuerst kommt, was auf dem Bildschirm ist, der Rest beim Scrollen, und Text, der später lädt, wird übersetzt, sobald er da ist.",
   "ab4fc94adb0b": "<strong>Links bleiben Links.</strong> Sie öffnen dieselben Seiten wie vorher, du kannst also auf der Website weiterlesen. Fett und kursiv bleiben auch.",
   "b074023ee33e": "<strong>Original</strong> bringt jedes Wort der Seite zurück.",
@@ -613,7 +611,6 @@
   "c00ca388e724": "Auf einer Website brauchst du es nicht? Das × blendet es dort aus.",
   "5cdc93871c43": "Welche Sprachen",
   "eb6487d05170": "<strong>Aus:</strong> jeder Sprache, in der die Seite ist. ContextFlow erkennt sie am Text der Seite selbst, also bekommt ein persischer Blog oder ein polnisches Forum die Taste genauso wie eine englische Nachrichtenseite.",
-  "4130b2c8b318": "<strong>In:</strong> die Sprache deines ContextFlow, eine der 14, die es spricht. Sie richtet sich nach der Sprache deines iPhone.",
   "59bd1ff6f977": "Was es kostet",
   "b7ff74d65382": "Jede übersetzte Seite zählt als eine Antwort. Kostenlos gibt es 5 Antworten am Tag; Pro bietet bis zu 375 pro Woche, für $6.99 im Monat oder $59.99 im Jahr.",
   "2fd954126b5b": "Kommst du in derselben Woche auf eine übersetzte Seite zurück, zählt das nicht noch einmal.",
@@ -649,5 +646,8 @@
   "95ba91e52a3b": "Ein unterstrichener Tippfehler in einer E-Mail-Antwort, mit der Korrektur und den Tasten „Korrigieren“ und „Ignorieren“",
   "6c1d3c291257": "Der Bereichsumschalter im Panel: Privat, Arbeit und Einkaufen, dazu eine Website, die sich in „Arbeit“ öffnet",
   "cde323c4b132": "Die Karte „Kalender und Erinnerungen“ unter einer Antwort: eine Erinnerung, das Hotel zu buchen, mit Datum, Uhrzeit und Liste",
-  "371650e870cf": "Eine Notiz im Chat mit einem Schnappschuss der Seite, auf der sie entstanden ist"
+  "371650e870cf": "Eine Notiz im Chat mit einem Schnappschuss der Seite, auf der sie entstanden ist",
+  "d0990723bfce": "Aus jeder Sprache, in der die Seite geschrieben ist, in die Sprache deines iPhone, also die, die Safari verwendet.",
+  "0e252b073b98": "Auf einer Seite in einer anderen Sprache erscheint neben ✦ eine Taste, die anbietet, sie in die Sprache deines iPhone zu übersetzen. Tippe auf „Übersetzen“.",
+  "ae1526a33724": "<strong>In welche:</strong> in die Sprache deines iPhone, also die, die Safari verwendet."
 }
