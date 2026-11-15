@@ -1,13 +1,13 @@
 ContextFlow 2.7'de neler yeni:
 • Sayfayı olduğu yerde çevirin. Sayfa sizin dilinizde değilse yüzen ContextFlow düğmesinin yanındaki "Çevir"e dokunun: metin yerinde değişir, bağlantılar ve düğmeler çalışmaya devam eder, "Orijinal" sayfayı eski hâline getirir. Sayfanın geri kalanı kaydırdıkça çevrilir
-• Koleksiyonlar: gezi, alışveriş ya da ders gibi bir iş için her şey tek yerde. Bir yanıtın ya da notun altındaki "Koleksiyona"ya dokunun, ContextFlow nereye gideceğini önersin. Pro'da yapay zekâ kartları bölümlere ayırır, "Karşılaştır" seçtiğiniz kartları bir tabloda yan yana koyar, "Özet" tüm koleksiyonu özetler. Her koleksiyon PDF olarak kaydedilir. Ücretsiz planda 10 karta kadar bir koleksiyon
-• Benzerini Bul artık Pro'da ve Kendi anahtarınız planında da: haftada 5'e kadar hızlı arama (Pro'da her biri 10 yanıt sayılır). Ultra daha geniş arar, yorumları okur ve teslimatı kontrol eder
+• Koleksiyonlar: gezi, alışveriş ya da ders gibi bir iş için her şey tek yerde. Bir yanıtın ya da notun altındaki "Koleksiyona ekle"ye dokunun, ContextFlow nereye gideceğini önersin. Pro'da yapay zekâ kartları bölümlere ayırır, "Karşılaştır" seçtiğiniz kartları bir tabloda yan yana koyar, "Özet" tüm koleksiyonu özetler. Her koleksiyon PDF olarak kaydedilir. Ücretsiz planda 10 karta kadar bir koleksiyon
+• Benzerini bul artık Pro'da ve Kendi anahtarınız planında da: haftada 5'e kadar hızlı arama (Pro'da her biri 10 yanıt sayılır). Ultra daha geniş arar, yorumları okur ve teslimatı kontrol eder
 • Alanlar: iş, kişisel ve alışverişi ayırın; her birinin kendi sohbetleri, koleksiyonları ve rengi olur. Bir siteyi bir kez bir alana bağlayın, panel oraya kendiliğinden gitsin. İkinci bir alan oluşturana kadar hiçbir şey değişmez
 • Panel, sayfaya uyan sohbette ya da yeni bir sohbette açılır. Yanılırsa tek dokunuşla değiştirirsiniz
-• Sitelerdeki her metin kutusunda, sayfayı dikkate alarak "Kontrol et" ve "Yeniden yaz": yanıtladığınız e-posta, altına yorum yazdığınız gönderi. Daha kısa, daha sıcak, daha resmi ya da daha kendinden emin. Pro ve Ultra'da hatalar yazarken altı çizilir
-• Sohbetten doğrudan Takvim'e veya Anımsatıcılar'a ekleyin: ContextFlow etkinliği ya da anımsatıcıyı önerir, siz tek dokunuşla eklersiniz. "Hatırlat" da anımsatıcıyı tüm cihazlarınızdaki Anımsatıcılar'a gönderebilir
+• Sitelerdeki her metin kutusunda, sayfayı dikkate alarak "Kontrol et" ve "Yeniden yaz": yanıtladığınız e-posta, altına yorum yazdığınız gönderi. Daha kısa, daha samimi, daha resmi ya da daha özgüvenli. Pro ve Ultra'da hatalar yazarken altı çizilir
+• Sohbetten doğrudan Takvime veya Anımsatıcılar'a ekleyin: ContextFlow etkinliği ya da anımsatıcıyı önerir, siz tek dokunuşla eklersiniz. "Hatırlat" da anımsatıcıyı tüm cihazlarınızdaki Anımsatıcılar'a gönderebilir
 • Bir not, sayfanın görüntüsünü saklayabilir: ekranda görünen kısım ya da Pro ve Ultra'da sayfanın tamamı
 • Yüzen ContextFlow düğmesini, iPad ve Mac'te paneli de ekranın iki kenarından birine sürükleyin ya da Ayarlar'dan bir taraf seçin
-• Bir arkadaşınızı davet edin: arkadaşınız ilk haftasında bonus yanıtlar kazanır, iki farklı gün soru sorduğunda siz de Pro veya Ultra'nın ilk ayında %50 indirim alırsınız
+• Arkadaşını davet et: arkadaşınız ilk haftasında bonus yanıtlar kazanır, iki farklı gün soru sorduğunda siz de Pro veya Ultra'nın ilk ayında %50 indirim alırsınız
 • Kesilen metin de artık "Kopyalananlar"a düşer
 • ContextFlow artık Türkçe konuşuyor: toplam 15 dil

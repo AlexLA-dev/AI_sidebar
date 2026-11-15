@@ -20,7 +20,7 @@ function localizedExtension() {
   const dir = join(tmpdir(), `cf-capture-${lang}-${new URL(BASE).port}`)
   rmSync(dir, { recursive: true, force: true })
   cpSync(extArg, dir, { recursive: true })
-  // A language the panel doesn't speak (Turkish): its strings stay English, as on such a device.
+  // A language the panel doesn't speak: its strings stay English, as on such a device.
   const own = existsSync(join(dir, "_locales", lang)) ? lang : "en"
   for (const l of readdirSync(join(dir, "_locales"))) if (l !== own) rmSync(join(dir, "_locales", l), { recursive: true })
   const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"))
@@ -1259,11 +1259,7 @@ for (const name of ["iphone", "ipad", "mac"]) {
     const v26 = [
       ["summary", async () => {
         await fresh(s); await open(s)
-        // Turkish: the panel's chips are English (and answer in English); the question typed in Turkish is answered in it.
-        if (lang === "tr") {
-          await s.page.locator(".cf-input textarea").fill("Bu sayfayı 5–7 maddede özetle")
-          if (s.d.touch) await s.page.locator(".cf-send").click(); else await s.page.keyboard.press("Enter")
-        } else await chip(s, L.summarize)
+        await chip(s, L.summarize)
         await waitAnswer(s)
       }, [".cf-panel"]],
       ["similar", () => similar(s), [".cf-panel", "all:.cf-similar-item"]],

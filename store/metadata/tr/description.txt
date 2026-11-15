@@ -3,10 +3,10 @@ Makaleleri bir sohbet botuna yapıştırmayı bırakın. Safari'den çıkmadan h
 2.7'DE YENİ
 • Sayfayı olduğu yerde çevirin: bağlantılar ve düğmeler çalışmaya devam eder
 • Koleksiyonlar: bir iş için her şey tek yerde. Pro'da yapay zekâ kartları bölümlere ayırır, karşılaştırır ve özetler; PDF olarak kaydedin
-• Benzerini Bul artık Pro'da ve Kendi anahtarınız planında da
+• Benzerini bul artık Pro'da ve Kendi anahtarınız planında da
 • Ayrı alanlar: iş, kişisel ve alışveriş; her birinin kendi sohbetleri ve rengi
 • Sitelerdeki metin kutularında, sayfayı dikkate alarak kontrol ve yeniden yazma
-• Takvim ve Anımsatıcılar'a ekleme, notlarda sayfa görüntüsü, panel ekranın iki kenarında da, arkadaş daveti
+• Takvime ve Anımsatıcılar'a ekleme, notlarda sayfa görüntüsü, panel ekranın iki kenarında da, arkadaş daveti
 • Panel artık Türkçe
 
 NELER YAPABİLİRSİNİZ
@@ -39,15 +39,15 @@ GİZLİLİK ÖNCELİKLİ
 
 PLANLAR
 • Ücretsiz: her gün yanıtlar, günde birkaç şablon doldurma, sınırsız not ve 10 karta kadar bir koleksiyon
-• Pro: bol yanıt, daha derin ve ayrıntılı; videolar ve PDF'ler, sınırsız şablon doldurma, daha çok izlenen sayfa, yanıtları sohbetlerinize ve etiketlerinize ayıran öneriler, koleksiyonlarda yapay zekâ, haftada 5 hızlı Benzerini Bul
-• Ultra: Pro'daki her şey, artı Dinle, tam kapsamlı Benzerini Bul ve 50'ye kadar izlenen sayfa
+• Pro: bol yanıt, daha derin ve ayrıntılı; videolar ve PDF'ler, sınırsız şablon doldurma, daha çok izlenen sayfa, yanıtları sohbetlerinize ve etiketlerinize ayıran öneriler, koleksiyonlarda yapay zekâ, haftada 5 hızlı Benzerini bul
+• Ultra: Pro'daki her şey, artı Dinle, tam kapsamlı Benzerini bul ve 50'ye kadar izlenen sayfa
 • Kendi anahtarınız: kendi OpenAI veya Claude API anahtarınızla sınırsız yanıt
 • Pro, Ultra ve Kendi anahtarınız: aylık ya da yıllık
 
 BİR DAKİKADA BAŞLAYIN
 1. ContextFlow uygulamasını açın: Safari'de uzantıyı nasıl açacağınızı adım adım gösterir.
 2. Herhangi bir web sitesini açın ve ContextFlow düğmesine dokunun (Mac'te araç çubuğundaki ContextFlow simgesine tıklayın).
-3. Özetle, Önemli noktalar, Basitçe açıkla ya da Çevir'i seçin veya doğrudan sorun.
+3. Özetle, Ana fikirler, Basitçe açıkla ya da Çevir'i seçin veya doğrudan sorun.
 
 Yapay zekâ hata yapabilir. Önemli bilgileri kontrol edin.
 
