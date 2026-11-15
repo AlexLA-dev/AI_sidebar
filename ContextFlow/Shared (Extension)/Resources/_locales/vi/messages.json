@@ -2957,6 +2957,12 @@
  "colCardMenu": {
   "message": "Thao tác với thẻ"
  },
+ "matchContinueIn": {
+  "message": "Đang tiếp tục trong “{0}”"
+ },
+ "matchBackTo": {
+  "message": "Quay lại “{0}”"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },
