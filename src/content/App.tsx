@@ -1902,7 +1902,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return (
     <>
       {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
-      <ToolsRow cls={`cf-msg-tools ${hasField ? "has-insert" : ""}`} sig={`${density}|${hasField}|${copied === idx}|${Boolean(mark)}|${plan}|${historyMode}`}>
+      <ToolsRow cls={`cf-msg-tools ${hasField ? "has-insert" : ""}`} sig={`${density}|${hasField}|${copied === idx}|${Boolean(mark)}|${plan}|${historyMode}|${settings.textSize}`}>
         {hasField && (
           <button type="button" class="cf-insert" aria-label={t("qiInsertIntoField")} title={t("qiInsertIntoField")} onClick={() => {
             const text = plain()
@@ -3132,7 +3132,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       ? <button type="button" class="cf-link" onClick={() => redeemOffer(offer.code)}>{t("offerShort", offer.discount)}</button>
       : <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
     : null
-  const leftNow = historyMode && !usage ? null : leftBadge(usage, plan, ownKeyActive)
+  const leftNow = leftBadge(usage, plan, ownKeyActive)
 
   // ------------------------------------------------------------ organizing (2.5)
   // Suggestions for the chat shown (Pro, with suggestions on): asked once an answer or a note is in, or the chat

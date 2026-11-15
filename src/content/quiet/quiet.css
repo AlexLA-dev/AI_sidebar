@@ -10,6 +10,7 @@
   margin-inline: -14px; padding-inline: 14px; scroll-padding-inline: 14px;
 }
 .cf-actions:not(.wrap)::-webkit-scrollbar { display: none; }
+.cf-newpage .cf-actions.follow:not(.wrap) { margin-inline: -14px; }
 .cf-actions:not(.wrap) > .cf-chip { flex: none; white-space: nowrap; }
 .cf-empty .cf-actions:not(.wrap) { align-self: stretch; margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:first-child { margin-inline-start: auto; }
