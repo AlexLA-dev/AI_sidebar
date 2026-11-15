@@ -1847,6 +1847,8 @@ textarea.cf-watch-cond { display: block; resize: none; line-height: 1.35; min-he
   width: calc(100% / var(--fit)); height: calc(40px / var(--fit)); padding: 0 calc(11px / var(--fit));
   border-radius: calc(10px / var(--fit));
   transform: scale(var(--fit)); transform-origin: 0 0;
+  /* Its own line, and its box counted as wide and as tall as it's drawn (or the card would scroll sideways). */
+  display: block; margin-inline-end: calc(100% - 100% / var(--fit));
   margin-bottom: calc(48px - 40px / var(--fit));
 }
 :host([dir="rtl"]) .cf[data-touch] .cf-similar-words { transform-origin: 100% 0; }
