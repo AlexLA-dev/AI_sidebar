@@ -13,7 +13,9 @@ const WORDS: Record<string, string[]> = {
   es: ["el", "la", "los", "las", "de", "que", "y", "en", "un", "una", "es", "por", "con", "para", "no", "del", "se", "lo"],
   fr: ["le", "la", "les", "des", "et", "est", "un", "une", "du", "que", "pas", "pour", "dans", "en", "au", "il", "qui", "sur"],
   it: ["il", "la", "che", "di", "e", "è", "un", "una", "per", "non", "con", "sono", "del", "della", "gli", "si", "le", "ma"],
-  pt: ["o", "a", "os", "as", "de", "que", "e", "é", "um", "uma", "não", "com", "para", "do", "da", "em", "se", "no"]
+  pt: ["o", "a", "os", "as", "de", "que", "e", "é", "um", "uma", "não", "com", "para", "do", "da", "em", "se", "no"],
+  // 2.7: Turkish (and its own letters, below).
+  tr: ["ve", "bir", "bu", "için", "ile", "çok", "daha", "olarak", "gibi", "olan", "ama", "her", "şey", "değil", "kadar", "sonra", "ancak", "veya"]
 }
 
 /** The base language of a code: "pt-BR" → "pt", "zh_Hant" → "zh". */
@@ -38,6 +40,8 @@ export function guessLanguage(text: string): string | null {
   if (share(count(/\p{Script=Thai}/gu)) > 0.5) return "th"
   if (share(count(/\p{Script=Latin}/gu)) < 0.5) return null
   if (count(/[ăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/gi) >= 2) return "vi"
+  // Dotless ı and ğ: Turkish (2.7).
+  if (count(/[ığ]/g) >= 3 && share(count(/[ığ]/g)) > 0.01) return "tr"
   const words = s.toLowerCase().match(/\p{L}+/gu) ?? []
   let best: string | null = null
   let top = 0

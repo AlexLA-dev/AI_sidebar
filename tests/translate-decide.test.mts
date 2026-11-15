@@ -37,8 +37,9 @@ test("the markup decides when the text can't tell, or shares its letters with an
   assert.equal(pageLanguage("tr", TR), "tr")
   assert.equal(pageLanguage("bg", BG), "bg")
   assert.equal(pageLanguage("ru", BG), "ru")
-  assert.equal(pageLanguage("", TR), null, "neither tells")
-  assert.equal(pageLanguage("x-klingon", TR), null)
+  // 2.7: Turkish is told by its letters (ı, ğ) too.
+  assert.equal(pageLanguage("", TR), "tr", "its letters tell")
+  assert.equal(pageLanguage("x-klingon", TR), "tr", "an unknown tag: the text decides")
 })
 
 test("offered on a page in another language with enough words; never in the person's own", () => {

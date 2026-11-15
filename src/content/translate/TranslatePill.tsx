@@ -215,9 +215,9 @@ export function TranslatePill({ side, top, show, free, onPlans }: TranslatePillP
     if (!offer) return ""
     if (baseLanguage(offer.to) === baseLanguage(uiLang())) return t("trOffer")
     // Mid-sentence, a language's name is a common noun in most of the panel's languages («на язык: английский»);
-    // Safari's names may come capitalized. German keeps its capital.
+    // Safari's names may come capitalized. German and Turkish keep their capital («Almanca»).
     const name = languageName(offer.to, uiLang())
-    return t("trOfferTo", /^(de|ja|ko|zh|ar)/.test(uiLang()) ? name : name.charAt(0).toLocaleLowerCase(uiLang()) + name.slice(1))
+    return t("trOfferTo", /^(de|ja|ko|zh|ar|tr)/.test(uiLang()) ? name : name.charAt(0).toLocaleLowerCase(uiLang()) + name.slice(1))
   }, [offer])
 
   if (!visible && consent === null) return null

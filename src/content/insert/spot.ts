@@ -232,12 +232,14 @@ export const SEARCH_WORDS = {
   zh: ["搜索", "查询"],
   "zh-Hant": ["搜尋", "查詢"],
   vi: ["tìm kiếm"],
-  ar: ["بحث"]
+  ar: ["بحث"],
+  // 2.7: and "ara" on its own (SEARCH_NAMED): inside a word it's everywhere ("parameter", "separate").
+  tr: ["arama", "aradığınız"]
 } as const
 
-// `q`, the name search forms give their field, in any language.
+// `q`, the name search forms give their field, in any language; Turkish "ara" (search) only as a word of its own.
 const SEARCH_NAMED = new RegExp(
-  `${Object.values(SEARCH_WORDS).flat().map((w) => unaccent(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}|\\bq\\b`
+  `${Object.values(SEARCH_WORDS).flat().map((w) => unaccent(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}|\\bq\\b|\\bara\\b`
 )
 
 /** Whether a field's name, id, label or hint says it's a search, in any of the app's languages. */

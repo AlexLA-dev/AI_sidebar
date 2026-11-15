@@ -44,7 +44,8 @@ export const CONVERSATION_WORDS: Record<string, string[]> = {
   zh_CN: ["消息", "对话", "会话", "聊天", "评论"],
   zh_TW: ["訊息", "對話", "會話", "聊天", "留言", "評論"],
   ar: ["رسائل", "رسالة", "محادثة", "دردشة", "تعليق"],
-  vi: ["tin nhắn", "trò chuyện", "hội thoại", "bình luận"]
+  vi: ["tin nhắn", "trò chuyện", "hội thoại", "bình luận"],
+  tr: ["mesaj", "ileti", "sohbet", "konuşma", "yorum"]
 }
 
 /**

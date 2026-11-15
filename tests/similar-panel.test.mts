@@ -31,7 +31,7 @@ const KEYS = ["actSimilar", "uxSimilar", "similarTitle", "similarConditions", "s
 
 test("every language has Find similar's words, with their placeholders", () => {
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
-  assert.equal(files.length, 14)
+  assert.equal(files.length, 15)
   for (const file of files) {
     const s = JSON.parse(readFileSync(new URL(file, locales), "utf8")) as Record<string, string>
     for (const key of KEYS) assert.ok(s[key]?.trim(), `${file}: ${key}`)

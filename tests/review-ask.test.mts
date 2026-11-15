@@ -272,13 +272,13 @@ test("the panel's Other… ends with Rate in App Store, and a tap on it rates", 
 test("Rate in App Store is in all 14 languages, in the panel and the app", () => {
   const locales = join(root, "src/locales")
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
-  assert.equal(files.length, 14)
+  assert.equal(files.length, 15)
   for (const file of files) {
     const s = JSON.parse(readFileSync(join(locales, file), "utf8")) as Record<string, string>
     assert.ok(s.uxRate?.includes("App Store"), `${file}: uxRate`)
   }
   const catalog = JSON.parse(app("Localizable.xcstrings")).strings["Rate in App Store"].localizations as Record<string, { stringUnit: { value: string } }>
-  assert.equal(Object.keys(catalog).length, 13)
+  assert.equal(Object.keys(catalog).length, 14)
   for (const [lang, v] of Object.entries(catalog)) assert.ok(v.stringUnit.value.includes("App Store"), lang)
 })
 

@@ -96,7 +96,7 @@ test("What's new 2.7: the five everyone has, as Tips shows them; clips wherever 
   assert.match(whatsNew, /items\.allSatisfy \{ tip in tip\.clip\.flatMap\(TipClip\.url\) != nil \}/)
   assert.match(whatsNew, /Text\(WhatsNew\.allClips \? LocalizedStringKey\("The main things this version brings, each shown in a short clip\."\) : LocalizedStringKey\("The main things this version brings\."\)\)/)
   for (const key of ["The main things this version brings.", "The main things this version brings, each shown in a short clip."]) {
-    assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 13, key)
+    assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 14, key)
   }
 })
 
@@ -166,7 +166,7 @@ test("every language: the panel's lines, the app's new texts and the site's card
   const en = JSON.parse(read("src/locales/en.json"))
   const keys = ["hintNewTitle", "hintNewTranslate", "hintNewWrite", "hintNewSpaces", "hintNewApple", "hintNewShot", "hintNewSide", "hintAllTips"]
   const files = readdirSync(join(root, "src/locales")).filter((f) => f.endsWith(".json"))
-  assert.equal(files.length, 14)
+  assert.equal(files.length, 15)
   for (const file of files) {
     const own = JSON.parse(read(`src/locales/${file}`))
     for (const key of keys) {
