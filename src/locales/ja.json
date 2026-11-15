@@ -1013,5 +1013,7 @@
   "colPdfFooter": "ContextFlowで作成",
   "colPdfSave": "PDFとして保存",
   "colPick": "コレクション：{0}。切り替える",
-  "colCardMenu": "カードの操作"
+  "colCardMenu": "カードの操作",
+  "writeFixAll": "すべて修正",
+  "writeSlow": "時間がかかりすぎたため中止しました。もう一度お試しください。"
 }

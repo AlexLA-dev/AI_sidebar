@@ -1013,5 +1013,7 @@
   "colPdfFooter": "Tạo bằng ContextFlow",
   "colPdfSave": "Lưu thành PDF",
   "colPick": "Bộ sưu tập: {0}. Chuyển",
-  "colCardMenu": "Thao tác với thẻ"
+  "colCardMenu": "Thao tác với thẻ",
+  "writeFixAll": "Sửa tất cả",
+  "writeSlow": "Mất quá nhiều thời gian nên đã dừng lại. Vui lòng thử lại."
 }

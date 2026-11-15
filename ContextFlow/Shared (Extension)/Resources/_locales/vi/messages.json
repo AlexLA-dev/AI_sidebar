@@ -2957,6 +2957,12 @@
  "colCardMenu": {
   "message": "Thao tác với thẻ"
  },
+ "writeFixAll": {
+  "message": "Sửa tất cả"
+ },
+ "writeSlow": {
+  "message": "Mất quá nhiều thời gian nên đã dừng lại. Vui lòng thử lại."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

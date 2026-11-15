@@ -2957,6 +2957,12 @@
  "colCardMenu": {
   "message": "Ações do cartão"
  },
+ "writeFixAll": {
+  "message": "Corrigir tudo"
+ },
+ "writeSlow": {
+  "message": "Está demorando demais e foi interrompido. Tente de novo."
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

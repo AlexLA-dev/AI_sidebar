@@ -2957,6 +2957,12 @@
  "colCardMenu": {
   "message": "Actions de la carte"
  },
+ "writeFixAll": {
+  "message": "Tout corriger"
+ },
+ "writeSlow": {
+  "message": "C’est trop long, la demande a été arrêtée. Veuillez réessayer."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

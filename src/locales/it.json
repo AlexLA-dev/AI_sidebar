@@ -1013,5 +1013,7 @@
   "colPdfFooter": "Fatto con ContextFlow",
   "colPdfSave": "Salva come PDF",
   "colPick": "Raccolta: {0}. Cambia",
-  "colCardMenu": "Azioni della scheda"
+  "colCardMenu": "Azioni della scheda",
+  "writeFixAll": "Correggi tutto",
+  "writeSlow": "Ci sta mettendo troppo, la richiesta è stata interrotta. Riprova."
 }

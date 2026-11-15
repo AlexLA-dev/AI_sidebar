@@ -1013,5 +1013,7 @@
   "colPdfFooter": "Зроблено в ContextFlow",
   "colPdfSave": "Зберегти PDF",
   "colPick": "Добірка: {0}. Перемкнути",
-  "colCardMenu": "Дії з карткою"
+  "colCardMenu": "Дії з карткою",
+  "writeFixAll": "Виправити все",
+  "writeSlow": "Надто довго, запит зупинено. Спробуйте ще раз."
 }

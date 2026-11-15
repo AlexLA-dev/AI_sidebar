@@ -2957,6 +2957,12 @@
  "colCardMenu": {
   "message": "카드 작업"
  },
+ "writeFixAll": {
+  "message": "모두 수정"
+ },
+ "writeSlow": {
+  "message": "너무 오래 걸려 중단했습니다. 다시 시도해 주세요."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

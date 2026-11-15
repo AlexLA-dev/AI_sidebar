@@ -1013,5 +1013,7 @@
   "colPdfFooter": "صُنع بـ ContextFlow",
   "colPdfSave": "حفظ بتنسيق PDF",
   "colPick": "المجموعة: {0}. تبديل",
-  "colCardMenu": "إجراءات البطاقة"
+  "colCardMenu": "إجراءات البطاقة",
+  "writeFixAll": "تصحيح الكل",
+  "writeSlow": "استغرق ذلك وقتاً طويلاً فتم إيقافه. حاول مرة أخرى."
 }

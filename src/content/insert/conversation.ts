@@ -22,8 +22,11 @@ import { shadowRootOf } from "./shadow.ts"
 export interface Conversation {
   // The person, the group or the subject, as the conversation's heading names it ("" when there's none).
   title: string
-  // Its latest messages, as they read on the page.
+  // Its messages up to the reply box, as they read on the page: the last of them is the one being answered.
   text: string
+  // A reply box in the middle of a thread (a mail answered while later ones sit under it): the messages after the
+  // box, written later than the one being answered. "" when the box is at the conversation's end.
+  after: string
 }
 
 /**
@@ -53,13 +56,23 @@ export const CONVERSATION_WORDS: Record<string, string[]> = {
  * its title, and why. Each entry has a fixture in tests/insert-conversation.test.mts. None is needed for the messengers
  * the tests cover (Gmail, WhatsApp, Telegram, Slack, Messenger, LinkedIn): their roles, labels and times are enough.
  */
-export const SITE_SIGNS: Array<{ host: RegExp; messages: string; title?: string; why: string }> = []
+export const SITE_SIGNS: Array<{ host: RegExp; messages: string; title?: string; why: string }> = [
+  {
+    host: /^mail\.google\.com$/,
+    messages: "[role=main] [role=list]",
+    title: "[role=main] h2",
+    why: "2.7 (107): a thread of one mail has one date, so nothing says it's a conversation; Gmail's reply box sits inside the item of the mail being answered, and its dates read 'Nov 14, 2026, 4:42 PM (1 day ago)'."
+  }
+]
 
 const WORDS = new RegExp(Object.values(CONVERSATION_WORDS).flat().map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "i")
 // Class and id words developers use for a heading, whatever the page's language.
 const HEADING_CLASS = /title|header|heading|subject|\bname\b|[-_]name|name[-_]/i
 // A time a message was sent: 15:38, 3:38 PM, 15.38, with Arabic-Indic digits too; short, on its own.
 const TIME = /(^|[^\d٠-٩])([01]?[\d٠-٩]|2[0-3٠-٣])[:.][0-5٠-٥][\d٠-٩](?![\d٠-٩])/
+// The same inside a date ("Nov 14, 2026, 4:42 PM (1 day ago)", «14 нояб. 2026 г., 16:42 (1 день назад)»: Gmail, 2.7
+// (107)): with a colon only, so a price in a longer line ("from 12.50 a month") is never taken for one.
+const TIME_IN_DATE = /(^|[^\d٠-٩:])([01]?[\d٠-٩]|2[0-3٠-٣]):[0-5٠-٥][\d٠-٩](?![\d٠-٩:])/
 const CHOICES = "[role=option], [role=tab], [role=treeitem], [aria-selected]"
 
 /** The parent, across a shadow root (its host). */
@@ -91,7 +104,7 @@ function times(el: Element): number {
   for (const e of Array.from(el.querySelectorAll("*"))) {
     if (e.children.length) continue
     const text = (e.textContent ?? "").trim()
-    if (text.length <= 24 && TIME.test(text)) n++
+    if (text.length <= 24 ? TIME.test(text) : text.length <= 64 && TIME_IN_DATE.test(text)) n++
     if (n >= 2) break
   }
   return n
@@ -224,6 +237,51 @@ function clip(text: string, maxChars: number): string {
   return text.length > maxChars ? text.slice(-maxChars) : text
 }
 
+/** How much of what came after the message being answered goes along. */
+const AFTER_CHARS = 1500
+
+/**
+ * A messages container with the reply box inside it: what reads before the box and what reads after it, in the page's
+ * order. The container's own items go whole; inside the item that holds the box (a mail with its reply box under it),
+ * only what reads as a message does (it shows when it was sent, or has a sentence's worth of text): never the box's
+ * own recipients, buttons and toolbar.
+ */
+function aroundBox(messages: Element, field: Element): { before: string; after: string } {
+  const path: Element[] = []
+  for (let el: Element | null = field; el && el !== messages; el = up(el)) path.unshift(el)
+  const before: string[] = []
+  const after: string[] = []
+  let parent = messages
+  for (const child of path) {
+    const top = parent === messages
+    const keep = (el: Element): string => {
+      const text = words(el)
+      return text && (top || text.length >= 40 || times(el) >= 1) ? text : ""
+    }
+    const siblings = kids(parent)
+    const at = siblings.indexOf(child)
+    before.push(...siblings.slice(0, at).map(keep).filter(Boolean))
+    after.unshift(...siblings.slice(at + 1).map(keep).filter(Boolean))
+    parent = child
+  }
+  return { before: before.join("\n"), after: after.join("\n") }
+}
+
+/** The conversation of a messages container: around the box when the box is inside it, else all of it. */
+function conversationOf(title: string, messages: Element, field: Element, maxChars: number): Conversation {
+  if (!contains(messages, field)) return { title, text: clip(words(messages), maxChars), after: "" }
+  const { before, after } = aroundBox(messages, field)
+  // The box above every message (a comment box atop its thread): the thread is what's answered.
+  if (!before.trim()) return { title, text: after.slice(0, maxChars), after: "" }
+  return { title, text: clip(before, maxChars), after: after.slice(0, AFTER_CHARS) }
+}
+
+/** Whether `el` is inside `box`, across shadow roots. */
+function contains(box: Element, el: Element): boolean {
+  for (let x: Element | null = el; x; x = up(x)) if (x === box) return true
+  return false
+}
+
 /** The site's own signs, when it has an entry in SITE_SIGNS. */
 function bySite(field: Element, maxChars: number): Conversation | null {
   const host = field.ownerDocument.defaultView?.location?.hostname ?? ""
@@ -233,7 +291,9 @@ function bySite(field: Element, maxChars: number): Conversation | null {
   const messages = root.querySelector(site.messages)
   if (!messages) return null
   const title = site.title ? root.querySelector(site.title) : null
-  return { title: title ? firstText(title) : "", text: clip(words(messages), maxChars) }
+  const found = conversationOf(title ? firstText(title) : "", messages, field, maxChars)
+  // Nothing to answer (a new mail's own window): not a conversation.
+  return found.text.trim() ? found : null
 }
 
 /** The conversation `field` replies in, or null when it isn't in one (a form, a search, a post of one's own). */
@@ -245,18 +305,18 @@ export function conversationAround(field: Element, maxChars = 6000): Conversatio
     const scope = up(branch)
     if (!scope || scope.tagName.toUpperCase() === "BODY" || scope.tagName.toUpperCase() === "HTML") return null
     const messages = messagesIn(scope, branch)
-    if (messages) return { title: titleFor(scope, messages), text: clip(words(messages), maxChars) }
-    // The box at the end of the conversation itself (a mail's reply under its messages): the rest of it.
+    if (messages) return { title: titleFor(scope, messages), text: clip(words(messages), maxChars), after: "" }
+    // The box inside the conversation itself (a mail's reply under the mail it answers, at the thread's end or in its
+    // middle): the messages before the box, the answered one last, and apart from them the ones after it.
     if (isMessages(scope) && kids(scope).filter((c) => c !== branch).some((c) => words(c))) {
-      const text = kids(scope).filter((c) => c !== branch).map(words).filter(Boolean).join("\n")
-      return { title: titleFor(up(scope) ?? scope, scope), text: clip(text, maxChars) }
+      return conversationOf(titleFor(up(scope) ?? scope, scope), scope, field, maxChars)
     }
     branch = scope
   }
   return null
 }
 
-/** What the AI reads for a reply: the conversation's title first, then its messages. */
+/** What the AI reads for a reply: the conversation's title first, then its messages up to the reply box. */
 export function conversationText(c: Conversation): string {
   return c.title ? `Conversation: ${c.title}\n\n${c.text}` : c.text
 }

@@ -94,5 +94,7 @@ export type InsertRequest =
   | { type: "qiFind"; query: string; templates: Array<{ id: string; title: string; keywords: string[] }> }
   // «Проверить» и «Переписать» (2.7): the field's text with the page and the style (WriteReply back).
   | { type: "qiWrite"; ask: WriteAsk }
+  // Cancel, or the page stopped waiting: the request named `id` is dropped.
+  | { type: "qiWriteStop"; id: string }
 
 export type InsertContentMessage = { type: "quickInsert" }

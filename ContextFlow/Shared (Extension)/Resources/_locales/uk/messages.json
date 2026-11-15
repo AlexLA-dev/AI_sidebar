@@ -2957,6 +2957,12 @@
  "colCardMenu": {
   "message": "Дії з карткою"
  },
+ "writeFixAll": {
+  "message": "Виправити все"
+ },
+ "writeSlow": {
+  "message": "Надто довго, запит зупинено. Спробуйте ще раз."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

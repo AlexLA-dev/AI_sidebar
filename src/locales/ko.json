@@ -1013,5 +1013,7 @@
   "colPdfFooter": "ContextFlow로 제작",
   "colPdfSave": "PDF로 저장",
   "colPick": "컬렉션: {0}. 전환",
-  "colCardMenu": "카드 작업"
+  "colCardMenu": "카드 작업",
+  "writeFixAll": "모두 수정",
+  "writeSlow": "너무 오래 걸려 중단했습니다. 다시 시도해 주세요."
 }

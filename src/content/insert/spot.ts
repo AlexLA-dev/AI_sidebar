@@ -314,3 +314,23 @@ export function cardTop(r: { top: number; bottom: number }, h: number, vp: { hei
   if (touch) return roomAbove ? above : below
   return below + h <= vp.dy + vp.height - 8 || !roomAbove ? below : above
 }
+
+/**
+ * Where the list of fixes goes by touch (2.7 (107)), in what's visible (0 at its top, `height` at its bottom: the
+ * keyboard's top edge when it's up). At the bottom, a thumb's place, when the field isn't there; a field that is (a
+ * chat's box sits right on the keyboard) keeps showing, with the list above it; a field with room neither under nor
+ * over it (a mail's body filling the screen) gets the list over its bottom part.
+ */
+export function fixesSpot(field: { top: number; bottom: number } | null, height: number, h: number): { top: number; at: "bottom" | "above" } {
+  const bottom = Math.max(8, height - 8 - h)
+  if (!field || field.bottom <= 0 || field.top >= height) return { top: bottom, at: "bottom" }
+  if (bottom >= Math.min(field.bottom, height) + 6) return { top: bottom, at: "bottom" }
+  const above = field.top - 8 - h
+  if (above >= 8) return { top: above, at: "above" }
+  return { top: bottom, at: "bottom" }
+}
+
+/** How tall the list of fixes may be by touch: about half of what's visible, a row and its head at least. */
+export function fixesMaxHeight(height: number): number {
+  return Math.round(Math.max(150, Math.min(320, height * 0.48)))
+}

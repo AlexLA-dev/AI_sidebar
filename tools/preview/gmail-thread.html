@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gmail</title>
+<!-- 2.7 (107), the owner's test in Gmail on an iPad mini: «Проверить» hung, the fix card piled up with the selection
+     buttons. Gmail needs a sign-in, so this is its thread view rebuilt from its own markup, as iPad Safari gets it (the
+     desktop site): the class names, the nested tables, the attributes and the places of things are Gmail's
+     (div.nH[role=list] › div.h7[role=listitem] › div.adn.ads › div.gs › table.cf.gJ … div.a3s.aiL; the dates in span.g3
+     as "Nov 14, 2026, 4:42 PM (1 day ago)"; the reply box in div.ip.iq inside the item of the message being answered:
+     div.M9 › form.bAs › table.cf.An › div.Am.Al.editable[g_editable][role=textbox][aria-label="Message Body"]).
+     A reconstruction: not checked against a signed-in Gmail.
+     ?lang=en|ru|ja|ar  the thread's language (ar: right to left)
+     ?at=middle         the reply box under the second message, with later messages after it (default: the last one)
+     ?n=40              a long thread (the older messages collapsed, as Gmail keeps them)
+     ?draft=1           a draft already in the box (two words) -->
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { font: 14px/1.5 "Google Sans", Roboto, -apple-system, "Helvetica Neue", Arial, sans-serif; color: #202124; background: #f6f8fc; }
+  .gb_Kd { display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 16px; }
+  .gb_Kd .gb_Yc { width: 109px; height: 40px; display: flex; align-items: center; gap: 6px; font-size: 22px; color: #5f6368; }
+  .gb_Kd .gb_Yc i { width: 30px; height: 22px; border-radius: 3px; background: linear-gradient(135deg, #ea4335 0 30%, #fbbc04 30% 55%, #34a853 55% 75%, #4285f4 75%); }
+  .gb_Kd form { flex: 1; max-width: 720px; height: 46px; border-radius: 24px; background: #eaf1fb; display: flex; align-items: center; padding: 0 18px; color: #5f6368; }
+  .wrap { display: flex; min-height: calc(100% - 64px); }
+  .aeN { width: 72px; flex: none; padding-top: 8px; }
+  .aeN [role=listitem] { height: 56px; display: grid; place-items: center; font-size: 12px; color: #444746; }
+  .bkK { flex: 1; min-width: 0; background: #fff; border-radius: 16px; margin: 0 12px 12px 0; padding-bottom: 90px; }
+  .G-atb { display: flex; gap: 22px; padding: 14px 22px; color: #444746; border-bottom: 1px solid #f1f3f4; position: sticky; top: 0; background: #fff; z-index: 2; }
+  .G-atb span { width: 20px; height: 20px; border-radius: 4px; border: 2px solid #5f6368; box-sizing: border-box; }
+  .ha { padding: 18px 22px 6px 72px; }
+  h2.hP { font-size: 22px; font-weight: 400; margin: 0; display: inline; }
+  .h7 { border-bottom: 1px solid #eceff1; }
+  .adn { display: flex; padding: 14px 16px 6px 16px; }
+  .aju { width: 56px; flex: none; }
+  .ajn { width: 40px; height: 40px; border-radius: 50%; display: block; }
+  .gs { flex: 1; min-width: 0; }
+  table.cf { border-collapse: collapse; width: 100%; }
+  table.cf td { padding: 0; vertical-align: top; }
+  h3.iw { margin: 0; font-size: 14px; font-weight: 400; }
+  .gD { font-weight: 700; }
+  .go, .g3, .hb, .iX { color: #5f6368; font-size: 12px; }
+  td.gH { text-align: end; white-space: nowrap; width: 1%; padding-inline-start: 12px; }
+  .T-I { display: inline-block; width: 20px; height: 20px; margin-inline-start: 12px; border-radius: 50%; background: #e8eaed; vertical-align: middle; }
+  .a3s { padding: 12px 0 10px; font-size: 14px; overflow-wrap: anywhere; }
+  .a3s p { margin: 0 0 12px; }
+  .kv .a3s, .kv .ajw { display: none; }
+  .kv .iA { color: #5f6368; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60vw; }
+  .hq { margin: 6px 0 10px; color: #5f6368; font-size: 13px; }
+  .hq b { color: #202124; }
+  .aQH { display: flex; gap: 8px; margin-top: 8px; }
+  .aQH span { width: 180px; height: 110px; border-radius: 6px; background: linear-gradient(135deg, #2e7d32, #8bc34a 60%, #ffca28); display: block; }
+  .gA { padding: 4px 16px 16px 16px; display: flex; }
+  .gB { flex: 1; min-width: 0; margin-inline-start: 56px; }
+  .ip { border-radius: 16px; box-shadow: 0 1px 2px rgba(60,64,67,.3), 0 2px 6px 2px rgba(60,64,67,.15); background: #fff; }
+  .aoP { width: 100%; border-collapse: collapse; }
+  .fX { display: flex; align-items: center; gap: 10px; padding: 12px 16px 4px; color: #444746; }
+  .fX .J-J5-Ji { width: 20px; height: 16px; border-inline-start: 2px solid #5f6368; border-bottom: 2px solid #5f6368; border-end-start-radius: 6px; box-sizing: border-box; }
+  .Am.editable { min-height: 85px; padding: 8px 16px 0; outline: none; font: small/1.5 Arial, Helvetica, sans-serif; font-size: 13.33px; overflow-wrap: anywhere; }
+  .gmail_signature { color: #888; }
+  .ajR { display: inline-block; margin: 10px 16px; padding: 0 8px; height: 11px; line-height: 6px; border-radius: 6px; background: #e8eaed; color: #5f6368; font-weight: 700; letter-spacing: 1px; }
+  .btC { display: flex; align-items: center; gap: 14px; padding: 12px 16px 14px; }
+  .T-I-atl { background: #0b57d0; color: #fff; border-radius: 18px; padding: 8px 24px; font-weight: 500; font-size: 14px; }
+  .btC .oc { width: 20px; height: 20px; border-radius: 4px; background: #e8eaed; }
+  .amn { padding: 18px 72px; display: flex; gap: 10px; }
+  .amn .ams { border: 1px solid #747775; border-radius: 18px; padding: 7px 22px; color: #444746; font-weight: 500; }
+  [dir=rtl] .gb_Kd, [dir=rtl] .wrap { direction: rtl; }
+  @media (max-width: 520px) {
+    .aeN { display: none; }
+    .bkK { margin: 0; border-radius: 0; }
+    .ha { padding-inline-start: 16px; }
+    .aju { width: 44px; }
+    .ajn { width: 32px; height: 32px; }
+    .gB { margin-inline-start: 0; }
+    .amn { padding: 18px 16px; }
+    .go { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="gb_Kd" role="banner"><div class="gb_Yc"><i></i>Gmail</div><form role="search" aria-label="Search mail"><span id="search">Search mail</span></form></div>
+<div class="wrap">
+  <div class="aeN" role="navigation"><div role="list">
+    <div role="listitem" class="aim">Mail</div><div role="listitem" class="aim">Chat</div><div role="listitem" class="aim">Meet</div>
+  </div></div>
+  <div class="bkK"><div class="nH" role="main" id="main"></div></div>
+</div>
+<script>
+const params = new URLSearchParams(location.search)
+const lang = ["ru", "ja", "ar"].includes(params.get("lang")) ? params.get("lang") : "en"
+const middle = params.get("at") === "middle"
+const total = Math.max(4, Math.min(80, Number(params.get("n")) || 4))
+// Each thread: its subject, the people, four messages (the second asks what the third and fourth then answer), the
+// signature of the one replying, how Gmail writes a message's date and "to me" in that language.
+const THREADS = {
+  en: {
+    subject: "Kestrel x Unwind – partnership idea", me: "Alex Smith", meMail: "alex@unwind.example",
+    people: [["Dmitry Vasilkov", "d.vasilkov@kestrelgames.example"], ["Priya Raman", "priya@kestrelgames.example"]],
+    to: "to me", date: (d, t, ago) => `Nov ${d}, 2026, ${t} (${ago})`, ago: ["3 days ago", "2 days ago", "1 day ago", "5 hours ago"],
+    times: ["4:42 PM", "9:05 AM", "11:20 AM", "10:31 AM"], reply: "Reply", forward: "Forward", send: "Send", search: "Search mail",
+    msgs: [
+      [0, ["Hi Alex,", "We make social card games at Kestrel Games and would love to explore a cross-promotion with Unwind. We'd be happy to start small and look at the numbers together.", "I've attached a screenshot so you can see the titles: Solitaire Social, Mahjong Social and Yatzy Social.", "Looking forward to your reply.", "Best,\nDmitry Vasilkov\nBizDev | Kestrel Games"]],
+      [0, ["One more thing: could you tell us by Thursday whether a two-week test in December works on your side? Priya needs the dates to book the banner slots."]],
+      [1, ["Hi both, I can hold the banner slots for December 8–21 until Friday. After that they go to another partner."]],
+      [0, ["Thanks Priya. Alex, the slides with last quarter's numbers are attached to this one."]]
+    ],
+    sign: ["Alex Smith", "Growth, Unwind"], draft: "Thank you"
+  },
+  ru: {
+    subject: "Кестрел и Unwind: идея партнёрства", me: "Алексей Смирнов", meMail: "alex@unwind.example",
+    people: [["Дмитрий Васильков", "d.vasilkov@kestrelgames.example"], ["Прия Раман", "priya@kestrelgames.example"]],
+    to: "кому: мне", date: (d, t, ago) => `${d} нояб. 2026 г., ${t} (${ago})`, ago: ["3 дня назад", "2 дня назад", "1 день назад", "5 часов назад"],
+    times: ["16:42", "09:05", "11:20", "10:31"], reply: "Ответить", forward: "Переслать", send: "Отправить", search: "Поиск в почте",
+    msgs: [
+      [0, ["Алексей, добрый день!", "Мы в Kestrel Games делаем карточные игры и хотели бы обсудить взаимное продвижение с Unwind. Готовы начать с малого и вместе посмотреть на цифры.", "Во вложении скриншот с нашими играми: Solitaire Social, Mahjong Social и Yatzy Social.", "Жду вашего ответа.", "С уважением,\nДмитрий Васильков\nBizDev | Kestrel Games"]],
+      [0, ["И ещё: сможете до четверга сказать, подходит ли вам двухнедельный тест в декабре? Прие нужны даты, чтобы забронировать баннеры."]],
+      [1, ["Коллеги, могу держать баннеры на 8–21 декабря до пятницы. Потом они уйдут другому партнёру."]],
+      [0, ["Спасибо, Прия. Алексей, слайды с цифрами за прошлый квартал приложил к этому письму."]]
+    ],
+    sign: ["Алексей Смирнов", "Рост, Unwind"], draft: "Спасибо большое"
+  },
+  ja: {
+    subject: "ケストレルとUnwindの提携について", me: "佐藤 健", meMail: "sato@unwind.example",
+    people: [["田中 大輔", "tanaka@kestrelgames.example"], ["鈴木 美咲", "suzuki@kestrelgames.example"]],
+    to: "To 自分", date: (d, t, ago) => `2026年11月${d}日 ${t} (${ago})`, ago: ["3 日前", "2 日前", "1 日前", "5 時間前"],
+    times: ["16:42", "9:05", "11:20", "10:31"], reply: "返信", forward: "転送", send: "送信", search: "メールを検索",
+    msgs: [
+      [0, ["佐藤様", "ケストレルゲームズの田中です。弊社のカードゲームとUnwindの相互送客についてご相談したく、ご連絡いたしました。まずは小さく始めて、数字を一緒に確認できればと思います。", "タイトルのスクリーンショットを添付しました。", "ご返信をお待ちしております。", "田中 大輔\nBizDev | Kestrel Games"]],
+      [0, ["追伸：12月に2週間のテストが可能かどうか、木曜日までに教えていただけますか。鈴木がバナー枠を予約するのに日程が必要です。"]],
+      [1, ["皆さま、12月8日から21日のバナー枠を金曜日まで確保しておきます。その後は別のパートナーに回します。"]],
+      [0, ["鈴木さん、ありがとうございます。佐藤様、前四半期の数字のスライドをこのメールに添付しました。"]]
+    ],
+    sign: ["佐藤 健", "Unwind グロース担当"], draft: "ありがとうございます"
+  },
+  ar: {
+    subject: "كستريل و Unwind: فكرة شراكة", me: "أحمد سالم", meMail: "ahmad@unwind.example",
+    people: [["ديمتري فاسيلكوف", "d.vasilkov@kestrelgames.example"], ["بريا رامان", "priya@kestrelgames.example"]],
+    to: "إليّ", date: (d, t, ago) => `${d} نوفمبر 2026، ${t} (${ago})`, ago: ["قبل 3 أيام", "قبل يومين", "قبل يوم واحد", "قبل 5 ساعات"],
+    times: ["4:42 م", "9:05 ص", "11:20 ص", "10:31 ص"], reply: "رد", forward: "إعادة توجيه", send: "إرسال", search: "البحث في البريد",
+    msgs: [
+      [0, ["مرحباً أحمد،", "نحن في Kestrel Games نصنع ألعاب ورق اجتماعية ونود بحث ترويج متبادل مع Unwind. يسعدنا أن نبدأ بتجربة صغيرة وننظر إلى الأرقام معاً.", "أرفقت لقطة شاشة لتطّلع على الألعاب.", "بانتظار ردّك.", "تحياتي،\nديمتري فاسيلكوف\nBizDev | Kestrel Games"]],
+      [0, ["أمر آخر: هل يمكنك إخبارنا قبل يوم الخميس إن كانت تجربة لمدة أسبوعين في ديسمبر تناسبكم؟ بريا تحتاج إلى التواريخ لحجز مساحات الإعلانات."]],
+      [1, ["مرحباً بكما، أستطيع حجز مساحات الإعلانات من 8 إلى 21 ديسمبر حتى يوم الجمعة. بعد ذلك تذهب إلى شريك آخر."]],
+      [0, ["شكراً بريا. أحمد، أرفقت بهذه الرسالة شرائح أرقام الربع الماضي."]]
+    ],
+    sign: ["أحمد سالم", "النمو، Unwind"], draft: "شكرا جزيلا"
+  }
+}
+const T = THREADS[lang]
+document.documentElement.lang = lang
+if (lang === "ar") document.documentElement.dir = "rtl"
+document.title = `${T.subject} - ${T.meMail} - Gmail`
+document.getElementById("search").textContent = T.search
+
+let seq = 100
+const id = () => `:${(seq++).toString(36)}`
+const h = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild }
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]))
+const avatar = (n) => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="20" fill="${["#8e24aa", "#00897b"][n]}"/></svg>`)}`
+
+/** One message as Gmail draws it: collapsed (a line with its start) or open. */
+function message(i, who, paras, day, open, files) {
+  const [name, mail] = T.people[who]
+  const date = T.date(day, T.times[i % 4], T.ago[Math.min(3, i % 4)])
+  const body = paras.map((p) => `<p dir="auto">${esc(p).replace(/\n/g, "<br>")}</p>`).join("")
+  return h(`<div class="h7 ie nH oy8Mbf ${open ? "" : "kv"}" role="listitem" aria-expanded="${open}" tabindex="-1">
+  <div class="Bk"><div class="G3 G2 afm"><div><div id="${id()}">
+    <div class="adn ads" data-message-id="#msg-f:18${4000 + i}" data-legacy-message-id="19a${7000 + i}">
+      <div class="aju"><div class="aCi"><img class="ajn" src="${avatar(who)}" alt="" aria-hidden="true" jid="${mail}" data-name="${esc(name)}"></div></div>
+      <div class="gs">
+        <div class="gE iv gt">
+          <table cellpadding="0" class="cf gJ" role="presentation"><tbody>
+            <tr class="acZ">
+              <td class="gF gK"><table cellpadding="0" class="cf ix" role="presentation"><tbody><tr><td class="c2"><h3 class="iw gFxsud"><span class="qu" role="gridcell" tabindex="-1"><span email="${mail}" name="${esc(name)}" data-hovercard-id="${mail}" class="gD" translate="no"><span>${esc(name)}</span></span> <span class="go"><span aria-hidden="true">&lt;</span>${mail}<span aria-hidden="true">&gt;</span></span></span></h3></td></tr></tbody></table></td>
+              <td class="gH bAk"><div class="gK"><span id="${id()}" class="g3" title="${esc(date)}" alt="${esc(date)}" role="gridcell" tabindex="-1">${esc(date)}</span></div></td>
+              <td class="gH"><div class="T-I J-J5-Ji T-I-Js-IF aaq T-I-ax7 L3" role="button" tabindex="0" aria-label="${esc(T.reply)}" data-tooltip="${esc(T.reply)}"></div><div class="T-I J-J5-Ji T-I-Js-Gs aap T-I-awG T-I-ax7 L3" role="button" tabindex="0" aria-expanded="false" aria-haspopup="true" aria-label="More message options"></div></td>
+            </tr>
+            <tr class="acZ xD"><td colspan="3"><table cellpadding="0" class="cf adz" role="presentation"><tbody><tr><td class="ady">
+              <div class="iw ajw"><span class="hb">${esc(T.to)} <span class="g2" email="${T.meMail}" name="${esc(T.me)}"></span></span></div>
+              <div class="iA g6">${esc(paras.join(" ").slice(0, 110))}</div>
+            </td></tr></tbody></table></td></tr>
+          </tbody></table>
+        </div>
+        <div id="${id()}"><div class="qQVYZb"></div><div class="utdU2e"></div><div class="lQs8Hd"></div><div class="wl4W9b"></div></div>
+        <div class=""><div class="aHl"></div><div id="${id()}" tabindex="-1"></div>
+          <div id="${id()}" class="ii gt"><div id="${id()}" class="a3s aiL">${body}<div class="yj6qo"></div><div class="adL"></div></div></div>
+          ${files ? `<div class="hq gt"><div class="hp"></div><div class="a3I"><b>One attachment</b> • Scanned by Gmail</div><div class="aQH"><span role="link" tabindex="0" aria-label="kestrel-titles.png"></span></div></div>` : ""}
+        </div>
+      </div>
+    </div>
+  </div></div></div></div>
+</div>`)
+}
+
+/** The reply box as Gmail puts it under the message being answered. */
+function replyBox(toName) {
+  const draft = params.get("draft") === "1" ? esc(T.draft) : "<br>"
+  return h(`<div class="gA gt acV"><div class="gB xu"><div class="ip iq"><div class="nr tMHS5d"><div class="M9"><div class="aoI" role="region" aria-label="${esc(T.reply)}">
+  <form class="bAs" enctype="multipart/form-data" method="POST" onsubmit="return false">
+    <input type="hidden" name="composeid" value="67531"><input type="hidden" name="draft" value="undefined"><input type="hidden" name="rm" value="19a7003"><input type="hidden" name="subjectbox" value="Re: ${esc(T.subject)}">
+    <div class="fX aiL"><span class="J-J5-Ji" aria-hidden="true"></span><div class="afx" aria-live="off"><span class="vN bfK a3q" email="x"><div class="vT">${esc(toName)}</div></span></div></div>
+    <table class="aoP HM" role="presentation" cellpadding="0"><tbody><tr><td class="I5">
+      <table cellpadding="0" class="cf An" role="presentation"><tbody><tr><td class="Ap">
+        <div class="Ar Au Ao"><div id="${id()}" class="Am aiL aO9 Al editable LW-avf tS-tW" hidefocus="true" aria-label="Message Body" g_editable="true" role="textbox" aria-multiline="true" contenteditable="true" tabindex="1" style="direction: ${lang === "ar" ? "rtl" : "ltr"}; min-height: 85px;" spellcheck="false" aria-owns=":rb" aria-controls=":rb" aria-expanded="false"><div dir="${lang === "ar" ? "rtl" : "ltr"}">${draft}</div><div><br clear="all"></div><div><br></div><span class="gmail_signature_prefix">-- </span><br><div dir="${lang === "ar" ? "rtl" : "ltr"}" class="gmail_signature" data-smartmail="gmail_signature"><div dir="auto">${esc(T.sign[0])}<br>${esc(T.sign[1])}</div></div></div></div>
+        <div class="ajR" role="button" tabindex="0" aria-label="Show trimmed content" data-tooltip="Show trimmed content" aria-expanded="false">...</div>
+      </td></tr></tbody></table>
+    </td></tr><tr class="btC"><td class="gU Up"><div class="btC"><div class="T-I J-J5-Ji aoO v7 T-I-atl L3" role="button" tabindex="1" aria-label="${esc(T.send)}">${esc(T.send)}</div><div class="oc gU" role="button" aria-label="Formatting options"></div><div class="oc gU" role="button" aria-label="Attach files"></div></div></td></tr></tbody></table>
+  </form>
+</div></div></div></div></div></div>`)
+}
+
+const main = document.getElementById("main")
+main.append(h(`<div class="G-atb" role="toolbar" aria-label="Conversation actions"><span role="button" aria-label="Archive"></span><span role="button" aria-label="Report spam"></span><span role="button" aria-label="Delete"></span><span role="button" aria-label="Mark as unread"></span></div>`))
+main.append(h(`<div class="ha"><h2 class="hP" tabindex="-1" data-thread-perm-id="thread-f:1849" data-legacy-thread-id="19a7001">${esc(T.subject)}</h2></div>`))
+const list = h(`<div class="nH if" role="list"></div>`)
+main.append(list)
+// A long thread: the four messages go round, the older ones collapsed, the last four open.
+const order = Array.from({ length: total }, (_, i) => i % 4)
+const answered = middle ? total - 3 : total - 1
+order.forEach((k, i) => {
+  const [who, paras] = T.msgs[k]
+  const item = message(i, who, paras, 12 + Math.min(3, Math.floor((i * 4) / total)), i >= total - 4, k === 0)
+  list.append(item)
+  if (i === answered) item.querySelector(".G3").append(replyBox(T.people[who][0]))
+})
+if (middle) main.append(h(`<div class="amn"><span class="ams bkH" role="link" tabindex="0">${esc(T.reply)}</span><span class="ams bkG" role="link" tabindex="0">${esc(T.forward)}</span></div>`))
+</script>
+</body>
+</html>

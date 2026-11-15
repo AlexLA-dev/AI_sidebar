@@ -1013,5 +1013,7 @@
   "colPdfFooter": "用 ContextFlow 制作",
   "colPdfSave": "存储为 PDF",
   "colPick": "合集：{0}。切换",
-  "colCardMenu": "卡片操作"
+  "colCardMenu": "卡片操作",
+  "writeFixAll": "全部修正",
+  "writeSlow": "耗时过长，已停止。请重试。"
 }

@@ -1013,5 +1013,7 @@
   "colPdfFooter": "Erstellt mit ContextFlow",
   "colPdfSave": "Als PDF sichern",
   "colPick": "Sammlung: {0}. Wechseln",
-  "colCardMenu": "Kartenaktionen"
+  "colCardMenu": "Kartenaktionen",
+  "writeFixAll": "Alle korrigieren",
+  "writeSlow": "Das dauert zu lange und wurde abgebrochen. Bitte versuch es noch einmal."
 }
