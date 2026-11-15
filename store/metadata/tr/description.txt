@@ -1,0 +1,57 @@
+Makaleleri bir sohbet botuna yapıştırmayı bırakın. Safari'den çıkmadan her sayfa hakkında yapay zekâya sorun, sayfayı olduğu yerde çevirin, kendini dolduran şablonlarla yanıt verin ve fiyat değişince bildirim alın. Sohbet sizi sayfadan sayfaya izler; aynı sohbet iPhone, iPad ve Mac'inizde.
+
+2.7'DE YENİ
+• Sayfayı olduğu yerde çevirin: bağlantılar ve düğmeler çalışmaya devam eder
+• Koleksiyonlar: bir iş için her şey tek yerde. Pro'da yapay zekâ kartları bölümlere ayırır, karşılaştırır ve özetler; PDF olarak kaydedin
+• Benzerini Bul artık Pro'da ve Kendi anahtarınız planında da
+• Ayrı alanlar: iş, kişisel ve alışveriş; her birinin kendi sohbetleri ve rengi
+• Sitelerdeki metin kutularında, sayfayı dikkate alarak kontrol ve yeniden yazma
+• Takvim ve Anımsatıcılar'a ekleme, notlarda sayfa görüntüsü, panel ekranın iki kenarında da, arkadaş daveti
+• Panel artık Türkçe
+
+NELER YAPABİLİRSİNİZ
+• Her makaleyi, incelemeyi, tartışmayı veya ürün sayfasını özetleyin ya da önemli noktaları çıkarın
+• Kendi sorularınızı sorun: "Püf noktası ne?", "Almaya değer mi?"
+• Teknik terimleri sade bir dille açıklatın ya da sayfayı kendi dilinize çevirin
+• Yalnızca o kısmı sormak için metni seçin ya da not olarak saklayın
+• Google yanıtları: Google Arama'dan güncel bilgiler, açabileceğiniz kaynaklarla
+• Tekrar tekrar yazdığınız yanıtlar için sayfadan doldurulan şablonlar. Bir metin kutusuna dokunun; yüzen düğme şablonları ve kopyaladıklarınızı getirir
+• Fiyatın düşmesini mi bekliyorsunuz? Fiyatı seçip göz simgesine dokunun: değiştiğinde ContextFlow haber verir.
+
+NOTLAR VE SOHBETLER
+• Notlar: soru sormak yerine not yazmak için gönder düğmesini yukarı ya da aşağı kaydırın (Mac'te üzerinde kaydırın). Notlar yanıt harcamaz
+• Tüm sohbet: yanıt, sohbetin her mesajını, notlarınızı ve tüm sayfalarını hesaba katar
+• Etiketler, klasörler ve sohbetlerinizde arama
+
+TÜM SOHBETLERİNİZ UYGULAMADA
+• iPhone, iPad ve Mac'teki ContextFlow uygulamasında Safari'deki tüm sohbetleriniz ve koleksiyonlarınız var: okuyun, soru sorun ya da not ekleyin
+• Sohbetler ve şablonlar iCloud üzerinden cihazlarınız arasında eşzamanlanır
+
+IPHONE, IPAD VE MAC'TE SAFARI İÇİN
+• iPhone ve iPad: herhangi bir sayfada yüzen ContextFlow düğmesine ya da seçili metinde Yapay zekâya sor'a dokunun
+• Mac: araç çubuğundan, yüzen düğmeden ya da Control-Shift-E ile açılan kenar çubuğu
+• Kısa videolu ipuçları, açık ve koyu mod, 15 dil
+
+GİZLİLİK ÖNCELİKLİ
+• Hesap yok, kayıt yok, izleme yok
+• Bir sayfa yalnızca siz sorduğunuzda ya da izlediğinizde okunur
+• Sayfa metni sunucularımızda saklanmaz; sohbetleriniz cihazlarınızda kalır ve kendi iCloud'unuz üzerinden eşzamanlanır
+
+PLANLAR
+• Ücretsiz: her gün yanıtlar, günde birkaç şablon doldurma, sınırsız not ve 10 karta kadar bir koleksiyon
+• Pro: bol yanıt, daha derin ve ayrıntılı; videolar ve PDF'ler, sınırsız şablon doldurma, daha çok izlenen sayfa, yanıtları sohbetlerinize ve etiketlerinize ayıran öneriler, koleksiyonlarda yapay zekâ, haftada 5 hızlı Benzerini Bul
+• Ultra: Pro'daki her şey, artı Dinle, tam kapsamlı Benzerini Bul ve 50'ye kadar izlenen sayfa
+• Kendi anahtarınız: kendi OpenAI veya Claude API anahtarınızla sınırsız yanıt
+• Pro, Ultra ve Kendi anahtarınız: aylık ya da yıllık
+
+BİR DAKİKADA BAŞLAYIN
+1. ContextFlow uygulamasını açın: Safari'de uzantıyı nasıl açacağınızı adım adım gösterir.
+2. Herhangi bir web sitesini açın ve ContextFlow düğmesine dokunun (Mac'te araç çubuğundaki ContextFlow simgesine tıklayın).
+3. Özetle, Önemli noktalar, Basitçe açıkla ya da Çevir'i seçin veya doğrudan sorun.
+
+Yapay zekâ hata yapabilir. Önemli bilgileri kontrol edin.
+
+Abonelikler, geçerli dönemin bitiminden en az 24 saat önce iptal edilmedikçe otomatik olarak yenilenir. Ödeme Apple Hesabınızdan alınır. Aboneliğinizi App Store hesap ayarlarınızdan istediğiniz zaman yönetebilir veya iptal edebilirsiniz.
+
+Kullanım Koşulları: https://context-flow.app/terms
+Gizlilik Politikası: https://context-flow.app/privacy

@@ -1,0 +1,1 @@
+Sayfa başka bir dilde mi? ContextFlow onu olduğu yerde çevirir, bağlantılar çalışır. 2.7'de yeni: iş ve ev için ayrı alanlar, yazdığınız her yerde kontrol ve düzeltme.
