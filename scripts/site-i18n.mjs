@@ -35,6 +35,7 @@ export const LANGUAGES = [
   { path: "fr", hreflang: "fr", lang: "fr", og: "fr_FR", name: "Français" },
   { path: "it", hreflang: "it", lang: "it", og: "it_IT", name: "Italiano" },
   { path: "pt-br", hreflang: "pt-BR", lang: "pt-BR", og: "pt_BR", name: "Português (Brasil)" },
+  { path: "tr", hreflang: "tr", lang: "tr", og: "tr_TR", name: "Türkçe" },
   { path: "ru", hreflang: "ru", lang: "ru", og: "ru_RU", name: "Русский" },
   { path: "uk", hreflang: "uk", lang: "uk", og: "uk_UA", name: "Українська" },
   { path: "vi", hreflang: "vi", lang: "vi", og: "vi_VN", name: "Tiếng Việt" },
@@ -51,7 +52,7 @@ export const TRANSLATED = LANGUAGES.slice(1)
 export const PAGES = [
   "index.html", "features.html", "cases.html", "cases/replies-and-forms.html", "cases/studying.html", "cases/shopping.html",
   "cases/planning.html", "safari-ai-extension-iphone.html", "notes-while-reading-safari.html", "safari-summary-vs-chatgpt.html",
-  "support.html"
+  "support.html", "translate-web-page-safari-iphone.html", "proofread-safari-iphone.html"
 ]
 /** English only, still in the sitemap: privacy and terms (the binding texts), and the alternative pages (2.7), which
  * come in other languages only when search data asks for it. */
@@ -237,6 +238,35 @@ function localLink(href, language) {
   return urlPath(file, language) + (m[2] ?? "")
 }
 
+/** Privacy and terms are the binding texts, in English for everyone: linked from every language. */
+const ALWAYS_LINKED = ["privacy.html", "terms.html"]
+
+/**
+ * A reader in another language is never sent to an English page (2.7, the director's review: equal quality in every
+ * language). A link to a site page that doesn't come in this language: a tile goes, a footer link or one in a "More:"
+ * line goes with its separator, and one in running text becomes plain text.
+ */
+function keepInLanguage(document, language) {
+  for (const a of [...document.querySelectorAll("a[href]")]) {
+    const m = /^\/([a-z0-9/-]*)(#[\w-]+)?$/.exec(a.getAttribute("href"))
+    if (!m) continue
+    const file = m[1] === "" ? "index.html" : `${m[1].replace(/\/$/, "")}.html`
+    if (!(PAGES.includes(file) || SOME.includes(file) || ENGLISH_ONLY.includes(file))) continue
+    if (inLanguage(file, language) || ALWAYS_LINKED.includes(file)) continue
+    const more = a.parentElement?.classList.contains("more")
+    if (a.classList.contains("tile") || a.closest("footer")) { a.remove(); continue }
+    if (more) {
+      const next = a.nextSibling
+      const prev = a.previousSibling
+      if (next?.nodeType === 3 && /^\s*·\s*/.test(next.textContent)) next.textContent = next.textContent.replace(/^\s*·\s*/, "")
+      else if (prev?.nodeType === 3 && /\s*·\s*$/.test(prev.textContent)) prev.textContent = prev.textContent.replace(/\s*·\s*$/, " ")
+      a.remove()
+      continue
+    }
+    a.replaceWith(...a.childNodes)
+  }
+}
+
 /** The canonical URL, og:url, lang and dir in the DOM (translated pages). */
 function setHead(document, file, language) {
   const url = pageUrl(file, language)
@@ -315,6 +345,7 @@ export function render(file, language) {
   }
   ldTranslate(document, file, language, dict)
   for (const a of document.querySelectorAll("a[href]")) a.setAttribute("href", localLink(a.getAttribute("href"), language))
+  keepInLanguage(document, language)
   setHead(document, file, language)
   const html = "<!doctype html>\n" + escapeAttrs(voids(document.documentElement.outerHTML)) + "\n"
   return { html: addGenerated(html, file, language), missing }

@@ -47,6 +47,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -67,6 +69,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -88,6 +92,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -109,6 +115,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -130,6 +138,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -166,6 +176,8 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -261,9 +273,9 @@
   ]
  },
  {
-  "key": "d4addea411da",
+  "key": "6567a028cbf8",
   "kind": "html",
-  "en": "Open it on any page: a summary in one tap, a question about one paragraph, fresh facts from Google. A chat follows you from page to page.",
+  "en": "Open it on any page: a summary in one tap, a question about one paragraph, fresh facts from Google. A chat follows you from page to page, and on a new page the chat about its topic opens by itself.",
   "pages": [
    "index.html"
   ]
@@ -278,9 +290,9 @@
   ]
  },
  {
-  "key": "25939581c9fe",
+  "key": "1d26670d7c37",
   "kind": "html",
-  "en": "Your own notes next to the page, highlights and pins in answers, the whole chat in one answer. Videos and PDFs on the page <span class=\"pro-badge\">Pro</span> Find similar and Listen <span class=\"ultra-badge\">Ultra</span>",
+  "en": "Your own notes next to the page, with a snapshot of it if you like, highlights and pins in answers, the whole chat in one answer. Videos, PDFs and a quick Find similar <span class=\"pro-badge\">Pro</span> Listen and the full Find similar <span class=\"ultra-badge\">Ultra</span>",
   "pages": [
    "index.html"
   ]
@@ -295,9 +307,9 @@
   ]
  },
  {
-  "key": "c94a06cae9bb",
+  "key": "09e25369db25",
   "kind": "html",
-  "en": "What you copied in other tabs, your templates and the last answer, one tap away in any text field. Templates fill in the name and the date from the page.",
+  "en": "What you copied or cut in other tabs, your templates and the last answer, one tap away in any text field. Templates fill in the name and the date from the page, and Check fixes your draft before you send it.",
   "pages": [
    "index.html"
   ]
@@ -312,9 +324,9 @@
   ]
  },
  {
-  "key": "61fcecf317e0",
+  "key": "2868eb7f6936",
   "kind": "html",
-  "en": "Select any text, or take the whole page, and add a note to yourself if you like. The bell brings you back at the time you pick; the eye tells you when a price drops or something is back in stock.",
+  "en": "Select any text, or take the whole page, and add a note to yourself if you like. The bell brings you back at the time you pick; the eye tells you when a price drops or something is back in stock. Reminders can go to Apple Reminders, and dates to your Calendar.",
   "pages": [
    "index.html"
   ]
@@ -329,9 +341,9 @@
   ]
  },
  {
-  "key": "38de163ab198",
+  "key": "bd9a3cc1e898",
   "kind": "html",
-  "en": "Search, tags and folders, every chat in the app and on all your devices. AI search, questions over all your chats, and suggestions that move messages to the right chat, merge chats and name them by topic <span class=\"pro-badge\">Pro</span>",
+  "en": "Spaces for work and home, search, tags and folders, every chat in the app and on all your devices. AI search, questions over all your chats, and suggestions that move messages to the right chat, merge chats and name them by topic <span class=\"pro-badge\">Pro</span>",
   "pages": [
    "index.html"
   ]
@@ -366,11 +378,158 @@
   ]
  },
  {
-  "key": "dabf6fe6f245",
+  "key": "e2e7543d4288",
   "kind": "html",
-  "en": "New: Ultra",
+  "en": "New in 2.7",
   "pages": [
    "index.html"
+  ]
+ },
+ {
+  "key": "e649536e5f03",
+  "kind": "html",
+  "en": "Pages translated where they are, help with what you write, and a space for each part of your life.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "b3003ed4eaba",
+  "kind": "html",
+  "en": "Translate the page in place",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "185af5600c32",
+  "kind": "html",
+  "en": "A page in another language? Tap Translate by ✦, and it reads in your language in its own layout. Links still work, and Original brings every word back.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "8d77d47cefdf",
+  "kind": "html",
+  "en": "Check and Rewrite",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "1b593073414b",
+  "kind": "html",
+  "en": "In an email reply or a comment, Check fixes the mistakes and Rewrite makes it shorter, warmer or more formal. Both read the page, so names come out as the page spells them. With Pro, mistakes are underlined as you type.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "9b584b52b284",
+  "kind": "html",
+  "en": "Spaces",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "23a816affffa",
+  "kind": "html",
+  "en": "Work, Personal, Shopping: each space has its own chats and its own color, and a site can always open in its space.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "353603282b23",
+  "kind": "html",
+  "en": "Calendar and Reminders",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "b71cbef0568f",
+  "kind": "html",
+  "en": "Ask “remind me on Friday to book the hotel”, or take a date from an answer. A card shows the date and time, and Add puts it in Apple Reminders or Calendar.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "9bae783c3c58",
+  "kind": "html",
+  "en": "A snapshot in your note",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "f78e1c0b9fad",
+  "kind": "html",
+  "en": "A note can keep a picture of the page as you saw it: the part on screen, or the whole page with Pro. Crop it if you like.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "33c97e818fe2",
+  "kind": "html",
+  "en": "Find similar on Pro <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "341dc84a1f95",
+  "kind": "html",
+  "en": "A quick search for alternatives, up to 5 a week, on Pro and Own key. Ultra keeps the full search.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "4bbb632f02fd",
+  "kind": "html",
+  "en": "Collections",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "3d2621f831d8",
+  "kind": "html",
+  "en": "Gather answers and notes from your chats into a collection, like a trip or a purchase. Compare them in a table with Pro, and save the whole collection as a PDF.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "3ee4fbeeb2ae",
+  "kind": "html",
+  "en": "Invite a friend",
+  "pages": [
+   "index.html",
+   "features.html"
+  ]
+ },
+ {
+  "key": "3535c6dcd2e3",
+  "kind": "html",
+  "en": "Send a friend your code: they get bonus answers for their first week, and you get a discount on Pro or Ultra once they've used it on two different days.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "50050d5b621c",
+  "kind": "html",
+  "en": "Ultra",
+  "pages": [
+   "index.html",
+   "features.html",
+   "cases/studying.html"
   ]
  },
  {
@@ -408,9 +567,9 @@
   ]
  },
  {
-  "key": "9048bf6580f3",
+  "key": "6f32c17c9d84",
   "kind": "html",
-  "en": "Alternatives to any page or to what you selected: cheaper, newer, in stock, free or in your language, or in your own words. Every link is opened and checked before you see it.",
+  "en": "Alternatives to any page or to what you selected: cheaper, newer, in stock, free or in your language, or in your own words. Every link is opened and checked before you see it. Pro gets a quick version, up to 5 a week.",
   "pages": [
    "index.html"
   ]
@@ -640,6 +799,8 @@
    "cases/shopping.html",
    "cases/planning.html",
    "safari-summary-vs-chatgpt.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html"
   ]
@@ -709,6 +870,22 @@
   ]
  },
  {
+  "key": "4fd164716320",
+  "kind": "html",
+  "en": "Mistakes underlined as you type, whole-page snapshots",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "120b7ad23e99",
+  "kind": "html",
+  "en": "Find similar: up to 5 quick searches a week, each counts as 10 answers",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
   "key": "c15f09a2f5da",
   "kind": "html",
   "en": "Watch up to 20 pages",
@@ -722,17 +899,6 @@
   "en": "Optional: use your own OpenAI or Claude key",
   "pages": [
    "index.html"
-  ]
- },
- {
-  "key": "50050d5b621c",
-  "kind": "html",
-  "en": "Ultra",
-  "pages": [
-   "index.html",
-   "features.html",
-   "cases/studying.html",
-   "cases/shopping.html"
   ]
  },
  {
@@ -768,9 +934,9 @@
   ]
  },
  {
-  "key": "c05b49d99c9c",
+  "key": "f0a23cca9845",
   "kind": "html",
-  "en": "Find similar: 10 searches a week",
+  "en": "Find similar, the full search: 10 a week",
   "pages": [
    "index.html"
   ]
@@ -824,6 +990,14 @@
   ]
  },
  {
+  "key": "ef741f2457bc",
+  "kind": "html",
+  "en": "Find similar: up to 5 quick searches a week",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
   "key": "fc11ccd32cdc",
   "kind": "html",
   "en": "Prices in USD; local prices are shown in the App Store. Each paid plan comes monthly or yearly; a year costs less than twelve months. Moving up from Pro to Ultra starts at once, and Apple refunds what's left of Pro. Subscriptions renew automatically at the end of each period until cancelled in your App Store account settings.",
@@ -855,6 +1029,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -884,6 +1060,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -914,6 +1092,86 @@
   ]
  },
  {
+  "key": "1f5bfd89bde3",
+  "kind": "html",
+  "en": "Translate a page in Safari",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "c25600b8d6cb",
+  "kind": "html",
+  "en": "Safari's own translation, and translating in place with links that still work.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "5aebb515baa3",
+  "kind": "html",
+  "en": "Check what you write in Safari",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "102f030a87cc",
+  "kind": "html",
+  "en": "Apple's Writing Tools, Grammarly, and a check that reads the page you're answering.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "42d6d86a9ea6",
+  "kind": "html",
+  "en": "Ask a YouTube video",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "6fbfb7d42e75",
+  "kind": "html",
+  "en": "The gist of a video, or one part of it, with the moment it was said.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "e79e4c95212d",
+  "kind": "html",
+  "en": "Listen to a page",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "bed96be3c3ce",
+  "kind": "html",
+  "en": "Three ways to have Safari on iPhone read to you, two of them free.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "b8917953e6ac",
+  "kind": "html",
+  "en": "Summarize a PDF",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "1b53a5f7adb6",
+  "kind": "html",
+  "en": "Ask a PDF what you need to know and get the page it's on.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
   "key": "9a1fc1731f62",
   "kind": "html",
   "en": "Questions",
@@ -926,6 +1184,8 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -965,17 +1225,17 @@
   ]
  },
  {
-  "key": "30ebc585de32",
+  "key": "045f6176a063",
   "kind": "html",
-  "en": "What's new in 2.6?",
+  "en": "What's new in 2.7?",
   "pages": [
    "index.html"
   ]
  },
  {
-  "key": "2ab7a0b8f8dc",
+  "key": "bb2b20c4db63",
   "kind": "html",
-  "en": "Ultra, with Listen and Find similar; yearly plans; chats that sort themselves by topic, with a bar of suggestions at the top of the chat (Pro); a note of your own on reminders and watches; quick actions right under a selection; and the panel in Traditional Chinese, Arabic and Vietnamese. After the update, the ContextFlow app shows the main changes in short clips.",
+  "en": "Pages in another language translate in place, and their links still work. Check and Rewrite in text fields on websites, with the page in mind, and with Pro, mistakes underlined as you type. Spaces, to keep work and home apart. Collections, to gather answers and notes from different chats, compare them and save them as a PDF. On a new page, the chat about its topic opens by itself. Reminders and dates go to Apple Reminders and Calendar. A note can keep a snapshot of the page. The panel and ✦ can sit on either side. Pro and Own key get a quick Find similar. And Invite a friend: your friend gets bonus answers, and you get a discount on Pro or Ultra.",
   "pages": [
    "index.html"
   ]
@@ -989,9 +1249,9 @@
   ]
  },
  {
-  "key": "61b227a4a541",
+  "key": "f71c03daa625",
   "kind": "html",
-  "en": "Listen, which reads answers and whole pages aloud (30 minutes a week); Find similar, which finds checked alternatives to any page (10 searches a week); and up to 50 watched pages instead of 20. Moving up from Pro starts at once, and Apple refunds what's left of Pro.",
+  "en": "Listen, which reads answers and whole pages aloud (30 minutes a week); the full Find similar, which finds checked alternatives to any page (10 searches a week, where Pro has 5 quick ones); and up to 50 watched pages instead of 20. Moving up from Pro starts at once, and Apple refunds what's left of Pro.",
   "pages": [
    "index.html"
   ]
@@ -1028,6 +1288,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -1049,6 +1311,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -1070,6 +1334,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -1091,6 +1357,8 @@
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
    "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -1105,9 +1373,9 @@
   ]
  },
  {
-  "key": "295f3f8520ea",
+  "key": "c515eb85b01c",
   "kind": "meta",
-  "en": "Every ContextFlow feature with a short clip: answers about the page, notes and highlights, quick insert into forms, reminders, price watching and keeping chats in order. Pro features are marked.",
+  "en": "Every ContextFlow feature, most with a short clip: answers about the page, translation in place, notes and highlights, quick insert and checking what you write, reminders, price watching, spaces and keeping chats in order. Pro features are marked.",
   "pages": [
    "features.html"
   ]
@@ -1121,9 +1389,9 @@
   ]
  },
  {
-  "key": "28b831787b53",
+  "key": "77861cfc8d5a",
   "kind": "meta",
-  "en": "Every feature with a short clip: answers about the page, notes, quick insert, reminders, price watching and tidy chats.",
+  "en": "Every feature with a short clip: answers about the page, translation in place, notes, quick insert, checking what you write, reminders, price watching and tidy chats.",
   "pages": [
    "features.html"
   ]
@@ -1746,22 +2014,6 @@
   ]
  },
  {
-  "key": "8d1c1aa55d4e",
-  "kind": "html",
-  "en": "Gather it in a collection",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "15dc6cba07f8",
-  "kind": "html",
-  "en": "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
   "key": "3512a4ae8c6d",
   "kind": "html",
   "en": "The chat for this page",
@@ -1773,6 +2025,22 @@
   "key": "3bbba66422c3",
   "kind": "html",
   "en": "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top tells you which, and New chat starts a fresh one.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "8d1c1aa55d4e",
+  "kind": "html",
+  "en": "Gather it in a collection",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "15dc6cba07f8",
+  "kind": "html",
+  "en": "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.",
   "pages": [
    "features.html"
   ]
@@ -1941,14 +2209,6 @@
   "key": "14a3f72a986a",
   "kind": "html",
   "en": "Just upgraded and not sure what's new? After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "3ee4fbeeb2ae",
-  "kind": "html",
-  "en": "Invite a friend",
   "pages": [
    "features.html"
   ]
@@ -2195,6 +2455,8 @@
    "cases/shopping.html",
    "cases/planning.html",
    "safari-ai-extension-iphone.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "summarize-pdf-safari.html"
   ]
@@ -2240,9 +2502,9 @@
   ]
  },
  {
-  "key": "eb5662e29a66",
+  "key": "f2c8a1bad1c4",
   "kind": "html",
-  "en": "An order number, then a tracking link, then an address, and now you need the order number again. Tap the text field, then the ContextFlow button next to it. The last things you copied on pages in Safari are in the list, and one tap puts one in.",
+  "en": "An order number, then a tracking link, then an address, and now you need the order number again. Tap the text field, then the ContextFlow button next to it. The last things you copied or cut on pages in Safari are in the list, and one tap puts one in.",
   "pages": [
    "cases/replies-and-forms.html"
   ]
@@ -2328,6 +2590,39 @@
   ]
  },
  {
+  "key": "d36060c21702",
+  "kind": "attr",
+  "en": "Check on an email reply: the misspelled names and typos struck out and fixed word by word",
+  "pages": [
+   "cases/replies-and-forms.html",
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "8e915cd991b7",
+  "kind": "html",
+  "en": "Check it before you send it",
+  "pages": [
+   "cases/replies-and-forms.html"
+  ]
+ },
+ {
+  "key": "39086cf24a24",
+  "kind": "html",
+  "en": "A typo in a client's name is worse than a late reply. In the reply box, tap Check: the mistakes are fixed with the page in mind, so the name comes out as the email spells it, and your signature stays as it was. Rewrite makes the draft shorter, warmer, more formal or more confident. With Pro, mistakes are underlined while you type.",
+  "pages": [
+   "cases/replies-and-forms.html"
+  ]
+ },
+ {
+  "key": "3d710c1a148a",
+  "kind": "html",
+  "en": "<b>Check and Rewrite</b>, one answer a tap. <b>Underlines as you type</b> <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "cases/replies-and-forms.html"
+  ]
+ },
+ {
   "key": "d5f104c86226",
   "kind": "html",
   "en": "Where it won't help",
@@ -2371,17 +2666,17 @@
   ]
  },
  {
-  "key": "3d3b3e751b8d",
+  "key": "900f6d57daf8",
   "kind": "html",
-  "en": "Copied, templates, the button by the field, / and Tab, Insert into field. Fill from the page a few times a day.",
+  "en": "Copied, templates, the button by the field, / and Tab, Insert into field, Check and Rewrite. Fill from the page a few times a day.",
   "pages": [
    "cases/replies-and-forms.html"
   ]
  },
  {
-  "key": "e05e6ec0b71f",
+  "key": "b15b995802f8",
   "kind": "html",
-  "en": "Fill from the page as often as you need, and more answers for drafts.",
+  "en": "Fill from the page as often as you need, mistakes underlined as you type, and more answers for drafts and checks.",
   "pages": [
    "cases/replies-and-forms.html"
   ]
@@ -2572,6 +2867,39 @@
   "pages": [
    "cases/studying.html",
    "cases/planning.html"
+  ]
+ },
+ {
+  "key": "2ea21b70a819",
+  "kind": "attr",
+  "en": "A Spanish travel guide in Safari, translated into English in place, with the Original button next to ContextFlow's button",
+  "pages": [
+   "cases/studying.html",
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "c4617c0d411c",
+  "kind": "html",
+  "en": "The best source is in another language",
+  "pages": [
+   "cases/studying.html"
+  ]
+ },
+ {
+  "key": "002bb3b49cb3",
+  "kind": "html",
+  "en": "A paper in German, a forum in Japanese. Tap Translate by ✦, and the page reads in your language where it is, with its layout and links. Original brings the page back. Then ask about it in your own language.",
+  "pages": [
+   "cases/studying.html"
+  ]
+ },
+ {
+  "key": "53da855210f0",
+  "kind": "html",
+  "en": "<b>Translating the page</b>: each page counts as one answer.",
+  "pages": [
+   "cases/studying.html"
   ]
  },
  {
@@ -2984,9 +3312,9 @@
   ]
  },
  {
-  "key": "de4adc75241c",
+  "key": "5579fe94c93b",
   "kind": "html",
-  "en": "Find similar",
+  "en": "<b>Find similar</b>: a quick search, up to 5 a week, <span class=\"pro-badge\">Pro</span> The full search <span class=\"ultra-badge\">Ultra</span>",
   "pages": [
    "cases/shopping.html"
   ]
@@ -3080,17 +3408,17 @@
   ]
  },
  {
-  "key": "56a55a8a7960",
+  "key": "6327e69bc133",
   "kind": "html",
-  "en": "More answers, and more pages watched at once.",
+  "en": "More answers, more pages watched at once, and a quick Find similar, up to 5 searches a week.",
   "pages": [
    "cases/shopping.html"
   ]
  },
  {
-  "key": "26c6e3d67b7e",
+  "key": "f041d9a40644",
   "kind": "html",
-  "en": "Everything in Pro, plus Find similar and up to 50 pages watched.",
+  "en": "Everything in Pro, plus the full Find similar and up to 50 pages watched.",
   "pages": [
    "cases/shopping.html"
   ]
@@ -3104,9 +3432,9 @@
   ]
  },
  {
-  "key": "a8c6933833f5",
+  "key": "a14041b7b211",
   "kind": "html",
-  "en": "With Ultra, Find similar looks for alternatives that are cheaper, in stock or newer, opens every page it finds and checks it before showing it to you. It isn't a price comparison of every shop, and it's 10 searches a week.",
+  "en": "Find similar looks for alternatives that are cheaper, in stock or newer, opens every page it finds and checks it before showing it to you. It isn't a price comparison of every shop. Ultra has the full search, 10 a week; Pro and Own key have a quick one, 5 a week.",
   "pages": [
    "cases/shopping.html"
   ]
@@ -3264,9 +3592,9 @@
   ]
  },
  {
-  "key": "8df0faefeb2e",
+  "key": "1a8bc9209830",
   "kind": "html",
-  "en": "Have a thought, not a question? Swipe the send button up or down (on Mac, scroll on it) to write a note. Or select a line on the page and tap Note. Notes stay in the chat next to their page and don't use answers.",
+  "en": "Have a thought, not a question? Swipe the send button up or down (on Mac, scroll on it) to write a note. Or select a line on the page and tap Note. Turn on Page snapshot, and the note keeps a picture of the page too. Notes stay in the chat next to their page and don't use answers.",
   "pages": [
    "cases/planning.html"
   ]
@@ -3312,17 +3640,49 @@
   ]
  },
  {
-  "key": "3325637b52d1",
+  "key": "8ecbe343fb20",
   "kind": "html",
-  "en": "Select the line that matters, or take the whole page, tap the bell, write what to check, and pick a time: the reminder brings you back to the page and says your note. Tag the chat, or turn on Folders, to keep the trip apart from work. Search finds a chat by any word in it. With iCloud on, the same chat is on your iPhone, iPad and Mac.",
+  "en": "Select the line that matters, or take the whole page, tap the bell, write what to check, and pick a time: the reminder brings you back to the page and says your note. Give the trip a space of its own, away from work, or tag the chat. Search finds a chat by any word in it. With iCloud on, the same chat is on your iPhone, iPad and Mac.",
   "pages": [
    "cases/planning.html"
   ]
  },
  {
-  "key": "3027d6d4889f",
+  "key": "b61af439333f",
   "kind": "html",
-  "en": "<b>Reminders, tags, folders, search</b>, free. <b>AI search</b>, for when you remember the topic but not the words, <span class=\"pro-badge\">Pro</span>",
+  "en": "<b>Reminders, spaces, tags, folders, search</b>, free. <b>AI search</b>, for when you remember the topic but not the words, <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "cases/planning.html"
+  ]
+ },
+ {
+  "key": "cde323c4b132",
+  "kind": "attr",
+  "en": "The Calendar and Reminders card under an answer: a reminder to book the hotel, with its date, time and list",
+  "pages": [
+   "cases/planning.html"
+  ]
+ },
+ {
+  "key": "43af3ca136d2",
+  "kind": "html",
+  "en": "Put the dates where you'll see them",
+  "pages": [
+   "cases/planning.html"
+  ]
+ },
+ {
+  "key": "cad4e94628f3",
+  "kind": "html",
+  "en": "The check-in time, the day the offer ends. Ask “remind me on Friday to book the hotel”, or choose Add to Calendar or Reminders in an answer's … menu. Check the date and time on the card and tap Add: it's in Apple Reminders or your Calendar. A reminder keeps a link back to the chat.",
+  "pages": [
+   "cases/planning.html"
+  ]
+ },
+ {
+  "key": "3b9091071f28",
+  "kind": "html",
+  "en": "<b>Calendar and Reminders</b>, free.",
   "pages": [
    "cases/planning.html"
   ]
@@ -3336,9 +3696,9 @@
   ]
  },
  {
-  "key": "873489a4252b",
+  "key": "fc578f694ccf",
   "kind": "html",
-  "en": "It isn't a bookmark manager or a web clipper: it doesn't save copies of pages. It keeps the links, your notes and the answers in a chat.",
+  "en": "It isn't a bookmark manager or a web clipper: it doesn't save copies of pages, only a snapshot in a note when you ask for one. It keeps the links, your notes and the answers in a chat.",
   "pages": [
    "cases/planning.html"
   ]
@@ -3360,17 +3720,17 @@
   ]
  },
  {
-  "key": "9a797face29b",
+  "key": "9befe4ebdab3",
   "kind": "html",
-  "en": "Chats across pages, notes, Whole chat, tags, folders, search and reminders, with a daily allowance of answers.",
+  "en": "Chats across pages, notes with a snapshot of the page, Whole chat, spaces, tags, folders, search, reminders and Calendar, with a daily allowance of answers.",
   "pages": [
    "cases/planning.html"
   ]
  },
  {
-  "key": "35a25ed44cbe",
+  "key": "659172c1c587",
   "kind": "html",
-  "en": "AI search over your chats, questions over all your chats, suggestions that sort messages into the right chats, merge chats and name them by topic, and more answers.",
+  "en": "AI search over your chats, questions over all your chats, suggestions that sort messages into the right chats, merge chats and name them by topic, as many spaces as you like, whole-page snapshots, and more answers.",
   "pages": [
    "cases/planning.html"
   ]
@@ -3471,6 +3831,8 @@
    "safari-ai-extension-iphone.html",
    "notes-while-reading-safari.html",
    "safari-summary-vs-chatgpt.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -3525,9 +3887,25 @@
   ]
  },
  {
-  "key": "22722e984c00",
+  "key": "dac3e1016654",
   "kind": "html",
-  "en": "With Ultra, tap Listen to hear an answer or the whole page in a natural voice, or Find similar for alternatives to what you're looking at.",
+  "en": "A page in another language? Tap Translate by ✦, and it's translated where it is, with its links still working.",
+  "pages": [
+   "safari-ai-extension-iphone.html"
+  ]
+ },
+ {
+  "key": "0803ea9f477e",
+  "kind": "html",
+  "en": "In a text field, Check and Rewrite fix what you write with the page in mind: the email you're answering, the post you comment on.",
+  "pages": [
+   "safari-ai-extension-iphone.html"
+  ]
+ },
+ {
+  "key": "e1e964132285",
+  "kind": "html",
+  "en": "With Ultra, tap Listen to hear an answer or the whole page in a natural voice. Find similar looks for alternatives to what you're looking at: a quick search on Pro, the full one on Ultra.",
   "pages": [
    "safari-ai-extension-iphone.html"
   ]
@@ -3634,6 +4012,8 @@
   "en": "Where it falls short",
   "pages": [
    "safari-ai-extension-iphone.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html"
   ]
  },
@@ -4227,6 +4607,8 @@
   "en": "Side by side",
   "pages": [
    "safari-summary-vs-chatgpt.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -4302,6 +4684,8 @@
   "en": "Yes",
   "pages": [
    "safari-summary-vs-chatgpt.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -4321,6 +4705,7 @@
   "en": "No",
   "pages": [
    "safari-summary-vs-chatgpt.html",
+   "translate-web-page-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -4436,6 +4821,8 @@
   "en": "Price",
   "pages": [
    "safari-summary-vs-chatgpt.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -4682,6 +5069,830 @@
   ]
  },
  {
+  "key": "a0c9650e58b3",
+  "kind": "title",
+  "en": "Translate a web page in Safari on iPhone, with every link still working — ContextFlow",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "1d0d1aff2e48",
+  "kind": "meta",
+  "en": "Safari can translate many pages for free. ContextFlow translates a page in place too, from any language into yours, keeps every link working, and lets you ask about it. How each one works, and when to use which.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "1dec6874c2f9",
+  "kind": "meta",
+  "en": "Translate a web page in Safari on iPhone, links and all",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "29f4907ae1e9",
+  "kind": "meta",
+  "en": "Safari's own translation, and translating in place with ContextFlow: links keep working, any language in, and questions about the page after.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "eeb49f3a5069",
+  "kind": "ld",
+  "en": "Does it work on iPhone?",
+  "pages": [
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
+   "youtube-transcript-safari.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "e220a334e0ee",
+  "kind": "ld",
+  "en": "Yes, in Safari on iPhone, iPad and Mac. The button shows by ✦ on pages in a language other than yours.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e31be320f223",
+  "kind": "ld",
+  "en": "Do links still work after the page is translated?",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f1b0386327e1",
+  "kind": "ld",
+  "en": "Yes. Every link keeps its address and opens the same page as before. Original puts the page back exactly as it was.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "5c31d13e4031",
+  "kind": "ld",
+  "en": "Each page you translate counts as one answer, and Free has 5 a day. Pro has up to 375 answers a week. Safari's own translation is free when it offers it.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "671285c00bb7",
+  "kind": "ld",
+  "en": "Which languages can it translate?",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "d0990723bfce",
+  "kind": "ld",
+  "en": "From whatever language the page is in, into your iPhone's language, the one Safari uses.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "a6203d880a38",
+  "kind": "html",
+  "en": "You land on a page in German, Japanese or Italian and want to read it in your language without losing your place. Safari can often do that for free, so I'll start there. I make ContextFlow, so I'm not neutral: it translates in place too, and below is where it differs.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "ba7395e84d53",
+  "kind": "html",
+  "en": "Safari's own translation",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "531a97274c1c",
+  "kind": "html",
+  "en": "Open the page menu in the address bar and choose Translate to your language. The page is translated where it is, and its links keep working.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "26e4e885fa1f",
+  "kind": "html",
+  "en": "<strong>Good:</strong> free, built in, one tap.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "161f255548a7",
+  "kind": "html",
+  "en": "<strong>Limits:</strong> it shows only when Safari can translate the page's language, and it isn't offered in every country or region. If it's not in the menu, Safari can't translate that page for you.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "960cbe518b2a",
+  "kind": "html",
+  "en": "Translating in place with ContextFlow",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "0e252b073b98",
+  "kind": "html",
+  "en": "On a page in another language, a button shows by ✦ and offers to translate it into your iPhone's language. Tap Translate.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "2b21e4523f32",
+  "kind": "html",
+  "en": "The page reads in your language in its own layout. What's on screen comes first, the rest as you scroll, and text that loads later is translated as it comes.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "ab4fc94adb0b",
+  "kind": "html",
+  "en": "<strong>Links stay links.</strong> They open the same pages they did, so you can keep reading the site. Bold and italics stay too.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "b074023ee33e",
+  "kind": "html",
+  "en": "<strong>Original</strong> brings back every word of the page.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "a677fd804b29",
+  "kind": "html",
+  "en": "Menus, buttons and tabs stay as they are, so the site still works the way it was built.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "2c94af3e1b1f",
+  "kind": "html",
+  "en": "Then ask about the page in your own language: Summarize, or a question of your own.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "c00ca388e724",
+  "kind": "html",
+  "en": "Don't need it on a site? The × hides it there.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "5cdc93871c43",
+  "kind": "html",
+  "en": "Which languages",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "eb6487d05170",
+  "kind": "html",
+  "en": "<strong>From:</strong> whatever language the page is in. ContextFlow tells it by the page's own text, so a Persian blog or a Polish forum gets the button as well as a German news site.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "ae1526a33724",
+  "kind": "html",
+  "en": "<strong>Into:</strong> your iPhone's language, the one Safari uses.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "59bd1ff6f977",
+  "kind": "html",
+  "en": "What it costs",
+  "pages": [
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "b7ff74d65382",
+  "kind": "html",
+  "en": "Each page you translate counts as one answer. Free has 5 answers a day; Pro has up to 375 a week, for $6.99 a month or $59.99 a year.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "2fd954126b5b",
+  "kind": "html",
+  "en": "Coming back to a page you translated that week doesn't count again.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "af6e01999a54",
+  "kind": "html",
+  "en": "Which to pick",
+  "pages": [
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
+   "read-aloud-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "93a815baadcf",
+  "kind": "html",
+  "en": "<strong>Safari offers to translate the page:</strong> take it. It's free and it's right there.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "08a122763e1d",
+  "kind": "html",
+  "en": "<strong>Safari doesn't offer it,</strong> for that page, that language or where you live: ContextFlow's button.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "6ce05630ca02",
+  "kind": "html",
+  "en": "<strong>You want to ask about the page next,</strong> in your own language: ContextFlow, since its panel opens right on that page.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "5153a36688aa",
+  "kind": "html",
+  "en": "It's an AI model. Now and then a word stays untranslated or comes out odd; Original is one tap away.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "eed701392f0a",
+  "kind": "html",
+  "en": "The first lines take a second or two, and a long page fills in as you scroll.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "d2697f4a10e2",
+  "kind": "html",
+  "en": "Text inside pictures stays as it is.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "0da76ed3ae90",
+  "kind": "html",
+  "en": "The page's text goes to the AI to be translated, as it does for any question. It isn't kept on my server.",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "6288ba65ac39",
+  "kind": "html",
+  "en": "Safari's translation",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "525f61b67292",
+  "kind": "html",
+  "en": "Where",
+  "pages": [
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "ba2f20079949",
+  "kind": "html",
+  "en": "The page menu in the address bar",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "1474795786b7",
+  "kind": "html",
+  "en": "The button by ✦",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "a044c6177ed0",
+  "kind": "html",
+  "en": "Links keep working",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "a2c16c7f1fa9",
+  "kind": "html",
+  "en": "From which languages",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "061a7cf8c208",
+  "kind": "html",
+  "en": "The ones Safari supports",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "a7b13cc1a0cb",
+  "kind": "html",
+  "en": "Whatever the page is in",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "aa6e7e619031",
+  "kind": "html",
+  "en": "Questions about the page after",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "5677622099bb",
+  "kind": "html",
+  "en": "Yes, in the panel",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "6ef32372b223",
+  "kind": "html",
+  "en": "One answer a page: 5 a day free, more with Pro",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "8b3580cc60ba",
+  "kind": "html",
+  "en": "More: <a href=\"/proofread-safari-iphone\">Check what you write in Safari</a>",
+  "pages": [
+   "translate-web-page-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "fb2440a4ca96",
+  "kind": "html",
+  "en": "Ask a YouTube video what was said",
+  "pages": [
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "700a72272847",
+  "kind": "html",
+  "en": "Listen to a web page in Safari",
+  "pages": [
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "a82408b672ce",
+  "kind": "html",
+  "en": "Every feature",
+  "pages": [
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
+  "key": "45118ee478eb",
+  "kind": "title",
+  "en": "Proofread in Safari on iPhone and Mac, with the page you're answering in mind — ContextFlow",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e9143a447773",
+  "kind": "meta",
+  "en": "Apple's Writing Tools and Grammarly check what you write. ContextFlow's Check and Rewrite also read the page: the email you're answering, the post you comment on, so names and replies fit. What each one is good at, and what it costs.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "d9aff8599eca",
+  "kind": "meta",
+  "en": "Check what you write in Safari, with the page in mind",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "4c960af91dc6",
+  "kind": "meta",
+  "en": "Apple's Writing Tools, Grammarly, and a check that reads the page you're answering. What each one is good at.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "1a3fbb1b1caf",
+  "kind": "ld",
+  "en": "Yes, in Safari on iPhone, iPad and Mac, in text fields on websites. On iPhone and iPad, tap the ContextFlow button by the field; Check and Rewrite are at the top of the list.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "43d1408ca9e4",
+  "kind": "ld",
+  "en": "Does it work in Gmail?",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "1fd2bb7e4a53",
+  "kind": "ld",
+  "en": "On the Gmail website in Safari, yes, and your signature stays as it was. Not in the Gmail app.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "91716c8fba6d",
+  "kind": "ld",
+  "en": "Each tap on Check or Rewrite counts as one answer, and Free has 5 a day. Underlines as you type are in Pro and Ultra.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "c0ab8f78f8a5",
+  "kind": "ld",
+  "en": "Is what I write kept?",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "89b976cc6d4e",
+  "kind": "ld",
+  "en": "Your text and the page go to the AI to be checked, as with any question, and aren't kept on my server. Your earlier texts, used to match how you write, stay on this device.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "7fe20fb1ba53",
+  "kind": "html",
+  "en": "A typo in someone's name, a reply that misses what they asked. Checking what you write is built into Apple's newer devices, and Grammarly does it well too, so I'll start with those. I make ContextFlow, so I'm not neutral. Its Check and Rewrite do one thing differently: they read the page you're writing on.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "8a267ea925eb",
+  "kind": "html",
+  "en": "Apple's Writing Tools",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "5fe2f5f8b220",
+  "kind": "html",
+  "en": "On iPhone 15 Pro and newer, and on iPad and Mac with M1 or later, with Apple Intelligence on: select your text and choose Writing Tools, then Proofread, or Rewrite it to sound friendly, professional or concise.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "12b060337485",
+  "kind": "html",
+  "en": "<strong>Good:</strong> free, and in every app, not only Safari. iOS 27 adds automatic proofreading.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f3aa4932e819",
+  "kind": "html",
+  "en": "<strong>Limits:</strong> it needs one of those devices and a language Apple Intelligence supports. Russian, Ukrainian and Arabic aren't among them yet.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "a17e073d9e2e",
+  "kind": "html",
+  "en": "Grammarly",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "0103b486d0b8",
+  "kind": "html",
+  "en": "Grammarly has a keyboard for iPhone and iPad, and a Safari extension.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "9d1be923b75e",
+  "kind": "html",
+  "en": "<strong>Good:</strong> its keyboard works in every app, with suggestions on clarity and tone.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "77dec50db174",
+  "kind": "html",
+  "en": "<strong>Limits:</strong> you sign in with a Grammarly account, and the fuller suggestions are in its paid plan.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "b2b5a60c4575",
+  "kind": "html",
+  "en": "ContextFlow's Check and Rewrite",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "ebb85a53df2a",
+  "kind": "html",
+  "en": "In a text field on a website in Safari: a reply in Gmail, a comment on LinkedIn, a job application, a support ticket.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "c59039536856",
+  "kind": "html",
+  "en": "On Mac, a circle shows above the field once you've typed a couple of words; point at it for Check and Rewrite. On iPhone and iPad, tap the ContextFlow button by the field: they're at the top of the list.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "48fceb64a5f8",
+  "kind": "html",
+  "en": "<strong>It reads the page.</strong> The email you're answering, or the post under your comment. So the person's name comes out as they spell it, and a rewrite fits what you're replying to.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f962fc7d6fc0",
+  "kind": "html",
+  "en": "<strong>It sounds like you.</strong> It takes your About me, your templates and what you wrote on that site before. Those earlier texts stay on this device.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "ebb3548e3564",
+  "kind": "html",
+  "en": "<strong>Check</strong> changes only the words that need it, so your signature, quotes, links and bold stay. <strong>Rewrite</strong> makes it shorter, warmer, more formal or more confident. Undo is one tap.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "4ce3d4c23fed",
+  "kind": "html",
+  "en": "<strong>Underlines as you type</strong> <span class=\"pro-badge\">Pro</span>: pause, and the paragraph you just changed is checked with the page in mind. Point at an underline, or tap it on iPhone and iPad, then Fix or Ignore.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "8a9c7b52e3e8",
+  "kind": "html",
+  "en": "It never runs on password, card or payment fields, in code editors or in Google Docs.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "1952a67ba5f5",
+  "kind": "html",
+  "en": "Each tap on Check or Rewrite counts as one answer. Free has 5 answers a day; Pro has up to 375 a week, for $6.99 a month or $59.99 a year.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "de53e11c8863",
+  "kind": "html",
+  "en": "Underlines as you type are in Pro and Ultra, and they don't count as answers.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "5c02f9d3c0e5",
+  "kind": "html",
+  "en": "<strong>Your device has Apple Intelligence, in a language it supports:</strong> try Writing Tools first. It's free and it's everywhere.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "fc90217d28c3",
+  "kind": "html",
+  "en": "<strong>You rely on Grammarly in every app:</strong> keep it.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "362aa215943d",
+  "kind": "html",
+  "en": "<strong>You answer people on websites, and the reply depends on what they wrote:</strong> ContextFlow reads that page. It also works on devices without Apple Intelligence, and in languages Apple Intelligence doesn't support yet.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f0fb615d674c",
+  "kind": "html",
+  "en": "It lives in Safari. Not in Mail, Messages or Notes, and not in the ContextFlow app's own chat.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "31e08f479dbc",
+  "kind": "html",
+  "en": "Not in Google Docs or code editors.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "9457da8e8e39",
+  "kind": "html",
+  "en": "On Free, each tap uses one of 5 daily answers, so if you write a lot you'll want Pro.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "9b242ebccb4f",
+  "kind": "html",
+  "en": "It's an AI model. Read the result before you send it; Undo is right there.",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "2b1e09968853",
+  "kind": "html",
+  "en": "Every app",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "27b98bac9c77",
+  "kind": "html",
+  "en": "Text fields on websites in Safari",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e3a74d53296e",
+  "kind": "html",
+  "en": "Needs",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "60a98a3a6533",
+  "kind": "html",
+  "en": "iPhone 15 Pro or newer, or an M1 iPad or Mac, with Apple Intelligence",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "f14cccb2e086",
+  "kind": "html",
+  "en": "Safari with ContextFlow on iPhone, iPad or Mac",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "db07be184479",
+  "kind": "html",
+  "en": "Languages",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "cf7b378a6241",
+  "kind": "html",
+  "en": "Apple Intelligence's languages",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "6ce8c22b7c74",
+  "kind": "html",
+  "en": "The language you write in",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "ee329a85e7ae",
+  "kind": "html",
+  "en": "Reads the page you're answering",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "60c8279280c4",
+  "kind": "html",
+  "en": "It works on the text you give it",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "768737d596d7",
+  "kind": "html",
+  "en": "One answer a tap: 5 a day free; underlines in Pro",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "e51f743693e5",
+  "kind": "html",
+  "en": "More: <a href=\"/translate-web-page-safari-iphone\">Translate a web page in Safari</a>",
+  "pages": [
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
   "key": "80e52b72d287",
   "kind": "title",
   "en": "YouTube transcript in Safari: ask a video what was said, with the moment it was said — ContextFlow",
@@ -4711,15 +5922,6 @@
   "en": "The gist of a video, or what was said about one thing, with the moment it was said. What it needs, and the free alternatives.",
   "pages": [
    "youtube-transcript-safari.html"
-  ]
- },
- {
-  "key": "eeb49f3a5069",
-  "kind": "ld",
-  "en": "Does it work on iPhone?",
-  "pages": [
-   "youtube-transcript-safari.html",
-   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -4990,16 +6192,6 @@
   ]
  },
  {
-  "key": "a82408b672ce",
-  "kind": "html",
-  "en": "Every feature",
-  "pages": [
-   "youtube-transcript-safari.html",
-   "read-aloud-safari-iphone.html",
-   "summarize-pdf-safari.html"
-  ]
- },
- {
   "key": "3e366ce8a80c",
   "kind": "title",
   "en": "Read a web page aloud in Safari on iPhone: three ways, two of them free — ContextFlow",
@@ -5200,14 +6392,6 @@
   ]
  },
  {
-  "key": "af6e01999a54",
-  "kind": "html",
-  "en": "Which to pick",
-  "pages": [
-   "read-aloud-safari-iphone.html"
-  ]
- },
- {
   "key": "cd0b0471b70b",
   "kind": "html",
   "en": "<strong>An article read to you, free:</strong> Safari's Listen to Page.",
@@ -5237,15 +6421,6 @@
   "en": "Safari's Listen to Page",
   "pages": [
    "read-aloud-safari-iphone.html"
-  ]
- },
- {
-  "key": "525f61b67292",
-  "kind": "html",
-  "en": "Where",
-  "pages": [
-   "read-aloud-safari-iphone.html",
-   "summarize-pdf-safari.html"
   ]
  },
  {
@@ -5565,14 +6740,6 @@
   "key": "67655a881bf2",
   "kind": "html",
   "en": "Free tiers and paid plans",
-  "pages": [
-   "summarize-pdf-safari.html"
-  ]
- },
- {
-  "key": "700a72272847",
-  "kind": "html",
-  "en": "Listen to a web page in Safari",
   "pages": [
    "summarize-pdf-safari.html"
   ]
