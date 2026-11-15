@@ -357,6 +357,18 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/demo/lisboa"
+  to = "https://context-flow.app/demo/lisboa"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/demo/lisboa.html"
+  to = "https://context-flow.app/demo/lisboa"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/sitemap.xml"
   to = "https://context-flow.app/sitemap.xml"
   status = 301
