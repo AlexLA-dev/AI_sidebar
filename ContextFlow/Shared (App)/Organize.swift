@@ -1691,23 +1691,15 @@ nonisolated enum Organize {
 
     // MARK: Names turned down (2.6 (98), the review's S5; src/shared/organize.ts)
 
-    /// Words that don't tell names apart, by script: the Latin languages' together, Vietnamese's apart, Cyrillic's,
-    /// Arabic's, Korean's (src/shared/organize.ts `NAME_STOP`).
-    private static let nameStopLatin: Set<String> = [
-        "the", "a", "an", "and", "or", "of", "for", "with", "by", "in", "on", "to", "at", "from", "vs", "my", "your", "our", "about", "how", "what",
-        "der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "einer", "und", "für", "mit", "von", "vom", "im", "am", "zum", "zur", "oder", "auf", "über", "bei", "zu", "wie", "was",
-        "le", "la", "les", "l", "un", "une", "et", "pour", "avec", "de", "d", "du", "en", "ou", "au", "aux", "sur", "dans", "par", "à",
-        "el", "los", "las", "una", "y", "para", "con", "del", "al", "por", "sobre",
-        "il", "lo", "i", "gli", "e", "per", "di", "della", "dei", "delle", "degli", "alla", "su", "da", "nel", "nella", "dell",
-        "o", "os", "as", "um", "uma", "com", "do", "dos", "das", "em", "no", "na", "nos", "nas", "ao"
-    ]
-    private static let nameStopVi: Set<String> = ["và", "cho", "của", "với", "các", "những", "về", "trong", "là", "một"]
-    private static let nameStopCyrillic: Set<String> = ["и", "в", "во", "на", "с", "со", "по", "для", "от", "до", "из", "или", "о", "об", "обо", "про", "к", "ко", "у", "за", "это", "как", "что",
-                                                        "і", "й", "та", "з", "із", "зі", "від", "або", "як", "що"]
-    private static let nameStopArabic: Set<String> = ["و", "في", "من", "على", "مع", "أو", "عن", "إلى"]
-    private static let nameStopHangul: Set<String> = ["및", "위한", "대한"]
+    /// Words that don't tell names apart, by script, and Korean's particles: the panel's and the topics' own
+    /// (TopicWords.swift; src/shared/words.ts `NAME_STOP`).
+    private static let nameStopLatin = TopicWords.nameStopLatin
+    private static let nameStopVi = TopicWords.nameStopVi
+    private static let nameStopCyrillic = TopicWords.nameStopCyrillic
+    private static let nameStopArabic = TopicWords.nameStopArabic
+    private static let nameStopHangul = TopicWords.nameStopHangul
     private static let viLetter = try! NSRegularExpression(pattern: "[ăđơư\\x{1EA0}-\\x{1EF9}]")
-    private static let koParticles = ["에서", "으로", "에게", "까지", "부터", "의", "을", "를", "은", "는", "이", "가", "에", "로", "와", "과", "도", "만"]
+    private static let koParticles = TopicWords.koParticles
     private static let arArticles = ["وال", "بال", "لل", "ال"]
     private static let denseJoin = Set("のをにはがとでへもや的和与與及".unicodeScalars)
     private static let nameRun = try! NSRegularExpression(pattern: "[\\p{L}\\p{M}\\p{N}]+")

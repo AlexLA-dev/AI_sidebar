@@ -9,8 +9,8 @@
 // and card has its own time and is merged newest-wins, deletions kept, so two devices adding cards at once keep both.
 
 import { stripCitations, entryKey, type Entry } from "./conversation.ts"
-import { unaccent } from "./fold.ts"
 import { FIRST_SPACE, hasSpaces, resolveSpace, type SpaceList } from "./spaces.ts"
+import { topicWords } from "./words.ts"
 
 export const COLLECTION_PREFIX = "cf-col-"
 
@@ -480,32 +480,27 @@ export function cardFrom(entries: Entry[], index: number, chat: string, cid: str
 
 // ------------------------------------------------------------ «В подборку» by words (Free, and when the AI can't)
 
-function words(text: string): Set<string> {
-  const out = new Set<string>()
-  for (const w of unaccent(text).match(/[\p{L}\p{N}]{3,}/gu) ?? []) if (!/^\d+$/.test(w)) out.add(w)
-  return out
-}
-
 /**
  * Where a card goes by words, on the device: the collection and section whose name and cards share most of the card's
- * words (its gist and page title). The best section of the best collection; that collection's first section when no
+ * words (its gist and page title; words.ts topicWords, as the matching chat's: function words don't count, Chinese,
+ * Japanese and Korean by pairs of characters). The best section of the best collection; that collection's first section when no
  * section shares any. Null with no collections.
  */
 export function suggestPlace(collections: Collection[], card: { t: string; src?: { title: string } }): { collection: string; section: string | null; score: number } | null {
-  const mine = words(`${card.t} ${card.src?.title ?? ""}`)
+  const mine = topicWords(`${card.t} ${card.src?.title ?? ""}`)
   let best: { collection: string; section: string | null; score: number } | null = null
   for (const rec of collections) {
     if (rec.d) continue
     const sections = liveSections(rec)
     let top: { section: string | null; score: number } = { section: sections[0]?.id ?? null, score: 0 }
     for (const s of sections) {
-      const theirs = words([s.n, ...cardsIn(rec, s.id).map((c) => `${c.t} ${c.src?.title ?? ""}`)].join(" "))
+      const theirs = topicWords([s.n, ...cardsIn(rec, s.id).map((c) => `${c.t} ${c.src?.title ?? ""}`)].join(" "))
       let n = 0
       for (const w of mine) if (theirs.has(w)) n++
       const score = mine.size ? n / mine.size : 0
       if (score > top.score) top = { section: s.id, score }
     }
-    const nameHits = [...words(rec.n)].filter((w) => mine.has(w)).length
+    const nameHits = [...topicWords(rec.n)].filter((w) => mine.has(w)).length
     const score = top.score + nameHits * 0.1
     if (!best || score > best.score) best = { collection: rec.id, section: top.section, score }
   }

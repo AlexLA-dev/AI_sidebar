@@ -11,9 +11,12 @@
 // A thin line over it says «Продолжаю «…» · Новый чат»: one tap if it guessed wrong.
 
 import { urlKey } from "./conversation.ts"
-import { unaccent } from "./fold.ts"
 import { boundSpace, currentSpace, hasSpaces, siteKey, spaceOfChat, type SpaceList } from "./spaces.ts"
 import { activity, chatForPage, liveThreads, threadName, threadPages, type ActiveThread, type Thread, type Threads } from "./threads.ts"
+import { topicWords } from "./words.ts"
+
+// The words a title is about (words.ts): this module's callers and tests take them from here.
+export { topicWords }
 
 /** Why the panel opened on a chat: its page, its topic (by words, or by meaning), its site; "new": none fitted. */
 export type MatchWhy = "page" | "topic" | "meaning" | "site" | "new"
@@ -35,9 +38,11 @@ export const MATCH_TOPIC = 85
 /** Rule 3: a same-site chat continues only from this much in common with the page, % (below the topic's 85). */
 export const SITE_MATCH = 60
 
-// A title's own words only: what a site adds after a separator ("… – Booking.com", "… | YouTube") goes.
-const SEPARATOR = /\s+[-–—|·•:]\s+/
-const DENSE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u
+// A title's own words only: what a site adds after a separator goes: "… – Booking.com", "… | YouTube", and the ones
+// written without spaces: «東京の天気｜tenki.jp», "Errors|Paystack", «…_新浪科技» (an underscore only next to Chinese,
+// Japanese or Korean: a Latin one is a file's or a code's name, "read_file").
+const DENSE = "\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\p{Script=Hangul}\\u30FC"
+const SEPARATOR = new RegExp(`\\s*[|｜]\\s*|\\s+[-–—·•:]\\s+|(?<=[${DENSE}])\\s*_\\s*|\\s*_\\s*(?=[${DENSE}])`, "u")
 
 /**
  * A page title without its site's name: the last part after a separator goes ("… – Booking.com", "Errors | Paystack API
@@ -47,23 +52,6 @@ const DENSE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Ha
 export function titleTopic(title: string): string {
   const parts = title.split(SEPARATOR).map((x) => x.trim()).filter(Boolean)
   return (parts.length > 1 ? parts.slice(0, -1) : parts).join(" ")
-}
-
-/**
- * The words a text is about, folded (case and accents off): letters and digits in runs of 3 or more, no bare numbers;
- * Chinese, Japanese and Korean by pairs of characters (they don't put spaces between words).
- */
-export function topicWords(text: string): Set<string> {
-  const out = new Set<string>()
-  for (const run of unaccent(text).match(/[\p{L}\p{N}]+/gu) ?? []) {
-    if (DENSE.test(run)) {
-      const chars = [...run]
-      for (let i = 0; i + 1 < chars.length; i++) out.add(chars[i] + chars[i + 1])
-      continue
-    }
-    if (run.length >= 3 && !/^\d+$/.test(run)) out.add(run)
-  }
-  return out
 }
 
 /** What a chat is about in words: its name, its pages' titles and its questions (not the answers: too many words). */
