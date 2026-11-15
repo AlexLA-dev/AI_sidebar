@@ -62,6 +62,9 @@ export interface SimilarInput {
   // whether an App Store item is in their country's store. Missing (older panels): the device locale's country.
   region?: "world" | "local"
   country?: string
+  // 2.7: false for the light search, which doesn't ask where: it looks from their country (the searches' location and
+  // the "Where" line), and the prompts don't say they chose it.
+  whereAsked?: boolean
   // The chip they tapped, weighed softly (a quick tap is a direction, not a demand), and their own words, which must
   // hold. An older panel sends only `condition`: all of it counts as their words (strict, as before).
   chip?: ConditionKind
@@ -87,7 +90,9 @@ export function whereLine(input: SimilarInput): string {
   if (input.region === "local" && input.country) {
     // Near them means shops that sell there, in their money: a shop that sells only in another country isn't near them.
     const money = currencyOf(input.country)
-    return `Where: near them, in ${countryName(input.country)} (${input.country}). Alternatives they can get there: shops that sell or deliver there${money ? ` with prices in ${money}` : ""} (the country's own shops, and the region's stores that ship there), services and apps of that country. A shop that only sells in another country or another currency comes last.`
+    const where = `${countryName(input.country)} (${input.country})`
+    const said = input.whereAsked === false ? `Where: they are in ${where}, and the searches look from there.` : `Where: near them, in ${where}.`
+    return `${said} Alternatives they can get there: shops that sell or deliver there${money ? ` with prices in ${money}` : ""} (the country's own shops, and the region's stores that ship there), services and apps of that country. A shop that only sells in another country or another currency comes last.`
   }
   if (input.region === "world") return "Where: anywhere in the world (they asked for worldwide results)."
   return ""
