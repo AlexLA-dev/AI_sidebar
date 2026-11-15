@@ -59,6 +59,18 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Traduci la pagina"
+ },
+ "chipWatchPrice": {
+  "message": "Segui il prezzo"
+ },
+ "plusButton": {
+  "message": "Altro: nota, istantanea, tutta la chat"
+ },
+ "tourWholeBodyPlus": {
+  "message": "«Tutta la chat» è sotto +. Attiva «Tutta la chat» quando una domanda ha bisogno di tutto: tutti i messaggi, le tue note e le altre pagine di questa chat. Disattivato: gli ultimi messaggi e questa pagina."
+ },
  "promptSummarize": {
   "message": "Riassumi questa pagina in 5–7 punti elenco, poi indica la conclusione principale in una frase."
  },
@@ -663,7 +675,7 @@
   "message": "Solo una parte?"
  },
  "tourSelectBody": {
-  "message": "Seleziona prima del testo nella pagina e la risposta riguarderà solo quello. Questa etichetta mostra cosa legge ContextFlow."
+  "message": "Seleziona prima del testo nella pagina e la risposta riguarderà solo quello. Sopra il campo compare allora un’etichetta con ciò che hai selezionato."
  },
  "tourGoogleTitle": {
   "message": "Notizie fresche da Google"
@@ -690,10 +702,10 @@
   "message": "Note tutte tue"
  },
  "tourNoteBodyTouch": {
-  "message": "Scorri questo pulsante in su o in giù per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina e non consuma risposte."
+  "message": "Scorri questo pulsante in su o in giù per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina e non consuma risposte. Oppure tocca + e scegli «Nota»."
  },
  "tourNoteBodyMouse": {
-  "message": "Scorri sopra questo pulsante (o tienilo premuto) per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina e non consuma risposte."
+  "message": "Scorri sopra questo pulsante (o tienilo premuto) per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina e non consuma risposte. Oppure fai clic su + e scegli «Nota»."
  },
  "tourWholeTitle": {
   "message": "Tutta la chat in mente"
@@ -3044,8 +3056,8 @@
  "tip_6ba198cbff": {
   "message": "Note tutte tue"
  },
- "tip_6a92f6c633": {
-  "message": "Scorri il pulsante di invio in su o in giù (su Mac, scorri sopra di esso) per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina, si sincronizza con essa e non consuma risposte."
+ "tip_b210a078de": {
+  "message": "Scorri il pulsante di invio in su o in giù (su Mac, scorri sopra di esso) per scrivere una nota invece di fare una domanda, oppure tocca + accanto al campo e scegli «Nota». Resta nella chat con la sua pagina, si sincronizza con essa e non consuma risposte."
  },
  "tip_ac13420c59": {
   "message": "Un’istantanea con la tua nota"
@@ -3083,8 +3095,8 @@
  "tip_e012ef5f59": {
   "message": "Tutta la chat in mente"
  },
- "tip_3a70cee32e": {
-  "message": "Attiva «Tutta la chat» sotto il campo della domanda quando una risposta ha bisogno di tutto: tutti i messaggi, le tue note e le altre pagine di questa chat. Disattivato: gli ultimi messaggi e la pagina aperta."
+ "tip_511d363377": {
+  "message": "Attiva «Tutta la chat» sotto +, accanto al campo della domanda, quando una risposta ha bisogno di tutto: tutti i messaggi, le tue note e le altre pagine di questa chat. Disattivato: gli ultimi messaggi e la pagina aperta."
  },
  "tip_ca29a1f4ed": {
   "message": "Chiedi di un video"
@@ -3203,8 +3215,8 @@
  "tip_8d1c1aa55d": {
   "message": "Tutto in una raccolta"
  },
- "tip_15dc6cba07": {
-  "message": "Stai organizzando un viaggio o un acquisto? Scegli «In una raccolta» sotto una risposta o una nota, e ContextFlow suggerisce dove metterla. «Raccolte» tiene tutto in sezioni, in Safari e nell’app. Con Pro, l’IA ordina le schede, «Confronta» mette fianco a fianco quelle che scegli e «Sintesi» riassume tutto. Ogni raccolta si salva in PDF."
+ "tip_397645bf6c": {
+  "message": "Stai organizzando un viaggio o un acquisto? Scegli «In una raccolta» sotto una risposta o una nota, o nel suo menu …, e ContextFlow suggerisce dove metterla. «Raccolte» tiene tutto in sezioni, in Safari e nell’app. Con Pro, l’IA ordina le schede, «Confronta» mette fianco a fianco quelle che scegli e «Sintesi» riassume tutto. Ogni raccolta si salva in PDF."
  },
  "tip_c4b432e2e9": {
   "message": "Cerca nelle tue chat"
@@ -3215,8 +3227,8 @@
  "tip_2e4668f650": {
   "message": "Tag e cartelle"
  },
- "tip_6b5bdf707f": {
-  "message": "Aggiungi un tag a una chat, una risposta o una nota con 🏷. Tocca un tag per vedere solo le sue chat, o attiva Cartelle per raggruppare l’elenco per tag."
+ "tip_d3d95ad05c": {
+  "message": "Aggiungi un tag a una chat, una risposta o una nota con 🏷, o con «Tag» nel suo menu …. Tocca un tag per vedere solo le sue chat, o attiva Cartelle per raggruppare l’elenco per tag."
  },
  "tip_752fb307f2": {
   "message": "Condividi ciò che hai trovato"

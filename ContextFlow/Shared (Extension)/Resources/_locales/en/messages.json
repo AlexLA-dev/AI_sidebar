@@ -59,6 +59,18 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Translate page"
+ },
+ "chipWatchPrice": {
+  "message": "Watch the price"
+ },
+ "plusButton": {
+  "message": "More: note, snapshot, whole chat"
+ },
+ "tourWholeBodyPlus": {
+  "message": "Whole chat is under +. Turn on Whole chat when a question needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and this page."
+ },
  "promptSummarize": {
   "message": "Summarize this page in 5–7 bullet points, then give the main conclusion in one sentence."
  },
@@ -663,7 +675,7 @@
   "message": "Only part of it?"
  },
  "tourSelectBody": {
-  "message": "Select text on the page first, and the answer is about just that. This label shows what ContextFlow reads."
+  "message": "Select text on the page first, and the answer is about just that. A label over the field then shows what's selected."
  },
  "tourGoogleTitle": {
   "message": "Fresh facts from Google"
@@ -690,10 +702,10 @@
   "message": "Notes of your own"
  },
  "tourNoteBodyTouch": {
-  "message": "Swipe this button up or down to write a note instead of asking. It stays in the chat with its page and uses no answers."
+  "message": "Swipe this button up or down to write a note instead of asking. It stays in the chat with its page and uses no answers. Or tap + and choose Note."
  },
  "tourNoteBodyMouse": {
-  "message": "Scroll on this button (or hold it) to write a note instead of asking. It stays in the chat with its page and uses no answers."
+  "message": "Scroll on this button (or hold it) to write a note instead of asking. It stays in the chat with its page and uses no answers. Or click + and choose Note."
  },
  "tourWholeTitle": {
   "message": "The whole chat in mind"
@@ -3044,8 +3056,8 @@
  "tip_6ba198cbff": {
   "message": "Notes of your own"
  },
- "tip_6a92f6c633": {
-  "message": "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers."
+ "tip_b210a078de": {
+  "message": "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking, or tap + by the field and choose Note. It stays in the chat with its page, syncs with it and uses no answers."
  },
  "tip_ac13420c59": {
   "message": "A snapshot with your note"
@@ -3083,8 +3095,8 @@
  "tip_e012ef5f59": {
   "message": "The whole chat in mind"
  },
- "tip_3a70cee32e": {
-  "message": "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page."
+ "tip_511d363377": {
+  "message": "Turn on Whole chat under + by the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page."
  },
  "tip_ca29a1f4ed": {
   "message": "Ask about a video"
@@ -3203,8 +3215,8 @@
  "tip_8d1c1aa55d": {
   "message": "Gather it in a collection"
  },
- "tip_15dc6cba07": {
-  "message": "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF."
+ "tip_397645bf6c": {
+  "message": "Planning a trip or a purchase? Choose To collection under an answer or a note, or in its … menu, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF."
  },
  "tip_c4b432e2e9": {
   "message": "Search your chats"
@@ -3215,8 +3227,8 @@
  "tip_2e4668f650": {
   "message": "Tags and folders"
  },
- "tip_6b5bdf707f": {
-  "message": "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag."
+ "tip_d3d95ad05c": {
+  "message": "Tag a chat, an answer or a note with 🏷, or with Tag in its … menu. Tap a tag to see only its chats, or turn on Folders to group the list by tag."
  },
  "tip_752fb307f2": {
   "message": "Share what you found"
