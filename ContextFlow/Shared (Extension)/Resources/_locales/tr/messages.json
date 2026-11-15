@@ -3200,6 +3200,12 @@
  "tip_05b9621aed": {
   "message": "Bir sayfada paneli açtığınızda ContextFlow o sayfayla ilgili sohbeti seçer: bu sayfanın bulunduğu sohbeti ya da aynı konudaki bir sohbeti. Üstteki “Devam ediliyor” hangi sohbetin seçildiğini gösterir; oradaki “Yeni sohbet” ise sıfırdan bir sohbet başlatır."
  },
+ "tip_8d1c1aa55d": {
+  "message": "Hepsini bir koleksiyonda toplayın"
+ },
+ "tip_15dc6cba07": {
+  "message": "Bir gezi ya da alışveriş mi planlıyorsunuz? Bir yanıtın ya da notun altındaki “Koleksiyona ekle”yi seçin, ContextFlow nereye gideceğini önersin. “Koleksiyonlar” her şeyi Safari'de ve uygulamada bölümler hâlinde tutar. Pro ile yapay zekâ kartları ayırır, “Karşılaştır” seçtiklerinizi yan yana koyar, “Özet” de hepsini özetler. Her koleksiyon PDF olarak kaydedilebilir."
+ },
  "tip_c4b432e2e9": {
   "message": "Sohbetlerinizde arayın"
  },

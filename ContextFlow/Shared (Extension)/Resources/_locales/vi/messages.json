@@ -3200,6 +3200,12 @@
  "tip_05b9621aed": {
   "message": "Mở bảng trên một trang, ContextFlow sẽ chọn cuộc trò chuyện về trang đó: cuộc có trang này, hoặc cuộc cùng chủ đề. Nhãn Đang tiếp tục ở trên cùng cho biết cuộc trò chuyện nào được chọn; Cuộc trò chuyện mới ở đó sẽ bắt đầu cuộc mới."
  },
+ "tip_8d1c1aa55d": {
+  "message": "Gom vào bộ sưu tập"
+ },
+ "tip_15dc6cba07": {
+  "message": "Đang lên kế hoạch cho chuyến đi hay một món đồ cần mua? Chọn Vào bộ sưu tập bên dưới câu trả lời hoặc ghi chú, và ContextFlow sẽ gợi ý nơi để nó vào. Bộ sưu tập giữ mọi thứ theo từng mục, trong Safari và trong ứng dụng. Với Pro, AI sắp xếp các thẻ, So sánh đặt những thẻ bạn chọn cạnh nhau và Tóm tắt tổng hợp tất cả. Bộ sưu tập nào cũng lưu được thành PDF."
+ },
  "tip_c4b432e2e9": {
   "message": "Tìm trong cuộc trò chuyện"
  },

@@ -27,7 +27,7 @@ const EXT_ICON = file(join(root, "extension/icons/icon-128.png"))
 // ------------------------------------------------------------------- copy
 
 // Captions: two short lines, action + outcome; each claim is visible in the shot below it.
-const COPY = {
+const COPY_ALL = {
   en: {
     summary: ["Summarize any", "page in Safari"],
     google: ["Google answers", "with sources"],
@@ -74,6 +74,20 @@ const COPY = {
     v26AskChats: ["Ask all your chats", "at once"],
     v26Chips: ["Select text for", "quick actions"],
     v26Remind: ["A reminder with", "your own note"],
+    // 2.7: the version's new screens.
+    v27Translate: ["Translate the page", "right where it is"],
+    v27Links: "Links still work",
+    v27Spaces: ["Work, home, shopping:", "a space for each"],
+    v27Match: "Opens the chat that fits the page",
+    v27Side: "Left or right: drag it there",
+    v27Check: ["Check and rewrite", "with the page in mind"],
+    v27Underlines: "Pro: underlines as you type",
+    v27Calendar: ["Add it to Calendar", "or Reminders"],
+    v27Snapshot: ["Notes with a picture", "of the page"],
+    v27Whole: "Whole page in Pro",
+    v27Collections: ["Everything for one task,", "sorted for you"],
+    v27Compare: "Pro: compare and sum up",
+    guideHost: "viajardespacio.es",
     v26Search: ["Find a chat by", "what it was about"],
     v26Pick: ["Cheaper, newer,", "in stock: you pick"],
     v26WatchNote: ["Watch a price with", "your own note"],
@@ -161,6 +175,19 @@ const COPY = {
     v26AskChats: ["Спросите сразу", "все свои чаты"],
     v26Chips: ["Быстрые действия", "у выделенного"],
     v26Remind: ["Напоминание", "с вашей заметкой"],
+    v27Translate: ["Перевод прямо", "на странице"],
+    v27Links: "Ссылки работают",
+    v27Spaces: ["Работа, дом, покупки:", "свои пространства"],
+    v27Match: "Откроет подходящий чат",
+    v27Side: "Слева или справа — перетащите",
+    v27Check: ["Проверит и перепишет", "с учётом страницы"],
+    v27Underlines: "Pro: подчеркнёт ошибки на ходу",
+    v27Calendar: ["Сразу в Календарь", "или Напоминания"],
+    v27Snapshot: ["Заметка со снимком", "страницы"],
+    v27Whole: "Страница целиком — в Pro",
+    v27Collections: ["Всё для одной задачи,", "разложено само"],
+    v27Compare: "Pro: сравнение и сводка",
+    guideHost: "viajardespacio.es",
     v26Search: ["Найдёт чат", "по смыслу"],
     v26Pick: ["Дешевле, новее,", "в наличии — на выбор"],
     v26WatchNote: ["Следите за ценой", "со своей заметкой"],
@@ -205,8 +232,22 @@ const COPY = {
     host: "delovoyobzor.ru",
     host2: "tehrynok.ru",
     foreignHost: "weeklyreview.com"
-  }
-}[lang]
+  },
+  // 2.7: the first three screens (summary, translation, Find similar) in the live ads' languages; English for the rest.
+  de: { hero: ["Jede Seite in Safari", "zusammenfassen"], nosignup: "Ohne Anmeldung", v27Translate: ["Die ganze Seite", "direkt übersetzen"],
+    v27Links: "Links funktionieren weiter", v26Similar: ["Günstigere Optionen,", "jeder Link geprüft"] },
+  fr: { hero: ["Résumez n'importe quelle", "page dans Safari"], nosignup: "Sans inscription", v27Translate: ["Traduisez la page", "sans la quitter"],
+    v27Links: "Les liens fonctionnent toujours", v26Similar: ["Moins cher,", "chaque lien vérifié"] },
+  it: { hero: ["Riassumi qualsiasi", "pagina in Safari"], nosignup: "Senza registrazione", v27Translate: ["Traduci la pagina", "senza lasciarla"],
+    v27Links: "I link funzionano ancora", v26Similar: ["Più economico,", "ogni link verificato"] },
+  es: { hero: ["Resume cualquier", "página en Safari"], nosignup: "Sin registro", v27Translate: ["Traduce la página", "sin salir de ella"],
+    v27Links: "Los enlaces siguen funcionando", v26Similar: ["Opciones más baratas,", "cada enlace comprobado"], guideHost: "slowtravel.com" },
+  tr: { hero: ["Safari'de her sayfayı", "özetleyin"], nosignup: "Kayıt gerekmez", v27Translate: ["Sayfayı olduğu yerde", "çevirin"],
+    v27Links: "Bağlantılar çalışmaya devam eder", v26Similar: ["Daha ucuz seçenekler,", "her bağlantı kontrol edildi"] },
+  zh_TW: { hero: ["在 Safari 中", "摘要任何網頁"], nosignup: "無需註冊", v27Translate: ["直接在網頁上", "翻譯整頁"],
+    v27Links: "連結照樣能點", v26Similar: ["更便宜的選擇，", "每個連結都已檢查"] }
+}
+const COPY = { ...COPY_ALL.en, ...(COPY_ALL[lang] ?? {}) }
 
 // The day on the iPad's status bar: the captures' page dates show today too.
 const TODAY = (() => {
@@ -376,6 +417,40 @@ const V26 = (k) => {
     devices: { ...TRIO(k), caption: COPY.ppoDevices }
   }
 }
+// 2.7: the version's 10 screens. Summary and translation first (the live ads' words), Find similar, then 2.7's new
+// features between 2.6's paid ones; a plan's chip only where the feature itself is paid, its paid part otherwise in a
+// pill. Spaces on iPad and Mac with the panel on the left (2.7: either side).
+const V27 = (k) => {
+  const phone = k === "iphone", mac = k === "mac"
+  const G = PPO_GEO[k]
+  const geo = (at) => (mac ? undefined : { scale: G.scale, x: G.at[at], y: G.y })
+  const v = (iphone, ipad, m = ipad) => ({ iphone, ipad, mac: m }[k])
+  const pill = (text, icon, y) => (mac ? [] : [{ text, icon, center: true, y: y ?? v(515, 490) }])
+  const all = V26(k)
+  return {
+    summary: all.summary,
+    translate: { name: "translate", shot: `${k}-translate`, caption: COPY.v27Translate, host: COPY.guideHost, geo: geo("center"),
+      callout: { select: ["@#p1"], pad: 12, mag: v(1.35, 1.6, 2.3), maxW: v(1190, 1400, 1500) }, pills: pill(COPY.v27Links, "🔗") },
+    similar: all.similar,
+    collections: { name: "collections", shot: `${k}-collections`, caption: COPY.v27Collections, host: COPY.guideHost, geo: geo("center"),
+      callout: { select: [".cf-col-table"], pad: 10, mag: v(1.3, 1.6, 1.8), maxW: v(1190, 1300, 1250) }, pills: pill(COPY.v27Compare, "▦") },
+    spaces: { name: "spaces", shot: `${k}-spaces`, caption: COPY.v27Spaces, geo: geo("center"),
+      callout: { select: ["[role=menu]"], pad: 6, mag: v(1.3, 1.6, 1.8), maxW: v(1190, 1300, 1250) }, pills: pill(phone ? COPY.v27Match : COPY.v27Side, phone ? "↻" : "⇆") },
+    check: { name: "check", shot: `${k}-check`, caption: COPY.v27Check, host: COPY.mailHost, geo: geo("center"),
+      callout: { select: [".cf-wr"], pad: 6, mag: v(1.2, 1.5, 1.7), maxW: v(1190, 1300, 1250) }, pills: pill(COPY.v27Underlines, "✎") },
+    organize: all.organize,
+    listen: all.listen,
+    calendar: { name: "calendar", shot: `${k}-calendar`, caption: COPY.v27Calendar, host: COPY.guideHost, geo: geo("center"),
+      callout: { select: [".cf-add-card"], pad: 6, mag: v(1.2, 1.5, 1.7), maxW: v(1190, 1300, 1250) } },
+    snapshot: { name: "snapshot", shot: `${k}-snapshot`, caption: COPY.v27Snapshot, host: COPY.guideHost, geo: geo("center"),
+      callout: { select: [".cf-shot-thumb"], pad: 8, mag: v(1.6, 2, 2.2), maxW: v(900, 1100, 1000) }, pills: pill(COPY.v27Whole, "▣") }
+  }
+}
+const V27_ORDER = ["summary", "translate", "similar", "collections", "spaces", "check", "organize", "listen", "calendar", "snapshot"]
+const SETS_V27 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => [k, V27_ORDER.map((n) => V27(k)[n])]))
+// The localized first three (the ads' markets), iPhone and iPad.
+const SETS_V27_FIRST = Object.fromEntries(["iphone", "ipad"].map((k) => [k, V27_ORDER.slice(0, 3).map((n) => V27(k)[n])]))
+
 // 2.7: the page for people moving to Safari. Ask the page first (the app's icon and "No sign-up needed", as on the
 // version's first screen), then the summary's key points, web answers with sources, the same chats everywhere,
 // Find similar.
@@ -913,7 +988,7 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(set === "v26" ? SETS_V26 : set === "cpp-arc" ? arcSets() : CPP26[set] ? cppSets(CPP26[set]) : set === "ppo" ? SETS_PPO : set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
+for (const [kind, specs] of Object.entries(set === "v27first" ? SETS_V27_FIRST : set === "v27" ? SETS_V27 : set === "v26" ? SETS_V26 : set === "cpp-arc" ? arcSets() : CPP26[set] ? cppSets(CPP26[set]) : set === "ppo" ? SETS_PPO : set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)

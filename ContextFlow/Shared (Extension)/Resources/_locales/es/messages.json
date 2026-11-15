@@ -3200,6 +3200,12 @@
  "tip_05b9621aed": {
   "message": "Abre el panel en una página y ContextFlow elige el chat que trata de ella: el que tiene esta página, o uno sobre el mismo tema. «Sigo en», arriba, dice cuál eligió; «Nuevo chat», ahí mismo, empieza uno nuevo."
  },
+ "tip_8d1c1aa55d": {
+  "message": "Todo en una colección"
+ },
+ "tip_15dc6cba07": {
+  "message": "¿Planeas un viaje o una compra? Elige «A una colección» bajo una respuesta o una nota, y ContextFlow sugiere dónde va. «Colecciones» lo guarda todo por secciones, en Safari y en la app. Con Pro, la IA ordena las tarjetas, «Comparar» pone lado a lado las que elijas y «Resumen» lo resume todo. Cualquier colección se guarda en PDF."
+ },
  "tip_c4b432e2e9": {
   "message": "Busca en tus chats"
  },

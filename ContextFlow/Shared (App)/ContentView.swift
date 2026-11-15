@@ -688,7 +688,7 @@ struct TipGroup {
             text: "Tap ✦ on the page, or open the page menu in the address bar and choose ContextFlow.", clip: "open")
         #else
         Tip(symbol: "sparkles", color: brandBlue, title: "Open it on any page",
-            text: "Click ✦ on the page or the ContextFlow icon in the toolbar, or press Control-Shift-E.")
+            text: "Click ✦ on the page or the ContextFlow icon in the toolbar, or press Control-Shift-E.", clip: "mac-open")
         #endif
     }
 
@@ -700,7 +700,7 @@ struct TipGroup {
             text: "Tap a text field on a page, then the ContextFlow button by it: what you copied in other tabs, your templates and ContextFlow's last answer are one tap away. With a keyboard, type / and a few words of a template, then Tab.", clip: "insert")
         #else
         Tip(symbol: "text.badge.plus", color: brandBlue, title: "Insert into any field",
-            text: "In any field on a page, type / and a few words of a template, then Tab. Control-Shift-V opens the whole list: what you copied in other tabs, your templates and ContextFlow's last answer.")
+            text: "In any field on a page, type / and a few words of a template, then Tab. Control-Shift-V opens the whole list: what you copied in other tabs, your templates and ContextFlow's last answer.", clip: "mac-insert")
         #endif
     }
 
@@ -716,7 +716,7 @@ struct TipGroup {
             text: "Swipe an answer or a note to the right to pin it, to the left to delete it. Changed your mind? Undo brings it back.", clip: "swipes")
         #else
         Tip(symbol: "cursorarrow.rays", color: .blue, title: "Pin or delete with a click",
-            text: "Point at an answer or a note: Pin, Remind me and Delete show beside it, and a right-click opens the same menu. Changed your mind? Undo brings it back.")
+            text: "Point at an answer or a note: Pin, Remind me and Delete show beside it, and a right-click opens the same menu. Changed your mind? Undo brings it back.", clip: "mac-pin")
         #endif
     }
 
@@ -742,7 +742,7 @@ struct TipGroup {
             text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Swipe along them and tap one, no typing needed.", clip: "chips")
         #else
         Tip(symbol: "cursorarrow.click", color: .indigo, title: "Quick actions under a selection",
-            text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Scroll along them with the trackpad or the mouse wheel and click one, no typing needed.")
+            text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Scroll along them with the trackpad or the mouse wheel and click one, no typing needed.", clip: "mac-chips")
         #endif
     }
 
@@ -755,7 +755,7 @@ struct TipGroup {
             text: "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers.", clip: "similar", pro: true)
         #else
         Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
-            text: "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers.", pro: true)
+            text: "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every link to check it before you see it. Pro has a quick search, up to 5 a week, each one counting as 10 answers.", clip: "mac-similar", pro: true)
         #endif
     }
 
@@ -782,28 +782,28 @@ struct TipGroup {
             text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true, pro: true)
     }
 
-    // 2.7: the new features, each where its block's readers look. No clips yet: a card takes one by naming it (clip:
-    // "translate") once TipClips/en and /ru and site/clips have it; What's new shows it then too.
+    // 2.7: the new features, each where its block's readers look, with their clips (TipClips/en and /ru, site/clips);
+    // What's new plays the same ones. A Mac's own clip (mac-…) where the pointer does it differently.
 
     // In-page translation (#168): the pill by ✦ on a page in another language. Also in What's new (2.7).
     static var translateTip: Tip {
         #if os(iOS)
         Tip(symbol: "character.bubble", color: .teal, title: "Read a page in your language",
-            text: "On a page in another language, tap the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.")
+            text: "On a page in another language, tap the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.", clip: "translate")
         #else
         Tip(symbol: "character.bubble", color: .teal, title: "Read a page in your language",
-            text: "On a page in another language, click the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.")
+            text: "On a page in another language, click the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.", clip: "translate")
         #endif
     }
 
-    // ✦ and the panel on either side (#173). The clip shows ✦ dragged along the edge and across.
+    // ✦ and the panel on either side (#173). The clip (side, 2.7) shows ✦ dragged along the edge and across.
     private static var sideTip: Tip {
         #if os(iOS)
         Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
-            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. On iPad, drag the panel by its top bar to move it to the other side too. Screen side in the extension settings does the same.", clip: "button")
+            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. On iPad, drag the panel by its top bar to move it to the other side too. Screen side in the extension settings does the same.", clip: "side")
         #else
         Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
-            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. Drag the panel by its top bar to move it to the other side too, or choose Screen side in the extension settings.", clip: "button")
+            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. Drag the panel by its top bar to move it to the other side too, or choose Screen side in the extension settings.", clip: "side")
         #endif
     }
 
@@ -812,10 +812,10 @@ struct TipGroup {
     static var writeTip: Tip {
         #if os(iOS)
         Tip(symbol: "checkmark.bubble", color: .indigo, title: "Check or rewrite before you send",
-            text: "Writing an email or a comment? Tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each tap counts as one answer.")
+            text: "Writing an email or a comment? Tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each tap counts as one answer.", clip: "write")
         #else
         Tip(symbol: "checkmark.bubble", color: .indigo, title: "Check or rewrite before you send",
-            text: "Writing an email or a comment? Once you've written a few words, point at the circle above the field: Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each one counts as one answer.")
+            text: "Writing an email or a comment? Once you've written a few words, point at the circle above the field: Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each one counts as one answer.", clip: "mac-write")
         #endif
     }
 
@@ -823,10 +823,10 @@ struct TipGroup {
     private static var underlineTip: Tip {
         #if os(iOS)
         Tip(symbol: "textformat.abc.dottedunderline", color: .indigo, title: "Mistakes underlined as you type",
-            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Tap the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", pro: true)
+            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Tap the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", clip: "underline", pro: true)
         #else
         Tip(symbol: "textformat.abc.dottedunderline", color: .indigo, title: "Mistakes underlined as you type",
-            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Point at the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", pro: true)
+            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Point at the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", clip: "mac-underline", pro: true)
         #endif
     }
 
@@ -834,36 +834,43 @@ struct TipGroup {
     static var shotTip: Tip {
         #if os(iOS)
         Tip(symbol: "photo.on.rectangle", color: .orange, title: "A snapshot with your note",
-            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Tap the picture to open it full screen and crop it. It stays on your devices and in your iCloud.")
+            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Tap the picture to open it full screen and crop it. It stays on your devices and in your iCloud.", clip: "shot")
         #else
         Tip(symbol: "photo.on.rectangle", color: .orange, title: "A snapshot with your note",
-            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Click the picture to open it full screen and crop it. It stays on your devices and in your iCloud.")
+            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Click the picture to open it full screen and crop it. It stays on your devices and in your iCloud.", clip: "shot")
         #endif
     }
 
     // Calendar and Reminders (#170): the AI's card, the … menu, and Also in Reminders. Also in What's new (2.7).
     static var appleTip: Tip {
         Tip(symbol: "calendar.badge.plus", color: .red, title: "Add to Calendar or Reminders",
-            text: "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card to check the date and time, and Add puts it in Calendar or Reminders. Any answer or note has Add to Calendar or Reminders in its … menu. In Remind me, Also in Reminders puts your reminder in Apple Reminders too.")
+            text: "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card to check the date and time, and Add puts it in Calendar or Reminders. Any answer or note has Add to Calendar or Reminders in its … menu. In Remind me, Also in Reminders puts your reminder in Apple Reminders too.", clip: "apple")
     }
 
     // Spaces (#171). Free's number isn't named here (the owner hasn't settled it): the limit card says it. Also in
     // What's new (2.7).
     static var spacesTip: Tip {
         Tip(symbol: "square.stack.3d.up", color: .purple, title: "Spaces for work and home",
-            text: "Keep work, home and shopping apart. New space, at the end of the chat list, makes one in its own color. The switcher at the top of the list moves between them, and a new chat goes into the space you're in. In the switcher, Open amazon.com here keeps that site in this space. Free has a limit; with Pro or Ultra, as many as you like.")
+            text: "Keep work, home and shopping apart. New space, at the end of the chat list, makes one in its own color. The switcher at the top of the list moves between them, and a new chat goes into the space you're in. In the switcher, Open amazon.com here keeps that site in this space. Free has a limit; with Pro or Ultra, as many as you like.", clip: "spaces")
+    }
+
+    // Collections (2.7, #175, #182): "To collection" under an answer or a note, the Collections tab (the panel's window and
+    // the app's), Compare and Summary with Pro, a PDF.
+    static var collectionsTip: Tip {
+        Tip(symbol: "square.grid.2x2", color: .orange, title: "Gather it in a collection",
+            text: "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.", clip: "collections")
     }
 
     // The matching chat when the panel opens (#172).
     private static var matchTip: Tip {
         Tip(symbol: "doc.text.magnifyingglass", color: .teal, title: "The chat for this page",
-            text: "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top says which chat it picked; New chat there starts a fresh one.")
+            text: "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top says which chat it picked; New chat there starts a fresh one.", clip: "match")
     }
 
     // The page hints by ✦ in the first days (#176, #179): Tips point to them, their how-to card points back to Tips.
     private static var pageHintsTip: Tip {
         Tip(symbol: "lightbulb", color: .yellow, title: "Tips by the ✦ button",
-            text: "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how. Turn the lines off in the extension settings, under Tips by the ✦ button.")
+            text: "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how. Turn the lines off in the extension settings, under Tips by the ✦ button.", clip: "pagehints")
     }
 
     private static func iOSClip(_ name: String) -> String? {
@@ -931,6 +938,7 @@ struct TipGroup {
                 text: "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.", clip: "chats"),
             spacesTip,
             matchTip,
+            collectionsTip,
             Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
                 text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
             Tip(symbol: "tag", color: .purple, title: "Tags and folders",
@@ -956,13 +964,13 @@ struct TipGroup {
             // 2.7 (#181): the code and the link in Settings, the friend's bonus answers, the inviter's discount. No figures:
             // the panel's and the app's own invite screens name them.
             Tip(symbol: "gift", color: .pink, title: "Invite a friend",
-                text: "Settings → Invite a friend, in the app or in Safari, gives you a code and a link to send. Your friend gets bonus answers every day of their first week. Once they've asked questions on two different days, you get a discount on your first month of Pro or Ultra.")
+                text: "Settings → Invite a friend, in the app or in Safari, gives you a code and a link to send. Your friend gets bonus answers every day of their first week. Once they've asked questions on two different days, you get a discount on your first month of Pro or Ultra.", clip: "invite")
         ]),
         TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
                 text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
             Tip(symbol: "eye.slash", color: .blue, title: "Hide ✦ when you don't need it",
-                text: "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."),
+                text: "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.", clip: "hide"),
             pageHintsTip,
             Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
                 text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),

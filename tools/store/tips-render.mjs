@@ -47,14 +47,18 @@ for (const file of readdirSync(REC).filter((f) => f.endsWith(".json")).sort()) {
   const listFile = join(OUT, `.${name}.txt`)
   writeFileSync(listFile, list.join("\n") + "\n")
 
-  const x = (cssX) => (cssX * K - half).toFixed(1)
-  const y = (cssY) => ((cssY - TOP) * K - half).toFixed(1)
+  // A Mac's take names the part of the window it shows (crop, CSS px; dpr: its pixels per CSS px).
+  const { crop = null, dpr = SCALE } = JSON.parse(readFileSync(join(REC, file), "utf8"))
+  const box = crop ?? { x: 0, y: TOP, w: 430, h: 800 - TOP }
+  const k = W / box.w
+  const x = (cssX) => ((cssX - box.x) * k - half).toFixed(1)
+  const y = (cssY) => ((cssY - box.y) * k - half).toFixed(1)
   const marks = events.filter((e) => e.type === "tap" || e.type === "swipe")
-  let graph = `[0:v]fps=${FPS},crop=${430 * SCALE}:${(800 - TOP) * SCALE}:0:${TOP * SCALE},scale=${W}:${H}:flags=lanczos,setsar=1[v0]`
+  let graph = `[0:v]fps=${FPS},crop=${Math.round(box.w * dpr)}:${Math.round(box.h * dpr)}:${Math.round(box.x * dpr)}:${Math.round(box.y * dpr)},scale=${W}:${H}:flags=lanczos,setsar=1[v0]`
   marks.forEach((e, i) => {
     const a = (e.t - t0).toFixed(3)
     // A swipe moves the finger along dy (the send button) or dx (a message, sideways).
-    const along = (base, d) => (d ? `'${base}+${(d * K).toFixed(1)}*min(1,max(0,(t-${a})/0.35))'` : base)
+    const along = (base, d) => (d ? `'${base}+${(d * k).toFixed(1)}*min(1,max(0,(t-${a})/0.35))'` : base)
     const xExpr = e.type === "swipe" ? along(x(e.x), e.dx) : x(e.x)
     const yExpr = e.type === "swipe" ? along(y(e.y), e.dy) : y(e.y)
     const until = (e.t - t0 + (e.type === "swipe" ? 0.6 : 0.45)).toFixed(3)

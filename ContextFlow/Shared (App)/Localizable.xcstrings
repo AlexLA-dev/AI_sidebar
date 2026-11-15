@@ -65021,6 +65021,182 @@
           }
         }
       }
+    },
+    "Gather it in a collection": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اجمعها في مجموعة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles in einer Sammlung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo en una colección"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout dans une collection"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto in una raccolta"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コレクションにまとめる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "컬렉션에 모으기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tudo em uma coleção"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Соберите всё в подборку"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hepsini bir koleksiyonda toplayın"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зберіть усе в добірку"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gom vào bộ sưu tập"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "汇集到合集"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "匯集到合集"
+          }
+        }
+      }
+    },
+    "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تخطط لرحلة أو لشراء شيء؟ اختر «إلى مجموعة» تحت إجابة أو ملاحظة، وسيقترح ContextFlow مكانها. تحفظ «المجموعات» كل شيء في أقسام، في Safari وفي التطبيق. ومع Pro، يرتّب الذكاء الاصطناعي البطاقات، وتضع «مقارنة» البطاقات التي تختارها جنبًا إلى جنب، ويلخّص «الملخّص» كل شيء. ويمكن حفظ أي مجموعة بصيغة PDF."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du planst eine Reise oder einen Kauf? Wähle „In Sammlung“ unter einer Antwort oder Notiz, und ContextFlow schlägt vor, wohin sie gehört. In „Sammlungen“ liegt alles in Abschnitten, in Safari und in der App. Mit Pro sortiert die KI die Karten, „Vergleichen“ stellt die gewählten nebeneinander, und „Zusammenfassung“ fasst alles zusammen. Jede Sammlung lässt sich als PDF sichern."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Planeas un viaje o una compra? Elige «A una colección» bajo una respuesta o una nota, y ContextFlow sugiere dónde va. «Colecciones» lo guarda todo por secciones, en Safari y en la app. Con Pro, la IA ordena las tarjetas, «Comparar» pone lado a lado las que elijas y «Resumen» lo resume todo. Cualquier colección se guarda en PDF."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous préparez un voyage ou un achat ? Choisissez « Dans une collection » sous une réponse ou une note, et ContextFlow propose où la ranger. « Collections » garde tout par sections, dans Safari et dans l’app. Avec Pro, l’IA trie les cartes, « Comparer » met côte à côte celles que vous choisissez et « Synthèse » résume le tout. Chaque collection s’enregistre en PDF."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai organizzando un viaggio o un acquisto? Scegli «In una raccolta» sotto una risposta o una nota, e ContextFlow suggerisce dove metterla. «Raccolte» tiene tutto in sezioni, in Safari e nell’app. Con Pro, l’IA ordina le schede, «Confronta» mette fianco a fianco quelle che scegli e «Sintesi» riassume tutto. Ogni raccolta si salva in PDF."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行や買い物の計画中ですか？回答やメモの下の「コレクションへ」を選ぶと、ContextFlow が入れる場所を提案します。「コレクション」では、Safari でもアプリでも、すべてがセクションごとに整理されます。Pro なら AI がカードを振り分け、「比較」で選んだカードを並べ、「まとめ」で全体を要約します。どのコレクションも PDF で保存できます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여행이나 쇼핑을 계획 중인가요? 답변이나 메모 아래의 ‘컬렉션에 추가’를 고르면 ContextFlow가 넣을 곳을 제안해요. ‘컬렉션’은 Safari와 앱에서 모든 것을 섹션별로 정리해요. Pro에서는 AI가 카드를 분류하고, ‘비교’는 고른 카드를 나란히 보여 주며, ‘요약’은 전체를 정리해요. 어떤 컬렉션이든 PDF로 저장할 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planejando uma viagem ou uma compra? Escolha “Adicionar à coleção” abaixo de uma resposta ou nota, e o ContextFlow sugere onde ela entra. “Coleções” guarda tudo em seções, no Safari e no app. Com o Pro, a IA organiza os cartões, “Comparar” coloca lado a lado os que você escolher e “Resumo” resume tudo. Qualquer coleção pode ser salva em PDF."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Планируете поездку или покупку? Выберите «В подборку» под ответом или заметкой, и ContextFlow подскажет, куда её положить. В «Подборках» всё лежит по разделам — и в Safari, и в приложении. В Pro ИИ сам раскладывает карточки, «Сравнить» ставит выбранные рядом, а «Сводка» подводит итог. Любую подборку можно сохранить в PDF."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir gezi ya da alışveriş mi planlıyorsunuz? Bir yanıtın ya da notun altındaki “Koleksiyona ekle”yi seçin, ContextFlow nereye gideceğini önersin. “Koleksiyonlar” her şeyi Safari'de ve uygulamada bölümler hâlinde tutar. Pro ile yapay zekâ kartları ayırır, “Karşılaştır” seçtiklerinizi yan yana koyar, “Özet” de hepsini özetler. Her koleksiyon PDF olarak kaydedilebilir."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плануєте подорож чи покупку? Виберіть «До добірки» під відповіддю чи нотаткою, і ContextFlow підкаже, куди її покласти. У «Добірках» усе лежить за розділами — і в Safari, і в застосунку. У Pro ШІ сам розкладає картки, «Порівняти» ставить вибрані поруч, а «Підсумок» підбиває підсумок. Будь-яку добірку можна зберегти в PDF."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang lên kế hoạch cho chuyến đi hay một món đồ cần mua? Chọn Vào bộ sưu tập bên dưới câu trả lời hoặc ghi chú, và ContextFlow sẽ gợi ý nơi để nó vào. Bộ sưu tập giữ mọi thứ theo từng mục, trong Safari và trong ứng dụng. Với Pro, AI sắp xếp các thẻ, So sánh đặt những thẻ bạn chọn cạnh nhau và Tóm tắt tổng hợp tất cả. Bộ sưu tập nào cũng lưu được thành PDF."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在计划旅行或购物？在回答或笔记下方选择“加入合集”，ContextFlow 会建议放在哪里。“合集”在 Safari 和 App 里都按分区整理好所有内容。使用 Pro，AI 会把卡片分好类，“比较”把你选的卡片并排放在一起，“总结”会概括全部内容。任何合集都可以存为 PDF。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在規劃旅行或購物？在回答或筆記下方選擇「加入合集」，ContextFlow 會建議放在哪裡。「合集」在 Safari 和 App 中都會按區段整理好所有內容。使用 Pro，AI 會把卡片分類，「比較」會把你選的卡片並排，「總結」會概括全部內容。任何合集都能存成 PDF。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
