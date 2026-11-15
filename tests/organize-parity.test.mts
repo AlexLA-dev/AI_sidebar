@@ -151,7 +151,7 @@ const RUN_MS = 60_000
 async function swift(cases: Case[]): Promise<unknown[]> {
   const dir = mkdtempSync(join(tmpdir(), "cf-organize-"))
   const bin = join(dir, "organize")
-  execFileSync("swiftc", ["-O", join(root, "ContextFlow/Shared (App)/Organize.swift"), join(root, "tests/organize-parity/main.swift"), "-o", bin], { stdio: "pipe", timeout: BUILD_MS, killSignal: "SIGKILL" })
+  execFileSync("swiftc", ["-O", join(root, "ContextFlow/Shared (App)/Organize.swift"), join(root, "ContextFlow/Shared (App)/TopicWords.swift"), join(root, "tests/organize-parity/main.swift"), "-o", bin], { stdio: "pipe", timeout: BUILD_MS, killSignal: "SIGKILL" })
   const child = spawn(bin, { stdio: "pipe" })
   const out: Buffer[] = []
   const err: Buffer[] = []
