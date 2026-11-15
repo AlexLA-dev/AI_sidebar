@@ -145,9 +145,10 @@ final class InviteModel: ObservableObject {
 
     // MARK: Rules shared with the panel (src/shared/invite.ts)
 
-    /// The code in what was typed or pasted: the code in any case, with spaces or a dash, or the link.
+    /// The code in what was typed or pasted: the code in any case, with spaces or a dash, or the link. Full-width
+    /// letters and digits from a Japanese or Chinese keyboard count as the plain ones (NFKC, like the panel's).
     nonisolated static func parseCode(_ raw: String) -> String? {
-        let text = String(raw.trimmingCharacters(in: .whitespacesAndNewlines).prefix(2000))
+        let text = String(raw.precomposedStringWithCompatibilityMapping.trimmingCharacters(in: .whitespacesAndNewlines).prefix(2000))
         let valid = { (s: String) -> Bool in
             s.count == 6 && s.allSatisfy { "ABCDEFGHJKMNPQRSTUVWXYZ23456789".contains($0) }
         }

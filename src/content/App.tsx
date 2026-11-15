@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
-import { freeAnswersBack, t, uiDirection, uiLanguage, type MessageKey } from "../shared/i18n"
+import { freeAnswersBack, t, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
@@ -4178,7 +4178,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     title={similarCard.answers ? t("limitProTitle") : t("similarTitle")}
                     body={similarCard.answers
                       ? `${t("similarAnswersShort", String(similarCard.answers), String(Math.max(0, (similarCard.limit?.limit ?? 0) - (similarCard.limit?.used ?? 0))))} ${t("limitProBody", timeUntil(similarCard.limit?.resetsAt))}`
-                      : t("similarLightLimit", String(similarCard.limit?.limit ?? status?.plans.similarLightWeekly ?? SIMILAR_LIGHT_WEEKLY), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : "", String(status?.plans.similarWeekly ?? ULTRA_DEFAULTS.similarWeekly))}
+                      : t("similarLightLimit", String(similarCard.limit?.limit ?? status?.plans.similarLightWeekly ?? SIMILAR_LIGHT_WEEKLY), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(uiLang(), { weekday: "long" }) : "", String(status?.plans.similarWeekly ?? ULTRA_DEFAULTS.similarWeekly))}
                     lines={[t("similarUpsellChecked"), t("similarUpsellConditions"), t("similarUpsellWatch")]}
                     plans={["ultra"]}
                     onChoose={(choice) => { setSimilarCard(null); choosePlan(choice) }}
@@ -4188,7 +4188,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
                 {similarCard !== null && typeof similarCard === "object" && !similarCard.light && (
                   <div class="cf-card limit cf-similar-limit">
-                    <p>{t("similarLimit", String(similarCard.limit?.limit ?? ""), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : "")}</p>
+                    <p>{t("similarLimit", String(similarCard.limit?.limit ?? ""), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(uiLang(), { weekday: "long" }) : "")}</p>
                     <div class="cf-card-actions"><button type="button" class="cf-secondary" onClick={() => setSimilarCard(null)}>{t("close")}</button></div>
                   </div>
                 )}
@@ -4234,7 +4234,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <p>{t("renewalThanks")}</p>
                     ) : (
                       <>
-                        <strong>{t("renewalTitle", status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString() : "")}</strong>
+                        <strong>{t("renewalTitle", status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString(uiLang()) : "")}</strong>
                         <p>{t("renewalBody")}</p>
                         <div class="cf-renewal-reasons">
                           {RENEWAL_REASONS.map((reason) => (

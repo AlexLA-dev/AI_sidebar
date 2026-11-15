@@ -90,7 +90,13 @@ export const MAX_EACH = 2
 
 export const freshState = (now: number): HintsState => ({ start: now, shown: 0, shownIds: {}, lastDay: "", used: [], closes: 0, off: false, seeded: false })
 
-export const dayOf = (now: number): string => new Date(now).toISOString().slice(0, 10)
+/** The device's own day ("2026-11-15"): one line a day by the person's clock, not UTC's (2.7, the director's audit: in
+ *  Tokyo a new "day" began at 9 in the morning). */
+export const dayOf = (now: number): string => {
+  const d = new Date(now)
+  const two = (n: number) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`
+}
 
 /** Whether any line may show today at all. */
 export function mayShow(state: HintsState, now: number): boolean {
