@@ -24,6 +24,11 @@
 .cf-tr.right { right: max(70px, calc(env(safe-area-inset-right) + 56px)); }
 .cf-tr.left { left: max(70px, calc(env(safe-area-inset-left) + 56px)); }
 .cf-tr > svg { color: var(--accent); }
+/* A phone: the language control says what the pill is about; its words get the room (two lines at most). */
+@media (max-width: 430px) {
+  .cf-tr > svg { display: none; }
+  .cf-tr { gap: 6px; padding-left: 10px; }
+}
 .cf-tr-label { flex: 1 1 auto; min-width: 0; font-weight: 500; }
 .cf-tr-btn {
   flex: none;

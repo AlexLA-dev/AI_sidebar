@@ -439,6 +439,11 @@ export class PageTranslator {
       if (r.type === "characterData") {
         const node = r.target as Text
         const item = this.owner.get(node)
+        // Words written into a text node no block owned (an empty label filled in later): read its part again.
+        if (!item && node.data.trim() && node.parentElement) {
+          this.markDirty(node.parentElement)
+          continue
+        }
         const rec = item?.applied?.texts.find((t) => t.node === node)
         if (!item || !rec || node.data === rec.now) continue
         if (node.data === rec.was && item.again < MAX_AGAIN) {

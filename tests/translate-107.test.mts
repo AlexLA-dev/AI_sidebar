@@ -181,6 +181,21 @@ test("A3: a dialog added after the translation, a menu that shows itself (aria-h
   assert.equal(drawer.querySelector("a")!.textContent, "Kopfhörer")
 })
 
+test("A3: words a site writes later into an empty label are translated", async () => {
+  const { document } = page(`<main><p>Ein Absatz über Kopfhörer.</p><p id="status"><span id="s"></span></p></main>`)
+  const span = document.getElementById("s")!
+  span.appendChild(document.createTextNode(""))
+  const { translator } = engine(document)
+  await translator.start("ru", "de")
+  await wait(60)
+  const node = span.firstChild as Text
+  node.data = "Artikel wurde hinzugefügt"
+  FakeObserver.last!.cb([{ type: "characterData", target: node, addedNodes: [], removedNodes: [] }])
+  await wait(400)
+  assert.equal(span.textContent, "RU Artikel wurde hinzugefügt")
+  translator.original()
+})
+
 test("A3: a web component's open shadow root is read and watched", () => {
   const { document } = page(`<main><p>Text</p></main><cookie-banner id="cb"></cookie-banner>`)
   const host = document.getElementById("cb")!
