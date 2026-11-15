@@ -202,8 +202,9 @@ test("F1: Find similar is violet on Ultra only; on Pro, Own key and Free (offere
 
 import { readdirSync } from "node:fs"
 import { fileURLToPath } from "node:url"
+// @ts-expect-error: a plain .mjs module (the build's own)
 import { tipsData } from "../scripts/tips-source.mjs"
-import { isNewTip } from "../src/content/tips/data.ts"
+import { isNewTip } from "../src/content/tips/fresh.ts"
 
 test("F2: the cards of this version's features carry a quiet «New», in the app and the panel, gone with the next version", () => {
   const data = tipsData(fileURLToPath(new URL("..", import.meta.url))) as any

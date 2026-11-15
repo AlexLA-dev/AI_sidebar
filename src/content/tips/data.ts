@@ -13,10 +13,7 @@ export type TipBlock = { id: string; title: TipText; tips: TipEntry[] }
 // clipLang: the panel's language (its _locales folder), sent with each clip; the app picks the clips' folder from it.
 export type TipsData = { heading: TipText; intro: TipText; clipLang: TipText; newIn?: string; lead: TipEntry; groups: TipBlock[] }
 
-/** A card whose feature is new in the installed version (107, the owner): quietly marked, until the next version. */
-export function isNewTip(tip: TipEntry, data: Pick<TipsData, "newIn"> | null): boolean {
-  return Boolean(tip.since && data?.newIn && tip.since === data.newIn)
-}
+export { isNewTip } from "./fresh"
 
 declare const __TIPS__: TipsData | undefined
 
