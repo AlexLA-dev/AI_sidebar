@@ -14,11 +14,11 @@
 
 const WORDS: Record<string, string[]> = {
   en: ["the", "and", "of", "to", "is", "in", "that", "it", "for", "with", "you", "this", "are", "was", "on", "be", "have", "not"],
-  de: ["der", "die", "das", "und", "ist", "nicht", "mit", "ein", "eine", "zu", "den", "auf", "ich", "sie", "es", "sich", "auch", "dem"],
-  es: ["el", "la", "los", "las", "de", "que", "y", "en", "un", "una", "es", "por", "con", "para", "no", "del", "se", "lo"],
-  fr: ["le", "la", "les", "des", "et", "est", "un", "une", "du", "que", "pas", "pour", "dans", "en", "au", "il", "qui", "sur"],
-  it: ["il", "la", "che", "di", "e", "è", "un", "una", "per", "non", "con", "sono", "del", "della", "gli", "si", "le", "ma"],
-  pt: ["o", "a", "os", "as", "de", "que", "e", "é", "um", "uma", "não", "com", "para", "do", "da", "em", "se", "no"],
+  de: ["der", "die", "das", "und", "ist", "nicht", "mit", "ein", "eine", "zu", "den", "auf", "sich", "auch", "dem", "von", "für", "des", "im", "sie"],
+  es: ["el", "la", "los", "las", "de", "que", "y", "en", "un", "una", "es", "por", "con", "para", "no", "del", "se", "lo", "su", "como"],
+  fr: ["le", "la", "les", "de", "des", "et", "est", "un", "une", "du", "que", "pas", "pour", "dans", "en", "au", "il", "qui", "sur", "par", "ne", "plus"],
+  it: ["il", "la", "che", "di", "e", "è", "un", "una", "per", "non", "con", "sono", "del", "della", "gli", "si", "le", "ma", "da", "nel"],
+  pt: ["o", "a", "os", "as", "de", "que", "e", "é", "um", "uma", "não", "com", "para", "do", "da", "em", "se", "no", "na", "dos"],
   ca: ["de", "la", "i", "el", "que", "les", "en", "els", "del", "per", "un", "amb", "una", "és", "no", "al", "es", "més"],
   nl: ["de", "het", "een", "en", "van", "is", "dat", "op", "te", "zijn", "voor", "met", "niet", "aan", "er", "ook", "maar", "wordt"],
   sv: ["och", "att", "det", "som", "en", "på", "är", "av", "för", "med", "till", "den", "har", "inte", "om", "ett", "var", "de"],
@@ -32,6 +32,31 @@ const WORDS: Record<string, string[]> = {
   ro: ["și", "şi", "în", "de", "la", "cu", "că", "pe", "nu", "este", "o", "un", "din", "pentru", "care", "mai", "se", "a"],
   hu: ["a", "az", "és", "hogy", "nem", "is", "egy", "meg", "de", "van", "csak", "már", "mint", "ez", "el", "még", "volt", "szerint"],
   id: ["yang", "dan", "di", "ini", "itu", "dengan", "untuk", "dari", "dalam", "tidak", "akan", "pada", "ke", "juga", "ada", "oleh", "atau", "mereka"]
+}
+
+/** Letters only one of these languages uses: they decide a short text the function words can't (a headline, a menu).
+ *  Taken as a weak guess, so a page's markup still wins over it. */
+const OWN_LETTERS: Array<[string, RegExp]> = [
+  ["tr", /[ğı]/g],
+  ["pl", /[ąęłśźż]/gi],
+  ["cs", /[ěřů]/gi],
+  ["ro", /[ășț]/gi],
+  ["hu", /[őű]/gi]
+]
+
+function byLetters(s: string, words: number): Guess | null {
+  let best: string | null = null
+  let top = 0
+  let second = 0
+  for (const [lang, re] of OWN_LETTERS) {
+    const n = s.match(re)?.length ?? 0
+    if (n > top) {
+      second = top
+      top = n
+      best = lang
+    } else if (n > second) second = n
+  }
+  return best && top >= 3 && top >= second * 2 ? { lang: best, share: Math.min(0.05, top / Math.max(1, words)) } : null
 }
 
 /** Languages the guess can name: by script, by marks, by function words. */
@@ -89,11 +114,12 @@ export function languageGuess(text: string): Guess | null {
       best = lang
     } else if (hits > second) second = hits
   }
-  // A tie with a neighbour ("la", "de") decides nothing; in a longer text, one common word isn't enough either.
-  if (!best || top === 0 || top === second) return null
-  if (!(top >= 2 || words.length <= 4)) return null
+  // A tie with a neighbour ("la", "de") decides nothing; in a longer text, one common word isn't enough either. Then
+  // letters only one language uses may tell (Turkish ğ and ı in a headline).
+  if (!best || top === 0 || top === second) return byLetters(s, words.length)
+  if (!(top >= 2 || words.length <= 4)) return byLetters(s, words.length)
   const sureness = top / Math.max(1, words.length)
-  if (words.length >= LONG_TEXT_WORDS && sureness < LONG_TEXT_SHARE) return null
+  if (words.length >= LONG_TEXT_WORDS && sureness < LONG_TEXT_SHARE) return byLetters(s, words.length)
   return { lang: best, share: sureness }
 }
 
