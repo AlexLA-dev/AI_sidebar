@@ -27,9 +27,24 @@ export const WRITE_LIMITS = {
   templateChars: 400
 } as const
 
-/** A text worth checking: two words at least (the circle shows from then on). */
+// Scripts written without spaces between words: Chinese, Japanese, Thai, Lao, Khmer, Burmese (2.7 audit: a rule that
+// waited for a space never let them have the circle, the list's Check and Rewrite, the underlines or style samples).
+const DENSE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u
+const DENSE_ALL = new RegExp(DENSE.source, "gu")
+// That many of their characters say about as much as two words do.
+export const DENSE_ENOUGH = 6
+
+/** How many characters of the scripts written without spaces a text has. */
+export const denseChars = (text: string): number => (text.match(DENSE_ALL) ?? []).length
+
+/** A text's length for "long enough": a character of Chinese, Japanese or Thai counts as two (it says about that much). */
+export const weightedLength = (text: string): number => text.length + denseChars(text)
+
+/** A text worth checking: two words at least (the circle shows from then on); in Chinese, Japanese or Thai, a few
+ * characters (DENSE_ENOUGH) count as that much. */
 export function worthWriting(text: string): boolean {
-  return /\S+\s+\S+/.test(text.trim())
+  const t = text.trim()
+  return /\S+\s+\S+/.test(t) || denseChars(t) >= DENSE_ENOUGH
 }
 
 // ------------------------------------------------------------ what goes to the server
@@ -132,7 +147,7 @@ function clipAtWord(text: string, max: number): string {
  */
 export function keepSample(all: Samples, site: string, text: string, now: number): Samples {
   const t = clipAtWord(text.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim(), WRITE_LIMITS.sampleChars)
-  if (!site || t.length < SAMPLES.min || !worthWriting(t)) return all
+  if (!site || weightedLength(t) < SAMPLES.min || !worthWriting(t)) return all
   const head = t.slice(0, 30)
   const fresh = (list: Sample[]) => list.filter((s) => now - s.at < SAMPLES.ttl)
   const mine = fresh(all[site] ?? []).filter((s) => s.t.slice(0, 30) !== head && !t.startsWith(s.t) && !s.t.startsWith(t))
@@ -185,9 +200,32 @@ export interface Edit {
   text: string
 }
 
-/** Words (letters, digits, apostrophes and hyphens inside), runs of spaces, and single other characters. */
+let wordSegmenter: Intl.Segmenter | null | undefined
+
+/** A run of a script written without spaces, in its words (the system's word breaks); one character each without them. */
+function denseWords(run: string): string[] {
+  if (wordSegmenter === undefined) {
+    try {
+      wordSegmenter = typeof Intl.Segmenter === "function" ? new Intl.Segmenter(undefined, { granularity: "word" }) : null
+    } catch {
+      wordSegmenter = null
+    }
+  }
+  return wordSegmenter ? Array.from(wordSegmenter.segment(run), (s) => s.segment) : Array.from(run)
+}
+
+/**
+ * Words (letters, digits, apostrophes and hyphens inside), runs of spaces, and single other characters. A run in Chinese,
+ * Japanese or Thai is cut into its own words (2.7 audit: a whole sentence was one word there, so one wrong character
+ * underlined all of it).
+ */
 export function tokens(text: string): string[] {
-  return text.match(/[\p{L}\p{N}\p{M}]+(?:['’\-][\p{L}\p{N}\p{M}]+)*|[^\S\n]+|\n|[\s\S]/gu) ?? []
+  const out: string[] = []
+  for (const token of text.match(/[\p{L}\p{N}\p{M}]+(?:['’\-][\p{L}\p{N}\p{M}]+)*|[^\S\n]+|\n|[\s\S]/gu) ?? []) {
+    if (DENSE.test(token)) out.push(...denseWords(token))
+    else out.push(token)
+  }
+  return out
 }
 
 // Above this many cells the table isn't worth it: one change for the middle.
@@ -329,9 +367,9 @@ export function paragraphs(text: string, from = 0, to = text.length): Paragraph[
   return out
 }
 
-/** A paragraph worth checking live: a few words, not too long. */
+/** A paragraph worth checking live: a few words (in Chinese, Japanese or Thai, a few characters), not too long. */
 export function liveWorthy(p: Paragraph): boolean {
-  return p.text.length >= LIVE.minChars && p.text.length <= LIVE.maxChars && worthWriting(p.text)
+  return weightedLength(p.text) >= LIVE.minChars && p.text.length <= LIVE.maxChars && worthWriting(p.text)
 }
 
 /** One underline: the characters [from, to) of the field's text, what they'd become; `key` names it for «Пропустить». */
