@@ -1013,5 +1013,12 @@
   "colPdfFooter": "Made with ContextFlow",
   "colPdfSave": "Save as PDF",
   "colPick": "Collection: {0}. Switch",
-  "colCardMenu": "Card actions"
+  "colCardMenu": "Card actions",
+  "shotAdd": "Snapshot",
+  "shotAdded": "Snapshot added",
+  "colIn": "In “{0}”",
+  "colOpen": "Open collection",
+  "colAddOther": "To another collection",
+  "colAlready": "Already in “{0}”",
+  "tipNew": "New"
 }

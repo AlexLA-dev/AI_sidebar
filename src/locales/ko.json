@@ -1013,5 +1013,12 @@
   "colPdfFooter": "ContextFlow로 제작",
   "colPdfSave": "PDF로 저장",
   "colPick": "컬렉션: {0}. 전환",
-  "colCardMenu": "카드 작업"
+  "colCardMenu": "카드 작업",
+  "shotAdd": "스냅샷",
+  "shotAdded": "스냅샷을 추가했어요",
+  "colIn": "‘{0}’에 있음",
+  "colOpen": "컬렉션 열기",
+  "colAddOther": "다른 컬렉션에 추가",
+  "colAlready": "이미 ‘{0}’에 있어요",
+  "tipNew": "새 기능"
 }

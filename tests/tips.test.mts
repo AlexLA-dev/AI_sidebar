@@ -47,7 +47,9 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
   assert.equal(chips.mac.title.en, "Quick actions under a selection")
   assert.match(chips.mac.text.en, /trackpad or the mouse wheel and click/)
   // The plan's own block, before the last one: monthly or yearly, then the plan's tour.
-  assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "What your plan adds", "Invite a friend"])
+  assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "Invite a friend"])
+  // 107, the owner: «What your plan adds не нужен в tips».
+  assert.ok(!data.groups.some((g: any) => g.tips.some((t: any) => t.title.en === "What your plan adds")))
   assert.equal(data.groups.at(-2).title.en, "Your plan")
   assert.equal(data.heading.en, "Tips")
   assert.equal(data.groups[1].title.en, "Deeper work")
@@ -79,7 +81,6 @@ test("every card's clip, as the app shows it: on iPhone and iPad, on a Mac only 
   assert.ok(tip("Listen").clip === "listen" && (!tip("Listen").mac || tip("Listen").mac.clip === "listen"))
   assert.equal(tip("Where it belongs").clip, "organize")
   assert.equal(tip("Monthly or yearly").clip, "yearly")
-  assert.ok(!tip("What your plan adds").clip, "the tour's card has no clip yet")
   // The site's web versions (/features): English, each with its still.
   for (const name of tipClips(data)) {
     for (const ext of ["mp4", "jpg"]) assert.ok(existsSync(join(root, "site/clips", `${name}.${ext}`)), `site/clips/${name}.${ext}`)
@@ -231,8 +232,9 @@ test("the sheet: iCloud first, seven blocks, Get started open and the rest folde
   assert.deepEqual(blocks.map((b) => b.querySelector(".cf-tips-head")!.getAttribute("aria-expanded")), ["true", "false", "false", "false", "false", "false", "false"])
   assert.deepEqual(blocks.slice(1).map((b) => text(b.querySelector(".cf-tips-count")!)), data.groups.slice(1).map((g: any) => String(g.tips.length)))
   // The lead card and Get started's seven.
+  // (107: a card new in this version carries a quiet «New» after its title.)
   const cards = [...r.querySelectorAll(".cf-tip-title")].map((c) => text(c as Element))
-  assert.deepEqual(cards, [data.lead.title.en, ...data.groups[0].tips.map((t: any) => t.title.en)])
+  assert.deepEqual(cards, [data.lead.title.en, ...data.groups[0].tips.map((t: any) => t.title.en + (t.since === data.newIn ? "New" : ""))])
   // The clips are here now: no line sending to the app for them.
   assert.equal(r.querySelector(".cf-tips-app"), null)
 })
@@ -259,10 +261,10 @@ test("Pro and Ultra badges on the app's Pro and Ultra cards; a Mac gets the Mac'
   const touch = box()
   ui.sheet(touch, false)
   await tick()
-  const badged = [...touch.querySelectorAll(".cf-tip-title")].filter((c: any) => c.querySelector(".cf-pro-badge")).map((c: any) => text(c).replace(/Pro$/, "").trim())
+  const badged = [...touch.querySelectorAll(".cf-tip-title")].filter((c: any) => c.querySelector(".cf-pro-badge")).map((c: any) => text(c).replace(/New$/, "").replace(/Pro$/, "").trim())
   assert.deepEqual(badged, PRO)
   // 2.6: Ultra's badge (the panel's own .cf-ultra-badge) on Find similar and Listen.
-  const ultra = [...touch.querySelectorAll(".cf-tip-title")].filter((c: any) => c.querySelector(".cf-ultra-badge")).map((c: any) => text(c).replace(/Ultra$/, "").trim())
+  const ultra = [...touch.querySelectorAll(".cf-tip-title")].filter((c: any) => c.querySelector(".cf-ultra-badge")).map((c: any) => text(c).replace(/New$/, "").replace(/Ultra$/, "").trim())
   assert.deepEqual(ultra, ULTRA)
   assert.ok(text(touch).includes("Swipe to pin or delete"))
   const mac = box()

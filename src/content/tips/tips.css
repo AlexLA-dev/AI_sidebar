@@ -16,6 +16,9 @@
    (2.5 (81), as in the app). The sheet's own 10px padding is above it. */
 .cf-tips-head { position: sticky; top: -10px; z-index: 1; display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 8px !important; font-size: 15px; font-weight: 600; text-align: start; background: var(--bg); }
 .cf-tips-count { font-size: 13px; font-weight: 600; color: var(--text-3); }
+/* 107, the owner: the features that came with this version, marked lightly (tinted words on a faint fill: the solid
+   badges are Pro's and Ultra's). Gone with the next version (tips/data.ts isNewTip). */
+.cf-new-badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.01em; color: var(--accent-text); background: var(--accent-soft); }
 .cf-tips-chev { margin-inline-start: auto; flex-shrink: 0; color: var(--text-3); transition: transform 0.15s ease; }
 .cf-tips-block.open .cf-tips-chev { transform: rotate(90deg); }
 .cf-tips-cards { padding-bottom: 4px; }

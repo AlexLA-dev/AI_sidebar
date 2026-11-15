@@ -2957,6 +2957,27 @@
  "colCardMenu": {
   "message": "카드 작업"
  },
+ "shotAdd": {
+  "message": "스냅샷"
+ },
+ "shotAdded": {
+  "message": "스냅샷을 추가했어요"
+ },
+ "colIn": {
+  "message": "‘{0}’에 있음"
+ },
+ "colOpen": {
+  "message": "컬렉션 열기"
+ },
+ "colAddOther": {
+  "message": "다른 컬렉션에 추가"
+ },
+ "colAlready": {
+  "message": "이미 ‘{0}’에 있어요"
+ },
+ "tipNew": {
+  "message": "새 기능"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },
@@ -3262,12 +3283,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro와 Ultra는 월간이나 연간으로 이용할 수 있고, 연간이 12개월보다 저렴해요. 앱이나 Safari에서 요금제 위의 ‘연간’을 탭하면 가격과 절약 금액을 볼 수 있어요. 이미 월간이라면 ‘설정’ → ‘내 요금제’에서 ‘연간으로 전환’을 누르세요. 지금 한 달이 끝나면 연간이 시작돼요."
- },
- "tip_9288a85bb9": {
-  "message": "요금제로 더해지는 기능"
- },
- "tip_0f2289f887": {
-  "message": "Pro나 Ultra를 구입하면 ContextFlow가 요금제로 더해진 기능을 하나씩 보여 줘요. 다시 보려면 패널 위쪽 ‘…’을 탭한 다음 ‘기타…’에서 ‘Pro에 포함된 기능’이나 ‘Ultra에 포함된 기능’을 고르세요. 앱에서는 ‘설정’의 ‘내 요금제’에 있어요."
  },
  "tip_3ee4fbeeb2": {
   "message": "친구 초대"

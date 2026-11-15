@@ -1013,5 +1013,12 @@
   "colPdfFooter": "ContextFlow ile hazırlandı",
   "colPdfSave": "PDF olarak kaydet",
   "colPick": "Koleksiyon: {0}. Değiştir",
-  "colCardMenu": "Kart işlemleri"
+  "colCardMenu": "Kart işlemleri",
+  "shotAdd": "Görüntü",
+  "shotAdded": "Görüntü eklendi",
+  "colIn": "“{0}” içinde",
+  "colOpen": "Koleksiyonu aç",
+  "colAddOther": "Başka bir koleksiyona ekle",
+  "colAlready": "Zaten “{0}” içinde",
+  "tipNew": "Yeni"
 }

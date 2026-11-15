@@ -7,10 +7,16 @@ export type TipText = { key: string; en: string }
 // `clip`: the app's clip for the card (the app's TipClips/<language>/<clip>.mp4, through the App Group); `mac` where a Mac's
 // words or clip differ (none where the app shows none).
 export type TipShown = { title: TipText; text: TipText; clip?: string }
-export type TipEntry = TipShown & { mac?: TipShown; pro?: true; ultra?: true }
+// `since`: the version that brought the feature; «New» by the card while it's the version What's new is about (`newIn`).
+export type TipEntry = TipShown & { mac?: TipShown; pro?: true; ultra?: true; since?: string }
 export type TipBlock = { id: string; title: TipText; tips: TipEntry[] }
 // clipLang: the panel's language (its _locales folder), sent with each clip; the app picks the clips' folder from it.
-export type TipsData = { heading: TipText; intro: TipText; clipLang: TipText; lead: TipEntry; groups: TipBlock[] }
+export type TipsData = { heading: TipText; intro: TipText; clipLang: TipText; newIn?: string; lead: TipEntry; groups: TipBlock[] }
+
+/** A card whose feature is new in the installed version (107, the owner): quietly marked, until the next version. */
+export function isNewTip(tip: TipEntry, data: Pick<TipsData, "newIn"> | null): boolean {
+  return Boolean(tip.since && data?.newIn && tip.since === data.newIn)
+}
 
 declare const __TIPS__: TipsData | undefined
 

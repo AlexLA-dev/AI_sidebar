@@ -40,6 +40,11 @@ struct BoardCard: Identifiable, Hashable {
     var of: [String] = []
 
     var site: String? { srcURL.map(host(of:)).flatMap { $0.isEmpty ? nil : $0 } }
+    /// The answer or note it was made from (its chat and message); nil for a comparison or a card without them.
+    var source: String? {
+        guard kind != "compare", let chat, let msg, !chat.isEmpty, !msg.isEmpty else { return nil }
+        return chat + "\u{0}" + msg
+    }
     var date: Date { Date(timeIntervalSince1970: at / 1000) }
 }
 
@@ -152,7 +157,28 @@ struct Board: Identifiable, Hashable {
         sections.filter { !$0.deleted }.sorted { $0.o != $1.o ? $0.o < $1.o : $0.id < $1.id }
     }
 
-    var liveCards: [BoardCard] { cards.filter { !$0.deleted } }
+    /// The cards there are: not deleted, and one card per answer or note (107, the owner: the same answer could be added
+    /// again and again). Copies made before that was stopped stay in the record; only the first of them (by id: the
+    /// same one on every device, and still the same after it's moved) shows and counts. As the panel's liveCards.
+    var liveCards: [BoardCard] {
+        var first: [String: String] = [:]
+        for c in cards where !c.deleted {
+            guard let key = c.source else { continue }
+            if let have = first[key], have <= c.id { continue }
+            first[key] = c.id
+        }
+        return cards.filter { c in
+            guard !c.deleted else { return false }
+            guard let key = c.source else { return true }
+            return first[key] == c.id
+        }
+    }
+
+    /// The card this collection has of an answer or a note (its chat and message), if any.
+    func card(ofChat chat: String?, msg: String?) -> BoardCard? {
+        guard !deleted, let chat, let msg else { return nil }
+        return liveCards.first { $0.kind != "compare" && $0.chat == chat && $0.msg == msg }
+    }
 
     /// A section's cards in their order; cards whose section is gone are in the first section.
     func cards(in sectionId: String) -> [BoardCard] {
@@ -185,8 +211,19 @@ struct Board: Identifiable, Hashable {
         mu = Board.later(mu, now)
     }
 
-    mutating func addSection(_ sid: String, _ name: String, now: Double, ai: Bool = false) {
+    /// A new section, after the others. It takes no card that's there already (107, the owner: a section made from the
+    /// AI's suggestion had a card from before any section): cards whose section is gone show in the first section, so
+    /// with none they'd all land in the new one. They get a section of their own first (`rest`), and stay in it.
+    mutating func addSection(_ sid: String, _ name: String, now: Double, ai: Bool = false, rest: (id: String, name: String)? = nil) {
         guard liveSections.count < BoardLimits.maxSections else { return }
+        if let rest, rest.id != sid, liveSections.isEmpty, cards.contains(where: { !$0.deleted }) {
+            sections.removeAll { $0.id == rest.id }
+            sections.append(BoardSection(id: rest.id, name: Board.clean(rest.name, 40), o: 0, u: now))
+            for k in cards.indices where !cards[k].deleted {
+                cards[k].sec = rest.id
+                cards[k].u = Board.later(cards[k].u, now)
+            }
+        }
         let o = (liveSections.map(\.o).max() ?? -1) + 1
         sections.removeAll { $0.id == sid }
         sections.append(BoardSection(id: sid, name: Board.clean(name, 40), o: o, u: now, ai: ai))
@@ -224,7 +261,9 @@ struct Board: Identifiable, Hashable {
         for cid in moved { moveCard(cid, to: other!.id, at: Int.max, now: now) }
     }
 
+    /// A card added at the end of its section. Never a second card of the same answer or note: nothing changes then.
     mutating func addCard(_ card: BoardCard, now: Double) {
+        if let key = card.source, cards.contains(where: { !$0.deleted && $0.id != card.id && $0.source == key }) { return }
         var c = card
         c.o = (cards(in: card.sec).map(\.o).max() ?? -1) + 1
         c.u = now
@@ -249,9 +288,13 @@ struct Board: Identifiable, Hashable {
         }
     }
 
+    /// A card deleted, with any older copies of it (the same answer or note added twice before that was stopped).
     mutating func deleteCard(_ cid: String, now: Double) {
-        guard let k = cards.firstIndex(where: { $0.id == cid && !$0.deleted }) else { return }
-        cards[k] = BoardCard(id: cid, sec: "", o: 0, u: Board.later(cards[k].u, now), deleted: true, kind: cards[k].kind, gist: "", at: 0)
+        guard let card = cards.first(where: { $0.id == cid && !$0.deleted }) else { return }
+        let key = card.source
+        for k in cards.indices where !cards[k].deleted && (cards[k].id == cid || (key != nil && cards[k].source == key)) {
+            cards[k] = BoardCard(id: cards[k].id, sec: "", o: 0, u: Board.later(cards[k].u, now), deleted: true, kind: cards[k].kind, gist: "", at: 0)
+        }
     }
 
     mutating func setSummary(_ text: String, now: Double) {
@@ -334,6 +377,13 @@ struct Board: Identifiable, Hashable {
         return out.count >= 40 ? out : String(plain.prefix(BoardLimits.maxGist - 1)).trimmingCharacters(in: .whitespaces) + "…"
     }
 
+    /// A message's key on its card (the way back to it in its chat).
+    static func messageKey(_ thread: ChatThread, _ index: Int) -> String? {
+        guard thread.entries.indices.contains(index) else { return nil }
+        let raw = thread.organized?.entries
+        return raw.flatMap { $0.indices.contains(index) ? Organize.entryKey($0[index]) : nil } ?? thread.entries[index].id
+    }
+
     /// The card an answer or a note of `thread` becomes (src/shared/collections.ts cardFrom).
     static func card(from thread: ChatThread, _ index: Int, id cid: String, section: String, now: Double) -> BoardCard? {
         guard thread.entries.indices.contains(index) else { return nil }
@@ -346,8 +396,7 @@ struct Board: Identifiable, Hashable {
             if thread.entries[i].isUser { page = thread.entries[i].page }
             i -= 1
         }
-        let raw = thread.organized?.entries
-        let msg = raw.flatMap { $0.indices.contains(index) ? Organize.entryKey($0[index]) : nil } ?? e.id
+        let msg = messageKey(thread, index) ?? e.id
         let url = page?.url.lowercased().hasPrefix("http") == true ? page?.url : nil
         return BoardCard(
             id: cid, sec: section, o: 0, u: now, kind: e.isNote ? "note" : "answer", gist: gist(e.content),
@@ -385,6 +434,12 @@ struct Board: Identifiable, Hashable {
 
 extension ChatLibrary {
     /// The collections there are in the space shown (every one with Spaces off), by order, then newest.
+    /// The collection (of the space shown) that has this answer or note, by name; nil when none has.
+    func collectionName(of thread: ChatThread, _ index: Int) -> String? {
+        guard !boards.isEmpty, let msg = Board.messageKey(thread, index) else { return nil }
+        return liveBoards.first { $0.card(ofChat: thread.id, msg: msg) != nil }?.name
+    }
+
     var liveBoards: [Board] {
         boards.filter { !$0.deleted && (!hasSpaces || SpaceRecord.resolve(spaceList, $0.space) == shownSpace) }
             .sorted { ($0.order ?? 0) != ($1.order ?? 0) ? ($0.order ?? 0) < ($1.order ?? 0) : ($0.mu != $1.mu ? $0.mu > $1.mu : $0.id < $1.id) }

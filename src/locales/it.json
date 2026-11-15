@@ -1013,5 +1013,12 @@
   "colPdfFooter": "Fatto con ContextFlow",
   "colPdfSave": "Salva come PDF",
   "colPick": "Raccolta: {0}. Cambia",
-  "colCardMenu": "Azioni della scheda"
+  "colCardMenu": "Azioni della scheda",
+  "shotAdd": "Istantanea",
+  "shotAdded": "Istantanea aggiunta",
+  "colIn": "In «{0}»",
+  "colOpen": "Apri la raccolta",
+  "colAddOther": "In un’altra raccolta",
+  "colAlready": "Già in «{0}»",
+  "tipNew": "Novità"
 }

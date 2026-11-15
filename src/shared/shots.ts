@@ -50,6 +50,65 @@ export const SHOT_LIMITS = {
   orphanDays: 7
 } as const
 
+/**
+ * How long a capture may take (ms): our panel and circle are hidden meanwhile, so never long (107, the owner: on Gmail
+ * they were gone for some 15 s). `gap`: a form of Safari's capture that hasn't answered by then gets the next one
+ * started beside it; `total`: the background gives up; `wait`: the page stops waiting for the background; `full`: a
+ * whole page's screens altogether (what's taken by then is the picture).
+ */
+export const SHOT_TIMES = { gap: 700, total: 3000, wait: 3600, full: 12_000 } as const
+
+/**
+ * The first answer `good` accepts among `tries`, each started `gap` ms after the one before unless that one has failed
+ * already (then at once); all of them given up `total` ms from the start. A form that never answers (iPhone's Safari
+ * left one so) can't hold the others back, and the wait is `total` whatever happens. `error`: the last failure's words.
+ */
+export function firstAnswer<T>(tries: Array<() => Promise<T>>, good: (value: T) => boolean, times: { gap: number; total: number }): Promise<{ ok: true; value: T } | { ok: false; error: string }> {
+  return new Promise((resolve) => {
+    let done = false
+    let started = 0
+    let open = 0
+    let last = tries.length ? "timeout" : "unavailable"
+    let next: ReturnType<typeof setTimeout> | undefined
+    const finish = (out: { ok: true; value: T } | { ok: false; error: string }) => {
+      if (done) return
+      done = true
+      clearTimeout(next)
+      clearTimeout(end)
+      resolve(out)
+    }
+    const end = setTimeout(() => finish({ ok: false, error: last }), times.total)
+    const start = () => {
+      clearTimeout(next)
+      if (done) return
+      if (started >= tries.length) {
+        if (open === 0) finish({ ok: false, error: last })
+        return
+      }
+      const attempt = tries[started++]
+      open++
+      let work: Promise<T>
+      try {
+        work = Promise.resolve(attempt())
+      } catch (err) {
+        work = Promise.reject(err)
+      }
+      work.then((value) => {
+        open--
+        if (good(value)) return finish({ ok: true, value })
+        last = "no image"
+        start()
+      }, (err) => {
+        open--
+        last = (err instanceof Error ? err.message : String(err)).slice(0, 160) || "failed"
+        start()
+      })
+      if (started < tries.length) next = setTimeout(start, times.gap)
+    }
+    start()
+  })
+}
+
 /** A new picture's id. */
 export function newShotId(): string {
   return `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`

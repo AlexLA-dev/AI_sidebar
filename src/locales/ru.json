@@ -1013,5 +1013,12 @@
   "colPdfFooter": "Сделано в ContextFlow",
   "colPdfSave": "Сохранить PDF",
   "colPick": "Подборка: {0}. Переключить",
-  "colCardMenu": "Действия с карточкой"
+  "colCardMenu": "Действия с карточкой",
+  "shotAdd": "Снимок",
+  "shotAdded": "Снимок добавлен",
+  "colIn": "В «{0}»",
+  "colOpen": "Открыть подборку",
+  "colAddOther": "В другую подборку",
+  "colAlready": "Уже в «{0}»",
+  "tipNew": "Новое"
 }

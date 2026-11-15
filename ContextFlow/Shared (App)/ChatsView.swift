@@ -1421,7 +1421,8 @@ struct ChatDetailView: View {
                                                     pin: { togglePin(thread, index, how: "menu") },
                                                     remind: { remindNote = nil; reminding = index },
                                                     delete: { deleteMessage(thread, index, how: "menu") },
-                                                    collect: { collecting = index }
+                                                    collect: { collecting = index },
+                                                    collected: library.collectionName(of: thread, index)
                                                 ),
                                                 listen: entry.isNote ? nil : {
                                                     // Titled by the page the answer is about (build 94, the owner: it had the
@@ -1459,7 +1460,7 @@ struct ChatDetailView: View {
                                     if !entry.isUser || entry.isNote, picked == nil {
                                         Button { togglePin(thread, index, how: "menu") } label: { Label(entry.pinned != nil ? "Unpin" : "Pin", systemImage: entry.pinned != nil ? "pin.slash" : "pin") }
                                         Button { remindNote = nil; reminding = index } label: { Label(entry.remind != nil ? "Change reminder" : "Remind me", systemImage: "bell") }
-                                        Button { collecting = index } label: { Label("To collection", systemImage: "square.grid.2x2") }
+                                        Button { collecting = index } label: { Label { if let name = library.collectionName(of: thread, index) { Text("In “\(name)”", comment: "A message's menu: the collection it's in already (2.7)") } else { Text("To collection") } } icon: { Image(systemName: library.collectionName(of: thread, index) == nil ? "square.grid.2x2" : "checkmark.square") } }
                                         Button(role: .destructive) { deleteMessage(thread, index, how: "menu") } label: { Label("Delete", systemImage: "trash") }
                                     }
                                 }
@@ -2741,7 +2742,7 @@ private struct MessageTools: View {
                 Menu {
                     Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
                     Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
-                    if let collect = actions.collect { Button(action: collect) { Label("To collection", systemImage: "square.grid.2x2") } }
+                    if let collect = actions.collect { Button(action: collect) { Label { if let name = actions.collected { Text("In “\(name)”", comment: "A message's menu: the collection it's in already (2.7)") } else { Text("To collection") } } icon: { Image(systemName: actions.collected == nil ? "square.grid.2x2" : "checkmark.square") } }.accessibilityIdentifier(actions.collected == nil ? "cf-msg-collect" : "cf-msg-collected") }
                     Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
                 } label: {
                     Label("More", systemImage: "ellipsis")

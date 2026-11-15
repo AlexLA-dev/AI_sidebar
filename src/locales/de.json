@@ -1013,5 +1013,12 @@
   "colPdfFooter": "Erstellt mit ContextFlow",
   "colPdfSave": "Als PDF sichern",
   "colPick": "Sammlung: {0}. Wechseln",
-  "colCardMenu": "Kartenaktionen"
+  "colCardMenu": "Kartenaktionen",
+  "shotAdd": "Schnappschuss",
+  "shotAdded": "Schnappschuss hinzugefügt",
+  "colIn": "In „{0}“",
+  "colOpen": "Sammlung öffnen",
+  "colAddOther": "In eine andere Sammlung",
+  "colAlready": "Schon in „{0}“",
+  "tipNew": "Neu"
 }
