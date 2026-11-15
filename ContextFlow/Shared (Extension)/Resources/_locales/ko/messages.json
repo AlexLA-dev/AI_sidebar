@@ -2523,10 +2523,10 @@
   "message": "바꾸기"
  },
  "writeFixed": {
-  "message": "수정됨"
+  "message": "수정했어요"
  },
  "writeFixedSome": {
-  "message": "수정됨(입력란이 받지 않은 부분 제외)"
+  "message": "수정했어요(입력란이 받지 않은 부분 제외)"
  },
  "writeReplaced": {
   "message": "바꿨어요"
@@ -2535,7 +2535,7 @@
   "message": "실행 취소"
  },
  "writeUndone": {
-  "message": "취소됨"
+  "message": "되돌렸어요"
  },
  "writeUndoFailed": {
   "message": "실행 취소할 수 없어요. 그사이 텍스트가 바뀌었어요."
