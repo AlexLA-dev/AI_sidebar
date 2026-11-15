@@ -160,25 +160,54 @@ test("2.7, the light search found nothing: the answer comes, and the search (and
   assert.equal(counters.get(`tx:${OTID}`), 0)
 })
 
-test("2.7, the light search: two searches, no follow-ups, no search beside them, anywhere (no \"near me\")", async () => {
+// The light search's calls to the search tool, for a request with these fields (its country, the panel's region).
+async function lightSearches(fields: Record<string, unknown>, c = ctx()) {
   planAnswers = true
-  const c = ctx()
   const res = await similar(new Request("https://x/api/v2/similar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ installId: INSTALL, client: { version: "2.7", platform: "ios", locale: "en-US", build: "1" }, engine: "a", entitlement: BYOK(), region: "local", country: "DE", page: { title: "Acme Q1", url: "https://shop.example/q1", text: "Headphones." }, chip: "cheaper", words: "" })
+    body: JSON.stringify({ installId: INSTALL, client: { version: "2.7", platform: "ios", locale: "en-US", build: "1" }, engine: "a", entitlement: BYOK(), page: { title: "Acme Q1", url: "https://shop.example/q1", text: "Headphones." }, chip: "cheaper", words: "", ...fields })
   }), c)
   await res.text()
   await Promise.all(c.waits)
-  const searches = anthropicBodies.filter((b) => Array.isArray(b.tools) && b.tools.some((t: { name?: string }) => t.name === "web_search"))
+  return anthropicBodies.filter((b) => Array.isArray(b.tools) && b.tools.some((t: { name?: string }) => t.name === "web_search"))
+}
+
+test("2.7, the light search: two searches, no follow-ups, no search beside them, from their country", async () => {
+  const searches = await lightSearches({ region: "local", country: "DE" })
   // The one search call (the client tries a failed call once more): no search for alternatives beside it.
   assert.ok(searches.length >= 1)
   for (const call of searches) {
     assert.equal(call.tools[0].max_uses, 2, "the plan's first two searches, no follow-ups")
-    assert.equal(call.tools[0].user_location, undefined, "anywhere")
+    assert.deepEqual(call.tools[0].user_location, { type: "approximate", country: "DE" })
     const asked = JSON.stringify(call.messages)
     assert.match(asked, /q one/)
     assert.doesNotMatch(asked, /q three|1\. wireless headphones/, "only the plan's first two; no search for alternatives")
+  }
+})
+
+test("2.7, a light search from Japan or Turkey looks from there (the panel's country, else where the request came from), without saying they asked", async () => {
+  // Japan: the panel's country; a "Worldwide" saved on Ultra doesn't change it (the light search doesn't ask).
+  const jp = await lightSearches({ region: "world", country: "JP", client: { version: "2.7", platform: "ios", locale: "ja-JP", build: "1" } })
+  assert.ok(jp.length >= 1)
+  for (const call of jp) {
+    assert.deepEqual(call.tools[0].user_location, { type: "approximate", country: "JP" })
+    const asked = JSON.stringify(call.messages)
+    assert.match(asked, /Where: they are in Japan \(JP\), and the searches look from there\..*with prices in JPY/)
+    assert.doesNotMatch(asked, /they asked|anywhere in the world|near them, in/)
+  }
+  // The planner is told the same.
+  const planned = anthropicBodies.find((b) => b.output_config?.format)
+  assert.match(JSON.stringify(planned?.messages), /they are in Japan \(JP\)/)
+  assert.doesNotMatch(JSON.stringify(planned?.messages), /they asked/)
+
+  // Turkey: no country sent (an older panel), so where the request came from.
+  anthropicBodies = []
+  const tr = await lightSearches({ client: { version: "2.7", platform: "ios", locale: "tr-TR", build: "1" } }, { ...ctx(), geo: { country: { code: "TR" } } })
+  assert.ok(tr.length >= 1)
+  for (const call of tr) {
+    assert.deepEqual(call.tools[0].user_location, { type: "approximate", country: "TR" })
+    assert.match(JSON.stringify(call.messages), /Where: they are in (Turkey|Türkiye) \(TR\).*with prices in TRY/)
   }
 })
 
