@@ -358,12 +358,9 @@ struct Board: Identifiable, Hashable {
 
     // MARK: «В подборку» by words (Free, and when the AI can't)
 
-    private static func words(_ text: String) -> Set<String> {
-        let folded = text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
-        let re = try? NSRegularExpression(pattern: #"[\p{L}\p{N}]{3,}"#)
-        let ns = folded as NSString
-        return Set((re?.matches(in: folded, range: NSRange(location: 0, length: ns.length)) ?? []).map { ns.substring(with: $0.range) }.filter { Int($0) == nil })
-    }
+    /// The words a card or a section is about: the panel's (TopicWords.swift), so Chinese, Japanese and Korean cards
+    /// find their section too.
+    private static func words(_ text: String) -> Set<String> { TopicWords.of(text) }
 
     /// The collection and section that share most of the card's words (src/shared/collections.ts suggestPlace).
     static func suggest(_ boards: [Board], gist: String, title: String?) -> (board: String, section: String?)? {
