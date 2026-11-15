@@ -89,6 +89,39 @@ test("the rules: only what isn't used, one a day, 10 days or 5 lines, two ✕ in
   assert.equal(lib.pickHint("product", "free", x, T0 + DAY), null)
 })
 
+test("one line a day by the device's clock, not UTC's", () => {
+  const tz = process.env.TZ
+  process.env.TZ = "Asia/Tokyo"
+  try {
+    const lateEvening = Date.UTC(2026, 10, 14, 14) // 23:00 in Tokyo on the 14th
+    const pastMidnight = Date.UTC(2026, 10, 14, 16) // 01:00 in Tokyo on the 15th, the same UTC day
+    const morning = Date.UTC(2026, 10, 14, 0) // 09:00 in Tokyo on the 14th, the same local day as the evening
+    assert.equal(lib.dayOf(pastMidnight), "2026-11-15")
+    const s = lib.afterShown(lib.freshState(morning), "similar", lateEvening)
+    assert.equal(lib.pickHint("article", "free", s, pastMidnight), "summary", "a new day in Tokyo")
+    const t = lib.afterShown(lib.freshState(morning), "similar", morning)
+    assert.equal(lib.pickHint("article", "free", t, lateEvening), null, "still the 14th in Tokyo")
+  } finally {
+    if (tz === undefined) delete process.env.TZ
+    else process.env.TZ = tz
+  }
+})
+
+test("a long read in Chinese, Japanese or Korean is an article too, by how much it says", () => {
+  const para = (text: string, n: number) => Array.from({ length: n }, () => `<p>${text}</p>`).join("")
+  // About 1,800 characters of Chinese and of Japanese, 2,000 of Korean (it has spaces) in <article>: long reads (the
+  // audit: CJK articles of 800 to 2,000 characters never were).
+  const zh = "北京市政府今天宣布，明年将大幅增加公共交通投资，以缓解城市交通拥堵问题。专家认为这一举措将改善市民的出行体验。"
+  const ja = "東京都は来年度予算案を発表した。防災対策費を大幅に増額し、首都直下地震への備えを強化する方針だ。都民の安全を守るため、"
+  const ko = "서울시는 내년부터 대중교통 투자를 크게 늘리겠다고 밝혔다. 전문가들은 이번 조치가 시민들의 이동 편의를 높일 것이라고 평가했다. "
+  assert.equal(lib.pageKind(doc("", `<article>${para(zh, 34)}</article>`), "https://news.example/zh"), "article")
+  assert.equal(lib.pageKind(doc("", `<article>${para(ja, 30)}</article>`), "https://news.example/ja"), "article")
+  assert.equal(lib.pageKind(doc("", `<article>${para(ko, 28)}</article>`), "https://news.example/ko"), "article")
+  assert.equal(lib.pageKind(doc("", `<article>${para(zh, 6)}</article>`), "https://news.example/short"), null, "a short note isn't")
+  assert.equal(lib.readLength("abc"), 3)
+  assert.equal(lib.readLength("东京"), 5)
+})
+
 test("earlier use, read once from what the device keeps: Find similar and reminders in chats, watches, templates, Listen", () => {
   assert.deepEqual(lib.usedFrom({}), [])
   const used = lib.usedFrom({

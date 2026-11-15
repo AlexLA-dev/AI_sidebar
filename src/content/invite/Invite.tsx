@@ -5,15 +5,16 @@
 import type { VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
-import { t, uiLanguage } from "../../shared/i18n"
+import { t, uiLang } from "../../shared/i18n"
 import { INVITE_DISCOUNT, INVITE_STORAGE, parseInviteCode, type InviteFailure, type InviteReply, type InviteReward, type InviteState, type InviteStored } from "../../shared/invite"
 import * as Icon from "../icons"
 import { sendBackground } from "../insert/store"
 
 const use = (a: string, via?: string) => void sendBackground({ type: "useEvent", f: "invite", a, ...(via ? { via } : {}) })
 
+/** A date in the interface's language, inside its sentences («до 21 ноября»), not the browser's. */
 export const dayOf = (iso: string | number): string =>
-  new Date(iso).toLocaleDateString(uiLanguage(), { day: "numeric", month: "long" })
+  new Date(iso).toLocaleDateString(uiLang(), { day: "numeric", month: "long" })
 
 const FAILURE_TEXT: Partial<Record<InviteFailure, Parameters<typeof t>[0]>> = {
   CODE_UNKNOWN: "invErrUnknown",
