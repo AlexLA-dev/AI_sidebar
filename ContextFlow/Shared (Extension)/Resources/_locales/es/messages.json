@@ -1980,10 +1980,10 @@
   "message": "Búsqueda rápida: hasta {0} a la semana, cada una cuenta como {1} respuestas."
  },
  "similarLightFoot": {
-  "message": "Búsqueda rápida. Ultra busca más amplio, lee reseñas y comprueba el envío."
+  "message": "Búsqueda rápida. Ultra busca en más sitios, lee reseñas y comprueba el envío."
  },
  "similarLightLimit": {
-  "message": "Ya usaste las {0} búsquedas rápidas de esta semana. Vuelven el {1}. Ultra tiene {2} a la semana y busca más amplio."
+  "message": "Ya usaste las {0} búsquedas rápidas de esta semana. Vuelven el {1}. Ultra tiene {2} a la semana y busca en más sitios."
  },
  "similarAnswersShort": {
   "message": "Una búsqueda rápida cuenta como {0} respuestas, y te quedan {1}."
@@ -2493,10 +2493,10 @@
   "message": "Más seguro"
  },
  "writeChecking": {
-  "message": "Revisando con la página en cuenta…"
+  "message": "Revisando con el contexto de la página…"
  },
  "writeRewriting": {
-  "message": "Reescribiendo con la página en cuenta…"
+  "message": "Reescribiendo con el contexto de la página…"
  },
  "writeFixes": {
   "message": "Correcciones: {0}"
@@ -2544,7 +2544,7 @@
   "message": "Revisar y Reescribir junto a los campos"
  },
  "writeSettingHint": {
-  "message": "Las correcciones tienen en cuenta la página: el correo que respondes, la publicación que comentas. Cada toque cuenta como una respuesta. Cómo escribes en cada sitio se queda en este dispositivo y ayuda a respetar tu estilo."
+  "message": "Las correcciones y reescrituras tienen en cuenta la página: el correo al que respondes, la publicación que comentas. Cada toque cuenta como una respuesta. Tu forma de escribir en cada sitio se queda en este dispositivo y ayuda a respetar tu estilo."
  },
  "writeSkip": {
   "message": "Ignorar"
@@ -2571,10 +2571,10 @@
   "message": "Puedes arrastrar el botón ✦ al otro borde"
  },
  "hintSideBody": {
-  "message": "Arrastra el panel por su cabecera, o arrastra el botón. También puedes elegir el lado en Ajustes."
+  "message": "Arrastra el panel por su cabecera, o arrastra el botón. También puedes elegir el lado en Configuración."
  },
  "hintSideBodySheet": {
-  "message": "Arrástralo a la izquierda o a la derecha. También puedes elegir el lado en Ajustes."
+  "message": "Arrástralo a la izquierda o a la derecha. También puedes elegir el lado en Configuración."
  },
  "hintNewTitle": {
   "message": "Novedades de ContextFlow 2.7"
@@ -2661,10 +2661,10 @@
   "message": "Pregunta sobre el vídeo"
  },
  "phVideoBody": {
-  "message": "Pregunta sobre el vídeo en el campo resaltado: respondo con sus subtítulos."
+  "message": "Pregunta sobre el vídeo en el campo resaltado: respondo a partir de sus subtítulos."
  },
  "phVideoBodyUp": {
-  "message": "Las respuestas con los subtítulos del vídeo están en Pro. Pregunta en el campo resaltado."
+  "message": "Las respuestas a partir de los subtítulos del vídeo están en Pro. Pregunta en el campo resaltado."
  },
  "phTemplatesTitle": {
   "message": "Responder con plantilla"
@@ -2832,10 +2832,10 @@
   "message": "Chat"
  },
  "colSuggestAi": {
-  "message": "sugerencia de la IA"
+  "message": "según la IA"
  },
  "colSuggestWords": {
-  "message": "la que mejor encaja"
+  "message": "encaja mejor"
  },
  "colNewSection": {
   "message": "+ nueva sección"
@@ -3132,10 +3132,10 @@
   "message": "Revisar o reescribir antes de enviar"
  },
  "tip_4a10311c4a": {
-  "message": "¿Escribes un correo o un comentario? Toca el botón de ContextFlow junto al campo: «Revisar» y «Reescribir» son lo primero de la lista. «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo que respondes, y «Deshacer» te devuelve tus palabras. Cada toque cuenta como una respuesta."
+  "message": "¿Escribes un correo o un comentario? Toca el botón de ContextFlow junto al campo: «Revisar» y «Reescribir» son lo primero de la lista. «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo al que respondes, y «Deshacer» te devuelve tus palabras. Cada toque cuenta como una respuesta."
  },
  "tip_cf8bbe1b2a": {
-  "message": "¿Escribes un correo o un comentario? Cuando lleves unas palabras, señala el círculo encima del campo: «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo que respondes, y «Deshacer» te devuelve tus palabras. Cada uno cuenta como una respuesta."
+  "message": "¿Escribes un correo o un comentario? Cuando lleves unas palabras, señala el círculo encima del campo: «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo al que respondes, y «Deshacer» te devuelve tus palabras. Cada uno cuenta como una respuesta."
  },
  "tip_898fe0f06c": {
   "message": "Errores subrayados al escribir"

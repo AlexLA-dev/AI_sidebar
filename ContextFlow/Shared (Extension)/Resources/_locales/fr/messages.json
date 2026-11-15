@@ -1974,10 +1974,10 @@
   "message": "Les {0} recherches « Trouver similaire » de la semaine sont utilisées. Elles reviennent {1}."
  },
  "similarLightNote": {
-  "message": "Recherche rapide : jusqu'à {0} par semaine."
+  "message": "Recherche rapide : jusqu’à {0} par semaine."
  },
  "similarLightNotePro": {
-  "message": "Recherche rapide : jusqu'à {0} par semaine, chacune compte pour {1} réponses."
+  "message": "Recherche rapide : jusqu’à {0} par semaine, chacune compte pour {1} réponses."
  },
  "similarLightFoot": {
   "message": "Recherche rapide. Ultra cherche plus large, lit les avis et vérifie la livraison."
@@ -2502,16 +2502,16 @@
   "message": "Corrections : {0}"
  },
  "writeLeft": {
-  "message": "Réponses gratuites restantes aujourd'hui : {0}"
+  "message": "Réponses gratuites restantes aujourd’hui : {0}"
  },
  "writeClean": {
   "message": "Aucune faute trouvée."
  },
  "writeEmpty": {
-  "message": "Il n'y a pas encore de texte ici."
+  "message": "Il n’y a pas encore de texte ici."
  },
  "writeTooLong": {
-  "message": "C'est beaucoup d'un coup. Sélectionnez une partie et réessayez."
+  "message": "C’est beaucoup d’un coup. Sélectionnez une partie et réessayez."
  },
  "writeChanged": {
   "message": "Le texte a changé depuis."
@@ -2526,7 +2526,7 @@
   "message": "Corrigé"
  },
  "writeFixedSome": {
-  "message": "Corrigé, sauf ce que le champ n'a pas accepté"
+  "message": "Corrigé, sauf ce que le champ n’a pas accepté"
  },
  "writeReplaced": {
   "message": "Remplacé"
@@ -2538,13 +2538,13 @@
   "message": "Annulé"
  },
  "writeUndoFailed": {
-  "message": "Impossible d'annuler : le texte a changé."
+  "message": "Impossible d’annuler : le texte a changé."
  },
  "writeSetting": {
   "message": "Vérifier et Réécrire près des champs"
  },
  "writeSettingHint": {
-  "message": "Les corrections tiennent compte de la page : l'e-mail auquel vous répondez, la publication que vous commentez. Chaque appui compte comme une réponse. Votre façon d'écrire sur chaque site reste sur cet appareil et aide à respecter votre style."
+  "message": "Les corrections et réécritures tiennent compte de la page : l’e-mail auquel vous répondez, la publication que vous commentez. Chaque appui compte comme une réponse. Votre façon d’écrire sur chaque site reste sur cet appareil et aide à respecter votre style."
  },
  "writeSkip": {
   "message": "Ignorer"
@@ -2676,13 +2676,13 @@
   "message": "Rappel"
  },
  "phRemindBody": {
-  "message": "Écrivez dans le champ mis en avant, par exemple « rappelle-moi demain à 9 h », et je propose un rappel."
+  "message": "Écrivez dans le champ mis en avant, par exemple « rappelle-moi demain à 9 h », et je vous propose un rappel."
  },
  "phCalendarTitle": {
   "message": "Au calendrier"
  },
  "phCalendarBody": {
-  "message": "Écrivez « ajoute au calendrier » dans le champ mis en avant et je propose un événement à la date de la page."
+  "message": "Écrivez « ajoute au calendrier » dans le champ mis en avant et je vous propose un événement à la date de la page."
  },
  "setPageHints": {
   "message": "Astuces près du bouton ✦"
@@ -2736,13 +2736,13 @@
   "message": "Ouverture de la capture…"
  },
  "shotMissing": {
-  "message": "Cette capture n'est pas encore sur cet appareil. Elle arrive via iCloud si vos discussions y sont synchronisées."
+  "message": "Cette capture n’est pas encore sur cet appareil. Elle arrive via iCloud si vos discussions y sont synchronisées."
  },
  "invTitle": {
   "message": "Inviter un ami"
  },
  "invHint": {
-  "message": "Votre ami reçoit des réponses bonus : +{0} par jour pendant sa première semaine. Vous recevez {1} % de réduction sur le premier mois de Pro ou Ultra dès qu'il a posé des questions sur deux jours différents."
+  "message": "Votre ami reçoit des réponses bonus : +{0} par jour pendant sa première semaine. Vous recevez {1} % de réduction sur le premier mois de Pro ou Ultra dès qu’il a posé des questions sur deux jours différents."
  },
  "invButton": {
   "message": "Obtenir mon code et mon lien"
@@ -2760,16 +2760,16 @@
   "message": "Partager"
  },
  "invShareText": {
-  "message": "J'utilise ContextFlow, l'IA directement sur la page dans Safari. Avec mon code {0}, tu as des réponses bonus pendant ta première semaine : {1}"
+  "message": "J’utilise ContextFlow, l’IA directement sur la page dans Safari. Avec mon code {0}, tu as des réponses bonus pendant ta première semaine : {1}"
  },
  "invFriends": {
-  "message": "Venus avec votre code : {0} · l'utilisent : {1}"
+  "message": "Venus avec votre code : {0} · l’utilisent : {1}"
  },
  "invRewardTitle": {
   "message": "Un ami que vous avez invité utilise ContextFlow"
  },
  "invRewardBody": {
-  "message": "Merci : {0} % de réduction sur le premier mois de Pro ou Ultra, au choix. L'App Store l'applique si vous n'avez pas encore utilisé cette réduction."
+  "message": "Merci : {0} % de réduction sur le premier mois de Pro ou Ultra, au choix. L’App Store l’applique si vous n’avez pas encore utilisé cette réduction."
  },
  "invRewardPro": {
   "message": "Pro −{0} %"
@@ -2781,10 +2781,10 @@
   "message": "Les deux réductions déjà utilisées ? Prenez des réponses bonus : +{0} par jour pendant une semaine"
  },
  "invAnswersOn": {
-  "message": "Vos réponses bonus durent jusqu'au {0}."
+  "message": "Vos réponses bonus durent jusqu’au {0}."
  },
  "invEnterTitle": {
-  "message": "Vous avez le code d'un ami ?"
+  "message": "Vous avez le code d’un ami ?"
  },
  "invEnterPlaceholder": {
   "message": "Code ou lien"
@@ -2793,34 +2793,34 @@
   "message": "Valider"
  },
  "invEntered": {
-  "message": "Code accepté : réponses bonus, +{0} par jour, jusqu'au {1}."
+  "message": "Code accepté : réponses bonus, +{0} par jour, jusqu’au {1}."
  },
  "invEnteredOn": {
-  "message": "Vous êtes venu avec le code d'un ami : réponses bonus, +{0} par jour, jusqu'au {1}."
+  "message": "Vous êtes venu avec le code d’un ami : réponses bonus, +{0} par jour, jusqu’au {1}."
  },
  "invErrUnknown": {
-  "message": "Ce code n'existe pas. Vérifiez-le et réessayez."
+  "message": "Ce code n’existe pas. Vérifiez-le et réessayez."
  },
  "invErrOwn": {
-  "message": "C'est votre propre code. Envoyez-le à un ami."
+  "message": "C’est votre propre code. Envoyez-le à un ami."
  },
  "invErrAlready": {
-  "message": "Le code d'un ami a déjà été saisi ici."
+  "message": "Le code d’un ami a déjà été saisi ici."
  },
  "invErrLate": {
-  "message": "Le code d'un ami fonctionne pendant la première semaine après l'installation."
+  "message": "Le code d’un ami fonctionne pendant la première semaine après l’installation."
  },
  "invErrFull": {
   "message": "Ce code a atteint sa limite."
  },
  "invErrDevice": {
-  "message": "Le code d'un ami a déjà été utilisé sur cet appareil."
+  "message": "Le code d’un ami a déjà été utilisé sur cet appareil."
  },
  "invErrCheck": {
-  "message": "Impossible de vérifier cet appareil. Essayez de saisir le code dans l'app ContextFlow."
+  "message": "Impossible de vérifier cet appareil. Essayez de saisir le code dans l’app ContextFlow."
  },
  "invErrLater": {
-  "message": "Ça n'a pas marché pour l'instant. Réessayez plus tard."
+  "message": "Impossible pour le moment. Réessayez plus tard."
  },
  "colAdd": {
   "message": "Dans une collection"
@@ -3267,7 +3267,7 @@
   "message": "Inviter un ami"
  },
  "tip_0e8493432d": {
-  "message": "« Réglages » → « Inviter un ami », dans l'app ou dans Safari, vous donne un code et un lien à envoyer. Votre ami reçoit des réponses bonus chaque jour de sa première semaine. Dès qu'il a posé des questions sur deux jours différents, vous recevez une réduction sur le premier mois de Pro ou Ultra."
+  "message": "« Réglages » → « Inviter un ami », dans l’app ou dans Safari, vous donne un code et un lien à envoyer. Votre ami reçoit des réponses bonus chaque jour de sa première semaine. Dès qu’il a posé des questions sur deux jours différents, vous recevez une réduction sur le premier mois de Pro ou Ultra."
  },
  "tip_3208aa35ac": {
   "message": "Confidentialité et personnalisation"

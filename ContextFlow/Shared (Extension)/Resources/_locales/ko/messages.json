@@ -1977,16 +1977,16 @@
   "message": "빠른 검색: 주 {0}회까지."
  },
  "similarLightNotePro": {
-  "message": "빠른 검색: 주 {0}회까지, 1회당 답변 {1}개로 계산됩니다."
+  "message": "빠른 검색: 주 {0}회까지, 1회당 답변 {1}개로 계산돼요."
  },
  "similarLightFoot": {
-  "message": "빠른 검색입니다. Ultra는 더 넓게 찾고, 리뷰를 읽고, 배송까지 확인합니다."
+  "message": "빠른 검색이에요. Ultra는 더 넓게 찾고, 리뷰를 읽고, 배송까지 확인해요."
  },
  "similarLightLimit": {
-  "message": "이번 주 빠른 검색 {0}회를 모두 사용했습니다. {1}에 다시 채워집니다. Ultra는 주 {2}회, 더 넓게 찾습니다."
+  "message": "이번 주 빠른 검색 {0}회를 모두 사용했어요. {1}에 다시 채워져요. Ultra는 주 {2}회, 더 넓게 찾아요."
  },
  "similarAnswersShort": {
-  "message": "빠른 검색은 답변 {0}개로 계산되며, 남은 답변은 {1}개입니다."
+  "message": "빠른 검색은 답변 {0}개로 계산되고, 남은 답변은 {1}개예요."
  },
  "orgDemoQuestion": {
   "message": "5월 리스본 저렴한 항공권?"
@@ -2304,10 +2304,10 @@
   "message": "날짜와 시간을 찾는 중…"
  },
  "appleNothing": {
-  "message": "추가할 내용이 없습니다: 날짜나 할 일이 없어요."
+  "message": "추가할 내용이 없어요. 날짜나 할 일을 찾지 못했어요."
  },
  "appleError": {
-  "message": "날짜를 읽지 못했습니다."
+  "message": "날짜를 읽지 못했어요."
  },
  "appleRetry": {
   "message": "다시 시도"
@@ -2334,49 +2334,49 @@
   "message": "미리 알림으로"
  },
  "appleCalendarPick": {
-  "message": "캘린더는 다음 화면에서 고릅니다"
+  "message": "캘린더는 다음 화면에서 골라요"
  },
  "appleCalendarDefault": {
   "message": "기본 캘린더"
  },
  "appleGuess": {
-  "message": "날짜와 시간을 확인하세요: 추정한 값입니다."
+  "message": "날짜와 시간을 확인하세요. 추정한 값이에요."
  },
  "applePast": {
-  "message": "이미 지난 시간입니다. 날짜를 확인하세요."
+  "message": "이미 지난 시간이에요. 날짜를 확인하세요."
  },
  "appleAdd": {
   "message": "추가"
  },
  "appleAdded": {
-  "message": "미리 알림에 추가했습니다"
+  "message": "미리 알림에 추가했어요"
  },
  "appleAddedEvent": {
-  "message": "캘린더에 추가했습니다"
+  "message": "캘린더에 추가했어요"
  },
  "appleOpening": {
   "message": "ContextFlow를 여는 중…"
  },
  "appleDenied": {
-  "message": "ContextFlow에 접근 권한이 없습니다. 설정에서 켜 주세요."
+  "message": "ContextFlow에 접근 권한이 없어요. 설정에서 켜 주세요."
  },
  "appleFailed": {
-  "message": "추가하지 못했습니다. 다시 시도해 주세요."
+  "message": "추가하지 못했어요. 다시 시도해 주세요."
  },
  "appleAlso": {
   "message": "미리 알림에도 추가"
  },
  "appleRemindersOff": {
-  "message": "ContextFlow가 미리 알림에 접근할 수 없습니다. 설정에서 켜 주세요."
+  "message": "ContextFlow가 미리 알림에 접근할 수 없어요. 설정에서 켜 주세요."
  },
  "appleAskOnce": {
-  "message": "처음에는 접근 권한을 묻기 위해 ContextFlow가 열립니다."
+  "message": "처음에는 접근 권한을 묻기 위해 ContextFlow가 열려요."
  },
  "trOffer": {
   "message": "한국어로 번역할까요?"
  },
  "trOfferTo": {
-  "message": "{0}(으)로 번역할까요?"
+  "message": "{0}로 번역할까요?"
  },
  "trHide": {
   "message": "이 사이트에서 숨기기"
@@ -2388,7 +2388,7 @@
   "message": "원문"
  },
  "trFailed": {
-  "message": "번역하지 못했습니다"
+  "message": "번역하지 못했어요"
  },
  "spacesTitle": {
   "message": "스페이스"
@@ -2439,34 +2439,34 @@
   "message": "스페이스 삭제"
  },
  "spaceDeleteNote": {
-  "message": "이 스페이스의 채팅은 ‘{0}’(으)로 옮겨집니다."
+  "message": "이 스페이스의 채팅은 ‘{0}’(으)로 옮겨져요."
  },
  "spaceBind": {
   "message": "{0}을(를) 여기서 열기"
  },
  "spaceBoundElsewhere": {
-  "message": "{0}은(는) ‘{1}’에서 열립니다. 여기서 열기"
+  "message": "{0}은(는) ‘{1}’에서 열려요. 여기서 열기"
  },
  "spaceMoveTo": {
   "message": "이동…"
  },
  "spaceMoved": {
-  "message": "‘{0}’(으)로 옮김"
+  "message": "‘{0}’에 옮겼어요"
  },
  "spaceIn": {
-  "message": "‘{0}’에 있습니다"
+  "message": "‘{0}’에 있어요"
  },
  "spaceLimit": {
   "message": "무료 스페이스: {0}개. Pro에서는 원하는 만큼."
  },
  "spaceEmpty": {
-  "message": "‘{0}’에 아직 채팅이 없습니다. 새 채팅이 여기에 들어갑니다."
+  "message": "‘{0}’에 아직 채팅이 없어요. 새 채팅이 여기에 들어가요."
  },
  "setSpaces": {
   "message": "스페이스"
  },
  "setSpacesHint": {
-  "message": "업무, 개인, 쇼핑: 각자 자기 채팅과 색상이 있습니다. 끄면 모든 채팅이 한 목록으로 돌아가고 스페이스는 그대로 남습니다."
+  "message": "업무, 개인, 쇼핑: 스페이스마다 채팅과 색상이 따로 있어요. 끄면 모든 채팅이 한 목록으로 돌아가고 스페이스는 그대로 남아요."
  },
  "matchContinue": {
   "message": "이어서"
@@ -2505,16 +2505,16 @@
   "message": "오늘 남은 무료 답변: {0}"
  },
  "writeClean": {
-  "message": "오류를 찾지 못했습니다."
+  "message": "찾은 오류가 없어요."
  },
  "writeEmpty": {
-  "message": "아직 텍스트가 없습니다."
+  "message": "아직 작업할 텍스트가 없어요."
  },
  "writeTooLong": {
-  "message": "한 번에 처리하기엔 너무 깁니다. 일부를 선택해 다시 시도하세요."
+  "message": "한 번에 처리하기엔 너무 길어요. 일부를 선택해 다시 시도해 주세요."
  },
  "writeChanged": {
-  "message": "그사이 텍스트가 바뀌었습니다."
+  "message": "그사이 텍스트가 바뀌었어요."
  },
  "writeFix": {
   "message": "수정"
@@ -2529,7 +2529,7 @@
   "message": "수정됨(입력란이 받지 않은 부분 제외)"
  },
  "writeReplaced": {
-  "message": "바뀜"
+  "message": "바꿨어요"
  },
  "writeUndo": {
   "message": "실행 취소"
@@ -2538,13 +2538,13 @@
   "message": "취소됨"
  },
  "writeUndoFailed": {
-  "message": "실행 취소할 수 없습니다: 텍스트가 바뀌었습니다."
+  "message": "실행 취소할 수 없어요. 그사이 텍스트가 바뀌었어요."
  },
  "writeSetting": {
   "message": "입력란의 검사 및 다시 쓰기"
  },
  "writeSettingHint": {
-  "message": "수정 시 페이지 내용을 고려합니다: 답장하는 이메일, 댓글을 다는 게시물 등. 한 번 누를 때마다 답변 1개로 계산됩니다. 사이트별 글쓰기 방식은 이 기기에만 저장되며 내 문체에 맞추는 데 쓰입니다."
+  "message": "검사와 다시 쓰기는 답장하는 이메일, 댓글을 다는 게시물처럼 페이지 내용을 고려해요. 한 번 누를 때마다 답변 1개로 계산돼요. 사이트별 글쓰기 방식은 이 기기에만 저장되고 내 문체에 맞추는 데 쓰여요."
  },
  "writeSkip": {
   "message": "무시"
@@ -2553,10 +2553,10 @@
   "message": "입력 중 오류에 밑줄 표시"
  },
  "underlineSettingHint": {
-  "message": "Pro 및 Ultra: 입력을 멈추면 바뀐 문단만 페이지 내용을 고려해 검사합니다. 밑줄에 포인터를 올리면(iPhone과 iPad에서는 탭) 수정할 수 있습니다. 답변으로 계산되지 않습니다."
+  "message": "Pro 및 Ultra: 입력을 멈추면 바뀐 문단만 페이지 내용을 고려해 검사해요. 밑줄에 포인터를 올리면(iPhone과 iPad에서는 탭) 수정할 수 있어요. 답변으로 계산되지 않아요."
  },
  "setSide": {
-  "message": "화면 방향"
+  "message": "화면 위치"
  },
  "sideRight": {
   "message": "오른쪽"
@@ -2571,10 +2571,10 @@
   "message": "✦ 버튼을 반대쪽 가장자리로 끌어 옮길 수 있어요"
  },
  "hintSideBody": {
-  "message": "패널은 상단을 잡고, 버튼은 그대로 끌어 옮기세요. 방향은 설정에서도 고를 수 있어요."
+  "message": "패널은 상단을 잡고, 버튼은 그대로 끌어 옮기세요. 위치는 설정에서도 고를 수 있어요."
  },
  "hintSideBodySheet": {
-  "message": "왼쪽이나 오른쪽으로 끌어 옮기세요. 방향은 설정에서도 고를 수 있어요."
+  "message": "왼쪽이나 오른쪽으로 끌어 옮기세요. 위치는 설정에서도 고를 수 있어요."
  },
  "hintNewTitle": {
   "message": "ContextFlow 2.7의 새로운 기능"
@@ -2619,7 +2619,7 @@
   "message": "템플릿으로 답장할까요?"
  },
  "phRemind": {
-  "message": "알림을 설정할까요?"
+  "message": "리마인더를 설정할까요?"
  },
  "phCalendar": {
   "message": "캘린더에 추가할까요?"
@@ -2631,7 +2631,7 @@
   "message": "더 싸게 찾기"
  },
  "phSimilarBody": {
-  "message": "상품명을 선택하고 ‘비슷한 것 찾기’을 누르거나, 강조된 버튼을 누르세요. 같은 상품을 더 싸게, 비슷한 상품도 찾아요."
+  "message": "상품명을 선택하고 ‘비슷한 것 찾기’를 누르거나, 강조된 버튼을 누르세요. 같은 상품을 더 싸게, 비슷한 상품도 찾아요."
  },
  "phSimilarBodyUp": {
   "message": "Ultra 기능이에요. 같은 상품을 더 싸게, 다른 쇼핑몰의 비슷한 상품도 찾아요. 강조된 버튼을 누르세요."
@@ -2652,7 +2652,7 @@
   "message": "기사 듣기"
  },
  "phListenBody": {
-  "message": "‘…’(강조됨) → ‘이 페이지 듣기’을 열면 기사를 읽어 드려요."
+  "message": "‘…’(강조됨) → ‘이 페이지 듣기’를 누르면 기사를 읽어 드려요."
  },
  "phListenBodyUp": {
   "message": "읽어 주기는 Ultra 기능이에요. ‘…’(강조됨) → ‘이 페이지 듣기’."
@@ -2673,13 +2673,13 @@
   "message": "페이지의 입력란에 커서를 두면 옆에 템플릿 버튼이 나타나요. 내 템플릿: ‘…’(강조됨) → ‘설정’ → ‘템플릿’."
  },
  "phRemindTitle": {
-  "message": "알림"
+  "message": "리마인더 설정"
  },
  "phRemindBody": {
-  "message": "강조된 입력란에 예를 들어 ‘내일 9시에 알려 줘’라고 쓰면 알림을 제안해요."
+  "message": "강조된 입력란에 예를 들어 ‘내일 9시에 알려 줘’라고 쓰면 리마인더를 제안해요."
  },
  "phCalendarTitle": {
-  "message": "캘린더에"
+  "message": "캘린더에 추가"
  },
  "phCalendarBody": {
   "message": "강조된 입력란에 ‘캘린더에 추가해 줘’라고 쓰면 페이지의 날짜로 일정을 제안해요."
@@ -2703,7 +2703,7 @@
   "message": "페이지 전체"
  },
  "shotProOnly": {
-  "message": "페이지 전체는 Pro와 Ultra에서 사용할 수 있습니다."
+  "message": "페이지 전체는 Pro와 Ultra에서 사용할 수 있어요."
  },
  "shotTaking": {
   "message": "스냅샷을 찍는 중…"
@@ -2712,10 +2712,10 @@
   "message": "스냅샷: {1}개 화면 중 {0}…"
  },
  "shotFailed": {
-  "message": "여기서는 스냅샷을 찍지 못했습니다. 메모는 스냅샷 없이 저장되었습니다."
+  "message": "여기서는 스냅샷을 찍지 못했어요. 메모는 스냅샷 없이 저장됐어요."
  },
  "shotCut": {
-  "message": "페이지가 길어서 처음 {0}개 화면까지 담았습니다."
+  "message": "페이지가 길어서 처음 {0}개 화면까지 담았어요."
  },
  "shotOpen": {
   "message": "스냅샷 열기"
@@ -2736,13 +2736,13 @@
   "message": "스냅샷을 여는 중…"
  },
  "shotMissing": {
-  "message": "이 스냅샷은 아직 이 기기에 없습니다. 채팅을 iCloud와 동기화하면 전달됩니다."
+  "message": "이 스냅샷은 아직 이 기기에 없어요. 채팅을 iCloud와 동기화하면 전달돼요."
  },
  "invTitle": {
   "message": "친구 초대"
  },
  "invHint": {
-  "message": "친구는 첫 주 동안 하루 +{0}개의 보너스 답변을 받습니다. 친구가 서로 다른 이틀에 질문하면 Pro 또는 Ultra 첫 달 {1}% 할인을 받습니다."
+  "message": "친구는 첫 주 동안 하루 +{0}개의 보너스 답변을 받아요. 친구가 서로 다른 이틀에 질문하면 나는 Pro 또는 Ultra 첫 달 {1}% 할인을 받아요."
  },
  "invButton": {
   "message": "코드와 링크 받기"
@@ -2760,7 +2760,7 @@
   "message": "공유"
  },
  "invShareText": {
-  "message": "Safari 페이지에서 바로 쓰는 AI, ContextFlow를 쓰고 있어요. 내 코드 {0}로 첫 주 동안 보너스 답변을 받을 수 있어요: {1}"
+  "message": "Safari 페이지에서 바로 쓰는 AI, ContextFlow를 쓰고 있어요. 내 코드 {0}만 입력하면 첫 주 동안 보너스 답변을 받을 수 있어요: {1}"
  },
  "invFriends": {
   "message": "내 코드로 온 친구: {0} · 사용 중: {1}"
@@ -2769,7 +2769,7 @@
   "message": "초대한 친구가 ContextFlow를 사용하고 있어요"
  },
  "invRewardBody": {
-  "message": "감사의 뜻으로 Pro 또는 Ultra 첫 달 {0}% 할인을 드려요(원하는 쪽 선택). 이 할인을 아직 쓰지 않았다면 App Store에서 적용됩니다."
+  "message": "감사의 뜻으로 Pro 또는 Ultra 첫 달 {0}% 할인을 드려요(원하는 쪽 선택). 이 할인을 아직 쓰지 않았다면 App Store에서 적용돼요."
  },
  "invRewardPro": {
   "message": "Pro −{0}%"
@@ -2781,7 +2781,7 @@
   "message": "할인을 둘 다 쓰셨나요? 대신 보너스 답변을 받으세요: 일주일 동안 하루 +{0}개"
  },
  "invAnswersOn": {
-  "message": "보너스 답변은 {0}까지 유효합니다."
+  "message": "보너스 답변은 {0}까지 유효해요."
  },
  "invEnterTitle": {
   "message": "친구 코드가 있나요?"
@@ -2820,7 +2820,7 @@
   "message": "기기를 확인하지 못했어요. ContextFlow 앱에서 코드를 입력해 보세요."
  },
  "invErrLater": {
-  "message": "지금은 할 수 없었어요. 나중에 다시 시도해 주세요."
+  "message": "지금은 처리하지 못했어요. 나중에 다시 시도해 주세요."
  },
  "colAdd": {
   "message": "컬렉션에 추가"
@@ -2856,7 +2856,7 @@
   "message": "만들기"
  },
  "colAdded": {
-  "message": "‘{0}’ → {1}에 추가함"
+  "message": "‘{0}’ → {1}에 추가했어요"
  },
  "colCards_one": {
   "message": "카드 {0}장"
@@ -2874,10 +2874,10 @@
   "message": "카드 {0}장"
  },
  "colEmpty": {
-  "message": "아직 컬렉션이 없습니다. 답변이나 메모 아래의 ‘컬렉션에 추가’를 탭하세요."
+  "message": "아직 컬렉션이 없어요. 답변이나 메모 아래의 ‘컬렉션에 추가’를 탭하세요."
  },
  "colEmptyCards": {
-  "message": "아직 카드가 없습니다."
+  "message": "아직 카드가 없어요."
  },
  "colToChat": {
   "message": "← 채팅으로"
@@ -2916,25 +2916,25 @@
   "message": "비교"
  },
  "colLimitCollections": {
-  "message": "무료는 컬렉션 1개입니다. Pro에서는 원하는 만큼."
+  "message": "무료에서는 컬렉션을 1개까지 만들 수 있어요. Pro에서는 원하는 만큼."
  },
  "colLimitCards": {
-  "message": "무료는 컬렉션당 카드 {0}장까지입니다. Pro에서는 {1}장까지."
+  "message": "무료에서는 컬렉션당 카드 {0}장까지예요. Pro에서는 {1}장까지."
  },
  "colProOnly": {
-  "message": "비교와 요약은 Pro 기능입니다."
+  "message": "비교와 요약은 Pro 기능이에요."
  },
  "colWorking": {
   "message": "작업 중…"
  },
  "colFailed": {
-  "message": "이번에는 되지 않았습니다. 나중에 다시 시도하세요."
+  "message": "이번에는 잘 안 됐어요. 나중에 다시 시도해 주세요."
  },
  "colLimitDay": {
-  "message": "오늘은 여기까지입니다. 내일 다시 시도하세요."
+  "message": "오늘은 여기까지예요. 내일 다시 시도해 주세요."
  },
  "colGone": {
-  "message": "이 컬렉션은 삭제되었습니다."
+  "message": "이 컬렉션은 삭제됐어요."
  },
  "colPdfMadeWith": {
   "message": "제작:"
@@ -2985,10 +2985,10 @@
   "message": "✦ 버튼을 비켜 두기"
  },
  "tip_1b3fa8b31a": {
-  "message": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. iPad에서는 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있어요. 확장 프로그램 설정의 ‘화면 방향’으로도 똑같이 할 수 있어요."
+  "message": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. iPad에서는 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있어요. 확장 프로그램 설정의 ‘화면 위치’로도 똑같이 할 수 있어요."
  },
  "tip_cbec05fbfd": {
-  "message": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있고, 확장 프로그램 설정의 ‘화면 방향’에서 고를 수도 있어요."
+  "message": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있고, 확장 프로그램 설정의 ‘화면 위치’에서 고를 수도 있어요."
  },
  "tip_2749afe54a": {
   "message": "한 번에 핵심만"
@@ -3267,7 +3267,7 @@
   "message": "친구 초대"
  },
  "tip_0e8493432d": {
-  "message": "앱이나 Safari의 ‘설정’ → ‘친구 초대’에서 보낼 코드와 링크를 받을 수 있어요. 친구는 첫 주 동안 매일 보너스 답변을 받아요. 친구가 서로 다른 이틀에 질문하면 Pro 또는 Ultra 첫 달 할인을 받아요."
+  "message": "앱이나 Safari의 ‘설정’ → ‘친구 초대’에서 보낼 코드와 링크를 받을 수 있어요. 친구는 첫 주 동안 매일 보너스 답변을 받아요. 친구가 서로 다른 이틀에 질문하면 나는 Pro 또는 Ultra 첫 달 할인을 받아요."
  },
  "tip_3208aa35ac": {
   "message": "개인정보 및 맞춤 설정"
