@@ -2403,10 +2403,12 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
   font-size: 14.5px; text-align: start;
 }
 .cf-col-option:hover { background: var(--bg-2); }
-.cf-col-option.suggested { border-color: var(--accent); background: var(--accent-soft); }
+/* The suggestion's "why" note goes under the name, at the end, when both don't fit on one line (a long note in ar, es
+ * or pt used to squeeze the collection's name into a narrow column). */
+.cf-col-option.suggested { border-color: var(--accent); background: var(--accent-soft); flex-wrap: wrap; row-gap: 2px; }
 .cf-col-option.new { color: var(--accent-text); font-weight: 600; }
-.cf-col-option-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.cf-col-option-why { flex: none; font-size: 12px; color: var(--text-3); }
+.cf-col-option-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; overflow-wrap: anywhere; }
+.cf-col-option-why { flex: 0 1 auto; margin-inline-start: auto; font-size: 12px; color: var(--text-3); text-align: end; }
 .cf-col-option-count { flex: none; font-size: 13px; color: var(--text-3); }
 .cf-col-sections { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 2px 2px; }
 .cf-col-chip { padding: 6px 11px; border-radius: 999px; background: var(--bg-2); color: var(--text); font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
