@@ -33,7 +33,7 @@ test("\"Ask your chats\" stays its own named row; the new words in every languag
   assert.match(screen, /AskHistoryRow\(pro: true\)/)
   for (const key of ["By words", "By meaning", "By meaning · Pro", "Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, “By meaning” finds a chat from a description."]) {
     assert.ok(catalog[key], key)
-    assert.equal(Object.keys(catalog[key].localizations).length, 13, key)
+    assert.equal(Object.keys(catalog[key].localizations).length, 14, key)
   }
   assert.equal(catalog["By meaning"].localizations.ru.stringUnit.value, "По смыслу")
   assert.match(catalog["Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, “By meaning” finds a chat from a description."].localizations.ru.stringUnit.value, /«По смыслу»/)
@@ -48,7 +48,7 @@ test("a line under the ways says what each does; By meaning has its own Search b
   assert.match(screen, /if aiSearch && searching && !finding && found\?\.query != query\.trimmingCharacters\(in: \.whitespaces\) \{\s*Section \{\s*Button\(action: runFind\) \{\s*Label\("Search by meaning", systemImage: "sparkles"\)/)
   // The keyboard's Search still runs it.
   assert.match(screen, /\.onSubmit\(of: \.search\) \{ runFind\(\) \}/)
-  for (const key of [line, "Search by meaning"]) assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 13, key)
+  for (const key of [line, "Search by meaning"]) assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 14, key)
   assert.equal(catalog["Search by meaning"].localizations.ru.stringUnit.value, "Искать по смыслу")
   assert.match(catalog[line].localizations.ru.stringUnit.value, /«Искать по смыслу»/)
 })

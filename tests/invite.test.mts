@@ -140,6 +140,16 @@ test("a code is read from what was typed or pasted: any case, spaces, a dash, th
   assert.equal(inviteLink("ABC234"), "https://context-flow.app/i/ABC234")
 })
 
+test("a code typed on a Japanese or Chinese keyboard in full width is the same code, in the panel and in the app", () => {
+  assert.equal(parseInviteCode("ＡＢＣ２３４"), "ABC234")
+  assert.equal(parseInviteCode("ａｂｃ－２３４"), "ABC234", "full-width dash")
+  assert.equal(parseInviteCode("ＡＢＣ\u3000２３４"), "ABC234", "ideographic space")
+  assert.equal(parseInviteCode("https://context-flow.app/i/ＡＢＣ２３４"), "ABC234")
+  assert.equal(parseInviteCode("ＡＢＣ２３"), null)
+  const swift = readFileSync(new URL("../ContextFlow/Shared (App)/Invite.swift", import.meta.url), "utf8")
+  assert.match(swift, /static func parseCode\(_ raw: String\) -> String\? \{\n\s+let text = String\(raw\.precomposedStringWithCompatibilityMapping\./)
+})
+
 test("new codes use the alphabet without look-alikes, six signs", () => {
   assert.doesNotMatch(INVITE_ALPHABET, /[0O1IL]/)
   const made = new Set(Array.from({ length: 300 }, () => shared.newCode()))
@@ -332,7 +342,7 @@ test("the app's invite strings are translated in its 13 languages with matching 
     const entry = catalog.strings[key]
     assert.ok(entry, key)
     const langs = Object.keys(entry.localizations)
-    assert.equal(langs.length, 13, key)
+    assert.equal(langs.length, 14, key)
     for (const lang of langs) assert.deepEqual(spec(entry.localizations[lang].stringUnit.value), spec(key), `${lang}: ${key}`)
   }
   assert.match(swift, /DCDevice\.current\.generateToken/)

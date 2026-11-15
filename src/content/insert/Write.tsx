@@ -13,7 +13,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 
 import type { ConsentStatus } from "../../shared/consent"
 import { t, type MessageKey } from "../../shared/i18n"
-import { applyEdits, diffParts, diffWords, styleTemplates, TONES, WRITE_LIMITS, type Edit, type Tone, type WriteAction, type WriteAsk, type WriteReply } from "../../shared/writing"
+import { applyEdits, diffParts, diffWords, freeLeft, styleTemplates, TONES, WRITE_LIMITS, type Edit, type Tone, type WriteAction, type WriteAsk, type WriteReply } from "../../shared/writing"
 import { ConsentCard } from "../Consent"
 import * as Icon from "../icons"
 import { extractPage } from "../page"
@@ -255,7 +255,7 @@ export function WriteCard(p: CardProps): VNode {
       writeStep("error", p.job.via)
       return setState({ step: "error", code })
     }
-    const left = p.free && reply.usage ? Math.max(0, reply.usage.limit - reply.usage.used) : null
+    const left = freeLeft(reply, p.free)
     if (p.job.action === "check") {
       // Changes that cross a paragraph or touch what the editor won't let change are left out.
       const edits = diffWords(text, reply.text).filter((e) => !editBlocked(ft, range.from + e.from, range.from + e.to))

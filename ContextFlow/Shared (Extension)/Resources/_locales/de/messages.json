@@ -2340,10 +2340,10 @@
   "message": "Dein Standardkalender"
  },
  "appleGuess": {
-  "message": "Prüfe Datum und Uhrzeit: Sie sind geschätzt."
+  "message": "Prüfe Datum und Uhrzeit, sie sind nur geschätzt."
  },
  "applePast": {
-  "message": "Diese Zeit ist vorbei. Prüfe das Datum."
+  "message": "Dieser Zeitpunkt ist schon vorbei. Prüfe das Datum."
  },
  "appleAdd": {
   "message": "Hinzufügen"
@@ -2457,7 +2457,7 @@
   "message": "Du bist in „{0}“"
  },
  "spaceLimit": {
-  "message": "Bereiche in Free: {0}. Mit Pro so viele du willst."
+  "message": "Kostenlos hast du {0} Bereiche. Mit Pro so viele du willst."
  },
  "spaceEmpty": {
   "message": "In „{0}“ gibt es noch keine Chats. Ein neuer Chat landet hier."
@@ -2535,7 +2535,7 @@
   "message": "Widerrufen"
  },
  "writeUndone": {
-  "message": "Widerrufen"
+  "message": "Rückgängig gemacht"
  },
  "writeUndoFailed": {
   "message": "Widerrufen nicht möglich: Der Text hat sich geändert."
@@ -2544,7 +2544,7 @@
   "message": "Prüfen und Umschreiben bei Feldern"
  },
  "writeSettingHint": {
-  "message": "Korrekturen berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen."
+  "message": "Prüfen und Umschreiben berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen."
  },
  "writeSkip": {
   "message": "Ignorieren"
@@ -2595,7 +2595,7 @@
   "message": "„Seiten-Schnappschuss“: Eine Notiz kann ein Bild der Seite behalten."
  },
  "hintNewSide": {
-  "message": "Die ✦-Taste geht an beide Ränder: Zieh sie hinüber."
+  "message": "Die ✦-Taste kann an den linken oder rechten Rand: Zieh sie hinüber."
  },
  "hintAllTips": {
   "message": "Alle Tipps"
@@ -2613,7 +2613,7 @@
   "message": "Artikel anhören?"
  },
  "phVideo": {
-  "message": "Zum Video fragen?"
+  "message": "Etwas zum Video fragen?"
  },
  "phTemplates": {
   "message": "Mit Vorlage antworten?"
@@ -2781,7 +2781,7 @@
   "message": "Beide Rabatte schon genutzt? Nimm stattdessen Bonusantworten: +{0} pro Tag für eine Woche"
  },
  "invAnswersOn": {
-  "message": "Deine Bonusantworten gelten bis {0}."
+  "message": "Deine Bonusantworten gelten bis zum {0}."
  },
  "invEnterTitle": {
   "message": "Code von einem Freund?"
@@ -2793,10 +2793,10 @@
   "message": "Eingeben"
  },
  "invEntered": {
-  "message": "Code angenommen: Bonusantworten, +{0} pro Tag, bis {1}."
+  "message": "Code angenommen: Bonusantworten, +{0} pro Tag, bis zum {1}."
  },
  "invEnteredOn": {
-  "message": "Du bist mit dem Code eines Freundes gekommen: Bonusantworten, +{0} pro Tag, bis {1}."
+  "message": "Du bist mit dem Code eines Freundes gekommen: Bonusantworten, +{0} pro Tag, bis zum {1}."
  },
  "invErrUnknown": {
   "message": "Diesen Code gibt es nicht. Prüfe ihn und versuche es noch einmal."
@@ -2916,10 +2916,10 @@
   "message": "Vergleich"
  },
  "colLimitCollections": {
-  "message": "In Free gibt es eine Sammlung. Mit Pro so viele du willst."
+  "message": "Kostenlos hast du eine Sammlung. Mit Pro so viele du willst."
  },
  "colLimitCards": {
-  "message": "In Free fasst eine Sammlung {0} Karten. Mit Pro bis zu {1}."
+  "message": "Kostenlos fasst eine Sammlung {0} Karten. Mit Pro bis zu {1}."
  },
  "colProOnly": {
   "message": "Vergleichen und Zusammenfassung gibt es in Pro."

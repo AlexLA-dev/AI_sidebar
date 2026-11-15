@@ -133,7 +133,7 @@ test("native: iOS 17 and macOS 14 only, the keys and the Mac's Calendars entitle
   }
   const strings = JSON.parse(read("../ContextFlow/Shared (App)/InfoPlist.xcstrings")).strings
   for (const key of ["NSRemindersFullAccessUsageDescription", "NSCalendarsWriteOnlyAccessUsageDescription"]) {
-    assert.equal(Object.keys(strings[key].localizations).length, 14, key)
+    assert.equal(Object.keys(strings[key].localizations).length, 15, key)
   }
   assert.match(read("../ContextFlow/Shared (App)/ContentView.swift"), /case "add":\s*appleAdd\.open\(url\)/)
   const project = read("../ContextFlow/ContextFlow.xcodeproj/project.pbxproj")

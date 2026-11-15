@@ -69,6 +69,10 @@ test("where to look: worldwide searches from nowhere, near them from their count
   assert.match(whereLine(input({ region: "local", country: "DE" })), /near them, in Germany \(DE\)/)
   assert.match(whereLine(input({ region: "world" })), /anywhere in the world/)
   assert.equal(whereLine(input()), "")
+  // 2.7, the light search (it doesn't ask where): from their country, without saying they chose it.
+  assert.equal(searchLocation(input({ region: "local", country: "JP", whereAsked: false })), "JP")
+  assert.match(whereLine(input({ region: "local", country: "JP", whereAsked: false })), /^Where: they are in Japan \(JP\), and the searches look from there\. Alternatives they can get there: .*with prices in JPY/)
+  assert.doesNotMatch(whereLine(input({ region: "local", country: "JP", whereAsked: false })), /asked|near them/)
   // Near them: shops that sell there (shops abroad that deliver there come in a second round, only when too few).
   assert.match(planMessage(input({ region: "local", country: "RU" })), /Where: near them, in Russia \(RU\).*with prices in RUB.*Search shops that sell there/)
   assert.match(writeMessage(input({ region: "world" }), plan(), []), /Where: anywhere in the world/)

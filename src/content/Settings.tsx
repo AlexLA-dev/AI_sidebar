@@ -2,7 +2,7 @@ import type { VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
 import { LINKS, TARGET, VERSION } from "../shared/config"
-import { t, uiDirection } from "../shared/i18n"
+import { t, uiDirection, uiLang } from "../shared/i18n"
 import { OWN_KEY_PATTERN } from "../shared/models"
 import { hasPro, isUltra, periodOfProduct, productOf } from "../shared/plan"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
@@ -74,7 +74,8 @@ export function SettingsView(props: Props): VNode {
   }
 
   const hidden = settings.fabHiddenSites.includes(site)
-  const renews = status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString() : null
+  // In the interface's language, like the sentence it goes into (2.7, the director's audit).
+  const renews = status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString(uiLang()) : null
   const planName = plan === "ultra" ? t("planUltra") : plan === "pro" ? t("planPro") : plan === "byok" ? t("planByok") : t("planFree")
   // Ultra: this week's listening, in minutes.
   const speak = isUltra(plan) ? status?.ultra?.speak ?? null : null

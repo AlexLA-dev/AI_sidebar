@@ -35,12 +35,25 @@ export function ldTypes(doc: Document): Set<string> {
 const meta = (doc: Document, name: string) =>
   doc.querySelector(`meta[property="${name}"], meta[name="${name}"]`)?.getAttribute("content")?.trim().toLowerCase() ?? ""
 
-/** The page's own words, roughly: its paragraphs (menus and lists of links aren't prose). */
+/** One Chinese, Japanese or Korean character says about as much as 2.5 Latin ones (an English text is that much
+ *  longer in its translation): an article of 2,000 of them is as long a read as one of 5,000 letters. 2.7, the
+ *  director's audit: CJK articles never counted as long. */
+const DENSE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu
+const DENSE_WEIGHT = 2.5
+
+/** A text's length as a read: its characters, those of Chinese, Japanese and Korean weighted. */
+export function readLength(text: string): number {
+  const dense = text.match(DENSE)?.length ?? 0
+  return Math.round(text.length + dense * (DENSE_WEIGHT - 1))
+}
+
+/** The page's own words, roughly: its paragraphs (menus and lists of links aren't prose), as long a read as Latin
+ *  letters (readLength). */
 export function proseLength(doc: Document, cap = 20_000): number {
   let n = 0
   for (const p of Array.from(doc.querySelectorAll("p"))) {
     if (p.closest("nav,header,footer,aside,form,[role=navigation]")) continue
-    n += (p.textContent ?? "").trim().length
+    n += readLength((p.textContent ?? "").trim())
     if (n >= cap) break
   }
   return n

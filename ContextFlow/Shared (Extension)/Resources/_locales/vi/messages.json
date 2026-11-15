@@ -2364,7 +2364,7 @@
   "message": "Không thể thêm. Hãy thử lại."
  },
  "appleAlso": {
-  "message": "Thêm vào Lời nhắc"
+  "message": "Cũng thêm vào Lời nhắc"
  },
  "appleRemindersOff": {
   "message": "ContextFlow không có quyền truy cập Lời nhắc. Hãy bật trong Cài đặt."
@@ -2439,7 +2439,7 @@
   "message": "Xóa không gian"
  },
  "spaceDeleteNote": {
-  "message": "Các cuộc trò chuyện của nó sẽ chuyển sang “{0}”."
+  "message": "Các cuộc trò chuyện trong không gian này sẽ chuyển sang “{0}”."
  },
  "spaceBind": {
   "message": "Mở {0} ở đây"
@@ -2457,7 +2457,7 @@
   "message": "Bạn đang ở “{0}”"
  },
  "spaceLimit": {
-  "message": "Số không gian miễn phí: {0}. Với Pro, bao nhiêu cũng được."
+  "message": "Gói Miễn phí có {0} không gian. Với Pro, bao nhiêu cũng được."
  },
  "spaceEmpty": {
   "message": "“{0}” chưa có cuộc trò chuyện nào. Cuộc trò chuyện mới sẽ ở đây."
@@ -2469,7 +2469,7 @@
   "message": "Công việc, Cá nhân, Mua sắm: mỗi không gian có cuộc trò chuyện và màu riêng. Tắt: mọi cuộc trò chuyện về một danh sách, các không gian vẫn được giữ."
  },
  "matchContinue": {
-  "message": "Tiếp tục"
+  "message": "Đang tiếp tục"
  },
  "writeCircle": {
   "message": "Kiểm tra hoặc viết lại"
@@ -2499,7 +2499,7 @@
   "message": "Đang viết lại theo nội dung trang…"
  },
  "writeFixes": {
-  "message": "Sửa: {0}"
+  "message": "Số chỗ sửa: {0}"
  },
  "writeLeft": {
   "message": "Câu trả lời miễn phí còn lại hôm nay: {0}"
@@ -2511,10 +2511,10 @@
   "message": "Chưa có văn bản ở đây."
  },
  "writeTooLong": {
-  "message": "Quá nhiều cùng lúc. Hãy chọn một phần rồi thử lại."
+  "message": "Văn bản quá dài để xử lý một lần. Hãy chọn một phần rồi thử lại."
  },
  "writeChanged": {
-  "message": "Văn bản đã thay đổi kể từ đó."
+  "message": "Văn bản đã thay đổi trong lúc đó."
  },
  "writeFix": {
   "message": "Sửa"
@@ -2544,7 +2544,7 @@
   "message": "Kiểm tra và Viết lại cạnh ô nhập"
  },
  "writeSettingHint": {
-  "message": "Bản sửa có tính đến trang: email bạn đang trả lời, bài đăng bạn bình luận. Mỗi lần chạm tính là một câu trả lời. Cách bạn viết trên từng trang web chỉ lưu trên thiết bị này và giúp giữ đúng văn phong của bạn."
+  "message": "Sửa và viết lại đều tính đến trang: email bạn đang trả lời, bài đăng bạn bình luận. Mỗi lần chạm tính là một câu trả lời. Cách bạn viết trên từng trang web chỉ lưu trên thiết bị này và giúp giữ đúng văn phong của bạn."
  },
  "writeSkip": {
   "message": "Bỏ qua"
@@ -2673,13 +2673,13 @@
   "message": "Đặt con trỏ vào một ô trên trang, nút mẫu sẽ hiện bên cạnh. Mẫu của bạn: “…” (được làm nổi bật) → “Cài đặt” → “Mẫu”."
  },
  "phRemindTitle": {
-  "message": "Nhắc nhở"
+  "message": "Nhắc tôi"
  },
  "phRemindBody": {
   "message": "Viết vào ô được làm nổi bật, ví dụ “nhắc tôi 9 giờ sáng mai”, tôi sẽ gợi ý một lời nhắc."
  },
  "phCalendarTitle": {
-  "message": "Vào Lịch"
+  "message": "Thêm vào Lịch"
  },
  "phCalendarBody": {
   "message": "Viết “thêm vào lịch” vào ô được làm nổi bật, tôi sẽ gợi ý sự kiện theo ngày trên trang."
@@ -2763,10 +2763,10 @@
   "message": "Mình đang dùng ContextFlow, AI ngay trên trang trong Safari. Với mã {0} của mình, bạn có câu trả lời thưởng trong tuần đầu: {1}"
  },
  "invFriends": {
-  "message": "Đến bằng mã của bạn: {0} · đang dùng: {1}"
+  "message": "Tham gia bằng mã của bạn: {0} · đang dùng: {1}"
  },
  "invRewardTitle": {
-  "message": "Một người bạn bạn mời đang dùng ContextFlow"
+  "message": "Một người bạn được bạn mời đang dùng ContextFlow"
  },
  "invRewardBody": {
   "message": "Cảm ơn bạn: giảm {0}% tháng đầu của Pro hoặc Ultra, tùy bạn chọn. App Store sẽ áp dụng nếu bạn chưa dùng ưu đãi này."
@@ -2796,7 +2796,7 @@
   "message": "Đã nhận mã: câu trả lời thưởng, +{0} mỗi ngày, đến {1}."
  },
  "invEnteredOn": {
-  "message": "Bạn đến bằng mã của bạn bè: câu trả lời thưởng, +{0} mỗi ngày, đến {1}."
+  "message": "Bạn tham gia bằng mã của bạn bè: câu trả lời thưởng, +{0} mỗi ngày, đến {1}."
  },
  "invErrUnknown": {
   "message": "Không có mã này. Hãy kiểm tra và thử lại."
@@ -2808,7 +2808,7 @@
   "message": "Mã của bạn bè đã được nhập ở đây."
  },
  "invErrLate": {
-  "message": "Mã của bạn bè dùng được trong tuần đầu sau khi cài đặt."
+  "message": "Mã của bạn bè chỉ dùng được trong tuần đầu sau khi cài đặt."
  },
  "invErrFull": {
   "message": "Mã này đã đạt giới hạn."
@@ -2835,7 +2835,7 @@
   "message": "AI gợi ý"
  },
  "colSuggestWords": {
-  "message": "hợp nhất"
+  "message": "phù hợp nhất"
  },
  "colNewSection": {
   "message": "+ mục mới"
@@ -2889,7 +2889,7 @@
   "message": "So sánh {0}"
  },
  "colComparePick": {
-  "message": "Chạm 2 đến 8 thẻ"
+  "message": "Chạm để chọn từ 2 đến 8 thẻ"
  },
  "colSummary": {
   "message": "Tóm tắt"
@@ -2916,10 +2916,10 @@
   "message": "So sánh"
  },
  "colLimitCollections": {
-  "message": "Bản miễn phí có một bộ sưu tập. Với Pro, bao nhiêu cũng được."
+  "message": "Gói Miễn phí có một bộ sưu tập. Với Pro, bao nhiêu cũng được."
  },
  "colLimitCards": {
-  "message": "Bản miễn phí: mỗi bộ sưu tập {0} thẻ. Với Pro, tới {1}."
+  "message": "Gói Miễn phí: tối đa {0} thẻ mỗi bộ sưu tập. Với Pro, tới {1}."
  },
  "colProOnly": {
   "message": "So sánh và Tóm tắt có trong Pro."
@@ -2931,7 +2931,7 @@
   "message": "Lần này chưa được. Hãy thử lại sau."
  },
  "colLimitDay": {
-  "message": "Hôm nay đủ rồi: hãy thử lại vào ngày mai."
+  "message": "Hôm nay đã hết lượt: hãy thử lại vào ngày mai."
  },
  "colGone": {
   "message": "Bộ sưu tập này đã bị xóa."
@@ -3171,7 +3171,7 @@
   "message": "Thêm vào Lịch hoặc Lời nhắc"
  },
  "tip_c20a65b22a": {
-  "message": "Viết “nhắc tôi gọi cho ngân hàng vào thứ Sáu”, hoặc hỏi về một ngày trên trang: câu trả lời kèm một thẻ để kiểm tra ngày giờ, và Thêm sẽ đưa vào Lịch hoặc Lời nhắc. Mọi câu trả lời hay ghi chú đều có Thêm vào Lịch hoặc Lời nhắc trong menu … của chúng. Trong Nhắc tôi, Thêm vào Lời nhắc sẽ đưa lời nhắc của bạn vào cả ứng dụng Lời nhắc của Apple."
+  "message": "Viết “nhắc tôi gọi cho ngân hàng vào thứ Sáu”, hoặc hỏi về một ngày trên trang: câu trả lời kèm một thẻ để kiểm tra ngày giờ, và Thêm sẽ đưa vào Lịch hoặc Lời nhắc. Mọi câu trả lời hay ghi chú đều có Thêm vào Lịch hoặc Lời nhắc trong menu … của chúng. Trong Nhắc tôi, tùy chọn Cũng thêm vào Lời nhắc sẽ đưa lời nhắc của bạn vào cả ứng dụng Lời nhắc của Apple."
  },
  "tip_74c328b672": {
   "message": "Biết khi giá giảm"
@@ -3198,7 +3198,7 @@
   "message": "Cuộc trò chuyện cho trang này"
  },
  "tip_05b9621aed": {
-  "message": "Mở bảng trên một trang, ContextFlow sẽ chọn cuộc trò chuyện về trang đó: cuộc có trang này, hoặc cuộc cùng chủ đề. Tiếp tục ở trên cùng cho biết cuộc trò chuyện nào được chọn; Cuộc trò chuyện mới ở đó sẽ bắt đầu cuộc mới."
+  "message": "Mở bảng trên một trang, ContextFlow sẽ chọn cuộc trò chuyện về trang đó: cuộc có trang này, hoặc cuộc cùng chủ đề. Nhãn Đang tiếp tục ở trên cùng cho biết cuộc trò chuyện nào được chọn; Cuộc trò chuyện mới ở đó sẽ bắt đầu cuộc mới."
  },
  "tip_c4b432e2e9": {
   "message": "Tìm trong cuộc trò chuyện"

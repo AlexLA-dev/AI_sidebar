@@ -198,7 +198,7 @@ export class PageTranslator {
     }
     let applied: Applied | null = null
     this.writing(() => {
-      applied = applyBlock(item.block, translation)
+      applied = applyBlock(item.block, translation, this.to)
     })
     if (!applied) {
       item.status = "skip"

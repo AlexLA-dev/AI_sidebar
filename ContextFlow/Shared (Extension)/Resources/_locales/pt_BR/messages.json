@@ -1980,10 +1980,10 @@
   "message": "Busca rápida: até {0} por semana, cada uma conta como {1} respostas."
  },
  "similarLightFoot": {
-  "message": "Busca rápida. O Ultra busca mais amplo, lê avaliações e confere a entrega."
+  "message": "Busca rápida. O Ultra faz uma busca mais ampla, lê avaliações e confere a entrega."
  },
  "similarLightLimit": {
-  "message": "As {0} buscas rápidas desta semana acabaram. Elas voltam na {1}. O Ultra tem {2} por semana e busca mais amplo."
+  "message": "As {0} buscas rápidas desta semana acabaram. Elas voltam {1}. O Ultra tem {2} por semana e faz uma busca mais ampla."
  },
  "similarAnswersShort": {
   "message": "Uma busca rápida conta como {0} respostas, e você tem {1} restantes."
@@ -2457,7 +2457,7 @@
   "message": "Você está em “{0}”"
  },
  "spaceLimit": {
-  "message": "Espaços no grátis: {0}. Com o Pro, quantos quiser."
+  "message": "Espaços no plano Grátis: {0}. Com o Pro, quantos quiser."
  },
  "spaceEmpty": {
   "message": "Ainda não há conversas em “{0}”. Uma conversa nova vem para cá."
@@ -2544,7 +2544,7 @@
   "message": "Revisar e Reescrever nos campos"
  },
  "writeSettingHint": {
-  "message": "As correções levam a página em conta: o e-mail que você responde, o post que comenta. Cada toque conta como uma resposta. Como você escreve em cada site fica neste aparelho e ajuda a manter seu estilo."
+  "message": "As correções e reescritas levam a página em conta: o e-mail que você responde, o post que comenta. Cada toque conta como uma resposta. Seu jeito de escrever em cada site fica neste aparelho e ajuda a manter seu estilo."
  },
  "writeSkip": {
   "message": "Ignorar"
@@ -2661,10 +2661,10 @@
   "message": "Pergunta sobre o vídeo"
  },
  "phVideoBody": {
-  "message": "Pergunte sobre o vídeo no campo destacado: respondo pelas legendas."
+  "message": "Pergunte sobre o vídeo no campo destacado: respondo com base nas legendas."
  },
  "phVideoBodyUp": {
-  "message": "Respostas pelas legendas do vídeo estão no Pro. Pergunte no campo destacado."
+  "message": "Respostas com base nas legendas do vídeo estão no Pro. Pergunte no campo destacado."
  },
  "phTemplatesTitle": {
   "message": "Responder com modelo"
@@ -2679,7 +2679,7 @@
   "message": "Escreva no campo destacado, por exemplo “me lembre amanhã às 9”, e eu sugiro um lembrete."
  },
  "phCalendarTitle": {
-  "message": "No calendário"
+  "message": "Adicionar ao calendário"
  },
  "phCalendarBody": {
   "message": "Escreva “adicionar ao calendário” no campo destacado e eu sugiro um evento com a data da página."
@@ -2823,7 +2823,7 @@
   "message": "Não deu agora. Tente mais tarde."
  },
  "colAdd": {
-  "message": "Para coleção"
+  "message": "Adicionar à coleção"
  },
  "colTab": {
   "message": "Coleções"
@@ -2832,10 +2832,10 @@
   "message": "Conversa"
  },
  "colSuggestAi": {
-  "message": "sugestão da IA"
+  "message": "a IA sugere"
  },
  "colSuggestWords": {
-  "message": "a que mais combina"
+  "message": "combina mais"
  },
  "colNewSection": {
   "message": "+ nova seção"
@@ -2874,13 +2874,13 @@
   "message": "{0} cartões"
  },
  "colEmpty": {
-  "message": "Ainda não há coleções. Toque em “Para coleção” embaixo de uma resposta ou nota."
+  "message": "Ainda não há coleções. Toque em “Adicionar à coleção” embaixo de uma resposta ou nota."
  },
  "colEmptyCards": {
   "message": "Ainda não há cartões."
  },
  "colToChat": {
-  "message": "← Para a conversa"
+  "message": "← Voltar à conversa"
  },
  "colCompare": {
   "message": "Comparar"
@@ -2916,10 +2916,10 @@
   "message": "Comparação"
  },
  "colLimitCollections": {
-  "message": "No grátis, uma coleção. Com o Pro, quantas quiser."
+  "message": "No plano Grátis, uma coleção. Com o Pro, quantas quiser."
  },
  "colLimitCards": {
-  "message": "No grátis, uma coleção tem até {0} cartões. Com o Pro, até {1}."
+  "message": "No plano Grátis, uma coleção tem até {0} cartões. Com o Pro, até {1}."
  },
  "colProOnly": {
   "message": "Comparar e Resumo estão no Pro."

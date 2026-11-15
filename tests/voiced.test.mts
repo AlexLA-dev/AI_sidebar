@@ -55,7 +55,7 @@ test("voiced (98 release): every language says both marks; the app has the same 
   const { readFileSync, readdirSync } = await import("node:fs")
   const dir = new URL("../src/locales/", import.meta.url)
   const files = readdirSync(dir).filter((f) => f.endsWith(".json"))
-  assert.equal(files.length, 14)
+  assert.equal(files.length, 15)
   for (const file of files) {
     const messages = JSON.parse(readFileSync(new URL(file, dir), "utf8")) as Record<string, string>
     assert.ok(messages.listenVoiced, file)

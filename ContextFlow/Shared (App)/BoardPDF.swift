@@ -153,8 +153,22 @@ body.native main { padding: 0; max-width: none; }
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { done?.resume(throwing: error); done = nil }
     }
 
-    // A4 in points; the margins as the page's @page.
-    static let paper = CGSize(width: 595.2, height: 841.8)
+    // The paper in points: Letter where people print on it (the US, Canada, Mexico and the rest of the Americas that do,
+    // the Philippines), A4 elsewhere; on a Mac, the paper its printing is set to. The margins as the page's @page.
+    static let a4 = CGSize(width: 595.2, height: 841.8)
+    static let letter = CGSize(width: 612, height: 792)
+    static let letterRegions: Set<String> = ["US", "PR", "CA", "MX", "BZ", "CL", "CO", "CR", "GT", "NI", "PA", "PH", "SV", "VE"]
+    static func paperFor(region: String?, metric: Bool) -> CGSize {
+        if let region { return letterRegions.contains(region.uppercased()) ? letter : a4 }
+        return metric ? a4 : letter
+    }
+    static var paper: CGSize {
+        #if os(macOS)
+        let set = NSPrintInfo.shared.paperSize
+        if (400...1_000).contains(set.width), (400...1_400).contains(set.height) { return set }
+        #endif
+        return paperFor(region: Locale.current.region?.identifier, metric: Locale.current.measurementSystem != .us)
+    }
     static let margin: CGFloat = 45
     static let footerRoom: CGFloat = 26
 
@@ -177,9 +191,10 @@ body.native main { padding: 0; max-width: none; }
         return out
     }
 
-    /// The page drawn by the web view as one tall vector page, laid onto A4 pages: each page breaks between cards, keeps
-    /// its links (the sources, «Открыть чат в ContextFlow», the site) and has the footer with «n / N».
+    /// The page drawn by the web view as one tall vector page, laid onto A4 or Letter pages: each page breaks between
+    /// cards, keeps its links (the sources, «Открыть чат в ContextFlow», the site) and has the footer with «n / N».
     static func render(_ html: String) async throws -> Data {
+        let paper = BoardPDF.paper
         let width = paper.width - margin * 2
         let loader = Loader(width: width)
         try await loader.load(html)

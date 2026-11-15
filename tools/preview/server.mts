@@ -276,6 +276,8 @@ const TYPOS: Record<string, string> = {
   dashbord: "dashboard", aply: "apply",
   "сдесь": "здесь", "извените": "извините", "прийду": "приду", "вобщем": "в общем", "расчитываю": "рассчитываю", "впринципе": "в принципе"
 }
+// Japanese, Chinese and Thai (2.7 audit): fixed as phrases, these scripts having no spaces to find a word by.
+const PHRASE_FIXES: Array<[string, string]> = [["学校に行きました", "学校へ行きました"], ["图书管", "图书馆"], ["เมือวาน", "เมื่อวาน"]]
 function nearName(a: string, b: string): boolean {
   if (a === b || a[0] !== b[0] || Math.abs(a.length - b.length) > 2) return false
   const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
@@ -298,6 +300,7 @@ function scriptedWrite(system: string, content: string): unknown {
     })
     text = text.replace(/(?<![\p{L}])\p{Lu}\p{Ll}{2,}(?![\p{L}])/gu, (w) => names.find((n) => nearName(n, w)) ?? w)
     text = text.replace(/(^|\s)i(?=[\s'’])/g, "$1I").replace(/ {2,}/g, " ")
+    for (const [wrong, right] of PHRASE_FIXES) text = text.split(wrong).join(right)
     return { text }
   }
   const sentences = message.split(/(?<=[.!?])\s+/).filter(Boolean)

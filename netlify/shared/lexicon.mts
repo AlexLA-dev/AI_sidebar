@@ -1,4 +1,4 @@
-// The words Find similar's readers look for on pages, in the 14 languages the app speaks (build 95): one place for
+// The words Find similar's readers look for on pages, in the languages the app speaks (build 95; Turkish since 2.7): one place for
 // all of them, built the way page watch's are (src/shared/watch/detect.ts): whole phrases in scripts with spaces,
 // Russian and Ukrainian words with their endings, Chinese, Japanese and Korean words anywhere. Every reader that
 // decides from a page's words (a review page, a review count, a rating, "no longer sold", free, in stock, a length, a
@@ -6,7 +6,7 @@
 
 import { phrases } from "../../src/shared/watch/detect.ts"
 
-export const LANGS = ["en", "ru", "uk", "de", "fr", "es", "it", "pt", "ja", "ko", "zh", "zh-Hant", "vi", "ar"] as const
+export const LANGS = ["en", "ru", "uk", "de", "fr", "es", "it", "pt", "ja", "ko", "zh", "zh-Hant", "vi", "ar", "tr"] as const
 export type Lang = (typeof LANGS)[number]
 type Words = Record<Lang, string[]>
 
@@ -32,7 +32,8 @@ export const REVIEW_PAGE: Words = {
   zh: ["评测", "评价", "测评", "点评", "开箱"],
   "zh-Hant": ["評測", "評價", "開箱", "心得"],
   vi: ["đánh giá", "trải nghiệm", "review"],
-  ar: ["مراجعة", "تقييم", "تجربة"]
+  ar: ["مراجعة", "تقييم", "تجربة"],
+  tr: ["inceleme", "incelemesi", "incelemeler", "yorum", "yorumlar", "yorumları", "değerlendirme", "değerlendirmeler", "test", "testi", "puan"]
 }
 
 /** What follows a number of reviews ("687 reviews", "687 Bewertungen", "687件のレビュー"). */
@@ -50,7 +51,8 @@ export const REVIEW_COUNTED: Words = {
   zh: ["条评价", "条评论", "个评价", "条点评"],
   "zh-Hant": ["則評價", "則評論", "個評價", "則留言"],
   vi: ["đánh giá", "lượt đánh giá", "nhận xét"],
-  ar: ["تقييم", "تقييمات", "مراجعة", "مراجعات"]
+  ar: ["تقييم", "تقييمات", "مراجعة", "مراجعات"],
+  tr: ["yorum", "değerlendirme", "puan", "oy", "doğrulanmış yorum"]
 }
 
 /** What comes before a number of reviews ("리뷰 687개", "评价 (687)", "التقييمات (687)"). */
@@ -58,7 +60,8 @@ export const REVIEW_COUNT_FIRST: Words = {
   en: ["reviews", "ratings"], ru: ["отзывы", "оценки"], uk: ["відгуки", "оцінки"], de: ["bewertungen", "rezensionen"],
   fr: ["avis"], es: ["reseñas", "opiniones"], it: ["recensioni"], pt: ["avaliações"],
   ja: ["レビュー", "評価", "口コミ"], ko: ["리뷰", "후기", "상품평", "평가"], zh: ["评价", "评论"], "zh-Hant": ["評價", "評論"],
-  vi: ["đánh giá"], ar: ["التقييمات", "المراجعات", "تقييمات"]
+  vi: ["đánh giá"], ar: ["التقييمات", "المراجعات", "تقييمات"],
+  tr: ["yorumlar", "değerlendirmeler"]
 }
 
 // A count, with its thousands separated as the language writes them ("1,204", "1.204", "1 204").
@@ -72,7 +75,8 @@ export const REVIEW_COUNT = new RegExp(
 /** The words between a rating and its scale ("4.6 out of 5", "4,6 von 5", "4.6 من 5", "4.6 trên 5"). */
 const OUT_OF: Words = {
   en: ["out of", "of", "/"], ru: ["из"], uk: ["з", "із"], de: ["von"], fr: ["sur"], es: ["de", "sobre"], it: ["su", "di"],
-  pt: ["de"], ja: ["/"], ko: ["/"], zh: ["/"], "zh-Hant": ["/"], vi: ["trên"], ar: ["من"]
+  pt: ["de"], ja: ["/"], ko: ["/"], zh: ["/"], "zh-Hant": ["/"], vi: ["trên"], ar: ["من"],
+  tr: ["/"]
 }
 const SCORE = String.raw`[1-5](?:[.,]\d{1,2})?`
 /**
@@ -104,7 +108,8 @@ export const REVIEWS_HEAD: Words = {
   zh: ["用户评价", "商品评价", "买家评价", "评价"],
   "zh-Hant": ["顧客評價", "商品評價", "買家評價", "評價"],
   vi: ["đánh giá của khách hàng", "đánh giá sản phẩm", "nhận xét"],
-  ar: ["آراء العملاء", "تقييمات العملاء", "المراجعات", "التقييمات"]
+  ar: ["آراء العملاء", "تقييمات العملاء", "المراجعات", "التقييمات"],
+  tr: ["müşteri yorumları", "ürün yorumları", "ürün değerlendirmeleri", "müşteri değerlendirmeleri", "değerlendirmeler", "yorumlar", "doğrulanmış satın alma"]
 }
 
 /** A reviewer marked verified. */
@@ -122,14 +127,16 @@ export const VERIFIED: Words = {
   zh: ["已购买", "已验证购买", "已购"],
   "zh-Hant": ["已購買", "已驗證購買"],
   vi: ["đã mua hàng", "đã xác minh"],
-  ar: ["مشتري موثق", "عملية شراء موثقة", "شراء موثق"]
+  ar: ["مشتري موثق", "عملية شراء موثقة", "شراء موثق"],
+  tr: ["doğrulanmış satın alma", "doğrulanmış alıcı", "onaylı alıcı", "bu ürünü satın aldı"]
 }
 
 /** "Was this helpful?" under a review. */
 export const HELPFUL: Words = {
   en: ["helpful"], ru: ["полезно", "полезный", "полезен"], uk: ["корисно", "корисний"], de: ["hilfreich"], fr: ["utile"],
   es: ["útil"], it: ["utile"], pt: ["útil"], ja: ["役に立った", "参考になった"], ko: ["도움이 돼요", "도움이 됐어요", "도움됨"],
-  zh: ["有用", "有帮助"], "zh-Hant": ["有用", "有幫助"], vi: ["hữu ích"], ar: ["مفيد", "مفيدة"]
+  zh: ["有用", "有帮助"], "zh-Hant": ["有用", "有幫助"], vi: ["hữu ích"], ar: ["مفيد", "مفيدة"],
+  tr: ["faydalı", "yararlı"]
 }
 
 /** "… ago" by a review's date. */
@@ -138,7 +145,8 @@ export const AGO: Words = {
   ru: ["назад"], uk: ["тому"], de: ["vor # tagen", "vor # wochen", "vor # monaten", "vor # jahren", "vor einem tag", "vor einer woche", "vor einem monat", "vor einem jahr"], fr: ["il y a"], es: ["hace"],
   it: ["giorni fa", "settimane fa", "mesi fa", "anni fa"], pt: ["dias atrás", "meses atrás", "anos atrás", "há"],
   ja: ["日前", "週間前", "か月前", "年前"], ko: ["일 전", "주 전", "개월 전", "년 전"], zh: ["天前", "周前", "个月前", "年前"],
-  "zh-Hant": ["天前", "週前", "個月前", "年前"], vi: ["ngày trước", "tuần trước", "tháng trước", "năm trước"], ar: ["منذ"]
+  "zh-Hant": ["天前", "週前", "個月前", "年前"], vi: ["ngày trước", "tuần trước", "tháng trước", "năm trước"], ar: ["منذ"],
+  tr: ["gün önce", "hafta önce", "ay önce", "yıl önce"]
 }
 
 /** Stars by a review ("5 stars", "★", "5 Sterne", "5つ星", "별점 5"). */
@@ -164,7 +172,8 @@ export const GONE: Words = {
   zh: ["已下架", "停产", "停售", "已停售", "活动已结束"],
   "zh-Hant": ["已下架", "停產", "停售", "已停售", "活動已結束"],
   vi: ["ngừng kinh doanh", "ngừng bán", "ngừng sản xuất", "hết hạn khuyến mãi"],
-  ar: ["لم يعد متوفرا", "لم يعد متوفرًا", "توقف بيعه", "انتهى العرض", "تم إيقاف المنتج"]
+  ar: ["لم يعد متوفرا", "لم يعد متوفرًا", "توقف بيعه", "انتهى العرض", "تم إيقاف المنتج"],
+  tr: ["artık satılmıyor", "satıştan kaldırıldı", "ürün satışta değil", "bu ürün artık mevcut değil", "ilan kaldırıldı", "ilan yayından kaldırıldı", "ilan sona erdi", "kampanya sona erdi", "fırsat sona erdi", "başvurular kapandı", "bu ilan artık aktif değil"]
 }
 
 // ------------------------------------------------------------ what a quote proves
@@ -173,7 +182,8 @@ export const GONE: Words = {
 export const FREE: Words = {
   en: ["free"], ru: ["бесплатно", "бесплатный", "бесплатная"], uk: ["безкоштовно", "безкоштовний"], de: ["kostenlos", "gratis"],
   fr: ["gratuit", "gratuite"], es: ["gratis", "gratuito", "gratuita"], it: ["gratis", "gratuito", "gratuita"], pt: ["grátis", "gratuito", "gratuita"],
-  ja: ["無料"], ko: ["무료"], zh: ["免费"], "zh-Hant": ["免費"], vi: ["miễn phí"], ar: ["مجاني", "مجانا", "مجانًا"]
+  ja: ["無料"], ko: ["무료"], zh: ["免费"], "zh-Hant": ["免費"], vi: ["miễn phí"], ar: ["مجاني", "مجانا", "مجانًا"],
+  tr: ["ücretsiz", "bedava"]
 }
 
 /** "Free" that isn't the item's price (free delivery, a free trial). */
@@ -191,7 +201,8 @@ export const NOT_FREE: Words = {
   zh: ["免运费", "包邮", "免费试用", "免费退货"],
   "zh-Hant": ["免運費", "免運", "免費試用", "免費退貨"],
   vi: ["miễn phí vận chuyển", "giao hàng miễn phí", "dùng thử miễn phí"],
-  ar: ["شحن مجاني", "توصيل مجاني", "تجربة مجانية", "إرجاع مجاني"]
+  ar: ["شحن مجاني", "توصيل مجاني", "تجربة مجانية", "إرجاع مجاني"],
+  tr: ["ücretsiz kargo", "kargo bedava", "ücretsiz teslimat", "ücretsiz iade", "ücretsiz deneme", "ücretsiz deneme süresi"]
 }
 
 /** Can be bought now. */
@@ -209,19 +220,22 @@ export const IN_STOCK: Words = {
   zh: ["有货", "现货", "加入购物车", "立即购买"],
   "zh-Hant": ["有貨", "現貨", "加入購物車", "立即購買"],
   vi: ["còn hàng", "thêm vào giỏ hàng", "mua ngay", "chỉ còn #"],
-  ar: ["متوفر", "متوفر في المخزون", "أضف إلى السلة", "اشتر الآن", "تبقى #"]
+  ar: ["متوفر", "متوفر في المخزون", "أضف إلى السلة", "اشتر الآن", "تبقى #"],
+  tr: ["stokta", "stokta var", "stoklarda", "sepete ekle", "hemen al", "bugün kargoda", "son # ürün", "tükenmek üzere"]
 }
 
 /** Hours and minutes in a length ("1 hr 20 mins", "1 Std. 20 Min.", "1時間20分", "1시간 20분"). */
 const HOURS: Words = {
   en: ["h", "hr", "hrs", "hour", "hours"], ru: ["ч", "час", "часа", "часов"], uk: ["год", "година", "години", "годин"],
   de: ["std", "stunde", "stunden"], fr: ["h", "heure", "heures"], es: ["h", "hora", "horas"], it: ["h", "ora", "ore"], pt: ["h", "hora", "horas"],
-  ja: ["時間"], ko: ["시간"], zh: ["小时"], "zh-Hant": ["小時"], vi: ["giờ"], ar: ["ساعة", "ساعات"]
+  ja: ["時間"], ko: ["시간"], zh: ["小时"], "zh-Hant": ["小時"], vi: ["giờ"], ar: ["ساعة", "ساعات"],
+  tr: ["sa", "saat"]
 }
 const MINUTES: Words = {
   en: ["m", "min", "mins", "minute", "minutes"], ru: ["мин", "минута", "минуты", "минут"], uk: ["хв", "хвилина", "хвилини", "хвилин"],
   de: ["min", "minute", "minuten"], fr: ["min", "minute", "minutes"], es: ["min", "minuto", "minutos"], it: ["min", "minuto", "minuti"],
-  pt: ["min", "minuto", "minutos"], ja: ["分"], ko: ["분"], zh: ["分钟"], "zh-Hant": ["分鐘"], vi: ["phút"], ar: ["دقيقة", "دقائق"]
+  pt: ["min", "minuto", "minutos"], ja: ["分"], ko: ["분"], zh: ["分钟"], "zh-Hant": ["分鐘"], vi: ["phút"], ar: ["دقيقة", "دقائق"],
+  tr: ["dk", "dakika"]
 }
 const unit = (w: Words) => `(?:${all(w).sort((a, b) => b.length - a.length).map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`
 export const HOURS_IN = new RegExp(`(\\d+(?:[.,]\\d)?)\\s*${unit(HOURS)}\\.?(?![\\p{L}])`, "iu")
@@ -233,23 +247,27 @@ export const MINUTES_IN = new RegExp(`(\\d+)\\s*${unit(MINUTES)}\\.?(?![\\p{L}])
 export const SUBSCRIPTION: Words = {
   en: ["subscription", "subscribe", "sub"], ru: ["подписка", "подписки"], uk: ["підписка", "передплата"], de: ["abo", "abonnement"],
   fr: ["abonnement"], es: ["suscripción"], it: ["abbonamento"], pt: ["assinatura"], ja: ["サブスクリプション", "定期購入", "月額", "年額"],
-  ko: ["구독", "정기 결제"], zh: ["订阅", "包月", "包年"], "zh-Hant": ["訂閱", "訂閱制"], vi: ["gói đăng ký", "đăng ký"], ar: ["اشتراك"]
+  ko: ["구독", "정기 결제"], zh: ["订阅", "包月", "包年"], "zh-Hant": ["訂閱", "訂閱制"], vi: ["gói đăng ký", "đăng ký"], ar: ["اشتراك"],
+  tr: ["abonelik", "abone ol", "üyelik"]
 }
 export const WEEK: Words = {
   en: ["week", "weekly", "wk", "wks"], ru: ["неделя", "неделю", "недели", "еженедельно"], uk: ["тиждень", "тижня", "щотижня"],
   de: ["woche", "wöchentlich"], fr: ["semaine", "hebdomadaire"], es: ["semana", "semanal"], it: ["settimana", "settimanale"],
-  pt: ["semana", "semanal"], ja: ["週", "週間"], ko: ["주", "주간"], zh: ["周", "每周"], "zh-Hant": ["週", "每週"], vi: ["tuần"], ar: ["أسبوع", "أسبوعي", "أسبوعيًا"]
+  pt: ["semana", "semanal"], ja: ["週", "週間"], ko: ["주", "주간"], zh: ["周", "每周"], "zh-Hant": ["週", "每週"], vi: ["tuần"], ar: ["أسبوع", "أسبوعي", "أسبوعيًا"],
+  tr: ["hafta", "haftalık"]
 }
 export const MONTH: Words = {
   en: ["month", "monthly", "mo", "mos"], ru: ["месяц", "месяца", "мес", "ежемесячно"], uk: ["місяць", "місяця", "міс", "щомісяця"],
   de: ["monat", "monatlich"], fr: ["mois", "mensuel", "mensuelle"], es: ["mes", "mensual"], it: ["mese", "mensile"], pt: ["mês", "mensal"],
   ja: ["月", "ヶ月", "か月", "月額"], ko: ["월", "개월", "매월"], zh: ["月", "每月", "包月"], "zh-Hant": ["月", "每月"], vi: ["tháng"],
-  ar: ["شهر", "شهري", "شهريًا"]
+  ar: ["شهر", "شهري", "شهريًا"],
+  tr: ["ay", "aylık"]
 }
 export const YEAR: Words = {
   en: ["year", "yearly", "annual", "annually", "yr", "yrs"], ru: ["год", "года", "годовая", "годовой", "ежегодно"], uk: ["рік", "року", "річна", "щороку"],
   de: ["jahr", "jährlich"], fr: ["an", "année", "annuel", "annuelle"], es: ["año", "anual"], it: ["anno", "annuale"], pt: ["ano", "anual"],
-  ja: ["年", "年額", "年間"], ko: ["년", "연간", "매년"], zh: ["年", "每年", "包年"], "zh-Hant": ["年", "每年"], vi: ["năm"], ar: ["سنة", "سنوي", "سنويًا"]
+  ja: ["年", "年額", "年間"], ko: ["년", "연간", "매년"], zh: ["年", "每年", "包年"], "zh-Hant": ["年", "每年"], vi: ["năm"], ar: ["سنة", "سنوي", "سنويًا"],
+  tr: ["yıl", "yıllık", "sene", "senelik"]
 }
 /** Paid once ("lifetime", "one-time"). */
 export const ONE_TIME: Words = {
@@ -257,14 +275,16 @@ export const ONE_TIME: Words = {
   uk: ["назавжди", "довічно", "довічна", "разова оплата"], de: ["einmalig", "lebenslang", "dauerhaft"], fr: ["à vie", "paiement unique"],
   es: ["de por vida", "pago único"], it: ["a vita", "una tantum", "pagamento unico"], pt: ["vitalício", "pagamento único"],
   ja: ["買い切り", "永久"], ko: ["평생", "일회성", "영구"], zh: ["买断", "永久", "一次性"], "zh-Hant": ["買斷", "永久", "一次性"],
-  vi: ["trọn đời", "một lần"], ar: ["مدى الحياة", "دفعة واحدة"]
+  vi: ["trọn đời", "một lần"], ar: ["مدى الحياة", "دفعة واحدة"],
+  tr: ["ömür boyu", "tek seferlik", "tek ödeme", "kalıcı lisans", "bir kez öde"]
 }
 /** A link to an app's or a service's prices. */
 export const PRICING_LINK: Words = {
   en: ["pricing", "plans", "prices", "price", "plans & pricing", "plans and pricing", "premium", "upgrade"], ru: ["тарифы", "цены", "стоимость"],
   uk: ["тарифи", "ціни", "вартість"], de: ["preise", "tarife", "preis"], fr: ["tarifs", "prix", "offres"], es: ["precios", "planes", "tarifas"],
   it: ["prezzi", "piani", "tariffe"], pt: ["preços", "planos"], ja: ["料金", "価格", "プラン", "料金プラン"], ko: ["요금", "가격", "요금제", "플랜"],
-  zh: ["价格", "定价", "套餐"], "zh-Hant": ["價格", "定價", "方案"], vi: ["bảng giá", "giá", "gói"], ar: ["الأسعار", "الخطط", "الباقات"]
+  zh: ["价格", "定价", "套餐"], "zh-Hant": ["價格", "定價", "方案"], vi: ["bảng giá", "giá", "gói"], ar: ["الأسعار", "الخطط", "الباقات"],
+  tr: ["fiyatlandırma", "fiyatlar", "planlar", "paketler", "premium", "yükselt"]
 }
 
 // ------------------------------------------------------------ which link to open next, for a condition
@@ -276,14 +296,16 @@ const BUY: Words = {
   es: ["precios", "precio", "comprar", "tarifas", "entradas", "reservar", "pedir"], it: ["prezzi", "prezzo", "acquista", "tariffe", "biglietti", "prenota", "ordina"],
   pt: ["preços", "preço", "comprar", "planos", "ingressos", "reservar", "pedir"], ja: ["価格", "料金", "購入", "プラン", "予約", "チケット"],
   ko: ["가격", "구매", "요금", "플랜", "예약", "티켓"], zh: ["价格", "购买", "套餐", "定价", "预订", "门票"], "zh-Hant": ["價格", "購買", "方案", "定價", "預訂", "門票"],
-  vi: ["giá", "mua", "bảng giá", "đặt", "vé"], ar: ["السعر", "الأسعار", "شراء", "الخطط", "حجز", "تذاكر"]
+  vi: ["giá", "mua", "bảng giá", "đặt", "vé"], ar: ["السعر", "الأسعار", "شراء", "الخطط", "حجز", "تذاكر"],
+  tr: ["fiyat", "fiyatlar", "fiyatlandırma", "planlar", "satın al", "mağaza", "teklifler", "kampanyalar", "fırsatlar", "ücretler", "biletler", "rezervasyon", "sipariş ver", "maliyet"]
 }
 const FREE_LEADS: Words = {
   en: ["pricing", "plans", "free", "tuition", "fees", "tickets", "admission", "cost"], ru: ["тарифы", "цены", "бесплатно", "стоимость"],
   uk: ["тарифи", "ціни", "безкоштовно", "вартість"], de: ["preise", "tarife", "kostenlos", "eintritt"], fr: ["tarifs", "prix", "gratuit", "entrée"],
   es: ["precios", "planes", "gratis", "entrada"], it: ["prezzi", "piani", "gratis", "ingresso"], pt: ["preços", "planos", "grátis", "entrada"],
   ja: ["料金", "無料", "プラン"], ko: ["요금", "무료", "플랜"], zh: ["价格", "免费", "套餐"], "zh-Hant": ["價格", "免費", "方案"], vi: ["bảng giá", "miễn phí"],
-  ar: ["الأسعار", "مجاني", "الخطط"]
+  ar: ["الأسعار", "مجاني", "الخطط"],
+  tr: ["fiyatlandırma", "planlar", "ücretsiz", "ücretler", "biletler", "giriş ücreti", "maliyet"]
 }
 const WHERE_TO_BUY: Words = {
   en: ["buy", "shop", "offers", "availability", "order", "where to buy", "retailers", "stores", "store locator"],
@@ -291,14 +313,16 @@ const WHERE_TO_BUY: Words = {
   de: ["kaufen", "verfügbarkeit", "händler", "wo kaufen"], fr: ["acheter", "disponibilité", "magasins", "où acheter"],
   es: ["comprar", "disponibilidad", "tiendas", "dónde comprar"], it: ["acquista", "disponibilità", "negozi", "dove acquistare"],
   pt: ["comprar", "disponibilidade", "lojas", "onde comprar"], ja: ["購入", "在庫", "取扱店"], ko: ["구매", "재고", "매장"],
-  zh: ["购买", "库存", "门店"], "zh-Hant": ["購買", "庫存", "門市"], vi: ["mua", "cửa hàng", "còn hàng"], ar: ["شراء", "المتاجر", "التوفر"]
+  zh: ["购买", "库存", "门店"], "zh-Hant": ["購買", "庫存", "門市"], vi: ["mua", "cửa hàng", "còn hàng"], ar: ["شراء", "المتاجر", "التوفر"],
+  tr: ["satın al", "mağaza", "mağazalar", "stok durumu", "nereden alınır", "satış noktaları", "bayiler"]
 }
 const NEWS: Words = {
   en: ["updated", "changelog", "release notes", "what's new", "whats new", "latest", "news", "version"], ru: ["обновление", "что нового", "новости", "версия"],
   uk: ["оновлення", "що нового", "новини", "версія"], de: ["neuigkeiten", "änderungen", "was ist neu", "version"], fr: ["nouveautés", "mises à jour", "version"],
   es: ["novedades", "actualizaciones", "versión"], it: ["novità", "aggiornamenti", "versione"], pt: ["novidades", "atualizações", "versão"],
   ja: ["更新履歴", "新着", "最新情報", "バージョン"], ko: ["업데이트", "새로운 기능", "버전"], zh: ["更新日志", "新功能", "版本"], "zh-Hant": ["更新記錄", "新功能", "版本"],
-  vi: ["cập nhật", "có gì mới", "phiên bản"], ar: ["التحديثات", "ما الجديد", "الإصدار"]
+  vi: ["cập nhật", "có gì mới", "phiên bản"], ar: ["التحديثات", "ما الجديد", "الإصدار"],
+  tr: ["güncellendi", "güncelleme", "sürüm notları", "yenilikler", "neler yeni", "haberler", "sürüm"]
 }
 const LENGTH: Words = {
   en: ["recipe", "jump to recipe", "full recipe", "print", "syllabus", "curriculum", "duration", "schedule", "course details", "agenda"],
@@ -306,7 +330,8 @@ const LENGTH: Words = {
   de: ["rezept", "lehrplan", "dauer", "zeitplan"], fr: ["recette", "programme", "durée", "horaires"], es: ["receta", "temario", "duración", "horario"],
   it: ["ricetta", "programma", "durata", "orari"], pt: ["receita", "programa", "duração", "horário"], ja: ["レシピ", "カリキュラム", "所要時間"],
   ko: ["레시피", "커리큘럼", "소요 시간"], zh: ["食谱", "课程大纲", "时长"], "zh-Hant": ["食譜", "課程大綱", "時長"], vi: ["công thức", "giáo trình", "thời lượng"],
-  ar: ["الوصفة", "المنهج", "المدة"]
+  ar: ["الوصفة", "المنهج", "المدة"],
+  tr: ["tarif", "tarife git", "tarifin tamamı", "yazdır", "müfredat", "ders programı", "süre", "program", "kurs detayları", "gündem"]
 }
 const DETAILS: Words = {
   en: ["details", "specs", "spec", "specifications", "features", "faq", "apply", "careers", "jobs", "rates", "rooms", "amenities", "policies", "pricing", "plans", "syllabus", "requirements"],
@@ -315,7 +340,8 @@ const DETAILS: Words = {
   es: ["detalles", "especificaciones", "habitaciones", "empleo"], it: ["dettagli", "specifiche", "camere", "lavora con noi"],
   pt: ["detalhes", "especificações", "quartos", "carreiras"], ja: ["詳細", "仕様", "スペック", "客室", "採用"], ko: ["상세", "사양", "객실", "채용"],
   zh: ["详情", "规格", "参数", "客房", "招聘"], "zh-Hant": ["詳情", "規格", "客房", "招募"], vi: ["chi tiết", "thông số", "phòng", "tuyển dụng"],
-  ar: ["التفاصيل", "المواصفات", "الغرف", "الوظائف"]
+  ar: ["التفاصيل", "المواصفات", "الغرف", "الوظائف"],
+  tr: ["detaylar", "ayrıntılar", "özellikler", "teknik özellikler", "sss", "başvur", "kariyer", "iş ilanları", "ücretler", "odalar", "olanaklar", "politikalar", "fiyatlandırma", "planlar", "müfredat", "gereksinimler"]
 }
 export const LEADS = { cheaper: BUY, free: FREE_LEADS, in_stock: WHERE_TO_BUY, newer: NEWS, shorter: LENGTH, other: DETAILS } as const
 
@@ -336,7 +362,8 @@ export const HOW_MANY: Words = {
   zh: ["两个", "三个", "四个", "五个", "几个", "两款", "三款", "几款"],
   "zh-Hant": ["兩個", "三個", "四個", "五個", "幾個", "兩款", "三款", "幾款"],
   vi: ["hai", "ba", "bốn", "năm", "sáu", "vài", "một số"],
-  ar: ["اثنان", "اثنين", "ثلاثة", "أربعة", "خمسة", "ستة", "بعض", "عدة"]
+  ar: ["اثنان", "اثنين", "ثلاثة", "أربعة", "خمسة", "ستة", "بعض", "عدة"],
+  tr: ["bir", "iki", "üç", "dört", "beş", "altı", "birkaç", "ikisi de", "tek"]
 }
 
 // ------------------------------------------------------------ words that don't tell names apart
@@ -353,7 +380,8 @@ export const NAME_STOP: Words = {
   pt: ["o", "a", "os", "as", "e", "para", "com", "de", "do", "da", "em", "ou"],
   ja: [], ko: [], zh: [], "zh-Hant": [],
   vi: ["và", "cho", "của", "với", "các", "những"],
-  ar: ["و", "في", "من", "على", "مع", "أو"]
+  ar: ["و", "في", "من", "على", "مع", "أو"],
+  tr: ["ve", "veya", "ile", "için", "bir", "bu", "ya da"]
 }
 
 // ------------------------------------------------------------ delivery
@@ -373,7 +401,8 @@ export const SHIPPING: Words = {
   zh: ["运费", "配送", "快递", "邮费", "配送说明"],
   "zh-Hant": ["運費", "配送", "宅配", "配送說明"],
   vi: ["vận chuyển", "giao hàng", "phí ship", "chính sách giao hàng"],
-  ar: ["شحن", "الشحن", "توصيل", "التوصيل", "سياسة الشحن"]
+  ar: ["شحن", "الشحن", "توصيل", "التوصيل", "سياسة الشحن"],
+  tr: ["kargo", "teslimat", "gönderim", "kargo ve iade", "teslimat bilgileri", "kargo bilgileri"]
 }
 
 /** A delivery page saying it ships anywhere. */
@@ -391,7 +420,8 @@ export const WORLDWIDE: Words = {
   zh: ["全球配送", "国际配送", "海外直邮", "全球发货", "海外", "国际"],
   "zh-Hant": ["全球配送", "國際配送", "海外直送", "海外", "國際"],
   vi: ["toàn cầu", "giao hàng quốc tế", "vận chuyển quốc tế", "nước ngoài", "quốc tế"],
-  ar: ["جميع أنحاء العالم", "شحن دولي", "الشحن الدولي", "خارج", "دولي", "دولية", "بقية العالم"]
+  ar: ["جميع أنحاء العالم", "شحن دولي", "الشحن الدولي", "خارج", "دولي", "دولية", "بقية العالم"],
+  tr: ["tüm dünyaya", "dünya geneline", "uluslararası kargo", "uluslararası gönderim", "yurt dışına", "yurtdışına", "yurt dışı kargo", "tüm ülkelere"]
 }
 
 /** A delivery page naming the European Union or Europe (for a country in it). */
@@ -400,7 +430,8 @@ export const EUROPE: Words = {
   uk: ["європа", "євросоюз", "країни єс"], de: ["europa", "eu-länder", "europäische union", "innerhalb der eu"],
   fr: ["europe", "union européenne", "pays de l'ue"], es: ["europa", "unión europea", "países de la ue"],
   it: ["europa", "unione europea", "paesi ue"], pt: ["europa", "união europeia", "países da ue"], ja: ["ヨーロッパ", "欧州"],
-  ko: ["유럽"], zh: ["欧洲", "欧盟"], "zh-Hant": ["歐洲", "歐盟"], vi: ["châu âu"], ar: ["أوروبا", "الاتحاد الأوروبي"]
+  ko: ["유럽"], zh: ["欧洲", "欧盟"], "zh-Hant": ["歐洲", "歐盟"], vi: ["châu âu"], ar: ["أوروبا", "الاتحاد الأوروبي"],
+  tr: ["avrupa", "avrupa birliği", "ab ülkeleri", "ab içinde"]
 }
 
 // ------------------------------------------------------------ which language a text is in
@@ -441,7 +472,9 @@ export const SEARCH_WORDS: Record<Lang, SearchWords> = {
   zh: { alternatives: "替代品", deliveryTo: (c) => `配送到${c}`, review: "评测", app: "应用", recipe: "食谱", course: "课程", book: "书" },
   "zh-Hant": { alternatives: "替代品", deliveryTo: (c) => `配送到${c}`, review: "評測", app: "應用程式", recipe: "食譜", course: "課程", book: "書" },
   vi: { alternatives: "thay thế", deliveryTo: (c) => `giao hàng ${c}`, review: "đánh giá", app: "ứng dụng", recipe: "công thức", course: "khóa học", book: "sách" },
-  ar: { alternatives: "بدائل", deliveryTo: (c) => `توصيل إلى ${c}`, review: "مراجعة", app: "تطبيق", recipe: "وصفة", course: "دورة", book: "كتاب" }
+  ar: { alternatives: "بدائل", deliveryTo: (c) => `توصيل إلى ${c}`, review: "مراجعة", app: "تطبيق", recipe: "وصفة", course: "دورة", book: "كتاب" },
+  // A country's name takes its suffix by vowel harmony, unknown here: the words stand apart ("Almanya kargo").
+  tr: { alternatives: "alternatifleri", deliveryTo: (c) => `${c} kargo`, review: "inceleme", app: "uygulama", recipe: "tarifi", course: "kursu", book: "kitap" }
 }
 
 /** A BCP 47 tag ("pt-BR", "zh-TW", "uk") as one of the app's languages; English for the others. */
@@ -469,7 +502,8 @@ export const COLOURS: Words = {
   zh: ["黑色", "白色", "灰色", "蓝色", "绿色", "红色", "银色", "米色"],
   "zh-Hant": ["黑色", "白色", "灰色", "藍色", "綠色", "紅色", "銀色", "米色"],
   vi: ["đen", "trắng", "xám", "xanh", "đỏ", "bạc", "be"],
-  ar: ["أسود", "أبيض", "رمادي", "أزرق", "أخضر", "أحمر", "فضي", "بيج"]
+  ar: ["أسود", "أبيض", "رمادي", "أزرق", "أخضر", "أحمر", "فضي", "بيج"],
+  tr: ["siyah", "beyaz", "gri", "mavi", "yeşil", "kırmızı", "gümüş", "bej", "lacivert"]
 }
 
 /** What a shop adds to any name: new, buy, sale, edition, set, kit. */
@@ -487,7 +521,8 @@ export const SHOP_WORDS: Words = {
   zh: ["新款", "购买", "促销", "套装", "限量版"],
   "zh-Hant": ["新款", "購買", "促銷", "套裝", "限量版"],
   vi: ["mới", "mua", "cửa hàng", "khuyến mãi", "phiên bản", "bộ"],
-  ar: ["جديد", "شراء", "متجر", "تخفيضات", "إصدار", "مجموعة"]
+  ar: ["جديد", "شراء", "متجر", "تخفيضات", "إصدار", "مجموعة"],
+  tr: ["yeni", "mağaza", "satın al", "indirim", "baskı", "set", "kit", "takım"]
 }
 
 /** A page title's usual extras around a name: best, top, official site, app, free, online, review. */
@@ -505,7 +540,8 @@ export const NAME_EXTRAS: Words = {
   zh: ["推荐", "官方", "官网", "应用", "免费", "在线", "评测"],
   "zh-Hant": ["推薦", "官方", "官網", "應用程式", "免費", "線上", "評測"],
   vi: ["tốt nhất", "chính hãng", "trang web", "ứng dụng", "miễn phí", "trực tuyến", "đánh giá"],
-  ar: ["أفضل", "رسمي", "موقع", "تطبيق", "مجاني", "أونلاين", "مراجعة"]
+  ar: ["أفضل", "رسمي", "موقع", "تطبيق", "مجاني", "أونلاين", "مراجعة"],
+  tr: ["en iyi", "yeni", "resmi", "site", "uygulama", "uygulamalar", "ücretsiz", "çevrimiçi", "online", "satın al", "mağaza", "inceleme", "yorumlar"]
 }
 
 const foldName = (w: string) => w.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean)
@@ -521,7 +557,8 @@ export const foldedPhrases = (...lists: Words[]): string[] => [...new Set(lists.
 export const QUARTER: Words = {
   en: ["quarter", "quarterly"], ru: ["квартал", "ежеквартально"], uk: ["квартал", "щокварталу"], de: ["quartal", "vierteljährlich"],
   fr: ["trimestre", "trimestriel"], es: ["trimestre", "trimestral"], it: ["trimestre", "trimestrale"], pt: ["trimestre", "trimestral"],
-  ja: ["四半期"], ko: ["분기"], zh: ["季度", "季付"], "zh-Hant": ["季度", "季繳"], vi: ["quý"], ar: ["ربع سنوي"]
+  ja: ["四半期"], ko: ["분기"], zh: ["季度", "季付"], "zh-Hant": ["季度", "季繳"], vi: ["quý"], ar: ["ربع سنوي"],
+  tr: ["çeyrek", "üç aylık"]
 }
 
 // ------------------------------------------------------------ what a delivery page says
@@ -537,7 +574,8 @@ export const SHIP_VERBS: Words = {
   it: ["spediamo", "spedito", "spediti", "consegniamo", "consegnato", "indirizzo di consegna", "indirizzo di spedizione"],
   pt: ["enviamos", "enviado", "enviados", "entregamos", "entregue", "endereço de entrega"],
   ja: ["発送", "お届け", "配達", "配送先"], ko: ["발송", "배달", "배송지"], zh: ["发货", "寄送", "送货", "邮寄", "收货地址"], "zh-Hant": ["出貨", "寄送", "送貨", "郵寄", "收件地址"],
-  vi: ["gửi hàng", "ship", "địa chỉ giao hàng"], ar: ["نشحن", "يشحن", "نوصل", "يتم الشحن", "يتم التوصيل", "عنوان الشحن"]
+  vi: ["gửi hàng", "ship", "địa chỉ giao hàng"], ar: ["نشحن", "يشحن", "نوصل", "يتم الشحن", "يتم التوصيل", "عنوان الشحن"],
+  tr: ["gönderiyoruz", "gönderilir", "gönderildi", "kargolanır", "kargoya verildi", "teslim edilir", "teslim edildi", "teslimat adresi", "gönderim adresi"]
 }
 
 /** A clause that says no: we don't, not available, impossible (Japanese, Korean, Chinese: as a shop writes a refusal). */
@@ -554,7 +592,8 @@ export const NEGATION: Words = {
   ko: ["불가", "하지 않", "되지 않", "지 않습니다"],
   zh: ["不配送", "不发货", "不支持", "暂不", "无法", "不提供", "不寄送", "不送"],
   "zh-Hant": ["不配送", "不出貨", "不支援", "暫不", "無法", "不提供", "不寄送", "不送"],
-  vi: ["không", "chưa"], ar: ["لا", "غير", "ليس", "لم", "لن"]
+  vi: ["không", "chưa"], ar: ["لا", "غير", "ليس", "لم", "لن"],
+  tr: ["değil", "yok", "yapılmamaktadır", "yapılamaz", "mümkün değil", "gönderilemez"]
 }
 
 /** "Except": the country after it is left out ("worldwide except Russia"). */
@@ -562,7 +601,8 @@ export const EXCEPT: Words = {
   en: ["except", "excluding", "other than", "with the exception of"], ru: ["кроме", "за исключением"], uk: ["крім", "окрім", "за винятком"],
   de: ["außer", "ausgenommen", "mit ausnahme von"], fr: ["sauf", "hors", "à l'exception de"], es: ["excepto", "salvo", "menos"],
   it: ["tranne", "eccetto", "escluso", "esclusi"], pt: ["exceto", "salvo", "menos"], ja: ["を除く", "除く", "以外"], ko: ["제외"],
-  zh: ["除外", "除了", "不包括"], "zh-Hant": ["除外", "除了", "不包括"], vi: ["ngoại trừ", "trừ"], ar: ["باستثناء", "عدا", "ما عدا"]
+  zh: ["除外", "除了", "不包括"], "zh-Hant": ["除外", "除了", "不包括"], vi: ["ngoại trừ", "trừ"], ar: ["باستثناء", "عدا", "ما عدا"],
+  tr: ["hariç", "dışında", "haricinde"]
 }
 
 /** "Only": a sentence that names where it ships and nowhere else. */
@@ -570,14 +610,16 @@ export const ONLY: Words = {
   en: ["only", "exclusively", "must be in", "must be within"], ru: ["только", "лишь", "исключительно", "должен быть в", "должна быть в"], uk: ["лише", "тільки", "виключно", "має бути в", "повинна бути в"], de: ["nur", "ausschließlich", "muss in", "muss innerhalb"],
   fr: ["uniquement", "seulement", "exclusivement", "doit être en", "doit être situé"], es: ["solo", "sólo", "únicamente", "exclusivamente", "debe estar en"],
   it: ["solo", "soltanto", "esclusivamente", "unicamente", "deve essere in", "deve trovarsi in"], pt: ["apenas", "somente", "exclusivamente", "deve ser em", "deve estar em"], ja: ["のみ", "限定"],
-  ko: ["에서만", "에만", "한정"], zh: ["仅", "只", "仅限"], "zh-Hant": ["僅", "只", "僅限"], vi: ["chỉ"], ar: ["فقط"]
+  ko: ["에서만", "에만", "한정"], zh: ["仅", "只", "仅限"], "zh-Hant": ["僅", "只", "僅限"], vi: ["chỉ"], ar: ["فقط"],
+  tr: ["sadece", "yalnızca", "yalnız"]
 }
 
 /** "But": where a sentence turns ("we ship to Germany, but not to Austria"). */
 export const CONTRAST: Words = {
   en: ["but", "however"], ru: ["но", "однако"], uk: ["але", "однак", "проте"], de: ["aber", "jedoch"], fr: ["mais", "cependant"],
   es: ["pero", "sin embargo"], it: ["ma", "però", "tuttavia"], pt: ["mas", "porém", "contudo"], ja: ["ただし", "しかし"],
-  ko: ["하지만", "다만", "그러나"], zh: ["但是", "不过", "但"], "zh-Hant": ["但是", "不過", "但"], vi: ["nhưng", "tuy nhiên"], ar: ["لكن", "ولكن"]
+  ko: ["하지만", "다만", "그러나"], zh: ["但是", "不过", "但"], "zh-Hant": ["但是", "不過", "但"], vi: ["nhưng", "tuy nhiên"], ar: ["لكن", "ولكن"],
+  tr: ["ama", "ancak", "fakat"]
 }
 
 /** Short names pages use for a country besides the one Intl gives (by its code). */
@@ -598,7 +640,8 @@ export const COST: Words = {
   fr: ["frais", "tarif", "tarifs", "prix", "gratuit", "gratuite"], es: ["costo", "coste", "precio", "tarifa", "gratis", "gratuito"],
   it: ["costo", "costi", "prezzo", "tariffa", "gratis", "gratuita"], pt: ["custo", "preço", "taxa", "grátis", "gratuito"],
   ja: ["送料", "料金", "無料"], ko: ["배송비", "요금", "무료"], zh: ["运费", "费用", "免费", "包邮"], "zh-Hant": ["運費", "費用", "免費"],
-  vi: ["phí", "miễn phí", "giá"], ar: ["رسوم", "تكلفة", "مجاني", "مجانا"]
+  vi: ["phí", "miễn phí", "giá"], ar: ["رسوم", "تكلفة", "مجاني", "مجانا"],
+  tr: ["ücret", "ücretler", "ücreti", "maliyet", "fiyat", "fiyatlar", "bedel", "bedeli", "ücretsiz"]
 }
 
 /** Units a size or capacity is written with (a shop writes "128 GB", «128 ГБ», "128기가" its own way). */
@@ -608,7 +651,8 @@ export const UNITS: Words = {
   uk: ["гб", "тб", "мб", "мм", "см", "м", "л", "мл", "вт", "квт", "мач", "кг", "г", "дюйм", "дюймів", "гц", "мп", "шт", "літра", "літрів"],
   de: ["zoll", "liter", "stück", "stk", "tassen"], fr: ["pouces", "po", "litres", "tasses"], es: ["pulgadas", "litros", "tazas"], it: ["pollici", "litri", "tazze"], pt: ["polegadas", "litros", "xícaras"],
   ja: ["ギガ", "テラ", "ミリ", "センチ", "リットル", "グラム", "インチ", "合", "人用"], ko: ["기가", "테라", "리터", "그램", "인치", "밀리", "인용", "인분"],
-  zh: ["克", "升", "毫升", "英寸", "寸", "人份", "杯"], "zh-Hant": ["克", "升", "毫升", "英吋", "吋", "人份", "杯"], vi: ["inch", "lít", "người"], ar: ["جيجا", "بوصة", "لتر", "مل", "كجم", "جرام"]
+  zh: ["克", "升", "毫升", "英寸", "寸", "人份", "杯"], "zh-Hant": ["克", "升", "毫升", "英吋", "吋", "人份", "杯"], vi: ["inch", "lít", "người"], ar: ["جيجا", "بوصة", "لتر", "مل", "كجم", "جرام"],
+  tr: ["gb", "tb", "mb", "kb", "mm", "cm", "m", "lt", "l", "ml", "w", "kw", "mah", "kg", "gr", "g", "inç", "hz", "mp", "adet"]
 }
 
 // ------------------------------------------------------------ a price in an item page's text (2.6)
@@ -628,7 +672,8 @@ export const PRICE_NOT_NOW: Words = {
   zh: ["原价", "市场价", "参考价", "划线价"],
   "zh-Hant": ["原價", "市價", "定價", "建議售價"],
   vi: ["giá gốc", "giá niêm yết", "giá cũ", "giá thị trường"],
-  ar: ["السعر الأصلي", "كان", "السعر قبل", "بدلا من", "بدلاً من"]
+  ar: ["السعر الأصلي", "كان", "السعر قبل", "بدلا من", "بدلاً من"],
+  tr: ["eski fiyat", "liste fiyatı", "piyasa fiyatı", "normal fiyat", "önceki fiyat"]
 }
 
 /** Before a price that is a saving, not a price. */
@@ -646,7 +691,8 @@ export const PRICE_SAVING: Words = {
   zh: ["节省", "立省", "优惠"],
   "zh-Hant": ["節省", "省下", "優惠"],
   vi: ["tiết kiệm", "giảm"],
-  ar: ["وفر", "توفير", "خصم"]
+  ar: ["وفر", "توفير", "خصم"],
+  tr: ["indirim", "tasarruf", "kazancınız"]
 }
 
 /** Before or after a price paid by the month or in parts. */
@@ -664,7 +710,8 @@ export const PRICE_MONTHLY: Words = {
   zh: ["每月", "/月", "分期"],
   "zh-Hant": ["每月", "/月", "分期"],
   vi: ["mỗi tháng", "/tháng", "trả góp"],
-  ar: ["شهريا", "شهرياً", "/شهر", "أقساط", "تقسيط"]
+  ar: ["شهريا", "شهرياً", "/شهر", "أقساط", "تقسيط"],
+  tr: ["aylık", "ayda", "/ay", "taksit", "taksitle"]
 }
 
 /** After a price paid by the month ("$41.58/mo", "29 € al mese"): part payments' own words introduce the next price. */
@@ -682,7 +729,8 @@ export const PRICE_PER_MONTH: Words = {
   zh: ["/月", "每月"],
   "zh-Hant": ["/月", "每月"],
   vi: ["/tháng"],
-  ar: ["شهريا", "شهرياً", "/شهر"]
+  ar: ["شهريا", "شهرياً", "/شهر"],
+  tr: ["aylık", "ayda", "/ay"]
 }
 
 /** Before a price that is a cart's, a total or an order minimum. */
@@ -700,7 +748,8 @@ export const PRICE_CART: Words = {
   zh: ["购物车", "小计", "合计", "总计", "起送", "满"],
   "zh-Hant": ["購物車", "小計", "合計", "總計", "滿"],
   vi: ["giỏ hàng", "tạm tính", "tổng", "đơn tối thiểu", "đơn hàng từ"],
-  ar: ["السلة", "سلة", "المجموع", "الإجمالي", "الحد الأدنى"]
+  ar: ["السلة", "سلة", "المجموع", "الإجمالي", "الحد الأدنى"],
+  tr: ["sepet", "sepetim", "ara toplam", "toplam", "minimum sipariş", "üzeri siparişlerde", "ve üzeri"]
 }
 
 /** A section of other items after the item's own (related, accessories, recently viewed): reading stops there. */
@@ -718,7 +767,8 @@ export const OTHER_ITEMS: Words = {
   zh: ["相关商品", "猜你喜欢", "推荐商品", "看了又看"],
   "zh-Hant": ["相關商品", "推薦商品", "猜你喜歡"],
   vi: ["sản phẩm liên quan", "sản phẩm tương tự", "có thể bạn thích", "phụ kiện"],
-  ar: ["منتجات ذات صلة", "قد يعجبك أيضا", "منتجات مشابهة", "إكسسوارات"]
+  ar: ["منتجات ذات صلة", "قد يعجبك أيضا", "منتجات مشابهة", "إكسسوارات"],
+  tr: ["benzer ürünler", "bunlar da ilginizi çekebilir", "ilginizi çekebilir", "birlikte alınan ürünler", "bu ürünü alanlar bunları da aldı", "önerilen ürünler", "son görüntülenenler", "aksesuarlar", "sizin için önerilenler"]
 }
 
 /** Before a number written without a sign, saying it is the price ("Preis: 378.-"). */
@@ -736,7 +786,8 @@ export const PRICE_LABEL: Words = {
   zh: ["价格", "售价"],
   "zh-Hant": ["價格", "售價"],
   vi: ["giá"],
-  ar: ["السعر"]
+  ar: ["السعر"],
+  tr: ["fiyat", "satış fiyatı", "indirimli fiyat"]
 }
 
 /**
@@ -757,5 +808,6 @@ export const ITEM_PAGE: Words = {
   zh: ["加入购物车", "立即购买", "购买", "数量", "尺码表", "预售", "含税"],
   "zh-Hant": ["加入購物車", "立即購買", "購買", "數量", "尺寸表", "預購", "含稅"],
   vi: ["thêm vào giỏ", "mua ngay", "thêm vào giỏ hàng", "số lượng", "bảng size", "đặt trước", "đã bao gồm vat"],
-  ar: ["أضف إلى السلة", "اشتر الآن", "أضف للسلة", "شراء", "الكمية", "دليل المقاسات", "طلب مسبق", "شامل الضريبة"]
+  ar: ["أضف إلى السلة", "اشتر الآن", "أضف للسلة", "شراء", "الكمية", "دليل المقاسات", "طلب مسبق", "شامل الضريبة"],
+  tr: ["sepete ekle", "hemen al", "adet", "beden tablosu", "beden rehberi", "ön sipariş", "kdv dahil"]
 }
