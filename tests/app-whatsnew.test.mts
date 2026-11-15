@@ -57,7 +57,7 @@ test("its cards are Tips' (their words and clips, in every language); a version 
   assert.match(whatsNew, /TipCard\(tip: WhatsNew\.items\[i\]\)/)
   assert.match(whatsNew, /if let store, WhatsNew\.newer\(store\.version, than: WhatsNew\.installed\)/)
   for (const key of ["What's new", "New in ContextFlow %@", "The main things this version brings, each shown in a short clip.", "The main things this version brings.", "ContextFlow %@ is here", "See what's new in this version.", "Version %@ is in the App Store", "Update"]) {
-    assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 13, key)
+    assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 14, key)
   }
   // The project builds it for iPhone, iPad and Mac.
   const project = read("../ContextFlow/ContextFlow.xcodeproj/project.pbxproj")
@@ -67,11 +67,11 @@ test("its cards are Tips' (their words and clips, in every language); a version 
 test("the app's ✦ by the search is gone (#130): the plan tour says By meaning; Tips, shown in the panel too, say both", () => {
   assert.doesNotMatch(content, /Tap ✦ next to the search and describe/)
   const tour = "In Chats, open the search, choose By meaning and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once."
-  assert.equal(Object.keys(catalog[tour].localizations).length, 13)
+  assert.equal(Object.keys(catalog[tour].localizations).length, 14)
   assert.doesNotMatch(JSON.stringify(catalog[tour]), /✦/)
   // The panel's chats list keeps its ✦; the same card shows there (scripts/tips-source.mjs).
   const tip = "Describe the chat you remember — “that article about sleep and coffee” — even without the exact words. In the app, choose By meaning under the search; in Safari, tap ✦ next to it."
   assert.ok(content.includes(tip))
-  assert.equal(Object.keys(catalog[tip].localizations).length, 13)
+  assert.equal(Object.keys(catalog[tip].localizations).length, 14)
   for (const lang of Object.keys(catalog[tip].localizations)) assert.match(catalog[tip].localizations[lang].stringUnit.value, /✦/, lang)
 })

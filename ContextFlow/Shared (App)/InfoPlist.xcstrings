@@ -5,12 +5,6 @@
       "comment": "Calendar and Reminders (2.7): why ContextFlow asks for access.",
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ContextFlow adds the reminders you confirm. It doesn't read your reminders or send them anywhere."
-          }
-        },
         "ar": {
           "stringUnit": {
             "state": "translated",
@@ -21,6 +15,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "ContextFlow fügt die Erinnerungen hinzu, die du bestätigst. Es liest deine Erinnerungen nicht und sendet sie nirgendwohin."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow adds the reminders you confirm. It doesn't read your reminders or send them anywhere."
           }
         },
         "es": {
@@ -65,6 +65,12 @@
             "value": "ContextFlow добавляет напоминания, которые вы подтвердили. Он не читает ваши напоминания и никуда их не отправляет."
           }
         },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow, onayladığınız anımsatıcıları ekler. Anımsatıcılarınızı okumaz ve hiçbir yere göndermez."
+          }
+        },
         "uk": {
           "stringUnit": {
             "state": "translated",
@@ -95,12 +101,6 @@
       "comment": "Calendar and Reminders (2.7): why ContextFlow asks for access.",
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ContextFlow adds the events you confirm to your calendar. It can't see your calendar."
-          }
-        },
         "ar": {
           "stringUnit": {
             "state": "translated",
@@ -111,6 +111,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "ContextFlow fügt die Termine, die du bestätigst, deinem Kalender hinzu. Deinen Kalender sieht es nicht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow adds the events you confirm to your calendar. It can't see your calendar."
           }
         },
         "es": {
@@ -153,6 +159,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "ContextFlow добавляет в календарь события, которые вы подтвердили. Ваш календарь он не видит."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow, onayladığınız etkinlikleri takviminize ekler. Takviminizi göremez."
           }
         },
         "uk": {

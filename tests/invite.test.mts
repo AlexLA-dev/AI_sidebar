@@ -342,7 +342,7 @@ test("the app's invite strings are translated in its 13 languages with matching 
     const entry = catalog.strings[key]
     assert.ok(entry, key)
     const langs = Object.keys(entry.localizations)
-    assert.equal(langs.length, 13, key)
+    assert.equal(langs.length, 14, key)
     for (const lang of langs) assert.deepEqual(spec(entry.localizations[lang].stringUnit.value), spec(key), `${lang}: ${key}`)
   }
   assert.match(swift, /DCDevice\.current\.generateToken/)

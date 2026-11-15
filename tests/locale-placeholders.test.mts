@@ -19,7 +19,7 @@ const KNOWN = new Set(["fr:qiPrivacy"])
 test("every panel string in every language has the English placeholders", () => {
   const en = JSON.parse(read("src/locales/en.json")) as Record<string, string>
   const files = readdirSync(new URL("src/locales/", root)).filter((f) => f.endsWith(".json"))
-  assert.equal(files.length, 14)
+  assert.equal(files.length, 15)
   for (const file of files) {
     const lang = file.replace(".json", "")
     const strings = JSON.parse(read(`src/locales/${file}`)) as Record<string, string>
