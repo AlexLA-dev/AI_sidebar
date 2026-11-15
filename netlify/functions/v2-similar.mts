@@ -105,8 +105,13 @@ export default async (req: Request, context: Context): Promise<Response> => {
     }
   }
 
-  // The light search looks anywhere (no "near me").
-  if (light) input = { ...input, region: "world" }
+  // The light search doesn't ask where: it looks from their country (the searches' location, the country's name in them
+  // where the search can't be located, their money), as "near me" does but without the App Store and delivery checks
+  // (lightOverrides). Whatever the panel sent (a choice saved on Ultra) doesn't change it.
+  if (light) {
+    const { region: _asked, ...rest } = input
+    input = { ...rest, ...(input.country ? { region: "local" as const } : {}), whereAsked: false }
+  }
   // An evaluation's own switches over the light search's (only those it sets: an unset one keeps the light search's).
   const asked = evaluating ? Object.fromEntries(Object.entries(overridesOf(body.options)).filter(([, v]) => v !== undefined)) : {}
   const overrides: EngineOverrides = { ...(light ? lightOverrides() : {}), ...asked }

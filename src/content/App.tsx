@@ -1500,7 +1500,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     // Where to look: as asked the first time (Retry), else as the picker says; their country, the server's view of it
     // else the device's region.
-    const region = where?.region ?? settingsRef.current.similarRegion
+    // 2.7: the light search doesn't ask (it looks from their country), so no choice is shown under the question (a plan
+    // not known yet sends the choice, and the server decides).
+    const region = statusRef.current && similarMode(statusRef.current.plan) === "light" ? undefined : where?.region ?? settingsRef.current.similarRegion
     const country = where?.country ?? statusRef.current?.country ?? localeCountry()
     void sendBackground({ type: "useEvent", f: "similar", a: "find", what: similarMode(statusRef.current?.plan) })
     setUndoBar(null)
