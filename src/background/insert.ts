@@ -5,6 +5,7 @@
 import { API_BASE, TARGET } from "../shared/config"
 import { INSERT_STORAGE, type AiFailure, type FillResult, type FindResult, type InsertEvent, type InsertRequest, type MarkResult } from "../shared/insert"
 import { sortedJson } from "../shared/stored"
+import { clipAsk, type WriteAsk, type WriteFailureCode, type WriteReply } from "../shared/writing"
 import { applyTemplates, pendingTemplates, type Templates } from "../shared/templates"
 import { DEFAULT_SETTINGS, STORAGE, type ErrorCode, type ProOffer, type Settings, type Usage } from "../shared/types"
 import { callNative } from "./native"
@@ -124,6 +125,38 @@ async function find(message: Extract<InsertRequest, { type: "qiFind" }>): Promis
   return post<FindResult>("find", { query: message.query, templates: message.templates }, 20_000)
 }
 
+/**
+ * «Проверить» и «Переписать» (2.7): the field's text, the page around it and the person's style to /api/v2/write.
+ * A tap is one answer: the panel's usage line is asked again after it.
+ */
+const WRITE_CODES = new Set<WriteFailureCode>(["LIMIT_REACHED", "TOO_LONG", "BUSY", "UPSTREAM", "UNAVAILABLE", "BAD_REQUEST", "PRO_ONLY"])
+
+async function write(ask: WriteAsk): Promise<WriteReply> {
+  if (!(await deps.consented())) return { ok: false, code: "CONSENT" }
+  const [installId, entitlement, client] = await Promise.all([deps.installId(), deps.entitlementJws(), deps.clientInfo()])
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}/api/v2/write`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ installId, client, entitlement, ...clipAsk(ask) }),
+      signal: AbortSignal.timeout(30_000)
+    })
+  } catch {
+    return { ok: false, code: "NETWORK" }
+  }
+  const body = (await res.json().catch(() => ({}))) as { ok?: boolean; text?: unknown; plan?: unknown; code?: string; usage?: Usage | null; offer?: ProOffer | null }
+  if (res.ok && body.ok === true && typeof body.text === "string") {
+    // A live check isn't an answer: the usage line stays as it is.
+    if (!ask.live) deps.statusChanged()
+    // The server's plan with it (2.7): the card's «left today» is Free's only (shared/writing.ts freeLeft).
+    return { ok: true, text: body.text, ...(typeof body.plan === "string" ? { plan: body.plan } : {}), usage: body.usage ?? null }
+  }
+  const code = WRITE_CODES.has(body.code as WriteFailureCode) ? (body.code as WriteFailureCode) : res.status === 404 ? "UNAVAILABLE" : res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"
+  if (code === "LIMIT_REACHED") deps.statusChanged()
+  return { ok: false, code, usage: body.usage ?? null, offer: body.offer ?? null }
+}
+
 // ------------------------------------------------------------ counters
 
 async function report(event: InsertEvent): Promise<void> {
@@ -157,6 +190,9 @@ export function startInsert(d: InsertDeps): void {
         return true
       case "qiFind":
         find(message).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+        return true
+      case "qiWrite":
+        write(message.ask).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
         return true
       default:
         return false

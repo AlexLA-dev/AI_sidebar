@@ -8,9 +8,12 @@ import { citedNote, entryKey, type Entry } from "../../shared/conversation"
 import { t } from "../../shared/i18n"
 import { addMark, removeMark } from "../../shared/marks"
 import { reminderNotice, remindWords, withRemindWords } from "../../shared/reminders"
+import { itemNotes } from "../../shared/appleItems"
 import { STORAGE } from "../../shared/types"
+import { AddCard, type CardState, type Draft } from "./AddCard"
+import { addToApple, appleNow, chatLink, handoffInTap, loadApple, mirrorReminder, readItems, appleAction, type AppleStatus } from "./apple"
 import { copyRich, panelRange, richHtml, selectionIn } from "./marks"
-import { Bell, FloatAt, Marker, MessageMenu, More, PinIcon, RemindChip, RemindSheet, TrashIcon } from "./MessageUx"
+import { Bell, CalendarIcon, FloatAt, Marker, MessageMenu, More, PinIcon, RemindChip, RemindSheet, TrashIcon } from "./MessageUx"
 import { PinnedBar } from "./PinnedBar"
 import { Swipe } from "./Swipe"
 
@@ -57,11 +60,22 @@ function remindWhat(m: Entry): "page" | "note" | "answer" {
 /**
  * Asks the extension to set (or, with `at` null, cancel) a message's reminder on this device. The system
  * may first ask about notifications: the answer waits for that.
+ * `apple` (2.7, «Также в Напоминания»): the Remind window's choice; left out, the reminder stays where it was (in Apple
+ * Reminders when it was put there: moved, taken back, put back after an undo). A reminder that's in Apple Reminders
+ * counts as set even when notifications are off here.
  */
-export async function scheduleReminder(send: Options["send"], chat: string, entry: Entry, at: number | null, chatTitle: string): Promise<string> {
+export async function scheduleReminder(send: Options["send"], chat: string, entry: Entry, at: number | null, chatTitle: string, apple?: boolean): Promise<string> {
   const notice = reminderNotice(entry, chatTitle, (text) => t("uxRemindAsked", text))
   const reply = await send<{ outcome: string }>({ type: "remind", chat, message: entryKey(entry), at, title: notice.title, body: notice.body, url: notice.url, ask: true })
-  return reply?.outcome ?? "unavailable"
+  let outcome = reply?.outcome ?? "unavailable"
+  const was = entry.remind?.apple === true
+  if (at === null || !(apple ?? was)) {
+    if (was) await mirrorReminder(send, chat, entry, null)
+    return outcome
+  }
+  const mirrored = await mirrorReminder(send, chat, entry, at)
+  if (outcome !== "scheduled" && (mirrored === "saved" || mirrored === "app")) outcome = "scheduled"
+  return outcome
 }
 
 export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, touch, open, send, showUndo }: Options) {
@@ -70,6 +84,9 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
   // The menu of a message: under its "…" or, on a right-click, where the pointer is.
   const [menu, setMenu] = useState<{ idx: number; x?: number; y?: number } | null>(null)
   const [reminding, setReminding] = useState<{ idx: number; note: string | null } | null>(null)
+  // 2.7: the cards suggesting a reminder or an event, by message key; what this device can add.
+  const [cards, setCards] = useState<Record<string, CardState>>({})
+  const [apple, setApple] = useState<AppleStatus | null>(appleNow())
   const messagesRef = useRef(messages)
   messagesRef.current = messages
 
@@ -176,12 +193,12 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     void send({ type: "uxEvent", kind: "ux_pin", action: "unpinned_all", how: "list" })
   }, [setMessages, send])
 
-  const setReminder = useCallback(async (idx: number, at: number | null, preset?: string, words?: string) => {
+  const setReminder = useCallback(async (idx: number, at: number | null, preset?: string, words?: string, apple?: boolean) => {
     const found = messagesRef.current[idx]
     if (!found) return
     // A reminder made with Remind on a selection or a page: its new words go with its new time (2.6 (97)).
     const m = at === null ? found : withRemindWords(found, words)
-    const outcome = await scheduleReminder(send, chatId(), m, at, chatTitle())
+    const outcome = await scheduleReminder(send, chatId(), m, at, chatTitle(), at === null ? undefined : apple === true)
     if (at !== null && outcome !== "scheduled") {
       if (outcome === "denied") void send({ type: "uxEvent", kind: "ux_remind", action: "denied", what: remindWhat(m) })
       // No notification on this device: say why; the mark isn't kept.
@@ -192,12 +209,108 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     update(idx, (x) => {
       const next = at === null ? { ...x } : { ...withRemindWords(x, words) }
       if (at === null) delete next.remind
-      else next.remind = { ...(x.remind?.page ? { page: true as const } : {}), at, ...(dev ? { dev } : {}) }
+      else next.remind = { ...(x.remind?.page ? { page: true as const } : {}), at, ...(dev ? { dev } : {}), ...(apple ? { apple: true as const } : {}) }
       return next
     })
     setReminding(null)
     void send({ type: "uxEvent", kind: "ux_remind", action: at === null ? "cancelled" : "set", what: remindWhat(m), ...(preset ? { preset } : {}) })
   }, [chatId, chatTitle, send, update])
+
+  // ---------------------------------------------------------- Calendar and Reminders (2.7)
+  useEffect(() => {
+    if (open) void loadApple(send).then(setApple)
+  }, [open, send])
+
+  /** The card for message `idx`: the server reads what to add out of it (and the question it answers). */
+  const openCard = useCallback(async (idx: number, via: "chat" | "menu" | "chip") => {
+    const all = messagesRef.current
+    const m = all[idx]
+    if (!m) return
+    const key = entryKey(m)
+    const asked = idx > 0 && all[idx - 1].role === "user" && !all[idx - 1].note ? all[idx - 1] : null
+    setCards((c) => ({ ...c, [key]: { step: "reading" } }))
+    void send({ type: "useEvent", f: "apple", a: "open", via })
+    const [status, read] = await Promise.all([
+      loadApple(send),
+      readItems(send, { text: m.content, words: asked ? asked.label ?? asked.content : undefined, title: (asked ?? m).page?.title })
+    ])
+    setApple(status)
+    const next: CardState = "error" in read ? { step: "error", code: read.error } : read.items.length ? { step: "ready", items: read.items } : { step: "none" }
+    setCards((c) => (c[key] ? { ...c, [key]: next } : c))
+    if (!("error" in read)) void send({ type: "useEvent", f: "apple", a: read.items.length ? "shown" : "nothing", via })
+  }, [send])
+
+  // An answer that came with the chat's marker while the panel watched (or a moment ago): its card opens by itself.
+  const offered = useRef(new Set<string>())
+  useEffect(() => {
+    const last = messages[messages.length - 1]
+    if (!open || !apple?.available || !last || last.role !== "assistant" || !last.addable) return
+    const key = entryKey(last)
+    if (offered.current.has(key) || cards[key] || Date.now() - (last.t ?? 0) > 120_000) return
+    offered.current.add(key)
+    void openCard(messages.length - 1, "chat")
+  }, [messages, open, apple, cards, openCard])
+
+  const closeCard = (idx: number) => {
+    const m = messagesRef.current[idx]
+    if (!m) return
+    const key = entryKey(m)
+    setCards(({ [key]: _, ...rest }) => rest)
+    // Not offered again under this answer (the "…" menu still has it).
+    if (m.addable) update(idx, ({ addable: _, ...rest }) => rest)
+  }
+
+  const changeDraft = (key: string, i: number, draft: Draft) => {
+    setCards((c) => {
+      const card = c[key]
+      if (card?.step !== "ready") return c
+      return { ...c, [key]: { step: "ready", items: card.items.map((d, j) => (j === i ? draft : d)) } }
+    })
+  }
+
+  /** Add tapped: written here, or the app opens in this tap to ask for access (iPhone, iPad; a Mac opens it itself). */
+  const addDraft = (idx: number, i: number) => {
+    const m = messagesRef.current[idx]
+    const card = m && cards[entryKey(m)]
+    if (!m || card?.step !== "ready") return
+    const key = entryKey(m)
+    const draft = card.items[i]
+    const handoff = handoffInTap(draft.kind)
+    changeDraft(key, i, { ...draft, state: "adding" })
+    const all = messagesRef.current
+    const asked = idx > 0 && all[idx - 1].role === "user" ? all[idx - 1] : m
+    const url = asked.page && /^https?:\/\//.test(asked.page.url) ? asked.page.url : undefined
+    const notes = itemNotes(draft.notes, { url, chat: chatLink(chatId(), m) }, asked.page?.title)
+    const { list: chosen, state: _, ...item } = draft
+    const list = chosen ?? apple?.defaultList
+    void addToApple(send, item, notes, { url, ...(list && draft.kind === "reminder" ? { list } : {}), ...(handoff ? { handoff } : {}) }).then((outcome) => {
+      changeDraft(key, i, { ...draft, state: outcome })
+      void send({ type: "useEvent", f: "apple", a: appleAction(outcome), what: draft.kind, via: "card" })
+    })
+  }
+
+  /** Under an answer or a note: its card, or for an answer with the chat's marker, the way to open one. */
+  const addCard = (m: Entry, idx: number): VNode | null => {
+    const card = cards[entryKey(m)]
+    if (card) {
+      return (
+        <AddCard
+          card={card}
+          status={apple}
+          onChange={(i, draft) => changeDraft(entryKey(m), i, draft)}
+          onAdd={(i) => addDraft(idx, i)}
+          onRetry={() => void openCard(idx, "menu")}
+          onClose={() => closeCard(idx)}
+        />
+      )
+    }
+    if (!m.addable || !apple?.available) return null
+    return (
+      <button type="button" class="cf-chip cf-add-offer" onClick={() => void openCard(idx, "chip")}>
+        <CalendarIcon size={14} /> {t("appleMenu")}
+      </button>
+    )
+  }
 
   // ---------------------------------------------------------- copy with the highlights
   const copyAnswer = useCallback(async (idx: number, plain: string): Promise<boolean> => {
@@ -269,6 +382,10 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
         setMenu(null)
         setReminding({ idx, note: null })
       }}
+      onAdd={apple?.available ? () => {
+        setMenu(null)
+        void openCard(idx, "menu")
+      } : undefined}
       onDelete={() => remove(idx, "menu")}
       onClose={() => setMenu(null)}
     />
@@ -311,7 +428,7 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
           note={reminding.note}
           quote={citedNote(messages[reminding.idx])?.cite}
           words={remindWords(messages[reminding.idx])}
-          onPick={(at, preset, words) => void setReminder(reminding.idx, at, preset, words)}
+          onPick={(at, preset, words, apple) => void setReminder(reminding.idx, at, preset, words, apple)}
           onCancel={() => void setReminder(reminding.idx, null)}
           onClose={() => setReminding(null)}
         />
@@ -319,5 +436,5 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     </>
   )
 
-  return { wrap, strip, overlay, moreButton, contextMenu, onListClick, copyAnswer }
+  return { wrap, strip, overlay, moreButton, contextMenu, onListClick, copyAnswer, addCard }
 }

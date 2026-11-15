@@ -137,7 +137,7 @@ test("a site's search field is known by its words in every language the app spea
   const hints: Record<(typeof LANGS)[number], string> = {
     en: "Search products", ru: "Поиск по сайту", uk: "Пошук товарів", de: "Suchbegriff eingeben", fr: "Rechercher un article",
     es: "Busqueda de productos", it: "Cerca nel negozio", pt: "Pesquisar produtos", ja: "サイト内検索", ko: "상품 검색",
-    zh: "搜索商品", "zh-Hant": "搜尋商品", vi: "Tìm kiếm sản phẩm", ar: "ابحث عن منتج"
+    zh: "搜索商品", "zh-Hant": "搜尋商品", vi: "Tìm kiếm sản phẩm", ar: "ابحث عن منتج", tr: "Ürün, kategori veya marka ara"
   }
   for (const lang of LANGS) {
     assert.equal(searchNamed(hints[lang]), true, lang)
@@ -146,7 +146,7 @@ test("a site's search field is known by its words in every language the app spea
   }
   // Ordinary fields keep the button, in any language.
   for (const hint of ["Your name", "Ваше имя", "Ваш відгук", "Ihre Nachricht", "Votre message", "Tu respuesta", "La tua email",
-    "Seu comentário", "お名前", "메시지", "留言", "留言內容", "Tin nhắn của bạn", "رسالتك"]) {
+    "Seu comentário", "お名前", "메시지", "留言", "留言內容", "Tin nhắn của bạn", "رسالتك", "Adınız", "Mesajınız", "Parametre", "Paragraf"]) {
     assert.equal(searchNamed(hint), false, hint)
   }
 })

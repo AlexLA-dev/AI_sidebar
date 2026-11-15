@@ -2,13 +2,17 @@ import type { VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
 import { LINKS, TARGET, VERSION } from "../shared/config"
-import { t } from "../shared/i18n"
+import { t, uiDirection, uiLang } from "../shared/i18n"
 import { OWN_KEY_PATTERN } from "../shared/models"
 import { hasPro, isUltra, periodOfProduct, productOf } from "../shared/plan"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
 import * as Icon from "./icons"
 import { deleteAllChats, hideYearly, yearlyHiddenNow } from "./store"
 import { InsertSettingsGroup } from "./insert/InsertSettings"
+import { sendBackground } from "./insert/store"
+import { hintsOn, setHintsOn } from "./pagehints/store"
+import { resolveSide } from "./side/snap"
+import { InviteGroup } from "./invite/Invite"
 
 interface Props {
   settings: Settings
@@ -34,6 +38,8 @@ interface Props {
   onSocial: (network: "x" | "threads") => void
   // Organizing (2.5) without Pro: what it does opens the Pro screen.
   onOrganizePro: () => void
+  // 2.7, invite a friend: an App Store offer code (the inviter's reward) to the App Store's redeem sheet.
+  onRedeem: (code: string) => void
 }
 
 function Segmented<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }): VNode {
@@ -68,7 +74,8 @@ export function SettingsView(props: Props): VNode {
   }
 
   const hidden = settings.fabHiddenSites.includes(site)
-  const renews = status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString() : null
+  // In the interface's language, like the sentence it goes into (2.7, the director's audit).
+  const renews = status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString(uiLang()) : null
   const planName = plan === "ultra" ? t("planUltra") : plan === "pro" ? t("planPro") : plan === "byok" ? t("planByok") : t("planFree")
   // Ultra: this week's listening, in minutes.
   const speak = isUltra(plan) ? status?.ultra?.speak ?? null : null
@@ -149,6 +156,11 @@ export function SettingsView(props: Props): VNode {
           <Segmented value={settings.fab === "off" ? "off" : "on"} options={[["on", t("fabOn")], ["off", t("fabOff")]]} onChange={(fab) => onChange({ fab })} />
         </div>
         <p class="cf-hint">{t("setFabHint")}</p>
+        {/* 2.7: the side of the screen for the circle and, on iPad and Mac, the panel (they can be dragged there too). */}
+        <div class="cf-row">
+          <span class="cf-label">{t("setSide")}</span>
+          <Segmented value={resolveSide(settings, uiDirection())} options={[["right", t("sideRight")], ["left", t("sideLeft")]]} onChange={(fabSide) => onChange({ fabSide, fabSideChosen: true })} />
+        </div>
         <div class="cf-row">
           <button
             type="button"
@@ -158,6 +170,8 @@ export function SettingsView(props: Props): VNode {
             {hidden ? t("showOnSite", site) : t("hideOnSite", site)}
           </button>
         </div>
+        {/* 2.7 (plan section 6): the page hints by the circle, the first days (off: also by two ✕ in a row). */}
+        <PageHintsSwitch />
         <label class="cf-row toggle">
           <span class="cf-label">{t("setSelectionButton")}</span>
           <input type="checkbox" checked={settings.selectionButton} onChange={(e) => onChange({ selectionButton: e.currentTarget.checked })} />
@@ -256,6 +270,12 @@ export function SettingsView(props: Props): VNode {
           </div>
         ))}
         {TARGET === "safari" && !hasPro(plan) && <p class="cf-hint">{t("setOrganizePro")}</p>}
+        {/* 2.7: Spaces, on by default (nothing shows while there's one). Off: one list again, nothing lost. */}
+        <label class="cf-row toggle">
+          <span class="cf-label">{t("setSpaces")}</span>
+          <input type="checkbox" checked={settings.spaces !== false} onChange={(e) => onChange({ spaces: e.currentTarget.checked })} />
+        </label>
+        <p class="cf-hint">{t("setSpacesHint")}</p>
         {TARGET === "safari" && (
           <>
             <label class="cf-row toggle">
@@ -280,6 +300,9 @@ export function SettingsView(props: Props): VNode {
 
       {hasPro(plan) && planGroup}
 
+      {/* 2.7 (plan section 5): invite a friend, optional; a new install enters a friend's code here too. */}
+      {TARGET === "safari" && <InviteGroup onRedeem={props.onRedeem} onStatusChange={props.onStatusChange} />}
+
       <footer class="cf-links">
         <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>
         <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.review)}>{t("rateApp")}</button>
@@ -291,5 +314,26 @@ export function SettingsView(props: Props): VNode {
         <span class="cf-version">{t("version", VERSION)}</span>
       </footer>
     </div>
+  )
+}
+
+/** The page hints' switch (2.7): kept with the hints' own state on this device (src/content/pagehints/store.ts). */
+function PageHintsSwitch(): VNode {
+  const [on, setOn] = useState<boolean | null>(null)
+  useEffect(() => void hintsOn().then(setOn), [])
+  if (on === null) return <></>
+  return (
+    <>
+      <label class="cf-row toggle">
+        <span class="cf-label">{t("setPageHints")}</span>
+        <input type="checkbox" checked={on} onChange={(e) => {
+          const next = e.currentTarget.checked
+          setOn(next)
+          void setHintsOn(next)
+          void sendBackground({ type: "useEvent", f: "page_hint", a: next ? "switch_on" : "switch_off" })
+        }} />
+      </label>
+      <p class="cf-hint">{t("setPageHintsHint")}</p>
+    </>
   )
 }

@@ -73,8 +73,10 @@ test("Safari counts answers and, on a milestone, tells the app and returns it (c
 test("the background counts only an answer that streamed to its end, and sends due from Safari with the milestone", () => {
   const bg = read("src/background/index.ts")
   assert.match(bg, /if \(event\.type === "done"\) \{\s*void countValueMoment\(\)\.then\(\(moment\) => \{\s*if \(moment && TARGET === "safari"\) void reportUse\(\{ type: "useEvent", f: "rate", a: "due", via: "ext_moment", moment \}\)/)
-  // reportUse passes the milestone on (s "panel": Safari's side).
-  assert.match(bg, /gap_s: message\.gap_s, moment: message\.moment, s: "panel"/)
+  // reportUse passes the milestone on (s "panel": Safari's side): every field of the step but its type (2.7), the
+  // server keeping the feature's own (usage.ts useFields).
+  assert.match(bg, /body: JSON\.stringify\(\{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}\)/)
+  assert.match(bg, /function useStep\([^)]*\)[^{]*\{\s*const \{ type: _type, \.\.\.fields \} = message\s*return fields/)
   // An error, a refusal or a stop never emits "done" (chat.ts): only a finished answer counts.
   const chat = read("src/background/chat.ts")
   assert.match(chat, /else if \(event\.type === "done"\) \{\s*finished = true\s*emit\(\{ type: "done"/)
@@ -113,7 +115,8 @@ test("every ask goes through ReviewAsk: one requestReview, at the root, and each
   // Safari's moment: at launch and whenever the app comes to the front (iOS: twice over, one ask waits at a time).
   assert.equal([...content.matchAll(/ReviewAsk\.shared\.cameToFront\(\)/g)].length, 4)
   // A link from Safari to do something holds it.
-  assert.match(content, /\["subscribe", "manage", "listen", "notifications"\]\.contains\(url\.host \?\? ""\) \{ ReviewAsk\.shared\.taskLink\(\) \}/)
+  // 2.7: "add", a reminder or an event handed over from the panel.
+  assert.match(content, /\["subscribe", "manage", "listen", "notifications", "add"\]\.contains\(url\.host \?\? ""\) \{ ReviewAsk\.shared\.taskLink\(\) \}/)
 
   const ask = app("ReviewAsk.swift")
   assert.match(ask, /func take\(_ request: Request, busy: Bool\) -> Bool \{[\s\S]*?ReviewGate\.goesNow\(request\.via, state\)[\s\S]*?if let pending \{ SharedDefaults\.shared\.markReviewAsked\(pending\) \}[\s\S]*?ChatAI\.reportUse\("rate", "ask", fields\)/)
@@ -269,13 +272,13 @@ test("the panel's Other… ends with Rate in App Store, and a tap on it rates", 
 test("Rate in App Store is in all 14 languages, in the panel and the app", () => {
   const locales = join(root, "src/locales")
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
-  assert.equal(files.length, 14)
+  assert.equal(files.length, 15)
   for (const file of files) {
     const s = JSON.parse(readFileSync(join(locales, file), "utf8")) as Record<string, string>
     assert.ok(s.uxRate?.includes("App Store"), `${file}: uxRate`)
   }
   const catalog = JSON.parse(app("Localizable.xcstrings")).strings["Rate in App Store"].localizations as Record<string, { stringUnit: { value: string } }>
-  assert.equal(Object.keys(catalog).length, 13)
+  assert.equal(Object.keys(catalog).length, 14)
   for (const [lang, v] of Object.entries(catalog)) assert.ok(v.stringUnit.value.includes("App Store"), lang)
 })
 

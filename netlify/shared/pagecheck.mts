@@ -833,6 +833,8 @@ const RU_LETTERS = /[ыэъё]/giu
 // Vietnamese by the letters only it writes: ơ, ư and the vowels with a tone mark below or a hook (ạ ả ấ … ỹ); not ă
 // (Romanian's commonest) nor đ (Croatian, Serbian).
 const VI_LETTERS = /[ơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/giu
+// Turkish (2.7): dotless ı and ğ are its own among the Latin languages here, ş nearly so.
+const TR_LETTERS = /[ığş]/g
 const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/gu
 const HANGUL = /\p{Script=Hangul}/gu
 const HAN = /\p{Script=Han}/gu
@@ -905,6 +907,8 @@ export function textLanguage(text: string, short = false): { lang: string; scrip
     const letters = lower.match(/\p{L}/gu)?.length ?? 0
     const vi = count(lower, VI_LETTERS)
     if (vi >= need && vi / Math.max(1, letters) > 0.02) return { lang: "vi", script }
+    const tr = count(lower, TR_LETTERS)
+    if (tr >= need && tr / Math.max(1, letters) > 0.02) return { lang: "tr", script }
     const scores = MARKS.filter(([l]) => l !== "ru" && l !== "uk").map(([lang, re]) => [lang, count(lower, re)] as const).sort((a, b) => b[1] - a[1])
     const [best, second] = scores
     if (best[1] >= need && best[1] >= 2 * second[1]) return { lang: best[0], script }

@@ -6,7 +6,7 @@
 import type { VNode } from "preact"
 import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 
-import { t } from "../../shared/i18n"
+import { t, uiLang } from "../../shared/i18n"
 import { isUltra, type Plan } from "../../shared/plan"
 import { needsScript, speechParts, speechSeconds, speechText } from "../../shared/speech"
 import type { Platform, Usage } from "../../shared/types"
@@ -664,7 +664,7 @@ export function ListenBar({ state, title, onTitle, speed, left, onSpeed, onAnywa
     )
   }
   if (state.at === "error") {
-    const resets = state.usage?.resetsAt ? new Date(state.usage.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : ""
+    const resets = state.usage?.resetsAt ? new Date(state.usage.resetsAt).toLocaleDateString(uiLang(), { weekday: "long" }) : ""
     const text = state.code === "LIMIT_REACHED"
       ? t("listenLimit", String(Math.round((state.usage?.limit ?? 0) / 60)), resets)
       : state.code === "NETWORK" ? t("listenOffline") : t("listenFailed")

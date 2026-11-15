@@ -1973,6 +1973,21 @@
  "similarLimit": {
   "message": "本週的 {0} 次「尋找相似」已用完，{1}恢復。"
  },
+ "similarLightNote": {
+  "message": "快速搜尋：每週最多 {0} 次。"
+ },
+ "similarLightNotePro": {
+  "message": "快速搜尋：每週最多 {0} 次，每次算作 {1} 個回答。"
+ },
+ "similarLightFoot": {
+  "message": "快速搜尋。Ultra 搜尋範圍更廣，會讀評價並核對配送。"
+ },
+ "similarLightLimit": {
+  "message": "本週的 {0} 次快速搜尋已用完，{1}恢復。Ultra 每週 {2} 次，搜尋範圍更廣。"
+ },
+ "similarAnswersShort": {
+  "message": "一次快速搜尋算作 {0} 個回答，你還剩 {1} 個。"
+ },
  "orgDemoQuestion": {
   "message": "五月去里斯本的便宜機票？"
  },
@@ -2279,6 +2294,669 @@
  "similarMisses": {
   "message": "不符合你選的條件"
  },
+ "appleTitle": {
+  "message": "行事曆和提醒事項"
+ },
+ "appleMenu": {
+  "message": "加入行事曆或提醒事項"
+ },
+ "appleReading": {
+  "message": "正在尋找日期和時間…"
+ },
+ "appleNothing": {
+  "message": "沒有可加入的內容：找不到日期或事項。"
+ },
+ "appleError": {
+  "message": "無法讀取日期。"
+ },
+ "appleRetry": {
+  "message": "重試"
+ },
+ "appleReminder": {
+  "message": "提醒事項"
+ },
+ "appleEvent": {
+  "message": "行程"
+ },
+ "appleWhat": {
+  "message": "內容"
+ },
+ "appleDate": {
+  "message": "日期"
+ },
+ "appleTime": {
+  "message": "時間"
+ },
+ "appleList": {
+  "message": "列表"
+ },
+ "appleRemindersApp": {
+  "message": "加入提醒事項"
+ },
+ "appleCalendarPick": {
+  "message": "行事曆將在下一步選擇"
+ },
+ "appleCalendarDefault": {
+  "message": "你的預設行事曆"
+ },
+ "appleGuess": {
+  "message": "請核對日期和時間：這是推測的。"
+ },
+ "applePast": {
+  "message": "這個時間已經過去。請核對日期。"
+ },
+ "appleAdd": {
+  "message": "加入"
+ },
+ "appleAdded": {
+  "message": "已加入提醒事項"
+ },
+ "appleAddedEvent": {
+  "message": "已加入行事曆"
+ },
+ "appleOpening": {
+  "message": "正在開啟 ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow 沒有存取權限。請在「設定」中開啟。"
+ },
+ "appleFailed": {
+  "message": "無法加入。請重試。"
+ },
+ "appleAlso": {
+  "message": "同時加入提醒事項"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow 無權存取提醒事項。請在「設定」中開啟。"
+ },
+ "appleAskOnce": {
+  "message": "第一次會開啟 ContextFlow 來要求存取權限。"
+ },
+ "trOffer": {
+  "message": "翻譯成中文？"
+ },
+ "trOfferTo": {
+  "message": "翻譯成{0}？"
+ },
+ "trHide": {
+  "message": "在此網站隱藏"
+ },
+ "trWorking": {
+  "message": "正在翻譯…"
+ },
+ "trOriginal": {
+  "message": "原文"
+ },
+ "trFailed": {
+  "message": "無法翻譯"
+ },
+ "spacesTitle": {
+  "message": "空間"
+ },
+ "spaceSwitcher": {
+  "message": "空間：{0}。切換"
+ },
+ "spaceFirst": {
+  "message": "個人"
+ },
+ "spaceNew": {
+  "message": "新增空間"
+ },
+ "spaceEdit": {
+  "message": "編輯「{0}」"
+ },
+ "spaceName": {
+  "message": "名稱"
+ },
+ "spaceNamePlaceholder": {
+  "message": "例如：工作"
+ },
+ "spaceColor": {
+  "message": "顏色"
+ },
+ "spaceColorBlue": {
+  "message": "藍色"
+ },
+ "spaceColorGreen": {
+  "message": "綠色"
+ },
+ "spaceColorOrange": {
+  "message": "橘色"
+ },
+ "spaceColorPink": {
+  "message": "粉紅色"
+ },
+ "spaceColorViolet": {
+  "message": "紫色"
+ },
+ "spaceColorGraphite": {
+  "message": "石墨色"
+ },
+ "spaceCreate": {
+  "message": "建立"
+ },
+ "spaceDelete": {
+  "message": "刪除空間"
+ },
+ "spaceDeleteNote": {
+  "message": "其中的對話會移到「{0}」。"
+ },
+ "spaceBind": {
+  "message": "在這裡開啟 {0}"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} 會在「{1}」中開啟。改在這裡開啟"
+ },
+ "spaceMoveTo": {
+  "message": "移到…"
+ },
+ "spaceMoved": {
+  "message": "已移到「{0}」"
+ },
+ "spaceIn": {
+  "message": "你在「{0}」中"
+ },
+ "spaceLimit": {
+  "message": "免費方案可建立 {0} 個空間。Pro 不限數量。"
+ },
+ "spaceEmpty": {
+  "message": "「{0}」中還沒有對話。新對話會放在這裡。"
+ },
+ "setSpaces": {
+  "message": "空間"
+ },
+ "setSpacesHint": {
+  "message": "工作、個人、購物：每個空間有自己的對話和顏色。關閉後所有對話回到同一個列表，空間會保留。"
+ },
+ "matchContinue": {
+  "message": "繼續："
+ },
+ "writeCircle": {
+  "message": "檢查或改寫"
+ },
+ "writeCheck": {
+  "message": "檢查"
+ },
+ "writeRewrite": {
+  "message": "改寫"
+ },
+ "writeToneShort": {
+  "message": "更簡短"
+ },
+ "writeToneWarm": {
+  "message": "更親切"
+ },
+ "writeToneFormal": {
+  "message": "更正式"
+ },
+ "writeToneConfident": {
+  "message": "更有自信"
+ },
+ "writeChecking": {
+  "message": "正在參考頁面內容檢查…"
+ },
+ "writeRewriting": {
+  "message": "正在參考頁面內容改寫…"
+ },
+ "writeFixes": {
+  "message": "修改：{0} 處"
+ },
+ "writeLeft": {
+  "message": "今天剩餘的免費回答：{0}"
+ },
+ "writeClean": {
+  "message": "沒有發現錯誤。"
+ },
+ "writeEmpty": {
+  "message": "這裡還沒有文字。"
+ },
+ "writeTooLong": {
+  "message": "一次內容太多。請選取一部分後再試一次。"
+ },
+ "writeChanged": {
+  "message": "文字已經改動過。"
+ },
+ "writeFix": {
+  "message": "修正"
+ },
+ "writeReplace": {
+  "message": "取代"
+ },
+ "writeFixed": {
+  "message": "已修正"
+ },
+ "writeFixedSome": {
+  "message": "已修正，欄位不接受的部分除外"
+ },
+ "writeReplaced": {
+  "message": "已取代"
+ },
+ "writeUndo": {
+  "message": "還原"
+ },
+ "writeUndone": {
+  "message": "已還原"
+ },
+ "writeUndoFailed": {
+  "message": "無法還原：文字已改動。"
+ },
+ "writeSetting": {
+  "message": "欄位旁的「檢查」和「改寫」"
+ },
+ "writeSettingHint": {
+  "message": "修改會參考頁面內容：你正在回覆的郵件、你留言的貼文。每點一下算一次回答。你在各網站的寫法只會儲存在這台裝置上，用來貼近你的風格。"
+ },
+ "writeSkip": {
+  "message": "忽略"
+ },
+ "underlineSetting": {
+  "message": "輸入時為錯誤加底線"
+ },
+ "underlineSettingHint": {
+  "message": "Pro 和 Ultra：輸入停頓後，只參考頁面內容檢查你改動的段落。把指標移到底線上（在 iPhone 和 iPad 上點一下）即可修正。不計入回答次數。"
+ },
+ "setSide": {
+  "message": "螢幕側邊"
+ },
+ "sideRight": {
+  "message": "右側"
+ },
+ "sideLeft": {
+  "message": "左側"
+ },
+ "hintSideTitle": {
+  "message": "面板和 ✦ 按鈕可以拖到另一側"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ 按鈕可以拖到另一側"
+ },
+ "hintSideBody": {
+  "message": "按住面板頂部拖動，或直接拖動按鈕。也可以在設定中選擇側邊。"
+ },
+ "hintSideBodySheet": {
+  "message": "把它拖到左側或右側。也可以在設定中選擇側邊。"
+ },
+ "hintNewTitle": {
+  "message": "ContextFlow 2.7 新功能"
+ },
+ "hintNewTranslate": {
+  "message": "其他語言的頁面：✦ 旁的「翻譯成中文？」會把頁面本身換成你的語言。"
+ },
+ "hintNewWrite": {
+  "message": "在你正在寫的欄位旁：「檢查」和「改寫」，會參考頁面內容。"
+ },
+ "hintNewSpaces": {
+  "message": "用空間把工作和個人分開：「新增空間」在對話列表最後。"
+ },
+ "hintNewApple": {
+  "message": "「加入行事曆或提醒事項」在回答的「…」選單中。"
+ },
+ "hintNewShot": {
+  "message": "「頁面快照」：筆記可以保留一張頁面圖片。"
+ },
+ "hintNewSide": {
+  "message": "✦ 可以放到任一側：把它拖過去。"
+ },
+ "hintAllTips": {
+  "message": "全部提示"
+ },
+ "phSimilar": {
+  "message": "找更便宜的？"
+ },
+ "phWatch": {
+  "message": "追蹤價格？"
+ },
+ "phSummary": {
+  "message": "摘要這個頁面？"
+ },
+ "phListen": {
+  "message": "聽這篇文章？"
+ },
+ "phVideo": {
+  "message": "問問這部影片？"
+ },
+ "phTemplates": {
+  "message": "用範本回覆？"
+ },
+ "phRemind": {
+  "message": "設個提醒？"
+ },
+ "phCalendar": {
+  "message": "加入行事曆？"
+ },
+ "phClose": {
+  "message": "隱藏提示"
+ },
+ "phSimilarTitle": {
+  "message": "找更便宜的"
+ },
+ "phSimilarBody": {
+  "message": "選取商品名稱 →「尋找相似」，或點一下亮起的按鈕：同款更便宜的，還有相似的。"
+ },
+ "phSimilarBodyUp": {
+  "message": "這是 Ultra 功能：同款更便宜的，以及其他商店的相似商品。點一下亮起的按鈕。"
+ },
+ "phWatchTitle": {
+  "message": "追蹤價格"
+ },
+ "phWatchBody": {
+  "message": "選取價格，旁邊會出現一隻眼睛。或「…」（已亮起）→「追蹤這個頁面…」。價格變了會通知你。"
+ },
+ "phSummaryTitle": {
+  "message": "頁面摘要"
+ },
+ "phSummaryBody": {
+  "message": "點一下亮起的「摘要」：幾行看懂頁面重點。"
+ },
+ "phListenTitle": {
+  "message": "聽文章"
+ },
+ "phListenBody": {
+  "message": "開啟「…」（已亮起）→「朗讀這個頁面」：文章會被朗讀出來。"
+ },
+ "phListenBodyUp": {
+  "message": "朗讀是 Ultra 功能。開啟「…」（已亮起）→「朗讀這個頁面」。"
+ },
+ "phVideoTitle": {
+  "message": "關於影片的問題"
+ },
+ "phVideoBody": {
+  "message": "在亮起的輸入框裡問這部影片：我根據字幕回答。"
+ },
+ "phVideoBodyUp": {
+  "message": "根據影片字幕回答是 Pro 功能。在亮起的輸入框裡提問。"
+ },
+ "phTemplatesTitle": {
+  "message": "用範本回覆"
+ },
+ "phTemplatesBody": {
+  "message": "把游標放進頁面上的欄位，旁邊會出現範本按鈕。你的範本：「…」（已亮起）→「設定」→「範本」。"
+ },
+ "phRemindTitle": {
+  "message": "提醒"
+ },
+ "phRemindBody": {
+  "message": "在亮起的輸入框裡寫，例如「明天9點提醒我」，我會建議一個提醒。"
+ },
+ "phCalendarTitle": {
+  "message": "加入行事曆"
+ },
+ "phCalendarBody": {
+  "message": "在亮起的輸入框裡寫「加入行事曆」，我會用頁面上的日期建議一個行程。"
+ },
+ "setPageHints": {
+  "message": "✦ 按鈕旁的提示"
+ },
+ "setPageHintsHint": {
+  "message": "剛開始的幾天，提示你在頁面上能做什麼。"
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點一下亮起的按鈕。"
+ },
+ "shotSwitch": {
+  "message": "頁面快照"
+ },
+ "shotVisible": {
+  "message": "可見區域"
+ },
+ "shotFull": {
+  "message": "整頁"
+ },
+ "shotProOnly": {
+  "message": "整頁快照需 Pro 或 Ultra。"
+ },
+ "shotTaking": {
+  "message": "正在拍攝快照…"
+ },
+ "shotTakingFull": {
+  "message": "快照：第 {0} 個畫面，共 {1} 個…"
+ },
+ "shotFailed": {
+  "message": "這裡無法拍攝快照。筆記已儲存，不含快照。"
+ },
+ "shotCut": {
+  "message": "頁面較長：快照包含前 {0} 個畫面。"
+ },
+ "shotOpen": {
+  "message": "開啟快照"
+ },
+ "shotNote": {
+  "message": "頁面快照"
+ },
+ "shotCrop": {
+  "message": "裁切"
+ },
+ "shotCropDone": {
+  "message": "完成"
+ },
+ "shotCropReset": {
+  "message": "完整快照"
+ },
+ "shotLoading": {
+  "message": "正在開啟快照…"
+ },
+ "shotMissing": {
+  "message": "這張快照還不在這台裝置上。對話透過 iCloud 同步時，它也會一起同步過來。"
+ },
+ "invTitle": {
+  "message": "邀請朋友"
+ },
+ "invHint": {
+  "message": "朋友在第一週每天額外獲得 +{0} 次獎勵回答。朋友在兩個不同的日子提問後，你可獲得 Pro 或 Ultra 首月 {1}% 折扣。"
+ },
+ "invButton": {
+  "message": "取得我的邀請碼和連結"
+ },
+ "invYourCode": {
+  "message": "你的邀請碼"
+ },
+ "invCopy": {
+  "message": "拷貝"
+ },
+ "invCopied": {
+  "message": "已拷貝"
+ },
+ "invShare": {
+  "message": "分享"
+ },
+ "invShareText": {
+  "message": "我在用 ContextFlow，在 Safari 頁面上直接用 AI。用我的邀請碼 {0}，第一週可獲得獎勵回答：{1}"
+ },
+ "invFriends": {
+  "message": "透過你的邀請碼加入：{0} · 正在使用：{1}"
+ },
+ "invRewardTitle": {
+  "message": "你邀請的朋友正在使用 ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "感謝你：Pro 或 Ultra 首月 {0}% 折扣，任選其一。如果你還沒用過這個折扣，App Store 會為你套用。"
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "兩個折扣都用過了？改領獎勵回答：一週內每天 +{0} 次"
+ },
+ "invAnswersOn": {
+  "message": "你的獎勵回答有效至 {0}。"
+ },
+ "invEnterTitle": {
+  "message": "有朋友的邀請碼？"
+ },
+ "invEnterPlaceholder": {
+  "message": "邀請碼或連結"
+ },
+ "invEnter": {
+  "message": "輸入"
+ },
+ "invEntered": {
+  "message": "邀請碼已接受：獎勵回答，每天 +{0} 次，至 {1}。"
+ },
+ "invEnteredOn": {
+  "message": "你透過朋友的邀請碼加入：獎勵回答，每天 +{0} 次，至 {1}。"
+ },
+ "invErrUnknown": {
+  "message": "沒有這個邀請碼。請檢查後再試一次。"
+ },
+ "invErrOwn": {
+  "message": "這是你自己的邀請碼，請傳給朋友。"
+ },
+ "invErrAlready": {
+  "message": "這裡已經輸入過朋友的邀請碼。"
+ },
+ "invErrLate": {
+  "message": "朋友的邀請碼僅在安裝後第一週內有效。"
+ },
+ "invErrFull": {
+  "message": "這個邀請碼已達上限。"
+ },
+ "invErrDevice": {
+  "message": "這台裝置已經使用過朋友的邀請碼。"
+ },
+ "invErrCheck": {
+  "message": "無法驗證這台裝置。請試著在 ContextFlow App 中輸入邀請碼。"
+ },
+ "invErrLater": {
+  "message": "現在無法完成，請稍後再試。"
+ },
+ "colAdd": {
+  "message": "加入合集"
+ },
+ "colTab": {
+  "message": "合集"
+ },
+ "colChat": {
+  "message": "對話"
+ },
+ "colSuggestAi": {
+  "message": "AI 建議"
+ },
+ "colSuggestWords": {
+  "message": "最合適"
+ },
+ "colNewSection": {
+  "message": "+ 新增分區"
+ },
+ "colNewCollection": {
+  "message": "+ 新增合集"
+ },
+ "colNamePlaceholder": {
+  "message": "名稱，例如：日本之旅"
+ },
+ "colSectionPlaceholder": {
+  "message": "分區名稱"
+ },
+ "colFirstSection": {
+  "message": "筆記"
+ },
+ "colCreate": {
+  "message": "建立"
+ },
+ "colAdded": {
+  "message": "已加入「{0}」→ {1}"
+ },
+ "colCards_one": {
+  "message": "{0} 張卡片"
+ },
+ "colCards_two": {
+  "message": "{0} 張卡片"
+ },
+ "colCards_few": {
+  "message": "{0} 張卡片"
+ },
+ "colCards_many": {
+  "message": "{0} 張卡片"
+ },
+ "colCards_other": {
+  "message": "{0} 張卡片"
+ },
+ "colEmpty": {
+  "message": "還沒有合集。點一下回答或筆記下方的「加入合集」。"
+ },
+ "colEmptyCards": {
+  "message": "還沒有卡片。"
+ },
+ "colToChat": {
+  "message": "← 回到對話"
+ },
+ "colCompare": {
+  "message": "比較"
+ },
+ "colCompareN": {
+  "message": "比較 {0} 項"
+ },
+ "colComparePick": {
+  "message": "選擇 2 到 8 張卡片"
+ },
+ "colSummary": {
+  "message": "總結"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "開啟對話"
+ },
+ "colMoveTo": {
+  "message": "移到「{0}」"
+ },
+ "colRemove": {
+  "message": "從合集中移除"
+ },
+ "colThisPage": {
+  "message": "此頁面"
+ },
+ "colNote": {
+  "message": "筆記"
+ },
+ "colComparison": {
+  "message": "比較"
+ },
+ "colLimitCollections": {
+  "message": "免費方案可建立 1 個合集。Pro 不限數量。"
+ },
+ "colLimitCards": {
+  "message": "免費方案每個合集最多 {0} 張卡片。Pro 最多 {1} 張。"
+ },
+ "colProOnly": {
+  "message": "比較和總結屬於 Pro。"
+ },
+ "colWorking": {
+  "message": "正在處理…"
+ },
+ "colFailed": {
+  "message": "這次沒有成功，請稍後再試。"
+ },
+ "colLimitDay": {
+  "message": "今天的次數用完了，明天再試。"
+ },
+ "colGone": {
+  "message": "此合集已刪除。"
+ },
+ "colPdfMadeWith": {
+  "message": "製作工具："
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — Safari 的 AI 助手"
+ },
+ "colPdfOpenChat": {
+  "message": "在 ContextFlow 中開啟對話"
+ },
+ "colPdfFooter": {
+  "message": "用 ContextFlow 製作"
+ },
+ "colPdfSave": {
+  "message": "儲存為 PDF"
+ },
+ "colPick": {
+  "message": "合集：{0}。切換"
+ },
+ "colCardMenu": {
+  "message": "卡片操作"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },
@@ -2306,14 +2984,26 @@
  "tip_af26b6788c": {
   "message": "把 ✦ 移開"
  },
- "tip_6d2694aec4": {
-  "message": "✦ 擋住了你正在讀的內容？沿著邊緣上下拖動它，或拖到另一側：放在哪裡就停在哪裡。"
+ "tip_1b3fa8b31a": {
+  "message": "✦ 擋住了你正在讀的內容？沿著邊緣上下拖動它，或拖到另一側：放在哪裡就停在哪裡。在 iPad 上，按住面板頂部拖動，也能把面板移到另一側。延伸功能設定中的「螢幕側邊」也能做到。"
+ },
+ "tip_cbec05fbfd": {
+  "message": "✦ 擋住了你正在讀的內容？沿著邊緣上下拖動它，或拖到另一側：放在哪裡就停在哪裡。按住面板頂部拖動，也能把面板移到另一側，或在延伸功能設定中選擇「螢幕側邊」。"
  },
  "tip_2749afe54a": {
   "message": "點一下抓重點"
  },
  "tip_487a14e710": {
   "message": "「摘要」、「重點整理」、「簡單解釋」和「翻譯」會處理整個頁面，不用自己寫提示詞。"
+ },
+ "tip_33e83f4818": {
+  "message": "用你的語言閱讀頁面"
+ },
+ "tip_f8f753be8a": {
+  "message": "在其他語言的頁面上，點一下 ✦ 旁的「翻譯成中文？」：頁面本身會換成你的語言，連結也一樣，捲動時也會繼續翻譯。「原文」能把每個字都換回來。同一個頁面不論翻譯幾次，每週都只算一次回答。"
+ },
+ "tip_22f41ab2de": {
+  "message": "在其他語言的頁面上，按一下 ✦ 旁的「翻譯成中文？」：頁面本身會換成你的語言，連結也一樣，捲動時也會繼續翻譯。「原文」能把每個字都換回來。同一個頁面不論翻譯幾次，每週都只算一次回答。"
  },
  "tip_d22c90dac1": {
   "message": "只問一部分"
@@ -2356,6 +3046,15 @@
  },
  "tip_6a92f6c633": {
   "message": "將傳送按鈕往上或往下滑（在 Mac 上，在按鈕上捲動），就能寫筆記而不是提問。筆記會和它的頁面一起留在對話中，跟著對話同步，也不會用掉回答次數。"
+ },
+ "tip_ac13420c59": {
+  "message": "為筆記附上頁面快照"
+ },
+ "tip_dff446b7cc": {
+  "message": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。點一下圖片可全螢幕開啟並裁切。圖片留在你的裝置和 iCloud 中。"
+ },
+ "tip_3ca344f02e": {
+  "message": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。按一下圖片可全螢幕開啟並裁切。圖片留在你的裝置和 iCloud 中。"
  },
  "tip_654fb12e51": {
   "message": "標示重點"
@@ -2402,11 +3101,11 @@
  "tip_de4adc7524": {
   "message": "尋找相似"
  },
- "tip_b2248495b1": {
-  "message": "在面板的動作中，或在面板頂部的「…」選單中，點一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中點一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
+ "tip_2c6d9f34e3": {
+  "message": "在面板的動作中，或在面板頂部的「…」選單中，點一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中點一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件。Ultra 會完整搜尋，給你看之前會開啟每個連結檢查。Pro 有快速搜尋，每週最多 5 次，每次算作 10 個回答。"
  },
- "tip_31666a3aab": {
-  "message": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中按一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
+ "tip_9bb47159a4": {
+  "message": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中按一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件。Ultra 會完整搜尋，給你看之前會開啟每個連結檢查。Pro 有快速搜尋，每週最多 5 次，每次算作 10 個回答。"
  },
  "tip_c518fb0674": {
   "message": "朗讀"
@@ -2429,6 +3128,24 @@
  "tip_a8e1d14e5b": {
   "message": "在頁面上的任何欄位中，輸入 / 和範本中的幾個字，再按 Tab。按 Control-Shift-V 會打開完整列表：你在其他標籤頁拷貝的內容、你的範本，以及 ContextFlow 的最新回答。"
  },
+ "tip_8213493414": {
+  "message": "傳送前檢查或改寫"
+ },
+ "tip_4a10311c4a": {
+  "message": "在寫郵件或留言？點一下欄位旁的 ContextFlow 按鈕：「檢查」和「改寫」就在列表最上方。「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「還原」能換回你原本的文字。每點一下算一次回答。"
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "在寫郵件或留言？寫下幾個字後，把指標移到欄位上方的圓圈上：「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「還原」能換回你原本的文字。每次使用算一次回答。"
+ },
+ "tip_898fe0f06c": {
+  "message": "輸入時為錯誤加底線"
+ },
+ "tip_b9954518f0": {
+  "message": "使用 Pro 或 Ultra 時，輸入停頓後，你改動的段落中的錯誤會加上底線。點一下底線查看修正建議，再選擇「修正」或「忽略」。不計入回答次數，也可以在延伸功能設定中關閉。"
+ },
+ "tip_7e0eabc91c": {
+  "message": "使用 Pro 或 Ultra 時，輸入停頓後，你改動的段落中的錯誤會加上底線。把指標移到底線上查看修正建議，再選擇「修正」或「忽略」。不計入回答次數，也可以在延伸功能設定中關閉。"
+ },
  "tip_451fa9ccb6": {
   "message": "已拷貝，保留一天"
  },
@@ -2450,6 +3167,12 @@
  "tip_b5d4d7711a": {
   "message": "正在讀的東西想之後再讀完？選取一行並點一下鈴鐺，或點一下面板頂部的「…」，再點「提醒我看這個頁面…」，然後選擇時間：提醒會打開這個頁面。回答和筆記的「…」選單裡也有「提醒我」。"
  },
+ "tip_529cd4b087": {
+  "message": "加入行事曆或提醒事項"
+ },
+ "tip_c20a65b22a": {
+  "message": "問「提醒我星期五打電話給銀行」，或詢問頁面上的某個日期：回答會附上一張卡片，讓你核對日期和時間，「加入」會把它放進行事曆或提醒事項。每個回答或筆記的「…」選單裡都有「加入行事曆或提醒事項」。在「提醒我」中，「同時加入提醒事項」會把你的提醒也放進 Apple 的提醒事項。"
+ },
  "tip_74c328b672": {
   "message": "降價時通知你"
  },
@@ -2464,6 +3187,24 @@
  },
  "tip_623811ea30": {
   "message": "點 + 開始新對話。先前的對話都在對話列表中：打開一段就能從上次停下的地方繼續，用鉛筆重新命名，或將其刪除。"
+ },
+ "tip_827a76a38d": {
+  "message": "工作和個人的空間"
+ },
+ "tip_6bf925510c": {
+  "message": "把工作、個人和購物分開。對話列表最後的「新增空間」會建立一個有自己顏色的空間。列表頂部的切換器可以在空間之間切換，新對話會放進你目前所在的空間。在切換器中選擇「在這裡開啟 amazon.com」，之後這個網站就會在這個空間開啟。免費方案有數量限制；使用 Pro 或 Ultra 則不限數量。"
+ },
+ "tip_3512a4ae8c": {
+  "message": "這個頁面的對話"
+ },
+ "tip_05b9621aed": {
+  "message": "在頁面上開啟面板，ContextFlow 會挑出跟它有關的對話：含有這個頁面的對話，或同一主題的對話。頂部的「繼續：」會說明挑了哪段對話；那裡的「新對話」可以開始一段新的。"
+ },
+ "tip_8d1c1aa55d": {
+  "message": "匯集到合集"
+ },
+ "tip_15dc6cba07": {
+  "message": "正在規劃旅行或購物？在回答或筆記下方選擇「加入合集」，ContextFlow 會建議放在哪裡。「合集」在 Safari 和 App 中都會按區段整理好所有內容。使用 Pro，AI 會把卡片分類，「比較」會把你選的卡片並排，「總結」會概括全部內容。任何合集都能存成 PDF。"
  },
  "tip_c4b432e2e9": {
   "message": "搜尋你的對話"
@@ -2528,6 +3269,12 @@
  "tip_0f2289f887": {
   "message": "購買 Pro 或 Ultra 後，ContextFlow 會一步一步介紹你的方案增加了哪些功能。想再看一次，請點一下面板頂部的「…」，再選「其他…」和「Pro 包含的功能」或「Ultra 包含的功能」。在 App 中，它在「設定」的「你的方案」下。"
  },
+ "tip_3ee4fbeeb2": {
+  "message": "邀請朋友"
+ },
+ "tip_0e8493432d": {
+  "message": "在 App 或 Safari 的「設定」→「邀請朋友」中，可以拿到要傳送的邀請碼和連結。朋友在第一週每天都能獲得獎勵回答。朋友在兩個不同的日子提問後，你可獲得 Pro 或 Ultra 首月折扣。"
+ },
  "tip_3208aa35ac": {
   "message": "隱私與個人化"
  },
@@ -2542,6 +3289,12 @@
  },
  "tip_6cc366173d": {
   "message": "某個網站用不到 ✦？可以只在該網站隱藏它，或在延伸功能設定中全部關閉。ContextFlow 仍可從 Safari 的延伸功能選單開啟。"
+ },
+ "tip_cc54dd5946": {
+  "message": "✦ 按鈕旁的提示"
+ },
+ "tip_325d207bb4": {
+  "message": "剛開始的幾天，✦ 旁會出現一行簡短提示，建議你在目前的頁面能做什麼：長文章的摘要、要追蹤的價格、要加進行事曆的日期。點一下看看怎麼做。可以在延伸功能設定的「✦ 按鈕旁的提示」中關閉這些提示。"
  },
  "tip_8a727e1bbe": {
   "message": "使用你自己的 API 金鑰"

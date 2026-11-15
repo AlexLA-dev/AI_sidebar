@@ -382,8 +382,7 @@
   "kind": "html",
   "en": "New in 2.7",
   "pages": [
-   "index.html",
-   "features.html"
+   "index.html"
   ]
  },
  {
@@ -399,8 +398,7 @@
   "kind": "html",
   "en": "Translate the page in place",
   "pages": [
-   "index.html",
-   "features.html"
+   "index.html"
   ]
  },
  {
@@ -432,8 +430,7 @@
   "kind": "html",
   "en": "Spaces",
   "pages": [
-   "index.html",
-   "features.html"
+   "index.html"
   ]
  },
  {
@@ -449,8 +446,7 @@
   "kind": "html",
   "en": "Calendar and Reminders",
   "pages": [
-   "index.html",
-   "features.html"
+   "index.html"
   ]
  },
  {
@@ -498,8 +494,7 @@
   "kind": "html",
   "en": "Collections",
   "pages": [
-   "index.html",
-   "features.html"
+   "index.html"
   ]
  },
  {
@@ -523,14 +518,6 @@
   "key": "3535c6dcd2e3",
   "kind": "html",
   "en": "Send a friend your code: they get bonus answers for their first week, and you get a discount on Pro or Ultra once they've used it on two different days.",
-  "pages": [
-   "index.html"
-  ]
- },
- {
-  "key": "de1fd9c7de83",
-  "kind": "html",
-  "en": "Everything new in 2.7 →",
   "pages": [
    "index.html"
   ]
@@ -576,8 +563,7 @@
   "kind": "html",
   "en": "Find similar <span class=\"ultra-badge\">Ultra</span>",
   "pages": [
-   "index.html",
-   "features.html"
+   "index.html"
   ]
  },
  {
@@ -1468,219 +1454,6 @@
   ]
  },
  {
-  "key": "c2ef6321c974",
-  "kind": "html",
-  "en": "What this version adds.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "2ea21b70a819",
-  "kind": "attr",
-  "en": "A Spanish travel guide in Safari, translated into English in place, with the Original button next to ContextFlow's button",
-  "pages": [
-   "features.html",
-   "cases/studying.html",
-   "translate-web-page-safari-iphone.html"
-  ]
- },
- {
-  "key": "bbbf9acee8f1",
-  "kind": "html",
-  "en": "Reading a page in another language? A Translate button shows by ✦. Tap it, and the page reads in your language in its own layout, more of it as you scroll. Links still work, so you can keep going. Original brings back every word. Menus and buttons stay as they are. Each page you translate counts as one answer. Don't need it on a site? Hide it there.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "31d6328d2c84",
-  "kind": "html",
-  "en": "Safari's own translation, and when each is the better pick →",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "d36060c21702",
-  "kind": "attr",
-  "en": "Check on an email reply: the misspelled names and typos struck out and fixed word by word",
-  "pages": [
-   "features.html",
-   "cases/replies-and-forms.html",
-   "proofread-safari-iphone.html"
-  ]
- },
- {
-  "key": "d5d409668fe8",
-  "kind": "html",
-  "en": "Check and Rewrite, with the page in mind",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "244e8c2f070a",
-  "kind": "html",
-  "en": "Answering an email or commenting on a post? In the text field, Check fixes the mistakes, and Rewrite makes it shorter, warmer, more formal or more confident. Both read the page: the email you're answering, the post under your comment. Names come out as the page spells them, and only the words that need it change, so your signature and links stay. Undo is one tap. On Mac, point at the circle above the field; on iPhone and iPad, they're at the top of the field button's list. Each tap counts as one answer.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "51f83a5303ab",
-  "kind": "html",
-  "en": "How it compares with Apple's Writing Tools and Grammarly →",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "95ba91e52a3b",
-  "kind": "attr",
-  "en": "A typo underlined in an email reply, with its fix and the Fix and Ignore buttons",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "b2ca695d57ed",
-  "kind": "html",
-  "en": "Mistakes underlined as you type <span class=\"pro-badge\">Pro</span>",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "1458d3152540",
-  "kind": "html",
-  "en": "Want to catch a typo before you send? Pause for a moment, and the paragraph you just changed is checked with the page in mind. Point at an underline (tap it on iPhone and iPad), then Fix or Ignore. Underlines don't count as answers. Turn them on or off in Settings: Underline mistakes as I type.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "6c1d3c291257",
-  "kind": "attr",
-  "en": "The space switcher in the panel: Personal, Work and Shopping, with a site set to open in Work",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "1ce361e2bd6a",
-  "kind": "html",
-  "en": "Work and home in one list? Make a space for each, with its own chats and color. Switch in the panel's header, and ✦ takes the space's color. Tie a site to a space, and it always opens there. In the app, the same switcher is above the chat list. Search still finds chats in every space. Turn Spaces off in Settings and it's one list again, with your spaces kept. Free has a limit on spaces; Pro has none.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "8404ba178605",
-  "kind": "html",
-  "en": "The right chat opens by itself",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "80608dd45e7c",
-  "kind": "html",
-  "en": "Back on a topic you asked about last week? Open the panel on a new page about it, and ContextFlow opens that chat. A line says which chat it continued, with New chat right there. If nothing fits, you get a fresh chat. With Pro and Suggestions on, it matches by meaning, not only by words.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "cde323c4b132",
-  "kind": "attr",
-  "en": "The Calendar and Reminders card under an answer: a reminder to book the hotel, with its date, time and list",
-  "pages": [
-   "features.html",
-   "cases/planning.html"
-  ]
- },
- {
-  "key": "32c442bfb626",
-  "kind": "html",
-  "en": "Ask “remind me on Friday to book the hotel”, or choose Add to Calendar or Reminders in the … menu of an answer or a note. A card shows what, the date and the time, and nothing is added until you tap Add. When you set a reminder with the bell, tick Also in Reminders to have it in Apple Reminders too. Your calendar and reminders never reach my server. Free, on iOS 17 and macOS 14 or later.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "371650e870cf",
-  "kind": "attr",
-  "en": "A note in the chat with a snapshot of the page it was written on",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "eab5038478c7",
-  "kind": "html",
-  "en": "A snapshot of the page in your note",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "eaff06645420",
-  "kind": "html",
-  "en": "Want to remember how it looked? When you write a note, turn on Page snapshot over the field, and the note keeps a picture of the page: Visible area, or Whole page with Pro. Tap it to open it full screen, and crop it if you like. Snapshots sync with the chat through your iCloud, never through my server.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "798284ae4b2e",
-  "kind": "html",
-  "en": "The panel on either side",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "18457c7eb60d",
-  "kind": "html",
-  "en": "Prefer it on the left? Drag ✦ to either edge, at any height. On iPad and Mac, drag the panel by its header to the other side. Or pick the side in Settings. On iPhone the panel stays at the bottom.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "f736ef41a660",
-  "kind": "html",
-  "en": "A quick Find similar on Pro <span class=\"pro-badge\">Pro</span>",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "a56f95237dea",
-  "kind": "html",
-  "en": "Find similar isn't only Ultra's now. Pro and Own key get a quick search, up to 5 a week: fewer pages, and every one is still opened and checked. On Pro, each search counts as 10 answers. Ultra keeps the full search, 10 a week.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "d983f26b858a",
-  "kind": "html",
-  "en": "Comparing three hotels or five laptops across a dozen chats? Tap To collection under an answer or a note, and it goes into a collection, in a section like Hotels or Flights. In the app, a collection is columns you can drag between on iPad and Mac, and a list on iPhone. Each card opens its chat at that answer. PDF saves the whole collection, with links to the sources. Free has one collection of 10 cards. With Pro, you get as many as you like, Compare, which puts 2 to 8 cards side by side in a table, and Summary.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "364b370261ec",
-  "kind": "html",
-  "en": "Know someone who reads a lot in Safari? In Settings, Invite a friend gives you a code and a link. Your friend gets bonus answers: 5 more a day for their first week. Once they've asked questions on two different days, you get a discount on the first month of Pro or Ultra.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
   "key": "c1c0346ce251",
   "kind": "html",
   "en": "New in 2.6",
@@ -1777,9 +1550,9 @@
   ]
  },
  {
-  "key": "beb31c6eb1e7",
+  "key": "a47f9807cac6",
   "kind": "html",
-  "en": "Is the ✦ button covering what you're reading? Drag it up or down along the edge, or over to the other side, and it stays there.",
+  "en": "Is the ✦ button covering what you're reading? Drag it up or down along the edge, or over to the other side, and it stays there. On iPad and Mac the panel moves too: drag it by its top bar.",
   "pages": [
    "features.html"
   ]
@@ -1796,6 +1569,22 @@
   "key": "2c76cca91d64",
   "kind": "html",
   "en": "Long article and no time? Summarize, Key takeaways, Explain simply and Translate work on the whole page. You don't have to write a prompt.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "33e83f481866",
+  "kind": "html",
+  "en": "Read a page in your language",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "ae497044dc80",
+  "kind": "html",
+  "en": "A news site in German, a forum in Japanese? Tap the “Translate to English?” line by ✦ and the page itself switches to your language, links and all, as you scroll. Original brings every word back. A page counts as one answer a week.",
   "pages": [
    "features.html"
   ]
@@ -1905,6 +1694,22 @@
   ]
  },
  {
+  "key": "ac13420c5931",
+  "kind": "html",
+  "en": "A snapshot with your note",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "273a3deaa737",
+  "kind": "html",
+  "en": "Turn on Page snapshot when you write a note, and it keeps a picture of the page: the part on screen, or with Pro the whole page. Open it full screen and crop it. It stays on your devices and in your iCloud.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "654fb12e519d",
   "kind": "html",
   "en": "Highlight what matters",
@@ -2001,9 +1806,17 @@
   ]
  },
  {
-  "key": "84aa420602a2",
+  "key": "73563198e068",
   "kind": "html",
-  "en": "Wondering what else is out there? Tap Find similar in the panel, or select a product's name and tap Find similar under it. Add a condition like Cheaper or In stock if you want. Every alternative is a real page, opened and checked before you see it. Pro and Own key get a quick search, up to 5 a week; Ultra, the full one.",
+  "en": "Find similar <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "eb682d84cfd4",
+  "kind": "html",
+  "en": "Wondering what else is out there? Tap Find similar in the panel, or select a product's name and tap Find similar under it. Add a condition like Cheaper or In stock if you want. Ultra searches in full and opens every alternative to check it before you see it; Pro has a quick search, up to 5 a week.",
   "pages": [
    "features.html"
   ]
@@ -2041,6 +1854,38 @@
   ]
  },
  {
+  "key": "8213493414fa",
+  "kind": "html",
+  "en": "Check or rewrite before you send",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "ad9714f4928a",
+  "kind": "html",
+  "en": "Writing an email or a comment? On iPhone and iPad, tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. On Mac, point at the circle above the field. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident, with the page in mind. Each one counts as one answer.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "b2ca695d57ed",
+  "kind": "html",
+  "en": "Mistakes underlined as you type <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "1ba16433ba94",
+  "kind": "html",
+  "en": "Pause while typing and a mistake in the paragraph you changed gets underlined. Tap it (on Mac, point at it) to see the fix. It doesn't count as answers.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "451fa9ccb6f4",
   "kind": "html",
   "en": "Copied, kept for a day",
@@ -2049,9 +1894,9 @@
   ]
  },
  {
-  "key": "a6828b26744e",
+  "key": "5663c4702cf5",
   "kind": "html",
-  "en": "Copied something three tabs ago, then copied over it? The last things you copied or cut on pages in Safari wait in the list for a day, on this device only. Nothing from password or card fields, and nothing in Private Browsing.",
+  "en": "Copied something three tabs ago, then copied over it? The last things you copied on pages in Safari wait in the list for a day, on this device only. Nothing from password or card fields, and nothing in Private Browsing.",
   "pages": [
    "features.html"
   ]
@@ -2097,6 +1942,22 @@
   ]
  },
  {
+  "key": "529cd4b087a6",
+  "kind": "html",
+  "en": "Add to Calendar or Reminders",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "0938be8c9b67",
+  "kind": "html",
+  "en": "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card where you check the date and time, then Add. Any answer or note has Add to Calendar or Reminders in its … menu.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "74c328b672ba",
   "kind": "html",
   "en": "Know when a price drops",
@@ -2132,6 +1993,54 @@
   "key": "ac55460aac9d",
   "kind": "html",
   "en": "New topic? Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "827a76a38df9",
+  "kind": "html",
+  "en": "Spaces for work and home",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "a5c7d9e3601a",
+  "kind": "html",
+  "en": "Keep work, home and shopping apart, each with its own chats and color. New space is at the end of the chat list, the switcher at the top. A site can always open in its own space. Free has a limit; Pro and Ultra, as many as you like.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "3512a4ae8c6d",
+  "kind": "html",
+  "en": "The chat for this page",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "3bbba66422c3",
+  "kind": "html",
+  "en": "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top tells you which, and New chat starts a fresh one.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "8d1c1aa55d4e",
+  "kind": "html",
+  "en": "Gather it in a collection",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "15dc6cba07f8",
+  "kind": "html",
+  "en": "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.",
   "pages": [
    "features.html"
   ]
@@ -2305,6 +2214,14 @@
   ]
  },
  {
+  "key": "799d630e4a69",
+  "kind": "html",
+  "en": "Know someone who reads a lot in Safari? Settings → Invite a friend gives you a code and a link to send. They get bonus answers every day of their first week, and once they've asked questions on two different days, you get a discount on your first month of Pro or Ultra.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "8973e5b3692c",
   "kind": "html",
   "en": "Make it fit you, and know what leaves your device.",
@@ -2345,6 +2262,22 @@
   ]
  },
  {
+  "key": "cc54dd594630",
+  "kind": "html",
+  "en": "Tips by the ✦ button",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "e90e5a24917d",
+  "kind": "html",
+  "en": "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how, or turn the lines off in the extension settings.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "8a727e1bbe52",
   "kind": "html",
   "en": "Use your own API key",
@@ -2369,9 +2302,9 @@
   ]
  },
  {
-  "key": "5eace024b490",
+  "key": "bf26780454c3",
   "kind": "html",
-  "en": "What gets sent? ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to my server to find where they belong, and with underlines on, the paragraph you just typed goes to be checked. I don't keep either.",
+  "en": "What gets sent? ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to my server to find where they belong; I don't keep it.",
   "pages": [
    "features.html"
   ]
@@ -2657,6 +2590,15 @@
   ]
  },
  {
+  "key": "d36060c21702",
+  "kind": "attr",
+  "en": "Check on an email reply: the misspelled names and typos struck out and fixed word by word",
+  "pages": [
+   "cases/replies-and-forms.html",
+   "proofread-safari-iphone.html"
+  ]
+ },
+ {
   "key": "8e915cd991b7",
   "kind": "html",
   "en": "Check it before you send it",
@@ -2925,6 +2867,15 @@
   "pages": [
    "cases/studying.html",
    "cases/planning.html"
+  ]
+ },
+ {
+  "key": "2ea21b70a819",
+  "kind": "attr",
+  "en": "A Spanish travel guide in Safari, translated into English in place, with the Original button next to ContextFlow's button",
+  "pages": [
+   "cases/studying.html",
+   "translate-web-page-safari-iphone.html"
   ]
  },
  {
@@ -3700,6 +3651,14 @@
   "key": "b61af439333f",
   "kind": "html",
   "en": "<b>Reminders, spaces, tags, folders, search</b>, free. <b>AI search</b>, for when you remember the topic but not the words, <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "cases/planning.html"
+  ]
+ },
+ {
+  "key": "cde323c4b132",
+  "kind": "attr",
+  "en": "The Calendar and Reminders card under an answer: a reminder to book the hotel, with its date, time and list",
   "pages": [
    "cases/planning.html"
   ]

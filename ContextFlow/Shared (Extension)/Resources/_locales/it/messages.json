@@ -1973,6 +1973,21 @@
  "similarLimit": {
   "message": "Le {0} ricerche «Trova simili» di questa settimana sono finite. Tornano {1}."
  },
+ "similarLightNote": {
+  "message": "Ricerca rapida: fino a {0} a settimana."
+ },
+ "similarLightNotePro": {
+  "message": "Ricerca rapida: fino a {0} a settimana, ognuna vale {1} risposte."
+ },
+ "similarLightFoot": {
+  "message": "Ricerca rapida. Ultra cerca più a fondo, legge le recensioni e controlla la spedizione."
+ },
+ "similarLightLimit": {
+  "message": "Le {0} ricerche rapide di questa settimana sono finite. Tornano {1}. Ultra ne ha {2} a settimana e cerca più a fondo."
+ },
+ "similarAnswersShort": {
+  "message": "Una ricerca rapida vale {0} risposte, e te ne restano {1}."
+ },
  "orgDemoQuestion": {
   "message": "Voli economici per Lisbona a maggio?"
  },
@@ -2279,6 +2294,669 @@
  "similarMisses": {
   "message": "Non rispetta la scelta"
  },
+ "appleTitle": {
+  "message": "Calendario e Promemoria"
+ },
+ "appleMenu": {
+  "message": "Aggiungi a Calendario o Promemoria"
+ },
+ "appleReading": {
+  "message": "Cerco data e ora…"
+ },
+ "appleNothing": {
+  "message": "Niente da aggiungere: nessuna data o attività."
+ },
+ "appleError": {
+  "message": "Impossibile leggere la data."
+ },
+ "appleRetry": {
+  "message": "Riprova"
+ },
+ "appleReminder": {
+  "message": "Promemoria"
+ },
+ "appleEvent": {
+  "message": "Evento"
+ },
+ "appleWhat": {
+  "message": "Cosa"
+ },
+ "appleDate": {
+  "message": "Data"
+ },
+ "appleTime": {
+  "message": "Ora"
+ },
+ "appleList": {
+  "message": "Elenco"
+ },
+ "appleRemindersApp": {
+  "message": "In Promemoria"
+ },
+ "appleCalendarPick": {
+  "message": "Il calendario lo scegli al passaggio successivo"
+ },
+ "appleCalendarDefault": {
+  "message": "Il tuo calendario predefinito"
+ },
+ "appleGuess": {
+  "message": "Controlla data e ora: sono una stima."
+ },
+ "applePast": {
+  "message": "Quest’ora è già passata. Controlla la data."
+ },
+ "appleAdd": {
+  "message": "Aggiungi"
+ },
+ "appleAdded": {
+  "message": "Aggiunto a Promemoria"
+ },
+ "appleAddedEvent": {
+  "message": "Aggiunto al Calendario"
+ },
+ "appleOpening": {
+  "message": "Apertura di ContextFlow…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow non ha accesso. Attivalo in Impostazioni."
+ },
+ "appleFailed": {
+  "message": "Impossibile aggiungerlo. Riprova."
+ },
+ "appleAlso": {
+  "message": "Anche in Promemoria"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow non ha accesso a Promemoria. Attivalo in Impostazioni."
+ },
+ "appleAskOnce": {
+  "message": "La prima volta si apre ContextFlow per chiedere l’accesso."
+ },
+ "trOffer": {
+  "message": "Tradurre in italiano?"
+ },
+ "trOfferTo": {
+  "message": "Tradurre in {0}?"
+ },
+ "trHide": {
+  "message": "Nascondi su questo sito"
+ },
+ "trWorking": {
+  "message": "Traduzione…"
+ },
+ "trOriginal": {
+  "message": "Originale"
+ },
+ "trFailed": {
+  "message": "Traduzione non riuscita"
+ },
+ "spacesTitle": {
+  "message": "Spazi"
+ },
+ "spaceSwitcher": {
+  "message": "Spazio: {0}. Cambia"
+ },
+ "spaceFirst": {
+  "message": "Personale"
+ },
+ "spaceNew": {
+  "message": "Nuovo spazio"
+ },
+ "spaceEdit": {
+  "message": "Modifica «{0}»"
+ },
+ "spaceName": {
+  "message": "Nome"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Per esempio, Lavoro"
+ },
+ "spaceColor": {
+  "message": "Colore"
+ },
+ "spaceColorBlue": {
+  "message": "Blu"
+ },
+ "spaceColorGreen": {
+  "message": "Verde"
+ },
+ "spaceColorOrange": {
+  "message": "Arancione"
+ },
+ "spaceColorPink": {
+  "message": "Rosa"
+ },
+ "spaceColorViolet": {
+  "message": "Viola"
+ },
+ "spaceColorGraphite": {
+  "message": "Grafite"
+ },
+ "spaceCreate": {
+  "message": "Crea"
+ },
+ "spaceDelete": {
+  "message": "Elimina spazio"
+ },
+ "spaceDeleteNote": {
+  "message": "Le sue chat passano in «{0}»."
+ },
+ "spaceBind": {
+  "message": "Apri {0} qui"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} si apre in «{1}». Aprilo qui"
+ },
+ "spaceMoveTo": {
+  "message": "Sposta in…"
+ },
+ "spaceMoved": {
+  "message": "Spostata in «{0}»"
+ },
+ "spaceIn": {
+  "message": "Sei in «{0}»"
+ },
+ "spaceLimit": {
+  "message": "Spazi gratis: {0}. Con Pro, quanti ne vuoi."
+ },
+ "spaceEmpty": {
+  "message": "Ancora nessuna chat in «{0}». Una nuova chat finisce qui."
+ },
+ "setSpaces": {
+  "message": "Spazi"
+ },
+ "setSpacesHint": {
+  "message": "Lavoro, Personale, Acquisti: ognuno con le sue chat e il suo colore. Disattivati: tutte le chat in un’unica lista, e i tuoi spazi restano."
+ },
+ "matchContinue": {
+  "message": "Continuo"
+ },
+ "writeCircle": {
+  "message": "Controlla o riscrivi"
+ },
+ "writeCheck": {
+  "message": "Controlla"
+ },
+ "writeRewrite": {
+  "message": "Riscrivi"
+ },
+ "writeToneShort": {
+  "message": "Più breve"
+ },
+ "writeToneWarm": {
+  "message": "Più caloroso"
+ },
+ "writeToneFormal": {
+  "message": "Più formale"
+ },
+ "writeToneConfident": {
+  "message": "Più sicuro"
+ },
+ "writeChecking": {
+  "message": "Controllo tenendo conto della pagina…"
+ },
+ "writeRewriting": {
+  "message": "Riscrivo tenendo conto della pagina…"
+ },
+ "writeFixes": {
+  "message": "Correzioni: {0}"
+ },
+ "writeLeft": {
+  "message": "Risposte gratuite rimaste oggi: {0}"
+ },
+ "writeClean": {
+  "message": "Nessun errore trovato."
+ },
+ "writeEmpty": {
+  "message": "Qui non c’è ancora testo."
+ },
+ "writeTooLong": {
+  "message": "È troppo in una volta. Seleziona una parte e riprova."
+ },
+ "writeChanged": {
+  "message": "Il testo è cambiato nel frattempo."
+ },
+ "writeFix": {
+  "message": "Correggi"
+ },
+ "writeReplace": {
+  "message": "Sostituisci"
+ },
+ "writeFixed": {
+  "message": "Corretto"
+ },
+ "writeFixedSome": {
+  "message": "Corretto, tranne ciò che il campo non ha accettato"
+ },
+ "writeReplaced": {
+  "message": "Sostituito"
+ },
+ "writeUndo": {
+  "message": "Annulla"
+ },
+ "writeUndone": {
+  "message": "Annullato"
+ },
+ "writeUndoFailed": {
+  "message": "Impossibile annullare: il testo è cambiato."
+ },
+ "writeSetting": {
+  "message": "Controlla e Riscrivi accanto ai campi"
+ },
+ "writeSettingHint": {
+  "message": "Le correzioni e le riscritture tengono conto della pagina: l’email a cui rispondi, il post che commenti. Ogni tocco vale una risposta. Il modo in cui scrivi su ogni sito resta su questo dispositivo e aiuta a rispettare il tuo stile."
+ },
+ "writeSkip": {
+  "message": "Ignora"
+ },
+ "underlineSetting": {
+  "message": "Sottolinea gli errori mentre scrivo"
+ },
+ "underlineSettingHint": {
+  "message": "Pro e Ultra: dopo una pausa nella digitazione si controlla solo il paragrafo modificato, tenendo conto della pagina. Punta una sottolineatura (toccala su iPhone e iPad) per correggere. Non conta come risposta."
+ },
+ "setSide": {
+  "message": "Lato dello schermo"
+ },
+ "sideRight": {
+  "message": "Destra"
+ },
+ "sideLeft": {
+  "message": "Sinistra"
+ },
+ "hintSideTitle": {
+  "message": "Puoi trascinare il pannello e il pulsante ✦ sull’altro bordo"
+ },
+ "hintSideTitleSheet": {
+  "message": "Puoi trascinare il pulsante ✦ sull’altro bordo"
+ },
+ "hintSideBody": {
+  "message": "Trascina il pannello dall’intestazione, oppure trascina il pulsante. Puoi scegliere il lato anche nelle Impostazioni."
+ },
+ "hintSideBodySheet": {
+  "message": "Trascinalo a sinistra o a destra. Puoi scegliere il lato anche nelle Impostazioni."
+ },
+ "hintNewTitle": {
+  "message": "Novità di ContextFlow 2.7"
+ },
+ "hintNewTranslate": {
+  "message": "Una pagina in un’altra lingua: la riga «Tradurre in italiano?» accanto a ✦ porta la pagina stessa nella tua lingua."
+ },
+ "hintNewWrite": {
+  "message": "Accanto al campo in cui scrivi: «Controlla» e «Riscrivi», tenendo conto della pagina."
+ },
+ "hintNewSpaces": {
+  "message": "Gli spazi tengono separati lavoro e casa: «Nuovo spazio» è in fondo all’elenco delle chat."
+ },
+ "hintNewApple": {
+  "message": "«Aggiungi a Calendario o Promemoria» è nel menu «…» di una risposta."
+ },
+ "hintNewShot": {
+  "message": "«Istantanea della pagina»: una nota può conservare un’immagine della pagina."
+ },
+ "hintNewSide": {
+  "message": "✦ può stare su entrambi i bordi: trascinalo."
+ },
+ "hintAllTips": {
+  "message": "Tutti i suggerimenti"
+ },
+ "phSimilar": {
+  "message": "Trovarlo a meno?"
+ },
+ "phWatch": {
+  "message": "Seguire il prezzo?"
+ },
+ "phSummary": {
+  "message": "Riassumere la pagina?"
+ },
+ "phListen": {
+  "message": "Ascoltare l’articolo?"
+ },
+ "phVideo": {
+  "message": "Chiedere del video?"
+ },
+ "phTemplates": {
+  "message": "Rispondere con un modello?"
+ },
+ "phRemind": {
+  "message": "Ricordartelo?"
+ },
+ "phCalendar": {
+  "message": "Aggiungere al calendario?"
+ },
+ "phClose": {
+  "message": "Nascondi il suggerimento"
+ },
+ "phSimilarTitle": {
+  "message": "Trovarlo a meno"
+ },
+ "phSimilarBody": {
+  "message": "Seleziona il nome del prodotto → «Trova simili», oppure tocca il pulsante evidenziato: lo stesso prodotto a meno e altri simili."
+ },
+ "phSimilarBodyUp": {
+  "message": "È in Ultra: lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
+ },
+ "phWatchTitle": {
+  "message": "Seguire il prezzo"
+ },
+ "phWatchBody": {
+  "message": "Seleziona il prezzo: accanto compare un occhio. Oppure «…» (evidenziato) → «Segui questa pagina…». Ti avviso quando cambia."
+ },
+ "phSummaryTitle": {
+  "message": "Riassunto della pagina"
+ },
+ "phSummaryBody": {
+  "message": "Tocca «Riassumi», evidenziato: il succo della pagina in poche righe."
+ },
+ "phListenTitle": {
+  "message": "Ascoltare l’articolo"
+ },
+ "phListenBody": {
+  "message": "Apri «…» (evidenziato) → «Ascolta questa pagina»: l’articolo viene letto ad alta voce."
+ },
+ "phListenBodyUp": {
+  "message": "La lettura ad alta voce è in Ultra. Apri «…» (evidenziato) → «Ascolta questa pagina»."
+ },
+ "phVideoTitle": {
+  "message": "Domanda sul video"
+ },
+ "phVideoBody": {
+  "message": "Chiedi del video nel campo evidenziato: rispondo in base ai sottotitoli."
+ },
+ "phVideoBodyUp": {
+  "message": "Le risposte in base ai sottotitoli sono in Pro. Chiedi nel campo evidenziato."
+ },
+ "phTemplatesTitle": {
+  "message": "Rispondere con un modello"
+ },
+ "phTemplatesBody": {
+  "message": "Metti il cursore in un campo della pagina: accanto compare il pulsante dei modelli. I tuoi modelli: «…» (evidenziato) → «Impostazioni» → «Modelli»."
+ },
+ "phRemindTitle": {
+  "message": "Promemoria"
+ },
+ "phRemindBody": {
+  "message": "Scrivi nel campo evidenziato, per esempio «ricordamelo domani alle 9», e ti propongo un promemoria."
+ },
+ "phCalendarTitle": {
+  "message": "Aggiungere al calendario"
+ },
+ "phCalendarBody": {
+  "message": "Scrivi «aggiungi al calendario» nel campo evidenziato e ti propongo un evento con la data della pagina."
+ },
+ "setPageHints": {
+  "message": "Suggerimenti accanto al pulsante ✦"
+ },
+ "setPageHintsHint": {
+  "message": "Nei primi giorni mostrano cosa puoi fare su una pagina."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "È in Pro e Ultra: in Pro la ricerca rapida, in Ultra quella completa. Lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
+ },
+ "shotSwitch": {
+  "message": "Istantanea della pagina"
+ },
+ "shotVisible": {
+  "message": "Area visibile"
+ },
+ "shotFull": {
+  "message": "Pagina intera"
+ },
+ "shotProOnly": {
+  "message": "La pagina intera è inclusa in Pro e Ultra."
+ },
+ "shotTaking": {
+  "message": "Scatto l’istantanea…"
+ },
+ "shotTakingFull": {
+  "message": "Istantanea: schermata {0} di {1}…"
+ },
+ "shotFailed": {
+  "message": "Non è stato possibile fare un’istantanea qui. La nota è salvata senza."
+ },
+ "shotCut": {
+  "message": "La pagina è lunga: l’istantanea contiene le prime {0} schermate."
+ },
+ "shotOpen": {
+  "message": "Apri l’istantanea"
+ },
+ "shotNote": {
+  "message": "Istantanea della pagina"
+ },
+ "shotCrop": {
+  "message": "Ritaglia"
+ },
+ "shotCropDone": {
+  "message": "Fine"
+ },
+ "shotCropReset": {
+  "message": "Istantanea intera"
+ },
+ "shotLoading": {
+  "message": "Apro l’istantanea…"
+ },
+ "shotMissing": {
+  "message": "Questa istantanea non è ancora su questo dispositivo. Arriva tramite iCloud se le chat vi sono sincronizzate."
+ },
+ "invTitle": {
+  "message": "Invita un amico"
+ },
+ "invHint": {
+  "message": "Il tuo amico riceve risposte bonus: +{0} al giorno per la prima settimana. Tu ricevi il {1}% di sconto sul primo mese di Pro o Ultra quando avrà fatto domande in due giorni diversi."
+ },
+ "invButton": {
+  "message": "Ottieni codice e link"
+ },
+ "invYourCode": {
+  "message": "Il tuo codice"
+ },
+ "invCopy": {
+  "message": "Copia"
+ },
+ "invCopied": {
+  "message": "Copiato"
+ },
+ "invShare": {
+  "message": "Condividi"
+ },
+ "invShareText": {
+  "message": "Uso ContextFlow, l’IA direttamente sulla pagina in Safari. Con il mio codice {0} hai risposte bonus per la prima settimana: {1}"
+ },
+ "invFriends": {
+  "message": "Arrivati con il tuo codice: {0} · lo usano: {1}"
+ },
+ "invRewardTitle": {
+  "message": "Un amico che hai invitato usa ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Grazie: {0}% di sconto sul primo mese di Pro o Ultra, a tua scelta. L’App Store lo applica se non hai ancora usato questo sconto."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "Hai già usato entrambi gli sconti? Prendi risposte bonus: +{0} al giorno per una settimana"
+ },
+ "invAnswersOn": {
+  "message": "Le tue risposte bonus valgono fino al {0}."
+ },
+ "invEnterTitle": {
+  "message": "Hai il codice di un amico?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Codice o link"
+ },
+ "invEnter": {
+  "message": "Inserisci"
+ },
+ "invEntered": {
+  "message": "Codice accettato: risposte bonus, +{0} al giorno, fino al {1}."
+ },
+ "invEnteredOn": {
+  "message": "Sei arrivato con il codice di un amico: risposte bonus, +{0} al giorno, fino al {1}."
+ },
+ "invErrUnknown": {
+  "message": "Questo codice non esiste. Controllalo e riprova."
+ },
+ "invErrOwn": {
+  "message": "È il tuo codice. Mandalo a un amico."
+ },
+ "invErrAlready": {
+  "message": "Qui è già stato inserito il codice di un amico."
+ },
+ "invErrLate": {
+  "message": "Il codice di un amico vale nella prima settimana dopo l’installazione."
+ },
+ "invErrFull": {
+  "message": "Questo codice ha raggiunto il limite."
+ },
+ "invErrDevice": {
+  "message": "Su questo dispositivo è già stato usato il codice di un amico."
+ },
+ "invErrCheck": {
+  "message": "Non è stato possibile verificare il dispositivo. Prova a inserire il codice nell’app ContextFlow."
+ },
+ "invErrLater": {
+  "message": "Ora non è stato possibile. Riprova più tardi."
+ },
+ "colAdd": {
+  "message": "In una raccolta"
+ },
+ "colTab": {
+  "message": "Raccolte"
+ },
+ "colChat": {
+  "message": "Chat"
+ },
+ "colSuggestAi": {
+  "message": "suggerita dall’IA"
+ },
+ "colSuggestWords": {
+  "message": "la più adatta"
+ },
+ "colNewSection": {
+  "message": "+ nuova sezione"
+ },
+ "colNewCollection": {
+  "message": "+ Nuova raccolta"
+ },
+ "colNamePlaceholder": {
+  "message": "Nome, per esempio Viaggio in Giappone"
+ },
+ "colSectionPlaceholder": {
+  "message": "Nome della sezione"
+ },
+ "colFirstSection": {
+  "message": "Note"
+ },
+ "colCreate": {
+  "message": "Crea"
+ },
+ "colAdded": {
+  "message": "Aggiunta a «{0}» → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} scheda"
+ },
+ "colCards_two": {
+  "message": "{0} schede"
+ },
+ "colCards_few": {
+  "message": "{0} schede"
+ },
+ "colCards_many": {
+  "message": "{0} schede"
+ },
+ "colCards_other": {
+  "message": "{0} schede"
+ },
+ "colEmpty": {
+  "message": "Ancora nessuna raccolta. Tocca «In una raccolta» sotto una risposta o una nota."
+ },
+ "colEmptyCards": {
+  "message": "Ancora nessuna scheda."
+ },
+ "colToChat": {
+  "message": "← Alla chat"
+ },
+ "colCompare": {
+  "message": "Confronta"
+ },
+ "colCompareN": {
+  "message": "Confronta {0}"
+ },
+ "colComparePick": {
+  "message": "Tocca da 2 a 8 schede"
+ },
+ "colSummary": {
+  "message": "Sintesi"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Apri chat"
+ },
+ "colMoveTo": {
+  "message": "Sposta in «{0}»"
+ },
+ "colRemove": {
+  "message": "Togli dalla raccolta"
+ },
+ "colThisPage": {
+  "message": "questa pagina"
+ },
+ "colNote": {
+  "message": "nota"
+ },
+ "colComparison": {
+  "message": "Confronto"
+ },
+ "colLimitCollections": {
+  "message": "Gratis hai una raccolta. Con Pro, quante ne vuoi."
+ },
+ "colLimitCards": {
+  "message": "Gratis una raccolta contiene {0} schede. Con Pro, fino a {1}."
+ },
+ "colProOnly": {
+  "message": "Confronta e Sintesi sono in Pro."
+ },
+ "colWorking": {
+  "message": "Un attimo…"
+ },
+ "colFailed": {
+  "message": "Stavolta non ha funzionato. Riprova più tardi."
+ },
+ "colLimitDay": {
+  "message": "Per oggi basta: riprova domani."
+ },
+ "colGone": {
+  "message": "Questa raccolta è stata eliminata."
+ },
+ "colPdfMadeWith": {
+  "message": "fatta con"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow: l’IA per Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Apri la chat in ContextFlow"
+ },
+ "colPdfFooter": {
+  "message": "Fatto con ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Salva come PDF"
+ },
+ "colPick": {
+  "message": "Raccolta: {0}. Cambia"
+ },
+ "colCardMenu": {
+  "message": "Azioni della scheda"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },
@@ -2306,14 +2984,26 @@
  "tip_af26b6788c": {
   "message": "Sposta ✦ dove non dà fastidio"
  },
- "tip_6d2694aec4": {
-  "message": "✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci."
+ "tip_1b3fa8b31a": {
+  "message": "✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci. Su iPad, trascina anche il pannello dall’intestazione per spostarlo dall’altro lato. «Lato dello schermo», nelle impostazioni dell’estensione, fa lo stesso."
+ },
+ "tip_cbec05fbfd": {
+  "message": "✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci. Trascina anche il pannello dall’intestazione per spostarlo dall’altro lato, oppure scegli «Lato dello schermo» nelle impostazioni dell’estensione."
  },
  "tip_2749afe54a": {
   "message": "L’essenziale con un tocco"
  },
  "tip_487a14e710": {
   "message": "“Riassumi”, “Punti chiave”, “In parole semplici” e “Traduci” lavorano su tutta la pagina: non serve scrivere un prompt."
+ },
+ "tip_33e83f4818": {
+  "message": "Leggi una pagina nella tua lingua"
+ },
+ "tip_f8f753be8a": {
+  "message": "Su una pagina in un’altra lingua, tocca la riga «Tradurre in italiano?» accanto a ✦: la pagina stessa passa alla tua lingua, link compresi, e la traduzione continua mentre scorri. «Originale» rimette ogni parola com’era. Una pagina vale una risposta a settimana, anche se la traduci più volte."
+ },
+ "tip_22f41ab2de": {
+  "message": "Su una pagina in un’altra lingua, fai clic sulla riga «Tradurre in italiano?» accanto a ✦: la pagina stessa passa alla tua lingua, link compresi, e la traduzione continua mentre scorri. «Originale» rimette ogni parola com’era. Una pagina vale una risposta a settimana, anche se la traduci più volte."
  },
  "tip_d22c90dac1": {
   "message": "Chiedi di una parte"
@@ -2356,6 +3046,15 @@
  },
  "tip_6a92f6c633": {
   "message": "Scorri il pulsante di invio in su o in giù (su Mac, scorri sopra di esso) per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina, si sincronizza con essa e non consuma risposte."
+ },
+ "tip_ac13420c59": {
+  "message": "Un’istantanea con la tua nota"
+ },
+ "tip_dff446b7cc": {
+  "message": "Stai scrivendo una nota? Attiva «Istantanea della pagina» sopra il campo e la nota conserva un’immagine della pagina: l’area visibile o, con Pro, la pagina intera. Tocca l’immagine per aprirla a schermo intero e ritagliarla. Resta sui tuoi dispositivi e nel tuo iCloud."
+ },
+ "tip_3ca344f02e": {
+  "message": "Stai scrivendo una nota? Attiva «Istantanea della pagina» sopra il campo e la nota conserva un’immagine della pagina: l’area visibile o, con Pro, la pagina intera. Fai clic sull’immagine per aprirla a schermo intero e ritagliarla. Resta sui tuoi dispositivi e nel tuo iCloud."
  },
  "tip_654fb12e51": {
   "message": "Evidenzia ciò che conta"
@@ -2402,11 +3101,11 @@
  "tip_de4adc7524": {
   "message": "Trova simili"
  },
- "tip_b2248495b1": {
-  "message": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+ "tip_2c6d9f34e3": {
+  "message": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca rapida, fino a 5 a settimana, e ognuna vale 10 risposte."
  },
- "tip_31666a3aab": {
-  "message": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+ "tip_9bb47159a4": {
+  "message": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca rapida, fino a 5 a settimana, e ognuna vale 10 risposte."
  },
  "tip_c518fb0674": {
   "message": "Ascolta"
@@ -2429,6 +3128,24 @@
  "tip_a8e1d14e5b": {
   "message": "In qualsiasi campo di una pagina, digita / e qualche parola di un modello, poi Tab. Control-Maiusc-V apre l’elenco completo: ciò che hai copiato in altre schede, i tuoi modelli e l’ultima risposta di ContextFlow."
  },
+ "tip_8213493414": {
+  "message": "Controlla o riscrivi prima di inviare"
+ },
+ "tip_4a10311c4a": {
+  "message": "Stai scrivendo un’email o un commento? Tocca il pulsante di ContextFlow accanto al campo: «Controlla» e «Riscrivi» sono in cima all’elenco. «Controlla» corregge gli errori; «Riscrivi» rende il testo più breve, più caloroso, più formale o più sicuro. Entrambi tengono conto della pagina, come l’email a cui rispondi, e «Annulla» ti ridà le tue parole. Ogni tocco vale una risposta."
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "Stai scrivendo un’email o un commento? Dopo qualche parola, punta il cerchio sopra il campo: «Controlla» corregge gli errori; «Riscrivi» rende il testo più breve, più caloroso, più formale o più sicuro. Entrambi tengono conto della pagina, come l’email a cui rispondi, e «Annulla» ti ridà le tue parole. Ognuno vale una risposta."
+ },
+ "tip_898fe0f06c": {
+  "message": "Errori sottolineati mentre scrivi"
+ },
+ "tip_b9954518f0": {
+  "message": "Con Pro o Ultra, fai una pausa mentre scrivi e un errore nel paragrafo che hai modificato viene sottolineato. Tocca la sottolineatura per vedere la correzione, poi «Correggi» o «Ignora». Non consuma risposte, e puoi disattivarlo nelle impostazioni dell’estensione."
+ },
+ "tip_7e0eabc91c": {
+  "message": "Con Pro o Ultra, fai una pausa mentre scrivi e un errore nel paragrafo che hai modificato viene sottolineato. Punta la sottolineatura per vedere la correzione, poi «Correggi» o «Ignora». Non consuma risposte, e puoi disattivarlo nelle impostazioni dell’estensione."
+ },
  "tip_451fa9ccb6": {
   "message": "Il testo copiato, per un giorno"
  },
@@ -2450,6 +3167,12 @@
  "tip_b5d4d7711a": {
   "message": "Stai leggendo qualcosa da finire più tardi? Seleziona una riga e tocca la campanella, oppure tocca «…» in alto nel pannello, poi «Ricordami questa pagina…», e scegli un orario: il promemoria apre questa pagina. Risposte e note hanno «Ricordamelo» nel loro menu «…»."
  },
+ "tip_529cd4b087": {
+  "message": "Aggiungi a Calendario o Promemoria"
+ },
+ "tip_c20a65b22a": {
+  "message": "Chiedi «ricordami di chiamare la banca venerdì», o chiedi di una data nella pagina: la risposta arriva con una scheda per controllare data e ora, e «Aggiungi» la mette in Calendario o Promemoria. Ogni risposta o nota ha «Aggiungi a Calendario o Promemoria» nel suo menu «…». In «Ricordamelo», «Anche in Promemoria» mette il tuo promemoria anche nell’app Promemoria di Apple."
+ },
  "tip_74c328b672": {
   "message": "Sapere quando un prezzo scende"
  },
@@ -2464,6 +3187,24 @@
  },
  "tip_623811ea30": {
   "message": "Inizia una nuova chat con +. Le precedenti ti aspettano nell’elenco: aprine una per riprendere da dove eri rimasto, rinominala con la matita o eliminala."
+ },
+ "tip_827a76a38d": {
+  "message": "Spazi per lavoro e casa"
+ },
+ "tip_6bf925510c": {
+  "message": "Tieni separati lavoro, casa e acquisti. «Nuovo spazio», in fondo all’elenco delle chat, ne crea uno con il suo colore. Il selettore in cima all’elenco passa dall’uno all’altro, e una nuova chat va nello spazio in cui sei. Nel selettore, «Apri amazon.com qui» tiene quel sito in questo spazio. Con Gratis c’è un limite; con Pro o Ultra, quanti ne vuoi."
+ },
+ "tip_3512a4ae8c": {
+  "message": "La chat di questa pagina"
+ },
+ "tip_05b9621aed": {
+  "message": "Apri il pannello su una pagina e ContextFlow sceglie la chat che ne parla: quella con questa pagina, o una sullo stesso argomento. «Continuo», in alto, dice quale ha scelto; «Nuova chat», lì accanto, ne inizia una nuova."
+ },
+ "tip_8d1c1aa55d": {
+  "message": "Tutto in una raccolta"
+ },
+ "tip_15dc6cba07": {
+  "message": "Stai organizzando un viaggio o un acquisto? Scegli «In una raccolta» sotto una risposta o una nota, e ContextFlow suggerisce dove metterla. «Raccolte» tiene tutto in sezioni, in Safari e nell’app. Con Pro, l’IA ordina le schede, «Confronta» mette fianco a fianco quelle che scegli e «Sintesi» riassume tutto. Ogni raccolta si salva in PDF."
  },
  "tip_c4b432e2e9": {
   "message": "Cerca nelle tue chat"
@@ -2528,6 +3269,12 @@
  "tip_0f2289f887": {
   "message": "Dopo l’acquisto di Pro o Ultra, ContextFlow ti mostra passo passo cosa aggiunge il tuo piano. Per rivederlo, tocca «…» in alto nel pannello, poi «Altro…» e «Cosa include Pro» o «Cosa include Ultra». Nell’app è in «Impostazioni», sotto «Il tuo piano»."
  },
+ "tip_3ee4fbeeb2": {
+  "message": "Invita un amico"
+ },
+ "tip_0e8493432d": {
+  "message": "«Impostazioni» → «Invita un amico», nell’app o in Safari, ti dà un codice e un link da inviare. Il tuo amico riceve risposte bonus ogni giorno della prima settimana. Quando avrà fatto domande in due giorni diversi, ricevi uno sconto sul primo mese di Pro o Ultra."
+ },
  "tip_3208aa35ac": {
   "message": "Privacy e personalizzazione"
  },
@@ -2542,6 +3289,12 @@
  },
  "tip_6cc366173d": {
   "message": "Non ti serve ✦ su un sito? Nascondilo su quel sito o disattivalo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
+ },
+ "tip_cc54dd5946": {
+  "message": "Suggerimenti accanto al pulsante ✦"
+ },
+ "tip_325d207bb4": {
+  "message": "Nei primi giorni, una breve riga accanto a ✦ ti suggerisce qualcosa per la pagina in cui sei: il riassunto di un articolo lungo, un prezzo da seguire, una data per il calendario. Toccala per vedere come si fa. Disattiva le righe nelle impostazioni dell’estensione, in «Suggerimenti accanto al pulsante ✦»."
  },
  "tip_8a727e1bbe": {
   "message": "Usa la tua chiave API"

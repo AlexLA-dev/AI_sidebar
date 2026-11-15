@@ -232,12 +232,14 @@ export const SEARCH_WORDS = {
   zh: ["搜索", "查询"],
   "zh-Hant": ["搜尋", "查詢"],
   vi: ["tìm kiếm"],
-  ar: ["بحث"]
+  ar: ["بحث"],
+  // 2.7: and "ara" on its own (SEARCH_NAMED): inside a word it's everywhere ("parameter", "separate").
+  tr: ["arama", "aradığınız"]
 } as const
 
-// `q`, the name search forms give their field, in any language.
+// `q`, the name search forms give their field, in any language; Turkish "ara" (search) only as a word of its own.
 const SEARCH_NAMED = new RegExp(
-  `${Object.values(SEARCH_WORDS).flat().map((w) => unaccent(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}|\\bq\\b`
+  `${Object.values(SEARCH_WORDS).flat().map((w) => unaccent(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}|\\bq\\b|\\bara\\b`
 )
 
 /** Whether a field's name, id, label or hint says it's a search, in any of the app's languages. */
@@ -297,4 +299,18 @@ export function besideSpot(field: Edges, view: { width: number; height: number }
   const left = { left: field.left - SIDE_GAP - w, width: w }
   if (left.width >= SIDE_MIN && clear(left.left, left.left + left.width)) return { top, ...left }
   return null
+}
+
+// ------------------------------------------------------------ live underlines' card (Underlines.tsx)
+
+/**
+ * The card's top for words at `r` (fixed coordinates): on touch above them when there's room (the keyboard sits below
+ * the text being typed), else below; with a pointer below them unless that runs off what's visible.
+ */
+export function cardTop(r: { top: number; bottom: number }, h: number, vp: { height: number; dy: number }, touch: boolean): number {
+  const above = r.top - h - 8
+  const below = r.bottom + 8
+  const roomAbove = above >= vp.dy + 8
+  if (touch) return roomAbove ? above : below
+  return below + h <= vp.dy + vp.height - 8 || !roomAbove ? below : above
 }

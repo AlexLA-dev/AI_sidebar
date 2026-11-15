@@ -23,8 +23,9 @@ const root = new URL("..", import.meta.url).pathname
 const data = tipsData(root)
 const locales = new URL("../src/locales/", import.meta.url)
 const en = JSON.parse(readFileSync(new URL("en.json", locales), "utf8")) as Record<string, string>
-const PRO = ["Ask about a video", "PDFs on the page", "AI search", "Ask your chats", "Where it belongs", "Your tags, suggested"]
-const ULTRA = ["Find similar", "Listen"]
+// 2.7: Find similar starts at Pro (Pro's quick search, #167; Ultra's in full), and the underlines as you type are Pro's.
+const PRO = ["Ask about a video", "PDFs on the page", "Find similar", "Mistakes underlined as you type", "AI search", "Ask your chats", "Where it belongs", "Your tags, suggested"]
+const ULTRA = ["Listen"]
 
 test("the app's Tips, as the build reads them: seven blocks in order, iCloud before them, the renamed last block", () => {
   assert.deepEqual(data.groups.map((g: any) => g.id), ["get-started", "deeper-work", "quick-insert", "watch-and-remind", "chats-in-order", "your-plan", "privacy-and-personalization"])
@@ -36,7 +37,7 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
   // 2.6: Ultra's own, with its badge (never both), at the end of "Deeper work".
   assert.deepEqual(data.groups.flatMap((g: any) => g.tips.filter((t: any) => t.ultra).map((t: any) => t.title.en)), ULTRA)
   assert.ok(data.groups.every((g: any) => g.tips.every((t: any) => !(t.pro && t.ultra))))
-  assert.deepEqual(data.groups[1].tips.slice(-2).map((t: any) => t.title.en), ULTRA)
+  assert.deepEqual(data.groups[1].tips.slice(-2).map((t: any) => t.title.en), ["Find similar", "Listen"])
   // A Mac's own words where they differ.
   const swipes = data.groups[1].tips.find((t: any) => t.title.en === "Swipe to pin or delete")
   assert.equal(swipes.mac.title.en, "Pin or delete with a click")
@@ -46,7 +47,7 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
   assert.equal(chips.mac.title.en, "Quick actions under a selection")
   assert.match(chips.mac.text.en, /trackpad or the mouse wheel and click/)
   // The plan's own block, before the last one: monthly or yearly, then the plan's tour.
-  assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "What your plan adds"])
+  assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "What your plan adds", "Invite a friend"])
   assert.equal(data.groups.at(-2).title.en, "Your plan")
   assert.equal(data.heading.en, "Tips")
   assert.equal(data.groups[1].title.en, "Deeper work")
@@ -62,15 +63,18 @@ test("every card's clip, as the app shows it: on iPhone and iPad, on a Mac only 
   for (const lang of langs) assert.deepEqual(tipClips(data), app(lang), lang)
   const tip = (title: string) => data.groups.flatMap((g: any) => g.tips).find((t: any) => t.title.en === title)
   assert.equal(tip("Share what you found").clip, "share")
-  // 2.6 (93): moving ✦ aside is a first-block card with the clip; hiding it, under personalization, has none.
-  assert.equal(tip("Move ✦ out of the way").clip, "button")
+  // 2.6 (93): moving ✦ aside is a first-block card with the clip; 2.7: dragged along the edge and across (side).
+  assert.equal(tip("Move ✦ out of the way").clip, "side")
   assert.ok(data.groups[0].tips.some((t: any) => t.title.en === "Move ✦ out of the way"), "in Get started")
-  assert.ok(!tip("Hide ✦ when you don't need it").clip)
-  // No clip on a Mac where the app shows none: the touch ones and the button by a field.
-  for (const title of ["Open it on any page", "Swipe to pin or delete", "Insert into any field", "Copied, kept for a day", "Quick actions under a selection", "Find similar"]) {
+  // 2.7: hiding ✦ on a site has its clip too.
+  assert.equal(tip("Hide ✦ when you don't need it").clip, "hide")
+  // A Mac's own clips where the pointer does it differently (2.7: mac-…); none for Copied, which a Mac opens with keys.
+  const mac = { "Open it on any page": "mac-open", "Swipe to pin or delete": "mac-pin", "Insert into any field": "mac-insert", "Quick actions under a selection": "mac-chips", "Find similar": "mac-similar" }
+  for (const [title, clip] of Object.entries(mac)) {
     assert.ok(tip(title).clip, title)
-    assert.ok(tip(title).mac && !tip(title).mac.clip, `${title}: none on a Mac`)
+    assert.equal(tip(title).mac?.clip, clip, `${title}: a Mac's own clip`)
   }
+  assert.ok(tip("Copied, kept for a day").mac && !tip("Copied, kept for a day").mac.clip, "Copied: none on a Mac")
   // Listen (build 98): the panel's player, on iPhone and iPad too (with notifications on it plays there).
   assert.ok(tip("Listen").clip === "listen" && (!tip("Listen").mac || tip("Listen").mac.clip === "listen"))
   assert.equal(tip("Where it belongs").clip, "organize")
@@ -342,7 +346,7 @@ test("the clips: in the panel's language; a Mac's own; the open block's first th
   ui.sheet(deeper, false)
   await tick()
   const loaded = [...deeper.querySelectorAll(".cf-tip-clip")].map((b: any) => src(b)).filter(Boolean) as string[]
-  assert.deepEqual(loaded.map((u) => new URL(u.replace("ext://cf/", "https://x/")).searchParams.get("name")), data.groups[1].tips.slice(0, 3).map((t: any) => t.clip))
+  assert.deepEqual(loaded.map((u) => new URL(u.replace("ext://cf/", "https://x/")).searchParams.get("name")), data.groups[1].tips.filter((t: any) => t.clip).slice(0, 3).map((t: any) => t.clip))
   assert.equal(deeper.querySelectorAll(".cf-tips-block")[0].querySelectorAll("iframe").length, 0)
 })
 

@@ -1332,6 +1332,23 @@ test("feature steps: only registry features, actions and values are kept, with t
   assert.ok(!JSON.stringify(events).includes("secret"))
 })
 
+test("activation steps (2.7): the app's with its id, the extension side's link with both ids, nothing else", async () => {
+  events = []
+  const client = { platform: "ios", version: "2.7", locale: "en-US" }
+  assert.equal((await event(post("/api/v2/event", { kind: "use", f: "activation", a: "settings", via: "card", s: "app", appId: APP_ID, client }), ctx())).status, 200)
+  assert.equal((await event(post("/api/v2/event", { kind: "use", f: "activation", a: "back", s: "app", appId: APP_ID, client, screen: "Settings" }), ctx())).status, 200)
+  assert.equal((await event(post("/api/v2/event", { kind: "use", f: "activation", a: "linked", s: "app", appId: APP_ID, installId: INSTALL, client }), ctx())).status, 200)
+  assert.equal((await event(post("/api/v2/event", { kind: "use", f: "activation", a: "removed", appId: APP_ID, client }), ctx())).status, 400)
+  await new Promise((r) => setTimeout(r, 0))
+  const logged = events.filter((e) => e.kind === "use")
+  assert.deepEqual(logged.map((e) => [e.install ?? null, e.data.app, e.data.f, e.data.a, e.data.via ?? null]), [
+    [null, APP_ID, "activation", "settings", "card"],
+    [null, APP_ID, "activation", "back", null],
+    [INSTALL, APP_ID, "activation", "linked", null]
+  ])
+  assert.ok(!JSON.stringify(events).includes("Settings"))
+})
+
 test("feature steps in a batch: each kept or left out on its own, one request counted, the app's session linked", async () => {
   events = []
   const body = {
@@ -1417,4 +1434,17 @@ test("rows written by a deploy preview or our own scripts are marked as tests", 
   await send({ kind: "ext_on", client: { version: "2.5.0" } })
   await new Promise((r) => setTimeout(r, 0))
   assert.deepEqual(events.map((e) => [e.data.audience, e.data.deploy]), [["test", "deploy-preview"], ["test", undefined], [undefined, undefined]])
+})
+
+// 2.7, Calendar and Reminders: only a client that can add them (Safari on iOS 17+ and macOS 14+ says `items: true`) is
+// told to end an answer with the marker for a card; others, and "Ask your chats", never get it.
+test("chat: the rule for a reminder or an event only for clients that can add them", async () => {
+  const systemNow = () => (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  await events$(await chat(ask({ items: true, messages: [{ role: "user", content: "remind me on Friday to book the hotel" }] }), ctx()))
+  assert.match(systemNow(), /\[\[cf:add\]\]/)
+  assert.ok(systemNow().indexOf("[[cf:add]]") < systemNow().indexOf("Content of the page"), "with the rules, before the page")
+  await events$(await chat(ask(), ctx()))
+  assert.doesNotMatch(systemNow(), /cf:add/)
+  await events$(await chat(ask({ items: "yes" }), ctx()))
+  assert.doesNotMatch(systemNow(), /cf:add/)
 })

@@ -179,6 +179,29 @@ final class SharedDefaults {
         defaults.dictionary(forKey: pricesKey) as? [String: String] ?? [:]
     }
 
+    // MARK: Invite a friend (2.7)
+
+    /// A friend's code entered in the app: until when its extra answers run (seconds since 1970), the app's id it was
+    /// entered with, and whether the extension's install has taken it over (the panel links it, /api/v2/invite "link").
+    /// The inviter's own code, once made, so the panel and the app show the same one.
+    private let inviteKey = "invite"
+
+    func readInvite() -> [String: Any] {
+        defaults.dictionary(forKey: inviteKey) ?? [:]
+    }
+
+    func updateInvite(_ change: [String: Any]) {
+        var stored = readInvite()
+        for (key, value) in change { stored[key] = value }
+        defaults.set(stored, forKey: inviteKey)
+    }
+
+    /// The app's first run on this device came with an update of an older version (2.7: a friend's code is offered to a
+    /// new install only; when it first ran is appFirstLaunch()).
+    func appUpdatedInstall() -> Bool {
+        defaults.dictionary(forKey: appKey)?["updated"] as? Bool ?? false
+    }
+
     // MARK: Plan changes (build 90)
 
     /// A plan started (bought, upgraded, or changed at renewal): from, to ("free", "byok", "pro", "ultra"), the product
@@ -422,6 +445,11 @@ final class SharedDefaults {
         }
         if status.firstSeen == nil { status.firstSeen = status.firstUsed }
         return status
+    }
+
+    /// The app's random id once the app has been opened (never made here: the extension's side only reads it).
+    func appId() -> String? {
+        defaults.dictionary(forKey: appKey)?["id"] as? String
     }
 
     /// The app's random id, made on its first launch, and whether this launch is the first one of a new

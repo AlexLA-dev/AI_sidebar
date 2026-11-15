@@ -1,0 +1,28 @@
+/* Invite a friend (2.7, plan section 5): Settings' group and the one-time card when a friend becomes active. */
+.cf-inv-code {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 8px 0 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  background: var(--bg-2);
+}
+.cf-inv-label { font-size: 12px; color: var(--text-2); }
+.cf-inv-code strong { font: 700 22px/1.2 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.12em; }
+.cf-inv-code small { font-size: 12px; color: var(--text-2); word-break: break-all; }
+.cf-inv-reward-box {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+}
+.cf-inv-reward-box p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; }
+.cf-inv-reward { flex-wrap: wrap; margin-top: 8px; }
+.cf-inv-enter-title { display: block; margin-top: 10px; }
+.cf-inv-input { text-transform: uppercase; }
+.cf-inv-input::placeholder { text-transform: none; }
+.cf-inv-error { color: var(--danger); }
+.cf-inv-card .cf-inv-reward { margin-top: 6px; }

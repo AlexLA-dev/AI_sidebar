@@ -1973,6 +1973,21 @@
  "similarLimit": {
   "message": "今週の「似たものを探す」{0}回を使い切りました。{1}に戻ります。"
  },
+ "similarLightNote": {
+  "message": "クイック検索：週{0}回まで。"
+ },
+ "similarLightNotePro": {
+  "message": "クイック検索：週{0}回まで。1回につき回答{1}回分です。"
+ },
+ "similarLightFoot": {
+  "message": "クイック検索です。Ultraはより広く探し、レビューを読み、配送も確認します。"
+ },
+ "similarLightLimit": {
+  "message": "今週のクイック検索{0}回を使い切りました。{1}にまた使えるようになります。Ultraなら週{2}回、より広く探します。"
+ },
+ "similarAnswersShort": {
+  "message": "クイック検索は回答{0}回分です。残りは{1}回です。"
+ },
  "orgDemoQuestion": {
   "message": "5月のリスボン行き格安航空券は？"
  },
@@ -2279,6 +2294,669 @@
  "similarMisses": {
   "message": "選んだ条件に合いません"
  },
+ "appleTitle": {
+  "message": "カレンダーとリマインダー"
+ },
+ "appleMenu": {
+  "message": "カレンダーかリマインダーに追加"
+ },
+ "appleReading": {
+  "message": "日付と時刻を探しています…"
+ },
+ "appleNothing": {
+  "message": "追加するものが見つかりません（日付や用事がありません）。"
+ },
+ "appleError": {
+  "message": "日付を読み取れませんでした。"
+ },
+ "appleRetry": {
+  "message": "再試行"
+ },
+ "appleReminder": {
+  "message": "リマインダー"
+ },
+ "appleEvent": {
+  "message": "イベント"
+ },
+ "appleWhat": {
+  "message": "内容"
+ },
+ "appleDate": {
+  "message": "日付"
+ },
+ "appleTime": {
+  "message": "時刻"
+ },
+ "appleList": {
+  "message": "リスト"
+ },
+ "appleRemindersApp": {
+  "message": "リマインダーへ"
+ },
+ "appleCalendarPick": {
+  "message": "カレンダーは次の画面で選びます"
+ },
+ "appleCalendarDefault": {
+  "message": "デフォルトのカレンダー"
+ },
+ "appleGuess": {
+  "message": "日付と時刻を確認してください（推定です）。"
+ },
+ "applePast": {
+  "message": "この時刻は過ぎています。日付を確認してください。"
+ },
+ "appleAdd": {
+  "message": "追加"
+ },
+ "appleAdded": {
+  "message": "リマインダーに追加しました"
+ },
+ "appleAddedEvent": {
+  "message": "カレンダーに追加しました"
+ },
+ "appleOpening": {
+  "message": "ContextFlow を開いています…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow にアクセス権がありません。設定でオンにしてください。"
+ },
+ "appleFailed": {
+  "message": "追加できませんでした。もう一度お試しください。"
+ },
+ "appleAlso": {
+  "message": "リマインダーにも追加"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow はリマインダーにアクセスできません。設定でオンにしてください。"
+ },
+ "appleAskOnce": {
+  "message": "初回は ContextFlow が開き、アクセスの許可を求めます。"
+ },
+ "trOffer": {
+  "message": "日本語に翻訳しますか？"
+ },
+ "trOfferTo": {
+  "message": "{0}に翻訳しますか？"
+ },
+ "trHide": {
+  "message": "このサイトでは表示しない"
+ },
+ "trWorking": {
+  "message": "翻訳中…"
+ },
+ "trOriginal": {
+  "message": "原文"
+ },
+ "trFailed": {
+  "message": "翻訳できませんでした"
+ },
+ "spacesTitle": {
+  "message": "スペース"
+ },
+ "spaceSwitcher": {
+  "message": "スペース：{0}。切り替える"
+ },
+ "spaceFirst": {
+  "message": "プライベート"
+ },
+ "spaceNew": {
+  "message": "新しいスペース"
+ },
+ "spaceEdit": {
+  "message": "「{0}」を編集"
+ },
+ "spaceName": {
+  "message": "名前"
+ },
+ "spaceNamePlaceholder": {
+  "message": "例：仕事"
+ },
+ "spaceColor": {
+  "message": "色"
+ },
+ "spaceColorBlue": {
+  "message": "青"
+ },
+ "spaceColorGreen": {
+  "message": "緑"
+ },
+ "spaceColorOrange": {
+  "message": "オレンジ"
+ },
+ "spaceColorPink": {
+  "message": "ピンク"
+ },
+ "spaceColorViolet": {
+  "message": "紫"
+ },
+ "spaceColorGraphite": {
+  "message": "グラファイト"
+ },
+ "spaceCreate": {
+  "message": "作成"
+ },
+ "spaceDelete": {
+  "message": "スペースを削除"
+ },
+ "spaceDeleteNote": {
+  "message": "このスペースのチャットは「{0}」に移ります。"
+ },
+ "spaceBind": {
+  "message": "{0} をここで開く"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} は「{1}」で開きます。ここで開く"
+ },
+ "spaceMoveTo": {
+  "message": "移動先…"
+ },
+ "spaceMoved": {
+  "message": "「{0}」に移動しました"
+ },
+ "spaceIn": {
+  "message": "「{0}」にいます"
+ },
+ "spaceLimit": {
+  "message": "無料プランのスペース：{0}。Proなら無制限です。"
+ },
+ "spaceEmpty": {
+  "message": "「{0}」にはまだチャットがありません。新しいチャットはここに入ります。"
+ },
+ "setSpaces": {
+  "message": "スペース"
+ },
+ "setSpacesHint": {
+  "message": "仕事、プライベート、買い物：それぞれに専用のチャットと色。オフにすると全チャットが1つのリストに戻り、スペースは保存されます。"
+ },
+ "matchContinue": {
+  "message": "続き："
+ },
+ "writeCircle": {
+  "message": "チェックまたは書き直し"
+ },
+ "writeCheck": {
+  "message": "チェック"
+ },
+ "writeRewrite": {
+  "message": "書き直す"
+ },
+ "writeToneShort": {
+  "message": "短く"
+ },
+ "writeToneWarm": {
+  "message": "温かく"
+ },
+ "writeToneFormal": {
+  "message": "丁寧に"
+ },
+ "writeToneConfident": {
+  "message": "自信をもって"
+ },
+ "writeChecking": {
+  "message": "ページの内容を踏まえてチェック中…"
+ },
+ "writeRewriting": {
+  "message": "ページの内容を踏まえて書き直し中…"
+ },
+ "writeFixes": {
+  "message": "修正：{0}件"
+ },
+ "writeLeft": {
+  "message": "今日の無料回答：残り{0}回"
+ },
+ "writeClean": {
+  "message": "誤りは見つかりませんでした。"
+ },
+ "writeEmpty": {
+  "message": "まだテキストがありません。"
+ },
+ "writeTooLong": {
+  "message": "一度に扱うには長すぎます。一部を選択してもう一度お試しください。"
+ },
+ "writeChanged": {
+  "message": "その後テキストが変更されました。"
+ },
+ "writeFix": {
+  "message": "修正"
+ },
+ "writeReplace": {
+  "message": "置き換え"
+ },
+ "writeFixed": {
+  "message": "修正しました"
+ },
+ "writeFixedSome": {
+  "message": "修正しました（入力欄が受け付けなかった箇所を除く）"
+ },
+ "writeReplaced": {
+  "message": "置き換えました"
+ },
+ "writeUndo": {
+  "message": "取り消す"
+ },
+ "writeUndone": {
+  "message": "取り消しました"
+ },
+ "writeUndoFailed": {
+  "message": "取り消せません：テキストが変更されています。"
+ },
+ "writeSetting": {
+  "message": "入力欄の「チェック」と「書き直す」"
+ },
+ "writeSettingHint": {
+  "message": "修正や書き直しはページの内容を踏まえます：返信中のメール、コメント先の投稿など。1回のタップで回答1回分です。各サイトでの書き方はこのデバイスにだけ保存され、あなたの文体に合わせるために使われます。"
+ },
+ "writeSkip": {
+  "message": "無視"
+ },
+ "underlineSetting": {
+  "message": "入力中の誤りに下線を引く"
+ },
+ "underlineSettingHint": {
+  "message": "Pro と Ultra：入力が止まると、変更した段落だけをページの内容を踏まえてチェックします。下線にポインタを合わせる（iPhone と iPad ではタップ）と修正できます。回答数には数えません。"
+ },
+ "setSide": {
+  "message": "画面の左右"
+ },
+ "sideRight": {
+  "message": "右"
+ },
+ "sideLeft": {
+  "message": "左"
+ },
+ "hintSideTitle": {
+  "message": "パネルと✦ボタンは反対側の端へドラッグできます"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ボタンは反対側の端へドラッグできます"
+ },
+ "hintSideBody": {
+  "message": "パネルは上部をつかんで、ボタンはそのままドラッグします。左右は設定でも選べます。"
+ },
+ "hintSideBodySheet": {
+  "message": "左右どちらかへドラッグします。左右は設定でも選べます。"
+ },
+ "hintNewTitle": {
+  "message": "ContextFlow 2.7 の新機能"
+ },
+ "hintNewTranslate": {
+  "message": "ほかの言語のページ：✦ の横の「日本語に翻訳しますか？」で、ページそのものがあなたの言語に切り替わります。"
+ },
+ "hintNewWrite": {
+  "message": "入力中の欄の横に「チェック」と「書き直す」。ページの内容を踏まえます。"
+ },
+ "hintNewSpaces": {
+  "message": "スペースで仕事とプライベートを分けられます。「新しいスペース」はチャット一覧の最後にあります。"
+ },
+ "hintNewApple": {
+  "message": "「カレンダーかリマインダーに追加」は回答の「…」メニューにあります。"
+ },
+ "hintNewShot": {
+  "message": "「ページのスナップショット」：メモにページの画像を残せます。"
+ },
+ "hintNewSide": {
+  "message": "✦ は左右どちらの端にも置けます。反対側へドラッグしてください。"
+ },
+ "hintAllTips": {
+  "message": "すべてのヒント"
+ },
+ "phSimilar": {
+  "message": "もっと安く探しますか？"
+ },
+ "phWatch": {
+  "message": "価格を見守りますか？"
+ },
+ "phSummary": {
+  "message": "このページを要約しますか？"
+ },
+ "phListen": {
+  "message": "記事を聞きますか？"
+ },
+ "phVideo": {
+  "message": "動画について質問しますか？"
+ },
+ "phTemplates": {
+  "message": "テンプレートで返信しますか？"
+ },
+ "phRemind": {
+  "message": "リマインダーを設定しますか？"
+ },
+ "phCalendar": {
+  "message": "カレンダーに追加しますか？"
+ },
+ "phClose": {
+  "message": "ヒントを隠す"
+ },
+ "phSimilarTitle": {
+  "message": "もっと安く探す"
+ },
+ "phSimilarBody": {
+  "message": "商品名を選択して「似たものを探す」、またはハイライトされたボタンをタップ。同じ商品をより安く、似た商品も探します。"
+ },
+ "phSimilarBodyUp": {
+  "message": "これはUltraの機能です。同じ商品をより安く、似た商品を他のお店から探します。ハイライトされたボタンをタップしてください。"
+ },
+ "phWatchTitle": {
+  "message": "価格を見守る"
+ },
+ "phWatchBody": {
+  "message": "価格を選択すると横に目のアイコンが出ます。または「…」（ハイライト）→「このページを見守る…」。変わったらお知らせします。"
+ },
+ "phSummaryTitle": {
+  "message": "ページの要約"
+ },
+ "phSummaryBody": {
+  "message": "ハイライトされた「要約」をタップ。ページの要点を数行で。"
+ },
+ "phListenTitle": {
+  "message": "記事を聞く"
+ },
+ "phListenBody": {
+  "message": "「…」（ハイライト）→「このページを読み上げ」で記事を読み上げます。"
+ },
+ "phListenBodyUp": {
+  "message": "読み上げはUltraの機能です。「…」（ハイライト）→「このページを読み上げ」。"
+ },
+ "phVideoTitle": {
+  "message": "動画について質問"
+ },
+ "phVideoBody": {
+  "message": "ハイライトされた欄で動画について質問してください。字幕をもとに答えます。"
+ },
+ "phVideoBodyUp": {
+  "message": "字幕をもとにした回答はProの機能です。ハイライトされた欄で質問してください。"
+ },
+ "phTemplatesTitle": {
+  "message": "テンプレートで返信"
+ },
+ "phTemplatesBody": {
+  "message": "ページの入力欄にカーソルを置くと、横にテンプレートのボタンが出ます。自分のテンプレート：「…」（ハイライト）→「設定」→「テンプレート」。"
+ },
+ "phRemindTitle": {
+  "message": "リマインダー"
+ },
+ "phRemindBody": {
+  "message": "ハイライトされた欄に、たとえば「明日9時に知らせて」と入力すると、リマインダーを提案します。"
+ },
+ "phCalendarTitle": {
+  "message": "カレンダーへ"
+ },
+ "phCalendarBody": {
+  "message": "ハイライトされた欄に「カレンダーに追加」と入力すると、ページの日付でイベントを提案します。"
+ },
+ "setPageHints": {
+  "message": "✦ボタンのヒント"
+ },
+ "setPageHintsHint": {
+  "message": "最初の数日、ページでできることを教えてくれます。"
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。"
+ },
+ "shotSwitch": {
+  "message": "ページのスナップショット"
+ },
+ "shotVisible": {
+  "message": "表示範囲"
+ },
+ "shotFull": {
+  "message": "ページ全体"
+ },
+ "shotProOnly": {
+  "message": "ページ全体は Pro と Ultra で使えます。"
+ },
+ "shotTaking": {
+  "message": "スナップショットを撮影中…"
+ },
+ "shotTakingFull": {
+  "message": "スナップショット：{1} 画面中 {0}…"
+ },
+ "shotFailed": {
+  "message": "ここではスナップショットを撮れませんでした。メモはスナップショットなしで保存されました。"
+ },
+ "shotCut": {
+  "message": "ページが長いため、最初の {0} 画面までを撮影しました。"
+ },
+ "shotOpen": {
+  "message": "スナップショットを開く"
+ },
+ "shotNote": {
+  "message": "ページのスナップショット"
+ },
+ "shotCrop": {
+  "message": "切り取る"
+ },
+ "shotCropDone": {
+  "message": "完了"
+ },
+ "shotCropReset": {
+  "message": "全体を表示"
+ },
+ "shotLoading": {
+  "message": "スナップショットを開いています…"
+ },
+ "shotMissing": {
+  "message": "このスナップショットはまだこのデバイスにありません。チャットを iCloud と同期していれば届きます。"
+ },
+ "invTitle": {
+  "message": "友だちを招待"
+ },
+ "invHint": {
+  "message": "友だちには最初の1週間、1日あたり+{0}回のボーナス回答。友だちが別々の2日に質問すると、あなたはProまたはUltraの最初の1か月が{1}%オフになります。"
+ },
+ "invButton": {
+  "message": "コードとリンクを取得"
+ },
+ "invYourCode": {
+  "message": "あなたのコード"
+ },
+ "invCopy": {
+  "message": "コピー"
+ },
+ "invCopied": {
+  "message": "コピーしました"
+ },
+ "invShare": {
+  "message": "共有"
+ },
+ "invShareText": {
+  "message": "SafariのページでそのままAIが使えるContextFlowを使っています。私のコード {0} で最初の1週間ボーナス回答がもらえます：{1}"
+ },
+ "invFriends": {
+  "message": "あなたのコードで参加：{0}・利用中：{1}"
+ },
+ "invRewardTitle": {
+  "message": "招待した友だちがContextFlowを使い始めました"
+ },
+ "invRewardBody": {
+  "message": "お礼として、ProまたはUltraの最初の1か月が{0}%オフ（お好きな方）。この割引をまだ使っていなければApp Storeで適用されます。"
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "割引を両方使用済み？代わりにボーナス回答を：1週間、1日あたり+{0}回"
+ },
+ "invAnswersOn": {
+  "message": "ボーナス回答は{0}まで有効です。"
+ },
+ "invEnterTitle": {
+  "message": "友だちのコードをお持ちですか？"
+ },
+ "invEnterPlaceholder": {
+  "message": "コードまたはリンク"
+ },
+ "invEnter": {
+  "message": "入力"
+ },
+ "invEntered": {
+  "message": "コードを受け付けました：ボーナス回答、1日あたり+{0}回、{1}まで。"
+ },
+ "invEnteredOn": {
+  "message": "友だちのコードで参加しました：ボーナス回答、1日あたり+{0}回、{1}まで。"
+ },
+ "invErrUnknown": {
+  "message": "そのコードは存在しません。確認してもう一度お試しください。"
+ },
+ "invErrOwn": {
+  "message": "これはあなた自身のコードです。友だちに送ってください。"
+ },
+ "invErrAlready": {
+  "message": "ここでは友だちのコードがすでに入力されています。"
+ },
+ "invErrLate": {
+  "message": "友だちのコードはインストール後1週間以内に使えます。"
+ },
+ "invErrFull": {
+  "message": "このコードは上限に達しました。"
+ },
+ "invErrDevice": {
+  "message": "このデバイスでは友だちのコードがすでに使われています。"
+ },
+ "invErrCheck": {
+  "message": "デバイスを確認できませんでした。ContextFlowアプリでコードを入力してみてください。"
+ },
+ "invErrLater": {
+  "message": "今はできませんでした。あとでもう一度お試しください。"
+ },
+ "colAdd": {
+  "message": "コレクションへ"
+ },
+ "colTab": {
+  "message": "コレクション"
+ },
+ "colChat": {
+  "message": "チャット"
+ },
+ "colSuggestAi": {
+  "message": "AIのおすすめ"
+ },
+ "colSuggestWords": {
+  "message": "いちばん合う"
+ },
+ "colNewSection": {
+  "message": "+ 新しいセクション"
+ },
+ "colNewCollection": {
+  "message": "+ 新しいコレクション"
+ },
+ "colNamePlaceholder": {
+  "message": "名前（例：日本旅行）"
+ },
+ "colSectionPlaceholder": {
+  "message": "セクション名"
+ },
+ "colFirstSection": {
+  "message": "メモ"
+ },
+ "colCreate": {
+  "message": "作成"
+ },
+ "colAdded": {
+  "message": "「{0}」→ {1} に追加しました"
+ },
+ "colCards_one": {
+  "message": "カード {0} 枚"
+ },
+ "colCards_two": {
+  "message": "カード {0} 枚"
+ },
+ "colCards_few": {
+  "message": "カード {0} 枚"
+ },
+ "colCards_many": {
+  "message": "カード {0} 枚"
+ },
+ "colCards_other": {
+  "message": "カード {0} 枚"
+ },
+ "colEmpty": {
+  "message": "コレクションはまだありません。回答やメモの下の「コレクションへ」をタップしてください。"
+ },
+ "colEmptyCards": {
+  "message": "カードはまだありません。"
+ },
+ "colToChat": {
+  "message": "← チャットへ"
+ },
+ "colCompare": {
+  "message": "比較"
+ },
+ "colCompareN": {
+  "message": "{0}件を比較"
+ },
+ "colComparePick": {
+  "message": "カードを2〜8枚選んでください"
+ },
+ "colSummary": {
+  "message": "まとめ"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "チャットを開く"
+ },
+ "colMoveTo": {
+  "message": "「{0}」に移動"
+ },
+ "colRemove": {
+  "message": "コレクションから外す"
+ },
+ "colThisPage": {
+  "message": "このページ"
+ },
+ "colNote": {
+  "message": "メモ"
+ },
+ "colComparison": {
+  "message": "比較"
+ },
+ "colLimitCollections": {
+  "message": "無料プランのコレクションは1つです。Proなら無制限です。"
+ },
+ "colLimitCards": {
+  "message": "無料プランでは1つのコレクションにカード{0}枚まで。Proなら{1}枚まで。"
+ },
+ "colProOnly": {
+  "message": "比較とまとめはProの機能です。"
+ },
+ "colWorking": {
+  "message": "処理中…"
+ },
+ "colFailed": {
+  "message": "今回はうまくいきませんでした。後でもう一度お試しください。"
+ },
+ "colLimitDay": {
+  "message": "今日はここまでです。明日もう一度お試しください。"
+ },
+ "colGone": {
+  "message": "このコレクションは削除されました。"
+ },
+ "colPdfMadeWith": {
+  "message": "作成："
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — Safari用AI"
+ },
+ "colPdfOpenChat": {
+  "message": "ContextFlowでチャットを開く"
+ },
+ "colPdfFooter": {
+  "message": "ContextFlowで作成"
+ },
+ "colPdfSave": {
+  "message": "PDFとして保存"
+ },
+ "colPick": {
+  "message": "コレクション：{0}。切り替える"
+ },
+ "colCardMenu": {
+  "message": "カードの操作"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
@@ -2306,14 +2984,26 @@
  "tip_af26b6788c": {
   "message": "✦ をじゃまにならない場所へ"
  },
- "tip_6d2694aec4": {
-  "message": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。"
+ "tip_1b3fa8b31a": {
+  "message": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。iPad では、パネルも上部をつかんでドラッグすれば反対側へ移せます。機能拡張の設定の「画面の左右」でも同じことができます。"
+ },
+ "tip_cbec05fbfd": {
+  "message": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。パネルも上部をつかんでドラッグすれば反対側へ移せます。機能拡張の設定の「画面の左右」でも選べます。"
  },
  "tip_2749afe54a": {
   "message": "ワンタップで要点"
  },
  "tip_487a14e710": {
   "message": "「要約」「重要ポイント」「やさしく解説」「翻訳」はページ全体が対象。プロンプトを書く必要はありません。"
+ },
+ "tip_33e83f4818": {
+  "message": "ページを自分の言語で読む"
+ },
+ "tip_f8f753be8a": {
+  "message": "ほかの言語のページでは、✦ の横の「日本語に翻訳しますか？」をタップします。リンクも含めてページそのものがあなたの言語に切り替わり、スクロールしても翻訳が続きます。「原文」ですべての言葉が元に戻ります。1つのページは、何度翻訳しても週に回答1回分です。"
+ },
+ "tip_22f41ab2de": {
+  "message": "ほかの言語のページでは、✦ の横の「日本語に翻訳しますか？」をクリックします。リンクも含めてページそのものがあなたの言語に切り替わり、スクロールしても翻訳が続きます。「原文」ですべての言葉が元に戻ります。1つのページは、何度翻訳しても週に回答1回分です。"
  },
  "tip_d22c90dac1": {
   "message": "一部分について質問"
@@ -2356,6 +3046,15 @@
  },
  "tip_6a92f6c633": {
   "message": "送信ボタンを上下にスワイプ（Macではボタンの上でスクロール）すると、質問の代わりにメモを書けます。メモはページと一緒にチャットに残り、チャットと一緒に同期され、回答回数を使いません。"
+ },
+ "tip_ac13420c59": {
+  "message": "メモにスナップショットを添える"
+ },
+ "tip_dff446b7cc": {
+  "message": "メモを書くときに入力欄の上の「ページのスナップショット」をオンにすると、メモにページの画像が残ります。画面の表示範囲か、Pro ならページ全体です。画像をタップすると全画面で開き、切り取ることもできます。画像はあなたのデバイスと iCloud に保存されます。"
+ },
+ "tip_3ca344f02e": {
+  "message": "メモを書くときに入力欄の上の「ページのスナップショット」をオンにすると、メモにページの画像が残ります。画面の表示範囲か、Pro ならページ全体です。画像をクリックすると全画面で開き、切り取ることもできます。画像はあなたのデバイスと iCloud に保存されます。"
  },
  "tip_654fb12e51": {
   "message": "大事なところをハイライト"
@@ -2402,11 +3101,11 @@
  "tip_de4adc7524": {
   "message": "似たものを探す"
  },
- "tip_b2248495b1": {
-  "message": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をタップします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をタップします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
+ "tip_2c6d9f34e3": {
+  "message": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をタップします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をタップします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。Ultra はフル検索で、表示する前にすべてのリンクを開いて確認します。Pro はクイック検索で週に5回まで、1回につき回答10回分です。"
  },
- "tip_31666a3aab": {
-  "message": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
+ "tip_9bb47159a4": {
+  "message": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。Ultra はフル検索で、表示する前にすべてのリンクを開いて確認します。Pro はクイック検索で週に5回まで、1回につき回答10回分です。"
  },
  "tip_c518fb0674": {
   "message": "読み上げ"
@@ -2429,6 +3128,24 @@
  "tip_a8e1d14e5b": {
   "message": "ページのどのフィールドでも、/ とテンプレートの言葉をいくつか入力してTabを押します。Control-Shift-Vでリスト全体が開きます：ほかのタブでコピーしたもの、テンプレート、ContextFlowの最新の回答。"
  },
+ "tip_8213493414": {
+  "message": "送る前にチェック・書き直し"
+ },
+ "tip_4a10311c4a": {
+  "message": "メールやコメントを書いているときは、入力欄の横の ContextFlow ボタンをタップします。リストの一番上に「チェック」と「書き直す」があります。「チェック」は誤りを直し、「書き直す」は文章を短く、温かく、丁寧に、または自信をもって書き直します。どちらも返信中のメールなどページの内容を踏まえ、「取り消す」で元の文章に戻せます。1回のタップで回答1回分です。"
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "メールやコメントを書いているときは、少し入力してから入力欄の上の丸にポインタを合わせます。「チェック」は誤りを直し、「書き直す」は文章を短く、温かく、丁寧に、または自信をもって書き直します。どちらも返信中のメールなどページの内容を踏まえ、「取り消す」で元の文章に戻せます。どちらも1回ごとに回答1回分です。"
+ },
+ "tip_898fe0f06c": {
+  "message": "入力中の誤りに下線"
+ },
+ "tip_b9954518f0": {
+  "message": "Pro か Ultra なら、入力の手を止めると、変更した段落の誤りに下線が引かれます。下線をタップすると修正案が表示され、「修正」か「無視」を選べます。回答回数には数えず、機能拡張の設定でオフにできます。"
+ },
+ "tip_7e0eabc91c": {
+  "message": "Pro か Ultra なら、入力の手を止めると、変更した段落の誤りに下線が引かれます。下線にポインタを合わせると修正案が表示され、「修正」か「無視」を選べます。回答回数には数えず、機能拡張の設定でオフにできます。"
+ },
  "tip_451fa9ccb6": {
   "message": "コピー履歴は1日保存"
  },
@@ -2450,6 +3167,12 @@
  "tip_b5d4d7711a": {
   "message": "あとで読み終えたいページは、1行を選択してベルをタップするか、パネル上部の「…」から「このページをリマインド…」をタップして時間を選ぶだけ。リマインダーがこのページを開きます。回答やメモの「…」メニューにも「リマインド」があります。"
  },
+ "tip_529cd4b087": {
+  "message": "カレンダーかリマインダーに追加"
+ },
+ "tip_c20a65b22a": {
+  "message": "「金曜日に銀行に電話するようリマインドして」と頼むか、ページ上の日付について質問すると、日付と時刻を確認するカードが回答に付き、「追加」でカレンダーかリマインダーに入ります。どの回答やメモも、「…」メニューに「カレンダーかリマインダーに追加」があります。「リマインド」で「リマインダーにも追加」を選ぶと、Apple の「リマインダー」にも入ります。"
+ },
  "tip_74c328b672": {
   "message": "値下がりを知らせる"
  },
@@ -2464,6 +3187,24 @@
  },
  "tip_623811ea30": {
   "message": "＋で新しいチャットを始めます。以前のチャットは一覧に残っていて、開けば続きから再開でき、鉛筆アイコンで名前を変えたり、削除したりできます。"
+ },
+ "tip_827a76a38d": {
+  "message": "仕事とプライベートのスペース"
+ },
+ "tip_6bf925510c": {
+  "message": "仕事、プライベート、買い物を分けておけます。チャット一覧の最後にある「新しいスペース」で、専用の色のスペースを作れます。一覧の上部の切り替えでスペースを移動でき、新しいチャットは今いるスペースに入ります。切り替えで「amazon.com をここで開く」を選ぶと、そのサイトはこのスペースで開くようになります。無料プランには上限があり、Pro か Ultra なら無制限です。"
+ },
+ "tip_3512a4ae8c": {
+  "message": "このページのチャット"
+ },
+ "tip_05b9621aed": {
+  "message": "ページでパネルを開くと、ContextFlow がそのページについてのチャットを選びます。このページを含むチャットか、同じ話題のチャットです。上部の「続き：」にどのチャットを選んだかが表示され、そこの「新規チャット」で新しく始められます。"
+ },
+ "tip_8d1c1aa55d": {
+  "message": "コレクションにまとめる"
+ },
+ "tip_15dc6cba07": {
+  "message": "旅行や買い物の計画中ですか？回答やメモの下の「コレクションへ」を選ぶと、ContextFlow が入れる場所を提案します。「コレクション」では、Safari でもアプリでも、すべてがセクションごとに整理されます。Pro なら AI がカードを振り分け、「比較」で選んだカードを並べ、「まとめ」で全体を要約します。どのコレクションも PDF で保存できます。"
  },
  "tip_c4b432e2e9": {
   "message": "チャットを検索"
@@ -2528,6 +3269,12 @@
  "tip_0f2289f887": {
   "message": "Pro または Ultra を購入すると、ContextFlow がプランで使えるようになった機能を1つずつ紹介します。もう一度見るには、パネル上部の「…」をタップし、「その他…」から「Proでできること」または「Ultraでできること」を選びます。アプリでは「設定」の「ご利用中のプラン」にあります。"
  },
+ "tip_3ee4fbeeb2": {
+  "message": "友だちを招待"
+ },
+ "tip_0e8493432d": {
+  "message": "アプリまたはSafariの「設定」→「友だちを招待」で、送れるコードとリンクが手に入ります。友だちは最初の1週間、毎日ボーナス回答を受け取れます。友だちが別々の2日に質問すると、あなたはProまたはUltraの最初の1か月が割引になります。"
+ },
  "tip_3208aa35ac": {
   "message": "プライバシーとパーソナライズ"
  },
@@ -2542,6 +3289,12 @@
  },
  "tip_6cc366173d": {
   "message": "あるサイトで ✦ が不要なら、そのサイトだけで隠すか、拡張機能の設定ですべてのサイトでオフにできます。その場合もSafariの拡張機能メニューから開けます。"
+ },
+ "tip_cc54dd5946": {
+  "message": "✦ボタンのヒント"
+ },
+ "tip_325d207bb4": {
+  "message": "使い始めの数日は、✦ の横に短い一行が出て、開いているページでできることを提案します。長い記事の要約、見守る価格、カレンダーに入れる日付などです。タップすると方法が分かります。この一行は機能拡張の設定の「✦ボタンのヒント」でオフにできます。"
  },
  "tip_8a727e1bbe": {
   "message": "自分のAPIキーを使う"

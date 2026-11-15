@@ -64,3 +64,19 @@ export const Tag = (): VNode => (
 export const Folder = (): VNode => (
   <svg {...base} width={13} height={13}><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
 )
+/** «Переместить в…» (2.7): a chat into another space. */
+export const MoveTo = (): VNode => (
+  <svg {...base} width={16} height={16}><rect x="3" y="4" width="13" height="13" rx="3" /><path d="M8 21h10a3 3 0 0 0 3-3V8" /><path d="M7 10.5h5.5M10.5 8l2.5 2.5-2.5 2.5" /></svg>
+)
+/** «Подборки» (2.7): the collections window (the app's square.grid.2x2). */
+export const Collections = (): VNode => (
+  <svg {...base}><rect x="3.5" y="3.5" width="7" height="7" rx="1.8" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.8" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.8" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.8" /></svg>
+)
+/** «В подборку» (2.7): a card going into a collection. */
+export const ToCollection = (): VNode => (
+  <svg {...base} width={15} height={15}><rect x="3.5" y="3.5" width="7" height="7" rx="1.8" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.8" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.8" /><path d="M17 13.5v7M13.5 17h7" /></svg>
+)
+/** A card's actions: three dots. */
+export const Dots = (): VNode => (
+  <svg {...base} width={16} height={16}><circle cx="5" cy="12" r="1.2" /><circle cx="12" cy="12" r="1.2" /><circle cx="19" cy="12" r="1.2" /></svg>
+)

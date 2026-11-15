@@ -120,7 +120,8 @@
   border-radius: 24px;
   display: flex; align-items: center; justify-content: center;
   color: #fff !important;
-  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+  /* 2.7: the space's colour when there are spaces (--space-2, --space; spaces.css), else the blue it always had. */
+  background: linear-gradient(135deg, var(--space-2, #38bdf8) 0%, var(--space, #2563eb) 100%) !important;
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42), 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 3;
   touch-action: none !important;
@@ -869,14 +870,16 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-hint-text strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
 .cf-hint-text p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
 .cf-hint-done { flex: none; align-self: center; font-size: 13px; font-weight: 600; }
+/* 2.7: a hint's short lines (New in 2.7) and its way on (All tips). */
+.cf-hint-list { margin: 4px 0 0; padding: 0 0 0 16px; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.cf-hint-list li + li { margin-top: 3px; }
+.cf-hint-more { display: inline-block; margin-top: 6px; font-size: 12.5px; font-weight: 600; }
 
 /* ------------------------------------------------- right to left (Arabic, 2.6) */
 /* The host carries dir (the panel's language, never the page's). Layout uses logical properties; what's left here moves
    along x: the Mac sidebar sits at the left and slides in from there, switches are on at the start side, the back chevron points to
    the start. Code stays left to right in any language. Swipes and the floating button stay physical (a finger's way). */
-/* The sidebar is fixed to the viewport, whose direction is the page's: physical sides, mirrored here. */
-:host([dir="rtl"]) .cf[data-layout="side"] .cf-panel { right: auto; left: 10px; transform: translateX(-24px); }
-:host([dir="rtl"]) .cf[data-layout="side"] .cf-panel.in { transform: none; }
+/* The sidebar's side is the circle's (2.7, side/side.css), in any language: it no longer moves left by itself in Arabic. */
 :host([dir="rtl"]) .cf-whole input:checked + .cf-switch::after { transform: translateX(-10px); }
 :host([dir="rtl"]) .cf-flip { transform: scaleX(-1); }
 .md pre, .md code { direction: ltr; unicode-bidi: isolate; }

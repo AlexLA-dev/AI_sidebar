@@ -163,7 +163,9 @@ test("the page script knows every indexable page by name and skips the rest", ()
     // The feature pages (2.7), two of them in Russian too.
     "/youtube-transcript-safari": "video", "/ru/youtube-transcript-safari": "video", "/read-aloud-safari-iphone": "listen", "/ru/read-aloud-safari-iphone.html": "listen", "/translate-web-page-safari-iphone": "translate", "/de/translate-web-page-safari-iphone": "translate", "/proofread-safari-iphone": "proofread", "/ru/proofread-safari-iphone.html": "proofread", "/summarize-pdf-safari": "pdf",
     // The same pages in the other languages (2.6) count under the same names.
-    "/ru/": "home", "/ru": "home", "/zh-hant/index.html": "home", "/ar/features": "features", "/pt-br/cases/planning": "case_plan", "/vi/support/": "support", "/tr/features": "features", "/tr/translate-web-page-safari-iphone": "translate"
+    "/ru/": "home", "/ru": "home", "/zh-hant/index.html": "home", "/ar/features": "features", "/pt-br/cases/planning": "case_plan", "/vi/support/": "support", "/tr/features": "features", "/tr/translate-web-page-safari-iphone": "translate",
+    // 2.7: a friend's invite link (the code isn't sent), not indexed.
+    "/i/ABC234": "invite", "/i/abc234/": "invite"
   }
   for (const [path, page] of Object.entries(names)) assert.equal(load({ path }).sent[0]?.page, page, path)
   assert.deepEqual(load({ path: "/analytics" }).sent, [])

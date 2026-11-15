@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CFA7E0000000000000000010 /* AppleItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000001 /* AppleItems.swift */; };
+		CFB5E0000000000000000010 /* ShotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB5E0000000000000000001 /* ShotStore.swift */; };
+		CFB5E0000000000000000011 /* ShotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB5E0000000000000000001 /* ShotStore.swift */; };
+		CFB5E0000000000000000012 /* ShotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB5E0000000000000000001 /* ShotStore.swift */; };
+		CFB5E0000000000000000013 /* ShotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB5E0000000000000000001 /* ShotStore.swift */; };
+		CFA7E0000000000000000011 /* AppleItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000001 /* AppleItems.swift */; };
+		CFA7E0000000000000000012 /* AppleItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000001 /* AppleItems.swift */; };
+		CFA7E0000000000000000013 /* AppleItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000001 /* AppleItems.swift */; };
+		CFA7E0000000000000000014 /* AppleAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000002 /* AppleAdd.swift */; };
+		CFA7E0000000000000000015 /* AppleAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000002 /* AppleAdd.swift */; };
+		CFA7E0000000000000000016 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000003 /* InfoPlist.xcstrings */; };
+		CFA7E0000000000000000017 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000003 /* InfoPlist.xcstrings */; };
+		CFA7E0000000000000000018 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000003 /* InfoPlist.xcstrings */; };
+		CFA7E0000000000000000019 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000003 /* InfoPlist.xcstrings */; };
 		CF3000000000000000000002 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
 		CFA100000000000000000002 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
 		CFA100000000000000000003 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
@@ -17,6 +31,14 @@
 		CF9500000000000000000002 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
 		CF9800000000000000000002 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CF9810000000000000000002 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
+		CF27A0000000000000000002 /* SpacesViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27A0000000000000000001 /* SpacesViews.swift */; };
+		CF27D0000000000000000002 /* Invite.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27D0000000000000000001 /* Invite.swift */; };
+		CF27C0000000000000000002 /* CollectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27C0000000000000000001 /* CollectionsView.swift */; };
+		CF27B0000000000000000002 /* Collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27B0000000000000000001 /* Collections.swift */; };
+		CF27F1000000000000000002 /* BoardPDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27F1000000000000000001 /* BoardPDF.swift */; };
+		CF27F2000000000000000002 /* TopicWords.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27F2000000000000000001 /* TopicWords.swift */; };
+		CF27F1000000000000000003 /* BoardPDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27F1000000000000000001 /* BoardPDF.swift */; };
+		CF27F2000000000000000003 /* TopicWords.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27F2000000000000000001 /* TopicWords.swift */; };
 		CF1000000000000000000002 /* ReviewGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000001 /* ReviewGate.swift */; };
 		CF1000000000000000000005 /* ReviewAsk.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000004 /* ReviewAsk.swift */; };
 		CF1000000000000000000008 /* ShareButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000007 /* ShareButton.swift */; };
@@ -25,6 +47,10 @@
 		CF9500000000000000000003 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
 		CF9800000000000000000003 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CF9810000000000000000003 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
+		CF27A0000000000000000003 /* SpacesViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27A0000000000000000001 /* SpacesViews.swift */; };
+		CF27D0000000000000000003 /* Invite.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27D0000000000000000001 /* Invite.swift */; };
+		CF27C0000000000000000003 /* CollectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27C0000000000000000001 /* CollectionsView.swift */; };
+		CF27B0000000000000000003 /* Collections.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27B0000000000000000001 /* Collections.swift */; };
 		CF1000000000000000000003 /* ReviewGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000001 /* ReviewGate.swift */; };
 		CF1000000000000000000006 /* ReviewAsk.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000004 /* ReviewAsk.swift */; };
 		CF1000000000000000000009 /* ShareButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000007 /* ShareButton.swift */; };
@@ -170,6 +196,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CFA7E0000000000000000001 /* AppleItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleItems.swift; sourceTree = "<group>"; };
+		CFB5E0000000000000000001 /* ShotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShotStore.swift; sourceTree = "<group>"; };
+		CFA7E0000000000000000002 /* AppleAdd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAdd.swift; sourceTree = "<group>"; };
+		CFA7E0000000000000000003 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		CF3000000000000000000001 /* ChatSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSync.swift; sourceTree = "<group>"; };
 		CFA100000000000000000001 /* TemplateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStore.swift; sourceTree = "<group>"; };
 		CFA200000000000000000001 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
@@ -177,6 +207,12 @@
 		CF9500000000000000000001 /* SimilarCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarCards.swift; sourceTree = "<group>"; };
 		CF9800000000000000000001 /* WhatsNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNew.swift; sourceTree = "<group>"; };
 		CF9810000000000000000001 /* MeaningSpot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningSpot.swift; sourceTree = "<group>"; };
+		CF27A0000000000000000001 /* SpacesViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacesViews.swift; sourceTree = "<group>"; };
+		CF27D0000000000000000001 /* Invite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invite.swift; sourceTree = "<group>"; };
+		CF27C0000000000000000001 /* CollectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsView.swift; sourceTree = "<group>"; };
+		CF27B0000000000000000001 /* Collections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collections.swift; sourceTree = "<group>"; };
+		CF27F1000000000000000001 /* BoardPDF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardPDF.swift; sourceTree = "<group>"; };
+		CF27F2000000000000000001 /* TopicWords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicWords.swift; sourceTree = "<group>"; };
 		CF1000000000000000000001 /* ReviewGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewGate.swift; sourceTree = "<group>"; };
 		CF1000000000000000000004 /* ReviewAsk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewAsk.swift; sourceTree = "<group>"; };
 		CF1000000000000000000007 /* ShareButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareButton.swift; sourceTree = "<group>"; };
@@ -291,6 +327,8 @@
 		41FA27AE2F41ED2000FED9FC /* Shared (App) */ = {
 			isa = PBXGroup;
 			children = (
+				CFA7E0000000000000000002 /* AppleAdd.swift */,
+				CFA7E0000000000000000003 /* InfoPlist.xcstrings */,
 				CF9000000000000000000001 /* ChatAI.swift */,
 				CF6000000000000000000001 /* Chats.swift */,
 				CFB000000000000000000001 /* Organize.swift */,
@@ -304,6 +342,12 @@
 				CF9500000000000000000001 /* SimilarCards.swift */,
 				CF9800000000000000000001 /* WhatsNew.swift */,
 				CF9810000000000000000001 /* MeaningSpot.swift */,
+				CF27A0000000000000000001 /* SpacesViews.swift */,
+				CF27D0000000000000000001 /* Invite.swift */,
+				CF27C0000000000000000001 /* CollectionsView.swift */,
+				CF27B0000000000000000001 /* Collections.swift */,
+				CF27F1000000000000000001 /* BoardPDF.swift */,
+				CF27F2000000000000000001 /* TopicWords.swift */,
 				CF1000000000000000000001 /* ReviewGate.swift */,
 				CF1000000000000000000004 /* ReviewAsk.swift */,
 				CF1000000000000000000007 /* ShareButton.swift */,
@@ -337,6 +381,8 @@
 		41FA27B72F41ED2100FED9FC /* Shared (Extension) */ = {
 			isa = PBXGroup;
 			children = (
+				CFA7E0000000000000000001 /* AppleItems.swift */,
+				CFB5E0000000000000000001 /* ShotStore.swift */,
 				CF8000000000000000000001 /* ChatMirror.swift */,
 				CF9400000000000000000001 /* SimilarAway.swift */,
 				CF5EEC000000000000000001 /* SpeechSync.swift */,
@@ -541,6 +587,7 @@
 				"zh-Hant",
 				ar,
 				vi,
+				tr,
 			);
 			mainGroup = 41FA27A92F41ED2000FED9FC;
 			minimizedProjectReferenceProxies = 1;
@@ -562,6 +609,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7E0000000000000000016 /* InfoPlist.xcstrings in Resources */,
 				CF200000000000000000001A /* Localizable.xcstrings in Resources */,
 				CF2000000000000000000041 /* TipClips in Resources */,
 				41FA27ED2F41ED2100FED9FC /* Icon.png in Resources */,
@@ -579,6 +627,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7E0000000000000000017 /* InfoPlist.xcstrings in Resources */,
 				CF200000000000000000001B /* Localizable.xcstrings in Resources */,
 				CF2000000000000000000042 /* TipClips in Resources */,
 				41FA27EE2F41ED2100FED9FC /* Icon.png in Resources */,
@@ -595,6 +644,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7E0000000000000000018 /* InfoPlist.xcstrings in Resources */,
 				CF2000000000000000000030 /* PrivacyInfo.xcprivacy in Resources */,
 				CF2000000000000000000010 /* manifest.json in Resources */,
 				CF2000000000000000000011 /* welcome.html in Resources */,
@@ -609,6 +659,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7E0000000000000000019 /* InfoPlist.xcstrings in Resources */,
 				CF2000000000000000000031 /* PrivacyInfo.xcprivacy in Resources */,
 				CF2000000000000000000015 /* manifest.json in Resources */,
 				CF2000000000000000000016 /* welcome.html in Resources */,
@@ -626,6 +677,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7E0000000000000000014 /* AppleAdd.swift in Sources */,
+				CFA7E0000000000000000010 /* AppleItems.swift in Sources */,
+				CFB5E0000000000000000010 /* ShotStore.swift in Sources */,
 				410D88962F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D88972F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D88982F41EE9800684748 /* ContentView.swift in Sources */,
@@ -636,6 +690,12 @@
 				CF9500000000000000000002 /* SimilarCards.swift in Sources */,
 				CF9800000000000000000002 /* WhatsNew.swift in Sources */,
 				CF9810000000000000000002 /* MeaningSpot.swift in Sources */,
+				CF27A0000000000000000002 /* SpacesViews.swift in Sources */,
+				CF27D0000000000000000002 /* Invite.swift in Sources */,
+				CF27C0000000000000000002 /* CollectionsView.swift in Sources */,
+				CF27B0000000000000000002 /* Collections.swift in Sources */,
+				CF27F1000000000000000002 /* BoardPDF.swift in Sources */,
+				CF27F2000000000000000002 /* TopicWords.swift in Sources */,
 				CF1000000000000000000002 /* ReviewGate.swift in Sources */,
 				CF1000000000000000000005 /* ReviewAsk.swift in Sources */,
 				CF1000000000000000000008 /* ShareButton.swift in Sources */,
@@ -665,6 +725,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7E0000000000000000015 /* AppleAdd.swift in Sources */,
+				CFA7E0000000000000000011 /* AppleItems.swift in Sources */,
+				CFB5E0000000000000000011 /* ShotStore.swift in Sources */,
 				41FA27F42F41ED2100FED9FC /* ViewController.swift in Sources */,
 				CF3000000000000000000004 /* ChatSync.swift in Sources */,
 				CFA100000000000000000004 /* TemplateStore.swift in Sources */,
@@ -673,6 +736,12 @@
 				CF9500000000000000000003 /* SimilarCards.swift in Sources */,
 				CF9800000000000000000003 /* WhatsNew.swift in Sources */,
 				CF9810000000000000000003 /* MeaningSpot.swift in Sources */,
+				CF27A0000000000000000003 /* SpacesViews.swift in Sources */,
+				CF27D0000000000000000003 /* Invite.swift in Sources */,
+				CF27C0000000000000000003 /* CollectionsView.swift in Sources */,
+				CF27B0000000000000000003 /* Collections.swift in Sources */,
+				CF27F1000000000000000003 /* BoardPDF.swift in Sources */,
+				CF27F2000000000000000003 /* TopicWords.swift in Sources */,
 				CF1000000000000000000003 /* ReviewGate.swift in Sources */,
 				CF1000000000000000000006 /* ReviewAsk.swift in Sources */,
 				CF1000000000000000000009 /* ShareButton.swift in Sources */,
@@ -703,6 +772,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7E0000000000000000012 /* AppleItems.swift in Sources */,
+				CFB5E0000000000000000012 /* ShotStore.swift in Sources */,
 				CF3000000000000000000002 /* ChatSync.swift in Sources */,
 				CFA100000000000000000002 /* TemplateStore.swift in Sources */,
 				410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
@@ -720,6 +791,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7E0000000000000000013 /* AppleItems.swift in Sources */,
+				CFB5E0000000000000000013 /* ShotStore.swift in Sources */,
 				CF3000000000000000000003 /* ChatSync.swift in Sources */,
 				CFA100000000000000000003 /* TemplateStore.swift in Sources */,
 				410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */,

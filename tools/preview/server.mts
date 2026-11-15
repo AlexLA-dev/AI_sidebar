@@ -32,6 +32,11 @@
 //                                                              network: what waiting for the plan costs)
 //   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
 //                                                              stop the question before any of its answer)
+//   SIMILAR_PROXY=https://<deploy preview> SIMILAR_EVAL_TOKEN_FILE=<file with the preview's eval token> …
+//                                                              (2.7: Find similar for real, through that deploy
+//                                                              preview's evaluation path: Free none, Own key and Pro
+//                                                              the light search counted here as the server counts it
+//                                                              (SIMILAR_LIGHT_WEEKLY, a Pro one 10 answers), Ultra full)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -53,10 +58,14 @@ const tours = new Map<string, number>()
 const aiRequests: string[] = []
 // The panel's funnel events since /reset ("media_notice:video"…), to check what it reports.
 const panelEvents: string[] = []
+// Which ids each event since /reset carried (GET /event-ids, 2.7 activation): "f.a app install", never the ids themselves.
+const eventIds: string[] = []
 // The last /api/v2/similar request body (GET /last-similar): the engine and the page the panel sent.
 let lastSimilarRequest: unknown = null
 // The last /api/v2/chat request body, for e2e checks of what the extension sends (GET /last-request).
 let lastChatRequest: unknown = null
+// The last /api/v2/write request body («Проверить» и «Переписать», GET /last-write).
+let lastWriteRequest: unknown = null
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
 let lastAnswerEvent: unknown = null
 type Item = { subject: string; limit: number | null; amount?: number }
@@ -68,7 +77,11 @@ const rpc: Record<string, (a: any) => unknown> = {
     if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
   },
-  cf_refund: () => null,
+  // As cf_refund: each item's amount given back (the stand's Find similar gives back a search that found nothing).
+  cf_refund: ({ p_items }) => {
+    for (const i of p_items as Item[]) counters.set(i.subject, Math.max(0, (counters.get(i.subject) ?? 0) - (i.amount ?? 1)))
+    return null
+  },
   cf_peek: ({ p_items }) => (p_items as Item[]).map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })),
   cf_touch_install: () => null,
   cf_log: ({ p_kind, p_data }) => {
@@ -192,6 +205,10 @@ function historyAnswer(system: string, question: string): string {
 
 /** The scripted answer to the last question, whichever model is asked. */
 function scripted(system: string, last: string): string {
+  // 2.7: asked for a reminder by a client that can add one: a short answer and the marker for the card.
+  if (JSON.stringify(system).includes("[[cf:add]]") && /remind me|напомни/i.test(last)) {
+    return /напомни/i.test(last) ? "Хорошо: напоминание в пятницу в 9:00 — забронировать отель. Проверьте и добавьте.\n\n[[cf:add]]" : "Sure: a reminder on Friday at 9:00 to book the hotel. Check it and tap Add.\n\n[[cf:add]]"
+  }
   // AI search: the chats that share a word (4+ letters) with the description, as JSON.
   if (system.startsWith("You find chats")) return findAnswer(system, last)
   if (system.includes("asking about their own earlier ContextFlow chats")) return historyAnswer(system, last)
@@ -235,6 +252,100 @@ function scriptedInsert(system: string, content: string): unknown {
 
 // Page watch's scripted Haiku: the price from the page's markup when it's there, a threshold when the words
 // have a number ("below 40"), any change otherwise; after a change, met unless the words say a number it isn't under.
+// Calendar and Reminders (2.7): /api/v2/item's Haiku, scripted from the device's "now" in its message: a hotel to book
+// next Friday at 9 (a guess), a flight on the 14th of next month, 10:40 to 13:10 from Sheremetyevo.
+function scriptedItems(content: string): unknown {
+  const now = /Now on their device: \w+, (\d{4})-(\d{2})-(\d{2})T/.exec(content)
+  const today = now ? new Date(Number(now[1]), Number(now[2]) - 1, Number(now[3])) : new Date()
+  const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+  const friday = new Date(today)
+  friday.setDate(today.getDate() + (((5 - today.getDay() + 7) % 7) || 7))
+  const flight = new Date(today.getFullYear(), today.getMonth() + 1, 14)
+  const items = []
+  if (/hotel|отел/i.test(content)) items.push({ kind: "reminder", title: /отел/i.test(content) ? "Забронировать отель" : "Book the hotel", date: ymd(friday), time: "09:00", confidence: "guess" })
+  if (/flight|рейс|SU ?\d/i.test(content)) items.push({ kind: "event", title: "Flight SU 1234 Moscow → Sochi", date: ymd(flight), time: "10:40", end_time: "13:10", location: "Sheremetyevo, Terminal B", notes: "Seat 12A", confidence: "sure" })
+  return { items }
+}
+
+// «Проверить» и «Переписать» (2.7): /api/v2/write's Haiku, scripted. A check fixes common typos and the names the page
+// spells differently (one or two letters off); a rewrite follows its tone plainly. WRITE_PROXY=<deploy preview> sends
+// the requests there instead (the real model).
+const TYPOS: Record<string, string> = {
+  teh: "the", recieve: "receive", definately: "definitely", tommorow: "tomorrow", wich: "which", untill: "until", occured: "occurred",
+  seperate: "separate", thier: "their", alot: "a lot", wierd: "weird", adress: "address", accomodation: "accommodation",
+  dashbord: "dashboard", aply: "apply",
+  "сдесь": "здесь", "извените": "извините", "прийду": "приду", "вобщем": "в общем", "расчитываю": "рассчитываю", "впринципе": "в принципе"
+}
+// Japanese, Chinese and Thai (2.7 audit): fixed as phrases, these scripts having no spaces to find a word by.
+const PHRASE_FIXES: Array<[string, string]> = [["学校に行きました", "学校へ行きました"], ["图书管", "图书馆"], ["เมือวาน", "เมื่อวาน"]]
+function nearName(a: string, b: string): boolean {
+  if (a === b || a[0] !== b[0] || Math.abs(a.length - b.length) > 2) return false
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
+  for (let j = 1; j <= b.length; j++) d[0][j] = j
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+  return d[a.length][b.length] <= 2
+}
+function scriptedWrite(system: string, content: string): unknown {
+  const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
+  const message = between("message")
+  const context = `${between("conversation")}\n${between("page")}`
+  const names = [...new Set(context.match(/(?<![\p{L}])\p{Lu}\p{Ll}{2,}(?![\p{L}])/gu) ?? [])]
+  // Whom the message greets, spelled as the page spells them.
+  const greeted = /^(?:hi|hey|hello|dear)\s+(\p{Lu}\p{L}+)/iu.exec(message)?.[1] ?? ""
+  const firstName = greeted ? names.find((n) => n === greeted || nearName(n, greeted)) ?? greeted : ""
+  if (system.startsWith("You proofread")) {
+    let text = message.replace(/\p{L}+/gu, (w) => {
+      const fix = TYPOS[w.toLowerCase()]
+      return fix ? (w[0] === w[0].toUpperCase() ? fix[0].toUpperCase() + fix.slice(1) : fix) : w
+    })
+    text = text.replace(/(?<![\p{L}])\p{Lu}\p{Ll}{2,}(?![\p{L}])/gu, (w) => names.find((n) => nearName(n, w)) ?? w)
+    text = text.replace(/(^|\s)i(?=[\s'’])/g, "$1I").replace(/ {2,}/g, " ")
+    for (const [wrong, right] of PHRASE_FIXES) text = text.split(wrong).join(right)
+    return { text }
+  }
+  const sentences = message.split(/(?<=[.!?])\s+/).filter(Boolean)
+  if (/Make it shorter/.test(content)) return { text: sentences.slice(0, 2).join(" ") }
+  if (/warmer/.test(content)) return { text: `Hi ${firstName || "there"}, thanks so much for getting back to me!\n\n${message}\n\nHave a great day!` }
+  if (/more formal/.test(content)) return { text: `Dear ${firstName || "Sir or Madam"},\n\n${message.replace(/^(hi|hey|hello)[^\n]*\n+/i, "").replace(/\p{L}+/gu, (w) => TYPOS[w] ?? w)}` }
+  return { text: message.replace(/\b(I think|maybe|just|sorry,? ?|I was wondering if)\s*/gi, "").replace(/\s+([,.])/g, "$1") }
+}
+
+const TRANSLATIONS: Record<string, Record<string, string>> = JSON.parse(readFileSync(new URL("./translations.json", import.meta.url), "utf8"))
+/** The scripted translation of a batch ("§n text" lines): each known line in the system prompt's language, its tags renumbered as the page's. */
+function scriptedTranslation(system: string, content: string): string {
+  const into = /web page into ([^.]+)\./.exec(system)?.[1] ?? "English"
+  const to = /Russian/.test(into) ? "ru" : /German/.test(into) ? "de" : /French/.test(into) ? "fr" : /Italian/.test(into) ? "it" : /Spanish/.test(into) ? "es" : /Chinese/.test(into) ? "zh" : /Turkish/.test(into) ? "tr" : "en"
+  const out: string[] = []
+  for (const m of content.matchAll(/^§(\d+) (.*)$/gm)) {
+    const src = m[2]
+    const plain = src.replace(/<\/?\d+\/?>/g, "").replace(/\s+/g, " ").trim()
+    const tags = [...src.matchAll(/<(\d+)>/g)].map((t) => t[1])
+    const known = TRANSLATIONS[plain]?.[to]
+    out.push(`§${m[1]} ${known ? known.replace(/<(\/?)(\d+)>/g, (_, slash, k) => `<${slash}${tags[Number(k) - 1] ?? k}>`) : src}`)
+  }
+  return out.join("\n")
+}
+/** A Claude answer streamed as server-sent events, a few words at a time. */
+function claudeStream(model: string, text: string): Response {
+  const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
+  const words = text.match(/\S+\s*|\s+/g) ?? []
+  const stream = new ReadableStream({
+    async start(c) {
+      const enc = new TextEncoder()
+      c.enqueue(enc.encode(ev("message_start", { message: { id: "msg_local", type: "message", role: "assistant", model, content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 900, output_tokens: 1 } } })))
+      c.enqueue(enc.encode(ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } })))
+      for (const w of words) {
+        c.enqueue(enc.encode(ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })))
+        await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))
+      }
+      c.enqueue(enc.encode(ev("content_block_stop", { index: 0 })))
+      c.enqueue(enc.encode(ev("message_delta", { delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: words.length } }) + ev("message_stop")))
+      c.close()
+    }
+  })
+  return new Response(stream, { headers: { "Content-Type": "text/event-stream" } })
+}
+
 function scriptedWatch(system: string, content: string): unknown {
   const words = content.match(/in their words: (.*)/)?.[1] ?? ""
   const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
@@ -304,13 +415,23 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
     return new Response(JSON.stringify({ id: "msg_judge", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ tags }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } }), { headers: { "Content-Type": "application/json" } })
   }
+  // In-page translation (2.7): es-guide.html's lines from translations.json, streamed line by line like the real
+  // Haiku; a line it doesn't know comes back as it is (the page then keeps the original there).
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && String(JSON.parse(String(init?.body)).system).startsWith("You translate the text of a web page into")) {
+    const body = JSON.parse(String(init?.body))
+    return claudeStream(body.model, scriptedTranslation(String(body.system), String(body.messages[body.messages.length - 1].content)))
+  }
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     const body = JSON.parse(String(init?.body))
     lastClaudeRequest = { model: body.model, max_tokens: body.max_tokens, output_config: body.output_config, thinking: body.thinking ?? null, fallbacks: body.fallbacks }
     // Quick insert and page watch (JSON answers, not streamed): a scripted Haiku.
     if (body.output_config?.format) {
       const system = String(body.system)
-      const answer = system.startsWith("Someone on a web page") || system.startsWith("A value someone watches")
+      const answer = system.startsWith("Someone wants to keep something")
+        ? scriptedItems(String(body.messages[0].content))
+        : system.startsWith("You proofread") || system.startsWith("You rewrite")
+        ? scriptedWrite(system, String(body.messages[0].content))
+        : system.startsWith("Someone on a web page") || system.startsWith("A value someone watches")
         ? scriptedWatch(system, String(body.messages[0].content))
         : scriptedInsert(system, String(body.messages[0].content))
       return new Response(JSON.stringify({
@@ -385,17 +506,23 @@ if (process.env.PREVIEW_PROMO === "1") {
   process.env.PROMO_KEY_ID = "STANDKEY01"
   process.env.PROMO_PRIVATE_KEY = privateKey.export({ type: "pkcs8", format: "pem" }).toString()
 }
-if (process.env.PREVIEW_PLAN === "pro" || process.env.PREVIEW_PLAN === "byok" || process.env.PREVIEW_PLAN === "ultra") {
+/** Every request as this plan from now on (PREVIEW_PLAN at the start; GET /set-plan?plan=… later, 2.7). */
+async function setPlan(plan: string | undefined): Promise<void> {
+  if (plan !== "pro" && plan !== "byok" && plan !== "ultra") {
+    proJws = null
+    return
+  }
   const { signJws, transaction, TEST_ROOT_FINGERPRINT } = await import("../../tests/helpers.mts")
   // The test chain is only accepted in tests: this local stand counts as one.
   process.env.NODE_ENV = "test"
   ;(await import("../../netlify/shared/apple.mts")).setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
-  proJws = signJws(transaction(process.env.PREVIEW_PLAN === "byok"
+  proJws = signJws(transaction(plan === "byok"
     ? { productId: "com.contextflow.byok.monthly", originalTransactionId: "2000000777", expiresDate: Date.now() + 30 * 86_400_000 }
-    : process.env.PREVIEW_PLAN === "ultra"
+    : plan === "ultra"
       ? { productId: "com.contextflow.ultra.monthly", originalTransactionId: "2000000888", expiresDate: Date.now() + 30 * 86_400_000 }
       : { expiresDate: Date.now() + 30 * 86_400_000 }))
 }
+await setPlan(process.env.PREVIEW_PLAN)
 
 const chat = (await import("../../netlify/functions/v2-chat.mts")).default
 const status = (await import("../../netlify/functions/v2-status.mts")).default
@@ -405,6 +532,10 @@ const promo = (await import("../../netlify/functions/v2-promo.mts")).default
 const insert = (await import("../../netlify/functions/v2-insert.mts")).default
 const organize = (await import("../../netlify/functions/v2-organize.mts")).default
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
+const item = (await import("../../netlify/functions/v2-item.mts")).default
+const localWrite = (await import("../../netlify/functions/v2-write.mts")).default
+// In-page translation (2.7): the real function, with the scripted Haiku below (store and site captures).
+const translatePage = (await import("../../netlify/functions/v2-translate.mts")).default
 const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
 const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
 const speakHeard = (await import("../../netlify/functions/v2-speak-heard.mts")).default
@@ -430,6 +561,18 @@ const proxied = async (path: string, base = process.env.SPEAK_PROXY): Promise<ty
   }) as typeof chat
 }
 const speakAny: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
+// «Проверить» и «Переписать» with the real model: WRITE_PROXY=<a deploy preview> (each request counted there as usual).
+const write: typeof chat = process.env.WRITE_PROXY
+  ? (async (req: Request) => {
+    // Headless Chromium has no app, so no build number: the stand gives one (the server answers only builds whose
+    // consent screen names Claude), and marks the request a test.
+    const body = JSON.parse(await req.text())
+    body.client = { build: "999", ...body.client, audience: "test" }
+    const res = await realFetch(`${process.env.WRITE_PROXY}/api/v2/write`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .catch(() => Response.json({ code: "UPSTREAM" }, { status: 502 }))
+    return new Response(await res.text(), { status: res.status, headers: { "Content-Type": "application/json" } })
+  }) as typeof chat
+  : localWrite
 const organizeAny: typeof chat = (await proxied("/api/v2/organize", process.env.ORGANIZE_PROXY)) ?? organize
 // SPEAK_FAIL_FROM_PART=1: every part from that one on fails (502), as a lost connection mid-text would (build 90: the
 // device must stop in the same voice and offer "Try again", never hand the rest to another voice).
@@ -447,7 +590,39 @@ const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof
   if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
   return status(req, context)
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch }
+// «Подборки» (2.7): /api/v2/collect scripted (the real op needs our model key; tests/collect-server.test.mts covers it):
+// "place" takes the section sharing a word with the card, else a new section «See»; "compare" a row per card;
+// "summary" one line. Pro only, as the real one.
+const collect: typeof chat = (async (req: Request) => {
+  if (!["pro", "ultra"].includes(process.env.PREVIEW_PLAN ?? "")) return Response.json({ code: "PRO_ONLY" }, { status: 403 })
+  const body = JSON.parse((await req.text()) || "{}") as Record<string, any>
+  const words = (text: string) => new Set(String(text).toLowerCase().match(/[\p{L}\p{N}]{4,}/gu) ?? [])
+  if (body.op === "place") {
+    const mine = words(`${body.card?.gist ?? ""} ${body.card?.title ?? ""}`)
+    for (const c of body.collections ?? []) for (const sec of c.sections ?? []) {
+      if ([...words(`${sec.name} ${(sec.cards ?? []).join(" ")}`)].some((w) => mine.has(w))) return Response.json({ collection: c.id, section: sec.id })
+    }
+    const first = (body.collections ?? [])[0]
+    return Response.json(first ? { collection: first.id, section: null, newSection: "See" } : { collection: null, section: null, newCollection: "Trip to Japan", newSection: "Stay" })
+  }
+  if (body.op === "compare") {
+    const cards = (body.cards ?? []) as Array<{ gist: string; site?: string }>
+    return Response.json({ h: ["Option", "Where", "Note"], r: cards.map((c) => [c.gist.split(/[:,.]/)[0].slice(0, 40), c.site || "—", c.gist.length > 60 ? "long read" : "short"]), note: "Asakusa is the cheaper of the two." })
+  }
+  if (body.op === "summary") return Response.json({ text: "Fly in late March for the blossom; stay in Asakusa to save, in Shinjuku for the first trip." })
+  return Response.json({ code: "BAD_REQUEST" }, { status: 400 })
+}) as typeof chat
+// Invite a friend (2.7, tips' clips): the install's code and link, scripted (the real one keeps codes in the database).
+let inviteMade = false
+const invite: typeof chat = (async (req: Request) => {
+  const body = JSON.parse((await req.text()) || "{}") as Record<string, any>
+  if (body.op === "state" && body.create) inviteMade = true
+  const ru = String(body.client?.locale ?? "").startsWith("ru")
+  const code = inviteMade ? (ru ? "LISSA27" : "LISBON27") : null
+  return Response.json({ ok: true, code, link: code ? `https://context-flow.app/i/${code}` : null, joined: 0, active: 0, reward: null,
+    answersUntil: null, entered: null, canEnter: false, friendDaily: 5, friendDays: 7 })
+}) as typeof chat
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect, "/api/v2/translate": translatePage, "/api/v2/invite": invite }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -484,6 +659,17 @@ const pages: Record<string, string> = {
   "/shadow-fields": "shadow-fields.html",
   // The reply box of private messages (the owner, 2.5 (77): "it was in chats"): ?layout=page|overlay.
   "/messaging": "messaging.html",
+  // «Проверить» и «Переписать» (2.7): a mail being answered (Gmail's reply box, its signature and quote inside it), and a
+  // comment under a job post (LinkedIn's Quill editor).
+  "/mail-reply": "mail-reply.html",
+  "/mail-reply-ru": "mail-reply-ru.html",
+  "/post-comment": "post-comment.html",
+  // «Снимок страницы в заметке» (2.7): a long page (a sticky header, five coloured sections, a fixed cookie bar).
+  "/long-page": "long-page.html",
+  // In-page translation (2.7): a travel guide in Spanish, translated by the scripted Haiku (translations.json).
+  "/es-guide": "es-guide.html",
+  // The same guide in English, for a Spanish interface (its translation is the Spanish original).
+  "/en-guide": "en-guide.html",
   // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
   "/spa/messaging": "spa.html",
   "/spa/feed": "spa.html",
@@ -540,9 +726,50 @@ function similarItems95(): Array<Record<string, unknown>> {
 }
 // Store screenshots and previews (SIMILAR_STUB=store): the same list with made-up products and shops, so the App Store
 // shows no real brand; prices against the page's $129 / 12 990 ₽.
+// The store's localized first screens (STAND_LANG=de|fr|it|es|zh|tr): the same four in the interface's language, prices
+// as the (American) shop page shows them.
+const SIMILAR_STORE_LANG: Record<string, string[][]> = {
+  de: [
+    ["Halden Quiet One", "halden-audio.store", "Over-Ear mit adaptiver Geräuschunterdrückung und LDAC wie der Aero 2, mit weicherem, leichterem Bügel.", "Günstiger: 99,99 $ statt 129 $, auf Lager.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Leichte Kopfhörer mit Geräuschunterdrückung und ähnlichem 35-Stunden-Akku; weniger Codecs.", "Günstiger: 89,99 $ statt 129 $, auf Lager.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Preiswert, mit aktiver Geräuschunterdrückung und App-Equalizer.", "Günstiger: 69 $ statt 129 $, auf Lager.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC und Multipoint wie beim Aero 2, mit längerem Akku.", "Der Shop lässt keine Server auf die Seite, Preis und Bestand sind nicht bestätigt.", ""]
+  ],
+  fr: [
+    ["Halden Quiet One", "halden-audio.store", "Circum-auriculaire, réduction de bruit adaptative et LDAC comme le Aero 2, avec un arceau plus souple et plus léger.", "Moins cher : 99,99 $ au lieu de 129 $, en stock.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Casque léger à réduction de bruit, autonomie similaire de 35 heures ; moins de codecs.", "Moins cher : 89,99 $ au lieu de 129 $, en stock.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Petit prix, réduction de bruit active et égaliseur dans l'app.", "Moins cher : 69 $ au lieu de 129 $, en stock.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC et multipoint comme le Aero 2, avec une meilleure autonomie.", "La boutique bloque les serveurs : prix et stock non confirmés.", ""]
+  ],
+  it: [
+    ["Halden Quiet One", "halden-audio.store", "Over-ear, cancellazione del rumore adattiva e LDAC come le Aero 2, con un archetto più morbido e leggero.", "Più economiche: 99,99 $ invece di 129 $, disponibili.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Cuffie leggere con cancellazione del rumore e batteria simile da 35 ore; meno codec.", "Più economiche: 89,99 $ invece di 129 $, disponibili.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Economiche, con cancellazione attiva del rumore ed equalizzatore nell'app.", "Più economiche: 69 $ invece di 129 $, disponibili.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC e multipoint come le Aero 2, con una batteria più lunga.", "Il negozio non lascia entrare i server: prezzo e disponibilità non confermati.", ""]
+  ],
+  es: [
+    ["Halden Quiet One", "halden-audio.store", "Supraaurales, con cancelación de ruido adaptativa y LDAC como los Aero 2, y una diadema más suave y ligera.", "Más baratos: 99,99 $ frente a 129 $, en stock.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Auriculares ligeros con cancelación de ruido y una batería parecida de 35 horas; menos códecs.", "Más baratos: 89,99 $ frente a 129 $, en stock.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Económicos, con cancelación activa de ruido y ecualizador en la app.", "Más baratos: 69 $ frente a 129 $, en stock.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC y multipunto como los Aero 2, con más batería.", "La tienda no deja entrar a los servidores: precio y stock sin confirmar.", ""]
+  ],
+  tr: [
+    ["Halden Quiet One", "halden-audio.store", "Kulak üstü; Aero 2 gibi uyarlanabilir gürültü engelleme ve LDAC, daha yumuşak ve hafif bir kafa bandıyla.", "Daha ucuz: 129 $ yerine 99,99 $, stokta.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Hafif, gürültü engellemeli kulaklık; benzer 35 saatlik pil, daha az codec.", "Daha ucuz: 129 $ yerine 89,99 $, stokta.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Uygun fiyatlı; aktif gürültü engelleme ve uygulamada ekolayzer.", "Daha ucuz: 129 $ yerine 69 $, stokta.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "Aero 2 gibi LDAC ve çoklu bağlantı, daha uzun pil ömrüyle.", "Mağaza sunucuların sayfayı açmasına izin vermiyor; fiyat ve stok doğrulanmadı.", ""]
+  ],
+  zh: [
+    ["Halden Quiet One", "halden-audio.store", "耳罩式，和 Aero 2 一樣有自適應降噪和 LDAC，頭帶更柔軟、更輕。", "更便宜：US$99.99，原價 US$129，有現貨。", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "輕巧的降噪耳機，電池同樣約 35 小時；支援的編碼較少。", "更便宜：US$89.99，原價 US$129，有現貨。", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "平價款，有主動降噪和 App 等化器。", "更便宜：US$69，原價 US$129，有現貨。", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "和 Aero 2 一樣支援 LDAC 和多點連線，續航更長。", "這家商店不讓伺服器開啟頁面，價格和庫存未確認。", ""]
+  ]
+}
 function similarItemsStore(condition: string, ru = false): Array<Record<string, unknown>> {
   const cond = Boolean(condition.trim())
-  const rows = ru
+  const local = SIMILAR_STORE_LANG[process.env.STAND_LANG ?? ""]
+  const rows = local ? local : ru
     ? [
         ["Halden Quiet One", "halden-audio.store", "Накладные, с адаптивным шумоподавлением и LDAC, как Aero 2, но с более мягким и лёгким оголовьем.", "Дешевле: 9 990 ₽ против 12 990 ₽, в наличии.", "9990 RUB"],
         ["Lumen Air 720", "lumen-sound.store", "Лёгкие наушники с шумоподавлением и похожей батареей на 35 часов; кодеков меньше.", "Дешевле: 8 990 ₽ против 12 990 ₽, в наличии.", "8990 RUB"],
@@ -564,6 +791,50 @@ function similarItemsStore(condition: string, ru = false): Array<Record<string, 
   }))
 }
 let similarFailedOnce = false
+
+// 2.7, SIMILAR_PROXY: the real engine on a deploy preview (its evaluation path counts nothing); who may and what it
+// costs decided here by the server's own code (plan.mts) on this stand's counters: Free none (PRO_ONLY), Own key and Pro
+// the light search, its week per device, a Pro one SIMILAR_PRO_ANSWERS of the week's answers; Ultra the full search.
+async function similarProxied(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
+  const { blockReason, isUltra, resolveAccess, similarCountersFor, similarLightCounters, ultraUsage, visibleUsage } = await import("../../netlify/shared/plan.mts")
+  const { consume, refund } = await import("../../netlify/shared/db.mts")
+  const { similarAllowed } = await import("../../src/shared/similar.ts")
+  const install = String(body.installId ?? "")
+  const access = await resolveAccess(proJws ?? (body.entitlement as string | null) ?? null, install)
+  const reply = (status: number, payload: unknown) => {
+    res.writeHead(status, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(payload))
+  }
+  if (!similarAllowed(access.plan)) return reply(403, { code: "PRO_ONLY", plan: access.plan, feature: "similar" })
+  const light = !isUltra(access.plan)
+  const counters = light ? similarLightCounters(access, install, "ip:stand") : similarCountersFor(access)
+  const quota = await consume(counters)
+  if (!quota.allowed) {
+    const reason = blockReason(quota.blocked)
+    if (reason === "similar") return reply(402, { code: "LIMIT_REACHED", plan: access.plan, ...(light ? { light: true } : {}), usage: ultraUsage(quota.counters, light ? "similarlight:" : "similar:") })
+    if (reason === "limit" && light) return reply(402, { code: "LIMIT_REACHED", plan: access.plan, light: true, answers: counters.find((c) => c.amount)?.amount, usage: visibleUsage(access, quota.counters) })
+    return reply(503, { code: "BUSY" })
+  }
+  const token = readFileSync(process.env.SIMILAR_EVAL_TOKEN_FILE!, "utf8").trim()
+  const upstream = await realFetch(`${process.env.SIMILAR_PROXY}/api/v2/similar`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ ...body, options: light ? { light: "on" } : {} })
+  }).catch(() => null)
+  if (!upstream?.ok || !upstream.body) {
+    await refund(counters)
+    return reply(upstream?.status ?? 502, upstream ? JSON.parse((await upstream.text()) || "{}") : { code: "UPSTREAM" })
+  }
+  res.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-cache" })
+  // As the server: nothing found by the light search is given back (an item event means something came).
+  let found = false
+  for await (const chunk of upstream.body as unknown as AsyncIterable<Uint8Array>) {
+    if (!found && Buffer.from(chunk).toString("utf8").includes('"type":"item"')) found = true
+    res.write(chunk)
+  }
+  res.end()
+  if (light && !found) await refund(counters)
+}
 
 async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
   if (process.env.PREVIEW_PLAN !== "ultra") {
@@ -610,7 +881,15 @@ createServer(async (req, res) => {
     try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")) } catch { /* not JSON */ }
     aiRequests.push(url.pathname)
     lastSimilarRequest = body
-    await similarStub(body, res)
+    if (process.env.SIMILAR_PROXY && process.env.SIMILAR_EVAL_TOKEN_FILE) await similarProxied(body, res)
+    else await similarStub(body, res)
+    return
+  }
+  // 2.7: the plan every request comes as from now on (free, byok, pro, ultra), for a check of several plans in one run.
+  if (url.pathname === "/set-plan") {
+    await setPlan(url.searchParams.get("plan") ?? "")
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ plan: url.searchParams.get("plan") ?? "free" }))
     return
   }
   if (url.pathname === "/last-similar") {
@@ -628,7 +907,8 @@ createServer(async (req, res) => {
         const sent = JSON.parse(Buffer.concat(chunks).toString("utf8"))
         // A feature step: "use:tour.step:pick" (f.a and what).
         const what = sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""
-        panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}`)
+        panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}${sent.why ? `:${sent.why}` : ""}`)
+        eventIds.push(`${sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.kind}${sent.appId ? " app" : ""}${sent.installId ? " install" : ""}`)
       } catch {
         // not JSON
       }
@@ -638,6 +918,13 @@ createServer(async (req, res) => {
         lastChatRequest = JSON.parse(Buffer.concat(chunks).toString("utf8"))
       } catch {
         lastChatRequest = null
+      }
+    }
+    if (url.pathname === "/api/v2/write") {
+      try {
+        lastWriteRequest = JSON.parse(Buffer.concat(chunks).toString("utf8"))
+      } catch {
+        lastWriteRequest = null
       }
     }
     let raw = Buffer.concat(chunks)
@@ -734,6 +1021,11 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
     res.end(JSON.stringify(lastClaudeRequest))
     return
   }
+  if (url.pathname === "/last-write") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(lastWriteRequest))
+    return
+  }
   if (url.pathname === "/last-request") {
     res.writeHead(200, { "Content-Type": "application/json" })
     res.end(JSON.stringify(lastChatRequest))
@@ -750,11 +1042,18 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
     res.end(JSON.stringify(panelEvents))
     return
   }
+  if (url.pathname === "/event-ids") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(eventIds))
+    return
+  }
   if (url.pathname === "/reset") {
+    inviteMade = false
     counters.clear()
     tours.clear()
     aiRequests.length = 0
     panelEvents.length = 0
+    eventIds.length = 0
     res.end("ok")
     return
   }

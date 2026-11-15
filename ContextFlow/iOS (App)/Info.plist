@@ -19,6 +19,8 @@
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>ContextFlow adds the reminders you confirm. It doesn't read your reminders or send them anywhere.</string>
 	<key>SFSafariWebExtensionConverterVersion</key>
 	<string>26.2</string>
 	<key>UIApplicationSceneManifest</key>

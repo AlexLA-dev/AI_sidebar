@@ -24,7 +24,7 @@ const page = { url: "https://shop.example/desk", title: "Standing desk", hash: "
 const asked = (text: string) => `You asked to be reminded: ${text}`
 
 test("a note on a selection keeps the selection apart, in every language's quote marks", () => {
-  assert.equal(locales.length, 14)
+  assert.equal(locales.length, 15)
   for (const file of locales) {
     const mark = strings(file).noteQuote
     const quoted = (text: string) => mark.replace("{0}", text)
@@ -192,7 +192,7 @@ test("the app's reminder notifications say the words too, and its windows change
   const ux = read("../ContextFlow/Shared (App)/ChatUX.swift")
   assert.match(ux, /TextField\("Your note \(optional\)"/)
   const catalog = JSON.parse(read("../ContextFlow/Shared (App)/Localizable.xcstrings")).strings["Your note (optional)"]
-  assert.equal(Object.keys(catalog.localizations).length, 13)
+  assert.equal(Object.keys(catalog.localizations).length, 14)
 })
 
 test("the app's Watching list gets each watch's note", () => {
@@ -243,14 +243,15 @@ test("everywhere a reminder is made or changed in the panel, the words go with i
   const app = read("../src/content/App.tsx")
   const laterSheet = app.slice(app.indexOf("const laterSheet = (page: boolean)"), app.indexOf("const laterItems = async"))
   assert.match(laterSheet, /words=""/)
-  assert.match(laterSheet, /noteSelection\(from\.selection, words \?\? "", at, preset\)/)
+  // 2.7: with «Также в Напоминания» (the window's checkbox).
+  assert.match(laterSheet, /noteSelection\(from\.selection, words \?\? "", at, preset, apple\)/)
   // The whole page: the person's words, else the page's name.
   assert.match(app, /content: comment\.trim\(\) \|\| page\.title \|\| source\.href\(\)/)
   // The panel's row over the field (build 95) opens the same window.
   assert.match(app, /setLater\(\{ selection, range: selectionRange\(\) \}\)/)
   const reschedule = app.slice(app.indexOf("const rescheduleLaterItem"), app.indexOf("const remindButton"))
   assert.match(reschedule, /const entry = withRemindWords\(found, words\)/)
-  assert.match(reschedule, /withReminderAt\(worded\(thread\.m\), ref\.key, at, dev\)/)
+  assert.match(reschedule, /withReminderAt\(worded\(thread\.m\), ref\.key, at, dev, apple\)/)
   const ux = read("../src/content/ux/useMessageUx.tsx")
   assert.match(ux, /words=\{remindWords\(messages\[reminding\.idx\]\)\}/)
   assert.match(ux, /const m = at === null \? found : withRemindWords\(found, words\)/)
@@ -259,12 +260,12 @@ test("everywhere a reminder is made or changed in the panel, the words go with i
 })
 
 // 2.6 (98), the owner on TestFlight 97: «в поле ввода заметки надо дописать "(optional)" чтобы пользователь понимал».
-test("the note fields say they're optional, in all 14 languages", () => {
+test("the note fields say they're optional, in all 15 languages", () => {
   const optional: Record<string, RegExp> = {
     "en.json": /\(optional\)$/, "ru.json": /\(необязательно\)$/, "uk.json": /\(необов'язково\)$/, "de.json": /\(optional\)$/,
     "fr.json": /\(facultatif\)$/, "es.json": /\(opcional\)$/, "it.json": /\(facoltativo\)$/, "pt_BR.json": /\(opcional\)$/,
     "ja.json": /（任意）$/, "ko.json": /\(선택\)$/, "zh_CN.json": /（可选）$/, "zh_TW.json": /（選填）$/,
-    "vi.json": /\(không bắt buộc\)$/, "ar.json": /\(اختياري\)$/
+    "vi.json": /\(không bắt buộc\)$/, "ar.json": /\(اختياري\)$/, "tr.json": /\(isteğe bağlı\)$/
   }
   assert.deepEqual(Object.keys(optional).sort(), [...locales].sort())
   for (const file of locales) {

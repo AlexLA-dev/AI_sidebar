@@ -10,6 +10,7 @@ import * as ja from "../locales/ja.json"
 import * as ko from "../locales/ko.json"
 import * as pt from "../locales/pt_BR.json"
 import * as ru from "../locales/ru.json"
+import * as tr from "../locales/tr.json"
 import * as uk from "../locales/uk.json"
 import * as vi from "../locales/vi.json"
 import * as zh from "../locales/zh_CN.json"
@@ -28,6 +29,7 @@ const LABELS: Record<string, ShareLabels> = {
   ko: { you: ko.shareYou, note: ko.shareNote, sources: ko.sources, source: ko.shareSource, madeWith: ko.shareMadeWith },
   pt_BR: { you: pt.shareYou, note: pt.shareNote, sources: pt.sources, source: pt.shareSource, madeWith: pt.shareMadeWith },
   ru: { you: ru.shareYou, note: ru.shareNote, sources: ru.sources, source: ru.shareSource, madeWith: ru.shareMadeWith },
+  tr: { you: tr.shareYou, note: tr.shareNote, sources: tr.sources, source: tr.shareSource, madeWith: tr.shareMadeWith },
   uk: { you: uk.shareYou, note: uk.shareNote, sources: uk.sources, source: uk.shareSource, madeWith: uk.shareMadeWith },
   vi: { you: vi.shareYou, note: vi.shareNote, sources: vi.sources, source: vi.shareSource, madeWith: vi.shareMadeWith },
   zh_CN: { you: zh.shareYou, note: zh.shareNote, sources: zh.sources, source: zh.shareSource, madeWith: zh.shareMadeWith },

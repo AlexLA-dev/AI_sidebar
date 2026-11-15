@@ -1,6 +1,7 @@
 import type { Attachment, MediaKind } from "./attachments.ts"
 import { COPIED_DEFAULT_ON } from "./copied.ts"
 import type { ChatDigest } from "./history.ts"
+import type { AppleItem } from "./appleItems.ts"
 import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
@@ -59,6 +60,9 @@ export interface StatusInfo {
   offline: boolean
   // Organizing the chats (2.5): switched on on the server, the vector space and the thresholds; null offline.
   organize: { on: boolean; space: string; config: OrganizeConfig } | null
+  // 2.7, invite a friend: friends who came with this install's code and asked on two different days (only once the
+  // install has a code).
+  invite?: { active: number }
 }
 
 /** What each plan gives, for the plans sheet (2.6): the server's numbers. */
@@ -69,6 +73,9 @@ export interface PlanFacts {
   searchProWeekly: number
   speakWeeklySeconds: number
   similarWeekly: number
+  // 2.7: the light Find similar's searches a week (Own key and Pro), and what one costs Pro in answers.
+  similarLightWeekly: number
+  similarProAnswers: number
   watch: Record<Plan, number>
 }
 
@@ -107,6 +114,9 @@ export interface AskPayload {
   stats?: ChatStats
   // Asked during the guided first request (2.6): not counted against the free answers, for an install's first few.
   tour?: true
+  // 2.7: this device can add reminders and events (Safari, iOS 17+ and macOS 14+): the answer may end with the marker
+  // for a card (appleItems.ts ITEM_MARKER). Older clients don't send it and never get the marker.
+  items?: true
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
@@ -173,6 +183,10 @@ export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
   | { type: "tipClip"; name: string; lang: string }
+  // «Снимок страницы в заметке» (2.7): the tab's visible area captured; a note's picture kept, and fetched to open it.
+  | { type: "shotCapture" }
+  | { type: "shotPut"; id: string; data: string }
+  | { type: "shotGet"; id: string; parts: number }
   // Build 91: the jobs the background is running now (ids), to follow one again after the panel was closed.
   | { type: "liveJobs" }
   // …and the panel showed this chat: its jobs' outcomes were seen (the chats list's and the floating button's dot go).
@@ -230,6 +244,12 @@ export type BackgroundRequest =
   | { type: "organizeName"; chat: string }
   // The chats list (2.6, Pro, with suggestions on): how many open suggestions each chat has; answers an OrganizeCountsReply.
   | { type: "organizeCounts" }
+  // 2.7: «Подходящий чат» by meaning (Pro, organizing on): the page title against these chats (match.ts).
+  | { type: "matchTopic"; title: string; chats: string[] }
+  // 2.7 «Подборки» with the AI (Pro, the one consent; src/background/collect.ts): answers a CollectReply.
+  | { type: "collect"; op: CollectOp; body: Record<string, unknown> }
+  // 2.7: a collection's printable page (dist/collection.html) in a new tab: «PDF».
+  | { type: "openCollection"; id: string }
   // Organizing: a suggestion shown, taken, turned down or undone; a promotion shown or tapped; suggestions
   // switched on or declined. Counts only, never text.
   | { type: "organizeEvent"; event: OrganizeEvent }
@@ -240,10 +260,19 @@ export type BackgroundRequest =
   // A reminder on an answer or a note (2.5): a local notification on this device (Safari); answers
   // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
   | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; url?: string; ask?: boolean }
+  // 2.7, Calendar and Reminders (appleItems.ts): whether this device can add them and with what access ("appleStatus");
+  // a reminder or an event written on the device, or handed to the app with `handoff` (its id, the link the page already
+  // followed) when the extension can't write it ("appleAdd" → { outcome: "saved" | "app" | "denied" | "failed" |
+  // "unavailable" }); a reminder «Также в Напоминания» added, taken back ("appleRemove", by its key); the date and time
+  // read out of a text by the server ("itemsRead" → { items } or { error }).
+  | { type: "appleStatus" }
+  | { type: "appleAdd"; item: AppleItem; notes: string; url?: string; list?: string; key?: string; handoff?: string }
+  | { type: "appleRemove"; key: string }
+  | { type: "itemsRead"; text: string; words?: string; kind?: AppleItem["kind"]; title?: string }
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; screens?: number; cards?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -271,6 +300,10 @@ export type OrganizeReply =
   | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 
 export type OrganizeCountsReply = { ok: true; counts: Record<string, number> } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+/** «Подборки» with the AI (2.7): the server's answer for the op, or why there is none. */
+export type CollectOp = "place" | "layout" | "compare" | "summary"
+export type CollectReply = { ok: true; body: Record<string, unknown> } | { ok: false; code: "CONSENT" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" | "OFF" }
 
 export type OrganizeNameReply = { ok: true; name: string } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 
@@ -361,14 +394,27 @@ export const STORAGE = {
   // the tag checks' answers ({[hash]: tags}), and the cards about it already shown or closed.
   orgVectors: "cf:orgVectors",
   orgVerdicts: "cf:orgVerdicts",
-  orgCards: "cf:orgCards"
+  orgCards: "cf:orgCards",
+  // Spaces (2.7, src/shared/spaces.ts): the list ({ u, list }), and the time of the copy iCloud and the app have.
+  spaces: "cf:spaces",
+  spacesSynced: "cf:spacesSynced",
+  spacesMirrored: "cf:spacesMirrored",
+  // Подборки (2.7, src/shared/collections.ts): each collection ({ [id]: { u, rec } }), and the time of each copy iCloud
+  // and the app have.
+  collections: "cf:collections",
+  collectionsSynced: "cf:collectionsSynced",
+  collectionsMirrored: "cf:collectionsMirrored"
 } as const
 
 export interface Settings {
   // "auto" (2.0 / 2.1 default, iPhone and iPad only) is read as "on".
   fab: "auto" | "on" | "off"
   fabHiddenSites: string[]
-  fabSide: "left" | "right"
+  // The circle's side, and on iPad and Mac the panel's (2.7). Not chosen yet: the interface's direction decides (left
+  // in Arabic), src/content/side/snap.ts resolveSide. Before 2.7 every save wrote "right", so a stored "right" counts
+  // only once fabSideChosen is set (by a drag or Settings); a stored "left" only ever came from a drag.
+  fabSide?: "left" | "right"
+  fabSideChosen?: boolean
   fabY: number // percent of viewport height
   selectionButton: boolean
   textSize: "normal" | "large"
@@ -397,12 +443,15 @@ export interface Settings {
   // and keeping what's copied on pages for its list. Its other settings stay on this device (cf:insert).
   insertButton: boolean
   keepCopied: boolean
+  // 2.7: Spaces (the owner: «Давай сделаем Пространства выключаемой опцией в настройках»). On by default, and still
+  // nothing shows while there's one space. Off: no switcher, colours or site bindings, every chat in one list; the
+  // spaces and which chat is in which stay, for when it's on again. Shared with the app, like the rest.
+  spaces: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   fab: "on",
   fabHiddenSites: [],
-  fabSide: "right",
   fabY: 72,
   selectionButton: true,
   textSize: "normal",
@@ -416,7 +465,8 @@ export const DEFAULT_SETTINGS: Settings = {
   organize: false,
   shareMarks: false,
   insertButton: true,
-  keepCopied: COPIED_DEFAULT_ON
+  keepCopied: COPIED_DEFAULT_ON,
+  spaces: true
 }
 
 /** AI search's answer: the matching chats with a reason, or why there are none. */

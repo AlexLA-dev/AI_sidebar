@@ -1,0 +1,3314 @@
+{
+ "extName": {
+  "message": "ContextFlow — Safari için yapay zekâ"
+ },
+ "extDescription": {
+  "message": "Okuduğunuz sayfa hakkında yapay zekâya sorun: Safari'den çıkmadan özetler, açıklamalar ve çeviriler."
+ },
+ "actionTitle": {
+  "message": "Bu sayfa hakkında ContextFlow'a sor"
+ },
+ "languageName": {
+  "message": "Türkçe"
+ },
+ "langCode": {
+  "message": "tr"
+ },
+ "ctxPage": {
+  "message": "Bu sayfa"
+ },
+ "ctxSelection": {
+  "message": "Seçim · {0} kelime"
+ },
+ "ctxNone": {
+  "message": "Genel sohbet"
+ },
+ "ctxUsePage": {
+  "message": "Sayfanın tamamını kullan"
+ },
+ "emptyTitle": {
+  "message": "Ne öğrenmek istersiniz?"
+ },
+ "emptyPage": {
+  "message": "Bu sayfayı görebiliyorum. Bir soru sorun veya bir işlem seçin."
+ },
+ "emptySelection": {
+  "message": "Seçili metin hakkında soru sorun veya bir işlem seçin."
+ },
+ "emptyNone": {
+  "message": "Bu sayfa okunamıyor ama bana istediğinizi sorabilirsiniz."
+ },
+ "actSummarize": {
+  "message": "Özetle"
+ },
+ "actKeyPoints": {
+  "message": "Ana fikirler"
+ },
+ "actExplain": {
+  "message": "Basitçe açıkla"
+ },
+ "actTranslate": {
+  "message": "Çevir"
+ },
+ "actImprove": {
+  "message": "Metni iyileştir"
+ },
+ "actReply": {
+  "message": "Yanıt taslağı"
+ },
+ "actGoogle": {
+  "message": "Google"
+ },
+ "promptSummarize": {
+  "message": "Bu sayfayı 5–7 maddelik bir listeyle özetle, ardından ana sonucu tek cümleyle belirt."
+ },
+ "promptKeyPoints": {
+  "message": "Bu sayfadaki ana fikirler neler? Önemli bilgileri, rakamları ve tarihleri listele."
+ },
+ "promptExplain": {
+  "message": "Bu sayfayı, zeki bir 12 yaşındaki çocuğa anlatır gibi basit kelimelerle açıkla."
+ },
+ "promptTranslate": {
+  "message": "Bu sayfanın ana içeriğini şu dile çevir: {0}. Yapıyı ve başlıkları koru."
+ },
+ "promptSelSummarize": {
+  "message": "Seçili metni kısaca özetle."
+ },
+ "promptSelExplain": {
+  "message": "Seçili metni basit kelimelerle açıkla."
+ },
+ "promptSelTranslate": {
+  "message": "Seçili metni şu dile çevir: {0}."
+ },
+ "promptSelImprove": {
+  "message": "Seçili metni daha açık ve öz olacak şekilde yeniden yaz. İyileştirilmiş tek bir sürüm ver."
+ },
+ "promptReply": {
+  "message": "Bu mesaja veya gönderiye kısa ve kibar bir yanıt taslağı yaz."
+ },
+ "promptGoogle": {
+  "message": "Bu sayfanın konusuyla ilgili en güncel bilgileri Google'da ara ve bana genel bir bakış sun."
+ },
+ "promptSelGoogle": {
+  "message": "Seçili metni Google'da ara: ne olduğunu ve temel bilgileri anlat."
+ },
+ "placeholderPage": {
+  "message": "Bu sayfa hakkında sorun…"
+ },
+ "placeholderSelection": {
+  "message": "Seçim hakkında sorun…"
+ },
+ "placeholderNone": {
+  "message": "Ne isterseniz sorun…"
+ },
+ "placeholderGoogle": {
+  "message": "Google'a sorun…"
+ },
+ "send": {
+  "message": "Gönder"
+ },
+ "stop": {
+  "message": "Durdur"
+ },
+ "newChat": {
+  "message": "Yeni sohbet"
+ },
+ "chatsTitle": {
+  "message": "Sohbetler"
+ },
+ "allChats": {
+  "message": "Tüm sohbetler"
+ },
+ "chatsEmpty": {
+  "message": "Henüz sohbet yok. Başlatmak için bir şey sorun."
+ },
+ "deleteChat": {
+  "message": "Sohbeti sil"
+ },
+ "renameChat": {
+  "message": "Sohbeti yeniden adlandır"
+ },
+ "chatName": {
+  "message": "Sohbet adı"
+ },
+ "chatNameHint": {
+  "message": "Boş bırakırsanız sohbet, ilk sorusuyla adlandırılır."
+ },
+ "settings": {
+  "message": "Ayarlar"
+ },
+ "close": {
+  "message": "Kapat"
+ },
+ "back": {
+  "message": "Geri"
+ },
+ "copy": {
+  "message": "Kopyala"
+ },
+ "copied": {
+  "message": "Kopyalandı"
+ },
+ "share": {
+  "message": "Paylaş"
+ },
+ "shareSource": {
+  "message": "Kaynak"
+ },
+ "shareMadeWith": {
+  "message": "ContextFlow ile hazırlandı"
+ },
+ "shareChat": {
+  "message": "Sohbeti paylaş"
+ },
+ "shareYou": {
+  "message": "Siz"
+ },
+ "newPage": {
+  "message": "Yeni sayfa: {0}"
+ },
+ "pageUpdated": {
+  "message": "Sayfa güncellendi"
+ },
+ "uxMark": {
+  "message": "Vurgula"
+ },
+ "uxUnmark": {
+  "message": "Vurguyu kaldır"
+ },
+ "uxDelete": {
+  "message": "Sil"
+ },
+ "uxPin": {
+  "message": "Sabitle"
+ },
+ "uxUnpin": {
+  "message": "Sabitlemeyi kaldır"
+ },
+ "uxDeletedAnswer": {
+  "message": "Yanıt silindi"
+ },
+ "uxDeletedNote": {
+  "message": "Not silindi"
+ },
+ "uxDeletedChat": {
+  "message": "Sohbet silindi"
+ },
+ "trashTitle": {
+  "message": "Son Silinenler"
+ },
+ "trashRow": {
+  "message": "Son Silinenler · {0}"
+ },
+ "trashNote": {
+  "message": "Sohbetler burada 30 gün boyunca kalır. Bu süreden sonra kalıcı olarak silinir."
+ },
+ "trashRestore": {
+  "message": "Geri yükle"
+ },
+ "trashDeleteNow": {
+  "message": "Şimdi sil"
+ },
+ "trashDeleteAll": {
+  "message": "Tümünü sil"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Son Silinenler'deki tüm sohbetler kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
+ },
+ "trashDays_one": {
+  "message": "{0} gün"
+ },
+ "trashDays_few": {
+  "message": "{0} gün"
+ },
+ "trashDays_many": {
+  "message": "{0} gün"
+ },
+ "trashDays_other": {
+  "message": "{0} gün"
+ },
+ "uxPinned": {
+  "message": "Sabitlenmiş"
+ },
+ "uxPinnedN": {
+  "message": "Sabitlenmiş #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Tüm sabitlenmişler"
+ },
+ "uxMore": {
+  "message": "Daha fazla"
+ },
+ "uxMorePage": {
+  "message": "Sayfa seçenekleri"
+ },
+ "uxMoreAnswer": {
+  "message": "Yanıt seçenekleri"
+ },
+ "uxMoreNote": {
+  "message": "Not seçenekleri"
+ },
+ "uxMoreChat": {
+  "message": "Sohbet seçenekleri"
+ },
+ "uxLater": {
+  "message": "Bu sayfayı bana hatırlat…"
+ },
+ "uxLaterTitle": {
+  "message": "Bu sayfayı bana hatırlat"
+ },
+ "uxWatchPage": {
+  "message": "Bu sayfayı takip et…"
+ },
+ "uxReminders": {
+  "message": "Hatırlatıcılar"
+ },
+ "uxRemindersN": {
+  "message": "Hatırlatıcılar · {0}"
+ },
+ "uxWatching": {
+  "message": "Takip edilenler"
+ },
+ "uxWatchingN": {
+  "message": "Takip edilenler · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Tüm hatırlatıcılar"
+ },
+ "uxNoReminders": {
+  "message": "Hatırlatıcı yok"
+ },
+ "uxNoRemindersHint": {
+  "message": "Hatırlatıcıyı bir yanıtta veya notta, seçili metnin yanındaki zil simgesiyle ya da buradan kurabilirsiniz: … → Bu sayfayı bana hatırlat."
+ },
+ "uxNoWatching": {
+  "message": "Takip edilen bir şey yok"
+ },
+ "uxNoWatchingHint": {
+  "message": "Bir fiyat, stok durumu veya tarih seçip göz simgesine dokunun. Sayfanın tamamı için: … → Bu sayfayı takip et."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · başka bir cihazda"
+ },
+ "uxStop": {
+  "message": "Durdur"
+ },
+ "uxRemind": {
+  "message": "Hatırlat"
+ },
+ "uxRemindChange": {
+  "message": "Hatırlatıcıyı değiştir"
+ },
+ "uxRemindOpen": {
+  "message": "Aç"
+ },
+ "uxRemindTitle": {
+  "message": "Ne zaman hatırlatayım?"
+ },
+ "uxNoteWords": {
+  "message": "Notunuz (isteğe bağlı)"
+ },
+ "uxRemindAsked": {
+  "message": "Hatırlatmamı istediğiniz: {0}"
+ },
+ "uxRemindHour": {
+  "message": "Bir saat sonra"
+ },
+ "uxRemindEvening": {
+  "message": "Bu akşam"
+ },
+ "uxRemindMorning": {
+  "message": "Yarın sabah"
+ },
+ "uxRemindWeek": {
+  "message": "Bir hafta sonra"
+ },
+ "uxRemindPick": {
+  "message": "Tarih seç"
+ },
+ "uxRemindSet": {
+  "message": "Hatırlat"
+ },
+ "uxRemindCancel": {
+  "message": "Hatırlatıcıyı kaldır"
+ },
+ "uxRemindOff": {
+  "message": "ContextFlow için bildirimler kapalı. Ayarlar → Bildirimler → ContextFlow bölümünden açın."
+ },
+ "uxRemindAsk": {
+  "message": "ContextFlow uygulamasını bir kez açıp bildirimlere izin verin, ardından hatırlatıcıyı yeniden kurun."
+ },
+ "uxRemindNone": {
+  "message": "Hatırlatıcılar için bu cihazda ContextFlow uygulaması gerekir."
+ },
+ "uxToday": {
+  "message": "Bugün"
+ },
+ "uxTomorrow": {
+  "message": "Yarın"
+ },
+ "uxRemindSaved": {
+  "message": "Hatırlatıcı: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Sohbete kaydedildi. ContextFlow için bildirimler kapalı. Ayarlar → Bildirimler → ContextFlow bölümünden açın."
+ },
+ "uxRemindNoApp": {
+  "message": "Sohbete kaydedildi. Hatırlatıcılar için bu cihazda ContextFlow uygulaması gerekir."
+ },
+ "uxUnpinAll": {
+  "message": "Tüm sabitlemeleri kaldır"
+ },
+ "setShareGroup": {
+  "message": "Paylaşma ve kopyalama"
+ },
+ "uxShareMarks": {
+  "message": "Paylaşılan metinde vurgular **kalın** olsun"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion ve Slack bunları kalın gösterir; Mesajlar ve Notlar ise yıldız işaretlerini gösterir. Kopyaladığınızda kalın biçim her zaman korunur."
+ },
+ "nowOnPage": {
+  "message": "Şu an açık: {0}"
+ },
+ "retry": {
+  "message": "Tekrar dene"
+ },
+ "askWithoutGoogle": {
+  "message": "Google olmadan sor"
+ },
+ "thinking": {
+  "message": "Sayfa okunuyor…"
+ },
+ "searching": {
+  "message": "Google'da aranıyor…"
+ },
+ "errNetwork": {
+  "message": "Bağlantı yok. İnternet bağlantınızı kontrol edip tekrar deneyin."
+ },
+ "errBusy": {
+  "message": "ContextFlow şu anda çok yoğun. Lütfen bir dakika sonra tekrar deneyin."
+ },
+ "errUpstream": {
+  "message": "Yapay zekâ hizmeti yanıt vermedi. Lütfen tekrar deneyin."
+ },
+ "errInterrupted": {
+  "message": "Yanıt yarıda kesildi."
+ },
+ "errBadKey": {
+  "message": "API anahtarınız reddedildi. Ayarlar'dan kontrol edin."
+ },
+ "errGeneric": {
+  "message": "Bir sorun oluştu. Lütfen tekrar deneyin."
+ },
+ "errSearchLimit": {
+  "message": "Google yanıtları için şimdilik sınıra ulaştınız. Normal yanıtlar çalışmaya devam ediyor."
+ },
+ "errSearchUnavailable": {
+  "message": "Google yanıtları şu anda kullanılamıyor. Normal yanıtlar çalışmaya devam ediyor."
+ },
+ "limitFreeTitle": {
+  "message": "Bugünkü ücretsiz yanıtlarınızı kullandınız"
+ },
+ "limitProTitle": {
+  "message": "Haftalık sınıra ulaşıldı"
+ },
+ "limitProBody": {
+  "message": "Pro yanıtlarınız {0} sonra yenilenir."
+ },
+ "longPageWeight": {
+  "message": "Uzun sayfa: yanıt ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Bu sayfa uzun: bununla ilgili bir yanıt, sınırınızdan {0} yanıt olarak düşülür."
+ },
+ "limitLongTitle": {
+  "message": "Bu sayfa uzun"
+ },
+ "limitLongBody": {
+  "message": "Bununla ilgili bir yanıt {0} yanıt sayılır; kalan yanıtınız: {1}."
+ },
+ "getPro": {
+  "message": "Pro'ya geç"
+ },
+ "useOwnKey": {
+  "message": "Kendi API anahtarımı kullan"
+ },
+ "usageFree": {
+  "message": "Bugün kalan ücretsiz yanıt: {0}/{1}"
+ },
+ "usagePro": {
+  "message": "Pro · bu hafta kalan yanıt: {0}/{1}"
+ },
+ "usageOwnKey": {
+  "message": "Kendi API anahtarınız kullanılıyor"
+ },
+ "hours": {
+  "message": "{0} sa"
+ },
+ "minutes": {
+  "message": "{0} dk"
+ },
+ "consentTitle": {
+  "message": "ContextFlow yapay zekâyı kullanmadan önce"
+ },
+ "consentBody": {
+  "message": "Onay bir kez verilir, tüm yapay zekâ özellikleri için. Her özellik yalnızca gerekeni ve siz kullanınca, sunucumuz üzerinden gönderir: Anthropic (Claude), OpenAI (yedek yanıtlar, öneriler), Google Gemini (Google yanıtları). Kendi API anahtarınızla doğrudan o sağlayıcıya gider. Sunucularımızda bir şey saklanmaz; bununla model eğitilmez."
+ },
+ "consentAnswers": {
+  "message": "Yanıtlar: sorunuz, sayfanın metni veya seçiminiz ve yazdıysanız “Hakkımda” metniniz. Claude kullanılamıyorsa OpenAI yanıtlar; Google yanıtları Google Gemini'ye gider."
+ },
+ "consentChats": {
+  "message": "“Sohbetlerinize sorun” ve yapay zekâ ile arama (Pro): sohbetlerinizden kısa alıntılar."
+ },
+ "consentTemplates": {
+  "message": "Şablonlar: boşlukları işaretlemek için metinleri; “Sayfadan doldur” için sayfanın metni; “Anlama göre bul” için yazdıklarınız ve şablon başlıkları."
+ },
+ "consentWatch": {
+  "message": "Sayfa takibi: seçtiğiniz kısım, size ne zaman haber verileceğine dair yazdıklarınız, çevresindeki metin ve sayfanın başlığı; sonrasında eski ve yeni değer."
+ },
+ "consentSuggest": {
+  "message": "Öneriler (Pro, yalnızca siz açtıktan sonra): yeni soruların, yanıtların ve notların metni. OpenAI bunları karşılaştırır, Claude ise bir etiketi kontrol eder."
+ },
+ "consentStored": {
+  "message": "Sohbetleriniz cihazlarınızda ve eşzamanlarsanız iCloud hesabınızda kalır."
+ },
+ "consentWhat": {
+  "message": "Tam olarak ne gönderilir?"
+ },
+ "consentAccept": {
+  "message": "Kabul et ve devam et"
+ },
+ "consentAgainTitle": {
+  "message": "Güncellendi: tüm yapay zekâ özellikleri için tek onay"
+ },
+ "consentDecline": {
+  "message": "Şimdi değil"
+ },
+ "consentNeeded": {
+  "message": "Hiçbir şey gönderilmedi: yapay zekâ yanıtları için önce onayınız gerekiyor."
+ },
+ "privacyPolicy": {
+  "message": "Gizlilik Politikası"
+ },
+ "setPlan": {
+  "message": "Plan"
+ },
+ "planFree": {
+  "message": "Ücretsiz"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "Own key"
+ },
+ "planRenews": {
+  "message": "Yenileme tarihi: {0}"
+ },
+ "manageSubscription": {
+  "message": "Aboneliği yönet"
+ },
+ "restorePurchases": {
+  "message": "Satın alımları geri yükle"
+ },
+ "setAppearance": {
+  "message": "Görünüm"
+ },
+ "themeAuto": {
+  "message": "Otomatik"
+ },
+ "themeLight": {
+  "message": "Açık"
+ },
+ "themeDark": {
+  "message": "Koyu"
+ },
+ "setTextSize": {
+  "message": "Metin boyutu"
+ },
+ "sizeNormal": {
+  "message": "Normal"
+ },
+ "sizeLarge": {
+  "message": "Büyük"
+ },
+ "setFab": {
+  "message": "Kayan düğme"
+ },
+ "fabOn": {
+  "message": "Açık"
+ },
+ "fabOff": {
+  "message": "Kapalı"
+ },
+ "setFabHint": {
+  "message": "✦ düğmesi ContextFlow'u her sitede açar. Tek bir sitede gizlemek için aşağıdaki bağlantıyı kullanın ya da buradan tamamen kapatın."
+ },
+ "hideOnSite": {
+  "message": "{0} sitesinde gizle"
+ },
+ "showOnSite": {
+  "message": "{0} sitesinde göster"
+ },
+ "setSelectionButton": {
+  "message": "Metin seçiminde düğme"
+ },
+ "setAbout": {
+  "message": "Hakkımda"
+ },
+ "setAboutHint": {
+  "message": "İsteğe bağlı. Yanıtları size göre uyarlamaya yardımcı olur, örneğin “Ürün tasarımcısıyım, kısa tut”."
+ },
+ "setOwnKey": {
+  "message": "Kendi API anahtarınız (OpenAI veya Claude)"
+ },
+ "setOwnKeyHint": {
+  "message": "Pro ve Own key planlarında bulunur. Bir OpenAI veya Anthropic (Claude) anahtarı yapıştırın; istekler cihazınızdan doğrudan o sağlayıcıya gider."
+ },
+ "setOwnKeyLocked": {
+  "message": "Pro veya Own key planıyla kullanılabilir"
+ },
+ "setOwnKeyModel": {
+  "message": "Model"
+ },
+ "modelFast": {
+  "message": "Hızlı"
+ },
+ "modelSmart": {
+  "message": "Akıllı"
+ },
+ "setOwnKeyModelHint": {
+  "message": "Hızlı: en yeni Claude Haiku veya GPT mini. Akıllı: en yeni Claude Sonnet veya GPT."
+ },
+ "getKey": {
+  "message": "Anahtar al"
+ },
+ "save": {
+  "message": "Kaydet"
+ },
+ "remove": {
+  "message": "Kaldır"
+ },
+ "saved": {
+  "message": "Kaydedildi"
+ },
+ "setSyncChats": {
+  "message": "Sohbetleri iCloud ile eşzamanla"
+ },
+ "setSyncChatsHint": {
+  "message": "Bir sohbete iPhone, iPad ve Mac'inizde devam edin. Sohbet, iCloud hesabınızda uçtan uca şifrelenir ve sunucularımızda asla saklanmaz."
+ },
+ "deleteChats": {
+  "message": "Tüm sohbetleri sil"
+ },
+ "chatsDeleted": {
+  "message": "Sohbetler silindi"
+ },
+ "support": {
+  "message": "Destek"
+ },
+ "terms": {
+  "message": "Kullanım Koşulları"
+ },
+ "rateApp": {
+  "message": "ContextFlow'u değerlendir"
+ },
+ "version": {
+  "message": "Sürüm {0}"
+ },
+ "fabLabel": {
+  "message": "ContextFlow'a sor"
+ },
+ "selAsk": {
+  "message": "Yapay zekâya sor"
+ },
+ "selExplain": {
+  "message": "Açıkla"
+ },
+ "selTranslate": {
+  "message": "Çevir"
+ },
+ "googleModeHint": {
+  "message": "Google Arama ile yanıt: kaynaklarıyla güncel bilgiler"
+ },
+ "googleBadge": {
+  "message": "Google Arama"
+ },
+ "sources": {
+  "message": "Kaynaklar"
+ },
+ "tourStep": {
+  "message": "{0}/{1}"
+ },
+ "tourSkip": {
+  "message": "Atla"
+ },
+ "tourNext": {
+  "message": "İleri"
+ },
+ "tourDone": {
+  "message": "Anladım"
+ },
+ "tourShow": {
+  "message": "İpuçlarını göster"
+ },
+ "tourAskTitle": {
+  "message": "Bu sayfa hakkında sorun"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow bulunduğunuz sayfayı, Pro ile de sayfadaki altyazılı videoları ve PDF'leri okur. “Özetle” gibi bir işlem seçin veya kendi sorunuzu yazın."
+ },
+ "tourSelectTitle": {
+  "message": "Yalnızca bir kısmı mı?"
+ },
+ "tourSelectBody": {
+  "message": "Önce sayfada metin seçin; yanıt yalnızca o kısımla ilgili olur. Bu etiket ContextFlow'un neyi okuduğunu gösterir."
+ },
+ "tourGoogleTitle": {
+  "message": "Google'dan güncel bilgiler"
+ },
+ "tourGoogleBody": {
+  "message": "Google Arama ile yanıt almak için bunu açın: kaynaklarıyla birlikte güncel bilgiler."
+ },
+ "tourChatsTitle": {
+  "message": "Sohbetleriniz"
+ },
+ "tourChatsBody": {
+  "message": "Bir sohbet sayfadan sayfaya devam eder. Yenisini + ile başlatın; öncekileri sohbet listesinden açabilir, yeniden adlandırabilir veya silebilirsiniz. Bir sayfaya dönmek için sohbetteki adına dokunun."
+ },
+ "tourChatsBodySync": {
+  "message": "Bir sohbet sayfadan sayfaya, iCloud sayesinde de iPhone, iPad ve Mac'inizde devam eder. Yenisini + ile başlatın; öncekileri sohbet listesinden açabilir, yeniden adlandırabilir veya silebilirsiniz. Bir sayfaya dönmek için sohbetteki adına dokunun."
+ },
+ "tourSettingsTitle": {
+  "message": "Size göre ayarlayın"
+ },
+ "tourSettingsBody": {
+  "message": "Tema ve metin boyutu, ✦ düğmesi, daha iyi yanıtlar için kendinizden birkaç kelime, kendi API anahtarınız ve planınız. Bu ipuçları da burada."
+ },
+ "tourNoteTitle": {
+  "message": "Kendi notlarınız"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Soru sormak yerine not yazmak için bu düğmeyi yukarı veya aşağı kaydırın. Not, sayfasıyla birlikte sohbette kalır ve yanıt hakkı kullanmaz."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Soru sormak yerine not yazmak için bu düğmenin üzerinde kaydırma yapın (veya düğmeyi basılı tutun). Not, sayfasıyla birlikte sohbette kalır ve yanıt hakkı kullanmaz."
+ },
+ "tourWholeTitle": {
+  "message": "Tüm sohbet göz önünde"
+ },
+ "tourWholeBody": {
+  "message": "Bir soru her şeyi gerektirdiğinde “Tüm sohbet” seçeneğini açın: tüm mesajlar, notlarınız ve bu sohbetin diğer sayfaları. Kapalıyken yanıtlar son mesajları ve bu sayfayı kullanır."
+ },
+ "tourMenuTitle": {
+  "message": "Diğer her şey"
+ },
+ "tourMenuBody": {
+  "message": "Hatırlatıcılar ve takip edilen sayfalar, İpuçları, Ayarlar ve tanıtım turunu tekrarlama seçeneği bu menüde."
+ },
+ "guideSumTitle": {
+  "message": "İlk yanıtınız"
+ },
+ "guideSumBody": {
+  "message": "“{0}” öğesine dokunun: ContextFlow bu sayfayı okur ve sizin için özetler."
+ },
+ "guideConsentTitle": {
+  "message": "Tüm yapay zekâ özellikleri için tek onay"
+ },
+ "guideConsentBody": {
+  "message": "Yapay zekâya bir şey gitmeden önce ContextFlow bir kez sorar. Özetinizi almak için kabul edin."
+ },
+ "guideAnswerTitle": {
+  "message": "İşte özetiniz"
+ },
+ "guideAnswerBody": {
+  "message": "Okumak için kaydırın. İstediğiniz zaman aşağıdaki kutuya ek bir soru yazabilirsiniz."
+ },
+ "guideSelectTitle": {
+  "message": "Şimdi bir bölümü hakkında sorun"
+ },
+ "guideSelectBodyTouch": {
+  "message": "Sayfada bir kelimeye uzun basın, tutamaçları sürükleyerek birkaç satır seçin, ardından “{0}” öğesine dokunun."
+ },
+ "guideSelectBodyMouse": {
+  "message": "Sayfada birkaç satır seçin, ardından “{0}” öğesine tıklayın."
+ },
+ "guideSelectGo": {
+  "message": "Dene"
+ },
+ "guidePickTouch": {
+  "message": "Sayfada bir kelimeye uzun basın"
+ },
+ "guidePickMouse": {
+  "message": "Sayfada birkaç satır seçin"
+ },
+ "guideTapAskTouch": {
+  "message": "Seçtiğiniz kısım hakkında sormak için “{0}” öğesine dokunun."
+ },
+ "guideTapAskMouse": {
+  "message": "Seçtiğiniz kısım hakkında sormak için “{0}” öğesine tıklayın."
+ },
+ "guideAskSelTitle": {
+  "message": "Seçiminiz hakkında sorun"
+ },
+ "guideAskSelBody": {
+  "message": "“{0}” gibi hızlı bir işlem seçin veya kendi sorunuzu yazın."
+ },
+ "uxShowIntro": {
+  "message": "Tanıtım turunu tekrarla"
+ },
+ "uxOther": {
+  "message": "Diğer…"
+ },
+ "uxRate": {
+  "message": "App Store'da değerlendir"
+ },
+ "tipClipNeedsApp": {
+  "message": "Bu videoyu görmek için ContextFlow uygulamasını bir kez açın."
+ },
+ "busyWorking": {
+  "message": "Hazırlanıyor…"
+ },
+ "busyNew": {
+  "message": "Yeni yanıt hazır"
+ },
+ "ptMenu": {
+  "message": "{0} planında neler var"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: videolar ve PDF'ler"
+ },
+ "ptProMediaBody": {
+  "message": "Video veya PDF içeren bir sayfada ContextFlow artık bunları da okur: videonun altyazılarını ve PDF metnini. Sormanız yeterli."
+ },
+ "ptProFindTitle": {
+  "message": "Sohbetlerinizde yapay zekâ ile arama"
+ },
+ "ptProFindBody": {
+  "message": "Aramanın yanındaki ✦ simgesini açın ve hatırladığınız sohbeti anlatın; tam kelimelerini bilmeniz gerekmez."
+ },
+ "ptProAskTitle": {
+  "message": "Tüm sohbetlerinize sorun"
+ },
+ "ptProAskBody": {
+  "message": "“{0}”, okuduğunuz ve sorduğunuz her şeyden yanıt verir: “Bu hafta ne okudum?”"
+ },
+ "ptProSortTitle": {
+  "message": "Konulara göre düzenli"
+ },
+ "ptProSortBody": {
+  "message": "Bir yanıttan sonra altında çıkan satır, sohbet için bir etiket veya klasör önerir. Tek dokunuşla yerleştirilir ve bunu geri alabilirsiniz."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Şablonlar"
+ },
+ "ptProTemplatesBody": {
+  "message": "Metni seçip saklamak için “{0}” öğesine dokunun, ardından herhangi bir alana yapıştırın. Gerektiği kadar saklayabilirsiniz."
+ },
+ "ptProWatchTitle": {
+  "message": "20 sayfaya kadar takip"
+ },
+ "ptProWatchBody": {
+  "message": "“…” menüsündeki “{0}”, sayfa değiştiğinde size haber verir: bir fiyat, bir tarih, yeni bir gönderi."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: dinleyin"
+ },
+ "ptUltraListenBody": {
+  "message": "Bir yanıtın altındaki “{0}” öğesine veya “…” menüsündeki “{1}” öğesine dokunun: metin dinlemeye uygun biçimde yeniden yazılır ve sesli okunur."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Baktığınız şeye gerçek alternatifler; her bağlantı açılıp kontrol edilir. Buradaki veya “…” menüsündeki “{0}” öğesine dokunun ya da metin seçip “{1}” öğesine dokunun."
+ },
+ "ptUltraWatchTitle": {
+  "message": "50 sayfaya kadar takip"
+ },
+ "ptUltraWatchBody": {
+  "message": "“…” menüsündeki “{0}” artık aynı anda 50 sayfaya kadar takip edebilir."
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow hazır"
+ },
+ "welcomeBody": {
+  "message": "Herhangi bir web sitesini açın ve ✦ düğmesine ya da araç çubuğundaki ContextFlow simgesine dokunun. Yalnızca belli bir kısım hakkında sormak için metni seçin."
+ },
+ "welcomeRestricted": {
+  "message": "Safari, uzantıların bu sayfayı okumasına izin vermiyor. ContextFlow'u kullanmak için normal bir web sitesi açın."
+ },
+ "welcomePermission": {
+  "message": "Hiçbir şey olmuyorsa ContextFlow'a tüm web sitelerinde izin verin: Safari → Uzantılar → ContextFlow → Tüm Web Siteleri → İzin Ver."
+ },
+ "shareNote": {
+  "message": "Not"
+ },
+ "saveNote": {
+  "message": "Notu kaydet"
+ },
+ "selQuestion": {
+  "message": "Sorunuz…"
+ },
+ "selTranslateTo": {
+  "message": "Çevir: {0}"
+ },
+ "selChips": {
+  "message": "Hızlı işlemler"
+ },
+ "selNote": {
+  "message": "Not"
+ },
+ "selNoteTitle": {
+  "message": "Seçimi sohbete not olarak kaydet (yanıt hakkı kullanmaz)"
+ },
+ "selNoteSaved": {
+  "message": "Sohbete kaydedildi"
+ },
+ "selNoteOpen": {
+  "message": "Aç"
+ },
+ "selHint": {
+  "message": "Yeni: Seçimle ilgili kendi sorunuzu buraya yazın veya seçimi sohbete not olarak kaydedin — notlar yanıt hakkı kullanmaz."
+ },
+ "noteQuote": {
+  "message": "“{0}”"
+ },
+ "placeholderNote": {
+  "message": "Bir not yazın — bu sohbette kalır"
+ },
+ "noteHintTouch": {
+  "message": "Not yazmak için düğmeyi yukarı veya aşağı kaydırın"
+ },
+ "noteHintMouse": {
+  "message": "Not yazmak için düğmenin üzerinde kaydırma yapın"
+ },
+ "wholeChat": {
+  "message": "Tüm sohbet"
+ },
+ "wholeChatHint": {
+  "message": "Yanıtlar tüm sohbeti dikkate alır: her mesajı, notlarınızı ve bu sohbetin sayfalarını. Kapalıyken: son mesajlar ve açık sayfa."
+ },
+ "openPage": {
+  "message": "Bu sayfayı aç"
+ },
+ "usageFreeShort": {
+  "message": "Bugün kalan: {0}/{1}"
+ },
+ "usageProShort": {
+  "message": "Pro · bu hafta {0}/{1}"
+ },
+ "usageUltraShort": {
+  "message": "Ultra · bu hafta {0}/{1}"
+ },
+ "pinChat": {
+  "message": "Sohbeti sabitle"
+ },
+ "unpinChat": {
+  "message": "Sabitlemeyi kaldır"
+ },
+ "reorderChat": {
+  "message": "Sıralamak için sürükleyin"
+ },
+ "chatPages": {
+  "message": "Bu sohbetteki sayfalar"
+ },
+ "chatNotes": {
+  "message": "Bu sohbetteki notlarınız"
+ },
+ "chatWatches": {
+  "message": "Bu sohbette takip edilen sayfalar: {0}"
+ },
+ "chatReminder": {
+  "message": "Bu sohbette bir hatırlatıcı kurulu"
+ },
+ "pages_one": {
+  "message": "{0} sayfa"
+ },
+ "pages_few": {
+  "message": "{0} sayfa"
+ },
+ "pages_many": {
+  "message": "{0} sayfa"
+ },
+ "pages_other": {
+  "message": "{0} sayfa"
+ },
+ "cancel": {
+  "message": "Vazgeç"
+ },
+ "pickCount": {
+  "message": "{0}/{1}"
+ },
+ "pickHint": {
+  "message": "Paylaşmak için mesajlara dokunun"
+ },
+ "pickAll": {
+  "message": "Tümünü seç"
+ },
+ "pickNone": {
+  "message": "Seçimi kaldır"
+ },
+ "limitFreeBack_one": {
+  "message": "Saat {1} itibarıyla, {2} sonra {0} yeni ücretsiz yanıt hakkınız olacak."
+ },
+ "limitFreeBack_two": {
+  "message": "Saat {1} itibarıyla, {2} sonra {0} yeni ücretsiz yanıt hakkınız olacak."
+ },
+ "limitFreeBack_few": {
+  "message": "Saat {1} itibarıyla, {2} sonra {0} yeni ücretsiz yanıt hakkınız olacak."
+ },
+ "limitFreeBack_many": {
+  "message": "Saat {1} itibarıyla, {2} sonra {0} yeni ücretsiz yanıt hakkınız olacak."
+ },
+ "limitFreeBack_other": {
+  "message": "Saat {1} itibarıyla, {2} sonra {0} yeni ücretsiz yanıt hakkınız olacak."
+ },
+ "limitFreePro": {
+  "message": "Pro size haftada {0} yanıta kadar, sayfadaki videoları ve PDF'leri, yapay zekâ ile aramayı ve tüm sohbetlerinizde soru sormayı sunar."
+ },
+ "limitNotes": {
+  "message": "Notlar ücretsiz ve sınırsız: önemli olanı şimdi yazın, yapay zekâya sonra sorun."
+ },
+ "writeNote": {
+  "message": "Not yaz"
+ },
+ "errProvider": {
+  "message": "Yapay zekâ sağlayıcınızın yanıtı: {0}"
+ },
+ "offerLimit": {
+  "message": "Ya da ilk ayda %{0} indirimle Pro'ya geçin: haftada {1} yanıta kadar, daha derin ve daha ayrıntılı. İstediğiniz zaman iptal edebilirsiniz."
+ },
+ "offerButton": {
+  "message": "%{0} indirimle Pro'ya geç"
+ },
+ "offerShort": {
+  "message": "Pro −%{0}"
+ },
+ "offerCardTitle": {
+  "message": "Yanıtlarınız tükeniyor mu?"
+ },
+ "offerCardBody": {
+  "message": "Günlük ücretsiz sınıra daha önce de ulaştınız. Pro ile haftada {1} yanıta kadar, daha derin ve ayrıntılı yanıtlar alırsınız; ilk ayınız da %{0} indirimli. Sonrasında normal fiyat geçerlidir; App Store ayarlarınızdan istediğiniz zaman iptal edebilirsiniz."
+ },
+ "offerLater": {
+  "message": "Şimdi değil"
+ },
+ "emptyVideo": {
+  "message": "Bu videoyu görüyorum ve transkriptini okuyacağım. Bir soru sorun veya bir işlem seçin."
+ },
+ "emptyPdf": {
+  "message": "Bu PDF'i görüyorum. Bir soru sorun veya bir işlem seçin."
+ },
+ "readingVideo": {
+  "message": "Video transkripti okunuyor…"
+ },
+ "readingPdf": {
+  "message": "PDF okunuyor…"
+ },
+ "usedVideo": {
+  "message": "Video transkripti · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} sayfa"
+ },
+ "videoNoTranscript": {
+  "message": "Bu videonun altyazısı yok: yanıt, başlığına ve açıklamasına dayanıyor."
+ },
+ "videoFailed": {
+  "message": "Bu videonun transkripti alınamadı: yanıt, başlığına ve açıklamasına dayanıyor."
+ },
+ "pdfNoText": {
+  "message": "“{0}” içinde okunacak metin yok (taranmış sayfalar): yanıt bu dosya olmadan hazırlandı."
+ },
+ "pdfFailed": {
+  "message": "“{0}” adlı PDF okunamadı: yanıt bu dosya olmadan hazırlandı."
+ },
+ "searchChats": {
+  "message": "Sohbetlerde ara"
+ },
+ "searchNone": {
+  "message": "“{0}” için sohbet bulunamadı"
+ },
+ "searchClear": {
+  "message": "Aramayı temizle"
+ },
+ "askHistory": {
+  "message": "Sohbetlerinize sorun"
+ },
+ "askHistoryHint": {
+  "message": "Okuduğunuz ve sorduğunuz her şey hakkında sorular"
+ },
+ "askHistoryEmpty": {
+  "message": "ContextFlow ile okuduğunuz ve sorduğunuz her şey hakkında, tüm sohbetlerinizi kapsayan sorular sorun."
+ },
+ "askHistoryEx1": {
+  "message": "Bu hafta ne okudum?"
+ },
+ "askHistoryEx2": {
+  "message": "Notlarımı özetle"
+ },
+ "askHistoryEx3": {
+  "message": "Yapay zekâ hakkında neler öğrendim?"
+ },
+ "placeholderHistory": {
+  "message": "Sohbetleriniz hakkında sorun…"
+ },
+ "findToggle": {
+  "message": "Yapay zekâ ile arama"
+ },
+ "findToggleLocked": {
+  "message": "Yapay zekâ ile arama — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Aradığınız sohbeti tarif edin…"
+ },
+ "findHint": {
+  "message": "Hatırladığınızı istediğiniz kelimelerle anlatın ve Enter tuşuna basın: “geçen haftaki uyku ve kahve makalesi”."
+ },
+ "findBusy": {
+  "message": "Sohbetleriniz aranıyor…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Her sohbeti hatırladıklarınızla bulun"
+ },
+ "upsellHistoryTitle": {
+  "message": "Okuduğunuz her şeyi sorun"
+ },
+ "upsellFindName": {
+  "message": "Yapay zekâ ile arama"
+ },
+ "upsellFindText": {
+  "message": "Bir sohbeti kendi kelimelerinizle tarif edin — “geçen haftaki uyku ve kahve makalesi” — yapay zekâ, tam kelimeler olmasa bile onu bulur."
+ },
+ "upsellHistoryName": {
+  "message": "Sohbetlerinize sorun"
+ },
+ "upsellHistoryText": {
+  "message": "Tüm sohbetlerinizi kapsayan sorular: “Emeklilik birikimi hakkında ne okudum?”, “Bu ayki notlarımı özetle”."
+ },
+ "upsellMore": {
+  "message": "Ayrıca sayfadaki videolar ve PDF'ler; iPhone, iPad ve Mac'te haftada en fazla 375 daha derin ve ayrıntılı yanıt."
+ },
+ "errProOnly": {
+  "message": "Bu özellik Pro'ya dahil."
+ },
+ "tagsTitle": {
+  "message": "Etiketler"
+ },
+ "tagsNew": {
+  "message": "Yeni etiket…"
+ },
+ "tagsAdd": {
+  "message": "Etiket ekle"
+ },
+ "tagsDone": {
+  "message": "Bitti"
+ },
+ "tagsFilter": {
+  "message": "Etikete göre filtrele"
+ },
+ "tagsGroup": {
+  "message": "Klasörler"
+ },
+ "tagsEdit": {
+  "message": "Etiketler"
+ },
+ "tagsNone": {
+  "message": "Etiketsiz"
+ },
+ "tagsButton": {
+  "message": "Etiket"
+ },
+ "qiTitle": {
+  "message": "Hızlı ekleme"
+ },
+ "qiButton": {
+  "message": "Hızlı ekleme: kopyalanan metin, şablonlar, sohbetten yanıtlar"
+ },
+ "qiCommand": {
+  "message": "İmleç konumuna hızlı ekleme"
+ },
+ "qiSearch": {
+  "message": "Şablon bul"
+ },
+ "qiNewTemplate": {
+  "message": "Yeni şablon"
+ },
+ "qiEditTemplate": {
+  "message": "Şablon"
+ },
+ "qiCopied": {
+  "message": "Kopyalananlar"
+ },
+ "qiClear": {
+  "message": "Temizle"
+ },
+ "qiCopiedOff": {
+  "message": "Kopyalananlar kapalı. Aşağıdan açın."
+ },
+ "qiCopiedEmpty": {
+  "message": "Safari'de herhangi bir sayfada metin kopyalayın, burada görünür."
+ },
+ "qiNothing": {
+  "message": "Sonuç yok"
+ },
+ "qiToTemplate": {
+  "message": "Şablon yap"
+ },
+ "qiTemplates": {
+  "message": "Şablonlar"
+ },
+ "qiTemplatesTitle": {
+  "message": "Şablonlar"
+ },
+ "qiAllTemplates": {
+  "message": "Tüm şablonlar"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Henüz şablon yok. + simgesine dokunun ya da sık gönderdiğiniz bir yanıtı seçip Şablon'a dokunun."
+ },
+ "qiTemplatesIntro": {
+  "message": "Tekrar tekrar yazdığınız yanıtları kaydedin. Ad veya tarih gibi değişen yerleri işaretlerim ve bunları sayfadan doldurabilirim."
+ },
+ "qiFindAi": {
+  "message": "Anlama göre bul"
+ },
+ "qiFinding": {
+  "message": "Aranıyor…"
+ },
+ "qiFromCf": {
+  "message": "Sohbetten"
+ },
+ "qiLastAnswer": {
+  "message": "Son yanıt"
+ },
+ "qiLastNote": {
+  "message": "Son not"
+ },
+ "qiKeepCopied": {
+  "message": "Kopyalananları sakla"
+ },
+ "qiPrivacy": {
+  "message": "Kopyalanan metin bu {0} üzerinde kalır ve 24 saat sonra silinir."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "cihaz"
+ },
+ "qiHideButtonOnSite": {
+  "message": "{0} sitesinde düğmeyi gizle"
+ },
+ "qiDontKeepOnSite": {
+  "message": "{0} sitesinde saklanmasın"
+ },
+ "qiKeepOnSite": {
+  "message": "{0} sitesinde yeniden saklansın"
+ },
+ "qiTip": {
+  "message": "Yeni: diğer sekmelerde kopyaladıklarınızı, bir şablonu ya da yanıtımı eklemek için dokunun."
+ },
+ "qiKeyInsert": {
+  "message": "ekle"
+ },
+ "qiKeyChoose": {
+  "message": "seç"
+ },
+ "qiKeyClose": {
+  "message": "kapat"
+ },
+ "qiBlanksMark": {
+  "message": "boşluklar"
+ },
+ "qiBlanksCount": {
+  "message": "Boşluk: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Kopyalandı. Alana kendiniz yapıştırın."
+ },
+ "qiInsert": {
+  "message": "Ekle"
+ },
+ "qiInsertIntoField": {
+  "message": "Alana ekle"
+ },
+ "qiFillFromPage": {
+  "message": "Sayfadan doldur"
+ },
+ "qiFillAgain": {
+  "message": "Yeniden doldur"
+ },
+ "qiFilling": {
+  "message": "Dolduruluyor…"
+ },
+ "qiFillHint": {
+  "message": "Boşlukları kendiniz yazın, Kopyalananlar'dan seçin ya da ben sayfadan doldurayım."
+ },
+ "qiFillDone": {
+  "message": "Vurgulananlar sayfadan alındı. Göndermeden önce kontrol edin."
+ },
+ "qiFillPartly": {
+  "message": "Vurgulananlar sayfadan alındı. Boş kalan yer için bilgi bulunamadı: kendiniz doldurun."
+ },
+ "qiFillLeft": {
+  "message": "Bugün kalan doldurma: {0}."
+ },
+ "qiFillLimit": {
+  "message": "Bugünkü ücretsiz doldurma hakkınız bitti. Pro'da sınır yok; boşlukları yine de elle doldurabilirsiniz."
+ },
+ "qiFillByHand": {
+  "message": "Elle doldur"
+ },
+ "qiPickCopied": {
+  "message": "“{0}” için kopyalananlar"
+ },
+ "qiAdapt": {
+  "message": "Sayfaya göre yeniden yaz"
+ },
+ "qiAdaptChat": {
+  "message": "Yazışmaya göre yeniden yaz"
+ },
+ "qiAdaptHint": {
+  "message": "“Sayfadan doldur” yalnızca boşlukları doldurur. “Yeniden yaz” tüm metni yapay zekâ ile değiştirir ve panelde gösterir."
+ },
+ "qiAdaptLabel": {
+  "message": "Şablonu bu sayfaya göre yeniden yaz"
+ },
+ "qiAdaptPrompt": {
+  "message": "Bu şablonu, bulunduğum sayfaya uyan bir yanıt olarak yeniden yaz. Anlamını, tonunu ve uzunluğunu koru; sayfadan öğrendiklerini doldur, gerisini olduğu gibi bırak. Yalnızca yanıtın kendisini yaz.\n\nŞablon:\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "Yanıt verdiğim yazışma bu. Yanıtı buradaki kişiye yaz:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Şablon"
+ },
+ "qiTemplateTitle": {
+  "message": "Başlık"
+ },
+ "qiTemplateText": {
+  "message": "Metin. Boşlukları süslü parantez içine yazın, örneğin {Ad}."
+ },
+ "qiMakeBlank": {
+  "message": "Boşluk"
+ },
+ "qiBlankDefault": {
+  "message": "Boşluk"
+ },
+ "qiUnmark": {
+  "message": "yeniden düz metin yap"
+ },
+ "qiMarking": {
+  "message": "Değişen yerleri işaretliyorum…"
+ },
+ "qiMarkAi": {
+  "message": "Boşlukları işaretle"
+ },
+ "qiMarkedHint": {
+  "message": "Boşluklar işaretlendi. Düz metne çevirmek için birine dokunun."
+ },
+ "qiMarkedNone": {
+  "message": "Burada değişecek bir şey görünmüyor. Boşluk eklemek için bir kelime seçip Boşluk'a dokunun."
+ },
+ "qiMarkFailed": {
+  "message": "Boşluklar şu an işaretlenemedi. Şablon düz metin olarak kaydedildi; boşlukları elle ekleyebilirsiniz."
+ },
+ "qiBlankHint": {
+  "message": "Boşluklar, şablon eklenirken doldurulur."
+ },
+ "qiKeywords": {
+  "message": "Arama kelimeleri, virgülle ayrılmış"
+ },
+ "qiSave": {
+  "message": "Kaydet"
+ },
+ "qiDelete": {
+  "message": "Sil"
+ },
+ "qiSetButton": {
+  "message": "Metin alanlarının yanında düğme"
+ },
+ "qiSetCopiedHint": {
+  "message": "Sayfalarda kopyalanan son 5 metin. Bu cihazda kalır ve 24 saat sonra silinir. Parola ve kart alanlarındakiler ya da Özel Dolaşma'da kopyalananlar alınmaz."
+ },
+ "qiClearCopied": {
+  "message": "Kopyalananları temizle"
+ },
+ "qiCleared": {
+  "message": "Temizlendi"
+ },
+ "qiSetSign": {
+  "message": "Alandaki işaret"
+ },
+ "qiSetSignHint": {
+  "message": "Herhangi bir alana {0} ve bir şablondan birkaç kelime yazın."
+ },
+ "qiSetShortcut": {
+  "message": "Mac'te veya klavyeli iPad'de ⌃⇧V listeyi açar."
+ },
+ "hintGot": {
+  "message": "Anladım"
+ },
+ "hintChatsTitle": {
+  "message": "Bul, düzenle, geri dön"
+ },
+ "hintChatsBody": {
+  "message": "Kelimelerle veya #etiket ile arayın. Sohbetleri ve yanıtları 🏷 ile etiketleyin, gruplamak için Klasörler'i açın. Pro'da ✦ bir sohbeti tarifinizden bulur, “Sohbetlerinize sorun” ise hepsinden yanıt verir."
+ },
+ "hintVideoTitle": {
+  "message": "Bu sayfada bir video var"
+ },
+ "hintVideoBody": {
+  "message": "Yanıtlar videonun transkriptini kullanır ve [4:15] gibi anlara işaret eder. Altyazı yoksa başlığı ve açıklamayı kullanır ve bunu belirtir."
+ },
+ "hintPdfTitle": {
+  "message": "PDF'ler de okunur"
+ },
+ "hintPdfBody": {
+  "message": "Bu sayfada gösterilen veya bağlantısı verilen PDF'ler sorunuzla birlikte gider; yanıtlar bilginin hangi sayfada olduğunu belirtir."
+ },
+ "proSkipVideo": {
+  "message": "Bu sayfadaki video atlandı — Pro videoları okur"
+ },
+ "proSkipPdf": {
+  "message": "Bu sayfadaki PDF'ler atlandı — Pro bunları okur"
+ },
+ "proSkipBoth": {
+  "message": "Bu sayfadaki video ve PDF atlandı — Pro bunları okur"
+ },
+ "tryPro": {
+  "message": "Pro'yu dene"
+ },
+ "emptyVideoFree": {
+  "message": "Bu sayfada bir video var. Pro yanıtları videonun transkriptini kullanır; ücretsiz yanıtlar sayfada görünenleri (başlık, açıklama) kullanır."
+ },
+ "emptyPdfFree": {
+  "message": "Bu sayfada bir PDF var. Pro yanıtları onu okur; ücretsiz yanıtlar sayfanın metnini kullanır."
+ },
+ "hintVideoBodyFree": {
+  "message": "Pro'da yanıtlar videonun transkriptini kullanır ve [4:15] gibi anlara işaret eder. Ücretsiz yanıtlar başlığı ve açıklamayı kullanır."
+ },
+ "hintPdfTitleFree": {
+  "message": "Bu sayfada PDF'ler var"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro, bu sayfada gösterilen veya bağlantısı verilen PDF'leri okur ve yanıtın hangi sayfadan geldiğini belirtir. Ücretsiz yanıtlar sayfanın metnini kullanır."
+ },
+ "renewalTitle": {
+  "message": "Pro {0} tarihinde sona eriyor"
+ },
+ "renewalBody": {
+  "message": "Otomatik yenileme kapalı. Neyi eksik buldunuz?"
+ },
+ "renewalPrice": {
+  "message": "Çok pahalı"
+ },
+ "renewalRarely": {
+  "message": "Yeterince kullanmıyorum"
+ },
+ "renewalAnswers": {
+  "message": "Yanıtlar yeterince iyi değildi"
+ },
+ "renewalFeatures": {
+  "message": "İhtiyacım olan bir özellik yok"
+ },
+ "renewalFreeEnough": {
+  "message": "Ücretsiz plan yeterli"
+ },
+ "renewalOther": {
+  "message": "Başka bir şey"
+ },
+ "renewalThanks": {
+  "message": "Teşekkürler — bu, ContextFlow'u geliştirmemize yardımcı olur."
+ },
+ "planEnds": {
+  "message": "{0} tarihinde sona eriyor: otomatik yenileme kapalı"
+ },
+ "upgradePro": {
+  "message": "Pro'ya geç"
+ },
+ "upgradeProOff": {
+  "message": "%{0} indirimle geç"
+ },
+ "byokLimitTitle": {
+  "message": "ContextFlow üzerinden bugünkü yanıt hakkınız doldu"
+ },
+ "byokLimitNoKey": {
+  "message": "Kendi anahtarınızı henüz eklemediniz, bu yüzden yanıtlar ContextFlow üzerinden geliyor: günde {0}. Anahtarınızı Ayarlar'da ekleyin ya da Pro'ya geçin: haftada en fazla {1} yanıt, anahtar gerekmez."
+ },
+ "byokLimitGoogle": {
+  "message": "Own key planında Google yanıtları ContextFlow üzerinden gelir: günde {0}. Pro ile haftada en fazla {1} yanıt alırsınız."
+ },
+ "byokSearch": {
+  "message": "Own key planında Google araması günde {0} ile sınırlı. Pro ile haftada {1} arama yapabilirsiniz."
+ },
+ "byokProOnly": {
+  "message": "Own key planına dahil değil."
+ },
+ "byokOfferTitle": {
+  "message": "%{0} indirimle Pro'ya geçin"
+ },
+ "byokOfferBody": {
+  "message": "Pro, anahtarınız olmadan yanıt verir: haftada en fazla {0} yanıt, haftada {1} Google araması, “Sohbetlerinize sorun” ve yapay zekâ ile arama. App Store, ödeme yapmadan önce fiyatı ve indirimin ne kadar süreceğini gösterir. Pro hemen başlar ve mevcut planınızın kullanılmayan kısmı iade edilir."
+ },
+ "orgSuggested": {
+  "message": "Öneri"
+ },
+ "orgTagA11y": {
+  "message": "Önerilen etiket “{0}”. Ekle"
+ },
+ "orgNoA11y": {
+  "message": "Reddet"
+ },
+ "orgCountOne": {
+  "message": "{0} mesaj"
+ },
+ "orgCountFew": {
+  "message": "{0} mesaj"
+ },
+ "orgCountMany": {
+  "message": "{0} mesaj"
+ },
+ "orgCountOther": {
+  "message": "{0} mesaj"
+ },
+ "orgMoveTo": {
+  "message": "{0} “{1}” sohbetine"
+ },
+ "orgSplit": {
+  "message": "Yeni sohbete: “{0}”"
+ },
+ "orgMoveA11y": {
+  "message": "“{1}” sohbetine taşı: {0}"
+ },
+ "orgSplitA11y": {
+  "message": "Bu mesajları yeni bir sohbete taşı: “{0}”"
+ },
+ "orgMoved": {
+  "message": "“{0}” sohbetine taşındı"
+ },
+ "orgUndo": {
+  "message": "Geri al"
+ },
+ "orgOpen": {
+  "message": "Aç"
+ },
+ "orgFirstWin": {
+  "message": "Tamam. Artık kendiliğimden öneride bulunacağım."
+ },
+ "orgNameChat": {
+  "message": "Konuya göre adlandır"
+ },
+ "orgNamed": {
+  "message": "Yeni ad: “{0}”"
+ },
+ "orgNameFailed": {
+  "message": "Bu sohbete şu an ad veremedim. Daha sonra tekrar deneyin."
+ },
+ "orgNameAs": {
+  "message": "“{0}” olarak adlandır"
+ },
+ "orgMatch": {
+  "message": "%{0} eşleşme"
+ },
+ "orgMatchTopic": {
+  "message": "aynı konu, %{0} eşleşme"
+ },
+ "orgMergeInto": {
+  "message": "“{0}” ile birleştir"
+ },
+ "orgMergeA11y": {
+  "message": "Bu sohbeti “{0}” ile birleştir"
+ },
+ "orgMerged": {
+  "message": "“{0}” ile birleştirildi"
+ },
+ "orgMergeHere": {
+  "message": "“{0}” sohbetini buraya al"
+ },
+ "orgMergeHereA11y": {
+  "message": "Daha eski “{0}” sohbetini bununla birleştir"
+ },
+ "orgMergedHere": {
+  "message": "“{0}” sohbeti buraya alındı"
+ },
+ "orgBarOne": {
+  "message": "Öneriler · {0}"
+ },
+ "orgBarOf": {
+  "message": "Öneriler · {0}/{1}"
+ },
+ "orgBarA11y": {
+  "message": "Bu sohbetteki öneriler"
+ },
+ "recs_one": {
+  "message": "{0} öneri"
+ },
+ "recs_two": {
+  "message": "{0} öneri"
+ },
+ "recs_few": {
+  "message": "{0} öneri"
+ },
+ "recs_many": {
+  "message": "{0} öneri"
+ },
+ "recs_other": {
+  "message": "{0} öneri"
+ },
+ "orgConsentTitle": {
+  "message": "Sohbetleriniz konuya göre düzenlensin mi?"
+ },
+ "orgConsentText": {
+  "message": "Yeni yanıtların ve notların altında uygun bir sohbet ve etiketlerinizden birini öneririm. Bunu Ayarlar'dan kapatabilirsiniz."
+ },
+ "orgTurnOn": {
+  "message": "Aç"
+ },
+ "orgMessTitle": {
+  "message": "Her şey tek sohbette mi?"
+ },
+ "orgMessText": {
+  "message": "Pro'da neyin nereye gideceğini önerir, etiketleri sizin gibi eklerim."
+ },
+ "orgTagsTitle": {
+  "message": "Sizin gibi etiketleyebilirim"
+ },
+ "orgTagsText": {
+  "message": "Pro'da, etiketleri daha önce nereye eklediğinize bakarak yeni yanıtların ve notların altında etiketlerinizden birini öneririm."
+ },
+ "orgCloseA11y": {
+  "message": "Kapat"
+ },
+ "setOrganize": {
+  "message": "Öneriler: etiketler ve taşıma"
+ },
+ "setOrganizeHint": {
+  "message": "Yeni yanıtların ve notların altında uygun bir sohbet ve etiketiniz. Mesajlarınızın metni sunucumuza ve OpenAI ile Anthropic'e gönderilir. Biz saklamayız; onlar da eğitim için kullanmaz."
+ },
+ "setOrganizePro": {
+  "message": "Pro: ContextFlow, yeni yanıtların ve notların altında uygun bir sohbet ve etiketinizi önerir."
+ },
+ "upsellOrganizeName": {
+  "message": "Konuya göre düzenler"
+ },
+ "upsellOrganizeText": {
+  "message": "Az önce sorduğunuz şey için doğru sohbeti ve ona uygun kendi etiketinizi önerir."
+ },
+ "watchEye": {
+  "message": "Değişimi takip et"
+ },
+ "watchSection": {
+  "message": "Değişince bana haber ver"
+ },
+ "watchWhen": {
+  "message": "Ne zaman haber verilsin"
+ },
+ "watchNoteWords": {
+  "message": "Notunuz (isteğe bağlı)"
+ },
+ "watchCondPrice": {
+  "message": "fiyat değiştiğinde (şu an {0})"
+ },
+ "watchCondBack": {
+  "message": "yeniden stoğa girdiğinde"
+ },
+ "watchCondStock": {
+  "message": "stok durumu değiştiğinde (şu an {0})"
+ },
+ "watchCondDate": {
+  "message": "tarih değiştiğinde (şu an {0})"
+ },
+ "watchCondStatus": {
+  "message": "durum değiştiğinde (şu an {0})"
+ },
+ "watchCondPage": {
+  "message": "sayfada yeni bir şey göründüğünde"
+ },
+ "watchHonest": {
+  "message": "Safari'yi kullandığınız sürece kontrol ederim"
+ },
+ "watchStart": {
+  "message": "Takip et"
+ },
+ "watchSave": {
+  "message": "Kaydet"
+ },
+ "watchTipBell": {
+  "message": "Zil: seçtiğiniz saatte sizi bu sayfaya geri getiririm."
+ },
+ "watchTipWatch": {
+  "message": "Göz: burada bir şey değiştiğinde (fiyat, stok, durum) size haber veririm."
+ },
+ "watchChecking": {
+  "message": "Sayfaya bakıyorum…"
+ },
+ "watchSet": {
+  "message": "Takip ediyorum. Değişince size haber vereceğim."
+ },
+ "watchSetLive": {
+  "message": "Takip ediyorum. Bu site bunu yalnızca sayfayı açtığınızda gösteriyor, ben de o zaman kontrol edeceğim."
+ },
+ "watchNotifyWhy": {
+  "message": "Değiştiğinde size haber verebilmem için bildirimleri açın."
+ },
+ "watchUnreadable": {
+  "message": "Bu site arka planda kontrol etmeme izin vermiyor. Sayfayı açtığınızda kontrol edebilir ya da bakmanızı hatırlatabilirim."
+ },
+ "watchRemindInstead": {
+  "message": "Bakmayı hatırlat"
+ },
+ "watchLiveOk": {
+  "message": "Sayfayı açınca kontrol et"
+ },
+ "watchFull": {
+  "message": "Zaten {0} sayfayı takip ediyorsunuz. Önce “Takip edilenler” listesinden birini durdurun."
+ },
+ "watchFullFree": {
+  "message": "Ücretsiz planda aynı anda {0} sayfayı takip edebilirsiniz. Pro ile en fazla {1} sayfa."
+ },
+ "watchMore": {
+  "message": "Pro'da daha fazla"
+ },
+ "watchFailed": {
+  "message": "Bu işlem yapılamadı. Birazdan tekrar deneyin."
+ },
+ "watchRow": {
+  "message": "Takipte: {0} · son kontrol {1}"
+ },
+ "watchRowNew": {
+  "message": "Takipte: {0}"
+ },
+ "watchRowNow": {
+  "message": "şu an {0}"
+ },
+ "watchRowLive": {
+  "message": "Takipte: {0} · sayfayı açtığınızda kontrol edeceğim"
+ },
+ "watchRowMet": {
+  "message": "Değişti: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Değişti: {0}, şu an {1} · {2}"
+ },
+ "watchStop": {
+  "message": "Takibi durdur"
+ },
+ "watchStopped": {
+  "message": "Takip durduruldu"
+ },
+ "watchLabelPrice": {
+  "message": "Fiyat"
+ },
+ "watchLabelStock": {
+  "message": "Stok durumu"
+ },
+ "watchLabelDate": {
+  "message": "Tarih"
+ },
+ "watchLabelStatus": {
+  "message": "Durum"
+ },
+ "watchLabelPage": {
+  "message": "Sayfa"
+ },
+ "watchInStock": {
+  "message": "stokta"
+ },
+ "watchOutOfStock": {
+  "message": "stokta yok"
+ },
+ "watchChanged": {
+  "message": "Değişti: {0}"
+ },
+ "watchChangedBody": {
+  "message": "Şu an: {0}"
+ },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "Planlar"
+ },
+ "plansCompare": {
+  "message": "Planları karşılaştır"
+ },
+ "plansMonthly": {
+  "message": "Aylık"
+ },
+ "plansYearly": {
+  "message": "Yıllık"
+ },
+ "plansSave": {
+  "message": "%{0} tasarruf"
+ },
+ "plansCurrent": {
+  "message": "Planınız"
+ },
+ "plansUpgrade": {
+  "message": "{0} planına geç"
+ },
+ "plansUpgradeYearly": {
+  "message": "Yıllık plana geç"
+ },
+ "plansChoose": {
+  "message": "{0} planını seç"
+ },
+ "plansPerMonth": {
+  "message": "{0} / ay"
+ },
+ "plansPerYear": {
+  "message": "{0} / yıl"
+ },
+ "plansNote": {
+  "message": "Aboneliğinizi ContextFlow uygulamasında başlatırsınız. Ultra'ya geçiş hemen başlar ve mevcut planınızın kalanını Apple iade eder."
+ },
+ "plansCurrency": {
+  "message": "Fiyatlar, App Store'un gösterdiği gibi {0} cinsinden."
+ },
+ "tierByok1": {
+  "message": "Kendi OpenAI veya Claude API anahtarınızla sınırsız yanıt"
+ },
+ "tierByok2": {
+  "message": "Sayfadaki her şey: özetler, açıklamalar, çeviriler"
+ },
+ "tierPro1": {
+  "message": "Haftada en fazla {0} yanıt, API anahtarı gerekmez"
+ },
+ "tierPro2": {
+  "message": "Videolar ve PDF'ler, yapay zekâ ile arama, Sohbetlerinize sorun, konuya göre düzenleme"
+ },
+ "tierPro3": {
+  "message": "Fiyat düşüşleri ve değişiklikler için en fazla {0} sayfayı takip edin"
+ },
+ "tierUltra0": {
+  "message": "Pro'daki her şey, ayrıca:"
+ },
+ "tierUltra1": {
+  "message": "Yanıtları ve sayfaların tamamını doğal bir sesle dinleyin: haftada {0} dakika"
+ },
+ "tierUltra2": {
+  "message": "Benzerini bul: her sayfaya alternatifler — daha ucuz, daha yeni, stokta veya sizin dilinizde — haftada {0} arama"
+ },
+ "tierUltra3": {
+  "message": "En fazla {0} sayfayı takip edin"
+ },
+ "listen": {
+  "message": "Dinle"
+ },
+ "listenPage": {
+  "message": "Bu sayfayı dinle"
+ },
+ "listenPause": {
+  "message": "Duraklat"
+ },
+ "listenPlay": {
+  "message": "Oynat"
+ },
+ "listenStop": {
+  "message": "Durdur"
+ },
+ "listenClose": {
+  "message": "Durdur ve kapat"
+ },
+ "listenPlayingHere": {
+  "message": "Şu an çalıyor"
+ },
+ "listenVoiced": {
+  "message": "Zaten seslendirildi: tekrar dinlemek ücretsiz"
+ },
+ "listenMadeLeft": {
+  "message": "Zaten seslendirildi: yalnızca dinlemediğiniz kısım ({0}) düşülür"
+ },
+ "listenGoTo": {
+  "message": "Kaynağına git"
+ },
+ "listenSpeed": {
+  "message": "Hız: {0}. Başka bir hız için dokunun"
+ },
+ "listenLoading": {
+  "message": "Ses hazırlanıyor…"
+ },
+ "listenUltraTitle": {
+  "message": "Sesli okuma Ultra'ya dahil"
+ },
+ "listenUltraBody": {
+  "message": "Yanıtlar ve sayfaların tamamı, 100'den fazla dilde doğal bir sesle okunur. iPhone'da ekran kilitliyken de çalmaya devam eder."
+ },
+ "listenLimit": {
+  "message": "Bu haftaki {0} dakikalık dinleme süreniz doldu. Süre {1} günü yenilenir."
+ },
+ "listenFailed": {
+  "message": "Bu metin sesli okunamadı. Birazdan tekrar deneyin."
+ },
+ "listenOffline": {
+  "message": "Bağlantı yok: ilk dinleme için internet gerekir."
+ },
+ "listenInApp": {
+  "message": "“Dinle” ContextFlow uygulamasında çalar; böylece ses ekran kilitliyken de, kulaklıkta da devam eder."
+ },
+ "listenLeft": {
+  "message": "Dinleme: bu hafta {1} dakikadan {0} dakika kaldı"
+ },
+ "listenMinLeft": {
+  "message": "{0} dk kaldı"
+ },
+ "listenMinLeftTitle": {
+  "message": "Bu hafta {0} dk dinleme süreniz kaldı"
+ },
+ "listenLow": {
+  "message": "Bu hafta yaklaşık {0} dk dinleme süreniz kaldı, bu metin ise yaklaşık {1} dk sürüyor. Süre bittiği yerde okuma durur."
+ },
+ "listenAnyway": {
+  "message": "Yine de dinle"
+ },
+ "listenAway": {
+  "message": "Dinlemeye ContextFlow'da devam edin — kaldığınız yer: {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "Safari'den çıktığınızda veya ekranı kilitlediğinizde dinlemeye devam etmek için bildirimleri açın. Aksi hâlde “Dinle” uygulamayı açar."
+ },
+ "listenNotifyOn": {
+  "message": "Bildirimleri aç"
+ },
+ "listenNotifyLater": {
+  "message": "Şimdi değil"
+ },
+ "listenTaken": {
+  "message": "ContextFlow uygulamasında çalıyor."
+ },
+ "listenSeek": {
+  "message": "Oynatma konumu"
+ },
+ "watchFullPro": {
+  "message": "Pro'da aynı anda {0} sayfayı takip edebilirsiniz. Ultra ile en fazla {1} sayfa."
+ },
+ "watchMoreUltra": {
+  "message": "Ultra'da daha fazla"
+ },
+ "seeUltra": {
+  "message": "Ultra'yı incele"
+ },
+ "usageUltra": {
+  "message": "Ultra · bu hafta {1} yanıttan {0} kaldı"
+ },
+ "actSimilar": {
+  "message": "Benzerini bul"
+ },
+ "selSimilar": {
+  "message": "Benzerini bul"
+ },
+ "uxSimilar": {
+  "message": "Benzerini bul…"
+ },
+ "similarTitle": {
+  "message": "Benzerini bul"
+ },
+ "similarConditions": {
+  "message": "Koşullar"
+ },
+ "similarCheaper": {
+  "message": "Daha ucuz"
+ },
+ "similarInStock": {
+  "message": "Stokta"
+ },
+ "similarNewer": {
+  "message": "Daha yeni"
+ },
+ "similarFree": {
+  "message": "Ücretsiz"
+ },
+ "similarMyLanguage": {
+  "message": "Kendi dilimde"
+ },
+ "similarShorter": {
+  "message": "Daha kısa"
+ },
+ "similarInLanguage": {
+  "message": "dili {0}"
+ },
+ "similarCustom": {
+  "message": "Ya da ne istediğinizi yazın (isteğe bağlı)"
+ },
+ "similarHint": {
+  "message": "Şu anda gerçekten var olan alternatifler. Her bağlantıyı siz görmeden önce açıp kontrol ediyoruz."
+ },
+ "similarFind": {
+  "message": "Bul"
+ },
+ "similarAsked": {
+  "message": "Benzerini bul"
+ },
+ "similarAskedWith": {
+  "message": "Benzerini bul: {0}"
+ },
+ "similarStockIn": {
+  "message": "Stokta"
+ },
+ "similarStockOut": {
+  "message": "Stokta yok"
+ },
+ "similarFromList": {
+  "message": "bir incelemede geçiyor"
+ },
+ "similarNotConfirmed": {
+  "message": "Doğrulanmadı"
+ },
+ "similarNotOpened": {
+  "message": "Kontrol için sayfa açılamadı"
+ },
+ "similarWatchPrice": {
+  "message": "Fiyatı takip et"
+ },
+ "similarStepPlan": {
+  "message": "Sayfa okunuyor…"
+ },
+ "similarStepSearch": {
+  "message": "Web'de aranıyor…"
+ },
+ "similarStepCheck": {
+  "message": "Sayfalar kontrol ediliyor…"
+ },
+ "similarStepCheckN": {
+  "message": "{0} sayfa kontrol ediliyor…"
+ },
+ "similarStepWrite": {
+  "message": "En iyiler seçiliyor…"
+ },
+ "similarNone": {
+  "message": "Bu sayfa için kontrol edilmiş alternatif bulunamadı. Başka bir koşul deneyin ya da koşulsuz arayın."
+ },
+ "similarChecked": {
+  "message": "Bağlantı kontrolü: {0}"
+ },
+ "similarUpsellText": {
+  "message": "Baktığınız her şeye gerçek alternatifler — bir ürün, uygulama, makale, tarif ya da mekân."
+ },
+ "similarUpsellChecked": {
+  "message": "Her bağlantı açılıp kontrol edilir: çalışmayan ya da uydurma sayfa yok."
+ },
+ "similarUpsellConditions": {
+  "message": "Daha ucuz, stokta, daha yeni, ücretsiz, sizin dilinizde — ya da kendi sözlerinizle."
+ },
+ "similarUpsellWatch": {
+  "message": "Fiyat ve stok durumu sayfada göründüğü gibi; “Fiyatı takip et” ile izleyin."
+ },
+ "similarGetUltra": {
+  "message": "Ultra'ya geç"
+ },
+ "similarOff": {
+  "message": "“Benzerini bul” henüz kullanılamıyor."
+ },
+ "similarLimit": {
+  "message": "Bu haftaki {0} “Benzerini bul” aramanız bitti. {1} günü yenilenir."
+ },
+ "similarLightNote": {
+  "message": "Hızlı arama: haftada en fazla {0}."
+ },
+ "similarLightNotePro": {
+  "message": "Hızlı arama: haftada en fazla {0}; her biri {1} yanıt sayılır."
+ },
+ "similarLightFoot": {
+  "message": "Hızlı arama. Ultra daha geniş arar, yorumları okur ve teslimatı kontrol eder."
+ },
+ "similarLightLimit": {
+  "message": "Bu haftaki {0} hızlı aramanız bitti. {1} günü yenilenir. Ultra haftada {2} arama sunar ve daha geniş arar."
+ },
+ "similarAnswersShort": {
+  "message": "Hızlı arama {0} yanıt sayılır; kalan yanıtınız: {1}."
+ },
+ "orgDemoQuestion": {
+  "message": "Mayısta Lizbon'a ucuz uçuş var mı?"
+ },
+ "orgDemoAnswer": {
+  "message": "Mayısta Berlin–Lizbon gidiş-dönüş uçuşlar yaklaşık 90 avrodan başlıyor. En iyisi altı-sekiz hafta önceden bilet almak."
+ },
+ "orgDemoTag": {
+  "message": "tatil"
+ },
+ "orgDemoChat": {
+  "message": "Seyahatler"
+ },
+ "plansYearlySave": {
+  "message": "Yıllık · en fazla %{0} tasarruf"
+ },
+ "plansPerMonthYearly": {
+  "message": "Aylık {0}, yıllık faturalandırılır"
+ },
+ "plansSaveMoney": {
+  "message": "Yılda {0} tasarruf edersiniz"
+ },
+ "yearlyNudge": {
+  "message": "Yıllık {0}: yılda {1} (%{2}) tasarruf edersiniz."
+ },
+ "yearlyNudgeButton": {
+  "message": "Yıllık plana geç"
+ },
+ "yearlyNudgeNote": {
+  "message": "Yıllık plan, mevcut ayınız bittiğinde başlar."
+ },
+ "yearlyNudgeHide": {
+  "message": "Gizle"
+ },
+ "galleryTitle": {
+  "message": "Neler dahil"
+ },
+ "galleryNext": {
+  "message": "Sonraki"
+ },
+ "galleryPrevious": {
+  "message": "Önceki"
+ },
+ "gMediaTitle": {
+  "message": "Videolar ve PDF'ler"
+ },
+ "gMediaLine": {
+  "message": "Yanıtlar videonun transkriptini ve PDF sayfalarını kullanır."
+ },
+ "gMediaVideo": {
+  "message": "Video transkripti · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "3. çeyrek raporu · 3 sayfa"
+ },
+ "gMediaAnswer": {
+  "message": "Gelir üçüncü çeyrekte %12 arttı. Videoda CEO bunu yeni abonelik planlarına bağlıyor."
+ },
+ "gSearchTitle": {
+  "message": "Yapay zekâ ile arama ve “Sohbetlerinize sorun”"
+ },
+ "gSearchLine": {
+  "message": "Bir sohbeti tarif ederek bulun ya da hepsine birden soru sorun."
+ },
+ "gSearchQuery": {
+  "message": "uyku ve kahveyle ilgili o makale"
+ },
+ "gSearchResult": {
+  "message": "Kafein ve uyku"
+ },
+ "gSearchSnippet": {
+  "message": "Saat 14:00'ten sonra içilen kahve derin uykuyu beşte bir azalttı…"
+ },
+ "gSearchWhen": {
+  "message": "Geçen hafta"
+ },
+ "gTemplatesTitle": {
+  "message": "Sınırsız şablon"
+ },
+ "gTemplatesLine": {
+  "message": "Kendi istemleriniz ve hazır yanıtlarınız; adlar ve tarihler sayfadan doldurulur."
+ },
+ "gTemplatesName": {
+  "message": "Görüşme sonrası mesaj"
+ },
+ "gTemplatesBody": {
+  "message": "Merhaba {0}, {1} günkü görüşme için teşekkürler. Söz verdiğim gibi sonraki adımları aşağıda paylaşıyorum."
+ },
+ "gTemplatesPerson": {
+  "message": "Anna"
+ },
+ "gTemplatesDay": {
+  "message": "salı"
+ },
+ "gWatchTitle": {
+  "message": "{0} sayfayı takip edin"
+ },
+ "gWatchLine": {
+  "message": "Fiyat düştüğünde ya da sayfa değiştiğinde haberiniz olsun."
+ },
+ "gWatchChanged": {
+  "message": "Değişti: Fiyat"
+ },
+ "gWatchNow": {
+  "message": "Şimdi: {0} (önceden {1})"
+ },
+ "gWatchManyLine": {
+  "message": "Aynı anda en fazla {0} sayfada fiyat, stok ve değişiklikler."
+ },
+ "gWatchItem1": {
+  "message": "Kulaklık"
+ },
+ "gWatchItem2": {
+  "message": "Lizbon uçuşu"
+ },
+ "gWatchMore": {
+  "message": "ve {0} sayfa daha"
+ },
+ "gAnswersTitle": {
+  "message": "Haftada en fazla {0} yanıt"
+ },
+ "gAnswersLine": {
+  "message": "Günde {0} yanıt yerine daha derin, daha ayrıntılı yanıtlar."
+ },
+ "gAnswersWeek": {
+  "message": "/ hafta"
+ },
+ "gAnswersFree": {
+  "message": "Ücretsiz: günde {0}"
+ },
+ "gListenTitle": {
+  "message": "Dinle"
+ },
+ "gListenLine": {
+  "message": "Yanıtlar ve sayfaların tamamı, doğal bir sesle ve istediğiniz hızda sesli okunur."
+ },
+ "gListenSample": {
+  "message": "Elektrikli trenler nasıl enerji tasarrufu sağlar"
+ },
+ "gSimilarTitle": {
+  "message": "Benzerini bul"
+ },
+ "gSimilarLine": {
+  "message": "Her sayfaya alternatifler: daha ucuz, daha yeni, stokta ya da sizin dilinizde."
+ },
+ "gSimilar1": {
+  "message": "Fileli ofis koltuğu"
+ },
+ "gSimilar2": {
+  "message": "Aynı koltuk, 2026 modeli"
+ },
+ "gSimilar3": {
+  "message": "Baş destekli koltuk"
+ },
+ "gSimilarInStock": {
+  "message": "Stokta"
+ },
+ "gSimilarNewer": {
+  "message": "Daha yeni"
+ },
+ "gSimilarCheaper": {
+  "message": "Daha ucuz"
+ },
+ "similarPayFree": {
+  "message": "Ücretsiz, uygulama içi satın alma yok"
+ },
+ "similarPayFreeStart": {
+  "message": "Ücretsiz"
+ },
+ "similarPaySub": {
+  "message": "Abonelik: en düşük {0}"
+ },
+ "similarPayOnce": {
+  "message": "Tek seferlik satın alma: {0}"
+ },
+ "similarPayIap": {
+  "message": "Uygulama içi satın almalar: en düşük {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/hafta"
+ },
+ "similarPerMonth": {
+  "message": "{0}/ay"
+ },
+ "similarPerYear": {
+  "message": "{0}/yıl"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro tüm sohbeti hatırlar"
+ },
+ "offerMemoryBody": {
+  "message": "Ücretsiz bir yanıt, sohbetteki son {0} yanıtı ve notu hatırlar. Pro'da yapay zekâ hepsini hatırlar: her mesajı, notlarınızı ve hakkında soru sorduğunuz sayfaları."
+ },
+ "offerMemoryLong": {
+  "message": "Bu sohbette, ücretsiz bir yanıtın hatırladığı {0} yanıt ve nottan fazlası var. Pro'da yapay zekâ hepsini hatırlar: her mesajı, notlarınızı ve hakkında soru sorduğunuz sayfaları."
+ },
+ "offerRetryAt": {
+  "message": "Yanıtlar saat {0} itibarıyla geri gelir."
+ },
+ "similarWhere": {
+  "message": "Nerede aransın"
+ },
+ "similarWorld": {
+  "message": "Tüm dünyada"
+ },
+ "similarLocal": {
+  "message": "Yakınımda"
+ },
+ "similarLocalIn": {
+  "message": "Yakınımda · {0}"
+ },
+ "similarWhereHint": {
+  "message": "Önce nerede aranacağını seçin."
+ },
+ "similarLess": {
+  "message": "Daha az benzer"
+ },
+ "similarPercent": {
+  "message": "%{0} benzer"
+ },
+ "similarDiffers": {
+  "message": "Farkı: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "Ülkenizin App Store'unda yok"
+ },
+ "similarShipListed": {
+  "message": "Teslimat sayfasında yer alıyor: {0}"
+ },
+ "similarShipUnshown": {
+  "message": "Bu ülkeye teslimat belirtilmemiş: {0}"
+ },
+ "similarRatings": {
+  "message": "{0} değerlendirme"
+ },
+ "similarReviewersSay": {
+  "message": "Yorumlar: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "“Benzerini bul” tamamlandı"
+ },
+ "similarNotifyFound": {
+  "message": "Bulunan seçenek: {0}. Görmek için dokunun."
+ },
+ "similarNotifyNone": {
+  "message": "Uygun bir şey bulunamadı. Koşulu değiştirmek için dokunun."
+ },
+ "similarNotifyFailed": {
+  "message": "Arama tamamlanamadı. Tekrar denemek için dokunun."
+ },
+ "similarSay": {
+  "message": "Kullanıcılar ne diyor:"
+ },
+ "similarPros": {
+  "message": "beğenilen: {0}"
+ },
+ "similarCons": {
+  "message": "beğenilmeyen: {0}"
+ },
+ "similarEstimated": {
+  "message": "açıklamaya göre tahmini"
+ },
+ "similarSame": {
+  "message": "Aynı ürün, başka mağaza"
+ },
+ "similarMisses": {
+  "message": "Seçiminize uymuyor"
+ },
+ "appleTitle": {
+  "message": "Takvim ve Anımsatıcılar"
+ },
+ "appleMenu": {
+  "message": "Takvime veya Anımsatıcılar'a ekle"
+ },
+ "appleReading": {
+  "message": "Tarih ve saat aranıyor…"
+ },
+ "appleNothing": {
+  "message": "Burada eklenecek bir şey yok: tarih veya görev bulunamadı."
+ },
+ "appleError": {
+  "message": "Tarih okunamadı."
+ },
+ "appleRetry": {
+  "message": "Tekrar dene"
+ },
+ "appleReminder": {
+  "message": "Anımsatıcı"
+ },
+ "appleEvent": {
+  "message": "Etkinlik"
+ },
+ "appleWhat": {
+  "message": "Başlık"
+ },
+ "appleDate": {
+  "message": "Tarih"
+ },
+ "appleTime": {
+  "message": "Saat"
+ },
+ "appleList": {
+  "message": "Liste"
+ },
+ "appleRemindersApp": {
+  "message": "Anımsatıcılar'da"
+ },
+ "appleCalendarPick": {
+  "message": "Takvim: bir sonraki adımda seçeceksiniz"
+ },
+ "appleCalendarDefault": {
+  "message": "Varsayılan takviminiz"
+ },
+ "appleGuess": {
+  "message": "Tarih ve saati kontrol edin: bunlar tahmini."
+ },
+ "applePast": {
+  "message": "Bu saat geçti. Tarihi kontrol edin."
+ },
+ "appleAdd": {
+  "message": "Ekle"
+ },
+ "appleAdded": {
+  "message": "Anımsatıcılar'a eklendi"
+ },
+ "appleAddedEvent": {
+  "message": "Takvime eklendi"
+ },
+ "appleOpening": {
+  "message": "ContextFlow açılıyor…"
+ },
+ "appleDenied": {
+  "message": "ContextFlow'un erişim izni yok. Ayarlar'dan açın."
+ },
+ "appleFailed": {
+  "message": "Eklenemedi. Tekrar deneyin."
+ },
+ "appleAlso": {
+  "message": "Anımsatıcılar'a da ekle"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow'un Anımsatıcılar'a erişim izni yok. Ayarlar'dan açın."
+ },
+ "appleAskOnce": {
+  "message": "İlk seferde ContextFlow, erişim izni istemek için açılır."
+ },
+ "trOffer": {
+  "message": "Türkçeye çevrilsin mi?"
+ },
+ "trOfferTo": {
+  "message": "Şu dile çevrilsin mi: {0}?"
+ },
+ "trHide": {
+  "message": "Bu sitede gizle"
+ },
+ "trWorking": {
+  "message": "Çevriliyor…"
+ },
+ "trOriginal": {
+  "message": "Orijinal"
+ },
+ "trFailed": {
+  "message": "Çevrilemedi"
+ },
+ "spacesTitle": {
+  "message": "Alanlar"
+ },
+ "spaceSwitcher": {
+  "message": "Alan: {0}. Değiştir"
+ },
+ "spaceFirst": {
+  "message": "Kişisel"
+ },
+ "spaceNew": {
+  "message": "Yeni alan"
+ },
+ "spaceEdit": {
+  "message": "“{0}” alanını düzenle"
+ },
+ "spaceName": {
+  "message": "Ad"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Örneğin İş"
+ },
+ "spaceColor": {
+  "message": "Renk"
+ },
+ "spaceColorBlue": {
+  "message": "Mavi"
+ },
+ "spaceColorGreen": {
+  "message": "Yeşil"
+ },
+ "spaceColorOrange": {
+  "message": "Turuncu"
+ },
+ "spaceColorPink": {
+  "message": "Pembe"
+ },
+ "spaceColorViolet": {
+  "message": "Mor"
+ },
+ "spaceColorGraphite": {
+  "message": "Grafit"
+ },
+ "spaceCreate": {
+  "message": "Oluştur"
+ },
+ "spaceDelete": {
+  "message": "Alanı sil"
+ },
+ "spaceDeleteNote": {
+  "message": "Sohbetleri “{0}” alanına taşınır."
+ },
+ "spaceBind": {
+  "message": "{0} sitesini burada aç"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} sitesi “{1}” alanında açılıyor. Burada aç"
+ },
+ "spaceMoveTo": {
+  "message": "Taşı…"
+ },
+ "spaceMoved": {
+  "message": "“{0}” alanına taşındı"
+ },
+ "spaceIn": {
+  "message": "“{0}” alanındasınız"
+ },
+ "spaceLimit": {
+  "message": "Ücretsiz planda alan sayısı: {0}. Pro'da istediğiniz kadar."
+ },
+ "spaceEmpty": {
+  "message": "“{0}” alanında henüz sohbet yok. Yeni sohbetler buraya eklenir."
+ },
+ "setSpaces": {
+  "message": "Alanlar"
+ },
+ "setSpacesHint": {
+  "message": "İş, Kişisel, Alışveriş: her birinin kendi sohbetleri ve rengi var. Kapalıyken tüm sohbetler tek listede olur, alanlarınız silinmez."
+ },
+ "matchContinue": {
+  "message": "Devam ediliyor"
+ },
+ "writeCircle": {
+  "message": "Kontrol et veya yeniden yaz"
+ },
+ "writeCheck": {
+  "message": "Kontrol et"
+ },
+ "writeRewrite": {
+  "message": "Yeniden yaz"
+ },
+ "writeToneShort": {
+  "message": "Daha kısa"
+ },
+ "writeToneWarm": {
+  "message": "Daha samimi"
+ },
+ "writeToneFormal": {
+  "message": "Daha resmi"
+ },
+ "writeToneConfident": {
+  "message": "Daha özgüvenli"
+ },
+ "writeChecking": {
+  "message": "Bu sayfa dikkate alınarak kontrol ediliyor…"
+ },
+ "writeRewriting": {
+  "message": "Bu sayfa dikkate alınarak yeniden yazılıyor…"
+ },
+ "writeFixes": {
+  "message": "Düzeltme: {0}"
+ },
+ "writeLeft": {
+  "message": "Bugün kalan ücretsiz yanıt: {0}"
+ },
+ "writeClean": {
+  "message": "Hata bulunamadı."
+ },
+ "writeEmpty": {
+  "message": "Burada henüz üzerinde çalışılacak metin yok."
+ },
+ "writeTooLong": {
+  "message": "Bir seferde çok fazla. Bir bölümünü seçip tekrar deneyin."
+ },
+ "writeChanged": {
+  "message": "Metin o zamandan beri değişti."
+ },
+ "writeFix": {
+  "message": "Düzelt"
+ },
+ "writeReplace": {
+  "message": "Değiştir"
+ },
+ "writeFixed": {
+  "message": "Düzeltildi"
+ },
+ "writeFixedSome": {
+  "message": "Düzeltildi; alanın kabul etmediği yerler hariç"
+ },
+ "writeReplaced": {
+  "message": "Değiştirildi"
+ },
+ "writeUndo": {
+  "message": "Geri al"
+ },
+ "writeUndone": {
+  "message": "Geri alındı"
+ },
+ "writeUndoFailed": {
+  "message": "Geri alınamadı: metin o zamandan beri değişti."
+ },
+ "writeSetting": {
+  "message": "Alanlarda “Kontrol et” ve “Yeniden yaz”"
+ },
+ "writeSettingHint": {
+  "message": "Düzeltmeler ve yeniden yazımlar sayfayı dikkate alır: yanıtladığınız e-postayı, yorum yaptığınız gönderiyi. Her dokunuş bir yanıt sayılır. Her sitede nasıl yazdığınız bu cihazda kalır ve tarzınızı yakalamaya yardımcı olur."
+ },
+ "writeSkip": {
+  "message": "Yoksay"
+ },
+ "underlineSetting": {
+  "message": "Yazarken hataların altını çiz"
+ },
+ "underlineSettingHint": {
+  "message": "Pro ve Ultra: yazmaya ara verdiğinizde yalnızca değiştirdiğiniz paragraf, sayfa dikkate alınarak kontrol edilir. Düzeltmek için altı çizili yerin üzerine gelin (iPhone ve iPad'de dokunun). Yanıt olarak sayılmaz."
+ },
+ "setSide": {
+  "message": "Ekran tarafı"
+ },
+ "sideRight": {
+  "message": "Sağ"
+ },
+ "sideLeft": {
+  "message": "Sol"
+ },
+ "hintSideTitle": {
+  "message": "Paneli ve ✦ düğmesini diğer kenara sürükleyebilirsiniz"
+ },
+ "hintSideTitleSheet": {
+  "message": "✦ düğmesini diğer kenara sürükleyebilirsiniz"
+ },
+ "hintSideBody": {
+  "message": "Paneli başlığından ya da düğmeyi sürükleyin. Tarafı Ayarlar'dan da seçebilirsiniz."
+ },
+ "hintSideBodySheet": {
+  "message": "Sola veya sağa sürükleyin. Tarafı Ayarlar'dan da seçebilirsiniz."
+ },
+ "hintNewTitle": {
+  "message": "ContextFlow 2.7'deki yenilikler"
+ },
+ "hintNewTranslate": {
+  "message": "Başka dilde bir sayfa: ✦ düğmesinin yanındaki “Türkçeye çevrilsin mi?” satırı sayfanın kendisini sizin dilinize çevirir."
+ },
+ "hintNewWrite": {
+  "message": "Yazdığınız alanın yanında: sayfayı dikkate alan “Kontrol et” ve “Yeniden yaz”."
+ },
+ "hintNewSpaces": {
+  "message": "Alanlar iş ve evi birbirinden ayırır: “Yeni alan” sohbet listesinin sonunda."
+ },
+ "hintNewApple": {
+  "message": "“Takvime veya Anımsatıcılar'a ekle”, yanıtın … menüsünde."
+ },
+ "hintNewShot": {
+  "message": "Sayfa görüntüsü: bir not, sayfanın resmini saklayabilir."
+ },
+ "hintNewSide": {
+  "message": "✦ iki kenara da taşınabilir: karşı tarafa sürükleyin."
+ },
+ "hintAllTips": {
+  "message": "Tüm ipuçları"
+ },
+ "phSimilar": {
+  "message": "Daha ucuzu aransın mı?"
+ },
+ "phWatch": {
+  "message": "Fiyat takip edilsin mi?"
+ },
+ "phSummary": {
+  "message": "Bu sayfa özetlensin mi?"
+ },
+ "phListen": {
+  "message": "Bu makale sesli okunsun mu?"
+ },
+ "phVideo": {
+  "message": "Videoyla ilgili sorunuz var mı?"
+ },
+ "phTemplates": {
+  "message": "Şablonla yanıtlansın mı?"
+ },
+ "phRemind": {
+  "message": "Hatırlatıcı kurulsun mu?"
+ },
+ "phCalendar": {
+  "message": "Takvime eklensin mi?"
+ },
+ "phClose": {
+  "message": "Bu ipucunu gizle"
+ },
+ "phSimilarTitle": {
+  "message": "Daha ucuzunu bulun"
+ },
+ "phSimilarBody": {
+  "message": "Ürünün adını seçin → “Benzerini bul” ya da vurgulanan düğmeye dokunun: aynı ürün daha ucuza ve benzerleri."
+ },
+ "phSimilarBodyUp": {
+  "message": "Bu özellik Ultra'da: aynı ürün daha ucuza ve başka mağazalardan benzerleri. Vurgulanan düğmeye dokunun."
+ },
+ "phWatchTitle": {
+  "message": "Fiyatı takip edin"
+ },
+ "phWatchBody": {
+  "message": "Fiyatı seçin, yanında bir göz simgesi belirir. Ya da “…” (vurgulu) → “Bu sayfayı takip et…”. Değiştiğinde size haber veririm."
+ },
+ "phSummaryTitle": {
+  "message": "Sayfa özeti"
+ },
+ "phSummaryBody": {
+  "message": "Vurgulanan “Özetle” düğmesine dokunun: sayfanın ana noktaları birkaç satırda."
+ },
+ "phListenTitle": {
+  "message": "Makaleyi dinleyin"
+ },
+ "phListenBody": {
+  "message": "“…” (vurgulu) menüsünü açın → “Bu sayfayı dinle”: makale sesli okunur."
+ },
+ "phListenBodyUp": {
+  "message": "Sesli okuma Ultra'da. “…” (vurgulu) menüsünü açın → “Bu sayfayı dinle”."
+ },
+ "phVideoTitle": {
+  "message": "Video hakkında sorun"
+ },
+ "phVideoBody": {
+  "message": "Sorunuzu vurgulanan alana yazın: videonun altyazılarına göre yanıtlarım."
+ },
+ "phVideoBodyUp": {
+  "message": "Videonun altyazılarına dayalı yanıtlar Pro'da. Sorunuzu vurgulanan alana yazın."
+ },
+ "phTemplatesTitle": {
+  "message": "Şablonla yanıtlayın"
+ },
+ "phTemplatesBody": {
+  "message": "İmleci sayfadaki bir alana koyun, yanında şablonlar düğmesi belirir. Şablonlarınız: “…” (vurgulu) → “Ayarlar” → “Şablonlar”."
+ },
+ "phRemindTitle": {
+  "message": "Hatırlat"
+ },
+ "phRemindBody": {
+  "message": "Vurgulanan alana örneğin “yarın saat 9'da hatırlat” yazın; size bir hatırlatıcı önereyim."
+ },
+ "phCalendarTitle": {
+  "message": "Takvime ekle"
+ },
+ "phCalendarBody": {
+  "message": "Vurgulanan alana “takvime ekle” yazın; size sayfadaki tarihle bir etkinlik önereyim."
+ },
+ "setPageHints": {
+  "message": "✦ düğmesinin yanındaki ipuçları"
+ },
+ "setPageHintsHint": {
+  "message": "İlk günlerinizde bir sayfada neler yapabileceğinizi gösterir."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "Bu özellik Pro ve Ultra'da: Pro'da hızlı arama, Ultra'da tam arama. Aynı ürün daha ucuza ve başka mağazalardan benzerleri. Vurgulanan düğmeye dokunun."
+ },
+ "shotSwitch": {
+  "message": "Sayfa görüntüsü"
+ },
+ "shotVisible": {
+  "message": "Görünen alan"
+ },
+ "shotFull": {
+  "message": "Sayfanın tamamı"
+ },
+ "shotProOnly": {
+  "message": "Sayfanın tamamı Pro ve Ultra'da."
+ },
+ "shotTaking": {
+  "message": "Görüntü alınıyor…"
+ },
+ "shotTakingFull": {
+  "message": "Görüntü alınıyor: ekran {0}/{1}…"
+ },
+ "shotFailed": {
+  "message": "Burada görüntü alınamadı. Not, görüntü olmadan kaydedildi."
+ },
+ "shotCut": {
+  "message": "Sayfa uzun: görüntüde sayfanın ilk {0} ekranı var."
+ },
+ "shotOpen": {
+  "message": "Görüntüyü aç"
+ },
+ "shotNote": {
+  "message": "Sayfanın görüntüsü"
+ },
+ "shotCrop": {
+  "message": "Kırp"
+ },
+ "shotCropDone": {
+  "message": "Bitti"
+ },
+ "shotCropReset": {
+  "message": "Görüntünün tamamı"
+ },
+ "shotLoading": {
+  "message": "Görüntü açılıyor…"
+ },
+ "shotMissing": {
+  "message": "Bu görüntü henüz bu cihazda yok. Sohbetleriniz iCloud'da eşzamanlanıyorsa oradan gelir."
+ },
+ "invTitle": {
+  "message": "Arkadaşını davet et"
+ },
+ "invHint": {
+  "message": "Arkadaşınız bonus yanıt kazanır: ilk haftası boyunca günde +{0}. İki farklı günde soru sorduğunda siz de Pro veya Ultra'nın ilk ayında %{1} indirim alırsınız."
+ },
+ "invButton": {
+  "message": "Kodumu ve bağlantımı al"
+ },
+ "invYourCode": {
+  "message": "Kodunuz"
+ },
+ "invCopy": {
+  "message": "Kopyala"
+ },
+ "invCopied": {
+  "message": "Kopyalandı"
+ },
+ "invShare": {
+  "message": "Paylaş"
+ },
+ "invShareText": {
+  "message": "ContextFlow kullanıyorum: Safari'de doğrudan sayfanın üzerinde çalışan yapay zekâ. {0} kodumla ilk haftan boyunca bonus yanıt alırsın: {1}"
+ },
+ "invFriends": {
+  "message": "Kodunuzla gelen: {0} · kullanan: {1}"
+ },
+ "invRewardTitle": {
+  "message": "Davet ettiğiniz bir arkadaşınız ContextFlow'u kullanıyor"
+ },
+ "invRewardBody": {
+  "message": "Teşekkürler: Pro veya Ultra'nın ilk ayında %{0} indirim, seçim sizin. Bu indirimi daha önce kullanmadıysanız App Store uygular."
+ },
+ "invRewardPro": {
+  "message": "Pro −%{0}"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −%{0}"
+ },
+ "invRewardAnswers": {
+  "message": "İki indirimi de kullandınız mı? Bunun yerine bonus yanıt alın: bir hafta boyunca günde +{0}"
+ },
+ "invAnswersOn": {
+  "message": "Bonus yanıtlarınız {0} tarihine kadar geçerli."
+ },
+ "invEnterTitle": {
+  "message": "Arkadaşınızdan kod mu aldınız?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Kod veya bağlantı"
+ },
+ "invEnter": {
+  "message": "Gir"
+ },
+ "invEntered": {
+  "message": "Kod kabul edildi: {1} tarihine kadar günde +{0} bonus yanıt."
+ },
+ "invEnteredOn": {
+  "message": "Bir arkadaşınızın koduyla geldiniz: {1} tarihine kadar günde +{0} bonus yanıt."
+ },
+ "invErrUnknown": {
+  "message": "Böyle bir kod yok. Kontrol edip tekrar deneyin."
+ },
+ "invErrOwn": {
+  "message": "Bu sizin kendi kodunuz. Bir arkadaşınıza gönderin."
+ },
+ "invErrAlready": {
+  "message": "Burada zaten bir arkadaş kodu girilmiş."
+ },
+ "invErrLate": {
+  "message": "Arkadaş kodu, yüklemeden sonraki ilk hafta içinde geçerlidir."
+ },
+ "invErrFull": {
+  "message": "Bu kod kullanım sınırına ulaştı."
+ },
+ "invErrDevice": {
+  "message": "Bu cihazda zaten bir arkadaş kodu kullanılmış."
+ },
+ "invErrCheck": {
+  "message": "Bu cihaz doğrulanamadı. Kodu ContextFlow uygulamasında girmeyi deneyin."
+ },
+ "invErrLater": {
+  "message": "Şu anda yapılamadı. Daha sonra tekrar deneyin."
+ },
+ "colAdd": {
+  "message": "Koleksiyona ekle"
+ },
+ "colTab": {
+  "message": "Koleksiyonlar"
+ },
+ "colChat": {
+  "message": "Sohbet"
+ },
+ "colSuggestAi": {
+  "message": "yapay zekâ önerisi"
+ },
+ "colSuggestWords": {
+  "message": "en uygun"
+ },
+ "colNewSection": {
+  "message": "+ yeni bölüm"
+ },
+ "colNewCollection": {
+  "message": "+ Yeni koleksiyon"
+ },
+ "colNamePlaceholder": {
+  "message": "Ad, örneğin Japonya gezisi"
+ },
+ "colSectionPlaceholder": {
+  "message": "Bölüm adı"
+ },
+ "colFirstSection": {
+  "message": "Notlar"
+ },
+ "colCreate": {
+  "message": "Oluştur"
+ },
+ "colAdded": {
+  "message": "Eklendi: “{0}” → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} kart"
+ },
+ "colCards_two": {
+  "message": "{0} kart"
+ },
+ "colCards_few": {
+  "message": "{0} kart"
+ },
+ "colCards_many": {
+  "message": "{0} kart"
+ },
+ "colCards_other": {
+  "message": "{0} kart"
+ },
+ "colEmpty": {
+  "message": "Henüz koleksiyon yok. Bir yanıtın veya notun altındaki “Koleksiyona ekle” düğmesine dokunun."
+ },
+ "colEmptyCards": {
+  "message": "Henüz kart yok."
+ },
+ "colToChat": {
+  "message": "← Sohbete"
+ },
+ "colCompare": {
+  "message": "Karşılaştır"
+ },
+ "colCompareN": {
+  "message": "{0} kartı karşılaştır"
+ },
+ "colComparePick": {
+  "message": "2 ila 8 kart seçin"
+ },
+ "colSummary": {
+  "message": "Özet"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Sohbeti aç"
+ },
+ "colMoveTo": {
+  "message": "“{0}” bölümüne taşı"
+ },
+ "colRemove": {
+  "message": "Koleksiyondan kaldır"
+ },
+ "colThisPage": {
+  "message": "bu sayfa"
+ },
+ "colNote": {
+  "message": "not"
+ },
+ "colComparison": {
+  "message": "Karşılaştırma"
+ },
+ "colLimitCollections": {
+  "message": "Ücretsiz planda bir koleksiyon var. Pro'da istediğiniz kadar."
+ },
+ "colLimitCards": {
+  "message": "Ücretsiz planda bir koleksiyonda en fazla {0} kart olabilir. Pro'da en fazla {1}."
+ },
+ "colProOnly": {
+  "message": "“Karşılaştır” ve “Özet” Pro'da."
+ },
+ "colWorking": {
+  "message": "Hazırlanıyor…"
+ },
+ "colFailed": {
+  "message": "Bu sefer olmadı. Daha sonra tekrar deneyin."
+ },
+ "colLimitDay": {
+  "message": "Bugünlük bu kadar: yarın tekrar deneyin."
+ },
+ "colGone": {
+  "message": "Bu koleksiyon silindi."
+ },
+ "colPdfMadeWith": {
+  "message": "hazırlayan:"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — Safari için yapay zekâ"
+ },
+ "colPdfOpenChat": {
+  "message": "Sohbeti ContextFlow'da aç"
+ },
+ "colPdfFooter": {
+  "message": "ContextFlow ile hazırlandı"
+ },
+ "colPdfSave": {
+  "message": "PDF olarak kaydet"
+ },
+ "colPick": {
+  "message": "Koleksiyon: {0}. Değiştir"
+ },
+ "colCardMenu": {
+  "message": "Kart işlemleri"
+ },
+ "tip_4cf1b54b00": {
+  "message": "İpuçları"
+ },
+ "tip_245f060c21": {
+  "message": "“Nasıl…?” sorularına kısa yanıtlar"
+ },
+ "tip_89895fd68f": {
+  "message": "Tüm cihazlarınızda"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "“Sohbetleri iCloud ile eşzamanla” açıkken iPhone'unuzda başlattığınız bir sohbet iPad ve Mac'inizde devam eder. Sohbet, iCloud'unuzda uçtan uca şifrelenir."
+ },
+ "tip_90e40d5043": {
+  "message": "Başlarken"
+ },
+ "tip_ad4199fa48": {
+  "message": "Her sayfada açın"
+ },
+ "tip_79a4dbe893": {
+  "message": "Sayfadaki ✦ düğmesine dokunun ya da adres çubuğundaki sayfa menüsünü açıp ContextFlow'u seçin."
+ },
+ "tip_4acd9995ac": {
+  "message": "Sayfadaki ✦ düğmesine veya araç çubuğundaki ContextFlow simgesine tıklayın ya da Control-Shift-E tuşlarına basın."
+ },
+ "tip_af26b6788c": {
+  "message": "✦ düğmesini kenara çekin"
+ },
+ "tip_1b3fa8b31a": {
+  "message": "✦ düğmesi okuduğunuz yeri mi kapatıyor? Onu kenar boyunca yukarı veya aşağı ya da öbür tarafa sürükleyin: bıraktığınız yerde kalır. iPad'de paneli de üst çubuğundan tutup öbür tarafa sürükleyebilirsiniz. Uzantı ayarlarındaki “Ekran tarafı” da aynı işi görür."
+ },
+ "tip_cbec05fbfd": {
+  "message": "✦ düğmesi okuduğunuz yeri mi kapatıyor? Onu kenar boyunca yukarı veya aşağı ya da öbür tarafa sürükleyin: bıraktığınız yerde kalır. Paneli de üst çubuğundan tutup öbür tarafa sürükleyebilir ya da uzantı ayarlarında “Ekran tarafı” seçeneğini kullanabilirsiniz."
+ },
+ "tip_2749afe54a": {
+  "message": "Tek dokunuşla özet"
+ },
+ "tip_487a14e710": {
+  "message": "Özetle, Ana fikirler, Basitçe açıkla ve Çevir sayfanın tamamıyla çalışır — komut yazmanıza gerek yok."
+ },
+ "tip_33e83f4818": {
+  "message": "Sayfayı kendi dilinizde okuyun"
+ },
+ "tip_f8f753be8a": {
+  "message": "Başka dilde bir sayfada ✦ düğmesinin yanındaki “Türkçeye çevrilsin mi?” satırına dokunun: sayfanın kendisi, bağlantılarıyla birlikte dilinize geçer ve siz kaydırdıkça çevrilmeye devam eder. “Orijinal” her kelimeyi geri getirir. Bir sayfa, kaç kez çevirirseniz çevirin haftada tek yanıt sayılır."
+ },
+ "tip_22f41ab2de": {
+  "message": "Başka dilde bir sayfada ✦ düğmesinin yanındaki “Türkçeye çevrilsin mi?” satırına tıklayın: sayfanın kendisi, bağlantılarıyla birlikte dilinize geçer ve siz kaydırdıkça çevrilmeye devam eder. “Orijinal” her kelimeyi geri getirir. Bir sayfa, kaç kez çevirirseniz çevirin haftada tek yanıt sayılır."
+ },
+ "tip_d22c90dac1": {
+  "message": "Bir kısmını sorun"
+ },
+ "tip_328a1070b8": {
+  "message": "Sayfada metni seçin ve “Yapay zekâya sor” düğmesini kullanın: yanıt yalnızca o kısımla ilgili olur. ContextFlow o kısmı açıklayabilir, çevirebilir veya yeniden yazabilir de."
+ },
+ "tip_ca7dfa36cb": {
+  "message": "Seçimi sorun ya da not alın"
+ },
+ "tip_fa1cdf5479": {
+  "message": "Sayfada metin seçin: seçimin hemen altına onunla ilgili kendi sorunuzu yazın ya da metni sayfasıyla birlikte sohbete kaydetmek için “Not” düğmesine dokunun. Notlar yanıt harcamaz."
+ },
+ "tip_2f27bc2271": {
+  "message": "Seçimin altında hızlı işlemler"
+ },
+ "tip_b4d2d0edad": {
+  "message": "Sayfada bir metin seçin: “Özetle”, “Çevir”, “Benzerini bul” ve daha fazlası altındaki “Sorunuz…” alanında sizi bekler. Aralarında kaydırıp birine dokunun, yazmanız gerekmez."
+ },
+ "tip_2105cc684e": {
+  "message": "Sayfada bir metin seçin: “Özetle”, “Çevir”, “Benzerini bul” ve daha fazlası altındaki “Sorunuz…” alanında sizi bekler. İzleme dörtgeni veya fare tekerleğiyle aralarında kaydırıp birine tıklayın, yazmanız gerekmez."
+ },
+ "tip_9000896590": {
+  "message": "Sohbet sizinle gelir"
+ },
+ "tip_c76058fe4b": {
+  "message": "Sayfadan sayfaya geçerken sormaya devam edin. ContextFlow konuşmayı ve her sorunun hangi sayfayla ilgili olduğunu hatırlar. Bir sayfaya geri dönmek için sohbette o sayfanın adına dokunun."
+ },
+ "tip_e5dff10006": {
+  "message": "Google'dan güncel bilgiler"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "Google Arama ile yanıt almak için soru alanının yanındaki Google'ı açın: haberler, fiyatlar ve yeni olan her şey, kaynaklarıyla birlikte."
+ },
+ "tip_da5f7b74b1": {
+  "message": "Daha derine inin"
+ },
+ "tip_6ba198cbff": {
+  "message": "Kendi notlarınız"
+ },
+ "tip_6a92f6c633": {
+  "message": "Soru sormak yerine not yazmak için gönder düğmesini yukarı veya aşağı kaydırın (Mac'te üzerinde kaydırın). Not, sayfasıyla birlikte sohbette kalır, sohbetle eşzamanlanır ve yanıt harcamaz."
+ },
+ "tip_ac13420c59": {
+  "message": "Notunuza sayfa görüntüsü"
+ },
+ "tip_dff446b7cc": {
+  "message": "Not mu yazıyorsunuz? Alanın üstündeki “Sayfa görüntüsü” anahtarını açtığınızda not, sayfanın bir resmini saklar: ekrandaki kısmı ya da Pro ile sayfanın tamamını. Tam ekran açıp kırpmak için resme dokunun. Resim cihazlarınızda ve iCloud'unuzda kalır."
+ },
+ "tip_3ca344f02e": {
+  "message": "Not mu yazıyorsunuz? Alanın üstündeki “Sayfa görüntüsü” anahtarını açtığınızda not, sayfanın bir resmini saklar: ekrandaki kısmı ya da Pro ile sayfanın tamamını. Tam ekran açıp kırpmak için resme tıklayın. Resim cihazlarınızda ve iCloud'unuzda kalır."
+ },
+ "tip_654fb12e51": {
+  "message": "Önemli olanı vurgulayın"
+ },
+ "tip_33115b31e1": {
+  "message": "Yanıtta bir satır seçin ve “Vurgula” düğmesine dokunun: satır, kalemle işaretlenmiş gibi kalır. O sohbetteki sonraki yanıtlar vurgularınızı dikkate alır, “Kopyala” ise onları kalın olarak aktarır."
+ },
+ "tip_b4e4a2a85e": {
+  "message": "Sabitlenenler en üstte"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "Bir yanıtı veya notu sabitlediğinizde sohbetin üstündeki çubukta bekler. Ona gitmek için çubuğa dokunun, sonrakine geçmek için yeniden dokunun."
+ },
+ "tip_b7be002204": {
+  "message": "Sabitlemek veya silmek için kaydırın"
+ },
+ "tip_104ac1e6e8": {
+  "message": "Bir yanıtı veya notu sabitlemek için sağa, silmek için sola kaydırın. Fikrinizi mi değiştirdiniz? “Geri al” ile geri getirebilirsiniz."
+ },
+ "tip_c047d28229": {
+  "message": "Tek tıklamayla sabitleyin veya silin"
+ },
+ "tip_dcfe357b68": {
+  "message": "İmleci bir yanıtın veya notun üzerine getirin: yanında “Sabitle”, “Hatırlat” ve “Sil” belirir; sağ tıklama da aynı menüyü açar. Fikrinizi mi değiştirdiniz? “Geri al” ile geri getirebilirsiniz."
+ },
+ "tip_e012ef5f59": {
+  "message": "Tüm sohbet göz önünde"
+ },
+ "tip_3a70cee32e": {
+  "message": "Bir yanıt için her şey gerektiğinde soru alanının altındaki “Tüm sohbet” seçeneğini açın: tüm mesajlar, notlarınız ve bu sohbetin diğer sayfaları. Kapalıyken yanıtlar son mesajları ve açık sayfayı kullanır."
+ },
+ "tip_ca29a1f4ed": {
+  "message": "Video hakkında sorun"
+ },
+ "tip_d6be4709b7": {
+  "message": "Pro ile ContextFlow sayfadaki videonun transkriptini okur: özünü ya da bir konuda ne söylendiğini sorun, yanıt o anı gösterir, örneğin [4:15]. Ücretsiz yanıtlar sayfanın metnini kullanır."
+ },
+ "tip_5c5bca8a9e": {
+  "message": "Sayfadaki PDF'ler"
+ },
+ "tip_ff32d2c483": {
+  "message": "Pro ile sayfada gösterilen ya da sayfadan bağlantı verilen PDF'ler sorunuzla birlikte gider ve yanıtlar bilginin hangi sayfada olduğunu belirtir. iPad ve Mac'te araç çubuğundaki ContextFlow, PDF sekmesinde de açılır. Ücretsiz yanıtlar sayfanın metnini kullanır."
+ },
+ "tip_de4adc7524": {
+  "message": "Benzerini bul"
+ },
+ "tip_2c6d9f34e3": {
+  "message": "Panelin işlemleri arasında ya da panelin üstündeki … menüsünde “Benzerini bul” seçeneğine dokunun. Ya da bir ürün adı gibi bir metin seçip altındaki hızlı işlemler arasında “Benzerini bul” seçeneğine dokunun. İsterseniz “Daha ucuz” veya “Stokta” gibi bir koşul ekleyin. Ultra tam arama yapar ve siz görmeden önce her bağlantıyı açıp kontrol eder. Pro'da hızlı arama vardır: haftada en fazla 5 kez ve her biri 10 yanıt sayılır."
+ },
+ "tip_9bb47159a4": {
+  "message": "Panelin işlemleri arasında ya da panelin üstündeki … menüsünde “Benzerini bul” seçeneğine tıklayın. Ya da bir ürün adı gibi bir metin seçip altındaki hızlı işlemler arasında “Benzerini bul” seçeneğine tıklayın. İsterseniz “Daha ucuz” veya “Stokta” gibi bir koşul ekleyin. Ultra tam arama yapar ve siz görmeden önce her bağlantıyı açıp kontrol eder. Pro'da hızlı arama vardır: haftada en fazla 5 kez ve her biri 10 yanıt sayılır."
+ },
+ "tip_c518fb0674": {
+  "message": "Dinle"
+ },
+ "tip_f26f3d2993": {
+  "message": "Bir yanıtın altındaki “Dinle” düğmesine dokunun ya da panelin üstündeki … menüsünden “Bu sayfayı dinle” seçeneğini belirleyin. ContextFlow uygulaması metni doğal bir sesle okur ve ekran kilitliyken de çalmaya devam eder. Hızı 1×, 1,2×, 1,5× veya 2× yapmak için oynatıcıdaki hız göstergesine dokunun."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "Bir yanıtın altındaki “Dinle” düğmesine tıklayın ya da panelin üstündeki … menüsünden “Bu sayfayı dinle” seçeneğini belirleyin. Doğal bir ses metni doğrudan panelde okur. Hızı 1×, 1,2×, 1,5× veya 2× yapmak için oynatıcıdaki hız göstergesine tıklayın."
+ },
+ "tip_328ee8ddce": {
+  "message": "Hızlı ekleme"
+ },
+ "tip_ff7c853b85": {
+  "message": "Her alana ekleyin"
+ },
+ "tip_038e87000b": {
+  "message": "Sayfadaki bir metin alanına, ardından yanındaki ContextFlow düğmesine dokunun: diğer sekmelerde kopyaladıklarınız, şablonlarınız ve ContextFlow'un son yanıtı bir dokunuş uzağınızda. Klavyeyle / ve bir şablondan birkaç kelime yazıp Tab tuşuna basın."
+ },
+ "tip_a8e1d14e5b": {
+  "message": "Sayfadaki herhangi bir alana / ve bir şablondan birkaç kelime yazıp Tab tuşuna basın. Control-Shift-V tüm listeyi açar: diğer sekmelerde kopyaladıklarınız, şablonlarınız ve ContextFlow'un son yanıtı."
+ },
+ "tip_8213493414": {
+  "message": "Göndermeden önce kontrol edin veya yeniden yazın"
+ },
+ "tip_4a10311c4a": {
+  "message": "E-posta veya yorum mu yazıyorsunuz? Alanın yanındaki ContextFlow düğmesine dokunun: “Kontrol et” ve “Yeniden yaz” listenin en üstündedir. “Kontrol et” hataları düzeltir; “Yeniden yaz” metni daha kısa, daha samimi, daha resmi veya daha özgüvenli hâle getirir. İkisi de sayfayı, örneğin yanıtladığınız e-postayı dikkate alır; “Geri al” ise kendi sözlerinizi geri getirir. Her dokunuş bir yanıt sayılır."
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "E-posta veya yorum mu yazıyorsunuz? Birkaç kelime yazdıktan sonra imleci alanın üstündeki dairenin üzerine getirin: “Kontrol et” hataları düzeltir; “Yeniden yaz” metni daha kısa, daha samimi, daha resmi veya daha özgüvenli hâle getirir. İkisi de sayfayı, örneğin yanıtladığınız e-postayı dikkate alır; “Geri al” ise kendi sözlerinizi geri getirir. Her biri bir yanıt sayılır."
+ },
+ "tip_898fe0f06c": {
+  "message": "Yazarken hataların altı çizilir"
+ },
+ "tip_b9954518f0": {
+  "message": "Pro veya Ultra ile yazarken kısa bir ara verdiğinizde değiştirdiğiniz paragraftaki hatanın altı çizilir. Düzeltmeyi görmek için altı çizili yere dokunun, ardından “Düzelt” veya “Yoksay” seçeneğine dokunun. Bu, yanıt sayılmaz; uzantı ayarlarından kapatabilirsiniz."
+ },
+ "tip_7e0eabc91c": {
+  "message": "Pro veya Ultra ile yazarken kısa bir ara verdiğinizde değiştirdiğiniz paragraftaki hatanın altı çizilir. Düzeltmeyi görmek için imleci altı çizili yerin üzerine getirin, ardından “Düzelt” veya “Yoksay” seçeneğine tıklayın. Bu, yanıt sayılmaz; uzantı ayarlarından kapatabilirsiniz."
+ },
+ "tip_451fa9ccb6": {
+  "message": "Kopyalananlar bir gün saklanır"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "Safari'de sayfalarda kopyaladığınız son 5 şey, yalnızca bu cihazda, 24 saat boyunca listede bekler. Parola ve kart alanlarından ya da Özel Dolaşma'da kopyalananlar alınmaz."
+ },
+ "tip_cf63db6cc6": {
+  "message": "Kendini dolduran şablonlar"
+ },
+ "tip_6dd86048c4": {
+  "message": "Sık gönderdiğiniz bir yanıtı seçip “Şablon” düğmesine dokunun: ContextFlow adı, tarihi ve değişen diğer her şeyi işaretler. Şablonu eklediğinizde “Sayfadan doldur” bunları yerleştirir ve kontrol edebilmeniz için vurgular."
+ },
+ "tip_f09b3558e2": {
+  "message": "Takip ve hatırlatma"
+ },
+ "tip_d0d8d1355c": {
+  "message": "Bu sayfayı bana hatırlat"
+ },
+ "tip_b5d4d7711a": {
+  "message": "Sonra bitirmek istediğiniz bir şey mi okuyorsunuz? Bir satır seçip zil simgesine dokunun ya da panelin üstündeki … düğmesine, ardından “Bu sayfayı bana hatırlat…” seçeneğine dokunun ve bir zaman seçin: hatırlatıcı bu sayfayı açar. Yanıtların ve notların … menüsünde de “Hatırlat” bulunur."
+ },
+ "tip_529cd4b087": {
+  "message": "Takvime veya Anımsatıcılar'a ekle"
+ },
+ "tip_c20a65b22a": {
+  "message": "“Cuma günü bankayı aramamı hatırlat” yazın ya da sayfadaki bir tarihi sorun: yanıtla birlikte tarihi ve saati kontrol edebileceğiniz bir kart gelir, “Ekle” ise bunu Takvime veya Anımsatıcılar'a ekler. Her yanıtın ve notun … menüsünde “Takvime veya Anımsatıcılar'a ekle” bulunur. “Hatırlat” bölümündeki “Anımsatıcılar'a da ekle”, hatırlatıcınızı Apple'ın Anımsatıcılar uygulamasına da ekler."
+ },
+ "tip_74c328b672": {
+  "message": "Fiyat düştüğünde haberiniz olsun"
+ },
+ "tip_45c2496345": {
+  "message": "Bir sayfada fiyatı, stok durumunu veya tarihi seçip göz simgesine dokunun. Sayfanın tamamı için panelin üstündeki … menüsünden “Bu sayfayı takip et…” seçeneğini belirleyin. ContextFlow, siz Safari'yi kullanırken sayfayı kontrol eder ve sayfa değiştiğinde ya da fiyat belirttiğiniz tutarın altına düştüğünde size haber verir. Aynı anda en fazla 5, Pro ile 20."
+ },
+ "tip_0daede04f6": {
+  "message": "Sohbetlerde düzen"
+ },
+ "tip_ec2cf96f53": {
+  "message": "Baştan başlayın ya da geri dönün"
+ },
+ "tip_623811ea30": {
+  "message": "+ ile yeni bir sohbet başlatın. Önceki sohbetler sohbet listesinde bekler: kaldığınız yerden devam etmek için birini açın, kalemle yeniden adlandırın ya da silin."
+ },
+ "tip_827a76a38d": {
+  "message": "İş ve ev için alanlar"
+ },
+ "tip_6bf925510c": {
+  "message": "İşi, evi ve alışverişi ayrı tutun. Sohbet listesinin sonundaki “Yeni alan”, kendi rengiyle yeni bir alan oluşturur. Listenin üstündeki seçiciyle alanlar arasında geçiş yapılır; yeni sohbet, bulunduğunuz alana eklenir. Seçicideki “amazon.com sitesini burada aç”, o siteyi bu alanda tutar. Ücretsiz planda sınır vardır; Pro veya Ultra ile istediğiniz kadar alan oluşturabilirsiniz."
+ },
+ "tip_3512a4ae8c": {
+  "message": "Bu sayfanın sohbeti"
+ },
+ "tip_05b9621aed": {
+  "message": "Bir sayfada paneli açtığınızda ContextFlow o sayfayla ilgili sohbeti seçer: bu sayfanın bulunduğu sohbeti ya da aynı konudaki bir sohbeti. Üstteki “Devam ediliyor” hangi sohbetin seçildiğini gösterir; oradaki “Yeni sohbet” ise sıfırdan bir sohbet başlatır."
+ },
+ "tip_8d1c1aa55d": {
+  "message": "Hepsini bir koleksiyonda toplayın"
+ },
+ "tip_15dc6cba07": {
+  "message": "Bir gezi ya da alışveriş mi planlıyorsunuz? Bir yanıtın ya da notun altındaki “Koleksiyona ekle”yi seçin, ContextFlow nereye gideceğini önersin. “Koleksiyonlar” her şeyi Safari'de ve uygulamada bölümler hâlinde tutar. Pro ile yapay zekâ kartları ayırır, “Karşılaştır” seçtiklerinizi yan yana koyar, “Özet” de hepsini özetler. Her koleksiyon PDF olarak kaydedilebilir."
+ },
+ "tip_c4b432e2e9": {
+  "message": "Sohbetlerinizde arayın"
+ },
+ "tip_eff80bffda": {
+  "message": "Sohbet listesinin üstündeki arama alanına yazın: bu kelimeleri içeren tüm sohbetler, geçtikleri yerle birlikte görünür. Bir sonuca dokunursanız sohbet tam o yerde açılır."
+ },
+ "tip_2e4668f650": {
+  "message": "Etiketler ve klasörler"
+ },
+ "tip_6b5bdf707f": {
+  "message": "🏷 ile bir sohbeti, yanıtı veya notu etiketleyin. Yalnızca o etiketin sohbetlerini görmek için etikete dokunun ya da listeyi etikete göre gruplamak için Klasörler'i açın."
+ },
+ "tip_752fb307f2": {
+  "message": "Bulduğunuzu paylaşın"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "Tek bir yanıtı ya da tüm sohbeti paylaşın: metin, bağlantıları, kaynakları ve ContextFlow bağlantısıyla birlikte gider."
+ },
+ "tip_76f2924bba": {
+  "message": "Sohbetleriniz uygulamada"
+ },
+ "tip_969cf52d0b": {
+  "message": "Sohbetler sekmesinde Safari'deki tüm sohbetleriniz var. Sayfaları hakkında hemen orada soru sorun ya da not ekleyin; herhangi bir yanıtı etiketleyin, kopyalayın veya paylaşın ya da tüm sohbeti paylaşın. “Safari'de devam et” sohbeti kaldığınız yerden sürdürür."
+ },
+ "tip_4721064b09": {
+  "message": "Yapay zekâ ile arama"
+ },
+ "tip_e4964f1718": {
+  "message": "Hatırladığınız sohbeti tam kelimeleri bilmeseniz de tarif edin: “uyku ve kahveyle ilgili o makale”. Uygulamada aramanın altındaki “Anlama göre”yi seçin; Safari'de yanındaki ✦ düğmesine dokunun."
+ },
+ "tip_068fa58797": {
+  "message": "Sohbetlerinize sorun"
+ },
+ "tip_8a40be768f": {
+  "message": "Sohbet listesinin ilk satırı tüm sohbetlerinizden birden yanıt verir: “Bu hafta ne okudum?”, “Yapay zekâyla ilgili notlarımı özetle”."
+ },
+ "tip_4257aee15a": {
+  "message": "Her şey yerli yerinde"
+ },
+ "tip_c61e2edab3": {
+  "message": "Kanepe sohbetinde araba mı sordunuz? ContextFlow yanıtın altında ait olduğu sohbeti ya da yeni bir sohbet önerir. Tek dokunuş onu tarih sırasına göre oraya taşır; “Geri al” eski yerine koyar."
+ },
+ "tip_3f9f46cd12": {
+  "message": "Etiketlerinizden öneriler"
+ },
+ "tip_69a0bac728": {
+  "message": "ContextFlow, etiketlerinizi nereye koyduğunuzdan ne anlama geldiklerini öğrenir ve yeni bir yanıtın ya da notun altında doğru olanı önerir. Yalnızca kendi etiketleriniz, yalnızca uygun olduklarında."
+ },
+ "tip_b96ddaab20": {
+  "message": "Planınız"
+ },
+ "tip_b3282f43dd": {
+  "message": "Aylık veya yıllık"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro ve Ultra aylık veya yıllık alınabilir; yıllık plan, on iki aylık ödemeden daha ucuza gelir. Her fiyatı ve ne kadar tasarruf edeceğinizi görmek için uygulamada veya Safari'de planların üstündeki “Yıllık” seçeneğine dokunun. Zaten aylık mı ödüyorsunuz? “Yıllık plana geç”, Ayarlar → Planınız bölümündedir ve mevcut ayınız bittiğinde başlar."
+ },
+ "tip_9288a85bb9": {
+  "message": "Planınızın getirdikleri"
+ },
+ "tip_0f2289f887": {
+  "message": "Pro veya Ultra satın aldıktan sonra ContextFlow, planınızın getirdiklerini adım adım gösterir. Yeniden görmek için panelin üstündeki … düğmesine, ardından “Diğer…” ve “Pro planında neler var” ya da “Ultra planında neler var” seçeneğine dokunun. Uygulamada Ayarlar'daki “Planınız” bölümünde bulunur."
+ },
+ "tip_3ee4fbeeb2": {
+  "message": "Arkadaşını davet et"
+ },
+ "tip_0e8493432d": {
+  "message": "Uygulamada veya Safari'de Ayarlar → Arkadaşını davet et bölümü, göndermeniz için bir kod ve bağlantı verir. Arkadaşınız ilk haftasının her günü bonus yanıt kazanır. Arkadaşınız iki farklı günde soru sorduğunda siz de Pro veya Ultra'nın ilk ayında indirim kazanırsınız."
+ },
+ "tip_3208aa35ac": {
+  "message": "Gizlilik ve kişiselleştirme"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "Kendinizden bahsedin"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "“Hakkımda” bölümüne bir satır ekleyin — ne iş yaptığınızı, nasıl yanıtlar sevdiğinizi — ContextFlow yanıtları size göre ayarlasın."
+ },
+ "tip_1e9a1535cb": {
+  "message": "Gerekmediğinde ✦ düğmesini gizleyin"
+ },
+ "tip_6cc366173d": {
+  "message": "Bir sitede ✦ düğmesine ihtiyacınız yok mu? O sitede gizleyin ya da uzantı ayarlarından her yerde kapatın. ContextFlow yine de Safari'nin uzantılar menüsünden açılır."
+ },
+ "tip_cc54dd5946": {
+  "message": "✦ düğmesinin yanındaki ipuçları"
+ },
+ "tip_325d207bb4": {
+  "message": "İlk günlerinizde ✦ düğmesinin yanındaki kısa bir satır, bulunduğunuz sayfa için bir öneri sunar: uzun bir makalenin özeti, takip edilecek bir fiyat, takviminize eklenecek bir tarih. Nasıl yapıldığını görmek için satıra dokunun. Bu satırları uzantı ayarlarındaki “✦ düğmesinin yanındaki ipuçları” bölümünden kapatabilirsiniz."
+ },
+ "tip_8a727e1bbe": {
+  "message": "Kendi API anahtarınızı kullanın"
+ },
+ "tip_d84a0778d4": {
+  "message": "Pro'da ya da Own key planında Safari'deki uzantı ayarlarına bir OpenAI veya Claude anahtarı yapıştırın. Böylece istekler doğrudan o sağlayıcıya gider."
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "Gizlilik odaklı tasarım"
+ },
+ "tip_241d3ad076": {
+  "message": "ContextFlow bir sayfayı yalnızca siz sorduğunuzda okur ve yanıtı almak için sadece sayfanın metnini gönderir. Sohbetleriniz cihazlarınızda ve iCloud'unuzda kalır. Öneriler açıkken, nereye ait olduklarını bulmak için yeni mesajların metni de sunucumuza gider; biz bu metni saklamayız."
+ },
+ "tip_clips": {
+  "message": "tr"
+ }
+}
