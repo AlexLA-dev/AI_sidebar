@@ -823,6 +823,9 @@
   "trWorking": "Wird übersetzt…",
   "trOriginal": "Original",
   "trFailed": "Übersetzung fehlgeschlagen",
+  "trLangPick": "Zielsprache",
+  "trPart": "{0}: {1}% der Seite",
+  "trEntry": "Seite übersetzen",
 
   "spacesTitle": "Bereiche",
   "spaceSwitcher": "Bereich: {0}. Wechseln",

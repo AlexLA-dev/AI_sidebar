@@ -823,6 +823,9 @@
   "trWorking": "正在翻译…",
   "trOriginal": "原文",
   "trFailed": "无法翻译",
+  "trLangPick": "目标语言",
+  "trPart": "{0}：页面的 {1}%",
+  "trEntry": "翻译此页面",
 
   "spacesTitle": "空间",
   "spaceSwitcher": "空间：{0}。切换",

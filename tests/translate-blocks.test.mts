@@ -61,10 +61,14 @@ const ARTICLE = `
 <footer><p>Impressum und Datenschutz</p></footer>
 <contextflow-root><p>ContextFlow selbst</p></contextflow-root>`
 
-test("blocks: the words of the content, links and emphasis as tags; never menus, the site's header and footer, inputs, code, editors", () => {
+test("blocks: the words of the content and of the interface (menus, the site's header and footer, buttons), links and emphasis as tags; never inputs, code, editors", () => {
+  // Build 107 (the owner: «В меню и некоторые кнопки типо «заказать» не все переводится»): the site's menu, header,
+  // button and footer are translated too, each in its own elements.
   const { document } = page(ARTICLE)
   const texts = lib.collectBlocks(document.body).map((b) => b.text)
   assert.deepEqual(texts, [
+    "<1>Startseite</1><2>Nachrichten</2>",
+    "Mein Konto",
     "Die <1>neue</1> Brücke ist offen",
     "Die Stadt hat am Montag die Brücke <1>über den Fluss</1> eröffnet.",
     "Mehr dazu <1>hier</1> und <2>dort</2>.<3/>Neue Zeile.",
@@ -74,12 +78,14 @@ test("blocks: the words of the content, links and emphasis as tags; never menus,
     "Länge der Brücke",
     "Der Befehl <1/> startet alles.",
     "Name",
+    "Absenden",
     "Ein Text ohne Absatz <1>fett</1>",
     "Absatz im Block",
     "und noch ein Rest danach",
-    "Ganz in Spannen verpackt"
+    "Ganz in Spannen verpackt",
+    "Impressum und Datenschutz"
   ])
-  const wrapped = lib.collectBlocks(document.body).at(-1)!
+  const wrapped = lib.collectBlocks(document.body).find((b) => b.text === "Ganz in Spannen verpackt")!
   assert.equal(wrapped.parent.tagName, "SPAN", "inside the spans that hold all the words")
 })
 

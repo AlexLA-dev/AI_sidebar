@@ -176,7 +176,7 @@ export type TranslateError = "LIMIT_REACHED" | "PAGE_CAP" | "BUSY" | "UPSTREAM" 
 /** A step of the in-page translation for the feature counters (usage.ts "translate_page"): counts only. */
 export interface TranslateStep {
   type: "trEvent"
-  a: "shown" | "tap" | "consent" | "done" | "original" | "dismiss" | "limit" | "plans" | "error"
+  a: "shown" | "tap" | "consent" | "done" | "original" | "dismiss" | "limit" | "plans" | "error" | "entry" | "lang"
 }
 
 /** The language a page is translated into, for the model: a base code, with the script for Chinese. */

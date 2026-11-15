@@ -2390,6 +2390,15 @@
  "trFailed": {
   "message": "No se pudo traducir"
  },
+ "trLangPick": {
+  "message": "Idioma de destino"
+ },
+ "trPart": {
+  "message": "{0}: {1}% de la página"
+ },
+ "trEntry": {
+  "message": "Traducir la página"
+ },
  "spacesTitle": {
   "message": "Espacios"
  },

@@ -7,8 +7,12 @@
 // Elements move only when the translation puts them in another order. Everything changed is recorded, so "Original"
 // puts each word and element back.
 //
-// Never touched: menus, the site's header and footer, inputs, buttons, code, editors, what the page marks as not to be
-// translated, and ContextFlow itself (the owner: a long translation breaks buttons).
+// The page's interface too (2.7, build 107, the owner: «В меню и некоторые кнопки типо «заказать» не все переводится»):
+// menus, the site's header and footer, buttons, tabs, labels, and the placeholders of fields and the words on button
+// inputs (as attributes). A button stays the same element with its listeners; only its words change.
+//
+// Never touched: what the person types in (fields, editors), code, icon-font ligatures («shopping_cart»), what the
+// page marks as not to be translated, what's hidden from everyone, and ContextFlow itself.
 
 import { escapeText, parseMarked, TRANSLATE_LIMITS, type Piece } from "../../shared/translate"
 
@@ -20,16 +24,19 @@ const INLINE = new Set([
 /** Inline elements kept as they are, in their place among the words (`<n/>`). */
 const KEEP = new Set([
   "BR", "WBR", "IMG", "PICTURE", "SVG", "MATH", "CODE", "KBD", "SAMP", "VAR", "TT", "INPUT", "SELECT", "TEXTAREA",
-  "BUTTON", "RUBY", "METER", "PROGRESS", "OUTPUT"
+  "RUBY", "METER", "PROGRESS", "OUTPUT"
 ])
 /** Never shown or never words: left where they are, not sent. */
 const QUIET = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "LINK", "META"])
 /** Block elements left alone with everything inside them. */
 const SKIP = new Set([
   "SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "HEAD", "SVG", "MATH", "CODE", "PRE", "TEXTAREA", "INPUT", "SELECT",
-  "OPTION", "BUTTON", "NAV", "IFRAME", "VIDEO", "AUDIO", "CANVAS", "OBJECT", "EMBED", "MENU"
+  "OPTION", "IFRAME", "VIDEO", "AUDIO", "CANVAS", "OBJECT", "EMBED"
 ])
-const SKIP_ROLES = new Set(["navigation", "menu", "menubar", "menuitem", "toolbar", "tablist", "tab", "button", "banner", "contentinfo", "search", "switch", "slider", "textbox", "combobox", "listbox", "tree"])
+/** What the person types or picks a value in: its words are the value. */
+const SKIP_ROLES = new Set(["textbox", "searchbox", "combobox", "slider", "spinbutton"])
+/** Icon fonts draw a picture from a word («shopping_cart», «chevron_right»): translated, the picture is gone. */
+const ICON_CLASS = /(^|[\s_-])(material-(icons|symbols)[\w-]*|glyphicon|fa[srlbd]?|fa-[\w-]+|icon|icons|ico|bi|mdi|ionicon)(\s|$)/i
 
 const HOST = "CONTEXTFLOW-ROOT"
 
@@ -39,19 +46,15 @@ function marked(el: Element): boolean {
   if (editable !== null && editable !== "false") return true
   if (el.getAttribute("translate") === "no" || el.classList?.contains("notranslate")) return true
   if (el.getAttribute("aria-hidden") === "true" || el.hasAttribute("hidden")) return true
+  const cls = el.getAttribute("class")
+  if (cls && ICON_CLASS.test(cls)) return true
   const role = el.getAttribute("role")
   return role !== null && SKIP_ROLES.has(role)
 }
 
-/** The site's own header or footer (not an article's, which holds its title or its author). */
-function siteChrome(el: Element): boolean {
-  if (el.tagName !== "HEADER" && el.tagName !== "FOOTER") return false
-  return !el.parentElement?.closest("article,main,[role=main]")
-}
-
 /** Left alone with everything inside it. */
 export function skipped(el: Element): boolean {
-  return SKIP.has(el.tagName) || el.tagName === HOST || marked(el) || siteChrome(el)
+  return SKIP.has(el.tagName) || el.tagName === HOST || marked(el)
 }
 
 const inlineMemo = new WeakMap<Element, boolean>()
@@ -87,13 +90,28 @@ function inRun(node: Node): boolean {
 const blank = (node: Node) => node.nodeType === 8 || (node.nodeType === 3 && !(node as Text).data.trim()) ||
   (node.nodeType === 1 && (QUIET.has((node as Element).tagName) || KEEP.has((node as Element).tagName) || marked(node as Element)))
 
-/** A block: its element, the run of its child nodes, the elements behind its tags, and its marked text. */
+/** A block: its element, the run of its child nodes, the elements behind its tags, and its marked text. An
+ *  attribute's words (a field's placeholder, a button input's label) are a block of their own: no nodes, `attr` set. */
 export interface Block {
   parent: Element
   nodes: Node[]
   tags: Map<number, Element>
   paired: Set<number>
   text: string
+  attr?: "placeholder" | "value"
+}
+
+/** Attributes whose words show on the page: a field's placeholder; the label of a button input that sends no value of
+ *  its own (with a name, its value is what the form sends). */
+const ATTRS = "input[placeholder],textarea[placeholder],input[type=submit][value]:not([name]),input[type=button][value]:not([name]),input[type=reset][value]:not([name])"
+
+function attrBlocks(root: Element | ShadowRoot, out: Block[]): void {
+  for (const el of Array.from(root.querySelectorAll(ATTRS))) {
+    if (insideSkipped(el.parentElement) || (el.getAttribute("type") === "hidden")) continue
+    const attr = el.hasAttribute("placeholder") ? "placeholder" : "value"
+    const text = escapeText(el.getAttribute(attr) ?? "").replace(/\s+/g, " ").trim()
+    if (worth(text, 0)) out.push({ parent: el, nodes: [], tags: new Map(), paired: new Set(), text, attr })
+  }
 }
 
 /** Marked text of `nodes` (tags numbered from `next`); fills `tags` and `paired`. */
@@ -144,11 +162,14 @@ function worth(text: string, tags: number): boolean {
   if (plain.length > TRANSLATE_LIMITS.blockChars || tags > TRANSLATE_LIMITS.blockTags) return false
   if ((plain.match(LETTERS)?.length ?? 0) < 2) return false
   if (/^(https?:\/\/|www\.)\S+$/i.test(plain) || /^\S+@\S+\.\S+$/.test(plain)) return false
+  // An icon font's word (shopping_cart, arrow_forward) or an identifier, not words.
+  if (/^[a-z0-9]+(_[a-z0-9]+)+$/.test(plain)) return false
   return true
 }
 
-/** The blocks under `root`, in page order. */
-export function collectBlocks(root: Element): Block[] {
+/** The blocks under `root`, in page order (an attribute's after the words); `onShadow` hears of each open shadow root
+ *  read (a web component's words, a consent banner's), for watching it. */
+export function collectBlocks(root: Element, onShadow?: (shadow: ShadowRoot) => void): Block[] {
   const out: Block[] = []
   const flush = (parent: Element, run: Node[]) => {
     if (!run.length) return
@@ -159,6 +180,7 @@ export function collectBlocks(root: Element): Block[] {
     const text = mark(nodes, tags, paired).replace(/\s+/g, " ").trim()
     if (worth(text, tags.size)) out.push({ parent: at, nodes, tags, paired, text })
   }
+  const shadows: ShadowRoot[] = []
   const walk = (el: Element) => {
     let run: Node[] = []
     for (const child of Array.from(el.childNodes)) {
@@ -171,8 +193,20 @@ export function collectBlocks(root: Element): Block[] {
       if (child.nodeType === 1 && !skipped(child as Element)) walk(child as Element)
     }
     flush(el, run)
+    const shadow = el.shadowRoot
+    if (shadow && el.tagName !== HOST) {
+      shadows.push(shadow)
+      for (const child of Array.from(shadow.children)) if (!skipped(child)) walk(child)
+    }
   }
-  if (!skipped(root)) walk(root)
+  if (!skipped(root)) {
+    walk(root)
+    attrBlocks(root, out)
+    for (const shadow of shadows) {
+      attrBlocks(shadow, out)
+      onShadow?.(shadow)
+    }
+  }
   return out
 }
 
@@ -199,6 +233,8 @@ export interface Applied {
   moved: Array<{ parent: Node; order: Node[] }>
   // The block's element marked with the translation's language and direction: what its attributes were.
   marked?: { el: Element; lang: string | null; dir: string | null; now: string }
+  // An attribute's words (a placeholder, a button input's label): what they were and are.
+  attr?: { el: Element; name: string; was: string; now: string }
 }
 
 /** The text node's slot: the tag of the element just before it among its siblings (0: none). */
@@ -317,6 +353,7 @@ function markLanguage(el: Element, lang: string, done: Applied): void {
  * (tags lost or the block's elements gone from the page). `lang`: the translation's language, for the block's element.
  */
 export function applyBlock(block: Block, translation: string, lang?: string): Applied | null {
+  if (block.attr) return applyAttr(block, translation)
   const pieces = parseMarked(translation)
   if (!pieces) return null
   if (!block.parent.isConnected || block.nodes.some((n) => n.parentNode !== block.parent)) return null
@@ -324,6 +361,19 @@ export function applyBlock(block: Block, translation: string, lang?: string): Ap
   write(block.parent, block.nodes, edges(block, pieces), block.tags, done)
   if (lang) markLanguage(block.parent, lang, done)
   return done
+}
+
+const unescape = (text: string) => text.replace(/‹(\/?\d{1,3}\/?)›/g, "<$1>")
+const attrNow = (block: Block) => escapeText(block.parent.getAttribute(block.attr!) ?? "").replace(/\s+/g, " ").trim()
+
+/** An attribute's translation: its words only (a tag in it means the model took it for something else). */
+function applyAttr(block: Block, translation: string): Applied | null {
+  const pieces = parseMarked(translation)
+  if (!pieces || pieces.some((p) => typeof p !== "string") || !block.parent.isConnected || attrNow(block) !== block.text) return null
+  const was = block.parent.getAttribute(block.attr!) ?? ""
+  const now = unescape(pieces.join("")).trim()
+  block.parent.setAttribute(block.attr!, now)
+  return { texts: [], added: [], moved: [], attr: { el: block.parent, name: block.attr!, was, now } }
 }
 
 const putBack = (el: Element, name: string, value: string | null) => {
@@ -334,6 +384,8 @@ const putBack = (el: Element, name: string, value: string | null) => {
 /** Puts back what a translation changed: words the page hasn't changed since, the elements' order, no added nodes,
  *  the element's own language and direction (unless the page has set them since). */
 export function restore(done: Applied): void {
+  const a = done.attr
+  if (a && a.el.getAttribute(a.name) === a.now) a.el.setAttribute(a.name, a.was)
   const m = done.marked
   if (m && m.el.getAttribute("lang") === m.now && m.el.getAttribute("dir") === "auto") {
     putBack(m.el, "lang", m.lang)
@@ -353,12 +405,14 @@ export function restore(done: Applied): void {
 
 /** The block's text nodes and elements are where they were (the site hasn't rebuilt it). */
 export function blockIntact(block: Block): boolean {
+  if (block.attr) return block.parent.isConnected
   return block.parent.isConnected && block.nodes.every((n) => n.parentNode === block.parent)
 }
 
 /** Still the words that were sent: intact, and its text unchanged (a live counter, a clock, an edited comment). */
 export function blockCurrent(block: Block): boolean {
   if (!blockIntact(block)) return false
+  if (block.attr) return attrNow(block) === block.text
   const tags = new Map<number, Element>()
   return mark(block.nodes, tags, new Set()).replace(/\s+/g, " ").trim() === block.text
 }

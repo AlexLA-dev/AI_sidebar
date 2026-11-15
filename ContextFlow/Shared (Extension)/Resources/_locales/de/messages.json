@@ -2390,6 +2390,15 @@
  "trFailed": {
   "message": "Übersetzung fehlgeschlagen"
  },
+ "trLangPick": {
+  "message": "Zielsprache"
+ },
+ "trPart": {
+  "message": "{0}: {1}% der Seite"
+ },
+ "trEntry": {
+  "message": "Seite übersetzen"
+ },
  "spacesTitle": {
   "message": "Bereiche"
  },

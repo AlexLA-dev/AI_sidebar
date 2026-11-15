@@ -823,6 +823,9 @@
   "trWorking": "Traduzione…",
   "trOriginal": "Originale",
   "trFailed": "Traduzione non riuscita",
+  "trLangPick": "Lingua di destinazione",
+  "trPart": "{0}: {1}% della pagina",
+  "trEntry": "Traduci la pagina",
 
   "spacesTitle": "Spazi",
   "spaceSwitcher": "Spazio: {0}. Cambia",

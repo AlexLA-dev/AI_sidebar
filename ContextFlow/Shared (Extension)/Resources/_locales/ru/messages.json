@@ -2390,6 +2390,15 @@
  "trFailed": {
   "message": "Не удалось перевести"
  },
+ "trLangPick": {
+  "message": "Язык перевода"
+ },
+ "trPart": {
+  "message": "{0}: {1}% страницы"
+ },
+ "trEntry": {
+  "message": "Перевести страницу"
+ },
  "spacesTitle": {
   "message": "Пространства"
  },

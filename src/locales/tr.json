@@ -823,6 +823,9 @@
   "trWorking": "Çevriliyor…",
   "trOriginal": "Orijinal",
   "trFailed": "Çevrilemedi",
+  "trLangPick": "Çeviri dili",
+  "trPart": "{0}: sayfanın %{1}",
+  "trEntry": "Sayfayı çevir",
 
   "spacesTitle": "Alanlar",
   "spaceSwitcher": "Alan: {0}. Değiştir",

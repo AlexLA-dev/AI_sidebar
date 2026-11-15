@@ -2390,6 +2390,15 @@
  "trFailed": {
   "message": "번역하지 못했어요"
  },
+ "trLangPick": {
+  "message": "번역할 언어"
+ },
+ "trPart": {
+  "message": "{0}: 페이지의 {1}%"
+ },
+ "trEntry": {
+  "message": "이 페이지 번역"
+ },
  "spacesTitle": {
   "message": "스페이스"
  },

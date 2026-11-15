@@ -53,3 +53,67 @@ export function offerFor(pageLang: string | null, ui: string, letters: number): 
   if (!pageLang || letters < MIN_LETTERS) return false
   return canonical(pageLang) !== canonical(baseLanguage(ui))
 }
+
+// ------------------------------------------------------------------ build 107: by shares of the page (share.ts)
+
+/** The main content's share in another language from which the pill offers itself (A5, measured on real pages:
+ *  see tests/translate-share.test.mts and the PR for the numbers). */
+export const OFFER_SHARE = 0.5
+/** A smaller part of the page in another language, said at the ✦ entry: at least this share of the page's words... */
+export const PART_SHARE = 0.03
+/** ...and this many letters (a few foreign names aren't a part to translate). */
+export const PART_LETTERS = 150
+
+interface ShareMap {
+  langs: Map<string, number>
+  letters: number
+}
+
+const known = (s: ShareMap) => s.letters - (s.langs.get("?") ?? 0)
+const lettersOf = (s: ShareMap, lang: string) => [...s.langs].reduce((n, [l, k]) => n + (l !== "?" && canonical(baseLanguage(l)) === canonical(baseLanguage(lang)) ? k : 0), 0)
+function topBesides(s: ShareMap, reader: string): { lang: string; letters: number } | null {
+  let best: { lang: string; letters: number } | null = null
+  for (const [l, n] of s.langs) {
+    if (l === "?" || canonical(baseLanguage(l)) === canonical(baseLanguage(reader))) continue
+    if (!best || n > best.letters) best = { lang: l, letters: n }
+  }
+  return best
+}
+
+/** A guessed language, or the page's markup when it names a neighbour the guess can't tell apart (Persian for Arabic
+ *  letters, Norwegian for Danish words). */
+function refined(lang: string, htmlLang: string): string {
+  const marked = canonical(baseLanguage(htmlLang.trim()))
+  return /^[a-z]{2,3}$/.test(marked) && marked !== lang && neighbours(lang, marked) ? marked : lang
+}
+
+export interface Judged {
+  // The main content is in another language: the pill offers itself, from this language.
+  from: string | null
+  // A smaller part of the page is: its language and share of the page's words, for the ✦ entry.
+  part: { lang: string; share: number } | null
+}
+
+/**
+ * The page's language against the reader's, by letters (build 107): the pill only when its main content is mostly in
+ * another language; a smaller part said at the entry. A page whose words the guess can't place (a language with no
+ * function words of its own, like Lithuanian) goes by its markup.
+ */
+export function judgeShares(main: ShareMap, page: ShareMap, reader: string, htmlLang: string): Judged {
+  const me = canonical(baseLanguage(reader))
+  const mainKnown = known(main)
+  if (mainKnown >= MIN_LETTERS) {
+    const foreign = 1 - lettersOf(main, me) / mainKnown
+    const top = topBesides(main, me)
+    if (foreign >= OFFER_SHARE && top) return { from: refined(top.lang, htmlLang), part: null }
+  } else {
+    const marked = canonical(baseLanguage(htmlLang.trim()))
+    if ((main.langs.get("?") ?? 0) >= MIN_LETTERS && /^[a-z]{2,3}$/.test(marked) && marked !== me) return { from: marked, part: null }
+  }
+  const pageKnown = known(page)
+  const top = topBesides(page, me)
+  if (top && pageKnown && top.letters / pageKnown >= PART_SHARE && top.letters >= PART_LETTERS) {
+    return { from: null, part: { lang: refined(top.lang, htmlLang), share: top.letters / pageKnown } }
+  }
+  return { from: null, part: null }
+}

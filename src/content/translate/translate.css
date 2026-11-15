@@ -62,6 +62,58 @@
   border-top-color: var(--accent);
   animation: cf-tr-spin 0.8s linear infinite;
 }
+/* The language to translate into (build 107): the target's short mark and a chevron; the system's own list opens on a
+   tap (the select lies over it, invisible). */
+.cf-tr-lang {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 30px;
+  min-width: 30px;
+  padding: 0 8px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-2);
+  background: var(--bg-2);
+  cursor: pointer;
+}
+.cf-tr-lang select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  font-size: 16px; /* no zoom on iPhone when it opens */
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* The way back on the page itself (build 107): after × or where only a part of the page is in another language, a
+   small button by the circle, where the pill would be, opens the pill. */
+.cf-tr-entry {
+  position: fixed;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  margin-top: -18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  color: var(--accent-text) !important;
+  background: var(--bg) !important;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 14px rgba(20, 14, 40, 0.16), 0 1px 3px rgba(20, 14, 40, 0.10);
+  animation: cf-tr-in 0.2s ease;
+}
+.cf-tr-entry.right { right: max(68px, calc(env(safe-area-inset-right) + 54px)); }
+.cf-tr-entry.left { left: max(68px, calc(env(safe-area-inset-left) + 54px)); }
+.cf-tr-entry.on { color: #fff !important; background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important; border-color: transparent; }
+
 /* The one AI consent, the first time: a card by the circle (above it when the circle is low on the screen). */
 .cf-tr-consent {
   width: min(340px, calc(100vw - 24px));
@@ -75,6 +127,6 @@
 @keyframes cf-tr-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cf-tr-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .cf-tr { animation: none; }
+  .cf-tr, .cf-tr-entry { animation: none; }
   .cf-tr-spin { animation-duration: 2s; }
 }

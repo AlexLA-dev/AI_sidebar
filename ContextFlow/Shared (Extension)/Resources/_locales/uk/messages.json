@@ -2390,6 +2390,15 @@
  "trFailed": {
   "message": "Не вдалося перекласти"
  },
+ "trLangPick": {
+  "message": "Мова перекладу"
+ },
+ "trPart": {
+  "message": "{0}: {1}% сторінки"
+ },
+ "trEntry": {
+  "message": "Перекласти сторінку"
+ },
  "spacesTitle": {
   "message": "Простори"
  },

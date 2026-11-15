@@ -2390,6 +2390,15 @@
  "trFailed": {
   "message": "تعذّرت الترجمة"
  },
+ "trLangPick": {
+  "message": "لغة الترجمة"
+ },
+ "trPart": {
+  "message": "{0}: ‎{1}% من الصفحة"
+ },
+ "trEntry": {
+  "message": "ترجمة الصفحة"
+ },
  "spacesTitle": {
   "message": "المساحات"
  },

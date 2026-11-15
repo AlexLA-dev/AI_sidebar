@@ -2390,6 +2390,15 @@
  "trFailed": {
   "message": "無法翻譯"
  },
+ "trLangPick": {
+  "message": "目標語言"
+ },
+ "trPart": {
+  "message": "{0}：頁面的 {1}%"
+ },
+ "trEntry": {
+  "message": "翻譯此頁面"
+ },
  "spacesTitle": {
   "message": "空間"
  },
