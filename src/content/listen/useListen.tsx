@@ -586,8 +586,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     unlocked.current = null
     if (back.panel && !panel.current.panelOpen?.()) panel.current.reopen?.()
     if (r.play && back.item && back.key) {
-      // Notifications are on now: it plays here.
-      await askNotify()
+      // Notifications are on now: it plays here (with the app's mark that's known already; no native message to wait for).
+      if (!marked) await askNotify()
       void send({ type: "useEvent", f: "listen", a: "back_play", what: back.item.what })
       void startRef.current(back.key, back.item, false, { player })
       return
