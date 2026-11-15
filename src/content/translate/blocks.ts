@@ -197,6 +197,8 @@ export interface Applied {
   added: Text[]
   // A group whose elements the translation put in another order: its nodes as they were.
   moved: Array<{ parent: Node; order: Node[] }>
+  // The block's element marked with the translation's language and direction: what its attributes were.
+  marked?: { el: Element; lang: string | null; dir: string | null; now: string }
 }
 
 /** The text node's slot: the tag of the element just before it among its siblings (0: none). */
@@ -298,20 +300,45 @@ function edges(block: Block, pieces: Piece[]): Piece[] {
 }
 
 /**
- * The translation written into the block (its text checked against the block's tags first), or null when it can't be
- * (tags lost or the block's elements gone from the page).
+ * The translated block's element says its language and takes its direction from its words (2.7, the director's audit:
+ * English into Arabic stayed left to right; Arabic into English put the punctuation on the wrong side). Not on the
+ * page's body or root, where it would turn the whole layout; not again when another block of it already did.
  */
-export function applyBlock(block: Block, translation: string): Applied | null {
+function markLanguage(el: Element, lang: string, done: Applied): void {
+  if (el === el.ownerDocument.body || el === el.ownerDocument.documentElement) return
+  if (el.getAttribute("lang") === lang && el.getAttribute("dir") === "auto") return
+  done.marked = { el, lang: el.getAttribute("lang"), dir: el.getAttribute("dir"), now: lang }
+  el.setAttribute("lang", lang)
+  el.setAttribute("dir", "auto")
+}
+
+/**
+ * The translation written into the block (its text checked against the block's tags first), or null when it can't be
+ * (tags lost or the block's elements gone from the page). `lang`: the translation's language, for the block's element.
+ */
+export function applyBlock(block: Block, translation: string, lang?: string): Applied | null {
   const pieces = parseMarked(translation)
   if (!pieces) return null
   if (!block.parent.isConnected || block.nodes.some((n) => n.parentNode !== block.parent)) return null
   const done: Applied = { texts: [], added: [], moved: [] }
   write(block.parent, block.nodes, edges(block, pieces), block.tags, done)
+  if (lang) markLanguage(block.parent, lang, done)
   return done
 }
 
-/** Puts back what a translation changed: words the page hasn't changed since, the elements' order, no added nodes. */
+const putBack = (el: Element, name: string, value: string | null) => {
+  if (value === null) el.removeAttribute(name)
+  else el.setAttribute(name, value)
+}
+
+/** Puts back what a translation changed: words the page hasn't changed since, the elements' order, no added nodes,
+ *  the element's own language and direction (unless the page has set them since). */
 export function restore(done: Applied): void {
+  const m = done.marked
+  if (m && m.el.getAttribute("lang") === m.now && m.el.getAttribute("dir") === "auto") {
+    putBack(m.el, "lang", m.lang)
+    putBack(m.el, "dir", m.dir)
+  }
   for (let i = done.texts.length - 1; i >= 0; i--) {
     const { node, was, now } = done.texts[i]
     if (node.data === now) node.data = was

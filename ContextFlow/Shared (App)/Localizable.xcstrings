@@ -52609,7 +52609,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Búsqueda rápida. Ultra busca más amplio, lee reseñas y comprueba el envío."
+            "value": "Búsqueda rápida. Ultra busca en más sitios, lee reseñas y comprueba el envío."
           }
         },
         "fr": {
@@ -52633,13 +52633,13 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "빠른 검색입니다. Ultra는 더 넓게 찾고, 리뷰를 읽고, 배송까지 확인합니다."
+            "value": "빠른 검색이에요. Ultra는 더 넓게 찾고, 리뷰를 읽고, 배송까지 확인해요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Busca rápida. O Ultra busca mais amplo, lê avaliações e confere a entrega."
+            "value": "Busca rápida. O Ultra faz uma busca mais ampla, lê avaliações e confere a entrega."
           }
         },
         "ru": {
@@ -54358,7 +54358,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "أيضًا في التذكيرات"
+            "value": "في التذكيرات أيضًا"
           }
         },
         "de": {
@@ -54406,7 +54406,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Также в Напоминания"
+            "value": "Также в Напоминаниях"
           }
         },
         "tr": {
@@ -54418,13 +54418,13 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Також у Нагадування"
+            "value": "Також у Нагадуваннях"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thêm vào Lời nhắc"
+            "value": "Cũng thêm vào Lời nhắc"
           }
         },
         "zh-Hans": {
@@ -54483,7 +54483,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 기기의 미리 알림 앱에."
+            "value": "모든 기기의 미리 알림 앱에 추가돼요."
           }
         },
         "pt-BR": {
@@ -54572,7 +54572,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow가 미리 알림에 접근할 수 없습니다. 설정에서 켜 주세요."
+            "value": "ContextFlow가 미리 알림에 접근할 수 없어요. 설정에서 켜 주세요."
           }
         },
         "pt-BR": {
@@ -54661,7 +54661,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow가 미리 알림에 접근할 수 없습니다. 설정에서 켠 다음 Safari에서 다시 시도해 주세요."
+            "value": "ContextFlow가 미리 알림에 접근할 수 없어요. 설정에서 켠 다음 Safari에서 다시 시도해 주세요."
           }
         },
         "pt-BR": {
@@ -54673,7 +54673,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "У ContextFlow нет доступа к Напоминаниям. Включите его в Настройках и повторите в Safari."
+            "value": "У ContextFlow нет доступа к Напоминаниям. Включите его в Настройках и попробуйте ещё раз в Safari."
           }
         },
         "tr": {
@@ -54750,7 +54750,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow가 캘린더에 접근할 수 없습니다. 설정에서 켠 다음 Safari에서 다시 시도해 주세요."
+            "value": "ContextFlow가 캘린더에 접근할 수 없어요. 설정에서 켠 다음 Safari에서 다시 시도해 주세요."
           }
         },
         "pt-BR": {
@@ -54762,7 +54762,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "У ContextFlow нет доступа к Календарю. Включите его в Настройках и повторите в Safari."
+            "value": "У ContextFlow нет доступа к Календарю. Включите его в Настройках и попробуйте ещё раз в Safari."
           }
         },
         "tr": {
@@ -54839,7 +54839,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "미리 알림에 추가했습니다."
+            "value": "미리 알림에 추가했어요."
           }
         },
         "pt-BR": {
@@ -54928,7 +54928,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "미리 알림에 추가했습니다: %@."
+            "value": "미리 알림에 추가했어요: %@."
           }
         },
         "pt-BR": {
@@ -55017,7 +55017,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "캘린더에 추가했습니다."
+            "value": "캘린더에 추가했어요."
           }
         },
         "pt-BR": {
@@ -55070,7 +55070,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "للعودة، اضغط ◀ Safari في أعلى اليسار."
+            "value": "للعودة، اضغط ▶ سفاري في أعلى اليمين."
           }
         },
         "de": {
@@ -55195,7 +55195,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "추가하지 못했습니다. Safari에서 다시 시도해 주세요."
+            "value": "추가하지 못했어요. Safari에서 다시 시도해 주세요."
           }
         },
         "pt-BR": {
@@ -55207,7 +55207,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось добавить. Повторите в Safari."
+            "value": "Не удалось добавить. Попробуйте ещё раз в Safari."
           }
         },
         "tr": {
@@ -55284,7 +55284,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "더 이상 없습니다. Safari에서 추가를 다시 탭하세요."
+            "value": "이 항목은 더 이상 없어요. Safari에서 ‘추가’를 다시 탭하세요."
           }
         },
         "pt-BR": {
@@ -55320,13 +55320,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此内容已不在。请在 Safari 中再次轻点“添加”。"
+            "value": "此内容已不存在。请在 Safari 中再次轻点“添加”。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此內容已不在。請在 Safari 中再次點一下「加入」。"
+            "value": "此內容已不存在。請在 Safari 中再次點一下「加入」。"
           }
         }
       }
@@ -56346,7 +56346,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 스페이스의 채팅은 ‘%@’(으)로 옮겨집니다."
+            "value": "이 스페이스의 채팅은 ‘%@’(으)로 옮겨져요."
           }
         },
         "pt-BR": {
@@ -56376,7 +56376,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Các cuộc trò chuyện của nó sẽ chuyển sang “%@”."
+            "value": "Các cuộc trò chuyện trong không gian này sẽ chuyển sang “%@”."
           }
         },
         "zh-Hans": {
@@ -56522,7 +56522,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "‘%@’에 아직 채팅이 없습니다. 새 채팅이 여기에 들어갑니다."
+            "value": "‘%@’에 아직 채팅이 없어요. 새 채팅이 여기에 들어가요."
           }
         },
         "pt-BR": {
@@ -56580,7 +56580,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bereiche in Free: %lld. Mit Pro so viele du willst."
+            "value": "Kostenlos hast du %lld Bereiche. Mit Pro so viele du willst."
           }
         },
         "es": {
@@ -56604,7 +56604,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "無料版のスペース：%lld。Proなら無制限です。"
+            "value": "無料プランのスペース：%lld。Proなら無制限です。"
           }
         },
         "ko": {
@@ -56616,7 +56616,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Espaços no grátis: %lld. Com o Pro, quantos quiser."
+            "value": "Espaços no plano Grátis: %lld. Com o Pro, quantos quiser."
           }
         },
         "ru": {
@@ -56640,7 +56640,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Số không gian miễn phí: %lld. Với Pro, bao nhiêu cũng được."
+            "value": "Gói Miễn phí có %lld không gian. Với Pro, bao nhiêu cũng được."
           }
         },
         "zh-Hans": {
@@ -56652,7 +56652,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "免費版空間：%lld 個。Pro 不限數量。"
+            "value": "免費方案可建立 %lld 個空間。Pro 不限數量。"
           }
         }
       }
@@ -56698,7 +56698,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "업무, 개인, 쇼핑: 각자 자기 채팅과 색상이 있습니다. 끄면 모든 채팅이 한 목록으로 돌아가고 스페이스는 그대로 남습니다."
+            "value": "업무, 개인, 쇼핑: 스페이스마다 채팅과 색상이 따로 있어요. 끄면 모든 채팅이 한 목록으로 돌아가고 스페이스는 그대로 남아요."
           }
         },
         "pt-BR": {
@@ -57677,7 +57677,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 컬렉션은 삭제되었습니다."
+            "value": "이 컬렉션은 삭제됐어요."
           }
         },
         "pt-BR": {
@@ -58122,7 +58122,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "카드는 사라지지만 원래 채팅은 남습니다."
+            "value": "카드는 사라지지만 원래 채팅은 남아요."
           }
         },
         "pt-BR": {
@@ -58134,7 +58134,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Её карточки исчезнут, чаты, из которых они взяты, останутся."
+            "value": "Её карточки исчезнут, а чаты, из которых они взяты, останутся."
           }
         },
         "tr": {
@@ -58146,7 +58146,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Її картки зникнуть, чати, з яких вони взяті, залишаться."
+            "value": "Її картки зникнуть, а чати, з яких вони взяті, залишаться."
           }
         },
         "vi": {
@@ -58264,7 +58264,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "الخلاصة"
+            "value": "الملخّص"
           }
         },
         "de": {
@@ -58353,7 +58353,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "الخلاصة: "
+            "value": "الملخّص: "
           }
         },
         "de": {
@@ -59154,7 +59154,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "هذا يكفي لليوم: حاول غدًا."
+            "value": "بلغت الحد اليومي: حاول غدًا."
           }
         },
         "de": {
@@ -59190,7 +59190,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "오늘은 여기까지입니다. 내일 다시 시도하세요."
+            "value": "오늘은 여기까지예요. 내일 다시 시도해 주세요."
           }
         },
         "pt-BR": {
@@ -59220,7 +59220,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hôm nay đủ rồi: hãy thử lại vào ngày mai."
+            "value": "Hôm nay đã hết lượt: hãy thử lại vào ngày mai."
           }
         },
         "zh-Hans": {
@@ -59279,7 +59279,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "AI에 연결하지 못했습니다. 다시 시도하세요."
+            "value": "AI에 연결하지 못했어요. 다시 시도해 주세요."
           }
         },
         "pt-BR": {
@@ -59588,7 +59588,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "打開對話"
+            "value": "開啟對話"
           }
         }
       }
@@ -59730,7 +59730,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para coleção"
+            "value": "Adicionar à coleção"
           }
         },
         "ru": {
@@ -59819,7 +59819,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tudo o que você encontrou para uma tarefa num só lugar: uma viagem, uma compra, um curso. Toque em “Para coleção” sob uma resposta ou nota."
+            "value": "Tudo o que você encontrou para uma tarefa num só lugar: uma viagem, uma compra, um curso. Toque em “Adicionar à coleção” sob uma resposta ou nota."
           }
         },
         "ru": {
@@ -59837,7 +59837,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Усе знайдене під одне завдання в одному місці: поїздка, покупка, навчання. Натисніть «До добірки» під відповіддю чи нотаткою."
+            "value": "Усе знайдене для одного завдання в одному місці: поїздка, покупка, навчання. Натисніть «До добірки» під відповіддю чи нотаткою."
           }
         },
         "vi": {
@@ -59883,7 +59883,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre ami reçoit des réponses bonus : +%1$lld par jour pendant sa première semaine. Vous recevez %2$lld %% de réduction sur le premier mois de Pro ou Ultra dès qu'il a posé des questions sur deux jours différents."
+            "value": "Votre ami reçoit des réponses bonus : +%1$lld par jour pendant sa première semaine. Vous recevez %2$lld %% de réduction sur le premier mois de Pro ou Ultra dès qu’il a posé des questions sur deux jours différents."
           }
         },
         "it": {
@@ -59895,13 +59895,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "友だちには最初の1週間、1日あたり+%1$lld回のボーナス回答。友だちが2つの別の日に質問すると、あなたはProまたはUltraの最初の1か月が%2$lld%%オフになります。"
+            "value": "友だちには最初の1週間、1日あたり+%1$lld回のボーナス回答。友だちが別々の2日に質問すると、あなたはProまたはUltraの最初の1か月が%2$lld%%オフになります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "친구는 첫 주 동안 하루 +%1$lld개의 보너스 답변을 받습니다. 친구가 서로 다른 이틀에 질문하면 Pro 또는 Ultra 첫 달 %2$lld%% 할인을 받습니다."
+            "value": "친구는 첫 주 동안 하루 +%1$lld개의 보너스 답변을 받아요. 친구가 서로 다른 이틀에 질문하면 나는 Pro 또는 Ultra 첫 달 %2$lld%% 할인을 받아요."
           }
         },
         "pt-BR": {
@@ -60041,7 +60041,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "جاؤوا برمزك: %1$lld · يستخدمونه: %2$lld"
+            "value": "انضموا برمزك: %1$lld · نشطون: %2$lld"
           }
         },
         "de": {
@@ -60059,7 +60059,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Venus avec votre code : %1$lld · l'utilisent : %2$lld"
+            "value": "Venus avec votre code : %1$lld · l’utilisent : %2$lld"
           }
         },
         "it": {
@@ -60107,7 +60107,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đến bằng mã của bạn: %1$lld · đang dùng: %2$lld"
+            "value": "Tham gia bằng mã của bạn: %1$lld · đang dùng: %2$lld"
           }
         },
         "zh-Hans": {
@@ -60283,7 +60283,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Một người bạn bạn mời đang dùng ContextFlow"
+            "value": "Một người bạn được bạn mời đang dùng ContextFlow"
           }
         },
         "zh-Hans": {
@@ -60323,13 +60323,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Merci : %lld %% de réduction sur le premier mois de Pro ou Ultra, au choix. L'App Store l'applique si vous n'avez pas encore utilisé cette réduction."
+            "value": "Merci : %lld %% de réduction sur le premier mois de Pro ou Ultra, au choix. L’App Store l’applique si vous n’avez pas encore utilisé cette réduction."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Grazie: %lld%% di sconto sul primo mese di Pro o Ultra, a tua scelta. L'App Store lo applica se non hai ancora usato questo sconto."
+            "value": "Grazie: %lld%% di sconto sul primo mese di Pro o Ultra, a tua scelta. L’App Store lo applica se non hai ancora usato questo sconto."
           }
         },
         "ja": {
@@ -60341,7 +60341,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "감사의 뜻으로 Pro 또는 Ultra 첫 달 %lld%% 할인을 드려요(원하는 쪽 선택). 이 할인을 아직 쓰지 않았다면 App Store에서 적용됩니다."
+            "value": "감사의 뜻으로 Pro 또는 Ultra 첫 달 %lld%% 할인을 드려요(원하는 쪽 선택). 이 할인을 아직 쓰지 않았다면 App Store에서 적용돼요."
           }
         },
         "pt-BR": {
@@ -60377,7 +60377,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "感谢你：Pro 或 Ultra 首月 %lld%% 折扣，任选其一。如果你还没用过这个折扣，App Store 会为你生效。"
+            "value": "感谢你：Pro 或 Ultra 首月 %lld%% 折扣，任选其一。如果你之前没用过这个折扣，它会在 App Store 中生效。"
           }
         },
         "zh-Hant": {
@@ -60487,7 +60487,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deine Bonusantworten gelten bis %@."
+            "value": "Deine Bonusantworten gelten bis zum %@."
           }
         },
         "es": {
@@ -60499,7 +60499,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vos réponses bonus durent jusqu'au %@."
+            "value": "Vos réponses bonus durent jusqu’au %@."
           }
         },
         "it": {
@@ -60517,7 +60517,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "보너스 답변은 %@까지 유효합니다."
+            "value": "보너스 답변은 %@까지 유효해요."
           }
         },
         "pt-BR": {
@@ -60569,13 +60569,13 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "جئت برمز صديق: إجابات إضافية، ‎+%1$lld يوميًا، حتى %2$@."
+            "value": "انضممت برمز صديق: إجابات إضافية، ‎+%1$lld يوميًا، حتى %2$@."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du bist mit dem Code eines Freundes gekommen: Bonusantworten, +%1$lld pro Tag, bis %2$@."
+            "value": "Du bist mit dem Code eines Freundes gekommen: Bonusantworten, +%1$lld pro Tag, bis zum %2$@."
           }
         },
         "es": {
@@ -60587,7 +60587,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous êtes venu avec le code d'un ami : réponses bonus, +%1$lld par jour, jusqu'au %2$@."
+            "value": "Vous êtes venu avec le code d’un ami : réponses bonus, +%1$lld par jour, jusqu’au %2$@."
           }
         },
         "it": {
@@ -60635,7 +60635,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bạn đến bằng mã của bạn bè: câu trả lời thưởng, +%1$lld mỗi ngày, đến %2$@."
+            "value": "Bạn tham gia bằng mã của bạn bè: câu trả lời thưởng, +%1$lld mỗi ngày, đến %2$@."
           }
         },
         "zh-Hans": {
@@ -60675,7 +60675,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous avez le code d'un ami ?"
+            "value": "Vous avez le code d’un ami ?"
           }
         },
         "it": {
@@ -61015,7 +61015,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Code angenommen: Bonusantworten, +%1$lld pro Tag, bis %2$@."
+            "value": "Code angenommen: Bonusantworten, +%1$lld pro Tag, bis zum %2$@."
           }
         },
         "es": {
@@ -61027,7 +61027,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Code accepté : réponses bonus, +%1$lld par jour, jusqu'au %2$@."
+            "value": "Code accepté : réponses bonus, +%1$lld par jour, jusqu’au %2$@."
           }
         },
         "it": {
@@ -61115,7 +61115,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce code n'existe pas. Vérifiez-le et réessayez."
+            "value": "Ce code n’existe pas. Vérifiez-le et réessayez."
           }
         },
         "it": {
@@ -61203,7 +61203,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "C'est votre propre code. Envoyez-le à un ami."
+            "value": "C’est votre propre code. Envoyez-le à un ami."
           }
         },
         "it": {
@@ -61291,7 +61291,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le code d'un ami a déjà été saisi ici."
+            "value": "Le code d’un ami a déjà été saisi ici."
           }
         },
         "it": {
@@ -61361,7 +61361,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يعمل رمز الصديق في الأسبوع الأول بعد التثبيت."
+            "value": "يعمل رمز الصديق في الأسبوع الأول بعد التثبيت فقط."
           }
         },
         "de": {
@@ -61379,13 +61379,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le code d'un ami fonctionne pendant la première semaine après l'installation."
+            "value": "Le code d’un ami fonctionne pendant la première semaine après l’installation."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il codice di un amico vale nella prima settimana dopo l'installazione."
+            "value": "Il codice di un amico vale nella prima settimana dopo l’installazione."
           }
         },
         "ja": {
@@ -61427,7 +61427,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mã của bạn bè dùng được trong tuần đầu sau khi cài đặt."
+            "value": "Mã của bạn bè chỉ dùng được trong tuần đầu sau khi cài đặt."
           }
         },
         "zh-Hans": {
@@ -61555,7 +61555,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le code d'un ami a déjà été utilisé sur cet appareil."
+            "value": "Le code d’un ami a déjà été utilisé sur cet appareil."
           }
         },
         "it": {
@@ -61643,7 +61643,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ça n'a pas marché pour l'instant. Réessayez plus tard."
+            "value": "Impossible pour le moment. Réessayez plus tard."
           }
         },
         "it": {
@@ -61661,7 +61661,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "지금은 할 수 없었어요. 나중에 다시 시도해 주세요."
+            "value": "지금은 처리하지 못했어요. 나중에 다시 시도해 주세요."
           }
         },
         "pt-BR": {
@@ -61731,13 +61731,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "J'utilise ContextFlow, l'IA directement sur la page dans Safari. Avec mon code %1$@, tu as des réponses bonus pendant ta première semaine : %2$@"
+            "value": "J’utilise ContextFlow, l’IA directement sur la page dans Safari. Avec mon code %1$@, tu as des réponses bonus pendant ta première semaine : %2$@"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uso ContextFlow, l'IA direttamente sulla pagina in Safari. Con il mio codice %1$@ hai risposte bonus per la prima settimana: %2$@"
+            "value": "Uso ContextFlow, l’IA direttamente sulla pagina in Safari. Con il mio codice %1$@ hai risposte bonus per la prima settimana: %2$@"
           }
         },
         "ja": {
@@ -61749,7 +61749,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Safari 페이지에서 바로 쓰는 AI, ContextFlow를 쓰고 있어요. 내 코드 %1$@로 첫 주 동안 보너스 답변을 받을 수 있어요: %2$@"
+            "value": "Safari 페이지에서 바로 쓰는 AI, ContextFlow를 쓰고 있어요. 내 코드 %1$@만 입력하면 첫 주 동안 보너스 답변을 받을 수 있어요: %2$@"
           }
         },
         "pt-BR": {
@@ -62271,13 +62271,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。iPad では、パネルも上部をつかんでドラッグすれば反対側へ移せます。拡張機能の設定の「画面の左右」でも同じことができます。"
+            "value": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。iPad では、パネルも上部をつかんでドラッグすれば反対側へ移せます。機能拡張の設定の「画面の左右」でも同じことができます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. iPad에서는 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있어요. 확장 프로그램 설정의 ‘화면 방향’으로도 똑같이 할 수 있어요."
+            "value": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. iPad에서는 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있어요. 확장 프로그램 설정의 ‘화면 위치’로도 똑같이 할 수 있어요."
           }
         },
         "pt-BR": {
@@ -62359,13 +62359,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。パネルも上部をつかんでドラッグすれば反対側へ移せます。拡張機能の設定の「画面の左右」でも選べます。"
+            "value": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。パネルも上部をつかんでドラッグすれば反対側へ移せます。機能拡張の設定の「画面の左右」でも選べます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있고, 확장 프로그램 설정의 ‘화면 방향’에서 고를 수도 있어요."
+            "value": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있어요. 패널도 상단을 잡고 끌어서 반대쪽으로 옮길 수 있고, 확장 프로그램 설정의 ‘화면 위치’에서 고를 수도 있어요."
           }
         },
         "pt-BR": {
@@ -62517,7 +62517,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Escribes un correo o un comentario? Toca el botón de ContextFlow junto al campo: «Revisar» y «Reescribir» son lo primero de la lista. «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo que respondes, y «Deshacer» te devuelve tus palabras. Cada toque cuenta como una respuesta."
+            "value": "¿Escribes un correo o un comentario? Toca el botón de ContextFlow junto al campo: «Revisar» y «Reescribir» son lo primero de la lista. «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo al que respondes, y «Deshacer» te devuelve tus palabras. Cada toque cuenta como una respuesta."
           }
         },
         "fr": {
@@ -62583,7 +62583,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在寫郵件或留言？點一下欄位旁的 ContextFlow 按鈕：「檢查」和「改寫」就在列表最上方。「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「復原」能換回你原本的文字。每點一下算一次回答。"
+            "value": "在寫郵件或留言？點一下欄位旁的 ContextFlow 按鈕：「檢查」和「改寫」就在列表最上方。「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「還原」能換回你原本的文字。每點一下算一次回答。"
           }
         }
       }
@@ -62605,7 +62605,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Escribes un correo o un comentario? Cuando lleves unas palabras, señala el círculo encima del campo: «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo que respondes, y «Deshacer» te devuelve tus palabras. Cada uno cuenta como una respuesta."
+            "value": "¿Escribes un correo o un comentario? Cuando lleves unas palabras, señala el círculo encima del campo: «Revisar» corrige los errores; «Reescribir» hace el texto más corto, más cálido, más formal o más seguro. Los dos tienen en cuenta la página, como el correo al que respondes, y «Deshacer» te devuelve tus palabras. Cada uno cuenta como una respuesta."
           }
         },
         "fr": {
@@ -62671,7 +62671,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在寫郵件或留言？寫下幾個字後，把指標移到欄位上方的圓圈上：「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「復原」能換回你原本的文字。每次使用算一次回答。"
+            "value": "在寫郵件或留言？寫下幾個字後，把指標移到欄位上方的圓圈上：「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「還原」能換回你原本的文字。每次使用算一次回答。"
           }
         }
       }
@@ -62799,7 +62799,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro か Ultra なら、入力の手を止めると、変更した段落の誤りに下線が引かれます。下線をタップすると修正案が表示され、「修正」か「無視」を選べます。回答回数には数えず、拡張機能の設定でオフにできます。"
+            "value": "Pro か Ultra なら、入力の手を止めると、変更した段落の誤りに下線が引かれます。下線をタップすると修正案が表示され、「修正」か「無視」を選べます。回答回数には数えず、機能拡張の設定でオフにできます。"
           }
         },
         "ko": {
@@ -62887,7 +62887,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro か Ultra なら、入力の手を止めると、変更した段落の誤りに下線が引かれます。下線にポインタを合わせると修正案が表示され、「修正」か「無視」を選べます。回答回数には数えず、拡張機能の設定でオフにできます。"
+            "value": "Pro か Ultra なら、入力の手を止めると、変更した段落の誤りに下線が引かれます。下線にポインタを合わせると修正案が表示され、「修正」か「無視」を選べます。回答回数には数えず、機能拡張の設定でオフにできます。"
           }
         },
         "ko": {
@@ -63111,7 +63111,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。點一下圖片可全螢幕打開並裁切。圖片留在你的裝置和 iCloud 中。"
+            "value": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。點一下圖片可全螢幕開啟並裁切。圖片留在你的裝置和 iCloud 中。"
           }
         }
       }
@@ -63199,7 +63199,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。按一下圖片可全螢幕打開並裁切。圖片留在你的裝置和 iCloud 中。"
+            "value": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。按一下圖片可全螢幕開啟並裁切。圖片留在你的裝置和 iCloud 中。"
           }
         }
       }
@@ -63233,7 +63233,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca veloce, fino a 5 a settimana, e ognuna vale 10 risposte."
+            "value": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca rapida, fino a 5 a settimana, e ognuna vale 10 risposte."
           }
         },
         "ja": {
@@ -63321,7 +63321,7 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca veloce, fino a 5 a settimana, e ognuna vale 10 risposte."
+            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca rapida, fino a 5 a settimana, e ognuna vale 10 risposte."
           }
         },
         "ja": {
@@ -63473,7 +63473,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "اطلب «ذكّرني بالاتصال بالبنك يوم الجمعة»، أو اسأل عن تاريخ في الصفحة: تأتي الإجابة مع بطاقة لتتحقق من التاريخ والوقت، و«إضافة» تضعه في التقويم أو التذكيرات. وفي قائمة … لأي إجابة أو ملاحظة يوجد «إضافة إلى التقويم أو التذكيرات». وفي «ذكّرني»، يضع «أيضًا في التذكيرات» تذكيرك في تطبيق التذكيرات من Apple كذلك."
+            "value": "اطلب «ذكّرني بالاتصال بالبنك يوم الجمعة»، أو اسأل عن تاريخ في الصفحة: تأتي الإجابة مع بطاقة لتتحقق من التاريخ والوقت، و«إضافة» تضعه في التقويم أو التذكيرات. وفي قائمة … لأي إجابة أو ملاحظة يوجد «إضافة إلى التقويم أو التذكيرات». وفي «ذكّرني»، يضيف خيار «في التذكيرات أيضًا» تذكيرك إلى تطبيق التذكيرات من Apple."
           }
         },
         "de": {
@@ -63521,7 +63521,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Напишите «напомни позвонить в банк в пятницу» или спросите о дате на странице: в ответе будет карточка, где можно проверить дату и время, а «Добавить» отправит всё в Календарь или Напоминания. У любого ответа или заметки в меню «…» есть «В Календарь или Напоминания». В «Напомнить» пункт «Также в Напоминания» добавит ваше напоминание и в Напоминания Apple."
+            "value": "Напишите «напомни позвонить в банк в пятницу» или спросите о дате на странице: в ответе будет карточка, где можно проверить дату и время, а «Добавить» отправит всё в Календарь или Напоминания. У любого ответа или заметки в меню «…» есть «В Календарь или Напоминания». В «Напомнить» пункт «Также в Напоминаниях» добавит ваше напоминание и в Напоминания Apple."
           }
         },
         "tr": {
@@ -63533,13 +63533,13 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Напишіть «нагадай зателефонувати в банк у п’ятницю» або запитайте про дату на сторінці: у відповіді буде картка, де можна перевірити дату й час, а «Додати» відправить усе до Календаря або Нагадувань. У будь-якої відповіді чи нотатки в меню «…» є «До Календаря або Нагадувань». У «Нагадати» пункт «Також у Нагадування» додасть ваше нагадування й до Нагадувань Apple."
+            "value": "Напишіть «нагадай зателефонувати в банк у п’ятницю» або запитайте про дату на сторінці: у відповіді буде картка, де можна перевірити дату й час, а «Додати» відправить усе до Календаря або Нагадувань. У будь-якої відповіді чи нотатки в меню «…» є «До Календаря або Нагадувань». У «Нагадати» пункт «Також у Нагадуваннях» додасть ваше нагадування й до Нагадувань Apple."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Viết “nhắc tôi gọi cho ngân hàng vào thứ Sáu”, hoặc hỏi về một ngày trên trang: câu trả lời kèm một thẻ để kiểm tra ngày giờ, và Thêm sẽ đưa vào Lịch hoặc Lời nhắc. Mọi câu trả lời hay ghi chú đều có Thêm vào Lịch hoặc Lời nhắc trong menu … của chúng. Trong Nhắc tôi, Thêm vào Lời nhắc sẽ đưa lời nhắc của bạn vào cả ứng dụng Lời nhắc của Apple."
+            "value": "Viết “nhắc tôi gọi cho ngân hàng vào thứ Sáu”, hoặc hỏi về một ngày trên trang: câu trả lời kèm một thẻ để kiểm tra ngày giờ, và Thêm sẽ đưa vào Lịch hoặc Lời nhắc. Mọi câu trả lời hay ghi chú đều có Thêm vào Lịch hoặc Lời nhắc trong menu … của chúng. Trong Nhắc tôi, tùy chọn Cũng thêm vào Lời nhắc sẽ đưa lời nhắc của bạn vào cả ứng dụng Lời nhắc của Apple."
           }
         },
         "zh-Hans": {
@@ -63679,7 +63679,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "仕事、プライベート、買い物を分けておけます。チャット一覧の最後にある「新しいスペース」で、専用の色のスペースを作れます。一覧の上部の切り替えでスペースを移動でき、新しいチャットは今いるスペースに入ります。切り替えで「amazon.com をここで開く」を選ぶと、そのサイトはこのスペースで開くようになります。無料版には上限があり、Pro か Ultra なら無制限です。"
+            "value": "仕事、プライベート、買い物を分けておけます。チャット一覧の最後にある「新しいスペース」で、専用の色のスペースを作れます。一覧の上部の切り替えでスペースを移動でき、新しいチャットは今いるスペースに入ります。切り替えで「amazon.com をここで開く」を選ぶと、そのサイトはこのスペースで開くようになります。無料プランには上限があり、Pro か Ultra なら無制限です。"
           }
         },
         "ko": {
@@ -63727,7 +63727,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "把工作、個人和購物分開。對話列表最後的「新增空間」會建立一個有自己顏色的空間。列表頂部的切換器可以在空間之間切換，新對話會放進你目前所在的空間。在切換器中選擇「在這裡打開 amazon.com」，之後這個網站就會在這個空間打開。免費版有數量限制；使用 Pro 或 Ultra 則不限數量。"
+            "value": "把工作、個人和購物分開。對話列表最後的「新增空間」會建立一個有自己顏色的空間。列表頂部的切換器可以在空間之間切換，新對話會放進你目前所在的空間。在切換器中選擇「在這裡開啟 amazon.com」，之後這個網站就會在這個空間開啟。免費方案有數量限制；使用 Pro 或 Ultra 則不限數量。"
           }
         }
       }
@@ -63825,7 +63825,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "افتح اللوحة في صفحة فيختار ContextFlow المحادثة المتعلقة بها: التي فيها هذه الصفحة، أو محادثة عن الموضوع نفسه. «متابعة» في الأعلى يوضح أي محادثة اختار، و«محادثة جديدة» هناك تبدأ محادثة أخرى."
+            "value": "افتح اللوحة في صفحة فيختار ContextFlow المحادثة المتعلقة بها: التي فيها هذه الصفحة، أو محادثة عن الموضوع نفسه. «أتابع» في الأعلى يوضح أي محادثة اختار، و«محادثة جديدة» هناك تبدأ محادثة أخرى."
           }
         },
         "de": {
@@ -63891,7 +63891,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mở bảng trên một trang, ContextFlow sẽ chọn cuộc trò chuyện về trang đó: cuộc có trang này, hoặc cuộc cùng chủ đề. Tiếp tục ở trên cùng cho biết cuộc trò chuyện nào được chọn; Cuộc trò chuyện mới ở đó sẽ bắt đầu cuộc mới."
+            "value": "Mở bảng trên một trang, ContextFlow sẽ chọn cuộc trò chuyện về trang đó: cuộc có trang này, hoặc cuộc cùng chủ đề. Nhãn Đang tiếp tục ở trên cùng cho biết cuộc trò chuyện nào được chọn; Cuộc trò chuyện mới ở đó sẽ bắt đầu cuộc mới."
           }
         },
         "zh-Hans": {
@@ -63903,7 +63903,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在頁面上打開面板，ContextFlow 會挑出跟它有關的對話：含有這個頁面的對話，或同一主題的對話。頂部的「繼續：」會說明挑了哪段對話；那裡的「新對話」可以開始一段新的。"
+            "value": "在頁面上開啟面板，ContextFlow 會挑出跟它有關的對話：含有這個頁面的對話，或同一主題的對話。頂部的「繼續：」會說明挑了哪段對話；那裡的「新對話」可以開始一段新的。"
           }
         }
       }
@@ -64031,7 +64031,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "使い始めの数日は、✦ の横に短い一行が出て、開いているページでできることを提案します。長い記事の要約、見守る価格、カレンダーに入れる日付などです。タップすると方法が分かります。この一行は拡張機能の設定の「✦ボタンのヒント」でオフにできます。"
+            "value": "使い始めの数日は、✦ の横に短い一行が出て、開いているページでできることを提案します。長い記事の要約、見守る価格、カレンダーに入れる日付などです。タップすると方法が分かります。この一行は機能拡張の設定の「✦ボタンのヒント」でオフにできます。"
           }
         },
         "ko": {
@@ -64195,25 +64195,25 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "« Réglages » → « Inviter un ami », dans l'app ou dans Safari, vous donne un code et un lien à envoyer. Votre ami reçoit des réponses bonus chaque jour de sa première semaine. Dès qu'il a posé des questions sur deux jours différents, vous recevez une réduction sur le premier mois de Pro ou Ultra."
+            "value": "« Réglages » → « Inviter un ami », dans l’app ou dans Safari, vous donne un code et un lien à envoyer. Votre ami reçoit des réponses bonus chaque jour de sa première semaine. Dès qu’il a posé des questions sur deux jours différents, vous recevez une réduction sur le premier mois de Pro ou Ultra."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "«Impostazioni» → «Invita un amico», nell'app o in Safari, ti dà un codice e un link da inviare. Il tuo amico riceve risposte bonus ogni giorno della prima settimana. Quando avrà fatto domande in due giorni diversi, ricevi uno sconto sul primo mese di Pro o Ultra."
+            "value": "«Impostazioni» → «Invita un amico», nell’app o in Safari, ti dà un codice e un link da inviare. Il tuo amico riceve risposte bonus ogni giorno della prima settimana. Quando avrà fatto domande in due giorni diversi, ricevi uno sconto sul primo mese di Pro o Ultra."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アプリまたはSafariの「設定」→「友だちを招待」で、送れるコードとリンクが手に入ります。友だちは最初の1週間、毎日ボーナス回答を受け取れます。友だちが2つの別の日に質問すると、あなたはProまたはUltraの最初の1か月が割引になります。"
+            "value": "アプリまたはSafariの「設定」→「友だちを招待」で、送れるコードとリンクが手に入ります。友だちは最初の1週間、毎日ボーナス回答を受け取れます。友だちが別々の2日に質問すると、あなたはProまたはUltraの最初の1か月が割引になります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "앱이나 Safari의 ‘설정’ → ‘친구 초대’에서 보낼 코드와 링크를 받을 수 있어요. 친구는 첫 주 동안 매일 보너스 답변을 받아요. 친구가 서로 다른 이틀에 질문하면 Pro 또는 Ultra 첫 달 할인을 받아요."
+            "value": "앱이나 Safari의 ‘설정’ → ‘친구 초대’에서 보낼 코드와 링크를 받을 수 있어요. 친구는 첫 주 동안 매일 보너스 답변을 받아요. 친구가 서로 다른 이틀에 질문하면 나는 Pro 또는 Ultra 첫 달 할인을 받아요."
           }
         },
         "pt-BR": {
@@ -64344,7 +64344,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 ContextFlow 中打開對話"
+            "value": "在 ContextFlow 中開啟對話"
           }
         }
       }
@@ -64427,13 +64427,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "整理自"
+            "value": "制作工具："
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "整理自"
+            "value": "製作工具："
           }
         }
       }
@@ -64492,7 +64492,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow — AI для Safari"
+            "value": "ContextFlow — ИИ для Safari"
           }
         },
         "tr": {
@@ -64504,7 +64504,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow — AI для Safari"
+            "value": "ContextFlow — ШІ для Safari"
           }
         },
         "vi": {
@@ -64622,55 +64622,55 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لم ينجح ذلك هذه المرة. حاول لاحقًا."
+            "value": "تعذّر إنشاء ملف PDF. حاول مرة أخرى."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hat gerade nicht geklappt. Versuch es später noch einmal."
+            "value": "Das PDF ließ sich nicht erstellen. Versuch es noch einmal."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esta vez no funcionó. Inténtalo más tarde."
+            "value": "No se pudo crear el PDF. Inténtalo de nuevo."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ça n’a pas marché cette fois. Réessayez plus tard."
+            "value": "Impossible de créer le PDF. Réessayez."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stavolta non ha funzionato. Riprova più tardi."
+            "value": "Impossibile creare il PDF. Riprova."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "今回はうまくいきませんでした。後でもう一度お試しください。"
+            "value": "PDFを作成できませんでした。もう一度お試しください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이번에는 되지 않았습니다. 나중에 다시 시도하세요."
+            "value": "PDF를 만들지 못했어요. 다시 시도해 주세요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não deu certo agora. Tente mais tarde."
+            "value": "Não foi possível criar o PDF. Tente de novo."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сейчас не получилось. Попробуйте позже."
+            "value": "Не удалось создать PDF. Попробуйте ещё раз."
           }
         },
         "tr": {
@@ -64682,25 +64682,25 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Зараз не вийшло. Спробуйте пізніше."
+            "value": "Не вдалося створити PDF. Спробуйте ще раз."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lần này chưa được. Hãy thử lại sau."
+            "value": "Không tạo được PDF. Hãy thử lại."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这次没有成功，请稍后再试。"
+            "value": "无法生成 PDF，请重试。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "這次沒有成功，請稍後再試。"
+            "value": "無法產生 PDF，請再試一次。"
           }
         }
       }

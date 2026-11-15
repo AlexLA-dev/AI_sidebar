@@ -2508,7 +2508,7 @@
   "message": "Nessun errore trovato."
  },
  "writeEmpty": {
-  "message": "Qui non c'è ancora testo."
+  "message": "Qui non c’è ancora testo."
  },
  "writeTooLong": {
   "message": "È troppo in una volta. Seleziona una parte e riprova."
@@ -2544,7 +2544,7 @@
   "message": "Controlla e Riscrivi accanto ai campi"
  },
  "writeSettingHint": {
-  "message": "Le correzioni tengono conto della pagina: l'email a cui rispondi, il post che commenti. Ogni tocco vale una risposta. Il modo in cui scrivi su ogni sito resta su questo dispositivo e aiuta a rispettare il tuo stile."
+  "message": "Le correzioni e le riscritture tengono conto della pagina: l’email a cui rispondi, il post che commenti. Ogni tocco vale una risposta. Il modo in cui scrivi su ogni sito resta su questo dispositivo e aiuta a rispettare il tuo stile."
  },
  "writeSkip": {
   "message": "Ignora"
@@ -2679,7 +2679,7 @@
   "message": "Scrivi nel campo evidenziato, per esempio «ricordamelo domani alle 9», e ti propongo un promemoria."
  },
  "phCalendarTitle": {
-  "message": "Nel calendario"
+  "message": "Aggiungere al calendario"
  },
  "phCalendarBody": {
   "message": "Scrivi «aggiungi al calendario» nel campo evidenziato e ti propongo un evento con la data della pagina."
@@ -2691,7 +2691,7 @@
   "message": "Nei primi giorni mostrano cosa puoi fare su una pagina."
  },
  "phSimilarBodyUpBoth": {
-  "message": "È in Pro e Ultra: in Pro la ricerca veloce, in Ultra quella completa. Lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
+  "message": "È in Pro e Ultra: in Pro la ricerca rapida, in Ultra quella completa. Lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."
  },
  "shotSwitch": {
   "message": "Istantanea della pagina"
@@ -2706,19 +2706,19 @@
   "message": "La pagina intera è inclusa in Pro e Ultra."
  },
  "shotTaking": {
-  "message": "Scatto l'istantanea…"
+  "message": "Scatto l’istantanea…"
  },
  "shotTakingFull": {
   "message": "Istantanea: schermata {0} di {1}…"
  },
  "shotFailed": {
-  "message": "Non è stato possibile fare un'istantanea qui. La nota è salvata senza."
+  "message": "Non è stato possibile fare un’istantanea qui. La nota è salvata senza."
  },
  "shotCut": {
-  "message": "La pagina è lunga: l'istantanea contiene le prime {0} schermate."
+  "message": "La pagina è lunga: l’istantanea contiene le prime {0} schermate."
  },
  "shotOpen": {
-  "message": "Apri l'istantanea"
+  "message": "Apri l’istantanea"
  },
  "shotNote": {
   "message": "Istantanea della pagina"
@@ -2733,7 +2733,7 @@
   "message": "Istantanea intera"
  },
  "shotLoading": {
-  "message": "Apro l'istantanea…"
+  "message": "Apro l’istantanea…"
  },
  "shotMissing": {
   "message": "Questa istantanea non è ancora su questo dispositivo. Arriva tramite iCloud se le chat vi sono sincronizzate."
@@ -2760,7 +2760,7 @@
   "message": "Condividi"
  },
  "invShareText": {
-  "message": "Uso ContextFlow, l'IA direttamente sulla pagina in Safari. Con il mio codice {0} hai risposte bonus per la prima settimana: {1}"
+  "message": "Uso ContextFlow, l’IA direttamente sulla pagina in Safari. Con il mio codice {0} hai risposte bonus per la prima settimana: {1}"
  },
  "invFriends": {
   "message": "Arrivati con il tuo codice: {0} · lo usano: {1}"
@@ -2769,7 +2769,7 @@
   "message": "Un amico che hai invitato usa ContextFlow"
  },
  "invRewardBody": {
-  "message": "Grazie: {0}% di sconto sul primo mese di Pro o Ultra, a tua scelta. L'App Store lo applica se non hai ancora usato questo sconto."
+  "message": "Grazie: {0}% di sconto sul primo mese di Pro o Ultra, a tua scelta. L’App Store lo applica se non hai ancora usato questo sconto."
  },
  "invRewardPro": {
   "message": "Pro −{0}%"
@@ -2808,7 +2808,7 @@
   "message": "Qui è già stato inserito il codice di un amico."
  },
  "invErrLate": {
-  "message": "Il codice di un amico vale nella prima settimana dopo l'installazione."
+  "message": "Il codice di un amico vale nella prima settimana dopo l’installazione."
  },
  "invErrFull": {
   "message": "Questo codice ha raggiunto il limite."
@@ -2817,7 +2817,7 @@
   "message": "Su questo dispositivo è già stato usato il codice di un amico."
  },
  "invErrCheck": {
-  "message": "Non è stato possibile verificare il dispositivo. Prova a inserire il codice nell'app ContextFlow."
+  "message": "Non è stato possibile verificare il dispositivo. Prova a inserire il codice nell’app ContextFlow."
  },
  "invErrLater": {
   "message": "Ora non è stato possibile. Riprova più tardi."
@@ -3102,10 +3102,10 @@
   "message": "Trova simili"
  },
  "tip_2c6d9f34e3": {
-  "message": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca veloce, fino a 5 a settimana, e ognuna vale 10 risposte."
+  "message": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca rapida, fino a 5 a settimana, e ognuna vale 10 risposte."
  },
  "tip_9bb47159a4": {
-  "message": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca veloce, fino a 5 a settimana, e ognuna vale 10 risposte."
+  "message": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ultra fa la ricerca completa e apre ogni link per verificarlo prima che tu lo veda. Pro ha la ricerca rapida, fino a 5 a settimana, e ognuna vale 10 risposte."
  },
  "tip_c518fb0674": {
   "message": "Ascolta"
@@ -3267,7 +3267,7 @@
   "message": "Invita un amico"
  },
  "tip_0e8493432d": {
-  "message": "«Impostazioni» → «Invita un amico», nell'app o in Safari, ti dà un codice e un link da inviare. Il tuo amico riceve risposte bonus ogni giorno della prima settimana. Quando avrà fatto domande in due giorni diversi, ricevi uno sconto sul primo mese di Pro o Ultra."
+  "message": "«Impostazioni» → «Invita un amico», nell’app o in Safari, ti dà un codice e un link da inviare. Il tuo amico riceve risposte bonus ogni giorno della prima settimana. Quando avrà fatto domande in due giorni diversi, ricevi uno sconto sul primo mese di Pro o Ultra."
  },
  "tip_3208aa35ac": {
   "message": "Privacy e personalizzazione"

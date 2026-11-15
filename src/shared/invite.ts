@@ -21,11 +21,13 @@ export const inviteLink = (code: string): string => `${INVITE_SITE}/i/${code}`
 
 /**
  * The code in what a person typed or pasted: the code itself in any case, with spaces or a dash, or the whole link
- * (or a message with the link in it). null when there's no valid code in it.
+ * (or a message with the link in it). null when there's no valid code in it. Full-width letters and digits from a
+ * Japanese or Chinese keyboard («ＡＢＣ２３４», an ideographic space, a full-width dash) count as the plain ones (NFKC,
+ * 2.7, the director's audit).
  */
 export function parseInviteCode(raw: unknown): string | null {
   if (typeof raw !== "string") return null
-  const text = raw.trim().slice(0, 2000)
+  const text = raw.normalize("NFKC").trim().slice(0, 2000)
   const linked = /\/i\/([A-Za-z0-9]{6})(?![A-Za-z0-9])/.exec(text)
   if (linked) return CODE.test(linked[1].toUpperCase()) ? linked[1].toUpperCase() : null
   if (text.length > 20) return null

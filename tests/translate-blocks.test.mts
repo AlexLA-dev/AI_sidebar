@@ -16,7 +16,7 @@ type Block = { parent: Element; nodes: Node[]; tags: Map<number, Element>; text:
 type Applied = unknown
 let lib: {
   collectBlocks: (root: Element) => Block[]
-  applyBlock: (block: Block, translation: string) => Applied | null
+  applyBlock: (block: Block, translation: string, lang?: string) => Applied | null
   restore: (done: Applied) => void
   scanRoot: (el: Element) => Element | null
   PageTranslator: new (deps: Record<string, unknown>) => {
@@ -101,6 +101,30 @@ test("a translation goes into the same nodes: the link is the same element, same
   assert.equal(clicks, 1)
   lib.restore(done)
   assert.equal(document.getElementById("p1")!.innerHTML, before, "Original: exactly as it was")
+})
+
+test("a translated block says its language and takes its direction from its words; Original puts both back", () => {
+  // English into Arabic stayed left to right; Arabic into English put the full stop on the wrong side (the audit).
+  const { document } = page(`<div dir="rtl" lang="ar"><p id="ar">افتتحت المدينة الجسر الجديد يوم الاثنين.</p></div><p id="en" class="x">The city opened the new bridge on Monday.</p>`)
+  const ar = document.getElementById("ar")!
+  const en = document.getElementById("en")!
+  const toEnglish = lib.applyBlock(lib.collectBlocks(ar)[0], "The city opened the new bridge on Monday.", "en")
+  assert.equal(ar.getAttribute("lang"), "en")
+  assert.equal(ar.getAttribute("dir"), "auto")
+  const toArabic = lib.applyBlock(lib.collectBlocks(en)[0], "افتتحت المدينة الجسر الجديد يوم الاثنين.", "ar")
+  assert.equal(en.getAttribute("lang"), "ar")
+  assert.equal(en.getAttribute("dir"), "auto")
+  lib.restore(toEnglish)
+  lib.restore(toArabic)
+  assert.equal(ar.hasAttribute("lang"), false, "it had none of its own (its parent's stays)")
+  assert.equal(ar.hasAttribute("dir"), false)
+  assert.equal(en.outerHTML, `<p id="en" class="x">The city opened the new bridge on Monday.</p>`)
+  // Words straight in the page's body: its direction would turn the whole layout, so it's left alone.
+  const bare = page(`Ein Satz direkt im Body der Seite.`).document
+  const done = lib.applyBlock(lib.collectBlocks(bare.body)[0], "A sentence right in the page's body.", "en")
+  assert.ok(done)
+  assert.equal(bare.body.hasAttribute("dir"), false)
+  assert.equal(bare.documentElement.getAttribute("lang"), "de")
 })
 
 test("word order moves the links; Original puts them back; a line break stays a line break", () => {

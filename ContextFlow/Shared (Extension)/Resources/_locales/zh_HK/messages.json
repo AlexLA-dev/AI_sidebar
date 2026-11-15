@@ -2355,7 +2355,7 @@
   "message": "已加入行事曆"
  },
  "appleOpening": {
-  "message": "正在打開 ContextFlow…"
+  "message": "正在開啟 ContextFlow…"
  },
  "appleDenied": {
   "message": "ContextFlow 沒有存取權限。請在「設定」中開啟。"
@@ -2370,7 +2370,7 @@
   "message": "ContextFlow 無權存取提醒事項。請在「設定」中開啟。"
  },
  "appleAskOnce": {
-  "message": "第一次會打開 ContextFlow 來要求存取權限。"
+  "message": "第一次會開啟 ContextFlow 來要求存取權限。"
  },
  "trOffer": {
   "message": "翻譯成中文？"
@@ -2442,10 +2442,10 @@
   "message": "其中的對話會移到「{0}」。"
  },
  "spaceBind": {
-  "message": "在這裡打開 {0}"
+  "message": "在這裡開啟 {0}"
  },
  "spaceBoundElsewhere": {
-  "message": "{0} 會在「{1}」中打開。改在這裡打開"
+  "message": "{0} 會在「{1}」中開啟。改在這裡開啟"
  },
  "spaceMoveTo": {
   "message": "移到…"
@@ -2457,7 +2457,7 @@
   "message": "你在「{0}」中"
  },
  "spaceLimit": {
-  "message": "免費版空間：{0} 個。Pro 不限數量。"
+  "message": "免費方案可建立 {0} 個空間。Pro 不限數量。"
  },
  "spaceEmpty": {
   "message": "「{0}」中還沒有對話。新對話會放在這裡。"
@@ -2499,10 +2499,10 @@
   "message": "正在參考頁面內容改寫…"
  },
  "writeFixes": {
-  "message": "修改:{0} 處"
+  "message": "修改：{0} 處"
  },
  "writeLeft": {
-  "message": "今天剩餘免費回答:{0}"
+  "message": "今天剩餘的免費回答：{0}"
  },
  "writeClean": {
   "message": "沒有發現錯誤。"
@@ -2526,25 +2526,25 @@
   "message": "已修正"
  },
  "writeFixedSome": {
-  "message": "已修正,輸入框不接受的部分除外"
+  "message": "已修正，欄位不接受的部分除外"
  },
  "writeReplaced": {
   "message": "已取代"
  },
  "writeUndo": {
-  "message": "復原"
+  "message": "還原"
  },
  "writeUndone": {
-  "message": "已復原"
+  "message": "已還原"
  },
  "writeUndoFailed": {
-  "message": "無法復原:文字已改動。"
+  "message": "無法還原：文字已改動。"
  },
  "writeSetting": {
-  "message": "輸入框旁的「檢查」和「改寫」"
+  "message": "欄位旁的「檢查」和「改寫」"
  },
  "writeSettingHint": {
-  "message": "修改會參考頁面內容:你正在回覆的郵件、你留言的貼文。每次點按算一次回答。你在各網站的寫法只存在這台裝置上,用來貼近你的風格。"
+  "message": "修改會參考頁面內容：你正在回覆的郵件、你留言的貼文。每點一下算一次回答。你在各網站的寫法只會儲存在這台裝置上，用來貼近你的風格。"
  },
  "writeSkip": {
   "message": "忽略"
@@ -2553,7 +2553,7 @@
   "message": "輸入時為錯誤加底線"
  },
  "underlineSettingHint": {
-  "message": "Pro 和 Ultra:輸入停頓後,只參考頁面內容檢查你改動的段落。把指標移到底線上(在 iPhone 和 iPad 上點一下)即可修正。不計入回答次數。"
+  "message": "Pro 和 Ultra：輸入停頓後，只參考頁面內容檢查你改動的段落。把指標移到底線上（在 iPhone 和 iPad 上點一下）即可修正。不計入回答次數。"
  },
  "setSide": {
   "message": "螢幕側邊"
@@ -2631,10 +2631,10 @@
   "message": "找更便宜的"
  },
  "phSimilarBody": {
-  "message": "選取商品名稱 →「尋找相似」，或點亮起的按鈕：同款更便宜的，還有相似的。"
+  "message": "選取商品名稱 →「尋找相似」，或點一下亮起的按鈕：同款更便宜的，還有相似的。"
  },
  "phSimilarBodyUp": {
-  "message": "這是 Ultra 功能：同款更便宜的，以及其他商店的相似商品。點亮起的按鈕。"
+  "message": "這是 Ultra 功能：同款更便宜的，以及其他商店的相似商品。點一下亮起的按鈕。"
  },
  "phWatchTitle": {
   "message": "追蹤價格"
@@ -2646,16 +2646,16 @@
   "message": "頁面摘要"
  },
  "phSummaryBody": {
-  "message": "點亮起的「摘要」：幾行看懂頁面重點。"
+  "message": "點一下亮起的「摘要」：幾行看懂頁面重點。"
  },
  "phListenTitle": {
   "message": "聽文章"
  },
  "phListenBody": {
-  "message": "打開「…」（已亮起）→「朗讀這個頁面」：文章會被朗讀出來。"
+  "message": "開啟「…」（已亮起）→「朗讀這個頁面」：文章會被朗讀出來。"
  },
  "phListenBodyUp": {
-  "message": "朗讀是 Ultra 功能。打開「…」（已亮起）→「朗讀這個頁面」。"
+  "message": "朗讀是 Ultra 功能。開啟「…」（已亮起）→「朗讀這個頁面」。"
  },
  "phVideoTitle": {
   "message": "關於影片的問題"
@@ -2670,7 +2670,7 @@
   "message": "用範本回覆"
  },
  "phTemplatesBody": {
-  "message": "把游標放進頁面上的輸入框，旁邊會出現範本按鈕。你的範本：「…」（已亮起）→「設定」→「範本」。"
+  "message": "把游標放進頁面上的欄位，旁邊會出現範本按鈕。你的範本：「…」（已亮起）→「設定」→「範本」。"
  },
  "phRemindTitle": {
   "message": "提醒"
@@ -2682,7 +2682,7 @@
   "message": "加入行事曆"
  },
  "phCalendarBody": {
-  "message": "在亮起的輸入框裡寫「加入行事曆」，我會用頁面上的日期建議一個活動。"
+  "message": "在亮起的輸入框裡寫「加入行事曆」，我會用頁面上的日期建議一個行程。"
  },
  "setPageHints": {
   "message": "✦ 按鈕旁的提示"
@@ -2691,7 +2691,7 @@
   "message": "剛開始的幾天，提示你在頁面上能做什麼。"
  },
  "phSimilarBodyUpBoth": {
-  "message": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點亮起的按鈕。"
+  "message": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點一下亮起的按鈕。"
  },
  "shotSwitch": {
   "message": "頁面快照"
@@ -2709,16 +2709,16 @@
   "message": "正在拍攝快照…"
  },
  "shotTakingFull": {
-  "message": "快照:第 {0} 個畫面,共 {1} 個…"
+  "message": "快照：第 {0} 個畫面，共 {1} 個…"
  },
  "shotFailed": {
-  "message": "這裡無法拍攝快照。筆記已儲存,不含快照。"
+  "message": "這裡無法拍攝快照。筆記已儲存，不含快照。"
  },
  "shotCut": {
-  "message": "頁面較長:快照包含前 {0} 個畫面。"
+  "message": "頁面較長：快照包含前 {0} 個畫面。"
  },
  "shotOpen": {
-  "message": "打開快照"
+  "message": "開啟快照"
  },
  "shotNote": {
   "message": "頁面快照"
@@ -2733,10 +2733,10 @@
   "message": "完整快照"
  },
  "shotLoading": {
-  "message": "正在打開快照…"
+  "message": "正在開啟快照…"
  },
  "shotMissing": {
-  "message": "這張快照還沒到這台裝置。如果聊天透過 iCloud 同步,它會隨之送達。"
+  "message": "這張快照還不在這台裝置上。對話透過 iCloud 同步時，它也會一起同步過來。"
  },
  "invTitle": {
   "message": "邀請朋友"
@@ -2898,7 +2898,7 @@
   "message": "PDF"
  },
  "colOpenChat": {
-  "message": "打開對話"
+  "message": "開啟對話"
  },
  "colMoveTo": {
   "message": "移到「{0}」"
@@ -2916,10 +2916,10 @@
   "message": "比較"
  },
  "colLimitCollections": {
-  "message": "免費版可建立 1 個合集。Pro 不限數量。"
+  "message": "免費方案可建立 1 個合集。Pro 不限數量。"
  },
  "colLimitCards": {
-  "message": "免費版每個合集最多 {0} 張卡片。Pro 最多 {1} 張。"
+  "message": "免費方案每個合集最多 {0} 張卡片。Pro 最多 {1} 張。"
  },
  "colProOnly": {
   "message": "比較和總結屬於 Pro。"
@@ -2931,19 +2931,19 @@
   "message": "這次沒有成功，請稍後再試。"
  },
  "colLimitDay": {
-  "message": "今天就到這裡：明天再試。"
+  "message": "今天的次數用完了，明天再試。"
  },
  "colGone": {
   "message": "此合集已刪除。"
  },
  "colPdfMadeWith": {
-  "message": "整理自"
+  "message": "製作工具："
  },
  "colPdfBrand": {
   "message": "ContextFlow — Safari 的 AI 助手"
  },
  "colPdfOpenChat": {
-  "message": "在 ContextFlow 中打開對話"
+  "message": "在 ContextFlow 中開啟對話"
  },
  "colPdfFooter": {
   "message": "用 ContextFlow 製作"
@@ -3051,10 +3051,10 @@
   "message": "為筆記附上頁面快照"
  },
  "tip_dff446b7cc": {
-  "message": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。點一下圖片可全螢幕打開並裁切。圖片留在你的裝置和 iCloud 中。"
+  "message": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。點一下圖片可全螢幕開啟並裁切。圖片留在你的裝置和 iCloud 中。"
  },
  "tip_3ca344f02e": {
-  "message": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。按一下圖片可全螢幕打開並裁切。圖片留在你的裝置和 iCloud 中。"
+  "message": "在寫筆記？開啟欄位上方的「頁面快照」，筆記就會保留一張頁面圖片：螢幕上可見的部分，或使用 Pro 時保留整頁。按一下圖片可全螢幕開啟並裁切。圖片留在你的裝置和 iCloud 中。"
  },
  "tip_654fb12e51": {
   "message": "標示重點"
@@ -3132,10 +3132,10 @@
   "message": "傳送前檢查或改寫"
  },
  "tip_4a10311c4a": {
-  "message": "在寫郵件或留言？點一下欄位旁的 ContextFlow 按鈕：「檢查」和「改寫」就在列表最上方。「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「復原」能換回你原本的文字。每點一下算一次回答。"
+  "message": "在寫郵件或留言？點一下欄位旁的 ContextFlow 按鈕：「檢查」和「改寫」就在列表最上方。「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「還原」能換回你原本的文字。每點一下算一次回答。"
  },
  "tip_cf8bbe1b2a": {
-  "message": "在寫郵件或留言？寫下幾個字後，把指標移到欄位上方的圓圈上：「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「復原」能換回你原本的文字。每次使用算一次回答。"
+  "message": "在寫郵件或留言？寫下幾個字後，把指標移到欄位上方的圓圈上：「檢查」會修正錯誤；「改寫」能讓文字更簡短、更親切、更正式或更有自信。兩者都會參考頁面內容，例如你正在回覆的郵件，「還原」能換回你原本的文字。每次使用算一次回答。"
  },
  "tip_898fe0f06c": {
   "message": "輸入時為錯誤加底線"
@@ -3192,13 +3192,13 @@
   "message": "工作和個人的空間"
  },
  "tip_6bf925510c": {
-  "message": "把工作、個人和購物分開。對話列表最後的「新增空間」會建立一個有自己顏色的空間。列表頂部的切換器可以在空間之間切換，新對話會放進你目前所在的空間。在切換器中選擇「在這裡打開 amazon.com」，之後這個網站就會在這個空間打開。免費版有數量限制；使用 Pro 或 Ultra 則不限數量。"
+  "message": "把工作、個人和購物分開。對話列表最後的「新增空間」會建立一個有自己顏色的空間。列表頂部的切換器可以在空間之間切換，新對話會放進你目前所在的空間。在切換器中選擇「在這裡開啟 amazon.com」，之後這個網站就會在這個空間開啟。免費方案有數量限制；使用 Pro 或 Ultra 則不限數量。"
  },
  "tip_3512a4ae8c": {
   "message": "這個頁面的對話"
  },
  "tip_05b9621aed": {
-  "message": "在頁面上打開面板，ContextFlow 會挑出跟它有關的對話：含有這個頁面的對話，或同一主題的對話。頂部的「繼續：」會說明挑了哪段對話；那裡的「新對話」可以開始一段新的。"
+  "message": "在頁面上開啟面板，ContextFlow 會挑出跟它有關的對話：含有這個頁面的對話，或同一主題的對話。頂部的「繼續：」會說明挑了哪段對話；那裡的「新對話」可以開始一段新的。"
  },
  "tip_c4b432e2e9": {
   "message": "搜尋你的對話"
