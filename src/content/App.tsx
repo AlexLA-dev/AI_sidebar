@@ -1770,9 +1770,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     void rememberPageText(url, page.title, page.text)
     savedNote.current = { id, key: entryKey(note) }
-    // A snapshot of the page is offered for a note by a selection (not with a reminder's line, and not in the popup
-    // window, where there's no page to take).
-    const offer = Boolean(sel) && !remindAt && !popup && keepsText
+    // A snapshot of the page is offered for a note by a selection (not with a reminder's line, and not in the toolbar
+    // popup's window, where there's no page to take).
+    const offer = Boolean(sel) && !remindAt && !popup
     setSavedShot(offer ? "offer" : null)
     setNoteSaved(true)
     setNotePressed(false)
