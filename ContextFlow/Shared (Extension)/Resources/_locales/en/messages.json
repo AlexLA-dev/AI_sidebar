@@ -3200,6 +3200,12 @@
  "tip_05b9621aed": {
   "message": "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top says which chat it picked; New chat there starts a fresh one."
  },
+ "tip_8d1c1aa55d": {
+  "message": "Gather it in a collection"
+ },
+ "tip_15dc6cba07": {
+  "message": "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF."
+ },
  "tip_c4b432e2e9": {
   "message": "Search your chats"
  },

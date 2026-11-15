@@ -1,17 +1,13 @@
-What's new in ContextFlow 2.6.1:
-• In the Safari panel, the chat now stays where you're reading when a suggestion appears
-• Chats on the same topic now get a suggestion to merge, even if they aren't about the same page (Pro)
-
-New in 2.6:
-• Ultra, a new plan: everything in Pro, plus Find similar and Listen
-• Find similar: looking at a product, an app, an article, a recipe or a place? Tap Find similar for real alternatives: cheaper, newer, in stock, free or in your language, or say what you need in your own words. Every link is opened and checked before you see it, and you can watch the price of any of them
-• Listen: tap Listen under an answer, or choose … → Listen to this page. A natural voice reads it in 100+ languages. On iPhone it keeps playing with the screen locked
-• Chats that keep themselves in order (Pro): under a new answer or note, ContextFlow suggests the chat it belongs in, a new chat for it, or one of your own tags. The Suggested bar at the top of the chat shows them all. One tap moves it, Undo puts it back. A chat can also name itself by its topic
-• Remind me and Watch now take a note in your own words: what to check, or what to remind you of
-• Select text and quick actions wait right in the “Your question…” field under it: Summarize, Translate, Explain simply, Find similar and more
-• Selected text already in your language? Translate now offers another language, like English
-• Chats in the app: one search field, by words or by meaning (Pro)
-• Yearly plans for Own key, Pro and Ultra. Moving up from Pro to Ultra starts at once, and Apple refunds what's left of Pro
-• New to ContextFlow? A short guide walks you through your first answer, and it doesn't use up your answers for the day
-• After an update, What's new in the app shows the main changes with short clips
-• ContextFlow now speaks Traditional Chinese, Arabic and Vietnamese: 14 languages in all
+What's new in ContextFlow 2.7:
+• Translate a page right where it is. When a page isn't in your language, tap “Translate” by the floating ContextFlow button: the text changes in place, links and buttons keep working, and “Original” brings the page back. The rest of the page translates as you scroll
+• Collections: everything for one task, like a trip, a purchase or a course, in one place. Tap “To collection” under an answer or a note, and ContextFlow suggests where it goes. In Pro, the AI sorts the cards into sections, “Compare” puts the cards you pick side by side in a table, and “Summary” sums up the whole collection. Any collection saves as a PDF. Free keeps one collection of up to 10 cards
+• Find similar now comes with Pro and Own key too: a quick search, up to 5 a week (in Pro, each one counts as 10 answers). Ultra searches wider, reads reviews and checks delivery
+• Spaces: keep work, personal and shopping apart, each with its own chats, collections and color. Open a site in its space once, and the panel goes there by itself. Until you make a second space, nothing changes
+• The panel opens on the chat that fits the page, or on a new one. One tap switches if it guessed wrong
+• Check and Rewrite in any field on a site, with the page in mind: the email you're answering, the post you're commenting on. Shorter, warmer, more formal or more confident. Pro and Ultra can also underline mistakes as you type
+• Add to Calendar or Reminders right from the chat: ContextFlow suggests the event or reminder, and you add it with one tap. Remind me can also put it in Reminders on all your devices
+• A note can keep a snapshot of the page: what's on screen, or the whole page in Pro and Ultra
+• Drag the floating ContextFlow button, and the panel on iPad and Mac, to either edge of the screen, or pick a side in Settings
+• Invite a friend: they get bonus answers for their first week, and you get 50% off the first month of Pro or Ultra once they've asked questions on two different days
+• Cut text now lands in Copied too
+• ContextFlow now speaks Turkish: 15 languages in all

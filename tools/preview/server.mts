@@ -310,6 +310,42 @@ function scriptedWrite(system: string, content: string): unknown {
   return { text: message.replace(/\b(I think|maybe|just|sorry,? ?|I was wondering if)\s*/gi, "").replace(/\s+([,.])/g, "$1") }
 }
 
+const TRANSLATIONS: Record<string, Record<string, string>> = JSON.parse(readFileSync(new URL("./translations.json", import.meta.url), "utf8"))
+/** The scripted translation of a batch ("§n text" lines): each known line in the system prompt's language, its tags renumbered as the page's. */
+function scriptedTranslation(system: string, content: string): string {
+  const into = /web page into ([^.]+)\./.exec(system)?.[1] ?? "English"
+  const to = /Russian/.test(into) ? "ru" : /German/.test(into) ? "de" : /French/.test(into) ? "fr" : /Italian/.test(into) ? "it" : /Spanish/.test(into) ? "es" : /Chinese/.test(into) ? "zh" : /Turkish/.test(into) ? "tr" : "en"
+  const out: string[] = []
+  for (const m of content.matchAll(/^§(\d+) (.*)$/gm)) {
+    const src = m[2]
+    const plain = src.replace(/<\/?\d+\/?>/g, "").replace(/\s+/g, " ").trim()
+    const tags = [...src.matchAll(/<(\d+)>/g)].map((t) => t[1])
+    const known = TRANSLATIONS[plain]?.[to]
+    out.push(`§${m[1]} ${known ? known.replace(/<(\/?)(\d+)>/g, (_, slash, k) => `<${slash}${tags[Number(k) - 1] ?? k}>`) : src}`)
+  }
+  return out.join("\n")
+}
+/** A Claude answer streamed as server-sent events, a few words at a time. */
+function claudeStream(model: string, text: string): Response {
+  const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
+  const words = text.match(/\S+\s*|\s+/g) ?? []
+  const stream = new ReadableStream({
+    async start(c) {
+      const enc = new TextEncoder()
+      c.enqueue(enc.encode(ev("message_start", { message: { id: "msg_local", type: "message", role: "assistant", model, content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 900, output_tokens: 1 } } })))
+      c.enqueue(enc.encode(ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } })))
+      for (const w of words) {
+        c.enqueue(enc.encode(ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })))
+        await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))
+      }
+      c.enqueue(enc.encode(ev("content_block_stop", { index: 0 })))
+      c.enqueue(enc.encode(ev("message_delta", { delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: words.length } }) + ev("message_stop")))
+      c.close()
+    }
+  })
+  return new Response(stream, { headers: { "Content-Type": "text/event-stream" } })
+}
+
 function scriptedWatch(system: string, content: string): unknown {
   const words = content.match(/in their words: (.*)/)?.[1] ?? ""
   const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
@@ -378,6 +414,12 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body))
     const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
     return new Response(JSON.stringify({ id: "msg_judge", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ tags }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } }), { headers: { "Content-Type": "application/json" } })
+  }
+  // In-page translation (2.7): es-guide.html's lines from translations.json, streamed line by line like the real
+  // Haiku; a line it doesn't know comes back as it is (the page then keeps the original there).
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && String(JSON.parse(String(init?.body)).system).startsWith("You translate the text of a web page into")) {
+    const body = JSON.parse(String(init?.body))
+    return claudeStream(body.model, scriptedTranslation(String(body.system), String(body.messages[body.messages.length - 1].content)))
   }
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     const body = JSON.parse(String(init?.body))
@@ -492,6 +534,8 @@ const organize = (await import("../../netlify/functions/v2-organize.mts")).defau
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
 const item = (await import("../../netlify/functions/v2-item.mts")).default
 const localWrite = (await import("../../netlify/functions/v2-write.mts")).default
+// In-page translation (2.7): the real function, with the scripted Haiku below (store and site captures).
+const translatePage = (await import("../../netlify/functions/v2-translate.mts")).default
 const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
 const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
 const speakHeard = (await import("../../netlify/functions/v2-speak-heard.mts")).default
@@ -568,7 +612,17 @@ const collect: typeof chat = (async (req: Request) => {
   if (body.op === "summary") return Response.json({ text: "Fly in late March for the blossom; stay in Asakusa to save, in Shinjuku for the first trip." })
   return Response.json({ code: "BAD_REQUEST" }, { status: 400 })
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect }
+// Invite a friend (2.7, tips' clips): the install's code and link, scripted (the real one keeps codes in the database).
+let inviteMade = false
+const invite: typeof chat = (async (req: Request) => {
+  const body = JSON.parse((await req.text()) || "{}") as Record<string, any>
+  if (body.op === "state" && body.create) inviteMade = true
+  const ru = String(body.client?.locale ?? "").startsWith("ru")
+  const code = inviteMade ? (ru ? "LISSA27" : "LISBON27") : null
+  return Response.json({ ok: true, code, link: code ? `https://context-flow.app/i/${code}` : null, joined: 0, active: 0, reward: null,
+    answersUntil: null, entered: null, canEnter: false, friendDaily: 5, friendDays: 7 })
+}) as typeof chat
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect, "/api/v2/translate": translatePage, "/api/v2/invite": invite }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -608,9 +662,14 @@ const pages: Record<string, string> = {
   // «Проверить» и «Переписать» (2.7): a mail being answered (Gmail's reply box, its signature and quote inside it), and a
   // comment under a job post (LinkedIn's Quill editor).
   "/mail-reply": "mail-reply.html",
+  "/mail-reply-ru": "mail-reply-ru.html",
   "/post-comment": "post-comment.html",
   // «Снимок страницы в заметке» (2.7): a long page (a sticky header, five coloured sections, a fixed cookie bar).
   "/long-page": "long-page.html",
+  // In-page translation (2.7): a travel guide in Spanish, translated by the scripted Haiku (translations.json).
+  "/es-guide": "es-guide.html",
+  // The same guide in English, for a Spanish interface (its translation is the Spanish original).
+  "/en-guide": "en-guide.html",
   // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
   "/spa/messaging": "spa.html",
   "/spa/feed": "spa.html",
@@ -667,9 +726,50 @@ function similarItems95(): Array<Record<string, unknown>> {
 }
 // Store screenshots and previews (SIMILAR_STUB=store): the same list with made-up products and shops, so the App Store
 // shows no real brand; prices against the page's $129 / 12 990 ₽.
+// The store's localized first screens (STAND_LANG=de|fr|it|es|zh|tr): the same four in the interface's language, prices
+// as the (American) shop page shows them.
+const SIMILAR_STORE_LANG: Record<string, string[][]> = {
+  de: [
+    ["Halden Quiet One", "halden-audio.store", "Over-Ear mit adaptiver Geräuschunterdrückung und LDAC wie der Aero 2, mit weicherem, leichterem Bügel.", "Günstiger: 99,99 $ statt 129 $, auf Lager.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Leichte Kopfhörer mit Geräuschunterdrückung und ähnlichem 35-Stunden-Akku; weniger Codecs.", "Günstiger: 89,99 $ statt 129 $, auf Lager.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Preiswert, mit aktiver Geräuschunterdrückung und App-Equalizer.", "Günstiger: 69 $ statt 129 $, auf Lager.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC und Multipoint wie beim Aero 2, mit längerem Akku.", "Der Shop lässt keine Server auf die Seite, Preis und Bestand sind nicht bestätigt.", ""]
+  ],
+  fr: [
+    ["Halden Quiet One", "halden-audio.store", "Circum-auriculaire, réduction de bruit adaptative et LDAC comme le Aero 2, avec un arceau plus souple et plus léger.", "Moins cher : 99,99 $ au lieu de 129 $, en stock.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Casque léger à réduction de bruit, autonomie similaire de 35 heures ; moins de codecs.", "Moins cher : 89,99 $ au lieu de 129 $, en stock.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Petit prix, réduction de bruit active et égaliseur dans l'app.", "Moins cher : 69 $ au lieu de 129 $, en stock.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC et multipoint comme le Aero 2, avec une meilleure autonomie.", "La boutique bloque les serveurs : prix et stock non confirmés.", ""]
+  ],
+  it: [
+    ["Halden Quiet One", "halden-audio.store", "Over-ear, cancellazione del rumore adattiva e LDAC come le Aero 2, con un archetto più morbido e leggero.", "Più economiche: 99,99 $ invece di 129 $, disponibili.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Cuffie leggere con cancellazione del rumore e batteria simile da 35 ore; meno codec.", "Più economiche: 89,99 $ invece di 129 $, disponibili.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Economiche, con cancellazione attiva del rumore ed equalizzatore nell'app.", "Più economiche: 69 $ invece di 129 $, disponibili.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC e multipoint come le Aero 2, con una batteria più lunga.", "Il negozio non lascia entrare i server: prezzo e disponibilità non confermati.", ""]
+  ],
+  es: [
+    ["Halden Quiet One", "halden-audio.store", "Supraaurales, con cancelación de ruido adaptativa y LDAC como los Aero 2, y una diadema más suave y ligera.", "Más baratos: 99,99 $ frente a 129 $, en stock.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Auriculares ligeros con cancelación de ruido y una batería parecida de 35 horas; menos códecs.", "Más baratos: 89,99 $ frente a 129 $, en stock.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Económicos, con cancelación activa de ruido y ecualizador en la app.", "Más baratos: 69 $ frente a 129 $, en stock.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC y multipunto como los Aero 2, con más batería.", "La tienda no deja entrar a los servidores: precio y stock sin confirmar.", ""]
+  ],
+  tr: [
+    ["Halden Quiet One", "halden-audio.store", "Kulak üstü; Aero 2 gibi uyarlanabilir gürültü engelleme ve LDAC, daha yumuşak ve hafif bir kafa bandıyla.", "Daha ucuz: 129 $ yerine 99,99 $, stokta.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Hafif, gürültü engellemeli kulaklık; benzer 35 saatlik pil, daha az codec.", "Daha ucuz: 129 $ yerine 89,99 $, stokta.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Uygun fiyatlı; aktif gürültü engelleme ve uygulamada ekolayzer.", "Daha ucuz: 129 $ yerine 69 $, stokta.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "Aero 2 gibi LDAC ve çoklu bağlantı, daha uzun pil ömrüyle.", "Mağaza sunucuların sayfayı açmasına izin vermiyor; fiyat ve stok doğrulanmadı.", ""]
+  ],
+  zh: [
+    ["Halden Quiet One", "halden-audio.store", "耳罩式，和 Aero 2 一樣有自適應降噪和 LDAC，頭帶更柔軟、更輕。", "更便宜：US$99.99，原價 US$129，有現貨。", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "輕巧的降噪耳機，電池同樣約 35 小時；支援的編碼較少。", "更便宜：US$89.99，原價 US$129，有現貨。", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "平價款，有主動降噪和 App 等化器。", "更便宜：US$69，原價 US$129，有現貨。", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "和 Aero 2 一樣支援 LDAC 和多點連線，續航更長。", "這家商店不讓伺服器開啟頁面，價格和庫存未確認。", ""]
+  ]
+}
 function similarItemsStore(condition: string, ru = false): Array<Record<string, unknown>> {
   const cond = Boolean(condition.trim())
-  const rows = ru
+  const local = SIMILAR_STORE_LANG[process.env.STAND_LANG ?? ""]
+  const rows = local ? local : ru
     ? [
         ["Halden Quiet One", "halden-audio.store", "Накладные, с адаптивным шумоподавлением и LDAC, как Aero 2, но с более мягким и лёгким оголовьем.", "Дешевле: 9 990 ₽ против 12 990 ₽, в наличии.", "9990 RUB"],
         ["Lumen Air 720", "lumen-sound.store", "Лёгкие наушники с шумоподавлением и похожей батареей на 35 часов; кодеков меньше.", "Дешевле: 8 990 ₽ против 12 990 ₽, в наличии.", "8990 RUB"],
@@ -807,7 +907,7 @@ createServer(async (req, res) => {
         const sent = JSON.parse(Buffer.concat(chunks).toString("utf8"))
         // A feature step: "use:tour.step:pick" (f.a and what).
         const what = sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""
-        panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}`)
+        panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}${sent.why ? `:${sent.why}` : ""}`)
         eventIds.push(`${sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.kind}${sent.appId ? " app" : ""}${sent.installId ? " install" : ""}`)
       } catch {
         // not JSON
@@ -948,6 +1048,7 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
     return
   }
   if (url.pathname === "/reset") {
+    inviteMade = false
     counters.clear()
     tours.clear()
     aiRequests.length = 0

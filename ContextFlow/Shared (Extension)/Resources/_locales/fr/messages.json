@@ -3200,6 +3200,12 @@
  "tip_05b9621aed": {
   "message": "Ouvrez le panneau sur une page et ContextFlow choisit la discussion qui en parle : celle qui contient cette page, ou une autre sur le même sujet. « Je continue », en haut, indique laquelle il a choisie ; « Nouveau chat », juste à côté, en commence une nouvelle."
  },
+ "tip_8d1c1aa55d": {
+  "message": "Tout dans une collection"
+ },
+ "tip_15dc6cba07": {
+  "message": "Vous préparez un voyage ou un achat ? Choisissez « Dans une collection » sous une réponse ou une note, et ContextFlow propose où la ranger. « Collections » garde tout par sections, dans Safari et dans l’app. Avec Pro, l’IA trie les cartes, « Comparer » met côte à côte celles que vous choisissez et « Synthèse » résume le tout. Chaque collection s’enregistre en PDF."
+ },
  "tip_c4b432e2e9": {
   "message": "Cherchez dans vos discussions"
  },

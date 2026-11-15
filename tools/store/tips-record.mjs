@@ -76,13 +76,19 @@ const messages = JSON.parse(readFileSync(join(extDir, "_locales", ru ? "ru" : "e
 const msg = (key) => messages[key].message
 const LINUX_CHROME = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
 const ext = localizedExtension()
+// MAC=1 (2.7): the Mac's tips: Safari on a Mac, a pointer instead of a finger; each take says which part of the window
+// its clip shows (record's crop), tips-render.mjs cuts that out.
+const MAC = process.env.MAC === "1"
+const DPR = MAC ? 2 : 3
 const ctx = await chromium.launchPersistentContext("", {
   headless: true,
   ...(existsSync(LINUX_CHROME) ? { executablePath: LINUX_CHROME } : { channel: "chromium" }),
-  args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, `--lang=${lang}`, "--force-device-scale-factor=3", "--host-resolver-rules=MAP *.example 127.0.0.1"],
+  args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, `--lang=${lang}`, `--force-device-scale-factor=${DPR}`, "--host-resolver-rules=MAP *.example 127.0.0.1"],
   locale: ru ? "ru-RU" : "en-US",
-  userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1",
-  viewport: { width: 430, height: 800 }, deviceScaleFactor: 3, hasTouch: true
+  userAgent: MAC
+    ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    : "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1",
+  viewport: MAC ? { width: 1180, height: 760 } : { width: 430, height: 800 }, deviceScaleFactor: DPR, hasTouch: !MAC
 })
 let [sw] = ctx.serviceWorkers()
 if (!sw) sw = await ctx.waitForEvent("serviceworker")
@@ -112,7 +118,8 @@ async function fresh(url, threads = null, extra = {}, entitlement = null) {
   // The previous take's panel must not see (and write back over) the reset storage.
   await page.goto("about:blank")
   await fetch(`${BASE}/reset`)
-  await sw.evaluate(async ({ threads, extra, entitlement }) => {
+  const lists = ru ? [{ id: "L1", title: "Напоминания" }, { id: "L2", title: "Поездки" }] : [{ id: "L1", title: "Reminders" }, { id: "L2", title: "Travel" }]
+  await sw.evaluate(async ({ threads, extra, entitlement, lists }) => {
     // Chromium has no Safari app behind the extension: its answers stand in (a reminder is scheduled,
     // notifications are allowed, the PDF is read by PdfText.swift).
     globalThis.browser = { runtime: { sendNativeMessage: async (_id, msg) => {
@@ -121,12 +128,17 @@ async function fresh(url, threads = null, extra = {}, entitlement = null) {
       if (msg.command === "notifStatus") return { success: true, data: { status: "authorized" } }
       if (msg.command === "pdfText") return { success: true, data: { ok: true, pages: 3, title: "Q3 report", text: "Northwind Q3 report. Revenue rose 12% to $48.2M; subscriptions $31.5M (+18%), services $16.7M." } }
       if (msg.command === "getEntitlement" && entitlement) return { success: true, data: entitlement }
+      // Calendar and Reminders (2.7): a device that allowed both.
+      if (msg.command === "apple_status") return { success: true, data: { available: true, platform: "ios", reminders: "write", events: "write", lists: lists, defaultList: "L1" } }
+      if (msg.command === "apple_add") return { success: true, data: { outcome: "saved", place: "Reminders" } }
       return { success: false }
     } } }
     await chrome.storage.local.clear()
     await chrome.storage.local.set({
       // The one AI consent (2.5 (78): version 3) given.
-      "cf:consent": 3, "cf:tourSeen": true, "cf:noteHint": -1, "cf:selHint": -1, "cf:hintsSeen": ["chats", "video", "pdf"],
+      "cf:consent": 3, "cf:tourSeen": true, "cf:noteHint": -1, "cf:selHint": -1, "cf:hintsSeen": ["chats", "video", "pdf", "side", "new27"],
+      // 2.7: the page hints by ✦ have their own clip (pagehints), off for the rest.
+      "cf:pageHints": { start: Date.now(), shown: 0, shownIds: {}, lastDay: "", used: [], closes: 0, off: true, seeded: true },
       // 2.5's first-time tips (the eye, the bell, the button by a field) are for real first times, not the clips.
       "cf:watchTips": { eye: true, later: true }, "cf:selIconsTip": true, "cf:insertTipSeen": true,
       // Organizing's cards for Free ("Everything in one chat?", after the third tag) have their own clips.
@@ -134,7 +146,7 @@ async function fresh(url, threads = null, extra = {}, entitlement = null) {
       ...extra
     })
     if (threads) await chrome.storage.local.set({ "cf:threads": threads, "cf:activeThread": { id: Object.keys(threads)[0], at: Date.now() } })
-  }, { threads, extra, entitlement })
+  }, { threads, extra, entitlement, lists })
   await go(url)
 }
 
@@ -288,10 +300,17 @@ async function go(url) {
   await page.waitForSelector("contextflow-root", { state: "attached" })
   await wait(400)
 }
-async function record(name) {
+async function record(name, crop = null) {
   mkdirSync(join(outDir, name), { recursive: true })
-  take = { name, start: Date.now() / 1000, frames: [], events: [] }
-  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, maxWidth: 1290, maxHeight: 2400, everyNthFrame: 1 })
+  // crop (a Mac's takes): the window's part the clip shows, CSS px, as tall as the clip's shape wants.
+  if (crop) {
+    const vw = MAC ? 1180 : 430, vh = MAC ? 760 : 800
+    let w = Math.min(crop.w, vw, Math.floor((vh * 540) / 794))
+    const h = Math.round((w * 794) / 540)
+    crop = { x: Math.round(Math.min(Math.max(0, crop.x), vw - w)), y: Math.round(Math.min(Math.max(0, crop.y), vh - h)), w, h }
+  }
+  take = { name, start: Date.now() / 1000, frames: [], events: [], crop, dpr: DPR }
+  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, maxWidth: MAC ? 2360 : 1290, maxHeight: MAC ? 1520 : 2400, everyNthFrame: 1 })
   await page.evaluate(() => window.scrollBy(0, 1)) // forces a first frame
   await wait(500)
 }
@@ -299,7 +318,7 @@ async function end() {
   await wait(200)
   await cdp.send("Page.stopScreencast")
   mark("end")
-  writeFileSync(join(outDir, `${take.name}.json`), JSON.stringify({ frames: take.frames, events: take.events }, null, 1))
+  writeFileSync(join(outDir, `${take.name}.json`), JSON.stringify({ frames: take.frames, events: take.events, ...(take.crop ? { crop: take.crop, dpr: take.dpr } : {}) }, null, 1))
   console.log(`${take.name}: ${take.frames.length} frames, ${take.events.at(-1).t.toFixed(1)} s`)
   take = null
 }
@@ -423,6 +442,127 @@ async function selectText(n, from, until, scroll = true) {
 }
 /** On iPhone the tap that reaches the selection buttons also clears the page's selection. */
 const tapClears = () => page.evaluate(() => document.addEventListener("pointerdown", () => getSelection().removeAllRanges(), { capture: true, once: true }))
+
+// ---------------------------------------------------------------- 2.7 (the stand with PREVIEW_PLAN=ultra)
+const GUIDE = `${BASE}/es-guide`
+const MAIL = site("mail.example", "mail-reply")
+const ARTICLE_SITE = site("weeklyreview.example", "article")
+const ULTRA = () => ({ "cf:lastEntitlement": { value: { active: true, productId: "com.contextflow.ultra.monthly", expiresAt: null }, at: Date.now() } })
+const ABOUT = ru ? "Продуктовый дизайнер в Northwind Studio. Короткие дружелюбные письма." : "Product designer at Northwind Studio. Short, friendly emails."
+const inRoot2 = (js) => page.evaluate(shadow(js))
+/** The page scrolled smoothly by dy, a finger drawn moving the other way. */
+async function scrollPage(dy) {
+  mark("swipe", { x: 215, y: 620, dx: 0, dy: -dy * 0.4 })
+  await wait(120)
+  await page.evaluate((dy) => window.scrollBy({ top: dy, behavior: "smooth" }), dy)
+  await wait(700)
+}
+/** A finger dragging from (x, y) by (dx, dy), slowly enough to follow. */
+async function drag(x, y, dx, dy) {
+  mark("swipe", { x, y, dx, dy })
+  await wait(160)
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] })
+  for (let i = 1; i <= 14; i++) {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: x + (dx * i) / 14, y: y + (dy * i) / 14 }] })
+    await wait(30)
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
+}
+/** Safari's date and time controls show the date in words ("Nov 20, 2026"); Chromium's take the Mac's region: the
+ * fields keep their values, the date and time as Safari shows them are written over them. */
+const safariDates = () => inRoot2(`(r) => {
+  const loc = "${ru ? "ru-RU" : "en-US"}"
+  const over = (i, text) => {
+    const cs = getComputedStyle(i)
+    i.style.color = "transparent"
+    const sp = document.createElement("span")
+    sp.textContent = text
+    sp.style.cssText = "position:absolute;pointer-events:none;white-space:nowrap;display:flex;align-items:center;font:" + cs.font
+      + ";color:" + getComputedStyle(i.closest(".cf-add-card") ?? i).color + ";left:" + (i.offsetLeft + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth)) + "px;top:" + i.offsetTop + "px;height:" + i.offsetHeight + "px"
+    i.offsetParent.appendChild(sp)
+  }
+  for (const i of r.querySelectorAll(".cf-add-when input[type=date]")) {
+    const [y, m, d] = i.value.split("-").map(Number)
+    over(i, new Intl.DateTimeFormat(loc, { month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d)))
+  }
+  for (const i of r.querySelectorAll(".cf-add-when input[type=time]")) {
+    const [h, mi] = i.value.split(":").map(Number)
+    over(i, new Intl.DateTimeFormat(loc, { hour: "numeric", minute: "2-digit" }).format(new Date(2026, 0, 1, h, mi)))
+  }
+}`)
+/** The caret at the end of the reply's draft (above its signature). */
+const caretInDraft = () => page.evaluate(() => {
+  const el = document.querySelector("#body")
+  el.focus()
+  const block = el.querySelector("div[dir=ltr]") ?? el
+  const r = document.createRange()
+  r.selectNodeContents(block)
+  r.collapse(false)
+  getSelection().removeAllRanges()
+  getSelection().addRange(r)
+  el.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: "" }))
+})
+/** The panel's … menu, then Other…, then a page of the extension's settings. */
+async function openSettings() {
+  await touch(page.locator(".cf-page-more").first())
+  await wait(500)
+  await touch(page.locator(".cf-page-menu button", { hasText: msg("uxOther").replace("…", "") }).first())
+  await wait(500)
+  await touch(page.locator(".cf-page-menu button", { hasText: msg("settings") }).first())
+  await wait(700)
+}
+/** Chats for the matching chat and Spaces: one about another subject (open), one with this page. */
+function matchChats(withSpaces = false) {
+  const now = Date.now()
+  const q = (url, title, t, content) => ({ role: "user", content, t, id: `q${t}`, page: { url, title, hash: "h", at: t } })
+  const a = (t, content) => ({ role: "assistant", content, t, id: `a${t}` })
+  const chat = (id, at, url, title, question, answer, sp) => ({ id, u: at, a: at, m: [q(url, title, at - 2000, question), a(at - 1000, answer)], ...(sp ? { sp } : {}) })
+  const T = ru
+    ? { sofa: ["Диван для маленькой комнаты", "Какой диван влезет в комнату 3×3?", "Небольшой прямой диван до 180 см или кресло-кровать."],
+        work: ["Почему четырёхдневка работает", "Подойдёт ли это команде из 10 человек?", "Да, если начать с пилота на 3–6 месяцев."],
+        q3: ["Отчёт о продажах, 3 квартал", "Итоги квартала в трёх пунктах", "Выручка +12 %, реклама +8 %, отток 3,1 %."],
+        shop: ["Наушники Aero 2", "Что пишут в отзывах?", "Хвалят шумоподавление, ругают тугое оголовье."] }
+    : { sofa: ["A sofa for a small room", "Which sofa fits a 10×10 room?", "A small straight sofa under 70 inches, or a sofa bed."],
+        work: ["Why the four-day week works", "Would this work for a team of 10?", "Yes, if you start with a 3–6 month pilot."],
+        q3: ["Q3 sales report", "Sum up the quarter in three points", "Revenue +12%, ads +8%, churn 3.1%."],
+        shop: ["Aero 2 headphones", "What do the reviews say?", "People love the noise cancelling, and find the headband tight."] }
+  const url = withSpaces ? ARTICLE_SITE : PAGE_1
+  const threads = {
+    s1: chat("s1", now - 60_000, "https://home.example/sofa", T.sofa[0], T.sofa[1], T.sofa[2], withSpaces ? "home" : undefined),
+    w1: chat("w1", now - 3_600_000, url, T.work[0], T.work[1], T.work[2], withSpaces ? "work" : undefined),
+    w2: chat("w2", now - 7_200_000, "https://docs.example/q3", T.q3[0], T.q3[1], T.q3[2], withSpaces ? "work" : undefined),
+    p1: chat("p1", now - 86_400_000, "https://soundhouse.example/aero-2", T.shop[0], T.shop[1], T.shop[2], withSpaces ? "shop" : undefined)
+  }
+  return threads
+}
+function spacesList() {
+  const now = Date.now()
+  return { u: now - 10_000, list: { s: [
+    { id: "work", n: ru ? "Работа" : "Work", c: "green", o: 1, u: now - 20_000 },
+    { id: "shop", n: ru ? "Покупки" : "Shopping", c: "orange", o: 2, u: now - 15_000 }
+  ], b: { "weeklyreview.example": { s: "work", u: now - 10_000 } } } }
+}
+/** A Lisbon trip collection to add to (sections made by the AI). */
+function lisbonCollection() {
+  const now = Date.now()
+  const id = "cf-col-0f3a9c2e-lisbon"
+  const sec = (sid, n, o) => ({ id: sid, n, o, u: now - 5e6, ai: true })
+  const S = ru ? ["Где жить", "Что посмотреть", "Как передвигаться"] : ["Where to stay", "What to see", "Getting around"]
+  const card = (cid, s, o, t) => ({ id: cid, sec: s, o, u: now - 4e6, k: "answer", t, at: now - 4e6, x: t, src: { url: GUIDE, title: ru ? "Лиссабон за три дня" : "Lisbon in three days" } })
+  const rec = { id, n: ru ? "Поездка в Лиссабон" : "Lisbon trip", mu: now - 5e6, s: S.map((n, i) => sec(`s${i + 1}`, n, i)),
+    c: [card("k0", "s1", 0, ru ? "Отель у площади Россиу: завтрак на крыше, всё рядом." : "Hotel by Rossio square: rooftop breakfast, central."),
+      card("k1", "s2", 1, ru ? "Монастырь Жеронимуш: прийти до 10." : "Jerónimos Monastery: get there before 10."), card("k2", "s3", 2, ru ? "Трамвай 28 после обеда." : "Tram 28 after lunch.")] }
+  return { "cf:collections": { [id]: { u: now - 4e6, rec } } }
+}
+/** A chat on the guide with one answer about where to stay, for "To collection". */
+function guideChat() {
+  const now = Date.now()
+  const page = { url: GUIDE, title: ru ? "Лиссабон за три дня" : "Lisbon in three days", hash: "h", at: now - 5000 }
+  return { g1: { id: "g1", u: now - 3000, a: now - 3000, m: [
+    { role: "user", content: ru ? "Где лучше жить в Лиссабоне?" : "Where's best to stay in Lisbon?", t: now - 5000, id: "q1", page },
+    { role: "assistant", content: ru ? "**Байша**: ровно и всё рядом, удобно в первый приезд. **Алфама** красивее и тише, но с чемоданом по её холмам тяжело." : "**Baixa**: flat and central, easy for a first visit. **Alfama** is prettier and quieter, but steep with luggage.", t: now - 3000, id: "a1" }
+  ] } }
+}
 
 const takes = {
   async open() {
@@ -1007,10 +1147,404 @@ const takes = {
     await swipeSheet(page.locator(".cf-plans .cf-plan-card.pro"), -Math.max(120, Math.min(360, ultra.y + ultra.height - 780)))
     await wait(2200)
   }
+,
+  // ---------------------------------------------------------------- 2.7
+  // Read a page in your language: a guide in Spanish, "Translate" by ✦, the page itself in the reader's language;
+  // the rest translates as it scrolls in.
+  async translate() {
+    await fresh(GUIDE)
+    await page.evaluate(() => { const h = document.querySelector(".hero"); window.scrollTo(0, h.getBoundingClientRect().top + window.scrollY - 180) })
+    await page.locator(".cf-tr .cf-tr-btn").first().waitFor({ timeout: 20000 })
+    await wait(400)
+    await record("translate")
+    await wait(900)
+    await touch(page.locator(".cf-tr .cf-tr-btn").first())
+    await page.locator(".cf-tr .cf-tr-btn.quiet").waitFor({ timeout: 20000 })
+    await wait(1800)
+    await scrollPage(260)
+    await wait(1800)
+  },
+  // Check or rewrite before you send: a reply to a mail; the field's button, Check atop the list, its fixes, Fix.
+  async write() {
+    await fresh(MAIL, null, { "cf:settings": { aboutMe: ABOUT } })
+    await page.evaluate(() => { const b = document.querySelector("#body"); b.spellcheck = false; window.scrollTo(0, b.getBoundingClientRect().top + window.scrollY - 190) })
+    await wait(300)
+    await record("write")
+    await wait(500)
+    await touch(page.locator("#body"))
+    await caretInDraft()
+    await page.locator(".cf-qi-btn").waitFor({ timeout: 8000 })
+    await wait(600)
+    await touch(page.locator(".cf-qi-btn"))
+    await page.locator(".cf-wr-menu.row").waitFor({ timeout: 8000 })
+    await wait(900)
+    await touch(page.locator(".cf-wr-menu.row .cf-wr-item").first())
+    await page.locator(".cf-wr-text ins").first().waitFor({ timeout: 15000 })
+    await inRoot2(`(r) => r.querySelectorAll(".cf-wr-meta").forEach((m) => { m.textContent = m.textContent.split(" · ")[0] })`)
+    await wait(1800)
+    await touch(page.locator(".cf-wr-row .cf-primary"))
+    await page.locator(".cf-wr-made").waitFor({ timeout: 8000 })
+    await wait(1800)
+  },
+  // Mistakes underlined as you type (Pro and Ultra): a line added under the draft, its typos underlined; a tap, Fix.
+  async underline() {
+    await fresh(MAIL, null, { ...ULTRA(), "cf:settings": { aboutMe: ABOUT } })
+    await page.evaluate(() => { const b = document.querySelector("#body"); b.spellcheck = false; window.scrollTo(0, b.getBoundingClientRect().top + window.scrollY - 190) })
+    await touch(page.locator("#body"))
+    await page.evaluate(() => {
+      const el = document.querySelector("#body")
+      el.focus()
+      const div = el.querySelector("div[dir=ltr]") ?? el
+      const r = document.createRange()
+      r.setStart(div.lastChild, div.lastChild.data?.length ?? div.lastChild.childNodes.length)
+      r.collapse(true)
+      getSelection().removeAllRanges()
+      getSelection().addRange(r)
+    })
+    await wait(300)
+    await record("underline")
+    await wait(400)
+    await page.keyboard.press("Enter")
+    await type(ru ? "PS расчитываю начать ровно в 11, прийду пораньше." : "PS i will send teh slides tommorow morning.")
+    await page.waitForFunction(shadow(`(r) => r && r.querySelectorAll(".cf-ul").length > 0`), null, { timeout: 20000 })
+    await wait(1300)
+    const w = await page.evaluate((word) => {
+      const root = document.querySelector("#body")
+      const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+        const at = n.data.lastIndexOf(word)
+        if (at >= 0 && n.data.includes("PS")) {
+          const r = document.createRange(); r.setStart(n, at); r.setEnd(n, at + word.length)
+          const b = r.getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
+        }
+      }
+      return null
+    }, ru ? "расчитываю" : "teh")
+    mark("tap", w)
+    await wait(220)
+    await page.touchscreen.tap(w.x, w.y)
+    await page.locator(".cf-ul-pop").waitFor({ timeout: 6000 })
+    await wait(1300)
+    await touch(page.locator(".cf-ul-pop .cf-primary"))
+    await wait(1700)
+  },
+  // A snapshot with your note: note mode, Page snapshot on, the note sent with its picture.
+  async shot() {
+    await fresh(GUIDE)
+    await page.locator(".cf-tr .cf-tr-btn").first().waitFor({ timeout: 20000 })
+    await page.locator(".cf-tr .cf-tr-btn").first().click()
+    await page.locator(".cf-tr .cf-tr-btn.quiet").waitFor({ timeout: 20000 })
+    await page.evaluate(() => document.querySelector("h2")?.scrollIntoView({ block: "start" }))
+    for (const p of ctx.pages()) if (p !== page && p.url().startsWith("chrome-extension://")) await p.close()
+    await page.bringToFront()
+    await openPanel(false)
+    await record("shot")
+    await wait(500)
+    await swipeUp(page.locator(".cf-send-wrap"))
+    await page.locator(".cf-input.note").waitFor({ timeout: 4000 })
+    await wait(500)
+    await touch(page.locator(".cf-shot-row .cf-shot-on"))
+    await wait(600)
+    await touch(page.locator(".cf-input textarea"))
+    await type(ru ? "Белен: прийти до 10" : "Belém: get there before 10")
+    await touch(page.locator(".cf-send"))
+    await page.locator(".cf-shot-thumb").first().waitFor({ timeout: 20000 })
+    await inRoot2(`(r) => { const m = r.querySelector(".cf-shot-thumb").closest(".cf-msg"); const l = r.querySelector(".cf-messages"); l.scrollTop += m.getBoundingClientRect().top - l.getBoundingClientRect().top - 44 }`)
+    await wait(2200)
+  },
+  // Add to Calendar or Reminders: asked for a reminder, the answer comes with the card; Add.
+  async apple() {
+    await fresh(GUIDE, guideChat())
+    await openPanel(false)
+    await record("apple")
+    await wait(400)
+    await touch(page.locator(".cf-input textarea"))
+    await type(ru ? "Напомни в пятницу забронировать отель" : "Remind me on Friday to book the hotel")
+    await touch(page.locator(".cf-send"))
+    await page.locator(".cf-add-card .cf-add-item").first().waitFor({ timeout: 20000 })
+    await page.locator(".cf-add-card").scrollIntoViewIfNeeded()
+    await safariDates()
+    await wait(1600)
+    await touch(page.locator(".cf-add-go").first())
+    await page.locator(".cf-add-ok").first().waitFor({ timeout: 8000 })
+    await wait(1800)
+  },
+  // Spaces for work and home: the site opens in Work; the switcher; Shopping.
+  async spaces() {
+    await fresh(ARTICLE_SITE, matchChats(true), { ...ULTRA(), "cf:spaces": spacesList(), "cf:activeThread": { id: "w1", at: Date.now() - 50_000 } })
+    await record("spaces")
+    await wait(600)
+    await openPanel()
+    await wait(1600)
+    const switcher = page.getByRole("button", { name: ru ? /^Пространство/ : /^Space:/ }).first()
+    await touch(switcher)
+    await page.getByRole("menuitemradio").first().waitFor({ timeout: 4000 })
+    await wait(1100)
+    await touch(page.getByRole("menuitemradio", { name: ru ? /Покупки/ : /Shopping/ }))
+    await wait(2000)
+  },
+  // The chat for this page: the panel opens on the chat with this page, "Continuing" over it; New chat.
+  async match() {
+    await fresh(PAGE_1, matchChats(false))
+    await record("match")
+    await wait(600)
+    await openPanel()
+    await page.locator(".cf-match-label").waitFor({ timeout: 6000 })
+    await wait(1900)
+    await touch(page.locator(".cf-match-new"))
+    await wait(1700)
+  },
+  // Tips by the ✦ button: on a product page a line by ✦ suggests Find similar; a tap opens how to do it.
+  async pagehints() {
+    await fresh(PRODUCT, null, { "cf:pageHints": { start: Date.now(), shown: 0, shownIds: {}, lastDay: "", used: [], closes: 0, off: false, seeded: true } })
+    await wait(5600)
+    await record("pagehints")
+    await page.locator(".cf-ph").waitFor({ timeout: 15000 })
+    await wait(1700)
+    await touch(page.locator(".cf-ph .cf-ph-text"))
+    await page.locator(".cf-panel.in").waitFor()
+    await wait(2600)
+  },
+  // Invite a friend: Settings, Invite a friend, the code and the link.
+  async invite() {
+    await fresh(PAGE_1)
+    await openPanel(false)
+    await record("invite")
+    await wait(400)
+    await openSettings()
+    const get = page.locator(".cf-primary", { hasText: msg("invButton") }).first()
+    await get.scrollIntoViewIfNeeded()
+    await wait(900)
+    await touch(get)
+    await page.getByText(/LIS(BON|SA)27/).first().waitFor({ timeout: 8000 })
+    await wait(2200)
+  },
+  // Move ✦ out of the way: dragged along the edge and across to the other side.
+  async side() {
+    await fresh(PAGE_1)
+    await page.evaluate(() => window.scrollTo(0, 260))
+    await wait(400)
+    await record("side")
+    await wait(600)
+    const b = await page.locator(".cf-fab").boundingBox()
+    await drag(b.x + b.width / 2, b.y + b.height / 2, 0, -150)
+    await wait(900)
+    const c = await page.locator(".cf-fab").boundingBox()
+    await drag(c.x + c.width / 2, c.y + c.height / 2, -(c.x - 20), 0)
+    await wait(1800)
+  },
+  // Collections: "To collection" under an answer, the suggested section, then the collection itself.
+  async collections() {
+    await fresh(GUIDE, guideChat(), { ...ULTRA(), ...lisbonCollection() })
+    await openPanel(false)
+    await inRoot2(`(r) => { const l = r.querySelector(".cf-messages"); l.scrollTop = l.scrollHeight }`)
+    await wait(400)
+    await record("collections")
+    await wait(500)
+    await touch(page.locator(".cf-collect-link").first())
+    // A sure place: added at once, the toast says where. Otherwise the sheet, its suggestion a moment later.
+    const suggested = page.locator(".cf-col-sheet .cf-col-option.suggested")
+    const toast = page.getByText(ru ? /Добавлено|Добавлена/ : /Added to/).first()
+    await Promise.race([suggested.waitFor({ timeout: 10000 }), toast.waitFor({ timeout: 10000 })])
+    if (await suggested.isVisible().catch(() => false)) {
+      await wait(1300)
+      await touch(suggested)
+      await page.locator(".cf-col-sheet").waitFor({ state: "detached", timeout: 6000 }).catch(() => undefined)
+    }
+    await wait(1900)
+    await touch(page.locator(".cf-col-open:visible").first())
+    await page.locator(".cf-col-window .cf-col-section").first().waitFor({ timeout: 8000 })
+    await wait(2200)
+  },
+  // Hide ✦ when you don't need it: Settings, Hide on this site; the circle goes.
+  async hide() {
+    await fresh(ARTICLE_SITE)
+    await openPanel(false)
+    await record("hide")
+    await wait(400)
+    await openSettings()
+    const hide = page.locator("button", { hasText: msg("hideOnSite").replace("{0}", "").trim() }).first()
+    await hide.scrollIntoViewIfNeeded()
+    await wait(900)
+    await touch(hide)
+    await wait(900)
+    await touch(page.locator(".cf-close, [aria-label='" + msg("close") + "']").first())
+    await wait(1800)
+  }
+,
+  // ---------------------------------------------------------------- a Mac's (MAC=1): the pointer, no touch
+  // Open it on any page: a click on ✦, the panel by the page.
+  async "mac-open"() {
+    await fresh(PAGE_1)
+    await record("mac-open", { x: 700, y: 30, w: 470 })
+    await wait(700)
+    await tap(page.locator(".cf-fab"))
+    await page.locator(".cf-panel.in").waitFor()
+    await wait(1200)
+    await tap(chip(L.summarize))
+    await answers(1)
+    await wait(1600)
+  },
+  // Insert into any field: / and a few words of a template, Tab; the page fills its blanks.
+  async "mac-insert"() {
+    await fresh(INBOX, null, insertData(false))
+    const f = await page.locator("#reply").boundingBox()
+    await page.evaluate(() => document.getElementById("reply").scrollIntoView({ block: "center" }))
+    await wait(300)
+    const r = await page.locator("#reply").boundingBox()
+    await record("mac-insert", { x: Math.max(0, r.x - 30), y: Math.max(0, r.y - 330), w: Math.min(520, r.width + 60) })
+    await wait(500)
+    await tap(page.locator("#reply"))
+    await wait(300)
+    await type(ru ? "/подт" : "/conf")
+    await page.locator(".cf-qi").waitFor({ timeout: 6000 })
+    await wait(1100)
+    // Tab takes the template; Fill from the page puts the name, the date and the time in; Insert.
+    await page.keyboard.press("Tab")
+    await wait(1300)
+    await tap(page.locator(".cf-qi button", { hasText: L.fill }).first())
+    await wait(1600)
+    await tap(page.locator(".cf-qi .cf-primary", { hasText: L.insert }).first())
+    await wait(2000)
+  },
+  // Pin or delete with a click: pointing at an answer shows Pin, Remind me and Delete; Pin puts it in the bar on top.
+  async "mac-pin"() {
+    await fresh(PAGE_1, chat())
+    await page.locator(".cf-fab").click()
+    await page.locator(".cf-panel.in").waitFor()
+    await wait(600)
+    const p = await page.locator(".cf-panel").boundingBox()
+    await record("mac-pin", { x: Math.max(0, p.x - 10), y: Math.max(0, p.y), w: Math.min(480, p.width + 20) })
+    await wait(500)
+    const answer = page.locator(".cf-msg.ai").first()
+    const b = await answer.boundingBox()
+    mark("tap", { x: b.x + b.width / 2, y: b.y + 20 })
+    await answer.hover()
+    await wait(900)
+    const pin = page.locator(".cf-msg.ai .cf-hover-tools button").first()
+    await tap(pin)
+    await wait(2000)
+  },
+  // Quick actions under a selection: a phrase selected with the pointer, the chips in its field; Explain.
+  async "mac-chips"() {
+    await fresh(PAGE_1)
+    // The paragraph with the revenue figure (the 4th: the standfirst is a paragraph too).
+    await page.evaluate(() => document.querySelectorAll("main p")[3].scrollIntoView({ block: "center" }))
+    await wait(300)
+    const pb = await page.locator("main p").nth(3).boundingBox()
+    await record("mac-chips", { x: Math.max(0, pb.x - 20), y: Math.max(0, pb.y - 120), w: 520 })
+    await wait(500)
+    // The phrase dragged over with the pointer, as on a Mac.
+    const ends = await page.evaluate(({ from, until }) => {
+      const text = document.querySelectorAll("main p")[3].firstChild
+      const start = text.data.search(new RegExp(from)), stop = text.data.indexOf(until, start)
+      const at = (i) => { const r = document.createRange(); r.setStart(text, i); r.setEnd(text, i + 1); const b = r.getBoundingClientRect(); return { x: b.x, y: b.y + b.height / 2 } }
+      return { a: at(start), b: at(stop) }
+    }, { from: ru ? "Выручка" : "Revenue", until: "," })
+    mark("tap", ends.a)
+    await page.mouse.move(ends.a.x + 1, ends.a.y)
+    await page.mouse.down()
+    await page.mouse.move(ends.b.x, ends.b.y, { steps: 12 })
+    await page.mouse.up()
+    const bubble = page.locator(".cf-bubble")
+    await bubble.waitFor({ timeout: 6000 })
+    await wait(1300)
+    await tap(bubble.locator(".cf-sel-chip", { hasText: msg("actExplain") }).first())
+    await page.locator(".cf-panel.in").waitFor()
+    await answers(1)
+    await wait(1600)
+  },
+  // Find similar: the product's name selected, Find similar in its field, a condition, the checked alternatives.
+  async "mac-similar"() {
+    await fresh(PRODUCT)
+    await page.evaluate(() => getSelection().selectAllChildren(document.querySelector("h1")))
+    await page.dispatchEvent("h1", "mouseup")
+    const bubble = page.locator(".cf-bubble")
+    await bubble.waitFor({ timeout: 6000 })
+    await wait(400)
+    await record("mac-similar", { x: 700, y: 30, w: 470 })
+    await wait(500)
+    await tap(bubble.locator(".cf-sel-chip", { hasText: msg("selSimilar") }).first())
+    const card = page.locator(".cf-similar-pick")
+    await card.waitFor()
+    await wait(900)
+    await tap(card.locator(".cf-similar-where .cf-seg button").first())
+    await wait(500)
+    const cheaper = card.locator(".cf-chip", { hasText: msg("similarCheaper") }).first()
+    if (!(await cheaper.evaluate((el) => el.classList.contains("on") || el.getAttribute("aria-pressed") === "true"))) await tap(cheaper)
+    await wait(600)
+    await tap(card.locator(".cf-primary"))
+    await page.waitForFunction(shadow(`(r) => r && !r.querySelector(".cf-send.stop") && r.querySelectorAll(".cf-similar-item").length >= 3`), null, { timeout: 30000 })
+    await wait(2000)
+  },
+  // Check or rewrite before you send: the circle above the field, Check, its fixes, Fix.
+  async "mac-write"() {
+    await fresh(MAIL, null, { "cf:settings": { aboutMe: ABOUT } })
+    await page.evaluate(() => { document.querySelector("main").style.maxWidth = "480px"; const b = document.querySelector("#body"); b.spellcheck = false; b.scrollIntoView({ block: "center" }) })
+    await caretInDraft()
+    await page.locator(".cf-wr-dot").waitFor({ timeout: 8000 })
+    const f = await page.locator("#body").boundingBox()
+    await record("mac-write", { x: f.x - 8, y: f.y - 150, w: 516 })
+    await wait(600)
+    const dot = page.locator(".cf-wr-dot")
+    const d = await dot.boundingBox()
+    mark("tap", { x: d.x + d.width / 2, y: d.y + d.height / 2 })
+    await dot.hover()
+    await page.locator(".cf-wr-menu.pop").waitFor({ timeout: 4000 })
+    await wait(900)
+    await tap(page.locator(".cf-wr-menu.pop .cf-wr-item").first())
+    await page.locator(".cf-wr-text ins").first().waitFor({ timeout: 15000 })
+    await inRoot2(`(r) => r.querySelectorAll(".cf-wr-meta").forEach((m) => { m.textContent = m.textContent.split(" · ")[0] })`)
+    await wait(1800)
+    await tap(page.locator(".cf-wr-row .cf-primary"))
+    await page.locator(".cf-wr-made").waitFor({ timeout: 8000 })
+    await wait(1700)
+  },
+  // Mistakes underlined as you type (Pro and Ultra): pointing at the underline shows the fix; Fix.
+  async "mac-underline"() {
+    await fresh(MAIL, null, { ...ULTRA(), "cf:settings": { aboutMe: ABOUT } })
+    await page.evaluate(() => { document.querySelector("main").style.maxWidth = "480px"; const b = document.querySelector("#body"); b.spellcheck = false; b.scrollIntoView({ block: "center" }) })
+    await page.evaluate(() => {
+      const el = document.querySelector("#body")
+      el.focus()
+      const div = el.querySelector("div[dir=ltr]") ?? el
+      const r = document.createRange()
+      r.setStart(div.lastChild, div.lastChild.data?.length ?? div.lastChild.childNodes.length)
+      r.collapse(true)
+      getSelection().removeAllRanges()
+      getSelection().addRange(r)
+    })
+    const f = await page.locator("#body").boundingBox()
+    await record("mac-underline", { x: f.x - 8, y: f.y - 60, w: 516 })
+    await wait(400)
+    await page.keyboard.press("Enter")
+    await type(ru ? "PS расчитываю начать ровно в 11, прийду пораньше." : "PS i will send teh slides tommorow morning.")
+    await page.waitForFunction(shadow(`(r) => r && r.querySelectorAll(".cf-ul").length > 0`), null, { timeout: 20000 })
+    await wait(1200)
+    const w = await page.evaluate((word) => {
+      const root = document.querySelector("#body")
+      const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+        const at = n.data.lastIndexOf(word)
+        if (at >= 0 && n.data.includes("PS")) {
+          const r = document.createRange(); r.setStart(n, at); r.setEnd(n, at + word.length)
+          const b = r.getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
+        }
+      }
+      return null
+    }, ru ? "расчитываю" : "teh")
+    mark("tap", w)
+    await page.mouse.move(w.x, w.y, { steps: 8 })
+    await page.locator(".cf-ul-pop").waitFor({ timeout: 6000 })
+    await wait(1200)
+    await tap(page.locator(".cf-ul-pop .cf-primary"))
+    await wait(1700)
+  }
 }
 
 for (const [name, run] of Object.entries(takes)) {
   if (only && !only.split(",").includes(name)) continue
+  if (MAC !== name.startsWith("mac-")) continue
   try { await run() } catch (e) { await page.screenshot({ path: join(outDir, `${name}-fail.png`) }); throw e }
   await end()
 }
