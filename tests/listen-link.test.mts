@@ -98,7 +98,7 @@ test("the panel and the app use them: the link in the tap, the mark on the way b
   assert.match(panel, /window\.addEventListener\("hashchange", onHash\)/)
   const app = read("../ContextFlow/Shared (App)/Listen.swift")
   assert.match(app, /func open\(_ url: URL\) \{\n[^\n]*\n\s+ListenLink\.keep\(url\)/)
-  assert.match(app, /parts\.fragment = "cf-listen=\\\(id\)"/)
+  assert.match(read("../ContextFlow/Shared (App)/SpeechText.swift"), /parts\.fragment = "cf-listen=\\\(id\)"/)
   assert.match(read("../ContextFlow/Shared (App)/Setup.swift"), /let url = ListenLink\.marked\(page, id: id\)/)
   assert.match(read("../ContextFlow/Shared (App)/ContentView.swift"), /ListenLink\.keep\(url\)\n\s+Task \{ await NotifyAsk\.shared\.show\(\.listen, listen: id\) \}/)
 })

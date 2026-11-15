@@ -97,6 +97,15 @@ func run(_ c: [String: Any]) -> Any {
         }
         let pace = (c["pace"] as? NSNumber)?.doubleValue ?? 1
         return ["parts": perPart, "total": HeardCoverage.total(parts: parts, audio: audio, unwritten: unwritten, written: written, pace: pace), "pace": HeardCoverage.pace(parts: parts, audio: audio) ?? NSNull()] as [String: Any]
+    case "link":
+        // 2.7: Listen's link from Safari with its text in it, as the app reads it; and the page it sends the person back to.
+        guard let url = URL(string: s) else { return NSNull() }
+        var out: [String: Any] = ["id": ListenLink.id(url) ?? NSNull()]
+        if let r = ListenLink.request(url) {
+            out["request"] = ["parts": r.parts, "text": r.text, "script": r.script, "lang": r.lang, "what": r.what, "title": r.title, "url": r.url] as [String: Any]
+            if let page = URL(string: r.url), let id = ListenLink.id(url) { out["back"] = ListenLink.marked(page, id: id).absoluteString }
+        }
+        return out
     default: return NSNull()
     }
 }
