@@ -612,7 +612,17 @@ const collect: typeof chat = (async (req: Request) => {
   if (body.op === "summary") return Response.json({ text: "Fly in late March for the blossom; stay in Asakusa to save, in Shinjuku for the first trip." })
   return Response.json({ code: "BAD_REQUEST" }, { status: 400 })
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect, "/api/v2/translate": translatePage }
+// Invite a friend (2.7, tips' clips): the install's code and link, scripted (the real one keeps codes in the database).
+let inviteMade = false
+const invite: typeof chat = (async (req: Request) => {
+  const body = JSON.parse((await req.text()) || "{}") as Record<string, any>
+  if (body.op === "state" && body.create) inviteMade = true
+  const ru = String(body.client?.locale ?? "").startsWith("ru")
+  const code = inviteMade ? (ru ? "LISSA27" : "LISBON27") : null
+  return Response.json({ ok: true, code, link: code ? `https://context-flow.app/i/${code}` : null, joined: 0, active: 0, reward: null,
+    answersUntil: null, entered: null, canEnter: false, friendDaily: 5, friendDays: 7 })
+}) as typeof chat
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect, "/api/v2/translate": translatePage, "/api/v2/invite": invite }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -1038,6 +1048,7 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
     return
   }
   if (url.pathname === "/reset") {
+    inviteMade = false
     counters.clear()
     tours.clear()
     aiRequests.length = 0

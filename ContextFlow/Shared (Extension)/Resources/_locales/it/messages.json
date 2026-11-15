@@ -3200,6 +3200,12 @@
  "tip_05b9621aed": {
   "message": "Apri il pannello su una pagina e ContextFlow sceglie la chat che ne parla: quella con questa pagina, o una sullo stesso argomento. «Continuo», in alto, dice quale ha scelto; «Nuova chat», lì accanto, ne inizia una nuova."
  },
+ "tip_8d1c1aa55d": {
+  "message": "Tutto in una raccolta"
+ },
+ "tip_15dc6cba07": {
+  "message": "Stai organizzando un viaggio o un acquisto? Scegli «In una raccolta» sotto una risposta o una nota, e ContextFlow suggerisce dove metterla. «Raccolte» tiene tutto in sezioni, in Safari e nell’app. Con Pro, l’IA ordina le schede, «Confronta» mette fianco a fianco quelle che scegli e «Sintesi» riassume tutto. Ogni raccolta si salva in PDF."
+ },
  "tip_c4b432e2e9": {
   "message": "Cerca nelle tue chat"
  },

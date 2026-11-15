@@ -3200,6 +3200,12 @@
  "tip_05b9621aed": {
   "message": "Öffne das Panel auf einer Seite, und ContextFlow wählt den Chat dazu: den mit dieser Seite oder einen zum selben Thema. „Weiter in“ oben zeigt, welchen Chat es gewählt hat; „Neuer Chat“ daneben startet einen frischen."
  },
+ "tip_8d1c1aa55d": {
+  "message": "Alles in einer Sammlung"
+ },
+ "tip_15dc6cba07": {
+  "message": "Du planst eine Reise oder einen Kauf? Wähle „In Sammlung“ unter einer Antwort oder Notiz, und ContextFlow schlägt vor, wohin sie gehört. In „Sammlungen“ liegt alles in Abschnitten, in Safari und in der App. Mit Pro sortiert die KI die Karten, „Vergleichen“ stellt die gewählten nebeneinander, und „Zusammenfassung“ fasst alles zusammen. Jede Sammlung lässt sich als PDF sichern."
+ },
  "tip_c4b432e2e9": {
   "message": "Durchsuche deine Chats"
  },

@@ -63,15 +63,18 @@ test("every card's clip, as the app shows it: on iPhone and iPad, on a Mac only 
   for (const lang of langs) assert.deepEqual(tipClips(data), app(lang), lang)
   const tip = (title: string) => data.groups.flatMap((g: any) => g.tips).find((t: any) => t.title.en === title)
   assert.equal(tip("Share what you found").clip, "share")
-  // 2.6 (93): moving ✦ aside is a first-block card with the clip; hiding it, under personalization, has none.
-  assert.equal(tip("Move ✦ out of the way").clip, "button")
+  // 2.6 (93): moving ✦ aside is a first-block card with the clip; 2.7: dragged along the edge and across (side).
+  assert.equal(tip("Move ✦ out of the way").clip, "side")
   assert.ok(data.groups[0].tips.some((t: any) => t.title.en === "Move ✦ out of the way"), "in Get started")
-  assert.ok(!tip("Hide ✦ when you don't need it").clip)
-  // No clip on a Mac where the app shows none: the touch ones and the button by a field.
-  for (const title of ["Open it on any page", "Swipe to pin or delete", "Insert into any field", "Copied, kept for a day", "Quick actions under a selection", "Find similar"]) {
+  // 2.7: hiding ✦ on a site has its clip too.
+  assert.equal(tip("Hide ✦ when you don't need it").clip, "hide")
+  // A Mac's own clips where the pointer does it differently (2.7: mac-…); none for Copied, which a Mac opens with keys.
+  const mac = { "Open it on any page": "mac-open", "Swipe to pin or delete": "mac-pin", "Insert into any field": "mac-insert", "Quick actions under a selection": "mac-chips", "Find similar": "mac-similar" }
+  for (const [title, clip] of Object.entries(mac)) {
     assert.ok(tip(title).clip, title)
-    assert.ok(tip(title).mac && !tip(title).mac.clip, `${title}: none on a Mac`)
+    assert.equal(tip(title).mac?.clip, clip, `${title}: a Mac's own clip`)
   }
+  assert.ok(tip("Copied, kept for a day").mac && !tip("Copied, kept for a day").mac.clip, "Copied: none on a Mac")
   // Listen (build 98): the panel's player, on iPhone and iPad too (with notifications on it plays there).
   assert.ok(tip("Listen").clip === "listen" && (!tip("Listen").mac || tip("Listen").mac.clip === "listen"))
   assert.equal(tip("Where it belongs").clip, "organize")

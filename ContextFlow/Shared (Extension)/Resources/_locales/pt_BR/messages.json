@@ -3200,6 +3200,12 @@
  "tip_05b9621aed": {
   "message": "Abra o painel numa página e o ContextFlow escolhe a conversa sobre ela: a que tem esta página ou uma sobre o mesmo assunto. “Continuando”, no topo, mostra qual conversa ele escolheu; “Nova conversa”, ali mesmo, começa outra."
  },
+ "tip_8d1c1aa55d": {
+  "message": "Tudo em uma coleção"
+ },
+ "tip_15dc6cba07": {
+  "message": "Planejando uma viagem ou uma compra? Escolha “Adicionar à coleção” abaixo de uma resposta ou nota, e o ContextFlow sugere onde ela entra. “Coleções” guarda tudo em seções, no Safari e no app. Com o Pro, a IA organiza os cartões, “Comparar” coloca lado a lado os que você escolher e “Resumo” resume tudo. Qualquer coleção pode ser salva em PDF."
+ },
  "tip_c4b432e2e9": {
   "message": "Busque nas suas conversas"
  },

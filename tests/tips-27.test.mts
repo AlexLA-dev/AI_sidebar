@@ -34,7 +34,9 @@ const NEW = {
   "The chat for this page": "chats-in-order",
   "Tips by the ✦ button": "privacy-and-personalization",
   // #181, merged into 2.7: the code and the link in Settings.
-  "Invite a friend": "your-plan"
+  "Invite a friend": "your-plan",
+  // Collections (#175, #182): a card of its own, after the chat for this page.
+  "Gather it in a collection": "chats-in-order"
 } as const
 
 test("each 2.7 feature has its card in the block its readers look in, with the plan it needs and no prices", () => {
@@ -67,7 +69,7 @@ test("each 2.7 feature has its card in the block its readers look in, with the p
   for (const text of texts) assert.doesNotMatch(text, /[$€£¥₽]|\d+[.,]\d\d|per month|a month|\/mo\b/i, text.slice(0, 40))
   // The side's card says the panel moves too, and keeps its clip on a Mac.
   assert.match(card("Move ✦ out of the way").text.en, /On iPad, drag the panel by its top bar/)
-  assert.equal(card("Move ✦ out of the way").mac.clip, "button")
+  assert.equal(card("Move ✦ out of the way").mac.clip, "side")
   // Tips point to the hints: the card names their setting as the panel names it.
   const en = JSON.parse(read("src/locales/en.json"))
   assert.ok(card("Tips by the ✦ button").text.en.endsWith(`under ${en.setPageHints}.`))
@@ -92,7 +94,7 @@ test("What's new 2.7: the five everyone has, as Tips shows them; clips wherever 
   assert.match(whatsNew, /\[TipGroup\.translateTip, TipGroup\.writeTip, TipGroup\.spacesTip, TipGroup\.appleTip, TipGroup\.shotTip\]/)
   // Shared with Tips, so not private there.
   for (const name of ["translateTip", "writeTip", "spacesTip", "appleTip", "shotTip"]) assert.match(content, new RegExp(`\\n    static var ${name}: Tip \\{`), name)
-  // "Each shown in a short clip" only when every card has one (none is made yet).
+  // "Each shown in a short clip" only when every card has one (2.7's are made: tips.test checks every card's clip).
   assert.match(whatsNew, /items\.allSatisfy \{ tip in tip\.clip\.flatMap\(TipClip\.url\) != nil \}/)
   assert.match(whatsNew, /Text\(WhatsNew\.allClips \? LocalizedStringKey\("The main things this version brings, each shown in a short clip\."\) : LocalizedStringKey\("The main things this version brings\."\)\)/)
   for (const key of ["The main things this version brings.", "The main things this version brings, each shown in a short clip."]) {
