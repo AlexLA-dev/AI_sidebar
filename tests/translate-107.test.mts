@@ -47,6 +47,7 @@ const SHOP = `
   <p>Ein leichter Kopfhörer mit langer Akkulaufzeit.</p>
   <button id="buy" class="btn">In den Warenkorb</button>
   <div role="button" id="order">Jetzt bestellen</div>
+  <button class="btn btn-icon">Merken</button>
   <select id="size"><option>Klein</option><option>Groß</option></select>
   <input id="qty" value="eins">
   <div contenteditable="true">Ihre Bewertung</div>
@@ -58,7 +59,7 @@ test("A4: menus, the site's header and footer, buttons, placeholders and button 
   const { document } = page(SHOP)
   const blocks = lib.collectBlocks(document.body)
   const texts = blocks.map((b: any) => (b.attr ? `${b.attr}:${b.text}` : b.text))
-  for (const want of ["Produkte", "Dienstleistungen", "Warenkorb", "Kopfhörer X", "In den Warenkorb", "Jetzt bestellen", "Impressum", "placeholder:Wonach suchen Sie?", "value:Suchen"]) {
+  for (const want of ["Produkte", "Dienstleistungen", "Warenkorb", "Kopfhörer X", "In den Warenkorb", "Jetzt bestellen", "Merken", "Impressum", "placeholder:Wonach suchen Sie?", "value:Suchen"]) {
     assert.ok(texts.includes(want), `translated: ${want} (got ${JSON.stringify(texts)})`)
   }
   for (const never of ["shopping_cart", "Klein", "Groß", "eins", "Ihre Bewertung", "npm install kopfhoerer", "value:Preis"]) {

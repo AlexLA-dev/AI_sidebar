@@ -35,8 +35,21 @@ const SKIP = new Set([
 ])
 /** What the person types or picks a value in: its words are the value. */
 const SKIP_ROLES = new Set(["textbox", "searchbox", "combobox", "slider", "spinbutton"])
-/** Icon fonts draw a picture from a word («shopping_cart», «chevron_right»): translated, the picture is gone. */
-const ICON_CLASS = /(^|[\s_-])(material-(icons|symbols)[\w-]*|glyphicon|fa[srlbd]?|fa-[\w-]+|icon|icons|ico|bi|mdi|ionicon)(\s|$)/i
+/** Icon fonts draw a picture from a word («shopping_cart», «menu»): translated, the picture is gone. Their classes
+ *  (a text button's «btn-icon» class isn't one)... */
+const ICON_CLASS = /(^|\s)(material-(icons|symbols)[\w-]*|google-symbols|glyphicon|fa[srlbd]?|mdi|ionicon)(\s|$)/i
+/** ...or one lowercase word drawn in an icon font. */
+const ICON_WORD = /^[a-z][a-z0-9_]{1,39}$/
+const ICON_FONT = /icon|symbol|material|glyph/i
+
+function iconFont(el: Element): boolean {
+  const cls = el.getAttribute("class")
+  if (cls && ICON_CLASS.test(cls)) return true
+  if (el.tagName !== "I" && el.tagName !== "SPAN") return false
+  if (!ICON_WORD.test((el.textContent ?? "").trim())) return false
+  const style = el.ownerDocument.defaultView?.getComputedStyle?.(el)
+  return !!style && ICON_FONT.test(style.fontFamily ?? "")
+}
 
 const HOST = "CONTEXTFLOW-ROOT"
 
@@ -46,8 +59,7 @@ function marked(el: Element): boolean {
   if (editable !== null && editable !== "false") return true
   if (el.getAttribute("translate") === "no" || el.classList?.contains("notranslate")) return true
   if (el.getAttribute("aria-hidden") === "true" || el.hasAttribute("hidden")) return true
-  const cls = el.getAttribute("class")
-  if (cls && ICON_CLASS.test(cls)) return true
+  if (iconFont(el)) return true
   const role = el.getAttribute("role")
   return role !== null && SKIP_ROLES.has(role)
 }
