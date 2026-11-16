@@ -3,14 +3,24 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+// ?vw=1024: a desktop page wider than the screen (a portrait iPad shows it scaled down, and zooms in on the field).
+const wide = Number(new URLSearchParams(location.search).get("vw"))
+if (wide >= 600) document.querySelector("meta[name=viewport]").setAttribute("content", `width=${wide}`)
+</script>
 <title>Gmail</title>
 <!-- 2.7 (107), the owner's test in Gmail on an iPad mini: «Проверить» hung, the fix card piled up with the selection
      buttons. Gmail needs a sign-in, so this is its thread view rebuilt from its own markup, as iPad Safari gets it (the
      desktop site): the class names, the nested tables, the attributes and the places of things are Gmail's
      (div.nH[role=list] › div.h7[role=listitem] › div.adn.ads › div.gs › table.cf.gJ … div.a3s.aiL; the dates in span.g3
      as "Nov 14, 2026, 4:42 PM (1 day ago)"; the reply box in div.ip.iq inside the item of the message being answered:
-     div.M9 › form.bAs › table.cf.An › div.Am.Al.editable[g_editable][role=textbox][aria-label="Message Body"]).
+     div.M9 › form.bAs (the recipients and Gmail's hidden inputs), then, after the form, table.aoP › table.cf.An ›
+     div.Am.Al.editable[g_editable][role=textbox][aria-label="Message Body"]).
+     The editor is outside the form: on the owner's Gmail Check and Rewrite showed in the list, and build 107 never
+     shows them in a form with a hidden input, so the editor wasn't in one.
      A reconstruction: not checked against a signed-in Gmail.
+     ?form=1            the editor inside the form with the hidden inputs (most sites' comment forms are built so)
+     ?vw=1024           laid out 1024 px wide whatever the screen (a desktop page on a portrait iPad)
      ?lang=en|ru|ja|ar  the thread's language (ar: right to left)
      ?at=middle         the reply box under the second message, with later messages after it (default: the last one)
      ?n=40              a long thread (the older messages collapsed, as Gmail keeps them)
@@ -45,6 +55,7 @@
   .a3s { padding: 12px 0 10px; font-size: 14px; overflow-wrap: anywhere; }
   .a3s p { margin: 0 0 12px; }
   .kv .a3s, .kv .ajw { display: none; }
+  .h7:not(.kv) .iA { display: none; }
   .kv .iA { color: #5f6368; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60vw; }
   .hq { margin: 6px 0 10px; color: #5f6368; font-size: 13px; }
   .hq b { color: #202124; }
@@ -74,6 +85,10 @@
     .gB { margin-inline-start: 0; }
     .amn { padding: 18px 16px; }
     .go { display: none; }
+    td.gH { white-space: normal; }
+    td.gH .T-I { display: none; }
+    table.cf { table-layout: fixed; }
+    td.gH.bAk { width: 42%; }
   }
 </style>
 </head>
@@ -195,17 +210,20 @@ function message(i, who, paras, day, open, files) {
 /** The reply box as Gmail puts it under the message being answered. */
 function replyBox(toName) {
   const draft = params.get("draft") === "1" ? esc(T.draft) : "<br>"
-  return h(`<div class="gA gt acV"><div class="gB xu"><div class="ip iq"><div class="nr tMHS5d"><div class="M9"><div class="aoI" role="region" aria-label="${esc(T.reply)}">
-  <form class="bAs" enctype="multipart/form-data" method="POST" onsubmit="return false">
-    <input type="hidden" name="composeid" value="67531"><input type="hidden" name="draft" value="undefined"><input type="hidden" name="rm" value="19a7003"><input type="hidden" name="subjectbox" value="Re: ${esc(T.subject)}">
-    <div class="fX aiL"><span class="J-J5-Ji" aria-hidden="true"></span><div class="afx" aria-live="off"><span class="vN bfK a3q" email="x"><div class="vT">${esc(toName)}</div></span></div></div>
-    <table class="aoP HM" role="presentation" cellpadding="0"><tbody><tr><td class="I5">
+  const inForm = params.get("form") === "1"
+  const body = `<table class="aoP HM" role="presentation" cellpadding="0"><tbody><tr><td class="I5">
       <table cellpadding="0" class="cf An" role="presentation"><tbody><tr><td class="Ap">
         <div class="Ar Au Ao"><div id="${id()}" class="Am aiL aO9 Al editable LW-avf tS-tW" hidefocus="true" aria-label="Message Body" g_editable="true" role="textbox" aria-multiline="true" contenteditable="true" tabindex="1" style="direction: ${lang === "ar" ? "rtl" : "ltr"}; min-height: 85px;" spellcheck="false" aria-owns=":rb" aria-controls=":rb" aria-expanded="false"><div dir="${lang === "ar" ? "rtl" : "ltr"}">${draft}</div><div><br clear="all"></div><div><br></div><span class="gmail_signature_prefix">-- </span><br><div dir="${lang === "ar" ? "rtl" : "ltr"}" class="gmail_signature" data-smartmail="gmail_signature"><div dir="auto">${esc(T.sign[0])}<br>${esc(T.sign[1])}</div></div></div></div>
         <div class="ajR" role="button" tabindex="0" aria-label="Show trimmed content" data-tooltip="Show trimmed content" aria-expanded="false">...</div>
       </td></tr></tbody></table>
-    </td></tr><tr class="btC"><td class="gU Up"><div class="btC"><div class="T-I J-J5-Ji aoO v7 T-I-atl L3" role="button" tabindex="1" aria-label="${esc(T.send)}">${esc(T.send)}</div><div class="oc gU" role="button" aria-label="Formatting options"></div><div class="oc gU" role="button" aria-label="Attach files"></div></div></td></tr></tbody></table>
+    </td></tr><tr class="btC"><td class="gU Up"><div class="btC"><div class="T-I J-J5-Ji aoO v7 T-I-atl L3" role="button" tabindex="1" aria-label="${esc(T.send)}">${esc(T.send)}</div><div class="oc gU" role="button" aria-label="Formatting options"></div><div class="oc gU" role="button" aria-label="Attach files"></div></div></td></tr></tbody></table>`
+  return h(`<div class="gA gt acV"><div class="gB xu"><div class="ip iq"><div class="nr tMHS5d"><div class="M9"><div class="aoI" role="region" aria-label="${esc(T.reply)}">
+  <form class="bAs" enctype="multipart/form-data" method="POST" onsubmit="return false">
+    <input type="hidden" name="composeid" value="67531"><input type="hidden" name="draft" value="undefined"><input type="hidden" name="rm" value="19a7003"><input type="hidden" name="subjectbox" value="Re: ${esc(T.subject)}">
+    <div class="fX aiL"><span class="J-J5-Ji" aria-hidden="true"></span><div class="afx" aria-live="off"><span class="vN bfK a3q" email="x"><div class="vT">${esc(toName)}</div></span></div></div>
+    ${inForm ? body : ""}
   </form>
+  ${inForm ? "" : body}
 </div></div></div></div></div></div>`)
 }
 
