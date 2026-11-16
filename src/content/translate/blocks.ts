@@ -240,6 +240,10 @@ const LINK_LETTERS = 30
  * are judged apart from the page's words (decide.ts judgeControls), and can be translated alone.
  */
 export function controlBlock(block: Block): boolean {
+  // A control's words are short; a longer label (a consent's paragraph) is the page's text (and what's free to
+  // translate is short: the server checks the same length).
+  const plain = block.text.replace(/<\/?\d+\/?>/g, "").replace(/\s+/g, " ").trim()
+  if (plain.length > TRANSLATE_LIMITS.controlChars) return false
   if (block.attr) return true
   const el = block.parent
   let depth = 0
@@ -249,7 +253,7 @@ export function controlBlock(block: Block): boolean {
     if (role && CONTROL_ROLES.has(role)) return true
   }
   if (el.closest(MENUS)) return true
-  const letters = block.text.replace(/<\/?\d+\/?>/g, "").match(LETTERS)?.length ?? 0
+  const letters = plain.match(LETTERS)?.length ?? 0
   if (tagOf(el) === "A" && letters <= LINK_LETTERS) return true
   if (/^H[1-6]$/.test(tagOf(el)) || el.getAttribute("role") === "heading" || el.closest("h1,h2,h3,h4,h5,h6")) return !!el.closest(DIALOGS)
   return false

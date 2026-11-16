@@ -442,6 +442,25 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
       </div>
     )
   }
+  if (state.at === "limit" && state.controls) {
+    // The day's free translations of buttons and menus are used up: said plainly, with the page's translation (one
+    // answer) offered instead.
+    const goal = asked.current ?? target
+    return (
+      <div class={cls} style={style} role="status">
+        <span class="cf-tr-label">{t("trControlsCap")}</span>
+        {goal && (
+          <button type="button" class="cf-tr-btn" onClick={() => {
+            step("tap")
+            asked.current = { from: goal.from, to: goal.to }
+            tapped.current = true
+            start(asked.current)
+          }}>{t("trEntry")}</button>
+        )}
+        {x}
+      </div>
+    )
+  }
   if (state.at === "limit") {
     return (
       <div class={cls} style={style} role="status">

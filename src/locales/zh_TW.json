@@ -827,6 +827,7 @@
   "trPart": "{0}：頁面的 {1}%",
   "trEntry": "翻譯此頁面",
   "trControls": "按鈕和選單：{0}",
+  "trControlsCap": "今天的按鈕和選單免費翻譯已用完",
 
   "spacesTitle": "空間",
   "spaceSwitcher": "空間：{0}。切換",

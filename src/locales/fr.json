@@ -827,6 +827,7 @@
   "trPart": "{0} : {1} % de la page",
   "trEntry": "Traduire la page",
   "trControls": "Boutons et menus : {0}",
+  "trControlsCap": "Les traductions gratuites des boutons et menus sont épuisées pour aujourd’hui",
 
   "spacesTitle": "Espaces",
   "spaceSwitcher": "Espace : {0}. Changer",

@@ -199,20 +199,24 @@ export function judgeControls(labels: readonly string[], reader: string, htmlLan
   // Latin labels: the ones the lists place without doubt name a language; then every label with that language's
   // words counts, unless it's as much the reader's own («In den Warenkorb» has English «in» and German «den»).
   const votes = new Map<string, number>()
+  let mineSure = 0
   for (const label of latin) {
     const lang = canonical(languageGuess(label)?.lang ?? "")
-    if (lang && lang !== me && !neighbours(lang, me) && !SCRIPT_OF[lang]) votes.set(lang, (votes.get(lang) ?? 0) + 1)
+    if (lang === me || (lang && neighbours(lang, me))) mineSure++
+    else if (lang && !SCRIPT_OF[lang]) votes.set(lang, (votes.get(lang) ?? 0) + 1)
   }
   for (const [lang, sure] of votes) {
-    if (sure < ENTRY_WORDS) continue
+    // More labels surely in that language than surely in the reader's own: on an Italian page a few labels read as
+    // Spanish (measured: IKEA Italy), and most read as Italian.
+    if (sure < ENTRY_WORDS || sure <= mineSure) continue
     const n = latin.filter((label) => wordHits(label, lang) >= 1 && wordHits(label, lang) > wordHits(label, me)).length
     take({ lang: refined(lang, htmlLang), labels: n, offer: n >= CONTROLS_WORDS && n / latin.length >= CONTROLS_WORDS_SHARE })
   }
   // The reader's own script: Ukrainian shows by its own letters among Russian's (not the other way: a Ukrainian word
-  // without them reads as Russian).
+  // without them reads as Russian). Russian has none of those letters, so the labels that do are sign enough.
   if (mine === "cyr" && me !== "uk") {
     const n = own.filter((label) => languageGuess(label)?.lang === "uk").length
-    if (n >= ENTRY_WORDS) take({ lang: refined("uk", htmlLang), labels: n, offer: n >= CONTROLS_WORDS && n / own.length >= CONTROLS_WORDS_SHARE })
+    if (n >= ENTRY_WORDS) take({ lang: refined("uk", htmlLang), labels: n, offer: n >= CONTROLS_WORDS })
   }
   return best
 }

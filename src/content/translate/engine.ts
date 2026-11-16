@@ -18,8 +18,9 @@ export type EngineState =
   | { at: "working" }
   // Translated (more may be on its way as the person scrolls).
   | { at: "on" }
-  // The free answers (or the week's) are used up: nothing new is translated.
-  | { at: "limit" }
+  // The free answers (or the week's) are used up: nothing new is translated. `controls`: the day's free translations
+  // of controls are (the page can still be translated as a page, one answer).
+  | { at: "limit"; controls?: true }
   | { at: "error"; code: TranslateError }
 
 interface Item {
@@ -254,7 +255,8 @@ export class PageTranslator {
     const lanes = this.answered ? MAX_INFLIGHT : 1
     while (this.inflight < lanes) {
       const first = !this.asked
-      const max = first ? TRANSLATE_LIMITS.firstChars : TRANSLATE_LIMITS.requestChars
+      // Controls alone go in requests the server takes as such (short ones, free).
+      const max = this.only === "controls" ? Math.min(TRANSLATE_LIMITS.controlRequestChars, first ? TRANSLATE_LIMITS.firstChars : TRANSLATE_LIMITS.requestChars) : first ? TRANSLATE_LIMITS.firstChars : TRANSLATE_LIMITS.requestChars
       const batch: Item[] = []
       let chars = 0
       for (const item of this.items.values()) {
@@ -285,7 +287,7 @@ export class PageTranslator {
       this.cancels.delete(cancel)
     }
     const cancel = this.deps.ask(
-      { url: this.deps.url(), to: this.to, from: this.from, blocks: batch.map((i) => ({ id: i.id, text: i.block.text })), first },
+      { url: this.deps.url(), to: this.to, from: this.from, blocks: batch.map((i) => ({ id: i.id, text: i.block.text })), first, ...(this.only === "controls" ? { kind: "controls" as const } : {}) },
       (reply) => {
         if (ended || !this.active) return
         if (reply.type === "items") {
@@ -329,10 +331,10 @@ export class PageTranslator {
   private failed(batch: Item[], code: TranslateError): void {
     for (const item of batch) if (item.status === "sent") item.status = "queued"
     const shown = [...this.items.values()].some((i) => i.applied)
-    if (code === "LIMIT_REACHED") {
+    if (code === "LIMIT_REACHED" || code === "CONTROLS_CAP") {
       // Nothing more is translated; what came from the kept translations stays.
       this.stop()
-      this.set({ at: "limit" })
+      this.set(code === "CONTROLS_CAP" ? { at: "limit", controls: true } : { at: "limit" })
       return
     }
     if (code === "PAGE_CAP") {

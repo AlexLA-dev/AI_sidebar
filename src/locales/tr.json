@@ -827,6 +827,7 @@
   "trPart": "{0}: sayfanın %{1}",
   "trEntry": "Sayfayı çevir",
   "trControls": "Düğmeler ve menüler: {0}",
+  "trControlsCap": "Düğme ve menülerin bugünkü ücretsiz çevirileri bitti",
 
   "spacesTitle": "Alanlar",
   "spaceSwitcher": "Alan: {0}. Değiştir",

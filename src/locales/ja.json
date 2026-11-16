@@ -827,6 +827,7 @@
   "trPart": "{0}：ページの{1}%",
   "trEntry": "このページを翻訳",
   "trControls": "ボタンとメニュー：{0}",
+  "trControlsCap": "今日のボタンとメニューの無料翻訳は使い切りました",
 
   "spacesTitle": "スペース",
   "spaceSwitcher": "スペース：{0}。切り替える",

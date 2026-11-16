@@ -399,6 +399,63 @@ test("only the controls are translated when the page's words are the reader's; t
   assert.equal(document.querySelector("button")!.textContent, "Παραγγελία")
 })
 
+test("controls only: asked as such in small requests (free on the server); past the day's cap the state says so, and the page as a page still goes", async () => {
+  const many = Array.from({ length: 120 }, (_, i) => `<li><a href="/m${i}">Κατηγορία προϊόντων αριθμός ${i}</a></li>`).join("")
+  const { document } = page(`<nav><ul>${many}</ul></nav><main><p>A light pair of headphones with a long battery life.</p><button>Παραγγελία</button></main>`, "el")
+  const asks: any[] = []
+  let cap = false
+  const translator = new lib.PageTranslator({
+    doc: document,
+    observers: { mutation: FakeObserver },
+    url: () => "https://shop.example/en",
+    ask: (ask: any, on: (r: any) => void) => {
+      const req = asks.push(ask)
+      setTimeout(() => {
+        if (cap && ask.kind === "controls") return on({ type: "error", req, code: "CONTROLS_CAP" })
+        on({ type: "items", req, items: ask.blocks.map((b: any) => ({ id: b.id, text: `EN ${b.text}` })) })
+        on({ type: "done", req, charged: ask.kind !== "controls" && ask.first })
+      }, 1)
+      return () => undefined
+    },
+    cache: { load: async () => new Map(), save: () => undefined }
+  })
+  await translator.start("en", "el", "controls")
+  await wait(300)
+  assert.ok(asks.length >= 2, "more than one request")
+  for (const a of asks) {
+    assert.equal(a.kind, "controls")
+    assert.ok(a.blocks.reduce((n: number, b: any) => n + b.text.length, 0) <= 2_500, "each within what the server takes as controls")
+    assert.ok(a.blocks.every((b: any) => b.text.length <= 80))
+  }
+  assert.equal(document.querySelector("button")!.textContent, "EN Παραγγελία")
+  // The whole page then: the controls come from what's kept (not sent again); only the page's words are asked.
+  const n = asks.length
+  translator.original()
+  await translator.start("en", "el")
+  await wait(200)
+  const later = asks.slice(n)
+  assert.ok(later.length >= 1)
+  assert.ok(later.every((a) => a.kind === undefined), "a page translation, counted as one")
+  assert.deepEqual(later.flatMap((a) => a.blocks.map((b: any) => b.text)), ["A light pair of headphones with a long battery life."])
+  assert.equal(document.querySelector("button")!.textContent, "EN Παραγγελία", "from what's kept")
+  translator.original()
+  // Past the day's cap: nothing is translated, and the state says which limit it is.
+  cap = true
+  const fresh = page(`<nav><a href="/a">Προϊόντα</a><a href="/b">Υπηρεσίες</a></nav><main><p>Words of the page.</p></main>`, "el").document
+  const second = new lib.PageTranslator({
+    doc: fresh, observers: { mutation: FakeObserver }, url: () => "https://shop.example/other",
+    ask: (ask: any, on: (r: any) => void) => {
+      setTimeout(() => on({ type: "error", req: 1, code: "CONTROLS_CAP" }), 1)
+      return () => undefined
+    },
+    cache: { load: async () => new Map(), save: () => undefined }
+  })
+  await second.start("en", "el", "controls")
+  await wait(80)
+  assert.deepEqual(second.state(), { at: "limit", controls: true })
+  assert.equal(fresh.querySelector("nav")!.textContent, "ΠροϊόνταΥπηρεσίες")
+})
+
 test("the reader's language comes from the languages they read, never from the region of the device's locale", () => {
   // An English reader living in Germany or Cyprus, a Russian one in Cyprus, an Arabic one in the Emirates, a reader
   // of Traditional Chinese in the US: each reads their own language, whatever the country.
@@ -450,7 +507,7 @@ test("the pill's new strings are in every language, with their placeholders", ()
   const dir = new URL("../src/locales/", import.meta.url)
   for (const lang of ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "tr", "uk", "vi", "zh_CN", "zh_TW"]) {
     const s = JSON.parse(readFileSync(new URL(`${lang}.json`, dir), "utf8"))
-    for (const k of ["trLangPick", "trPart", "trEntry", "trControls"]) assert.ok(s[k], `${lang}: ${k}`)
+    for (const k of ["trLangPick", "trPart", "trEntry", "trControls", "trControlsCap"]) assert.ok(s[k], `${lang}: ${k}`)
     assert.ok(s.trControls.includes("{0}"), `${lang}: trControls`)
     assert.ok(s.trPart.includes("{0}") && s.trPart.includes("{1}"), `${lang}: trPart`)
   }

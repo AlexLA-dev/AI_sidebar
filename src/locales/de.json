@@ -827,6 +827,7 @@
   "trPart": "{0}: {1}% der Seite",
   "trEntry": "Seite übersetzen",
   "trControls": "Buttons und Menüs: {0}",
+  "trControlsCap": "Die kostenlosen Übersetzungen von Buttons und Menüs sind für heute aufgebraucht",
 
   "spacesTitle": "Bereiche",
   "spaceSwitcher": "Bereich: {0}. Wechseln",

@@ -827,6 +827,7 @@
   "trPart": "{0}: {1}% trang",
   "trEntry": "Dịch trang này",
   "trControls": "Nút và menu: {0}",
+  "trControlsCap": "Đã hết lượt dịch miễn phí nút và menu hôm nay",
 
   "spacesTitle": "Không gian",
   "spaceSwitcher": "Không gian: {0}. Chuyển",
