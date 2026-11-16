@@ -109,6 +109,41 @@ export function firstAnswer<T>(tries: Array<() => Promise<T>>, good: (value: T) 
   })
 }
 
+/** What windowScrolls reads of a page (a document and its window, or stand-ins in a test). */
+export interface ScrollDoc {
+  documentElement: { scrollHeight: number }
+  body?: { scrollHeight: number } | null
+}
+export interface ScrollView {
+  innerHeight: number
+  scrollX: number
+  scrollY: number
+  getComputedStyle(el: never): { overflowY: string }
+  scrollTo(to: { left: number; top: number; behavior: "instant" }): void
+}
+
+/**
+ * The reader can scroll the page with the window (not a scroller inside it): it's taller than the screen and the
+ * window's own overflow isn't hidden. A mail app's page is often far taller than the screen in what it hides, with
+ * the window locked (overflow: hidden on html or body): a script can still scroll that, and a whole-page run would
+ * walk through it screen by screen, our panel away all the while (107, Gmail: gone for some 15 s). Such a page is
+ * what's on screen.
+ */
+export function windowScrolls(doc: ScrollDoc, view: ScrollView): boolean {
+  const root = doc.documentElement
+  const page = Math.max(root.scrollHeight, doc.body?.scrollHeight ?? 0)
+  if (page <= view.innerHeight + 4) return false
+  // The window's overflow is html's, or body's when html's is left as it comes.
+  const own = view.getComputedStyle(root as never).overflowY
+  const overflow = own !== "visible" || !doc.body ? own : view.getComputedStyle(doc.body as never).overflowY
+  if (overflow === "hidden" || overflow === "clip") return false
+  if (view.scrollY > 0) return true
+  view.scrollTo({ left: view.scrollX, top: 2, behavior: "instant" })
+  const moved = view.scrollY > 0
+  view.scrollTo({ left: view.scrollX, top: 0, behavior: "instant" })
+  return moved
+}
+
 /** A new picture's id. */
 export function newShotId(): string {
   return `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`

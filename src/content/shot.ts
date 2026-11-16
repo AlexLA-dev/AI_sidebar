@@ -3,7 +3,7 @@
 // ours, in one host) hide for the moment it takes, so they're not in it. What stays put at the top of the page (a
 // sticky header) is in the picture once, at its top; what stays at the bottom (a cookie bar) isn't in a whole page's.
 
-import { fitSize, markedRows, MARK_RGB, newShotId, nextScreen, pageRows, SHOT_LIMITS, SHOT_TIMES, type Shot, type ShotKind } from "../shared/shots"
+import { fitSize, markedRows, MARK_RGB, newShotId, nextScreen, pageRows, SHOT_LIMITS, SHOT_TIMES, windowScrolls, type Shot, type ShotKind } from "../shared/shots"
 import { HOST_TAG } from "./page"
 import { panelRoot } from "./root"
 
@@ -57,17 +57,6 @@ function staying(): HTMLElement[] {
     if (out.length > 200) break
   }
   return out
-}
-
-/** The window itself scrolls the page (not a scroller inside it): it's taller than the screen, and a nudge moves it. */
-function windowScrolls(): boolean {
-  const page = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight ?? 0)
-  if (page <= window.innerHeight + 4) return false
-  if (window.scrollY > 0) return true
-  window.scrollTo({ left: window.scrollX, top: 2, behavior: "instant" as ScrollBehavior })
-  const moved = window.scrollY > 0
-  window.scrollTo({ left: window.scrollX, top: 0, behavior: "instant" as ScrollBehavior })
-  return moved
 }
 
 /** Mark size (CSS px): the marks sit in the viewport's left corners, top and bottom, for the capture only. */
@@ -135,6 +124,8 @@ function thumbnail(source: HTMLCanvasElement): string {
 export async function takeShot(kind: ShotKind, progress?: (screen: number, of: number) => void): Promise<
   { ok: true; shot: Omit<Shot, "parts">; data: string; cut: boolean; screens: number } | { ok: false; code: ShotFailure; detail?: string }
 > {
+  // The extension was updated while this tab stayed open: nothing answers here any more, so nothing is hidden for it.
+  if (!chrome.runtime?.id) return { ok: false, code: "UNAVAILABLE", detail: "no extension" }
   const host = ourHost()
   const hostVisibility = host?.style.visibility ?? ""
   const startX = window.scrollX
@@ -150,7 +141,7 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
     let screens = 1
     // A page whose window doesn't scroll (a mail app: its own scroller holds the text) is all on screen: its whole
     // page is what's visible, taken once, with nothing of the page hidden.
-    const whole = kind === "full" && windowScrolls()
+    const whole = kind === "full" && windowScrolls(document, window)
     const unplace = placeMarks()
     try {
       if (!whole) {

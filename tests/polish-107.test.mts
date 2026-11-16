@@ -253,3 +253,45 @@ test("F3: «What your plan adds» is gone from Tips: the app, the panel's sheet 
   assert.deepEqual(data.groups.find((g: any) => g.id === "your-plan").tips.map((c: any) => c.title.en), ["Monthly or yearly", "Invite a friend"])
   assert.doesNotMatch(read("site/features.html"), /What your plan adds/)
 })
+
+// ------------------------------------------------------------ D1: a page whose window is locked (a mail app)
+
+import { windowScrolls } from "../src/shared/shots.ts"
+
+test("D1: a whole-page snapshot never walks through a locked window's hidden overflow (a mail app is one screen)", () => {
+  const page = (o: { html?: string; body?: string; height: number; y?: number; scriptScrolls?: boolean }) => {
+    const root = { scrollHeight: o.height, tag: "html" }
+    const body = { scrollHeight: o.height, tag: "body" }
+    const calls: number[] = []
+    const view = {
+      innerHeight: 800, scrollX: 0, scrollY: o.y ?? 0,
+      getComputedStyle: (el: { tag: string }) => ({ overflowY: el.tag === "html" ? o.html ?? "visible" : o.body ?? "visible" }),
+      scrollTo(to: { top: number }) {
+        calls.push(to.top)
+        if (o.scriptScrolls !== false) this.scrollY = to.top
+      }
+    }
+    return { out: windowScrolls({ documentElement: root, body } as never, view as never), calls, view }
+  }
+  // An article: taller than the screen, the window scrolls it; left where it was.
+  const article = page({ height: 4200 })
+  assert.equal(article.out, true)
+  assert.equal(article.view.scrollY, 0)
+  assert.equal(page({ height: 4200, y: 900 }).out, true)
+  // A mail app (Gmail's shape): html or body locked, far more height in what's hidden, and a script could scroll it.
+  // It isn't walked through screen by screen: no scroll is even tried.
+  for (const locked of [{ html: "hidden" }, { body: "hidden" }, { html: "clip" }, { html: "hidden", body: "auto" }]) {
+    const mail = page({ ...locked, height: 4200 })
+    assert.equal(mail.out, false, JSON.stringify(locked))
+    assert.deepEqual(mail.calls, [], "the page isn't touched")
+  }
+  // html's own overflow wins over body's (body: hidden under a scrolling html locks nothing).
+  assert.equal(page({ html: "auto", body: "hidden", height: 4200 }).out, true)
+  // All on screen already; and a page that says it's tall but doesn't move.
+  assert.equal(page({ height: 802 }).out, false)
+  assert.equal(page({ height: 4200, scriptScrolls: false }).out, false)
+  // The page side uses it for «Whole page», and takes one screen when it says no.
+  const shot = read("src/content/shot.ts")
+  assert.match(shot, /const whole = kind === "full" && windowScrolls\(document, window\)/)
+  assert.match(shot, /if \(!chrome\.runtime\?\.id\) return \{ ok: false, code: "UNAVAILABLE"/)
+})
