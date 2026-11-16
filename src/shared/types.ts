@@ -204,6 +204,8 @@ export type BackgroundRequest =
   | { type: "speechClear" }
   // Notifications for ContextFlow on this device (Safari: "authorized", "denied", "notDetermined"…; elsewhere none).
   | { type: "notifStatus" }
+  // 2.7: a panel asks whether the extension still hears it (src/content/orphan.ts).
+  | { type: "alive" }
   // Read aloud playing in the panel on iPhone and iPad (2.6): what the app needs to carry on from the same second
   // ("state", as it plays), the page went away ("away": the notification now), came back ("back"), or it stopped.
   // `skipped` (build 94): part of it was skipped ahead here, so the app doesn't count it as heard to its end.
@@ -279,7 +281,9 @@ export type PdfResult =
   | { ok: true; text: string; pages: number; title: string }
   | { ok: false; reason: "none" | "failed"; error: string }
 
-export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean } | { type: "openChat"; chat: string; at?: string }
+// `alive` (2.7): the background asks a tab whether its panel still hears the extension (one left by the extension as it
+// was before an update doesn't answer, and the tab gets the panel again; src/background/revive.ts).
+export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean } | { type: "openChat"; chat: string; at?: string } | { type: "alive" }
 
 /** What organizing suggests for a chat now: a move (to a chat, or a new one) and a tag per message. */
 export type OrganizeReply =

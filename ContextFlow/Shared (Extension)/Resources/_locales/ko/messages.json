@@ -1844,6 +1844,12 @@
  "listenOffline": {
   "message": "인터넷에 연결되어 있지 않아요. 처음 들을 때는 인터넷이 필요해요."
  },
+ "listenReload": {
+  "message": "ContextFlow가 업데이트되었어요. 들으려면 페이지를 새로고침해 주세요."
+ },
+ "reloadPage": {
+  "message": "새로고침"
+ },
  "listenInApp": {
   "message": "듣기는 ContextFlow 앱에서 재생되어서 화면을 잠가도, 헤드폰에서도 계속 재생돼요."
  },

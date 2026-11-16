@@ -1853,6 +1853,12 @@
  "listenOffline": {
   "message": "Bağlantı yok: ilk dinleme için internet gerekir."
  },
+ "listenReload": {
+  "message": "ContextFlow güncellendi. Dinlemek için sayfayı yeniden yükleyin."
+ },
+ "reloadPage": {
+  "message": "Yeniden yükle"
+ },
  "listenInApp": {
   "message": "“Dinle” ContextFlow uygulamasında çalar; böylece ses ekran kilitliyken de, kulaklıkta da devam eder."
  },

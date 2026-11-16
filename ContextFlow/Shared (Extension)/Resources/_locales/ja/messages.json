@@ -1844,6 +1844,12 @@
  "listenOffline": {
   "message": "インターネットに接続されていません。初回の読み上げにはインターネットが必要です。"
  },
+ "listenReload": {
+  "message": "ContextFlowがアップデートされました。読み上げるにはページを再読み込みしてください。"
+ },
+ "reloadPage": {
+  "message": "再読み込み"
+ },
  "listenInApp": {
   "message": "読み上げはContextFlowアプリで再生されるため、画面をロックしてもヘッドホンでも再生が続きます。"
  },

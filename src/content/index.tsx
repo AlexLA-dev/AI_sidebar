@@ -5,6 +5,7 @@ import type { ContentRequest } from "../shared/types"
 import { uiDirection, uiLang } from "../shared/i18n"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
+import { retireOrphans } from "./orphan"
 import { detectPlatform, HOST_TAG } from "./page"
 import { setPanelRoot } from "./root"
 import { guardScroll } from "./scrollGuard"
@@ -47,6 +48,8 @@ function boot(): void {
       bus.dispatchEvent(new Event(message.type))
       sendResponse({ ok: true })
     }
+    // 2.7: the background asks whether this tab's panel still hears it (src/background/revive.ts).
+    if (message?.type === "alive") sendResponse({ ok: true })
     // 2.6 (98): a link in a chat opened this page, already open in this tab: the panel opens on that chat.
     if (message?.type === "openChat") {
       bus.dispatchEvent(new CustomEvent("openChat", { detail: { chat: message.chat, at: message.at } }))
@@ -56,7 +59,11 @@ function boot(): void {
   })
 
   const mount = () => {
-    if (document.querySelector(HOST_TAG)) return
+    // 2.7 (the owner on TestFlight 107, Listen in a loop): a panel already on the page was put there by the extension as
+    // it was before an update (this script runs once in its own world, so it isn't ours). Its link to the extension is
+    // dead: nothing it asks is answered, so Listen read notifications as off and its text never reached the app. It
+    // can't be taken out (it puts itself back when removed), so it's hidden, and this one takes its place.
+    retireOrphans(document, HOST_TAG)
     const host = document.createElement(HOST_TAG)
     host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;")
     // The panel's own language and direction (Arabic: right to left), never the page's: `all: initial` keeps direction.

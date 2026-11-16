@@ -637,6 +637,8 @@
   "listenLimit": "Se acabaron los {0} minutos de escucha de esta semana. Vuelven el {1}.",
   "listenFailed": "No se pudo leer en voz alta. Inténtalo de nuevo en un momento.",
   "listenOffline": "Sin conexión: la primera vez, escuchar necesita internet.",
+  "listenReload": "ContextFlow se actualizó. Recarga la página para escuchar.",
+  "reloadPage": "Recargar",
   "listenInApp": "«Escuchar» se reproduce en la app ContextFlow, así que sigue sonando con la pantalla bloqueada y en tus auriculares.",
   "listenLeft": "Escucha: te quedan {0} de {1} min esta semana",
   "watchFullPro": "Con Pro puedes vigilar {0} páginas a la vez. Con Ultra, hasta {1}.",

@@ -637,6 +637,8 @@
   "listenLimit": "이번 주 듣기 {0}분을 모두 사용했어요. {1}에 다시 채워져요.",
   "listenFailed": "소리 내어 읽지 못했어요. 잠시 후 다시 시도해 주세요.",
   "listenOffline": "인터넷에 연결되어 있지 않아요. 처음 들을 때는 인터넷이 필요해요.",
+  "listenReload": "ContextFlow가 업데이트되었어요. 들으려면 페이지를 새로고침해 주세요.",
+  "reloadPage": "새로고침",
   "listenInApp": "듣기는 ContextFlow 앱에서 재생되어서 화면을 잠가도, 헤드폰에서도 계속 재생돼요.",
   "listenLeft": "듣기: 이번 주 {1}분 중 {0}분 남음",
   "watchFullPro": "Pro로는 페이지 {0}개까지 동시에 지켜볼 수 있어요. Ultra는 {1}개까지.",

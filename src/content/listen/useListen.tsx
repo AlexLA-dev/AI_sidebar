@@ -15,6 +15,7 @@ import { SPEEDS, speedLabel, type Speed } from "../../shared/stretch"
 import { addRange, FULL, type Ranges, slotMask, spread } from "../../shared/coverage"
 import { voicedId } from "../../shared/voiced"
 import { listenLink, listenMark, notifyAnswer } from "../../shared/listenLink"
+import { alive, gone } from "../orphan"
 import { isTouch } from "../page"
 import { listenBackNow, listenNotifyLater, listenNotifyLaterNow, listenSpeed, notifyKnown, setListenBack, setListenSpeed, setNotifyKnown } from "../store"
 import { clock, PcmPlayer } from "./player"
@@ -220,6 +221,19 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     const text = plainText(item)
     const parts = speechParts(text)
     if (!parts.length) return
+
+    // 2.7 (the owner on 107: Listen in a loop): a panel left on the page by an update can't reach the extension, so it
+    // can't play, hand the text to the app, or learn whether notifications are on (src/content/orphan.ts). Said once,
+    // with Reload; known at once when the runtime is gone, else from an answer asked for now.
+    if (gone()) return void setState({ at: "error", key, code: "RELOAD" })
+    if (!back) {
+      void alive(send).then((ok) => {
+        const s = stateRef.current
+        if (ok || !("key" in s) || s.key !== key || s.at === "playing" || s.at === "paused") return
+        stop()
+        setState({ at: "error", key, code: "RELOAD" })
+      })
+    }
 
     // iPhone and iPad without notifications: the app plays it (WebKit stops a page's sound when the page goes away;
     // the app keeps playing, screen locked and in headphones too), after asking once a day to turn them on.
@@ -744,12 +758,14 @@ export function ListenBar({ state, title, onTitle, speed, left, onSpeed, onAnywa
     const resets = state.usage?.resetsAt ? new Date(state.usage.resetsAt).toLocaleDateString(uiLang(), { weekday: "long" }) : ""
     const text = state.code === "LIMIT_REACHED"
       ? t("listenLimit", String(Math.round((state.usage?.limit ?? 0) / 60)), resets)
-      : state.code === "NETWORK" ? t("listenOffline") : t("listenFailed")
+      : state.code === "RELOAD" ? t("listenReload") : state.code === "NETWORK" ? t("listenOffline") : t("listenFailed")
     return (
       <div class="cf-listen error" role="alert">
         <span class="cf-listen-text">{text}</span>
         {state.code === "LIMIT_REACHED" && <button type="button" class="cf-link" onClick={onPlans}>{t("plansCompare")}</button>}
-        {state.code !== "LIMIT_REACHED" && state.item && onRetry && <button type="button" class="cf-link cf-listen-retry" onClick={onRetry}>{t("retry")}</button>}
+        {/* 2.7: a panel left by an update (orphan.ts): the page loaded again brings the new one. */}
+        {state.code === "RELOAD" && <button type="button" class="cf-link cf-listen-retry" onClick={() => location.reload()}>{t("reloadPage")}</button>}
+        {state.code !== "LIMIT_REACHED" && state.code !== "RELOAD" && state.item && onRetry && <button type="button" class="cf-link cf-listen-retry" onClick={onRetry}>{t("retry")}</button>}
         <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("close")}>×</button>
       </div>
     )

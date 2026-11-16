@@ -637,6 +637,8 @@
   "listenLimit": "這週的 {0} 分鐘朗讀時間已用完，{1}會恢復。",
   "listenFailed": "無法朗讀。請稍後再試。",
   "listenOffline": "沒有網路連線：第一次朗讀需要連上網路。",
+  "listenReload": "ContextFlow 已更新。請重新載入此頁面後再朗讀。",
+  "reloadPage": "重新載入",
   "listenInApp": "朗讀在 ContextFlow App 中播放，所以鎖定螢幕後也會繼續播放，戴著耳機也能一直聽。",
   "listenLeft": "朗讀：本週剩餘 {0}/{1} 分鐘",
   "watchFullPro": "Pro 方案可同時追蹤 {0} 個頁面。Ultra 最多可追蹤 {1} 個。",

@@ -640,6 +640,8 @@
   "listenLimit": "This week's {0} minutes of listening are used up. They come back on {1}.",
   "listenFailed": "Couldn't read this aloud. Try again in a moment.",
   "listenOffline": "No connection: listening needs the internet the first time.",
+  "listenReload": "ContextFlow was updated. Reload this page to listen.",
+  "reloadPage": "Reload",
   "listenInApp": "Listen plays in the ContextFlow app, so the sound keeps going with the screen locked and in your headphones.",
   "listenLeft": "Listening: {0} of {1} min left this week",
   "listenMinLeft": "{0} min left",

@@ -1853,6 +1853,12 @@
  "listenOffline": {
   "message": "No connection: listening needs the internet the first time."
  },
+ "listenReload": {
+  "message": "ContextFlow was updated. Reload this page to listen."
+ },
+ "reloadPage": {
+  "message": "Reload"
+ },
  "listenInApp": {
   "message": "Listen plays in the ContextFlow app, so the sound keeps going with the screen locked and in your headphones."
  },

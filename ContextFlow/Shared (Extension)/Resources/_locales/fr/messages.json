@@ -1844,6 +1844,12 @@
  "listenOffline": {
   "message": "Pas de connexion : la première écoute a besoin d’Internet."
  },
+ "listenReload": {
+  "message": "ContextFlow a été mis à jour. Rechargez la page pour écouter."
+ },
+ "reloadPage": {
+  "message": "Recharger"
+ },
  "listenInApp": {
   "message": "L’écoute se fait dans l’app ContextFlow : la lecture continue écran verrouillé et dans vos écouteurs."
  },
