@@ -314,6 +314,91 @@ test("A5: by the page as it shows: the main content weighs, not the site's first
   assert.ok(j3.part.share > 0.2 && j3.part.share < 0.35, String(j3.part.share))
 })
 
+// ------------------------------------------------------------------ the page's controls, judged on their own
+
+test("controls: what the reader presses or fills in is told from the page's words", () => {
+  const { document } = page(`
+    <header><nav><ul><li><a href="/p">Προϊόντα</a></li><li><a href="/y">Υπηρεσίες</a></li></ul></nav><button>Βρες ένα κατάστημα</button></header>
+    <main>
+      <h1>Wireless headphones</h1>
+      <p>A light pair of headphones with a long battery life and <a href="/more">a link inside the words</a> of a paragraph.</p>
+      <h3><a href="/news/1">A headline that links to the whole story about the new bridge</a></h3>
+      <a class="btn" href="/order">Order now</a>
+      <div role="tablist"><div role="tab">Details</div><div role="tab">Reviews</div></div>
+      <form><label for="q">Your email</label><input id="q" placeholder="name@example.com or a phone"><input type="submit" value="Subscribe"></form>
+      <div role="dialog"><h2>Added to your cart</h2><p>The item is waiting for you in the cart.</p><button>Checkout</button></div>
+    </main>`, "en")
+  const blocks = lib.collectBlocks(document.body)
+  const controls = blocks.filter((b: any) => lib.controlBlock(b)).map((b: any) => b.text.replace(/<\/?\d+\/?>/g, ""))
+  assert.deepEqual(controls, ["Προϊόντα", "Υπηρεσίες", "Βρες ένα κατάστημα", "Order now", "Details", "Reviews", "Your email", "Added to your cart", "Checkout", "name@example.com or a phone", "Subscribe"])
+  const words = blocks.filter((b: any) => !lib.controlBlock(b)).map((b: any) => b.text.replace(/<\/?\d+\/?>/g, ""))
+  assert.deepEqual(words, ["Wireless headphones", "A light pair of headphones with a long battery life and a link inside the words of a paragraph.", "A headline that links to the whole story about the new bridge", "The item is waiting for you in the cart."])
+  assert.deepEqual(lib.controlLabels(document).slice(0, 3), ["Προϊόντα", "Υπηρεσίες", "Βρες ένα κατάστημα"])
+})
+
+test("controls in another language are offered whatever their share of the page; stray words never are", () => {
+  const C = (labels: string[], reader: string, lang = "") => lib.judgeControls(labels, reader, lang)
+  const EN_SITE = ["Home", "Products", "Add to cart", "Sign in", "Search the site", "Contact us", "About the company", "Terms of use"]
+  // public.cy in English, as the owner saw it: English words, the menu and buttons in Greek.
+  assert.deepEqual(C([...EN_SITE, "Βρες ένα κατάστημα", "Προϊόντα", "Υπηρεσίες"], "en", "el"), { lang: "el", labels: 3, offer: true })
+  // One Greek label (a language switcher's «Ελληνικά»): the entry by the circle, no offer.
+  assert.deepEqual(C([...EN_SITE, "Ελληνικά"], "en"), { lang: "el", labels: 1, offer: false })
+  // A language switcher in many scripts: one label each, no offer.
+  assert.equal(C([...EN_SITE, "Ελληνικά", "Русский", "日本語", "العربية", "한국어", "עברית"], "en")?.offer, false)
+  // A Russian site with stray English: single words, brands, a sign-in button. Nothing, not even the entry.
+  const RU_SITE = ["Главная", "Каталог", "Корзина", "Войти", "Поиск по сайту", "О компании", "Доставка и оплата", "Контакты"]
+  assert.equal(C([...RU_SITE, "OK", "Login", "Sale", "iPhone", "Samsung Galaxy", "Black Friday", "Sign in with Google"], "ru", "ru"), null)
+  // The same for a German, a Turkish and a Japanese site with stray English.
+  assert.equal(C(["Startseite", "Warenkorb", "Anmelden", "Mehr erfahren", "Alle akzeptieren", "OK", "Sale", "Newsletter", "Sign in with Google", "Black Friday Deals"], "de", "de"), null)
+  assert.equal(C(["Ana Sayfa", "Sepetim", "Giriş yap", "Kampanyalar", "Login", "Outlet", "Sign in with Apple"], "tr", "tr"), null)
+  assert.equal(C(["ホーム", "カートに入れる", "ログイン", "お問い合わせ", "OK", "SALE", "Sign in with Google"], "ja", "ja"), null)
+  // A Russian page with an English interface (several labels of several words the lists agree on): offered.
+  const en = C([...RU_SITE.slice(0, 2), "Add to cart", "Sign in to your account", "Search the site", "Terms of use", "Go to the next page", "Contact us"], "ru", "ru")
+  assert.equal(en?.lang, "en")
+  assert.equal(en?.offer, true)
+  // An English page with a German interface: the same script, so only labels the word lists place count.
+  const de = C(["Buy now", "Read more", "In den Warenkorb legen", "Zur Kasse gehen und bezahlen", "Alle Cookies akzeptieren und schließen", "Mit dem Konto anmelden", "Nicht mehr anzeigen", "Seite auf Deutsch lesen"], "en", "en")
+  assert.equal(de?.lang, "de")
+  assert.equal(de?.offer, true)
+  // A Ukrainian interface for a Russian reader (the same letters but і, ї, є).
+  const uk = C(["Головна", "Увійти", "Кошик", "Пошук по сайту", "Про компанію", "Доставка і оплата", "Зв’язатися з нами", "Мої замовлення", "Підтримка", "Зареєструватися"], "ru", "uk")
+  assert.equal(uk?.lang, "uk")
+  assert.equal(uk?.offer, true)
+  // Not the other way: Ukrainian words without і, ї, є read as Russian, so a Ukrainian reader isn't offered them.
+  assert.equal(C(["Головна", "Кошик", "Каталог", "Пошук по сайту", "Контакти", "Допомога"], "uk", "uk"), null)
+  // The reader's own language, in its own script or another variety: nothing.
+  assert.equal(C(RU_SITE, "ru", "ru"), null)
+  assert.equal(C(EN_SITE, "en", "en"), null)
+  assert.equal(C(["首頁", "購物車", "登入", "聯絡我們"], "zh-Hans", "zh-Hant"), null)
+  assert.equal(C([], "en"), null)
+})
+
+test("only the controls are translated when the page's words are the reader's; the ones that show later too", async () => {
+  const { document } = page(`<nav><a href="/p">Προϊόντα</a><a href="/y">Υπηρεσίες</a></nav>
+    <main><h1>Wireless headphones</h1><p>A light pair of headphones with a long battery life.</p><button>Παραγγελία</button></main>`, "el")
+  const { translator, asks } = engine(document)
+  await translator.start("en", "el", "controls")
+  await wait(80)
+  assert.equal(document.querySelector("nav")!.textContent, "RU ΠροϊόνταRU Υπηρεσίες")
+  assert.equal(document.querySelector("button")!.textContent, "RU Παραγγελία")
+  assert.equal(document.querySelector("h1")!.textContent, "Wireless headphones", "the page's words aren't sent")
+  assert.equal(document.querySelector("p")!.textContent, "A light pair of headphones with a long battery life.")
+  assert.ok(asks.every((a: any) => a.blocks.every((b: any) => !b.text.includes("headphones"))))
+  // A dialog that shows later: its button and title, not its paragraph.
+  const dialog = document.createElement("div")
+  dialog.setAttribute("role", "dialog")
+  dialog.innerHTML = `<h2>Προστέθηκε στο καλάθι</h2><p>Some words of the dialog in English.</p><button>Ταμείο</button>`
+  document.body.appendChild(dialog)
+  FakeObserver.last!.cb([{ type: "childList", target: document.body, addedNodes: [dialog], removedNodes: [] }])
+  await wait(400)
+  assert.equal(dialog.querySelector("h2")!.textContent, "RU Προστέθηκε στο καλάθι")
+  assert.equal(dialog.querySelector("button")!.textContent, "RU Ταμείο")
+  assert.equal(dialog.querySelector("p")!.textContent, "Some words of the dialog in English.")
+  assert.equal(asks.filter((a: any) => a.first).length, 1, "one page, one answer")
+  translator.original()
+  assert.equal(document.querySelector("button")!.textContent, "Παραγγελία")
+})
+
 test("the reader's language comes from the languages they read, never from the region of the device's locale", () => {
   // An English reader living in Germany or Cyprus, a Russian one in Cyprus, an Arabic one in the Emirates, a reader
   // of Traditional Chinese in the US: each reads their own language, whatever the country.
@@ -365,7 +450,8 @@ test("the pill's new strings are in every language, with their placeholders", ()
   const dir = new URL("../src/locales/", import.meta.url)
   for (const lang of ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "tr", "uk", "vi", "zh_CN", "zh_TW"]) {
     const s = JSON.parse(readFileSync(new URL(`${lang}.json`, dir), "utf8"))
-    for (const k of ["trLangPick", "trPart", "trEntry"]) assert.ok(s[k], `${lang}: ${k}`)
+    for (const k of ["trLangPick", "trPart", "trEntry", "trControls"]) assert.ok(s[k], `${lang}: ${k}`)
+    assert.ok(s.trControls.includes("{0}"), `${lang}: trControls`)
     assert.ok(s.trPart.includes("{0}") && s.trPart.includes("{1}"), `${lang}: trPart`)
   }
 })

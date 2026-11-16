@@ -9,7 +9,7 @@
 
 import { urlKey } from "../../shared/conversation"
 import { TRANSLATE_LIMITS, type TranslateAsk, type TranslateError, type TranslateReply } from "../../shared/translate"
-import { applyBlock, blockCurrent, blockIntact, collectBlocks, insideSkipped, restore, scanRoot, type Applied, type Block } from "./blocks"
+import { applyBlock, blockCurrent, blockIntact, collectBlocks, controlBlock, insideSkipped, restore, scanRoot, type Applied, type Block } from "./blocks"
 
 export type EngineState =
   // The page as it is (never translated, or put back with "Original").
@@ -64,6 +64,8 @@ export class PageTranslator {
   private deps: EngineDeps
   private to = ""
   private from: string | null = null
+  // Only the page's controls (buttons, menus, labels) are translated: its words are in the reader's language.
+  private only: "controls" | null = null
   private now: EngineState = { at: "off" }
   private listeners = new Set<(s: EngineState) => void>()
   private items = new Map<string, Item>()
@@ -110,13 +112,15 @@ export class PageTranslator {
     for (const fn of this.listeners) fn(state)
   }
 
-  /** Translates the page into `to` (a target code, src/shared/translate.ts targetCode). */
-  async start(to: string, from: string | null): Promise<void> {
+  /** Translates the page into `to` (a target code, src/shared/translate.ts targetCode); `only` "controls": just its
+   *  buttons, menus, labels and the like (the ones there and the ones that show later). */
+  async start(to: string, from: string | null, only: "controls" | null = null): Promise<void> {
     if (this.active) return
     this.clear()
     if (this.to !== to) this.cache.clear()
     this.to = to
     this.from = from
+    this.only = only
     this.active = true
     this.capped = false
     this.set({ at: "working" })
@@ -163,6 +167,7 @@ export class PageTranslator {
 
   private add(blocks: Block[]): void {
     for (const block of blocks) {
+      if (this.only === "controls" && !controlBlock(block)) continue
       if (block.attr) {
         const known = this.attrItems.get(block.parent)
         if (known && this.items.has(known.id)) continue

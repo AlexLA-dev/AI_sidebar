@@ -826,6 +826,7 @@
   "trLangPick": "Language to translate into",
   "trPart": "{0}: {1}% of the page",
   "trEntry": "Translate this page",
+  "trControls": "Buttons and menus are in {0}",
 
   "spacesTitle": "Spaces",
   "spaceSwitcher": "Space: {0}. Switch",

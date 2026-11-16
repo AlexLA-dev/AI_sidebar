@@ -224,6 +224,37 @@ export function collectBlocks(root: Element, onShadow?: (shadow: ShadowRoot) => 
   return out
 }
 
+// ------------------------------------------------------------------ the page's controls
+
+const CONTROL_TAGS = new Set(["BUTTON", "LABEL", "SUMMARY", "LEGEND"])
+const CONTROL_ROLES = new Set(["button", "tab", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "switch", "checkbox", "radio"])
+const MENUS = "nav,menu,[role=navigation],[role=menu],[role=menubar],[role=tablist],[role=toolbar]"
+const DIALOGS = "dialog,[role=dialog],[role=alertdialog],[aria-modal=true]"
+/** A link that's all of its block and this short is something to press («Заказать», «В корзину»), not a headline. */
+const LINK_LETTERS = 30
+
+/**
+ * A block of what the reader presses or fills in (build 107, the owner: «очень важно чтобы кнопки переводились даже
+ * если это очень маленький процент страницы, так как критично важно понимать на что ты нажимаешь»): a button, a tab,
+ * a menu's or the navigation's item, a short link on its own, a form's label, a placeholder, a dialog's title. They
+ * are judged apart from the page's words (decide.ts judgeControls), and can be translated alone.
+ */
+export function controlBlock(block: Block): boolean {
+  if (block.attr) return true
+  const el = block.parent
+  let depth = 0
+  for (let at: Element | null = el; at && depth < 5; at = at.parentElement, depth++) {
+    if (CONTROL_TAGS.has(tagOf(at))) return true
+    const role = at.getAttribute("role")
+    if (role && CONTROL_ROLES.has(role)) return true
+  }
+  if (el.closest(MENUS)) return true
+  const letters = block.text.replace(/<\/?\d+\/?>/g, "").match(LETTERS)?.length ?? 0
+  if (tagOf(el) === "A" && letters <= LINK_LETTERS) return true
+  if (/^H[1-6]$/.test(tagOf(el)) || el.getAttribute("role") === "heading" || el.closest("h1,h2,h3,h4,h5,h6")) return !!el.closest(DIALOGS)
+  return false
+}
+
 /** Where to read again after the site changed `el`: its nearest ancestor that isn't part of a run of words. */
 export function scanRoot(el: Element): Element | null {
   let at: Element | null = el

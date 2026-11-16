@@ -826,6 +826,7 @@
   "trLangPick": "目标语言",
   "trPart": "{0}：页面的 {1}%",
   "trEntry": "翻译此页面",
+  "trControls": "按钮和菜单：{0}",
 
   "spacesTitle": "空间",
   "spaceSwitcher": "空间：{0}。切换",

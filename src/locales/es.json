@@ -826,6 +826,7 @@
   "trLangPick": "Idioma de destino",
   "trPart": "{0}: {1}% de la página",
   "trEntry": "Traducir la página",
+  "trControls": "Botones y menús: {0}",
 
   "spacesTitle": "Espacios",
   "spaceSwitcher": "Espacio: {0}. Cambiar",

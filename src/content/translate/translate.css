@@ -43,6 +43,7 @@
   color: #fff !important;
   background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
 }
+.cf-tr-btn:disabled { opacity: 0.45; }
 .cf-tr-btn.quiet {
   color: var(--accent-text) !important;
   background: var(--accent-soft) !important;

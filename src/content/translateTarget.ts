@@ -59,6 +59,14 @@ function byLetters(s: string, words: number): Guess | null {
   return best && top >= 3 && top >= second * 2 ? { lang: best, share: Math.min(0.05, top / Math.max(1, words)) } : null
 }
 
+/** How many of a text's words are among a language's commonest (0 for a language without a list). */
+export function wordHits(text: string, lang: string): number {
+  const list = WORDS[lang]
+  if (!list) return 0
+  const set = new Set(list)
+  return (text.toLowerCase().match(/\p{L}+/gu) ?? []).filter((w) => set.has(w)).length
+}
+
 /** Languages the guess can name: by script, by marks, by function words. */
 export const GUESSED = new Set(["ja", "ko", "zh", "ru", "uk", "ar", "he", "el", "th", "vi", ...Object.keys(WORDS)])
 

@@ -6,7 +6,9 @@
 // <article>, without its menus) is weighed apart from the site's frame: the pill offers itself only when the main
 // content is in another language; a smaller share is said at the ✦ circle (A2).
 
+import { plainText } from "../../shared/translate"
 import { baseLanguage, languageGuess } from "../translateTarget"
+import { collectBlocks, controlBlock } from "./blocks"
 
 export interface Shares {
   // Letters per language (base codes; "?" when unsure), and their sum.
@@ -66,7 +68,7 @@ export function mainContent(doc: Document): Element {
 }
 
 /** Shown on the page: not display:none or visibility:hidden anywhere up the tree, and with some size. */
-function visible(el: Element): boolean {
+export function visible(el: Element): boolean {
   const check = (el as Element & { checkVisibility?: (o?: object) => boolean }).checkVisibility
   if (typeof check === "function") {
     if (check.call(el, { visibilityProperty: true })) return true
@@ -81,7 +83,7 @@ function visible(el: Element): boolean {
 
 const LETTER = /\p{L}/gu
 /** Letters by script of a text: Latin ones, and the rest put down to their language at once. */
-function scripts(text: string): { latin: number; other: Map<string, number> } {
+export function scripts(text: string): { latin: number; other: Map<string, number> } {
   const other = new Map<string, number>()
   let latin = 0
   let kana = 0
@@ -219,4 +221,23 @@ export function topOther(s: Shares, except: string): { lang: string; share: numb
     }
   }
   return best && known ? { lang: best, share: most / known } : null
+}
+
+// ------------------------------------------------------------------ the page's controls
+
+/** The words on the page's shown controls (buttons, menus, tabs, short links, labels, placeholders, dialog titles),
+ *  each once: judged apart from the page's text (decide.ts judgeControls). */
+export function controlLabels(doc: Document, max = 400): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const block of collectBlocks(doc.body)) {
+    if (!controlBlock(block) || !visible(block.parent)) continue
+    const label = plainText(block.text).replace(/\s+/g, " ").trim()
+    const key = label.toLowerCase()
+    if (!label || seen.has(key)) continue
+    seen.add(key)
+    out.push(label)
+    if (out.length >= max) break
+  }
+  return out
 }

@@ -9,7 +9,8 @@
 // Norwegian, Czech and Slovak, Catalan and Spanish). 2.7, the director's audit: a Turkish reader on a lang="tr" page
 // was offered «Translate to Turkish?» because a few of its words are Portuguese ones.
 
-import { baseLanguage, GUESSED, languageGuess } from "../translateTarget"
+import { baseLanguage, GUESSED, languageGuess, wordHits } from "../translateTarget"
+import { scripts } from "./share"
 
 /** Languages the guess can't tell from a neighbour: a guess of any of them gives way to the page's markup naming
  *  another of the same group. */
@@ -121,4 +122,97 @@ export function judgeShares(mainContent: ShareMap, page: ShareMap, reader: strin
     return { from: null, part: { lang: refined(top.lang, htmlLang), share: top.letters / pageKnown } }
   }
   return { from: null, part: null }
+}
+
+// ------------------------------------------------------------------ the page's controls, judged on their own
+
+/** The script a language is written in, where it isn't Latin (as share.ts scripts() names them). */
+const SCRIPT_OF: Record<string, string> = {
+  ru: "cyr", uk: "cyr", bg: "cyr", sr: "cyr", mk: "cyr", be: "cyr", kk: "cyr", ky: "cyr", mn: "cyr", tg: "cyr",
+  el: "el", ar: "ar", fa: "ar", ur: "ar", ps: "ar", he: "he", yi: "he", th: "th", ja: "cjk", zh: "cjk", ko: "ko"
+}
+
+/** Labels in another script than the reader's (Greek buttons on an English page) from which the pill offers to
+ *  translate the controls... */
+export const CONTROLS_SCRIPT = 3
+/** ...or labels of several words with another language's function words (Latin letters), or with Ukrainian's own
+ *  letters for a reader of Russian: at least this many, and this share of the labels of that kind. A single word
+ *  («OK», «Login», «Sale», a brand) is never counted: every site has those. */
+export const CONTROLS_WORDS = 4
+export const CONTROLS_WORDS_SHARE = 0.15
+/** The entry by the circle needs less: one label in another script, two the word lists place without doubt. */
+export const ENTRY_SCRIPT = 1
+export const ENTRY_WORDS = 2
+
+export interface ControlsJudged {
+  // The language most of the foreign controls are in, how many labels, and whether that's enough for the pill to
+  // offer by itself (else only the entry by the circle).
+  lang: string
+  labels: number
+  offer: boolean
+}
+
+/**
+ * The page's controls against the reader's language, whatever their share of the page (build 107, the owner:
+ * «критично важно понимать на что ты нажимаешь»): the labels of its shown buttons, menus, tabs, short links, form
+ * labels, placeholders and dialog titles (share.ts controlLabels). Another script than the reader's is a strong sign;
+ * the same script needs labels of several words that the word lists agree on.
+ */
+export function judgeControls(labels: readonly string[], reader: string, htmlLang = ""): ControlsJudged | null {
+  const me = canonical(baseLanguage(reader))
+  const mine = SCRIPT_OF[me] ?? "latin"
+  const byScript = new Map<string, string[]>()
+  // Labels of several words in Latin letters, and labels in the reader's own (other) script.
+  const latin: string[] = []
+  const own: string[] = []
+  for (const label of labels) {
+    const { latin: n, other } = scripts(label)
+    let total = n
+    let top = "latin"
+    let most = n
+    for (const [k, count] of other) {
+      total += count
+      if (count > most) {
+        most = count
+        top = k
+      }
+    }
+    if (total < 2 || top === "?" || most / total < 0.6) continue
+    const script = top === "ja" || top === "zh" ? "cjk" : top
+    if (script === "latin") {
+      // One Latin word says nothing, whoever reads.
+      if ((label.match(/\p{L}+/gu)?.length ?? 0) >= 2) latin.push(label)
+    } else if (script === mine) own.push(label)
+    else byScript.set(top, [...(byScript.get(top) ?? []), label])
+  }
+  let best: ControlsJudged | null = null
+  const take = (found: ControlsJudged) => {
+    if (!best || (found.offer && !best.offer) || (found.offer === best.offer && found.labels > best.labels)) best = found
+  }
+  for (const [key, list] of byScript) {
+    if (list.length < ENTRY_SCRIPT) continue
+    // Cyrillic is Russian or Ukrainian by all of it; Chinese or Japanese came told apart already.
+    const lang = key === "cyr" ? (languageGuess(list.join(". "))?.lang ?? "ru") : key
+    if (canonical(lang) === me) continue
+    take({ lang: refined(lang, htmlLang), labels: list.length, offer: list.length >= CONTROLS_SCRIPT })
+  }
+  // Latin labels: the ones the lists place without doubt name a language; then every label with that language's
+  // words counts, unless it's as much the reader's own («In den Warenkorb» has English «in» and German «den»).
+  const votes = new Map<string, number>()
+  for (const label of latin) {
+    const lang = canonical(languageGuess(label)?.lang ?? "")
+    if (lang && lang !== me && !neighbours(lang, me) && !SCRIPT_OF[lang]) votes.set(lang, (votes.get(lang) ?? 0) + 1)
+  }
+  for (const [lang, sure] of votes) {
+    if (sure < ENTRY_WORDS) continue
+    const n = latin.filter((label) => wordHits(label, lang) >= 1 && wordHits(label, lang) > wordHits(label, me)).length
+    take({ lang: refined(lang, htmlLang), labels: n, offer: n >= CONTROLS_WORDS && n / latin.length >= CONTROLS_WORDS_SHARE })
+  }
+  // The reader's own script: Ukrainian shows by its own letters among Russian's (not the other way: a Ukrainian word
+  // without them reads as Russian).
+  if (mine === "cyr" && me !== "uk") {
+    const n = own.filter((label) => languageGuess(label)?.lang === "uk").length
+    if (n >= ENTRY_WORDS) take({ lang: refined("uk", htmlLang), labels: n, offer: n >= CONTROLS_WORDS && n / own.length >= CONTROLS_WORDS_SHARE })
+  }
+  return best
 }

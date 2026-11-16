@@ -22,11 +22,11 @@ import { type TranslateStep } from "../../shared/translate"
 import { readerLanguage } from "../answerLanguage"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
-import { judgeShares } from "./decide"
+import { judgeControls, judgeShares, type ControlsJudged } from "./decide"
 import { PageTranslator, type EngineState } from "./engine"
 import { keepLanguage, keptLanguage, languageChoices, shortMark, targetName } from "./languages"
 import { portAsk, storageCache } from "./port"
-import { pageShares } from "./share"
+import { controlLabels, pageShares, type Shares } from "./share"
 
 /** The reader's own language, as a target: from the languages they read, never the region of the device's locale
  *  (answerLanguage.ts readerLanguage). */
@@ -47,6 +47,8 @@ export interface PageOffer {
   // The page's language and the one it would be translated into (targetCode).
   from: string
   to: string
+  // Only the page's controls (buttons, menus, labels): its words are in the reader's language.
+  only?: "controls"
 }
 
 let offerNow: PageOffer | null = null
@@ -91,20 +93,44 @@ export interface PagePart {
 interface Judgement {
   offer: PageOffer | null
   part: PagePart | null
+  // The page's controls are in another language while its words aren't (judged on their own, whatever their share).
+  controls: ControlsJudged | null
+  // The language most of the page is in (the reader's own, usually): what a translation asked for by hand goes from.
+  pageLang: string | null
 }
 
-/** The page's languages against the person's, by the letters of what it shows (share.ts, decide.ts). */
+const NOTHING: Judgement = { offer: null, part: null, controls: null, pageLang: null }
+
+const mostOf = (s: Shares): string | null => {
+  let best: string | null = null
+  let most = 0
+  for (const [lang, n] of s.langs) {
+    if (lang !== "?" && n > most) {
+      most = n
+      best = lang
+    }
+  }
+  return best
+}
+
+/** The page's languages against the person's: its main content and its parts by the letters of what it shows
+ *  (share.ts, decide.ts judgeShares), its controls on their own (judgeControls). */
 function judge(to: string): Judgement {
-  if (!document.body) return { offer: null, part: null }
+  if (!document.body) return NOTHING
   const own = ownLanguage()
+  const markup = document.documentElement.lang || ""
   const shares = pageShares(document)
-  const { from, part } = judgeShares(shares.main, shares.page, own, document.documentElement.lang || "")
-  return { offer: from ? { from, to } : null, part }
+  const { from, part } = judgeShares(shares.main, shares.page, own, markup)
+  // One thing at a time: a page in another language is offered as a whole, its controls with it.
+  const controls = from ? null : judgeControls(controlLabels(document), own, markup)
+  return { offer: from ? { from, to } : null, part, controls, pageLang: mostOf(shares.main) ?? mostOf(shares.page) }
 }
 
 interface Offered {
   offer: PageOffer | null
   part: PagePart | null
+  controls: ControlsJudged | null
+  pageLang: string | null
   // × was tapped on this site before: the pill waits behind the entry.
   hidden: boolean
   to: string
@@ -115,7 +141,7 @@ interface Offered {
 /** When to look: once the page has loaded and settled, and again after a site that fills itself in late. */
 function useOffer(): Offered {
   const own = ownLanguage()
-  const [judged, setJudged] = useState<Judgement>({ offer: null, part: null })
+  const [judged, setJudged] = useState<Judgement>(NOTHING)
   const [hidden, setHidden] = useState(false)
   const [to, setToNow] = useState(own)
   const toRef = useRef(own)
@@ -130,8 +156,9 @@ function useOffer(): Offered {
         setToNow(kept)
       }
       const found = judge(toRef.current)
-      foreignNow = found.offer !== null
-      const off = found.offer || found.part ? await hiddenHere() : false
+      // The pill has something to say by itself (the page, or its controls): page hints keep quiet (one thing at a time).
+      foreignNow = found.offer !== null || found.controls?.offer === true
+      const off = found.offer || found.part || found.controls ? await hiddenHere() : false
       if (!alive) return
       setHidden(off)
       setJudged(found)
@@ -154,6 +181,8 @@ function useOffer(): Offered {
   return {
     offer,
     part: judged.part,
+    controls: judged.controls,
+    pageLang: judged.pageLang,
     hidden,
     to,
     setTo: (code: string) => {
@@ -209,6 +238,8 @@ export interface TranslatePillProps {
   free: boolean
   // Out of free answers: the plans sheet on Pro (the panel opens with it).
   onPlans: () => void
+  // Counts the times the circle was held down: each opens the pill by hand, on any page (build 107).
+  held?: number
 }
 
 const Chevron = (): VNode => (
@@ -224,14 +255,17 @@ function LanguagePick({ to, from, onPick }: { to: string; from: string | null; o
       <span aria-hidden="true">{shortMark(to)}</span>
       <Chevron />
       <select aria-label={t("trLangPick")} value={to} onChange={(e) => onPick(e.currentTarget.value)}>
+        {/* The page's own language isn't in the list; when it's the target still (a page in the reader's language,
+            asked by hand), it stands as picked until another is chosen. */}
+        {!choices.some((c) => c.code === to) && <option value={to} disabled>{targetName(to, ui)}</option>}
         {choices.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
       </select>
     </label>
   )
 }
 
-export function TranslatePill({ side, top, show, free, onPlans }: TranslatePillProps): VNode | null {
-  const { offer, part, hidden, to, setTo, hide } = useOffer()
+export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: TranslatePillProps): VNode | null {
+  const { offer, part, controls, pageLang, hidden, to, setTo, hide } = useOffer()
   const typing = useTyping()
   const state = useEngine()
   const [consent, setConsent] = useState<"ok" | "old" | "none" | null>(null)
@@ -253,11 +287,31 @@ export function TranslatePill({ side, top, show, free, onPlans }: TranslatePillP
     prev.current = state.at
   }, [state])
 
-  // What the pill would translate: the main content's language, else the part's.
-  const target: PageOffer | null = offer ?? (part ? { from: part.lang, to } : null)
-  // The pill by itself only for a page in another language, not closed here; else the entry, which opens it.
-  const pill = state.at !== "off" ? !closed : !closed && (opened || (!!offer && !hidden))
-  const entry = !pill && (state.at !== "off" || target !== null)
+  // The circle held down: the pill by hand, on any page (a page in the reader's language into another, say).
+  const [manual, setManual] = useState(false)
+  const heldSeen = useRef(held)
+  useEffect(() => {
+    if (held === heldSeen.current) return
+    heldSeen.current = held
+    step("entry")
+    setManual(true)
+    setClosed(false)
+    setOpened(true)
+  }, [held])
+
+  // What the pill would translate, one thing at a time: the page when its main content is in another language; else
+  // its controls when they are (whatever their share of the page); else a part of it; by hand, the page as it is.
+  const sameAsPage = !!pageLang && baseLanguage(pageLang) === baseLanguage(to)
+  const target: PageOffer | null =
+    offer ??
+    (controls ? { from: controls.lang, to, only: "controls" } : null) ??
+    (part ? { from: part.lang, to } : null) ??
+    (manual && pageLang ? { from: pageLang, to } : null)
+  // The pill by itself for a page in another language, or for enough controls in one, where it wasn't closed; else
+  // the entry by the circle, which opens it.
+  const byItself = !!offer || controls?.offer === true
+  const pill = state.at !== "off" ? !closed : !closed && (opened || (byItself && !hidden))
+  const entry = !pill && (state.at !== "off" || (target !== null && !manual) || !!offer || !!controls || !!part)
   const visible = show && !(typing && state.at === "off") && (pill ? (target !== null || state.at !== "off") : entry)
   useEffect(() => {
     if (visible && pill && state.at === "off" && !shownOnce.current) {
@@ -268,19 +322,27 @@ export function TranslatePill({ side, top, show, free, onPlans }: TranslatePillP
 
   const label = useMemo(() => {
     if (!target) return ""
+    const inSentence = (code: string) => {
+      const name = languageName(code, uiLang())
+      return /^(de|en|ja|ko|zh|ar|tr)/.test(uiLang()) ? name : name.charAt(0).toLocaleLowerCase(uiLang()) + name.slice(1)
+    }
+    // The page's controls: said as what it is («Кнопки и меню: греческий»).
+    if (target.only === "controls") return t("trControls", inSentence(target.from))
     // A smaller part of the page: which language and how much («Греческий: 12% страницы»).
     if (!offer && part) return t("trPart", targetName(part.lang, uiLang()), String(Math.max(1, Math.round(part.share * 100))))
+    // By hand on a page already in the language picked: another one first.
+    if (!offer && sameAsPage) return t("trLangPick")
     if (baseLanguage(target.to) === baseLanguage(uiLang())) return t("trOffer")
     // Mid-sentence, a language's name is a common noun in most of the panel's languages («на язык: английский»);
     // Safari's names may come capitalized. German, English and Turkish keep the capital («Almanca»; English is also the
     // interface for every language the panel doesn't speak: «Translate to Turkish?», 2.7, the director's audit).
     const name = languageName(target.to, uiLang())
     return t("trOfferTo", /^(de|en|ja|ko|zh|ar|tr)/.test(uiLang()) ? name : name.charAt(0).toLocaleLowerCase(uiLang()) + name.slice(1))
-  }, [offer, part, target?.to])
+  }, [offer, part, target?.to, target?.only, target?.from, sameAsPage])
 
   if (!visible && consent === null) return null
 
-  const start = (goal: PageOffer) => void pageTranslator().start(goal.to, goal.from)
+  const start = (goal: PageOffer) => void pageTranslator().start(goal.to, goal.from, goal.only ?? null)
   const go = async () => {
     const goal = target ?? asked.current
     if (!goal) return
@@ -309,6 +371,7 @@ export function TranslatePill({ side, top, show, free, onPlans }: TranslatePillP
     step("dismiss")
     setClosed(true)
     setOpened(false)
+    setManual(false)
     hide()
     void hideHere()
   }
@@ -324,9 +387,10 @@ export function TranslatePill({ side, top, show, free, onPlans }: TranslatePillP
     setTo(code)
     const from = asked.current?.from ?? target?.from ?? null
     if (state.at !== "off" && from) {
+      const only = asked.current?.only ?? target?.only
       pageTranslator().original()
-      asked.current = { from, to: code }
-      start({ from, to: code })
+      asked.current = { from, to: code, ...(only ? { only } : {}) }
+      start(asked.current)
     }
   }
 
@@ -406,7 +470,7 @@ export function TranslatePill({ side, top, show, free, onPlans }: TranslatePillP
       <TranslateIcon />
       <span class="cf-tr-label">{label}</span>
       {lang}
-      <button type="button" class="cf-tr-btn" onClick={() => void go()}>{t("actTranslate")}</button>
+      <button type="button" class="cf-tr-btn" disabled={!offer && !controls && !part && sameAsPage} onClick={() => void go()}>{t("actTranslate")}</button>
       {x}
     </div>
   )
