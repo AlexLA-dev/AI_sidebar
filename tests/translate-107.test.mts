@@ -24,7 +24,8 @@ before(async () => {
     `export { PageTranslator } from "${src}engine.ts"`,
     `export * from "${src}decide.ts"`,
     `export * from "${src}share.ts"`,
-    `export { languageChoices, shortMark } from "${src}languages.ts"`
+    `export { languageChoices, shortMark } from "${src}languages.ts"`,
+    `export { readerLanguage } from "${new URL("../src/content/answerLanguage.ts", import.meta.url).pathname}"`
   ].join("\n"))
   const out = join(dir, "lib.mjs")
   await build({ entryPoints: [entry], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent" })
@@ -276,6 +277,40 @@ test("A5: by the page as it shows: the main content weighs, not the site's first
   assert.equal(j3.from, null)
   assert.equal(j3.part.lang, "en")
   assert.ok(j3.part.share > 0.2 && j3.part.share < 0.35, String(j3.part.share))
+})
+
+test("the reader's language comes from the languages they read, never from the region of the device's locale", () => {
+  // An English reader living in Germany or Cyprus, a Russian one in Cyprus, an Arabic one in the Emirates, a reader
+  // of Traditional Chinese in the US: each reads their own language, whatever the country.
+  const R = (languages: string[], device = "", panel = "") => lib.readerLanguage({ languages, language: languages[0] }, device, panel)
+  assert.equal(R(["en-DE"], "en-DE", "en"), "en")
+  assert.equal(R(["en-CY"], "en-CY", "en"), "en")
+  assert.equal(R(["zh-Hant-US"], "zh-Hant-US", "zh-Hant"), "zh-Hant")
+  assert.equal(R(["ru-CY"], "ru-CY", "ru"), "ru")
+  assert.equal(R(["ar-AE"], "ar-AE", "ar"), "ar")
+  // Safari takes the extension's UI locale from the device's locale: where that says the country's language
+  // ("de-DE" for English in Germany on a device set that way), the languages the person reads still decide.
+  assert.equal(R(["en-DE"], "de-DE", "en"), "en")
+  assert.equal(R(["en-GB", "de-DE"], "de-DE", "en"), "en", "German second in their list: English is theirs")
+  assert.equal(R(["zh-Hans-MO"], "zh-MO", "zh-Hans"), "zh-Hans", "the script that's said, not the place")
+  assert.equal(R(["zh-TW"], "zh-TW", "zh-Hant"), "zh-Hant")
+  // Nothing listed: the UI locale, then the panel's own language.
+  assert.equal(lib.readerLanguage({ languages: [], language: "" }, "pl-PL", "en"), "pl")
+  assert.equal(lib.readerLanguage({}, "", "ru"), "ru")
+  assert.equal(lib.readerLanguage({ languages: ["*"] }, "", ""), "en")
+  // So an English page isn't offered to them, and a German one is, into English.
+  for (const languages of [["en-DE"], ["en-CY"]]) {
+    const reader = R(languages, "de-DE", "en")
+    assert.deepEqual(lib.judgeShares(shares({ en: 6_000 }), shares({ en: 6_500, de: 40 }), reader, "en"), { from: null, part: null })
+    assert.equal(lib.judgeShares(shares({ de: 6_000 }), shares({ de: 6_500 }), reader, "de").from, "de")
+  }
+  assert.deepEqual(lib.judgeShares(shares({ ru: 6_000 }), shares({ ru: 6_000, el: 60 }), R(["ru-CY"], "el-CY", "ru"), "ru"), { from: null, part: null })
+  assert.deepEqual(lib.judgeShares(shares({ ar: 6_000 }), shares({ ar: 6_000 }), R(["ar-AE"]), "ar"), { from: null, part: null })
+  assert.deepEqual(lib.judgeShares(shares({ zh: 6_000 }), shares({ zh: 6_000 }), R(["zh-Hant-US"], "en-US", "zh-Hant"), "zh-Hant"), { from: null, part: null })
+  // The pill takes it from there.
+  const pill = readFileSync(new URL("../src/content/translate/TranslatePill.tsx", import.meta.url), "utf8")
+  assert.match(pill, /const ownLanguage = \(\) => readerLanguage\(navigator, uiLanguage\(\), uiLang\(\)\)/)
+  assert.doesNotMatch(pill, /targetCode\(uiLanguage\(\)\)/)
 })
 
 test("A1: the languages to pick from: the person's own first, then the ones they read, then the rest by name; never the page's", () => {

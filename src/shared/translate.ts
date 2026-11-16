@@ -185,5 +185,7 @@ export function targetCode(ui: string): string {
   const lang = (base ?? "").toLowerCase()
   if (lang !== "zh") return lang
   const tail = rest.join("-").toLowerCase()
+  // The script when it's said (zh-Hans-MO is Simplified); else by the places that write Traditional.
+  if (/hans/.test(tail)) return "zh-Hans"
   return /hant|tw|hk|mo/.test(tail) ? "zh-Hant" : "zh-Hans"
 }

@@ -18,7 +18,8 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { baseLanguage, languageName } from "../translateTarget"
 import { t, uiLang, uiLanguage } from "../../shared/i18n"
-import { targetCode, type TranslateStep } from "../../shared/translate"
+import { type TranslateStep } from "../../shared/translate"
+import { readerLanguage } from "../answerLanguage"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
 import { judgeShares } from "./decide"
@@ -26,6 +27,10 @@ import { PageTranslator, type EngineState } from "./engine"
 import { keepLanguage, keptLanguage, languageChoices, shortMark, targetName } from "./languages"
 import { portAsk, storageCache } from "./port"
 import { pageShares } from "./share"
+
+/** The reader's own language, as a target: from the languages they read, never the region of the device's locale
+ *  (answerLanguage.ts readerLanguage). */
+const ownLanguage = () => readerLanguage(navigator, uiLanguage(), uiLang())
 
 const HIDDEN_KEY = "cf:trHidden"
 const SITES_KEPT = 500
@@ -91,7 +96,7 @@ interface Judgement {
 /** The page's languages against the person's, by the letters of what it shows (share.ts, decide.ts). */
 function judge(to: string): Judgement {
   if (!document.body) return { offer: null, part: null }
-  const own = targetCode(uiLanguage())
+  const own = ownLanguage()
   const shares = pageShares(document)
   const { from, part } = judgeShares(shares.main, shares.page, own, document.documentElement.lang || "")
   return { offer: from ? { from, to } : null, part }
@@ -109,7 +114,7 @@ interface Offered {
 
 /** When to look: once the page has loaded and settled, and again after a site that fills itself in late. */
 function useOffer(): Offered {
-  const own = targetCode(uiLanguage())
+  const own = ownLanguage()
   const [judged, setJudged] = useState<Judgement>({ offer: null, part: null })
   const [hidden, setHidden] = useState(false)
   const [to, setToNow] = useState(own)
@@ -213,7 +218,7 @@ const Chevron = (): VNode => (
 /** The language control: its short mark, and the system's own list to pick from (a tap opens it). */
 function LanguagePick({ to, from, onPick }: { to: string; from: string | null; onPick: (code: string) => void }): VNode {
   const ui = uiLang()
-  const choices = useMemo(() => languageChoices(targetCode(uiLanguage()), navigator.languages ?? [], ui, from), [from, ui])
+  const choices = useMemo(() => languageChoices(ownLanguage(), navigator.languages ?? [], ui, from), [from, ui])
   return (
     <label class="cf-tr-lang" title={targetName(to, ui)}>
       <span aria-hidden="true">{shortMark(to)}</span>
