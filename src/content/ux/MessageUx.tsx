@@ -289,7 +289,12 @@ export function MessageMenu({ at, pinned, reminded, onTag, onCollect, onPin, onR
       const ceiling = list?.top ?? 0
       if (anchor && box.bottom > floor - 4) {
         const above = anchor.top - ceiling - 4
-        el.classList.toggle("up", above >= box.height || above > floor - anchor.bottom)
+        const up = above >= box.height || above > floor - anchor.bottom
+        el.classList.toggle("up", up)
+        // Neither side has the room (a short answer on a phone: the compact chat's menu has six lines, 2.7 after 107):
+        // the menu keeps whole inside the chat, over the row, instead of losing its first lines under the bars.
+        const lack = Math.ceil(box.height - (up ? above : floor - anchor.bottom - 8))
+        if (lack > 0) el.style[up ? "bottom" : "top"] = `calc(100% + 4px - ${lack}px)`
       }
       return
     }

@@ -137,6 +137,8 @@ test("3. under a message: one row; compact shows Copy, Share, Listen and «…»
     assert.ok(next > at, `${part} in the menu`)
     at = next
   }
+  // Six lines on a phone: where neither side of the row has the room, the menu stays whole inside the chat.
+  assert.match(menu, /const lack = Math\.ceil\(box\.height - \(up \? above : floor - anchor\.bottom - 8\)\)\s*if \(lack > 0\) el\.style\[up \? "bottom" : "top"\] = `calc\(100% \+ 4px - \$\{lack\}px\)`/)
   // No second line under the row any more.
   assert.doesNotMatch(footer, /<\/ToolsRow>\s*\{[^}]*\}\s*\{!historyMode && \(\s*<button type="button" class="cf-collect-link"/)
   // The row never wraps; its words give way in two steps, measured with the Mac's hover buttons counted in.
