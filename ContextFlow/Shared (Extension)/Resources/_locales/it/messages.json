@@ -2549,6 +2549,12 @@
  "writeSkip": {
   "message": "Ignora"
  },
+ "writeFixAll": {
+  "message": "Correggi tutto"
+ },
+ "writeSlow": {
+  "message": "Ci sta mettendo troppo, la richiesta è stata interrotta. Riprova."
+ },
  "underlineSetting": {
   "message": "Sottolinea gli errori mentre scrivo"
  },
@@ -2956,12 +2962,6 @@
  },
  "colCardMenu": {
   "message": "Azioni della scheda"
- },
- "writeFixAll": {
-  "message": "Correggi tutto"
- },
- "writeSlow": {
-  "message": "Ci sta mettendo troppo, la richiesta è stata interrotta. Riprova."
  },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"

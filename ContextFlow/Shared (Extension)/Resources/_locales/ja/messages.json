@@ -2549,6 +2549,12 @@
  "writeSkip": {
   "message": "無視"
  },
+ "writeFixAll": {
+  "message": "すべて修正"
+ },
+ "writeSlow": {
+  "message": "時間がかかりすぎたため中止しました。もう一度お試しください。"
+ },
  "underlineSetting": {
   "message": "入力中の誤りに下線を引く"
  },
@@ -2956,12 +2962,6 @@
  },
  "colCardMenu": {
   "message": "カードの操作"
- },
- "writeFixAll": {
-  "message": "すべて修正"
- },
- "writeSlow": {
-  "message": "時間がかかりすぎたため中止しました。もう一度お試しください。"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

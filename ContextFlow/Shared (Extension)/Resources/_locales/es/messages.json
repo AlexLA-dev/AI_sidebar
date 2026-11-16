@@ -2549,6 +2549,12 @@
  "writeSkip": {
   "message": "Ignorar"
  },
+ "writeFixAll": {
+  "message": "Corregir todo"
+ },
+ "writeSlow": {
+  "message": "Está tardando demasiado y se ha detenido. Inténtalo de nuevo."
+ },
  "underlineSetting": {
   "message": "Subrayar errores al escribir"
  },
@@ -2956,12 +2962,6 @@
  },
  "colCardMenu": {
   "message": "Acciones de la tarjeta"
- },
- "writeFixAll": {
-  "message": "Corregir todo"
- },
- "writeSlow": {
-  "message": "Está tardando demasiado y se ha detenido. Inténtalo de nuevo."
  },
  "tip_4cf1b54b00": {
   "message": "Consejos"

@@ -877,6 +877,8 @@
   "writeSetting": "Kiểm tra và Viết lại cạnh ô nhập",
   "writeSettingHint": "Sửa và viết lại đều tính đến trang: email bạn đang trả lời, bài đăng bạn bình luận. Mỗi lần chạm tính là một câu trả lời. Cách bạn viết trên từng trang web chỉ lưu trên thiết bị này và giúp giữ đúng văn phong của bạn.",
   "writeSkip": "Bỏ qua",
+  "writeFixAll": "Sửa tất cả",
+  "writeSlow": "Mất quá nhiều thời gian nên đã dừng lại. Vui lòng thử lại.",
   "underlineSetting": "Gạch chân lỗi khi gõ",
   "underlineSettingHint": "Pro và Ultra: sau khi bạn ngừng gõ, chỉ đoạn vừa sửa được kiểm tra, có tính đến trang. Trỏ vào gạch chân (chạm trên iPhone và iPad) để sửa. Không tính là câu trả lời.",
   "setSide": "Cạnh màn hình",
@@ -1013,7 +1015,5 @@
   "colPdfFooter": "Tạo bằng ContextFlow",
   "colPdfSave": "Lưu thành PDF",
   "colPick": "Bộ sưu tập: {0}. Chuyển",
-  "colCardMenu": "Thao tác với thẻ",
-  "writeFixAll": "Sửa tất cả",
-  "writeSlow": "Mất quá nhiều thời gian nên đã dừng lại. Vui lòng thử lại."
+  "colCardMenu": "Thao tác với thẻ"
 }

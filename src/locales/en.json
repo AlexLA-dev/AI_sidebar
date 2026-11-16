@@ -877,6 +877,8 @@
   "writeSetting": "Check and Rewrite by fields",
   "writeSettingHint": "Fixes and rewrites take the page into account: the email you're answering, the post you comment on. Each tap counts as one answer. How you write on each site stays on this device and helps match your style.",
   "writeSkip": "Ignore",
+  "writeFixAll": "Fix all",
+  "writeSlow": "This is taking too long, so it was stopped. Please try again.",
   "underlineSetting": "Underline mistakes as I type",
   "underlineSettingHint": "Pro and Ultra: after a pause in typing, only the paragraph you changed is checked, with the page in mind. Point at an underline (tap on iPhone and iPad) to fix it. Not counted as answers.",
   "setSide": "Screen side",
@@ -1013,7 +1015,5 @@
   "colPdfFooter": "Made with ContextFlow",
   "colPdfSave": "Save as PDF",
   "colPick": "Collection: {0}. Switch",
-  "colCardMenu": "Card actions",
-  "writeFixAll": "Fix all",
-  "writeSlow": "This is taking too long, so it was stopped. Please try again."
+  "colCardMenu": "Card actions"
 }

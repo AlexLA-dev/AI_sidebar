@@ -877,6 +877,8 @@
   "writeSetting": "Alanlarda “Kontrol et” ve “Yeniden yaz”",
   "writeSettingHint": "Düzeltmeler ve yeniden yazımlar sayfayı dikkate alır: yanıtladığınız e-postayı, yorum yaptığınız gönderiyi. Her dokunuş bir yanıt sayılır. Her sitede nasıl yazdığınız bu cihazda kalır ve tarzınızı yakalamaya yardımcı olur.",
   "writeSkip": "Yoksay",
+  "writeFixAll": "Tümünü düzelt",
+  "writeSlow": "Çok uzun sürdüğü için durduruldu. Lütfen yeniden deneyin.",
   "underlineSetting": "Yazarken hataların altını çiz",
   "underlineSettingHint": "Pro ve Ultra: yazmaya ara verdiğinizde yalnızca değiştirdiğiniz paragraf, sayfa dikkate alınarak kontrol edilir. Düzeltmek için altı çizili yerin üzerine gelin (iPhone ve iPad'de dokunun). Yanıt olarak sayılmaz.",
   "setSide": "Ekran tarafı",
@@ -1013,7 +1015,5 @@
   "colPdfFooter": "ContextFlow ile hazırlandı",
   "colPdfSave": "PDF olarak kaydet",
   "colPick": "Koleksiyon: {0}. Değiştir",
-  "colCardMenu": "Kart işlemleri",
-  "writeFixAll": "Tümünü düzelt",
-  "writeSlow": "Çok uzun sürdüğü için durduruldu. Lütfen yeniden deneyin."
+  "colCardMenu": "Kart işlemleri"
 }

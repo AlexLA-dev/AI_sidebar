@@ -877,6 +877,8 @@
   "writeSetting": "入力欄の「チェック」と「書き直す」",
   "writeSettingHint": "修正や書き直しはページの内容を踏まえます：返信中のメール、コメント先の投稿など。1回のタップで回答1回分です。各サイトでの書き方はこのデバイスにだけ保存され、あなたの文体に合わせるために使われます。",
   "writeSkip": "無視",
+  "writeFixAll": "すべて修正",
+  "writeSlow": "時間がかかりすぎたため中止しました。もう一度お試しください。",
   "underlineSetting": "入力中の誤りに下線を引く",
   "underlineSettingHint": "Pro と Ultra：入力が止まると、変更した段落だけをページの内容を踏まえてチェックします。下線にポインタを合わせる（iPhone と iPad ではタップ）と修正できます。回答数には数えません。",
   "setSide": "画面の左右",
@@ -1013,7 +1015,5 @@
   "colPdfFooter": "ContextFlowで作成",
   "colPdfSave": "PDFとして保存",
   "colPick": "コレクション：{0}。切り替える",
-  "colCardMenu": "カードの操作",
-  "writeFixAll": "すべて修正",
-  "writeSlow": "時間がかかりすぎたため中止しました。もう一度お試しください。"
+  "colCardMenu": "カードの操作"
 }

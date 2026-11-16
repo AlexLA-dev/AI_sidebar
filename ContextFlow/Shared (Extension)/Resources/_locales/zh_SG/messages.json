@@ -2549,6 +2549,12 @@
  "writeSkip": {
   "message": "忽略"
  },
+ "writeFixAll": {
+  "message": "全部修正"
+ },
+ "writeSlow": {
+  "message": "耗时过长，已停止。请重试。"
+ },
  "underlineSetting": {
   "message": "输入时给错误加下划线"
  },
@@ -2956,12 +2962,6 @@
  },
  "colCardMenu": {
   "message": "卡片操作"
- },
- "writeFixAll": {
-  "message": "全部修正"
- },
- "writeSlow": {
-  "message": "耗时过长，已停止。请重试。"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"

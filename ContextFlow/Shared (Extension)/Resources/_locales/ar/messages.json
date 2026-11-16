@@ -2549,6 +2549,12 @@
  "writeSkip": {
   "message": "تجاهل"
  },
+ "writeFixAll": {
+  "message": "تصحيح الكل"
+ },
+ "writeSlow": {
+  "message": "استغرق ذلك وقتاً طويلاً فتم إيقافه. حاول مرة أخرى."
+ },
  "underlineSetting": {
   "message": "تسطير الأخطاء أثناء الكتابة"
  },
@@ -2956,12 +2962,6 @@
  },
  "colCardMenu": {
   "message": "إجراءات البطاقة"
- },
- "writeFixAll": {
-  "message": "تصحيح الكل"
- },
- "writeSlow": {
-  "message": "استغرق ذلك وقتاً طويلاً فتم إيقافه. حاول مرة أخرى."
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

@@ -2549,6 +2549,12 @@
  "writeSkip": {
   "message": "Yoksay"
  },
+ "writeFixAll": {
+  "message": "Tümünü düzelt"
+ },
+ "writeSlow": {
+  "message": "Çok uzun sürdüğü için durduruldu. Lütfen yeniden deneyin."
+ },
  "underlineSetting": {
   "message": "Yazarken hataların altını çiz"
  },
@@ -2956,12 +2962,6 @@
  },
  "colCardMenu": {
   "message": "Kart işlemleri"
- },
- "writeFixAll": {
-  "message": "Tümünü düzelt"
- },
- "writeSlow": {
-  "message": "Çok uzun sürdüğü için durduruldu. Lütfen yeniden deneyin."
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"

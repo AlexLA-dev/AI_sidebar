@@ -877,6 +877,8 @@
   "writeSetting": "Vérifier et Réécrire près des champs",
   "writeSettingHint": "Les corrections et réécritures tiennent compte de la page : l’e-mail auquel vous répondez, la publication que vous commentez. Chaque appui compte comme une réponse. Votre façon d’écrire sur chaque site reste sur cet appareil et aide à respecter votre style.",
   "writeSkip": "Ignorer",
+  "writeFixAll": "Tout corriger",
+  "writeSlow": "C’est trop long, la demande a été arrêtée. Veuillez réessayer.",
   "underlineSetting": "Souligner les fautes pendant la saisie",
   "underlineSettingHint": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse.",
   "setSide": "Côté de l’écran",
@@ -1013,7 +1015,5 @@
   "colPdfFooter": "Créé avec ContextFlow",
   "colPdfSave": "Enregistrer en PDF",
   "colPick": "Collection : {0}. Changer",
-  "colCardMenu": "Actions de la carte",
-  "writeFixAll": "Tout corriger",
-  "writeSlow": "C’est trop long, la demande a été arrêtée. Veuillez réessayer."
+  "colCardMenu": "Actions de la carte"
 }

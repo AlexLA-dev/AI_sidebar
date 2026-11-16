@@ -877,6 +877,8 @@
   "writeSetting": "Revisar y Reescribir junto a los campos",
   "writeSettingHint": "Las correcciones y reescrituras tienen en cuenta la página: el correo al que respondes, la publicación que comentas. Cada toque cuenta como una respuesta. Tu forma de escribir en cada sitio se queda en este dispositivo y ayuda a respetar tu estilo.",
   "writeSkip": "Ignorar",
+  "writeFixAll": "Corregir todo",
+  "writeSlow": "Está tardando demasiado y se ha detenido. Inténtalo de nuevo.",
   "underlineSetting": "Subrayar errores al escribir",
   "underlineSettingHint": "Pro y Ultra: tras una pausa al escribir, solo se revisa el párrafo que cambiaste, teniendo en cuenta la página. Señala un subrayado (tócalo en iPhone y iPad) para corregirlo. No cuenta como respuesta.",
   "setSide": "Lado de la pantalla",
@@ -1013,7 +1015,5 @@
   "colPdfFooter": "Hecho con ContextFlow",
   "colPdfSave": "Guardar como PDF",
   "colPick": "Colección: {0}. Cambiar",
-  "colCardMenu": "Acciones de la tarjeta",
-  "writeFixAll": "Corregir todo",
-  "writeSlow": "Está tardando demasiado y se ha detenido. Inténtalo de nuevo."
+  "colCardMenu": "Acciones de la tarjeta"
 }

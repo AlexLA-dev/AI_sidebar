@@ -877,6 +877,8 @@
   "writeSetting": "입력란의 검사 및 다시 쓰기",
   "writeSettingHint": "검사와 다시 쓰기는 답장하는 이메일, 댓글을 다는 게시물처럼 페이지 내용을 고려해요. 한 번 누를 때마다 답변 1개로 계산돼요. 사이트별 글쓰기 방식은 이 기기에만 저장되고 내 문체에 맞추는 데 쓰여요.",
   "writeSkip": "무시",
+  "writeFixAll": "모두 수정",
+  "writeSlow": "너무 오래 걸려 중단했습니다. 다시 시도해 주세요.",
   "underlineSetting": "입력 중 오류에 밑줄 표시",
   "underlineSettingHint": "Pro 및 Ultra: 입력을 멈추면 바뀐 문단만 페이지 내용을 고려해 검사해요. 밑줄에 포인터를 올리면(iPhone과 iPad에서는 탭) 수정할 수 있어요. 답변으로 계산되지 않아요.",
   "setSide": "화면 위치",
@@ -1013,7 +1015,5 @@
   "colPdfFooter": "ContextFlow로 제작",
   "colPdfSave": "PDF로 저장",
   "colPick": "컬렉션: {0}. 전환",
-  "colCardMenu": "카드 작업",
-  "writeFixAll": "모두 수정",
-  "writeSlow": "너무 오래 걸려 중단했습니다. 다시 시도해 주세요."
+  "colCardMenu": "카드 작업"
 }
