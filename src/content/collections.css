@@ -11,6 +11,8 @@
 .cf-collect-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-collect-more { flex: none; font-weight: 500; color: var(--text-3); }
 .cf-col-menu.cf-collect-menu { top: calc(100% + 4px); right: auto; inset-inline-start: 0; width: max-content; max-width: min(300px, calc(100vw - 48px)); max-height: 260px; overflow-y: auto; }
+/* Under a note (at the panel's far side) the menu opens back towards the middle, never past the panel's edge. */
+.cf-msg.user .cf-col-menu.cf-collect-menu { inset-inline-start: auto; inset-inline-end: 0; }
 .cf-collect-menu-name { padding: 6px 10px 2px; font-size: 12px; font-weight: 600; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-col-option-in { display: inline-flex; color: var(--ok); }
 
