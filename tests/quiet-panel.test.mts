@@ -73,7 +73,8 @@ test("first-run cards never take the chat from an answer: a hint is one line on 
   const hint = read("../src/content/Hint.tsx")
   assert.match(hint, /if \(line && !open\) \{\s*return \(\s*<div class="cf-hint line" role="note">/)
   assert.match(hint, /<button type="button" class="cf-hint-open" aria-expanded=\{false\} onClick=\{\(\) => setOpen\(true\)\}>\s*<strong>\{title\}<\/strong>\s*<span class="cf-link">\{t\("hintShow"\)\}<\/span>/)
-  assert.match(hint, /<button type="button" class="cf-hint-x" aria-label=\{t\("close"\)\} title=\{t\("close"\)\} onClick=\{onDone\}>/)
+  // Named with what it closes: the panel's own Close has the bare word.
+  assert.match(hint, /<button type="button" class="cf-hint-x" aria-label=\{`\$\{t\("close"\)\}: \$\{title\}`\} title=\{t\("close"\)\} onClick=\{onDone\}>/)
   assert.match(css, /\.cf-hint-open strong \{[^}]*white-space: nowrap; overflow: hidden; text-overflow: ellipsis; \}/)
   // Every hint of the chat and of the chats list: a line on the compact chat, the card where there's room.
   assert.equal(app.match(/<Hint\b/g)?.length, 5)

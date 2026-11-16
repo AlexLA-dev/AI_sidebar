@@ -10,7 +10,8 @@ import { t } from "../shared/i18n"
  *
  * `line` (2.7 after build 107, the compact chat): one line, its title with «Show» and a close, so the hint never takes
  * the chat from an answer or the quick actions (the owner's 107 frame had «New in ContextFlow 2.7» over half the
- * panel). «Show» opens it as the card it was; × puts it away for good, as «Got it» does.
+ * panel). «Show» opens it as the card it was; × puts it away for good, as «Got it» does. The × is named with the
+ * hint's title («Close: New in ContextFlow 2.7»): the panel's own Close is a few lines above it for VoiceOver.
  */
 export function Hint({ icon, title, children, list, action, line = false, onDone }: {
   icon: VNode
@@ -30,7 +31,7 @@ export function Hint({ icon, title, children, list, action, line = false, onDone
           <strong>{title}</strong>
           <span class="cf-link">{t("hintShow")}</span>
         </button>
-        <button type="button" class="cf-hint-x" aria-label={t("close")} title={t("close")} onClick={onDone}>×</button>
+        <button type="button" class="cf-hint-x" aria-label={`${t("close")}: ${title}`} title={t("close")} onClick={onDone}>×</button>
       </div>
     )
   }
