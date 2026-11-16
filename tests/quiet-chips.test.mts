@@ -69,8 +69,23 @@ test("every chip once, and the old ones are all still there", () => {
     assert.equal(new Set(got).size, got.length)
     for (const id of lib.BASE_ORDER) assert.ok(got.includes(id), `${id} is still offered`)
   }
-  // A plain page: as it was before the ranker.
-  assert.deepEqual(rank(), lib.BASE_ORDER)
+  // A plain page in another language: as it was before the ranker (with Translate page ahead of it).
+  assert.deepEqual(rank({ foreign: true }), ["translate_page", ...lib.BASE_ORDER])
+})
+
+test("«Translate» is last on a page in the person's own language, also under an answer", () => {
+  // An English article for an English reader had it third among the chips under the answer.
+  assert.deepEqual(rank(), ["summarize", "key_points", "explain", "google", "similar", "translate"])
+  assert.deepEqual(rank({ kind: "article" }), ["summarize", "key_points", "explain", "google", "similar", "translate"])
+  assert.equal(rank({ kind: "product" }).at(-1), "translate")
+  assert.equal(rank({ field: "text" }).at(-1), "translate")
+  // A page in another language keeps it where it was, after Translate page.
+  const foreign = rank({ foreign: true, kind: "article" })
+  assert.ok(foreign.indexOf("translate") < foreign.indexOf("google"))
+  // The chips under an answer are the same ranked list, less what was already asked about this page.
+  const app = read("../src/content/App.tsx")
+  assert.match(app, /\{actions\.filter\(\(a\) => !messages\.some\(\(m\) => m\.label === actionLabel\(a\) && m\.page\?\.url === pageUrl\)\)\.map\(\(a\) => chip\(a, true\)\)\}/)
+  assert.match(app, /<div class="cf-newpage">[\s\S]{0,260}\{actions\.map\(\(a\) => chip\(a, true\)\)\}/)
 })
 
 test("what can't run here isn't shown", () => {

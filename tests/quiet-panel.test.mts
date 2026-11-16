@@ -172,6 +172,17 @@ test("5. the bars over the chat: one line each, cut with an ellipsis", () => {
   assert.match(app, /<span class="cf-chat-bar-name" dir="auto" title=\{headerName\}>/)
 })
 
+test("the empty chat in a phone's sheet sits by the field: chips and field together, also over the page's keyboard", () => {
+  const css = read("../src/content/quiet/quiet.css")
+  assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-messages:has\(> \.cf-empty\) \{ display: flex; flex-direction: column; \}/)
+  assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-messages > \.cf-empty \{ margin-top: auto; \}/)
+  // With the guide's or the tour's card up it stays under the header, so the card lies on nothing.
+  assert.match(css, /\.cf\[data-layout="sheet"\]:has\(\.cf-tour\) \.cf-messages > \.cf-empty \{ margin-top: 0; \}/)
+  assert.match(read("../src/content/Guide.tsx") + read("../src/content/Tour.tsx"), /class=\{?[`"]cf-tour\b/)
+  // The side panel (iPad, Mac) keeps the empty chat under the header.
+  assert.doesNotMatch(css, /data-layout="side"\] \.cf-messages > \.cf-empty/)
+})
+
 test("6. «+» by the field: Note, the page snapshot, Whole chat, the answers left; Google and the swipe stay", () => {
   const composer = app.slice(app.indexOf('<footer class="cf-composer">'), app.indexOf("</footer>", app.indexOf('<footer class="cf-composer">')))
   // In the field's row: «+», Google, the field, the count (compact), send.

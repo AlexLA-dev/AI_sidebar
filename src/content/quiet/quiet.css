@@ -13,6 +13,15 @@
 .cf-newpage .cf-actions.follow:not(.wrap) { margin-inline: -14px; }
 .cf-actions:not(.wrap) > .cf-chip { flex: none; white-space: nowrap; }
 .cf-empty .cf-chips { align-self: stretch; }
+/* The empty chat in a phone's sheet sits by the field, not under the header (2.7 after 107, the director on the
+   reply-draft frame): the chips and the field are together, the free room is over the title. With the page's own
+   keyboard up iOS shows only the sheet's lower part, and that is where they are (before, the chips stood at the
+   screen's top with the chat's free room between them and the field). */
+.cf[data-layout="sheet"] .cf-messages:has(> .cf-empty) { display: flex; flex-direction: column; }
+.cf[data-layout="sheet"] .cf-messages > .cf-empty { margin-top: auto; }
+/* While the first-run guide or the tour has a card up, the empty chat stays under the header: the card stands under
+   the chip it points at, over nothing (down by the field it would lie on the title). */
+.cf[data-layout="sheet"]:has(.cf-tour) .cf-messages > .cf-empty { margin-top: 0; }
 .cf-empty .cf-actions:not(.wrap) { margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:first-child { margin-inline-start: auto; }
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:last-child { margin-inline-end: auto; }

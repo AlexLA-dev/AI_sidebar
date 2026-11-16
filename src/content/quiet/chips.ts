@@ -49,13 +49,21 @@ export interface ChipAbilities {
 /** Every page's chips, in the order they had before the ranker: what's left after the page's own come first. */
 export const BASE_ORDER: ChipId[] = ["summarize", "key_points", "explain", "translate", "google", "similar"]
 
+/** The rest for this page: as they were on a page in another language; on a page in the person's own «Translate»
+ *  (the chat's translation of the page) goes behind everything likelier there. */
+function rest(foreign: boolean): ChipId[] {
+  return foreign ? BASE_ORDER : [...BASE_ORDER.filter((id) => id !== "translate"), "translate"]
+}
+
 /**
  * The page's chips, the likeliest first.
  * - A field with text: Check, Rewrite, Templates. An empty one: Templates.
  * - Main text in another language: Translate page.
  * - A video or a PDF: its summaries. A product: Find similar, Watch the price. An article: Summarize, Key takeaways.
- * - Then everything else, as before.
+ * - Then everything else, as before; «Translate» last of all unless the page is in another language (2.7 after 107,
+ *   the director on the chips under an answer: on an English article for an English reader it was third).
  * A field comes before the page's language (someone writing is busy with the draft), and both before the page's kind.
+ * The chips under an answer are this same list, less what was already asked about the page (App.tsx).
  */
 export function rankChips(s: ChipSignals, can: ChipAbilities): ChipId[] {
   const out: ChipId[] = []
@@ -68,7 +76,7 @@ export function rankChips(s: ChipSignals, can: ChipAbilities): ChipId[] {
   if (s.media !== "page") add("summarize", "key_points")
   else if (s.kind === "product") add("similar", "watch")
   else if (s.kind === "article") add("summarize", "key_points")
-  add(...BASE_ORDER)
+  add(...rest(s.foreign))
   return out
 }
 
