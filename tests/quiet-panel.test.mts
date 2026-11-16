@@ -35,13 +35,51 @@ test("2. the chips are one line that scrolls sideways, in every row of them", ()
   assert.match(css, /\.cf-actions:not\(\.wrap\) \{\s*flex-wrap: nowrap;[^}]*overflow-x: auto;/)
   assert.match(css, /\.cf-actions:not\(\.wrap\) > \.cf-chip \{ flex: none; white-space: nowrap; \}/)
   // The empty chat's, the ones under "Now on…" and the ones at the end of a chat about this page: the same ranked row.
-  assert.match(app, /\{actions\.map\(\(a\) => \(\s*chip\(a, false\)\s*\)\)\}/)
-  assert.match(app, /<div class="cf-actions follow">\s*\{actions\.map\(\(a\) => chip\(a, true\)\)\}/)
+  assert.match(app, /<ChipsRow cls="cf-actions" sig=\{chipsSig\} arrows=\{!touch\}>\s*\{actions\.map\(\(a\) => \(\s*chip\(a, false\)\s*\)\)\}/)
+  assert.match(app, /<ChipsRow cls="cf-actions follow" sig=\{chipsSig\} arrows=\{!touch\}>\s*\{actions\.map\(\(a\) => chip\(a, true\)\)\}/)
   assert.doesNotMatch(app, /withUltra/)
   // "Ask your chats"' example questions aren't the page's chips: they keep their lines.
   assert.match(app, /<div class="cf-actions wrap">\s*\{\(\["askHistoryEx1"/)
   // A chip a guide's step or a hint points at is brought into view in its row.
   assert.match(app, /row\.scrollLeft \+= c\.left \+ c\.width \/ 2 - \(r\.left \+ r\.width \/ 2\)/)
+})
+
+test("the chips' row says that it scrolls: a fade at an edge with more behind it, a peek with a finger, an arrow with a mouse", () => {
+  // The owner on the frames: «надо как-то пользователю обозначить, что чипы свайпаются как карусель».
+  const row = read("../src/content/quiet/ChipsRow.tsx")
+  assert.match(css, /\.cf-chips\[data-more="right"\] > \.cf-actions \{ -webkit-mask-image: linear-gradient\(to right, #000 calc\(100% - 44px\), transparent\);/)
+  assert.match(css, /\.cf-chips\[data-more="left"\] > \.cf-actions \{ -webkit-mask-image: linear-gradient\(to left,/)
+  assert.match(css, /\.cf-chips\[data-more="both"\] > \.cf-actions \{/)
+  // No fade and no arrow at an edge with nothing behind it (and none at all when the row fits).
+  assert.match(row, /box\.dataset\.more = el\.scrollWidth > el\.clientWidth \+ 1 \? moreAt\(el\.getBoundingClientRect\(\), chips\) : ""/)
+  assert.match(css, /\.cf-chips-arrow \{\s*position: absolute; top: 50%; z-index: 1; display: none;/)
+  // The peek: a finger only, once a page, never after the person has swiped the row; it comes back by itself.
+  assert.match(row, /if \(!arrows && !peeked && !still\) \{/)
+  assert.match(row, /if \(swiped \|\| peeked \|\| el\.scrollWidth <= el\.clientWidth \+ 1 \|\| el\.scrollLeft !== 0\) return/)
+  assert.match(row, /if \(Math\.abs\(el\.scrollLeft\) > 12\) markSwiped\(\)/)
+  assert.match(css, /@keyframes cf-peek \{ 0%, 100% \{ transform: none; \} 45% \{ transform: translateX\(-40px\); \} \}/)
+  assert.match(css, /@keyframes cf-peek-rtl \{ 0%, 100% \{ transform: none; \} 45% \{ transform: translateX\(40px\); \} \}/)
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{ \.cf-actions\.cf-peek > \.cf-chip \{ animation: none; \} \}/)
+  // The peek moves the chips' picture, not the row's scroll or its order.
+  assert.doesNotMatch(row, /scrollTo\(/)
+  // The arrows are a mouse's (it can't swipe); VoiceOver and the keyboard reach every chip without them.
+  assert.match(row, /class=\{`cf-chips-arrow \$\{side\}`\} tabIndex=\{-1\} aria-hidden="true"/)
+  assert.match(row, /\{arrows && <Arrow side="left"/)
+})
+
+test("the header is about a fifth lower, its buttons the same size", () => {
+  // The owner on the frames: «очень высокая шапка… много свободного пространства над и под элементами управления».
+  const styles = read("../src/content/styles.css")
+  // The buttons: 40 pt with a finger, 34 with a mouse, as before.
+  assert.match(styles, /\.cf-icon \{ width: 34px; height: 34px;/)
+  assert.match(styles, /\.cf\[data-touch\] \.cf-icon \{ width: 40px; height: 40px; \}/)
+  // Before: grabber 18 + (2 + 40 + 10 + 1) = 71 on the sheet; 10 + 40 + 10 + 1 = 61 beside the page; 55 with a mouse.
+  assert.match(styles, /\.cf-grabber \{ flex-shrink: 0; height: 18px;/)
+  assert.match(styles, /padding: 10px 10px 10px 14px;/)
+  // After: 13 + (0 + 40 + 2 + 1) = 56; 4 + 40 + 4 + 1 = 49; 5 + 34 + 5 + 1 = 45.
+  assert.match(css, /\.cf-header \{ padding-block: 5px; \}\n\.cf\[data-touch\] \.cf-header \{ padding-block: 4px; \}\n\.cf\[data-layout="sheet"\] \.cf-header \{ padding-block: 0 2px; \}\n\.cf-grabber \{ height: 13px;/)
+  const cut = (before: number, after: number) => Math.round((1 - after / before) * 100)
+  assert.deepEqual([cut(71, 56), cut(61, 49), cut(55, 45)], [21, 20, 18])
 })
 
 test("3. under a message: one row; compact shows Copy, Share, Listen and «…», the rest is in «…»", () => {
@@ -159,7 +197,8 @@ test("right to left: «+» and Google start inside the field's edge", () => {
   assert.match(css, /:host\(\[dir="rtl"\]\) \.cf-input \{ padding: 5px 13px 5px 5px; \}/)
   assert.match(css, /:host\(\[dir="rtl"\]\) \.cf-plus-switch input:checked \+ \.cf-switch::after \{ transform: translateX\(-10px\); \}/)
   // Nothing in the quiet chat's own rules is tied to a side: its offsets are logical (inline-start, margin-inline).
-  const rules = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/:host\(\[dir="rtl"\]\)[^}]*\}/g, "")
+  // (The chips' fade and arrows are placed by which edge the hidden chips are behind, whatever the direction.)
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/:host\(\[dir="rtl"\]\)[^}]*\}/g, "").replace(/^\.cf-chips[^\n]*$/gm, "")
   assert.doesNotMatch(rules, /margin-(left|right)|padding-(left|right)|[^-](left|right): /)
 })
 

@@ -108,6 +108,7 @@ import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill, translatePageNow } from "./translate/TranslatePill"
 import { rankChips, rankSelectionChips, type ChipId } from "./quiet/chips"
+import { ChipsRow } from "./quiet/ChipsRow"
 import { densityNow, loadKeyboard, noteKeyboard, type Density } from "./quiet/density"
 import { leftBadge, PlusMenu } from "./quiet/Plus"
 import { readSignals, selectionInField, watchWriting, writingOn } from "./quiet/signals"
@@ -2506,6 +2507,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       ? rankSelectionChips(SELECTION_ACTIONS.flatMap((a) => forSelection(a, selection.text) ?? []), selInField)
       : contextKind === "page" ? chipOrder.map((id) => PAGE_CHIPS[id]) : []
   const actionLabel = (a: Action) => a.text ?? t(a.label)
+  // What the chips' row holds now: its edges are looked at again when it changes (quiet/ChipsRow.tsx).
+  const chipsSig = actions.map((a) => a.id).join(",")
 
   // ------------------------------------------------------------ the guided first request (2.6, Guide.tsx)
   const reportGuide = (a: "start" | "step" | "done" | "skip" | "exit", what?: string) =>
@@ -4183,11 +4186,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <h2>{t("emptyTitle")}</h2>
                     <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>
                     {actions.length > 0 && (
-                      <div class="cf-actions">
+                      <ChipsRow cls="cf-actions" sig={chipsSig} arrows={!touch}>
                         {actions.map((a) => (
                           chip(a, false)
                         ))}
-                      </div>
+                      </ChipsRow>
                     )}
                   </div>
                 )}
@@ -4300,9 +4303,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && onNewPage && (
                   <div class="cf-newpage">
                     <div class="cf-divider"><span>{t("nowOnPage", source.title() || source.site())}</span></div>
-                    <div class="cf-actions follow">
+                    <ChipsRow cls="cf-actions follow" sig={chipsSig} arrows={!touch}>
                       {actions.map((a) => chip(a, true))}
-                    </div>
+                    </ChipsRow>
                   </div>
                 )}
 
@@ -4310,9 +4313,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     quick chips, while another page's chat had them under "Now on"): the same chips at the chat's end,
                     without the divider, less those already asked about this page. */}
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && (
-                  <div class="cf-actions follow">
+                  <ChipsRow cls="cf-actions follow" sig={`${chipsSig}|${messages.length}`} arrows={!touch}>
                     {actions.filter((a) => !messages.some((m) => m.label === actionLabel(a) && m.page?.url === pageUrl)).map((a) => chip(a, true))}
-                  </div>
+                  </ChipsRow>
                 )}
 
                 {/* 2.6 (91): a long answer for this chat under way off the panel (Find similar in the background). */}

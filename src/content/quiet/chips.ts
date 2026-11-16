@@ -97,3 +97,11 @@ export function rankSelectionChips<T extends { id: string }>(actions: T[], inFie
   const first = ["sel_improve", "sel_reply"]
   return [...first.flatMap((id) => actions.filter((a) => a.id === id)), ...actions.filter((a) => !first.includes(a.id))]
 }
+
+/** Which edges have chips behind them, by where the first and the last chip are: "", "left", "right" or "both". */
+export function moreAt(box: { left: number; right: number }, chips: Array<{ left: number; right: number }>): "" | "left" | "right" | "both" {
+  if (!chips.length) return ""
+  const left = Math.min(...chips.map((c) => c.left)) < box.left - 1
+  const right = Math.max(...chips.map((c) => c.right)) > box.right + 1
+  return left && right ? "both" : left ? "left" : right ? "right" : ""
+}

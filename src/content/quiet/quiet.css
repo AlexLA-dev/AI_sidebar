@@ -12,9 +12,37 @@
 .cf-actions:not(.wrap)::-webkit-scrollbar { display: none; }
 .cf-newpage .cf-actions.follow:not(.wrap) { margin-inline: -14px; }
 .cf-actions:not(.wrap) > .cf-chip { flex: none; white-space: nowrap; }
-.cf-empty .cf-actions:not(.wrap) { align-self: stretch; margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
+.cf-empty .cf-chips { align-self: stretch; }
+.cf-empty .cf-actions:not(.wrap) { margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:first-child { margin-inline-start: auto; }
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:last-child { margin-inline-end: auto; }
+
+/* That the row scrolls (the owner on the frames: «обозначить, что чипы свайпаются как карусель», ChipsRow.tsx): it
+   fades out at an edge with more chips behind it, and with a mouse an arrow there moves it along. */
+.cf-chips { position: relative; min-width: 0; }
+.cf-chips[data-more="right"] > .cf-actions { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 44px), transparent); }
+.cf-chips[data-more="left"] > .cf-actions { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 44px), transparent); }
+.cf-chips[data-more="both"] > .cf-actions { -webkit-mask-image: linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent); }
+/* The peek (a finger, once a page until the row has been swiped): the chips slide toward the row's start and back. */
+.cf-actions.cf-peek > .cf-chip { animation: cf-peek 0.9s ease-in-out; }
+@keyframes cf-peek { 0%, 100% { transform: none; } 45% { transform: translateX(-40px); } }
+:host([dir="rtl"]) .cf-actions.cf-peek > .cf-chip { animation-name: cf-peek-rtl; }
+@keyframes cf-peek-rtl { 0%, 100% { transform: none; } 45% { transform: translateX(40px); } }
+@media (prefers-reduced-motion: reduce) { .cf-actions.cf-peek > .cf-chip { animation: none; } }
+.cf-chips-arrow {
+  position: absolute; top: 50%; z-index: 1; display: none;
+  width: 24px; height: 24px; margin-top: -12px; border-radius: 12px;
+  align-items: center; justify-content: center;
+  color: var(--text-2); background: var(--bg) !important; border: 1px solid var(--border) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+.cf-chips-arrow:hover { color: var(--accent-text); }
+.cf-chips-arrow.left { left: -8px; }
+.cf-chips-arrow.right { right: -8px; }
+.cf-chips:has(> .cf-actions.follow) .cf-chips-arrow { margin-top: -16px; }
+.cf-newpage .cf-chips:has(> .cf-actions.follow) .cf-chips-arrow { margin-top: -12px; }
+.cf-chips[data-more="left"] > .cf-chips-arrow.left, .cf-chips[data-more="both"] > .cf-chips-arrow.left,
+.cf-chips[data-more="right"] > .cf-chips-arrow.right, .cf-chips[data-more="both"] > .cf-chips-arrow.right { display: flex; }
 
 /* ---- 3. Buttons under a message: one row. It never wraps; when its words don't fit, ToolsRow first brings the
    buttons closer (data-tight) and then takes the words away one button at a time (data-off), and counts the Mac's
@@ -38,6 +66,16 @@
 .cf-sugbar .cf-sugbar-text, .cf-pinbar .cf-pinbar-text { flex-direction: row; align-items: baseline; gap: 7px; }
 .cf-pinbar .cf-pinbar-label { flex: none; white-space: nowrap; }
 .cf-pinbar .cf-pinbar-line { min-width: 0; }
+
+/* ---- The header: a fifth lower (the owner on the frames: «очень высокая шапка… много свободного пространства над и
+   под элементами управления»). The buttons keep their size (40 pt with a finger, 34 with a mouse); what went is the
+   air: the sheet's grabber 18 → 13 pt and 10 → 2 pt under the row; beside the page 10 → 4 (5 with a mouse) over and
+   under it. iPhone 71 → 56 pt, iPad 61 → 49, Mac 55 → 45. */
+.cf-header { padding-block: 5px; }
+.cf[data-touch] .cf-header { padding-block: 4px; }
+.cf[data-layout="sheet"] .cf-header { padding-block: 0 2px; }
+.cf-grabber { height: 13px; padding-top: 2px; box-sizing: border-box; }
+.cf-grabber::before { height: 4px; }
 
 /* ---- 6. «+» by the field, its menu, and the answers left as a number */
 .cf-plus {

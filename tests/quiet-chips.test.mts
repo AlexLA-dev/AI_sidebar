@@ -155,3 +155,14 @@ test("the new chips' names in all 15 languages", () => {
     if (lang !== "en") assert.notEqual(m.chipTranslatePage, "Translate page", lang)
   }
 })
+
+test("which edges of the row have chips behind them", () => {
+  const box = { left: 0, right: 393 }
+  assert.equal(lib.moreAt(box, []), "")
+  assert.equal(lib.moreAt(box, [{ left: 14, right: 120 }, { left: 128, right: 300 }]), "", "the row fits: no fade, no arrow")
+  assert.equal(lib.moreAt(box, [{ left: 14, right: 120 }, { left: 128, right: 520 }]), "right")
+  assert.equal(lib.moreAt(box, [{ left: -200, right: -60 }, { left: -52, right: 379 }]), "left")
+  assert.equal(lib.moreAt(box, [{ left: -90, right: 60 }, { left: 68, right: 480 }]), "both")
+  // Right to left the row starts at the right: more is to the left.
+  assert.equal(lib.moreAt(box, [{ left: 250, right: 379 }, { left: -120, right: 242 }]), "left")
+})
