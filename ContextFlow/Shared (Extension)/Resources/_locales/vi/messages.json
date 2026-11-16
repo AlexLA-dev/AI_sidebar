@@ -1844,12 +1844,6 @@
  "listenOffline": {
   "message": "Không có kết nối: lần đầu nghe cần có Internet."
  },
- "listenReload": {
-  "message": "ContextFlow vừa được cập nhật. Hãy tải lại trang để nghe."
- },
- "reloadPage": {
-  "message": "Tải lại"
- },
  "listenInApp": {
   "message": "Tính năng Nghe phát trong ứng dụng ContextFlow, nên vẫn phát tiếp khi khóa màn hình và trong tai nghe."
  },

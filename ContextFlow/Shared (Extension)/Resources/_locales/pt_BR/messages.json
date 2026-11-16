@@ -1844,12 +1844,6 @@
  "listenOffline": {
   "message": "Sem conexão: para ouvir pela primeira vez, é preciso internet."
  },
- "listenReload": {
-  "message": "O ContextFlow foi atualizado. Recarregue a página para ouvir."
- },
- "reloadPage": {
-  "message": "Recarregar"
- },
  "listenInApp": {
   "message": "“Ouvir” funciona no app ContextFlow, então continua tocando com a tela bloqueada e nos fones de ouvido."
  },

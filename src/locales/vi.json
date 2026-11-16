@@ -637,8 +637,6 @@
   "listenLimit": "Bạn đã dùng hết {0} phút nghe của tuần này. Sẽ có lại vào {1}.",
   "listenFailed": "Không đọc to được. Hãy thử lại sau giây lát.",
   "listenOffline": "Không có kết nối: lần đầu nghe cần có Internet.",
-  "listenReload": "ContextFlow vừa được cập nhật. Hãy tải lại trang để nghe.",
-  "reloadPage": "Tải lại",
   "listenInApp": "Tính năng Nghe phát trong ứng dụng ContextFlow, nên vẫn phát tiếp khi khóa màn hình và trong tai nghe.",
   "listenLeft": "Nghe: tuần này còn {0}/{1} phút",
   "watchFullPro": "Gói Pro theo dõi được {0} trang cùng lúc. Ultra theo dõi tới {1} trang.",

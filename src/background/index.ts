@@ -33,7 +33,6 @@ import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
-import { startRevive } from "./revive"
 import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
@@ -879,10 +878,6 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "openApp":
       openApp(message.target, message.feature, message.plan, message.period).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
       return true
-    case "alive":
-      // 2.7: a panel asks whether the extension still hears it (one left by an update gets no answer; orphan.ts).
-      sendResponse({ ok: true })
-      return false
     case "listenInApp":
       listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
       return true
@@ -1152,8 +1147,6 @@ async function markNewSeen(): Promise<void> {
   if (!list.includes("new27")) await chrome.storage.local.set({ [STORAGE.hintsSeen]: [...list, "new27"] })
 }
 
-const revive = startRevive()
-
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     void installId()
@@ -1163,8 +1156,6 @@ chrome.runtime.onInstalled.addListener((details) => {
     void chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })
   } else if (details.reason === "update") {
     void migrateFromV1().catch(() => undefined)
-    // 2.7: tabs left open across the update get the panel again (revive.ts).
-    revive.updated()
   }
 })
 

@@ -1844,12 +1844,6 @@
  "listenOffline": {
   "message": "无网络连接：第一次朗读需要联网。"
  },
- "listenReload": {
-  "message": "ContextFlow 已更新。请重新载入此页面后再朗读。"
- },
- "reloadPage": {
-  "message": "重新载入"
- },
  "listenInApp": {
   "message": "朗读在 ContextFlow App 中播放，所以锁屏后也会继续播放，戴着耳机也能一直听。"
  },

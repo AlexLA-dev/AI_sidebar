@@ -1844,12 +1844,6 @@
  "listenOffline": {
   "message": "Nessuna connessione: la prima volta l’ascolto richiede internet."
  },
- "listenReload": {
-  "message": "ContextFlow è stato aggiornato. Ricarica la pagina per ascoltare."
- },
- "reloadPage": {
-  "message": "Ricarica"
- },
  "listenInApp": {
   "message": "L’ascolto avviene nell’app ContextFlow, così continua anche a schermo bloccato e nelle cuffie."
  },

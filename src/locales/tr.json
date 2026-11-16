@@ -640,8 +640,6 @@
   "listenLimit": "Bu haftaki {0} dakikalık dinleme süreniz doldu. Süre {1} günü yenilenir.",
   "listenFailed": "Bu metin sesli okunamadı. Birazdan tekrar deneyin.",
   "listenOffline": "Bağlantı yok: ilk dinleme için internet gerekir.",
-  "listenReload": "ContextFlow güncellendi. Dinlemek için sayfayı yeniden yükleyin.",
-  "reloadPage": "Yeniden yükle",
   "listenInApp": "“Dinle” ContextFlow uygulamasında çalar; böylece ses ekran kilitliyken de, kulaklıkta da devam eder.",
   "listenLeft": "Dinleme: bu hafta {1} dakikadan {0} dakika kaldı",
   "listenMinLeft": "{0} dk kaldı",

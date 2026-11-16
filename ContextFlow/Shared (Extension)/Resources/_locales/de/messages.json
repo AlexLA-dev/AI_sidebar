@@ -1844,12 +1844,6 @@
  "listenOffline": {
   "message": "Keine Verbindung: Beim ersten Anhören braucht es Internet."
  },
- "listenReload": {
-  "message": "ContextFlow wurde aktualisiert. Lade die Seite neu, um das Vorlesen zu starten."
- },
- "reloadPage": {
-  "message": "Neu laden"
- },
  "listenInApp": {
   "message": "„Anhören“ läuft in der ContextFlow-App: Dort geht der Ton auch bei gesperrtem Bildschirm und über Kopfhörer weiter."
  },
