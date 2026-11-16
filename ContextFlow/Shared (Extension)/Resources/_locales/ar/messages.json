@@ -2399,6 +2399,12 @@
  "trEntry": {
   "message": "ترجمة الصفحة"
  },
+ "trControls": {
+  "message": "الأزرار والقوائم: {0}"
+ },
+ "trControlsCap": {
+  "message": "انتهت ترجمات الأزرار والقوائم المجانية لليوم"
+ },
  "spacesTitle": {
   "message": "المساحات"
  },

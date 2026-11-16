@@ -17,7 +17,7 @@ const WORDS: Record<string, string[]> = {
   de: ["der", "die", "das", "und", "ist", "nicht", "mit", "ein", "eine", "zu", "den", "auf", "sich", "auch", "dem", "von", "für", "des", "im", "sie"],
   es: ["el", "la", "los", "las", "de", "que", "y", "en", "un", "una", "es", "por", "con", "para", "no", "del", "se", "lo", "su", "como"],
   fr: ["le", "la", "les", "de", "des", "et", "est", "un", "une", "du", "que", "pas", "pour", "dans", "en", "au", "il", "qui", "sur", "par", "ne", "plus"],
-  it: ["il", "la", "che", "di", "e", "è", "un", "una", "per", "non", "con", "sono", "del", "della", "gli", "si", "le", "ma", "da", "nel"],
+  it: ["il", "la", "lo", "che", "di", "e", "è", "un", "una", "per", "non", "con", "sono", "del", "della", "gli", "si", "le", "ma", "da", "nel", "al", "su", "in"],
   pt: ["o", "a", "os", "as", "de", "que", "e", "é", "um", "uma", "não", "com", "para", "do", "da", "em", "se", "no", "na", "dos"],
   ca: ["de", "la", "i", "el", "que", "les", "en", "els", "del", "per", "un", "amb", "una", "és", "no", "al", "es", "més"],
   nl: ["de", "het", "een", "en", "van", "is", "dat", "op", "te", "zijn", "voor", "met", "niet", "aan", "er", "ook", "maar", "wordt"],

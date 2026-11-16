@@ -2399,6 +2399,12 @@
  "trEntry": {
   "message": "Translate this page"
  },
+ "trControls": {
+  "message": "Buttons and menus are in {0}"
+ },
+ "trControlsCap": {
+  "message": "Today's free translations of buttons and menus are used up"
+ },
  "spacesTitle": {
   "message": "Spaces"
  },

@@ -2399,6 +2399,12 @@
  "trEntry": {
   "message": "このページを翻訳"
  },
+ "trControls": {
+  "message": "ボタンとメニュー：{0}"
+ },
+ "trControlsCap": {
+  "message": "今日のボタンとメニューの無料翻訳は使い切りました"
+ },
  "spacesTitle": {
   "message": "スペース"
  },

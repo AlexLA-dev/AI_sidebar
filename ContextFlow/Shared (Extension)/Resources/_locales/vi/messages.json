@@ -2399,6 +2399,12 @@
  "trEntry": {
   "message": "Dịch trang này"
  },
+ "trControls": {
+  "message": "Nút và menu: {0}"
+ },
+ "trControlsCap": {
+  "message": "Đã hết lượt dịch miễn phí nút và menu hôm nay"
+ },
  "spacesTitle": {
   "message": "Không gian"
  },

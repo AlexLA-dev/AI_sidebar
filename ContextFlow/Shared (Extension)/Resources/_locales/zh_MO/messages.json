@@ -2399,6 +2399,12 @@
  "trEntry": {
   "message": "翻譯此頁面"
  },
+ "trControls": {
+  "message": "按鈕和選單：{0}"
+ },
+ "trControlsCap": {
+  "message": "今天的按鈕和選單免費翻譯已用完"
+ },
  "spacesTitle": {
   "message": "空間"
  },
