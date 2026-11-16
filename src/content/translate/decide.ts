@@ -9,7 +9,7 @@
 // Norwegian, Czech and Slovak, Catalan and Spanish). 2.7, the director's audit: a Turkish reader on a lang="tr" page
 // was offered «Translate to Turkish?» because a few of its words are Portuguese ones.
 
-import { baseLanguage, languageGuess } from "../translateTarget"
+import { baseLanguage, GUESSED, languageGuess } from "../translateTarget"
 
 /** Languages the guess can't tell from a neighbour: a guess of any of them gives way to the page's markup naming
  *  another of the same group. */
@@ -60,7 +60,7 @@ export function offerFor(pageLang: string | null, ui: string, letters: number): 
  *  see tests/translate-share.test.mts and the PR for the numbers). */
 export const OFFER_SHARE = 0.5
 /** A smaller part of the page in another language, said at the ✦ entry: at least this share of the page's words... */
-export const PART_SHARE = 0.03
+export const PART_SHARE = 0.05
 /** ...and this many letters (a few foreign names aren't a part to translate). */
 export const PART_LETTERS = 150
 
@@ -99,16 +99,21 @@ export interface Judged {
  * another language; a smaller part said at the entry. A page whose words the guess can't place (a language with no
  * function words of its own, like Lithuanian) goes by its markup.
  */
-export function judgeShares(main: ShareMap, page: ShareMap, reader: string, htmlLang: string): Judged {
+export function judgeShares(mainContent: ShareMap, page: ShareMap, reader: string, htmlLang: string): Judged {
   const me = canonical(baseLanguage(reader))
+  // A page with no main content to speak of (a <main> around a search box, none at all) is judged as a whole.
+  const main = mainContent.letters >= MIN_LETTERS ? mainContent : page
   const mainKnown = known(main)
   if (mainKnown >= MIN_LETTERS) {
     const foreign = 1 - lettersOf(main, me) / mainKnown
     const top = topBesides(main, me)
     if (foreign >= OFFER_SHARE && top) return { from: refined(top.lang, htmlLang), part: null }
   } else {
+    // Words the guess can't place go by the markup only when it names a language the guess has no words for
+    // (Lithuanian): an English web app of short labels marked lang="ru" or lang="de" isn't Russian or German, or the
+    // guess would have known it (the owner's «99% страницы и так на нужном языке»).
     const marked = canonical(baseLanguage(htmlLang.trim()))
-    if ((main.langs.get("?") ?? 0) >= MIN_LETTERS && /^[a-z]{2,3}$/.test(marked) && marked !== me) return { from: marked, part: null }
+    if ((main.langs.get("?") ?? 0) >= MIN_LETTERS && /^[a-z]{2,3}$/.test(marked) && marked !== me && !GUESSED.has(marked)) return { from: marked, part: null }
   }
   const pageKnown = known(page)
   const top = topBesides(page, me)

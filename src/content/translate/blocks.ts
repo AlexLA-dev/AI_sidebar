@@ -27,12 +27,14 @@ const KEEP = new Set([
   "RUBY", "METER", "PROGRESS", "OUTPUT"
 ])
 /** Never shown or never words: left where they are, not sent. */
-const QUIET = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "LINK", "META"])
+const QUIET = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "NOFRAMES", "NOEMBED", "TEMPLATE", "LINK", "META"])
 /** Block elements left alone with everything inside them. */
 const SKIP = new Set([
-  "SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "HEAD", "SVG", "MATH", "CODE", "PRE", "TEXTAREA", "INPUT", "SELECT",
-  "OPTION", "IFRAME", "VIDEO", "AUDIO", "CANVAS", "OBJECT", "EMBED"
+  "SCRIPT", "STYLE", "NOSCRIPT", "NOFRAMES", "NOEMBED", "XMP", "PLAINTEXT", "TEMPLATE", "HEAD", "SVG", "MATH", "CODE", "PRE",
+  "TEXTAREA", "INPUT", "SELECT", "OPTION", "IFRAME", "VIDEO", "AUDIO", "CANVAS", "OBJECT", "EMBED"
 ])
+/** A tag's name in capitals: an inline svg's (and what's inside it) is lowercase in an HTML page. */
+const tagOf = (el: Element) => el.tagName.toUpperCase()
 /** What the person types or picks a value in: its words are the value. */
 const SKIP_ROLES = new Set(["textbox", "searchbox", "combobox", "slider", "spinbutton"])
 /** Icon fonts draw a picture from a word («shopping_cart», «menu»): translated, the picture is gone. Their classes
@@ -66,7 +68,7 @@ function marked(el: Element): boolean {
 
 /** Left alone with everything inside it. */
 export function skipped(el: Element): boolean {
-  return SKIP.has(el.tagName) || el.tagName === HOST || marked(el)
+  return SKIP.has(tagOf(el)) || el.tagName === HOST || marked(el)
 }
 
 const inlineMemo = new WeakMap<Element, boolean>()
@@ -78,7 +80,7 @@ function inlineTree(el: Element): boolean {
   if (known !== undefined) return known
   let ok = true
   for (const child of Array.from(el.children)) {
-    if (QUIET.has(child.tagName) || KEEP.has(child.tagName) || (INLINE.has(child.tagName) && marked(child))) continue
+    if (QUIET.has(tagOf(child)) || KEEP.has(tagOf(child)) || (INLINE.has(child.tagName) && marked(child))) continue
     if (!inlineTree(child)) {
       ok = false
       break
@@ -94,13 +96,13 @@ function inRun(node: Node): boolean {
   if (node.nodeType !== 1) return false
   const el = node as Element
   if (el.tagName === HOST) return false
-  return QUIET.has(el.tagName) || KEEP.has(el.tagName) || (INLINE.has(el.tagName) && (marked(el) || inlineTree(el)))
+  return QUIET.has(tagOf(el)) || KEEP.has(tagOf(el)) || (INLINE.has(el.tagName) && (marked(el) || inlineTree(el)))
 }
 
 /** Nothing to translate at a run's end: spaces, comments, scripts, and what's kept as it is (a button, an icon), which
  *  then stays where it is, outside the block. */
 const blank = (node: Node) => node.nodeType === 8 || (node.nodeType === 3 && !(node as Text).data.trim()) ||
-  (node.nodeType === 1 && (QUIET.has((node as Element).tagName) || KEEP.has((node as Element).tagName) || marked(node as Element)))
+  (node.nodeType === 1 && (QUIET.has(tagOf(node as Element)) || KEEP.has(tagOf(node as Element)) || marked(node as Element)))
 
 /** A block: its element, the run of its child nodes, the elements behind its tags, and its marked text. An
  *  attribute's words (a field's placeholder, a button input's label) are a block of their own: no nodes, `attr` set. */
@@ -136,10 +138,10 @@ function mark(nodes: Node[], tags: Map<number, Element>, paired: Set<number>): s
     }
     if (node.nodeType !== 1) continue
     const el = node as Element
-    if (QUIET.has(el.tagName)) continue
+    if (QUIET.has(tagOf(el))) continue
     const tag = tags.size + 1
     tags.set(tag, el)
-    if (KEEP.has(el.tagName) || marked(el) || !(el.textContent ?? "").trim()) {
+    if (KEEP.has(tagOf(el)) || marked(el) || !(el.textContent ?? "").trim()) {
       out += `<${tag}/>`
       continue
     }

@@ -27,7 +27,10 @@ const BLOCKS = new Set([
   "BUTTON", "A", "SUMMARY", "LEGEND", "OPTION", "DIV", "SECTION", "ARTICLE", "MAIN", "HEADER", "FOOTER", "NAV", "ASIDE",
   "FORM", "UL", "OL", "DL", "TABLE", "TR", "TBODY", "THEAD", "DETAILS", "DIALOG", "FIGURE", "SPAN"
 ])
-const NEVER = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "CODE", "PRE", "KBD", "SAMP", "TEXTAREA", "SVG", "MATH", "CONTEXTFLOW-ROOT", "IFRAME", "SELECT"])
+/** Never words the reader sees: scripts and styles, raw-text holders a site keeps data in (Yandex Market's JSON sits in
+ *  <noframes>), code, fields, pictures. Tag names in capitals (an inline svg's is lowercase). */
+const NEVER = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "NOFRAMES", "NOEMBED", "XMP", "PLAINTEXT", "TEMPLATE", "CODE", "PRE", "KBD", "SAMP", "TEXTAREA", "SVG", "MATH", "CONTEXTFLOW-ROOT", "IFRAME", "SELECT"])
+const never = (el: Element) => NEVER.has(el.tagName.toUpperCase())
 /** The site's frame inside or around the main content: menus, bars, side columns, dialogs and banners over the page
  *  (a cookie notice), and the site's own header and footer (frame()). */
 const FRAME = "nav,aside,menu,dialog,[role=navigation],[role=banner],[role=contentinfo],[role=complementary],[role=menu],[role=menubar],[role=toolbar],[role=tablist],[role=search],[role=dialog],[role=alertdialog],[aria-modal=true]"
@@ -95,15 +98,15 @@ function scripts(text: string): { latin: number; other: Map<string, number> } {
   return { latin, other }
 }
 
-/** The words of an element that belong to it and not to a block inside it. */
+/** The words of an element that belong to it and not to a block inside it: its text and its shown inline children's. */
 function ownText(el: Element): string {
   let out = ""
   for (const child of Array.from(el.childNodes)) {
     if (child.nodeType === 3) out += (child as Text).data
     else if (child.nodeType === 1) {
       const c = child as Element
-      if (NEVER.has(c.tagName)) continue
-      if (!blockLike(c)) out += ` ${ownText(c)} `
+      if (never(c) || c.hasAttribute("hidden") || blockLike(c) || !visible(c)) continue
+      out += ` ${ownText(c)} `
     }
   }
   return out
@@ -121,8 +124,9 @@ export function pageShares(doc: Document, root: Element = doc.body): PageShares 
   const pools = { main: [] as string[], page: [] as string[] }
   const cyr = { main: [] as string[], page: [] as string[] }
   const walk = (el: Element, inMain: boolean, inFrame: boolean, shown: boolean) => {
-    if (NEVER.has(el.tagName)) return
-    if (el.getAttribute("aria-hidden") === "true" || el.hasAttribute("hidden")) return
+    if (never(el)) return
+    // Shown or not is asked of the layout (visible()), not of aria-hidden: a site marks its whole page aria-hidden
+    // while its cookie dialog is open (Al Jazeera), and the page is still what the reader sees.
     const here = inMain || el === main
     const framed = inFrame || (here && el !== main && frame(el))
     const isShown = shown && visible(el)

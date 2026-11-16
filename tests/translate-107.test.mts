@@ -244,6 +244,31 @@ test("A5: the pill only when the main content is mostly in another language; a s
   assert.deepEqual(J({ "?": 3_000 }, { "?": 3_000 }, "en", "en"), { from: null, part: null })
   // Too little main content to judge: no pill.
   assert.equal(J({ de: 100 }, { de: 100 }, "en").from, null)
+  // An English web app of short labels the guess can't place, marked lang="ru" or lang="de": not offered (the guess
+  // knows Russian and German when it sees them). The owner's «99% страницы и так на нужном языке».
+  assert.deepEqual(J({ "?": 3_000 }, { "?": 3_000 }, "en", "ru"), { from: null, part: null })
+  assert.deepEqual(J({ "?": 3_000, en: 120 }, { "?": 3_200, en: 150 }, "en", "de"), { from: null, part: null })
+  // No main content to speak of (a <main> around a search box): judged by the whole page.
+  assert.deepEqual(J({ en: 20 }, { ar: 5_000, en: 60 }, "ru", "ar"), { from: "ar", part: null })
+  assert.deepEqual(J({}, { ru: 5_000, en: 100 }, "ru", "ru"), { from: null, part: null })
+})
+
+test("A5: what isn't shown isn't weighed; a page marked aria-hidden behind its cookie dialog is", () => {
+  const AR = "افتتحت المدينة الجسر الجديد فوق النهر يوم الاثنين، وهو ليس للسيارات فقط بل للمشاة أيضا."
+  // Al Jazeera with its consent dialog open: the page is aria-hidden="true" for screen readers, and still on screen.
+  const aj = page(`<div aria-hidden="true"><main>${words(AR, 10)}</main></div><div role="dialog"><p>${AR}</p><button>موافق</button></div>`, "ar").document
+  const a = lib.pageShares(aj)
+  assert.ok(a.main.letters > 500, `the page behind the dialog is weighed (${a.main.letters})`)
+  assert.equal(lib.judgeShares(a.main, a.page, "ru", "ar").from, "ar")
+  // Yandex Market keeps its data in <noframes> inside the page: never words, whatever holds them.
+  const RU = "В понедельник город открыл новый мост через реку, и он предназначен не только для машин, но и для пешеходов."
+  const json = `{"widgets":{"banner":{"type":"banner","block":"showcase","creative":"de la casa que no se puede para os dados com uma"}}}`.repeat(40)
+  const ym = page(`<main><div><noframes>${json}</noframes>${words(RU, 8)}<span hidden>${json}</span></div></main>`, "ru").document
+  const y = lib.pageShares(ym)
+  assert.deepEqual([...y.main.langs.keys()], ["ru"], JSON.stringify([...y.main.langs]))
+  assert.deepEqual(lib.judgeShares(y.main, y.page, "ru", "ru"), { from: null, part: null })
+  // And never sent to be translated.
+  assert.ok(!lib.collectBlocks(ym.body).some((b: any) => b.text.includes("widgets")))
 })
 
 const words = (text: string, n: number) => Array.from({ length: n }, () => `<p>${text}</p>`).join("")
