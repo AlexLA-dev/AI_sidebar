@@ -420,7 +420,12 @@ export function QuickInsert(props: Props): VNode | null {
   useEffect(() => {
     if (!copied.length) return
     const next = Math.min(...copied.map((c) => c.at)) + 24 * 3600_000 - Date.now()
-    const timer = setTimeout(() => void loadCopied().then(setCopied), Math.max(1000, Math.min(next, 3600_000)))
+    const timer = setTimeout(() => {
+      // What's held goes by age first (107: a list left open, or a tab whose reads no longer answer, kept a 25-hour-old
+      // copy), then the stored list is read again.
+      setCopied((list) => liveCopied(list, Date.now()))
+      void loadCopied().then(setCopied)
+    }, Math.max(1000, Math.min(next, 3600_000)))
     return () => clearTimeout(timer)
   }, [copied])
 

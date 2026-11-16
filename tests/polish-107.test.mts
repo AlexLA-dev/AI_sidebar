@@ -116,6 +116,9 @@ test("F4: Copied is filtered by age when the list is drawn, not only when it's l
   // Both places that draw it filter as they draw.
   assert.match(read("src/content/insert/QuickInsert.tsx"), /const copied = liveCopied\(p\.settings\.copied \? p\.copied : \[\], Date\.now\(\)\)/)
   assert.match(read("src/content/insert/FillForm.tsx"), /const copied = liveCopied\(p\.copied, Date\.now\(\)\)/)
+  // And what's held goes by age when the oldest piece runs out, before the stored list is read again (that read may
+  // never answer in a tab left open across an update).
+  assert.match(read("src/content/insert/QuickInsert.tsx"), /setCopied\(\(list\) => liveCopied\(list, Date\.now\(\)\)\)\s*void loadCopied\(\)\.then\(setCopied\)/)
 })
 
 // ------------------------------------------------------------ D1: the snapshot's failure path
