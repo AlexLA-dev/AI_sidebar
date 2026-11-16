@@ -68,6 +68,9 @@
  "plusButton": {
   "message": "Plus : note, capture, tout le chat"
  },
+ "hintShow": {
+  "message": "Voir"
+ },
  "tourWholeBodyPlus": {
   "message": "« Tout le chat » se trouve sous +. Activez « Tout le chat » quand une question a besoin de tout : tous les messages, vos notes et les autres pages de ce chat. Désactivé : les derniers messages et cette page."
  },

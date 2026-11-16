@@ -25,6 +25,7 @@
   "chipTranslatePage": "Translate page",
   "chipWatchPrice": "Watch the price",
   "plusButton": "More: note, snapshot, whole chat",
+  "hintShow": "Show",
   "tourWholeBodyPlus": "Whole chat is under +. Turn on Whole chat when a question needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and this page.",
 
   "promptSummarize": "Summarize this page in 5–7 bullet points, then give the main conclusion in one sentence.",

@@ -67,6 +67,36 @@ test("the chips' row says that it scrolls: a fade at an edge with more behind it
   assert.match(row, /\{arrows && <Arrow side="left"/)
 })
 
+test("first-run cards never take the chat from an answer: a hint is one line on the compact chat, the guide's card sits under the answer", () => {
+  // The owner's 107 frame: «New in ContextFlow 2.7» over half the panel; the director: one line, once, never over an
+  // answer or the quick actions; one card at a time.
+  const hint = read("../src/content/Hint.tsx")
+  assert.match(hint, /if \(line && !open\) \{\s*return \(\s*<div class="cf-hint line" role="note">/)
+  assert.match(hint, /<button type="button" class="cf-hint-open" aria-expanded=\{false\} onClick=\{\(\) => setOpen\(true\)\}>\s*<strong>\{title\}<\/strong>\s*<span class="cf-link">\{t\("hintShow"\)\}<\/span>/)
+  assert.match(hint, /<button type="button" class="cf-hint-x" aria-label=\{t\("close"\)\} title=\{t\("close"\)\} onClick=\{onDone\}>/)
+  assert.match(css, /\.cf-hint-open strong \{[^}]*white-space: nowrap; overflow: hidden; text-overflow: ellipsis; \}/)
+  // Every hint of the chat and of the chats list: a line on the compact chat, the card where there's room.
+  assert.equal(app.match(/<Hint\b/g)?.length, 5)
+  assert.equal(app.match(/<Hint\s+line=\{compact/g)?.length, 4)
+  // (The page hint's how-to stays a card: it's the answer to a tap on its line by the circle.)
+  assert.match(app, /<Hint icon=\{<Icon\.Sparkle size=\{16\} \/>\} title=\{how\.title\} action=\{allTips\} onDone=\{pageHints\.doneChat\}>/)
+  // «New in 2.7»: in one opening of the panel, then seen (with the side's hint, which it says too).
+  assert.match(app, /line=\{compact && \(newLineShown\.current = true\)\}/)
+  assert.match(app, /if \(open \|\| !newLineShown\.current\) return\s*newLineShown\.current = false\s*doneHint\(\["new27", "side"\]\)/)
+  // One at a time: a hint waits for the first-run guide to end, and each hint for the one before it.
+  assert.match(app, /const hintDue = \(key: HintKey\) => hints !== null && !hints\.includes\(key\) && !touring && tourSeen/)
+  assert.match(app, /hintDue\("side"\) && !hintDue\("new27"\)/)
+  // The guide's card over the composer: the chat ends above it.
+  const guide = read("../src/content/Guide.tsx")
+  assert.match(guide, /panel\.style\.setProperty\("--cf-guide-foot", `\$\{Math\.round\(cardRef\.current\.offsetHeight\) \+ 10\}px`\)/)
+  assert.match(guide, /return \(\) => panel\.style\.removeProperty\("--cf-guide-foot"\)/)
+  assert.match(css, /\.cf-messages \{ padding-bottom: calc\(6px \+ var\(--cf-guide-foot, 0px\)\); \}/)
+  for (const lang of LANGS) {
+    const m = JSON.parse(read(`../src/locales/${lang}.json`))
+    assert.ok(typeof m.hintShow === "string" && m.hintShow.length > 0 && m.hintShow.length <= 10, `${lang} hintShow`)
+  }
+})
+
 test("the header is about a fifth lower, its buttons the same size", () => {
   // The owner on the frames: «очень высокая шапка… много свободного пространства над и под элементами управления».
   const styles = read("../src/content/styles.css")

@@ -68,6 +68,9 @@
  "plusButton": {
   "message": "Altro: nota, istantanea, tutta la chat"
  },
+ "hintShow": {
+  "message": "Mostra"
+ },
  "tourWholeBodyPlus": {
   "message": "«Tutta la chat» è sotto +. Attiva «Tutta la chat» quando una domanda ha bisogno di tutto: tutti i messaggi, le tue note e le altre pagine di questa chat. Disattivato: gli ultimi messaggi e questa pagina."
  },

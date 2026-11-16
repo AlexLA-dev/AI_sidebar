@@ -68,6 +68,9 @@
  "plusButton": {
   "message": "Diğer: not, sayfa görüntüsü, tüm sohbet"
  },
+ "hintShow": {
+  "message": "Göster"
+ },
  "tourWholeBodyPlus": {
   "message": "“Tüm sohbet” + düğmesinin altındadır. Bir soru her şeyi gerektirdiğinde “Tüm sohbet” seçeneğini açın: tüm mesajlar, notlarınız ve bu sohbetin diğer sayfaları. Kapalıyken yanıtlar son mesajları ve bu sayfayı kullanır."
  },

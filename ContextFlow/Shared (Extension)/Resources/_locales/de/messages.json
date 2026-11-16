@@ -68,6 +68,9 @@
  "plusButton": {
   "message": "Mehr: Notiz, Schnappschuss, ganzer Chat"
  },
+ "hintShow": {
+  "message": "Anzeigen"
+ },
  "tourWholeBodyPlus": {
   "message": "„Ganzer Chat“ findest du unter +. Schalte „Ganzer Chat“ ein, wenn eine Frage alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und diese Seite."
  },

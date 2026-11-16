@@ -25,6 +25,7 @@
   "chipTranslatePage": "Traduire la page",
   "chipWatchPrice": "Surveiller le prix",
   "plusButton": "Plus : note, capture, tout le chat",
+  "hintShow": "Voir",
   "tourWholeBodyPlus": "« Tout le chat » se trouve sous +. Activez « Tout le chat » quand une question a besoin de tout : tous les messages, vos notes et les autres pages de ce chat. Désactivé : les derniers messages et cette page.",
 
   "promptSummarize": "Résumez cette page en 5 à 7 points, puis donnez la conclusion principale en une phrase.",

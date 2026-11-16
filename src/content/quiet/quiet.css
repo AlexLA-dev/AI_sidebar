@@ -77,6 +77,19 @@
 .cf-grabber { height: 13px; padding-top: 2px; box-sizing: border-box; }
 .cf-grabber::before { height: 4px; }
 
+/* ---- First-run cards never take the chat from an answer (the owner's 107 frame: «New in ContextFlow 2.7» over half
+   the panel). A hint on the compact chat is one line: its title, «Show», a close (Hint.tsx `line`). */
+.cf-hint.line { align-items: center; gap: 8px; margin: 2px 0 8px; padding: 5px 4px 5px 8px; border-radius: 12px; }
+.cf-hint.line .cf-hint-icon { width: 22px; height: 22px; border-radius: 7px; }
+.cf-hint.line .cf-hint-icon svg { width: 13px; height: 13px; }
+.cf-hint-open { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; text-align: start; color: var(--text); }
+.cf-hint-open strong { min-width: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-hint-open .cf-link { flex: none; font-size: 12.5px; font-weight: 600; }
+.cf-hint-x { flex: none; width: 30px; height: 30px; border-radius: 9px; font-size: 18px; line-height: 1; color: var(--text-3); }
+.cf-hint-x:hover { color: var(--text); background: var(--bg-3); }
+/* The guide's card over the composer (the first answer's step): the chat ends above it (Guide.tsx sets its height). */
+.cf-messages { padding-bottom: calc(6px + var(--cf-guide-foot, 0px)); }
+
 /* ---- 6. «+» by the field, its menu, and the answers left as a number */
 .cf-plus {
   flex: none; align-self: flex-end;

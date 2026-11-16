@@ -392,6 +392,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setHints((seen) => [...(seen ?? []), ...(Array.isArray(key) ? key : [key])])
     void markHintSeen(key)
   }
+  // «New in 2.7» as one line on the compact chat (2.7 after 107): shown in one opening of the panel, then it's seen.
+  const newLineShown = useRef(false)
+  useEffect(() => {
+    if (open || !newLineShown.current) return
+    newLineShown.current = false
+    doneHint(["new27", "side"])
+  }, [open])
   // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
@@ -3993,7 +4000,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <>
               {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads") && (
                 <div class="cf-upsell-wrap">
-                  <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
+                  <Hint line={compact} icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
                 </div>
               )}
               {findConsent && (
@@ -4507,6 +4514,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
                 {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
                   <Hint
+                    line={compact}
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
                     onDone={() => doneHint(source.kind() as HintKey)}
@@ -4531,8 +4539,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
                 {/* 2.7: once, what this version brought, for people who had ContextFlow before (one hint at a time; it says
                     the side too, so the side's own hint isn't shown after it). */}
+                {/* 2.7 (after 107): on the compact chat it's one line («New in ContextFlow 2.7 · Show · ×»), shown in one
+                    opening of the panel and gone with it (newLineShown), never a card over the answer. */}
                 {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint
+                    line={compact && (newLineShown.current = true)}
                     icon={<Icon.Sparkle size={16} />}
                     title={t("hintNewTitle")}
                     list={[t("hintNewTranslate"), t("hintNewWrite"), t("hintNewSpaces"), t("hintNewApple"), t("hintNewShot"), t("hintNewSide")]}
@@ -4542,6 +4553,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
                 {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint
+                    line={compact}
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}
                     onDone={() => doneHint("side")}

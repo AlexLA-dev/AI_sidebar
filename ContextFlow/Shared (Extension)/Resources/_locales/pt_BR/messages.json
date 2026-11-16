@@ -68,6 +68,9 @@
  "plusButton": {
   "message": "Mais: nota, captura, chat inteiro"
  },
+ "hintShow": {
+  "message": "Ver"
+ },
  "tourWholeBodyPlus": {
   "message": "“Chat inteiro” fica em +. Ative “Chat inteiro” quando uma pergunta precisar de tudo: todas as mensagens, suas notas e as outras páginas deste chat. Desligado: as últimas mensagens e esta página."
  },

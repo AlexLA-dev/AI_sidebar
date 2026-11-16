@@ -68,6 +68,9 @@
  "plusButton": {
   "message": "More: note, snapshot, whole chat"
  },
+ "hintShow": {
+  "message": "Show"
+ },
  "tourWholeBodyPlus": {
   "message": "Whole chat is under +. Turn on Whole chat when a question needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and this page."
  },
