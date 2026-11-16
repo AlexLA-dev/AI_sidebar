@@ -16,13 +16,14 @@
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:first-child { margin-inline-start: auto; }
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:last-child { margin-inline-end: auto; }
 
-/* ---- 3. Buttons under a message: one row. It never wraps; ToolsRow takes the words away in two steps when they
-   don't fit (data-tight), and counts the Mac's hover buttons in while it measures (data-measure). */
+/* ---- 3. Buttons under a message: one row. It never wraps; when its words don't fit, ToolsRow first brings the
+   buttons closer (data-tight) and then takes the words away one button at a time (data-off), and counts the Mac's
+   hover buttons in while it measures (data-measure). */
 .cf-msg-tools { flex-wrap: nowrap !important; min-width: 0; }
 .cf-msg-tools > button, .cf-msg-tools > .cf-hover-tools { flex: none; }
-.cf-msg-tools[data-tight="1"] .cf-tl, .cf-msg-tools[data-tight="2"] .cf-tl, .cf-msg-tools[data-tight="2"] .cf-tk { display: none; }
-.cf-msg-tools[data-tight="2"] { gap: 2px; }
-.cf-msg-tools[data-tight="2"] > button { padding-inline: 6px; }
+.cf-msg-tools [data-off] { display: none; }
+.cf-msg-tools[data-tight="1"] { gap: 2px; }
+.cf-msg-tools[data-tight="1"] > button { padding-inline: 6px; }
 .cf:not([data-touch]) .cf-msg-tools[data-measure] .cf-hover-tools { display: inline-flex; }
 /* «В подборку» in the row (roomy): its own colour, the row's size. */
 .cf-msg-tools .cf-collect-link { margin: 0; font-size: 12px; color: var(--accent-text); }
@@ -51,6 +52,9 @@
 .cf-plus:hover { color: var(--text); }
 .cf-plus.on { color: var(--accent-text); background: var(--accent-soft) !important; border-color: transparent !important; transform: rotate(45deg); }
 .cf-input .cf-plus + .cf-mode { margin-inline-start: 0; }
+/* Right to left: the field's wide padding is on the side «+» and Google start from (it was on the left alone, so
+   the first button sat past the field's edge). */
+:host([dir="rtl"]) .cf-input { padding: 5px 13px 5px 5px; }
 @media (prefers-reduced-motion: reduce) { .cf-plus { transition: none; } }
 
 .cf-plus-anchor { position: relative; height: 0; z-index: 5; }

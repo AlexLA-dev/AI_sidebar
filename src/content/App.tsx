@@ -175,8 +175,6 @@ const PAGE_CHIPS = Object.fromEntries([
   { id: "translate_page", label: "chipTranslatePage", prompt: "chipTranslatePage" },
   { id: "watch", label: "chipWatchPrice", prompt: "chipWatchPrice" }
 ].map((a) => [a.id, a])) as Record<ChipId, Action>
-/** The chips that act on the page instead of asking. */
-const ON_PAGE_CHIPS = new Set(["check", "rewrite", "templates", "translate_page", "watch"])
 
 const SEL_GOOGLE: Action = { id: "sel_google", label: "actGoogle", prompt: "promptSelGoogle", mode: "google" }
 
@@ -1894,8 +1892,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
    * text to copy, `shared`: the text to share).
    * 2.7 (after 107), the owner's decision 3: one row. Compact: Copy, Share, Listen and «…», which holds Tag, To
    * collection, Remind, Calendar, Pin and Delete. Roomy (a pointer): what was there, Tag and To collection in the
-   * row too. «Insert into field» leads the row whenever the page has a field (decision 7). The row never wraps: its
-   * words give way to the icons when they don't fit (quiet/ToolsRow.tsx).
+   * row too. «Insert into field» leads the row whenever the page has a field (decision 7). The row never wraps: when
+   * its words don't fit they give way to the icons one button at a time, by data-give, Insert's last (quiet/ToolsRow.tsx).
    */
   const messageFooter = (m: Entry, idx: number, plain: () => string, shared: () => string): VNode => {
     const mark = m.role === "assistant" && !m.note ? answerMark(m.content) : null
@@ -1910,7 +1908,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             // The panel slides away first: the field gets the caret back once it's visible again.
             setTimeout(() => insertFromPanel(text, m.note ? "note" : "answer"), layout === "sheet" ? 240 : 0)
           }}>
-            <QIcon.Insert size={15} /> <span class="cf-tk">{t("qiInsertIntoField")}</span>
+            <QIcon.Insert size={15} /> <span class="cf-tl" data-give="6">{t("qiInsertIntoField")}</span>
           </button>
         )}
         <button type="button" aria-label={t("copy")} title={t("copy")} onClick={async () => {
@@ -1923,7 +1921,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             void keepCopied(text, "", "contextflow")
           }
         }}>
-          {copied === idx ? <Icon.Check /> : <Icon.Copy />} <span class="cf-tk">{copied === idx ? t("copied") : t("copy")}</span>
+          {copied === idx ? <Icon.Check /> : <Icon.Copy />} <span class="cf-tl" data-give="5">{copied === idx ? t("copied") : t("copy")}</span>
         </button>
         {typeof navigator.share === "function" && (
           <button type="button" onClick={() => {
@@ -1932,7 +1930,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             if (stars) void sendBackground({ type: "uxEvent", kind: "ux_mark", action: "shared" })
             void shareText(stars ? starMarks(shared(), m.marks) : shared())
           }} aria-label={t("share")} title={t("share")}>
-            <Icon.Share /> <span class="cf-tl">{t("share")}</span>
+            <Icon.Share /> <span class="cf-tl" data-give="3">{t("share")}</span>
           </button>
         )}
         {TARGET === "safari" && !m.note && m.role === "assistant" && (
@@ -1959,19 +1957,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             const page = lastPage(messages.slice(0, idx + 1))
             void listen.start(listenKey(`a:${idx}`), { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: page?.title || page?.url || source.title(), url: source.href() })
           }} aria-label={mark ? `${t("listen")} · ${markWords(mark)}` : t("listen")} title={mark ? markWords(mark) : t("listen")}>
-            <SpeakerIcon /> <span class="cf-tl">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
+            <SpeakerIcon /> <span class="cf-tl" data-give="4">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
             {mark && <span class={`cf-voiced ${mark === "free" ? "" : "made"}`}><VoicedIcon /></span>}
           </button>
         )}
         {!compact && (
           <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
-            <Icon.Tag /> <span class="cf-tl">{t("tagsButton")}</span>
+            <Icon.Tag /> <span class="cf-tl" data-give="2">{t("tagsButton")}</span>
           </button>
         )}
         {/* 2.7 «Подборки»: in the row where there's room for it, in «…» on the compact chat. */}
         {!compact && !historyMode && (
           <button type="button" class="cf-collect-link" onClick={() => setCollecting(idx)} aria-label={t("colAdd")} title={t("colAdd")}>
-            <Icon.ToCollection /> <span class="cf-tl">{t("colAdd")}</span>
+            <Icon.ToCollection /> <span class="cf-tl" data-give="1">{t("colAdd")}</span>
           </button>
         )}
         {/* What the compact row doesn't show is in «…»; with a finger the «…» has it on the roomy chat too. */}

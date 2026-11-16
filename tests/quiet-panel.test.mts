@@ -72,10 +72,14 @@ test("3. under a message: one row; compact shows Copy, Share, Listen and «…»
   assert.doesNotMatch(footer, /<\/ToolsRow>\s*\{[^}]*\}\s*\{!historyMode && \(\s*<button type="button" class="cf-collect-link"/)
   // The row never wraps; its words give way in two steps, measured with the Mac's hover buttons counted in.
   assert.match(css, /\.cf-msg-tools \{ flex-wrap: nowrap !important; min-width: 0; \}/)
-  assert.match(css, /\.cf-msg-tools\[data-tight="1"\] \.cf-tl, \.cf-msg-tools\[data-tight="2"\] \.cf-tl, \.cf-msg-tools\[data-tight="2"\] \.cf-tk \{ display: none; \}/)
+  assert.match(css, /\.cf-msg-tools \[data-off\] \{ display: none; \}/)
+  // The order the words go in: To collection, Tag, Share, Listen, Copy; Insert into field keeps its words longest.
+  const give = (icon: string) => Number(new RegExp(`${icon}[^\\n]*<span class="cf-tl" data-give="(\\d)">`).exec(footer)?.[1])
+  assert.deepEqual(["<Icon.ToCollection />", "<Icon.Tag />", "<Icon.Share />", "<SpeakerIcon />", "<Icon.Copy />", "<QIcon.Insert size=\\{15\\} />"].map(give), [1, 2, 3, 4, 5, 6])
   assert.doesNotMatch(read("../src/content/insert/insert.css"), /\.cf-msg-tools\.has-insert \{[^}]*flex-wrap: wrap/)
   const row = read("../src/content/quiet/ToolsRow.tsx")
-  assert.match(row, /while \(level < 2 && needed\(el\) > el\.clientWidth \+ 1\) el\.dataset\.tight = String\(\+\+level\)/)
+  assert.match(row, /while \(step < last && needed\(el\) > el\.clientWidth \+ 1\) setStep\(el, labels, \+\+step\)/)
+  assert.match(row, /label\.toggleAttribute\("data-off", Number\(label\.dataset\.give\) < step\)/)
   // Every button keeps its name without its words.
   for (const name of ["qiInsertIntoField", "copy", "share", "tagsButton", "colAdd"]) assert.match(footer, new RegExp(`aria-label=\\{t\\("${name}"\\)\\}`), name)
 })
@@ -149,6 +153,14 @@ test("6. the answers left stay in sight on Free and when few are left", () => {
   assert.equal(badge({ used: 0, limit: 0 }, "pro", false), null)
   // In the field's row, opening «+» where it stands in full.
   assert.match(app, /<button type="button" class=\{`cf-left \$\{leftNow\.low \? "low" : ""\}`\} aria-label=\{usageLine\.full\} title=\{usageLine\.full\} onClick=\{\(\) => setPlusOpen\(true\)\}>\{leftNow\.left\}<\/button>/)
+})
+
+test("right to left: «+» and Google start inside the field's edge", () => {
+  assert.match(css, /:host\(\[dir="rtl"\]\) \.cf-input \{ padding: 5px 13px 5px 5px; \}/)
+  assert.match(css, /:host\(\[dir="rtl"\]\) \.cf-plus-switch input:checked \+ \.cf-switch::after \{ transform: translateX\(-10px\); \}/)
+  // Nothing in the quiet chat's own rules is tied to a side: its offsets are logical (inline-start, margin-inline).
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/:host\(\[dir="rtl"\]\)[^}]*\}/g, "")
+  assert.doesNotMatch(rules, /margin-(left|right)|padding-(left|right)|[^-](left|right): /)
 })
 
 test("8. the header's menu and the chats' menu are as they were", () => {

@@ -152,15 +152,10 @@
 .cf-msg-tools button { white-space: nowrap; }
 .cf-msg-tools .cf-insert { color: var(--accent-text); font-weight: 600; }
 .cf-msg-tools .cf-insert svg { color: var(--accent); }
-/* Narrow by the panel's width, not the device: with the insert button first, Share and Tag keep their icons
-   and the buttons sit closer, so Insert · Copy · Share · Tag · … stay on one line at 375 pt in every language. */
+/* The panel is a container (its own width, not the device's, is what its rows go by). 2.7 (after 107): the row under
+   a message is fitted by quiet/ToolsRow.tsx in every language; with the insert button first, the other buttons' words
+   give way before its own. */
 .cf-panel { container-type: inline-size; }
-@container (max-width: 460px) {
-  .cf-msg-tools.has-insert .cf-tl { display: none; }
-  /* 2.7 (after 107): the row never wraps; quiet/ToolsRow.tsx takes more words away when it still doesn't fit. */
-  .cf-msg-tools.has-insert { gap: 2px; }
-  .cf-msg-tools.has-insert button { padding: 4px 6px; }
-}
 
 /* ------------------------------------------- "Template" by a selection */
 .cf-bubble button.cf-sel-template { color: var(--accent-text); }
