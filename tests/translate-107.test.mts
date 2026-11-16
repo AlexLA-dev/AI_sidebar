@@ -269,6 +269,16 @@ test("A5: what isn't shown isn't weighed; a page marked aria-hidden behind its c
   assert.deepEqual(lib.judgeShares(y.main, y.page, "ru", "ru"), { from: null, part: null })
   // And never sent to be translated.
   assert.ok(!lib.collectBlocks(ym.body).some((b: any) => b.text.includes("widgets")))
+  // A wrapper with display: contents has no box (the browser's check says "not shown"), and its words show.
+  const wrapped = page(`<main><div id="w" class="contents">${words(AR, 8)}</div><div id="gone">${words(RU, 8)}</div></main>`, "ar")
+  const w = wrapped.document.getElementById("w")!
+  const gone = wrapped.document.getElementById("gone")!
+  ;(w as any).checkVisibility = () => false
+  ;(gone as any).checkVisibility = () => false
+  for (const p of Array.from(wrapped.document.querySelectorAll("p,main,body"))) (p as any).checkVisibility = () => true
+  ;(wrapped.document.defaultView as any).getComputedStyle = (el: Element) => ({ display: el === w ? "contents" : "none" })
+  const c = lib.pageShares(wrapped.document)
+  assert.deepEqual([...c.main.langs.keys()], ["ar"], "the wrapper's words count; the one that's really hidden doesn't")
 })
 
 const words = (text: string, n: number) => Array.from({ length: n }, () => `<p>${text}</p>`).join("")

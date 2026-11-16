@@ -68,7 +68,12 @@ export function mainContent(doc: Document): Element {
 /** Shown on the page: not display:none or visibility:hidden anywhere up the tree, and with some size. */
 function visible(el: Element): boolean {
   const check = (el as Element & { checkVisibility?: (o?: object) => boolean }).checkVisibility
-  if (typeof check === "function") return check.call(el, { visibilityProperty: true })
+  if (typeof check === "function") {
+    if (check.call(el, { visibilityProperty: true })) return true
+    // display: contents has no box of its own (so the check says no), and what's inside it shows (Al Jazeera's whole
+    // page sits in one such wrapper).
+    return el.ownerDocument.defaultView?.getComputedStyle?.(el)?.display === "contents"
+  }
   const rects = (el as HTMLElement).getClientRects
   // Older Safari: no boxes means not shown. A DOM without layout (tests): taken as shown.
   return typeof rects === "function" ? rects.call(el).length > 0 : true
