@@ -113,12 +113,36 @@ export function cornerSpot(field: Rect, view: Box, free: Probe, text: Array<{ le
  * it, then along its top edge and its bottom edge), and only then inside a multi-line field's corner (`inside`,
  * null for a one-line input). The text is measured only when it comes to that.
  */
-export function buttonPlace(field: Rect, view: Box, outside: Probe, inside: { free: Probe; text: () => Array<{ left: number; top: number; right: number; bottom: number }> } | null): { top: number; left: number; inside: boolean } | null {
+export function buttonPlace(field: Rect, view: Box, outside: Probe, inside: { free: Probe; text: () => Array<{ left: number; top: number; right: number; bottom: number }> } | null, farther = false): { top: number; left: number; inside: boolean } | null {
   const out = buttonSpot(field, view, outside)
   if (out) return { ...out, inside: false }
-  if (!inside) return null
-  const corner = cornerSpot(field, view, inside.free, inside.text())
-  return corner ? { ...corner, inside: true } : null
+  const corner = inside ? cornerSpot(field, view, inside.free, inside.text()) : null
+  if (corner) return { ...corner, inside: true }
+  const far = farther ? farSpot(field, view, outside) : null
+  return far ? { ...far, inside: false } : null
+}
+
+/**
+ * While the field has underlined mistakes the button carries their count and is the way to their list (2.7 (107)):
+ * with no room right by the field and none inside it (a chat's box full of text, quick replies above, Send beside,
+ * the browser's bar below) it may stand a little further out, up to three buttons above or below. Never over the
+ * site's controls or text, as everywhere.
+ */
+export function farSpot(field: Rect, view: Box, free: Probe): { top: number; left: number } | null {
+  if (field.bottom <= 0 || field.top >= view.height) return null
+  const right = Math.min(field.right, view.width - GAP)
+  const lefts: number[] = []
+  for (let left = right - BUTTON; left >= Math.max(LEFT_EDGE, field.left); left -= BUTTON) lefts.push(left)
+  for (let k = 1; k <= 3; k++) {
+    for (const top of [field.top - GAP - BUTTON - k * (BUTTON + GAP), field.bottom + GAP + k * (BUTTON + GAP)]) {
+      for (const left of lefts) {
+        if (top < GAP || top + BUTTON > view.height - GAP || left + BUTTON > view.width - GAP) continue
+        const points = [[left + BUTTON / 2, top + BUTTON / 2], [left + 2, top + 2], [left + BUTTON - 2, top + 2], [left + 2, top + BUTTON - 2], [left + BUTTON - 2, top + BUTTON - 2]]
+        if (points.every(([x, y]) => free(x, y))) return { top, left }
+      }
+    }
+  }
+  return null
 }
 
 // A control anywhere up the tree (the icon inside a button); the rest only when it's the element itself (a

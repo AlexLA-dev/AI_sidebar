@@ -558,7 +558,7 @@ export function QuickInsert(props: Props): VNode | null {
     const inside = multiLineField(field.el)
       ? { free: clear(fieldPointFree(field.el, host)), text: () => fieldText(updateCaret(field)).map((b) => ({ left: b.left + dx, right: b.right + dx, top: b.top + dy, bottom: b.bottom + dy })) }
       : null
-    const spot = r.width >= 120 ? buttonPlace(r, vp, clear(pagePointFree(host)), inside) : null
+    const spot = r.width >= 120 ? buttonPlace(r, vp, clear(pagePointFree(host)), inside, fixCount > 0) : null
     if (spot) buttonPos = { top: spot.top + vp.dy, left: spot.left + vp.dx }
   }
 
