@@ -96,14 +96,19 @@ export async function fixIssue(el: Field["el"], issue: Issue): Promise<Undo | nu
   const mem = remember(el)
   const before = readText(el).text
   if (before.slice(issue.from, issue.to) !== issue.para.slice(issue.rel.from, issue.rel.to)) return null
+  // The paragraph's other underlines stay, moved by what this one changed; its new text isn't checked again for it.
+  // The old text keeps its underlines too: an Undo brings them back at once. Known before the edit: a render while it
+  // goes in (the field's input event) would otherwise find the new text unchecked, with no underlines, and the list
+  // of fixes would close after its first fix.
+  const next = afterFix(issue.para, mem.checked.get(issue.para) ?? [], issue.rel)
+  const known = mem.checked.has(next.para)
+  if (!known) mem.checked.set(next.para, next.edits)
   const result = await keepingFocus(el, () => makeEdits(el, [{ from: issue.from, to: issue.to, text: issue.text }]))
   if (!result.back.length) {
+    if (!known) mem.checked.delete(next.para)
     writeStep("live_failed", "underline")
     return null
   }
-  // The paragraph's other underlines stay, moved by what this one changed; its new text isn't checked again for it.
-  // The old text keeps its underlines too: an Undo brings them back at once.
-  const next = afterFix(issue.para, mem.checked.get(issue.para) ?? [], issue.rel)
   mem.checked.set(next.para, next.edits)
   writeStep("live_fixed", "underline")
   changed()
