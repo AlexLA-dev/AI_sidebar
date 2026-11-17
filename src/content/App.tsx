@@ -104,7 +104,7 @@ import { ConsentCard } from "./Consent"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
-import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
+import { insertFromPanel, setSelectionShown, useButtonShown, useFieldLayer, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill } from "./translate/TranslatePill"
 import { useFabDrag, usePanelDrag } from "./side/drag"
@@ -2306,6 +2306,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const fabEnabled = settings.fab !== "off"
   // The ✦ steps aside while quick insert's button sits by the field being typed in.
   const insertButtonShown = useButtonShown()
+  // The list of fixes or a check's result is open by a field: the selection's buttons stay away (2.7 (107): they lay
+  // over the fix card in the owner's Gmail), and nothing of the underlines opens while they show.
+  const fieldLayer = useFieldLayer()
+  const selectionOnPage = Boolean(bubble?.rect && !open && !popup && !fieldLayer)
+  useEffect(() => setSelectionShown(selectionOnPage), [selectionOnPage])
+  useEffect(() => () => setSelectionShown(false), [])
   const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site()) && !insertButtonShown
   // Long answers run by the background (similar-26's jobs, src/shared/jobs.ts): a spinner on their chat's row and
   // "Working on it…" in it, a dot on the row and on the round button once one finished unseen. The background marks
@@ -3699,7 +3705,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {later && !open && laterSheet(true)}
       {guide === "pick" && !open && !bubble?.rect && <GuidePill touch={touch} onSkip={() => endGuide("skip")} />}
 
-      {bubble?.rect && !open && !popup && (
+      {bubble?.rect && !open && !popup && !fieldLayer && (
         <SelectionBubble rect={bubble.rect} touch={touch} guide={guide === "ask"} onPlace={onBubblePlace}>
           {noteSaved ? (
             <div class={`cf-bubble-saved ${savedShot ?? ""}`} role="status">
