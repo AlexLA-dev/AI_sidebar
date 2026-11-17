@@ -1013,5 +1013,7 @@
   "colPdfFooter": "Erstellt mit ContextFlow",
   "colPdfSave": "Als PDF sichern",
   "colPick": "Sammlung: {0}. Wechseln",
-  "colCardMenu": "Kartenaktionen"
+  "colCardMenu": "Kartenaktionen",
+  "matchContinueIn": "Weiter in „{0}“",
+  "matchBackTo": "Zurück zu „{0}“"
 }

@@ -2957,6 +2957,12 @@
  "colCardMenu": {
   "message": "卡片操作"
  },
+ "matchContinueIn": {
+  "message": "在「{0}」中繼續："
+ },
+ "matchBackTo": {
+  "message": "回到「{0}」"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },
