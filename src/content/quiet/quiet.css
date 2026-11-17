@@ -17,11 +17,11 @@
    reply-draft frame): the chips and the field are together, the free room is over the title. With the page's own
    keyboard up iOS shows only the sheet's lower part, and that is where they are (before, the chips stood at the
    screen's top with the chat's free room between them and the field). */
-.cf[data-layout="sheet"] .cf-messages:has(> .cf-empty) { display: flex; flex-direction: column; }
-.cf[data-layout="sheet"] .cf-messages > .cf-empty { margin-top: auto; }
-/* While the first-run guide or the tour has a card up, the empty chat stays under the header: the card stands under
-   the chip it points at, over nothing (down by the field it would lie on the title). */
-.cf[data-layout="sheet"]:has(.cf-tour) .cf-messages > .cf-empty { margin-top: 0; }
+/* While the first-run guide or the tour has a card up, the list has no `is-empty` (App.tsx) and the empty chat stays
+   under the header: the card stands under the chip it points at, over nothing (down by the field it would lie on the
+   title). A class rather than :has(): Safari on iOS didn't apply the :has() form of this rule. */
+.cf[data-layout="sheet"] .cf-messages.is-empty { display: flex; flex-direction: column; }
+.cf[data-layout="sheet"] .cf-messages.is-empty > .cf-empty { margin-top: auto; }
 .cf-empty .cf-actions:not(.wrap) { margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:first-child { margin-inline-start: auto; }
 .cf-empty .cf-actions:not(.wrap) > .cf-chip:last-child { margin-inline-end: auto; }

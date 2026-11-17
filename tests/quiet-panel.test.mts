@@ -176,7 +176,8 @@ test("5. the chat's bar stays one line with the other space's label and back but
   const styles = read("../src/content/styles.css")
   const spaces = read("../src/content/spaces.css")
   // The label keeps its width (up to its cap); the name gives way first, down to a few words; then the button.
-  assert.match(styles, /\.cf-chat-bar:has\(\.cf-match-in\) \.cf-chat-bar-name \{ flex: 1 1 0; min-width: min\(4\.5em, 20%\); \}/)
+  assert.match(styles, /\.cf-chat-bar-name \{ flex: 1 1 0; min-width: min\(4\.5em, 20%\);[^}]*white-space: nowrap;/)
+  assert.doesNotMatch(styles, /\.cf-chat-bar:has/)
   assert.match(styles, /\.cf-chat-bar \.cf-match-in \{ flex: 0 0 auto; \}/)
   assert.match(styles, /\.cf-chat-bar \.cf-match-back \{ flex: 0 1 auto; min-width: 4\.5em; \}/)
   // Each of them ends in "…" rather than wrapping.
@@ -189,11 +190,15 @@ test("5. the chat's bar stays one line with the other space's label and back but
 
 test("the empty chat in a phone's sheet sits by the field: chips and field together, also over the page's keyboard", () => {
   const css = read("../src/content/quiet/quiet.css")
-  assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-messages:has\(> \.cf-empty\) \{ display: flex; flex-direction: column; \}/)
-  assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-messages > \.cf-empty \{ margin-top: auto; \}/)
-  // With the guide's or the tour's card up it stays under the header, so the card lies on nothing.
-  assert.match(css, /\.cf\[data-layout="sheet"\]:has\(\.cf-tour\) \.cf-messages > \.cf-empty \{ margin-top: 0; \}/)
-  assert.match(read("../src/content/Guide.tsx") + read("../src/content/Tour.tsx"), /class=\{?[`"]cf-tour\b/)
+  assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-messages\.is-empty \{ display: flex; flex-direction: column; \}/)
+  assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-messages\.is-empty > \.cf-empty \{ margin-top: auto; \}/)
+  // A class set by the panel, not :has() (Safari on iOS left that form unapplied).
+  assert.doesNotMatch(css, /\.cf-messages:has\(> \.cf-empty\)/)
+  // With the guide's or the tour's card up the list isn't marked, so the chat stays under the header and the card lies
+  // on nothing.
+  assert.match(app, /class=\{`cf-messages\$\{messages\.length === 0 && partial === null && !touring && !\(guide !== null && guideIdle && !ON_PAGE\.includes\(guide\)\) \? " is-empty" : ""\}`\}/)
+  assert.match(app, /\{touring && view === "chat" && panelRef\.current && \(/)
+  assert.match(app, /\{guide && guideIdle && !ON_PAGE\.includes\(guide\) && view ===/)
   // The side panel (iPad, Mac) keeps the empty chat under the header.
   assert.doesNotMatch(css, /data-layout="side"\] \.cf-messages > \.cf-empty/)
 })

@@ -4180,7 +4180,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             />
           ) : (
             <>
-              <div class="cf-messages" ref={listRef} onClick={ux.onListClick}>
+              {/* The empty chat in a phone's sheet sits by the field (quiet.css), unless the guide or the tour has a card up
+                  (the card then lies on nothing). A class, not :has(): Safari on iOS left the :has() rule unapplied. */}
+              <div class={`cf-messages${messages.length === 0 && partial === null && !touring && !(guide !== null && guideIdle && !ON_PAGE.includes(guide)) ? " is-empty" : ""}`} ref={listRef} onClick={ux.onListClick}>
                 {/* 2.6 (100): the bars in one place of their own, kept by its key. When the suggestions bar came, the list's
                     first child turned from the pinned bar into this box, and Preact took every message out and put it
                     back in: the chat jumped to its start (the owner on build 100). */}

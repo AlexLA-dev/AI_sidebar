@@ -310,11 +310,11 @@
 /* 2.6 (94): the chat's name under the header, the whole width. 2.7 (after 107), the owner: one line, ending in "…"
    (it could take two); its full name is its tooltip. */
 .cf-chat-bar { flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 3px 4px 4px; padding-inline-end: 14px; border-bottom: 1px solid var(--border); }
-.cf-chat-bar-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-chat-bar-name { flex: 1 1 0; min-width: min(4.5em, 20%); font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* 107 (spaces): «● Continuing in “…”» before the name and «‹ <space>» after it. Still one line: the label keeps its
    width up to its cap (its space's name ends in "…" there); the chat's name gives way first, down to a few words;
-   then the button's space name ends in "…", the button never narrower than its arrow and a word. */
-.cf-chat-bar:has(.cf-match-in) .cf-chat-bar-name { flex: 1 1 0; min-width: min(4.5em, 20%); }
+   then the button's space name ends in "…", the button never narrower than its arrow and a word. (The name's
+   own rule above keeps its few words; no :has(), which Safari on iOS left unapplied elsewhere.) */
 .cf-chat-bar .cf-match-in { flex: 0 0 auto; }
 .cf-chat-bar .cf-match-back { flex: 0 1 auto; min-width: 4.5em; }
 /* Back to the chats list (2.6 (98)): the header's back, a size smaller. */
