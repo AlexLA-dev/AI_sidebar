@@ -69,6 +69,14 @@ test("where the list of fixes goes by touch", () => {
   assert.equal(fixesMaxHeight(400), 192)
   assert.equal(fixesMaxHeight(1000), 320)
   assert.equal(fixesMaxHeight(240), 150)
+  // An iPhone with the keyboard up after a fix: head 45 + a phone row of three lines over its buttons 130 + the foot 40
+  // need more than half of 400; they get it, so the next row's Fix and Ignore stay above the foot.
+  assert.equal(fixesMaxHeight(400, 215), 215)
+  assert.equal(fixesMaxHeight(400, 120), 192)
+  // Never past what's visible, even when a row is taller than that.
+  assert.equal(fixesMaxHeight(240, 300), 224)
+  // An iPad mini's list (about 700 visible) keeps its 320 when its parts fit in that.
+  assert.equal(fixesMaxHeight(700, 190), 320)
 })
 
 test("the deadline: a few seconds for a short text, more for a long one; the server's is shorter than the device's", () => {

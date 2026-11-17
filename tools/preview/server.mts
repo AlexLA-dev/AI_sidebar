@@ -281,7 +281,9 @@ const TYPOS: Record<string, string> = {
   dashbord: "dashboard", aply: "apply",
   // Arabic (2.7 (107)): two misspellings as common as "teh".
   "لاكن": "لكن", "ذالك": "ذلك",
-  "сдесь": "здесь", "извените": "извините", "прийду": "приду", "вобщем": "в общем", "расчитываю": "рассчитываю", "впринципе": "в принципе"
+  "сдесь": "здесь", "извените": "извините", "прийду": "приду", "вобщем": "в общем", "расчитываю": "рассчитываю", "впринципе": "в принципе",
+  // German (2.7 (107)): the list of fixes with its longer labels.
+  "vieleicht": "vielleicht", "nähmlich": "nämlich", "seperat": "separat", "wiederrum": "wiederum"
 }
 // Japanese, Chinese and Thai (2.7 audit): fixed as phrases, these scripts having no spaces to find a word by.
 const PHRASE_FIXES: Array<[string, string]> = [["こんにちわ", "こんにちは"], ["学校に行きました", "学校へ行きました"], ["图书管", "图书馆"], ["เมือวาน", "เมื่อวาน"]]

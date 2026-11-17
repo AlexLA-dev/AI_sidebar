@@ -53,7 +53,11 @@ export function placeFixes(el: HTMLElement, field: Field | null): void {
   const vp = viewport(true)
   const w = Math.min(vp.width - 16, 460)
   el.style.width = `${w}px`
-  el.style.maxHeight = `${fixesMaxHeight(vp.height)}px`
+  // The head, the first row (the next fix, whatever its text's length and its buttons' language) and the foot all in
+  // sight: none of them shrinks but the body, so their heights hold whatever the cap is.
+  const tall = (sel: string) => (el.querySelector(sel) as HTMLElement | null)?.offsetHeight ?? 0
+  const borders = el.offsetHeight - el.clientHeight
+  el.style.maxHeight = `${fixesMaxHeight(vp.height, tall(".cf-fx-head") + tall(".cf-fx-row") + tall(".cf-fx-foot") + borders)}px`
   const r = field && field.el.isConnected ? pageRect(field.el) : null
   const spot = fixesSpot(r, vp.height, el.offsetHeight)
   const middle = r ? (r.left + r.right) / 2 : vp.width / 2

@@ -354,7 +354,11 @@ export function fixesSpot(field: { top: number; bottom: number } | null, height:
   return { top: bottom, at: "bottom" }
 }
 
-/** How tall the list of fixes may be by touch: about half of what's visible, a row and its head at least. */
-export function fixesMaxHeight(height: number): number {
-  return Math.round(Math.max(150, Math.min(320, height * 0.48)))
+/**
+ * How tall the list of fixes may be by touch: about half of what's visible, and never less than `need`, the list's head,
+ * its first row and its foot together (a phone with the keyboard up: after a fix the «Fixed · Undo» foot took its height
+ * out of the body, and the next row's Fix and Ignore went under it). What's visible is the limit for both.
+ */
+export function fixesMaxHeight(height: number, need = 0): number {
+  return Math.round(Math.min(Math.max(150, Math.min(320, height * 0.48), need), height - 16))
 }
