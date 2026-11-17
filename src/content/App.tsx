@@ -90,6 +90,7 @@ import { RemindersSheet } from "./ux/RemindersSheet"
 import { TipsSheet, tipsLabel } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
+import { selectionByOneTap, trackPresses } from "./tapSelect"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads, withStoredEdits } from "../shared/jobs"
 import { linkChats, remindsAhead, watchesOn } from "../shared/chatMarks"
@@ -918,6 +919,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const selectedRange = (): Range | null => shadowSelection(HOST_TAG) ?? pageRange(HOST_TAG)
   // Where the pointer goes down, inside the sites' open shadow roots too: a selection there is read in that root.
   useEffect(() => trackPointer(), [])
+  // The finger's presses: a selection one tap made in a field (iPadOS's word it marks) gets no buttons (tapSelect.ts).
+  // A press made on purpose (a double tap, a long press) on the word one tap selected: its buttons after all.
+  const purposefulRef = useRef(() => {})
+  useEffect(() => trackPresses(() => purposefulRef.current()), [])
+  const byTapRef = useRef(false)
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
     let scrollTimer: ReturnType<typeof setTimeout> | undefined
@@ -925,6 +931,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // mouseup after a long-press) it appears once the selection stops changing, even for one word.
     const offerButton = () => {
       if (!settingsRef.current.selectionButton || open) return
+      if (touch && byTapRef.current) {
+        setBubble(null)
+        return
+      }
       const sel = readSelection()
       const vv = window.visualViewport
       const top = vv?.offsetTop ?? 0
@@ -936,6 +946,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const onSelectionChange = () => {
       // Remember it right away: tapping our button on iPhone clears the selection.
       trackSelection()
+      // Its moment decides: right after one short tap in a field it's the tap's (iPadOS), later it's made on purpose.
+      byTapRef.current = touch && selectionByOneTap()
       clearTimeout(timer)
       timer = setTimeout(() => {
         if (bubbleHeld()) return
@@ -944,6 +956,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         if (!sel) setBubble(null)
         else if (touch) offerButton()
       }, touch ? 350 : 250)
+    }
+    purposefulRef.current = () => {
+      if (!touch || !byTapRef.current) return
+      byTapRef.current = false
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        if (!bubbleHeld() && readSelection()) offerButton()
+      }, 350)
     }
     const onMouseUp = (e: MouseEvent) => {
       if (touch) return
