@@ -160,6 +160,8 @@ test("3. under a message: one row; compact shows Copy, Share, Listen and «…»
   // CollectLink in the row keeps its names when its words give way: «To collection», or «In “<collection>”».
   assert.match(link, /onClick=\{onSheet\} aria-label=\{t\("colAdd"\)\}/)
   assert.match(link, /aria-label=\{row \? t\("colIn", first\.rec\.n\) : undefined\}/)
+  // With the name given way to the ✓, the menu says where the answer is, over its items.
+  assert.match(link, /: row && <div class="cf-collect-menu-name" dir="auto">\{t\("colIn", rec\.n\)\}<\/div>\}/)
 })
 
 test("4. no row with the page's title over the field; a selection, Ask your chats and an unreadable page keep theirs", () => {

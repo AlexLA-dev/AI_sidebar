@@ -311,7 +311,10 @@ export function CollectLink({ chat, msg, shown, onSheet, onOpen, report, row }: 
         <div class="cf-col-menu cf-collect-menu" role="menu">
           {places.map(({ rec, card, section }) => (
             <Fragment key={rec.id}>
-              {places.length > 1 && <div class="cf-collect-menu-name" dir="auto">{rec.n}</div>}
+              {/* In the row under a message on an iPhone the name gives way to the ✓ (quiet/ToolsRow.tsx): its menu then
+                  says where the answer is, «In “<collection>”», over its items. */}
+              {places.length > 1 ? <div class="cf-collect-menu-name" dir="auto">{rec.n}</div>
+                : row && <div class="cf-collect-menu-name" dir="auto">{t("colIn", rec.n)}</div>}
               <button type="button" role="menuitem" onClick={() => { setMenu(false); onOpen(rec.id) }}>{t("colOpen")}</button>
               {liveSections(rec).filter((s) => s.id !== section?.id).map((s) => (
                 <button key={s.id} type="button" role="menuitem" dir="auto" onClick={() => {
