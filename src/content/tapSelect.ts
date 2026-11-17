@@ -35,6 +35,11 @@ export function pressDown(prev: Press | null, at: number, x: number, y: number, 
   return { downAt: at, x, y, upAt: null, moved: false, count: again ? prev.count + 1 : 1, inField }
 }
 
+/** A dblclick on the press: it was the first of a double tap. */
+export function secondTap(p: Press): Press {
+  return { ...p, count: Math.max(2, p.count + 1) }
+}
+
 /** Whether a selection showing up at `now` was made by one short tap in a field (`press` the latest finger down). */
 export function byOneTap(press: Press | null, now: number): boolean {
   if (!press || !press.inField || press.moved || press.count !== 1) return false
@@ -55,8 +60,20 @@ function fieldOnPath(path: EventTarget[]): boolean {
 
 let press: Press | null = null
 
-/** Follows the finger's presses on the page (touch and pen only; a pointer's selections are left as they are). */
-export function trackPresses(doc: Document = document): () => void {
+/**
+ * Whether a press that just ended (`now`) was a selecting gesture made on purpose: a double tap, or a long press held
+ * still. A drag isn't one (a scroll); the handles dragged change the selection, and that comes later than a tap's moment.
+ */
+export function onPurpose(p: Press, now: number = p.upAt ?? p.downAt): boolean {
+  return p.count >= 2 || (!p.moved && now - p.downAt > TAP_MS)
+}
+
+/**
+ * Follows the finger's presses on the page (touch and pen only; a pointer's selections are left as they are).
+ * `purposeful`: a press made on purpose has just ended (the word one tap selected may be double-tapped or long-pressed
+ * as it is, and then no selection change comes to say so).
+ */
+export function trackPresses(purposeful: () => void = () => undefined, doc: Document = document): () => void {
   const stops = [
     listenAround(doc, "pointerdown", (e, path) => {
       if (e.pointerType === "mouse") {
@@ -69,10 +86,23 @@ export function trackPresses(doc: Document = document): () => void {
       if (press && press.upAt === null && e.pointerType !== "mouse" && Math.hypot(e.clientX - press.x, e.clientY - press.y) > TAP_SLOP) press.moved = true
     }, doc),
     listenAround(doc, "pointerup", (e) => {
-      if (press && press.upAt === null && e.pointerType !== "mouse") press.upAt = e.timeStamp
+      if (!press || press.upAt !== null || e.pointerType === "mouse") return
+      press.upAt = e.timeStamp
+      if (onPurpose(press)) purposeful()
     }, doc),
-    listenAround(doc, "pointercancel", () => {
-      if (press && press.upAt === null) press.moved = true
+    // iPad Safari sends no pointer events for a double tap's second tap, only dblclick, right before the word is
+    // selected (seen in the simulator: pointerdown, pointerup, click, dblclick, then the selection).
+    listenAround(doc, "dblclick", () => {
+      if (!press) return
+      press = secondTap(press)
+      purposeful()
+    }, doc),
+    listenAround(doc, "pointercancel", (e) => {
+      if (!press || press.upAt !== null) return
+      // The system took the press: a long press selecting (held still), or a scroll (moved first).
+      const held = onPurpose(press, e.timeStamp)
+      press.moved = true
+      if (held) purposeful()
     }, doc)
   ]
   return () => stops.forEach((stop) => stop())

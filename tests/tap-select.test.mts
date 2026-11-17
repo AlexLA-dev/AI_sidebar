@@ -3,7 +3,7 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { AFTER_TAP_MS, byOneTap, pressDown, TAP_MS, type Press } from "../src/content/tapSelect.ts"
+import { AFTER_TAP_MS, byOneTap, onPurpose, pressDown, secondTap, TAP_MS, type Press } from "../src/content/tapSelect.ts"
 
 const tap = (prev: Press | null, at: number, inField = true, x = 100, y = 200, held = 90): Press => {
   const p = pressDown(prev, at, x, y, inField)
@@ -38,6 +38,29 @@ test("a selection made on purpose keeps its buttons", () => {
   const dragged = tap(null, 9000)
   dragged.moved = true
   assert.equal(byOneTap(dragged, 9100), false)
+})
+
+test("a press made on purpose: a double tap, a long press; one short tap or a scroll isn't", () => {
+  assert.equal(onPurpose(tap(null, 1000)), false)
+  const first = tap(null, 1000)
+  assert.equal(onPurpose(tap(first, 1000 + 90 + 200, true, 102, 201)), true)
+  assert.equal(onPurpose(tap(null, 3000, true, 100, 200, TAP_MS + 200)), true)
+  // A long press the system takes (pointercancel) while the finger is still down.
+  assert.equal(onPurpose(pressDown(null, 4000, 10, 10, true), 4000 + 520), true)
+  // A scroll: the finger moved.
+  const scrolled = tap(null, 5000, true, 100, 200, 600)
+  scrolled.moved = true
+  assert.equal(onPurpose(scrolled), false)
+})
+
+test("iPad Safari's double tap: one pointer press, then dblclick, then the word selected", () => {
+  // What the simulator showed: pointerdown 98324, pointerup 98391, click, dblclick 98474, the selection right after.
+  const first = tap(null, 98324, true, 100, 200, 67)
+  assert.equal(byOneTap(first, 98474), true)
+  const both = secondTap(first)
+  assert.equal(both.count, 2)
+  assert.equal(byOneTap(both, 98475), false)
+  assert.equal(onPurpose(both), true)
 })
 
 test("page text and a pointer are untouched", () => {

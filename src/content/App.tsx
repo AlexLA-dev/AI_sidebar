@@ -920,7 +920,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Where the pointer goes down, inside the sites' open shadow roots too: a selection there is read in that root.
   useEffect(() => trackPointer(), [])
   // The finger's presses: a selection one tap made in a field (iPadOS's word it marks) gets no buttons (tapSelect.ts).
-  useEffect(() => trackPresses(), [])
+  // A press made on purpose (a double tap, a long press) on the word one tap selected: its buttons after all.
+  const purposefulRef = useRef(() => {})
+  useEffect(() => trackPresses(() => purposefulRef.current()), [])
   const byTapRef = useRef(false)
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -954,6 +956,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         if (!sel) setBubble(null)
         else if (touch) offerButton()
       }, touch ? 350 : 250)
+    }
+    purposefulRef.current = () => {
+      if (!touch || !byTapRef.current) return
+      byTapRef.current = false
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        if (!bubbleHeld() && readSelection()) offerButton()
+      }, 350)
     }
     const onMouseUp = (e: MouseEvent) => {
       if (touch) return
