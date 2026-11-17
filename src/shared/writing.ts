@@ -19,6 +19,8 @@ export const WRITE_LIMITS = {
   text: 4_000,
   // The page or the conversation around the field.
   page: 6_000,
+  // A reply in the middle of a thread: the messages that came after the one being answered.
+  after: 1_500,
   field: 200,
   about: 600,
   samples: 3,
@@ -61,9 +63,12 @@ export interface WriteStyle {
 export interface WritePage {
   title: string
   url: string
+  // The page; or, for a conversation, its messages up to the reply box: it ends with the message being answered.
   text: string
   // `text` is the conversation around the field (a mail, a chat), not the whole page.
   conversation: boolean
+  // A reply written in the middle of a thread (2.7 (107)): the messages that came after the one being answered.
+  after?: string
 }
 
 export interface WriteAsk {
@@ -75,9 +80,24 @@ export interface WriteAsk {
   style: WriteStyle
   // A paragraph checked for the underlines (Pro and Ultra, not counted).
   live?: true
+  // The request's own name on the device, so Cancel can stop it (never sent to the server).
+  id?: string
 }
 
-export type WriteFailureCode = "LIMIT_REACHED" | "TOO_LONG" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT" | "PRO_ONLY"
+// SLOW: no answer within the request's deadline (writeDeadline); the device stopped waiting. STOPPED: Cancel.
+export type WriteFailureCode = "LIMIT_REACHED" | "TOO_LONG" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT" | "PRO_ONLY" | "SLOW" | "STOPPED"
+
+/**
+ * How long a check or a rewrite may take before the device stops waiting and says so (2.7 (107): the owner's Check
+ * of two words in Gmail showed «Checking…» for a minute and never ended). A few seconds for a short text, more for a
+ * long one (the model writes the whole text back); a live check of one paragraph is short by nature.
+ * The server gives its model a little less (WRITE_SERVER_MARGIN_MS), so its own answer comes first.
+ */
+export function writeDeadline(action: WriteAction, chars: number, live = false): number {
+  if (live) return 8_000
+  return action === "check" ? 8_000 + Math.min(chars, WRITE_LIMITS.text) * 3 : 10_000 + Math.min(chars, WRITE_LIMITS.text) * 5
+}
+export const WRITE_SERVER_MARGIN_MS = 1_500
 
 export type WriteReply =
   // plan: the server's own (2.7), so the card never takes a subscription's week for Free's day.
@@ -97,6 +117,11 @@ export function freeLeft(reply: { plan?: string; usage?: { used: number; limit: 
   return isFree ? Math.max(0, usage.limit - usage.used) : null
 }
 
+/** A conversation clipped to `max` characters keeps its end (the message being answered); a page, its start. */
+export function clipPage(text: string, conversation: boolean, max: number): string {
+  return conversation ? text.slice(-max) : text.slice(0, max)
+}
+
 /** The request as the server takes it: everything clipped to its limits, empty parts left out. */
 export function clipAsk(ask: WriteAsk): WriteAsk {
   const style: WriteStyle = {
@@ -109,7 +134,10 @@ export function clipAsk(ask: WriteAsk): WriteAsk {
     action: ask.action,
     ...(ask.action === "rewrite" && ask.tone ? { tone: ask.tone } : {}),
     text: ask.text,
-    page: { title: ask.page.title.slice(0, 300), url: ask.page.url.slice(0, 2000), text: ask.page.text.slice(0, WRITE_LIMITS.page), conversation: ask.page.conversation },
+    page: {
+      title: ask.page.title.slice(0, 300), url: ask.page.url.slice(0, 2000), text: clipPage(ask.page.text, ask.page.conversation, WRITE_LIMITS.page), conversation: ask.page.conversation,
+      ...(ask.page.conversation && ask.page.after?.trim() ? { after: ask.page.after.trim().slice(0, WRITE_LIMITS.after) } : {})
+    },
     field: ask.field.slice(0, WRITE_LIMITS.field),
     style,
     ...(ask.live ? { live: true as const } : {})
@@ -343,8 +371,10 @@ export const LIVE = {
   // A paragraph checked: from a few words, up to this long (longer ones wait for a tap on Check).
   minChars: 12,
   maxChars: 1_500,
-  // Less of the page goes along than for a tap (quicker, cheaper): the conversation or the page's start.
+  // Less of the page goes along than for a tap (quicker, cheaper): the conversation's end or the page's start.
   pageChars: 2_500,
+  // Of the messages after the one being answered.
+  afterChars: 600,
   // Paragraphs checked after one pause, the one with the caret first.
   perPause: 3
 } as const
@@ -419,4 +449,69 @@ export function afterFix(para: string, edits: Edit[], made: Edit): { para: strin
     edits: edits.filter((e) => e !== made && !(e.from === made.from && e.to === made.to && e.text === made.text))
       .map((e) => (e.from >= made.to ? { from: e.from + delta, to: e.to + delta, text: e.text } : e))
   }
+}
+
+// ------------------------------------------------------------ the list of fixes (2.7 (107))
+
+/** A fix as its row shows it: the words around it, what goes, what comes. `cutBefore`/`cutAfter`: the sentence goes on. */
+export interface Snippet {
+  before: string
+  was: string
+  now: string
+  after: string
+  cutBefore: boolean
+  cutAfter: boolean
+}
+
+// Where a sentence ends: Latin, Cyrillic and Arabic marks followed by a space, the full-width ones of Chinese and
+// Japanese (no space after them), Thai's and Devanagari's.
+const SENTENCE_END = /[.!?…؟۔](?=\s)|[。！？।]/gu
+
+/**
+ * A change with its sentence, for the list of fixes: at most `around` characters each side (a character of Chinese,
+ * Japanese or Thai counts as two), cut at a word where the script has spaces, never inside a pair of surrogates.
+ */
+export function snippetOf(para: string, e: Edit, around = 34): Snippet {
+  let from = 0
+  let to = para.length
+  for (const m of para.matchAll(SENTENCE_END)) {
+    const end = m.index + m[0].length
+    if (end <= e.from) from = end
+    else if (m.index >= e.to) {
+      to = end
+      break
+    }
+  }
+  const lead = para.slice(from, e.from).replace(/^\s+/, "")
+  const tail = para.slice(e.to, to).replace(/\s+$/, "")
+  const fit = (text: string, fromEnd: boolean): { text: string; cut: boolean } => {
+    const chars = Array.from(text)
+    let weight = 0
+    let n = 0
+    for (let i = 0; i < chars.length; i++) {
+      const c = fromEnd ? chars[chars.length - 1 - i] : chars[i]
+      weight += DENSE.test(c) ? 2 : 1
+      if (weight > around) break
+      n++
+    }
+    if (n === chars.length) return { text, cut: false }
+    let kept = fromEnd ? chars.slice(chars.length - n).join("") : chars.slice(0, n).join("")
+    // At a word, where there's a space not too far in.
+    if (fromEnd) {
+      const space = kept.search(/\s/)
+      if (space >= 0 && space < kept.length * 0.5) kept = kept.slice(space + 1)
+    } else {
+      const space = kept.search(/\s\S*$/)
+      if (space > kept.length * 0.5) kept = kept.slice(0, space)
+    }
+    return { text: kept, cut: true }
+  }
+  const a = fit(lead, true)
+  const b = fit(tail, false)
+  return { before: a.text, was: para.slice(e.from, e.to), now: e.text, after: b.text, cutBefore: a.cut, cutAfter: b.cut }
+}
+
+/** A paragraph's checked changes once all of them are made: its new text (nothing left to underline in it). */
+export function afterAll(para: string, edits: Edit[]): string {
+  return applyEdits(para, [...edits].sort((x, y) => x.from - y.from))
 }

@@ -2564,6 +2564,18 @@
  "writeSkip": {
   "message": "Пропустити"
  },
+ "writeFixAll": {
+  "message": "Виправити все"
+ },
+ "writeSlow": {
+  "message": "Надто довго, запит зупинено. Спробуйте ще раз."
+ },
+ "writeUpdated": {
+  "message": "ContextFlow оновився. Перезавантажте сторінку, щоб перевіряти й переписувати текст."
+ },
+ "writeReload": {
+  "message": "Перезавантажити"
+ },
  "underlineSetting": {
   "message": "Підкреслювати помилки під час набору"
  },

@@ -8,7 +8,7 @@ import { askHaiku, InsertAiError, insertCost, type AiCall } from "../shared/inse
 import { blockReason, countersFor, hasPro, proOffer, resolveAccess, visibleUsage, type Access, type Usage } from "../shared/plan.mts"
 import { inviteExtra } from "../shared/invite.mts"
 import { checkWrite, readAsk, tooLong, writeMessage, writeTask } from "../shared/writing.mts"
-import { diffWords, LIVE } from "../../src/shared/writing.ts"
+import { clipPage, diffWords, LIVE } from "../../src/shared/writing.ts"
 import { sessionFields } from "../../src/shared/usage.ts"
 
 /**
@@ -24,7 +24,8 @@ import { sessionFields } from "../../src/shared/usage.ts"
  * live: true (a check of one paragraph after a pause in typing, for the underlines): Pro and Ultra only (PRO_ONLY 402
  * otherwise), not counted as an answer, under hidden caps (BUSY when one runs out: the underlines stop for the day).
  * Errors: {code} with LIMIT_REACHED (402, {usage, offer}), TOO_LONG (413), BAD_REQUEST (400), UNAVAILABLE (400: an old
- * build; 503: off), BUSY (503), UPSTREAM (502).
+ * build; 503: off), BUSY (503), UPSTREAM (502), SLOW (504: no answer within the device's deadline; the answer is given
+ * back, as after any failure).
  */
 export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
@@ -38,7 +39,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (typeof body.text === "string" && (live ? body.text.length > LIVE.maxChars : tooLong(body.text))) return json({ code: "TOO_LONG" }, 413)
   const ask = readAsk(body)
   if (!ask || (live && ask.action !== "check")) return json({ code: "BAD_REQUEST", message: "action, text (and a rewrite's tone) required" }, 400)
-  if (live) ask.page.text = ask.page.text.slice(0, LIVE.pageChars)
+  // Less of the page for a live check; of a conversation, its end (the message being answered), not its start.
+  if (live) {
+    ask.page.text = clipPage(ask.page.text, ask.page.conversation, LIVE.pageChars)
+    if (ask.page.after) ask.page.after = ask.page.after.slice(0, LIVE.afterChars)
+  }
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
@@ -82,7 +87,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   let call: AiCall
   try {
-    call = await askHaiku(writeTask(ask.action, ask.text.length), writeMessage(ask, locale), req.signal)
+    call = await askHaiku(writeTask(ask.action, ask.text.length, live), writeMessage(ask, locale), req.signal)
   } catch (err) {
     const reason = err instanceof InsertAiError ? err.reason : "error"
     console.error(`[cf] write ${ask.action} failed:`, err instanceof Error ? err.message : err)
@@ -91,7 +96,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       logEvent("write", installId, { ...base, ok: false, error: reason, ms: Date.now() - started }),
       logEvent("upstream_error", installId, { message: err instanceof Error ? err.message.slice(0, 300) : "unknown", reason, mode: "write", provider: "anthropic", platform, version })
     ]))
-    return json({ code: reason === "rate_limit" ? "BUSY" : "UPSTREAM" }, reason === "rate_limit" ? 503 : 502)
+    // SLOW (2.7 (107)): the model didn't answer in the time the device waits; the device says so and offers to try again.
+    return json({ code: reason === "rate_limit" ? "BUSY" : reason === "timeout" ? "SLOW" : "UPSTREAM" }, reason === "rate_limit" ? 503 : reason === "timeout" ? 504 : 502)
   }
 
   const text = checkWrite(call.data, ask.text)

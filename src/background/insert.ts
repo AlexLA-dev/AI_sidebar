@@ -5,7 +5,7 @@
 import { API_BASE, TARGET } from "../shared/config"
 import { INSERT_STORAGE, type AiFailure, type FillResult, type FindResult, type InsertEvent, type InsertRequest, type MarkResult } from "../shared/insert"
 import { sortedJson } from "../shared/stored"
-import { clipAsk, type WriteAsk, type WriteFailureCode, type WriteReply } from "../shared/writing"
+import { clipAsk, writeDeadline, type WriteAsk, type WriteFailureCode, type WriteReply } from "../shared/writing"
 import { applyTemplates, pendingTemplates, type Templates } from "../shared/templates"
 import { DEFAULT_SETTINGS, STORAGE, type ErrorCode, type ProOffer, type Settings, type Usage } from "../shared/types"
 import { callNative } from "./native"
@@ -129,10 +129,34 @@ async function find(message: Extract<InsertRequest, { type: "qiFind" }>): Promis
  * «Проверить» и «Переписать» (2.7): the field's text, the page around it and the person's style to /api/v2/write.
  * A tap is one answer: the panel's usage line is asked again after it.
  */
-const WRITE_CODES = new Set<WriteFailureCode>(["LIMIT_REACHED", "TOO_LONG", "BUSY", "UPSTREAM", "UNAVAILABLE", "BAD_REQUEST", "PRO_ONLY"])
+const WRITE_CODES = new Set<WriteFailureCode>(["LIMIT_REACHED", "TOO_LONG", "BUSY", "UPSTREAM", "UNAVAILABLE", "BAD_REQUEST", "PRO_ONLY", "SLOW"])
+// The requests on their way, by the name the page gave each: Cancel stops one (qiWriteStop).
+const writing = new Map<string, AbortController>()
 
+/**
+ * Always answers within the request's deadline (writeDeadline; 2.7 (107): the owner's Check showed «Checking…» for a
+ * minute): the server's answer, or SLOW when the deadline passed first (the request is dropped, so the server gives
+ * the answer back), or STOPPED after Cancel.
+ */
 async function write(ask: WriteAsk): Promise<WriteReply> {
   if (!(await deps.consented())) return { ok: false, code: "CONSENT" }
+  const stop = new AbortController()
+  let slow = false
+  const timer = setTimeout(() => {
+    slow = true
+    stop.abort()
+  }, writeDeadline(ask.action, ask.text.length, ask.live === true))
+  if (ask.id) writing.set(ask.id, stop)
+  const stopped = new Promise<WriteReply>((resolve) => stop.signal.addEventListener("abort", () => resolve({ ok: false, code: slow ? "SLOW" : "STOPPED" })))
+  try {
+    return await Promise.race([send(ask, stop.signal), stopped])
+  } finally {
+    clearTimeout(timer)
+    if (ask.id) writing.delete(ask.id)
+  }
+}
+
+async function send(ask: WriteAsk, signal: AbortSignal): Promise<WriteReply> {
   const [installId, entitlement, client] = await Promise.all([deps.installId(), deps.entitlementJws(), deps.clientInfo()])
   let res: Response
   try {
@@ -140,7 +164,7 @@ async function write(ask: WriteAsk): Promise<WriteReply> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ installId, client, entitlement, ...clipAsk(ask) }),
-      signal: AbortSignal.timeout(30_000)
+      signal
     })
   } catch {
     return { ok: false, code: "NETWORK" }
@@ -194,6 +218,10 @@ export function startInsert(d: InsertDeps): void {
       case "qiWrite":
         write(message.ask).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
         return true
+      case "qiWriteStop":
+        writing.get(message.id)?.abort()
+        sendResponse({ ok: true })
+        return false
       default:
         return false
     }

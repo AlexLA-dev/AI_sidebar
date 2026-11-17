@@ -233,11 +233,12 @@ export const FEATURES: Record<string, Feature> = {
   // site. "menu": the Mac's circle opened its menu; "check" and "rewrite": asked for (what: the rewrite's tone); "shown":
   // changes or a rewrite to look at; "clean": nothing to fix; "applied", "failed" (some didn't go in), "manual" (none
   // did: copied to paste); "undone", "undo_failed"; "changed" (typed on before applying); "too_long", "limit", "plans"
-  // (Pro tapped there), "consent", "error". The server logs each request ("write") and the limit.
+  // (Pro tapped there), "consent", "error"; "slow" (no answer within the deadline), "updated" (a tab left open across an
+  // update: the old page script gets no answers, the page has to be reloaded). The server logs each request ("write") and the limit.
   write: {
     since: "2.7", tracked: "2.7", on: "ext",
     actions: [
-      "menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error",
+      "menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error", "slow", "updated",
       // Live underlines (Pro and Ultra): a fix shown (hover or tap), made, set aside, not taken by the field; the hidden cap reached.
       "live_shown", "live_fixed", "live_ignored", "live_failed", "live_cap"
     ],

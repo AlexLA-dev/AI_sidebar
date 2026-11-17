@@ -2564,6 +2564,18 @@
  "writeSkip": {
   "message": "忽略"
  },
+ "writeFixAll": {
+  "message": "全部修正"
+ },
+ "writeSlow": {
+  "message": "耗时过长，已停止。请重试。"
+ },
+ "writeUpdated": {
+  "message": "ContextFlow 已更新。请重新载入此页面以使用检查和改写。"
+ },
+ "writeReload": {
+  "message": "重新载入"
+ },
  "underlineSetting": {
   "message": "输入时给错误加下划线"
  },

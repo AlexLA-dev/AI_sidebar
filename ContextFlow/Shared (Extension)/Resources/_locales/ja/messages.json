@@ -2564,6 +2564,18 @@
  "writeSkip": {
   "message": "無視"
  },
+ "writeFixAll": {
+  "message": "すべて修正"
+ },
+ "writeSlow": {
+  "message": "時間がかかりすぎたため中止しました。もう一度お試しください。"
+ },
+ "writeUpdated": {
+  "message": "ContextFlowが更新されました。チェックと書き直しを使うには、このページを再読み込みしてください。"
+ },
+ "writeReload": {
+  "message": "再読み込み"
+ },
  "underlineSetting": {
   "message": "入力中の誤りに下線を引く"
  },
