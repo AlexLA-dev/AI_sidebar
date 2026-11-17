@@ -4,6 +4,17 @@
 /* «В подборку»: its own line under the answer's tools, in the accent (the prototype). */
 .cf-collect-link { display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 0; padding: 4px 8px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--accent-text); }
 .cf-collect-link:hover { background: var(--accent-soft); }
+/* 107: once the answer is in a collection, the line says which; its menu opens under it. */
+.cf-collect-in { position: relative; display: inline-flex; max-width: 100%; }
+.cf-collect-link.in { max-width: 100%; color: var(--text-2); }
+.cf-collect-link.in svg { flex: none; color: var(--ok); }
+.cf-collect-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-collect-more { flex: none; font-weight: 500; color: var(--text-3); }
+.cf-col-menu.cf-collect-menu { top: calc(100% + 4px); right: auto; inset-inline-start: 0; width: max-content; max-width: min(300px, calc(100vw - 48px)); max-height: 260px; overflow-y: auto; }
+/* Under a note (at the panel's far side) the menu opens back towards the middle, never past the panel's edge. */
+.cf-msg.user .cf-col-menu.cf-collect-menu { inset-inline-start: auto; inset-inline-end: 0; }
+.cf-collect-menu-name { padding: 6px 10px 2px; font-size: 12px; font-weight: 600; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-col-option-in { display: inline-flex; color: var(--ok); }
 
 /* The header's tabs. */
 .cf-col-tabs { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--bg-2); flex: none; }

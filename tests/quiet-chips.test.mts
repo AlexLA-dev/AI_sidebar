@@ -159,8 +159,8 @@ test("the chips that act on the page run what's already there; each tap is count
   assert.ok(FEATURES.write.via?.includes("panel"))
   const what = FEATURES.quiet.fields?.what as readonly string[]
   for (const id of ["check", "rewrite", "templates", "translate_page", "watch", ...lib.BASE_ORDER]) assert.ok(what.includes(id), id)
-  // Find similar keeps its plan colour (another change owns it): the chip is drawn by the same function as before.
-  assert.match(app, /class=\{`cf-chip ultra\$\{small \? " small" : ""\}`\} data-action=\{a\.id\}/)
+  // Find similar keeps its plan colour (#199 owns it: blue on Pro): the chip is drawn by the same function as before.
+  assert.match(app, /class=\{`cf-chip \$\{similarTone\(plan\)\}\$\{small \? " small" : ""\}`\} data-action=\{a\.id\}/)
 })
 
 test("the new chips' names in all 15 languages", () => {

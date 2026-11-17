@@ -1142,6 +1142,8 @@ struct MessageActions {
     var delete: () -> Void
     /// 2.7: «В подборку» (Collections).
     var collect: (() -> Void)? = nil
+    /// The collection this answer or note is in already (107, the owner: the menu went on saying «To collection»).
+    var collected: String? = nil
 }
 
 /// Where the pinned messages are in the chat's scroll view (their tops), for the bar while scrolling.

@@ -84,3 +84,11 @@ export const DEFAULT_PLAN_FACTS = {
   freeDaily: 5, proWeekly: 375, ultraWeekly: 375, searchProWeekly: 50,
   speakWeeklySeconds: ULTRA_DEFAULTS.speakWeeklySeconds, similarWeekly: ULTRA_DEFAULTS.similarWeekly, similarLightWeekly: SIMILAR_LIGHT_WEEKLY, similarProAnswers: SIMILAR_PRO_ANSWERS, watch: WATCH_LIMITS
 } as const
+
+/**
+ * Find similar's colour (107, the owner: «сиреневый цвет у кнопки Find similar, хотя там уже Pro»): violet is Ultra's,
+ * so only Ultra's full search wears it; Pro's and Own key's light search, and the offer of Pro to Free, are blue.
+ */
+export function similarTone(plan: Plan | null | undefined): "ultra" | "pro" {
+  return isUltra(plan) ? "ultra" : "pro"
+}

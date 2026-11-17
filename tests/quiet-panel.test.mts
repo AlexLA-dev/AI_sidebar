@@ -117,7 +117,7 @@ test("3. under a message: one row; compact shows Copy, Share, Listen and «…»
   const footer = app.slice(app.indexOf("const messageFooter = "), app.indexOf("{markSaid === idx && mark"))
   assert.match(footer, /<ToolsRow cls=\{`cf-msg-tools \$\{hasField \? "has-insert" : ""\}`\}/)
   // The order in the row: Insert (when the page has a field), Copy, Share, Listen, then what only the roomy chat shows.
-  const order = ["class=\"cf-insert\"", "<Icon.Copy />", "<Icon.Share />", "cf-listen-btn", "{!compact && (", "<Icon.Tag />", "{!compact && !historyMode && (", "<Icon.ToCollection />", "ux.moreButton(m, idx"]
+  const order = ["class=\"cf-insert\"", "<Icon.Copy />", "<Icon.Share />", "cf-listen-btn", "{!compact && (", "<Icon.Tag />", "{!historyMode && (!compact || collected) && (", "<CollectLink", "ux.moreButton(m, idx"]
   let at = -1
   for (const part of order) {
     const next = footer.indexOf(part, at + 1)
@@ -146,13 +146,20 @@ test("3. under a message: one row; compact shows Copy, Share, Listen and «…»
   assert.match(css, /\.cf-msg-tools \[data-off\] \{ display: none; \}/)
   // The order the words go in: To collection, Tag, Share, Listen, Copy; Insert into field keeps its words longest.
   const give = (icon: string) => Number(new RegExp(`${icon}[^\\n]*<span class="cf-tl" data-give="(\\d)">`).exec(footer)?.[1])
-  assert.deepEqual(["<Icon.ToCollection />", "<Icon.Tag />", "<Icon.Share />", "<SpeakerIcon />", "<Icon.Copy />", "<QIcon.Insert size=\\{15\\} />"].map(give), [1, 2, 3, 4, 5, 6])
+  // To collection is CollectLink's (#199) in the row: both its states give their words first.
+  const link = read("../src/content/Collections.tsx")
+  assert.match(link, /<Icon\.ToCollection \/> <span class="cf-tl" data-give="1">\{t\("colAdd"\)\}<\/span>/)
+  assert.match(link, /<span class=\{`cf-collect-name\$\{row \? " cf-tl" : ""\}`\} data-give=\{row \? "1" : undefined\}/)
+  assert.deepEqual(["<Icon.Tag />", "<Icon.Share />", "<SpeakerIcon />", "<Icon.Copy />", "<QIcon.Insert size=\\{15\\} />"].map(give), [2, 3, 4, 5, 6])
   assert.doesNotMatch(read("../src/content/insert/insert.css"), /\.cf-msg-tools\.has-insert \{[^}]*flex-wrap: wrap/)
   const row = read("../src/content/quiet/ToolsRow.tsx")
   assert.match(row, /while \(step < last && needed\(el\) > el\.clientWidth \+ 1\) setStep\(el, labels, \+\+step\)/)
   assert.match(row, /label\.toggleAttribute\("data-off", Number\(label\.dataset\.give\) < step\)/)
   // Every button keeps its name without its words.
-  for (const name of ["qiInsertIntoField", "copy", "share", "tagsButton", "colAdd"]) assert.match(footer, new RegExp(`aria-label=\\{t\\("${name}"\\)\\}`), name)
+  for (const name of ["qiInsertIntoField", "copy", "share", "tagsButton"]) assert.match(footer, new RegExp(`aria-label=\\{t\\("${name}"\\)\\}`), name)
+  // CollectLink in the row keeps its names when its words give way: «To collection», or «In “<collection>”».
+  assert.match(link, /onClick=\{onSheet\} aria-label=\{t\("colAdd"\)\}/)
+  assert.match(link, /aria-label=\{row \? t\("colIn", first\.rec\.n\) : undefined\}/)
 })
 
 test("4. no row with the page's title over the field; a selection, Ask your chats and an unreadable page keep theirs", () => {

@@ -4,11 +4,11 @@
 // collection's summary, sections and cards (a tap opens the card's chat), «Сравнить» and «Сводка» (Pro), PDF and
 // «← К чату». The data and its rules are src/shared/collections.ts; the app shows the same collections as columns.
 
-import type { VNode } from "preact"
+import { Fragment, type VNode } from "preact"
 import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 import {
-  COLLECTION_PREFIX, FREE_CARDS, MAX_CARDS, addCard, addComparison, addSection, canAddCard, canAddCollection, cardFrom, cardsIn,
-  countedCards, deleteCard, hostOf, liveCollections, liveSections, moveCard, newCollection, placeBody, placeFromAi, setSummary, suggestPlace,
+  COLLECTION_PREFIX, FREE_CARDS, MAX_CARDS, addCard, addComparison, addSection, canAddCard, canAddCollection, cardFrom, cardOf, cardsIn,
+  countedCards, deleteCard, hostOf, liveCollections, liveSections, moveCard, newCollection, placeBody, placeFromAi, placesOf, setSummary, suggestPlace,
   type Card, type Collection, type Place
 } from "../shared/collections"
 import type { Entry } from "../shared/conversation"
@@ -70,13 +70,17 @@ export function CollectSheet({ entries, index, chat, all, shown, space, pro, ai,
   report: CollectReport
 }): VNode | null {
   const card = useMemo(() => cardFrom(entries, index, chat, newItemId(), ""), [entries, index, chat])
+  // 107: one card of an answer per collection. A collection that has it already isn't suggested (the card stays where it
+  // is unless the reader moves it: a section picked in that collection moves it there).
+  const has = (rec: Collection) => Boolean(card?.chat && card.msg && cardOf(rec, card.chat, card.msg))
+  const free = useMemo(() => shown.filter((rec) => !has(rec)), [card, shown])
   const words = useMemo<Place | null>(() => {
     if (!card) return null
-    const best = suggestPlace(shown, card)
+    const best = suggestPlace(free, card)
     return best ? { collection: best.collection, section: best.section, by: "words" } : null
-  }, [card, shown])
+  }, [card, free])
   const [aiPlace, setAiPlace] = useState<Place | null>(null)
-  const [asking, setAsking] = useState(ai && shown.length > 0)
+  const [asking, setAsking] = useState(ai && free.length > 0)
   const [open, setOpen] = useState<string | null>(null)
   const [naming, setNaming] = useState<{ kind: "section"; collection: string } | { kind: "collection" } | null>(null)
   const [name, setName] = useState("")
@@ -84,12 +88,12 @@ export function CollectSheet({ entries, index, chat, all, shown, space, pro, ai,
   const busy = useRef(false)
 
   useEffect(() => {
-    if (!card || !ai || shown.length === 0) return
+    if (!card || !ai || free.length === 0) return
     let live = true
-    void ask("place", placeBody(card, shown, lang)).then((reply) => {
+    void ask("place", placeBody(card, free, lang)).then((reply) => {
       if (!live) return
       setAsking(false)
-      if (reply.ok) setAiPlace(placeFromAi(reply.body, shown))
+      if (reply.ok) setAiPlace(placeFromAi(reply.body, free))
     }, () => live && setAsking(false))
     return () => { live = false }
     // Once per sheet: the collections changing while it's open don't ask again.
@@ -112,6 +116,18 @@ export function CollectSheet({ entries, index, chat, all, shown, space, pro, ai,
     if (place.collection) {
       const rec = byId(place.collection)
       if (!rec) return
+      // It's there already: never a second card. A section the reader picked there moves it; a suggestion leaves it.
+      const there = card.chat && card.msg ? cardOf(rec, card.chat, card.msg) : undefined
+      if (there) {
+        const to = via === "picked" && place.section && place.section !== there.sec ? place.section : null
+        if (!to) return onAdded(t("colAlready", rec.n))
+        busy.current = true
+        const moved = await saveCollection(rec.id, (cur) => (cur ? moveCard(cur, there.id, to, Number.MAX_SAFE_INTEGER, now) : null))
+        busy.current = false
+        if (!moved) return
+        report("move", { via: "panel" })
+        return onAdded(t("colAdded", moved.n, liveSections(moved).find((x) => x.id === to)?.n ?? ""))
+      }
       if (!canAddCard(rec, pro)) {
         setLimit("card")
         report("limit", { via: "panel", what: "card", cards: countedCards(rec) })
@@ -124,7 +140,8 @@ export function CollectSheet({ entries, index, chat, all, shown, space, pro, ai,
         let next = cur
         if (!sid) {
           sid = newItemId()
-          next = addSection(next, sid, place.newSection || t("colFirstSection"), now, place.by === "ai")
+          // Cards from before any section keep a section of their own: the new one takes only this card.
+          next = addSection(next, sid, place.newSection || t("colFirstSection"), now, place.by === "ai", { id: newItemId(), name: t("colFirstSection") })
           if (!liveSections(next).some((s) => s.id === sid)) sid = liveSections(next)[0]?.id ?? null
         }
         return sid ? addCard(next, { ...card, sec: sid }, now) : null
@@ -190,6 +207,7 @@ export function CollectSheet({ entries, index, chat, all, shown, space, pro, ai,
           <div key={rec.id} class="cf-col-pick">
             <button type="button" class="cf-col-option" aria-expanded={open === rec.id} onClick={() => setOpen(open === rec.id ? null : rec.id)}>
               <span class="cf-col-option-name" dir="auto">{rec.n}</span>
+              {has(rec) && <span class="cf-col-option-in" role="img" aria-label={t("colAlready", rec.n)}><Icon.Check /></span>}
               <span class="cf-col-option-count">{countedCards(rec)}</span>
             </button>
             {open === rec.id && (
@@ -232,6 +250,87 @@ export function CollectSheet({ entries, index, chat, all, shown, space, pro, ai,
         )}
       </div>
     </div>
+  )
+}
+
+// ------------------------------------------------------------------ under an answer or a note
+
+/**
+ * «В подборку» under an answer or a note; once it's in a collection (107, the owner: the button went on offering to add
+ * it), the collection it's in, and a tap's menu: open it, move the card to another section, remove it, or add it to
+ * another collection.
+ */
+export function CollectLink({ chat, msg, shown, onSheet, onOpen, report, row }: {
+  // In the one row of buttons under a message (2.7 after 107): its words give way to the icon first (ToolsRow).
+  row?: boolean
+  chat: string
+  msg: string
+  // The collections of the space the panel is in.
+  shown: Collection[]
+  onSheet: () => void
+  onOpen: (collection: string) => void
+  report: CollectReport
+}): VNode {
+  const places = useMemo(() => placesOf(shown, chat, msg), [shown, chat, msg])
+  const [menu, setMenu] = useState(false)
+  const box = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    if (!menu) return
+    const list = box.current?.querySelector<HTMLElement>(".cf-col-menu")
+    // Inside the panel's edges (in the row under a message it may start near the panel's far side on an iPhone).
+    const panel = box.current?.closest(".cf-panel")
+    if (list && panel) {
+      const r = list.getBoundingClientRect()
+      const p = panel.getBoundingClientRect()
+      const over = r.right - (p.right - 8)
+      const under = p.left + 8 - r.left
+      if (over > 0) list.style.transform = `translateX(${-Math.min(over, Math.max(0, r.left - p.left - 8))}px)`
+      else if (under > 0) list.style.transform = `translateX(${under}px)`
+    }
+    list?.scrollIntoView({ block: "nearest" })
+    const root = box.current?.getRootNode() as Document | ShadowRoot | undefined
+    const away = (e: Event) => {
+      if (!box.current?.contains(e.target as Node)) setMenu(false)
+    }
+    root?.addEventListener("pointerdown", away, true)
+    return () => root?.removeEventListener("pointerdown", away, true)
+  }, [menu])
+  if (!places.length) {
+    return row
+      ? <button type="button" class="cf-collect-link" onClick={onSheet} aria-label={t("colAdd")} title={t("colAdd")}><Icon.ToCollection /> <span class="cf-tl" data-give="1">{t("colAdd")}</span></button>
+      : <button type="button" class="cf-collect-link" onClick={onSheet}><Icon.ToCollection /> {t("colAdd")}</button>
+  }
+  const first = places[0]
+  return (
+    <span class={`cf-collect-in${row ? " in-row" : ""}`} ref={box}>
+      <button type="button" class="cf-collect-link in" aria-haspopup="menu" aria-expanded={menu} aria-label={row ? t("colIn", first.rec.n) : undefined} title={row ? t("colIn", first.rec.n) : first.section?.n} onClick={() => setMenu(!menu)}>
+        <Icon.Check /> <span class={`cf-collect-name${row ? " cf-tl" : ""}`} data-give={row ? "1" : undefined} dir="auto">{t("colIn", first.rec.n)}</span>
+        {places.length > 1 && <span class="cf-collect-more">+{places.length - 1}</span>}
+      </button>
+      {menu && (
+        <div class="cf-col-menu cf-collect-menu" role="menu">
+          {places.map(({ rec, card, section }) => (
+            <Fragment key={rec.id}>
+              {places.length > 1 && <div class="cf-collect-menu-name" dir="auto">{rec.n}</div>}
+              <button type="button" role="menuitem" onClick={() => { setMenu(false); onOpen(rec.id) }}>{t("colOpen")}</button>
+              {liveSections(rec).filter((s) => s.id !== section?.id).map((s) => (
+                <button key={s.id} type="button" role="menuitem" dir="auto" onClick={() => {
+                  setMenu(false)
+                  void saveCollection(rec.id, (cur) => (cur ? moveCard(cur, card.id, s.id, Number.MAX_SAFE_INTEGER) : null))
+                  report("move", { via: "panel" })
+                }}>{t("colMoveTo", s.n)}</button>
+              ))}
+              <button type="button" role="menuitem" class="danger" onClick={() => {
+                setMenu(false)
+                void saveCollection(rec.id, (cur) => (cur ? deleteCard(cur, card.id) : null))
+                report("delete", { via: "panel", what: "card" })
+              }}>{t("colRemove")}</button>
+            </Fragment>
+          ))}
+          <button type="button" role="menuitem" onClick={() => { setMenu(false); onSheet() }}>{t("colAddOther")}</button>
+        </div>
+      )}
+    </span>
   )
 }
 
@@ -283,7 +382,9 @@ function CardRow({ card, rec, pageUrl, picking, picked, onTap, onMenu, menu, onM
   )
 }
 
-export function CollectionsWindow({ all, shown, space, pro, lang, pageUrl, ask, askConsent, onPro, onOpenCard, onOpenPage, onPdf, onBack, report }: {
+export function CollectionsWindow({ all, shown, space, pro, lang, pageUrl, openId, ask, askConsent, onPro, onOpenCard, onOpenPage, onPdf, onBack, report }: {
+  // The collection to show first (opened from a card's line under its answer); else the first one.
+  openId?: string | null
   all: Collection[]
   shown: Collection[]
   space: string
@@ -301,7 +402,7 @@ export function CollectionsWindow({ all, shown, space, pro, lang, pageUrl, ask, 
   onBack: () => void
   report: CollectReport
 }): VNode {
-  const [currentId, setCurrentId] = useState<string | null>(null)
+  const [currentId, setCurrentId] = useState<string | null>(openId ?? null)
   const [picker, setPicker] = useState(false)
   const [picking, setPicking] = useState<string[] | null>(null)
   const [menu, setMenu] = useState<string | null>(null)

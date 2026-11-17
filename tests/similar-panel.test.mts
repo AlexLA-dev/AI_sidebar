@@ -287,7 +287,9 @@ test("the start: chips are the condition, several at once (build 98), the person
 
 test("no zoom on iOS: Find similar's field and quick insert's are 16px on touch screens", () => {
   const css = (p: string) => readFileSync(new URL(`../src/content/${p}`, import.meta.url), "utf8")
-  assert.match(css("similar/similar.css"), /\.cf\[data-touch\] \.cf-similar-words \{ font-size: 16px; \}/)
+  // (107: still 16px for Safari, drawn at the card's 13.5px: laid out larger and scaled down, so it isn't set bigger
+  // than the chips and labels around it.)
+  assert.match(css("similar/similar.css"), /\.cf\[data-touch\] \.cf-similar-words \{\s*--fit: 0\.84375;\s*font-size: 16px;[^}]*transform: scale\(var\(--fit\)\)/)
   assert.match(css("insert/insert.css"), /@media \(pointer: coarse\) \{\s*\.cf-qi-area, \.cf-qi-blank, \.cf-qi-fill-text \{ font-size: 16px; \}/)
   assert.match(css("watch/watch.css"), /\.cf-watch-cond \{[^}]*font-size: 16px/)
 })

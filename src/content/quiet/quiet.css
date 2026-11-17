@@ -158,3 +158,7 @@
   color: var(--text-2); background: var(--bg-3);
 }
 .cf-left.low { color: var(--danger); background: color-mix(in srgb, var(--danger) 13%, transparent); }
+
+/* #199's «✓ In “<collection>”» in the one row under a message: its name capped, then given way to the ✓ (ToolsRow). */
+.cf-msg-tools > .cf-collect-in { flex: none; min-width: 0; }
+.cf-msg-tools .cf-collect-in .cf-collect-name { max-width: 10em; }

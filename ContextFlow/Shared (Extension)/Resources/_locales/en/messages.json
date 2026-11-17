@@ -2972,6 +2972,27 @@
  "colCardMenu": {
   "message": "Card actions"
  },
+ "shotAdd": {
+  "message": "Snapshot"
+ },
+ "shotAdded": {
+  "message": "Snapshot added"
+ },
+ "colIn": {
+  "message": "In “{0}”"
+ },
+ "colOpen": {
+  "message": "Open collection"
+ },
+ "colAddOther": {
+  "message": "To another collection"
+ },
+ "colAlready": {
+  "message": "Already in “{0}”"
+ },
+ "tipNew": {
+  "message": "New"
+ },
  "matchContinueIn": {
   "message": "Continuing in “{0}”"
  },
@@ -3283,12 +3304,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans, in the app or in Safari, to see each price and what you save. On monthly already? Switch to yearly is in Settings → Your plan: it starts when your current month ends."
- },
- "tip_9288a85bb9": {
-  "message": "What your plan adds"
- },
- "tip_0f2289f887": {
-  "message": "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan."
  },
  "tip_3ee4fbeeb2": {
   "message": "Invite a friend"
