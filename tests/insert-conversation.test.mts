@@ -115,6 +115,18 @@ ${gmailMail("Дмитрий Васильков", "12 нояб. 2026 г., 16:42 (
   }
 })
 
+test("Gmail's editor deep in its reply box (19 levels under the thread's list) still finds its thread", () => {
+  // tools/preview/gmail-thread.html as it lays out: the dry run on 2.7 (107) found the reader stopped climbing at 16.
+  let deep = `<div class="Am editable" id="reply" role="textbox" contenteditable="true"><div>Thank you</div></div>`
+  for (let i = 0; i < 16; i++) deep = `<div class="w${i}">${deep}</div>`
+  const at = page(`<div role="main"><h2 class="hP">Kestrel x Unwind</h2><div class="nH" role="list">
+${gmailMail("Dmitry Vasilkov", "Nov 12, 2026, 4:42 PM (3 days ago)", "<p>We would love to explore a cross-promotion with Unwind.</p>")}
+${gmailMail("Priya Raman", "Nov 14, 2026, 11:20 AM (1 day ago)", "<p>I can hold the banner slots for December 8–21 until Friday.</p>", deep)}
+</div></div>`)
+  const c = check(at("reply"), "Kestrel x Unwind", [/cross-promotion/, /banner slots/], [/Thank you/])
+  assert.ok(c.text.trimEnd().endsWith("until Friday."))
+})
+
 test("a time inside a longer line counts with a colon only: prices in a list never make it a conversation", () => {
   const at = page(`<section><ul><li><span>Basic plan from 12.50 a month</span></li><li><span>Team plan from 19.50 a month</span></li><li><span>Pro plan from 21.30 a month</span></li></ul>
 <form><textarea id="ask"></textarea></form></section>`)

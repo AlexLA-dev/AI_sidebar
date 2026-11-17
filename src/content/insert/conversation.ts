@@ -288,7 +288,9 @@ function bySite(field: Element, maxChars: number): Conversation | null {
   const site = SITE_SIGNS.find((s) => s.host.test(host))
   if (!site) return null
   const root = field.getRootNode() as Document | ShadowRoot
-  const messages = root.querySelector(site.messages)
+  // The one that holds the reply box (a page can have other lists), else the first.
+  const all = Array.from(root.querySelectorAll(site.messages))
+  const messages = all.find((m) => contains(m, field)) ?? all[0]
   if (!messages) return null
   const title = site.title ? root.querySelector(site.title) : null
   const found = conversationOf(title ? firstText(title) : "", messages, field, maxChars)
@@ -296,12 +298,15 @@ function bySite(field: Element, maxChars: number): Conversation | null {
   return found.text.trim() ? found : null
 }
 
+const MAX_DEPTH = 60
+
 /** The conversation `field` replies in, or null when it isn't in one (a form, a search, a post of one's own). */
 export function conversationAround(field: Element, maxChars = 6000): Conversation | null {
   const site = bySite(field, maxChars)
   if (site) return site
   let branch: Element = field
-  for (let depth = 0; depth < 16; depth++) {
+  // Up to the page's body: Gmail's thread list is 19 levels above its editor (2.7 (107); a limit of 16 never reached it).
+  for (let depth = 0; depth < MAX_DEPTH; depth++) {
     const scope = up(branch)
     if (!scope || scope.tagName.toUpperCase() === "BODY" || scope.tagName.toUpperCase() === "HTML") return null
     const messages = messagesIn(scope, branch)
