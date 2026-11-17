@@ -68,6 +68,22 @@ test("a hardware keyboard, seen by what the screen does when the panel's field t
   assert.equal(lib.keyboardSeen({ width: 393, height: 750 }, 750), null)
 })
 
+test("the visible part is compared with the tallest window at this width: an iPad's Safari shrinks the window under the on-screen keyboard", () => {
+  // Measured on an iPad mini in the simulator: 744×1001 before, 744×661 with the visible part 661 tall after the focus.
+  let seen = lib.tallestHeight({ width: 744, height: 1001 }, { width: 0, height: 0 })
+  seen = lib.tallestHeight({ width: 744, height: 661 }, seen)
+  assert.deepEqual(seen, { width: 744, height: 1001 })
+  assert.equal(lib.keyboardSeen(seen, 661), false)
+  // Compared with the window now, it would read as a hardware keyboard: the bug this guards.
+  assert.equal(lib.keyboardSeen({ width: 744, height: 661 }, 661), true)
+  // A turn of the screen starts again; a taller window at the same width is kept.
+  assert.deepEqual(lib.tallestHeight({ width: 1133, height: 700 }, seen), { width: 1133, height: 700 })
+  assert.deepEqual(lib.tallestHeight({ width: 744, height: 1040 }, seen), { width: 744, height: 1040 })
+  const src = readFileSync(new URL("../src/content/quiet/density.ts", import.meta.url), "utf8")
+  assert.match(src, /keyboardSeen\(tallest, vv\.height \* vv\.scale\)/)
+  assert.match(src, /addEventListener\("resize", seeWindow/)
+})
+
 test("read as the panel opens and kept until it opens again; the chat knows it by data-density", () => {
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   const show = app.slice(app.indexOf("const show = useCallback("), app.indexOf("const hide = useCallback("))

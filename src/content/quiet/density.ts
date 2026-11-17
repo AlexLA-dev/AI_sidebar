@@ -12,6 +12,8 @@
 // A hardware keyboard with no trackpad tells a page nothing about itself. What can be seen: the panel's own field
 // takes the focus and the screen's visible part doesn't shrink, as it does for the on-screen keyboard. That is noted
 // (on screens at least WIDE_SCREEN wide: a phone stays compact with any keyboard) and used from the next opening.
+// The visible part is compared with the tallest the window has been at this width, not with the window now: Safari on
+// an iPad shrinks the window itself under the on-screen keyboard (1001 → 661 pt on an iPad mini), so the two agree.
 
 export type Density = "compact" | "roomy"
 
@@ -56,8 +58,27 @@ export function keyboardSeen(screen: { width: number; height: number }, visibleH
 const KEY = "cf:hwKeyboard"
 let keyboard = false
 
+// The window's tallest height seen at its present width (a turn of the screen starts again).
+let tallest = { width: 0, height: 0 }
+
+/** The window's height now, kept if it's the tallest at this width; the tallest is returned. */
+export function tallestHeight(now: { width: number; height: number }, seen = tallest): { width: number; height: number } {
+  if (now.width !== seen.width || now.height > seen.height) return { width: now.width, height: now.height }
+  return seen
+}
+
+function seeWindow(): void {
+  tallest = tallestHeight({ width: window.innerWidth, height: window.innerHeight })
+}
+
 /** Read once as the page's script starts, long before the panel can open. */
 export function loadKeyboard(): void {
+  seeWindow()
+  try {
+    window.addEventListener("resize", seeWindow, { passive: true })
+  } catch {
+    // no events: the height at the start is the one
+  }
   try {
     chrome.storage.local.get(KEY, (r) => {
       void chrome.runtime.lastError
@@ -72,7 +93,8 @@ export function loadKeyboard(): void {
 export function noteKeyboard(): void {
   const vv = window.visualViewport
   if (!vv) return
-  const seen = keyboardSeen({ width: window.innerWidth, height: window.innerHeight }, vv.height * vv.scale)
+  seeWindow()
+  const seen = keyboardSeen(tallest, vv.height * vv.scale)
   if (seen === null || seen === keyboard) return
   keyboard = seen
   try {
