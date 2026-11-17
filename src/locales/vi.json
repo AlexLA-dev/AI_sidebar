@@ -1015,5 +1015,7 @@
   "colPdfFooter": "Tạo bằng ContextFlow",
   "colPdfSave": "Lưu thành PDF",
   "colPick": "Bộ sưu tập: {0}. Chuyển",
-  "colCardMenu": "Thao tác với thẻ"
+  "colCardMenu": "Thao tác với thẻ",
+  "matchContinueIn": "Đang tiếp tục trong “{0}”",
+  "matchBackTo": "Quay lại “{0}”"
 }

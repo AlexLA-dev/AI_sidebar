@@ -1015,5 +1015,7 @@
   "colPdfFooter": "Made with ContextFlow",
   "colPdfSave": "Save as PDF",
   "colPick": "Collection: {0}. Switch",
-  "colCardMenu": "Card actions"
+  "colCardMenu": "Card actions",
+  "matchContinueIn": "Continuing in “{0}”",
+  "matchBackTo": "Back to “{0}”"
 }

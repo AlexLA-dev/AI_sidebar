@@ -1015,5 +1015,7 @@
   "colPdfFooter": "ContextFlow로 제작",
   "colPdfSave": "PDF로 저장",
   "colPick": "컬렉션: {0}. 전환",
-  "colCardMenu": "카드 작업"
+  "colCardMenu": "카드 작업",
+  "matchContinueIn": "‘{0}’에서 이어서",
+  "matchBackTo": "‘{0}’(으)로 돌아가기"
 }

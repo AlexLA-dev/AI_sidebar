@@ -1015,5 +1015,7 @@
   "colPdfFooter": "Hecho con ContextFlow",
   "colPdfSave": "Guardar como PDF",
   "colPick": "Colección: {0}. Cambiar",
-  "colCardMenu": "Acciones de la tarjeta"
+  "colCardMenu": "Acciones de la tarjeta",
+  "matchContinueIn": "Sigo en «{0}»",
+  "matchBackTo": "Volver a «{0}»"
 }

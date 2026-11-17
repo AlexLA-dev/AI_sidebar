@@ -222,3 +222,15 @@ test("a space's toggle reaches the server with its val and spaces (the backgroun
   // The server keeps them.
   assert.deepEqual(useFields({ f: "space", a: "toggle", via: "settings", val: "off", spaces: 3 }), { f: "space", a: "toggle", via: "settings", val: "off", spaces: 3 })
 })
+
+test("107: on the iPhone's sheet the header is one tinted piece from the sheet's edge, the grabber included", () => {
+  const css = readFileSync(new URL("../src/content/spaces.css", import.meta.url), "utf8")
+  // Side panel (iPad, Mac): the header's tint and its stripe on top, as before.
+  assert.match(css, /\.cf-panel\[data-space\] \.cf-header \{ background: var\(--space-soft\); box-shadow: inset 0 3px 0 var\(--space\); \}/)
+  // Sheet: the grabber takes the same tint and the stripe (the sheet's top edge); the header under it has no stripe.
+  assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-panel\[data-space\] \.cf-grabber \{ background: var\(--space-soft\); box-shadow: inset 0 3px 0 var\(--space\); \}/)
+  assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-panel\[data-space\] \.cf-header \{ box-shadow: none; \}/)
+  // The grabber is the sheet's first child, right above the header.
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.match(app, /\{layout === "sheet" && <div class="cf-grabber" onClick=\{hide\} \/>\}\s*<header class="cf-header"/)
+})
