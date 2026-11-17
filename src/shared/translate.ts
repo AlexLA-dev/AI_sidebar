@@ -19,7 +19,12 @@ export const TRANSLATE_LIMITS = {
   requestBlocks: 60,
   firstChars: 3_500,
   // Tags in one block (a list of 50 links in one paragraph is a menu, not prose).
-  blockTags: 40
+  blockTags: 40,
+  // The page's controls translated alone are free (build 107, the owner: «сделать бесплатным»). A control's words are
+  // short: one longer than this, or a request with more than this in all, is a translation of the page's text and
+  // counts as one. The server checks both (the client's word alone isn't taken).
+  controlChars: 80,
+  controlRequestChars: 2_500
 } as const
 
 const TAG = /<(\/?)(\d{1,3})(\/?)>/g
@@ -69,6 +74,17 @@ export function parseMarked(text: string): Piece[] | null {
 /** Marked text without its tags (the words only). */
 export function plainText(text: string): string {
   return text.replace(TAG, "")
+}
+
+/** A request of controls only: every block as short as a button's or a menu item's words, and not many of them. */
+export function controlsRequest(blocks: ReadonlyArray<{ text: string }>): boolean {
+  let total = 0
+  for (const b of blocks) {
+    const n = plainText(b.text).replace(/\s+/g, " ").trim().length
+    if (n > TRANSLATE_LIMITS.controlChars) return false
+    total += n
+  }
+  return blocks.length > 0 && total <= TRANSLATE_LIMITS.controlRequestChars
 }
 
 /** Each tag's parent tag (0: the block itself) and kind, for comparing a translation with its source. */
@@ -157,6 +173,8 @@ export interface TranslateAsk {
   from: string | null
   blocks: TranslateBlock[]
   first: boolean
+  // Only the page's controls (buttons, menus, labels): free, within a daily cap; the server checks they're short.
+  kind?: "controls"
 }
 
 /** The background → the page, for request `req`. */
@@ -169,14 +187,15 @@ export type TranslateReply =
 
 /**
  * LIMIT_REACHED: the free answers of the day (or the week's) are used up, nothing was translated. PAGE_CAP: the page's
- * hidden safety cap, the rest of it stays as it is. CONSENT: the one AI consent isn't given (the page asks it).
+ * hidden safety cap, the rest of it stays as it is. CONTROLS_CAP: the day's free translations of controls are used
+ * up (the page can still be translated as a page, one answer). CONSENT: the one AI consent isn't given (the page asks it).
  */
-export type TranslateError = "LIMIT_REACHED" | "PAGE_CAP" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT"
+export type TranslateError = "LIMIT_REACHED" | "PAGE_CAP" | "CONTROLS_CAP" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT"
 
 /** A step of the in-page translation for the feature counters (usage.ts "translate_page"): counts only. */
 export interface TranslateStep {
   type: "trEvent"
-  a: "shown" | "tap" | "consent" | "done" | "original" | "dismiss" | "limit" | "plans" | "error"
+  a: "shown" | "tap" | "consent" | "done" | "original" | "dismiss" | "limit" | "plans" | "error" | "entry" | "lang"
 }
 
 /** The language a page is translated into, for the model: a base code, with the script for Chinese. */
@@ -185,5 +204,7 @@ export function targetCode(ui: string): string {
   const lang = (base ?? "").toLowerCase()
   if (lang !== "zh") return lang
   const tail = rest.join("-").toLowerCase()
+  // The script when it's said (zh-Hans-MO is Simplified); else by the places that write Traditional.
+  if (/hans/.test(tail)) return "zh-Hans"
   return /hant|tw|hk|mo/.test(tail) ? "zh-Hant" : "zh-Hans"
 }

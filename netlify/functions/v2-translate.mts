@@ -6,9 +6,9 @@ import { consume, logEvent, refund, touchInstall, type ConsumeResult, type Count
 import { clip, corsHeaders, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { blockReason, hasPro, proOffer, resolveAccess, visibleUsage, type Usage } from "../shared/plan.mts"
 import { inviteExtra } from "../shared/invite.mts"
-import { haikuCall, runTranslation, type Effort, safetyReason, translateCost, translateCounters, type TranslateStats } from "../shared/translate.mts"
+import { controlsCounters, controlsReason, haikuCall, runTranslation, type Effort, safetyReason, translateCost, translateCounters, type TranslateStats } from "../shared/translate.mts"
 import { sessionFields } from "../../src/shared/usage.ts"
-import { TRANSLATE_LIMITS, type TranslateBlock } from "../../src/shared/translate.ts"
+import { controlsRequest, TRANSLATE_LIMITS, type TranslateBlock } from "../../src/shared/translate.ts"
 
 const LANG = /^[a-z]{2,3}(-[A-Za-z]{2,8})?$/
 const PAGE = /^[0-9a-f]{16,64}$/
@@ -18,13 +18,19 @@ const PAGE = /^[0-9a-f]{16,64}$/
  * counts. A page is one answer (the owner's rule): the first request of a page this week charges it, the rest of the
  * same page (more blocks as the person scrolls, translating again after "Original") don't.
  *
+ * The page's controls alone (buttons, menus, labels; build 107, the owner: «сделать бесплатным») are free on every
+ * plan: `kind: "controls"` and every block as short as a control's words (controlsRequest: 80 characters each, 2,500 a
+ * request; the server checks, a longer one is a page translation and counts). No answer is taken; a day's caps per
+ * install keep it from being a free translator (CONTROLS_CAP past them: the page can still be translated as a page).
+ * Logged as its own kind, "translate_controls".
+ *
  * Body: { installId, client, entitlement, page: <hash of the address and language>, to, from?, first?,
- *         blocks: [{id, text}] (marked text, src/shared/translate.ts) }
+ *         kind?: "controls", blocks: [{id, text}] (marked text, src/shared/translate.ts) }
  * Response: text/event-stream of `data: {"type": "meta"|"items"|"skip"|"done"|"error", …}`:
  *   meta {charged, usage}; items {items: [{id, text}]} as lines come; skip {ids} (the tags couldn't be kept: left as
  *   they are); done {left: [ids]} (not reached in time: may be asked again); error {code} (nothing was translated).
- * Refused before streaming (JSON {code}): LIMIT_REACHED 402 {usage, offer}, PAGE_CAP 413, BUSY 503, UNAVAILABLE 400/503,
- * BAD_REQUEST 400.
+ * Refused before streaming (JSON {code}): LIMIT_REACHED 402 {usage, offer}, PAGE_CAP 413, CONTROLS_CAP 429, BUSY 503,
+ * UNAVAILABLE 400/503, BAD_REQUEST 400.
  */
 export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
@@ -42,6 +48,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!blocks.length) return json({ code: "BAD_REQUEST", message: "blocks required" }, 400)
   const chars = blocks.reduce((n, b) => n + b.text.length, 0)
   const first = body.first === true
+  // Free only when it is what it says: the client's word and every block short (else it's the page's text, counted).
+  const controls = body.kind === "controls" && controlsRequest(blocks)
   // Off production only (deploy previews, netlify dev): a request may name the model's effort, to compare them.
   const deploy = (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ?? process.env.CONTEXT
   const preview = Boolean(deploy && deploy !== "production")
@@ -59,14 +67,42 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!settings.translate.enabled || !settings.anthropicKey) return json({ code: "UNAVAILABLE" }, 503)
 
   const access = await resolveAccess(body.entitlement, installId)
-  const counters = translateCounters(access, installId, ipSubject(context.ip), page, chars, await inviteExtra(client, [installId], access.plan))
   const base = { plan: access.plan, to, ...(from ? { from } : {}), first, blocks: blocks.length, chars_in: chars, platform, version, build, ...test, ...sessionFields(body.ui as Record<string, unknown>) }
 
   // 1. The page: charged this week already, or charged now (one answer). 2. The hidden caps, in characters.
   let charged: Counter[] = []
   let caps: Counter[] = []
   let usage: Usage | null = null
-  try {
+  if (controls) {
+    // The page's controls: no answer. The day's caps: pages (each once a day), requests, characters.
+    const free = controlsCounters(access, installId, ipSubject(context.ip), page, chars)
+    try {
+      const mark = await consume([free.page])
+      if (mark.allowed) {
+        const pages = await consume([free.pages])
+        if (!pages.allowed) {
+          await refund([free.page]).catch(() => undefined)
+          context.waitUntil(logEvent("translate_controls", installId, { ...base, ok: false, error: "CONTROLS_CAP", cap: "pages" }))
+          return json({ code: "CONTROLS_CAP" }, 429)
+        }
+        caps = [free.page, free.pages]
+      }
+      const within = await consume(free.caps)
+      if (!within.allowed) {
+        await refund(caps).catch(() => undefined)
+        const code = controlsReason(within.blocked)
+        context.waitUntil(logEvent("translate_controls", installId, { ...base, ok: false, error: code, cap: within.blocked?.split(":")[0] ?? null }))
+        return json({ code }, code === "CONTROLS_CAP" ? 429 : 503)
+      }
+      caps = [...caps, ...free.caps]
+    } catch (err) {
+      console.error("[cf] translate controls consume failed:", err instanceof Error ? err.message : err)
+      await refund(caps).catch(() => undefined)
+      // Free of charge means the counters must be there to cap it.
+      return json({ code: "UNAVAILABLE", message: "Service temporarily unavailable" }, 503)
+    }
+  } else try {
+    const counters = translateCounters(access, installId, ipSubject(context.ip), page, chars, await inviteExtra(client, [installId], access.plan))
     const mark = await consume([counters.page])
     if (mark.allowed) {
       const answer: ConsumeResult = await consume(counters.answer)
@@ -130,7 +166,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
         })
         if (outcome.skipped.length) send({ type: "skip", ids: outcome.skipped })
         if (outcome.done === 0 && !outcome.skipped.length) send({ type: "error", code: "UPSTREAM" })
-        else send({ type: "done", left: outcome.left })
+        // Deploy previews only (debug): what the request cost, to measure a controls request.
+        else send({ type: "done", left: outcome.left, ...(debug ? { stats: { calls: stats.calls, prompt_tokens: stats.promptTokens, completion_tokens: stats.completionTokens, cost_usd: translateCost(stats) } } : {}) })
       } catch (err) {
         console.error("[cf] translate failed:", err instanceof Error ? err.message : err)
         send({ type: "error", code: "UPSTREAM" })
@@ -152,7 +189,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   })
 
   context.waitUntil(ended.then(() => Promise.all([
-    logEvent("translate", installId, {
+    logEvent(controls ? "translate_controls" : "translate", installId, {
       ...base,
       ok: outcome.done > 0,
       charged: charged.length > 0,

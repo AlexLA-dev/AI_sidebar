@@ -2390,6 +2390,21 @@
  "trFailed": {
   "message": "Не удалось перевести"
  },
+ "trLangPick": {
+  "message": "Язык перевода"
+ },
+ "trPart": {
+  "message": "{0}: {1}% страницы"
+ },
+ "trEntry": {
+  "message": "Перевести страницу"
+ },
+ "trControls": {
+  "message": "Кнопки и меню: {0}"
+ },
+ "trControlsCap": {
+  "message": "Бесплатные переводы кнопок и меню на сегодня закончились"
+ },
  "spacesTitle": {
   "message": "Пространства"
  },
