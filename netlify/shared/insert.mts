@@ -169,6 +169,8 @@ export interface HaikuTask {
   schema: Record<string, unknown>
   maxTokens: number
   timeoutMs: number
+  // All the time the call may take, its retry included (the caller's own deadline); without it, each try gets timeoutMs.
+  totalMs?: number
 }
 
 /** A short task for Claude Haiku (quick insert, page watch): JSON in the task's shape back. */
@@ -176,6 +178,9 @@ export async function askHaiku(s: HaikuTask, content: string, signal?: AbortSign
   if (!config.anthropicKey) throw new InsertAiError("no_key", "no Anthropic key")
   // The address is pinned (no environment variable can send the key elsewhere); one retry for a hiccup.
   const client = new Anthropic({ apiKey: config.anthropicKey, baseURL: "https://api.anthropic.com", maxRetries: 1, timeout: s.timeoutMs })
+  // A deadline for the whole call: a slow first try can't be followed by a second one past it.
+  const deadline = s.totalMs ? AbortSignal.timeout(s.totalMs) : null
+  const stop = deadline ? (signal ? AbortSignal.any([signal, deadline]) : deadline) : signal
   let response: Anthropic.Message
   try {
     response = await client.messages.create({
@@ -185,8 +190,9 @@ export async function askHaiku(s: HaikuTask, content: string, signal?: AbortSign
       messages: [{ role: "user", content }],
       // Short, plain tasks: low effort keeps them quick and cheap.
       output_config: { effort: "low", format: { type: "json_schema", schema: s.schema } }
-    }, { signal })
+    }, { signal: stop })
   } catch (err) {
+    if (deadline?.aborted) throw new InsertAiError("timeout", `no answer in ${s.totalMs} ms`)
     if (err instanceof Anthropic.RateLimitError) throw new InsertAiError("rate_limit", err.message)
     if (err instanceof Anthropic.APIConnectionTimeoutError) throw new InsertAiError("timeout", err.message)
     if (err instanceof Anthropic.APIError) throw new InsertAiError(`status_${err.status ?? "unknown"}`, err.message)

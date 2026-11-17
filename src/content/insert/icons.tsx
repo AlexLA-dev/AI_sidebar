@@ -17,3 +17,10 @@ export const Template = ({ size = 16 }: { size?: number }): VNode => (
     <path d="M8 8h8M8 12h3M13 12h3M8 16h5" />
   </svg>
 )
+
+/** What opens under a button (Rewrite's tones): it turns over when they're open. */
+export const Chevron = ({ size = 15 }: { size?: number }): VNode => (
+  <svg {...base} width={size} height={size} stroke-width={2.4}>
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+)

@@ -55,6 +55,84 @@ test("Gmail, the reply box inside the thread's list, under the last message: the
   check(at("reply"), "Invoice 4417", [/invoice is attached/])
 })
 
+// 2.7 (107), the owner in Gmail on an iPad mini. Gmail's own markup (tools/preview/gmail-thread.html has all of it): each
+// mail an item of the thread's list, its date as "Nov 14, 2026, 4:42 PM (1 day ago)", the reply box inside the item of
+// the mail being answered, with its recipient and its Send button around the editor.
+const gmailMail = (who: string, date: string, body: string, reply = "") => `<div class="h7" role="listitem"><div class="Bk"><div class="G3 G2"><div><div>
+  <div class="adn ads"><div class="gs"><table class="cf gJ"><tbody><tr><td><h3 class="iw"><span class="gD" name="${who}"><span>${who}</span></span></h3></td>
+    <td class="gH"><span class="g3" title="${date}">${date}</span></td><td class="gH"><div role="button" aria-label="Reply"></div><div role="button" aria-label="More message options"></div></td></tr></tbody></table>
+    <div class="ii gt"><div class="a3s aiL">${body}</div></div></div></div></div></div>${reply}</div></div></div>`
+const gmailReply = `<div class="gA gt"><div class="gB"><div class="ip iq"><div class="M9"><form class="bAs">
+  <div class="fX"><div class="vT">Dmitry Vasilkov</div></div>
+  <table class="aoP"><tbody><tr><td><div class="Am Al editable" id="reply" role="textbox" aria-label="Message Body" contenteditable="true" g_editable="true"><div>Thank you</div><div class="gmail_signature">Alex Smith</div></div></td></tr>
+  <tr><td><div role="button" class="T-I-atl">Send</div></td></tr></tbody></table></form></div></div></div></div>`
+
+test("Gmail as it is: a thread whose mails are days old (long dates) is still a conversation", () => {
+  const at = page(`<div role="main"><div class="ha"><h2 class="hP">Kestrel x Unwind – partnership idea</h2></div><div class="nH" role="list">
+${gmailMail("Dmitry Vasilkov", "Nov 12, 2026, 4:42 PM (3 days ago)", "<p>We would love to explore a cross-promotion with Unwind.</p>")}
+${gmailMail("Priya Raman", "Nov 14, 2026, 11:20 AM (1 day ago)", "<p>I can hold the banner slots for December 8–21 until Friday.</p>", gmailReply)}
+</div></div>`)
+  const c = check(at("reply"), "Kestrel x Unwind – partnership idea", [/cross-promotion/, /banner slots/], [/Thank you|Alex Smith|^Send$/m])
+  assert.ok(c.text.trimEnd().endsWith("until Friday."), "it ends with the mail being answered")
+  assert.equal(c.after, "")
+})
+
+test("Gmail, a reply in the middle of a thread: up to the mail being answered, the later mails apart", () => {
+  const at = page(`<div role="main"><div class="ha"><h2 class="hP">Kestrel x Unwind – partnership idea</h2></div><div class="nH" role="list">
+${gmailMail("Dmitry Vasilkov", "Nov 12, 2026, 4:42 PM (3 days ago)", "<p>We would love to explore a cross-promotion with Unwind.</p>")}
+${gmailMail("Dmitry Vasilkov", "Nov 13, 2026, 9:05 AM (2 days ago)", "<p>Could you tell us by Thursday whether a two-week test in December works?</p>", gmailReply)}
+${gmailMail("Priya Raman", "Nov 14, 2026, 11:20 AM (1 day ago)", "<p>I can hold the banner slots for December 8–21 until Friday.</p>")}
+${gmailMail("Dmitry Vasilkov", "Nov 15, 2026, 10:31 AM (5 hours ago)", "<p>The slides with last quarter's numbers are attached.</p>")}
+</div></div>`)
+  const c = check(at("reply"), "Kestrel x Unwind – partnership idea", [/cross-promotion/, /two-week test in December/], [/banner slots|slides with last quarter|Thank you|Alex Smith/])
+  assert.ok(c.text.trimEnd().endsWith("works?"), "the mail being answered comes last")
+  assert.match(c.after, /banner slots/)
+  assert.match(c.after, /slides with last quarter/)
+  assert.ok(c.after.indexOf("banner slots") < c.after.indexOf("slides with last quarter"), "in the thread's order")
+  assert.doesNotMatch(c.after, /Thank you|Alex Smith|Dmitry Vasilkov\n?Send/)
+})
+
+test("Gmail by its own signs: a thread of one mail (one date says nothing), in Russian; a new mail's window is no conversation", () => {
+  const at = page(`<div role="navigation"><div role="list"><div role="listitem">Входящие 12</div></div></div>
+<div role="main"><div class="ha"><h2 class="hP">Кестрел и Unwind: идея партнёрства</h2></div><div class="nH" role="list">
+${gmailMail("Дмитрий Васильков", "12 нояб. 2026 г., 16:42 (3 дня назад)", "<p>Готовы начать с малого и вместе посмотреть на цифры.</p>", gmailReply)}
+</div></div>`)
+  const field = at("reply")
+  // No signs for another site: one date isn't enough to call it a conversation (the page goes instead).
+  assert.equal(C.conversationAround(field), null)
+  const view = field.ownerDocument.defaultView
+  const was = Object.getOwnPropertyDescriptor(view, "location")
+  Object.defineProperty(view, "location", { value: { hostname: "mail.google.com" }, configurable: true })
+  try {
+    const c = check(field, "Кестрел и Unwind: идея партнёрства", [/Готовы начать с малого/], [/Входящие|Thank you|Alex Smith/])
+    assert.equal(c.after, "")
+    // A new mail (no thread on the page).
+    const fresh = page(`<div role="main"><div role="list"></div></div><div class="M9"><div id="new" contenteditable="true" role="textbox"></div></div>`)
+    assert.equal(C.conversationAround(fresh("new")), null)
+  } finally {
+    if (was) Object.defineProperty(view, "location", was)
+    else delete (view as any).location
+  }
+})
+
+test("Gmail's editor deep in its reply box (19 levels under the thread's list) still finds its thread", () => {
+  // tools/preview/gmail-thread.html as it lays out: the dry run on 2.7 (107) found the reader stopped climbing at 16.
+  let deep = `<div class="Am editable" id="reply" role="textbox" contenteditable="true"><div>Thank you</div></div>`
+  for (let i = 0; i < 16; i++) deep = `<div class="w${i}">${deep}</div>`
+  const at = page(`<div role="main"><h2 class="hP">Kestrel x Unwind</h2><div class="nH" role="list">
+${gmailMail("Dmitry Vasilkov", "Nov 12, 2026, 4:42 PM (3 days ago)", "<p>We would love to explore a cross-promotion with Unwind.</p>")}
+${gmailMail("Priya Raman", "Nov 14, 2026, 11:20 AM (1 day ago)", "<p>I can hold the banner slots for December 8–21 until Friday.</p>", deep)}
+</div></div>`)
+  const c = check(at("reply"), "Kestrel x Unwind", [/cross-promotion/, /banner slots/], [/Thank you/])
+  assert.ok(c.text.trimEnd().endsWith("until Friday."))
+})
+
+test("a time inside a longer line counts with a colon only: prices in a list never make it a conversation", () => {
+  const at = page(`<section><ul><li><span>Basic plan from 12.50 a month</span></li><li><span>Team plan from 19.50 a month</span></li><li><span>Pro plan from 21.30 a month</span></li></ul>
+<form><textarea id="ask"></textarea></form></section>`)
+  assert.equal(C.conversationAround(at("ask")), null)
+})
+
 test("WhatsApp Web: the open chat's name in its header, its messages; never the chat list on the side", () => {
   const at = page(`<div id="app">
   <div id="side"><div aria-label="Chat list" role="grid">
