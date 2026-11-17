@@ -2390,6 +2390,21 @@
  "trFailed": {
   "message": "Não foi possível traduzir"
  },
+ "trLangPick": {
+  "message": "Idioma de destino"
+ },
+ "trPart": {
+  "message": "{0}: {1}% da página"
+ },
+ "trEntry": {
+  "message": "Traduzir a página"
+ },
+ "trControls": {
+  "message": "Botões e menus: {0}"
+ },
+ "trControlsCap": {
+  "message": "As traduções gratuitas de botões e menus de hoje acabaram"
+ },
  "spacesTitle": {
   "message": "Espaços"
  },

@@ -172,7 +172,17 @@ export const config = {
     batchChars: int("TRANSLATE_BATCH_CHARS", 2_500),
     firstBatchChars: int("TRANSLATE_FIRST_BATCH_CHARS", 900),
     parallel: int("TRANSLATE_PARALLEL", 4),
-    budgetMs: int("TRANSLATE_BUDGET_MS", 50_000)
+    budgetMs: int("TRANSLATE_BUDGET_MS", 50_000),
+    // The page's controls translated alone (buttons, menus, labels) are free on every plan (build 107, the owner's
+    // decision). A day's caps per install (per subscription for Pro and Ultra): plenty for a person (a page's controls
+    // are 1,000 to 3,000 characters), useless as a free translator (80 characters a piece, 60,000 a day).
+    controls: {
+      dailyPages: int("TRANSLATE_CONTROLS_DAILY_PAGES", 40),
+      dailyRequests: int("TRANSLATE_CONTROLS_DAILY_REQUESTS", 120),
+      dailyChars: int("TRANSLATE_CONTROLS_DAILY_CHARS", 60_000),
+      ipDailyChars: int("TRANSLATE_CONTROLS_IP_DAILY_CHARS", 600_000),
+      globalDailyChars: int("TRANSLATE_CONTROLS_GLOBAL_DAILY_CHARS", 30_000_000)
+    }
   },
   // Page watch's AI (2.5, the same Haiku as quick insert, INSERT_MODEL): a plan when a watch is made, a judge
   // after a change. The owner's choice: not counted against answers; these caps only stop runaway clients.

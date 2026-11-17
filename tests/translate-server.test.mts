@@ -248,3 +248,127 @@ test("checked before anything is charged: the page id, the language, the blocks,
   const kept = readBlocks([{ id: "a", text: "x".repeat(5000) }, { id: "b", text: "  ok \n text " }, { id: "b", text: "dup" }, { text: "no id" }])
   assert.deepEqual(kept, [{ id: "b", text: "ok text" }])
 })
+
+// ---- build 107, the owner: the page's controls translated alone are free ---------------------------------------------
+
+const CONTROLS = [
+  { id: "c1", text: "Προϊόντα" },
+  { id: "c2", text: "Βρες ένα κατάστημα" },
+  { id: "c3", text: "<1/> Προσθήκη στο καλάθι" }
+]
+const answersUsed = () => counters.get(`install:${INSTALL}`) ?? 0
+/** The stand-in model's Russian for the Greek controls and the long German texts of these tests. */
+const controlsRu: Record<string, string> = {
+  "Προϊόντα": "Товары",
+  "Βρες ένα κατάστημα": "Найти магазин",
+  "<1/> Προσθήκη στο καλάθι": "<1/> Добавить в корзину",
+  "Υπηρεσίες": "Услуги",
+  "Die Stadt hat am Montag die neue Brücke über den Fluss eröffnet, und sie ist nicht nur für Autos gedacht.": "В понедельник город открыл новый мост через реку, и он предназначен не только для машин."
+}
+const controlsAnswer = (text: string) => controlsRu[text] ?? ru[text] ?? (/Stück Text Nummer/.test(text) ? `Короткий кусок текста из длинной статьи о мостах, номер ${text.match(/\d+/)?.[0]}.` : `Перевод (${text.length})`)
+
+test("controls only: free on every plan, no answer taken, its own caps and its own kind in the logs", async () => {
+  haiku.answer = controlsAnswer
+  const { res, events: out } = await call({ kind: "controls", from: "el", blocks: CONTROLS })
+  assert.equal(res.status, 200)
+  assert.deepEqual(out[0], { type: "meta", charged: false, usage: null })
+  assert.equal(Object.keys(items(out)).length, 3)
+  assert.equal(answersUsed(), 0, "no answer")
+  assert.equal(counters.get(`trpage:install:${INSTALL}:${PAGE_A}`) ?? 0, 0, "the page isn't marked as paid for")
+  assert.equal(counters.get(`trctlpages:install:${INSTALL}`), 1)
+  assert.equal(counters.get(`trctlreq:install:${INSTALL}`), 1)
+  assert.equal(counters.get(`trctlchars:install:${INSTALL}`), CONTROLS.reduce((n, b) => n + b.text.length, 0))
+  const log = events.find((e) => e.kind === "translate_controls")!
+  assert.equal(log.data.charged, false)
+  assert.equal(log.data.done, 3)
+  assert.ok(typeof log.data.cost_usd === "number" && typeof log.data.prompt_tokens === "number")
+  assert.ok(!JSON.stringify(log.data).includes("Προϊόντα"), "no text in the logs")
+  assert.equal(events.filter((e) => e.kind === "translate").length, 0)
+  // Out of free answers: the controls still translate.
+  counters.set(`install:${INSTALL}`, 5)
+  const again = await call({ kind: "controls", from: "el", blocks: [{ id: "c4", text: "Υπηρεσίες" }], first: false })
+  assert.equal(again.res.status, 200)
+  assert.equal(counters.get(`trctlpages:install:${INSTALL}`), 1, "the same page today: one page")
+  assert.equal(counters.get(`trctlreq:install:${INSTALL}`), 2)
+  // A subscriber: free too, capped per subscription.
+  counters = new Map()
+  const pro = await call({ kind: "controls", from: "el", blocks: CONTROLS, entitlement: await signJws(transaction({ productId: "com.contextflow.pro.monthly", originalTransactionId: "7001" })) })
+  assert.equal(pro.res.status, 200)
+  assert.equal(counters.get("tx:7001") ?? 0, 0, "nothing from the week's answers")
+  assert.equal(counters.get("trctlpages:tx:7001"), 1)
+})
+
+test("controls only: the server decides what that is: a long block or too much in one request is the page's text, and counts", async () => {
+  haiku.answer = controlsAnswer
+  const long = { id: "p1", text: "Die Stadt hat am Montag die neue Brücke über den Fluss eröffnet, und sie ist nicht nur für Autos gedacht." }
+  const { res, events: out } = await call({ kind: "controls", blocks: [CONTROLS[0], long] })
+  assert.equal(res.status, 200)
+  assert.equal(out[0].charged, true, "a paragraph among them: a page translation")
+  assert.equal(answersUsed(), 1)
+  assert.equal(counters.get(`trctlreq:install:${INSTALL}`) ?? 0, 0)
+  assert.equal(events.filter((e) => e.kind === "translate").length, 1)
+  // Many short pieces past the request's cap (an article cut into short strings): the same.
+  counters = new Map()
+  events = []
+  const many = Array.from({ length: 50 }, (_, i) => ({ id: `s${i}`, text: `Ein kurzes Stück Text Nummer ${i} aus einem langen Artikel über Brücken.` }))
+  const cut = await call({ kind: "controls", blocks: many, page: "b".repeat(32) })
+  assert.equal(cut.events[0].charged, true)
+  assert.equal(answersUsed(), 1)
+  // Without the flag, short blocks are a page too (the page asked for all of itself).
+  counters = new Map()
+  const plain = await call({ blocks: CONTROLS, page: "c".repeat(32) })
+  assert.equal(plain.events[0].charged, true)
+})
+
+test("controls only: a day's caps (pages, requests, characters), said as CONTROLS_CAP; then the page as a page is one answer", async () => {
+  const cfg = settings as unknown as { translate: { controls: { dailyPages: number; dailyRequests: number; dailyChars: number } } }
+  const kept = { ...cfg.translate.controls }
+  haiku.answer = controlsAnswer
+  try {
+    cfg.translate.controls.dailyPages = 2
+    const pageOf = (n: number) => String(n).repeat(32)
+    assert.equal((await call({ kind: "controls", blocks: CONTROLS, page: pageOf(1) })).res.status, 200)
+    assert.equal((await call({ kind: "controls", blocks: CONTROLS, page: pageOf(2) })).res.status, 200)
+    const third = await call({ kind: "controls", blocks: CONTROLS, page: pageOf(3) })
+    assert.equal(third.res.status, 429)
+    assert.equal(third.json!.code, "CONTROLS_CAP")
+    assert.equal(counters.get(`trctlpages:install:${INSTALL}`), 2, "not counted")
+    assert.equal(counters.get(`trctlpage:install:${INSTALL}:${pageOf(3)}`) ?? 0, 0, "the page's mark given back")
+    assert.equal((await call({ kind: "controls", blocks: CONTROLS, page: pageOf(1), first: false })).res.status, 200, "a page of today still goes")
+    assert.equal(answersUsed(), 0)
+    assert.equal(events.find((e) => e.kind === "translate_controls" && e.data.error === "CONTROLS_CAP")!.data.cap, "pages")
+    // The counted translation of that page is offered instead: one answer, as any page.
+    const whole = await call({ blocks: BLOCKS, page: pageOf(3) })
+    assert.equal(whole.res.status, 200)
+    assert.equal(whole.events[0].charged, true)
+    assert.equal(answersUsed(), 1)
+    // Requests a day.
+    counters = new Map()
+    cfg.translate.controls.dailyPages = 40
+    cfg.translate.controls.dailyRequests = 2
+    await call({ kind: "controls", blocks: CONTROLS })
+    await call({ kind: "controls", blocks: CONTROLS, first: false })
+    const over = await call({ kind: "controls", blocks: CONTROLS, first: false })
+    assert.equal(over.res.status, 429)
+    assert.equal(over.json!.code, "CONTROLS_CAP")
+    // Characters a day.
+    counters = new Map()
+    cfg.translate.controls.dailyRequests = 120
+    cfg.translate.controls.dailyChars = 60
+    assert.equal((await call({ kind: "controls", blocks: CONTROLS })).res.status, 200)
+    const chars = await call({ kind: "controls", blocks: CONTROLS, first: false })
+    assert.equal(chars.json!.code, "CONTROLS_CAP")
+    assert.equal(counters.get(`trctlreq:install:${INSTALL}`), 1, "the refused request isn't counted")
+  } finally {
+    Object.assign(cfg.translate.controls, kept)
+  }
+})
+
+test("controls only: nothing translated (the model is down) gives the day's allowance back", async () => {
+  haiku.status = 529
+  const { events: out } = await call({ kind: "controls", blocks: CONTROLS })
+  assert.equal(out.at(-1)!.type, "error")
+  assert.equal(counters.get(`trctlpages:install:${INSTALL}`) ?? 0, 0)
+  assert.equal(counters.get(`trctlreq:install:${INSTALL}`) ?? 0, 0)
+  assert.equal(counters.get(`trctlchars:install:${INSTALL}`) ?? 0, 0)
+})

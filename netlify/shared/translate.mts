@@ -323,6 +323,40 @@ export function translateCounters(access: Access, installId: string, ip: string,
   }
 }
 
+export interface ControlsCounters {
+  // The page's controls were translated today already: 1 at most (consumed alone first, like a page's charge).
+  page: Counter
+  // Pages a day whose controls are translated for free.
+  pages: Counter
+  // Requests and characters a day, per install (or subscription), per address, and for everyone.
+  caps: Counter[]
+}
+
+/**
+ * The counters of a free translation of a page's controls (build 107): no answer is taken; a day's caps keep it from
+ * being a free translator. `page` is the same hash as a page translation's.
+ */
+export function controlsCounters(access: Access, installId: string, ip: string, page: string, chars: number): ControlsCounters {
+  const owner = translateOwner(access, installId)
+  const amount = Math.max(1, chars)
+  const c = config.translate.controls
+  return {
+    page: { subject: `trctlpage:${owner}:${page}`, period: "day", limit: 1 },
+    pages: { subject: `trctlpages:${owner}`, period: "day", limit: c.dailyPages },
+    caps: [
+      { subject: `trctlreq:${owner}`, period: "day", limit: c.dailyRequests },
+      { subject: `trctlchars:${owner}`, period: "day", limit: c.dailyChars, amount },
+      { subject: `trctl${ip}`, period: "day", limit: c.ipDailyChars, amount },
+      { subject: "global:translate_controls", period: "day", limit: c.globalDailyChars, amount }
+    ]
+  }
+}
+
+/** A blocked cap of the free controls: the person's own day (said plainly, the counted translation offered), or try later. */
+export function controlsReason(blocked: string | null): "CONTROLS_CAP" | "BUSY" {
+  return blocked && /^trctl(pages|req|chars):/.test(blocked) ? "CONTROLS_CAP" : "BUSY"
+}
+
 /** What a blocked safety cap means for the page: its own cap (the rest stays as it is), or try later. */
 export function safetyReason(blocked: string | null): "PAGE_CAP" | "BUSY" {
   return blocked?.startsWith("trchars:") ? "PAGE_CAP" : "BUSY"

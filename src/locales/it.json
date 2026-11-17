@@ -823,6 +823,11 @@
   "trWorking": "Traduzione…",
   "trOriginal": "Originale",
   "trFailed": "Traduzione non riuscita",
+  "trLangPick": "Lingua di destinazione",
+  "trPart": "{0}: {1}% della pagina",
+  "trEntry": "Traduci la pagina",
+  "trControls": "Pulsanti e menu: {0}",
+  "trControlsCap": "Le traduzioni gratuite di pulsanti e menu di oggi sono finite",
 
   "spacesTitle": "Spazi",
   "spaceSwitcher": "Spazio: {0}. Cambia",

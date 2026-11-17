@@ -2390,6 +2390,21 @@
  "trFailed": {
   "message": "Übersetzung fehlgeschlagen"
  },
+ "trLangPick": {
+  "message": "Zielsprache"
+ },
+ "trPart": {
+  "message": "{0}: {1}% der Seite"
+ },
+ "trEntry": {
+  "message": "Seite übersetzen"
+ },
+ "trControls": {
+  "message": "Buttons und Menüs: {0}"
+ },
+ "trControlsCap": {
+  "message": "Die kostenlosen Übersetzungen von Buttons und Menüs sind für heute aufgebraucht"
+ },
  "spacesTitle": {
   "message": "Bereiche"
  },
