@@ -330,6 +330,13 @@ export function useSpaces(deps: SpacesDeps) {
       show({ space, kind: "site", site: siteKey(href) })
       deps.report("switch", { via: "site" })
     },
+    /** The matching chat was in another space (107): the panel went there with it. */
+    followMatch: (space: string) => {
+      setActiveSp(space)
+      deps.report("switch", { via: "match" })
+    },
+    /** The matching chat's line, «← <space>»: back to the space the panel was in, its chat for this page or a new one. */
+    back: (id: string) => void switchTo(id, "match_back"),
     /** A chat opened from another space (a search hit): the panel goes there with it. */
     followChat: (thread: Thread | undefined) => {
       if (multi && thread && spaceOfChat(list, thread) !== current.id) deps.report("switch", { via: "chat" })

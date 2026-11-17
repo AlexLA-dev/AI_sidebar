@@ -172,6 +172,21 @@ test("5. the bars over the chat: one line each, cut with an ellipsis", () => {
   assert.match(app, /<span class="cf-chat-bar-name" dir="auto" title=\{headerName\}>/)
 })
 
+test("5. the chat's bar stays one line with the other space's label and back button (107 spaces)", () => {
+  const styles = read("../src/content/styles.css")
+  const spaces = read("../src/content/spaces.css")
+  // The label keeps its width (up to its cap); the name gives way first, down to a few words; then the button.
+  assert.match(styles, /\.cf-chat-bar:has\(\.cf-match-in\) \.cf-chat-bar-name \{ flex: 1 1 0; min-width: min\(4\.5em, 20%\); \}/)
+  assert.match(styles, /\.cf-chat-bar \.cf-match-in \{ flex: 0 0 auto; \}/)
+  assert.match(styles, /\.cf-chat-bar \.cf-match-back \{ flex: 0 1 auto; min-width: 4\.5em; \}/)
+  // Each of them ends in "…" rather than wrapping.
+  assert.match(spaces, /\.cf-match-in > span \{[^}]*text-overflow: ellipsis; white-space: nowrap; min-width: 0; \}/)
+  assert.match(spaces, /\.cf-match-back span \{[^}]*text-overflow: ellipsis; white-space: nowrap; min-width: 0; \}/)
+  assert.match(spaces, /\.cf-match-new \{[^}]*white-space: nowrap;/)
+  // Logical sides only, so right to left mirrors it.
+  assert.doesNotMatch(spaces, /\.cf-match-[a-z]+ \{[^}]*(margin|padding)-(left|right)/)
+})
+
 test("the empty chat in a phone's sheet sits by the field: chips and field together, also over the page's keyboard", () => {
   const css = read("../src/content/quiet/quiet.css")
   assert.match(css, /\.cf\[data-layout="sheet"\] \.cf-messages:has\(> \.cf-empty\) \{ display: flex; flex-direction: column; \}/)

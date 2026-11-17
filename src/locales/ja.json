@@ -1018,5 +1018,7 @@
   "colPdfFooter": "ContextFlowで作成",
   "colPdfSave": "PDFとして保存",
   "colPick": "コレクション：{0}。切り替える",
-  "colCardMenu": "カードの操作"
+  "colCardMenu": "カードの操作",
+  "matchContinueIn": "「{0}」で続き：",
+  "matchBackTo": "「{0}」に戻る"
 }

@@ -1018,5 +1018,7 @@
   "colPdfFooter": "用 ContextFlow 製作",
   "colPdfSave": "儲存為 PDF",
   "colPick": "合集：{0}。切換",
-  "colCardMenu": "卡片操作"
+  "colCardMenu": "卡片操作",
+  "matchContinueIn": "在「{0}」中繼續：",
+  "matchBackTo": "回到「{0}」"
 }

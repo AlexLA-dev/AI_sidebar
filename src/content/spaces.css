@@ -5,6 +5,10 @@
 
 /* The header in the space's colour: a stripe on top and a tint, so it's plain which space this is. */
 .cf-panel[data-space] .cf-header { background: var(--space-soft); box-shadow: inset 0 3px 0 var(--space); }
+/* The iPhone's sheet (107, the owner: «над полоской цветной ещё кусок неокрашенный»): the grabber is the header's top,
+   one tinted piece from the sheet's edge, the stripe on that edge (the sheet's rounded corners clip it). */
+.cf[data-layout="sheet"] .cf-panel[data-space] .cf-grabber { background: var(--space-soft); box-shadow: inset 0 3px 0 var(--space); }
+.cf[data-layout="sheet"] .cf-panel[data-space] .cf-header { box-shadow: none; }
 .cf-header { position: relative; }
 
 .cf-space-wrap { position: static; display: flex; min-width: 0; }
@@ -119,3 +123,10 @@
   font-size: 12.5px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); white-space: nowrap;
 }
 .cf[data-touch] .cf-match-new { padding: 6px 12px; font-size: 13.5px; }
+/* 107: the chat is in another space: «Продолжаю в «Работа»» with its dot, «← Личное» back. */
+.cf-match-in { display: inline-flex; align-items: center; gap: 5px; max-width: 42%; }
+.cf-match-in > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.cf-match-back { display: inline-flex; align-items: center; gap: 3px; max-width: 34%; padding-inline-start: 6px; }
+.cf-match-back span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.cf-match-back svg { flex: none; width: 13px; height: 13px; }
+.cf[data-touch] .cf-match-back { padding-inline-start: 8px; }

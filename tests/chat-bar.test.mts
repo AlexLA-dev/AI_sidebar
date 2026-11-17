@@ -9,7 +9,9 @@ const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "ut
 const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
 
 test("the chat's name bar has Back to the chats list", () => {
-  const bar = app.slice(app.indexOf('<div class="cf-chat-bar">'), app.indexOf('<div class="cf-chat-bar">') + 500)
+  // The bar to its end (107: the matching chat's line before the name grew).
+  const start = app.indexOf('<div class="cf-chat-bar">')
+  const bar = app.slice(start, app.indexOf("</div>", start))
   assert.match(bar, /<button type="button" class="cf-icon cf-chat-back" onClick=\{\(\) => setView\("threads"\)\} aria-label=\{t\("allChats"\)\}/)
   assert.match(bar, /<span class="cf-chat-bar-name" dir="auto" title=\{headerName\}>\{headerName\}<\/span>/)
   assert.match(css, /\.cf-chat-bar \{[^}]*display: flex;/)
