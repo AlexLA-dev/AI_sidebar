@@ -1020,5 +1020,7 @@
   "colOpen": "Apri la raccolta",
   "colAddOther": "In un’altra raccolta",
   "colAlready": "Già in «{0}»",
-  "tipNew": "Novità"
+  "tipNew": "Novità",
+  "matchContinueIn": "Continuo in «{0}»",
+  "matchBackTo": "Torna a «{0}»"
 }

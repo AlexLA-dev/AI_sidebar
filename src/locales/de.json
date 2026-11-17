@@ -1020,5 +1020,7 @@
   "colOpen": "Sammlung öffnen",
   "colAddOther": "In eine andere Sammlung",
   "colAlready": "Schon in „{0}“",
-  "tipNew": "Neu"
+  "tipNew": "Neu",
+  "matchContinueIn": "Weiter in „{0}“",
+  "matchBackTo": "Zurück zu „{0}“"
 }

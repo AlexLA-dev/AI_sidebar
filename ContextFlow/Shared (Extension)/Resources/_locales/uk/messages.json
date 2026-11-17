@@ -2978,6 +2978,12 @@
  "tipNew": {
   "message": "Нове"
  },
+ "matchContinueIn": {
+  "message": "Продовжую в «{0}»"
+ },
+ "matchBackTo": {
+  "message": "Назад до «{0}»"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

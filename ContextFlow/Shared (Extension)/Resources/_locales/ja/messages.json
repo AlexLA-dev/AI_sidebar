@@ -2978,6 +2978,12 @@
  "tipNew": {
   "message": "新機能"
  },
+ "matchContinueIn": {
+  "message": "「{0}」で続き："
+ },
+ "matchBackTo": {
+  "message": "「{0}」に戻る"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

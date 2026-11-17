@@ -1020,5 +1020,7 @@
   "colOpen": "Ouvrir la collection",
   "colAddOther": "Dans une autre collection",
   "colAlready": "Déjà dans « {0} »",
-  "tipNew": "Nouveau"
+  "tipNew": "Nouveau",
+  "matchContinueIn": "Je continue dans « {0} »",
+  "matchBackTo": "Revenir à « {0} »"
 }

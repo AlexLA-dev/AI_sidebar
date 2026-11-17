@@ -2978,6 +2978,12 @@
  "tipNew": {
   "message": "Neu"
  },
+ "matchContinueIn": {
+  "message": "Weiter in „{0}“"
+ },
+ "matchBackTo": {
+  "message": "Zurück zu „{0}“"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

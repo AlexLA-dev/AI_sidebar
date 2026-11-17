@@ -1020,5 +1020,7 @@
   "colOpen": "فتح المجموعة",
   "colAddOther": "إلى مجموعة أخرى",
   "colAlready": "موجودة في «{0}»",
-  "tipNew": "جديد"
+  "tipNew": "جديد",
+  "matchContinueIn": "أتابع في «{0}»",
+  "matchBackTo": "العودة إلى «{0}»"
 }

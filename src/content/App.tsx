@@ -113,8 +113,8 @@ import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHi
 import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
-import { matchable, matchChat, type ChatMatch, type MeaningMatches } from "../shared/match"
-import { SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
+import { matchable, matchChat, matchScope, type ChatMatch, type MeaningMatches } from "../shared/match"
+import { SpaceDot, SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
 import { CollectionsWindow, CollectLink, CollectSheet, useCollections, type CollectAsk, type CollectPro, type CollectReport } from "./Collections"
 import type { Card } from "../shared/collections"
 import type { ChatDigest } from "../shared/history"
@@ -350,7 +350,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // «Подходящий чат» (2.7, match.ts): organizing on (by meaning then), and the line «Продолжаю «…» · Новый чат» over the
   // chat the panel opened on (until something is asked in it), with when, for "other" (left at once for another chat).
   const orgOnRef = useRef(false)
-  const [matchLine, setMatchLine] = useState<{ chat: string; why: ChatMatch["why"]; at: number; length: number } | null>(null)
+  // `from`: the space the panel was in when the chat was in another (107): the line names the chat's and goes back.
+  const [matchLine, setMatchLine] = useState<{ chat: string; why: ChatMatch["why"]; at: number; length: number; from?: string } | null>(null)
   const matchLineRef = useRef(matchLine)
   matchLineRef.current = matchLine
   const [partial, setPartial] = useState<string | null>(null)
@@ -683,7 +684,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         const on = settingsRef.current.spaces !== false
         let place = pageChat ? matchChat(threads, was, key, source.title(), list, on) : null
         if (place && place.why !== "page" && orgOnRef.current) {
-          const chats = matchable(threads, list, place.space, on).map((t) => t.id)
+          // Every space's chats (107), or the bound site's space's alone.
+          const chats = matchable(threads, list, matchScope(list, key, on), on).map((t) => t.id)
           const meaning = await Promise.race([
             sendBackground<MeaningMatches | null>({ type: "matchTopic", title: source.title(), chats }),
             new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 1200))
@@ -694,11 +696,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         const active = found && (found !== was.id || place?.bound) ? { id: found, at: Date.now() } : was
         if (active !== was) await setActiveThread(active.id, place?.space)
         if (place?.bound) spacesRef.current?.flashSite(place.space, key)
+        else if (place?.from && active !== was) spacesRef.current?.followMatch(place.space)
         // Only when it picked another chat than the one open (reopened on the same chat, nothing was guessed).
         if (place && active !== was) {
           const fits = place.why !== "new" && place.chat !== null
-          setMatchLine(fits ? { chat: active.id, why: place.why, at: Date.now(), length: threads[active.id]?.m.length ?? 0 } : null)
-          void sendBackground({ type: "useEvent", f: "match", a: fits ? "shown" : "new", ...(fits ? { why: place.why } : {}), ...(place.match !== undefined ? { match: place.match } : {}) })
+          setMatchLine(fits ? { chat: active.id, why: place.why, at: Date.now(), length: threads[active.id]?.m.length ?? 0, ...(place.from ? { from: place.from } : {}) } : null)
+          void sendBackground({ type: "useEvent", f: "match", a: fits ? "shown" : "new", ...(fits ? { why: place.why, where: place.from ? "other" : "here" } : {}), ...(place.match !== undefined ? { match: place.match } : {}) })
         }
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
@@ -3638,6 +3641,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const headerName = view === "chat" && !historyMode && messages.length > 0 ? (shownThreadNow ? threadName(shownThreadNow) : threadTitle(messages)) : null
   // The line over the chat the panel opened on by itself (2.7, match.ts), until something is asked or written in it.
   const matchShown = Boolean(matchLine && matchLine.chat === threadRef.current && messages.length === matchLine.length)
+  // The space the panel came from, while it still is one (107).
+  const matchFrom = matchShown && matchLine?.from && spaces.multi ? spaces.spaces.find((x) => x.id === matchLine.from) ?? null : null
 
   // The circle's height, and the in-page translation pill's beside it (2.7).
   const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
@@ -3991,14 +3996,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {headerName && (
             <div class="cf-chat-bar">
               <button type="button" class="cf-icon cf-chat-back" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}><Icon.Back /></button>
-              {matchShown && <span class="cf-match-label">{t("matchContinue")}</span>}
+              {matchShown && (matchFrom ? (
+                <span class="cf-match-label cf-match-in"><SpaceDot color={spaces.current.color} size={8} /><span dir="auto">{t("matchContinueIn", spaces.current.name)}</span></span>
+              ) : <span class="cf-match-label">{t("matchContinue")}</span>)}
               <span class="cf-chat-bar-name" dir="auto" title={headerName}>{headerName}</span>
-              {/* 2.7: «Продолжаю «…» · Новый чат»: one tap if the chat it opened on isn't the one. */}
-              {matchShown && <button type="button" class="cf-match-new" onClick={() => {
-                void sendBackground({ type: "useEvent", f: "match", a: "line_new", why: matchLine!.why })
-                setMatchLine(null)
-                newChat()
-              }}>{t("newChat")}</button>}
+              {/* 2.7: «Продолжаю «…» · Новый чат»: one tap if the chat it opened on isn't the one. 107: from another
+                  space, «← <the space it was in>»: a new chat back there. */}
+              {matchShown && (matchFrom ? (
+                <button type="button" class="cf-match-new cf-match-back" aria-label={t("matchBackTo", matchFrom.name)} title={t("matchBackTo", matchFrom.name)} onClick={() => {
+                  void sendBackground({ type: "useEvent", f: "match", a: "line_back", why: matchLine!.why })
+                  setMatchLine(null)
+                  spaces.back(matchFrom.id)
+                }}><Icon.Back /><span dir="auto">{matchFrom.name}</span></button>
+              ) : (
+                <button type="button" class="cf-match-new" onClick={() => {
+                  void sendBackground({ type: "useEvent", f: "match", a: "line_new", why: matchLine!.why })
+                  setMatchLine(null)
+                  newChat()
+                }}>{t("newChat")}</button>
+              ))}
             </div>
           )}
 

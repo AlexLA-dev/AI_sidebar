@@ -2978,6 +2978,12 @@
  "tipNew": {
   "message": "Yeni"
  },
+ "matchContinueIn": {
+  "message": "“{0}” alanında devam ediliyor"
+ },
+ "matchBackTo": {
+  "message": "“{0}” alanına dön"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },
