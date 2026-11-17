@@ -41,6 +41,15 @@ function remember(el: Element): FieldMemory {
   return m
 }
 
+/**
+ * A field met: its paragraphs as they are now are the ones not checked (what was there before, a draft). Called when it
+ * gets the focus, before any typing (2.7 (107)): met later, on the first render with underlines on, a sentence typed fast
+ * or pasted in one go was already in it, counted as old, and never underlined.
+ */
+export function meetField(el: Element): void {
+  remember(el)
+}
+
 // ------------------------------------------------------------ what's underlined, for the layer, the button and the list
 
 const watchers = new Set<() => void>()
@@ -246,7 +255,12 @@ export function Underlines({ field, host, touch, lit, quiet, taps, onFixed, onTa
     busy.current = true
     try {
       for (const p of todo) {
-        const ask = await askFor(now, { action: "check", via: "circle" }, p.text, host)
+        const ask = await askFor(now, { action: "check", via: "circle" }, p.text, host).catch(() => null)
+        // The extension behind the page was replaced (an update): nothing more is checked here until it's reloaded.
+        if (!ask) {
+          stopped = true
+          break
+        }
         const reply = await askWrite({ ...ask, live: true }).reply
         if (!reply.ok) {
           // The cap ran out, not Pro, no consent: quietly off for this page. A hiccup: the next pause tries again.

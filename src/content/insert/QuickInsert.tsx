@@ -29,7 +29,7 @@ import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { caretRect, fieldText, pageRect, viewport, watchFields } from "./watch"
 import { readText } from "./fieldtext"
 import { writableField, WriteCard, WriteDot, WriteMenu, writeStep, type Undo, type WriteJob } from "./Write"
-import { fixIssue, fixIssues, issueRects, liveState, skipIssue, Underlines, undoFix, useLiveChanges } from "./Underlines"
+import { fixIssue, fixIssues, issueRects, liveState, meetField, skipIssue, Underlines, undoFix, useLiveChanges } from "./Underlines"
 import type { Issue } from "../../shared/writing"
 
 /** What the panel asks of quick insert, through the bus (the selection's "Template" button, Settings). */
@@ -186,7 +186,10 @@ export function QuickInsert(props: Props): VNode | null {
         fieldRef.current = f
         setField(f)
         rememberField(f)
-        if (!fixing.current && writableField(f.el) && !noButtonField(f.el)) setLiveField(f)
+        if (!fixing.current && writableField(f.el) && !noButtonField(f.el)) {
+          meetField(f.el)
+          setLiveField(f)
+        }
         // The panel (and its fields) never count as the page's field.
         if (modeRef.current?.kind === "suggest") setMode(null)
       },

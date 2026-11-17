@@ -1097,6 +1097,7 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
     eventIds.length = 0
     writeLog.length = 0
     writeMode = { delay: 0, mode: "ok", live: false }
+    lastWriteRequest = null
     res.end("ok")
     return
   }
