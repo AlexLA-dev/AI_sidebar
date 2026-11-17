@@ -5,7 +5,7 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { aboutSiteAlone, matchChat, MATCH_TOPIC, SITE_MATCH, siteMatch, titleTopic, topicWords, wordMatch } from "../src/shared/match.ts"
+import { aboutSiteAlone, matchable, matchChat, matchScope, MATCH_TOPIC, SITE_MATCH, siteMatch, titleTopic, topicWords, wordMatch } from "../src/shared/match.ts"
 import { addSpace, bindSite, emptySpaces, FIRST_SPACE } from "../src/shared/spaces.ts"
 import type { Thread, Threads } from "../src/shared/threads.ts"
 import { FEATURES, useFields } from "../src/shared/usage.ts"
@@ -95,21 +95,21 @@ test("by meaning in Pro with organizing on: the background's answer; asked and n
   assert.equal(matchChat(threads, open, "https://travel.example/kyoto", "Kyoto in autumn", emptySpaces(), true, meaning).why, "page")
   // Asked, nothing at 85 %: no topic match by words either.
   assert.equal(matchChat(threads, open, "https://guide.example/kyoto-temples", "Kyoto temples in November", emptySpaces(), true, null).why, "new")
-  // A chat of another space from the background doesn't count.
+  // 107: a chat of another space from the background counts too; the panel goes there.
   const list = addSpace(emptySpaces(), "work", "Work", "green", 1)
   const spaced = { ...threads, old: { ...threads.old, sp: "work" } }
   assert.equal(matchChat(spaced, open, "https://elsewhere.example/poll", "Polls", list, true, meaning).chat, "old")
-  assert.equal(matchChat(spaced, { id: "japan", at: 1 }, "https://elsewhere.example/poll", "Polls", list, true, meaning).why, "new")
+  assert.deepEqual(matchChat(spaced, { id: "japan", at: 1 }, "https://elsewhere.example/poll", "Polls", list, true, meaning), { chat: "old", space: "work", bound: false, from: FIRST_SPACE, why: "meaning", match: 91 })
 })
 
-test("inside the space it's in; a bound site's space first, a new chat there when nothing fits", () => {
+test("every space's chats (107); a bound site's space alone, a new chat there when nothing fits", () => {
   let list = addSpace(emptySpaces(), "work", "Work", "green", 1)
   const spaced: Threads = { ...threads, docs: { ...threads.docs, sp: "work" } }
   const errors = ["https://docs.example/docs/api/errors", "Errors | Paystack API Reference"] as const
-  // In the first space the docs chat (Work's) isn't found.
-  assert.equal(matchChat(spaced, open, ...errors, list, true).why, "new")
-  // In Work it is.
-  assert.equal(matchChat(spaced, { id: "docs", at: 1 }, ...errors, list, true).chat, "docs")
+  // In the first space the docs chat (Work's) is found, and the panel goes to Work: the line says where it came from.
+  assert.deepEqual(matchChat(spaced, open, ...errors, list, true), { chat: "docs", space: "work", bound: false, from: FIRST_SPACE, why: "site", match: 80 })
+  // In Work it's at home.
+  assert.deepEqual(matchChat(spaced, { id: "docs", at: 1 }, ...errors, list, true), { chat: "docs", space: "work", bound: false, why: "site", match: 80 })
   // Bound: from the first space straight to Work's chat, or to a new chat in Work.
   list = bindSite(list, "docs.example", "work", 2)
   assert.deepEqual(matchChat(spaced, open, ...errors, list, true), { chat: "docs", space: "work", bound: true, why: "site", match: 80 })
@@ -126,8 +126,15 @@ test("the panel: matched on the circle, the line over the chat, its New chat and
   assert.match(app, /if \(place && place\.why !== "page" && orgOnRef\.current\) \{[\s\S]*?type: "matchTopic"[\s\S]*?setTimeout\(\(\) => resolve\(undefined\), 1200\)/)
   // Only when it picked another chat than the one open.
   assert.match(app, /if \(place && active !== was\) \{\s*const fits = place\.why !== "new" && place\.chat !== null/)
-  assert.match(app, /\{matchShown && <span class="cf-match-label">\{t\("matchContinue"\)\}<\/span>\}/)
+  assert.match(app, /: <span class="cf-match-label">\{t\("matchContinue"\)\}<\/span>\)\}/)
   assert.match(app, /a: "line_new"/)
+  // 107: every space's chats go to the background; a chat in another space names its space, «← <space>» goes back.
+  assert.match(app, /matchable\(threads, list, matchScope\(list, key, on\), on\)/)
+  assert.match(app, /else if \(place\?\.from && active !== was\) spacesRef\.current\?\.followMatch\(place\.space\)/)
+  assert.match(app, /t\("matchContinueIn", spaces\.current\.name\)/)
+  assert.match(app, /a: "line_back"[\s\S]*?spaces\.back\(matchFrom\.id\)/)
+  const hook = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
+  assert.match(hook, /back: \(id: string\) => void switchTo\(id, "match_back"\)/)
   assert.match(app, /if \(line && id !== line\.chat && Date\.now\(\) - line\.at < 120_000\)/)
   // The background asks only with organizing's switch and consent.
   const bg = readFileSync(new URL("../src/background/index.ts", import.meta.url), "utf8")
@@ -148,5 +155,40 @@ test("every language has the line's word", () => {
   for (const lang of ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "uk", "vi", "zh_CN", "zh_TW"]) {
     const s = JSON.parse(readFileSync(new URL(`../src/locales/${lang}.json`, import.meta.url), "utf8")) as Record<string, string>
     assert.ok(s.matchContinue?.trim(), lang)
+    assert.match(s.matchContinueIn ?? "", /\{0\}/, lang)
+    assert.match(s.matchBackTo ?? "", /\{0\}/, lang)
   }
+})
+
+test("107: the chat that fits is looked for in every space, the space the panel is in first at each step", () => {
+  const list = addSpace(emptySpaces(), "work", "Work", "green", 1)
+  const kyoto = ["https://travel.example/kyoto", "Kyoto in autumn"] as const
+  // The owner's case: this page's chat lives in Personal, the panel is in Work (a new chat there): it opens in Personal.
+  const inWork = { id: "fresh", at: 1, sp: "work" }
+  assert.deepEqual(matchChat(threads, inWork, ...kyoto, list, true), { chat: "japan", space: FIRST_SPACE, bound: false, from: "work", why: "page" })
+  // The topic by words across spaces, too.
+  assert.deepEqual(matchChat(threads, inWork, "https://guide.example/kyoto-temples", "Kyoto temples in November | Japan Guide", list, true), { chat: "japan", space: FIRST_SPACE, bound: false, from: "work", why: "topic", match: 100 })
+  // The same page in both spaces: the one in the space the panel is in, even if older.
+  const both: Threads = { ...threads, japan2: { ...chat("japan2", 99_000, [[kyoto[0], kyoto[1], "Where to eat?"]]), sp: "work" } }
+  assert.equal(matchChat(both, inWork, ...kyoto, list, true).chat, "japan2")
+  assert.equal(matchChat(both, open, ...kyoto, list, true).chat, "japan")
+  // A topic chat in the panel's space beats a better one elsewhere; a page's chat elsewhere beats a topic here.
+  const topicHere: Threads = { ...threads, here: { ...chat("here", 2_000, [["https://b.example/1", "Kyoto temples", "November?"]]), sp: "work" } }
+  assert.equal(matchChat(topicHere, inWork, "https://guide.example/kyoto-temples", "Kyoto temples in November | Japan Guide", list, true).chat, "here")
+  assert.equal(matchChat(topicHere, inWork, ...kyoto, list, true).chat, "japan")
+  // «Open this site here» still wins: travel.example bound to Work → Work alone, a new chat there.
+  const bound = bindSite(list, "travel.example", "work", 2)
+  assert.deepEqual(matchChat(threads, open, ...kyoto, bound, true), { chat: null, space: "work", bound: true, why: "new" })
+  // Nothing fits anywhere: a new chat where the panel is, no way back to show.
+  assert.deepEqual(matchChat(threads, inWork, "https://other.example/x", "Something else entirely", list, true), { chat: "fresh", space: "work", bound: false, why: "new" })
+  // Every language's word handling (#189) applies across spaces: a Japanese title finds its chat in Personal.
+  const ja: Threads = { ...threads, tokyo: chat("tokyo", 3_000, [["https://weather.example/tokyo", "東京の天気 - 日本気象協会", "東京の天気は？"]]) }
+  assert.equal(matchChat(ja, inWork, "https://tenki.example/tokyo", "東京の天気｜tenki.jp", list, true).chat, "tokyo")
+  // The background is asked about every space's chats, or a bound site's space's alone.
+  assert.deepEqual(matchable(threads, list, matchScope(list, kyoto[0], true), true).map((t) => t.id).sort(), Object.keys(threads).sort())
+  assert.deepEqual(matchable(threads, bound, matchScope(bound, kyoto[0], true), true).map((t) => t.id), [])
+  // The usage events: where it was found, and the line's way back, counts only.
+  assert.deepEqual(useFields({ f: "match", a: "shown", why: "page", where: "other" }), { f: "match", a: "shown", why: "page", where: "other" })
+  assert.deepEqual(useFields({ f: "match", a: "line_back", why: "page" }), { f: "match", a: "line_back", why: "page" })
+  assert.deepEqual(useFields({ f: "space", a: "switch", via: "match" }), { f: "space", a: "switch", via: "match" })
 })
