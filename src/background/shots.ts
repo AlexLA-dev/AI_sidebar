@@ -4,7 +4,7 @@
 // build), and when the native side can't take one, in this extension's storage. Nothing goes to our server.
 
 import { TARGET } from "../shared/config"
-import { chunks, orphanShots, SHOT_LIMITS, shotsInUse, validShotId, type MadeShots } from "../shared/shots"
+import { chunks, firstAnswer, orphanShots, SHOT_LIMITS, SHOT_TIMES, shotsInUse, validShotId, type MadeShots } from "../shared/shots"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import type { Threads } from "../shared/threads"
 import { callNative } from "./native"
@@ -16,51 +16,50 @@ export type ShotCode = "UNAVAILABLE" | "FAILED" | "NOT_FOUND"
 
 type Capture = (windowId?: number | null, options?: object) => Promise<string>
 
-const within = <T>(ms: number, work: Promise<T>): Promise<T> =>
-  Promise.race([work, new Promise<T>((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))])
-
 /**
  * What's on screen in the tab, as a JPEG data URL (device pixels). Safari's promise API first (its chrome.* callback
- * form may never call back), with and without the window; Chrome's callback form else. Never waits more than a few
- * seconds: the page has our panel hidden meanwhile.
+ * form may never call back), with and without the window; Chrome's callback form else. The page has our panel hidden
+ * meanwhile, so never long (SHOT_TIMES): a form that hasn't answered soon gets the next one started beside it, and the
+ * form that answered last time goes first.
  */
 export async function captureTab(windowId: number | undefined): Promise<{ ok: true; data: string } | { ok: false; code: ShotCode; error?: string }> {
   const options = { format: "jpeg", quality: 92 }
   const promised = (globalThis as { browser?: { tabs?: { captureVisibleTab?: Capture } } }).browser?.tabs?.captureVisibleTab
   const callback = chrome.tabs?.captureVisibleTab as unknown as ((w: number | null, o: object, cb: (u?: string) => void) => void) | undefined
-  const tries: Array<() => Promise<string>> = []
+  const tries: Array<{ form: string; run: () => Promise<string> }> = []
   if (typeof promised === "function") {
     const tabs = (globalThis as unknown as { browser: { tabs: { captureVisibleTab: Capture } } }).browser.tabs
-    if (windowId !== undefined) tries.push(() => tabs.captureVisibleTab(windowId, options))
-    tries.push(() => tabs.captureVisibleTab(undefined, options))
-    tries.push(() => (tabs.captureVisibleTab as unknown as (o: object) => Promise<string>)(options))
+    if (windowId !== undefined) tries.push({ form: "window", run: () => tabs.captureVisibleTab(windowId, options) })
+    tries.push({ form: "current", run: () => tabs.captureVisibleTab(undefined, options) })
+    tries.push({ form: "options", run: () => (tabs.captureVisibleTab as unknown as (o: object) => Promise<string>)(options) })
   }
   if (typeof callback === "function") {
-    tries.push(() => new Promise<string>((resolve, reject) => {
+    tries.push({ form: "callback", run: () => new Promise<string>((resolve, reject) => {
       callback.call(chrome.tabs, windowId ?? null, options, (url?: string) => {
         const err = chrome.runtime.lastError
         if (err || !url) reject(new Error(err?.message ?? "no image"))
         else resolve(url)
       })
-    }))
+    }) })
   }
   if (!tries.length) return { ok: false, code: "UNAVAILABLE" }
-  // Each form a short while, all of them within 7 s (iPhone's Safari left one unanswered once, then took the next run).
-  const until = Date.now() + 7000
-  let last = "unknown"
-  for (const attempt of tries) {
-    const left = until - Date.now()
-    if (left < 500) break
-    try {
-      const data = await within(Math.min(3000, left), attempt())
-      if (typeof data === "string" && data.startsWith("data:image/")) return { ok: true, data }
-      last = "no image"
-    } catch (err) {
-      last = err instanceof Error ? err.message.slice(0, 160) : String(err).slice(0, 160)
-    }
-  }
-  return { ok: false, code: "FAILED", error: last }
+  tries.sort((a, b) => Number(b.form === worked) - Number(a.form === worked))
+  let by = ""
+  const out = await firstAnswer(
+    tries.map((t) => () => t.run().then((data) => {
+      if (typeof data === "string" && data.startsWith("data:image/") && !by) by = t.form
+      return data
+    })),
+    (data) => typeof data === "string" && data.startsWith("data:image/"),
+    SHOT_TIMES
+  )
+  if (!out.ok) return { ok: false, code: "FAILED", error: out.error }
+  worked = by || worked
+  return { ok: true, data: out.value }
 }
+
+// The form of the capture that answered last (until the background restarts): it goes first next time.
+let worked = ""
 
 async function cloudOn(): Promise<boolean> {
   const prefs = (await chrome.storage.local.get(STORAGE.settings))[STORAGE.settings] as Partial<Settings> | undefined

@@ -1014,6 +1014,13 @@
   "colPdfSave": "حفظ بتنسيق PDF",
   "colPick": "المجموعة: {0}. تبديل",
   "colCardMenu": "إجراءات البطاقة",
+  "shotAdd": "لقطة",
+  "shotAdded": "أُضيفت اللقطة",
+  "colIn": "في «{0}»",
+  "colOpen": "فتح المجموعة",
+  "colAddOther": "إلى مجموعة أخرى",
+  "colAlready": "موجودة في «{0}»",
+  "tipNew": "جديد",
   "matchContinueIn": "أتابع في «{0}»",
   "matchBackTo": "العودة إلى «{0}»"
 }

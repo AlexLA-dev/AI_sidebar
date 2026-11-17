@@ -172,7 +172,7 @@ struct BoardView: View {
             TextField("Name", text: $name)
             Button("Add") {
                 let n = Board.clean(name, 40)
-                if !n.isEmpty { change { $0.addSection(library.newItemId(), n, now: now()) }; ChatAI.reportUse("collect", "section_add") }
+                if !n.isEmpty { change { $0.addSection(library.newItemId(), n, now: now(), rest: (library.newItemId(), String(localized: "Notes", comment: "A new collection's first section (2.7 Collections)"))) }; ChatAI.reportUse("collect", "section_add") }
             }
             Button("Cancel", role: .cancel) {}
         }
@@ -574,7 +574,11 @@ struct AddToBoardSheet: View {
                     }
                 }
                 ForEach(library.liveBoards) { b in
-                    Section(header: Text(verbatim: b.name)) {
+                    Section(header: HStack {
+                        Text(verbatim: b.name)
+                        // 107: it's in this collection already (a section picked here moves it; nothing adds it twice).
+                        if has(b) { Image(systemName: "checkmark").foregroundColor(.green).accessibilityIdentifier("cf-add-has") }
+                    }) {
                         ForEach(b.liveSections) { s in
                             Button { add(to: b.id, section: s.id, how: "picked") } label: { Text(verbatim: s.name) }
                         }
@@ -596,7 +600,7 @@ struct AddToBoardSheet: View {
                 Button("Add") {
                     if let b = newSectionFor {
                         let sid = library.newItemId()
-                        library.changeBoard(b) { $0?.addSection(sid, newSectionName, now: now()) }
+                        library.changeBoard(b) { $0?.addSection(sid, newSectionName, now: now(), rest: (library.newItemId(), String(localized: "Notes", comment: "A new collection's first section (2.7 Collections)"))) }
                         add(to: b, section: sid, how: "picked")
                     }
                 }
@@ -619,9 +623,17 @@ struct AddToBoardSheet: View {
         return nil
     }
 
+    /// The collection has this answer or note already.
+    private func has(_ board: Board) -> Bool {
+        guard let card else { return false }
+        return board.card(ofChat: card.chat, msg: card.msg) != nil
+    }
+
     private func suggest() async {
         guard let card else { return }
-        let boards = library.liveBoards
+        // Only collections that don't have it yet: the card stays where it is unless the reader moves it (107).
+        let boards = library.liveBoards.filter { !has($0) }
+        guard !boards.isEmpty else { return }
         if let local = Board.suggest(boards, gist: card.gist, title: card.srcTitle) { suggestion = (local.board, local.section, nil, nil) }
         // Pro: the AI's place (under the AI consent the chat already has).
         guard store.isPro, AIConsent.given else { return }
@@ -632,7 +644,7 @@ struct AddToBoardSheet: View {
         if let b = s.board {
             if let sec = s.section { add(to: b, section: sec, how: "suggested"); return }
             let sid = library.newItemId()
-            library.changeBoard(b) { $0?.addSection(sid, s.newSection ?? String(localized: "Notes", comment: "A new collection's first section (2.7 Collections)"), now: now(), ai: true) }
+            library.changeBoard(b) { $0?.addSection(sid, s.newSection ?? String(localized: "Notes", comment: "A new collection's first section (2.7 Collections)"), now: now(), ai: true, rest: (library.newItemId(), String(localized: "Notes", comment: "A new collection's first section (2.7 Collections)"))) }
             add(to: b, section: sid, how: "suggested")
         } else if let n = s.newBoard {
             newBoardName = n
@@ -655,6 +667,15 @@ struct AddToBoardSheet: View {
 
     private func add(to boardId: String, section: String, how: String) {
         guard var card, let board = library.boards.first(where: { $0.id == boardId }) else { return }
+        // It's there already: never a second card. A section the reader picked moves it; a suggestion leaves it.
+        if let there = board.card(ofChat: card.chat, msg: card.msg) {
+            if how == "picked", there.sec != section, board.liveSections.contains(where: { $0.id == section }) {
+                library.changeBoard(boardId) { $0?.moveCard(there.id, to: section, at: Int.max, now: now()) }
+                ChatAI.reportUse("collect", "move")
+            }
+            dismiss()
+            return
+        }
         guard board.canAddCard(pro: store.isPro) else {
             ChatAI.reportUse("collect", "limit", ["what": "card"])
             dismiss()

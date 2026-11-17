@@ -1014,6 +1014,13 @@
   "colPdfSave": "Guardar como PDF",
   "colPick": "Colección: {0}. Cambiar",
   "colCardMenu": "Acciones de la tarjeta",
+  "shotAdd": "Captura",
+  "shotAdded": "Captura añadida",
+  "colIn": "En «{0}»",
+  "colOpen": "Abrir la colección",
+  "colAddOther": "A otra colección",
+  "colAlready": "Ya está en «{0}»",
+  "tipNew": "Nuevo",
   "matchContinueIn": "Sigo en «{0}»",
   "matchBackTo": "Volver a «{0}»"
 }

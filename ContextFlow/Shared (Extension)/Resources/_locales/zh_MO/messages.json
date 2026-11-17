@@ -2957,6 +2957,27 @@
  "colCardMenu": {
   "message": "卡片操作"
  },
+ "shotAdd": {
+  "message": "快照"
+ },
+ "shotAdded": {
+  "message": "已加入快照"
+ },
+ "colIn": {
+  "message": "已在「{0}」"
+ },
+ "colOpen": {
+  "message": "開啟合集"
+ },
+ "colAddOther": {
+  "message": "加入其他合集"
+ },
+ "colAlready": {
+  "message": "已在「{0}」中"
+ },
+ "tipNew": {
+  "message": "新功能"
+ },
  "matchContinueIn": {
   "message": "在「{0}」中繼續："
  },
@@ -3268,12 +3289,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro 和 Ultra 可以月繳或年繳，一年比十二個月更便宜。在 App 或 Safari 中點一下方案上方的「年繳」，就能看到每個價格和能省多少。已經是月繳？在「設定」→「你的方案」中選擇「改為年繳」，目前這個月結束後開始年繳。"
- },
- "tip_9288a85bb9": {
-  "message": "你的方案增加了什麼"
- },
- "tip_0f2289f887": {
-  "message": "購買 Pro 或 Ultra 後，ContextFlow 會一步一步介紹你的方案增加了哪些功能。想再看一次，請點一下面板頂部的「…」，再選「其他…」和「Pro 包含的功能」或「Ultra 包含的功能」。在 App 中，它在「設定」的「你的方案」下。"
  },
  "tip_3ee4fbeeb2": {
   "message": "邀請朋友"
