@@ -2474,13 +2474,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const side: Side = resolveSide(settings, uiDirection())
   const sideRef = useRef(side)
   sideRef.current = side
+  const [fabHeld, setFabHeld] = useState(0)
   const fabDrag = useFabDrag({
     fab: fabRef,
     onDrop: (to, fabY) => {
       if (to !== sideRef.current) void sendBackground({ type: "useEvent", f: "side", a: "drag_fab", what: to })
       updateSettings({ fabY, fabSide: to, fabSideChosen: true })
     },
-    onTap: () => show(undefined, { pageChat: true })
+    onTap: () => show(undefined, { pageChat: true }),
+    // Held down: the page's translation by hand (the pill by the circle), on any page.
+    onHold: () => setFabHeld((n) => n + 1)
   })
   // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
   const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
@@ -3684,6 +3687,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           top={fabTop}
           show={fabVisible && !fabDrag.state.dragging && !bubble?.rect}
           free={!hasPro(plan)}
+          held={fabHeld}
           onPlans={() => {
             show()
             openPlans("pro", "translate")

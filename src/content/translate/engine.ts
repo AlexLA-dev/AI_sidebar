@@ -1,11 +1,15 @@
 // The page translated in place (2.7): what's on screen first, the rest as it scrolls into view; blocks the page adds
 // later (a feed, comments) as they come; a block the site rendered back in its own language gets the translation again.
+// What the page shows later while it's translated (build 107, the owner: «Возникающие попапы после перевода похоже
+// не переводятся»): a dialog, a cart drawer or a menu added to the page, one that was there hidden and shows itself
+// (its hidden or aria-hidden attribute taken off, a <details> or <dialog> opened), and what web components draw in
+// their open shadow roots.
 // Translations are kept for the page's address and language: "Original" and translating again, or the same page
 // opened again, take them from there without asking the server (and without counting).
 
 import { urlKey } from "../../shared/conversation"
 import { TRANSLATE_LIMITS, type TranslateAsk, type TranslateError, type TranslateReply } from "../../shared/translate"
-import { applyBlock, blockCurrent, blockIntact, collectBlocks, insideSkipped, restore, scanRoot, type Applied, type Block } from "./blocks"
+import { applyBlock, blockCurrent, blockIntact, collectBlocks, controlBlock, insideSkipped, restore, scanRoot, type Applied, type Block } from "./blocks"
 
 export type EngineState =
   // The page as it is (never translated, or put back with "Original").
@@ -14,8 +18,9 @@ export type EngineState =
   | { at: "working" }
   // Translated (more may be on its way as the person scrolls).
   | { at: "on" }
-  // The free answers (or the week's) are used up: nothing new is translated.
-  | { at: "limit" }
+  // The free answers (or the week's) are used up: nothing new is translated. `controls`: the day's free translations
+  // of controls are (the page can still be translated as a page, one answer).
+  | { at: "limit"; controls?: true }
   | { at: "error"; code: TranslateError }
 
 interface Item {
@@ -48,6 +53,8 @@ export interface EngineDeps {
 }
 
 const VISIBLE_MARGIN = "300px 0px 900px 0px"
+// What the page changes that may bring new words: nodes, text, and an element showing itself.
+const OBSERVE: MutationObserverInit = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["hidden", "aria-hidden", "open"] }
 const MAX_INFLIGHT = 2
 const MAX_AGAIN = 4
 // Times a part of the page may change its words after they were translated before it's left as it is (a clock, a
@@ -58,6 +65,8 @@ export class PageTranslator {
   private deps: EngineDeps
   private to = ""
   private from: string | null = null
+  // Only the page's controls (buttons, menus, labels) are translated: its words are in the reader's language.
+  private only: "controls" | null = null
   private now: EngineState = { at: "off" }
   private listeners = new Set<(s: EngineState) => void>()
   private items = new Map<string, Item>()
@@ -79,6 +88,9 @@ export class PageTranslator {
   private retryTimer: ReturnType<typeof setTimeout> | null = null
   private urlTimer: ReturnType<typeof setInterval> | null = null
   private dirty = new Set<Element>()
+  // An attribute's block per element (a placeholder): read again, it isn't another block.
+  private attrItems = new WeakMap<Element, Item>()
+  private shadows = new WeakSet<ShadowRoot>()
   private churn = new WeakMap<Element, number>()
   private saveTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -101,13 +113,15 @@ export class PageTranslator {
     for (const fn of this.listeners) fn(state)
   }
 
-  /** Translates the page into `to` (a target code, src/shared/translate.ts targetCode). */
-  async start(to: string, from: string | null): Promise<void> {
+  /** Translates the page into `to` (a target code, src/shared/translate.ts targetCode); `only` "controls": just its
+   *  buttons, menus, labels and the like (the ones there and the ones that show later). */
+  async start(to: string, from: string | null, only: "controls" | null = null): Promise<void> {
     if (this.active) return
     this.clear()
     if (this.to !== to) this.cache.clear()
     this.to = to
     this.from = from
+    this.only = only
     this.active = true
     this.capped = false
     this.set({ at: "working" })
@@ -119,7 +133,7 @@ export class PageTranslator {
     }
     if (!this.active) return
     this.watch()
-    this.add(collectBlocks(this.deps.doc.body))
+    this.add(collectBlocks(this.deps.doc.body, this.watchShadow))
     // With an IntersectionObserver its first report starts the requests (what's on screen); without one, now.
     if (!this.io) this.flushSoon(0)
   }
@@ -154,8 +168,14 @@ export class PageTranslator {
 
   private add(blocks: Block[]): void {
     for (const block of blocks) {
+      if (this.only === "controls" && !controlBlock(block)) continue
+      if (block.attr) {
+        const known = this.attrItems.get(block.parent)
+        if (known && this.items.has(known.id)) continue
+      }
       const item: Item = { id: `b${++this.seq}`, block, status: "wait", tries: 0, applied: null, again: 0 }
       this.items.set(item.id, item)
+      if (block.attr) this.attrItems.set(block.parent, item)
       for (const node of block.nodes) this.owner.set(node, item)
       const known = this.cache.get(block.text)
       if (known !== undefined) {
@@ -178,6 +198,7 @@ export class PageTranslator {
     if (item.applied) this.writing(() => restore(item.applied!))
     item.applied = null
     this.items.delete(item.id)
+    if (item.block.attr && this.attrItems.get(item.block.parent) === item) this.attrItems.delete(item.block.parent)
     const set = this.byParent.get(item.block.parent)
     if (set) {
       set.delete(item)
@@ -234,7 +255,8 @@ export class PageTranslator {
     const lanes = this.answered ? MAX_INFLIGHT : 1
     while (this.inflight < lanes) {
       const first = !this.asked
-      const max = first ? TRANSLATE_LIMITS.firstChars : TRANSLATE_LIMITS.requestChars
+      // Controls alone go in requests the server takes as such (short ones, free).
+      const max = this.only === "controls" ? Math.min(TRANSLATE_LIMITS.controlRequestChars, first ? TRANSLATE_LIMITS.firstChars : TRANSLATE_LIMITS.requestChars) : first ? TRANSLATE_LIMITS.firstChars : TRANSLATE_LIMITS.requestChars
       const batch: Item[] = []
       let chars = 0
       for (const item of this.items.values()) {
@@ -265,7 +287,7 @@ export class PageTranslator {
       this.cancels.delete(cancel)
     }
     const cancel = this.deps.ask(
-      { url: this.deps.url(), to: this.to, from: this.from, blocks: batch.map((i) => ({ id: i.id, text: i.block.text })), first },
+      { url: this.deps.url(), to: this.to, from: this.from, blocks: batch.map((i) => ({ id: i.id, text: i.block.text })), first, ...(this.only === "controls" ? { kind: "controls" as const } : {}) },
       (reply) => {
         if (ended || !this.active) return
         if (reply.type === "items") {
@@ -309,10 +331,10 @@ export class PageTranslator {
   private failed(batch: Item[], code: TranslateError): void {
     for (const item of batch) if (item.status === "sent") item.status = "queued"
     const shown = [...this.items.values()].some((i) => i.applied)
-    if (code === "LIMIT_REACHED") {
+    if (code === "LIMIT_REACHED" || code === "CONTROLS_CAP") {
       // Nothing more is translated; what came from the kept translations stays.
       this.stop()
-      this.set({ at: "limit" })
+      this.set(code === "CONTROLS_CAP" ? { at: "limit", controls: true } : { at: "limit" })
       return
     }
     if (code === "PAGE_CAP") {
@@ -377,7 +399,7 @@ export class PageTranslator {
     const MO = this.deps.observers?.mutation ?? win?.MutationObserver
     if (MO) {
       this.mo = new MO((records) => this.changed(records))
-      this.mo.observe(this.deps.doc.body, { childList: true, subtree: true, characterData: true })
+      this.mo.observe(this.deps.doc.body, OBSERVE)
     }
     // An address that changes without a new page (a site that loads its pages itself): a new page from then on.
     this.urlTimer = setInterval(() => {
@@ -391,6 +413,13 @@ export class PageTranslator {
         for (const [k, v] of kept) this.cache.set(k, v)
       }, () => undefined)
     }, 1_000)
+  }
+
+  /** A web component's open shadow root: its changes are watched like the page's. */
+  private watchShadow = (shadow: ShadowRoot): void => {
+    if (this.shadows.has(shadow) || !this.mo) return
+    this.shadows.add(shadow)
+    this.mo.observe(shadow, OBSERVE)
   }
 
   private unwatch(): void {
@@ -407,6 +436,7 @@ export class PageTranslator {
     if (this.urlTimer) clearInterval(this.urlTimer)
     this.urlTimer = null
     this.dirty.clear()
+    this.shadows = new WeakSet()
   }
 
   /** The site changed the page: its own words back in a translated block, new blocks, a block rebuilt. */
@@ -416,6 +446,11 @@ export class PageTranslator {
       if (r.type === "characterData") {
         const node = r.target as Text
         const item = this.owner.get(node)
+        // Words written into a text node no block owned (an empty label filled in later): read its part again.
+        if (!item && node.data.trim() && node.parentElement) {
+          this.markDirty(node.parentElement)
+          continue
+        }
         const rec = item?.applied?.texts.find((t) => t.node === node)
         if (!item || !rec || node.data === rec.now) continue
         if (node.data === rec.was && item.again < MAX_AGAIN) {
@@ -429,6 +464,12 @@ export class PageTranslator {
           this.churned(item.block.parent)
           this.markDirty(item.block.parent)
         }
+        continue
+      }
+      if (r.type === "attributes") {
+        // Something that was there hidden shows itself (a menu, a dialog, a drawer): read it now.
+        const el = r.target as Element
+        if (el.nodeType === 1 && el.tagName !== "CONTEXTFLOW-ROOT" && el.getAttribute("aria-hidden") !== "true" && !el.hasAttribute("hidden")) this.markDirty(el)
         continue
       }
       if (r.type !== "childList") continue
@@ -473,7 +514,7 @@ export class PageTranslator {
     // Each part of the page once (a root inside another dirty one is read with it).
     const tops = roots.filter((el) => !roots.some((other) => other !== el && other.contains(el)))
     for (const root of tops) {
-      let blocks = collectBlocks(root)
+      let blocks = collectBlocks(root, this.watchShadow)
       let changed = false
       for (const block of blocks) {
         const owners = new Set(block.nodes.map((n) => this.owner.get(n)).filter((i): i is Item => !!i && this.items.has(i.id)))
@@ -483,7 +524,7 @@ export class PageTranslator {
         for (const item of owners) this.forget(item)
         changed = true
       }
-      if (changed) blocks = collectBlocks(root)
+      if (changed) blocks = collectBlocks(root, this.watchShadow)
       this.add(blocks.filter((b) => (this.churn.get(b.parent) ?? 0) < MAX_CHURN && !b.nodes.some((n) => {
         const item = this.owner.get(n)
         return item && this.items.has(item.id)

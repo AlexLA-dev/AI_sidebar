@@ -5,6 +5,7 @@
 // (Safari's, which are the device's); when the panel doesn't speak it, the quick actions ask for it by name, and
 // Translate goes into it. A question the person types is answered in its own language, as before.
 
+import { targetCode } from "../shared/translate"
 import { baseLanguage, languageName } from "./translateTarget"
 
 /** The languages the person reads, most preferred first: Safari's list, else its one language, else the device's. */
@@ -14,13 +15,28 @@ export function preferredLanguages(nav: { languages?: readonly string[]; languag
   return [nav.language ?? "", device].filter((l) => l.trim())
 }
 
+const LANGUAGE_TAG = /^[a-z]{2,3}([-_][a-z0-9]{2,8})*$/i
+
+/**
+ * The reader's own language as what a page is translated into ("en", "ru", "zh-Hant"): the first of the languages
+ * they read, by its language (for Chinese, its script too), never by the region of the device's locale. Build 107,
+ * from the quiet-panel session: an English reader living in Germany (en-DE) was offered «Translate to German?» on an
+ * English page when the target was read from the extension's UI locale, which Safari takes from the device's locale
+ * (a simulator set to AppleLocale de_DE with English as its language says "de-DE" there). The preferred-languages
+ * list says what the person reads; the UI locale is only asked when the list is empty, then the panel's own language.
+ */
+export function readerLanguage(nav: { languages?: readonly string[]; language?: string }, device = "", panel = ""): string {
+  const first = [...preferredLanguages(nav, device), panel].find((l) => LANGUAGE_TAG.test(l.trim()))
+  return targetCode((first ?? "en").trim()) || "en"
+}
+
 /**
  * The language to answer the quick actions in when it isn't the panel's own: the person's first preferred language
  * ("pl-PL"), or null when the panel speaks it (nothing changes) or nothing is known.
  */
 export function answerLanguage(ui: string, preferred: readonly string[]): string | null {
   const first = preferred.find((l) => l.trim())?.trim()
-  if (!first || !/^[a-z]{2,3}([-_][a-z0-9]{2,8})*$/i.test(first)) return null
+  if (!first || !LANGUAGE_TAG.test(first)) return null
   return baseLanguage(first) === baseLanguage(ui) ? null : first
 }
 
