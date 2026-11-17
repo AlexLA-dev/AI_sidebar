@@ -2555,6 +2555,12 @@
  "writeSlow": {
   "message": "Está demorando demais e foi interrompido. Tente de novo."
  },
+ "writeUpdated": {
+  "message": "O ContextFlow foi atualizado. Recarregue a página para usar Revisar e Reescrever."
+ },
+ "writeReload": {
+  "message": "Recarregar"
+ },
  "underlineSetting": {
   "message": "Sublinhar erros enquanto digito"
  },

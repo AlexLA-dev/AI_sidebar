@@ -42,3 +42,19 @@ export function askWriteWith(send: SendBackground, ask: WriteAsk): { reply: Prom
     }
   }
 }
+
+// A tab left open across an update of the app (2.7 (107), C5: the owner's Check in Gmail ran a minute and gave nothing).
+// The simulator showed it: Safari keeps the old page script running, and its storage and its background never answer
+// again, so the request was never even sent. Its storage reads are given this long (they take milliseconds otherwise);
+// then the card asks for the page to be reloaded.
+export const STORE_WAIT_MS = 3_000
+
+/** The extension behind this page was replaced (an update): it no longer answers. */
+export class ExtensionGone extends Error {}
+
+/** `work`, or ExtensionGone once `ms` have passed without it. */
+export function inTime<T>(work: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const late = new Promise<never>((_, fail) => (timer = setTimeout(() => fail(new ExtensionGone("no answer from the extension")), ms)))
+  return Promise.race([work, late]).finally(() => clearTimeout(timer))
+}

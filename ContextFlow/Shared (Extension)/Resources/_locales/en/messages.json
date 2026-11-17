@@ -2555,6 +2555,12 @@
  "writeSlow": {
   "message": "This is taking too long, so it was stopped. Please try again."
  },
+ "writeUpdated": {
+  "message": "ContextFlow was updated. Reload this page to use Check and Rewrite."
+ },
+ "writeReload": {
+  "message": "Reload"
+ },
  "underlineSetting": {
   "message": "Underline mistakes as I type"
  },

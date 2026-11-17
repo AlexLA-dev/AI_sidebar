@@ -25,7 +25,7 @@ import * as QIcon from "./icons"
 import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { codeField } from "./trigger"
 import { loadAbout, loadSamples, loadTemplates, loadUse, sendBackground } from "./store"
-import { askWriteWith } from "./writeAsk"
+import { askWriteWith, inTime, STORE_WAIT_MS } from "./writeAsk"
 
 export interface WriteJob {
   action: WriteAction
@@ -157,7 +157,7 @@ export async function askFor(field: Field, job: WriteJob, text: string, host: st
   const page = conversation
     ? { title: conversation.title || document.title, url: location.href, text: conversation.text.slice(-WRITE_LIMITS.page), conversation: true, ...(conversation.after ? { after: conversation.after } : {}) }
     : { ...pageOnce(), url: location.href, conversation: false }
-  const [about, samples, templates, use] = await Promise.all([loadAbout(), loadSamples(host, text), loadTemplates(), loadUse()])
+  const [about, samples, templates, use] = await inTime(Promise.all([loadAbout(), loadSamples(host, text), loadTemplates(), loadUse()]), STORE_WAIT_MS)
   return {
     action: job.action,
     ...(job.tone ? { tone: job.tone } : {}),
@@ -272,7 +272,16 @@ export function WriteCard(p: CardProps): VNode {
     }
     writeStep(p.job.action, p.job.via, p.job.tone)
     stopAsk.current()
-    const asked = askWrite(await askFor(field, p.job, text, p.host))
+    let built: WriteAsk
+    try {
+      built = await askFor(field, p.job, text, p.host)
+    } catch {
+      if (id !== run.current) return
+      writeStep("updated", p.job.via)
+      return setState({ step: "error", code: "UPDATED" })
+    }
+    if (id !== run.current) return
+    const asked = askWrite(built)
     stopAsk.current = asked.stop
     const reply = await asked.reply
     if (id !== run.current) return
@@ -380,7 +389,13 @@ export function WriteCard(p: CardProps): VNode {
           <div class="cf-wr-note">{t("writeChanged")} <button type="button" class="cf-link" onClick={() => void ask()}>{t("retry")}</button></div>
         )}
         {state.step === "applying" && <div class="cf-wr-note"><span class="cf-add-dots"><span /><span /><span /></span></div>}
-        {state.step === "error" && (
+        {state.step === "error" && state.code === "UPDATED" && (
+          <div class="cf-wr-note">
+            {t("writeUpdated")}{" "}
+            <button type="button" class="cf-link" onClick={() => location.reload()}>{t("writeReload")}</button>
+          </div>
+        )}
+        {state.step === "error" && state.code !== "UPDATED" && (
           <div class="cf-wr-note">
             {t(state.code === "NETWORK" ? "errNetwork" : state.code === "BUSY" ? "errBusy" : state.code === "SLOW" ? "writeSlow" : "errUpstream")}{" "}
             <button type="button" class="cf-link" onClick={() => void ask()}>{t("retry")}</button>

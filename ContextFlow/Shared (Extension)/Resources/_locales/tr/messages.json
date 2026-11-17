@@ -2555,6 +2555,12 @@
  "writeSlow": {
   "message": "Çok uzun sürdüğü için durduruldu. Lütfen yeniden deneyin."
  },
+ "writeUpdated": {
+  "message": "ContextFlow güncellendi. Kontrol et ve Yeniden yaz özelliklerini kullanmak için sayfayı yeniden yükleyin."
+ },
+ "writeReload": {
+  "message": "Yeniden yükle"
+ },
  "underlineSetting": {
   "message": "Yazarken hataların altını çiz"
  },

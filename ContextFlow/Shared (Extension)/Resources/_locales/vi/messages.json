@@ -2555,6 +2555,12 @@
  "writeSlow": {
   "message": "Mất quá nhiều thời gian nên đã dừng lại. Vui lòng thử lại."
  },
+ "writeUpdated": {
+  "message": "ContextFlow đã được cập nhật. Hãy tải lại trang để dùng Kiểm tra và Viết lại."
+ },
+ "writeReload": {
+  "message": "Tải lại"
+ },
  "underlineSetting": {
   "message": "Gạch chân lỗi khi gõ"
  },

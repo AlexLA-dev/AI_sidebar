@@ -7,7 +7,7 @@ import assert from "node:assert/strict"
 import { mock, test } from "node:test"
 
 import { fixesMaxHeight, fixesSpot } from "../src/content/insert/spot.ts"
-import { askWriteWith, PAGE_MARGIN_MS } from "../src/content/insert/writeAsk.ts"
+import { askWriteWith, ExtensionGone, inTime, PAGE_MARGIN_MS, STORE_WAIT_MS } from "../src/content/insert/writeAsk.ts"
 import { afterAll, applyEdits, clipAsk, clipPage, diffWords, snippetOf, WRITE_LIMITS, WRITE_SERVER_MARGIN_MS, writeDeadline, type WriteAsk, type WriteReply } from "../src/shared/writing.ts"
 
 const fix = (para: string, right: string, n = 0) => {
@@ -131,6 +131,27 @@ test("Cancel stops it at once and drops the request; an answer that comes is pas
   const gone = askWriteWith(send, ASK)
   answer(null)
   assert.deepEqual(await gone.reply, { ok: false, code: "NETWORK" })
+})
+
+test("a tab left open across an update: storage that never answers ends the wait (the card asks for a reload)", async () => {
+  mock.timers.enable({ apis: ["setTimeout"] })
+  try {
+    // The old page script's storage after an update: the read never comes back.
+    const gone = inTime(new Promise<string>(() => undefined), STORE_WAIT_MS)
+    const seen: { failed: unknown } = { failed: null }
+    gone.catch((e: unknown) => (seen.failed = e))
+    mock.timers.tick(STORE_WAIT_MS - 1)
+    await Promise.resolve()
+    assert.equal(seen.failed, null)
+    mock.timers.tick(1)
+    await new Promise((r) => setImmediate(r))
+    assert.ok((seen.failed as object | null) instanceof ExtensionGone)
+    // A live page answers at once, and its timer doesn't linger.
+    assert.equal(await inTime(Promise.resolve("about me"), STORE_WAIT_MS), "about me")
+  } finally {
+    mock.timers.reset()
+  }
+  assert.ok(STORE_WAIT_MS <= 3_000, "a stale tab says so within seconds")
 })
 
 test("the request: a conversation keeps its end (the message being answered), a page its start; later messages apart", () => {

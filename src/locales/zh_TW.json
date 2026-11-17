@@ -879,6 +879,8 @@
   "writeSkip": "忽略",
   "writeFixAll": "全部修正",
   "writeSlow": "耗時過長，已停止。請再試一次。",
+  "writeUpdated": "ContextFlow 已更新。請重新載入此頁面以使用檢查和改寫。",
+  "writeReload": "重新載入",
   "underlineSetting": "輸入時為錯誤加底線",
   "underlineSettingHint": "Pro 和 Ultra：輸入停頓後，只參考頁面內容檢查你改動的段落。把指標移到底線上（在 iPhone 和 iPad 上點一下）即可修正。不計入回答次數。",
   "setSide": "螢幕側邊",

@@ -2555,6 +2555,12 @@
  "writeSlow": {
   "message": "耗時過長，已停止。請再試一次。"
  },
+ "writeUpdated": {
+  "message": "ContextFlow 已更新。請重新載入此頁面以使用檢查和改寫。"
+ },
+ "writeReload": {
+  "message": "重新載入"
+ },
  "underlineSetting": {
   "message": "輸入時為錯誤加底線"
  },
