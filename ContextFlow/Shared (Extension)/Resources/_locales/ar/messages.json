@@ -2564,6 +2564,18 @@
  "writeSkip": {
   "message": "تجاهل"
  },
+ "writeFixAll": {
+  "message": "تصحيح الكل"
+ },
+ "writeSlow": {
+  "message": "استغرق ذلك وقتاً طويلاً فتم إيقافه. حاول مرة أخرى."
+ },
+ "writeUpdated": {
+  "message": "تم تحديث ContextFlow. أعد تحميل الصفحة لاستخدام التدقيق وإعادة الصياغة."
+ },
+ "writeReload": {
+  "message": "إعادة التحميل"
+ },
  "underlineSetting": {
   "message": "تسطير الأخطاء أثناء الكتابة"
  },

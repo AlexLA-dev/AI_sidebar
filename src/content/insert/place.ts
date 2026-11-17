@@ -3,7 +3,7 @@
 
 import { panelRoot } from "../root"
 import type { Field } from "./field"
-import { besideSpot } from "./spot"
+import { besideSpot, fixesMaxHeight, fixesSpot } from "./spot"
 import { caretRect, pageRect, viewport } from "./watch"
 
 /** Our panel's box while it's open beside the page. */
@@ -46,6 +46,24 @@ export function placeSheet(el: HTMLElement, touch: boolean, maxHeight = 620): vo
   el.style.width = `${w}px`
   el.style.maxHeight = `${Math.min(maxHeight, vp.height - 16)}px`
   el.style.top = touch ? `${vp.dy + vp.height - 8 - el.offsetHeight}px` : `${vp.dy + Math.max(8, (vp.height - el.offsetHeight) / 3)}px`
+}
+
+/** The list of fixes by touch (fixesSpot): across the field's middle, kept on screen. */
+export function placeFixes(el: HTMLElement, field: Field | null): void {
+  const vp = viewport(true)
+  const w = Math.min(vp.width - 16, 460)
+  el.style.width = `${w}px`
+  // The head, the first row (the next fix, whatever its text's length and its buttons' language) and the foot all in
+  // sight: none of them shrinks but the body, so their heights hold whatever the cap is.
+  const tall = (sel: string) => (el.querySelector(sel) as HTMLElement | null)?.offsetHeight ?? 0
+  const borders = el.offsetHeight - el.clientHeight
+  el.style.maxHeight = `${fixesMaxHeight(vp.height, tall(".cf-fx-head") + tall(".cf-fx-row") + tall(".cf-fx-foot") + borders)}px`
+  const r = field && field.el.isConnected ? pageRect(field.el) : null
+  const spot = fixesSpot(r, vp.height, el.offsetHeight)
+  const middle = r ? (r.left + r.right) / 2 : vp.width / 2
+  el.style.top = `${spot.top + vp.dy}px`
+  el.style.left = `${vp.dx + Math.max(8, Math.min(middle - w / 2, vp.width - w - 8))}px`
+  el.dataset.at = spot.at
 }
 
 /** Re-places `el` while the keyboard comes and goes or its content grows; returns the cleanup. */

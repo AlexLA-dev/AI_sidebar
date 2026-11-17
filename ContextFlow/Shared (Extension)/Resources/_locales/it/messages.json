@@ -2564,6 +2564,18 @@
  "writeSkip": {
   "message": "Ignora"
  },
+ "writeFixAll": {
+  "message": "Correggi tutto"
+ },
+ "writeSlow": {
+  "message": "Ci sta mettendo troppo, la richiesta è stata interrotta. Riprova."
+ },
+ "writeUpdated": {
+  "message": "ContextFlow è stato aggiornato. Ricarica la pagina per usare Controlla e Riscrivi."
+ },
+ "writeReload": {
+  "message": "Ricarica"
+ },
  "underlineSetting": {
   "message": "Sottolinea gli errori mentre scrivo"
  },

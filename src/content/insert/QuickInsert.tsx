@@ -16,19 +16,21 @@ import * as Icon from "../icons"
 import { HOST_TAG, privateBrowsing } from "../page"
 import { panelRoot } from "../root"
 import { clipboardKeeper } from "./capture"
-import { activeIn, copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
+import { activeIn, copyToClipboard, hasFocus, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
+import { FixList } from "./Fixes"
 import { FillForm } from "./FillForm"
 import * as QIcon from "./icons"
 import { clearCopied, countUse, keepCopied, keepWriting, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
-import { rememberField, setButtonShown, setPanelInserter } from "./target"
+import { rememberField, setButtonShown, setFieldLayer, setPanelInserter, useSelectionShown } from "./target"
 import { TemplateEditor, type EditorStart } from "./TemplateEditor"
 import { BUTTON, buttonPlace, fieldPointFree, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, type Probe } from "./spot"
 import { codeField, phraseWorthLooking, signFor, siteMenuOpen, typedPhrase } from "./trigger"
 import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { caretRect, fieldText, pageRect, viewport, watchFields } from "./watch"
 import { readText } from "./fieldtext"
-import { undoEdits, writableField, WriteCard, WriteDot, WriteMenu, writeStep, type Undo, type WriteJob } from "./Write"
-import { Underlines } from "./Underlines"
+import { writableField, WriteCard, WriteDot, WriteMenu, writeStep, type Undo, type WriteJob } from "./Write"
+import { fixIssue, fixIssues, issueRects, liveState, meetField, skipIssue, Underlines, undoFix, useLiveChanges } from "./Underlines"
+import type { Issue } from "../../shared/writing"
 
 /** What the panel asks of quick insert, through the bus (the selection's "Template" button, Settings). */
 export const QI_EVENTS = { newTemplate: "qi-new-template", editTemplate: "qi-edit-template", insertTemplate: "qi-insert-template", write: "qi-write" } as const
@@ -44,6 +46,8 @@ type Mode =
   | { kind: "editor"; start: EditorStart }
   // «Проверить» или «Переписать» (2.7): the result by the field.
   | { kind: "write"; job: WriteJob }
+  // The list of the underlined mistakes' fixes (2.7 (107)), `at` the one whose word was tapped.
+  | { kind: "fixes"; at: string | null }
 
 interface Props {
   platform: Platform
@@ -83,6 +87,12 @@ export function QuickInsert(props: Props): VNode | null {
   useLive.current = use
   const [field, setField] = useState<Field | null>(null)
   const fieldRef = useRef<Field | null>(null)
+  // The field last written in: its underlines stay when the focus leaves it (2.7 (107)).
+  const [liveField, setLiveField] = useState<Field | null>(null)
+  // A fix of ours is going into the field: its input and its selection aren't the person's.
+  const fixing = useRef(false)
+  const selectionShown = useSelectionShown()
+  useLiveChanges()
   const [mode, setModeState] = useState<Mode>(null)
   const modeRef = useRef<Mode>(null)
   const setMode = (m: Mode) => {
@@ -176,6 +186,10 @@ export function QuickInsert(props: Props): VNode | null {
         fieldRef.current = f
         setField(f)
         rememberField(f)
+        if (!fixing.current && writableField(f.el) && !noButtonField(f.el)) {
+          meetField(f.el)
+          setLiveField(f)
+        }
         // The panel (and its fields) never count as the page's field.
         if (modeRef.current?.kind === "suggest") setMode(null)
       },
@@ -191,6 +205,8 @@ export function QuickInsert(props: Props): VNode | null {
           placeFrame.current = 0
           setTick((n) => n + 1)
         })
+        // Typing goes on: the list of fixes steps back (its count stays on the button).
+        if (modeRef.current?.kind === "fixes" && !fixing.current) setMode(null)
         if (composing) return
         noteWritten(f)
         // Korean on iOS replaces the syllable as it grows (delete + insert): look a moment later.
@@ -378,10 +394,100 @@ export function QuickInsert(props: Props): VNode | null {
     const m = made
     setMade(null)
     if (!m) return
-    const ok = await undoEdits(m.undo)
+    fixing.current = true
+    const ok = await undoFix(m.undo)
+    setTimeout(() => (fixing.current = false), 80)
     writeStep(ok ? "undone" : "undo_failed")
-    showToast(t(ok ? "writeUndone" : "writeUndoFailed"))
+    // In the list the fix is simply back among the others; elsewhere a word says so.
+    if (!ok || modeRef.current?.kind !== "fixes") showToast(t(ok ? "writeUndone" : "writeUndoFailed"))
   }
+
+  // ------------------------------------------------------------ the underlined mistakes and their list (2.7 (107))
+  const aside = !props.panelOpen || props.panelAside
+  // The field whose underlines show: the one with the focus, else the last one written in, while it's on the page.
+  const liveAt = field && liveField && field.el === liveField.el ? field : liveField
+  // A field with a few words to work on: the circle, the list's Check and Rewrite and the underlines go by this one rule.
+  // Read cheaply on every render (each keystroke): the value, or the editor's text as the DOM has it.
+  const canWrite = (f: Field | null) => Boolean(f && settings.writing && f.el.isConnected && !noButtonField(f.el) && writableField(f.el) &&
+    worthWriting(isControl(f.el) ? (f.el as HTMLInputElement).value : f.el.textContent ?? ""))
+  const liveOn = Boolean(props.live && settings.underline && canWrite(liveAt)) && aside && (!mode || mode.kind === "fixes")
+  const live = liveOn && liveAt ? liveState(liveAt) : null
+  const issues: Issue[] = live?.issues ?? []
+  const issuesRef = useRef(issues)
+  issuesRef.current = issues
+  const [lit, setLit] = useState<string | null>(null)
+
+  const openFixes = (at: string | null) => {
+    const f = liveAt
+    if (!f || !issuesRef.current.length) return
+    const m = modeRef.current
+    if (m && m.kind !== "fixes") return
+    // A selection in the field is let go, its end keeping the caret: the system's menu would lie over the list.
+    if (hasFocus(f.el)) {
+      try {
+        if (isControl(f.el)) {
+          const input = f.el as HTMLInputElement
+          if (input.selectionStart !== input.selectionEnd) input.setSelectionRange(input.selectionEnd, input.selectionEnd)
+        } else {
+          const sel = f.el.ownerDocument.getSelection()
+          if (sel && !sel.isCollapsed) sel.collapseToEnd()
+        }
+      } catch {
+        // an input without a selection (email, url)
+      }
+    }
+    if (!m) writeStep("fixes", "underline")
+    setLit(at)
+    setMode({ kind: "fixes", at })
+  }
+  /** A change of ours in the field: its input and selection events aren't taken for the person's typing. */
+  const ours = async <T,>(work: () => Promise<T>): Promise<T> => {
+    fixing.current = true
+    try {
+      return await work()
+    } finally {
+      setTimeout(() => (fixing.current = false), 80)
+    }
+  }
+  const fixOne = async (issue: Issue) => {
+    if (!liveAt) return
+    const undo = await ours(() => fixIssue(liveAt.el, issue))
+    if (!undo) return showToast(t("writeChanged"))
+    setMade({ text: t("writeFixed"), undo, at: Date.now() })
+  }
+  const fixAll = async () => {
+    if (!liveAt) return
+    const result = await ours(() => fixIssues(liveAt.el, issuesRef.current))
+    if (!result.undo) return showToast(t("writeChanged"))
+    setMade({ text: t(result.failed ? "writeFixedSome" : "writeFixed"), undo: result.undo, at: Date.now() })
+  }
+  // Nothing left to fix: the list goes (the toast keeps «Отменить» a while longer).
+  useEffect(() => {
+    if (mode?.kind === "fixes" && !issues.length) setMode(null)
+  }, [mode, issues.length])
+  // Our layers by the field and the selection's buttons never show together (target.ts).
+  useEffect(() => setFieldLayer(mode?.kind === "fixes" || mode?.kind === "write"), [mode?.kind])
+  useEffect(() => () => setFieldLayer(false), [])
+  // Text selected in the field while the list is open: the system's menu comes up by the selection, so the list goes.
+  useEffect(() => {
+    if (mode?.kind !== "fixes" || !liveAt) return
+    const doc = liveAt.el.ownerDocument
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const onSelection = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        if (fixing.current || !hasFocus(liveAt.el)) return
+        const now = updateCaret(liveAt)
+        const selected = now.control ? now.end > now.start : Boolean(now.range && !now.range.collapsed)
+        if (selected && modeRef.current?.kind === "fixes") setMode(null)
+      }, 250)
+    }
+    doc.addEventListener("selectionchange", onSelection)
+    return () => {
+      clearTimeout(timer)
+      doc.removeEventListener("selectionchange", onSelection)
+    }
+  }, [mode?.kind, liveAt?.el])
 
   const closeTo = (back: boolean) => {
     const f = fieldRef.current
@@ -392,7 +498,11 @@ export function QuickInsert(props: Props): VNode | null {
 
   // ------------------------------------------------------------ the button by the field
   const buttonAllowed = touch && settings.button && !siteExcluded(location.hostname, settings.buttonOffSites)
-  const showButton = Boolean(buttonAllowed && field && !mode && (!props.panelOpen || props.panelAside))
+  // With mistakes underlined, the button is there whether the field has the focus or not, and even where quick insert's
+  // own button is turned off: it carries their number and opens their list (by touch there's no other way to them).
+  const fixCount = !mode && aside ? issues.length : 0
+  const showButton = Boolean(touch && !mode && aside && ((buttonAllowed && field) || fixCount > 0))
+  const buttonField = field ?? (fixCount > 0 ? liveAt : null)
   useEffect(() => {
     if (!showButton || tipChecked.current) return
     tipChecked.current = true
@@ -404,23 +514,25 @@ export function QuickInsert(props: Props): VNode | null {
     void markTipSeen()
   }
 
-  // The tick re-places the button when the page scrolls, the keyboard moves or the field grows.
+  // The tick re-places the button when the page scrolls, the keyboard moves or the field grows; the field without the
+  // focus too, while its underlines keep the button by it.
+  const followed = (field ?? (issues.length ? liveAt : null))?.el ?? null
   useEffect(() => {
-    if (!field) return
+    if (!followed) return
     const bump = () => setTick((n) => n + 1)
     const vv = window.visualViewport
     vv?.addEventListener("resize", bump)
     vv?.addEventListener("scroll", bump)
     window.addEventListener("scroll", bump, true)
     const grow = new ResizeObserver(bump)
-    grow.observe(field.el)
+    grow.observe(followed)
     return () => {
       vv?.removeEventListener("resize", bump)
       vv?.removeEventListener("scroll", bump)
       window.removeEventListener("scroll", bump, true)
       grow.disconnect()
     }
-  }, [field])
+  }, [followed])
 
   // Copied refreshes itself when its oldest piece runs out.
   useEffect(() => {
@@ -438,12 +550,10 @@ export function QuickInsert(props: Props): VNode | null {
   const vp = viewport(touch)
   let buttonPos: { top: number; left: number } | null = null
   // A Mac: the circle for «Проверить» и «Переписать», once the field has a few words (2.7). Where the iPhone's button goes.
-  // Read cheaply on every render (each keystroke): the value, or the editor's text as the DOM has it.
-  const canWrite = (f: Field | null) => Boolean(f && settings.writing && f.el.isConnected && !noButtonField(f.el) && writableField(f.el) &&
-    worthWriting(isControl(f.el) ? (f.el as HTMLInputElement).value : f.el.textContent ?? ""))
-  const showDot = Boolean(!touch && !mode && canWrite(field) && !siteExcluded(location.hostname, settings.buttonOffSites) && (!props.panelOpen || props.panelAside))
+  const showDot = Boolean(!touch && !mode && (canWrite(field) || fixCount > 0) && !siteExcluded(location.hostname, settings.buttonOffSites) && aside)
   // Outside the field, where nothing of the site's lies underneath (spot.ts); none on searches and codes.
-  if ((showButton || showDot) && field && !noButtonField(field.el)) {
+  if ((showButton || showDot) && buttonField && !noButtonField(buttonField.el)) {
+    const field = buttonField
     const r = pageRect(field.el)
     // Our host, wherever it is (inside a site's modal window while one is open: topLayer.ts).
     const host = panelRoot()?.host ?? document.querySelector(HOST_TAG)
@@ -459,7 +569,7 @@ export function QuickInsert(props: Props): VNode | null {
     const inside = multiLineField(field.el)
       ? { free: clear(fieldPointFree(field.el, host)), text: () => fieldText(updateCaret(field)).map((b) => ({ left: b.left + dx, right: b.right + dx, top: b.top + dy, bottom: b.bottom + dy })) }
       : null
-    const spot = r.width >= 120 ? buttonPlace(r, vp, clear(pagePointFree(host)), inside) : null
+    const spot = r.width >= 120 ? buttonPlace(r, vp, clear(pagePointFree(host)), inside, fixCount > 0) : null
     if (spot) buttonPos = { top: spot.top + vp.dy, left: spot.left + vp.dx }
   }
 
@@ -480,36 +590,67 @@ export function QuickInsert(props: Props): VNode | null {
   const m = mode
   return (
     <>
-      {props.live && settings.underline && !mode && field && canWrite(field) && (
-        <Underlines field={field} host={host} touch={touch} onFixed={(undo) => setMade({ text: t("writeFixed"), undo, at: Date.now() })} />
+      {liveOn && liveAt && (
+        <Underlines
+          field={liveAt}
+          host={host}
+          touch={touch}
+          lit={mode?.kind === "fixes" ? lit : null}
+          quiet={mode?.kind === "fixes" || selectionShown}
+          taps={!selectionShown}
+          onFixed={(undo) => setMade({ text: t("writeFixed"), undo, at: Date.now() })}
+          onTap={openFixes}
+        />
       )}
-      {buttonPos && showDot && !showButton && <WriteDot at={buttonPos} onPick={(action, tone) => startWrite(action, tone, "circle")} />}
+      {buttonPos && showDot && !showButton && <WriteDot at={buttonPos} fixes={fixCount} onFixes={() => openFixes(null)} onPick={(action, tone) => startWrite(action, tone, "circle")} />}
       {buttonPos && showButton && (
         <button
           ref={buttonEl}
           type="button"
           class="cf-qi-btn"
           style={{ top: `${buttonPos.top}px`, left: `${buttonPos.left}px` }}
-          aria-label={t("qiButton")}
-          title={t("qiButton")}
+          aria-label={fixCount ? t("writeFixes", fixCount) : t("qiButton")}
+          title={fixCount ? t("writeFixes", fixCount) : t("qiButton")}
           // Like the selection buttons: acts on pointerup (the field keeps the focus until then), and the
           // tap's late click is cancelled so it can't land on the list opening underneath.
           onPointerDown={(e) => e.preventDefault()}
           onTouchEnd={(e) => e.preventDefault()}
           onPointerUp={() => {
             dropTip()
-            openList("sheet", "button")
+            if (fixCount) openFixes(null)
+            else openList("sheet", "button")
           }}
           onClick={(e) => {
             if (e.detail !== 0) return
             dropTip()
-            openList("sheet", "button")
+            if (fixCount) openFixes(null)
+            else openList("sheet", "button")
           }}
         >
           <QIcon.Insert />
+          {/* How many mistakes are underlined in the field: the button opens their list. */}
+          {fixCount > 0 && <span class="cf-qi-n" aria-hidden="true">{fixCount > 9 ? "9+" : fixCount}</span>}
         </button>
       )}
-      {buttonPos && tip && field && <Tip at={buttonPos} fieldTop={pageRect(field.el).top + vp.dy} onClose={dropTip} />}
+      {buttonPos && tip && field && !fixCount && <Tip at={buttonPos} fieldTop={pageRect(field.el).top + vp.dy} onClose={dropTip} />}
+
+      {m?.kind === "fixes" && liveAt && issues.length > 0 && (
+        <FixList
+          field={liveAt}
+          touch={touch}
+          issues={issues}
+          at={lit}
+          made={made?.text ?? null}
+          onFix={(issue) => void fixOne(issue)}
+          onFixAll={() => void fixAll()}
+          onSkip={(issue) => skipIssue(liveAt.el, issue)}
+          onUndo={() => void takeBack()}
+          onLit={setLit}
+          where={(issue) => (live ? issueRects(liveAt, live.ft, issue, touch)[0] ?? null : null)}
+          onClose={() => setMode(null)}
+          onList={touch ? () => openList("sheet", "button") : null}
+        />
+      )}
 
       {m?.kind === "suggest" && fieldRef.current && (
         <Suggest field={fieldRef.current} touch={touch} items={m.items} chosen={m.chosen} onPick={(tpl) => insertTemplate(tpl, "slash", m.length)} />
@@ -602,7 +743,7 @@ export function QuickInsert(props: Props): VNode | null {
           <Icon.Copy /> {toast}
         </div>
       )}
-      {made && (
+      {made && m?.kind !== "fixes" && (
         <div class="cf-qi-toast cf-snack cf-wr-made" role="status" style={{ top: `${vp.dy + vp.height - 64}px` }} onPointerDown={(e) => e.preventDefault()}>
           <Icon.Check /> {made.text} <button type="button" onClick={() => void takeBack()}>{t("writeUndo")}</button>
         </div>

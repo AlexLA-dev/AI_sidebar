@@ -198,15 +198,25 @@
 }
 .cf-wr-menu.pop .cf-wr-item:hover, .cf-wr-menu.pop .cf-wr-item.on { background: var(--accent-soft); color: var(--accent-text); }
 .cf-wr-item svg { flex: none; color: var(--accent); }
-.cf-wr-more { margin-inline-start: auto; color: var(--text-3); }
+/* The word gives way (an ellipsis) before the icons do; the arrow turns over when the tones are open. */
+.cf-wr-word { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-wr-more { flex: none; display: inline-flex; color: var(--text-3); }
+.cf-wr-more svg { color: inherit; transition: transform 0.12s ease-out; }
+.cf-wr-item.on .cf-wr-more svg { transform: rotate(180deg); }
+/* A Mac's menu: the arrow at the row's end. */
+.cf-wr-menu.pop .cf-wr-more { margin-inline-start: auto; }
 .cf-wr-menu.pop .cf-wr-tones { padding: 4px 6px 4px; }
 /* iPhone and iPad: a row atop quick insert's list. */
 .cf-wr-menu.row { padding: 2px 10px 6px; }
 .cf-wr-menu.row .cf-wr-two { display: flex; gap: 8px; }
+/* Two equal halves that never outgrow the row (2.7 (107), the owner's iPad: Rewrite ran past the list's edge with its
+   arrow cut off; the arrow's auto margin had taken the room its centring needed). */
 .cf-wr-menu.row .cf-wr-item {
-  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 40px;
+  flex: 1 1 0; min-width: 0; box-sizing: border-box; padding: 0 10px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 6px; height: 40px;
   border-radius: 12px; background: var(--accent-soft); color: var(--accent-text); font-size: 15px; font-weight: 600;
 }
+.cf-wr-menu.row .cf-wr-more { color: var(--accent-text); margin-inline-start: -2px; }
 .cf-wr-menu.row .cf-wr-item.on { background: var(--accent); color: #fff; }
 .cf-wr-menu.row .cf-wr-item.on svg, .cf-wr-menu.row .cf-wr-item.on .cf-wr-more { color: #fff; }
 .cf-wr-tones { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 8px; }
@@ -237,12 +247,21 @@
 
 /* ---------------------------------------------- live underlines (2.7, Pro and Ultra): our colour, not the system's red */
 .cf-ul-layer { position: fixed; inset: 0; pointer-events: none; z-index: 3; }
+/* Still, and there while the mistake is (2.7 (107), the owner: easy to miss, gone with the focus): a line under the
+   words and a faint tint over them. No animation: nothing here draws the eye again and again. */
 .cf-ul {
-  position: fixed; height: 2.5px; border-radius: 2px; pointer-events: none;
-  background: linear-gradient(90deg, #38bdf8, #2563eb);
-  opacity: 0.85;
+  position: fixed; pointer-events: none; border-radius: 3px;
+  background:
+    linear-gradient(90deg, #38bdf8, #2563eb) left bottom / 100% 2.5px no-repeat,
+    rgba(37, 99, 235, 0.09);
 }
-.cf-ul.on { height: 3px; opacity: 1; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14); }
+/* The one its card or its row in the list is about. */
+.cf-ul.on {
+  background:
+    linear-gradient(90deg, #38bdf8, #2563eb) left bottom / 100% 3px no-repeat,
+    rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
+}
 .cf-ul-pop {
   position: fixed; z-index: 5; width: 240px; padding: 10px 12px;
   border-radius: 12px; background-color: var(--bg, #fff); border: 1px solid var(--border); box-shadow: var(--shadow);
@@ -253,3 +272,48 @@
 .cf-ul-fix ins { text-decoration: none; color: var(--accent-text); font-weight: 650; }
 .cf-ul-acts { display: flex; align-items: center; gap: 10px; }
 .cf-ul-acts .cf-primary { height: 32px; padding: 0 14px; }
+
+/* ---------------------------------------------- the list of fixes (2.7 (107)); the button's count */
+/* How many mistakes are underlined: on the field's button (and a Mac's circle). */
+.cf-qi-btn { overflow: visible; }
+.cf-qi-n {
+  position: absolute; top: -6px; inset-inline-end: -6px;
+  min-width: 17px; height: 17px; padding: 0 4px; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px; background: #fff; color: #1d4ed8;
+  font: 700 11px/1 -apple-system, system-ui, sans-serif; font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 1.5px #2563eb, 0 1px 3px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+.cf-fx { padding: 0; }
+.cf-fx-head { display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 14px; border-bottom: 1px solid var(--border); }
+:host([dir="rtl"]) .cf-fx-head { padding: 6px 14px 6px 6px; }
+.cf-fx-count { flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 14.5px; font-weight: 650; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-fx-count svg { flex: none; color: var(--accent); }
+.cf-fx-all {
+  flex: none; height: 32px; padding: 0 12px; border-radius: 16px;
+  background: var(--accent-soft); color: var(--accent-text); font-size: 13.5px; font-weight: 600; white-space: nowrap;
+}
+.cf-fx .cf-fx-list { color: var(--accent-text); }
+.cf-fx-body { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; min-height: 0; }
+/* The sentence, then its two buttons: beside it where there's room, under it on a phone. */
+.cf-fx-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 9px 10px 9px 14px; border-bottom: 1px solid var(--border); }
+:host([dir="rtl"]) .cf-fx-row { padding: 9px 14px 9px 10px; }
+.cf-fx-row:last-child { border-bottom: 0; }
+.cf-fx-row.on { background: var(--bg-2); box-shadow: inset 3px 0 0 var(--accent); }
+:host([dir="rtl"]) .cf-fx-row.on { box-shadow: inset -3px 0 0 var(--accent); }
+.cf-fx-text {
+  flex: 1 1 210px; min-width: 0; font-size: 14.5px; line-height: 1.4; color: var(--text-2); overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.cf-fx-text del { color: var(--text-3); text-decoration: line-through; text-decoration-color: var(--text-3); }
+.cf-fx-text del + ins { margin-inline-start: 4px; }
+.cf-fx-text ins { text-decoration: none; color: var(--accent-text); font-weight: 650; background: var(--accent-soft); border-radius: 4px; padding: 0 3px; box-shadow: inset 0 -2px 0 var(--accent); }
+.cf-fx-acts { flex: none; display: flex; align-items: center; gap: 4px; margin-inline-start: auto; }
+.cf-fx-acts .cf-primary { height: 34px; padding: 0 16px; border-radius: 17px; font-size: 14px; }
+.cf-fx-skip { height: 34px; padding: 0 10px; border-radius: 17px; color: var(--text-2); font-size: 13.5px; font-weight: 500; white-space: nowrap; }
+.cf-fx-skip:hover { background: var(--bg-2); }
+.cf-fx-foot { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-top: 1px solid var(--border); font-size: 13.5px; color: var(--text-2); }
+.cf-fx-foot span { flex: 1; display: inline-flex; align-items: center; gap: 6px; }
+.cf-fx-foot svg { color: var(--accent); width: 15px; height: 15px; }
+.cf-fx-foot button { color: var(--accent-text); font-weight: 600; font-size: 13.5px; padding: 4px 6px; }
