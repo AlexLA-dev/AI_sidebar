@@ -2405,6 +2405,21 @@
  "trFailed": {
   "message": "Не вдалося перекласти"
  },
+ "trLangPick": {
+  "message": "Мова перекладу"
+ },
+ "trPart": {
+  "message": "{0}: {1}% сторінки"
+ },
+ "trEntry": {
+  "message": "Перекласти сторінку"
+ },
+ "trControls": {
+  "message": "Кнопки й меню: {0}"
+ },
+ "trControlsCap": {
+  "message": "Безкоштовні переклади кнопок і меню на сьогодні закінчилися"
+ },
  "spacesTitle": {
   "message": "Простори"
  },

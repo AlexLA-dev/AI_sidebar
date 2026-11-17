@@ -2405,6 +2405,21 @@
  "trFailed": {
   "message": "Échec de la traduction"
  },
+ "trLangPick": {
+  "message": "Langue de traduction"
+ },
+ "trPart": {
+  "message": "{0} : {1} % de la page"
+ },
+ "trEntry": {
+  "message": "Traduire la page"
+ },
+ "trControls": {
+  "message": "Boutons et menus : {0}"
+ },
+ "trControlsCap": {
+  "message": "Les traductions gratuites des boutons et menus sont épuisées pour aujourd’hui"
+ },
  "spacesTitle": {
   "message": "Espaces"
  },

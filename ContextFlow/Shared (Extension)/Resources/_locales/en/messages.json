@@ -2405,6 +2405,21 @@
  "trFailed": {
   "message": "Couldn't translate"
  },
+ "trLangPick": {
+  "message": "Language to translate into"
+ },
+ "trPart": {
+  "message": "{0}: {1}% of the page"
+ },
+ "trEntry": {
+  "message": "Translate this page"
+ },
+ "trControls": {
+  "message": "Buttons and menus are in {0}"
+ },
+ "trControlsCap": {
+  "message": "Today's free translations of buttons and menus are used up"
+ },
  "spacesTitle": {
   "message": "Spaces"
  },

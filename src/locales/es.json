@@ -828,6 +828,11 @@
   "trWorking": "Traduciendo…",
   "trOriginal": "Original",
   "trFailed": "No se pudo traducir",
+  "trLangPick": "Idioma de destino",
+  "trPart": "{0}: {1}% de la página",
+  "trEntry": "Traducir la página",
+  "trControls": "Botones y menús: {0}",
+  "trControlsCap": "Las traducciones gratuitas de botones y menús de hoy se han agotado",
 
   "spacesTitle": "Espacios",
   "spaceSwitcher": "Espacio: {0}. Cambiar",

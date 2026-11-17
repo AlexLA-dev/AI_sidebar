@@ -142,7 +142,7 @@ test("the signals are the ones already worked out: the hints' kind, the pill's o
   assert.match(signals, /import \{ writableField \} from "\.\.\/insert\/Write"/)
   // The pill keeps what it found where it's hidden on a site too, and starts the translation for the chip.
   const pill = read("../src/content/translate/TranslatePill.tsx")
-  assert.match(pill, /foundNow = found\n/)
+  assert.match(pill, /foundNow = found\.offer\n/)
   assert.match(pill, /export function translatePageNow\(\): boolean \{\s*if \(!foundNow \|\| !starter\) return false/)
 })
 

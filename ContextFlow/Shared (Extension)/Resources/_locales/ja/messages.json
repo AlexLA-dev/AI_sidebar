@@ -2405,6 +2405,21 @@
  "trFailed": {
   "message": "翻訳できませんでした"
  },
+ "trLangPick": {
+  "message": "翻訳先の言語"
+ },
+ "trPart": {
+  "message": "{0}：ページの{1}%"
+ },
+ "trEntry": {
+  "message": "このページを翻訳"
+ },
+ "trControls": {
+  "message": "ボタンとメニュー：{0}"
+ },
+ "trControlsCap": {
+  "message": "今日のボタンとメニューの無料翻訳は使い切りました"
+ },
  "spacesTitle": {
   "message": "スペース"
  },

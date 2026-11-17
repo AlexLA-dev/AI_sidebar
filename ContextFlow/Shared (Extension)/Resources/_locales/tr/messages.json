@@ -2405,6 +2405,21 @@
  "trFailed": {
   "message": "Çevrilemedi"
  },
+ "trLangPick": {
+  "message": "Çeviri dili"
+ },
+ "trPart": {
+  "message": "{0}: sayfanın %{1}"
+ },
+ "trEntry": {
+  "message": "Sayfayı çevir"
+ },
+ "trControls": {
+  "message": "Düğmeler ve menüler: {0}"
+ },
+ "trControlsCap": {
+  "message": "Düğme ve menülerin bugünkü ücretsiz çevirileri bitti"
+ },
  "spacesTitle": {
   "message": "Alanlar"
  },

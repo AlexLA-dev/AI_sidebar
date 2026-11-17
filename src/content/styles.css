@@ -125,7 +125,8 @@
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42), 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 3;
   touch-action: none !important;
-  user-select: none; -webkit-user-select: none;
+  /* Held down, it opens the page's translation (build 107): no system menu or selection over it. */
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   transition: transform 0.15s ease, opacity 0.2s ease;
   opacity: 0.94;
 }

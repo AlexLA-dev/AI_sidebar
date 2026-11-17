@@ -18,7 +18,12 @@ interface FabDragOptions {
   onDrop: (side: Side, heightPct: number) => void
   // A press without a drag.
   onTap: () => void
+  // The circle held down without moving (build 107): the page's translation by hand, on any page.
+  onHold?: () => void
 }
+
+/** How long the circle is held, still, before it counts as a hold and not a tap. */
+export const HOLD_MS = 550
 
 export interface DragState {
   // The edge the circle or the panel would land on now, while dragged; null otherwise.
@@ -27,12 +32,20 @@ export interface DragState {
 }
 
 /** The circle: pointer handlers for it, and what's being dragged. */
-export function useFabDrag({ fab, onDrop, onTap }: FabDragOptions) {
+export function useFabDrag({ fab, onDrop, onTap, onHold }: FabDragOptions) {
   const [state, setState] = useState<DragState>({ glow: null, dragging: false })
-  const press = useRef<{ x: number; y: number; moved: boolean; glow: Side | null } | null>(null)
+  const press = useRef<{ x: number; y: number; moved: boolean; held: boolean; glow: Side | null } | null>(null)
   const settle = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hold = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const holdRef = useRef(onHold)
+  holdRef.current = onHold
+  const noHold = () => {
+    if (hold.current) clearTimeout(hold.current)
+    hold.current = null
+  }
   useEffect(() => () => {
     if (settle.current) clearTimeout(settle.current)
+    noHold()
   }, [])
 
   const clearInline = (el: HTMLElement) => {
@@ -43,8 +56,19 @@ export function useFabDrag({ fab, onDrop, onTap }: FabDragOptions) {
     state,
     handlers: {
       onPointerDown: (e: PointerEvent) => {
-        press.current = { x: e.clientX, y: e.clientY, moved: false, glow: null }
+        const p = { x: e.clientX, y: e.clientY, moved: false, held: false, glow: null as Side | null }
+        press.current = p
         ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
+        noHold()
+        if (holdRef.current) {
+          hold.current = setTimeout(() => {
+            hold.current = null
+            // Still down and still in place: a hold. Letting go then isn't a tap.
+            if (press.current !== p || p.moved) return
+            p.held = true
+            holdRef.current?.()
+          }, HOLD_MS)
+        }
       },
       onPointerMove: (e: PointerEvent) => {
         const p = press.current
@@ -54,6 +78,7 @@ export function useFabDrag({ fab, onDrop, onTap }: FabDragOptions) {
         e.preventDefault()
         if (!p.moved) {
           p.moved = true
+          noHold()
           if (settle.current) clearTimeout(settle.current)
           setState({ glow: nearestSide(e.clientX, window.innerWidth), dragging: true })
         }
@@ -72,9 +97,10 @@ export function useFabDrag({ fab, onDrop, onTap }: FabDragOptions) {
         const p = press.current
         press.current = null
         const el = fab.current
+        noHold()
         if (!p) return
         if (!p.moved || !el) {
-          onTap()
+          if (!p.held) onTap()
           return
         }
         const side = nearestSide(e.clientX, window.innerWidth)
@@ -88,6 +114,7 @@ export function useFabDrag({ fab, onDrop, onTap }: FabDragOptions) {
         settle.current = setTimeout(() => clearInline(el), SETTLE_MS)
       },
       onPointerCancel: () => {
+        noHold()
         press.current = null
         const el = fab.current
         if (el) clearInline(el)

@@ -828,6 +828,11 @@
   "trWorking": "번역 중…",
   "trOriginal": "원문",
   "trFailed": "번역하지 못했어요",
+  "trLangPick": "번역할 언어",
+  "trPart": "{0}: 페이지의 {1}%",
+  "trEntry": "이 페이지 번역",
+  "trControls": "버튼과 메뉴: {0}",
+  "trControlsCap": "오늘의 버튼·메뉴 무료 번역을 모두 사용했어요",
 
   "spacesTitle": "스페이스",
   "spaceSwitcher": "스페이스: {0}. 전환",

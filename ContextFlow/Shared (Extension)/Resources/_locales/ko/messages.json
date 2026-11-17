@@ -2405,6 +2405,21 @@
  "trFailed": {
   "message": "번역하지 못했어요"
  },
+ "trLangPick": {
+  "message": "번역할 언어"
+ },
+ "trPart": {
+  "message": "{0}: 페이지의 {1}%"
+ },
+ "trEntry": {
+  "message": "이 페이지 번역"
+ },
+ "trControls": {
+  "message": "버튼과 메뉴: {0}"
+ },
+ "trControlsCap": {
+  "message": "오늘의 버튼·메뉴 무료 번역을 모두 사용했어요"
+ },
  "spacesTitle": {
   "message": "스페이스"
  },

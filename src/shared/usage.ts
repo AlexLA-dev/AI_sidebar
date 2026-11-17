@@ -173,7 +173,8 @@ export const FEATURES: Record<string, Feature> = {
   // answers used up (and Pro tapped there), a failure. The server logs each request ("translate") and the limit.
   translate_page: {
     since: "2.7", tracked: "2.7", on: "ext",
-    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error"]
+    // build 107: "entry" the entry by the circle opened the pill, "lang" another language picked.
+    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error", "entry", "lang"]
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
   // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
