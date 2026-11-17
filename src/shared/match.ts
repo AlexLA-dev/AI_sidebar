@@ -1,5 +1,7 @@
 // «Подходящий чат при открытии панели» (2.7, plan section 4): the ✦ circle or Safari's toolbar button opens the panel
-// on the chat that fits this page, inside the space it's in (spaces.ts):
+// on the chat that fits this page, in whichever space it is (spaces.ts; 107, the owner: a page's chat in another space
+// opened nothing until he switched there by hand), the space the panel is in first at each step, a site's bound space
+// alone ("Open this site here" wins):
 //   1. a chat with this page;
 //   2. else a chat on the page's topic at 85 % or more, as chat merging asks (OrganizeConfig.mergeTopic): in Free by
 //      the words of the page's title on this device; in Pro with organizing on, by meaning (the background, under the
@@ -8,11 +10,12 @@
 //      this page too, at SITE_MATCH or more: one product's docs continue their chat, an unrelated article on the same
 //      news site or another product in the same shop doesn't (the director on #172);
 //   4. else a new chat, with this page's quick actions.
-// A thin line over it says «Продолжаю «…» · Новый чат»: one tap if it guessed wrong.
+// A thin line over it says «Продолжаю «…» · Новый чат»: one tap if it guessed wrong. A chat in another space takes the
+// panel there: the line names that space and has «← <the space it was in>» instead (a new chat back there).
 
 import { urlKey } from "./conversation.ts"
 import { boundSpace, currentSpace, hasSpaces, siteKey, spaceOfChat, type SpaceList } from "./spaces.ts"
-import { activity, chatForPage, liveThreads, threadName, threadPages, type ActiveThread, type Thread, type Threads } from "./threads.ts"
+import { activity, liveThreads, threadName, threadPages, type ActiveThread, type Thread, type Threads } from "./threads.ts"
 import { topicWords } from "./words.ts"
 
 // The words a title is about (words.ts): this module's callers and tests take them from here.
@@ -27,6 +30,9 @@ export interface ChatMatch {
   space: string
   // The panel went into the site's bound space (spaces.ts pageChatPlace).
   bound: boolean
+  // 107: the chat is in another space than the panel was in, and the panel went there: the space it was in (the line's
+  // way back). Not for a bound site's switch.
+  from?: string
   why: MatchWhy
   // A topic's match, %.
   match?: number
@@ -121,10 +127,36 @@ export interface MeaningMatches {
   topic: number
 }
 
-/** The chats one page may open on: live, about pages (not "Ask your chats"), in `space` when there are spaces. */
-export function matchable(threads: Threads, list: SpaceList, space: string, on: boolean): Thread[] {
-  const spaced = on && hasSpaces(list)
+/**
+ * The chats one page may open on: live, about pages (not "Ask your chats"); in `space` when there are spaces and a space
+ * is given (a site's bound space), every space's with null (107).
+ */
+export function matchable(threads: Threads, list: SpaceList, space: string | null, on: boolean): Thread[] {
+  const spaced = on && hasSpaces(list) && space !== null
   return liveThreads(threads).filter((t) => t.kind !== "history" && t.m.length > 0 && (!spaced || spaceOfChat(list, t) === space))
+}
+
+/** Where a page's chat is looked for: a site's bound space alone ("Open this site here"), else null (every space). */
+export function matchScope(list: SpaceList, href: string, on: boolean): string | null {
+  return on && hasSpaces(list) ? boundSpace(list, siteKey(href)) : null
+}
+
+/**
+ * The best of a rule's candidates: one in `home` (the space the panel is in, or the bound one) before another space's;
+ * then the higher match; then the latest.
+ */
+function best<T extends { chat: Thread; match: number }>(found: T[], home: (chat: Thread) => boolean): T | null {
+  let top: T | null = null
+  for (const f of found) {
+    if (!top) {
+      top = f
+      continue
+    }
+    const a = home(f.chat)
+    const b = home(top.chat)
+    if (a !== b ? a : f.match !== top.match ? f.match > top.match : activity(f.chat) > activity(top.chat)) top = f
+  }
+  return top
 }
 
 /**
@@ -144,36 +176,38 @@ export function matchChat(
   const shown = threads[active.id] && !threads[active.id].deleted && threads[active.id].trashed === undefined ? threads[active.id] : undefined
   const here = currentSpace(list, shown, active, on)
   const spaced = on && hasSpaces(list)
-  const bound = spaced ? boundSpace(list, siteKey(href)) : null
-  const space = bound ?? here
-  const switched = space !== here
-  const chats = matchable(threads, list, space, on)
+  const bound = matchScope(list, href, on)
+  const home = bound ?? here
+  const switched = home !== here
+  const spaceOf = (chat: Thread) => (spaced ? spaceOfChat(list, chat) : home)
+  const inHome = (chat: Thread) => spaceOf(chat) === home
+  const chats = matchable(threads, list, bound, on)
   const ids = new Set(chats.map((t) => t.id))
-  // 1. This page.
-  const page = chatForPage(threads, href, (t) => ids.has(t.id))
-  const site = siteKey(href)
-  // chatForPage gives a site's chat too: here only one with this very page counts (rule 3 below for the site).
-  if (page && chats.find((t) => t.id === page)!.m.some((e) => e.page && urlKey(e.page.url) === urlKey(href))) return { chat: page, space, bound: switched, why: "page" }
+  // The chat's space: the panel goes there; from another space than the one it was in, the line says so.
+  const at = (chat: Thread, why: MatchWhy, match?: number): ChatMatch => {
+    const space = spaceOf(chat)
+    return { chat: chat.id, space, bound: switched, ...(space !== home ? { from: home } : {}), why, ...(match !== undefined ? { match } : {}) }
+  }
+  // 1. This page (a chat with this very page; a site's chat is rule 3's).
+  const key = urlKey(href)
+  const page = best(chats.filter((t) => threadPages(t.m).some((p) => urlKey(p.url) === key)).map((chat) => ({ chat, match: 100 })), inHome)
+  if (page) return at(page.chat, "page")
   // 2. The topic: by meaning when the background was asked (Pro with organizing on: its answer, at the merge threshold,
   // or null for none); else (Free, or no answer in time) by the title's words.
-  const sensed = meaning?.matches.find((m) => ids.has(m.chat) && m.match >= meaning.topic)
-  if (sensed) return { chat: sensed.chat, space, bound: switched, why: "meaning", match: sensed.match }
-  let best: { chat: Thread; match: number } | null = null
-  for (const chat of meaning === undefined ? chats : []) {
-    const match = wordMatch(title, chat)
-    if (match >= MATCH_TOPIC && (!best || match > best.match || (match === best.match && activity(chat) > activity(best.chat)))) best = { chat, match }
-  }
-  if (best) return { chat: best.chat.id, space, bound: switched, why: "topic", match: best.match }
-  // 3. The site, when the chat is about it alone and about this page too, by words or by meaning (the best such chat;
-  // the latest of equals).
-  let near: { chat: Thread; match: number } | null = null
-  for (const chat of chats) {
-    if (!aboutSiteAlone(chat, site)) continue
-    const match = Math.max(siteMatch(title, href, chat), meaning?.matches.find((m) => m.chat === chat.id)?.match ?? 0)
-    if (match >= SITE_MATCH && (!near || match > near.match || (match === near.match && activity(chat) > activity(near.chat)))) near = { chat, match }
-  }
-  if (near) return { chat: near.chat.id, space, bound: switched, why: "site", match: near.match }
-  // 4. A new chat (the one open stays when it's new and empty: nothing to start again).
-  return { chat: shown ? null : active.id, space, bound: switched, why: "new" }
+  const byId = new Map(chats.map((t) => [t.id, t]))
+  const sensed = best((meaning?.matches ?? []).filter((m) => ids.has(m.chat) && m.match >= meaning!.topic).map((m) => ({ chat: byId.get(m.chat)!, match: m.match })), inHome)
+  if (sensed) return at(sensed.chat, "meaning", sensed.match)
+  const worded = meaning === undefined ? best(chats.map((chat) => ({ chat, match: wordMatch(title, chat) })).filter((f) => f.match >= MATCH_TOPIC), inHome) : null
+  if (worded) return at(worded.chat, "topic", worded.match)
+  // 3. The site, when the chat is about it alone and about this page too, by words or by meaning.
+  const site = siteKey(href)
+  const near = best(
+    chats.filter((chat) => aboutSiteAlone(chat, site))
+      .map((chat) => ({ chat, match: Math.max(siteMatch(title, href, chat), meaning?.matches.find((m) => m.chat === chat.id)?.match ?? 0) }))
+      .filter((f) => f.match >= SITE_MATCH),
+    inHome
+  )
+  if (near) return at(near.chat, "site", near.match)
+  // 4. A new chat in the space the panel is in (the one open stays when it's new and empty: nothing to start again).
+  return { chat: shown ? null : active.id, space: home, bound: switched, why: "new" }
 }
-

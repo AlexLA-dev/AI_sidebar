@@ -1018,5 +1018,7 @@
   "colPdfFooter": "ContextFlow ile hazırlandı",
   "colPdfSave": "PDF olarak kaydet",
   "colPick": "Koleksiyon: {0}. Değiştir",
-  "colCardMenu": "Kart işlemleri"
+  "colCardMenu": "Kart işlemleri",
+  "matchContinueIn": "“{0}” alanında devam ediliyor",
+  "matchBackTo": "“{0}” alanına dön"
 }

@@ -256,21 +256,23 @@ export const FEATURES: Record<string, Feature> = {
   },
 
   // 2.7: Spaces (src/shared/spaces.ts), counts only: never a space's name or colour, nor a site. "switch": how (the
-  // header's list, the app's list, a bound site, a chat opened from another space, a search hit); "bind" and "toggle":
+  // header's list, the app's list, a bound site, a chat opened from another space, a search hit, the matching chat in
+  // another space (107), its line's way back); "bind" and "toggle":
   // on or off (Settings' switch); "limit": Free asked for one more than it has; "spaces": how many there are then.
   space: {
     since: "2.7", tracked: "2.7", actions: ["create", "switch", "move", "bind", "toggle", "edit", "delete", "limit"],
-    via: ["header", "app", "site", "chat", "list", "settings"],
+    via: ["header", "app", "site", "chat", "list", "settings", "match", "match_back"],
     fields: { val: ["on", "off"], spaces: "int" }
   },
 
   // 2.7: «Подходящий чат при открытии панели» (src/shared/match.ts). "shown": the panel opened on a chat that fits the
   // page, and why (its page, its topic by words or by meaning, its site) with the topic's match %; "new": none fitted,
-  // a new chat. Then whether the person left it at once: "line_new" (the line's «Новый чат»), "other" (another chat
-  // opened within two minutes). Counts only.
+  // a new chat; "where": in the space the panel was in, or another (107: it went there). Then whether the person left it
+  // at once: "line_new" (the line's «Новый чат»), "line_back" (its «← space», back where the panel was), "other"
+  // (another chat opened within two minutes). Counts only.
   match: {
-    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "other"],
-    fields: { why: ["page", "topic", "meaning", "site"], match: "int" }
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "line_back", "other"],
+    fields: { why: ["page", "topic", "meaning", "site"], match: "int", where: ["here", "other"] }
   },
 
   // 2.7: Подборки (src/shared/collections.ts), counts only: never a name, a gist, a site. "add": a card put in (via the

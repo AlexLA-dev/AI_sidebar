@@ -1018,5 +1018,7 @@
   "colPdfFooter": "صُنع بـ ContextFlow",
   "colPdfSave": "حفظ بتنسيق PDF",
   "colPick": "المجموعة: {0}. تبديل",
-  "colCardMenu": "إجراءات البطاقة"
+  "colCardMenu": "إجراءات البطاقة",
+  "matchContinueIn": "أتابع في «{0}»",
+  "matchBackTo": "العودة إلى «{0}»"
 }

@@ -1018,5 +1018,7 @@
   "colPdfFooter": "Сделано в ContextFlow",
   "colPdfSave": "Сохранить PDF",
   "colPick": "Подборка: {0}. Переключить",
-  "colCardMenu": "Действия с карточкой"
+  "colCardMenu": "Действия с карточкой",
+  "matchContinueIn": "Продолжаю в «{0}»",
+  "matchBackTo": "Назад в «{0}»"
 }
