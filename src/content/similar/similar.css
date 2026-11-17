@@ -11,8 +11,20 @@
   border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font: inherit; font-size: 13.5px;
 }
 .cf-similar-words:focus { outline: none; border-color: var(--accent); }
-/* iOS zooms the page into a field whose text is under 16px: never on a touch screen. */
-.cf[data-touch] .cf-similar-words { font-size: 16px; }
+/* iOS zooms the page into a field whose text is under 16px: never on a touch screen. 107, the owner: at 16px «Or say
+   what you need» was set larger than the chips and labels around it. The text stays 16px for Safari and is drawn at
+   the card's 13.5px: the field is laid out 1/0.84375 as large and scaled down (its box ends up 40px tall, as before). */
+.cf[data-touch] .cf-similar-words {
+  --fit: 0.84375;
+  font-size: 16px; line-height: 1.25;
+  width: calc(100% / var(--fit)); height: calc(40px / var(--fit)); padding: 0 calc(11px / var(--fit));
+  border-radius: calc(10px / var(--fit));
+  transform: scale(var(--fit)); transform-origin: 0 0;
+  /* Its own line, and its box counted as wide and as tall as it's drawn (or the card would scroll sideways). */
+  display: block; margin-inline-end: calc(100% - 100% / var(--fit));
+  margin-bottom: calc(48px - 40px / var(--fit));
+}
+:host([dir="rtl"]) .cf[data-touch] .cf-similar-words { transform-origin: 100% 0; }
 .cf .cf-similar-hint { margin: 0 0 10px; font-size: 12px; color: var(--text-3); }
 /* 2.7: the light search (not Ultra): in the card, what it is; under its answer, what Ultra adds. */
 .cf .cf-similar-light { margin: 0 0 10px; font-size: 12px; color: var(--text-3); }

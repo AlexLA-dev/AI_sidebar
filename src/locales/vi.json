@@ -1018,6 +1018,13 @@
   "colPdfSave": "Lưu thành PDF",
   "colPick": "Bộ sưu tập: {0}. Chuyển",
   "colCardMenu": "Thao tác với thẻ",
+  "shotAdd": "Ảnh chụp",
+  "shotAdded": "Đã thêm ảnh chụp",
+  "colIn": "Trong “{0}”",
+  "colOpen": "Mở bộ sưu tập",
+  "colAddOther": "Vào bộ sưu tập khác",
+  "colAlready": "Đã có trong “{0}”",
+  "tipNew": "Mới",
   "matchContinueIn": "Đang tiếp tục trong “{0}”",
   "matchBackTo": "Quay lại “{0}”"
 }

@@ -2969,6 +2969,27 @@
  "colCardMenu": {
   "message": "Kart işlemleri"
  },
+ "shotAdd": {
+  "message": "Görüntü"
+ },
+ "shotAdded": {
+  "message": "Görüntü eklendi"
+ },
+ "colIn": {
+  "message": "“{0}” içinde"
+ },
+ "colOpen": {
+  "message": "Koleksiyonu aç"
+ },
+ "colAddOther": {
+  "message": "Başka bir koleksiyona ekle"
+ },
+ "colAlready": {
+  "message": "Zaten “{0}” içinde"
+ },
+ "tipNew": {
+  "message": "Yeni"
+ },
  "matchContinueIn": {
   "message": "“{0}” alanında devam ediliyor"
  },
@@ -3280,12 +3301,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro ve Ultra aylık veya yıllık alınabilir; yıllık plan, on iki aylık ödemeden daha ucuza gelir. Her fiyatı ve ne kadar tasarruf edeceğinizi görmek için uygulamada veya Safari'de planların üstündeki “Yıllık” seçeneğine dokunun. Zaten aylık mı ödüyorsunuz? “Yıllık plana geç”, Ayarlar → Planınız bölümündedir ve mevcut ayınız bittiğinde başlar."
- },
- "tip_9288a85bb9": {
-  "message": "Planınızın getirdikleri"
- },
- "tip_0f2289f887": {
-  "message": "Pro veya Ultra satın aldıktan sonra ContextFlow, planınızın getirdiklerini adım adım gösterir. Yeniden görmek için panelin üstündeki … düğmesine, ardından “Diğer…” ve “Pro planında neler var” ya da “Ultra planında neler var” seçeneğine dokunun. Uygulamada Ayarlar'daki “Planınız” bölümünde bulunur."
  },
  "tip_3ee4fbeeb2": {
   "message": "Arkadaşını davet et"

@@ -1018,6 +1018,13 @@
   "colPdfSave": "PDFとして保存",
   "colPick": "コレクション：{0}。切り替える",
   "colCardMenu": "カードの操作",
+  "shotAdd": "スナップショット",
+  "shotAdded": "スナップショットを追加しました",
+  "colIn": "「{0}」に追加済み",
+  "colOpen": "コレクションを開く",
+  "colAddOther": "別のコレクションへ",
+  "colAlready": "すでに「{0}」にあります",
+  "tipNew": "新機能",
   "matchContinueIn": "「{0}」で続き：",
   "matchBackTo": "「{0}」に戻る"
 }

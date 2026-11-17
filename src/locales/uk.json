@@ -1018,6 +1018,13 @@
   "colPdfSave": "Зберегти PDF",
   "colPick": "Добірка: {0}. Перемкнути",
   "colCardMenu": "Дії з карткою",
+  "shotAdd": "Знімок",
+  "shotAdded": "Знімок додано",
+  "colIn": "У «{0}»",
+  "colOpen": "Відкрити добірку",
+  "colAddOther": "До іншої добірки",
+  "colAlready": "Уже в «{0}»",
+  "tipNew": "Нове",
   "matchContinueIn": "Продовжую в «{0}»",
   "matchBackTo": "Назад до «{0}»"
 }

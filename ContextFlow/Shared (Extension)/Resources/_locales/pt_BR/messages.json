@@ -2969,6 +2969,27 @@
  "colCardMenu": {
   "message": "Ações do cartão"
  },
+ "shotAdd": {
+  "message": "Captura"
+ },
+ "shotAdded": {
+  "message": "Captura adicionada"
+ },
+ "colIn": {
+  "message": "Em “{0}”"
+ },
+ "colOpen": {
+  "message": "Abrir a coleção"
+ },
+ "colAddOther": {
+  "message": "Adicionar a outra coleção"
+ },
+ "colAlready": {
+  "message": "Já está em “{0}”"
+ },
+ "tipNew": {
+  "message": "Novo"
+ },
  "matchContinueIn": {
   "message": "Continuando em “{0}”"
  },
@@ -3280,12 +3301,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro e Ultra podem ser mensais ou anuais, e um ano sai mais barato que doze meses. Toque em “Anual” acima dos planos, no app ou no Safari, para ver cada preço e quanto você economiza. Já paga por mês? “Mudar para anual” fica em “Ajustes” → “Seu plano”: começa quando o mês atual termina."
- },
- "tip_9288a85bb9": {
-  "message": "O que seu plano traz"
- },
- "tip_0f2289f887": {
-  "message": "Depois de comprar o Pro ou o Ultra, o ContextFlow mostra, passo a passo, o que seu plano traz. Para ver de novo, toque em “…” no topo do painel, depois em “Outros…” e em “O que vem no Pro” ou “O que vem no Ultra”. No app, fica em “Ajustes”, em “Seu plano”."
  },
  "tip_3ee4fbeeb2": {
   "message": "Convidar um amigo"

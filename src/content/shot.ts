@@ -3,7 +3,7 @@
 // ours, in one host) hide for the moment it takes, so they're not in it. What stays put at the top of the page (a
 // sticky header) is in the picture once, at its top; what stays at the bottom (a cookie bar) isn't in a whole page's.
 
-import { fitSize, markedRows, MARK_RGB, newShotId, nextScreen, pageRows, SHOT_LIMITS, type Shot, type ShotKind } from "../shared/shots"
+import { fitSize, markedRows, MARK_RGB, newShotId, nextScreen, pageRows, SHOT_LIMITS, SHOT_TIMES, windowScrolls, type Shot, type ShotKind } from "../shared/shots"
 import { HOST_TAG } from "./page"
 import { panelRoot } from "./root"
 
@@ -43,8 +43,12 @@ function ourHost(): HTMLElement | null {
 function staying(): HTMLElement[] {
   const out: HTMLElement[] = []
   const all = document.body?.querySelectorAll<HTMLElement>("*") ?? []
-  // A very heavy page: its first 6000 elements (headers and bars come early).
+  // A very heavy page: its first 6000 elements (headers and bars come early), and never longer than a moment (107: a
+  // mail app's page has tens of thousands, each style read costing a layout, all with our panel hidden).
+  const until = Date.now() + 150
+  let n = 0
   for (const el of Array.from(all).slice(0, 6000)) {
+    if (++n % 200 === 0 && Date.now() > until) break
     if (el.tagName.toLowerCase() === HOST_TAG) continue
     const pos = getComputedStyle(el).position
     if (pos !== "fixed" && pos !== "sticky") continue
@@ -88,10 +92,10 @@ function unmark(ctx: CanvasRenderingContext2D, rows: Array<{ y: number; h: numbe
 }
 
 async function capture(): Promise<HTMLImageElement> {
-  // Never longer than this: everything of ours is hidden meanwhile.
+  // Never longer than this: everything of ours is hidden meanwhile (the background gives up a little sooner).
   const reply = await Promise.race([
     send<{ ok: boolean; data?: string; code?: ShotFailure; error?: string }>({ type: "shotCapture" }),
-    new Promise<null>((resolve) => setTimeout(() => resolve(null), 9000))
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), SHOT_TIMES.wait))
   ])
   if (!reply?.ok || !reply.data) throw Object.assign(new Error(reply?.error ?? "capture"), { code: reply?.code ?? "FAILED", detail: reply?.error ?? (reply ? "" : "no reply") })
   return loadImage(reply.data)
@@ -120,6 +124,8 @@ function thumbnail(source: HTMLCanvasElement): string {
 export async function takeShot(kind: ShotKind, progress?: (screen: number, of: number) => void): Promise<
   { ok: true; shot: Omit<Shot, "parts">; data: string; cut: boolean; screens: number } | { ok: false; code: ShotFailure; detail?: string }
 > {
+  // The extension was updated while this tab stayed open: nothing answers here any more, so nothing is hidden for it.
+  if (!chrome.runtime?.id) return { ok: false, code: "UNAVAILABLE", detail: "no extension" }
   const host = ourHost()
   const hostVisibility = host?.style.visibility ?? ""
   const startX = window.scrollX
@@ -133,9 +139,12 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
     let canvas: HTMLCanvasElement
     let cut = false
     let screens = 1
+    // A page whose window doesn't scroll (a mail app: its own scroller holds the text) is all on screen: its whole
+    // page is what's visible, taken once, with nothing of the page hidden.
+    const whole = kind === "full" && windowScrolls(document, window)
     const unplace = placeMarks()
     try {
-      if (kind === "visible") {
+      if (!whole) {
         const img = await capture()
         const rows = pageIn(img)
         const size = fitSize(img.naturalWidth, rows.height, SHOT_LIMITS.width)
@@ -155,10 +164,14 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
         let dpr = 1
         let shown = 0
         let lastShot = 0
+        let still = false
         const marks: Array<{ y: number; h: number }> = []
+        const began = Date.now()
         for (let i = 0; i < SHOT_LIMITS.screens; i++) {
           const step = nextScreen(shown, page, window.innerHeight)
           if (!step) break
+          // The screens altogether never take longer than this: what's taken by then is the picture.
+          if (i > 0 && Date.now() - began > SHOT_TIMES.full) break
           progress?.(i + 1, Math.min(SHOT_LIMITS.screens, i + 1 + Math.ceil((page - shown - step.height) / Math.max(1, window.innerHeight))))
           window.scrollTo({ left: 0, top: step.scrollY, behavior: "instant" as ScrollBehavior })
           // What stays put at the bottom (a cookie bar, a "Buy" bar) would land mid-picture: never in it. What stays at
@@ -172,7 +185,19 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
           await frame()
           await frame()
           await wait(Math.max(200, 520 - (Date.now() - lastShot)))
-          const img = await capture()
+          // The page didn't move (its own scroller holds the text, the window has none: a mail app): one screen is all.
+          if (i > 0 && window.scrollY < step.scrollY - 1 && shown - window.scrollY >= window.innerHeight - 1) {
+            still = true
+            break
+          }
+          let img: HTMLImageElement
+          try {
+            img = await capture()
+          } catch (err) {
+            // A later screen that can't be taken leaves the picture with the screens before it.
+            if (i === 0) throw err
+            break
+          }
           lastShot = Date.now()
           // Where the page is in this capture, and where this screen's new rows really are (the page may not have
           // scrolled exactly there, and the viewport may be another height than a moment ago).
@@ -205,7 +230,7 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
           shown += height
           screens = i + 1
         }
-        cut = shown < page
+        cut = shown < page && !still
         if (!ctx) throw Object.assign(new Error("no screen"), { code: "FAILED" })
         unmark(ctx, marks, Math.ceil(dpr * scale * MARK) + 1)
         // Down to what was taken.
@@ -223,7 +248,7 @@ export async function takeShot(kind: ShotKind, progress?: (screen: number, of: n
     }
     canvas = canvas!
     const data = jpeg(canvas, SHOT_LIMITS.quality)
-    return { ok: true, shot: { id: newShotId(), kind, w: canvas.width, h: canvas.height, th: thumbnail(canvas) }, data, cut, screens }
+    return { ok: true, shot: { id: newShotId(), kind: whole ? "full" : "visible", w: canvas.width, h: canvas.height, th: thumbnail(canvas) }, data, cut, screens }
   } catch (err) {
     return { ok: false, code: ((err as { code?: ShotFailure }).code) ?? "FAILED", detail: (err as { detail?: string }).detail ?? (err instanceof Error ? err.message : "") }
   } finally {
