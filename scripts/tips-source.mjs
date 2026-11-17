@@ -13,6 +13,8 @@ import { join } from "node:path"
 
 const SWIFT = "ContextFlow/Shared (App)/ContentView.swift"
 const CATALOG = "ContextFlow/Shared (App)/Localizable.xcstrings"
+// The version What's new is about (WhatsNew.version): a card whose feature came with it says «New» (107).
+const WHATS_NEW = "ContextFlow/Shared (App)/WhatsNew.swift"
 // The extension's languages (src/locales/<file>.json) and the app catalog's names for them.
 export const CATALOG_LANG = { ar: "ar", de: "de", es: "es", fr: "fr", it: "it", ja: "ja", ko: "ko", pt_BR: "pt-BR", ru: "ru", tr: "tr", uk: "uk", vi: "vi", zh_CN: "zh-Hans", zh_TW: "zh-Hant" }
 // The screen's own words, outside TipGroup.
@@ -102,7 +104,11 @@ function tipCall(src) {
     const at = a.indexOf(":")
     return [a.slice(0, at).trim(), a.slice(at + 1).trim()]
   }))
-  return { title: literal(args.title, "a Tip's title"), text: literal(args.text, "a Tip's text"), clip: clipArg(args.clip), pro: args.pro === "true", ultra: args.ultra === "true" }
+  return {
+    title: literal(args.title, "a Tip's title"), text: literal(args.text, "a Tip's text"), clip: clipArg(args.clip), pro: args.pro === "true", ultra: args.ultra === "true",
+    // The version that brought the feature (`since: "2.7"`): «New» by the card while that's What's new's version.
+    since: args.since === undefined ? null : literal(args.since, "a Tip's since")
+  }
 }
 
 /** A tip on iOS and on a Mac: one Tip(…), or `#if os(iOS) Tip(…) #else Tip(…) #endif`. */
@@ -127,6 +133,7 @@ function entry({ ios, mac }) {
   if (ios.pro || mac.pro) e.pro = true
   // 2.6: Ultra's own features (Find similar, Listen) carry the Ultra badge.
   if (ios.ultra || mac.ultra) e.ultra = true
+  if (ios.since || mac.since) e.since = ios.since || mac.since
   return e
 }
 
@@ -166,7 +173,9 @@ export function tipsData(root) {
     if (!items.length) throw new Error("tips: an empty block")
     return { id: literal(arg("id"), "a block's id"), title: text(literal(arg("title"), "a block's title")), tips: items }
   })
-  return { heading: text(HEADING), intro: text(INTRO), clipLang: { key: CLIP_LANG, en: "en" }, lead: entry(lead), groups }
+  const version = /static let version = "(\d+\.\d+)"/.exec(readFileSync(join(root, WHATS_NEW), "utf8"))
+  if (!version) throw new Error("tips: no WhatsNew.version")
+  return { heading: text(HEADING), intro: text(INTRO), clipLang: { key: CLIP_LANG, en: "en" }, newIn: version[1], lead: entry(lead), groups }
 }
 
 /** Every clip a card shows, on iOS or on a Mac, once. */

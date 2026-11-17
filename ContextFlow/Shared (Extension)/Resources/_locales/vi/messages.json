@@ -2957,6 +2957,27 @@
  "colCardMenu": {
   "message": "Thao tác với thẻ"
  },
+ "shotAdd": {
+  "message": "Ảnh chụp"
+ },
+ "shotAdded": {
+  "message": "Đã thêm ảnh chụp"
+ },
+ "colIn": {
+  "message": "Trong “{0}”"
+ },
+ "colOpen": {
+  "message": "Mở bộ sưu tập"
+ },
+ "colAddOther": {
+  "message": "Vào bộ sưu tập khác"
+ },
+ "colAlready": {
+  "message": "Đã có trong “{0}”"
+ },
+ "tipNew": {
+  "message": "Mới"
+ },
  "matchContinueIn": {
   "message": "Đang tiếp tục trong “{0}”"
  },
@@ -3268,12 +3289,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro và Ultra có gói theo tháng hoặc theo năm, và một năm rẻ hơn mười hai tháng. Chạm vào Theo năm phía trên các gói, trong ứng dụng hoặc trong Safari, để xem từng giá và số tiền tiết kiệm. Đang trả theo tháng? Chuyển sang theo năm nằm trong Cài đặt → Gói của bạn: gói năm bắt đầu khi tháng hiện tại kết thúc."
- },
- "tip_9288a85bb9": {
-  "message": "Gói của bạn có thêm gì"
- },
- "tip_0f2289f887": {
-  "message": "Sau khi bạn mua Pro hoặc Ultra, ContextFlow giới thiệu từng bước những gì gói của bạn có thêm. Muốn xem lại, chạm vào … ở đầu bảng, rồi Khác… và Pro có gì hoặc Ultra có gì. Trong ứng dụng, mục này nằm trong Cài đặt, ở phần Gói của bạn."
  },
  "tip_3ee4fbeeb2": {
   "message": "Mời bạn bè"

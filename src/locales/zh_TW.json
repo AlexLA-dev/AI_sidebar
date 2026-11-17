@@ -1014,6 +1014,13 @@
   "colPdfSave": "儲存為 PDF",
   "colPick": "合集：{0}。切換",
   "colCardMenu": "卡片操作",
+  "shotAdd": "快照",
+  "shotAdded": "已加入快照",
+  "colIn": "已在「{0}」",
+  "colOpen": "開啟合集",
+  "colAddOther": "加入其他合集",
+  "colAlready": "已在「{0}」中",
+  "tipNew": "新功能",
   "matchContinueIn": "在「{0}」中繼續：",
   "matchBackTo": "回到「{0}」"
 }
