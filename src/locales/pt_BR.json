@@ -1019,6 +1019,13 @@
   "colPdfSave": "Salvar como PDF",
   "colPick": "Coleção: {0}. Trocar",
   "colCardMenu": "Ações do cartão",
+  "shotAdd": "Captura",
+  "shotAdded": "Captura adicionada",
+  "colIn": "Em “{0}”",
+  "colOpen": "Abrir a coleção",
+  "colAddOther": "Adicionar a outra coleção",
+  "colAlready": "Já está em “{0}”",
+  "tipNew": "Novo",
   "matchContinueIn": "Continuando em “{0}”",
   "matchBackTo": "Voltar para “{0}”"
 }

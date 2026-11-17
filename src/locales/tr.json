@@ -1019,6 +1019,13 @@
   "colPdfSave": "PDF olarak kaydet",
   "colPick": "Koleksiyon: {0}. Değiştir",
   "colCardMenu": "Kart işlemleri",
+  "shotAdd": "Görüntü",
+  "shotAdded": "Görüntü eklendi",
+  "colIn": "“{0}” içinde",
+  "colOpen": "Koleksiyonu aç",
+  "colAddOther": "Başka bir koleksiyona ekle",
+  "colAlready": "Zaten “{0}” içinde",
+  "tipNew": "Yeni",
   "matchContinueIn": "“{0}” alanında devam ediliyor",
   "matchBackTo": "“{0}” alanına dön"
 }

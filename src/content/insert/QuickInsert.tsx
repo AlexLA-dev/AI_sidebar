@@ -2,7 +2,7 @@ import type { VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import type { CopiedItem } from "../../shared/copied"
-import { siteExcluded, siteKey } from "../../shared/copied"
+import { liveCopied, siteExcluded, siteKey } from "../../shared/copied"
 import { t } from "../../shared/i18n"
 import type { InsertSettings, InsertVia } from "../../shared/insert"
 import { DEFAULT_INSERT_SETTINGS, type FindResult, type AiFailure } from "../../shared/insert"
@@ -420,7 +420,12 @@ export function QuickInsert(props: Props): VNode | null {
   useEffect(() => {
     if (!copied.length) return
     const next = Math.min(...copied.map((c) => c.at)) + 24 * 3600_000 - Date.now()
-    const timer = setTimeout(() => void loadCopied().then(setCopied), Math.max(1000, Math.min(next, 3600_000)))
+    const timer = setTimeout(() => {
+      // What's held goes by age first (107: a list left open, or a tab whose reads no longer answer, kept a 25-hour-old
+      // copy), then the stored list is read again.
+      setCopied((list) => liveCopied(list, Date.now()))
+      void loadCopied().then(setCopied)
+    }, Math.max(1000, Math.min(next, 3600_000)))
     return () => clearTimeout(timer)
   }, [copied])
 
@@ -734,7 +739,9 @@ function InsertList(p: ListProps): VNode {
   const q = query.trim().toLowerCase()
   const found = useMemo(() => searchTemplates(p.templates, query, { host: p.host, use: p.use, now: Date.now() }, q ? 20 : 3), [p.templates, query, p.host, p.use])
   const templates = aiIds ? aiIds.map((id) => p.templates.find((x) => x.id === id)).filter((x): x is Template => Boolean(x)) : found
-  const copied = (p.settings.copied ? p.copied : []).filter((c) => !q || c.text.toLowerCase().includes(q))
+  // By age as the list is drawn (107, the owner: a 25-hour-old copy still showed): what the panel holds may be older
+  // than the last cleanup (a tab asleep overnight keeps its timers waiting, and the reload on opening comes a moment later).
+  const copied = liveCopied(p.settings.copied ? p.copied : [], Date.now()).filter((c) => !q || c.text.toLowerCase().includes(q))
   const showReply = reply && (!q || reply.text.toLowerCase().includes(q))
   const rows: Row[] = [
     ...copied.map((item) => ({ kind: "copied" as const, item })),

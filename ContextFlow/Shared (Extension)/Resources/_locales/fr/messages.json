@@ -2972,6 +2972,27 @@
  "colCardMenu": {
   "message": "Actions de la carte"
  },
+ "shotAdd": {
+  "message": "Capture"
+ },
+ "shotAdded": {
+  "message": "Capture ajoutée"
+ },
+ "colIn": {
+  "message": "Dans « {0} »"
+ },
+ "colOpen": {
+  "message": "Ouvrir la collection"
+ },
+ "colAddOther": {
+  "message": "Dans une autre collection"
+ },
+ "colAlready": {
+  "message": "Déjà dans « {0} »"
+ },
+ "tipNew": {
+  "message": "Nouveau"
+ },
  "matchContinueIn": {
   "message": "Je continue dans « {0} »"
  },
@@ -3283,12 +3304,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro et Ultra existent au mois ou à l’année, et une année coûte moins cher que douze mois. Touchez « Annuel » au-dessus des forfaits, dans l’app ou dans Safari, pour voir chaque prix et ce que vous économisez. Déjà au mois ? « Passer à l’annuel » se trouve dans « Réglages » → « Votre forfait » : l’annuel commence à la fin de votre mois en cours."
- },
- "tip_9288a85bb9": {
-  "message": "Ce qu’apporte votre forfait"
- },
- "tip_0f2289f887": {
-  "message": "Après l’achat de Pro ou d’Ultra, ContextFlow vous montre, étape par étape, ce qu’apporte votre forfait. Pour le revoir, touchez « … » en haut du panneau, puis « Autres… » et « Ce que Pro inclut » ou « Ce que Ultra inclut ». Dans l’app, c’est dans « Réglages », sous « Votre forfait »."
  },
  "tip_3ee4fbeeb2": {
   "message": "Inviter un ami"

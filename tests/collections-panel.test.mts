@@ -83,7 +83,9 @@ test("the background asks /api/v2/collect only with Pro and the consent, and ope
 test("the panel: «В подборку» under answers and notes, the sheet, the window's tabs and its Pro steps", () => {
   const app = read("src/content/App.tsx")
   // In the footer shared by answers and notes, after the tools.
-  assert.match(app, /\{ux\.moreButton\(m, idx\)\}\s*<\/div>[\s\S]{0,120}<button type="button" class="cf-collect-link" onClick=\{\(\) => setCollecting\(idx\)\}>/)
+  // (107: once it's in a collection the line says which; CollectLink draws both.)
+  assert.match(app, /\{ux\.moreButton\(m, idx\)\}\s*<\/div>[\s\S]{0,120}<CollectLink[\s\S]{0,160}onSheet=\{\(\) => setCollecting\(idx\)\}/)
+  assert.match(read("src/content/Collections.tsx"), /<button type="button" class="cf-collect-link" onClick=\{onSheet\}><Icon\.ToCollection \/> \{t\("colAdd"\)\}<\/button>/)
   assert.match(app, /<CollectSheet[\s\S]*?ai=\{hasPro\(plan\) && consent === "ok"\}/)
   assert.match(app, /view === "collections" \? \(\s*<div class="cf-col-tabs" role="tablist">/)
   assert.match(app, /onPdf=\{\(id\) => void sendBackground\(\{ type: "openCollection", id \}\)\}/)
