@@ -59,3 +59,43 @@ export function useHasField(): boolean {
   }, [])
   return has
 }
+
+// ------------------------------------------------------------ our layers by a field never pile up (2.7 (107))
+// The owner's screenshot from Gmail: the fix card, the selection's buttons and the system's bubble on one word. While
+// a field's own window is up (the list of fixes, a check's or a rewrite's result), the selection's buttons don't show;
+// while the selection's buttons show, nothing of the underlines opens.
+
+let fieldLayer = false
+let selectionShown = false
+const layerListeners = new Set<() => void>()
+const tellLayers = () => {
+  for (const listener of layerListeners) listener()
+}
+
+/** Quick insert: the list of fixes or a check's result is open by the field. */
+export function setFieldLayer(open: boolean): void {
+  if (open === fieldLayer) return
+  fieldLayer = open
+  tellLayers()
+}
+
+/** The panel: the selection's buttons are on the page. */
+export function setSelectionShown(shown: boolean): void {
+  if (shown === selectionShown) return
+  selectionShown = shown
+  tellLayers()
+}
+
+function useLayer(read: () => boolean): boolean {
+  const [value, setValue] = useState(read)
+  useEffect(() => {
+    const update = () => setValue(read())
+    layerListeners.add(update)
+    update()
+    return () => void layerListeners.delete(update)
+  }, [])
+  return value
+}
+
+export const useFieldLayer = (): boolean => useLayer(() => fieldLayer)
+export const useSelectionShown = (): boolean => useLayer(() => selectionShown)

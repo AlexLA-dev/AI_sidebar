@@ -34,7 +34,7 @@ const rpc: Record<string, (a: any) => unknown> = {
   cf_entitlement_get: () => null
 }
 
-let claude: { calls: number; answer: unknown; status?: number; lastBody?: Record<string, any> } = { calls: 0, answer: {} }
+let claude: { calls: number; answer: unknown; status?: number; lastBody?: Record<string, any>; hang?: boolean; timeout?: boolean } = { calls: 0, answer: {} }
 
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
@@ -47,6 +47,9 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     claude.calls++
     claude.lastBody = body
+    // Never answers (until the caller gives up), or times out at once, as the SDK sees a request that ran out of time.
+    if (claude.hang) return new Promise<Response>((_, reject) => init?.signal?.addEventListener("abort", () => reject(Object.assign(new Error("aborted"), { name: "AbortError" }))))
+    if (claude.timeout) throw Object.assign(new Error("timed out"), { name: "AbortError" })
     if (claude.status) return new Response(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }), { status: claude.status, headers: { "Content-Type": "application/json" } })
     return new Response(JSON.stringify({
       id: "msg_1", type: "message", role: "assistant", model: "claude-haiku-5-5",
@@ -231,4 +234,55 @@ test("live underlines: Pro and Ultra only; no answer counted; a hidden cap per s
 
   assert.equal((await call({ live: true, entitlement: jws, text: "word ".repeat(400) })).res.status, 413, "a paragraph, not a whole text")
   assert.equal((await call({ live: true, entitlement: jws, action: "rewrite", tone: "short" })).res.status, 400, "live is a check only")
+})
+
+test("the request knows where the reply sits (2.7 (107)): the conversation up to it, the later messages apart", async () => {
+  claude.answer = { text: TEXT }
+  await call({ page: { ...BASE.page, text: "Dmitry: Could you tell us by Thursday?", after: "Priya: I can hold the slots until Friday." } })
+  const prompt = String(claude.lastBody!.messages[0].content)
+  assert.ok(prompt.includes("up to the reply. Its last message is the one being answered:\n<conversation>\nDmitry: Could you tell us by Thursday?\n</conversation>"))
+  assert.ok(prompt.includes("written after the one being answered (the reply sits before them):\n<later_messages>\nPriya: I can hold the slots until Friday.\n</later_messages>"))
+  assert.ok(prompt.indexOf("</conversation>") < prompt.indexOf("<later_messages>") && prompt.indexOf("</later_messages>") < prompt.indexOf("<message>"))
+  assert.match(claude.lastBody!.system, /its last message is the one being answered/i)
+  // A reply at the thread's end: nothing about later messages. A page that isn't a conversation: never.
+  await call()
+  assert.ok(!String(claude.lastBody!.messages[0].content).includes("later_messages"))
+  await call({ page: { title: "A job", url: "https://jobs.example/1", text: "We're hiring.", conversation: false, after: "x" } })
+  assert.ok(!String(claude.lastBody!.messages[0].content).includes("later_messages"))
+  // A rewrite is told too.
+  claude.answer = { text: "Friday works." }
+  await call({ action: "rewrite", tone: "short", page: { ...BASE.page, after: "Priya: later" } })
+  assert.match(claude.lastBody!.system, /reply speaks to that message and its sender/)
+})
+
+test("a live check keeps the conversation's end, the message being answered, not its start", async () => {
+  claude.answer = { text: "Hi Katarzyna, Friday works." }
+  const jws = signJws(transaction({ productId: "com.contextflow.pro.monthly", originalTransactionId: "7000000004" }))
+  const page = { title: "Moving our sync", url: "https://mail.example/1", text: `${"An old mail. ".repeat(700)}Katarzyna: Can we move our sync to Friday?`, conversation: true, after: "later ".repeat(400) }
+  const ok = await call({ live: true, entitlement: jws, text: "Hi Katarina, Friday works.", page })
+  assert.equal(ok.res.status, 200)
+  const prompt = String(claude.lastBody!.messages[0].content)
+  assert.ok(prompt.includes("Katarzyna: Can we move our sync to Friday?\n</conversation>"))
+  assert.ok(prompt.length < 4500)
+})
+
+test("the model's time is the device's deadline less a margin, a retry included; no answer in time is SLOW, the answer given back", async () => {
+  const { writeTask } = await import("../netlify/shared/writing.mts")
+  const { writeDeadline, WRITE_SERVER_MARGIN_MS } = await import("../src/shared/writing.ts")
+  assert.equal(writeTask("check", 11).totalMs, writeDeadline("check", 11) - WRITE_SERVER_MARGIN_MS)
+  assert.equal(writeTask("rewrite", 4_000).totalMs, 28_500)
+  assert.equal(writeTask("check", 600, true).totalMs, 6_500)
+  // The whole call under one deadline (here 60 ms): a model that never answers ends as a timeout.
+  const { askHaiku, InsertAiError } = await import("../netlify/shared/insert.mts")
+  claude.hang = true
+  const started = Date.now()
+  await assert.rejects(askHaiku({ ...writeTask("check", 11), timeoutMs: 60, totalMs: 60 }, "x"), (err: unknown) => err instanceof InsertAiError && err.reason === "timeout")
+  assert.ok(Date.now() - started < 3_000, "no second try past the deadline")
+  // The function's answer for it.
+  claude.hang = false
+  claude.timeout = true
+  const { res, body } = await call()
+  assert.equal(res.status, 504)
+  assert.equal(body.code, "SLOW")
+  assert.equal(counters.get(`install:${INSTALL}`) ?? 0, 0, "the answer is given back")
 })

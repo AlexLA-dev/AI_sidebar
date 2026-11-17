@@ -2549,6 +2549,18 @@
  "writeSkip": {
   "message": "Ignorar"
  },
+ "writeFixAll": {
+  "message": "Corregir todo"
+ },
+ "writeSlow": {
+  "message": "Está tardando demasiado y se ha detenido. Inténtalo de nuevo."
+ },
+ "writeUpdated": {
+  "message": "ContextFlow se ha actualizado. Vuelve a cargar la página para usar Revisar y Reescribir."
+ },
+ "writeReload": {
+  "message": "Volver a cargar"
+ },
  "underlineSetting": {
   "message": "Subrayar errores al escribir"
  },

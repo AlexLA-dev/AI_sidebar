@@ -2549,6 +2549,18 @@
  "writeSkip": {
   "message": "Пропустить"
  },
+ "writeFixAll": {
+  "message": "Исправить все"
+ },
+ "writeSlow": {
+  "message": "Слишком долго, запрос остановлен. Попробуйте ещё раз."
+ },
+ "writeUpdated": {
+  "message": "ContextFlow обновился. Перезагрузите страницу, чтобы проверять и переписывать текст."
+ },
+ "writeReload": {
+  "message": "Перезагрузить"
+ },
  "underlineSetting": {
   "message": "Подчёркивать ошибки при наборе"
  },
