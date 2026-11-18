@@ -14,7 +14,7 @@
 // pageTranslateOffer().
 
 import type { VNode } from "preact"
-import { useEffect, useMemo, useRef, useState } from "preact/hooks"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { baseLanguage, languageName } from "../translateTarget"
 import { t, uiLang, uiLanguage } from "../../shared/i18n"
@@ -25,6 +25,7 @@ import { giveConsent, loadConsent } from "../store"
 import { judgeControls, judgeShares, type ControlsJudged } from "./decide"
 import { PageTranslator, type EngineState } from "./engine"
 import { keepLanguage, keptLanguage, languageChoices, shortMark, targetName } from "./languages"
+import { coversPageControl } from "./pageControls"
 import { portAsk, storageCache } from "./port"
 import { controlLabels, pageShares, type Shares } from "./share"
 
@@ -353,9 +354,17 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   // The pill by itself for a page in another language, or for enough controls in one, where it wasn't closed; else
   // the entry by the circle, which opens it.
   const byItself = !!offer || controls?.offer === true
-  const pill = state.at !== "off" ? !closed : !closed && (opened || (byItself && !hidden))
+  // 2.7 (the director's acceptance of 108, hurriyet.com.tr on iPad): the offer by itself lay over the site's consent
+  // dialog and hid its main button. Where the page has a button or a link under the pill, the small entry shows
+  // instead (until it's tapped: then the pill, asked for).
+  const [offerRef, overPage] = useOverPageControls<HTMLDivElement>(state.at === "off" && !closed && !opened && byItself && !hidden && show)
+  const pill = state.at !== "off" ? !closed : !closed && (opened || (byItself && !hidden && !overPage))
   const entry = !pill && (state.at !== "off" || (target !== null && !manual) || !!offer || !!controls || !!part)
   const visible = show && !(typing && state.at === "off") && (pill ? (target !== null || state.at !== "off") : entry)
+  // The entry itself over a page's button (108, iPhone: by the circle it lay on the dialog's «İzin ver»): it steps
+  // aside, unseen and untouchable, while the button is under it; the circle's panel still translates. Not on a
+  // translated page: there it's the way back to the original.
+  const [entryRef, entryOver] = useOverPageControls<HTMLButtonElement>(visible && !pill && state.at === "off", false)
   useEffect(() => {
     if (visible && pill && state.at === "off" && !shownOnce.current) {
       shownOnce.current = true
@@ -446,7 +455,16 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     // to translate (or a translation to put back).
     const said = state.at !== "off" ? t("trOriginal") : label || t("trEntry")
     return (
-      <button type="button" class={`cf-tr-entry ${side}${state.at !== "off" ? " on" : ""}`} style={style} aria-label={said} title={said} onClick={open}>
+      <button
+        ref={entryRef}
+        type="button"
+        class={`cf-tr-entry ${side}${state.at !== "off" ? " on" : ""}`}
+        style={entryOver && state.at === "off" ? { ...style, visibility: "hidden", pointerEvents: "none" } : style}
+        aria-hidden={entryOver && state.at === "off" ? true : undefined}
+        aria-label={said}
+        title={said}
+        onClick={open}
+      >
         <TranslateIcon size={16} />
       </button>
     )
@@ -518,7 +536,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     )
   }
   return (
-    <div class={cls} style={style}>
+    <div ref={offerRef} class={cls} style={style}>
       <TranslateIcon />
       <span class="cf-tr-label">{label}</span>
       {lang}
@@ -526,4 +544,52 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
       {x}
     </div>
   )
+}
+
+// ------------------------------------------------------------ the page's own controls under the offer
+
+/**
+ * While `active` (the offer shows by itself), whether it lies over a control of the page: looked at as it shows and
+ * for a while after (a site's consent dialog comes a moment after the page). Once over one it stays so on this page.
+ */
+function useOverPageControls<E extends HTMLElement>(active: boolean, sticky = true): [{ current: E | null }, boolean] {
+  const ref = useRef<E | null>(null)
+  const [over, setOver] = useState(false)
+  useLayoutEffect(() => {
+    if (!active) {
+      if (!sticky) setOver(false)
+      return
+    }
+    if (sticky && over) return
+    let looks = 0
+    let later = 0
+    const look = () => {
+      const el = ref.current
+      if (!el) return
+      const host = (el.getRootNode() as ShadowRoot).host ?? null
+      const covers = coversPageControl(document, el.getBoundingClientRect(), host)
+      if (covers || !sticky) setOver(covers)
+    }
+    // Not sticky (the small entry): looked at again after a tap, which may have closed the page's dialog.
+    const tapped = () => {
+      clearTimeout(later)
+      later = window.setTimeout(look, 400)
+    }
+    look()
+    const timer = setInterval(() => {
+      look()
+      if (++looks >= 20) clearInterval(timer)
+    }, 1_000)
+    window.addEventListener("scroll", look, { passive: true })
+    window.addEventListener("resize", look)
+    if (!sticky) document.addEventListener("click", tapped, true)
+    return () => {
+      clearInterval(timer)
+      clearTimeout(later)
+      window.removeEventListener("scroll", look)
+      window.removeEventListener("resize", look)
+      document.removeEventListener("click", tapped, true)
+    }
+  }, sticky ? [active, over] : [active])
+  return [ref, over]
 }

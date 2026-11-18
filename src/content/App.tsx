@@ -4687,7 +4687,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
                 {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
-                  <Hint
+                  <Hint reveal
                     line={compact}
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
@@ -4716,7 +4716,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* 2.7 (after 107): on the compact chat it's one line («New in ContextFlow 2.7 · Show · ×»), shown in one
                     opening of the panel and gone with it (newLineShown), never a card over the answer. */}
                 {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
-                  <Hint
+                  <Hint reveal
                     line={compact && (newLineShown.current = true)}
                     icon={<Icon.Sparkle size={16} />}
                     title={t("hintNewTitle")}
@@ -4726,7 +4726,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 )}
                 {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
-                  <Hint
+                  <Hint reveal
                     line={compact}
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}
@@ -4992,6 +4992,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             setView("templates")
           }}
           onAdapt={adaptTemplate}
+          hintUp={Boolean(pageHints.line && fabVisible)}
         />
       )}
     </div>
