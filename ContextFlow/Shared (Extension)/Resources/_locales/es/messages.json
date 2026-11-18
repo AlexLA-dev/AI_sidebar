@@ -2396,6 +2396,9 @@
  "trHide": {
   "message": "Ocultar en este sitio"
  },
+ "trHiddenTold": {
+  "message": "Oculto en este sitio. Con este icono lo recuperas."
+ },
  "trWorking": {
   "message": "Traduciendo…"
  },
