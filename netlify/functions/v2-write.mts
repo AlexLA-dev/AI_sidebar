@@ -7,7 +7,7 @@ import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/ht
 import { askHaiku, InsertAiError, insertCost, type AiCall } from "../shared/insert.mts"
 import { blockReason, countersFor, evalAccess, hasPro, proOffer, resolveAccess, visibleUsage, type Access, type Usage } from "../shared/plan.mts"
 import { inviteExtra } from "../shared/invite.mts"
-import { checkWrite, readAsk, tooLong, writeMessage, writeTask } from "../shared/writing.mts"
+import { checkWrite, readAsk, tooLong, TURKISH, TURKISH_PASS_SYSTEM, writeMessage, writeTask } from "../shared/writing.mts"
 import { clipPage, diffWords, LIVE } from "../../src/shared/writing.ts"
 import { sessionFields } from "../../src/shared/usage.ts"
 
@@ -56,7 +56,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   // Deploy previews only: a request signed with the measuring key counts as Ultra (plan.mts evalAccess), so Check and
   // its live underlines can be measured there across languages (2.7 (108), W4) without a purchase.
-  const access = evalAccess(req, installId, context) ?? (await resolveAccess(body.entitlement, installId))
+  const measured = evalAccess(req, installId, context)
+  const access = measured ?? (await resolveAccess(body.entitlement, installId))
+  // THROWAWAY (Turkish variants, never merged): a measuring request picks the variant and gets its tokens back.
+  const variant = measured && (body.evalVariant === "v1" || body.evalVariant === "v2") ? body.evalVariant : undefined
   if (live && !(hasPro(access.plan) && access.entitlement)) return json({ code: "PRO_ONLY", plan: access.plan }, 402)
   const counters = live ? liveCounters(access, ipSubject(context.ip)) : writeCounters(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
   const base = {
@@ -89,7 +92,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   let call: AiCall
   try {
-    call = await askHaiku(writeTask(ask.action, ask.text.length, live), writeMessage(ask, locale), req.signal)
+    call = await askHaiku(writeTask(ask.action, ask.text.length, live), writeMessage(ask, locale, variant), req.signal)
   } catch (err) {
     const reason = err instanceof InsertAiError ? err.reason : "error"
     console.error(`[cf] write ${ask.action} failed:`, err instanceof Error ? err.message : err)
@@ -102,7 +105,20 @@ export default async (req: Request, context: Context): Promise<Response> => {
     return json({ code: reason === "rate_limit" ? "BUSY" : reason === "timeout" ? "SLOW" : "UPSTREAM" }, reason === "rate_limit" ? 503 : reason === "timeout" ? 504 : 502)
   }
 
-  const text = checkWrite(call.data, ask.text, ask.action)
+  let text = checkWrite(call.data, ask.text, ask.action)
+  let tokensIn = call.promptTokens
+  let tokensOut = call.completionTokens
+  // v2: a second, focused pass for a Turkish message.
+  if (variant === "v2" && text !== null && ask.action === "check" && TURKISH.test(ask.text)) {
+    try {
+      const second = await askHaiku({ ...writeTask("check", text.length), system: TURKISH_PASS_SYSTEM }, `The message:\n<message>\n${text}\n</message>`, req.signal)
+      tokensIn += second.promptTokens
+      tokensOut += second.completionTokens
+      text = checkWrite(second.data, text) ?? text
+    } catch {
+      // the first pass's text stands
+    }
+  }
   if (text === null) {
     context.waitUntil(Promise.all([
       refund(charged).catch(() => undefined),
@@ -131,7 +147,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     touchInstall(installId, platform, version, locale, !live && charged.length > 0 ? 1 : 0).catch(() => undefined)
   ]))
   // The plan too (2.7): the card's «left today» is Free's only, and the page can't always tell the plan yet.
-  return json({ ok: true, text, plan: access.plan, usage: live ? null : usage })
+  return json({ ok: true, text, plan: access.plan, usage: live ? null : usage, ...(measured ? { eval: { model: call.model, in: tokensIn, out: tokensOut } } : {}) })
 }
 
 /** Live underlines: no answer, only the hidden caps (the subscription's day, the address's, everyone's). */

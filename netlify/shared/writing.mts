@@ -48,9 +48,22 @@ export const LANGUAGE_NOTES: Array<{ lang: string; test: RegExp; note: string }>
 ]
 
 /** The notes for the language a message is written in, if it has any. */
-export function languageNotes(text: string): string[] {
+export function languageNotes(text: string, variant?: string): string[] {
+  if ((variant === "v1" || variant === "v2") && TURKISH.test(text)) return [TURKISH_STEPS]
   return LANGUAGE_NOTES.filter((n) => n.test.test(text)).map((n) => n.note)
 }
+
+// THROWAWAY (Turkish variants, never merged).
+export const TURKISH = /[ğĞışŞİ]/
+export const TURKISH_STEPS = `Turkish. Before writing the corrected text, go through the message and decide each of these one by one:
+1. Every word ending in -de, -da, -te or -ta. If it means "too", "also" or "even", it is the conjunction de/da: a word of its own, written apart (Komşum da geldi: my neighbour came too; Sen de mi biliyordun?). If it means "in", "at", "on" or "has" (a place or who holds something), it is the locative suffix and stays attached (Anahtar komşumda: the key is with my neighbour; Toplantı odada). Read what the sentence says: someone who also does the action means "too"; a place or a holder means the locative. Likewise -ki: attached when it makes a word describe another (dünkü gazete, dolaptaki kalem), apart as the conjunction (Biliyorum ki gelmeyecek).
+2. Every verb that has a personal pronoun as its subject (ben, sen, o, biz, siz, onlar). Its person ending must match the pronoun: ben ... -m/-im (Ben yazdım, Ben yazacağım), sen ... -n/-sin, biz ... -k/-iz (Biz yazdık, Biz yazacağız), siz ... -niz/-siniz (Siz yazdınız, Siz kahve içer misiniz?). Fix the verb's ending, never the pronoun. Onlar may take a verb without -ler: leave that as it is.
+3. The question particle mi/mı/mu/mü is a word of its own (Geldin mi?), and a place name keeps its capital letter before the apostrophe, İ with its dot (İzmir'e, Ankara'da).
+Change only what one of these rules, or a plain misspelling, makes wrong.`
+
+export const TURKISH_PASS_SYSTEM = `You check a Turkish message for a few rules only and fix what breaks them; everything else stays exactly as it is.
+${TURKISH_STEPS}
+Answer in JSON: "text" is the message, with only those fixes.`
 
 // ------------------------------------------------------------ the prompts
 
@@ -126,13 +139,13 @@ export function writeTask(action: WriteAction, chars: number, live = false): Hai
 }
 
 /** The request as the model reads it: what to do, the page, the style, and the message last. */
-export function writeMessage(ask: WriteAsk, locale: string): string {
+export function writeMessage(ask: WriteAsk, locale: string, variant?: string): string {
   const a = clipAsk(ask)
   // The app's language, never the one to write in (languageRule decides that).
   const parts = [`The app's interface language (not the language to write in): ${locale || "unknown"}.`]
   if (a.action === "rewrite") parts.push(`What to do: ${TONE_LINES[a.tone ?? "short"]}`)
   // A check of a language with its own easy misses (W4): its rules, before the message.
-  if (a.action === "check") for (const note of languageNotes(a.text)) parts.push(`Rules of this message's language to check by: ${note}`)
+  if (a.action === "check") for (const note of languageNotes(a.text, variant)) parts.push(`Rules of this message's language to check by: ${note}`)
   if (a.action === "compose" && a.tone) parts.push(`The tone: ${COMPOSE_TONES[a.tone]}`)
   if (a.page.text.trim()) {
     parts.push(a.page.conversation
