@@ -32,6 +32,26 @@ export function languageRule(action: WriteAction, compose: "answered" | "typed" 
     : "Language: write the draft in the language the request is typed in, whatever language the page or the conversation is in. Only when the request itself asks for a language (\"answer in Spanish\", «ответь по-немецки») write in that one."
 }
 
+// ------------------------------------------------------------ a language's own easy misses
+
+/**
+ * Rules a check of one language misses with the shared prompt alone, said only when the message is in it (2.7 (108),
+ * W4: Turkish caught 2 of 5 and 3 of 6 on texts the shared prompt's rules never saw). Rules, never words to look for.
+ * A language is told by letters only it uses, so a message in another language never gets them.
+ */
+export const LANGUAGE_NOTES: Array<{ lang: string; test: RegExp; note: string }> = [
+  {
+    lang: "tr",
+    test: /[ğĞışŞİ]/,
+    note: "Turkish: the conjunction de/da (\"too\", \"also\") is a word of its own, written apart even after a pronoun or a name; only the locative suffix -de/-da/-te/-ta is attached, so read which one is meant. The question particle mi/mı/mu/mü is written apart too. A verb's person ending matches its subject: ben goes with -m/-im, biz with -k/-iz, sen with -n/-sin, siz with -niz/-siniz."
+  }
+]
+
+/** The notes for the language a message is written in, if it has any. */
+export function languageNotes(text: string): string[] {
+  return LANGUAGE_NOTES.filter((n) => n.test.test(text)).map((n) => n.note)
+}
+
 // ------------------------------------------------------------ the prompts
 
 export const CHECK_SYSTEM = `You proofread a message the user is writing in a field on a web page, before they send it.
@@ -111,6 +131,8 @@ export function writeMessage(ask: WriteAsk, locale: string): string {
   // The app's language, never the one to write in (languageRule decides that).
   const parts = [`The app's interface language (not the language to write in): ${locale || "unknown"}.`]
   if (a.action === "rewrite") parts.push(`What to do: ${TONE_LINES[a.tone ?? "short"]}`)
+  // A check of a language with its own easy misses (W4): its rules, before the message.
+  if (a.action === "check") for (const note of languageNotes(a.text)) parts.push(`Rules of this message's language to check by: ${note}`)
   if (a.action === "compose" && a.tone) parts.push(`The tone: ${COMPOSE_TONES[a.tone]}`)
   if (a.page.text.trim()) {
     parts.push(a.page.conversation

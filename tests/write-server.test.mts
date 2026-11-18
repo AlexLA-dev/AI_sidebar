@@ -338,6 +338,17 @@ test("the language: Check and Rewrite keep the field's own; Compose follows the 
   for (const sys of [w.CHECK_SYSTEM, w.REWRITE_SYSTEM, w.COMPOSE_SYSTEM]) assert.doesNotMatch(sys.replace(/^.*language.*$/m, ""), /keep the language of the message/)
 })
 
+test("a check of Turkish gets Turkish's own rules; a message in another language never does", async () => {
+  const { languageNotes, writeMessage } = await import("../netlify/shared/writing.mts")
+  assert.equal(languageNotes("Bende yarın gelirim, merak etme.").length, 1)
+  assert.equal(languageNotes("Ich komme morgen, keine Sorge.").length, 0)
+  assert.equal(languageNotes("Я приду завтра.").length, 0)
+  const ask = { action: "check" as const, text: "Toplantıya katılacak mısınız?", page: { title: "", url: "", text: "", conversation: false }, field: "", style: { samples: [], templates: [] } }
+  assert.match(writeMessage(ask, "tr-TR"), /Rules of this message's language to check by: Turkish: the conjunction de\/da/)
+  assert.doesNotMatch(writeMessage({ ...ask, action: "rewrite", tone: "short" }, "tr-TR"), /Rules of this message's language/)
+  assert.doesNotMatch(writeMessage({ ...ask, text: "Can you join the meeting?" }, "en-US"), /Rules of this message's language/)
+})
+
 test("Check names the mistakes that are easy to miss in other languages, by rule (no word lists)", async () => {
   const { CHECK_SYSTEM } = await import("../netlify/shared/writing.mts")
   assert.match(CHECK_SYSTEM, /as carefully in any language as in English/)
