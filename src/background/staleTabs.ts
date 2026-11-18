@@ -67,6 +67,11 @@ export function watchStaleTabs(appBuild: () => Promise<string>): { updated: () =
     void chrome.storage.local.set({ [KEY]: Date.now() + DAY_MS }).catch(() => undefined)
     void checkFront().catch(() => undefined)
   }
+  // This background starts many times in that day (Safari puts it to sleep): each time, the tab in front is asked, so
+  // a start that Safari didn't call an update, with the same build as before, still reaches it.
+  void chrome.storage.local.get(KEY).then((stored) => {
+    if (watching(stored[KEY], Date.now())) void checkFront().catch(() => undefined)
+  }, () => undefined)
   void Promise.all([before, appBuild()]).then(([kept, build]) => {
     if (!build) return
     if (kept[BUILD_KEY] !== build) void chrome.storage.local.set({ [BUILD_KEY]: build }).catch(() => undefined)

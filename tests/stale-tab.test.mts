@@ -80,6 +80,8 @@ test("wired: the background asks and tells, the page's script watches the old ro
   // The words, then the panel's script; never a reload from here.
   assert.match(wires, /__contextflowStale = w \}, args: \[words\] \}\)\n\s+\.then\(\(\) => chrome\.scripting\.executeScript\(\{ target: \{ tabId \}, files: \["dist\/content\.js"\] \}\)\)/)
   assert.doesNotMatch(wires, /tabs\.reload/)
+  // Within the day, every start of the background asks the tab in front.
+  assert.match(wires, /void chrome\.storage\.local\.get\(KEY\)\.then\(\(stored\) => \{\n\s+if \(watching\(stored\[KEY\], Date\.now\(\)\)\) void checkFront\(\)/)
   const index = read("../src/content/index.tsx")
   assert.match(index, /if \(message\?\.type === "alive"\) sendResponse\(\{ ok: true \}\)/)
   assert.match(index, /const words = takeStaleWords\(\)\n\s+if \(window\.__contextflowBus && !words\) return\n\s+const old = document\.querySelector\(HOST_TAG\)\n\s+if \(words \|\| old\) \{\n\s+if \(old\) void watchStaleTab\(old, words\)\n\s+return\n\s+\}/)
