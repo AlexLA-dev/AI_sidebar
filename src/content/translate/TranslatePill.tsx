@@ -421,8 +421,12 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     if (!auto || !looked || state.at !== "off") return
     const here = urlKey(location.href)
     if (autoTried.current === here) return
+    // What's there to translate: the page (or the part of it in another language), where the person said yes after
+    // a page's translation; its buttons and menus alone (free) where they're all that's in another language, or all
+    // that was agreed to.
+    const words = auto.only === "controls" ? null : offer ? offer.from : part ? part.lang : null
     const goal: PageOffer | null =
-      offer && auto.only !== "controls" ? { from: offer.from, to: auto.to }
+      words ? { from: words, to: auto.to }
         : controls?.offer ? { from: controls.lang, to: auto.to, only: "controls" }
           : null
     if (!goal) return
@@ -438,7 +442,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
       if (hidden) setClosed(true)
       void pageTranslator().start(goal.to, goal.from, goal.only ?? null)
     })()
-  }, [auto, looked, state.at, offer?.from, controls?.offer])
+  }, [auto, looked, state.at, offer?.from, part?.lang, controls?.offer])
   // The answers ran out on a page that started by itself: told now (the pill shows, also where it was folded), and
   // not again today.
   const autoRun = useRef(false)
