@@ -130,9 +130,21 @@
 .cf-tr-consent.right { right: max(12px, env(safe-area-inset-right)); }
 .cf-tr-consent.left { left: max(12px, env(safe-area-inset-left)); }
 .cf-tr-consent .cf-card { margin: 0; background: var(--bg); box-shadow: var(--shadow); max-height: 70vh; overflow: auto; }
+/* Right after × (2.7, 108): where the offer went, said in its place on an install's first dismissals, the icon at the
+   circle's end; then the line folds toward it, into the entry. */
+.cf-tr.told { gap: 10px; padding: 6px 8px 6px 14px; cursor: pointer; }
+.cf-tr.told.left { flex-direction: row-reverse; padding: 6px 14px 6px 8px; }
+.cf-tr.told > svg { display: block; flex: none; color: var(--accent-text); }
+.cf-tr.told.fold { pointer-events: none; animation: cf-tr-fold 0.36s ease forwards; transform-origin: right center; }
+.cf-tr.told.fold.left { transform-origin: left center; }
+@keyframes cf-tr-fold {
+  from { opacity: 1; transform: translateY(-50%) scaleX(1); }
+  to { opacity: 0; transform: translateY(-50%) scaleX(0.12); }
+}
 @keyframes cf-tr-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cf-tr-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .cf-tr, .cf-tr-entry { animation: none; }
+  .cf-tr.told.fold { display: none; }
   .cf-tr-spin { animation-duration: 2s; }
 }
