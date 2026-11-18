@@ -84,11 +84,15 @@ button { all: unset; box-sizing: border-box; flex: none; cursor: pointer; font: 
 
 /**
  * Watches the old panel's root and shows the notice. `root`: the panel's host already on the page when this script
- * came; `words`: the background's (null: this script's own strings). Does nothing when this script hears the
- * extension (the tab isn't cut off: the background asked while the page was still loading) or the tab was told before.
+ * came; `words`: the background's (null: this script's own strings). With the background's words the tab is taken as
+ * cut off: the background asked the root's own script and got no answer. Whether THIS script hears the extension
+ * says nothing about the old panel (seen on a device, a single update with the panel closed: this script was heard,
+ * the old panel wasn't, and no notice came). Without the words (a root found here by chance) this script's own link
+ * is the only sign there is, and a script that is heard leaves the tab alone. Nothing for a tab told before.
  */
 export async function watchStaleTab(root: Element, words: StaleWords | null): Promise<void> {
-  if (root.hasAttribute(TOLD) || (await linked()) || root.hasAttribute(TOLD)) return
+  if (root.hasAttribute(TOLD)) return
+  if (!words && ((await linked()) || root.hasAttribute(TOLD))) return
   root.setAttribute(TOLD, "")
   const say: StaleWords = words ?? { text: t("updatedReload"), reload: t("writeReload"), close: t("close"), dir: uiDirection() }
 

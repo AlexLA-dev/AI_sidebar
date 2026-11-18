@@ -86,8 +86,10 @@ test("wired: the background asks and tells, the page's script watches the old ro
   assert.match(index, /if \(message\?\.type === "alive"\) sendResponse\(\{ ok: true \}\)/)
   assert.match(index, /const words = takeStaleWords\(\)\n\s+if \(window\.__contextflowBus && !words\) return\n\s+const old = document\.querySelector\(HOST_TAG\)\n\s+if \(words \|\| old\) \{\n\s+if \(old\) void watchStaleTab\(old, words\)\n\s+return\n\s+\}/)
   const stale = read("../src/content/stale.ts")
-  // A tab that hears the extension isn't cut off: nothing there. The only reload is the button's.
-  assert.match(stale, /if \(root\.hasAttribute\(TOLD\) \|\| \(await linked\(\)\) \|\| root\.hasAttribute\(TOLD\)\) return/)
+  // Told by the background, the tab is cut off whatever this script's own link says (on a single update this script
+  // was heard while the old panel wasn't). Only a root found without the background's words is checked by that link.
+  assert.match(stale, /if \(root\.hasAttribute\(TOLD\)\) return\n\s+if \(!words && \(\(await linked\(\)\) \|\| root\.hasAttribute\(TOLD\)\)\) return/)
+  // The only reload is the button's.
   assert.equal(stale.match(/location\.reload\(\)/g)?.length, 1)
   assert.match(stale, /reload\.addEventListener\("click", \(\) => location\.reload\(\)\)/)
   assert.match(stale, /if \(panelLooksOpen\(covered\(root\)\.hits, 25\)\) show\(null\)/)
