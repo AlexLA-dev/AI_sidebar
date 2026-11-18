@@ -59,6 +59,21 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Traducir la página"
+ },
+ "chipWatchPrice": {
+  "message": "Vigilar el precio"
+ },
+ "plusButton": {
+  "message": "Más: nota, captura, todo el chat"
+ },
+ "hintShow": {
+  "message": "Ver"
+ },
+ "tourWholeBodyPlus": {
+  "message": "«Todo el chat» está en +. Activa «Todo el chat» cuando una pregunta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y esta página."
+ },
  "promptSummarize": {
   "message": "Resume esta página en 5 a 7 viñetas y luego da la conclusión principal en una sola oración."
  },
@@ -663,7 +678,7 @@
   "message": "¿Solo una parte?"
  },
  "tourSelectBody": {
-  "message": "Selecciona primero un texto de la página y la respuesta tratará solo sobre él. Esta etiqueta muestra lo que lee ContextFlow."
+  "message": "Selecciona primero un texto de la página y la respuesta tratará solo sobre él. Encima del campo aparece entonces una etiqueta con lo seleccionado."
  },
  "tourGoogleTitle": {
   "message": "Datos actuales de Google"
@@ -690,10 +705,10 @@
   "message": "Tus propias notas"
  },
  "tourNoteBodyTouch": {
-  "message": "Desliza este botón arriba o abajo para escribir una nota en lugar de preguntar. Se queda en el chat con su página y no gasta respuestas."
+  "message": "Desliza este botón arriba o abajo para escribir una nota en lugar de preguntar. Se queda en el chat con su página y no gasta respuestas. O toca + y elige «Nota»."
  },
  "tourNoteBodyMouse": {
-  "message": "Desplázate sobre este botón (o mantenlo pulsado) para escribir una nota en lugar de preguntar. Se queda en el chat con su página y no gasta respuestas."
+  "message": "Desplázate sobre este botón (o mantenlo pulsado) para escribir una nota en lugar de preguntar. Se queda en el chat con su página y no gasta respuestas. O haz clic en + y elige «Nota»."
  },
  "tourWholeTitle": {
   "message": "Con todo el chat en cuenta"
@@ -3101,8 +3116,8 @@
  "tip_6ba198cbff": {
   "message": "Tus propias notas"
  },
- "tip_6a92f6c633": {
-  "message": "Desliza el botón de enviar arriba o abajo (en un Mac, desplázate sobre él) para escribir una nota en lugar de preguntar. Se queda en el chat con su página, se sincroniza con él y no gasta respuestas."
+ "tip_b210a078de": {
+  "message": "Desliza el botón de enviar arriba o abajo (en un Mac, desplázate sobre él) para escribir una nota en lugar de preguntar, o toca + junto al campo y elige «Nota». Se queda en el chat con su página, se sincroniza con él y no gasta respuestas."
  },
  "tip_ac13420c59": {
   "message": "Una captura con tu nota"
@@ -3140,8 +3155,8 @@
  "tip_e012ef5f59": {
   "message": "Con todo el chat en cuenta"
  },
- "tip_3a70cee32e": {
-  "message": "Activa «Todo el chat» bajo el campo de pregunta cuando una respuesta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y la página abierta."
+ "tip_511d363377": {
+  "message": "Activa «Todo el chat» en +, junto al campo de pregunta, cuando una respuesta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y la página abierta."
  },
  "tip_ca29a1f4ed": {
   "message": "Preguntar sobre un vídeo"
@@ -3260,8 +3275,8 @@
  "tip_8d1c1aa55d": {
   "message": "Todo en una colección"
  },
- "tip_15dc6cba07": {
-  "message": "¿Planeas un viaje o una compra? Elige «A una colección» bajo una respuesta o una nota, y ContextFlow sugiere dónde va. «Colecciones» lo guarda todo por secciones, en Safari y en la app. Con Pro, la IA ordena las tarjetas, «Comparar» pone lado a lado las que elijas y «Resumen» lo resume todo. Cualquier colección se guarda en PDF."
+ "tip_397645bf6c": {
+  "message": "¿Planeas un viaje o una compra? Elige «A una colección» bajo una respuesta o una nota, o en su menú …, y ContextFlow sugiere dónde va. «Colecciones» lo guarda todo por secciones, en Safari y en la app. Con Pro, la IA ordena las tarjetas, «Comparar» pone lado a lado las que elijas y «Resumen» lo resume todo. Cualquier colección se guarda en PDF."
  },
  "tip_c4b432e2e9": {
   "message": "Busca en tus chats"
@@ -3272,8 +3287,8 @@
  "tip_2e4668f650": {
   "message": "Etiquetas y carpetas"
  },
- "tip_6b5bdf707f": {
-  "message": "Etiqueta un chat, una respuesta o una nota con 🏷. Toca una etiqueta para ver solo sus chats, o activa Carpetas para agrupar la lista por etiqueta."
+ "tip_d3d95ad05c": {
+  "message": "Etiqueta un chat, una respuesta o una nota con 🏷, o con «Etiqueta» en su menú …. Toca una etiqueta para ver solo sus chats, o activa Carpetas para agrupar la lista por etiqueta."
  },
  "tip_752fb307f2": {
   "message": "Comparte lo que encontraste"

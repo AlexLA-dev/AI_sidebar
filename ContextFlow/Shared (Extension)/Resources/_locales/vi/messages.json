@@ -59,6 +59,21 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Dịch trang"
+ },
+ "chipWatchPrice": {
+  "message": "Theo dõi giá"
+ },
+ "plusButton": {
+  "message": "Thêm: ghi chú, ảnh chụp, cả cuộc trò chuyện"
+ },
+ "hintShow": {
+  "message": "Xem"
+ },
+ "tourWholeBodyPlus": {
+  "message": "“Cả cuộc trò chuyện” nằm trong +. Bật “Cả cuộc trò chuyện” khi câu hỏi cần đến mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang này."
+ },
  "promptSummarize": {
   "message": "Tóm tắt trang này thành 5–7 gạch đầu dòng, rồi nêu kết luận chính trong một câu."
  },
@@ -663,7 +678,7 @@
   "message": "Chỉ cần một phần?"
  },
  "tourSelectBody": {
-  "message": "Chọn văn bản trên trang trước, câu trả lời sẽ chỉ nói về phần đó. Nhãn này cho biết ContextFlow đang đọc gì."
+  "message": "Chọn văn bản trên trang trước, câu trả lời sẽ chỉ nói về phần đó. Khi đó một nhãn phía trên ô nhập cho biết bạn đã chọn gì."
  },
  "tourGoogleTitle": {
   "message": "Thông tin mới từ Google"
@@ -690,10 +705,10 @@
   "message": "Ghi chú của riêng bạn"
  },
  "tourNoteBodyTouch": {
-  "message": "Vuốt nút này lên hoặc xuống để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời."
+  "message": "Vuốt nút này lên hoặc xuống để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời. Hoặc chạm + rồi chọn “Ghi chú”."
  },
  "tourNoteBodyMouse": {
-  "message": "Cuộn trên nút này (hoặc nhấn giữ) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời."
+  "message": "Cuộn trên nút này (hoặc nhấn giữ) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời. Hoặc bấm + rồi chọn “Ghi chú”."
  },
  "tourWholeTitle": {
   "message": "Xét cả cuộc trò chuyện"
@@ -3101,8 +3116,8 @@
  "tip_6ba198cbff": {
   "message": "Ghi chú của riêng bạn"
  },
- "tip_6a92f6c633": {
-  "message": "Vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút đó) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó, được đồng bộ cùng cuộc trò chuyện và không tốn câu trả lời nào."
+ "tip_b210a078de": {
+  "message": "Vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút đó) để viết ghi chú thay vì đặt câu hỏi, hoặc chạm + cạnh ô nhập rồi chọn Ghi chú. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó, được đồng bộ cùng cuộc trò chuyện và không tốn câu trả lời nào."
  },
  "tip_ac13420c59": {
   "message": "Ảnh chụp trang kèm ghi chú"
@@ -3140,8 +3155,8 @@
  "tip_e012ef5f59": {
   "message": "Ghi nhớ cả cuộc trò chuyện"
  },
- "tip_3a70cee32e": {
-  "message": "Bật Cả cuộc trò chuyện dưới ô câu hỏi khi câu trả lời cần mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang đang mở."
+ "tip_511d363377": {
+  "message": "Bật Cả cuộc trò chuyện trong +, cạnh ô câu hỏi, khi câu trả lời cần mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang đang mở."
  },
  "tip_ca29a1f4ed": {
   "message": "Hỏi về video"
@@ -3260,8 +3275,8 @@
  "tip_8d1c1aa55d": {
   "message": "Gom vào bộ sưu tập"
  },
- "tip_15dc6cba07": {
-  "message": "Đang lên kế hoạch cho chuyến đi hay một món đồ cần mua? Chọn Vào bộ sưu tập bên dưới câu trả lời hoặc ghi chú, và ContextFlow sẽ gợi ý nơi để nó vào. Bộ sưu tập giữ mọi thứ theo từng mục, trong Safari và trong ứng dụng. Với Pro, AI sắp xếp các thẻ, So sánh đặt những thẻ bạn chọn cạnh nhau và Tóm tắt tổng hợp tất cả. Bộ sưu tập nào cũng lưu được thành PDF."
+ "tip_397645bf6c": {
+  "message": "Đang lên kế hoạch cho chuyến đi hay một món đồ cần mua? Chọn Vào bộ sưu tập bên dưới câu trả lời hoặc ghi chú, hoặc trong menu … của nó, và ContextFlow sẽ gợi ý nơi để nó vào. Bộ sưu tập giữ mọi thứ theo từng mục, trong Safari và trong ứng dụng. Với Pro, AI sắp xếp các thẻ, So sánh đặt những thẻ bạn chọn cạnh nhau và Tóm tắt tổng hợp tất cả. Bộ sưu tập nào cũng lưu được thành PDF."
  },
  "tip_c4b432e2e9": {
   "message": "Tìm trong cuộc trò chuyện"
@@ -3272,8 +3287,8 @@
  "tip_2e4668f650": {
   "message": "Thẻ và thư mục"
  },
- "tip_6b5bdf707f": {
-  "message": "Gắn thẻ cho cuộc trò chuyện, câu trả lời hoặc ghi chú bằng 🏷. Chạm vào một thẻ để chỉ xem các cuộc trò chuyện có thẻ đó, hoặc bật Thư mục để nhóm danh sách theo thẻ."
+ "tip_d3d95ad05c": {
+  "message": "Gắn thẻ cho cuộc trò chuyện, câu trả lời hoặc ghi chú bằng 🏷, hoặc bằng Thẻ trong menu … của nó. Chạm vào một thẻ để chỉ xem các cuộc trò chuyện có thẻ đó, hoặc bật Thư mục để nhóm danh sách theo thẻ."
  },
  "tip_752fb307f2": {
   "message": "Chia sẻ điều bạn tìm thấy"

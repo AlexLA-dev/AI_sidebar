@@ -16,10 +16,13 @@ test("the header shows no label in a chat; the row over the field does, before t
   const header = app.slice(app.indexOf('<header class="cf-header">'), app.indexOf("</header>"))
   assert.doesNotMatch(header, /<ContextChip|cf-ctx history/)
   const composer = app.slice(app.indexOf('<footer class="cf-composer">'))
-  assert.ok(composer.indexOf("{ctxRow}") > 0 && composer.indexOf("{ctxRow}") < composer.indexOf('<div class={`cf-input'))
-  const row = app.slice(app.indexOf("const ctxRow = ("), app.indexOf("const ctxRow = (") + 1200)
-  assert.match(row, /<ContextChip/)
-  assert.match(row, /cf-ctx history/)
+  // 2.7 after build 107, the owner: no row with the page's title (it's in the chat's "New page" divider); the row is
+  // for a selection, "Ask your chats" and a page with nothing to read.
+  const row = '{(historyMode || contextKind !== "page") && ctxRow}'
+  assert.ok(composer.indexOf(row) > 0 && composer.indexOf(row) < composer.indexOf('<div class={`cf-input'))
+  const label = app.slice(app.indexOf("const ctxRow = ("), app.indexOf("const ctxRow = (") + 1200)
+  assert.match(label, /<ContextChip/)
+  assert.match(label, /cf-ctx history/)
   // The ring stays: the label keeps its glow, the page keeps its own.
   assert.match(app, /<span class="cf-ctx selection glow">\s*<span class="cf-glow-run"/)
   assert.match(app, /\{glowRange && <SelectionGlow range=\{glowRange\} \/>\}/)
@@ -49,5 +52,6 @@ test("one line on a phone: the label gives way, and when it would be cut the but
 })
 
 test("the tour's selection step points at the label where it is now", () => {
-  assert.match(read("../src/content/Tour.tsx"), /targets: \[\["\.cf-ctx-row \.cf-ctx", "\.cf-ctx-row"\]\], icon: <Icon\.Cursor \/>, title: "tourSelectTitle"/)
+  // Without a selection there's no label now: the step then shows the field the label comes over.
+  assert.match(read("../src/content/Tour.tsx"), /targets: \[\["\.cf-ctx-row \.cf-ctx", "\.cf-ctx-row", "\.cf-input"\]\], icon: <Icon\.Cursor \/>, title: "tourSelectTitle"/)
 })

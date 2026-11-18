@@ -24,7 +24,7 @@ const LINE_MS = 15_000
 const USES: Array<[HintId, string]> = [
   ["summary", '.cf-chip[data-action="summarize"], .cf-chip[data-action="key_points"]'],
   ["similar", '[data-action="similar"], [data-action="sel_similar"]'],
-  ["watch", ".cf-page-watch"],
+  ["watch", '.cf-page-watch, .cf-chip[data-action="watch"]'],
   ["listen", ".cf-page-listen"]
 ]
 

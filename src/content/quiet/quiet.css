@@ -1,0 +1,164 @@
+/* The quiet chat (2.7 after build 107, the owner's decisions on the «Тихая панель» mockup). Loaded last: where a rule
+   here meets an older one of the same weight, this one holds. */
+
+/* ---- 2. Chips: one line, a carousel, never two rows. The row runs to the panel's edges, so a chip cut by the edge
+   says there's more; the first and last chips' auto margins centre a row that fits (the empty chat's). */
+.cf-actions:not(.wrap) {
+  flex-wrap: nowrap; justify-content: flex-start;
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  margin-inline: -14px; padding-inline: 14px; scroll-padding-inline: 14px;
+}
+.cf-actions:not(.wrap)::-webkit-scrollbar { display: none; }
+.cf-newpage .cf-actions.follow:not(.wrap) { margin-inline: -14px; }
+.cf-actions:not(.wrap) > .cf-chip { flex: none; white-space: nowrap; }
+.cf-empty .cf-chips { align-self: stretch; }
+/* The empty chat in a phone's sheet sits by the field, not under the header (2.7 after 107, the director on the
+   reply-draft frame): the chips and the field are together, the free room is over the title. With the page's own
+   keyboard up iOS shows only the sheet's lower part, and that is where they are (before, the chips stood at the
+   screen's top with the chat's free room between them and the field). */
+/* While the first-run guide or the tour has a card up, the list has no `is-empty` (App.tsx) and the empty chat stays
+   under the header: the card stands under the chip it points at, over nothing (down by the field it would lie on the
+   title). A class rather than :has(): Safari on iOS didn't apply the :has() form of this rule. */
+.cf[data-layout="sheet"] .cf-messages.is-empty { display: flex; flex-direction: column; }
+.cf[data-layout="sheet"] .cf-messages.is-empty > .cf-empty { margin-top: auto; }
+.cf-empty .cf-actions:not(.wrap) { margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
+.cf-empty .cf-actions:not(.wrap) > .cf-chip:first-child { margin-inline-start: auto; }
+.cf-empty .cf-actions:not(.wrap) > .cf-chip:last-child { margin-inline-end: auto; }
+
+/* That the row scrolls (the owner on the frames: «обозначить, что чипы свайпаются как карусель», ChipsRow.tsx): it
+   fades out at an edge with more chips behind it, and with a mouse an arrow there moves it along. */
+.cf-chips { position: relative; min-width: 0; }
+.cf-chips[data-more="right"] > .cf-actions { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 44px), transparent); }
+.cf-chips[data-more="left"] > .cf-actions { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 44px), transparent); }
+.cf-chips[data-more="both"] > .cf-actions { -webkit-mask-image: linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to right, transparent, #000 44px, #000 calc(100% - 44px), transparent); }
+/* The peek (a finger, once a page until the row has been swiped): the chips slide toward the row's start and back. */
+.cf-actions.cf-peek > .cf-chip { animation: cf-peek 0.9s ease-in-out; }
+@keyframes cf-peek { 0%, 100% { transform: none; } 45% { transform: translateX(-40px); } }
+:host([dir="rtl"]) .cf-actions.cf-peek > .cf-chip { animation-name: cf-peek-rtl; }
+@keyframes cf-peek-rtl { 0%, 100% { transform: none; } 45% { transform: translateX(40px); } }
+@media (prefers-reduced-motion: reduce) { .cf-actions.cf-peek > .cf-chip { animation: none; } }
+.cf-chips-arrow {
+  position: absolute; top: 50%; z-index: 1; display: none;
+  width: 24px; height: 24px; margin-top: -12px; border-radius: 12px;
+  align-items: center; justify-content: center;
+  color: var(--text-2); background: var(--bg) !important; border: 1px solid var(--border) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+.cf-chips-arrow:hover { color: var(--accent-text); }
+.cf-chips-arrow.left { left: -8px; }
+.cf-chips-arrow.right { right: -8px; }
+.cf-chips:has(> .cf-actions.follow) .cf-chips-arrow { margin-top: -16px; }
+.cf-newpage .cf-chips:has(> .cf-actions.follow) .cf-chips-arrow { margin-top: -12px; }
+.cf-chips[data-more="left"] > .cf-chips-arrow.left, .cf-chips[data-more="both"] > .cf-chips-arrow.left,
+.cf-chips[data-more="right"] > .cf-chips-arrow.right, .cf-chips[data-more="both"] > .cf-chips-arrow.right { display: flex; }
+
+/* ---- 3. Buttons under a message: one row. It never wraps; when its words don't fit, ToolsRow first brings the
+   buttons closer (data-tight) and then takes the words away one button at a time (data-off), and counts the Mac's
+   hover buttons in while it measures (data-measure). */
+.cf-msg-tools { flex-wrap: nowrap !important; min-width: 0; }
+.cf-msg-tools > button, .cf-msg-tools > .cf-hover-tools { flex: none; }
+.cf-msg-tools [data-off] { display: none; }
+.cf-msg-tools[data-tight="1"] { gap: 2px; }
+.cf-msg-tools[data-tight="1"] > button { padding-inline: 6px; }
+.cf:not([data-touch]) .cf-msg-tools[data-measure] .cf-hover-tools { display: inline-flex; }
+/* «В подборку» in the row (roomy): its own colour, the row's size. */
+.cf-msg-tools .cf-collect-link { margin: 0; font-size: 12px; color: var(--accent-text); }
+.cf-msg-tools .cf-collect-link svg { color: var(--accent); }
+/* Four buttons on a phone: a finger's worth each. */
+.cf[data-density="compact"][data-touch] .cf-msg-tools > button { padding: 6px 9px; }
+.cf-msg-menu .cf-menu-collect svg, .cf-msg-menu .cf-menu-tag svg { width: 15px; height: 15px; flex: none; }
+
+/* ---- 5. The bars over the chat: one line each (the chat's name is in styles.css). The suggestions' and the pinned
+   messages' bars were one line only when both showed. */
+.cf-sugbar .cf-sugbar-main, .cf-pinbar .cf-pinbar-main { padding-block: 6px; }
+.cf-sugbar .cf-sugbar-text, .cf-pinbar .cf-pinbar-text { flex-direction: row; align-items: baseline; gap: 7px; }
+.cf-pinbar .cf-pinbar-label { flex: none; white-space: nowrap; }
+.cf-pinbar .cf-pinbar-line { min-width: 0; }
+
+/* ---- The header: a fifth lower (the owner on the frames: «очень высокая шапка… много свободного пространства над и
+   под элементами управления»). The buttons keep their size (40 pt with a finger, 34 with a mouse); what went is the
+   air: the sheet's grabber 18 → 13 pt and 10 → 2 pt under the row; beside the page 10 → 4 (5 with a mouse) over and
+   under it. iPhone 71 → 56 pt, iPad 61 → 49, Mac 55 → 45. */
+.cf-header { padding-block: 5px; }
+.cf[data-touch] .cf-header { padding-block: 4px; }
+.cf[data-layout="sheet"] .cf-header { padding-block: 0 2px; }
+.cf-grabber { height: 13px; padding-top: 2px; box-sizing: border-box; }
+.cf-grabber::before { height: 4px; }
+
+/* ---- First-run cards never take the chat from an answer (the owner's 107 frame: «New in ContextFlow 2.7» over half
+   the panel). A hint on the compact chat is one line: its title, «Show», a close (Hint.tsx `line`). */
+.cf-hint.line { align-items: center; gap: 8px; margin: 2px 0 8px; padding: 5px 4px 5px 8px; border-radius: 12px; }
+.cf-hint.line .cf-hint-icon { width: 22px; height: 22px; border-radius: 7px; }
+.cf-hint.line .cf-hint-icon svg { width: 13px; height: 13px; }
+.cf-hint-open { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; text-align: start; color: var(--text); }
+.cf-hint-open strong { min-width: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-hint-open .cf-link { flex: none; font-size: 12.5px; font-weight: 600; }
+.cf-hint-x { flex: none; width: 30px; height: 30px; border-radius: 9px; font-size: 18px; line-height: 1; color: var(--text-3); }
+.cf-hint-x:hover { color: var(--text); background: var(--bg-3); }
+/* The guide's card over the composer (the first answer's step): the chat ends above it (Guide.tsx sets its height). */
+.cf-messages { padding-bottom: calc(6px + var(--cf-guide-foot, 0px)); }
+
+/* ---- 6. «+» by the field, its menu, and the answers left as a number */
+.cf-plus {
+  flex: none; align-self: flex-end;
+  width: 32px; height: 32px; margin-inline-start: -8px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-2);
+  border: 1px solid var(--border) !important;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.cf-plus svg { width: 17px; height: 17px; }
+.cf-plus:hover { color: var(--text); }
+.cf-plus.on { color: var(--accent-text); background: var(--accent-soft) !important; border-color: transparent !important; transform: rotate(45deg); }
+.cf-input .cf-plus + .cf-mode { margin-inline-start: 0; }
+/* Right to left: the field's wide padding is on the side «+» and Google start from (it was on the left alone, so
+   the first button sat past the field's edge). */
+:host([dir="rtl"]) .cf-input { padding: 5px 13px 5px 5px; }
+@media (prefers-reduced-motion: reduce) { .cf-plus { transition: none; } }
+
+.cf-plus-anchor { position: relative; height: 0; z-index: 5; }
+.cf-plus-menu {
+  position: absolute; bottom: 6px; inset-inline-start: 0;
+  width: max-content; min-width: 236px; max-width: 100%;
+  display: flex; flex-direction: column; padding: 5px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
+  animation: cf-pop-up 0.14s ease-out;
+}
+.cf-plus-item {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 9px 10px; border-radius: 9px;
+  font-size: 13.5px; color: var(--text); text-align: start; cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+}
+.cf[data-touch] .cf-plus-item { padding: 12px; font-size: 15px; }
+.cf-plus-item:hover { background: var(--bg-2); }
+.cf-plus-item > svg { flex: none; width: 16px; height: 16px; color: var(--text-2); }
+.cf-plus-l { flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px; }
+.cf-plus-item.on, .cf-plus-item.on > svg { color: var(--note-text); }
+.cf-plus-mark { flex: none; display: flex; color: var(--note); }
+.cf-plus-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.cf-plus-switch .cf-switch { flex: none; }
+.cf-plus-switch input:checked + .cf-switch { background: var(--accent); box-shadow: none; }
+.cf-plus-switch input:checked + .cf-switch::after { transform: translateX(10px); }
+.cf-plus-switch input:focus-visible + .cf-switch { outline: 2px solid var(--accent); outline-offset: 2px; }
+:host([dir="rtl"]) .cf-plus-switch input:checked + .cf-switch::after { transform: translateX(-10px); }
+.cf-plus-usage {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 3px; padding: 9px 10px 6px; border-top: 1px solid var(--border);
+  font-size: 12.5px; line-height: 1.35; color: var(--text-3);
+}
+.cf-plus-left { flex: 1 1 auto; min-width: 0; }
+.cf-plus-usage .cf-link { flex: none; }
+
+.cf-left {
+  flex: none; align-self: flex-end;
+  min-width: 24px; height: 24px; margin-block-end: 4px; padding: 0 7px; border-radius: 12px;
+  font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 24px;
+  color: var(--text-2); background: var(--bg-3);
+}
+.cf-left.low { color: var(--danger); background: color-mix(in srgb, var(--danger) 13%, transparent); }
+
+/* #199's «✓ In “<collection>”» in the one row under a message: its name capped, then given way to the ✓ (ToolsRow). */
+.cf-msg-tools > .cf-collect-in { flex: none; min-width: 0; }
+.cf-msg-tools .cf-collect-in .cf-collect-name { max-width: 10em; }

@@ -33,7 +33,7 @@ import { fixIssue, fixIssues, issueRects, liveState, meetField, skipIssue, Under
 import type { Issue } from "../../shared/writing"
 
 /** What the panel asks of quick insert, through the bus (the selection's "Template" button, Settings). */
-export const QI_EVENTS = { newTemplate: "qi-new-template", editTemplate: "qi-edit-template", insertTemplate: "qi-insert-template" } as const
+export const QI_EVENTS = { newTemplate: "qi-new-template", editTemplate: "qi-edit-template", insertTemplate: "qi-insert-template", write: "qi-write" } as const
 
 type Mode =
   | null
@@ -357,7 +357,11 @@ export function QuickInsert(props: Props): VNode | null {
     props.bus.addEventListener(QI_EVENTS.newTemplate, onNew)
     props.bus.addEventListener(QI_EVENTS.editTemplate, onNew)
     props.bus.addEventListener(QI_EVENTS.insertTemplate, onInsert)
+    // 2.7, the panel's «Проверить» и «Переписать» chips (quiet/chips.ts): the same card, by the field last written in.
+    const onWrite = (e: Event) => fieldRef.current?.el.isConnected && startWriteRef.current((e as CustomEvent<WriteAction>).detail, undefined, "panel")
+    props.bus.addEventListener(QI_EVENTS.write, onWrite)
     return () => {
+      props.bus.removeEventListener(QI_EVENTS.write, onWrite)
       props.bus.removeEventListener(QI_EVENTS.newTemplate, onNew)
       props.bus.removeEventListener(QI_EVENTS.editTemplate, onNew)
       props.bus.removeEventListener(QI_EVENTS.insertTemplate, onInsert)
@@ -371,6 +375,8 @@ export function QuickInsert(props: Props): VNode | null {
     setMade(null)
     setMode({ kind: "write", job: { action, ...(tone ? { tone } : {}), via } })
   }
+  const startWriteRef = useRef(startWrite)
+  startWriteRef.current = startWrite
   const writeDone = (undo: Undo | null, action: WriteAction, failed: boolean) => {
     const f = fieldRef.current
     setMode(null)
@@ -687,7 +693,7 @@ export function QuickInsert(props: Props): VNode | null {
           field={fieldRef.current}
           host={host}
           touch={touch}
-          sheet={m.job.via === "list"}
+          sheet={m.job.via === "list" || (touch && m.job.via === "panel")}
           consent={props.consent}
           onConsent={props.onConsent}
           free={props.free}

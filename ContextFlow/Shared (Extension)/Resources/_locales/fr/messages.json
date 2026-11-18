@@ -59,6 +59,21 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Traduire la page"
+ },
+ "chipWatchPrice": {
+  "message": "Surveiller le prix"
+ },
+ "plusButton": {
+  "message": "Plus : note, capture, tout le chat"
+ },
+ "hintShow": {
+  "message": "Voir"
+ },
+ "tourWholeBodyPlus": {
+  "message": "« Tout le chat » se trouve sous +. Activez « Tout le chat » quand une question a besoin de tout : tous les messages, vos notes et les autres pages de ce chat. Désactivé : les derniers messages et cette page."
+ },
  "promptSummarize": {
   "message": "Résumez cette page en 5 à 7 points, puis donnez la conclusion principale en une phrase."
  },
@@ -663,7 +678,7 @@
   "message": "Juste un passage ?"
  },
  "tourSelectBody": {
-  "message": "Sélectionnez d’abord du texte sur la page : la réponse ne portera que sur lui. Cette étiquette indique ce que lit ContextFlow."
+  "message": "Sélectionnez d’abord du texte sur la page : la réponse ne portera que sur lui. Une étiquette au-dessus du champ indique alors ce qui est sélectionné."
  },
  "tourGoogleTitle": {
   "message": "Des infos à jour avec Google"
@@ -690,10 +705,10 @@
   "message": "Vos propres notes"
  },
  "tourNoteBodyTouch": {
-  "message": "Faites glisser ce bouton vers le haut ou le bas pour écrire une note au lieu de poser une question. Elle reste dans le chat avec sa page et ne consomme aucune réponse."
+  "message": "Faites glisser ce bouton vers le haut ou le bas pour écrire une note au lieu de poser une question. Elle reste dans le chat avec sa page et ne consomme aucune réponse. Ou touchez + et choisissez « Note »."
  },
  "tourNoteBodyMouse": {
-  "message": "Faites défiler sur ce bouton (ou maintenez-le) pour écrire une note au lieu de poser une question. Elle reste dans le chat avec sa page et ne consomme aucune réponse."
+  "message": "Faites défiler sur ce bouton (ou maintenez-le) pour écrire une note au lieu de poser une question. Elle reste dans le chat avec sa page et ne consomme aucune réponse. Ou cliquez sur + et choisissez « Note »."
  },
  "tourWholeTitle": {
   "message": "Tout le chat en tête"
@@ -3101,8 +3116,8 @@
  "tip_6ba198cbff": {
   "message": "Vos propres notes"
  },
- "tip_6a92f6c633": {
-  "message": "Faites glisser le bouton d’envoi vers le haut ou le bas (sur Mac, faites défiler dessus) pour écrire une note au lieu de poser une question. Elle reste dans la discussion avec sa page, se synchronise avec elle et ne consomme aucune réponse."
+ "tip_b210a078de": {
+  "message": "Faites glisser le bouton d’envoi vers le haut ou le bas (sur Mac, faites défiler dessus) pour écrire une note au lieu de poser une question, ou touchez + à côté du champ et choisissez « Note ». Elle reste dans la discussion avec sa page, se synchronise avec elle et ne consomme aucune réponse."
  },
  "tip_ac13420c59": {
   "message": "Une capture avec votre note"
@@ -3140,8 +3155,8 @@
  "tip_e012ef5f59": {
   "message": "Toute la discussion en tête"
  },
- "tip_3a70cee32e": {
-  "message": "Activez « Tout le chat » sous le champ de question quand une réponse a besoin de tout : tous les messages, vos notes et les autres pages de cette discussion. Désactivé : les derniers messages et la page ouverte."
+ "tip_511d363377": {
+  "message": "Activez « Tout le chat » sous +, à côté du champ de question, quand une réponse a besoin de tout : tous les messages, vos notes et les autres pages de cette discussion. Désactivé : les derniers messages et la page ouverte."
  },
  "tip_ca29a1f4ed": {
   "message": "Interroger une vidéo"
@@ -3260,8 +3275,8 @@
  "tip_8d1c1aa55d": {
   "message": "Tout dans une collection"
  },
- "tip_15dc6cba07": {
-  "message": "Vous préparez un voyage ou un achat ? Choisissez « Dans une collection » sous une réponse ou une note, et ContextFlow propose où la ranger. « Collections » garde tout par sections, dans Safari et dans l’app. Avec Pro, l’IA trie les cartes, « Comparer » met côte à côte celles que vous choisissez et « Synthèse » résume le tout. Chaque collection s’enregistre en PDF."
+ "tip_397645bf6c": {
+  "message": "Vous préparez un voyage ou un achat ? Choisissez « Dans une collection » sous une réponse ou une note, ou dans son menu …, et ContextFlow propose où la ranger. « Collections » garde tout par sections, dans Safari et dans l’app. Avec Pro, l’IA trie les cartes, « Comparer » met côte à côte celles que vous choisissez et « Synthèse » résume le tout. Chaque collection s’enregistre en PDF."
  },
  "tip_c4b432e2e9": {
   "message": "Cherchez dans vos discussions"
@@ -3272,8 +3287,8 @@
  "tip_2e4668f650": {
   "message": "Tags et dossiers"
  },
- "tip_6b5bdf707f": {
-  "message": "Ajoutez un tag à une discussion, une réponse ou une note avec 🏷. Touchez un tag pour ne voir que ses discussions, ou activez Dossiers pour regrouper la liste par tag."
+ "tip_d3d95ad05c": {
+  "message": "Ajoutez un tag à une discussion, une réponse ou une note avec 🏷, ou avec « Tag » dans son menu …. Touchez un tag pour ne voir que ses discussions, ou activez Dossiers pour regrouper la liste par tag."
  },
  "tip_752fb307f2": {
   "message": "Partagez ce que vous avez trouvé"

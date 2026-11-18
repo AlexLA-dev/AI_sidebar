@@ -6,6 +6,7 @@ import { detectPlatform, HOST_TAG } from "../content/page"
 import { pdfName } from "../content/pdf"
 import styles from "../content/styles.css"
 import organizeStyles from "../content/organize.css"
+import quietStyles from "../content/quiet/quiet.css"
 import { SHADOW_MODE, TARGET } from "../shared/config"
 import { urlKey } from "../shared/conversation"
 import { uiDirection, uiLang } from "../shared/i18n"
@@ -99,7 +100,7 @@ async function main(): Promise<void> {
   document.documentElement.setAttribute("lang", uiLang())
   const root = host.attachShadow({ mode: SHADOW_MODE })
   const style = document.createElement("style")
-  style.textContent = styles + organizeStyles
+  style.textContent = styles + organizeStyles + quietStyles
   root.appendChild(style)
   const container = document.createElement("div")
   root.appendChild(container)

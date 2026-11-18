@@ -260,7 +260,9 @@ export function CollectSheet({ entries, index, chat, all, shown, space, pro, ai,
  * it), the collection it's in, and a tap's menu: open it, move the card to another section, remove it, or add it to
  * another collection.
  */
-export function CollectLink({ chat, msg, shown, onSheet, onOpen, report }: {
+export function CollectLink({ chat, msg, shown, onSheet, onOpen, report, row }: {
+  // In the one row of buttons under a message (2.7 after 107): its words give way to the icon first (ToolsRow).
+  row?: boolean
   chat: string
   msg: string
   // The collections of the space the panel is in.
@@ -274,7 +276,18 @@ export function CollectLink({ chat, msg, shown, onSheet, onOpen, report }: {
   const box = useRef<HTMLSpanElement>(null)
   useEffect(() => {
     if (!menu) return
-    box.current?.querySelector(".cf-col-menu")?.scrollIntoView({ block: "nearest" })
+    const list = box.current?.querySelector<HTMLElement>(".cf-col-menu")
+    // Inside the panel's edges (in the row under a message it may start near the panel's far side on an iPhone).
+    const panel = box.current?.closest(".cf-panel")
+    if (list && panel) {
+      const r = list.getBoundingClientRect()
+      const p = panel.getBoundingClientRect()
+      const over = r.right - (p.right - 8)
+      const under = p.left + 8 - r.left
+      if (over > 0) list.style.transform = `translateX(${-Math.min(over, Math.max(0, r.left - p.left - 8))}px)`
+      else if (under > 0) list.style.transform = `translateX(${under}px)`
+    }
+    list?.scrollIntoView({ block: "nearest" })
     const root = box.current?.getRootNode() as Document | ShadowRoot | undefined
     const away = (e: Event) => {
       if (!box.current?.contains(e.target as Node)) setMenu(false)
@@ -283,20 +296,25 @@ export function CollectLink({ chat, msg, shown, onSheet, onOpen, report }: {
     return () => root?.removeEventListener("pointerdown", away, true)
   }, [menu])
   if (!places.length) {
-    return <button type="button" class="cf-collect-link" onClick={onSheet}><Icon.ToCollection /> {t("colAdd")}</button>
+    return row
+      ? <button type="button" class="cf-collect-link" onClick={onSheet} aria-label={t("colAdd")} title={t("colAdd")}><Icon.ToCollection /> <span class="cf-tl" data-give="1">{t("colAdd")}</span></button>
+      : <button type="button" class="cf-collect-link" onClick={onSheet}><Icon.ToCollection /> {t("colAdd")}</button>
   }
   const first = places[0]
   return (
-    <span class="cf-collect-in" ref={box}>
-      <button type="button" class="cf-collect-link in" aria-haspopup="menu" aria-expanded={menu} title={first.section?.n} onClick={() => setMenu(!menu)}>
-        <Icon.Check /> <span class="cf-collect-name" dir="auto">{t("colIn", first.rec.n)}</span>
+    <span class={`cf-collect-in${row ? " in-row" : ""}`} ref={box}>
+      <button type="button" class="cf-collect-link in" aria-haspopup="menu" aria-expanded={menu} aria-label={row ? t("colIn", first.rec.n) : undefined} title={row ? t("colIn", first.rec.n) : first.section?.n} onClick={() => setMenu(!menu)}>
+        <Icon.Check /> <span class={`cf-collect-name${row ? " cf-tl" : ""}`} data-give={row ? "1" : undefined} dir="auto">{t("colIn", first.rec.n)}</span>
         {places.length > 1 && <span class="cf-collect-more">+{places.length - 1}</span>}
       </button>
       {menu && (
         <div class="cf-col-menu cf-collect-menu" role="menu">
           {places.map(({ rec, card, section }) => (
             <Fragment key={rec.id}>
-              {places.length > 1 && <div class="cf-collect-menu-name" dir="auto">{rec.n}</div>}
+              {/* In the row under a message on an iPhone the name gives way to the ✓ (quiet/ToolsRow.tsx): its menu then
+                  says where the answer is, «In “<collection>”», over its items. */}
+              {places.length > 1 ? <div class="cf-collect-menu-name" dir="auto">{rec.n}</div>
+                : row && <div class="cf-collect-menu-name" dir="auto">{t("colIn", rec.n)}</div>}
               <button type="button" role="menuitem" onClick={() => { setMenu(false); onOpen(rec.id) }}>{t("colOpen")}</button>
               {liveSections(rec).filter((s) => s.id !== section?.id).map((s) => (
                 <button key={s.id} type="button" role="menuitem" dir="auto" onClick={() => {
