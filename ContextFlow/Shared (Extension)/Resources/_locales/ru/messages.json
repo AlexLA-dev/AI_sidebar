@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Изменить напоминание"
  },
+ "uxMove": {
+  "message": "Перенести в другой чат"
+ },
+ "uxMoveTitle": {
+  "message": "В какой чат перенести ответ?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "В какой чат перенести заметку?"
+ },
  "uxRemindOpen": {
   "message": "Открыть"
  },
@@ -3046,6 +3055,27 @@
  },
  "matchBackTo": {
   "message": "Назад в «{0}»"
+ },
+ "writeCompose": {
+  "message": "Написать"
+ },
+ "writeComposeGo": {
+  "message": "Написать"
+ },
+ "writeComposing": {
+  "message": "Пишу с учётом страницы…"
+ },
+ "writeComposeHint": {
+  "message": "О чём написать? Своими словами"
+ },
+ "writeComposeEdit": {
+  "message": "Изменить запрос"
+ },
+ "writeToneAsk": {
+  "message": "Каким тоном?"
+ },
+ "writeInserted": {
+  "message": "Вставлено"
  },
  "tip_4cf1b54b00": {
   "message": "Советы"

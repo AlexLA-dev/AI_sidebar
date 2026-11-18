@@ -5,7 +5,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type ConsumeResult, type Counter } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { askHaiku, InsertAiError, insertCost, type AiCall } from "../shared/insert.mts"
-import { blockReason, countersFor, hasPro, proOffer, resolveAccess, visibleUsage, type Access, type Usage } from "../shared/plan.mts"
+import { blockReason, countersFor, evalAccess, hasPro, proOffer, resolveAccess, visibleUsage, type Access, type Usage } from "../shared/plan.mts"
 import { inviteExtra } from "../shared/invite.mts"
 import { checkWrite, readAsk, tooLong, writeMessage, writeTask } from "../shared/writing.mts"
 import { clipPage, diffWords, LIVE } from "../../src/shared/writing.ts"
@@ -54,7 +54,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (settings.claudeMinBuild > 0 && !(Number(build) >= settings.claudeMinBuild)) return json({ code: "UNAVAILABLE", message: "update the app" }, 400)
   if (!settings.write.enabled || !settings.anthropicKey) return json({ code: "UNAVAILABLE" }, 503)
 
-  const access = await resolveAccess(body.entitlement, installId)
+  // Deploy previews only: a request signed with the measuring key counts as Ultra (plan.mts evalAccess), so Check and
+  // its live underlines can be measured there across languages (2.7 (108), W4) without a purchase.
+  const access = evalAccess(req, installId, context) ?? (await resolveAccess(body.entitlement, installId))
   if (live && !(hasPro(access.plan) && access.entitlement)) return json({ code: "PRO_ONLY", plan: access.plan }, 402)
   const counters = live ? liveCounters(access, ipSubject(context.ip)) : writeCounters(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
   const base = {
@@ -100,7 +102,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     return json({ code: reason === "rate_limit" ? "BUSY" : reason === "timeout" ? "SLOW" : "UPSTREAM" }, reason === "rate_limit" ? 503 : reason === "timeout" ? 504 : 502)
   }
 
-  const text = checkWrite(call.data, ask.text)
+  const text = checkWrite(call.data, ask.text, ask.action)
   if (text === null) {
     context.waitUntil(Promise.all([
       refund(charged).catch(() => undefined),

@@ -109,6 +109,9 @@
   "uxStop": "停止",
   "uxRemind": "提醒我",
   "uxRemindChange": "更改提醒",
+  "uxMove": "移到其他对话",
+  "uxMoveTitle": "把回答移到哪个对话？",
+  "uxMoveNoteTitle": "把笔记移到哪个对话？",
   "uxRemindOpen": "打开",
   "uxRemindTitle": "什么时候提醒你？",
   "uxNoteWords": "备注（可选）",
@@ -1043,5 +1046,12 @@
   "colAlready": "已在“{0}”中",
   "tipNew": "新功能",
   "matchContinueIn": "在“{0}”中继续：",
-  "matchBackTo": "回到“{0}”"
+  "matchBackTo": "回到“{0}”",
+  "writeCompose": "撰写",
+  "writeComposeGo": "开始撰写",
+  "writeComposing": "正在结合页面内容撰写…",
+  "writeComposeHint": "要写什么？用你自己的话说",
+  "writeComposeEdit": "修改要求",
+  "writeToneAsk": "用什么语气？",
+  "writeInserted": "已插入"
 }

@@ -109,6 +109,9 @@
   "uxStop": "Dừng",
   "uxRemind": "Nhắc tôi",
   "uxRemindChange": "Đổi lời nhắc",
+  "uxMove": "Chuyển sang cuộc trò chuyện khác",
+  "uxMoveTitle": "Chuyển câu trả lời sang cuộc trò chuyện nào?",
+  "uxMoveNoteTitle": "Chuyển ghi chú sang cuộc trò chuyện nào?",
   "uxRemindOpen": "Mở",
   "uxRemindTitle": "Nhắc bạn lúc nào?",
   "uxNoteWords": "Ghi chú (không bắt buộc)",
@@ -1043,5 +1046,12 @@
   "colAlready": "Đã có trong “{0}”",
   "tipNew": "Mới",
   "matchContinueIn": "Đang tiếp tục trong “{0}”",
-  "matchBackTo": "Quay lại “{0}”"
+  "matchBackTo": "Quay lại “{0}”",
+  "writeCompose": "Soạn",
+  "writeComposeGo": "Viết",
+  "writeComposing": "Đang viết theo nội dung trang…",
+  "writeComposeHint": "Muốn viết gì? Bằng lời của bạn",
+  "writeComposeEdit": "Đổi yêu cầu",
+  "writeToneAsk": "Giọng điệu thế nào?",
+  "writeInserted": "Đã chèn"
 }

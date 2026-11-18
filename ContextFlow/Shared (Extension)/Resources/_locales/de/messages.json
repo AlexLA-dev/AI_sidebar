@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Erinnerung ändern"
  },
+ "uxMove": {
+  "message": "In anderen Chat verschieben"
+ },
+ "uxMoveTitle": {
+  "message": "In welchen Chat soll die Antwort?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "In welchen Chat soll die Notiz?"
+ },
  "uxRemindOpen": {
   "message": "Öffnen"
  },
@@ -3046,6 +3055,27 @@
  },
  "matchBackTo": {
   "message": "Zurück zu „{0}“"
+ },
+ "writeCompose": {
+  "message": "Verfassen"
+ },
+ "writeComposeGo": {
+  "message": "Schreiben"
+ },
+ "writeComposing": {
+  "message": "Schreibe mit Blick auf die Seite…"
+ },
+ "writeComposeHint": {
+  "message": "Was soll drinstehen? In deinen Worten"
+ },
+ "writeComposeEdit": {
+  "message": "Anfrage ändern"
+ },
+ "writeToneAsk": {
+  "message": "Welcher Ton?"
+ },
+ "writeInserted": {
+  "message": "Eingefügt"
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

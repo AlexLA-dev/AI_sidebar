@@ -109,6 +109,9 @@
   "uxStop": "Detener",
   "uxRemind": "Recordarme",
   "uxRemindChange": "Cambiar recordatorio",
+  "uxMove": "Mover a otro chat",
+  "uxMoveTitle": "¿A qué chat mover la respuesta?",
+  "uxMoveNoteTitle": "¿A qué chat mover la nota?",
   "uxRemindOpen": "Abrir",
   "uxRemindTitle": "¿Cuándo te lo recuerdo?",
   "uxNoteWords": "Tu nota (opcional)",
@@ -1043,5 +1046,12 @@
   "colAlready": "Ya está en «{0}»",
   "tipNew": "Nuevo",
   "matchContinueIn": "Sigo en «{0}»",
-  "matchBackTo": "Volver a «{0}»"
+  "matchBackTo": "Volver a «{0}»",
+  "writeCompose": "Redactar",
+  "writeComposeGo": "Escribir",
+  "writeComposing": "Redactando con la página en cuenta…",
+  "writeComposeHint": "¿Qué debe decir? Con tus palabras",
+  "writeComposeEdit": "Cambiar la petición",
+  "writeToneAsk": "¿Con qué tono?",
+  "writeInserted": "Insertado"
 }

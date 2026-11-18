@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Modifier le rappel"
  },
+ "uxMove": {
+  "message": "Déplacer vers un autre chat"
+ },
+ "uxMoveTitle": {
+  "message": "Vers quel chat déplacer la réponse ?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Vers quel chat déplacer la note ?"
+ },
  "uxRemindOpen": {
   "message": "Ouvrir"
  },
@@ -3046,6 +3055,27 @@
  },
  "matchBackTo": {
   "message": "Revenir à « {0} »"
+ },
+ "writeCompose": {
+  "message": "Rédiger"
+ },
+ "writeComposeGo": {
+  "message": "Écrire"
+ },
+ "writeComposing": {
+  "message": "Rédaction en tenant compte de la page…"
+ },
+ "writeComposeHint": {
+  "message": "Que faut-il dire ? Avec vos mots"
+ },
+ "writeComposeEdit": {
+  "message": "Modifier la demande"
+ },
+ "writeToneAsk": {
+  "message": "Quel ton ?"
+ },
+ "writeInserted": {
+  "message": "Inséré"
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

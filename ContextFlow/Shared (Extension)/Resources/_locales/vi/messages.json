@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Đổi lời nhắc"
  },
+ "uxMove": {
+  "message": "Chuyển sang cuộc trò chuyện khác"
+ },
+ "uxMoveTitle": {
+  "message": "Chuyển câu trả lời sang cuộc trò chuyện nào?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Chuyển ghi chú sang cuộc trò chuyện nào?"
+ },
  "uxRemindOpen": {
   "message": "Mở"
  },
@@ -3046,6 +3055,27 @@
  },
  "matchBackTo": {
   "message": "Quay lại “{0}”"
+ },
+ "writeCompose": {
+  "message": "Soạn"
+ },
+ "writeComposeGo": {
+  "message": "Viết"
+ },
+ "writeComposing": {
+  "message": "Đang viết theo nội dung trang…"
+ },
+ "writeComposeHint": {
+  "message": "Muốn viết gì? Bằng lời của bạn"
+ },
+ "writeComposeEdit": {
+  "message": "Đổi yêu cầu"
+ },
+ "writeToneAsk": {
+  "message": "Giọng điệu thế nào?"
+ },
+ "writeInserted": {
+  "message": "Đã chèn"
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

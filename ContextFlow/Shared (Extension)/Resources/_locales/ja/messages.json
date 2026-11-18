@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "リマインドを変更"
  },
+ "uxMove": {
+  "message": "別のチャットに移動"
+ },
+ "uxMoveTitle": {
+  "message": "回答をどのチャットに移動しますか？"
+ },
+ "uxMoveNoteTitle": {
+  "message": "メモをどのチャットに移動しますか？"
+ },
  "uxRemindOpen": {
   "message": "開く"
  },
@@ -3046,6 +3055,27 @@
  },
  "matchBackTo": {
   "message": "「{0}」に戻る"
+ },
+ "writeCompose": {
+  "message": "作成"
+ },
+ "writeComposeGo": {
+  "message": "作成する"
+ },
+ "writeComposing": {
+  "message": "ページの内容を踏まえて作成中…"
+ },
+ "writeComposeHint": {
+  "message": "何を書きますか？ご自身の言葉でどうぞ"
+ },
+ "writeComposeEdit": {
+  "message": "依頼を変える"
+ },
+ "writeToneAsk": {
+  "message": "どんなトーンで？"
+ },
+ "writeInserted": {
+  "message": "挿入しました"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

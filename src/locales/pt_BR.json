@@ -109,6 +109,9 @@
   "uxStop": "Parar",
   "uxRemind": "Me lembrar",
   "uxRemindChange": "Mudar lembrete",
+  "uxMove": "Mover para outra conversa",
+  "uxMoveTitle": "Para qual conversa mover a resposta?",
+  "uxMoveNoteTitle": "Para qual conversa mover a nota?",
   "uxRemindOpen": "Abrir",
   "uxRemindTitle": "Quando devo lembrar você?",
   "uxNoteWords": "Sua nota (opcional)",
@@ -1043,5 +1046,12 @@
   "colAlready": "Já está em “{0}”",
   "tipNew": "Novo",
   "matchContinueIn": "Continuando em “{0}”",
-  "matchBackTo": "Voltar para “{0}”"
+  "matchBackTo": "Voltar para “{0}”",
+  "writeCompose": "Escrever",
+  "writeComposeGo": "Escrever",
+  "writeComposing": "Escrevendo com a página em mente…",
+  "writeComposeHint": "O que deve dizer? Com suas palavras",
+  "writeComposeEdit": "Mudar o pedido",
+  "writeToneAsk": "Em que tom?",
+  "writeInserted": "Inserido"
 }

@@ -109,6 +109,9 @@
   "uxStop": "Остановить",
   "uxRemind": "Напомнить",
   "uxRemindChange": "Изменить напоминание",
+  "uxMove": "Перенести в другой чат",
+  "uxMoveTitle": "В какой чат перенести ответ?",
+  "uxMoveNoteTitle": "В какой чат перенести заметку?",
   "uxRemindOpen": "Открыть",
   "uxRemindTitle": "Когда напомнить?",
   "uxNoteWords": "Заметка (необязательно)",
@@ -1043,5 +1046,12 @@
   "colAlready": "Уже в «{0}»",
   "tipNew": "Новое",
   "matchContinueIn": "Продолжаю в «{0}»",
-  "matchBackTo": "Назад в «{0}»"
+  "matchBackTo": "Назад в «{0}»",
+  "writeCompose": "Написать",
+  "writeComposeGo": "Написать",
+  "writeComposing": "Пишу с учётом страницы…",
+  "writeComposeHint": "О чём написать? Своими словами",
+  "writeComposeEdit": "Изменить запрос",
+  "writeToneAsk": "Каким тоном?",
+  "writeInserted": "Вставлено"
 }

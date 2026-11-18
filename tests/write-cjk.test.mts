@@ -61,8 +61,10 @@ test("a run of Chinese, Japanese or Thai is cut into its words; spaced languages
 
 test("the field's circle and its list items go by the same rule", () => {
   const quick = readFileSync(new URL("../src/content/insert/QuickInsert.tsx", import.meta.url), "utf8")
-  assert.match(quick, /const canWrite = \(f: Field \| null\) => Boolean\([\s\S]{0,200}?worthWriting\(/)
-  assert.match(quick, /onWrite=\{canWrite\(fieldRef\.current\)/)
+  assert.match(quick, /const writable = \(f: Field \| null\): f is Field => Boolean\(f && settings\.writing && f\.el\.isConnected && !noButtonField\(f\.el\) && writableField\(f\.el\)\)/)
+  assert.match(quick, /const canWrite = \(f: Field \| null\) => writable\(f\) && worthWriting\(/)
+  // 2.7 (108): a field with nothing written in it gets Compose in that same row.
+  assert.match(quick, /onWrite=\{canWrite\(fieldRef\.current\) \|\| blankField\(fieldRef\.current\)/)
   // The underlines too, on the field last written in (2.7 (107): they stay when the focus leaves it).
   assert.match(quick, /const liveOn = Boolean\(props\.live && settings\.underline && canWrite\(liveAt\)\)/)
 })

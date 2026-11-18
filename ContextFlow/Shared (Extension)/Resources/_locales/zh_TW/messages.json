@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "更改提醒"
  },
+ "uxMove": {
+  "message": "移到其他對話"
+ },
+ "uxMoveTitle": {
+  "message": "要把回答移到哪個對話？"
+ },
+ "uxMoveNoteTitle": {
+  "message": "要把筆記移到哪個對話？"
+ },
  "uxRemindOpen": {
   "message": "開啟"
  },
@@ -3046,6 +3055,27 @@
  },
  "matchBackTo": {
   "message": "回到「{0}」"
+ },
+ "writeCompose": {
+  "message": "撰寫"
+ },
+ "writeComposeGo": {
+  "message": "開始撰寫"
+ },
+ "writeComposing": {
+  "message": "正在參考頁面內容撰寫…"
+ },
+ "writeComposeHint": {
+  "message": "要寫什麼？用你自己的話說"
+ },
+ "writeComposeEdit": {
+  "message": "修改要求"
+ },
+ "writeToneAsk": {
+  "message": "用什麼語氣？"
+ },
+ "writeInserted": {
+  "message": "已插入"
  },
  "tip_4cf1b54b00": {
   "message": "提示"

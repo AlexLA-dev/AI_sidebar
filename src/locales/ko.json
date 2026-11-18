@@ -109,6 +109,9 @@
   "uxStop": "중지",
   "uxRemind": "리마인더 설정",
   "uxRemindChange": "리마인더 변경",
+  "uxMove": "다른 채팅으로 옮기기",
+  "uxMoveTitle": "답변을 어느 채팅으로 옮길까요?",
+  "uxMoveNoteTitle": "메모를 어느 채팅으로 옮길까요?",
   "uxRemindOpen": "열기",
   "uxRemindTitle": "언제 알려 드릴까요?",
   "uxNoteWords": "메모 (선택)",
@@ -1043,5 +1046,12 @@
   "colAlready": "이미 ‘{0}’에 있어요",
   "tipNew": "새 기능",
   "matchContinueIn": "‘{0}’에서 이어서",
-  "matchBackTo": "‘{0}’(으)로 돌아가기"
+  "matchBackTo": "‘{0}’(으)로 돌아가기",
+  "writeCompose": "작성",
+  "writeComposeGo": "작성하기",
+  "writeComposing": "페이지 내용을 고려해 작성하는 중…",
+  "writeComposeHint": "무엇을 쓸까요? 내 말로 적어 주세요",
+  "writeComposeEdit": "요청 바꾸기",
+  "writeToneAsk": "어떤 어조로 쓸까요?",
+  "writeInserted": "삽입됨"
 }

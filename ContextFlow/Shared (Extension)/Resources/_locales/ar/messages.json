@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "تغيير التذكير"
  },
+ "uxMove": {
+  "message": "نقل إلى محادثة أخرى"
+ },
+ "uxMoveTitle": {
+  "message": "إلى أي محادثة تُنقل الإجابة؟"
+ },
+ "uxMoveNoteTitle": {
+  "message": "إلى أي محادثة تُنقل الملاحظة؟"
+ },
  "uxRemindOpen": {
   "message": "فتح"
  },
@@ -3046,6 +3055,27 @@
  },
  "matchBackTo": {
   "message": "العودة إلى «{0}»"
+ },
+ "writeCompose": {
+  "message": "إنشاء"
+ },
+ "writeComposeGo": {
+  "message": "اكتب"
+ },
+ "writeComposing": {
+  "message": "جارٍ الكتابة مع مراعاة الصفحة…"
+ },
+ "writeComposeHint": {
+  "message": "ماذا تريد أن تقول؟ بكلماتك"
+ },
+ "writeComposeEdit": {
+  "message": "تعديل الطلب"
+ },
+ "writeToneAsk": {
+  "message": "بأي نبرة؟"
+ },
+ "writeInserted": {
+  "message": "تم الإدراج"
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
