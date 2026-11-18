@@ -364,6 +364,8 @@ export function WriteCard(p: CardProps): VNode {
   }
   useEffect(() => {
     const w = waitsFor(p.job)
+    // Back to Compose's box from a draft: the tone it was written in is the one picked.
+    if (w === "ask") setTone(p.job.tone)
     if (w) return setState({ step: w })
     void ask()
   }, [p.job.action, p.job.tone, p.job.request])
