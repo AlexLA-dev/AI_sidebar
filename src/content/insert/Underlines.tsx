@@ -3,8 +3,8 @@
 // what would change is underlined in our colour, not the system's red.
 // - The underlines stay while the mistake is there, with the focus in the field or out of it (2.7 (107), the owner: they
 //   went with the focus, and nothing said how many there were). A line and a faint tint in our gradient; a light runs
-//   along a new one a few times, as round our other outlines, then it's still (2.7 (108), the owner: «переливающимся в
-//   нашем стиле»). The one a card or a row is about shimmers while it is. Still with Reduce Motion.
+//   along each in the selection ring's rhythm while it's in sight (2.7 (108), the owner: «переливающимся в нашем стиле»,
+//   then «бегает регулярно как при выделении текста»). Still with Reduce Motion.
 // - With a pointer (a Mac, an iPad's trackpad), pointing at one shows the fix with «Исправить» and «Пропустить».
 // - By touch nothing opens on the word (2.7 (107): the card came up one tap in ten, under the system's menu and our
 //   selection buttons, and behind the keyboard on an iPad mini). The field's button carries the count and opens the list
@@ -411,6 +411,7 @@ export function Underlines({ field, host, touch, lit, quiet, taps, onFixed, onTa
   }
 
   if (!shown.length) return null
+  const view = viewport(touch)
   const card = open && !quiet ? placeCard(open.rect, viewport(touch)) : null
   const was = open ? open.issue.para.slice(open.issue.rel.from, open.issue.rel.to) : ""
   return (
@@ -418,9 +419,10 @@ export function Underlines({ field, host, touch, lit, quiet, taps, onFixed, onTa
       <div class="cf-ul-layer" data-ground={fieldGround(el)} aria-hidden="true">
         {shown.flatMap((s) => s.rects.map((r, i) => (
           <div
-            // Its own element per mistake: one that comes up shimmers, the ones already there stay as they are.
+            // Its own element per mistake, so a light already running isn't restarted when the others change.
             key={`${s.issue.key}:${i}`}
-            class={`cf-ul ${open?.issue.key === s.issue.key || lit === s.issue.key ? "on" : ""}`}
+            // Out of sight (scrolled away, under the keyboard): its light holds still until it's back.
+            class={`cf-ul ${open?.issue.key === s.issue.key || lit === s.issue.key ? "on" : ""} ${inSight(r, view) ? "" : "off"}`}
             style={{ left: `${r.left}px`, top: `${r.top}px`, width: `${Math.max(6, r.width)}px`, height: `${r.height}px` }}
           />
         )))}
@@ -456,6 +458,11 @@ export function Underlines({ field, host, touch, lit, quiet, taps, onFixed, onTa
       )}
     </>
   )
+}
+
+/** Whether an underline's rect (fixed coordinates) is within what's visible now. */
+export function inSight(r: { top: number; bottom: number; left: number; right: number }, vp: { width: number; height: number; dx: number; dy: number }): boolean {
+  return r.bottom > vp.dy && r.top < vp.dy + vp.height && r.right > vp.dx && r.left < vp.dx + vp.width
 }
 
 /** The card's first place (its top is set again once its height is known, cardTop); kept on screen sideways. */
