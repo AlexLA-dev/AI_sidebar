@@ -33,3 +33,34 @@ export function toFixed(rect: DOMRect): DOMRect {
   const { dx, dy } = fixedShift()
   return dx === 0 && dy === 0 ? rect : new DOMRect(rect.left + dx, rect.top + dy, rect.width, rect.height)
 }
+
+/** The visible part of the page in `position: fixed` coordinates. */
+export interface VisibleBox {
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
+
+/** The system edit menu on iPhone and iPad: centred on the selection, kept on screen; about this wide (Cut … Format ›). */
+const MENU_WIDTH = 520
+
+/**
+ * Where the selection buttons go when neither below nor above the selection has room for them clear of the system
+ * menu (2.7: an iPad mini in landscape with the keyboard up leaves 230 pt of page, and the menu lay over the buttons'
+ * first row): beside the menu, level with the selection. `clear` is how far the buttons keep from the selection for
+ * the menu's sake. null when a side has room (the usual rule holds), when the screen isn't wide enough (iPhone, iPad
+ * in portrait), or when the selection itself reaches under that place.
+ */
+export function besideMenu(rect: { left: number; right: number; top: number; bottom: number }, width: number, height: number, view: VisibleBox, clear: number): { left: number; top: number } | null {
+  if (rect.bottom + clear + height <= view.bottom - 12 || rect.top - clear - height >= view.top + 8) return null
+  const center = (rect.left + rect.right) / 2
+  const menuLeft = Math.max(view.left + 8, Math.min(view.right - 8 - MENU_WIDTH, center - MENU_WIDTH / 2))
+  const menuRight = menuLeft + MENU_WIDTH
+  const top = Math.max(view.top + 8, Math.min(view.bottom - height - 12, rect.top - 8))
+  const right = menuRight + 8
+  if (right + width <= view.right - 8 && rect.right <= right - 8) return { left: right, top }
+  const left = menuLeft - 8 - width
+  if (left >= view.left + 8 && rect.left >= left + width + 8) return { left, top }
+  return null
+}

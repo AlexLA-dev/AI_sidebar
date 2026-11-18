@@ -24,7 +24,7 @@ import { test } from "node:test"
   get bottom() { return this.y + this.height }
 }
 
-const { fixedShift, setFixedProbe, toFixed } = await import("../src/content/fixedPlace.ts")
+const { besideMenu, fixedShift, setFixedProbe, toFixed } = await import("../src/content/fixedPlace.ts")
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")
 const rect = (x: number, y: number, w: number, h: number) => new DOMRect(x, y, w, h)
 
@@ -58,4 +58,25 @@ test("the selection's rect, its ring and the round button's dodge are all in fix
   assert.match(app, /fabHome\.current = toFixed\(fab\.getBoundingClientRect\(\)\)/)
   assert.match(app, /<i class="cf-origin" aria-hidden="true" ref=\{setFixedProbe\} \/>/)
   assert.match(read("../src/content/styles.css"), /\.cf-origin \{ position: fixed; left: 0; top: 0; width: 0; height: 0;/)
+})
+
+test("no room below or above for the buttons and the system menu: beside the menu on a wide screen, the usual rule elsewhere", () => {
+  const word = { left: 320, right: 356, top: 148, bottom: 172 }
+  // iPad mini in landscape, the keyboard up: 230 pt of page (86…316), 1133 wide. The menu spans about 78…598.
+  const landscape = { left: 0, top: 86, right: 1133, bottom: 316 }
+  assert.deepEqual(besideMenu(word, 375, 125, landscape, 88), { left: 606, top: 140 })
+  // The selection at the right edge: the menu is pushed left, and the buttons go to its left.
+  assert.deepEqual(besideMenu({ left: 1040, right: 1100, top: 148, bottom: 172 }, 375, 125, landscape, 88), { left: 222, top: 140 })
+  // Portrait (744 wide) and iPhone (402): no place beside the menu.
+  assert.equal(besideMenu(word, 375, 125, { left: 0, top: 86, right: 744, bottom: 316 }, 88), null)
+  assert.equal(besideMenu({ left: 100, right: 140, top: 148, bottom: 172 }, 300, 125, { left: 0, top: 60, right: 402, bottom: 300 }, 88), null)
+  // Room below (no keyboard): nothing changes.
+  assert.equal(besideMenu(word, 375, 125, { left: 0, top: 86, right: 1133, bottom: 744 }, 88), null)
+  // A selection that reaches under that place stays uncovered.
+  assert.equal(besideMenu({ left: 100, right: 900, top: 148, bottom: 172 }, 375, 125, landscape, 88), null)
+  // A zoomed or moved page: the visible part starts elsewhere, and the place moves with it.
+  assert.deepEqual(besideMenu({ left: 520, right: 556, top: 448, bottom: 472 }, 375, 125, { left: 200, top: 386, right: 1333, bottom: 616 }, 88), { left: 806, top: 440 })
+  const app = read("../src/content/App.tsx")
+  assert.match(app, /const side = touch\n\s+\? besideMenu\(rect, el\.offsetWidth, el\.offsetHeight,/)
+  assert.match(app, /el\.style\.top = `\$\{side \? side\.top : bubbleTop\(rect, touch, el\.offsetHeight, up\)\}px`/)
 })
