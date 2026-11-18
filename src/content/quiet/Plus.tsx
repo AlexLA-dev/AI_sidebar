@@ -2,6 +2,7 @@
 // «свайп неочевиден и может забыться»), the page snapshot, the Whole chat switch and the answers left. On the compact
 // chat the line under the field is gone and these are where its switch and its count went; the count also shows by the
 // field, as a number, on Free and when few answers are left (leftBadge). Templates and Copied aren't here (decision 7).
+// The roomy chat keeps that line, so its «+» has Note and the snapshot only (109: nothing in two places).
 
 import type { ComponentChildren, VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"

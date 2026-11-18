@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Modifier le rappel"
  },
+ "uxMove": {
+  "message": "Déplacer vers un autre chat"
+ },
+ "uxMoveTitle": {
+  "message": "Vers quel chat déplacer la réponse ?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Vers quel chat déplacer la note ?"
+ },
  "uxRemindOpen": {
   "message": "Ouvrir"
  },

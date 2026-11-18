@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Змінити нагадування"
  },
+ "uxMove": {
+  "message": "Перенести в інший чат"
+ },
+ "uxMoveTitle": {
+  "message": "У який чат перенести відповідь?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "У який чат перенести нотатку?"
+ },
  "uxRemindOpen": {
   "message": "Відкрити"
  },

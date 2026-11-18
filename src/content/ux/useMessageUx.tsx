@@ -19,11 +19,17 @@ import { Swipe } from "./Swipe"
 
 type Setter = (update: (list: Entry[]) => Entry[]) => void
 
-/** What the compact chat's «…» holds besides its own (2.7, the quiet panel): Tag and To collection. */
+/**
+ * What a message's «…» holds besides its own (2.7, the quiet panel): Tag and To collection when the row under the message
+ * had no room for them (109: an action is in one place, the row or «…», never both), and Move to another chat.
+ * `hover`: the Mac's buttons under the pointer show as before (the roomy chat with a pointer).
+ */
 export interface MenuExtra {
-  onTag: () => void
+  onTag?: () => void
   onCollect?: () => void
-  picked: (what: "tag" | "collect") => void
+  onMove?: () => void
+  hover?: boolean
+  picked: (what: "tag" | "collect" | "move") => void
 }
 
 interface Options {
@@ -37,6 +43,8 @@ interface Options {
   send: <T>(message: unknown) => Promise<T | null>
   // The chat's undo bar ("Answer deleted · Undo"), shown until the next action.
   showUndo: (text: string, undo: () => void) => void
+  // 2.7 (109): Move to another chat for the menu opened by a right-click (Mac), when the message can move.
+  moveFor?: (idx: number) => (() => void) | undefined
 }
 
 /** The messages a swipe or Delete removes: a note alone; an answer with its question. */
@@ -85,7 +93,7 @@ export async function scheduleReminder(send: Options["send"], chat: string, entr
   return outcome
 }
 
-export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, touch, open, send, showUndo }: Options) {
+export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, touch, open, send, showUndo, moveFor }: Options) {
   const [pick, setPick] = useState<{ idx: number; s: number; e: number; text: string; rect: DOMRect } | null>(null)
   const [hit, setHit] = useState<{ idx: number; i: number; rect: DOMRect } | null>(null)
   // The menu of a message: under its "…" or, on a right-click, where the pointer is.
@@ -366,7 +374,7 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
    *  `extra` (2.7, the compact chat): what the row no longer shows, first in the menu. */
   const moreButton = (m: Entry, idx: number, extra?: MenuExtra): VNode => (
     <>
-      {!touch && !extra && (
+      {!touch && (!extra || extra.hover) && (
         <span class="cf-hover-tools">
           <button type="button" title={t(m.pinned ? "uxUnpin" : "uxPin")} aria-label={t(m.pinned ? "uxUnpin" : "uxPin")} onClick={() => togglePin(idx, "hover")}><PinIcon size={14} filled={Boolean(m.pinned)} /></button>
           <button type="button" title={t("uxRemind")} aria-label={t("uxRemind")} onClick={() => setReminding({ idx, note: null })}><Bell size={14} /></button>
@@ -383,15 +391,20 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
   const menuFor = (m: Entry, idx: number, at?: { x: number; y: number }, extra?: MenuExtra): VNode => (
     <MessageMenu
       at={at}
-      onTag={extra ? () => {
+      onTag={extra?.onTag ? () => {
         setMenu(null)
         extra.picked("tag")
-        extra.onTag()
+        extra.onTag?.()
       } : undefined}
       onCollect={extra?.onCollect ? () => {
         setMenu(null)
         extra.picked("collect")
         extra.onCollect?.()
+      } : undefined}
+      onMove={extra?.onMove ? () => {
+        setMenu(null)
+        extra.picked("move")
+        extra.onMove?.()
       } : undefined}
       pinned={Boolean(m.pinned)}
       reminded={Boolean(m.remind)}
@@ -439,7 +452,10 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
           </button>
         </FloatAt>
       )}
-      {menu && menu.x !== undefined && messages[menu.idx] && menuFor(messages[menu.idx], menu.idx, { x: menu.x, y: menu.y ?? 0 })}
+      {menu && menu.x !== undefined && messages[menu.idx] && menuFor(messages[menu.idx], menu.idx, { x: menu.x, y: menu.y ?? 0 }, moveFor?.(menu.idx) ? {
+        onMove: moveFor(menu.idx),
+        picked: (what) => void send({ type: "useEvent", f: "quiet", a: "more_pick", what })
+      } : undefined)}
       {reminding && messages[reminding.idx] && (
         <RemindSheet
           current={messages[reminding.idx].remind?.at}

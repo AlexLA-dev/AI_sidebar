@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Modifica promemoria"
  },
+ "uxMove": {
+  "message": "Sposta in un'altra chat"
+ },
+ "uxMoveTitle": {
+  "message": "In quale chat spostare la risposta?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "In quale chat spostare la nota?"
+ },
  "uxRemindOpen": {
   "message": "Apri"
  },

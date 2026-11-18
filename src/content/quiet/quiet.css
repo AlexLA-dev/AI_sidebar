@@ -162,3 +162,5 @@
 /* #199's «✓ In “<collection>”» in the one row under a message: its name capped, then given way to the ✓ (ToolsRow). */
 .cf-msg-tools > .cf-collect-in { flex: none; min-width: 0; }
 .cf-msg-tools .cf-collect-in .cf-collect-name { max-width: 10em; }
+/* 2.7 (109): a button that left the row for «…» (ToolsRow data-drop): gone from it, whatever its own display. */
+.cf-msg-tools [data-drop][hidden] { display: none !important; }
