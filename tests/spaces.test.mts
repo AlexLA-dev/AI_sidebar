@@ -264,6 +264,16 @@ test("109: the page's own controls take the ✦ circle's space colour, paler, th
   const dark = rule('.cf[data-tint][data-theme="dark"] > :not(.cf-panel)')
   const auto = rule(".cf[data-tint]:not([data-theme]) > :not(.cf-panel)")
   for (const v of ["--accent", "--accent-soft", "--accent-text", "--snack-action"]) for (const r of [light, dark, auto]) assert.match(r, new RegExp(`${v}: `))
+  // The circle's pair for the page's solid buttons and glows: the blue it always was, a paler pair of the space's with one.
+  assert.match(css, /--accent-from: #38bdf8;\s*--accent-to: #2563eb;/)
+  assert.match(light, /--accent-from: color-mix\(in srgb, var\(--tint-2\) \d+%, #ffffff\);\s*--accent-to: color-mix\(in srgb, var\(--tint\) \d+%, #ffffff\);/)
+  // «Ask AI» on the selection bar, its chips, the selection's glow and Quick insert's circle take it; no blue left there.
+  assert.match(css, /\.cf-bubble\.touch button\.primary \{[^}]*linear-gradient\(135deg, var\(--accent-from\), var\(--accent-to\)\)/)
+  assert.match(css, /\.cf-sel-glow \{[^}]*var\(--accent-from\)/)
+  const bubble = css.slice(css.indexOf(".cf-bubble.touch button.cf-sel-chip {"), css.indexOf("@keyframes cf-pop"))
+  assert.doesNotMatch(bubble, /37, 99, 235|#2563eb|#38bdf8/)
+  const insert = readFileSync(new URL("../src/content/insert/insert.css", import.meta.url), "utf8")
+  assert.match(insert, /\.cf-qi-btn \{[^}]*linear-gradient\(135deg, var\(--accent-from\) 0%, var\(--accent-to\) 100%\)/)
   // The system's dark appearance is the dark theme's.
   const decls = (r: string) => r.match(/--[\w-]+: [^;]+;/g)!.join(" ")
   assert.equal(decls(auto), decls(dark))

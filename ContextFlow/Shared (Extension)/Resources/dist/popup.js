@@ -95,6 +95,9 @@ ${c("qiAdaptConversation",f)}`:"");setTimeout(()=>Ho(v,{label:c(f?"qiAdaptChat":
   --accent-2: #38bdf8;
   --accent-soft: rgba(37, 99, 235, 0.10);
   --accent-text: #1d4ed8;
+  /* The \u2726 circle's pair, for the page's solid buttons and glows (the same in both themes); tinted with a space (109). */
+  --accent-from: #38bdf8;
+  --accent-to: #2563eb;
   /* Ultra (2.6, build 90): one colour for its features (names agreed with ultra-26, Listen uses them too). --ultra is
      the app's solid violet (ContentView ultraColor, #7D4FED); text and the mark pass 4.5:1 on every panel background
      in both themes (#7C3AED text is 4.2:1 on --bg-3, white on #8B5CF6 4.2:1, so these are a step darker). */
@@ -207,6 +210,8 @@ ${c("qiAdaptConversation",f)}`:"");setTimeout(()=>Ho(v,{label:c(f?"qiAdaptChat":
   --accent-soft: color-mix(in srgb, var(--tint) 11%, transparent);
   --accent-text: color-mix(in srgb, var(--tint) 72%, var(--text));
   --snack-action: var(--tint-2);
+  --accent-from: color-mix(in srgb, var(--tint-2) 85%, #ffffff);
+  --accent-to: color-mix(in srgb, var(--tint) 82%, #ffffff);
 }
 .cf[data-tint][data-theme="dark"] > :not(.cf-panel) {
   --accent: color-mix(in srgb, var(--tint-2) 85%, var(--bg));
@@ -321,7 +326,7 @@ ${c("qiAdaptConversation",f)}`:"");setTimeout(()=>Ho(v,{label:c(f?"qiAdaptChat":
 .cf-bubble.touch .cf-bubble-row { gap: 4px; }
 .cf-bubble.touch .cf-bubble-row button { flex: 1 1 auto; justify-content: center; }
 .cf-bubble.touch button { min-height: 36px; padding: 7px 12px; border-radius: 11px; font-size: 14.5px; font-weight: 600; color: var(--text); }
-.cf-bubble.touch button.primary { color: #fff !important; background: linear-gradient(135deg, #38bdf8, #2563eb) !important; }
+.cf-bubble.touch button.primary { color: #fff !important; background: linear-gradient(135deg, var(--accent-from), var(--accent-to)) !important; }
 .cf-bubble.touch button:active { transform: scale(0.97); }
 .cf-bubble.touch .cf-bubble-ask input { height: 38px; border-radius: 11px; font-size: 16px; }
 .cf-bubble.touch button.cf-bubble-send { width: 36px; min-height: 36px; height: 36px; padding: 0; border-radius: 50%; color: #fff; }
@@ -350,7 +355,7 @@ ${c("qiAdaptConversation",f)}`:"");setTimeout(()=>Ho(v,{label:c(f?"qiAdaptChat":
 .cf-bubble.touch button.cf-sel-chip {
   flex: none; min-height: 0; height: 28px; padding: 0 10px; border-radius: 999px;
   font-size: 13.5px; font-weight: 600; color: var(--accent-text);
-  background: rgba(37, 99, 235, 0.13); border: 1px solid rgba(37, 99, 235, 0.22);
+  background: color-mix(in srgb, var(--accent-to) 13%, transparent); border: 1px solid color-mix(in srgb, var(--accent-to) 22%, transparent);
   scroll-snap-align: end; touch-action: pan-x; opacity: 0.92;
 }
 .cf-bubble.touch button.cf-sel-chip:last-child { margin-inline-end: 5px; }
@@ -369,9 +374,9 @@ ${c("qiAdaptConversation",f)}`:"");setTimeout(()=>Ho(v,{label:c(f?"qiAdaptChat":
 .cf-bubble .cf-ask-field.mouse button.cf-sel-chip {
   flex: none; min-height: 0; height: 24px; padding: 0 9px; border-radius: 999px; white-space: nowrap;
   font-size: 12.5px; font-weight: 600; color: var(--accent-text);
-  background: rgba(37, 99, 235, 0.11); border: 1px solid rgba(37, 99, 235, 0.2);
+  background: color-mix(in srgb, var(--accent-to) 11%, transparent); border: 1px solid color-mix(in srgb, var(--accent-to) 20%, transparent);
 }
-.cf-bubble .cf-ask-field.mouse button.cf-sel-chip:hover { background: rgba(37, 99, 235, 0.18); }
+.cf-bubble .cf-ask-field.mouse button.cf-sel-chip:hover { background: color-mix(in srgb, var(--accent-to) 18%, transparent); }
 .cf-bubble .cf-ask-field.mouse button.cf-sel-chip.ultra { display: inline-flex; align-items: center; gap: 4px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
 .cf-bubble .cf-ask-field.mouse button.cf-sel-chip:last-child { margin-inline-end: 4px; }
 @keyframes cf-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
@@ -1045,12 +1050,12 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
    text on the page and the header's "Selection" chip. Light on the phone: the light is a gradient turning under a
    fixed mask (transform only, on the compositor), three turns and it fades, the ring stays still; nothing animates
    after that, and none of it with Reduce Motion. */
-.cf-sel-glow { position: fixed; z-index: 2; pointer-events: none; border-radius: 10px; box-shadow: 0 0 0 1.5px rgba(56, 189, 248, 0.6), 0 0 16px rgba(37, 99, 235, 0.25); }
-.cf-ctx.selection.glow { position: relative; box-shadow: 0 0 0 1.5px rgba(56, 189, 248, 0.6); }
+.cf-sel-glow { position: fixed; z-index: 2; pointer-events: none; border-radius: 10px; box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent-from) 60%, transparent), 0 0 16px color-mix(in srgb, var(--accent-to) 25%, transparent); }
+.cf-ctx.selection.glow { position: relative; box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent-from) 60%, transparent); }
 .cf-glow-run { position: absolute; inset: -2px; border-radius: inherit; padding: 2px; overflow: hidden; pointer-events: none;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 .cf-glow-run::before { content: ""; position: absolute; left: 50%; top: 50%; width: 260%; aspect-ratio: 1; translate: -50% -50%;
-  background: conic-gradient(from 0deg, transparent 0 68%, #38bdf8 80%, #2563eb 88%, transparent 96%);
+  background: conic-gradient(from 0deg, transparent 0 68%, var(--accent-from) 80%, var(--accent-to) 88%, transparent 96%);
   animation: cf-glow-turn 2.4s linear 3, cf-glow-fade 0.8s ease 7.2s forwards; }
 @keyframes cf-glow-turn { to { rotate: 1turn; } }
 @keyframes cf-glow-fade { to { opacity: 0; } }
