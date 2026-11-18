@@ -914,6 +914,9 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 @keyframes cf-busy-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .cf-busy-spin, .cf-thread-busy { animation: none; } }
 
+/* 2.7: a point of ours at the fixed coordinates' 0,0 (fixedPlace.ts measures where that is among the page's rects). */
+.cf-origin { position: fixed; left: 0; top: 0; width: 0; height: 0; visibility: hidden; pointer-events: none; }
+
 /* 2.6: with the panel open on a selection, a ring with a light running round it marks the selected
    text on the page and the header's "Selection" chip. Light on the phone: the light is a gradient turning under a
    fixed mask (transform only, on the compositor), three turns and it fades, the ring stays still; nothing animates

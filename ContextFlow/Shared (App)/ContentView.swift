@@ -65,7 +65,10 @@ struct ContentView: View {
     @StateObject private var chats = ChatLibrary.shared
     @Environment(\.requestReview) private var requestReview
     @Environment(\.scenePhase) private var scenePhase
-    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty && ChatLibrary.shared.trashed.isEmpty ? .home : .chats
+    @State private var tab: AppTab = NewUserPreview.isOn || (ChatLibrary.shared.threads.isEmpty && ChatLibrary.shared.trashed.isEmpty) ? .home : .chats
+    /// «Start as a new user» (2.7, TestFlight and debug builds; Setup.swift): while it's on, the chats are left out of
+    /// what's shown here (nothing in ChatLibrary, iCloud or the App Group changes).
+    @StateObject private var preview = NewUserPreview.shared
     /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
     @State private var showingSetup = false
     /// Settings scrolls down to the plan (the extension's "Manage subscription" with Pro).
@@ -73,7 +76,7 @@ struct ContentView: View {
 
     /// Once the user has chats, they come first: Get Started gives way to Chats.
     /// Chats in Recently Deleted count: the Chats screen is the way to them (2.5 (83)).
-    private var hasChats: Bool { !chats.threads.isEmpty || !chats.trashed.isEmpty }
+    private var hasChats: Bool { !preview.on && (!chats.threads.isEmpty || !chats.trashed.isEmpty) }
 
     /// With Ultra there is no Pro tab: the plan is at the bottom of Settings (2.6: Pro subscribers keep it, as
     /// "Ultra"). A purchase made on the tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
@@ -102,6 +105,8 @@ struct ContentView: View {
 
     /// After an update, the tab opens once by itself; the 2.5 sheet then never shows (its feature has a card in Tips).
     private func openWhatsNewAfterUpdate() {
+        // Not for a new user («Start as a new user», test builds): it waits for a launch with the person's own data.
+        guard !preview.on else { return }
         let existing = hasChats || UserDefaults.standard.object(forKey: "cf_whatsnew_organize") != nil
         guard WhatsNew.dueAfterUpdate(existingUser: existing) else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
@@ -223,6 +228,8 @@ struct ContentView: View {
                 // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
                 case "notifications":
                     let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "listen" }?.value?.lowercased()
+                    // 2.7: the link's own text is kept, so it's here whether or not the extension's copy has come.
+                    ListenLink.keep(url)
                     Task { await NotifyAsk.shared.show(.listen, listen: id) }
                 #endif
                 case "tips": tab = .tips
@@ -295,6 +302,10 @@ struct ContentView: View {
             .onChange(of: hasChats) { has in
                 if has, tab == .home { tab = .chats }
                 if !has, tab == .chats { tab = .home }
+            }
+            // «Start as a new user» started or ended (test builds): the first screen of whichever it is now.
+            .onChange(of: preview.on) { on in
+                tab = on || (chats.threads.isEmpty && chats.trashed.isEmpty) ? .home : .chats
             }
     }
 
@@ -443,6 +454,8 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                // Test builds, «Start as a new user» on (Setup.swift): what this is, and the way back.
+                NewUserPreviewBanner()
                 header
                 if store.renewalOff != nil {
                     RenewalQuestionCard()
@@ -2082,6 +2095,10 @@ struct SettingsView: View {
                 }
                 .accessibilityIdentifier("cf-rate")
             }
+
+            // 2.7, TestFlight and debug builds only, never the App Store's (Setup.swift TestBuild): the first run again
+            // on this device, without touching what's in iCloud.
+            if TestBuild.isTest { NewUserPreviewSection() }
         }
         .navigationTitle("Settings")
         #if os(iOS)
