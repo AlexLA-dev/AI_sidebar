@@ -63,7 +63,7 @@
       "adGroups": [
         {
           "name": "摘要 · exact",
-          "bid": 0.5,
+          "bid": 0.8,
           "devices": [
             "IPHONE",
             "IPAD"
@@ -73,27 +73,27 @@
           "keywords": [
             {
               "text": "文章摘要",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "總結",
-              "bid": 0.5
+              "bid": 0.8
             },
             {
               "text": "影片摘要",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "網頁翻譯",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "摘要",
-              "bid": 0.4
+              "bid": 0.8
             },
             {
               "text": "重點摘要",
-              "bid": 0.4
+              "bid": 0.8
             }
           ],
           "promoteTo": true
@@ -186,7 +186,7 @@
       "adGroups": [
         {
           "name": "riassunto · exact",
-          "bid": 0.5,
+          "bid": 0.8,
           "devices": [
             "IPHONE",
             "IPAD"
@@ -196,39 +196,39 @@
           "keywords": [
             {
               "text": "riassumere testo",
-              "bid": 0.55
+              "bid": 0.8
             },
             {
               "text": "riassunto articolo",
-              "bid": 0.55
+              "bid": 0.8
             },
             {
               "text": "riassunto video",
-              "bid": 0.55
+              "bid": 0.8
             },
             {
               "text": "tradurre pagina web",
-              "bid": 0.55
+              "bid": 0.8
             },
             {
               "text": "riassunto",
-              "bid": 0.35
+              "bid": 0.8
             },
             {
               "text": "riassunto testo",
-              "bid": 0.55
+              "bid": 0.8
             },
             {
               "text": "riassunti testi",
-              "bid": 0.5
+              "bid": 0.8
             },
             {
               "text": "riassunti video",
-              "bid": 0.55
+              "bid": 0.8
             },
             {
               "text": "riassumere",
-              "bid": 0.35
+              "bid": 0.8
             }
           ],
           "promoteTo": true
@@ -290,6 +290,12 @@
               "match": "BROAD",
               "bid": 0.35
             }
+          ],
+          "negatives": [
+            {
+              "text": "appunti",
+              "match": "BROAD"
+            }
           ]
         }
       ]
@@ -348,7 +354,7 @@
       "adGroups": [
         {
           "name": "résumé · exact",
-          "bid": 0.55,
+          "bid": 0.8,
           "devices": [
             "IPHONE",
             "IPAD"
@@ -358,19 +364,19 @@
           "keywords": [
             {
               "text": "résumer texte",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "résumé article",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "résumé vidéo",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "extension safari",
-              "bid": 0.45
+              "bid": 0.8
             }
           ],
           "promoteTo": true
@@ -453,7 +459,7 @@
       "adGroups": [
         {
           "name": "zusammenfassen · exact",
-          "bid": 0.55,
+          "bid": 0.8,
           "devices": [
             "IPHONE",
             "IPAD"
@@ -463,39 +469,39 @@
           "keywords": [
             {
               "text": "text zusammenfassen",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "artikel zusammenfassen",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "video zusammenfassen",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "webseite übersetzen",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "zusammenfassen",
-              "bid": 0.45
+              "bid": 0.8
             },
             {
               "text": "texte zusammenfassen",
-              "bid": 0.6
+              "bid": 0.8
             },
             {
               "text": "safari übersetzer",
-              "bid": 0.35
+              "bid": 0.8
             },
             {
               "text": "safari translate",
-              "bid": 0.35
+              "bid": 0.8
             },
             {
               "text": "zusammenfassung",
-              "bid": 0.35
+              "bid": 0.8
             }
           ],
           "promoteTo": true
@@ -698,6 +704,56 @@
               "match": "BROAD",
               "bid": 0.45
             }
+          ],
+          "negatives": [
+            {
+              "text": "safari",
+              "match": "EXACT"
+            },
+            {
+              "text": "safari indir",
+              "match": "EXACT"
+            },
+            {
+              "text": "chrome",
+              "match": "EXACT"
+            },
+            {
+              "text": "crome",
+              "match": "EXACT"
+            },
+            {
+              "text": "google chrome",
+              "match": "EXACT"
+            },
+            {
+              "text": "firefox",
+              "match": "EXACT"
+            },
+            {
+              "text": "seeke",
+              "match": "EXACT"
+            },
+            {
+              "text": "seekee",
+              "match": "EXACT"
+            },
+            {
+              "text": "puffin browser",
+              "match": "EXACT"
+            },
+            {
+              "text": "browser",
+              "match": "EXACT"
+            },
+            {
+              "text": "opera",
+              "match": "EXACT"
+            },
+            {
+              "text": "brave",
+              "match": "EXACT"
+            }
           ]
         }
       ]
@@ -821,6 +877,56 @@
               "text": "resumen de texto",
               "match": "BROAD",
               "bid": 0.4
+            }
+          ],
+          "negatives": [
+            {
+              "text": "safari",
+              "match": "EXACT"
+            },
+            {
+              "text": "safari indir",
+              "match": "EXACT"
+            },
+            {
+              "text": "chrome",
+              "match": "EXACT"
+            },
+            {
+              "text": "crome",
+              "match": "EXACT"
+            },
+            {
+              "text": "google chrome",
+              "match": "EXACT"
+            },
+            {
+              "text": "firefox",
+              "match": "EXACT"
+            },
+            {
+              "text": "seeke",
+              "match": "EXACT"
+            },
+            {
+              "text": "seekee",
+              "match": "EXACT"
+            },
+            {
+              "text": "puffin browser",
+              "match": "EXACT"
+            },
+            {
+              "text": "browser",
+              "match": "EXACT"
+            },
+            {
+              "text": "opera",
+              "match": "EXACT"
+            },
+            {
+              "text": "brave",
+              "match": "EXACT"
             }
           ]
         }
