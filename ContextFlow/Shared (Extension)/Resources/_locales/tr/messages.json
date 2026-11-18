@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Hatırlatıcıyı değiştir"
  },
+ "uxMove": {
+  "message": "Başka sohbete taşı"
+ },
+ "uxMoveTitle": {
+  "message": "Yanıt hangi sohbete taşınsın?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Not hangi sohbete taşınsın?"
+ },
  "uxRemindOpen": {
   "message": "Aç"
  },

@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Mudar lembrete"
  },
+ "uxMove": {
+  "message": "Mover para outra conversa"
+ },
+ "uxMoveTitle": {
+  "message": "Para qual conversa mover a resposta?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Para qual conversa mover a nota?"
+ },
  "uxRemindOpen": {
   "message": "Abrir"
  },

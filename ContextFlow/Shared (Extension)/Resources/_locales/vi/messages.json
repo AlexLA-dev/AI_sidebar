@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Đổi lời nhắc"
  },
+ "uxMove": {
+  "message": "Chuyển sang cuộc trò chuyện khác"
+ },
+ "uxMoveTitle": {
+  "message": "Chuyển câu trả lời sang cuộc trò chuyện nào?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Chuyển ghi chú sang cuộc trò chuyện nào?"
+ },
  "uxRemindOpen": {
   "message": "Mở"
  },

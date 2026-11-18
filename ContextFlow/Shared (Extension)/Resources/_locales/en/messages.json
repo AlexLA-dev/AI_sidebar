@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Change reminder"
  },
+ "uxMove": {
+  "message": "Move to another chat"
+ },
+ "uxMoveTitle": {
+  "message": "Move the answer to which chat?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Move the note to which chat?"
+ },
  "uxRemindOpen": {
   "message": "Open"
  },

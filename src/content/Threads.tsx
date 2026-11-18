@@ -61,6 +61,9 @@ interface Props {
   // 2.7: Spaces (null when switched off). `threads` are the current space's; search goes through `all` and says which
   // space each hit is in; a chat moves to another space from its menu; "+ New space" ends the list.
   spaces?: SpacesInList | null
+  // 2.7 (109), the owner on 108: «В меню чатов есть возможность посмотреть папки, но не хватает возможности открыть
+  // коллекции»: the collections window, next to the folders (once the space has a collection).
+  onCollections?: () => void
 }
 
 export interface SpacesInList {
@@ -272,7 +275,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs, playing, watched, bells, spaces }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs, playing, watched, bells, spaces, onCollections }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -318,14 +321,21 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
     />
   )
   // The tags in use, to show only the chats with one; and the switch to group the list by tag.
-  const tagBar = tagsInUse.length > 0 && (
+  const tagBar = (tagsInUse.length > 0 || onCollections) && (
     <div class="cf-tag-bar" role="toolbar" aria-label={t("tagsFilter")}>
       {tagsInUse.map(({ tag }) => (
         <TagChip key={tag} tag={tag} active={filter?.toLowerCase() === tag.toLowerCase()} onClick={() => setTagFilter(filter?.toLowerCase() === tag.toLowerCase() ? null : tag)} />
       ))}
-      <button type="button" class={`cf-tag-group ${grouped ? "on" : ""}`} aria-pressed={grouped} onClick={() => onGrouped(!grouped)} title={t("tagsGroup")}>
-        <Icon.Folder /> {t("tagsGroup")}
-      </button>
+      {tagsInUse.length > 0 && (
+        <button type="button" class={`cf-tag-group ${grouped ? "on" : ""}`} aria-pressed={grouped} onClick={() => onGrouped(!grouped)} title={t("tagsGroup")}>
+          <Icon.Folder /> {t("tagsGroup")}
+        </button>
+      )}
+      {onCollections && (
+        <button type="button" class="cf-tag-group cf-tag-cols" onClick={onCollections} title={t("colTab")}>
+          <Icon.Collections /> {t("colTab")}
+        </button>
+      )}
     </div>
   )
   const [editing, setEditing] = useState<string | null>(null)
