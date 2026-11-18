@@ -341,7 +341,7 @@ test("the language: Check and Rewrite keep the field's own; Compose follows the 
 test("Check names the mistakes that are easy to miss in other languages, by rule (no word lists)", async () => {
   const { CHECK_SYSTEM } = await import("../netlify/shared/writing.mts")
   assert.match(CHECK_SYSTEM, /as carefully in any language as in English/)
-  for (const rule of [/a question that ends without its question mark/, /Spanish ¿ and ¡/, /full-width ，。？, Arabic ، and ؟/, /Korean spacing, Turkish particles/, /的, 地 and 得/, /doesn't agree with its subject/])
+  for (const rule of [/a question that ends without its question mark/, /Spanish ¿ and ¡/, /full-width ，。？, Arabic ، and ؟/, /Korean spacing; Turkish de\/da meaning "too" and the question particle mi, both written apart/, /的, 地 and 得/, /a verb whose person ending doesn't match its subject/])
     assert.match(CHECK_SYSTEM, rule)
   assert.match(CHECK_SYSTEM, /A question mark missing from a question is still a mistake, unless their earlier messages leave those out too\./)
 })

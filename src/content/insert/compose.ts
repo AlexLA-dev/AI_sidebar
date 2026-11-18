@@ -14,14 +14,17 @@ export function waitsFor(job: { action: WriteAction; tone?: Tone; request?: stri
 }
 
 /**
- * Where Compose's draft goes in the field's text: at the caret when it's in the part being written (not inside the
- * signature or a quoted mail), else before the first of those (above Gmail's signature), else at the end.
+ * Where Compose's draft goes in the field's text: at the caret the field had when Compose was opened, when it's in the
+ * part being written (not inside the signature or a quoted mail); else at the top of that part (Gmail's reply box: the
+ * first line, its blank line before the signature kept); else at the end.
  */
 export function draftSpot(ft: { text: string; skips: Array<{ from: number; to: number }> }, caret: number | null): number {
   const inside = (at: number) => ft.skips.some((sk) => at > sk.from && at < sk.to)
   if (caret !== null && caret >= 0 && caret <= ft.text.length && !inside(caret)) return caret
   const first = [...ft.skips].sort((a, b) => a.from - b.from)[0]
-  return first ? first.from : ft.text.length
+  if (!first) return ft.text.length
+  // A quoted mail on top: the part after it.
+  return first.from > 0 ? 0 : first.to
 }
 
 /** The draft as it goes in at `at`: on a line of its own when there are words right before or after it. */

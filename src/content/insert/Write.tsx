@@ -304,9 +304,11 @@ export function WriteCard(p: CardProps): VNode {
   const ask = async () => {
     const id = ++run.current
     setState({ step: "reading" })
-    const field = updateCaret(p.field)
-    const ft = readText(field.el)
     const compose = p.job.action === "compose"
+    // Compose's draft goes where the caret was when it was opened (startWrite read it): the person has typed in the
+    // card's own box since, and the field no longer has a caret of its own.
+    const field = compose ? p.field : updateCaret(p.field)
+    const ft = readText(field.el)
     const range = workRange(field, ft)
     const at = compose ? draftSpot(ft, caretOf(field, ft)) : 0
     const text = compose ? (p.job.request ?? "") : ft.text.slice(range.from, range.to)

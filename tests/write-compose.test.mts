@@ -40,8 +40,10 @@ test("the draft goes at the caret, never inside the signature; on its own line n
   // Gmail's empty reply: two lines, then the signature (skipped).
   const gmail = { text: "\n\n-- \nAlex", skips: [{ from: 2, to: 10 }] }
   assert.equal(draftSpot(gmail, 0), 0)
-  assert.equal(draftSpot(gmail, 6), 2, "a caret inside the signature: the draft goes before it")
-  assert.equal(draftSpot(gmail, null), 2)
+  assert.equal(draftSpot(gmail, 6), 0, "a caret inside the signature: the draft goes at the top of the reply")
+  assert.equal(draftSpot(gmail, null), 0, "no caret: the reply's first line, its blank line before the signature kept")
+  // A quoted mail on top, the reply under it.
+  assert.equal(draftSpot({ text: "> earlier\n\n", skips: [{ from: 0, to: 10 }] }, null), 10)
   assert.equal(draftSpot({ text: "", skips: [] }, null), 0)
   assert.equal(draftSpot({ text: "", skips: [] }, 0), 0)
   assert.equal(placedDraft("", 0, "  Thanks, Thursday works.  "), "Thanks, Thursday works.")
@@ -80,6 +82,8 @@ test("the list's row, the Mac's circle and the panel's chip all open the same ca
   assert.match(write, /if \(!open\) setBlank\(fixes === 0 && empty\(\)\)/, "the circle reads the field as its menu opens")
   assert.match(write, /\[\{ from: state\.at, to: state\.at, text: placedDraft\(state\.base, state\.at, state\.next\) \}\]/)
   assert.match(write, /if \(state\.step === "ask" && !p\.touch\) box\.current\?\.focus/, "on touch the person taps the box (iOS raises the keyboard only then)")
+  // The caret the field had when Compose opened decides where the draft goes (the box has the focus since).
+  assert.match(write, /const field = compose \? p\.field : updateCaret\(p\.field\)/)
   // The box takes taps (the rest of the card keeps the field's focus) and its keys stay ours.
   assert.match(write, /onPointerDown=\{\(e\) => !\(e\.target as Element\)\.closest\("textarea"\) && e\.preventDefault\(\)\}/)
   const app = read("../src/content/App.tsx")
