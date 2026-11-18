@@ -37,8 +37,25 @@ test("the underline's colours come from the accent tokens, and it is still with 
   assert.doesNotMatch(block, /#38bdf8|#2563eb|rgba\(37, 99, 235/, "no hard-coded accent colours")
   assert.match(block, /var\(--accent-2\)/)
   assert.match(block, /var\(--accent\)/)
-  // Only a transform moves, and the new underline's light runs a few times, not for ever.
-  assert.match(block, /@keyframes cf-ul-shine \{[^}]*transform[^}]*\}/)
-  assert.match(block, /\.cf-ul::after \{[^}]*animation: cf-ul-shine [\d.]+s [a-z-]+ 3 forwards/)
+  // Only a transform moves; the light runs regularly in the selection ring's rhythm (2.4 s a pass, as cf-glow-turn),
+  // and holds still on an underline out of sight (after 108, the owner: «бегает регулярно как при выделении текста»).
+  assert.match(block, /@keyframes cf-ul-shine \{\s*from \{ transform: translateX\(-100%\); \}\s*to \{ transform: translateX\(100%\); \}\s*\}/)
+  assert.match(block, /\.cf-ul::after \{[^}]*animation: cf-ul-shine 2\.4s linear infinite;/)
+  assert.match(readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8"), /animation: cf-glow-turn 2\.4s linear/)
+  assert.match(block, /\.cf-ul\.off::after \{ animation-play-state: paused; \}/)
   assert.match(block, /prefers-reduced-motion: reduce\)[\s\S]*\.cf-ul::after[^{]*\{[^}]*animation: none/)
+})
+
+test("an underline out of sight is marked so its light holds still", async () => {
+  const src = readFileSync(new URL("../src/content/insert/Underlines.tsx", import.meta.url), "utf8")
+  assert.match(src, /\$\{inSight\(r, view\) \? "" : "off"\}/)
+  // The rule itself, as written there (fixed coordinates against the visual viewport).
+  const fn = src.slice(src.indexOf("export function inSight"), src.indexOf("/** The card's first place"))
+  const inSight = new Function(`return ${fn.replace(/export function inSight\([^)]*\): boolean/, "function inSight(r, vp)")}`)()
+  const vp = { width: 400, height: 370, dx: 0, dy: 0 }
+  assert.equal(inSight({ top: 100, bottom: 120, left: 10, right: 90 }, vp), true)
+  assert.equal(inSight({ top: 380, bottom: 400, left: 10, right: 90 }, vp), false, "under the keyboard's top / below")
+  assert.equal(inSight({ top: -40, bottom: -20, left: 10, right: 90 }, vp), false, "scrolled above")
+  assert.equal(inSight({ top: 360, bottom: 380, left: 10, right: 90 }, vp), true, "partly in sight")
+  assert.equal(inSight({ top: 500, bottom: 520, left: 10, right: 90 }, { ...vp, dy: 450 }), true, "a scrolled visual viewport")
 })

@@ -282,18 +282,20 @@
     linear-gradient(90deg, var(--ul-a), var(--ul-b)) left bottom / 100% 2.5px no-repeat,
     var(--ul-tint);
 }
-/* 2.7 (108), the owner: «переливающимся в нашем стиле, как прочие обводки». A light runs along the line, as it runs
-   round the selection's ring: three times when the underline comes, then it's still. Only a transform moves (on the
-   compositor, no repaint), so a page full of underlines costs next to nothing, and nothing loops for ever. */
+/* 2.7 (108), the owner: «переливающимся в нашем стиле, как прочие обводки»; after 108: «почему подчёркивание пробегает
+   только трижды, а не бегает регулярно как при выделении текста?». A light runs along the line for as long as the
+   underline is there, in the selection ring's rhythm (one pass every 2.4 s, at an even pace, as the ring turns). Only a
+   transform moves (on the compositor, no repaint); an underline scrolled out of sight (.off) holds still. */
 .cf-ul::after {
   content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 2.5px;
   background: linear-gradient(90deg, transparent 25%, var(--ul-shine) 50%, transparent 75%);
   transform: translateX(-100%);
-  animation: cf-ul-shine 2.4s ease-in-out 3 forwards;
+  animation: cf-ul-shine 2.4s linear infinite;
 }
+.cf-ul.off::after { animation-play-state: paused; }
 @keyframes cf-ul-shine {
-  0% { transform: translateX(-100%); }
-  60%, 100% { transform: translateX(100%); }
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
 }
 /* The one its card or its row in the list is about: deeper, and it shimmers while it is (one at a time). */
 .cf-ul.on {
@@ -302,7 +304,7 @@
     var(--ul-tint-on);
   box-shadow: 0 0 0 2px var(--ul-tint-on);
 }
-.cf-ul.on::after { height: 3px; animation: cf-ul-shine 2.4s ease-in-out infinite; }
+.cf-ul.on::after { height: 3px; }
 @media (prefers-reduced-motion: reduce) {
   .cf-ul::after, .cf-ul.on::after { animation: none; display: none; }
 }
