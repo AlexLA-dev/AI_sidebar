@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Erinnerung ändern"
  },
+ "uxMove": {
+  "message": "In anderen Chat verschieben"
+ },
+ "uxMoveTitle": {
+  "message": "In welchen Chat soll die Antwort?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "In welchen Chat soll die Notiz?"
+ },
  "uxRemindOpen": {
   "message": "Öffnen"
  },
