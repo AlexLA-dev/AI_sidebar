@@ -68,6 +68,11 @@ export function pageIsForeign(): boolean {
   return foreignNow
 }
 
+/** The page is translated now (or being translated): the panel's «Translate page» chip has nothing to offer. */
+export function pageTranslatedNow(): boolean {
+  return engine !== null && engine.state().at !== "off"
+}
+
 /** What the page would be translated from and into, whether or not the pill is hidden on this site. */
 export function pageForeignOffer(): PageOffer | null {
   return foundNow
