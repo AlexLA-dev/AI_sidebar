@@ -12,7 +12,7 @@ import { loadInsertSettings, onInsertSettings } from "../insert/store"
 import { rememberedField } from "../insert/target"
 import { writableField } from "../insert/Write"
 import { pageKind, type PageKind } from "../pagehints/detect"
-import { pageForeignOffer } from "../translate/TranslatePill"
+import { pageForeignOffer, pageTranslatedNow } from "../translate/TranslatePill"
 import { fieldState, type ChipSignals } from "./chips"
 
 /** Quick insert's field, if there is one: whether «Проверить» и «Переписать» would work in it, and what's written. */
@@ -38,7 +38,8 @@ function kindOf(doc: Document, url: string): PageKind | null {
 /** The page as the ranker sees it, now. */
 export function readSignals(media: ChipSignals["media"], doc: Document = document, url: string = location.href): ChipSignals {
   const kind = kindOf(doc, url)
-  return { field: fieldState(openField(), kind), foreign: pageForeignOffer() !== null, kind, media }
+  // A page already translated (or under way) isn't offered again: no «Translate page» chip first (2.7, 108).
+  return { field: fieldState(openField(), kind), foreign: pageForeignOffer() !== null && !pageTranslatedNow(), kind, media }
 }
 
 /** The selection the panel opened on is inside the person's own draft. */
