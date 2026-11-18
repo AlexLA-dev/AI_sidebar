@@ -56,7 +56,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   // Deploy previews only: a request signed with the measuring key counts as Ultra (plan.mts evalAccess), so Check and
   // its live underlines can be measured there across languages (2.7 (108), W4) without a purchase.
-  const access = evalAccess(req, installId, context) ?? (await resolveAccess(body.entitlement, installId))
+  const measured = evalAccess(req, installId, context)
+  const access = measured ?? (await resolveAccess(body.entitlement, installId))
+  // THROWAWAY (model eval, never merged): a measuring request may name the larger model, and gets its tokens back.
+  const evalModel = measured && body.evalModel === "claude-sonnet-5-5" ? "claude-sonnet-5-5" : undefined
   if (live && !(hasPro(access.plan) && access.entitlement)) return json({ code: "PRO_ONLY", plan: access.plan }, 402)
   const counters = live ? liveCounters(access, ipSubject(context.ip)) : writeCounters(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
   const base = {
@@ -89,7 +92,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   let call: AiCall
   try {
-    call = await askHaiku(writeTask(ask.action, ask.text.length, live), writeMessage(ask, locale), req.signal)
+    call = await askHaiku({ ...writeTask(ask.action, ask.text.length, live), ...(evalModel ? { model: evalModel } : {}) }, writeMessage(ask, locale), req.signal)
   } catch (err) {
     const reason = err instanceof InsertAiError ? err.reason : "error"
     console.error(`[cf] write ${ask.action} failed:`, err instanceof Error ? err.message : err)
@@ -131,7 +134,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     touchInstall(installId, platform, version, locale, !live && charged.length > 0 ? 1 : 0).catch(() => undefined)
   ]))
   // The plan too (2.7): the card's «left today» is Free's only, and the page can't always tell the plan yet.
-  return json({ ok: true, text, plan: access.plan, usage: live ? null : usage })
+  return json({ ok: true, text, plan: access.plan, usage: live ? null : usage, ...(measured ? { eval: { model: call.model, in: call.promptTokens, out: call.completionTokens } } : {}) })
 }
 
 /** Live underlines: no answer, only the hidden caps (the subscription's day, the address's, everyone's). */

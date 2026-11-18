@@ -171,6 +171,8 @@ export interface HaikuTask {
   timeoutMs: number
   // All the time the call may take, its retry included (the caller's own deadline); without it, each try gets timeoutMs.
   totalMs?: number
+  // THROWAWAY (model eval, never merged): another model than quick insert's.
+  model?: string
 }
 
 /** A short task for Claude Haiku (quick insert, page watch): JSON in the task's shape back. */
@@ -184,7 +186,7 @@ export async function askHaiku(s: HaikuTask, content: string, signal?: AbortSign
   let response: Anthropic.Message
   try {
     response = await client.messages.create({
-      model: config.insert.model,
+      model: s.model ?? config.insert.model,
       max_tokens: s.maxTokens,
       system: s.system,
       messages: [{ role: "user", content }],
