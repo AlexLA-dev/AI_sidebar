@@ -2,7 +2,9 @@
 // since the field got the focus is checked on its own (with the page and the person's style, as a tap's check), and
 // what would change is underlined in our colour, not the system's red.
 // - The underlines stay while the mistake is there, with the focus in the field or out of it (2.7 (107), the owner: they
-//   went with the focus, and nothing said how many there were). They're still: a line and a faint tint, no animation.
+//   went with the focus, and nothing said how many there were). A line and a faint tint in our gradient; a light runs
+//   along a new one a few times, as round our other outlines, then it's still (2.7 (108), the owner: «переливающимся в
+//   нашем стиле»). The one a card or a row is about shimmers while it is. Still with Reduce Motion.
 // - With a pointer (a Mac, an iPad's trackpad), pointing at one shows the fix with «Исправить» and «Пропустить».
 // - By touch nothing opens on the word (2.7 (107): the card came up one tap in ten, under the system's menu and our
 //   selection buttons, and behind the keyboard on an iPad mini). The field's button carries the count and opens the list
@@ -17,6 +19,7 @@ import { t } from "../../shared/i18n"
 import { afterAll, afterFix, diffWords, issueKey, liveIssues, LIVE, paragraphs, toCheck, type Edit, type Issue } from "../../shared/writing"
 import { activeIn, hasFocus, isControl, isOwnHost, readField, updateCaret, type Field } from "./field"
 import { caretOf, domRange, readText, workRange, type FieldText } from "./fieldtext"
+import { fieldGround } from "./ground"
 import { cardTop } from "./spot"
 import { controlRects, pageRect, rangeRects, viewport } from "./watch"
 import { askFor, askWrite, makeEdits, writeStep, type Undo } from "./Write"
@@ -412,9 +415,11 @@ export function Underlines({ field, host, touch, lit, quiet, taps, onFixed, onTa
   const was = open ? open.issue.para.slice(open.issue.rel.from, open.issue.rel.to) : ""
   return (
     <>
-      <div class="cf-ul-layer" aria-hidden="true">
-        {shown.flatMap((s) => s.rects.map((r) => (
+      <div class="cf-ul-layer" data-ground={fieldGround(el)} aria-hidden="true">
+        {shown.flatMap((s) => s.rects.map((r, i) => (
           <div
+            // Its own element per mistake: one that comes up shimmers, the ones already there stay as they are.
+            key={`${s.issue.key}:${i}`}
             class={`cf-ul ${open?.issue.key === s.issue.key || lit === s.issue.key ? "on" : ""}`}
             style={{ left: `${r.left}px`, top: `${r.top}px`, width: `${Math.max(6, r.width)}px`, height: `${r.height}px` }}
           />

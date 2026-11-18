@@ -1038,5 +1038,12 @@
   "colAlready": "Уже в «{0}»",
   "tipNew": "Нове",
   "matchContinueIn": "Продовжую в «{0}»",
-  "matchBackTo": "Назад до «{0}»"
+  "matchBackTo": "Назад до «{0}»",
+  "writeCompose": "Написати",
+  "writeComposeGo": "Написати",
+  "writeComposing": "Пишу з урахуванням сторінки…",
+  "writeComposeHint": "Про що написати? Своїми словами",
+  "writeComposeEdit": "Змінити запит",
+  "writeToneAsk": "Яким тоном?",
+  "writeInserted": "Вставлено"
 }

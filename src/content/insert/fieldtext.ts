@@ -224,3 +224,33 @@ export async function replaceText(el: FieldElement, from: number, to: number, te
 export function changedEnd(before: string, after: string, to: number): number {
   return after.length - (before.length - to)
 }
+
+/**
+ * Puts `text` at `range` (a caret in an editor), as a paste or typing (Compose's draft, 2.7 (108)). For a caret where the
+ * field has no text node of its own (the blank first line of Gmail's empty reply, above the signature): offsets only
+ * reach text nodes, and the signature's would take the draft. True once the field holds the new words.
+ */
+export async function insertAtCaret(el: FieldElement, range: Range, text: string): Promise<boolean> {
+  const doc = el.ownerDocument
+  const win = doc.defaultView ?? window
+  const letters = (s: string) => s.replace(/\s+/g, "").length
+  const before = letters(readText(el).text)
+  for (const way of text.includes("\n") ? ["paste", "typing"] : ["typing", "paste"]) {
+    const now = readText(el).text
+    const field: Field = { el, control: false, start: 0, end: 0, range: range.cloneRange() }
+    restoreCaret(field)
+    try {
+      if (way === "typing") doc.execCommand("insertText", false, text)
+      else dispatchPaste(field, text)
+    } catch {
+      continue
+    }
+    await settle(win)
+    const after = readText(el).text
+    if (letters(after) - before >= letters(text) * 0.9) return true
+    // Something else changed: no second try on top of it.
+    if (after !== now) return false
+  }
+  return false
+}
+

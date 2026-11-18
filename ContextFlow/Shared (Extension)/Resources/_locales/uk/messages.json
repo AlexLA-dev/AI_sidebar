@@ -3032,6 +3032,27 @@
  "matchBackTo": {
   "message": "Назад до «{0}»"
  },
+ "writeCompose": {
+  "message": "Написати"
+ },
+ "writeComposeGo": {
+  "message": "Написати"
+ },
+ "writeComposing": {
+  "message": "Пишу з урахуванням сторінки…"
+ },
+ "writeComposeHint": {
+  "message": "Про що написати? Своїми словами"
+ },
+ "writeComposeEdit": {
+  "message": "Змінити запит"
+ },
+ "writeToneAsk": {
+  "message": "Яким тоном?"
+ },
+ "writeInserted": {
+  "message": "Вставлено"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },
