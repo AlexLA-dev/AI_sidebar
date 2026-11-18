@@ -527,6 +527,12 @@
  "planByok": {
   "message": "Khóa riêng"
  },
+ "plansOwnKeyLink": {
+  "message": "Tôi có khóa API riêng"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Gói này cần khóa API OpenAI hoặc Claude của riêng bạn. Bạn trả phí câu trả lời riêng cho nhà cung cấp đó."
+ },
  "planRenews": {
   "message": "Gia hạn vào {0}"
  },
@@ -997,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Nhà cung cấp AI của bạn trả lời: {0}"
+ },
+ "errKeyCredit": {
+  "message": "Tài khoản {0} của bạn không còn số dư hoặc chưa thiết lập thanh toán nên yêu cầu bị từ chối. Hãy nạp thêm tại {1} rồi hỏi lại."
+ },
+ "errKeyRate": {
+  "message": "{0} đang giới hạn các yêu cầu từ khóa của bạn: đây là giới hạn tốc độ của tài khoản. Hãy chờ một phút rồi hỏi lại. Xem giới hạn của bạn tại {1}."
  },
  "offerLimit": {
   "message": "Hoặc dùng Pro, giảm {0}% tháng đầu: tối đa {1} câu trả lời mỗi tuần, sâu và chi tiết hơn. Hủy bất cứ lúc nào."

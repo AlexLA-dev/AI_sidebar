@@ -4,6 +4,7 @@ import { newestClaudeModel, type ModelTier } from "../shared/models"
 import { pageForModel } from "../shared/attachments"
 import { hasMarks, otherPagesOf, systemPromptParts } from "../shared/prompt"
 import { STORAGE, type AskPayload, type OwnKeyUsage, type StreamEvent } from "../shared/types"
+import { ownKeyProblem, providerErrorTag, type ProviderError } from "../shared/ownKeyError"
 
 type Emit = (event: StreamEvent) => void
 
@@ -29,8 +30,19 @@ async function newestModel(client: Anthropic, tier: ModelTier): Promise<string> 
   return (list && newestClaudeModel(list.models, tier)) ?? FALLBACK_MODEL[tier]
 }
 
+/** What Anthropic said in its refusal: the status, its error type and its sentence. */
+function refusal(err: unknown): ProviderError | null {
+  if (!(err instanceof Anthropic.APIError) || typeof err.status !== "number") return null
+  const body = (err.error ?? null) as { error?: { type?: string; message?: string } } | null
+  return { status: err.status, type: body?.error?.type ?? null, message: body?.error?.message ?? null }
+}
+
 function errorEvent(err: unknown): StreamEvent {
   if (err instanceof Anthropic.AuthenticationError || err instanceof Anthropic.PermissionDeniedError) return { type: "error", code: "BAD_KEY" }
+  // No credit, or the account's rate limit: said as such, with Anthropic's own sentence after it.
+  const said = refusal(err)
+  const problem = said && ownKeyProblem("anthropic", said)
+  if (said && problem) return { type: "error", code: said.status === 429 ? "BUSY" : "UPSTREAM", message: said.message ?? undefined, ownKey: { provider: "anthropic", problem } }
   if (err instanceof Anthropic.RateLimitError || err instanceof Anthropic.InternalServerError) return { type: "error", code: "BUSY" }
   if (err instanceof Anthropic.APIConnectionError) return { type: "error", code: "NETWORK" }
   if (err instanceof Anthropic.APIError) return { type: "error", code: "UPSTREAM", message: err.message }
@@ -97,7 +109,8 @@ export async function askClaude(
       if (err instanceof Anthropic.NotFoundError && chars === 0 && i < candidates.length - 1) continue
       const event = errorEvent(err)
       emit(event)
-      return { ...usage, error: event.type === "error" ? event.code : "STREAM" }
+      const said = refusal(err)
+      return { ...usage, error: event.type === "error" ? event.code : "STREAM", ...(said ? { errorType: providerErrorTag(said) } : {}) }
     }
     emit(chars > 0 ? { type: "done", usage: null } : { type: "error", code: "EMPTY" })
     return chars > 0 ? { ...usage, ok: true } : { ...usage, error: "EMPTY" }

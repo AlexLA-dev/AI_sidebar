@@ -141,12 +141,20 @@ export interface Grounding {
   queries: string[]
 }
 
+/** The person's own provider refused, and why (src/shared/ownKeyError.ts). */
+export interface OwnKeyRefusal {
+  provider: "openai" | "anthropic"
+  problem: "credit" | "rate"
+}
+
 /** Outcome of an answer with the user's own key, reported to our server for analytics (counters only). */
 export interface OwnKeyUsage {
   provider: "openai" | "anthropic"
   model: string
   ok: boolean
   error?: ErrorCode | "STOPPED"
+  /** The provider's own status and error type or code for a refusal ("429:insufficient_quota"); never its text. */
+  errorType?: string
   promptTokens: number
   completionTokens: number
 }
@@ -158,7 +166,8 @@ export type StreamEvent =
   | { type: "grounding"; text: string; grounding: Grounding }
   | { type: "done"; usage: Usage | null }
   // weight: the page is long and the answers left don't cover it (2.5).
-  | { type: "error"; code: ErrorCode; message?: string; usage?: Usage | null; plan?: Plan; offer?: ProOffer | null; weight?: number }
+  // ownKey: the person's own provider refused for a cause they can mend (no credit, the account's rate limit).
+  | { type: "error"; code: ErrorCode; message?: string; usage?: Usage | null; plan?: Plan; offer?: ProOffer | null; weight?: number; ownKey?: OwnKeyRefusal }
 
 export type ErrorCode =
   | "LIMIT_REACHED"

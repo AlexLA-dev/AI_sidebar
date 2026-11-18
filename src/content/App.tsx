@@ -10,6 +10,7 @@ import {
   type AskPayload,
   type ErrorCode,
   type Grounding,
+  type OwnKeyRefusal,
   type Platform,
   type Plan,
   type ProOffer,
@@ -21,6 +22,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
+import { ownKeyPlace, providerName } from "../shared/ownKeyError"
 import { FREE_MEMORY, historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
@@ -147,6 +149,8 @@ interface ChatError {
   offer?: ProOffer | null
   // The page is long: an answer about it counts as this many, more than are left (2.5).
   weight?: number
+  // The person's own provider refused for a cause they can mend (109): no credit, or the account's rate limit.
+  ownKey?: OwnKeyRefusal
 }
 
 interface Action {
@@ -292,6 +296,13 @@ function localeCountry(): string | undefined {
 }
 
 function errorText(error: ChatError): string {
+  // Their own key, refused for a cause they can mend: said in their language, with where to mend it, and then the
+  // provider's own sentence (it names the limit or the plan).
+  if (error.ownKey) {
+    const { provider, problem } = error.ownKey
+    const said = t(problem === "credit" ? "errKeyCredit" : "errKeyRate", providerName(provider), ownKeyPlace(provider, problem).label)
+    return error.message ? `${said} ${t("errProvider", error.message)}` : said
+  }
   switch (error.code) {
     case "NETWORK":
       return t("errNetwork")
@@ -1294,7 +1305,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       } else if (event.type === "error") {
         settled = true
         if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight }, undefined, event.entry)
+        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight, ...(event.ownKey ? { ownKey: event.ownKey } : {}) }, undefined, event.entry)
       }
     })
     // Closed without an end: the job may well go on (the background still answers it), so the chat is read again.
@@ -4674,7 +4685,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         {hasPro(plan)
                           ? t("limitProBody", timeUntil(resetsAt))
                           : byok
-                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${status?.hasOwnKey ? t("byokLimitGoogle", back, PRO_WEEKLY) : t("byokLimitNoKey", back, PRO_WEEKLY)}`
+                            // With a key: only Google answers go through ContextFlow. A key added after the refusal
+                            // (from this card) leaves a question that wasn't a Google one: nothing more to say, Retry.
+                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))}${!status?.hasOwnKey ? ` ${t("byokLimitNoKey", back, PRO_WEEKLY)}` : messages[messages.length - 1]?.mode === "google" ? ` ${t("byokLimitGoogle", back, PRO_WEEKLY)}` : ""}`
                             : `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
                       </p>
                       <p class="cf-limit-notes">
@@ -4685,6 +4698,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <div class="cf-card-actions">
                           {upgradeButton("limit")}
                           {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>}
+                          {/* The key is there now (added from this card, or the question was a Google one): the same
+                              question again, answered with the key. Until 109 it had to be typed again. */}
+                          {status?.hasOwnKey && lastIsUser && (
+                            <button type="button" class="cf-secondary" onClick={() => retry(true)}>
+                              <Icon.Retry /> {messages[messages.length - 1]?.mode === "google" ? t("askWithoutGoogle") : t("retry")}
+                            </button>
+                          )}
                         </div>
                       )}
                       {!hasPro(plan) && !byok && (
@@ -4758,6 +4778,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <button type="button" class="cf-secondary" onClick={() => retry(true)}><Icon.Sparkle size={14} /> {t("askWithoutGoogle")}</button>
                       )}
                       {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("settings")}</button>}
+                      {error.ownKey && (
+                        <button type="button" class="cf-secondary" onClick={() => { const { provider, problem } = error.ownKey!; void sendBackground({ type: "openUrl", url: ownKeyPlace(provider, problem).url }) }}>
+                          {ownKeyPlace(error.ownKey.provider, error.ownKey.problem).label}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

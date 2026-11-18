@@ -527,6 +527,12 @@
  "planByok": {
   "message": "Own key"
  },
+ "plansOwnKeyLink": {
+  "message": "Kendi API anahtarım var"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Bu plan için kendi OpenAI veya Claude API anahtarınız gerekir. Yanıtların ücretini o sağlayıcıya ayrıca ödersiniz."
+ },
  "planRenews": {
   "message": "Yenileme tarihi: {0}"
  },
@@ -997,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Yapay zekâ sağlayıcınızın yanıtı: {0}"
+ },
+ "errKeyCredit": {
+  "message": "{0} hesabınızda bakiye yok veya faturalandırma ayarlanmamış; bu yüzden istek reddedildi. {1} adresinden bakiye ekleyip yeniden sorun."
+ },
+ "errKeyRate": {
+  "message": "{0} şu anda anahtarınızdan gelen istekleri sınırlıyor: bu, hesabınızın hız sınırı. Bir dakika bekleyip yeniden sorun. Sınırlarınız: {1}."
  },
  "offerLimit": {
   "message": "Ya da ilk ayda %{0} indirimle Pro'ya geçin: haftada {1} yanıta kadar, daha derin ve daha ayrıntılı. İstediğiniz zaman iptal edebilirsiniz."

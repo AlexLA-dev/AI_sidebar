@@ -1,6 +1,9 @@
-// The plans sheet (2.6): Own key, Pro and Ultra side by side with a monthly/yearly switch, what each one adds in plain
+// The plans sheet (2.6): Pro and Ultra side by side with a monthly/yearly switch, what each one adds in plain
 // words, and the App Store's price on this device (the app shares the prices it last loaded; none until it has).
 // Choosing a plan opens the ContextFlow app on it, where the App Store sheet takes the payment.
+// Own key (109, the owner: «Ок, давай под ссылку») is not in the row of plans: it is under the link "I have my own
+// API key", the same card with one sentence saying it needs the person's own key, paid to that provider. Someone
+// who has the Own key plan sees it in the row as before.
 
 import type { VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
@@ -13,6 +16,12 @@ import { lastPrices } from "./store"
 import * as Icon from "./icons"
 
 const ORDER: PaidPlan[] = ["byok", "pro", "ultra"]
+
+/** The plans in the row: Pro and Ultra; Own key too for its subscriber, or once its link is opened (then last). */
+export function plansShown(current: string, ownOpen: boolean): PaidPlan[] {
+  if (current === "byok") return ORDER
+  return ownOpen ? ["pro", "ultra", "byok"] : ["pro", "ultra"]
+}
 
 /** A display price as a number ("$12.99", "12,99 €", "¥1,900"), for the yearly saving; null when it can't tell. */
 export function priceValue(display: string | undefined): number | null {
@@ -68,9 +77,12 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
   const currentProduct = status?.store?.active ? status.store.productId : null
   const currentPlan = planOfProduct(currentProduct)
   const [period, setPeriod] = useState<Period>(periodOfProduct(currentProduct) ?? "yearly")
+  // Own key's card, behind its link until asked for (the sheet opened on Own key shows it at once).
+  const [ownOpen, setOwnOpen] = useState(focus === "byok")
+  const shown = plansShown(currentPlan, ownOpen)
   const facts = status?.plans ?? DEFAULT_PLAN_FACTS
   // The best yearly saving on offer, for the switch (the app's own figure when it shared one).
-  const best = Math.max(0, ...ORDER.map((plan) => Number(prices[`${productOf(plan, "yearly")}#percent`]) || yearlySaving(prices[productOf(plan, "monthly")], prices[productOf(plan, "yearly")]) || 0))
+  const best = Math.max(0, ...shown.map((plan) => Number(prices[`${productOf(plan, "yearly")}#percent`]) || yearlySaving(prices[productOf(plan, "monthly")], prices[productOf(plan, "yearly")]) || 0))
 
   return (
     <div class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -87,7 +99,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
         ))}
       </div>
       <div class="cf-plans-list">
-        {ORDER.map((plan) => {
+        {shown.map((plan) => {
           const monthly = prices[productOf(plan, "monthly")]
           const yearly = prices[productOf(plan, "yearly")]
           // Own key yearly may not be on sale yet: its monthly price then.
@@ -115,6 +127,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
                 {saving !== null && <span class="cf-plan-save">{t("plansSave", String(saving))}</span>}
                 {price && <span class="cf-plan-price">{shownPeriod === "yearly" ? t("plansPerYear", price) : t("plansPerMonth", price)}</span>}
               </div>
+              {plan === "byok" && currentPlan !== "byok" && <p class="cf-plan-needs">{t("plansOwnKeyNeeds")}</p>}
               {perMonth && <div class="cf-plan-year"><span>{t("plansPerMonthYearly", perMonth)}</span>{twelve && <s aria-hidden="true">{twelve}</s>}</div>}
               {plan === "ultra" && currentPlan === "ultra" && status?.ultra?.speak && (
                 <p class="cf-plan-left">{t("listenLeft", String(Math.max(0, Math.floor((status.ultra.speak.limit - status.ultra.speak.used) / 60))), String(Math.round(status.ultra.speak.limit / 60)))}</p>
@@ -136,6 +149,9 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
           )
         })}
       </div>
+      {currentPlan !== "byok" && !ownOpen && (
+        <p class="cf-plans-own"><button type="button" class="cf-link" onClick={() => setOwnOpen(true)}>{t("plansOwnKeyLink")}</button></p>
+      )}
       {currencyCode(prices) && <p class="cf-hint cf-plans-currency">{t("plansCurrency", currencyCode(prices)!)}</p>}
       <Gallery facts={facts} ultra={focus === "ultra"} />
       <p class="cf-hint">{t("plansNote")}</p>

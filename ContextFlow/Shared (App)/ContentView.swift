@@ -1210,6 +1210,8 @@ struct ProView: View {
     /// A change that starts at the next renewal (a lower plan, or the same plan yearly): `success` then says when, not
     /// "is active" (the 2.6 gate: choosing Pro on Ultra said "Pro is active" while Ultra went on to the renewal).
     @State private var startsLater = false
+    /// Own key's card, behind its link «I have my own API key» until asked for (109).
+    @State private var ownKeyOpen = false
 
     var body: some View {
         ScrollViewReader { scroller in
@@ -1362,7 +1364,17 @@ struct ProView: View {
         }
     }
 
-    // MARK: Plans (2.6): Own key, Pro and Ultra, monthly or yearly
+    // MARK: Plans (2.6): Pro and Ultra, monthly or yearly; Own key under its link (109)
+
+    /// The row of plans. Pro and Ultra are the choice (109, the owner: «Ок, давай под ссылку»): Own key is for someone
+    /// who already has an OpenAI or Claude key, so it sits under the link «I have my own API key» and comes last once
+    /// the link is tapped, or when the panel sent the person here for Own key. Its subscriber sees the row as before.
+    static func tiersShown(current: StoreKitManager.Tier?, ownKeyOpen: Bool) -> [StoreKitManager.Tier] {
+        if current == .byok { return StoreKitManager.Tier.allCases }
+        return ownKeyOpen ? [.pro, .ultra, .byok] : [.pro, .ultra]
+    }
+
+    private var ownKeyShown: Bool { ownKeyOpen || paywall.focus == .byok }
 
     private var hasYearly: Bool { StoreKitManager.Tier.allCases.contains { store.product($0, yearly: true) != nil } }
 
@@ -1384,7 +1396,8 @@ struct ProView: View {
                 if hasYearly {
                     Picker("Billing", selection: $paywall.yearly) {
                         Text("Monthly").tag(false)
-                        if let best = store.bestYearlySaving {
+                        // The best saving among the plans in the row (Own key's, when it isn't shown, is not named).
+                        if let best = Self.tiersShown(current: store.tier, ownKeyOpen: ownKeyShown).compactMap({ store.yearlyDeal($0)?.percent }).max() {
                             Text("Yearly · save up to \(best)%").tag(true)
                         } else {
                             Text("Yearly").tag(true)
@@ -1393,10 +1406,11 @@ struct ProView: View {
                     .pickerStyle(.segmented)
                     .accessibilityIdentifier("plans.period")
                 }
-                ForEach(StoreKitManager.Tier.allCases) { tier in
+                ForEach(Self.tiersShown(current: store.tier, ownKeyOpen: ownKeyShown)) { tier in
                     if let product = store.product(tier, yearly: paywall.yearly && hasYearly) ?? store.product(tier, yearly: false) {
                         TierCard(
                             tier: tier,
+                            needsOwnKey: tier == .byok && store.tier != .byok,
                             product: product,
                             monthly: store.product(tier, yearly: false),
                             deal: product.subscription?.subscriptionPeriod.unit == .year ? store.yearlyDeal(tier) : nil,
@@ -1411,6 +1425,14 @@ struct ProView: View {
                         )
                         .id(tier.rawValue)
                     }
+                }
+                if store.tier != .byok, !ownKeyShown, store.byok != nil {
+                    Button("I have my own API key") { withAnimation { ownKeyOpen = true } }
+                        .buttonStyle(.borderless)
+                        .font(.callout.weight(.medium))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .accessibilityIdentifier("plans.ownkey.link")
                 }
                 if let note = changeNote {
                     Text(note)
@@ -1561,6 +1583,8 @@ extension StoreKitManager.Tier {
 /// One plan on the Pro screen: its price for the period, what it adds in plain words, and its button.
 struct TierCard: View {
     let tier: StoreKitManager.Tier
+    /// Own key shown to someone who doesn't have it: one sentence under its name saying what it needs (109).
+    var needsOwnKey = false
     let product: Product
     let monthly: Product?
     /// Yearly shown: a month of it and what it saves (the App Store's format).
@@ -1620,6 +1644,12 @@ struct TierCard: View {
                 }
                 Spacer()
                 Text(priceLine).font(.headline)
+            }
+            if needsOwnKey {
+                Text("This plan needs your own OpenAI or Claude API key. You pay that provider for the answers separately.")
+                    .font(.footnote)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("plans.ownkey.needs")
             }
             // Yearly: what a month of it comes to, against twelve months, and the money it saves.
             if let deal {

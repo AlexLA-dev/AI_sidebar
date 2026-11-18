@@ -527,6 +527,12 @@
  "planByok": {
   "message": "Clé personnelle"
  },
+ "plansOwnKeyLink": {
+  "message": "J’ai ma propre clé d’API"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Ce forfait nécessite votre propre clé d’API OpenAI ou Claude. Vous payez les réponses à part, auprès de ce fournisseur."
+ },
  "planRenews": {
   "message": "Renouvellement le {0}"
  },
@@ -997,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Votre fournisseur d'IA a répondu : {0}"
+ },
+ "errKeyCredit": {
+  "message": "Votre compte {0} n’a pas de crédit ou la facturation n’y est pas configurée : la demande a donc été refusée. Ajoutez du crédit sur {1}, puis reposez la question."
+ },
+ "errKeyRate": {
+  "message": "{0} limite en ce moment les demandes de votre clé : c’est la limite de votre compte. Attendez une minute, puis reposez la question. Vos limites se trouvent sur {1}."
  },
  "offerLimit": {
   "message": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine, plus approfondies et détaillées. Résiliable à tout moment."

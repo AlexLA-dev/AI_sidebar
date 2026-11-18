@@ -691,5 +691,7 @@
   "ee329a85e7ae": "读取你正在回复的网页",
   "60c8279280c4": "只处理你给它的文字",
   "768737d596d7": "每点一次计一次回答：免费每天 5 次；下划线需 Pro",
-  "e51f743693e5": "更多：<a href=\"/translate-web-page-safari-iphone\">在 Safari 中翻译网页</a>"
+  "e51f743693e5": "更多：<a href=\"/translate-web-page-safari-iphone\">在 Safari 中翻译网页</a>",
+  "ee6188a287b5": "我有自己的 API 密钥",
+  "4b7a73ec677d": "此方案需要你自己的 OpenAI 或 Claude API 密钥。回答的费用由你另行支付给该服务商。"
 }

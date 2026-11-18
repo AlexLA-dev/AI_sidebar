@@ -764,6 +764,8 @@
 }
 .cf:not([data-touch]) .cf-textarea, .cf:not([data-touch]) .cf-text { font-size: 13.5px; }
 .cf-text { flex: 1; min-width: 0; margin-top: 0; font-family: var(--mono); }
+/* The own key as it is typed: hidden like a password, without being one to the browser's password manager. */
+.cf-secret:not(:placeholder-shown) { -webkit-text-security: disc; }
 .cf-textarea:focus, .cf-text:focus { border-color: var(--accent); }
 .cf-key { font-family: var(--mono); color: var(--ok); flex: 1; }
 .cf-links { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 4px; align-items: center; }
