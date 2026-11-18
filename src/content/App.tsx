@@ -90,7 +90,8 @@ import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
 import { TipsSheet, tipsLabel } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
-import { shadowSelection, trackPointer } from "./selectionShadow"
+import { lastPointerDown, shadowSelection, trackPointer } from "./selectionShadow"
+import { clearedByHand } from "./handClear"
 import { selectionByOneTap, trackPresses } from "./tapSelect"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads, withStoredEdits } from "../shared/jobs"
@@ -972,6 +973,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const purposefulRef = useRef(() => {})
   useEffect(() => trackPresses(() => purposefulRef.current()), [])
   const byTapRef = useRef(false)
+  // 2.7 (108), handClear.ts: whether the page had a selection at the last look and when, and a selection the person
+  // cleared with a press on the page while the panel was open (its chip stays for the question; the closing forgets it).
+  const selLiveRef = useRef(false)
+  const selLiveAtRef = useRef(0)
+  const handClearedRef = useRef(false)
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
     let scrollTimer: ReturnType<typeof setTimeout> | undefined
@@ -993,7 +999,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     const onSelectionChange = () => {
       // Remember it right away: tapping our button on iPhone clears the selection.
-      trackSelection()
+      const live = Boolean(trackSelection())
+      const was = selLiveRef.current
+      selLiveRef.current = live
+      if (live) {
+        selLiveAtRef.current = performance.now()
+        handClearedRef.current = false
+      } else if (was && clearedByHand(lastPointerDown(HOST_TAG), selLiveAtRef.current, performance.now())) {
+        // The person cleared it with a press on the page: it isn't the panel's any more (108, the owner: it came back
+        // at every opening and closing). Nothing of ours took it, so it isn't remembered or put back.
+        if (open) handClearedRef.current = true
+        else {
+          forgetSelection()
+          setSelection(null)
+        }
+      }
       // Its moment decides: right after one short tap in a field it's the tap's (iPadOS), later it's made on purpose.
       byTapRef.current = touch && selectionByOneTap()
       clearTimeout(timer)
@@ -1041,6 +1061,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // about goes back on the page first, unless its chip was cleared.
     const closing = wasOpenRef.current && !open
     wasOpenRef.current = open
+    // Cleared by the person on the page while the panel was open: the page stays as they left it.
+    if (closing && handClearedRef.current) {
+      handClearedRef.current = false
+      forgetSelection()
+      setSelection(null)
+    }
     const back = open
       ? undefined
       : setTimeout(() => {
