@@ -43,6 +43,16 @@ const ownLanguage = () => readerLanguage(navigator, uiLanguage(), uiLang())
 
 let engine: PageTranslator | null = null
 
+// What the pill remembers of a translation the person started, kept for the page and not for the pill's own life: a
+// site that draws itself again after its words change (build 109: public.cy) takes the panel with it for a moment,
+// and the pill that comes back must still know the translation was asked for by hand (it counts it, takes the site
+// off the hidden list, and asks about the whole site).
+const byHand = {
+  tapped: { current: false },
+  asked: { current: null as PageOffer | null },
+  cameOut: { current: false }
+}
+
 /** One translator per page. */
 export function pageTranslator(): PageTranslator {
   engine ??= new PageTranslator({ doc: document, url: () => location.href, site: () => site(), ask: portAsk(), cache: storageCache })
@@ -344,10 +354,10 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   }, [folding])
   // The entry by the circle was tapped: the pill shows until × (or the page is translated and put back).
   const [opened, setOpened] = useState(false)
-  const tapped = useRef(false)
+  const tapped = byHand.tapped
   const shownOnce = useRef(false)
   // The offer the person tapped (Try again uses it, whatever the page has done since).
-  const asked = useRef<PageOffer | null>(null)
+  const asked = byHand.asked
   const prev = useRef(state.at)
 
   // A translation asked for here came out: counted once per tap. On a site the offer was hidden on, it comes by itself
@@ -370,18 +380,19 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   const [siteRow, setSiteRow] = useState<"ask" | "manage" | null>(null)
   // A translation asked for here came out and the site isn't translated whole: asked once per site, a moment after
   // the page shows in the reader's language.
-  const cameOut = useRef(false)
+  const cameOut = byHand.cameOut
   useEffect(() => {
     if (state.at !== "on" || !cameOut.current || auto) return
-    cameOut.current = false
     let alive = true
     const timer = setTimeout(() => {
       // Marked as asked only when it's about to show (a page left before that is asked on the next one).
       if (pageTranslator().state().at !== "on") return
+      cameOut.current = false
       void askOnce(sites, site()).then((ask) => {
         if (!ask || !alive) return
         step("site_ask")
         setClosed(false)
+        byItselfAsked.current = true
         setSiteRow("ask")
       }, () => undefined)
     }, SITE_ASK_MS)
@@ -393,6 +404,15 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   useEffect(() => {
     if (state.at === "off") setSiteRow(null)
   }, [state.at])
+  // The question that came by itself doesn't wait for ever: unanswered, it gives the pill back (the site button asks
+  // it again when wanted).
+  const byItselfAsked = useRef(false)
+  useEffect(() => {
+    if (siteRow !== "ask" || !byItselfAsked.current) return
+    byItselfAsked.current = false
+    const timer = setTimeout(() => setSiteRow((row) => (row === "ask" ? null : row)), SITE_ASK_STAYS_MS)
+    return () => clearTimeout(timer)
+  }, [siteRow])
 
   // A page of a site translated whole: started by itself, once per address (after «Original» it stays as it is).
   // Not when the day's answers ran out on such a page today (the person was told then): the offer comes as usual.
@@ -412,6 +432,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
       if (status !== "ok" || (!goal.only && limitedToday(limit[LIMIT_KEY])) || pageTranslator().state().at !== "off") return
       step("auto")
       asked.current = goal
+      tapped.current = false
       autoRun.current = true
       // Where × folded the pill on this site it stays folded: the entry by the circle says the page is translated.
       if (hidden) setClosed(true)
@@ -750,8 +771,9 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   )
 }
 
-/** How long after a translation comes out the pill asks about the whole site. */
+/** How long after a translation comes out the pill asks about the whole site, and how long the question stays. */
 const SITE_ASK_MS = 1_400
+const SITE_ASK_STAYS_MS = 15_000
 
 /** How long the line after × says where the offer went, and how long it takes to fold into the entry. */
 export const TOLD_MS = 4_000
