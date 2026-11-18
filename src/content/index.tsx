@@ -26,6 +26,7 @@ import pageHintStyles from "./pagehints/hints.css"
 import inviteStyles from "./invite/invite.css"
 import spacesStyles from "./spaces.css"
 import collectionsStyles from "./collections.css"
+import quietStyles from "./quiet/quiet.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -80,7 +81,8 @@ ${spacesStyles}
 ${sideStyles}
 ${pageHintStyles}
 ${inviteStyles}
-${collectionsStyles}`
+${collectionsStyles}
+${quietStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

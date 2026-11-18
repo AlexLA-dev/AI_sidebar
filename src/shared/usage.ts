@@ -242,8 +242,20 @@ export const FEATURES: Record<string, Feature> = {
       // Live underlines (Pro and Ultra): a fix shown (hover or tap), made, set aside, not taken by the field; the hidden cap reached.
       "live_shown", "live_fixed", "live_ignored", "live_failed", "live_cap"
     ],
-    via: ["circle", "list", "underline"],
+    via: ["circle", "list", "underline", "panel"],
     fields: { what: ["check", "short", "warm", "formal", "confident"] }
+  },
+
+  // 2.7 (after build 107), the quiet panel (src/content/quiet): a chip of the page's tapped ("chip", what: which one);
+  // «+» by the field opened ("plus") and what was picked there ("plus_pick"); what was picked in a message's «…» that
+  // the compact row no longer shows ("more_pick"). lay: the chat's density then.
+  quiet: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["chip", "plus", "plus_pick", "more_pick"],
+    fields: {
+      what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect"],
+      lay: ["compact", "roomy"]
+    }
   },
 
   // 2.7: «Снимок страницы в заметке» (src/shared/shots.ts), counts only: never the page, the picture or its size beyond

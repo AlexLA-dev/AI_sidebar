@@ -59,6 +59,21 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Sayfayı çevir"
+ },
+ "chipWatchPrice": {
+  "message": "Fiyatı takip et"
+ },
+ "plusButton": {
+  "message": "Diğer: not, sayfa görüntüsü, tüm sohbet"
+ },
+ "hintShow": {
+  "message": "Göster"
+ },
+ "tourWholeBodyPlus": {
+  "message": "“Tüm sohbet” + düğmesinin altındadır. Bir soru her şeyi gerektirdiğinde “Tüm sohbet” seçeneğini açın: tüm mesajlar, notlarınız ve bu sohbetin diğer sayfaları. Kapalıyken yanıtlar son mesajları ve bu sayfayı kullanır."
+ },
  "promptSummarize": {
   "message": "Bu sayfayı 5–7 maddelik bir listeyle özetle, ardından ana sonucu tek cümleyle belirt."
  },
@@ -663,7 +678,7 @@
   "message": "Yalnızca bir kısmı mı?"
  },
  "tourSelectBody": {
-  "message": "Önce sayfada metin seçin; yanıt yalnızca o kısımla ilgili olur. Bu etiket ContextFlow'un neyi okuduğunu gösterir."
+  "message": "Önce sayfada metin seçin; yanıt yalnızca o kısımla ilgili olur. Seçtiğiniz metin, alanın üstündeki etikette görünür."
  },
  "tourGoogleTitle": {
   "message": "Google'dan güncel bilgiler"
@@ -690,10 +705,10 @@
   "message": "Kendi notlarınız"
  },
  "tourNoteBodyTouch": {
-  "message": "Soru sormak yerine not yazmak için bu düğmeyi yukarı veya aşağı kaydırın. Not, sayfasıyla birlikte sohbette kalır ve yanıt hakkı kullanmaz."
+  "message": "Soru sormak yerine not yazmak için bu düğmeyi yukarı veya aşağı kaydırın. Not, sayfasıyla birlikte sohbette kalır ve yanıt hakkı kullanmaz. Ya da + düğmesine dokunup “Not”u seçin."
  },
  "tourNoteBodyMouse": {
-  "message": "Soru sormak yerine not yazmak için bu düğmenin üzerinde kaydırma yapın (veya düğmeyi basılı tutun). Not, sayfasıyla birlikte sohbette kalır ve yanıt hakkı kullanmaz."
+  "message": "Soru sormak yerine not yazmak için bu düğmenin üzerinde kaydırma yapın (veya düğmeyi basılı tutun). Not, sayfasıyla birlikte sohbette kalır ve yanıt hakkı kullanmaz. Ya da + düğmesine tıklayıp “Not”u seçin."
  },
  "tourWholeTitle": {
   "message": "Tüm sohbet göz önünde"
@@ -3098,8 +3113,8 @@
  "tip_6ba198cbff": {
   "message": "Kendi notlarınız"
  },
- "tip_6a92f6c633": {
-  "message": "Soru sormak yerine not yazmak için gönder düğmesini yukarı veya aşağı kaydırın (Mac'te üzerinde kaydırın). Not, sayfasıyla birlikte sohbette kalır, sohbetle eşzamanlanır ve yanıt harcamaz."
+ "tip_b210a078de": {
+  "message": "Soru sormak yerine not yazmak için gönder düğmesini yukarı veya aşağı kaydırın (Mac'te üzerinde kaydırın). Ya da alanın yanındaki + düğmesine dokunup “Not”u seçin. Not, sayfasıyla birlikte sohbette kalır, sohbetle eşzamanlanır ve yanıt harcamaz."
  },
  "tip_ac13420c59": {
   "message": "Notunuza sayfa görüntüsü"
@@ -3137,8 +3152,8 @@
  "tip_e012ef5f59": {
   "message": "Tüm sohbet göz önünde"
  },
- "tip_3a70cee32e": {
-  "message": "Bir yanıt için her şey gerektiğinde soru alanının altındaki “Tüm sohbet” seçeneğini açın: tüm mesajlar, notlarınız ve bu sohbetin diğer sayfaları. Kapalıyken yanıtlar son mesajları ve açık sayfayı kullanır."
+ "tip_511d363377": {
+  "message": "Bir yanıt için her şey gerektiğinde soru alanının yanındaki + düğmesinin altındaki “Tüm sohbet” seçeneğini açın: tüm mesajlar, notlarınız ve bu sohbetin diğer sayfaları. Kapalıyken yanıtlar son mesajları ve açık sayfayı kullanır."
  },
  "tip_ca29a1f4ed": {
   "message": "Video hakkında sorun"
@@ -3257,8 +3272,8 @@
  "tip_8d1c1aa55d": {
   "message": "Hepsini bir koleksiyonda toplayın"
  },
- "tip_15dc6cba07": {
-  "message": "Bir gezi ya da alışveriş mi planlıyorsunuz? Bir yanıtın ya da notun altındaki “Koleksiyona ekle”yi seçin, ContextFlow nereye gideceğini önersin. “Koleksiyonlar” her şeyi Safari'de ve uygulamada bölümler hâlinde tutar. Pro ile yapay zekâ kartları ayırır, “Karşılaştır” seçtiklerinizi yan yana koyar, “Özet” de hepsini özetler. Her koleksiyon PDF olarak kaydedilebilir."
+ "tip_397645bf6c": {
+  "message": "Bir gezi ya da alışveriş mi planlıyorsunuz? Bir yanıtın ya da notun altındaki veya … menüsündeki “Koleksiyona ekle”yi seçin, ContextFlow nereye gideceğini önersin. “Koleksiyonlar” her şeyi Safari'de ve uygulamada bölümler hâlinde tutar. Pro ile yapay zekâ kartları ayırır, “Karşılaştır” seçtiklerinizi yan yana koyar, “Özet” de hepsini özetler. Her koleksiyon PDF olarak kaydedilebilir."
  },
  "tip_c4b432e2e9": {
   "message": "Sohbetlerinizde arayın"
@@ -3269,8 +3284,8 @@
  "tip_2e4668f650": {
   "message": "Etiketler ve klasörler"
  },
- "tip_6b5bdf707f": {
-  "message": "🏷 ile bir sohbeti, yanıtı veya notu etiketleyin. Yalnızca o etiketin sohbetlerini görmek için etikete dokunun ya da listeyi etikete göre gruplamak için Klasörler'i açın."
+ "tip_d3d95ad05c": {
+  "message": "🏷 ile ya da … menüsündeki “Etiket” ile bir sohbeti, yanıtı veya notu etiketleyin. Yalnızca o etiketin sohbetlerini görmek için etikete dokunun ya da listeyi etikete göre gruplamak için Klasörler'i açın."
  },
  "tip_752fb307f2": {
   "message": "Bulduğunuzu paylaşın"
