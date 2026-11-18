@@ -25,6 +25,7 @@ import { giveConsent, loadConsent } from "../store"
 import { judgeControls, judgeShares, type ControlsJudged } from "./decide"
 import { PageTranslator, type EngineState } from "./engine"
 import { keepLanguage, keptLanguage, languageChoices, shortMark, targetName } from "./languages"
+import { hiddenOn, hideOn, showOn, tellsAt, TOLD_KEY, type SiteStore } from "./hiddenSites"
 import { coversPageControl } from "./pageControls"
 import { portAsk, storageCache } from "./port"
 import { controlLabels, pageShares, type Shares } from "./share"
@@ -33,8 +34,6 @@ import { controlLabels, pageShares, type Shares } from "./share"
  *  (answerLanguage.ts readerLanguage). */
 const ownLanguage = () => readerLanguage(navigator, uiLanguage(), uiLang())
 
-const HIDDEN_KEY = "cf:trHidden"
-const SITES_KEPT = 500
 
 let engine: PageTranslator | null = null
 
@@ -84,15 +83,15 @@ export function translatePageNow(): boolean {
 
 const site = () => location.hostname.replace(/^www\./, "")
 
-async function hiddenHere(): Promise<boolean> {
-  const list = (await chrome.storage.local.get(HIDDEN_KEY).catch(() => ({} as Record<string, unknown>)))[HIDDEN_KEY]
-  return Array.isArray(list) && list.includes(site())
+// The sites the offer was dismissed on (hiddenSites.ts): × hides it on the site, a translation started by hand there
+// brings it back.
+const sites: SiteStore = {
+  get: (key) => chrome.storage.local.get(key).catch(() => ({} as Record<string, unknown>)),
+  set: (items) => chrome.storage.local.set(items)
 }
-
-async function hideHere(): Promise<void> {
-  const list = ((await chrome.storage.local.get(HIDDEN_KEY))[HIDDEN_KEY] as string[] | undefined) ?? []
-  await chrome.storage.local.set({ [HIDDEN_KEY]: [site(), ...list.filter((s) => s !== site())].slice(0, SITES_KEPT) })
-}
+const hiddenHere = () => hiddenOn(sites, site())
+const hideHere = () => hideOn(sites, site()).catch(() => false)
+const showHere = () => showOn(sites, site()).catch(() => false)
 
 const step = (a: TranslateStep["a"]) => {
   try {
@@ -154,6 +153,7 @@ interface Offered {
   to: string
   setTo: (to: string) => void
   hide: () => void
+  unhide: () => void
 }
 
 /** When to look: once the page has loaded and settled, and again after a site that fills itself in late. */
@@ -209,7 +209,8 @@ function useOffer(): Offered {
       setToNow(code)
       void keepLanguage(code, own)
     },
-    hide: () => setHidden(true)
+    hide: () => setHidden(true),
+    unhide: () => setHidden(false)
   }
 }
 
@@ -284,11 +285,28 @@ function LanguagePick({ to, from, onPick }: { to: string; from: string | null; o
 }
 
 export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: TranslatePillProps): VNode | null {
-  const { offer, part, controls, pageLang, hidden, to, setTo, hide } = useOffer()
+  const { offer, part, controls, pageLang, hidden, to, setTo, hide, unhide } = useOffer()
   const typing = useTyping()
   const state = useEngine()
   const [consent, setConsent] = useState<"ok" | "old" | "none" | null>(null)
   const [closed, setClosed] = useState(false)
+  // Right after ×: where the offer went, said in its place for a moment on the install's first dismissals, then the
+  // pill folds into the entry by the circle (2.7, 108: × said «Hide on this site» only in a title a finger never sees).
+  const [folding, setFolding] = useState<"told" | "fold" | null>(null)
+  // Whether the next × gets the line, known before it's tapped (so the pill turns into the right thing at once).
+  const tells = useRef(false)
+  // What folds: the line, or (after the first dismissals) the offer's own words.
+  const foldsTold = useRef(false)
+  useEffect(() => {
+    void sites.get(TOLD_KEY).then((got) => {
+      tells.current = tellsAt(got[TOLD_KEY])
+    })
+  }, [])
+  useEffect(() => {
+    if (!folding) return
+    const timer = setTimeout(() => setFolding(folding === "told" ? "fold" : null), folding === "told" ? TOLD_MS : FOLD_MS)
+    return () => clearTimeout(timer)
+  }, [folding])
   // The entry by the circle was tapped: the pill shows until × (or the page is translated and put back).
   const [opened, setOpened] = useState(false)
   const tapped = useRef(false)
@@ -297,9 +315,14 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   const asked = useRef<PageOffer | null>(null)
   const prev = useRef(state.at)
 
-  // A translation asked for here came out: counted once per tap.
+  // A translation asked for here came out: counted once per tap. On a site the offer was hidden on, it comes by itself
+  // again from now on (2.7, 108, the owner: × is often «not now»). Only one that came out counts: not the consent
+  // declined, nor the day's limit, nor the pill opened and closed.
   useEffect(() => {
-    if (tapped.current && prev.current === "working" && state.at === "on") step("done")
+    if (tapped.current && prev.current === "working" && state.at === "on") {
+      step("done")
+      void showHere().then((was) => was && unhide())
+    }
     if (state.at === "limit") step("limit")
     if (state.at === "error" && state.code !== "CONSENT") step("error")
     if (state.at === "error" && state.code === "CONSENT") setConsent("none")
@@ -415,10 +438,15 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     setOpened(false)
     setManual(false)
     hide()
-    void hideHere()
+    foldsTold.current = tells.current
+    setFolding(tells.current ? "told" : "fold")
+    void hideHere().then(() => sites.get(TOLD_KEY)).then((got) => {
+      tells.current = tellsAt(got[TOLD_KEY])
+    })
   }
   const open = () => {
     step("entry")
+    setFolding(null)
     setClosed(false)
     setOpened(true)
   }
@@ -454,7 +482,16 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     // The way back to the translation on the page itself: a small button by the circle, only where there's something
     // to translate (or a translation to put back).
     const said = state.at !== "off" ? t("trOriginal") : label || t("trEntry")
-    return (
+    // Just after ×: the line where the pill was (a tap on it opens the pill again), then it folds into the entry.
+    if (folding === "told") {
+      return (
+        <div class={`cf-tr told ${side}`} style={style} role="status" onClick={open}>
+          <span class="cf-tr-label">{t("trHiddenTold")}</span>
+          <TranslateIcon size={16} />
+        </div>
+      )
+    }
+    const entryEl = (
       <button
         ref={entryRef}
         type="button"
@@ -468,6 +505,15 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
         <TranslateIcon size={16} />
       </button>
     )
+    return folding === "fold" && state.at === "off" ? (
+      <>
+        <div class={`cf-tr told fold ${side}`} style={style} aria-hidden="true">
+          <span class="cf-tr-label">{foldsTold.current ? t("trHiddenTold") : label}</span>
+          <TranslateIcon size={16} />
+        </div>
+        {entryEl}
+      </>
+    ) : entryEl
   }
 
   const x = (
@@ -545,6 +591,10 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     </div>
   )
 }
+
+/** How long the line after × says where the offer went, and how long it takes to fold into the entry. */
+export const TOLD_MS = 4_000
+const FOLD_MS = 360
 
 // ------------------------------------------------------------ the page's own controls under the offer
 

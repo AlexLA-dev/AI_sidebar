@@ -825,6 +825,7 @@
   "trOffer": "Traduire en français ?",
   "trOfferTo": "Traduire en {0} ?",
   "trHide": "Masquer sur ce site",
+  "trHiddenTold": "Masqué sur ce site. Cette icône vous permet de le retrouver.",
   "trWorking": "Traduction…",
   "trOriginal": "Original",
   "trFailed": "Échec de la traduction",

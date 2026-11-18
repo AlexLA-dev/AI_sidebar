@@ -2396,6 +2396,9 @@
  "trHide": {
   "message": "이 사이트에서 숨기기"
  },
+ "trHiddenTold": {
+  "message": "이 사이트에서 숨겼어요. 이 아이콘으로 다시 불러올 수 있어요."
+ },
  "trWorking": {
   "message": "번역 중…"
  },

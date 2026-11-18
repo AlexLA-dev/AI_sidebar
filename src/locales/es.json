@@ -825,6 +825,7 @@
   "trOffer": "¿Traducir al español?",
   "trOfferTo": "¿Traducir al {0}?",
   "trHide": "Ocultar en este sitio",
+  "trHiddenTold": "Oculto en este sitio. Con este icono lo recuperas.",
   "trWorking": "Traduciendo…",
   "trOriginal": "Original",
   "trFailed": "No se pudo traducir",

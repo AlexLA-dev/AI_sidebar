@@ -10,7 +10,9 @@ import { STORAGE } from "./types.ts"
 
 /** What a new install hasn't seen or decided yet (the page hints' state is src/content/pagehints/store.ts's key). */
 export const FIRST_RUN_KEYS: readonly string[] = [
-  STORAGE.tourSeen, STORAGE.consent, STORAGE.noteHint, STORAGE.selHint, "cf:pageHints", INSERT_STORAGE.tipSeen, INSERT_STORAGE.rewriteHintSeen
+  STORAGE.tourSeen, STORAGE.consent, STORAGE.noteHint, STORAGE.selHint, "cf:pageHints", INSERT_STORAGE.tipSeen, INSERT_STORAGE.rewriteHintSeen,
+  // How many × of the translate offer were told where it went (content/translate/hiddenSites.ts TOLD_KEY).
+  "cf:trHideTold"
 ]
 
 /** The last stamp the panel's first run started over for (ms). */

@@ -2396,6 +2396,9 @@
  "trHide": {
   "message": "Bu sitede gizle"
  },
+ "trHiddenTold": {
+  "message": "Bu sitede gizlendi. Bu simgeyle geri getirebilirsiniz."
+ },
  "trWorking": {
   "message": "Çevriliyor…"
  },

@@ -2396,6 +2396,9 @@
  "trHide": {
   "message": "Masquer sur ce site"
  },
+ "trHiddenTold": {
+  "message": "Masqué sur ce site. Cette icône vous permet de le retrouver."
+ },
  "trWorking": {
   "message": "Traduction…"
  },

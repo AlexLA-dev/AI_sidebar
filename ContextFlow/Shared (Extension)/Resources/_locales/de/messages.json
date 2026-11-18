@@ -2396,6 +2396,9 @@
  "trHide": {
   "message": "Auf dieser Website ausblenden"
  },
+ "trHiddenTold": {
+  "message": "Auf dieser Website ausgeblendet. Mit diesem Symbol holst du es zurück."
+ },
  "trWorking": {
   "message": "Wird übersetzt…"
  },
