@@ -365,7 +365,7 @@ export interface Applied {
   // A group whose elements the translation put in another order: its nodes as they were.
   moved: Array<{ parent: Node; order: Node[] }>
   // The block's element marked with the translation's language and direction: what its attributes were.
-  marked?: { el: Element; lang: string | null; dir: string | null; now: string }
+  marked?: { el: Element; lang: string | null; dir: string | null; now: string; turned: boolean }
   // An attribute's words (a placeholder, a button input's label): what they were and are.
   attr?: { el: Element; name: string; was: string; now: string }
 }
@@ -468,17 +468,25 @@ function edges(block: Block, pieces: Piece[]): Piece[] {
   }, [])
 }
 
+/** Languages written right to left. */
+const RTL = /^(ar|he|fa|ur|yi|ps|sd|ug|dv)(-|$)/i
+
 /**
- * The translated block's element says its language and takes its direction from its words (2.7, the director's audit:
- * English into Arabic stayed left to right; Arabic into English put the punctuation on the wrong side). Not on the
+ * The translated block's element says its language, and takes its direction from its words where the translation
+ * reads the other way (2.7, the director's audit: English into Arabic stayed left to right; Arabic into English put
+ * the punctuation on the wrong side). Where it reads the same way as before, the direction is left as the page set it
+ * (build 109: an attribute less on every block; a clamped box's direction isn't recomputed for nothing). Not on the
  * page's body or root, where it would turn the whole layout; not again when another block of it already did.
  */
 function markLanguage(el: Element, lang: string, done: Applied): void {
   if (el === el.ownerDocument.body || el === el.ownerDocument.documentElement) return
-  if (el.getAttribute("lang") === lang && el.getAttribute("dir") === "auto") return
-  done.marked = { el, lang: el.getAttribute("lang"), dir: el.getAttribute("dir"), now: lang }
+  // Without a layout to ask (tests), as when it turns.
+  const now = el.ownerDocument.defaultView?.getComputedStyle?.(el)?.direction
+  const turned = now === "ltr" || now === "rtl" ? (now === "rtl") !== RTL.test(lang) : true
+  if (el.getAttribute("lang") === lang && (!turned || el.getAttribute("dir") === "auto")) return
+  done.marked = { el, lang: el.getAttribute("lang"), dir: el.getAttribute("dir"), now: lang, turned }
   el.setAttribute("lang", lang)
-  el.setAttribute("dir", "auto")
+  if (turned) el.setAttribute("dir", "auto")
 }
 
 /**
@@ -520,9 +528,9 @@ export function restore(done: Applied): void {
   const a = done.attr
   if (a && a.el.getAttribute(a.name) === a.now) a.el.setAttribute(a.name, a.was)
   const m = done.marked
-  if (m && m.el.getAttribute("lang") === m.now && m.el.getAttribute("dir") === "auto") {
+  if (m && m.el.getAttribute("lang") === m.now && (!m.turned || m.el.getAttribute("dir") === "auto")) {
     putBack(m.el, "lang", m.lang)
-    putBack(m.el, "dir", m.dir)
+    if (m.turned) putBack(m.el, "dir", m.dir)
   }
   for (let i = done.texts.length - 1; i >= 0; i--) {
     const { node, was, now } = done.texts[i]

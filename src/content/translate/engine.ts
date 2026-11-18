@@ -12,7 +12,8 @@
 //  - the state says `busy` while something the reader can see waits for its translation;
 //  - what the page shows later goes before what was waiting, in a lane of its own;
 //  - what's on the page but not shown yet (a closed menu, a list behind «More», a drawer off the screen) is translated
-//    ahead while nothing else waits, within AHEAD_CHARS a page, so it's there when it opens;
+//    ahead while nothing else waits: what would open nearest the screen first, AHEAD_PASS at a place, AHEAD_CHARS a
+//    page, so it's there when it opens;
 //  - short words (a menu's, a button's) are kept for the whole site: its next page, and a pop-up that says the same,
 //    need no request;
 //  - tooltips: a wordless control's label with the page, any other when the pointer or the focus comes to it;
@@ -87,12 +88,20 @@ const MAX_AGAIN = 4
 // site rewrites for each view it opens changes now and then, not in a row, and is translated every time.
 const MAX_CHURN = 3
 const CHURN_GAP = 10_000
-// What isn't shown yet is translated ahead in blocks of at most this many characters, this many a page.
+// What isn't shown yet is translated ahead in blocks of at most this many characters: this many at one place of the
+// page (what would open by the screen: a real shop's header menus took a whole page's allowance before its filter
+// list, further down, got any), this many a page.
 export const AHEAD_BLOCK = 300
-export const AHEAD_CHARS = 8_000
+export const AHEAD_PASS = 4_000
+export const AHEAD_CHARS = 12_000
 // Less when only the controls are translated: that's free within a day's allowance (TRANSLATE_LIMITS, the server's
 // caps), which closed menus mustn't use up.
+export const AHEAD_CONTROLS_PASS = 1_000
 export const AHEAD_CONTROLS_CHARS = 2_000
+// The page scrolled this far (px) since the last time: another place.
+const AHEAD_STEP = 300
+/** A row of a list, a table or a menu. */
+const ROWS = "li,tr,dd,dt,option,[role=listitem],[role=option],[role=menuitem],[role=row]"
 // A tooltip is asked for this long after the pointer came (several passed over go in one request; the browser shows
 // its own tooltip later than that).
 const TIP_DELAY = 200
@@ -121,6 +130,8 @@ export class PageTranslator {
   private byText = new Map<string, Set<Item>>()
   private sentTexts = new Map<string, number>()
   private aheadChars = 0
+  // Where the page stood (its scroll) the last time something was translated ahead.
+  private aheadAt: number | null = null
   private aheadInflight = 0
   private first = true
   private busy = false
@@ -180,6 +191,7 @@ export class PageTranslator {
     this.first = true
     this.aheadChars = 0
     this.set({ at: "working" })
+    this.aheadAt = null
     this.page = urlKey(this.deps.url())
     const site = this.deps.site?.() ?? ""
     try {
@@ -418,20 +430,59 @@ export class PageTranslator {
     this.pulse()
   }
 
-  /** While nothing waits: what the page holds but doesn't show yet (short pieces, AHEAD_CHARS a page) is queued, so a
-   *  menu or a list is in the reader's language the moment it opens. True when something was. */
+  /** While nothing waits: what the page holds but doesn't show yet (short pieces) is queued, so a menu or a list is in
+   *  the reader's language the moment it opens: what would open by the screen, nearest first, once per place the page
+   *  is scrolled to, within the page's allowance. True when something was. */
   private ahead(): boolean {
+    const controls = this.only === "controls"
+    const left = (controls ? AHEAD_CONTROLS_CHARS : AHEAD_CHARS) - this.aheadChars
+    if (left <= 0) return false
+    const view = this.deps.doc.defaultView
+    const at = view?.scrollY ?? 0
+    if (this.aheadAt !== null && Math.abs(at - this.aheadAt) < AHEAD_STEP) return false
+    const height = view?.innerHeight ?? 0
+    // Where a hidden piece would open: the nearest part of the page around it that has a box. How far that is from
+    // the screen (0 on it); whether it's the rest of a list the reader has before them (a hidden row whose list
+    // shows: the items behind «More»); and how many levels up the box is (a closed menu sits deep under the header).
+    const where = new Map<Element, { d: number; up: number; rest: boolean }>()
+    const boxed = (el: Element | null | undefined) => {
+      const r = el?.getBoundingClientRect?.()
+      return !!r && (r.width > 0 || r.height > 0)
+    }
+    const place = (el: Element): { d: number; up: number; rest: boolean } => {
+      const known = where.get(el)
+      if (known) return known
+      let found = { d: height > 0 ? Number.POSITIVE_INFINITY : 0, up: 0, rest: false }
+      if (height > 0) {
+        for (let a: Element | null = el, i = 0; a && i < 14; a = a.parentElement, i++) {
+          const r = a.getBoundingClientRect?.()
+          if (!r || (r.width === 0 && r.height === 0)) continue
+          const row = el.closest?.(ROWS)
+          found = { d: r.bottom < 0 ? -r.bottom : r.top > height ? r.top - height : 0, up: i, rest: !!row && !boxed(row) && boxed(row.parentElement) }
+          break
+        }
+      }
+      where.set(el, found)
+      return found
+    }
+    const near = [...this.items.values()]
+      .filter((i) => i.status === "wait" && i.hidden && i.block.text.length <= AHEAD_BLOCK)
+      .map((item) => ({ item, ...place(item.block.parent) }))
+      .filter((c) => c.d <= height / 2)
+      .sort((a, b) => a.d - b.d || Number(b.rest) - Number(a.rest) || a.up - b.up)
+    // The rest of a shown list within the page's allowance; anything else within one place's.
+    let budget = Math.min(left, controls ? AHEAD_CONTROLS_PASS : AHEAD_PASS)
     let any = false
-    for (const item of this.items.values()) {
-      if (item.status !== "wait" || !item.hidden) continue
+    for (const { item, rest } of near) {
       const size = item.block.text.length
-      if (size > AHEAD_BLOCK) continue
-      if (this.aheadChars + size > (this.only === "controls" ? AHEAD_CONTROLS_CHARS : AHEAD_CHARS)) break
+      if (rest ? this.aheadChars + size > (controls ? AHEAD_CONTROLS_CHARS : AHEAD_CHARS) : size > budget) continue
+      if (!rest) budget -= size
       this.aheadChars += size
       item.status = "queued"
       item.ahead = true
       any = true
     }
+    if (any) this.aheadAt = at
     return any
   }
 
@@ -611,6 +662,8 @@ export class PageTranslator {
       this.mo = new MO((records) => this.changed(records))
       this.mo.observe(this.deps.doc.body, OBSERVE)
     }
+    // The page scrolled to another place and come to rest: what's hidden near the screen there, ahead.
+    win?.addEventListener("scroll", this.scrolled, { passive: true })
     // A tooltip's words when the pointer or the focus comes to what carries it.
     this.deps.doc.addEventListener("pointerover", this.tips, { capture: true, passive: true })
     this.deps.doc.addEventListener("focusin", this.tips, { capture: true, passive: true })
@@ -624,6 +677,7 @@ export class PageTranslator {
       this.answered = false
       this.capped = false
       this.aheadChars = 0
+      this.aheadAt = null
       void this.deps.cache.load(key, this.to).then((kept) => {
         for (const [k, v] of kept) this.cache.set(k, v)
       }, () => undefined)
@@ -654,7 +708,19 @@ export class PageTranslator {
     this.flushSoon(TIP_DELAY)
   }
 
+  private scrollTimer: ReturnType<typeof setTimeout> | null = null
+  private scrolled = (): void => {
+    if (this.scrollTimer) clearTimeout(this.scrollTimer)
+    this.scrollTimer = setTimeout(() => {
+      this.scrollTimer = null
+      this.flushSoon()
+    }, 400)
+  }
+
   private unwatch(): void {
+    this.deps.doc.defaultView?.removeEventListener("scroll", this.scrolled)
+    if (this.scrollTimer) clearTimeout(this.scrollTimer)
+    this.scrollTimer = null
     this.io?.disconnect()
     this.io = null
     this.mo?.disconnect()

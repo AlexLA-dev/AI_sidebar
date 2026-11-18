@@ -39,6 +39,12 @@
   .cf-tr .cf-tr-lang { padding: 0 7px; }
 }
 .cf-tr-label { flex: 1 1 auto; min-width: 0; font-weight: 500; text-wrap: balance; overflow-wrap: break-word; }
+/* The narrowest screens (320 px: a small phone with the display zoomed): the words on a line of their own, what's
+   pressed under them, so the words aren't squeezed into a column of single words. */
+@media (max-width: 350px) {
+  .cf-tr:has(> .cf-tr-label):not(:has(> .cf-tr-spin)):not(.told) { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; padding: 8px 8px 6px 14px; border-radius: 18px; }
+  .cf-tr:has(> .cf-tr-label):not(:has(> .cf-tr-spin)):not(.told) > .cf-tr-label { flex: 1 0 100%; }
+}
 .cf-tr-btn {
   flex: none;
   display: inline-flex;
@@ -131,7 +137,7 @@
 }
 /* Working (build 109, the owner: «переливающийся контур поп-апа… чтобы было понятно, что он в процессе»): while the
    page, a pop-up or an opened menu is being translated, a light runs along the pill's contour (and around the small
-   entry when the pill is folded). The accent's own colours; still, one steady contour, where motion is reduced. */
+   entry when the pill is folded). Still, one steady contour, where motion is reduced. */
 .cf-tr.busy::after, .cf-tr-entry.busy::after {
   content: "";
   position: absolute;
@@ -139,7 +145,11 @@
   padding: 2px;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(100deg, var(--accent-soft) 0%, var(--accent-soft) 32%, var(--accent-2) 44%, var(--accent) 50%, var(--accent-2) 56%, var(--accent-soft) 68%, var(--accent-soft) 100%);
+  /* The circle's own colours: the space's where there are spaces (spaces.css), else the accent. */
+  --cf-tr-run: var(--space, var(--accent));
+  --cf-tr-run-2: var(--space-2, var(--accent-2));
+  --cf-tr-rest: var(--space-soft, var(--accent-soft));
+  background: linear-gradient(100deg, var(--cf-tr-rest) 0%, var(--cf-tr-rest) 32%, var(--cf-tr-run-2) 44%, var(--cf-tr-run) 50%, var(--cf-tr-run-2) 56%, var(--cf-tr-rest) 68%, var(--cf-tr-rest) 100%);
   background-size: 300% 100%;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -199,7 +209,7 @@
 @keyframes cf-tr-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .cf-tr, .cf-tr-entry { animation: none; }
-  .cf-tr.busy::after, .cf-tr-entry.busy::after { animation: none; background: var(--accent); opacity: 0.55; }
+  .cf-tr.busy::after, .cf-tr-entry.busy::after { animation: none; background: var(--cf-tr-run); opacity: 0.55; }
   .cf-tr.told.fold { display: none; }
   .cf-tr-spin { animation-duration: 2s; }
 }

@@ -233,6 +233,23 @@ test("T5: a heading the site rewrites for each view is translated every time; on
   }
 })
 
+test("T3: a block's direction is set only where the translation reads the other way; Original puts it back", () => {
+  const { document } = page(`<main><p id="a">Ein Absatz über Kopfhörer.</p><p id="b" dir="ltr">Noch ein Absatz.</p></main>`)
+  // A layout to ask: the page reads left to right.
+  ;(document.defaultView as any).getComputedStyle = () => ({ direction: "ltr" })
+  const [a, b] = lib.collectBlocks(document.body)
+  const en = lib.applyBlock(a, "A paragraph about headphones.", "en")
+  assert.equal(a.parent.getAttribute("lang"), "en")
+  assert.equal(a.parent.hasAttribute("dir"), false, "the same way: the direction is the page's own")
+  const ar = lib.applyBlock(b, "فقرة أخرى.", "ar")
+  assert.equal(b.parent.getAttribute("dir"), "auto", "the other way: taken from the words")
+  lib.restore(en)
+  lib.restore(ar)
+  assert.equal(a.parent.hasAttribute("lang"), false)
+  assert.equal(b.parent.getAttribute("dir"), "ltr")
+  assert.equal(b.parent.hasAttribute("lang"), false)
+})
+
 // ------------------------------------------------------------------ T1: busy
 
 test("T1: the state is busy while a later piece is being translated, and not once it's shown", async () => {
@@ -312,15 +329,25 @@ test("T6: what the page holds but doesn't show yet (a list behind «More») is t
   assert.equal(asks.filter((a) => a.first).length, 1)
 })
 
-test("T6: translated ahead only so much a page", async () => {
+test("T6: translated ahead only so much at one place of the page, and again only once the page is scrolled to another", async () => {
   const items = Array.from({ length: 80 }, (_v, i) => `<li class="more">Eine ziemlich lange Menüzeile Nummer ${i} mit vielen Wörtern, die zusammen über hundertfünfzig Zeichen lang ist, damit das Kontingent der Seite schnell erreicht wird.</li>`).join("")
   const { document } = page(`<main><p id="top">Ein Absatz.</p><ul>${items}</ul></main>`)
   const { translator, asks } = engine(document, { io: true })
   await translator.start("ru", "de")
   FakeIO.last!.report((el) => el.id === "top", (el) => el.classList.contains("more"))
   await wait(300)
-  const ahead = asks.slice(1).flatMap((a) => a.blocks).reduce((n: number, b: any) => n + b.text.length, 0)
-  assert.ok(ahead > 0 && ahead <= lib.AHEAD_CHARS, `ahead ${ahead}`)
+  const sent = () => asks.slice(1).flatMap((a) => a.blocks).reduce((n: number, b: any) => n + b.text.length, 0)
+  const here = sent()
+  assert.ok(here > 0 && here <= lib.AHEAD_PASS, `ahead ${here}`)
+  // The page scrolled further and come to rest: another place, another allowance; never more than the page's.
+  const view = document.defaultView as any
+  for (let i = 1; i <= 5; i++) {
+    view.scrollY = i * 1_000
+    view.dispatchEvent(new view.Event("scroll"))
+    await wait(600)
+  }
+  assert.ok(sent() > here, "more at the next place")
+  assert.ok(sent() <= lib.AHEAD_CHARS, `ahead in all ${sent()}`)
 })
 
 test("T6: a site's short words are kept for its next page: its menu needs no request there", async () => {
