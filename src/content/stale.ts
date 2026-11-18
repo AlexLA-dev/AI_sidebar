@@ -122,6 +122,12 @@ export async function watchStaleTab(root: Element, words: StaleWords | null): Pr
 
   const show = (touch: { x: number; y: number } | null) => {
     at = touch
+    // Taken off the page meanwhile (seen on a device: made while the old panel was open, it was in the page, and after
+    // Safari had been away and back it was nowhere on screen): made again.
+    if (host && !host.isConnected) {
+      host = null
+      box = null
+    }
     if (!host) {
       host = document.createElement(NOTICE_TAG)
       host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;")
@@ -150,6 +156,8 @@ export async function watchStaleTab(root: Element, words: StaleWords | null): Pr
       window.visualViewport?.addEventListener("resize", place)
       window.visualViewport?.addEventListener("scroll", place)
     }
+    // Last on the page, so nothing of the old panel is drawn over it.
+    if (document.documentElement.lastElementChild !== host) document.documentElement.appendChild(host)
     place()
   }
 
@@ -174,4 +182,11 @@ export async function watchStaleTab(root: Element, words: StaleWords | null): Pr
   }
 
   if (panelLooksOpen(covered(root).hits, 25)) show(null)
+  // Safari back in front with the old panel still open and the notice gone or never drawn: once more.
+  const back = () => {
+    if (document.visibilityState !== "visible" || Date.now() - closedAt < 60_000) return
+    if (panelLooksOpen(covered(root).hits, 25)) show(at)
+  }
+  document.addEventListener("visibilitychange", back)
+  window.addEventListener("pageshow", back)
 }
