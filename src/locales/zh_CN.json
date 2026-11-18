@@ -1037,5 +1037,12 @@
   "colAlready": "已在“{0}”中",
   "tipNew": "新功能",
   "matchContinueIn": "在“{0}”中继续：",
-  "matchBackTo": "回到“{0}”"
+  "matchBackTo": "回到“{0}”",
+  "writeCompose": "撰写",
+  "writeComposeGo": "开始撰写",
+  "writeComposing": "正在结合页面内容撰写…",
+  "writeComposeHint": "要写什么？用你自己的话说",
+  "writeComposeEdit": "修改要求",
+  "writeToneAsk": "用什么语气？",
+  "writeInserted": "已插入"
 }

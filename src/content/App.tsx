@@ -175,6 +175,7 @@ const PAGE_CHIPS = Object.fromEntries([
   ...PAGE_ACTIONS,
   { id: "check", label: "writeCheck", prompt: "writeCheck" },
   { id: "rewrite", label: "writeRewrite", prompt: "writeRewrite" },
+  { id: "compose", label: "writeCompose", prompt: "writeCompose" },
   { id: "templates", label: "qiTemplates", prompt: "qiTemplates" },
   { id: "translate_page", label: "chipTranslatePage", prompt: "chipTranslatePage" },
   { id: "watch", label: "chipWatchPrice", prompt: "chipWatchPrice" }
@@ -1575,7 +1576,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // 2.7 (after 107): the chips that act on the page. Check and Rewrite open their card by the field (the sheet slides
     // away first on a phone, and the side panel on an iPad, where the card is a sheet too); Templates opens the list to
     // insert from; Translate page starts the pill's translation; Watch the price opens watching's window.
-    if (picked.id === "check" || picked.id === "rewrite") {
+    if (picked.id === "check" || picked.id === "rewrite" || picked.id === "compose") {
       const away = touch || layoutRef.current === "sheet"
       if (away) hide()
       setTimeout(() => bus.dispatchEvent(new CustomEvent(QI_EVENTS.write, { detail: picked.id })), away ? 240 : 0)

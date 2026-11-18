@@ -1037,5 +1037,12 @@
   "colAlready": "موجودة في «{0}»",
   "tipNew": "جديد",
   "matchContinueIn": "أتابع في «{0}»",
-  "matchBackTo": "العودة إلى «{0}»"
+  "matchBackTo": "العودة إلى «{0}»",
+  "writeCompose": "إنشاء",
+  "writeComposeGo": "اكتب",
+  "writeComposing": "جارٍ الكتابة مع مراعاة الصفحة…",
+  "writeComposeHint": "ماذا تريد أن تقول؟ بكلماتك",
+  "writeComposeEdit": "تعديل الطلب",
+  "writeToneAsk": "بأي نبرة؟",
+  "writeInserted": "تم الإدراج"
 }
