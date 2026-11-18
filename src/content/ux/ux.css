@@ -378,3 +378,12 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-shot-handle.ne { right: -6px; top: -6px; border-left: 0; border-bottom: 0; cursor: nesw-resize; }
 .cf-shot-handle.sw { left: -6px; bottom: -6px; border-right: 0; border-top: 0; cursor: nesw-resize; }
 .cf-shot-handle.se { right: -6px; bottom: -6px; border-left: 0; border-top: 0; cursor: nwse-resize; }
+/* 2.7 (109): «Move to another chat»: the chats, the latest first, a search over them, a new chat on top. */
+.cf-move-sheet { display: flex; flex-direction: column; }
+.cf-move-search { position: static; margin: 0 4px 6px; padding: 2px 6px; }
+.cf-move-search input { font-size: 16px; }
+.cf-move-list { min-height: 0; overflow: auto; }
+.cf-move-row, .cf-move-new { gap: 10px; }
+.cf-move-name { display: inline-flex; align-items: center; gap: 7px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-move-new .cf-move-name { color: var(--accent-text); font-weight: 600; }
+.cf-move-meta { flex: none; display: inline-flex; align-items: center; gap: 8px; }

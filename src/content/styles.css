@@ -875,6 +875,9 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-tag-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0 2px 8px; }
 .cf-tag-group { display: inline-flex; align-items: center; gap: 4px; margin-inline-start: auto; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--text-2); background: var(--bg-2); }
 .cf-tag-group.on { color: #fff; background: var(--accent); }
+/* 2.7 (109): Collections next to the folders; with no tags in use, the bar's only button, at its end. */
+.cf-tag-group + .cf-tag-cols { margin-inline-start: 0; }
+.cf-tag-cols svg { width: 13px; height: 13px; }
 .cf-tag-group-section { margin-bottom: 8px; }
 .cf-tag-group-head { display: flex; align-items: center; gap: 6px; padding: 6px 10px 4px; font-size: 12px; font-weight: 700; color: var(--text-2); }
 .cf-tag-group-head span { margin-inline-start: auto; font-weight: 600; color: var(--text-3); }

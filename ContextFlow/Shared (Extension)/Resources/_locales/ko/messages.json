@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "리마인더 변경"
  },
+ "uxMove": {
+  "message": "다른 채팅으로 옮기기"
+ },
+ "uxMoveTitle": {
+  "message": "답변을 어느 채팅으로 옮길까요?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "메모를 어느 채팅으로 옮길까요?"
+ },
  "uxRemindOpen": {
   "message": "열기"
  },

@@ -113,11 +113,12 @@ test("the header is about a fifth lower, its buttons the same size", () => {
   assert.deepEqual([cut(71, 56), cut(61, 49), cut(55, 45)], [21, 20, 18])
 })
 
-test("3. under a message: one row; compact shows Copy, Share, Listen and «…», the rest is in «…»", () => {
+test("3. under a message: one row; what has no room in it is in «…» (109: never both)", () => {
   const footer = app.slice(app.indexOf("const messageFooter = "), app.indexOf("{markSaid === idx && mark"))
   assert.match(footer, /<ToolsRow cls=\{`cf-msg-tools \$\{hasField \? "has-insert" : ""\}`\}/)
-  // The order in the row: Insert (when the page has a field), Copy, Share, Listen, then what only the roomy chat shows.
-  const order = ["class=\"cf-insert\"", "<Icon.Copy />", "<Icon.Share />", "cf-listen-btn", "{!compact && (", "<Icon.Tag />", "{!historyMode && (!compact || collected) && (", "<CollectLink", "ux.moreButton(m, idx"]
+  // The order in the row: Insert (when the page has a field), Copy, Share, Listen, then Tag and To collection, which
+  // leave for «…» when the row has no room for them (109, ToolsRow data-drop), on every chat.
+  const order = ["class=\"cf-insert\"", "<Icon.Copy />", "<Icon.Share />", "cf-listen-btn", 'data-drop="tag"', "<Icon.Tag />", "{!historyMode && (", "<CollectLink", "ux.moreButton(m, idx"]
   let at = -1
   for (const part of order) {
     const next = footer.indexOf(part, at + 1)
@@ -126,11 +127,11 @@ test("3. under a message: one row; compact shows Copy, Share, Listen and «…»
   }
   // Decision 7: Insert into the field stays in the row whenever the page has a field.
   assert.match(footer, /\{hasField && \(\s*<button type="button" class="cf-insert"/)
-  // Tag and To collection go to «…» (first there) on the compact chat, and with a finger on the roomy one too.
-  assert.match(footer, /ux\.moreButton\(m, idx, compact \|\| touch \? \{\s*onTag: \(\) => setTagging\(tagging === idx \? null : idx\),\s*onCollect: historyMode \? undefined : \(\) => setCollecting\(idx\),/)
+  // Tag and To collection are in «…» (first there) only when the row had no room for them.
+  assert.match(footer, /ux\.moreButton\(m, idx, \{\s*onTag: dropped\.has\("tag"\) \? \(\) => setTagging\(tagging === idx \? null : idx\) : undefined,\s*onCollect: dropped\.has\("collect"\) && !historyMode \? \(\) => setCollecting\(idx\) : undefined,/)
   const menu = read("../src/content/ux/MessageUx.tsx")
   const items = menu.slice(menu.indexOf('<div ref={ref} class={`cf-msg-menu'), menu.indexOf("</div>", menu.indexOf('<div ref={ref} class={`cf-msg-menu')))
-  const menuOrder = ["onTag &&", "onCollect &&", "onClick={onPin}", "onClick={onRemind}", "onAdd &&", "onClick={onDelete}"]
+  const menuOrder = ["onTag &&", "onCollect &&", "onClick={onPin}", "onClick={onRemind}", "onMove &&", "onAdd &&", "onClick={onDelete}"]
   at = -1
   for (const part of menuOrder) {
     const next = items.indexOf(part, at + 1)
@@ -149,12 +150,12 @@ test("3. under a message: one row; compact shows Copy, Share, Listen and «…»
   // To collection is CollectLink's (#199) in the row: both its states give their words first.
   const link = read("../src/content/Collections.tsx")
   assert.match(link, /<Icon\.ToCollection \/> <span class="cf-tl" data-give="1">\{t\("colAdd"\)\}<\/span>/)
-  assert.match(link, /<span class=\{`cf-collect-name\$\{row \? " cf-tl" : ""\}`\} data-give=\{row \? "1" : undefined\}/)
+  assert.match(link, /<span class="cf-collect-name cf-tl" data-give="1">\{t\("colAdd"\)\}<\/span>/)
   assert.deepEqual(["<Icon.Tag />", "<Icon.Share />", "<SpeakerIcon />", "<Icon.Copy />", "<QIcon.Insert size=\\{15\\} />"].map(give), [2, 3, 4, 5, 6])
   assert.doesNotMatch(read("../src/content/insert/insert.css"), /\.cf-msg-tools\.has-insert \{[^}]*flex-wrap: wrap/)
   const row = read("../src/content/quiet/ToolsRow.tsx")
-  assert.match(row, /while \(step < last && needed\(el\) > el\.clientWidth \+ 1\) setStep\(el, labels, \+\+step\)/)
-  assert.match(row, /label\.toggleAttribute\("data-off", Number\(label\.dataset\.give\) < step\)/)
+  assert.match(row, /while \(n < steps\.length && needed\(el\) > el\.clientWidth \+ 1\) out = apply\(el, steps, \+\+n\)/)
+  assert.match(row, /label\.toggleAttribute\("data-off", off\.has\(Number\(label\.dataset\.give\)\)\)/)
   // Every button keeps its name without its words.
   for (const name of ["qiInsertIntoField", "copy", "share", "tagsButton"]) assert.match(footer, new RegExp(`aria-label=\\{t\\("${name}"\\)\\}`), name)
   // CollectLink in the row keeps its names when its words give way: «To collection», or «In “<collection>”».
@@ -222,7 +223,7 @@ test("6. «+» by the field: Note, the page snapshot, Whole chat, the answers le
     assert.ok(next > at, `${part} in the field's row`)
     at = next
   }
-  // The menu's four.
+  // The menu's four (on the compact chat; 109: the roomy one keeps Whole chat and the count under the field).
   const plus = read("../src/content/quiet/Plus.tsx")
   const menuOrder = ['{t("selNote")}', '{t("shotSwitch")}', '{t("wholeChat")}', 'class="cf-plus-usage"']
   at = -1
@@ -239,7 +240,8 @@ test("6. «+» by the field: Note, the page snapshot, Whole chat, the answers le
   assert.doesNotMatch(plus.slice(plus.indexOf("export function PlusMenu")), /qiTemplates|qiCopied|Copied|Template/)
   // The line under the field is the roomy chat's only; Get Pro goes with the count into «+».
   assert.match(composer, /\{!compact && \(\s*<div class="cf-usage">/)
-  assert.match(composer, /usage=\{usageLine\.full\}\s*after=\{getProLink\}/)
+  assert.match(composer, /usage=\{compact \? usageLine\.full : ""\}\s*after=\{compact \? getProLink : undefined\}/)
+  assert.match(composer, /whole=\{historyMode \|\| !compact \? null : \{/)
   assert.match(composer, /\{t\("wholeChat"\)\}\s*\{!memoryAllowed && <span class="cf-pro-badge">Pro<\/span>\}\s*<\/label>\}\s*\{getProLink\}/)
   for (const what of ["note", "shot", "whole", "tag", "collect"]) assert.ok((FEATURES.quiet.fields?.what as readonly string[]).includes(what), what)
 })

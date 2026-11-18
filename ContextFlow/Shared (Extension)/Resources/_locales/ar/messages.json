@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "تغيير التذكير"
  },
+ "uxMove": {
+  "message": "نقل إلى محادثة أخرى"
+ },
+ "uxMoveTitle": {
+  "message": "إلى أي محادثة تُنقل الإجابة؟"
+ },
+ "uxMoveNoteTitle": {
+  "message": "إلى أي محادثة تُنقل الملاحظة؟"
+ },
  "uxRemindOpen": {
   "message": "فتح"
  },
