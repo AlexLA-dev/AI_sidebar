@@ -356,8 +356,8 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   useEffect(() => {
     if (tapped.current && prev.current === "working" && state.at === "on") {
       step("done")
-      cameOut.current = true
       void showHere().then((was) => was && unhide())
+      cameOut.current = true
     }
     if (state.at === "limit") step("limit")
     if (state.at === "error" && state.code !== "CONSENT") step("error")

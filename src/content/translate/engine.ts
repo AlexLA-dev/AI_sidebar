@@ -143,6 +143,7 @@ export class PageTranslator {
   // An attribute's block per element and attribute (a placeholder, a tooltip): read again, it isn't another block.
   private attrItems = new WeakMap<Element, Map<string, Item>>()
   private shadows = new WeakSet<ShadowRoot>()
+  private shadowRoots: ShadowRoot[] = []
   private churn = new WeakMap<Element, { n: number; at: number }>()
   private saveTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -634,6 +635,9 @@ export class PageTranslator {
     if (this.shadows.has(shadow) || !this.mo) return
     this.shadows.add(shadow)
     this.mo.observe(shadow, OBSERVE)
+    shadow.addEventListener("pointerover", this.tips, { capture: true, passive: true })
+    shadow.addEventListener("focusin", this.tips, { capture: true, passive: true })
+    this.shadowRoots.push(shadow)
   }
 
   /** The pointer or the focus on `ev`'s element: its tooltips (and those around it) are asked for now. */
@@ -641,8 +645,8 @@ export class PageTranslator {
     if (!this.active || this.capped || this.now.at === "limit") return
     // A finger shows no tooltip: only a mouse or a trackpad's pointer, and the keyboard's focus where there is one.
     if (ev.type === "pointerover" ? (ev as PointerEvent).pointerType === "touch" : this.deps.doc.defaultView?.matchMedia?.("(hover: hover)").matches === false) return
-    const path = typeof ev.composedPath === "function" ? ev.composedPath() : []
-    const el = (path[0] ?? ev.target) as Element | null
+    // On the page it's the element itself; inside a web component, its own root hears it (watchShadow).
+    const el = ev.target as Element | null
     if (!el || el.nodeType !== 1 || el.tagName === "CONTEXTFLOW-ROOT") return
     const blocks = tipBlocks(el).filter((b) => !this.attrItems.get(b.parent)?.has(b.attr!))
     if (!blocks.length) return
@@ -655,8 +659,10 @@ export class PageTranslator {
     this.io = null
     this.mo?.disconnect()
     this.mo = null
-    this.deps.doc.removeEventListener("pointerover", this.tips, { capture: true })
-    this.deps.doc.removeEventListener("focusin", this.tips, { capture: true })
+    for (const target of [this.deps.doc, ...this.shadowRoots.splice(0)]) {
+      target.removeEventListener("pointerover", this.tips, { capture: true })
+      target.removeEventListener("focusin", this.tips, { capture: true })
+    }
     for (const t of [this.flushTimer, this.scanTimer, this.retryTimer, this.saveTimer]) if (t) clearTimeout(t)
     this.flushTimer = this.scanTimer = this.retryTimer = null
     if (this.saveTimer) {

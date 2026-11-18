@@ -2423,6 +2423,24 @@
  "trControlsCap": {
   "message": "Las traducciones gratuitas de botones y menús de hoy se han agotado"
  },
+ "trSiteAsk": {
+  "message": "¿Traducir todas las páginas de este sitio?"
+ },
+ "trSiteYes": {
+  "message": "Sí"
+ },
+ "trSiteNo": {
+  "message": "No"
+ },
+ "trSiteOn": {
+  "message": "Se traducen todas las páginas de este sitio"
+ },
+ "trSiteOff": {
+  "message": "Desactivar"
+ },
+ "trSite": {
+  "message": "Todo el sitio"
+ },
  "spacesTitle": {
   "message": "Espacios"
  },

@@ -9,7 +9,7 @@ import assert from "node:assert/strict"
 import { mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { before, test } from "node:test"
+import { afterEach, before, test } from "node:test"
 import { pathToFileURL } from "node:url"
 
 import { build } from "esbuild"
@@ -116,8 +116,15 @@ function engine(document: Document, opts: { io?: boolean; hold?: boolean; siteWo
     }
   })
   translator.subscribe((s: any) => states.push(s))
+  running.push(translator)
   return { translator, asks, states, site, release: () => held.splice(0).forEach((f) => f()) }
 }
+
+// Every translator a test started is stopped after it (its timers would keep the test run from ending).
+const running: any[] = []
+afterEach(() => {
+  for (const t of running.splice(0)) t.original()
+})
 
 const added = (target: Element, node: Node) => FakeObserver.last!.cb([{ type: "childList", target, addedNodes: [node], removedNodes: [] }])
 

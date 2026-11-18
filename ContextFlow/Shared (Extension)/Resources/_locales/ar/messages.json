@@ -2423,6 +2423,24 @@
  "trControlsCap": {
   "message": "انتهت ترجمات الأزرار والقوائم المجانية لليوم"
  },
+ "trSiteAsk": {
+  "message": "هل تريد ترجمة كل صفحات هذا الموقع؟"
+ },
+ "trSiteYes": {
+  "message": "نعم"
+ },
+ "trSiteNo": {
+  "message": "لا"
+ },
+ "trSiteOn": {
+  "message": "تُترجم كل صفحات هذا الموقع"
+ },
+ "trSiteOff": {
+  "message": "إيقاف"
+ },
+ "trSite": {
+  "message": "الموقع كله"
+ },
  "spacesTitle": {
   "message": "المساحات"
  },

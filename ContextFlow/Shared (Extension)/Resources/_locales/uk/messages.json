@@ -2423,6 +2423,24 @@
  "trControlsCap": {
   "message": "Безкоштовні переклади кнопок і меню на сьогодні закінчилися"
  },
+ "trSiteAsk": {
+  "message": "Перекладати всі сторінки цього сайту?"
+ },
+ "trSiteYes": {
+  "message": "Так"
+ },
+ "trSiteNo": {
+  "message": "Ні"
+ },
+ "trSiteOn": {
+  "message": "Усі сторінки цього сайту перекладаються"
+ },
+ "trSiteOff": {
+  "message": "Вимкнути"
+ },
+ "trSite": {
+  "message": "Увесь сайт"
+ },
  "spacesTitle": {
   "message": "Простори"
  },
