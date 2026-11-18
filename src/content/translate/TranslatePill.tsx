@@ -683,7 +683,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   if (state.at === "on" && siteRow === "ask") {
     // Every page of this site? Yes puts the site on the list; no leaves the pill as it was (asked once per site).
     return (
-      <div class={`${cls} site`} style={style} role="group" aria-label={t("trSiteAsk")}>
+      <div class={`${cls} site`} style={style}>
         <span class="cf-tr-label">{t("trSiteAsk")}</span>
         <button type="button" class="cf-tr-btn" onClick={siteYes}>{t("trSiteYes")}</button>
         <button type="button" class="cf-tr-btn quiet" onClick={() => {
@@ -695,7 +695,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   }
   if (state.at === "on" && siteRow === "manage") {
     return (
-      <div class={`${cls} site`} style={style} role="group" aria-label={t("trSiteOn")}>
+      <div class={`${cls} site`} style={style}>
         <span class="cf-tr-label">{t("trSiteOn")}</span>
         <button type="button" class="cf-tr-btn quiet" onClick={siteOff}>{t("trSiteOff")}</button>
         <button type="button" class="cf-tr-x" aria-label={t("close")} onClick={() => setSiteRow(null)}><Close /></button>
