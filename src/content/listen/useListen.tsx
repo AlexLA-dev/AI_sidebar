@@ -14,6 +14,7 @@ import type { SpeakIn, SpeakOut } from "../../background/speak"
 import { SPEEDS, speedLabel, type Speed } from "../../shared/stretch"
 import { addRange, FULL, type Ranges, slotMask, spread } from "../../shared/coverage"
 import { voicedId } from "../../shared/voiced"
+import { listenLink, listenMark, notifyAnswer } from "../../shared/listenLink"
 import { isTouch } from "../page"
 import { listenBackNow, listenNotifyLater, listenNotifyLaterNow, listenSpeed, notifyKnown, setListenBack, setListenSpeed, setNotifyKnown } from "../store"
 import { clock, PcmPlayer } from "./player"
@@ -109,14 +110,20 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
   // tab switch: each ask is a native message, which wakes the app's extension on iPhone and iPad. Listen itself decides
   // from the last answer (kept in the extension's storage, read without a native message): what it does has to happen
   // inside the tap (the link to the app, the sound), and an ask first would come after it (build 90's bug).
-  const askNotify = useCallback(async () => {
+  // 2.7 (the owner on 107: asked about notifications that were on): only an answer changes what's known. The app's side
+  // answers through a native message, and one that waits behind a long one (the chats' sync) comes back empty: read as
+  // "off", it was kept, and the next Listen asked. Returns what it said: on, off, or null (no answer).
+  const askNotify = useCallback(async (): Promise<boolean | null> => {
     const [r, later] = await Promise.all([send<{ status?: string; later?: number }>({ type: "notifStatus" }), listenNotifyLaterNow()])
-    notifyOn.current = ["authorized", "provisional", "ephemeral"].includes(r?.status ?? "")
+    const on = notifyAnswer(r?.status)
     // "Not now" said in the app (build 95): not asked here again that day either.
     const appLater = typeof r?.later === "number" && r.later > Date.now()
     if (appLater && !later) void listenNotifyLater()
     notifyLater.current = later || appLater
-    void setNotifyKnown(notifyOn.current)
+    if (on === null) return null
+    notifyOn.current = on
+    void setNotifyKnown(on)
+    return on
   }, [send])
   useEffect(() => {
     if (!isTouch(platform)) return
@@ -188,7 +195,9 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     setState({ at: "handoff", key })
     // Kept for coming back (build 93): the panel as it was, and after "Turn on notifications", the text to play here.
     noteBack(id, key, item, to === "notifications")
-    follow(to === "listen" ? `contextflow://listen?id=${encodeURIComponent(id)}` : `contextflow://notifications?listen=${encodeURIComponent(id)}`)
+    // 2.7: the link carries the text itself (when it fits one), so the app has it even when the native message below
+    // is still waiting its turn as Safari goes to sleep behind the app (src/shared/listenLink.ts).
+    follow(listenLink(to, id, item))
     void send({ type: "useEvent", f: "listen", a: to === "listen" ? "app" : "notify_on", what: item.what })
     // The app writes it for the ear itself (as the background does here); the parts are its way when it can't.
     const script = item.what === "page" || needsScript(item.text)
@@ -215,11 +224,24 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     // iPhone and iPad without notifications: the app plays it (WebKit stops a page's sound when the page goes away;
     // the app keeps playing, screen locked and in headphones too), after asking once a day to turn them on.
     // Decided now, in the tap, from the last answer; the answer is refreshed for next time.
-    if (isTouch(platform)) void askNotify()
+    const fresh = isTouch(platform) && !back ? askNotify() : null
     if (isTouch(platform) && !notifyOn.current) {
       if (notifyLater.current) return handOff(key, item, parts, "listen")
       step("notify")
       setState({ at: "notify", key, item })
+      // 2.7: what's known may be old (the owner on 107: they were on, and Listen asked). The sound is unlocked in this
+      // tap; if the answer that is on its way says they're on, the question goes and the text plays here: one tap.
+      unlocked.current?.stop()
+      const player = new PcmPlayer(speedRef.current)
+      unlocked.current = player
+      void player.unlock()
+      void fresh?.then((on) => {
+        const s = stateRef.current
+        if (on !== true || s.at !== "notify" || s.key !== key || unlocked.current !== player) return
+        unlocked.current = null
+        step("notify_was_on")
+        void startRef.current(key, item, anyway, { player })
+      })
       return
     }
     // Fewer minutes left than this takes: said first (none left: the server says so).
@@ -513,15 +535,44 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
   // from this page is on record.
   const startRef = useRef(start)
   startRef.current = start
+  const checking = useRef(false)
+  const recheck = useRef(false)
   const checkReturn = useCallback(async () => {
+    // One at a time (the page loading and showing come together: the second would start the text over, silent); one
+    // asked for meanwhile (the address's mark arriving) runs after it.
+    if (checking.current) {
+      recheck.current = true
+      return
+    }
+    checking.current = true
+    try {
+      do {
+        recheck.current = false
+        await returnedRef.current()
+      } while (recheck.current)
+    } finally {
+      checking.current = false
+    }
+  }, [])
+  const returned = async () => {
+    // 2.7: the app's word comes in the page's address (#cf-listen=<id>: notifications are on now, play it here), taken
+    // out at once. Before, it came only through a native message, and one that waited behind a long one came back
+    // empty: nothing played, and the next Listen asked about notifications again.
+    const mark = takeListenMark()
     const back = await listenBackNow()
     if (!back) return
     if (Date.now() - back.at > 12 * 3_600_000) return void setListenBack(null)
     if (samePage(back.url, location.href) === false) return
+    const marked = mark !== null && mark === back.id
+    if (marked) {
+      notifyOn.current = true
+      void setNotifyKnown(true)
+    }
     // Back from the app's question about notifications: what was answered there decides the next Listen (build 95:
     // after "Not now" there, the panel asked again the same day).
     if (back.item) void askNotify()
-    const r = await send<{ back?: boolean; play?: boolean; taken?: boolean }>({ type: "listenReturn", id: back.id })
+    const asked = send<{ back?: boolean; play?: boolean; taken?: boolean }>({ type: "listenReturn", id: back.id })
+    const r = marked ? { back: true, play: Boolean(back.item), taken: false } : await asked
     // Back without the app's word (◀ Safari): what was on record goes, except while the app may still be asking about
     // notifications (ten minutes): its word to play it here can come after.
     if (!r?.back) {
@@ -535,8 +586,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     unlocked.current = null
     if (back.panel && !panel.current.panelOpen?.()) panel.current.reopen?.()
     if (r.play && back.item && back.key) {
-      // Notifications are on now: it plays here.
-      await askNotify()
+      // Notifications are on now: it plays here (with the app's mark that's known already; no native message to wait for).
+      if (!marked) await askNotify()
       void send({ type: "useEvent", f: "listen", a: "back_play", what: back.item.what })
       void startRef.current(back.key, back.item, false, { player })
       return
@@ -546,15 +597,23 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
       if (back.title) setTitle(back.title)
       setState((s) => (s.at === "idle" || s.at === "handoff" ? { at: "taken", key: back.key ?? "" } : s))
     }
-  }, [send, askNotify])
+  }
+  const returnedRef = useRef(returned)
+  returnedRef.current = returned
   const checkRef = useRef(checkReturn)
   checkRef.current = checkReturn
   useEffect(() => {
     if (!isTouch(platform)) return
     void checkRef.current()
     const onVisible = () => { if (document.visibilityState === "visible") void checkRef.current() }
+    // Safari may show the page in the tab that already had it: then only the address's fragment changes (the mark).
+    const onHash = () => void checkRef.current()
     document.addEventListener("visibilitychange", onVisible)
-    return () => document.removeEventListener("visibilitychange", onVisible)
+    window.addEventListener("hashchange", onHash)
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible)
+      window.removeEventListener("hashchange", onHash)
+    }
   }, [platform])
 
   /** "Not now": the app plays it, and Listen doesn't ask again until tomorrow. */
@@ -563,6 +622,9 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     if (s.at !== "notify") return
     notifyLater.current = true
     void listenNotifyLater()
+    // The app plays it: the sound unlocked for playing here isn't needed.
+    unlocked.current?.stop()
+    unlocked.current = null
     void send({ type: "useEvent", f: "listen", a: "notify_later", what: s.item.what })
     handOff(s.key, s.item, speechParts(plainText(s.item)), "listen")
   }, [handOff, send])
@@ -595,6 +657,21 @@ function wholeHeard(current: { player: PcmPlayer; ended: boolean; heard?: Record
 
 function plainText(item: ListenWhat): string {
   return item.what === "answer" ? speechText(item.text) : item.text.replace(/\s+\n/g, "\n").trim()
+}
+
+/** The app's mark in this page's address (#cf-listen=<id>, src/shared/listenLink.ts), taken out of the address at once
+ *  (the page's own fragment, if any, stays); null when there is none. */
+function takeListenMark(): string | null {
+  const mark = listenMark(location.hash)
+  if (!mark) return null
+  const clean = `${location.pathname}${location.search}${mark.rest}`
+  try {
+    history.replaceState(history.state, "", clean)
+  } catch {
+    // The page's own state can't come across (an extension's script runs apart from the page): the address alone.
+    try { history.replaceState(null, "", clean) } catch { /* a page that won't let its address change: harmless */ }
+  }
+  return mark.id
 }
 
 /** The same page, its #fragment aside (the app opens the address the panel gave it). */

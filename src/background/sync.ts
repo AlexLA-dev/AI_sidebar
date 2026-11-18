@@ -3,6 +3,7 @@
 // which the app may ask for an App Store rating; and the chats (threads), kept in the user's
 // iCloud so they continue on their other devices.
 
+import { firstRunAgain } from "../shared/firstRun"
 import { sortedJson } from "../shared/stored"
 import { spacesChange, SPACES_RECORD, takeSpaces, type StoredSpaces } from "../shared/spaces"
 import { collectionChanges, isCollectionId, takeCollection, type StoredCollections } from "../shared/collections"
@@ -13,6 +14,8 @@ import { callNative } from "./native"
 interface SharedSettings {
   settings: Partial<Settings> | null
   updatedAt: number
+  // Test builds of the app only (src/shared/firstRun.ts): when «Start as a new user» was last started there (ms).
+  firstRunReset?: number
 }
 
 // Settings just written from the app's copy, as sortedJson (Safari hands them back with their keys in its own order):
@@ -31,6 +34,8 @@ async function localSettings(): Promise<{ settings: Settings | null; updatedAt: 
 export async function syncSettings(): Promise<void> {
   const remote = await callNative<SharedSettings>("getSettings")
   if (!remote) return // not in Safari, or an app without the bridge
+  // «Start as a new user» in a test build of the app (2.7): the panel's first run starts over, once for each start.
+  await firstRunAgain(remote.firstRunReset, chrome.storage.local).catch(() => false)
   const local = await localSettings()
   if (remote.settings && remote.updatedAt > local.updatedAt) {
     const settings = { ...DEFAULT_SETTINGS, ...local.settings, ...remote.settings }

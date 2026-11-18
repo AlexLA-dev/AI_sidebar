@@ -15,12 +15,15 @@ import { textLanguage } from "../src/shared/share.ts"
 import { addRange, coveredSeconds, listenPace, listenTotal, type Ranges, slotMask, spread } from "../src/shared/coverage.ts"
 import { needsScript, PartSplitter, scriptChunks, speechParts, speechText } from "../src/shared/speech.ts"
 import { voicedId } from "../src/shared/voiced.ts"
+import { listenLink, listenMark, type ListenLinkItem } from "../src/shared/listenLink.ts"
 
 const root = new URL("..", import.meta.url).pathname
 const swiftc = spawnSync("which", ["swiftc"]).status === 0
 const skip = process.platform !== "darwin" ? "the app's Foundation is Apple's: run on a Mac" : !swiftc && "no swiftc here"
 
 type Case = {
+  // 2.7, "link": Listen's link (`s`) made from `item` under `id`.
+  item?: ListenLinkItem; id?: string
   op: string; s: string; first?: number | boolean; size?: number; step?: number; what?: string; list?: string[]; kept?: Record<string, string>
   // Build 98, "listen": a listen's stretches over parts that start at `starts` (audio in hand to `end`), what was heard
   // before, the parts' lengths; and the text's length from its parts' words and audio.
@@ -49,7 +52,7 @@ async function swift(cases: Case[]): Promise<unknown[]> {
   // Texts as UTF-16 units: Foundation's JSONSerialization drops a leading U+FEFF from a string, so the app would get
   // another text than the panel.
   const units = (text: string) => Array.from({ length: text.length }, (_, i) => text.charCodeAt(i))
-  const sent = cases.map(({ s, list, parts, unwritten, written, ...rest }) => ({
+  const sent = cases.map(({ s, list, parts, unwritten, written, item: _item, id: _id, ...rest }) => ({
     ...rest, u: units(s), ...(list ? { lu: list.map(units) } : {}),
     ...(parts ? { parts: parts.map(units) } : {}), ...(unwritten !== undefined ? { unwritten: units(unwritten) } : {}), ...(written !== undefined ? { written: units(written) } : {})
   }))
@@ -143,6 +146,22 @@ function js(c: Case): unknown {
       return out
     }
     case "keys": return textKeys(c.s, c.kept ?? {})
+    case "link": {
+      // What the panel sends the app through the native message for the same text (useListen handOff, the background's
+      // listenInApp): the app must make the same from the link alone.
+      const item = c.item!
+      const plain = item.what === "answer" ? speechText(item.text) : item.text.replace(/\s+\n/g, "\n").trim()
+      const request = {
+        parts: speechParts(plain).slice(0, 80).map((p) => p.slice(0, 4000)), text: item.text.slice(0, 24_000),
+        script: item.what === "page" || needsScript(item.text), lang: item.lang.slice(0, 16), what: item.what,
+        title: item.title.slice(0, 200), url: /^https?:\/\//.test(item.url) ? item.url.slice(0, 2000) : ""
+      }
+      // The way back: the page with the mark, when the page has no fragment of its own.
+      const back = request.url ? (request.url.includes("#") ? request.url : `${request.url}#cf-listen=${c.id}`) : undefined
+      // Nothing to say (Listen doesn't start on such a text): no request.
+      if (!request.parts.length) return { id: c.id }
+      return { id: c.id, request, ...(back !== undefined ? { back } : {}) }
+    }
     case "listen": {
       const ranges: Record<number, Ranges> = {}
       for (const [part, list] of Object.entries(c.before ?? {})) ranges[Number(part)] = list.map(([a, b]) => [a, b])
@@ -355,4 +374,40 @@ test("a listen's stretches, the parts' tenths and the text's length: the same in
   // Not trivially equal: some parts whole, some not; some totals from audio, some from words.
   const results = cases.map(js) as Array<{ parts: Array<{ c: number }> }>
   assert.ok(results.some((r) => r.parts.some((p) => p.c === 1023)) && results.some((r) => r.parts.some((p) => p.c !== 1023 && p.c !== 0)))
+})
+
+test("Listen's link carries the text: the app makes the same request from it as the panel sends, and marks the page it sends back to (2.7)", { skip }, async () => {
+  const id = "3f2b8c1e-0d4a-4b7e-9c55-12ab34cd56ef"
+  const page = "Первый абзац страницы.   \n\n  Второй абзац, подлиннее: с числами 1,5 и 20 %.\n\t\nТретий."
+  const items: ListenLinkItem[] = [
+    ...TEXTS.slice(0, 60).map((text, i) => ({ text, what: "answer" as const, lang: textLanguage(text) ?? "en", title: `Answer ${i} & «кавычки» #1`, url: `https://example.com/a/${i}?q=1&r=%D1%8F` })),
+    { text: page, what: "page", lang: "ru", title: "Страница", url: "https://example.com/page" },
+    { text: `${page}\n`.repeat(40), what: "page", lang: "ru", title: "Длинная страница", url: "http://example.com/long" },
+    // A page with a fragment of its own keeps it: no mark.
+    { text: ANSWERS[0], what: "answer", lang: "en", title: "", url: "https://example.com/doc#part-2" },
+    // Not a page's address: none kept, none to go back to.
+    { text: ANSWERS[1], what: "answer", lang: "en", title: "A chat about the chats", url: "chat:history" },
+    { text: "日本語のテキストです。二つ目の文。👍🏽", what: "answer", lang: "ja", title: "日本語", url: "https://example.jp/%E8%A8%98%E4%BA%8B" }
+  ]
+  const cases: Case[] = items.flatMap((item) => [
+    { op: "link", s: listenLink("listen", id, item), item, id },
+    { op: "link", s: listenLink("notifications", id, item), item, id }
+  ])
+  const app = await swift(cases) as Array<{ id?: string; request?: unknown; back?: string }>
+  const differ: string[] = []
+  cases.forEach((c, i) => {
+    const mine = js(c)
+    try {
+      assert.deepEqual(app[i], mine)
+    } catch {
+      if (differ.length < 6) differ.push(`${c.s.slice(0, 90)}…\n  panel: ${JSON.stringify(mine).slice(0, 500)}\n  app:   ${JSON.stringify(app[i]).slice(0, 500)}`)
+    }
+  })
+  assert.equal(differ.length, 0, `the app reads the link differently:\n${differ.join("\n")}`)
+  // The mark the app adds is the one the panel takes out.
+  const back = app.find((r) => r.back?.includes("#cf-listen="))!.back!
+  assert.deepEqual(listenMark(back.slice(back.indexOf("#"))), { id, rest: "" })
+  // A link without the text (too long for a link): no request, the id still read.
+  const [bare] = await swift([{ op: "link", s: listenLink("listen", id, items[0], 300) }]) as Array<{ id?: string; request?: unknown }>
+  assert.deepEqual(bare, { id })
 })

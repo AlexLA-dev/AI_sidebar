@@ -202,6 +202,27 @@ final class SharedDefaults {
         defaults.dictionary(forKey: appKey)?["updated"] as? Bool ?? false
     }
 
+    // MARK: Starting as a new user (2.7, TestFlight and debug builds only)
+
+    /// «Start as a new user» in the app's Settings (Setup.swift NewUserPreview; the App Store's app never shows it):
+    /// when it began (seconds since 1970) and when the extension was first seen and used since. While it's on the app
+    /// shows its first run from these, as a new install would; the real record (readExtensionStatus) isn't touched.
+    private let newUserKey = "cf_new_user_preview"
+
+    func newUserPreview() -> (since: Double, seen: Double?, used: Double?)? {
+        guard let stored = defaults.dictionary(forKey: newUserKey), let since = stored["since"] as? Double else { return nil }
+        return (since, stored["seen"] as? Double, stored["used"] as? Double)
+    }
+
+    /// The app starts it (`since`: now) or ends it (nil).
+    func setNewUserPreview(_ since: Double?) {
+        if let since {
+            defaults.set(["since": since], forKey: newUserKey)
+        } else {
+            defaults.removeObject(forKey: newUserKey)
+        }
+    }
+
     // MARK: Plan changes (build 90)
 
     /// A plan started (bought, upgraded, or changed at renewal): from, to ("free", "byok", "pro", "ultra"), the product
@@ -432,6 +453,13 @@ final class SharedDefaults {
         if used, stored["firstUsed"] == nil { stored["firstUsed"] = now }
         if let installId, UUID(uuidString: installId) != nil { stored["installId"] = installId.lowercased() }
         if !(stored as NSDictionary).isEqual(to: before) { defaults.set(stored, forKey: extensionKey) }
+        // «Start as a new user» (test builds): seen and used since it began, kept apart from the real record.
+        if let preview = defaults.dictionary(forKey: newUserKey) {
+            var next = preview
+            if next["seen"] == nil { next["seen"] = now }
+            if used, next["used"] == nil { next["used"] = now }
+            if !(next as NSDictionary).isEqual(to: preview) { defaults.set(next, forKey: newUserKey) }
+        }
         return first
     }
 

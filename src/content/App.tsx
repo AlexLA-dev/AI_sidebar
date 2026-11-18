@@ -68,6 +68,7 @@ import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
+import { besideMenu, setFixedProbe, toFixed } from "./fixedPlace"
 import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
@@ -2545,7 +2546,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const fab = fabRef.current
     if (!fab) return
     // Its own place: measured while it's there (the drag's end or the settings move it there again).
-    if (fabDodgeRef.current === null) fabHome.current = fab.getBoundingClientRect()
+    if (fabDodgeRef.current === null) fabHome.current = toFixed(fab.getBoundingClientRect())
     const home = fabHome.current
     if (!home) return
     const vv = window.visualViewport
@@ -3791,6 +3792,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // ------------------------------------------------------------ render
   return (
     <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}>
+      {/* Where fixed coordinates start, measured (fixedPlace.ts): the selection's buttons and ring are placed by it. */}
+      <i class="cf-origin" aria-hidden="true" ref={setFixedProbe} />
       <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
       {fabVisible && (
         <button
@@ -5074,12 +5077,14 @@ function pressShown(shown: (on: boolean) => void, held: () => boolean, action: (
  * menu opens down from the pointer, so then they go above the selection (`up`).
  * Always within what's visible: above the keyboard while their field is typed in.
  */
+// The edit menu: about 16 pt from the selection, 44 pt tall (more with larger text); plus air.
+const TOUCH_CLEAR = 88
+
 function bubbleTop(rect: DOMRect, touch: boolean, height: number, up = false): number {
   const vv = window.visualViewport
   const top0 = vv?.offsetTop ?? 0
   const bottom = top0 + (vv?.height ?? window.innerHeight)
-  // The edit menu: about 16 pt from the selection, 44 pt tall (more with larger text); plus air.
-  const clear = touch ? 88 : 8
+  const clear = touch ? TOUCH_CLEAR : 8
   const below = rect.bottom + clear
   const above = rect.top - clear - height
   const fitsBelow = below + height <= bottom - 12
@@ -5180,7 +5185,9 @@ function SelectionGlow({ range }: { range: Range }): VNode | null {
     let frame = 0
     const place = () => {
       frame = 0
-      const r = range.getBoundingClientRect()
+      // In the ring's own coordinates (2.7, fixedPlace.ts: on a zoomed page Safari counts the range's rect from the
+      // visible part, and the ring sat that far from its text).
+      const r = toFixed(range.getBoundingClientRect())
       setBox(r.width > 0 || r.height > 0 ? r : null)
     }
     const soon = () => {
@@ -5229,9 +5236,15 @@ function SelectionBubble({ rect, touch, guide, onPlace, children }: { rect: DOMR
       // A row that doesn't fit the screen (longer words, the eye) keeps Template's icon only; once, not back and forth.
       const row = el.querySelector(".cf-bubble-row")
       if (row && row.scrollWidth > row.clientWidth + 1) el.classList.add("tight")
-      el.style.left = `${Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
-      el.style.top = `${bubbleTop(rect, touch, el.offsetHeight, up)}px`
-      onPlace?.(el.getBoundingClientRect(), rect)
+      // 2.7: no room below or above for the buttons and the system menu (an iPad in landscape with the keyboard up):
+      // beside the menu, where the screen is wide enough for both.
+      const top0 = vv?.offsetTop ?? 0
+      const side = touch
+        ? besideMenu(rect, el.offsetWidth, el.offsetHeight, { left: min - 8, top: top0, right: min + (vv?.width ?? window.innerWidth) - 8, bottom: top0 + (vv?.height ?? window.innerHeight) }, TOUCH_CLEAR)
+        : null
+      el.style.left = `${side ? side.left : Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
+      el.style.top = `${side ? side.top : bubbleTop(rect, touch, el.offsetHeight, up)}px`
+      onPlace?.(toFixed(el.getBoundingClientRect()), rect)
     }
     el.classList.remove("tight")
     place()

@@ -45,6 +45,8 @@ final class InviteModel: ObservableObject {
     /// The first screen's card: a new install (first week, not an update) without a friend's code yet.
     var offersEntry: Bool {
         if enteredUntil != nil || Self.keptUntil() != nil { return false }
+        // «Start as a new user» (test builds, Setup.swift): the card as a new install has it.
+        if NewUserPreview.isOn { return true }
         guard let first = SharedDefaults.shared.appFirstLaunch() else { return true }
         return !SharedDefaults.shared.appUpdatedInstall() && Date().timeIntervalSince1970 - first < 7 * 86_400
     }
