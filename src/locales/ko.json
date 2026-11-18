@@ -825,6 +825,7 @@
   "trOffer": "한국어로 번역할까요?",
   "trOfferTo": "{0}로 번역할까요?",
   "trHide": "이 사이트에서 숨기기",
+  "trHiddenTold": "이 사이트에서 숨겼어요. 이 아이콘으로 다시 불러올 수 있어요.",
   "trWorking": "번역 중…",
   "trOriginal": "원문",
   "trFailed": "번역하지 못했어요",

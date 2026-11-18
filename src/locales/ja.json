@@ -825,6 +825,7 @@
   "trOffer": "日本語に翻訳しますか？",
   "trOfferTo": "{0}に翻訳しますか？",
   "trHide": "このサイトでは表示しない",
+  "trHiddenTold": "このサイトでは非表示にしました。このアイコンでいつでも戻せます。",
   "trWorking": "翻訳中…",
   "trOriginal": "原文",
   "trFailed": "翻訳できませんでした",

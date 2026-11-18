@@ -2396,6 +2396,9 @@
  "trHide": {
   "message": "Ẩn trên trang này"
  },
+ "trHiddenTold": {
+  "message": "Đã ẩn trên trang này. Biểu tượng này giúp bạn mở lại."
+ },
  "trWorking": {
   "message": "Đang dịch…"
  },

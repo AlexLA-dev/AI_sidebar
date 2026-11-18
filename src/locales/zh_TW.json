@@ -825,6 +825,7 @@
   "trOffer": "翻譯成中文？",
   "trOfferTo": "翻譯成{0}？",
   "trHide": "在此網站隱藏",
+  "trHiddenTold": "已在此網站隱藏。點這個圖示即可找回。",
   "trWorking": "正在翻譯…",
   "trOriginal": "原文",
   "trFailed": "無法翻譯",

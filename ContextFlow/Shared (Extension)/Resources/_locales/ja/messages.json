@@ -2396,6 +2396,9 @@
  "trHide": {
   "message": "このサイトでは表示しない"
  },
+ "trHiddenTold": {
+  "message": "このサイトでは非表示にしました。このアイコンでいつでも戻せます。"
+ },
  "trWorking": {
   "message": "翻訳中…"
  },
