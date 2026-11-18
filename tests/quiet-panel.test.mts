@@ -71,14 +71,14 @@ test("first-run cards never take the chat from an answer: a hint is one line on 
   // The owner's 107 frame: «New in ContextFlow 2.7» over half the panel; the director: one line, once, never over an
   // answer or the quick actions; one card at a time.
   const hint = read("../src/content/Hint.tsx")
-  assert.match(hint, /if \(line && !open\) \{\s*return \(\s*<div class="cf-hint line" role="note">/)
+  assert.match(hint, /if \(line && !open\) \{\s*return \(\s*<div class="cf-hint line" role="note"( ref=\{reveal \? revealHint : undefined\})?>/)
   assert.match(hint, /<button type="button" class="cf-hint-open" aria-expanded=\{false\} onClick=\{\(\) => setOpen\(true\)\}>\s*<strong>\{title\}<\/strong>\s*<span class="cf-link">\{t\("hintShow"\)\}<\/span>/)
   // Named with what it closes: the panel's own Close has the bare word.
   assert.match(hint, /<button type="button" class="cf-hint-x" aria-label=\{`\$\{t\("close"\)\}: \$\{title\}`\} title=\{t\("close"\)\} onClick=\{onDone\}>/)
   assert.match(css, /\.cf-hint-open strong \{[^}]*white-space: nowrap; overflow: hidden; text-overflow: ellipsis; \}/)
   // Every hint of the chat and of the chats list: a line on the compact chat, the card where there's room.
   assert.equal(app.match(/<Hint\b/g)?.length, 5)
-  assert.equal(app.match(/<Hint\s+line=\{compact/g)?.length, 4)
+  assert.equal(app.match(/<Hint\s+(reveal\s+)?line=\{compact/g)?.length, 4)
   // (The page hint's how-to stays a card: it's the answer to a tap on its line by the circle.)
   assert.match(app, /<Hint icon=\{<Icon\.Sparkle size=\{16\} \/>\} title=\{how\.title\} action=\{allTips\} onDone=\{pageHints\.doneChat\}>/)
   // «New in 2.7»: in one opening of the panel, then seen (with the side's hint, which it says too).

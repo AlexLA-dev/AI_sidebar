@@ -1,10 +1,11 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
 import { parseHTML } from "linkedom"
+import { readFileSync } from "node:fs"
 
 import { parseVtt } from "../src/content/captions.ts"
 import { composePage, pageForModel, readsMedia } from "../src/shared/attachments.ts"
-import { findPdfs, isPdfUrl, pdfName } from "../src/content/pdf.ts"
+import { findPdfs, isPdfUrl, pdfName, pdfShown } from "../src/content/pdf.ts"
 import { clock, formatTranscript, parseClock, parseJson3, readTranscript, youtubeVideoId, type PageEnv } from "../src/content/youtube.ts"
 import { MAX_MEDIA_PAGE_CHARS, MAX_PAGE_CHARS, pageLimit, systemPrompt } from "../src/shared/prompt.ts"
 
@@ -213,6 +214,20 @@ test("findPdfs: a few links in the content are read; a list of documents isn't",
   ])
   const many = parseHTML(`<main>${[1, 2, 3, 4, 5].map((i) => `<a href="/doc${i}.pdf">Doc ${i}</a>`).join("")}</main>`)
   assert.deepEqual(findPdfs(many.document as unknown as Document, "https://example.com/"), [])
+})
+
+test("pdfShown: a page that only links a PDF is a page; one that shows it is a PDF (108's Wikipedia article)", () => {
+  const linked = parseHTML(`<main><p>A four-day week trial.</p><a href="/report.pdf">The trial's report</a></main>`)
+  const links = findPdfs(linked.document as unknown as Document, "https://en.wikipedia.org/wiki/Four-day_workweek")
+  assert.equal(links.length, 1)
+  assert.equal(pdfShown(links), false)
+  const shown = parseHTML(`<main><embed type="application/pdf" src="/report.pdf"><a href="/other.pdf">Other</a></main>`)
+  assert.equal(pdfShown(findPdfs(shown.document as unknown as Document, "https://example.com/")), true)
+  assert.equal(pdfShown([]), false)
+  // The panel's wording follows it (context.ts): kind() and «Reading the PDF…» ask pdfShown / embedded, not "any PDF".
+  const context = readFileSync(new URL("../src/content/context.ts", import.meta.url), "utf8")
+  assert.match(context, /pdfShown\(pagePdfs\(\)\) \? "pdf" : "page"/)
+  assert.match(context, /p\.embedded && !pdfCached\(p\.url\)/)
 })
 
 test("isPdfUrl and pdfName", () => {

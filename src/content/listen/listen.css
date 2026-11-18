@@ -171,3 +171,8 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
 .cf-listen-said { margin: 2px 2px 0; font-size: 12px; line-height: 1.35; color: var(--text-2); }
 .cf[data-touch] .cf-listen-said { font-size: 13px; }
 .cf-msg-tools button.cf-listen-btn { -webkit-touch-callout: none; }
+
+/* 2.7: the notifications ask: its text across the bar (× beside it), the two actions on their own line under it. */
+.cf-listen.ask { align-items: flex-start; }
+.cf-listen.ask .cf-listen-text { flex: 1 1 0; padding-top: 4px; }
+.cf-listen-acts { flex: 1 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; padding: 0 0 2px; }

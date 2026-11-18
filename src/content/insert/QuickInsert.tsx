@@ -66,6 +66,9 @@ interface Props {
   live: boolean
   onUpgrade: () => void
   onOpenTemplates: () => void
+  // Another hint of ours shows by the circle (the page's hint line, «Reply with a template?»): the tip waits (2.7, the
+  // director's acceptance of 108: both showed at once on an iPad's first reply).
+  hintUp?: boolean
   onAdapt: (text: string, conversation: string | null) => void
 }
 
@@ -584,6 +587,27 @@ export function QuickInsert(props: Props): VNode | null {
     const f = lastFab
     setButtonShown(Boolean(f && b.left < f.right + 8 && b.right > f.left - 8 && b.top < f.bottom + 8 && b.bottom > f.top - 8))
   }, [buttonPos?.top, buttonPos?.left])
+  // 2.7 (the director's acceptance of 108: on an iPad it stayed over a minute, over the selection's buttons): shown, it
+  // goes by itself after a few seconds, or at the first touch anywhere; and it gives way to our selection's buttons.
+  const tipShown = Boolean(buttonPos && tip && field && !fixCount && !props.hintUp && !selectionShown)
+  const dropTipRef = useRef(dropTip)
+  dropTipRef.current = dropTip
+  // Seen at least once: only then does our selection's coming drop it for good (before, it just waits).
+  const tipWasShown = useRef(false)
+  useEffect(() => {
+    if (!tipShown) return
+    tipWasShown.current = true
+    const timer = setTimeout(() => dropTipRef.current(), TIP_MS)
+    const touched = () => dropTipRef.current()
+    document.addEventListener("pointerdown", touched, true)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener("pointerdown", touched, true)
+    }
+  }, [tipShown])
+  useEffect(() => {
+    if (tip && selectionShown && tipWasShown.current) dropTipRef.current()
+  }, [tip, selectionShown])
   useEffect(() => () => setButtonShown(false), [])
 
   // ------------------------------------------------------------ render
@@ -632,7 +656,7 @@ export function QuickInsert(props: Props): VNode | null {
           {fixCount > 0 && <span class="cf-qi-n" aria-hidden="true">{fixCount > 9 ? "9+" : fixCount}</span>}
         </button>
       )}
-      {buttonPos && tip && field && !fixCount && <Tip at={buttonPos} fieldTop={pageRect(field.el).top + vp.dy} onClose={dropTip} />}
+      {tipShown && buttonPos && field && <Tip at={buttonPos} fieldTop={pageRect(field.el).top + vp.dy} onClose={dropTip} />}
 
       {m?.kind === "fixes" && liveAt && issues.length > 0 && (
         <FixList
@@ -773,6 +797,11 @@ function keepInView(field: Field): void {
 
 // ------------------------------------------------------------ the first-touch tip
 
+/** How long the tip stays untouched (2.7). */
+export const TIP_MS = 6_000
+/** The visible part's bottom the tip keeps clear of: Safari's floating address capsule over the keyboard's bar. */
+const TIP_FOOT = 64
+
 function Tip({ at, fieldTop, onClose }: { at: { top: number; left: number }; fieldTop: number; onClose: () => void }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState({ top: at.top - 70, left: at.left - 200 })
@@ -780,10 +809,17 @@ function Tip({ at, fieldTop, onClose }: { at: { top: number; left: number }; fie
     const el = ref.current
     if (!el) return
     const vp = viewport(true)
-    // Above the field (not over what's typed in it); under the button when there's no room above.
-    const above = Math.min(fieldTop, at.top) - el.offsetHeight - 8
+    // Above the field (not over what's typed in it); else under the button; else just above the button. Wholly in the
+    // visible part, clear of its last TIP_FOOT (2.7, 108: on iPhone, under the button it lay beneath Safari's address
+    // capsule and the keyboard's bar, which float over the page's bottom).
+    const h = el.offsetHeight
+    const top = vp.dy + 8
+    const bottom = vp.dy + vp.height - TIP_FOOT
+    const fits = (y: number) => y >= top && y + h <= bottom
+    const choices = [Math.min(fieldTop, at.top) - h - 8, at.top + BUTTON + 8, at.top - h - 8]
+    const y = choices.find(fits) ?? Math.max(top, Math.min(choices[2], bottom - h))
     setPos({
-      top: above >= vp.dy + 8 ? above : at.top + BUTTON + 8,
+      top: y,
       left: Math.max(vp.dx + 8, Math.min(at.left + BUTTON - el.offsetWidth, vp.dx + vp.width - el.offsetWidth - 8))
     })
   }, [at.top, at.left, fieldTop])

@@ -2,6 +2,7 @@ import type { ComponentChildren, VNode } from "preact"
 import { useState } from "preact/hooks"
 
 import { t } from "../shared/i18n"
+import { revealHint } from "./hintReveal"
 
 /**
  * A "first time here" hint (the advanced level of the onboarding; the tour is the basic one): what
@@ -13,7 +14,7 @@ import { t } from "../shared/i18n"
  * panel). «Show» opens it as the card it was; × puts it away for good, as «Got it» does. The × is named with the
  * hint's title («Close: New in ContextFlow 2.7»): the panel's own Close is a few lines above it for VoiceOver.
  */
-export function Hint({ icon, title, children, list, action, line = false, onDone }: {
+export function Hint({ icon, title, children, list, action, line = false, onDone, reveal }: {
   icon: VNode
   title: string
   children?: ComponentChildren
@@ -21,11 +22,14 @@ export function Hint({ icon, title, children, list, action, line = false, onDone
   action?: { label: string; run: () => void }
   line?: boolean
   onDone: () => void
+  // At the chat's end: scrolled into sight once as it shows (2.7, the director's acceptance of 108: after the first-run
+  // tour was skipped, the hint under the chips came half hidden by the input's border).
+  reveal?: boolean
 }): VNode {
   const [open, setOpen] = useState(false)
   if (line && !open) {
     return (
-      <div class="cf-hint line" role="note">
+      <div class="cf-hint line" role="note" ref={reveal ? revealHint : undefined}>
         <span class="cf-hint-icon">{icon}</span>
         <button type="button" class="cf-hint-open" aria-expanded={false} onClick={() => setOpen(true)}>
           <strong>{title}</strong>
@@ -36,7 +40,7 @@ export function Hint({ icon, title, children, list, action, line = false, onDone
     )
   }
   return (
-    <div class="cf-hint" role="note">
+    <div class="cf-hint" role="note" ref={reveal ? revealHint : undefined}>
       <span class="cf-hint-icon">{icon}</span>
       <div class="cf-hint-text">
         <strong>{title}</strong>
