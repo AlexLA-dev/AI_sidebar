@@ -52,15 +52,27 @@ const MENU_WIDTH = 520
  * the menu's sake. null when a side has room (the usual rule holds), when the screen isn't wide enough (iPhone, iPad
  * in portrait), or when the selection itself reaches under that place.
  */
-export function besideMenu(rect: { left: number; right: number; top: number; bottom: number }, width: number, height: number, view: VisibleBox, clear: number): { left: number; top: number } | null {
-  if (rect.bottom + clear + height <= view.bottom - 12 || rect.top - clear - height >= view.top + 8) return null
+export function besideMenu(rect: { left: number; right: number; top: number; bottom: number }, width: number, height: number, view: VisibleBox, clear: number, k = 1): { left: number; top: number } | null {
+  // `k`: a point of the screen in the page's pixels (under 1 on a zoomed page); the menu and the gaps are the screen's.
+  const gap = 8 * k
+  const menu = MENU_WIDTH * k
+  if (rect.bottom + clear + height <= view.bottom - 12 * k || rect.top - clear - height >= view.top + gap) return null
   const center = (rect.left + rect.right) / 2
-  const menuLeft = Math.max(view.left + 8, Math.min(view.right - 8 - MENU_WIDTH, center - MENU_WIDTH / 2))
-  const menuRight = menuLeft + MENU_WIDTH
-  const top = Math.max(view.top + 8, Math.min(view.bottom - height - 12, rect.top - 8))
-  const right = menuRight + 8
-  if (right + width <= view.right - 8 && rect.right <= right - 8) return { left: right, top }
-  const left = menuLeft - 8 - width
-  if (left >= view.left + 8 && rect.left >= left + width + 8) return { left, top }
+  const menuLeft = Math.max(view.left + gap, Math.min(view.right - gap - menu, center - menu / 2))
+  const menuRight = menuLeft + menu
+  const top = Math.max(view.top + gap, Math.min(view.bottom - height - 12 * k, rect.top - gap))
+  const right = menuRight + gap
+  if (right + width <= view.right - gap && rect.right <= right - gap) return { left: right, top }
+  const left = menuLeft - gap - width
+  if (left >= view.left + gap && rect.left >= left + width + gap) return { left, top }
   return null
+}
+
+/**
+ * A point of the screen in the page's pixels: 1 on a page as it opened, 1 / zoom on a zoomed one (2.7: Safari zooms
+ * the page when a field with small text takes the focus, and our selection buttons, magnified with it, ran past the
+ * right edge on iPhone). The buttons are drawn at this scale, so they keep their size on the glass.
+ */
+export function glassScale(zoom: number | undefined): number {
+  return zoom && zoom > 1.02 ? 1 / zoom : 1
 }
