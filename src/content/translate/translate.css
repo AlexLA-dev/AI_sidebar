@@ -5,12 +5,17 @@
   z-index: 3;
   max-width: calc(100vw - 84px);
 }
+/* A phone (build 109, the owner: «Надпись про перевод слишком смещена к левому краю»): the pill reaches closer to the
+   screen's edge, so its words get the room they need without sitting in the rounded corner. */
+@media (max-width: 430px) {
+  .cf-tr { max-width: calc(100vw - 78px); }
+}
 .cf-tr {
   display: flex;
   align-items: center;
   gap: 8px;
   min-height: 40px;
-  padding: 5px 6px 5px 12px;
+  padding: 5px 6px 5px 14px;
   transform: translateY(-50%);
   border-radius: 20px;
   background: var(--bg);
@@ -24,12 +29,16 @@
 .cf-tr.right { right: max(70px, calc(env(safe-area-inset-right) + 56px)); }
 .cf-tr.left { left: max(70px, calc(env(safe-area-inset-left) + 56px)); }
 .cf-tr > svg { color: var(--accent); }
-/* A phone: the language control says what the pill is about; its words get the room (two lines at most). */
+/* A phone: the language control says what the pill is about; its words get the room (two lines at most). Two lines
+   stand clear of the pill's rounded end (the corner eats into the first and last line), and break evenly. */
 @media (max-width: 430px) {
   .cf-tr > svg { display: none; }
-  .cf-tr { gap: 6px; padding-left: 10px; }
+  .cf-tr { gap: 6px; padding-left: 16px; }
+  .cf-tr .cf-tr-btn { padding: 0 11px; }
+  .cf-tr .cf-tr-x { width: 26px; }
+  .cf-tr .cf-tr-lang { padding: 0 7px; }
 }
-.cf-tr-label { flex: 1 1 auto; min-width: 0; font-weight: 500; }
+.cf-tr-label { flex: 1 1 auto; min-width: 0; font-weight: 500; text-wrap: balance; overflow-wrap: break-word; }
 .cf-tr-btn {
   flex: none;
   display: inline-flex;
@@ -98,6 +107,51 @@
   -webkit-appearance: none;
   appearance: none;
 }
+/* The whole site (build 109): a small button on a translated page's pill. Plain where the site isn't translated whole
+   (a tap asks), filled where it is (a tap offers to turn it off), with its words where there's room for them. */
+.cf-tr-site {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 30px;
+  min-width: 30px;
+  padding: 0 7px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-3);
+}
+.cf-tr-site:hover { background: var(--bg-2); color: var(--text-2); }
+.cf-tr-site.on { color: var(--accent-text) !important; background: var(--accent-soft) !important; }
+@media (max-width: 430px) {
+  .cf-tr-site-word { display: none; }
+}
+/* Working (build 109, the owner: «переливающийся контур поп-апа… чтобы было понятно, что он в процессе»): while the
+   page, a pop-up or an opened menu is being translated, a light runs along the pill's contour (and around the small
+   entry when the pill is folded). The accent's own colours; still, one steady contour, where motion is reduced. */
+.cf-tr.busy::after, .cf-tr-entry.busy::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(100deg, var(--accent-soft) 0%, var(--accent-soft) 32%, var(--accent-2) 44%, var(--accent) 50%, var(--accent-2) 56%, var(--accent-soft) 68%, var(--accent-soft) 100%);
+  background-size: 300% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: cf-tr-shimmer 1.5s linear infinite;
+}
+.cf-tr-entry.busy::after { inset: -4px; }
+@keyframes cf-tr-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
 /* The way back on the page itself (build 107): after × or where only a part of the page is in another language, a
    small button by the circle, where the pill would be, opens the pill. */
 .cf-tr-entry {
@@ -145,6 +199,7 @@
 @keyframes cf-tr-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .cf-tr, .cf-tr-entry { animation: none; }
+  .cf-tr.busy::after, .cf-tr-entry.busy::after { animation: none; background: var(--accent); opacity: 0.55; }
   .cf-tr.told.fold { display: none; }
   .cf-tr-spin { animation-duration: 2s; }
 }

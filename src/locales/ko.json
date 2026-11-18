@@ -834,6 +834,12 @@
   "trEntry": "이 페이지 번역",
   "trControls": "버튼과 메뉴: {0}",
   "trControlsCap": "오늘의 버튼·메뉴 무료 번역을 모두 사용했어요",
+  "trSiteAsk": "이 사이트의 모든 페이지를 번역할까요?",
+  "trSiteYes": "예",
+  "trSiteNo": "아니요",
+  "trSiteOn": "이 사이트의 모든 페이지를 번역합니다",
+  "trSiteOff": "끄기",
+  "trSite": "사이트 전체",
 
   "spacesTitle": "스페이스",
   "spaceSwitcher": "스페이스: {0}. 전환",

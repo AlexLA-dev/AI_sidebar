@@ -834,6 +834,12 @@
   "trEntry": "Dịch trang này",
   "trControls": "Nút và menu: {0}",
   "trControlsCap": "Đã hết lượt dịch miễn phí nút và menu hôm nay",
+  "trSiteAsk": "Dịch mọi trang của trang web này?",
+  "trSiteYes": "Có",
+  "trSiteNo": "Không",
+  "trSiteOn": "Mọi trang của trang web này đều được dịch",
+  "trSiteOff": "Tắt",
+  "trSite": "Cả trang web",
 
   "spacesTitle": "Không gian",
   "spaceSwitcher": "Không gian: {0}. Chuyển",

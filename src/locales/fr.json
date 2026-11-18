@@ -834,6 +834,12 @@
   "trEntry": "Traduire la page",
   "trControls": "Boutons et menus : {0}",
   "trControlsCap": "Les traductions gratuites des boutons et menus sont épuisées pour aujourd’hui",
+  "trSiteAsk": "Traduire toutes les pages de ce site ?",
+  "trSiteYes": "Oui",
+  "trSiteNo": "Non",
+  "trSiteOn": "Toutes les pages de ce site sont traduites",
+  "trSiteOff": "Désactiver",
+  "trSite": "Tout le site",
 
   "spacesTitle": "Espaces",
   "spaceSwitcher": "Espace : {0}. Changer",

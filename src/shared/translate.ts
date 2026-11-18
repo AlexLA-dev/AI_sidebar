@@ -24,7 +24,9 @@ export const TRANSLATE_LIMITS = {
   // short: one longer than this, or a request with more than this in all, is a translation of the page's text and
   // counts as one. The server checks both (the client's word alone isn't taken).
   controlChars: 80,
-  controlRequestChars: 2_500
+  controlRequestChars: 2_500,
+  // A tooltip or a label in an attribute longer than this is left as it is (a title holding a whole description).
+  tipChars: 200
 } as const
 
 const TAG = /<(\/?)(\d{1,3})(\/?)>/g
@@ -195,7 +197,7 @@ export type TranslateError = "LIMIT_REACHED" | "PAGE_CAP" | "CONTROLS_CAP" | "BU
 /** A step of the in-page translation for the feature counters (usage.ts "translate_page"): counts only. */
 export interface TranslateStep {
   type: "trEvent"
-  a: "shown" | "tap" | "consent" | "done" | "original" | "dismiss" | "limit" | "plans" | "error" | "entry" | "lang"
+  a: "shown" | "tap" | "consent" | "done" | "original" | "dismiss" | "limit" | "plans" | "error" | "entry" | "lang" | "site_ask" | "site_on" | "site_no" | "site_off" | "auto"
 }
 
 /** The language a page is translated into, for the model: a base code, with the script for Chinese. */

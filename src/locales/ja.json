@@ -834,6 +834,12 @@
   "trEntry": "このページを翻訳",
   "trControls": "ボタンとメニュー：{0}",
   "trControlsCap": "今日のボタンとメニューの無料翻訳は使い切りました",
+  "trSiteAsk": "このサイトのページをすべて翻訳しますか？",
+  "trSiteYes": "はい",
+  "trSiteNo": "いいえ",
+  "trSiteOn": "このサイトのページはすべて翻訳されます",
+  "trSiteOff": "オフにする",
+  "trSite": "サイト全体",
 
   "spacesTitle": "スペース",
   "spaceSwitcher": "スペース：{0}。切り替える",

@@ -8,6 +8,10 @@
 // closed with ×, leave a small entry by the circle instead, which opens the pill (with «Greek: 12% of the page» for a
 // part); a small control on the pill picks another language than the person's own, remembered per site.
 //
+// Build 109 (the owner's test of 108): while anything is being translated (the page, then a pop-up, an opened menu,
+// what a view loads later) the pill's contour shimmers; after the first translation on a site comes out the pill
+// asks once whether to translate every page of it (autoSites.ts), and its site button turns that off again.
+//
 // It sits beside the circle on the circle's side (left or right, plan section 9), at the circle's height. Never while
 // the panel is open, while the selection's buttons show, while the person types, or in the first moment of a page.
 // Page hints (plan section 6) use this pill on a page in another language instead of their own reply: they read
@@ -22,6 +26,8 @@ import { type TranslateStep } from "../../shared/translate"
 import { readerLanguage } from "../answerLanguage"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
+import { urlKey } from "../../shared/conversation"
+import { askOnce, autoOn, clearAuto, limitedToday, LIMIT_KEY, setAuto, type AutoSite } from "./autoSites"
 import { judgeControls, judgeShares, type ControlsJudged } from "./decide"
 import { PageTranslator, type EngineState } from "./engine"
 import { keepLanguage, keptLanguage, languageChoices, shortMark, targetName } from "./languages"
@@ -39,7 +45,7 @@ let engine: PageTranslator | null = null
 
 /** One translator per page. */
 export function pageTranslator(): PageTranslator {
-  engine ??= new PageTranslator({ doc: document, url: () => location.href, ask: portAsk(), cache: storageCache })
+  engine ??= new PageTranslator({ doc: document, url: () => location.href, site: () => site(), ask: portAsk(), cache: storageCache })
   return engine
 }
 
@@ -97,6 +103,8 @@ const sites: SiteStore = {
 const hiddenHere = () => hiddenOn(sites, site())
 const hideHere = () => hideOn(sites, site()).catch(() => false)
 const showHere = () => showOn(sites, site()).catch(() => false)
+// The sites translated whole (autoSites.ts).
+const autoHere = () => autoOn(sites, site()).catch(() => null)
 
 const step = (a: TranslateStep["a"]) => {
   try {
@@ -155,6 +163,11 @@ interface Offered {
   pageLang: string | null
   // × was tapped on this site before: the pill waits behind the entry.
   hidden: boolean
+  // The site is translated whole (the person said yes to the pill's question): its pages start by themselves.
+  auto: AutoSite | null
+  setAuto: (auto: AutoSite | null) => void
+  // The page was looked at (the first time takes a moment after it loads).
+  looked: number
   to: string
   setTo: (to: string) => void
   hide: () => void
@@ -166,6 +179,8 @@ function useOffer(): Offered {
   const own = ownLanguage()
   const [judged, setJudged] = useState<Judgement>(NOTHING)
   const [hidden, setHidden] = useState(false)
+  const [auto, setAutoNow] = useState<AutoSite | null>(null)
+  const [looked, setLooked] = useState(0)
   const [to, setToNow] = useState(own)
   const toRef = useRef(own)
   useEffect(() => {
@@ -182,12 +197,18 @@ function useOffer(): Offered {
       // The pill has something to say by itself (the page, or its controls): page hints keep quiet (one thing at a time).
       foreignNow = found.offer !== null || found.controls?.offer === true
       foundNow = found.offer
-      const off = found.offer || found.part || found.controls ? await hiddenHere() : false
+      const [off, whole] = found.offer || found.part || found.controls ? await Promise.all([hiddenHere(), autoHere()]) : [false, null]
       if (!alive) return
       setHidden(off)
+      setAutoNow(whole)
       setJudged(found)
+      setLooked((n) => n + 1)
     }
     const timers = [1_500, 5_000].map((ms) => setTimeout(() => void look(), ms))
+    // A site translated whole: looked at sooner, so its page doesn't stand in its own language for long.
+    void autoHere().then((whole) => {
+      if (whole && alive) timers.push(setTimeout(() => void look(), document.readyState === "loading" ? 600 : 250))
+    })
     // A site that changes its address itself (a new page without loading one).
     const poll = setInterval(() => {
       if (location.href === url) return
@@ -208,6 +229,9 @@ function useOffer(): Offered {
     controls: judged.controls,
     pageLang: judged.pageLang,
     hidden,
+    auto,
+    setAuto: setAutoNow,
+    looked,
     to,
     setTo: (code: string) => {
       toRef.current = code
@@ -250,6 +274,12 @@ const TranslateIcon = ({ size = 15 }: { size?: number }): VNode => (
     <path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="m22 22-5-10-5 10" /><path d="M14 18h6" />
   </svg>
 )
+/** The whole site (a globe). */
+const SiteIcon = (): VNode => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.300 6.400-3.900 9c-2.600-2.600-3.900-5.600-3.900-9S9.400 5.600 12 3z" />
+  </svg>
+)
 const Close = (): VNode => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
 )
@@ -290,7 +320,7 @@ function LanguagePick({ to, from, onPick }: { to: string; from: string | null; o
 }
 
 export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: TranslatePillProps): VNode | null {
-  const { offer, part, controls, pageLang, hidden, to, setTo, hide, unhide } = useOffer()
+  const { offer, part, controls, pageLang, hidden, auto, setAuto: setAutoSite, looked, to, setTo, hide, unhide } = useOffer()
   const typing = useTyping()
   const state = useEngine()
   const [consent, setConsent] = useState<"ok" | "old" | "none" | null>(null)
@@ -326,12 +356,76 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   useEffect(() => {
     if (tapped.current && prev.current === "working" && state.at === "on") {
       step("done")
+      cameOut.current = true
       void showHere().then((was) => was && unhide())
     }
     if (state.at === "limit") step("limit")
     if (state.at === "error" && state.code !== "CONSENT") step("error")
     if (state.at === "error" && state.code === "CONSENT") setConsent("none")
     prev.current = state.at
+  }, [state])
+
+  // The site's row in the pill: the question after the first translation here («ask»), or what the site button
+  // opens: the same question, or the way to turn it off on a site translated whole («manage»).
+  const [siteRow, setSiteRow] = useState<"ask" | "manage" | null>(null)
+  // A translation asked for here came out and the site isn't translated whole: asked once per site, a moment after
+  // the page shows in the reader's language.
+  const cameOut = useRef(false)
+  useEffect(() => {
+    if (state.at !== "on" || !cameOut.current || auto) return
+    cameOut.current = false
+    let alive = true
+    const timer = setTimeout(() => {
+      // Marked as asked only when it's about to show (a page left before that is asked on the next one).
+      if (pageTranslator().state().at !== "on") return
+      void askOnce(sites, site()).then((ask) => {
+        if (!ask || !alive) return
+        step("site_ask")
+        setClosed(false)
+        setSiteRow("ask")
+      }, () => undefined)
+    }, SITE_ASK_MS)
+    return () => {
+      alive = false
+      clearTimeout(timer)
+    }
+  }, [state.at, auto])
+  useEffect(() => {
+    if (state.at === "off") setSiteRow(null)
+  }, [state.at])
+
+  // A page of a site translated whole: started by itself, once per address (after «Original» it stays as it is).
+  // Not when the day's answers ran out on such a page today (the person was told then): the offer comes as usual.
+  const autoTried = useRef("")
+  useEffect(() => {
+    if (!auto || !looked || state.at !== "off") return
+    const here = urlKey(location.href)
+    if (autoTried.current === here) return
+    const goal: PageOffer | null =
+      offer && auto.only !== "controls" ? { from: offer.from, to: auto.to }
+        : controls?.offer ? { from: controls.lang, to: auto.to, only: "controls" }
+          : null
+    if (!goal) return
+    autoTried.current = here
+    void (async () => {
+      const [status, limit] = await Promise.all([loadConsent(), sites.get(LIMIT_KEY)])
+      if (status !== "ok" || (!goal.only && limitedToday(limit[LIMIT_KEY])) || pageTranslator().state().at !== "off") return
+      step("auto")
+      asked.current = goal
+      autoRun.current = true
+      // Where × folded the pill on this site it stays folded: the entry by the circle says the page is translated.
+      if (hidden) setClosed(true)
+      void pageTranslator().start(goal.to, goal.from, goal.only ?? null)
+    })()
+  }, [auto, looked, state.at, offer?.from, controls?.offer])
+  // The answers ran out on a page that started by itself: told now (the pill shows, also where it was folded), and
+  // not again today.
+  const autoRun = useRef(false)
+  useEffect(() => {
+    if (state.at !== "limit" || state.controls || !autoRun.current) return
+    autoRun.current = false
+    setClosed(false)
+    void sites.set({ [LIMIT_KEY]: Date.now() }).catch(() => undefined)
   }, [state])
 
   // The circle held down: the pill by hand, on any page (a page in the reader's language into another, say).
@@ -350,6 +444,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   const startFor = async (goal: PageOffer) => {
     asked.current = goal
     tapped.current = true
+    autoRun.current = false
     step("tap")
     const status = await loadConsent()
     if (status !== "ok") {
@@ -460,6 +555,12 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     if (code === to) return
     step("lang")
     setTo(code)
+    // A site translated whole: into this language from now on.
+    if (auto) {
+      const next = { ...auto, to: code }
+      setAutoSite(next)
+      void setAuto(sites, next).catch(() => undefined)
+    }
     const from = asked.current?.from ?? target?.from ?? null
     if (state.at !== "off" && from) {
       const only = asked.current?.only ?? target?.only
@@ -469,8 +570,27 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     }
   }
 
+  // The whole site, yes: this language, and only the buttons and menus where that's what was translated.
+  const siteYes = () => {
+    const goal = asked.current ?? target
+    if (!goal) return
+    step("site_on")
+    const next: AutoSite = { s: site(), to: goal.to, ...(goal.only ? { only: goal.only } : {}) }
+    setAutoSite(next)
+    setSiteRow(null)
+    void setAuto(sites, next).catch(() => undefined)
+  }
+  const siteOff = () => {
+    step("site_off")
+    setAutoSite(null)
+    setSiteRow(null)
+    void clearAuto(sites, site()).catch(() => undefined)
+  }
+
   const style = { top }
-  const cls = `cf-tr ${side}`
+  // Something the reader can see is being translated: the contour shimmers.
+  const busy = state.at === "working" || (state.at === "on" && state.busy === true)
+  const cls = `cf-tr ${side}${busy ? " busy" : ""}`
 
   if (consent !== null && consent !== "ok") {
     // Above the circle when it's in the lower half of the screen, below it otherwise.
@@ -500,7 +620,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
       <button
         ref={entryRef}
         type="button"
-        class={`cf-tr-entry ${side}${state.at !== "off" ? " on" : ""}`}
+        class={`cf-tr-entry ${side}${state.at !== "off" ? " on" : ""}${busy ? " busy" : ""}`}
         style={entryOver && state.at === "off" ? { ...style, visibility: "hidden", pointerEvents: "none" } : style}
         aria-hidden={entryOver && state.at === "off" ? true : undefined}
         aria-label={said}
@@ -535,11 +655,44 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
       </div>
     )
   }
+  if (state.at === "on" && siteRow === "ask") {
+    // Every page of this site? Yes puts the site on the list; no leaves the pill as it was (asked once per site).
+    return (
+      <div class={`${cls} site`} style={style} role="group" aria-label={t("trSiteAsk")}>
+        <span class="cf-tr-label">{t("trSiteAsk")}</span>
+        <button type="button" class="cf-tr-btn" onClick={siteYes}>{t("trSiteYes")}</button>
+        <button type="button" class="cf-tr-btn quiet" onClick={() => {
+          step("site_no")
+          setSiteRow(null)
+        }}>{t("trSiteNo")}</button>
+      </div>
+    )
+  }
+  if (state.at === "on" && siteRow === "manage") {
+    return (
+      <div class={`${cls} site`} style={style} role="group" aria-label={t("trSiteOn")}>
+        <span class="cf-tr-label">{t("trSiteOn")}</span>
+        <button type="button" class="cf-tr-btn quiet" onClick={siteOff}>{t("trSiteOff")}</button>
+        <button type="button" class="cf-tr-x" aria-label={t("close")} onClick={() => setSiteRow(null)}><Close /></button>
+      </div>
+    )
+  }
   if (state.at === "on") {
     return (
       <div class={cls} style={style}>
         <button type="button" class="cf-tr-btn quiet" onClick={original}><TranslateIcon size={14} /> {t("trOriginal")}</button>
         {lang}
+        <button
+          type="button"
+          class={`cf-tr-site${auto ? " on" : ""}`}
+          aria-pressed={auto ? true : false}
+          aria-label={t(auto ? "trSiteOn" : "trSiteAsk")}
+          title={t(auto ? "trSiteOn" : "trSiteAsk")}
+          onClick={() => setSiteRow(auto ? "manage" : "ask")}
+        >
+          <SiteIcon />
+          {auto && <span class="cf-tr-site-word">{t("trSite")}</span>}
+        </button>
         {x}
       </div>
     )
@@ -596,6 +749,9 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     </div>
   )
 }
+
+/** How long after a translation comes out the pill asks about the whole site. */
+const SITE_ASK_MS = 1_400
 
 /** How long the line after × says where the offer went, and how long it takes to fold into the entry. */
 export const TOLD_MS = 4_000
