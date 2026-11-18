@@ -475,7 +475,7 @@ export class PageTranslator {
     let any = false
     for (const { item, rest } of near) {
       const size = item.block.text.length
-      if (rest ? this.aheadChars + size > (controls ? AHEAD_CONTROLS_CHARS : AHEAD_CHARS) : size > budget) continue
+      if (this.aheadChars + size > (controls ? AHEAD_CONTROLS_CHARS : AHEAD_CHARS) || (!rest && size > budget)) continue
       if (!rest) budget -= size
       this.aheadChars += size
       item.status = "queued"
