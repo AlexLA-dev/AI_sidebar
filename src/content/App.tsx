@@ -1009,9 +1009,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const was = selLiveRef.current
       selLiveRef.current = live
       if (live) {
-        // Since when it's there, not when it was last reported. In the simulator's Safari, on iPhone and iPad, the rule
-        // counted from the last report never fired and this one fires every time: the selection is reported once more
-        // between the finger going down on the page and the tap clearing it, which put the press "before" it.
+        // Since when it's there, not when it was last reported: the press that clears it then counts whether or not a
+        // browser reports the same selection once more between the finger going down and the tap clearing it.
         if (!was) selLiveAtRef.current = performance.now()
         handClearedRef.current = false
       } else if (was && clearedByHand(lastPointerDown(HOST_TAG), selLiveAtRef.current, performance.now())) {

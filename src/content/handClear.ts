@@ -23,11 +23,10 @@ export interface PointerDown {
 
 /**
  * Whether the selection that just ended (`now`) was cleared by the person's own press on the page. `down`: the latest
- * pointer down; `liveSince`: when the page came to have a selection (not when it was last reported there: counted
- * from the last report the rule never fired in Safari on iPhone and iPad, where the selection is reported once more
- * between the finger going down and the tap clearing it). The press has to come
- * after that: the long press or the drag that made the selection went down before it was there, and says nothing
- * about its end.
+ * pointer down; `liveSince`: when the page came to have a selection (not when it was last reported there, so the
+ * rule doesn't hang on whether a browser reports the selection again between the finger going down and the tap
+ * clearing it). The press has to come after that: the long press or the drag that made the selection went down
+ * before it was there, and says nothing about its end.
  */
 export function clearedByHand(down: PointerDown | null, liveSince: number, now: number): boolean {
   if (!down || !down.onPage) return false

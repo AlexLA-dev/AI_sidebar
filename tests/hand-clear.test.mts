@@ -37,11 +37,12 @@ test("the press that made the selection says nothing about its end", () => {
   assert.equal(clearedByHand(page(9_000), 10_000, 10_400), false)
 })
 
-test("the selection reported again after the finger is down (Safari on iPhone and iPad): its moment is when it appeared", () => {
-  // Appeared at 10 000 (put back when the panel closed); the finger down at 14 000; Safari reports the same selection
-  // at 14 020; the tap clears it at 14 180. Counted from the appearance, the press is the one that cleared it.
+test("a selection reported again after the finger is down: its moment is when it appeared", () => {
+  // Appeared at 10 000 (put back when the panel closed); the finger down at 14 000; should a browser report the same
+  // selection again at 14 020, the tap clears it at 14 180. Counted from the appearance, the press is the one that
+  // cleared it.
   assert.equal(clearedByHand(page(14_000), 10_000, 14_180), true)
-  // Counted from the last report it wasn't, which is how the first form of the rule failed on a device.
+  // Counted from such a second report it wouldn't be: why App.tsx keeps the moment the selection appeared.
   assert.equal(clearedByHand(page(14_000), 14_020, 14_180), false)
 })
 
@@ -104,9 +105,7 @@ test("the panel forgets a selection cleared by hand, and doesn't put it back whe
   // The panel closed: forgotten at once, with the chip's selection. Open: its chip stays, the closing forgets.
   assert.match(app, /if \(open\) handClearedRef\.current = true\n\s+else \{\n\s+forgetSelection\(\)\n\s+setSelection\(null\)\n\s+\}/)
   assert.match(app, /if \(closing && handClearedRef\.current\) \{\n\s+handClearedRef\.current = false\n\s+forgetSelection\(\)\n\s+setSelection\(null\)\n\s+\}\n\s+const back = open/)
-  // A selection made again is the panel's again. Its moment is when it appeared: with the moment renewed at every
-  // report the rule never fired in the simulator's Safari (iPhone and iPad, 16 rounds of 16), with this one it fired
-  // in 8 of 8.
+  // A selection made again is the panel's again. Its moment is when it appeared, not its latest report.
   assert.match(app, /if \(live\) \{\n(\s+\/\/[^\n]*\n)+\s+if \(!was\) selLiveAtRef\.current = performance\.now\(\)\n\s+handClearedRef\.current = false/)
   assert.doesNotMatch(app, /if \(live\) \{\n\s+selLiveAtRef\.current = performance\.now\(\)/)
   // What our own controls took away is still put back when the panel closes (2.6 (92)).
