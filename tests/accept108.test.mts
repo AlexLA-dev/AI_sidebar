@@ -39,6 +39,10 @@ test("4. the translate offer over a page's button gives way (hurriyet.com.tr's c
   const pillSrc = src("translate/TranslatePill.tsx")
   assert.match(pillSrc, /opened \|\| \(byItself && !hidden && !overPage\)/)
   assert.match(pillSrc, /<div ref=\{offerRef\} class=\{cls\} style=\{style\}>/)
+  // The small entry over a page's button (the iPhone pass: by the circle on «İzin ver») steps aside while it's there,
+  // not on a translated page (the way back to the original).
+  assert.match(pillSrc, /useOverPageControls<HTMLButtonElement>\(visible && !pill && state\.at === "off", false\)/)
+  assert.match(pillSrc, /entryOver && state\.at === "off" \? \{ \.\.\.style, visibility: "hidden", pointerEvents: "none" \}/)
 })
 
 test("2. the notifications ask under Listen: the text across the bar, the actions on a line under it", () => {
@@ -58,7 +62,8 @@ test("3 and 6. quick insert's tip: goes after a few seconds or at the first touc
   assert.match(qi, /const tipShown = Boolean\(buttonPos && tip && field && !fixCount && !props\.hintUp && !selectionShown\)/)
   assert.match(qi, /setTimeout\(\(\) => dropTipRef\.current\(\), TIP_MS\)/)
   assert.match(qi, /document\.addEventListener\("pointerdown", touched, true\)/)
-  assert.match(qi, /if \(tip && selectionShown\) dropTipRef\.current\(\)/)
+  // Our selection drops it only once it was seen; before that the tip just waits (the iPad pass: dropped unseen).
+  assert.match(qi, /if \(tip && selectionShown && tipWasShown\.current\) dropTipRef\.current\(\)/)
   assert.match(qi, /const bottom = vp\.dy \+ vp\.height - TIP_FOOT/)
   // One hint at a time: the tip waits while the page's hint line («Reply with a template?») is up.
   assert.match(src("App.tsx"), /hintUp=\{Boolean\(pageHints\.line && fabVisible\)\}/)

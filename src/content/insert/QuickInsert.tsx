@@ -592,8 +592,11 @@ export function QuickInsert(props: Props): VNode | null {
   const tipShown = Boolean(buttonPos && tip && field && !fixCount && !props.hintUp && !selectionShown)
   const dropTipRef = useRef(dropTip)
   dropTipRef.current = dropTip
+  // Seen at least once: only then does our selection's coming drop it for good (before, it just waits).
+  const tipWasShown = useRef(false)
   useEffect(() => {
     if (!tipShown) return
+    tipWasShown.current = true
     const timer = setTimeout(() => dropTipRef.current(), TIP_MS)
     const touched = () => dropTipRef.current()
     document.addEventListener("pointerdown", touched, true)
@@ -603,7 +606,7 @@ export function QuickInsert(props: Props): VNode | null {
     }
   }, [tipShown])
   useEffect(() => {
-    if (tip && selectionShown) dropTipRef.current()
+    if (tip && selectionShown && tipWasShown.current) dropTipRef.current()
   }, [tip, selectionShown])
   useEffect(() => () => setButtonShown(false), [])
 
