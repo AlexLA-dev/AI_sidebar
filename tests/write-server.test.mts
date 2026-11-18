@@ -328,7 +328,7 @@ test("the language: Check and Rewrite keep the field's own; Compose follows the 
   assert.match(w.CHECK_SYSTEM, /never translate any of it, even when the page, the conversation or the app is in another language/)
   assert.ok(w.CHECK_SYSTEM.includes(w.languageRule("check")) && w.REWRITE_SYSTEM.includes(w.languageRule("rewrite")) && w.COMPOSE_SYSTEM.includes(w.languageRule("compose")))
   assert.equal(w.COMPOSE_LANGUAGE, "answered")
-  assert.match(w.languageRule("compose", "answered"), /the language of the message being answered; with no conversation, in the language of the page/)
+  assert.match(w.languageRule("compose", "answered"), /the language of the message being answered; with no conversation \(a comment under a post or an article, a review, an application\), in the language of the page/)
   assert.match(w.languageRule("compose", "answered"), /Only when the request itself asks for a language/)
   assert.match(w.languageRule("compose", "typed"), /the language the request is typed in/)
   assert.match(w.languageRule("compose", "typed"), /Only when the request itself asks for a language/)
