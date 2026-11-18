@@ -1037,5 +1037,12 @@
   "colAlready": "Schon in „{0}“",
   "tipNew": "Neu",
   "matchContinueIn": "Weiter in „{0}“",
-  "matchBackTo": "Zurück zu „{0}“"
+  "matchBackTo": "Zurück zu „{0}“",
+  "writeCompose": "Verfassen",
+  "writeComposeGo": "Schreiben",
+  "writeComposing": "Schreibe mit Blick auf die Seite…",
+  "writeComposeHint": "Was soll drinstehen? In deinen Worten",
+  "writeComposeEdit": "Anfrage ändern",
+  "writeToneAsk": "Welcher Ton?",
+  "writeInserted": "Eingefügt"
 }

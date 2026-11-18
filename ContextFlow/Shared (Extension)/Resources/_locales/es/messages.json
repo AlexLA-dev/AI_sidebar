@@ -3029,6 +3029,27 @@
  "matchBackTo": {
   "message": "Volver a «{0}»"
  },
+ "writeCompose": {
+  "message": "Redactar"
+ },
+ "writeComposeGo": {
+  "message": "Escribir"
+ },
+ "writeComposing": {
+  "message": "Redactando con la página en cuenta…"
+ },
+ "writeComposeHint": {
+  "message": "¿Qué debe decir? Con tus palabras"
+ },
+ "writeComposeEdit": {
+  "message": "Cambiar la petición"
+ },
+ "writeToneAsk": {
+  "message": "¿Con qué tono?"
+ },
+ "writeInserted": {
+  "message": "Insertado"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },
