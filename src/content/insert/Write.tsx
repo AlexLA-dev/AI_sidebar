@@ -19,7 +19,7 @@ import * as Icon from "../icons"
 import { extractPage } from "../page"
 import { conversationAround } from "./conversation"
 import { copyToClipboard, sensitiveForm, updateCaret, type Field } from "./field"
-import { caretOf, editBlocked, readText, replaceText, workRange } from "./fieldtext"
+import { caretOf, editBlocked, insertAtCaret, readText, replaceText, workRange } from "./fieldtext"
 import { fieldLabel } from "./FillForm"
 import * as QIcon from "./icons"
 import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
@@ -282,6 +282,22 @@ export interface CardProps {
   onDone: (undo: Undo | null, action: WriteAction, failed: boolean) => void
 }
 
+/**
+ * Compose's draft into the field: at the editor's own caret from when Compose opened, when there's one in it (Gmail's
+ * empty reply has no text node on its blank first line: by offset the draft would land on the signature); else by
+ * offset. Undo takes out what came in.
+ */
+async function insertDraft(el: Field["el"], field: Field, base: string, next: string, byOffset: Edit[]): Promise<{ back: Edit[]; failed: number; after: string }> {
+  const caret = field.range
+  if (!field.control && caret?.collapsed && el.contains(caret.startContainer) && (await insertAtCaret(el, caret, next.trim()))) {
+    const after = readText(el).text
+    let at = 0
+    while (at < base.length && base[at] === after[at]) at++
+    return { back: [{ from: at, to: at + (after.length - base.length), text: "" }], failed: 0, after }
+  }
+  return makeEdits(el, byOffset)
+}
+
 export function WriteCard(p: CardProps): VNode {
   const ref = useRef<HTMLDivElement>(null)
   const waits = waitsFor(p.job)
@@ -397,7 +413,7 @@ export function WriteCard(p: CardProps): VNode {
     const action = p.job.action
     const made = state.step === "check" ? applyEdits(state.text, state.edits) : state.next
     setState({ step: "applying" })
-    const result = await makeEdits(el, edits)
+    const result = state.step === "draft" ? await insertDraft(el, p.field, state.base, state.next, edits) : await makeEdits(el, edits)
     writeStep(result.failed ? "failed" : "applied", p.job.via, action === "check" ? "check" : action === "compose" ? (p.job.tone ?? "compose") : p.job.tone)
     if (!result.back.length) {
       // The field took none of it: the text is copied, to paste by hand.

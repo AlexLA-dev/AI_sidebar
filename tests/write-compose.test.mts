@@ -81,6 +81,8 @@ test("the list's row, the Mac's circle and the panel's chip all open the same ca
   assert.match(write, /if \(empty\) \{[\s\S]{0,400}onPick\("compose"\)/, "an empty field's menu is Compose alone")
   assert.match(write, /if \(!open\) setBlank\(fixes === 0 && empty\(\)\)/, "the circle reads the field as its menu opens")
   assert.match(write, /\[\{ from: state\.at, to: state\.at, text: placedDraft\(state\.base, state\.at, state\.next\) \}\]/)
+  // In an editor, at its own caret (a blank line has no text node an offset could reach), by offset otherwise.
+  assert.match(write, /if \(!field\.control && caret\?\.collapsed && el\.contains\(caret\.startContainer\) && \(await insertAtCaret\(el, caret, next\.trim\(\)\)\)\)/)
   assert.match(write, /if \(state\.step === "ask" && !p\.touch\) box\.current\?\.focus/, "on touch the person taps the box (iOS raises the keyboard only then)")
   // The caret the field had when Compose opened decides where the draft goes (the box has the focus since).
   assert.match(write, /const field = compose \? p\.field : updateCaret\(p\.field\)/)
