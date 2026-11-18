@@ -20,9 +20,10 @@ test("the chat's name bar has Back to the chats list", () => {
 test("the quick chips at the end of a chat about this very page too, without the divider, however long the chat", () => {
   const same = app.slice(app.indexOf("!onNewPage && ("), app.indexOf("!onNewPage && (") + 700)
   assert.doesNotMatch(app, /!onNewPage && messages\.length < 3/)
-  assert.match(same, /<div class="cf-actions follow">/)
+  assert.match(same, /<ChipsRow cls="cf-actions follow"/)
   assert.doesNotMatch(same, /cf-divider/)
   // Less those already asked about this page (not the same chip asked on another page).
   assert.match(same, /m\.label === actionLabel\(a\) && m\.page\?\.url === pageUrl/)
-  assert.match(same, /m.page\?\.url === pageUrl\)\), 4\)/)
+  // 2.7 after build 107: the whole ranked row, one line that scrolls sideways (it was the first four).
+  assert.match(same, /m\.page\?\.url === pageUrl\)\)\.map\(\(a\) => chip\(a, true\)\)/)
 })

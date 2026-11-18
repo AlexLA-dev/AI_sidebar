@@ -108,7 +108,13 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, setSelectionShown, useButtonShown, useFieldLayer, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { TranslatePill } from "./translate/TranslatePill"
+import { TranslatePill, translatePageNow } from "./translate/TranslatePill"
+import { rankChips, rankSelectionChips, type ChipId } from "./quiet/chips"
+import { ChipsRow } from "./quiet/ChipsRow"
+import { densityNow, loadKeyboard, noteKeyboard, type Density } from "./quiet/density"
+import { leftBadge, PlusMenu } from "./quiet/Plus"
+import { readSignals, selectionInField, watchWriting, writingOn } from "./quiet/signals"
+import { ToolsRow } from "./quiet/ToolsRow"
 import { useFabDrag, usePanelDrag } from "./side/drag"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
@@ -118,7 +124,7 @@ import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pa
 import { matchable, matchChat, matchScope, type ChatMatch, type MeaningMatches } from "../shared/match"
 import { SpaceDot, SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
 import { CollectionsWindow, CollectLink, CollectSheet, useCollections, type CollectAsk, type CollectPro, type CollectReport } from "./Collections"
-import type { Card } from "../shared/collections"
+import { placesOf, type Card } from "../shared/collections"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -161,6 +167,18 @@ const PAGE_ACTIONS: Action[] = [
   { id: "similar", label: "actSimilar", prompt: "actSimilar" }
 ]
 
+/** 2.7 (after 107): every chip a page can have, by its id. The ranker (quiet/chips.ts) picks and orders them from what
+ * the page is. Check, Rewrite and Templates work on the page's field, Translate page on the page in place, Watch the
+ * price on the page itself; none of the five asks the chat. */
+const PAGE_CHIPS = Object.fromEntries([
+  ...PAGE_ACTIONS,
+  { id: "check", label: "writeCheck", prompt: "writeCheck" },
+  { id: "rewrite", label: "writeRewrite", prompt: "writeRewrite" },
+  { id: "templates", label: "qiTemplates", prompt: "qiTemplates" },
+  { id: "translate_page", label: "chipTranslatePage", prompt: "chipTranslatePage" },
+  { id: "watch", label: "chipWatchPrice", prompt: "chipWatchPrice" }
+].map((a) => [a.id, a])) as Record<ChipId, Action>
+
 const SEL_GOOGLE: Action = { id: "sel_google", label: "actGoogle", prompt: "promptSelGoogle", mode: "google" }
 
 const SELECTION_ACTIONS: Action[] = [
@@ -180,14 +198,6 @@ const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
 /** Ultra's actions (2.6), so it's clear they're Ultra's: in Ultra's colour
  * (--ultra) everywhere they show, with a small "Ultra" for anyone without it. */
 const ULTRA_ACTIONS = new Set(["similar", "sel_similar"])
-
-/** The first `n` quick actions, and Find similar after them wherever it falls in the list (2.6: the
- * rows under "Now on…" and under an answer show the first few only, which would leave Find similar out). */
-function withUltra(list: Action[], n: number): Action[] {
-  const ultra = list.find((a) => ULTRA_ACTIONS.has(a.id))
-  const rest = list.filter((a) => !ULTRA_ACTIONS.has(a.id)).slice(0, n)
-  return ultra ? [...rest, ultra] : rest
-}
 
 /** The small mark on Find similar for someone without it (2.7: Free; Pro has its light search; a tap opens the plans). */
 function UltraMark({ show }: { show: boolean }): VNode | null {
@@ -385,6 +395,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setHints((seen) => [...(seen ?? []), ...(Array.isArray(key) ? key : [key])])
     void markHintSeen(key)
   }
+  // «New in 2.7» as one line on the compact chat (2.7 after 107): shown in one opening of the panel, then it's seen.
+  const newLineShown = useRef(false)
+  useEffect(() => {
+    if (open || !newLineShown.current) return
+    newLineShown.current = false
+    doneHint(["new27", "side"])
+  }, [open])
   // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
@@ -566,6 +583,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   const streaming = partial !== null
   const layout = popup ? "popup" : wide ? "side" : "sheet"
+  // 2.7 (after 107, the owner's decisions on the quiet panel): compact or roomy (quiet/density.ts), and the page's chips
+  // in the ranker's order (quiet/chips.ts). Both are read as the panel opens (show) and kept until it opens again:
+  // nothing in the chat moves by itself while it's looked at; a signal that comes later counts next time.
+  const layoutRef = useRef<"side" | "sheet" | "popup">(layout)
+  layoutRef.current = layout
+  const [density, setDensity] = useState<Density>(() => densityNow(layout))
+  const compact = density === "compact"
+  const chipsNow = (): ChipId[] => rankChips(readSignals(source.kind()), {
+    write: !popup && writingOn(),
+    translatePage: !popup,
+    watch: !popup && TARGET === "safari" && listsKind("watch") && Boolean(pageWatcher()),
+    similar: true
+  })
+  const chipsNowRef = useRef(chipsNow)
+  chipsNowRef.current = chipsNow
+  const [chipOrder, setChipOrder] = useState<ChipId[]>(chipsNow)
+  const [selInField, setSelInField] = useState(false)
+  useEffect(() => {
+    loadKeyboard()
+    return watchWriting()
+  }, [])
+  // «+» by the field.
+  const [plusOpen, setPlusOpen] = useState(false)
+  const densityRef = useRef(density)
+  densityRef.current = density
 
   // ------------------------------------------------------------ settings
   useEffect(() => {
@@ -618,6 +660,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     const sel = captured ?? recentSelection()
     setSelection(sel)
+    // Settled before the panel paints (2.7, the quiet panel): its density and the chips' order for this opening.
+    setDensity(densityNow(layoutRef.current))
+    setChipOrder(chipsNowRef.current())
+    setSelInField(Boolean(sel) && selectionInField(selectionRange()))
+    setPlusOpen(false)
     setBubble(null)
     setView("chat")
     // The guide's selection steps: Ask AI (or another button by the selection) brings it back into the panel; the
@@ -1498,6 +1545,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [messages, ask])
 
   const runAction = useCallback((picked: Action) => {
+    if (picked.id in PAGE_CHIPS) void sendBackground({ type: "useEvent", f: "quiet", a: "chip", what: picked.id, lay: densityRef.current })
+    // 2.7 (after 107): the chips that act on the page. Check and Rewrite open their card by the field (the sheet slides
+    // away first on a phone, and the side panel on an iPad, where the card is a sheet too); Templates opens the list to
+    // insert from; Translate page starts the pill's translation; Watch the price opens watching's window.
+    if (picked.id === "check" || picked.id === "rewrite") {
+      const away = touch || layoutRef.current === "sheet"
+      if (away) hide()
+      setTimeout(() => bus.dispatchEvent(new CustomEvent(QI_EVENTS.write, { detail: picked.id })), away ? 240 : 0)
+      return
+    }
+    if (picked.id === "templates") return setView("templates")
+    if (picked.id === "translate_page") {
+      hide()
+      setTimeout(() => translatePageNow(), 240)
+      return
+    }
+    if (picked.id === "watch") return void pageWatcher()?.({ url: source.href(), title: source.title() })
     if (picked.id === "similar") return openSimilarRef.current("chip")
     // 2.6: Find similar from a selection: alternatives to what it describes, the page as context.
     if (picked.id === "sel_similar") return openSimilarRef.current("selection", selection?.text)
@@ -1508,7 +1572,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const reader = answerLanguage(ui, preferredLanguages(navigator, uiLanguage()))
     const prompt = t(action.prompt, action.arg ?? readerLanguageName(reader, ui, t("languageName")))
     ask(withAnswerLanguage(action.id, prompt, reader), { label: action.text ?? t(action.label), action: action.id, mode: action.mode })
-  }, [ask, selection])
+  }, [ask, selection, hide, touch, bus, source])
   runActionRef.current = runAction
 
   // ------------------------------------------------------------ find similar (2.6, Ultra)
@@ -1925,26 +1989,33 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [])
 
   /**
-   * Under an answer and under a note, the same: its tags, then Copy, Share and Tag, then the tag
-   * picker (`plain`: the text to copy, `shared`: the text to share).
+   * Under an answer and under a note, the same: its tags, then one row of buttons, then the tag picker (`plain`: the
+   * text to copy, `shared`: the text to share).
+   * 2.7 (after 107), the owner's decision 3: one row. Compact: Copy, Share, Listen and «…», which holds Tag, To
+   * collection, Remind, Calendar, Pin and Delete. Roomy (a pointer): what was there, Tag and To collection in the
+   * row too. «Insert into field» leads the row whenever the page has a field (decision 7). The row never wraps: when
+   * its words don't fit they give way to the icons one button at a time, by data-give, Insert's last (quiet/ToolsRow.tsx).
    */
   const messageFooter = (m: Entry, idx: number, plain: () => string, shared: () => string): VNode => {
     const mark = m.role === "assistant" && !m.note ? answerMark(m.content) : null
+    // The collections it's in (#199): the row's fit is measured again when that changes.
+    const collectedIn = historyMode ? "" : placesOf(cols.shown, threadRef.current, entryKey(m)).map((p) => p.rec.n).join("|")
+    const collected = collectedIn !== ""
     return (
     <>
       {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
-      <div class={`cf-msg-tools ${hasField ? "has-insert" : ""}`}>
+      <ToolsRow cls={`cf-msg-tools ${hasField ? "has-insert" : ""}`} sig={`${density}|${hasField}|${copied === idx}|${Boolean(mark)}|${plan}|${historyMode}|${settings.textSize}|${collectedIn}`}>
         {hasField && (
-          <button type="button" class="cf-insert" onClick={() => {
+          <button type="button" class="cf-insert" aria-label={t("qiInsertIntoField")} title={t("qiInsertIntoField")} onClick={() => {
             const text = plain()
             hide()
             // The panel slides away first: the field gets the caret back once it's visible again.
             setTimeout(() => insertFromPanel(text, m.note ? "note" : "answer"), layout === "sheet" ? 240 : 0)
           }}>
-            <QIcon.Insert size={15} /> {t("qiInsertIntoField")}
+            <QIcon.Insert size={15} /> <span class="cf-tl" data-give="6">{t("qiInsertIntoField")}</span>
           </button>
         )}
-        <button type="button" onClick={async () => {
+        <button type="button" aria-label={t("copy")} title={t("copy")} onClick={async () => {
           const text = plain()
           // An answer with highlights goes as rich text too (bold), then as plain text.
           if ((await ux.copyAnswer(idx, text)) || (await copyText(text))) {
@@ -1954,7 +2025,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             void keepCopied(text, "", "contextflow")
           }
         }}>
-          {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
+          {copied === idx ? <Icon.Check /> : <Icon.Copy />} <span class="cf-tl" data-give="5">{copied === idx ? t("copied") : t("copy")}</span>
         </button>
         {typeof navigator.share === "function" && (
           <button type="button" onClick={() => {
@@ -1963,7 +2034,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             if (stars) void sendBackground({ type: "uxEvent", kind: "ux_mark", action: "shared" })
             void shareText(stars ? starMarks(shared(), m.marks) : shared())
           }} aria-label={t("share")} title={t("share")}>
-            <Icon.Share /> <span class="cf-tl">{t("share")}</span>
+            <Icon.Share /> <span class="cf-tl" data-give="3">{t("share")}</span>
           </button>
         )}
         {TARGET === "safari" && !m.note && m.role === "assistant" && (
@@ -1990,29 +2061,38 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             const page = lastPage(messages.slice(0, idx + 1))
             void listen.start(listenKey(`a:${idx}`), { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: page?.title || page?.url || source.title(), url: source.href() })
           }} aria-label={mark ? `${t("listen")} · ${markWords(mark)}` : t("listen")} title={mark ? markWords(mark) : t("listen")}>
-            <SpeakerIcon /> <span class="cf-tl">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
+            <SpeakerIcon /> <span class="cf-tl" data-give="4">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
             {mark && <span class={`cf-voiced ${mark === "free" ? "" : "made"}`}><VoicedIcon /></span>}
           </button>
         )}
-        <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
-          <Icon.Tag /> <span class="cf-tl">{t("tagsButton")}</span>
-        </button>
-        {ux.moreButton(m, idx)}
-      </div>
-      {/* 2.7 «Подборки»: its own line, as in the prototype. */}
-      {!historyMode && (
-        <CollectLink
-          chat={threadRef.current}
-          msg={entryKey(m)}
-          shown={cols.shown}
-          onSheet={() => setCollecting(idx)}
-          onOpen={(id) => {
-            setColOpen(id)
-            setView("collections")
-          }}
-          report={reportCollect}
-        />
-      )}
+        {!compact && (
+          <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
+            <Icon.Tag /> <span class="cf-tl" data-give="2">{t("tagsButton")}</span>
+          </button>
+        )}
+        {/* 2.7 «Подборки» (#199: «✓ In “<collection>”» with its own menu once the message is in one). In the row: on the
+            roomy chat always; on the compact chat only once it's collected (adding is in «…»). Its words give way first. */}
+        {!historyMode && (!compact || collected) && (
+          <CollectLink
+            row
+            chat={threadRef.current}
+            msg={entryKey(m)}
+            shown={cols.shown}
+            onSheet={() => setCollecting(idx)}
+            onOpen={(id) => {
+              setColOpen(id)
+              setView("collections")
+            }}
+            report={reportCollect}
+          />
+        )}
+        {/* What the compact row doesn't show is in «…»; with a finger the «…» has it on the roomy chat too. */}
+        {ux.moreButton(m, idx, compact || touch ? {
+          onTag: () => setTagging(tagging === idx ? null : idx),
+          onCollect: historyMode ? undefined : () => setCollecting(idx),
+          picked: (what) => void sendBackground({ type: "useEvent", f: "quiet", a: "more_pick", what })
+        } : undefined)}
+      </ToolsRow>
       {markSaid === idx && mark && <div class="cf-listen-said" role="status">{markWords(mark)}</div>}
       {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => userTags(idx, next)} onClose={() => setTagging(null)} />}
       {organizeRow(idx)}
@@ -2508,6 +2588,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
   const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
   const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, open: openFromHint })
+  // 2.7 (after 107): the chips are one line that scrolls sideways, so the chip a guide's step or a page hint points at
+  // may be further along it: brought to the middle of its row (the row alone moves, never the chat).
+  const pointedChip = guide === "summarize" ? "summarize" : guide === "ultra_similar" ? "similar" : pageHints.glow === "summarize" || pageHints.glow === "similar" ? pageHints.glow : null
+  useEffect(() => {
+    if (!open || view !== "chat" || !pointedChip) return
+    const timer = setTimeout(() => {
+      const chip = panelRef.current?.querySelector<HTMLElement>(`.cf-actions .cf-chip[data-action="${pointedChip}"]`)
+      const row = chip?.closest<HTMLElement>(".cf-actions")
+      if (!chip || !row) return
+      const c = chip.getBoundingClientRect()
+      const r = row.getBoundingClientRect()
+      row.scrollLeft += c.left + c.width / 2 - (r.left + r.width / 2)
+    }, 120)
+    return () => clearTimeout(timer)
+  }, [open, view, pointedChip, messages.length])
   const panelDrag = usePanelDrag({
     panel: panelRef,
     side,
@@ -2531,9 +2626,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const actions = historyMode
     ? []
     : contextKind === "selection" && selection
-      ? SELECTION_ACTIONS.flatMap((a) => forSelection(a, selection.text) ?? [])
-      : contextKind === "page" ? PAGE_ACTIONS : []
+      ? rankSelectionChips(SELECTION_ACTIONS.flatMap((a) => forSelection(a, selection.text) ?? []), selInField)
+      : contextKind === "page" ? chipOrder.map((id) => PAGE_CHIPS[id]) : []
   const actionLabel = (a: Action) => a.text ?? t(a.label)
+  // What the chips' row holds now: its edges are looked at again when it changes (quiet/ChipsRow.tsx).
+  const chipsSig = actions.map((a) => a.id).join(",")
 
   // ------------------------------------------------------------ the guided first request (2.6, Guide.tsx)
   const reportGuide = (a: "start" | "step" | "done" | "skip" | "exit", what?: string) =>
@@ -3134,6 +3231,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     </div>
   )
 
+  /** The Whole chat switch, in the line under the field (roomy) and in «+». Pro's memory (build 91): Pro and Ultra turn
+   *  it on and off; without Pro it stays off and the chat says what Pro remembers. */
+  const setWholeChat = (on: boolean) => {
+    if (memoryAllowed) return updateSettings({ chatMemory: on })
+    setMemoryOffer("switch")
+    setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
+  }
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
     if (ownKeyActive) return { short: t("usageOwnKey"), full: t("usageOwnKey") }
@@ -3146,6 +3250,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         : { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
       : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
   }, [usage, plan, ownKeyActive])
+
+  // Free in Safari: the way to Pro (or the offer's code), after the count: in the line under the field, or in «+».
+  const getProLink = plan === "free" && !ownKeyActive && TARGET === "safari"
+    ? offer
+      ? <button type="button" class="cf-link" onClick={() => redeemOffer(offer.code)}>{t("offerShort", offer.discount)}</button>
+      : <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
+    : null
+  const leftNow = leftBadge(usage, plan, ownKeyActive)
 
   // ------------------------------------------------------------ organizing (2.5)
   // Suggestions for the chat shown (Pro, with suggestions on): asked once an answer or a note is in, or the chat
@@ -3679,7 +3791,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ render
   return (
-    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined}>
+    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}>
       {/* Where fixed coordinates start, measured (fixedPlace.ts): the selection's buttons and ring are placed by it. */}
       <i class="cf-origin" aria-hidden="true" ref={setFixedProbe} />
       <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
@@ -4055,7 +4167,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <>
               {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads") && (
                 <div class="cf-upsell-wrap">
-                  <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
+                  <Hint line={compact} icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
                 </div>
               )}
               {findConsent && (
@@ -4224,7 +4336,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             />
           ) : (
             <>
-              <div class="cf-messages" ref={listRef} onClick={ux.onListClick}>
+              {/* The empty chat in a phone's sheet sits by the field (quiet.css), unless the guide or the tour has a card up
+                  (the card then lies on nothing). A class, not :has(): Safari on iOS left the :has() rule unapplied. */}
+              <div class={`cf-messages${messages.length === 0 && partial === null && !touring && !(guide !== null && guideIdle && !ON_PAGE.includes(guide)) ? " is-empty" : ""}`} ref={listRef} onClick={ux.onListClick}>
                 {/* 2.6 (100): the bars in one place of their own, kept by its key. When the suggestions bar came, the list's
                     first child turned from the pinned bar into this box, and Preact took every message out and put it
                     back in: the chat jumped to its start (the owner on build 100). */}
@@ -4239,7 +4353,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
                     <h2>{t("askHistory")}</h2>
                     <p>{t("askHistoryEmpty")}</p>
-                    <div class="cf-actions">
+                    <div class="cf-actions wrap">
                       {(["askHistoryEx1", "askHistoryEx2", "askHistoryEx3"] as const).map((key) => (
                         <button type="button" key={key} class="cf-chip" onClick={() => ask(t(key))}>{t(key)}</button>
                       ))}
@@ -4253,11 +4367,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <h2>{t("emptyTitle")}</h2>
                     <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>
                     {actions.length > 0 && (
-                      <div class="cf-actions">
+                      <ChipsRow cls="cf-actions" sig={chipsSig} arrows={!touch}>
                         {actions.map((a) => (
                           chip(a, false)
                         ))}
-                      </div>
+                      </ChipsRow>
                     )}
                   </div>
                 )}
@@ -4370,9 +4484,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && onNewPage && (
                   <div class="cf-newpage">
                     <div class="cf-divider"><span>{t("nowOnPage", source.title() || source.site())}</span></div>
-                    <div class="cf-actions follow">
-                      {withUltra(actions, 4).map((a) => chip(a, true))}
-                    </div>
+                    <ChipsRow cls="cf-actions follow" sig={chipsSig} arrows={!touch}>
+                      {actions.map((a) => chip(a, true))}
+                    </ChipsRow>
                   </div>
                 )}
 
@@ -4380,9 +4494,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     quick chips, while another page's chat had them under "Now on"): the same chips at the chat's end,
                     without the divider, less those already asked about this page. */}
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && (
-                  <div class="cf-actions follow">
-                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a) && m.page?.url === pageUrl)), 4).map((a) => chip(a, true))}
-                  </div>
+                  <ChipsRow cls="cf-actions follow" sig={`${chipsSig}|${messages.length}`} arrows={!touch}>
+                    {actions.filter((a) => !messages.some((m) => m.label === actionLabel(a) && m.page?.url === pageUrl)).map((a) => chip(a, true))}
+                  </ChipsRow>
                 )}
 
                 {/* 2.6 (91): a long answer for this chat under way off the panel (Find similar in the background). */}
@@ -4574,6 +4688,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
                 {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
                   <Hint reveal
+                    line={compact}
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
                     onDone={() => doneHint(source.kind() as HintKey)}
@@ -4598,8 +4713,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
                 {/* 2.7: once, what this version brought, for people who had ContextFlow before (one hint at a time; it says
                     the side too, so the side's own hint isn't shown after it). */}
+                {/* 2.7 (after 107): on the compact chat it's one line («New in ContextFlow 2.7 · Show · ×»), shown in one
+                    opening of the panel and gone with it (newLineShown), never a card over the answer. */}
                 {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint reveal
+                    line={compact && (newLineShown.current = true)}
                     icon={<Icon.Sparkle size={16} />}
                     title={t("hintNewTitle")}
                     list={[t("hintNewTranslate"), t("hintNewWrite"), t("hintNewSpaces"), t("hintNewApple"), t("hintNewShot"), t("hintNewSide")]}
@@ -4609,6 +4727,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
                 {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
                   <Hint reveal
+                    line={compact}
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}
                     onDone={() => doneHint("side")}
@@ -4647,7 +4766,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
-                  {ctxRow}
+                  {/* 2.7 (after 107), the owner's decision 4: no row with the page's title here (it's in the chat's "New
+                      page" divider). What isn't the page keeps its row: a selection (with its bell and eye), "Ask your
+                      chats", a page with nothing to read. */}
+                  {(historyMode || contextKind !== "page") && ctxRow}
                   {(noteMode || shotBusy) && (
                     <ShotSwitch
                       pref={shotPref}
@@ -4660,7 +4782,55 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       }}
                     />
                   )}
+                  {/* 2.7 (after 107), the owner's decision 6: «+» with Note, the page snapshot, Whole chat and the answers left. */}
+                  {plusOpen && (
+                    <PlusMenu
+                      noteMode={noteMode}
+                      onNote={() => {
+                        setPlusOpen(false)
+                        void sendBackground({ type: "useEvent", f: "quiet", a: "plus_pick", what: "note" })
+                        flipMode()
+                        inputRef.current?.focus()
+                      }}
+                      shot={historyMode ? null : {
+                        on: shotPref.on,
+                        onChange: (on) => {
+                          void sendBackground({ type: "useEvent", f: "quiet", a: "plus_pick", what: "shot" })
+                          setShotPref({ ...shotPref, on })
+                          // The snapshot goes with a note: turned on, the field becomes the note's (its row shows what's taken).
+                          if (on && !noteMode) flipMode()
+                          if (on) setPlusOpen(false)
+                        }
+                      }}
+                      whole={historyMode ? null : {
+                        on: memoryOn,
+                        locked: !memoryAllowed,
+                        onChange: (on) => {
+                          void sendBackground({ type: "useEvent", f: "quiet", a: "plus_pick", what: "whole" })
+                          setWholeChat(on)
+                          if (!memoryAllowed) setPlusOpen(false)
+                        }
+                      }}
+                      usage={usageLine.full}
+                      after={getProLink}
+                      onClose={() => setPlusOpen(false)}
+                    />
+                  )}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
+                    <button
+                      type="button"
+                      class={`cf-plus ${plusOpen ? "on" : ""}`}
+                      aria-haspopup="menu"
+                      aria-expanded={plusOpen}
+                      aria-label={t("plusButton")}
+                      title={t("plusButton")}
+                      onClick={() => {
+                        if (!plusOpen) void sendBackground({ type: "useEvent", f: "quiet", a: "plus", lay: density })
+                        setPlusOpen(!plusOpen)
+                      }}
+                    >
+                      <Icon.Plus />
+                    </button>
                     {!noteMode && !historyMode && (
                       <button
                         type="button"
@@ -4679,6 +4849,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       value={draft}
                       placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                       enterkeyhint="send"
+                      // What the screen does once the field has the focus tells a hardware keyboard from the one on
+                      // screen (quiet/density.ts): noted for the next opening.
+                      onFocus={() => setTimeout(noteKeyboard, 700)}
                       onInput={(e) => {
                         const el = e.currentTarget
                         setDraft(el.value)
@@ -4695,6 +4868,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       onKeyUp={(e) => e.stopPropagation()}
                       onKeyPress={(e) => e.stopPropagation()}
                     />
+                    {/* The answers left, as a number by the field: on the compact chat (its line under the field is in «+»),
+                        on Free and when few are left. A tap opens «+», where it stands in full. */}
+                    {compact && leftNow && !noteMode && (
+                      <button type="button" class={`cf-left ${leftNow.low ? "low" : ""}`} aria-label={usageLine.full} title={usageLine.full} onClick={() => setPlusOpen(true)}>{leftNow.left}</button>
+                    )}
                     {streaming ? (
                       <button type="button" class="cf-send stop" onClick={() => stop(true)} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
                     ) : (
@@ -4715,29 +4893,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       </span>
                     )}
                   </div>
-                  <div class="cf-usage">
-                    <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
-                    {!historyMode && <label class="cf-whole" title={t("wholeChatHint")}>
-                      <input type="checkbox" role="switch" checked={memoryOn} onChange={(e) => {
-                        // Pro's memory (build 91): Pro and Ultra turn it on and off; without Pro it stays off and the chat
-                        // says what Pro remembers.
-                        if (memoryAllowed) return updateSettings({ chatMemory: e.currentTarget.checked })
-                        e.currentTarget.checked = false
-                        setMemoryOffer("switch")
-                        setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
-                      }} />
-                      <span class="cf-switch" aria-hidden="true" />
-                      {t("wholeChat")}
-                      {!memoryAllowed && <span class="cf-pro-badge">Pro</span>}
-                    </label>}
-                    {plan === "free" && !ownKeyActive && TARGET === "safari" && (
-                      offer ? (
-                        <button type="button" class="cf-link" onClick={() => redeemOffer(offer.code)}>{t("offerShort", offer.discount)}</button>
-                      ) : (
-                        <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
-                      )
-                    )}
-                  </div>
+                  {/* The line under the field: on the roomy chat only (2.7 after 107; on the compact one it's in «+»). */}
+                  {!compact && (
+                    <div class="cf-usage">
+                      <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
+                      {!historyMode && <label class="cf-whole" title={t("wholeChatHint")}>
+                        <input type="checkbox" role="switch" checked={memoryOn} onChange={(e) => {
+                          if (!memoryAllowed) e.currentTarget.checked = false
+                          setWholeChat(e.currentTarget.checked)
+                        }} />
+                        <span class="cf-switch" aria-hidden="true" />
+                        {t("wholeChat")}
+                        {!memoryAllowed && <span class="cf-pro-badge">Pro</span>}
+                      </label>}
+                      {getProLink}
+                    </div>
+                  )}
                 </footer>
               )}
             </>
@@ -4755,7 +4926,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             />
           )}
           {touring && view === "chat" && panelRef.current && (
-            <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
+            <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch, compact)} onDone={endTour} />
           )}
           {view === "chat" && !picked && ux.overlay}
           {view === "chat" && later && laterSheet(false)}

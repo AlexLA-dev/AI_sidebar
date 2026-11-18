@@ -54,6 +54,10 @@ export interface PageOffer {
 
 let offerNow: PageOffer | null = null
 let foreignNow = false
+// The page's own offer, hidden on this site or not, and the pill's way to start it: the panel's «Translate page» chip
+// (2.7, quiet/signals.ts) reads the first and calls the second.
+let foundNow: PageOffer | null = null
+let starter: ((offer: PageOffer) => void) | null = null
 
 /** The page is in another language and the pill offers to translate it (plan section 6 reads it). */
 export function pageTranslateOffer(): PageOffer | null {
@@ -63,6 +67,19 @@ export function pageTranslateOffer(): PageOffer | null {
 /** The page is in another language, whether or not the pill is hidden on this site: page hints never show there. */
 export function pageIsForeign(): boolean {
   return foreignNow
+}
+
+/** What the page would be translated from and into, whether or not the pill is hidden on this site. */
+export function pageForeignOffer(): PageOffer | null {
+  return foundNow
+}
+
+/** Starts the page's translation as the pill's own «Translate» does (the consent, the limit, «Original» after it); the
+ *  pill comes back for it on a site it was hidden on. False when there's nothing to translate or no pill here. */
+export function translatePageNow(): boolean {
+  if (!foundNow || !starter) return false
+  starter(foundNow)
+  return true
 }
 
 const site = () => location.hostname.replace(/^www\./, "")
@@ -159,6 +176,7 @@ function useOffer(): Offered {
       const found = judge(toRef.current)
       // The pill has something to say by itself (the page, or its controls): page hints keep quiet (one thing at a time).
       foreignNow = found.offer !== null || found.controls?.offer === true
+      foundNow = found.offer
       const off = found.offer || found.part || found.controls ? await hiddenHere() : false
       if (!alive) return
       setHidden(off)
@@ -300,6 +318,31 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     setOpened(true)
   }, [held])
 
+  /** The translation of `goal`, asked for by the pill's button or the panel's «Translate page» chip: the consent first. */
+  const startFor = async (goal: PageOffer) => {
+    asked.current = goal
+    tapped.current = true
+    step("tap")
+    const status = await loadConsent()
+    if (status !== "ok") {
+      setConsent(status)
+      step("consent")
+      return
+    }
+    void pageTranslator().start(goal.to, goal.from, goal.only ?? null)
+  }
+  // The panel's chip (quiet/signals.ts): the pill shows again (also where it was hidden) with the translation under way.
+  useEffect(() => {
+    starter = (goal) => {
+      setClosed(false)
+      setOpened(true)
+      void startFor(goal)
+    }
+    return () => {
+      starter = null
+    }
+  }, [])
+
   // What the pill would translate, one thing at a time: the page when its main content is in another language; else
   // its controls when they are (whatever their share of the page); else a part of it; by hand, the page as it is.
   const sameAsPage = !!pageLang && baseLanguage(pageLang) === baseLanguage(to)
@@ -350,17 +393,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   const start = (goal: PageOffer) => void pageTranslator().start(goal.to, goal.from, goal.only ?? null)
   const go = async () => {
     const goal = target ?? asked.current
-    if (!goal) return
-    asked.current = goal
-    tapped.current = true
-    step("tap")
-    const status = await loadConsent()
-    if (status !== "ok") {
-      setConsent(status)
-      step("consent")
-      return
-    }
-    start(goal)
+    if (goal) await startFor(goal)
   }
   const accept = async () => {
     await giveConsent()
