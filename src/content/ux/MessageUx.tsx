@@ -263,11 +263,13 @@ export function useAboveComposer(back: { current: HTMLElement | null }, enabled 
  * A small menu by a message: pin, remind, delete. `at`: where a right-click was (Mac), else under "…", or over it
  * when the chat has no room below (the last answer, right above the question field).
  */
-export function MessageMenu({ at, pinned, reminded, onTag, onCollect, onPin, onRemind, onAdd, onDelete, onClose }: {
+export function MessageMenu({ at, pinned, reminded, onTag, onCollect, onMove, onPin, onRemind, onAdd, onDelete, onClose }: {
   at?: { x: number; y: number }
-  // 2.7 (the compact chat): Tag and To collection, which its row of buttons no longer shows.
+  // 2.7: Tag and To collection, when the row of buttons under the message had no room for them (109).
   onTag?: () => void
   onCollect?: () => void
+  // 2.7 (109): to another chat, with its question (moveAnswer.ts).
+  onMove?: () => void
   pinned: boolean
   reminded: boolean
   onPin: () => void
@@ -327,6 +329,7 @@ export function MessageMenu({ at, pinned, reminded, onTag, onCollect, onPin, onR
       {onCollect && <button type="button" role="menuitem" class="cf-menu-collect" onClick={onCollect}><Icon.ToCollection /> {t("colAdd")}</button>}
       <button type="button" role="menuitem" onClick={onPin}><PinIcon size={15} filled={pinned} /> {t(pinned ? "uxUnpin" : "uxPin")}</button>
       <button type="button" role="menuitem" onClick={onRemind}><Bell size={15} /> {t(reminded ? "uxRemindChange" : "uxRemind")}</button>
+      {onMove && <button type="button" role="menuitem" class="cf-menu-move" onClick={onMove}><Icon.MoveTo /> {t("uxMove")}</button>}
       {onAdd && <button type="button" role="menuitem" onClick={onAdd}><CalendarIcon size={15} /> {t("appleMenu")}</button>}
       <button type="button" role="menuitem" class="danger" onClick={onDelete}><TrashIcon size={15} /> {t("uxDelete")}</button>
     </div>

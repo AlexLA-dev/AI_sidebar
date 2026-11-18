@@ -443,6 +443,16 @@ export function deleteCard(rec: Collection, cid: string, now = Date.now()): Coll
   return { ...rec, c: rec.c.map((c) => (gone(c) ? { id: c.id, sec: "", o: 0, u: later(c.u, now), d: true as const, k: c.k, t: "", at: 0 } : c)) }
 }
 
+/**
+ * An answer or a note moved to another chat (2.7 (109), «…» ▸ Move to another chat): its cards here now open it there.
+ * `keys`: the moved messages' keys (entryKey). The collection as it was when it has none of them.
+ */
+export function cardsMoved(rec: Collection, from: string, to: string, keys: string[], now = Date.now()): Collection {
+  const moved = new Set(keys)
+  if (!rec.c.some((c) => !c.d && c.chat === from && c.msg && moved.has(c.msg))) return rec
+  return { ...rec, c: rec.c.map((c) => (!c.d && c.chat === from && c.msg && moved.has(c.msg) ? { ...c, chat: to, u: later(c.u, now) } : c)) }
+}
+
 export function setSummary(rec: Collection, text: string, now = Date.now()): Collection {
   return { ...rec, sum: { t: text.trim().slice(0, 1_000), u: later(rec.sum?.u, now) } }
 }

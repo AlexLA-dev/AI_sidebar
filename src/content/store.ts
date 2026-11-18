@@ -9,7 +9,7 @@ import { keepingAnswers, type Jobs } from "../shared/jobs"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import type { MadeList } from "../shared/voiced"
 import { changedSpaces, cleanSpaceList, currentSpace, emptySpaces, FIRST_SPACE, spaceOfChat, type SpaceList, type StoredSpaces } from "../shared/spaces"
-import { changedCollection, cleanCollection, type Collection, type StoredCollections } from "../shared/collections"
+import { cardsMoved, changedCollection, cleanCollection, type Collection, type StoredCollections } from "../shared/collections"
 
 
 async function get<T>(key: string): Promise<T | undefined> {
@@ -434,6 +434,22 @@ export async function saveCollection(cid: string, change: (rec: Collection | und
   if (!next || next === before) return null
   await set(STORAGE.collections, { ...all, [cid]: changedCollection(all[cid], next) })
   return next
+}
+
+/** Messages moved from chat `from` to `to` (or back, on Undo): every collection's cards of them follow. */
+export async function collectionsFollow(from: string, to: string, keys: string[]): Promise<void> {
+  const all = (await get<StoredCollections>(STORAGE.collections)) ?? {}
+  let changed = false
+  const next: StoredCollections = { ...all }
+  for (const [cid, stored] of Object.entries(all)) {
+    const rec = cleanCollection(stored?.rec, cid)
+    if (!rec) continue
+    const moved = cardsMoved(rec, from, to, keys)
+    if (moved === rec) continue
+    next[cid] = changedCollection(stored, moved)
+    changed = true
+  }
+  if (changed) await set(STORAGE.collections, next)
 }
 
 /** Calls `listener` with every collection when one changes (here, in another tab, from iCloud or the app). */

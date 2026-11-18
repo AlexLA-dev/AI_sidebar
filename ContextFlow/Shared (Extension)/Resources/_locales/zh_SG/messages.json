@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "更改提醒"
  },
+ "uxMove": {
+  "message": "移到其他对话"
+ },
+ "uxMoveTitle": {
+  "message": "把回答移到哪个对话？"
+ },
+ "uxMoveNoteTitle": {
+  "message": "把笔记移到哪个对话？"
+ },
  "uxRemindOpen": {
   "message": "打开"
  },

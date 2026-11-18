@@ -261,7 +261,9 @@ export function CollectSheet({ entries, index, chat, all, shown, space, pro, ai,
  * another collection.
  */
 export function CollectLink({ chat, msg, shown, onSheet, onOpen, report, row }: {
-  // In the one row of buttons under a message (2.7 after 107): its words give way to the icon first (ToolsRow).
+  // In the one row of buttons under a message (2.7 after 107): its words give way to the icon first, and with no room
+  // even for that it leaves the row for «…» (data-drop, ToolsRow). 109: the collection's name is the mark by the
+  // message (CollectedMark), so here it says what the button does.
   row?: boolean
   chat: string
   msg: string
@@ -297,15 +299,17 @@ export function CollectLink({ chat, msg, shown, onSheet, onOpen, report, row }: 
   }, [menu])
   if (!places.length) {
     return row
-      ? <button type="button" class="cf-collect-link" onClick={onSheet} aria-label={t("colAdd")} title={t("colAdd")}><Icon.ToCollection /> <span class="cf-tl" data-give="1">{t("colAdd")}</span></button>
+      ? <button type="button" class="cf-collect-link" data-drop="collect" data-drop-order="1" onClick={onSheet} aria-label={t("colAdd")} title={t("colAdd")}><Icon.ToCollection /> <span class="cf-tl" data-give="1">{t("colAdd")}</span></button>
       : <button type="button" class="cf-collect-link" onClick={onSheet}><Icon.ToCollection /> {t("colAdd")}</button>
   }
   const first = places[0]
   return (
-    <span class={`cf-collect-in${row ? " in-row" : ""}`} ref={box}>
+    <span class={`cf-collect-in${row ? " in-row" : ""}`} ref={box} data-drop={row ? "collect" : undefined} data-drop-order={row ? "1" : undefined}>
       <button type="button" class="cf-collect-link in" aria-haspopup="menu" aria-expanded={menu} aria-label={row ? t("colIn", first.rec.n) : undefined} title={row ? t("colIn", first.rec.n) : first.section?.n} onClick={() => setMenu(!menu)}>
-        <Icon.Check /> <span class={`cf-collect-name${row ? " cf-tl" : ""}`} data-give={row ? "1" : undefined} dir="auto">{t("colIn", first.rec.n)}</span>
-        {places.length > 1 && <span class="cf-collect-more">+{places.length - 1}</span>}
+        <Icon.Check /> {row
+          ? <span class="cf-collect-name cf-tl" data-give="1">{t("colAdd")}</span>
+          : <span class="cf-collect-name" dir="auto">{t("colIn", first.rec.n)}</span>}
+        {!row && places.length > 1 && <span class="cf-collect-more">+{places.length - 1}</span>}
       </button>
       {menu && (
         <div class="cf-col-menu cf-collect-menu" role="menu">
@@ -334,6 +338,24 @@ export function CollectLink({ chat, msg, shown, onSheet, onOpen, report, row }: 
         </div>
       )}
     </span>
+  )
+}
+
+/**
+ * 2.7 (109), the owner on 108: «Нигде не увидел, чтобы показывалось в какой коллекции ответ в чате». By an answer or a
+ * note that is in a collection, without opening a menu: a small mark with each collection's name, on the message's line
+ * of tags (not in its row of buttons); a tap opens that collection.
+ */
+export function CollectedMark({ places, onOpen }: { places: Array<{ rec: Collection }>; onOpen: (collection: string) => void }): VNode | null {
+  if (!places.length) return null
+  return (
+    <>
+      {places.map(({ rec }) => (
+        <button key={rec.id} type="button" class="cf-col-mark" onClick={() => onOpen(rec.id)} aria-label={`${t("colIn", rec.n)} · ${t("colOpen")}`} title={t("colOpen")}>
+          <Icon.Collections /> <span class="cf-col-mark-name" dir="auto">{rec.n}</span>
+        </button>
+      ))}
+    </>
   )
 }
 

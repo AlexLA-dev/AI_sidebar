@@ -109,3 +109,8 @@
 .cf-col-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 11px 12px; border-radius: 12px; background: var(--bg-2); color: var(--text); font-weight: 700; font-size: 14.5px; }
 .cf-col-btn.primary { background: var(--accent); color: #fff; }
 .cf-col-btn:disabled { opacity: 0.45; }
+/* 2.7 (109): the collection an answer or a note is in, by it on its line of tags; a tap opens the collection. */
+.cf-col-mark { display: inline-flex; align-items: center; gap: 4px; max-width: 14em; min-width: 0; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; line-height: 18px; color: var(--accent-text); background: var(--accent-soft); }
+.cf-col-mark svg { flex: none; width: 12px; height: 12px; color: var(--accent); }
+.cf-col-mark-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-col-mark:hover { filter: brightness(0.97); }

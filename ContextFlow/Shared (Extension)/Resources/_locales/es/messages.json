@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Cambiar recordatorio"
  },
+ "uxMove": {
+  "message": "Mover a otro chat"
+ },
+ "uxMoveTitle": {
+  "message": "¿A qué chat mover la respuesta?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "¿A qué chat mover la nota?"
+ },
  "uxRemindOpen": {
   "message": "Abrir"
  },
