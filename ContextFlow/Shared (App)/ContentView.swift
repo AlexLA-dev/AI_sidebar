@@ -65,7 +65,10 @@ struct ContentView: View {
     @StateObject private var chats = ChatLibrary.shared
     @Environment(\.requestReview) private var requestReview
     @Environment(\.scenePhase) private var scenePhase
-    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty && ChatLibrary.shared.trashed.isEmpty ? .home : .chats
+    @State private var tab: AppTab = NewUserPreview.isOn || (ChatLibrary.shared.threads.isEmpty && ChatLibrary.shared.trashed.isEmpty) ? .home : .chats
+    /// «Start as a new user» (2.7, TestFlight and debug builds; Setup.swift): while it's on, the chats are left out of
+    /// what's shown here (nothing in ChatLibrary, iCloud or the App Group changes).
+    @StateObject private var preview = NewUserPreview.shared
     /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
     @State private var showingSetup = false
     /// Settings scrolls down to the plan (the extension's "Manage subscription" with Pro).
@@ -73,7 +76,7 @@ struct ContentView: View {
 
     /// Once the user has chats, they come first: Get Started gives way to Chats.
     /// Chats in Recently Deleted count: the Chats screen is the way to them (2.5 (83)).
-    private var hasChats: Bool { !chats.threads.isEmpty || !chats.trashed.isEmpty }
+    private var hasChats: Bool { !preview.on && (!chats.threads.isEmpty || !chats.trashed.isEmpty) }
 
     /// With Ultra there is no Pro tab: the plan is at the bottom of Settings (2.6: Pro subscribers keep it, as
     /// "Ultra"). A purchase made on the tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
@@ -102,6 +105,8 @@ struct ContentView: View {
 
     /// After an update, the tab opens once by itself; the 2.5 sheet then never shows (its feature has a card in Tips).
     private func openWhatsNewAfterUpdate() {
+        // Not for a new user («Start as a new user», test builds): it waits for a launch with the person's own data.
+        guard !preview.on else { return }
         let existing = hasChats || UserDefaults.standard.object(forKey: "cf_whatsnew_organize") != nil
         guard WhatsNew.dueAfterUpdate(existingUser: existing) else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
@@ -223,6 +228,8 @@ struct ContentView: View {
                 // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
                 case "notifications":
                     let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "listen" }?.value?.lowercased()
+                    // 2.7: the link's own text is kept, so it's here whether or not the extension's copy has come.
+                    ListenLink.keep(url)
                     Task { await NotifyAsk.shared.show(.listen, listen: id) }
                 #endif
                 case "tips": tab = .tips
@@ -295,6 +302,10 @@ struct ContentView: View {
             .onChange(of: hasChats) { has in
                 if has, tab == .home { tab = .chats }
                 if !has, tab == .chats { tab = .home }
+            }
+            // «Start as a new user» started or ended (test builds): the first screen of whichever it is now.
+            .onChange(of: preview.on) { on in
+                tab = on || (chats.threads.isEmpty && chats.trashed.isEmpty) ? .home : .chats
             }
     }
 
@@ -443,6 +454,8 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                // Test builds, «Start as a new user» on (Setup.swift): what this is, and the way back.
+                NewUserPreviewBanner()
                 header
                 if store.renewalOff != nil {
                     RenewalQuestionCard()
@@ -619,7 +632,7 @@ struct TipsView: View {
                             .padding(.bottom, 8)
                         }
                     } header: {
-                        TipBlockHeader(title: group.title, count: group.tips.count, open: open) { toggle(group) }
+                        TipBlockHeader(title: group.title, count: group.tips.count, open: open, hasNew: group.tips.contains(where: \.isNew)) { toggle(group) }
                             .background(.background)
                     }
                 }
@@ -670,6 +683,12 @@ struct Tip {
     var pro = false
     // Needs Ultra (2.6): the Ultra badge by the title.
     var ultra = false
+    // The version that brought it ("2.7"): a quiet «New» by the title while that's the version What's new is about
+    // (WhatsNew.version), gone with the next one (107, the owner).
+    var since: String? = nil
+
+    /// New in the version this build's What's new is about.
+    var isNew: Bool { since == WhatsNew.version }
 }
 
 struct TipGroup {
@@ -789,10 +808,10 @@ struct TipGroup {
     static var translateTip: Tip {
         #if os(iOS)
         Tip(symbol: "character.bubble", color: .teal, title: "Read a page in your language",
-            text: "On a page in another language, tap the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.", clip: "translate")
+            text: "On a page in another language, tap the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.", clip: "translate", since: "2.7")
         #else
         Tip(symbol: "character.bubble", color: .teal, title: "Read a page in your language",
-            text: "On a page in another language, click the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.", clip: "translate")
+            text: "On a page in another language, click the “Translate to English?” line by ✦: the page itself switches to your language, links and all, and keeps going as you scroll. Original brings every word back. A page counts as one answer a week, however often you translate it.", clip: "translate", since: "2.7")
         #endif
     }
 
@@ -800,10 +819,10 @@ struct TipGroup {
     private static var sideTip: Tip {
         #if os(iOS)
         Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
-            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. On iPad, drag the panel by its top bar to move it to the other side too. Screen side in the extension settings does the same.", clip: "side")
+            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. On iPad, drag the panel by its top bar to move it to the other side too. Screen side in the extension settings does the same.", clip: "side", since: "2.7")
         #else
         Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
-            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. Drag the panel by its top bar to move it to the other side too, or choose Screen side in the extension settings.", clip: "side")
+            text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it. Drag the panel by its top bar to move it to the other side too, or choose Screen side in the extension settings.", clip: "side", since: "2.7")
         #endif
     }
 
@@ -812,10 +831,10 @@ struct TipGroup {
     static var writeTip: Tip {
         #if os(iOS)
         Tip(symbol: "checkmark.bubble", color: .indigo, title: "Check or rewrite before you send",
-            text: "Writing an email or a comment? Tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each tap counts as one answer.", clip: "write")
+            text: "Writing an email or a comment? Tap the ContextFlow button by the field: Check and Rewrite are at the top of the list. Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each tap counts as one answer.", clip: "write", since: "2.7")
         #else
         Tip(symbol: "checkmark.bubble", color: .indigo, title: "Check or rewrite before you send",
-            text: "Writing an email or a comment? Once you've written a few words, point at the circle above the field: Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each one counts as one answer.", clip: "mac-write")
+            text: "Writing an email or a comment? Once you've written a few words, point at the circle above the field: Check fixes mistakes; Rewrite makes the text shorter, warmer, more formal or more confident. Both take the page into account, like the email you're answering, and Undo brings your words back. Each one counts as one answer.", clip: "mac-write", since: "2.7")
         #endif
     }
 
@@ -823,10 +842,10 @@ struct TipGroup {
     private static var underlineTip: Tip {
         #if os(iOS)
         Tip(symbol: "textformat.abc.dottedunderline", color: .indigo, title: "Mistakes underlined as you type",
-            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Tap the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", clip: "underline", pro: true)
+            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Tap the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", clip: "underline", pro: true, since: "2.7")
         #else
         Tip(symbol: "textformat.abc.dottedunderline", color: .indigo, title: "Mistakes underlined as you type",
-            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Point at the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", clip: "mac-underline", pro: true)
+            text: "With Pro or Ultra, pause while typing and a mistake in the paragraph you changed gets underlined. Point at the underline to see the fix, then Fix or Ignore. It doesn't count as answers, and you can turn it off in the extension settings.", clip: "mac-underline", pro: true, since: "2.7")
         #endif
     }
 
@@ -834,43 +853,43 @@ struct TipGroup {
     static var shotTip: Tip {
         #if os(iOS)
         Tip(symbol: "photo.on.rectangle", color: .orange, title: "A snapshot with your note",
-            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Tap the picture to open it full screen and crop it. It stays on your devices and in your iCloud.", clip: "shot")
+            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Tap the picture to open it full screen and crop it. It stays on your devices and in your iCloud.", clip: "shot", since: "2.7")
         #else
         Tip(symbol: "photo.on.rectangle", color: .orange, title: "A snapshot with your note",
-            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Click the picture to open it full screen and crop it. It stays on your devices and in your iCloud.", clip: "shot")
+            text: "Writing a note? Turn on Page snapshot above the field and the note keeps a picture of the page: the part on screen, or with Pro the whole page. Click the picture to open it full screen and crop it. It stays on your devices and in your iCloud.", clip: "shot", since: "2.7")
         #endif
     }
 
     // Calendar and Reminders (#170): the AI's card, the … menu, and Also in Reminders. Also in What's new (2.7).
     static var appleTip: Tip {
         Tip(symbol: "calendar.badge.plus", color: .red, title: "Add to Calendar or Reminders",
-            text: "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card to check the date and time, and Add puts it in Calendar or Reminders. Any answer or note has Add to Calendar or Reminders in its … menu. In Remind me, Also in Reminders puts your reminder in Apple Reminders too.", clip: "apple")
+            text: "Ask “remind me to call the bank on Friday”, or about a date on the page: the answer comes with a card to check the date and time, and Add puts it in Calendar or Reminders. Any answer or note has Add to Calendar or Reminders in its … menu. In Remind me, Also in Reminders puts your reminder in Apple Reminders too.", clip: "apple", since: "2.7")
     }
 
     // Spaces (#171). Free's number isn't named here (the owner hasn't settled it): the limit card says it. Also in
     // What's new (2.7).
     static var spacesTip: Tip {
         Tip(symbol: "square.stack.3d.up", color: .purple, title: "Spaces for work and home",
-            text: "Keep work, home and shopping apart. New space, at the end of the chat list, makes one in its own color. The switcher at the top of the list moves between them, and a new chat goes into the space you're in. In the switcher, Open amazon.com here keeps that site in this space. Free has a limit; with Pro or Ultra, as many as you like.", clip: "spaces")
+            text: "Keep work, home and shopping apart. New space, at the end of the chat list, makes one in its own color. The switcher at the top of the list moves between them, and a new chat goes into the space you're in. In the switcher, Open amazon.com here keeps that site in this space. Free has a limit; with Pro or Ultra, as many as you like.", clip: "spaces", since: "2.7")
     }
 
     // Collections (2.7, #175, #182): "To collection" under an answer or a note, the Collections tab (the panel's window and
     // the app's), Compare and Summary with Pro, a PDF.
     static var collectionsTip: Tip {
         Tip(symbol: "square.grid.2x2", color: .orange, title: "Gather it in a collection",
-            text: "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.", clip: "collections")
+            text: "Planning a trip or a purchase? Choose To collection under an answer or a note, or in its … menu, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.", clip: "collections", since: "2.7")
     }
 
     // The matching chat when the panel opens (#172).
     private static var matchTip: Tip {
         Tip(symbol: "doc.text.magnifyingglass", color: .teal, title: "The chat for this page",
-            text: "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top says which chat it picked; New chat there starts a fresh one.", clip: "match")
+            text: "Open the panel on a page and ContextFlow picks the chat about it: the one with this page, or one on the same subject. Continuing at the top says which chat it picked; New chat there starts a fresh one.", clip: "match", since: "2.7")
     }
 
     // The page hints by ✦ in the first days (#176, #179): Tips point to them, their how-to card points back to Tips.
     private static var pageHintsTip: Tip {
         Tip(symbol: "lightbulb", color: .yellow, title: "Tips by the ✦ button",
-            text: "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how. Turn the lines off in the extension settings, under Tips by the ✦ button.", clip: "pagehints")
+            text: "In your first days, a short line by ✦ suggests something for the page you're on: a summary of a long article, a price to watch, a date for your calendar. Tap it to see how. Turn the lines off in the extension settings, under Tips by the ✦ button.", clip: "pagehints", since: "2.7")
     }
 
     private static func iOSClip(_ name: String) -> String? {
@@ -904,7 +923,7 @@ struct TipGroup {
         ]),
         TipGroup(id: "deeper-work", title: "Deeper work", tips: [
             Tip(symbol: "pencil.line", color: .orange, title: "Notes of your own",
-                text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
+                text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking, or tap + by the field and choose Note. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
             shotTip,
             Tip(symbol: "highlighter", color: .yellow, title: "Highlight what matters",
                 text: "Select a line in an answer and tap Highlight: it stays marked, like with a pen. Later answers in that chat take your highlights into account, and Copy keeps them in bold.", clip: "highlight"),
@@ -912,7 +931,7 @@ struct TipGroup {
                 text: "Pin an answer or a note and it waits in the bar at the top of the chat. Tap the bar to jump to it, tap again for the next one.", clip: "pinned"),
             swipeTip,
             Tip(symbol: "rectangle.stack", color: .blue, title: "The whole chat in mind",
-                text: "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.", clip: "whole"),
+                text: "Turn on Whole chat under + by the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.", clip: "whole"),
             Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video",
                 text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video", pro: true),
             Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",
@@ -942,7 +961,7 @@ struct TipGroup {
             Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
                 text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
             Tip(symbol: "tag", color: .purple, title: "Tags and folders",
-                text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
+                text: "Tag a chat, an answer or a note with 🏷, or with Tag in its … menu. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
             Tip(symbol: "square.and.arrow.up", color: .pink, title: "Share what you found",
                 text: "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow.", clip: "share"),
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
@@ -959,12 +978,11 @@ struct TipGroup {
         TipGroup(id: "your-plan", title: "Your plan", tips: [
             Tip(symbol: "calendar", color: .green, title: "Monthly or yearly",
                 text: "Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans, in the app or in Safari, to see each price and what you save. On monthly already? Switch to yearly is in Settings → Your plan: it starts when your current month ends.", clip: "yearly"),
-            Tip(symbol: "crown", color: brandBlue, title: "What your plan adds",
-                text: "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan."),
+            // 107, the owner: «What your plan adds не нужен в tips» (the tour itself stays in the panel's and Settings' menus).
             // 2.7 (#181): the code and the link in Settings, the friend's bonus answers, the inviter's discount. No figures:
             // the panel's and the app's own invite screens name them.
             Tip(symbol: "gift", color: .pink, title: "Invite a friend",
-                text: "Settings → Invite a friend, in the app or in Safari, gives you a code and a link to send. Your friend gets bonus answers every day of their first week. Once they've asked questions on two different days, you get a discount on your first month of Pro or Ultra.", clip: "invite")
+                text: "Settings → Invite a friend, in the app or in Safari, gives you a code and a link to send. Your friend gets bonus answers every day of their first week. Once they've asked questions on two different days, you get a discount on your first month of Pro or Ultra.", clip: "invite", since: "2.7")
         ]),
         TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
@@ -1007,6 +1025,7 @@ struct TipCard: View {
                     .font(.headline)
                 if tip.pro { ProBadge() }
                 if tip.ultra { UltraBadge() }
+                if tip.isNew { NewBadge() }
             }
             Text(tip.text)
                 .font(.callout)
@@ -1023,6 +1042,20 @@ struct TipCard: View {
         .background(Color.cardFill)
         .cornerRadius(16)
         .accessibilityElement(children: action == nil ? .combine : .contain)
+    }
+}
+
+/// «New» by the title of a card whose feature came with this version (107, the owner: «подсвечивались слегка»): quiet,
+/// tinted text on a faint fill, no solid colour (those are Pro's and Ultra's).
+struct NewBadge: View {
+    var body: some View {
+        Text("New", comment: "A quiet badge by a Tips card whose feature is new in this version (2.7)")
+            .font(.caption2.weight(.semibold))
+            .foregroundColor(brandBlue)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(brandBlue.opacity(0.12)))
+            .accessibilityIdentifier("cf-tip-new")
     }
 }
 
@@ -1043,6 +1076,8 @@ struct TipBlockHeader: View {
     let title: LocalizedStringKey
     let count: Int
     let open: Bool
+    // The block holds cards that are new in this version: said on a folded block, so they're found (107).
+    var hasNew = false
     let toggle: () -> Void
 
     var body: some View {
@@ -1055,6 +1090,7 @@ struct TipBlockHeader: View {
                     Text(verbatim: String(count))
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.secondary)
+                    if hasNew { NewBadge() }
                 }
                 Spacer(minLength: 8)
                 Image(systemName: "chevron.forward")
@@ -2059,6 +2095,10 @@ struct SettingsView: View {
                 }
                 .accessibilityIdentifier("cf-rate")
             }
+
+            // 2.7, TestFlight and debug builds only, never the App Store's (Setup.swift TestBuild): the first run again
+            // on this device, without touching what's in iCloud.
+            if TestBuild.isTest { NewUserPreviewSection() }
         }
         .navigationTitle("Settings")
         #if os(iOS)

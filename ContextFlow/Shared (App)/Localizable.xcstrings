@@ -10742,90 +10742,90 @@
         }
       }
     },
-    "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.": {
+    "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking, or tap + by the field and choose Note. It stays in the chat with its page, syncs with it and uses no answers.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "اسحب زر الإرسال لأعلى أو لأسفل (على Mac، مرّر عليه) لتكتب ملاحظة بدل أن تسأل. تبقى في المحادثة مع صفحتها، وتُزامَن معها، ولا تستهلك أي إجابة."
+            "value": "اسحب زر الإرسال لأعلى أو لأسفل (على Mac، مرّر عليه) لتكتب ملاحظة بدل أن تسأل، أو اضغط + بجانب الحقل واختر «ملاحظة». تبقى في المحادثة مع صفحتها، وتُزامَن معها، ولا تستهلك أي إجابة."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten."
+            "value": "Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben, oder tippe auf + neben dem Feld und wähle „Notiz“. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desliza el botón de enviar arriba o abajo (en un Mac, desplázate sobre él) para escribir una nota en lugar de preguntar. Se queda en el chat con su página, se sincroniza con él y no gasta respuestas."
+            "value": "Desliza el botón de enviar arriba o abajo (en un Mac, desplázate sobre él) para escribir una nota en lugar de preguntar, o toca + junto al campo y elige «Nota». Se queda en el chat con su página, se sincroniza con él y no gasta respuestas."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Faites glisser le bouton d’envoi vers le haut ou le bas (sur Mac, faites défiler dessus) pour écrire une note au lieu de poser une question. Elle reste dans la discussion avec sa page, se synchronise avec elle et ne consomme aucune réponse."
+            "value": "Faites glisser le bouton d’envoi vers le haut ou le bas (sur Mac, faites défiler dessus) pour écrire une note au lieu de poser une question, ou touchez + à côté du champ et choisissez « Note ». Elle reste dans la discussion avec sa page, se synchronise avec elle et ne consomme aucune réponse."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scorri il pulsante di invio in su o in giù (su Mac, scorri sopra di esso) per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina, si sincronizza con essa e non consuma risposte."
+            "value": "Scorri il pulsante di invio in su o in giù (su Mac, scorri sopra di esso) per scrivere una nota invece di fare una domanda, oppure tocca + accanto al campo e scegli «Nota». Resta nella chat con la sua pagina, si sincronizza con essa e non consuma risposte."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "送信ボタンを上下にスワイプ（Macではボタンの上でスクロール）すると、質問の代わりにメモを書けます。メモはページと一緒にチャットに残り、チャットと一緒に同期され、回答回数を使いません。"
+            "value": "送信ボタンを上下にスワイプ（Macではボタンの上でスクロール）すると、質問の代わりにメモを書けます。入力欄の横の＋をタップして「メモ」を選ぶこともできます。メモはページと一緒にチャットに残り、チャットと一緒に同期され、回答回数を使いません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "보내기 버튼을 위아래로 밀면(Mac에서는 버튼 위에서 스크롤) 질문 대신 메모를 쓸 수 있습니다. 메모는 페이지와 함께 채팅에 남고, 채팅과 함께 동기화되며, 답변 횟수를 쓰지 않습니다."
+            "value": "보내기 버튼을 위아래로 밀면(Mac에서는 버튼 위에서 스크롤) 질문 대신 메모를 쓸 수 있습니다. 입력란 옆의 +를 탭하고 '메모'를 선택해도 됩니다. 메모는 페이지와 함께 채팅에 남고, 채팅과 함께 동기화되며, 답변 횟수를 쓰지 않습니다."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deslize o botão de enviar para cima ou para baixo (no Mac, role sobre ele) para escrever uma nota em vez de perguntar. Ela fica no chat com a página, sincroniza com ele e não gasta respostas."
+            "value": "Deslize o botão de enviar para cima ou para baixo (no Mac, role sobre ele) para escrever uma nota em vez de perguntar, ou toque em + ao lado do campo e escolha “Nota”. Ela fica no chat com a página, sincroniza com ele e não gasta respostas."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Смахните кнопку отправки вверх или вниз (на Mac — прокрутите над ней), чтобы записать заметку вместо вопроса. Она останется в чате вместе со страницей, синхронизируется вместе с ним и не тратит ответы."
+            "value": "Смахните кнопку отправки вверх или вниз (на Mac — прокрутите над ней), чтобы записать заметку вместо вопроса, или нажмите + рядом с полем и выберите «Заметка». Она останется в чате вместе со страницей, синхронизируется вместе с ним и не тратит ответы."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Soru sormak yerine not yazmak için gönder düğmesini yukarı veya aşağı kaydırın (Mac'te üzerinde kaydırın). Not, sayfasıyla birlikte sohbette kalır, sohbetle eşzamanlanır ve yanıt harcamaz."
+            "value": "Soru sormak yerine not yazmak için gönder düğmesini yukarı veya aşağı kaydırın (Mac'te üzerinde kaydırın). Ya da alanın yanındaki + düğmesine dokunup “Not”u seçin. Not, sayfasıyla birlikte sohbette kalır, sohbetle eşzamanlanır ve yanıt harcamaz."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Змахніть кнопку надсилання вгору або вниз (на Mac — прокрутіть над нею), щоб записати нотатку замість запитання. Вона залишиться в чаті разом зі сторінкою, синхронізується разом із ним і не витрачає відповіді."
+            "value": "Змахніть кнопку надсилання вгору або вниз (на Mac — прокрутіть над нею), щоб записати нотатку замість запитання, або натисніть + поруч із полем і виберіть «Нотатка». Вона залишиться в чаті разом зі сторінкою, синхронізується разом із ним і не витрачає відповіді."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút đó) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó, được đồng bộ cùng cuộc trò chuyện và không tốn câu trả lời nào."
+            "value": "Vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút đó) để viết ghi chú thay vì đặt câu hỏi, hoặc chạm + cạnh ô nhập rồi chọn Ghi chú. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó, được đồng bộ cùng cuộc trò chuyện và không tốn câu trả lời nào."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "上下滑动发送按钮（在 Mac 上，在按钮上滚动），就能写笔记而不是提问。笔记会连同页面留在对话中，随对话同步，不消耗回答次数。"
+            "value": "上下滑动发送按钮（在 Mac 上，在按钮上滚动），就能写笔记而不是提问；也可以轻点输入框旁的 +，然后选择“笔记”。笔记会连同页面留在对话中，随对话同步，不消耗回答次数。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "將傳送按鈕往上或往下滑（在 Mac 上，在按鈕上捲動），就能寫筆記而不是提問。筆記會和它的頁面一起留在對話中，跟著對話同步，也不會用掉回答次數。"
+            "value": "將傳送按鈕往上或往下滑（在 Mac 上，在按鈕上捲動），就能寫筆記而不是提問；也可以點一下輸入欄旁的 +，然後選「筆記」。筆記會和它的頁面一起留在對話中，跟著對話同步，也不會用掉回答次數。"
           }
         }
       }
@@ -10918,90 +10918,90 @@
         }
       }
     },
-    "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.": {
+    "Turn on Whole chat under + by the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "شغّل «المحادثة كاملة» أسفل حقل السؤال حين تحتاج الإجابة إلى كل شيء: كل الرسائل وملاحظاتك والصفحات الأخرى في هذه المحادثة. عند إيقافه، تعتمد الإجابات على آخر الرسائل والصفحة المفتوحة."
+            "value": "شغّل «المحادثة كاملة» تحت + بجانب حقل السؤال حين تحتاج الإجابة إلى كل شيء: كل الرسائل وملاحظاتك والصفحات الأخرى في هذه المحادثة. عند إيقافه، تعتمد الإجابات على آخر الرسائل والصفحة المفتوحة."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schalte „Ganzer Chat“ unter dem Eingabefeld ein, wenn eine Antwort alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und die geöffnete Seite."
+            "value": "Schalte „Ganzer Chat“ unter + neben dem Eingabefeld ein, wenn eine Antwort alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und die geöffnete Seite."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activa «Todo el chat» bajo el campo de pregunta cuando una respuesta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y la página abierta."
+            "value": "Activa «Todo el chat» en +, junto al campo de pregunta, cuando una respuesta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y la página abierta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activez « Tout le chat » sous le champ de question quand une réponse a besoin de tout : tous les messages, vos notes et les autres pages de cette discussion. Désactivé : les derniers messages et la page ouverte."
+            "value": "Activez « Tout le chat » sous +, à côté du champ de question, quand une réponse a besoin de tout : tous les messages, vos notes et les autres pages de cette discussion. Désactivé : les derniers messages et la page ouverte."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attiva «Tutta la chat» sotto il campo della domanda quando una risposta ha bisogno di tutto: tutti i messaggi, le tue note e le altre pagine di questa chat. Disattivato: gli ultimi messaggi e la pagina aperta."
+            "value": "Attiva «Tutta la chat» sotto +, accanto al campo della domanda, quando una risposta ha bisogno di tutto: tutti i messaggi, le tue note e le altre pagine di questa chat. Disattivato: gli ultimi messaggi e la pagina aperta."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "回答にすべてが必要なときは、質問欄の下の「チャット全体」をオンに：すべてのメッセージ、メモ、このチャットの他のページ。オフ：直近のメッセージと開いているページ。"
+            "value": "回答にすべてが必要なときは、質問欄の横の＋にある「チャット全体」をオンに：すべてのメッセージ、メモ、このチャットの他のページ。オフ：直近のメッセージと開いているページ。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "답변에 모든 내용이 필요할 때 질문 칸 아래의 '채팅 전체'를 켜세요: 모든 메시지, 메모, 이 채팅의 다른 페이지. 끄면: 최근 메시지와 열린 페이지."
+            "value": "답변에 모든 내용이 필요할 때 질문 칸 옆 + 안의 '채팅 전체'를 켜세요: 모든 메시지, 메모, 이 채팅의 다른 페이지. 끄면: 최근 메시지와 열린 페이지."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ative “Chat inteiro” abaixo do campo de pergunta quando uma resposta precisar de tudo: todas as mensagens, suas notas e as outras páginas deste chat. Desligado: as últimas mensagens e a página aberta."
+            "value": "Ative “Chat inteiro” em +, ao lado do campo de pergunta, quando uma resposta precisar de tudo: todas as mensagens, suas notas e as outras páginas deste chat. Desligado: as últimas mensagens e a página aberta."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Включите «Весь чат» под полем вопроса, когда для ответа нужно всё: все сообщения, ваши заметки и другие страницы этого чата. Выключено — учитываются последние сообщения и открытая страница."
+            "value": "Включите «Весь чат» под кнопкой + у поля вопроса, когда для ответа нужно всё: все сообщения, ваши заметки и другие страницы этого чата. Выключено — учитываются последние сообщения и открытая страница."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bir yanıt için her şey gerektiğinde soru alanının altındaki “Tüm sohbet” seçeneğini açın: tüm mesajlar, notlarınız ve bu sohbetin diğer sayfaları. Kapalıyken yanıtlar son mesajları ve açık sayfayı kullanır."
+            "value": "Bir yanıt için her şey gerektiğinde soru alanının yanındaki + düğmesinin altındaki “Tüm sohbet” seçeneğini açın: tüm mesajlar, notlarınız ve bu sohbetin diğer sayfaları. Kapalıyken yanıtlar son mesajları ve açık sayfayı kullanır."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Увімкніть «Весь чат» під полем запитання, коли для відповіді потрібне все: усі повідомлення, ваші нотатки й інші сторінки цього чату. Вимкнено — враховуються останні повідомлення й відкрита сторінка."
+            "value": "Увімкніть «Весь чат» під кнопкою + біля поля запитання, коли для відповіді потрібне все: усі повідомлення, ваші нотатки й інші сторінки цього чату. Вимкнено — враховуються останні повідомлення й відкрита сторінка."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bật Cả cuộc trò chuyện dưới ô câu hỏi khi câu trả lời cần mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang đang mở."
+            "value": "Bật Cả cuộc trò chuyện trong +, cạnh ô câu hỏi, khi câu trả lời cần mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang đang mở."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当回答需要全部内容时，打开问题输入框下方的“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
+            "value": "当回答需要全部内容时，打开问题输入框旁 + 里的“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "當回答需要全部內容時，開啟提問欄位下方的「整段對話」：所有訊息、你的筆記，以及這段對話中的其他頁面。關閉時，回答只會用最近的訊息和目前打開的頁面。"
+            "value": "當回答需要全部內容時，開啟提問欄位旁 + 裡的「整段對話」：所有訊息、你的筆記，以及這段對話中的其他頁面。關閉時，回答只會用最近的訊息和目前打開的頁面。"
           }
         }
       }
@@ -21227,90 +21227,90 @@
         }
       }
     },
-    "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.": {
+    "Tag a chat, an answer or a note with 🏷, or with Tag in its … menu. Tap a tag to see only its chats, or turn on Folders to group the list by tag.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ضع وسمًا على محادثة أو إجابة أو ملاحظة بالزر 🏷. اضغط على وسم لترى محادثاته فقط، أو شغّل «المجلدات» لتجميع القائمة حسب الوسم."
+            "value": "ضع وسمًا على محادثة أو إجابة أو ملاحظة بالزر 🏷، أو من «وسم» في قائمة … الخاصة بها. اضغط على وسم لترى محادثاته فقط، أو شغّل «المجلدات» لتجميع القائمة حسب الوسم."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Versieh einen Chat, eine Antwort oder Notiz mit 🏷. Tippe auf einen Tag, um nur seine Chats zu sehen, oder schalte „Ordner“ ein, um die Liste nach Tags zu gruppieren."
+            "value": "Versieh einen Chat, eine Antwort oder Notiz mit 🏷 oder über „Tag“ im …-Menü. Tippe auf einen Tag, um nur seine Chats zu sehen, oder schalte „Ordner“ ein, um die Liste nach Tags zu gruppieren."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Etiqueta un chat, una respuesta o una nota con 🏷. Toca una etiqueta para ver solo sus chats, o activa Carpetas para agrupar la lista por etiqueta."
+            "value": "Etiqueta un chat, una respuesta o una nota con 🏷, o con «Etiqueta» en su menú …. Toca una etiqueta para ver solo sus chats, o activa Carpetas para agrupar la lista por etiqueta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajoutez un tag à une discussion, une réponse ou une note avec 🏷. Touchez un tag pour ne voir que ses discussions, ou activez Dossiers pour regrouper la liste par tag."
+            "value": "Ajoutez un tag à une discussion, une réponse ou une note avec 🏷, ou avec « Tag » dans son menu …. Touchez un tag pour ne voir que ses discussions, ou activez Dossiers pour regrouper la liste par tag."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aggiungi un tag a una chat, una risposta o una nota con 🏷. Tocca un tag per vedere solo le sue chat, o attiva Cartelle per raggruppare l’elenco per tag."
+            "value": "Aggiungi un tag a una chat, una risposta o una nota con 🏷, o con «Tag» nel suo menu …. Tocca un tag per vedere solo le sue chat, o attiva Cartelle per raggruppare l’elenco per tag."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "🏷 でチャット・回答・メモにタグを付けられます。タグをタップするとそのチャットだけを表示し、「フォルダ」でタグごとにまとめます。"
+            "value": "🏷、または「…」メニューの「タグ」で、チャット・回答・メモにタグを付けられます。タグをタップするとそのチャットだけを表示し、「フォルダ」でタグごとにまとめます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "🏷로 채팅, 답변, 메모에 태그를 달아요. 태그를 탭하면 그 채팅만 보이고, ‘폴더’를 켜면 태그별로 묶어요."
+            "value": "🏷 또는 … 메뉴의 ‘태그’로 채팅, 답변, 메모에 태그를 달아요. 태그를 탭하면 그 채팅만 보이고, ‘폴더’를 켜면 태그별로 묶어요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marque uma conversa, uma resposta ou uma nota com 🏷. Toque numa tag para ver só as conversas dela, ou ative Pastas para agrupar por tag."
+            "value": "Marque uma conversa, uma resposta ou uma nota com 🏷, ou com “Tag” no menu … dela. Toque numa tag para ver só as conversas dela, ou ative Pastas para agrupar por tag."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ставьте тег 🏷 на чат, ответ или заметку. Нажмите на тег, чтобы увидеть только его чаты, или включите «Папки», чтобы сгруппировать список по тегам."
+            "value": "Ставьте тег на чат, ответ или заметку: кнопкой 🏷 или пунктом «Тег» в меню «…». Нажмите на тег, чтобы увидеть только его чаты, или включите «Папки», чтобы сгруппировать список по тегам."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "🏷 ile bir sohbeti, yanıtı veya notu etiketleyin. Yalnızca o etiketin sohbetlerini görmek için etikete dokunun ya da listeyi etikete göre gruplamak için Klasörler'i açın."
+            "value": "🏷 ile ya da … menüsündeki “Etiket” ile bir sohbeti, yanıtı veya notu etiketleyin. Yalnızca o etiketin sohbetlerini görmek için etikete dokunun ya da listeyi etikete göre gruplamak için Klasörler'i açın."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ставте тег 🏷 на чат, відповідь чи нотатку. Натисніть тег, щоб побачити лише його чати, або ввімкніть «Папки», щоб згрупувати список за тегами."
+            "value": "Ставте тег на чат, відповідь чи нотатку: кнопкою 🏷 або пунктом «Тег» у меню «…». Натисніть тег, щоб побачити лише його чати, або ввімкніть «Папки», щоб згрупувати список за тегами."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gắn thẻ cho cuộc trò chuyện, câu trả lời hoặc ghi chú bằng 🏷. Chạm vào một thẻ để chỉ xem các cuộc trò chuyện có thẻ đó, hoặc bật Thư mục để nhóm danh sách theo thẻ."
+            "value": "Gắn thẻ cho cuộc trò chuyện, câu trả lời hoặc ghi chú bằng 🏷, hoặc bằng Thẻ trong menu … của nó. Chạm vào một thẻ để chỉ xem các cuộc trò chuyện có thẻ đó, hoặc bật Thư mục để nhóm danh sách theo thẻ."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "用 🏷 给对话、回答或笔记加标签。点按标签只看相关对话，或打开“文件夹”按标签分组。"
+            "value": "用 🏷 或“…”菜单里的“标签”给对话、回答或笔记加标签。点按标签只看相关对话，或打开“文件夹”按标签分组。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "用 🏷 為對話、回答或筆記加上標籤。點一下標籤只顯示相關的對話，或開啟「資料夾」依標籤將列表分組。"
+            "value": "用 🏷 或「…」選單中的「標籤」為對話、回答或筆記加上標籤。點一下標籤只顯示相關的對話，或開啟「資料夾」依標籤將列表分組。"
           }
         }
       }
@@ -65110,90 +65110,268 @@
         }
       }
     },
-    "Planning a trip or a purchase? Choose To collection under an answer or a note, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.": {
+    "Planning a trip or a purchase? Choose To collection under an answer or a note, or in its … menu, and ContextFlow suggests where it goes. Collections keeps it all in sections, in Safari and in the app. With Pro, the AI sorts the cards, Compare puts the ones you pick side by side, and Summary sums it all up. Any collection saves as a PDF.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تخطط لرحلة أو لشراء شيء؟ اختر «إلى مجموعة» تحت إجابة أو ملاحظة، وسيقترح ContextFlow مكانها. تحفظ «المجموعات» كل شيء في أقسام، في Safari وفي التطبيق. ومع Pro، يرتّب الذكاء الاصطناعي البطاقات، وتضع «مقارنة» البطاقات التي تختارها جنبًا إلى جنب، ويلخّص «الملخّص» كل شيء. ويمكن حفظ أي مجموعة بصيغة PDF."
+            "value": "تخطط لرحلة أو لشراء شيء؟ اختر «إلى مجموعة» تحت إجابة أو ملاحظة، أو في قائمة … الخاصة بها، وسيقترح ContextFlow مكانها. تحفظ «المجموعات» كل شيء في أقسام، في Safari وفي التطبيق. ومع Pro، يرتّب الذكاء الاصطناعي البطاقات، وتضع «مقارنة» البطاقات التي تختارها جنبًا إلى جنب، ويلخّص «الملخّص» كل شيء. ويمكن حفظ أي مجموعة بصيغة PDF."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du planst eine Reise oder einen Kauf? Wähle „In Sammlung“ unter einer Antwort oder Notiz, und ContextFlow schlägt vor, wohin sie gehört. In „Sammlungen“ liegt alles in Abschnitten, in Safari und in der App. Mit Pro sortiert die KI die Karten, „Vergleichen“ stellt die gewählten nebeneinander, und „Zusammenfassung“ fasst alles zusammen. Jede Sammlung lässt sich als PDF sichern."
+            "value": "Du planst eine Reise oder einen Kauf? Wähle „In Sammlung“ unter einer Antwort oder Notiz oder in ihrem …-Menü, und ContextFlow schlägt vor, wohin sie gehört. In „Sammlungen“ liegt alles in Abschnitten, in Safari und in der App. Mit Pro sortiert die KI die Karten, „Vergleichen“ stellt die gewählten nebeneinander, und „Zusammenfassung“ fasst alles zusammen. Jede Sammlung lässt sich als PDF sichern."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Planeas un viaje o una compra? Elige «A una colección» bajo una respuesta o una nota, y ContextFlow sugiere dónde va. «Colecciones» lo guarda todo por secciones, en Safari y en la app. Con Pro, la IA ordena las tarjetas, «Comparar» pone lado a lado las que elijas y «Resumen» lo resume todo. Cualquier colección se guarda en PDF."
+            "value": "¿Planeas un viaje o una compra? Elige «A una colección» bajo una respuesta o una nota, o en su menú …, y ContextFlow sugiere dónde va. «Colecciones» lo guarda todo por secciones, en Safari y en la app. Con Pro, la IA ordena las tarjetas, «Comparar» pone lado a lado las que elijas y «Resumen» lo resume todo. Cualquier colección se guarda en PDF."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous préparez un voyage ou un achat ? Choisissez « Dans une collection » sous une réponse ou une note, et ContextFlow propose où la ranger. « Collections » garde tout par sections, dans Safari et dans l’app. Avec Pro, l’IA trie les cartes, « Comparer » met côte à côte celles que vous choisissez et « Synthèse » résume le tout. Chaque collection s’enregistre en PDF."
+            "value": "Vous préparez un voyage ou un achat ? Choisissez « Dans une collection » sous une réponse ou une note, ou dans son menu …, et ContextFlow propose où la ranger. « Collections » garde tout par sections, dans Safari et dans l’app. Avec Pro, l’IA trie les cartes, « Comparer » met côte à côte celles que vous choisissez et « Synthèse » résume le tout. Chaque collection s’enregistre en PDF."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stai organizzando un viaggio o un acquisto? Scegli «In una raccolta» sotto una risposta o una nota, e ContextFlow suggerisce dove metterla. «Raccolte» tiene tutto in sezioni, in Safari e nell’app. Con Pro, l’IA ordina le schede, «Confronta» mette fianco a fianco quelle che scegli e «Sintesi» riassume tutto. Ogni raccolta si salva in PDF."
+            "value": "Stai organizzando un viaggio o un acquisto? Scegli «In una raccolta» sotto una risposta o una nota, o nel suo menu …, e ContextFlow suggerisce dove metterla. «Raccolte» tiene tutto in sezioni, in Safari e nell’app. Con Pro, l’IA ordina le schede, «Confronta» mette fianco a fianco quelle che scegli e «Sintesi» riassume tutto. Ogni raccolta si salva in PDF."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "旅行や買い物の計画中ですか？回答やメモの下の「コレクションへ」を選ぶと、ContextFlow が入れる場所を提案します。「コレクション」では、Safari でもアプリでも、すべてがセクションごとに整理されます。Pro なら AI がカードを振り分け、「比較」で選んだカードを並べ、「まとめ」で全体を要約します。どのコレクションも PDF で保存できます。"
+            "value": "旅行や買い物の計画中ですか？回答やメモの下、またはその「…」メニューの「コレクションへ」を選ぶと、ContextFlow が入れる場所を提案します。「コレクション」では、Safari でもアプリでも、すべてがセクションごとに整理されます。Pro なら AI がカードを振り分け、「比較」で選んだカードを並べ、「まとめ」で全体を要約します。どのコレクションも PDF で保存できます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "여행이나 쇼핑을 계획 중인가요? 답변이나 메모 아래의 ‘컬렉션에 추가’를 고르면 ContextFlow가 넣을 곳을 제안해요. ‘컬렉션’은 Safari와 앱에서 모든 것을 섹션별로 정리해요. Pro에서는 AI가 카드를 분류하고, ‘비교’는 고른 카드를 나란히 보여 주며, ‘요약’은 전체를 정리해요. 어떤 컬렉션이든 PDF로 저장할 수 있어요."
+            "value": "여행이나 쇼핑을 계획 중인가요? 답변이나 메모 아래 또는 그 … 메뉴의 ‘컬렉션에 추가’를 고르면 ContextFlow가 넣을 곳을 제안해요. ‘컬렉션’은 Safari와 앱에서 모든 것을 섹션별로 정리해요. Pro에서는 AI가 카드를 분류하고, ‘비교’는 고른 카드를 나란히 보여 주며, ‘요약’은 전체를 정리해요. 어떤 컬렉션이든 PDF로 저장할 수 있어요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Planejando uma viagem ou uma compra? Escolha “Adicionar à coleção” abaixo de uma resposta ou nota, e o ContextFlow sugere onde ela entra. “Coleções” guarda tudo em seções, no Safari e no app. Com o Pro, a IA organiza os cartões, “Comparar” coloca lado a lado os que você escolher e “Resumo” resume tudo. Qualquer coleção pode ser salva em PDF."
+            "value": "Planejando uma viagem ou uma compra? Escolha “Adicionar à coleção” abaixo de uma resposta ou nota, ou no menu … dela, e o ContextFlow sugere onde ela entra. “Coleções” guarda tudo em seções, no Safari e no app. Com o Pro, a IA organiza os cartões, “Comparar” coloca lado a lado os que você escolher e “Resumo” resume tudo. Qualquer coleção pode ser salva em PDF."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Планируете поездку или покупку? Выберите «В подборку» под ответом или заметкой, и ContextFlow подскажет, куда её положить. В «Подборках» всё лежит по разделам — и в Safari, и в приложении. В Pro ИИ сам раскладывает карточки, «Сравнить» ставит выбранные рядом, а «Сводка» подводит итог. Любую подборку можно сохранить в PDF."
+            "value": "Планируете поездку или покупку? Выберите «В подборку» под ответом или заметкой либо в их меню «…», и ContextFlow подскажет, куда её положить. В «Подборках» всё лежит по разделам — и в Safari, и в приложении. В Pro ИИ сам раскладывает карточки, «Сравнить» ставит выбранные рядом, а «Сводка» подводит итог. Любую подборку можно сохранить в PDF."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bir gezi ya da alışveriş mi planlıyorsunuz? Bir yanıtın ya da notun altındaki “Koleksiyona ekle”yi seçin, ContextFlow nereye gideceğini önersin. “Koleksiyonlar” her şeyi Safari'de ve uygulamada bölümler hâlinde tutar. Pro ile yapay zekâ kartları ayırır, “Karşılaştır” seçtiklerinizi yan yana koyar, “Özet” de hepsini özetler. Her koleksiyon PDF olarak kaydedilebilir."
+            "value": "Bir gezi ya da alışveriş mi planlıyorsunuz? Bir yanıtın ya da notun altındaki veya … menüsündeki “Koleksiyona ekle”yi seçin, ContextFlow nereye gideceğini önersin. “Koleksiyonlar” her şeyi Safari'de ve uygulamada bölümler hâlinde tutar. Pro ile yapay zekâ kartları ayırır, “Karşılaştır” seçtiklerinizi yan yana koyar, “Özet” de hepsini özetler. Her koleksiyon PDF olarak kaydedilebilir."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Плануєте подорож чи покупку? Виберіть «До добірки» під відповіддю чи нотаткою, і ContextFlow підкаже, куди її покласти. У «Добірках» усе лежить за розділами — і в Safari, і в застосунку. У Pro ШІ сам розкладає картки, «Порівняти» ставить вибрані поруч, а «Підсумок» підбиває підсумок. Будь-яку добірку можна зберегти в PDF."
+            "value": "Плануєте подорож чи покупку? Виберіть «До добірки» під відповіддю чи нотаткою або в їхньому меню «…», і ContextFlow підкаже, куди її покласти. У «Добірках» усе лежить за розділами — і в Safari, і в застосунку. У Pro ШІ сам розкладає картки, «Порівняти» ставить вибрані поруч, а «Підсумок» підбиває підсумок. Будь-яку добірку можна зберегти в PDF."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đang lên kế hoạch cho chuyến đi hay một món đồ cần mua? Chọn Vào bộ sưu tập bên dưới câu trả lời hoặc ghi chú, và ContextFlow sẽ gợi ý nơi để nó vào. Bộ sưu tập giữ mọi thứ theo từng mục, trong Safari và trong ứng dụng. Với Pro, AI sắp xếp các thẻ, So sánh đặt những thẻ bạn chọn cạnh nhau và Tóm tắt tổng hợp tất cả. Bộ sưu tập nào cũng lưu được thành PDF."
+            "value": "Đang lên kế hoạch cho chuyến đi hay một món đồ cần mua? Chọn Vào bộ sưu tập bên dưới câu trả lời hoặc ghi chú, hoặc trong menu … của nó, và ContextFlow sẽ gợi ý nơi để nó vào. Bộ sưu tập giữ mọi thứ theo từng mục, trong Safari và trong ứng dụng. Với Pro, AI sắp xếp các thẻ, So sánh đặt những thẻ bạn chọn cạnh nhau và Tóm tắt tổng hợp tất cả. Bộ sưu tập nào cũng lưu được thành PDF."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在计划旅行或购物？在回答或笔记下方选择“加入合集”，ContextFlow 会建议放在哪里。“合集”在 Safari 和 App 里都按分区整理好所有内容。使用 Pro，AI 会把卡片分好类，“比较”把你选的卡片并排放在一起，“总结”会概括全部内容。任何合集都可以存为 PDF。"
+            "value": "在计划旅行或购物？在回答或笔记下方或它的“…”菜单里选择“加入合集”，ContextFlow 会建议放在哪里。“合集”在 Safari 和 App 里都按分区整理好所有内容。使用 Pro，AI 会把卡片分好类，“比较”把你选的卡片并排放在一起，“总结”会概括全部内容。任何合集都可以存为 PDF。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在規劃旅行或購物？在回答或筆記下方選擇「加入合集」，ContextFlow 會建議放在哪裡。「合集」在 Safari 和 App 中都會按區段整理好所有內容。使用 Pro，AI 會把卡片分類，「比較」會把你選的卡片並排，「總結」會概括全部內容。任何合集都能存成 PDF。"
+            "value": "正在規劃旅行或購物？在回答或筆記下方，或它的「…」選單中選擇「加入合集」，ContextFlow 會建議放在哪裡。「合集」在 Safari 和 App 中都會按區段整理好所有內容。使用 Pro，AI 會把卡片分類，「比較」會把你選的卡片並排，「總結」會概括全部內容。任何合集都能存成 PDF。"
+          }
+        }
+      }
+    },
+    "New": {
+      "comment": "A quiet badge by a Tips card whose feature is new in this version (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جديد"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuevo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novità"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新機能"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 기능"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новое"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yeni"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нове"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mới"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新功能"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新功能"
+          }
+        }
+      }
+    },
+    "In “%@”": {
+      "comment": "A message's menu: the collection it's in already (2.7)",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في «%@»"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In „%@“"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En «%@»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans « %@ »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In «%@»"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」に追加済み"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’에 있음"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em “%@”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В «%@»"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” içinde"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У «%@»"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong “%@”"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已在“%@”"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已在「%@」"
           }
         }
       }

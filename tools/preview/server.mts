@@ -66,6 +66,11 @@ let lastSimilarRequest: unknown = null
 let lastChatRequest: unknown = null
 // The last /api/v2/write request body («Проверить» и «Переписать», GET /last-write).
 let lastWriteRequest: unknown = null
+// How /api/v2/write answers from now on (GET /set-write?delay=<ms>&mode=ok|hang|fail, 2.7 (107): the owner's Check that
+// hung for a minute): after a delay, never (the socket stays open), or with a 502. Live checks only when live=1.
+let writeMode: { delay: number; mode: "ok" | "hang" | "fail"; live: boolean } = { delay: Number(process.env.WRITE_DELAY_MS ?? 0), mode: "ok", live: false }
+// Every /api/v2/write since /reset: when it came, whether it was a live check, how it ended ("ok", "hang", "fail", "aborted").
+const writeLog: Array<{ at: number; live: boolean; action: string; chars: number; end: string; ms: number }> = []
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
 let lastAnswerEvent: unknown = null
 type Item = { subject: string; limit: number | null; amount?: number }
@@ -274,10 +279,14 @@ const TYPOS: Record<string, string> = {
   teh: "the", recieve: "receive", definately: "definitely", tommorow: "tomorrow", wich: "which", untill: "until", occured: "occurred",
   seperate: "separate", thier: "their", alot: "a lot", wierd: "weird", adress: "address", accomodation: "accommodation",
   dashbord: "dashboard", aply: "apply",
-  "сдесь": "здесь", "извените": "извините", "прийду": "приду", "вобщем": "в общем", "расчитываю": "рассчитываю", "впринципе": "в принципе"
+  // Arabic (2.7 (107)): two misspellings as common as "teh".
+  "لاكن": "لكن", "ذالك": "ذلك",
+  "сдесь": "здесь", "извените": "извините", "прийду": "приду", "вобщем": "в общем", "расчитываю": "рассчитываю", "впринципе": "в принципе",
+  // German (2.7 (107)): the list of fixes with its longer labels.
+  "vieleicht": "vielleicht", "nähmlich": "nämlich", "seperat": "separat", "wiederrum": "wiederum"
 }
 // Japanese, Chinese and Thai (2.7 audit): fixed as phrases, these scripts having no spaces to find a word by.
-const PHRASE_FIXES: Array<[string, string]> = [["学校に行きました", "学校へ行きました"], ["图书管", "图书馆"], ["เมือวาน", "เมื่อวาน"]]
+const PHRASE_FIXES: Array<[string, string]> = [["こんにちわ", "こんにちは"], ["学校に行きました", "学校へ行きました"], ["图书管", "图书馆"], ["เมือวาน", "เมื่อวาน"]]
 function nearName(a: string, b: string): boolean {
   if (a === b || a[0] !== b[0] || Math.abs(a.length - b.length) > 2) return false
   const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
@@ -664,6 +673,9 @@ const pages: Record<string, string> = {
   "/mail-reply": "mail-reply.html",
   "/mail-reply-ru": "mail-reply-ru.html",
   "/post-comment": "post-comment.html",
+  // 2.7 (107): Gmail's thread as iPad Safari gets it (its own class names, tables and attributes), the reply box under
+  // the last message or under one in the middle (?at=middle), in English, Russian, Japanese or Arabic (?lang=).
+  "/gmail": "gmail-thread.html",
   // «Снимок страницы в заметке» (2.7): a long page (a sticky header, five coloured sections, a fixed cookie bar).
   "/long-page": "long-page.html",
   // In-page translation (2.7): a travel guide in Spanish, translated by the scripted Haiku (translations.json).
@@ -897,6 +909,18 @@ createServer(async (req, res) => {
     res.end(JSON.stringify(lastSimilarRequest))
     return
   }
+  if (url.pathname === "/set-write") {
+    const mode = url.searchParams.get("mode")
+    writeMode = { delay: Number(url.searchParams.get("delay") ?? 0) || 0, mode: mode === "hang" || mode === "fail" ? mode : "ok", live: url.searchParams.get("live") === "1" }
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(writeMode))
+    return
+  }
+  if (url.pathname === "/write-log") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(writeLog))
+    return
+  }
   const handler = handlers[url.pathname] ?? null
   if (handler) {
     const chunks: Buffer[] = []
@@ -926,6 +950,25 @@ createServer(async (req, res) => {
       } catch {
         lastWriteRequest = null
       }
+      const w = (lastWriteRequest ?? {}) as { live?: boolean; action?: string; text?: string }
+      const entry = { at: Date.now(), live: w.live === true, action: String(w.action ?? ""), chars: String(w.text ?? "").length, end: "ok", ms: 0 }
+      writeLog.push(entry)
+      const done = (end: string) => { entry.end = end; entry.ms = Date.now() - entry.at }
+      if (!entry.live || writeMode.live) {
+        // The device gave up (its timeout, or Cancel): seen here as the socket closing before an answer.
+        let gone = false
+        res.on("close", () => { if (!res.writableEnded) { gone = true; done("aborted") } })
+        if (writeMode.mode === "hang") return void (entry.end = "hang")
+        if (writeMode.delay) await new Promise((r) => setTimeout(r, writeMode.delay))
+        if (gone) return
+        if (writeMode.mode === "fail") {
+          done("fail")
+          res.writeHead(502, { "Content-Type": "application/json" })
+          res.end(JSON.stringify({ code: "UPSTREAM" }))
+          return
+        }
+      }
+      res.on("finish", () => { if (entry.end === "ok") done("ok") })
     }
     let raw = Buffer.concat(chunks)
     if (proJws && req.method === "POST") {
@@ -1054,6 +1097,9 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
     aiRequests.length = 0
     panelEvents.length = 0
     eventIds.length = 0
+    writeLog.length = 0
+    writeMode = { delay: 0, mode: "ok", live: false }
+    lastWriteRequest = null
     res.end("ok")
     return
   }

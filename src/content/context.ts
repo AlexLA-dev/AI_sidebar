@@ -11,7 +11,7 @@ import { looksLikePdf, MAX_FORWARD_BYTES, toBase64 } from "../shared/pdf"
 import type { BackgroundRequest, PdfResult } from "../shared/types"
 import { hasCaptionTracks, readCaptions, type CaptionsRead } from "./captions"
 import { extractPage, pageKey, siteName } from "./page"
-import { findPdfs, type PdfOnPage } from "./pdf"
+import { findPdfs, pdfShown, type PdfOnPage } from "./pdf"
 import { browserEnv, cachedTranscript, clock, hasTranscript, readTranscript, youtubeVideoId } from "./youtube"
 
 export interface PageRead {
@@ -164,11 +164,12 @@ export function tabSource(readPdf: (url: string) => Promise<PdfResult | null>): 
     title: () => document.title,
     site: siteName,
     readable: () => Boolean(document.body && (document.body.innerText || "").trim().length > 40),
-    kind: () => (youtubeVideoId(location.href) || hasCaptionTracks(document) ? "video" : pagePdfs().length ? "pdf" : "page"),
+    kind: () => (youtubeVideoId(location.href) || hasCaptionTracks(document) ? "video" : pdfShown(pagePdfs()) ? "pdf" : "page"),
     pending: () => {
       const videoId = youtubeVideoId(location.href)
       if (videoId) return hasTranscript(videoId) ? null : "video"
-      if (pagePdfs().some((p) => !pdfCached(p.url))) return "pdf"
+      // «Reading the PDF…» only for a PDF the page shows (a linked one is read too, under the usual «Thinking…»).
+      if (pagePdfs().some((p) => p.embedded && !pdfCached(p.url))) return "pdf"
       return hasCaptionTracks(document) ? "video" : null
     },
     quick: extractPage,

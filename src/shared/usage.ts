@@ -173,7 +173,8 @@ export const FEATURES: Record<string, Feature> = {
   // answers used up (and Pro tapped there), a failure. The server logs each request ("translate") and the limit.
   translate_page: {
     since: "2.7", tracked: "2.7", on: "ext",
-    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error"]
+    // build 107: "entry" the entry by the circle opened the pill, "lang" another language picked.
+    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error", "entry", "lang"]
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
   // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
@@ -232,16 +233,29 @@ export const FEATURES: Record<string, Feature> = {
   // site. "menu": the Mac's circle opened its menu; "check" and "rewrite": asked for (what: the rewrite's tone); "shown":
   // changes or a rewrite to look at; "clean": nothing to fix; "applied", "failed" (some didn't go in), "manual" (none
   // did: copied to paste); "undone", "undo_failed"; "changed" (typed on before applying); "too_long", "limit", "plans"
-  // (Pro tapped there), "consent", "error". The server logs each request ("write") and the limit.
+  // (Pro tapped there), "consent", "error"; "slow" (no answer within the deadline), "updated" (a tab left open across an
+  // update: the old page script gets no answers, the page has to be reloaded). The server logs each request ("write") and the limit.
   write: {
     since: "2.7", tracked: "2.7", on: "ext",
     actions: [
-      "menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error",
+      "menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error", "slow", "updated",
       // Live underlines (Pro and Ultra): a fix shown (hover or tap), made, set aside, not taken by the field; the hidden cap reached.
       "live_shown", "live_fixed", "live_ignored", "live_failed", "live_cap"
     ],
-    via: ["circle", "list", "underline"],
+    via: ["circle", "list", "underline", "panel"],
     fields: { what: ["check", "short", "warm", "formal", "confident"] }
+  },
+
+  // 2.7 (after build 107), the quiet panel (src/content/quiet): a chip of the page's tapped ("chip", what: which one);
+  // «+» by the field opened ("plus") and what was picked there ("plus_pick"); what was picked in a message's «…» that
+  // the compact row no longer shows ("more_pick"). lay: the chat's density then.
+  quiet: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["chip", "plus", "plus_pick", "more_pick"],
+    fields: {
+      what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect"],
+      lay: ["compact", "roomy"]
+    }
   },
 
   // 2.7: «Снимок страницы в заметке» (src/shared/shots.ts), counts only: never the page, the picture or its size beyond
@@ -255,21 +269,23 @@ export const FEATURES: Record<string, Feature> = {
   },
 
   // 2.7: Spaces (src/shared/spaces.ts), counts only: never a space's name or colour, nor a site. "switch": how (the
-  // header's list, the app's list, a bound site, a chat opened from another space, a search hit); "bind" and "toggle":
+  // header's list, the app's list, a bound site, a chat opened from another space, a search hit, the matching chat in
+  // another space (107), its line's way back); "bind" and "toggle":
   // on or off (Settings' switch); "limit": Free asked for one more than it has; "spaces": how many there are then.
   space: {
     since: "2.7", tracked: "2.7", actions: ["create", "switch", "move", "bind", "toggle", "edit", "delete", "limit"],
-    via: ["header", "app", "site", "chat", "list", "settings"],
+    via: ["header", "app", "site", "chat", "list", "settings", "match", "match_back"],
     fields: { val: ["on", "off"], spaces: "int" }
   },
 
   // 2.7: «Подходящий чат при открытии панели» (src/shared/match.ts). "shown": the panel opened on a chat that fits the
   // page, and why (its page, its topic by words or by meaning, its site) with the topic's match %; "new": none fitted,
-  // a new chat. Then whether the person left it at once: "line_new" (the line's «Новый чат»), "other" (another chat
-  // opened within two minutes). Counts only.
+  // a new chat; "where": in the space the panel was in, or another (107: it went there). Then whether the person left it
+  // at once: "line_new" (the line's «Новый чат»), "line_back" (its «← space», back where the panel was), "other"
+  // (another chat opened within two minutes). Counts only.
   match: {
-    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "other"],
-    fields: { why: ["page", "topic", "meaning", "site"], match: "int" }
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "line_back", "other"],
+    fields: { why: ["page", "topic", "meaning", "site"], match: "int", where: ["here", "other"] }
   },
 
   // 2.7: Подборки (src/shared/collections.ts), counts only: never a name, a gist, a site. "add": a card put in (via the

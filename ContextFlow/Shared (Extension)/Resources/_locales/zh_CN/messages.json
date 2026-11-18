@@ -59,6 +59,21 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "翻译页面"
+ },
+ "chipWatchPrice": {
+  "message": "关注价格"
+ },
+ "plusButton": {
+  "message": "更多：笔记、快照、整个对话"
+ },
+ "hintShow": {
+  "message": "查看"
+ },
+ "tourWholeBodyPlus": {
+  "message": "“整个对话”在 + 里。当问题需要全部内容时，打开“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
+ },
  "promptSummarize": {
   "message": "请用 5–7 个要点总结此页面，然后用一句话给出主要结论。"
  },
@@ -663,7 +678,7 @@
   "message": "只想问一部分？"
  },
  "tourSelectBody": {
-  "message": "先在页面上选中文字，回答就只针对这部分内容。这个标签显示 ContextFlow 正在读取的内容。"
+  "message": "先在页面上选中文字，回答就只针对这部分内容。输入框上方会出现一个标签，显示选中的内容。"
  },
  "tourGoogleTitle": {
   "message": "来自 Google 的最新信息"
@@ -690,10 +705,10 @@
   "message": "你自己的笔记"
  },
  "tourNoteBodyTouch": {
-  "message": "上下滑动这个按钮，就能写笔记而不是提问。笔记会连同页面留在对话中，不消耗回答次数。"
+  "message": "上下滑动这个按钮，就能写笔记而不是提问。笔记会连同页面留在对话中，不消耗回答次数。也可以轻点 +，然后选择“笔记”。"
  },
  "tourNoteBodyMouse": {
-  "message": "在这个按钮上滚动（或按住它），就能写笔记而不是提问。笔记会连同页面留在对话中，不消耗回答次数。"
+  "message": "在这个按钮上滚动（或按住它），就能写笔记而不是提问。笔记会连同页面留在对话中，不消耗回答次数。也可以点按 +，然后选择“笔记”。"
  },
  "tourWholeTitle": {
   "message": "结合整个对话"
@@ -2381,6 +2396,9 @@
  "trHide": {
   "message": "在此网站隐藏"
  },
+ "trHiddenTold": {
+  "message": "已在此网站隐藏。点这个图标即可找回。"
+ },
  "trWorking": {
   "message": "正在翻译…"
  },
@@ -2389,6 +2407,21 @@
  },
  "trFailed": {
   "message": "无法翻译"
+ },
+ "trLangPick": {
+  "message": "目标语言"
+ },
+ "trPart": {
+  "message": "{0}：页面的 {1}%"
+ },
+ "trEntry": {
+  "message": "翻译此页面"
+ },
+ "trControls": {
+  "message": "按钮和菜单：{0}"
+ },
+ "trControlsCap": {
+  "message": "今天的按钮和菜单免费翻译已用完"
  },
  "spacesTitle": {
   "message": "空间"
@@ -2548,6 +2581,18 @@
  },
  "writeSkip": {
   "message": "忽略"
+ },
+ "writeFixAll": {
+  "message": "全部修正"
+ },
+ "writeSlow": {
+  "message": "耗时过长，已停止。请重试。"
+ },
+ "writeUpdated": {
+  "message": "ContextFlow 已更新。请重新载入此页面以使用检查和改写。"
+ },
+ "writeReload": {
+  "message": "重新载入"
  },
  "underlineSetting": {
   "message": "输入时给错误加下划线"
@@ -2957,6 +3002,33 @@
  "colCardMenu": {
   "message": "卡片操作"
  },
+ "shotAdd": {
+  "message": "快照"
+ },
+ "shotAdded": {
+  "message": "已添加快照"
+ },
+ "colIn": {
+  "message": "已在“{0}”"
+ },
+ "colOpen": {
+  "message": "打开合集"
+ },
+ "colAddOther": {
+  "message": "加入其他合集"
+ },
+ "colAlready": {
+  "message": "已在“{0}”中"
+ },
+ "tipNew": {
+  "message": "新功能"
+ },
+ "matchContinueIn": {
+  "message": "在“{0}”中继续："
+ },
+ "matchBackTo": {
+  "message": "回到“{0}”"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },
@@ -3044,8 +3116,8 @@
  "tip_6ba198cbff": {
   "message": "你自己的笔记"
  },
- "tip_6a92f6c633": {
-  "message": "上下滑动发送按钮（在 Mac 上，在按钮上滚动），就能写笔记而不是提问。笔记会连同页面留在对话中，随对话同步，不消耗回答次数。"
+ "tip_b210a078de": {
+  "message": "上下滑动发送按钮（在 Mac 上，在按钮上滚动），就能写笔记而不是提问；也可以轻点输入框旁的 +，然后选择“笔记”。笔记会连同页面留在对话中，随对话同步，不消耗回答次数。"
  },
  "tip_ac13420c59": {
   "message": "给笔记附上页面快照"
@@ -3083,8 +3155,8 @@
  "tip_e012ef5f59": {
   "message": "结合整个对话"
  },
- "tip_3a70cee32e": {
-  "message": "当回答需要全部内容时，打开问题输入框下方的“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
+ "tip_511d363377": {
+  "message": "当回答需要全部内容时，打开问题输入框旁 + 里的“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
  },
  "tip_ca29a1f4ed": {
   "message": "就视频提问"
@@ -3203,8 +3275,8 @@
  "tip_8d1c1aa55d": {
   "message": "汇集到合集"
  },
- "tip_15dc6cba07": {
-  "message": "在计划旅行或购物？在回答或笔记下方选择“加入合集”，ContextFlow 会建议放在哪里。“合集”在 Safari 和 App 里都按分区整理好所有内容。使用 Pro，AI 会把卡片分好类，“比较”把你选的卡片并排放在一起，“总结”会概括全部内容。任何合集都可以存为 PDF。"
+ "tip_397645bf6c": {
+  "message": "在计划旅行或购物？在回答或笔记下方或它的“…”菜单里选择“加入合集”，ContextFlow 会建议放在哪里。“合集”在 Safari 和 App 里都按分区整理好所有内容。使用 Pro，AI 会把卡片分好类，“比较”把你选的卡片并排放在一起，“总结”会概括全部内容。任何合集都可以存为 PDF。"
  },
  "tip_c4b432e2e9": {
   "message": "搜索你的对话"
@@ -3215,8 +3287,8 @@
  "tip_2e4668f650": {
   "message": "标签和文件夹"
  },
- "tip_6b5bdf707f": {
-  "message": "用 🏷 给对话、回答或笔记加标签。点按标签只看相关对话，或打开“文件夹”按标签分组。"
+ "tip_d3d95ad05c": {
+  "message": "用 🏷 或“…”菜单里的“标签”给对话、回答或笔记加标签。点按标签只看相关对话，或打开“文件夹”按标签分组。"
  },
  "tip_752fb307f2": {
   "message": "分享你的发现"
@@ -3262,12 +3334,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro 和 Ultra 可以月付或年付，一年比十二个月更便宜。在 App 或 Safari 中轻点套餐上方的“年付”，就能看到每个价格和能省多少。已经在月付？在“设置”→“你的套餐”中选择“改为年付”，当前这个月结束后开始年付。"
- },
- "tip_9288a85bb9": {
-  "message": "你的套餐增加了什么"
- },
- "tip_0f2289f887": {
-  "message": "购买 Pro 或 Ultra 后，ContextFlow 会一步一步展示你的套餐增加了哪些功能。想再看一遍，可以轻点面板顶部的“…”，再选“其他…”和“Pro 包含的功能”或“Ultra 包含的功能”。在 App 中，它在“设置”的“你的套餐”下。"
  },
  "tip_3ee4fbeeb2": {
   "message": "邀请朋友"

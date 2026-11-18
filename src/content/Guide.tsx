@@ -12,7 +12,7 @@
 // counted ("use" f "tour", src/shared/usage.ts) for the guided funnel (cf_feature_funnels "guided").
 
 import type { VNode } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
@@ -138,6 +138,17 @@ export function GuideCard({ panel, step, touch, sync, onNext, onSkip, onTap }: {
     panel.addEventListener("click", onClick, true)
     return () => panel.removeEventListener("click", onClick, true)
   }, [panel, step])
+  // 2.7 (after 107): the card over the composer (the first answer's step) doesn't lie on the answer: the chat ends
+  // above it (its list gets that much room at its end, quiet.css) and is shown to its end once.
+  const cardRef = useRef<HTMLDivElement>(null)
+  const foot = Boolean(spec?.foot)
+  useLayoutEffect(() => {
+    if (!foot || !cardRef.current) return
+    panel.style.setProperty("--cf-guide-foot", `${Math.round(cardRef.current.offsetHeight) + 10}px`)
+    const list = panel.querySelector<HTMLElement>(".cf-messages")
+    if (list) list.scrollTop = list.scrollHeight
+    return () => panel.style.removeProperty("--cf-guide-foot")
+  }, [panel, step, foot])
   if (!spec) return null
   const hole = holeAround(parts)
   // Above the composer (the box the answer step points to), not over it.
@@ -148,7 +159,7 @@ export function GuideCard({ panel, step, touch, sync, onNext, onSkip, onTap }: {
       <Shade hole={hole} parts={parts} />
       {spec.holds && hole && <Blockers hole={hole} />}
       {spec.holds && !hole && <div class="cf-tour-block" style={{ inset: 0 }} />}
-      {!spec.bare && <div class="cf-tour-card" style={spec.foot ? { bottom: `${footGap}px` } : cardPlace(hole, panel.clientHeight)}>
+      {!spec.bare && <div ref={cardRef} class="cf-tour-card" style={spec.foot ? { bottom: `${footGap}px` } : cardPlace(hole, panel.clientHeight)}>
         <div class="cf-tour-head">
           <span class="cf-tour-icon">{spec.icon}</span>
         </div>

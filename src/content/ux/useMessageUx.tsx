@@ -19,6 +19,13 @@ import { Swipe } from "./Swipe"
 
 type Setter = (update: (list: Entry[]) => Entry[]) => void
 
+/** What the compact chat's «…» holds besides its own (2.7, the quiet panel): Tag and To collection. */
+export interface MenuExtra {
+  onTag: () => void
+  onCollect?: () => void
+  picked: (what: "tag" | "collect") => void
+}
+
 interface Options {
   messages: Entry[]
   setMessages: Setter
@@ -355,10 +362,11 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     </Swipe>
   )
 
-  /** In the tools row: on a Mac, pin, remind and delete on hover; then "…" with the same in a menu. */
-  const moreButton = (m: Entry, idx: number): VNode => (
+  /** In the tools row: on a Mac, pin, remind and delete on hover; then "…" with the same in a menu.
+   *  `extra` (2.7, the compact chat): what the row no longer shows, first in the menu. */
+  const moreButton = (m: Entry, idx: number, extra?: MenuExtra): VNode => (
     <>
-      {!touch && (
+      {!touch && !extra && (
         <span class="cf-hover-tools">
           <button type="button" title={t(m.pinned ? "uxUnpin" : "uxPin")} aria-label={t(m.pinned ? "uxUnpin" : "uxPin")} onClick={() => togglePin(idx, "hover")}><PinIcon size={14} filled={Boolean(m.pinned)} /></button>
           <button type="button" title={t("uxRemind")} aria-label={t("uxRemind")} onClick={() => setReminding({ idx, note: null })}><Bell size={14} /></button>
@@ -368,13 +376,23 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
       <button type="button" class="cf-msg-more" aria-label={t(m.note ? "uxMoreNote" : "uxMoreAnswer")} title={t(m.note ? "uxMoreNote" : "uxMoreAnswer")} aria-expanded={menu?.idx === idx && menu.x === undefined} onClick={() => setMenu(menu?.idx === idx ? null : { idx })}>
         <More />
       </button>
-      {menu?.idx === idx && menu.x === undefined && menuFor(m, idx)}
+      {menu?.idx === idx && menu.x === undefined && menuFor(m, idx, undefined, extra)}
     </>
   )
 
-  const menuFor = (m: Entry, idx: number, at?: { x: number; y: number }): VNode => (
+  const menuFor = (m: Entry, idx: number, at?: { x: number; y: number }, extra?: MenuExtra): VNode => (
     <MessageMenu
       at={at}
+      onTag={extra ? () => {
+        setMenu(null)
+        extra.picked("tag")
+        extra.onTag()
+      } : undefined}
+      onCollect={extra?.onCollect ? () => {
+        setMenu(null)
+        extra.picked("collect")
+        extra.onCollect?.()
+      } : undefined}
       pinned={Boolean(m.pinned)}
       reminded={Boolean(m.remind)}
       onPin={() => togglePin(idx, "menu")}

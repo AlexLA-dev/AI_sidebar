@@ -49,12 +49,15 @@ enum ChatAI {
         let timestamp: Int
     }
 
+    /// Production's host, by name: a build whose `base` is anything else is a test build (TestBuild, Setup.swift).
+    static let productionHost = "aisidebar.netlify.app"
+
     /// Production; a debug build can point at a local stand: `-CFApiBase http://localhost:8788`.
     static var base: URL {
         #if DEBUG
         if let custom = UserDefaults.standard.string(forKey: "CFApiBase"), let url = URL(string: custom) { return url }
         #endif
-        return URL(string: "https://6af9e041245c0cf4f795a16c--aisidebar.netlify.app")!  // TestFlight 2.7: the 2.7 branch deploy (claude/release-2.7-tf only)
+        return URL(string: "https://6afd67a35bd6ff03000508f8--aisidebar.netlify.app")!  // TestFlight 2.7: the 2.7 branch deploy (claude/release-2.7-tf only)
     }
 
     @MainActor
@@ -505,6 +508,9 @@ extension ChatAI {
 
     @MainActor
     private static func eventRequest(_ kind: String, _ fields: [String: String]) -> URLRequest? {
+        // «Start as a new user» (2.7, test builds; Setup.swift): its first-run screens aren't a new install's, so
+        // nothing of them is counted.
+        if NewUserPreview.isOn { return nil }
         var body: [String: Any] = [
             "kind": kind,
             "appId": Activation.shared.appId,

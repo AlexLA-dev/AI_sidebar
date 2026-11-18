@@ -125,7 +125,8 @@
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42), 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 3;
   touch-action: none !important;
-  user-select: none; -webkit-user-select: none;
+  /* Held down, it opens the page's translation (build 107): no system menu or selection over it. */
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   transition: transform 0.15s ease, opacity 0.2s ease;
   opacity: 0.94;
 }
@@ -175,6 +176,21 @@
 .cf-bubble-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-inline-start: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
 .cf-bubble-saved span { display: flex; align-items: center; gap: 6px; }
 .cf-bubble-saved svg { color: var(--note); }
+/* 107: the snapshot offered in this line (the camera, then what to take), and how it went. One line always. */
+.cf-bubble-saved { min-width: 0; }
+.cf-bubble-saved .cf-saved-text { flex: 1 1 auto; min-width: 0; }
+.cf-bubble-saved.failed .cf-saved-text, .cf-bubble-saved.pro .cf-saved-text { display: block; white-space: normal; font-weight: 500; line-height: 1.3; }
+.cf-bubble-saved .cf-saved-what { flex: none; color: var(--text-3); }
+.cf-bubble-saved .cf-saved-what svg, .cf-bubble-saved button svg { color: inherit; }
+.cf-bubble-saved button { flex: none; }
+.cf-bubble-saved button.cf-saved-shot { color: var(--accent-text); }
+.cf-bubble-saved.pick { justify-content: flex-start; gap: 6px; }
+.cf-bubble-saved button.cf-saved-kind { flex: 1 1 auto; justify-content: center; gap: 6px; color: var(--text); background: var(--bg-2); }
+.cf-bubble-saved.pro button.cf-saved-kind { flex: none; background: transparent; }
+.cf-bubble.tight .cf-saved-shot .cf-sel-l { display: none; }
+/* 107: Note by the selection shows it's pressed (the panel's does), from the touch until "Saved" comes. */
+.cf-bubble button.cf-sel-note:active, .cf-bubble button.cf-sel-note.pressed { color: var(--note-text); background: var(--note-soft); box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.45) inset; }
+.cf-bubble.touch button.cf-sel-note.pressed { transform: scale(0.97); }
 /* iPhone / iPad: bigger tap targets, primary action filled; 16px text so Safari doesn't zoom into the field. */
 .cf-bubble.touch { gap: 5px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 /* Wide enough for the field: the buttons above share the width. */
@@ -307,9 +323,16 @@
 .cf[data-layout="sheet"] .cf-header { padding-top: 2px; }
 .cf-logo { color: var(--accent); display: flex; margin-inline-end: 4px; }
 .cf-title { flex: 1; min-width: 0; display: flex; align-items: center; }
-/* 2.6 (94): the chat's name under the header, the whole width, two lines at most. */
-.cf-chat-bar { flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 3px 14px 4px 4px; border-bottom: 1px solid var(--border); }
-.cf-chat-bar-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+/* 2.6 (94): the chat's name under the header, the whole width. 2.7 (after 107), the owner: one line, ending in "…"
+   (it could take two); its full name is its tooltip. */
+.cf-chat-bar { flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 3px 4px 4px; padding-inline-end: 14px; border-bottom: 1px solid var(--border); }
+.cf-chat-bar-name { flex: 1 1 0; min-width: min(4.5em, 20%); font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 107 (spaces): «● Continuing in “…”» before the name and «‹ <space>» after it. Still one line: the label keeps its
+   width up to its cap (its space's name ends in "…" there); the chat's name gives way first, down to a few words;
+   then the button's space name ends in "…", the button never narrower than its arrow and a word. (The name's
+   own rule above keeps its few words; no :has(), which Safari on iOS left unapplied elsewhere.) */
+.cf-chat-bar .cf-match-in { flex: 0 0 auto; }
+.cf-chat-bar .cf-match-back { flex: 0 1 auto; min-width: 4.5em; }
 /* Back to the chats list (2.6 (98)): the header's back, a size smaller. */
 .cf-chat-bar .cf-chat-back { flex: none; width: 30px; height: 30px; }
 .cf[data-touch] .cf-chat-bar .cf-chat-back { width: 36px; height: 36px; }
@@ -387,6 +410,11 @@
 .cf-chip.ultra, .cf-chip.ultra:hover { display: inline-flex; align-items: center; gap: 5px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
 .cf-bubble button.cf-sel-similar.ultra { color: var(--ultra-text); background: var(--ultra-soft); box-shadow: 0 0 0 1px var(--ultra-line) inset; }
 .cf-bubble.touch button.cf-sel-chip.ultra { gap: 4px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
+/* 107: violet is Ultra's. Find similar on Pro and Own key (the light search) and offered to Free is blue, as Pro is. */
+.cf-chip.pro, .cf-chip.pro:hover { display: inline-flex; align-items: center; gap: 5px; color: var(--accent-text); background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+.cf-bubble.touch button.cf-sel-chip.pro { gap: 4px; color: var(--accent-text); background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+.cf-bubble .cf-ask-field.mouse button.cf-sel-chip.pro { display: inline-flex; align-items: center; gap: 4px; color: var(--accent-text); background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+.cf-ultra-mark.pro, .cf-ultra-badge.pro { color: #fff; background: linear-gradient(135deg, #38bdf8, #2563eb); }
 .cf-ultra-mark { display: inline-block; margin-inline-start: 5px; padding: 0 4px; border-radius: 5px; font-size: 9.5px; font-weight: 700; line-height: 15px; letter-spacing: 0.02em; color: var(--ultra-on); background: var(--ultra); }
 
 .cf-msg { margin: 0 0 14px; display: flex; flex-direction: column; }
@@ -892,6 +920,9 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-thread-unread { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
 @keyframes cf-busy-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .cf-busy-spin, .cf-thread-busy { animation: none; } }
+
+/* 2.7: a point of ours at the fixed coordinates' 0,0 (fixedPlace.ts measures where that is among the page's rects). */
+.cf-origin { position: fixed; left: 0; top: 0; width: 0; height: 0; visibility: hidden; pointer-events: none; }
 
 /* 2.6: with the panel open on a selection, a ring with a light running round it marks the selected
    text on the page and the header's "Selection" chip. Light on the phone: the light is a gradient turning under a

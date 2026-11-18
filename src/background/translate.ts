@@ -19,7 +19,7 @@ export interface TranslateDeps {
 }
 
 const FIRST_BYTE_MS = 30_000
-const CODES = new Set<TranslateError>(["LIMIT_REACHED", "PAGE_CAP", "BUSY", "UPSTREAM", "NETWORK", "UNAVAILABLE", "BAD_REQUEST", "CONSENT"])
+const CODES = new Set<TranslateError>(["LIMIT_REACHED", "PAGE_CAP", "CONTROLS_CAP", "BUSY", "UPSTREAM", "NETWORK", "UNAVAILABLE", "BAD_REQUEST", "CONSENT"])
 
 /** The page's id for the server: the address (without its tracking parameters) and the language, hashed. */
 export async function pageId(url: string, to: string): Promise<string> {
@@ -41,7 +41,7 @@ async function run(deps: TranslateDeps, ask: TranslateAsk, emit: (r: TranslateRe
     res = await fetch(`${API_BASE}/api/v2/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ installId, client, entitlement, page, to: ask.to, from: ask.from, first: ask.first, blocks: ask.blocks }),
+      body: JSON.stringify({ installId, client, entitlement, page, to: ask.to, from: ask.from, first: ask.first, blocks: ask.blocks, ...(ask.kind === "controls" ? { kind: "controls" } : {}) }),
       signal: timeout.signal
     })
   } catch {

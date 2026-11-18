@@ -59,6 +59,21 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Seite übersetzen"
+ },
+ "chipWatchPrice": {
+  "message": "Preis beobachten"
+ },
+ "plusButton": {
+  "message": "Mehr: Notiz, Schnappschuss, ganzer Chat"
+ },
+ "hintShow": {
+  "message": "Anzeigen"
+ },
+ "tourWholeBodyPlus": {
+  "message": "„Ganzer Chat“ findest du unter +. Schalte „Ganzer Chat“ ein, wenn eine Frage alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und diese Seite."
+ },
  "promptSummarize": {
   "message": "Fasse diese Seite in 5–7 Stichpunkten zusammen und nenne dann das wichtigste Fazit in einem Satz."
  },
@@ -663,7 +678,7 @@
   "message": "Nur ein Teil davon?"
  },
  "tourSelectBody": {
-  "message": "Markiere zuerst Text auf der Seite – dann geht es in der Antwort nur darum. Dieses Label zeigt, was ContextFlow liest."
+  "message": "Markiere zuerst Text auf der Seite – dann geht es in der Antwort nur darum. Über dem Eingabefeld zeigt dann ein Label, was markiert ist."
  },
  "tourGoogleTitle": {
   "message": "Aktuelle Fakten von Google"
@@ -690,10 +705,10 @@
   "message": "Eigene Notizen"
  },
  "tourNoteBodyTouch": {
-  "message": "Wische diese Taste nach oben oder unten, um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten."
+  "message": "Wische diese Taste nach oben oder unten, um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten. Oder tippe auf + und wähle „Notiz“."
  },
  "tourNoteBodyMouse": {
-  "message": "Scrolle auf dieser Taste (oder halte sie gedrückt), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten."
+  "message": "Scrolle auf dieser Taste (oder halte sie gedrückt), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten. Oder klicke auf + und wähle „Notiz“."
  },
  "tourWholeTitle": {
   "message": "Der ganze Chat im Blick"
@@ -2381,6 +2396,9 @@
  "trHide": {
   "message": "Auf dieser Website ausblenden"
  },
+ "trHiddenTold": {
+  "message": "Auf dieser Website ausgeblendet. Mit diesem Symbol holst du es zurück."
+ },
  "trWorking": {
   "message": "Wird übersetzt…"
  },
@@ -2389,6 +2407,21 @@
  },
  "trFailed": {
   "message": "Übersetzung fehlgeschlagen"
+ },
+ "trLangPick": {
+  "message": "Zielsprache"
+ },
+ "trPart": {
+  "message": "{0}: {1}% der Seite"
+ },
+ "trEntry": {
+  "message": "Seite übersetzen"
+ },
+ "trControls": {
+  "message": "Buttons und Menüs: {0}"
+ },
+ "trControlsCap": {
+  "message": "Die kostenlosen Übersetzungen von Buttons und Menüs sind für heute aufgebraucht"
  },
  "spacesTitle": {
   "message": "Bereiche"
@@ -2548,6 +2581,18 @@
  },
  "writeSkip": {
   "message": "Ignorieren"
+ },
+ "writeFixAll": {
+  "message": "Alle korrigieren"
+ },
+ "writeSlow": {
+  "message": "Das dauert zu lange und wurde abgebrochen. Bitte versuch es noch einmal."
+ },
+ "writeUpdated": {
+  "message": "ContextFlow wurde aktualisiert. Lade die Seite neu, um Prüfen und Umschreiben zu nutzen."
+ },
+ "writeReload": {
+  "message": "Neu laden"
  },
  "underlineSetting": {
   "message": "Fehler beim Tippen unterstreichen"
@@ -2957,6 +3002,33 @@
  "colCardMenu": {
   "message": "Kartenaktionen"
  },
+ "shotAdd": {
+  "message": "Schnappschuss"
+ },
+ "shotAdded": {
+  "message": "Schnappschuss hinzugefügt"
+ },
+ "colIn": {
+  "message": "In „{0}“"
+ },
+ "colOpen": {
+  "message": "Sammlung öffnen"
+ },
+ "colAddOther": {
+  "message": "In eine andere Sammlung"
+ },
+ "colAlready": {
+  "message": "Schon in „{0}“"
+ },
+ "tipNew": {
+  "message": "Neu"
+ },
+ "matchContinueIn": {
+  "message": "Weiter in „{0}“"
+ },
+ "matchBackTo": {
+  "message": "Zurück zu „{0}“"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
@@ -3044,8 +3116,8 @@
  "tip_6ba198cbff": {
   "message": "Eigene Notizen"
  },
- "tip_6a92f6c633": {
-  "message": "Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten."
+ "tip_b210a078de": {
+  "message": "Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben, oder tippe auf + neben dem Feld und wähle „Notiz“. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten."
  },
  "tip_ac13420c59": {
   "message": "Ein Schnappschuss zur Notiz"
@@ -3083,8 +3155,8 @@
  "tip_e012ef5f59": {
   "message": "Der ganze Chat im Blick"
  },
- "tip_3a70cee32e": {
-  "message": "Schalte „Ganzer Chat“ unter dem Eingabefeld ein, wenn eine Antwort alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und die geöffnete Seite."
+ "tip_511d363377": {
+  "message": "Schalte „Ganzer Chat“ unter + neben dem Eingabefeld ein, wenn eine Antwort alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und die geöffnete Seite."
  },
  "tip_ca29a1f4ed": {
   "message": "Fragen zu einem Video"
@@ -3203,8 +3275,8 @@
  "tip_8d1c1aa55d": {
   "message": "Alles in einer Sammlung"
  },
- "tip_15dc6cba07": {
-  "message": "Du planst eine Reise oder einen Kauf? Wähle „In Sammlung“ unter einer Antwort oder Notiz, und ContextFlow schlägt vor, wohin sie gehört. In „Sammlungen“ liegt alles in Abschnitten, in Safari und in der App. Mit Pro sortiert die KI die Karten, „Vergleichen“ stellt die gewählten nebeneinander, und „Zusammenfassung“ fasst alles zusammen. Jede Sammlung lässt sich als PDF sichern."
+ "tip_397645bf6c": {
+  "message": "Du planst eine Reise oder einen Kauf? Wähle „In Sammlung“ unter einer Antwort oder Notiz oder in ihrem …-Menü, und ContextFlow schlägt vor, wohin sie gehört. In „Sammlungen“ liegt alles in Abschnitten, in Safari und in der App. Mit Pro sortiert die KI die Karten, „Vergleichen“ stellt die gewählten nebeneinander, und „Zusammenfassung“ fasst alles zusammen. Jede Sammlung lässt sich als PDF sichern."
  },
  "tip_c4b432e2e9": {
   "message": "Durchsuche deine Chats"
@@ -3215,8 +3287,8 @@
  "tip_2e4668f650": {
   "message": "Tags und Ordner"
  },
- "tip_6b5bdf707f": {
-  "message": "Versieh einen Chat, eine Antwort oder Notiz mit 🏷. Tippe auf einen Tag, um nur seine Chats zu sehen, oder schalte „Ordner“ ein, um die Liste nach Tags zu gruppieren."
+ "tip_d3d95ad05c": {
+  "message": "Versieh einen Chat, eine Antwort oder Notiz mit 🏷 oder über „Tag“ im …-Menü. Tippe auf einen Tag, um nur seine Chats zu sehen, oder schalte „Ordner“ ein, um die Liste nach Tags zu gruppieren."
  },
  "tip_752fb307f2": {
   "message": "Teile, was du gefunden hast"
@@ -3262,12 +3334,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro und Ultra gibt es monatlich oder jährlich, und ein Jahr kostet weniger als zwölf Monate. Tippe über den Tarifen auf „Jährlich“, in der App oder in Safari, um jeden Preis und deine Ersparnis zu sehen. Schon monatlich dabei? „Auf jährlich umstellen“ findest du unter „Einstellungen“ → „Dein Tarif“: Es gilt ab dem Ende deines aktuellen Monats."
- },
- "tip_9288a85bb9": {
-  "message": "Was dein Tarif bietet"
- },
- "tip_0f2289f887": {
-  "message": "Nach dem Kauf von Pro oder Ultra zeigt dir ContextFlow Schritt für Schritt, was dein Tarif bietet. Um es noch einmal zu sehen, tippe oben im Panel auf „…“, dann auf „Weiteres …“ und „Was Pro bietet“ oder „Was Ultra bietet“. In der App findest du es in den „Einstellungen“ unter „Dein Tarif“."
  },
  "tip_3ee4fbeeb2": {
   "message": "Freunde einladen"

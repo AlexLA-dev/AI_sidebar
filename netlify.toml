@@ -345,8 +345,20 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/translate-web-page-safari-iphone"
+  to = "https://context-flow.app/translate-web-page-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/i"
   to = "https://context-flow.app/i"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/translate-web-page-safari-iphone.html"
+  to = "https://context-flow.app/translate-web-page-safari-iphone"
   status = 301
   force = true
 
@@ -357,14 +369,38 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/proofread-safari-iphone"
+  to = "https://context-flow.app/proofread-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/demo/lisboa"
   to = "https://context-flow.app/demo/lisboa"
   status = 301
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/proofread-safari-iphone.html"
+  to = "https://context-flow.app/proofread-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/demo/lisboa.html"
   to = "https://context-flow.app/demo/lisboa"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/demo/lisbon"
+  to = "https://context-flow.app/demo/lisbon"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/demo/lisbon.html"
+  to = "https://context-flow.app/demo/lisbon"
   status = 301
   force = true
 

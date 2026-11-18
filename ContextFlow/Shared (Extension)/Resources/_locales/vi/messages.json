@@ -59,6 +59,21 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Dịch trang"
+ },
+ "chipWatchPrice": {
+  "message": "Theo dõi giá"
+ },
+ "plusButton": {
+  "message": "Thêm: ghi chú, ảnh chụp, cả cuộc trò chuyện"
+ },
+ "hintShow": {
+  "message": "Xem"
+ },
+ "tourWholeBodyPlus": {
+  "message": "“Cả cuộc trò chuyện” nằm trong +. Bật “Cả cuộc trò chuyện” khi câu hỏi cần đến mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang này."
+ },
  "promptSummarize": {
   "message": "Tóm tắt trang này thành 5–7 gạch đầu dòng, rồi nêu kết luận chính trong một câu."
  },
@@ -663,7 +678,7 @@
   "message": "Chỉ cần một phần?"
  },
  "tourSelectBody": {
-  "message": "Chọn văn bản trên trang trước, câu trả lời sẽ chỉ nói về phần đó. Nhãn này cho biết ContextFlow đang đọc gì."
+  "message": "Chọn văn bản trên trang trước, câu trả lời sẽ chỉ nói về phần đó. Khi đó một nhãn phía trên ô nhập cho biết bạn đã chọn gì."
  },
  "tourGoogleTitle": {
   "message": "Thông tin mới từ Google"
@@ -690,10 +705,10 @@
   "message": "Ghi chú của riêng bạn"
  },
  "tourNoteBodyTouch": {
-  "message": "Vuốt nút này lên hoặc xuống để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời."
+  "message": "Vuốt nút này lên hoặc xuống để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời. Hoặc chạm + rồi chọn “Ghi chú”."
  },
  "tourNoteBodyMouse": {
-  "message": "Cuộn trên nút này (hoặc nhấn giữ) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời."
+  "message": "Cuộn trên nút này (hoặc nhấn giữ) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời. Hoặc bấm + rồi chọn “Ghi chú”."
  },
  "tourWholeTitle": {
   "message": "Xét cả cuộc trò chuyện"
@@ -2381,6 +2396,9 @@
  "trHide": {
   "message": "Ẩn trên trang này"
  },
+ "trHiddenTold": {
+  "message": "Đã ẩn trên trang này. Biểu tượng này giúp bạn mở lại."
+ },
  "trWorking": {
   "message": "Đang dịch…"
  },
@@ -2389,6 +2407,21 @@
  },
  "trFailed": {
   "message": "Không dịch được"
+ },
+ "trLangPick": {
+  "message": "Ngôn ngữ đích"
+ },
+ "trPart": {
+  "message": "{0}: {1}% trang"
+ },
+ "trEntry": {
+  "message": "Dịch trang này"
+ },
+ "trControls": {
+  "message": "Nút và menu: {0}"
+ },
+ "trControlsCap": {
+  "message": "Đã hết lượt dịch miễn phí nút và menu hôm nay"
  },
  "spacesTitle": {
   "message": "Không gian"
@@ -2548,6 +2581,18 @@
  },
  "writeSkip": {
   "message": "Bỏ qua"
+ },
+ "writeFixAll": {
+  "message": "Sửa tất cả"
+ },
+ "writeSlow": {
+  "message": "Mất quá nhiều thời gian nên đã dừng lại. Vui lòng thử lại."
+ },
+ "writeUpdated": {
+  "message": "ContextFlow đã được cập nhật. Hãy tải lại trang để dùng Kiểm tra và Viết lại."
+ },
+ "writeReload": {
+  "message": "Tải lại"
  },
  "underlineSetting": {
   "message": "Gạch chân lỗi khi gõ"
@@ -2957,6 +3002,33 @@
  "colCardMenu": {
   "message": "Thao tác với thẻ"
  },
+ "shotAdd": {
+  "message": "Ảnh chụp"
+ },
+ "shotAdded": {
+  "message": "Đã thêm ảnh chụp"
+ },
+ "colIn": {
+  "message": "Trong “{0}”"
+ },
+ "colOpen": {
+  "message": "Mở bộ sưu tập"
+ },
+ "colAddOther": {
+  "message": "Vào bộ sưu tập khác"
+ },
+ "colAlready": {
+  "message": "Đã có trong “{0}”"
+ },
+ "tipNew": {
+  "message": "Mới"
+ },
+ "matchContinueIn": {
+  "message": "Đang tiếp tục trong “{0}”"
+ },
+ "matchBackTo": {
+  "message": "Quay lại “{0}”"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },
@@ -3044,8 +3116,8 @@
  "tip_6ba198cbff": {
   "message": "Ghi chú của riêng bạn"
  },
- "tip_6a92f6c633": {
-  "message": "Vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút đó) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó, được đồng bộ cùng cuộc trò chuyện và không tốn câu trả lời nào."
+ "tip_b210a078de": {
+  "message": "Vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút đó) để viết ghi chú thay vì đặt câu hỏi, hoặc chạm + cạnh ô nhập rồi chọn Ghi chú. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó, được đồng bộ cùng cuộc trò chuyện và không tốn câu trả lời nào."
  },
  "tip_ac13420c59": {
   "message": "Ảnh chụp trang kèm ghi chú"
@@ -3083,8 +3155,8 @@
  "tip_e012ef5f59": {
   "message": "Ghi nhớ cả cuộc trò chuyện"
  },
- "tip_3a70cee32e": {
-  "message": "Bật Cả cuộc trò chuyện dưới ô câu hỏi khi câu trả lời cần mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang đang mở."
+ "tip_511d363377": {
+  "message": "Bật Cả cuộc trò chuyện trong +, cạnh ô câu hỏi, khi câu trả lời cần mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang đang mở."
  },
  "tip_ca29a1f4ed": {
   "message": "Hỏi về video"
@@ -3203,8 +3275,8 @@
  "tip_8d1c1aa55d": {
   "message": "Gom vào bộ sưu tập"
  },
- "tip_15dc6cba07": {
-  "message": "Đang lên kế hoạch cho chuyến đi hay một món đồ cần mua? Chọn Vào bộ sưu tập bên dưới câu trả lời hoặc ghi chú, và ContextFlow sẽ gợi ý nơi để nó vào. Bộ sưu tập giữ mọi thứ theo từng mục, trong Safari và trong ứng dụng. Với Pro, AI sắp xếp các thẻ, So sánh đặt những thẻ bạn chọn cạnh nhau và Tóm tắt tổng hợp tất cả. Bộ sưu tập nào cũng lưu được thành PDF."
+ "tip_397645bf6c": {
+  "message": "Đang lên kế hoạch cho chuyến đi hay một món đồ cần mua? Chọn Vào bộ sưu tập bên dưới câu trả lời hoặc ghi chú, hoặc trong menu … của nó, và ContextFlow sẽ gợi ý nơi để nó vào. Bộ sưu tập giữ mọi thứ theo từng mục, trong Safari và trong ứng dụng. Với Pro, AI sắp xếp các thẻ, So sánh đặt những thẻ bạn chọn cạnh nhau và Tóm tắt tổng hợp tất cả. Bộ sưu tập nào cũng lưu được thành PDF."
  },
  "tip_c4b432e2e9": {
   "message": "Tìm trong cuộc trò chuyện"
@@ -3215,8 +3287,8 @@
  "tip_2e4668f650": {
   "message": "Thẻ và thư mục"
  },
- "tip_6b5bdf707f": {
-  "message": "Gắn thẻ cho cuộc trò chuyện, câu trả lời hoặc ghi chú bằng 🏷. Chạm vào một thẻ để chỉ xem các cuộc trò chuyện có thẻ đó, hoặc bật Thư mục để nhóm danh sách theo thẻ."
+ "tip_d3d95ad05c": {
+  "message": "Gắn thẻ cho cuộc trò chuyện, câu trả lời hoặc ghi chú bằng 🏷, hoặc bằng Thẻ trong menu … của nó. Chạm vào một thẻ để chỉ xem các cuộc trò chuyện có thẻ đó, hoặc bật Thư mục để nhóm danh sách theo thẻ."
  },
  "tip_752fb307f2": {
   "message": "Chia sẻ điều bạn tìm thấy"
@@ -3262,12 +3334,6 @@
  },
  "tip_12e62d9862": {
   "message": "Pro và Ultra có gói theo tháng hoặc theo năm, và một năm rẻ hơn mười hai tháng. Chạm vào Theo năm phía trên các gói, trong ứng dụng hoặc trong Safari, để xem từng giá và số tiền tiết kiệm. Đang trả theo tháng? Chuyển sang theo năm nằm trong Cài đặt → Gói của bạn: gói năm bắt đầu khi tháng hiện tại kết thúc."
- },
- "tip_9288a85bb9": {
-  "message": "Gói của bạn có thêm gì"
- },
- "tip_0f2289f887": {
-  "message": "Sau khi bạn mua Pro hoặc Ultra, ContextFlow giới thiệu từng bước những gì gói của bạn có thêm. Muốn xem lại, chạm vào … ở đầu bảng, rồi Khác… và Pro có gì hoặc Ultra có gì. Trong ứng dụng, mục này nằm trong Cài đặt, ở phần Gói của bạn."
  },
  "tip_3ee4fbeeb2": {
   "message": "Mời bạn bè"

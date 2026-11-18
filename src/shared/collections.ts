@@ -270,8 +270,44 @@ export function liveSections(rec: Collection): Section[] {
   return rec.s.filter((s) => !s.d).sort((a, b) => a.o - b.o || byId(a, b))
 }
 
+/** The answer or note a card was made from (its chat and message); null for a comparison or a card without them. */
+function sourceOf(card: Pick<Card, "k" | "chat" | "msg">): string | null {
+  return card.k !== "compare" && card.chat && card.msg ? `${card.chat}\u0000${card.msg}` : null
+}
+
+/**
+ * The cards there are: not deleted, and one card per answer or note (107, the owner: «карточку можно добавить несколько
+ * раз, получаются дубли»). Copies made before that was stopped stay in the record; only the first of them shows and
+ * counts (by id: the same one on every device, and still the same one after it's moved).
+ */
 export function liveCards(rec: Collection): Card[] {
-  return rec.c.filter((c) => !c.d)
+  const first = new Map<string, string>()
+  for (const c of rec.c) {
+    const key = c.d ? null : sourceOf(c)
+    if (key && (!first.has(key) || c.id < first.get(key)!)) first.set(key, c.id)
+  }
+  return rec.c.filter((c) => {
+    if (c.d) return false
+    const key = sourceOf(c)
+    return !key || first.get(key) === c.id
+  })
+}
+
+/** The card a collection has of this answer or note (a chat and a message's key), if any. */
+export function cardOf(rec: Collection, chat: string, msg: string): Card | undefined {
+  return rec.d ? undefined : liveCards(rec).find((c) => c.k !== "compare" && c.chat === chat && c.msg === msg)
+}
+
+/** Every collection that has this answer or note, with its card and the section the card shows in. */
+export function placesOf(all: Collection[], chat: string, msg: string): Array<{ rec: Collection; card: Card; section: Section | undefined }> {
+  const out: Array<{ rec: Collection; card: Card; section: Section | undefined }> = []
+  for (const rec of all) {
+    const card = cardOf(rec, chat, msg)
+    if (!card) continue
+    const sections = liveSections(rec)
+    out.push({ rec, card, section: sections.find((s) => s.id === card.sec) ?? sections[0] })
+  }
+  return out
 }
 
 /** A section's cards in their order; cards whose section is gone are in the first section. */
@@ -326,10 +362,23 @@ export function moveCollectionToSpace(rec: Collection, space: string, now = Date
   return next
 }
 
-export function addSection(rec: Collection, sid: string, name: string, now = Date.now(), ai = false): Collection {
+/**
+ * A new section, after the others. It takes no card that's there already (107, the owner: a section made from the AI's
+ * suggestion had a card from before any section): cards whose section is gone show in the first section, so when there
+ * is none they'd all land in the new one. They get a section of their own first (`rest`: its id and name), and stay in it.
+ */
+export function addSection(rec: Collection, sid: string, name: string, now = Date.now(), ai = false, rest?: { id: string; name: string }): Collection {
   if (liveSections(rec).length >= MAX_SECTIONS) return rec
-  const o = Math.max(-1, ...liveSections(rec).map((s) => s.o)) + 1
-  return { ...rec, s: [...rec.s.filter((s) => s.id !== sid), { id: sid, n: clean(name, MAX_SECTION_NAME), o, u: now, ...(ai ? { ai: true as const } : {}) }] }
+  let next = rec
+  if (rest && rest.id !== sid && liveSections(rec).length === 0 && rec.c.some((c) => !c.d)) {
+    next = {
+      ...rec,
+      s: [...rec.s.filter((s) => s.id !== rest.id), { id: rest.id, n: clean(rest.name, MAX_SECTION_NAME), o: 0, u: now }],
+      c: rec.c.map((c) => (c.d ? c : { ...c, sec: rest.id, u: later(c.u, now) }))
+    }
+  }
+  const o = Math.max(-1, ...liveSections(next).map((s) => s.o)) + 1
+  return { ...next, s: [...next.s.filter((s) => s.id !== sid), { id: sid, n: clean(name, MAX_SECTION_NAME), o, u: now, ...(ai ? { ai: true as const } : {}) }] }
 }
 
 export function renameSection(rec: Collection, sid: string, name: string, now = Date.now()): Collection {
@@ -360,7 +409,10 @@ export function deleteSection(rec: Collection, sid: string, now = Date.now()): C
   return next
 }
 
+/** A card added at the end of its section. Never a second card of the same answer or note: the collection stays as it is. */
 export function addCard(rec: Collection, card: Omit<Card, "o" | "u">, now = Date.now()): Collection {
+  const key = sourceOf(card)
+  if (key && rec.c.some((c) => !c.d && c.id !== card.id && sourceOf(c) === key)) return rec
   const o = Math.max(-1, ...cardsIn(rec, card.sec).map((c) => c.o)) + 1
   return { ...rec, c: [...rec.c.filter((c) => c.id !== card.id), { ...card, o, u: now }] }
 }
@@ -382,8 +434,13 @@ export function moveCard(rec: Collection, cid: string, sid: string, index: numbe
   }
 }
 
+/** A card deleted, with any older copies of it (the same answer or note added twice before that was stopped). */
 export function deleteCard(rec: Collection, cid: string, now = Date.now()): Collection {
-  return { ...rec, c: rec.c.map((c) => (c.id === cid && !c.d ? { id: c.id, sec: "", o: 0, u: later(c.u, now), d: true as const, k: c.k, t: "", at: 0 } : c)) }
+  const card = rec.c.find((c) => c.id === cid && !c.d)
+  if (!card) return rec
+  const key = sourceOf(card)
+  const gone = (c: Card) => !c.d && (c.id === cid || (key !== null && sourceOf(c) === key))
+  return { ...rec, c: rec.c.map((c) => (gone(c) ? { id: c.id, sec: "", o: 0, u: later(c.u, now), d: true as const, k: c.k, t: "", at: 0 } : c)) }
 }
 
 export function setSummary(rec: Collection, text: string, now = Date.now()): Collection {

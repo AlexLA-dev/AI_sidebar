@@ -22,6 +22,9 @@ before(async () => {
 <div id="post" contenteditable="true"><p>Great post <span contenteditable="false">@Siddharth Raghunathan</span> realy.</p><p>Second line here</p></div>
 <div id="reply" contenteditable="true"><blockquote>Quoted first</blockquote><p>My answer is here</p></div>
 <form><input id="cc" autocomplete="cc-number"><input id="name" type="text" value="Alex"></form>
+<form id="comment-form"><input type="hidden" name="comment_post_ID" value="4417"><input type="hidden" name="_wpnonce" value="a1b2"><textarea id="comment"></textarea></form>
+<form><input type="hidden" name="card_number" value="tok_1"><textarea id="pay-note"></textarea></form>
+<form><input type="password" name="pass"><textarea id="login-note"></textarea></form>
 </body></html>`))
   Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement })
   const dir = mkdtempSync(join(tmpdir(), "cf-write-field-"))
@@ -120,4 +123,12 @@ test("text compared after a change: an editor's no-break spaces and blank lines 
 test("a card field's form is never read", () => {
   assert.equal(F.sensitiveForm($("name")), true)
   assert.equal(F.sensitiveForm($("note")), false)
+})
+
+test("a hidden input doesn't make a form a payment form: a comment form with its token and post id is worked in", () => {
+  // 2.7 (107): every hidden input counted, so Check, Rewrite and the underlines never showed in ordinary comment forms.
+  assert.equal(F.sensitiveForm($("comment")), false)
+  // What a hidden input is named still counts; a password in the form always does.
+  assert.equal(F.sensitiveForm($("pay-note")), true)
+  assert.equal(F.sensitiveForm($("login-note")), true)
 })

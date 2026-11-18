@@ -159,6 +159,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             let stored = SharedDefaults.shared.readSettings()
             var data: [String: Any] = ["updatedAt": stored?.updatedAt ?? 0]
             data["settings"] = stored.map { $0.settings as Any } ?? NSNull()
+            // «Start as a new user» in the app (2.7, test builds only): the panel's own first run starts over once for
+            // each start (src/shared/firstRun.ts). The App Store's app never sets it.
+            if let preview = SharedDefaults.shared.newUserPreview() { data["firstRunReset"] = (preview.since * 1000).rounded() }
             Self.reply(context, ["success": true, "data": data])
         case "setSettings":
             let settings = message["settings"] as? [String: Any] ?? [:]

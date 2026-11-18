@@ -63,7 +63,8 @@ test("the field's circle and its list items go by the same rule", () => {
   const quick = readFileSync(new URL("../src/content/insert/QuickInsert.tsx", import.meta.url), "utf8")
   assert.match(quick, /const canWrite = \(f: Field \| null\) => Boolean\([\s\S]{0,200}?worthWriting\(/)
   assert.match(quick, /onWrite=\{canWrite\(fieldRef\.current\)/)
-  assert.match(quick, /props\.live && settings\.underline && !mode && field && canWrite\(field\)/)
+  // The underlines too, on the field last written in (2.7 (107): they stay when the focus leaves it).
+  assert.match(quick, /const liveOn = Boolean\(props\.live && settings\.underline && canWrite\(liveAt\)\)/)
 })
 
 test("the Calendar and Reminders prompt's example names no country's route", () => {
