@@ -82,11 +82,10 @@ test("the background asks /api/v2/collect only with Pro and the consent, and ope
 
 test("the panel: «В подборку» under answers and notes, the sheet, the window's tabs and its Pro steps", () => {
   const app = read("src/content/App.tsx")
-  // In the footer shared by answers and notes. 2.7 after build 107 (the owner: one row of buttons under a message):
-  // in the tools' row on the roomy chat; on the compact chat in the message's «…», and in the row once it's collected
-  // (#199: «✓ In “<collection>”» with its own menu; CollectLink draws both).
-  assert.match(app, /\{!historyMode && \(!compact \|\| collected\) && \(\s*<CollectLink\s*row[\s\S]{0,160}onSheet=\{\(\) => setCollecting\(idx\)\}/)
-  assert.match(app, /onCollect: historyMode \? undefined : \(\) => setCollecting\(idx\),/)
+  // In the footer shared by answers and notes. 2.7 (109): in the tools' row whenever it has the room, on every chat;
+  // without it in the message's «…», never both (#199: «✓» with its own menu once collected; CollectLink draws both).
+  assert.match(app, /\{!historyMode && \(\s*<CollectLink\s*row[\s\S]{0,160}onSheet=\{\(\) => setCollecting\(idx\)\}/)
+  assert.match(app, /onCollect: dropped\.has\("collect"\) && !historyMode \? \(\) => setCollecting\(idx\) : undefined,/)
   assert.match(read("src/content/Collections.tsx"), /<button type="button" class="cf-collect-link" onClick=\{onSheet\}><Icon\.ToCollection \/> \{t\("colAdd"\)\}<\/button>/)
   assert.match(read("src/content/Collections.tsx"), /<span class="cf-tl" data-give="1">\{t\("colAdd"\)\}<\/span>/)
   assert.match(app, /<CollectSheet[\s\S]*?ai=\{hasPro\(plan\) && consent === "ok"\}/)

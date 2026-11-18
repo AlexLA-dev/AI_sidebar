@@ -248,13 +248,15 @@ export const FEATURES: Record<string, Feature> = {
 
   // 2.7 (after build 107), the quiet panel (src/content/quiet): a chip of the page's tapped ("chip", what: which one);
   // «+» by the field opened ("plus") and what was picked there ("plus_pick"); what was picked in a message's «…» that
-  // the compact row no longer shows ("more_pick"). lay: the chat's density then.
+  // the row has no room for ("more_pick"). lay: the chat's density then. 109: an answer or a note moved to another chat
+  // from its «…» ("moved": to a chat of this space, another space's, or a new one) and taken back ("move_undone").
   quiet: {
     since: "2.7", tracked: "2.7", on: "ext",
-    actions: ["chip", "plus", "plus_pick", "more_pick"],
+    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone"],
     fields: {
-      what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect"],
-      lay: ["compact", "roomy"]
+      what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect", "move"],
+      lay: ["compact", "roomy"],
+      to: ["chat", "space", "new"]
     }
   },
 
@@ -293,7 +295,7 @@ export const FEATURES: Record<string, Feature> = {
   // ten cards; "layout", "compare", "summary": the AI's (Pro); "pdf": exported; "open": the collections window or screen.
   collect: {
     since: "2.7", tracked: "2.7", actions: ["create", "add", "move", "section_add", "section_rename", "section_delete", "delete", "layout", "compare", "summary", "pdf", "open", "limit"],
-    via: ["panel", "app", "suggested", "picked", "header", "list", "sidebar"],
+    via: ["panel", "app", "suggested", "picked", "header", "list", "sidebar", "chats", "mark"],
     fields: { cards: "int", what: ["collection", "card"] }
   },
 
