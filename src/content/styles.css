@@ -106,7 +106,37 @@
   }
 }
 
-:where(.cf) *, :where(.cf) *::before, :where(.cf) *::after { box-sizing: border-box; }
+/* 2.7 (109), the owner: «окраска других элементов кроме кружка на странице тоже менялась под цвет пространства, но
+   менее ярко, бледнее, однако отображало целостность». In a space other than the first (blue) one, everything ContextFlow
+   puts on the page beside the panel takes the ✦ circle's space colour through these variables: the selection bar, the
+   translate pill, the corrections and their list, Quick insert and Write, the note pop-up, toasts. --tint and --tint-2
+   come from Spaces.tsx pageTintVars (the circle's base and light colour). A step paler than the circle: its colour over
+   the background for lines and icons, 11 % (dark 16 %) of it under text, and text mixed toward the theme's own text,
+   4.5:1 or more on both for every colour. The panel keeps its blue (its header carries the space). Off in one place:
+   PAGE_TINT in Spaces.tsx. */
+.cf[data-tint] > :not(.cf-panel) {
+  --accent: color-mix(in srgb, var(--tint) 80%, var(--bg));
+  --accent-2: var(--tint-2);
+  --accent-soft: color-mix(in srgb, var(--tint) 11%, transparent);
+  --accent-text: color-mix(in srgb, var(--tint) 72%, var(--text));
+  --snack-action: var(--tint-2);
+}
+.cf[data-tint][data-theme="dark"] > :not(.cf-panel) {
+  --accent: color-mix(in srgb, var(--tint-2) 85%, var(--bg));
+  --accent-soft: color-mix(in srgb, var(--tint-2) 16%, transparent);
+  --accent-text: color-mix(in srgb, var(--tint-2) 80%, var(--text));
+  --snack-action: color-mix(in srgb, var(--tint) 70%, var(--snack-text));
+}
+@media (prefers-color-scheme: dark) {
+  .cf[data-tint]:not([data-theme]) > :not(.cf-panel) {
+    --accent: color-mix(in srgb, var(--tint-2) 85%, var(--bg));
+    --accent-soft: color-mix(in srgb, var(--tint-2) 16%, transparent);
+    --accent-text: color-mix(in srgb, var(--tint-2) 80%, var(--text));
+    --snack-action: color-mix(in srgb, var(--tint) 70%, var(--snack-text));
+  }
+}
+
+:where(.cf) *,:where(.cf) *::before, :where(.cf) *::after { box-sizing: border-box; }
 /* Resets use :where() (zero specificity) so component classes below always win. */
 :where(.cf) button { font: inherit; color: inherit; background: none; border: 0; margin: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 :where(.cf) button:disabled { cursor: default; opacity: 0.45; }
