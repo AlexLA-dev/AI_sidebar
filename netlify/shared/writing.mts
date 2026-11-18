@@ -12,10 +12,10 @@ import { clipAsk, TONES, WRITE_LIMITS, WRITE_SERVER_MARGIN_MS, writeDeadline, ty
  * Which language Compose writes its draft in (2.7 (108), the owner: «Писать и переписывать ответ на том языке, на
  * котором я начал вводить в текстовом окне, независимо от языка самого письма… Но это не относится к пункту выше
  * [Compose], если только в промпте пользователь сам не попросил ответить на конкретном языке»).
- * - "answered", the reading built (the director's, for the owner to confirm): the language of the message being
+ * - "answered", the owner's confirmed reading (after 108: «Все правильно понял»): the language of the message being
  *   answered (with no conversation, the page's), whatever the request is typed in; a language the request names wins.
- * - "typed": the language the request is typed in; a language the request names wins.
- * Flip it here if the owner reads it the other way: nothing else decides it.
+ * - "typed": the language the request is typed in; a language the request names wins. Kept as the one switch, so the
+ *   rule stays in this one place.
  */
 export const COMPOSE_LANGUAGE: "answered" | "typed" = "answered"
 
