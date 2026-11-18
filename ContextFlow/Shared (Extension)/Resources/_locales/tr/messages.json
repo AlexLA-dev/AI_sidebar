@@ -3038,6 +3038,27 @@
  "matchBackTo": {
   "message": "“{0}” alanına dön"
  },
+ "writeCompose": {
+  "message": "Oluştur"
+ },
+ "writeComposeGo": {
+  "message": "Yaz"
+ },
+ "writeComposing": {
+  "message": "Sayfayı dikkate alarak yazılıyor…"
+ },
+ "writeComposeHint": {
+  "message": "Ne yazılsın? Kendi sözlerinizle"
+ },
+ "writeComposeEdit": {
+  "message": "İsteği değiştir"
+ },
+ "writeToneAsk": {
+  "message": "Nasıl bir tonda?"
+ },
+ "writeInserted": {
+  "message": "Eklendi"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

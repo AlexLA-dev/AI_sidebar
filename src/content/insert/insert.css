@@ -175,6 +175,8 @@
    into (and the words around the blanks, so they read as one line) are 16px on touch screens. */
 @media (pointer: coarse) {
   .cf-qi-area, .cf-qi-blank, .cf-qi-fill-text { font-size: 16px; }
+  /* Compose's box (2.7 (108)). */
+  .cf-wr-ask { font-size: 16px; }
 }
 
 /* ---------------------------------------------- «Проверить» и «Переписать» (2.7) */
@@ -242,25 +244,67 @@
 .cf-wr-meta, .cf-wr-note { font-size: 12.5px; color: var(--text-3); margin-top: 6px; }
 .cf-wr-note { font-size: 14px; color: var(--text-2); margin: 4px 0; }
 .cf-wr-tones.inline { padding-top: 8px; }
+/* Compose (2.7 (108)): the box for what to write, and the tone picked (none: the person's own style). Short, so the
+   sheet keeps its buttons above an iPhone's keyboard. */
+.cf-wr-ask {
+  display: block; box-sizing: border-box; width: 100%; min-height: 64px; max-height: 30vh; padding: 9px 10px; resize: none;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text);
+  font: inherit; font-size: 15px; line-height: 1.45; outline: none;
+}
+.cf-wr-ask:focus { border-color: var(--accent); background: var(--bg); }
+.cf-wr-tone.on, .cf-wr-tone.on:hover { border-color: transparent; background: var(--accent); color: #fff; }
+.cf-wr-row .cf-primary:disabled { opacity: 0.5; }
 .cf-wr-row { padding-top: 4px; }
 .cf-wr-made button { margin-inline-start: 6px; }
 
 /* ---------------------------------------------- live underlines (2.7, Pro and Ultra): our colour, not the system's red */
-.cf-ul-layer { position: fixed; inset: 0; pointer-events: none; z-index: 3; }
-/* Still, and there while the mistake is (2.7 (107), the owner: easy to miss, gone with the focus): a line under the
-   words and a faint tint over them. No animation: nothing here draws the eye again and again. */
-.cf-ul {
-  position: fixed; pointer-events: none; border-radius: 3px;
-  background:
-    linear-gradient(90deg, #38bdf8, #2563eb) left bottom / 100% 2.5px no-repeat,
-    rgba(37, 99, 235, 0.09);
+/* There while the mistake is (2.7 (107), the owner: easy to miss, gone with the focus): a line under the words and a
+   faint tint over them, in our gradient from the accent tokens. The page's own ground decides how deep the line goes
+   (data-ground, ground.ts; the panel's theme says nothing about the page): darker on a light page, lighter on a dark one. */
+.cf-ul-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 3;
+  --ul-a: color-mix(in srgb, var(--accent-2) 55%, var(--accent));
+  --ul-b: color-mix(in srgb, var(--accent) 82%, #000);
+  --ul-tint: color-mix(in srgb, var(--accent) 10%, transparent);
+  --ul-tint-on: color-mix(in srgb, var(--accent) 20%, transparent);
+  --ul-shine: color-mix(in srgb, var(--accent-2) 30%, #fff);
 }
-/* The one its card or its row in the list is about. */
+.cf-ul-layer[data-ground="dark"] {
+  --ul-a: color-mix(in srgb, var(--accent-2) 75%, #fff);
+  --ul-b: color-mix(in srgb, var(--accent) 70%, #fff);
+  --ul-tint: color-mix(in srgb, var(--accent-2) 16%, transparent);
+  --ul-tint-on: color-mix(in srgb, var(--accent-2) 28%, transparent);
+  --ul-shine: #fff;
+}
+.cf-ul {
+  position: fixed; pointer-events: none; border-radius: 3px; overflow: hidden;
+  background:
+    linear-gradient(90deg, var(--ul-a), var(--ul-b)) left bottom / 100% 2.5px no-repeat,
+    var(--ul-tint);
+}
+/* 2.7 (108), the owner: «переливающимся в нашем стиле, как прочие обводки». A light runs along the line, as it runs
+   round the selection's ring: three times when the underline comes, then it's still. Only a transform moves (on the
+   compositor, no repaint), so a page full of underlines costs next to nothing, and nothing loops for ever. */
+.cf-ul::after {
+  content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 2.5px;
+  background: linear-gradient(90deg, transparent 25%, var(--ul-shine) 50%, transparent 75%);
+  transform: translateX(-100%);
+  animation: cf-ul-shine 2.4s ease-in-out 3 forwards;
+}
+@keyframes cf-ul-shine {
+  0% { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(100%); }
+}
+/* The one its card or its row in the list is about: deeper, and it shimmers while it is (one at a time). */
 .cf-ul.on {
   background:
-    linear-gradient(90deg, #38bdf8, #2563eb) left bottom / 100% 3px no-repeat,
-    rgba(37, 99, 235, 0.2);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
+    linear-gradient(90deg, var(--ul-a), var(--ul-b)) left bottom / 100% 3px no-repeat,
+    var(--ul-tint-on);
+  box-shadow: 0 0 0 2px var(--ul-tint-on);
+}
+.cf-ul.on::after { height: 3px; animation: cf-ul-shine 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .cf-ul::after, .cf-ul.on::after { animation: none; display: none; }
 }
 .cf-ul-pop {
   position: fixed; z-index: 5; width: 240px; padding: 10px 12px;

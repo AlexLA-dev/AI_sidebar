@@ -3038,6 +3038,27 @@
  "matchBackTo": {
   "message": "Назад в «{0}»"
  },
+ "writeCompose": {
+  "message": "Написать"
+ },
+ "writeComposeGo": {
+  "message": "Написать"
+ },
+ "writeComposing": {
+  "message": "Пишу с учётом страницы…"
+ },
+ "writeComposeHint": {
+  "message": "О чём написать? Своими словами"
+ },
+ "writeComposeEdit": {
+  "message": "Изменить запрос"
+ },
+ "writeToneAsk": {
+  "message": "Каким тоном?"
+ },
+ "writeInserted": {
+  "message": "Вставлено"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

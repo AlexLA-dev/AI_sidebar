@@ -1040,5 +1040,12 @@
   "colAlready": "Already in “{0}”",
   "tipNew": "New",
   "matchContinueIn": "Continuing in “{0}”",
-  "matchBackTo": "Back to “{0}”"
+  "matchBackTo": "Back to “{0}”",
+  "writeCompose": "Compose",
+  "writeComposeGo": "Write",
+  "writeComposing": "Writing with this page in mind…",
+  "writeComposeHint": "What should it say? In your own words",
+  "writeComposeEdit": "Change the request",
+  "writeToneAsk": "How should it sound?",
+  "writeInserted": "Inserted"
 }

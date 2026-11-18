@@ -1040,5 +1040,12 @@
   "colAlready": "已在「{0}」中",
   "tipNew": "新功能",
   "matchContinueIn": "在「{0}」中繼續：",
-  "matchBackTo": "回到「{0}」"
+  "matchBackTo": "回到「{0}」",
+  "writeCompose": "撰寫",
+  "writeComposeGo": "開始撰寫",
+  "writeComposing": "正在參考頁面內容撰寫…",
+  "writeComposeHint": "要寫什麼？用你自己的話說",
+  "writeComposeEdit": "修改要求",
+  "writeToneAsk": "用什麼語氣？",
+  "writeInserted": "已插入"
 }

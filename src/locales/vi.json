@@ -1040,5 +1040,12 @@
   "colAlready": "Đã có trong “{0}”",
   "tipNew": "Mới",
   "matchContinueIn": "Đang tiếp tục trong “{0}”",
-  "matchBackTo": "Quay lại “{0}”"
+  "matchBackTo": "Quay lại “{0}”",
+  "writeCompose": "Soạn",
+  "writeComposeGo": "Viết",
+  "writeComposing": "Đang viết theo nội dung trang…",
+  "writeComposeHint": "Muốn viết gì? Bằng lời của bạn",
+  "writeComposeEdit": "Đổi yêu cầu",
+  "writeToneAsk": "Giọng điệu thế nào?",
+  "writeInserted": "Đã chèn"
 }
