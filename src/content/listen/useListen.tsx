@@ -714,11 +714,15 @@ export function ListenBar({ state, title, onTitle, speed, left, onSpeed, onAnywa
   if (state.at === "handoff") return <div class="cf-listen" role="status">{name}<SpeakerIcon /> <span class="cf-listen-text">{t("listenInApp")}</span></div>
   if (state.at === "notify") {
     return (
-      <div class="cf-listen low" role="alert">
+      // 2.7 (the director's acceptance of 108: on iPhone the text stood in a column 120 pt wide, eight lines, beside the
+      // two links): the text across the bar with × by it, the actions on a line of their own under it.
+      <div class="cf-listen low ask" role="alert">
         <span class="cf-listen-text">{t("listenNotifyAsk")}</span>
-        <button type="button" class="cf-link" onClick={onNotifyOn}>{t("listenNotifyOn")}</button>
-        <button type="button" class="cf-link" onClick={onNotifyLater}>{t("listenNotifyLater")}</button>
         <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("close")}>×</button>
+        <div class="cf-listen-acts">
+          <button type="button" class="cf-link" onClick={onNotifyOn}>{t("listenNotifyOn")}</button>
+          <button type="button" class="cf-link" onClick={onNotifyLater}>{t("listenNotifyLater")}</button>
+        </div>
       </div>
     )
   }

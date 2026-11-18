@@ -4573,7 +4573,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
                 {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
-                  <Hint
+                  <Hint reveal
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
                     onDone={() => doneHint(source.kind() as HintKey)}
@@ -4599,7 +4599,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* 2.7: once, what this version brought, for people who had ContextFlow before (one hint at a time; it says
                     the side too, so the side's own hint isn't shown after it). */}
                 {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
-                  <Hint
+                  <Hint reveal
                     icon={<Icon.Sparkle size={16} />}
                     title={t("hintNewTitle")}
                     list={[t("hintNewTranslate"), t("hintNewWrite"), t("hintNewSpaces"), t("hintNewApple"), t("hintNewShot"), t("hintNewSide")]}
@@ -4608,7 +4608,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 )}
                 {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
-                  <Hint
+                  <Hint reveal
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}
                     onDone={() => doneHint("side")}
@@ -4821,6 +4821,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             setView("templates")
           }}
           onAdapt={adaptTemplate}
+          hintUp={Boolean(pageHints.line && fabVisible)}
         />
       )}
     </div>

@@ -6,6 +6,7 @@ import type { VNode } from "preact"
 import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 
 import { t, type MessageKey } from "../../shared/i18n"
+import { revealHint } from "../hintReveal"
 import { panelRoot } from "../root"
 import { sendBackground } from "../insert/store"
 import { pageIsForeign } from "../translate/TranslatePill"
@@ -182,9 +183,8 @@ export function HintLine({ id, side, top, onTap, onClose }: { id: HintId; side: 
 
 /** The how-to in full view when it comes (on an iPhone's sheet it came under the question field). Once per element. */
 export function revealOnce(el: HTMLElement | null): void {
-  if (!el || el.dataset.revealed) return
-  el.dataset.revealed = "1"
-  requestAnimationFrame(() => el.scrollIntoView({ block: "nearest", behavior: "smooth" }))
+  // 2.7 (108): the chat's list alone is scrolled (scrollIntoView also moved the panel's fixed frame).
+  revealHint(el)
 }
 
 /** The how-to's title and text for the chat (the offer's text for a plan the person doesn't have). */
