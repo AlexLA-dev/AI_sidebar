@@ -1037,5 +1037,12 @@
   "colAlready": "이미 ‘{0}’에 있어요",
   "tipNew": "새 기능",
   "matchContinueIn": "‘{0}’에서 이어서",
-  "matchBackTo": "‘{0}’(으)로 돌아가기"
+  "matchBackTo": "‘{0}’(으)로 돌아가기",
+  "writeCompose": "작성",
+  "writeComposeGo": "작성하기",
+  "writeComposing": "페이지 내용을 고려해 작성하는 중…",
+  "writeComposeHint": "무엇을 쓸까요? 내 말로 적어 주세요",
+  "writeComposeEdit": "요청 바꾸기",
+  "writeToneAsk": "어떤 어조로 쓸까요?",
+  "writeInserted": "삽입됨"
 }

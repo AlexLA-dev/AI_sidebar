@@ -102,7 +102,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     return json({ code: reason === "rate_limit" ? "BUSY" : reason === "timeout" ? "SLOW" : "UPSTREAM" }, reason === "rate_limit" ? 503 : reason === "timeout" ? 504 : 502)
   }
 
-  const text = checkWrite(call.data, ask.text)
+  const text = checkWrite(call.data, ask.text, ask.action)
   if (text === null) {
     context.waitUntil(Promise.all([
       refund(charged).catch(() => undefined),

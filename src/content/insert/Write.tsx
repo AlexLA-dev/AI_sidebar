@@ -19,17 +19,20 @@ import * as Icon from "../icons"
 import { extractPage } from "../page"
 import { conversationAround } from "./conversation"
 import { copyToClipboard, sensitiveForm, updateCaret, type Field } from "./field"
-import { editBlocked, readText, replaceText, workRange } from "./fieldtext"
+import { caretOf, editBlocked, readText, replaceText, workRange } from "./fieldtext"
 import { fieldLabel } from "./FillForm"
 import * as QIcon from "./icons"
 import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { codeField } from "./trigger"
 import { loadAbout, loadSamples, loadTemplates, loadUse, sendBackground } from "./store"
+import { draftSpot, placedDraft, waitsFor } from "./compose"
 import { askWriteWith, inTime, STORE_WAIT_MS } from "./writeAsk"
 
 export interface WriteJob {
   action: WriteAction
   tone?: Tone
+  // Compose's request, once it's asked (the person's own words, 2.7 (108)); until then the card shows its box.
+  request?: string
   // "panel": the panel's chip (2.7, quiet/chips.ts).
   via: "circle" | "list" | "panel"
 }
@@ -60,11 +63,37 @@ export function writableField(el: Element): boolean {
   return r.width >= 40 && r.height >= 14
 }
 
+/** What's written in the field, without what's skipped (Gmail's signature, a quoted mail). */
+export function draftText(el: Field["el"]): string {
+  const ft = readText(el)
+  let rest = ft.text
+  for (const sk of [...ft.skips].sort((a, b) => b.from - a.from)) rest = rest.slice(0, sk.from) + rest.slice(sk.to)
+  return rest
+}
+
+/** Nothing written in the field yet: Compose's case (2.7 (108)). */
+export const draftEmpty = (el: Field["el"]): boolean => !draftText(el).trim()
+
 // ------------------------------------------------------------ the two, and the tones
 
-/** «Проверить» and «Переписать» (its tones open under it): a small menu by the circle, or a row atop the list. */
-export function WriteMenu({ row, fixes = 0, onFixes, onPick }: { row: boolean; fixes?: number; onFixes?: () => void; onPick: (action: WriteAction, tone?: Tone) => void }): VNode {
+/**
+ * «Проверить» and «Переписать» (its tones open under it): a small menu by the circle, or a row atop the list. A field
+ * with nothing written in it yet (`empty`, 2.7 (108), the owner: «Compose нужно показывать, когда окно для текста
+ * пустое, вместо Rewrite») has «Написать» alone: there's nothing to check or rewrite.
+ */
+export function WriteMenu({ row, fixes = 0, empty = false, onFixes, onPick }: { row: boolean; fixes?: number; empty?: boolean; onFixes?: () => void; onPick: (action: WriteAction, tone?: Tone) => void }): VNode {
   const [tones, setTones] = useState(false)
+  if (empty) {
+    return (
+      <div class={`cf-wr-menu ${row ? "row" : "pop"}`} role="menu" aria-label={t("writeCircle")}>
+        <div class="cf-wr-two">
+          <button type="button" role="menuitem" class="cf-wr-item" onClick={() => onPick("compose")}>
+            <Icon.Pencil /> <span class="cf-wr-word">{t("writeCompose")}</span>
+          </button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div class={`cf-wr-menu ${row ? "row" : "pop"}`} role="menu" aria-label={t("writeCircle")}>
       <div class="cf-wr-two">
@@ -105,8 +134,10 @@ export function WriteMenu({ row, fixes = 0, onFixes, onPick }: { row: boolean; f
  * The circle above the field on a Mac (spot.ts places it as the iPhone's button). Pointing at it, or clicking it, opens
  * the menu; it closes a moment after the pointer leaves both. The field keeps the focus throughout.
  */
-export function WriteDot({ at, fixes, onFixes, onPick }: { at: { top: number; left: number }; fixes: number; onFixes: () => void; onPick: (action: WriteAction, tone?: Tone) => void }): VNode {
+export function WriteDot({ at, fixes, empty, onFixes, onPick }: { at: { top: number; left: number }; fixes: number; empty: () => boolean; onFixes: () => void; onPick: (action: WriteAction, tone?: Tone) => void }): VNode {
   const [open, setOpen] = useState(false)
+  // Whether the field's draft is empty, read as the menu opens (Gmail's reply box holds only the signature).
+  const [blank, setBlank] = useState(false)
   const leave = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const shown = useRef(false)
   const show = () => {
@@ -115,6 +146,7 @@ export function WriteDot({ at, fixes, onFixes, onPick }: { at: { top: number; le
       shown.current = true
       writeStep("menu", "circle")
     }
+    if (!open) setBlank(fixes === 0 && empty())
     setOpen(true)
   }
   const hide = () => {
@@ -135,7 +167,7 @@ export function WriteDot({ at, fixes, onFixes, onPick }: { at: { top: number; le
         <QIcon.Insert />
         {fixes > 0 && <span class="cf-qi-n" aria-hidden="true">{fixes > 9 ? "9+" : fixes}</span>}
       </button>
-      {open && <WriteMenu row={false} fixes={fixes} onFixes={() => {
+      {open && <WriteMenu row={false} fixes={fixes} empty={blank} onFixes={() => {
         setOpen(false)
         onFixes()
       }} onPick={(action, tone) => {
@@ -219,6 +251,11 @@ type State =
   | { step: "reading" }
   | { step: "check"; text: string; from: number; to: number; base: string; edits: Edit[]; left: number | null }
   | { step: "rewrite"; text: string; from: number; to: number; base: string; next: string; left: number | null }
+  // Compose (2.7 (108)): the box for what to write, then the draft and where it goes in the field.
+  | { step: "ask" }
+  | { step: "draft"; at: number; base: string; next: string; left: number | null }
+  // A rewrite asked without a tone (the panel's chip): the tones first.
+  | { step: "tones" }
   | { step: "clean"; left: number | null }
   | { step: "consent" }
   | { step: "limit" }
@@ -239,7 +276,7 @@ export interface CardProps {
   free: boolean
   onUpgrade: () => void
   onClose: () => void
-  // Another tone, from the card itself.
+  // Another tone, from the card itself; Compose's request asked.
   onJob: (job: WriteJob) => void
   // Made: what takes it back (the toast's «Отменить»), and what it was.
   onDone: (undo: Undo | null, action: WriteAction, failed: boolean) => void
@@ -247,7 +284,12 @@ export interface CardProps {
 
 export function WriteCard(p: CardProps): VNode {
   const ref = useRef<HTMLDivElement>(null)
-  const [state, setState] = useState<State>({ step: "reading" })
+  const waits = waitsFor(p.job)
+  const [state, setState] = useState<State>(waits ? { step: waits } : { step: "reading" })
+  // Compose's box: the person's own words and the tone picked (none: their own style).
+  const [request, setRequest] = useState(p.job.request ?? "")
+  const [tone, setTone] = useState<Tone | undefined>(p.job.action === "compose" ? p.job.tone : undefined)
+  const box = useRef<HTMLTextAreaElement>(null)
   const run = useRef(0)
   // The request on its way: Cancel, the ×, Esc and the card going away all stop it.
   const stopAsk = useRef<() => void>(() => undefined)
@@ -264,10 +306,12 @@ export function WriteCard(p: CardProps): VNode {
     setState({ step: "reading" })
     const field = updateCaret(p.field)
     const ft = readText(field.el)
+    const compose = p.job.action === "compose"
     const range = workRange(field, ft)
-    const text = ft.text.slice(range.from, range.to)
-    if (!text.trim()) return setState({ step: "empty" })
-    if (text.length > WRITE_LIMITS.text) {
+    const at = compose ? draftSpot(ft, caretOf(field, ft)) : 0
+    const text = compose ? (p.job.request ?? "") : ft.text.slice(range.from, range.to)
+    if (!compose && !text.trim()) return setState({ step: "empty" })
+    if (text.length > (compose ? WRITE_LIMITS.instruction : WRITE_LIMITS.text)) {
       writeStep("too_long", p.job.via)
       return setState({ step: "long" })
     }
@@ -299,6 +343,10 @@ export function WriteCard(p: CardProps): VNode {
       return setState({ step: "error", code })
     }
     const left = freeLeft(reply, p.free)
+    if (compose) {
+      writeStep("shown", p.job.via, p.job.tone ?? "compose")
+      return setState({ step: "draft", at, base: ft.text, next: reply.text.trim(), left })
+    }
     if (p.job.action === "check") {
       // Changes that cross a paragraph or touch what the editor won't let change are left out.
       const edits = diffWords(text, reply.text).filter((e) => !editBlocked(ft, range.from + e.from, range.from + e.to))
@@ -313,11 +361,24 @@ export function WriteCard(p: CardProps): VNode {
     setState({ step: "rewrite", text, from: range.from, to: range.to, base: ft.text, next: reply.text.trim(), left })
   }
   useEffect(() => {
+    const w = waitsFor(p.job)
+    if (w) return setState({ step: w })
     void ask()
-  }, [p.job.action, p.job.tone])
+  }, [p.job.action, p.job.tone, p.job.request])
+  // The box takes the caret where a keyboard is at hand; on a phone or a tablet the person taps it (iOS raises the
+  // keyboard only in a tap).
+  useEffect(() => {
+    if (state.step === "ask" && !p.touch) box.current?.focus({ preventScroll: true })
+  }, [state.step])
+
+  const compose = () => {
+    const words = request.trim()
+    if (!words) return box.current?.focus()
+    p.onJob({ action: "compose", ...(tone ? { tone } : {}), request: words, via: p.job.via })
+  }
 
   const apply = async () => {
-    if (state.step !== "check" && state.step !== "rewrite") return
+    if (state.step !== "check" && state.step !== "rewrite" && state.step !== "draft") return
     const el = p.field.el
     // Typed on since (or the field went): the changes would land on other words.
     if (!el.isConnected || readText(el).text !== state.base) {
@@ -326,21 +387,28 @@ export function WriteCard(p: CardProps): VNode {
     }
     const edits = state.step === "check"
       ? state.edits.map((e) => ({ from: state.from + e.from, to: state.from + e.to, text: e.text }))
-      : [{ from: state.from, to: state.to, text: state.next }]
+      : state.step === "draft"
+        ? [{ from: state.at, to: state.at, text: placedDraft(state.base, state.at, state.next) }]
+        : [{ from: state.from, to: state.to, text: state.next }]
     const action = p.job.action
+    const made = state.step === "check" ? applyEdits(state.text, state.edits) : state.next
     setState({ step: "applying" })
     const result = await makeEdits(el, edits)
-    writeStep(result.failed ? "failed" : "applied", p.job.via, action === "rewrite" ? p.job.tone : "check")
+    writeStep(result.failed ? "failed" : "applied", p.job.via, action === "check" ? "check" : action === "compose" ? (p.job.tone ?? "compose") : p.job.tone)
     if (!result.back.length) {
       // The field took none of it: the text is copied, to paste by hand.
-      await copyToClipboard(state.step === "check" ? applyEdits(state.text, state.edits) : state.next)
+      await copyToClipboard(made)
       writeStep("manual", p.job.via)
       return p.onDone(null, action, true)
     }
     p.onDone({ el, after: result.after, back: result.back }, action, result.failed > 0)
   }
 
-  const head = p.job.action === "check" ? t("writeCheck") : `${t("writeRewrite")}: ${t(TONE_KEY[p.job.tone ?? "short"]).toLowerCase()}`
+  const head = p.job.action === "check"
+    ? t("writeCheck")
+    : p.job.action === "compose"
+      ? (p.job.request !== undefined && p.job.tone ? `${t("writeCompose")}: ${t(TONE_KEY[p.job.tone]).toLowerCase()}` : t("writeCompose"))
+      : p.job.tone ? `${t("writeRewrite")}: ${t(TONE_KEY[p.job.tone]).toLowerCase()}` : t("writeRewrite")
 
   return (
     <div
@@ -348,11 +416,14 @@ export function WriteCard(p: CardProps): VNode {
       class={`cf-qi cf-wr ${p.sheet ? "" : "suggest"}`}
       role="dialog"
       aria-label={head}
-      onPointerDown={(e) => e.preventDefault()}
+      // The field keeps the focus, except for Compose's own box.
+      onPointerDown={(e) => !(e.target as Element).closest("textarea") && e.preventDefault()}
       onKeyDown={(e) => {
         e.stopPropagation()
         if (e.key === "Escape") p.onClose()
       }}
+      onKeyUp={(e) => e.stopPropagation()}
+      onKeyPress={(e) => e.stopPropagation()}
     >
       <div class="cf-qi-fill-head">
         <span><Icon.Sparkle size={14} /> {head}</span>
@@ -360,7 +431,44 @@ export function WriteCard(p: CardProps): VNode {
       </div>
       <div class="cf-wr-body">
         {state.step === "reading" && (
-          <div class="cf-wr-note"><span class="cf-add-dots"><span /><span /><span /></span> {t(p.job.action === "check" ? "writeChecking" : "writeRewriting")}</div>
+          <div class="cf-wr-note"><span class="cf-add-dots"><span /><span /><span /></span> {t(p.job.action === "check" ? "writeChecking" : p.job.action === "compose" ? "writeComposing" : "writeRewriting")}</div>
+        )}
+        {state.step === "ask" && (
+          <>
+            <textarea
+              ref={box}
+              class="cf-wr-ask"
+              rows={3}
+              dir="auto"
+              value={request}
+              placeholder={t("writeComposeHint")}
+              aria-label={t("writeComposeHint")}
+              maxLength={WRITE_LIMITS.instruction}
+              onInput={(e) => setRequest(e.currentTarget.value)}
+              onKeyDown={(e) => {
+                // Enter writes where there's a keyboard of keys; Shift+Enter, and a phone's return, break the line.
+                if (e.key === "Enter" && !e.shiftKey && !e.isComposing && !p.touch) {
+                  e.preventDefault()
+                  compose()
+                }
+              }}
+            />
+            <div class="cf-wr-tones inline" role="group" aria-label={t("writeToneAsk")}>
+              {TONES.map((one) => (
+                <button type="button" class={`cf-wr-tone ${tone === one ? "on" : ""}`} aria-pressed={tone === one} onClick={() => setTone(tone === one ? undefined : one)}>{t(TONE_KEY[one])}</button>
+              ))}
+            </div>
+          </>
+        )}
+        {state.step === "tones" && (
+          <>
+            <div class="cf-wr-note">{t("writeToneAsk")}</div>
+            <div class="cf-wr-tones inline" role="group" aria-label={t("writeRewrite")}>
+              {TONES.map((one) => (
+                <button type="button" class="cf-wr-tone" onClick={() => p.onJob({ action: "rewrite", tone: one, via: p.job.via })}>{t(TONE_KEY[one])}</button>
+              ))}
+            </div>
+          </>
         )}
         {state.step === "check" && (
           <>
@@ -372,14 +480,18 @@ export function WriteCard(p: CardProps): VNode {
             <div class="cf-wr-meta">{t("writeFixes", state.edits.length)}{state.left !== null ? ` · ${t("writeLeft", state.left)}` : ""}</div>
           </>
         )}
-        {state.step === "rewrite" && (
+        {(state.step === "rewrite" || state.step === "draft") && (
           <>
             <div class="cf-wr-text" dir="auto">{state.next}</div>
             {state.left !== null && <div class="cf-wr-meta">{t("writeLeft", state.left)}</div>}
-            <div class="cf-wr-tones inline" role="group" aria-label={t("writeRewrite")}>
-              {TONES.filter((tone) => tone !== p.job.tone).map((tone) => (
-                <button type="button" class="cf-wr-tone" onClick={() => p.onJob({ action: "rewrite", tone, via: p.job.via })}>{t(TONE_KEY[tone])}</button>
+            <div class="cf-wr-tones inline" role="group" aria-label={t(state.step === "draft" ? "writeToneAsk" : "writeRewrite")}>
+              {TONES.filter((one) => one !== p.job.tone).map((one) => (
+                <button type="button" class="cf-wr-tone" onClick={() => p.onJob({ ...p.job, tone: one })}>{t(TONE_KEY[one])}</button>
               ))}
+              {/* Compose: back to the box, the words kept, to say it differently. */}
+              {state.step === "draft" && (
+                <button type="button" class="cf-wr-tone" onClick={() => p.onJob({ action: "compose", ...(p.job.tone ? { tone: p.job.tone } : {}), via: p.job.via })}>{t("writeComposeEdit")}</button>
+              )}
             </div>
           </>
         )}
@@ -422,10 +534,16 @@ export function WriteCard(p: CardProps): VNode {
           }} onDecline={p.onClose} />
         )}
       </div>
-      {(state.step === "check" || state.step === "rewrite") && (
+      {(state.step === "check" || state.step === "rewrite" || state.step === "draft") && (
         <div class="cf-qi-fill-row cf-wr-row">
-          <button type="button" class="cf-primary" onClick={() => void apply()}>{t(state.step === "check" ? "writeFix" : "writeReplace")}</button>
+          <button type="button" class="cf-primary" onClick={() => void apply()}>{t(state.step === "check" ? "writeFix" : state.step === "draft" ? "qiInsert" : "writeReplace")}</button>
           <button type="button" class="cf-link" onClick={p.onClose}>{t("close")}</button>
+        </div>
+      )}
+      {state.step === "ask" && (
+        <div class="cf-qi-fill-row cf-wr-row">
+          <button type="button" class="cf-primary" disabled={!request.trim()} onClick={compose}>{t("writeComposeGo")}</button>
+          <button type="button" class="cf-link" onClick={p.onClose}>{t("cancel")}</button>
         </div>
       )}
       {/* While it's asked: Cancel, in the thumb's reach (the × is at the card's top). The request is dropped. */}

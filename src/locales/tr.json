@@ -1037,5 +1037,12 @@
   "colAlready": "Zaten “{0}” içinde",
   "tipNew": "Yeni",
   "matchContinueIn": "“{0}” alanında devam ediliyor",
-  "matchBackTo": "“{0}” alanına dön"
+  "matchBackTo": "“{0}” alanına dön",
+  "writeCompose": "Oluştur",
+  "writeComposeGo": "Yaz",
+  "writeComposing": "Sayfayı dikkate alarak yazılıyor…",
+  "writeComposeHint": "Ne yazılsın? Kendi sözlerinizle",
+  "writeComposeEdit": "İsteği değiştir",
+  "writeToneAsk": "Nasıl bir tonda?",
+  "writeInserted": "Eklendi"
 }

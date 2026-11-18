@@ -175,6 +175,8 @@
    into (and the words around the blanks, so they read as one line) are 16px on touch screens. */
 @media (pointer: coarse) {
   .cf-qi-area, .cf-qi-blank, .cf-qi-fill-text { font-size: 16px; }
+  /* Compose's box (2.7 (108)). */
+  .cf-wr-ask { font-size: 16px; }
 }
 
 /* ---------------------------------------------- «Проверить» и «Переписать» (2.7) */
@@ -242,6 +244,16 @@
 .cf-wr-meta, .cf-wr-note { font-size: 12.5px; color: var(--text-3); margin-top: 6px; }
 .cf-wr-note { font-size: 14px; color: var(--text-2); margin: 4px 0; }
 .cf-wr-tones.inline { padding-top: 8px; }
+/* Compose (2.7 (108)): the box for what to write, and the tone picked (none: the person's own style). Short, so the
+   sheet keeps its buttons above an iPhone's keyboard. */
+.cf-wr-ask {
+  display: block; box-sizing: border-box; width: 100%; min-height: 64px; max-height: 30vh; padding: 9px 10px; resize: none;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text);
+  font: inherit; font-size: 15px; line-height: 1.45; outline: none;
+}
+.cf-wr-ask:focus { border-color: var(--accent); background: var(--bg); }
+.cf-wr-tone.on, .cf-wr-tone.on:hover { border-color: transparent; background: var(--accent); color: #fff; }
+.cf-wr-row .cf-primary:disabled { opacity: 0.5; }
 .cf-wr-row { padding-top: 4px; }
 .cf-wr-made button { margin-inline-start: 6px; }
 
