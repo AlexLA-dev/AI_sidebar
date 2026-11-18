@@ -10,13 +10,18 @@
 
 import { blanks, type Template, type TemplateUse } from "./templates.ts"
 
-export type WriteAction = "check" | "rewrite"
+// "compose" (2.7 (108), the owner): a field with nothing in it yet gets Compose instead of Rewrite; the person says in
+// their own words what to write (the request's `text` is that, and may be empty: then a reply to what's on the page),
+// with a tone if they pick one, and the draft goes into the field.
+export type WriteAction = "check" | "rewrite" | "compose"
 export const TONES = ["short", "warm", "formal", "confident"] as const
 export type Tone = (typeof TONES)[number]
 
 export const WRITE_LIMITS = {
   // The field's text (or the part selected in it): longer ones ask for a part to be selected.
   text: 4_000,
+  // What Compose is asked to write (the person's own words).
+  instruction: 1_000,
   // The page or the conversation around the field.
   page: 6_000,
   // A reply in the middle of a thread: the messages that came after the one being answered.
@@ -95,6 +100,8 @@ export type WriteFailureCode = "LIMIT_REACHED" | "TOO_LONG" | "BUSY" | "UPSTREAM
  */
 export function writeDeadline(action: WriteAction, chars: number, live = false): number {
   if (live) return 8_000
+  // A draft is written whole whatever the request's length (a few lines up to a long mail).
+  if (action === "compose") return 22_000 + Math.min(chars, WRITE_LIMITS.instruction) * 5
   return action === "check" ? 8_000 + Math.min(chars, WRITE_LIMITS.text) * 3 : 10_000 + Math.min(chars, WRITE_LIMITS.text) * 5
 }
 export const WRITE_SERVER_MARGIN_MS = 1_500
@@ -132,8 +139,8 @@ export function clipAsk(ask: WriteAsk): WriteAsk {
   if (about) style.about = about
   return {
     action: ask.action,
-    ...(ask.action === "rewrite" && ask.tone ? { tone: ask.tone } : {}),
-    text: ask.text,
+    ...(ask.action !== "check" && ask.tone ? { tone: ask.tone } : {}),
+    text: ask.action === "compose" ? ask.text.slice(0, WRITE_LIMITS.instruction) : ask.text,
     page: {
       title: ask.page.title.slice(0, 300), url: ask.page.url.slice(0, 2000), text: clipPage(ask.page.text, ask.page.conversation, WRITE_LIMITS.page), conversation: ask.page.conversation,
       ...(ask.page.conversation && ask.page.after?.trim() ? { after: ask.page.after.trim().slice(0, WRITE_LIMITS.after) } : {})

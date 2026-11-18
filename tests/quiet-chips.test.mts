@@ -139,7 +139,7 @@ test("the signals are the ones already worked out: the hints' kind, the pill's o
   assert.match(signals, /import \{ pageKind, type PageKind \} from "\.\.\/pagehints\/detect"/)
   assert.match(signals, /import \{ pageForeignOffer, pageTranslatedNow \} from "\.\.\/translate\/TranslatePill"/)
   assert.match(signals, /import \{ rememberedField \} from "\.\.\/insert\/target"/)
-  assert.match(signals, /import \{ writableField \} from "\.\.\/insert\/Write"/)
+  assert.match(signals, /import \{ draftText, writableField \} from "\.\.\/insert\/Write"/)
   // The pill keeps what it found where it's hidden on a site too, and starts the translation for the chip.
   const pill = read("../src/content/translate/TranslatePill.tsx")
   assert.match(pill, /foundNow = found\.offer\n/)
