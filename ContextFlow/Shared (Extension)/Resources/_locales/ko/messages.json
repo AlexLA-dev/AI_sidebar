@@ -2591,6 +2591,9 @@
  "writeReload": {
   "message": "새로 고침"
  },
+ "updatedReload": {
+  "message": "ContextFlow가 업데이트되었습니다. 페이지를 새로 고치세요."
+ },
  "underlineSetting": {
   "message": "입력 중 오류에 밑줄 표시"
  },

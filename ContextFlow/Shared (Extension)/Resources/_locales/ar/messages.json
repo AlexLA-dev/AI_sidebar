@@ -2591,6 +2591,9 @@
  "writeReload": {
   "message": "إعادة التحميل"
  },
+ "updatedReload": {
+  "message": "تم تحديث ContextFlow. أعد تحميل الصفحة."
+ },
  "underlineSetting": {
   "message": "تسطير الأخطاء أثناء الكتابة"
  },

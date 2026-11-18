@@ -181,6 +181,9 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
+  // 2.7: a script in a page asks whether the extension still hears it (one in a tab left open across an update of the
+  // app gets no answer; src/content/stale.ts).
+  | { type: "alive" }
   // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
   | { type: "tipClip"; name: string; lang: string }
   // «Снимок страницы в заметке» (2.7): the tab's visible area captured; a note's picture kept, and fetched to open it.
@@ -279,7 +282,9 @@ export type PdfResult =
   | { ok: true; text: string; pages: number; title: string }
   | { ok: false; reason: "none" | "failed"; error: string }
 
-export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean } | { type: "openChat"; chat: string; at?: string }
+// `alive` (2.7): the background asks a tab whether its panel still hears the extension (one left open across an update
+// of the app doesn't answer, and gets a notice to reload; src/background/staleTabs.ts).
+export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean } | { type: "openChat"; chat: string; at?: string } | { type: "alive" }
 
 /** What organizing suggests for a chat now: a move (to a chat, or a new one) and a tag per message. */
 export type OrganizeReply =
