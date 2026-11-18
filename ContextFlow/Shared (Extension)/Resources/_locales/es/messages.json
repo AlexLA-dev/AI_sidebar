@@ -2591,9 +2591,6 @@
  "writeReload": {
   "message": "Volver a cargar"
  },
- "updatedReload": {
-  "message": "ContextFlow se ha actualizado. Vuelve a cargar la página."
- },
  "underlineSetting": {
   "message": "Subrayar errores al escribir"
  },

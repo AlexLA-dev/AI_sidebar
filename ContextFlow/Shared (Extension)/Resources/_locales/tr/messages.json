@@ -2591,9 +2591,6 @@
  "writeReload": {
   "message": "Yeniden yükle"
  },
- "updatedReload": {
-  "message": "ContextFlow güncellendi. Sayfayı yeniden yükleyin."
- },
  "underlineSetting": {
   "message": "Yazarken hataların altını çiz"
  },

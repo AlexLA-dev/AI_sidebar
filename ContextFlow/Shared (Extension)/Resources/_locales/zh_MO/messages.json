@@ -2591,9 +2591,6 @@
  "writeReload": {
   "message": "重新載入"
  },
- "updatedReload": {
-  "message": "ContextFlow 已更新。請重新載入此頁面。"
- },
  "underlineSetting": {
   "message": "輸入時為錯誤加底線"
  },

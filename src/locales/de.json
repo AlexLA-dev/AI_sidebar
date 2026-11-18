@@ -891,7 +891,6 @@
   "writeSlow": "Das dauert zu lange und wurde abgebrochen. Bitte versuch es noch einmal.",
   "writeUpdated": "ContextFlow wurde aktualisiert. Lade die Seite neu, um Prüfen und Umschreiben zu nutzen.",
   "writeReload": "Neu laden",
-  "updatedReload": "ContextFlow wurde aktualisiert. Lade die Seite neu.",
   "underlineSetting": "Fehler beim Tippen unterstreichen",
   "underlineSettingHint": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort.",
   "setSide": "Bildschirmseite",

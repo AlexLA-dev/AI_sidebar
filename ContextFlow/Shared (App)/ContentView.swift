@@ -40,19 +40,9 @@ let brandBlue = Color(red: 0.15, green: 0.39, blue: 0.92)
 final class DeepLinkRouter: ObservableObject {
     static let shared = DeepLinkRouter()
     @Published var pending: URL?
-    /// 2.7: this stay in front was started by one of our links (Listen, the notifications question, a chat). The link's
-    /// own screen comes first; what the app shows by itself («New in ContextFlow», the What's new tab after an update)
-    /// waits for an open that no link started. A person who tapped Listen in Safari isn't asked to try Pro first.
-    private(set) var byLink = false
-
-    /// The app left the front: the next open is its own.
-    func leftFront() {
-        byLink = false
-    }
 
     func handle(_ url: URL) {
         guard url.scheme == "contextflow" else { return }
-        byLink = true
         // Opened to do something (buy, listen, the notifications question): no rating asked over it (2.6 (100)).
         if ["subscribe", "manage", "listen", "notifications", "add"].contains(url.host ?? "") { ReviewAsk.shared.taskLink() }
         pending = url
@@ -116,8 +106,7 @@ struct ContentView: View {
     /// After an update, the tab opens once by itself; the 2.5 sheet then never shows (its feature has a card in Tips).
     private func openWhatsNewAfterUpdate() {
         // Not for a new user («Start as a new user», test builds): it waits for a launch with the person's own data.
-        // 2.7: nor over a link's own screen (DeepLinkRouter.byLink): it waits for an open no link started.
-        guard !preview.on, !router.byLink else { return }
+        guard !preview.on else { return }
         let existing = hasChats || UserDefaults.standard.object(forKey: "cf_whatsnew_organize") != nil
         guard WhatsNew.dueAfterUpdate(existingUser: existing) else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
@@ -132,9 +121,7 @@ struct ContentView: View {
             return
         }
         #endif
-        // 2.7: not over a link's own screen (the first Listen from Safari opened the app on this sheet, with Try Pro,
-        // and the notifications question behind it never came): it waits for an open no link started.
-        guard hasChats, !router.byLink, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
+        guard hasChats, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
         whatsNew = true
     }
@@ -300,16 +287,6 @@ struct ContentView: View {
                     #if os(iOS)
                     SettingsPiP.shared.stop()
                     #endif
-                    // 2.7: what waited for an open no link started (a link, if any, has arrived by then).
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 700_000_000)
-                        // Never over a sheet that's up (the plan's tour, the setup guide, Listen).
-                        guard tour.run == nil, !otherSheet else { return }
-                        openWhatsNewAfterUpdate()
-                        showWhatsNewIfDue()
-                    }
-                } else if phase == .background {
-                    router.leftFront()
                 }
             }
             // What's new hides again once another tab is chosen (Tips is back in its place). Left after an update: a good

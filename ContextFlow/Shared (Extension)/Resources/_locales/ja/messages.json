@@ -2591,9 +2591,6 @@
  "writeReload": {
   "message": "再読み込み"
  },
- "updatedReload": {
-  "message": "ContextFlowが更新されました。このページを再読み込みしてください。"
- },
  "underlineSetting": {
   "message": "入力中の誤りに下線を引く"
  },

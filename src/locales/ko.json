@@ -891,7 +891,6 @@
   "writeSlow": "너무 오래 걸려 중단했습니다. 다시 시도해 주세요.",
   "writeUpdated": "ContextFlow가 업데이트되었습니다. 검사와 다시 쓰기를 사용하려면 페이지를 새로 고치세요.",
   "writeReload": "새로 고침",
-  "updatedReload": "ContextFlow가 업데이트되었습니다. 페이지를 새로 고치세요.",
   "underlineSetting": "입력 중 오류에 밑줄 표시",
   "underlineSettingHint": "Pro 및 Ultra: 입력을 멈추면 바뀐 문단만 페이지 내용을 고려해 검사해요. 밑줄에 포인터를 올리면(iPhone과 iPad에서는 탭) 수정할 수 있어요. 답변으로 계산되지 않아요.",
   "setSide": "화면 위치",

@@ -891,7 +891,6 @@
   "writeSlow": "時間がかかりすぎたため中止しました。もう一度お試しください。",
   "writeUpdated": "ContextFlowが更新されました。チェックと書き直しを使うには、このページを再読み込みしてください。",
   "writeReload": "再読み込み",
-  "updatedReload": "ContextFlowが更新されました。このページを再読み込みしてください。",
   "underlineSetting": "入力中の誤りに下線を引く",
   "underlineSettingHint": "Pro と Ultra：入力が止まると、変更した段落だけをページの内容を踏まえてチェックします。下線にポインタを合わせる（iPhone と iPad ではタップ）と修正できます。回答数には数えません。",
   "setSide": "画面の左右",

@@ -891,7 +891,6 @@
   "writeSlow": "Mất quá nhiều thời gian nên đã dừng lại. Vui lòng thử lại.",
   "writeUpdated": "ContextFlow đã được cập nhật. Hãy tải lại trang để dùng Kiểm tra và Viết lại.",
   "writeReload": "Tải lại",
-  "updatedReload": "ContextFlow đã được cập nhật. Hãy tải lại trang.",
   "underlineSetting": "Gạch chân lỗi khi gõ",
   "underlineSettingHint": "Pro và Ultra: sau khi bạn ngừng gõ, chỉ đoạn vừa sửa được kiểm tra, có tính đến trang. Trỏ vào gạch chân (chạm trên iPhone và iPad) để sửa. Không tính là câu trả lời.",
   "setSide": "Cạnh màn hình",

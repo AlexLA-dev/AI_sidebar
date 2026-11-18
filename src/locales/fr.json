@@ -891,7 +891,6 @@
   "writeSlow": "C’est trop long, la demande a été arrêtée. Veuillez réessayer.",
   "writeUpdated": "ContextFlow a été mis à jour. Rechargez la page pour utiliser Vérifier et Réécrire.",
   "writeReload": "Recharger",
-  "updatedReload": "ContextFlow a été mis à jour. Rechargez la page.",
   "underlineSetting": "Souligner les fautes pendant la saisie",
   "underlineSettingHint": "Pro et Ultra : après une pause dans la saisie, seul le paragraphe modifié est vérifié, en tenant compte de la page. Pointez un soulignement (touchez-le sur iPhone et iPad) pour corriger. Ne compte pas comme une réponse.",
   "setSide": "Côté de l’écran",
