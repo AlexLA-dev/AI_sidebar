@@ -886,6 +886,7 @@
   "writeSlow": "This is taking too long, so it was stopped. Please try again.",
   "writeUpdated": "ContextFlow was updated. Reload this page to use Check and Rewrite.",
   "writeReload": "Reload",
+  "updatedReload": "ContextFlow was updated. Reload this page.",
   "underlineSetting": "Underline mistakes as I type",
   "underlineSettingHint": "Pro and Ultra: after a pause in typing, only the paragraph you changed is checked, with the page in mind. Point at an underline (tap on iPhone and iPad) to fix it. Not counted as answers.",
   "setSide": "Screen side",

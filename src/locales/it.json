@@ -886,6 +886,7 @@
   "writeSlow": "Ci sta mettendo troppo, la richiesta è stata interrotta. Riprova.",
   "writeUpdated": "ContextFlow è stato aggiornato. Ricarica la pagina per usare Controlla e Riscrivi.",
   "writeReload": "Ricarica",
+  "updatedReload": "ContextFlow è stato aggiornato. Ricarica la pagina.",
   "underlineSetting": "Sottolinea gli errori mentre scrivo",
   "underlineSettingHint": "Pro e Ultra: dopo una pausa nella digitazione si controlla solo il paragrafo modificato, tenendo conto della pagina. Punta una sottolineatura (toccala su iPhone e iPad) per correggere. Non conta come risposta.",
   "setSide": "Lato dello schermo",

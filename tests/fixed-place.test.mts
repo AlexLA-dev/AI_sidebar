@@ -24,7 +24,7 @@ import { test } from "node:test"
   get bottom() { return this.y + this.height }
 }
 
-const { besideMenu, fixedShift, setFixedProbe, toFixed } = await import("../src/content/fixedPlace.ts")
+const { besideMenu, fixedShift, glassScale, setFixedProbe, toFixed } = await import("../src/content/fixedPlace.ts")
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")
 const rect = (x: number, y: number, w: number, h: number) => new DOMRect(x, y, w, h)
 
@@ -77,6 +77,25 @@ test("no room below or above for the buttons and the system menu: beside the men
   // A zoomed or moved page: the visible part starts elsewhere, and the place moves with it.
   assert.deepEqual(besideMenu({ left: 520, right: 556, top: 448, bottom: 472 }, 375, 125, { left: 200, top: 386, right: 1333, bottom: 616 }, 88), { left: 806, top: 440 })
   const app = read("../src/content/App.tsx")
-  assert.match(app, /const side = touch\n\s+\? besideMenu\(rect, el\.offsetWidth, el\.offsetHeight,/)
-  assert.match(app, /el\.style\.top = `\$\{side \? side\.top : bubbleTop\(rect, touch, el\.offsetHeight, up\)\}px`/)
+  assert.match(app, /const side = touch\n\s+\? besideMenu\(rect, width, height,/)
+  assert.match(app, /el\.style\.top = `\$\{side \? side\.top : bubbleTop\(rect, touch, height, up, k\)\}px`/)
+})
+
+test("a zoomed page: the selection buttons keep their size on the glass, so they fit what's visible", () => {
+  // Safari zoomed to a field with small text on an iPhone: 1.6 times, 251 of the page's pixels across.
+  assert.equal(glassScale(1.6), 1 / 1.6)
+  // A page as it opened, and the rounding noise around 1, are left alone; so is a page zoomed out.
+  assert.equal(glassScale(1), 1)
+  assert.equal(glassScale(1.01), 1)
+  assert.equal(glassScale(0.5), 1)
+  assert.equal(glassScale(undefined), 1)
+  // Buttons 386 wide when laid out are 241 on the page at that scale: inside 251 with the screen's 8-point margins.
+  const k = glassScale(1.6)
+  assert.ok(386 * k + 16 * k <= 402 / 1.6 + 0.001)
+  // Beside the menu on a zoomed iPad in landscape: the menu and the gaps shrink with the scale.
+  const view = { left: 0, top: 43, right: 566.5, bottom: 158 }
+  assert.deepEqual(besideMenu({ left: 160, right: 178, top: 74, bottom: 86 }, 187.5, 62.5, view, 44, 0.5), { left: 303, top: 70 })
+  const app = read("../src/content/App.tsx")
+  assert.match(app, /const k = touch \? glassScale\(vv\?\.scale\) : 1\n\s+el\.style\.setProperty\("scale", k < 1 \? String\(k\) : "none"\)/)
+  assert.match(app, /const width = el\.offsetWidth \* k\n\s+const height = el\.offsetHeight \* k/)
 })

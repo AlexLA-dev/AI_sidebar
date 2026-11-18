@@ -2576,6 +2576,9 @@
  "writeReload": {
   "message": "Перезагрузить"
  },
+ "updatedReload": {
+  "message": "ContextFlow обновился. Перезагрузите страницу."
+ },
  "underlineSetting": {
   "message": "Подчёркивать ошибки при наборе"
  },

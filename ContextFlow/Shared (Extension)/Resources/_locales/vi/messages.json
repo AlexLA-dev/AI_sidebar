@@ -2576,6 +2576,9 @@
  "writeReload": {
   "message": "Tải lại"
  },
+ "updatedReload": {
+  "message": "ContextFlow đã được cập nhật. Hãy tải lại trang."
+ },
  "underlineSetting": {
   "message": "Gạch chân lỗi khi gõ"
  },

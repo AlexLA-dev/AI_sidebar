@@ -68,7 +68,7 @@ import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
-import { besideMenu, setFixedProbe, toFixed } from "./fixedPlace"
+import { besideMenu, glassScale, setFixedProbe, toFixed } from "./fixedPlace"
 import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
@@ -4909,19 +4909,20 @@ function pressShown(shown: (on: boolean) => void, held: () => boolean, action: (
 // The edit menu: about 16 pt from the selection, 44 pt tall (more with larger text); plus air.
 const TOUCH_CLEAR = 88
 
-function bubbleTop(rect: DOMRect, touch: boolean, height: number, up = false): number {
+function bubbleTop(rect: DOMRect, touch: boolean, height: number, up = false, k = 1): number {
   const vv = window.visualViewport
   const top0 = vv?.offsetTop ?? 0
   const bottom = top0 + (vv?.height ?? window.innerHeight)
-  const clear = touch ? TOUCH_CLEAR : 8
+  // `k`: a point of the screen in the page's pixels (fixedPlace's glassScale): the menu and the gaps are the screen's.
+  const clear = (touch ? TOUCH_CLEAR : 8) * k
   const below = rect.bottom + clear
   const above = rect.top - clear - height
-  const fitsBelow = below + height <= bottom - 12
-  const fitsAbove = above >= top0 + 8
+  const fitsBelow = below + height <= bottom - 12 * k
+  const fitsAbove = above >= top0 + 8 * k
   let top = (up ? fitsAbove || !fitsBelow : !fitsBelow && fitsAbove) ? above : below
   // Neither side has room (a long selection, the keyboard up): the side with more of it, at the screen's edge.
-  if (!fitsBelow && !fitsAbove) top = rect.top - top0 > bottom - rect.bottom ? top0 + 8 : bottom - height - 12
-  return Math.max(top0 + 8, Math.min(bottom - height - 12, top))
+  if (!fitsBelow && !fitsAbove) top = rect.top - top0 > bottom - rect.bottom ? top0 + 8 * k : bottom - height - 12 * k
+  return Math.max(top0 + 8 * k, Math.min(bottom - height - 12 * k, top))
 }
 
 /** A selection shown in a line: one line, at most `max` characters. */
@@ -5060,8 +5061,15 @@ function SelectionBubble({ rect, touch, guide, onPlace, children }: { rect: DOMR
     const center = rect.left + rect.width / 2
     const place = () => {
       const vv = window.visualViewport
-      const min = (vv?.offsetLeft ?? 0) + 8
-      const max = min + (vv?.width ?? window.innerWidth) - 16 - el.offsetWidth
+      // 2.7: on a zoomed page (Safari zooms to a field with small text) the buttons keep their size on the glass, so
+      // they fit what's visible; their box and the gaps are counted at that scale.
+      const k = touch ? glassScale(vv?.scale) : 1
+      el.style.setProperty("scale", k < 1 ? String(k) : "none")
+      el.style.transformOrigin = k < 1 ? "0 0" : ""
+      const width = el.offsetWidth * k
+      const height = el.offsetHeight * k
+      const min = (vv?.offsetLeft ?? 0) + 8 * k
+      const max = min + (vv?.width ?? window.innerWidth) - 16 * k - width
       // A row that doesn't fit the screen (longer words, the eye) keeps Template's icon only; once, not back and forth.
       const row = el.querySelector(".cf-bubble-row")
       if (row && row.scrollWidth > row.clientWidth + 1) el.classList.add("tight")
@@ -5069,10 +5077,10 @@ function SelectionBubble({ rect, touch, guide, onPlace, children }: { rect: DOMR
       // beside the menu, where the screen is wide enough for both.
       const top0 = vv?.offsetTop ?? 0
       const side = touch
-        ? besideMenu(rect, el.offsetWidth, el.offsetHeight, { left: min - 8, top: top0, right: min + (vv?.width ?? window.innerWidth) - 8, bottom: top0 + (vv?.height ?? window.innerHeight) }, TOUCH_CLEAR)
+        ? besideMenu(rect, width, height, { left: min - 8 * k, top: top0, right: min + (vv?.width ?? window.innerWidth) - 8 * k, bottom: top0 + (vv?.height ?? window.innerHeight) }, TOUCH_CLEAR * k, k)
         : null
-      el.style.left = `${side ? side.left : Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
-      el.style.top = `${side ? side.top : bubbleTop(rect, touch, el.offsetHeight, up)}px`
+      el.style.left = `${side ? side.left : Math.max(min, Math.min(max, center - width / 2))}px`
+      el.style.top = `${side ? side.top : bubbleTop(rect, touch, height, up, k)}px`
       onPlace?.(toFixed(el.getBoundingClientRect()), rect)
     }
     el.classList.remove("tight")

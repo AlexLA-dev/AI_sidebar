@@ -2576,6 +2576,9 @@
  "writeReload": {
   "message": "Перезавантажити"
  },
+ "updatedReload": {
+  "message": "ContextFlow оновився. Перезавантажте сторінку."
+ },
  "underlineSetting": {
   "message": "Підкреслювати помилки під час набору"
  },
