@@ -1,1 +1,1 @@
-Nouveau dans la 2.6 : « Trouver similaire » montre de vraies alternatives vérifiées, « Écouter » lit toute page à voix haute et vos conversations se rangent seules.
+Page en langue étrangère ? Traduisez-la sur place. Nouveau dans la 2.7 : collections par tâche, espaces travail et maison, « Vérifier » et « Réécrire » dans tout champ.

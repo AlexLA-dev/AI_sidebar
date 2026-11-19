@@ -1,1 +1,1 @@
-Novo na 2.6: “Encontrar parecidos” mostra alternativas reais e verificadas ao que você está vendo, “Ouvir” lê qualquer página e suas conversas se organizam sozinhas.
+Página em outro idioma? Traduza ali mesmo. Novo na 2.7: Coleções para cada tarefa, Espaços para trabalho e casa, e “Revisar” e “Reescrever” em qualquer campo.

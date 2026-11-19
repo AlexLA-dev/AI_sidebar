@@ -1,5 +1,7 @@
 What's new in ContextFlow 2.7:
 • Translate a page right where it is. When a page isn't in your language, tap “Translate” by the floating ContextFlow button: the text changes in place, links and buttons keep working, and “Original” brings the page back. The rest of the page translates as you scroll
+• After the first page, ContextFlow asks whether to translate every page of the site, and one tap does it
+• Drop-down lists and a site's chat assistant translate too. When only the buttons and menus are in another language, translating just them uses no answers
 • Collections: everything for one task, like a trip, a purchase or a course, in one place. Tap “To collection” under an answer or a note, and ContextFlow suggests where it goes. In Pro, the AI sorts the cards into sections, “Compare” puts the cards you pick side by side in a table, and “Summary” sums up the whole collection. Any collection saves as a PDF. Free keeps one collection of up to 10 cards
 • Find similar now comes with Pro and Own key too: a quick search, up to 5 a week (in Pro, each one counts as 10 answers). Ultra searches wider, reads reviews and checks delivery
 • Spaces: keep work, personal and shopping apart, each with its own chats, collections and color. Open a site in its space once, and the panel goes there by itself. Until you make a second space, nothing changes
@@ -7,6 +9,8 @@ What's new in ContextFlow 2.7:
 • Check and Rewrite in any field on a site, with the page in mind: the email you're answering, the post you're commenting on. Shorter, warmer, more formal or more confident. Pro and Ultra can also underline mistakes as you type
 • Add to Calendar or Reminders right from the chat: ContextFlow suggests the event or reminder, and you add it with one tap. Remind me can also put it in Reminders on all your devices
 • A note can keep a snapshot of the page: what's on screen, or the whole page in Pro and Ultra
+• Ask about selected text, from the panel or right by the selection, and the chat keeps that text as a quote above your question
+• A calmer panel: one row under an answer, and Whole chat, the page snapshot and your answer count are under “+”. Tap the count to see what your answers went on
 • Drag the floating ContextFlow button, and the panel on iPad and Mac, to either edge of the screen, or pick a side in Settings
 • Invite a friend: they get bonus answers for their first week, and you get 50% off the first month of Pro or Ultra once they've asked questions on two different days
 • Cut text now lands in Copied too

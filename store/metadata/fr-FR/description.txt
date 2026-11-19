@@ -1,36 +1,36 @@
-Fini de coller des articles dans un chatbot. Interrogez l’IA sur toute page, répondez avec des modèles qui se remplissent seuls et recevez une alerte quand un prix change, sans quitter Safari. La conversation vous suit de page en page, la même sur iPhone, iPad et Mac.
+Fini de coller des articles dans un chatbot. Interrogez l’IA sur toute page, traduisez-la sur place et répondez avec des modèles qui se remplissent seuls, sans quitter Safari. La conversation vous suit de page en page, la même sur iPhone, iPad et Mac.
 
-NOUVEAUTÉS DE LA 2.6
-• Trouver similaire (Ultra) : de vraies alternatives vérifiées à toute page, moins chères, plus récentes, en stock, gratuites ou dans votre langue
-• Écouter (Ultra) : réponses et pages entières d’une voix naturelle, en plus de 100 langues, même iPhone verrouillé
-• Rangement automatique (Pro) : une conversation, une nouvelle ou un tag proposé pour chaque réponse ou note, et un nom par sujet
-• Une note avec vos mots sur rappels et prix surveillés
-• Forfaits annuels : Pro, Ultra, Clé personnelle
-• Guide jusqu’à la première réponse ; panneau en chinois traditionnel, arabe et vietnamien
+NOUVEAUTÉS DE LA 2.7
+• Traduction sur place, sans casser les liens. Un toucher pour tout le site
+• Collections : tout pour une tâche (voyage, achat) au même endroit ; avec Pro, rangé par l’IA, comparé en tableau et résumé
+• Espaces : travail, perso et achats séparés, chacun avec ses conversations et sa couleur
+• « Vérifier » et « Réécrire » dans tout champ, selon la page : plus court, chaleureux, formel ou assuré
+• Calendrier ou Rappels depuis la conversation ; notes avec capture de la page
 
 CE QUE VOUS POUVEZ FAIRE
-• Résumer un article, un avis, un fil ou une fiche produit, ou en tirer les faits clés
+• Résumer un article, un avis, un fil ou une fiche produit, en tirer les faits clés ou expliquer le jargon simplement
 • Poser vos questions : « Où est le piège ? », « Ça vaut le coup ? »
-• Expliquer le jargon simplement, ou traduire la page dans votre langue
 • Sélectionner un passage pour poser une question dessus, ou le garder en note
 • Réponses Google : infos à jour de la recherche Google, avec sources
-• Des modèles pour vos réponses récurrentes, remplis depuis la page. Touchez un champ : le bouton flottant les propose, avec le texte copié
-• Vous attendez une baisse ? Sélectionnez le prix et touchez l’œil : ContextFlow vous prévient s’il change. La cloche vous rappelle une page plus tard
+• Des modèles pour vos réponses récurrentes, remplis depuis la page quand vous touchez un champ
+• Trouver similaire : de vraies alternatives vérifiées à toute page, moins chères, plus récentes, en stock ou dans votre langue
+• Écouter (Ultra) : réponses et pages entières lues d’une voix naturelle
+• Vous attendez une baisse ? Sélectionnez le prix et touchez l’œil : ContextFlow vous prévient s’il change
 
 NOTES ET CONVERSATIONS
 • Notes : balayez le bouton d’envoi vers le haut ou le bas (sur Mac, défilez dessus) pour noter au lieu de demander. Elles ne coûtent aucune réponse
 • Tout le chat : la réponse tient compte des messages, notes et pages de la conversation
+• Rangement automatique (Pro) : où classer chaque réponse ou note, et un nom par sujet
 • Tags, dossiers et recherche dans vos conversations
-• Copiez, partagez, taguez réponses et notes, ou partagez toute la conversation
 
 VOS CONVERSATIONS DANS L’APP
-• L’app ContextFlow sur iPhone, iPad et Mac a toutes vos conversations Safari : relisez-les, interrogez-les, annotez-les
+• L’app ContextFlow sur iPhone, iPad et Mac a toutes vos conversations et collections Safari : relisez-les, interrogez-les, annotez-les
 • Conversations et modèles se synchronisent entre vos appareils via iCloud
 
 CONÇU POUR SAFARI
 • iPhone et iPad : le bouton flottant ContextFlow sur toute page, ou « Demander à l’IA » sur le texte sélectionné
 • Mac : une barre latérale via la barre d’outils, le bouton flottant ou Control-Shift-E
-• Astuces en courtes vidéos, mode clair et sombre, 14 langues
+• Astuces en courtes vidéos, mode clair et sombre, 15 langues
 
 CONFIDENTIALITÉ
 • Ni compte, ni inscription, ni pistage
@@ -38,9 +38,9 @@ CONFIDENTIALITÉ
 • Le texte des pages n’est jamais stocké sur nos serveurs ; vos conversations restent sur vos appareils et se synchronisent via votre iCloud, chiffrées de bout en bout
 
 FORFAITS
-• Gratuit : réponses chaque jour, quelques modèles remplis par jour, notes sans limite
-• Pro : beaucoup de réponses, plus approfondies, vidéos et PDF, modèles remplis sans limite, plus de pages surveillées, suggestions de classement en conversations et tags, recherche IA et « Interroger vos discussions »
-• Ultra : tout ce qu’offre Pro, plus « Écouter », « Trouver similaire » et jusqu’à 50 pages surveillées
+• Gratuit : réponses chaque jour, quelques modèles remplis par jour, une collection, notes sans limite
+• Pro : beaucoup de réponses, plus approfondies, vidéos et PDF, modèles remplis sans limite, collections rangées par l’IA, plus de pages surveillées, recherche IA et « Interroger vos discussions »
+• Ultra : tout ce qu’offre Pro, plus « Écouter », « Trouver similaire » en recherche élargie et jusqu’à 50 pages surveillées
 • Clé personnelle : réponses illimitées avec votre clé API OpenAI ou Claude
 • Pro, Ultra et Clé personnelle : mensuel ou annuel
 

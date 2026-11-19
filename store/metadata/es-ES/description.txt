@@ -1,36 +1,36 @@
-Se acabó pegar artículos en un chatbot. Pregunta a la IA sobre cualquier página, responde con plantillas que se rellenan solas y recibe un aviso cuando cambie un precio, sin salir de Safari. El chat te sigue de página en página, y es el mismo en iPhone, iPad y Mac.
+Se acabó pegar artículos en un chatbot. Pregunta a la IA sobre cualquier página, tradúcela ahí mismo y responde con plantillas que se rellenan solas, sin salir de Safari. El chat te sigue de página en página, y es el mismo en iPhone, iPad y Mac.
 
-NOVEDADES DE LA 2.6
-• Buscar similares (Ultra): alternativas reales y comprobadas a cualquier página, más baratas, más nuevas, en stock, gratis o en tu idioma
-• Escuchar (Ultra): respuestas y páginas enteras con voz natural, en más de 100 idiomas, también con el iPhone bloqueado
-• Chats que se ordenan solos (Pro): sugerencias de chat, chat nuevo o etiqueta para cada respuesta o nota, y nombres por tema
-• Notas con tus palabras en recordatorios y precios vigilados
-• Planes anuales: Pro, Ultra y Clave propia
-• Guía breve hasta tu primera respuesta; el panel en chino tradicional, árabe y vietnamita
+NOVEDADES DE LA 2.7
+• Traducción ahí mismo, sin romper los enlaces. Un toque para todo el sitio
+• Colecciones: todo lo de una tarea (un viaje, una compra) en un solo lugar. En Pro, la IA lo ordena en secciones, compara tarjetas en una tabla y lo resume
+• Espacios: trabajo, vida personal y compras por separado, cada uno con sus chats y su color
+• «Revisar» y «Reescribir» en cualquier campo, según la página: más corto, cálido, formal o seguro
+• Calendario o Recordatorios desde el chat; notas con captura de la página
 
 QUÉ PUEDES HACER
-• Resumir cualquier artículo, reseña, hilo o página de producto, o extraer los datos clave
+• Resumir cualquier artículo, reseña, hilo o página de producto, extraer los datos clave o explicar la jerga con palabras sencillas
 • Hacer tus propias preguntas: «¿Dónde está la trampa?», «¿Merece la pena comprarlo?»
-• Explicar la jerga con palabras sencillas o traducir la página a tu idioma
 • Seleccionar texto para preguntar solo sobre esa parte, o guardarlo como nota
 • Respuestas de Google: datos actuales de la Búsqueda de Google, con fuentes
-• Plantillas para las respuestas que escribes a menudo, rellenadas con la página. Toca un campo y el botón flotante te las trae, con lo que has copiado
-• ¿Esperas a que baje un precio? Selecciónalo y toca el ojo: ContextFlow te avisa cuando cambie. La campana te recuerda una página más tarde
+• Plantillas para las respuestas que escribes a menudo, rellenadas con la página cuando tocas un campo
+• Buscar similares: alternativas reales y comprobadas a cualquier página, más baratas, más nuevas, en stock o en tu idioma
+• Escuchar (Ultra): respuestas y páginas enteras leídas con voz natural
+• ¿Esperas a que baje un precio? Selecciónalo y toca el ojo: ContextFlow te avisa cuando cambie
 
 NOTAS Y CHATS
 • Notas: desliza el botón de enviar arriba o abajo (en el Mac, desplázate sobre él) para escribir una nota en vez de preguntar. Las notas no gastan respuestas
 • Todo el chat: la respuesta considera cada mensaje, tus notas y todas las páginas del chat
+• Chats que se ordenan solos (Pro): sugerencias de dónde va cada respuesta o nota, y nombres por tema
 • Etiquetas, carpetas y búsqueda en tus chats
-• Copia, comparte o etiqueta cualquier respuesta o nota, o comparte el chat entero
 
 TUS CHATS EN LA APP
-• La app ContextFlow para iPhone, iPad y Mac tiene todos los chats de Safari: léelos, pregunta sobre ellos o añade una nota
+• La app ContextFlow para iPhone, iPad y Mac tiene todos los chats y colecciones de Safari: léelos, pregunta sobre ellos o añade una nota
 • Chats y plantillas se sincronizan entre tus dispositivos con iCloud
 
 HECHO PARA SAFARI
 • iPhone y iPad: toca el botón flotante de ContextFlow en cualquier página, o «Preguntar a la IA» sobre el texto seleccionado
 • Mac: una barra lateral desde la barra de herramientas, el botón flotante o Control-Shift-E
-• Consejos con vídeos cortos, modo claro y oscuro, 14 idiomas
+• Consejos con vídeos cortos, modo claro y oscuro, 15 idiomas
 
 PRIVACIDAD
 • Sin cuenta, sin registro, sin rastreo
@@ -38,9 +38,9 @@ PRIVACIDAD
 • El texto de las páginas nunca se guarda en nuestros servidores; tus chats se quedan en tus dispositivos y se sincronizan por tu iCloud con cifrado de extremo a extremo
 
 PLANES
-• Gratis: respuestas cada día, algunos rellenados de plantillas al día y notas sin límite
-• Pro: muchas respuestas, más profundas y detalladas, vídeos y PDF, rellenado de plantillas sin límite, más páginas vigiladas, sugerencias que reparten las respuestas entre tus chats y etiquetas, búsqueda con IA y «Pregunta a tus chats»
-• Ultra: todo lo de Pro, y además «Escuchar», «Buscar similares» y hasta 50 páginas vigiladas
+• Gratis: respuestas cada día, algunos rellenados de plantillas al día, una colección y notas sin límite
+• Pro: muchas respuestas, más profundas y detalladas, vídeos y PDF, rellenado de plantillas sin límite, colecciones ordenadas por IA, más páginas vigiladas, búsqueda con IA y «Pregunta a tus chats»
+• Ultra: todo lo de Pro, y además «Escuchar», «Buscar similares» más amplio y hasta 50 páginas vigiladas
 • Clave propia: respuestas ilimitadas con tu clave de API de OpenAI o Claude
 • Pro, Ultra y Clave propia: mensual o anual
 

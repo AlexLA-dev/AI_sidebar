@@ -1,36 +1,36 @@
-Stop pasting articles into a chatbot. Ask AI about any page, reply with templates that fill themselves and get a notification when a price changes, without leaving Safari. The chat follows you from page to page, and the same chat is on your iPhone, iPad and Mac.
+Stop pasting articles into a chatbot. Ask AI about any page, translate it right where it is and reply with templates that fill themselves, without leaving Safari. The chat follows you from page to page, and the same chat is on your iPhone, iPad and Mac.
 
-NEW IN 2.6
-• Find similar (Ultra): real alternatives to any page, cheaper, newer, in stock, free or in your language. Every link is opened and checked before you see it
-• Listen (Ultra): answers and whole pages read aloud in a natural voice, in 100+ languages. On iPhone it keeps playing with the screen locked
-• Chats that keep themselves in order (Pro): ContextFlow suggests where a new answer or note belongs, a new chat for it or one of your tags, and names chats by topic
-• A note in your own words on any reminder or watched price
-• Yearly plans for Own key, Pro and Ultra
-• A short guide to your first answer, and the panel in Traditional Chinese, Arabic and Vietnamese
+NEW IN 2.7
+• Translate a page right where it is: the text changes in place and links keep working. One tap does the whole site
+• Collections: everything for one task, like a trip or a purchase, in one place. In Pro, the AI sorts it into sections, compares cards in a table and sums it all up
+• Spaces: keep work, personal and shopping apart, each with its own chats and colour
+• Check and Rewrite in any field on a site, with the page in mind: shorter, warmer, more formal or more confident
+• Add to Calendar or Reminders right from the chat, and keep a snapshot of the page with a note
 
 WHAT YOU CAN DO
-• Summarise any article, review, thread or product page, or pull out the key facts
+• Summarise any article, review, thread or product page, pull out the key facts or explain jargon in simple words
 • Ask your own questions: “What's the catch?”, “Is this worth buying?”
-• Explain jargon in simple words, or translate the page into your language
 • Select text to ask about just that part, or keep it as a note
 • Google answers: fresh facts from Google Search, with sources you can open
-• Templates for replies you write again and again, filled in from the page. Tap a text field and the floating button brings them, with what you copied
-• Waiting for a price to drop? Select it and tap the eye: ContextFlow tells you when it changes. Tap the bell to come back to a page later
+• Templates for replies you write again and again, filled in from the page when you tap a text field
+• Find similar: real alternatives to any page, cheaper, newer, in stock or in your language, every link checked
+• Listen (Ultra): answers and whole pages read aloud in a natural voice
+• Waiting for a price to drop? Select it and tap the eye: ContextFlow tells you when it changes
 
 NOTES AND CHATS
 • Notes: swipe the send button up or down (on a Mac, scroll over it) to write a note instead of asking. Notes use no answers
 • Whole chat: the answer takes in every message, your notes and all the pages of the chat
+• Chats that keep themselves in order (Pro): ContextFlow suggests where a new answer or note belongs and names chats by topic
 • Tags, folders and search across your chats
-• Copy, share or tag any answer or note, or share the whole chat
 
 ALL YOUR CHATS IN THE APP
-• The ContextFlow app on iPhone, iPad and Mac has every chat from Safari: read it, ask about it or add a note
+• The ContextFlow app on iPhone, iPad and Mac has every chat and collection from Safari: read it, ask about it or add a note
 • Chats and templates sync between your devices through iCloud
 
 MADE FOR SAFARI ON IPHONE, IPAD AND MAC
 • iPhone and iPad: tap the floating ContextFlow button on any page, or Ask AI on selected text
 • Mac: a sidebar that opens from the toolbar, the floating button or Control-Shift-E
-• Tips with short clips, light and dark mode, 14 languages
+• Tips with short clips, light and dark mode, 15 languages
 
 PRIVATE BY DESIGN
 • No account, no sign-up, no tracking
@@ -38,9 +38,9 @@ PRIVATE BY DESIGN
 • Page text is never stored on our servers; your chats stay on your devices and sync through your iCloud, end-to-end encrypted
 
 PLANS
-• Free: answers every day, a few template fills a day, and notes with no limit
-• Pro: plenty of answers, deeper and more detailed, videos and PDFs, unlimited template fills, more watched pages, suggestions that sort answers into your chats and tags, AI search and “Ask your chats”
-• Ultra: everything in Pro, plus Listen, Find similar and up to 50 watched pages
+• Free: answers every day, a few template fills a day, one collection, and notes with no limit
+• Pro: plenty of answers, deeper and more detailed, videos and PDFs, unlimited template fills, collections sorted by AI, more watched pages, AI search and “Ask your chats”
+• Ultra: everything in Pro, plus Listen, Find similar that searches wider and up to 50 watched pages
 • Own key: unlimited answers with your own OpenAI or Claude API key
 • Pro, Ultra and Own key: monthly or yearly
 
