@@ -1,0 +1,544 @@
+// «Проверить» и «Переписать» (2.7, plan section 13): the text being written in a field on a site, checked or rewritten
+// with the page in mind (the email being answered, the post under a comment, the job under an application) and in the
+// person's own style («О себе», their templates, how they wrote on this site before). Shared by the panel's quick
+// insert, the background, the server (/api/v2/write) and the tests.
+// - The style samples stay on the device (chrome.storage.local): only the few that go with a request leave it, as the
+//   field's text does, and the server keeps nothing.
+// - A check comes back as the whole corrected text; the device works out the changes itself (diffWords), so each fix
+//   lands on its own words and the rest of the field (links, bold, a signature) stays as it is.
+// - A tap is one answer (Free's 5 a day, the Pro and Ultra week). Live underlines (Pro and Ultra) aren't counted.
+
+import { blanks, type Template, type TemplateUse } from "./templates.ts"
+
+// "compose" (2.7 (108), the owner): a field with nothing in it yet gets Compose instead of Rewrite; the person says in
+// their own words what to write (the request's `text` is that, and may be empty: then a reply to what's on the page),
+// with a tone if they pick one, and the draft goes into the field.
+export type WriteAction = "check" | "rewrite" | "compose"
+export const TONES = ["short", "warm", "formal", "confident"] as const
+export type Tone = (typeof TONES)[number]
+
+export const WRITE_LIMITS = {
+  // The field's text (or the part selected in it): longer ones ask for a part to be selected.
+  text: 4_000,
+  // What Compose is asked to write (the person's own words).
+  instruction: 1_000,
+  // The page or the conversation around the field.
+  page: 6_000,
+  // A reply in the middle of a thread: the messages that came after the one being answered.
+  after: 1_500,
+  field: 200,
+  about: 600,
+  samples: 3,
+  sampleChars: 600,
+  templates: 3,
+  templateChars: 400
+} as const
+
+// Scripts written without spaces between words: Chinese, Japanese, Thai, Lao, Khmer, Burmese (2.7 audit: a rule that
+// waited for a space never let them have the circle, the list's Check and Rewrite, the underlines or style samples).
+const DENSE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u
+const DENSE_ALL = new RegExp(DENSE.source, "gu")
+// That many of their characters say about as much as two words do.
+export const DENSE_ENOUGH = 6
+
+/** How many characters of the scripts written without spaces a text has. */
+export const denseChars = (text: string): number => (text.match(DENSE_ALL) ?? []).length
+
+/** A text's length for "long enough": a character of Chinese, Japanese or Thai counts as two (it says about that much). */
+export const weightedLength = (text: string): number => text.length + denseChars(text)
+
+/** A text worth checking: two words at least (the circle shows from then on); in Chinese, Japanese or Thai, a few
+ * characters (DENSE_ENOUGH) count as that much. */
+export function worthWriting(text: string): boolean {
+  const t = text.trim()
+  return /\S+\s+\S+/.test(t) || denseChars(t) >= DENSE_ENOUGH
+}
+
+// ------------------------------------------------------------ what goes to the server
+
+export interface WriteStyle {
+  // «О себе» from Settings.
+  about?: string
+  // How they wrote on this site before (newest first).
+  samples: string[]
+  // Their templates' texts (most used here first).
+  templates: string[]
+}
+
+export interface WritePage {
+  title: string
+  url: string
+  // The page; or, for a conversation, its messages up to the reply box: it ends with the message being answered.
+  text: string
+  // `text` is the conversation around the field (a mail, a chat), not the whole page.
+  conversation: boolean
+  // A reply written in the middle of a thread (2.7 (107)): the messages that came after the one being answered.
+  after?: string
+}
+
+export interface WriteAsk {
+  action: WriteAction
+  tone?: Tone
+  text: string
+  page: WritePage
+  field: string
+  style: WriteStyle
+  // A paragraph checked for the underlines (Pro and Ultra, not counted).
+  live?: true
+  // The request's own name on the device, so Cancel can stop it (never sent to the server).
+  id?: string
+}
+
+// SLOW: no answer within the request's deadline (writeDeadline); the device stopped waiting. STOPPED: Cancel.
+export type WriteFailureCode = "LIMIT_REACHED" | "TOO_LONG" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT" | "PRO_ONLY" | "SLOW" | "STOPPED"
+
+/**
+ * How long a check or a rewrite may take before the device stops waiting and says so (2.7 (107): the owner's Check
+ * of two words in Gmail showed «Checking…» for a minute and never ended). A few seconds for a short text, more for a
+ * long one (the model writes the whole text back); a live check of one paragraph is short by nature.
+ * The server gives its model a little less (WRITE_SERVER_MARGIN_MS), so its own answer comes first.
+ */
+export function writeDeadline(action: WriteAction, chars: number, live = false): number {
+  if (live) return 8_000
+  // A draft is written whole whatever the request's length (a few lines up to a long mail).
+  if (action === "compose") return 22_000 + Math.min(chars, WRITE_LIMITS.instruction) * 5
+  return action === "check" ? 8_000 + Math.min(chars, WRITE_LIMITS.text) * 3 : 10_000 + Math.min(chars, WRITE_LIMITS.text) * 5
+}
+export const WRITE_SERVER_MARGIN_MS = 1_500
+
+export type WriteReply =
+  // plan: the server's own (2.7), so the card never takes a subscription's week for Free's day.
+  | { ok: true; text: string; plan?: string; usage?: { used: number; limit: number; period: "day" | "week"; resetsAt: string } | null }
+  | { ok: false; code: WriteFailureCode; usage?: { used: number; limit: number; period: "day" | "week"; resetsAt: string } | null; offer?: { code: string; discount: number } | null }
+
+/**
+ * What the card says is left: «Free answers left today: N» on Free only. Pro and Ultra (a subscription's week) and Own key
+ * get nothing on the card, as the fill card does; the panel's usage line has the week. The page's own idea of the plan
+ * can still say Free before its status arrives (the store captures showed Ultra's 374 as Free's), so the server's plan
+ * wins; from a server that doesn't say it yet, only a day's allowance on a device that thinks it's Free.
+ */
+export function freeLeft(reply: { plan?: string; usage?: { used: number; limit: number; period: "day" | "week" } | null }, free: boolean): number | null {
+  const usage = reply.usage
+  if (!usage || usage.period !== "day") return null
+  const isFree = reply.plan !== undefined ? reply.plan === "free" : free
+  return isFree ? Math.max(0, usage.limit - usage.used) : null
+}
+
+/** A conversation clipped to `max` characters keeps its end (the message being answered); a page, its start. */
+export function clipPage(text: string, conversation: boolean, max: number): string {
+  return conversation ? text.slice(-max) : text.slice(0, max)
+}
+
+/** The request as the server takes it: everything clipped to its limits, empty parts left out. */
+export function clipAsk(ask: WriteAsk): WriteAsk {
+  const style: WriteStyle = {
+    samples: ask.style.samples.map((s) => s.trim().slice(0, WRITE_LIMITS.sampleChars)).filter(Boolean).slice(0, WRITE_LIMITS.samples),
+    templates: ask.style.templates.map((s) => s.trim().slice(0, WRITE_LIMITS.templateChars)).filter(Boolean).slice(0, WRITE_LIMITS.templates)
+  }
+  const about = ask.style.about?.trim().slice(0, WRITE_LIMITS.about)
+  if (about) style.about = about
+  return {
+    action: ask.action,
+    ...(ask.action !== "check" && ask.tone ? { tone: ask.tone } : {}),
+    text: ask.action === "compose" ? ask.text.slice(0, WRITE_LIMITS.instruction) : ask.text,
+    page: {
+      title: ask.page.title.slice(0, 300), url: ask.page.url.slice(0, 2000), text: clipPage(ask.page.text, ask.page.conversation, WRITE_LIMITS.page), conversation: ask.page.conversation,
+      ...(ask.page.conversation && ask.page.after?.trim() ? { after: ask.page.after.trim().slice(0, WRITE_LIMITS.after) } : {})
+    },
+    field: ask.field.slice(0, WRITE_LIMITS.field),
+    style,
+    ...(ask.live ? { live: true as const } : {})
+  }
+}
+
+// ------------------------------------------------------------ the person's style, on this device
+
+export interface Sample {
+  t: string
+  at: number
+}
+
+/** Earlier texts by site (siteKey): what the person wrote in fields there, newest first. */
+export type Samples = Record<string, Sample[]>
+
+export const SAMPLES = {
+  min: 40,
+  perSite: 5,
+  sites: 60,
+  ttl: 60 * 24 * 3600_000
+} as const
+
+/** A text clipped at a word near `max` characters. */
+function clipAtWord(text: string, max: number): string {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max)
+  const space = cut.lastIndexOf(" ")
+  return (space > max * 0.6 ? cut.slice(0, space) : cut).trimEnd()
+}
+
+/**
+ * Keeps what the person wrote on a site (sent, or left when the field lost the focus). A newer version of the same text
+ * (its start unchanged: a draft written on) replaces the older one; at most SAMPLES.perSite a site, old ones go.
+ */
+export function keepSample(all: Samples, site: string, text: string, now: number): Samples {
+  const t = clipAtWord(text.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim(), WRITE_LIMITS.sampleChars)
+  if (!site || weightedLength(t) < SAMPLES.min || !worthWriting(t)) return all
+  const head = t.slice(0, 30)
+  const fresh = (list: Sample[]) => list.filter((s) => now - s.at < SAMPLES.ttl)
+  const mine = fresh(all[site] ?? []).filter((s) => s.t.slice(0, 30) !== head && !t.startsWith(s.t) && !s.t.startsWith(t))
+  const next: Samples = {}
+  for (const [k, list] of Object.entries(all)) {
+    if (k === site) continue
+    const kept = fresh(list)
+    if (kept.length) next[k] = kept
+  }
+  next[site] = [{ t, at: now }, ...mine].slice(0, SAMPLES.perSite)
+  const sites = Object.keys(next)
+  if (sites.length > SAMPLES.sites) {
+    const newest = (k: string) => Math.max(...next[k].map((s) => s.at))
+    for (const old of sites.sort((a, b) => newest(a) - newest(b)).slice(0, sites.length - SAMPLES.sites)) delete next[old]
+  }
+  return next
+}
+
+/** The samples that go with a request: this site's newest, never the text being checked itself. */
+export function samplesFor(all: Samples, site: string, now: number, current = ""): string[] {
+  const head = current.trim().slice(0, 30)
+  return (all[site] ?? [])
+    .filter((s) => now - s.at < SAMPLES.ttl && (!head || s.t.slice(0, 30) !== head))
+    .slice(0, WRITE_LIMITS.samples)
+    .map((s) => s.t)
+}
+
+/** Their templates as samples of their style: the most used on this site first, then the most used anywhere. */
+export function styleTemplates(templates: Template[], use: TemplateUse, site: string): string[] {
+  const score = (tpl: Template) => {
+    const u = use[tpl.id]
+    return [u?.sites[site] ?? 0, u ? Object.values(u.sites).reduce((a, b) => a + b, 0) : 0, tpl.updatedAt] as const
+  }
+  return templates
+    .filter((tpl) => !tpl.deleted && tpl.text.trim().length >= 20 && blanks(tpl.text).length <= 4)
+    .sort((a, b) => {
+      const [x, y] = [score(a), score(b)]
+      return y[0] - x[0] || y[1] - x[1] || y[2] - x[2]
+    })
+    .slice(0, WRITE_LIMITS.templates)
+    .map((tpl) => clipAtWord(tpl.text.trim(), WRITE_LIMITS.templateChars))
+}
+
+// ------------------------------------------------------------ the changes a check made
+
+/** One change: the characters [from, to) of the original become `text`. */
+export interface Edit {
+  from: number
+  to: number
+  text: string
+}
+
+let wordSegmenter: Intl.Segmenter | null | undefined
+
+/** A run of a script written without spaces, in its words (the system's word breaks); one character each without them. */
+function denseWords(run: string): string[] {
+  if (wordSegmenter === undefined) {
+    try {
+      wordSegmenter = typeof Intl.Segmenter === "function" ? new Intl.Segmenter(undefined, { granularity: "word" }) : null
+    } catch {
+      wordSegmenter = null
+    }
+  }
+  return wordSegmenter ? Array.from(wordSegmenter.segment(run), (s) => s.segment) : Array.from(run)
+}
+
+/**
+ * Words (letters, digits, apostrophes and hyphens inside), runs of spaces, and single other characters. A run in Chinese,
+ * Japanese or Thai is cut into its own words (2.7 audit: a whole sentence was one word there, so one wrong character
+ * underlined all of it).
+ */
+export function tokens(text: string): string[] {
+  const out: string[] = []
+  for (const token of text.match(/[\p{L}\p{N}\p{M}]+(?:['’\-][\p{L}\p{N}\p{M}]+)*|[^\S\n]+|\n|[\s\S]/gu) ?? []) {
+    if (DENSE.test(token)) out.push(...denseWords(token))
+    else out.push(token)
+  }
+  return out
+}
+
+// Above this many cells the table isn't worth it: one change for the middle.
+const MAX_CELLS = 4_000_000
+
+// Characters nobody sees: a zero-width space, a word joiner, a byte-order mark.
+const INVISIBLE = /[​⁠﻿]/g
+// Spaces that look like a plain one: editors keep a typed space as a no-break one (Gmail on an iPad: «the root» was
+// «the root» in the field, the model wrote a plain space back, and that was underlined as a fix).
+const SPACE_LIKE = /[   ]/g
+
+/** Text as a reader sees it: no-break spaces as plain ones, invisible characters gone. */
+export function asSeen(text: string): string {
+  return text.replace(INVISIBLE, "").replace(SPACE_LIKE, " ")
+}
+
+/**
+ * The changes from `a` to `b`, word by word (a longest common sequence of tokens), adjacent ones joined; a change
+ * between two others with only a space between them joins them too ("teh  quik" → "the quick" is one change).
+ * A space of another kind (a no-break one for a plain one) or an invisible character isn't a change (109, the owner:
+ * an underline on a space that wasn't there, and a «Fix» that did nothing): the field keeps its own.
+ */
+export function diffWords(a: string, b: string): Edit[] {
+  if (a === b) return []
+  const A = tokens(a)
+  const B = tokens(b)
+  // Tokens are compared as seen.
+  const KA = A.map(asSeen)
+  const KB = B.map(asSeen)
+  // The same start and end stay out of the table.
+  let pre = 0
+  while (pre < A.length && pre < B.length && KA[pre] === KB[pre]) pre++
+  let suf = 0
+  while (suf < A.length - pre && suf < B.length - pre && KA[A.length - 1 - suf] === KB[B.length - 1 - suf]) suf++
+  const a2 = A.slice(pre, A.length - suf)
+  const b2 = B.slice(pre, B.length - suf)
+  const ka = KA.slice(pre, A.length - suf)
+  const kb = KB.slice(pre, B.length - suf)
+  const offset = A.slice(0, pre).join("").length
+  const n = a2.length
+  const m = b2.length
+  type Op = { same: boolean; a: string; b: string }
+  const ops: Op[] = []
+  if (n * m > MAX_CELLS || n === 0 || m === 0) {
+    ops.push({ same: false, a: a2.join(""), b: b2.join("") })
+  } else {
+    const w = m + 1
+    const table = new Uint32Array((n + 1) * w)
+    for (let i = n - 1; i >= 0; i--) {
+      for (let j = m - 1; j >= 0; j--) {
+        table[i * w + j] = ka[i] === kb[j] ? table[(i + 1) * w + j + 1] + 1 : Math.max(table[(i + 1) * w + j], table[i * w + j + 1])
+      }
+    }
+    let i = 0
+    let j = 0
+    while (i < n || j < m) {
+      if (i < n && j < m && ka[i] === kb[j]) {
+        ops.push({ same: true, a: a2[i], b: b2[j] })
+        i++
+        j++
+      } else if (j < m && (i === n || table[i * w + j + 1] >= table[(i + 1) * w + j])) {
+        ops.push({ same: false, a: "", b: b2[j++] })
+      } else {
+        ops.push({ same: false, a: a2[i++], b: "" })
+      }
+    }
+  }
+  // Runs of changes become edits; a lone space between two changes (and not a line break) joins them.
+  const edits: Edit[] = []
+  let at = offset
+  for (let k = 0; k < ops.length; k++) {
+    const op = ops[k]
+    if (op.same) {
+      at += op.a.length
+      continue
+    }
+    const last = edits[edits.length - 1]
+    if (last && last.to === at) {
+      last.to += op.a.length
+      last.text += op.b
+    } else if (last && edits.length && k >= 2 && ops[k - 1].same && /^[^\S\n]+$/.test(ops[k - 1].a) && last.to === at - ops[k - 1].a.length) {
+      // The space between keeps the field's own kind.
+      last.to = at + op.a.length
+      last.text += ops[k - 1].a + op.b
+    } else {
+      edits.push({ from: at, to: at + op.a.length, text: op.b })
+    }
+    at += op.a.length
+  }
+  // A change only in what nobody sees (an invisible character dropped, a lone no-break space) isn't one.
+  return edits.filter((e) => (e.to > e.from || e.text) && asSeen(a.slice(e.from, e.to)) !== asSeen(e.text))
+}
+
+/** `text` with the edits made (they're in order and don't overlap). */
+export function applyEdits(text: string, edits: Edit[]): string {
+  let out = ""
+  let at = 0
+  for (const e of edits) {
+    out += text.slice(at, e.from) + e.text
+    at = e.to
+  }
+  return out + text.slice(at)
+}
+
+/** The text in parts for showing a check: unchanged stretches, and each change with what goes and what comes. */
+export function diffParts(text: string, edits: Edit[]): Array<{ same: string } | { was: string; now: string }> {
+  const parts: Array<{ same: string } | { was: string; now: string }> = []
+  let at = 0
+  for (const e of edits) {
+    if (e.from > at) parts.push({ same: text.slice(at, e.from) })
+    parts.push({ was: text.slice(e.from, e.to), now: e.text })
+    at = e.to
+  }
+  if (at < text.length) parts.push({ same: text.slice(at) })
+  return parts
+}
+
+/** The text's leading and trailing white space: kept out of what's sent, so the field's own ends never change. */
+export function trimmedSpan(text: string): { from: number; to: number } {
+  const from = text.length - text.trimStart().length
+  const to = text.trimEnd().length
+  return { from: Math.min(from, to), to }
+}
+
+// ------------------------------------------------------------ live underlines (Pro and Ultra)
+
+/**
+ * Underlines as the person writes (2.7, Pro and Ultra; not counted, a hidden cap): after a pause in typing, each
+ * paragraph changed since the field got the focus is checked on its own, and the changes come back as underlines in
+ * our colour. Hovering one (a tap on iPhone and iPad) shows the fix and «Исправить».
+ */
+export const LIVE = {
+  // The pause in typing before a check.
+  pauseMs: 1_500,
+  // A paragraph checked: from a few words, up to this long (longer ones wait for a tap on Check).
+  minChars: 12,
+  maxChars: 1_500,
+  // Less of the page goes along than for a tap (quicker, cheaper): the conversation's end or the page's start.
+  pageChars: 2_500,
+  // Of the messages after the one being answered.
+  afterChars: 600,
+  // Paragraphs checked after one pause, the one with the caret first.
+  perPause: 3
+} as const
+
+export interface Paragraph {
+  from: number
+  to: number
+  text: string
+}
+
+/** The paragraphs of text[from, to): its lines, each without the white space at its ends, the empty ones left out. */
+export function paragraphs(text: string, from = 0, to = text.length): Paragraph[] {
+  const out: Paragraph[] = []
+  let at = from
+  for (const line of text.slice(from, to).split("\n")) {
+    const span = trimmedSpan(line)
+    if (span.to > span.from) out.push({ from: at + span.from, to: at + span.to, text: line.slice(span.from, span.to) })
+    at += line.length + 1
+  }
+  return out
+}
+
+/** A paragraph worth checking live: a few words (in Chinese, Japanese or Thai, a few characters), not too long. */
+export function liveWorthy(p: Paragraph): boolean {
+  return weightedLength(p.text) >= LIVE.minChars && p.text.length <= LIVE.maxChars && worthWriting(p.text)
+}
+
+/** One underline: the characters [from, to) of the field's text, what they'd become; `key` names it for «Пропустить». */
+export interface Issue extends Edit {
+  key: string
+  // Its paragraph's text and its change within it (to keep the paragraph's other underlines once it's made).
+  para: string
+  rel: Edit
+}
+
+/** An underline's identity: its paragraph, and its change within it. */
+export function issueKey(para: string, e: Edit): string {
+  return `${e.from}:${e.to}:${e.text}\u0000${para}`
+}
+
+/**
+ * The underlines for the field's text as it is now: each checked paragraph (by its text) still in the field gives its
+ * changes at its current place; a paragraph typed in since gives none until it's checked again. Ignored ones stay out.
+ */
+export function liveIssues(checked: Map<string, Edit[]>, paras: Paragraph[], ignored: Set<string> = new Set()): Issue[] {
+  const out: Issue[] = []
+  for (const p of paras) {
+    for (const e of checked.get(p.text) ?? []) {
+      const key = issueKey(p.text, e)
+      if (!ignored.has(key)) out.push({ from: p.from + e.from, to: p.from + e.to, text: e.text, key, para: p.text, rel: e })
+    }
+  }
+  return out
+}
+
+/**
+ * The paragraphs to check after a pause: changed since the field got the focus (not in `before`), not checked yet, worth
+ * it; the one with the caret first; at most LIVE.perPause.
+ */
+export function toCheck(paras: Paragraph[], before: Set<string>, checked: Map<string, Edit[]>, caret: number | null): Paragraph[] {
+  const fresh = paras.filter((p) => !before.has(p.text) && !checked.has(p.text) && liveWorthy(p))
+  const here = caret === null ? -1 : fresh.findIndex((p) => caret >= p.from && caret <= p.to)
+  if (here > 0) fresh.unshift(...fresh.splice(here, 1))
+  return fresh.slice(0, LIVE.perPause)
+}
+
+/** A paragraph's checked changes once one of them is made: its new text and the others, moved by what it changed. */
+export function afterFix(para: string, edits: Edit[], made: Edit): { para: string; edits: Edit[] } {
+  const delta = made.text.length - (made.to - made.from)
+  return {
+    para: applyEdits(para, [made]),
+    edits: edits.filter((e) => e !== made && !(e.from === made.from && e.to === made.to && e.text === made.text))
+      .map((e) => (e.from >= made.to ? { from: e.from + delta, to: e.to + delta, text: e.text } : e))
+  }
+}
+
+// ------------------------------------------------------------ the list of fixes (2.7 (107))
+
+/** A fix as its row shows it: the words around it, what goes, what comes. `cutBefore`/`cutAfter`: the sentence goes on. */
+export interface Snippet {
+  before: string
+  was: string
+  now: string
+  after: string
+  cutBefore: boolean
+  cutAfter: boolean
+}
+
+// Where a sentence ends: Latin, Cyrillic and Arabic marks followed by a space, the full-width ones of Chinese and
+// Japanese (no space after them), Thai's and Devanagari's.
+const SENTENCE_END = /[.!?…؟۔](?=\s)|[。！？।]/gu
+
+/**
+ * A change with its sentence, for the list of fixes: at most `around` characters each side (a character of Chinese,
+ * Japanese or Thai counts as two), cut at a word where the script has spaces, never inside a pair of surrogates.
+ */
+export function snippetOf(para: string, e: Edit, around = 34): Snippet {
+  let from = 0
+  let to = para.length
+  for (const m of para.matchAll(SENTENCE_END)) {
+    const end = m.index + m[0].length
+    if (end <= e.from) from = end
+    else if (m.index >= e.to) {
+      to = end
+      break
+    }
+  }
+  const lead = para.slice(from, e.from).replace(/^\s+/, "")
+  const tail = para.slice(e.to, to).replace(/\s+$/, "")
+  const fit = (text: string, fromEnd: boolean): { text: string; cut: boolean } => {
+    const chars = Array.from(text)
+    let weight = 0
+    let n = 0
+    for (let i = 0; i < chars.length; i++) {
+      const c = fromEnd ? chars[chars.length - 1 - i] : chars[i]
+      weight += DENSE.test(c) ? 2 : 1
+      if (weight > around) break
+      n++
+    }
+    if (n === chars.length) return { text, cut: false }
+    let kept = fromEnd ? chars.slice(chars.length - n).join("") : chars.slice(0, n).join("")
+    // At a word, where there's a space not too far in.
+    if (fromEnd) {
+      const space = kept.search(/\s/)
+      if (space >= 0 && space < kept.length * 0.5) kept = kept.slice(space + 1)
+    } else {
+      const space = kept.search(/\s\S*$/)
+      if (space > kept.length * 0.5) kept = kept.slice(0, space)
+    }
+    return { text: kept, cut: true }
+  }
+  const a = fit(lead, true)
+  const b = fit(tail, false)
+  return { before: a.text, was: para.slice(e.from, e.to), now: e.text, after: b.text, cutBefore: a.cut, cutAfter: b.cut }
+}
+
+/** A paragraph's checked changes once all of them are made: its new text (nothing left to underline in it). */
+export function afterAll(para: string, edits: Edit[]): string {
+  return applyEdits(para, [...edits].sort((x, y) => x.from - y.from))
+}

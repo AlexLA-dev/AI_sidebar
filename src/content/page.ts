@@ -4,6 +4,7 @@ import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
 import { appLink, type PaidPlan, type Period } from "../shared/plan"
 import type { Platform } from "../shared/types"
+import { toFixed } from "./fixedPlace"
 import { proseCover } from "./proseCover"
 import { shadowSelection } from "./selectionShadow"
 import { unfoldCollapsed } from "./unfold"
@@ -64,6 +65,8 @@ export function siteName(): string {
 export interface SelectionInfo {
   text: string
   words: number
+  // Where it is, in `position: fixed` coordinates (fixedPlace.ts): the selection buttons and the round button are
+  // placed by it, and Safari counts a page's rects from elsewhere once the page is zoomed or the keyboard is up.
   rect: DOMRect | null
   at: number
 }
@@ -101,7 +104,7 @@ function selectionInfo(raw: string, box: () => DOMRect): SelectionInfo | null {
   if (text.length < 2) return null
   let rect: DOMRect | null = null
   try {
-    rect = box()
+    rect = toFixed(box())
   } catch {
     rect = null
   }

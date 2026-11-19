@@ -3,6 +3,7 @@
 // Find similar), keeps what came so far for a panel that comes back, and writes the answer into the question's chat
 // itself. Panels follow a job through ports: the one that asked it, and any that comes back to it ("job" port).
 
+import { withoutItemMarker } from "../shared/appleItems"
 import { stamped, type Entry } from "../shared/conversation"
 import { afterRestart, prunedJobs, seenIn, withAnswer, withoutQuestion, type Job, type JobKind, type Jobs } from "../shared/jobs"
 import { similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
@@ -369,9 +370,11 @@ function answerOf(job: Live, event: AnyEvent): Entry | null {
   const failed = event.type === "error"
   if (job.job.kind === "chat") {
     const grounded = failed ? undefined : job.snapshot.grounding
-    const text = grounded?.text ?? job.snapshot.text
+    // 2.7: the chat's marker for a reminder or an event comes out of the text and stays as a mark on the answer.
+    const { text, marked } = withoutItemMarker(grounded?.text ?? job.snapshot.text)
     if (!text) return null
-    return stamped(grounded ? { role: "assistant", content: text, grounding: grounded.grounding } : { role: "assistant", content: text })
+    const answer: Entry = grounded ? { role: "assistant", content: text, grounding: grounded.grounding } : { role: "assistant", content: text }
+    return stamped(marked ? { ...answer, addable: true } : answer)
   }
   const items = job.snapshot.items
   const answer = failed ? (items.length ? { intro: "", items, note: "", condition: "" } : null) : job.answer ?? { intro: "", items, note: "", condition: "" }

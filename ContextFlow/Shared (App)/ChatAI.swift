@@ -49,6 +49,9 @@ enum ChatAI {
         let timestamp: Int
     }
 
+    /// Production's host, by name: a build whose `base` is anything else is a test build (TestBuild, Setup.swift).
+    static let productionHost = "aisidebar.netlify.app"
+
     /// Production; a debug build can point at a local stand: `-CFApiBase http://localhost:8788`.
     static var base: URL {
         #if DEBUG
@@ -58,16 +61,19 @@ enum ChatAI {
     }
 
     @MainActor
-    private static func identity() -> [String: Any] {
+    static func identity() -> [String: Any] {
+        // "build" tells the server this build's consent names Anthropic (build 67 and later).
+        var client: [String: Any] = [
+            "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+            "build": Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "",
+            "platform": platform,
+            "locale": Locale.current.identifier
+        ]
+        // 2.7: a friend's code's extra answers run (the server checks it; see Invite.swift).
+        if InviteModel.keptUntil() != nil { client["inv"] = 1 }
         var body: [String: Any] = [
             "installId": (Activation.shared.accountToken ?? UUID()).uuidString.lowercased(),
-            // "build" tells the server this build's consent names Anthropic (build 67 and later).
-            "client": [
-                "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
-                "build": Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "",
-                "platform": platform,
-                "locale": Locale.current.identifier
-            ]
+            "client": client
         ]
         if let jws = StoreKitManager.shared.entitlement.jws, StoreKitManager.shared.entitlement.active { body["entitlement"] = jws }
         return body
@@ -81,7 +87,7 @@ enum ChatAI {
         #endif
     }
 
-    private static func request(_ path: String, _ body: [String: Any]) throws -> URLRequest {
+    static func request(_ path: String, _ body: [String: Any]) throws -> URLRequest {
         var request = URLRequest(url: base.appendingPathComponent(path))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -298,9 +304,20 @@ enum ChatAI {
     /// How much of a chat goes with a question (src/shared/conversation.ts `WHOLE_CHAT_CHARS`).
     static let wholeChatChars = 48_000
 
+    /// An earlier question's quote keeps at most this much (src/shared/conversation.ts `MAX_HISTORY_QUOTE`).
+    static let historyQuoteChars = 1_500
+
+    /// The line over an earlier question asked on a selection (src/shared/conversation.ts `askedQuoteLine`).
+    static func askedQuoteLine(_ cite: String) -> String {
+        let text = cite.count > historyQuoteChars
+            ? String(cite.prefix(historyQuoteChars)).replacingOccurrences(of: #"\s+$"#, with: "", options: .regularExpression) + "…"
+            : cite
+        return "[Asked about this text the user selected: \"\(text)\"]"
+    }
+
     /// "Whole chat" (src/shared/conversation.ts `historyForModel`): every message that fits, the newest
-    /// kept first, citations stripped; notes marked as notes, and questions asked on another page than
-    /// `currentUrl` marked with that page.
+    /// kept first, citations stripped; notes marked as notes, questions asked on another page than
+    /// `currentUrl` marked with that page, and questions asked on a selection with its quote.
     static func messages(_ entries: [ChatEntry], currentUrl: String?) -> [[String: String]] {
         var out: [[String: String]] = []
         var size = 0
@@ -316,7 +333,9 @@ enum ChatAI {
             if entry.isNote {
                 content = "[Note the user wrote\(elsewhere.isEmpty ? "" : " on another page: \(elsewhere)")]\n\(text)"
             } else {
-                content = elsewhere.isEmpty ? text : "[Asked on another page: \(elsewhere)]\n\(text)"
+                // 2.7: a question asked on a selection goes with its quote (askedQuoteLine in conversation.ts).
+                let quoted = entry.askedCite.map { "\(askedQuoteLine($0))\n\(text)" } ?? text
+                content = elsewhere.isEmpty ? quoted : "[Asked on another page: \(elsewhere)]\n\(quoted)"
             }
             size += content.count
             if size > wholeChatChars && !out.isEmpty { break }
@@ -462,15 +481,49 @@ extension ChatAI {
         return (title, object["fits"] as? Bool ?? false)
     }
 
+    /// Подборки (2.7): one op of /api/v2/collect (Pro; netlify/functions/v2-collect.mts), its answer as JSON. The texts
+    /// go for this request only (the AI consent), nothing is kept.
+    @MainActor
+    static func collect(_ op: String, _ fields: [String: Any]) async throws -> [String: Any] {
+        var body = identity()
+        body["op"] = op
+        for (key, value) in fields { body[key] = value }
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/collect", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw failure(status, data) }
+        return object
+    }
+
     /// A step in a feature ("use", src/shared/usage.ts): f, a and its allowed fields, never text (build 90: listen).
     @MainActor
     static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:]) {
         reportOrganize("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 })
     }
 
+    /// The same, sent `delay` seconds from now (2.7, the activation funnel: steps a moment apart are spaced, so they
+    /// reach the server in their order without one waiting on another's answer).
+    @MainActor
+    static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:], after delay: TimeInterval) {
+        guard var request = eventRequest("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 }) else { return }
+        request.timeoutInterval = 15
+        Task {
+            if delay > 0 { try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) }
+            _ = try? await URLSession.shared.data(for: request)
+        }
+    }
+
     /// An organizing event (kind organize / organize_promo / organize_optin): what and where, never text.
     @MainActor
     static func reportOrganize(_ kind: String, _ fields: [String: String]) {
+        guard let request = eventRequest(kind, fields) else { return }
+        Task { _ = try? await URLSession.shared.data(for: request) }
+    }
+
+    @MainActor
+    private static func eventRequest(_ kind: String, _ fields: [String: String]) -> URLRequest? {
+        // «Start as a new user» (2.7, test builds; Setup.swift): its first-run screens aren't a new install's, so
+        // nothing of them is counted.
+        if NewUserPreview.isOn { return nil }
         var body: [String: Any] = [
             "kind": kind,
             "appId": Activation.shared.appId,
@@ -479,7 +532,6 @@ extension ChatAI {
         ]
         for (key, value) in fields { body[key] = value }
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
-        guard let request = try? request("api/v2/event", body) else { return }
-        Task { _ = try? await URLSession.shared.data(for: request) }
+        return try? request("api/v2/event", body)
     }
 }

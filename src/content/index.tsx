@@ -20,6 +20,13 @@ import watchStyles from "./watch/watch.css"
 import tipsStyles from "./tips/tips.css"
 import similarStyles from "./similar/similar.css"
 import listenStyles from "./listen/listen.css"
+import translateStyles from "./translate/translate.css"
+import sideStyles from "./side/side.css"
+import pageHintStyles from "./pagehints/hints.css"
+import inviteStyles from "./invite/invite.css"
+import spacesStyles from "./spaces.css"
+import collectionsStyles from "./collections.css"
+import quietStyles from "./quiet/quiet.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -46,6 +53,8 @@ function boot(): void {
       bus.dispatchEvent(new CustomEvent("openChat", { detail: { chat: message.chat, at: message.at } }))
       sendResponse({ ok: true })
     }
+    // A new install asks before it opens its «ContextFlow is ready» tab over this page (src/shared/welcomeTab.ts).
+    if (message?.type === "here") sendResponse({ ok: true })
     return false
   })
 
@@ -68,7 +77,14 @@ ${uxStyles}
 ${watchStyles}
 ${tipsStyles}
 ${similarStyles}
-${listenStyles}`
+${listenStyles}
+${translateStyles}
+${spacesStyles}
+${sideStyles}
+${pageHintStyles}
+${inviteStyles}
+${collectionsStyles}
+${quietStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

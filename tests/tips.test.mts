@@ -23,8 +23,9 @@ const root = new URL("..", import.meta.url).pathname
 const data = tipsData(root)
 const locales = new URL("../src/locales/", import.meta.url)
 const en = JSON.parse(readFileSync(new URL("en.json", locales), "utf8")) as Record<string, string>
-const PRO = ["Ask about a video", "PDFs on the page", "AI search", "Ask your chats", "Where it belongs", "Your tags, suggested"]
-const ULTRA = ["Find similar", "Listen"]
+// 2.7: Find similar starts at Pro (Pro's quick search, #167; Ultra's in full), and the underlines as you type are Pro's.
+const PRO = ["Ask about a video", "PDFs on the page", "Find similar", "Mistakes underlined as you type", "AI search", "Ask your chats", "Where it belongs", "Your tags, suggested"]
+const ULTRA = ["Listen"]
 
 test("the app's Tips, as the build reads them: seven blocks in order, iCloud before them, the renamed last block", () => {
   assert.deepEqual(data.groups.map((g: any) => g.id), ["get-started", "deeper-work", "quick-insert", "watch-and-remind", "chats-in-order", "your-plan", "privacy-and-personalization"])
@@ -36,7 +37,7 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
   // 2.6: Ultra's own, with its badge (never both), at the end of "Deeper work".
   assert.deepEqual(data.groups.flatMap((g: any) => g.tips.filter((t: any) => t.ultra).map((t: any) => t.title.en)), ULTRA)
   assert.ok(data.groups.every((g: any) => g.tips.every((t: any) => !(t.pro && t.ultra))))
-  assert.deepEqual(data.groups[1].tips.slice(-2).map((t: any) => t.title.en), ULTRA)
+  assert.deepEqual(data.groups[1].tips.slice(-2).map((t: any) => t.title.en), ["Find similar", "Listen"])
   // A Mac's own words where they differ.
   const swipes = data.groups[1].tips.find((t: any) => t.title.en === "Swipe to pin or delete")
   assert.equal(swipes.mac.title.en, "Pin or delete with a click")
@@ -46,7 +47,9 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
   assert.equal(chips.mac.title.en, "Quick actions under a selection")
   assert.match(chips.mac.text.en, /trackpad or the mouse wheel and click/)
   // The plan's own block, before the last one: monthly or yearly, then the plan's tour.
-  assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "What your plan adds"])
+  assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "Invite a friend"])
+  // 107, the owner: «What your plan adds не нужен в tips».
+  assert.ok(!data.groups.some((g: any) => g.tips.some((t: any) => t.title.en === "What your plan adds")))
   assert.equal(data.groups.at(-2).title.en, "Your plan")
   assert.equal(data.heading.en, "Tips")
   assert.equal(data.groups[1].title.en, "Deeper work")
@@ -62,20 +65,22 @@ test("every card's clip, as the app shows it: on iPhone and iPad, on a Mac only 
   for (const lang of langs) assert.deepEqual(tipClips(data), app(lang), lang)
   const tip = (title: string) => data.groups.flatMap((g: any) => g.tips).find((t: any) => t.title.en === title)
   assert.equal(tip("Share what you found").clip, "share")
-  // 2.6 (93): moving ✦ aside is a first-block card with the clip; hiding it, under personalization, has none.
-  assert.equal(tip("Move ✦ out of the way").clip, "button")
+  // 2.6 (93): moving ✦ aside is a first-block card with the clip; 2.7: dragged along the edge and across (side).
+  assert.equal(tip("Move ✦ out of the way").clip, "side")
   assert.ok(data.groups[0].tips.some((t: any) => t.title.en === "Move ✦ out of the way"), "in Get started")
-  assert.ok(!tip("Hide ✦ when you don't need it").clip)
-  // No clip on a Mac where the app shows none: the touch ones and the button by a field.
-  for (const title of ["Open it on any page", "Swipe to pin or delete", "Insert into any field", "Copied, kept for a day", "Quick actions under a selection", "Find similar"]) {
+  // 2.7: hiding ✦ on a site has its clip too.
+  assert.equal(tip("Hide ✦ when you don't need it").clip, "hide")
+  // A Mac's own clips where the pointer does it differently (2.7: mac-…); none for Copied, which a Mac opens with keys.
+  const mac = { "Open it on any page": "mac-open", "Swipe to pin or delete": "mac-pin", "Insert into any field": "mac-insert", "Quick actions under a selection": "mac-chips", "Find similar": "mac-similar" }
+  for (const [title, clip] of Object.entries(mac)) {
     assert.ok(tip(title).clip, title)
-    assert.ok(tip(title).mac && !tip(title).mac.clip, `${title}: none on a Mac`)
+    assert.equal(tip(title).mac?.clip, clip, `${title}: a Mac's own clip`)
   }
+  assert.ok(tip("Copied, kept for a day").mac && !tip("Copied, kept for a day").mac.clip, "Copied: none on a Mac")
   // Listen (build 98): the panel's player, on iPhone and iPad too (with notifications on it plays there).
   assert.ok(tip("Listen").clip === "listen" && (!tip("Listen").mac || tip("Listen").mac.clip === "listen"))
   assert.equal(tip("Where it belongs").clip, "organize")
   assert.equal(tip("Monthly or yearly").clip, "yearly")
-  assert.ok(!tip("What your plan adds").clip, "the tour's card has no clip yet")
   // The site's web versions (/features): English, each with its still.
   for (const name of tipClips(data)) {
     for (const ext of ["mp4", "jpg"]) assert.ok(existsSync(join(root, "site/clips", `${name}.${ext}`)), `site/clips/${name}.${ext}`)
@@ -227,8 +232,9 @@ test("the sheet: iCloud first, seven blocks, Get started open and the rest folde
   assert.deepEqual(blocks.map((b) => b.querySelector(".cf-tips-head")!.getAttribute("aria-expanded")), ["true", "false", "false", "false", "false", "false", "false"])
   assert.deepEqual(blocks.slice(1).map((b) => text(b.querySelector(".cf-tips-count")!)), data.groups.slice(1).map((g: any) => String(g.tips.length)))
   // The lead card and Get started's seven.
+  // (107: a card new in this version carries a quiet «New» after its title.)
   const cards = [...r.querySelectorAll(".cf-tip-title")].map((c) => text(c as Element))
-  assert.deepEqual(cards, [data.lead.title.en, ...data.groups[0].tips.map((t: any) => t.title.en)])
+  assert.deepEqual(cards, [data.lead.title.en, ...data.groups[0].tips.map((t: any) => t.title.en + (t.since === data.newIn ? "New" : ""))])
   // The clips are here now: no line sending to the app for them.
   assert.equal(r.querySelector(".cf-tips-app"), null)
 })
@@ -255,10 +261,10 @@ test("Pro and Ultra badges on the app's Pro and Ultra cards; a Mac gets the Mac'
   const touch = box()
   ui.sheet(touch, false)
   await tick()
-  const badged = [...touch.querySelectorAll(".cf-tip-title")].filter((c: any) => c.querySelector(".cf-pro-badge")).map((c: any) => text(c).replace(/Pro$/, "").trim())
+  const badged = [...touch.querySelectorAll(".cf-tip-title")].filter((c: any) => c.querySelector(".cf-pro-badge")).map((c: any) => text(c).replace(/New$/, "").replace(/Pro$/, "").trim())
   assert.deepEqual(badged, PRO)
   // 2.6: Ultra's badge (the panel's own .cf-ultra-badge) on Find similar and Listen.
-  const ultra = [...touch.querySelectorAll(".cf-tip-title")].filter((c: any) => c.querySelector(".cf-ultra-badge")).map((c: any) => text(c).replace(/Ultra$/, "").trim())
+  const ultra = [...touch.querySelectorAll(".cf-tip-title")].filter((c: any) => c.querySelector(".cf-ultra-badge")).map((c: any) => text(c).replace(/New$/, "").replace(/Ultra$/, "").trim())
   assert.deepEqual(ultra, ULTRA)
   assert.ok(text(touch).includes("Swipe to pin or delete"))
   const mac = box()
@@ -342,7 +348,7 @@ test("the clips: in the panel's language; a Mac's own; the open block's first th
   ui.sheet(deeper, false)
   await tick()
   const loaded = [...deeper.querySelectorAll(".cf-tip-clip")].map((b: any) => src(b)).filter(Boolean) as string[]
-  assert.deepEqual(loaded.map((u) => new URL(u.replace("ext://cf/", "https://x/")).searchParams.get("name")), data.groups[1].tips.slice(0, 3).map((t: any) => t.clip))
+  assert.deepEqual(loaded.map((u) => new URL(u.replace("ext://cf/", "https://x/")).searchParams.get("name")), data.groups[1].tips.filter((t: any) => t.clip).slice(0, 3).map((t: any) => t.clip))
   assert.equal(deeper.querySelectorAll(".cf-tips-block")[0].querySelectorAll("iframe").length, 0)
 })
 

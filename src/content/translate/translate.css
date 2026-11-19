@@ -1,0 +1,223 @@
+/* In-page translation's pill (2.7): beside the ✦ circle (48 px at 14 px from its edge), on the circle's side, at its
+   height. One line where it fits, two at most on a narrow phone. */
+.cf-tr, .cf-tr-consent {
+  position: fixed;
+  z-index: 3;
+  max-width: calc(100vw - 84px);
+}
+/* A phone (build 109, the owner: «Надпись про перевод слишком смещена к левому краю»): the pill reaches closer to the
+   screen's edge, so its words get the room they need without sitting in the rounded corner. */
+@media (max-width: 430px) {
+  .cf-tr { max-width: calc(100vw - 78px); }
+}
+.cf-tr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 5px 6px 5px 14px;
+  transform: translateY(-50%);
+  border-radius: 20px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 20px rgba(20, 14, 40, 0.18), 0 1px 3px rgba(20, 14, 40, 0.10);
+  font-size: 13px;
+  line-height: 1.25;
+  animation: cf-tr-in 0.2s ease;
+}
+.cf-tr.right { right: max(70px, calc(env(safe-area-inset-right) + 56px)); }
+.cf-tr.left { left: max(70px, calc(env(safe-area-inset-left) + 56px)); }
+.cf-tr > svg { color: var(--accent); }
+/* A phone: the language control says what the pill is about; its words get the room (two lines at most). Two lines
+   stand clear of the pill's rounded end (the corner eats into the first and last line), and break evenly. */
+@media (max-width: 430px) {
+  .cf-tr > svg { display: none; }
+  .cf-tr { gap: 6px; padding-left: 16px; }
+  .cf-tr .cf-tr-btn { padding: 0 11px; }
+  .cf-tr .cf-tr-x { width: 26px; }
+  .cf-tr .cf-tr-lang { padding: 0 7px; }
+}
+/* Wider than a phone (build 110, the owner's 109 on iPad: «не вижу чтобы что-то изменилось»): there the offer starts
+   with its icon, so its words never sat by the edge; the rows that start with their words (the site question, the
+   site's row) did, 14 px in. They get the room a phone's got. */
+@media (min-width: 431px) {
+  .cf-tr:has(> .cf-tr-label:first-child) { padding-left: 18px; }
+}
+.cf-tr-label { flex: 1 1 auto; min-width: 0; font-weight: 500; text-wrap: balance; overflow-wrap: break-word; }
+/* The narrowest screens (320 px: a small phone with the display zoomed): the words on a line of their own, what's
+   pressed under them, so the words aren't squeezed into a column of single words. */
+@media (max-width: 350px) {
+  .cf-tr:has(> .cf-tr-label):not(:has(> .cf-tr-spin)):not(.told) { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; padding: 8px 8px 6px 14px; border-radius: 18px; }
+  .cf-tr:has(> .cf-tr-label):not(:has(> .cf-tr-spin)):not(.told) > .cf-tr-label { flex: 1 0 100%; }
+}
+.cf-tr-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--accent-from) 0%, var(--accent-to) 100%) !important;
+}
+.cf-tr-btn:disabled { opacity: 0.45; }
+.cf-tr-btn.quiet {
+  color: var(--accent-text) !important;
+  background: var(--accent-soft) !important;
+}
+.cf-tr-x {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  color: var(--text-3);
+}
+.cf-tr-x:hover { background: var(--bg-2); color: var(--text-2); }
+.cf-tr-spin {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-soft);
+  border-top-color: var(--accent);
+  animation: cf-tr-spin 0.8s linear infinite;
+}
+/* The language to translate into (build 107): the target's short mark and a chevron; the system's own list opens on a
+   tap (the select lies over it, invisible). */
+.cf-tr-lang {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 30px;
+  min-width: 30px;
+  padding: 0 8px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-2);
+  background: var(--bg-2);
+  cursor: pointer;
+}
+.cf-tr-lang select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  font-size: 16px; /* no zoom on iPhone when it opens */
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* The whole site (build 109): a small button on a translated page's pill. Plain where the site isn't translated whole
+   (a tap asks), filled where it is (a tap offers to turn it off), with its words where there's room for them. */
+.cf-tr-site {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 30px;
+  min-width: 30px;
+  padding: 0 7px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-3);
+}
+.cf-tr-site:hover { background: var(--bg-2); color: var(--text-2); }
+.cf-tr-site.on { color: var(--accent-text) !important; background: var(--accent-soft) !important; }
+@media (max-width: 430px) {
+  .cf-tr-site-word { display: none; }
+}
+/* Working (build 109, the owner: «переливающийся контур поп-апа… чтобы было понятно, что он в процессе»): while the
+   page, a pop-up or an opened menu is being translated, a light runs along the pill's contour (and around the small
+   entry when the pill is folded). Still, one steady contour, where motion is reduced. */
+.cf-tr.busy::after, .cf-tr-entry.busy::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  /* The same variables as the pill's button: the accent's two ends, which a space recolours. */
+  --cf-tr-run: var(--accent-to);
+  --cf-tr-run-2: var(--accent-from);
+  --cf-tr-rest: var(--accent-soft);
+  background: linear-gradient(100deg, var(--cf-tr-rest) 0%, var(--cf-tr-rest) 32%, var(--cf-tr-run-2) 44%, var(--cf-tr-run) 50%, var(--cf-tr-run-2) 56%, var(--cf-tr-rest) 68%, var(--cf-tr-rest) 100%);
+  background-size: 300% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: cf-tr-shimmer 1.5s linear infinite;
+}
+/* Around the entry it's a circle of its own, 3 px out from the button's edge (build 110, the owner's 109: «кольцо
+   смещено или овальное»: it took the button's 18 px corners on a 42 px box, a rounded square around a circle). */
+.cf-tr-entry.busy::after { inset: -4px; border-radius: 50%; }
+@keyframes cf-tr-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+/* The way back on the page itself (build 107): after × or where only a part of the page is in another language, a
+   small button by the circle, where the pill would be, opens the pill. */
+.cf-tr-entry {
+  position: fixed;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  margin-top: -18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  color: var(--accent-text) !important;
+  background: var(--bg) !important;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 14px rgba(20, 14, 40, 0.16), 0 1px 3px rgba(20, 14, 40, 0.10);
+  animation: cf-tr-in 0.2s ease;
+}
+.cf-tr-entry.right { right: max(68px, calc(env(safe-area-inset-right) + 54px)); }
+.cf-tr-entry.left { left: max(68px, calc(env(safe-area-inset-left) + 54px)); }
+.cf-tr-entry.on { color: #fff !important; background: linear-gradient(135deg, var(--accent-from) 0%, var(--accent-to) 100%) !important; border-color: transparent; }
+
+/* The one AI consent, the first time: a card by the circle (above it when the circle is low on the screen). */
+.cf-tr-consent {
+  width: min(340px, calc(100vw - 24px));
+  transform: translateY(-100%);
+  margin-top: -32px;
+}
+.cf-tr-consent.below { transform: none; margin-top: 32px; }
+.cf-tr-consent.right { right: max(12px, env(safe-area-inset-right)); }
+.cf-tr-consent.left { left: max(12px, env(safe-area-inset-left)); }
+.cf-tr-consent .cf-card { margin: 0; background: var(--bg); box-shadow: var(--shadow); max-height: 70vh; overflow: auto; }
+/* Right after × (2.7, 108): where the offer went, said in its place on an install's first dismissals, the icon at the
+   circle's end; then the line folds toward it, into the entry. */
+.cf-tr.told { gap: 10px; padding: 6px 8px 6px 14px; cursor: pointer; }
+.cf-tr.told.left { flex-direction: row-reverse; padding: 6px 14px 6px 8px; }
+.cf-tr.told > svg { display: block; flex: none; color: var(--accent-text); }
+.cf-tr.told.fold { pointer-events: none; animation: cf-tr-fold 0.36s ease forwards; transform-origin: right center; }
+.cf-tr.told.fold.left { transform-origin: left center; }
+@keyframes cf-tr-fold {
+  from { opacity: 1; transform: translateY(-50%) scaleX(1); }
+  to { opacity: 0; transform: translateY(-50%) scaleX(0.12); }
+}
+@keyframes cf-tr-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cf-tr-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .cf-tr, .cf-tr-entry { animation: none; }
+  .cf-tr.busy::after, .cf-tr-entry.busy::after { animation: none; background: var(--cf-tr-run); opacity: 0.55; }
+  .cf-tr.told.fold { display: none; }
+  .cf-tr-spin { animation-duration: 2s; }
+}

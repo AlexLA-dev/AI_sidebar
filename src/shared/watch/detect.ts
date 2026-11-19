@@ -8,7 +8,7 @@ const MAX_LEN = 80
 
 // Symbols and words that sit right by a number, in any case ("40 usd" on some shops).
 const SYMBOLS =
-  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥￥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|лв\.?|руб\.?|р\.|грн\.?|円|元|원` +
+  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥￥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|TL|лв\.?|руб\.?|р\.|грн\.?|円|元|원` +
   // Vietnamese dong as shops write it ("299.000đ", "299.000 VNĐ"); the Gulf's and Egypt's riyal, dirham, dinar, pound.
   String.raw`|vnđ|đ|ر\.\s?س\.?|د\.\s?إ\.?|ر\.\s?ع\.?|د\.\s?ك\.?|ر\.\s?ق\.?|د\.\s?ب\.?|ج\.\s?م\.?|ريال|درهم|دينار|جنيه|ل\.\s?س\.?`
 // The codes shops also write in small letters, which are never words.
@@ -87,7 +87,11 @@ const STOCK_WORDS = [
   "نفذت الكمية", "نفد من المخزون", "نفدت الكمية مؤقتًا", "قريبًا", "طلب مسبق", "أضف إلى السلة", "تبقى #", "متبقي #",
   // vi
   "còn hàng", "hết hàng", "tạm hết hàng", "đặt trước", "sắp có hàng", "hàng sắp về", "sắp ra mắt", "ngừng kinh doanh",
-  "chỉ còn #", "còn # sản phẩm", "thêm vào giỏ hàng", "cháy hàng"
+  "chỉ còn #", "còn # sản phẩm", "thêm vào giỏ hàng", "cháy hàng",
+  // tr (2.7)
+  // the longer phrase first: the shorter one would match its start ("stokta" in "stokta yok").
+  "stokta yok", "stokta var", "stokta", "stoklar tükendi", "tükendi", "ön sipariş", "yakında", "çok yakında",
+  "sepete ekle", "hemen al", "gelince haber ver", "son # ürün", "tükenmek üzere", "satışta değil"
 ]
 
 // Statuses: an application, an order, a registration, an event. A few words at most.
@@ -145,7 +149,11 @@ const STATUS_WORDS = [
   // vi
   "trạng thái", "đã duyệt", "đã phê duyệt", "đang chờ", "đang chờ xử lý", "đang xử lý", "đã gửi hàng", "đã giao",
   "đã giao hàng", "đang giao", "đang giao hàng", "đang vận chuyển", "đã nhận", "bị từ chối", "đã từ chối", "đã chấp nhận",
-  "đã hủy", "đã xác nhận", "hoàn tất", "đã hoàn thành", "mở đăng ký", "đóng đăng ký", "đã hoãn"
+  "đã hủy", "đã xác nhận", "hoàn tất", "đã hoàn thành", "mở đăng ký", "đóng đăng ký", "đã hoãn",
+  // tr (2.7)
+  "durum", "onaylandı", "beklemede", "hazırlanıyor", "işleme alındı", "kargoya verildi", "kargoda", "teslim edildi",
+  "dağıtımda", "yolda", "alındı", "reddedildi", "kabul edildi", "iptal edildi", "değerlendirmede", "inceleniyor",
+  "tamamlandı", "bekleme listesi", "kayıtlar açık", "kayıtlar kapandı", "ertelendi"
 ]
 
 const CJK = /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/
@@ -172,22 +180,22 @@ export function phrases(list: string[]): RegExp {
 const STOCK = phrases(STOCK_WORDS)
 const STATUS = phrases(STATUS_WORDS)
 
-// Month names in every shipped language, January first (en, ru, uk, de, fr, es, it, pt and ar, with their
+// Month names in every shipped language, January first (en, ru, uk, de, fr, es, it, pt, ar and tr, with their
 // abbreviations and the spellings without accents; the Arabic ones also as the Levant, Iraq and the Maghreb name them,
 // with and without hamza). Vietnamese writes the month's number ("tháng 3").
 const MONTH_NAMES: string[][] = [
-  ["jan(?:uary)?", "январ[яь]", "янв", "січ(?:ня|ень)", "січ", "januar", "jän(?:ner)?", "janvier", "janv", "enero", "ene", "gennaio", "gen", "janeiro", "يناير", "كانون الثاني", "جانفي"],
-  ["feb(?:ruary)?", "феврал[яь]", "фев", "лют(?:ого|ий)", "лют", "februar", "février", "fevrier", "févr", "fevr", "fév", "fev", "febrero", "febbraio", "fevereiro", "فبراير", "شباط", "فيفري", "فبراير"],
-  ["mar(?:ch)?", "марта?", "мар", "берез(?:ня|ень)", "бер", "märz", "mär", "mrz", "mars", "marzo", "março", "marco", "مارس", "آذار", "اذار"],
-  ["apr(?:il)?", "апрел[яь]", "апр", "квіт(?:ня|ень)", "квіт", "avril", "avr", "abril", "abr", "aprile", "أبريل", "إبريل", "ابريل", "نيسان", "أفريل", "افريل"],
-  ["may", "мая", "май", "трав(?:ня|ень)", "трав", "mai", "mayo", "maggio", "mag", "maio", "مايو", "أيار", "ايار", "ماي"],
-  ["june?", "июн[яь]", "июн", "черв(?:ня|ень)", "черв", "juni", "juin", "junio", "giugno", "giu", "junho", "يونيو", "حزيران", "جوان", "يونيه"],
-  ["july?", "июл[яь]", "июл", "лип(?:ня|ень)", "лип", "juli", "juillet", "juil", "julio", "luglio", "lug", "julho", "يوليو", "تموز", "جويلية", "يوليوز", "يوليه"],
-  ["aug(?:ust)?", "августа?", "авг", "серп(?:ня|ень)", "серп", "août", "aout", "agosto", "ago", "أغسطس", "اغسطس", "آب", "اب", "أوت", "اوت", "غشت"],
-  ["sep(?:t(?:ember)?)?", "сентябр[яь]", "сент?", "верес(?:ня|ень)", "вер", "septembre", "septiembre", "setiembre", "settembre", "setembro", "set", "سبتمبر", "أيلول", "ايلول", "شتنبر"],
-  ["oct(?:ober)?", "октябр[яь]", "окт", "жовт(?:ня|ень)", "жовт", "oktober", "okt", "octobre", "octubre", "ottobre", "ott", "outubro", "out", "أكتوبر", "اكتوبر", "تشرين الأول", "تشرين الاول"],
-  ["nov(?:ember)?", "ноябр[яь]", "ноя", "листопада?", "лист", "novembre", "noviembre", "novembro", "نوفمبر", "تشرين الثاني", "نونبر"],
-  ["dec(?:ember)?", "декабр[яь]", "дек", "груд(?:ня|ень)", "груд", "dezember", "dez", "décembre", "decembre", "déc", "dec", "diciembre", "dic", "dicembre", "dezembro", "ديسمبر", "كانون الأول", "كانون الاول", "دجنبر"]
+  ["jan(?:uary)?", "январ[яь]", "янв", "січ(?:ня|ень)", "січ", "januar", "jän(?:ner)?", "janvier", "janv", "enero", "ene", "gennaio", "gen", "janeiro", "يناير", "كانون الثاني", "جانفي", "ocak", "oca"],
+  ["feb(?:ruary)?", "феврал[яь]", "фев", "лют(?:ого|ий)", "лют", "februar", "février", "fevrier", "févr", "fevr", "fév", "fev", "febrero", "febbraio", "fevereiro", "فبراير", "شباط", "فيفري", "فبراير", "şubat", "şub"],
+  ["mar(?:ch)?", "марта?", "мар", "берез(?:ня|ень)", "бер", "märz", "mär", "mrz", "mars", "marzo", "março", "marco", "مارس", "آذار", "اذار", "mart"],
+  ["apr(?:il)?", "апрел[яь]", "апр", "квіт(?:ня|ень)", "квіт", "avril", "avr", "abril", "abr", "aprile", "أبريل", "إبريل", "ابريل", "نيسان", "أفريل", "افريل", "nisan", "nis"],
+  ["may", "мая", "май", "трав(?:ня|ень)", "трав", "mai", "mayo", "maggio", "mag", "maio", "مايو", "أيار", "ايار", "ماي", "mayıs"],
+  ["june?", "июн[яь]", "июн", "черв(?:ня|ень)", "черв", "juni", "juin", "junio", "giugno", "giu", "junho", "يونيو", "حزيران", "جوان", "يونيه", "haziran", "haz"],
+  ["july?", "июл[яь]", "июл", "лип(?:ня|ень)", "лип", "juli", "juillet", "juil", "julio", "luglio", "lug", "julho", "يوليو", "تموز", "جويلية", "يوليوز", "يوليه", "temmuz", "tem"],
+  ["aug(?:ust)?", "августа?", "авг", "серп(?:ня|ень)", "серп", "août", "aout", "agosto", "ago", "أغسطس", "اغسطس", "آب", "اب", "أوت", "اوت", "غشت", "ağustos", "ağu"],
+  ["sep(?:t(?:ember)?)?", "сентябр[яь]", "сент?", "верес(?:ня|ень)", "вер", "septembre", "septiembre", "setiembre", "settembre", "setembro", "set", "سبتمبر", "أيلول", "ايلول", "شتنبر", "eylül", "eyl"],
+  ["oct(?:ober)?", "октябр[яь]", "окт", "жовт(?:ня|ень)", "жовт", "oktober", "okt", "octobre", "octubre", "ottobre", "ott", "outubro", "out", "أكتوبر", "اكتوبر", "تشرين الأول", "تشرين الاول", "ekim", "eki"],
+  ["nov(?:ember)?", "ноябр[яь]", "ноя", "листопада?", "лист", "novembre", "noviembre", "novembro", "نوفمبر", "تشرين الثاني", "نونبر", "kasım", "kas"],
+  ["dec(?:ember)?", "декабр[яь]", "дек", "груд(?:ня|ень)", "груд", "dezember", "dez", "décembre", "decembre", "déc", "dec", "diciembre", "dic", "dicembre", "dezembro", "ديسمبر", "كانون الأول", "كانون الاول", "دجنبر", "aralık"]
 ]
 const MONTHS = [...MONTH_NAMES.flat(), "tháng\\s?\\d{1,2}"]
 /** A month's name in any shipped language, as a pattern's source (no flags; match with "iu"). */
@@ -247,7 +255,8 @@ const STOCK_OUT = phrases([
   "无货", "缺货", "售罄", "已售完", "outofstock", "soldout", "discontinued",
   "無貨", "缺貨", "售完", "已售罄", "完售", "暫時缺貨",
   "غير متوفر", "غير متاح", "غير متوفر حاليًا", "نفد", "نفدت الكمية", "نفذت الكمية", "نفد من المخزون", "نفدت الكمية مؤقتًا",
-  "hết hàng", "tạm hết hàng", "ngừng kinh doanh", "cháy hàng"
+  "hết hàng", "tạm hết hàng", "ngừng kinh doanh", "cháy hàng",
+  "stokta yok", "tükendi", "stoklar tükendi", "satışta değil"
 ])
 
 /** A stock value says it can't be bought now ("Sold out", "Нет в наличии", schema.org OutOfStock). */

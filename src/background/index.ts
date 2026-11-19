@@ -1,7 +1,8 @@
 import { tipClip } from "./tipClips"
+import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
-import { appLink, planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
+import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { LINK_OPEN_KEY, linkOpen } from "../shared/linkOpen"
@@ -12,6 +13,7 @@ import {
   STORAGE,
   type AskPayload,
   type BackgroundRequest,
+  type ContentRequest,
   type ErrorCode,
   type FindReply,
   type Plan,
@@ -31,16 +33,21 @@ import { daysLeft, type RenewalReason } from "../shared/renewal"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
+import { startTranslate } from "./translate"
+import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
-import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
+import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
+import { collectAi } from "./collect"
 import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
 import { base64 as speechBase64, clearSpeech, serveSpeak, textPartKeys, textVoicedId } from "./speak"
 import { madeTexts, withMade, withVoiced, type MadeList, type MadeText } from "../shared/voiced"
 import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
 import { t } from "../shared/i18n"
+import { welcomeOnInstall } from "../shared/welcomeTab"
 import type { Job } from "../shared/jobs"
+import { captureTab, getShot, putShot, sweepShots } from "./shots"
 
 // ---------------------------------------------------------------- identity
 
@@ -84,8 +91,8 @@ function appBuild(): Promise<string> {
 }
 
 async function clientInfo() {
-  const [build, os] = await Promise.all([appBuild(), platform()])
-  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage() }
+  const [build, os, invite] = await Promise.all([appBuild(), platform(), inviteMarks().catch(() => ({}))])
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite }
 }
 
 // ---------------------------------------------------- App Store subscription
@@ -110,8 +117,9 @@ let entitlementAsking: Promise<NativeEntitlement | null> | null = null
 function askEntitlement(): Promise<NativeEntitlement | null> {
   entitlementAsking ??= (async () => {
     // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
-    // the panel is in use, so it stops showing the setup guide.
-    const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
+    // the panel is in use, so it stops showing the setup guide. 2.7: the server too, once, with the app's id (where to
+    // send it: base), for the activation funnel.
+    const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId(), base: API_BASE }, 6000)
     // What the app heard to its end on this device (build 94): kept with the panel's own, not with the entitlement.
     if (value && "voiced" in value) {
       const voiced = Array.isArray(value.voiced) ? value.voiced.filter((id): id is string => typeof id === "string") : []
@@ -307,12 +315,15 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       organize?: { on?: unknown; space?: unknown; config?: unknown }
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
       country?: string
+      invite?: { active?: unknown } | null
     }
     value = {
       plan: body.plan,
       ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
       ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
+      // 2.7: friends who came with this install's code and asked on two days (only once it has a code).
+      ...(body.invite && typeof body.invite.active === "number" ? { invite: { active: body.invite.active } } : {}),
       plans: planFacts(body.limits),
       searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false,
@@ -360,7 +371,7 @@ async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): P
 const SEARCH_LIMITS = { freeDaily: 3, proWeekly: 50 }
 
 /** What the plans sheet says about each plan: the server's numbers, these when it can't be reached. */
-function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> } | undefined): PlanFacts {
+function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; similarLightWeekly?: number; similarProAnswers?: number; watch?: Record<Plan, number> } | undefined): PlanFacts {
   const n = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d)
   return {
     freeDaily: n(limits?.freeDaily, 5),
@@ -369,6 +380,8 @@ function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly
     searchProWeekly: n(limits?.searchProWeekly, SEARCH_LIMITS.proWeekly),
     speakWeeklySeconds: n(limits?.speakWeeklySeconds, ULTRA_DEFAULTS.speakWeeklySeconds),
     similarWeekly: n(limits?.similarWeekly, ULTRA_DEFAULTS.similarWeekly),
+    similarLightWeekly: n(limits?.similarLightWeekly, SIMILAR_LIGHT_WEEKLY),
+    similarProAnswers: n(limits?.similarProAnswers, SIMILAR_PRO_ANSWERS),
     watch: { ...WATCH_LIMITS, ...(limits?.watch ?? {}) }
   }
 }
@@ -376,29 +389,34 @@ function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly
 /**
  * An Own key subscriber and Pro. "refused": the first refusal of the period starts the day after which Pro at a
  * discount is offered (kept here and in the app, which offers it too); "shown": the discount card was shown, not
- * again this period; "tap": Upgrade was tapped. The server gets "shown" and "tap" (refusals it logs itself).
+ * again this period; "tap": Upgrade was tapped. The server gets all three. Until 109 it got no "refused": the card
+ * a subscriber sees at a refusal left no trace unless Pro was tapped, so "the card isn't shown" and "it is shown
+ * and nobody taps" looked the same in the counters. Each refusal is sent now, with whether a key is added.
  */
 async function reportUpsell(action: "refused" | "shown" | "tap", where: UpsellWhere, period: string | null, discount: boolean): Promise<void> {
-  if (action === "refused") {
-    if (!period) return
+  if (action === "refused" && period) {
     const stored = (await chrome.storage.local.get(STORAGE.byokRefused))[STORAGE.byokRefused] as { period?: string } | undefined
-    if (stored?.period === period) return
-    const at = Date.now()
-    await chrome.storage.local.set({ [STORAGE.byokRefused]: { period, at } })
-    await callNative("byokRefused", { period, at })
-    statusCache = null
-    return
+    if (stored?.period !== period) {
+      const at = Date.now()
+      await chrome.storage.local.set({ [STORAGE.byokRefused]: { period, at } })
+      await callNative("byokRefused", { period, at })
+      statusCache = null
+    }
   }
   if (action === "shown" && period) {
     await chrome.storage.local.set({ [STORAGE.byokOfferShown]: period })
     await callNative("byokOfferShown", { period })
     statusCache = null
   }
-  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const [id, client, key] = await Promise.all([installId(), clientInfo(), ownKey()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "byok_upsell", installId: id, client, action, where, from: "panel", ...(discount ? { discount: true } : {}) })
+    body: JSON.stringify({
+      kind: "byok_upsell", installId: id, client, action, where, from: "panel",
+      ...(discount ? { discount: true } : {}),
+      ...(action === "refused" ? { has_key: Boolean(key) } : {})
+    })
   }).catch(() => undefined)
 }
 
@@ -763,6 +781,41 @@ async function remind(message: Extract<BackgroundRequest, { type: "remind" }>): 
   return { outcome: reply?.outcome ?? "unavailable" }
 }
 
+// ---------------------------------------------------------------- Calendar and Reminders (2.7)
+
+/** Whether reminders and events can be added on this device, and how (AppleItems.swift). Safari, iOS 17+ and macOS 14+. */
+async function appleStatus(): Promise<Record<string, unknown>> {
+  if (TARGET !== "safari") return { available: false }
+  return (await callNative<Record<string, unknown>>("apple_status")) ?? { available: false }
+}
+
+/** A reminder or an event written on the device, or handed to the app (`handoff`; a Mac opens the app from here). */
+async function appleAdd(message: Extract<BackgroundRequest, { type: "appleAdd" }>): Promise<{ outcome: string }> {
+  if (TARGET !== "safari") return { outcome: "unavailable" }
+  const item = { ...message.item, notes: message.notes, url: message.url ?? "", list: message.list ?? "" }
+  const reply = await callNative<{ outcome?: string }>("apple_add", { item, ...(message.key ? { key: message.key } : {}), ...(message.handoff ? { handoff: message.handoff } : {}) }, 15_000)
+  return { outcome: reply?.outcome ?? "unavailable" }
+}
+
+/** The date and time of a reminder or an event read out of a text (/api/v2/item, nothing kept there), in this device's time. */
+async function itemsRead(message: Extract<BackgroundRequest, { type: "itemsRead" }>): Promise<{ items?: unknown[]; error?: string }> {
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  try {
+    const res = await fetch(`${API_BASE}/api/v2/item`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        installId: id, client, text: message.text.slice(0, 6_000), words: (message.words ?? "").slice(0, 1_000),
+        ...(message.kind ? { kind: message.kind } : {}), title: (message.title ?? "").slice(0, 300), ...deviceNow()
+      })
+    })
+    const body = (await res.json().catch(() => ({}))) as { items?: unknown[]; code?: string }
+    return res.ok && Array.isArray(body.items) ? { items: body.items } : { error: body.code ?? "UPSTREAM" }
+  } catch {
+    return { error: "NETWORK" }
+  }
+}
+
 /** A chat UX count (2.5): kind, action and a few words from fixed lists; never text or sites. */
 async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>): Promise<void> {
   const [id, client] = await Promise.all([installId(), clientInfo()])
@@ -774,19 +827,20 @@ async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>
 }
 
 /** A step for the feature counters ("use", f and a, src/shared/usage.ts): the panel's, named values only. */
+/** A "use" step's own fields: everything but the message's type. */
+function useStep(message: Extract<BackgroundRequest, { type: "useEvent" }>): Record<string, unknown> {
+  const { type: _type, ...fields } = message
+  return fields
+}
+
 async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" }>): Promise<void> {
   const [id, client] = await Promise.all([installId(), clientInfo()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders,
-      watches: message.watches, plan: message.plan, period: message.period,
-      heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s,
-      cur: message.cur, sf: message.sf,
-      // Listen's "unvoiced" (build 95): why it wasn't marked, and how far from the end (build 98: they never left the panel).
-      why: message.why, gap_s: message.gap_s, moment: message.moment, s: "panel"
-    })
+    // Every field the step carries: the server keeps only the feature's own (src/shared/usage.ts useFields), so a
+    // feature's new count (2.7: a space's val and spaces, the matching chat's match, a collection's cards) isn't lost here.
+    body: JSON.stringify({ ...useStep(message), kind: "use", installId: id, client, s: "panel" })
   }).catch(() => undefined)
 }
 
@@ -794,6 +848,15 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
   switch (message?.type) {
+    case "shotCapture":
+      void captureTab(_sender.tab?.windowId).then(sendResponse, () => sendResponse({ ok: false, code: "FAILED" }))
+      return true
+    case "shotPut":
+      void putShot(message.id, message.data).then(sendResponse, () => sendResponse({ ok: false }))
+      return true
+    case "shotGet":
+      void getShot(message.id, message.parts).then(sendResponse, () => sendResponse({ ok: false, code: "UNAVAILABLE" }))
+      return true
     case "tipClip":
       void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
       return true
@@ -931,6 +994,22 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         .then(([now, id, ent, client, prefs, agreed]) => organizeCounts({ status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
+    case "matchTopic":
+      // The same switch and consent as organizing: the title is sent only with both.
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => matchTopic(message.title, message.chats, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse(null))
+      return true
+    case "collect":
+      // Pro and the one consent: the background checks both again (collect.ts).
+      Promise.all([status(), installId(), entitlement(), clientInfo(), consented()])
+        .then(([now, id, ent, client, agreed]) => collectAi(message.op, message.body, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "openCollection":
+      if (/^cf-col-[\w-]{8,64}$/.test(message.id)) void chrome.tabs.create({ url: chrome.runtime.getURL(`dist/collection.html?id=${encodeURIComponent(message.id)}`) })
+      sendResponse({ ok: true })
+      return false
     case "organizeEvent":
       Promise.all([installId(), clientInfo()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)
       sendResponse({ ok: true })
@@ -952,6 +1031,18 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void reportUse(message)
       sendResponse({ ok: true })
       return false
+    case "appleStatus":
+      appleStatus().then(sendResponse, () => sendResponse({ available: false }))
+      return true
+    case "appleAdd":
+      appleAdd(message).then(sendResponse, () => sendResponse({ outcome: "unavailable" }))
+      return true
+    case "appleRemove":
+      void (TARGET === "safari" ? callNative("apple_remove", { key: message.key }) : Promise.resolve(null)).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
+      return true
+    case "itemsRead":
+      itemsRead(message).then(sendResponse, () => sendResponse({ error: "NETWORK" }))
+      return true
     case "syncThreads":
       if (TARGET !== "safari") {
         sendResponse({ changed: false })
@@ -1056,11 +1147,31 @@ async function migrateFromV1(): Promise<void> {
   await chrome.storage.local.remove(legacy)
 }
 
+/** A new install never gets the panel's «New in 2.7» card (the hint key "new27", src/content/store.ts). */
+async function markNewSeen(): Promise<void> {
+  const seen = (await chrome.storage.local.get(STORAGE.hintsSeen))[STORAGE.hintsSeen]
+  const list = Array.isArray(seen) ? seen : []
+  if (!list.includes("new27")) await chrome.storage.local.set({ [STORAGE.hintsSeen]: [...list, "new27"] })
+}
+
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     void installId()
+    // 2.7: the panel's «New in 2.7» card is for people who had ContextFlow before; a new install has the tour.
+    void markNewSeen().catch(() => undefined)
     void chrome.storage.local.set({ [STORAGE.extOnPending]: false }).then(reportSwitchedOn).catch(() => undefined)
-    void chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })
+    // Build 110: not over a website ContextFlow already works on in front (src/shared/welcomeTab.ts).
+    void welcomeOnInstall({
+      front: async () => (await chrome.tabs.query({ active: true, currentWindow: true }))[0] ?? null,
+      panelIn: (tabId) =>
+        withTimeout(chrome.tabs.sendMessage(tabId, { type: "here" } satisfies ContentRequest), 1000).then(
+          (reply) => (reply as { ok?: boolean } | undefined)?.ok === true,
+          () => false
+        ),
+      open: async () => void (await chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })),
+      wait: (ms) => new Promise((done) => setTimeout(done, ms)),
+      now: () => Date.now()
+    }).catch(() => undefined)
   } else if (details.reason === "update") {
     void migrateFromV1().catch(() => undefined)
   }
@@ -1076,9 +1187,32 @@ void reportSwitchedOn().catch(() => undefined)
 if (TARGET === "safari") {
   watchThreads()
   setTimeout(() => void mirrorOnStart().catch(() => undefined), 1_500)
+  // Pictures of notes made here that no note has any more (a week on), here and in iCloud.
+  setTimeout(() => void sweepShots().catch(() => undefined), 60_000)
 }
 // Quick insert: templates with the app and iCloud, its AI and counters, the ⌃⇧V shortcut.
 startInsert({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  consented,
+  statusChanged: () => (statusCache = null)
+})
+// A page translated in place (2.7): the page's requests to the server, and the pill's counters.
+startInvite({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  statusChanged: () => (statusCache = null)
+})
+
+startTranslate({
   installId,
   entitlementJws: async () => {
     const ent = await entitlement()

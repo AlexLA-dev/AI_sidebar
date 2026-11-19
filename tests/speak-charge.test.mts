@@ -173,7 +173,9 @@ test("what's heard goes to the server by part key: with the next part, and on it
   p.send({ type: "stop", heard: 2.7 })
   await until(() => heardSent.length > 0 && Object.keys((store["cf:speakHeard"] as object | undefined) ?? {}).length === 0)
   const second = asked.find((a) => a.part === 1)!.text
-  assert.deepEqual(heardSent.at(-1), [{ key: keyOf(first), s: 2 }, { key: keyOf(second), s: 0.7 }])
+  // The server counts by key: the order the two parts were kept in is not part of the promise (it flipped on a loaded CI runner).
+  const byKey = (a: { key: string }, b: { key: string }) => a.key.localeCompare(b.key)
+  assert.deepEqual([...(heardSent.at(-1) ?? [])].sort(byKey), [{ key: keyOf(first), s: 2 }, { key: keyOf(second), s: 0.7 }].sort(byKey))
   // Counted: nothing left waiting.
   assert.deepEqual(store["cf:speakHeard"], {})
 })

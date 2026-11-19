@@ -53,6 +53,8 @@ struct ChatsView: View {
     @State private var tagFilter: String?
     /// The chat whose tags are being picked.
     @State private var tagging: ChatThread?
+    /// 2.7: the sheet that makes or edits a space.
+    @State private var spaceSheet: SpaceSheetMode?
 
     private var searching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
 
@@ -69,6 +71,7 @@ struct ChatsView: View {
     // Build 94: Recently Deleted from the "…"; the watched pages' addresses (the rows' eyes); a tick every 30 s while the
     // list shows, so a reminder that rang loses its bell and an answered or abandoned question its spinner.
     @State private var showingTrash = false
+    /// 2.7: Подборки, over the chats (iPhone, iPad).
     @State private var watched: [String] = []
     @State private var tick = Date()
 
@@ -153,6 +156,14 @@ struct ChatsView: View {
             // watch list, settings, tips, все про онбординг». The Safari panel's chats list has the same "…"
             // (src/content/ux/PageMenu.tsx): the lists (the bell, the eye; 2.5 (77): two words, two icons), Recently
             // Deleted, and the rest under "Other…". The bell and the eye were toolbar buttons of their own until 93.
+            // 2.7: Подборки (on a Mac they're in the sidebar).
+            #if os(iOS)
+            ToolbarItem {
+                // By value, like the rows' chats: a third isPresented destination on this list didn't always open.
+                NavigationLink(value: BoardsRoute()) { Label("Collections", systemImage: "square.grid.2x2") }
+                    .accessibilityIdentifier("cf-collections")
+            }
+            #endif
             ToolbarItem { listMenu }
         }
         .overlay {
@@ -170,6 +181,7 @@ struct ChatsView: View {
         }
         .sheet(item: $showingList) { kind in RemindersView(library: library, kind: kind) }
         .navigationDestination(isPresented: $showingTrash) { RecentlyDeletedView(library: library) }
+        .navigationDestination(for: BoardsRoute.self) { _ in CollectionsView(library: library, openPro: openPro) }
         // The rows' eyes and the tick (build 94).
         .task(id: listShown) {
             while listShown && !Task.isCancelled {
@@ -241,11 +253,24 @@ struct ChatsView: View {
         .sheet(item: $tagging) { thread in
             TagsSheet(tags: thread.ownTags, known: library.allTags) { library.setTags(thread, $0) }
         }
+        .sheet(item: $spaceSheet) { mode in SpaceSheet(library: library, mode: mode, openPro: openPro) }
     }
 
+    /// The chats of the space shown (2.7; every chat with Spaces off, or one space), with the tag picked.
     private var filteredThreads: [ChatThread] {
-        guard let tagFilter, library.allTags.contains(where: { $0.caseInsensitiveCompare(tagFilter) == .orderedSame }) else { return library.threads }
-        return library.threads.filter { $0.has(tag: tagFilter) }
+        let here = library.inSpace(library.threads)
+        guard let tagFilter, library.allTags.contains(where: { $0.caseInsensitiveCompare(tagFilter) == .orderedSame }) else { return here }
+        return here.filter { $0.has(tag: tagFilter) }
+    }
+
+    /// «+ Новое пространство»: the sheet, or in Free with its spaces all made, what Pro gives (2.7).
+    private func newSpace(_ via: String) {
+        guard library.canAddSpace(pro: isPro) else {
+            ChatAI.reportUse("space", "limit", ["via": via, "spaces": String(library.spaces.count)])
+            spaceSheet = .limit
+            return
+        }
+        spaceSheet = .new(color: library.nextColor)
     }
 
     /// The tags in use (tap one: only its chats) and the switch to show the list as folders by tag.
@@ -357,7 +382,12 @@ struct ChatsView: View {
                                         .foregroundColor(brandBlue)
                                         .lineLimit(2)
                                 }
-                                Text(thread.lastActivity, style: .relative).font(.caption).foregroundColor(.secondary)
+                                HStack(spacing: 8) {
+                                    if library.hasSpaces { SpaceTagView(space: library.spaceOf(thread)) }
+                                    Text(thread.lastActivity, style: .relative)
+                                }
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                             }
                             .padding(.vertical, 4)
                         }
@@ -415,9 +445,13 @@ struct ChatsView: View {
                             .foregroundColor(.secondary)
                             .lineLimit(2)
                     }
-                    Text(result.thread.lastActivity, style: .relative)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    HStack(spacing: 8) {
+                        // Search goes through every space (2.7): where each hit is.
+                        if library.hasSpaces { SpaceTagView(space: library.spaceOf(result.thread)) }
+                        Text(result.thread.lastActivity, style: .relative)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 }
                 .padding(.vertical, 4)
             }
@@ -426,6 +460,12 @@ struct ChatsView: View {
 
     @ViewBuilder
     private var chatList: some View {
+            // 2.7: the space's switcher over the list, once there are two (nothing new while there's one).
+            if library.hasSpaces {
+                Section {
+                    SpacesBar(library: library, onNew: { newSpace("header") }, onEdit: { spaceSheet = .edit($0) })
+                }
+            }
             if store.renewalOff != nil {
                 Section { RenewalQuestionCard() }
             }
@@ -478,7 +518,13 @@ struct ChatsView: View {
                     Section(header: Label("No tag", systemImage: "folder"), footer: footer) { chatRows(untagged) }
                 }
             } else {
-                Section(footer: footer) { chatRows(filteredThreads) }
+                Section(footer: footer) {
+                    if library.hasSpaces && filteredThreads.isEmpty && tagFilter == nil {
+                        let here = library.spaces.first { $0.id == library.shownSpace }?.name ?? ""
+                        Text("No chats in “\(here)” yet. A new chat goes here.").foregroundColor(.secondary)
+                    }
+                    chatRows(filteredThreads)
+                }
             }
             // Recently Deleted (2.5 (83)): at the end of the list, while it has chats.
             if tagFilter == nil && !library.trashed.isEmpty {
@@ -490,6 +536,13 @@ struct ChatsView: View {
                             Text(verbatim: String(library.trashed.count)).foregroundColor(.secondary).monospacedDigit()
                         }
                     }
+                }
+            }
+            // 2.7: «+ Новое пространство» at the end of the list, with one space too: it's how the second one is made.
+            if library.spacesOn && tagFilter == nil && !library.threads.isEmpty {
+                Section {
+                    Button { newSpace("list") } label: { Label("New space", systemImage: "plus") }
+                        .accessibilityIdentifier("cf-space-new")
                 }
             }
     }
@@ -542,6 +595,20 @@ struct ChatsView: View {
         Button { tagging = thread } label: { Label("Tags", systemImage: "tag") }
         Button { library.setPinned(thread, !thread.isPinned) } label: {
             Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
+        }
+        // 2.7: «Переместить в…», the other spaces.
+        if library.hasSpaces {
+            let here = library.spaceOf(thread).id
+            Menu {
+                ForEach(library.spaces.filter { $0.id != here }) { space in
+                    Button {
+                        library.moveChat(thread, to: space.id)
+                        ChatAI.reportUse("space", "move", ["via": "app"])
+                    } label: { Text(verbatim: space.name) }
+                }
+            } label: {
+                Label("Move to…", systemImage: "rectangle.portrait.and.arrow.right")
+            }
         }
         Button(role: .destructive) { deleting = thread } label: { Label("Delete", systemImage: "trash") }
     }
@@ -1201,6 +1268,7 @@ struct ExtensionOffBanner: View {
                 .font(.callout)
                 .foregroundColor(.secondary)
             Button("Open Safari Settings") {
+                Activation.shared.wentToSettings("chats")
                 SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { _ in }
             }
             .buttonStyle(.bordered)
@@ -1241,6 +1309,8 @@ struct ChatDetailView: View {
     /// The answer or note whose tag picker is open (under it, as in the Safari panel).
     @State private var tagging: Int?
     @State private var taggingChat = false
+    /// 2.7: the answer or note going «В подборку».
+    @State private var collecting: Int?
     /// The answer or note just copied: "Copied" for a moment.
     @State private var copied: Int?
     /// Sharing the chat: the messages picked (all at first); nil when not picking.
@@ -1350,7 +1420,9 @@ struct ChatDetailView: View {
                                                     reminded: entry.remind != nil,
                                                     pin: { togglePin(thread, index, how: "menu") },
                                                     remind: { remindNote = nil; reminding = index },
-                                                    delete: { deleteMessage(thread, index, how: "menu") }
+                                                    delete: { deleteMessage(thread, index, how: "menu") },
+                                                    collect: { collecting = index },
+                                                    collected: library.collectionName(of: thread, index)
                                                 ),
                                                 listen: entry.isNote ? nil : {
                                                     // Titled by the page the answer is about (build 94, the owner: it had the
@@ -1388,6 +1460,7 @@ struct ChatDetailView: View {
                                     if !entry.isUser || entry.isNote, picked == nil {
                                         Button { togglePin(thread, index, how: "menu") } label: { Label(entry.pinned != nil ? "Unpin" : "Pin", systemImage: entry.pinned != nil ? "pin.slash" : "pin") }
                                         Button { remindNote = nil; reminding = index } label: { Label(entry.remind != nil ? "Change reminder" : "Remind me", systemImage: "bell") }
+                                        Button { collecting = index } label: { Label { if let name = library.collectionName(of: thread, index) { Text("In “\(name)”", comment: "A message's menu: the collection it's in already (2.7)") } else { Text("To collection") } } icon: { Image(systemName: library.collectionName(of: thread, index) == nil ? "square.grid.2x2" : "checkmark.square") } }
                                         Button(role: .destructive) { deleteMessage(thread, index, how: "menu") } label: { Label("Delete", systemImage: "trash") }
                                     }
                                 }
@@ -1521,6 +1594,9 @@ struct ChatDetailView: View {
                                 withAnimation { if nameBar?.id == bar.id { nameBar = nil } }
                             }
                     }
+                }
+                .sheet(isPresented: Binding(get: { collecting != nil }, set: { if !$0 { collecting = nil } })) {
+                    if let index = collecting { AddToBoardSheet(library: library, thread: thread, index: index, openPro: openPro) }
                 }
                 .sheet(isPresented: Binding(get: { reminding != nil }, set: { if !$0 { reminding = nil } })) {
                     if let index = reminding, thread.entries.indices.contains(index) {
@@ -2326,6 +2402,61 @@ struct QuoteBlock: View {
     }
 }
 
+/// The selection a question was asked on, over the question (build 110, the owner: «нет цитаты выделенного текста, как
+/// при написании заметки по нему»): a quote like a note's with the question's blue bar, four lines folded when it's
+/// longer; a tap opens it and folds it again. The panel draws the same (src/content/ux/NoteText.tsx AskedCite).
+struct AskedQuote: View {
+    let text: String
+    @State private var open = false
+    @State private var long = false
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            HStack(alignment: .top, spacing: 8) {
+                RoundedRectangle(cornerRadius: 1.5).fill(brandBlue.opacity(0.85)).frame(width: 3)
+                Text(text)
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .lineLimit(open ? nil : 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    // Long: the text needs more than the four lines it has (its full height measured apart).
+                    .background(
+                        Text(text).font(.callout).fixedSize(horizontal: false, vertical: true).hidden()
+                            .background(GeometryReader { full in Color.clear.preference(key: QuoteHeight.self, value: full.size.height) })
+                    )
+                    .background(GeometryReader { shown in Color.clear.preference(key: QuoteShown.self, value: shown.size.height) })
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            if long {
+                Image(systemName: "chevron.down")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundColor(.secondary)
+                    .rotationEffect(.degrees(open ? 180 : 0))
+            }
+        }
+        .onPreferenceChange(QuoteHeight.self) { full in fullHeight = full; long = open || fullHeight > shownHeight + 2 }
+        .onPreferenceChange(QuoteShown.self) { shown in if !open { shownHeight = shown; long = fullHeight > shownHeight + 2 } }
+        .contentShape(Rectangle())
+        .onTapGesture { if long { withAnimation(.easeOut(duration: 0.15)) { open.toggle() } } }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(long ? .isButton : [])
+        .padding(.leading, 40)
+    }
+
+    @State private var fullHeight: CGFloat = 0
+    @State private var shownHeight: CGFloat = 0
+}
+
+private struct QuoteHeight: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+private struct QuoteShown: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
 private struct MessageView: View {
     let entry: ChatEntry
     /// Answers in a chat: selectable, with "Highlight" (2.5); nil: as plain Markdown (an answer coming in).
@@ -2356,6 +2487,7 @@ private struct MessageView: View {
             }
         } else if entry.isUser {
             VStack(alignment: .trailing, spacing: 6) {
+                if let cite = entry.askedCite { AskedQuote(text: cite) }
                 HStack(spacing: 6) {
                     if entry.mode == "google" { Image(systemName: "magnifyingglass") }
                     Text(entry.label ?? entry.content)
@@ -2666,6 +2798,7 @@ private struct MessageTools: View {
                 Menu {
                     Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
                     Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
+                    if let collect = actions.collect { Button(action: collect) { Label { if let name = actions.collected { Text("In “\(name)”", comment: "A message's menu: the collection it's in already (2.7)") } else { Text("To collection") } } icon: { Image(systemName: actions.collected == nil ? "square.grid.2x2" : "checkmark.square") } }.accessibilityIdentifier(actions.collected == nil ? "cf-msg-collect" : "cf-msg-collected") }
                     Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
                 } label: {
                     Label("More", systemImage: "ellipsis")

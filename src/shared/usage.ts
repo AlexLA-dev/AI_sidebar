@@ -42,7 +42,7 @@ export const FEATURES: Record<string, Feature> = {
   ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error", "link"] },
   consent: {
     since: "2.0", actions: ["shown", "accepted", "declined"],
-    via: ["ask", "find", "ask_chats", "qi", "organize"], fields: { step: "int" }
+    via: ["ask", "find", "ask_chats", "qi", "organize", "translate"], fields: { step: "int" }
   },
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
   // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
@@ -62,7 +62,7 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.0", actions: ["open", "change"],
     fields: {
       key: ["theme", "text_size", "fab", "bubble", "share_marks", "about_me", "icloud", "organize", "copied", "qi_button",
-        "qi_sign", "key_model", "own_key", "show_tips", "delete_all"],
+        "qi_sign", "key_model", "own_key", "show_tips", "delete_all", "spaces"],
       val: ["on", "off", "set", "clear"]
     }
   },
@@ -87,16 +87,41 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.3", tracked: "2.6", actions: ["start", "step", "done", "skip", "exit"], via: ["first", "menu", "plan", "plan_menu"],
     fields: {
       step: "int",
-      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
+      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "swipe", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
     }
   },
-  hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats"] } },
+  hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side"] } },
+  // 2.7 (plan section 6): page hints in the first days — the line by the circle shown, tapped, ✕ (and two in a row
+  // turning them off), the feature used after it; the Settings switch. what: which hint (src/content/pagehints).
+  page_hint: {
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "tap", "dismiss", "off", "used", "switch_on", "switch_off"],
+    fields: { what: ["similar", "watch", "summary", "listen", "video", "templates", "remind", "calendar"] }
+  },
+  // 2.7 (plan section 9): the circle dragged to the other edge, the panel dragged by its header (iPad, Mac), the side
+  // picked in Settings; what: the side it went to.
+  side: { since: "2.7", tracked: "2.7", on: "ext", actions: ["drag_fab", "drag_panel", "setting"], fields: { what: ["left", "right"] } },
+  // 2.7 (plan section 5): invite a friend — the group or screen opened, the code shared or copied, a friend's code
+  // entered (taken or refused), the reward shown (the card when a friend became active) and taken (Pro's or Ultra's
+  // offer code, or extra answers). Codes entered, friends active and purchases are counted by the server.
+  invite: {
+    since: "2.7", tracked: "2.7", actions: ["open", "share", "copy", "code_ok", "code_bad", "reward_shown", "reward_pro", "reward_ultra", "reward_answers"],
+    via: ["settings", "card", "app", "first_screen"]
+  },
   tab: { since: "2.0", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings"] } },
   tips: {
     since: "2.0", on: "app", actions: ["open", "play"],
     fields: { what: ["summary", "translate", "selection", "note", "video", "pdf", "chats", "search", "tags", "ai_search", "ask_chats", "quick_insert", "templates", "copied", "organize"] }
   },
   setup: { since: "2.4", on: "app", actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap"] },
+  // 2.7 (plan section 8, «Активация»): the way from the app to ContextFlow switched on, counted, never what's on screen.
+  // "video": the guide started floating over Settings (iPhone, iPad); "settings": Settings opened from the app (the
+  // home card, or on a Mac the chats' empty state too); "back": the app in front again after that trip; "enabled": the
+  // app saw ContextFlow switched on (once an install). "linked": once, the extension's own side, when the panel first
+  // gives it the install id, sends it with the app's id (both random), so the steps in the app join the ones Safari's
+  // side logs: switched on there (ext_on) and the first answer.
+  activation: {
+    since: "2.7", tracked: "2.7", on: "app", actions: ["video", "settings", "back", "enabled", "linked"], via: ["card", "chats"]
+  },
   // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page
   // its tap opened showed the panel on that chat (the chat named in the page's address, the panel's step).
   notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"] } },
@@ -131,7 +156,7 @@ export const FEATURES: Record<string, Feature> = {
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
-    via: ["listen", "settings", "watch", "limit", "similar"],
+    via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces", "collections"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
     fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
   },
@@ -143,7 +168,20 @@ export const FEATURES: Record<string, Feature> = {
     via: ["limit", "memory", "pro_only", "ultra_only"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
   },
+  // 2.7: the page translated in place (src/content/translate): the pill by the circle shown on a page in another
+  // language, tapped, the consent asked from it, the translation shown, "Original", × (hidden on that site), the
+  // answers used up (and Pro tapped there), a failure. The server logs each request ("translate") and the limit.
+  translate_page: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    // build 107: "entry" the entry by the circle opened the pill, "lang" another language picked.
+    // build 109: the whole site: asked ("site_ask"), yes, no, turned off, and a page that started by itself ("auto").
+    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error", "entry", "lang", "site_ask", "site_on", "site_no", "site_off", "auto"]
+  },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
+  // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
+  // ("pick"), a search asked ("find"), the light search's week or Pro's answers used ("limit"); the panel and the app: an
+  // item opened ("open"). Each search itself, its plan and cost, is logged by the server ("similar", with `mode`).
+  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full"] } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],
@@ -177,6 +215,93 @@ export const FEATURES: Record<string, Feature> = {
       mvw: ["none", "window", "weak", "settled", "topic", "fit", "margin", "mix", "open"],
       res: ["off", "none", "merge", "page", "site", "topic", "apart"]
     }
+  },
+
+  // 2.7, Calendar and Reminders (appleItems.ts). The AI's card: opened by the chat's marker ("chat"), the message's "…"
+  // ("menu") or the chip under an answer ("chip"); what it found ("shown", "nothing"); each Add tapped in it ("card"):
+  // written on the device ("added"), handed to the app ("app"), no access ("denied"), "failed", "unavailable",
+  // "not_asked". «Также в Напоминания» ("remind"): turned on or off, and each reminder it put in Reminders. The app's
+  // side of a handed-over item ("app"): "added", "denied", "failed", the event editor closed ("dismissed").
+  // Counts only: never a title, a date or a list.
+  apple: {
+    since: "2.7", tracked: "2.7",
+    actions: ["open", "shown", "nothing", "added", "app", "denied", "failed", "unavailable", "not_asked", "dismissed", "also_on", "also_off"],
+    via: ["chat", "menu", "chip", "card", "remind", "app"],
+    fields: { what: ["reminder", "event"] }
+  },
+
+  // 2.7: «Проверить» и «Переписать» by a field (src/content/insert/Write.tsx), counts only: never the text, the page or the
+  // site. "menu": the Mac's circle opened its menu; "check" and "rewrite": asked for (what: the rewrite's tone); "shown":
+  // changes or a rewrite to look at; "clean": nothing to fix; "applied", "failed" (some didn't go in), "manual" (none
+  // did: copied to paste); "undone", "undo_failed"; "changed" (typed on before applying); "too_long", "limit", "plans"
+  // (Pro tapped there), "consent", "error"; "slow" (no answer within the deadline), "updated" (a tab left open across an
+  // update: the old page script gets no answers, the page has to be reloaded). The server logs each request ("write") and the limit.
+  write: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: [
+      "menu", "check", "rewrite", "shown", "clean", "applied", "failed", "manual", "undone", "undo_failed", "changed", "too_long", "limit", "plans", "consent", "error", "slow", "updated",
+      // Live underlines (Pro and Ultra): a fix shown (hover or tap), made, set aside, not taken by the field; the hidden cap reached.
+      "live_shown", "live_fixed", "live_ignored", "live_failed", "live_cap"
+    ],
+    via: ["circle", "list", "underline", "panel"],
+    fields: { what: ["check", "short", "warm", "formal", "confident"] }
+  },
+
+  // 2.7 (after build 107), the quiet panel (src/content/quiet): a chip of the page's tapped ("chip", what: which one);
+  // «+» by the field opened ("plus") and what was picked there ("plus_pick"); what was picked in a message's «…» that
+  // the row has no room for ("more_pick"). lay: the chat's density then. 109: an answer or a note moved to another chat
+  // from its «…» ("moved": to a chat of this space, another space's, or a new one) and taken back ("move_undone"). 110:
+  // the count opened to what the answers went on ("spent", via where).
+  quiet: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone", "spent"],
+    fields: {
+      what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect", "move"],
+      lay: ["compact", "roomy"],
+      to: ["chat", "space", "new"],
+      // 110: the count opened to what the answers went on: in «+», from the number by the field, in Settings.
+      via: ["plus", "number", "settings"]
+    }
+  },
+
+  // 2.7: «Снимок страницы в заметке» (src/shared/shots.ts), counts only: never the page, the picture or its size beyond
+  // screens. "on"/"off": the switch over the note field; "visible"/"full": what it takes; "taken" (what, and a whole
+  // page's screens), "failed" (why: unavailable, failed, keep); "open", "crop", "uncrop" in the chat; "plans": Free
+  // tapped the whole page's Pro.
+  shot: {
+    since: "2.7", tracked: "2.7", on: "ext",
+    actions: ["on", "off", "visible", "full", "taken", "failed", "open", "crop", "uncrop", "plans"],
+    fields: { what: ["visible", "full"], why: ["unavailable", "failed", "keep"], screens: "int" }
+  },
+
+  // 2.7: Spaces (src/shared/spaces.ts), counts only: never a space's name or colour, nor a site. "switch": how (the
+  // header's list, the app's list, a bound site, a chat opened from another space, a search hit, the matching chat in
+  // another space (107), its line's way back); "bind" and "toggle":
+  // on or off (Settings' switch); "limit": Free asked for one more than it has; "spaces": how many there are then.
+  space: {
+    since: "2.7", tracked: "2.7", actions: ["create", "switch", "move", "bind", "toggle", "edit", "delete", "limit"],
+    via: ["header", "app", "site", "chat", "list", "settings", "match", "match_back"],
+    fields: { val: ["on", "off"], spaces: "int" }
+  },
+
+  // 2.7: «Подходящий чат при открытии панели» (src/shared/match.ts). "shown": the panel opened on a chat that fits the
+  // page, and why (its page, its topic by words or by meaning, its site) with the topic's match %; "new": none fitted,
+  // a new chat; "where": in the space the panel was in, or another (107: it went there). Then whether the person left it
+  // at once: "line_new" (the line's «Новый чат»), "line_back" (its «← space», back where the panel was; 107–109), "toast_back" (110: the same from the line over the
+  // header, the chat's bar keeps the name), "other"
+  // (another chat opened within two minutes). Counts only.
+  match: {
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "line_back", "toast_back", "other"],
+    fields: { why: ["page", "topic", "meaning", "site"], match: "int", where: ["here", "other"] }
+  },
+
+  // 2.7: Подборки (src/shared/collections.ts), counts only: never a name, a gist, a site. "add": a card put in (via the
+  // panel, the app, the suggestion taken or another place picked); "limit": Free asked for more than one collection or
+  // ten cards; "layout", "compare", "summary": the AI's (Pro); "pdf": exported; "open": the collections window or screen.
+  collect: {
+    since: "2.7", tracked: "2.7", actions: ["create", "add", "move", "section_add", "section_rename", "section_delete", "delete", "layout", "compare", "summary", "pdf", "open", "limit"],
+    via: ["panel", "app", "suggested", "picked", "header", "list", "sidebar", "chats", "mark"],
+    fields: { cards: "int", what: ["collection", "card"] }
   },
 
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.

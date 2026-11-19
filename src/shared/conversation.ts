@@ -2,6 +2,7 @@
 // Pure helpers shared by the content script and tests.
 
 import type { MediaKind } from "./attachments.ts"
+import type { Shot } from "./shots.ts"
 import { markedContent, type Mark } from "./marks.ts"
 import type { SimilarAnswer } from "./similar.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
@@ -60,10 +61,14 @@ export interface Entry extends ChatTurn {
   note?: boolean
   // A note made from a page selection: its text starts with the selected text in quotes.
   quote?: boolean
+  // 2.7, notes: a picture of the page it was written on (shots.ts): its thumbnail and crop go with the chat; the picture
+  // itself is kept on the device and in iCloud apart from it.
+  shot?: Shot
   // 2.6 (97), the owner: «то, что выделено, было оформлено как цитата, и … можно было написать свою заметку к ней».
   // Such a note's selected text as it was quoted: the chat shows it as a quote and the rest of the text (the person's
   // own words) as the note (citedNote). The text keeps the quote too, so older versions show it as before. Notes
-  // made before have none and look as they did.
+  // made before have none and look as they did. Build 110: a question asked on a selection keeps the selected text
+  // here too (askedCite), its text the question alone; the chat shows the quote over it.
   cite?: string
   // User turns: videos and PDFs read along with the page (shown under the question).
   sources?: SourceNote[]
@@ -86,8 +91,12 @@ export interface Entry extends ChatTurn {
   // 2.5, answers and notes: pinned at the top of the chat (when, ms).
   pinned?: number
   // 2.5, answers and notes: a reminder (ms). The notification rings only on the device that set it (`dev`).
-  // `page`: a note made from a selection with "Remind me": the notification opens its page.
-  remind?: { at: number; dev?: string; page?: true }
+  // `page`: a note made from a selection with "Remind me": the notification opens its page. `apple` (2.7): it's in
+  // Apple Reminders too («Также в Напоминания», on the device that set it).
+  remind?: { at: number; dev?: string; page?: true; apple?: true }
+  // 2.7, answers: the answer ended with the chat's marker (appleItems.ts ITEM_MARKER, taken out of the text): the
+  // person asked for a reminder or an event, or it gives a date to keep. The panel offers to add it (a card).
+  addable?: true
 }
 
 /** A new message's id: 12 random letters and digits. */
@@ -191,16 +200,44 @@ export const MAX_NOTE_QUOTE = 3_000
  * the chat shows where it came from. No AI: it doesn't use an answer.
  */
 export function selectionNote(selected: string, comment: string, page: PageRef, quoted = (text: string) => `“${text}”`): Entry {
-  let text = selected.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim()
-  if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
+  const text = selectionCite(selected)
   const quote = quoted(text)
   const note = comment.trim()
   return stamped({ role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, cite: text, page }, page.at)
 }
 
+/** Selected text as a quote keeps it: runs of spaces as one, at most two line breaks in a row, at most MAX_NOTE_QUOTE. */
+export function selectionCite(selected: string): string {
+  const text = selected.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim()
+  return text.length > MAX_NOTE_QUOTE ? text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…" : text
+}
+
+/**
+ * The quote a question was asked on (build 110, the owner: «когда я выделяю текст, и задаю по нему вопрос … я вижу
+ * только свой запрос, но нет цитаты выделенного текста, как при написании заметки по нему»): its selection's text, kept
+ * with it as `cite`. Its text is the question alone (a cited note's starts with its quote), so the two never mix up.
+ * Questions asked before have none and look as they did.
+ */
+export function askedCite(entry: Entry): string | undefined {
+  return entry.role === "user" && !entry.note && entry.cite ? entry.cite : undefined
+}
+
+/** An earlier question's quote in the model's history keeps at most this much (its whole selection went with it then). */
+export const MAX_HISTORY_QUOTE = 1_500
+
+/**
+ * How an earlier question's quote goes to the model (2.7, the owner: «Да, хорошо бы добавить в 2.7»): a line over the
+ * question, so a later question in the chat knows what that one was about. Cut to MAX_HISTORY_QUOTE so the history
+ * stays small. ChatAI.swift `messages` writes the same line.
+ */
+export function askedQuoteLine(cite: string): string {
+  const text = cite.length > MAX_HISTORY_QUOTE ? cite.slice(0, MAX_HISTORY_QUOTE).trimEnd() + "…" : cite
+  return `[Asked about this text the user selected: "${text}"]`
+}
+
 /** Where a cited note's quote ends in its text (after the closing quote mark), or -1 when the text doesn't start with it. */
 function citeEnd(entry: Entry): number {
-  if (!entry.cite) return -1
+  if (!entry.cite || !entry.note) return -1
   const at = entry.content.indexOf(entry.cite)
   // The opening mark: “ « „ 「 or « with a space (French).
   if (at < 0 || at > 3) return -1
@@ -365,12 +402,17 @@ export function entriesFrom(parsed: unknown): Entry[] | null {
  * `wholeChat`: every message that fits WHOLE_CHAT_CHARS, the user's notes marked as notes.
  */
 export function historyForModel(entries: Entry[], currentUrl: string, wholeChat = false, free = false): ChatTurn[] {
-  const turn = ({ role, content, page, note, marks }: Entry): ChatTurn => {
+  // The question asked now is the last one: its selection goes whole as the page (kind "selection"), not here.
+  const asking = entries[entries.length - 1]
+  const turn = (entry: Entry): ChatTurn => {
+    const { role, content, page, note, marks } = entry
     // The user's highlights in an answer go as <mark>…</mark> (the rule is in the system prompt).
     const text = role === "assistant" && marks?.length ? markedContent(stripCitations(content), marks) : stripCitations(content)
     const elsewhere = role === "user" && page && page.url !== currentUrl ? `"${page.title || page.url}" — ${page.url}` : ""
     if (note) return { role, content: `[Note the user wrote${elsewhere ? ` on another page: ${elsewhere}` : ""}]\n${text}` }
-    return { role, content: elsewhere ? `[Asked on another page: ${elsewhere}]\n${text}` : text }
+    const cite = entry !== asking ? askedCite(entry) : undefined
+    const quoted = cite ? `${askedQuoteLine(cite)}\n${text}` : text
+    return { role, content: elsewhere ? `[Asked on another page: ${elsewhere}]\n${quoted}` : quoted }
   }
   // Free (build 92): the last answers and notes, the notes marked as notes.
   if (!wholeChat && free) return lastCounted(entries, (e) => e.role === "assistant" || Boolean(e.note)).map(turn)

@@ -8,8 +8,8 @@
   border-radius: 15px;
   display: flex; align-items: center; justify-content: center;
   color: #fff !important;
-  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
-  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.38), 0 1px 2px rgba(0, 0, 0, 0.18);
+  background: linear-gradient(135deg, var(--accent-from) 0%, var(--accent-to) 100%) !important;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--accent-to) 38%, transparent), 0 1px 2px rgba(0, 0, 0, 0.18);
   z-index: 4;
   touch-action: none !important;
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
@@ -152,15 +152,10 @@
 .cf-msg-tools button { white-space: nowrap; }
 .cf-msg-tools .cf-insert { color: var(--accent-text); font-weight: 600; }
 .cf-msg-tools .cf-insert svg { color: var(--accent); }
-/* Narrow by the panel's width, not the device: with the insert button first, Share and Tag keep their icons
-   and the buttons sit closer, so Insert · Copy · Share · Tag · … stay on one line at 375 pt in every language. */
+/* The panel is a container (its own width, not the device's, is what its rows go by). 2.7 (after 107): the row under
+   a message is fitted by quiet/ToolsRow.tsx in every language; with the insert button first, the other buttons' words
+   give way before its own. */
 .cf-panel { container-type: inline-size; }
-@container (max-width: 460px) {
-  .cf-msg-tools.has-insert .cf-tl { display: none; }
-  /* Wraps rather than runs off the panel if something more joins the row. */
-  .cf-msg-tools.has-insert { gap: 2px; flex-wrap: wrap; }
-  .cf-msg-tools.has-insert button { padding: 4px 6px; }
-}
 
 /* ------------------------------------------- "Template" by a selection */
 .cf-bubble button.cf-sel-template { color: var(--accent-text); }
@@ -180,4 +175,195 @@
    into (and the words around the blanks, so they read as one line) are 16px on touch screens. */
 @media (pointer: coarse) {
   .cf-qi-area, .cf-qi-blank, .cf-qi-fill-text { font-size: 16px; }
+  /* Compose's box (2.7 (108)). */
+  .cf-wr-ask { font-size: 16px; }
 }
+
+/* ---------------------------------------------- «Проверить» и «Переписать» (2.7) */
+/* A Mac: the circle above the field (the iPhone button's look and place); its menu opens under it. */
+.cf-wr-dot-wrap { position: fixed; width: 30px; height: 30px; z-index: 4; }
+.cf-wr-dot-wrap .cf-wr-dot { position: absolute; top: 0; left: 0; }
+/* Opaque, as the Check card: the field's text never shows through it (2.7, the director on the first screenshots). */
+.cf-wr-menu.pop {
+  position: absolute; top: 34px; right: 0; width: 230px;
+  padding: 5px; border-radius: 12px;
+  background-color: var(--bg, #fff); border: 1px solid var(--border); box-shadow: var(--shadow);
+  isolation: isolate;
+  animation: cf-pop 0.12s ease-out;
+}
+/* Its own start edge at the field's right: the menu opens leftwards, under the circle. */
+:host([dir="rtl"]) .cf-wr-menu.pop { right: auto; left: 0; }
+.cf-wr-menu.pop .cf-wr-two { display: flex; flex-direction: column; gap: 2px; }
+.cf-wr-menu.pop .cf-wr-item {
+  display: flex; align-items: center; gap: 8px; width: 100%; height: 34px; padding: 0 10px;
+  border-radius: 8px; color: var(--text); font-size: 14px; font-weight: 550; text-align: start;
+}
+.cf-wr-menu.pop .cf-wr-item:hover, .cf-wr-menu.pop .cf-wr-item.on { background: var(--accent-soft); color: var(--accent-text); }
+.cf-wr-item svg { flex: none; color: var(--accent); }
+/* The word gives way (an ellipsis) before the icons do; the arrow turns over when the tones are open. */
+.cf-wr-word { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-wr-more { flex: none; display: inline-flex; color: var(--text-3); }
+.cf-wr-more svg { color: inherit; transition: transform 0.12s ease-out; }
+.cf-wr-item.on .cf-wr-more svg { transform: rotate(180deg); }
+/* A Mac's menu: the arrow at the row's end. */
+.cf-wr-menu.pop .cf-wr-more { margin-inline-start: auto; }
+.cf-wr-menu.pop .cf-wr-tones { padding: 4px 6px 4px; }
+/* iPhone and iPad: a row atop quick insert's list. */
+.cf-wr-menu.row { padding: 2px 10px 6px; }
+.cf-wr-menu.row .cf-wr-two { display: flex; gap: 8px; }
+/* Two equal halves that never outgrow the row (2.7 (107), the owner's iPad: Rewrite ran past the list's edge with its
+   arrow cut off; the arrow's auto margin had taken the room its centring needed). */
+.cf-wr-menu.row .cf-wr-item {
+  flex: 1 1 0; min-width: 0; box-sizing: border-box; padding: 0 10px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 6px; height: 40px;
+  border-radius: 12px; background: var(--accent-soft); color: var(--accent-text); font-size: 15px; font-weight: 600;
+}
+.cf-wr-menu.row .cf-wr-more { color: var(--accent-text); margin-inline-start: -2px; }
+.cf-wr-menu.row .cf-wr-item.on { background: var(--accent); color: #fff; }
+.cf-wr-menu.row .cf-wr-item.on svg, .cf-wr-menu.row .cf-wr-item.on .cf-wr-more { color: #fff; }
+.cf-wr-tones { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 8px; }
+.cf-wr-tone {
+  height: 30px; padding: 0 12px; border-radius: 15px;
+  border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font-size: 13.5px; font-weight: 500;
+  outline: none;
+}
+/* Pointing at a chip marks it only where there is a pointer; a ring only for a keyboard's focus (109, the owner's
+   iPhone: after «Change the request» the chip that came up under the finger stayed marked, as if picked). */
+@media (hover: hover) { .cf-wr-tone:hover { border-color: var(--accent); color: var(--accent-text); } }
+.cf-wr-tone:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cf-wr-menu.row .cf-wr-tone { height: 34px; padding: 0 14px; border-radius: 17px; font-size: 14.5px; }
+
+/* The result by the field (a sheet on iPhone): a check's changes marked word by word, in our colour. */
+.cf-wr { padding: 10px 12px 12px; gap: 8px; }
+.cf-wr .cf-qi-fill-head span { display: inline-flex; align-items: center; gap: 6px; }
+.cf-wr .cf-qi-fill-head svg { color: var(--accent); }
+.cf-wr-body { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+.cf-wr-text {
+  white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14.5px; line-height: 1.5; color: var(--text);
+  max-height: 260px; overflow-y: auto; padding: 8px 10px; border-radius: 10px; background: var(--bg-2);
+}
+.cf-wr-text del { color: var(--text-3); text-decoration: line-through; text-decoration-color: var(--text-3); }
+.cf-wr-text del + ins { margin-inline-start: 3px; }
+.cf-wr-text ins { text-decoration: none; color: var(--accent-text); background: var(--accent-soft); border-radius: 4px; padding: 0 2px; box-shadow: inset 0 -2px 0 var(--accent); }
+.cf-wr-meta, .cf-wr-note { font-size: 12.5px; color: var(--text-3); margin-top: 6px; }
+.cf-wr-note { font-size: 14px; color: var(--text-2); margin: 4px 0; }
+.cf-wr-tones.inline { padding-top: 8px; }
+/* Compose (2.7 (108)): the box for what to write, and the tone picked (none: the person's own style). Short, so the
+   sheet keeps its buttons above an iPhone's keyboard. */
+.cf-wr-ask {
+  display: block; box-sizing: border-box; width: 100%; min-height: 64px; max-height: 30vh; padding: 9px 10px; resize: none;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text);
+  font: inherit; font-size: 15px; line-height: 1.45; outline: none;
+}
+.cf-wr-ask:focus { border-color: var(--accent); background: var(--bg); }
+.cf-wr-tone.on, .cf-wr-tone.on:hover { border-color: transparent; background: var(--accent); color: #fff; }
+.cf-wr-row .cf-primary:disabled { opacity: 0.5; }
+.cf-wr-row { padding-top: 4px; }
+.cf-wr-made button { margin-inline-start: 6px; }
+
+/* ---------------------------------------------- live underlines (2.7, Pro and Ultra): our colour, not the system's red */
+/* There while the mistake is (2.7 (107), the owner: easy to miss, gone with the focus): a line under the words and a
+   faint tint over them, in our gradient from the accent tokens. The page's own ground decides how deep the line goes
+   (data-ground, ground.ts; the panel's theme says nothing about the page): darker on a light page, lighter on a dark one. */
+.cf-ul-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 3;
+  --ul-a: color-mix(in srgb, var(--accent-2) 55%, var(--accent));
+  --ul-b: color-mix(in srgb, var(--accent) 82%, #000);
+  --ul-tint: color-mix(in srgb, var(--accent) 10%, transparent);
+  --ul-tint-on: color-mix(in srgb, var(--accent) 20%, transparent);
+  --ul-shine: color-mix(in srgb, var(--accent-2) 30%, #fff);
+}
+.cf-ul-layer[data-ground="dark"] {
+  --ul-a: color-mix(in srgb, var(--accent-2) 75%, #fff);
+  --ul-b: color-mix(in srgb, var(--accent) 70%, #fff);
+  --ul-tint: color-mix(in srgb, var(--accent-2) 16%, transparent);
+  --ul-tint-on: color-mix(in srgb, var(--accent-2) 28%, transparent);
+  --ul-shine: #fff;
+}
+.cf-ul {
+  position: fixed; pointer-events: none; border-radius: 3px; overflow: hidden;
+  background:
+    linear-gradient(90deg, var(--ul-a), var(--ul-b)) left bottom / 100% 2.5px no-repeat,
+    var(--ul-tint);
+}
+/* 2.7 (108), the owner: «переливающимся в нашем стиле, как прочие обводки»; after 108: «почему подчёркивание пробегает
+   только трижды, а не бегает регулярно как при выделении текста?». A light runs along the line for as long as the
+   underline is there, in the selection ring's rhythm (one pass every 2.4 s, at an even pace, as the ring turns). Only a
+   transform moves (on the compositor, no repaint); an underline scrolled out of sight (.off) holds still. */
+.cf-ul::after {
+  content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 2.5px;
+  background: linear-gradient(90deg, transparent 25%, var(--ul-shine) 50%, transparent 75%);
+  transform: translateX(-100%);
+  animation: cf-ul-shine 2.4s linear infinite;
+}
+.cf-ul.off::after { animation-play-state: paused; }
+@keyframes cf-ul-shine {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+/* The one its card or its row in the list is about: deeper, and it shimmers while it is (one at a time). */
+.cf-ul.on {
+  background:
+    linear-gradient(90deg, var(--ul-a), var(--ul-b)) left bottom / 100% 3px no-repeat,
+    var(--ul-tint-on);
+  box-shadow: 0 0 0 2px var(--ul-tint-on);
+}
+.cf-ul.on::after { height: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .cf-ul::after, .cf-ul.on::after { animation: none; display: none; }
+}
+.cf-ul-pop {
+  position: fixed; z-index: 5; width: 240px; padding: 10px 12px;
+  border-radius: 12px; background-color: var(--bg, #fff); border: 1px solid var(--border); box-shadow: var(--shadow);
+  animation: cf-pop 0.12s ease-out;
+}
+.cf-ul-fix { font-size: 15px; line-height: 1.4; margin-bottom: 8px; overflow-wrap: anywhere; }
+.cf-ul-fix del { color: var(--text-3); text-decoration: line-through; margin-inline-end: 6px; }
+.cf-ul-fix ins { text-decoration: none; color: var(--accent-text); font-weight: 650; }
+.cf-ul-acts { display: flex; align-items: center; gap: 10px; }
+.cf-ul-acts .cf-primary { height: 32px; padding: 0 14px; }
+
+/* ---------------------------------------------- the list of fixes (2.7 (107)); the button's count */
+/* How many mistakes are underlined: on the field's button (and a Mac's circle). */
+.cf-qi-btn { overflow: visible; }
+.cf-qi-n {
+  position: absolute; top: -6px; inset-inline-end: -6px;
+  min-width: 17px; height: 17px; padding: 0 4px; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px; background: #fff; color: #1d4ed8;
+  font: 700 11px/1 -apple-system, system-ui, sans-serif; font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 1.5px #2563eb, 0 1px 3px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+.cf-fx { padding: 0; }
+.cf-fx-head { display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 14px; border-bottom: 1px solid var(--border); }
+:host([dir="rtl"]) .cf-fx-head { padding: 6px 14px 6px 6px; }
+.cf-fx-count { flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 14.5px; font-weight: 650; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-fx-count svg { flex: none; color: var(--accent); }
+.cf-fx-all {
+  flex: none; height: 32px; padding: 0 12px; border-radius: 16px;
+  background: var(--accent-soft); color: var(--accent-text); font-size: 13.5px; font-weight: 600; white-space: nowrap;
+}
+.cf-fx .cf-fx-list { color: var(--accent-text); }
+.cf-fx-body { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; min-height: 0; }
+/* The sentence, then its two buttons: beside it where there's room, under it on a phone. */
+.cf-fx-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 9px 10px 9px 14px; border-bottom: 1px solid var(--border); }
+:host([dir="rtl"]) .cf-fx-row { padding: 9px 14px 9px 10px; }
+.cf-fx-row:last-child { border-bottom: 0; }
+.cf-fx-row.on { background: var(--bg-2); box-shadow: inset 3px 0 0 var(--accent); }
+:host([dir="rtl"]) .cf-fx-row.on { box-shadow: inset -3px 0 0 var(--accent); }
+.cf-fx-text {
+  flex: 1 1 210px; min-width: 0; font-size: 14.5px; line-height: 1.4; color: var(--text-2); overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.cf-fx-text del { color: var(--text-3); text-decoration: line-through; text-decoration-color: var(--text-3); }
+.cf-fx-text del + ins { margin-inline-start: 4px; }
+.cf-fx-text ins { text-decoration: none; color: var(--accent-text); font-weight: 650; background: var(--accent-soft); border-radius: 4px; padding: 0 3px; box-shadow: inset 0 -2px 0 var(--accent); }
+.cf-fx-acts { flex: none; display: flex; align-items: center; gap: 4px; margin-inline-start: auto; }
+.cf-fx-acts .cf-primary { height: 34px; padding: 0 16px; border-radius: 17px; font-size: 14px; }
+.cf-fx-skip { height: 34px; padding: 0 10px; border-radius: 17px; color: var(--text-2); font-size: 13.5px; font-weight: 500; white-space: nowrap; }
+.cf-fx-skip:hover { background: var(--bg-2); }
+.cf-fx-foot { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-top: 1px solid var(--border); font-size: 13.5px; color: var(--text-2); }
+.cf-fx-foot span { flex: 1; display: inline-flex; align-items: center; gap: 6px; }
+.cf-fx-foot svg { color: var(--accent); width: 15px; height: 15px; }
+.cf-fx-foot button { color: var(--accent-text); font-weight: 600; font-size: 13.5px; padding: 4px 6px; }

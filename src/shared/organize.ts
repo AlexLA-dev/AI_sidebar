@@ -6,6 +6,7 @@
 
 import { entryKey, entryTimes, stripCitations, textKey, type Entry } from "./conversation.ts"
 import { activity, namedByUser, pageBlocks, threadName, type OrgState, type PageBlock, type Thread } from "./threads.ts"
+import { KO_PARTICLES, NAME_STOP } from "./words.ts"
 
 /** What decides a suggestion (chat-organize-2.5.md §2); the server sends its own values in /status. */
 export interface OrganizeConfig {
@@ -1184,29 +1185,8 @@ export function lastKey(entries: Entry[]): string {
 
 // ------------------------------------------------------------ names turned down (2.6 (98), the review's S5)
 
-/**
- * Words that don't tell names apart (articles, prepositions, conjunctions: "the", "für", "và", "في"), by script: the
- * Latin languages' together, Vietnamese's apart (its "da", "do" are words), Cyrillic's, Arabic's, Korean's.
- */
-const NAME_STOP = {
-  latin: new Set([
-    "the", "a", "an", "and", "or", "of", "for", "with", "by", "in", "on", "to", "at", "from", "vs", "my", "your", "our", "about", "how", "what",
-    "der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "einer", "und", "für", "mit", "von", "vom", "im", "am", "zum", "zur", "oder", "auf", "über", "bei", "zu", "wie", "was",
-    "le", "la", "les", "l", "un", "une", "et", "pour", "avec", "de", "d", "du", "en", "ou", "au", "aux", "sur", "dans", "par", "à",
-    "el", "los", "las", "una", "y", "para", "con", "del", "al", "por", "sobre",
-    "il", "lo", "i", "gli", "e", "per", "di", "della", "dei", "delle", "degli", "alla", "su", "da", "nel", "nella", "dell",
-    "o", "os", "as", "um", "uma", "com", "do", "dos", "das", "em", "no", "na", "nos", "nas", "ao"
-  ]),
-  vi: new Set(["và", "cho", "của", "với", "các", "những", "về", "trong", "là", "một"]),
-  cyrillic: new Set(["и", "в", "во", "на", "с", "со", "по", "для", "от", "до", "из", "или", "о", "об", "обо", "про", "к", "ко", "у", "за", "это", "как", "что",
-    "і", "й", "та", "з", "із", "зі", "від", "або", "як", "що"]),
-  arabic: new Set(["و", "في", "من", "على", "مع", "أو", "عن", "إلى"]),
-  hangul: new Set(["및", "위한", "대한"])
-}
 /** Letters only Vietnamese has (ă, đ, ơ, ư, and those with a tone mark): a name with one is Vietnamese. */
 const VI_LETTER = /[ăđơư\u1EA0-\u1EF9]/u
-/** Korean particles at a word's end ("교토의" is "교토"), the longer first. */
-const KO_PARTICLES = ["에서", "으로", "에게", "까지", "부터", "의", "을", "를", "은", "는", "이", "가", "에", "로", "와", "과", "도", "만"]
 /** Arabic's article (with "and", "with", "for" before it) at a word's start ("السيارات" is "سيارات"). */
 const AR_ARTICLES = ["وال", "بال", "لل", "ال"]
 /** Japanese and Chinese particles between a name's words (の, と, 的): not words of it. */

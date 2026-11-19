@@ -59,6 +59,21 @@
  "actGoogle": {
   "message": "Google"
  },
+ "chipTranslatePage": {
+  "message": "Seite übersetzen"
+ },
+ "chipWatchPrice": {
+  "message": "Preis beobachten"
+ },
+ "plusButton": {
+  "message": "Mehr: Notiz, Schnappschuss, ganzer Chat"
+ },
+ "hintShow": {
+  "message": "Anzeigen"
+ },
+ "tourWholeBodyPlus": {
+  "message": "„Ganzer Chat“ findest du unter +. Schalte „Ganzer Chat“ ein, wenn eine Frage alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und diese Seite."
+ },
  "promptSummarize": {
   "message": "Fasse diese Seite in 5–7 Stichpunkten zusammen und nenne dann das wichtigste Fazit in einem Satz."
  },
@@ -299,6 +314,15 @@
  "uxRemindChange": {
   "message": "Erinnerung ändern"
  },
+ "uxMove": {
+  "message": "In anderen Chat verschieben"
+ },
+ "uxMoveTitle": {
+  "message": "In welchen Chat soll die Antwort?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "In welchen Chat soll die Notiz?"
+ },
  "uxRemindOpen": {
   "message": "Öffnen"
  },
@@ -503,6 +527,12 @@
  "planByok": {
   "message": "Eigener Schlüssel"
  },
+ "plansOwnKeyLink": {
+  "message": "Ich habe einen eigenen API-Schlüssel"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Für diesen Tarif brauchst du einen eigenen API-Schlüssel von OpenAI oder Claude. Die Antworten bezahlst du separat bei diesem Anbieter."
+ },
  "planRenews": {
   "message": "Verlängerung am {0}"
  },
@@ -663,7 +693,7 @@
   "message": "Nur ein Teil davon?"
  },
  "tourSelectBody": {
-  "message": "Markiere zuerst Text auf der Seite – dann geht es in der Antwort nur darum. Dieses Label zeigt, was ContextFlow liest."
+  "message": "Markiere zuerst Text auf der Seite – dann geht es in der Antwort nur darum. Über dem Eingabefeld zeigt dann ein Label, was markiert ist."
  },
  "tourGoogleTitle": {
   "message": "Aktuelle Fakten von Google"
@@ -690,10 +720,10 @@
   "message": "Eigene Notizen"
  },
  "tourNoteBodyTouch": {
-  "message": "Wische diese Taste nach oben oder unten, um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten."
+  "message": "Wische diese Taste nach oben oder unten, um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten. Oder tippe auf + und wähle „Notiz“."
  },
  "tourNoteBodyMouse": {
-  "message": "Scrolle auf dieser Taste (oder halte sie gedrückt), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten."
+  "message": "Scrolle auf dieser Taste (oder halte sie gedrückt), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten. Oder klicke auf + und wähle „Notiz“."
  },
  "tourWholeTitle": {
   "message": "Der ganze Chat im Blick"
@@ -706,6 +736,18 @@
  },
  "tourMenuBody": {
   "message": "Erinnerungen und beobachtete Seiten, Tipps, Einstellungen und die Grundlagen-Tour findest du in diesem Menü."
+ },
+ "tourSwipeTitle": {
+  "message": "Wischen zum Anheften oder Löschen"
+ },
+ "tourSwipeBody": {
+  "message": "Wisch eine Antwort oder Notiz nach rechts, um sie anzuheften, nach links, um sie zu löschen. Chats in der Liste wischst du genauso. Doch anders entschieden? „Widerrufen“ holt sie zurück. Für einen Tag tippst du auf 🏷 oder „…“."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Anheften oder löschen per Klick"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Unter „…“ bei einer Antwort oder Notiz findest du „Anheften“, „Tag“ und „Löschen“; ein Rechtsklick öffnet dasselbe Menü. Bei einem Chat in der Liste stehen sie direkt in der Zeile. Doch anders entschieden? „Widerrufen“ holt sie zurück."
  },
  "guideSumTitle": {
   "message": "Deine erste Antwort"
@@ -973,6 +1015,12 @@
  },
  "errProvider": {
   "message": "Dein KI-Anbieter meldet: {0}"
+ },
+ "errKeyCredit": {
+  "message": "Dein {0}-Konto hat kein Guthaben oder die Abrechnung ist dort nicht eingerichtet, deshalb wurde die Anfrage abgelehnt. Lade unter {1} Guthaben auf und frag dann noch mal."
+ },
+ "errKeyRate": {
+  "message": "{0} bremst gerade die Anfragen mit deinem Schlüssel: Das ist das Limit deines Kontos. Warte eine Minute und frag noch mal. Deine Limits findest du unter {1}."
  },
  "offerLimit": {
   "message": "Oder hol dir Pro mit {0} % Rabatt im ersten Monat: bis zu {1} Antworten pro Woche, ausführlicher und gründlicher. Jederzeit kündbar."
@@ -1862,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · Diese Woche noch {0} von {1} Antworten"
  },
+ "spentShow": {
+  "message": "Zeigen, wofür die Antworten verbraucht wurden"
+ },
+ "spentTitleDay": {
+  "message": "Heute verbrauchte Antworten"
+ },
+ "spentTitleWeek": {
+  "message": "Diese Woche verbrauchte Antworten"
+ },
+ "spentChat": {
+  "message": "Fragen im Chat"
+ },
+ "spentGoogle": {
+  "message": "Antworten mit Google"
+ },
+ "spentTranslate": {
+  "message": "Seiten übersetzen"
+ },
+ "spentOther": {
+  "message": "Sonstiges"
+ },
+ "spentNone": {
+  "message": "Noch keine Antworten verbraucht"
+ },
+ "spentFree": {
+  "message": "Kostenlos, wird nicht gezählt: nur Schaltflächen und Menüs übersetzen"
+ },
+ "spentAllDevices": {
+  "message": "Gezählt auf allen deinen Geräten mit diesem Abo"
+ },
+ "spentThisDevice": {
+  "message": "Gezählt auf diesem Gerät"
+ },
+ "spentError": {
+  "message": "Details konnten nicht geladen werden. Tippe, um es erneut zu versuchen."
+ },
  "actSimilar": {
   "message": "Ähnliches finden"
  },
@@ -1972,6 +2056,21 @@
  },
  "similarLimit": {
   "message": "Die {0} Suchen nach Ähnlichem für diese Woche sind aufgebraucht. Neue gibt es am {1}."
+ },
+ "similarLightNote": {
+  "message": "Schnelle Suche: bis zu {0} pro Woche."
+ },
+ "similarLightNotePro": {
+  "message": "Schnelle Suche: bis zu {0} pro Woche, jede zählt wie {1} Antworten."
+ },
+ "similarLightFoot": {
+  "message": "Schnelle Suche. Ultra sucht breiter, liest Bewertungen und prüft die Lieferung."
+ },
+ "similarLightLimit": {
+  "message": "Die {0} schnellen Suchen dieser Woche sind aufgebraucht. Neue gibt es am {1}. Ultra hat {2} pro Woche und sucht breiter."
+ },
+ "similarAnswersShort": {
+  "message": "Eine schnelle Suche zählt wie {0} Antworten, und du hast noch {1}."
  },
  "orgDemoQuestion": {
   "message": "Günstige Flüge nach Lissabon im Mai?"
@@ -2279,6 +2378,765 @@
  "similarMisses": {
   "message": "Erfüllt deine Auswahl nicht"
  },
+ "appleTitle": {
+  "message": "Kalender und Erinnerungen"
+ },
+ "appleMenu": {
+  "message": "Zu Kalender oder Erinnerungen"
+ },
+ "appleReading": {
+  "message": "Suche Datum und Uhrzeit …"
+ },
+ "appleNothing": {
+  "message": "Hier gibt es nichts hinzuzufügen: kein Datum, keine Aufgabe."
+ },
+ "appleError": {
+  "message": "Das Datum ließ sich nicht lesen."
+ },
+ "appleRetry": {
+  "message": "Erneut versuchen"
+ },
+ "appleReminder": {
+  "message": "Erinnerung"
+ },
+ "appleEvent": {
+  "message": "Termin"
+ },
+ "appleWhat": {
+  "message": "Was"
+ },
+ "appleDate": {
+  "message": "Datum"
+ },
+ "appleTime": {
+  "message": "Uhrzeit"
+ },
+ "appleList": {
+  "message": "Liste"
+ },
+ "appleRemindersApp": {
+  "message": "In Erinnerungen"
+ },
+ "appleCalendarPick": {
+  "message": "Den Kalender wählst du im nächsten Schritt"
+ },
+ "appleCalendarDefault": {
+  "message": "Dein Standardkalender"
+ },
+ "appleGuess": {
+  "message": "Prüfe Datum und Uhrzeit, sie sind nur geschätzt."
+ },
+ "applePast": {
+  "message": "Dieser Zeitpunkt ist schon vorbei. Prüfe das Datum."
+ },
+ "appleAdd": {
+  "message": "Hinzufügen"
+ },
+ "appleAdded": {
+  "message": "Zu Erinnerungen hinzugefügt"
+ },
+ "appleAddedEvent": {
+  "message": "Zum Kalender hinzugefügt"
+ },
+ "appleOpening": {
+  "message": "ContextFlow wird geöffnet …"
+ },
+ "appleDenied": {
+  "message": "ContextFlow hat keinen Zugriff. Aktiviere ihn in den Einstellungen."
+ },
+ "appleFailed": {
+  "message": "Hinzufügen nicht möglich. Versuche es erneut."
+ },
+ "appleAlso": {
+  "message": "Auch in Erinnerungen"
+ },
+ "appleRemindersOff": {
+  "message": "ContextFlow hat keinen Zugriff auf Erinnerungen. Aktiviere ihn in den Einstellungen."
+ },
+ "appleAskOnce": {
+  "message": "Beim ersten Mal öffnet sich ContextFlow, um nach Zugriff zu fragen."
+ },
+ "trOffer": {
+  "message": "Auf Deutsch übersetzen?"
+ },
+ "trOfferTo": {
+  "message": "Übersetzen in: {0}?"
+ },
+ "trHide": {
+  "message": "Auf dieser Website ausblenden"
+ },
+ "trHiddenTold": {
+  "message": "Auf dieser Website ausgeblendet. Mit diesem Symbol holst du es zurück."
+ },
+ "trWorking": {
+  "message": "Wird übersetzt…"
+ },
+ "trOriginal": {
+  "message": "Original"
+ },
+ "trFailed": {
+  "message": "Übersetzung fehlgeschlagen"
+ },
+ "trLangPick": {
+  "message": "Zielsprache"
+ },
+ "trPart": {
+  "message": "{0}: {1}% der Seite"
+ },
+ "trEntry": {
+  "message": "Seite übersetzen"
+ },
+ "trControls": {
+  "message": "Buttons und Menüs: {0}"
+ },
+ "trControlsCap": {
+  "message": "Die kostenlosen Übersetzungen von Buttons und Menüs sind für heute aufgebraucht"
+ },
+ "trSiteAsk": {
+  "message": "Alle Seiten dieser Website übersetzen?"
+ },
+ "trSiteYes": {
+  "message": "Ja"
+ },
+ "trSiteNo": {
+  "message": "Nein"
+ },
+ "trSiteOn": {
+  "message": "Die ganze Website wird übersetzt"
+ },
+ "trSiteOff": {
+  "message": "Ausschalten"
+ },
+ "trSite": {
+  "message": "Ganze Website"
+ },
+ "spacesTitle": {
+  "message": "Bereiche"
+ },
+ "spaceSwitcher": {
+  "message": "Bereich: {0}. Wechseln"
+ },
+ "spaceFirst": {
+  "message": "Privat"
+ },
+ "spaceNew": {
+  "message": "Neuer Bereich"
+ },
+ "spaceEdit": {
+  "message": "„{0}“ bearbeiten"
+ },
+ "spaceName": {
+  "message": "Name"
+ },
+ "spaceNamePlaceholder": {
+  "message": "Zum Beispiel Arbeit"
+ },
+ "spaceColor": {
+  "message": "Farbe"
+ },
+ "spaceColorBlue": {
+  "message": "Blau"
+ },
+ "spaceColorGreen": {
+  "message": "Grün"
+ },
+ "spaceColorOrange": {
+  "message": "Orange"
+ },
+ "spaceColorPink": {
+  "message": "Pink"
+ },
+ "spaceColorViolet": {
+  "message": "Violett"
+ },
+ "spaceColorGraphite": {
+  "message": "Graphit"
+ },
+ "spaceCreate": {
+  "message": "Erstellen"
+ },
+ "spaceDelete": {
+  "message": "Bereich löschen"
+ },
+ "spaceDeleteNote": {
+  "message": "Seine Chats kommen nach „{0}“."
+ },
+ "spaceBind": {
+  "message": "{0} hier öffnen"
+ },
+ "spaceBoundElsewhere": {
+  "message": "{0} öffnet sich in „{1}“. Hier öffnen"
+ },
+ "spaceMoveTo": {
+  "message": "Verschieben nach …"
+ },
+ "spaceMoved": {
+  "message": "Nach „{0}“ verschoben"
+ },
+ "spaceIn": {
+  "message": "Du bist in „{0}“"
+ },
+ "spaceLimit": {
+  "message": "Kostenlos hast du {0} Bereiche. Mit Pro so viele du willst."
+ },
+ "spaceEmpty": {
+  "message": "In „{0}“ gibt es noch keine Chats. Ein neuer Chat landet hier."
+ },
+ "setSpaces": {
+  "message": "Bereiche"
+ },
+ "setSpacesHint": {
+  "message": "Arbeit, Privat, Einkaufen: jeder mit eigenen Chats und eigener Farbe. Aus: alle Chats in einer Liste, deine Bereiche bleiben erhalten."
+ },
+ "matchContinue": {
+  "message": "Weiter in"
+ },
+ "writeCircle": {
+  "message": "Prüfen oder umschreiben"
+ },
+ "writeCheck": {
+  "message": "Prüfen"
+ },
+ "writeRewrite": {
+  "message": "Umschreiben"
+ },
+ "writeToneShort": {
+  "message": "Kürzer"
+ },
+ "writeToneWarm": {
+  "message": "Herzlicher"
+ },
+ "writeToneFormal": {
+  "message": "Förmlicher"
+ },
+ "writeToneConfident": {
+  "message": "Selbstbewusster"
+ },
+ "writeChecking": {
+  "message": "Prüfe mit Blick auf die Seite…"
+ },
+ "writeRewriting": {
+  "message": "Schreibe mit Blick auf die Seite um…"
+ },
+ "writeFixes": {
+  "message": "Korrekturen: {0}"
+ },
+ "writeLeft": {
+  "message": "Kostenlose Antworten heute noch: {0}"
+ },
+ "writeClean": {
+  "message": "Keine Fehler gefunden."
+ },
+ "writeEmpty": {
+  "message": "Hier steht noch kein Text."
+ },
+ "writeTooLong": {
+  "message": "Das ist viel auf einmal. Markiere einen Teil und versuche es erneut."
+ },
+ "writeChanged": {
+  "message": "Der Text hat sich inzwischen geändert."
+ },
+ "writeFix": {
+  "message": "Korrigieren"
+ },
+ "writeReplace": {
+  "message": "Ersetzen"
+ },
+ "writeFixed": {
+  "message": "Korrigiert"
+ },
+ "writeFixedSome": {
+  "message": "Korrigiert, bis auf das, was das Feld nicht annahm"
+ },
+ "writeFixRefused": {
+  "message": "Das Feld hat diese Korrektur nicht angenommen"
+ },
+ "writeReplaced": {
+  "message": "Ersetzt"
+ },
+ "writeUndo": {
+  "message": "Widerrufen"
+ },
+ "writeUndone": {
+  "message": "Rückgängig gemacht"
+ },
+ "writeUndoFailed": {
+  "message": "Widerrufen nicht möglich: Der Text hat sich geändert."
+ },
+ "writeSetting": {
+  "message": "Prüfen und Umschreiben bei Feldern"
+ },
+ "writeSettingHint": {
+  "message": "Prüfen und Umschreiben berücksichtigen die Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Jedes Tippen zählt als eine Antwort. Wie du auf jeder Website schreibst, bleibt auf diesem Gerät und hilft, deinen Stil zu treffen."
+ },
+ "writeSkip": {
+  "message": "Ignorieren"
+ },
+ "writeFixAll": {
+  "message": "Alle korrigieren"
+ },
+ "writeSlow": {
+  "message": "Das dauert zu lange und wurde abgebrochen. Bitte versuch es noch einmal."
+ },
+ "writeUpdated": {
+  "message": "ContextFlow wurde aktualisiert. Lade die Seite neu, um Prüfen und Umschreiben zu nutzen."
+ },
+ "writeReload": {
+  "message": "Neu laden"
+ },
+ "underlineSetting": {
+  "message": "Fehler beim Tippen unterstreichen"
+ },
+ "underlineSettingHint": {
+  "message": "Pro und Ultra: Nach einer Tipppause wird nur der geänderte Absatz geprüft, mit Blick auf die Seite. Zeig auf eine Unterstreichung (auf iPhone und iPad tippen), um sie zu korrigieren. Zählt nicht als Antwort."
+ },
+ "setSide": {
+  "message": "Bildschirmseite"
+ },
+ "sideRight": {
+  "message": "Rechts"
+ },
+ "sideLeft": {
+  "message": "Links"
+ },
+ "hintSideTitle": {
+  "message": "Panel und ✦-Taste lassen sich an den anderen Rand ziehen"
+ },
+ "hintSideTitleSheet": {
+  "message": "Die ✦-Taste lässt sich an den anderen Rand ziehen"
+ },
+ "hintSideBody": {
+  "message": "Zieh das Panel an seiner Kopfzeile oder zieh die Taste. Die Seite kannst du auch in den Einstellungen wählen."
+ },
+ "hintSideBodySheet": {
+  "message": "Zieh sie nach links oder rechts. Die Seite kannst du auch in den Einstellungen wählen."
+ },
+ "hintNewTitle": {
+  "message": "Neu in ContextFlow 2.7"
+ },
+ "hintNewTranslate": {
+  "message": "Eine Seite in einer anderen Sprache: Die Zeile „Auf Deutsch übersetzen?“ an der ✦-Taste stellt die Seite selbst auf deine Sprache um."
+ },
+ "hintNewWrite": {
+  "message": "An einem Feld, in dem du schreibst: „Prüfen“ und „Umschreiben“, mit Blick auf die Seite."
+ },
+ "hintNewSpaces": {
+  "message": "Bereiche trennen Arbeit und Privates: „Neuer Bereich“ steht am Ende der Chatliste."
+ },
+ "hintNewApple": {
+  "message": "„Zu Kalender oder Erinnerungen“ steht im Menü „…“ einer Antwort."
+ },
+ "hintNewShot": {
+  "message": "„Seiten-Schnappschuss“: Eine Notiz kann ein Bild der Seite behalten."
+ },
+ "hintNewSide": {
+  "message": "Die ✦-Taste kann an den linken oder rechten Rand: Zieh sie hinüber."
+ },
+ "hintAllTips": {
+  "message": "Alle Tipps"
+ },
+ "phSimilar": {
+  "message": "Günstiger finden?"
+ },
+ "phWatch": {
+  "message": "Preis beobachten?"
+ },
+ "phSummary": {
+  "message": "Seite zusammenfassen?"
+ },
+ "phListen": {
+  "message": "Artikel anhören?"
+ },
+ "phVideo": {
+  "message": "Etwas zum Video fragen?"
+ },
+ "phTemplates": {
+  "message": "Mit Vorlage antworten?"
+ },
+ "phRemind": {
+  "message": "Daran erinnern?"
+ },
+ "phCalendar": {
+  "message": "Zum Kalender hinzufügen?"
+ },
+ "phClose": {
+  "message": "Tipp ausblenden"
+ },
+ "phSimilarTitle": {
+  "message": "Günstiger finden"
+ },
+ "phSimilarBody": {
+  "message": "Markiere den Produktnamen → „Ähnliches finden“ oder tippe auf die hervorgehobene Taste: dasselbe günstiger und Ähnliches."
+ },
+ "phSimilarBodyUp": {
+  "message": "Das ist in Ultra: dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
+ },
+ "phWatchTitle": {
+  "message": "Preis beobachten"
+ },
+ "phWatchBody": {
+  "message": "Markiere den Preis, daneben erscheint ein Auge. Oder „…“ (hervorgehoben) → „Diese Seite beobachten…“. Ich melde mich, wenn er sich ändert."
+ },
+ "phSummaryTitle": {
+  "message": "Zusammenfassung"
+ },
+ "phSummaryBody": {
+  "message": "Tippe auf das hervorgehobene „Zusammenfassen“: das Wichtigste der Seite in wenigen Zeilen."
+ },
+ "phListenTitle": {
+  "message": "Artikel anhören"
+ },
+ "phListenBody": {
+  "message": "Öffne „…“ (hervorgehoben) → „Diese Seite anhören“: Der Artikel wird vorgelesen."
+ },
+ "phListenBodyUp": {
+  "message": "Vorlesen ist in Ultra. Öffne „…“ (hervorgehoben) → „Diese Seite anhören“."
+ },
+ "phVideoTitle": {
+  "message": "Frage zum Video"
+ },
+ "phVideoBody": {
+  "message": "Frag im hervorgehobenen Feld nach dem Video: Ich antworte anhand der Untertitel."
+ },
+ "phVideoBodyUp": {
+  "message": "Antworten anhand der Untertitel gibt es in Pro. Frag im hervorgehobenen Feld."
+ },
+ "phTemplatesTitle": {
+  "message": "Mit Vorlage antworten"
+ },
+ "phTemplatesBody": {
+  "message": "Setz den Cursor in ein Feld auf der Seite, daneben erscheint die Vorlagen-Taste. Deine Vorlagen: „…“ (hervorgehoben) → „Einstellungen“ → „Vorlagen“."
+ },
+ "phRemindTitle": {
+  "message": "Erinnern"
+ },
+ "phRemindBody": {
+  "message": "Schreib ins hervorgehobene Feld, zum Beispiel „erinnere mich morgen um 9“, und ich schlage eine Erinnerung vor."
+ },
+ "phCalendarTitle": {
+  "message": "In den Kalender"
+ },
+ "phCalendarBody": {
+  "message": "Schreib „in den Kalender“ ins hervorgehobene Feld, und ich schlage einen Termin mit dem Datum der Seite vor."
+ },
+ "setPageHints": {
+  "message": "Tipps an der ✦-Taste"
+ },
+ "setPageHintsHint": {
+  "message": "In den ersten Tagen zeigen sie, was du auf einer Seite tun kannst."
+ },
+ "phSimilarBodyUpBoth": {
+  "message": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
+ },
+ "shotSwitch": {
+  "message": "Seiten-Schnappschuss"
+ },
+ "shotVisible": {
+  "message": "Sichtbarer Bereich"
+ },
+ "shotFull": {
+  "message": "Ganze Seite"
+ },
+ "shotProOnly": {
+  "message": "Die ganze Seite gibt es mit Pro und Ultra."
+ },
+ "shotTaking": {
+  "message": "Schnappschuss wird erstellt…"
+ },
+ "shotTakingFull": {
+  "message": "Schnappschuss: Bildschirm {0} von {1}…"
+ },
+ "shotFailed": {
+  "message": "Hier ließ sich kein Schnappschuss machen. Die Notiz ist ohne ihn gespeichert."
+ },
+ "shotCut": {
+  "message": "Die Seite ist lang: Der Schnappschuss zeigt ihre ersten {0} Bildschirme."
+ },
+ "shotOpen": {
+  "message": "Schnappschuss öffnen"
+ },
+ "shotNote": {
+  "message": "Schnappschuss der Seite"
+ },
+ "shotCrop": {
+  "message": "Zuschneiden"
+ },
+ "shotCropDone": {
+  "message": "Fertig"
+ },
+ "shotCropReset": {
+  "message": "Ganzer Schnappschuss"
+ },
+ "shotLoading": {
+  "message": "Schnappschuss wird geöffnet…"
+ },
+ "shotMissing": {
+  "message": "Dieser Schnappschuss ist noch nicht auf diesem Gerät. Er kommt über iCloud, wenn deine Chats dort synchronisiert werden."
+ },
+ "invTitle": {
+  "message": "Freunde einladen"
+ },
+ "invHint": {
+  "message": "Dein Freund bekommt Bonusantworten: +{0} pro Tag in der ersten Woche. Du bekommst {1}% Rabatt auf den ersten Monat Pro oder Ultra, sobald er an zwei verschiedenen Tagen Fragen gestellt hat."
+ },
+ "invButton": {
+  "message": "Code und Link holen"
+ },
+ "invYourCode": {
+  "message": "Dein Code"
+ },
+ "invCopy": {
+  "message": "Kopieren"
+ },
+ "invCopied": {
+  "message": "Kopiert"
+ },
+ "invShare": {
+  "message": "Teilen"
+ },
+ "invShareText": {
+  "message": "Ich nutze ContextFlow, KI direkt auf der Seite in Safari. Mit meinem Code {0} bekommst du in der ersten Woche Bonusantworten: {1}"
+ },
+ "invFriends": {
+  "message": "Mit deinem Code gekommen: {0} · nutzen es: {1}"
+ },
+ "invRewardTitle": {
+  "message": "Ein eingeladener Freund nutzt ContextFlow"
+ },
+ "invRewardBody": {
+  "message": "Danke: {0}% Rabatt auf den ersten Monat Pro oder Ultra, du wählst. Der App Store gewährt ihn, wenn du diesen Rabatt noch nicht genutzt hast."
+ },
+ "invRewardPro": {
+  "message": "Pro −{0}%"
+ },
+ "invRewardUltra": {
+  "message": "Ultra −{0}%"
+ },
+ "invRewardAnswers": {
+  "message": "Beide Rabatte schon genutzt? Nimm stattdessen Bonusantworten: +{0} pro Tag für eine Woche"
+ },
+ "invAnswersOn": {
+  "message": "Deine Bonusantworten gelten bis zum {0}."
+ },
+ "invEnterTitle": {
+  "message": "Code von einem Freund?"
+ },
+ "invEnterPlaceholder": {
+  "message": "Code oder Link"
+ },
+ "invEnter": {
+  "message": "Eingeben"
+ },
+ "invEntered": {
+  "message": "Code angenommen: Bonusantworten, +{0} pro Tag, bis zum {1}."
+ },
+ "invEnteredOn": {
+  "message": "Du bist mit dem Code eines Freundes gekommen: Bonusantworten, +{0} pro Tag, bis zum {1}."
+ },
+ "invErrUnknown": {
+  "message": "Diesen Code gibt es nicht. Prüfe ihn und versuche es noch einmal."
+ },
+ "invErrOwn": {
+  "message": "Das ist dein eigener Code. Schick ihn einem Freund."
+ },
+ "invErrAlready": {
+  "message": "Hier wurde schon ein Code eines Freundes eingegeben."
+ },
+ "invErrLate": {
+  "message": "Der Code eines Freundes gilt in der ersten Woche nach der Installation."
+ },
+ "invErrFull": {
+  "message": "Dieser Code hat sein Limit erreicht."
+ },
+ "invErrDevice": {
+  "message": "Auf diesem Gerät wurde schon ein Code eines Freundes genutzt."
+ },
+ "invErrCheck": {
+  "message": "Das Gerät ließ sich nicht prüfen. Gib den Code in der ContextFlow-App ein."
+ },
+ "invErrLater": {
+  "message": "Das hat gerade nicht geklappt. Versuche es später noch einmal."
+ },
+ "colAdd": {
+  "message": "In Sammlung"
+ },
+ "colTab": {
+  "message": "Sammlungen"
+ },
+ "colChat": {
+  "message": "Chat"
+ },
+ "colSuggestAi": {
+  "message": "KI-Vorschlag"
+ },
+ "colSuggestWords": {
+  "message": "passt am besten"
+ },
+ "colNewSection": {
+  "message": "+ neuer Abschnitt"
+ },
+ "colNewCollection": {
+  "message": "+ Neue Sammlung"
+ },
+ "colNamePlaceholder": {
+  "message": "Name, zum Beispiel Japanreise"
+ },
+ "colSectionPlaceholder": {
+  "message": "Name des Abschnitts"
+ },
+ "colFirstSection": {
+  "message": "Notizen"
+ },
+ "colCreate": {
+  "message": "Erstellen"
+ },
+ "colAdded": {
+  "message": "Zu „{0}“ hinzugefügt → {1}"
+ },
+ "colCards_one": {
+  "message": "{0} Karte"
+ },
+ "colCards_two": {
+  "message": "{0} Karten"
+ },
+ "colCards_few": {
+  "message": "{0} Karten"
+ },
+ "colCards_many": {
+  "message": "{0} Karten"
+ },
+ "colCards_other": {
+  "message": "{0} Karten"
+ },
+ "colEmpty": {
+  "message": "Noch keine Sammlungen. Tippe unter einer Antwort oder Notiz auf „In Sammlung“."
+ },
+ "colEmptyCards": {
+  "message": "Noch keine Karten."
+ },
+ "colToChat": {
+  "message": "← Zum Chat"
+ },
+ "colCompare": {
+  "message": "Vergleichen"
+ },
+ "colCompareN": {
+  "message": "{0} vergleichen"
+ },
+ "colComparePick": {
+  "message": "Tippe 2 bis 8 Karten an"
+ },
+ "colSummary": {
+  "message": "Zusammenfassung"
+ },
+ "colPdf": {
+  "message": "PDF"
+ },
+ "colOpenChat": {
+  "message": "Chat öffnen"
+ },
+ "colMoveTo": {
+  "message": "Nach „{0}“ verschieben"
+ },
+ "colRemove": {
+  "message": "Aus der Sammlung entfernen"
+ },
+ "colThisPage": {
+  "message": "diese Seite"
+ },
+ "colNote": {
+  "message": "Notiz"
+ },
+ "colComparison": {
+  "message": "Vergleich"
+ },
+ "colLimitCollections": {
+  "message": "Kostenlos hast du eine Sammlung. Mit Pro so viele du willst."
+ },
+ "colLimitCards": {
+  "message": "Kostenlos fasst eine Sammlung {0} Karten. Mit Pro bis zu {1}."
+ },
+ "colProOnly": {
+  "message": "Vergleichen und Zusammenfassung gibt es in Pro."
+ },
+ "colWorking": {
+  "message": "Einen Moment …"
+ },
+ "colFailed": {
+  "message": "Hat gerade nicht geklappt. Versuch es später noch einmal."
+ },
+ "colLimitDay": {
+  "message": "Für heute ist Schluss: morgen wieder."
+ },
+ "colGone": {
+  "message": "Diese Sammlung wurde gelöscht."
+ },
+ "colPdfMadeWith": {
+  "message": "erstellt mit"
+ },
+ "colPdfBrand": {
+  "message": "ContextFlow — KI für Safari"
+ },
+ "colPdfOpenChat": {
+  "message": "Chat in ContextFlow öffnen"
+ },
+ "colPdfFooter": {
+  "message": "Erstellt mit ContextFlow"
+ },
+ "colPdfSave": {
+  "message": "Als PDF sichern"
+ },
+ "colPick": {
+  "message": "Sammlung: {0}. Wechseln"
+ },
+ "colCardMenu": {
+  "message": "Kartenaktionen"
+ },
+ "shotAdd": {
+  "message": "Schnappschuss"
+ },
+ "shotAdded": {
+  "message": "Schnappschuss hinzugefügt"
+ },
+ "colIn": {
+  "message": "In „{0}“"
+ },
+ "colOpen": {
+  "message": "Sammlung öffnen"
+ },
+ "colAddOther": {
+  "message": "In eine andere Sammlung"
+ },
+ "colAlready": {
+  "message": "Schon in „{0}“"
+ },
+ "tipNew": {
+  "message": "Neu"
+ },
+ "matchBackTo": {
+  "message": "Zurück zu „{0}“"
+ },
+ "writeCompose": {
+  "message": "Verfassen"
+ },
+ "writeComposeGo": {
+  "message": "Schreiben"
+ },
+ "writeComposing": {
+  "message": "Schreibe mit Blick auf die Seite…"
+ },
+ "writeComposeHint": {
+  "message": "Was soll drinstehen? In deinen Worten"
+ },
+ "writeComposeEdit": {
+  "message": "Anfrage ändern"
+ },
+ "writeToneAsk": {
+  "message": "Welcher Ton?"
+ },
+ "writeInserted": {
+  "message": "Eingefügt"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
@@ -2306,14 +3164,26 @@
  "tip_af26b6788c": {
   "message": "✦ aus dem Weg schieben"
  },
- "tip_6d2694aec4": {
-  "message": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt."
+ "tip_1b3fa8b31a": {
+  "message": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Auf dem iPad kannst du auch das Panel an seiner Kopfzeile auf die andere Seite ziehen. „Bildschirmseite“ in den Erweiterungseinstellungen macht dasselbe."
+ },
+ "tip_cbec05fbfd": {
+  "message": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Auch das Panel kannst du an seiner Kopfzeile auf die andere Seite ziehen, oder du wählst „Bildschirmseite“ in den Erweiterungseinstellungen."
  },
  "tip_2749afe54a": {
   "message": "Das Wesentliche mit einem Tipp"
  },
  "tip_487a14e710": {
   "message": "„Zusammenfassen“, „Das Wichtigste“, „Einfach erklären“ und „Übersetzen“ arbeiten mit der ganzen Seite – ganz ohne Prompt."
+ },
+ "tip_33e83f4818": {
+  "message": "Eine Seite in deiner Sprache lesen"
+ },
+ "tip_f8f753be8a": {
+  "message": "Ist eine Seite in einer anderen Sprache, tippe auf die Zeile „Auf Deutsch übersetzen?“ an der ✦-Taste: Die Seite selbst wechselt samt Links in deine Sprache, und die Übersetzung läuft beim Scrollen weiter. „Original“ holt jedes Wort zurück. Eine Seite zählt als eine Antwort pro Woche, egal wie oft du sie übersetzt."
+ },
+ "tip_22f41ab2de": {
+  "message": "Ist eine Seite in einer anderen Sprache, klick auf die Zeile „Auf Deutsch übersetzen?“ an der ✦-Taste: Die Seite selbst wechselt samt Links in deine Sprache, und die Übersetzung läuft beim Scrollen weiter. „Original“ holt jedes Wort zurück. Eine Seite zählt als eine Antwort pro Woche, egal wie oft du sie übersetzt."
  },
  "tip_d22c90dac1": {
   "message": "Nach einem Teil fragen"
@@ -2354,8 +3224,17 @@
  "tip_6ba198cbff": {
   "message": "Eigene Notizen"
  },
- "tip_6a92f6c633": {
-  "message": "Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten."
+ "tip_b210a078de": {
+  "message": "Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben, oder tippe auf + neben dem Feld und wähle „Notiz“. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten."
+ },
+ "tip_ac13420c59": {
+  "message": "Ein Schnappschuss zur Notiz"
+ },
+ "tip_dff446b7cc": {
+  "message": "Du schreibst eine Notiz? Schalte „Seiten-Schnappschuss“ über dem Feld ein, und die Notiz behält ein Bild der Seite: den sichtbaren Bereich oder mit Pro die ganze Seite. Tippe auf das Bild, um es im Vollbild zu öffnen und zuzuschneiden. Es bleibt auf deinen Geräten und in deiner iCloud."
+ },
+ "tip_3ca344f02e": {
+  "message": "Du schreibst eine Notiz? Schalte „Seiten-Schnappschuss“ über dem Feld ein, und die Notiz behält ein Bild der Seite: den sichtbaren Bereich oder mit Pro die ganze Seite. Klick auf das Bild, um es im Vollbild zu öffnen und zuzuschneiden. Es bleibt auf deinen Geräten und in deiner iCloud."
  },
  "tip_654fb12e51": {
   "message": "Das Wichtige hervorheben"
@@ -2384,8 +3263,8 @@
  "tip_e012ef5f59": {
   "message": "Der ganze Chat im Blick"
  },
- "tip_3a70cee32e": {
-  "message": "Schalte „Ganzer Chat“ unter dem Eingabefeld ein, wenn eine Antwort alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und die geöffnete Seite."
+ "tip_511d363377": {
+  "message": "Schalte „Ganzer Chat“ unter + neben dem Eingabefeld ein, wenn eine Antwort alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und die geöffnete Seite."
  },
  "tip_ca29a1f4ed": {
   "message": "Fragen zu einem Video"
@@ -2402,11 +3281,11 @@
  "tip_de4adc7524": {
   "message": "Ähnliches finden"
  },
- "tip_b2248495b1": {
-  "message": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+ "tip_2c6d9f34e3": {
+  "message": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu. Ultra sucht vollständig und öffnet jeden Link, um ihn zu prüfen, bevor du ihn siehst. Pro hat eine schnelle Suche, bis zu 5 pro Woche, und jede zählt als 10 Antworten."
  },
- "tip_31666a3aab": {
-  "message": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+ "tip_9bb47159a4": {
+  "message": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu. Ultra sucht vollständig und öffnet jeden Link, um ihn zu prüfen, bevor du ihn siehst. Pro hat eine schnelle Suche, bis zu 5 pro Woche, und jede zählt als 10 Antworten."
  },
  "tip_c518fb0674": {
   "message": "Anhören"
@@ -2429,6 +3308,24 @@
  "tip_a8e1d14e5b": {
   "message": "Tippe in einem beliebigen Feld auf einer Seite / und ein paar Wörter einer Vorlage, dann Tab. Control-Umschalt-V öffnet die ganze Liste: was du in anderen Tabs kopiert hast, deine Vorlagen und die letzte Antwort von ContextFlow."
  },
+ "tip_8213493414": {
+  "message": "Vor dem Senden prüfen oder umschreiben"
+ },
+ "tip_4a10311c4a": {
+  "message": "Du schreibst eine E-Mail oder einen Kommentar? Tippe auf die ContextFlow-Taste neben dem Feld: „Prüfen“ und „Umschreiben“ stehen ganz oben in der Liste. „Prüfen“ korrigiert Fehler, „Umschreiben“ macht den Text kürzer, herzlicher, förmlicher oder selbstbewusster. Beide berücksichtigen die Seite, etwa die E-Mail, auf die du antwortest, und „Widerrufen“ holt deine Worte zurück. Jedes Tippen zählt als eine Antwort."
+ },
+ "tip_cf8bbe1b2a": {
+  "message": "Du schreibst eine E-Mail oder einen Kommentar? Sobald ein paar Wörter dastehen, zeig auf den Kreis über dem Feld: „Prüfen“ korrigiert Fehler, „Umschreiben“ macht den Text kürzer, herzlicher, förmlicher oder selbstbewusster. Beide berücksichtigen die Seite, etwa die E-Mail, auf die du antwortest, und „Widerrufen“ holt deine Worte zurück. Jeder Klick zählt als eine Antwort."
+ },
+ "tip_898fe0f06c": {
+  "message": "Fehler beim Tippen unterstrichen"
+ },
+ "tip_b9954518f0": {
+  "message": "Mit Pro oder Ultra reicht eine Tipppause, und ein Fehler im geänderten Absatz wird unterstrichen. Tippe auf die Unterstreichung, um die Korrektur zu sehen, dann auf „Korrigieren“ oder „Ignorieren“. Das zählt nicht als Antwort, und du kannst es in den Erweiterungseinstellungen ausschalten."
+ },
+ "tip_7e0eabc91c": {
+  "message": "Mit Pro oder Ultra reicht eine Tipppause, und ein Fehler im geänderten Absatz wird unterstrichen. Zeig auf die Unterstreichung, um die Korrektur zu sehen, dann klick auf „Korrigieren“ oder „Ignorieren“. Das zählt nicht als Antwort, und du kannst es in den Erweiterungseinstellungen ausschalten."
+ },
  "tip_451fa9ccb6": {
   "message": "Kopiertes, einen Tag lang"
  },
@@ -2450,6 +3347,12 @@
  "tip_b5d4d7711a": {
   "message": "Du liest etwas, das du später zu Ende lesen willst? Markiere eine Zeile und tippe auf die Glocke, oder tippe oben im Panel auf „…“, dann auf „An diese Seite erinnern…“, und wähle eine Zeit: Die Erinnerung öffnet diese Seite. Antworten und Notizen haben „Erinnern“ in ihrem Menü „…“."
  },
+ "tip_529cd4b087": {
+  "message": "Zu Kalender oder Erinnerungen"
+ },
+ "tip_c20a65b22a": {
+  "message": "Schreib „erinnere mich, am Freitag die Bank anzurufen“ oder frag nach einem Datum auf der Seite: Die Antwort kommt mit einer Karte, auf der du Datum und Uhrzeit prüfst, und „Hinzufügen“ trägt es in Kalender oder Erinnerungen ein. Jede Antwort und Notiz hat „Zu Kalender oder Erinnerungen“ in ihrem Menü „…“. Unter „Erinnern“ legt „Auch in Erinnerungen“ deine Erinnerung zusätzlich in der Erinnerungen-App von Apple an."
+ },
  "tip_74c328b672": {
   "message": "Wissen, wann der Preis fällt"
  },
@@ -2465,6 +3368,24 @@
  "tip_623811ea30": {
   "message": "Mit + startest du einen neuen Chat. Frühere warten in der Chatliste: Öffne einen, um weiterzumachen, benenne ihn mit dem Stift um oder lösche ihn."
  },
+ "tip_827a76a38d": {
+  "message": "Bereiche für Arbeit und Privates"
+ },
+ "tip_6bf925510c": {
+  "message": "Halte Arbeit, Privates und Einkaufen auseinander. „Neuer Bereich“ am Ende der Chatliste legt einen neuen in eigener Farbe an. Mit dem Umschalter oben in der Liste wechselst du zwischen ihnen, und ein neuer Chat landet im Bereich, in dem du gerade bist. Im Umschalter hält „amazon.com hier öffnen“ diese Website in diesem Bereich. Kostenlos ist ihre Zahl begrenzt, mit Pro oder Ultra so viele du willst."
+ },
+ "tip_3512a4ae8c": {
+  "message": "Der Chat zu dieser Seite"
+ },
+ "tip_05b9621aed": {
+  "message": "Öffne das Panel auf einer Seite, und ContextFlow wählt den Chat dazu: den mit dieser Seite oder einen zum selben Thema. „Weiter in“ oben zeigt, welchen Chat es gewählt hat; „Neuer Chat“ daneben startet einen frischen."
+ },
+ "tip_8d1c1aa55d": {
+  "message": "Alles in einer Sammlung"
+ },
+ "tip_397645bf6c": {
+  "message": "Du planst eine Reise oder einen Kauf? Wähle „In Sammlung“ unter einer Antwort oder Notiz oder in ihrem …-Menü, und ContextFlow schlägt vor, wohin sie gehört. In „Sammlungen“ liegt alles in Abschnitten, in Safari und in der App. Mit Pro sortiert die KI die Karten, „Vergleichen“ stellt die gewählten nebeneinander, und „Zusammenfassung“ fasst alles zusammen. Jede Sammlung lässt sich als PDF sichern."
+ },
  "tip_c4b432e2e9": {
   "message": "Durchsuche deine Chats"
  },
@@ -2474,8 +3395,8 @@
  "tip_2e4668f650": {
   "message": "Tags und Ordner"
  },
- "tip_6b5bdf707f": {
-  "message": "Versieh einen Chat, eine Antwort oder Notiz mit 🏷. Tippe auf einen Tag, um nur seine Chats zu sehen, oder schalte „Ordner“ ein, um die Liste nach Tags zu gruppieren."
+ "tip_d3d95ad05c": {
+  "message": "Versieh einen Chat, eine Antwort oder Notiz mit 🏷 oder über „Tag“ im …-Menü. Tippe auf einen Tag, um nur seine Chats zu sehen, oder schalte „Ordner“ ein, um die Liste nach Tags zu gruppieren."
  },
  "tip_752fb307f2": {
   "message": "Teile, was du gefunden hast"
@@ -2522,11 +3443,11 @@
  "tip_12e62d9862": {
   "message": "Pro und Ultra gibt es monatlich oder jährlich, und ein Jahr kostet weniger als zwölf Monate. Tippe über den Tarifen auf „Jährlich“, in der App oder in Safari, um jeden Preis und deine Ersparnis zu sehen. Schon monatlich dabei? „Auf jährlich umstellen“ findest du unter „Einstellungen“ → „Dein Tarif“: Es gilt ab dem Ende deines aktuellen Monats."
  },
- "tip_9288a85bb9": {
-  "message": "Was dein Tarif bietet"
+ "tip_3ee4fbeeb2": {
+  "message": "Freunde einladen"
  },
- "tip_0f2289f887": {
-  "message": "Nach dem Kauf von Pro oder Ultra zeigt dir ContextFlow Schritt für Schritt, was dein Tarif bietet. Um es noch einmal zu sehen, tippe oben im Panel auf „…“, dann auf „Weiteres …“ und „Was Pro bietet“ oder „Was Ultra bietet“. In der App findest du es in den „Einstellungen“ unter „Dein Tarif“."
+ "tip_0e8493432d": {
+  "message": "„Einstellungen“ → „Freunde einladen“, in der App oder in Safari, gibt dir einen Code und einen Link zum Verschicken. Dein Freund bekommt in seiner ersten Woche jeden Tag Bonusantworten. Sobald er an zwei verschiedenen Tagen Fragen gestellt hat, bekommst du Rabatt auf den ersten Monat Pro oder Ultra."
  },
  "tip_3208aa35ac": {
   "message": "Datenschutz & Personalisierung"
@@ -2542,6 +3463,12 @@
  },
  "tip_6cc366173d": {
   "message": "Brauchst du ✦ auf einer Website nicht? Blende die Taste dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+ },
+ "tip_cc54dd5946": {
+  "message": "Tipps an der ✦-Taste"
+ },
+ "tip_325d207bb4": {
+  "message": "In den ersten Tagen schlägt eine kurze Zeile an der ✦-Taste etwas für die Seite vor, auf der du bist: eine Zusammenfassung eines langen Artikels, einen Preis zum Beobachten, ein Datum für deinen Kalender. Tippe darauf, um zu sehen, wie es geht. Die Zeilen schaltest du in den Erweiterungseinstellungen unter „Tipps an der ✦-Taste“ ab."
  },
  "tip_8a727e1bbe": {
   "message": "Eigenen API-Schlüssel nutzen"

@@ -45,10 +45,16 @@ test("only the circle and Safari's toolbar button pick it; Ask AI on a selection
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   assert.match(app, /const onToggle = \(\) => \(open \? hide\(\) : show\(undefined, \{ pageChat: true \}\)\)/)
   assert.match(app, /const onOpen = \(\) => show\(undefined, \{ pageChat: true \}\)/)
-  assert.match(app, /\} else \{\n\s*show\(undefined, \{ pageChat: true \}\)\n\s*\}/)
+  // The circle's tap (a press without a drag, src/content/side/drag.ts since 2.7's sides).
+  assert.match(app, /onTap: \(\) => show\(undefined, \{ pageChat: true \}\)/)
   assert.match(app, /pageChatRef\.current = Boolean\(how\?\.pageChat && !captured\)/)
-  assert.match(app, /const found = pageChat \? chatForPage\(threads, key\) : null/)
+  // 2.7: inside the space the panel is in, or the site's bound space, by the rules of «Подходящий чат» (match.ts,
+  // tests/match.test.mts): this page's chat first, as here.
+  assert.match(app, /let place = pageChat \? matchChat\(threads, was, key, source\.title\(\), list, on\) : null/)
+  assert.match(app, /const found = place \? place\.chat \?\? newThreadId\(\) : null/)
   // Stored before the sync reads which chat is open.
-  assert.match(app, /if \(active !== was\) await setActiveThread\(active\.id\)/)
-  assert.equal((app.match(/pageChat: true/g) ?? []).length, 3)
+  assert.match(app, /if \(active !== was\) await setActiveThread\(active\.id, place\?\.space\)/)
+  // 2.7 (plan section 6): a page hint's line sits by the circle and its tap opens the panel as the circle's does.
+  assert.match(app, /const openFromHint = useCallback\(\(\) => show\(undefined, \{ pageChat: true \}\), \[show\]\)/)
+  assert.equal((app.match(/pageChat: true/g) ?? []).length, 4)
 })

@@ -9,7 +9,7 @@
 //   CF_OPEN_SHADOW=1       the panel's shadow root left open for Playwright checks (test builds only)
 //
 // Output layout (stable file names, so the Xcode project never needs edits):
-//   manifest.json  welcome.html  popup.html  dist/*.js  dist/clip.html  icons/*.png  _locales/<lang>/messages.json
+//   manifest.json  welcome.html  popup.html  dist/*.js  dist/clip.html  dist/collection.html  icons/*.png  _locales/<lang>/messages.json
 
 import { context, build } from "esbuild"
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
@@ -50,7 +50,9 @@ function manifest() {
     permissions: ["storage", "activeTab", "scripting", "alarms", ...(target === "safari" ? ["nativeMessaging"] : [])],
     host_permissions: ["http://*/*", "https://*/*"],
     content_scripts: [
-      { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false }
+      { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false },
+      // The frames of a translated page (build 110): a small script that waits to be told (src/content/frame.ts).
+      { matches: ["http://*/*", "https://*/*"], js: ["dist/frame.js"], run_at: "document_idle", all_frames: true }
     ],
     // The Tips clips' page (2.6 (91)): the panel shows the app's clips in a frame of it, so pages must be able to.
     // Under dist/ (a folder the Xcode project copies whole; files at the root are listed one by one there).
@@ -114,6 +116,8 @@ function statics() {
   cpSync(join(root, "extension/icons"), join(out, "icons"), { recursive: true })
   mkdirSync(join(out, "dist"), { recursive: true })
   cpSync(join(root, "src/pages/clip.html"), join(out, "dist/clip.html"))
+  // A collection's printable page (2.7 «Подборки»): the panel's «PDF» opens it in a tab.
+  cpSync(join(root, "src/pages/collection.html"), join(out, "dist/collection.html"))
   locales()
   clips()
 }
@@ -123,9 +127,11 @@ const options = {
   entryPoints: {
     background: "src/background/index.ts",
     content: "src/content/index.tsx",
+    frame: "src/content/frame.ts",
     popup: "src/popup/index.tsx",
     welcome: "src/pages/welcome.ts",
-    clip: "src/pages/clip.ts"
+    clip: "src/pages/clip.ts",
+    collection: "src/pages/collection.ts"
   },
   outdir: join(out, "dist"),
   bundle: true,

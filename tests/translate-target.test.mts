@@ -64,3 +64,19 @@ test("the fallback's label and prompt read right in each interface language", ()
   assert.equal(fill(msg("zh_TW").selTranslateTo, languageName("en", "zh-Hant")), "翻譯成英文")
   assert.equal(fill(msg("vi").selTranslateTo, languageName("en", "vi")), "Dịch sang Tiếng Anh")
 })
+
+test("names and dates inside the panel's sentences are in the panel's language, as it writes them", () => {
+  // English is also the interface for every language the panel doesn't speak: «Translate to Turkish?», not «turkish».
+  const msg = (lang: string) => JSON.parse(readFileSync(new URL(`../src/locales/${lang}.json`, import.meta.url), "utf8"))
+  assert.equal(msg("en").trOfferTo.replace("{0}", languageName("tr", "en")), "Translate to Turkish?")
+  const pill = readFileSync(new URL("../src/content/translate/TranslatePill.tsx", import.meta.url), "utf8")
+  const keep = /\/\^\(([a-z|]+)\)\/\.test\(uiLang\(\)\) \? name/.exec(pill)?.[1].split("|") ?? []
+  for (const lang of ["de", "en"]) assert.ok(keep.includes(lang), `${lang} keeps the capital`)
+  assert.ok(!keep.includes("ru") && !keep.includes("fr"), "«на турецкий», «en turc»")
+  // A date in a sentence goes by the interface's language (uiLang), not the browser's (a Turkish Safari, English panel).
+  const read = (path: string) => readFileSync(new URL(`../src/${path}`, import.meta.url), "utf8")
+  assert.match(read("content/invite/Invite.tsx"), /toLocaleDateString\(uiLang\(\), \{ day: "numeric", month: "long" \}\)/)
+  for (const path of ["content/App.tsx", "content/Settings.tsx", "content/listen/useListen.tsx"]) {
+    assert.doesNotMatch(read(path), /toLocaleDateString\((undefined[^)]*)?\)/, `${path}: a date in the browser's language`)
+  }
+})

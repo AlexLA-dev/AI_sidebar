@@ -118,9 +118,15 @@ struct ChatEntry: Decodable, Hashable {
     /// Where a cited note's quote ends in its text (after the closing mark), or nil when the text doesn't start with it
     /// (src/shared/conversation.ts citeEnd: the opening mark is “ « „ 「 or « with a space).
     private var citeEnd: String.Index? {
-        guard let cite, !cite.isEmpty, let found = content.range(of: cite, options: .literal),
+        guard isNote, let cite, !cite.isEmpty, let found = content.range(of: cite, options: .literal),
               content.utf16.distance(from: content.startIndex, to: found.lowerBound) <= 3 else { return nil }
         return content.range(of: "\n\n", options: .literal, range: found.upperBound..<content.endIndex)?.lowerBound ?? content.endIndex
+    }
+
+    /// The selection a question was asked on (build 110, src/shared/conversation.ts askedCite): shown over the question.
+    var askedCite: String? {
+        guard isUser, !isNote, let cite, !cite.isEmpty else { return nil }
+        return cite
     }
 
     /// A note made from a selection, apart (citedNote): its quote and the person's own words ("" for none); nil for any
@@ -184,6 +190,8 @@ struct ChatThread: Identifiable, Hashable {
     /// What organizing suggested for it, kept with it so every device shows it at once and knows what was turned down
     /// (2.6 (93), "org").
     let org: OrgState?
+    /// 2.7: the space it's in ("sp"); nil, or a space there isn't (deleted, not here yet): the first (SpaceRecord).
+    let space: String?
 
     /// A part read on its own: one that doesn't make sense is nil, the chat still reads.
     private struct Lenient<T: Decodable>: Decodable {
@@ -200,6 +208,7 @@ struct ChatThread: Identifiable, Hashable {
         var tags: [String]?
         var trashed: Double?
         var org: Lenient<OrgState>?
+        var sp: String?
         var m: [ChatEntry]
     }
 
@@ -225,6 +234,7 @@ struct ChatThread: Identifiable, Hashable {
         ownTags = Tags.clean(stored.tags ?? [])
         trashedAt = stored.trashed.flatMap { $0.isFinite && abs($0) < 9e15 ? Int64($0) : nil }
         org = stored.org?.value
+        space = stored.sp.flatMap { $0.isEmpty || $0.count > 64 ? nil : $0 }
         entries = stored.m
     }
 
@@ -297,7 +307,7 @@ struct ChatThread: Identifiable, Hashable {
     /// The same chat with its name and pin changed, as of `updatedAt`. For each: nil keeps it,
     /// `.some(nil)` removes it, `.some(value)` sets it. `trashed` the same: in Recently Deleted since then, or out of it.
     /// Every other field stays as it is in the JSON, those this version doesn't know too.
-    func edited(title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, org: OrgState?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
+    func edited(title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, org: OrgState?? = nil, space: String?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
         let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
         guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
         switch title {
@@ -331,6 +341,12 @@ struct ChatThread: Identifiable, Hashable {
         case .none: break
         case .some(.none): object.removeValue(forKey: "org")
         case .some(.some(let value)): object["org"] = value.json
+        }
+        // 2.7: «Переместить в…» (the first space: none).
+        switch space {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "sp")
+        case .some(.some(let value)): object["sp"] = value
         }
         // Renaming, pinning, tagging, deleting or restoring keeps the chat's place by its last message.
         if object["a"] == nil { object["a"] = lastAt }
@@ -366,25 +382,27 @@ struct ChatThread: Identifiable, Hashable {
 enum ShareText {
     struct Labels {
         let you, note, sources, source, madeWith: String
+        /// The language's quotes around {0}: a question's selection (build 110; the panel's noteQuote).
+        var quote = "“{0}”"
     }
 
     static let appLink = "https://apps.apple.com/app/contextflow-ai-web-assistant/id6759115793"
 
     private static let byLanguage: [String: Labels] = [
-        "ar": Labels(you: "أنت", note: "ملاحظة", sources: "المصادر", source: "المصدر", madeWith: "صُنع باستخدام ContextFlow"),
-        "de": Labels(you: "Du", note: "Notiz", sources: "Quellen", source: "Quelle", madeWith: "Erstellt mit ContextFlow"),
+        "ar": Labels(you: "أنت", note: "ملاحظة", sources: "المصادر", source: "المصدر", madeWith: "صُنع باستخدام ContextFlow", quote: "«{0}»"),
+        "de": Labels(you: "Du", note: "Notiz", sources: "Quellen", source: "Quelle", madeWith: "Erstellt mit ContextFlow", quote: "„{0}“"),
         "en": Labels(you: "You", note: "Note", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow"),
-        "es": Labels(you: "Tú", note: "Nota", sources: "Fuentes", source: "Fuente", madeWith: "Hecho con ContextFlow"),
-        "fr": Labels(you: "Vous", note: "Note", sources: "Sources", source: "Source", madeWith: "Créé avec ContextFlow"),
-        "it": Labels(you: "Tu", note: "Nota", sources: "Fonti", source: "Fonte", madeWith: "Creato con ContextFlow"),
-        "ja": Labels(you: "あなた", note: "メモ", sources: "出典", source: "出典", madeWith: "ContextFlowで作成"),
+        "es": Labels(you: "Tú", note: "Nota", sources: "Fuentes", source: "Fuente", madeWith: "Hecho con ContextFlow", quote: "«{0}»"),
+        "fr": Labels(you: "Vous", note: "Note", sources: "Sources", source: "Source", madeWith: "Créé avec ContextFlow", quote: "« {0} »"),
+        "it": Labels(you: "Tu", note: "Nota", sources: "Fonti", source: "Fonte", madeWith: "Creato con ContextFlow", quote: "«{0}»"),
+        "ja": Labels(you: "あなた", note: "メモ", sources: "出典", source: "出典", madeWith: "ContextFlowで作成", quote: "「{0}」"),
         "ko": Labels(you: "나", note: "메모", sources: "출처", source: "출처", madeWith: "ContextFlow로 작성"),
         "pt_BR": Labels(you: "Você", note: "Nota", sources: "Fontes", source: "Fonte", madeWith: "Feito com o ContextFlow"),
-        "ru": Labels(you: "Вы", note: "Заметка", sources: "Источники", source: "Источник", madeWith: "Сделано в ContextFlow"),
-        "uk": Labels(you: "Ви", note: "Нотатка", sources: "Джерела", source: "Джерело", madeWith: "Зроблено в ContextFlow"),
+        "ru": Labels(you: "Вы", note: "Заметка", sources: "Источники", source: "Источник", madeWith: "Сделано в ContextFlow", quote: "«{0}»"),
+        "uk": Labels(you: "Ви", note: "Нотатка", sources: "Джерела", source: "Джерело", madeWith: "Зроблено в ContextFlow", quote: "«{0}»"),
         "vi": Labels(you: "Bạn", note: "Ghi chú", sources: "Nguồn", source: "Nguồn", madeWith: "Tạo bằng ContextFlow"),
         "zh_CN": Labels(you: "你", note: "笔记", sources: "来源", source: "来源", madeWith: "由 ContextFlow 生成"),
-        "zh_TW": Labels(you: "你", note: "筆記", sources: "來源", source: "來源", madeWith: "用 ContextFlow 製作")
+        "zh_TW": Labels(you: "你", note: "筆記", sources: "來源", source: "來源", madeWith: "用 ContextFlow 製作", quote: "「{0}」")
     ]
 
     /// The labels in the chat's language, or the app's.
@@ -449,7 +467,9 @@ enum ShareText {
         for (i, entry) in entries.enumerated() where only?.contains(i) ?? true {
             if entry.isUser {
                 if let page = entry.page { add(page) }
-                lines.append(entry.isNote ? "\(labels.note): \(entry.content)" : "\(labels.you): \(entry.label ?? entry.content)")
+                // A question asked on a selection: the selection first, as the chat shows it (build 110).
+                let asked = entry.askedCite.map { labels.quote.replacingOccurrences(of: "{0}", with: $0) + "\n" + (entry.label ?? entry.content) } ?? entry.label ?? entry.content
+                lines.append(entry.isNote ? "\(labels.note): \(entry.content)" : "\(labels.you): \(asked)")
             } else {
                 if let page = pageOf(entries, i) { add(page) }
                 lines += ["ContextFlow: \(answerText(entry, labels))", ""]
@@ -609,6 +629,16 @@ final class ChatLibrary: ObservableObject {
     @Published private(set) var trashed: [ChatThread] = []
     @Published private(set) var cloud: Cloud = .off
     @Published private(set) var loaded = false
+    /// Spaces (2.7, SpaceRecord): the list as the extension, iCloud and this app keep it.
+    @Published private(set) var spaceList = SpaceRecord.List()
+    private var spaceItem: ChatMirror.Item?
+    /// Подборки (2.7, Collections.swift): every collection, deleted ones too, and each record's time here.
+    @Published private(set) var boards: [Board] = []
+    private(set) var boardTimes: [String: Int64] = [:]
+    /// The space the Chats screen shows (this device's app; Safari's panel keeps its own).
+    @Published var currentSpace: String = UserDefaults.standard.string(forKey: "cf_space_current") ?? SpaceRecord.first {
+        didSet { UserDefaults.standard.set(currentSpace, forKey: "cf_space_current") }
+    }
 
     /// How long a deleted chat stays in Recently Deleted (src/shared/threads.ts TRASH_DAYS).
     static let trashDays = 30
@@ -674,6 +704,42 @@ final class ChatLibrary: ObservableObject {
             if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
                 _ = ChatMirror.apply(saves: ["debug-long": ChatMirror.Item(updatedAt: at, data: text)])
             }
+        }
+        // 2.7 Collections (screenshots): -CFDebugSeedBoard YES puts two sample chats and a collection made from them here
+        // (sections, cards, a comparison, a summary), on neutral pages.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedBoard"), ChatMirror.chats()["debug-trip"] == nil {
+            let at = Int64(Date().timeIntervalSince1970 * 1000) - 3_600_000
+            func page(_ url: String, _ title: String, _ t: Int64) -> [String: Any] { ["url": url, "title": title, "at": t] }
+            let qa: [(String, String, String, String)] = [
+                ("https://guide.example/tokyo/shinjuku", "Shinjuku area guide", "Is Shinjuku good for a first visit?", "Shinjuku is easy for a first visit: many metro lines, lively until late."),
+                ("https://guide.example/tokyo/asakusa", "Asakusa area guide", "And Asakusa?", "Asakusa is quieter and cheaper, near old Tokyo and the train to Nikko."),
+                ("https://flights.example/tokyo-march", "Flights to Tokyo in March", "When should I book for March?", "Tickets to Tokyo for March are cheaper two or three months ahead: prices rise in cherry blossom season."),
+                ("https://visit.example/sakura", "Cherry blossom forecast", "Where to see the blossom?", "Blossom in Tokyo usually peaks at the end of March; Ueno Park and the Meguro River are the best spots.")
+            ]
+            var m: [[String: Any]] = []
+            for (i, x) in qa.enumerated() {
+                let t = at + Int64(i) * 60_000
+                m.append(["role": "user", "content": x.2, "id": "tq\(i)", "t": t, "page": page(x.0, x.1, t)])
+                m.append(["role": "assistant", "content": x.3, "id": "ta\(i)", "t": t + 5_000, "tags": i == 2 ? ["trip"] : []])
+            }
+            m.append(["role": "user", "content": "Bring a plug adapter for US sockets", "note": true, "id": "tn0", "t": at + 300_000])
+            let trip: [String: Any] = ["title": "Trip to Japan", "a": at + 300_000, "m": m]
+            if let data = try? JSONSerialization.data(withJSONObject: trip), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-trip": ChatMirror.Item(updatedAt: at + 300_000, data: text)])
+            }
+            let now = Double(at + 400_000)
+            var board = Board(id: CollectionRecord.prefix + "debug-trip", name: "Trip to Japan", space: nil, now: now, first: ("stay", "Where to stay"))
+            board.addSection("fly", "Flights", now: now, ai: true)
+            board.addSection("see", "What to see", now: now, ai: true)
+            board.addSection("money", "Money and phone", now: now)
+            if let thread = ChatThread(id: "debug-trip", updatedAt: at + 300_000, data: (try? String(data: JSONSerialization.data(withJSONObject: trip), encoding: .utf8) ?? "") ?? "") {
+                for (index, sec) in [(1, "stay"), (3, "stay"), (5, "fly"), (7, "see"), (8, "money")] {
+                    if let card = Board.card(from: thread, index, id: "debug-card-\(index)", section: sec, now: now) { board.addCard(card, now: now) }
+                }
+                board.addComparison("debug-compare", of: ["debug-card-1", "debug-card-3"], table: BoardTable(h: ["Area", "Night", "Metro"], r: [["Shinjuku", "≈ ¥22,000", "3 min"], ["Asakusa", "≈ ¥14,000", "5 min"]], note: "Asakusa: a third cheaper, a little farther"), now: now)
+            }
+            board.setSummary("Fly at the end of March for the blossom and book the tickets now. Stay in Shinjuku or Asakusa. Get a Suica card and an eSIM first.", now: now)
+            if let data = board.json { _ = ChatMirror.apply(saves: [board.id: ChatMirror.Item(updatedAt: Int64(now), data: data)]) }
         }
         // A big library (2.6 (92): the app hung opening chats with hundreds of them): -CFDebugSeedChats 300 puts that
         // many chats here, 40 topics over their sites, with page texts, notes and the user's tags.
@@ -882,7 +948,14 @@ final class ChatLibrary: ObservableObject {
 
     private func reload() {
         let items = ChatMirror.chats()
-        let all = items.compactMap { id, item in ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
+        // The spaces' list (2.7) is kept next to the chats; it isn't one.
+        spaceItem = items[SpaceRecord.id]
+        spaceList = spaceItem.flatMap { SpaceRecord.parse($0.data) } ?? SpaceRecord.List()
+        // The collections (2.7) too: records of their own, not chats.
+        let collections = items.filter { CollectionRecord.isCollection($0.key) }
+        boards = collections.compactMap { Board(id: $0.key, data: $0.value.data) }
+        boardTimes = collections.mapValues(\.updatedAt)
+        let all = items.compactMap { id, item in id == SpaceRecord.id || CollectionRecord.isCollection(id) ? nil : ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
             .filter { !$0.entries.isEmpty }
         threads = all.filter { !$0.isTrashed }.sorted(by: Self.listOrder)
         trashed = all.filter(\.isTrashed).sorted { a, b in a.trashedAt != b.trashedAt ? a.trashedAt! > b.trashedAt! : a.id < b.id }
@@ -1095,6 +1168,112 @@ final class ChatLibrary: ObservableObject {
         }
     }
 
+    // MARK: Spaces (2.7)
+
+    /// Settings' switch, shared with Safari's panel (on by default). Off: one list of every chat, no switcher; the
+    /// spaces and which chat is in which stay.
+    var spacesOn: Bool {
+        get { SharedDefaults.shared.readSettings()?.settings["spaces"] as? Bool ?? true }
+        set {
+            var stored = SharedDefaults.shared.readSettings()?.settings ?? [:]
+            stored["spaces"] = newValue
+            SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+            objectWillChange.send()
+        }
+    }
+
+    /// The spaces there are, the first one always.
+    var spaces: [SpaceRecord.Shown] { SpaceRecord.live(spaceList, firstName: String(localized: "Personal", comment: "The first space's name until it's renamed (2.7 Spaces)")) }
+
+    /// More than one space, Spaces on: only then do the switcher, the colours and moving chats show.
+    var hasSpaces: Bool { spacesOn && spaces.count > 1 }
+
+    /// The space the Chats screen is in (a deleted one: the first).
+    var shownSpace: String { spacesOn ? SpaceRecord.resolve(spaceList, currentSpace) : SpaceRecord.first }
+
+    /// The space a chat is in.
+    func spaceOf(_ thread: ChatThread) -> SpaceRecord.Shown {
+        let id = SpaceRecord.resolve(spaceList, thread.space)
+        return spaces.first { $0.id == id } ?? spaces[0]
+    }
+
+    /// The chats of the space shown (every chat with Spaces off, or one space).
+    func inSpace(_ list: [ChatThread]) -> [ChatThread] {
+        guard hasSpaces else { return list }
+        let here = shownSpace
+        return list.filter { SpaceRecord.resolve(spaceList, $0.space) == here }
+    }
+
+    /// Whether another space can be made: Free has SpaceRecord.freeSpaces (the first counts), Pro and Ultra no limit.
+    func canAddSpace(pro: Bool) -> Bool { pro || spaces.count < SpaceRecord.freeSpaces }
+
+    /// The colour a new space starts with: the first one no space has.
+    var nextColor: String {
+        let used = Set(spaces.map(\.color))
+        return SpaceRecord.colors.first { !used.contains($0.name) }?.name ?? SpaceRecord.colors[spaces.count % SpaceRecord.colors.count].name
+    }
+
+    /// Changes the list and stores it here, for the extension and in iCloud, as a chat's change goes.
+    private func changeSpaces(_ change: (inout SpaceRecord.List, Double) -> Void) {
+        var list = spaceList
+        let at = Double(max(now, (spaceItem?.updatedAt ?? 0) + 1))
+        change(&list, at)
+        guard list != spaceList else { return }
+        storeRecord(SpaceRecord.id, ChatMirror.Item(updatedAt: Int64(at), data: SpaceRecord.json(list)))
+    }
+
+    /// A record that isn't a chat (the spaces' list, a collection): here, for the extension, and in iCloud, as a chat's
+    /// change goes. ChatMirror and ChatSync merge it with the copies already there.
+    func storeRecord(_ id: String, _ item: ChatMirror.Item) {
+        ChatMirror.apply(saves: [id: item])
+        ChatMirror.queue(.init(id: id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
+        reload()
+        if syncOn {
+            Task { await syncCloud([.save(.init(id: id, updatedAt: item.updatedAt, data: item.data))]) }
+        }
+    }
+
+    /// A new space, at the end of the list; the Chats screen goes into it.
+    func addSpace(name: String, color: String) {
+        let id = UUID().uuidString.lowercased()
+        let order = (spaces.map(\.order).max() ?? 0) + 1
+        let clean = SpaceRecord.cleanName(name)
+        changeSpaces { list, at in
+            list.spaces[id] = SpaceRecord.Space(id: id, n: clean.isEmpty ? nil : clean, c: color, o: order, u: at)
+        }
+        currentSpace = id
+    }
+
+    /// A space renamed or recoloured (the first one too: under its default name it keeps none).
+    func editSpace(_ id: String, name: String, color: String, firstName: String) {
+        let clean = SpaceRecord.cleanName(name)
+        changeSpaces { list, at in
+            let stored = list.spaces[id]
+            guard stored?.d != true, stored != nil || id == SpaceRecord.first else { return }
+            let n = id == SpaceRecord.first && clean == firstName ? nil : (clean.isEmpty ? nil : clean)
+            list.spaces[id] = SpaceRecord.Space(id: id, n: n, c: color, o: stored?.o, u: max(at, (stored?.u ?? 0) + 1))
+        }
+    }
+
+    /// A space deleted: its chats are in the first space from now on, its sites open as any other.
+    func deleteSpace(_ id: String) {
+        guard id != SpaceRecord.first else { return }
+        changeSpaces { list, at in
+            guard let stored = list.spaces[id], !stored.d else { return }
+            list.spaces[id] = SpaceRecord.Space(id: id, u: max(at, stored.u + 1), d: true)
+            for (host, binding) in list.bindings where binding.s == id { list.bindings[host] = SpaceRecord.Binding(s: nil, u: max(at, binding.u + 1)) }
+        }
+        if currentSpace == id { currentSpace = SpaceRecord.first }
+    }
+
+    /// «Переместить в…»: the chat goes into `space`; its place in the list stays.
+    func moveChat(_ thread: ChatThread, to space: String) {
+        guard SpaceRecord.resolve(spaceList, thread.space) != space else { return }
+        let at = max(now, thread.updatedAt + 1)
+        guard let item = thread.edited(title: nil, pin: nil, space: .some(space == SpaceRecord.first ? nil : space), updatedAt: at) else { return }
+        store(thread, item)
+    }
+
     // MARK: Organizing (2.5)
 
     /// Moves messages `start`…`end` of a chat (a page block) to another chat, or to a new one (nil), as
@@ -1202,6 +1381,8 @@ final class ChatLibrary: ObservableObject {
         let previous = threads.first { $0.id == id }
         // The stored JSON with the new messages: its name, pin, tags and the fields a newer version wrote stay.
         var object = previous.flatMap { (try? JSONSerialization.jsonObject(with: Data($0.data.utf8))) as? [String: Any] } ?? [:]
+        // 2.7: a new one goes into the space the Chats screen is in.
+        if previous == nil, spacesOn, shownSpace != SpaceRecord.first { object["sp"] = shownSpace }
         object["k"] = "history"
         object["a"] = at
         object["m"] = messages

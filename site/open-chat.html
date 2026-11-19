@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>ContextFlow</title>
+<link rel="icon" href="/icon.png" />
+<link rel="stylesheet" href="/style.css" />
+<style>
+  /* «Открыть чат в ContextFlow» from a collection's PDF (2.7 «Подборки»): opens the chat in the app; without the app,
+     the App Store page (the owner's decision). Nothing is sent anywhere: the chat's id stays in this address. */
+  body { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; }
+  .box { max-width: 420px; text-align: center; }
+  .box img { width: 72px; height: 72px; border-radius: 18px; }
+  .box h1 { font-size: 22px; margin: 16px 0 8px; }
+  .box p { color: var(--text-2); margin: 0 0 18px; }
+  .box .btn { display: inline-block; padding: 12px 20px; border-radius: 12px; background: var(--blue); color: #fff; font-weight: 600; text-decoration: none; }
+  .box .again { display: block; margin-top: 14px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="box">
+  <img src="/icon-512.png" alt="" />
+  <h1 id="title">Opening the chat in ContextFlow…</h1>
+  <p id="body">The chat is on the device that saved this collection. Without ContextFlow, get it on the App Store.</p>
+  <a class="btn" id="store" href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=pdf_chat&amp;mt=8">App Store</a>
+  <a class="again" id="again" href="#">Open in ContextFlow</a>
+</div>
+<script>
+(function () {
+  var W = {
+    en: ["Opening the chat in ContextFlow…", "The chat is on the device that saved this collection. Without ContextFlow, get it on the App Store.", "Open in ContextFlow"],
+    ru: ["Открываю чат в ContextFlow…", "Чат хранится на устройстве, где собрали подборку. Если ContextFlow нет, он есть в App Store.", "Открыть в ContextFlow"],
+    uk: ["Відкриваю чат у ContextFlow…", "Чат зберігається на пристрої, де зібрали добірку. Якщо ContextFlow немає, він є в App Store.", "Відкрити в ContextFlow"],
+    de: ["Chat wird in ContextFlow geöffnet …", "Der Chat liegt auf dem Gerät, auf dem die Sammlung entstand. Ohne ContextFlow: im App Store laden.", "In ContextFlow öffnen"],
+    fr: ["Ouverture de la discussion dans ContextFlow…", "La discussion se trouve sur l’appareil où la collection a été faite. Sans ContextFlow, téléchargez-le sur l’App Store.", "Ouvrir dans ContextFlow"],
+    es: ["Abriendo el chat en ContextFlow…", "El chat está en el dispositivo donde se hizo la colección. Sin ContextFlow, descárgalo en el App Store.", "Abrir en ContextFlow"],
+    it: ["Apro la chat in ContextFlow…", "La chat è sul dispositivo dove è stata creata la raccolta. Senza ContextFlow, scaricalo dall’App Store.", "Apri in ContextFlow"],
+    pt: ["Abrindo a conversa no ContextFlow…", "A conversa está no aparelho onde a coleção foi feita. Sem o ContextFlow, baixe na App Store.", "Abrir no ContextFlow"],
+    ja: ["ContextFlow でチャットを開いています…", "チャットはこのコレクションを作ったデバイスにあります。ContextFlow がなければ App Store で入手できます。", "ContextFlow で開く"],
+    ko: ["ContextFlow에서 채팅을 여는 중…", "채팅은 이 컬렉션을 만든 기기에 있습니다. ContextFlow가 없다면 App Store에서 받으세요.", "ContextFlow에서 열기"],
+    "zh-hans": ["正在 ContextFlow 中打开对话…", "对话保存在整理这个合集的设备上。没有 ContextFlow？可在 App Store 获取。", "在 ContextFlow 中打开"],
+    "zh-hant": ["正在 ContextFlow 中打開對話…", "對話保存在整理這個合集的裝置上。沒有 ContextFlow？可在 App Store 取得。", "在 ContextFlow 中打開"],
+    vi: ["Đang mở cuộc trò chuyện trong ContextFlow…", "Cuộc trò chuyện nằm trên thiết bị đã tạo bộ sưu tập này. Chưa có ContextFlow, hãy tải trên App Store.", "Mở trong ContextFlow"],
+    ar: ["جارٍ فتح المحادثة في ContextFlow…", "المحادثة على الجهاز الذي جُمعت فيه هذه المجموعة. إن لم يكن ContextFlow لديك فهو في App Store.", "افتح في ContextFlow"]
+  };
+  var nav = (navigator.language || "en").toLowerCase();
+  var key = /^zh-(tw|hk|mo|hant)/.test(nav) ? "zh-hant" : /^zh/.test(nav) ? "zh-hans" : nav.split("-")[0];
+  var w = W[key] || W.en;
+  document.documentElement.lang = key;
+  if (key === "ar") document.documentElement.dir = "rtl";
+  document.getElementById("title").textContent = w[0];
+  document.getElementById("body").textContent = w[1];
+  document.getElementById("again").textContent = w[2];
+  var q = new URLSearchParams(location.search);
+  var id = q.get("id") || "";
+  var m = q.get("m") || "";
+  if (!/^[\w-]{1,80}$/.test(id) || (m && m.length > 200)) { document.getElementById("again").hidden = true; return; }
+  var app = "contextflow://chat?id=" + encodeURIComponent(id) + (m ? "&m=" + encodeURIComponent(m) : "");
+  document.getElementById("again").href = app;
+  // The app opens and this page goes to the background; still here after a moment: no app, so the App Store.
+  location.href = app;
+  setTimeout(function () { if (!document.hidden) location.href = document.getElementById("store").href; }, 1800);
+})();
+</script>
+</body>
+</html>

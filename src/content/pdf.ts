@@ -145,6 +145,15 @@ export function findPdfs(doc: Document, base: string): PdfOnPage[] {
   return found.slice(0, MAX_PDFS)
 }
 
+/**
+ * What the panel calls the page by its PDFs (2.7, the director's acceptance of 108: an article on Wikipedia that only
+ * links a PDF said «I can see this PDF» and «Reading the PDF…»): a PDF only when the page shows one; a page that
+ * links one is a page (its linked PDFs are still read with the question, as before).
+ */
+export function pdfShown(pdfs: readonly PdfOnPage[]): boolean {
+  return pdfs.some((p) => p.embedded)
+}
+
 /** True when the page shows or links a PDF worth a "reading the PDF" moment. */
 export function hasPdfs(doc: Document, base: string): boolean {
   return findPdfs(doc, base).length > 0

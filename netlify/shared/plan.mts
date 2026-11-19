@@ -4,6 +4,7 @@ import { toEntitlement, verifyTransactionCached, type Entitlement } from "./appl
 import { config, PRODUCTS, type Plan } from "./config.mts"
 import { logEvent, upsertEntitlement, type Counter } from "./db.mts"
 import { hasPro, isUltra, PLAN_RANK } from "../../src/shared/plan.ts"
+import { USE_KINDS, useSubject, type UseKind } from "../../src/shared/spent.ts"
 
 export { hasPro, isUltra } from "../../src/shared/plan.ts"
 
@@ -128,8 +129,11 @@ function proLimit(plan: Plan): number {
   return isUltra(plan) ? config.ultra.weeklyLimit : config.proWeeklyLimit
 }
 
-/** Counters a request is charged against, by plan. */
-export function countersFor(access: Access, installId: string, ipSubject: string): Counter[] {
+/**
+ * Counters a request is charged against, by plan. `extra`: answers a day on top of the free ones (2.7, invite a friend:
+ * a friend's first week, see invite.mts inviteExtra); only the free allowance has them.
+ */
+export function countersFor(access: Access, installId: string, ipSubject: string, extra = 0): Counter[] {
   if (hasPro(access.plan) && access.entitlement) {
     // One counter per subscription: an upgrade Pro → Ultra keeps the original transaction, so what was used
     // this week carries over.
@@ -141,10 +145,44 @@ export function countersFor(access: Access, installId: string, ipSubject: string
   // Free and BYOK users share the free allowance when they use our server
   // (BYOK subscribers normally talk to OpenAI directly with their own key).
   return [
-    { subject: `install:${installId}`, period: "day", limit: config.freeDailyLimit },
+    { subject: `install:${installId}`, period: "day", limit: config.freeDailyLimit + Math.max(0, extra) },
     { subject: ipSubject, period: "day", limit: config.freeIpDailyLimit },
     { subject: "global:free", period: "day", limit: config.freeGlobalDailyLimit }
   ]
+}
+
+/** The answers' own counter among `counters`: the subscription's week ("tx:…") or the install's day ("install:…"). */
+function answersCounter(counters: Counter[]): Counter | undefined {
+  return counters.find((c) => c.subject.startsWith("tx:") || c.subject.startsWith("install:"))
+}
+
+/**
+ * What the answers went on (2.7 (110), src/shared/spent.ts): `counters` and, next to the answers' own counter, the one
+ * of `kind`, with no limit and the same amount, so it's charged and given back with it. No answers' counter (a guided
+ * first answer, which isn't charged): nothing added.
+ */
+export function withUse(counters: Counter[], kind: UseKind): Counter[] {
+  const main = answersCounter(counters)
+  if (!main) return counters
+  return [...counters, { subject: useSubject(kind, main.subject), period: main.period, limit: null, ...(main.amount ? { amount: main.amount } : {}) }]
+}
+
+/** The breakdown's counters for /api/v2/status, read with peek next to `counters` (countersFor). */
+export function useCountersFor(counters: Counter[]): Counter[] {
+  const main = answersCounter(counters)
+  return main ? USE_KINDS.map((kind) => ({ subject: useSubject(kind, main.subject), period: main.period, limit: null })) : []
+}
+
+/** The breakdown as the clients get it, `usage.by`: answers this period by kind. */
+export function useBreakdown(state: { subject: string; n: number }[], counters: Counter[]): Partial<Record<UseKind, number>> {
+  const main = answersCounter(counters)
+  const by: Partial<Record<UseKind, number>> = {}
+  if (!main) return by
+  for (const kind of USE_KINDS) {
+    const n = state.find((c) => c.subject === useSubject(kind, main.subject))?.n ?? 0
+    if (n > 0) by[kind] = n
+  }
+  return by
 }
 
 /** Extra counters for a Google (search-grounded) answer, charged together with countersFor(). */
@@ -192,8 +230,24 @@ export function similarCountersFor(access: Access): Counter[] {
   return [{ subject: `similar:tx:${otid}`, period: "week", limit: config.ultra.similarWeekly }]
 }
 
-/** An Ultra allowance as the clients show it: used of limit this week, and when it starts again. */
-export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:"): Usage | null {
+/**
+ * Find similar's light search (2.7, Own key and Pro): the week's searches per device, a wider week per network address,
+ * a day for everyone; and for Pro, SIMILAR_PRO_ANSWERS of the week's answers (the answers' own counters, charged with
+ * that amount, so the usage line shows it; all of it or none). LIMIT_REACHED shows ultraUsage(…, "similarlight:") for
+ * the searches, visibleUsage() for the answers.
+ */
+export function similarLightCounters(access: Access, installId: string, ip: string): Counter[] {
+  const searches: Counter[] = [
+    { subject: `similarlight:${installId}`, period: "week", limit: config.similar.lightWeekly },
+    { subject: `similarlight:ip:${ip}`, period: "week", limit: config.similar.lightIpWeekly },
+    { subject: "global:similarlight", period: "day", limit: config.similar.lightGlobalDaily }
+  ]
+  if (access.plan !== "pro" || !access.entitlement) return searches
+  return [...searches, ...withUse(countersFor(access, installId, ip).map((c) => ({ ...c, amount: config.similar.proAnswers })), "similar")]
+}
+
+/** An Ultra allowance (or the light search's week) as the clients show it: used of limit, and when it starts again. */
+export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:" | "similarlight:"): Usage | null {
   const own = counters.find((c) => c.subject.startsWith(prefix) && !c.subject.startsWith("global:"))
   if (!own || own.limit === null) return null
   // The allowance as sold (a text's finishing room isn't shown).
@@ -206,6 +260,8 @@ export interface Usage {
   limit: number
   period: "day" | "week"
   resetsAt: string
+  // What they went on (/api/v2/status only, 110).
+  by?: Partial<Record<UseKind, number>>
 }
 
 /** The counter the user sees ("3 of 5 today"). */
@@ -236,6 +292,6 @@ export function blockReason(blocked: string | null): "limit" | "busy" | "ip" | "
   if (blocked.startsWith("ip:")) return "ip"
   if (blocked.startsWith("search:")) return "search"
   if (blocked.startsWith("speak:")) return "speak"
-  if (blocked.startsWith("similar:")) return "similar"
+  if (blocked.startsWith("similar:") || blocked.startsWith("similarlight:")) return "similar"
   return "limit"
 }
