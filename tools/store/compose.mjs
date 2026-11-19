@@ -244,9 +244,20 @@ const COPY_ALL = {
     v27Links: "Los enlaces siguen funcionando", v26Similar: ["Opciones más baratas,", "cada enlace comprobado"], guideHost: "slowtravel.com" },
   tr: { hero: ["Safari'de her sayfayı", "özetleyin"], nosignup: "Kayıt gerekmez", v27Translate: ["Sayfayı olduğu yerde", "çevirin"],
     v27Links: "Bağlantılar çalışmaya devam eder", v26Similar: ["Daha ucuz seçenekler,", "her bağlantı kontrol edildi"] },
+  ar: {"hero": ["لخّص أي صفحة", "في Safari"], "nosignup": "دون تسجيل", "v27Translate": ["ترجم الصفحة", "دون مغادرتها"], "v27Links": "الروابط تبقى فعّالة", "v26Similar": ["بدائل أرخص،", "مع فحص كل رابط"]},
+  ja: {"hero": ["Safariで", "どのページも要約"], "nosignup": "登録不要", "v27Translate": ["今見ているページを", "その場で翻訳"], "v27Links": "リンクもそのまま使える", "v26Similar": ["より安い選択肢、", "全リンク確認済み"]},
+  ko: {"hero": ["Safari에서", "어떤 페이지든 요약"], "nosignup": "회원가입 없이", "v27Translate": ["보고 있는 페이지를", "그 자리에서 번역"], "v27Links": "링크도 그대로 작동", "v26Similar": ["더 저렴한 선택지,", "모든 링크 확인 완료"]},
+  pt_BR: {"hero": ["Resuma qualquer", "página no Safari"], "nosignup": "Sem cadastro", "v27Translate": ["Traduza a página", "sem sair dela"], "v27Links": "Links seguem funcionando", "v26Similar": ["Opções mais baratas,", "cada link verificado"]},
+  uk: {"hero": ["Підсумуйте будь-яку", "сторінку в Safari"], "nosignup": "Без реєстрації", "v27Translate": ["Перекладіть сторінку", "не залишаючи її"], "v27Links": "Посилання й далі працюють", "v26Similar": ["Дешевші варіанти,", "усі посилання перевірено"]},
+  vi: {"hero": ["Tóm tắt mọi trang", "ngay trong Safari"], "nosignup": "Không cần đăng ký", "v27Translate": ["Dịch trang web", "ngay tại chỗ"], "v27Links": "Liên kết vẫn hoạt động", "v26Similar": ["Lựa chọn rẻ hơn,", "kiểm tra từng liên kết"]},
+  zh_CN: {"hero": ["在 Safari 中", "总结任何网页"], "nosignup": "无需注册", "v27Translate": ["直接在网页上", "翻译整个页面"], "v27Links": "链接照样能点", "v26Similar": ["更便宜的选择，", "每个链接都已检查"]},
   zh_TW: { hero: ["在 Safari 中", "摘要任何網頁"], nosignup: "無需註冊", v27Translate: ["直接在網頁上", "翻譯整頁"],
     v27Links: "連結照樣能點", v26Similar: ["更便宜的選擇，", "每個連結都已檢查"] }
 }
+// The caption page's language: CJK glyphs and Arabic shaping follow it.
+// Arabic: the captions and badges read right to left; the device and its Safari stay as drawn.
+const RTL_CSS = lang === "ar" ? ".cap, .pill { direction: rtl; } .pill { padding: 20px 20px 20px 38px; }" : ""
+const HTML_LANG = { zh_TW: "zh-Hant", zh_CN: "zh-Hans", pt_BR: "pt-BR" }[lang] ?? lang
 const COPY = { ...COPY_ALL.en, ...(COPY_ALL[lang] ?? {}) }
 
 // The day on the iPad's status bar: the captures' page dates show today too.
@@ -449,7 +460,7 @@ const V27 = (k) => {
 const V27_ORDER = ["summary", "translate", "similar", "collections", "spaces", "check", "organize", "listen", "calendar", "snapshot"]
 const SETS_V27 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => [k, V27_ORDER.map((n) => V27(k)[n])]))
 // The localized first three (the ads' markets), iPhone and iPad.
-const SETS_V27_FIRST = Object.fromEntries(["iphone", "ipad"].map((k) => [k, V27_ORDER.slice(0, 3).map((n) => V27(k)[n])]))
+const SETS_V27_FIRST = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => [k, V27_ORDER.slice(0, 3).map((n) => V27(k)[n])]))
 
 // 2.7: the page for people moving to Safari. Ask the page first (the app's icon and "No sign-up needed", as on the
 // version's first screen), then the summary's key points, web answers with sources, the same chats everywhere,
@@ -942,7 +953,7 @@ function page(device, count, index, spec, size) {
   for (const c of spec.callouts ?? (spec.callout ? [spec.callout] : [])) body += callout(kind, spec.shot, c, dark, g)
   if (spec.banner) body += banner(spec.banner)
   body += pills(spec.pills, dark, { iphone: 1, ipad: 1.25, mac: 1.3 }[kind])
-  return `<!doctype html><html><head><meta charset="utf-8"><style>:root{--W:${device.W}px;--H:${device.H}px}${CSS}</style></head>
+  return `<!doctype html><html lang="${HTML_LANG}"><head><meta charset="utf-8"><style>:root{--W:${device.W}px;--H:${device.H}px}${CSS}${RTL_CSS}</style></head>
 <body class="${dark ? "dark" : ""}">${body}
 <script>
 // Status bar takes the colour of the page right under it (dimmed by the sheet backdrop or not).
