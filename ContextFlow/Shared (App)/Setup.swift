@@ -471,6 +471,74 @@ enum SetupReminders {
     }
 }
 
+// MARK: - The page Safari opens on from the app
+
+/// Where «Open Safari» leads (2.7 (110), the owner on TestFlight 109: «Плохо, что при первом открытии Safari из
+/// приложения открывается Google поиск, лучше открывать наш сайт»). Until 110 it was a web search for "ContextFlow".
+/// Now it's the site's page about what ContextFlow does, in the person's language: a page with text of its own, so
+/// the panel's first request (Summarize, then a question about a selection) has something to work on.
+///
+/// Only a page that is in production: a new page gets there with a production deploy of the site, and a TestFlight
+/// build must not lead to a 404. `live` are the site's languages that answered there when 110 was built; a language
+/// translated since (`later`) is asked for once, before the first use, and until it answers the English page is used.
+enum FirstPage {
+    static let site = "https://context-flow.app"
+    static let page = "features"
+    /// The visit is counted apart from the people who typed the address (the site's counter reads utm_source).
+    static let source = "utm_source=app"
+    static let live: Set<String> = ["ar", "de", "es", "fr", "it", "ja", "ko", "pt-br", "ru", "uk", "vi", "zh-hans", "zh-hant"]
+    static let later: Set<String> = ["tr"]
+
+    /// The site's folder for one of the app's languages ("pt-BR" → "pt-br"); nil for English, whose pages are at the root.
+    static func folder(_ localization: String) -> String? {
+        let name = localization.lowercased().replacingOccurrences(of: "_", with: "-")
+        return name == "en" || name.hasPrefix("en-") ? nil : name
+    }
+
+    /// The page for the app's language: its own where the site has it (`confirmed`: the `later` ones that answered),
+    /// the English one otherwise.
+    static func address(localization: String, confirmed: Set<String>) -> String {
+        if let folder = folder(localization), live.contains(folder) || (later.contains(folder) && confirmed.contains(folder)) {
+            return "\(site)/\(folder)/\(page)?\(source)"
+        }
+        return "\(site)/\(page)?\(source)"
+    }
+
+    private static let confirmedKey = "cf_first_page_confirmed"
+    private static var localization: String { Bundle.main.preferredLocalizations.first ?? "en" }
+    private static var confirmed: Set<String> { Set(UserDefaults.standard.stringArray(forKey: confirmedKey) ?? []) }
+
+    /// The address to open now.
+    static var url: URL? { URL(string: address(localization: localization, confirmed: confirmed)) }
+
+    /// A `later` language's page asked for once it's needed (nothing for the others): remembered when it answers.
+    static func confirm() async {
+        guard let folder = folder(localization), later.contains(folder), !confirmed.contains(folder),
+              let url = URL(string: "\(site)/\(folder)/\(page)") else { return }
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 3)
+        request.httpMethod = "HEAD"
+        guard let (_, response) = try? await URLSession.shared.data(for: request), (response as? HTTPURLResponse)?.statusCode == 200 else { return }
+        UserDefaults.standard.set(Array(confirmed.union([folder])), forKey: confirmedKey)
+    }
+
+    #if os(iOS)
+    /// Safari itself with the page (iOS 17 and later: the x-safari- scheme opens Safari even when another browser is
+    /// the default); before that, the page in the default browser.
+    @MainActor
+    static func open() {
+        Task { @MainActor in
+            await confirm()
+            guard let page = url else { return }
+            if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
+                UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
+            } else {
+                UIApplication.shared.open(page)
+            }
+        }
+    }
+    #endif
+}
+
 #if os(iOS)
 // MARK: - Setup guide (iOS)
 

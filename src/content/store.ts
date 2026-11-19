@@ -76,6 +76,28 @@ export async function markTourSeen(): Promise<void> {
   await set(STORAGE.tourSeen, true)
 }
 
+/**
+ * Calls `listener` when the first run's marks change somewhere else: another tab's panel, or the background starting
+ * the first run over (src/shared/firstRun.ts). Each tab read them once when its page loaded, so (2.7 (110), the owner:
+ * the hint about dragging the panel and the ✦ button came a second time after «Got it») a hint put away in one tab
+ * showed again in every tab opened before that, and «Start as a new user» reached only pages loaded after it.
+ */
+export function onFirstRunChanged(listener: (change: { tourSeen?: boolean; hints?: HintKey[] }) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area !== "local") return
+    const change: { tourSeen?: boolean; hints?: HintKey[] } = {}
+    if (changes[STORAGE.tourSeen]) change.tourSeen = Boolean(changes[STORAGE.tourSeen].newValue)
+    if (changes[STORAGE.hintsSeen]) change.hints = cleanHints(changes[STORAGE.hintsSeen].newValue)
+    if (change.tourSeen !== undefined || change.hints) listener(change)
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
+}
+
 /** The plan the panel saw last (null before 2.6 saw any): an upgrade from it starts that plan's tour. */
 export async function lastPlanSeen(): Promise<string | null> {
   return (await get<string>(STORAGE.planLast)) ?? null
@@ -98,16 +120,38 @@ export async function markPlanToursSeen(plans: string[]): Promise<void> {
 // "new27": once, what 2.7 brought, for people who had ContextFlow before (a new install marks it seen: background).
 export type HintKey = "chats" | "video" | "pdf" | "side" | "new27"
 
-/** The "first time here" hints already shown. */
-export async function seenHints(): Promise<HintKey[]> {
-  return (await get<HintKey[]>(STORAGE.hintsSeen)) ?? []
+function cleanHints(stored: unknown): HintKey[] {
+  return Array.isArray(stored) ? (stored.filter((k) => typeof k === "string") as HintKey[]) : []
 }
 
-/** Marks one or more hints seen in one write (two writes at once would each keep only their own). */
-export async function markHintSeen(key: HintKey | HintKey[]): Promise<void> {
-  const seen = await seenHints()
-  const add = (Array.isArray(key) ? key : [key]).filter((k) => !seen.includes(k))
-  if (add.length) await set(STORAGE.hintsSeen, [...seen, ...add])
+/** The "first time here" hints already shown. */
+export async function seenHints(): Promise<HintKey[]> {
+  return cleanHints(await get<unknown>(STORAGE.hintsSeen))
+}
+
+/** The list to store when `add` joins `known`, or null when nothing would change. */
+export function hintsWith(known: readonly HintKey[], add: readonly HintKey[]): HintKey[] | null {
+  const more = add.filter((k, i) => !known.includes(k) && add.indexOf(k) === i)
+  return more.length ? [...known, ...more] : null
+}
+
+/**
+ * Marks one or more hints seen (in one list: two writes at once would each keep only their own). `known`: the list as
+ * the panel has it (kept the same as the stored one, onFirstRunChanged). With it the write goes out in the same tick
+ * as the tap (2.7 (110)): a write that first waits for a read never happens when the page goes away in between (a
+ * link tapped right after «Got it»), and the hint came back on the next page. What was stored before is asked for in
+ * that tick too, ahead of the write, and anything it had that the panel didn't know yet is put back.
+ */
+export async function markHintSeen(key: HintKey | HintKey[], known?: readonly HintKey[]): Promise<void> {
+  const add = Array.isArray(key) ? key : [key]
+  const before = seenHints()
+  const first = known ? hintsWith(known, add) : null
+  const sent = first ? set(STORAGE.hintsSeen, first) : null
+  const stored = await before
+  await sent
+  const all = hintsWith(stored, [...(first ?? []), ...add]) ?? stored
+  const written = first ?? stored
+  if (all.length !== written.length || all.some((k) => !written.includes(k))) await set(STORAGE.hintsSeen, all)
 }
 
 /** Read aloud's last speed (1× until one is chosen). */

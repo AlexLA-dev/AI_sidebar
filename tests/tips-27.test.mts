@@ -118,7 +118,8 @@ test("the panel: what 2.7 brought, once, for people who had ContextFlow before; 
   assert.match(app, /const allTips = tipsLabel\(\) \? \{ label: t\("hintAllTips"\), run: \(\) => setTipsOpen\(true\) \} : undefined/)
   assert.equal((app.match(/action=\{allTips\}/g) ?? []).length, 2)
   // Several hints marked in one write (two at once would each keep only their own).
-  assert.match(read("src/content/store.ts"), /const add = \(Array\.isArray\(key\) \? key : \[key\]\)\.filter\(\(k\) => !seen\.includes\(k\)\)\s*if \(add\.length\) await set\(STORAGE\.hintsSeen, \[\.\.\.seen, \.\.\.add\]\)/)
+  // (2.7 (110): the list is put together by hintsWith; tests/first-run-110.test.mts runs it.)
+  assert.match(read("src/content/store.ts"), /const all = hintsWith\(stored, \[\.\.\.\(first \?\? \[\]\), \.\.\.add\]\) \?\? stored/)
 })
 
 // ------------------------------------------------------------ the hint card, rendered

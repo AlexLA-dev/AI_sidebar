@@ -74,7 +74,7 @@ import { besideMenu, glassScale, setFixedProbe, toFixed } from "./fixedPlace"
 import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
+import { keptPlanNow, loadJobs, hintsWith, markHintSeen, markMemoryOffered, memoryOffered, onFirstRunChanged, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, loadSpaces, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged, madeNow, onMadeChanged } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
@@ -404,11 +404,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (invitedActive < 1) return
     void seenActive().then((seen) => setInviteNew(invitedActive > seen))
   }, [invitedActive])
-  useEffect(() => void seenHints().then(setHints), [])
+  const hintsRef = useRef<HintKey[] | null>(null)
+  hintsRef.current = hints
+  useEffect(() => {
+    void seenHints().then(setHints)
+    // Put away in another tab, or the first run started over (a test build's «Start as a new user»): this tab knows
+    // at once (2.7 (110), the owner: the hint about dragging the panel came a second time, in a tab opened earlier).
+    return onFirstRunChanged((change) => {
+      if (change.hints) setHints(change.hints)
+      if (change.tourSeen !== undefined) setTourSeen(change.tourSeen)
+    })
+  }, [])
   const hintDue = (key: HintKey) => hints !== null && !hints.includes(key) && !touring && tourSeen
   const doneHint = (key: HintKey | HintKey[]) => {
-    setHints((seen) => [...(seen ?? []), ...(Array.isArray(key) ? key : [key])])
-    void markHintSeen(key)
+    const add = Array.isArray(key) ? key : [key]
+    const known = hintsRef.current ?? []
+    setHints((seen) => hintsWith(seen ?? [], add) ?? seen ?? [])
+    void markHintSeen(add, known)
   }
   // «New in 2.7» as one line on the compact chat (2.7 after 107): shown in one opening of the panel, then it's seen.
   const newLineShown = useRef(false)
@@ -2749,7 +2761,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     else if (guide === "consent" && !pending && partial === null && consent !== "ok") endGuide("exit", "declined")
     else if (streaming && !WAITING.includes(guide)) guideTo(second ? "answer2" : "answer")
     else if (error && (WAITING.includes(guide) || guide === "consent")) endGuide("exit", error.code === "LIMIT_REACHED" ? "limit" : "error")
-    else if (guide === "answer2" && !streaming && !error && lastRole === "assistant") guideTo(threadList.length > 0 ? "chats" : "menu")
+    else if (guide === "answer2" && !streaming && !error && lastRole === "assistant") guideTo("swipe")
     else if (guide === "pick" && bubble?.rect && !open) guideTo("ask")
     else if (guide === "ask" && !bubble?.rect && !open) guideTo("pick")
     // Out of the chat list (back, a chat opened, a new one): on to the "…".
@@ -2784,7 +2796,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     else if (guide === "select") {
       guideTo("pick")
       if (!popup) hide()
-    } else if (guide === "chats") guideTo("menu")
+    } else if (guide === "swipe") guideTo(threadList.length > 0 ? "chats" : "menu")
+    else if (guide === "chats") guideTo("menu")
     else if (guide === "chatList") {
       setView("chat")
       guideTo("menu")
