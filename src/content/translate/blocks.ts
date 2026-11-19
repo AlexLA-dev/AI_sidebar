@@ -569,6 +569,25 @@ function applyAttr(block: Block, translation: string): Applied | null {
   return { texts: [], added: [], moved: [], attr: { el: block.parent, name: block.attr!, was, now } }
 }
 
+/**
+ * A block that already says a translation written elsewhere on this page: the site copied our words (a tooltip
+ * element filled from a translated attribute, `title` moved to `data-tooltip`). Nothing to translate; this is what
+ * "Original" puts back there: `original`, the words the translation was made from. Words only: an attribute, or one
+ * text node.
+ */
+export function adoptedBlock(block: Block, original: string): Applied | null {
+  const was = unescape(original)
+  if (block.attr) {
+    const now = block.parent.getAttribute(block.attr)
+    return now === null ? null : { texts: [], added: [], moved: [], attr: { el: block.parent, name: block.attr, was, now } }
+  }
+  if (block.nodes.length !== 1 || block.nodes[0].nodeType !== 3) return null
+  const node = block.nodes[0] as Text
+  const lead = /^\s*/.exec(node.data)?.[0] ?? ""
+  const trail = /\s*$/.exec(node.data)?.[0] ?? ""
+  return { texts: [{ node, was: lead + was + trail, now: node.data }], added: [], moved: [] }
+}
+
 const putBack = (el: Element, name: string, value: string | null) => {
   if (value === null) el.removeAttribute(name)
   else el.setAttribute(name, value)

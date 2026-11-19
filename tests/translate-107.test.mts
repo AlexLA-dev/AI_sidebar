@@ -7,7 +7,7 @@ import assert from "node:assert/strict"
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { before, test } from "node:test"
+import { afterEach, before, test } from "node:test"
 import { pathToFileURL } from "node:url"
 
 import { build } from "esbuild"
@@ -124,9 +124,20 @@ class FakeObserver {
   }
 }
 
+// Every translator a test started is stopped after it, also when the test fails halfway (its timers would keep the
+// run from ending: on a loaded machine a timed test can fail, and the whole run then hung).
+const started: any[] = []
+const tracked = <T>(translator: T): T => {
+  started.push(translator)
+  return translator
+}
+afterEach(() => {
+  for (const t of started.splice(0)) t.original()
+})
+
 function engine(document: Document) {
   const asks: any[] = []
-  const translator = new lib.PageTranslator({
+  const translator = tracked(new lib.PageTranslator({
     doc: document,
     observers: { mutation: FakeObserver },
     url: () => "https://shop.example/kopfhoerer",
@@ -139,7 +150,7 @@ function engine(document: Document) {
       return () => undefined
     },
     cache: { load: async () => new Map(), save: () => undefined }
-  })
+  }))
   return { translator, asks }
 }
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -409,7 +420,7 @@ test("controls only: asked as such in small requests (free on the server); past 
   const { document } = page(`<nav><ul>${many}</ul></nav><main><p>A light pair of headphones with a long battery life.</p><button>Παραγγελία</button></main>`, "el")
   const asks: any[] = []
   let cap = false
-  const translator = new lib.PageTranslator({
+  const translator = tracked(new lib.PageTranslator({
     doc: document,
     observers: { mutation: FakeObserver },
     url: () => "https://shop.example/en",
@@ -423,7 +434,7 @@ test("controls only: asked as such in small requests (free on the server); past 
       return () => undefined
     },
     cache: { load: async () => new Map(), save: () => undefined }
-  })
+  }))
   await translator.start("en", "el", "controls")
   await wait(300)
   assert.ok(asks.length >= 2, "more than one request")
@@ -447,14 +458,14 @@ test("controls only: asked as such in small requests (free on the server); past 
   // Past the day's cap: nothing is translated, and the state says which limit it is.
   cap = true
   const fresh = page(`<nav><a href="/a">Προϊόντα</a><a href="/b">Υπηρεσίες</a></nav><main><p>Words of the page.</p></main>`, "el").document
-  const second = new lib.PageTranslator({
+  const second = tracked(new lib.PageTranslator({
     doc: fresh, observers: { mutation: FakeObserver }, url: () => "https://shop.example/other",
     ask: (ask: any, on: (r: any) => void) => {
       setTimeout(() => on({ type: "error", req: 1, code: "CONTROLS_CAP" }), 1)
       return () => undefined
     },
     cache: { load: async () => new Map(), save: () => undefined }
-  })
+  }))
   await second.start("en", "el", "controls")
   await wait(80)
   assert.deepEqual(second.state(), { at: "limit", controls: true })
