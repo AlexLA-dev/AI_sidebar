@@ -2648,6 +2648,9 @@
  "writeFixedSome": {
   "message": "Corretto, tranne ciò che il campo non ha accettato"
  },
+ "writeFixRefused": {
+  "message": "Il campo non ha accettato questa correzione"
+ },
  "writeReplaced": {
   "message": "Sostituito"
  },

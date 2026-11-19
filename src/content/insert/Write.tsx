@@ -216,13 +216,16 @@ export const askWrite = (ask: WriteAsk): { reply: Promise<WriteReply>; stop: () 
  * Makes `edits` (on the field's text as it is now, in order, not overlapping), the last one first so the earlier ones'
  * places hold. Returns the changes that take them back (on the text as it ends up) and how many didn't go in.
  */
-export async function makeEdits(el: Field["el"], edits: Edit[]): Promise<{ back: Edit[]; failed: number; after: string }> {
+export async function makeEdits(el: Field["el"], edits: Edit[]): Promise<{ back: Edit[]; failed: number; after: string; missed: Edit[] }> {
   const done: Array<{ edit: Edit; was: string; end: number }> = []
   let failed = 0
+  // The edits the field didn't take (as they were given).
+  const missed: Edit[] = []
   for (const e of [...edits].reverse()) {
     const before = readText(el).text
     if (!(await replaceText(el, e.from, e.to, e.text))) {
       failed++
+      missed.unshift(e)
       continue
     }
     const after = readText(el).text
@@ -235,7 +238,7 @@ export async function makeEdits(el: Field["el"], edits: Edit[]): Promise<{ back:
     back.push({ from: d.edit.from + shift, to: d.end + shift, text: d.was })
     shift += d.end - d.edit.to
   }
-  return { back, failed, after: readText(el).text }
+  return { back, failed, after: readText(el).text, missed }
 }
 
 /** Takes a change back, if the field is still as the change left it. */

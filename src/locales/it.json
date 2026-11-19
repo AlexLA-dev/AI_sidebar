@@ -910,6 +910,7 @@
   "writeReplace": "Sostituisci",
   "writeFixed": "Corretto",
   "writeFixedSome": "Corretto, tranne ciò che il campo non ha accettato",
+  "writeFixRefused": "Il campo non ha accettato questa correzione",
   "writeReplaced": "Sostituito",
   "writeUndo": "Annulla",
   "writeUndone": "Annullato",

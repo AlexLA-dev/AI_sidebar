@@ -2648,6 +2648,9 @@
  "writeFixedSome": {
   "message": "Fixed, except where the field wouldn't take it"
  },
+ "writeFixRefused": {
+  "message": "The field wouldn't take this fix"
+ },
  "writeReplaced": {
   "message": "Replaced"
  },

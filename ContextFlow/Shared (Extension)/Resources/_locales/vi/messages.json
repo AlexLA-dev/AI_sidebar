@@ -2648,6 +2648,9 @@
  "writeFixedSome": {
   "message": "Đã sửa, trừ phần ô nhập không nhận"
  },
+ "writeFixRefused": {
+  "message": "Ô nhập không nhận bản sửa này"
+ },
  "writeReplaced": {
   "message": "Đã thay thế"
  },

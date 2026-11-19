@@ -910,6 +910,7 @@
   "writeReplace": "Замінити",
   "writeFixed": "Виправлено",
   "writeFixedSome": "Виправлено, крім того, що поле не прийняло",
+  "writeFixRefused": "Поле не прийняло це виправлення",
   "writeReplaced": "Замінено",
   "writeUndo": "Скасувати",
   "writeUndone": "Скасовано",

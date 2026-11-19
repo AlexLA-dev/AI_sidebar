@@ -910,6 +910,7 @@
   "writeReplace": "استبدال",
   "writeFixed": "تم التصحيح",
   "writeFixedSome": "تم التصحيح، عدا ما لم يقبله الحقل",
+  "writeFixRefused": "لم يقبل الحقل هذا التصحيح",
   "writeReplaced": "تم الاستبدال",
   "writeUndo": "تراجع",
   "writeUndone": "تم التراجع",
