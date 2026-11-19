@@ -2726,7 +2726,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   })
   // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
   const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
-  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, open: openFromHint })
+  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, firstRunAhead: !tourSeen, open: openFromHint })
   const panelDrag = usePanelDrag({
     panel: panelRef,
     side,
