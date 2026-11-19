@@ -1,8 +1,8 @@
 // «+» by the question field (2.7 after build 107, the owner's decision 6): Note (the same as swiping the send button,
-// «свайп неочевиден и может забыться»), the page snapshot, the Whole chat switch and the answers left. On the compact
-// chat the line under the field is gone and these are where its switch and its count went; the count also shows by the
-// field, as a number, on Free and when few answers are left (leftBadge). Templates and Copied aren't here (decision 7).
-// The roomy chat keeps that line, so its «+» has Note and the snapshot only (109: nothing in two places).
+// «свайп неочевиден и может забыться»), the page snapshot, the Whole chat switch and the answers left. There's no line
+// under the field: these are where its switch and its count went, on every layout (110, the owner on 109: «пусть все
+// будет в «+»»). The count also shows by the field, as a number, on Free and when few answers are left (leftBadge).
+// Templates and Copied aren't here (decision 7).
 
 import type { ComponentChildren, VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"
@@ -11,6 +11,8 @@ import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
 import { CameraIcon } from "../ux/ShotUi"
+import type { Usage } from "../../shared/types"
+import { SpentCount } from "./Spent"
 
 /** Few answers left: under a fifth of the allowance (and always the last three). */
 export const LOW_SHARE = 0.2
@@ -39,10 +41,12 @@ export interface PlusProps {
   // The answers left, in full, and what stands after it on Free (Get Pro, an offer).
   usage: string
   after?: ComponentChildren
+  // 110: a tap on the count shows what the answers went on (Spent.tsx); none with their own key in use.
+  spent?: { load: () => Promise<Usage | null>; paid: boolean; open: boolean; onOpen: () => void }
   onClose: () => void
 }
 
-export function PlusMenu({ noteMode, onNote, shot, whole, usage, after, onClose }: PlusProps): VNode {
+export function PlusMenu({ noteMode, onNote, shot, whole, usage, after, spent, onClose }: PlusProps): VNode {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const away = (_: Event, path: EventTarget[]) => {
@@ -85,7 +89,9 @@ export function PlusMenu({ noteMode, onNote, shot, whole, usage, after, onClose 
           <span class="cf-switch" aria-hidden="true" />
         </label>
       )}
-      {(usage || after) && (
+      {usage && spent ? (
+        <SpentCount cls="cf-plus-usage" text={usage} after={after} load={spent.load} paid={spent.paid} startOpen={spent.open} onOpen={spent.onOpen} />
+      ) : (usage || after) && (
         <div class="cf-plus-usage" role="status">
           <span class="cf-plus-left">{usage}</span>
           {after}

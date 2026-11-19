@@ -110,8 +110,12 @@ final class StoreKitManager: ObservableObject {
         Tier.allCases.compactMap { yearlyDeal($0)?.percent }.max()
     }
 
-    /// The App Store's currency when its prices don't say it themselves (build 95, the owner's App Store of Canada: CAD
-    /// reads "$12.99", the same as dollars of the US): a currency other than USD written with a bare "$" (as the panel).
+    /// The App Store's currency when its prices don't say it themselves (build 95, the owner on TestFlight: CAD reads
+    /// "$12.99", the same as dollars of the US): a currency other than USD written with a bare "$" (as the panel).
+    /// His App Store is Cyprus's, not Canada's (2.7 (109), his words; a production purchase from Cyprus is recorded
+    /// CYP / EUR, the sandbox tester is CYP): it is TestFlight's sandbox that gives his test purchases Canada's
+    /// storefront (CAN / CAD in Apple's own signed notifications). The line shows what the store gave; it doesn't
+    /// guess a country.
     var unclearCurrency: String? {
         guard let code = products.first?.priceFormatStyle.currencyCode.uppercased(), code.count == 3, code != "USD" else { return nil }
         let bare = products.contains { $0.displayPrice.contains("$") && !$0.displayPrice.contains(where: \.isLetter) }

@@ -1937,6 +1937,42 @@
  "usageUltra": {
   "message": "Ultra · bu hafta {1} yanıttan {0} kaldı"
  },
+ "spentShow": {
+  "message": "Yanıtların neye harcandığını göster"
+ },
+ "spentTitleDay": {
+  "message": "Bugün kullanılan yanıtlar"
+ },
+ "spentTitleWeek": {
+  "message": "Bu hafta kullanılan yanıtlar"
+ },
+ "spentChat": {
+  "message": "Sohbetteki sorular"
+ },
+ "spentGoogle": {
+  "message": "Google ile yanıtlar"
+ },
+ "spentTranslate": {
+  "message": "Sayfa çevirisi"
+ },
+ "spentOther": {
+  "message": "Diğer"
+ },
+ "spentNone": {
+  "message": "Henüz yanıt kullanılmadı"
+ },
+ "spentFree": {
+  "message": "Ücretsiz, sayılmaz: yalnızca düğmeleri ve menüleri çevirmek"
+ },
+ "spentAllDevices": {
+  "message": "Bu abonelikteki tüm cihazlarınız sayılır"
+ },
+ "spentThisDevice": {
+  "message": "Bu cihazda sayılır"
+ },
+ "spentError": {
+  "message": "Ayrıntılar yüklenemedi. Yeniden denemek için dokunun."
+ },
  "actSimilar": {
   "message": "Benzerini bul"
  },

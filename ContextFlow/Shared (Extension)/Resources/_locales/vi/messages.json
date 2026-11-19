@@ -1898,6 +1898,42 @@
  "usageUltra": {
   "message": "Ultra · tuần này còn {0}/{1} câu trả lời"
  },
+ "spentShow": {
+  "message": "Xem câu trả lời đã dùng vào việc gì"
+ },
+ "spentTitleDay": {
+  "message": "Câu trả lời đã dùng hôm nay"
+ },
+ "spentTitleWeek": {
+  "message": "Câu trả lời đã dùng tuần này"
+ },
+ "spentChat": {
+  "message": "Câu hỏi trong cuộc trò chuyện"
+ },
+ "spentGoogle": {
+  "message": "Câu trả lời có Google"
+ },
+ "spentTranslate": {
+  "message": "Dịch trang"
+ },
+ "spentOther": {
+  "message": "Khác"
+ },
+ "spentNone": {
+  "message": "Chưa dùng câu trả lời nào"
+ },
+ "spentFree": {
+  "message": "Miễn phí, không tính: chỉ dịch nút và menu"
+ },
+ "spentAllDevices": {
+  "message": "Tính trên mọi thiết bị của bạn dùng gói đăng ký này"
+ },
+ "spentThisDevice": {
+  "message": "Tính trên thiết bị này"
+ },
+ "spentError": {
+  "message": "Không tải được chi tiết. Chạm để thử lại."
+ },
  "actSimilar": {
   "message": "Tìm tương tự"
  },
