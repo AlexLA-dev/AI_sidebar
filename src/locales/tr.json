@@ -906,6 +906,7 @@
   "writeReplace": "Değiştir",
   "writeFixed": "Düzeltildi",
   "writeFixedSome": "Düzeltildi; alanın kabul etmediği yerler hariç",
+  "writeFixRefused": "Alan bu düzeltmeyi kabul etmedi",
   "writeReplaced": "Değiştirildi",
   "writeUndo": "Geri al",
   "writeUndone": "Geri alındı",

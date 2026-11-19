@@ -906,6 +906,7 @@
   "writeReplace": "Ersetzen",
   "writeFixed": "Korrigiert",
   "writeFixedSome": "Korrigiert, bis auf das, was das Feld nicht annahm",
+  "writeFixRefused": "Das Feld hat diese Korrektur nicht angenommen",
   "writeReplaced": "Ersetzt",
   "writeUndo": "Widerrufen",
   "writeUndone": "Rückgängig gemacht",

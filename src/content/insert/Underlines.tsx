@@ -71,6 +71,15 @@ export function useLiveChanges(): void {
   }, [])
 }
 
+/** A paragraph's check came back: its changes are what's underlined in it from now on. */
+export function takeCheck(el: Element, para: string, reply: string): void {
+  const mem = remember(el)
+  mem.checked.set(para, diffWords(para, reply))
+  // The oldest paragraphs go: the memory stays small.
+  if (mem.checked.size > 200) mem.checked.delete(mem.checked.keys().next().value!)
+  changed()
+}
+
 /** The field's text and its underlines as they are now: the checked paragraphs still in it, each change at its place. */
 export function liveState(field: Field): { ft: FieldText; issues: Issue[] } | null {
   const el = field.el
@@ -103,8 +112,8 @@ async function keepingFocus<T>(el: Field["el"], work: () => Promise<T>): Promise
   }
 }
 
-/** Makes one fix; what takes it back, or null when the field didn't take it (or the words have changed since). */
-export async function fixIssue(el: Field["el"], issue: Issue): Promise<Undo | null> {
+/** Makes one fix; what takes it back, "refused" when the field didn't take it, null when the words have changed since. */
+export async function fixIssue(el: Field["el"], issue: Issue): Promise<Undo | "refused" | null> {
   const mem = remember(el)
   const before = readText(el).text
   if (before.slice(issue.from, issue.to) !== issue.para.slice(issue.rel.from, issue.rel.to)) return null
@@ -118,8 +127,11 @@ export async function fixIssue(el: Field["el"], issue: Issue): Promise<Undo | nu
   const result = await keepingFocus(el, () => makeEdits(el, [{ from: issue.from, to: issue.to, text: issue.text }]))
   if (!result.back.length) {
     if (!known) mem.checked.delete(next.para)
+    // The field didn't take it: its underline goes, not left with a «Fix» that does nothing (109, the owner).
+    drop(mem, [issue])
     writeStep("live_failed", "underline")
-    return null
+    changed()
+    return "refused"
   }
   mem.checked.set(next.para, next.edits)
   writeStep("live_fixed", "underline")
@@ -134,8 +146,11 @@ export async function fixIssues(el: Field["el"], issues: Issue[]): Promise<{ und
   const ready = issues.filter((i) => now.slice(i.from, i.to) === i.para.slice(i.rel.from, i.rel.to)).sort((a, b) => a.from - b.from)
   if (!ready.length) return { undo: null, failed: issues.length }
   const result = await keepingFocus(el, () => makeEdits(el, ready.map((i) => ({ from: i.from, to: i.to, text: i.text }))))
+  // The ones the field didn't take go.
+  drop(mem, ready.filter((i) => result.missed.some((e) => e.from === i.from && e.to === i.to && e.text === i.text)))
   if (!result.back.length) {
     writeStep("live_failed", "underline")
+    changed()
     return { undo: null, failed: issues.length }
   }
   // Each paragraph's new text is known clean; one where a fix didn't go in is checked again after the next pause.
@@ -145,6 +160,11 @@ export async function fixIssues(el: Field["el"], issues: Issue[]): Promise<{ und
   writeStep("live_fixed_all", "underline", String(Math.min(ready.length, 9)))
   changed()
   return { undo: { el, after: result.after, back: result.back }, failed: result.failed + (issues.length - ready.length) }
+}
+
+/** Fixes the field wouldn't take: set aside for good (this field, this page), without a step of their own. */
+function drop(mem: FieldMemory, issues: Issue[]): void {
+  for (const i of issues) mem.ignored.add(issueKey(i.para, i.rel))
 }
 
 /** Sets an underline aside for good (this field, this page). */
@@ -273,10 +293,7 @@ export function Underlines({ field, host, touch, lit, quiet, taps, onFixed, onTa
           }
           break
         }
-        mem.checked.set(p.text, diffWords(p.text, reply.text))
-        // The oldest paragraphs go: the memory stays small.
-        if (mem.checked.size > 200) mem.checked.delete(mem.checked.keys().next().value!)
-        changed()
+        takeCheck(el, p.text, reply.text)
       }
     } finally {
       busy.current = false
@@ -407,7 +424,7 @@ export function Underlines({ field, host, touch, lit, quiet, taps, onFixed, onTa
   const fix = async (issue: Issue) => {
     setOpen(null)
     const undo = await fixIssue(el, issue)
-    if (undo) onFixed(undo)
+    if (undo && undo !== "refused") onFixed(undo)
   }
 
   if (!shown.length) return null

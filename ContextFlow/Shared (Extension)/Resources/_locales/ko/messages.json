@@ -2636,6 +2636,9 @@
  "writeFixedSome": {
   "message": "수정했어요(입력란이 받지 않은 부분 제외)"
  },
+ "writeFixRefused": {
+  "message": "입력란이 이 수정을 받지 않았어요"
+ },
  "writeReplaced": {
   "message": "바꿨어요"
  },
