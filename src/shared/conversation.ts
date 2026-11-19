@@ -67,7 +67,8 @@ export interface Entry extends ChatTurn {
   // 2.6 (97), the owner: «то, что выделено, было оформлено как цитата, и … можно было написать свою заметку к ней».
   // Such a note's selected text as it was quoted: the chat shows it as a quote and the rest of the text (the person's
   // own words) as the note (citedNote). The text keeps the quote too, so older versions show it as before. Notes
-  // made before have none and look as they did.
+  // made before have none and look as they did. Build 110: a question asked on a selection keeps the selected text
+  // here too (askedCite), its text the question alone; the chat shows the quote over it.
   cite?: string
   // User turns: videos and PDFs read along with the page (shown under the question).
   sources?: SourceNote[]
@@ -199,16 +200,31 @@ export const MAX_NOTE_QUOTE = 3_000
  * the chat shows where it came from. No AI: it doesn't use an answer.
  */
 export function selectionNote(selected: string, comment: string, page: PageRef, quoted = (text: string) => `“${text}”`): Entry {
-  let text = selected.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim()
-  if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
+  const text = selectionCite(selected)
   const quote = quoted(text)
   const note = comment.trim()
   return stamped({ role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, cite: text, page }, page.at)
 }
 
+/** Selected text as a quote keeps it: runs of spaces as one, at most two line breaks in a row, at most MAX_NOTE_QUOTE. */
+export function selectionCite(selected: string): string {
+  const text = selected.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim()
+  return text.length > MAX_NOTE_QUOTE ? text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…" : text
+}
+
+/**
+ * The quote a question was asked on (build 110, the owner: «когда я выделяю текст, и задаю по нему вопрос … я вижу
+ * только свой запрос, но нет цитаты выделенного текста, как при написании заметки по нему»): its selection's text, kept
+ * with it as `cite`. Its text is the question alone (a cited note's starts with its quote), so the two never mix up.
+ * Questions asked before have none and look as they did.
+ */
+export function askedCite(entry: Entry): string | undefined {
+  return entry.role === "user" && !entry.note && entry.cite ? entry.cite : undefined
+}
+
 /** Where a cited note's quote ends in its text (after the closing quote mark), or -1 when the text doesn't start with it. */
 function citeEnd(entry: Entry): number {
-  if (!entry.cite) return -1
+  if (!entry.cite || !entry.note) return -1
   const at = entry.content.indexOf(entry.cite)
   // The opening mark: “ « „ 「 or « with a space (French).
   if (at < 0 || at > 3) return -1

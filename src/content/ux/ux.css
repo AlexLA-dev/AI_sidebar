@@ -387,3 +387,15 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-move-name { display: inline-flex; align-items: center; gap: 7px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-move-new .cf-move-name { color: var(--accent-text); font-weight: 600; }
 .cf-move-meta { flex: none; display: inline-flex; align-items: center; gap: 8px; }
+/* A question asked on a selection (build 110): the selection over the question, a quote like a note's (.cf-note-cite)
+   with the question's blue bar, at the bubble's side; four lines folded when it's longer, a tap opens it. */
+.cf-asked-cite { display: flex; flex-direction: column; align-items: flex-end; max-width: 86%; margin: 0 0 4px; }
+.cf-asked-cite blockquote {
+  margin: 0; padding-inline: 10px 0; border-inline-start: 3px solid var(--accent); color: var(--text-2);
+  font-size: 0.95em; line-height: 1.4; white-space: pre-wrap; word-break: break-word; text-align: start; align-self: stretch;
+}
+.cf-asked-cite:not(.open) blockquote { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+.cf-asked-cite.long { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.cf-asked-cite.long:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.cf-asked-cite-more { display: inline-flex; margin-top: 1px; color: var(--text-3); transition: transform 0.15s; }
+.cf-asked-cite.open .cf-asked-cite-more { transform: rotate(180deg); }

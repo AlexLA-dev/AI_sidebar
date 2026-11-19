@@ -5,7 +5,7 @@ import { test } from "node:test"
 
 import { readFileSync } from "node:fs"
 
-import { applyEdits, clipAsk, diffParts, diffWords, freeLeft, keepSample, SAMPLES, samplesFor, styleTemplates, tokens, trimmedSpan, worthWriting, WRITE_LIMITS, type Samples } from "../src/shared/writing.ts"
+import { applyEdits, asSeen, clipAsk, diffParts, diffWords, freeLeft, keepSample, SAMPLES, samplesFor, styleTemplates, tokens, trimmedSpan, worthWriting, WRITE_LIMITS, type Samples } from "../src/shared/writing.ts"
 import type { Template } from "../src/shared/templates.ts"
 
 test("a check's changes land on the words that changed, nothing else", () => {
@@ -44,6 +44,31 @@ test("diffWords and applyEdits always agree", () => {
   ]
   for (const [a, b] of pairs) assert.equal(applyEdits(a, diffWords(a, b)), b, `${a} → ${b}`)
   assert.deepEqual(tokens("it's well-known, ok"), ["it's", " ", "well-known", ",", " ", "ok"])
+})
+
+test("a space of another kind or an invisible character is no change: the field keeps its own (109, Gmail on an iPad)", () => {
+  // The owner's case: Gmail kept the typed space as a no-break one, the model wrote a plain one back.
+  const gmail = "Is it possible to find the root of the problem?"
+  assert.deepEqual(diffWords(gmail, gmail.replace(/ /g, " ")), [])
+  // In every script, and the narrow and figure spaces (French before «?», digit groups), a zero-width space, a BOM.
+  for (const s of ["Мы готовы начать", "Bonjour !", "1 000 €", "日本語​です", "﻿Hola amigo", "wo​rd"]) {
+    assert.deepEqual(diffWords(s, asSeen(s)), [], JSON.stringify(s))
+  }
+  // A real fix beside a no-break space changes the word only; the space stays the field's.
+  const near = "Is it posible to find teh root?"
+  const edits = diffWords(near, "Is it possible to find the root?")
+  assert.deepEqual(edits.map((e) => [near.slice(e.from, e.to), e.text]), [["posible", "possible"], ["teh", "the"]])
+  assert.equal(applyEdits(near, edits), "Is it possible to find the root?")
+  // Two changes joined over a no-break space keep it.
+  const joined = diffWords("teh quik fox", "the quick fox")
+  assert.deepEqual(joined, [{ from: 0, to: 8, text: "the quick" }])
+  // A doubled space is still a mistake, however the editor keeps it (a no-break one and a plain one).
+  assert.deepEqual(diffWords("find the  root", "find the root").map((e) => e.text), [" "])
+  assert.deepEqual(diffWords("find the  root", "find the root").map((e) => e.text), [" "])
+  // diffWords and applyEdits agree as a reader sees the text.
+  for (const [a, b] of [["a b c", "a b d"], ["Привет мир", "Привет, мир!"], ["x​y z", "x y, z"]]) {
+    assert.equal(asSeen(applyEdits(a, diffWords(a, b))), asSeen(b), `${a} → ${b}`)
+  }
 })
 
 test("a text is worth checking from two words; the field's own white space stays out", () => {

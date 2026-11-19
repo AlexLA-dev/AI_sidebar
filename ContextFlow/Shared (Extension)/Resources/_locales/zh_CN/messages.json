@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "提醒和关注的页面、使用技巧、设置以及重温基础教程，都在这个菜单里。"
  },
+ "tourSwipeTitle": {
+  "message": "滑动即可置顶或删除"
+ },
+ "tourSwipeBody": {
+  "message": "将回答或笔记向右滑动可置顶，向左滑动可删除。列表中的对话也可以这样滑动。改变主意了？轻点“撤销”即可恢复。要添加标签，请轻点 🏷 或“…”。"
+ },
+ "tourSwipeTitleMouse": {
+  "message": "单击即可置顶或删除"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "回答或笔记下方的“…”中有“置顶”“标签”和“删除”，右键点按也会打开同一菜单。列表中的对话，这些按钮直接显示在它所在的行上。改变主意了？点按“撤销”即可恢复。"
+ },
  "guideSumTitle": {
   "message": "你的第一个回答"
  },
@@ -1898,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · 本周剩余回答：{0}/{1}"
  },
+ "spentShow": {
+  "message": "查看回答用在了哪里"
+ },
+ "spentTitleDay": {
+  "message": "今天用掉的回答"
+ },
+ "spentTitleWeek": {
+  "message": "本周用掉的回答"
+ },
+ "spentChat": {
+  "message": "聊天中的提问"
+ },
+ "spentGoogle": {
+  "message": "使用 Google 的回答"
+ },
+ "spentTranslate": {
+  "message": "翻译页面"
+ },
+ "spentOther": {
+  "message": "其他"
+ },
+ "spentNone": {
+  "message": "还没有用掉回答"
+ },
+ "spentFree": {
+  "message": "免费，不计数：只翻译按钮和菜单"
+ },
+ "spentAllDevices": {
+  "message": "统计此订阅下你的所有设备"
+ },
+ "spentThisDevice": {
+  "message": "统计此设备"
+ },
+ "spentError": {
+  "message": "无法加载详情。轻点重试。"
+ },
  "actSimilar": {
   "message": "查找相似"
  },
@@ -2600,6 +2648,9 @@
  "writeFixedSome": {
   "message": "已修正，输入框不接受的部分除外"
  },
+ "writeFixRefused": {
+  "message": "输入框不接受这处修正"
+ },
  "writeReplaced": {
   "message": "已替换"
  },
@@ -3061,9 +3112,6 @@
  },
  "tipNew": {
   "message": "新功能"
- },
- "matchContinueIn": {
-  "message": "在“{0}”中继续："
  },
  "matchBackTo": {
   "message": "回到“{0}”"

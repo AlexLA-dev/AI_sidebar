@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Rappels et pages surveillées, Astuces, Réglages et la visite des bases sont dans ce menu."
  },
+ "tourSwipeTitle": {
+  "message": "Balayez pour épingler ou supprimer"
+ },
+ "tourSwipeBody": {
+  "message": "Balayez une réponse ou une note vers la droite pour l’épingler, vers la gauche pour la supprimer. Les discussions de la liste se balaient de la même façon. Vous changez d’avis ? « Annuler » la remet en place. Pour ajouter un tag, touchez 🏷 ou « … »."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Épingler ou supprimer d’un clic"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Sous une réponse ou une note, « … » propose « Épingler », « Tag » et « Supprimer » ; un clic droit ouvre le même menu. Pour une discussion de la liste, ils sont sur sa ligne. Vous changez d’avis ? « Annuler » la remet en place."
+ },
  "guideSumTitle": {
   "message": "Votre première réponse"
  },
@@ -1898,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · Réponses restantes cette semaine : {0} sur {1}"
  },
+ "spentShow": {
+  "message": "Voir à quoi les réponses ont servi"
+ },
+ "spentTitleDay": {
+  "message": "Réponses utilisées aujourd’hui"
+ },
+ "spentTitleWeek": {
+  "message": "Réponses utilisées cette semaine"
+ },
+ "spentChat": {
+  "message": "Questions dans la discussion"
+ },
+ "spentGoogle": {
+  "message": "Réponses avec Google"
+ },
+ "spentTranslate": {
+  "message": "Traduction de pages"
+ },
+ "spentOther": {
+  "message": "Autres"
+ },
+ "spentNone": {
+  "message": "Aucune réponse utilisée pour l’instant"
+ },
+ "spentFree": {
+  "message": "Gratuit, non compté : traduire seulement les boutons et les menus"
+ },
+ "spentAllDevices": {
+  "message": "Tous vos appareils avec cet abonnement sont comptés"
+ },
+ "spentThisDevice": {
+  "message": "Compté sur cet appareil"
+ },
+ "spentError": {
+  "message": "Impossible de charger le détail. Touchez pour réessayer."
+ },
  "actSimilar": {
   "message": "Trouver similaire"
  },
@@ -2600,6 +2648,9 @@
  "writeFixedSome": {
   "message": "Corrigé, sauf ce que le champ n’a pas accepté"
  },
+ "writeFixRefused": {
+  "message": "Le champ n’a pas accepté cette correction"
+ },
  "writeReplaced": {
   "message": "Remplacé"
  },
@@ -3061,9 +3112,6 @@
  },
  "tipNew": {
   "message": "Nouveau"
- },
- "matchContinueIn": {
-  "message": "Je continue dans « {0} »"
  },
  "matchBackTo": {
   "message": "Revenir à « {0} »"

@@ -221,12 +221,25 @@ export function SpaceSheet({ mode, onSave, onDelete, onPro, onCancel }: {
   )
 }
 
-/** The line over the header for a moment: the space the panel just went into (a bound site, a new space, a move). */
-export function SpaceToast({ space, text }: { space: Space; text: string }): VNode {
+/**
+ * The line over the header for a moment: the space the panel just went into (a bound site, a new space, a move). 110,
+ * the owner: after a matching chat took the panel to another space, the way back is here, «‹ <the space it was in>»,
+ * and the chat's bar keeps the whole width for the chat's name; the line stays a while and holds under a finger.
+ */
+export function SpaceToast({ space, text, back, phase, onHold, onBack }: {
+  space: Space; text: string; back?: Space; phase?: ToastPhase; onHold?: (on: boolean) => void; onBack?: () => void
+}): VNode {
   return (
-    <div class="cf-space-toast" role="status">
+    <div class={`cf-space-toast${back ? ` act ${phase ?? "run"}` : ""}`} role="status"
+      onPointerEnter={back ? () => onHold?.(true) : undefined} onPointerLeave={back ? () => onHold?.(false) : undefined}
+      onFocusIn={back ? () => onHold?.(true) : undefined} onFocusOut={back ? () => onHold?.(false) : undefined}>
       <SpaceDot color={space.color} size={10} />
       <span dir="auto">{text}</span>
+      {back && (
+        <button type="button" class="cf-space-toast-back" aria-label={t("matchBackTo", back.name)} title={t("matchBackTo", back.name)} onClick={onBack}>
+          <Icon.Back /><span dir="auto">{back.name}</span>
+        </button>
+      )}
     </div>
   )
 }
@@ -259,7 +272,13 @@ export function MoveToSpace({ spaces, onMove }: { spaces: Space[]; onMove: (id: 
 // ------------------------------------------------------------ the panel's spaces
 
 /** The line in the header for a moment: which space, and what happened (rendered with the names as they are then). */
-type Flash = { space: string; kind: "site" | "in" | "moved" | "bound"; site?: string }
+type Flash = { space: string; kind: "site" | "in" | "moved" | "bound"; site?: string; from?: string }
+/** A line with the way back: running its time, held under a finger or the pointer, fading after it's let go. */
+export type ToastPhase = "run" | "held" | "out"
+/** How long the line shows: a plain one, and one with the way back (time to read it and reach for it). */
+const FLASH_MS = 1900
+const FLASH_BACK_MS = 5000
+const FLASH_OUT_MS = 1500
 
 /** What the panel asks of the spaces' state, and the panel's own steps it uses. */
 interface SpacesDeps {
@@ -287,6 +306,7 @@ export function useSpaces(deps: SpacesDeps) {
   const [activeSp, setActiveSp] = useState<string | undefined>(undefined)
   const [sheet, setSheet] = useState<SpaceSheetMode | null>(null)
   const [flash, setFlash] = useState<Flash | null>(null)
+  const [phase, setPhase] = useState<ToastPhase>("run")
   const flashTimer = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => {
     void loadSpaces().then(setList)
@@ -318,8 +338,13 @@ export function useSpaces(deps: SpacesDeps) {
 
   const show = (next: Flash) => {
     setFlash(next)
+    setPhase("run")
     clearTimeout(flashTimer.current)
-    flashTimer.current = setTimeout(() => setFlash(null), 1900)
+    flashTimer.current = setTimeout(() => setFlash(null), next.from ? FLASH_BACK_MS : FLASH_MS)
+  }
+  const hide = () => {
+    clearTimeout(flashTimer.current)
+    setFlash(null)
   }
 
   /** Into space `id`: its chat for this page, else a new chat there. */
@@ -348,18 +373,28 @@ export function useSpaces(deps: SpacesDeps) {
      * The matching chat was in another space (107): the panel went there with it. 109, the owner didn't notice the
      * switch: «You're in “Personal”» over the header for a moment, as a bound site's switch shows its own.
      */
-    followMatch: (space: string) => {
+    followMatch: (space: string, from: string) => {
       setActiveSp(space)
-      show({ space, kind: "in" })
+      show({ space, kind: "in", from })
       deps.report("switch", { via: "match" })
     },
-    /** The matching chat's line, «← <space>»: back to the space the panel was in, its chat for this page or a new one. */
-    back: (id: string) => void switchTo(id, "match_back"),
+    /** The line's «‹ <space>» (110): back to the space the panel was in, its chat for this page or a new one. */
+    back: (id: string) => {
+      hide()
+      void switchTo(id, "match_back")
+    },
+    /** A finger or the pointer on the line with the way back keeps it; let go, it fades. */
+    hold: (on: boolean) => {
+      if (!flash?.from) return
+      clearTimeout(flashTimer.current)
+      setPhase(on ? "held" : "out")
+      if (!on) flashTimer.current = setTimeout(() => setFlash(null), FLASH_OUT_MS)
+    },
     /** A chat opened from another space (a search hit): the panel goes there with it. */
     followChat: (thread: Thread | undefined) => {
       if (multi && thread && spaceOfChat(list, thread) !== current.id) deps.report("switch", { via: "chat" })
     },
-    toast: flash ? { space: byId(flash.space), text: flash.kind === "site" ? `${byId(flash.space).name} · ${flash.site ?? ""}` : flash.kind === "in" ? t("spaceIn", byId(flash.space).name) : flash.kind === "moved" ? t("spaceMoved", byId(flash.space).name) : `${flash.site ?? ""} → ${byId(flash.space).name}` } : null,
+    toast: flash ? { phase, back: flash.from ? spaces.find((x) => x.id === flash.from && x.id !== flash.space) : undefined, space: byId(flash.space), text: flash.kind === "site" ? `${byId(flash.space).name} · ${flash.site ?? ""}` : flash.kind === "in" ? t("spaceIn", byId(flash.space).name) : flash.kind === "moved" ? t("spaceMoved", byId(flash.space).name) : `${flash.site ?? ""} → ${byId(flash.space).name}` } : null,
     pick: (id: string) => void switchTo(id, "header"),
     openNew: (via: string) => {
       if (!canAddSpace(list, deps.pro)) {

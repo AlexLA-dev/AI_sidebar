@@ -13,11 +13,14 @@ import { sendBackground } from "./insert/store"
 import { hintsOn, setHintsOn } from "./pagehints/store"
 import { resolveSide } from "./side/snap"
 import { InviteGroup } from "./invite/Invite"
+import { SpentCount, usageText } from "./quiet/Spent"
 
 interface Props {
   settings: Settings
   status: StatusInfo | null
   usage: Usage | null
+  // 110: the usage read fresh, for what the answers went on.
+  loadSpent?: () => Promise<Usage | null>
   platform: Platform
   site: string
   onChange: (patch: Partial<Settings>) => void
@@ -100,6 +103,16 @@ export function SettingsView(props: Props): VNode {
         <div class="cf-meter" aria-hidden="true">
           <div style={{ width: `${Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100)}%` }} />
         </div>
+      )}
+      {/* 110: the count in words; a tap shows what the answers went on (quiet/Spent.tsx). */}
+      {usage && plan !== "byok" && props.loadSpent && (
+        <SpentCount
+          cls="cf-set-spent"
+          text={usageText(usage, plan)}
+          load={props.loadSpent}
+          paid={hasPro(plan)}
+          onOpen={() => void sendBackground({ type: "useEvent", f: "quiet", a: "spent", via: "settings" })}
+        />
       )}
       {speak && (
         <p class="cf-hint">{t("listenLeft", String(Math.max(0, Math.floor((speak.limit - speak.used) / 60))), String(Math.round(speak.limit / 60)))}</p>

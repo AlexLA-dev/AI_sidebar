@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Lembretes e páginas acompanhadas, Dicas, Ajustes e o tour básico de novo estão neste menu."
  },
+ "tourSwipeTitle": {
+  "message": "Deslize para fixar ou apagar"
+ },
+ "tourSwipeBody": {
+  "message": "Deslize uma resposta ou nota para a direita para fixar, para a esquerda para apagar. As conversas da lista deslizam do mesmo jeito. Mudou de ideia? “Desfazer” traz de volta. Para adicionar uma tag, toque em 🏷 ou “…”."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Fixar ou apagar com um clique"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Em “…”, abaixo de uma resposta ou nota, ficam “Fixar”, “Tag” e “Apagar”; o clique direito abre o mesmo menu. Numa conversa da lista, eles ficam na própria linha. Mudou de ideia? “Desfazer” traz de volta."
+ },
  "guideSumTitle": {
   "message": "Sua primeira resposta"
  },
@@ -1898,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · Restam {0} de {1} respostas nesta semana"
  },
+ "spentShow": {
+  "message": "Ver em que as respostas foram usadas"
+ },
+ "spentTitleDay": {
+  "message": "Respostas usadas hoje"
+ },
+ "spentTitleWeek": {
+  "message": "Respostas usadas nesta semana"
+ },
+ "spentChat": {
+  "message": "Perguntas na conversa"
+ },
+ "spentGoogle": {
+  "message": "Respostas com o Google"
+ },
+ "spentTranslate": {
+  "message": "Tradução de páginas"
+ },
+ "spentOther": {
+  "message": "Outros"
+ },
+ "spentNone": {
+  "message": "Nenhuma resposta usada ainda"
+ },
+ "spentFree": {
+  "message": "Grátis, não conta: traduzir só botões e menus"
+ },
+ "spentAllDevices": {
+  "message": "Contam todos os seus dispositivos com esta assinatura"
+ },
+ "spentThisDevice": {
+  "message": "Conta neste dispositivo"
+ },
+ "spentError": {
+  "message": "Não foi possível carregar os detalhes. Toque para tentar de novo."
+ },
  "actSimilar": {
   "message": "Encontrar parecidos"
  },
@@ -2600,6 +2648,9 @@
  "writeFixedSome": {
   "message": "Corrigido, exceto o que o campo não aceitou"
  },
+ "writeFixRefused": {
+  "message": "O campo não aceitou esta correção"
+ },
  "writeReplaced": {
   "message": "Substituído"
  },
@@ -3061,9 +3112,6 @@
  },
  "tipNew": {
   "message": "Novo"
- },
- "matchContinueIn": {
-  "message": "Continuando em “{0}”"
  },
  "matchBackTo": {
   "message": "Voltar para “{0}”"

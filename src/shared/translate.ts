@@ -194,6 +194,32 @@ export type TranslateReply =
  */
 export type TranslateError = "LIMIT_REACHED" | "PAGE_CAP" | "CONTROLS_CAP" | "BUSY" | "UPSTREAM" | "NETWORK" | "UNAVAILABLE" | "BAD_REQUEST" | "CONSENT"
 
+/**
+ * The page's frames (build 110, the owner: a site's chat window stayed in Greek on a page translated into English; it
+ * is another address's document in a frame). What the page is translated into, or that it's back as it was: the page
+ * tells the background (FramesTell), the background every frame of the tab (FrameTold). `url`: the page's address,
+ * which a frame's requests are counted by (a frame is part of its page: one answer for both).
+ */
+export interface FrameState {
+  on: boolean
+  to: string
+  only: "controls" | null
+  url: string
+}
+export interface FramesTell {
+  type: "trFrames"
+  state: FrameState
+}
+export interface FrameTold {
+  type: "trFrame"
+  state: FrameState
+}
+export function frameState(value: unknown): FrameState | null {
+  const v = value as Partial<FrameState> | null
+  if (!v || typeof v.on !== "boolean" || typeof v.to !== "string" || typeof v.url !== "string" || v.to.length > 16 || v.url.length > 4_000) return null
+  return { on: v.on, to: v.to, only: v.only === "controls" ? "controls" : null, url: v.url }
+}
+
 /** A step of the in-page translation for the feature counters (usage.ts "translate_page"): counts only. */
 export interface TranslateStep {
   type: "trEvent"

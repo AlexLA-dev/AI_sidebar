@@ -87,7 +87,7 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.3", tracked: "2.6", actions: ["start", "step", "done", "skip", "exit"], via: ["first", "menu", "plan", "plan_menu"],
     fields: {
       step: "int",
-      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
+      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "swipe", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
     }
   },
   hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side"] } },
@@ -250,14 +250,17 @@ export const FEATURES: Record<string, Feature> = {
   // 2.7 (after build 107), the quiet panel (src/content/quiet): a chip of the page's tapped ("chip", what: which one);
   // «+» by the field opened ("plus") and what was picked there ("plus_pick"); what was picked in a message's «…» that
   // the row has no room for ("more_pick"). lay: the chat's density then. 109: an answer or a note moved to another chat
-  // from its «…» ("moved": to a chat of this space, another space's, or a new one) and taken back ("move_undone").
+  // from its «…» ("moved": to a chat of this space, another space's, or a new one) and taken back ("move_undone"). 110:
+  // the count opened to what the answers went on ("spent", via where).
   quiet: {
     since: "2.7", tracked: "2.7", on: "ext",
-    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone"],
+    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone", "spent"],
     fields: {
       what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect", "move"],
       lay: ["compact", "roomy"],
-      to: ["chat", "space", "new"]
+      to: ["chat", "space", "new"],
+      // 110: the count opened to what the answers went on: in «+», from the number by the field, in Settings.
+      via: ["plus", "number", "settings"]
     }
   },
 
@@ -284,10 +287,11 @@ export const FEATURES: Record<string, Feature> = {
   // 2.7: «Подходящий чат при открытии панели» (src/shared/match.ts). "shown": the panel opened on a chat that fits the
   // page, and why (its page, its topic by words or by meaning, its site) with the topic's match %; "new": none fitted,
   // a new chat; "where": in the space the panel was in, or another (107: it went there). Then whether the person left it
-  // at once: "line_new" (the line's «Новый чат»), "line_back" (its «← space», back where the panel was), "other"
+  // at once: "line_new" (the line's «Новый чат»), "line_back" (its «← space», back where the panel was; 107–109), "toast_back" (110: the same from the line over the
+  // header, the chat's bar keeps the name), "other"
   // (another chat opened within two minutes). Counts only.
   match: {
-    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "line_back", "other"],
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "line_back", "toast_back", "other"],
     fields: { why: ["page", "topic", "meaning", "site"], match: "int", where: ["here", "other"] }
   },
 

@@ -34,6 +34,7 @@ import { keepLanguage, keptLanguage, languageChoices, shortMark, targetName } fr
 import { hiddenOn, hideOn, showOn, tellsAt, TOLD_KEY, type SiteStore } from "./hiddenSites"
 import { coversPageControl } from "./pageControls"
 import { portAsk, storageCache } from "./port"
+import { tellFrames } from "./frames"
 import { controlLabels, pageShares, type Shares } from "./share"
 
 /** The reader's own language, as a target: from the languages they read, never the region of the device's locale
@@ -55,7 +56,7 @@ const byHand = {
 
 /** One translator per page. */
 export function pageTranslator(): PageTranslator {
-  engine ??= new PageTranslator({ doc: document, url: () => location.href, site: () => site(), ask: portAsk(), cache: storageCache })
+  engine ??= new PageTranslator({ doc: document, url: () => location.href, site: () => site(), ask: portAsk(), cache: storageCache, frames: tellFrames })
   return engine
 }
 
@@ -410,8 +411,18 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   useEffect(() => {
     if (siteRow !== "ask" || !byItselfAsked.current) return
     byItselfAsked.current = false
-    const timer = setTimeout(() => setSiteRow((row) => (row === "ask" ? null : row)), SITE_ASK_STAYS_MS)
-    return () => clearTimeout(timer)
+    const fold = () => setSiteRow((row) => (row === "ask" ? null : row))
+    const timer = setTimeout(fold, SITE_ASK_STAYS_MS)
+    // Nor does it lie over the page while the person goes on (build 110, the owner's 109: it covered a row of the
+    // window they were typing in): a tap on the page folds it. A scroll doesn't, the person may still be reading it.
+    const tap = (ev: Event) => {
+      if ((ev.target as Element | null)?.tagName !== "CONTEXTFLOW-ROOT") fold()
+    }
+    document.addEventListener("click", tap, true)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener("click", tap, true)
+    }
   }, [siteRow])
 
   // A page of a site translated whole: started by itself, once per address (after «Original» it stays as it is).

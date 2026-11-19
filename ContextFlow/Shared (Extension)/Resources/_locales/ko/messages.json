@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "리마인더와 지켜보는 페이지, 팁, 설정, 기본 안내 다시 보기는 이 메뉴에 있어요."
  },
+ "tourSwipeTitle": {
+  "message": "밀어서 고정하거나 삭제"
+ },
+ "tourSwipeBody": {
+  "message": "답변이나 메모를 오른쪽으로 밀면 고정, 왼쪽으로 밀면 삭제돼요. 목록의 채팅도 같은 방식으로 밀 수 있어요. 마음이 바뀌었다면 ‘실행 취소’로 되돌릴 수 있어요. 태그를 달려면 🏷 또는 ‘…’을 탭하세요."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "클릭 한 번으로 고정하거나 삭제"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "답변이나 메모 아래의 ‘…’에 ‘고정’, ‘태그’, ‘삭제’가 있고, 오른쪽 클릭으로도 같은 메뉴가 열려요. 목록의 채팅에서는 해당 줄에 바로 있어요. 마음이 바뀌었다면 ‘실행 취소’로 되돌릴 수 있어요."
+ },
  "guideSumTitle": {
   "message": "첫 번째 답변"
  },
@@ -1898,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · 이번 주 남은 답변 {0}/{1}개"
  },
+ "spentShow": {
+  "message": "답변을 어디에 썼는지 보기"
+ },
+ "spentTitleDay": {
+  "message": "오늘 사용한 답변"
+ },
+ "spentTitleWeek": {
+  "message": "이번 주 사용한 답변"
+ },
+ "spentChat": {
+  "message": "채팅 질문"
+ },
+ "spentGoogle": {
+  "message": "Google 답변"
+ },
+ "spentTranslate": {
+  "message": "페이지 번역"
+ },
+ "spentOther": {
+  "message": "기타"
+ },
+ "spentNone": {
+  "message": "아직 사용한 답변이 없습니다"
+ },
+ "spentFree": {
+  "message": "무료, 계산되지 않음: 버튼과 메뉴만 번역"
+ },
+ "spentAllDevices": {
+  "message": "이 구독을 쓰는 모든 기기에서 사용한 양입니다"
+ },
+ "spentThisDevice": {
+  "message": "이 기기에서 사용한 양입니다"
+ },
+ "spentError": {
+  "message": "세부 정보를 불러오지 못했습니다. 다시 시도하려면 탭하세요."
+ },
  "actSimilar": {
   "message": "비슷한 것 찾기"
  },
@@ -2600,6 +2648,9 @@
  "writeFixedSome": {
   "message": "수정했어요(입력란이 받지 않은 부분 제외)"
  },
+ "writeFixRefused": {
+  "message": "입력란이 이 수정을 받지 않았어요"
+ },
  "writeReplaced": {
   "message": "바꿨어요"
  },
@@ -3061,9 +3112,6 @@
  },
  "tipNew": {
   "message": "새 기능"
- },
- "matchContinueIn": {
-  "message": "‘{0}’에서 이어서"
  },
  "matchBackTo": {
   "message": "‘{0}’(으)로 돌아가기"

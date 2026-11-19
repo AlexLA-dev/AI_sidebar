@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useState } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
+import { TourClip } from "./TourClip"
 import { More } from "./ux/MessageUx"
 
 export interface TourStep {
@@ -12,6 +13,10 @@ export interface TourStep {
   icon: VNode
   title: MessageKey
   body: MessageKey
+  // Shown even with nothing of its own to light up (the card in the middle).
+  always?: true
+  // A Tips clip on the card (the app's, like the Tips sheet's): the thing being done.
+  clip?: string
 }
 
 interface Props {
@@ -136,7 +141,7 @@ export function useBlurPanel(panel: HTMLElement): void {
 /** A short tour of the panel: each step lights up parts of it and says what they do. */
 export function Tour({ panel, steps: all, onDone }: Props): VNode {
   // The steps whose parts are in the panel when it starts.
-  const [steps] = useState(() => all.filter((s) => hasTarget(panel, s.targets)))
+  const [steps] = useState(() => all.filter((s) => s.always || hasTarget(panel, s.targets)))
   const [index, setIndex] = useState(0)
   const step = steps[index] ?? all[all.length - 1]
   const last = index >= steps.length - 1
@@ -152,6 +157,7 @@ export function Tour({ panel, steps: all, onDone }: Props): VNode {
           <span class="cf-tour-icon">{step.icon}</span>
           <span class="cf-tour-count">{t("tourStep", index + 1, Math.max(steps.length, 1))}</span>
         </div>
+        {step.clip && <TourClip key={step.clip} name={step.clip} />}
         <strong>{t(step.title)}</strong>
         <p>{t(step.body)}</p>
         <div class="cf-tour-actions">
@@ -169,12 +175,22 @@ export function chatsStep(sync: boolean): TourStep {
   return { targets: [[".cf-chats-button"]], icon: <Icon.Chats />, title: "tourChatsTitle", body: sync ? "tourChatsBodySync" : "tourChatsBody" }
 }
 
+/** Pinning, deleting and tagging answers, notes and chats (2.7 (110), the owner: the basics should show the swipes):
+ *  the swipes on iPhone and iPad, the "…" and the right-click on a Mac, with the app's Tips clip of each. Nothing of
+ *  its own to light up (a first chat may be empty): a card in the middle. */
+export function swipeStep(touch: boolean): TourStep {
+  return touch
+    ? { targets: [], always: true, icon: <Icon.Pin />, title: "tourSwipeTitle", body: "tourSwipeBody", clip: "swipes" }
+    : { targets: [], always: true, icon: <Icon.Pin />, title: "tourSwipeTitleMouse", body: "tourSwipeBodyMouse", clip: "mac-pin" }
+}
+
 // 2.6: Settings moved into the header's "…" (2.5) with reminders, watching and tips: the step shows the "…".
 export const MENU_STEP: TourStep = { targets: [[".cf-page-more"]], icon: <More size={16} />, title: "tourMenuTitle", body: "tourMenuBody" }
 
-/** The steps: asking (quick actions and the composer), a selection, Google, chats and the "…" menu.
- *  `compact` (2.7, the quiet panel): Whole chat is under «+» there, and the step shows the «+». */
-export function tourSteps(sync: boolean, touch: boolean, compact = false): TourStep[] {
+/** The steps: asking (quick actions and the composer), a selection, Google, notes, the whole chat, the swipes,
+ *  chats and the "…" menu.
+ *  Whole chat is under «+» on every layout (2.7 (110)), and the step shows the «+». */
+export function tourSteps(sync: boolean, touch: boolean): TourStep[] {
   return [
     { targets: [[".cf-actions"], [".cf-input"]], icon: <Icon.Sparkle size={16} />, title: "tourAskTitle", body: "tourAskBody" },
     // Build 95: the label is over the field now. 2.7 (after 107): only for a selection; without one the step shows
@@ -182,7 +198,8 @@ export function tourSteps(sync: boolean, touch: boolean, compact = false): TourS
     { targets: [[".cf-ctx-row .cf-ctx", ".cf-ctx-row", ".cf-input"]], icon: <Icon.Cursor />, title: "tourSelectTitle", body: "tourSelectBody" },
     { targets: [[".cf-mode"]], icon: <Icon.Search size={14} />, title: "tourGoogleTitle", body: "tourGoogleBody" },
     { targets: [[".cf-send-wrap"]], icon: <Icon.Pencil />, title: "tourNoteTitle", body: touch ? "tourNoteBodyTouch" : "tourNoteBodyMouse" },
-    { targets: [[compact ? ".cf-plus" : ".cf-whole"]], icon: <Icon.Doc />, title: "tourWholeTitle", body: compact ? "tourWholeBodyPlus" : "tourWholeBody" },
+    { targets: [[".cf-plus"]], icon: <Icon.Doc />, title: "tourWholeTitle", body: "tourWholeBodyPlus" },
+    swipeStep(touch),
     chatsStep(sync),
     MENU_STEP
   ]

@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Erinnerungen und beobachtete Seiten, Tipps, Einstellungen und die Grundlagen-Tour findest du in diesem Menü."
  },
+ "tourSwipeTitle": {
+  "message": "Wischen zum Anheften oder Löschen"
+ },
+ "tourSwipeBody": {
+  "message": "Wisch eine Antwort oder Notiz nach rechts, um sie anzuheften, nach links, um sie zu löschen. Chats in der Liste wischst du genauso. Doch anders entschieden? „Widerrufen“ holt sie zurück. Für einen Tag tippst du auf 🏷 oder „…“."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Anheften oder löschen per Klick"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Unter „…“ bei einer Antwort oder Notiz findest du „Anheften“, „Tag“ und „Löschen“; ein Rechtsklick öffnet dasselbe Menü. Bei einem Chat in der Liste stehen sie direkt in der Zeile. Doch anders entschieden? „Widerrufen“ holt sie zurück."
+ },
  "guideSumTitle": {
   "message": "Deine erste Antwort"
  },
@@ -1898,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · Diese Woche noch {0} von {1} Antworten"
  },
+ "spentShow": {
+  "message": "Zeigen, wofür die Antworten verbraucht wurden"
+ },
+ "spentTitleDay": {
+  "message": "Heute verbrauchte Antworten"
+ },
+ "spentTitleWeek": {
+  "message": "Diese Woche verbrauchte Antworten"
+ },
+ "spentChat": {
+  "message": "Fragen im Chat"
+ },
+ "spentGoogle": {
+  "message": "Antworten mit Google"
+ },
+ "spentTranslate": {
+  "message": "Seiten übersetzen"
+ },
+ "spentOther": {
+  "message": "Sonstiges"
+ },
+ "spentNone": {
+  "message": "Noch keine Antworten verbraucht"
+ },
+ "spentFree": {
+  "message": "Kostenlos, wird nicht gezählt: nur Schaltflächen und Menüs übersetzen"
+ },
+ "spentAllDevices": {
+  "message": "Gezählt auf allen deinen Geräten mit diesem Abo"
+ },
+ "spentThisDevice": {
+  "message": "Gezählt auf diesem Gerät"
+ },
+ "spentError": {
+  "message": "Details konnten nicht geladen werden. Tippe, um es erneut zu versuchen."
+ },
  "actSimilar": {
   "message": "Ähnliches finden"
  },
@@ -2600,6 +2648,9 @@
  "writeFixedSome": {
   "message": "Korrigiert, bis auf das, was das Feld nicht annahm"
  },
+ "writeFixRefused": {
+  "message": "Das Feld hat diese Korrektur nicht angenommen"
+ },
  "writeReplaced": {
   "message": "Ersetzt"
  },
@@ -3061,9 +3112,6 @@
  },
  "tipNew": {
   "message": "Neu"
- },
- "matchContinueIn": {
-  "message": "Weiter in „{0}“"
  },
  "matchBackTo": {
   "message": "Zurück zu „{0}“"

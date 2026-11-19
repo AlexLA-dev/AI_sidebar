@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Hatırlatıcılar ve takip edilen sayfalar, İpuçları, Ayarlar ve tanıtım turunu tekrarlama seçeneği bu menüde."
  },
+ "tourSwipeTitle": {
+  "message": "Sabitlemek veya silmek için kaydırın"
+ },
+ "tourSwipeBody": {
+  "message": "Bir yanıtı veya notu sabitlemek için sağa, silmek için sola kaydırın. Listedeki sohbetler de aynı şekilde kaydırılır. Fikrinizi mi değiştirdiniz? “Geri al” ile geri getirebilirsiniz. Etiket eklemek için 🏷 veya “…” simgesine dokunun."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Tek tıklamayla sabitleyin veya silin"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Bir yanıtın veya notun altındaki “…” menüsünde “Sabitle”, “Etiket” ve “Sil” bulunur; sağ tıklama da aynı menüyü açar. Listedeki bir sohbette bunlar satırın üzerindedir. Fikrinizi mi değiştirdiniz? “Geri al” ile geri getirebilirsiniz."
+ },
  "guideSumTitle": {
   "message": "İlk yanıtınız"
  },
@@ -1937,6 +1949,42 @@
  "usageUltra": {
   "message": "Ultra · bu hafta {1} yanıttan {0} kaldı"
  },
+ "spentShow": {
+  "message": "Yanıtların neye harcandığını göster"
+ },
+ "spentTitleDay": {
+  "message": "Bugün kullanılan yanıtlar"
+ },
+ "spentTitleWeek": {
+  "message": "Bu hafta kullanılan yanıtlar"
+ },
+ "spentChat": {
+  "message": "Sohbetteki sorular"
+ },
+ "spentGoogle": {
+  "message": "Google ile yanıtlar"
+ },
+ "spentTranslate": {
+  "message": "Sayfa çevirisi"
+ },
+ "spentOther": {
+  "message": "Diğer"
+ },
+ "spentNone": {
+  "message": "Henüz yanıt kullanılmadı"
+ },
+ "spentFree": {
+  "message": "Ücretsiz, sayılmaz: yalnızca düğmeleri ve menüleri çevirmek"
+ },
+ "spentAllDevices": {
+  "message": "Bu abonelikteki tüm cihazlarınız sayılır"
+ },
+ "spentThisDevice": {
+  "message": "Bu cihazda sayılır"
+ },
+ "spentError": {
+  "message": "Ayrıntılar yüklenemedi. Yeniden denemek için dokunun."
+ },
  "actSimilar": {
   "message": "Benzerini bul"
  },
@@ -2600,6 +2648,9 @@
  "writeFixedSome": {
   "message": "Düzeltildi; alanın kabul etmediği yerler hariç"
  },
+ "writeFixRefused": {
+  "message": "Alan bu düzeltmeyi kabul etmedi"
+ },
  "writeReplaced": {
   "message": "Değiştirildi"
  },
@@ -3061,9 +3112,6 @@
  },
  "tipNew": {
   "message": "Yeni"
- },
- "matchContinueIn": {
-  "message": "“{0}” alanında devam ediliyor"
  },
  "matchBackTo": {
   "message": "“{0}” alanına dön"
