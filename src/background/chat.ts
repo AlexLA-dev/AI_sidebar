@@ -6,6 +6,7 @@ import { hasMarks, otherPagesOf, systemPrompt } from "../shared/prompt"
 import { sseData } from "../shared/sse"
 import { STORAGE, type AskPayload, type ErrorCode, type Grounding, type OwnKeyUsage, type Plan, type ProOffer, type StreamEvent, type Usage } from "../shared/types"
 import { askClaude } from "./claude"
+import { ownKeyProblem, providerErrorTag, tryNextModel, type ProviderError } from "../shared/ownKeyError"
 
 type Emit = (event: StreamEvent) => void
 
@@ -131,7 +132,8 @@ export async function askWithOwnKey(
   const system = systemPrompt(payload.page && pageForModel(payload.page, true), profile, locale, otherPagesOf(payload), false, hasMarks(payload.messages), OPENAI_PAGE_TOKENS)
   const models = [...new Set([await newestGpt(key, tier, signal), ...OPENAI_FALLBACK_MODELS[tier]].filter((m): m is string => Boolean(m)))]
   let res: Response | null = null
-  for (const model of models) {
+  let refused: ProviderError | null = null
+  for (const [i, model] of models.entries()) {
     usage.model = model
     const body: Record<string, unknown> = {
       model,
@@ -158,15 +160,21 @@ export async function askWithOwnKey(
       emit({ type: "error", code: "NETWORK" })
       return fail("NETWORK")
     }
-    if (res.status !== 404) break
+    if (res.ok && res.body) break
+    // Refused: what OpenAI says it is decides whether the next model is asked (ownKeyError.ts: a model this key
+    // can't use, or the account's rate limit, counted per model; never an account without credit).
+    const detail = (await res.json().catch(() => ({}))) as { error?: { message?: string; type?: string; code?: string } }
+    refused = { status: res.status, type: detail.error?.type, code: detail.error?.code, message: detail.error?.message }
+    if (i === models.length - 1 || !tryNextModel("openai", refused)) break
   }
   if (!res) return fail("UPSTREAM")
 
   if (!res.ok || !res.body) {
-    const detail = (await res.json().catch(() => ({}))) as { error?: { message?: string } }
+    const error = refused ?? { status: res.status }
+    const problem = ownKeyProblem("openai", error)
     const code: ErrorCode = res.status === 401 ? "BAD_KEY" : res.status === 429 ? "BUSY" : "UPSTREAM"
-    emit(code === "BAD_KEY" ? { type: "error", code } : { type: "error", code, message: detail.error?.message })
-    return fail(code)
+    emit(code === "BAD_KEY" ? { type: "error", code } : { type: "error", code, message: error.message ?? undefined, ...(problem ? { ownKey: { provider: "openai", problem } } : {}) })
+    return { ...fail(code), errorType: providerErrorTag(error) }
   }
 
   emit({ type: "meta", plan: "byok", usage: null, viaOwnKey: true })

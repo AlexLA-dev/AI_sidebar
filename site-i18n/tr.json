@@ -691,5 +691,7 @@
   "ee329a85e7ae": "Yanıtladığınız sayfayı okur",
   "60c8279280c4": "Yalnızca verdiğiniz metin üzerinde çalışır",
   "768737d596d7": "Dokunuş başına bir yanıt: ücretsiz planda günde 5; yazarken altı çizme Pro'da",
-  "e51f743693e5": "Daha fazlası: <a href=\"/translate-web-page-safari-iphone\">Safari'de web sayfası çevirme</a>"
+  "e51f743693e5": "Daha fazlası: <a href=\"/translate-web-page-safari-iphone\">Safari'de web sayfası çevirme</a>",
+  "ee6188a287b5": "Kendi API anahtarım var",
+  "4b7a73ec677d": "Bu plan için kendi OpenAI veya Claude API anahtarınız gerekir. Yanıtların ücretini o sağlayıcıya ayrıca ödersiniz."
 }
