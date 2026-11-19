@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Lời nhắc, các trang đang theo dõi, Mẹo, Cài đặt và hướng dẫn cơ bản đều nằm trong menu này."
  },
+ "tourSwipeTitle": {
+  "message": "Vuốt để ghim hoặc xóa"
+ },
+ "tourSwipeBody": {
+  "message": "Vuốt câu trả lời hoặc ghi chú sang phải để ghim, sang trái để xóa. Các cuộc trò chuyện trong danh sách cũng vuốt được như vậy. Đổi ý? “Hoàn tác” sẽ khôi phục lại. Để gắn thẻ, hãy chạm vào 🏷 hoặc “…”."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Ghim hoặc xóa bằng một lần bấm"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Trong “…” dưới câu trả lời hoặc ghi chú có “Ghim”, “Thẻ” và “Xóa”; bấm chuột phải cũng mở menu đó. Với cuộc trò chuyện trong danh sách, các nút này nằm ngay trên dòng của nó. Đổi ý? “Hoàn tác” sẽ khôi phục lại."
+ },
  "guideSumTitle": {
   "message": "Câu trả lời đầu tiên"
  },
@@ -1898,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · tuần này còn {0}/{1} câu trả lời"
  },
+ "spentShow": {
+  "message": "Xem câu trả lời đã dùng vào việc gì"
+ },
+ "spentTitleDay": {
+  "message": "Câu trả lời đã dùng hôm nay"
+ },
+ "spentTitleWeek": {
+  "message": "Câu trả lời đã dùng tuần này"
+ },
+ "spentChat": {
+  "message": "Câu hỏi trong cuộc trò chuyện"
+ },
+ "spentGoogle": {
+  "message": "Câu trả lời có Google"
+ },
+ "spentTranslate": {
+  "message": "Dịch trang"
+ },
+ "spentOther": {
+  "message": "Khác"
+ },
+ "spentNone": {
+  "message": "Chưa dùng câu trả lời nào"
+ },
+ "spentFree": {
+  "message": "Miễn phí, không tính: chỉ dịch nút và menu"
+ },
+ "spentAllDevices": {
+  "message": "Tính trên mọi thiết bị của bạn dùng gói đăng ký này"
+ },
+ "spentThisDevice": {
+  "message": "Tính trên thiết bị này"
+ },
+ "spentError": {
+  "message": "Không tải được chi tiết. Chạm để thử lại."
+ },
  "actSimilar": {
   "message": "Tìm tương tự"
  },
@@ -2599,6 +2647,9 @@
  },
  "writeFixedSome": {
   "message": "Đã sửa, trừ phần ô nhập không nhận"
+ },
+ "writeFixRefused": {
+  "message": "Ô nhập không nhận bản sửa này"
  },
  "writeReplaced": {
   "message": "Đã thay thế"

@@ -29,6 +29,10 @@ chrome.runtime.sendMessage({ type: "tipClip", name: clip, lang }, (reply: { ok: 
     if (!still) play()
   }
   video.onerror = () => tell("missing")
+  // iPhone and iPad take in only a video's description until it's played: a clip nobody tells to play (a tour card's;
+  // the Tips sheet says "play" as a card comes on screen) stayed an empty frame, and "ready" never came (2.7 (110),
+  // seen in the simulator's Safari on the basics' new swipe step and on the Ultra tour's cards).
+  if (!still) play()
 })
 
 addEventListener("message", (e: MessageEvent) => {

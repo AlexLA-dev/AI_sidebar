@@ -1,7 +1,7 @@
 // The guided first request (2.6, the owner: "not just show which buttons there are, but take the person through them,
 // so they tap them and make their first request"). Where the first-open tour was: instead of seven cards to read,
 // the person does it: Summarize, the consent card, the answer, then a selection on the page and Ask AI, and last
-// where the chats and the "…" menu are. Each step lights up what to tap and lets only that be tapped (the rest of
+// the swipes (2.7 (110)) and where the chats and the "…" menu are. Each step lights up what to tap and lets only that be tapped (the rest of
 // the panel is held under a clear cover); the card's Skip ends it any time. A tap on what's lit up takes the guide
 // along (build 86, the owner: it stayed behind when he opened the chat list): the chat list gets its own step, and
 // the "…" opened ends it with its menu showing.
@@ -12,20 +12,19 @@
 // counted ("use" f "tour", src/shared/usage.ts) for the guided funnel (cf_feature_funnels "guided").
 
 import type { VNode } from "preact"
-import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
+import { useEffect, useLayoutEffect, useRef } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
 import { SpeakerIcon } from "./listen/useListen"
 import { SimilarIcon } from "./similar/Similar"
-import { ClipFrame } from "./tips/ClipFrame"
-import { say, tipsData } from "./tips/data"
-import { Blockers, cardPlace, chatsStep, holeAround, MENU_STEP, Shade, useBlurPanel, useParts } from "./Tour"
+import { Blockers, cardPlace, chatsStep, holeAround, MENU_STEP, Shade, swipeStep, useBlurPanel, useParts } from "./Tour"
+import { TourClip } from "./TourClip"
 import { More } from "./ux/MessageUx"
 
 /** The steps, in order. "pick" and "ask" are on the page (the panel closed), the rest in the panel. */
 export const GUIDE_STEPS = [
-  "summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu",
+  "summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "swipe", "chats", "chatList", "menu",
   // 2.6 (build 89, the owner): after buying Pro or Ultra, a tour of what the plan added, on the same engine.
   "pro_media", "pro_chats", "pro_askChats", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch"
 ] as const
@@ -79,6 +78,10 @@ function card(step: GuideStep, touch: boolean, sync: boolean): Card | null {
       return { targets: [], icon: <Icon.Cursor />, title: "guideSelectTitle", body: touch ? "guideSelectBodyTouch" : "guideSelectBodyMouse", args: ["selAsk"], next: "guideSelectGo", holds: true }
     case "askSel":
       return { targets: [[".cf-messages .cf-actions"], [".cf-input"]], icon: <Icon.Cursor />, title: "guideAskSelTitle", body: "guideAskSelBody", args: ["actExplain"], holds: false }
+    // 2.7 (110, the owner: the basics should also show how to delete and tag answers and whole chats by a swipe):
+    // after the second answer, with the Tips clip of it; the chat under the card has two answers to try it on.
+    case "swipe":
+      return { ...swipeStep(touch), next: "tourNext", holds: false }
     case "chats": {
       const s = chatsStep(sync)
       return { ...s, next: "tourNext", holds: true }
@@ -163,7 +166,7 @@ export function GuideCard({ panel, step, touch, sync, onNext, onSkip, onTap }: {
         <div class="cf-tour-head">
           <span class="cf-tour-icon">{spec.icon}</span>
         </div>
-        {spec.clip && <GuideClip name={spec.clip} />}
+        {spec.clip && <TourClip name={spec.clip} />}
         <strong>{t(spec.title)}</strong>
         <p>{t(spec.body, ...(spec.args ?? []).map((k) => t(k)))}</p>
         <div class="cf-tour-actions">
@@ -186,21 +189,4 @@ export function GuidePill({ touch, onSkip }: { touch: boolean; onSkip: () => voi
       <button type="button" onClick={onSkip}>{t("tourSkip")}</button>
     </div>
   )
-}
-
-/** A Tips clip on a tour card: the feature at work (the owner: show it, not only describe it). The app's clip, like
- * the Tips sheet's (ClipFrame); one still frame with Reduce Motion. Before the app has shared it, the card goes
- * without (its words say it all; the Tips sheet is where "open the app once" is said). */
-function GuideClip({ name }: { name: string }): VNode | null {
-  const [gone, setGone] = useState(false)
-  const data = tipsData()
-  if (!data || gone) return null
-  const lang = say(data.clipLang)
-  let still = false
-  try {
-    still = matchMedia("(prefers-reduced-motion: reduce)").matches
-  } catch {
-    // No media queries: it plays.
-  }
-  return <div class="cf-guide-clip"><ClipFrame name={name} lang={lang} still={still} motion={!still} onMissing={() => setGone(true)} /></div>
 }

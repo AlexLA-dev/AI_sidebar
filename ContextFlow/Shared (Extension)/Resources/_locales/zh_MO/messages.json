@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "提醒、追蹤中的頁面、提示、設定，以及重溫基礎教學，都在這個選單裡。"
  },
+ "tourSwipeTitle": {
+  "message": "滑動即可釘選或刪除"
+ },
+ "tourSwipeBody": {
+  "message": "將回答或筆記向右滑動可釘選，向左滑動可刪除。列表中的對話也可以這樣滑動。改變主意了？「還原」可以把它找回來。若要加上標籤，請點一下 🏷 或「…」。"
+ },
+ "tourSwipeTitleMouse": {
+  "message": "按一下即可釘選或刪除"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "回答或筆記下方的「…」裡有「釘選」、「標籤」和「刪除」，按右鍵也會打開相同的選單。至於列表中的對話，這些按鈕就直接顯示在它所在的那一列上。改變主意了？「還原」可以把它找回來。"
+ },
  "guideSumTitle": {
   "message": "你的第一個回答"
  },
@@ -1898,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · 本週剩餘的回答：{0}/{1}"
  },
+ "spentShow": {
+  "message": "查看回答用在哪裡"
+ },
+ "spentTitleDay": {
+  "message": "今天用掉的回答"
+ },
+ "spentTitleWeek": {
+  "message": "本週用掉的回答"
+ },
+ "spentChat": {
+  "message": "聊天中的提問"
+ },
+ "spentGoogle": {
+  "message": "使用 Google 的回答"
+ },
+ "spentTranslate": {
+  "message": "翻譯頁面"
+ },
+ "spentOther": {
+  "message": "其他"
+ },
+ "spentNone": {
+  "message": "還沒有用掉回答"
+ },
+ "spentFree": {
+  "message": "免費，不計數：只翻譯按鈕和選單"
+ },
+ "spentAllDevices": {
+  "message": "統計此訂閱下你的所有裝置"
+ },
+ "spentThisDevice": {
+  "message": "統計此裝置"
+ },
+ "spentError": {
+  "message": "無法載入詳細資訊。輕點重試。"
+ },
  "actSimilar": {
   "message": "尋找相似"
  },
@@ -2599,6 +2647,9 @@
  },
  "writeFixedSome": {
   "message": "已修正，欄位不接受的部分除外"
+ },
+ "writeFixRefused": {
+  "message": "欄位不接受這處修正"
  },
  "writeReplaced": {
   "message": "已取代"

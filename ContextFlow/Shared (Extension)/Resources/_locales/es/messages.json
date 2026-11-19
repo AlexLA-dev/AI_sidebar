@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Recordatorios y páginas vigiladas, Consejos, Configuración y el recorrido básico de nuevo están en este menú."
  },
+ "tourSwipeTitle": {
+  "message": "Desliza para fijar o eliminar"
+ },
+ "tourSwipeBody": {
+  "message": "Desliza una respuesta o una nota a la derecha para fijarla, a la izquierda para eliminarla. Los chats de la lista se deslizan igual. ¿Cambiaste de idea? «Deshacer» la recupera. Para añadir una etiqueta, toca 🏷 o «…»."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Fijar o eliminar con un clic"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "En «…», bajo una respuesta o una nota, están «Fijar», «Etiqueta» y «Eliminar»; el clic derecho abre el mismo menú. En un chat de la lista están en su fila. ¿Cambiaste de idea? «Deshacer» la recupera."
+ },
  "guideSumTitle": {
   "message": "Tu primera respuesta"
  },
@@ -1898,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · Te quedan {0} de {1} respuestas esta semana"
  },
+ "spentShow": {
+  "message": "Ver en qué se usaron las respuestas"
+ },
+ "spentTitleDay": {
+  "message": "Respuestas usadas hoy"
+ },
+ "spentTitleWeek": {
+  "message": "Respuestas usadas esta semana"
+ },
+ "spentChat": {
+  "message": "Preguntas en el chat"
+ },
+ "spentGoogle": {
+  "message": "Respuestas con Google"
+ },
+ "spentTranslate": {
+  "message": "Traducir páginas"
+ },
+ "spentOther": {
+  "message": "Otros"
+ },
+ "spentNone": {
+  "message": "Aún no has usado respuestas"
+ },
+ "spentFree": {
+  "message": "Gratis, no cuenta: traducir solo botones y menús"
+ },
+ "spentAllDevices": {
+  "message": "Cuentan todos tus dispositivos con esta suscripción"
+ },
+ "spentThisDevice": {
+  "message": "Cuenta en este dispositivo"
+ },
+ "spentError": {
+  "message": "No se pudieron cargar los detalles. Toca para reintentar."
+ },
  "actSimilar": {
   "message": "Buscar similares"
  },
@@ -2599,6 +2647,9 @@
  },
  "writeFixedSome": {
   "message": "Corregido, salvo lo que el campo no aceptó"
+ },
+ "writeFixRefused": {
+  "message": "El campo no aceptó esta corrección"
  },
  "writeReplaced": {
   "message": "Reemplazado"
