@@ -103,3 +103,12 @@ test("Compose's strings are in all 15 languages", () => {
     if (lang !== "en") assert.notEqual(strings.writeComposeHint, JSON.parse(read("../src/locales/en.json")).writeComposeHint, `${lang} is translated`)
   }
 })
+
+test("a tone chip is marked by a pointer's hover only where there is one, and ringed only for a keyboard's focus", () => {
+  // 109: after «Change the request» on an iPhone the chip that came up under the finger stayed marked (sticky hover).
+  const css = read("../src/content/insert/insert.css")
+  assert.match(css, /@media \(hover: hover\) \{ \.cf-wr-tone:hover \{/)
+  assert.doesNotMatch(css.replace(/@media \(hover: hover\) \{[^\n]*\n/g, ""), /\.cf-wr-tone:hover \{/)
+  assert.match(css, /\.cf-wr-tone \{[^}]*outline: none;/)
+  assert.match(css, /\.cf-wr-tone:focus-visible \{ outline: 2px solid var\(--accent\)/)
+})

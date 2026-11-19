@@ -1898,6 +1898,42 @@
  "usageUltra": {
   "message": "Ultra · Diese Woche noch {0} von {1} Antworten"
  },
+ "spentShow": {
+  "message": "Zeigen, wofür die Antworten verbraucht wurden"
+ },
+ "spentTitleDay": {
+  "message": "Heute verbrauchte Antworten"
+ },
+ "spentTitleWeek": {
+  "message": "Diese Woche verbrauchte Antworten"
+ },
+ "spentChat": {
+  "message": "Fragen im Chat"
+ },
+ "spentGoogle": {
+  "message": "Antworten mit Google"
+ },
+ "spentTranslate": {
+  "message": "Seiten übersetzen"
+ },
+ "spentOther": {
+  "message": "Sonstiges"
+ },
+ "spentNone": {
+  "message": "Noch keine Antworten verbraucht"
+ },
+ "spentFree": {
+  "message": "Kostenlos, wird nicht gezählt: nur Schaltflächen und Menüs übersetzen"
+ },
+ "spentAllDevices": {
+  "message": "Gezählt auf allen deinen Geräten mit diesem Abo"
+ },
+ "spentThisDevice": {
+  "message": "Gezählt auf diesem Gerät"
+ },
+ "spentError": {
+  "message": "Details konnten nicht geladen werden. Tippe, um es erneut zu versuchen."
+ },
  "actSimilar": {
   "message": "Ähnliches finden"
  },

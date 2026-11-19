@@ -271,6 +271,10 @@ test("the model's time is the device's deadline less a margin, a retry included;
   const { writeDeadline, WRITE_SERVER_MARGIN_MS } = await import("../src/shared/writing.ts")
   assert.equal(writeTask("check", 11).totalMs, writeDeadline("check", 11) - WRITE_SERVER_MARGIN_MS)
   assert.equal(writeTask("rewrite", 4_000).totalMs, 28_500)
+  // A check's answer has room for the model's weighing of each mistake, not only for the text back (109).
+  assert.equal(writeTask("check", 86).maxTokens, 1_286)
+  assert.equal(writeTask("check", 20_000).maxTokens, 6_000)
+  assert.equal(writeTask("rewrite", 100).maxTokens, 420)
   assert.equal(writeTask("check", 600, true).totalMs, 6_500)
   // The whole call under one deadline (here 60 ms): a model that never answers ends as a timeout.
   const { askHaiku, InsertAiError } = await import("../netlify/shared/insert.mts")
@@ -352,7 +356,14 @@ test("a check of Turkish gets Turkish's own rules; a message in another language
 test("Check names the mistakes that are easy to miss in other languages, by rule (no word lists)", async () => {
   const { CHECK_SYSTEM } = await import("../netlify/shared/writing.mts")
   assert.match(CHECK_SYSTEM, /as carefully in any language as in English/)
-  for (const rule of [/a question that ends without its question mark/, /Spanish ¿ and ¡/, /full-width ，。？, Arabic ، and ؟/, /Korean spacing; Turkish de\/da meaning "too" and the question particle mi, both written apart/, /的, 地 and 得/, /a verb whose person ending doesn't match its subject/])
+  for (const rule of [/a direct question that ends without its question mark/, /Spanish ¿ and ¡/, /full-width ，。？, Arabic ، and ؟/, /Korean spacing; Turkish de\/da meaning "too" and the question particle mi, both written apart/, /的, 地 and 得/, /a verb whose person ending doesn't match its subject/])
     assert.match(CHECK_SYSTEM, rule)
-  assert.match(CHECK_SYSTEM, /A question mark missing from a question is still a mistake, unless their earlier messages leave those out too\./)
+  assert.match(CHECK_SYSTEM, /A question mark missing from a direct question is still a mistake, unless their earlier messages leave those out too\./)
+})
+
+test("Check: a question mark only after a sentence that itself asks; an indirect question keeps the statement's full stop", async () => {
+  // 109c, the director's walk: «…но хотелось бы узнать, сколько это будет стоить» came back ending in «?».
+  const { CHECK_SYSTEM } = await import("../netlify/shared/writing.mts")
+  assert.match(CHECK_SYSTEM, /Only a sentence that itself asks takes a question mark\./)
+  assert.match(CHECK_SYSTEM, /is still a statement and ends with a full stop: also when it is meant as a request, and also when you add the end mark the message is missing\./)
 })

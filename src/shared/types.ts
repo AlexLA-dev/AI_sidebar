@@ -7,6 +7,7 @@ import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
 import type { PaidPlan, Period, Plan } from "./plan.ts"
+import type { UseKind } from "./spent.ts"
 import type { OrgState } from "./threads.ts"
 export type { Plan } from "./plan.ts"
 export type Platform = "ios" | "ipados" | "macos" | "chrome" | "other"
@@ -16,6 +17,8 @@ export interface Usage {
   limit: number
   period: "day" | "week"
   resetsAt: string
+  // What they went on, by kind (2.7 (110), /api/v2/status only; src/shared/spent.ts).
+  by?: Partial<Record<UseKind, number>>
 }
 
 // The App Store offer code for Pro the server gives a free user who ran out of answers.

@@ -46,14 +46,14 @@ test("P1. the row gives way: closer, To collection's and Tag's words, then those
   assert.match(read("src/content/ux/useMessageUx.tsx"), /\{!touch && \(!extra \|\| extra\.hover\) && \(/)
 })
 
-test("P2. on the roomy chat «+» doesn't list Whole chat and the count: the line under the field has them", () => {
+test("P2 (110). Whole chat and the count are in «+» on every layout; there's no line under the field", () => {
   const composer = app.slice(app.indexOf('<footer class="cf-composer">'), app.indexOf("</footer>", app.indexOf('<footer class="cf-composer">')))
-  assert.match(composer, /whole=\{historyMode \|\| !compact \? null : \{/)
-  assert.match(composer, /usage=\{compact \? usageLine\.full : ""\}/)
-  assert.match(composer, /after=\{compact \? getProLink : undefined\}/)
-  assert.match(composer, /\{!compact && \(\s*<div class="cf-usage">/)
+  assert.match(composer, /whole=\{historyMode \? null : \{/)
+  assert.match(composer, /usage=\{usageLine\}/)
+  assert.match(composer, /after=\{getProLink\}/)
+  assert.doesNotMatch(composer, /cf-usage|!compact/)
   // «+» draws the count's part only when it has something in it.
-  assert.match(read("src/content/quiet/Plus.tsx"), /\{\(usage \|\| after\) && \(/)
+  assert.match(read("src/content/quiet/Plus.tsx"), /\) : \(usage \|\| after\) && \(/)
 })
 
 test("P3. an answer in a collection shows it by the answer, on its line of tags; a tap opens that collection", () => {
