@@ -99,8 +99,11 @@ test("the same page ranks the same: nothing to swap after the panel has opened",
   const app = read("../src/content/App.tsx")
   // Read in show(), before the panel is set open; never from an effect that follows the page.
   const show = app.slice(app.indexOf("const show = useCallback("), app.indexOf("const hide = useCallback("))
-  assert.ok(show.indexOf("setChipOrder(chipsNowRef.current())") > 0 && show.indexOf("setChipOrder(chipsNowRef.current())") < show.indexOf("setOpen(true)"))
-  assert.equal(app.match(/setChipOrder\(/g)?.length, 1, "the order is set in one place")
+  assert.ok(show.indexOf("const order = chipsNowRef.current()") > 0 && show.indexOf("setChipOrder(") > show.indexOf("const order = chipsNowRef.current()") && show.indexOf("setChipOrder(") < show.indexOf("setOpen(true)"))
+  // Build 110: one more place, the start of the guided first request, which brings the chip its step points at to the
+  // front under the shade that comes with it (tests/first-run-110b.test.mts). Nowhere else.
+  assert.equal(app.match(/setChipOrder\(/g)?.length, 2, "the order is set as the panel opens, and when the guided request starts")
+  assert.match(app, /setChipOrder\(\(order\) => chipFirst\(order, "summarize"\)\)\n\s+setGuide\("summarize"\)/)
   assert.match(app, /contextKind === "page" \? chipOrder\.map\(\(id\) => PAGE_CHIPS\[id\]\) : \[\]/)
 })
 

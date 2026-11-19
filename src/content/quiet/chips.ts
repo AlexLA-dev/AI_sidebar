@@ -102,6 +102,15 @@ function allowed(id: ChipId, s: ChipSignals, can: ChipAbilities): boolean {
   }
 }
 
+/**
+ * The row with `id` first (build 110). The first run's guided request says «Tap Summarize»: the chip it points at
+ * leads the row then, whatever the page is (on a product's page Find similar and Watch the price came before it, and
+ * the step's frame stood over a chip half-way along a row the person hadn't seen from its start).
+ */
+export function chipFirst(order: ChipId[], id: ChipId): ChipId[] {
+  return order.includes(id) && order[0] !== id ? [id, ...order.filter((c) => c !== id)] : order
+}
+
 /** A selection's chips (the panel opened on selected text): as they were, but for text selected in the person's own
  *  draft, where improving it and replying come first. */
 export function rankSelectionChips<T extends { id: string }>(actions: T[], inField: boolean): T[] {

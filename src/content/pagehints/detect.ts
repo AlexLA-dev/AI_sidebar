@@ -6,6 +6,25 @@ export type PageKind = "product" | "article" | "video" | "form" | "event" | "sta
 
 const VIDEO = /^https?:\/\/((www|m)\.)?(youtube\.com\/(watch|shorts\/)|youtu\.be\/|vimeo\.com\/\d)/i
 
+const NOTHING = /^(free|0+([.,]0+)?)$/i
+
+/**
+ * Offers that all state a price of nothing (build 110). An app's or a service's own site declares one for the search
+ * engines (`SoftwareApplication` with an `Offer` of 0), and so does a free app's page in a store: there is no price to
+ * watch and nothing to shop around for, so such offers alone don't make the page a product's. Offers with any price
+ * above zero, or with none stated (a price list, a range elsewhere), still do; so does a page that calls itself a
+ * Product.
+ */
+export function freeOffers(offers: unknown): boolean {
+  const list = Array.isArray(offers) ? offers : [offers]
+  return list.length > 0 && list.every((offer) => {
+    if (!offer || typeof offer !== "object") return false
+    const rec = offer as Record<string, unknown>
+    const stated = [rec.price, rec.lowPrice, rec.highPrice].filter((v) => v !== undefined && v !== null && String(v).trim() !== "")
+    return stated.length > 0 && stated.every((v) => NOTHING.test(String(v).trim()))
+  })
+}
+
 /** The schema.org types the page declares in its JSON-LD (with @graph), lowercased. */
 export function ldTypes(doc: Document): Set<string> {
   const out = new Set<string>()
@@ -20,7 +39,7 @@ export function ldTypes(doc: Document): Set<string> {
     for (const t of Array.isArray(type) ? type : [type]) if (typeof t === "string") out.add(t.toLowerCase())
     if (rec["@graph"]) add(rec["@graph"], depth + 1)
     if (rec.mainEntity) add(rec.mainEntity, depth + 1)
-    if (rec.offers && typeof rec.offers === "object") out.add("offer")
+    if (rec.offers && typeof rec.offers === "object" && !freeOffers(rec.offers)) out.add("offer")
   }
   for (const s of Array.from(doc.querySelectorAll('script[type="application/ld+json"]')).slice(0, 20)) {
     try {

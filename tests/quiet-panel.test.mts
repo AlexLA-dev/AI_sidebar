@@ -35,8 +35,8 @@ test("2. the chips are one line that scrolls sideways, in every row of them", ()
   assert.match(css, /\.cf-actions:not\(\.wrap\) \{\s*flex-wrap: nowrap;[^}]*overflow-x: auto;/)
   assert.match(css, /\.cf-actions:not\(\.wrap\) > \.cf-chip \{ flex: none; white-space: nowrap; \}/)
   // The empty chat's, the ones under "Now on…" and the ones at the end of a chat about this page: the same ranked row.
-  assert.match(app, /<ChipsRow cls="cf-actions" sig=\{chipsSig\} arrows=\{!touch\}>\s*\{actions\.map\(\(a\) => \(\s*chip\(a, false\)\s*\)\)\}/)
-  assert.match(app, /<ChipsRow cls="cf-actions follow" sig=\{chipsSig\} arrows=\{!touch\}>\s*\{actions\.map\(\(a\) => chip\(a, true\)\)\}/)
+  assert.match(app, /<ChipsRow cls="cf-actions" sig=\{chipsSig\} arrows=\{!touch\} still=\{guide !== null \|\| touring\}>\s*\{actions\.map\(\(a\) => \(\s*chip\(a, false\)\s*\)\)\}/)
+  assert.match(app, /<ChipsRow cls="cf-actions follow" sig=\{chipsSig\} arrows=\{!touch\} still=\{guide !== null \|\| touring\}>\s*\{actions\.map\(\(a\) => chip\(a, true\)\)\}/)
   assert.doesNotMatch(app, /withUltra/)
   // "Ask your chats"' example questions aren't the page's chips: they keep their lines.
   assert.match(app, /<div class="cf-actions wrap">\s*\{\(\["askHistoryEx1"/)
@@ -54,7 +54,8 @@ test("the chips' row says that it scrolls: a fade at an edge with more behind it
   assert.match(row, /box\.dataset\.more = el\.scrollWidth > el\.clientWidth \+ 1 \? moreAt\(el\.getBoundingClientRect\(\), chips\) : ""/)
   assert.match(css, /\.cf-chips-arrow \{\s*position: absolute; top: 50%; z-index: 1; display: none;/)
   // The peek: a finger only, once a page, never after the person has swiped the row; it comes back by itself.
-  assert.match(row, /if \(!arrows && !peeked && !still\) \{/)
+  // (110: nor under a tour's or a guide's step, which holds the row still.)
+  assert.match(row, /if \(!arrows && !peeked && !calm\) \{/)
   assert.match(row, /if \(swiped \|\| peeked \|\| el\.scrollWidth <= el\.clientWidth \+ 1 \|\| el\.scrollLeft !== 0\) return/)
   assert.match(row, /if \(Math\.abs\(el\.scrollLeft\) > 12\) markSwiped\(\)/)
   assert.match(css, /@keyframes cf-peek \{ 0%, 100% \{ transform: none; \} 45% \{ transform: translateX\(-40px\); \} \}/)
