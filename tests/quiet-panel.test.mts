@@ -264,7 +264,8 @@ test("6. the answers left stay in sight on Free and when few are left", () => {
   assert.equal(badge(null, "free", false), null)
   assert.equal(badge({ used: 0, limit: 0 }, "pro", false), null)
   // In the field's row, opening «+» where it stands in full.
-  assert.match(app, /<button type="button" class=\{`cf-left \$\{leftNow\.low \? "low" : ""\}`\} aria-label=\{usageLine\} title=\{usageLine\} onClick=\{\(\) => setPlusOpen\(true\)\}>\{leftNow\.left\}<\/button>/)
+  // (110: with what the answers went on shown.)
+  assert.match(app, /<button type="button" class=\{`cf-left \$\{leftNow\.low \? "low" : ""\}`\} aria-label=\{usageLine\} title=\{usageLine\} onClick=\{\(\) => \{[\s\S]{0,400}setPlusOpen\(true\)\s*\}\}>\{leftNow\.left\}<\/button>/)
 })
 
 test("right to left: «+» and Google start inside the field's edge", () => {

@@ -53,7 +53,7 @@ test("P2 (110). Whole chat and the count are in «+» on every layout; there's n
   assert.match(composer, /after=\{getProLink\}/)
   assert.doesNotMatch(composer, /cf-usage|!compact/)
   // «+» draws the count's part only when it has something in it.
-  assert.match(read("src/content/quiet/Plus.tsx"), /\{\(usage \|\| after\) && \(/)
+  assert.match(read("src/content/quiet/Plus.tsx"), /\) : \(usage \|\| after\) && \(/)
 })
 
 test("P3. an answer in a collection shows it by the answer, on its line of tags; a tap opens that collection", () => {

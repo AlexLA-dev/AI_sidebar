@@ -1898,6 +1898,42 @@
  "usageUltra": {
   "message": "Ultra · 今週の回答：残り{0}/{1}回"
  },
+ "spentShow": {
+  "message": "回答の使い道を表示"
+ },
+ "spentTitleDay": {
+  "message": "今日使った回答"
+ },
+ "spentTitleWeek": {
+  "message": "今週使った回答"
+ },
+ "spentChat": {
+  "message": "チャットでの質問"
+ },
+ "spentGoogle": {
+  "message": "Google を使った回答"
+ },
+ "spentTranslate": {
+  "message": "ページの翻訳"
+ },
+ "spentOther": {
+  "message": "その他"
+ },
+ "spentNone": {
+  "message": "まだ回答を使っていません"
+ },
+ "spentFree": {
+  "message": "無料・カウントなし：ボタンとメニューだけの翻訳"
+ },
+ "spentAllDevices": {
+  "message": "このサブスクリプションのすべてのデバイスでの分を含みます"
+ },
+ "spentThisDevice": {
+  "message": "このデバイスでの分です"
+ },
+ "spentError": {
+  "message": "詳細を読み込めませんでした。タップしてもう一度お試しください。"
+ },
  "actSimilar": {
   "message": "似たものを探す"
  },
