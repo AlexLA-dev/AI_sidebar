@@ -46,7 +46,7 @@ async function state(from, to) {
     subs: funnel?.subs ?? null,
     spent,
     pending: diffPlan(plan, live).ops.map((o) => o.desc),
-    proposals: optimize(plan, { keywords: rep.keywords, searchTerms: rep.searchTerms, subs: funnel?.subs ?? {}, lastDaySpend: await lastDaySpend(live, plan) }),
+    proposals: optimize(plan, { keywords: rep.keywords, searchTerms: rep.searchTerms, adGroups: rep.adGroups, subs: funnel?.subs ?? {}, lastDaySpend: await lastDaySpend(live, plan) }),
     period: { from: from ?? since(plan), to: to ?? today() }
   }
 }
