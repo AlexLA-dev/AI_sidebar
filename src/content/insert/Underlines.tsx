@@ -71,6 +71,15 @@ export function useLiveChanges(): void {
   }, [])
 }
 
+/** A paragraph's check came back: its changes are what's underlined in it from now on. */
+export function takeCheck(el: Element, para: string, reply: string): void {
+  const mem = remember(el)
+  mem.checked.set(para, diffWords(para, reply))
+  // The oldest paragraphs go: the memory stays small.
+  if (mem.checked.size > 200) mem.checked.delete(mem.checked.keys().next().value!)
+  changed()
+}
+
 /** The field's text and its underlines as they are now: the checked paragraphs still in it, each change at its place. */
 export function liveState(field: Field): { ft: FieldText; issues: Issue[] } | null {
   const el = field.el
@@ -284,10 +293,7 @@ export function Underlines({ field, host, touch, lit, quiet, taps, onFixed, onTa
           }
           break
         }
-        mem.checked.set(p.text, diffWords(p.text, reply.text))
-        // The oldest paragraphs go: the memory stays small.
-        if (mem.checked.size > 200) mem.checked.delete(mem.checked.keys().next().value!)
-        changed()
+        takeCheck(el, p.text, reply.text)
       }
     } finally {
       busy.current = false
