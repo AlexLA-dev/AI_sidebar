@@ -86,6 +86,8 @@ const SIGN_CURRENCY: Record<string, string> = {
   "CA$": "CAD", "AU$": "AUD", "€": "EUR", "£": "GBP", "¥": "JPY", "￥": "JPY", "円": "JPY", "元": "CNY", "圓": "TWD", "₽": "RUB", "руб": "RUB", "₴": "UAH", "грн": "UAH",
   "₹": "INR", "₩": "KRW", "원": "KRW", "₫": "VND", "đ": "VND", "vnđ": "VND", "₺": "TRY", "₪": "ILS", "฿": "THB", "₸": "KZT",
   "₾": "GEL", "₼": "AZN", "₱": "PHP", "zł": "PLN", kr: "SEK",
+  // Turkish shops write the lira as TL ("99,99 TL") more often than ₺ (2.7).
+  TL: "TRY",
   // The Gulf's, Egypt's: the abbreviation, and the word (riyal, dirham, dinar, pound).
   "ر.س": "SAR", "د.إ": "AED", "ر.ق": "QAR", "د.ك": "KWD", "ر.ع": "OMR", "د.ب": "BHD", "ج.م": "EGP",
   "ريال": "SAR", "درهم": "AED", "دينار": "KWD", "جنيه": "EGP"
@@ -101,7 +103,7 @@ const SHARED_SIGN: Record<string, string[]> = {
 }
 
 /** The signs and short words a price may carry, before or after its number, as a pattern's source (match with "iu"). */
-export const MONEY_SIGN = "US\\$|CA\\$|AU\\$|C\\$|A\\$|HK\\$|NZ\\$|S\\$|NT\\$|MX\\$|R\\$|zł|kr|руб|грн|vnđ|ر\\.\\s?س|د\\.\\s?إ|ر\\.\\s?ق|د\\.\\s?ك|ر\\.\\s?ع|د\\.\\s?ب|ج\\.\\s?م|ريال|درهم|دينار|جنيه|[$€£¥￥円元圓₽₴₹₩원₫₺₪฿₸₾₼₱đ]"
+export const MONEY_SIGN = "US\\$|CA\\$|AU\\$|C\\$|A\\$|HK\\$|NZ\\$|S\\$|NT\\$|MX\\$|R\\$|zł|kr|TL|руб|грн|vnđ|ر\\.\\s?س|د\\.\\s?إ|ر\\.\\s?ق|د\\.\\s?ك|ر\\.\\s?ع|د\\.\\s?ب|ج\\.\\s?م|ريال|درهم|دينار|جنيه|[$€£¥￥円元圓₽₴₹₩원₫₺₪฿₸₾₼₱đ]"
 
 /** The currency of a sign by a price; `local` (a country domain's currency) wins for a sign it shares. "" for none. */
 export function currencyOfSign(sign: string, local = ""): string {

@@ -179,6 +179,50 @@ final class SharedDefaults {
         defaults.dictionary(forKey: pricesKey) as? [String: String] ?? [:]
     }
 
+    // MARK: Invite a friend (2.7)
+
+    /// A friend's code entered in the app: until when its extra answers run (seconds since 1970), the app's id it was
+    /// entered with, and whether the extension's install has taken it over (the panel links it, /api/v2/invite "link").
+    /// The inviter's own code, once made, so the panel and the app show the same one.
+    private let inviteKey = "invite"
+
+    func readInvite() -> [String: Any] {
+        defaults.dictionary(forKey: inviteKey) ?? [:]
+    }
+
+    func updateInvite(_ change: [String: Any]) {
+        var stored = readInvite()
+        for (key, value) in change { stored[key] = value }
+        defaults.set(stored, forKey: inviteKey)
+    }
+
+    /// The app's first run on this device came with an update of an older version (2.7: a friend's code is offered to a
+    /// new install only; when it first ran is appFirstLaunch()).
+    func appUpdatedInstall() -> Bool {
+        defaults.dictionary(forKey: appKey)?["updated"] as? Bool ?? false
+    }
+
+    // MARK: Starting as a new user (2.7, TestFlight and debug builds only)
+
+    /// «Start as a new user» in the app's Settings (Setup.swift NewUserPreview; the App Store's app never shows it):
+    /// when it began (seconds since 1970) and when the extension was first seen and used since. While it's on the app
+    /// shows its first run from these, as a new install would; the real record (readExtensionStatus) isn't touched.
+    private let newUserKey = "cf_new_user_preview"
+
+    func newUserPreview() -> (since: Double, seen: Double?, used: Double?)? {
+        guard let stored = defaults.dictionary(forKey: newUserKey), let since = stored["since"] as? Double else { return nil }
+        return (since, stored["seen"] as? Double, stored["used"] as? Double)
+    }
+
+    /// The app starts it (`since`: now) or ends it (nil).
+    func setNewUserPreview(_ since: Double?) {
+        if let since {
+            defaults.set(["since": since], forKey: newUserKey)
+        } else {
+            defaults.removeObject(forKey: newUserKey)
+        }
+    }
+
     // MARK: Plan changes (build 90)
 
     /// A plan started (bought, upgraded, or changed at renewal): from, to ("free", "byok", "pro", "ultra"), the product
@@ -409,6 +453,13 @@ final class SharedDefaults {
         if used, stored["firstUsed"] == nil { stored["firstUsed"] = now }
         if let installId, UUID(uuidString: installId) != nil { stored["installId"] = installId.lowercased() }
         if !(stored as NSDictionary).isEqual(to: before) { defaults.set(stored, forKey: extensionKey) }
+        // «Start as a new user» (test builds): seen and used since it began, kept apart from the real record.
+        if let preview = defaults.dictionary(forKey: newUserKey) {
+            var next = preview
+            if next["seen"] == nil { next["seen"] = now }
+            if used, next["used"] == nil { next["used"] = now }
+            if !(next as NSDictionary).isEqual(to: preview) { defaults.set(next, forKey: newUserKey) }
+        }
         return first
     }
 
@@ -422,6 +473,11 @@ final class SharedDefaults {
         }
         if status.firstSeen == nil { status.firstSeen = status.firstUsed }
         return status
+    }
+
+    /// The app's random id once the app has been opened (never made here: the extension's side only reads it).
+    func appId() -> String? {
+        defaults.dictionary(forKey: appKey)?["id"] as? String
     }
 
     /// The app's random id, made on its first launch, and whether this launch is the first one of a new

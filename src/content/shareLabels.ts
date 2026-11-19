@@ -10,6 +10,7 @@ import * as ja from "../locales/ja.json"
 import * as ko from "../locales/ko.json"
 import * as pt from "../locales/pt_BR.json"
 import * as ru from "../locales/ru.json"
+import * as tr from "../locales/tr.json"
 import * as uk from "../locales/uk.json"
 import * as vi from "../locales/vi.json"
 import * as zh from "../locales/zh_CN.json"
@@ -18,23 +19,24 @@ import { t } from "../shared/i18n"
 import type { ShareLabels } from "../shared/share"
 
 const LABELS: Record<string, ShareLabels> = {
-  ar: { you: ar.shareYou, note: ar.shareNote, sources: ar.sources, source: ar.shareSource, madeWith: ar.shareMadeWith },
-  de: { you: de.shareYou, note: de.shareNote, sources: de.sources, source: de.shareSource, madeWith: de.shareMadeWith },
-  en: { you: en.shareYou, note: en.shareNote, sources: en.sources, source: en.shareSource, madeWith: en.shareMadeWith },
-  es: { you: es.shareYou, note: es.shareNote, sources: es.sources, source: es.shareSource, madeWith: es.shareMadeWith },
-  fr: { you: fr.shareYou, note: fr.shareNote, sources: fr.sources, source: fr.shareSource, madeWith: fr.shareMadeWith },
-  it: { you: it.shareYou, note: it.shareNote, sources: it.sources, source: it.shareSource, madeWith: it.shareMadeWith },
-  ja: { you: ja.shareYou, note: ja.shareNote, sources: ja.sources, source: ja.shareSource, madeWith: ja.shareMadeWith },
-  ko: { you: ko.shareYou, note: ko.shareNote, sources: ko.sources, source: ko.shareSource, madeWith: ko.shareMadeWith },
-  pt_BR: { you: pt.shareYou, note: pt.shareNote, sources: pt.sources, source: pt.shareSource, madeWith: pt.shareMadeWith },
-  ru: { you: ru.shareYou, note: ru.shareNote, sources: ru.sources, source: ru.shareSource, madeWith: ru.shareMadeWith },
-  uk: { you: uk.shareYou, note: uk.shareNote, sources: uk.sources, source: uk.shareSource, madeWith: uk.shareMadeWith },
-  vi: { you: vi.shareYou, note: vi.shareNote, sources: vi.sources, source: vi.shareSource, madeWith: vi.shareMadeWith },
-  zh_CN: { you: zh.shareYou, note: zh.shareNote, sources: zh.sources, source: zh.shareSource, madeWith: zh.shareMadeWith },
-  zh_TW: { you: zhTW.shareYou, note: zhTW.shareNote, sources: zhTW.sources, source: zhTW.shareSource, madeWith: zhTW.shareMadeWith }
+  ar: { you: ar.shareYou, note: ar.shareNote, sources: ar.sources, source: ar.shareSource, madeWith: ar.shareMadeWith, quote: ar.noteQuote },
+  de: { you: de.shareYou, note: de.shareNote, sources: de.sources, source: de.shareSource, madeWith: de.shareMadeWith, quote: de.noteQuote },
+  en: { you: en.shareYou, note: en.shareNote, sources: en.sources, source: en.shareSource, madeWith: en.shareMadeWith, quote: en.noteQuote },
+  es: { you: es.shareYou, note: es.shareNote, sources: es.sources, source: es.shareSource, madeWith: es.shareMadeWith, quote: es.noteQuote },
+  fr: { you: fr.shareYou, note: fr.shareNote, sources: fr.sources, source: fr.shareSource, madeWith: fr.shareMadeWith, quote: fr.noteQuote },
+  it: { you: it.shareYou, note: it.shareNote, sources: it.sources, source: it.shareSource, madeWith: it.shareMadeWith, quote: it.noteQuote },
+  ja: { you: ja.shareYou, note: ja.shareNote, sources: ja.sources, source: ja.shareSource, madeWith: ja.shareMadeWith, quote: ja.noteQuote },
+  ko: { you: ko.shareYou, note: ko.shareNote, sources: ko.sources, source: ko.shareSource, madeWith: ko.shareMadeWith, quote: ko.noteQuote },
+  pt_BR: { you: pt.shareYou, note: pt.shareNote, sources: pt.sources, source: pt.shareSource, madeWith: pt.shareMadeWith, quote: pt.noteQuote },
+  ru: { you: ru.shareYou, note: ru.shareNote, sources: ru.sources, source: ru.shareSource, madeWith: ru.shareMadeWith, quote: ru.noteQuote },
+  tr: { you: tr.shareYou, note: tr.shareNote, sources: tr.sources, source: tr.shareSource, madeWith: tr.shareMadeWith, quote: tr.noteQuote },
+  uk: { you: uk.shareYou, note: uk.shareNote, sources: uk.sources, source: uk.shareSource, madeWith: uk.shareMadeWith, quote: uk.noteQuote },
+  vi: { you: vi.shareYou, note: vi.shareNote, sources: vi.sources, source: vi.shareSource, madeWith: vi.shareMadeWith, quote: vi.noteQuote },
+  zh_CN: { you: zh.shareYou, note: zh.shareNote, sources: zh.sources, source: zh.shareSource, madeWith: zh.shareMadeWith, quote: zh.noteQuote },
+  zh_TW: { you: zhTW.shareYou, note: zhTW.shareNote, sources: zhTW.sources, source: zhTW.shareSource, madeWith: zhTW.shareMadeWith, quote: zhTW.noteQuote }
 }
 
 /** Labels in `language` (a locale code), or in the device's language when it isn't known. */
 export function shareLabels(language: string | undefined): ShareLabels {
-  return (language && LABELS[language]) || { you: t("shareYou"), note: t("shareNote"), sources: t("sources"), source: t("shareSource"), madeWith: t("shareMadeWith") }
+  return (language && LABELS[language]) || { you: t("shareYou"), note: t("shareNote"), sources: t("sources"), source: t("shareSource"), madeWith: t("shareMadeWith"), quote: t("noteQuote", "{0}") }
 }

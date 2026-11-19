@@ -102,6 +102,11 @@ nonisolated enum SpeechText {
         return test(line, #"[.!?…:;。！？]\z"#) ? line : "\(line)."
     }
 
+    /// A page's text as the panel reads it aloud (useListen's plainText for a page).
+    static func page(_ text: String) -> String {
+        trim(replace(text, #"\s+\n"#, "\n"))
+    }
+
     /// Markdown (an answer) → plain text a voice can read (speechText).
     static func text(_ markdown: String) -> String {
         var text = replace(markdown, #"\r\n?"#, "\n")
@@ -565,5 +570,83 @@ nonisolated enum HeardCoverage {
             else { units += 1 }
         }
         return units / 14
+    }
+}
+
+// MARK: - Listen's link from Safari (2.7)
+
+/// Listen's link from Safari with its text in it (src/shared/listenLink.ts). The owner on TestFlight 107: Listen opened
+/// the app and the app said «This text is no longer here. Tap Listen in Safari again.», again and again. The text came
+/// only through the extension's native message (the App Group), sent as the link was followed; Safari hands those over
+/// one by one, and behind a long one (the chats' sync with iCloud) it was still waiting when the app put Safari to
+/// sleep. The link now carries the text: `w` (a: an answer, p: a page), `l` its language, `n` the title, `u` the page,
+/// `t` the text (base64url of its UTF-8). `contextflow://listen?id=…` plays it, `contextflow://notifications?listen=…`
+/// asks about notifications first.
+nonisolated enum ListenLink {
+    /// The request as the extension writes it (SafariWebExtensionHandler "listen").
+    struct Request: Equatable, Sendable {
+        let parts: [String]
+        let text: String
+        let script: Bool
+        let lang: String
+        let what: String
+        let title: String
+        let url: String
+
+        var stored: [String: Any] {
+            ["parts": parts, "text": text, "script": script, "lang": lang, "what": what, "title": title, "url": url]
+        }
+    }
+
+    private static func fields(_ url: URL) -> [String: String] {
+        var out: [String: String] = [:]
+        for item in URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? [] where out[item.name] == nil {
+            out[item.name] = item.value ?? ""
+        }
+        return out
+    }
+
+    /// The text's id in the link (the panel's own), lowercased; nil without one.
+    static func id(_ url: URL) -> String? {
+        let id = (fields(url)[url.host == "notifications" ? "listen" : "id"] ?? "").lowercased()
+        return id.isEmpty ? nil : id
+    }
+
+    /// The link's text as a request: its parts made here as the panel makes them (the same words, so audio kept on the
+    /// device or in iCloud plays and isn't made or counted again). Nil without a text that can be read.
+    static func request(_ url: URL) -> Request? {
+        let f = fields(url)
+        guard let encoded = f["t"], let raw = text(base64Url: encoded), !raw.isEmpty else { return nil }
+        let text = (raw as NSString).length > SpeechText.maxChars ? (raw as NSString).substring(to: SpeechText.maxChars) : raw
+        let isPage = f["w"] == "p"
+        let parts = SpeechText.parts(isPage ? SpeechText.page(text) : SpeechText.text(text)).prefix(80).map { part in
+            (part as NSString).length > 4000 ? (part as NSString).substring(to: 4000) : part
+        }
+        guard !parts.isEmpty else { return nil }
+        let page = f["u"] ?? ""
+        return Request(
+            parts: Array(parts), text: text, script: isPage || SpeechText.needsScript(text),
+            lang: String((f["l"] ?? "").prefix(16)), what: isPage ? "page" : "answer", title: String((f["n"] ?? "").prefix(200)),
+            url: page.hasPrefix("https://") || page.hasPrefix("http://") ? String(page.prefix(2000)) : ""
+        )
+    }
+
+    /// base64url without padding → text (nil when it isn't UTF-8 in base64url).
+    static func text(base64Url value: String) -> String? {
+        var base = value.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+        while base.count % 4 != 0 { base += "=" }
+        guard let data = Data(base64Encoded: base), String(data: data, encoding: .utf8) != nil else { return nil }
+        // As it was sent: String(data:encoding:) would drop a text's leading U+FEFF, and its id (VoicedList) with it.
+        return String(decoding: data, as: UTF8.self)
+    }
+
+    /// The page the person is sent back to with word to play the text in the panel (`#cf-listen=<id>`, which the panel
+    /// takes out at once): notifications were just turned on. A page with an address fragment of its own keeps it (the
+    /// panel then asks the extension's native side, as before).
+    static func marked(_ page: URL, id: String) -> URL {
+        guard var parts = URLComponents(url: page, resolvingAgainstBaseURL: false), (parts.fragment ?? "").isEmpty,
+              id.range(of: "^[0-9a-f-]{8,64}$", options: .regularExpression) != nil else { return page }
+        parts.fragment = "cf-listen=\(id)"
+        return parts.url ?? page
     }
 }

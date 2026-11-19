@@ -4,7 +4,7 @@ import { test } from "node:test"
 
 import { parseHTML } from "linkedom"
 
-import { besideSpot, BUTTON, buttonPlace, buttonSpot, cornerSpot, fieldPointFree, LEFT_EDGE, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, SIDE_MIN } from "../src/content/insert/spot.ts"
+import { besideSpot, BUTTON, buttonPlace, buttonSpot, cornerSpot, farSpot, fieldPointFree, LEFT_EDGE, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, SIDE_MIN } from "../src/content/insert/spot.ts"
 
 const rect = (left: number, top: number, width: number, height: number) => ({ left, top, width, height, right: left + width, bottom: top + height })
 const view = { width: 375, height: 667 }
@@ -212,4 +212,23 @@ test("never at the screen's left edge: Safari takes a touch there for its swipe 
   // A spot a little further in is fine.
   const spot = buttonSpot(box, view, (x) => x >= LEFT_EDGE && x < 70)!
   assert.ok(spot.left >= LEFT_EDGE, `${spot.left}`)
+})
+
+test("2.7 (107): with mistakes counted, a chat's box with no room by it gets the button a little further out", () => {
+  // A chat's box full of text: quick replies just above it, Send beside, the browser's bar just below.
+  const phone = { width: 402, height: 874 }
+  const box = rect(54, 732, 291, 36)
+  const chips = { left: 0, top: 690, right: 402, bottom: 728 }
+  const send = { left: 350, top: 732, right: 402, bottom: 768 }
+  const bar = { left: 0, top: 772, right: 402, bottom: 820 }
+  const free = taken([chips, send, bar])
+  assert.equal(buttonSpot(box, phone, free), null)
+  // Without a count nothing changes: no button.
+  assert.equal(buttonPlace(box, phone, free, null), null)
+  // With one: above the quick replies, at the box's right.
+  const far = buttonPlace(box, phone, free, null, true)!
+  assert.ok(far && far.top + BUTTON <= chips.top && far.top >= chips.top - 3 * (BUTTON + 4) - BUTTON, JSON.stringify(far))
+  assert.deepEqual(farSpot(box, phone, free), { top: far.top, left: far.left })
+  // Still never over the site's things: all of it taken, no button.
+  assert.equal(farSpot(box, phone, taken([{ left: 0, top: 0, right: 402, bottom: 900 }])), null)
 })

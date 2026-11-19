@@ -110,16 +110,25 @@ export function sensitiveField(el: Element): boolean {
   if (tag(el) === "INPUT" && (input.type === "password" || input.type === "hidden")) return true
   const auto = (el.getAttribute("autocomplete") ?? "").toLowerCase()
   if (/\bcc-|\bcurrent-password\b|\bnew-password\b|\bone-time-code\b/.test(auto)) return true
+  return cardNamed(el)
+}
+
+/** Named as a card's number or code, or an account's. */
+function cardNamed(el: Element): boolean {
   const name = `${el.getAttribute("name") ?? ""} ${el.id} ${el.getAttribute("aria-label") ?? ""}`.toLowerCase()
   return /card.?number|cardnum|\bccnum|\bcvc\b|\bcvv\b|\biban\b|security.?code/.test(name)
 }
 
 /** The element's form has a password or card field: nothing from it is kept. A login box elsewhere
- * on the page (most sites have one) doesn't count. */
+ * on the page (most sites have one) doesn't count. A hidden input says nothing by being hidden (2.7 (107): most comment
+ * forms carry a token or the post's id in one, and Check, Rewrite and the underlines never showed in them): only what
+ * it's named does. */
 export function sensitiveForm(el: Element): boolean {
   const form = el.closest("form")
   if (!form) return false
-  for (const field of Array.from(form.querySelectorAll("input"))) if (sensitiveField(field)) return true
+  for (const field of Array.from(form.querySelectorAll("input"))) {
+    if ((field as HTMLInputElement).type === "hidden" ? cardNamed(field) : sensitiveField(field)) return true
+  }
   return false
 }
 
@@ -270,7 +279,7 @@ function contents(field: Field): string {
 }
 
 /** The page's editor got to update its DOM (Draft.js and Lexical re-render after the event). */
-function settle(win: Window): Promise<void> {
+export function settle(win: Window): Promise<void> {
   return new Promise((resolve) => {
     let done = false
     const finish = () => {
@@ -294,7 +303,7 @@ function ways(field: Field, text: string): InsertWay[] {
   return text.includes("\n") ? ["paste", "typing"] : ["typing", "paste"]
 }
 
-function dispatchPaste(field: Field, text: string): void {
+export function dispatchPaste(field: Field, text: string): void {
   const doc = field.el.ownerDocument
   const win = doc.defaultView ?? window
   const data = new win.DataTransfer()

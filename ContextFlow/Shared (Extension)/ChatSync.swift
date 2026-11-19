@@ -86,7 +86,15 @@ enum ChatSync {
                     let theirs = current.encryptedValues["data"] as? String
                     // Already there (the app and the extension both send the app's changes).
                     if let at, at == snapshot.updatedAt, theirs == snapshot.data { continue }
-                    if let base = snapshot.base, let at, at > base, let theirs {
+                    if snapshot.id == SpaceRecord.id || CollectionRecord.isCollection(snapshot.id), let at, let theirs {
+                        // The spaces' list and the collections (2.7): merged with iCloud's copy, so what another device
+                        // added meanwhile stays; nothing new for iCloud, nothing saved (theirs comes back with the changes).
+                        let mine = ChatMirror.Item(updatedAt: snapshot.updatedAt, data: snapshot.data)
+                        let cloud = ChatMirror.Item(updatedAt: at, data: theirs)
+                        guard let merged = snapshot.id == SpaceRecord.id ? SpaceRecord.take(cloud, mine) : CollectionRecord.take(cloud, mine) else { continue }
+                        data = merged.data
+                        updatedAt = merged.updatedAt
+                    } else if let base = snapshot.base, let at, at > base, let theirs {
                         // Organizing's record made on a copy another device has changed since: that device's copy, with
                         // the names and merges turned down here added, newer than both (so it replaces this device's
                         // too); nothing to add to a newer copy, it just comes back with the changes.

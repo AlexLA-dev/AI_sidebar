@@ -11,7 +11,7 @@ import { t } from "../../shared/i18n"
 import * as Icon from "../icons"
 import { useAboveComposer } from "../ux/MessageUx"
 import { ClipFrame } from "./ClipFrame"
-import { forDevice, say, tipsData, type TipEntry } from "./data"
+import { forDevice, isNewTip, say, tipsData, type TipEntry } from "./data"
 
 const OPEN = "cf:tipsOpen"
 
@@ -111,7 +111,7 @@ function useOpenBlocks(first: string): [string[], (id: string) => void, boolean]
   return [open, toggle, ready]
 }
 
-function TipCard({ tip, mac, lang, load = null }: { tip: TipEntry; mac: boolean; lang: string; load?: Load }): VNode {
+function TipCard({ tip, mac, lang, load = null, fresh = false }: { tip: TipEntry; mac: boolean; lang: string; load?: Load; fresh?: boolean }): VNode {
   const { title, text, clip } = forDevice(tip, mac)
   return (
     <div class="cf-tip">
@@ -120,6 +120,7 @@ function TipCard({ tip, mac, lang, load = null }: { tip: TipEntry; mac: boolean;
         {say(title)}
         {tip.pro && <span class="cf-pro-badge">Pro</span>}
         {tip.ultra && <span class="cf-ultra-badge">Ultra</span>}
+        {fresh && <span class="cf-new-badge">{t("tipNew")}</span>}
       </div>
       <p class="cf-tip-text">{say(text)}</p>
     </div>
@@ -160,11 +161,13 @@ export function TipsSheet({ mac, onClose }: { mac: boolean; onClose: () => void 
               <button type="button" class="cf-tips-head" aria-expanded={isOpen} onClick={() => toggle(group.id)}>
                 <span>{say(group.title)}</span>
                 {!isOpen && <span class="cf-tips-count">{group.tips.length}</span>}
+                {/* 107: a folded block that holds this version's new cards says so, so they're found without opening each. */}
+                {!isOpen && group.tips.some((tip) => isNewTip(tip, data)) && <span class="cf-new-badge">{t("tipNew")}</span>}
                 <Chevron />
               </button>
               {isOpen && ready && (
                 <div class="cf-tips-cards">
-                  {group.tips.map((tip) => <TipCard key={tip.title.key} tip={tip} mac={mac} lang={lang} load={prepared.get(tip.title.key) ?? null} />)}
+                  {group.tips.map((tip) => <TipCard key={tip.title.key} tip={tip} mac={mac} lang={lang} load={prepared.get(tip.title.key) ?? null} fresh={isNewTip(tip, data)} />)}
                 </div>
               )}
             </section>

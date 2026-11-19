@@ -2,7 +2,7 @@ import type { VNode } from "preact"
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import type { ConsentStatus } from "../../shared/consent"
-import type { CopiedItem } from "../../shared/copied"
+import { liveCopied, type CopiedItem } from "../../shared/copied"
 import { t } from "../../shared/i18n"
 import { ConsentCard } from "../Consent"
 import type { AiFailure, FillResult } from "../../shared/insert"
@@ -33,7 +33,7 @@ interface Props {
 }
 
 /** What the field is for, from its label (helps the AI pick the right values; no text of the field). */
-function fieldLabel(field: Field | null): string {
+export function fieldLabel(field: Field | null): string {
   const el = field?.el
   if (!el) return ""
   const doc = el.ownerDocument
@@ -167,7 +167,8 @@ export function FillForm(p: Props): VNode {
     }
   }
 
-  const copied = p.copied.slice(0, 5)
+  // By age as it's drawn, as the list's (107).
+  const copied = liveCopied(p.copied, Date.now()).slice(0, 5)
 
   return (
     <div ref={ref} class={`cf-qi ${p.sheet ? "" : "suggest"}`} role="dialog" aria-label={p.template.title} onPointerDown={(e) => !(e.target as Element).closest("input") && e.preventDefault()}>

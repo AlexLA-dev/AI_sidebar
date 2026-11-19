@@ -51,13 +51,13 @@ test("each language page says its language and direction, keeps the counter, and
       assert.ok(tag.includes(` lang="${language.lang}"`), `${file}: ${tag}`)
       assert.equal(tag.includes(' dir="rtl"'), !!language.rtl, `${file}: ${tag}`)
       assert.ok(html.includes('<script src="/visit.js" defer></script>'), `${file}: visit.js`)
-      // Internal links stay in the language, unless the page they lead to doesn't come in it (privacy, terms, the
-      // alternative pages, a page in English and Russian only); the language links go anywhere.
+      // Internal links stay in the language (2.7, the director's review: no reader is sent to an English page). Only
+      // privacy and terms, the binding texts, are English for everyone; the language links go anywhere.
       const body = html.replace(/<nav class="langs"[\s\S]*?<\/nav>/, "")
       for (const [, href] of body.matchAll(/href="(\/[^"]*)"/g)) {
-        if (/^\/(icon|style|cases\.css|clips)/.test(href)) continue
+        if (/^\/(icon|style|cases\.css|clips|img)/.test(href)) continue
         const target = href === "/" ? "index.html" : `${href.slice(1).replace(/\/$/, "").replace(/#.*$/, "")}.html`
-        if (!inLanguage(target, language) && href.replace(/#.*$/, "") === urlPath(target)) continue
+        if (["privacy.html", "terms.html"].includes(target) && href.replace(/#.*$/, "") === urlPath(target)) continue
         assert.ok(href.startsWith(`/${language.path}/`), `${file}: ${href} leaves the language`)
       }
       // Never an /api or /.netlify link, never a redirect script.

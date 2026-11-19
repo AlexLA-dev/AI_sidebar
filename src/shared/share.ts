@@ -5,7 +5,7 @@
 // It never starts with "word:": apps that take text that parses as a URL as a link (Heptabase) would
 // save the whole text as one link, scheme "You".
 
-import { stripCitations, type Entry } from "./conversation.ts"
+import { askedCite, stripCitations, type Entry } from "./conversation.ts"
 
 export interface ShareLabels {
   you: string // "You"
@@ -13,6 +13,7 @@ export interface ShareLabels {
   sources: string // a Google answer's sources
   source: string // the pages the chat was about
   madeWith: string // "Made with ContextFlow"
+  quote?: string // the language's quotes around {0} ("“{0}”", "«{0}»"): a question's selection (build 110)
 }
 
 export interface ShareLinks {
@@ -87,7 +88,10 @@ export function chatShareText(entries: Entry[], name: string, labels: ShareLabel
     if (only && !only.has(i)) continue
     if (m.role === "user") {
       if (m.page) pages.set(m.page.url, m.page.title)
-      lines.push(m.note ? `${labels.note}: ${m.content}` : `${labels.you}: ${m.label ?? m.content}`)
+      const cite = askedCite(m)
+      // A question asked on a selection: the selection first, as the chat shows it (build 110).
+      const asked = cite ? `${(labels.quote ?? "“{0}”").replace("{0}", () => cite)}\n${m.label ?? m.content}` : m.label ?? m.content
+      lines.push(m.note ? `${labels.note}: ${m.content}` : `${labels.you}: ${asked}`)
     } else {
       const page = pageOf(entries, i)
       if (page) pages.set(page.url, page.title)
@@ -118,10 +122,12 @@ const LATIN: Array<[string, Set<string>, RegExp]> = [
   ["fr", new Set("le les est sont et que quoi comment pourquoi un une des du ce cet cette il elle pour dans avec sur qui parle".split(" ")), /[œêâîôûëïç]/],
   ["it", new Set("il lo gli è sono che cosa come perché di e un una del della per con su questo questa parla".split(" ")), /$^/],
   ["pt_BR", new Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(" ")), /[ãõ]/],
-  ["vi", new Set("là của và có không gì này những một các cho được trong về như thế nào sao bài trang tôi bạn với để khi đây đó nói".split(" ")), /[ăđơư\u1ea0-\u1ef9]/]
+  ["vi", new Set("là của và có không gì này những một các cho được trong về như thế nào sao bài trang tôi bạn với để khi đây đó nói".split(" ")), /[ăđơư\u1ea0-\u1ef9]/],
+  // 2.7: Turkish, its dotless ı and ğ its own among these.
+  ["tr", new Set("ve bir bu ne nasıl neden için ile mi mı mu mü bu şu ben sen biz siz var yok daha çok gibi sayfa hakkında nedir".split(" ")), /[ığ]/]
 ]
-// The letters of Latin-script words: Vietnamese adds ă đ ĩ ũ ơ ư and its tone marks to French and German's.
-const WORD = /[a-zà-ÿœăđĩũơư\u1ea0-\u1ef9]+/g
+// The letters of Latin-script words: Vietnamese adds ă đ ĩ ũ ơ ư and its tone marks to French and German's, Turkish ğ ı ş.
+const WORD = /[a-zà-ÿœăđĩũơưğış\u1ea0-\u1ef9]+/g
 
 // Characters written one way in Traditional Chinese and another in Simplified (這/这, 們/们, 說/说…): which of the two
 // a text uses more tells zh_TW from zh_CN. Characters both scripts share (里, 后, 于…) aren't here.
@@ -138,7 +144,7 @@ export function textLanguage(text: string): string | undefined {
     [count(/[\u3040-\u30ff]/g) ? "ja" : chinese(count), count(/[\u3040-\u30ff\u4e00-\u9fff]/g)],
     ["ar", count(/[\u0600-\u06ff\u0750-\u077f]/g)],
     [/[іїєґ]|(^|[^а-яё])(що|це|ця|цей|чому|який|яка|яке)(?![а-яё])/i.test(text) ? "uk" : "ru", count(/[а-яёіїєґ]/gi)],
-    [undefined, count(/[a-zà-ÿœăđĩũơư\u1ea0-\u1ef9]/gi)]
+    [undefined, count(/[a-zà-ÿœăđĩũơưğış\u1ea0-\u1ef9]/gi)]
   ]
   const [script, letters] = scripts.reduce((a, b) => (b[1] > a[1] ? b : a))
   if (letters < 3) return undefined

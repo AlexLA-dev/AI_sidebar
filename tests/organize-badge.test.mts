@@ -28,5 +28,5 @@ test("the app's catalog has the plural for the same forms", () => {
   const entry = catalog.strings["%lld recommendations"]
   assert.equal(entry.localizations.ru.variations.plural.few.stringUnit.value, "%lld рекомендации")
   assert.equal(entry.localizations.en.variations.plural.one.stringUnit.value, "%lld recommendation")
-  assert.equal(Object.keys(entry.localizations).length, 14)
+  assert.equal(Object.keys(entry.localizations).length, 15)
 })

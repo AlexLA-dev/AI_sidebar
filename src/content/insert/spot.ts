@@ -113,12 +113,36 @@ export function cornerSpot(field: Rect, view: Box, free: Probe, text: Array<{ le
  * it, then along its top edge and its bottom edge), and only then inside a multi-line field's corner (`inside`,
  * null for a one-line input). The text is measured only when it comes to that.
  */
-export function buttonPlace(field: Rect, view: Box, outside: Probe, inside: { free: Probe; text: () => Array<{ left: number; top: number; right: number; bottom: number }> } | null): { top: number; left: number; inside: boolean } | null {
+export function buttonPlace(field: Rect, view: Box, outside: Probe, inside: { free: Probe; text: () => Array<{ left: number; top: number; right: number; bottom: number }> } | null, farther = false): { top: number; left: number; inside: boolean } | null {
   const out = buttonSpot(field, view, outside)
   if (out) return { ...out, inside: false }
-  if (!inside) return null
-  const corner = cornerSpot(field, view, inside.free, inside.text())
-  return corner ? { ...corner, inside: true } : null
+  const corner = inside ? cornerSpot(field, view, inside.free, inside.text()) : null
+  if (corner) return { ...corner, inside: true }
+  const far = farther ? farSpot(field, view, outside) : null
+  return far ? { ...far, inside: false } : null
+}
+
+/**
+ * While the field has underlined mistakes the button carries their count and is the way to their list (2.7 (107)):
+ * with no room right by the field and none inside it (a chat's box full of text, quick replies above, Send beside,
+ * the browser's bar below) it may stand a little further out, up to three buttons above or below. Never over the
+ * site's controls or text, as everywhere.
+ */
+export function farSpot(field: Rect, view: Box, free: Probe): { top: number; left: number } | null {
+  if (field.bottom <= 0 || field.top >= view.height) return null
+  const right = Math.min(field.right, view.width - GAP)
+  const lefts: number[] = []
+  for (let left = right - BUTTON; left >= Math.max(LEFT_EDGE, field.left); left -= BUTTON) lefts.push(left)
+  for (let k = 1; k <= 3; k++) {
+    for (const top of [field.top - GAP - BUTTON - k * (BUTTON + GAP), field.bottom + GAP + k * (BUTTON + GAP)]) {
+      for (const left of lefts) {
+        if (top < GAP || top + BUTTON > view.height - GAP || left + BUTTON > view.width - GAP) continue
+        const points = [[left + BUTTON / 2, top + BUTTON / 2], [left + 2, top + 2], [left + BUTTON - 2, top + 2], [left + 2, top + BUTTON - 2], [left + BUTTON - 2, top + BUTTON - 2]]
+        if (points.every(([x, y]) => free(x, y))) return { top, left }
+      }
+    }
+  }
+  return null
 }
 
 // A control anywhere up the tree (the icon inside a button); the rest only when it's the element itself (a
@@ -232,12 +256,14 @@ export const SEARCH_WORDS = {
   zh: ["搜索", "查询"],
   "zh-Hant": ["搜尋", "查詢"],
   vi: ["tìm kiếm"],
-  ar: ["بحث"]
+  ar: ["بحث"],
+  // 2.7: and "ara" on its own (SEARCH_NAMED): inside a word it's everywhere ("parameter", "separate").
+  tr: ["arama", "aradığınız"]
 } as const
 
-// `q`, the name search forms give their field, in any language.
+// `q`, the name search forms give their field, in any language; Turkish "ara" (search) only as a word of its own.
 const SEARCH_NAMED = new RegExp(
-  `${Object.values(SEARCH_WORDS).flat().map((w) => unaccent(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}|\\bq\\b`
+  `${Object.values(SEARCH_WORDS).flat().map((w) => unaccent(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}|\\bq\\b|\\bara\\b`
 )
 
 /** Whether a field's name, id, label or hint says it's a search, in any of the app's languages. */
@@ -297,4 +323,42 @@ export function besideSpot(field: Edges, view: { width: number; height: number }
   const left = { left: field.left - SIDE_GAP - w, width: w }
   if (left.width >= SIDE_MIN && clear(left.left, left.left + left.width)) return { top, ...left }
   return null
+}
+
+// ------------------------------------------------------------ live underlines' card (Underlines.tsx)
+
+/**
+ * The card's top for words at `r` (fixed coordinates): on touch above them when there's room (the keyboard sits below
+ * the text being typed), else below; with a pointer below them unless that runs off what's visible.
+ */
+export function cardTop(r: { top: number; bottom: number }, h: number, vp: { height: number; dy: number }, touch: boolean): number {
+  const above = r.top - h - 8
+  const below = r.bottom + 8
+  const roomAbove = above >= vp.dy + 8
+  if (touch) return roomAbove ? above : below
+  return below + h <= vp.dy + vp.height - 8 || !roomAbove ? below : above
+}
+
+/**
+ * Where the list of fixes goes by touch (2.7 (107)), in what's visible (0 at its top, `height` at its bottom: the
+ * keyboard's top edge when it's up). At the bottom, a thumb's place, when the field isn't there; a field that is (a
+ * chat's box sits right on the keyboard) keeps showing, with the list above it; a field with room neither under nor
+ * over it (a mail's body filling the screen) gets the list over its bottom part.
+ */
+export function fixesSpot(field: { top: number; bottom: number } | null, height: number, h: number): { top: number; at: "bottom" | "above" } {
+  const bottom = Math.max(8, height - 8 - h)
+  if (!field || field.bottom <= 0 || field.top >= height) return { top: bottom, at: "bottom" }
+  if (bottom >= Math.min(field.bottom, height) + 6) return { top: bottom, at: "bottom" }
+  const above = field.top - 8 - h
+  if (above >= 8) return { top: above, at: "above" }
+  return { top: bottom, at: "bottom" }
+}
+
+/**
+ * How tall the list of fixes may be by touch: about half of what's visible, and never less than `need`, the list's head,
+ * its first row and its foot together (a phone with the keyboard up: after a fix the «Fixed · Undo» foot took its height
+ * out of the body, and the next row's Fix and Ignore went under it). What's visible is the limit for both.
+ */
+export function fixesMaxHeight(height: number, need = 0): number {
+  return Math.round(Math.min(Math.max(150, Math.min(320, height * 0.48), need), height - 16))
 }

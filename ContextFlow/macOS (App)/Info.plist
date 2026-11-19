@@ -13,10 +13,14 @@
 			</array>
 		</dict>
 	</array>
-	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.productivity</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>ContextFlow adds the events you confirm to your calendar. It can't see your calendar.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>ContextFlow adds the reminders you confirm. It doesn't read your reminders or send them anywhere.</string>
 	<key>SFSafariWebExtensionConverterVersion</key>
 	<string>26.2</string>
 </dict>

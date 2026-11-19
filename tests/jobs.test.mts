@@ -117,8 +117,9 @@ test("build 94: the chats list's row knows a Find similar at work (product-26's 
 })
 
 test("a last question without an answer: interrupted, still working, or too fresh to tell", () => {
-  const now = Date.now()
   const asked = [q("q1"), a("a1"), q("q2")]
+  // The question's own time (a slow runner can tick a millisecond between the clock read and the question's stamp).
+  const now = asked[2].t!
   // Its job failed here.
   assert.deepEqual(interruption(asked, { q2: job({ id: "q2", state: "failed", code: "NETWORK" }) }, false, now), { code: "NETWORK" })
   // Its job runs (the panel follows it), or the panel follows it already.

@@ -43,6 +43,12 @@
   to = "/.netlify/functions/email-confirmed"
   status = 200
 
+# 2.7, invite a friend: context-flow.app/i/<code> is one page that reads the code from the address.
+[[redirects]]
+  from = "/i/*"
+  to = "/i.html"
+  status = 200
+
 [[redirects]]
   from = "/confirm"
   to = "/.netlify/functions/email-confirmed"
@@ -95,6 +101,18 @@
 [[redirects]]
   from = "https://aisidebar.netlify.app/terms.html"
   to = "https://context-flow.app/terms"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/open-chat"
+  to = "https://context-flow.app/open-chat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/open-chat.html"
+  to = "https://context-flow.app/open-chat"
   status = 301
   force = true
 
@@ -327,8 +345,44 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/translate-web-page-safari-iphone"
+  to = "https://context-flow.app/translate-web-page-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/i"
+  to = "https://context-flow.app/i"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/translate-web-page-safari-iphone.html"
+  to = "https://context-flow.app/translate-web-page-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/i.html"
+  to = "https://context-flow.app/i"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/proofread-safari-iphone"
+  to = "https://context-flow.app/proofread-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/demo/lisboa"
   to = "https://context-flow.app/demo/lisboa"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/proofread-safari-iphone.html"
+  to = "https://context-flow.app/proofread-safari-iphone"
   status = 301
   force = true
 

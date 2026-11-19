@@ -8,6 +8,9 @@
   --accent-2: #38bdf8;
   --accent-soft: rgba(37, 99, 235, 0.10);
   --accent-text: #1d4ed8;
+  /* The ✦ circle's pair, for the page's solid buttons and glows (the same in both themes); tinted with a space (109). */
+  --accent-from: #38bdf8;
+  --accent-to: #2563eb;
   /* Ultra (2.6, build 90): one colour for its features (names agreed with ultra-26, Listen uses them too). --ultra is
      the app's solid violet (ContentView ultraColor, #7D4FED); text and the mark pass 4.5:1 on every panel background
      in both themes (#7C3AED text is 4.2:1 on --bg-3, white on #8B5CF6 4.2:1, so these are a step darker). */
@@ -106,7 +109,39 @@
   }
 }
 
-:where(.cf) *, :where(.cf) *::before, :where(.cf) *::after { box-sizing: border-box; }
+/* 2.7 (109), the owner: «окраска других элементов кроме кружка на странице тоже менялась под цвет пространства, но
+   менее ярко, бледнее, однако отображало целостность». In a space other than the first (blue) one, everything ContextFlow
+   puts on the page beside the panel takes the ✦ circle's space colour through these variables: the selection bar, the
+   translate pill, the corrections and their list, Quick insert and Write, the note pop-up, toasts. --tint and --tint-2
+   come from Spaces.tsx pageTintVars (the circle's base and light colour). A step paler than the circle: its colour over
+   the background for lines and icons, 11 % (dark 16 %) of it under text, and text mixed toward the theme's own text,
+   4.5:1 or more on both for every colour. The panel keeps its blue (its header carries the space). Off in one place:
+   PAGE_TINT in Spaces.tsx. */
+.cf[data-tint] > :not(.cf-panel) {
+  --accent: color-mix(in srgb, var(--tint) 80%, var(--bg));
+  --accent-2: var(--tint-2);
+  --accent-soft: color-mix(in srgb, var(--tint) 11%, transparent);
+  --accent-text: color-mix(in srgb, var(--tint) 72%, var(--text));
+  --snack-action: var(--tint-2);
+  --accent-from: color-mix(in srgb, var(--tint-2) 85%, #ffffff);
+  --accent-to: color-mix(in srgb, var(--tint) 82%, #ffffff);
+}
+.cf[data-tint][data-theme="dark"] > :not(.cf-panel) {
+  --accent: color-mix(in srgb, var(--tint-2) 85%, var(--bg));
+  --accent-soft: color-mix(in srgb, var(--tint-2) 16%, transparent);
+  --accent-text: color-mix(in srgb, var(--tint-2) 80%, var(--text));
+  --snack-action: color-mix(in srgb, var(--tint) 70%, var(--snack-text));
+}
+@media (prefers-color-scheme: dark) {
+  .cf[data-tint]:not([data-theme]) > :not(.cf-panel) {
+    --accent: color-mix(in srgb, var(--tint-2) 85%, var(--bg));
+    --accent-soft: color-mix(in srgb, var(--tint-2) 16%, transparent);
+    --accent-text: color-mix(in srgb, var(--tint-2) 80%, var(--text));
+    --snack-action: color-mix(in srgb, var(--tint) 70%, var(--snack-text));
+  }
+}
+
+:where(.cf) *,:where(.cf) *::before, :where(.cf) *::after { box-sizing: border-box; }
 /* Resets use :where() (zero specificity) so component classes below always win. */
 :where(.cf) button { font: inherit; color: inherit; background: none; border: 0; margin: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 :where(.cf) button:disabled { cursor: default; opacity: 0.45; }
@@ -120,11 +155,13 @@
   border-radius: 24px;
   display: flex; align-items: center; justify-content: center;
   color: #fff !important;
-  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+  /* 2.7: the space's colour when there are spaces (--space-2, --space; spaces.css), else the blue it always had. */
+  background: linear-gradient(135deg, var(--space-2, #38bdf8) 0%, var(--space, #2563eb) 100%) !important;
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42), 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 3;
   touch-action: none !important;
-  user-select: none; -webkit-user-select: none;
+  /* Held down, it opens the page's translation (build 107): no system menu or selection over it. */
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   transition: transform 0.15s ease, opacity 0.2s ease;
   opacity: 0.94;
 }
@@ -174,6 +211,21 @@
 .cf-bubble-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-inline-start: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
 .cf-bubble-saved span { display: flex; align-items: center; gap: 6px; }
 .cf-bubble-saved svg { color: var(--note); }
+/* 107: the snapshot offered in this line (the camera, then what to take), and how it went. One line always. */
+.cf-bubble-saved { min-width: 0; }
+.cf-bubble-saved .cf-saved-text { flex: 1 1 auto; min-width: 0; }
+.cf-bubble-saved.failed .cf-saved-text, .cf-bubble-saved.pro .cf-saved-text { display: block; white-space: normal; font-weight: 500; line-height: 1.3; }
+.cf-bubble-saved .cf-saved-what { flex: none; color: var(--text-3); }
+.cf-bubble-saved .cf-saved-what svg, .cf-bubble-saved button svg { color: inherit; }
+.cf-bubble-saved button { flex: none; }
+.cf-bubble-saved button.cf-saved-shot { color: var(--accent-text); }
+.cf-bubble-saved.pick { justify-content: flex-start; gap: 6px; }
+.cf-bubble-saved button.cf-saved-kind { flex: 1 1 auto; justify-content: center; gap: 6px; color: var(--text); background: var(--bg-2); }
+.cf-bubble-saved.pro button.cf-saved-kind { flex: none; background: transparent; }
+.cf-bubble.tight .cf-saved-shot .cf-sel-l { display: none; }
+/* 107: Note by the selection shows it's pressed (the panel's does), from the touch until "Saved" comes. */
+.cf-bubble button.cf-sel-note:active, .cf-bubble button.cf-sel-note.pressed { color: var(--note-text); background: var(--note-soft); box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.45) inset; }
+.cf-bubble.touch button.cf-sel-note.pressed { transform: scale(0.97); }
 /* iPhone / iPad: bigger tap targets, primary action filled; 16px text so Safari doesn't zoom into the field. */
 .cf-bubble.touch { gap: 5px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 /* Wide enough for the field: the buttons above share the width. */
@@ -187,7 +239,7 @@
 .cf-bubble.touch .cf-bubble-row { gap: 4px; }
 .cf-bubble.touch .cf-bubble-row button { flex: 1 1 auto; justify-content: center; }
 .cf-bubble.touch button { min-height: 36px; padding: 7px 12px; border-radius: 11px; font-size: 14.5px; font-weight: 600; color: var(--text); }
-.cf-bubble.touch button.primary { color: #fff !important; background: linear-gradient(135deg, #38bdf8, #2563eb) !important; }
+.cf-bubble.touch button.primary { color: #fff !important; background: linear-gradient(135deg, var(--accent-from), var(--accent-to)) !important; }
 .cf-bubble.touch button:active { transform: scale(0.97); }
 .cf-bubble.touch .cf-bubble-ask input { height: 38px; border-radius: 11px; font-size: 16px; }
 .cf-bubble.touch button.cf-bubble-send { width: 36px; min-height: 36px; height: 36px; padding: 0; border-radius: 50%; color: #fff; }
@@ -216,7 +268,7 @@
 .cf-bubble.touch button.cf-sel-chip {
   flex: none; min-height: 0; height: 28px; padding: 0 10px; border-radius: 999px;
   font-size: 13.5px; font-weight: 600; color: var(--accent-text);
-  background: rgba(37, 99, 235, 0.13); border: 1px solid rgba(37, 99, 235, 0.22);
+  background: color-mix(in srgb, var(--accent-to) 13%, transparent); border: 1px solid color-mix(in srgb, var(--accent-to) 22%, transparent);
   scroll-snap-align: end; touch-action: pan-x; opacity: 0.92;
 }
 .cf-bubble.touch button.cf-sel-chip:last-child { margin-inline-end: 5px; }
@@ -235,9 +287,9 @@
 .cf-bubble .cf-ask-field.mouse button.cf-sel-chip {
   flex: none; min-height: 0; height: 24px; padding: 0 9px; border-radius: 999px; white-space: nowrap;
   font-size: 12.5px; font-weight: 600; color: var(--accent-text);
-  background: rgba(37, 99, 235, 0.11); border: 1px solid rgba(37, 99, 235, 0.2);
+  background: color-mix(in srgb, var(--accent-to) 11%, transparent); border: 1px solid color-mix(in srgb, var(--accent-to) 20%, transparent);
 }
-.cf-bubble .cf-ask-field.mouse button.cf-sel-chip:hover { background: rgba(37, 99, 235, 0.18); }
+.cf-bubble .cf-ask-field.mouse button.cf-sel-chip:hover { background: color-mix(in srgb, var(--accent-to) 18%, transparent); }
 .cf-bubble .cf-ask-field.mouse button.cf-sel-chip.ultra { display: inline-flex; align-items: center; gap: 4px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
 .cf-bubble .cf-ask-field.mouse button.cf-sel-chip:last-child { margin-inline-end: 4px; }
 @keyframes cf-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
@@ -306,9 +358,14 @@
 .cf[data-layout="sheet"] .cf-header { padding-top: 2px; }
 .cf-logo { color: var(--accent); display: flex; margin-inline-end: 4px; }
 .cf-title { flex: 1; min-width: 0; display: flex; align-items: center; }
-/* 2.6 (94): the chat's name under the header, the whole width, two lines at most. */
-.cf-chat-bar { flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 3px 14px 4px 4px; border-bottom: 1px solid var(--border); }
-.cf-chat-bar-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+/* 2.6 (94): the chat's name under the header, the whole width. 2.7 (after 107), the owner: one line, ending in "…"
+   (it could take two); its full name is its tooltip. */
+.cf-chat-bar { flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 3px 4px 4px; padding-inline-end: 14px; border-bottom: 1px solid var(--border); }
+.cf-chat-bar-name { flex: 1 1 0; min-width: min(4.5em, 20%); font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 107 (spaces): «● Continuing in “…”» before the name and «‹ <space>» after it. Still one line: the label keeps its
+   width up to its cap (its space's name ends in "…" there); the chat's name gives way first, down to a few words;
+   then the button's space name ends in "…", the button never narrower than its arrow and a word. (The name's
+   own rule above keeps its few words; no :has(), which Safari on iOS left unapplied elsewhere.) */
 /* Back to the chats list (2.6 (98)): the header's back, a size smaller. */
 .cf-chat-bar .cf-chat-back { flex: none; width: 30px; height: 30px; }
 .cf[data-touch] .cf-chat-bar .cf-chat-back { width: 36px; height: 36px; }
@@ -386,6 +443,11 @@
 .cf-chip.ultra, .cf-chip.ultra:hover { display: inline-flex; align-items: center; gap: 5px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
 .cf-bubble button.cf-sel-similar.ultra { color: var(--ultra-text); background: var(--ultra-soft); box-shadow: 0 0 0 1px var(--ultra-line) inset; }
 .cf-bubble.touch button.cf-sel-chip.ultra { gap: 4px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
+/* 107: violet is Ultra's. Find similar on Pro and Own key (the light search) and offered to Free is blue, as Pro is. */
+.cf-chip.pro, .cf-chip.pro:hover { display: inline-flex; align-items: center; gap: 5px; color: var(--accent-text); background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+.cf-bubble.touch button.cf-sel-chip.pro { gap: 4px; color: var(--accent-text); background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+.cf-bubble .cf-ask-field.mouse button.cf-sel-chip.pro { display: inline-flex; align-items: center; gap: 4px; color: var(--accent-text); background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+.cf-ultra-mark.pro, .cf-ultra-badge.pro { color: #fff; background: linear-gradient(135deg, #38bdf8, #2563eb); }
 .cf-ultra-mark { display: inline-block; margin-inline-start: 5px; padding: 0 4px; border-radius: 5px; font-size: 9.5px; font-weight: 700; line-height: 15px; letter-spacing: 0.02em; color: var(--ultra-on); background: var(--ultra); }
 
 .cf-msg { margin: 0 0 14px; display: flex; flex-direction: column; }
@@ -622,10 +684,8 @@
    panel it sits over the question field; over the page, 64 px above the bottom of what's visible. */
 .cf-snack { background: var(--snack-bg); color: var(--snack-text); border-radius: 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); font-size: 14px; font-weight: 500; line-height: 1.35; }
 .cf-snack button { color: var(--snack-action); font-weight: 600; }
-.cf-usage { display: flex; align-items: center; gap: 10px; padding: 6px 4px 0; font-size: 12px; color: var(--text-3); }
 /* "Long page: answer ×3" by the field (2.5): one line, before the question goes. */
 .cf-weight-note { padding: 0 4px 6px; font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cf-usage-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-whole { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; cursor: pointer; color: var(--text-2); -webkit-user-select: none; user-select: none; }
 .cf-whole input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .cf-switch { position: relative; width: 24px; height: 14px; border-radius: 7px; background: var(--bg-3); box-shadow: inset 0 0 0 1px var(--border); transition: background 0.15s; }
@@ -633,7 +693,6 @@
 .cf-whole input:checked + .cf-switch { background: var(--accent); box-shadow: none; }
 .cf-whole input:checked + .cf-switch::after { transform: translateX(10px); }
 .cf-whole input:focus-visible + .cf-switch { outline: 2px solid var(--accent); outline-offset: 2px; }
-.cf-usage .cf-link { flex-shrink: 0; }
 
 /* --------------------------------------------------------- settings */
 .cf-settings { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px 18px; }
@@ -735,6 +794,8 @@
 }
 .cf:not([data-touch]) .cf-textarea, .cf:not([data-touch]) .cf-text { font-size: 13.5px; }
 .cf-text { flex: 1; min-width: 0; margin-top: 0; font-family: var(--mono); }
+/* The own key as it is typed: hidden like a password, without being one to the browser's password manager. */
+.cf-secret:not(:placeholder-shown) { -webkit-text-security: disc; }
 .cf-textarea:focus, .cf-text:focus { border-color: var(--accent); }
 .cf-key { font-family: var(--mono); color: var(--ok); flex: 1; }
 .cf-links { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 4px; align-items: center; }
@@ -846,6 +907,9 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-tag-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0 2px 8px; }
 .cf-tag-group { display: inline-flex; align-items: center; gap: 4px; margin-inline-start: auto; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--text-2); background: var(--bg-2); }
 .cf-tag-group.on { color: #fff; background: var(--accent); }
+/* 2.7 (109): Collections next to the folders; with no tags in use, the bar's only button, at its end. */
+.cf-tag-group + .cf-tag-cols { margin-inline-start: 0; }
+.cf-tag-cols svg { width: 13px; height: 13px; }
 .cf-tag-group-section { margin-bottom: 8px; }
 .cf-tag-group-head { display: flex; align-items: center; gap: 6px; padding: 6px 10px 4px; font-size: 12px; font-weight: 700; color: var(--text-2); }
 .cf-tag-group-head span { margin-inline-start: auto; font-weight: 600; color: var(--text-3); }
@@ -869,14 +933,16 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-hint-text strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
 .cf-hint-text p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
 .cf-hint-done { flex: none; align-self: center; font-size: 13px; font-weight: 600; }
+/* 2.7: a hint's short lines (New in 2.7) and its way on (All tips). */
+.cf-hint-list { margin: 4px 0 0; padding: 0 0 0 16px; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.cf-hint-list li + li { margin-top: 3px; }
+.cf-hint-more { display: inline-block; margin-top: 6px; font-size: 12.5px; font-weight: 600; }
 
 /* ------------------------------------------------- right to left (Arabic, 2.6) */
 /* The host carries dir (the panel's language, never the page's). Layout uses logical properties; what's left here moves
    along x: the Mac sidebar sits at the left and slides in from there, switches are on at the start side, the back chevron points to
    the start. Code stays left to right in any language. Swipes and the floating button stay physical (a finger's way). */
-/* The sidebar is fixed to the viewport, whose direction is the page's: physical sides, mirrored here. */
-:host([dir="rtl"]) .cf[data-layout="side"] .cf-panel { right: auto; left: 10px; transform: translateX(-24px); }
-:host([dir="rtl"]) .cf[data-layout="side"] .cf-panel.in { transform: none; }
+/* The sidebar's side is the circle's (2.7, side/side.css), in any language: it no longer moves left by itself in Arabic. */
 :host([dir="rtl"]) .cf-whole input:checked + .cf-switch::after { transform: translateX(-10px); }
 :host([dir="rtl"]) .cf-flip { transform: scaleX(-1); }
 .md pre, .md code { direction: ltr; unicode-bidi: isolate; }
@@ -890,16 +956,19 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 @keyframes cf-busy-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .cf-busy-spin, .cf-thread-busy { animation: none; } }
 
+/* 2.7: a point of ours at the fixed coordinates' 0,0 (fixedPlace.ts measures where that is among the page's rects). */
+.cf-origin { position: fixed; left: 0; top: 0; width: 0; height: 0; visibility: hidden; pointer-events: none; }
+
 /* 2.6: with the panel open on a selection, a ring with a light running round it marks the selected
    text on the page and the header's "Selection" chip. Light on the phone: the light is a gradient turning under a
    fixed mask (transform only, on the compositor), three turns and it fades, the ring stays still; nothing animates
    after that, and none of it with Reduce Motion. */
-.cf-sel-glow { position: fixed; z-index: 2; pointer-events: none; border-radius: 10px; box-shadow: 0 0 0 1.5px rgba(56, 189, 248, 0.6), 0 0 16px rgba(37, 99, 235, 0.25); }
-.cf-ctx.selection.glow { position: relative; box-shadow: 0 0 0 1.5px rgba(56, 189, 248, 0.6); }
+.cf-sel-glow { position: fixed; z-index: 2; pointer-events: none; border-radius: 10px; box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent-from) 60%, transparent), 0 0 16px color-mix(in srgb, var(--accent-to) 25%, transparent); }
+.cf-ctx.selection.glow { position: relative; box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent-from) 60%, transparent); }
 .cf-glow-run { position: absolute; inset: -2px; border-radius: inherit; padding: 2px; overflow: hidden; pointer-events: none;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 .cf-glow-run::before { content: ""; position: absolute; left: 50%; top: 50%; width: 260%; aspect-ratio: 1; translate: -50% -50%;
-  background: conic-gradient(from 0deg, transparent 0 68%, #38bdf8 80%, #2563eb 88%, transparent 96%);
+  background: conic-gradient(from 0deg, transparent 0 68%, var(--accent-from) 80%, var(--accent-to) 88%, transparent 96%);
   animation: cf-glow-turn 2.4s linear 3, cf-glow-fade 0.8s ease 7.2s forwards; }
 @keyframes cf-glow-turn { to { rotate: 1turn; } }
 @keyframes cf-glow-fade { to { opacity: 0; } }

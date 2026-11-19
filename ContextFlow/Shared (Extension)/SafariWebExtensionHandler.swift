@@ -1,8 +1,11 @@
+import DeviceCheck
 import SafariServices
 import StoreKit
 import UserNotifications
 #if os(macOS)
 import AppKit
+#else
+import UIKit
 #endif
 
 /// Native side of the Safari extension. The extension's background script calls
@@ -34,6 +37,12 @@ import AppKit
 /// - `tipClip` → a Tips clip for the panel (2.6 (91)): `name`, `lang` (the panel's language: its clips, else the
 ///   person's next language that has them, else English), `offset`; answers `ok`, the clip's
 ///   `total` size and up to 256 KB of it from `offset` (base64), read from the app's copy in the App Group.
+/// - `apple_status` / `apple_add` / `apple_remove` → Calendar and Reminders (2.7, see AppleItems): whether they can be
+///   added here and how; an item written on the device when access is given, else handed to the app (`handoff`: the id
+///   the panel's link already named; on a Mac the app is opened here); «Также в Напоминания» taken back by its key.
+/// - `shot_put` / `shot_get` / `shot_delete` → a note's picture of the page (2.7, see ShotStore): from the panel in parts
+///   (`id`, `part`, `of`, base64 `data`, `cloud`: chats sync with iCloud), kept in the App Group and in iCloud; back in
+///   parts of `ShotStore.readLength` bytes (`offset`; `total`), from iCloud when another device made it; deleted.
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -61,15 +70,47 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         if !products.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(products, storefront: await Storefront.current?.countryCode)) }
     }
 
+    /// 2.7 (the activation funnel, src/shared/usage.ts "activation"): once, when the panel first gives this side its
+    /// install id, the server gets it with the app's id, so the steps in the app (Settings, back) join Safari's (switched
+    /// on, the first answer). Both ids are random; nothing else goes.
+    private static func reportLinked(app: String, install: String, base: String) {
+        #if DEBUG
+        let allowed = base.hasPrefix("https://") || base.hasPrefix("http://localhost:")
+        #else
+        let allowed = base.hasPrefix("https://")
+        #endif
+        guard allowed, let url = URL(string: base + "/api/v2/event") else { return }
+        #if os(macOS)
+        let platform = "macos"
+        #else
+        let platform = UIDevice.current.userInterfaceIdiom == .pad ? "ipados" : "ios"
+        #endif
+        let body: [String: Any] = [
+            "kind": "use", "f": "activation", "a": "linked", "s": "app", "appId": app, "installId": install,
+            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""]
+        ]
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        request.timeoutInterval = 15
+        Task { _ = try? await URLSession.shared.data(for: request) }
+    }
+
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any] ?? [:]
         let command = message["command"] as? String ?? ""
+        let knewInstall = command == "getEntitlement" ? SharedDefaults.shared.readExtensionStatus().installId : nil
         if SharedDefaults.shared.recordExtensionSeen(used: command == "getEntitlement", installId: message["installId"] as? String) {
             // Switched on: the reminders to finish setup the app scheduled are no longer needed.
             let center = UNUserNotificationCenter.current()
             center.removePendingNotificationRequests(withIdentifiers: SharedDefaults.setupReminderIds)
             center.removeDeliveredNotifications(withIdentifiers: SharedDefaults.setupReminderIds)
+        }
+        if command == "getEntitlement", knewInstall == nil, let install = SharedDefaults.shared.readExtensionStatus().installId,
+           let app = SharedDefaults.shared.appId() {
+            Self.reportLinked(app: app, install: install, base: message["base"] as? String ?? "")
         }
 
         switch command {
@@ -118,6 +159,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             let stored = SharedDefaults.shared.readSettings()
             var data: [String: Any] = ["updatedAt": stored?.updatedAt ?? 0]
             data["settings"] = stored.map { $0.settings as Any } ?? NSNull()
+            // «Start as a new user» in the app (2.7, test builds only): the panel's own first run starts over once for
+            // each start (src/shared/firstRun.ts). The App Store's app never sets it.
+            if let preview = SharedDefaults.shared.newUserPreview() { data["firstRunReset"] = (preview.since * 1000).rounded() }
             Self.reply(context, ["success": true, "data": data])
         case "setSettings":
             let settings = message["settings"] as? [String: Any] ?? [:]
@@ -359,6 +403,46 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 return
             }
             Self.reply(context, ["success": true, "data": ["ok": true, "total": part.total, "offset": offset, "length": part.data.count, "data": part.data.base64EncodedString()]])
+        case "shot_put":
+            guard let id = ShotStore.validId(message["id"] as? String), let data = message["data"] as? String else {
+                Self.reply(context, ["success": true, "data": ["ok": false]])
+                return
+            }
+            let part = (message["part"] as? NSNumber)?.intValue ?? 0
+            let count = (message["of"] as? NSNumber)?.intValue ?? 1
+            let cloud = message["cloud"] as? Bool ?? false
+            Task {
+                // The last part writes the picture and keeps it in iCloud (waiting for the next call when offline).
+                let result = await Self.withTimeout(seconds: 28) { await ShotStore.put(id: id, part: part, of: count, data: data, cloud: cloud) }
+                var ok = false
+                if case .success(let done) = result { ok = done }
+                Self.reply(context, ["success": true, "data": ["ok": ok]])
+            }
+        case "shot_get":
+            guard let id = ShotStore.validId(message["id"] as? String) else {
+                Self.reply(context, ["success": true, "data": ["ok": false, "code": "not_found"]])
+                return
+            }
+            let parts = (message["parts"] as? NSNumber)?.intValue ?? 1
+            let offset = (message["offset"] as? NSNumber)?.intValue ?? 0
+            Task {
+                let result = await Self.withTimeout(seconds: 22) { await ShotStore.read(id: id, parts: parts, offset: offset) }
+                guard case .success(let read?) = result else {
+                    Self.reply(context, ["success": true, "data": ["ok": false, "code": "not_found"]])
+                    return
+                }
+                Self.reply(context, ["success": true, "data": ["ok": true, "total": read.total, "offset": offset, "length": read.data.count, "data": read.data.base64EncodedString()]])
+            }
+        case "shot_delete":
+            guard let id = ShotStore.validId(message["id"] as? String) else {
+                Self.reply(context, ["success": true])
+                return
+            }
+            let parts = (message["parts"] as? NSNumber)?.intValue ?? 0
+            Task {
+                _ = await Self.withTimeout(seconds: 12) { await ShotStore.delete(id: id, parts: parts) }
+                Self.reply(context, ["success": true])
+            }
         // Find similar after leaving Safari (build 94, SimilarAway): the app watches a search the person left mid-way,
         // calls it off when they're back, says "found" at once when it ended before Safari was suspended.
         case "similarAway":
@@ -372,12 +456,80 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 await SimilarAway.ended(message)
                 Self.reply(context, ["success": true])
             }
+        case "apple_status":
+            Self.reply(context, ["success": true, "data": AppleItems.status()])
+        case "apple_add":
+            guard AppleItems.available, let item = (message["item"] as? [String: Any]).flatMap(AppleItems.Item.init) else {
+                Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.unavailable.rawValue]])
+                return
+            }
+            let key = (message["key"] as? String).map { String($0.prefix(200)) }
+            // The panel already followed contextflow://add?id=… (iPhone, iPad: only a tap can open the app).
+            if let id = AppleItems.validId(message["handoff"] as? String) {
+                AppleItems.handOff(item, key: key, id: id)
+                Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.app.rawValue]])
+                return
+            }
+            switch AppleItems.access(item.kind) {
+            case .write:
+                do {
+                    let place = try AppleItems.save(item, key: key)
+                    Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.saved.rawValue, "place": place]])
+                } catch {
+                    AppleItems.log("save failed: \(error)")
+                    Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.failed.rawValue]])
+                }
+            case .denied:
+                Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.denied.rawValue]])
+            case .none, .editor:
+                #if os(macOS)
+                // The app asks for access, then adds it.
+                let id = UUID().uuidString.lowercased()
+                AppleItems.handOff(item, key: key, id: id)
+                DispatchQueue.main.async {
+                    let opened = NSWorkspace.shared.open(URL(string: "contextflow://add?id=\(id)")!)
+                    Self.reply(context, ["success": true, "data": ["outcome": (opened ? AppleItems.Outcome.app : .failed).rawValue]])
+                }
+                #else
+                Self.reply(context, ["success": true, "data": ["outcome": AppleItems.Outcome.notAsked.rawValue]])
+                #endif
+            }
+        case "apple_remove":
+            if let key = message["key"] as? String { AppleItems.remove(key: key) }
+            Self.reply(context, ["success": true])
+        // 2.7, invite a friend: what the app kept (a friend's code entered there, the inviter's own code), a DeviceCheck
+        // token for a code entered in the panel, and the panel's marks back (linked, its code).
+        case "invite":
+            switch message["op"] as? String {
+            case "token":
+                Task {
+                    let token = await Self.deviceToken()
+                    Self.reply(context, ["success": true, "data": token.map { ["token": $0] } ?? [:]])
+                }
+            case "linked":
+                SharedDefaults.shared.updateInvite(["linked": true])
+                Self.reply(context, ["success": true, "data": ["ok": true]])
+            case "code":
+                if let code = message["code"] as? String, code.count == 6 { SharedDefaults.shared.updateInvite(["code": code]) }
+                if let until = message["until"] as? Double { SharedDefaults.shared.updateInvite(["until": until, "linked": true]) }
+                Self.reply(context, ["success": true, "data": ["ok": true]])
+            default:
+                Self.reply(context, ["success": true, "data": SharedDefaults.shared.readInvite()])
+            }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
             Self.reply(context, ["success": true, "data": ["pong": true, "version": version, "build": build]])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])
+        }
+    }
+
+    /// A DeviceCheck token (2.7, a friend's code entered in the panel): nil where the device can't make one (a simulator).
+    static func deviceToken() async -> String? {
+        guard DCDevice.current.isSupported else { return nil }
+        return await withCheckedContinuation { done in
+            DCDevice.current.generateToken { data, _ in done.resume(returning: data?.base64EncodedString()) }
         }
     }
 

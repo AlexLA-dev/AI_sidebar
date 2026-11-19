@@ -21,6 +21,8 @@ export interface Thread {
   pin?: number // pinned: its place among the pinned chats at the top of the list (lower first)
   kind?: "history" // "Ask your chats" (Pro): questions about all the other chats, not a page
   tags?: string[] // the user's tags for the chat (answers and notes have their own, on the entry)
+  // 2.7: the space it's in (src/shared/spaces.ts); none, or a space there isn't (deleted, not here yet): the first one.
+  sp?: string
   deleted?: boolean // kept until iCloud knows, so the deletion reaches the other devices
   trashed?: number // in Recently Deleted since then (ms): hidden everywhere, deleted for good TRASH_DAYS later
   // Fields of the iCloud copy this version doesn't know (a newer version wrote them): kept as they came, so they go
@@ -81,6 +83,8 @@ export function cleanOrgState(raw: unknown): OrgState | undefined {
 export interface ActiveThread {
   id: string
   at: number
+  // 2.7: the space a new chat, not stored yet, was started in (a stored chat is in its own).
+  sp?: string
 }
 
 /** A thread as iCloud stores it (`data` is the JSON conversation), or its deletion. */
@@ -245,13 +249,14 @@ export function pinAt(pinned: Thread[], index: number): number {
  * recently active chat with a question or note on this page, else on this site (the same host); null when none has
  * (the panel then opens as before). Chats in Recently Deleted and "Ask your chats" aren't about a page.
  */
-export function chatForPage(threads: Threads, href: string): string | null {
+export function chatForPage(threads: Threads, href: string, inSpace: (thread: Thread) => boolean = () => true): string | null {
   const key = urlKey(href)
   const host = hostOf(href)
   let page: Thread | null = null
   let site: Thread | null = null
   for (const thread of liveThreads(threads)) {
-    if (thread.kind === "history" || thread.m.length === 0) continue
+    // 2.7: only the chats of the space the panel is in.
+    if (thread.kind === "history" || thread.m.length === 0 || !inSpace(thread)) continue
     const pages = threadPages(thread.m)
     if (pages.some((p) => urlKey(p.url) === key)) {
       if (!page || activity(thread) > activity(page)) page = thread
@@ -350,9 +355,11 @@ export function activityAfter(stored: Thread | undefined, m: Entry[], now: numbe
  * `kind` marks a new "Ask your chats" thread. A chat written in while in Recently Deleted (still open here when
  * another device deleted it) comes back out of it, as when an older version writes it.
  */
-export function withMessages(stored: Thread | undefined, id: string, m: Entry[], now: number, kind?: "history"): Thread {
+export function withMessages(stored: Thread | undefined, id: string, m: Entry[], now: number, kind?: "history", sp?: string): Thread {
   const keep = stored && !stored.deleted ? stored : undefined
   const keptKind = keep?.kind ?? kind
+  // A chat stays in its space; a new one goes into the space it was started in (2.7).
+  const space = keep ? keep.sp : sp
   return {
     id, u: now, a: activityAfter(keep, m, now), m,
     ...(keep?.title ? { title: keep.title } : {}),
@@ -361,6 +368,7 @@ export function withMessages(stored: Thread | undefined, id: string, m: Entry[],
     ...(keep?.pin !== undefined ? { pin: keep.pin } : {}),
     ...(keep?.tags?.length ? { tags: keep.tags } : {}),
     ...(keptKind ? { kind: keptKind } : {}),
+    ...(space ? { sp: space } : {}),
     ...(keep?.x ? { x: keep.x } : {})
   }
 }
@@ -371,12 +379,12 @@ export function withMessages(stored: Thread | undefined, id: string, m: Entry[],
  * opened, or brought by iCloud or the app) aren't stored again: trimming them would give the chat a new copy, and
  * drop a long chat's first messages, with nothing done here.
  */
-export function savedThread(stored: Thread | undefined, id: string, entries: Entry[], now: number, kind?: "history"): Thread | null {
+export function savedThread(stored: Thread | undefined, id: string, entries: Entry[], now: number, kind?: "history", sp?: string): Thread | null {
   if (stored && !stored.deleted && JSON.stringify(stored.m) === JSON.stringify(entries)) return null
   const next = trimSavedPages(entries.slice(-MAX_TURNS))
   // Opening an empty thread doesn't store anything.
   if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return null
-  return withMessages(stored, id, next, now, kind)
+  return withMessages(stored, id, next, now, kind, sp)
 }
 
 /**
@@ -438,7 +446,8 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
     ...(thread.pin !== undefined ? { pin: thread.pin } : {}),
     ...(thread.kind ? { k: thread.kind } : {}),
     ...(thread.tags?.length ? { tags: thread.tags } : {}),
-    ...(thread.trashed !== undefined ? { trashed: thread.trashed } : {})
+    ...(thread.trashed !== undefined ? { trashed: thread.trashed } : {}),
+    ...(thread.sp ? { sp: thread.sp } : {})
   }
   let m = thread.m
   let data = JSON.stringify({ ...meta, m })
@@ -451,13 +460,13 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
 }
 
 // The fields of a thread's iCloud JSON this version reads; any other is kept in `x` as it came.
-const CLOUD_FIELDS = new Set(["m", "a", "title", "ait", "org", "pin", "k", "tags", "trashed"])
+const CLOUD_FIELDS = new Set(["m", "a", "title", "ait", "org", "pin", "k", "tags", "trashed", "sp"])
 
 /**
  * A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. Fields it doesn't
  * know are kept (`x`): 2.4 dropped those it didn't know, and saving such a chat there takes it out of Recently Deleted.
  */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "aiTitle" | "org" | "pin" | "kind" | "tags" | "trashed" | "x"> | null {
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "aiTitle" | "org" | "pin" | "kind" | "tags" | "trashed" | "sp" | "x"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -469,7 +478,7 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title, ait, org, pin, k, tags, trashed } = parsed as Record<string, unknown>
+  const { m: raw, a, title, ait, org, pin, k, tags, trashed, sp } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
   const unknown = Object.entries(parsed).filter(([key]) => !CLOUD_FIELDS.has(key))
@@ -483,6 +492,7 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     ...(k === "history" ? { kind: "history" as const } : {}),
     ...(Array.isArray(tags) && cleanTags(tags).length ? { tags: cleanTags(tags) } : {}),
     ...(typeof trashed === "number" && Number.isFinite(trashed) ? { trashed } : {}),
+    ...(typeof sp === "string" && sp && sp.length <= 64 ? { sp } : {}),
     ...(unknown.length ? { x: Object.fromEntries(unknown) } : {})
   }
 }
@@ -738,7 +748,7 @@ export function moveEntries(
   // where the block's last message was.
   const nextTarget: Thread = target
     ? { ...target, u: later(stored, now), a: activity(target), m }
-    : { id: targetId, u: later(stored, now), a: newest ?? activity(source), m }
+    : { id: targetId, u: later(stored, now), a: newest ?? activity(source), m, ...(source.sp ? { sp: source.sp } : {}) }
   const next: Threads = { ...threads, [targetId]: nextTarget }
   if (rest.length) next[sourceId] = { ...source, u: later(source, now), a: entryTimes(rest).at(-1) ?? activity(source), m: rest }
   else emptied(next, sourceId, synced, now)

@@ -19,6 +19,16 @@ import AppKit
 /// (build 90): a part that fails is asked for again, and if it still can't come, playing stops with "Try again".
 /// Speeds 1×, 1.2×, 1.5×, 2× keep the pitch (AVAudioUnitTimePitch); the minutes count the audio, not the time heard.
 /// Nothing runs while it's paused or done: no timer, no audio engine, and the audio session is let go at the end.
+/// Listen's link from Safari with its text in it (2.7; ListenLink in SpeechText.swift reads it): kept as the request
+/// the extension would have written, unless the extension's copy is already here. A link without text (an older
+/// panel in an open tab, or a text too long for a link) changes nothing.
+extension ListenLink {
+    static func keep(_ url: URL) {
+        guard let id = id(url), SharedDefaults.shared.readListenRequest(id) == nil, let request = request(url) else { return }
+        _ = SharedDefaults.shared.writeListenRequest(request.stored, id: id)
+    }
+}
+
 struct ListenRequest: Equatable {
     let id: String
     /// The panel's parts (its own rules): what's read when the text can't be written for the ear.
@@ -555,6 +565,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     func open(_ url: URL) {
+        // 2.7: the link's own text is kept first, so it's here whether or not the extension's copy has come.
+        ListenLink.keep(url)
         let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
         let id = (items.first { $0.name == "id" }?.value ?? "").lowercased()
         // From the panel's notification (2.6): the second it had reached in Safari.

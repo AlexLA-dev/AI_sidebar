@@ -48,11 +48,30 @@ final class Activation: ObservableObject {
         appId = launch.id
         newInstall = launch.newInstall
         state = Self.recordedState()
+        // 2.7: the app left for Settings. From the system itself: SwiftUI's scene phase doesn't reach the views once the
+        // app is in the background (the simulator run saw only the way back).
+        #if os(iOS)
+        let left = UIApplication.didEnterBackgroundNotification
+        #else
+        let left = NSApplication.didResignActiveNotification
+        #endif
+        NotificationCenter.default.addObserver(forName: left, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.wentAway() }
+        }
     }
 
     private static func recordedState() -> State {
+        // «Start as a new user» (2.7, test builds): what the extension did since it began, as on a new install.
+        if NewUserPreview.isOn, let preview = SharedDefaults.shared.newUserPreview() {
+            return preview.used != nil ? .inUse : preview.seen != nil ? .on : .off
+        }
         let status = SharedDefaults.shared.readExtensionStatus()
         return status.firstUsed != nil ? .inUse : status.firstSeen != nil ? .on : .off
+    }
+
+    /// «Start as a new user» began or ended (test builds): the state as it's recorded for that, with nothing reported.
+    func previewChanged() {
+        state = Self.recordedState()
     }
 
     /// Re-reads the state: the extension may have been switched on while the app was in the background.
@@ -72,8 +91,67 @@ final class Activation: ObservableObject {
             if !enabled { next = .off } else if next == .off { next = .on }
         }
         #endif
+        let before = state
         state = next
         if next != .off { SetupReminders.cancel() }
+        if before == .off, next != .off { reportEnabled() }
+    }
+
+    // MARK: The way to switching it on (2.7, plan section 8 «Активация»): counts only, f "activation" in usage.ts.
+
+    /// Leaving for Settings (still in front) or gone. Also kept on disk while it lasts: switching ContextFlow on in
+    /// Settings can end the app's process, and the relaunch is still the way back.
+    private enum Trip { case going, away }
+    private var trip: Trip?
+    private static let tripKey = "cf_activation_trip_at"
+    /// When the next step may go: a second after the one before, so the server gets them in their order (the video and
+    /// Settings come a moment apart), and none waits on another's answer (one in flight as the app leaves can hang).
+    private var nextStepAt = Date.distantPast
+    private static let enabledReportedKey = "cf_activation_enabled_reported"
+
+    private func step(_ action: String, _ fields: [String: String] = [:]) {
+        // «Start as a new user» (test builds) isn't a new install: its steps aren't counted.
+        guard !NewUserPreview.isOn else { return }
+        let now = Date()
+        let at = max(now, nextStepAt)
+        nextStepAt = at.addingTimeInterval(1)
+        ChatAI.reportUse("activation", action, fields, after: at.timeIntervalSince(now))
+    }
+
+    /// The guide's video started floating over Settings (iPhone, iPad).
+    func guideStarted() { step("video") }
+
+    /// Settings opened from the app to switch ContextFlow on: "card" (the home screen's), "chats" (their empty state, Mac).
+    func wentToSettings(_ via: String) {
+        trip = .going
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.tripKey)
+        step("settings", ["via": via])
+    }
+
+    /// The app is no longer in front (Settings is).
+    private func wentAway() {
+        if trip == .going { trip = .away }
+    }
+
+    /// In front again after the trip to Settings: once a trip, within the hour. After a relaunch nothing is in memory,
+    /// and the trip on disk is the sign the app left.
+    func cameBack() {
+        let defaults = UserDefaults.standard
+        let at = defaults.double(forKey: Self.tripKey)
+        guard at > 0, trip != .going else { return }
+        trip = nil
+        defaults.removeObject(forKey: Self.tripKey)
+        if Date().timeIntervalSince1970 - at < 3600 { step("back") }
+    }
+
+    /// The app first saw it switched on, once an install (an update that had it on before never sends it).
+    private func reportEnabled() {
+        // Not from «Start as a new user» (test builds): there the extension was on all along.
+        guard !NewUserPreview.isOn else { return }
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: Self.enabledReportedKey) else { return }
+        defaults.set(true, forKey: Self.enabledReportedKey)
+        step("enabled")
     }
 
     #if os(iOS)
@@ -91,9 +169,11 @@ final class Activation: ObservableObject {
     /// On every launch: offer the reminders once on a new install that isn't set up yet, then report
     /// "app opened" (once a day).
     func launched() async {
+        // Back from Settings in a new process (2.7): before refresh, which may count it switched on.
+        cameBack()
         await refresh()
         let defaults = UserDefaults.standard
-        if newInstall, state == .off, !defaults.bool(forKey: Self.remindersOfferedKey) {
+        if newInstall || NewUserPreview.isOn, state == .off, !defaults.bool(forKey: Self.remindersOfferedKey) {
             defaults.set(true, forKey: Self.remindersOfferedKey)
             // Let the guide appear before the system asks about notifications.
             try? await Task.sleep(nanoseconds: 1_200_000_000)
@@ -117,7 +197,8 @@ final class Activation: ObservableObject {
 
     private func reportOpen() async {
         let day = String(ISO8601DateFormatter().string(from: Date()).prefix(10))
-        guard !reporting, UserDefaults.standard.string(forKey: Self.openReportedKey) != day else { return }
+        // Not while «Start as a new user» is on (test builds): the extension's state there isn't the device's real one.
+        guard !reporting, !NewUserPreview.isOn, UserDefaults.standard.string(forKey: Self.openReportedKey) != day else { return }
         reporting = true
         defer { reporting = false }
         var body: [String: Any] = [
@@ -134,7 +215,8 @@ final class Activation: ObservableObject {
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         let adToken = Self.adAttributionToken()
         if let adToken { body["adToken"] = adToken }
-        var request = URLRequest(url: URL(string: "https://aisidebar.netlify.app/api/v2/event")!)
+        // Production; a debug build's local stand (-CFApiBase) too, so test runs stay out of the real counts (2.7).
+        var request = URLRequest(url: ChatAI.base.appendingPathComponent("api/v2/event"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
@@ -265,7 +347,9 @@ final class NotifyAsk: ObservableObject {
     /// The page the text came from, opened in Safari again with word to play it in the panel; false without one.
     private func backToSafari(_ id: String) -> Bool {
         guard let stored = SharedDefaults.shared.readListenRequest(id), let link = stored["url"] as? String,
-              let url = URL(string: link), url.scheme == "https" || url.scheme == "http" else { return false }
+              let page = URL(string: link), page.scheme == "https" || page.scheme == "http" else { return false }
+        // 2.7: the word to play it goes in the page's address too (the panel no longer waits on a native message for it).
+        let url = ListenLink.marked(page, id: id)
         SharedDefaults.shared.markListenReturn(id, play: true)
         ChatAI.reportUse("listen", "back_safari", ["what": stored["what"] as? String ?? "answer"])
         Task {
@@ -387,6 +471,80 @@ enum SetupReminders {
     }
 }
 
+// MARK: - The page Safari opens on from the app
+
+/// Where «Open Safari» leads (2.7 (110), the owner on TestFlight 109: «Плохо, что при первом открытии Safari из
+/// приложения открывается Google поиск, лучше открывать наш сайт»). Until 110 it was a web search for "ContextFlow".
+/// Now it's the site's page about what ContextFlow does, in the person's language: a page with text of its own, so
+/// the panel's first request (Summarize, then a question about a selection) has something to work on.
+///
+/// Only a page that is in production: a new page gets there with a production deploy of the site, and a TestFlight
+/// build must not lead to a 404. `live` are the site's languages that answered there when 110 was built; a language
+/// translated since (`later`) is asked for once, before the first use, and until it answers the English page is used.
+enum FirstPage {
+    static let site = "https://context-flow.app"
+    static let page = "features"
+    /// The visit is counted apart from the people who typed the address (the site's counter reads utm_source).
+    static let source = "utm_source=app"
+    static let live: Set<String> = ["ar", "de", "es", "fr", "it", "ja", "ko", "pt-br", "ru", "uk", "vi", "zh-hans", "zh-hant"]
+    static let later: Set<String> = ["tr"]
+
+    /// The site's folder for one of the app's languages ("pt-BR" → "pt-br"); nil for English, whose pages are at the root.
+    static func folder(_ localization: String) -> String? {
+        let name = localization.lowercased().replacingOccurrences(of: "_", with: "-")
+        return name == "en" || name.hasPrefix("en-") ? nil : name
+    }
+
+    /// The page for the app's language: its own where the site has it (`confirmed`: the `later` ones that answered),
+    /// the English one otherwise.
+    static func address(localization: String, confirmed: Set<String>) -> String {
+        if let folder = folder(localization), live.contains(folder) || (later.contains(folder) && confirmed.contains(folder)) {
+            return "\(site)/\(folder)/\(page)?\(source)"
+        }
+        return "\(site)/\(page)?\(source)"
+    }
+
+    private static let confirmedKey = "cf_first_page_confirmed"
+    private static var localization: String { Bundle.main.preferredLocalizations.first ?? "en" }
+    private static var confirmed: Set<String> { Set(UserDefaults.standard.stringArray(forKey: confirmedKey) ?? []) }
+
+    /// The address to open now.
+    static var url: URL? { URL(string: address(localization: localization, confirmed: confirmed)) }
+
+    /// A `later` language's page asked for once it's needed (nothing for the others): remembered when it answers.
+    static func confirm() async {
+        guard let folder = folder(localization), later.contains(folder), !confirmed.contains(folder),
+              let url = URL(string: "\(site)/\(folder)/\(page)") else { return }
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 3)
+        request.httpMethod = "HEAD"
+        guard let (_, response) = try? await URLSession.shared.data(for: request), (response as? HTTPURLResponse)?.statusCode == 200 else { return }
+        UserDefaults.standard.set(Array(confirmed.union([folder])), forKey: confirmedKey)
+    }
+
+    #if os(iOS)
+    /// Safari itself with the page (iOS 17 and later: the x-safari- scheme opens Safari even when another browser is
+    /// the default); before that, the page in the default browser.
+    @MainActor
+    static func open() {
+        Task { @MainActor in
+            await confirm()
+            show()
+        }
+    }
+
+    /// Not in the task itself: there `open` would be UIApplication's async one.
+    @MainActor
+    private static func show() {
+        guard let page = url else { return }
+        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
+            UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
+        } else {
+            UIApplication.shared.open(page)
+        }
+    }
+    #endif
+}
+
 #if os(iOS)
 // MARK: - Setup guide (iOS)
 
@@ -452,6 +610,7 @@ struct SetupCard: View {
     }
 
     private func openExtensionSettings() {
+        activation.wentToSettings("card")
         let appSettings = {
             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
         }
@@ -853,7 +1012,10 @@ final class SettingsPiP: NSObject {
 
 extension SettingsPiP: AVPictureInPictureControllerDelegate {
     nonisolated func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
-        Task { @MainActor in self.openPending() }
+        Task { @MainActor in
+            Activation.shared.guideStarted()
+            self.openPending()
+        }
     }
 
     nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
@@ -924,3 +1086,158 @@ private struct TouchRing: View {
     }
 }
 #endif
+
+// MARK: - Test builds: starting as a new user (2.7)
+
+/// Whether this is a build for testing, never the App Store's: a debug build, or a release build that talks to a test
+/// server.
+/// - The server: the build submitted to the App Store talks to production (ChatAI.base as it is on main); only the
+///   TestFlight builds made from the test branch have that line changed to a deploy preview's address. App Review
+///   runs the App Store's own binary, so neither a reviewer nor anyone with the store's app sees a test row.
+/// - Not the receipt any more (2.7 (108), the owner on TestFlight, about «Start as a new user»: «Не нашел»). Until 109
+///   an iPhone or iPad build also had to carry TestFlight's receipt name at Bundle.main.appStoreReceiptURL. That
+///   property is deprecated, what it gives on a TestFlight install can't be seen in a simulator, and it kept nothing
+///   out that the server doesn't: a reviewer's receipt is a sandbox one as well. StoreKit's AppTransaction would say
+///   the same thing later, through a request that can fail, while this is read at launch. So every platform decides
+///   as the Mac always did.
+enum TestBuild {
+    static let isTest: Bool = {
+        #if DEBUG
+        return true
+        #else
+        return releaseIsTest(server: ChatAI.base)
+        #endif
+    }()
+
+    /// A release build: a test build when its server isn't production's.
+    static func releaseIsTest(server: URL) -> Bool {
+        guard let host = server.host else { return false }
+        return host != ChatAI.productionHost
+    }
+}
+
+/// «Start as a new user» (2.7, the owner testing TestFlight 107: after deleting the app and installing it again his
+/// chats and settings came back from iCloud, so the changed first run couldn't be seen as a new user). TestFlight and
+/// debug builds only (TestBuild): a row in Settings. While it's on, this device shows the app as a new install has it:
+/// the Get Started screen with the setup guide in place of the chats, the notifications question before the system's,
+/// the friend's code card, and the extension counted as switched on and used only from what it did since. In Safari
+/// the panel's own first run starts over once (src/shared/firstRun.ts).
+///
+/// Nothing is deleted or changed in iCloud, in the App Group's copy of the chats or in the settings: the chats are
+/// only left out of what the root view shows (ContentView.hasChats), ChatLibrary and its sync run as always. No
+/// "app opened", activation or use events are sent meanwhile: this isn't a new install. «Back to my data» (the same
+/// row, or the line on the Get Started screen) ends it.
+@MainActor
+final class NewUserPreview: ObservableObject {
+    static let shared = NewUserPreview()
+
+    nonisolated private static let key = "cf_new_user_preview_since"
+    /// What a new install hasn't been asked or hasn't put away yet, in the app's own defaults on this device: the
+    /// notifications question at launch (with the reminders to finish setup), and the friend's code card.
+    private static let firstRunKeys = ["cf_setup_reminders_offered", "cf_invite_entry_hidden"]
+
+    /// On now (a store build never: the flag left by a test build installed before it counts for nothing).
+    nonisolated static var isOn: Bool {
+        TestBuild.isTest && UserDefaults.standard.double(forKey: key) > 0
+    }
+
+    @Published private(set) var on: Bool
+
+    private init() {
+        on = Self.isOn
+        // A store build installed over a test build that had it on: the App Group's note goes, nothing else to undo.
+        if !TestBuild.isTest, SharedDefaults.shared.newUserPreview() != nil { SharedDefaults.shared.setNewUserPreview(nil) }
+    }
+
+    func start() {
+        guard TestBuild.isTest, !on else { return }
+        let now = Date().timeIntervalSince1970
+        let defaults = UserDefaults.standard
+        defaults.set(now, forKey: Self.key)
+        for key in Self.firstRunKeys { defaults.removeObject(forKey: key) }
+        // The extension's side: what it does from now counts as a new install's, and the panel's first run starts over.
+        SharedDefaults.shared.setNewUserPreview(now)
+        InviteModel.shared.entryHidden = false
+        on = true
+        Activation.shared.previewChanged()
+        // As at a new install's first launch: the notifications question while ContextFlow is off in Safari.
+        Task { await Activation.shared.launched() }
+    }
+
+    func end() {
+        guard on else { return }
+        UserDefaults.standard.removeObject(forKey: Self.key)
+        SharedDefaults.shared.setNewUserPreview(nil)
+        on = false
+        Activation.shared.previewChanged()
+        // Reminders to finish setup scheduled meanwhile aren't for someone who has it on.
+        if Activation.shared.state != .off { SetupReminders.cancel() }
+        Task { await Activation.shared.refresh() }
+    }
+}
+
+/// Settings → «Test build», the first block on the screen (TestBuild.isTest only; 108, the owner looked for it and
+/// didn't find it under everything else). English, and out of the string catalog (`verbatim`): it isn't part of what
+/// ships.
+struct NewUserPreviewSection: View {
+    @ObservedObject private var preview = NewUserPreview.shared
+    @State private var asking = false
+
+    var body: some View {
+        Section(
+            header: Text(verbatim: "Test build"),
+            footer: Text(verbatim: preview.on
+                ? "You see ContextFlow as a new user on this device. Your chats, notes and collections are hidden here, not deleted, and keep syncing."
+                : "Shows the first run again on this device: the setup guide, the notifications question, the friend's code card, and the tour in Safari. Nothing is deleted, in iCloud or here.")
+        ) {
+            if preview.on {
+                Button {
+                    preview.end()
+                } label: {
+                    Label { Text(verbatim: "Back to my data") } icon: { Image(systemName: "arrow.uturn.backward") }
+                }
+                .accessibilityIdentifier("cf-newuser-end")
+            } else {
+                Button {
+                    asking = true
+                } label: {
+                    Label { Text(verbatim: "Start as a new user") } icon: { Image(systemName: "person.badge.plus") }
+                }
+                .accessibilityIdentifier("cf-newuser-start")
+                .alert(Text(verbatim: "Start as a new user?"), isPresented: $asking) {
+                    Button(role: .cancel) { } label: { Text(verbatim: "Cancel") }
+                    Button { preview.start() } label: { Text(verbatim: "Start") }
+                } message: {
+                    Text(verbatim: "Your chats, notes and collections will be hidden on this device until you choose “Back to my data”. Nothing is deleted.\n\nTo see the “switch it on” step too, first turn ContextFlow off in Settings → Apps → Safari → Extensions. If notifications are already allowed, iOS won't ask about them again.")
+                }
+            }
+        }
+    }
+}
+
+/// On the Get Started screen while «Start as a new user» is on: what this is, and the way back.
+struct NewUserPreviewBanner: View {
+    @ObservedObject private var preview = NewUserPreview.shared
+
+    var body: some View {
+        if preview.on {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "person.badge.plus")
+                    .foregroundColor(.orange)
+                    .accessibilityHidden(true)
+                Text(verbatim: "Test build: you see ContextFlow as a new user. Your data is hidden, not deleted.")
+                    .font(.footnote)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                Button {
+                    preview.end()
+                } label: {
+                    Text(verbatim: "Back to my data").font(.footnote.weight(.semibold))
+                }
+                .accessibilityIdentifier("cf-newuser-back")
+            }
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.orange.opacity(0.14)))
+        }
+    }
+}

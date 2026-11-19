@@ -11,7 +11,8 @@ import { sessionFields, useFields } from "../../src/shared/usage.ts"
 // extension ran for the first time, i.e. the user switched it on. "media_notice": a free answer said
 // it skipped the page's video or PDFs (Pro reads them); "media_notice_pro": its "Try Pro" was tapped.
 // "renewal_off": a Pro user who turned auto-renew off said what was missing (or put the question off).
-// "byok_upsell": an Own key subscriber was shown Pro (at a refusal, or the discount a day later) or tapped it.
+// "byok_upsell": an Own key subscriber was refused something and shown Pro with it ("refused", with has_key: whether
+// their key is added; since 109), was shown the discount a day later ("shown"), or tapped Upgrade ("tap").
 // These few a day per id share one small allowance; everything else ("use": a step in a feature, see
 // src/shared/usage.ts) has its own, larger one.
 const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro", "renewal_off", "byok_upsell"])
@@ -29,7 +30,7 @@ const INSERT_KINDS = new Set(["insert_copied", "insert_template", "insert_answer
 // page ("Come back later"). The header's "…", the "Come back later" window and "Reminders", and watching are
 // steps of the analytics registry's "use" kind (src/shared/usage.ts, PR #32): f "menu", "later", "watch".
 const UX_KINDS = new Set(["ux_mark", "ux_pin", "ux_delete", "ux_remind"])
-const UPSELL_ACTIONS = new Set(["shown", "tap"])
+const UPSELL_ACTIONS = new Set(["refused", "shown", "tap"])
 const UPSELL_WHERE = new Set(["limit", "search", "pro_only", "offer", "pro_screen", "settings"])
 const RENEWAL_FROM = new Set(["app", "panel"])
 const MEDIA = new Set(["video", "pdf", "video,pdf"])
@@ -182,7 +183,8 @@ function upsellFields(body: Record<string, unknown>): Record<string, unknown> {
     ...(UPSELL_ACTIONS.has(action) ? { action } : {}),
     ...(UPSELL_WHERE.has(where) ? { where } : {}),
     ...(RENEWAL_FROM.has(from) ? { from } : {}),
-    ...(body.discount === true ? { discount: true } : {})
+    ...(body.discount === true ? { discount: true } : {}),
+    ...(typeof body.has_key === "boolean" ? { has_key: body.has_key } : {})
   }
 }
 

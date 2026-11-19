@@ -4,10 +4,10 @@ import { useEffect, useState } from "preact/hooks"
 import { siteKey } from "../../shared/copied"
 import { t } from "../../shared/i18n"
 import { DEFAULT_INSERT_SETTINGS, type InsertSettings } from "../../shared/insert"
-import { clearCopied, loadInsertSettings, onInsertSettings, saveInsertSettings } from "./store"
+import { clearCopied, clearSamples, loadInsertSettings, onInsertSettings, saveInsertSettings } from "./store"
 import { signFor } from "./trigger"
 
-/** Quick insert in Settings: the button by fields, Copied, the sign, the shortcut, the sites left out. */
+/** Quick insert in Settings: the button by fields, «Проверить» и «Переписать», Copied, the sign, the shortcut, the sites left out. */
 export function InsertSettingsGroup({ site, touch, onOpenTemplates }: { site: string; touch: boolean; onOpenTemplates: () => void }): VNode {
   const [s, setS] = useState<InsertSettings>(DEFAULT_INSERT_SETTINGS)
   const [sign, setSign] = useState(DEFAULT_INSERT_SETTINGS.sign)
@@ -43,6 +43,25 @@ export function InsertSettingsGroup({ site, touch, onOpenTemplates }: { site: st
               </button>
             </div>
           )}
+        </>
+      )}
+      <label class="cf-row toggle">
+        <span class="cf-label">{t("writeSetting")}</span>
+        <input type="checkbox" checked={s.writing} onChange={(e) => {
+          const on = e.currentTarget.checked
+          change({ writing: on })
+          // Off: how they wrote on sites goes too.
+          if (!on) void clearSamples()
+        }} />
+      </label>
+      <p class="cf-hint">{t("writeSettingHint")}</p>
+      {s.writing && (
+        <>
+          <label class="cf-row toggle">
+            <span class="cf-label">{t("underlineSetting")}</span>
+            <input type="checkbox" checked={s.underline} onChange={(e) => change({ underline: e.currentTarget.checked })} />
+          </label>
+          <p class="cf-hint">{t("underlineSettingHint")}</p>
         </>
       )}
       <label class="cf-row toggle">
