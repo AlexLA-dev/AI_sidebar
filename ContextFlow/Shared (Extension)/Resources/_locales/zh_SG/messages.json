@@ -2684,6 +2684,9 @@
  "writeReload": {
   "message": "重新载入"
  },
+ "updatedReload": {
+  "message": "ContextFlow 已更新。请重新载入此页面。"
+ },
  "underlineSetting": {
   "message": "输入时给错误加下划线"
  },

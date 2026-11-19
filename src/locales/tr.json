@@ -922,6 +922,7 @@
   "writeSlow": "Çok uzun sürdüğü için durduruldu. Lütfen yeniden deneyin.",
   "writeUpdated": "ContextFlow güncellendi. Kontrol et ve Yeniden yaz özelliklerini kullanmak için sayfayı yeniden yükleyin.",
   "writeReload": "Yeniden yükle",
+  "updatedReload": "ContextFlow güncellendi. Sayfayı yeniden yükleyin.",
   "underlineSetting": "Yazarken hataların altını çiz",
   "underlineSettingHint": "Pro ve Ultra: yazmaya ara verdiğinizde yalnızca değiştirdiğiniz paragraf, sayfa dikkate alınarak kontrol edilir. Düzeltmek için altı çizili yerin üzerine gelin (iPhone ve iPad'de dokunun). Yanıt olarak sayılmaz.",
   "setSide": "Ekran tarafı",

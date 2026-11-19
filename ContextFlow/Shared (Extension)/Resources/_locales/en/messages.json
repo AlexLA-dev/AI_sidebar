@@ -2684,6 +2684,9 @@
  "writeReload": {
   "message": "Reload"
  },
+ "updatedReload": {
+  "message": "ContextFlow was updated. Reload this page."
+ },
  "underlineSetting": {
   "message": "Underline mistakes as I type"
  },

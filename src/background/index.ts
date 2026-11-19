@@ -34,6 +34,7 @@ import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThrea
 import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
 import { inviteMarks, startInvite } from "./invite"
+import { watchStaleTabs } from "./staleTabs"
 import { startWatch } from "./watch"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
@@ -846,6 +847,10 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
   switch (message?.type) {
+    case "alive":
+      // 2.7: a script in a page asks whether the extension still hears it (src/content/stale.ts).
+      sendResponse({ ok: true })
+      return false
     case "shotCapture":
       void captureTab(_sender.tab?.windowId).then(sendResponse, () => sendResponse({ ok: false, code: "FAILED" }))
       return true
@@ -1152,6 +1157,9 @@ async function markNewSeen(): Promise<void> {
   if (!list.includes("new27")) await chrome.storage.local.set({ [STORAGE.hintsSeen]: [...list, "new27"] })
 }
 
+// 2.7: tabs left open across an update of the app are cut off from the extension; they get a notice to reload.
+const staleTabs = watchStaleTabs(appBuild)
+
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     void installId()
@@ -1161,6 +1169,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     void chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })
   } else if (details.reason === "update") {
     void migrateFromV1().catch(() => undefined)
+    staleTabs.updated()
   }
 })
 

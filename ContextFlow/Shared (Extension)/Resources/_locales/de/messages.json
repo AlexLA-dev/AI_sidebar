@@ -2684,6 +2684,9 @@
  "writeReload": {
   "message": "Neu laden"
  },
+ "updatedReload": {
+  "message": "ContextFlow wurde aktualisiert. Lade die Seite neu."
+ },
  "underlineSetting": {
   "message": "Fehler beim Tippen unterstreichen"
  },

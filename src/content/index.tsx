@@ -6,6 +6,7 @@ import { uiDirection, uiLang } from "../shared/i18n"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
+import { takeStaleWords, watchStaleTab } from "./stale"
 import { setPanelRoot } from "./root"
 import { guardScroll } from "./scrollGuard"
 import { keepOverTopLayer } from "./topLayer"
@@ -39,7 +40,19 @@ declare global {
 }
 
 function boot(): void {
-  if (window.top !== window || window.__contextflowBus) return
+  if (window.top !== window) return
+  // 2.7: a tab left open across an update of the app. Its panel is cut off from the extension, and the new background
+  // sent this script with its words for the notice (src/background/staleTabs.ts). A panel's root already here, and not
+  // put there by this script's world, says the same without the words. Either way nothing is mounted: stale.ts watches
+  // the old root and asks for a reload when it's touched. (No root yet: the page is still loading and its own script
+  // will mount; a root whose tab does hear the extension is left alone there.)
+  const words = takeStaleWords()
+  if (window.__contextflowBus && !words) return
+  const old = document.querySelector(HOST_TAG)
+  if (words || old) {
+    if (old) void watchStaleTab(old, words)
+    return
+  }
   const bus = new EventTarget()
   window.__contextflowBus = bus
 
@@ -48,6 +61,8 @@ function boot(): void {
       bus.dispatchEvent(new Event(message.type))
       sendResponse({ ok: true })
     }
+    // 2.7: the background asks whether this tab's panel still hears it (src/background/staleTabs.ts).
+    if (message?.type === "alive") sendResponse({ ok: true })
     // 2.6 (98): a link in a chat opened this page, already open in this tab: the panel opens on that chat.
     if (message?.type === "openChat") {
       bus.dispatchEvent(new CustomEvent("openChat", { detail: { chat: message.chat, at: message.at } }))

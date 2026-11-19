@@ -922,6 +922,7 @@
   "writeSlow": "耗时过长，已停止。请重试。",
   "writeUpdated": "ContextFlow 已更新。请重新载入此页面以使用检查和改写。",
   "writeReload": "重新载入",
+  "updatedReload": "ContextFlow 已更新。请重新载入此页面。",
   "underlineSetting": "输入时给错误加下划线",
   "underlineSettingHint": "Pro 和 Ultra：输入停顿后，只结合页面内容检查你改动的段落。把指针移到下划线上（在 iPhone 和 iPad 上轻点）即可修正。不计入回答次数。",
   "setSide": "屏幕侧边",

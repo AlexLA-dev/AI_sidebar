@@ -922,6 +922,7 @@
   "writeSlow": "Está demorando demais e foi interrompido. Tente de novo.",
   "writeUpdated": "O ContextFlow foi atualizado. Recarregue a página para usar Revisar e Reescrever.",
   "writeReload": "Recarregar",
+  "updatedReload": "O ContextFlow foi atualizado. Recarregue a página.",
   "underlineSetting": "Sublinhar erros enquanto digito",
   "underlineSettingHint": "Pro e Ultra: após uma pausa na digitação, só o parágrafo alterado é revisado, com a página em mente. Aponte para um sublinhado (toque no iPhone e no iPad) para corrigir. Não conta como resposta.",
   "setSide": "Lado da tela",
