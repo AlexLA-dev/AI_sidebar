@@ -2636,6 +2636,9 @@
  "writeFixedSome": {
   "message": "Виправлено, крім того, що поле не прийняло"
  },
+ "writeFixRefused": {
+  "message": "Поле не прийняло це виправлення"
+ },
  "writeReplaced": {
   "message": "Замінено"
  },

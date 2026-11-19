@@ -2636,6 +2636,9 @@
  "writeFixedSome": {
   "message": "تم التصحيح، عدا ما لم يقبله الحقل"
  },
+ "writeFixRefused": {
+  "message": "لم يقبل الحقل هذا التصحيح"
+ },
  "writeReplaced": {
   "message": "تم الاستبدال"
  },
