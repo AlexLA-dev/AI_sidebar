@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Rappels et pages surveillées, Astuces, Réglages et la visite des bases sont dans ce menu."
  },
+ "tourSwipeTitle": {
+  "message": "Balayez pour épingler ou supprimer"
+ },
+ "tourSwipeBody": {
+  "message": "Balayez une réponse ou une note vers la droite pour l’épingler, vers la gauche pour la supprimer. Les discussions de la liste se balaient de la même façon. Vous changez d’avis ? « Annuler » la remet en place. Pour ajouter un tag, touchez 🏷 ou « … »."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Épingler ou supprimer d’un clic"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Sous une réponse ou une note, « … » propose « Épingler », « Tag » et « Supprimer » ; un clic droit ouvre le même menu. Pour une discussion de la liste, ils sont sur sa ligne. Vous changez d’avis ? « Annuler » la remet en place."
+ },
  "guideSumTitle": {
   "message": "Votre première réponse"
  },

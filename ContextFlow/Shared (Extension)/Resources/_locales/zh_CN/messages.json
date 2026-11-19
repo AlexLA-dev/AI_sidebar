@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "提醒和关注的页面、使用技巧、设置以及重温基础教程，都在这个菜单里。"
  },
+ "tourSwipeTitle": {
+  "message": "滑动即可置顶或删除"
+ },
+ "tourSwipeBody": {
+  "message": "将回答或笔记向右滑动可置顶，向左滑动可删除。列表中的对话也可以这样滑动。改变主意了？轻点“撤销”即可恢复。要添加标签，请轻点 🏷 或“…”。"
+ },
+ "tourSwipeTitleMouse": {
+  "message": "单击即可置顶或删除"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "回答或笔记下方的“…”中有“置顶”“标签”和“删除”，右键点按也会打开同一菜单。列表中的对话，这些按钮直接显示在它所在的行上。改变主意了？点按“撤销”即可恢复。"
+ },
  "guideSumTitle": {
   "message": "你的第一个回答"
  },

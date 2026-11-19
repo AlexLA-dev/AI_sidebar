@@ -74,7 +74,7 @@ import { besideMenu, glassScale, setFixedProbe, toFixed } from "./fixedPlace"
 import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
+import { keptPlanNow, loadJobs, firstRunMarks, hintsWith, markHintSeen, marksAfterRead, markMemoryOffered, memoryOffered, onFirstRunChanged, onJobsChanged, resetHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, loadSpaces, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged, madeNow, onMadeChanged } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
@@ -405,12 +405,55 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (invitedActive < 1) return
     void seenActive().then((seen) => setInviteNew(invitedActive > seen))
   }, [invitedActive])
-  useEffect(() => void seenHints().then(setHints), [])
+  const hintsRef = useRef<HintKey[] | null>(null)
+  hintsRef.current = hints
+  // The first run's marks, read again (2.7 (110), the owner: the hint about dragging the panel and ✦ came a second
+  // time after «Got it»). Each page read them once, when it loaded. Seen in the simulator's Safari on the build before
+  // this: the hint put away on one page showed again on a page loaded before that (one Safari had kept for Forward),
+  // and after «Start as a new user» the page the app opens had read the old marks an instant before they were reset,
+  // so it showed no first run at all.
+  const tourSeenRef = useRef(true)
+  const marksStamp = useRef<number | null>(null)
+  const readMarks = useCallback(() => {
+    void firstRunMarks().then((read) => {
+      const next = marksAfterRead({ tourSeen: tourSeenRef.current, hints: hintsRef.current, stamp: marksStamp.current }, read)
+      marksStamp.current = read.stamp
+      setHints(next.hints)
+      if (hintsRef.current !== null) setTourSeen(next.tourSeen)
+    })
+  }, [])
+  useEffect(() => {
+    readMarks()
+    // Put away in another tab, or the first run started over (a test build's «Start as a new user»): this tab knows
+    // at once.
+    const stop = onFirstRunChanged((change) => {
+      if (change.hints) setHints(change.hints)
+      if (change.tourSeen !== undefined) setTourSeen(change.tourSeen)
+    })
+    // A page Safari kept (Back, Forward) hears nothing while it's kept, and a tab left behind may miss a change: read
+    // again when the page is shown.
+    const shown = () => document.visibilityState === "visible" && readMarks()
+    window.addEventListener("pageshow", shown)
+    document.addEventListener("visibilitychange", shown)
+    return () => {
+      stop()
+      window.removeEventListener("pageshow", shown)
+      document.removeEventListener("visibilitychange", shown)
+    }
+  }, [])
+  // And at each opening of the panel: that's where the hints and the tour show.
+  useEffect(() => {
+    if (open) readMarks()
+  }, [open])
   const hintDue = (key: HintKey) => hints !== null && !hints.includes(key) && !touring && tourSeen
   const doneHint = (key: HintKey | HintKey[]) => {
-    setHints((seen) => [...(seen ?? []), ...(Array.isArray(key) ? key : [key])])
-    void markHintSeen(key)
+    const add = Array.isArray(key) ? key : [key]
+    const known = hintsRef.current ?? []
+    setHints((seen) => hintsWith(seen ?? [], add) ?? seen ?? [])
+    void markHintSeen(add, known)
   }
+  const doneHintRef = useRef(doneHint)
+  doneHintRef.current = doneHint
   // «New in 2.7» as one line on the compact chat (2.7 after 107): shown in one opening of the panel, then it's seen.
   const newLineShown = useRef(false)
   useEffect(() => {
@@ -511,6 +554,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   fabDodgeRef.current = fabDodge
   // The tour of the panel: shown once, on the first open; Settings can show it again.
   const [tourSeen, setTourSeen] = useState(true)
+  tourSeenRef.current = tourSeen
   const [touring, setTouring] = useState(false)
   const touringRef = useRef(false)
   touringRef.current = touring
@@ -652,10 +696,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void saveSettings(next)
   }, [])
 
+  // The first run that started by itself (not the tour asked for again from the menu or Settings): whoever goes
+  // through it is new here, and «New in 2.7» isn't for them. A new install was to have it marked seen by the
+  // background at install (markNewSeen), but (2.7 (110), a new install in the simulator's Safari, the extension
+  // switched on in Settings as the app's guide leads) that never ran: after the tour a new person got «New in
+  // ContextFlow 2.7», and the hint about dragging ✦ to the other edge went with it unseen.
+  const firstRunRef = useRef(false)
+  const firstRunOver = () => {
+    if (!firstRunRef.current) return
+    firstRunRef.current = false
+    doneHintRef.current("new27")
+  }
   const endTour = useCallback(() => {
     setTouring(false)
     setTourSeen(true)
     void markTourSeen()
+    firstRunOver()
   }, [])
 
   // ------------------------------------------------------------ status
@@ -902,7 +958,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // else the tour of what it can do.
   useEffect(() => {
     if (popup || tourSeen || touring || guideRef.current || !visible || view !== "chat" || streaming || pending) return
-    const timer = setTimeout(() => (firstGuideRef.current() ? startGuideRef.current("first") : setTouring(true)), 450)
+    const timer = setTimeout(() => {
+      firstRunRef.current = true
+      if (firstGuideRef.current()) startGuideRef.current("first")
+      else setTouring(true)
+    }, 450)
     return () => clearTimeout(timer)
   }, [popup, tourSeen, touring, visible, view, streaming, pending])
 
@@ -2738,6 +2798,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     } else {
       setTourSeen(true)
       void markTourSeen()
+      firstRunOver()
     }
     reportGuide(a, what ?? step)
   }
@@ -2768,7 +2829,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     else if (guide === "consent" && !pending && partial === null && consent !== "ok") endGuide("exit", "declined")
     else if (streaming && !WAITING.includes(guide)) guideTo(second ? "answer2" : "answer")
     else if (error && (WAITING.includes(guide) || guide === "consent")) endGuide("exit", error.code === "LIMIT_REACHED" ? "limit" : "error")
-    else if (guide === "answer2" && !streaming && !error && lastRole === "assistant") guideTo(threadList.length > 0 ? "chats" : "menu")
+    else if (guide === "answer2" && !streaming && !error && lastRole === "assistant") guideTo("swipe")
     else if (guide === "pick" && bubble?.rect && !open) guideTo("ask")
     else if (guide === "ask" && !bubble?.rect && !open) guideTo("pick")
     // Out of the chat list (back, a chat opened, a new one): on to the "…".
@@ -2803,7 +2864,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     else if (guide === "select") {
       guideTo("pick")
       if (!popup) hide()
-    } else if (guide === "chats") guideTo("menu")
+    } else if (guide === "swipe") guideTo(threadList.length > 0 ? "chats" : "menu")
+    else if (guide === "chats") guideTo("menu")
     else if (guide === "chatList") {
       setView("chat")
       guideTo("menu")

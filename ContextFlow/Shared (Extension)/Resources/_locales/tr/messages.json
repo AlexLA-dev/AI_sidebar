@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Hatırlatıcılar ve takip edilen sayfalar, İpuçları, Ayarlar ve tanıtım turunu tekrarlama seçeneği bu menüde."
  },
+ "tourSwipeTitle": {
+  "message": "Sabitlemek veya silmek için kaydırın"
+ },
+ "tourSwipeBody": {
+  "message": "Bir yanıtı veya notu sabitlemek için sağa, silmek için sola kaydırın. Listedeki sohbetler de aynı şekilde kaydırılır. Fikrinizi mi değiştirdiniz? “Geri al” ile geri getirebilirsiniz. Etiket eklemek için 🏷 veya “…” simgesine dokunun."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Tek tıklamayla sabitleyin veya silin"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Bir yanıtın veya notun altındaki “…” menüsünde “Sabitle”, “Etiket” ve “Sil” bulunur; sağ tıklama da aynı menüyü açar. Listedeki bir sohbette bunlar satırın üzerindedir. Fikrinizi mi değiştirdiniz? “Geri al” ile geri getirebilirsiniz."
+ },
  "guideSumTitle": {
   "message": "İlk yanıtınız"
  },
