@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google" content="notranslate">
+<title>Postfach — Probeseite</title>
+<!--
+  The stand-in mailbox of live-app.mjs in a real browser (WebKit, the simulators' Safari): the same code the
+  automated tests drive, here on taps and real timers. Serve this folder over http (a module script) and open
+  live-app.html, with ?hint=timer or ?hint=observer for the search hint the site keeps writing back, and
+  ?words=ru-en for a Russian interface around letters in English (else everything is German).
+-->
+<style>
+  body { margin: 0; font: 15px/1.4 -apple-system, "Helvetica Neue", sans-serif; color: #202124; background: #f6f8fc; }
+  header { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 14px; background: #fff; border-bottom: 1px solid #e0e3e7; }
+  .search { position: relative; flex: 1 1 260px; height: 40px; background: #eaf1fb; border-radius: 20px; }
+  .search input { position: absolute; inset: 0; width: 100%; box-sizing: border-box; border: 0; background: transparent; font-size: 15px; padding: 0 16px; }
+  .search .hint { position: absolute; right: 16px; top: 0; line-height: 40px; font-size: 12px; color: #5f6368; pointer-events: none; }
+  [role=tablist] { display: flex; gap: 4px; flex: 1 0 100%; }
+  [role=tab] { padding: 8px 12px; border-bottom: 3px solid transparent; color: #5f6368; cursor: pointer; }
+  [role=tab][aria-selected=true] { color: #0b57d0; border-color: #0b57d0; }
+  nav { display: flex; gap: 14px; padding: 8px 14px; flex-wrap: wrap; }
+  nav a { color: #0b57d0; text-decoration: none; }
+  .tools { display: flex; gap: 6px; padding: 6px 14px; align-items: center; flex-wrap: wrap; }
+  .tool { position: relative; }
+  .tools [role=button] { min-width: 34px; height: 34px; border-radius: 17px; display: inline-flex; align-items: center; justify-content: center; background: #e9eef6; cursor: pointer; padding: 0 8px; }
+  .tip { display: none; }
+  .tool:hover .tip, .tip.floating { display: block; position: absolute; z-index: 5; top: 38px; left: 0; white-space: nowrap; background: #3c4043; color: #fff; font-size: 12px; padding: 4px 8px; border-radius: 4px; }
+  .tip.floating { position: fixed; top: auto; bottom: 12px; left: 12px; }
+  .views { background: #fff; margin: 0 8px 20px; border-radius: 14px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  tr[role=row] { border-bottom: 1px solid #f1f3f4; cursor: pointer; }
+  td { padding: 10px 8px; vertical-align: top; }
+  td.from { width: 28%; font-weight: 600; }
+  td.when { width: 70px; text-align: right; color: #5f6368; white-space: nowrap; }
+  .snippet { color: #5f6368; }
+  .letter-view h2 { margin: 12px 14px; font-size: 20px; font-weight: 500; }
+  .letter { margin: 8px 14px; padding: 10px 12px; border: 1px solid #e0e3e7; border-radius: 10px; }
+  .letter .head { display: flex; justify-content: space-between; font-weight: 600; }
+  .letter.collapsed .stub { cursor: pointer; color: #5f6368; }
+  .answer { display: flex; gap: 10px; margin: 12px 14px; }
+  .answer [role=link], .quick button { border: 1px solid #747775; border-radius: 18px; padding: 7px 16px; background: #fff; font: inherit; cursor: pointer; }
+  .quick { display: flex; gap: 8px; margin: 0 14px 14px; flex-wrap: wrap; }
+  .compose { margin: 10px 14px 16px; border: 1px solid #c4c7c5; border-radius: 10px; padding: 10px; display: grid; gap: 8px; }
+  .compose input { font: inherit; border: 0; border-bottom: 1px solid #e0e3e7; padding: 6px 2px; }
+  .editor { min-height: 90px; outline: none; }
+  .editor blockquote { margin: 6px 0 0; padding-left: 8px; border-left: 2px solid #c4c7c5; color: #5f6368; }
+  .send { background: #0b57d0 !important; color: #fff; }
+  .ticker { height: 3px; }
+  .dot { display: block; width: 3px; height: 3px; }
+  .searching { margin: 14px; color: #5f6368; }
+</style>
+</head>
+<body>
+<script type="module">
+  import { mountLiveApp } from "./live-app.mjs"
+  const q = new URLSearchParams(location.search)
+  const app = (window.liveApp = mountLiveApp(document, { hint: q.get("hint") ?? undefined, words: q.get("words") ?? undefined, base: location.origin + location.pathname }))
+  const closest = (ev, sel) => (ev.target instanceof Element ? ev.target.closest(sel) : null)
+  document.addEventListener("click", (ev) => {
+    const row = closest(ev, "tr[role=row]")
+    const folder = closest(ev, "nav a")
+    const tab = closest(ev, "[role=tab]")
+    const stub = closest(ev, ".stub")
+    if (folder) {
+      ev.preventDefault()
+      app.folder(folder.getAttribute("data-folder"))
+    } else if (row) app.open(Number(row.getAttribute("data-letter")))
+    else if (tab) app.tab(Number(tab.getAttribute("data-tab")))
+    else if (stub) app.expand(Number(stub.getAttribute("data-stub")))
+    else if (closest(ev, ".reply")) app.reply()
+    else if (closest(ev, '[data-icon="back"]')) app.back()
+    else if (closest(ev, ".next-page")) app.nextPage()
+  })
+  document.addEventListener("mouseover", (ev) => {
+    const b = closest(ev, "[role=toolbar] [role=button]")
+    if (b) app.hover(Array.from((b.closest("[data-view=letter]") ?? document.body).querySelectorAll("[role=toolbar] [role=button]")).indexOf(b))
+  })
+  // The browser's own back button, from a letter to its list.
+  addEventListener("hashchange", () => {
+    if (!location.hash.includes("/letter") && document.querySelector("[data-view=letter]")) app.back()
+  })
+  const more = document.createElement("a")
+  more.className = "next-page"
+  more.href = "#inbox/p2"
+  more.textContent = q.get("words") === "ru-en" ? "Более старые письма" : "Ältere Nachrichten"
+  more.addEventListener("click", (ev) => ev.preventDefault())
+  document.querySelector("nav").appendChild(more)
+</script>
+</body>
+</html>

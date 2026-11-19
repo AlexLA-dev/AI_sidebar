@@ -50,7 +50,9 @@ function manifest() {
     permissions: ["storage", "activeTab", "scripting", "alarms", ...(target === "safari" ? ["nativeMessaging"] : [])],
     host_permissions: ["http://*/*", "https://*/*"],
     content_scripts: [
-      { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false }
+      { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false },
+      // The frames of a translated page (build 110): a small script that waits to be told (src/content/frame.ts).
+      { matches: ["http://*/*", "https://*/*"], js: ["dist/frame.js"], run_at: "document_idle", all_frames: true }
     ],
     // The Tips clips' page (2.6 (91)): the panel shows the app's clips in a frame of it, so pages must be able to.
     // Under dist/ (a folder the Xcode project copies whole; files at the root are listed one by one there).
@@ -125,6 +127,7 @@ const options = {
   entryPoints: {
     background: "src/background/index.ts",
     content: "src/content/index.tsx",
+    frame: "src/content/frame.ts",
     popup: "src/popup/index.tsx",
     welcome: "src/pages/welcome.ts",
     clip: "src/pages/clip.ts",

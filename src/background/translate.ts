@@ -6,7 +6,7 @@
 import { API_BASE } from "../shared/config"
 import { urlKey } from "../shared/conversation"
 import { sseData } from "../shared/sse"
-import type { TranslateAsk, TranslateError, TranslateReply, TranslateStep } from "../shared/translate"
+import { frameState, type FramesTell, type FrameTold, type TranslateAsk, type TranslateError, type TranslateReply, type TranslateStep } from "../shared/translate"
 
 export interface TranslateDeps {
   installId: () => Promise<string>
@@ -141,6 +141,24 @@ export function startTranslate(deps: TranslateDeps): void {
   chrome.runtime.onMessage.addListener((message: TranslateStep, _sender, sendResponse) => {
     if (message?.type !== "trEvent") return false
     void report(deps, message)
+    sendResponse({ ok: true })
+    return false
+  })
+
+  // The page's frames (build 110): what the page says of its translation goes to every frame of its tab (frame.ts).
+  // Only the page itself (the tab's top frame) is listened to.
+  chrome.runtime.onMessage.addListener((message: FramesTell, sender, sendResponse) => {
+    if (message?.type !== "trFrames") return false
+    const state = frameState(message.state)
+    const tab = sender.tab?.id
+    if (state && typeof tab === "number" && (sender.frameId ?? 0) === 0) {
+      const told: FrameTold = { type: "trFrame", state }
+      try {
+        chrome.tabs.sendMessage(tab, told, () => void chrome.runtime.lastError)
+      } catch {
+        // the tab is gone
+      }
+    }
     sendResponse({ ok: true })
     return false
   })
