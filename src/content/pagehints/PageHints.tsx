@@ -51,8 +51,13 @@ export interface PageHints {
 /**
  * The page's hint, once: looked for a moment after the page opens, while `ready` (the circle shows, the panel is
  * closed, nothing selected); `open` opens the panel on the page's chat.
+ *
+ * `firstRunAhead` (build 110): the person hasn't been through the panel's first run yet. A page looked at then gets
+ * no line at all: the first thing ContextFlow says to a new person is the first run itself, not «Find it cheaper?»
+ * by a button they have never tapped (the director's clean install: that line on our own site, where the app's
+ * «Open Safari» takes everyone). Nothing is counted for it either: the first days' lines start after the first run.
  */
-export function usePageHints({ plan, ready, open }: { plan: Plan; ready: boolean; open: () => void }): PageHints {
+export function usePageHints({ plan, ready, firstRunAhead, open }: { plan: Plan; ready: boolean; firstRunAhead: boolean; open: () => void }): PageHints {
   const [line, setLine] = useState<HintId | null>(null)
   const [chat, setChat] = useState<HintId | null>(null)
   const [glow, setGlowState] = useState<{ id: HintId; target: GlowTarget } | null>(null)
@@ -67,6 +72,8 @@ export function usePageHints({ plan, ready, open }: { plan: Plan; ready: boolean
   readyRef.current = ready
   const planRef = useRef(plan)
   planRef.current = plan
+  const aheadRef = useRef(firstRunAhead)
+  aheadRef.current = firstRunAhead
   const done = useRef(false)
 
   // One look per page, once it has settled.
@@ -76,6 +83,11 @@ export function usePageHints({ plan, ready, open }: { plan: Plan; ready: boolean
     let timer: ReturnType<typeof setTimeout>
     const look = async () => {
       if (!alive || done.current) return
+      // The first run is still to come: this page has no line (and none later on it, when the first run is over).
+      if (aheadRef.current) {
+        done.current = true
+        return
+      }
       if (!readyRef.current || typing() || document.visibilityState !== "visible") {
         if (++looks < LOOKS) timer = setTimeout(() => void look(), RETRY_MS)
         return
