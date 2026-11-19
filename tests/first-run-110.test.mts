@@ -223,6 +223,9 @@ test("the tour and the guided first request both have the step, before the chats
   assert.match(app, /guide === "answer2" && !streaming && !error && lastRole === "assistant"\) guideTo\("swipe"\)/)
   assert.match(app, /else if \(guide === "swipe"\) guideTo\(threadList\.length > 0 \? "chats" : "menu"\)/)
   assert.ok((FEATURES.tour.fields?.what as readonly string[]).includes("swipe"), "the step is counted like the others")
+  // A tour card's clip plays without being told to (an iPhone takes in only a video's description until it's played:
+  // the frame stayed empty, the Ultra tour's cards too).
+  assert.match(read("../src/pages/clip.ts"), /video\.onerror = \(\) => tell\("missing"\)\n(\s+\/\/[^\n]*\n)+\s+if \(!still\) play\(\)\n\}\)/)
   // The clips are the app's own, in its Tips.
   for (const clip of ["swipes", "mac-pin"]) assert.ok(existsSync(here(`../ContextFlow/Shared (App)/TipClips/en/${clip}.mp4`)), clip)
 })
