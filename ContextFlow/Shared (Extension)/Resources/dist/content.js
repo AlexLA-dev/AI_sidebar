@@ -1306,8 +1306,12 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-wr-tone {
   height: 30px; padding: 0 12px; border-radius: 15px;
   border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font-size: 13.5px; font-weight: 500;
+  outline: none;
 }
-.cf-wr-tone:hover { border-color: var(--accent); color: var(--accent-text); }
+/* Pointing at a chip marks it only where there is a pointer; a ring only for a keyboard's focus (109, the owner's
+   iPhone: after \xABChange the request\xBB the chip that came up under the finger stayed marked, as if picked). */
+@media (hover: hover) { .cf-wr-tone:hover { border-color: var(--accent); color: var(--accent-text); } }
+.cf-wr-tone:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .cf-wr-menu.row .cf-wr-tone { height: 34px; padding: 0 14px; border-radius: 17px; font-size: 14.5px; }
 
 /* The result by the field (a sheet on iPhone): a check's changes marked word by word, in our colour. */
