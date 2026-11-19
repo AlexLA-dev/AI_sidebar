@@ -55,8 +55,13 @@
 
 /* ---- 3. Buttons under a message: one row. It never wraps; when its words don't fit, ToolsRow first brings the
    buttons closer (data-tight) and then takes the words away one button at a time (data-off), and counts the Mac's
-   hover buttons in while it measures (data-measure). */
-.cf-msg-tools { flex-wrap: nowrap !important; min-width: 0; }
+   hover buttons in while it measures (data-measure).
+   110 (the owner on 109, iPad mini: «какая-то кнопка уехала за левый край сайд панели»): the row is as wide as its
+   message's column, under a note too. A note's column puts its children at the end (align-items: flex-end), and there
+   the row took its buttons' width: measured, it always fit, and its first button went past the panel's left edge. When
+   even the icons don't fit (data-wrap), it wraps: nothing is ever cut off. */
+.cf-msg-tools { flex-wrap: nowrap !important; min-width: 0; align-self: stretch; max-width: 100%; box-sizing: border-box; }
+.cf-msg-tools[data-wrap="1"] { flex-wrap: wrap !important; row-gap: 2px; }
 .cf-msg-tools > button, .cf-msg-tools > .cf-hover-tools { flex: none; }
 .cf-msg-tools [data-off] { display: none; }
 .cf-msg-tools[data-tight="1"] { gap: 2px; }
