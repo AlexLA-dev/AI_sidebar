@@ -2,8 +2,10 @@
 // new person, the first step's frame («Tap Summarize») stood beside its chip. Two causes, both by class:
 // - the frame was measured when the step came and again only on a scroll or a resize; the chip before «Summarize» grew
 //   its "Pro" mark when the plan arrived, which is neither, so the chip moved and the frame didn't;
-// - the page counted as a product's (its structured data declares the app with a free offer), so Find similar and
-//   Watch the price led the row and «Summarize» was half-way along it.
+// - the page counts as a product's (its structured data declares the app with a free offer), so Find similar and
+//   Watch the price led the row and «Summarize» was half-way along it. A free app's page stays a product's (Find similar
+//   leads there, as in 109: the director's decision); only Watch the price goes where there is no price, and in the
+//   first run «Summarize» leads whatever the page is.
 import assert from "node:assert/strict"
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
@@ -101,39 +103,75 @@ test("the panel: Summarize leads for someone whose first run is to come, and whe
   assert.match(read("src/content/Guide.tsx"), /\.cf-empty \.cf-chip\[data-action=summarize\]/)
 })
 
-// ---------------------------------------------------------------- a free offer isn't a product
+// ---------------------------------------------------------------- a free offer: still a product, nothing to watch
 
-test("offers that all cost nothing don't make a page a product's; any real price, or none stated, still does", () => {
+test("offers that all cost nothing are free; any real price, or none stated, isn't", () => {
   const free = [{ price: 0 }, { price: "0" }, { price: "0.00" }, { price: "0,00" }, { price: "Free" }, { "@type": "AggregateOffer", lowPrice: 0, highPrice: "0" }, [{ price: 0 }, { price: "0.0" }]]
   for (const offers of free) assert.equal(lib.freeOffers(offers), true, JSON.stringify(offers))
   const priced = [{ price: 4.99 }, { price: "199" }, { "@type": "AggregateOffer", lowPrice: 0, highPrice: 9.99 }, [{ price: 0 }, { price: "2.99" }], { priceSpecification: { price: 0 } }, { "@type": "Offer" }, {}, [], "https://shop.example/offer", { price: "" }]
   for (const offers of priced) assert.equal(lib.freeOffers(offers), false, JSON.stringify(offers))
 })
 
-test("the page's kind: an app's own site and a free app's store page aren't products; a paid app and a Product are", () => {
-  const app = (offers: unknown, type = "SoftwareApplication") => ({ "@type": type, name: "Reader", offers })
-  const kind = (o: unknown) => lib.pageKind(doc(ld(o)), "https://site.example/app")
-  assert.equal(kind(app({ "@type": "Offer", price: "0", priceCurrency: "USD" })), null)
-  assert.equal(kind({ "@graph": [{ "@type": "WebPage", name: "What it can do" }, app({ "@type": "Offer", price: 0, priceCurrency: "EUR" })] }), null)
-  assert.equal(kind(app({ "@type": "Offer", price: 0, category: "free" }, "MobileApplication")), null)
-  assert.equal(kind(app({ "@type": "Offer", price: "0" }, "Service")), null, "by the offer, not by the thing's type")
-  assert.equal(kind(app({ "@type": "Offer", price: 4.99, priceCurrency: "USD" })), "product")
-  assert.equal(kind(app([{ "@type": "Offer", price: 0 }, { "@type": "Offer", price: "39.00" }])), "product", "a free tier beside a paid one")
-  assert.equal(kind(app({ "@type": "Offer", price: 0 }, "Product")), "product", "a page that calls itself a Product is one")
-  assert.equal(kind({ "@type": "Product", name: "Desk", offers: { price: 199 } }), "product")
-  assert.equal(kind(app({ "@type": "Offer" })), "product", "no price stated: as before")
-  // A long read with a free offer is an article, as it would be without the offer.
-  const words = Array.from({ length: 14 }, () => `<p>${"Ein langer Absatz über die Stadt und ihre neue Brücke. ".repeat(6)}</p>`).join("")
-  assert.equal(lib.pageKind(doc(ld(app({ price: 0 })), `<article>${words}</article>`), "https://site.example/a"), "article")
+const app = (offers: unknown, type = "SoftwareApplication") => ({ "@type": type, name: "Reader", offers })
+const signals = (d: Document) => {
+  const kind = lib.pageKind(d, "https://site.example/app")
+  return { field: "none", foreign: false, kind, media: "page", free: kind === "product" && lib.pageFree(d) }
+}
+
+test("a free app's page (a store's, or the app's own site) is a product's as before: Find similar first, no Watch the price", () => {
+  for (const o of [
+    app({ "@type": "Offer", price: "0", priceCurrency: "USD" }),
+    app({ "@type": "Offer", price: 0, category: "free" }, "MobileApplication"),
+    { "@graph": [{ "@type": "WebPage", name: "What it can do" }, app({ "@type": "Offer", price: 0, priceCurrency: "EUR" })] }
+  ]) {
+    const d = doc(ld(o))
+    assert.equal(lib.pageKind(d, "https://apps.example/app/id1"), "product", "the kind is as it was in 109")
+    assert.equal(lib.pageFree(d), true)
+    const chips = lib.rankChips(signals(d), can)
+    assert.equal(chips[0], "similar")
+    assert.ok(!chips.includes("watch"), "nothing to watch")
+    assert.equal(chips[1], "summarize")
+    // The page hints go by the kind alone, so the line by the round button is as it was.
+    assert.deepEqual(lib.rankChips({ ...signals(d), free: false }, can).slice(0, 2), ["similar", "watch"])
+  }
 })
 
-test("our own site's pages, as they are in the repo: none is a product's, so Summarize isn't behind Watch the price", () => {
-  for (const file of ["site/features.html", "site/index.html", "site/de/features.html", "site/ar/features.html", "site/ja/features.html"]) {
-    const page = parseHTML(read(file)).document as unknown as Document
-    const kind = lib.pageKind(page, `https://context-flow.app/${file.replace(/^site\/|index\.html$|\.html$/g, "")}`)
-    assert.notEqual(kind, "product", file)
-    const chips = lib.rankChips({ field: "none", foreign: false, kind, media: "page" }, can)
-    assert.equal(chips[0], "summarize", file)
-    assert.ok(!chips.includes("watch"), file)
+test("a price anywhere on the page keeps Watch the price: a paid app, a free tier beside a paid one, a shop's own tags", () => {
+  const paid = [
+    doc(ld(app({ "@type": "Offer", price: 4.99, priceCurrency: "USD" }))),
+    doc(ld(app([{ "@type": "Offer", price: 0 }, { "@type": "Offer", price: "39.00" }]))),
+    doc(ld({ "@type": "Product", name: "Desk", offers: { price: 199 } })),
+    doc(ld(app({ "@type": "Offer" }))),
+    doc(ld(app({ price: 0 })) + ld({ "@type": "Product", name: "Case", offers: { price: "12.00" } })),
+    doc(ld(app({ price: 0 })) + '<meta property="product:price:amount" content="9.99">'),
+    doc(ld(app({ price: 0 })), '<span itemprop="price" content="19.99">19,99 €</span>'),
+    doc('<meta property="og:type" content="product">'),
+    doc("", '<span itemprop="price">19.99</span>')
+  ]
+  for (const d of paid) {
+    assert.equal(lib.pageKind(d, "https://shop.example/x"), "product")
+    assert.equal(lib.pageFree(d), false, d.documentElement.outerHTML.slice(0, 160))
+    assert.deepEqual(lib.rankChips(signals(d), can).slice(0, 2), ["similar", "watch"])
   }
+  // A page with no offers at all isn't "free": the word is about offers that say so.
+  assert.equal(lib.pageFree(doc("", "<p>Hello</p>")), false)
+  assert.equal(lib.pageFree(doc('<script type="application/ld+json">{broken</script>')), false)
+})
+
+test("our own site's pages, as they are in the repo: no Watch the price, and in the first run Summarize leads", () => {
+  for (const file of ["site/features.html", "site/index.html", "site/de/features.html", "site/ar/features.html", "site/ja/features.html"]) {
+    const d = parseHTML(read(file)).document as unknown as Document
+    const s = signals(d)
+    const chips = lib.rankChips(s, can)
+    assert.ok(!chips.includes("watch"), file)
+    if (s.kind === "product") assert.equal(chips[0], "similar", `${file}: a product's page, as before`)
+    // What the panel does for someone whose first run is to come (App.tsx show()).
+    const first = lib.chipFirst(chips, "summarize")
+    assert.equal(first[0], "summarize", file)
+    assert.equal(first.length, chips.length)
+  }
+  // The row the director saw on context-flow.app/features: the page is a product's by its markup.
+  const features = parseHTML(read("site/features.html")).document as unknown as Document
+  assert.equal(lib.pageKind(features, "https://context-flow.app/features"), "product")
+  assert.equal(lib.pageFree(features), true)
 })

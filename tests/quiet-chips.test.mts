@@ -139,7 +139,8 @@ test("text selected in the person's own draft: improving it and replying lead; e
 
 test("the signals are the ones already worked out: the hints' kind, the pill's offer, quick insert's field", () => {
   const signals = read("../src/content/quiet/signals.ts")
-  assert.match(signals, /import \{ pageKind, type PageKind \} from "\.\.\/pagehints\/detect"/)
+  // (110: and whether everything the page offers is free, from the same detector: no «Watch the price» there.)
+  assert.match(signals, /import \{ pageFree, pageKind, type PageKind \} from "\.\.\/pagehints\/detect"/)
   assert.match(signals, /import \{ pageForeignOffer, pageTranslatedNow \} from "\.\.\/translate\/TranslatePill"/)
   assert.match(signals, /import \{ rememberedField \} from "\.\.\/insert\/target"/)
   assert.match(signals, /import \{ draftText, writableField \} from "\.\.\/insert\/Write"/)
