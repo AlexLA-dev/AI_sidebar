@@ -304,9 +304,20 @@ enum ChatAI {
     /// How much of a chat goes with a question (src/shared/conversation.ts `WHOLE_CHAT_CHARS`).
     static let wholeChatChars = 48_000
 
+    /// An earlier question's quote keeps at most this much (src/shared/conversation.ts `MAX_HISTORY_QUOTE`).
+    static let historyQuoteChars = 1_500
+
+    /// The line over an earlier question asked on a selection (src/shared/conversation.ts `askedQuoteLine`).
+    static func askedQuoteLine(_ cite: String) -> String {
+        let text = cite.count > historyQuoteChars
+            ? String(cite.prefix(historyQuoteChars)).replacingOccurrences(of: #"\s+$"#, with: "", options: .regularExpression) + "…"
+            : cite
+        return "[Asked about this text the user selected: \"\(text)\"]"
+    }
+
     /// "Whole chat" (src/shared/conversation.ts `historyForModel`): every message that fits, the newest
-    /// kept first, citations stripped; notes marked as notes, and questions asked on another page than
-    /// `currentUrl` marked with that page.
+    /// kept first, citations stripped; notes marked as notes, questions asked on another page than
+    /// `currentUrl` marked with that page, and questions asked on a selection with its quote.
     static func messages(_ entries: [ChatEntry], currentUrl: String?) -> [[String: String]] {
         var out: [[String: String]] = []
         var size = 0
@@ -322,7 +333,9 @@ enum ChatAI {
             if entry.isNote {
                 content = "[Note the user wrote\(elsewhere.isEmpty ? "" : " on another page: \(elsewhere)")]\n\(text)"
             } else {
-                content = elsewhere.isEmpty ? text : "[Asked on another page: \(elsewhere)]\n\(text)"
+                // 2.7: a question asked on a selection goes with its quote (askedQuoteLine in conversation.ts).
+                let quoted = entry.askedCite.map { "\(askedQuoteLine($0))\n\(text)" } ?? text
+                content = elsewhere.isEmpty ? quoted : "[Asked on another page: \(elsewhere)]\n\(quoted)"
             }
             size += content.count
             if size > wholeChatChars && !out.isEmpty { break }
