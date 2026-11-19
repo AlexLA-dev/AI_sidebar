@@ -2681,9 +2681,11 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
 .cf-space-toast.act.held { animation: none; opacity: 1; }
 .cf-space-toast.act.out { animation: cf-space-toast-out 1.5s ease both; }
 @keyframes cf-space-toast-out { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
-.cf-space-toast.act > span { flex: 1 1 auto; text-align: start; }
+/* The text takes what's left (basis 0); the back button keeps its name up to 45 % (a short \xAB\u2039 Privat\xBB whole beside
+   a long \xABDu bist in \u201E\u2026\u201C\xBB, seen on iPhone in 110). */
+.cf-space-toast.act > span { flex: 1 1 0; text-align: start; }
 .cf-space-toast-back {
-  flex: 0 1 auto; display: inline-flex; align-items: center; gap: 3px; max-width: 45%; min-width: 4.5em; height: 28px;
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px; max-width: 45%; min-width: 4.5em; height: 28px;
   padding: 0 10px 0 6px; border-radius: 8px; color: var(--snack-action); font-size: 13px; font-weight: 600;
 }
 .cf-space-toast-back:hover { background: rgba(255, 255, 255, 0.12); }

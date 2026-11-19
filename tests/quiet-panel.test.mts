@@ -192,7 +192,9 @@ test("5. the chat's bar stays one line; 110: no other space's label or back butt
   // The line over the header with the way back: its text and the space's name end in "…" rather than wrapping.
   assert.match(spaces, /\.cf-space-toast span \{[^}]*text-overflow: ellipsis; white-space: nowrap; min-width: 0; \}/)
   assert.match(spaces, /\.cf-space-toast-back span \{[^}]*text-overflow: ellipsis; white-space: nowrap; min-width: 0; \}/)
-  assert.match(spaces, /\.cf-space-toast-back \{[^}]*flex: 0 1 auto;[^}]*max-width: 45%; min-width: 4\.5em;/)
+  assert.match(spaces, /\.cf-space-toast-back \{[^}]*flex: 0 0 auto;[^}]*max-width: 45%; min-width: 4\.5em;/)
+  // The text gives way first: a short back name stays whole beside a long space name (110, iPhone).
+  assert.match(spaces, /\.cf-space-toast\.act > span \{ flex: 1 1 0; /)
   assert.match(spaces, /\.cf-match-new \{[^}]*white-space: nowrap;/)
   // Logical sides only, so right to left mirrors it.
   assert.doesNotMatch(spaces, /\.cf-match-[a-z]+ \{[^}]*(margin|padding)-(left|right)/)
