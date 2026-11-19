@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Recordatorios y páginas vigiladas, Consejos, Configuración y el recorrido básico de nuevo están en este menú."
  },
+ "tourSwipeTitle": {
+  "message": "Desliza para fijar o eliminar"
+ },
+ "tourSwipeBody": {
+  "message": "Desliza una respuesta o una nota a la derecha para fijarla, a la izquierda para eliminarla. Los chats de la lista se deslizan igual. ¿Cambiaste de idea? «Deshacer» la recupera. Para añadir una etiqueta, toca 🏷 o «…»."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Fijar o eliminar con un clic"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "En «…», bajo una respuesta o una nota, están «Fijar», «Etiqueta» y «Eliminar»; el clic derecho abre el mismo menú. En un chat de la lista están en su fila. ¿Cambiaste de idea? «Deshacer» la recupera."
+ },
  "guideSumTitle": {
   "message": "Tu primera respuesta"
  },
