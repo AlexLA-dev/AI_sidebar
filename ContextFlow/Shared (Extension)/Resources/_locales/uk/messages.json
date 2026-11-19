@@ -1898,6 +1898,42 @@
  "usageUltra": {
   "message": "Ultra · Цього тижня залишилося {0} з {1} відповідей"
  },
+ "spentShow": {
+  "message": "Показати, на що пішли відповіді"
+ },
+ "spentTitleDay": {
+  "message": "Відповіді за сьогодні"
+ },
+ "spentTitleWeek": {
+  "message": "Відповіді за цей тиждень"
+ },
+ "spentChat": {
+  "message": "Запитання в чаті"
+ },
+ "spentGoogle": {
+  "message": "Відповіді з Google"
+ },
+ "spentTranslate": {
+  "message": "Переклад сторінок"
+ },
+ "spentOther": {
+  "message": "Інше"
+ },
+ "spentNone": {
+  "message": "Відповіді ще не витрачалися"
+ },
+ "spentFree": {
+  "message": "Безкоштовно, не рахується: переклад лише кнопок і меню"
+ },
+ "spentAllDevices": {
+  "message": "Рахуються всі ваші пристрої з цією підпискою"
+ },
+ "spentThisDevice": {
+  "message": "Рахується на цьому пристрої"
+ },
+ "spentError": {
+  "message": "Не вдалося завантажити подробиці. Торкніться, щоб повторити."
+ },
  "actSimilar": {
   "message": "Знайти схоже"
  },

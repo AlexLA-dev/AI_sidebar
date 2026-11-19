@@ -250,14 +250,17 @@ export const FEATURES: Record<string, Feature> = {
   // 2.7 (after build 107), the quiet panel (src/content/quiet): a chip of the page's tapped ("chip", what: which one);
   // «+» by the field opened ("plus") and what was picked there ("plus_pick"); what was picked in a message's «…» that
   // the row has no room for ("more_pick"). lay: the chat's density then. 109: an answer or a note moved to another chat
-  // from its «…» ("moved": to a chat of this space, another space's, or a new one) and taken back ("move_undone").
+  // from its «…» ("moved": to a chat of this space, another space's, or a new one) and taken back ("move_undone"). 110:
+  // the count opened to what the answers went on ("spent", via where).
   quiet: {
     since: "2.7", tracked: "2.7", on: "ext",
-    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone"],
+    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone", "spent"],
     fields: {
       what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect", "move"],
       lay: ["compact", "roomy"],
-      to: ["chat", "space", "new"]
+      to: ["chat", "space", "new"],
+      // 110: the count opened to what the answers went on: in «+», from the number by the field, in Settings.
+      via: ["plus", "number", "settings"]
     }
   },
 

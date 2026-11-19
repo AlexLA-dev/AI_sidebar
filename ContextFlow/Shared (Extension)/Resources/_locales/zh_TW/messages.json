@@ -1898,6 +1898,42 @@
  "usageUltra": {
   "message": "Ultra · 本週剩餘的回答：{0}/{1}"
  },
+ "spentShow": {
+  "message": "查看回答用在哪裡"
+ },
+ "spentTitleDay": {
+  "message": "今天用掉的回答"
+ },
+ "spentTitleWeek": {
+  "message": "本週用掉的回答"
+ },
+ "spentChat": {
+  "message": "聊天中的提問"
+ },
+ "spentGoogle": {
+  "message": "使用 Google 的回答"
+ },
+ "spentTranslate": {
+  "message": "翻譯頁面"
+ },
+ "spentOther": {
+  "message": "其他"
+ },
+ "spentNone": {
+  "message": "還沒有用掉回答"
+ },
+ "spentFree": {
+  "message": "免費，不計數：只翻譯按鈕和選單"
+ },
+ "spentAllDevices": {
+  "message": "統計此訂閱下你的所有裝置"
+ },
+ "spentThisDevice": {
+  "message": "統計此裝置"
+ },
+ "spentError": {
+  "message": "無法載入詳細資訊。輕點重試。"
+ },
  "actSimilar": {
   "message": "尋找相似"
  },

@@ -1898,6 +1898,42 @@
  "usageUltra": {
   "message": "Ultra · تبقّى {0} من {1} إجابة هذا الأسبوع"
  },
+ "spentShow": {
+  "message": "اعرض فيمَ استُخدمت الإجابات"
+ },
+ "spentTitleDay": {
+  "message": "الإجابات المستخدمة اليوم"
+ },
+ "spentTitleWeek": {
+  "message": "الإجابات المستخدمة هذا الأسبوع"
+ },
+ "spentChat": {
+  "message": "الأسئلة في المحادثة"
+ },
+ "spentGoogle": {
+  "message": "إجابات مع Google"
+ },
+ "spentTranslate": {
+  "message": "ترجمة الصفحات"
+ },
+ "spentOther": {
+  "message": "أخرى"
+ },
+ "spentNone": {
+  "message": "لم تُستخدم أي إجابة بعد"
+ },
+ "spentFree": {
+  "message": "مجاني ولا يُحتسب: ترجمة الأزرار والقوائم فقط"
+ },
+ "spentAllDevices": {
+  "message": "تُحتسب كل أجهزتك التي عليها هذا الاشتراك"
+ },
+ "spentThisDevice": {
+  "message": "يُحتسب على هذا الجهاز"
+ },
+ "spentError": {
+  "message": "تعذّر تحميل التفاصيل. اضغط لإعادة المحاولة."
+ },
  "actSimilar": {
   "message": "ابحث عن مشابه"
  },
