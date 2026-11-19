@@ -119,7 +119,11 @@ export function writeTask(action: WriteAction, chars: number, live = false): Hai
     system: action === "check" ? CHECK_SYSTEM : action === "rewrite" ? REWRITE_SYSTEM : COMPOSE_SYSTEM,
     schema: SCHEMA,
     // A draft: room for a long mail whatever the request's length.
-    maxTokens: action === "compose" ? 1_600 : Math.min(4_000, 300 + Math.ceil(chars * (action === "check" ? 0.8 : 1.2))),
+    // A check: the model weighs each mistake before it writes the text back, and those tokens count too. With 300 + 0.8
+    // a character, a Russian sentence of 86 characters with five mistakes was cut off three times in four (109, the
+    // director's walk; in the counters a check of 25 characters took up to 290 tokens), and the device said «The AI
+    // service didn't respond». The deadline, not this number, is what bounds a slow answer.
+    maxTokens: action === "compose" ? 1_600 : action === "check" ? Math.min(6_000, 1_200 + chars) : Math.min(4_000, 300 + Math.ceil(chars * 1.2)),
     timeoutMs: total,
     totalMs: total
   }
