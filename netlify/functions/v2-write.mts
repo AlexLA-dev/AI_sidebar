@@ -5,7 +5,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type ConsumeResult, type Counter } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { askHaiku, InsertAiError, insertCost, type AiCall } from "../shared/insert.mts"
-import { blockReason, countersFor, evalAccess, hasPro, proOffer, resolveAccess, visibleUsage, type Access, type Usage } from "../shared/plan.mts"
+import { blockReason, countersFor, evalAccess, hasPro, proOffer, resolveAccess, visibleUsage, withUse, type Access, type Usage } from "../shared/plan.mts"
 import { inviteExtra } from "../shared/invite.mts"
 import { checkWrite, readAsk, tooLong, writeMessage, writeTask } from "../shared/writing.mts"
 import { clipPage, diffWords, LIVE } from "../../src/shared/writing.ts"
@@ -150,7 +150,7 @@ export function liveCounters(access: Access, ip: string): { answer: Counter[]; s
 export function writeCounters(access: Access, installId: string, ip: string, extra = 0): { answer: Counter[]; safety: Counter[] } {
   const owner = hasPro(access.plan) && access.entitlement ? `tx:${access.entitlement.originalTransactionId}` : `install:${installId}`
   return {
-    answer: countersFor(access, installId, ip, extra),
+    answer: withUse(countersFor(access, installId, ip, extra), "write"),
     safety: [
       { subject: `write:${owner}`, period: "day", limit: settings.write.tapDaily },
       { subject: `write${ip}`, period: "day", limit: settings.write.ipDaily },

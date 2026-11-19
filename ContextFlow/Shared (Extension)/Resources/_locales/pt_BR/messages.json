@@ -1910,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · Restam {0} de {1} respostas nesta semana"
  },
+ "spentShow": {
+  "message": "Ver em que as respostas foram usadas"
+ },
+ "spentTitleDay": {
+  "message": "Respostas usadas hoje"
+ },
+ "spentTitleWeek": {
+  "message": "Respostas usadas nesta semana"
+ },
+ "spentChat": {
+  "message": "Perguntas na conversa"
+ },
+ "spentGoogle": {
+  "message": "Respostas com o Google"
+ },
+ "spentTranslate": {
+  "message": "Tradução de páginas"
+ },
+ "spentOther": {
+  "message": "Outros"
+ },
+ "spentNone": {
+  "message": "Nenhuma resposta usada ainda"
+ },
+ "spentFree": {
+  "message": "Grátis, não conta: traduzir só botões e menus"
+ },
+ "spentAllDevices": {
+  "message": "Contam todos os seus dispositivos com esta assinatura"
+ },
+ "spentThisDevice": {
+  "message": "Conta neste dispositivo"
+ },
+ "spentError": {
+  "message": "Não foi possível carregar os detalhes. Toque para tentar de novo."
+ },
  "actSimilar": {
   "message": "Encontrar parecidos"
  },

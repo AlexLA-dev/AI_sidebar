@@ -1910,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · 이번 주 남은 답변 {0}/{1}개"
  },
+ "spentShow": {
+  "message": "답변을 어디에 썼는지 보기"
+ },
+ "spentTitleDay": {
+  "message": "오늘 사용한 답변"
+ },
+ "spentTitleWeek": {
+  "message": "이번 주 사용한 답변"
+ },
+ "spentChat": {
+  "message": "채팅 질문"
+ },
+ "spentGoogle": {
+  "message": "Google 답변"
+ },
+ "spentTranslate": {
+  "message": "페이지 번역"
+ },
+ "spentOther": {
+  "message": "기타"
+ },
+ "spentNone": {
+  "message": "아직 사용한 답변이 없습니다"
+ },
+ "spentFree": {
+  "message": "무료, 계산되지 않음: 버튼과 메뉴만 번역"
+ },
+ "spentAllDevices": {
+  "message": "이 구독을 쓰는 모든 기기에서 사용한 양입니다"
+ },
+ "spentThisDevice": {
+  "message": "이 기기에서 사용한 양입니다"
+ },
+ "spentError": {
+  "message": "세부 정보를 불러오지 못했습니다. 다시 시도하려면 탭하세요."
+ },
  "actSimilar": {
   "message": "비슷한 것 찾기"
  },

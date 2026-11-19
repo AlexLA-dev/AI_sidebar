@@ -1949,6 +1949,42 @@
  "usageUltra": {
   "message": "Ultra · {0} of {1} answers left this week"
  },
+ "spentShow": {
+  "message": "Show what the answers went on"
+ },
+ "spentTitleDay": {
+  "message": "Answers used today"
+ },
+ "spentTitleWeek": {
+  "message": "Answers used this week"
+ },
+ "spentChat": {
+  "message": "Questions in the chat"
+ },
+ "spentGoogle": {
+  "message": "Answers with Google"
+ },
+ "spentTranslate": {
+  "message": "Translating pages"
+ },
+ "spentOther": {
+  "message": "Other"
+ },
+ "spentNone": {
+  "message": "No answers used yet"
+ },
+ "spentFree": {
+  "message": "Free, not counted: translating only buttons and menus"
+ },
+ "spentAllDevices": {
+  "message": "Counted on all your devices with this subscription"
+ },
+ "spentThisDevice": {
+  "message": "Counted on this device"
+ },
+ "spentError": {
+  "message": "Couldn't load the details. Tap to try again."
+ },
  "actSimilar": {
   "message": "Find similar"
  },

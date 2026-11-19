@@ -1910,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · 本周剩余回答：{0}/{1}"
  },
+ "spentShow": {
+  "message": "查看回答用在了哪里"
+ },
+ "spentTitleDay": {
+  "message": "今天用掉的回答"
+ },
+ "spentTitleWeek": {
+  "message": "本周用掉的回答"
+ },
+ "spentChat": {
+  "message": "聊天中的提问"
+ },
+ "spentGoogle": {
+  "message": "使用 Google 的回答"
+ },
+ "spentTranslate": {
+  "message": "翻译页面"
+ },
+ "spentOther": {
+  "message": "其他"
+ },
+ "spentNone": {
+  "message": "还没有用掉回答"
+ },
+ "spentFree": {
+  "message": "免费，不计数：只翻译按钮和菜单"
+ },
+ "spentAllDevices": {
+  "message": "统计此订阅下你的所有设备"
+ },
+ "spentThisDevice": {
+  "message": "统计此设备"
+ },
+ "spentError": {
+  "message": "无法加载详情。轻点重试。"
+ },
  "actSimilar": {
   "message": "查找相似"
  },

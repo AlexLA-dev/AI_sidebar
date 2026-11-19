@@ -189,8 +189,8 @@ export const MENU_STEP: TourStep = { targets: [[".cf-page-more"]], icon: <More s
 
 /** The steps: asking (quick actions and the composer), a selection, Google, notes, the whole chat, the swipes,
  *  chats and the "…" menu.
- *  `compact` (2.7, the quiet panel): Whole chat is under «+» there, and the step shows the «+». */
-export function tourSteps(sync: boolean, touch: boolean, compact = false): TourStep[] {
+ *  Whole chat is under «+» on every layout (2.7 (110)), and the step shows the «+». */
+export function tourSteps(sync: boolean, touch: boolean): TourStep[] {
   return [
     { targets: [[".cf-actions"], [".cf-input"]], icon: <Icon.Sparkle size={16} />, title: "tourAskTitle", body: "tourAskBody" },
     // Build 95: the label is over the field now. 2.7 (after 107): only for a selection; without one the step shows
@@ -198,7 +198,7 @@ export function tourSteps(sync: boolean, touch: boolean, compact = false): TourS
     { targets: [[".cf-ctx-row .cf-ctx", ".cf-ctx-row", ".cf-input"]], icon: <Icon.Cursor />, title: "tourSelectTitle", body: "tourSelectBody" },
     { targets: [[".cf-mode"]], icon: <Icon.Search size={14} />, title: "tourGoogleTitle", body: "tourGoogleBody" },
     { targets: [[".cf-send-wrap"]], icon: <Icon.Pencil />, title: "tourNoteTitle", body: touch ? "tourNoteBodyTouch" : "tourNoteBodyMouse" },
-    { targets: [[compact ? ".cf-plus" : ".cf-whole"]], icon: <Icon.Doc />, title: "tourWholeTitle", body: compact ? "tourWholeBodyPlus" : "tourWholeBody" },
+    { targets: [[".cf-plus"]], icon: <Icon.Doc />, title: "tourWholeTitle", body: "tourWholeBodyPlus" },
     swipeStep(touch),
     chatsStep(sync),
     MENU_STEP

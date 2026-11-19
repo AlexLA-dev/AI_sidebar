@@ -1910,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · осталось {0} из {1} ответов на неделю"
  },
+ "spentShow": {
+  "message": "Показать, на что ушли ответы"
+ },
+ "spentTitleDay": {
+  "message": "Ответы за сегодня"
+ },
+ "spentTitleWeek": {
+  "message": "Ответы за эту неделю"
+ },
+ "spentChat": {
+  "message": "Вопросы в чате"
+ },
+ "spentGoogle": {
+  "message": "Ответы с Google"
+ },
+ "spentTranslate": {
+  "message": "Перевод страниц"
+ },
+ "spentOther": {
+  "message": "Прочее"
+ },
+ "spentNone": {
+  "message": "Ответы ещё не тратились"
+ },
+ "spentFree": {
+  "message": "Бесплатно, не считается: перевод только кнопок и меню"
+ },
+ "spentAllDevices": {
+  "message": "Считаются все ваши устройства с этой подпиской"
+ },
+ "spentThisDevice": {
+  "message": "Считается на этом устройстве"
+ },
+ "spentError": {
+  "message": "Не удалось загрузить подробности. Нажмите, чтобы повторить."
+ },
  "actSimilar": {
   "message": "Найти похожее"
  },

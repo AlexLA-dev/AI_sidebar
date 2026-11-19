@@ -1910,6 +1910,42 @@
  "usageUltra": {
   "message": "Ultra · Réponses restantes cette semaine : {0} sur {1}"
  },
+ "spentShow": {
+  "message": "Voir à quoi les réponses ont servi"
+ },
+ "spentTitleDay": {
+  "message": "Réponses utilisées aujourd’hui"
+ },
+ "spentTitleWeek": {
+  "message": "Réponses utilisées cette semaine"
+ },
+ "spentChat": {
+  "message": "Questions dans la discussion"
+ },
+ "spentGoogle": {
+  "message": "Réponses avec Google"
+ },
+ "spentTranslate": {
+  "message": "Traduction de pages"
+ },
+ "spentOther": {
+  "message": "Autres"
+ },
+ "spentNone": {
+  "message": "Aucune réponse utilisée pour l’instant"
+ },
+ "spentFree": {
+  "message": "Gratuit, non compté : traduire seulement les boutons et les menus"
+ },
+ "spentAllDevices": {
+  "message": "Tous vos appareils avec cet abonnement sont comptés"
+ },
+ "spentThisDevice": {
+  "message": "Compté sur cet appareil"
+ },
+ "spentError": {
+  "message": "Impossible de charger le détail. Touchez pour réessayer."
+ },
  "actSimilar": {
   "message": "Trouver similaire"
  },

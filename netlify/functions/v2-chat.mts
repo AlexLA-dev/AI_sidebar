@@ -13,7 +13,7 @@ import { pageForModel } from "../../src/shared/attachments.ts"
 import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES, withItemRule } from "../../src/shared/prompt.ts"
 import { uiFields } from "../../src/shared/usage.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
-import { blockReason, countersFor, hasPro, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
+import { blockReason, countersFor, hasPro, proOffer, resolveAccess, searchCountersFor, visibleUsage, withUse } from "../shared/plan.mts"
 import { chatSize, digestCut, limitsHit } from "../shared/limits.mts"
 import { pageBucket, pageChars, requestWeight } from "../shared/weight.mts"
 
@@ -94,10 +94,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const giveBack = () => (tour ? giveTourAnswerBack(installId).catch(() => undefined) : Promise.resolve(undefined))
   // 2.7: a friend's first week (invite a friend) has extra free answers a day.
   const own = countersFor(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
-  const counters = [
+  // 110: and what they went on (withUse): the chat, Google, or «Ask your chats».
+  const counters = withUse([
     ...tourCounters(own, installId, tour).map((c) => (weight > 1 ? { ...c, amount: weight } : c)),
     ...(google ? searchCountersFor(access, installId) : [])
-  ]
+  ], history ? "chats" : google ? "google" : "chat")
 
   let quota: ConsumeResult
   try {
