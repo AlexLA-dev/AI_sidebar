@@ -266,21 +266,39 @@ export function tokens(text: string): string[] {
 // Above this many cells the table isn't worth it: one change for the middle.
 const MAX_CELLS = 4_000_000
 
+// Characters nobody sees: a zero-width space, a word joiner, a byte-order mark.
+const INVISIBLE = /[​⁠﻿]/g
+// Spaces that look like a plain one: editors keep a typed space as a no-break one (Gmail on an iPad: «the root» was
+// «the root» in the field, the model wrote a plain space back, and that was underlined as a fix).
+const SPACE_LIKE = /[   ]/g
+
+/** Text as a reader sees it: no-break spaces as plain ones, invisible characters gone. */
+export function asSeen(text: string): string {
+  return text.replace(INVISIBLE, "").replace(SPACE_LIKE, " ")
+}
+
 /**
  * The changes from `a` to `b`, word by word (a longest common sequence of tokens), adjacent ones joined; a change
  * between two others with only a space between them joins them too ("teh  quik" → "the quick" is one change).
+ * A space of another kind (a no-break one for a plain one) or an invisible character isn't a change (109, the owner:
+ * an underline on a space that wasn't there, and a «Fix» that did nothing): the field keeps its own.
  */
 export function diffWords(a: string, b: string): Edit[] {
   if (a === b) return []
   const A = tokens(a)
   const B = tokens(b)
+  // Tokens are compared as seen.
+  const KA = A.map(asSeen)
+  const KB = B.map(asSeen)
   // The same start and end stay out of the table.
   let pre = 0
-  while (pre < A.length && pre < B.length && A[pre] === B[pre]) pre++
+  while (pre < A.length && pre < B.length && KA[pre] === KB[pre]) pre++
   let suf = 0
-  while (suf < A.length - pre && suf < B.length - pre && A[A.length - 1 - suf] === B[B.length - 1 - suf]) suf++
+  while (suf < A.length - pre && suf < B.length - pre && KA[A.length - 1 - suf] === KB[B.length - 1 - suf]) suf++
   const a2 = A.slice(pre, A.length - suf)
   const b2 = B.slice(pre, B.length - suf)
+  const ka = KA.slice(pre, A.length - suf)
+  const kb = KB.slice(pre, B.length - suf)
   const offset = A.slice(0, pre).join("").length
   const n = a2.length
   const m = b2.length
@@ -293,13 +311,13 @@ export function diffWords(a: string, b: string): Edit[] {
     const table = new Uint32Array((n + 1) * w)
     for (let i = n - 1; i >= 0; i--) {
       for (let j = m - 1; j >= 0; j--) {
-        table[i * w + j] = a2[i] === b2[j] ? table[(i + 1) * w + j + 1] + 1 : Math.max(table[(i + 1) * w + j], table[i * w + j + 1])
+        table[i * w + j] = ka[i] === kb[j] ? table[(i + 1) * w + j + 1] + 1 : Math.max(table[(i + 1) * w + j], table[i * w + j + 1])
       }
     }
     let i = 0
     let j = 0
     while (i < n || j < m) {
-      if (i < n && j < m && a2[i] === b2[j]) {
+      if (i < n && j < m && ka[i] === kb[j]) {
         ops.push({ same: true, a: a2[i], b: b2[j] })
         i++
         j++
@@ -324,14 +342,16 @@ export function diffWords(a: string, b: string): Edit[] {
       last.to += op.a.length
       last.text += op.b
     } else if (last && edits.length && k >= 2 && ops[k - 1].same && /^[^\S\n]+$/.test(ops[k - 1].a) && last.to === at - ops[k - 1].a.length) {
+      // The space between keeps the field's own kind.
       last.to = at + op.a.length
-      last.text += ops[k - 1].b + op.b
+      last.text += ops[k - 1].a + op.b
     } else {
       edits.push({ from: at, to: at + op.a.length, text: op.b })
     }
     at += op.a.length
   }
-  return edits.filter((e) => e.to > e.from || e.text)
+  // A change only in what nobody sees (an invisible character dropped, a lone no-break space) isn't one.
+  return edits.filter((e) => (e.to > e.from || e.text) && asSeen(a.slice(e.from, e.to)) !== asSeen(e.text))
 }
 
 /** `text` with the edits made (they're in order and don't overlap). */

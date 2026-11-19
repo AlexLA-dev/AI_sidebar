@@ -894,6 +894,7 @@
   "writeReplace": "Заменить",
   "writeFixed": "Исправлено",
   "writeFixedSome": "Исправлено, кроме того, что поле не приняло",
+  "writeFixRefused": "Поле не приняло это исправление",
   "writeReplaced": "Заменено",
   "writeUndo": "Отменить",
   "writeUndone": "Отменено",

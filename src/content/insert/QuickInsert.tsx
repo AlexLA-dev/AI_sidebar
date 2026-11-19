@@ -458,6 +458,8 @@ export function QuickInsert(props: Props): VNode | null {
   const fixOne = async (issue: Issue) => {
     if (!liveAt) return
     const undo = await ours(() => fixIssue(liveAt.el, issue))
+    // The field wouldn't take it: its underline is gone, and a word says why (109: a «Fix» that did nothing).
+    if (undo === "refused") return showToast(t("writeFixRefused"))
     if (!undo) return showToast(t("writeChanged"))
     setMade({ text: t("writeFixed"), undo, at: Date.now() })
   }

@@ -894,6 +894,7 @@
   "writeReplace": "Replace",
   "writeFixed": "Fixed",
   "writeFixedSome": "Fixed, except where the field wouldn't take it",
+  "writeFixRefused": "The field wouldn't take this fix",
   "writeReplaced": "Replaced",
   "writeUndo": "Undo",
   "writeUndone": "Undone",

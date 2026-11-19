@@ -894,6 +894,7 @@
   "writeReplace": "바꾸기",
   "writeFixed": "수정했어요",
   "writeFixedSome": "수정했어요(입력란이 받지 않은 부분 제외)",
+  "writeFixRefused": "입력란이 이 수정을 받지 않았어요",
   "writeReplaced": "바꿨어요",
   "writeUndo": "실행 취소",
   "writeUndone": "되돌렸어요",

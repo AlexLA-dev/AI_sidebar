@@ -894,6 +894,7 @@
   "writeReplace": "Substituir",
   "writeFixed": "Corrigido",
   "writeFixedSome": "Corrigido, exceto o que o campo não aceitou",
+  "writeFixRefused": "O campo não aceitou esta correção",
   "writeReplaced": "Substituído",
   "writeUndo": "Desfazer",
   "writeUndone": "Desfeito",

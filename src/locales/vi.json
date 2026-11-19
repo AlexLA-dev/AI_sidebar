@@ -894,6 +894,7 @@
   "writeReplace": "Thay thế",
   "writeFixed": "Đã sửa",
   "writeFixedSome": "Đã sửa, trừ phần ô nhập không nhận",
+  "writeFixRefused": "Ô nhập không nhận bản sửa này",
   "writeReplaced": "Đã thay thế",
   "writeUndo": "Hoàn tác",
   "writeUndone": "Đã hoàn tác",

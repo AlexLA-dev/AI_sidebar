@@ -2600,6 +2600,9 @@
  "writeFixedSome": {
   "message": "Korrigiert, bis auf das, was das Feld nicht annahm"
  },
+ "writeFixRefused": {
+  "message": "Das Feld hat diese Korrektur nicht angenommen"
+ },
  "writeReplaced": {
   "message": "Ersetzt"
  },
