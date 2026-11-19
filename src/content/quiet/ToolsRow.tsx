@@ -10,6 +10,10 @@
 // decided by the width there is, not by the device. So a button with data-drop (To collection 1, Tag 2) can leave the
 // row: after its own words gave way it goes, the lowest first, before the words of Copy, Share, Listen and Insert do.
 // What left is handed to the row's content (`children(dropped)`): the «…» lists exactly that.
+//
+// 110, the owner on 109 (iPad mini, a note's row past the panel's left edge): the row is as wide as its message's
+// column (quiet.css), so what it measures is the room there is. If even the icons don't fit, it wraps (data-wrap)
+// rather than cut a button off.
 
 import type { ComponentChildren, VNode } from "preact"
 import { useLayoutEffect, useRef, useState } from "preact/hooks"
@@ -53,9 +57,11 @@ export function ToolsRow({ cls, sig, children }: { cls: string; sig: string; chi
         return give === null && drop === null ? [] : [{ give, drop, order: drop ? Number(b.dataset.dropOrder ?? 0) : null }]
       }))
       el.dataset.measure = "1"
+      delete el.dataset.wrap
       let n = 0
       let out = apply(el, steps, n)
       while (n < steps.length && needed(el) > el.clientWidth + 1) out = apply(el, steps, ++n)
+      if (needed(el) > el.clientWidth + 1) el.dataset.wrap = "1"
       delete el.dataset.measure
       if (!same(out, droppedRef.current)) setDropped(out)
     }

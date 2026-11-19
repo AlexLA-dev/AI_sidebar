@@ -4,7 +4,7 @@ import { consume, logEvent, refund, touchInstall } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/answer.mts"
 import type { StreamStats } from "../shared/llm.mts"
-import { blockReason, countersFor, hasPro, resolveAccess, visibleUsage } from "../shared/plan.mts"
+import { blockReason, countersFor, hasPro, resolveAccess, visibleUsage, withUse } from "../shared/plan.mts"
 import { inviteExtra } from "../shared/invite.mts"
 import { findPrompt, MAX_FIND_CHARS, MAX_FIND_CHATS, parseFindAnswer, sanitizeDigests } from "../../src/shared/history.ts"
 import { chatSize, digestCut, LIMITS_VERSION } from "../shared/limits.mts"
@@ -45,7 +45,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     return json({ code: "PRO_ONLY", plan: access.plan, feature: "find" }, 403)
   }
 
-  const counters = countersFor(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
+  const counters = withUse(countersFor(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan)), "chats")
   let quota
   try {
     quota = await consume(counters)
