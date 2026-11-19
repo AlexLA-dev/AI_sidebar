@@ -36,11 +36,27 @@ export function spaceVars(color: SpaceColor): Record<string, string> {
  */
 export const PAGE_TINT = true
 
-/** The variables `.cf[data-tint]` mixes from (the circle's base and light colour); none for the first, blue colour. */
+/**
+ * The page's solid buttons with white text in a space's colour («Ask AI», «Translate», Quick insert's circle), 110:
+ * white reads 4.5:1 or more on both ends of the gradient, so "paler than the circle" is less vivid, not lighter (white
+ * on green's and orange's own base is under 4.5:1). Each end keeps 85 % of the circle's chroma; from is the lightest
+ * point between the circle's light and base colours that still reads 4.6:1, to is the base darkened to 5.6:1
+ * (~/ContextFlow-work/spaces-110/pair.py; tests/spaces.test.mts checks both numbers).
+ */
+export const SOLID_PAIR: Record<Exclude<SpaceColor, "blue">, readonly [from: string, to: string]> = {
+  green: ["#258549", "#237543"],
+  orange: ["#c0551e", "#a84c1e"],
+  pink: ["#ce3b7d", "#bb306e"],
+  violet: ["#8859de", "#7941d9"],
+  graphite: ["#697687", "#495566"]
+}
+
+/** The variables `.cf[data-tint]` mixes from (the circle's base and light colour, the solid pair); none for blue. */
 export function pageTint(color: SpaceColor | undefined): Record<string, string> | null {
   if (!PAGE_TINT || !color || color === "blue") return null
   const [light, base] = SPACE_COLORS[color]
-  return { "--tint": base, "--tint-2": light }
+  const [from, to] = SOLID_PAIR[color]
+  return { "--tint": base, "--tint-2": light, "--tint-from": from, "--tint-to": to }
 }
 
 export function SpaceDot({ color, size = 12 }: { color: SpaceColor; size?: number }): VNode {

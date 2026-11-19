@@ -123,8 +123,9 @@
   --accent-soft: color-mix(in srgb, var(--tint) 11%, transparent);
   --accent-text: color-mix(in srgb, var(--tint) 72%, var(--text));
   --snack-action: var(--tint-2);
-  --accent-from: color-mix(in srgb, var(--tint-2) 85%, #ffffff);
-  --accent-to: color-mix(in srgb, var(--tint) 82%, #ffffff);
+  /* The solid buttons' pair, white text 4.5:1 on both ends (110): Spaces.tsx SOLID_PAIR. */
+  --accent-from: var(--tint-from);
+  --accent-to: var(--tint-to);
 }
 .cf[data-tint][data-theme="dark"] > :not(.cf-panel) {
   --accent: color-mix(in srgb, var(--tint-2) 85%, var(--bg));

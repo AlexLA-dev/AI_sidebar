@@ -266,7 +266,8 @@ test("109: the page's own controls take the ✦ circle's space colour, paler, th
   for (const v of ["--accent", "--accent-soft", "--accent-text", "--snack-action"]) for (const r of [light, dark, auto]) assert.match(r, new RegExp(`${v}: `))
   // The circle's pair for the page's solid buttons and glows: the blue it always was, a paler pair of the space's with one.
   assert.match(css, /--accent-from: #38bdf8;\s*--accent-to: #2563eb;/)
-  assert.match(light, /--accent-from: color-mix\(in srgb, var\(--tint-2\) \d+%, #ffffff\);\s*--accent-to: color-mix\(in srgb, var\(--tint\) \d+%, #ffffff\);/)
+  assert.match(light, /--accent-from: var\(--tint-from\);\s*--accent-to: var\(--tint-to\);/)
+  assert.match(spaces, /return \{ "--tint": base, "--tint-2": light, "--tint-from": from, "--tint-to": to \}/)
   // «Ask AI» on the selection bar, its chips, the selection's glow and Quick insert's circle take it; no blue left there.
   assert.match(css, /\.cf-bubble\.touch button\.primary \{[^}]*linear-gradient\(135deg, var\(--accent-from\), var\(--accent-to\)\)/)
   assert.match(css, /\.cf-sel-glow \{[^}]*var\(--accent-from\)/)
@@ -291,6 +292,17 @@ test("109: the page's own controls take the ✦ circle's space colour, paler, th
       const soft = mix(own, hex(bg), pct(r, "--accent-soft"))
       assert.ok(ratio(t, hex(bg)) >= 4.5, `${theme} ${name} on the background`)
       assert.ok(ratio(t, soft) >= 4.5, `${theme} ${name} on its soft tint`)
+    }
+  }
+  // 110, the director: white on the solid buttons («Translate» read weakly on pale violet). 4.5:1 or more on both ends
+  // of the gradient for every tinted colour (the same pair in both themes), and less vivid than the circle's base.
+  const pairs = [...spaces.matchAll(/^  (\w+): \["(#[0-9a-f]{6})", "(#[0-9a-f]{6})"\],?$/gm)]
+  assert.deepEqual(pairs.map((m) => m[1]), ["green", "orange", "pink", "violet", "graphite"])
+  const chroma = (c: number[]) => Math.max(...c) - Math.min(...c)
+  for (const [, name, from, to] of pairs) {
+    for (const end of [from, to]) {
+      assert.ok(ratio([1, 1, 1], hex(end)) >= 4.5, `white on ${name} ${end}`)
+      assert.ok(chroma(hex(end)) < chroma(hex(COLORS[name as keyof typeof COLORS][1])), `${name} ${end} less vivid than the circle`)
     }
   }
 })
