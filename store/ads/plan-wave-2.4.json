@@ -1,0 +1,276 @@
+{
+  "_comment": "Draft of the 2.4 use-case wave, stage 1 only (see side-session notes ads-keyword-research.md §7). NOT applied. Blocked on purpose until the owner's tick: campaigns PAUSED, start/end empty (the guard refuses apply), productPage \"\" for G1–G4 (apply fails until the custom page names/ids from App Store Connect are filled in). On approval: set start/end so that the daily budgets × days stay within totalBudget, set guards.since = start, fill productPage, then `node tools/ads/asa.mjs plan --plan store/ads/plan-wave-2.4.json`.",
+  "app": {
+    "adamId": "6759115793",
+    "name": "ContextFlow: AI for Safari"
+  },
+  "currency": "USD",
+  "guards": {
+    "totalBudget": 100,
+    "maxBid": 1.5,
+    "since": null,
+    "rules": {
+      "targetCpi": 1.5,
+      "underspend": 0,
+      "raiseStep": 0
+    }
+  },
+  "campaigns": [
+    {
+      "name": "CF · iPad · EN · Use cases",
+      "status": "PAUSED",
+      "countries": [
+        "US",
+        "GB",
+        "CA",
+        "AU",
+        "IE",
+        "NZ",
+        "SG"
+      ],
+      "dailyBudget": 6,
+      "start": null,
+      "end": null,
+      "negatives": [],
+      "adGroups": [
+        {
+          "name": "G0 · AI in Safari",
+          "bid": 1.5,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "ai for safari"
+            },
+            {
+              "text": "ai extension for safari"
+            },
+            {
+              "text": "ai sidebar for safari"
+            },
+            {
+              "text": "zeki"
+            },
+            {
+              "text": "thunai"
+            },
+            {
+              "text": "briefy"
+            },
+            {
+              "text": "glasp"
+            },
+            {
+              "text": "glarity ai"
+            }
+          ],
+          "stage": 1
+        },
+        {
+          "name": "G1 · Summary",
+          "bid": 1.5,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "",
+          "keywords": [
+            {
+              "text": "summarize"
+            },
+            {
+              "text": "summarizer"
+            },
+            {
+              "text": "ai summarizer"
+            },
+            {
+              "text": "summarize web page"
+            },
+            {
+              "text": "webpage summarizer"
+            },
+            {
+              "text": "web summarizer"
+            },
+            {
+              "text": "summarize article"
+            },
+            {
+              "text": "article summarizer"
+            },
+            {
+              "text": "ai article summarizer"
+            },
+            {
+              "text": "tldr"
+            }
+          ],
+          "stage": 1
+        },
+        {
+          "name": "G2 · Video & PDF",
+          "bid": 1.5,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "",
+          "keywords": [
+            {
+              "text": "youtube summary"
+            },
+            {
+              "text": "youtube summarizer"
+            },
+            {
+              "text": "summarize youtube video"
+            },
+            {
+              "text": "video summary"
+            },
+            {
+              "text": "pdf summarizer"
+            },
+            {
+              "text": "pdf summary"
+            },
+            {
+              "text": "pdf ai"
+            },
+            {
+              "text": "chat with pdf"
+            }
+          ],
+          "stage": 1
+        },
+        {
+          "name": "G3 · Shopping",
+          "bid": 1.5,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "",
+          "keywords": [
+            {
+              "text": "ai shopping assistant"
+            },
+            {
+              "text": "shopping assistant"
+            },
+            {
+              "text": "fake review checker"
+            },
+            {
+              "text": "review summary"
+            },
+            {
+              "text": "fakespot"
+            }
+          ],
+          "stage": 1
+        },
+        {
+          "name": "G4 · Notes & tags",
+          "bid": 1.5,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "",
+          "keywords": [
+            {
+              "text": "web clipper"
+            },
+            {
+              "text": "web notes"
+            },
+            {
+              "text": "research notes"
+            },
+            {
+              "text": "bookmark manager"
+            },
+            {
+              "text": "save links"
+            },
+            {
+              "text": "link organizer"
+            }
+          ],
+          "stage": 1
+        }
+      ]
+    },
+    {
+      "name": "CF · iPad · DE+FR · Use cases",
+      "status": "PAUSED",
+      "countries": [
+        "DE",
+        "FR",
+        "AT",
+        "CH",
+        "BE",
+        "LU"
+      ],
+      "dailyBudget": 2,
+      "start": null,
+      "end": null,
+      "negatives": [],
+      "adGroups": [
+        {
+          "name": "G1 · Zusammenfassen / Résumer",
+          "bid": 1.5,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "",
+          "keywords": [
+            {
+              "text": "zusammenfassen"
+            },
+            {
+              "text": "text zusammenfassen"
+            },
+            {
+              "text": "ki texte zusammenfassen"
+            },
+            {
+              "text": "résumer texte"
+            },
+            {
+              "text": "résumer article"
+            }
+          ],
+          "stage": 1
+        },
+        {
+          "name": "G2 · YouTube & PDF",
+          "bid": 1.5,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "",
+          "keywords": [
+            {
+              "text": "youtube zusammenfassung"
+            },
+            {
+              "text": "pdf zusammenfassen"
+            },
+            {
+              "text": "résumé youtube"
+            }
+          ],
+          "stage": 1
+        }
+      ]
+    }
+  ]
+}
