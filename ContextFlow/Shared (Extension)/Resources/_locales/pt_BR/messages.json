@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Lembretes e páginas acompanhadas, Dicas, Ajustes e o tour básico de novo estão neste menu."
  },
+ "tourSwipeTitle": {
+  "message": "Deslize para fixar ou apagar"
+ },
+ "tourSwipeBody": {
+  "message": "Deslize uma resposta ou nota para a direita para fixar, para a esquerda para apagar. As conversas da lista deslizam do mesmo jeito. Mudou de ideia? “Desfazer” traz de volta. Para adicionar uma tag, toque em 🏷 ou “…”."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Fixar ou apagar com um clique"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Em “…”, abaixo de uma resposta ou nota, ficam “Fixar”, “Tag” e “Apagar”; o clique direito abre o mesmo menu. Numa conversa da lista, eles ficam na própria linha. Mudou de ideia? “Desfazer” traz de volta."
+ },
  "guideSumTitle": {
   "message": "Sua primeira resposta"
  },

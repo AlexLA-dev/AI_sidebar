@@ -523,13 +523,8 @@ struct HomeView: View {
 
     #if os(iOS)
     private func openSafari() {
-        // x-web-search:// always opens Safari, even when another browser is the default.
-        guard let url = URL(string: "x-web-search://?ContextFlow") else { return }
-        UIApplication.shared.open(url) { opened in
-            if !opened, let fallback = URL(string: "https://www.apple.com/") {
-                UIApplication.shared.open(fallback)
-            }
-        }
+        // Our site's page in the person's language (2.7 (110); a web search for "ContextFlow" until then).
+        FirstPage.open()
     }
     #endif
 
@@ -2346,11 +2341,8 @@ final class PlanTour: ObservableObject {
     /// Safari itself, not another default browser: the steps that live in its panel.
     static func openSafari() {
         #if os(iOS)
-        // x-web-search:// always opens Safari, as the home screen's "Open Safari" does.
-        guard let url = URL(string: "x-web-search://?ContextFlow") else { return }
-        UIApplication.shared.open(url) { opened in
-            if !opened, let fallback = URL(string: "https://www.apple.com/") { UIApplication.shared.open(fallback) }
-        }
+        // The same page as the home screen's "Open Safari" (2.7 (110)).
+        FirstPage.open()
         #else
         guard let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") else { return }
         NSWorkspace.shared.openApplication(at: safari, configuration: NSWorkspace.OpenConfiguration())
