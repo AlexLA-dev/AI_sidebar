@@ -2402,6 +2402,61 @@ struct QuoteBlock: View {
     }
 }
 
+/// The selection a question was asked on, over the question (build 110, the owner: «нет цитаты выделенного текста, как
+/// при написании заметки по нему»): a quote like a note's with the question's blue bar, four lines folded when it's
+/// longer; a tap opens it and folds it again. The panel draws the same (src/content/ux/NoteText.tsx AskedCite).
+struct AskedQuote: View {
+    let text: String
+    @State private var open = false
+    @State private var long = false
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            HStack(alignment: .top, spacing: 8) {
+                RoundedRectangle(cornerRadius: 1.5).fill(brandBlue.opacity(0.85)).frame(width: 3)
+                Text(text)
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .lineLimit(open ? nil : 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    // Long: the text needs more than the four lines it has (its full height measured apart).
+                    .background(
+                        Text(text).font(.callout).fixedSize(horizontal: false, vertical: true).hidden()
+                            .background(GeometryReader { full in Color.clear.preference(key: QuoteHeight.self, value: full.size.height) })
+                    )
+                    .background(GeometryReader { shown in Color.clear.preference(key: QuoteShown.self, value: shown.size.height) })
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            if long {
+                Image(systemName: "chevron.down")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundColor(.secondary)
+                    .rotationEffect(.degrees(open ? 180 : 0))
+            }
+        }
+        .onPreferenceChange(QuoteHeight.self) { full in fullHeight = full; long = open || fullHeight > shownHeight + 2 }
+        .onPreferenceChange(QuoteShown.self) { shown in if !open { shownHeight = shown; long = fullHeight > shownHeight + 2 } }
+        .contentShape(Rectangle())
+        .onTapGesture { if long { withAnimation(.easeOut(duration: 0.15)) { open.toggle() } } }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(long ? .isButton : [])
+        .padding(.leading, 40)
+    }
+
+    @State private var fullHeight: CGFloat = 0
+    @State private var shownHeight: CGFloat = 0
+}
+
+private struct QuoteHeight: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+private struct QuoteShown: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
 private struct MessageView: View {
     let entry: ChatEntry
     /// Answers in a chat: selectable, with "Highlight" (2.5); nil: as plain Markdown (an answer coming in).
@@ -2432,6 +2487,7 @@ private struct MessageView: View {
             }
         } else if entry.isUser {
             VStack(alignment: .trailing, spacing: 6) {
+                if let cite = entry.askedCite { AskedQuote(text: cite) }
                 HStack(spacing: 6) {
                     if entry.mode == "google" { Image(systemName: "magnifyingglass") }
                     Text(entry.label ?? entry.content)

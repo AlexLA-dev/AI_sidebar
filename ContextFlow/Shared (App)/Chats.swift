@@ -118,9 +118,15 @@ struct ChatEntry: Decodable, Hashable {
     /// Where a cited note's quote ends in its text (after the closing mark), or nil when the text doesn't start with it
     /// (src/shared/conversation.ts citeEnd: the opening mark is “ « „ 「 or « with a space).
     private var citeEnd: String.Index? {
-        guard let cite, !cite.isEmpty, let found = content.range(of: cite, options: .literal),
+        guard isNote, let cite, !cite.isEmpty, let found = content.range(of: cite, options: .literal),
               content.utf16.distance(from: content.startIndex, to: found.lowerBound) <= 3 else { return nil }
         return content.range(of: "\n\n", options: .literal, range: found.upperBound..<content.endIndex)?.lowerBound ?? content.endIndex
+    }
+
+    /// The selection a question was asked on (build 110, src/shared/conversation.ts askedCite): shown over the question.
+    var askedCite: String? {
+        guard isUser, !isNote, let cite, !cite.isEmpty else { return nil }
+        return cite
     }
 
     /// A note made from a selection, apart (citedNote): its quote and the person's own words ("" for none); nil for any
@@ -376,25 +382,27 @@ struct ChatThread: Identifiable, Hashable {
 enum ShareText {
     struct Labels {
         let you, note, sources, source, madeWith: String
+        /// The language's quotes around {0}: a question's selection (build 110; the panel's noteQuote).
+        var quote = "“{0}”"
     }
 
     static let appLink = "https://apps.apple.com/app/contextflow-ai-web-assistant/id6759115793"
 
     private static let byLanguage: [String: Labels] = [
-        "ar": Labels(you: "أنت", note: "ملاحظة", sources: "المصادر", source: "المصدر", madeWith: "صُنع باستخدام ContextFlow"),
-        "de": Labels(you: "Du", note: "Notiz", sources: "Quellen", source: "Quelle", madeWith: "Erstellt mit ContextFlow"),
+        "ar": Labels(you: "أنت", note: "ملاحظة", sources: "المصادر", source: "المصدر", madeWith: "صُنع باستخدام ContextFlow", quote: "«{0}»"),
+        "de": Labels(you: "Du", note: "Notiz", sources: "Quellen", source: "Quelle", madeWith: "Erstellt mit ContextFlow", quote: "„{0}“"),
         "en": Labels(you: "You", note: "Note", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow"),
-        "es": Labels(you: "Tú", note: "Nota", sources: "Fuentes", source: "Fuente", madeWith: "Hecho con ContextFlow"),
-        "fr": Labels(you: "Vous", note: "Note", sources: "Sources", source: "Source", madeWith: "Créé avec ContextFlow"),
-        "it": Labels(you: "Tu", note: "Nota", sources: "Fonti", source: "Fonte", madeWith: "Creato con ContextFlow"),
-        "ja": Labels(you: "あなた", note: "メモ", sources: "出典", source: "出典", madeWith: "ContextFlowで作成"),
+        "es": Labels(you: "Tú", note: "Nota", sources: "Fuentes", source: "Fuente", madeWith: "Hecho con ContextFlow", quote: "«{0}»"),
+        "fr": Labels(you: "Vous", note: "Note", sources: "Sources", source: "Source", madeWith: "Créé avec ContextFlow", quote: "« {0} »"),
+        "it": Labels(you: "Tu", note: "Nota", sources: "Fonti", source: "Fonte", madeWith: "Creato con ContextFlow", quote: "«{0}»"),
+        "ja": Labels(you: "あなた", note: "メモ", sources: "出典", source: "出典", madeWith: "ContextFlowで作成", quote: "「{0}」"),
         "ko": Labels(you: "나", note: "메모", sources: "출처", source: "출처", madeWith: "ContextFlow로 작성"),
         "pt_BR": Labels(you: "Você", note: "Nota", sources: "Fontes", source: "Fonte", madeWith: "Feito com o ContextFlow"),
-        "ru": Labels(you: "Вы", note: "Заметка", sources: "Источники", source: "Источник", madeWith: "Сделано в ContextFlow"),
-        "uk": Labels(you: "Ви", note: "Нотатка", sources: "Джерела", source: "Джерело", madeWith: "Зроблено в ContextFlow"),
+        "ru": Labels(you: "Вы", note: "Заметка", sources: "Источники", source: "Источник", madeWith: "Сделано в ContextFlow", quote: "«{0}»"),
+        "uk": Labels(you: "Ви", note: "Нотатка", sources: "Джерела", source: "Джерело", madeWith: "Зроблено в ContextFlow", quote: "«{0}»"),
         "vi": Labels(you: "Bạn", note: "Ghi chú", sources: "Nguồn", source: "Nguồn", madeWith: "Tạo bằng ContextFlow"),
         "zh_CN": Labels(you: "你", note: "笔记", sources: "来源", source: "来源", madeWith: "由 ContextFlow 生成"),
-        "zh_TW": Labels(you: "你", note: "筆記", sources: "來源", source: "來源", madeWith: "用 ContextFlow 製作")
+        "zh_TW": Labels(you: "你", note: "筆記", sources: "來源", source: "來源", madeWith: "用 ContextFlow 製作", quote: "「{0}」")
     ]
 
     /// The labels in the chat's language, or the app's.
@@ -459,7 +467,9 @@ enum ShareText {
         for (i, entry) in entries.enumerated() where only?.contains(i) ?? true {
             if entry.isUser {
                 if let page = entry.page { add(page) }
-                lines.append(entry.isNote ? "\(labels.note): \(entry.content)" : "\(labels.you): \(entry.label ?? entry.content)")
+                // A question asked on a selection: the selection first, as the chat shows it (build 110).
+                let asked = entry.askedCite.map { labels.quote.replacingOccurrences(of: "{0}", with: $0) + "\n" + (entry.label ?? entry.content) } ?? entry.label ?? entry.content
+                lines.append(entry.isNote ? "\(labels.note): \(entry.content)" : "\(labels.you): \(asked)")
             } else {
                 if let page = pageOf(entries, i) { add(page) }
                 lines += ["ContextFlow: \(answerText(entry, labels))", ""]
