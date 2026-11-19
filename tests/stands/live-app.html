@@ -8,7 +8,8 @@
 <!--
   The stand-in mailbox of live-app.mjs in a real browser (WebKit, the simulators' Safari): the same code the
   automated tests drive, here on taps and real timers. Serve this folder over http (a module script) and open
-  live-app.html, with ?hint=timer or ?hint=observer for the search hint the site keeps writing back.
+  live-app.html, with ?hint=timer or ?hint=observer for the search hint the site keeps writing back, and
+  ?words=ru-en for a Russian interface around letters in English (else everything is German).
 -->
 <style>
   body { margin: 0; font: 15px/1.4 -apple-system, "Helvetica Neue", sans-serif; color: #202124; background: #f6f8fc; }
@@ -55,7 +56,7 @@
 <script type="module">
   import { mountLiveApp } from "./live-app.mjs"
   const q = new URLSearchParams(location.search)
-  const app = (window.liveApp = mountLiveApp(document, { hint: q.get("hint") ?? undefined, base: location.origin + location.pathname }))
+  const app = (window.liveApp = mountLiveApp(document, { hint: q.get("hint") ?? undefined, words: q.get("words") ?? undefined, base: location.origin + location.pathname }))
   const closest = (ev, sel) => (ev.target instanceof Element ? ev.target.closest(sel) : null)
   document.addEventListener("click", (ev) => {
     const row = closest(ev, "tr[role=row]")
@@ -83,7 +84,7 @@
   const more = document.createElement("a")
   more.className = "next-page"
   more.href = "#inbox/p2"
-  more.textContent = "Ältere Nachrichten"
+  more.textContent = q.get("words") === "ru-en" ? "Более старые письма" : "Ältere Nachrichten"
   more.addEventListener("click", (ev) => ev.preventDefault())
   document.querySelector("nav").appendChild(more)
 </script>
