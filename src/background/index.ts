@@ -387,29 +387,34 @@ function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly
 /**
  * An Own key subscriber and Pro. "refused": the first refusal of the period starts the day after which Pro at a
  * discount is offered (kept here and in the app, which offers it too); "shown": the discount card was shown, not
- * again this period; "tap": Upgrade was tapped. The server gets "shown" and "tap" (refusals it logs itself).
+ * again this period; "tap": Upgrade was tapped. The server gets all three. Until 109 it got no "refused": the card
+ * a subscriber sees at a refusal left no trace unless Pro was tapped, so "the card isn't shown" and "it is shown
+ * and nobody taps" looked the same in the counters. Each refusal is sent now, with whether a key is added.
  */
 async function reportUpsell(action: "refused" | "shown" | "tap", where: UpsellWhere, period: string | null, discount: boolean): Promise<void> {
-  if (action === "refused") {
-    if (!period) return
+  if (action === "refused" && period) {
     const stored = (await chrome.storage.local.get(STORAGE.byokRefused))[STORAGE.byokRefused] as { period?: string } | undefined
-    if (stored?.period === period) return
-    const at = Date.now()
-    await chrome.storage.local.set({ [STORAGE.byokRefused]: { period, at } })
-    await callNative("byokRefused", { period, at })
-    statusCache = null
-    return
+    if (stored?.period !== period) {
+      const at = Date.now()
+      await chrome.storage.local.set({ [STORAGE.byokRefused]: { period, at } })
+      await callNative("byokRefused", { period, at })
+      statusCache = null
+    }
   }
   if (action === "shown" && period) {
     await chrome.storage.local.set({ [STORAGE.byokOfferShown]: period })
     await callNative("byokOfferShown", { period })
     statusCache = null
   }
-  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const [id, client, key] = await Promise.all([installId(), clientInfo(), ownKey()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "byok_upsell", installId: id, client, action, where, from: "panel", ...(discount ? { discount: true } : {}) })
+    body: JSON.stringify({
+      kind: "byok_upsell", installId: id, client, action, where, from: "panel",
+      ...(discount ? { discount: true } : {}),
+      ...(action === "refused" ? { has_key: Boolean(key) } : {})
+    })
   }).catch(() => undefined)
 }
 

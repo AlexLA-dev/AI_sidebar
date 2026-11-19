@@ -5,7 +5,7 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { aboutSiteAlone, matchable, matchChat, matchScope, MATCH_TOPIC, SITE_MATCH, siteMatch, titleTopic, topicWords, wordMatch } from "../src/shared/match.ts"
+import { aboutSiteAlone, matchable, matchChat, matchScope, MATCH_TOPIC, sameWord, SITE_MATCH, siteMatch, titleTopic, topicWords, wordMatch } from "../src/shared/match.ts"
 import { addSpace, bindSite, emptySpaces, FIRST_SPACE } from "../src/shared/spaces.ts"
 import type { Thread, Threads } from "../src/shared/threads.ts"
 import { FEATURES, useFields } from "../src/shared/usage.ts"
@@ -191,4 +191,18 @@ test("107: the chat that fits is looked for in every space, the space the panel 
   assert.deepEqual(useFields({ f: "match", a: "shown", why: "page", where: "other" }), { f: "match", a: "shown", why: "page", where: "other" })
   assert.deepEqual(useFields({ f: "match", a: "line_back", why: "page" }), { f: "match", a: "line_back", why: "page" })
   assert.deepEqual(useFields({ f: "space", a: "switch", via: "match" }), { f: "space", a: "switch", via: "match" })
+})
+
+test("109: one word in another form is the same word (the owner's Russian titles matched nothing)", () => {
+  // Endings: case, number, a verb's form.
+  for (const [x, y] of [["четырехдневка", "четырехдневку"], ["компании", "компаниях"], ["японские", "японских"], ["works", "work"], ["restaurantes", "restaurante"], ["kyoto", "kyoto"]]) assert.ok(sameWord(x, y), `${x} ${y}`)
+  // Not a shared start of a few letters, nor a short word inside a long one.
+  for (const [x, y] of [["стол", "столица"], ["кот", "кошка"], ["port", "portugal"], ["day", "days"], ["新浪", "新闻"], ["выбор", "выбрать"]]) assert.ok(!sameWord(x, y), `${x} ${y}`)
+  // A chat about a page, and another page on its topic with the words in other forms: a topic match (0 % before).
+  const ru = chat("ru", 3_000, [["https://news.example/ru/1", "Японские компании пробуют четырёхдневку", "Перескажи кратко"]])
+  assert.equal(wordMatch("Четырёхдневка в японских компаниях", ru), 100)
+  assert.equal(matchChat({ ru }, open, "https://other.example/2", "Четырёхдневка в японских компаниях", emptySpaces(), true).why, "topic")
+  // Another article on the subject stays a new chat.
+  assert.ok(wordMatch("Почему четырёхдневка работает — и когда нет", ru) < MATCH_TOPIC)
+  assert.ok(siteMatch("Почему четырёхдневка работает — и когда нет", "https://news.example/ru/3", ru) < SITE_MATCH)
 })

@@ -124,7 +124,12 @@
 }
 .cf[data-touch] .cf-match-new { padding: 6px 12px; font-size: 13.5px; }
 /* 107: the chat is in another space: «Продолжаю в «Работа»» with its dot, «← Личное» back. */
-.cf-match-in { display: inline-flex; align-items: center; gap: 5px; max-width: 42%; }
+/* 109, the owner didn't notice it: the label is a soft chip in the space's colour (the header's tint), its text the
+   panel's own; the header says «Вы в «…»» for a moment as it switches (Spaces.tsx followMatch). */
+.cf-match-in {
+  display: inline-flex; align-items: center; gap: 5px; max-width: 42%;
+  padding: 3px 9px 3px 7px; border-radius: 999px; background: var(--space-soft, var(--bg-2)); color: var(--text-2); font-weight: 500;
+}
 .cf-match-in > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .cf-match-back { display: inline-flex; align-items: center; gap: 3px; max-width: 34%; padding-inline-start: 6px; }
 .cf-match-back span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }

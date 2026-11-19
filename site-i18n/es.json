@@ -691,5 +691,7 @@
   "ee329a85e7ae": "Lee la página a la que respondes",
   "60c8279280c4": "Trabajan con el texto que les das",
   "768737d596d7": "Una respuesta por toque: 5 al día gratis; subrayados con Pro",
-  "e51f743693e5": "Más: <a href=\"/translate-web-page-safari-iphone\">Traducir una página web en Safari</a>"
+  "e51f743693e5": "Más: <a href=\"/translate-web-page-safari-iphone\">Traducir una página web en Safari</a>",
+  "ee6188a287b5": "Tengo mi propia clave de API",
+  "4b7a73ec677d": "Este plan necesita tu propia clave de API de OpenAI o Claude. Las respuestas las pagas aparte a ese proveedor."
 }

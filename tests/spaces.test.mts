@@ -234,3 +234,63 @@ test("107: on the iPhone's sheet the header is one tinted piece from the sheet's
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   assert.match(app, /\{layout === "sheet" && <div class="cf-grabber" onClick=\{hide\} \/>\}\s*<header class="cf-header"/)
 })
+
+test("109: a switch to the matching chat's space is plain to see: the header says where for a moment, the line is a chip", () => {
+  const spaces = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
+  // The owner didn't notice it: «You're in “…”» over the header, as a bound site's switch shows its own.
+  assert.match(spaces, /followMatch: \(space: string\) => \{\s*setActiveSp\(space\)\s*show\(\{ space, kind: "in" \}\)\s*deps\.report\("switch", \{ via: "match" \}\)/)
+  // «● Continuing in “…”» on the space's soft tint, the header's own.
+  const css = readFileSync(new URL("../src/content/spaces.css", import.meta.url), "utf8")
+  assert.match(css, /\.cf-match-in \{[^}]*border-radius: 999px; background: var\(--space-soft, var\(--bg-2\)\)/)
+})
+
+test("109: the page's own controls take the ✦ circle's space colour, paler, through one switch; text stays readable", () => {
+  const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  const spaces = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
+  // One switch, and none for the first (blue) colour: the page looks as it always did there.
+  assert.match(spaces, /export const PAGE_TINT = true/)
+  assert.match(spaces, /if \(!PAGE_TINT \|\| !color \|\| color === "blue"\) return null/)
+  // The circle's space (a bound site's, else the panel's), on the root, so every control on the page has it.
+  assert.match(app, /const tint = pageTint\(spaces\.fabSpace\?\.color\)/)
+  assert.match(app, /<div class="cf" [^>]*data-tint=\{tint \? spaces\.fabSpace\?\.color : undefined\} style=\{tint \?\? undefined\}>/)
+  // The accent variables the page's controls use, everywhere but in the panel (it keeps its blue); light and dark.
+  const rule = (sel: string) => {
+    const at = css.indexOf(`${sel} {`)
+    assert.ok(at >= 0, sel)
+    return css.slice(at, css.indexOf("}", at))
+  }
+  const light = rule(".cf[data-tint] > :not(.cf-panel)")
+  const dark = rule('.cf[data-tint][data-theme="dark"] > :not(.cf-panel)')
+  const auto = rule(".cf[data-tint]:not([data-theme]) > :not(.cf-panel)")
+  for (const v of ["--accent", "--accent-soft", "--accent-text", "--snack-action"]) for (const r of [light, dark, auto]) assert.match(r, new RegExp(`${v}: `))
+  // The circle's pair for the page's solid buttons and glows: the blue it always was, a paler pair of the space's with one.
+  assert.match(css, /--accent-from: #38bdf8;\s*--accent-to: #2563eb;/)
+  assert.match(light, /--accent-from: color-mix\(in srgb, var\(--tint-2\) \d+%, #ffffff\);\s*--accent-to: color-mix\(in srgb, var\(--tint\) \d+%, #ffffff\);/)
+  // «Ask AI» on the selection bar, its chips, the selection's glow and Quick insert's circle take it; no blue left there.
+  assert.match(css, /\.cf-bubble\.touch button\.primary \{[^}]*linear-gradient\(135deg, var\(--accent-from\), var\(--accent-to\)\)/)
+  assert.match(css, /\.cf-sel-glow \{[^}]*var\(--accent-from\)/)
+  const bubble = css.slice(css.indexOf(".cf-bubble.touch button.cf-sel-chip {"), css.indexOf("@keyframes cf-pop"))
+  assert.doesNotMatch(bubble, /37, 99, 235|#2563eb|#38bdf8/)
+  const insert = readFileSync(new URL("../src/content/insert/insert.css", import.meta.url), "utf8")
+  assert.match(insert, /\.cf-qi-btn \{[^}]*linear-gradient\(135deg, var\(--accent-from\) 0%, var\(--accent-to\) 100%\)/)
+  // The system's dark appearance is the dark theme's.
+  const decls = (r: string) => r.match(/--[\w-]+: [^;]+;/g)!.join(" ")
+  assert.equal(decls(auto), decls(dark))
+  // The text on the page and on the soft background, 4.5:1 or more for every space colour in both themes.
+  const pct = (r: string, v: string) => Number(new RegExp(`${v}: color-mix\\(in srgb, var\\(--tint(?:-2)?\\) (\\d+)%`).exec(r)![1]) / 100
+  const COLORS = { blue: ["#38bdf8", "#2563eb"], green: ["#4ade80", "#16a34a"], orange: ["#fdba74", "#ea580c"], pink: ["#f9a8d4", "#db2777"], violet: ["#c4b5fd", "#7c3aed"], graphite: ["#94a3b8", "#475569"] }
+  const hex = (x: string) => [1, 3, 5].map((i) => parseInt(x.slice(i, i + 2), 16) / 255)
+  const mix = (a: number[], b: number[], p: number) => a.map((x, i) => p * x + (1 - p) * b[i])
+  const lum = (c: number[]) => c.map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0)
+  const ratio = (a: number[], b: number[]) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05)
+  for (const [theme, r, bg, text] of [["light", light, "#ffffff", "#17151c"], ["dark", dark, "#1c1b21", "#f3f2f7"]] as const) {
+    for (const [name, [l, base]] of Object.entries(COLORS)) {
+      const own = hex(theme === "light" ? base : l)
+      const t = mix(own, hex(text), pct(r, "--accent-text"))
+      const soft = mix(own, hex(bg), pct(r, "--accent-soft"))
+      assert.ok(ratio(t, hex(bg)) >= 4.5, `${theme} ${name} on the background`)
+      assert.ok(ratio(t, soft) >= 4.5, `${theme} ${name} on its soft tint`)
+    }
+  }
+})

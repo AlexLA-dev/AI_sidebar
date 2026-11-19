@@ -69,6 +69,29 @@ function chatWords(chat: Thread): Set<string> {
 }
 
 /**
+ * One word in two forms (109, the owner didn't see a chat in another space continue): «четырёхдневка» and
+ * «четырёхдневку», "компании" and "компания", "works" and "work" are one word to a reader; equal words only made a
+ * Russian title's topic 0 % against its own chat. The same start of 4 letters or more, at least 60 % of the longer word,
+ * and endings of 3 letters at most past it. Chinese, Japanese and Korean pairs of characters are too short for this:
+ * equal only.
+ */
+export function sameWord(a: string, b: string): boolean {
+  if (a === b) return true
+  const n = Math.min(a.length, b.length)
+  let i = 0
+  while (i < n && a[i] === b[i]) i++
+  return i >= 4 && i >= 0.6 * Math.max(a.length, b.length) && a.length - i <= 3 && b.length - i <= 3
+}
+
+/** `has` holds `word`, or the same word with another ending (sameWord). */
+function hasWord(has: Set<string>, word: string): boolean {
+  if (has.has(word)) return true
+  if (word.length < 4) return false
+  for (const w of has) if (sameWord(w, word)) return true
+  return false
+}
+
+/**
  * How much of the page title's words a chat has, %: 85 or more is a chat on this topic. A title of fewer than two words
  * says too little to judge (0).
  */
@@ -77,7 +100,7 @@ export function wordMatch(title: string, chat: Thread): number {
   if (words.size < 2) return 0
   const has = chatWords(chat)
   let found = 0
-  for (const w of words) if (has.has(w)) found++
+  for (const w of words) if (hasWord(has, w)) found++
   return Math.round((found / words.size) * 100)
 }
 
@@ -115,9 +138,9 @@ export function siteMatch(title: string, href: string, chat: Thread): number {
     for (const w of topicWords(p.title)) has.add(w)
     for (const w of pathWords(p.url)) has.add(w)
   }
-  if (![...own].some((w) => has.has(w))) return 0
+  if (![...own].some((w) => hasWord(has, w))) return 0
   let found = 0
-  for (const w of words) if (has.has(w)) found++
+  for (const w of words) if (hasWord(has, w)) found++
   return Math.round((found / words.size) * 100)
 }
 

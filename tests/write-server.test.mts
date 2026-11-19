@@ -271,6 +271,10 @@ test("the model's time is the device's deadline less a margin, a retry included;
   const { writeDeadline, WRITE_SERVER_MARGIN_MS } = await import("../src/shared/writing.ts")
   assert.equal(writeTask("check", 11).totalMs, writeDeadline("check", 11) - WRITE_SERVER_MARGIN_MS)
   assert.equal(writeTask("rewrite", 4_000).totalMs, 28_500)
+  // A check's answer has room for the model's weighing of each mistake, not only for the text back (109).
+  assert.equal(writeTask("check", 86).maxTokens, 1_286)
+  assert.equal(writeTask("check", 20_000).maxTokens, 6_000)
+  assert.equal(writeTask("rewrite", 100).maxTokens, 420)
   assert.equal(writeTask("check", 600, true).totalMs, 6_500)
   // The whole call under one deadline (here 60 ms): a model that never answers ends as a timeout.
   const { askHaiku, InsertAiError } = await import("../netlify/shared/insert.mts")

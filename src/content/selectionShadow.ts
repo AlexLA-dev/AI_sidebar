@@ -9,16 +9,28 @@ import { rangeIn } from "./insert/field"
 import { closestComposed, shadowRootsOf } from "./insert/shadow"
 
 let touched: Element | null = null
+// When it went down (the event's clock, the same as performance.now()); 0 before any.
+let touchedAt = 0
 
 /**
  * Remembers where the pointer last went down, inside open roots too (the event's path, through listenAround: a
  * closed root, like the panel's, shows only its host). A long-press on iPhone and a drag on a Mac both start with it.
  */
 export function trackPointer(doc: Document = document): () => void {
-  return listenAround(doc, "pointerdown", (_, path) => {
+  return listenAround(doc, "pointerdown", (e, path) => {
     const target = path[0] as Node | undefined
     touched = target && target.nodeType === 1 ? (target as Element) : target?.parentElement ?? null
+    touchedAt = e.timeStamp
   }, doc)
+}
+
+/**
+ * The latest pointer down: when, and whether it was on the page rather than in `host` (our own root: the round
+ * button, the selection's buttons, the panel). Null before any. handClear.ts reads a selection's end by it.
+ */
+export function lastPointerDown(host: string): { at: number; onPage: boolean } | null {
+  if (!touchedAt) return null
+  return { at: touchedAt, onPage: !(touched && closestComposed(touched, host)) }
 }
 
 /**
