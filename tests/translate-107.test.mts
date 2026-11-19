@@ -56,16 +56,18 @@ const SHOP = `
 </main>
 <footer><a href="/impressum">Impressum</a></footer>`
 
-test("A4: menus, the site's header and footer, buttons, placeholders and button inputs are translated; fields, selects, code, editors and icon fonts are not", () => {
+test("A4: menus, the site's header and footer, buttons, placeholders and button inputs are translated; fields, code, editors and icon fonts are not (a list's rows: as labels, build 110)", () => {
   const { document } = page(SHOP)
   const blocks = lib.collectBlocks(document.body)
   const texts = blocks.map((b: any) => (b.attr ? `${b.attr}:${b.text}` : b.text))
   for (const want of ["Produkte", "Dienstleistungen", "Warenkorb", "Kopfhörer X", "In den Warenkorb", "Jetzt bestellen", "Merken", "Impressum", "placeholder:Wonach suchen Sie?", "value:Suchen"]) {
     assert.ok(texts.includes(want), `translated: ${want} (got ${JSON.stringify(texts)})`)
   }
-  for (const never of ["shopping_cart", "Klein", "Groß", "eins", "Ihre Bewertung", "npm install kopfhoerer", "value:Preis"]) {
+  for (const never of ["shopping_cart", "eins", "Ihre Bewertung", "npm install kopfhoerer", "value:Preis"]) {
     assert.ok(!texts.some((t: string) => t.includes(never)), `left as it is: ${never}`)
   }
+  // A system list's rows are never blocks of text (their text is the form's value): only labels.
+  assert.ok(!texts.includes("Klein") && texts.includes("label:Klein") && texts.includes("label:Groß"))
 })
 
 test("A4: a translated button and link keep their elements and listeners; Original puts every word and attribute back", () => {

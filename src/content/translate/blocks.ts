@@ -19,6 +19,11 @@
 // pointer or a screen reader gets from an attribute. A control with no words of its own (an icon button) has its
 // label and tooltip translated with the page; any other element's tooltip when the pointer or the focus comes to it
 // (tipBlocks), so a page of links with titles doesn't cost twice.
+//
+// System lists (build 110, the owner: «системный выпадающий список не переводится… это важно»): a <select>'s rows.
+// The translation goes into the row's `label` attribute, which is what the list shows (closed and open). The row's
+// text and its value stay as the page wrote them: without a value attribute the text is what the form sends and what
+// the site's scripts read, so it's never rewritten.
 
 import { escapeText, parseMarked, TRANSLATE_LIMITS, type Piece } from "../../shared/translate"
 
@@ -124,7 +129,9 @@ const blank = (node: Node) => node.nodeType === 8 || (node.nodeType === 3 && !(n
   (node.nodeType === 1 && (QUIET.has(tagOf(node as Element)) || KEEP.has(tagOf(node as Element)) || marked(node as Element)))
 
 /** A block: its element, the run of its child nodes, the elements behind its tags, and its marked text. An
- *  attribute's words (a field's placeholder, a button input's label) are a block of their own: no nodes, `attr` set. */
+ *  attribute's words (a field's placeholder, a button input's label) are a block of their own: no nodes, `attr` set.
+ *  `seen`: the element whose place on the screen says whether the block shows, where its own doesn't (a system
+ *  list's row has no box of its own: the list has). */
 export interface Block {
   parent: Element
   nodes: Node[]
@@ -132,6 +139,7 @@ export interface Block {
   paired: Set<number>
   text: string
   attr?: string
+  seen?: Element
 }
 
 /** Attributes whose words show on the page: a field's placeholder; the label of a button input that sends no value of
@@ -143,14 +151,24 @@ export const TIP_ATTRS = ["title", "data-tooltip", "data-title", "data-tip", "da
 /** What a control with no words of its own is called: its label for screen readers, and its tooltips. */
 const LABEL_ATTRS = ["aria-label", ...TIP_ATTRS] as const
 /** Every attribute translation may write (the engine watches them for the site's own changes). */
-export const WORD_ATTRS: readonly string[] = ["placeholder", "value", ...LABEL_ATTRS]
+export const WORD_ATTRS: readonly string[] = ["placeholder", "value", "label", ...LABEL_ATTRS]
 const PRESSED = "button,a[href],summary,[role=button],[role=link],[role=tab],[role=menuitem],[role=menuitemcheckbox],[role=menuitemradio],[role=switch],[role=checkbox],[role=option]"
 const LABELLED = LABEL_ATTRS.map((a) => PRESSED.split(",").map((c) => `${c}[${a}]`).join(",")).join(",")
 /** A field's name for screen readers (what a person types into it is never read). */
 const FIELDS = "input[aria-label]:not([type=hidden]),textarea[aria-label]"
 const TIPPED = TIP_ATTRS.map((a) => `[${a}]`).join(",")
 
-const attrText = (el: Element, attr: string) => escapeText(el.getAttribute(attr) ?? "").replace(/\s+/g, " ").trim()
+/** A system list's rows, and the names of its groups. */
+const OPTIONS = "select option,select optgroup[label]"
+/** A list longer than this (characters, all rows) is left as it is: half of it translated would be worse. */
+const OPTION_CHARS = 6_000
+/** The words an attribute's block stands for. A list's row without a label is called by its text. */
+const attrText = (el: Element, attr: string) => {
+  const words = attr === "label" && tagOf(el) === "OPTION" && !el.hasAttribute("label") ? el.textContent : el.getAttribute(attr)
+  return escapeText(words ?? "").replace(/\s+/g, " ").trim()
+}
+/** The page says not to translate it (the attribute or the class translators honour). */
+const kept = (el: Element) => el.getAttribute("translate") === "no" || !!el.classList?.contains("notranslate")
 const attrBlock = (el: Element, attr: string, text: string): Block => ({ parent: el, nodes: [], tags: new Map(), paired: new Set(), text, attr })
 
 /** A control that shows no words of its own (an icon button; an icon font's word isn't one): what it does is said
@@ -198,6 +216,39 @@ function attrBlocks(root: Element | ShadowRoot, out: Block[]): void {
   for (const el of all(FIELDS)) {
     if (!insideSkipped(el.parentElement)) wordAttrs(el, ["aria-label"], out)
   }
+  optionBlocks(all(OPTIONS), out)
+}
+
+/** The rows of each system list among `rows`: the chosen one first (it's what the closed list shows). */
+function optionBlocks(rows: Element[], out: Block[]): void {
+  const lists = new Map<Element, Element[]>()
+  for (const el of rows) {
+    const list = el.closest("select")
+    if (!list) continue
+    const of = lists.get(list)
+    if (of) of.push(el)
+    else lists.set(list, [el])
+  }
+  for (const [list, of] of lists) {
+    if (kept(list) || list.hasAttribute("hidden") || insideSkipped(list.parentElement)) continue
+    const found: Block[] = []
+    let chars = 0
+    for (const el of of) {
+      if (kept(el) || (el.parentElement !== list && kept(el.parentElement!))) continue
+      const text = attrText(el, "label")
+      chars += text.length
+      if (text.length <= TRANSLATE_LIMITS.tipChars && worth(text, 0)) found.push({ ...attrBlock(el, "label", text), seen: list })
+    }
+    if (chars > OPTION_CHARS) continue
+    const chosen = (b: Block) => Number(!(b.parent as HTMLOptionElement).selected)
+    out.push(...found.sort((a, b) => chosen(a) - chosen(b)))
+  }
+}
+
+/** The system list's row `node` is, or is part of (its text). */
+export function optionOf(node: Node): Element | null {
+  const el = node.nodeType === 1 ? (node as Element) : node.parentElement
+  return el && tagOf(el) === "OPTION" && el.closest("select") ? el : null
 }
 
 /**
@@ -367,7 +418,7 @@ export interface Applied {
   // The block's element marked with the translation's language and direction: what its attributes were.
   marked?: { el: Element; lang: string | null; dir: string | null; now: string; turned: boolean }
   // An attribute's words (a placeholder, a button input's label): what they were and are.
-  attr?: { el: Element; name: string; was: string; now: string }
+  attr?: { el: Element; name: string; was: string | null; now: string }
 }
 
 /** The text node's slot: the tag of the element just before it among its siblings (0: none). */
@@ -511,7 +562,8 @@ const attrNow = (block: Block) => attrText(block.parent, block.attr!)
 function applyAttr(block: Block, translation: string): Applied | null {
   const pieces = parseMarked(translation)
   if (!pieces || pieces.some((p) => typeof p !== "string") || !block.parent.isConnected || attrNow(block) !== block.text) return null
-  const was = block.parent.getAttribute(block.attr!) ?? ""
+  // No attribute there before (a list's row called by its text): "Original" takes it off again.
+  const was = block.parent.getAttribute(block.attr!)
   const now = unescape(pieces.join("")).trim()
   block.parent.setAttribute(block.attr!, now)
   return { texts: [], added: [], moved: [], attr: { el: block.parent, name: block.attr!, was, now } }
@@ -526,7 +578,7 @@ const putBack = (el: Element, name: string, value: string | null) => {
  *  the element's own language and direction (unless the page has set them since). */
 export function restore(done: Applied): void {
   const a = done.attr
-  if (a && a.el.getAttribute(a.name) === a.now) a.el.setAttribute(a.name, a.was)
+  if (a && a.el.getAttribute(a.name) === a.now) putBack(a.el, a.name, a.was)
   const m = done.marked
   if (m && m.el.getAttribute("lang") === m.now && (!m.turned || m.el.getAttribute("dir") === "auto")) {
     putBack(m.el, "lang", m.lang)

@@ -18,10 +18,17 @@
 //    need no request;
 //  - tooltips: a wordless control's label with the page, any other when the pointer or the focus comes to it;
 //  - the same words in two places are asked once.
+//
+// Build 110 (the owner's test of 109: a shop's search hint jumped between the site's words and ours several times a
+// second). A translated part the site writes its own words into is read again inside that very change, before the
+// next frame, and what's kept goes straight back: the reader never sees the original in between. A part the site
+// answers every time (an observer of its own, an animation) is left to the site after a few rounds, for good.
+// A system list's rows are translated (blocks.ts); the frames of a page (a chat window, an embedded form) by a small
+// script of their own (frame.ts), which this engine runs in too.
 
 import { urlKey } from "../../shared/conversation"
 import { TRANSLATE_LIMITS, type TranslateAsk, type TranslateError, type TranslateReply } from "../../shared/translate"
-import { applyBlock, blockCurrent, blockIntact, collectBlocks, controlBlock, insideSkipped, restore, scanRoot, tipBlocks, WORD_ATTRS, type Applied, type Block } from "./blocks"
+import { applyBlock, blockCurrent, blockIntact, collectBlocks, controlBlock, insideSkipped, optionOf, restore, scanRoot, tipBlocks, WORD_ATTRS, type Applied, type Block } from "./blocks"
 
 export type EngineState =
   // The page as it is (never translated, or put back with "Original").
@@ -42,8 +49,6 @@ interface Item {
   status: "wait" | "queued" | "sent" | "done" | "skip"
   tries: number
   applied: Applied | null
-  // Times the site put its own words back and they were translated again (a site fighting it is left alone).
-  again: number
   // The page showed it after its first reading (a pop-up, an opened view): it goes first.
   late: boolean
   // Not shown where it is (no box, or cut off by what holds it, or off to the side): may be translated ahead.
@@ -66,12 +71,17 @@ export interface TranslationCache {
 export interface EngineDeps {
   doc: Document
   url: () => string
+  // The address the server counts the page by, where it isn't the document's own: a frame is part of the page that
+  // holds it (one answer for both).
+  counted?: () => string
   // The site the page belongs to (its host), for the words kept site-wide; none: nothing is kept that way.
   site?: () => string
   ask: Ask
   cache: TranslationCache
   // The page counted as an answer just now (for the usage line).
   charged?: () => void
+  // The page's frames hear what it's translated into, and when it's back as it was (frames.ts).
+  frames?: (state: { on: boolean; to: string; only: "controls" | null }) => void
   // The page's own observers unless given (tests hand in WebKit's records themselves).
   observers?: { mutation?: typeof MutationObserver; intersection?: typeof IntersectionObserver | null }
 }
@@ -82,7 +92,19 @@ const VISIBLE_MARGIN = "300px 0px 900px 0px"
 const SHOWS = ["hidden", "aria-hidden", "open"]
 const OBSERVE: MutationObserverInit = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...SHOWS, ...WORD_ATTRS] }
 const MAX_INFLIGHT = 2
-const MAX_AGAIN = 4
+// The site wrote its own words back where their translation was, and the translation went in again: how often that
+// is followed, counted for the words themselves (a site draws them in a new element each time). A re-render now and
+// then, or a few times a second, is followed (nothing shows of it). More than BACK_BURST times within BACK_BURST_MS
+// (the site answers each of our writes with its own: the two would go on forever) or BACK_MAX within BACK_WINDOW (an
+// animation redrawing the words) and those words are left to the site. Rows a long list takes out and puts back as
+// it's scrolled come back once each: far from either.
+export const BACK_BURST = 6
+const BACK_BURST_MS = 120
+export const BACK_MAX = 60
+const BACK_WINDOW = 5_000
+// Reading a changed part again at once may take this long (ms) within a second; past it changes wait SCAN_DELAY, as
+// what's new on the page always does.
+const NOW_BUDGET = 24
 // Times in a row (each within CHURN_GAP of the one before) a part of the page may change its words after they were
 // translated before it's left as it is: a clock, a live score (each change would be another request). A heading the
 // site rewrites for each view it opens changes now and then, not in a row, and is translated every time.
@@ -156,6 +178,12 @@ export class PageTranslator {
   private shadows = new WeakSet<ShadowRoot>()
   private shadowRoots: ShadowRoot[] = []
   private churn = new WeakMap<Element, { n: number; at: number }>()
+  // When the site wrote each translated text back lately; the texts left to the site; the translated texts the site
+  // has just undone (read again at once: what's kept for them goes back before the next frame).
+  private pushed = new Map<string, number[]>()
+  private left = new Set<string>()
+  private undone = new Set<string>()
+  private nowSpent = { at: 0, ms: 0 }
   private saveTimer: ReturnType<typeof setTimeout> | null = null
 
   constructor(deps: EngineDeps) {
@@ -205,6 +233,7 @@ export class PageTranslator {
       // no kept translations
     }
     if (!this.active) return
+    this.deps.frames?.({ on: true, to, only })
     this.watch()
     this.add(collectBlocks(this.deps.doc.body, this.watchShadow))
     this.first = false
@@ -214,9 +243,11 @@ export class PageTranslator {
 
   /** "Original": the page as it was. What was translated is kept for translating again. */
   original(): void {
+    const was = this.now.at !== "off"
     this.stop()
     this.clear()
     this.set({ at: "off" })
+    if (was) this.deps.frames?.({ on: false, to: this.to, only: this.only })
   }
 
   /** No more requests or watching; what's shown stays. */
@@ -239,6 +270,7 @@ export class PageTranslator {
       for (const item of this.items.values()) if (item.applied) restore(item.applied)
     })
     this.items.clear()
+    this.undone.clear()
     this.byParent.clear()
     this.byText.clear()
     this.owner = new WeakMap()
@@ -281,11 +313,13 @@ export class PageTranslator {
   private add(blocks: Block[], now = false): void {
     for (const block of blocks) {
       if (this.only === "controls" && !controlBlock(block)) continue
+      // Words left to the site; or the site's own words back where ours just were: ours again while that's followed.
+      if (this.left.has(block.text) || (this.undone.has(block.text) && this.kept(block.text) !== undefined && !this.pushedBack(block.text))) continue
       if (block.attr) {
         const known = this.attrItems.get(block.parent)?.get(block.attr)
         if (known && this.items.has(known.id)) continue
       }
-      const item: Item = { id: `b${++this.seq}`, block, status: "wait", tries: 0, applied: null, again: 0, late: !this.first, hidden: false, ahead: false }
+      const item: Item = { id: `b${++this.seq}`, block, status: "wait", tries: 0, applied: null, late: !this.first, hidden: false, ahead: false }
       this.items.set(item.id, item)
       if (block.attr) {
         let attrs = this.attrItems.get(block.parent)
@@ -301,11 +335,12 @@ export class PageTranslator {
       let same = this.byText.get(block.text)
       if (!same) this.byText.set(block.text, (same = new Set()))
       same.add(item)
-      let set = this.byParent.get(block.parent)
+      const at = block.seen ?? block.parent
+      let set = this.byParent.get(at)
       if (!set) {
         set = new Set()
-        this.byParent.set(block.parent, set)
-        this.io?.observe(block.parent)
+        this.byParent.set(at, set)
+        this.io?.observe(at)
       }
       set.add(item)
       // Without an IntersectionObserver (tests, very old browsers) everything counts as on screen.
@@ -325,17 +360,19 @@ export class PageTranslator {
       same.delete(item)
       if (!same.size) this.byText.delete(item.block.text)
     }
-    const set = this.byParent.get(item.block.parent)
+    const at = item.block.seen ?? item.block.parent
+    const set = this.byParent.get(at)
     if (set) {
       set.delete(item)
       if (!set.size) {
-        this.byParent.delete(item.block.parent)
-        this.io?.unobserve(item.block.parent)
+        this.byParent.delete(at)
+        this.io?.unobserve(at)
       }
     }
   }
 
   private forget(item: Item): void {
+    if (item.applied) this.undone.add(item.block.text)
     if (item.applied) this.writing(() => restore(item.applied!))
     item.applied = null
     this.items.delete(item.id)
@@ -466,7 +503,8 @@ export class PageTranslator {
       return found
     }
     const near = [...this.items.values()]
-      .filter((i) => i.status === "wait" && i.hidden && i.block.text.length <= AHEAD_BLOCK)
+      // (Not a system list's rows: a list that isn't shown is mostly one the site draws its own in place of.)
+      .filter((i) => i.status === "wait" && i.hidden && !i.block.seen && i.block.text.length <= AHEAD_BLOCK)
       .map((item) => ({ item, ...place(item.block.parent) }))
       .filter((c) => c.d <= height / 2)
       .sort((a, b) => a.d - b.d || Number(b.rest) - Number(a.rest) || a.up - b.up)
@@ -510,7 +548,7 @@ export class PageTranslator {
       }
     }
     const cancel = this.deps.ask(
-      { url: this.deps.url(), to: this.to, from: this.from, blocks: batch.map((i) => ({ id: i.id, text: i.block.text })), first, ...(this.only === "controls" ? { kind: "controls" as const } : {}) },
+      { url: this.deps.counted?.() ?? this.deps.url(), to: this.to, from: this.from, blocks: batch.map((i) => ({ id: i.id, text: i.block.text })), first, ...(this.only === "controls" ? { kind: "controls" as const } : {}) },
       (reply) => {
         if (ended || !this.active) return
         if (reply.type === "items") {
@@ -745,6 +783,15 @@ export class PageTranslator {
   private changed(records: MutationRecord[]): void {
     if (!this.active) return
     for (const r of records) {
+      // A system list's row rewritten by the site: the label on it (ours) no longer says what the row does.
+      const row = r.type === "attributes" ? null : optionOf(r.target)
+      if (row) {
+        const item = this.attrItems.get(row)?.get("label")
+        if (item && this.items.has(item.id)) this.forget(item)
+        this.churned(row)
+        this.markDirty(row)
+        continue
+      }
       if (r.type === "characterData") {
         const node = r.target as Text
         const item = this.owner.get(node)
@@ -755,9 +802,8 @@ export class PageTranslator {
         }
         const rec = item?.applied?.texts.find((t) => t.node === node)
         if (!item || !rec || node.data === rec.now) continue
-        if (node.data === rec.was && item.again < MAX_AGAIN) {
-          // The site wrote its own words back (a re-render): ours again.
-          item.again++
+        if (node.data === rec.was && this.pushedBack(item.block.text)) {
+          // The site wrote its own words back (a re-render): ours again, before the next frame.
           this.writing(() => {
             node.data = rec.now
           })
@@ -777,16 +823,19 @@ export class PageTranslator {
           if (!el.hasAttribute("hidden")) this.markDirty(el)
           continue
         }
-        // An attribute's words changed by the site (a tooltip that says something else now): read again.
+        // An attribute's words changed by the site (a tooltip that says something else now, a hint the site writes
+        // again): read again, at once where it was translated.
         const item = this.attrItems.get(el)?.get(name)
         if (item && this.items.has(item.id)) {
           if (item.applied?.attr && el.getAttribute(name) === item.applied.attr.now) continue
+          // Written again with the words it had, while they wait for their translation: nothing changed (a field
+          // whose hint the site sets over and over).
+          if (!item.applied && blockCurrent(item.block)) continue
           this.forget(item)
         }
         this.churned(el)
-        if (this.lively(el)) continue
         // A tooltip already asked for (the pointer was on it) is asked again; a control's label with its part.
-        if (item) this.add(tipBlocks(el).filter((b) => b.parent === el && b.attr === name), true)
+        if (item) this.add(tipBlocks(el).filter((b) => b.parent === el && b.attr === name && this.follows(b)), true)
         this.markDirty(el)
         continue
       }
@@ -801,12 +850,61 @@ export class PageTranslator {
           this.markDirty(item.block.parent)
         }
       }
+      // Or took out the element around translated words (to draw it again with its own).
+      for (const node of Array.from(r.removedNodes)) if (node.nodeType === 1 && this.translatedIn(node as Element)) this.markDirty(target)
       for (const item of [...(this.byParent.get(target) ?? [])]) if (!blockIntact(item.block)) this.forget(item)
       for (const node of Array.from(r.addedNodes)) {
         if (node.nodeType === 3 && !(node as Text).data.trim()) continue
         this.markDirty(node.nodeType === 1 ? (node as Element) : target)
       }
     }
+    // Translated words the site has just undone: their part is read again now, inside the site's own change.
+    if (this.undone.size) this.rescanNow()
+  }
+
+  /** Translated words were inside `el` (which the site took out of the page): they're forgotten. Looks at its first
+   *  words only: a long part taken out is read again a moment later, as before. */
+  private translatedIn(el: Element): boolean {
+    const walker = el.ownerDocument.createTreeWalker(el, 4)
+    let found = false
+    for (let n = walker.nextNode(), seen = 0; n && seen < 60; n = walker.nextNode(), seen++) {
+      const item = this.owner.get(n)
+      if (!item?.applied || !this.items.has(item.id)) continue
+      this.forget(item)
+      found = true
+    }
+    return found
+  }
+
+  /** The site wrote `text` back where its translation was: true while that's still followed (see BACK_BURST), false
+   *  once those words are left to the site. */
+  private pushedBack(text: string): boolean {
+    if (this.left.has(text)) return false
+    const now = Date.now()
+    if (this.pushed.size > 400) this.pushed.clear()
+    const times = (this.pushed.get(text) ?? []).filter((t) => now - t < BACK_WINDOW)
+    times.push(now)
+    this.pushed.set(text, times)
+    if (times.length <= BACK_MAX && times.filter((t) => now - t < BACK_BURST_MS).length <= BACK_BURST) return true
+    this.left.add(text)
+    return false
+  }
+
+  /** What changed is read now rather than SCAN_DELAY later, within NOW_BUDGET a second. */
+  private rescanNow(): void {
+    const t0 = performance.now()
+    if (t0 - this.nowSpent.at > 1_000) this.nowSpent = { at: t0, ms: 0 }
+    if (this.nowSpent.ms > NOW_BUDGET) return
+    if (this.scanTimer) clearTimeout(this.scanTimer)
+    this.scanTimer = null
+    this.rescan()
+    this.nowSpent.ms += performance.now() - t0
+  }
+
+  /** A block read again is translated: not where its part was left to the site, and (unless its words are kept:
+   *  that costs nothing) not where the words change too often to follow. */
+  private follows(block: Block): boolean {
+    return !this.left.has(block.text) && (this.kept(block.text) !== undefined || !this.lively(block.parent))
   }
 
   /** The site changed a translated part's words: counted while the changes come in a row, so one that keeps
@@ -824,7 +922,9 @@ export class PageTranslator {
   }
 
   private markDirty(el: Element): void {
-    const root = scanRoot(el)
+    // A system list is read from what holds it (the walk leaves the list alone; its rows are read as attributes).
+    const list = el.closest?.("select")
+    const root = scanRoot(list?.parentElement ?? el)
     if (!root || insideSkipped(root)) return
     this.dirty.add(root)
     if (this.scanTimer) return
@@ -852,11 +952,12 @@ export class PageTranslator {
         changed = true
       }
       if (changed) blocks = collectBlocks(root, this.watchShadow)
-      this.add(blocks.filter((b) => !this.lively(b.parent) && !b.nodes.some((n) => {
+      this.add(blocks.filter((b) => this.follows(b) && !b.nodes.some((n) => {
         const item = this.owner.get(n)
         return item && this.items.has(item.id)
       })))
     }
+    this.undone.clear()
     this.flushSoon()
   }
 }
