@@ -2336,7 +2336,7 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
   font-weight: 600;
   white-space: nowrap;
   color: #fff !important;
-  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+  background: linear-gradient(135deg, var(--accent-from) 0%, var(--accent-to) 100%) !important;
 }
 .cf-tr-btn:disabled { opacity: 0.45; }
 .cf-tr-btn.quiet {
@@ -2462,7 +2462,7 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
 }
 .cf-tr-entry.right { right: max(68px, calc(env(safe-area-inset-right) + 54px)); }
 .cf-tr-entry.left { left: max(68px, calc(env(safe-area-inset-left) + 54px)); }
-.cf-tr-entry.on { color: #fff !important; background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important; border-color: transparent; }
+.cf-tr-entry.on { color: #fff !important; background: linear-gradient(135deg, var(--accent-from) 0%, var(--accent-to) 100%) !important; border-color: transparent; }
 
 /* The one AI consent, the first time: a card by the circle (above it when the circle is low on the screen). */
 .cf-tr-consent {
