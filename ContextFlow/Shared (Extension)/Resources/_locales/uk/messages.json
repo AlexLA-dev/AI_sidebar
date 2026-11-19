@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Змінити нагадування"
  },
+ "uxMove": {
+  "message": "Перенести в інший чат"
+ },
+ "uxMoveTitle": {
+  "message": "У який чат перенести відповідь?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "У який чат перенести нотатку?"
+ },
  "uxRemindOpen": {
   "message": "Відкрити"
  },
@@ -517,6 +526,12 @@
  },
  "planByok": {
   "message": "Власний ключ"
+ },
+ "plansOwnKeyLink": {
+  "message": "У мене є власний API-ключ"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Для цього тарифу потрібен ваш власний API-ключ OpenAI або Claude. Відповіді ви оплачуєте цьому провайдеру окремо."
  },
  "planRenews": {
   "message": "Поновлення {0}"
@@ -988,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Відповідь вашого ШІ-провайдера: {0}"
+ },
+ "errKeyCredit": {
+  "message": "У вашому акаунті {0} немає коштів або не налаштовано оплату, тому запит відхилено. Поповніть баланс на {1} і запитайте ще раз."
+ },
+ "errKeyRate": {
+  "message": "{0} зараз обмежує запити з вашого ключа: це ліміт вашого акаунта. Зачекайте хвилину й запитайте ще раз. Ваші ліміти: {1}."
  },
  "offerLimit": {
   "message": "Або візьміть Pro зі знижкою {0}% на перший місяць: до {1} відповідей на тиждень, глибших і докладніших. Скасувати можна будь-коли."
@@ -2423,6 +2444,24 @@
  "trControlsCap": {
   "message": "Безкоштовні переклади кнопок і меню на сьогодні закінчилися"
  },
+ "trSiteAsk": {
+  "message": "Перекладати всі сторінки цього сайту?"
+ },
+ "trSiteYes": {
+  "message": "Так"
+ },
+ "trSiteNo": {
+  "message": "Ні"
+ },
+ "trSiteOn": {
+  "message": "Усі сторінки цього сайту перекладаються"
+ },
+ "trSiteOff": {
+  "message": "Вимкнути"
+ },
+ "trSite": {
+  "message": "Увесь сайт"
+ },
  "spacesTitle": {
   "message": "Простори"
  },
@@ -3028,6 +3067,27 @@
  },
  "matchBackTo": {
   "message": "Назад до «{0}»"
+ },
+ "writeCompose": {
+  "message": "Написати"
+ },
+ "writeComposeGo": {
+  "message": "Написати"
+ },
+ "writeComposing": {
+  "message": "Пишу з урахуванням сторінки…"
+ },
+ "writeComposeHint": {
+  "message": "Про що написати? Своїми словами"
+ },
+ "writeComposeEdit": {
+  "message": "Змінити запит"
+ },
+ "writeToneAsk": {
+  "message": "Яким тоном?"
+ },
+ "writeInserted": {
+  "message": "Вставлено"
  },
  "tip_4cf1b54b00": {
   "message": "Поради"

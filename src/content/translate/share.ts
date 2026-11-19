@@ -231,7 +231,9 @@ export function controlLabels(doc: Document, max = 400): string[] {
   const seen = new Set<string>()
   const out: string[] = []
   for (const block of collectBlocks(doc.body)) {
-    if (!controlBlock(block) || !visible(block.parent)) continue
+    // The words the eye sees: a button's own, a placeholder. An icon button's name for screen readers and tooltips
+    // (translated with the page since build 109) don't make a page's controls «in another language» to the reader.
+    if (!controlBlock(block) || !visible(block.parent) || (block.attr && block.attr !== "placeholder" && block.attr !== "value")) continue
     const label = plainText(block.text).replace(/\s+/g, " ").trim()
     const key = label.toLowerCase()
     if (!label || seen.has(key)) continue

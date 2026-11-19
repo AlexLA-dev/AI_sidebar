@@ -691,5 +691,7 @@
   "ee329a85e7ae": "Đọc trang bạn đang trả lời",
   "60c8279280c4": "Chỉ xử lý văn bản bạn đưa vào",
   "768737d596d7": "Mỗi lần chạm một câu trả lời: miễn phí 5 câu mỗi ngày; gạch chân có trong Pro",
-  "e51f743693e5": "Xem thêm: <a href=\"/translate-web-page-safari-iphone\">Dịch trang web trong Safari</a>"
+  "e51f743693e5": "Xem thêm: <a href=\"/translate-web-page-safari-iphone\">Dịch trang web trong Safari</a>",
+  "ee6188a287b5": "Tôi có khóa API riêng",
+  "4b7a73ec677d": "Gói này cần khóa API OpenAI hoặc Claude của riêng bạn. Bạn trả phí câu trả lời riêng cho nhà cung cấp đó."
 }

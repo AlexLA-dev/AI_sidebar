@@ -6,11 +6,10 @@
 // - the kind: the page hints' (pagehints/detect.ts).
 // Nothing leaves the device, and nothing is watched: a signal that comes later counts at the next opening.
 
-import { readText } from "../insert/fieldtext"
 import { noButtonField } from "../insert/spot"
 import { loadInsertSettings, onInsertSettings } from "../insert/store"
 import { rememberedField } from "../insert/target"
-import { writableField } from "../insert/Write"
+import { draftText, writableField } from "../insert/Write"
 import { pageKind, type PageKind } from "../pagehints/detect"
 import { pageForeignOffer, pageTranslatedNow } from "../translate/TranslatePill"
 import { fieldState, type ChipSignals } from "./chips"
@@ -20,7 +19,8 @@ function openField(): { usable: boolean; text: string } | null {
   const f = rememberedField()
   if (!f) return null
   try {
-    return { usable: !noButtonField(f.el) && writableField(f.el), text: readText(f.el).text }
+    // What's written there, without Gmail's signature or a quoted mail (an empty reply box is Compose's, 2.7 (108)).
+    return { usable: !noButtonField(f.el) && writableField(f.el), text: draftText(f.el) }
   } catch {
     return null
   }

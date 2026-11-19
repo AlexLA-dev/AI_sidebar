@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Đổi lời nhắc"
  },
+ "uxMove": {
+  "message": "Chuyển sang cuộc trò chuyện khác"
+ },
+ "uxMoveTitle": {
+  "message": "Chuyển câu trả lời sang cuộc trò chuyện nào?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Chuyển ghi chú sang cuộc trò chuyện nào?"
+ },
  "uxRemindOpen": {
   "message": "Mở"
  },
@@ -517,6 +526,12 @@
  },
  "planByok": {
   "message": "Khóa riêng"
+ },
+ "plansOwnKeyLink": {
+  "message": "Tôi có khóa API riêng"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Gói này cần khóa API OpenAI hoặc Claude của riêng bạn. Bạn trả phí câu trả lời riêng cho nhà cung cấp đó."
  },
  "planRenews": {
   "message": "Gia hạn vào {0}"
@@ -988,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Nhà cung cấp AI của bạn trả lời: {0}"
+ },
+ "errKeyCredit": {
+  "message": "Tài khoản {0} của bạn không còn số dư hoặc chưa thiết lập thanh toán nên yêu cầu bị từ chối. Hãy nạp thêm tại {1} rồi hỏi lại."
+ },
+ "errKeyRate": {
+  "message": "{0} đang giới hạn các yêu cầu từ khóa của bạn: đây là giới hạn tốc độ của tài khoản. Hãy chờ một phút rồi hỏi lại. Xem giới hạn của bạn tại {1}."
  },
  "offerLimit": {
   "message": "Hoặc dùng Pro, giảm {0}% tháng đầu: tối đa {1} câu trả lời mỗi tuần, sâu và chi tiết hơn. Hủy bất cứ lúc nào."
@@ -2423,6 +2444,24 @@
  "trControlsCap": {
   "message": "Đã hết lượt dịch miễn phí nút và menu hôm nay"
  },
+ "trSiteAsk": {
+  "message": "Dịch mọi trang của trang web này?"
+ },
+ "trSiteYes": {
+  "message": "Có"
+ },
+ "trSiteNo": {
+  "message": "Không"
+ },
+ "trSiteOn": {
+  "message": "Cả trang web đang được dịch"
+ },
+ "trSiteOff": {
+  "message": "Tắt"
+ },
+ "trSite": {
+  "message": "Cả trang web"
+ },
  "spacesTitle": {
   "message": "Không gian"
  },
@@ -3028,6 +3067,27 @@
  },
  "matchBackTo": {
   "message": "Quay lại “{0}”"
+ },
+ "writeCompose": {
+  "message": "Soạn"
+ },
+ "writeComposeGo": {
+  "message": "Viết"
+ },
+ "writeComposing": {
+  "message": "Đang viết theo nội dung trang…"
+ },
+ "writeComposeHint": {
+  "message": "Muốn viết gì? Bằng lời của bạn"
+ },
+ "writeComposeEdit": {
+  "message": "Đổi yêu cầu"
+ },
+ "writeToneAsk": {
+  "message": "Giọng điệu thế nào?"
+ },
+ "writeInserted": {
+  "message": "Đã chèn"
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

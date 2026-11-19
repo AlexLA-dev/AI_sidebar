@@ -3,14 +3,17 @@ import type { Config, Context } from "@netlify/functions"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
+import { cleanErrorTag } from "../../src/shared/ownKeyError.ts"
 
 /**
  * POST /api/v2/usage — usage report for an answer the extension got with the user's own key
  * (those requests go straight from the device to OpenAI / Anthropic, so the server never sees them).
  *
  * Body: { installId, client: {version, platform, locale},
- *         usage: { provider, model, tier, action?, ok, error?, promptTokens, completionTokens, ms } }
- * Only counters: never the key, the question or the page. Always answers 204 so the client can fire and forget.
+ *         usage: { provider, model, tier, action?, ok, error?, errorType?, promptTokens, completionTokens, ms } }
+ * errorType: the provider's status and its own error type or code for a refusal ("429:insufficient_quota"), kept as
+ * error_type so a key without credit can be told from a rate limit; nothing but that shape is stored.
+ * Only counters: never the key, the question or the page, nor the provider's message. Always answers 204 so the client can fire and forget.
  */
 
 const PROVIDERS = new Set(["openai", "anthropic"])
@@ -47,6 +50,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     mode: "chat",
     ok: usage.ok === true,
     error: usage.ok === true ? null : clip(usage.error, 24) || null,
+    ...(usage.ok !== true && cleanErrorTag(usage.errorType) ? { error_type: cleanErrorTag(usage.errorType) } : {}),
     model: clip(usage.model, 64),
     tier: usage.tier === "fast" ? "fast" : "smart",
     action: clip(usage.action, 32) || null,

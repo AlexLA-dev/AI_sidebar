@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Change reminder"
  },
+ "uxMove": {
+  "message": "Move to another chat"
+ },
+ "uxMoveTitle": {
+  "message": "Move the answer to which chat?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Move the note to which chat?"
+ },
  "uxRemindOpen": {
   "message": "Open"
  },
@@ -517,6 +526,12 @@
  },
  "planByok": {
   "message": "Own key"
+ },
+ "plansOwnKeyLink": {
+  "message": "I have my own API key"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "This plan needs your own OpenAI or Claude API key. You pay that provider for the answers separately."
  },
  "planRenews": {
   "message": "Renews {0}"
@@ -988,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Your AI provider replied: {0}"
+ },
+ "errKeyCredit": {
+  "message": "Your {0} account has no credit, or billing isn't set up there, so it refused the request. Add credit at {1} and ask again."
+ },
+ "errKeyRate": {
+  "message": "{0} is holding back requests from your key right now: your account's rate limit. Wait a minute and ask again. Your limits are at {1}."
  },
  "offerLimit": {
   "message": "Or get Pro with {0}% off your first month: up to {1} answers a week, deeper and more detailed. Cancel any time."
@@ -2423,6 +2444,24 @@
  "trControlsCap": {
   "message": "Today's free translations of buttons and menus are used up"
  },
+ "trSiteAsk": {
+  "message": "Translate every page of this site?"
+ },
+ "trSiteYes": {
+  "message": "Yes"
+ },
+ "trSiteNo": {
+  "message": "No"
+ },
+ "trSiteOn": {
+  "message": "Every page of this site is translated"
+ },
+ "trSiteOff": {
+  "message": "Turn off"
+ },
+ "trSite": {
+  "message": "Whole site"
+ },
  "spacesTitle": {
   "message": "Spaces"
  },
@@ -3028,6 +3067,27 @@
  },
  "matchBackTo": {
   "message": "Back to “{0}”"
+ },
+ "writeCompose": {
+  "message": "Compose"
+ },
+ "writeComposeGo": {
+  "message": "Write"
+ },
+ "writeComposing": {
+  "message": "Writing with this page in mind…"
+ },
+ "writeComposeHint": {
+  "message": "What should it say? In your own words"
+ },
+ "writeComposeEdit": {
+  "message": "Change the request"
+ },
+ "writeToneAsk": {
+  "message": "How should it sound?"
+ },
+ "writeInserted": {
+  "message": "Inserted"
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

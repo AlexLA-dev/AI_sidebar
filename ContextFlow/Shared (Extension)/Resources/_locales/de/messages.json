@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Erinnerung ändern"
  },
+ "uxMove": {
+  "message": "In anderen Chat verschieben"
+ },
+ "uxMoveTitle": {
+  "message": "In welchen Chat soll die Antwort?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "In welchen Chat soll die Notiz?"
+ },
  "uxRemindOpen": {
   "message": "Öffnen"
  },
@@ -517,6 +526,12 @@
  },
  "planByok": {
   "message": "Eigener Schlüssel"
+ },
+ "plansOwnKeyLink": {
+  "message": "Ich habe einen eigenen API-Schlüssel"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Für diesen Tarif brauchst du einen eigenen API-Schlüssel von OpenAI oder Claude. Die Antworten bezahlst du separat bei diesem Anbieter."
  },
  "planRenews": {
   "message": "Verlängerung am {0}"
@@ -988,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Dein KI-Anbieter meldet: {0}"
+ },
+ "errKeyCredit": {
+  "message": "Dein {0}-Konto hat kein Guthaben oder die Abrechnung ist dort nicht eingerichtet, deshalb wurde die Anfrage abgelehnt. Lade unter {1} Guthaben auf und frag dann noch mal."
+ },
+ "errKeyRate": {
+  "message": "{0} bremst gerade die Anfragen mit deinem Schlüssel: Das ist das Limit deines Kontos. Warte eine Minute und frag noch mal. Deine Limits findest du unter {1}."
  },
  "offerLimit": {
   "message": "Oder hol dir Pro mit {0} % Rabatt im ersten Monat: bis zu {1} Antworten pro Woche, ausführlicher und gründlicher. Jederzeit kündbar."
@@ -2423,6 +2444,24 @@
  "trControlsCap": {
   "message": "Die kostenlosen Übersetzungen von Buttons und Menüs sind für heute aufgebraucht"
  },
+ "trSiteAsk": {
+  "message": "Alle Seiten dieser Website übersetzen?"
+ },
+ "trSiteYes": {
+  "message": "Ja"
+ },
+ "trSiteNo": {
+  "message": "Nein"
+ },
+ "trSiteOn": {
+  "message": "Die ganze Website wird übersetzt"
+ },
+ "trSiteOff": {
+  "message": "Ausschalten"
+ },
+ "trSite": {
+  "message": "Ganze Website"
+ },
  "spacesTitle": {
   "message": "Bereiche"
  },
@@ -3028,6 +3067,27 @@
  },
  "matchBackTo": {
   "message": "Zurück zu „{0}“"
+ },
+ "writeCompose": {
+  "message": "Verfassen"
+ },
+ "writeComposeGo": {
+  "message": "Schreiben"
+ },
+ "writeComposing": {
+  "message": "Schreibe mit Blick auf die Seite…"
+ },
+ "writeComposeHint": {
+  "message": "Was soll drinstehen? In deinen Worten"
+ },
+ "writeComposeEdit": {
+  "message": "Anfrage ändern"
+ },
+ "writeToneAsk": {
+  "message": "Welcher Ton?"
+ },
+ "writeInserted": {
+  "message": "Eingefügt"
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Mudar lembrete"
  },
+ "uxMove": {
+  "message": "Mover para outra conversa"
+ },
+ "uxMoveTitle": {
+  "message": "Para qual conversa mover a resposta?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Para qual conversa mover a nota?"
+ },
  "uxRemindOpen": {
   "message": "Abrir"
  },
@@ -517,6 +526,12 @@
  },
  "planByok": {
   "message": "Chave própria"
+ },
+ "plansOwnKeyLink": {
+  "message": "Tenho minha própria chave de API"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Este plano precisa da sua própria chave de API da OpenAI ou do Claude. Você paga as respostas à parte, direto a esse provedor."
  },
  "planRenews": {
   "message": "Renova em {0}"
@@ -988,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Seu provedor de IA respondeu: {0}"
+ },
+ "errKeyCredit": {
+  "message": "Sua conta da {0} está sem créditos ou sem faturamento configurado, por isso o pedido foi recusado. Adicione créditos em {1} e pergunte de novo."
+ },
+ "errKeyRate": {
+  "message": "A {0} está limitando agora os pedidos da sua chave: é o limite da sua conta. Espere um minuto e pergunte de novo. Seus limites ficam em {1}."
  },
  "offerLimit": {
   "message": "Ou assine o Pro com {0}% de desconto no primeiro mês: até {1} respostas por semana, mais aprofundadas e detalhadas. Cancele quando quiser."
@@ -2423,6 +2444,24 @@
  "trControlsCap": {
   "message": "As traduções gratuitas de botões e menus de hoje acabaram"
  },
+ "trSiteAsk": {
+  "message": "Traduzir todas as páginas deste site?"
+ },
+ "trSiteYes": {
+  "message": "Sim"
+ },
+ "trSiteNo": {
+  "message": "Não"
+ },
+ "trSiteOn": {
+  "message": "O site inteiro é traduzido"
+ },
+ "trSiteOff": {
+  "message": "Desativar"
+ },
+ "trSite": {
+  "message": "Site inteiro"
+ },
  "spacesTitle": {
   "message": "Espaços"
  },
@@ -3028,6 +3067,27 @@
  },
  "matchBackTo": {
   "message": "Voltar para “{0}”"
+ },
+ "writeCompose": {
+  "message": "Escrever"
+ },
+ "writeComposeGo": {
+  "message": "Escrever"
+ },
+ "writeComposing": {
+  "message": "Escrevendo com a página em mente…"
+ },
+ "writeComposeHint": {
+  "message": "O que deve dizer? Com suas palavras"
+ },
+ "writeComposeEdit": {
+  "message": "Mudar o pedido"
+ },
+ "writeToneAsk": {
+  "message": "Em que tom?"
+ },
+ "writeInserted": {
+  "message": "Inserido"
  },
  "tip_4cf1b54b00": {
   "message": "Dicas"

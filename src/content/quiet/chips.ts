@@ -11,11 +11,12 @@ import type { PageKind } from "../pagehints/detect"
 
 /** The page's quick actions. "check", "rewrite" and "templates" work on the page's field; "translate_page" translates
  *  the page in place; "watch" watches the page; the rest ask the chat. */
-export type ChipId = "check" | "rewrite" | "templates" | "translate_page" | "similar" | "watch" | "summarize" | "key_points" | "explain" | "translate" | "google"
+export type ChipId = "check" | "rewrite" | "compose" | "templates" | "translate_page" | "similar" | "watch" | "summarize" | "key_points" | "explain" | "translate" | "google"
 
 export interface ChipSignals {
-  // A field or a draft open on the page: none, one with nothing to work on yet, one with text.
-  field: "none" | "empty" | "text"
+  // A field or a draft open on the page: none, one with nothing to work on yet ("blank": nothing written at all, so
+  // Compose can write it, 2.7 (108)), one with text.
+  field: "none" | "blank" | "empty" | "text"
   // The page's main text is in another language than the person's (the translate pill's own judgment).
   foreign: boolean
   // What the page is (the page hints' kind), or null.
@@ -30,7 +31,7 @@ export interface ChipSignals {
  * hints' "form") counts as an empty one: Templates are offered there too.
  */
 export function fieldState(field: { usable: boolean; text: string } | null, kind: PageKind | null): ChipSignals["field"] {
-  if (field?.usable) return worthWriting(field.text) ? "text" : "empty"
+  if (field?.usable) return worthWriting(field.text) ? "text" : field.text.trim() ? "empty" : "blank"
   return kind === "form" ? "empty" : "none"
 }
 
@@ -71,6 +72,7 @@ export function rankChips(s: ChipSignals, can: ChipAbilities): ChipId[] {
     for (const id of ids) if (!out.includes(id) && allowed(id, s, can)) out.push(id)
   }
   if (s.field === "text") add("check", "rewrite", "templates")
+  else if (s.field === "blank") add("compose", "templates")
   else if (s.field === "empty") add("templates")
   if (s.foreign) add("translate_page")
   if (s.media !== "page") add("summarize", "key_points")
@@ -85,6 +87,8 @@ function allowed(id: ChipId, s: ChipSignals, can: ChipAbilities): boolean {
     case "check":
     case "rewrite":
       return can.write && s.field === "text"
+    case "compose":
+      return can.write && s.field === "blank"
     case "templates":
       return can.write && s.field !== "none"
     case "translate_page":

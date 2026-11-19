@@ -10,6 +10,7 @@ import {
   type AskPayload,
   type ErrorCode,
   type Grounding,
+  type OwnKeyRefusal,
   type Platform,
   type Plan,
   type ProOffer,
@@ -21,6 +22,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
+import { ownKeyPlace, providerName } from "../shared/ownKeyError"
 import { FREE_MEMORY, historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
@@ -49,7 +51,7 @@ import { inChatOrder, preview as barPreview, SuggestionsBar, type BarSuggestion 
 import { keepReadingPlace, readingPlace, type ReadingPlace } from "./readingPlace"
 import { UndoBar } from "./UndoBar"
 import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
-import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
+import { collectionsFollow, moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
 import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags, turnedDownName } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
@@ -90,7 +92,8 @@ import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
 import { TipsSheet, tipsLabel } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
-import { shadowSelection, trackPointer } from "./selectionShadow"
+import { lastPointerDown, shadowSelection, trackPointer } from "./selectionShadow"
+import { clearedByHand } from "./handClear"
 import { selectionByOneTap, trackPresses } from "./tapSelect"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads, withStoredEdits } from "../shared/jobs"
@@ -122,8 +125,10 @@ import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, matchScope, type ChatMatch, type MeaningMatches } from "../shared/match"
-import { SpaceDot, SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
-import { CollectionsWindow, CollectLink, CollectSheet, useCollections, type CollectAsk, type CollectPro, type CollectReport } from "./Collections"
+import { pageTint, SpaceDot, SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
+import { CollectedMark, CollectionsWindow, CollectLink, CollectSheet, useCollections, type CollectAsk, type CollectPro, type CollectReport } from "./Collections"
+import { MoveSheet } from "./ux/MoveSheet"
+import { moveRange } from "./ux/moveAnswer"
 import { placesOf, type Card } from "../shared/collections"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
@@ -145,6 +150,8 @@ interface ChatError {
   offer?: ProOffer | null
   // The page is long: an answer about it counts as this many, more than are left (2.5).
   weight?: number
+  // The person's own provider refused for a cause they can mend (109): no credit, or the account's rate limit.
+  ownKey?: OwnKeyRefusal
 }
 
 interface Action {
@@ -174,6 +181,7 @@ const PAGE_CHIPS = Object.fromEntries([
   ...PAGE_ACTIONS,
   { id: "check", label: "writeCheck", prompt: "writeCheck" },
   { id: "rewrite", label: "writeRewrite", prompt: "writeRewrite" },
+  { id: "compose", label: "writeCompose", prompt: "writeCompose" },
   { id: "templates", label: "qiTemplates", prompt: "qiTemplates" },
   { id: "translate_page", label: "chipTranslatePage", prompt: "chipTranslatePage" },
   { id: "watch", label: "chipWatchPrice", prompt: "chipWatchPrice" }
@@ -289,6 +297,13 @@ function localeCountry(): string | undefined {
 }
 
 function errorText(error: ChatError): string {
+  // Their own key, refused for a cause they can mend: said in their language, with where to mend it, and then the
+  // provider's own sentence (it names the limit or the plan).
+  if (error.ownKey) {
+    const { provider, problem } = error.ownKey
+    const said = t(problem === "credit" ? "errKeyCredit" : "errKeyRate", providerName(provider), ownKeyPlace(provider, problem).label)
+    return error.message ? `${said} ${t("errProvider", error.message)}` : said
+  }
   switch (error.code) {
     case "NETWORK":
       return t("errNetwork")
@@ -532,6 +547,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   settingsRef.current = settings
   // Organizing (2.5): the bar after a move ("Moved to … · Undo · Open", kind "move"), and after a delete; how long
   // each stays is in undoClock.ts.
+  // 2.7 (109): «…» ▸ Move to another chat; the menu opened by a right-click gets it through this (set further down).
+  const moveForRef = useRef<(idx: number) => (() => void) | undefined>(() => undefined)
   const [undoBar, setUndoBar] = useState<{ text: string; actions: Array<{ label: string; run: () => void }>; kind?: BarKind } | null>(null)
   // 2.5: highlights, swipes, pinned messages, reminders (src/content/ux); a deleted message's Undo is on the same bar.
   const ux = useMessageUx({
@@ -543,7 +560,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     touch,
     open,
     send: sendBackground,
-    showUndo: (text, undo) => setUndoBar({ text, actions: [{ label: t("orgUndo"), run: () => { setUndoBar(null); undo() } }] })
+    showUndo: (text, undo) => setUndoBar({ text, actions: [{ label: t("orgUndo"), run: () => { setUndoBar(null); undo() } }] }),
+    moveFor: (idx) => moveForRef.current(idx)
   })
   // The bell by a selection: "Remind me to come back" (a note with the quote and the page, and a reminder that
   // opens the page).
@@ -972,6 +990,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const purposefulRef = useRef(() => {})
   useEffect(() => trackPresses(() => purposefulRef.current()), [])
   const byTapRef = useRef(false)
+  // 2.7 (108), handClear.ts: whether the page had a selection at the last look and when, and a selection the person
+  // cleared with a press on the page while the panel was open (its chip stays for the question; the closing forgets it).
+  const selLiveRef = useRef(false)
+  const selLiveAtRef = useRef(0)
+  const handClearedRef = useRef(false)
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
     let scrollTimer: ReturnType<typeof setTimeout> | undefined
@@ -993,7 +1016,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     const onSelectionChange = () => {
       // Remember it right away: tapping our button on iPhone clears the selection.
-      trackSelection()
+      const live = Boolean(trackSelection())
+      const was = selLiveRef.current
+      selLiveRef.current = live
+      if (live) {
+        // Since when it's there, not when it was last reported: the press that clears it then counts whether or not a
+        // browser reports the same selection once more between the finger going down and the tap clearing it.
+        if (!was) selLiveAtRef.current = performance.now()
+        handClearedRef.current = false
+      } else if (was && clearedByHand(lastPointerDown(HOST_TAG), selLiveAtRef.current, performance.now())) {
+        // The person cleared it with a press on the page: it isn't the panel's any more (108, the owner: it came back
+        // at every opening and closing). Nothing of ours took it, so it isn't remembered or put back.
+        if (open) handClearedRef.current = true
+        else {
+          forgetSelection()
+          setSelection(null)
+        }
+      }
       // Its moment decides: right after one short tap in a field it's the tap's (iPadOS), later it's made on purpose.
       byTapRef.current = touch && selectionByOneTap()
       clearTimeout(timer)
@@ -1041,6 +1080,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // about goes back on the page first, unless its chip was cleared.
     const closing = wasOpenRef.current && !open
     wasOpenRef.current = open
+    // Cleared by the person on the page while the panel was open: the page stays as they left it.
+    if (closing && handClearedRef.current) {
+      handClearedRef.current = false
+      forgetSelection()
+      setSelection(null)
+    }
     const back = open
       ? undefined
       : setTimeout(() => {
@@ -1288,7 +1333,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       } else if (event.type === "error") {
         settled = true
         if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight }, undefined, event.entry)
+        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight, ...(event.ownKey ? { ownKey: event.ownKey } : {}) }, undefined, event.entry)
       }
     })
     // Closed without an end: the job may well go on (the background still answers it), so the chat is read again.
@@ -1549,7 +1594,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // 2.7 (after 107): the chips that act on the page. Check and Rewrite open their card by the field (the sheet slides
     // away first on a phone, and the side panel on an iPad, where the card is a sheet too); Templates opens the list to
     // insert from; Translate page starts the pill's translation; Watch the price opens watching's window.
-    if (picked.id === "check" || picked.id === "rewrite") {
+    if (picked.id === "check" || picked.id === "rewrite" || picked.id === "compose") {
       const away = touch || layoutRef.current === "sheet"
       if (away) hide()
       setTimeout(() => bus.dispatchEvent(new CustomEvent(QI_EVENTS.write, { detail: picked.id })), away ? 240 : 0)
@@ -1998,13 +2043,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
    */
   const messageFooter = (m: Entry, idx: number, plain: () => string, shared: () => string): VNode => {
     const mark = m.role === "assistant" && !m.note ? answerMark(m.content) : null
-    // The collections it's in (#199): the row's fit is measured again when that changes.
-    const collectedIn = historyMode ? "" : placesOf(cols.shown, threadRef.current, entryKey(m)).map((p) => p.rec.n).join("|")
-    const collected = collectedIn !== ""
+    // The collections it's in (#199): the row's fit is measured again when that changes. 109: their names are a mark by
+    // the message, on its line of tags (CollectedMark); a tap opens the collection.
+    const places = historyMode ? [] : placesOf(cols.shown, threadRef.current, entryKey(m))
+    const collectedIn = places.map((p) => p.rec.n).join("|")
+    const openCollection = (id: string) => {
+      setColOpen(id)
+      setView("collections")
+    }
     return (
     <>
-      {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
-      <ToolsRow cls={`cf-msg-tools ${hasField ? "has-insert" : ""}`} sig={`${density}|${hasField}|${copied === idx}|${Boolean(mark)}|${plan}|${historyMode}|${settings.textSize}|${collectedIn}`}>
+      {((m.tags && m.tags.length > 0) || places.length > 0) && (
+        <div class="cf-msg-tags">
+          <CollectedMark places={places} onOpen={(id) => {
+            reportCollect("open", { via: "mark" })
+            openCollection(id)
+          }} />
+          {m.tags?.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}
+        </div>
+      )}
+      <ToolsRow cls={`cf-msg-tools ${hasField ? "has-insert" : ""}`} sig={`${density}|${hasField}|${copied === idx}|${Boolean(mark)}|${plan}|${historyMode}|${settings.textSize}|${collectedIn}|${touch}`}>
+        {(dropped) => (<>
         {hasField && (
           <button type="button" class="cf-insert" aria-label={t("qiInsertIntoField")} title={t("qiInsertIntoField")} onClick={() => {
             const text = plain()
@@ -2065,33 +2124,32 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             {mark && <span class={`cf-voiced ${mark === "free" ? "" : "made"}`}><VoicedIcon /></span>}
           </button>
         )}
-        {!compact && (
-          <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
-            <Icon.Tag /> <span class="cf-tl" data-give="2">{t("tagsButton")}</span>
-          </button>
-        )}
-        {/* 2.7 «Подборки» (#199: «✓ In “<collection>”» with its own menu once the message is in one). In the row: on the
-            roomy chat always; on the compact chat only once it's collected (adding is in «…»). Its words give way first. */}
-        {!historyMode && (!compact || collected) && (
+        {/* 2.7 (109): Tag and To collection are in the row whenever it has the room, on every chat; without it they leave
+            for «…» (ToolsRow data-drop: To collection first), never in both. */}
+        <button type="button" data-drop="tag" data-drop-order="2" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
+          <Icon.Tag /> <span class="cf-tl" data-give="2">{t("tagsButton")}</span>
+        </button>
+        {/* 2.7 «Подборки» (#199: «✓» with its own menu once the message is in one). Its words give way first. */}
+        {!historyMode && (
           <CollectLink
             row
             chat={threadRef.current}
             msg={entryKey(m)}
             shown={cols.shown}
             onSheet={() => setCollecting(idx)}
-            onOpen={(id) => {
-              setColOpen(id)
-              setView("collections")
-            }}
+            onOpen={openCollection}
             report={reportCollect}
           />
         )}
-        {/* What the compact row doesn't show is in «…»; with a finger the «…» has it on the roomy chat too. */}
-        {ux.moreButton(m, idx, compact || touch ? {
-          onTag: () => setTagging(tagging === idx ? null : idx),
-          onCollect: historyMode ? undefined : () => setCollecting(idx),
+        {/* «…»: what the row had no room for, and Move to another chat. The Mac's buttons under the pointer as before. */}
+        {ux.moreButton(m, idx, {
+          onTag: dropped.has("tag") ? () => setTagging(tagging === idx ? null : idx) : undefined,
+          onCollect: dropped.has("collect") && !historyMode ? () => setCollecting(idx) : undefined,
+          onMove: moveFor(idx),
+          hover: !compact && !touch,
           picked: (what) => void sendBackground({ type: "useEvent", f: "quiet", a: "more_pick", what })
-        } : undefined)}
+        })}
+        </>)}
       </ToolsRow>
       {markSaid === idx && mark && <div class="cf-listen-said" role="status">{markWords(mark)}</div>}
       {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => userTags(idx, next)} onClose={() => setTagging(null)} />}
@@ -3576,6 +3634,58 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
     won()
   }
+  // 2.7 (109), the owner on 108: «явно не хватает опции в меню <…> перенести ответ на другой чат». «…» ▸ Move to another
+  // chat: the answer with its question (a note by itself) goes to the chat picked, or a new one (ux/moveAnswer.ts); its
+  // tags, pin, highlights and reminder are on it, its collections' cards follow it. The panel stays here (unless nothing
+  // is left); the bar has Undo and Open.
+  const [moving, setMoving] = useState<number | null>(null)
+  const moveFor = (idx: number): (() => void) | undefined =>
+    !historyMode && partial === null && !picked && moveRange(messages, idx) ? () => setMoving(idx) : undefined
+  moveForRef.current = moveFor
+  const undoAnswerMove = async (undo: MoveUndo) => {
+    setUndoBar(null)
+    const threads = await undoBlockMove(undo)
+    await collectionsFollow(undo.target, undo.source, undo.keys)
+    showLists(threads)
+    const here = threadRef.current
+    if (here === undo.source || here === undo.target) {
+      const show = threads[undo.source] && !threads[undo.source].deleted ? undo.source : here
+      if (show === here) keepPlaceFor.current = threads[here]?.m.length ?? -1
+      showChat(show, threads)
+    }
+    void sendBackground({ type: "useEvent", f: "quiet", a: "move_undone" })
+  }
+  const moveAnswerTo = async (idx: number, to: string | null) => {
+    setMoving(null)
+    const source = threadRef.current
+    const list = messages
+    const range = moveRange(list, idx)
+    if (!range) return
+    const target = to ?? newThreadId()
+    // What the panel shows is what moves (its save may still be on its way).
+    await saveThread(source, list)
+    const moved = await moveBlock(source, range.start, range.end, target)
+    if (!moved) return
+    await collectionsFollow(source, target, moved.undo.keys)
+    showLists(moved.threads)
+    const left = moved.threads[source]
+    const stays = left && !left.deleted ? left : null
+    if (stays) {
+      keepPlaceFor.current = stays.m.length
+      setMessages(stays.m)
+    } else showChat(target, moved.threads)
+    const there = moved.threads[target]
+    const sourceSpace = spaces.of(moved.undo.before.source).id
+    void sendBackground({ type: "useEvent", f: "quiet", a: "moved", to: !to ? "new" : spaces.of(there).id !== sourceSpace ? "space" : "chat" })
+    setUndoBar({
+      text: t("orgMoved", threadName(there)),
+      kind: "move",
+      actions: [
+        { label: t("orgUndo"), run: () => void undoAnswerMove(moved.undo) },
+        ...(stays ? [{ label: t("orgOpen"), run: () => { setUndoBar(null); void loadThreads().then(({ threads }) => showChat(target, threads)) } }] : [])
+      ]
+    })
+  }
   const refuseMove = (move: OrganizeMove) => {
     // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere. 2.6 (95):
     // turned down in the newer chat, it's kept with the older one, so neither shows it again.
@@ -3774,6 +3884,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   )
 
   const theme = settings.theme === "auto" ? undefined : settings.theme
+  // 109: the page's own controls in the ✦ circle's space colour, paler (styles.css .cf[data-tint]).
+  const tint = pageTint(spaces.fabSpace?.color)
   // The last message is a question still without an answer (a note doesn't count).
   const lastIsUser = isQuestion(messages[messages.length - 1])
   // The conversation was last on another page: offer this page's actions.
@@ -3791,7 +3903,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ render
   return (
-    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}>
+    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}
+      data-tint={tint ? spaces.fabSpace?.color : undefined} style={tint ?? undefined}>
       {/* Where fixed coordinates start, measured (fixedPlace.ts): the selection's buttons and ring are placed by it. */}
       <i class="cf-origin" aria-hidden="true" ref={setFixedProbe} />
       <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
@@ -4226,6 +4339,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   setUndoBar(null)
                   setView("trash")
                 }}
+                onCollections={() => {
+                  setUndoBar(null)
+                  setColOpen(null)
+                  setView("collections")
+                  void sendBackground({ type: "useEvent", f: "collect", a: "open", via: "chats" })
+                }}
                 recs={orgOn ? recs : undefined}
                 playing={playingChat}
                 spaces={settings.spaces !== false ? {
@@ -4597,7 +4716,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         {hasPro(plan)
                           ? t("limitProBody", timeUntil(resetsAt))
                           : byok
-                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${status?.hasOwnKey ? t("byokLimitGoogle", back, PRO_WEEKLY) : t("byokLimitNoKey", back, PRO_WEEKLY)}`
+                            // With a key: only Google answers go through ContextFlow. A key added after the refusal
+                            // (from this card) leaves a question that wasn't a Google one: nothing more to say, Retry.
+                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))}${!status?.hasOwnKey ? ` ${t("byokLimitNoKey", back, PRO_WEEKLY)}` : messages[messages.length - 1]?.mode === "google" ? ` ${t("byokLimitGoogle", back, PRO_WEEKLY)}` : ""}`
                             : `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
                       </p>
                       <p class="cf-limit-notes">
@@ -4608,6 +4729,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <div class="cf-card-actions">
                           {upgradeButton("limit")}
                           {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>}
+                          {/* The key is there now (added from this card, or the question was a Google one): the same
+                              question again, answered with the key. Until 109 it had to be typed again. */}
+                          {status?.hasOwnKey && lastIsUser && (
+                            <button type="button" class="cf-secondary" onClick={() => retry(true)}>
+                              <Icon.Retry /> {messages[messages.length - 1]?.mode === "google" ? t("askWithoutGoogle") : t("retry")}
+                            </button>
+                          )}
                         </div>
                       )}
                       {!hasPro(plan) && !byok && (
@@ -4681,6 +4809,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <button type="button" class="cf-secondary" onClick={() => retry(true)}><Icon.Sparkle size={14} /> {t("askWithoutGoogle")}</button>
                       )}
                       {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("settings")}</button>}
+                      {error.ownKey && (
+                        <button type="button" class="cf-secondary" onClick={() => { const { provider, problem } = error.ownKey!; void sendBackground({ type: "openUrl", url: ownKeyPlace(provider, problem).url }) }}>
+                          {ownKeyPlace(error.ownKey.provider, error.ownKey.problem).label}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -4802,7 +4935,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           if (on) setPlusOpen(false)
                         }
                       }}
-                      whole={historyMode ? null : {
+                      // 2.7 (109), the owner on 108 (iPad Pro with a keyboard): «остались «Весь чат» и счетчик внизу, при том,
+                      // что добавились в "+"». The roomy chat keeps them in the line under the field: «+» doesn't list them.
+                      whole={historyMode || !compact ? null : {
                         on: memoryOn,
                         locked: !memoryAllowed,
                         onChange: (on) => {
@@ -4811,8 +4946,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           if (!memoryAllowed) setPlusOpen(false)
                         }
                       }}
-                      usage={usageLine.full}
-                      after={getProLink}
+                      usage={compact ? usageLine.full : ""}
+                      after={compact ? getProLink : undefined}
                       onClose={() => setPlusOpen(false)}
                     />
                   )}
@@ -4967,6 +5102,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               }}
               onClose={() => setCollecting(null)}
               report={reportCollect}
+            />
+          )}
+          {view === "chat" && moving !== null && messages[moving] && (
+            <MoveSheet
+              all={threadList}
+              current={threadRef.current}
+              note={Boolean(messages[moving].note)}
+              spaceOf={spaces.multi ? spaces.of : null}
+              onPick={(id) => void moveAnswerTo(moving, id)}
+              onClose={() => setMoving(null)}
             />
           )}
           {spaces.sheet && (

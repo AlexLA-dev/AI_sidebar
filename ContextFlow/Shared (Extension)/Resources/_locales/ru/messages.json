@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Изменить напоминание"
  },
+ "uxMove": {
+  "message": "Перенести в другой чат"
+ },
+ "uxMoveTitle": {
+  "message": "В какой чат перенести ответ?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "В какой чат перенести заметку?"
+ },
  "uxRemindOpen": {
   "message": "Открыть"
  },
@@ -517,6 +526,12 @@
  },
  "planByok": {
   "message": "Свой ключ"
+ },
+ "plansOwnKeyLink": {
+  "message": "У меня есть свой API-ключ"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Для этого тарифа нужен ваш собственный API-ключ OpenAI или Claude. Ответы вы оплачиваете этому провайдеру отдельно."
  },
  "planRenews": {
   "message": "Продление {0}"
@@ -988,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Ответ вашего ИИ-провайдера: {0}"
+ },
+ "errKeyCredit": {
+  "message": "В вашем аккаунте {0} нет средств или не настроена оплата, поэтому запрос отклонён. Пополните баланс на {1} и спросите ещё раз."
+ },
+ "errKeyRate": {
+  "message": "{0} сейчас ограничивает запросы с вашего ключа: это лимит вашего аккаунта. Подождите минуту и спросите ещё раз. Ваши лимиты: {1}."
  },
  "offerLimit": {
   "message": "Или возьмите Pro со скидкой {0}% на первый месяц: до {1} ответов в неделю, более глубоких и подробных. Отменить можно в любой момент."
@@ -2423,6 +2444,24 @@
  "trControlsCap": {
   "message": "Бесплатные переводы кнопок и меню на сегодня закончились"
  },
+ "trSiteAsk": {
+  "message": "Переводить все страницы этого сайта?"
+ },
+ "trSiteYes": {
+  "message": "Да"
+ },
+ "trSiteNo": {
+  "message": "Нет"
+ },
+ "trSiteOn": {
+  "message": "Все страницы этого сайта переводятся"
+ },
+ "trSiteOff": {
+  "message": "Выключить"
+ },
+ "trSite": {
+  "message": "Весь сайт"
+ },
  "spacesTitle": {
   "message": "Пространства"
  },
@@ -3028,6 +3067,27 @@
  },
  "matchBackTo": {
   "message": "Назад в «{0}»"
+ },
+ "writeCompose": {
+  "message": "Написать"
+ },
+ "writeComposeGo": {
+  "message": "Написать"
+ },
+ "writeComposing": {
+  "message": "Пишу с учётом страницы…"
+ },
+ "writeComposeHint": {
+  "message": "О чём написать? Своими словами"
+ },
+ "writeComposeEdit": {
+  "message": "Изменить запрос"
+ },
+ "writeToneAsk": {
+  "message": "Каким тоном?"
+ },
+ "writeInserted": {
+  "message": "Вставлено"
  },
  "tip_4cf1b54b00": {
   "message": "Советы"

@@ -302,6 +302,11 @@ function scriptedWrite(system: string, content: string): unknown {
   // Whom the message greets, spelled as the page spells them.
   const greeted = /^(?:hi|hey|hello|dear)\s+(\p{Lu}\p{L}+)/iu.exec(message)?.[1] ?? ""
   const firstName = greeted ? names.find((n) => n === greeted || nearName(n, greeted)) ?? greeted : ""
+  // Compose (2.7 (108)): a greeting by the page's first name, then the request as a sentence.
+  if (system.startsWith("You write a message")) {
+    const request = between("request").trim()
+    return { text: `Hi ${names[0] ?? "there"},\n\n${request ? `${request[0].toUpperCase()}${request.slice(1).replace(/[.!]*$/, ".")}` : "Thanks for your message."}` }
+  }
   if (system.startsWith("You proofread")) {
     let text = message.replace(/\p{L}+/gu, (w) => {
       const fix = TYPOS[w.toLowerCase()]
@@ -577,7 +582,14 @@ const write: typeof chat = process.env.WRITE_PROXY
     // consent screen names Claude), and marks the request a test.
     const body = JSON.parse(await req.text())
     body.client = { build: "999", ...body.client, audience: "test" }
-    const res = await realFetch(`${process.env.WRITE_PROXY}/api/v2/write`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    // With SPEAK_EVAL_KEY, signed as Ultra for the preview (2.7 (108)): no Free day or address cap in the way of a run.
+    const headers: Record<string, string> = { "Content-Type": "application/json" }
+    if (process.env.SPEAK_EVAL_KEY) {
+      const { createPrivateKey, sign } = await import("node:crypto")
+      const at = Date.now()
+      headers["x-cf-eval"] = `${at}.${sign(null, Buffer.from(`${String(body.installId ?? "")}.${at}`), createPrivateKey(readFileSync(process.env.SPEAK_EVAL_KEY))).toString("base64url")}`
+    }
+    const res = await realFetch(`${process.env.WRITE_PROXY}/api/v2/write`, { method: "POST", headers, body: JSON.stringify(body) })
       .catch(() => Response.json({ code: "UPSTREAM" }, { status: 502 }))
     return new Response(await res.text(), { status: res.status, headers: { "Content-Type": "application/json" } })
   }) as typeof chat

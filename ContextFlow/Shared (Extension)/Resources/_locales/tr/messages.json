@@ -314,6 +314,15 @@
  "uxRemindChange": {
   "message": "Hatırlatıcıyı değiştir"
  },
+ "uxMove": {
+  "message": "Başka sohbete taşı"
+ },
+ "uxMoveTitle": {
+  "message": "Yanıt hangi sohbete taşınsın?"
+ },
+ "uxMoveNoteTitle": {
+  "message": "Not hangi sohbete taşınsın?"
+ },
  "uxRemindOpen": {
   "message": "Aç"
  },
@@ -517,6 +526,12 @@
  },
  "planByok": {
   "message": "Own key"
+ },
+ "plansOwnKeyLink": {
+  "message": "Kendi API anahtarım var"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Bu plan için kendi OpenAI veya Claude API anahtarınız gerekir. Yanıtların ücretini o sağlayıcıya ayrıca ödersiniz."
  },
  "planRenews": {
   "message": "Yenileme tarihi: {0}"
@@ -988,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Yapay zekâ sağlayıcınızın yanıtı: {0}"
+ },
+ "errKeyCredit": {
+  "message": "{0} hesabınızda bakiye yok veya faturalandırma ayarlanmamış; bu yüzden istek reddedildi. {1} adresinden bakiye ekleyip yeniden sorun."
+ },
+ "errKeyRate": {
+  "message": "{0} şu anda anahtarınızdan gelen istekleri sınırlıyor: bu, hesabınızın hız sınırı. Bir dakika bekleyip yeniden sorun. Sınırlarınız: {1}."
  },
  "offerLimit": {
   "message": "Ya da ilk ayda %{0} indirimle Pro'ya geçin: haftada {1} yanıta kadar, daha derin ve daha ayrıntılı. İstediğiniz zaman iptal edebilirsiniz."
@@ -2423,6 +2444,24 @@
  "trControlsCap": {
   "message": "Düğme ve menülerin bugünkü ücretsiz çevirileri bitti"
  },
+ "trSiteAsk": {
+  "message": "Bu sitenin tüm sayfaları çevrilsin mi?"
+ },
+ "trSiteYes": {
+  "message": "Evet"
+ },
+ "trSiteNo": {
+  "message": "Hayır"
+ },
+ "trSiteOn": {
+  "message": "Bu sitenin tüm sayfaları çevriliyor"
+ },
+ "trSiteOff": {
+  "message": "Kapat"
+ },
+ "trSite": {
+  "message": "Tüm site"
+ },
  "spacesTitle": {
   "message": "Alanlar"
  },
@@ -3028,6 +3067,27 @@
  },
  "matchBackTo": {
   "message": "“{0}” alanına dön"
+ },
+ "writeCompose": {
+  "message": "Oluştur"
+ },
+ "writeComposeGo": {
+  "message": "Yaz"
+ },
+ "writeComposing": {
+  "message": "Sayfayı dikkate alarak yazılıyor…"
+ },
+ "writeComposeHint": {
+  "message": "Ne yazılsın? Kendi sözlerinizle"
+ },
+ "writeComposeEdit": {
+  "message": "İsteği değiştir"
+ },
+ "writeToneAsk": {
+  "message": "Nasıl bir tonda?"
+ },
+ "writeInserted": {
+  "message": "Eklendi"
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"

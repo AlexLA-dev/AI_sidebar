@@ -32,7 +32,7 @@ section h2 { font-size: 34px; letter-spacing: -0.01em; margin: 0 0 22px; }
 .steps { counter-reset: s; display: grid; gap: 12px; }
 .steps div { counter-increment: s; display: flex; gap: 14px; align-items: flex-start; }
 .steps div::before { content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 14px; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin-top: 1px; }
-.plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .plan { border: 1px solid var(--border); border-radius: 18px; padding: 22px; }
 .plan.pro { border: 2px solid var(--blue); }
 .plan .price { font-size: 30px; font-weight: 700; margin: 6px 0; }
@@ -42,6 +42,9 @@ section h2 { font-size: 34px; letter-spacing: -0.01em; margin: 0 0 22px; }
 .plan.ultra { border: 2px solid var(--ultra); }
 .plan .year { color: var(--text-2); font-size: 14px; margin: -2px 0 4px; }
 @media (max-width: 900px) { .plans { grid-template-columns: repeat(2, 1fr); } }
+/* Own key is not in the row of plans: it opens under "I have my own API key". */
+.own-plan { border-bottom: 0; padding: 10px 0 0; }
+.own-plan .plan { max-width: 340px; margin-top: 12px; }
 details { border-bottom: 1px solid var(--border); padding: 14px 0; }
 summary { cursor: pointer; font-weight: 600; }
 details p { color: var(--text-2); margin: 8px 0 0; }

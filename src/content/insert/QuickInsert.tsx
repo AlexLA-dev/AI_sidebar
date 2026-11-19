@@ -28,7 +28,7 @@ import { codeField, phraseWorthLooking, signFor, siteMenuOpen, typedPhrase } fro
 import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { caretRect, fieldText, pageRect, viewport, watchFields } from "./watch"
 import { readText } from "./fieldtext"
-import { writableField, WriteCard, WriteDot, WriteMenu, writeStep, type Undo, type WriteJob } from "./Write"
+import { draftEmpty, writableField, WriteCard, WriteDot, WriteMenu, writeStep, type Undo, type WriteJob } from "./Write"
 import { fixIssue, fixIssues, issueRects, liveState, meetField, skipIssue, Underlines, undoFix, useLiveChanges } from "./Underlines"
 import type { Issue } from "../../shared/writing"
 
@@ -385,7 +385,7 @@ export function QuickInsert(props: Props): VNode | null {
     setMode(null)
     if (f && f.el.isConnected) restoreCaret(updateCaret(f))
     if (!undo) return showToast(t("qiPasteManually"))
-    setMade({ text: t(failed ? "writeFixedSome" : action === "check" ? "writeFixed" : "writeReplaced"), undo, at: Date.now() })
+    setMade({ text: t(failed ? "writeFixedSome" : action === "check" ? "writeFixed" : action === "compose" ? "writeInserted" : "writeReplaced"), undo, at: Date.now() })
   }
   // The toast with «Отменить» stays a while, then goes.
   useEffect(() => {
@@ -411,8 +411,11 @@ export function QuickInsert(props: Props): VNode | null {
   const liveAt = field && liveField && field.el === liveField.el ? field : liveField
   // A field with a few words to work on: the circle, the list's Check and Rewrite and the underlines go by this one rule.
   // Read cheaply on every render (each keystroke): the value, or the editor's text as the DOM has it.
-  const canWrite = (f: Field | null) => Boolean(f && settings.writing && f.el.isConnected && !noButtonField(f.el) && writableField(f.el) &&
-    worthWriting(isControl(f.el) ? (f.el as HTMLInputElement).value : f.el.textContent ?? ""))
+  const writable = (f: Field | null): f is Field => Boolean(f && settings.writing && f.el.isConnected && !noButtonField(f.el) && writableField(f.el))
+  const canWrite = (f: Field | null) => writable(f) && worthWriting(isControl(f.el) ? (f.el as HTMLInputElement).value : f.el.textContent ?? "")
+  // Nothing written in it yet (Gmail's reply box may hold only the signature): Compose instead of Check and Rewrite
+  // (2.7 (108)). Read when the list or the circle's menu opens, not on every keystroke.
+  const blankField = (f: Field | null) => writable(f) && draftEmpty(f.el)
   const liveOn = Boolean(props.live && settings.underline && canWrite(liveAt)) && aside && (!mode || mode.kind === "fixes")
   const live = liveOn && liveAt ? liveState(liveAt) : null
   const issues: Issue[] = live?.issues ?? []
@@ -626,7 +629,7 @@ export function QuickInsert(props: Props): VNode | null {
           onTap={openFixes}
         />
       )}
-      {buttonPos && showDot && !showButton && <WriteDot at={buttonPos} fixes={fixCount} onFixes={() => openFixes(null)} onPick={(action, tone) => startWrite(action, tone, "circle")} />}
+      {buttonPos && showDot && !showButton && <WriteDot at={buttonPos} fixes={fixCount} empty={() => blankField(field)} onFixes={() => openFixes(null)} onPick={(action, tone) => startWrite(action, tone, "circle")} />}
       {buttonPos && showButton && (
         <button
           ref={buttonEl}
@@ -706,8 +709,10 @@ export function QuickInsert(props: Props): VNode | null {
           }}
           onSettings={(patch) => void saveInsertSettings(patch).then(setSettings)}
           onClear={() => void clearCopied().then(() => setCopied([]))}
-          // iPhone and iPad: «Проверить» и «Переписать» atop the list, when the field has text to work on.
-          onWrite={canWrite(fieldRef.current) ? (action, tone) => startWrite(action, tone, "list") : null}
+          // iPhone and iPad: «Проверить» и «Переписать» atop the list, when the field has text to work on; «Написать»
+          // when it has none yet.
+          writeEmpty={blankField(fieldRef.current)}
+          onWrite={canWrite(fieldRef.current) || blankField(fieldRef.current) ? (action, tone) => startWrite(action, tone, "list") : null}
         />
       )}
 
@@ -897,6 +902,8 @@ interface ListProps {
   onClear: () => void
   // «Проверить» и «Переписать» for the field's text (null: no text to work on, or turned off).
   onWrite: ((action: WriteAction, tone?: Tone) => void) | null
+  // The field has nothing written in it yet: the row offers Compose.
+  writeEmpty: boolean
 }
 
 type Row = { kind: "copied"; item: CopiedItem } | { kind: "template"; item: Template } | { kind: "reply"; item: LastReply }
@@ -1028,7 +1035,7 @@ function InsertList(p: ListProps): VNode {
         <button type="button" class="cf-qi-x" aria-label={t("close")} title={t("close")} onClick={p.onClose}><Icon.Close /></button>
       </div>
       <div class="cf-qi-body">
-        {p.onWrite && !q && <WriteMenu row onPick={p.onWrite} />}
+        {p.onWrite && !q && <WriteMenu row empty={p.writeEmpty} onPick={p.onWrite} />}
         <div class="cf-qi-sec">
           <span>{t("qiCopied")}</span>
           {p.settings.copied && copied.length > 0 && !q && <button type="button" onClick={p.onClear}>{t("qiClear")}</button>}

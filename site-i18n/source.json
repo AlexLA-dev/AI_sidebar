@@ -950,6 +950,22 @@
   ]
  },
  {
+  "key": "ee6188a287b5",
+  "kind": "html",
+  "en": "I have my own API key",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
+  "key": "4b7a73ec677d",
+  "kind": "html",
+  "en": "This plan needs your own OpenAI or Claude API key. You pay that provider for the answers separately.",
+  "pages": [
+   "index.html"
+  ]
+ },
+ {
   "key": "fe57b9a0e904",
   "kind": "html",
   "en": "Own key",
