@@ -3113,9 +3113,6 @@
  "tipNew": {
   "message": "Neu"
  },
- "matchContinueIn": {
-  "message": "Weiter in „{0}“"
- },
  "matchBackTo": {
   "message": "Zurück zu „{0}“"
  },

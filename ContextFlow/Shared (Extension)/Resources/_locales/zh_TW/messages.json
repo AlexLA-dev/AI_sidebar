@@ -3113,9 +3113,6 @@
  "tipNew": {
   "message": "新功能"
  },
- "matchContinueIn": {
-  "message": "在「{0}」中繼續："
- },
  "matchBackTo": {
   "message": "回到「{0}」"
  },

@@ -182,17 +182,19 @@ test("5. the bars over the chat: one line each, cut with an ellipsis", () => {
   assert.match(app, /<span class="cf-chat-bar-name" dir="auto" title=\{headerName\}>/)
 })
 
-test("5. the chat's bar stays one line with the other space's label and back button (107 spaces)", () => {
+test("5. the chat's bar stays one line; 110: no other space's label or back button in it, the name has the room", () => {
   const styles = read("../src/content/styles.css")
   const spaces = read("../src/content/spaces.css")
   // The label keeps its width (up to its cap); the name gives way first, down to a few words; then the button.
   assert.match(styles, /\.cf-chat-bar-name \{ flex: 1 1 0; min-width: min\(4\.5em, 20%\);[^}]*white-space: nowrap;/)
   assert.doesNotMatch(styles, /\.cf-chat-bar:has/)
-  assert.match(styles, /\.cf-chat-bar \.cf-match-in \{ flex: 0 0 auto; \}/)
-  assert.match(styles, /\.cf-chat-bar \.cf-match-back \{ flex: 0 1 auto; min-width: 4\.5em; \}/)
-  // Each of them ends in "…" rather than wrapping.
-  assert.match(spaces, /\.cf-match-in > span \{[^}]*text-overflow: ellipsis; white-space: nowrap; min-width: 0; \}/)
-  assert.match(spaces, /\.cf-match-back span \{[^}]*text-overflow: ellipsis; white-space: nowrap; min-width: 0; \}/)
+  assert.doesNotMatch(styles + spaces, /cf-match-in|cf-match-back/)
+  // The line over the header with the way back: its text and the space's name end in "…" rather than wrapping.
+  assert.match(spaces, /\.cf-space-toast span \{[^}]*text-overflow: ellipsis; white-space: nowrap; min-width: 0; \}/)
+  assert.match(spaces, /\.cf-space-toast-back span \{[^}]*text-overflow: ellipsis; white-space: nowrap; min-width: 0; \}/)
+  assert.match(spaces, /\.cf-space-toast-back \{[^}]*flex: 0 0 auto;[^}]*max-width: 45%; min-width: 4\.5em;/)
+  // The text gives way first: a short back name stays whole beside a long space name (110, iPhone).
+  assert.match(spaces, /\.cf-space-toast\.act > span \{ flex: 1 1 0; /)
   assert.match(spaces, /\.cf-match-new \{[^}]*white-space: nowrap;/)
   // Logical sides only, so right to left mirrors it.
   assert.doesNotMatch(spaces, /\.cf-match-[a-z]+ \{[^}]*(margin|padding)-(left|right)/)

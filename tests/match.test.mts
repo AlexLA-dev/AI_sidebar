@@ -126,15 +126,17 @@ test("the panel: matched on the circle, the line over the chat, its New chat and
   assert.match(app, /if \(place && place\.why !== "page" && orgOnRef\.current\) \{[\s\S]*?type: "matchTopic"[\s\S]*?setTimeout\(\(\) => resolve\(undefined\), 1200\)/)
   // Only when it picked another chat than the one open.
   assert.match(app, /if \(place && active !== was\) \{\s*const fits = place\.why !== "new" && place\.chat !== null/)
-  assert.match(app, /: <span class="cf-match-label">\{t\("matchContinue"\)\}<\/span>\)\}/)
+  assert.match(app, /\{matchShown && !matchFrom && <span class="cf-match-label">\{t\("matchContinue"\)\}<\/span>\}/)
   assert.match(app, /a: "line_new"/)
   // 107: every space's chats go to the background; a chat in another space names its space, «← <space>» goes back.
   assert.match(app, /matchable\(threads, list, matchScope\(list, key, on\), on\)/)
-  assert.match(app, /else if \(place\?\.from && active !== was\) spacesRef\.current\?\.followMatch\(place\.space\)/)
-  assert.match(app, /t\("matchContinueIn", spaces\.current\.name\)/)
-  assert.match(app, /a: "line_back"[\s\S]*?spaces\.back\(matchFrom\.id\)/)
+  assert.match(app, /else if \(place\?\.from && active !== was\) spacesRef\.current\?\.followMatch\(place\.space, place\.from\)/)
+  // 110, the owner: nothing about the other space in the chat's bar (the name keeps the width); the way back is in the
+  // line over the header, «‹ <space>».
+  assert.doesNotMatch(app, /matchContinueIn|cf-match-in|cf-match-back|a: "line_back"/)
+  assert.match(app, /a: "toast_back"[\s\S]*?setMatchLine\(null\)\s*spaces\.back\(back\.id\)/)
   const hook = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
-  assert.match(hook, /back: \(id: string\) => void switchTo\(id, "match_back"\)/)
+  assert.match(hook, /back: \(id: string\) => \{\s*hide\(\)\s*void switchTo\(id, "match_back"\)/)
   assert.match(app, /if \(line && id !== line\.chat && Date\.now\(\) - line\.at < 120_000\)/)
   // The background asks only with organizing's switch and consent.
   const bg = readFileSync(new URL("../src/background/index.ts", import.meta.url), "utf8")
@@ -155,7 +157,7 @@ test("every language has the line's word", () => {
   for (const lang of ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "uk", "vi", "zh_CN", "zh_TW"]) {
     const s = JSON.parse(readFileSync(new URL(`../src/locales/${lang}.json`, import.meta.url), "utf8")) as Record<string, string>
     assert.ok(s.matchContinue?.trim(), lang)
-    assert.match(s.matchContinueIn ?? "", /\{0\}/, lang)
+    assert.equal(s.matchContinueIn, undefined, lang)
     assert.match(s.matchBackTo ?? "", /\{0\}/, lang)
   }
 })
@@ -190,6 +192,7 @@ test("107: the chat that fits is looked for in every space, the space the panel 
   // The usage events: where it was found, and the line's way back, counts only.
   assert.deepEqual(useFields({ f: "match", a: "shown", why: "page", where: "other" }), { f: "match", a: "shown", why: "page", where: "other" })
   assert.deepEqual(useFields({ f: "match", a: "line_back", why: "page" }), { f: "match", a: "line_back", why: "page" })
+  assert.deepEqual(useFields({ f: "match", a: "toast_back", why: "topic" }), { f: "match", a: "toast_back", why: "topic" })
   assert.deepEqual(useFields({ f: "space", a: "switch", via: "match" }), { f: "space", a: "switch", via: "match" })
 })
 
