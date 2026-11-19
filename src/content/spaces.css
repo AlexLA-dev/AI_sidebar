@@ -59,6 +59,22 @@
 }
 .cf-space-toast span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 @keyframes cf-space-toast { 0% { opacity: 0; } 10%, 85% { opacity: 1; } 100% { opacity: 0; } }
+/* 110: after a matching chat took the panel to another space, «Вы в «…»» with «‹ <the space it was in>»: longer
+   (Spaces.tsx FLASH_BACK_MS), held under a finger or the pointer, fading once let go. The name gives way first. */
+.cf-space-toast.act { justify-content: flex-start; padding-inline-end: 4px; }
+.cf-space-toast.act.run { animation-duration: 5s; }
+.cf-space-toast.act.held { animation: none; opacity: 1; }
+.cf-space-toast.act.out { animation: cf-space-toast-out 1.5s ease both; }
+@keyframes cf-space-toast-out { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
+.cf-space-toast.act > span { flex: 1 1 auto; text-align: start; }
+.cf-space-toast-back {
+  flex: 0 1 auto; display: inline-flex; align-items: center; gap: 3px; max-width: 45%; min-width: 4.5em; height: 28px;
+  padding: 0 10px 0 6px; border-radius: 8px; color: var(--snack-action); font-size: 13px; font-weight: 600;
+}
+.cf-space-toast-back:hover { background: rgba(255, 255, 255, 0.12); }
+.cf-space-toast-back span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.cf-space-toast-back svg { flex: none; width: 14px; height: 14px; }
+.cf[data-touch] .cf-space-toast-back { height: 34px; font-size: 14px; }
 
 /* The sheet over the panel: from the bottom on iPhone and iPad, in the middle on a Mac. */
 .cf-space-veil { position: absolute; inset: 0; z-index: 8; display: flex; align-items: flex-end; background: rgba(10, 12, 18, 0.35); }
@@ -123,15 +139,3 @@
   font-size: 12.5px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); white-space: nowrap;
 }
 .cf[data-touch] .cf-match-new { padding: 6px 12px; font-size: 13.5px; }
-/* 107: the chat is in another space: «Продолжаю в «Работа»» with its dot, «← Личное» back. */
-/* 109, the owner didn't notice it: the label is a soft chip in the space's colour (the header's tint), its text the
-   panel's own; the header says «Вы в «…»» for a moment as it switches (Spaces.tsx followMatch). */
-.cf-match-in {
-  display: inline-flex; align-items: center; gap: 5px; max-width: 42%;
-  padding: 3px 9px 3px 7px; border-radius: 999px; background: var(--space-soft, var(--bg-2)); color: var(--text-2); font-weight: 500;
-}
-.cf-match-in > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.cf-match-back { display: inline-flex; align-items: center; gap: 3px; max-width: 34%; padding-inline-start: 6px; }
-.cf-match-back span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.cf-match-back svg { flex: none; width: 13px; height: 13px; }
-.cf[data-touch] .cf-match-back { padding-inline-start: 8px; }

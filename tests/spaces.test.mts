@@ -235,13 +235,21 @@ test("107: on the iPhone's sheet the header is one tinted piece from the sheet's
   assert.match(app, /\{layout === "sheet" && <div class="cf-grabber" onClick=\{hide\} \/>\}\s*<header class="cf-header"/)
 })
 
-test("109: a switch to the matching chat's space is plain to see: the header says where for a moment, the line is a chip", () => {
+test("109–110: a switch to the matching chat's space is plain to see over the header, with the way back there", () => {
   const spaces = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
-  // The owner didn't notice it: «You're in “…”» over the header, as a bound site's switch shows its own.
-  assert.match(spaces, /followMatch: \(space: string\) => \{\s*setActiveSp\(space\)\s*show\(\{ space, kind: "in" \}\)\s*deps\.report\("switch", \{ via: "match" \}\)/)
-  // «● Continuing in “…”» on the space's soft tint, the header's own.
+  // 109, the owner didn't notice it: «You're in “…”» over the header, as a bound site's switch shows its own. 110: the
+  // space it was in comes along, for «‹ <space>» in that line (the chat's bar keeps nothing of it).
+  assert.match(spaces, /followMatch: \(space: string, from: string\) => \{\s*setActiveSp\(space\)\s*show\(\{ space, kind: "in", from \}\)\s*deps\.report\("switch", \{ via: "match" \}\)/)
+  // Long enough to reach for, held under a finger or the pointer, fading once let go; a plain line as before.
+  assert.match(spaces, /const FLASH_MS = 1900\s*const FLASH_BACK_MS = 5000/)
+  assert.match(spaces, /setTimeout\(\(\) => setFlash\(null\), next\.from \? FLASH_BACK_MS : FLASH_MS\)/)
+  assert.match(spaces, /hold: \(on: boolean\) => \{\s*if \(!flash\?\.from\) return/)
+  // Only a space that's still there and isn't the one it went into.
+  assert.match(spaces, /back: flash\.from \? spaces\.find\(\(x\) => x\.id === flash\.from && x\.id !== flash\.space\) : undefined/)
+  assert.match(spaces, /<button type="button" class="cf-space-toast-back" aria-label=\{t\("matchBackTo", back\.name\)\}/)
   const css = readFileSync(new URL("../src/content/spaces.css", import.meta.url), "utf8")
-  assert.match(css, /\.cf-match-in \{[^}]*border-radius: 999px; background: var\(--space-soft, var\(--bg-2\)\)/)
+  assert.match(css, /\.cf-space-toast\.act\.run \{ animation-duration: 5s; \}/)
+  assert.match(css, /\.cf-space-toast\.act\.held \{ animation: none; opacity: 1; \}/)
 })
 
 test("109: the page's own controls take the ✦ circle's space colour, paler, through one switch; text stays readable", () => {

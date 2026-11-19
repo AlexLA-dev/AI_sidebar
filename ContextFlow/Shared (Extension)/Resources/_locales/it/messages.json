@@ -3062,9 +3062,6 @@
  "tipNew": {
   "message": "Novità"
  },
- "matchContinueIn": {
-  "message": "Continuo in «{0}»"
- },
  "matchBackTo": {
   "message": "Torna a «{0}»"
  },

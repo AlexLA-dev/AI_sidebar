@@ -3062,9 +3062,6 @@
  "tipNew": {
   "message": "새 기능"
  },
- "matchContinueIn": {
-  "message": "‘{0}’에서 이어서"
- },
  "matchBackTo": {
   "message": "‘{0}’(으)로 돌아가기"
  },

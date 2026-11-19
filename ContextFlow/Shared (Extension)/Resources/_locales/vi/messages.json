@@ -3062,9 +3062,6 @@
  "tipNew": {
   "message": "Mới"
  },
- "matchContinueIn": {
-  "message": "Đang tiếp tục trong “{0}”"
- },
  "matchBackTo": {
   "message": "Quay lại “{0}”"
  },

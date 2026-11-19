@@ -284,10 +284,11 @@ export const FEATURES: Record<string, Feature> = {
   // 2.7: «Подходящий чат при открытии панели» (src/shared/match.ts). "shown": the panel opened on a chat that fits the
   // page, and why (its page, its topic by words or by meaning, its site) with the topic's match %; "new": none fitted,
   // a new chat; "where": in the space the panel was in, or another (107: it went there). Then whether the person left it
-  // at once: "line_new" (the line's «Новый чат»), "line_back" (its «← space», back where the panel was), "other"
+  // at once: "line_new" (the line's «Новый чат»), "line_back" (its «← space», back where the panel was; 107–109), "toast_back" (110: the same from the line over the
+  // header, the chat's bar keeps the name), "other"
   // (another chat opened within two minutes). Counts only.
   match: {
-    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "line_back", "other"],
+    since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "new", "line_new", "line_back", "toast_back", "other"],
     fields: { why: ["page", "topic", "meaning", "site"], match: "int", where: ["here", "other"] }
   },
 
