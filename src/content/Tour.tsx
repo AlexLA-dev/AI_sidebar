@@ -2,6 +2,7 @@ import type { VNode } from "preact"
 import { useEffect, useLayoutEffect, useState } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
+import { sameHoles, type Hole } from "./holes"
 import * as Icon from "./icons"
 import { TourClip } from "./TourClip"
 import { More } from "./ux/MessageUx"
@@ -25,12 +26,7 @@ interface Props {
   onDone: () => void
 }
 
-export interface Hole {
-  top: number
-  left: number
-  width: number
-  height: number
-}
+export type { Hole } from "./holes"
 
 const PAD = 5
 
@@ -52,8 +48,13 @@ function holeStyle(h: Hole) {
 }
 
 /**
- * Where `targets` are in the panel, kept up to date while the panel or they resize or scroll; each one is
- * scrolled into view first. A part taller than the list it's in is cut to what shows of it.
+ * Where `targets` are in the panel, kept up to date for as long as the step shows; each one is scrolled into view
+ * first. A part taller than the list it's in is cut to what shows of it.
+ *
+ * Looked at again at every frame (build 110): a part can move with nothing to hear about it. The chips' row is one
+ * line, and a chip before the step's own grew when the plan came (its "Pro" mark), so «Summarize» moved along and
+ * the frame stayed where it had been measured: no scroll, and neither the panel nor the chip changed size. Two
+ * rectangles a frame cost nothing, and the state changes only when the place does.
  */
 export function useParts(panel: HTMLElement, targets: string[][], key: unknown): Hole[] {
   const [parts, setParts] = useState<Hole[]>([])
@@ -61,24 +62,25 @@ export function useParts(panel: HTMLElement, targets: string[][], key: unknown):
     const found = targets.map((group) => shown(panel, group)).filter((el): el is HTMLElement => el !== undefined)
     // Quick actions under a long chat can be scrolled out of sight.
     for (const el of found) el.scrollIntoView({ block: "nearest" })
+    let last: Hole[] | null = null
     const measure = () => {
       const p = panel.getBoundingClientRect()
-      setParts(found.map((el) => {
+      const next = found.map((el) => {
         const r = el.getBoundingClientRect()
         const top = Math.max(r.top, p.top)
         const bottom = Math.min(r.bottom, p.bottom)
         return { top: top - p.top - PAD, left: r.left - p.left - PAD, width: r.width + PAD * 2, height: Math.max(0, bottom - top) + PAD * 2 }
-      }))
+      })
+      if (last && sameHoles(last, next)) return
+      last = next
+      setParts(next)
     }
     measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(panel)
-    for (const el of found) observer.observe(el)
-    panel.addEventListener("scroll", measure, true)
-    return () => {
-      observer.disconnect()
-      panel.removeEventListener("scroll", measure, true)
-    }
+    let frame = requestAnimationFrame(function follow() {
+      measure()
+      frame = requestAnimationFrame(follow)
+    })
+    return () => cancelAnimationFrame(frame)
   }, [panel, key])
   return parts
 }

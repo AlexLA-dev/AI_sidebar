@@ -6,34 +6,76 @@ export type PageKind = "product" | "article" | "video" | "form" | "event" | "sta
 
 const VIDEO = /^https?:\/\/((www|m)\.)?(youtube\.com\/(watch|shorts\/)|youtu\.be\/|vimeo\.com\/\d)/i
 
-/** The schema.org types the page declares in its JSON-LD (with @graph), lowercased. */
-export function ldTypes(doc: Document): Set<string> {
-  const out = new Set<string>()
-  const add = (node: unknown, depth: number): void => {
+/** Every node of the page's JSON-LD the detector looks at: the top ones, a @graph's, a mainEntity. */
+function ldWalk(doc: Document, visit: (rec: Record<string, unknown>) => void): void {
+  const walk = (node: unknown, depth: number): void => {
     if (!node || typeof node !== "object" || depth > 6) return
     if (Array.isArray(node)) {
-      for (const n of node) add(n, depth + 1)
+      for (const n of node) walk(n, depth + 1)
       return
     }
     const rec = node as Record<string, unknown>
-    const type = rec["@type"]
-    for (const t of Array.isArray(type) ? type : [type]) if (typeof t === "string") out.add(t.toLowerCase())
-    if (rec["@graph"]) add(rec["@graph"], depth + 1)
-    if (rec.mainEntity) add(rec.mainEntity, depth + 1)
-    if (rec.offers && typeof rec.offers === "object") out.add("offer")
+    visit(rec)
+    if (rec["@graph"]) walk(rec["@graph"], depth + 1)
+    if (rec.mainEntity) walk(rec.mainEntity, depth + 1)
   }
   for (const s of Array.from(doc.querySelectorAll('script[type="application/ld+json"]')).slice(0, 20)) {
     try {
-      add(JSON.parse(s.textContent ?? ""), 0)
+      walk(JSON.parse(s.textContent ?? ""), 0)
     } catch {
       // a broken block: the rest still counts
     }
   }
+}
+
+/** The schema.org types the page declares in its JSON-LD (with @graph), lowercased. */
+export function ldTypes(doc: Document): Set<string> {
+  const out = new Set<string>()
+  ldWalk(doc, (rec) => {
+    const type = rec["@type"]
+    for (const t of Array.isArray(type) ? type : [type]) if (typeof t === "string") out.add(t.toLowerCase())
+    if (rec.offers && typeof rec.offers === "object") out.add("offer")
+  })
   return out
+}
+
+const NOTHING = /^(free|0+([.,]0+)?)$/i
+
+/** Offers that all state a price of nothing. One with a price above zero, or with none stated (a price list, a range
+ *  elsewhere), isn't free. */
+export function freeOffers(offers: unknown): boolean {
+  const list = Array.isArray(offers) ? offers : [offers]
+  return list.length > 0 && list.every((offer) => {
+    if (!offer || typeof offer !== "object") return false
+    const rec = offer as Record<string, unknown>
+    const stated = [rec.price, rec.lowPrice, rec.highPrice].filter((v) => v !== undefined && v !== null && String(v).trim() !== "")
+    return stated.length > 0 && stated.every((v) => NOTHING.test(String(v).trim()))
+  })
 }
 
 const meta = (doc: Document, name: string) =>
   doc.querySelector(`meta[property="${name}"], meta[name="${name}"]`)?.getAttribute("content")?.trim().toLowerCase() ?? ""
+
+/**
+ * Everything the page offers costs nothing (build 110): an app's or a service's own site declares it so for the search
+ * engines (`SoftwareApplication` with an `Offer` of 0), and so does a free app's page in a store. The page is still a
+ * product's (Find similar leads there, as before); there is only no price to watch. A price stated any other way (a
+ * shop's meta tag, microdata) is a price.
+ */
+export function pageFree(doc: Document): boolean {
+  const offers: unknown[] = []
+  ldWalk(doc, (rec) => {
+    if (rec.offers && typeof rec.offers === "object") offers.push(rec.offers)
+  })
+  if (offers.length === 0 || !offers.every(freeOffers)) return false
+  const amount = meta(doc, "product:price:amount")
+  if (amount && !NOTHING.test(amount)) return false
+  for (const el of Array.from(doc.querySelectorAll('[itemprop="price"]'))) {
+    const stated = (el.getAttribute("content") ?? el.textContent ?? "").trim()
+    if (stated && !NOTHING.test(stated)) return false
+  }
+  return true
+}
 
 /** One Chinese, Japanese or Korean character says about as much as 2.5 Latin ones (an English text is that much
  *  longer in its translation): an article of 2,000 of them is as long a read as one of 5,000 letters. 2.7, the

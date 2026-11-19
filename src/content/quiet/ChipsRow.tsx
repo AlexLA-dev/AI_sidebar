@@ -51,9 +51,10 @@ const Arrow = ({ side, onClick }: { side: "left" | "right"; onClick: () => void 
 
 /**
  * `cls`: the row's own classes ("cf-actions", "cf-actions follow"); `sig`: what the row holds (its chips' ids), so the
- * edges are looked at again when it changes; `arrows`: a pointer is there.
+ * edges are looked at again when it changes; `arrows`: a pointer is there; `still` (build 110): a tour's or a guide's
+ * step is pointing into the panel, so the row doesn't peek under it (the peek waits for the step to go).
  */
-export function ChipsRow({ cls, sig, arrows, children }: { cls: string; sig: string; arrows: boolean; children: ComponentChildren }): VNode {
+export function ChipsRow({ cls, sig, arrows, still, children }: { cls: string; sig: string; arrows: boolean; still?: boolean; children: ComponentChildren }): VNode {
   const wrap = useRef<HTMLDivElement>(null)
   const row = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
@@ -76,8 +77,8 @@ export function ChipsRow({ cls, sig, arrows, children }: { cls: string; sig: str
     // The peek: with a finger, once per page, while the person hasn't swiped the row yet. The chips slide a little way
     // and come back by themselves (a CSS animation: the row's own scroll isn't touched, so it can't be left moved).
     let timers: Array<ReturnType<typeof setTimeout>> = []
-    const still = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (!arrows && !peeked && !still) {
+    const calm = still || (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    if (!arrows && !peeked && !calm) {
       timers.push(setTimeout(() => {
         if (swiped || peeked || el.scrollWidth <= el.clientWidth + 1 || el.scrollLeft !== 0) return
         peeked = true
@@ -92,7 +93,7 @@ export function ChipsRow({ cls, sig, arrows, children }: { cls: string; sig: str
       timers = []
       el.classList.remove("cf-peek")
     }
-  }, [sig, arrows])
+  }, [sig, arrows, still])
   const move = (side: "left" | "right") => {
     const el = row.current
     if (!el) return

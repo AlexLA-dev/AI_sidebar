@@ -13,6 +13,7 @@ import {
   STORAGE,
   type AskPayload,
   type BackgroundRequest,
+  type ContentRequest,
   type ErrorCode,
   type FindReply,
   type Plan,
@@ -44,6 +45,7 @@ import { base64 as speechBase64, clearSpeech, serveSpeak, textPartKeys, textVoic
 import { madeTexts, withMade, withVoiced, type MadeList, type MadeText } from "../shared/voiced"
 import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
 import { t } from "../shared/i18n"
+import { welcomeOnInstall } from "../shared/welcomeTab"
 import type { Job } from "../shared/jobs"
 import { captureTab, getShot, putShot, sweepShots } from "./shots"
 
@@ -1158,7 +1160,18 @@ chrome.runtime.onInstalled.addListener((details) => {
     // 2.7: the panel's «New in 2.7» card is for people who had ContextFlow before; a new install has the tour.
     void markNewSeen().catch(() => undefined)
     void chrome.storage.local.set({ [STORAGE.extOnPending]: false }).then(reportSwitchedOn).catch(() => undefined)
-    void chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })
+    // Build 110: not over a website ContextFlow already works on in front (src/shared/welcomeTab.ts).
+    void welcomeOnInstall({
+      front: async () => (await chrome.tabs.query({ active: true, currentWindow: true }))[0] ?? null,
+      panelIn: (tabId) =>
+        withTimeout(chrome.tabs.sendMessage(tabId, { type: "here" } satisfies ContentRequest), 1000).then(
+          (reply) => (reply as { ok?: boolean } | undefined)?.ok === true,
+          () => false
+        ),
+      open: async () => void (await chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })),
+      wait: (ms) => new Promise((done) => setTimeout(done, ms)),
+      now: () => Date.now()
+    }).catch(() => undefined)
   } else if (details.reason === "update") {
     void migrateFromV1().catch(() => undefined)
   }
