@@ -8,7 +8,7 @@
 //   as the person's own and its own undo works; they're checked by reading the field again.
 // No imports but field.ts and the shared writing helpers, so the tests load it as it is.
 
-import { trimmedSpan } from "../../shared/writing"
+import { diffWords, trimmedSpan, type Edit } from "../../shared/writing"
 import { dispatchPaste, isControl, restoreCaret, settle, type Field, type FieldElement } from "./field"
 
 export interface Span {
@@ -187,22 +187,12 @@ export async function replaceText(el: FieldElement, from: number, to: number, te
   const ways: Array<"typing" | "paste" | "value"> = control ? ["typing", "value"] : text.includes("\n") ? ["paste", "typing"] : ["typing", "paste"]
   for (const way of ways) {
     const now = readText(el)
-    let field: Field
-    if (control) {
-      field = { el, control: true, start: from, end: to, range: null }
-    } else {
-      const range = domRange(el, now, from, to)
-      // An insert with nothing to replace, at the very end of an empty editor: its start.
-      if (!range) return false
-      field = { el, control: false, start: 0, end: 0, range }
-    }
-    restoreCaret(field)
+    const field = selectIn(el, now, from, to)
+    // An insert with nothing to replace, at the very end of an empty editor: its start.
+    if (!field) return false
     try {
-      if (way === "typing") {
-        // Deleting only: the selection is removed (an empty insertText does nothing in some engines).
-        if (text) doc.execCommand("insertText", false, text)
-        else doc.execCommand("delete", false)
-      } else if (way === "paste") dispatchPaste(field, text)
+      if (way === "typing") typeOver(doc, text)
+      else if (way === "paste") dispatchPaste(field, text)
       else {
         const input = el as HTMLInputElement
         input.setRangeText(text, from, to, "end")
@@ -213,11 +203,60 @@ export async function replaceText(el: FieldElement, from: number, to: number, te
     }
     await settle(win)
     const after = readText(el).text
+    // Nothing changed (the editor turned the change back, or it was only in a space's kind): the next way, or no.
+    if (after === now.text) {
+      if (expect === now.text) return true
+      continue
+    }
     if (sameText(after, expect)) return true
-    // The field changed some other way (an editor that reformats): don't make the change twice.
-    if (after !== now.text) return sameText(after.replace(/\s+/g, ""), expect.replace(/\s+/g, ""))
+    // The field changed some other way (an editor that reformats): don't make the change twice. When its words are
+    // right, the spaces by the change are put right (109, the owner: extra spaces after a fix).
+    if (!sameText(after.replace(/\s+/g, ""), expect.replace(/\s+/g, ""))) return false
+    await tidySpaces(el, expect, from, from + text.length)
+    return true
   }
   return false
+}
+
+/** The field with the characters [from, to) of its text selected (null when an editor's text nodes don't hold them). */
+function selectIn(el: FieldElement, ft: FieldText, from: number, to: number): Field | null {
+  let field: Field
+  if (isControl(el)) field = { el, control: true, start: from, end: to, range: null }
+  else {
+    const range = domRange(el, ft, from, to)
+    if (!range) return null
+    field = { el, control: false, start: 0, end: 0, range }
+  }
+  restoreCaret(field)
+  return field
+}
+
+/** Types `text` over the selection; with no text, the selection is removed (an empty insertText does nothing in some engines). */
+function typeOver(doc: Document, text: string): void {
+  if (text) doc.execCommand("insertText", false, text)
+  else doc.execCommand("delete", false)
+}
+
+/**
+ * The spaces around a change made right: where the field's text differs from what was meant only in spaces near
+ * [from, to) (one doubled, or one lost), they're typed as meant. A space's kind (a no-break one) is the field's own.
+ */
+async function tidySpaces(el: FieldElement, expect: string, from: number, to: number): Promise<void> {
+  const ft = readText(el)
+  const only = (s: string) => /^[^\S\n]*$/.test(s)
+  const near = (e: Edit) => e.from >= from - 2 && e.from <= to + 2 + Math.max(0, ft.text.length - expect.length)
+  const fixes = diffWords(ft.text, expect).filter((e) => only(ft.text.slice(e.from, e.to)) && only(e.text) && near(e))
+  if (!fixes.length) return
+  const doc = el.ownerDocument
+  for (const e of fixes.reverse()) {
+    if (!selectIn(el, readText(el), e.from, e.to)) continue
+    try {
+      typeOver(doc, e.text)
+    } catch {
+      // as it is
+    }
+  }
+  await settle(doc.defaultView ?? window)
 }
 
 /** The field's text the change left: what was [from, to) is now [from, end) (everything after it is as it was). */
