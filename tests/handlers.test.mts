@@ -105,12 +105,13 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_limited_before: ({ p_install }) => limitedBefore(p_install),
   cf_entitlement_upsert: ({ p }) => {
     const prev = entitlements.get(p.original_transaction_id) ?? {}
-    const row = { ...prev, ...p, revoked_at: p.revoked_at ?? prev.revoked_at ?? null }
+    const row = { ...prev, ...p, revoked_at: p.revoked_at ?? prev.revoked_at ?? null, created_at: prev.created_at ?? new Date().toISOString() }
     entitlements.set(p.original_transaction_id, row)
     return row
   },
   cf_entitlement_get: ({ p_original_transaction_id }) => entitlements.get(p_original_transaction_id) ?? null,
   cf_entitlement_by_token: () => null,
+  cf_x_due: ({ p_app, p_install, p_days }) => xDue(p_app, p_install, p_days),
   cf_usage_report: ({ p_days }) => ({ days: p_days, segments: [{ key: "ours", segment: "ai", requests: 3 }] }),
   cf_setup_funnel: () => [{ day: "2026-10-30", app_opened: 4, extension_on: 3, panel_opened: 2 }],
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
@@ -134,6 +135,25 @@ function limitedBefore(install: string) {
     ["limit", "search"].includes(String(e.data.reason)) && e.at < today)
 }
 
+// Same rules as cf_x_due: an app's first install, answer, free limit and subscription in the last p_days, not sent yet,
+// none for our tests.
+function xDue(app: string, install: string | null, days: number) {
+  const ids = [app, install].filter(Boolean)
+  if (events.some((e) => e.data.audience === "test" && (ids.includes(e.install ?? "") || e.data.app === app))) return []
+  const sent = new Set(events.filter((e) => e.kind === "x_conversion" && (e.data.app === app || (install && e.install === install))).map((e) => e.data.event))
+  const first = (times: number[]) => (times.length ? Math.min(...times) : null)
+  const mine = (e: { install?: string | null }) => ids.includes(e.install ?? "")
+  const firsts: [string, number | null][] = [
+    ["install", first(events.filter((e) => e.kind === "app_open" && e.data.app === app && e.data.new_install === true).map((e) => e.at))],
+    ["first_answer", first(events.filter((e) => e.kind === "chat" && mine(e) && e.data.ok === true).map((e) => e.at - Number(e.data.ms ?? 0)))],
+    ["limit", first(events.filter((e) => e.kind === "limit" && mine(e) && e.data.plan === "free" && e.data.reason === "limit").map((e) => e.at))],
+    ["subscribe", first([...entitlements.values()].filter((r) => ids.includes(String(r.app_account_token)) && r.environment === "Production" && !r.revoked_at).map((r) => Date.parse(String(r.created_at))))]
+  ]
+  const since = Date.now() - days * 86_400_000
+  return firsts.filter(([event, at]) => at !== null && at >= since && !sent.has(event))
+    .sort((a, b) => a[1]! - b[1]!).map(([event, at]) => ({ event, at: new Date(at!).toISOString() }))
+}
+
 function sse(chunks: string[], finish?: string): Response {
   const body = chunks.map((c) => `data: ${JSON.stringify({ choices: [{ delta: { content: c } }] })}\n\n`).join("") +
     (finish ? `data: ${JSON.stringify({ choices: [{ delta: {}, finish_reason: finish }] })}\n\n` : "") +
@@ -147,9 +167,16 @@ const ADS: Record<string, { status: number; body?: Record<string, unknown> }> = 
   "tok-organic": { status: 200, body: { attribution: false } }
 }
 let adsCalls = 0
+// What the fake X App Conversion API was sent: the token header and the conversions of each request.
+let xCalls: { token: string | null; conversions: Record<string, unknown>[] }[] = []
 
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
+  if (url === "https://ads-api.x.com/12/accounts/18ce55yj09v/measurement/app_conversions") {
+    const conversions = JSON.parse(String(init?.body)).conversions as Record<string, unknown>[]
+    xCalls.push({ token: new Headers(init?.headers).get("X-App-Conversion-Token"), conversions })
+    return new Response(JSON.stringify({ data: { conversions_processed: conversions.length, debug_id: "dbg" } }), { headers: { "Content-Type": "application/json" } })
+  }
   if (url === "https://api-adservices.apple.com/api/v1/") {
     adsCalls++
     const hit = ADS[String(init?.body)] ?? { status: 404 }
@@ -203,7 +230,7 @@ let adminUsage: (req: Request) => Promise<Response>
 let resetModelList: () => void
 let resetClaudeCooldown: () => void
 let serverConfig: {
-  geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
+  geminiKey: string; adminToken: string; xAppConversionToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
   anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number; freeDailyLimit: number
   ultra: { speakWeeklySeconds: number; similarWeekly: number }
 }
@@ -695,6 +722,153 @@ test("an Apple Ads attribution token is resolved and only campaign ids are kept"
   const calls = adsCalls
   assert.deepEqual(await (await send({ kind: "ext_on", installId: INSTALL, adToken: "tok-ad" })).json(), { ok: true })
   assert.equal(adsCalls, calls)
+})
+
+test("a new iOS install is sent to X once, only with the IDFA of someone who allowed tracking", async () => {
+  const IDFA = "38400000-8CF0-11BD-B23E-10B96E40000D"
+  let n = 0
+  const nextApp = () => `3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c${String(++n).padStart(2, "0")}`
+  const sendX = async (app: string, body: Record<string, unknown>) => {
+    const c = ctx()
+    const res = await event(post("/api/v2/event", { kind: "app_open", appId: app, client: { platform: "ios", version: "2.7" }, ...body }), c)
+    await Promise.all(c.pending)
+    return res
+  }
+  xCalls = []
+  serverConfig.xAppConversionToken = "x-token"
+  const APP = nextApp()
+  const before = Date.now()
+  assert.equal((await sendX(APP, { newInstall: true, att: "authorized", idfa: IDFA })).status, 200)
+  assert.equal(xCalls.length, 1)
+  assert.equal(xCalls[0].token, "x-token")
+  const [sent] = xCalls[0].conversions
+  assert.ok((sent.conversion_timestamp as number) >= before && (sent.conversion_timestamp as number) <= Date.now())
+  assert.deepEqual({ ...sent, conversion_timestamp: 0 }, {
+    app_id: "6759115793", os_type: "IOS", event_name: "INSTALL", conversion_timestamp: 0,
+    identifiers: [{ device_id: IDFA }], limit_ad_tracking: false
+  })
+  // Recorded as sent (without the IDFA): the next check-in doesn't send it again.
+  assert.deepEqual(events.filter((e) => e.kind === "x_conversion").map((e) => [e.data.app, e.data.event]), [[APP, "install"]])
+  await sendX(APP, { att: "authorized", idfa: IDFA })
+  await sendX(APP, { kind: "ads_sync", att: "authorized", idfa: IDFA })
+  assert.equal(xCalls.length, 1)
+  // The IDFA goes to X only, never into our events.
+  assert.ok(!JSON.stringify(events).includes(IDFA))
+
+  // Nothing to match with, not a new install, not iOS, a test build, or no token: nothing is sent.
+  assert.equal((await sendX(nextApp(), { newInstall: true, att: "denied", idfa: IDFA })).status, 200)
+  await sendX(nextApp(), { newInstall: true, att: "authorized", idfa: "00000000-0000-0000-0000-000000000000" })
+  await sendX(nextApp(), { newInstall: true, att: "authorized" })
+  await sendX(nextApp(), { att: "authorized", idfa: IDFA })
+  await sendX(nextApp(), { newInstall: true, att: "authorized", idfa: IDFA, client: { platform: "macos", version: "2.7" } })
+  await sendX(nextApp(), { newInstall: true, att: "authorized", idfa: IDFA, audience: "test" })
+  serverConfig.xAppConversionToken = ""
+  const later = nextApp()
+  assert.equal((await sendX(later, { newInstall: true, att: "authorized", idfa: IDFA })).status, 200)
+  assert.equal(xCalls.length, 1)
+  // Allowed later (or the token set later): the install still goes, at the time it happened.
+  serverConfig.xAppConversionToken = "x-token"
+  const opened = events.find((e) => e.kind === "app_open" && e.data.app === later)!.at
+  await sendX(later, { kind: "ads_sync", att: "authorized", idfa: IDFA })
+  assert.equal(xCalls.length, 2)
+  assert.deepEqual([xCalls[1].conversions[0].event_name, xCalls[1].conversions[0].conversion_timestamp], ["INSTALL", opened])
+  serverConfig.xAppConversionToken = ""
+})
+
+test("the first answer, the first free limit and a subscription go to X once each, when the app checks in", async () => {
+  const APP = "7a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"
+  const EXT = "5c4b3a29-1807-4f6e-9d5c-4b3a29180706"
+  const IDFA = "6d92078a-8246-4ba4-ae5b-76104861e7dc"
+  const checkIn = async (body: Record<string, unknown> = {}) => {
+    const c = ctx()
+    const res = await event(post("/api/v2/event", { kind: "ads_sync", appId: APP, installId: EXT, client: { platform: "ipados", version: "2.7" }, att: "authorized", idfa: IDFA, ...body }), c)
+    await Promise.all(c.pending)
+    assert.equal(res.status, 200)
+    return xCalls.splice(0).flatMap((call) => call.conversions.map((x) => [x.event_name, x.conversion_timestamp, (x.identifiers as { device_id: string }[])[0].device_id]))
+  }
+  xCalls = []
+  serverConfig.xAppConversionToken = "x-token"
+  assert.deepEqual(await checkIn(), [])
+
+  // Answers in Safari (the extension's install id): the first one, at the time it was asked.
+  const now = Date.now()
+  events.push({ kind: "chat", install: EXT, data: { ok: false, ms: 100 }, at: now - 60_000 })
+  events.push({ kind: "chat", install: EXT, data: { ok: true, ms: 4_000 }, at: now - 50_000 })
+  events.push({ kind: "chat", install: EXT, data: { ok: true, ms: 3_000 }, at: now - 40_000 })
+  // The Google cap isn't the free limit.
+  events.push({ kind: "limit", install: EXT, data: { plan: "free", reason: "search" }, at: now - 30_000 })
+  assert.deepEqual(await checkIn(), [["FIRST_ANSWER", now - 54_000, IDFA]])
+  assert.deepEqual(await checkIn(), [])
+
+  // Out of free answers, twice: once to X.
+  events.push({ kind: "limit", install: EXT, data: { plan: "free", reason: "limit" }, at: now - 20_000 })
+  events.push({ kind: "limit", install: EXT, data: { plan: "free", reason: "limit" }, at: now - 10_000 })
+  assert.deepEqual(await checkIn(), [["LIMIT_REACHED", now - 20_000, IDFA]])
+  assert.deepEqual(await checkIn(), [])
+
+  // A purchase in the app carries the extension's install id; Apple tells us about it. A sandbox one doesn't count.
+  const subscribe = async (otid: string, environment: string) => {
+    const signedTransactionInfo = signJws(transaction({ originalTransactionId: otid, appAccountToken: EXT, environment }))
+    const signedPayload = signJws({ notificationType: "SUBSCRIBED", subtype: "INITIAL_BUY", notificationUUID: `x-${otid}`, data: { bundleId: "com.contextflow.app", signedTransactionInfo }, signedDate: Date.now() })
+    assert.equal((await notify(post("/.netlify/functions/appstore-verify", { signedPayload }), ctx())).status, 200)
+  }
+  await subscribe("x-sandbox", "Sandbox")
+  assert.deepEqual(await checkIn(), [])
+  await subscribe("x-paid", "Production")
+  const [[name, at, idfa]] = await checkIn()
+  assert.deepEqual([name, idfa], ["SUBSCRIBE", IDFA])
+  assert.ok(Math.abs((at as number) - Date.now()) < 5_000)
+  assert.deepEqual(await checkIn({ kind: "app_open" }), [])
+  assert.deepEqual(events.filter((e) => e.kind === "x_conversion").map((e) => e.data.event), ["first_answer", "limit", "subscribe"])
+  assert.ok(!JSON.stringify(events).includes(IDFA))
+  serverConfig.xAppConversionToken = ""
+})
+
+test("X gets nothing old, nothing without tracking allowed, and nothing from our tests", async () => {
+  const APP = "1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e"
+  const EXT = "2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f"
+  const IDFA = "6d92078a-8246-4ba4-ae5b-76104861e7dc"
+  const checkIn = async (body: Record<string, unknown> = {}) => {
+    const c = ctx()
+    await event(post("/api/v2/event", { kind: "ads_sync", appId: APP, installId: EXT, client: { platform: "ios", version: "2.7" }, att: "authorized", idfa: IDFA, ...body }), c)
+    await Promise.all(c.pending)
+    return xCalls.splice(0).flatMap((call) => call.conversions.map((x) => x.event_name))
+  }
+  xCalls = []
+  serverConfig.xAppConversionToken = "x-token"
+  // A first answer from before the lookback: it was the first, so later ones don't count either.
+  events.push({ kind: "chat", install: EXT, data: { ok: true, ms: 1_000 }, at: Date.now() - 31 * 86_400_000 })
+  events.push({ kind: "chat", install: EXT, data: { ok: true, ms: 1_000 }, at: Date.now() - 1_000 })
+  events.push({ kind: "limit", install: EXT, data: { plan: "free", reason: "limit" }, at: Date.now() - 500 })
+  for (const att of ["denied", "restricted", "not_determined", undefined]) assert.deepEqual(await checkIn({ att }), [])
+  assert.deepEqual(await checkIn({ idfa: "00000000-0000-0000-0000-000000000000" }), [])
+  assert.deepEqual(await checkIn({ client: { platform: "macos", version: "2.7" } }), [])
+  // The extension alone can't check in: only the app has the IDFA.
+  assert.deepEqual(await checkIn({ appId: undefined }), [])
+  assert.deepEqual(await checkIn({ audience: "test" }), [])
+  // That test check-in marked the app as ours: nothing from it ever goes.
+  assert.deepEqual(await checkIn(), [])
+  assert.equal(events.filter((e) => e.kind === "x_conversion").length, 0)
+  serverConfig.xAppConversionToken = ""
+})
+
+test("X conversions go out 500 per request; emails and phones are normalized before hashing", async () => {
+  const x = await import("../netlify/shared/xconversions.mts")
+  xCalls = []
+  const one = x.iosEvent(x.X_EVENTS.install, new Date(1792576800000), "38400000-8cf0-11bd-b23e-10b96e40000d", "authorized")!
+  assert.equal(x.iosEvent(x.X_EVENTS.subscribe, new Date(), "38400000-8cf0-11bd-b23e-10b96e40000d", "denied"), null)
+  const result = await x.sendXConversions(Array.from({ length: 1001 }, () => one), "x-token")
+  assert.deepEqual(xCalls.map((c) => c.conversions.length), [500, 500, 1])
+  assert.deepEqual(result, { processed: 1001, failed: 0 })
+  assert.deepEqual(await x.sendXConversions([one], ""), { processed: 0, failed: 0, skipped: "no_token" })
+
+  assert.equal(x.hashEmail("  John.Doe@Example.COM "), x.sha256Hex("john.doe@example.com"))
+  assert.equal(x.hashEmail("not an email"), null)
+  assert.equal(x.toE164("+1 (555) 123-4567"), "+15551234567")
+  assert.equal(x.toE164("0049 30 1234567"), "+49301234567")
+  assert.equal(x.toE164("555-1234"), null)
+  assert.equal(x.hashPhone("+1 555 123 4567"), x.sha256Hex("+15551234567"))
+  assert.equal(x.sha256Hex("abc"), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
 })
 
 test("an attribution record Apple doesn't have yet is retried once, then reported as pending", async () => {
