@@ -1992,6 +1992,10 @@ struct SettingsView: View {
 
     private var form: some View {
         Form {
+            // 2.7, TestFlight and debug builds only, never the App Store's (Setup.swift TestBuild): the first run again
+            // on this device, without touching what's in iCloud. First on the screen, so a tester finds it (108).
+            if TestBuild.isTest { NewUserPreviewSection() }
+
             Section(header: Text("Appearance")) {
                 Picker("Appearance", selection: $settings.theme) {
                     Text("Auto").tag("auto")
@@ -2095,10 +2099,6 @@ struct SettingsView: View {
                 }
                 .accessibilityIdentifier("cf-rate")
             }
-
-            // 2.7, TestFlight and debug builds only, never the App Store's (Setup.swift TestBuild): the first run again
-            // on this device, without touching what's in iCloud.
-            if TestBuild.isTest { NewUserPreviewSection() }
         }
         .navigationTitle("Settings")
         #if os(iOS)
