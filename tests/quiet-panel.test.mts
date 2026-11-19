@@ -143,7 +143,7 @@ test("3. under a message: one row; what has no room in it is in «…» (109: ne
   // No second line under the row any more.
   assert.doesNotMatch(footer, /<\/ToolsRow>\s*\{[^}]*\}\s*\{!historyMode && \(\s*<button type="button" class="cf-collect-link"/)
   // The row never wraps; its words give way in two steps, measured with the Mac's hover buttons counted in.
-  assert.match(css, /\.cf-msg-tools \{ flex-wrap: nowrap !important; min-width: 0; \}/)
+  assert.match(css, /\.cf-msg-tools \{ flex-wrap: nowrap !important; min-width: 0; align-self: stretch;/)
   assert.match(css, /\.cf-msg-tools \[data-off\] \{ display: none; \}/)
   // The order the words go in: To collection, Tag, Share, Listen, Copy; Insert into field keeps its words longest.
   const give = (icon: string) => Number(new RegExp(`${icon}[^\\n]*<span class="cf-tl" data-give="(\\d)">`).exec(footer)?.[1])
@@ -215,15 +215,15 @@ test("the empty chat in a phone's sheet sits by the field: chips and field toget
 
 test("6. «+» by the field: Note, the page snapshot, Whole chat, the answers left; Google and the swipe stay", () => {
   const composer = app.slice(app.indexOf('<footer class="cf-composer">'), app.indexOf("</footer>", app.indexOf('<footer class="cf-composer">')))
-  // In the field's row: «+», Google, the field, the count (compact), send.
-  const order = ['class={`cf-plus ${plusOpen ? "on" : ""}`}', 'class={`cf-mode ${googleMode ? "on" : ""}`}', "<textarea", "{compact && leftNow && !noteMode && (", 'class="cf-send-wrap" {...switchGestures}']
+  // In the field's row: «+», Google, the field, the count (every layout since 110), send.
+  const order = ['class={`cf-plus ${plusOpen ? "on" : ""}`}', 'class={`cf-mode ${googleMode ? "on" : ""}`}', "<textarea", "{leftNow && !noteMode && (", 'class="cf-send-wrap" {...switchGestures}']
   let at = composer.indexOf('<div class={`cf-input')
   for (const part of order) {
     const next = composer.indexOf(part, at + 1)
     assert.ok(next > at, `${part} in the field's row`)
     at = next
   }
-  // The menu's four (on the compact chat; 109: the roomy one keeps Whole chat and the count under the field).
+  // The menu's four, on every layout (110).
   const plus = read("../src/content/quiet/Plus.tsx")
   const menuOrder = ['{t("selNote")}', '{t("shotSwitch")}', '{t("wholeChat")}', 'class="cf-plus-usage"']
   at = -1
@@ -235,14 +235,13 @@ test("6. «+» by the field: Note, the page snapshot, Whole chat, the answers le
   // Note is the swipe's own switch; the snapshot turns the note on with it; Whole chat is the footer's handler.
   assert.match(composer, /onNote=\{\(\) => \{[\s\S]{0,220}flipMode\(\)/)
   assert.match(composer, /setShotPref\(\{ \.\.\.shotPref, on \}\)[\s\S]{0,200}if \(on && !noteMode\) flipMode\(\)/)
-  assert.equal(app.match(/setWholeChat\(/g)?.length, 2, "one handler for the switch in «+» and the one under the field")
+  assert.equal(app.match(/setWholeChat\(/g)?.length, 1, "one handler: the switch is in «+» only (110)")
   // Decision 7: no Templates and no Copied in «+».
   assert.doesNotMatch(plus.slice(plus.indexOf("export function PlusMenu")), /qiTemplates|qiCopied|Copied|Template/)
-  // The line under the field is the roomy chat's only; Get Pro goes with the count into «+».
-  assert.match(composer, /\{!compact && \(\s*<div class="cf-usage">/)
-  assert.match(composer, /usage=\{compact \? usageLine\.full : ""\}\s*after=\{compact \? getProLink : undefined\}/)
-  assert.match(composer, /whole=\{historyMode \|\| !compact \? null : \{/)
-  assert.match(composer, /\{t\("wholeChat"\)\}\s*\{!memoryAllowed && <span class="cf-pro-badge">Pro<\/span>\}\s*<\/label>\}\s*\{getProLink\}/)
+  // 110: no line under the field on any layout; Get Pro goes with the count into «+».
+  assert.doesNotMatch(composer, /cf-usage/)
+  assert.match(composer, /usage=\{usageLine\}\s*after=\{getProLink\}/)
+  assert.match(composer, /whole=\{historyMode \? null : \{/)
   for (const what of ["note", "shot", "whole", "tag", "collect"]) assert.ok((FEATURES.quiet.fields?.what as readonly string[]).includes(what), what)
 })
 
@@ -265,7 +264,7 @@ test("6. the answers left stay in sight on Free and when few are left", () => {
   assert.equal(badge(null, "free", false), null)
   assert.equal(badge({ used: 0, limit: 0 }, "pro", false), null)
   // In the field's row, opening «+» where it stands in full.
-  assert.match(app, /<button type="button" class=\{`cf-left \$\{leftNow\.low \? "low" : ""\}`\} aria-label=\{usageLine\.full\} title=\{usageLine\.full\} onClick=\{\(\) => setPlusOpen\(true\)\}>\{leftNow\.left\}<\/button>/)
+  assert.match(app, /<button type="button" class=\{`cf-left \$\{leftNow\.low \? "low" : ""\}`\} aria-label=\{usageLine\} title=\{usageLine\} onClick=\{\(\) => setPlusOpen\(true\)\}>\{leftNow\.left\}<\/button>/)
 })
 
 test("right to left: «+» and Google start inside the field's edge", () => {
@@ -298,8 +297,8 @@ test("the texts that point at what moved, in every language", () => {
     assert.ok(m.tourWholeBodyPlus.endsWith(m.tourWholeBody), lang)
   }
   const tour = read("../src/content/Tour.tsx")
-  assert.match(tour, /targets: \[\[compact \? "\.cf-plus" : "\.cf-whole"\]\], icon: <Icon\.Doc \/>, title: "tourWholeTitle", body: compact \? "tourWholeBodyPlus" : "tourWholeBody"/)
-  assert.match(app, /steps=\{tourSteps\(TARGET === "safari" && settings\.syncChats, touch, compact\)\}/)
+  assert.match(tour, /targets: \[\["\.cf-plus"\]\], icon: <Icon\.Doc \/>, title: "tourWholeTitle", body: "tourWholeBodyPlus"/)
+  assert.match(app, /steps=\{tourSteps\(TARGET === "safari" && settings\.syncChats, touch\)\}/)
 })
 
 test("the app's Tips name the new places, in the catalog's 14 languages", () => {

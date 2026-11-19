@@ -3289,27 +3289,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     </div>
   )
 
-  /** The Whole chat switch, in the line under the field (roomy) and in «+». Pro's memory (build 91): Pro and Ultra turn
+  /** The Whole chat switch, in «+». Pro's memory (build 91): Pro and Ultra turn
    *  it on and off; without Pro it stays off and the chat says what Pro remembers. */
   const setWholeChat = (on: boolean) => {
     if (memoryAllowed) return updateSettings({ chatMemory: on })
     setMemoryOffer("switch")
     setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
   }
-  // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
+  // The allowance, in «+» (2.7 (110): on every layout; there's no line under the field).
   const usageLine = useMemo(() => {
-    if (ownKeyActive) return { short: t("usageOwnKey"), full: t("usageOwnKey") }
-    if (!usage) return { short: "", full: "" }
+    if (ownKeyActive) return t("usageOwnKey")
+    if (!usage) return ""
     const left = Math.max(0, usage.limit - usage.used)
-    return hasPro(plan)
-      // Ultra by its name on the line too (2.6: it said "Pro", and the full text is only a hover, none on iPhone).
-      ? isUltra(plan)
-        ? { short: t("usageUltraShort", left, usage.limit), full: t("usageUltra", left, usage.limit) }
-        : { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
-      : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
+    // Ultra by its name (2.6: it said "Pro").
+    return hasPro(plan) ? t(isUltra(plan) ? "usageUltra" : "usagePro", left, usage.limit) : t("usageFree", left, usage.limit)
   }, [usage, plan, ownKeyActive])
 
-  // Free in Safari: the way to Pro (or the offer's code), after the count: in the line under the field, or in «+».
+  // Free in Safari: the way to Pro (or the offer's code), after the count in «+».
   const getProLink = plan === "free" && !ownKeyActive && TARGET === "safari"
     ? offer
       ? <button type="button" class="cf-link" onClick={() => redeemOffer(offer.code)}>{t("offerShort", offer.discount)}</button>
@@ -4935,9 +4931,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           if (on) setPlusOpen(false)
                         }
                       }}
-                      // 2.7 (109), the owner on 108 (iPad Pro with a keyboard): «остались «Весь чат» и счетчик внизу, при том,
-                      // что добавились в "+"». The roomy chat keeps them in the line under the field: «+» doesn't list them.
-                      whole={historyMode || !compact ? null : {
+                      // 2.7 (110), the owner on 109: «Давай приведём все к единому формату – пусть все будет в «+»». Whole
+                      // chat and the count are in «+» on every layout, the roomy one too; there's no line under the field.
+                      whole={historyMode ? null : {
                         on: memoryOn,
                         locked: !memoryAllowed,
                         onChange: (on) => {
@@ -4946,8 +4942,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           if (!memoryAllowed) setPlusOpen(false)
                         }
                       }}
-                      usage={compact ? usageLine.full : ""}
-                      after={compact ? getProLink : undefined}
+                      usage={usageLine}
+                      after={getProLink}
                       onClose={() => setPlusOpen(false)}
                     />
                   )}
@@ -5003,10 +4999,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       onKeyUp={(e) => e.stopPropagation()}
                       onKeyPress={(e) => e.stopPropagation()}
                     />
-                    {/* The answers left, as a number by the field: on the compact chat (its line under the field is in «+»),
-                        on Free and when few are left. A tap opens «+», where it stands in full. */}
-                    {compact && leftNow && !noteMode && (
-                      <button type="button" class={`cf-left ${leftNow.low ? "low" : ""}`} aria-label={usageLine.full} title={usageLine.full} onClick={() => setPlusOpen(true)}>{leftNow.left}</button>
+                    {/* The answers left, as a number by the field (the count itself is in «+»), on Free and when few are
+                        left, on every layout. A tap opens «+», where it stands in full. */}
+                    {leftNow && !noteMode && (
+                      <button type="button" class={`cf-left ${leftNow.low ? "low" : ""}`} aria-label={usageLine} title={usageLine} onClick={() => setPlusOpen(true)}>{leftNow.left}</button>
                     )}
                     {streaming ? (
                       <button type="button" class="cf-send stop" onClick={() => stop(true)} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
@@ -5028,22 +5024,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       </span>
                     )}
                   </div>
-                  {/* The line under the field: on the roomy chat only (2.7 after 107; on the compact one it's in «+»). */}
-                  {!compact && (
-                    <div class="cf-usage">
-                      <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
-                      {!historyMode && <label class="cf-whole" title={t("wholeChatHint")}>
-                        <input type="checkbox" role="switch" checked={memoryOn} onChange={(e) => {
-                          if (!memoryAllowed) e.currentTarget.checked = false
-                          setWholeChat(e.currentTarget.checked)
-                        }} />
-                        <span class="cf-switch" aria-hidden="true" />
-                        {t("wholeChat")}
-                        {!memoryAllowed && <span class="cf-pro-badge">Pro</span>}
-                      </label>}
-                      {getProLink}
-                    </div>
-                  )}
                 </footer>
               )}
             </>
@@ -5061,7 +5041,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             />
           )}
           {touring && view === "chat" && panelRef.current && (
-            <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch, compact)} onDone={endTour} />
+            <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
           )}
           {view === "chat" && !picked && ux.overlay}
           {view === "chat" && later && laterSheet(false)}
