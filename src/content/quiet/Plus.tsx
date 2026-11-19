@@ -11,6 +11,8 @@ import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
 import { CameraIcon } from "../ux/ShotUi"
+import type { Usage } from "../../shared/types"
+import { SpentCount } from "./Spent"
 
 /** Few answers left: under a fifth of the allowance (and always the last three). */
 export const LOW_SHARE = 0.2
@@ -39,10 +41,12 @@ export interface PlusProps {
   // The answers left, in full, and what stands after it on Free (Get Pro, an offer).
   usage: string
   after?: ComponentChildren
+  // 110: a tap on the count shows what the answers went on (Spent.tsx); none with their own key in use.
+  spent?: { load: () => Promise<Usage | null>; paid: boolean; open: boolean; onOpen: () => void }
   onClose: () => void
 }
 
-export function PlusMenu({ noteMode, onNote, shot, whole, usage, after, onClose }: PlusProps): VNode {
+export function PlusMenu({ noteMode, onNote, shot, whole, usage, after, spent, onClose }: PlusProps): VNode {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const away = (_: Event, path: EventTarget[]) => {
@@ -85,7 +89,9 @@ export function PlusMenu({ noteMode, onNote, shot, whole, usage, after, onClose 
           <span class="cf-switch" aria-hidden="true" />
         </label>
       )}
-      {(usage || after) && (
+      {usage && spent ? (
+        <SpentCount cls="cf-plus-usage" text={usage} after={after} load={spent.load} paid={spent.paid} startOpen={spent.open} onOpen={spent.onOpen} />
+      ) : (usage || after) && (
         <div class="cf-plus-usage" role="status">
           <span class="cf-plus-left">{usage}</span>
           {after}

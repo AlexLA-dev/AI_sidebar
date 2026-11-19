@@ -4,6 +4,7 @@ import { toEntitlement, verifyTransactionCached, type Entitlement } from "./appl
 import { config, PRODUCTS, type Plan } from "./config.mts"
 import { logEvent, upsertEntitlement, type Counter } from "./db.mts"
 import { hasPro, isUltra, PLAN_RANK } from "../../src/shared/plan.ts"
+import { USE_KINDS, useSubject, type UseKind } from "../../src/shared/spent.ts"
 
 export { hasPro, isUltra } from "../../src/shared/plan.ts"
 
@@ -150,6 +151,40 @@ export function countersFor(access: Access, installId: string, ipSubject: string
   ]
 }
 
+/** The answers' own counter among `counters`: the subscription's week ("tx:…") or the install's day ("install:…"). */
+function answersCounter(counters: Counter[]): Counter | undefined {
+  return counters.find((c) => c.subject.startsWith("tx:") || c.subject.startsWith("install:"))
+}
+
+/**
+ * What the answers went on (2.7 (110), src/shared/spent.ts): `counters` and, next to the answers' own counter, the one
+ * of `kind`, with no limit and the same amount, so it's charged and given back with it. No answers' counter (a guided
+ * first answer, which isn't charged): nothing added.
+ */
+export function withUse(counters: Counter[], kind: UseKind): Counter[] {
+  const main = answersCounter(counters)
+  if (!main) return counters
+  return [...counters, { subject: useSubject(kind, main.subject), period: main.period, limit: null, ...(main.amount ? { amount: main.amount } : {}) }]
+}
+
+/** The breakdown's counters for /api/v2/status, read with peek next to `counters` (countersFor). */
+export function useCountersFor(counters: Counter[]): Counter[] {
+  const main = answersCounter(counters)
+  return main ? USE_KINDS.map((kind) => ({ subject: useSubject(kind, main.subject), period: main.period, limit: null })) : []
+}
+
+/** The breakdown as the clients get it, `usage.by`: answers this period by kind. */
+export function useBreakdown(state: { subject: string; n: number }[], counters: Counter[]): Partial<Record<UseKind, number>> {
+  const main = answersCounter(counters)
+  const by: Partial<Record<UseKind, number>> = {}
+  if (!main) return by
+  for (const kind of USE_KINDS) {
+    const n = state.find((c) => c.subject === useSubject(kind, main.subject))?.n ?? 0
+    if (n > 0) by[kind] = n
+  }
+  return by
+}
+
 /** Extra counters for a Google (search-grounded) answer, charged together with countersFor(). */
 export function searchCountersFor(access: Access, installId: string): Counter[] {
   const own = hasPro(access.plan) && access.entitlement
@@ -208,7 +243,7 @@ export function similarLightCounters(access: Access, installId: string, ip: stri
     { subject: "global:similarlight", period: "day", limit: config.similar.lightGlobalDaily }
   ]
   if (access.plan !== "pro" || !access.entitlement) return searches
-  return [...searches, ...countersFor(access, installId, ip).map((c) => ({ ...c, amount: config.similar.proAnswers }))]
+  return [...searches, ...withUse(countersFor(access, installId, ip).map((c) => ({ ...c, amount: config.similar.proAnswers })), "similar")]
 }
 
 /** An Ultra allowance (or the light search's week) as the clients show it: used of limit, and when it starts again. */
@@ -225,6 +260,8 @@ export interface Usage {
   limit: number
   period: "day" | "week"
   resetsAt: string
+  // What they went on (/api/v2/status only, 110).
+  by?: Partial<Record<UseKind, number>>
 }
 
 /** The counter the user sees ("3 of 5 today"). */

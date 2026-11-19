@@ -169,3 +169,24 @@
 .cf-msg-tools .cf-collect-in .cf-collect-name { max-width: 10em; }
 /* 2.7 (109): a button that left the row for «…» (ToolsRow data-drop): gone from it, whatever its own display. */
 .cf-msg-tools [data-drop][hidden] { display: none !important; }
+
+/* 110: the count opens to what the answers went on (Spent.tsx), in «+» and in Settings. */
+.cf-spent-box { flex-wrap: wrap; }
+.cf-spent-count {
+  flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 6px;
+  padding: 0; font: inherit; color: inherit; text-align: start; cursor: pointer;
+}
+.cf-spent-count .cf-plus-left { flex: 0 1 auto; }
+.cf-spent-chev { flex: none; color: var(--text-3); transition: transform 0.15s; }
+.cf-spent-chev.open { transform: rotate(180deg); }
+.cf-spent { flex: 1 0 100%; display: flex; flex-direction: column; gap: 4px; padding-top: 6px; color: var(--text-2); }
+.cf-spent-title { font-weight: 600; color: var(--text-2); }
+.cf-spent-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.cf-spent-row { display: flex; align-items: baseline; gap: 10px; }
+.cf-spent-name { flex: 1 1 auto; min-width: 0; color: var(--text); }
+.cf-spent-n { flex: none; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text); }
+.cf-spent-note { margin: 2px 0 0; color: var(--text-3); }
+.cf-spent-retry { align-self: flex-start; text-align: start; }
+.cf-set-spent { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 12.5px; line-height: 1.35; color: var(--text-3); }
+.cf[data-touch] .cf-plus-usage .cf-spent-count { min-height: 32px; }
+@media (prefers-reduced-motion: reduce) { .cf-spent-chev { transition: none; } }

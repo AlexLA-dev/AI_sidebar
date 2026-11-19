@@ -185,8 +185,9 @@ test("every request that charges a free answer passes the friend's extra answers
   for (const fn of ["v2-chat", "v2-status", "v2-find", "v2-write", "v2-translate"]) {
     assert.match(read(`netlify/functions/${fn}.mts`), /inviteExtra\(client, \[installId\], access\.plan\)/, fn)
   }
-  assert.match(read("netlify/functions/v2-write.mts"), /answer: countersFor\(access, installId, ip, extra\)/)
-  assert.match(read("netlify/shared/translate.mts"), /answer: countersFor\(access, installId, ip, extra\)/)
+  // (110: with what they went on, withUse.)
+  assert.match(read("netlify/functions/v2-write.mts"), /answer: withUse\(countersFor\(access, installId, ip, extra\), "write"\)/)
+  assert.match(read("netlify/shared/translate.mts"), /answer: withUse\(countersFor\(access, installId, ip, extra\), "translate"\)/)
 })
 
 // ---- /api/v2/invite ---------------------------------------------------------------------------------------------------

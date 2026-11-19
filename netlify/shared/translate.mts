@@ -8,7 +8,7 @@ import Anthropic from "@anthropic-ai/sdk"
 
 import { config } from "./config.mts"
 import type { Counter } from "./db.mts"
-import { countersFor, hasPro, type Access } from "./plan.mts"
+import { countersFor, hasPro, withUse, type Access } from "./plan.mts"
 import { guessLanguage } from "../../src/content/translateTarget.ts"
 import { modelLine, plainText, readModelLine, restoreVoids, type TranslateBlock } from "../../src/shared/translate.ts"
 
@@ -313,7 +313,7 @@ export function translateCounters(access: Access, installId: string, ip: string,
   const amount = Math.max(1, chars)
   return {
     page: { subject: `trpage:${owner}:${page}`, period: "week", limit: 1 },
-    answer: countersFor(access, installId, ip, extra),
+    answer: withUse(countersFor(access, installId, ip, extra), "translate"),
     safety: [
       { subject: `trchars:${owner}:${page}`, period: "week", limit: config.translate.pageChars, amount },
       { subject: `trday:${owner}`, period: "day", limit: config.translate.dailyChars, amount },

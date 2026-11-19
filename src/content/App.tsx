@@ -116,6 +116,7 @@ import { rankChips, rankSelectionChips, type ChipId } from "./quiet/chips"
 import { ChipsRow } from "./quiet/ChipsRow"
 import { densityNow, loadKeyboard, noteKeyboard, type Density } from "./quiet/density"
 import { leftBadge, PlusMenu } from "./quiet/Plus"
+import { usageText } from "./quiet/Spent"
 import { readSignals, selectionInField, watchWriting, writingOn } from "./quiet/signals"
 import { ToolsRow } from "./quiet/ToolsRow"
 import { useFabDrag, usePanelDrag } from "./side/drag"
@@ -622,8 +623,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     loadKeyboard()
     return watchWriting()
   }, [])
-  // «+» by the field.
+  // «+» by the field. `spentAsk` (110): opened from the number by the field, with what the answers went on shown.
   const [plusOpen, setPlusOpen] = useState(false)
+  const [spentAsk, setSpentAsk] = useState(false)
+  useEffect(() => {
+    if (!plusOpen) setSpentAsk(false)
+  }, [plusOpen])
   const densityRef = useRef(density)
   densityRef.current = density
 
@@ -661,6 +666,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setStatus(next)
       setUsage(next.usage)
     }
+  }, [platform])
+
+  /** 110: the usage read fresh for what the answers went on (the count's details, in «+» and Settings); null offline. */
+  const loadSpent = useCallback(async (): Promise<Usage | null> => {
+    const next = await sendBackground<StatusInfo>({ type: "status", refresh: true, fresh: true, platform })
+    if (!next || next.offline) return null
+    setStatus(next)
+    setUsage(next.usage)
+    return next.usage
   }, [platform])
 
   // ------------------------------------------------------------ open/close
@@ -3299,10 +3313,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The allowance, in «+» (2.7 (110): on every layout; there's no line under the field).
   const usageLine = useMemo(() => {
     if (ownKeyActive) return t("usageOwnKey")
-    if (!usage) return ""
-    const left = Math.max(0, usage.limit - usage.used)
-    // Ultra by its name (2.6: it said "Pro").
-    return hasPro(plan) ? t(isUltra(plan) ? "usageUltra" : "usagePro", left, usage.limit) : t("usageFree", left, usage.limit)
+    return usage ? usageText(usage, plan) : ""
   }, [usage, plan, ownKeyActive])
 
   // Free in Safari: the way to Pro (or the offer's code), after the count in «+».
@@ -4408,6 +4419,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               settings={settings}
               status={status}
               usage={usage}
+              loadSpent={loadSpent}
               platform={platform}
               site={source.site()}
               onChange={(patch) => {
@@ -4944,6 +4956,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       }}
                       usage={usageLine}
                       after={getProLink}
+                      spent={ownKeyActive || !usage ? undefined : {
+                        load: loadSpent,
+                        paid: hasPro(plan),
+                        open: spentAsk,
+                        onOpen: () => void sendBackground({ type: "useEvent", f: "quiet", a: "spent", via: "plus" })
+                      }}
                       onClose={() => setPlusOpen(false)}
                     />
                   )}
@@ -5002,7 +5020,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {/* The answers left, as a number by the field (the count itself is in «+»), on Free and when few are
                         left, on every layout. A tap opens «+», where it stands in full. */}
                     {leftNow && !noteMode && (
-                      <button type="button" class={`cf-left ${leftNow.low ? "low" : ""}`} aria-label={usageLine} title={usageLine} onClick={() => setPlusOpen(true)}>{leftNow.left}</button>
+                      <button type="button" class={`cf-left ${leftNow.low ? "low" : ""}`} aria-label={usageLine} title={usageLine} onClick={() => {
+                        // 110: «+» opens with what the answers went on.
+                        void sendBackground({ type: "useEvent", f: "quiet", a: "spent", via: "number" })
+                        setSpentAsk(true)
+                        setPlusOpen(true)
+                      }}>{leftNow.left}</button>
                     )}
                     {streaming ? (
                       <button type="button" class="cf-send stop" onClick={() => stop(true)} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
