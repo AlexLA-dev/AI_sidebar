@@ -527,6 +527,12 @@
  "planByok": {
   "message": "Clave propia"
  },
+ "plansOwnKeyLink": {
+  "message": "Tengo mi propia clave de API"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "Este plan necesita tu propia clave de API de OpenAI o Claude. Las respuestas las pagas aparte a ese proveedor."
+ },
  "planRenews": {
   "message": "Se renueva el {0}"
  },
@@ -997,6 +1003,12 @@
  },
  "errProvider": {
   "message": "Tu proveedor de IA respondió: {0}"
+ },
+ "errKeyCredit": {
+  "message": "Tu cuenta de {0} no tiene saldo o no tiene configurada la facturación, por eso rechazó la solicitud. Añade saldo en {1} y vuelve a preguntar."
+ },
+ "errKeyRate": {
+  "message": "{0} está limitando ahora mismo las solicitudes de tu clave: es el límite de tu cuenta. Espera un minuto y vuelve a preguntar. Tus límites están en {1}."
  },
  "offerLimit": {
   "message": "O consigue Pro con un {0} % de descuento el primer mes: hasta {1} respuestas a la semana, más profundas y detalladas. Cancela cuando quieras."
@@ -2431,6 +2443,24 @@
  },
  "trControlsCap": {
   "message": "Las traducciones gratuitas de botones y menús de hoy se han agotado"
+ },
+ "trSiteAsk": {
+  "message": "¿Traducir todas las páginas de este sitio?"
+ },
+ "trSiteYes": {
+  "message": "Sí"
+ },
+ "trSiteNo": {
+  "message": "No"
+ },
+ "trSiteOn": {
+  "message": "Se traducen todas las páginas de este sitio"
+ },
+ "trSiteOff": {
+  "message": "Desactivar"
+ },
+ "trSite": {
+  "message": "Todo el sitio"
  },
  "spacesTitle": {
   "message": "Espacios"

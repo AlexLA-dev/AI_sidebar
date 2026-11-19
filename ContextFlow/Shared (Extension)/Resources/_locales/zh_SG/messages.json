@@ -527,6 +527,12 @@
  "planByok": {
   "message": "自有密钥"
  },
+ "plansOwnKeyLink": {
+  "message": "我有自己的 API 密钥"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "此方案需要你自己的 OpenAI 或 Claude API 密钥。回答的费用由你另行支付给该服务商。"
+ },
  "planRenews": {
   "message": "续订日期：{0}"
  },
@@ -997,6 +1003,12 @@
  },
  "errProvider": {
   "message": "你的 AI 服务商返回：{0}"
+ },
+ "errKeyCredit": {
+  "message": "你的 {0} 账户没有余额，或尚未设置结算，因此请求被拒绝。请在 {1} 充值后再提问。"
+ },
+ "errKeyRate": {
+  "message": "{0} 目前正在限制你的密钥发出的请求（账户的速率限制）。请等一分钟再提问。你的限额见 {1}。"
  },
  "offerLimit": {
   "message": "或开通 Pro，首月优惠 {0}%：每周最多 {1} 次更深入、更详细的回答。可随时取消。"
@@ -2431,6 +2443,24 @@
  },
  "trControlsCap": {
   "message": "今天的按钮和菜单免费翻译已用完"
+ },
+ "trSiteAsk": {
+  "message": "翻译此网站的所有页面？"
+ },
+ "trSiteYes": {
+  "message": "是"
+ },
+ "trSiteNo": {
+  "message": "否"
+ },
+ "trSiteOn": {
+  "message": "此网站的所有页面都会翻译"
+ },
+ "trSiteOff": {
+  "message": "关闭"
+ },
+ "trSite": {
+  "message": "整个网站"
  },
  "spacesTitle": {
   "message": "空间"

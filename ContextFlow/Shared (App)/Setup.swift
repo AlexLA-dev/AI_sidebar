@@ -1015,30 +1015,30 @@ private struct TouchRing: View {
 
 // MARK: - Test builds: starting as a new user (2.7)
 
-/// Whether this is a build for testing, never the App Store's: a debug build, or a release build that both carries
-/// TestFlight's receipt and talks to a test server.
-/// - The receipt: TestFlight keeps it in "sandboxReceipt", the App Store in "receipt" (iPhone, iPad). App Review runs
-///   the App Store's own binary with a sandbox receipt too, so the receipt alone would show test rows to a reviewer.
-/// - The server: the build submitted to the App Store talks to production; only the TestFlight builds made from the
-///   test branch (ChatAI.base set to a deploy preview) talk to anything else. On a Mac the receipt's path is the same
-///   for TestFlight and the App Store, so there the server alone decides.
+/// Whether this is a build for testing, never the App Store's: a debug build, or a release build that talks to a test
+/// server.
+/// - The server: the build submitted to the App Store talks to production (ChatAI.base as it is on main); only the
+///   TestFlight builds made from the test branch have that line changed to a deploy preview's address. App Review
+///   runs the App Store's own binary, so neither a reviewer nor anyone with the store's app sees a test row.
+/// - Not the receipt any more (2.7 (108), the owner on TestFlight, about «Start as a new user»: «Не нашел»). Until 109
+///   an iPhone or iPad build also had to carry TestFlight's receipt name at Bundle.main.appStoreReceiptURL. That
+///   property is deprecated, what it gives on a TestFlight install can't be seen in a simulator, and it kept nothing
+///   out that the server doesn't: a reviewer's receipt is a sandbox one as well. StoreKit's AppTransaction would say
+///   the same thing later, through a request that can fail, while this is read at launch. So every platform decides
+///   as the Mac always did.
 enum TestBuild {
     static let isTest: Bool = {
         #if DEBUG
         return true
         #else
-        return releaseIsTest(receipt: Bundle.main.appStoreReceiptURL, server: ChatAI.base)
+        return releaseIsTest(server: ChatAI.base)
         #endif
     }()
 
-    /// A release build: TestFlight's receipt (where it can be told) and a server that isn't production.
-    static func releaseIsTest(receipt: URL?, server: URL) -> Bool {
-        guard let host = server.host, host != ChatAI.productionHost else { return false }
-        #if os(iOS)
-        return receipt?.lastPathComponent == "sandboxReceipt"
-        #else
-        return true
-        #endif
+    /// A release build: a test build when its server isn't production's.
+    static func releaseIsTest(server: URL) -> Bool {
+        guard let host = server.host else { return false }
+        return host != ChatAI.productionHost
     }
 }
 
@@ -1102,8 +1102,9 @@ final class NewUserPreview: ObservableObject {
     }
 }
 
-/// Settings → «Test build» (TestBuild.isTest only). English, and out of the string catalog (`verbatim`): it isn't part
-/// of what ships.
+/// Settings → «Test build», the first block on the screen (TestBuild.isTest only; 108, the owner looked for it and
+/// didn't find it under everything else). English, and out of the string catalog (`verbatim`): it isn't part of what
+/// ships.
 struct NewUserPreviewSection: View {
     @ObservedObject private var preview = NewUserPreview.shared
     @State private var asking = false

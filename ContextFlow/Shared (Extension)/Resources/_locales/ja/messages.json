@@ -527,6 +527,12 @@
  "planByok": {
   "message": "自分のキー"
  },
+ "plansOwnKeyLink": {
+  "message": "自分のAPIキーを持っています"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "このプランには、ご自身のOpenAIまたはClaudeのAPIキーが必要です。回答の料金は、そのプロバイダーに別途お支払いいただきます。"
+ },
  "planRenews": {
   "message": "{0}に更新"
  },
@@ -997,6 +1003,12 @@
  },
  "errProvider": {
   "message": "AI プロバイダーからの応答：{0}"
+ },
+ "errKeyCredit": {
+  "message": "{0}のアカウントにクレジット残高がないか、支払い設定が済んでいないため、リクエストが拒否されました。{1}でクレジットを追加してから、もう一度質問してください。"
+ },
+ "errKeyRate": {
+  "message": "{0}が現在、お使いのキーからのリクエストを制限しています（アカウントのレート制限）。1分ほど待ってから、もう一度質問してください。制限は{1}で確認できます。"
  },
  "offerLimit": {
   "message": "または、最初の 1 か月が {0}% オフの Pro をどうぞ。より深く詳しい回答を週 {1} 件まで受け取れます。いつでも解約できます。"
@@ -2431,6 +2443,24 @@
  },
  "trControlsCap": {
   "message": "今日のボタンとメニューの無料翻訳は使い切りました"
+ },
+ "trSiteAsk": {
+  "message": "このサイトのページをすべて翻訳しますか？"
+ },
+ "trSiteYes": {
+  "message": "はい"
+ },
+ "trSiteNo": {
+  "message": "いいえ"
+ },
+ "trSiteOn": {
+  "message": "このサイトのページはすべて翻訳されます"
+ },
+ "trSiteOff": {
+  "message": "オフにする"
+ },
+ "trSite": {
+  "message": "サイト全体"
  },
  "spacesTitle": {
   "message": "スペース"

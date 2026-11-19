@@ -65375,6 +65375,182 @@
           }
         }
       }
+    },
+    "I have my own API key": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لديّ مفتاح API خاص بي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ich habe einen eigenen API-Schlüssel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tengo mi propia clave de API"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "J’ai ma propre clé d’API"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ho una mia chiave API"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分のAPIキーを持っています"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 API 키가 있어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tenho minha própria chave de API"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У меня есть свой API-ключ"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kendi API anahtarım var"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У мене є власний API-ключ"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tôi có khóa API riêng"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我有自己的 API 密钥"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我有自己的 API 金鑰"
+          }
+        }
+      }
+    },
+    "This plan needs your own OpenAI or Claude API key. You pay that provider for the answers separately.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحتاج هذه الخطة إلى مفتاح API خاص بك من OpenAI أو Claude. تدفع مقابل الإجابات لذلك المزوّد بشكل منفصل."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für diesen Tarif brauchst du einen eigenen API-Schlüssel von OpenAI oder Claude. Die Antworten bezahlst du separat bei diesem Anbieter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este plan necesita tu propia clave de API de OpenAI o Claude. Las respuestas las pagas aparte a ese proveedor."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce forfait nécessite votre propre clé d’API OpenAI ou Claude. Vous payez les réponses à part, auprès de ce fournisseur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo piano richiede una tua chiave API di OpenAI o Claude. Le risposte le paghi a parte a quel fornitore."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このプランには、ご自身のOpenAIまたはClaudeのAPIキーが必要です。回答の料金は、そのプロバイダーに別途お支払いいただきます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 요금제는 내 OpenAI 또는 Claude API 키가 필요해요. 답변 비용은 해당 제공업체에 따로 지불해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este plano precisa da sua própria chave de API da OpenAI ou do Claude. Você paga as respostas à parte, direto a esse provedor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для этого тарифа нужен ваш собственный API-ключ OpenAI или Claude. Ответы вы оплачиваете этому провайдеру отдельно."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu plan için kendi OpenAI veya Claude API anahtarınız gerekir. Yanıtların ücretini o sağlayıcıya ayrıca ödersiniz."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для цього тарифу потрібен ваш власний API-ключ OpenAI або Claude. Відповіді ви оплачуєте цьому провайдеру окремо."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gói này cần khóa API OpenAI hoặc Claude của riêng bạn. Bạn trả phí câu trả lời riêng cho nhà cung cấp đó."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此方案需要你自己的 OpenAI 或 Claude API 密钥。回答的费用由你另行支付给该服务商。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個方案需要你自己的 OpenAI 或 Claude API 金鑰。回答的費用由你另外付給該供應商。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

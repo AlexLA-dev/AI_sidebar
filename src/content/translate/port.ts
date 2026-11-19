@@ -59,7 +59,36 @@ function key(url: string, to: string): string {
   return `cf:tr:${h.toString(36)}`
 }
 
+// The short words of a site (menus, buttons, labels: build 109), kept for all its pages: the latest SITE_WORDS of each
+// of the latest SITES sites.
+const SITE_INDEX = "cf:trSites:idx"
+const SITES = 8
+const SITE_WORDS = 600
+const SITE_CHARS = 40_000
+
 export const storageCache: TranslationCache = {
+  async loadSite(site, to) {
+    const k = key(`site:${site}`, to).replace("cf:tr:", "cf:trs:")
+    const stored = (await chrome.storage.local.get(k))[k] as { items?: Array<[string, string]> } | undefined
+    return new Map((stored?.items ?? []).filter((e) => Array.isArray(e) && typeof e[0] === "string" && typeof e[1] === "string"))
+  },
+  saveSite(site, to, entries) {
+    const k = key(`site:${site}`, to).replace("cf:tr:", "cf:trs:")
+    const items: Array<[string, string]> = []
+    let chars = 0
+    for (const entry of [...entries].reverse()) {
+      chars += entry[0].length + entry[1].length
+      if (chars > SITE_CHARS || items.length >= SITE_WORDS) break
+      items.push(entry)
+    }
+    void (async () => {
+      const index = ((await chrome.storage.local.get(SITE_INDEX))[SITE_INDEX] as Array<{ k: string; at: number }> | undefined) ?? []
+      const next = [{ k, at: Date.now() }, ...index.filter((e) => e?.k !== k)]
+      const gone = next.slice(SITES).map((e) => e.k)
+      await chrome.storage.local.set({ [k]: { items: items.reverse() }, [SITE_INDEX]: next.slice(0, SITES) })
+      if (gone.length) await chrome.storage.local.remove(gone)
+    })().catch(() => undefined)
+  },
   async load(url, to) {
     const k = key(url, to)
     const stored = (await chrome.storage.local.get(k))[k] as { items?: Array<[string, string]> } | undefined

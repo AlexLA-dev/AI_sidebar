@@ -10,6 +10,7 @@ import {
   type AskPayload,
   type ErrorCode,
   type Grounding,
+  type OwnKeyRefusal,
   type Platform,
   type Plan,
   type ProOffer,
@@ -21,6 +22,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
+import { ownKeyPlace, providerName } from "../shared/ownKeyError"
 import { FREE_MEMORY, historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
@@ -90,7 +92,8 @@ import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
 import { TipsSheet, tipsLabel } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
-import { shadowSelection, trackPointer } from "./selectionShadow"
+import { lastPointerDown, shadowSelection, trackPointer } from "./selectionShadow"
+import { clearedByHand } from "./handClear"
 import { selectionByOneTap, trackPresses } from "./tapSelect"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads, withStoredEdits } from "../shared/jobs"
@@ -122,7 +125,7 @@ import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, matchScope, type ChatMatch, type MeaningMatches } from "../shared/match"
-import { SpaceDot, SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
+import { pageTint, SpaceDot, SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
 import { CollectedMark, CollectionsWindow, CollectLink, CollectSheet, useCollections, type CollectAsk, type CollectPro, type CollectReport } from "./Collections"
 import { MoveSheet } from "./ux/MoveSheet"
 import { moveRange } from "./ux/moveAnswer"
@@ -147,6 +150,8 @@ interface ChatError {
   offer?: ProOffer | null
   // The page is long: an answer about it counts as this many, more than are left (2.5).
   weight?: number
+  // The person's own provider refused for a cause they can mend (109): no credit, or the account's rate limit.
+  ownKey?: OwnKeyRefusal
 }
 
 interface Action {
@@ -292,6 +297,13 @@ function localeCountry(): string | undefined {
 }
 
 function errorText(error: ChatError): string {
+  // Their own key, refused for a cause they can mend: said in their language, with where to mend it, and then the
+  // provider's own sentence (it names the limit or the plan).
+  if (error.ownKey) {
+    const { provider, problem } = error.ownKey
+    const said = t(problem === "credit" ? "errKeyCredit" : "errKeyRate", providerName(provider), ownKeyPlace(provider, problem).label)
+    return error.message ? `${said} ${t("errProvider", error.message)}` : said
+  }
   switch (error.code) {
     case "NETWORK":
       return t("errNetwork")
@@ -978,6 +990,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const purposefulRef = useRef(() => {})
   useEffect(() => trackPresses(() => purposefulRef.current()), [])
   const byTapRef = useRef(false)
+  // 2.7 (108), handClear.ts: whether the page had a selection at the last look and when, and a selection the person
+  // cleared with a press on the page while the panel was open (its chip stays for the question; the closing forgets it).
+  const selLiveRef = useRef(false)
+  const selLiveAtRef = useRef(0)
+  const handClearedRef = useRef(false)
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
     let scrollTimer: ReturnType<typeof setTimeout> | undefined
@@ -999,7 +1016,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     const onSelectionChange = () => {
       // Remember it right away: tapping our button on iPhone clears the selection.
-      trackSelection()
+      const live = Boolean(trackSelection())
+      const was = selLiveRef.current
+      selLiveRef.current = live
+      if (live) {
+        // Since when it's there, not when it was last reported: the press that clears it then counts whether or not a
+        // browser reports the same selection once more between the finger going down and the tap clearing it.
+        if (!was) selLiveAtRef.current = performance.now()
+        handClearedRef.current = false
+      } else if (was && clearedByHand(lastPointerDown(HOST_TAG), selLiveAtRef.current, performance.now())) {
+        // The person cleared it with a press on the page: it isn't the panel's any more (108, the owner: it came back
+        // at every opening and closing). Nothing of ours took it, so it isn't remembered or put back.
+        if (open) handClearedRef.current = true
+        else {
+          forgetSelection()
+          setSelection(null)
+        }
+      }
       // Its moment decides: right after one short tap in a field it's the tap's (iPadOS), later it's made on purpose.
       byTapRef.current = touch && selectionByOneTap()
       clearTimeout(timer)
@@ -1047,6 +1080,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // about goes back on the page first, unless its chip was cleared.
     const closing = wasOpenRef.current && !open
     wasOpenRef.current = open
+    // Cleared by the person on the page while the panel was open: the page stays as they left it.
+    if (closing && handClearedRef.current) {
+      handClearedRef.current = false
+      forgetSelection()
+      setSelection(null)
+    }
     const back = open
       ? undefined
       : setTimeout(() => {
@@ -1294,7 +1333,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       } else if (event.type === "error") {
         settled = true
         if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight }, undefined, event.entry)
+        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight, ...(event.ownKey ? { ownKey: event.ownKey } : {}) }, undefined, event.entry)
       }
     })
     // Closed without an end: the job may well go on (the background still answers it), so the chat is read again.
@@ -3845,6 +3884,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   )
 
   const theme = settings.theme === "auto" ? undefined : settings.theme
+  // 109: the page's own controls in the ✦ circle's space colour, paler (styles.css .cf[data-tint]).
+  const tint = pageTint(spaces.fabSpace?.color)
   // The last message is a question still without an answer (a note doesn't count).
   const lastIsUser = isQuestion(messages[messages.length - 1])
   // The conversation was last on another page: offer this page's actions.
@@ -3862,7 +3903,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ render
   return (
-    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}>
+    <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}
+      data-tint={tint ? spaces.fabSpace?.color : undefined} style={tint ?? undefined}>
       {/* Where fixed coordinates start, measured (fixedPlace.ts): the selection's buttons and ring are placed by it. */}
       <i class="cf-origin" aria-hidden="true" ref={setFixedProbe} />
       <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
@@ -4674,7 +4716,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         {hasPro(plan)
                           ? t("limitProBody", timeUntil(resetsAt))
                           : byok
-                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${status?.hasOwnKey ? t("byokLimitGoogle", back, PRO_WEEKLY) : t("byokLimitNoKey", back, PRO_WEEKLY)}`
+                            // With a key: only Google answers go through ContextFlow. A key added after the refusal
+                            // (from this card) leaves a question that wasn't a Google one: nothing more to say, Retry.
+                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))}${!status?.hasOwnKey ? ` ${t("byokLimitNoKey", back, PRO_WEEKLY)}` : messages[messages.length - 1]?.mode === "google" ? ` ${t("byokLimitGoogle", back, PRO_WEEKLY)}` : ""}`
                             : `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
                       </p>
                       <p class="cf-limit-notes">
@@ -4685,6 +4729,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <div class="cf-card-actions">
                           {upgradeButton("limit")}
                           {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>}
+                          {/* The key is there now (added from this card, or the question was a Google one): the same
+                              question again, answered with the key. Until 109 it had to be typed again. */}
+                          {status?.hasOwnKey && lastIsUser && (
+                            <button type="button" class="cf-secondary" onClick={() => retry(true)}>
+                              <Icon.Retry /> {messages[messages.length - 1]?.mode === "google" ? t("askWithoutGoogle") : t("retry")}
+                            </button>
+                          )}
                         </div>
                       )}
                       {!hasPro(plan) && !byok && (
@@ -4758,6 +4809,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <button type="button" class="cf-secondary" onClick={() => retry(true)}><Icon.Sparkle size={14} /> {t("askWithoutGoogle")}</button>
                       )}
                       {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("settings")}</button>}
+                      {error.ownKey && (
+                        <button type="button" class="cf-secondary" onClick={() => { const { provider, problem } = error.ownKey!; void sendBackground({ type: "openUrl", url: ownKeyPlace(provider, problem).url }) }}>
+                          {ownKeyPlace(error.ownKey.provider, error.ownKey.problem).label}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

@@ -65,6 +65,11 @@
 .cf-plan-current { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--accent-text); }
 .cf[data-touch] .cf-plan-lines { font-size: 14px; }
 .cf[data-touch] .cf-plan-top strong { font-size: 16.5px; }
+/* 109: Own key is behind its link, under the row of plans; its card says what it needs. */
+.cf-plans-own { margin: 8px 2px 0; text-align: center; }
+.cf-plan-needs { margin: 6px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--text); }
+.cf[data-touch] .cf-plan-needs { font-size: 14px; }
+.cf[data-touch] .cf-plans-own .cf-link { min-height: 44px; font-size: 15px; }
 
 /* Build 90: the plans sheet's yearly lines (a month of it, what it saves), and the switch for monthly subscribers. */
 .cf-plan-year { display: flex; align-items: baseline; gap: 6px; margin: 4px 0 0; font-size: 12px; }

@@ -29,6 +29,20 @@ export function spaceVars(color: SpaceColor): Record<string, string> {
   return { "--space": base, "--space-2": light, "--space-soft": `${base}1c` }
 }
 
+/**
+ * 2.7 (109), the owner: the page's own controls beside the ✦ circle (the selection bar, the translate pill, corrections,
+ * Quick insert, the note pop-up, toasts) in its space's colour, paler (styles.css `.cf[data-tint]`). The one switch:
+ * false leaves them blue in every space.
+ */
+export const PAGE_TINT = true
+
+/** The variables `.cf[data-tint]` mixes from (the circle's base and light colour); none for the first, blue colour. */
+export function pageTint(color: SpaceColor | undefined): Record<string, string> | null {
+  if (!PAGE_TINT || !color || color === "blue") return null
+  const [light, base] = SPACE_COLORS[color]
+  return { "--tint": base, "--tint-2": light }
+}
+
 export function SpaceDot({ color, size = 12 }: { color: SpaceColor; size?: number }): VNode {
   return <i class="cf-space-dot" aria-hidden="true" style={{ width: `${size}px`, height: `${size}px`, background: spaceGradient(color) }} />
 }
@@ -330,9 +344,13 @@ export function useSpaces(deps: SpacesDeps) {
       show({ space, kind: "site", site: siteKey(href) })
       deps.report("switch", { via: "site" })
     },
-    /** The matching chat was in another space (107): the panel went there with it. */
+    /**
+     * The matching chat was in another space (107): the panel went there with it. 109, the owner didn't notice the
+     * switch: «You're in “Personal”» over the header for a moment, as a bound site's switch shows its own.
+     */
     followMatch: (space: string) => {
       setActiveSp(space)
+      show({ space, kind: "in" })
       deps.report("switch", { via: "match" })
     },
     /** The matching chat's line, «← <space>»: back to the space the panel was in, its chat for this page or a new one. */

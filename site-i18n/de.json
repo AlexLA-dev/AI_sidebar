@@ -691,5 +691,7 @@
   "ee329a85e7ae": "Liest die Seite, auf die du antwortest",
   "60c8279280c4": "Sie arbeiten mit dem Text, den du ihnen gibst",
   "768737d596d7": "Eine Antwort pro Tipp: 5 am Tag kostenlos; Unterstreichungen mit Pro",
-  "e51f743693e5": "Mehr dazu: <a href=\"/translate-web-page-safari-iphone\">Eine Webseite in Safari übersetzen</a>"
+  "e51f743693e5": "Mehr dazu: <a href=\"/translate-web-page-safari-iphone\">Eine Webseite in Safari übersetzen</a>",
+  "ee6188a287b5": "Ich habe einen eigenen API-Schlüssel",
+  "4b7a73ec677d": "Für diesen Tarif brauchst du einen eigenen API-Schlüssel von OpenAI oder Claude. Die Antworten bezahlst du separat bei diesem Anbieter."
 }

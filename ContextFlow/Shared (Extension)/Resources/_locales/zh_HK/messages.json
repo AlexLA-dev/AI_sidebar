@@ -527,6 +527,12 @@
  "planByok": {
   "message": "自備金鑰"
  },
+ "plansOwnKeyLink": {
+  "message": "我有自己的 API 金鑰"
+ },
+ "plansOwnKeyNeeds": {
+  "message": "這個方案需要你自己的 OpenAI 或 Claude API 金鑰。回答的費用由你另外付給該供應商。"
+ },
  "planRenews": {
   "message": "將於 {0} 續訂"
  },
@@ -997,6 +1003,12 @@
  },
  "errProvider": {
   "message": "你的 AI 供應商回覆：{0}"
+ },
+ "errKeyCredit": {
+  "message": "你的 {0} 帳號沒有餘額，或尚未設定帳單，因此請求被拒絕了。請到 {1} 儲值後再問一次。"
+ },
+ "errKeyRate": {
+  "message": "{0} 目前正在限制你的金鑰發出的請求（帳號的速率限制）。請等一分鐘再問一次。你的額度請見 {1}。"
  },
  "offerLimit": {
   "message": "或升級 Pro，首月省 {0}%：每週最多 {1} 個回答，更深入、更詳細。隨時可以取消。"
@@ -2431,6 +2443,24 @@
  },
  "trControlsCap": {
   "message": "今天的按鈕和選單免費翻譯已用完"
+ },
+ "trSiteAsk": {
+  "message": "翻譯此網站的所有頁面？"
+ },
+ "trSiteYes": {
+  "message": "是"
+ },
+ "trSiteNo": {
+  "message": "否"
+ },
+ "trSiteOn": {
+  "message": "此網站的所有頁面都會翻譯"
+ },
+ "trSiteOff": {
+  "message": "關閉"
+ },
+ "trSite": {
+  "message": "整個網站"
  },
  "spacesTitle": {
   "message": "空間"

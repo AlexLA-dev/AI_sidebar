@@ -221,11 +221,15 @@ export function SettingsView(props: Props): VNode {
           </div>
         ) : (
           <div class="cf-row buttons">
+            {/* Not a password field (109): Safari took the key for a password and asked «Save Password?», with a
+                user name to enter, right after Save. The text is hidden the same way by the style. */}
             <input
-              class="cf-text"
-              type="password"
+              class="cf-text cf-secret"
+              type="text"
               placeholder="sk-… / sk-ant-…"
               autoComplete="off"
+              autocorrect="off"
+              autocapitalize="off"
               spellcheck={false}
               value={keyDraft}
               disabled={!ownKeyAllowed}
