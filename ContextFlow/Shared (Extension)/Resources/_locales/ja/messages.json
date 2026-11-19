@@ -2636,6 +2636,9 @@
  "writeFixedSome": {
   "message": "修正しました（入力欄が受け付けなかった箇所を除く）"
  },
+ "writeFixRefused": {
+  "message": "入力欄がこの修正を受け付けませんでした"
+ },
  "writeReplaced": {
   "message": "置き換えました"
  },

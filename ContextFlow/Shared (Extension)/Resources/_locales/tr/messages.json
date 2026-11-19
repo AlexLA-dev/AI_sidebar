@@ -2636,6 +2636,9 @@
  "writeFixedSome": {
   "message": "Düzeltildi; alanın kabul etmediği yerler hariç"
  },
+ "writeFixRefused": {
+  "message": "Alan bu düzeltmeyi kabul etmedi"
+ },
  "writeReplaced": {
   "message": "Değiştirildi"
  },

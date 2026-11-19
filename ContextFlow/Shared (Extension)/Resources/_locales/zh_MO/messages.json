@@ -2636,6 +2636,9 @@
  "writeFixedSome": {
   "message": "已修正，欄位不接受的部分除外"
  },
+ "writeFixRefused": {
+  "message": "欄位不接受這處修正"
+ },
  "writeReplaced": {
   "message": "已取代"
  },
