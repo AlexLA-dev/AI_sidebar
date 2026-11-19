@@ -528,12 +528,18 @@ enum FirstPage {
     static func open() {
         Task { @MainActor in
             await confirm()
-            guard let page = url else { return }
-            if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
-                UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
-            } else {
-                UIApplication.shared.open(page)
-            }
+            show()
+        }
+    }
+
+    /// Not in the task itself: there `open` would be UIApplication's async one.
+    @MainActor
+    private static func show() {
+        guard let page = url else { return }
+        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
+            UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
+        } else {
+            UIApplication.shared.open(page)
         }
     }
     #endif
