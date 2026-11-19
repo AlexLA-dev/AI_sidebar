@@ -1,0 +1,147 @@
+{
+  "cpp-lang": {
+    "name": "2.6 Other languages: summarize, translate, listen",
+    "audience": "People who read pages in a language that isn't their own.",
+    "promo": {
+      "en-US": "Page in another language? Translate it right where it is, links still work. Or get it summarized in yours, translate just the part you need, or listen to it.",
+      "ru": "Страница на чужом языке? Переведите её прямо на месте, ссылки работают. Или получите пересказ на своём, переведите нужный кусок или послушайте."
+    },
+    "keywords": {
+      "en-US": [
+        "translate"
+      ],
+      "ru": [
+        "перевод"
+      ]
+    },
+    "screens": [
+      "translate27",
+      "foreign",
+      "translate",
+      "explain",
+      "listen"
+    ]
+  },
+  "cpp-study": {
+    "name": "2.6 Study: ask your chats, keep them in order",
+    "audience": "Students and researchers who read a lot and come back to it later.",
+    "promo": {
+      "en-US": "Gather everything for a topic in a Collection, sorted for you. Keep notes with a picture of the page, ask all your chats at once, and ask about PDFs and videos.",
+      "ru": "Соберите всё по теме в подборку, она разложится сама. Заметки со снимком страницы, вопрос сразу ко всем чатам и вопросы по PDF и видео."
+    },
+    "keywords": {
+      "en-US": [
+        "pdf",
+        "notes",
+        "article",
+        "tldr"
+      ],
+      "ru": [
+        "статьи",
+        "pdf"
+      ]
+    },
+    "screens": [
+      "collections",
+      "askchats",
+      "snapshot",
+      "organize",
+      "media"
+    ]
+  },
+  "cpp-work": {
+    "name": "2.6 Work: templates, copies, reminders",
+    "audience": "Busy people who answer the same messages and fill the same forms every day.",
+    "promo": {
+      "en-US": "Check and rewrite what you type with the page in mind. Templates fill in names and dates, and a date in the chat goes straight to Calendar or Reminders.",
+      "ru": "Проверка и правка текста с учётом страницы. Шаблоны сами впишут имя и дату, а дата из чата сразу уйдёт в Календарь или Напоминания."
+    },
+    "keywords": {
+      "en-US": [
+        "clipboard"
+      ],
+      "ru": [
+        "буфер",
+        "обмена"
+      ]
+    },
+    "screens": [
+      "check",
+      "calendar",
+      "templates",
+      "copies",
+      "spaces"
+    ]
+  },
+  "cpp-shop": {
+    "name": "2.6 Shopping: find similar, price drops",
+    "audience": "People choosing something to buy: they compare options and wait for a better price.",
+    "promo": {
+      "en-US": "Looking at something to buy? Find similar shows cheaper or newer options with every link checked, and now it's in Pro too. Compare them side by side in a Collection.",
+      "ru": "Выбираете покупку? «Найти похожее» покажет варианты дешевле или новее, каждая ссылка проверена, теперь и в Pro. А сравнить их можно в подборке."
+    },
+    "keywords": {
+      "en-US": [
+        "shopping",
+        "price",
+        "tracker",
+        "stock"
+      ],
+      "ru": [
+        "покупок",
+        "трекер",
+        "цен"
+      ]
+    },
+    "screens": [
+      "similar",
+      "pick",
+      "collections",
+      "price",
+      "watchnote"
+    ]
+  },
+  "cpp-listen": {
+    "name": "2.6 Listen: pages read aloud",
+    "audience": "Commuters and people who would rather listen than read a long page.",
+    "promo": {
+      "en-US": "Too long to read? Listen to any page or answer in a natural voice. On iPhone it keeps playing with the screen locked.",
+      "ru": "Некогда читать? Слушайте любую страницу или ответ естественным голосом. На iPhone звук не прервётся и при заблокированном экране."
+    },
+    "keywords": {
+      "en-US": [
+        "listen"
+      ],
+      "ru": [
+        "озвучка"
+      ]
+    },
+    "screens": [
+      "listen",
+      "summary",
+      "explain",
+      "remind",
+      "devices"
+    ]
+  },
+  "cpp-arc": {
+    "name": "2.7 Moving from Arc",
+    "audience": "People leaving Arc for Safari (Arc Search on iPhone loses its AI, then Arc for Mac stops) who want AI on the page again. The images and texts never name Arc (guideline 2.3.7).",
+    "promo": {
+      "en-US": "Going back to Safari? ContextFlow puts AI on every page, with Spaces for work and home and the panel on either side. The same chats on iPhone, iPad and Mac."
+    },
+    "keywords": {
+      "en-US": [
+        "extension"
+      ]
+    },
+    "screens": [
+      "askpage",
+      "spaces",
+      "keypoints",
+      "web",
+      "devices",
+      "similar"
+    ]
+  }
+}

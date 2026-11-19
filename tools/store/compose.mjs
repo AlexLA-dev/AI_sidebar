@@ -79,6 +79,7 @@ const COPY_ALL = {
     v27Links: "Links still work",
     v27Spaces: ["Work, home, shopping:", "a space for each"],
     v27Match: "Opens the chat that fits the page",
+    cut27: "Cut text lands here too",
     v27Side: "Left or right: drag it there",
     v27Check: ["Check and rewrite", "with the page in mind"],
     v27Underlines: "Pro: underlines as you type",
@@ -179,6 +180,7 @@ const COPY_ALL = {
     v27Links: "Ссылки работают",
     v27Spaces: ["Работа, дом, покупки:", "свои пространства"],
     v27Match: "Откроет подходящий чат",
+    cut27: "И вырезанное тоже",
     v27Side: "Слева или справа — перетащите",
     v27Check: ["Проверит и перепишет", "с учётом страницы"],
     v27Underlines: "Pro: подчеркнёт ошибки на ходу",
@@ -497,6 +499,29 @@ const CPP26 = {
 const cppSets = (names) => Object.fromEntries(["iphone", "ipad"].map((k) => [k, names.map((n) => V26(k)[n])]))
 CPP26["cpp-arc"] = ["askpage", "keypoints", "web", "devices", "similar"]
 const arcSets = () => Object.fromEntries(["iphone", "ipad"].map((k) => [k, CPP26["cpp-arc"].map((n) => ARC27(k)[n])]))
+// 2.7's custom product pages (iPhone and iPad), shot on build 110, as store-27-refresh-plan.md has them: each page's
+// 2.6 screens that stay, with 2.7's new ones. "translate27" is the page translated where it is; "translate" stays the
+// selection's. Copies on the work page say cut text lands there too (2.7).
+const CPP27 = {
+  "cpp-lang": ["translate27", "foreign", "translate", "explain", "listen"],
+  "cpp-study": ["collections", "askchats", "snapshot", "organize", "media"],
+  "cpp-work": ["check", "calendar", "templates", "copies", "spaces"],
+  "cpp-shop": ["similar", "pick", "collections", "price", "watchnote"],
+  "cpp-listen": ["listen", "summary", "explain", "remind", "devices"],
+  "cpp-arc": ["askpage", "spaces", "keypoints", "web", "devices", "similar"]
+}
+const NEW27 = ["collections", "spaces", "check", "calendar", "snapshot"]
+const cpp27Sets = (key) => Object.fromEntries(["iphone", "ipad"].map((k) => {
+  const v26 = V26(k), v27 = V27(k), arc = ARC27(k)
+  const pick = (n) => {
+    if (n === "translate27") return v27.translate
+    if (NEW27.includes(n)) return v27[n]
+    if (key === "cpp-arc" && arc[n]) return arc[n]
+    if (key === "cpp-work" && n === "copies") return { ...v26.copies, pills: [{ text: COPY.cut27, icon: "✂︎", center: true, y: k === "iphone" ? 515 : 490 }] }
+    return v26[n]
+  }
+  return [k, CPP27[key].map(pick)]
+}))
 
 const SETS_24 = {
   iphone: [
@@ -999,7 +1024,7 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(set === "v27first" ? SETS_V27_FIRST : set === "v27" ? SETS_V27 : set === "v26" ? SETS_V26 : set === "cpp-arc" ? arcSets() : CPP26[set] ? cppSets(CPP26[set]) : set === "ppo" ? SETS_PPO : set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
+for (const [kind, specs] of Object.entries(set === "v27first" ? SETS_V27_FIRST : set === "v27" ? SETS_V27 : set === "v26" ? SETS_V26 : set.startsWith("cpp27-") ? cpp27Sets(set.slice(6)) : set === "cpp-arc" ? arcSets() : CPP26[set] ? cppSets(CPP26[set]) : set === "ppo" ? SETS_PPO : set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)
