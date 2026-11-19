@@ -23,7 +23,7 @@ import {
 } from "../shared/types"
 import * as Icon from "./icons"
 import { ownKeyPlace, providerName } from "../shared/ownKeyError"
-import { FREE_MEMORY, historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
+import { FREE_MEMORY, historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionCite, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
 import { answerWeight } from "../shared/pagefit"
@@ -81,7 +81,7 @@ import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
 import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
-import { NoteText } from "./ux/NoteText"
+import { AskedCite, NoteText } from "./ux/NoteText"
 import { CameraIcon, ShotSwitch, ShotThumb, ShotViewer } from "./ux/ShotUi"
 import { keepShot, takeShot } from "./shot"
 import { DEFAULT_SHOT_PREF, SHOT_PREF_KEY, type Shot, type ShotKind, type ShotPref } from "../shared/shots"
@@ -386,7 +386,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
   // The question being prepared (page still being read); cleared when it's sent or stopped.
   const askToken = useRef<object | null>(null)
-  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google" }, full: PageRead, selection: SelectionInfo | null, history?: ChatDigest[]) => void>(() => undefined)
+  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google" }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
   // The chat shown is "Ask your chats" (Pro): questions about all the other chats, not the page.
   const [historyMode, setHistoryMode] = useState(false)
   const historyRef = useRef(false)
@@ -1139,7 +1139,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
   }
 
-  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
+  // `cite`: Retry of a question asked on a selection that's gone now: about that text again (build 110).
+  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
@@ -1171,8 +1172,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       })
       return
     }
-    // The question shows at once; a video's transcript or a PDF may take a few seconds to read.
+    // The question shows at once; a video's transcript or a PDF may take a few seconds to read. Asked on a selection,
+    // with its quote (build 110).
+    const about = selection?.text ?? opts.cite ?? null
     const shown: Turn = stamped({ role: "user", content, label: opts.label, page: { url, title: source.title(), at: Date.now() } })
+    if (about) shown.cite = selectionCite(about)
     if (opts.mode) shown.mode = opts.mode
     setMessages([...base, shown])
     setDraft("")
@@ -1185,7 +1189,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const token = {}
     askToken.current = token
     // A selection or a Google search doesn't need the transcript or the PDFs.
-    const whole = !selection && opts.mode !== "google"
+    const whole = !about && opts.mode !== "google"
     const quick = (): PageRead => ({ ...source.quick(), sources: [] })
     // The video and PDFs are read for plans with them (Pro); otherwise the question says the page has them.
     const plan = statusRef.current ? Promise.resolve(statusRef.current) : sendBackground<StatusInfo>({ type: "status", platform })
@@ -1200,7 +1204,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void reading.then((full) => {
       if (askToken.current !== token) return // stopped meanwhile
       setReading(null)
-      sendRef.current(base, content, opts, full, selection)
+      sendRef.current(base, content, opts, full, about)
     })
   }, [consent, messages, platform, selection, source])
 
@@ -1213,7 +1217,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setTimeout(() => ask(prompt, { label: t(conversation ? "qiAdaptChat" : "qiAdaptLabel") }), 120)
   }
 
-  /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
+  /** Sends a question with the page as `full` (sources: what was read along with it) or the selected text. */
   sendRef.current = (base, content, opts, full, selection, chats) => {
     const url = source.key()
     // The model gets all of the page (2.5); its fingerprint and the saved text are still its first
@@ -1224,6 +1228,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const user: Turn = stamped(chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: ref }, ref.at)
     if (!chats) void rememberPageText(url, full.title, full.attachments ? composePage(start, full.attachments) : start)
     if (opts.mode) user.mode = opts.mode
+    if (selection) user.cite = selectionCite(selection)
     if (changed) user.pageChanged = true
     if (full.sources.length) user.sources = full.sources
     if (full.skipped?.length) user.skipped = full.skipped
@@ -1231,7 +1236,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setMessages(history)
 
     const page: AskPayload["page"] = chats ? null : selection
-      ? { kind: "selection", title: source.title().slice(0, 300), url: source.href(), text: selection.text }
+      ? { kind: "selection", title: source.title().slice(0, 300), url: source.href(), text: selection }
       : full.text || full.attachments || full.skipped
         ? { kind: "page", title: full.title, url: source.href(), text: full.text, changed, ...(full.attachments ? { attachments: full.attachments } : {}), ...(full.skipped ? { skipped: full.skipped } : {}) }
         : null
@@ -1586,7 +1591,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // picker points now.
     if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined, last.similarChip !== undefined || last.similarWords !== undefined ? { chips: (last.similarChip ?? "").split(",").filter((c): c is SimilarChip => (SIMILAR_CHIPS as readonly string[]).includes(c)), words: last.similarWords } : undefined)
     if (withoutGoogle) setGoogleMode(false)
-    ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
+    ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode, cite: last.note ? undefined : last.cite })
   }, [messages, ask])
 
   const runAction = useCallback((picked: Action) => {
@@ -4510,12 +4515,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           </div>
                         ), !picked)
                       ) : (
+                        <>
+                        {m.cite && <AskedCite text={m.cite} />}
                         <div class="cf-bubble-user" dir="auto">
                           {m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}
                           {m.similarAsk !== undefined && <span class="cf-user-mode" title={t("similarTitle")} aria-label={t("similarTitle")}><SimilarIcon size={12} /></span>}
                           {m.label ?? m.content}
                           {m.similarAsk !== undefined && m.similarRegion && <span class="cf-user-where">{whereLabel(m.similarRegion, m.similarCountry)}</span>}
                         </div>
+                        </>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}

@@ -5,7 +5,7 @@
 // It never starts with "word:": apps that take text that parses as a URL as a link (Heptabase) would
 // save the whole text as one link, scheme "You".
 
-import { stripCitations, type Entry } from "./conversation.ts"
+import { askedCite, stripCitations, type Entry } from "./conversation.ts"
 
 export interface ShareLabels {
   you: string // "You"
@@ -13,6 +13,7 @@ export interface ShareLabels {
   sources: string // a Google answer's sources
   source: string // the pages the chat was about
   madeWith: string // "Made with ContextFlow"
+  quote?: string // the language's quotes around {0} ("“{0}”", "«{0}»"): a question's selection (build 110)
 }
 
 export interface ShareLinks {
@@ -87,7 +88,10 @@ export function chatShareText(entries: Entry[], name: string, labels: ShareLabel
     if (only && !only.has(i)) continue
     if (m.role === "user") {
       if (m.page) pages.set(m.page.url, m.page.title)
-      lines.push(m.note ? `${labels.note}: ${m.content}` : `${labels.you}: ${m.label ?? m.content}`)
+      const cite = askedCite(m)
+      // A question asked on a selection: the selection first, as the chat shows it (build 110).
+      const asked = cite ? `${(labels.quote ?? "“{0}”").replace("{0}", () => cite)}\n${m.label ?? m.content}` : m.label ?? m.content
+      lines.push(m.note ? `${labels.note}: ${m.content}` : `${labels.you}: ${asked}`)
     } else {
       const page = pageOf(entries, i)
       if (page) pages.set(page.url, page.title)
