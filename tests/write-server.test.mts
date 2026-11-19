@@ -356,7 +356,7 @@ test("a check of Turkish gets Turkish's own rules; a message in another language
 test("Check names the mistakes that are easy to miss in other languages, by rule (no word lists)", async () => {
   const { CHECK_SYSTEM } = await import("../netlify/shared/writing.mts")
   assert.match(CHECK_SYSTEM, /as carefully in any language as in English/)
-  for (const rule of [/a direct question that ends without its question mark/, /Spanish ¿ and ¡/, /full-width ，。？, Arabic ، and ؟/, /Korean spacing; Turkish de\/da meaning "too" and the question particle mi, both written apart/, /的, 地 and 得/, /a verb whose person ending doesn't match its subject/])
+  for (const rule of [/a question that ends without its question mark/, /Spanish ¿ and ¡/, /full-width ，。？, Arabic ، and ؟/, /Korean spacing; Turkish de\/da meaning "too" and the question particle mi, both written apart/, /的, 地 and 得/, /a verb whose person ending doesn't match its subject/])
     assert.match(CHECK_SYSTEM, rule)
   assert.match(CHECK_SYSTEM, /A question mark missing from a direct question is still a mistake, unless their earlier messages leave those out too\./)
 })
@@ -364,6 +364,5 @@ test("Check names the mistakes that are easy to miss in other languages, by rule
 test("Check: a question mark only after a sentence that itself asks; an indirect question keeps the statement's full stop", async () => {
   // 109c, the director's walk: «…но хотелось бы узнать, сколько это будет стоить» came back ending in «?».
   const { CHECK_SYSTEM } = await import("../netlify/shared/writing.mts")
-  assert.match(CHECK_SYSTEM, /Only a sentence that itself asks takes a question mark\./)
-  assert.match(CHECK_SYSTEM, /is still a statement and ends with a full stop: also when it is meant as a request, and also when you add the end mark the message is missing\./)
+  assert.match(CHECK_SYSTEM, /A question told inside a statement \(«we'd like to know when it will be ready»\) is not a question: it ends with a full stop, also where you add the end mark a message lacks\./)
 })
