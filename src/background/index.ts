@@ -1160,7 +1160,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     // 2.7: the panel's «New in 2.7» card is for people who had ContextFlow before; a new install has the tour.
     void markNewSeen().catch(() => undefined)
     void chrome.storage.local.set({ [STORAGE.extOnPending]: false }).then(reportSwitchedOn).catch(() => undefined)
-    // Build 110: not over a page whose panel the person already has in front (src/shared/welcomeTab.ts).
+    // Build 110: not over a website ContextFlow already works on in front (src/shared/welcomeTab.ts).
     void welcomeOnInstall({
       front: async () => (await chrome.tabs.query({ active: true, currentWindow: true }))[0] ?? null,
       panelIn: (tabId) =>
@@ -1169,7 +1169,8 @@ chrome.runtime.onInstalled.addListener((details) => {
           () => false
         ),
       open: async () => void (await chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })),
-      wait: (ms) => new Promise((done) => setTimeout(done, ms))
+      wait: (ms) => new Promise((done) => setTimeout(done, ms)),
+      now: () => Date.now()
     }).catch(() => undefined)
   } else if (details.reason === "update") {
     void migrateFromV1().catch(() => undefined)

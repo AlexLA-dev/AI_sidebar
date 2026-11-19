@@ -5,23 +5,20 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { WELCOME_LOADING_MS, WELCOME_LOOKS, welcomeOnInstall, type FrontTab } from "../src/shared/welcomeTab.ts"
+import { WELCOME_LATE_MS, WELCOME_PAUSE_MS, welcomeOnInstall, type FrontTab } from "../src/shared/welcomeTab.ts"
 
 const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8")
 
-/** A Safari to ask: what is in front at each look, and in which tabs the panel answers. */
-function safari(fronts: Array<FrontTab | null | "throws">, panels: number[] = []) {
+/** A Safari to ask: what is in front at each look, in which tabs the panel answers, and how long a pause really takes. */
+function safari(fronts: Array<FrontTab | null | "throws">, panels: number[] = [], pauseTakes?: number) {
   const log: string[] = []
   let look = 0
   let opened = 0
-  let waited = 0
+  let clock = 1_000_000
   return {
     log,
     get opened() {
       return opened
-    },
-    get waited() {
-      return waited
     },
     deps: {
       front: async () => {
@@ -38,56 +35,71 @@ function safari(fronts: Array<FrontTab | null | "throws">, panels: number[] = []
         log.push("open")
       },
       wait: async (ms: number) => {
-        waited += ms
+        clock += pauseTakes ?? ms
         log.push(`wait ${ms}`)
-      }
+      },
+      now: () => clock
     }
   }
 }
 
+const START = { id: 1, url: "", status: "complete" }
+const SITE = { id: 2, url: "https://context-flow.app/features?utm_source=app", status: "complete" }
+
 test("the panel answers in the front tab: no welcome tab, and nothing waits (the first tap on ✦ woke the background)", async () => {
-  const s = safari([{ id: 7, url: "https://context-flow.app/features?utm_source=app", status: "complete" }], [7])
+  const s = safari([SITE], [2])
   assert.equal(await welcomeOnInstall(s.deps), "panel")
   assert.equal(s.opened, 0)
-  assert.deepEqual(s.log, ["ask 7"])
+  assert.deepEqual(s.log, ["ask 2"])
 })
 
-test("Safari started from the app: its old tab is in front first, our page with the panel a moment later", async () => {
-  const s = safari([{ id: 1, url: "", status: "complete" }, { id: 2, url: "https://context-flow.app/features", status: "loading" }, { id: 2, url: "https://context-flow.app/features", status: "complete" }], [])
-  // The panel's script runs once the page is idle: it answers at the third look.
-  let asked = 0
-  s.deps.panelIn = async (id) => id === 2 && ++asked >= 2
-  assert.equal(await welcomeOnInstall(s.deps), "panel")
+test("a site ContextFlow is allowed on in front, its panel not there yet (the page still loading): no welcome tab, no waiting", async () => {
+  for (const status of ["loading", "complete"]) {
+    const s = safari([{ ...SITE, status }])
+    assert.equal(await welcomeOnInstall(s.deps), "site")
+    assert.equal(s.opened, 0)
+    assert.deepEqual(s.log, ["ask 2"])
+  }
+  const http = safari([{ id: 5, url: "http://intranet.example/page", status: "complete" }])
+  assert.equal(await welcomeOnInstall(http.deps), "site")
+})
+
+test("Safari started from the app: its old tab is in front first, our page a moment later", async () => {
+  const s = safari([START, { ...SITE, status: "loading" }])
+  assert.equal(await welcomeOnInstall(s.deps), "site")
   assert.equal(s.opened, 0)
-  assert.equal(s.waited, WELCOME_LOOKS[0] + WELCOME_LOOKS[1])
+  assert.deepEqual(s.log, ["ask 1", `wait ${WELCOME_PAUSE_MS}`, "ask 2"])
+  const answers = safari([START, SITE], [2])
+  assert.equal(await welcomeOnInstall(answers.deps), "panel")
+  assert.equal(answers.opened, 0)
 })
 
-test("no panel in front (the start page, a site ContextFlow isn't allowed on): the tab opens after the looks, once", async () => {
-  for (const front of [{ id: 1, url: "", status: "complete" }, { id: 1, status: "complete" }, { id: 3, url: "https://example.com/", status: "complete" }, null, "throws"] as const) {
+test("nobody to ask (the start page, a site ContextFlow isn't allowed on, no tab): the tab opens after one short pause, once", async () => {
+  for (const front of [START, { id: 1, status: "complete" }, { id: 1, url: "", status: "loading" }, { id: 4, url: "safari-web-extension://abc/welcome.html" }, null, "throws"] as const) {
     const s = safari([front])
     assert.equal(await welcomeOnInstall(s.deps), "opened")
     assert.equal(s.opened, 1)
-    assert.equal(s.waited, WELCOME_LOOKS.reduce((a, b) => a + b, 0), "a few seconds at most, however the tab looks")
+    assert.equal(s.log.filter((l) => l.startsWith("wait")).length, 1, "one pause, not a loop")
     assert.equal(s.log.at(-1), "open")
   }
 })
 
-test("a page still loading in front is waited for, up to a limit; then the tab opens", async () => {
-  const loading = { id: 4, url: "https://context-flow.app/de/features", status: "loading" }
-  const comes = safari([loading, loading, loading, loading, loading, loading, { ...loading, status: "complete" }])
-  let looks = 0
-  comes.deps.panelIn = async () => ++looks >= 7
-  assert.equal(await welcomeOnInstall(comes.deps), "panel")
-  assert.equal(comes.opened, 0)
-
-  const never = safari([loading])
-  assert.equal(await welcomeOnInstall(never.deps), "opened")
-  assert.equal(never.opened, 1)
-  assert.ok(never.waited >= WELCOME_LOADING_MS && never.waited <= WELCOME_LOADING_MS + 1000, `waited ${never.waited}`)
+test("the background slept through its pause (Safari on an iPhone): the tab's time has passed, nothing opens late", async () => {
+  // 42 s between the install event and the tab, over Safari's permission sheet: the simulator, 2026-11-19.
+  const s = safari([START], [], 42_000)
+  assert.equal(await welcomeOnInstall(s.deps), "late")
+  assert.equal(s.opened, 0)
+  // Woken on a page with the panel: that is answered as ever.
+  const woke = safari([START, SITE], [2], 42_000)
+  assert.equal(await welcomeOnInstall(woke.deps), "panel")
+  // A pause that took a little longer than asked is still the same moment.
+  const slow = safari([START], [], WELCOME_LATE_MS - 500)
+  assert.equal(await welcomeOnInstall(slow.deps), "opened")
+  assert.ok(WELCOME_PAUSE_MS <= 1000 && WELCOME_LATE_MS >= 3000)
 })
 
 test("a tab that can't be asked (an error from Safari) counts as no panel, not as a failure", async () => {
-  const s = safari([{ id: 9, url: "https://example.com/", status: "complete" }])
+  const s = safari([START])
   s.deps.panelIn = async () => {
     throw new Error("Could not establish connection")
   }
@@ -111,6 +123,7 @@ test("the background: the install handler keeps its other work and opens the tab
   assert.match(handler, /open: async \(\) => void \(await chrome\.tabs\.create\(\{ url: chrome\.runtime\.getURL\("welcome\.html"\) \}\)\)/)
   assert.match(handler, /chrome\.tabs\.query\(\{ active: true, currentWindow: true \}\)/)
   assert.match(handler, /chrome\.tabs\.sendMessage\(tabId, \{ type: "here" \}/)
+  assert.match(handler, /now: \(\) => Date\.now\(\)/)
   // The toolbar button on a page that takes no scripts still opens the tab itself (the person asked).
   assert.match(src, /welcome\.html\?restricted=1/)
 })
