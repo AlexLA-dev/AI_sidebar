@@ -127,7 +127,7 @@ class FakeObserver {
 // Every translator a test started is stopped after it, also when the test fails halfway (its timers would keep the
 // run from ending: on a loaded machine a timed test can fail, and the whole run then hung).
 const started: any[] = []
-const tracked = <T>(translator: T): T => {
+function tracked<T>(translator: T): T {
   started.push(translator)
   return translator
 }
