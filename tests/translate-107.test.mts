@@ -151,7 +151,10 @@ test("A3: a dialog added after the translation, a menu that shows itself (aria-h
   await wait(60)
   assert.equal(document.querySelector("main p")!.textContent, "RU Ein Absatz über Kopfhörer.")
   const drawer = document.getElementById("drawer")!
-  assert.equal(drawer.textContent!.includes("RU"), false, "hidden from everyone: not yet")
+  // Build 109: aria-hidden alone doesn't keep words from being translated (a shop writes its filter's visible words
+  // in an aria-hidden element); what the `hidden` attribute hides waits until it's taken off.
+  assert.equal(drawer.textContent!.includes("RU"), true, "aria-hidden: read with the page")
+  assert.equal(document.getElementById("menu")!.textContent!.includes("RU"), false, "hidden: not yet")
   // The cart's dialog, added after the translation (the owner's «попапы»).
   const dialog = document.createElement("div")
   dialog.setAttribute("role", "dialog")

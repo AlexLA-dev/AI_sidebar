@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "Le traduzioni gratuite di pulsanti e menu di oggi sono finite"
  },
+ "trSiteAsk": {
+  "message": "Tradurre tutte le pagine di questo sito?"
+ },
+ "trSiteYes": {
+  "message": "Sì"
+ },
+ "trSiteNo": {
+  "message": "No"
+ },
+ "trSiteOn": {
+  "message": "Tutto il sito viene tradotto"
+ },
+ "trSiteOff": {
+  "message": "Disattiva"
+ },
+ "trSite": {
+  "message": "Tutto il sito"
+ },
  "spacesTitle": {
   "message": "Spazi"
  },

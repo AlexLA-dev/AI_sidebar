@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "今天的按钮和菜单免费翻译已用完"
  },
+ "trSiteAsk": {
+  "message": "翻译此网站的所有页面？"
+ },
+ "trSiteYes": {
+  "message": "是"
+ },
+ "trSiteNo": {
+  "message": "否"
+ },
+ "trSiteOn": {
+  "message": "此网站的所有页面都会翻译"
+ },
+ "trSiteOff": {
+  "message": "关闭"
+ },
+ "trSite": {
+  "message": "整个网站"
+ },
  "spacesTitle": {
   "message": "空间"
  },

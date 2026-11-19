@@ -174,7 +174,8 @@ export const FEATURES: Record<string, Feature> = {
   translate_page: {
     since: "2.7", tracked: "2.7", on: "ext",
     // build 107: "entry" the entry by the circle opened the pill, "lang" another language picked.
-    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error", "entry", "lang"]
+    // build 109: the whole site: asked ("site_ask"), yes, no, turned off, and a page that started by itself ("auto").
+    actions: ["shown", "tap", "consent", "done", "original", "dismiss", "limit", "plans", "error", "entry", "lang", "site_ask", "site_on", "site_no", "site_off", "auto"]
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab", "bubble", "panel"], fields: { reminders: "int", watches: "int" } },
   // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened

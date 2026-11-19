@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "今日のボタンとメニューの無料翻訳は使い切りました"
  },
+ "trSiteAsk": {
+  "message": "このサイトのページをすべて翻訳しますか？"
+ },
+ "trSiteYes": {
+  "message": "はい"
+ },
+ "trSiteNo": {
+  "message": "いいえ"
+ },
+ "trSiteOn": {
+  "message": "このサイトのページはすべて翻訳されます"
+ },
+ "trSiteOff": {
+  "message": "オフにする"
+ },
+ "trSite": {
+  "message": "サイト全体"
+ },
  "spacesTitle": {
   "message": "スペース"
  },

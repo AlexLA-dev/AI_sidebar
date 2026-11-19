@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "Düğme ve menülerin bugünkü ücretsiz çevirileri bitti"
  },
+ "trSiteAsk": {
+  "message": "Bu sitenin tüm sayfaları çevrilsin mi?"
+ },
+ "trSiteYes": {
+  "message": "Evet"
+ },
+ "trSiteNo": {
+  "message": "Hayır"
+ },
+ "trSiteOn": {
+  "message": "Bu sitenin tüm sayfaları çevriliyor"
+ },
+ "trSiteOff": {
+  "message": "Kapat"
+ },
+ "trSite": {
+  "message": "Tüm site"
+ },
  "spacesTitle": {
   "message": "Alanlar"
  },

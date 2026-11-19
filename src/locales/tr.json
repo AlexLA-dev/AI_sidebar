@@ -837,6 +837,12 @@
   "trEntry": "Sayfayı çevir",
   "trControls": "Düğmeler ve menüler: {0}",
   "trControlsCap": "Düğme ve menülerin bugünkü ücretsiz çevirileri bitti",
+  "trSiteAsk": "Bu sitenin tüm sayfaları çevrilsin mi?",
+  "trSiteYes": "Evet",
+  "trSiteNo": "Hayır",
+  "trSiteOn": "Bu sitenin tüm sayfaları çevriliyor",
+  "trSiteOff": "Kapat",
+  "trSite": "Tüm site",
 
   "spacesTitle": "Alanlar",
   "spaceSwitcher": "Alan: {0}. Değiştir",

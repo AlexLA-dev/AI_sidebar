@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "Đã hết lượt dịch miễn phí nút và menu hôm nay"
  },
+ "trSiteAsk": {
+  "message": "Dịch mọi trang của trang web này?"
+ },
+ "trSiteYes": {
+  "message": "Có"
+ },
+ "trSiteNo": {
+  "message": "Không"
+ },
+ "trSiteOn": {
+  "message": "Cả trang web đang được dịch"
+ },
+ "trSiteOff": {
+  "message": "Tắt"
+ },
+ "trSite": {
+  "message": "Cả trang web"
+ },
  "spacesTitle": {
   "message": "Không gian"
  },

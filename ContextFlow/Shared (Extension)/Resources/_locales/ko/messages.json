@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "오늘의 버튼·메뉴 무료 번역을 모두 사용했어요"
  },
+ "trSiteAsk": {
+  "message": "이 사이트의 모든 페이지를 번역할까요?"
+ },
+ "trSiteYes": {
+  "message": "예"
+ },
+ "trSiteNo": {
+  "message": "아니요"
+ },
+ "trSiteOn": {
+  "message": "이 사이트의 모든 페이지를 번역합니다"
+ },
+ "trSiteOff": {
+  "message": "끄기"
+ },
+ "trSite": {
+  "message": "사이트 전체"
+ },
  "spacesTitle": {
   "message": "스페이스"
  },

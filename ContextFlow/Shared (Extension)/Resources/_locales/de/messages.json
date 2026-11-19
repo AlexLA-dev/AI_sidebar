@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "Die kostenlosen Übersetzungen von Buttons und Menüs sind für heute aufgebraucht"
  },
+ "trSiteAsk": {
+  "message": "Alle Seiten dieser Website übersetzen?"
+ },
+ "trSiteYes": {
+  "message": "Ja"
+ },
+ "trSiteNo": {
+  "message": "Nein"
+ },
+ "trSiteOn": {
+  "message": "Die ganze Website wird übersetzt"
+ },
+ "trSiteOff": {
+  "message": "Ausschalten"
+ },
+ "trSite": {
+  "message": "Ganze Website"
+ },
  "spacesTitle": {
   "message": "Bereiche"
  },

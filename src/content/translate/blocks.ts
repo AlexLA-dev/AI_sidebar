@@ -12,7 +12,13 @@
 // inputs (as attributes). A button stays the same element with its listeners; only its words change.
 //
 // Never touched: what the person types in (fields, editors), code, icon-font ligatures («shopping_cart»), what the
-// page marks as not to be translated, what's hidden from everyone, and ContextFlow itself.
+// page marks as not to be translated, what carries the `hidden` attribute (until the page takes it off), and
+// ContextFlow itself.
+//
+// Tooltips (build 109, the owner: «не переводятся… никакие тултипы (а это было бы очень полезно)»): the words a
+// pointer or a screen reader gets from an attribute. A control with no words of its own (an icon button) has its
+// label and tooltip translated with the page; any other element's tooltip when the pointer or the focus comes to it
+// (tipBlocks), so a page of links with titles doesn't cost twice.
 
 import { escapeText, parseMarked, TRANSLATE_LIMITS, type Piece } from "../../shared/translate"
 
@@ -54,13 +60,26 @@ function iconFont(el: Element): boolean {
 }
 
 const HOST = "CONTEXTFLOW-ROOT"
+const LETTERS = /\p{L}/gu
 
-/** The page marks it as not to be translated, or it's something the person types in, or it's hidden from everyone. */
+/**
+ * Words kept from screen readers that are an icon's, not the page's: one lowercase word («close», «arrow_forward»)
+ * with nothing else in the element. Everything else under aria-hidden is read like the rest of the page (build 109,
+ * the owner's test of 108: a shop's filter list and a mailbox's dates stayed as they were; both write the words the
+ * eye sees in an aria-hidden element, with a longer twin for screen readers beside it).
+ */
+function hiddenIcon(el: Element): boolean {
+  if (el.getAttribute("aria-hidden") !== "true" || el.children.length) return false
+  return ICON_WORD.test((el.textContent ?? "").trim())
+}
+
+/** The page marks it as not to be translated, or it's something the person types in, or it's hidden from everyone
+ *  (the `hidden` attribute: read when the page takes it off). */
 function marked(el: Element): boolean {
   const editable = el.getAttribute("contenteditable")
   if (editable !== null && editable !== "false") return true
   if (el.getAttribute("translate") === "no" || el.classList?.contains("notranslate")) return true
-  if (el.getAttribute("aria-hidden") === "true" || el.hasAttribute("hidden")) return true
+  if (el.hasAttribute("hidden") || hiddenIcon(el)) return true
   if (iconFont(el)) return true
   const role = el.getAttribute("role")
   return role !== null && SKIP_ROLES.has(role)
@@ -112,20 +131,87 @@ export interface Block {
   tags: Map<number, Element>
   paired: Set<number>
   text: string
-  attr?: "placeholder" | "value"
+  attr?: string
 }
 
 /** Attributes whose words show on the page: a field's placeholder; the label of a button input that sends no value of
  *  its own (with a name, its value is what the form sends). */
 const ATTRS = "input[placeholder],textarea[placeholder],input[type=submit][value]:not([name]),input[type=button][value]:not([name]),input[type=reset][value]:not([name])"
 
+/** A tooltip's words: the browser's own (title) and the attributes the common tooltip scripts read. */
+export const TIP_ATTRS = ["title", "data-tooltip", "data-title", "data-tip", "data-original-title", "data-bs-original-title", "data-bs-title", "data-tippy-content", "data-balloon", "data-hint"] as const
+/** What a control with no words of its own is called: its label for screen readers, and its tooltips. */
+const LABEL_ATTRS = ["aria-label", ...TIP_ATTRS] as const
+/** Every attribute translation may write (the engine watches them for the site's own changes). */
+export const WORD_ATTRS: readonly string[] = ["placeholder", "value", ...LABEL_ATTRS]
+const PRESSED = "button,a[href],summary,[role=button],[role=link],[role=tab],[role=menuitem],[role=menuitemcheckbox],[role=menuitemradio],[role=switch],[role=checkbox],[role=option]"
+const LABELLED = LABEL_ATTRS.map((a) => PRESSED.split(",").map((c) => `${c}[${a}]`).join(",")).join(",")
+/** A field's name for screen readers (what a person types into it is never read). */
+const FIELDS = "input[aria-label]:not([type=hidden]),textarea[aria-label]"
+const TIPPED = TIP_ATTRS.map((a) => `[${a}]`).join(",")
+
+const attrText = (el: Element, attr: string) => escapeText(el.getAttribute(attr) ?? "").replace(/\s+/g, " ").trim()
+const attrBlock = (el: Element, attr: string, text: string): Block => ({ parent: el, nodes: [], tags: new Map(), paired: new Set(), text, attr })
+
+/** A control that shows no words of its own (an icon button; an icon font's word isn't one): what it does is said
+ *  only by its label or tooltip. */
+function wordless(el: Element): boolean {
+  let letters = 0
+  const walk = (node: Node) => {
+    for (const child of Array.from(node.childNodes)) {
+      if (letters >= 2) return
+      if (child.nodeType === 3) letters += (child as Text).data.match(LETTERS)?.length ?? 0
+      else if (child.nodeType === 1 && !QUIET.has(tagOf(child as Element)) && !skipped(child as Element)) walk(child)
+    }
+  }
+  walk(el)
+  return letters < 2
+}
+
+/** The attributes' blocks of `el` named in `attrs`, one per different text (a label and a tooltip that say the same
+ *  are one request; the second is written from what's kept). */
+function wordAttrs(el: Element, attrs: readonly string[], out: Block[]): void {
+  for (const attr of attrs) {
+    if (!el.hasAttribute(attr)) continue
+    const text = attrText(el, attr)
+    if (text.length <= TRANSLATE_LIMITS.tipChars && worth(text, 0)) out.push(attrBlock(el, attr, text))
+  }
+}
+
 function attrBlocks(root: Element | ShadowRoot, out: Block[]): void {
-  for (const el of Array.from(root.querySelectorAll(ATTRS))) {
+  const all = (sel: string): Element[] => {
+    const found = Array.from(root.querySelectorAll(sel))
+    // The part read again may be the element itself (its attribute changed).
+    if (root.nodeType === 1 && (root as Element).matches(sel)) found.unshift(root as Element)
+    return found
+  }
+  for (const el of all(ATTRS)) {
     if (insideSkipped(el.parentElement) || (el.getAttribute("type") === "hidden")) continue
     const attr = el.hasAttribute("placeholder") ? "placeholder" : "value"
-    const text = escapeText(el.getAttribute(attr) ?? "").replace(/\s+/g, " ").trim()
-    if (worth(text, 0)) out.push({ parent: el, nodes: [], tags: new Map(), paired: new Set(), text, attr })
+    const text = attrText(el, attr)
+    if (worth(text, 0)) out.push(attrBlock(el, attr, text))
   }
+  for (const el of all(LABELLED)) {
+    if (insideSkipped(el) || !wordless(el)) continue
+    wordAttrs(el, LABEL_ATTRS, out)
+  }
+  for (const el of all(FIELDS)) {
+    if (!insideSkipped(el.parentElement)) wordAttrs(el, ["aria-label"], out)
+  }
+}
+
+/**
+ * The tooltips the pointer or the focus has come to: `el`'s own and those of the few elements around it (a title
+ * sits on the link, the pointer on the picture inside it).
+ */
+export function tipBlocks(el: Element): Block[] {
+  const out: Block[] = []
+  let depth = 0
+  for (let at: Element | null = el; at && depth < 4; at = at.parentElement, depth++) {
+    if (!at.matches(TIPPED) || insideSkipped(at)) continue
+    wordAttrs(at, TIP_ATTRS, out)
+  }
+  return out
 }
 
 /** Marked text of `nodes` (tags numbered from `next`); fills `tags` and `paired`. */
@@ -167,8 +253,6 @@ function narrowed(parent: Element, run: Node[]): { parent: Element; nodes: Node[
     nodes = Array.from(only.childNodes)
   }
 }
-
-const LETTERS = /\p{L}/gu
 
 /** Worth translating: words (not a number, a price, an address or a code), not too long, not a wall of links. */
 function worth(text: string, tags: number): boolean {
@@ -281,7 +365,7 @@ export interface Applied {
   // A group whose elements the translation put in another order: its nodes as they were.
   moved: Array<{ parent: Node; order: Node[] }>
   // The block's element marked with the translation's language and direction: what its attributes were.
-  marked?: { el: Element; lang: string | null; dir: string | null; now: string }
+  marked?: { el: Element; lang: string | null; dir: string | null; now: string; turned: boolean }
   // An attribute's words (a placeholder, a button input's label): what they were and are.
   attr?: { el: Element; name: string; was: string; now: string }
 }
@@ -384,17 +468,25 @@ function edges(block: Block, pieces: Piece[]): Piece[] {
   }, [])
 }
 
+/** Languages written right to left. */
+const RTL = /^(ar|he|fa|ur|yi|ps|sd|ug|dv)(-|$)/i
+
 /**
- * The translated block's element says its language and takes its direction from its words (2.7, the director's audit:
- * English into Arabic stayed left to right; Arabic into English put the punctuation on the wrong side). Not on the
+ * The translated block's element says its language, and takes its direction from its words where the translation
+ * reads the other way (2.7, the director's audit: English into Arabic stayed left to right; Arabic into English put
+ * the punctuation on the wrong side). Where it reads the same way as before, the direction is left as the page set it
+ * (build 109: an attribute less on every block; a clamped box's direction isn't recomputed for nothing). Not on the
  * page's body or root, where it would turn the whole layout; not again when another block of it already did.
  */
 function markLanguage(el: Element, lang: string, done: Applied): void {
   if (el === el.ownerDocument.body || el === el.ownerDocument.documentElement) return
-  if (el.getAttribute("lang") === lang && el.getAttribute("dir") === "auto") return
-  done.marked = { el, lang: el.getAttribute("lang"), dir: el.getAttribute("dir"), now: lang }
+  // Without a layout to ask (tests), as when it turns.
+  const now = el.ownerDocument.defaultView?.getComputedStyle?.(el)?.direction
+  const turned = now === "ltr" || now === "rtl" ? (now === "rtl") !== RTL.test(lang) : true
+  if (el.getAttribute("lang") === lang && (!turned || el.getAttribute("dir") === "auto")) return
+  done.marked = { el, lang: el.getAttribute("lang"), dir: el.getAttribute("dir"), now: lang, turned }
   el.setAttribute("lang", lang)
-  el.setAttribute("dir", "auto")
+  if (turned) el.setAttribute("dir", "auto")
 }
 
 /**
@@ -413,7 +505,7 @@ export function applyBlock(block: Block, translation: string, lang?: string): Ap
 }
 
 const unescape = (text: string) => text.replace(/‹(\/?\d{1,3}\/?)›/g, "<$1>")
-const attrNow = (block: Block) => escapeText(block.parent.getAttribute(block.attr!) ?? "").replace(/\s+/g, " ").trim()
+const attrNow = (block: Block) => attrText(block.parent, block.attr!)
 
 /** An attribute's translation: its words only (a tag in it means the model took it for something else). */
 function applyAttr(block: Block, translation: string): Applied | null {
@@ -436,9 +528,9 @@ export function restore(done: Applied): void {
   const a = done.attr
   if (a && a.el.getAttribute(a.name) === a.now) a.el.setAttribute(a.name, a.was)
   const m = done.marked
-  if (m && m.el.getAttribute("lang") === m.now && m.el.getAttribute("dir") === "auto") {
+  if (m && m.el.getAttribute("lang") === m.now && (!m.turned || m.el.getAttribute("dir") === "auto")) {
     putBack(m.el, "lang", m.lang)
-    putBack(m.el, "dir", m.dir)
+    if (m.turned) putBack(m.el, "dir", m.dir)
   }
   for (let i = done.texts.length - 1; i >= 0; i--) {
     const { node, was, now } = done.texts[i]

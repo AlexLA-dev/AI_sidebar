@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "今天的按鈕和選單免費翻譯已用完"
  },
+ "trSiteAsk": {
+  "message": "翻譯此網站的所有頁面？"
+ },
+ "trSiteYes": {
+  "message": "是"
+ },
+ "trSiteNo": {
+  "message": "否"
+ },
+ "trSiteOn": {
+  "message": "此網站的所有頁面都會翻譯"
+ },
+ "trSiteOff": {
+  "message": "關閉"
+ },
+ "trSite": {
+  "message": "整個網站"
+ },
  "spacesTitle": {
   "message": "空間"
  },

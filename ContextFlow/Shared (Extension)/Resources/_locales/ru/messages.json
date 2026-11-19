@@ -2432,6 +2432,24 @@
  "trControlsCap": {
   "message": "Бесплатные переводы кнопок и меню на сегодня закончились"
  },
+ "trSiteAsk": {
+  "message": "Переводить все страницы этого сайта?"
+ },
+ "trSiteYes": {
+  "message": "Да"
+ },
+ "trSiteNo": {
+  "message": "Нет"
+ },
+ "trSiteOn": {
+  "message": "Все страницы этого сайта переводятся"
+ },
+ "trSiteOff": {
+  "message": "Выключить"
+ },
+ "trSite": {
+  "message": "Весь сайт"
+ },
  "spacesTitle": {
   "message": "Пространства"
  },
