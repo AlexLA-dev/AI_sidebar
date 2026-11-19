@@ -222,6 +222,19 @@ export function askedCite(entry: Entry): string | undefined {
   return entry.role === "user" && !entry.note && entry.cite ? entry.cite : undefined
 }
 
+/** An earlier question's quote in the model's history keeps at most this much (its whole selection went with it then). */
+export const MAX_HISTORY_QUOTE = 1_500
+
+/**
+ * How an earlier question's quote goes to the model (2.7, the owner: «Да, хорошо бы добавить в 2.7»): a line over the
+ * question, so a later question in the chat knows what that one was about. Cut to MAX_HISTORY_QUOTE so the history
+ * stays small. ChatAI.swift `messages` writes the same line.
+ */
+export function askedQuoteLine(cite: string): string {
+  const text = cite.length > MAX_HISTORY_QUOTE ? cite.slice(0, MAX_HISTORY_QUOTE).trimEnd() + "…" : cite
+  return `[Asked about this text the user selected: "${text}"]`
+}
+
 /** Where a cited note's quote ends in its text (after the closing quote mark), or -1 when the text doesn't start with it. */
 function citeEnd(entry: Entry): number {
   if (!entry.cite || !entry.note) return -1
@@ -389,12 +402,17 @@ export function entriesFrom(parsed: unknown): Entry[] | null {
  * `wholeChat`: every message that fits WHOLE_CHAT_CHARS, the user's notes marked as notes.
  */
 export function historyForModel(entries: Entry[], currentUrl: string, wholeChat = false, free = false): ChatTurn[] {
-  const turn = ({ role, content, page, note, marks }: Entry): ChatTurn => {
+  // The question asked now is the last one: its selection goes whole as the page (kind "selection"), not here.
+  const asking = entries[entries.length - 1]
+  const turn = (entry: Entry): ChatTurn => {
+    const { role, content, page, note, marks } = entry
     // The user's highlights in an answer go as <mark>…</mark> (the rule is in the system prompt).
     const text = role === "assistant" && marks?.length ? markedContent(stripCitations(content), marks) : stripCitations(content)
     const elsewhere = role === "user" && page && page.url !== currentUrl ? `"${page.title || page.url}" — ${page.url}` : ""
     if (note) return { role, content: `[Note the user wrote${elsewhere ? ` on another page: ${elsewhere}` : ""}]\n${text}` }
-    return { role, content: elsewhere ? `[Asked on another page: ${elsewhere}]\n${text}` : text }
+    const cite = entry !== asking ? askedCite(entry) : undefined
+    const quoted = cite ? `${askedQuoteLine(cite)}\n${text}` : text
+    return { role, content: elsewhere ? `[Asked on another page: ${elsewhere}]\n${quoted}` : quoted }
   }
   // Free (build 92): the last answers and notes, the notes marked as notes.
   if (!wholeChat && free) return lastCounted(entries, (e) => e.role === "assistant" || Boolean(e.note)).map(turn)
