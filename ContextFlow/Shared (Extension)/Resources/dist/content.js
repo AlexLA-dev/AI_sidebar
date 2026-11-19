@@ -2425,10 +2425,10 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
   padding: 2px;
   border-radius: inherit;
   pointer-events: none;
-  /* The circle's own colours: the space's where there are spaces (spaces.css), else the accent. */
-  --cf-tr-run: var(--space, var(--accent));
-  --cf-tr-run-2: var(--space-2, var(--accent-2));
-  --cf-tr-rest: var(--space-soft, var(--accent-soft));
+  /* The same variables as the pill's button: the accent's two ends, which a space recolours. */
+  --cf-tr-run: var(--accent-to);
+  --cf-tr-run-2: var(--accent-from);
+  --cf-tr-rest: var(--accent-soft);
   background: linear-gradient(100deg, var(--cf-tr-rest) 0%, var(--cf-tr-rest) 32%, var(--cf-tr-run-2) 44%, var(--cf-tr-run) 50%, var(--cf-tr-run-2) 56%, var(--cf-tr-rest) 68%, var(--cf-tr-rest) 100%);
   background-size: 300% 100%;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
