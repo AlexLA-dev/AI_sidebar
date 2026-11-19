@@ -737,6 +737,18 @@
  "tourMenuBody": {
   "message": "Promemoria e pagine seguite, Suggerimenti, Impostazioni e il tour di base sono in questo menu."
  },
+ "tourSwipeTitle": {
+  "message": "Scorri per fissare o eliminare"
+ },
+ "tourSwipeBody": {
+  "message": "Scorri una risposta o una nota verso destra per fissarla, verso sinistra per eliminarla. Le chat nell’elenco si scorrono allo stesso modo. Ci hai ripensato? «Annulla» la rimette al suo posto. Per aggiungere un tag, tocca 🏷 o «…»."
+ },
+ "tourSwipeTitleMouse": {
+  "message": "Fissare o eliminare con un clic"
+ },
+ "tourSwipeBodyMouse": {
+  "message": "Sotto una risposta o una nota, «…» offre «Fissa», «Tag» ed «Elimina»; il clic destro apre lo stesso menu. Per una chat nell’elenco sono sulla sua riga. Ci hai ripensato? «Annulla» la rimette al suo posto."
+ },
  "guideSumTitle": {
   "message": "La tua prima risposta"
  },

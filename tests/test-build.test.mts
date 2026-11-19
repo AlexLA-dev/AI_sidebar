@@ -61,8 +61,17 @@ test("the app's server is production's, or a line that says it is TestFlight's: 
   const lines = base.split("\n").filter((line) => !line.trim().startsWith("//") && /URL\(string: "https?:/.test(line))
   assert.equal(lines.length, 1, "one address in a release build")
   const host = lines[0].match(/URL\(string: "https?:\/\/([^"/]+)/)?.[1]
-  // The TestFlight branch alone changes this line to its deploy, and marks it; a store build has production's.
-  assert.ok(host === production || /\/\/ TestFlight/.test(lines[0]), `the app talks to ${host}`)
+  if (host === production) return
+  // The TestFlight branch alone changes this line to its deploy, and marks it. Anywhere else a test address fails
+  // here (2.7 (110), the owner: «Start as a new user» must never reach anyone but him): in a pull request by its head
+  // branch, on main by the pushed branch, on a Mac by the branch checked out. A pull request out of the TestFlight
+  // branch into another one fails too: merged, it would carry the address there.
+  const env = process.env
+  const head = env.GITHUB_HEAD_REF || env.GITHUB_REF_NAME || execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { encoding: "utf8", cwd: new URL("..", import.meta.url) }).trim()
+  const testFlight = /^claude\/release-[\d.]+-tf$/
+  assert.match(lines[0], /\/\/ TestFlight/, `the app talks to ${host}`)
+  assert.match(head, testFlight, `the app in ${head} talks to ${host}: a test server is for the TestFlight branch alone`)
+  assert.ok(!env.GITHUB_BASE_REF || testFlight.test(env.GITHUB_BASE_REF), `the TestFlight branch's test server must not be merged into ${env.GITHUB_BASE_REF}`)
 })
 
 test("Settings: the «Test build» block is the first one on the screen, in test builds only", () => {
