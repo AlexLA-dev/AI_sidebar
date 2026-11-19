@@ -489,6 +489,24 @@ test("live app, only buttons and menus translated: back in the list the redrawn 
   assert.ok(s.asks.every((a) => a.kind === "controls" && !a.first === (s.asks.indexOf(a) > 0)))
 })
 
+test("live app: after the site has set its search hint again on many switches, a tab's new hint is still translated", async () => {
+  const s = await translated({ words: "ru-en" })
+  const W = wordsOf("ru-en")
+  // Six switches in a row, each setting the hint again with the words it had.
+  for (let i = 0; i < 3; i++) {
+    s.app.open(i)
+    await wait(60)
+    s.app.back()
+    await wait(60)
+    assert.equal(s.app.els.search.getAttribute("placeholder"), `EN ${W.TABS[0][1]}`)
+  }
+  s.app.tab(1)
+  await s.settle()
+  assert.equal(s.app.els.search.getAttribute("placeholder"), `EN ${W.TABS[1][1]}`, "new words: asked for, not taken for a clock")
+  s.app.tab(0)
+  assert.equal(s.app.els.search.getAttribute("placeholder"), `EN ${W.TABS[0][1]}`)
+})
+
 test("live app, only buttons and menus translated: a walk through every switch leaves no Russian on the screen and sends no English", async () => {
   const s = await translated({ words: "ru-en" })
   const steps: Array<[string, () => void, number]> = [

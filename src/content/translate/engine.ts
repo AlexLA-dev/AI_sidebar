@@ -866,14 +866,18 @@ export class PageTranslator {
         // An attribute's words changed by the site (a tooltip that says something else now, a hint the site writes
         // again): read again, at once where it was translated.
         const item = this.attrItems.get(el)?.get(name)
+        // The site's own words written back, the ones the translation was made from: not a change of words (a
+        // field's hint set again on every switch of view mustn't make the next real change look like a clock's).
+        let back = false
         if (item && this.items.has(item.id)) {
           if (item.applied?.attr && el.getAttribute(name) === item.applied.attr.now) continue
           // Written again with the words it had, while they wait for their translation: nothing changed (a field
           // whose hint the site sets over and over).
           if (!item.applied && blockCurrent(item.block)) continue
+          back = blockCurrent(item.block)
           this.forget(item)
         }
-        this.churned(el)
+        if (!back) this.churned(el)
         // A tooltip already asked for (the pointer was on it) is asked again; a control's label with its part.
         if (item) this.add(tipBlocks(el).filter((b) => b.parent === el && b.attr === name && this.follows(b)), true)
         this.markDirty(el)
