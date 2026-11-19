@@ -366,8 +366,6 @@
    width up to its cap (its space's name ends in "…" there); the chat's name gives way first, down to a few words;
    then the button's space name ends in "…", the button never narrower than its arrow and a word. (The name's
    own rule above keeps its few words; no :has(), which Safari on iOS left unapplied elsewhere.) */
-.cf-chat-bar .cf-match-in { flex: 0 0 auto; }
-.cf-chat-bar .cf-match-back { flex: 0 1 auto; min-width: 4.5em; }
 /* Back to the chats list (2.6 (98)): the header's back, a size smaller. */
 .cf-chat-bar .cf-chat-back { flex: none; width: 30px; height: 30px; }
 .cf[data-touch] .cf-chat-bar .cf-chat-back { width: 36px; height: 36px; }

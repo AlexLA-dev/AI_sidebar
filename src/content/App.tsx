@@ -833,7 +833,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         const active = found && (found !== was.id || place?.bound) ? { id: found, at: Date.now() } : was
         if (active !== was) await setActiveThread(active.id, place?.space)
         if (place?.bound) spacesRef.current?.flashSite(place.space, key)
-        else if (place?.from && active !== was) spacesRef.current?.followMatch(place.space)
+        else if (place?.from && active !== was) spacesRef.current?.followMatch(place.space, place.from)
         // Only when it picked another chat than the one open (reopened on the same chat, nothing was guessed).
         if (place && active !== was) {
           const fits = place.why !== "new" && place.chat !== null
@@ -4209,7 +4209,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : view === "trash" ? t("trashTitle") : t("chatsTitle")}</strong>
               )}
             </div>
-            {spaces.toast && <SpaceToast space={spaces.toast.space} text={spaces.toast.text} />}
+            {spaces.toast && (
+              <SpaceToast space={spaces.toast.space} text={spaces.toast.text} back={spaces.toast.back} phase={spaces.toast.phase} onHold={spaces.hold}
+                onBack={() => {
+                  const back = spaces.toast?.back
+                  if (!back) return
+                  void sendBackground({ type: "useEvent", f: "match", a: "toast_back", ...(matchLine ? { why: matchLine.why } : {}) })
+                  setMatchLine(null)
+                  spaces.back(back.id)
+                }} />
+            )}
             {colToast && <div class="cf-space-toast" role="status"><span>{colToast}</span></div>}
             {/* 2.7: the collections window, once the space has a collection (the first comes from «В подборку»). */}
             {view === "chat" && cols.shown.length > 0 && (
@@ -4328,25 +4337,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {headerName && (
             <div class="cf-chat-bar">
               <button type="button" class="cf-icon cf-chat-back" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}><Icon.Back /></button>
-              {matchShown && (matchFrom ? (
-                <span class="cf-match-label cf-match-in"><SpaceDot color={spaces.current.color} size={8} /><span dir="auto">{t("matchContinueIn", spaces.current.name)}</span></span>
-              ) : <span class="cf-match-label">{t("matchContinue")}</span>)}
+              {matchShown && !matchFrom && <span class="cf-match-label">{t("matchContinue")}</span>}
               <span class="cf-chat-bar-name" dir="auto" title={headerName}>{headerName}</span>
-              {/* 2.7: «Продолжаю «…» · Новый чат»: one tap if the chat it opened on isn't the one. 107: from another
-                  space, «← <the space it was in>»: a new chat back there. */}
-              {matchShown && (matchFrom ? (
-                <button type="button" class="cf-match-new cf-match-back" aria-label={t("matchBackTo", matchFrom.name)} title={t("matchBackTo", matchFrom.name)} onClick={() => {
-                  void sendBackground({ type: "useEvent", f: "match", a: "line_back", why: matchLine!.why })
-                  setMatchLine(null)
-                  spaces.back(matchFrom.id)
-                }}><Icon.Back /><span dir="auto">{matchFrom.name}</span></button>
-              ) : (
+              {/* 2.7: «Продолжаю «…» · Новый чат»: one tap if the chat it opened on isn't the one. 110, the owner: from
+                  another space, nothing here (it «перегружает шапку», the name was cut to a word): the header's colour
+                  and name say the space, and the line over it says the switch, with the way back (SpaceToast). */}
+              {matchShown && !matchFrom && (
                 <button type="button" class="cf-match-new" onClick={() => {
                   void sendBackground({ type: "useEvent", f: "match", a: "line_new", why: matchLine!.why })
                   setMatchLine(null)
                   newChat()
                 }}>{t("newChat")}</button>
-              ))}
+              )}
             </div>
           )}
 
