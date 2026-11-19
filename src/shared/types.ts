@@ -291,7 +291,8 @@ export type PdfResult =
   | { ok: true; text: string; pages: number; title: string }
   | { ok: false; reason: "none" | "failed"; error: string }
 
-export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean } | { type: "openChat"; chat: string; at?: string }
+// `here` (build 110): the background asks whether this tab has the panel's script; nothing opens.
+export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean } | { type: "openChat"; chat: string; at?: string } | { type: "here" }
 
 /** What organizing suggests for a chat now: a move (to a chat, or a new one) and a tag per message. */
 export type OrganizeReply =

@@ -23,6 +23,8 @@ export interface ChipSignals {
   kind: PageKind | null
   // What the panel reads here: the page, its video, a PDF.
   media: "page" | "video" | "pdf"
+  // Everything the page offers costs nothing (a free app's page): there is no price to watch (build 110).
+  free?: boolean
 }
 
 /**
@@ -60,7 +62,8 @@ function rest(foreign: boolean): ChipId[] {
  * The page's chips, the likeliest first.
  * - A field with text: Check, Rewrite, Templates. An empty one: Templates.
  * - Main text in another language: Translate page.
- * - A video or a PDF: its summaries. A product: Find similar, Watch the price. An article: Summarize, Key takeaways.
+ * - A video or a PDF: its summaries. A product: Find similar, Watch the price (not where everything is free: there is
+ *   no price to watch). An article: Summarize, Key takeaways.
  * - Then everything else, as before; «Translate» last of all unless the page is in another language (2.7 after 107,
  *   the director on the chips under an answer: on an English article for an English reader it was third).
  * A field comes before the page's language (someone writing is busy with the draft), and both before the page's kind.
@@ -94,12 +97,22 @@ function allowed(id: ChipId, s: ChipSignals, can: ChipAbilities): boolean {
     case "translate_page":
       return can.translatePage && s.foreign && s.media === "page"
     case "watch":
-      return can.watch && s.media === "page" && s.kind === "product"
+      return can.watch && s.media === "page" && s.kind === "product" && !s.free
     case "similar":
       return can.similar
     default:
       return true
   }
+}
+
+/**
+ * The row with `id` first (build 110). The first run's guided request says «Tap Summarize»: the chip it points at
+ * leads the row then, whatever the page is (on a product's page, our own site's among them, Find similar and Watch
+ * the price came before it, and the step's frame stood over a chip half-way along a row the person hadn't seen from
+ * its start).
+ */
+export function chipFirst(order: ChipId[], id: ChipId): ChipId[] {
+  return order.includes(id) && order[0] !== id ? [id, ...order.filter((c) => c !== id)] : order
 }
 
 /** A selection's chips (the panel opened on selected text): as they were, but for text selected in the person's own

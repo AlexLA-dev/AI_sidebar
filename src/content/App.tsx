@@ -112,7 +112,7 @@ import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, setSelectionShown, useButtonShown, useFieldLayer, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
 import { TranslatePill, translatePageNow } from "./translate/TranslatePill"
-import { rankChips, rankSelectionChips, type ChipId } from "./quiet/chips"
+import { chipFirst, rankChips, rankSelectionChips, type ChipId } from "./quiet/chips"
 import { ChipsRow } from "./quiet/ChipsRow"
 import { densityNow, loadKeyboard, noteKeyboard, type Density } from "./quiet/density"
 import { leftBadge, PlusMenu } from "./quiet/Plus"
@@ -750,7 +750,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setSelection(sel)
     // Settled before the panel paints (2.7, the quiet panel): its density and the chips' order for this opening.
     setDensity(densityNow(layoutRef.current))
-    setChipOrder(chipsNowRef.current())
+    // 110: someone whose first run is still to come, or is at its «Tap Summarize», gets that chip first (chips.ts).
+    const order = chipsNowRef.current()
+    setChipOrder(!tourSeenRef.current || guideRef.current === "summarize" ? chipFirst(order, "summarize") : order)
     setSelInField(Boolean(sel) && selectionInField(selectionRange()))
     setPlusOpen(false)
     setBubble(null)
@@ -2725,21 +2727,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
   const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
   const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, open: openFromHint })
-  // 2.7 (after 107): the chips are one line that scrolls sideways, so the chip a guide's step or a page hint points at
-  // may be further along it: brought to the middle of its row (the row alone moves, never the chat).
-  const pointedChip = guide === "summarize" ? "summarize" : guide === "ultra_similar" ? "similar" : pageHints.glow === "summarize" || pageHints.glow === "similar" ? pageHints.glow : null
-  useEffect(() => {
-    if (!open || view !== "chat" || !pointedChip) return
-    const timer = setTimeout(() => {
-      const chip = panelRef.current?.querySelector<HTMLElement>(`.cf-actions .cf-chip[data-action="${pointedChip}"]`)
-      const row = chip?.closest<HTMLElement>(".cf-actions")
-      if (!chip || !row) return
-      const c = chip.getBoundingClientRect()
-      const r = row.getBoundingClientRect()
-      row.scrollLeft += c.left + c.width / 2 - (r.left + r.width / 2)
-    }, 120)
-    return () => clearTimeout(timer)
-  }, [open, view, pointedChip, messages.length])
   const panelDrag = usePanelDrag({
     panel: panelRef,
     side,
@@ -2785,6 +2772,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // From the chats list's "…" (build 94) or over "Ask your chats": a new chat about the page.
     if (messages.length > 0 || historyRef.current) newChat()
     else setView("chat")
+    // The chip the first step points at leads its row (110; the row is still under the shade that comes with it).
+    setChipOrder((order) => chipFirst(order, "summarize"))
     setGuide("summarize")
     reportGuide("start")
   }
@@ -2936,6 +2925,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const chip = (a: Action, small: boolean) => ULTRA_ACTIONS.has(a.id)
     ? <button type="button" key={a.id} class={`cf-chip ${similarTone(plan)}${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={small ? 12 : 13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
     : <button type="button" key={a.id} class={`cf-chip${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
+  // 2.7 (after 107): the chips are one line that scrolls sideways, so the chip a guide's step or a page hint points at
+  // may be further along it: brought to the middle of its row (the row alone moves, never the chat). Again when the
+  // row's chips change or one grows its plan mark (110: the mark came after the plan did, and pushed the chip along).
+  const pointedChip = guide === "summarize" ? "summarize" : guide === "ultra_similar" ? "similar" : pageHints.glow === "summarize" || pageHints.glow === "similar" ? pageHints.glow : null
+  useEffect(() => {
+    if (!open || view !== "chat" || !pointedChip) return
+    const timer = setTimeout(() => {
+      const chip = panelRef.current?.querySelector<HTMLElement>(`.cf-actions .cf-chip[data-action="${pointedChip}"]`)
+      const row = chip?.closest<HTMLElement>(".cf-actions")
+      if (!chip || !row) return
+      const c = chip.getBoundingClientRect()
+      const r = row.getBoundingClientRect()
+      row.scrollLeft += c.left + c.width / 2 - (r.left + r.width / 2)
+    }, 120)
+    return () => clearTimeout(timer)
+  }, [open, view, pointedChip, messages.length, chipsSig, markUltra])
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
   const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "translate" | "spaces" | "collections" = "listen") => {
     setPlansOpen(focus)
@@ -4563,7 +4568,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <h2>{t("emptyTitle")}</h2>
                     <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>
                     {actions.length > 0 && (
-                      <ChipsRow cls="cf-actions" sig={chipsSig} arrows={!touch}>
+                      <ChipsRow cls="cf-actions" sig={chipsSig} arrows={!touch} still={guide !== null || touring}>
                         {actions.map((a) => (
                           chip(a, false)
                         ))}
@@ -4683,7 +4688,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && onNewPage && (
                   <div class="cf-newpage">
                     <div class="cf-divider"><span>{t("nowOnPage", source.title() || source.site())}</span></div>
-                    <ChipsRow cls="cf-actions follow" sig={chipsSig} arrows={!touch}>
+                    <ChipsRow cls="cf-actions follow" sig={chipsSig} arrows={!touch} still={guide !== null || touring}>
                       {actions.map((a) => chip(a, true))}
                     </ChipsRow>
                   </div>
@@ -4693,7 +4698,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     quick chips, while another page's chat had them under "Now on"): the same chips at the chat's end,
                     without the divider, less those already asked about this page. */}
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && (
-                  <ChipsRow cls="cf-actions follow" sig={`${chipsSig}|${messages.length}`} arrows={!touch}>
+                  <ChipsRow cls="cf-actions follow" sig={`${chipsSig}|${messages.length}`} arrows={!touch} still={guide !== null || touring}>
                     {actions.filter((a) => !messages.some((m) => m.label === actionLabel(a) && m.page?.url === pageUrl)).map((a) => chip(a, true))}
                   </ChipsRow>
                 )}

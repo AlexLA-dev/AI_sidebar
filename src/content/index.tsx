@@ -53,6 +53,8 @@ function boot(): void {
       bus.dispatchEvent(new CustomEvent("openChat", { detail: { chat: message.chat, at: message.at } }))
       sendResponse({ ok: true })
     }
+    // A new install asks before it opens its «ContextFlow is ready» tab over this page (src/shared/welcomeTab.ts).
+    if (message?.type === "here") sendResponse({ ok: true })
     return false
   })
 

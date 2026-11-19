@@ -10,7 +10,7 @@ import { noButtonField } from "../insert/spot"
 import { loadInsertSettings, onInsertSettings } from "../insert/store"
 import { rememberedField } from "../insert/target"
 import { draftText, writableField } from "../insert/Write"
-import { pageKind, type PageKind } from "../pagehints/detect"
+import { pageFree, pageKind, type PageKind } from "../pagehints/detect"
 import { pageForeignOffer, pageTranslatedNow } from "../translate/TranslatePill"
 import { fieldState, type ChipSignals } from "./chips"
 
@@ -35,11 +35,20 @@ function kindOf(doc: Document, url: string): PageKind | null {
   }
 }
 
+/** Everything the page offers is free (no «Watch the price» there); a page that can't be read counts as priced. */
+function freeOf(doc: Document): boolean {
+  try {
+    return pageFree(doc)
+  } catch {
+    return false
+  }
+}
+
 /** The page as the ranker sees it, now. */
 export function readSignals(media: ChipSignals["media"], doc: Document = document, url: string = location.href): ChipSignals {
   const kind = kindOf(doc, url)
   // A page already translated (or under way) isn't offered again: no «Translate page» chip first (2.7, 108).
-  return { field: fieldState(openField(), kind), foreign: pageForeignOffer() !== null && !pageTranslatedNow(), kind, media }
+  return { field: fieldState(openField(), kind), foreign: pageForeignOffer() !== null && !pageTranslatedNow(), kind, media, free: kind === "product" && freeOf(doc) }
 }
 
 /** The selection the panel opened on is inside the person's own draft. */
