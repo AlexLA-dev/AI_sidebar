@@ -18,14 +18,23 @@
 //   J  a quiet tick: a wordless node added and removed and styles changed, twice a second
 //   K  content that keeps arriving in pieces for a while after a switch
 //   L  a hint the site keeps writing back (a shop's search field): by a timer, or by an observer of its own
+//   M  the page's own words that aren't controls: a label's chip and a date in each row, «to: me» and the time in a
+//      letter's head, a line that comes up after an action («marked as unread · Undo») and goes away
+//   N  buttons the page calls links (role="link": «Reply», «Forward»), one with a badge («New»)
+//   O  the search field's hint set again, with the words it had, on every switch of view
+//
+// Two sets of words (`opts.words`): "de", everything German (a page in another language, translated whole); and
+// "ru-en", the interface Russian around letters in English: what the owner had, with only «buttons and menus»
+// translated into English, the letters being in the reader's language already.
 //
 // One emulation, two users: the automated tests (tests/translate-live-app.test.mts: linkedom has no layout and its
 // MutationObserver isn't the browsers', so every change made here is also reported through `opts.records`, and time
 // is moved by hand with `run`), and the page live-app.html (real browsers: WebKit, the simulators), where the same
 // code runs on clicks and real timers.
 //
-// The words are German; names (senders) are marked translate="no" as the mailbox marks them.
+// Names (senders) are marked translate="no" as the mailbox marks them.
 
+const DE = (() => {
 const LETTERS = [
   { from: "Stadtwerke Köln", subject: "Ihre Abrechnung für Oktober", snippet: "Die Rechnung liegt in Ihrem Kundenkonto bereit.", date: "16. Nov.", full: "Montag, 16. November", body: ["Guten Tag, Ihre Abrechnung für Oktober ist fertig.", "Der Betrag wird in zehn Tagen von Ihrem Konto abgebucht."], thread: 3 },
   { from: "Buchhandlung Lesezeichen", subject: "Ihre Bestellung ist unterwegs", snippet: "Das Paket wurde heute an den Zusteller übergeben.", date: "15. Nov.", full: "Sonntag, 15. November", body: ["Ihre Bücher sind auf dem Weg zu Ihnen.", "Die Zustellung erfolgt voraussichtlich am Mittwoch."], thread: 1 },
@@ -48,7 +57,56 @@ const TABS = [["Allgemein", "In allen Nachrichten suchen"], ["Werbung", "In der 
 const LIST_TOOLS = [["Archivieren", "archive"], ["Als Spam melden", "report"], ["Löschen", "delete"], ["Als ungelesen markieren", "mail"]]
 const LETTER_TOOLS = [["Zurück zum Posteingang", "back"], ["Archivieren", "archive"], ["Löschen", "delete"], ["Alle drucken", "print"], ["In neuem Fenster öffnen", "open"]]
 const EDITOR_TOOLS = ["Fett", "Kursiv", "Liste mit Aufzählungszeichen", "Formatierung entfernen"]
-export const HINT = "Suche nach Angeboten der Woche!"
+
+  return {
+    LETTERS, SENT, PAGE_TWO, TABS, LIST_TOOLS, LETTER_TOOLS, EDITOR_TOOLS,
+    hint: "Suche nach Angeboten der Woche!", title: "Postfach", searchLabel: "Nachrichten durchsuchen",
+    inbox: "Posteingang", sent: "Gesendet", searchLink: "Suche: gelesene Nachrichten", chip: "Posteingang",
+    toMe: "an: mich", ago: "13:47 (vor 21 Minuten)", reply: "Antworten", forward: "Weiterleiten", share: "Im Chat teilen", badge: "Neu",
+    quick: ["Vielen Dank!", "Ich melde mich später.", "Das passt mir gut."], searching: "Suche läuft…",
+    expanded: ["Vielen Dank für Ihre Nachricht vom letzten Monat.", "Wir haben Ihre Angaben geprüft und alles ist in Ordnung."],
+    editor: "Nachrichtentext", to: "An", recipients: "Empfänger", subject: "Betreff", send: "Senden",
+    toast: "Die Unterhaltung wurde als ungelesen markiert.", undo: "Rückgängig",
+    page2: (i) => ({ date: `${9 - i}. Nov.`, full: `${9 - i}. November` })
+  }
+})()
+
+// The interface in Russian around letters in English.
+const RU_EN = {
+  LETTERS: [
+    { from: "Northwind Power", subject: "Your October statement", snippet: "The invoice is ready in your account.", date: "16 нояб.", full: "понедельник, 16 ноября", body: ["Hello, your statement for October is ready.", "The amount will be taken from your account in ten days."], thread: 3 },
+    { from: "Bookmark Books", subject: "Your order is on its way", snippet: "The parcel was handed to the courier today.", date: "15 нояб.", full: "воскресенье, 15 ноября", body: ["Your books are on their way to you.", "Delivery is expected on Wednesday."], thread: 1 },
+    { from: "Dr. Weber Dental", subject: "A reminder of your appointment", snippet: "We expect you on Thursday at nine.", date: "14 нояб.", full: "суббота, 14 ноября", body: ["Please remember your appointment on Thursday.", "Let us know in time if you can't come."], thread: 1 },
+    { from: "Blue and White Sports Club", subject: "Invitation to the annual meeting", snippet: "All members are warmly invited.", date: "12 нояб.", full: "четверг, 12 ноября", body: ["The meeting takes place at the clubhouse.", "The election of the board is on the agenda."], thread: 1 }
+  ],
+  SENT: [
+    { from: "To: Property Office", subject: "A question about the service charges", snippet: "Could you send me the receipts?", date: "10 нояб.", full: "вторник, 10 ноября", body: ["I have a question about the last statement."], thread: 1 },
+    { from: "To: Wanderlust Travel", subject: "Changing the train booking", snippet: "I'd like to travel a day later.", date: "8 нояб.", full: "воскресенье, 8 ноября", body: ["Please change my booking."], thread: 1 }
+  ],
+  PAGE_TWO: [
+    ["Northern Light Energy", "A new tariff from January", "Your contract gets cheaper."],
+    ["Market Library", "Your loan period ends soon", "Two books are due next week."],
+    ["Chain Bike Shop", "Your bike is ready to collect", "The repair is finished."],
+    ["Adult Education Centre", "Your course starts on Monday", "Please bring a notebook."],
+    ["Sunny Slope Garden Club", "Spring work day", "We meet at the tool shed."],
+    ["City Library", "New audiobooks have arrived", "You can borrow them from today."]
+  ],
+  TABS: [["Несортированные", "Поиск в почте"], ["Промоакции", "Поиск в промоакциях"], ["Оповещения", "Поиск в оповещениях"]],
+  LIST_TOOLS: [["Архивировать", "archive"], ["В спам", "report"], ["Удалить", "delete"], ["Отметить как непрочитанное", "mail"]],
+  LETTER_TOOLS: [["Назад во входящие", "back"], ["Архивировать", "archive"], ["Удалить", "delete"], ["Распечатать все", "print"], ["Открыть в новом окне", "open"]],
+  EDITOR_TOOLS: ["Полужирный", "Курсив", "Маркированный список", "Удалить форматирование"],
+  hint: "Ищите предложения недели!", title: "Почта", searchLabel: "Поиск по письмам",
+  inbox: "Входящие", sent: "Отправленные", searchLink: "Поиск: прочитанные письма", chip: "Входящие",
+  toMe: "кому: мне", ago: "13:47 (21 минуту назад)", reply: "Ответить", forward: "Переслать", share: "Поделиться в чате", badge: "Новое",
+  quick: ["Большое спасибо!", "Отвечу позже.", "Мне подходит."], searching: "Идёт поиск…",
+  expanded: ["Thank you for your message of last month.", "We have checked your details and everything is in order."],
+  editor: "Текст письма", to: "Кому", recipients: "Получатели", subject: "Тема", send: "Отправить",
+  toast: "Цепочка отмечена как непрочитанная.", undo: "Отменить",
+  page2: (i) => ({ date: `${9 - i} нояб.`, full: `${9 - i} ноября` })
+}
+const WORDS = { de: DE, "ru-en": RU_EN }
+export const HINT = DE.hint
+export const wordsOf = (set) => WORDS[set] ?? DE
 
 /**
  * The app, built into `document.body` (which should be empty). `opts`:
@@ -56,10 +114,14 @@ export const HINT = "Suche nach Angeboten der Woche!"
  *   manual         time is moved with `run(ms)` instead of real timers (tests)
  *   onAddress(u)   the address changed (tests; in a browser the page's own location does)
  *   hint           "timer" | "observer": the search hint is kept as the site wrote it (L)
+ *   words          "de" (all German) or "ru-en" (a Russian interface around letters in English)
  * Returns the controls a person has: open(i), back(), folder(name), tab(i), search(), nextPage(), expand(),
  * reply(), hover(i), tick(), and for tests: run(ms), url(), els (the parts by name).
  */
 export function mountLiveApp(document, opts = {}) {
+  const W = wordsOf(opts.words)
+  const { LETTERS, SENT, PAGE_TWO, TABS, LIST_TOOLS, LETTER_TOOLS, EDITOR_TOOLS } = W
+  const HINT_NOW = W.hint
   const base = opts.base ?? "https://post.example/mail/u/0/"
   let hash = "#inbox"
   let pending = []
@@ -113,8 +175,8 @@ export function mountLiveApp(document, opts = {}) {
 
   // ---- the frame of the app: header, tabs, toolbar, folders, the holder of the views
   const body = document.body
-  const search = el("input", { type: "search", placeholder: TABS[0][1], "aria-label": "Nachrichten durchsuchen" })
-  const hint = el("label", { class: "hint" }, [el("span", {}, HINT)])
+  const search = el("input", { type: "search", placeholder: TABS[0][1], "aria-label": W.searchLabel })
+  const hint = el("label", { class: "hint" }, [el("span", {}, HINT_NOW)])
   const tabs = el("div", { role: "tablist" }, TABS.map(([name], i) => el("div", { role: "tab", "aria-selected": String(i === 0), "data-tab": String(i) }, name)))
   // An icon button as the mailbox draws it: no words of its own, a label, a tooltip element beside it (G).
   const tool = ([label, icon]) => el("span", { class: "tool" }, [
@@ -122,10 +184,10 @@ export function mountLiveApp(document, opts = {}) {
     el("div", { role: "tooltip", "aria-hidden": "true", class: "tip" }, label)
   ])
   const listTools = el("div", { role: "toolbar", class: "tools list-tools" }, LIST_TOOLS.map(tool))
-  const folders = el("nav", {}, [el("a", { href: "#inbox", "data-folder": "inbox" }, "Posteingang"), el("a", { href: "#sent", "data-folder": "sent" }, "Gesendet"), el("a", { href: "#search", "data-folder": "search" }, "Suche: gelesene Nachrichten")])
+  const folders = el("nav", {}, [el("a", { href: "#inbox", "data-folder": "inbox" }, W.inbox), el("a", { href: "#sent", "data-folder": "sent" }, W.sent), el("a", { href: "#search", "data-folder": "search" }, W.searchLink)])
   const main = el("div", { class: "views" })
   const ticker = el("div", { class: "ticker", "aria-hidden": "true" })
-  body.appendChild(el("header", {}, [el("strong", {}, "Postfach"), el("div", { class: "search" }, [search, hint]), tabs]))
+  body.appendChild(el("header", {}, [el("strong", {}, W.title), el("div", { class: "search" }, [search, hint]), tabs]))
   body.appendChild(folders)
   body.appendChild(listTools)
   body.appendChild(main)
@@ -134,7 +196,8 @@ export function mountLiveApp(document, opts = {}) {
   // ---- a list of letters (the inbox, a folder, a page of the list, search results)
   const cells = (m) => [
     el("td", { class: "from" }, [el("span", { translate: "no", class: "name" }, m.from)]),
-    el("td", { role: "gridcell", class: "what" }, [el("span", { class: "subject" }, m.subject), el("span", { class: "snippet" }, " — " + m.snippet)]),
+    // M: the label's chip stands in the row, before the letter's own words.
+    el("td", { role: "gridcell", class: "what" }, [el("div", { class: "chip" }, W.chip), el("span", { class: "subject" }, m.subject), el("span", { class: "snippet" }, " — " + m.snippet)]),
     // The date as the mailbox writes it: the short one for the eye (aria-hidden), the long one in a title beside it.
     el("td", { class: "when" }, [el("span", { title: m.full, "aria-label": m.full }, [el("span", { "aria-hidden": "true" }, m.date)])])
   ]
@@ -189,6 +252,10 @@ export function mountLiveApp(document, opts = {}) {
     }
   }
 
+  // O: the search field's hint, set again with the words it has (the tab's) on a switch of view.
+  let tabNow = 0
+  const again = () => attr(search, "placeholder", TABS[tabNow][1])
+
   // ---- what a person does
   const app = {
     els: { search, hint, tabs, listTools, folders, main, views },
@@ -202,20 +269,21 @@ export function mountLiveApp(document, opts = {}) {
         const last = n === m.thread - 1
         // E: the earlier letters of a thread are stubs until they're opened.
         const item = el("div", { role: "listitem", class: last ? "letter" : "letter collapsed" }, last
-          ? [el("div", { class: "head" }, [el("span", { translate: "no", class: "name" }, m.from), el("span", { title: m.full, class: "when" }, [el("span", { "aria-hidden": "true" }, m.date)])]), el("div", { class: "body" }, m.body.map((p) => el("p", {}, p)))]
+          ? [el("div", { class: "head" }, [el("span", { translate: "no", class: "name" }, m.from), el("span", { title: m.full, class: "when" }, W.ago)]), el("div", { class: "tome" }, W.toMe), el("div", { class: "body" }, m.body.map((p) => el("p", {}, p)))]
           : [el("div", { class: "stub", "data-stub": String(n) }, [el("span", { translate: "no", class: "name" }, m.from), el("span", { class: "snippet" }, " " + m.body[0])])])
         items.push(item)
       }
       const tools = el("div", { role: "toolbar", class: "tools letter-tools" }, LETTER_TOOLS.map(tool))
-      const view = el("div", { role: "main", class: "view letter-view", "data-view": "letter" }, [tools, el("h2", {}, m.subject), el("div", { role: "list" }, items), el("div", { class: "answer" }, [el("span", { role: "link", class: "reply" }, "Antworten"), el("span", { role: "link", class: "forward" }, "Weiterleiten")])])
+      const view = el("div", { role: "main", class: "view letter-view", "data-view": "letter" }, [tools, el("h2", {}, m.subject), el("div", { role: "list" }, items), el("div", { class: "answer" }, [el("span", { role: "link", class: "reply" }, W.reply), el("span", { role: "link", class: "forward" }, W.forward), el("span", { role: "link", class: "share" }, [el("span", { class: "share-words" }, W.share), el("span", { class: "badge" }, W.badge)])])])
       view.letter = m
       letterView = view
       hide(listShown)
       put(main, view)
       shown = view
+      again()
       later(120, () => dress(tools))
       // K: pieces that come later (quick answers under the letter).
-      later(600, () => put(view, el("div", { class: "quick" }, [el("button", {}, "Vielen Dank!"), el("button", {}, "Ich melde mich später."), el("button", {}, "Das passt mir gut.")])))
+      later(600, () => put(view, el("div", { class: "quick" }, W.quick.map((q) => el("button", {}, q)))))
       flush()
     },
     /** A, D, I: back to the list the letter was opened from. The letter's view is taken out. */
@@ -227,6 +295,12 @@ export function mountLiveApp(document, opts = {}) {
       show(listShown)
       shown = listShown
       redraw(listShown)
+      again()
+      // M: a line about what was just done, with a way back, for a few seconds.
+      later(500, () => {
+        const toast = put(body, el("div", { role: "alert", class: "toast" }, [el("span", { class: "toast-words" }, W.toast), el("span", { role: "link", class: "undo" }, W.undo)]))
+        later(4000, () => take(toast))
+      })
       flush()
     },
     /** B the first time, A afterwards; C for the search (its view is removed when left). */
@@ -251,7 +325,7 @@ export function mountLiveApp(document, opts = {}) {
     /** C, K: the search results come a moment after the address changed, and are removed when left. */
     search() {
       go("#search/gelesen")
-      const view = el("div", { role: "main", class: "view list", "data-view": "search" }, [el("p", { class: "searching" }, "Suche läuft…")])
+      const view = el("div", { role: "main", class: "view list", "data-view": "search" }, [el("p", { class: "searching" }, W.searching)])
       views.search = view
       swap(view)
       later(400, () => {
@@ -268,6 +342,7 @@ export function mountLiveApp(document, opts = {}) {
     /** F, I: a category tab: no address change; the search field's hint changes; the tab's own list shows. */
     tab(i) {
       for (const t of Array.from(tabs.childNodes)) attr(t, "aria-selected", String(t.getAttribute("data-tab") === String(i)))
+      tabNow = i
       attr(search, "placeholder", TABS[i][1])
       // The same value written again, as the mailbox does.
       attr(search, "aria-label", search.getAttribute("aria-label"))
@@ -281,7 +356,7 @@ export function mountLiveApp(document, opts = {}) {
     nextPage() {
       go("#inbox/p2")
       const view = list("page2", [])
-      view.letters = PAGE_TWO.map(([from, subject, snippet], i) => ({ from, subject, snippet, date: `${9 - i}. Nov.`, full: `${9 - i}. November`, body: [snippet], thread: 1 }))
+      view.letters = PAGE_TWO.map(([from, subject, snippet], i) => ({ from, subject, snippet, ...W.page2(i), body: [snippet], thread: 1 }))
       swap(view)
       listShown = view
       views.page2 = view
@@ -293,19 +368,19 @@ export function mountLiveApp(document, opts = {}) {
       const stub = letterView?.querySelector(`[data-stub="${n}"]`)
       if (!stub) return false
       hide(stub)
-      put(stub.parentNode, el("div", { class: "body" }, [el("p", {}, "Vielen Dank für Ihre Nachricht vom letzten Monat."), el("p", {}, "Wir haben Ihre Angaben geprüft und alles ist in Ordnung.")]))
+      put(stub.parentNode, el("div", { class: "body" }, W.expanded.map((p) => el("p", {}, p))))
       flush()
       return true
     },
     /** H, F: the reply box under the letter: an editor with the letter quoted in it, its fields and its toolbar. */
     reply() {
       if (!letterView) return
-      const editor = el("div", { role: "textbox", contenteditable: "true", "aria-label": "Nachrichtentext", class: "editor" }, [el("div", {}, [el("br")]), el("blockquote", {}, letterView.letter.body[0])])
+      const editor = el("div", { role: "textbox", contenteditable: "true", "aria-label": W.editor, class: "editor" }, [el("div", {}, [el("br")]), el("blockquote", {}, letterView.letter.body[0])])
       const box = el("div", { class: "compose" }, [
-        el("div", { class: "to" }, [el("span", {}, "An"), el("input", { "aria-label": "Empfänger", value: letterView.letter.from })]),
-        el("input", { "aria-label": "Betreff", placeholder: "Betreff", value: "Re: " + letterView.letter.subject }),
+        el("div", { class: "to" }, [el("span", {}, W.to), el("input", { "aria-label": W.recipients, value: letterView.letter.from })]),
+        el("input", { "aria-label": W.subject, placeholder: W.subject, value: "Re: " + letterView.letter.subject }),
         editor,
-        el("div", { role: "toolbar", class: "tools editor-tools" }, [...EDITOR_TOOLS.map((t) => tool([t, "fmt"])), el("div", { role: "button", class: "send" }, "Senden")])
+        el("div", { role: "toolbar", class: "tools editor-tools" }, [...EDITOR_TOOLS.map((t) => tool([t, "fmt"])), el("div", { role: "button", class: "send" }, W.send)])
       ])
       put(letterView, box)
       later(100, () => dress(box.querySelector("[role=toolbar]")))
@@ -328,9 +403,9 @@ export function mountLiveApp(document, opts = {}) {
     },
     /** L: the site writes its hint again (what its timer or its observer does when the words aren't its own). */
     hintAgain() {
-      if (hint.textContent === HINT) return false
+      if (hint.textContent === HINT_NOW) return false
       for (const kid of Array.from(hint.childNodes)) take(kid)
-      put(hint, el("span", {}, HINT))
+      put(hint, el("span", {}, HINT_NOW))
       flush()
       return true
     },

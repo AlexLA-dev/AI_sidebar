@@ -144,6 +144,33 @@ export const CONTROLS_WORDS_SHARE = 0.15
 export const ENTRY_SCRIPT = 1
 export const ENTRY_WORDS = 2
 
+/**
+ * A short piece of the page that is in the language of its controls beyond doubt (build 110, the owner's 109 on a
+ * mailbox in Russian around letters in English: with «buttons and menus» translated, the dates, the labels' chips,
+ * «кому: мне», the time of a letter and the line that comes up after an action stayed Russian. They aren't buttons
+ * or menus, but they are the page's own words, not what it holds, and the reader took them for the interface).
+ * Where only the controls are translated, these are too. Beyond doubt: mostly letters of another script than the
+ * reader's, the controls' own; or, in the same script, more of that language's function words than of the reader's.
+ * What's in the reader's language (the letters themselves) never passes.
+ */
+export function interfaceWords(text: string, from: string, reader: string): boolean {
+  const lang = canonical(baseLanguage(from))
+  const me = canonical(baseLanguage(reader))
+  if (!lang || lang === me) return false
+  const theirs = SCRIPT_OF[lang] ?? "latin"
+  const mine = SCRIPT_OF[me] ?? "latin"
+  if (theirs !== mine) {
+    const { latin, other } = scripts(text)
+    let total = latin
+    for (const n of other.values()) total += n
+    const key = theirs === "cjk" ? null : theirs
+    const n = theirs === "latin" ? latin : key ? (other.get(key) ?? 0) : (other.get("ja") ?? 0) + (other.get("zh") ?? 0)
+    return total >= 2 && n / total >= 0.6
+  }
+  const hits = wordHits(text, lang)
+  return hits >= 1 && hits > wordHits(text, me)
+}
+
 export interface ControlsJudged {
   // The language most of the foreign controls are in, how many labels, and whether that's enough for the pill to
   // offer by itself (else only the entry by the circle).

@@ -382,13 +382,15 @@ export function controlBlock(block: Block): boolean {
   if (block.attr) return true
   const el = block.parent
   let depth = 0
+  const letters = plain.match(LETTERS)?.length ?? 0
   for (let at: Element | null = el; at && depth < 5; at = at.parentElement, depth++) {
     if (CONTROL_TAGS.has(tagOf(at))) return true
     const role = at.getAttribute("role")
     if (role && CONTROL_ROLES.has(role)) return true
+    // What a page draws as a button and calls a link (a mailbox's «Reply», «Forward»): short, like a link's words.
+    if (role === "link" && letters <= LINK_LETTERS) return true
   }
   if (el.closest(MENUS)) return true
-  const letters = plain.match(LETTERS)?.length ?? 0
   if (tagOf(el) === "A" && letters <= LINK_LETTERS) return true
   if (/^H[1-6]$/.test(tagOf(el)) || el.getAttribute("role") === "heading" || el.closest("h1,h2,h3,h4,h5,h6")) return !!el.closest(DIALOGS)
   return false

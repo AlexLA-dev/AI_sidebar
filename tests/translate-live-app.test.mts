@@ -12,7 +12,7 @@ import { pathToFileURL } from "node:url"
 import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
-import { HINT, mountLiveApp } from "./stands/live-app.mjs"
+import { HINT, mountLiveApp, wordsOf } from "./stands/live-app.mjs"
 
 let lib: any
 
@@ -31,7 +31,8 @@ before(async () => {
 })
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
-const ru = (text: string) => text.replace(/(^|>)([^<]+)/g, (_m: string, a: string, w: string) => `${a}RU ${w}`)
+const marked = (mark: string) => (text: string) => text.replace(/(^|>)([^<]+)/g, (_m: string, a: string, w: string) => `${a}${mark}${w}`)
+const CYRILLIC = /\p{Script=Cyrillic}/u
 const LETTERS = /\p{L}/gu
 
 class Observer {
@@ -111,7 +112,18 @@ function shownTexts(document: Document): Text[] {
   return out
 }
 
-function stand(opts: { delay?: number } = {}): Stand {
+interface StandOpts {
+  delay?: number
+  // "ru-en": a Russian interface around letters in English, translated into English («EN »); else all German → «RU ».
+  words?: "de" | "ru-en"
+}
+
+function stand(opts: StandOpts = {}): Stand {
+  const mark = opts.words === "ru-en" ? "EN " : "RU "
+  const fake = marked(mark)
+  const done = new RegExp(`^\\s*${mark}`)
+  // What should be translated: everything (a German page), or what's in Russian (the interface around the letters).
+  const due = (text: string) => opts.words !== "ru-en" || CYRILLIC.test(text)
   const { document } = parseHTML(`<!doctype html><html lang="de"><head><title>Postfach</title></head><body></body></html>`)
   const asks: any[] = []
   const flashes: string[] = []
@@ -121,12 +133,13 @@ function stand(opts: { delay?: number } = {}): Stand {
   const translatedOnce = new Set<string>()
   const place = (n: Text, words: string) => `${n.parentElement!.tagName}.${n.parentElement!.getAttribute("class") ?? ""}|${words}`
   const note = () => {
-    for (const n of shownTexts(document)) if (/^\s*RU /.test(n.data)) translatedOnce.add(place(n, n.data.replace(/^\s*RU /, "").trim()))
+    for (const n of shownTexts(document)) if (done.test(n.data)) translatedOnce.add(place(n, n.data.replace(done, "").trim()))
   }
   let address = ""
   let watched: Set<string> | null = null
   const app = mountLiveApp(document, {
     manual: true,
+    words: opts.words,
     onAddress: (u: string) => (address = u),
     records: (list: any[]) => {
       // As a browser reports them to the engine's observer: its own choice of attributes, all in one call.
@@ -147,7 +160,7 @@ function stand(opts: { delay?: number } = {}): Stand {
     ask: (ask: any, on: (r: any) => void) => {
       const req = asks.push(ask)
       setTimeout(() => {
-        on({ type: "items", req, items: ask.blocks.map((b: any) => ({ id: b.id, text: ru(b.text) })) })
+        on({ type: "items", req, items: ask.blocks.map((b: any) => ({ id: b.id, text: fake(b.text) })) })
         on({ type: "done", req, charged: ask.first })
       }, opts.delay ?? 2)
       return () => undefined
@@ -166,13 +179,14 @@ function stand(opts: { delay?: number } = {}): Stand {
   return {
     document, app, translator, asks, flashes, settle,
     shownWords: () => shownTexts(document).map((n) => n.data.trim()),
-    untranslated: () => shownTexts(document).map((n) => n.data.trim()).filter((t) => !t.startsWith("RU "))
+    untranslated: () => shownTexts(document).map((n) => n.data.trim()).filter((t) => due(t) && !t.startsWith(mark))
   }
 }
 
-async function translated(opts: { delay?: number } = {}): Promise<Stand> {
+async function translated(opts: StandOpts = {}): Promise<Stand> {
   const s = stand(opts)
-  await s.translator.start("ru", "de")
+  if (opts.words === "ru-en") await s.translator.start("en", "ru", "controls")
+  else await s.translator.start("ru", "de")
   await s.settle(400)
   return s
 }
@@ -230,16 +244,23 @@ test("live app: back to the list, its rows redrawn by the site in three waves: n
   s.app.back()
   assert.deepEqual(s.untranslated(), [], "the list comes back translated (the same nodes)")
   const firstCell = s.document.querySelector("tr td.what")
+  // The line that comes up at +500 ms is new to the page: it takes a request. Everything else was seen before.
+  const line = ["Die Unterhaltung wurde als ungelesen markiert.", "Rückgängig"]
   for (const ms of [300, 800, 400]) {
     s.app.run(ms)
     // At once: the site's change is over and the words are the reader's again.
-    assert.deepEqual(s.untranslated(), [], `after the wave at +${ms} ms`)
+    assert.deepEqual(s.untranslated().filter((t) => !line.includes(t)), [], `after the wave at +${ms} ms`)
     await wait(120)
   }
   assert.notEqual(s.document.querySelector("tr td.what"), firstCell, "the cells are new ones")
   await s.settle()
+  assert.deepEqual(s.untranslated(), [], "the line too, a moment later")
+  assert.equal(s.document.querySelector(".toast .undo")!.textContent, "RU Rückgängig")
   assert.deepEqual(s.flashes, [], "words translated before never showed in the original")
-  assert.equal(s.asks.length, asked, "from what's kept: no request")
+  const since = s.asks.slice(asked).flatMap((a) => a.blocks.map((b: any) => b.text))
+  assert.ok(since.every((t: string) => line.some((l) => t.includes(l))), `only the new line was asked for: ${JSON.stringify(since)}`)
+  s.app.run(4200)
+  assert.equal(s.document.querySelector(".toast"), null, "and it goes away")
 })
 
 test("live app: the same letter opened again is in the reader's language at once, from what's kept", async () => {
@@ -401,6 +422,91 @@ test("live app: a hint the site writes back on a timer stays translated, with no
   assert.ok(rounds < 20, `the two stopped after ${rounds} rounds`)
   assert.equal(s.app.els.hint.textContent, HINT)
   assert.deepEqual(s.untranslated(), [HINT], "only the hint is the site's; the rest stays translated")
+})
+
+// ------------------------------------------------------------------ a Russian interface around letters in English
+// (the owner's mailbox on 109: «элементы интерфейса НЕ перевелись с русского на английский, как изначально в общем
+// меню писем (например даты справа), так и после открытия письма внутри кнопки, даты и прочие элементы вне тела письма»)
+
+test("live app, only buttons and menus translated: the page's own Russian words are, in every row too (chips, dates); the English letters are never sent", async () => {
+  const s = await translated({ words: "ru-en" })
+  const W = wordsOf("ru-en")
+  assert.deepEqual(s.untranslated(), [], "no Russian left on the screen")
+  const row = s.document.querySelector("tr[role=row]")!
+  assert.equal(row.querySelector(".chip")!.textContent, `EN ${W.chip}`, "the label's chip in a row")
+  assert.equal(row.querySelector(".when span span")!.textContent, "EN 16 нояб.", "the date in a row")
+  assert.equal(row.querySelector(".subject")!.textContent, "Your October statement", "the letter's own words stay")
+  assert.equal(s.app.els.search.getAttribute("placeholder"), `EN ${W.TABS[0][1]}`)
+  // Free: every request says it's controls, every block is short and Russian; nothing English left the page.
+  const sent = s.asks.flatMap((a) => a.blocks.map((b: any) => b.text))
+  assert.ok(s.asks.length > 0 && s.asks.every((a) => a.kind === "controls"))
+  assert.ok(sent.every((t: string) => CYRILLIC.test(t) && t.replace(/<\/?\d+\/?>/g, "").length <= 80), JSON.stringify(sent.filter((t: string) => !CYRILLIC.test(t))))
+})
+
+test("live app, only buttons and menus translated: an opened letter's «to: me», its time, «Reply», «Forward», the badge and the late buttons are translated; its body isn't touched", async () => {
+  const s = await translated({ words: "ru-en" })
+  const W = wordsOf("ru-en")
+  s.app.open(0)
+  await s.settle()
+  s.app.run(200)
+  await s.settle()
+  s.app.run(600)
+  await s.settle()
+  const view = s.document.querySelector("[data-view=letter]")!
+  assert.deepEqual(s.untranslated(), [])
+  assert.equal(view.querySelector(".tome")!.textContent, `EN ${W.toMe}`)
+  assert.equal(view.querySelector(".head .when")!.textContent, `EN ${W.ago}`)
+  assert.deepEqual(Array.from(view.querySelectorAll(".answer > [role=link]")).map((b) => b.textContent), [`EN ${W.reply}`, `EN ${W.forward}`, `EN ${W.share}EN ${W.badge}`], "what the page calls links")
+  assert.deepEqual(Array.from(view.querySelectorAll(".quick button")).map((b) => b.textContent), W.quick.map((q: string) => `EN ${q}`))
+  assert.equal(view.querySelector(".body p")!.textContent, "Hello, your statement for October is ready.")
+  assert.equal(view.querySelector("h2")!.textContent, "Your October statement")
+  for (const b of labels(view)) assert.match(b.getAttribute("aria-label")!, /^EN /)
+  // The site set the search hint again when the view changed: it's still the reader's.
+  assert.equal(s.app.els.search.getAttribute("placeholder"), `EN ${W.TABS[0][1]}`)
+  assert.ok(s.asks.every((a) => a.kind === "controls"))
+  assert.deepEqual(s.flashes, [])
+})
+
+test("live app, only buttons and menus translated: back in the list the redrawn rows' chips and dates, the hint set again and the line that comes up later are all translated", async () => {
+  const s = await translated({ words: "ru-en" })
+  const W = wordsOf("ru-en")
+  s.app.open(1)
+  await s.settle()
+  s.app.run(700)
+  await s.settle()
+  s.app.back()
+  assert.equal(s.app.els.search.getAttribute("placeholder"), `EN ${W.TABS[0][1]}`, "the hint the site wrote again: ours at once")
+  for (const ms of [300, 800, 400]) {
+    s.app.run(ms)
+    assert.deepEqual(s.untranslated().filter((t) => t !== W.toast && t !== W.undo), [], `after the wave at +${ms} ms`)
+    await wait(120)
+  }
+  await s.settle()
+  assert.equal(s.document.querySelector(".toast .toast-words")!.textContent, `EN ${W.toast}`, "a sentence, not a button: the page's own words")
+  assert.equal(s.document.querySelector(".toast .undo")!.textContent, `EN ${W.undo}`)
+  assert.deepEqual(s.untranslated(), [])
+  assert.deepEqual(s.flashes, [])
+  assert.ok(s.asks.every((a) => a.kind === "controls" && !a.first === (s.asks.indexOf(a) > 0)))
+})
+
+test("live app, only buttons and menus translated: a walk through every switch leaves no Russian on the screen and sends no English", async () => {
+  const s = await translated({ words: "ru-en" })
+  const steps: Array<[string, () => void, number]> = [
+    ["a letter", () => s.app.open(0), 700], ["a collapsed letter", () => s.app.expand(0), 0], ["the reply box", () => s.app.reply(), 150], ["back", () => s.app.back(), 2000],
+    ["a tab", () => s.app.tab(1), 0], ["the first tab", () => s.app.tab(0), 0], ["sent", () => s.app.folder("sent"), 200],
+    ["search", () => s.app.search(), 500], ["inbox", () => s.app.folder("inbox"), 200], ["next page", () => s.app.nextPage(), 1100]
+  ]
+  for (const [name, act, ms] of steps) {
+    act()
+    await s.settle(120)
+    if (ms) s.app.run(ms)
+    await s.settle()
+    assert.deepEqual(s.untranslated(), [], `after: ${name}`)
+  }
+  const sent = s.asks.flatMap((a) => a.blocks.map((b: any) => b.text))
+  assert.ok(sent.every((t: string) => CYRILLIC.test(t)), `English went out: ${JSON.stringify(sent.filter((t: string) => !CYRILLIC.test(t)))}`)
+  assert.ok(s.asks.every((a) => a.kind === "controls"))
+  assert.deepEqual(s.flashes, [])
 })
 
 // ------------------------------------------------------------------ the whole walk

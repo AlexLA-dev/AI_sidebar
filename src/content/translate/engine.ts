@@ -28,6 +28,7 @@
 
 import { urlKey } from "../../shared/conversation"
 import { TRANSLATE_LIMITS, type TranslateAsk, type TranslateError, type TranslateReply } from "../../shared/translate"
+import { interfaceWords } from "./decide"
 import { adoptedBlock, applyBlock, blockCurrent, blockIntact, collectBlocks, controlBlock, insideSkipped, optionOf, restore, scanRoot, tipBlocks, WORD_ATTRS, type Applied, type Block } from "./blocks"
 
 export type EngineState =
@@ -319,7 +320,7 @@ export class PageTranslator {
   /** `now`: asked for at once, whether or not it's on screen (a tooltip the pointer came to). */
   private add(blocks: Block[], now = false): void {
     for (const block of blocks) {
-      if (this.only === "controls" && !controlBlock(block)) continue
+      if (this.only === "controls" && !controlBlock(block) && !this.ownWords(block)) continue
       // Words left to the site; or the site's own words back where ours just were: ours again while that's followed.
       const from = this.kept(block.text) === undefined ? this.made.get(block.text) : undefined
       if (from !== undefined) {
@@ -358,6 +359,14 @@ export class PageTranslator {
       // Without an IntersectionObserver (tests, very old browsers) everything counts as on screen.
       if (!this.io || now) item.status = "queued"
     }
+  }
+
+  /** Where only the controls are translated: a short piece that isn't a control but is in the controls' language
+   *  beyond doubt (a date, a label's chip, a status line): the page's own words (decide.ts interfaceWords). */
+  private ownWords(block: Block): boolean {
+    if (!this.from) return false
+    const plain = block.text.replace(/<\/?\d{1,3}\/?>/g, " ").replace(/\s+/g, " ").trim()
+    return plain.length <= TRANSLATE_LIMITS.controlChars && interfaceWords(plain, this.from, this.to)
   }
 
   /** The block says a translation of ours already (the site copied it): kept track of, for "Original". */
