@@ -29,6 +29,8 @@ interface Store {
   hintsWith(known: readonly string[], add: readonly string[]): string[] | null
   markHintSeen(key: string | string[], known?: readonly string[]): Promise<void>
   onFirstRunChanged(listener: (change: { tourSeen?: boolean; hints?: string[] }) => void): () => void
+  firstRunMarks(): Promise<{ tourSeen: boolean; hints: string[]; stamp: number }>
+  marksAfterRead(known: { tourSeen: boolean; hints: string[] | null; stamp: number | null }, read: { tourSeen: boolean; hints: string[]; stamp: number }): { tourSeen: boolean; hints: string[] }
 }
 let bundled: Promise<Store> | undefined
 function store(): Promise<Store> {
@@ -46,9 +48,9 @@ function fakeChrome(items: Record<string, unknown>) {
   ;(globalThis as any).chrome = {
     storage: {
       local: {
-        get: async (key: string) => {
+        get: async (key: string | string[]) => {
           calls.push(`get ${key}`)
-          return key in items ? { [key]: items[key] } : {}
+          return Object.fromEntries([key].flat().filter((k) => k in items).map((k) => [k, items[k]]))
         },
         set: async (more: Record<string, unknown>) => {
           calls.push(`set ${Object.keys(more).join(",")}`)
@@ -111,9 +113,34 @@ test("a tab hears the marks change: a hint put away elsewhere, the tour seen, th
   assert.equal(heard.length, 5)
 })
 
+test("a page shown again reads the marks: they only grow, unless the first run was started over meanwhile", async () => {
+  const { firstRunMarks, marksAfterRead } = await store()
+  fakeChrome({ [STORAGE.tourSeen]: true, [STORAGE.hintsSeen]: ["new27", "side"], "cf:firstRunReset": 1795077934682 })
+  assert.deepEqual(await firstRunMarks(), { tourSeen: true, hints: ["new27", "side"], stamp: 1795077934682 })
+  fakeChrome({})
+  assert.deepEqual(await firstRunMarks(), { tourSeen: false, hints: [], stamp: 0 })
+  // The page Safari kept for Forward (seen in the simulator, the build before 110): loaded with the tour seen and the
+  // hint not yet put away; «Got it» was tapped on another page meanwhile. Shown again, it has the hint as seen.
+  assert.deepEqual(marksAfterRead({ tourSeen: true, hints: ["new27"], stamp: 5 }, { tourSeen: true, hints: ["new27", "side"], stamp: 5 }), { tourSeen: true, hints: ["new27", "side"] })
+  // A read that left before this page's own «Got it» and the tour's end, and came back after: nothing is taken back.
+  assert.deepEqual(marksAfterRead({ tourSeen: true, hints: ["new27", "side"], stamp: 5 }, { tourSeen: false, hints: ["new27"], stamp: 5 }), { tourSeen: true, hints: ["new27", "side"] })
+  // «Start as a new user» since this page last looked: the stored marks are the ones, the tour's too.
+  assert.deepEqual(marksAfterRead({ tourSeen: true, hints: ["chats", "side", "new27"], stamp: 0 }, { tourSeen: false, hints: ["new27"], stamp: 7 }), { tourSeen: false, hints: ["new27"] })
+  // The page's first look.
+  assert.deepEqual(marksAfterRead({ tourSeen: true, hints: null, stamp: null }, { tourSeen: false, hints: [], stamp: 0 }).hints, [])
+})
+
 test("the panel keeps its hints and the tour's mark the same as the stored ones, and hands its list to the write", () => {
   const app = read("../src/content/App.tsx")
-  assert.match(app, /return onFirstRunChanged\(\(change\) => \{\n\s+if \(change\.hints\) setHints\(change\.hints\)\n\s+if \(change\.tourSeen !== undefined\) setTourSeen\(change\.tourSeen\)\n\s+\}\)/)
+  assert.match(app, /const stop = onFirstRunChanged\(\(change\) => \{\n\s+if \(change\.hints\) setHints\(change\.hints\)\n\s+if \(change\.tourSeen !== undefined\) setTourSeen\(change\.tourSeen\)\n\s+\}\)/)
+  // Read again when the page is shown (Back, Forward, a tab come back to) and at each opening of the panel.
+  assert.match(app, /window\.addEventListener\("pageshow", shown\)\n\s+document\.addEventListener\("visibilitychange", shown\)/)
+  assert.match(app, /useEffect\(\(\) => \{\n\s+if \(open\) readMarks\(\)\n\s+\}, \[open\]\)/)
+  // A new install: the first run that started by itself ends with «New in 2.7» marked seen, whatever way it ends (the
+  // background's mark at install never ran in the simulator's Safari, and a new person got «New in ContextFlow 2.7»).
+  assert.match(app, /const timer = setTimeout\(\(\) => \{\n\s+firstRunRef\.current = true\n\s+if \(firstGuideRef\.current\(\)\) startGuideRef\.current\("first"\)\n\s+else setTouring\(true\)/)
+  assert.match(app, /const firstRunOver = \(\) => \{\n\s+if \(!firstRunRef\.current\) return\n\s+firstRunRef\.current = false\n\s+doneHintRef\.current\("new27"\)/)
+  assert.equal(app.split("firstRunOver()").length - 1, 2, "the tour's end and the guide's")
   assert.match(app, /const known = hintsRef\.current \?\? \[\]\n\s+setHints\(\(seen\) => hintsWith\(seen \?\? \[\], add\) \?\? seen \?\? \[\]\)\n\s+void markHintSeen\(add, known\)/)
   // One place shows the hint, and one mark puts it away.
   assert.equal(app.split('hintDue("side")').length - 1, 1)

@@ -7,6 +7,7 @@ import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { planOfProduct, type Plan } from "../shared/plan"
 import { keepingAnswers, type Jobs } from "../shared/jobs"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
+import { FIRST_RUN_STAMP } from "../shared/firstRun"
 import type { MadeList } from "../shared/voiced"
 import { changedSpaces, cleanSpaceList, currentSpace, emptySpaces, FIRST_SPACE, spaceOfChat, type SpaceList, type StoredSpaces } from "../shared/spaces"
 import { cardsMoved, changedCollection, cleanCollection, type Collection, type StoredCollections } from "../shared/collections"
@@ -74,6 +75,31 @@ export async function hasSeenTour(): Promise<boolean> {
 
 export async function markTourSeen(): Promise<void> {
   await set(STORAGE.tourSeen, true)
+}
+
+/** The first run's marks as stored now: the tour seen, the hints seen, and the stamp of the last «Start as a new user»
+ * the first run started over for (0 when never; src/shared/firstRun.ts). */
+export async function firstRunMarks(): Promise<{ tourSeen: boolean; hints: HintKey[]; stamp: number }> {
+  try {
+    const stored = await chrome.storage.local.get([STORAGE.tourSeen, STORAGE.hintsSeen, FIRST_RUN_STAMP])
+    return { tourSeen: Boolean(stored[STORAGE.tourSeen]), hints: cleanHints(stored[STORAGE.hintsSeen]), stamp: Number(stored[FIRST_RUN_STAMP] ?? 0) || 0 }
+  } catch {
+    return { tourSeen: true, hints: [], stamp: 0 }
+  }
+}
+
+/**
+ * What a panel shows after reading the marks again (a page Safari kept for Back and Forward hears no changes while
+ * it's kept, and a tab left behind may miss them). Marks only grow, so a read that was on its way while this page
+ * wrote its own never takes one back; except when the first run was started over since this page last looked
+ * (`known.stamp`, null before its first look): then the stored marks are what counts.
+ */
+export function marksAfterRead(
+  known: { tourSeen: boolean; hints: HintKey[] | null; stamp: number | null },
+  read: { tourSeen: boolean; hints: HintKey[]; stamp: number }
+): { tourSeen: boolean; hints: HintKey[] } {
+  if (known.hints === null || (known.stamp !== null && read.stamp !== known.stamp)) return { tourSeen: known.hints === null ? known.tourSeen || read.tourSeen : read.tourSeen, hints: read.hints }
+  return { tourSeen: known.tourSeen || read.tourSeen, hints: hintsWith(known.hints, read.hints) ?? known.hints }
 }
 
 /**
