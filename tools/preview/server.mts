@@ -113,6 +113,7 @@ const rpc: Record<string, (a: any) => unknown> = {
 const STREAM_DELAY_MS = Number(process.env.STREAM_DELAY_MS ?? 8)
 // Before an answer's first word (0 by default): time to stop a question before any of its answer comes.
 const FIRST_WORD_DELAY_MS = Number(process.env.FIRST_WORD_DELAY_MS ?? 0)
+const TRANSLATE_DELAY_MS = Number(process.env.TRANSLATE_DELAY_MS ?? 0)
 
 const answers: [RegExp, string][] = JSON.parse(readFileSync(new URL("./answers.json", import.meta.url), "utf8")).map(
   ([re, text]: [string, string]) => [new RegExp(re, "i"), text]
@@ -328,7 +329,10 @@ const TRANSLATIONS: Record<string, Record<string, string>> = JSON.parse(readFile
 /** The scripted translation of a batch ("§n text" lines): each known line in the system prompt's language, its tags renumbered as the page's. */
 function scriptedTranslation(system: string, content: string): string {
   const into = /web page into ([^.]+)\./.exec(system)?.[1] ?? "English"
-  const to = /Russian/.test(into) ? "ru" : /German/.test(into) ? "de" : /French/.test(into) ? "fr" : /Italian/.test(into) ? "it" : /Spanish/.test(into) ? "es" : /Chinese/.test(into) ? "zh" : /Turkish/.test(into) ? "tr" : "en"
+  // "zh" is Traditional Chinese (the store's zh-Hant first screens); Simplified is "zh_CN".
+  const NAMES: [RegExp, string][] = [[/Russian/, "ru"], [/German/, "de"], [/French/, "fr"], [/Italian/, "it"], [/Spanish/, "es"], [/Traditional Chinese/, "zh"],
+    [/Chinese/, "zh_CN"], [/Turkish/, "tr"], [/Arabic/, "ar"], [/Japanese/, "ja"], [/Korean/, "ko"], [/Portuguese/, "pt"], [/Ukrainian/, "uk"], [/Vietnamese/, "vi"]]
+  const to = NAMES.find(([re]) => re.test(into))?.[1] ?? "en"
   const out: string[] = []
   for (const m of content.matchAll(/^§(\d+) (.*)$/gm)) {
     const src = m[2]
@@ -433,6 +437,8 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   // Haiku; a line it doesn't know comes back as it is (the page then keeps the original there).
   if (url.startsWith("https://api.anthropic.com/v1/messages") && String(JSON.parse(String(init?.body)).system).startsWith("You translate the text of a web page into")) {
     const body = JSON.parse(String(init?.body))
+    // TRANSLATE_DELAY_MS: a batch takes about as long as the real model's (the App Store preview's takes).
+    if (TRANSLATE_DELAY_MS) await new Promise((r) => setTimeout(r, TRANSLATE_DELAY_MS))
     return claudeStream(body.model, scriptedTranslation(String(body.system), String(body.messages[body.messages.length - 1].content)))
   }
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
@@ -753,6 +759,48 @@ function similarItems95(): Array<Record<string, unknown>> {
 // The store's localized first screens (STAND_LANG=de|fr|it|es|zh|tr): the same four in the interface's language, prices
 // as the (American) shop page shows them.
 const SIMILAR_STORE_LANG: Record<string, string[][]> = {
+  "ar": [
+    ["Halden Quiet One", "halden-audio.store", "سماعات تغطي الأذن، بإلغاء ضوضاء تكيّفي ودعم LDAC مثل Aero 2، مع طوق رأس أنعم وأخف.", "أرخص: $99.99 مقابل $129، ومتوفرة.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "سماعات خفيفة بإلغاء الضوضاء وبطارية مماثلة تدوم 35 ساعة، لكن برامج الترميز أقل.", "أرخص: $89.99 مقابل $129، ومتوفرة.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "خيار اقتصادي فيه إلغاء نشط للضوضاء ومعادل صوت في التطبيق.", "أرخص: $69 مقابل $129، ومتوفرة.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "تدعم LDAC والاتصال بعدة أجهزة مثل Aero 2، مع بطارية تدوم أطول.", "المتجر لا يسمح للخوادم بفتح الصفحة، لذا لم يتسنَّ التحقق من السعر والتوفر.", ""]
+  ],
+  "ja": [
+    ["Halden Quiet One", "halden-audio.store", "オーバーイヤー型。Aero 2と同じくアダプティブノイズキャンセリングとLDACに対応し、ヘッドバンドはより柔らかく軽量です。", "より安い：$129に対して$99.99、在庫あり。", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "軽量なノイズキャンセリングヘッドホン。バッテリーは同程度の35時間で、対応コーデックは少なめです。", "より安い：$129に対して$89.99、在庫あり。", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "アクティブノイズキャンセリングとアプリのイコライザーを備えた手頃なモデルです。", "より安い：$129に対して$69、在庫あり。", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "Aero 2と同じくLDACとマルチポイントに対応し、バッテリーはより長持ちです。", "ショップがサーバーからのページ表示を許可していないため、価格と在庫は確認できていません。", ""]
+  ],
+  "ko": [
+    ["Halden Quiet One", "halden-audio.store", "오버이어형으로, Aero 2처럼 적응형 노이즈 캔슬링과 LDAC 코덱을 지원하며 헤드밴드가 더 부드럽고 가볍습니다.", "더 저렴함: $129 대비 $99.99, 재고 있음.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "가벼운 노이즈 캔슬링 헤드폰으로, 배터리는 비슷한 35시간이지만 지원 코덱이 적습니다.", "더 저렴함: $129 대비 $89.99, 재고 있음.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "액티브 노이즈 캔슬링과 앱 EQ를 갖춘 가성비 모델입니다.", "더 저렴함: $129 대비 $69, 재고 있음.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "Aero 2처럼 LDAC 코덱과 멀티포인트를 지원하고, 배터리가 더 오래갑니다.", "쇼핑몰이 서버의 페이지 접근을 막고 있어 가격과 재고를 확인하지 못했습니다.", ""]
+  ],
+  "pt": [
+    ["Halden Quiet One", "halden-audio.store", "Over-ear, com cancelamento de ruído adaptativo e LDAC como o Aero 2, e arco mais macio e leve.", "Mais barato: US$ 99,99 contra US$ 129, em estoque.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Fone leve com cancelamento de ruído e bateria parecida, de 35 horas; menos codecs.", "Mais barato: US$ 89,99 contra US$ 129, em estoque.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Uma opção econômica com cancelamento ativo de ruído e equalizador no app.", "Mais barato: US$ 69 contra US$ 129, em estoque.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC e multiponto como o Aero 2, com bateria que dura mais.", "A loja não deixa servidores abrirem a página, então preço e estoque não foram confirmados.", ""]
+  ],
+  "uk": [
+    ["Halden Quiet One", "halden-audio.store", "Повнорозмірні, з адаптивним шумозаглушенням і LDAC, як Aero 2, але з м’якшим і легшим оголів’ям.", "Дешевше: $99,99 проти $129, є в наявності.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Легкі навушники з шумозаглушенням і схожим акумулятором на 35 годин; кодеків менше.", "Дешевше: $89,99 проти $129, є в наявності.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Бюджетний варіант з активним шумозаглушенням і еквалайзером у застосунку.", "Дешевше: $69 проти $129, є в наявності.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC і підключення до кількох пристроїв, як Aero 2, але довша автономність.", "Магазин не дає серверам відкрити сторінку, тож ціну й наявність не підтверджено.", ""]
+  ],
+  "vi": [
+    ["Halden Quiet One", "halden-audio.store", "Tai nghe trùm tai, có chống ồn thích ứng và LDAC như Aero 2, vòng đeo đầu mềm và nhẹ hơn.", "Rẻ hơn: 99,99 $ so với 129 $, còn hàng.", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "Tai nghe chống ồn nhẹ, pin 35 giờ tương tự; ít codec hơn.", "Rẻ hơn: 89,99 $ so với 129 $, còn hàng.", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "Lựa chọn giá rẻ có chống ồn chủ động và EQ trong ứng dụng.", "Rẻ hơn: 69 $ so với 129 $, còn hàng.", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "LDAC và kết nối đa điểm như Aero 2, pin dùng lâu hơn.", "Cửa hàng không cho máy chủ mở trang, nên giá và tình trạng hàng chưa được xác nhận.", ""]
+  ],
+  "zh_CN": [
+    ["Halden Quiet One", "halden-audio.store", "头戴式耳机，与 Aero 2 一样支持自适应降噪和 LDAC，头梁更软、更轻。", "更便宜：$99.99 对比 $129，有货。", "99.99 USD"],
+    ["Lumen Air 720", "lumen-sound.store", "轻巧的降噪耳机，续航同样约 35 小时；支持的编解码器较少。", "更便宜：$89.99 对比 $129，有货。", "89.99 USD"],
+    ["Brook Lux ANC", "brook-audio.store", "平价之选，支持主动降噪和 App 内均衡器调节。", "更便宜：$69 对比 $129，有货。", "69 USD"],
+    ["Veda Wave Pro", "veda.store", "与 Aero 2 一样支持 LDAC 和多点连接，续航更长。", "该商店不允许服务器打开页面，因此价格和库存尚未确认。", ""]
+  ],
   de: [
     ["Halden Quiet One", "halden-audio.store", "Over-Ear mit adaptiver Geräuschunterdrückung und LDAC wie der Aero 2, mit weicherem, leichterem Bügel.", "Günstiger: 99,99 $ statt 129 $, auf Lager.", "99.99 USD"],
     ["Lumen Air 720", "lumen-sound.store", "Leichte Kopfhörer mit Geräuschunterdrückung und ähnlichem 35-Stunden-Akku; weniger Codecs.", "Günstiger: 89,99 $ statt 129 $, auf Lager.", "89.99 USD"],
@@ -789,6 +837,22 @@ const SIMILAR_STORE_LANG: Record<string, string[][]> = {
     ["Brook Lux ANC", "brook-audio.store", "平價款，有主動降噪和 App 等化器。", "更便宜：US$69，原價 US$129，有現貨。", "69 USD"],
     ["Veda Wave Pro", "veda.store", "和 Aero 2 一樣支援 LDAC 和多點連線，續航更長。", "這家商店不讓伺服器開啟頁面，價格和庫存未確認。", ""]
   ]
+}
+/** The sentence over the list, in the stand's language (localized first screens). */
+const SIMILAR_STORE_INTRO: Record<string, string> = {
+  "de": "Kabellose Kopfhörer mit Geräuschunterdrückung wie der Aero 2 – jede Seite gerade eben geöffnet und geprüft.",
+  "fr": "Casques sans fil à réduction de bruit comme l'Aero 2, chaque page ouverte et vérifiée à l'instant.",
+  "it": "Cuffie wireless con cancellazione del rumore come le Aero 2, ogni pagina aperta e verificata proprio adesso.",
+  "es": "Auriculares inalámbricos con cancelación de ruido como los Aero 2, cada página abierta y comprobada ahora mismo.",
+  "tr": "Aero 2 gibi kablosuz, gürültü engellemeli kulaklıklar; her sayfa az önce açılıp kontrol edildi.",
+  "zh": "與 Aero 2 類似的無線降噪耳機，每個頁面都是剛剛開啟並檢查過的。",
+  "ar": "سماعات لاسلكية بإلغاء الضوضاء مثل Aero 2، وقد فُتحت صفحة كل منها وفُحصت للتو.",
+  "ja": "Aero 2に似たワイヤレスのノイズキャンセリングヘッドホンを、たった今1ページずつ開いて確認しました。",
+  "ko": "Aero 2와 비슷한 무선 노이즈 캔슬링 헤드폰으로, 각 페이지를 방금 열어 확인했습니다.",
+  "pt": "Fones sem fio com cancelamento de ruído como o Aero 2, cada página aberta e verificada agora mesmo.",
+  "uk": "Бездротові навушники з шумозаглушенням, як Aero 2; кожну сторінку щойно відкрили й перевірили.",
+  "vi": "Tai nghe không dây chống ồn tương tự Aero 2, từng trang đều vừa được mở và kiểm tra.",
+  "zh_CN": "与 Aero 2 类似的无线降噪耳机，每个页面都是刚刚打开并核实过的。"
 }
 function similarItemsStore(condition: string, ru = false): Array<Record<string, unknown>> {
   const cond = Boolean(condition.trim())
@@ -890,7 +954,7 @@ async function similarStub(body: Record<string, unknown>, res: import("node:http
     send({ type: "item", engine: "a", index: i, item })
   }
   await wait(200)
-  const intro = ru ? "Беспроводные наушники с шумоподавлением, похожие на Aero 2; каждую страницу мы только что открыли и проверили." : "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now."
+  const intro = SIMILAR_STORE_INTRO[process.env.SIMILAR_STUB === "store" ? process.env.STAND_LANG ?? "" : ""] ?? (ru ? "Беспроводные наушники с шумоподавлением, похожие на Aero 2; каждую страницу мы только что открыли и проверили." : "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now.")
   send({ type: "result", engine: "a", intro, items, note: "", condition: condition ? "cheaper" : "none" })
   send({ type: "done", ms: 9000, usd: 0 })
   res.end()

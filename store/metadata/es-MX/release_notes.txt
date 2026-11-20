@@ -1,17 +1,17 @@
-Novedades de ContextFlow 2.6.1:
-• En el panel de Safari, el chat ya se queda donde estás leyendo cuando aparece una sugerencia
-• Ahora se sugiere unir los chats sobre el mismo tema, aunque no sean de la misma página (Pro)
-
-Novedades de 2.6:
-• Ultra, un plan nuevo: todo lo de Pro, y además “Buscar similares” y “Escuchar”
-• Buscar similares: ¿estás viendo un producto, una app, un artículo, una receta o un lugar? Toca “Buscar similares” y verás alternativas reales: más baratas, más nuevas, en stock, gratis o en tu idioma, o di con tus palabras lo que necesitas. Cada enlace se abre y se revisa antes de que lo veas, y puedes seguir el precio de cualquiera de ellos
-• Escuchar: toca “Escuchar” debajo de una respuesta, o ve a … → “Escuchar esta página”. Una voz natural lee el texto en voz alta, en más de 100 idiomas. En iPhone sigue sonando con la pantalla bloqueada
-• Chats que se ordenan solos (Pro): debajo de una respuesta o nota nueva, ContextFlow te sugiere el chat donde encaja, un chat nuevo para ella o una de tus propias etiquetas. La barra “Sugerencias” de arriba del chat las reúne todas. Un toque la mueve y “Deshacer” la regresa a su lugar. Un chat también puede ponerse nombre según su tema
-• “Recordarme” y “Vigilar” ahora aceptan una nota con tus palabras: qué revisar o de qué avisarte
-• Selecciona texto y las acciones rápidas te esperan en el mismo campo “Tu pregunta…”, justo debajo: “Resumir”, “Traducir”, “Explicar sencillo”, “Buscar similares” y más
-• ¿El texto seleccionado ya está en tu idioma? “Traducir” ahora te ofrece otro idioma, como el inglés
-• “Chats” en la app: un solo campo de búsqueda, por palabras o por significado (Pro)
-• Planes anuales para Clave propia, Pro y Ultra. El cambio de Pro a Ultra empieza de inmediato, y Apple te reembolsa lo que queda de Pro
-• ¿Es tu primera vez con ContextFlow? Una guía breve te acompaña hasta tu primera respuesta y no gasta tus respuestas del día
-• Después de una actualización, “Novedades” en la app muestra los cambios principales con videos cortos
-• ContextFlow ya habla chino tradicional, árabe y vietnamita: 14 idiomas en total
+Novedades de ContextFlow 2.7:
+• Traduce una página ahí mismo. Cuando una página no está en tu idioma, toca “Traducir” junto al botón flotante de ContextFlow: el texto cambia en su lugar, los enlaces y botones siguen funcionando, y “Original” regresa la página a como estaba. El resto de la página se traduce conforme te desplazas
+• Después de la primera página, ContextFlow te pregunta si quieres traducir todas las páginas del sitio, y basta un toque
+• También se traducen las listas desplegables y el asistente de chat de un sitio. Cuando solo los botones y menús están en otro idioma, traducirlos no gasta respuestas
+• Colecciones: todo lo de una tarea, como un viaje, una compra o un curso, en un solo lugar. Toca “A una colección” debajo de una respuesta o nota y ContextFlow te sugiere dónde va. En Pro, la IA acomoda las tarjetas en secciones, “Comparar” pone lado a lado en una tabla las tarjetas que elijas y “Resumen” hace un resumen de toda la colección. Cualquier colección se guarda en PDF. Con Gratis tienes una colección de hasta 10 tarjetas
+• “Buscar similares” ahora también llega a Pro y Clave propia: una búsqueda rápida, hasta 5 a la semana (en Pro, cada una cuenta como 10 respuestas). Ultra hace una búsqueda más amplia, lee reseñas y revisa el envío
+• Espacios: separa trabajo, vida personal y compras, cada uno con sus chats, colecciones y color. Abre un sitio en su espacio una vez y el panel se irá ahí solo. Mientras no crees un segundo espacio, nada cambia
+• El panel se abre en el chat que corresponde a la página, o en uno nuevo. Si se equivoca, con un toque cambias
+• “Revisar” y “Reescribir” en cualquier campo de un sitio, tomando en cuenta la página: el correo que estás respondiendo, la publicación que comentas. Más corto, más cálido, más formal o más seguro. Pro y Ultra también pueden subrayar errores al escribir
+• Agrega a Calendario o Recordatorios directo desde el chat: ContextFlow te sugiere el evento o el recordatorio, y lo agregas con un toque. “Recordarme” también puede ponerlo en Recordatorios en todos tus dispositivos
+• Una nota puede guardar una captura de la página: lo que se ve en pantalla o, en Pro y Ultra, la página completa
+• Pregunta sobre el texto seleccionado, desde el panel o junto a la selección, y el chat guarda ese texto como cita arriba de tu pregunta
+• Un panel más tranquilo: una sola fila debajo de cada respuesta, y “Todo el chat”, la captura de la página y tu contador de respuestas están en “+”. Toca el contador para ver en qué se usaron tus respuestas
+• Arrastra el botón flotante de ContextFlow, y el panel en iPad y Mac, a cualquiera de los dos bordes de la pantalla, o elige un lado en Configuración
+• Invita a un amigo: recibe respuestas extra durante su primera semana, y tú un 50% de descuento en el primer mes de Pro o Ultra cuando haya hecho preguntas en dos días distintos
+• El texto que cortes ahora también llega a “Copiado”
+• ContextFlow ya habla turco: 15 idiomas en total

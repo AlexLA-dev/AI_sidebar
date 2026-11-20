@@ -1,17 +1,17 @@
-Có gì mới trong ContextFlow 2.6.1:
-• Trong bảng ContextFlow trên Safari, cuộc trò chuyện giờ đứng yên ở chỗ bạn đang đọc khi có gợi ý xuất hiện
-• Các cuộc trò chuyện cùng chủ đề giờ được gợi ý gộp lại, kể cả khi không cùng một trang (Pro)
-
-Mới trong 2.6:
-• Ultra, gói mới: mọi tính năng Pro, cùng với Tìm tương tự và Nghe
-• Tìm tương tự: đang xem một sản phẩm, ứng dụng, bài viết, công thức nấu ăn hay địa điểm? Chạm vào Tìm tương tự để có những lựa chọn thay thế có thật: rẻ hơn, mới hơn, còn hàng, miễn phí hoặc bằng ngôn ngữ của bạn, hay tự nói bạn cần gì. Mọi liên kết đều được mở và kiểm tra trước khi bạn thấy, và bạn có thể theo dõi giá của bất kỳ lựa chọn nào
-• Nghe: chạm vào Nghe bên dưới câu trả lời, hoặc chọn … → Nghe trang này. Một giọng đọc tự nhiên sẽ đọc to cho bạn nghe, bằng hơn 100 ngôn ngữ. Trên iPhone, vẫn phát tiếp khi khóa màn hình
-• Cuộc trò chuyện tự sắp xếp (Pro): dưới câu trả lời hoặc ghi chú mới, ContextFlow gợi ý cuộc trò chuyện phù hợp, một cuộc trò chuyện mới cho nó, hoặc một thẻ của riêng bạn. Thanh Gợi ý ở đầu cuộc trò chuyện gom tất cả lại. Một lần chạm là chuyển xong, Hoàn tác để đưa về chỗ cũ. Cuộc trò chuyện cũng có thể tự đặt tên theo chủ đề
-• Nhắc tôi và Theo dõi giờ nhận thêm ghi chú bằng lời của bạn: cần kiểm tra gì, hoặc cần nhắc bạn điều gì
-• Chọn văn bản là các thao tác nhanh chờ sẵn ngay trong ô “Câu hỏi của bạn…” bên dưới: Tóm tắt, Dịch, Giải thích đơn giản, Tìm tương tự và nhiều thao tác khác
-• Văn bản đã chọn vốn là ngôn ngữ của bạn? Giờ nút Dịch sẽ gợi ý một ngôn ngữ khác, như tiếng Anh
-• Mục Trò chuyện trong ứng dụng: một ô tìm kiếm, theo từ hoặc theo ý nghĩa (Pro)
-• Gói theo năm cho Khóa riêng, Pro và Ultra. Chuyển từ Pro lên Ultra sẽ bắt đầu ngay, và Apple hoàn tiền phần còn lại của Pro
-• Mới dùng ContextFlow? Một hướng dẫn ngắn đưa bạn đến câu trả lời đầu tiên, và không tính vào số câu trả lời trong ngày
-• Sau khi cập nhật, mục Có gì mới trong ứng dụng cho bạn xem các thay đổi chính qua video ngắn
-• ContextFlow giờ đã có tiếng Việt, cùng tiếng Trung phồn thể và tiếng Ả Rập: tổng cộng 14 ngôn ngữ
+Có gì mới trong ContextFlow 2.7:
+• Dịch trang ngay tại chỗ. Khi trang không phải ngôn ngữ của bạn, chạm vào “Dịch” cạnh nút nổi ContextFlow: văn bản đổi ngay trên trang, liên kết và nút vẫn hoạt động, còn “Bản gốc” đưa trang về như cũ. Phần còn lại của trang được dịch dần khi bạn cuộn
+• Sau trang đầu tiên, ContextFlow hỏi có dịch mọi trang của trang web không, và một lần chạm là xong
+• Danh sách thả xuống và trợ lý trò chuyện của trang web cũng được dịch. Khi chỉ có nút và menu là ngôn ngữ khác, dịch riêng chúng không tốn câu trả lời
+• Bộ sưu tập: mọi thứ cho một việc, như chuyến đi, món đồ cần mua hay khóa học, ở cùng một chỗ. Chạm vào “Vào bộ sưu tập” dưới câu trả lời hoặc ghi chú, ContextFlow sẽ gợi ý nên đặt vào đâu. Với Pro, AI xếp các thẻ vào từng mục, “So sánh” đặt các thẻ bạn chọn cạnh nhau trong một bảng, và “Tóm tắt” tóm gọn cả bộ sưu tập. Bộ sưu tập nào cũng lưu được thành PDF. Gói Miễn phí có một bộ sưu tập tối đa 10 thẻ
+• Tìm tương tự giờ có cả trong Pro và Khóa riêng: tìm nhanh, tối đa 5 lượt mỗi tuần (trong Pro, mỗi lượt tính bằng 10 câu trả lời). Ultra tìm rộng hơn, đọc đánh giá và kiểm tra giao hàng
+• Không gian: tách riêng công việc, cá nhân và mua sắm, mỗi không gian có cuộc trò chuyện, bộ sưu tập và màu riêng. Mở một trang web trong không gian của nó một lần, và từ đó bảng ContextFlow tự chuyển đến đó. Chưa tạo không gian thứ hai thì không có gì thay đổi
+• Bảng ContextFlow mở ở cuộc trò chuyện hợp với trang, hoặc ở một cuộc trò chuyện mới. Đoán sai thì một lần chạm là đổi
+• Kiểm tra và Viết lại trong mọi ô nhập trên trang web, có xét đến nội dung trang: email bạn đang trả lời, bài đăng bạn đang bình luận. Ngắn hơn, thân thiện hơn, trang trọng hơn hoặc tự tin hơn. Pro và Ultra còn có thể gạch chân lỗi ngay khi bạn gõ
+• Thêm vào Lịch hoặc Lời nhắc ngay từ cuộc trò chuyện: ContextFlow gợi ý sự kiện hoặc lời nhắc, bạn thêm bằng một lần chạm. “Nhắc tôi” cũng có thể đưa lời nhắc vào ứng dụng Lời nhắc trên mọi thiết bị của bạn
+• Ghi chú có thể kèm ảnh chụp trang: phần đang hiện trên màn hình, hoặc cả trang trong Pro và Ultra
+• Hỏi về văn bản đã chọn, từ bảng ContextFlow hoặc ngay cạnh phần đã chọn, và cuộc trò chuyện giữ đoạn đó làm trích dẫn phía trên câu hỏi của bạn
+• Bảng ContextFlow gọn hơn: một hàng dưới câu trả lời, còn “Cả cuộc trò chuyện”, ảnh chụp trang và số câu trả lời nằm trong “+”. Chạm vào con số để xem câu trả lời đã dùng vào việc gì
+• Kéo nút nổi ContextFlow, và cả bảng ContextFlow trên iPad và Mac, sang cạnh trái hoặc phải màn hình, hoặc chọn “Cạnh màn hình” trong Cài đặt
+• Mời bạn bè: bạn của bạn nhận câu trả lời thưởng trong tuần đầu tiên, còn bạn được giảm 50% tháng đầu của Pro hoặc Ultra khi họ đặt câu hỏi vào hai ngày khác nhau
+• Văn bản đã cắt giờ cũng vào mục “Đã sao chép”
+• ContextFlow giờ đã có tiếng Thổ Nhĩ Kỳ: tổng cộng 15 ngôn ngữ

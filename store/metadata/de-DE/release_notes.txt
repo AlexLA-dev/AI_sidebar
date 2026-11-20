@@ -1,17 +1,17 @@
-Neu in ContextFlow 2.6.1:
-• Im Safari-Panel bleibt der Chat jetzt dort, wo du gerade liest, wenn ein Vorschlag erscheint
-• Chats zum selben Thema werden jetzt zum Zusammenführen vorgeschlagen, auch wenn sie nicht zur selben Seite gehören (Pro)
-
-Neu in 2.6:
-• Ultra, ein neuer Tarif: alles aus Pro, dazu „Ähnliches finden“ und „Anhören“
-• Ähnliches finden: Du schaust dir ein Produkt, eine App, einen Artikel, ein Rezept oder einen Ort an? Tippe auf „Ähnliches finden“ und bekomm echte Alternativen: günstiger, neuer, auf Lager, kostenlos oder in deiner Sprache, oder sag in eigenen Worten, was du brauchst. Jeder Link wird geöffnet und geprüft, bevor du ihn siehst, und bei jedem kannst du den Preis beobachten
-• Anhören: Tippe unter einer Antwort auf „Anhören“ oder wähle … → „Diese Seite anhören“. Eine natürliche Stimme liest vor, in über 100 Sprachen. Auf dem iPhone läuft es bei gesperrtem Bildschirm weiter
-• Chats, die sich selbst ordnen (Pro): Unter einer neuen Antwort oder Notiz schlägt ContextFlow den passenden Chat vor, einen neuen Chat dafür oder einen deiner eigenen Tags. Die Leiste „Vorschläge“ oben im Chat zeigt alle zusammen. Ein Tippen verschiebt sie, „Widerrufen“ holt sie zurück. Ein Chat kann sich auch selbst nach seinem Thema benennen
-• „Erinnern“ und „Beobachten“ nehmen jetzt eine Notiz in deinen eigenen Worten: was du prüfen willst oder woran du erinnert werden möchtest
-• Markiere Text, und die Schnellaktionen warten direkt im Feld „Deine Frage …“ darunter: „Zusammenfassen“, „Übersetzen“, „Einfach erklären“, „Ähnliches finden“ und mehr
-• Markierter Text schon in deiner Sprache? „Übersetzen“ bietet jetzt eine andere Sprache an, etwa Englisch
-• „Chats“ in der App: ein Suchfeld, nach Wörtern oder nach Bedeutung (Pro)
-• Eigener Schlüssel, Pro und Ultra gibt es jetzt auch jährlich. Der Wechsel von Pro zu Ultra gilt sofort, und Apple erstattet, was von Pro noch übrig ist
-• Neu bei ContextFlow? Eine kurze Einführung begleitet dich durch deine erste Antwort und zählt nicht zu deinen Antworten des Tages
-• Nach einem Update zeigt „Neuigkeiten“ in der App die wichtigsten Änderungen mit kurzen Clips
-• ContextFlow spricht jetzt traditionelles Chinesisch, Arabisch und Vietnamesisch: insgesamt 14 Sprachen
+Neu in ContextFlow 2.7:
+• Übersetze eine Seite direkt dort, wo sie ist. Ist eine Seite nicht in deiner Sprache, tippe neben der schwebenden ContextFlow-Taste auf „Übersetzen“: Der Text ändert sich an Ort und Stelle, Links und Buttons funktionieren weiter, und „Original“ holt die Seite zurück. Der Rest der Seite wird beim Scrollen übersetzt
+• Nach der ersten Seite fragt ContextFlow, ob alle Seiten der Website übersetzt werden sollen, und ein Tippen erledigt das
+• Auch Dropdown-Listen und der Chat-Assistent einer Website werden übersetzt. Sind nur Buttons und Menüs in einer anderen Sprache, verbraucht ihre Übersetzung keine Antworten
+• Sammlungen: alles für eine Aufgabe, etwa eine Reise, einen Kauf oder einen Kurs, an einem Ort. Tippe unter einer Antwort oder Notiz auf „In Sammlung“, und ContextFlow schlägt vor, wohin sie gehört. In Pro sortiert die KI die Karten in Abschnitte, „Vergleichen“ stellt die ausgewählten Karten in einer Tabelle nebeneinander, und „Zusammenfassung“ bringt die ganze Sammlung auf den Punkt. Jede Sammlung lässt sich als PDF sichern. Kostenlos gibt es eine Sammlung mit bis zu 10 Karten
+• „Ähnliches finden“ gibt es jetzt auch in den Tarifen Pro und Eigener Schlüssel: eine schnelle Suche, bis zu 5 pro Woche (in Pro zählt jede wie 10 Antworten). Ultra sucht breiter, liest Bewertungen und prüft die Lieferung
+• Bereiche: Halte Arbeit, Privates und Einkaufen getrennt, jeder Bereich mit eigenen Chats, Sammlungen und eigener Farbe. Öffne eine Website einmal in ihrem Bereich, und das Panel wechselt künftig von selbst dorthin. Solange du keinen zweiten Bereich anlegst, ändert sich nichts
+• Das Panel öffnet sich mit dem Chat, der zur Seite passt, oder mit einem neuen. Liegt es daneben, wechselst du mit einem Tippen
+• „Prüfen“ und „Umschreiben“ in jedem Feld einer Website, passend zur Seite: die E-Mail, auf die du antwortest, den Beitrag, den du kommentierst. Kürzer, herzlicher, förmlicher oder selbstbewusster. Pro und Ultra können Fehler auch schon beim Tippen unterstreichen
+• Direkt aus dem Chat in Kalender oder Erinnerungen: ContextFlow schlägt den Termin oder die Erinnerung vor, und du fügst den Eintrag mit einem Tippen hinzu. Auch „Erinnern“ kann ihn in Erinnerungen auf all deinen Geräten eintragen
+• Eine Notiz kann einen Schnappschuss der Seite behalten: den sichtbaren Ausschnitt oder, in Pro und Ultra, die ganze Seite
+• Frag zu markiertem Text, im Panel oder direkt an der Markierung, und der Chat behält den Text als Zitat über deiner Frage
+• Ein ruhigeres Panel: eine Zeile unter jeder Antwort, und „Ganzer Chat“, der Seiten-Schnappschuss und dein Antwortzähler liegen unter „+“. Tippe auf den Zähler, um zu sehen, wofür deine Antworten verbraucht wurden
+• Zieh die schwebende ContextFlow-Taste, auf iPad und Mac auch das Panel, an einen der beiden Bildschirmränder, oder wähle die Bildschirmseite in den Einstellungen
+• Freunde einladen: Dein Freund bekommt Bonusantworten in seiner ersten Woche, und du bekommst 50% Rabatt auf den ersten Monat Pro oder Ultra, sobald er an zwei verschiedenen Tagen Fragen gestellt hat
+• Ausgeschnittener Text landet jetzt auch in „Kopiert“
+• ContextFlow spricht jetzt Türkisch: insgesamt 15 Sprachen

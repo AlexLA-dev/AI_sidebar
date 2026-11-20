@@ -1,1 +1,1 @@
-Mới trong 2.6: Tìm tương tự đưa ra lựa chọn thay thế có thật, đã kiểm tra, cho thứ bạn đang xem, Nghe đọc to mọi trang, và cuộc trò chuyện tự sắp xếp gọn gàng.
+Trang bằng ngôn ngữ khác? Dịch ngay tại chỗ. Mới trong 2.7: Bộ sưu tập cho mọi việc, Không gian cho công việc và cá nhân, Kiểm tra và Viết lại trong mọi ô nhập.

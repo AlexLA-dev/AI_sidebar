@@ -44,7 +44,8 @@ const SHOP = site(lang === "ru" ? "zvukodom.store" : "soundhouse.store", "produc
 // The build's own words (menu items the 2.5 scenes look for), in the capture's language.
 const messages = JSON.parse(readFileSync(join(extArg, "_locales", existsSync(join(extArg, "_locales", lang)) ? lang : "en", "messages.json"), "utf8"))
 // The browser's locale for the capture's language (2.7's localized first screens: de, fr, it, es, zh_TW).
-const LOCALE = { en: "en-US", ru: "ru-RU", de: "de-DE", fr: "fr-FR", it: "it-IT", es: "es-ES", zh_TW: "zh-TW", tr: "tr-TR" }[lang] ?? "en-US"
+const LOCALE = { en: "en-US", ru: "ru-RU", de: "de-DE", fr: "fr-FR", it: "it-IT", es: "es-ES", zh_TW: "zh-TW", tr: "tr-TR", ar: "ar", ja: "ja-JP", ko: "ko-KR",
+  pt_BR: "pt-BR", uk: "uk-UA", vi: "vi-VN", zh_CN: "zh-CN" }[lang] ?? "en-US"
 const msg = (key, ...args) => args.reduce((text, a, i) => text.replace(`{${i}}`, a), messages[key].message)
 
 const DEVICES = {
@@ -981,6 +982,14 @@ async function translatePage(s) {
   await s.page.waitForTimeout(1800)
   await s.page.evaluate(() => window.scrollTo(0, 0))
   await s.page.waitForTimeout(500)
+  // From build 110 the pill asks once whether to translate every page of the site. Someone who wants the guide in
+  // their language says Yes, and the pill then reads Original · language · Whole site.
+  const yes = s.page.locator(".cf-tr .cf-tr-label + .cf-tr-btn")
+  if (await yes.waitFor({ timeout: 6000 }).then(() => true, () => false)) {
+    await press(s, yes)
+    await s.page.locator(".cf-tr .cf-tr-site.on").waitFor({ timeout: 4000 }).catch(() => undefined)
+    await s.page.waitForTimeout(300)
+  }
   // The page from its picture down (no half line under the status bar): the translated paragraph and its links under
   // it, clear of the "Original" button by ✦. Should the button still sit on the paragraph, the page goes up a little.
   await s.page.evaluate(() => { const h = document.querySelector(".hero"); window.scrollTo(0, h.getBoundingClientRect().top + window.scrollY) })
