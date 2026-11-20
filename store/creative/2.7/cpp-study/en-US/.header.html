@@ -1,0 +1,99 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=block" rel="stylesheet">
+<style>html,body{width:3840px;height:1646px}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; }
+body { position: relative; font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+.ribbon { position: absolute; inset: 0; }
+.bezel { position: absolute; background: #0d0f14; box-shadow: inset 0 0 0 2px rgba(255,255,255,.10); }
+.screen { position: absolute; width: 1290px; height: 2796px; transform-origin: 0 0; border-radius: 190px; overflow: hidden; background: #fff; }
+.web { position: absolute; left: 0; top: 162px; width: 1290px; height: 2400px; }
+.ios-status { position: absolute; top: 0; left: 0; right: 0; height: 162px; display: flex; align-items: center; justify-content: space-between; padding: 22px 96px 0 150px; font: 600 52px Inter, sans-serif; color: #000; }
+.ios-status .ic { display: flex; align-items: center; gap: 18px; margin-left: auto; }
+.island { position: absolute; top: 33px; left: 50%; width: 375px; height: 111px; margin-left: -187px; border-radius: 60px; background: #000; }
+.ios-bar { position: absolute; left: 0; right: 0; top: 2562px; height: 234px; display: flex; align-items: flex-start; gap: 24px; padding: 30px 40px 0; }
+.ios-bar .btn { flex: none; width: 138px; height: 138px; border-radius: 50%; padding: 36px; background: rgba(242,242,247,.96); box-shadow: 0 6px 24px rgba(0,0,0,.10); }
+.ios-bar .url { flex: 1; height: 138px; border-radius: 69px; display: flex; align-items: center; justify-content: center; font: 500 46px Inter, sans-serif; color: #000; background: rgba(242,242,247,.96); box-shadow: 0 6px 24px rgba(0,0,0,.10); position: relative; }
+.ios-bar .url .aa { position: absolute; left: 44px; font-weight: 600; font-size: 40px; }
+.home { position: absolute; bottom: 24px; left: 50%; width: 420px; height: 15px; margin-left: -210px; border-radius: 8px; background: #000; }
+.home.on-dark { background: #fff; }
+.lock { background: radial-gradient(90% 55% at 30% 18%, #6D8BFF 0%, transparent 70%), radial-gradient(80% 60% at 85% 80%, #8B5CF6 0%, transparent 70%), linear-gradient(180deg, #1E3A8A 0%, #312E81 55%, #1E1B4B 100%); }
+.lk-date { position: absolute; top: 300px; left: 0; right: 0; text-align: center; font: 600 64px Inter, sans-serif; color: rgba(255,255,255,.92); }
+.lk-time { position: absolute; top: 360px; left: 0; right: 0; text-align: center; font: 700 330px/1 Inter, sans-serif; letter-spacing: -0.02em; color: rgba(255,255,255,.95); }
+.lk-np { position: absolute; left: 60px; top: 1640px; }
+.lk-btn { position: absolute; bottom: 150px; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,.18); display: grid; place-items: center; }
+.lk-btn i { width: 70px; height: 70px; }
+.np { color: #fff; background: rgba(20, 22, 48, .55); backdrop-filter: blur(30px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.12); }
+.np-top { display: flex; align-items: center; }
+.np-top img { flex: none; }
+.np-top .np-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.np-t b { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-t span { color: rgba(255,255,255,.62); font-weight: 500; }
+.np-top i { flex: none; align-self: flex-start; opacity: .8; }
+.np-bar { background: rgba(255,255,255,.25); overflow: hidden; }
+.np-bar div { height: 100%; background: #fff; }
+.np-times { display: flex; justify-content: space-between; color: rgba(255,255,255,.62); font-weight: 600; font-variant-numeric: tabular-nums; }
+.np-ctl { display: flex; justify-content: center; align-items: center; }
+.np-ctl i { display: block; }
+h1 { position: absolute; font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; white-space: nowrap; color: #0B1530; }
+.l2 { background: linear-gradient(90deg, #0EA5E9, #2563EB 70%, #4F46E5); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dark h1 { color: #fff; }
+.dark .l2 { background: linear-gradient(90deg, #7DD3FC, #93C5FD 55%, #A5B4FC); -webkit-background-clip: text; background-clip: text; }
+.plan { display: inline-block; padding: .22em .62em; border-radius: 999px; font-weight: 800; line-height: 1; letter-spacing: .02em; color: #fff; background: linear-gradient(90deg, #0EA5E9, #2563EB 70%, #4F46E5); box-shadow: 0 16px 40px rgba(37,99,235,.32); }
+.plan.u { background: linear-gradient(90deg, #A78BFA, #7C3AED 70%, #4F46E5); box-shadow: 0 16px 40px rgba(124,58,237,.34); }
+.head { position: absolute; display: flex; flex-direction: column; align-items: flex-start; }
+.head h1 { position: static; }
+.card { position: absolute; z-index: 4; overflow: hidden; background: #fff; box-shadow: 0 0 0 5px rgba(37,99,235,.55), 0 50px 110px rgba(20,45,110,.34), 0 10px 30px rgba(20,45,110,.16); }
+.card.on-dark { box-shadow: 0 0 0 5px rgba(147,197,253,.75), 0 50px 120px rgba(0,0,0,.6), 0 0 120px rgba(59,130,246,.45); }
+.card.np-card { background: none; overflow: visible; }
+.ring { position: absolute; z-index: 3; border: 5px solid rgba(37,99,235,.9); box-shadow: 0 0 0 6px rgba(37,99,235,.18), 0 0 40px rgba(37,99,235,.35); }
+.dark .ring { border-color: rgba(147,197,253,.95); box-shadow: 0 0 0 6px rgba(147,197,253,.18), 0 0 50px rgba(96,165,250,.55); }
+.ring.in { border-width: 6px; border-color: #7C3AED; box-shadow: 0 0 0 8px rgba(124,58,237,.2); }
+.news { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
+.news .lbl { font: 700 40px/1 Inter, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: rgba(191,219,254,.75); margin-right: 6px; }
+.news .n { display: flex; align-items: center; gap: 18px; padding: 16px 18px 16px 30px; border-radius: 999px; background: rgba(255,255,255,.09); border: 2px solid rgba(147,197,253,.28); color: #fff; font: 600 44px/1 Inter, sans-serif; white-space: nowrap; }
+.news .n .plan { box-shadow: none; }
+</style></head><body class="dark">
+  <div style="position:absolute;inset:0;background:radial-gradient(110% 120% at 50% 60%, #1B3A86 0%, #0B1633 55%, #070D1F 100%)"></div>
+  
+  <svg class="ribbon" width="3840" height="1646" viewBox="0 0 3840 1646">
+    <defs><linearGradient id="rib" x1="0" x2="3840" y1="0" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7DD3FC"/><stop offset=".5" stop-color="#3B82F6"/><stop offset="1" stop-color="#818CF8"/></linearGradient>
+    <filter id="soft" filterUnits="userSpaceOnUse" x="-3840" y="-1646" width="11520" height="4938"><feGaussianBlur stdDeviation="99"/></filter></defs>
+    <path d="M-300,1185.12 C1152,740.7 2380.8,1563.6999999999998 4140,823" fill="none" stroke="url(#rib)" stroke-width="329" opacity="0.5" filter="url(#soft)"/>
+  </svg>
+  <div style="position:absolute;left:1610px;top:510px;width:456.78111587982835px;height:920px;border-radius:110px;box-shadow:0 0 200px rgba(59,130,246,.5)"></div><div class="head" style="left:440px;top:970px;transform:translateY(-50%)"><h1 data-max="1080" style="font-size:140px;margin-top:0px"><span>Everything for one task,</span><br><span class="l2">sorted for you</span></h1></div>
+  <div class="bezel" style="left:1629.5422031473533px;top:529.5422031473533px;width:417.69670958512165px;height:880.9155937052933px;border-radius:68.89842632331903px"></div>
+  <div class="screen" style="left:1640px;top:540px;transform:scale(0.30758226037195996)">
+    <div class="ios-status"><div class="t">9:41</div><div class="ic"><svg viewBox="0 0 18 12" width="54" height="36"><g fill="#000"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></g></svg><svg viewBox="0 0 16 12" width="48" height="36"><path fill="#000" d="M8 2.2c2.4 0 4.6.9 6.3 2.4l1.2-1.3C13.4 1.4 10.8.3 8 .3S2.6 1.4.5 3.3l1.2 1.3C3.4 3.1 5.6 2.2 8 2.2zm0 3.6c1.4 0 2.7.5 3.7 1.4l1.3-1.3A7.2 7.2 0 0 0 8 4c-1.9 0-3.7.7-5 1.9l1.3 1.3c1-.9 2.3-1.4 3.7-1.4zM8 9.4c-.7 0-1.3.3-1.8.7L8 12l1.8-1.9c-.5-.4-1.1-.7-1.8-.7z"/></svg><svg viewBox="0 0 27 13" width="81" height="39"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#000" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#000"/><path d="M25 4.5v4c.8-.3 1.4-1.1 1.4-2s-.6-1.7-1.4-2z" fill="#000" opacity=".45"/></svg></div></div>
+    <img class="web" src="file:///Users/alexandrlubchenko/ContextFlow-work/store-pages/shots27/raw-en/iphone-collections.png">
+    <div class="ios-bar"><div class="btn"><svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M15 5l-7 7 7 7" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="url"><span class="aa">aA</span></div><div class="btn"><svg viewBox="0 0 24 24" width="100%" height="100%"><g fill="#000"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></g></svg></div></div>
+    <div class="home"></div><div class="island"></div>
+  </div><div class="ring" style="left:1658.4549356223176px;top:1154.6791174892705px;width:326.6523605150215px;height:104.27038626609442px;border-radius:9.2274678111588px"></div><div class="card on-dark" style="left:1966.7811158798283px;top:985.0282485875706px;width:1300px;height:414.9717514124294px;border-radius:58.75706214689266px">
+    <div style="width:100%;height:100%;background:url('file:///Users/alexandrlubchenko/ContextFlow-work/store-pages/shots27/raw-en/iphone-collections.png') -73.44632768361582px -2247.9740466101694px / 1579.09604519774px auto no-repeat"></div>
+  </div>
+<script>
+const img = document.querySelector("img.web")
+// Status bar and Safari bar take the colour of the page right under them.
+const paint = () => {
+  if (!img) return
+  const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight
+  const g = c.getContext("2d"); g.drawImage(img, 0, 0)
+  const at = (y) => { const [r, gg, b] = g.getImageData(10, y, 1, 1).data; return "rgb(" + r + "," + gg + "," + b + ")" }
+  document.querySelector(".ios-status").style.background = at(2)
+  document.querySelector(".ios-bar").style.background = at(img.naturalHeight - 2)
+}
+// Captions shrink until they fit their column (longer languages must not reach the phone).
+const fit = () => {
+  for (const h of document.querySelectorAll("h1[data-max]")) {
+    let size = parseFloat(getComputedStyle(h).fontSize)
+    while (h.getBoundingClientRect().width > Number(h.dataset.max) && size > 60) h.style.fontSize = (size -= 4) + "px"
+  }
+}
+;(async () => {
+  await document.fonts.ready
+  fit()
+  if (img && !img.complete) await new Promise((r) => img.addEventListener("load", r))
+  paint()
+  document.body.dataset.ready = "1"
+})()
+</script></body></html>
