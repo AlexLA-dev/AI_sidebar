@@ -57,17 +57,17 @@ const C = {
 const R = (sel) => ({ select: sel })
 const PAGES = {
   main: {
-    header: { caption: C.summary, shot: "iphone-summary", card: [6, 388, 424, 682], news: true },
+    header: { caption: C.summary, shot: "iphone-summary", card: [6, 372, 424, 663], news: true }, // 110: lines measured on the capture
     search: { caption: C.translate27, shot: "iphone-translate", card: R(["@#p1"]), pad: 10 }
   },
   "cpp-shop": {
-    header: { caption: C.similar, plan: "Ultra", raw: "banner", shot: "iphone-similar", card: ru ? [8, 504, 422, 604] : [8, 458, 422, 668] },
+    header: { caption: C.similar, plan: "Ultra", raw: "banner", shot: "iphone-similar", card: ru ? [8, 482, 422, 692] : [8, 458, 422, 668] }, // 110: the first two items, measured on the capture
     search: { caption: C.pick, plan: "Ultra", raw: "banner", shot: "iphone-similarpick", card: R([".cf-similar-pick"]), pad: 4 }
   },
   "cpp-study": {
     header: { caption: C.collections, shot: "iphone-collections", card: R([".cf-col-table"]), pad: 6 },
     // ru: the Suggested bar sits over the question in this capture, so the card starts at the answer.
-    search: { caption: C.organize, plan: "Pro", shot: "iphone-organize", card: ru ? [6, 396, 424, 586] : R([".cf-sugbar-main", ".cf-org"]), pad: 8 }
+    search: { caption: C.organize, plan: "Pro", shot: "iphone-organize", card: R([".cf-sugbar-main", ".cf-org"]), pad: 8 }
   },
   "cpp-work": {
     header: { caption: C.check, shot: "iphone-check", card: R([".cf-wr"]), pad: 4 },
@@ -81,7 +81,7 @@ const PAGES = {
   // doesn't repeat the first screenshot (a question asked about the page).
   "cpp-arc": {
     header: { caption: C.arcAsk, shot: "iphone-askpage", card: [6, 328, 424, 602] },
-    search: { caption: C.arcKeys, shot: "iphone-keypoints", card: [6, 380, 424, 600] }
+    search: { caption: C.arcKeys, shot: "iphone-keypoints", card: [6, 372, 424, 612] }
   },
   "cpp-lang": {
     header: { caption: C.translate27, shot: "iphone-translate", card: R(["@#p1"]), pad: 10 },
