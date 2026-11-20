@@ -611,6 +611,8 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     const goal = asked.current ?? target
     if (!goal) return
     step("site_on")
+    // This page is translated already: «Original» on it stays original, as on a page the site's yes translated by itself.
+    autoTried.current = urlKey(location.href)
     const next: AutoSite = { s: site(), to: goal.to, ...(goal.only ? { only: goal.only } : {}) }
     setAutoSite(next)
     setSiteRow(null)
