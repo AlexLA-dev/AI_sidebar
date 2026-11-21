@@ -77,6 +77,10 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
       if (!TYPE_ROLES.has(item!.role)) return { ok: false, error: `element ${id} (${item!.role}) isn't a field` }
       if (item!.state?.includes("readonly") || item!.state?.includes("disabled")) return { ok: false, error: `field ${id} can't be typed into` }
       const text = typeof r.text === "string" ? r.text.slice(0, MAX_TYPE_CHARS) : ""
+      // Nothing to type into a field that's empty already (Haiku sent an empty phone: the check then stopped the task
+      // with a question). Emptying a filled field is still a call.
+      const empty = item!.state?.includes("empty") || (item!.lock !== "personal" && !item!.value)
+      if (!text && empty) return { ok: false, error: `type needs the text to put into field ${id} (it is empty already)` }
       call.text = text
       call.mode = r.mode === "append" ? "append" : "replace"
       break

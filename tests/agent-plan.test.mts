@@ -180,3 +180,10 @@ test("an answer refused twice gets a third try with the stronger model before th
   const bad = await nextStep(input, { ...opts, ask: async () => ({ data: { tool: "nope" }, usage }) })
   assert.equal(bad.verdict.reason, "bad_call", "without a fallback: two tries, as before")
 })
+
+test("nothing to type into an empty field is refused (the model answers again), emptying a filled one isn't", async () => {
+  const { checkCall } = await import("../src/shared/agent/call.ts")
+  assert.equal(checkCall({ tool: "type", id: "2", text: "" }, BOOK).ok, false)
+  const filled: PageMap = { ...BOOK, items: [{ id: "9", role: "textbox", label: "Note", value: "old" }] }
+  assert.equal(checkCall({ tool: "type", id: "9", text: "" }, filled).ok, true)
+})
