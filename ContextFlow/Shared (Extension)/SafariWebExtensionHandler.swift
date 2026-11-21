@@ -4,8 +4,6 @@ import StoreKit
 import UserNotifications
 #if os(macOS)
 import AppKit
-#else
-import UIKit
 #endif
 
 /// Native side of the Safari extension. The extension's background script calls
@@ -43,7 +41,7 @@ import UIKit
 /// - `shot_put` / `shot_get` / `shot_delete` → a note's picture of the page (2.7, see ShotStore): from the panel in parts
 ///   (`id`, `part`, `of`, base64 `data`, `cloud`: chats sync with iCloud), kept in the App Group and in iCloud; back in
 ///   parts of `ShotStore.readLength` bytes (`offset`; `total`), from iCloud when another device made it; deleted.
-/// - `ping` → health check.
+/// - `ping` → health check: the app's version and build, and (2.7.1) the app's random id once it has made one.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
 /// the panel sends when it opens, that it is in use), so the app can drop its setup guide and reminders.
@@ -70,47 +68,15 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         if !products.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(products, storefront: await Storefront.current?.countryCode)) }
     }
 
-    /// 2.7 (the activation funnel, src/shared/usage.ts "activation"): once, when the panel first gives this side its
-    /// install id, the server gets it with the app's id, so the steps in the app (Settings, back) join Safari's (switched
-    /// on, the first answer). Both ids are random; nothing else goes.
-    private static func reportLinked(app: String, install: String, base: String) {
-        #if DEBUG
-        let allowed = base.hasPrefix("https://") || base.hasPrefix("http://localhost:")
-        #else
-        let allowed = base.hasPrefix("https://")
-        #endif
-        guard allowed, let url = URL(string: base + "/api/v2/event") else { return }
-        #if os(macOS)
-        let platform = "macos"
-        #else
-        let platform = UIDevice.current.userInterfaceIdiom == .pad ? "ipados" : "ios"
-        #endif
-        let body: [String: Any] = [
-            "kind": "use", "f": "activation", "a": "linked", "s": "app", "appId": app, "installId": install,
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""]
-        ]
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-        request.timeoutInterval = 15
-        Task { _ = try? await URLSession.shared.data(for: request) }
-    }
-
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any] ?? [:]
         let command = message["command"] as? String ?? ""
-        let knewInstall = command == "getEntitlement" ? SharedDefaults.shared.readExtensionStatus().installId : nil
         if SharedDefaults.shared.recordExtensionSeen(used: command == "getEntitlement", installId: message["installId"] as? String) {
             // Switched on: the reminders to finish setup the app scheduled are no longer needed.
             let center = UNUserNotificationCenter.current()
             center.removePendingNotificationRequests(withIdentifiers: SharedDefaults.setupReminderIds)
             center.removeDeliveredNotifications(withIdentifiers: SharedDefaults.setupReminderIds)
-        }
-        if command == "getEntitlement", knewInstall == nil, let install = SharedDefaults.shared.readExtensionStatus().installId,
-           let app = SharedDefaults.shared.appId() {
-            Self.reportLinked(app: app, install: install, base: message["base"] as? String ?? "")
         }
 
         switch command {
@@ -519,7 +485,12 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
-            Self.reply(context, ["success": true, "data": ["pong": true, "version": version, "build": build]])
+            var data: [String: Any] = ["pong": true, "version": version, "build": build]
+            // 2.7.1: the app's random id (made by the app alone, on its first launch), so the extension sends it with its
+            // own install id until the server has the two together (src/background/link.ts). Nothing when the app hasn't
+            // been opened yet: the extension asks again later.
+            if let app = SharedDefaults.shared.appId() { data["app"] = app }
+            Self.reply(context, ["success": true, "data": data])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])
         }

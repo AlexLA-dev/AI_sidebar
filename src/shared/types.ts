@@ -391,6 +391,8 @@ export const STORAGE = {
   // false from install until the server heard that the extension was switched on (the funnel's step
   // after "app opened"); missing for installs from before 2.4, which never report it.
   extOnPending: "cf:extOnPending",
+  // 2.7.1: the app's random id the server last confirmed together with this install's (src/background/link.ts).
+  appLinked: "cf:appLinked",
   // How many times the Pro offer card for installs that ran out of free answers before was shown,
   // or -1 once it was answered.
   offerCard: "cf:offerCard",

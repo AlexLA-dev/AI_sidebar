@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import { t } from "../shared/i18n"
 import {
   addSpace, bindSite, boundSpace, canAddSpace, chatsInSpace, cleanSpaceName, COLOR_NAMES, deleteSpace, editSpace, emptySpaces, FIRST_SPACE, FREE_SPACES, liveSpaces, MAX_SPACE_NAME,
-  nextColor, resolveSpace, siteKey, SPACE_COLORS, spaceCount, spaceOfChat, type Space, type SpaceColor, type SpaceList
+  HALO_ALPHAS, HALO_STRENGTH, nextColor, SEND_GLOW_ALPHAS, resolveSpace, siteKey, SPACE_COLORS, spaceCount, spaceOfChat, type Space, type SpaceColor, type SpaceList
 } from "../shared/spaces"
 import { chatForPage, newThreadId, type Thread } from "../shared/threads"
 import { listenAround } from "./around"
@@ -26,15 +26,25 @@ export function spaceGradient(color: SpaceColor): string {
 export function spaceVars(color: SpaceColor): Record<string, string> {
   const [light, base] = SPACE_COLORS[color]
   // 11 % of the colour over the panel's background (an 8-digit hex: color-mix() is Safari 16.2+).
-  return { "--space": base, "--space-2": light, "--space-soft": `${base}1c` }
+  // The halo (2.7.1): its base colour close in, its light colour further out, at HALO_STRENGTH's opacities.
+  // The panel's send button (2.7.1): a weaker glow of the same colours (SEND_GLOW_ALPHAS).
+  const [h1, h2, h3] = HALO_ALPHAS[HALO_STRENGTH]
+  const [g1, g2] = SEND_GLOW_ALPHAS
+  return {
+    "--space": base, "--space-2": light, "--space-soft": `${base}1c`,
+    "--halo-1": `${base}${h1}`, "--halo-2": `${base}${h2}`, "--halo-3": `${light}${h3}`,
+    "--glow-1": `${base}${g1}`, "--glow-2": `${light}${g2}`
+  }
 }
+
 
 /**
  * 2.7 (109), the owner: the page's own controls beside the ✦ circle (the selection bar, the translate pill, corrections,
  * Quick insert, the note pop-up, toasts) in its space's colour, paler (styles.css `.cf[data-tint]`). The one switch:
- * false leaves them blue in every space.
+ * false leaves them blue in every space. Off since 2.7.1, the owner on #235: «Сделай всегда синим» (a space lives only
+ * in the glow around the ✦ circle and the panel's send button).
  */
-export const PAGE_TINT = true
+export const PAGE_TINT = false
 
 /** The variables `.cf[data-tint]` mixes from (the circle's base and light colour); none for the first, blue colour. */
 export function pageTint(color: SpaceColor | undefined): Record<string, string> | null {
