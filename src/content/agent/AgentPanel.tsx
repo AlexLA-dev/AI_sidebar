@@ -183,9 +183,32 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
   )
 }
 
-/** The panel stepped aside while a step runs (the sheet): the strip at the bottom, its last step, and Stop. */
-export function AgentStrip({ state, onOpen, onStop }: { state: PanelAgent; onOpen: () => void; onStop: () => void }): VNode {
+/** The panel stepped aside while a step runs (the sheet): the strip at the bottom, its last step, and Stop. When the
+ *  agent needs the person about one control («Сделать?», or a step that is theirs: a box to tick, a sign-in) it stays
+ *  aside too: the panel would cover the control (on a short page it can't be scrolled above the panel). The strip then
+ *  asks, with the control ringed in view. */
+export function AgentStrip({ state, onOpen, onStop, onAnswer }: { state: PanelAgent; onOpen: () => void; onStop: () => void; onAnswer?: (a: Answer) => void }): VNode {
   const last = state.lines[state.lines.length - 1]
+  const p = state.pending
+  if ((state.status === "self" || state.status === "confirm") && p && onAnswer) {
+    const self = state.status === "self"
+    return (
+      <div class="cf-agent-float ask" role="region" aria-label={t(self ? "agentSelfTitle" : "agentConfirmTitle")} aria-live="polite">
+        <button type="button" class="cf-agent-float-main" onClick={onOpen}>
+          <span class="cf-agent-float-text">
+            <b>{t(self ? "agentSelfTitle" : "agentConfirmTitle")}</b>
+            <span class="wrap" dir="auto">{self ? selfText(state) : stepText(state)}</span>
+            {!self && p.offRequest && <span class="wrap cf-agent-warn" dir="auto">{t("agentOffRequest", p.offRequest)}</span>}
+            {!self && NO_UNDO.has(p.verdict.reason) && <span class="wrap">{t("agentNoUndo")}</span>}
+          </span>
+        </button>
+        <div class="cf-agent-float-actions">
+          <button type="button" class="cf-primary" onClick={() => onAnswer(self ? "did" : "yes")}>{t(self ? "agentSelfDone" : "agentYes")}</button>
+          <button type="button" class="cf-secondary" onClick={() => onAnswer(self ? "notnow" : "no")}>{t(self ? "agentSelfNotNow" : "agentNo")}</button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div class="cf-agent-float" role="status" aria-live="polite">
       <button type="button" class="cf-agent-float-main" onClick={onOpen}>

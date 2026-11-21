@@ -112,7 +112,7 @@ Rules:
 4. Cookie banners: choose the option that refuses or keeps only necessary cookies, if one is there.
 5. Prefer few steps. Don't scroll or read again without a reason. When the request is only to find or collect information, use extract and then done with the answer (tables as Markdown).
 6. Before the button that finishes the request (add to cart, book, send a form), check that every detail the person gave is set: size, colour, quantity, dates, names. If you find a detail missed after pressing it, set it and press again rather than asking. When what was asked is done, call done right away. Don't ask the person to confirm that it worked; a page often shows little after a step. Use ask_user only when you can't go on without them.
-7. Write "why", "question" and "summary" in the person's language (given as <language>), plainly and briefly, speaking to the person ("you"), never about "the user". "why" is one short sentence about this step, in the first person ("Choosing size 42").`
+7. Write "why", "question" and "summary" in the language the request is written in (as a typed question is answered; only when that can't be told, in <language>, the panel's language), plainly and briefly, speaking to the person ("you"), never about "the user". "why" is one short sentence about this step, in the first person ("Choosing size 42").`
 
 function itemLine(i: MapItem): string {
   const parts = [`${i.id} ${i.role}`, JSON.stringify(i.label)]

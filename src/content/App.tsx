@@ -2648,16 +2648,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (el && el.ownerDocument === document) {
         ;(el as HTMLElement).scrollIntoView?.({ block: "center" })
         // On the sheet the panel takes the lower part: the control goes near the top, above it.
-        if (layout === "sheet") window.scrollBy(0, Math.round(el.getBoundingClientRect().top - window.innerHeight * 0.1))
+        // (A question about one control keeps the panel aside on the sheet: the control stays in the middle, above the strip.)
+        if (layout === "sheet" && agentStatus === "fill") window.scrollBy(0, Math.round(el.getBoundingClientRect().top - window.innerHeight * 0.1))
         const range = document.createRange()
         range.selectNode(el)
         setAgentRing(range)
       }
     }
     if (layout !== "sheet") return
-    if (running && open && !agentPeek.current) {
+    // A question about one control («Сделать?», the person's own step): the panel stays aside so the control is seen and
+    // can be reached; the strip asks.
+    const ask = agentStatus === "self" || agentStatus === "confirm"
+    if ((running || ask) && open && !agentPeek.current) {
       agentAway.current = true
       hide()
+    } else if (ask) {
+      // Already aside: stays so.
     } else if (!running && agentAway.current && agentStatus) {
       agentAway.current = false
       show()
@@ -4339,7 +4345,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {/* 2.6 (92), the owner: the selection the panel or its pop-up is about is ringed on the page. */}
       {glowRange && <SelectionGlow range={glowRange} />}
       {agentRing && agentTask && <AgentRing range={agentRing} />}
-      {agentTask?.status === "running" && !open && (
+      {(agentTask?.status === "running" || ((agentTask?.status === "self" || agentTask?.status === "confirm") && layout === "sheet")) && !open && (
         <AgentStrip
           state={agentTask}
           onOpen={() => {
@@ -4347,6 +4353,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             show()
           }}
           onStop={() => void answerAgent("stop")}
+          onAnswer={(a) => void answerAgent(a)}
         />
       )}
 

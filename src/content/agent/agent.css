@@ -38,6 +38,10 @@
 .cf-agent-float-text { display: flex; flex-direction: column; min-width: 0; }
 .cf-agent-float-text b { color: var(--accent-text); font-weight: 600; }
 .cf-agent-float-text span { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-agent-float.ask { flex-direction: column; align-items: stretch; }
+.cf-agent-float-text span.wrap { white-space: normal; }
+.cf-agent-float-actions { display: flex; gap: 8px; }
+.cf-agent-float-actions button { flex: 1; justify-content: center; text-align: center; }
 /* Safari on iPhone zooms the page into a field whose text is under 16 px when it gets the focus: «Мои данные» and «Позже»
    fields are 16 px there. */
 @media (pointer: coarse) { .cf-input-line, .cf-fd-add select { font-size: 16px; } }
