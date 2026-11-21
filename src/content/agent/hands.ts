@@ -196,8 +196,27 @@ export function pageData(doc: Document = document): string {
   return text.replace(/[ \t]*\n[ \t]*/g, "\n").replace(/\n{3,}/g, "\n\n").replace(/[  ]{2,}/g, " ").trim().slice(0, EXTRACT_MAX)
 }
 
-/** Does one checked call on the page. The caller (the background) checked its class first. */
+// What a page says after a step: its alerts, statuses and live regions, and the usual error boxes.
+const MESSAGES = "[role=alert], [role=status], [aria-live=assertive], [aria-live=polite], .error, .errors, .invalid-feedback, .field-error, .form-error, [aria-invalid=true] ~ *"
+
+function messages(doc: Document): string[] {
+  return Array.from(doc.querySelectorAll(MESSAGES))
+    .map((m) => ((m as HTMLElement).innerText ?? m.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, 160))
+    .filter(Boolean)
+}
+
+/** Does one checked call on the page, and says what the page said after it (new messages, errors). */
 export async function act(call: ToolCall, doc: Document = document): Promise<StepResult> {
+  const before = new Set(messages(doc))
+  const result = await actOnly(call, doc)
+  if (!result.navigated && call.tool !== "extract" && call.tool !== "read_page") {
+    const said = messages(doc).filter((m) => !before.has(m)).slice(0, 3)
+    if (said.length) result.note = `${result.note ?? ""}; the page says: ${said.map((s) => `"${s}"`).join(", ")}`.replace(/^; /, "")
+  }
+  return result
+}
+
+async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
   const view = doc.defaultView ?? window
   const needs = call.tool === "click" || call.tool === "type" || call.tool === "select" || call.tool === "go"
   const el = call.id ? elementOf(call.id) : null
