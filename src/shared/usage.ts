@@ -118,7 +118,8 @@ export const FEATURES: Record<string, Feature> = {
   // home card, or on a Mac the chats' empty state too); "back": the app in front again after that trip; "enabled": the
   // app saw ContextFlow switched on (once an install). "linked": once, the extension's own side, when the panel first
   // gives it the install id, sends it with the app's id (both random), so the steps in the app join the ones Safari's
-  // side logs: switched on there (ext_on) and the first answer.
+  // side logs: switched on there (ext_on) and the first answer. 2.7.1: sent by the extension's background instead, until
+  // the server confirms it, and again when the app's id changes (src/background/link.ts); still both ids only.
   activation: {
     since: "2.7", tracked: "2.7", on: "app", actions: ["video", "settings", "back", "enabled", "linked"], via: ["card", "chats"]
   },

@@ -31,6 +31,33 @@ export const SPACE_COLORS = {
 } as const
 
 export type SpaceColor = keyof typeof SPACE_COLORS
+
+/**
+ * 2.7.1, the owner: «вернем цвет на стандартный синий наш, а лучше сделаем ореол светящийся у него теми цветами, которые
+ * привязаны к пространству». The ✦ circle is always our blue; a space shows as a soft glow of its colours around it, a halo, not a
+ * border (src/content/styles.css `.cf-fab[data-halo]`). The first, blue space has none unless this says so.
+ */
+export const HALO_ON_FIRST = false
+
+/**
+ * How strongly the halo glows: 1 soft, 2 medium, 3 strong. The owner picked strong on #235 («Сделай сильное свечение»), then,
+ * seeing 113 on his device, medium («Сейчас свечение слишком яркое. Давай попробуем среднее»).
+ * The opacities of the glow's three layers, close in to far out (two hex digits each).
+ */
+export const HALO_STRENGTH: 1 | 2 | 3 = 2
+export const HALO_ALPHAS: Record<1 | 2 | 3, readonly [string, string, string]> = { 1: ["8c", "4d", "40"], 2: ["b3", "66", "59"], 3: ["d9", "80", "73"] }
+
+/**
+ * The panel's send button glows too, «но более слабеньким» (the owner on #235): the same soft halo as the circle's, two
+ * wide blurred layers reaching about a third of the button past its edge, fainter than the circle's at any strength
+ * (styles.css `.cf-send[data-halo]`). Not a thin edge hugging the button (the director on 664465de: it read as an outline).
+ */
+export const SEND_GLOW_ALPHAS: readonly [string, string] = ["66", "59"]
+
+/** Whether the ✦ circle wears a halo for this space's colour (none outside spaces, none for blue by default). */
+export function fabHalo(color: SpaceColor | undefined): boolean {
+  return Boolean(color) && (HALO_ON_FIRST || color !== "blue")
+}
 export const COLOR_NAMES = Object.keys(SPACE_COLORS) as SpaceColor[]
 const FIRST_COLOR: SpaceColor = "blue"
 

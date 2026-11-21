@@ -127,6 +127,7 @@ import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, matchScope, type ChatMatch, type MeaningMatches } from "../shared/match"
 import { pageTint, SpaceDot, SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
+import { fabHalo } from "../shared/spaces"
 import { CollectedMark, CollectionsWindow, CollectLink, CollectSheet, useCollections, type CollectAsk, type CollectPro, type CollectReport } from "./Collections"
 import { MoveSheet } from "./ux/MoveSheet"
 import { moveRange } from "./ux/moveAnswer"
@@ -2970,6 +2971,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     onPro: () => openPlans("pro", "spaces"),
     report: (a, fields) => void sendBackground({ type: "useEvent", f: "space", a, ...fields, spaces: spacesRef.current?.count() })
   })
+  // 2.7.1: the circle's halo glows up once when its space changes (not on the first show, not when it goes).
+  const [haloFlash, setHaloFlash] = useState(false)
+  const haloWas = useRef<string | null>(null)
+  const haloNow = (fabHalo(spaces.fabSpace?.color) && spaces.fabSpace?.color) || ""
+  useEffect(() => {
+    const was = haloWas.current
+    haloWas.current = haloNow
+    if (!haloNow || was === null || was === haloNow) return
+    setHaloFlash(true)
+    const off = setTimeout(() => setHaloFlash(false), 1200)
+    return () => clearTimeout(off)
+  }, [haloNow])
   spacesRef.current = spaces
   // Подборки (2.7, Collections.tsx): the space's collections, «В подборку» on a message (its index), the line after.
   const cols = useCollections(spaces.list, spaces.current.id, settings.spaces !== false)
@@ -3977,6 +3990,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The space the panel came from, while it still is one (107).
   const matchFrom = matchShown && matchLine?.from && spaces.multi ? spaces.spaces.find((x) => x.id === matchLine.from) ?? null : null
 
+  // 2.7.1: the circle stays blue; its space shows as a halo (Spaces.tsx fabHalo), glowing up once as the space changes.
+  const halo = fabHalo(spaces.fabSpace?.color)
+  // The panel's send button glows the same way, weaker, in the panel's own space (styles.css .cf-send[data-halo]).
+  const sendHalo = spaces.multi && fabHalo(spaces.current.color)
+
   // The circle's height, and the in-page translation pill's beside it (2.7).
   const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
 
@@ -3991,8 +4009,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <button
           type="button"
           ref={fabRef}
-          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}`}
-          style={{ top: fabTop, ...(spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
+          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}`}
+          data-halo={halo ? spaces.fabSpace?.color : undefined}
+          style={{ top: fabTop, ...(halo && spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
           title={t("fabLabel")}
           {...fabDrag.handlers}
@@ -5111,6 +5130,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <button
                           type="button"
                           class={`cf-send ${noteMode ? "note" : ""}`}
+                          data-halo={sendHalo ? spaces.current.color : undefined}
                           disabled={!draft.trim()}
                           onClick={() => {
                             if (switched.current) switched.current = false
