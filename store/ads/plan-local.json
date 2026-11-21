@@ -102,6 +102,14 @@
         {
           "text": "muse",
           "match": "EXACT"
+        },
+        {
+          "text": "goodnote",
+          "match": "EXACT"
+        },
+        {
+          "text": "捷徑",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
@@ -481,6 +489,10 @@
         {
           "text": "muse",
           "match": "EXACT"
+        },
+        {
+          "text": "shy safari",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
@@ -629,6 +641,10 @@
         },
         {
           "text": "muse",
+          "match": "EXACT"
+        },
+        {
+          "text": "opus clip",
           "match": "EXACT"
         }
       ],
@@ -832,6 +848,14 @@
         },
         {
           "text": "muse",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrom",
+          "match": "EXACT"
+        },
+        {
+          "text": "سفاري",
           "match": "EXACT"
         }
       ],
@@ -1059,6 +1083,10 @@
         },
         {
           "text": "muse",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrime",
           "match": "EXACT"
         }
       ],
