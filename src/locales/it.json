@@ -1125,6 +1125,7 @@
   "agentLaterSavedWatch": "Quando scatta l’avviso, ti arriva una notifica. Toccala e lo faccio con te.",
   "agentLaterNotifOff": "Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni → Notifiche → ContextFlow.",
   "agentLaterNotifyWhy": "Attiva le notifiche, così posso ricordarti questa attività.",
+  "agentLaterPast": "Quell'ora è già passata. Scegline una più tardi.",
   "agentLaterLimit": "Ci sono già {0} attività in attesa, il massimo del tuo piano.",
   "agentNotifTitle": "Un’attività su {0}",
   "agentNotifBody": "Tocca e lo faccio con te: {0}",

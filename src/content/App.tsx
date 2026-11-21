@@ -558,7 +558,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [agentTask, setAgentTask] = useState<PanelAgent | null>(null)
   const [agentDeferred, setAgentDeferred] = useState<{ id: string; request: string; lang: string } | null>(null)
   const [agentAutoHere, setAgentAutoHere] = useState(false)
-  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean } } | null>(null)
+  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean }; past?: boolean } | null>(null)
   const [agentHelp, setAgentHelp] = useState(false)
   const [agentUpsell, setAgentUpsell] = useState(false)
   // A start that didn't go (no answer from the background, or an error): said on a card, never silent.
@@ -2535,7 +2535,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const startAgent = async (request: string, deferred?: string) => {
     const text = request.trim()
     if (!text) return
-    if (!hasPro(plan)) {
+    // The plan as last heard (a ref: a task started from a notification's tap runs before the panel has its status, in an
+    // older render). Not known yet: the background decides, and says PRO_ONLY when it isn't Pro.
+    const known = statusRef.current?.plan
+    if (known && !hasPro(known)) {
       setAgentUpsell(true)
       return
     }
@@ -2577,6 +2580,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const deferAgent = async (when: { at?: number; watch?: boolean }) => {
     const request = draft.trim()
     if (!request || !agentLater) return
+    // A time already past would never ring (the notification waits for that date): the card asks for a later one.
+    if (when.at !== undefined && !(when.at > Date.now() + 30_000)) {
+      setAgentLater({ ...agentLater, note: null, past: true })
+      return
+    }
     const host = location.hostname.replace(/^www\./, "")
     const r = await sendBackground<{ ok: boolean; code?: string; limit?: number }>({
       type: "agentDefer", request, lang: uiLanguage(), url: location.href, title: document.title,
@@ -2589,7 +2597,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         : t("agentLaterSavedWatch")
       : r?.code === "NOTIF_ASK" ? t("agentLaterNotifyWhy") : r?.code === "NOTIF_OFF" ? t("agentLaterNotifOff") : r?.code === "DEFER_LIMIT" ? t("agentLaterLimit", String(r.limit ?? "")) : r?.code === "PRO_ONLY" ? t("agentProOnly") : t("agentError")
     if (r?.ok) setDraft("")
-    setAgentLater({ ...agentLater, note, ask: r?.code === "NOTIF_ASK" ? when : undefined })
+    setAgentLater({ ...agentLater, note, past: false, ask: r?.code === "NOTIF_ASK" ? when : undefined })
   }
 
   /** «Включить уведомления» on the «Позже» card: the system's question (as under a set watch), then the task is set. */
@@ -4894,6 +4902,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     onClose={() => setAgentLater(null)}
                     onSet={(when) => void deferAgent(when)}
                     onAsk={agentLater.ask ? () => void askAgentNotify() : undefined}
+                    past={!!agentLater.past}
                   />
                 )}
                 {similarCard === "pick" && partial === null && (

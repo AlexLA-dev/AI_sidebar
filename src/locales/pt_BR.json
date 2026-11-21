@@ -1125,6 +1125,7 @@
   "agentLaterSavedWatch": "Quando o acompanhamento avisar, você recebe uma notificação. Toque nela e eu faço isso com você.",
   "agentLaterNotifOff": "As notificações do ContextFlow estão desativadas. Ative em Ajustes → Notificações → ContextFlow.",
   "agentLaterNotifyWhy": "Ative as notificações para eu poder lembrar você desta tarefa.",
+  "agentLaterPast": "Esse horário já passou. Escolha um mais tarde.",
   "agentLaterLimit": "Já há {0} tarefas esperando, o máximo do seu plano.",
   "agentNotifTitle": "Uma tarefa em {0}",
   "agentNotifBody": "Toque e eu faço isso com você: {0}",

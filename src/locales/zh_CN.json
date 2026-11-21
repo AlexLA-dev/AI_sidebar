@@ -1125,6 +1125,7 @@
   "agentLaterSavedWatch": "关注的页面有变化时，你会收到通知。点按通知，我就和你一起完成。",
   "agentLaterNotifOff": "ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。",
   "agentLaterNotifyWhy": "请打开通知，这样我才能提醒你这件事。",
+  "agentLaterPast": "这个时间已经过了，请选一个更晚的时间。",
   "agentLaterLimit": "已有 {0} 个任务在等待，这是你的套餐上限。",
   "agentNotifTitle": "{0} 上的任务",
   "agentNotifBody": "点按后，我和你一起完成：{0}",

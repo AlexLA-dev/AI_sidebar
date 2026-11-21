@@ -1125,6 +1125,7 @@
   "agentLaterSavedWatch": "Wenn die Beobachtung anschlägt, bekommst du eine Mitteilung. Tippe darauf, dann mache ich es mit dir.",
   "agentLaterNotifOff": "Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow.",
   "agentLaterNotifyWhy": "Schalte Mitteilungen ein, damit ich dich an diese Aufgabe erinnern kann.",
+  "agentLaterPast": "Diese Zeit ist schon vorbei. Wähle eine spätere.",
   "agentLaterLimit": "Es warten schon {0} Aufgaben – mehr fasst dein Tarif nicht.",
   "agentNotifTitle": "Eine Aufgabe auf {0}",
   "agentNotifBody": "Tippe, dann mache ich es mit dir: {0}",

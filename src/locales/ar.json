@@ -1125,6 +1125,7 @@
   "agentLaterSavedWatch": "عندما تنبّه المراقبة سيصلك إشعار. اضغط عليه وسأنفّذ ذلك معك.",
   "agentLaterNotifOff": "إشعارات ContextFlow متوقفة. شغّلها من الإعدادات ← الإشعارات ← ContextFlow.",
   "agentLaterNotifyWhy": "شغّل الإشعارات حتى أذكّرك بهذه المهمة.",
+  "agentLaterPast": "هذا الوقت مضى. اختر وقتًا لاحقًا.",
   "agentLaterLimit": "هناك {0} مهام تنتظر بالفعل، وهذا أقصى ما تسمح به خطتك.",
   "agentNotifTitle": "مهمة على {0}",
   "agentNotifBody": "اضغط وسأنفّذها معك: {0}",

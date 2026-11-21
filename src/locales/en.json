@@ -1125,6 +1125,7 @@
   "agentLaterSavedWatch": "When the watch fires, you'll get a notification. Tap it, and I'll do it with you.",
   "agentLaterNotifOff": "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow.",
   "agentLaterNotifyWhy": "Turn on notifications so I can remind you of this task.",
+  "agentLaterPast": "That time has passed. Pick a later one.",
   "agentLaterLimit": "{0} tasks are already waiting, the most your plan keeps.",
   "agentNotifTitle": "A task on {0}",
   "agentNotifBody": "Tap, and I'll do it with you: {0}",

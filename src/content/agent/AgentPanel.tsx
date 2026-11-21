@@ -244,12 +244,15 @@ export function AgentDeferredCard({ request, autoHere, onStart, onCancel, onAuto
   )
 }
 
+/** A datetime-local value: the local date and time, to the minute. */
+function localMinute(d: Date): string {
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
+}
+
 /** «Позже»: at a time, or when this page's watch fires (when it has one). */
-export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk }: { hasWatch: boolean; onSet: (when: { at?: number; watch?: boolean }) => void; onClose: () => void; note: string | null; onAsk?: () => void }): VNode {
+export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past }: { hasWatch: boolean; onSet: (when: { at?: number; watch?: boolean }) => void; onClose: () => void; note: string | null; onAsk?: () => void; past?: boolean }): VNode {
   const [kind, setKind] = useState<"at" | "watch">("at")
-  const soon = new Date(Date.now() + 3_600_000)
-  const local = new Date(soon.getTime() - soon.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
-  const [when, setWhen] = useState(local)
+  const [when, setWhen] = useState(() => localMinute(new Date(Date.now() + 3_600_000)))
   return (
     <div class="cf-card cf-agent" role="region" aria-label={t("agentLater")}>
       <strong>{t("agentLater")}</strong>
@@ -261,7 +264,8 @@ export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk }: { hasW
             <input type="radio" name="cf-agent-later" checked={kind === "at"} onChange={() => setKind("at")} />
             <span>{t("agentLaterAt")}</span>
           </label>
-          {kind === "at" && <input class="cf-input-line" type="datetime-local" value={when} onInput={(e) => setWhen((e.target as HTMLInputElement).value)} onKeyDown={(e) => e.stopPropagation()} />}
+          {kind === "at" && <input class="cf-input-line" type="datetime-local" value={when} min={localMinute(new Date())} onInput={(e) => setWhen((e.target as HTMLInputElement).value)} onKeyDown={(e) => e.stopPropagation()} />}
+          {kind === "at" && past && <p class="cf-agent-warn" dir="auto">{t("agentLaterPast")}</p>}
           {hasWatch && (
             <label class="cf-row toggle">
               <input type="radio" name="cf-agent-later" checked={kind === "watch"} onChange={() => setKind("watch")} />
