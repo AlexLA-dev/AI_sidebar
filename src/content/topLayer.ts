@@ -89,19 +89,7 @@ export function keepOverTopLayer(host: HTMLElement): () => void {
     listenAround(document, "pointerdown", follow),
     listenAround(document, "focusin", follow)
   ]
-  // A site's own focus trap (a consent window drawn with divs, not a <dialog>) takes the focus back when it moves
-  // outside its window: into our panel, the field could never be typed in while the window is up (2.7.1, real Safari:
-  // Thomann, ITmedia). The focus moving into our host, and out of the site's element towards it, is ours: the page's
-  // listeners don't hear it (window, capture: before any of the page's; `follow` ignores our own focus anyway).
-  const ours = (e: Event) => {
-    const fe = e as FocusEvent
-    if (fe.target === host || fe.relatedTarget === host) e.stopImmediatePropagation()
-  }
-  window.addEventListener("focusin", ours, true)
-  window.addEventListener("focusout", ours, true)
   return () => {
-    window.removeEventListener("focusin", ours, true)
-    window.removeEventListener("focusout", ours, true)
     for (const stop of stops) stop()
     marks.disconnect()
     home()
