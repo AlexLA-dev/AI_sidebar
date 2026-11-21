@@ -43,6 +43,8 @@ export interface PlanSelf {
 }
 
 export interface TaskPlan {
+  // A few words naming the task with nothing personal in them («бронирование столика»): what notifications say.
+  label?: string
   steps: string[]
   questions: PlanQuestion[]
   perms: Perm[]
@@ -65,6 +67,7 @@ export interface RawRisky {
 }
 
 export interface RawPlan {
+  label: string
   steps: string[]
   questions: PlanQuestion[]
   risky: RawRisky[]
@@ -74,6 +77,7 @@ export interface RawPlan {
 export const PLAN_SCHEMA = {
   type: "object",
   properties: {
+    label: { type: "string" },
     steps: { type: "array", items: { type: "string" } },
     questions: {
       type: "array",
@@ -100,7 +104,7 @@ export const PLAN_SCHEMA = {
     },
     prices: { type: "array", items: { type: "string" } }
   },
-  required: ["steps", "questions", "risky", "prices"],
+  required: ["label", "steps", "questions", "risky", "prices"],
   additionalProperties: false
 }
 
@@ -123,7 +127,24 @@ export function checkPlan(raw: unknown): RawPlan {
     return tool ? [{ tool, id: s(k.id, 20), text: s(k.text, 200), key: s(k.key, 80) }] : []
   }).slice(0, 20)
   const prices = arr(r.prices).map((x) => s(x, 40)).filter((p) => /\d/.test(p)).slice(0, 4)
-  return { steps, questions, risky, prices }
+  return { label: safeLabel(s(r.label, 60)), steps, questions, risky, prices }
+}
+
+/**
+ * The task's name as notifications show it (on a lock screen): a few words, nothing personal. One with digits (a phone,
+ * a date, a card), an @, a link or quotes, or more than six words, isn't used at all.
+ */
+export function safeLabel(label: string): string {
+  const t = label.replace(/\s+/g, " ").trim().replace(/[.!]+$/, "")
+  if (!t || /[\d@«»"“”„]|https?:|www\./i.test(t) || t.split(" ").length > 6) return ""
+  return t
+}
+
+/** What a notification says about a task: its plan's name and the site, or the site alone — never the request. */
+export function noticeLabel(plan: TaskPlan | null | undefined, host: string): string {
+  const site = host.replace(/^www\./, "")
+  const label = plan?.label ? safeLabel(plan.label) : ""
+  return label ? `${label} · ${site}` : site
 }
 
 const CART = /cart|basket|bag|trolley|корзин|кошик|warenkorb|panier|carrito|cesta|carrello|carrinho|sacola|sepet|السلة|カート|장바구니|购物车|購物車|giỏ/i
@@ -188,7 +209,7 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
   const fillOnly = [...new Set(fillFields)].filter((f) => !personal.includes(f))
   if (fillKeys.length && fillOnly.length) add({ kind: "fill", reason: "fill", label: fillOnly.join(", "), keys: fillKeys })
   const seen = [...new Set([...(ctx.map.money ?? []), ...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 120)
-  return { steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen }
+  return { ...(raw.label ? { label: raw.label } : {}), steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen }
 }
 
 /** Whether the plan needs the person at all: questions, permissions or their own steps. */

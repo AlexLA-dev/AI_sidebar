@@ -59,7 +59,7 @@ import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameRepl
 import { ProUpsell } from "./ProUpsell"
 import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
 import type { AgentNotice } from "../background/agent"
-import type { TaskPlan } from "../shared/agent/taskplan"
+import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
 import { autoStartHere, setAutoStart, takeTaskMark } from "./agent/marks"
@@ -2614,7 +2614,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const r = await sendBackground<{ ok: boolean; code?: string; limit?: number }>({
       type: "agentDefer", request, lang: uiLanguage(), url: location.href, title: document.title,
       ...(when.at ? { at: when.at } : {}), ...(when.watch && from.watch ? { watch: from.watch } : {}),
-      notifTitle: t("agentNotifTitle", host), notifBody: t("agentNotifBody", request.slice(0, 120)), ...(also ? { alsoReminder: true } : {}),
+      // On a lock screen: the plan's name for the task and the site, never the request (it holds phones, e-mails, names).
+      notifTitle: t("agentNotifTitle", host), notifBody: t("agentNotifBody", noticeLabel(from.plan, host)), ...(also ? { alsoReminder: true } : {}),
       ...(from.plan ? { plan: from.plan } : {})
     })
     // Put off from the plan card: the task here closes, the «Позже» card says what was set.

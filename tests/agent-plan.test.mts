@@ -1,6 +1,7 @@
 // The task's plan (2.7.1, the owner: «крайне не хотелось бы, чтобы агент на каждом шаге спрашивал решение»): one card
 // before the first step, then the task goes alone; what wasn't foreseen still stops; paying never goes in a plan.
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
 import { answer, approvePlan, drive, newState, type ActReply, type RunnerIO } from "../src/shared/agent/runner.ts"
@@ -227,4 +228,18 @@ test("with the whole page's amounts: changed only when one is new; they never go
   x.map = async () => ({ ...BOOK, money: [1, 2] })
   await drive(newState("t7", "x", "en", BOOK.url), x)
   assert.ok(x.asked.every((b) => b.map.money === undefined))
+})
+
+test("notifications name the task by the plan's few words and the site, never the request", async () => {
+  const { safeLabel, noticeLabel } = await import("../src/shared/agent/taskplan.ts")
+  assert.equal(safeLabel("бронирование столика"), "бронирование столика")
+  for (const bad of ["столик для Анны +7 900 123-45-67", "anna@example.com", "бронь на 5 декабря", "«Анна»", "a b c d e f g"]) assert.equal(safeLabel(bad), "", bad)
+  const plan = buildPlan(checkPlan({ label: "booking a table", steps: [], questions: [], risky: [], prices: [] }), ctx)
+  assert.equal(noticeLabel(plan, "www.table.example.com"), "booking a table · table.example.com")
+  assert.equal(noticeLabel(buildPlan(checkPlan({ label: "call +44 20 7946 0000", steps: [] }), ctx), "table.example.com"), "table.example.com")
+  const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.doesNotMatch(bg, /replace\("\{0\}", (request|state\.request|state\.summary)/)
+  assert.doesNotMatch(bg, /body: d\.request/)
+  assert.match(app, /notifBody: t\("agentNotifBody", noticeLabel\(from\.plan, host\)\)/)
 })

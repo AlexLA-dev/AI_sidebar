@@ -10,7 +10,7 @@
 import { API_BASE, TARGET, TEST_PLAN } from "../shared/config"
 import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
 import { active, answer, approvePlan, drive, newState, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
-import type { TaskPlan } from "../shared/agent/taskplan"
+import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
 import { hostOf } from "../shared/agent/sites"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
@@ -186,9 +186,10 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
   if (TARGET !== "safari" || !away) return
   const tabUrl = await new Promise<string>((resolve) => chrome.tabs.get(tab, (t) => resolve(chrome.runtime.lastError ? state.url : t?.url ?? state.url)))
   const base = { id: runId(state), url: tabUrl, title: away.words.title }
-  const request = state.request.slice(0, 120)
+  // On a lock screen: the plan's name for the task and the site, never the request (it holds phones, e-mails, names).
+  const what = noticeLabel(state.plan, hostOf(tabUrl))
   if (state.status === "running") {
-    await callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", request) }, 6_000)
+    await callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", what) }, 6_000)
     return
   }
   const waiting = state.status === "plan" || state.status === "confirm" || state.status === "fill" || state.status === "self"
@@ -197,7 +198,7 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
     await callNative("agent_cancel", { id: runId(state) }, 4_000)
     return
   }
-  const body = (ended ? away.words.done : away.words.needs).replace("{0}", ended ? (state.summary || request).slice(0, 160) : request)
+  const body = (ended ? away.words.done : away.words.needs).replace("{0}", what)
   await callNative("agent_notify", { ...base, body }, 6_000)
 }
 
@@ -603,7 +604,8 @@ export async function deferredWatchMet(watchId: string): Promise<void> {
   if (TARGET !== "safari") return
   const words = ((await chrome.storage.local.get(WATCH_WORDS))[WATCH_WORDS] as Record<string, { title: string; body: string }> | undefined) ?? {}
   for (const d of (await deferredAll()).filter((x) => x.watch === watchId)) {
-    const w = words[d.id] ?? { title: hostOf(d.url), body: d.request }
+    // (Never the request on a lock screen: the site, or the plan's name for the task.)
+    const w = words[d.id] ?? { title: "ContextFlow", body: noticeLabel(d.plan, hostOf(d.url)) }
     await callNative("agent_notify", { id: d.id, url: d.url, title: w.title, body: w.body }, 10_000)
   }
 }
