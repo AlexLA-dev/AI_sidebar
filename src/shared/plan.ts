@@ -73,6 +73,32 @@ export const SIMILAR_LIGHT_WEEKLY = 5
 /** What one light search costs a Pro subscriber in answers (2.7, the owner: «У Pro каждый поиск = 10 ответов»). */
 export const SIMILAR_PRO_ANSWERS = 10
 
+/**
+ * The agent (2.8, «Сделай на этой странице»): Pro and Ultra only. Tasks a day per subscription, and deferred tasks
+ * waiting at once on a device. The director's proposal (design.md), not decided by the owner yet: the server's
+ * defaults (env AGENT_PRO_DAILY, AGENT_ULTRA_DAILY, AGENT_DEFERRED_PRO, AGENT_DEFERRED_ULTRA override them there, and
+ * the status then says so), and what the panel says before a status came.
+ */
+export const AGENT_DEFAULTS = { proDaily: 5, ultraDaily: 20, deferredPro: 10, deferredUltra: 30, maxSteps: 30 } as const
+
+export interface AgentLimits {
+  proDaily: number
+  ultraDaily: number
+  deferredPro: number
+  deferredUltra: number
+  maxSteps: number
+}
+
+/** Agent tasks a day on a plan (0: no agent on it). */
+export function agentDaily(plan: Plan | null | undefined, limits: AgentLimits = AGENT_DEFAULTS): number {
+  return isUltra(plan) ? limits.ultraDaily : hasPro(plan) ? limits.proDaily : 0
+}
+
+/** Deferred agent tasks a device keeps waiting at once on a plan. */
+export function agentDeferred(plan: Plan | null | undefined, limits: AgentLimits = AGENT_DEFAULTS): number {
+  return isUltra(plan) ? limits.deferredUltra : hasPro(plan) ? limits.deferredPro : 0
+}
+
 /** The link that opens the ContextFlow app on a plan and period (2.6), or on its plans or home. */
 export function appLink(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period): string {
   const query = [`plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : ""].filter(Boolean).join("&")
