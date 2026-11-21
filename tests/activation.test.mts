@@ -59,16 +59,21 @@ test("the app sends each step where it happens, in order", () => {
   assert.match(app("ChatsView.swift"), /Activation\.shared\.wentToSettings\("chats"\)\s*SFSafariApplication\.showPreferencesForExtension/)
 })
 
-test("the extension's side links the two random ids once, and sends nothing else", () => {
+test("the extension's side links the two random ids until the server has them, and sends nothing else", () => {
   const handler = read("ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift")
-  // Only when getEntitlement brings an install id this side didn't have yet, and the app has been opened.
-  assert.match(handler, /let knewInstall = command == "getEntitlement" \? SharedDefaults\.shared\.readExtensionStatus\(\)\.installId : nil/)
-  assert.match(handler, /if command == "getEntitlement", knewInstall == nil, let install = SharedDefaults\.shared\.readExtensionStatus\(\)\.installId,\s*let app = SharedDefaults\.shared\.appId\(\) \{\s*Self\.reportLinked/)
-  const body = /let body: \[String: Any\] = \[([\s\S]*?)\n {8}\]/.exec(handler)?.[1] ?? ""
-  assert.deepEqual([...body.matchAll(/"(\w+)":/g)].map((m) => m[1]), ["kind", "f", "a", "s", "appId", "installId", "client", "platform", "version"])
-  // Release builds send only over https, to the base the panel uses.
-  assert.match(handler, /#else\s*let allowed = base\.hasPrefix\("https:\/\/"\)\s*#endif/)
-  assert.match(read("src/background/index.ts"), /callNative<NativeEntitlement>\("getEntitlement", \{ installId: await installId\(\), base: API_BASE \}, 6000\)/)
+  // 2.7.1: the native side only answers the app's id with the ping; the background sends the link (src/background/link.ts).
+  assert.doesNotMatch(handler, /reportLinked|knewInstall/)
+  assert.match(handler, /case "ping":[\s\S]{0,700}?if let app = SharedDefaults\.shared\.appId\(\) \{ data\["app"\] = app \}\s*Self\.reply\(context, \["success": true, "data": data\]\)/)
+  const background = read("src/background/index.ts")
+  assert.match(background, /callNative<NativeEntitlement>\("getEntitlement", \{ installId: await installId\(\), base: API_BASE \}, 6000\)/)
+  // The ping carries the install id (the app learns it from the extension's first message), and is asked again while
+  // the app hasn't made its id.
+  assert.match(background, /callNative<\{ build\?: string; app\?: string \}>\("ping", \{ installId: id \}, 1500\)/)
+  assert.match(background, /if \(!data\?\.build \|\| !data\.app\) nativeAsk = null/)
+  // Sent when the background starts and when the panel gets the subscription, Safari only.
+  assert.match(background, /\/\/ 2\.7\.1: the app's id with this install's[\s\S]{0,160}?void reportLinked\(\)\.catch/)
+  assert.match(background, /entitlementCache = \{ at: Date\.now\(\), value \}\s*\/\/[^\n]*\n\s*void reportLinked\(\)/)
+  assert.match(background, /function reportLinked\(\): Promise<boolean> \{\s*if \(TARGET !== "safari"\) return Promise\.resolve\(false\)/)
   // Read-only on the extension's side: the app's id is made by the app alone.
   for (const copy of ["ContextFlow/Shared (App)/SharedDefaults.swift", "ContextFlow/Shared (Extension)/SharedDefaults.swift"]) {
     assert.match(read(copy), /func appId\(\) -> String\? \{\s*defaults\.dictionary\(forKey: appKey\)\?\["id"\] as\? String\s*\}/, copy)
