@@ -11,6 +11,10 @@ declare const __SHADOW_MODE__: ShadowRootMode | undefined
  * Only a test build (CF_OPEN_SHADOW=1, never with the production API) leaves them open for its checks. */
 export const SHADOW_MODE: ShadowRootMode = typeof __SHADOW_MODE__ === "string" ? __SHADOW_MODE__ : "closed"
 
+declare const __TEST_PLAN__: string | undefined
+/** A test build's plan for the agent where the app has no subscription (the simulator): "" in every real build. */
+export const TEST_PLAN: "" | "pro" | "ultra" = typeof __TEST_PLAN__ === "string" ? (__TEST_PLAN__ as "" | "pro" | "ultra") : ""
+
 export const SITE = "https://context-flow.app"
 export const LINKS = {
   privacy: `${SITE}/privacy`,

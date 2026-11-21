@@ -1,7 +1,7 @@
 import { tipClip } from "./tipClips"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
-import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
+import { API_BASE, LINKS, TARGET, VERSION, TEST_PLAN } from "../shared/config"
 import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
@@ -1282,6 +1282,8 @@ startAgent({
   clientInfo,
   consented,
   plan: async () => {
+    // A test build against a local stand that signs its requests (the simulator has no subscription).
+    if (TEST_PLAN) return TEST_PLAN
     const ent = await entitlement()
     return ent?.active ? planFromProduct(ent.productId) : "free"
   },
