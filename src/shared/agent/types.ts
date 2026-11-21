@@ -66,7 +66,7 @@ export interface PageMap {
   consent?: boolean
 }
 
-export type ToolName = "read_page" | "click" | "type" | "select" | "scroll" | "go" | "back" | "extract" | "ask_user" | "done"
+export type ToolName = "read_page" | "click" | "type" | "fill" | "select" | "scroll" | "go" | "back" | "extract" | "ask_user" | "done"
 
 /** One call of the model: one tool and its arguments (the ones the tool doesn't use are left out). */
 export interface ToolCall {
@@ -74,6 +74,9 @@ export interface ToolCall {
   id?: string
   text?: string
   mode?: "replace" | "append"
+  // fill: which of the person's saved details («Мои данные») goes in ("email", "fact:Размер обуви"); the device puts
+  // the value in, the model never sees it.
+  key?: string
   option?: string
   to?: "up" | "down"
   part?: number

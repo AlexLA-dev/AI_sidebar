@@ -81,7 +81,7 @@ export function sanitizeLog(raw: unknown): LogEntry[] {
     const c = (x.call ?? {}) as Record<string, unknown>
     if (typeof c.tool !== "string") return []
     const call: ToolCall = { tool: c.tool as ToolCall["tool"] }
-    for (const k of ["id", "text", "option", "to", "why"] as const) if (typeof c[k] === "string") (call as unknown as Record<string, string>)[k] = (c[k] as string).slice(0, k === "text" ? 300 : 120)
+    for (const k of ["id", "text", "key", "option", "to", "why"] as const) if (typeof c[k] === "string") (call as unknown as Record<string, string>)[k] = (c[k] as string).slice(0, k === "text" ? 300 : 120)
     return [{ call, target: clipStr(x.target, 120) || undefined, result: clipStr(x.result, 300) }]
   })
 }
@@ -96,6 +96,7 @@ Tools:
 - read_page(part): the map's next part when "more" controls are left out.
 - click(id): a button, link, checkbox, radio, tab, menu item, option.
 - type(id, text, mode): put text in a field ("replace" or "append").
+- fill(id, key): put one of the person's saved details (listed in <saved>, by key) into a field or a list. The device puts the value in after the person agrees; you never see it. Prefer fill over asking for a detail that is saved.
 - select(id, option): choose an option of a list by its words.
 - scroll(id or to: up|down).
 - go(id): follow a link on this site.
@@ -128,7 +129,7 @@ function itemLine(i: MapItem): string {
 
 function logLine(e: LogEntry, n: number): string {
   const c = e.call
-  const args = [c.id ? `#${c.id}` : "", c.text !== undefined ? JSON.stringify(c.text) : "", c.option ? JSON.stringify(c.option) : "", c.to ?? ""].filter(Boolean).join(" ")
+  const args = [c.id ? `#${c.id}` : "", c.text !== undefined ? JSON.stringify(c.text) : "", c.key ? `key=${c.key}` : "", c.option ? JSON.stringify(c.option) : "", c.to ?? ""].filter(Boolean).join(" ")
   return `${n}. ${c.tool}${args ? ` ${args}` : ""}${e.target ? ` (${e.target})` : ""} → ${e.result}`
 }
 
@@ -144,6 +145,8 @@ export interface StepInput {
   refused?: string
   // What the last extract read (the page's text or an element's): page content, fenced like the page.
   data?: string
+  // The person's saved details by key («Мои данные»): names only, never values.
+  keys?: string[]
 }
 
 export function stepMessage(s: StepInput): string {
@@ -151,6 +154,7 @@ export function stepMessage(s: StepInput): string {
   return [
     `<request>${s.request}</request>`,
     `<language>${s.lang || "en"}</language>`,
+    s.keys?.length ? `<saved>${s.keys.join(", ")}</saved>` : "",
     `<log>\n${s.log.length ? s.log.map((e, i) => logLine(e, i + 1)).join("\n") : "(no steps yet)"}\n</log>`,
     s.refused ? `<refused>${s.refused}</refused>` : "",
     `<page url=${JSON.stringify(s.map.url)} title=${JSON.stringify(fence(s.map.title))}>`,
@@ -232,6 +236,7 @@ export function describeStep(call: ToolCall, item: MapItem | null, host: string)
     case "click": return `Press the ${what} on ${host}.`
     case "go": return `Follow the ${what} on ${host}.`
     case "type": return `Type ${JSON.stringify(call.text ?? "")} into the ${what} on ${host}.`
+    case "fill": return `Put the person's own saved detail "${call.key ?? ""}" into the ${what} on ${host}.`
     case "select": return `Choose ${JSON.stringify(call.option ?? "")} in the ${what} on ${host}.`
     default: return `${call.tool} on ${host}.`
   }
@@ -266,7 +271,7 @@ export interface StepOptions {
   ask?: (content: string) => Promise<{ data: unknown; usage: Usage }>
 }
 
-const CHANGES = new Set(["click", "type", "select", "go"])
+const CHANGES = new Set(["click", "type", "fill", "select", "go"])
 
 /** One step: the model's call, checked by code (and retried once when the check says no), classed, then checked against the request. */
 export async function nextStep(input: StepInput, opts: StepOptions): Promise<StepOutput> {
@@ -277,7 +282,7 @@ export async function nextStep(input: StepInput, opts: StepOptions): Promise<Ste
     const content = stepMessage({ ...input, refused })
     const answer = opts.ask ? await opts.ask(content) : await askJson(opts.model, SYSTEM, content, CALL_SCHEMA, 3000, 25_000, config.agent.effort, opts.signal)
     usage.push(answer.usage)
-    const checked = checkCall(answer.data, input.map)
+    const checked = checkCall(answer.data, input.map, input.keys ?? [])
     if (!checked.ok) {
       if (retries >= 1) return { call: { tool: "ask_user", question: "", why: checked.error }, verdict: { cls: "blocked", reason: "bad_call" }, target: null, usage, retries }
       retries++

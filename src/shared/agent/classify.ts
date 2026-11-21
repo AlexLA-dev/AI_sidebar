@@ -126,6 +126,8 @@ export function classify(call: ToolCall, ctx: StepContext): StepVerdict {
   if (item.lock === "secret") return verdict("blocked", "secret")
 
   let v: StepVerdict
+  // The person's saved details go in only after their «Заполнить?» (the card shows the values; the model never does).
+  if (call.tool === "fill") return verdict("confirm", "fill")
   if (call.tool === "type") {
     // A card number or an IBAN is never typed, into any field.
     if (hasSecretNumber(call.text ?? "")) return verdict("blocked", "secret_text")

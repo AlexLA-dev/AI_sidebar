@@ -4,7 +4,7 @@
 
 import type { MapItem, PageMap, Role, ToolCall, ToolName } from "./types.ts"
 
-export const TOOLS: ToolName[] = ["read_page", "click", "type", "select", "scroll", "go", "back", "extract", "ask_user", "done"]
+export const TOOLS: ToolName[] = ["read_page", "click", "type", "fill", "select", "scroll", "go", "back", "extract", "ask_user", "done"]
 
 /** The answer's shape: every field present, the ones the tool doesn't use null (strict schemas want them all). */
 const nullable = (schema: Record<string, unknown>) => ({ anyOf: [schema, { type: "null" }] })
@@ -16,6 +16,7 @@ export const CALL_SCHEMA = {
     id: nullable({ type: "string" }),
     text: nullable({ type: "string" }),
     mode: nullable({ type: "string", enum: ["replace", "append"] }),
+    key: nullable({ type: "string" }),
     option: nullable({ type: "string" }),
     to: nullable({ type: "string", enum: ["up", "down"] }),
     part: nullable({ type: "integer" }),
@@ -23,7 +24,7 @@ export const CALL_SCHEMA = {
     summary: nullable({ type: "string" }),
     why: { type: "string" }
   },
-  required: ["tool", "id", "text", "mode", "option", "to", "part", "question", "summary", "why"],
+  required: ["tool", "id", "text", "mode", "key", "option", "to", "part", "question", "summary", "why"],
   additionalProperties: false
 }
 
@@ -39,7 +40,8 @@ const str = (v: unknown, max: number): string | undefined => (typeof v === "stri
 export type Checked = { ok: true; call: ToolCall; item: MapItem | null } | { ok: false; error: string }
 
 /** The model's raw answer as a call, checked against the map: the tool exists, the element does, the two fit. */
-export function checkCall(raw: unknown, map: PageMap): Checked {
+/** `keys`: the person's saved details by key («Мои данные»), the only ones fill may name. */
+export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Checked {
   if (!raw || typeof raw !== "object") return { ok: false, error: "the answer isn't a call" }
   const r = raw as Record<string, unknown>
   const tool = r.tool as ToolName
@@ -47,7 +49,7 @@ export function checkCall(raw: unknown, map: PageMap): Checked {
   const call: ToolCall = { tool, why: str(r.why, MAX_WHY) ?? "" }
   const id = str(r.id, 20)
   const item = id ? map.items.find((i) => i.id === id) ?? null : null
-  const needsItem = tool === "click" || tool === "type" || tool === "select" || tool === "go"
+  const needsItem = tool === "click" || tool === "type" || tool === "fill" || tool === "select" || tool === "go"
   if (needsItem) {
     if (!id) return { ok: false, error: `${tool} needs an id` }
     if (!item) return { ok: false, error: `no element ${id} on the page now (read the map again)` }
@@ -64,6 +66,13 @@ export function checkCall(raw: unknown, map: PageMap): Checked {
       const text = typeof r.text === "string" ? r.text.slice(0, MAX_TYPE_CHARS) : ""
       call.text = text
       call.mode = r.mode === "append" ? "append" : "replace"
+      break
+    }
+    case "fill": {
+      if (!TYPE_ROLES.has(item!.role) && !SELECT_ROLES.has(item!.role)) return { ok: false, error: `element ${id} (${item!.role}) isn't a field` }
+      const key = str(r.key, 80)
+      if (!key || !keys.includes(key)) return { ok: false, error: `no saved detail "${String(r.key ?? "")}" (the saved ones: ${keys.join(", ") || "none"})` }
+      call.key = key
       break
     }
     case "select":

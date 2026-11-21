@@ -16,7 +16,7 @@ import { hostOf } from "../../src/shared/agent/sites.ts"
  * kept, the logs get counts (no addresses, no page words).
  *
  * Body: { installId, client, entitlement, task: { id, request, lang, startHost, step, confirmedHere, token? },
- *         map, log, refused?, data? (what the last extract read) }
+ *         map, log, refused?, data? (what the last extract read), keys? (saved details' names, never values) }
  * → { ok, call, verdict: {cls, reason}, target, offRequest?, token (step 0), left (tasks left today), stepsLeft }
  * Errors: {code} with BAD_REQUEST (400), UNAVAILABLE (400: an old build), OFF (503: AGENT=off), PRO_ONLY (402),
  * AGENT_LIMIT (402: the day's tasks), STEP_LIMIT (409: the task's steps), TOKEN (403), BUSY (503), UPSTREAM (502).
@@ -99,7 +99,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   let out
   try {
-    out = await nextStep({ request, lang: clip(task.lang, 12), map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined }, {
+    out = await nextStep({ request, lang: clip(task.lang, 12), map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys) }, {
       model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal
     })
   } catch (err) {
@@ -136,6 +136,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
     // Measuring only: what the step cost and which model drove it.
     ...(measuring ? { model, cost: Math.round(spent * 1e6) / 1e6, tokens } : {})
   })
+}
+
+/** The person's saved details by key (names only: "email", "fact:Размер обуви"), at most 40. */
+function savedKeys(raw: unknown): string[] {
+  return (Array.isArray(raw) ? raw : []).filter((k): k is string => typeof k === "string" && /^[a-zA-Z.]{2,20}$|^fact:.{1,60}$/u.test(k)).slice(0, 40)
 }
 
 /** The task's token: proof that its first step was counted (an HMAC of the task and the install). */
