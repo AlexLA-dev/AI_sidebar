@@ -82,7 +82,7 @@ test("coverage: the person's own words, the same button, the price, never off th
 })
 
 test("prices: amounts as pages write them; a cart total of the same price is the same price", () => {
-  assert.deepEqual(amounts("Price: 1 299,90 € · old €1,499.00 · 129 руб. · $5"), [1299.9, 1499, 129, 5])
+  assert.deepEqual(amounts("Price: 1 299,90 € · old €1,499.00 · 129 руб. · $5"), [1299.9, 299.9, 1499, 129, 5])
   const plan = { steps: [], questions: [], perms: [], self: [], prices: ["129,90 €"], approved: true }
   const page = (text: string): PageMap => ({ ...BOOK, text })
   assert.equal(priceChanged(plan, page("Total 259,80 €")), null, "two of them")
@@ -186,4 +186,13 @@ test("nothing to type into an empty field is refused (the model answers again), 
   assert.equal(checkCall({ tool: "type", id: "2", text: "" }, BOOK).ok, false)
   const filled: PageMap = { ...BOOK, items: [{ id: "9", role: "textbox", label: "Note", value: "old" }] }
   assert.equal(checkCall({ tool: "type", id: "9", text: "" }, filled).ok, true)
+})
+
+test("a price is changed only when the page shows none the device saw at plan time (the model's pick may be another item's)", () => {
+  const shop: PageMap = { ...BOOK, text: "Air 2 129.00 € · also: Air 2 Lite 73.00 €" }
+  const plan = buildPlan(checkPlan({ steps: [], questions: [], risky: [], prices: ["73.00 €"] }), { ...ctx, map: shop })
+  plan.approved = true
+  assert.ok(plan.seen?.includes(129))
+  assert.equal(priceChanged(plan, { ...BOOK, text: "Air 2 129.00 € · Cart 258.00 €" }), null)
+  assert.equal(priceChanged(plan, { ...BOOK, text: "Air 2 139.00 €" }), "73.00 €")
 })

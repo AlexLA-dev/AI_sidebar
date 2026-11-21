@@ -25,7 +25,7 @@
 .cf-agent-end { display: flex; flex-direction: column; gap: 6px; }
 .cf-agent-end p { margin: 0; }
 .cf-agent-help p { margin: 0; font-size: 13px; color: var(--text-2); }
-.cf-mode.cf-agent-mode.on { background: var(--accent); color: #fff; }
+.cf-mode.cf-agent-mode.on { background: var(--accent) !important; color: #fff; }
 .cf-input-line { font: inherit; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); min-width: 0; }
 .cf-mydetails .cf-fd-list { margin: 6px 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .cf-mydetails .cf-fd-list li { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }

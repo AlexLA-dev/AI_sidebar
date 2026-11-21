@@ -47,8 +47,11 @@ export interface TaskPlan {
   questions: PlanQuestion[]
   perms: Perm[]
   self: PlanSelf[]
-  // The prices of what will be ordered, as the page wrote them at plan time.
+  // The prices of what will be ordered, as the page wrote them at plan time (the model's pick, for the card's words).
   prices: string[]
+  // Every amount the device saw on the page at plan time (the model once picked another item's price, and the real one
+  // then read as «changed»): a price is changed only when the page shows none of them.
+  seen?: number[]
   // The person's answers to the questions, after «Начать».
   answers?: Array<{ q: string; a: string }>
   approved?: boolean
@@ -182,7 +185,8 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
   }
   if (personal.length) add({ kind: "personal", reason: "personal", label: [...new Set(personal)].join(", "), fields: [...new Set(personal)] })
   if (fillKeys.length) add({ kind: "fill", reason: "fill", label: [...new Set(fillFields)].join(", "), keys: fillKeys })
-  return { steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices }
+  const seen = [...new Set([...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 40)
+  return { steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen }
 }
 
 /** Whether the plan needs the person at all: questions, permissions or their own steps. */
@@ -214,12 +218,16 @@ export function amountOf(raw: string): number | null {
   return Number(whole) + (m[2] ? Number(m[2].padEnd(2, "0")) / 100 : 0)
 }
 
-/** The money amounts written in a text. */
+/** The money amounts written in a text. A plain space may group thousands («1 299 ₽») or end a name («Air 2 129.00 €»):
+ *  both readings count. */
 export function amounts(text: string): number[] {
   const out: number[] = []
   for (const m of text.matchAll(MONEY)) {
-    const v = amountOf(m[1] ?? m[2] ?? "")
-    if (v !== null && v > 0) out.push(v)
+    const raw = m[1] ?? m[2] ?? ""
+    for (const r of / /.test(raw) ? [raw, raw.slice(raw.indexOf(" ") + 1)] : [raw]) {
+      const v = amountOf(r)
+      if (v !== null && v > 0 && !out.includes(v)) out.push(v)
+    }
   }
   return out
 }
@@ -229,8 +237,9 @@ export function amounts(text: string): number[] {
  * saw (nor the plan's price times a small quantity, as a cart total is). No amounts on the page: nothing to compare.
  */
 export function priceChanged(plan: TaskPlan, map: PageMap, near = ""): string | null {
-  const seen = plan.prices.flatMap((p) => amounts(p).length ? amounts(p) : [amountOf(p.replace(/[^\d.,\s]/g, "").trim())].filter((x): x is number => x !== null))
-  if (!seen.length) return null
+  const picked = plan.prices.flatMap((p) => amounts(p).length ? amounts(p) : [amountOf(p.replace(/[^\d.,\s]/g, "").trim())].filter((x): x is number => x !== null))
+  if (!picked.length) return null
+  const seen = [...picked, ...(plan.seen ?? [])]
   const now = amounts(`${near}\n${map.text}`)
   if (!now.length) return null
   const fits = now.some((v) => seen.some((p) => [1, 2, 3, 4, 5, 6].some((q) => Math.abs(v - p * q) < 0.011)))
