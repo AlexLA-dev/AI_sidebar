@@ -76,7 +76,7 @@ export function PlusMenu({ noteMode, onNote, agent, shot, whole, usage, after, s
       </button>
       {agent && (
         <button type="button" role="menuitemcheckbox" aria-checked={agent.on} class={`cf-plus-item ${agent.on ? "on" : ""}`} title={t("agentModeHint")} onClick={agent.onPick}>
-          <Icon.Cursor /> <span class="cf-plus-l">{t("agentMode")}{agent.locked && <span class="cf-pro-badge">Pro</span>}</span>
+          <Icon.Sparkle size={15} /> <span class="cf-plus-l">{t("agentMode")}{agent.locked && <span class="cf-pro-badge">Pro</span>}</span>
           {agent.on && <span class="cf-plus-mark"><Icon.Check /></span>}
         </button>
       )}

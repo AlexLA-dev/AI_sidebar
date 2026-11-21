@@ -207,6 +207,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.summary = call.summary ?? ""
       break
     }
+    // The model's answer failed the code's check twice: the task ends with an error, not an empty question.
+    if (reply.verdict.reason === "bad_call") {
+      state.status = "error"
+      state.error = "bad_call"
+      break
+    }
     if (call.tool === "ask_user") {
       state.status = "asked"
       state.summary = call.question ?? ""

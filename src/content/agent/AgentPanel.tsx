@@ -82,9 +82,10 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
   return (
     <div ref={ref} class="cf-card cf-agent" role="region" aria-label={t("agentMode")} aria-live="polite">
       {(busy || waiting) && (
-        <div class="cf-agent-strip">
+        <div class={`cf-agent-strip ${busy ? "" : "waiting"}`}>
           <span class={`cf-agent-dot ${busy ? "on" : ""}`} aria-hidden="true" />
-          <span class="cf-agent-step">{t("agentWorking", String(Math.max(1, state.step)))}</span>
+          {/* Waiting for the person: the card below says what for; the strip keeps only Stop. */}
+          <span class="cf-agent-step">{busy ? t("agentWorking", String(Math.max(1, state.step))) : ""}</span>
           <button type="button" class="cf-secondary cf-agent-stop" onClick={() => onAnswer("stop")}><Icon.Stop /> {t("stop")}</button>
         </div>
       )}

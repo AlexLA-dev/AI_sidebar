@@ -38,3 +38,6 @@
 .cf-agent-float-text { display: flex; flex-direction: column; min-width: 0; }
 .cf-agent-float-text b { color: var(--accent-text); font-weight: 600; }
 .cf-agent-float-text span { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Safari on iPhone zooms the page into a field whose text is under 16 px when it gets the focus: «Мои данные» and «Позже»
+   fields are 16 px there. */
+@media (pointer: coarse) { .cf-input-line, .cf-fd-add select { font-size: 16px; } }

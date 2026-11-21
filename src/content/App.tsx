@@ -2,7 +2,7 @@ import { Fragment, type ComponentChildren, type VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
-import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
+import { LINKS, PRODUCTS, SHADOW_MODE, TARGET, TEST_PLAN } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
 import { freeAnswersBack, t, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
@@ -561,6 +561,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string } | null>(null)
   const [agentHelp, setAgentHelp] = useState(false)
   const [agentUpsell, setAgentUpsell] = useState(false)
+  // A start that didn't go (no answer from the background, or an error): said on a card, never silent.
+  const [agentStartError, setAgentStartError] = useState<string | null>(null)
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
   // The round button out of the selection buttons' way while they show (fabDodge.ts): its center, in px; null at home.
@@ -2539,8 +2541,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     setDraft("")
     setAgentLater(null)
+    setAgentStartError(null)
     const r = await sendBackground<{ ok: boolean; code?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
     if (r?.state) setAgentTask(r.state)
+    if (!r || (!r.ok && !r.state && r.code !== "CONSENT" && r.code !== "PRO_ONLY")) {
+      // Test builds name the code (the simulator pass); people see the plain words.
+      setAgentStartError(`${t("agentError")}${TEST_PLAN ? ` (${r?.code ?? "no answer"})` : ""}`)
+      setDraft(text)
+    }
     if (r?.code === "CONSENT") {
       // The page's map goes to the AI: the same consent as answers; asked here, then the task starts.
       await agreeQuietly()
@@ -2639,7 +2647,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const el = id ? elementOf(id) : null
       if (el && el.ownerDocument === document) {
         ;(el as HTMLElement).scrollIntoView?.({ block: "center" })
-        if (layout === "sheet") window.scrollBy(0, Math.round(window.innerHeight * 0.28))
+        // On the sheet the panel takes the lower part: the control goes near the top, above it.
+        if (layout === "sheet") window.scrollBy(0, Math.round(el.getBoundingClientRect().top - window.innerHeight * 0.1))
         const range = document.createRange()
         range.selectNode(el)
         setAgentRing(range)
@@ -4329,7 +4338,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
       {/* 2.6 (92), the owner: the selection the panel or its pop-up is about is ringed on the page. */}
       {glowRange && <SelectionGlow range={glowRange} />}
-      {agentRing && agentTask && <SelectionGlow range={agentRing} />}
+      {agentRing && agentTask && <AgentRing range={agentRing} />}
       {agentTask?.status === "running" && !open && (
         <AgentStrip
           state={agentTask}
@@ -4849,6 +4858,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 )}
                 {agentHelp && <div class="cf-card cf-agent-help" role="note"><p>{t("agentHelp")}</p></div>}
+                {agentStartError && !agentTask && (
+                  <div class="cf-card cf-agent" role="alert">
+                    <p>{agentStartError}</p>
+                    <div class="cf-card-actions"><button type="button" class="cf-secondary" onClick={() => setAgentStartError(null)}>{t("close")}</button></div>
+                  </div>
+                )}
                 {agentLater && (
                   <AgentLaterCard
                     hasWatch={agentLater.hasWatch}
@@ -5317,7 +5332,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         title={t("agentModeHint")}
                         onClick={() => setAgentMode(false)}
                       >
-                        <Icon.Cursor /> {t("agentMode")}
+                        <Icon.Sparkle size={13} /> {t("agentMode")}
                       </button>
                     )}
                     {agentMode && !noteMode && (
@@ -5664,6 +5679,30 @@ function SelField({ touch, chips, placeholder, markUltra, tone, onChip, children
  * compositor (a turning gradient under a fixed mask); it moves with the page by the scroll events, nothing runs while
  * the page is still.
  */
+/**
+ * The agent's ring on the control it's about (2.7.1): measured again every few frames, as the page moves under it (a list
+ * that closes, a row that appears), and gone while the control isn't shown.
+ */
+function AgentRing({ range }: { range: Range }): VNode | null {
+  const [box, setBox] = useState<DOMRect | null>(null)
+  useLayoutEffect(() => {
+    let timer = 0
+    const place = () => {
+      const r = toFixed(range.getBoundingClientRect())
+      setBox(r.width > 1 && r.height > 1 ? r : null)
+    }
+    place()
+    timer = window.setInterval(place, 200)
+    return () => window.clearInterval(timer)
+  }, [range])
+  if (!box) return null
+  return (
+    <div class="cf-sel-glow cf-agent-ring" aria-hidden="true" style={{ left: `${box.left - 5}px`, top: `${box.top - 4}px`, width: `${box.width + 10}px`, height: `${box.height + 8}px` }}>
+      <span class="cf-glow-run" />
+    </div>
+  )
+}
+
 function SelectionGlow({ range }: { range: Range }): VNode | null {
   const [box, setBox] = useState<DOMRect | null>(null)
   useLayoutEffect(() => {

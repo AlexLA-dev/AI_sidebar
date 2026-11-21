@@ -156,3 +156,10 @@ test("after a form is sent, «Отменить» has nothing to offer", async ()
   s = await answer(s, x, "yes")
   assert.equal(s.undo.length, 0)
 })
+
+test("an answer the code refused twice ends the task with an error, not an empty question", async () => {
+  const x = io([{ ok: true, call: { tool: "ask_user", question: "", why: "no saved detail" }, verdict: { cls: "blocked", reason: "bad_call" }, target: null }])
+  const s = await drive(newState("t11", "x", "en", MAP.url), x)
+  assert.equal(s.status, "error")
+  assert.equal(s.error, "bad_call")
+})
