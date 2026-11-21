@@ -243,3 +243,9 @@ test("notifications name the task by the plan's few words and the site, never th
   assert.doesNotMatch(bg, /body: d\.request/)
   assert.match(app, /notifBody: t\("agentNotifBody", noticeLabel\(from\.plan, host\)\)/)
 })
+
+test("«Также в Напоминания» is titled with the task's short name and the site, never the request", () => {
+  const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
+  assert.match(bg, /deferredReminder\(task\.id, noticeLabel\(task\.plan, hostOf\(task\.url\)\), task\.at, task\.url\)/)
+  assert.doesNotMatch(bg, /deferredReminder\(task\.id, task\.request/)
+})

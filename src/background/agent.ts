@@ -591,7 +591,9 @@ async function defer(m: Extract<AgentRequest, { type: "agentDefer" }>): Promise<
     if (outcome !== "scheduled") return { ok: false, code: outcome === "not-asked" ? "NOTIF_ASK" : outcome === "denied" ? "NOTIF_OFF" : "FAILED" }
   }
   // «Также в Напоминания»: the same task in the person's Reminders, due then, without an alert of its own.
-  if (m.alsoReminder && task.at && (await deferredReminder(task.id, task.request, task.at, task.url))) task.reminder = true
+  // Titled like the notifications: the plan's name for the task and the site, never the request (Reminders syncs to the
+  // Watch, other devices and shared lists).
+  if (m.alsoReminder && task.at && (await deferredReminder(task.id, noticeLabel(task.plan, hostOf(task.url)), task.at, task.url))) task.reminder = true
   await writeDeferred([...list, task])
   return { ok: true, task, outcome, reminder: !!task.reminder }
 }

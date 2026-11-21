@@ -85,12 +85,13 @@ export async function appleCall(call: ToolCall): Promise<StepResult> {
 }
 
 /** A deferred task's reminder too («Также в Напоминания»): due, no alert of its own (the task's notification rings). */
-export async function deferredReminder(id: string, request: string, at: number, url: string): Promise<boolean> {
+/** «Также в Напоминания»: `title` is the task's short name and site (never the person's request). */
+export async function deferredReminder(id: string, title: string, at: number, url: string): Promise<boolean> {
   if (TARGET !== "safari") return false
   const d = new Date(at)
   const p = (n: number) => String(n).padStart(2, "0")
   const r = await callNative<Found>("agent_apple", {
-    op: "reminder_add", key: `cf.agent.${id}`, noAlarm: true, title: request.slice(0, 200),
+    op: "reminder_add", key: `cf.agent.${id}`, noAlarm: true, title: title.slice(0, 200),
     date: `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`, time: `${p(d.getHours())}:${p(d.getMinutes())}`, notes: url
   }, 10_000)
   return r?.outcome === "saved" || r?.outcome === "exists"
