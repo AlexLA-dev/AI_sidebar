@@ -1198,5 +1198,8 @@
   "agentModeOff": "„Erledigen“ ausschalten",
   "noteHintTouchDo": "Knopf nach oben wischen: Notiz, nach unten: „Erledigen“",
   "agentNoticeNeeds": "Braucht Sie",
-  "agentGoToTab": "Zum Tab"
+  "agentGoToTab": "Zum Tab",
+  "agentNotifPaused": "Aufgabe pausiert – öffnen Sie Safari, um sie abzuschließen: {0}",
+  "agentNotifDone": "Erledigt: {0}",
+  "agentNotifNeeds": "Braucht Sie: {0}"
 }

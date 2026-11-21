@@ -2678,6 +2678,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     } else setAgentLater({ ...agentLater, note: t("agentLaterNotifOff"), ask: undefined })
   }
 
+  // Out of Safari while a task runs or waits (2.7.1): the background hears when a page of ours is hidden or seen again,
+  // with the notification's words in the panel's language.
+  useEffect(() => {
+    if (popup) return
+    const onVis = () => {
+      const visible = document.visibilityState === "visible"
+      void sendBackground({ type: "agentSeen", visible, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}") } }) })
+    }
+    document.addEventListener("visibilitychange", onVis)
+    return () => document.removeEventListener("visibilitychange", onVis)
+  }, [popup])
+
   // Another tab's task: what it came to, pushed when it stops for the person or ends there (and null once it's seen).
   useEffect(() => {
     if (popup) return
@@ -2707,6 +2719,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const take = async () => {
       const id = takeTaskMark()
       if (!id) return
+      // A running task's notification (left Safari mid-task): its own tab comes to the front, or it's this one.
+      if (id.startsWith("run_")) {
+        const r = await sendBackground<{ ok: boolean; here?: boolean }>({ type: "agentFocus", id })
+        if (r?.here) show()
+        return
+      }
       const list = await sendBackground<{ tasks: Array<{ id: string; request: string; lang: string }> }>({ type: "agentDeferred" })
       const task = list?.tasks.find((x) => x.id === id)
       if (!task) return

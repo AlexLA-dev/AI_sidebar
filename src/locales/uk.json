@@ -1198,5 +1198,8 @@
   "agentModeOff": "Вимкнути «Зробити»",
   "noteHintTouchDo": "Змахніть кнопку вгору — нотатка, вниз — «Зробити»",
   "agentNoticeNeeds": "Потрібні ви",
-  "agentGoToTab": "Перейти до вкладки"
+  "agentGoToTab": "Перейти до вкладки",
+  "agentNotifPaused": "Справа на паузі — відкрийте Safari, щоб завершити: {0}",
+  "agentNotifDone": "Готово: {0}",
+  "agentNotifNeeds": "Потрібні ви: {0}"
 }

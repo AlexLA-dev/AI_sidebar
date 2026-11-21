@@ -1198,5 +1198,8 @@
   "agentModeOff": "“Yap”ı kapat",
   "noteHintTouchDo": "Not için düğmeyi yukarı, “Yap” için aşağı kaydırın",
   "agentNoticeNeeds": "Sizi bekliyor",
-  "agentGoToTab": "Sekmeye git"
+  "agentGoToTab": "Sekmeye git",
+  "agentNotifPaused": "Görev duraklatıldı — bitirmek için Safari'yi açın: {0}",
+  "agentNotifDone": "Bitti: {0}",
+  "agentNotifNeeds": "Sizi bekliyor: {0}"
 }

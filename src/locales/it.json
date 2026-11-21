@@ -1198,5 +1198,8 @@
   "agentModeOff": "Disattivare «Fai»",
   "noteHintTouchDo": "Scorri il pulsante in su per una nota, in giù per «Fai»",
   "agentNoticeNeeds": "Serve lei",
-  "agentGoToTab": "Vai alla scheda"
+  "agentGoToTab": "Vai alla scheda",
+  "agentNotifPaused": "Attività in pausa: apri Safari per finirla: {0}",
+  "agentNotifDone": "Fatto: {0}",
+  "agentNotifNeeds": "Serve lei: {0}"
 }

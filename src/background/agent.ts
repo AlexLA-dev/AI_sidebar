@@ -62,6 +62,8 @@ export type AgentRequest =
   | { type: "agentClose"; keep?: boolean }
   | { type: "agentForgetPast"; id: string }
   | { type: "agentNoticeGet" }
+  | { type: "agentSeen"; visible: boolean; words?: { paused: string; done: string; needs: string; title: string } }
+  | { type: "agentFocus"; id: string }
   | { type: "agentGoTab" }
   | { type: "agentNoticeClear" }
   | { type: "agentDefer"; request: string; lang: string; url: string; title: string; at?: number; watch?: string; notifTitle: string; notifBody: string; alsoReminder?: boolean; plan?: TaskPlan }
@@ -160,6 +162,85 @@ async function save(tab: number, state: AgentState): Promise<void> {
   // The panel shows it at once (the content script of the tab's top frame).
   chrome.tabs.sendMessage(tab, { type: "agentState", state: forPanel(state) }, { frameId: 0 }, () => void chrome.runtime.lastError)
   if (state.status !== "running" && (now?.id !== state.id || now.status !== state.status)) void noticeElsewhere(tab, state)
+  if (away) void awayNote(tab, state)
+}
+
+// ------------------------------------------------------------ while the person is out of Safari
+
+// The person left Safari (or the page went hidden) while a task runs or waits (2.7.1, the owner: «нотификацию, если я
+// вышел, а он не закончил»). The moment a page goes hidden, «Дело на паузе — откройте Safari» is set a little ahead; every
+// step that still runs pushes it on, so it comes only when Safari has really stopped the task (iOS suspends it in the
+// background) — never claiming it goes on. Done or waiting for the person while away: «Готово: …» / «Нужны вы: …» at
+// once instead. Back in Safari (any page of ours seen, or a tab switch): the one still waiting goes.
+const PAUSE_AFTER_MS = 30_000
+let away: { words: { paused: string; done: string; needs: string; title: string } } | null = null
+// A tab switch hides one page and shows another: not leaving Safari.
+let switchedAt = 0
+
+function runId(state: AgentState): string {
+  return `run_${state.id}`
+}
+
+async function awayNote(tab: number, state: AgentState): Promise<void> {
+  if (TARGET !== "safari" || !away) return
+  const tabUrl = await new Promise<string>((resolve) => chrome.tabs.get(tab, (t) => resolve(chrome.runtime.lastError ? state.url : t?.url ?? state.url)))
+  const base = { id: runId(state), url: tabUrl, title: away.words.title }
+  const request = state.request.slice(0, 120)
+  if (state.status === "running") {
+    await callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", request) }, 6_000)
+    return
+  }
+  const waiting = state.status === "plan" || state.status === "confirm" || state.status === "fill" || state.status === "self"
+  const ended = state.status === "done"
+  if (!waiting && !ended) {
+    await callNative("agent_cancel", { id: runId(state) }, 4_000)
+    return
+  }
+  const body = (ended ? away.words.done : away.words.needs).replace("{0}", ended ? (state.summary || request).slice(0, 160) : request)
+  await callNative("agent_notify", { ...base, body }, 6_000)
+}
+
+/** A page of ours was hidden or seen: away from Safari (as far as we can tell) or back. */
+async function seen(visible: boolean, words?: { paused: string; done: string; needs: string; title: string }): Promise<void> {
+  if (visible) {
+    if (!away) return
+    away = null
+    for (const [tab, state] of await activeTasks()) {
+      void tab
+      if (TARGET === "safari") void callNative("agent_cancel", { id: runId(state) }, 4_000)
+    }
+    return
+  }
+  if (!words || Date.now() - switchedAt < 1500) return
+  away = { words }
+  for (const [tab, state] of await activeTasks()) if (state.status === "running") void awayNote(tab, state)
+}
+
+/** The tabs with a task that runs or waits for the person. */
+async function activeTasks(): Promise<Array<[number, AgentState]>> {
+  const tabs = await new Promise<chrome.tabs.Tab[]>((resolve) => chrome.tabs.query({}, (t) => resolve(chrome.runtime.lastError ? [] : t ?? [])))
+  const out: Array<[number, AgentState]> = []
+  for (const t of tabs) {
+    if (t.id === undefined) continue
+    const st = await load(t.id)
+    if (st && active(st)) out.push([t.id, st])
+  }
+  return out
+}
+
+/** The notification's tap opened the page (#cf-task=run_<id>): the task's own tab comes to the front and this one goes. */
+async function focusTask(id: string, from: number | undefined): Promise<{ ok: boolean; here?: boolean }> {
+  const tabs = await new Promise<chrome.tabs.Tab[]>((resolve) => chrome.tabs.query({}, (t) => resolve(chrome.runtime.lastError ? [] : t ?? [])))
+  for (const t of tabs) {
+    if (t.id === undefined) continue
+    const st = await load(t.id)
+    if (st?.id !== id) continue
+    if (t.id === from) return { ok: true, here: true }
+    await new Promise<void>((resolve) => chrome.tabs.update(t.id!, { active: true }, () => resolve(void chrome.runtime.lastError)))
+    if (from !== undefined) chrome.tabs.remove(from, () => void chrome.runtime.lastError)
+    return { ok: true }
+  }
+  return { ok: false }
 }
 
 // ------------------------------------------------------------ while the person is in another tab
@@ -262,6 +343,15 @@ function waitComplete(tab: number, timeoutMs = 15_000): Promise<void> {
 // ------------------------------------------------------------ the server
 
 async function ask(body: Record<string, unknown>): Promise<Record<string, unknown>> {
+  // A request cut off while Safari was in the background (or the network blinked): twice more before the task stops.
+  for (let attempt = 0; ; attempt++) {
+    const r = await askOnce(body)
+    if (r.code !== "NETWORK" || attempt >= 2) return r
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+  }
+}
+
+async function askOnce(body: Record<string, unknown>): Promise<Record<string, unknown>> {
   const [installId, client, entitlement] = await Promise.all([deps.installId(), deps.clientInfo(), deps.entitlementJws()])
   try {
     const res = await fetch(`${API_BASE}/api/v2/act`, {
@@ -505,6 +595,10 @@ export function startAgent(d: AgentDeps): void {
           if (n && n.tab === tab) await clearNotice()
           return { state: s && forPanel(s), past: p }
         }))
+      case "agentSeen":
+        return respond(seen(message.visible === true, message.words).then(() => ({ ok: true })))
+      case "agentFocus":
+        return respond(focusTask(String(message.id ?? "").replace(/^run_/, ""), tab))
       case "agentNoticeGet":
         return respond(notice().then((n) => ({ notice: n && n.tab !== tab ? n : null })))
       case "agentGoTab":
@@ -546,8 +640,10 @@ export function startAgent(d: AgentDeps): void {
         return false
     }
   })
-  // The task's tab came to the front: its ring elsewhere goes.
+  // The task's tab came to the front: its ring elsewhere goes. (A tab switch also means Safari is in front.)
   chrome.tabs.onActivated?.addListener(({ tabId }) => {
+    switchedAt = Date.now()
+    void seen(true)
     void notice().then((n) => {
       if (n && n.tab === tabId) void clearNotice()
     })

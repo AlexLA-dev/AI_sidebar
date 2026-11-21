@@ -1198,5 +1198,8 @@
   "agentModeOff": "「実行」をオフ",
   "noteHintTouchDo": "ボタンを上にスワイプでメモ、下で「実行」",
   "agentNoticeNeeds": "確認が必要です",
-  "agentGoToTab": "タブへ移動"
+  "agentGoToTab": "タブへ移動",
+  "agentNotifPaused": "作業は一時停止中です。終えるには Safari を開いてください：{0}",
+  "agentNotifDone": "完了：{0}",
+  "agentNotifNeeds": "確認が必要です：{0}"
 }

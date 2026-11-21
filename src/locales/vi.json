@@ -1198,5 +1198,8 @@
   "agentModeOff": "Tắt “Làm”",
   "noteHintTouchDo": "Vuốt nút lên để ghi chú, xuống để “Làm”",
   "agentNoticeNeeds": "Cần bạn",
-  "agentGoToTab": "Đến thẻ"
+  "agentGoToTab": "Đến thẻ",
+  "agentNotifPaused": "Việc đang tạm dừng — mở Safari để làm xong: {0}",
+  "agentNotifDone": "Xong: {0}",
+  "agentNotifNeeds": "Cần bạn: {0}"
 }

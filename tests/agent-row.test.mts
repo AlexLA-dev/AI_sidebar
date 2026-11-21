@@ -27,3 +27,13 @@ test("«Позже» is a choice in the plan card; the row has no clock", () => 
   assert.match(panel, /<LaterFields hasWatch=\{!!later\?\.hasWatch\}/)
   assert.doesNotMatch(app, /Icon\.Clock \/>\s*<\/button>\s*\)\}\s*<textarea/)
 })
+
+test("out of Safari mid-task: the paused notification only once steps stop, done or needs-you at once, gone on return", () => {
+  const bg = read("src/background/agent.ts")
+  assert.match(bg, /if \(state\.status === "running"\) \{\s*await callNative\("agent_schedule", \{ \.\.\.base, at: Date\.now\(\) \+ PAUSE_AFTER_MS/)
+  assert.match(bg, /await callNative\("agent_notify", \{ \.\.\.base, body \}/)
+  assert.match(bg, /if \(!words \|\| Date\.now\(\) - switchedAt < 1500\) return/)
+  // The notification's tap: the task's own tab to the front, the page it opened goes.
+  assert.match(bg, /if \(from !== undefined\) chrome\.tabs\.remove\(from/)
+  assert.match(app, /if \(id\.startsWith\("run_"\)\) \{/)
+})

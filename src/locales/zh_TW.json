@@ -1198,5 +1198,8 @@
   "agentModeOff": "關閉「執行」",
   "noteHintTouchDo": "向上滑動按鈕寫筆記，向下滑動「執行」",
   "agentNoticeNeeds": "需要你",
-  "agentGoToTab": "前往該分頁"
+  "agentGoToTab": "前往該分頁",
+  "agentNotifPaused": "任務已暫停——打開 Safari 來完成：{0}",
+  "agentNotifDone": "完成：{0}",
+  "agentNotifNeeds": "需要你：{0}"
 }

@@ -1198,5 +1198,8 @@
   "agentModeOff": "Désactiver « Faire »",
   "noteHintTouchDo": "Glissez le bouton vers le haut pour une note, vers le bas pour « Faire »",
   "agentNoticeNeeds": "Vous êtes attendu",
-  "agentGoToTab": "Aller à l'onglet"
+  "agentGoToTab": "Aller à l'onglet",
+  "agentNotifPaused": "Tâche en pause — ouvrez Safari pour la terminer : {0}",
+  "agentNotifDone": "Terminé : {0}",
+  "agentNotifNeeds": "Vous êtes attendu : {0}"
 }

@@ -1198,5 +1198,8 @@
   "agentModeOff": "Turn off Do",
   "noteHintTouchDo": "Swipe the button up for a note, down for Do",
   "agentNoticeNeeds": "Needs you",
-  "agentGoToTab": "Go to the tab"
+  "agentGoToTab": "Go to the tab",
+  "agentNotifPaused": "Task paused — open Safari to finish: {0}",
+  "agentNotifDone": "Done: {0}",
+  "agentNotifNeeds": "Needs you: {0}"
 }

@@ -1198,5 +1198,8 @@
   "agentModeOff": "Desactivar «Hacer»",
   "noteHintTouchDo": "Desliza el botón hacia arriba para una nota, hacia abajo para «Hacer»",
   "agentNoticeNeeds": "Te necesita",
-  "agentGoToTab": "Ir a la pestaña"
+  "agentGoToTab": "Ir a la pestaña",
+  "agentNotifPaused": "Tarea en pausa: abre Safari para terminarla: {0}",
+  "agentNotifDone": "Hecho: {0}",
+  "agentNotifNeeds": "Te necesita: {0}"
 }
