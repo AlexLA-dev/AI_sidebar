@@ -3317,8 +3317,11 @@
  "agentOpenApp": {
   "message": "Открыть ContextFlow"
  },
- "agentDefaultList": {
-  "message": "список по умолчанию"
+ "agentStepReminderAddDefault": {
+  "message": "Добавить напоминание «{0}» в список по умолчанию"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Добавить напоминание «{0}» в список по умолчанию на {1}"
  },
  "agentLaterLimit": {
   "message": "Уже ждут {0} дел — это предел вашего тарифа."

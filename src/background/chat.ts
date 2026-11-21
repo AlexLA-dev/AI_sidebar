@@ -44,7 +44,8 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
         ...(req.payload.context === "history" ? { context: "history", history: req.payload.history ?? [], ...(req.payload.links ? { links: true } : {}) } : {}),
         ...(req.payload.stats ? { stats: req.payload.stats } : {}),
         ...(req.payload.tour ? { tour: true } : {}),
-        ...(req.payload.items ? { items: true } : {})
+        ...(req.payload.items ? { items: true } : {}),
+        ...(req.payload.agent ? { agent: true } : {})
       }),
       signal: timeout.signal
     })

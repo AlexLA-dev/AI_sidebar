@@ -50,8 +50,8 @@ function stepText(state: PanelAgent): string {
   const c = p.call
   switch (c.tool) {
     case "reminder_add": {
-      const list = c.list || t("agentDefaultList")
-      return c.date ? t("agentStepReminderAddDue", c.text ?? "", list, when(c.date, c.time)) : t("agentStepReminderAdd", c.text ?? "", list)
+      if (!c.list) return c.date ? t("agentStepReminderAddDefaultDue", c.text ?? "", when(c.date, c.time)) : t("agentStepReminderAddDefault", c.text ?? "")
+      return c.date ? t("agentStepReminderAddDue", c.text ?? "", c.list, when(c.date, c.time)) : t("agentStepReminderAdd", c.text ?? "", c.list)
     }
     case "reminder_done": return t("agentStepReminderDone", c.text ?? "")
     case "event_add": return t("agentStepEventAdd", c.text ?? "", `${when(c.date, c.time)}${c.place ? `, ${c.place}` : ""}`)
@@ -117,7 +117,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
   const busy = state.status === "running"
   const waiting = state.status === "confirm" || state.status === "fill" || state.status === "self"
   const finished = !busy && !waiting
-  const lines = state.lines.slice(-8)
+  // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
+  const lines = state.lines.filter((l) => l.text || l.target).slice(-8)
   // The card stays in view as the task goes on: its newest line, its question, its result.
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {

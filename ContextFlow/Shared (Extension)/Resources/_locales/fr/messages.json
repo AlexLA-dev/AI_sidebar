@@ -3317,8 +3317,11 @@
  "agentOpenApp": {
   "message": "Ouvrir ContextFlow"
  },
- "agentDefaultList": {
-  "message": "votre liste par défaut"
+ "agentStepReminderAddDefault": {
+  "message": "Ajouter le rappel « {0} » à votre liste par défaut"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Ajouter le rappel « {0} » à votre liste par défaut, pour le {1}"
  },
  "agentLaterLimit": {
   "message": "{0} tâches attendent déjà : c’est le maximum de votre forfait."

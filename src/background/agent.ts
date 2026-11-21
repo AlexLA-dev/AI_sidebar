@@ -65,7 +65,16 @@ export type AgentRequest =
 const store = (): chrome.storage.StorageArea => (chrome.storage as unknown as { session?: chrome.storage.StorageArea }).session ?? chrome.storage.local
 
 async function load(tab: number): Promise<AgentState | null> {
-  return ((await store().get(TASK_KEY(tab)))[TASK_KEY(tab)] as AgentState | undefined) ?? null
+  const s = ((await store().get(TASK_KEY(tab)))[TASK_KEY(tab)] as AgentState | undefined) ?? null
+  // Safari's storage.session gave back the state's empty arrays as one and the same array (real Safari, a task that
+  // stopped for the person before its first step): the log's entries then showed as step lines («·») and the lines went
+  // to the server as log entries. Each gets its own copy.
+  if (s) {
+    s.log = [...(s.log ?? [])]
+    s.lines = [...(s.lines ?? [])]
+    s.undo = [...(s.undo ?? [])]
+  }
+  return s
 }
 
 async function save(tab: number, state: AgentState): Promise<void> {

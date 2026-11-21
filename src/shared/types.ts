@@ -120,6 +120,8 @@ export interface AskPayload {
   // 2.7: this device can add reminders and events (Safari, iOS 17+ and macOS 14+): the answer may end with the marker
   // for a card (appleItems.ts ITEM_MARKER). Older clients don't send it and never get the marker.
   items?: true
+  // 2.7.1: the panel can hand an action to the agent («Сделать на этой странице?» under the question).
+  agent?: true
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */

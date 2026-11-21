@@ -3317,8 +3317,11 @@
  "agentOpenApp": {
   "message": "打开 ContextFlow"
  },
- "agentDefaultList": {
-  "message": "默认列表"
+ "agentStepReminderAddDefault": {
+  "message": "将提醒事项“{0}”添加到默认列表"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "将提醒事项“{0}”添加到默认列表，截止 {1}"
  },
  "agentLaterLimit": {
   "message": "已有 {0} 个任务在等待，这是你的套餐上限。"

@@ -1384,6 +1384,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(guideRef.current && !planTour.current ? { tour: true as const } : {}),
           // 2.7: reminders and events can be added here, so the answer may suggest one (a card under it).
           ...(appleNow()?.available ? { items: true as const } : {}),
+          // 2.7.1: a question that asks for an action gets «Сделать на этой странице?» under it: the answer says so.
+          ...(!historyMode ? { agent: true as const } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })

@@ -145,3 +145,17 @@ test("«Сделать на этой странице?» under a question that a
     assert.equal(asksForAction(no), false, no)
   }
 })
+
+test("«Готово» without allowing: the model hears it, not a second access step", async () => {
+  const x = io([
+    step({ tool: "reminders", text: "хлеб" }, "free", "read"),
+    step({ tool: "reminders", text: "хлеб" }, "free", "read"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ], { reminders: "none", calendar: "none" })
+  let s = await drive(newState("a4", "напомни купить хлеб", "ru", MAP.url), x)
+  assert.equal(s.status, "self")
+  s = await answer(s, x, "did")
+  assert.equal(s.status, "done")
+  assert.match(x.asked[2].log.at(-1).result, /still isn't given/)
+  assert.equal(x.appleCalls.length, 0)
+})

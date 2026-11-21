@@ -3317,8 +3317,11 @@
  "agentOpenApp": {
   "message": "Apri ContextFlow"
  },
- "agentDefaultList": {
-  "message": "il tuo elenco predefinito"
+ "agentStepReminderAddDefault": {
+  "message": "Aggiungere il promemoria «{0}» al tuo elenco predefinito"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Aggiungere il promemoria «{0}» al tuo elenco predefinito per il {1}"
  },
  "agentLaterLimit": {
   "message": "Ci sono già {0} attività in attesa, il massimo del tuo piano."

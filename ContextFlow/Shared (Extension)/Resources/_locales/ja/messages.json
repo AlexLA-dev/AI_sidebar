@@ -3317,8 +3317,11 @@
  "agentOpenApp": {
   "message": "ContextFlow を開く"
  },
- "agentDefaultList": {
-  "message": "デフォルトのリスト"
+ "agentStepReminderAddDefault": {
+  "message": "リマインダー「{0}」をデフォルトのリストに追加"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "リマインダー「{0}」をデフォルトのリストに追加（期限 {1}）"
  },
  "agentLaterLimit": {
   "message": "すでに{0}件のタスクが待っています。ご利用のプランではこれが上限です。"

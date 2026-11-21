@@ -275,6 +275,13 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (APPLE_TOOLS.has(call.tool)) {
       const kind = appleKind(call.tool)
       const access = here?.[kind] ?? "unavailable"
+      // Asked once already in this task and still not given («Готово» without allowing): not asked again in a loop.
+      const askedBefore = state.log.some((e) => e.call && APPLE_TOOLS.has(e.call.tool) && appleKind(e.call.tool) === kind && /asked to allow it/.test(e.result))
+      if (access === "none" && askedBefore) {
+        state.log.push({ call, result: `refused: ${kind} access still isn't given (the person can allow it in ContextFlow later)` })
+        state.lines.push(line(call, verdict, null, false))
+        continue
+      }
       if (access === "none") {
         state.status = "self"
         state.pending = { call, verdict: { cls: "self", reason: `access_${kind}` }, target: null }
@@ -340,7 +347,8 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     const did = a === "did" || a === "yes"
     const access = verdict.reason.startsWith("access_")
     state.log.push({ call, target: target ?? undefined, result: access ? (did ? "the person was asked to allow it in ContextFlow: call the tool again" : "the person didn't allow it now: go on without it") : did ? "the person did this step themselves" : "the person didn't do this step now (it's left for them)" })
-    state.lines.push(line(call, verdict, target, did))
+    // (Access given: no line of its own; the tool's own step, called again, writes one.)
+    if (!access) state.lines.push(line(call, verdict, target, did))
     if (did) state.confirmedHere = true
   } else {
     state.log.push({ call, target: target ?? undefined, result: "the person said no" })

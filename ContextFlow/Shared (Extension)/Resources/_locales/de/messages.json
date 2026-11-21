@@ -3317,8 +3317,11 @@
  "agentOpenApp": {
   "message": "ContextFlow öffnen"
  },
- "agentDefaultList": {
-  "message": "deine Standardliste"
+ "agentStepReminderAddDefault": {
+  "message": "Erinnerung „{0}“ zu deiner Standardliste hinzufügen"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Erinnerung „{0}“ zu deiner Standardliste hinzufügen, fällig {1}"
  },
  "agentLaterLimit": {
   "message": "Es warten schon {0} Aufgaben – mehr fasst dein Tarif nicht."
