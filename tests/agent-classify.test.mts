@@ -267,3 +267,12 @@ test("a driver that obeys the page: every attacker step is stopped or asks first
   // A tick is free by code: the server's check against the request is what catches it (agent-server tests).
   assert.equal(c({ tool: "click", id: "1" }), "free")
 })
+
+test("adding to the cart asks with its own reason (the card doesn't say it can't be undone)", () => {
+  for (const label of ["Add to cart", "В корзину", "In den Warenkorb", "カートに入れる", "加入購物車", "Thêm vào giỏ hàng"]) {
+    const it: MapItem = { id: "1", role: "button", label }
+    assert.equal(classify({ tool: "click", id: "1" }, ctx(page([it]))).reason, "cart", label)
+  }
+  const book: MapItem = { id: "1", role: "button", label: "Забронировать" }
+  assert.equal(classify({ tool: "click", id: "1" }, ctx(page([book]))).reason, "submit")
+})

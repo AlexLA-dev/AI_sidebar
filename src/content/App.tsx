@@ -5180,6 +5180,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         flipMode()
                         inputRef.current?.focus()
                       }}
+                      agent={historyMode ? null : {
+                        on: agentMode,
+                        locked: !hasPro(plan),
+                        onPick: () => {
+                          setPlusOpen(false)
+                          void sendBackground({ type: "useEvent", f: "quiet", a: "plus_pick", what: "agent" })
+                          if (!hasPro(plan)) {
+                            setAgentUpsell(true)
+                            return
+                          }
+                          if (noteMode) flipMode()
+                          setAgentMode(!agentMode)
+                          if (!agentMode) setGoogleMode(false)
+                          inputRef.current?.focus()
+                        }
+                      }}
                       shot={historyMode ? null : {
                         on: shotPref.on,
                         onChange: (on) => {
@@ -5227,7 +5243,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     >
                       <Icon.Plus />
                     </button>
-                    {!noteMode && !historyMode && (
+                    {!noteMode && !historyMode && !agentMode && (
                       <button
                         type="button"
                         class={`cf-mode ${googleMode ? "on" : ""}`}
@@ -5238,20 +5254,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <Icon.Search size={14} /> {t("actGoogle")}
                       </button>
                     )}
-                    {!noteMode && !historyMode && (
+                    {agentMode && !noteMode && !historyMode && (
                       <button
                         type="button"
-                        class={`cf-mode cf-agent-mode ${agentMode ? "on" : ""}`}
-                        aria-pressed={agentMode}
+                        class="cf-mode cf-agent-mode on"
+                        aria-pressed={true}
                         title={t("agentModeHint")}
-                        onClick={() => {
-                          if (!hasPro(plan)) {
-                            setAgentUpsell(true)
-                            return
-                          }
-                          setAgentMode(!agentMode)
-                          if (!agentMode) setGoogleMode(false)
-                        }}
+                        onClick={() => setAgentMode(false)}
                       >
                         <Icon.Cursor /> {t("agentMode")}
                       </button>

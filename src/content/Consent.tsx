@@ -24,7 +24,7 @@ const Chevron = (): VNode => (
 )
 
 /** Scrolls the nearest scrolling box around `card` so all of it shows (its top first when it's taller than the box). */
-function showIn(card: HTMLElement): void {
+export function showIn(card: HTMLElement): void {
   let box = card.parentElement
   while (box && !(box.scrollHeight > box.clientHeight && /(auto|scroll)/.test(getComputedStyle(box).overflowY))) box = box.parentElement
   if (!box) return

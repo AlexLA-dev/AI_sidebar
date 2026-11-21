@@ -34,6 +34,8 @@ export interface PlusProps {
   // Writing a note now (the send button saves it): Note is marked.
   noteMode: boolean
   onNote: () => void
+  // 2.7.1: «Сделать», the agent's mode (null where it isn't offered: "Ask your chats"); Pro's, marked for other plans.
+  agent?: { on: boolean; locked: boolean; onPick: () => void } | null
   // The snapshot's switch (null: no notes here, as in "Ask your chats").
   shot: { on: boolean; onChange: (on: boolean) => void } | null
   // Whole chat (null: not in this chat). `locked`: Pro's, off for this plan.
@@ -46,7 +48,7 @@ export interface PlusProps {
   onClose: () => void
 }
 
-export function PlusMenu({ noteMode, onNote, shot, whole, usage, after, spent, onClose }: PlusProps): VNode {
+export function PlusMenu({ noteMode, onNote, agent, shot, whole, usage, after, spent, onClose }: PlusProps): VNode {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const away = (_: Event, path: EventTarget[]) => {
@@ -72,6 +74,12 @@ export function PlusMenu({ noteMode, onNote, shot, whole, usage, after, spent, o
         <Icon.Pencil /> <span class="cf-plus-l">{t("selNote")}</span>
         {noteMode && <span class="cf-plus-mark"><Icon.Check /></span>}
       </button>
+      {agent && (
+        <button type="button" role="menuitemcheckbox" aria-checked={agent.on} class={`cf-plus-item ${agent.on ? "on" : ""}`} title={t("agentModeHint")} onClick={agent.onPick}>
+          <Icon.Cursor /> <span class="cf-plus-l">{t("agentMode")}{agent.locked && <span class="cf-pro-badge">Pro</span>}</span>
+          {agent.on && <span class="cf-plus-mark"><Icon.Check /></span>}
+        </button>
+      )}
       {shot && (
         <label class="cf-plus-item cf-plus-switch">
           <CameraIcon size={15} /> <span class="cf-plus-l">{t("shotSwitch")}</span>

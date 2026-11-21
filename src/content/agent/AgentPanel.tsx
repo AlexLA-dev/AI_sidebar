@@ -4,12 +4,13 @@
 // shared explanation, src/shared/amazon.ts). The strip is the indicator App Review's 2.5.14 asks for.
 
 import type { VNode } from "preact"
-import { useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 
 import type { Answer, AgentState } from "../../shared/agent/runner"
 import { AMAZON_TEXT } from "../../shared/amazon"
 import { t, type MessageKey } from "../../shared/i18n"
 import * as Icon from "../icons"
+import { showIn } from "../Consent"
 import { Markdown } from "../markdown"
 
 export type PanelAgent = Omit<AgentState, "log" | "data"> & { canUndo: boolean }
@@ -73,8 +74,13 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
   const waiting = state.status === "confirm" || state.status === "fill" || state.status === "self"
   const finished = !busy && !waiting
   const lines = state.lines.slice(-8)
+  // The card stays in view as the task goes on: its newest line, its question, its result.
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (ref.current) showIn(ref.current)
+  }, [state.status, state.lines.length])
   return (
-    <div class="cf-card cf-agent" role="region" aria-label={t("agentMode")} aria-live="polite">
+    <div ref={ref} class="cf-card cf-agent" role="region" aria-label={t("agentMode")} aria-live="polite">
       {(busy || waiting) && (
         <div class="cf-agent-strip">
           <span class={`cf-agent-dot ${busy ? "on" : ""}`} aria-hidden="true" />

@@ -21,6 +21,9 @@ export interface StepContext {
 // Mail, chat and social sites: «Send» there is a message in the person's name.
 const MESSAGING = /(^|\.)(mail\.google|gmail|outlook|live|yahoo|proton|icloud|mail\.ru|yandex|telegram|t\.me|web\.whatsapp|whatsapp|messenger|facebook|instagram|x|twitter|threads|linkedin|vk|ok|reddit|discord|slack|teams\.microsoft|tiktok|pinterest|quora|medium|substack|tumblr|mastodon|bsky|line|kakao|naver|weibo|wechat|zalo)\.[a-z.]+$/
 
+// Cart words in the 15 languages (the submit list's «add to cart» entries).
+const CART = /cart|basket|bag|trolley|корзин|кошик|warenkorb|panier|carrito|cesta|carrello|carrinho|sacola|sepet|السلة|カート|장바구니|购物车|購物車|giỏ/i
+
 const READ_ONLY = new Set(["read_page", "scroll", "extract", "ask_user", "done", "back"])
 const SELF_KINDS = new Set(["pay", "post", "rate", "account", "auth", "consent"])
 // An address or an e-mail address in text the model wants typed.
@@ -100,7 +103,8 @@ function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
     if (hit.kind === "consent" && isConsentDialog(map, item)) return verdict("self", "cookies_accept")
     if (SELF_KINDS.has(hit.kind)) return verdict("self", hit.kind)
     if (hit.kind === "reject") return isConsentDialog(map, item) ? verdict("free", "cookies_reject") : verdict("confirm", "decline")
-    if (hit.kind === "submit") return verdict("confirm", "submit")
+    // The cart: asked first, but undone on the site (the card doesn't say «can't be undone»).
+    if (hit.kind === "submit") return verdict("confirm", CART.test(hit.word) ? "cart" : "submit")
     if (hit.kind === "weak") return form?.fillable ? verdict("confirm", "submit") : verdict("free", "weak")
     if (hit.kind === "nav") return form?.secret ? verdict("self", "auth") : verdict("free", "nav")
   }
