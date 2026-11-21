@@ -155,8 +155,8 @@
   border-radius: 24px;
   display: flex; align-items: center; justify-content: center;
   color: #fff !important;
-  /* 2.7: the space's colour when there are spaces (--space-2, --space; spaces.css), else the blue it always had. */
-  background: linear-gradient(135deg, var(--space-2, #38bdf8) 0%, var(--space, #2563eb) 100%) !important;
+  /* 2.7.1, the owner: always our blue, in every space (a space shows as the halo below). */
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42), 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 3;
   touch-action: none !important;
@@ -173,6 +173,21 @@
 .cf-fab.glide { transition: transform 0.15s ease, opacity 0.2s ease, top 0.22s ease; }
 .cf-fab:hover { opacity: 1; transform: scale(1.05); }
 .cf-fab:active { transform: scale(0.94); }
+/* 2.7.1: the space as a halo around the blue circle, in its two colours (Spaces.tsx spaceVars, fabHalo): a thin white
+   gap that parts it from the circle on any page, a ring of the space's colour, a soft glow of its lighter one. Shadows
+   only: the circle's size, its tap target and its drag stay as they were. It glows up once as the space changes
+   (App.tsx haloFlash), never on its own after that. */
+.cf-fab[data-halo] {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92), 0 0 0 4.5px var(--space), 0 0 16px 5px var(--space-glow),
+    0 6px 18px rgba(0, 0, 0, 0.22);
+}
+.cf-fab[data-halo].flash { animation: cf-fab-halo 1.1s ease-out 1; }
+@keyframes cf-fab-halo {
+  0% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92), 0 0 0 4.5px var(--space), 0 0 16px 5px var(--space-glow), 0 6px 18px rgba(0, 0, 0, 0.22); }
+  35% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92), 0 0 0 6px var(--space), 0 0 30px 14px var(--space-glow), 0 6px 18px rgba(0, 0, 0, 0.22); }
+  100% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92), 0 0 0 4.5px var(--space), 0 0 16px 5px var(--space-glow), 0 6px 18px rgba(0, 0, 0, 0.22); }
+}
+@media (prefers-reduced-motion: reduce) { .cf-fab[data-halo].flash { animation: none; } }
 
 /* ------------------------------------------------- selection bubble */
 .cf-bubble {

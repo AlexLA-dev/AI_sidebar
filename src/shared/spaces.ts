@@ -31,6 +31,18 @@ export const SPACE_COLORS = {
 } as const
 
 export type SpaceColor = keyof typeof SPACE_COLORS
+
+/**
+ * 2.7.1, the owner: «вернем цвет на стандартный синий наш, а лучше сделаем ореол светящийся у него теми цветами, которые
+ * привязаны к пространству». The ✦ circle is always our blue; a space shows as a ring and a soft glow around it in the
+ * space's two colours (src/content/styles.css `.cf-fab[data-halo]`). The first, blue space has none unless this says so.
+ */
+export const HALO_ON_FIRST = false
+
+/** Whether the ✦ circle wears a halo for this space's colour (none outside spaces, none for blue by default). */
+export function fabHalo(color: SpaceColor | undefined): boolean {
+  return Boolean(color) && (HALO_ON_FIRST || color !== "blue")
+}
 export const COLOR_NAMES = Object.keys(SPACE_COLORS) as SpaceColor[]
 const FIRST_COLOR: SpaceColor = "blue"
 

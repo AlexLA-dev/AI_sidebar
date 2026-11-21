@@ -26,8 +26,10 @@ export function spaceGradient(color: SpaceColor): string {
 export function spaceVars(color: SpaceColor): Record<string, string> {
   const [light, base] = SPACE_COLORS[color]
   // 11 % of the colour over the panel's background (an 8-digit hex: color-mix() is Safari 16.2+).
-  return { "--space": base, "--space-2": light, "--space-soft": `${base}1c` }
+  // The halo's glow (2.7.1): its light colour at 55 %.
+  return { "--space": base, "--space-2": light, "--space-soft": `${base}1c`, "--space-glow": `${light}8c` }
 }
+
 
 /**
  * 2.7 (109), the owner: the page's own controls beside the ✦ circle (the selection bar, the translate pill, corrections,
