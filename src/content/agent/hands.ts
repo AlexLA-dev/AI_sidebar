@@ -222,6 +222,21 @@ export function pageData(doc: Document = document): string {
   return text.replace(/[ \t]*\n[ \t]*/g, "\n").replace(/\n{3,}/g, "\n\n").replace(/[  ]{2,}/g, " ").trim().slice(0, EXTRACT_MAX)
 }
 
+// The control a step is about, for the panel's ring on the page (the person sees what the agent does). Shown a moment
+// before the step, so the eye gets there first.
+type TargetListener = (el: Element | null) => void
+const targetListeners = new Set<TargetListener>()
+const SHOW_FIRST_MS = 350
+
+export function onTarget(f: TargetListener): () => void {
+  targetListeners.add(f)
+  return () => targetListeners.delete(f)
+}
+
+export function announceTarget(el: Element | null): void {
+  for (const f of targetListeners) f(el)
+}
+
 // What a page says after a step: its alerts, statuses and live regions, and the usual error boxes.
 const MESSAGES = "[role=alert], [role=status], [aria-live=assertive], [aria-live=polite], .error, .errors, .invalid-feedback, .field-error, .form-error, [aria-invalid=true] ~ *"
 
@@ -235,6 +250,11 @@ function messages(doc: Document): string[] {
 export async function act(call: ToolCall, doc: Document = document): Promise<StepResult> {
   const before = new Set(messages(doc))
   const target = call.id ? elementOf(call.id) : null
+  if (target && call.tool !== "extract" && call.tool !== "read_page" && targetListeners.size) {
+    reveal(target)
+    announceTarget(target)
+    await new Promise((r) => setTimeout(r, SHOW_FIRST_MS))
+  }
   current = watch(target?.ownerDocument ?? doc)
   const result = await actOnly(call, doc)
   current = null

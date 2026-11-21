@@ -182,6 +182,23 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
   )
 }
 
+/** The panel stepped aside while a step runs (the sheet): the strip at the bottom, its last step, and Stop. */
+export function AgentStrip({ state, onOpen, onStop }: { state: PanelAgent; onOpen: () => void; onStop: () => void }): VNode {
+  const last = state.lines[state.lines.length - 1]
+  return (
+    <div class="cf-agent-float" role="status" aria-live="polite">
+      <button type="button" class="cf-agent-float-main" onClick={onOpen}>
+        <span class="cf-agent-dot on" aria-hidden="true" />
+        <span class="cf-agent-float-text">
+          <b>{t("agentWorking", String(Math.max(1, state.step)))}</b>
+          {last?.text && <span dir="auto">{last.text}</span>}
+        </span>
+      </button>
+      <button type="button" class="cf-secondary cf-agent-stop" onClick={onStop}><Icon.Stop /> {t("stop")}</button>
+    </div>
+  )
+}
+
 /** A deferred task the notification brought: «Начать», and «На этом сайте начинать сразу». */
 export function AgentDeferredCard({ request, autoHere, onStart, onCancel, onAuto }: { request: string; autoHere: boolean; onStart: () => void; onCancel: () => void; onAuto: (on: boolean) => void }): VNode {
   return (

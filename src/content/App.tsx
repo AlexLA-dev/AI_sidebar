@@ -57,7 +57,9 @@ import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
 import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
-import { AgentDeferredCard, AgentLaterCard, AgentPanel, type PanelAgent } from "./agent/AgentPanel"
+import { AgentDeferredCard, AgentLaterCard, AgentPanel, AgentStrip, type PanelAgent } from "./agent/AgentPanel"
+import { onTarget } from "./agent/hands"
+import { elementOf } from "./agent/map"
 import { autoStartHere, setAutoStart, takeTaskMark } from "./agent/marks"
 import { active as agentActive, type Answer as AgentAnswer } from "../shared/agent/runner"
 import { WATCH_STORAGE } from "../shared/watch/types"
@@ -2613,6 +2615,47 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [popup, bus, show])
 
+  // The control the agent is about to use, ringed on the page (the director: «The person must see what the agent does»).
+  const [agentRing, setAgentRing] = useState<Range | null>(null)
+  useEffect(() => onTarget((el) => {
+    if (!el || el.ownerDocument !== document) return setAgentRing(null)
+    const range = document.createRange()
+    range.selectNode(el)
+    setAgentRing(range)
+  }), [])
+  // On the sheet (iPhone, iPad without a pointer) the panel would cover the page: while a step runs it steps aside to
+  // the strip, and it comes back when the agent needs the person (a card) or is done. A tap on the strip brings it back
+  // early; it stays then until the task's next stop.
+  const agentAway = useRef(false)
+  const agentPeek = useRef(false)
+  const agentStatus = agentTask?.status
+  useEffect(() => {
+    const running = agentStatus === "running"
+    if (!running) {
+      agentPeek.current = false
+      if (agentStatus !== "confirm" && agentStatus !== "fill" && agentStatus !== "self") setAgentRing(null)
+      // Waiting for the person: the control it's about, in view above the panel, ringed.
+      const id = agentTask?.pending?.call.id
+      const el = id ? elementOf(id) : null
+      if (el && el.ownerDocument === document) {
+        ;(el as HTMLElement).scrollIntoView?.({ block: "center" })
+        if (layout === "sheet") window.scrollBy(0, Math.round(window.innerHeight * 0.28))
+        const range = document.createRange()
+        range.selectNode(el)
+        setAgentRing(range)
+      }
+    }
+    if (layout !== "sheet") return
+    if (running && open && !agentPeek.current) {
+      agentAway.current = true
+      hide()
+    } else if (!running && agentAway.current && agentStatus) {
+      agentAway.current = false
+      show()
+    }
+  }, [agentStatus])
+
+
   // 2.6 (100): the App Store's "Write a Review", when tapped (the "…" menu's Other…, Settings' links). iPhone and iPad:
   // the App Store app's link, followed in the tap itself (Safari asks "Open in App Store?" only then); a Mac: the Mac
   // App Store, opened by the app side (a web page would open in Safari). Chrome: the App Store's page, as before.
@@ -4286,6 +4329,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
       {/* 2.6 (92), the owner: the selection the panel or its pop-up is about is ringed on the page. */}
       {glowRange && <SelectionGlow range={glowRange} />}
+      {agentRing && agentTask && <SelectionGlow range={agentRing} />}
+      {agentTask?.status === "running" && !open && (
+        <AgentStrip
+          state={agentTask}
+          onOpen={() => {
+            agentPeek.current = true
+            show()
+          }}
+          onStop={() => void answerAgent("stop")}
+        />
+      )}
 
       {open && (
         <section

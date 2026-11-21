@@ -211,3 +211,43 @@ test("a card number is never typed, whatever the model says", async () => {
   assert.equal(body.verdict.cls, "blocked")
   assert.equal(body.verdict.reason, "secret_text")
 })
+
+test("a task whose first or second step fails upstream is given back; a later failure isn't", async () => {
+  const realFetch = globalThis.fetch
+  let fail = false
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
+    if (fail && url.startsWith("https://api.anthropic.com")) return new Response(JSON.stringify({ type: "error", error: { type: "api_error", message: "down" } }), { status: 500, headers: { "Content-Type": "application/json" } })
+    return realFetch(input, init)
+  }) as typeof fetch
+  try {
+    const first = await call({ task: task() })
+    assert.equal(counters.get("agent:tx:2000000123"), 1)
+    fail = true
+    const second = await call({ task: task({ step: 1, token: first.body.token }) })
+    assert.equal(second.res.status, 502)
+    assert.equal(counters.get("agent:tx:2000000123"), 0, "the day's task is back")
+    fail = false
+    const t2 = { id: "3f2e3d4c-5b6a-4987-8a1b-2c3d4e5f6a7b" }
+    const a = await call({ task: task(t2) })
+    fail = true
+    await call({ task: task({ ...t2, step: 2, token: a.body.token }) })
+    assert.equal(counters.get("agent:tx:2000000123"), 1, "a third step's failure keeps the task counted")
+  } finally {
+    globalThis.fetch = realFetch
+  }
+})
+
+test("the day's tasks are the subscription's, the same on every device of it (as answers are)", async () => {
+  const other = "9d7b3f2e-1c4a-4e9b-9f0a-2b6c7d8e9f02"
+  await call({ task: task() })
+  const pending: Promise<unknown>[] = []
+  const req = new Request("https://aisidebar.netlify.app/api/v2/act", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ installId: other, client: { version: "2.7.1", platform: "macos", locale: "en-US", build: "120" }, entitlement: PRO, map: MAP, log: [], task: task({ id: "4f2e3d4c-5b6a-4987-8a1b-2c3d4e5f6a7b" }) })
+  })
+  const res = await handler(req, { ip: "203.0.113.8", waitUntil: (p: Promise<unknown>) => pending.push(p) })
+  await Promise.all(pending)
+  assert.equal((await res.json()).left, 3)
+  assert.equal(counters.get("agent:tx:2000000123"), 2)
+})

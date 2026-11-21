@@ -105,9 +105,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   } catch (err) {
     const reason = err instanceof ActError ? err.reason : "error"
     console.error("[cf] act failed:", err instanceof Error ? err.message : err)
+    // A task whose first two steps failed on our side (the model or its provider) isn't charged: the day's task comes
+    // back (the server knows the failure itself; a device can't claim it).
+    const taskBack: Counter[] = step === 0 ? counters : step === 1 ? [{ subject: `agent:tx:${otid}`, period: "day", limit: agentDaily(access.plan, a) }] : []
     context.waitUntil(Promise.all([
-      // A task that never got its first step isn't charged.
-      step === 0 ? refund(counters).catch(() => undefined) : Promise.resolve(),
+      taskBack.length ? refund(taskBack).catch(() => undefined) : Promise.resolve(),
       logEvent("upstream_error", installId, { message: err instanceof Error ? err.message.slice(0, 300) : "unknown", reason, mode: "agent", provider: "anthropic", platform, version })
     ]))
     return json({ code: reason === "rate_limit" ? "BUSY" : "UPSTREAM" }, reason === "rate_limit" ? 503 : 502)
