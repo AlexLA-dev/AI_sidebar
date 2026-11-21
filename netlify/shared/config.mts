@@ -378,6 +378,8 @@ export const config = {
     model: (env("AGENT_MODEL") ?? "claude-haiku-5-5").trim(),
     strongModel: (env("AGENT_STRONG_MODEL") ?? "claude-sonnet-5-5").trim(),
     checkModel: (env("AGENT_CHECK_MODEL") ?? "claude-haiku-5-5").trim(),
+    // The task's plan before its first step (the plan card): one call.
+    planModel: (env("AGENT_PLAN_MODEL") ?? "claude-haiku-5-5").trim(),
     strongSteps: int("AGENT_STRONG_STEPS", 8),
     effort: (env("AGENT_EFFORT") ?? "low").trim() as "low" | "medium" | "high",
     proDaily: int("AGENT_PRO_DAILY", AGENT_DEFAULTS.proDaily),

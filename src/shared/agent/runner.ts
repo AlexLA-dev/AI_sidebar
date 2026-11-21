@@ -11,9 +11,10 @@ import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, type SitePolicy } from "./sites.ts"
+import { buildPlan, checkPlan, covered, personWords, planLine, planNeedsPerson, priceChanged, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
-export type AgentStatus = "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
+export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
 
 export interface FillLine {
   entryId: string
@@ -31,6 +32,8 @@ export interface AgentLine {
   cls: StepClass
   ok: boolean
   target?: string
+  // Done without a question: the plan the person approved allowed it.
+  byPlan?: boolean
 }
 
 export interface AgentState {
@@ -46,7 +49,9 @@ export interface AgentState {
   status: AgentStatus
   log: LogEntry[]
   lines: AgentLine[]
-  pending?: { call: ToolCall; verdict: StepVerdict; target: string | null; offRequest?: string; fill?: FillLine[] }
+  pending?: { call: ToolCall; verdict: StepVerdict; target: string | null; offRequest?: string; fill?: FillLine[]; price?: string }
+  // The plan card (status "plan"), then the approved plan the steps go by (2.7.1, the owner's autonomy note).
+  plan?: TaskPlan
   summary?: string
   error?: string
   // What «Отменить» puts back, newest last.
@@ -69,6 +74,8 @@ export interface ActReply {
   token?: string
   left?: number
   strong?: boolean
+  // The plan's makings (task.phase "plan"): the device classes what was foreseen on its own map.
+  plan?: unknown
 }
 
 export interface RunnerIO {
@@ -89,6 +96,8 @@ export interface RunnerIO {
   // "unavailable"), and a call of one of their tools, done there (AgentApple.swift).
   device?: () => Promise<{ reminders: string; calendar: string }>
   apple?: (call: ToolCall) => Promise<StepResult>
+  // The plan card before the first step (off: every «Сделать?» asks, as before 2.7.1's autonomy).
+  planning?: boolean
 }
 
 /** Which of the two a Calendar and Reminders tool needs. */
@@ -126,8 +135,8 @@ export function stricter(server: StepVerdict, device: StepVerdict): StepVerdict 
   return STRICT[device.cls] > STRICT[server.cls] ? device : server
 }
 
-function line(call: ToolCall, verdict: StepVerdict, target: string | null, ok: boolean, why?: string): AgentLine {
-  return { text: why ?? call.why ?? "", tool: call.tool, cls: verdict.cls, ok, ...(target ? { target } : {}) }
+function line(call: ToolCall, verdict: StepVerdict, target: string | null, ok: boolean, why?: string, byPlan?: boolean): AgentLine {
+  return { text: why ?? call.why ?? "", tool: call.tool, cls: verdict.cls, ok, ...(target ? { target } : {}), ...(byPlan ? { byPlan: true } : {}) }
 }
 
 function noteOf(r: StepResult | null): string {
@@ -164,7 +173,7 @@ export function fillLines(call: ToolCall, item: MapItem | null, entries: FormEnt
 }
 
 /** Does a step on the page and writes it down. A fill types its value in; the log keeps only the key. */
-async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string): Promise<void> {
+async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string, byPlan?: boolean): Promise<void> {
   const doing: ToolCall = call.tool === "fill" ? { ...call, text: value ?? "" } : call
   // Calendar and Reminders: on the device, not on the page (what they read goes to the next step, like extract).
   if (APPLE_TOOLS.has(call.tool)) {
@@ -172,7 +181,7 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
     const result = r ?? { ok: false, note: "Calendar and Reminders aren't there on this device" }
     if (result.data) state.data = result.data
     state.log.push({ call, result: noteOf(result) })
-    state.lines.push(line(call, verdict, target, result.ok))
+    state.lines.push(line(call, verdict, target, result.ok, undefined, byPlan))
     return
   }
   let result = await io.act(doing)
@@ -186,8 +195,39 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   if (result.data) state.data = result.data
   // A fill's log line has its key, never its value (the log goes to the server with the next step).
   const logged: ToolCall = call.tool === "fill" ? { tool: "fill", id: call.id, key: call.key, why: call.why } : call
-  state.log.push({ call: logged, target: target ?? undefined, result: noteOf(result) })
-  state.lines.push(line(call, verdict, target, result.ok))
+  state.log.push({ call: logged, target: target ?? undefined, result: `${noteOf(result)}${byPlan ? " (allowed in the plan)" : ""}` })
+  state.lines.push(line(call, verdict, target, result.ok, undefined, byPlan))
+}
+
+/** The task's request as the server and the checks hear it: the person's words with the plan's answers. */
+function words(state: AgentState): string {
+  return personWords(state.request, state.plan)
+}
+
+/** The plan step (step 0): the plan card when it needs the person, else straight on with it approved. */
+async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: string[], here: { reminders: string; calendar: string } | null): Promise<"card" | "go" | "stop"> {
+  const reply = await io.ask({
+    task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}) },
+    map, log: [], keys
+  })
+  if (!reply.ok) {
+    state.status = "error"
+    state.error = reply.code ?? "UPSTREAM"
+    return "stop"
+  }
+  state.token = reply.token ?? null
+  if (reply.left !== undefined) state.left = reply.left
+  state.step = 1
+  // A server without plans answered with a step: none, every «Сделать?» asks (it's asked again as step 1).
+  const plan = reply.plan ? buildPlan(checkPlan(reply.plan), { map, startHost: state.startHost, request: state.request, confirmedHere: false, policy: io.policy }) : null
+  if (!plan) return "go"
+  state.plan = plan
+  if (planNeedsPerson(plan)) {
+    state.status = "plan"
+    return "card"
+  }
+  plan.approved = true
+  return "go"
 }
 
 /** Runs the task until it needs the person, ends, or fails. Saves the state at every stop. */
@@ -212,8 +252,19 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const entries = await io.entries().catch(() => [] as FormEntry[])
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
+    if (state.step === 0 && io.planning && !state.plan) {
+      const p = await planStep(state, io, map, keys, here)
+      if (await io.isStopped?.()) {
+        state.status = "stopped"
+        break
+      }
+      if (p !== "go") break
+      await io.save(state)
+      continue
+    }
+    const plan = planLine(state.plan)
     const reply = await io.ask({
-      task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: state.confirmedHere, token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}) },
+      task: { id: state.id, request: words(state), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: state.confirmedHere, token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}) },
       map, log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
@@ -252,8 +303,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     // The device's own check, on its own map: never milder than the server's.
-    const device = classify(call, { map, startHost: state.startHost, request: state.request, confirmedHere: state.confirmedHere, policy: io.policy })
+    const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: state.confirmedHere, policy: io.policy })
     const verdict = stricter(reply.verdict, device)
+    // A step the approved plan allows goes without a question (a price changed since the plan, or a step the check
+    // found off the request, is never covered: those ask as before).
+    const perm = verdict.cls === "confirm" || verdict.cls === "self" ? covered(state.plan, call, verdict, map, words(state), reply.offRequest) : null
     if (verdict.cls === "blocked") {
       if (verdict.reason.startsWith("site_")) {
         state.status = "blocked"
@@ -263,6 +317,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.log.push({ call, target: target ?? undefined, result: `refused: ${verdict.reason}` })
       state.lines.push(line(call, verdict, target, false))
       state.refused = `that step was refused (${verdict.reason})`
+      continue
+    }
+    if (verdict.cls === "self" && perm) {
+      state.confirmedHere = true
+      await perform(state, io, call, verdict, target, undefined, true)
+      await io.save(state)
       continue
     }
     if (verdict.cls === "self") {
@@ -293,9 +353,26 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         continue
       }
     }
-    if (verdict.cls === "confirm") {
+    if (verdict.cls === "confirm" && perm) {
+      state.confirmedHere = true
       if (call.tool === "fill") {
         const item = map.items.find((i) => i.id === call.id) ?? null
+        // Only the details the plan named (the same form's others, with their own keys, when they're named too).
+        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => perm.keys?.includes(l.key))
+        if (!fill.length) {
+          state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "failed: that detail doesn't fit this field" })
+          continue
+        }
+        for (const l of fill) await perform(state, io, { tool: "fill", id: l.id, key: l.key, why: l.id === call.id ? call.why : "" }, verdict, l.id === call.id ? target : `field "${l.label}"`, l.value, true)
+      } else await perform(state, io, call, verdict, target, undefined, true)
+      await io.save(state)
+      continue
+    }
+    if (verdict.cls === "confirm") {
+      // The plan allowed this button, but the price on the page isn't the one it saw: the card says so.
+      const item = map.items.find((i) => i.id === call.id) ?? null
+      const price = state.plan?.approved && (verdict.reason === "cart" || verdict.reason === "submit") ? priceChanged(state.plan, map, item?.label ?? "") : null
+      if (call.tool === "fill") {
         const fill = fillLines(call, item, entries, map.lang || state.lang, map)
         if (!fill.length) {
           state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "failed: that detail doesn't fit this field" })
@@ -305,7 +382,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.pending = { call, verdict, target, fill, ...(reply.offRequest ? { offRequest: reply.offRequest } : {}) }
       } else {
         state.status = "confirm"
-        state.pending = { call, verdict, target, ...(reply.offRequest ? { offRequest: reply.offRequest } : {}) }
+        state.pending = { call, verdict, target, ...(reply.offRequest ? { offRequest: reply.offRequest } : {}), ...(price ? { price } : {}) }
       }
       break
     }
@@ -314,6 +391,25 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
   }
   await io.save(state)
   return state
+}
+
+export interface PlanApproval {
+  // The questions' answers, in order ("" for one left blank).
+  answers: string[]
+  // The permissions the person unticked.
+  off: string[]
+}
+
+/** «Начать» on the plan card: the answers and the ticks kept, then the task goes on alone. */
+export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApproval): Promise<AgentState> {
+  if (state.status !== "plan" || !state.plan) return state
+  const plan = state.plan
+  plan.answers = plan.questions.map((q, i) => ({ q: q.q, a: (a.answers[i] ?? "").slice(0, 200) }))
+  plan.perms = plan.perms.map((p) => ({ ...p, on: !a.off.includes(p.id) }))
+  plan.approved = true
+  state.status = "running"
+  await io.save(state)
+  return drive(state, io)
 }
 
 export type Answer = "yes" | "no" | "did" | "notnow" | "stop"
@@ -360,7 +456,7 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
 
 /** Whether the task is waiting for the person or still working (the panel's strip shows then). */
 export function active(state: AgentState | null | undefined): boolean {
-  return !!state && (state.status === "running" || state.status === "confirm" || state.status === "fill" || state.status === "self")
+  return !!state && (state.status === "plan" || state.status === "running" || state.status === "confirm" || state.status === "fill" || state.status === "self")
 }
 
 export { sameSite }

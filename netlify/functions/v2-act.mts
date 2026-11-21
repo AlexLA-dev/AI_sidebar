@@ -3,7 +3,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto"
 import type { Config, Context } from "@netlify/functions"
 
 import { clientBuild } from "../shared/answer.mts"
-import { ActError, cost, MAX_DATA_CHARS, MAX_REQUEST_CHARS, needsStrong, nextStep, sanitizeLog, sanitizeMap, type Usage } from "../shared/act.mts"
+import { ActError, cost, MAX_DATA_CHARS, MAX_REQUEST_CHARS, needsStrong, nextStep, planTask, sanitizeLog, sanitizeMap, type Usage } from "../shared/act.mts"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
@@ -16,9 +16,11 @@ import { hostOf } from "../../src/shared/agent/sites.ts"
  * person's request, the page map and the log; the answer is one checked tool call and its class. Nothing sent here is
  * kept, the logs get counts (no addresses, no page words).
  *
- * Body: { installId, client, entitlement, task: { id, request, lang, startHost, step, confirmedHere, token? },
+ * Body: { installId, client, entitlement, task: { id, request, lang, startHost, step, confirmedHere, token?, phase?, plan? },
  *         map, log, refused?, data? (what the last extract read), keys? (saved details' names, never values) }
  * → { ok, call, verdict: {cls, reason}, target, offRequest?, token (step 0), left (tasks left today), stepsLeft }
+ * task.phase "plan" (step 0 only): → { ok, plan: { steps, questions, risky, prices }, token, left } — the plan card's
+ * makings (the device classes the foreseen steps itself). task.plan: the approved plan's lines, for the model and the check.
  * Errors: {code} with BAD_REQUEST (400), UNAVAILABLE (400: an old build), OFF (503: AGENT=off), PRO_ONLY (402),
  * AGENT_LIMIT (402: the day's tasks), STEP_LIMIT (409: the task's steps), TOKEN (403), BUSY (503), UPSTREAM (502).
  */
@@ -98,11 +100,25 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const named = measuring && typeof body.model === "string" && (body.model === a.model || body.model === a.strongModel) ? body.model : null
   const model = named ?? (strong ? a.strongModel : a.model)
   const started = Date.now()
+  const lang = requestLanguage(request, clip(task.lang, 12) || "en")
+  const planning = task.phase === "plan" && step === 0
+  const input = { request, lang, map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device), plan: clip(task.plan, 2000) || undefined }
   let out
   try {
-    out = await nextStep({ request, lang: requestLanguage(request, clip(task.lang, 12) || "en"), map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device) }, {
-      model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal
-    })
+    if (planning) {
+      const p = await planTask(input, { model: named ?? a.planModel, signal: req.signal })
+      const spent = p.usage.reduce((n, u: Usage) => n + cost(u), 0)
+      context.waitUntil(Promise.all([
+        logEvent("agent_step", installId, {
+          plan: access.plan, step, tool: "plan", cls: "free", reason: "plan", strong: false, retries: 0, off_request: false, items: map.items.length,
+          questions: p.plan.questions.length, risky: p.plan.risky.length, prompt_tokens: p.usage.reduce((n, u) => n + u.input + u.cacheRead + u.cacheWrite, 0),
+          completion_tokens: p.usage.reduce((n, u) => n + u.output, 0), cost_usd: Math.round(spent * 1e6) / 1e6, ms: Date.now() - started, platform, version, build
+        }),
+        touchInstall(installId, platform, version, locale, 0).catch(() => undefined)
+      ]))
+      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, a.maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6 } : {}) })
+    }
+    out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal })
   } catch (err) {
     const reason = err instanceof ActError ? err.reason : "error"
     console.error("[cf] act failed:", err instanceof Error ? err.message : err)
