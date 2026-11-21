@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "As notificações do ContextFlow estão desativadas. Ative em Ajustes → Notificações → ContextFlow."
  },
+ "agentLaterNotifyWhy": {
+  "message": "Ative as notificações para eu poder lembrar você desta tarefa."
+ },
+ "agentLaterPast": {
+  "message": "Esse horário já passou. Escolha um mais tarde."
+ },
  "agentLaterLimit": {
   "message": "Já há {0} tarefas esperando, o máximo do seu plano."
  },

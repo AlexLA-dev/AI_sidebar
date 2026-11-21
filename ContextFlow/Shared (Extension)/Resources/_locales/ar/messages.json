@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "إشعارات ContextFlow متوقفة. شغّلها من الإعدادات ← الإشعارات ← ContextFlow."
  },
+ "agentLaterNotifyWhy": {
+  "message": "شغّل الإشعارات حتى أذكّرك بهذه المهمة."
+ },
+ "agentLaterPast": {
+  "message": "هذا الوقت مضى. اختر وقتًا لاحقًا."
+ },
  "agentLaterLimit": {
   "message": "هناك {0} مهام تنتظر بالفعل، وهذا أقصى ما تسمح به خطتك."
  },

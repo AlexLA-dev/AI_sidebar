@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "ContextFlow 알림이 꺼져 있어요. 설정 → 알림 → ContextFlow에서 켜세요."
  },
+ "agentLaterNotifyWhy": {
+  "message": "이 작업을 알려 드릴 수 있도록 알림을 켜 주세요."
+ },
+ "agentLaterPast": {
+  "message": "이미 지난 시간이에요. 더 나중 시간을 고르세요."
+ },
  "agentLaterLimit": {
   "message": "이미 작업 {0}개가 기다리고 있어요. 지금 요금제로는 이게 최대예요."
  },

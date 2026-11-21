@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "Сповіщення для ContextFlow вимкнено. Увімкніть їх: Параметри → Сповіщення → ContextFlow."
  },
+ "agentLaterNotifyWhy": {
+  "message": "Увімкніть сповіщення, щоб я міг нагадати про цю справу."
+ },
+ "agentLaterPast": {
+  "message": "Цей час уже минув. Виберіть пізніший."
+ },
  "agentLaterLimit": {
   "message": "Уже чекають {0} справ — це межа вашого тарифу."
  },

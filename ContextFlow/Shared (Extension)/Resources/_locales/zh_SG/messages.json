@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
  },
+ "agentLaterNotifyWhy": {
+  "message": "请打开通知，这样我才能提醒你这件事。"
+ },
+ "agentLaterPast": {
+  "message": "这个时间已经过了，请选一个更晚的时间。"
+ },
  "agentLaterLimit": {
   "message": "已有 {0} 个任务在等待，这是你的套餐上限。"
  },

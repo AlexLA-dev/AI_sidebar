@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。"
  },
+ "agentLaterNotifyWhy": {
+  "message": "このタスクをお知らせできるよう、通知をオンにしてください。"
+ },
+ "agentLaterPast": {
+  "message": "その時刻はもう過ぎています。もっと後の時刻を選んでください。"
+ },
  "agentLaterLimit": {
   "message": "すでに{0}件のタスクが待っています。ご利用のプランではこれが上限です。"
  },

@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni → Notifiche → ContextFlow."
  },
+ "agentLaterNotifyWhy": {
+  "message": "Attiva le notifiche, così posso ricordarti questa attività."
+ },
+ "agentLaterPast": {
+  "message": "Quell'ora è già passata. Scegline una più tardi."
+ },
  "agentLaterLimit": {
   "message": "Ci sono già {0} attività in attesa, il massimo del tuo piano."
  },

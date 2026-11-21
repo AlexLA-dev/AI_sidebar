@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow."
  },
+ "agentLaterNotifyWhy": {
+  "message": "Turn on notifications so I can remind you of this task."
+ },
+ "agentLaterPast": {
+  "message": "That time has passed. Pick a later one."
+ },
  "agentLaterLimit": {
   "message": "{0} tasks are already waiting, the most your plan keeps."
  },

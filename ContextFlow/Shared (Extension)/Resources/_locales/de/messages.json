@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow."
  },
+ "agentLaterNotifyWhy": {
+  "message": "Schalte Mitteilungen ein, damit ich dich an diese Aufgabe erinnern kann."
+ },
+ "agentLaterPast": {
+  "message": "Diese Zeit ist schon vorbei. Wähle eine spätere."
+ },
  "agentLaterLimit": {
   "message": "Es warten schon {0} Aufgaben – mehr fasst dein Tarif nicht."
  },

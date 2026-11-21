@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "ContextFlow 的通知已關閉。請在「設定 → 通知 → ContextFlow」中開啟。"
  },
+ "agentLaterNotifyWhy": {
+  "message": "請開啟通知，這樣我才能提醒你這件事。"
+ },
+ "agentLaterPast": {
+  "message": "這個時間已經過了，請選一個更晚的時間。"
+ },
  "agentLaterLimit": {
   "message": "已有 {0} 個任務在等待，這是你的方案上限。"
  },

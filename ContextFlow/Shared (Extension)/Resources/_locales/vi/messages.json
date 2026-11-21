@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "Thông báo của ContextFlow đang tắt. Hãy bật trong Cài đặt → Thông báo → ContextFlow."
  },
+ "agentLaterNotifyWhy": {
+  "message": "Hãy bật thông báo để tôi nhắc bạn việc này."
+ },
+ "agentLaterPast": {
+  "message": "Thời điểm đó đã qua. Hãy chọn giờ muộn hơn."
+ },
  "agentLaterLimit": {
   "message": "Đã có {0} việc đang chờ, mức tối đa của gói bạn dùng."
  },

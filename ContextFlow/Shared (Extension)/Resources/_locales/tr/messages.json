@@ -3284,6 +3284,12 @@
  "agentLaterNotifOff": {
   "message": "ContextFlow için bildirimler kapalı. Ayarlar → Bildirimler → ContextFlow bölümünden açın."
  },
+ "agentLaterNotifyWhy": {
+  "message": "Bu görevi size hatırlatabilmem için bildirimleri açın."
+ },
+ "agentLaterPast": {
+  "message": "Bu saat geçti. Daha sonraki bir saat seçin."
+ },
  "agentLaterLimit": {
   "message": "Zaten {0} görev bekliyor; planınızın izin verdiği en fazla sayı bu."
  },
