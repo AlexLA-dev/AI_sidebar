@@ -278,8 +278,9 @@ test("2.7.1: the ✦ circle is always our blue; its space glows around it as a h
   assert.doesNotMatch(halo, /rgba\(255, 255, 255/)
   assert.match(spacesTsx, /const \[h1, h2, h3\] = HALO_ALPHAS\[HALO_STRENGTH\]/)
   assert.match(spacesTsx, /"--halo-1": `\$\{base\}\$\{h1\}`, "--halo-2": `\$\{base\}\$\{h2\}`, "--halo-3": `\$\{light\}\$\{h3\}`/)
-  // The owner picked the strong glow on #235 («Сделай сильное свечение»).
-  assert.equal(HALO_STRENGTH, 3)
+  // The owner picked the strong glow on #235 («Сделай сильное свечение»), then medium after 113 on his device («Сейчас
+  // свечение слишком яркое. Давай попробуем среднее»).
+  assert.equal(HALO_STRENGTH, 2)
   for (const k of [1, 2, 3] as const) assert.ok(HALO_ALPHAS[k].every((a) => /^[0-9a-f]{2}$/.test(a)))
   // Shadows only: no size, margin, padding, outline, inset or transform, so the tap target and the drag stay.
   assert.doesNotMatch(halo, /width|height|margin|padding|outline|inset|transform/)

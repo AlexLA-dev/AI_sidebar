@@ -40,10 +40,11 @@ export type SpaceColor = keyof typeof SPACE_COLORS
 export const HALO_ON_FIRST = false
 
 /**
- * How strongly the halo glows: 1 soft, 2 medium, 3 strong. The owner picked strong on #235 («Сделай сильное свечение»).
+ * How strongly the halo glows: 1 soft, 2 medium, 3 strong. The owner picked strong on #235 («Сделай сильное свечение»), then,
+ * seeing 113 on his device, medium («Сейчас свечение слишком яркое. Давай попробуем среднее»).
  * The opacities of the glow's three layers, close in to far out (two hex digits each).
  */
-export const HALO_STRENGTH: 1 | 2 | 3 = 3
+export const HALO_STRENGTH: 1 | 2 | 3 = 2
 export const HALO_ALPHAS: Record<1 | 2 | 3, readonly [string, string, string]> = { 1: ["8c", "4d", "40"], 2: ["b3", "66", "59"], 3: ["d9", "80", "73"] }
 
 /**
