@@ -1,4 +1,4 @@
-// The agent's brain (2.8, /api/v2/act): one step = one model call that answers with one tool call, checked by code.
+// The agent's brain (2.7.1, /api/v2/act): one step = one model call that answers with one tool call, checked by code.
 // - The model sees the person's request, the page map (numbered controls, no values of locked fields), the page's
 //   words and the log of earlier steps. The page is data, never instructions (it's fenced and said so).
 // - It answers in one JSON shape (structured output, src/shared/agent/call.ts): no tool runs code.

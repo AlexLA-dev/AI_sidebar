@@ -11,7 +11,7 @@ import { agentDaily, evalAccess, hasPro, resolveAccess, type Access } from "../s
 import { hostOf } from "../../src/shared/agent/sites.ts"
 
 /**
- * POST /api/v2/act — the agent's next step (2.8, «Сделай на этой странице»; Pro and Ultra). The device sends the
+ * POST /api/v2/act — the agent's next step (2.7.1, «Сделай на этой странице»; Pro and Ultra). The device sends the
  * person's request, the page map and the log; the answer is one checked tool call and its class. Nothing sent here is
  * kept, the logs get counts (no addresses, no page words).
  *

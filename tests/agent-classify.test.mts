@@ -1,4 +1,4 @@
-// The agent's step classes (2.8): code, not the model, decides what needs «Сделать?» and what only the person does,
+// The agent's step classes (2.7.1): code, not the model, decides what needs «Сделать?» and what only the person does,
 // in all 15 languages of the panel.
 import assert from "node:assert/strict"
 import { test } from "node:test"

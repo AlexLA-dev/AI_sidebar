@@ -1,4 +1,4 @@
-// The agent (2.8, «Сделай на этой странице»): what the page map, the model's calls and a step's result look like.
+// The agent (2.7.1, «Сделай на этой странице»): what the page map, the model's calls and a step's result look like.
 // Shared by the content script (it builds the map and acts), the background (it runs the task) and the server
 // (/api/v2/act asks the model and checks its call). Plain data only, so the tests load it as it is.
 

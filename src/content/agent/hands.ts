@@ -1,4 +1,4 @@
-// The agent's hands (2.8): one checked call (shared/agent/call.ts) done on the page, then a wait for the page to
+// The agent's hands (2.7.1): one checked call (shared/agent/call.ts) done on the page, then a wait for the page to
 // settle. Everything is a plain DOM event: Safari gives extensions no trusted clicks or keys (isTrusted is false),
 // so a widget that insists on a real finger gets the person instead ("this step is yours").
 // - Fields are typed into without focus (the iPhone keyboard would come up and move the page): the value goes in

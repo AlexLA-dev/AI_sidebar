@@ -1,4 +1,4 @@
-// The agent's page map (2.8): the controls a person could use on the page now, numbered, with their role, name,
+// The agent's page map (2.7.1): the controls a person could use on the page now, numbered, with their role, name,
 // value and state, plus the words around them. The model acts by these numbers; it never sees the HTML or a picture.
 // - Open shadow roots and same-origin frames are walked (sites' components, editors in frames); our own panel never.
 // - Hidden things are left out (display:none, visibility, aria-hidden, inert, zero size), except a checkbox or a

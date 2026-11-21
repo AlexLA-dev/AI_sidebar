@@ -368,9 +368,9 @@ export const config = {
     summaryDaily: int("COLLECT_SUMMARY_DAILY", 40),
     globalDaily: int("COLLECT_GLOBAL_DAILY", 20_000)
   },
-  // The agent (2.8, /api/v2/act): Pro and Ultra only, one model call per step, every call checked by code
-  // (src/shared/agent). AGENT=off switches it off (the panel gets OFF). The limits are the director's proposal until the
-  // owner decides (src/shared/plan.ts AGENT_DEFAULTS); Amazon is blocked unless AGENT_BLOCK_AMAZON=off.
+  // The agent (2.7.1, /api/v2/act): Pro and Ultra only, one model call per step, every call checked by code
+  // (src/shared/agent). AGENT=off switches it off (the panel gets OFF). The limits: the owner's (src/shared/plan.ts
+  // AGENT_DEFAULTS); Amazon is blocked unless AGENT_BLOCK_AMAZON=off.
   agent: {
     enabled: (env("AGENT") ?? "on").trim() !== "off",
     // The driver: Claude Haiku 5.5; a step it failed twice in a row goes to the stronger model (at most `strongSteps`

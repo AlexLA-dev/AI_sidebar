@@ -1,4 +1,4 @@
-// /api/v2/act (2.8): Pro only, a task counted once on its first step with a token for the rest, the day's allowance,
+// /api/v2/act (2.7.1): Pro only, a task counted once on its first step with a token for the rest, the day's allowance,
 // the model's call checked by code, and a step that changes something checked against the request.
 import assert from "node:assert/strict"
 import { before, beforeEach, test } from "node:test"
@@ -92,7 +92,7 @@ async function call(body: Record<string, unknown>, entitlement: string | null = 
   const pending: Promise<unknown>[] = []
   const req = new Request("https://aisidebar.netlify.app/api/v2/act", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ installId: INSTALL, client: { version: "2.8", platform: "ios", locale: "en-US", build: "120" }, entitlement, map: MAP, log: [], ...body })
+    body: JSON.stringify({ installId: INSTALL, client: { version: "2.7.1", platform: "ios", locale: "en-US", build: "120" }, entitlement, map: MAP, log: [], ...body })
   })
   const res = await handler(req, { ip: "203.0.113.7", waitUntil: (p: Promise<unknown>) => pending.push(p) })
   await Promise.all(pending)

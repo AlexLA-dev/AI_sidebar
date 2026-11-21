@@ -74,12 +74,12 @@ export const SIMILAR_LIGHT_WEEKLY = 5
 export const SIMILAR_PRO_ANSWERS = 10
 
 /**
- * The agent (2.8, «Сделай на этой странице»): Pro and Ultra only. Tasks a day per subscription, and deferred tasks
- * waiting at once on a device. The director's proposal (design.md), not decided by the owner yet: the server's
- * defaults (env AGENT_PRO_DAILY, AGENT_ULTRA_DAILY, AGENT_DEFERRED_PRO, AGENT_DEFERRED_ULTRA override them there, and
- * the status then says so), and what the panel says before a status came.
+ * The agent (2.7.1, «Сделай на этой странице»): Pro and Ultra only. Tasks a day per subscription, and deferred tasks
+ * waiting at once on a device (the owner, 2026-11-21: Pro 5 / Ultra 20 a day; «Отложенных дел тоже сделай 5 и 20»).
+ * The server's defaults (env AGENT_PRO_DAILY, AGENT_ULTRA_DAILY, AGENT_DEFERRED_PRO, AGENT_DEFERRED_ULTRA override them
+ * there, and the status then says so), and what the panel says before a status came. Own key has no agent.
  */
-export const AGENT_DEFAULTS = { proDaily: 5, ultraDaily: 20, deferredPro: 10, deferredUltra: 30, maxSteps: 30 } as const
+export const AGENT_DEFAULTS = { proDaily: 5, ultraDaily: 20, deferredPro: 5, deferredUltra: 20, maxSteps: 30 } as const
 
 export interface AgentLimits {
   proDaily: number
