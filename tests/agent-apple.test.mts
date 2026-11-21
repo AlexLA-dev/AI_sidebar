@@ -115,3 +115,33 @@ test("not allowed yet: the person's own step (open the app), then the tool again
 test("the date line the model gets", () => {
   assert.match(nowLine(new Date(2026, 10, 21, 19, 5)), /^2026-11-21 Sat 19:05/)
 })
+
+test("the request's own language, over the panel's (the step lines follow it)", async () => {
+  const { requestLanguage } = await import("../src/shared/agent/lang.ts")
+  const cases: Array<[string, string, string]> = [
+    ["Забронируй столик на 5 декабря в 19:30 на 4 человек", "en", "ru"],
+    ["Забронюй столик на п'ятницю, будь ласка, і додай нагадування", "en", "uk"],
+    ["「もっと見る」を2回押して、最新の記事タイトルを10件教えて", "en", "ja"],
+    ["Zeig mir nur E-Gitarren von Fender unter 500 Euro", "en", "de"],
+    ["Order a medium pizza with bacon", "ru", "en"],
+    ["Réserve une table pour 4 personnes", "en", "fr"],
+    ["Añade dos pares a la cesta", "en", "es"],
+    ["Đặt bàn cho 4 người", "en", "vi"],
+    ["42", "ru", "ru"],
+    ["https://example.com", "de", "de"]
+  ]
+  for (const [text, panel, want] of cases) assert.equal(requestLanguage(text, panel), want, text)
+})
+
+test("«Сделать на этой странице?» under a question that asks for an action, not under ordinary questions", async () => {
+  const { asksForAction } = await import("../src/shared/agent/hint.ts")
+  for (const yes of ["добавь в корзину 2 пары", "Пожалуйста, выбери размер 42", "Забронируй столик на пятницу", "Додай у кошик", "Add size 42 to the cart",
+    "please book a table for 4", "Füge zwei Paare in den Warenkorb", "Ajoute-le au panier", "Añade dos al carrito", "Aggiungi al carrello",
+    "Adicione ao carrinho", "Sepete ekle", "Thêm vào giỏ hàng", "サイズ42を選んで", "장바구니에 담아 줘", "加入购物车", "أضف إلى السلة", "Can you add it to the cart?"]) {
+    assert.equal(asksForAction(yes), true, yes)
+  }
+  for (const no of ["Что это за страница?", "сколько стоит доставка", "Summarize", "What is the price?", "Wie teuer ist das?", "basically, what's the point",
+    "Premium plan worth it", "Это хорошая цена?", "このページは何ですか", "set of rules explained?"]) {
+    assert.equal(asksForAction(no), false, no)
+  }
+})

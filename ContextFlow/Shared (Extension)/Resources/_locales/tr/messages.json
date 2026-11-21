@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "Bu saat geçti. Daha sonraki bir saat seçin."
  },
+ "agentHint": {
+  "message": "Bu sayfada yapılsın mı?"
+ },
+ "agentWaitingStep": {
+  "message": "Adım {0} · sizi bekliyor"
+ },
  "agentStepReminderAdd": {
   "message": "“{0}” anımsatıcısını “{1}” listesine ekle"
  },

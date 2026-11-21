@@ -25,14 +25,16 @@ export const CALL_SCHEMA = {
     part: nullable({ type: "integer" }),
     question: nullable({ type: "string" }),
     summary: nullable({ type: "string" }),
-    ref: nullable({ type: "string" }),
-    list: nullable({ type: "string" }),
-    date: nullable({ type: "string" }),
-    time: nullable({ type: "string" }),
-    until: nullable({ type: "string" }),
-    minutes: nullable({ type: "integer" }),
-    days: nullable({ type: "integer" }),
-    place: nullable({ type: "string" }),
+    // Calendar and Reminders: plain (not nullable) — "" and 0 when unused. Strict schemas take only so many union-typed
+    // fields, and these eight on top of the ten above were too many (the preview answered UPSTREAM).
+    ref: { type: "string" },
+    list: { type: "string" },
+    date: { type: "string" },
+    time: { type: "string" },
+    until: { type: "string" },
+    minutes: { type: "integer" },
+    days: { type: "integer" },
+    place: { type: "string" },
     why: { type: "string" }
   },
   required: ["tool", "id", "text", "mode", "key", "option", "to", "part", "question", "summary", "ref", "list", "date", "time", "until", "minutes", "days", "place", "why"],
@@ -175,7 +177,7 @@ function dayAndTime(r: Record<string, unknown>): { date?: string; time?: string 
 }
 
 function whole(v: unknown, min: number, max: number, fallback: number): number {
-  return typeof v === "number" && Number.isFinite(v) ? Math.min(max, Math.max(min, Math.round(v))) : fallback
+  return typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.min(max, Math.max(min, Math.round(v))) : fallback
 }
 
 /** An option as the person or the model names it: the same words, any case and spacing, or the start of it. */

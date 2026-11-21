@@ -1126,6 +1126,8 @@
   "agentLaterNotifOff": "Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes → Notificaciones → ContextFlow.",
   "agentLaterNotifyWhy": "Activa las notificaciones para que pueda recordarte esta tarea.",
   "agentLaterPast": "Esa hora ya pasó. Elige una más tarde.",
+  "agentHint": "¿Hacerlo en esta página?",
+  "agentWaitingStep": "Paso {0} · esperándote",
   "agentStepReminderAdd": "Añadir el recordatorio «{0}» a la lista «{1}»",
   "agentStepReminderAddDue": "Añadir el recordatorio «{0}» a la lista «{1}» para el {2}",
   "agentStepReminderDone": "Marcar «{0}» como completado en Recordatorios",

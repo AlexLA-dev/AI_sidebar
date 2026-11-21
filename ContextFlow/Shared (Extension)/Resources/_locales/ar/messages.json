@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "هذا الوقت مضى. اختر وقتًا لاحقًا."
  },
+ "agentHint": {
+  "message": "هل أنفّذ ذلك في هذه الصفحة؟"
+ },
+ "agentWaitingStep": {
+  "message": "الخطوة {0} · بانتظارك"
+ },
  "agentStepReminderAdd": {
   "message": "إضافة التذكير «{0}» إلى قائمة «{1}»"
  },

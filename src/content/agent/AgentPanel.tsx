@@ -128,8 +128,12 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
       {(busy || waiting) && (
         <div class={`cf-agent-strip ${busy ? "" : "waiting"}`}>
           <span class={`cf-agent-dot ${busy ? "on" : ""}`} aria-hidden="true" />
-          {/* Waiting for the person: the card below says what for; the strip keeps only Stop. */}
-          <span class="cf-agent-step">{busy ? t("agentWorking", String(Math.max(1, state.step))) : ""}</span>
+          {/* The step it's at: working on it (with the step's own line, as the strip under the page shows), or waiting for
+              the person (the card below says what for). */}
+          <span class="cf-agent-step">
+            <b>{busy ? t("agentWorking", String(Math.max(1, state.step))) : t("agentWaitingStep", String(Math.max(1, state.step)))}</b>
+            {busy && lines.length > 0 && lines[lines.length - 1].text && <span dir="auto">{lines[lines.length - 1].text}</span>}
+          </span>
           <button type="button" class="cf-secondary cf-agent-stop" onClick={() => onAnswer("stop")}><Icon.Stop /> {t("stop")}</button>
         </div>
       )}

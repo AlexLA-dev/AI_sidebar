@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "Thời điểm đó đã qua. Hãy chọn giờ muộn hơn."
  },
+ "agentHint": {
+  "message": "Làm trên trang này?"
+ },
+ "agentWaitingStep": {
+  "message": "Bước {0} · đang chờ bạn"
+ },
  "agentStepReminderAdd": {
   "message": "Thêm lời nhắc “{0}” vào danh sách “{1}”"
  },

@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "Esse horário já passou. Escolha um mais tarde."
  },
+ "agentHint": {
+  "message": "Fazer nesta página?"
+ },
+ "agentWaitingStep": {
+  "message": "Etapa {0} · aguardando você"
+ },
  "agentStepReminderAdd": {
   "message": "Adicionar o lembrete “{0}” à lista “{1}”"
  },

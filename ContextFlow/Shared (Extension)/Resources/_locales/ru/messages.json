@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "Это время уже прошло. Выберите время позже."
  },
+ "agentHint": {
+  "message": "Сделать на этой странице?"
+ },
+ "agentWaitingStep": {
+  "message": "Шаг {0} · ждёт вас"
+ },
  "agentStepReminderAdd": {
   "message": "Добавить напоминание «{0}» в список «{1}»"
  },

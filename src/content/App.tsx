@@ -107,6 +107,7 @@ import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeat
 import { linkChats, remindsAhead, watchesOn } from "../shared/chatMarks"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { appleNow, loadApple } from "./ux/apple"
+import { asksForAction } from "../shared/agent/hint"
 import { withoutItemMarker } from "../shared/appleItems"
 import { Tour, tourSteps } from "./Tour"
 import { answerLanguage, preferredLanguages, readerLanguageName, withAnswerLanguage } from "./answerLanguage"
@@ -2664,6 +2665,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const agentAway = useRef(false)
   const agentPeek = useRef(false)
   const agentStatus = agentTask?.status
+  // An agent task's card (or a deferred one's) is on screen: the greeting and its chips step aside for it.
+  const agentCardShown = !!agentTask || !!agentDeferred
+  const lastUserIndex = messages.findLastIndex((m) => m.role === "user" && !m.note)
   useEffect(() => {
     const running = agentStatus === "running"
     if (!running) {
@@ -4758,7 +4762,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <>
               {/* The empty chat in a phone's sheet sits by the field (quiet.css), unless the guide or the tour has a card up
                   (the card then lies on nothing). A class, not :has(): Safari on iOS left the :has() rule unapplied. */}
-              <div class={`cf-messages${messages.length === 0 && partial === null && !touring && !(guide !== null && guideIdle && !ON_PAGE.includes(guide)) ? " is-empty" : ""}`} ref={listRef} onClick={ux.onListClick}>
+              <div class={`cf-messages${messages.length === 0 && partial === null && !agentCardShown && !touring && !(guide !== null && guideIdle && !ON_PAGE.includes(guide)) ? " is-empty" : ""}`} ref={listRef} onClick={ux.onListClick}>
                 {/* 2.6 (100): the bars in one place of their own, kept by its key. When the suggestions bar came, the list's
                     first child turned from the pinned bar into this box, and Preact took every message out and put it
                     back in: the chat jumped to its start (the owner on build 100). */}
@@ -4781,7 +4785,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {!historyMode && messages.length === 0 && partial === null && (
+                {/* (Not while an agent task's card is there: the card comes first, the director on the real-Safari shots.) */}
+                {!historyMode && messages.length === 0 && partial === null && !agentCardShown && (
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
                     <h2>{t("emptyTitle")}</h2>
@@ -4822,6 +4827,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         </>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
+                      {/* 2.7.1, the design: an ordinary question that asks for an action gets «Сделать на этой странице?»
+                          under it (the latest one only); the agent starts on the tap, with the question's words. */}
+                      {!m.note && !historyMode && idx === lastUserIndex && !agentCardShown && m.similarAsk === undefined && asksForAction(m.content) && (
+                        <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(m.content)}>
+                          <Icon.Sparkle size={13} /> {t("agentHint")}
+                        </button>
+                      )}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                       {m.note && !picked && ux.addCard(m, idx)}
                     </div>

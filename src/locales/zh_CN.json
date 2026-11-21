@@ -1126,6 +1126,8 @@
   "agentLaterNotifOff": "ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。",
   "agentLaterNotifyWhy": "请打开通知，这样我才能提醒你这件事。",
   "agentLaterPast": "这个时间已经过了，请选一个更晚的时间。",
+  "agentHint": "在此页面上执行？",
+  "agentWaitingStep": "第 {0} 步 · 等你操作",
   "agentStepReminderAdd": "将提醒事项“{0}”添加到“{1}”",
   "agentStepReminderAddDue": "将提醒事项“{0}”添加到“{1}”，截止 {2}",
   "agentStepReminderDone": "在提醒事项中将“{0}”标为已完成",

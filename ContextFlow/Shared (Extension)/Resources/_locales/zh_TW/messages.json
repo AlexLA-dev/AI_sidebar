@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "這個時間已經過了，請選一個更晚的時間。"
  },
+ "agentHint": {
+  "message": "在此頁面上執行？"
+ },
+ "agentWaitingStep": {
+  "message": "第 {0} 步 · 等你操作"
+ },
  "agentStepReminderAdd": {
   "message": "將提醒事項「{0}」加入「{1}」"
  },

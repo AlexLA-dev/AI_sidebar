@@ -1,7 +1,10 @@
 /* The agent in the panel (2.7.1): the working strip, its steps, what it waits for, «Мои данные». */
 .cf-agent { display: flex; flex-direction: column; gap: 8px; }
 .cf-agent-strip { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); font-size: 13px; }
-.cf-agent-step { flex: 1; font-weight: 600; }
+.cf-agent-step { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cf-agent-step b { font-weight: 600; color: var(--accent-text); }
+.cf-agent-strip.waiting .cf-agent-step b { color: var(--text-2); }
+.cf-agent-step span { color: var(--text-2); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-agent-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: .5; }
 .cf-agent-dot.on { animation: cf-agent-pulse 1.2s ease-in-out infinite; opacity: 1; }
 @keyframes cf-agent-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.55); opacity: .45; } }
@@ -45,3 +48,5 @@
 /* Safari on iPhone zooms the page into a field whose text is under 16 px when it gets the focus: «Мои данные» and «Позже»
    fields are 16 px there. */
 @media (pointer: coarse) { .cf-input-line, .cf-fd-add select { font-size: 16px; } }
+/* «Сделать на этой странице?» under a question that asks for an action. */
+.cf-agent-hint { align-self: flex-end; margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; color: var(--accent-text); }

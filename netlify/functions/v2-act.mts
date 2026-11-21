@@ -8,6 +8,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { agentDaily, evalAccess, hasPro, resolveAccess, type Access } from "../shared/plan.mts"
+import { requestLanguage } from "../../src/shared/agent/lang.ts"
 import { hostOf } from "../../src/shared/agent/sites.ts"
 
 /**
@@ -99,7 +100,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   let out
   try {
-    out = await nextStep({ request, lang: clip(task.lang, 12), map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device) }, {
+    out = await nextStep({ request, lang: requestLanguage(request, clip(task.lang, 12) || "en"), map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device) }, {
       model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal
     })
   } catch (err) {

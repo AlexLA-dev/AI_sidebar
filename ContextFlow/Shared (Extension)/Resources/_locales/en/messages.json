@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "That time has passed. Pick a later one."
  },
+ "agentHint": {
+  "message": "Do it on this page?"
+ },
+ "agentWaitingStep": {
+  "message": "Step {0} · waiting for you"
+ },
  "agentStepReminderAdd": {
   "message": "Add the reminder “{0}” to “{1}”"
  },

@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "その時刻はもう過ぎています。もっと後の時刻を選んでください。"
  },
+ "agentHint": {
+  "message": "このページで実行しますか？"
+ },
+ "agentWaitingStep": {
+  "message": "ステップ {0} · あなたの操作待ち"
+ },
  "agentStepReminderAdd": {
   "message": "リマインダー「{0}」を「{1}」に追加"
  },

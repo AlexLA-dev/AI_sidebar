@@ -1126,6 +1126,8 @@
   "agentLaterNotifOff": "ContextFlow 알림이 꺼져 있어요. 설정 → 알림 → ContextFlow에서 켜세요.",
   "agentLaterNotifyWhy": "이 작업을 알려 드릴 수 있도록 알림을 켜 주세요.",
   "agentLaterPast": "이미 지난 시간이에요. 더 나중 시간을 고르세요.",
+  "agentHint": "이 페이지에서 할까요?",
+  "agentWaitingStep": "{0}단계 · 응답을 기다리는 중",
   "agentStepReminderAdd": "미리 알림 ‘{0}’을(를) ‘{1}’ 목록에 추가",
   "agentStepReminderAddDue": "미리 알림 ‘{0}’을(를) ‘{1}’ 목록에 추가 (기한 {2})",
   "agentStepReminderDone": "미리 알림에서 ‘{0}’을(를) 완료로 표시",

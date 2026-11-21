@@ -3290,6 +3290,12 @@
  "agentLaterPast": {
   "message": "Цей час уже минув. Виберіть пізніший."
  },
+ "agentHint": {
+  "message": "Зробити на цій сторінці?"
+ },
+ "agentWaitingStep": {
+  "message": "Крок {0} · чекає на вас"
+ },
  "agentStepReminderAdd": {
   "message": "Додати нагадування «{0}» до списку «{1}»"
  },

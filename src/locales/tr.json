@@ -1126,6 +1126,8 @@
   "agentLaterNotifOff": "ContextFlow için bildirimler kapalı. Ayarlar → Bildirimler → ContextFlow bölümünden açın.",
   "agentLaterNotifyWhy": "Bu görevi size hatırlatabilmem için bildirimleri açın.",
   "agentLaterPast": "Bu saat geçti. Daha sonraki bir saat seçin.",
+  "agentHint": "Bu sayfada yapılsın mı?",
+  "agentWaitingStep": "Adım {0} · sizi bekliyor",
   "agentStepReminderAdd": "“{0}” anımsatıcısını “{1}” listesine ekle",
   "agentStepReminderAddDue": "“{0}” anımsatıcısını {2} için “{1}” listesine ekle",
   "agentStepReminderDone": "Anımsatıcılar’da “{0}” öğesini tamamlandı olarak işaretle",

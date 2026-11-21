@@ -1126,6 +1126,8 @@
   "agentLaterNotifOff": "إشعارات ContextFlow متوقفة. شغّلها من الإعدادات ← الإشعارات ← ContextFlow.",
   "agentLaterNotifyWhy": "شغّل الإشعارات حتى أذكّرك بهذه المهمة.",
   "agentLaterPast": "هذا الوقت مضى. اختر وقتًا لاحقًا.",
+  "agentHint": "هل أنفّذ ذلك في هذه الصفحة؟",
+  "agentWaitingStep": "الخطوة {0} · بانتظارك",
   "agentStepReminderAdd": "إضافة التذكير «{0}» إلى قائمة «{1}»",
   "agentStepReminderAddDue": "إضافة التذكير «{0}» إلى قائمة «{1}» في {2}",
   "agentStepReminderDone": "تحديد «{0}» كمكتمل في التذكيرات",
