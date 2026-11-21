@@ -130,7 +130,8 @@ async function save(tab: number, state: AgentState): Promise<void> {
 /** What the panel gets: everything but the server's log and the last page text (it shows its own lines). */
 function forPanel(state: AgentState): Omit<AgentState, "log" | "data"> & { canUndo: boolean } {
   const { log: _log, data: _data, ...rest } = state
-  return { ...rest, canUndo: state.undo.length > 0 }
+  // Only what was really changed (a field, a box, a list's choice) can be put back: a task that only read has no Undo.
+  return { ...rest, canUndo: state.undo.some((u) => !!u && typeof u === "object" && !!u.id && !!u.kind) }
 }
 
 // ------------------------------------------------------------ the tab

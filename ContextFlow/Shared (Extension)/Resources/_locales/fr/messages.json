@@ -3290,6 +3290,9 @@
  "agentLaterPast": {
   "message": "Cette heure est déjà passée. Choisissez-en une plus tard."
  },
+ "agentYouMark": {
+  "message": "Vous"
+ },
  "agentHint": {
   "message": "Le faire sur cette page ?"
  },

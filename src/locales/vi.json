@@ -1126,6 +1126,7 @@
   "agentLaterNotifOff": "Thông báo của ContextFlow đang tắt. Hãy bật trong Cài đặt → Thông báo → ContextFlow.",
   "agentLaterNotifyWhy": "Hãy bật thông báo để tôi nhắc bạn việc này.",
   "agentLaterPast": "Thời điểm đó đã qua. Hãy chọn giờ muộn hơn.",
+  "agentYouMark": "Bạn",
   "agentHint": "Làm trên trang này?",
   "agentWaitingStep": "Bước {0} · đang chờ bạn",
   "agentStepReminderAdd": "Thêm lời nhắc “{0}” vào danh sách “{1}”",

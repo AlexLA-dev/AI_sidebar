@@ -1126,6 +1126,7 @@
   "agentLaterNotifOff": "Уведомления для ContextFlow выключены. Включите их в Настройках → Уведомления → ContextFlow.",
   "agentLaterNotifyWhy": "Включите уведомления, чтобы я мог напомнить об этом деле.",
   "agentLaterPast": "Это время уже прошло. Выберите время позже.",
+  "agentYouMark": "Вы",
   "agentHint": "Сделать на этой странице?",
   "agentWaitingStep": "Шаг {0} · ждёт вас",
   "agentStepReminderAdd": "Добавить напоминание «{0}» в список «{1}»",

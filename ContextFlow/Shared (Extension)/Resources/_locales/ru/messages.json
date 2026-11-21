@@ -3290,6 +3290,9 @@
  "agentLaterPast": {
   "message": "Это время уже прошло. Выберите время позже."
  },
+ "agentYouMark": {
+  "message": "Вы"
+ },
  "agentHint": {
   "message": "Сделать на этой странице?"
  },

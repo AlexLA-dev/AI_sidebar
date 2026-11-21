@@ -3290,6 +3290,9 @@
  "agentLaterPast": {
   "message": "Diese Zeit ist schon vorbei. Wähle eine spätere."
  },
+ "agentYouMark": {
+  "message": "Du"
+ },
  "agentHint": {
   "message": "Auf dieser Seite erledigen?"
  },

@@ -3290,6 +3290,9 @@
  "agentLaterPast": {
   "message": "Цей час уже минув. Виберіть пізніший."
  },
+ "agentYouMark": {
+  "message": "Ви"
+ },
  "agentHint": {
   "message": "Зробити на цій сторінці?"
  },

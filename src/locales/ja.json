@@ -1126,6 +1126,7 @@
   "agentLaterNotifOff": "ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。",
   "agentLaterNotifyWhy": "このタスクをお知らせできるよう、通知をオンにしてください。",
   "agentLaterPast": "その時刻はもう過ぎています。もっと後の時刻を選んでください。",
+  "agentYouMark": "あなた",
   "agentHint": "このページで実行しますか？",
   "agentWaitingStep": "ステップ {0} · あなたの操作待ち",
   "agentStepReminderAdd": "リマインダー「{0}」を「{1}」に追加",

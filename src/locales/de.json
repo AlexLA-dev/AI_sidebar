@@ -1126,6 +1126,7 @@
   "agentLaterNotifOff": "Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow.",
   "agentLaterNotifyWhy": "Schalte Mitteilungen ein, damit ich dich an diese Aufgabe erinnern kann.",
   "agentLaterPast": "Diese Zeit ist schon vorbei. Wähle eine spätere.",
+  "agentYouMark": "Du",
   "agentHint": "Auf dieser Seite erledigen?",
   "agentWaitingStep": "Schritt {0} · wartet auf dich",
   "agentStepReminderAdd": "Erinnerung „{0}“ zur Liste „{1}“ hinzufügen",

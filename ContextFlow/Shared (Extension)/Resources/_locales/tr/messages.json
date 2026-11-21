@@ -3290,6 +3290,9 @@
  "agentLaterPast": {
   "message": "Bu saat geçti. Daha sonraki bir saat seçin."
  },
+ "agentYouMark": {
+  "message": "Siz"
+ },
  "agentHint": {
   "message": "Bu sayfada yapılsın mı?"
  },

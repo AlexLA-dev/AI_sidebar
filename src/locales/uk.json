@@ -1126,6 +1126,7 @@
   "agentLaterNotifOff": "Сповіщення для ContextFlow вимкнено. Увімкніть їх: Параметри → Сповіщення → ContextFlow.",
   "agentLaterNotifyWhy": "Увімкніть сповіщення, щоб я міг нагадати про цю справу.",
   "agentLaterPast": "Цей час уже минув. Виберіть пізніший.",
+  "agentYouMark": "Ви",
   "agentHint": "Зробити на цій сторінці?",
   "agentWaitingStep": "Крок {0} · чекає на вас",
   "agentStepReminderAdd": "Додати нагадування «{0}» до списку «{1}»",

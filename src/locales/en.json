@@ -1126,6 +1126,7 @@
   "agentLaterNotifOff": "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow.",
   "agentLaterNotifyWhy": "Turn on notifications so I can remind you of this task.",
   "agentLaterPast": "That time has passed. Pick a later one.",
+  "agentYouMark": "You",
   "agentHint": "Do it on this page?",
   "agentWaitingStep": "Step {0} · waiting for you",
   "agentStepReminderAdd": "Add the reminder “{0}” to “{1}”",

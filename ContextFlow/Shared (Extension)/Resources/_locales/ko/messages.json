@@ -3290,6 +3290,9 @@
  "agentLaterPast": {
   "message": "이미 지난 시간이에요. 더 나중 시간을 고르세요."
  },
+ "agentYouMark": {
+  "message": "직접"
+ },
  "agentHint": {
   "message": "이 페이지에서 할까요?"
  },

@@ -143,7 +143,10 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
         <ol class="cf-agent-lines">
           {lines.map((l, i) => (
             <li key={i} class={l.ok ? "ok" : "no"} dir="auto">
-              <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span> {l.text || nameOf(l.target)}
+              {/* The person's own step (ticked a box, signed in) is theirs, never the agent's ✓. */}
+              {l.cls === "self"
+                ? <span class="cf-agent-you">{t("agentYouMark")}</span>
+                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.text || nameOf(l.target)}
             </li>
           ))}
         </ol>

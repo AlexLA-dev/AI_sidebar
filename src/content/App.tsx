@@ -1385,7 +1385,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           // 2.7: reminders and events can be added here, so the answer may suggest one (a card under it).
           ...(appleNow()?.available ? { items: true as const } : {}),
           // 2.7.1: a question that asks for an action gets «Сделать на этой странице?» under it: the answer says so.
-          ...(!historyMode ? { agent: true as const } : {}),
+          // (Plans with the agent only: Free's answer keeps its honest wording, the chip shows the Pro mark.)
+          ...(!historyMode && hasPro(planNow) ? { agent: true as const } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
@@ -4833,7 +4834,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           under it (the latest one only); the agent starts on the tap, with the question's words. */}
                       {!m.note && !historyMode && idx === lastUserIndex && !agentCardShown && m.similarAsk === undefined && asksForAction(m.content) && (
                         <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(m.content)}>
-                          <Icon.Sparkle size={13} /> {t("agentHint")}
+                          <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
                         </button>
                       )}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}

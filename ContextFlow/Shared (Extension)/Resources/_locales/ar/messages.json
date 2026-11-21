@@ -3290,6 +3290,9 @@
  "agentLaterPast": {
   "message": "هذا الوقت مضى. اختر وقتًا لاحقًا."
  },
+ "agentYouMark": {
+  "message": "أنت"
+ },
  "agentHint": {
   "message": "هل أنفّذ ذلك في هذه الصفحة؟"
  },
