@@ -80,13 +80,20 @@ enum AgentTasks {
         return content
     }
 
+    private static func allowed(_ status: UNAuthorizationStatus) -> Bool {
+        #if os(iOS)
+        if status == .ephemeral { return true }
+        #endif
+        return status == .authorized || status == .provisional
+    }
+
     /// A task due at a time: its notification, set on this device (moved when set again).
     static func schedule(id: String, at: Date, title: String, body: String, open page: URL) async -> MessageReminders.Outcome {
         guard isId(id), page.scheme == "https" || page.scheme == "http" else { return .failed }
         let center = UNUserNotificationCenter.current()
         let status = await center.notificationSettings().authorizationStatus
         if status == .notDetermined { return .notAsked }
-        guard status == .authorized || status == .provisional else { return .denied }
+        guard allowed(status) else { return .denied }
         let when = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: at)
         let request = UNNotificationRequest(identifier: prefix + id, content: content(id: id, title: title, body: body, page: page),
                                             trigger: UNCalendarNotificationTrigger(dateMatching: when, repeats: false))
@@ -102,7 +109,7 @@ enum AgentTasks {
     static func notify(id: String, title: String, body: String, open page: URL) async -> MessageReminders.Outcome {
         guard isId(id), page.scheme == "https" || page.scheme == "http" else { return .failed }
         let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
-        guard status == .authorized || status == .provisional || status == .ephemeral else { return status == .notDetermined ? .notAsked : .denied }
+        guard allowed(status) else { return status == .notDetermined ? .notAsked : .denied }
         try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: prefix + id, content: content(id: id, title: title, body: body, page: page), trigger: nil))
         return .scheduled
     }
