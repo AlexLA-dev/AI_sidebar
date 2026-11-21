@@ -21,34 +21,60 @@ function tag(el: Element): string {
   return el.tagName.toLowerCase()
 }
 
-/** Waits until the page stops changing (or SETTLE_MAX_MS): whether it changed, and whether it went elsewhere. */
-export function settle(doc: Document = document, quietMs = SETTLE_QUIET_MS, maxMs = SETTLE_MAX_MS): Promise<{ changed: boolean; navigated: boolean }> {
+export interface Watch {
+  /** Waits until the page stops changing (or maxMs): whether it changed since the watch began, and whether it went elsewhere. */
+  settle(quietMs?: number, maxMs?: number): Promise<{ changed: boolean; navigated: boolean }>
+}
+
+/**
+ * Starts watching the page for changes. Begun before a step, so what the step changes at once (a list opening in the
+ * click itself) counts: a watch begun after it would see a quiet page and say nothing changed.
+ */
+export function watch(doc: Document = document): Watch {
   const startUrl = doc.location?.href ?? ""
-  return new Promise((resolve) => {
-    let changed = false
-    let quiet: ReturnType<typeof setTimeout> | null = null
-    const view = doc.defaultView ?? window
-    const finish = () => {
-      observer.disconnect()
-      if (quiet) clearTimeout(quiet)
-      clearTimeout(cap)
-      view.removeEventListener("pagehide", gone)
-      resolve({ changed, navigated: (doc.location?.href ?? "") !== startUrl })
-    }
-    const gone = () => {
-      changed = true
-      finish()
-    }
-    const observer = new view.MutationObserver(() => {
-      changed = true
-      if (quiet) clearTimeout(quiet)
-      quiet = setTimeout(finish, quietMs)
-    })
-    observer.observe(doc.documentElement, { subtree: true, childList: true, attributes: true, characterData: true })
-    view.addEventListener("pagehide", gone)
-    quiet = setTimeout(finish, quietMs)
-    const cap = setTimeout(finish, maxMs)
+  const view = doc.defaultView ?? window
+  let changed = false
+  let gone = false
+  let last = Date.now()
+  const observer = new view.MutationObserver(() => {
+    changed = true
+    last = Date.now()
   })
+  observer.observe(doc.documentElement, { subtree: true, childList: true, attributes: true, characterData: true })
+  const onGone = () => {
+    gone = true
+  }
+  view.addEventListener("pagehide", onGone)
+  return {
+    settle(quietMs = SETTLE_QUIET_MS, maxMs = SETTLE_MAX_MS) {
+      const t0 = Date.now()
+      return new Promise((resolve) => {
+        const tick = () => {
+          const now = Date.now()
+          if (gone || (now - last >= quietMs && now - t0 >= Math.min(quietMs, 150)) || now - t0 >= maxMs) {
+            observer.disconnect()
+            view.removeEventListener("pagehide", onGone)
+            resolve({ changed: changed || gone, navigated: gone || (doc.location?.href ?? "") !== startUrl })
+          } else setTimeout(tick, 50)
+        }
+        setTimeout(tick, 50)
+      })
+    }
+  }
+}
+
+// The watch of the step being done (act() begins it before the step, on the document the element is in).
+let current: Watch | null = null
+
+function stepSettle(quietMs?: number, maxMs?: number): Promise<{ changed: boolean; navigated: boolean }> {
+  const w = current ?? watch(document)
+  current = null
+  return w.settle(quietMs, maxMs)
+}
+
+/** Waits for a quiet page from now on (no step before it). */
+export function settle(doc: Document = document, quietMs = SETTLE_QUIET_MS, maxMs = SETTLE_MAX_MS): Promise<{ changed: boolean; navigated: boolean }> {
+  return watch(doc).settle(quietMs, maxMs)
 }
 
 function inView(el: Element): boolean {
@@ -107,7 +133,7 @@ async function typeInto(el: Element, text: string, mode: "replace" | "append"): 
     el.dispatchEvent(new view.KeyboardEvent("keyup", { bubbles: true, cancelable: true, composed: true, key: "Unidentified" }))
     el.dispatchEvent(new view.Event("change", { bubbles: true }))
     el.dispatchEvent(new view.FocusEvent("focusout", { bubbles: true, composed: true }))
-    const settled = await settle(el.ownerDocument, 200, 1500)
+    const settled = await stepSettle(200, 1500)
     const now = field.value
     const note = now === value ? "typed" : now ? `typed; the field shows "${now.slice(0, 80)}"` : "the field didn't take the text"
     return { ok: !!now || !value, note, changed: settled.changed || now !== before, navigated: settled.navigated, undo: { id: "", kind: "value", before } }
@@ -122,7 +148,7 @@ async function typeInto(el: Element, text: string, mode: "replace" | "append"): 
   // An empty editor has no text node to put the caret in: the caret goes into the editor itself, then typing.
   if (!ok && (!before.trim() || mode === "append")) ok = await typeAtEnd(html, piece, mode === "replace")
   html.blur?.()
-  const settled = await settle(el.ownerDocument, 200, 1500)
+  const settled = await stepSettle(200, 1500)
   return { ok, note: ok ? "typed" : "the editor didn't take the text", changed: settled.changed, navigated: settled.navigated, undo: { id: "", kind: "value", before } }
 }
 
@@ -157,7 +183,7 @@ async function choose(el: Element, option: string): Promise<StepResult> {
     match.selected = true
     select.dispatchEvent(new view.Event("input", { bubbles: true }))
     select.dispatchEvent(new view.Event("change", { bubbles: true }))
-    const settled = await settle(el.ownerDocument)
+    const settled = await stepSettle()
     return { ok: select.value === match.value, note: `chose "${(match.textContent ?? "").trim().slice(0, 60)}"`, changed: true, navigated: settled.navigated, undo: { id: "", kind: "select", before } }
   }
   // A list of the page's own (ARIA): its option is pressed.
@@ -166,7 +192,7 @@ async function choose(el: Element, option: string): Promise<StepResult> {
   if (!match) return { ok: false, note: `no option "${option}" shown: open the list first (click it), then click the option` }
   reveal(match)
   press(match)
-  const settled = await settle(el.ownerDocument)
+  const settled = await stepSettle()
   return { ok: true, note: "chose it", changed: settled.changed, navigated: settled.navigated }
 }
 
@@ -208,7 +234,10 @@ function messages(doc: Document): string[] {
 /** Does one checked call on the page, and says what the page said after it (new messages, errors). */
 export async function act(call: ToolCall, doc: Document = document): Promise<StepResult> {
   const before = new Set(messages(doc))
+  const target = call.id ? elementOf(call.id) : null
+  current = watch(target?.ownerDocument ?? doc)
   const result = await actOnly(call, doc)
+  current = null
   if (!result.navigated && call.tool !== "extract" && call.tool !== "read_page") {
     const said = messages(doc).filter((m) => !before.has(m)).slice(0, 3)
     if (said.length) result.note = `${result.note ?? ""}; the page says: ${said.map((s) => `"${s}"`).join(", ")}`.replace(/^; /, "")
@@ -231,7 +260,7 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       const toggle = tag(el!) === "input" && /^(checkbox|radio)$/i.test((el as HTMLInputElement).type)
       const before = toggle ? (el as HTMLInputElement).checked : null
       press(el!)
-      const settled = await settle(el!.ownerDocument)
+      const settled = await stepSettle()
       const result: StepResult = { ok: true, note: settled.navigated ? "the page went on" : settled.changed ? "the page changed" : "nothing changed on the page", changed: settled.changed, navigated: settled.navigated }
       if (toggle && before !== null) {
         const now = (el as HTMLInputElement).checked
@@ -255,12 +284,12 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
     case "scroll": {
       if (el) (el as HTMLElement).scrollIntoView?.({ block: "center" })
       else scrollPage(doc, call.to ?? "down")
-      const settled = await settle(doc, 250, 1500)
+      const settled = await stepSettle(250, 1500)
       return { ok: true, note: "scrolled", changed: settled.changed }
     }
     case "back": {
       view.history.back()
-      const settled = await settle(doc, 400, 3000)
+      const settled = await stepSettle(400, 3000)
       return { ok: true, note: "went back", navigated: settled.navigated, changed: settled.changed }
     }
     case "extract": {
