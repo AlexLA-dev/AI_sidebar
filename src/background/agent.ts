@@ -64,8 +64,46 @@ export type AgentRequest =
 
 const store = (): chrome.storage.StorageArea => (chrome.storage as unknown as { session?: chrome.storage.StorageArea }).session ?? chrome.storage.local
 
+// Real Safari (iOS 27 simulator): after a few dozen saves, storage.session refused every write («Exceeded storage
+// quota») though only this tab's small state was in it, so a task couldn't start or go on. Each write first removes the
+// key; a write still refused goes to storage.local instead, kept only for a few hours (a tab id comes back after a
+// restart and must not find an old task).
+const LOCAL_FOR = 6 * 3600_000
+
+async function stored(tab: number): Promise<AgentState | null> {
+  const key = TASK_KEY(tab)
+  const s = ((await store().get(key).catch(() => ({} as Record<string, unknown>)))[key] as AgentState | undefined) ?? null
+  if (s || store() === chrome.storage.local) return s
+  const l = ((await chrome.storage.local.get(key).catch(() => ({} as Record<string, unknown>)))[key] as (AgentState & { savedAt?: number }) | undefined) ?? null
+  if (l && Date.now() - (l.savedAt ?? 0) > LOCAL_FOR) {
+    void chrome.storage.local.remove(key)
+    return null
+  }
+  return l
+}
+
+async function write(tab: number, state: AgentState): Promise<void> {
+  const key = TASK_KEY(tab)
+  if (store() !== chrome.storage.local) {
+    try {
+      await store().remove(key)
+      await store().set({ [key]: state })
+      void chrome.storage.local.remove(key)
+      return
+    } catch {
+      // the session area is full: below
+    }
+  }
+  await chrome.storage.local.set({ [key]: { ...state, savedAt: Date.now() } })
+}
+
+async function forget(tab: number): Promise<void> {
+  const key = TASK_KEY(tab)
+  await Promise.all([store().remove(key).catch(() => undefined), chrome.storage.local.remove(key).catch(() => undefined)])
+}
+
 async function load(tab: number): Promise<AgentState | null> {
-  const s = ((await store().get(TASK_KEY(tab)))[TASK_KEY(tab)] as AgentState | undefined) ?? null
+  const s = await stored(tab)
   // Safari's storage.session gave back the state's empty arrays as one and the same array (real Safari, a task that
   // stopped for the person before its first step): the log's entries then showed as step lines («·») and the lines went
   // to the server as log entries. Each gets its own copy.
@@ -84,7 +122,7 @@ async function save(tab: number, state: AgentState): Promise<void> {
     state.status = "stopped"
     state.pending = undefined
   }
-  await store().set({ [TASK_KEY(tab)]: state })
+  await write(tab, state)
   // The panel shows it at once (the content script of the tab's top frame).
   chrome.tabs.sendMessage(tab, { type: "agentState", state: forPanel(state) }, { frameId: 0 }, () => void chrome.runtime.lastError)
 }
@@ -354,7 +392,7 @@ export function startAgent(d: AgentDeps): void {
       case "agentUndo":
         return tab === undefined ? false : respond(undoAll(tab).then((ok) => ({ ok })))
       case "agentClose":
-        return tab === undefined ? false : respond(store().remove(TASK_KEY(tab)).then(() => ({ ok: true })))
+        return tab === undefined ? false : respond(forget(tab).then(() => ({ ok: true })))
       case "agentDefer":
         return respond(defer(message).then(async (r) => {
           const task = r.task as DeferredTask | undefined
@@ -385,7 +423,7 @@ export function startAgent(d: AgentDeps): void {
     }
   })
   // A tab that closed takes its task with it.
-  chrome.tabs.onRemoved.addListener((tab) => void store().remove(TASK_KEY(tab)))
+  chrome.tabs.onRemoved.addListener((tab) => void forget(tab))
   // The app may have cancelled some; its list gets this device's.
   setTimeout(() => void syncDeferred().catch(() => undefined), 5_000)
 }
