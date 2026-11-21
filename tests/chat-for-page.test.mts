@@ -46,7 +46,8 @@ test("only the circle and Safari's toolbar button pick it; Ask AI on a selection
   assert.match(app, /const onToggle = \(\) => \(open \? hide\(\) : show\(undefined, \{ pageChat: true \}\)\)/)
   assert.match(app, /const onOpen = \(\) => show\(undefined, \{ pageChat: true \}\)/)
   // The circle's tap (a press without a drag, src/content/side/drag.ts since 2.7's sides).
-  assert.match(app, /onTap: \(\) => show\(undefined, \{ pageChat: true \}\)/)
+  // (2.7.1: another tab's task waiting shows its card first, by the circle.)
+  assert.match(app, /onTap: \(\) => \(agentNoticeRef\.current \? setNoticeOpen\(true\) : show\(undefined, \{ pageChat: true \}\)\)/)
   assert.match(app, /pageChatRef\.current = Boolean\(how\?\.pageChat && !captured\)/)
   // 2.7: inside the space the panel is in, or the site's bound space, by the rules of «Подходящий чат» (match.ts,
   // tests/match.test.mts): this page's chat first, as here.
