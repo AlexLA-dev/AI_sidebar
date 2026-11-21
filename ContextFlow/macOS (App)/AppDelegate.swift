@@ -53,6 +53,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             }
             return
         }
+        // A deferred agent task (2.7.1): its page in Safari with #cf-task=<id> (AgentTasks).
+        if info["agentTask"] is String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "agent", "s": "notif"])
+                guard let page = AgentTasks.opened(info) else { return }
+                if let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") {
+                    NSWorkspace.shared.open([page], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration())
+                } else {
+                    _ = NSWorkspace.shared.open(page)
+                }
+            }
+            return
+        }
         // Page watch: "Changed: …" opens its page (WatchOpen).
         if info["watch"] != nil {
             await MainActor.run { WatchOpen.handle(info) }
