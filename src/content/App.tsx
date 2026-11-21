@@ -2598,6 +2598,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "agent" })
       // Like a notification's other taps: the panel opens, it doesn't pick the page's chat.
       show()
+      setAgentLater(null)
       const auto = await autoStartHere(location.hostname)
       setAgentAutoHere(auto)
       if (auto) void startAgent(task.request, task.id)
