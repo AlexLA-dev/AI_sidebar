@@ -1124,6 +1124,7 @@
   "agentLaterSaved": "Notification prévue : {0}. Touchez-la, et je le ferai avec vous sur cette page.",
   "agentLaterSavedWatch": "Quand la surveillance se déclenche, vous recevez une notification. Touchez-la, et je le fais avec vous.",
   "agentLaterNotifOff": "Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages → Notifications → ContextFlow.",
+  "agentLaterNotifyWhy": "Activez les notifications pour que je puisse vous rappeler cette tâche.",
   "agentLaterLimit": "{0} tâches attendent déjà : c’est le maximum de votre forfait.",
   "agentNotifTitle": "Une tâche sur {0}",
   "agentNotifBody": "Touchez, et je le fais avec vous : {0}",

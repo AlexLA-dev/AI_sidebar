@@ -1124,6 +1124,7 @@
   "agentLaterSaved": "{0} tarihinde size bir bildirim gelecek. Dokunun, bunu bu sayfada sizinle birlikte yapayım.",
   "agentLaterSavedWatch": "Takip haber verdiğinde size bir bildirim gelecek. Dokunun, bunu sizinle birlikte yapayım.",
   "agentLaterNotifOff": "ContextFlow için bildirimler kapalı. Ayarlar → Bildirimler → ContextFlow bölümünden açın.",
+  "agentLaterNotifyWhy": "Bu görevi size hatırlatabilmem için bildirimleri açın.",
   "agentLaterLimit": "Zaten {0} görev bekliyor; planınızın izin verdiği en fazla sayı bu.",
   "agentNotifTitle": "{0} için bir görev",
   "agentNotifBody": "Dokunun, sizinle birlikte yapayım: {0}",

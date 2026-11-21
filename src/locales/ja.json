@@ -1124,6 +1124,7 @@
   "agentLaterSaved": "{0}に通知が届きます。タップすると、このページで一緒に進めます。",
   "agentLaterSavedWatch": "見守りで変化があると通知が届きます。タップすると、一緒に進めます。",
   "agentLaterNotifOff": "ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。",
+  "agentLaterNotifyWhy": "このタスクをお知らせできるよう、通知をオンにしてください。",
   "agentLaterLimit": "すでに{0}件のタスクが待っています。ご利用のプランではこれが上限です。",
   "agentNotifTitle": "{0} でのタスク",
   "agentNotifBody": "タップすると一緒に進めます：{0}",

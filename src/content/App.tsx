@@ -558,7 +558,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [agentTask, setAgentTask] = useState<PanelAgent | null>(null)
   const [agentDeferred, setAgentDeferred] = useState<{ id: string; request: string; lang: string } | null>(null)
   const [agentAutoHere, setAgentAutoHere] = useState(false)
-  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string } | null>(null)
+  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean } } | null>(null)
   const [agentHelp, setAgentHelp] = useState(false)
   const [agentUpsell, setAgentUpsell] = useState(false)
   // A start that didn't go (no answer from the background, or an error): said on a card, never silent.
@@ -2542,6 +2542,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setDraft("")
     setAgentLater(null)
     setAgentStartError(null)
+    // The last task's card, finished, gives way to the new one (its Undo goes with it).
+    if (agentTask && !["running", "confirm", "fill", "self"].includes(agentTask.status)) {
+      await sendBackground({ type: "agentClose" })
+      setAgentTask(null)
+    }
     const r = await sendBackground<{ ok: boolean; code?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
     if (r?.state) setAgentTask(r.state)
     if (!r || (!r.ok && !r.state && r.code !== "CONSENT" && r.code !== "PRO_ONLY")) {
@@ -2582,9 +2587,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       ? when.at
         ? t("agentLaterSaved", new Intl.DateTimeFormat(uiLanguage(), { dateStyle: "medium", timeStyle: "short" }).format(new Date(when.at)))
         : t("agentLaterSavedWatch")
-      : r?.code === "NOTIF_OFF" ? t("agentLaterNotifOff") : r?.code === "DEFER_LIMIT" ? t("agentLaterLimit", String(r.limit ?? "")) : r?.code === "PRO_ONLY" ? t("agentProOnly") : t("agentError")
+      : r?.code === "NOTIF_ASK" ? t("agentLaterNotifyWhy") : r?.code === "NOTIF_OFF" ? t("agentLaterNotifOff") : r?.code === "DEFER_LIMIT" ? t("agentLaterLimit", String(r.limit ?? "")) : r?.code === "PRO_ONLY" ? t("agentProOnly") : t("agentError")
     if (r?.ok) setDraft("")
-    setAgentLater({ ...agentLater, note })
+    setAgentLater({ ...agentLater, note, ask: r?.code === "NOTIF_ASK" ? when : undefined })
+  }
+
+  /** «Включить уведомления» on the «Позже» card: the system's question (as under a set watch), then the task is set. */
+  const askAgentNotify = async () => {
+    const when = agentLater?.ask
+    if (!agentLater || !when) return
+    const reply = await sendBackground<{ notify?: string }>({ type: "watchNotifyAsk" })
+    if (reply?.notify === "ok") {
+      setAgentLater({ ...agentLater, note: null, ask: undefined })
+      await deferAgent(when)
+    } else setAgentLater({ ...agentLater, note: t("agentLaterNotifOff"), ask: undefined })
   }
 
   // This tab's task as the background has it (pushed at every change), and a deferred task the notification brought.
@@ -4877,6 +4893,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     note={agentLater.note}
                     onClose={() => setAgentLater(null)}
                     onSet={(when) => void deferAgent(when)}
+                    onAsk={agentLater.ask ? () => void askAgentNotify() : undefined}
                   />
                 )}
                 {similarCard === "pick" && partial === null && (

@@ -1124,6 +1124,7 @@
   "agentLaterSaved": "Te llegará una notificación: {0}. Tócala y lo hago contigo en esta página.",
   "agentLaterSavedWatch": "Cuando avise la vigilancia, te llegará una notificación. Tócala y lo hago contigo.",
   "agentLaterNotifOff": "Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes → Notificaciones → ContextFlow.",
+  "agentLaterNotifyWhy": "Activa las notificaciones para que pueda recordarte esta tarea.",
   "agentLaterLimit": "Ya hay {0} tareas esperando, el máximo de tu plan.",
   "agentNotifTitle": "Una tarea en {0}",
   "agentNotifBody": "Toca y lo hago contigo: {0}",

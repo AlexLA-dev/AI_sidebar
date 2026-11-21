@@ -69,6 +69,7 @@ function errorText(code: string | undefined, left: number | null | undefined): s
 }
 
 export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props): VNode {
+  const [undone, setUndone] = useState(false)
   const [chosen, setChosen] = useState<Set<string>>(() => new Set((state.pending?.fill ?? []).map((l) => `${l.id}:${l.entryId}`)))
   const busy = state.status === "running"
   const waiting = state.status === "confirm" || state.status === "fill" || state.status === "self"
@@ -172,8 +173,10 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
           {state.status === "stopped" && <p>{t("agentStopped")}</p>}
           {state.status === "blocked" && <p>{t(state.error === "site_amazon" ? (AMAZON_TEXT.agent as MessageKey) : "agentBlockedSite")}</p>}
           {state.status === "error" && <p>{errorText(state.error, state.left)}</p>}
+          {/* Typed values go back; a press (a size chosen, a box ticked) stays as it is: the line says so plainly. */}
+          {undone && !state.canUndo && <p class="cf-hint">{t("agentUndone")}</p>}
           <div class="cf-card-actions">
-            {state.canUndo && <button type="button" class="cf-secondary" onClick={onUndo}>{t("agentUndo")}</button>}
+            {state.canUndo && <button type="button" class="cf-secondary" onClick={() => { setUndone(true); onUndo() }}>{t("agentUndo")}</button>}
             <button type="button" class="cf-secondary" onClick={onClose}>{t("close")}</button>
             <button type="button" class="cf-link" onClick={onHelp}>{t("agentHelpLink")}</button>
           </div>
@@ -242,7 +245,7 @@ export function AgentDeferredCard({ request, autoHere, onStart, onCancel, onAuto
 }
 
 /** «Позже»: at a time, or when this page's watch fires (when it has one). */
-export function AgentLaterCard({ hasWatch, onSet, onClose, note }: { hasWatch: boolean; onSet: (when: { at?: number; watch?: boolean }) => void; onClose: () => void; note: string | null }): VNode {
+export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk }: { hasWatch: boolean; onSet: (when: { at?: number; watch?: boolean }) => void; onClose: () => void; note: string | null; onAsk?: () => void }): VNode {
   const [kind, setKind] = useState<"at" | "watch">("at")
   const soon = new Date(Date.now() + 3_600_000)
   const local = new Date(soon.getTime() - soon.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
@@ -271,7 +274,9 @@ export function AgentLaterCard({ hasWatch, onSet, onClose, note }: { hasWatch: b
         {!note && (
           <button type="button" class="cf-primary" onClick={() => onSet(kind === "watch" ? { watch: true } : { at: new Date(when).getTime() })}>{t("agentLaterSet")}</button>
         )}
-        <button type="button" class="cf-secondary" onClick={onClose}>{t("close")}</button>
+        {/* Notifications never asked for: the system's question on a tap, then the task is set. */}
+        {note && onAsk && <button type="button" class="cf-primary" onClick={onAsk}>{t("listenNotifyOn")}</button>}
+        <button type="button" class="cf-secondary" onClick={onClose}>{t(note && onAsk ? "listenNotifyLater" : "close")}</button>
       </div>
     </div>
   )

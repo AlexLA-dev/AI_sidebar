@@ -1124,6 +1124,7 @@
   "agentLaterSaved": "Vào {0}, bạn sẽ nhận được thông báo. Chạm vào đó, tôi sẽ cùng bạn làm việc này trên trang.",
   "agentLaterSavedWatch": "Khi theo dõi báo thay đổi, bạn sẽ nhận được thông báo. Chạm vào đó, tôi sẽ cùng bạn làm việc này.",
   "agentLaterNotifOff": "Thông báo của ContextFlow đang tắt. Hãy bật trong Cài đặt → Thông báo → ContextFlow.",
+  "agentLaterNotifyWhy": "Hãy bật thông báo để tôi nhắc bạn việc này.",
   "agentLaterLimit": "Đã có {0} việc đang chờ, mức tối đa của gói bạn dùng.",
   "agentNotifTitle": "Một việc trên {0}",
   "agentNotifBody": "Chạm vào, tôi sẽ cùng bạn làm: {0}",

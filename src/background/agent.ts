@@ -7,7 +7,7 @@
 // - «Мои данные»: read and written through the app's store (FormData.swift), never kept in the extension's storage;
 //   values reach only the content script that fills a field, after the person's «Заполнить».
 
-import { API_BASE, TARGET } from "../shared/config"
+import { API_BASE, TARGET, TEST_PLAN } from "../shared/config"
 import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
 import { active, answer, drive, newState, type Answer, type AgentState, type RunnerIO } from "../shared/agent/runner"
 import { hostOf } from "../shared/agent/sites"
@@ -289,7 +289,8 @@ async function defer(m: Extract<AgentRequest, { type: "agentDefer" }>): Promise<
   if (task.at && TARGET === "safari") {
     const r = await callNative<{ outcome: string }>("agent_schedule", { id: task.id, at: task.at, url: task.url, title: m.notifTitle, body: m.notifBody }, 10_000)
     outcome = r?.outcome ?? "failed"
-    if (outcome !== "scheduled") return { ok: false, code: outcome === "denied" || outcome === "not-asked" ? "NOTIF_OFF" : "FAILED" }
+    // Never asked: the card says why and asks on a tap (the system's question, as under a set watch); off: Settings.
+    if (outcome !== "scheduled") return { ok: false, code: outcome === "not-asked" ? "NOTIF_ASK" : outcome === "denied" ? "NOTIF_OFF" : "FAILED" }
   }
   await writeDeferred([...list, task])
   return { ok: true, task, outcome }
@@ -316,7 +317,11 @@ export function startAgent(d: AgentDeps): void {
     const tab = sender.tab?.id
     const url = sender.tab?.url ?? sender.url ?? ""
     const respond = (p: Promise<unknown>) => {
-      p.then(sendResponse, () => sendResponse({ ok: false, code: "ERROR" }))
+      p.then(sendResponse, (e) => {
+        console.error("[agent]", message?.type, e)
+        // Test builds name what broke (the simulator pass); real builds keep the plain code.
+        sendResponse({ ok: false, code: TEST_PLAN ? `ERROR ${String((e as Error)?.message ?? e).slice(0, 160)}` : "ERROR" })
+      })
       return true
     }
     switch (message?.type) {
