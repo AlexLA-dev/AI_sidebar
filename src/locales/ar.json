@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "أُوقف",
   "agentMarkFailed": "لم ينجح",
   "agentShowSteps": "الخطوات والنتيجة",
-  "agentModeOff": "إيقاف «نفّذ»"
+  "agentModeOff": "إيقاف «نفّذ»",
+  "noteHintTouchDo": "اسحب الزر لأعلى لملاحظة، ولأسفل لـ«نفّذ»"
 }

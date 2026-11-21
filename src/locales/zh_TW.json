@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "已停止",
   "agentMarkFailed": "沒成功",
   "agentShowSteps": "步驟和結果",
-  "agentModeOff": "關閉「執行」"
+  "agentModeOff": "關閉「執行」",
+  "noteHintTouchDo": "向上滑動按鈕寫筆記，向下滑動「執行」"
 }

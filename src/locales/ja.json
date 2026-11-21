@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "停止",
   "agentMarkFailed": "できませんでした",
   "agentShowSteps": "手順と結果",
-  "agentModeOff": "「実行」をオフ"
+  "agentModeOff": "「実行」をオフ",
+  "noteHintTouchDo": "ボタンを上にスワイプでメモ、下で「実行」"
 }

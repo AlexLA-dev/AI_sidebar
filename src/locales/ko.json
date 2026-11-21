@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "중지됨",
   "agentMarkFailed": "안 됐어요",
   "agentShowSteps": "단계와 결과",
-  "agentModeOff": "‘실행’ 끄기"
+  "agentModeOff": "‘실행’ 끄기",
+  "noteHintTouchDo": "버튼을 위로 밀면 메모, 아래로 밀면 ‘실행’"
 }

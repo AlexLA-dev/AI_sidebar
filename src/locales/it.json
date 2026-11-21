@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "Interrotto",
   "agentMarkFailed": "Non è riuscito",
   "agentShowSteps": "Passi e risultato",
-  "agentModeOff": "Disattivare «Fai»"
+  "agentModeOff": "Disattivare «Fai»",
+  "noteHintTouchDo": "Scorri il pulsante in su per una nota, in giù per «Fai»"
 }

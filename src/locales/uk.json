@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "Зупинено",
   "agentMarkFailed": "Не вийшло",
   "agentShowSteps": "Кроки й підсумок",
-  "agentModeOff": "Вимкнути «Зробити»"
+  "agentModeOff": "Вимкнути «Зробити»",
+  "noteHintTouchDo": "Змахніть кнопку вгору — нотатка, вниз — «Зробити»"
 }

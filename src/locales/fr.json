@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "Arrêté",
   "agentMarkFailed": "Pas abouti",
   "agentShowSteps": "Étapes et résultat",
-  "agentModeOff": "Désactiver « Faire »"
+  "agentModeOff": "Désactiver « Faire »",
+  "noteHintTouchDo": "Glissez le bouton vers le haut pour une note, vers le bas pour « Faire »"
 }

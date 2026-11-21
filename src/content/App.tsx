@@ -2381,12 +2381,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // The send button flips between asking and writing a note: swipe it up or down (touch), scroll on it
   // (trackpad, mouse wheel) or hold it. `switched` swallows the click that ends a hold.
+  // 2.7.1 (the director): on Pro and Ultra a swipe down is «Сделать» instead (up stays the note). Not on the ✦ circle:
+  // the circle follows the finger in every direction (its drag), so a swipe there would move it.
   const switched = useRef(false)
   const gesture = useRef({ y: 0, moved: false, wheelAt: 0, hold: 0 })
   const flipMode = useCallback(() => {
     setNoteMode((on) => !on)
+    setAgentMode(false)
     setNoteHint(false)
     void setNoteHintCount(-1)
+  }, [])
+  const swipeDo = hasPro(status?.plan ?? keptPlan ?? "free") && !historyMode
+  const flipDo = useCallback(() => {
+    setNoteMode(false)
+    setGoogleMode(false)
+    setAgentMode((on) => !on)
+    setNoteHint(false)
+    void sendBackground({ type: "useEvent", f: "quiet", a: "swipe_do" })
   }, [])
   const endHold = () => window.clearTimeout(gesture.current.hold)
   const switchGestures = {
@@ -2396,11 +2407,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     },
     onTouchMove: (e: TouchEvent) => {
       const g = gesture.current
-      if (!g.moved && Math.abs(e.touches[0].clientY - g.y) > 14) {
+      const dy = e.touches[0].clientY - g.y
+      if (!g.moved && Math.abs(dy) > 14) {
         g.moved = true
         switched.current = true
         endHold()
-        flipMode()
+        if (dy > 0 && swipeDo) flipDo()
+        else flipMode()
       }
       if (g.moved) e.preventDefault()
     },
@@ -5334,7 +5347,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <footer class="cf-composer">
                   {listenBar}
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
-                  {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
+                  {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? (swipeDo ? "noteHintTouchDo" : "noteHintTouch") : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
                   {/* 2.7 (after 107), the owner's decision 4: no row with the page's title here (it's in the chat's "New
                       page" divider). What isn't the page keeps its row: a selection (with its bell and eye), "Ask your
@@ -5500,7 +5513,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                             else submit()
                           }}
                           aria-label={t(noteMode ? "saveNote" : "send")}
-                          title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? "noteHintTouch" : "noteHintMouse")}`}
+                          title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? (swipeDo ? "noteHintTouchDo" : "noteHintTouch") : "noteHintMouse")}`}
                         >
                           <span class="cf-send-icon" key={noteMode ? "note" : "send"}>{noteMode ? <Icon.Pencil /> : <Icon.ArrowUp />}</span>
                         </button>

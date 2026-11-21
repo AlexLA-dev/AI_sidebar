@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "Đã dừng",
   "agentMarkFailed": "Không được",
   "agentShowSteps": "Các bước và kết quả",
-  "agentModeOff": "Tắt “Làm”"
+  "agentModeOff": "Tắt “Làm”",
+  "noteHintTouchDo": "Vuốt nút lên để ghi chú, xuống để “Làm”"
 }

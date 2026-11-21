@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "Gestoppt",
   "agentMarkFailed": "Hat nicht geklappt",
   "agentShowSteps": "Schritte und Ergebnis",
-  "agentModeOff": "„Erledigen“ ausschalten"
+  "agentModeOff": "„Erledigen“ ausschalten",
+  "noteHintTouchDo": "Knopf nach oben wischen: Notiz, nach unten: „Erledigen“"
 }

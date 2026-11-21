@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "Остановлено",
   "agentMarkFailed": "Не вышло",
   "agentShowSteps": "Шаги и итог",
-  "agentModeOff": "Выключить «Сделать»"
+  "agentModeOff": "Выключить «Сделать»",
+  "noteHintTouchDo": "Смахните кнопку вверх — заметка, вниз — «Сделать»"
 }

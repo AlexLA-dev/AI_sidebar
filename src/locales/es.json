@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "Detenido",
   "agentMarkFailed": "No salió",
   "agentShowSteps": "Pasos y resultado",
-  "agentModeOff": "Desactivar «Hacer»"
+  "agentModeOff": "Desactivar «Hacer»",
+  "noteHintTouchDo": "Desliza el botón hacia arriba para una nota, hacia abajo para «Hacer»"
 }

@@ -1195,5 +1195,6 @@
   "agentMarkStopped": "Durduruldu",
   "agentMarkFailed": "Olmadı",
   "agentShowSteps": "Adımlar ve sonuç",
-  "agentModeOff": "“Yap”ı kapat"
+  "agentModeOff": "“Yap”ı kapat",
+  "noteHintTouchDo": "Not için düğmeyi yukarı, “Yap” için aşağı kaydırın"
 }
