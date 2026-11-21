@@ -118,7 +118,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ]))
       return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, a.maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6 } : {}) })
     }
-    out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal })
+    out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel })
   } catch (err) {
     const reason = err instanceof ActError ? err.reason : "error"
     console.error("[cf] act failed:", err instanceof Error ? err.message : err)

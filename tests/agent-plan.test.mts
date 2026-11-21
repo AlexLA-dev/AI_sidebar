@@ -165,3 +165,18 @@ test("an old server (no plan in its answer): every «Сделать?» asks, as 
   assert.equal(s.status, "confirm")
   assert.equal(s.plan, undefined)
 })
+
+test("an answer refused twice gets a third try with the stronger model before the task stops", async () => {
+  const { nextStep } = await import("../netlify/shared/act.mts")
+  const models: string[] = []
+  const answers: unknown[] = [{ tool: "fill", id: "1", key: "name.phone" }, { tool: "fill", id: "1", key: "name.phone" }, { tool: "type", id: "3", text: "2026-12-05" }]
+  const usage = { model: "m", input: 1, cacheRead: 0, cacheWrite: 0, output: 1 }
+  const opts = { model: "claude-haiku-5-5", startHost: "table.example.com", confirmedHere: false, check: false, ask: async (_c: string, m: string) => (models.push(m), { data: answers.shift(), usage }) }
+  const input = { request: "x", lang: "en", map: BOOK, log: [] }
+  const out = await nextStep(input, { ...opts, fallback: "claude-sonnet-5-5" })
+  assert.deepEqual(models, ["claude-haiku-5-5", "claude-haiku-5-5", "claude-sonnet-5-5"])
+  assert.equal(out.call.tool, "type")
+  assert.equal(out.retries, 2)
+  const bad = await nextStep(input, { ...opts, ask: async () => ({ data: { tool: "nope" }, usage }) })
+  assert.equal(bad.verdict.reason, "bad_call", "without a fallback: two tries, as before")
+})

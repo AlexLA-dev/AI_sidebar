@@ -286,8 +286,10 @@ export interface StepOptions {
   signal?: AbortSignal
   // Steps that change something are checked against the request (off for measuring the driver alone).
   check?: boolean
+  // The model for a third try when the driver's answer was refused twice.
+  fallback?: string
   // The driver's answer when it isn't asked (the measuring tools), and the check's.
-  ask?: (content: string) => Promise<{ data: unknown; usage: Usage }>
+  ask?: (content: string, model: string) => Promise<{ data: unknown; usage: Usage }>
 }
 
 const CHANGES = new Set(["click", "type", "fill", "select", "go"])
@@ -297,15 +299,20 @@ export async function nextStep(input: StepInput, opts: StepOptions): Promise<Ste
   const usage: Usage[] = []
   let refused = input.refused
   let retries = 0
+  let model = opts.model
   for (;;) {
     const content = stepMessage({ ...input, refused })
-    const answer = opts.ask ? await opts.ask(content) : await askJson(opts.model, SYSTEM, content, CALL_SCHEMA, 3000, 25_000, config.agent.effort, opts.signal)
+    const answer = opts.ask ? await opts.ask(content, model) : await askJson(model, SYSTEM, content, CALL_SCHEMA, 3000, 25_000, config.agent.effort, opts.signal)
     usage.push(answer.usage)
     const checked = checkCall(answer.data, input.map, input.keys ?? [])
     if (!checked.ok) {
-      if (retries >= 1) return { call: { tool: "ask_user", question: "", why: checked.error }, verdict: { cls: "blocked", reason: "bad_call" }, target: null, usage, retries }
+      // Refused twice: once more with the stronger model (a task ended on a bad call before: a saved detail Haiku
+      // named that isn't there), then the task stops.
+      const more = retries === 0 || (retries === 1 && !!opts.fallback && opts.fallback !== model)
+      if (!more) return { call: { tool: "ask_user", question: "", why: checked.error }, verdict: { cls: "blocked", reason: "bad_call" }, target: null, usage, retries }
       retries++
       refused = checked.error
+      if (retries === 2 && opts.fallback) model = opts.fallback
       continue
     }
     const call = checked.call
