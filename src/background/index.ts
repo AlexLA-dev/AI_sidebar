@@ -36,6 +36,7 @@ import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
 import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
+import { startAgent } from "./agent"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { collectAi } from "./collect"
@@ -1269,6 +1270,21 @@ startTranslate({
   },
   clientInfo,
   consented,
+  statusChanged: () => (statusCache = null)
+})
+// The agent (2.7.1): a task per tab, its steps through /api/v2/act, deferred tasks, «Мои данные» through the app.
+startAgent({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  consented,
+  plan: async () => {
+    const ent = await entitlement()
+    return ent?.active ? planFromProduct(ent.productId) : "free"
+  },
   statusChanged: () => (statusCache = null)
 })
 // Page watch (2.5): the checks run here while Safari runs; the AI plans a watch and reads a change.

@@ -32,7 +32,7 @@ export function sameSite(a: string, b: string): boolean {
   return !!a && !!b && siteOfHost(a) === siteOfHost(b)
 }
 
-const AMAZON = /(^|\.)amazon\.[a-z.]+$|(^|\.)amzn\.[a-z]+$|(^|\.)audible\.[a-z.]+$/
+export const AMAZON = /(^|\.)amazon\.[a-z.]+$|(^|\.)amzn\.[a-z]+$|(^|\.)audible\.[a-z.]+$/
 const MONEY_NAMES = [
   "paypal", "stripe", "wise", "revolut", "monzo", "n26", "chase", "wellsfargo", "bankofamerica", "citi", "citibank",
   "capitalone", "hsbc", "barclays", "lloydsbank", "natwest", "santander", "bbva", "caixabank", "ing", "commerzbank",

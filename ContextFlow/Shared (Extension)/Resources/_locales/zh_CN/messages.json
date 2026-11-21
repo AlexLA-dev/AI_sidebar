@@ -3137,6 +3137,261 @@
  "writeInserted": {
   "message": "已插入"
  },
+ "agentMode": {
+  "message": "执行"
+ },
+ "agentModeHint": {
+  "message": "让 ContextFlow 在这个页面上帮你做"
+ },
+ "placeholderAgent": {
+  "message": "要在这个页面上做什么？"
+ },
+ "agentWorking": {
+  "message": "正在操作 · 第 {0} 步"
+ },
+ "agentConfirmTitle": {
+  "message": "要执行吗？"
+ },
+ "agentYes": {
+  "message": "是"
+ },
+ "agentNo": {
+  "message": "否"
+ },
+ "agentNoUndo": {
+  "message": "此操作无法撤销。"
+ },
+ "agentOffRequest": {
+  "message": "这似乎不是你要求的：{0}"
+ },
+ "agentStepClick": {
+  "message": "点按“{0}”"
+ },
+ "agentStepType": {
+  "message": "在“{1}”中输入“{0}”"
+ },
+ "agentStepSelect": {
+  "message": "在“{1}”中选择“{0}”"
+ },
+ "agentStepGo": {
+  "message": "前往 {0}"
+ },
+ "agentFillTitle": {
+  "message": "用“我的信息”填写吗？"
+ },
+ "agentFillButton": {
+  "message": "填写"
+ },
+ "agentFillSkip": {
+  "message": "不用了"
+ },
+ "agentSelfTitle": {
+  "message": "这一步由你来做"
+ },
+ "agentSelfPay": {
+  "message": "请自己付款或下单：全部检查好后，点按“{0}”。"
+ },
+ "agentSelfSend": {
+  "message": "请自己发送：读完后，点按“{0}”。"
+ },
+ "agentSelfAuth": {
+  "message": "请自己登录（Safari 可以帮你填写密码）。我等你。"
+ },
+ "agentSelfConsent": {
+  "message": "如果同意，请自己勾选“{0}”。"
+ },
+ "agentSelfRate": {
+  "message": "评价、评分和投票，要由你自己来。"
+ },
+ "agentSelfOther": {
+  "message": "这一步请你自己来：“{0}”。"
+ },
+ "agentSelfFile": {
+  "message": "请自己选择文件。"
+ },
+ "agentSelfDone": {
+  "message": "完成"
+ },
+ "agentSelfNotNow": {
+  "message": "暂不"
+ },
+ "agentDoneTitle": {
+  "message": "已完成"
+ },
+ "agentAskedTitle": {
+  "message": "需要你回答"
+ },
+ "agentStopped": {
+  "message": "已停止。"
+ },
+ "agentUndo": {
+  "message": "撤销"
+ },
+ "agentUndone": {
+  "message": "能恢复的都已恢复。"
+ },
+ "agentLimit": {
+  "message": "今天的智能体任务已用完（每天 {0} 个），明天会恢复。"
+ },
+ "agentProOnly": {
+  "message": "智能体包含在 Pro 和 Ultra 中。"
+ },
+ "agentError": {
+  "message": "出了点问题，请重试。"
+ },
+ "agentErrorPage": {
+  "message": "页面没有响应。请重新载入后重试。"
+ },
+ "agentSteps": {
+  "message": "步骤太多了，我先停在这里。"
+ },
+ "agentBlockedSite": {
+  "message": "在银行、支付、政务等网站上，ContextFlow 不会替你操作，但仍可以回答关于页面的问题。"
+ },
+ "amazonAgent": {
+  "message": "在 Amazon 上，ContextFlow 只能回答关于页面的问题：Amazon 不允许自动化工具在它的网站上替你操作。"
+ },
+ "amazonSimilar": {
+  "message": "未核实：Amazon 不允许我们的服务器打开它的页面。"
+ },
+ "agentStart": {
+  "message": "开始"
+ },
+ "agentDeferredTitle": {
+  "message": "稍后执行的任务"
+ },
+ "agentDontAskHere": {
+  "message": "下次在这个网站上直接开始"
+ },
+ "agentLater": {
+  "message": "稍后"
+ },
+ "agentLaterAt": {
+  "message": "指定时间"
+ },
+ "agentLaterWatch": {
+  "message": "关注的这个页面有变化时"
+ },
+ "agentLaterSet": {
+  "message": "确定"
+ },
+ "agentLaterSaved": {
+  "message": "到 {0}，你会收到通知。点按通知，我就和你一起在这个页面上完成。"
+ },
+ "agentLaterSavedWatch": {
+  "message": "关注的页面有变化时，你会收到通知。点按通知，我就和你一起完成。"
+ },
+ "agentLaterNotifOff": {
+  "message": "ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
+ },
+ "agentLaterLimit": {
+  "message": "已有 {0} 个任务在等待，这是你的套餐上限。"
+ },
+ "agentNotifTitle": {
+  "message": "{0} 上的任务"
+ },
+ "agentNotifBody": {
+  "message": "点按后，我和你一起完成：{0}"
+ },
+ "agentHelpLink": {
+  "message": "智能体不会做的事"
+ },
+ "agentHelp": {
+  "message": "智能体在打开的页面上操作：点按、输入、选择。提交表单前，它会问“要执行吗？”；购买、付款、发消息和登录都留给你自己。它从不查看、也不输入密码、银行卡号和证件号码。验证码、选择文件和一些特殊按钮它处理不了，这时会请你自己完成这一步。稍后执行的任务会以通知的形式送达：点按通知，智能体就会和你一起继续。"
+ },
+ "setAgentAuto": {
+  "message": "在这些网站上，稍后执行的任务直接开始"
+ },
+ "setAgentAutoHint": {
+  "message": "在这些网站上，点按任务通知后会直接开始，无需点“开始”。“要执行吗？”和需要你自己完成的步骤仍会询问你。"
+ },
+ "fdTitle": {
+  "message": "我的信息"
+ },
+ "fdHint": {
+  "message": "用于在网站上填写表单。保存在你的设备上；只有你同意后智能体才会填写，AI 模型看不到这些信息。"
+ },
+ "fdNameFull": {
+  "message": "姓名"
+ },
+ "fdNameGiven": {
+  "message": "名"
+ },
+ "fdNameFamily": {
+  "message": "姓"
+ },
+ "fdNameLatin": {
+  "message": "姓名拼音"
+ },
+ "fdNamePhonetic": {
+  "message": "姓名读音"
+ },
+ "fdEmail": {
+  "message": "电子邮件"
+ },
+ "fdPhone": {
+  "message": "电话"
+ },
+ "fdAddressLine": {
+  "message": "街道和门牌号"
+ },
+ "fdAddressApartment": {
+  "message": "单元、楼层、房间号"
+ },
+ "fdAddressCity": {
+  "message": "城市"
+ },
+ "fdAddressRegion": {
+  "message": "省/州"
+ },
+ "fdAddressPostal": {
+  "message": "邮政编码"
+ },
+ "fdAddressCountry": {
+  "message": "国家/地区"
+ },
+ "fdCompany": {
+  "message": "公司"
+ },
+ "fdJobTitle": {
+  "message": "职位"
+ },
+ "fdWebsite": {
+  "message": "网站"
+ },
+ "fdBirthDate": {
+  "message": "出生日期"
+ },
+ "fdFact": {
+  "message": "其他"
+ },
+ "fdFactLabel": {
+  "message": "名称（例如鞋码）"
+ },
+ "fdAdd": {
+  "message": "添加"
+ },
+ "fdDelete": {
+  "message": "删除"
+ },
+ "fdDeleteAll": {
+  "message": "全部删除"
+ },
+ "fdDeleteAllAsk": {
+  "message": "要从这台设备上删除你的所有信息吗？（如果已通过 iCloud 同步，也会从 iCloud 中删除。）"
+ },
+ "fdRefused": {
+  "message": "我不保存密码、银行卡、银行账户或证件号码、验证码，也不保存健康数据。"
+ },
+ "fdICloudAsk": {
+  "message": "要通过 iCloud 在你的各台设备间同步这些信息吗？"
+ },
+ "fdICloudHint": {
+  "message": "通过你的私人 iCloud 同步，我们无法访问。不同步的话，信息只保存在这台设备上。"
+ },
+ "fdICloud": {
+  "message": "通过 iCloud 同步"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

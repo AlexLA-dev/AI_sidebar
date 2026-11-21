@@ -10,7 +10,7 @@
 import { sameOption } from "../../shared/agent/call"
 import type { StepResult, ToolCall } from "../../shared/agent/types"
 import { readText, replaceText } from "../insert/fieldtext"
-import { elementOf, nameOf, roleOf } from "./map"
+import { elementOf, markFilled, nameOf, roleOf } from "./map"
 import { fieldLock } from "../../shared/agent/fields"
 
 const SETTLE_QUIET_MS = 350
@@ -247,10 +247,10 @@ export async function act(call: ToolCall, doc: Document = document): Promise<Ste
 
 async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
   const view = doc.defaultView ?? window
-  const needs = call.tool === "click" || call.tool === "type" || call.tool === "select" || call.tool === "go"
+  const needs = call.tool === "click" || call.tool === "type" || call.tool === "fill" || call.tool === "select" || call.tool === "go"
   const el = call.id ? elementOf(call.id) : null
   if (needs && !el) return { ok: false, note: `element ${call.id} is gone from the page (read it again)` }
-  if (el && (call.tool === "type" || call.tool === "click" || call.tool === "select") && lockOf(el) === "secret") {
+  if (el && (call.tool === "type" || call.tool === "fill" || call.tool === "click" || call.tool === "select") && lockOf(el) === "secret") {
     return { ok: false, note: "a secret field: the agent never touches it" }
   }
   switch (call.tool) {
@@ -274,6 +274,15 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       const r = await typeInto(el!, call.text ?? "", call.mode ?? "replace")
       if (r.undo) r.undo.id = call.id!
       return r
+    }
+    case "fill": {
+      // A value from «Мои данные», after the person's «Заполнить»: typed, or chosen in a list; marked so the map hides it.
+      reveal(el!)
+      const list = tag(el!) === "select" || roleOf(el!) === "listbox" || roleOf(el!) === "radio"
+      const r = list ? await choose(el!, call.text ?? "") : await typeInto(el!, call.text ?? "", "replace")
+      markFilled(el!)
+      if (r.undo) r.undo.id = call.id!
+      return { ...r, note: r.ok ? "filled" : r.note }
     }
     case "select": {
       reveal(el!)

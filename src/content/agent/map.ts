@@ -46,6 +46,13 @@ function idOf(el: Element, frame: string): string {
   return id
 }
 
+// Fields the agent filled from «Мои данные»: shown to the model as filled, never with their value.
+const fromData = new WeakSet<Element>()
+
+export function markFilled(el: Element): void {
+  fromData.add(el)
+}
+
 /** The element a map number names, while it's still on the page. */
 export function elementOf(id: string): Element | null {
   const el = byId.get(id)?.deref() ?? null
@@ -432,7 +439,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     const type = tag(el) === "input" ? (input.type || "text").toLowerCase() : tag(el) === "button" ? ((el as HTMLButtonElement).type || "submit").toLowerCase() : undefined
     const field = role === "textbox" || role === "textarea" || role === "editor" || role === "combobox" || role === "select"
     const lock: Lock | null = field || role === "listbox"
-      ? fieldLock({ tag: tag(el), type, autocomplete: el.getAttribute("autocomplete") ?? "", name: el.getAttribute("name") ?? "", id: el.id, label })
+      ? fieldLock({ tag: tag(el), type, autocomplete: el.getAttribute("autocomplete") ?? "", name: el.getAttribute("name") ?? "", id: el.id, label }) ?? (fromData.has(el) ? "personal" : null)
       : null
     const item: MapItem & { order: number } = { id: idOf(el, f.frame), role, label, order }
     if (type && type !== "text" && type !== "submit" && role !== "checkbox" && role !== "radio") item.type = type

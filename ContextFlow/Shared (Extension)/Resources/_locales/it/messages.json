@@ -3137,6 +3137,261 @@
  "writeInserted": {
   "message": "Inserito"
  },
+ "agentMode": {
+  "message": "Fai"
+ },
+ "agentModeHint": {
+  "message": "Lascia che ContextFlow lo faccia su questa pagina"
+ },
+ "placeholderAgent": {
+  "message": "Cosa devo fare su questa pagina?"
+ },
+ "agentWorking": {
+  "message": "Al lavoro · passo {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Lo faccio?"
+ },
+ "agentYes": {
+  "message": "Sì"
+ },
+ "agentNo": {
+  "message": "No"
+ },
+ "agentNoUndo": {
+  "message": "Non si potrà annullare."
+ },
+ "agentOffRequest": {
+  "message": "Non sembra quello che hai chiesto: {0}"
+ },
+ "agentStepClick": {
+  "message": "Premere «{0}»"
+ },
+ "agentStepType": {
+  "message": "Scrivere «{0}» in «{1}»"
+ },
+ "agentStepSelect": {
+  "message": "Scegliere «{0}» in «{1}»"
+ },
+ "agentStepGo": {
+  "message": "Andare su {0}"
+ },
+ "agentFillTitle": {
+  "message": "Compilare con «I miei dati»?"
+ },
+ "agentFillButton": {
+  "message": "Compila"
+ },
+ "agentFillSkip": {
+  "message": "No, grazie"
+ },
+ "agentSelfTitle": {
+  "message": "Questo passo tocca a te"
+ },
+ "agentSelfPay": {
+  "message": "Paga o conferma l’ordine tu: premi «{0}» quando hai controllato tutto."
+ },
+ "agentSelfSend": {
+  "message": "Invialo tu: premi «{0}» quando l’hai letto."
+ },
+ "agentSelfAuth": {
+  "message": "Accedi tu (Safari può inserire la password). Ti aspetto."
+ },
+ "agentSelfConsent": {
+  "message": "Spunta «{0}» tu, se sei d’accordo."
+ },
+ "agentSelfRate": {
+  "message": "Recensioni, valutazioni e voti spettano solo a te."
+ },
+ "agentSelfOther": {
+  "message": "Fallo tu: «{0}»."
+ },
+ "agentSelfFile": {
+  "message": "Scegli tu il file."
+ },
+ "agentSelfDone": {
+  "message": "Fatto"
+ },
+ "agentSelfNotNow": {
+  "message": "Non ora"
+ },
+ "agentDoneTitle": {
+  "message": "Fatto"
+ },
+ "agentAskedTitle": {
+  "message": "Mi serve una tua risposta"
+ },
+ "agentStopped": {
+  "message": "Interrotto."
+ },
+ "agentUndo": {
+  "message": "Annulla"
+ },
+ "agentUndone": {
+  "message": "Ho rimesso a posto tutto quello che si poteva."
+ },
+ "agentLimit": {
+  "message": "Le attività dell’agente per oggi sono finite ({0} al giorno). Domani ce ne saranno altre."
+ },
+ "agentProOnly": {
+  "message": "L’agente è incluso in Pro e Ultra."
+ },
+ "agentError": {
+  "message": "Si è verificato un errore. Riprova."
+ },
+ "agentErrorPage": {
+  "message": "La pagina non risponde. Ricaricala e riprova."
+ },
+ "agentSteps": {
+  "message": "Servivano troppi passi, quindi mi sono fermato qui."
+ },
+ "agentBlockedSite": {
+  "message": "Sui siti di banche, pagamenti, pubblica amministrazione e simili, ContextFlow non agisce al posto tuo. Può comunque rispondere a domande sulla pagina."
+ },
+ "amazonAgent": {
+  "message": "Su Amazon ContextFlow può solo rispondere a domande sulla pagina: Amazon non permette a strumenti automatici di agire sul suo sito al posto tuo."
+ },
+ "amazonSimilar": {
+  "message": "Non verificato: Amazon non lascia che il nostro server apra le sue pagine."
+ },
+ "agentStart": {
+  "message": "Inizia"
+ },
+ "agentDeferredTitle": {
+  "message": "Attività per dopo"
+ },
+ "agentDontAskHere": {
+  "message": "Su questo sito, la prossima volta inizia subito"
+ },
+ "agentLater": {
+  "message": "Più tardi"
+ },
+ "agentLaterAt": {
+  "message": "A un’ora precisa"
+ },
+ "agentLaterWatch": {
+  "message": "Quando scatta l’avviso su questa pagina seguita"
+ },
+ "agentLaterSet": {
+  "message": "Imposta"
+ },
+ "agentLaterSaved": {
+  "message": "Ti arriverà una notifica: {0}. Toccala e lo faccio con te su questa pagina."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Quando scatta l’avviso, ti arriva una notifica. Toccala e lo faccio con te."
+ },
+ "agentLaterNotifOff": {
+  "message": "Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni → Notifiche → ContextFlow."
+ },
+ "agentLaterLimit": {
+  "message": "Ci sono già {0} attività in attesa, il massimo del tuo piano."
+ },
+ "agentNotifTitle": {
+  "message": "Un’attività su {0}"
+ },
+ "agentNotifBody": {
+  "message": "Tocca e lo faccio con te: {0}"
+ },
+ "agentHelpLink": {
+  "message": "Cosa non fa l’agente"
+ },
+ "agentHelp": {
+  "message": "L’agente fa le cose sulla pagina aperta: preme, scrive, sceglie. Prima di inviare un modulo chiede «Lo faccio?», e lascia a te acquisti, pagamenti, messaggi e accessi. Non vede né inserisce mai password, carte o numeri di documenti. Captcha, scelta di un file e alcuni pulsanti insoliti sono fuori dalla sua portata: allora ti chiede di fare tu quel passo. Un’attività per dopo arriva come notifica: toccala e l’agente continua con te."
+ },
+ "setAgentAuto": {
+  "message": "Le attività per dopo partono subito su"
+ },
+ "setAgentAutoHint": {
+  "message": "Lì un’attività parte appena tocchi la sua notifica, senza «Inizia». «Lo faccio?» e i tuoi passi chiedono comunque."
+ },
+ "fdTitle": {
+  "message": "I miei dati"
+ },
+ "fdHint": {
+  "message": "Per compilare i moduli sui siti. Restano sul tuo dispositivo; l’agente li inserisce solo se sei d’accordo, e l’IA non li vede mai."
+ },
+ "fdNameFull": {
+  "message": "Nome e cognome"
+ },
+ "fdNameGiven": {
+  "message": "Nome"
+ },
+ "fdNameFamily": {
+  "message": "Cognome"
+ },
+ "fdNameLatin": {
+  "message": "Nome in caratteri latini"
+ },
+ "fdNamePhonetic": {
+  "message": "Pronuncia del nome"
+ },
+ "fdEmail": {
+  "message": "E-mail"
+ },
+ "fdPhone": {
+  "message": "Telefono"
+ },
+ "fdAddressLine": {
+  "message": "Via e numero civico"
+ },
+ "fdAddressApartment": {
+  "message": "Interno, piano"
+ },
+ "fdAddressCity": {
+  "message": "Città"
+ },
+ "fdAddressRegion": {
+  "message": "Provincia o stato"
+ },
+ "fdAddressPostal": {
+  "message": "CAP"
+ },
+ "fdAddressCountry": {
+  "message": "Paese"
+ },
+ "fdCompany": {
+  "message": "Azienda"
+ },
+ "fdJobTitle": {
+  "message": "Ruolo"
+ },
+ "fdWebsite": {
+  "message": "Sito web"
+ },
+ "fdBirthDate": {
+  "message": "Data di nascita"
+ },
+ "fdFact": {
+  "message": "Altro"
+ },
+ "fdFactLabel": {
+  "message": "Cos’è (es. numero di scarpe)"
+ },
+ "fdAdd": {
+  "message": "Aggiungi"
+ },
+ "fdDelete": {
+  "message": "Elimina"
+ },
+ "fdDeleteAll": {
+  "message": "Elimina tutto"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Eliminare tutti i tuoi dati da questo dispositivo (e da iCloud, se sono sincronizzati)?"
+ },
+ "fdRefused": {
+  "message": "Non conservo password, carte, coordinate bancarie, numeri di documenti, codici o dati sanitari."
+ },
+ "fdICloudAsk": {
+  "message": "Sincronizzare i tuoi dati sui tuoi dispositivi tramite iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "Tramite il tuo iCloud privato, a cui non abbiamo accesso. Senza, restano su questo dispositivo."
+ },
+ "fdICloud": {
+  "message": "Sincronizza con iCloud"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

@@ -22,6 +22,7 @@ export function markdownWords(): MarkdownWords {
     outOfStock: t("similarStockOut"),
     notConfirmed: t("similarNotConfirmed"),
     notOpened: t("similarNotOpened"),
+    notOpenedAmazon: t("amazonSimilar"),
     percent: (n) => t("similarPercent", n),
     estimated: t("similarEstimated"),
     differs: (s) => t("similarDiffers", s),

@@ -2,6 +2,7 @@
 // worker and the server share. The panel asks only engine A (ours, every link opened and checked on our server); engine B (Google)
 // stays off the panel's path.
 
+import { isAmazon } from "./amazon.ts"
 import { hasPro, isUltra, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, type Plan } from "./plan.ts"
 import type { Usage } from "./types.ts"
 import { isOutOfStock } from "./watch/detect.ts"
@@ -227,6 +228,8 @@ export interface MarkdownWords {
   outOfStock: string
   notConfirmed: string
   notOpened: string
+  // 2.7.1: an Amazon item can't be checked (Amazon doesn't let our server open its pages), said so (src/shared/amazon.ts).
+  notOpenedAmazon?: string
   // Build 95: the rest of what the panel shows, so the app's copy (and a copy or share) carries it too.
   percent?: (n: number) => string
   estimated?: string
@@ -257,7 +260,7 @@ export function similarMarkdown(a: Pick<SimilarAnswer, "intro" | "items" | "note
       it.stock === "in" ? words.inStock : it.stock === "out" ? words.outOfStock : "",
       it.similarity !== undefined && words.percent && !it.same ? `${words.percent(it.similarity)}${it.estimated && words.estimated ? `, ${words.estimated}` : ""}` : "",
       it.met === "unknown" ? words.notConfirmed : it.met === "no" && words.misses ? words.misses : "",
-      it.checked ? "" : words.notOpened
+      it.checked ? "" : (words.notOpenedAmazon && isAmazon(it.url) ? words.notOpenedAmazon : words.notOpened)
     ].filter(Boolean).join(" · ")
     const r = it.reviews
     const said = r && words.say ? [

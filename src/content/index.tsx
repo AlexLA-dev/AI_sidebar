@@ -3,6 +3,9 @@ import { render } from "preact"
 import { SHADOW_MODE, TARGET } from "../shared/config"
 import type { ContentRequest } from "../shared/types"
 import { uiDirection, uiLang } from "../shared/i18n"
+import type { ToolCall } from "../shared/agent/types"
+import { act, undo } from "./agent/hands"
+import { buildMap } from "./agent/map"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
@@ -27,6 +30,7 @@ import inviteStyles from "./invite/invite.css"
 import spacesStyles from "./spaces.css"
 import collectionsStyles from "./collections.css"
 import quietStyles from "./quiet/quiet.css"
+import agentStyles from "./agent/agent.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -51,6 +55,24 @@ function boot(): void {
     // 2.6 (98): a link in a chat opened this page, already open in this tab: the panel opens on that chat.
     if (message?.type === "openChat") {
       bus.dispatchEvent(new CustomEvent("openChat", { detail: { chat: message.chat, at: message.at } }))
+      sendResponse({ ok: true })
+    }
+    // The agent (2.7.1): the background's task asks for the page map, does a step, puts a step back, shows its state.
+    const agent = message as unknown as { type: string; call?: ToolCall; undo?: Parameters<typeof undo>[0]; state?: unknown }
+    if (agent?.type === "agentMap") {
+      sendResponse(buildMap(document))
+      return false
+    }
+    if (agent?.type === "agentAct" && agent.call) {
+      act(agent.call).then(sendResponse, (err) => sendResponse({ ok: false, note: String(err).slice(0, 120) }))
+      return true
+    }
+    if (agent?.type === "agentUndoStep" && agent.undo) {
+      undo(agent.undo).then((ok) => sendResponse({ ok }), () => sendResponse({ ok: false }))
+      return true
+    }
+    if (agent?.type === "agentState") {
+      bus.dispatchEvent(new CustomEvent("agentState", { detail: agent.state }))
       sendResponse({ ok: true })
     }
     // A new install asks before it opens its «ContextFlow is ready» tab over this page (src/shared/welcomeTab.ts).
@@ -84,7 +106,8 @@ ${sideStyles}
 ${pageHintStyles}
 ${inviteStyles}
 ${collectionsStyles}
-${quietStyles}`
+${quietStyles}
+${agentStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

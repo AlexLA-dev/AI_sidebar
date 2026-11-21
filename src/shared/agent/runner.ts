@@ -79,6 +79,8 @@ export interface RunnerIO {
   entries(): Promise<FormEntry[]>
   policy: SitePolicy
   maxSteps: number
+  // The person pressed «Стоп» while a step was on its way (the background's stored state says so).
+  isStopped?: () => Promise<boolean>
 }
 
 export function newState(id: string, request: string, lang: string, url: string, deferred?: string): AgentState {
@@ -156,6 +158,10 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     })
     state.refused = undefined
     state.data = undefined
+    if (await io.isStopped?.()) {
+      state.status = "stopped"
+      break
+    }
     if (!reply.ok || !reply.call || !reply.verdict) {
       state.status = "error"
       state.error = reply.code ?? "UPSTREAM"
@@ -239,7 +245,7 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
   state.pending = undefined
   state.status = "running"
   const { call, verdict, target } = pending
-  if (a === "yes" && (state.status === "running") && (verdict.cls === "confirm")) {
+  if (a === "yes" && verdict.cls === "confirm") {
     state.confirmedHere = true
     if (call.tool === "fill") {
       const lines = (pending.fill ?? []).filter((l) => !chosen || chosen.includes(l.entryId))

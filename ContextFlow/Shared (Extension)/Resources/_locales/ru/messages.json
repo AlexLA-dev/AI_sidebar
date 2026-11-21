@@ -3137,6 +3137,261 @@
  "writeInserted": {
   "message": "Вставлено"
  },
+ "agentMode": {
+  "message": "Сделать"
+ },
+ "agentModeHint": {
+  "message": "Пусть ContextFlow сделает это на странице"
+ },
+ "placeholderAgent": {
+  "message": "Что сделать на этой странице?"
+ },
+ "agentWorking": {
+  "message": "Работаю · шаг {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Сделать?"
+ },
+ "agentYes": {
+  "message": "Да"
+ },
+ "agentNo": {
+  "message": "Нет"
+ },
+ "agentNoUndo": {
+  "message": "Это нельзя будет отменить."
+ },
+ "agentOffRequest": {
+  "message": "Похоже, вы об этом не просили: {0}"
+ },
+ "agentStepClick": {
+  "message": "Нажать «{0}»"
+ },
+ "agentStepType": {
+  "message": "Ввести «{0}» в поле «{1}»"
+ },
+ "agentStepSelect": {
+  "message": "Выбрать «{0}» в «{1}»"
+ },
+ "agentStepGo": {
+  "message": "Перейти на {0}"
+ },
+ "agentFillTitle": {
+  "message": "Заполнить из «Моих данных»?"
+ },
+ "agentFillButton": {
+  "message": "Заполнить"
+ },
+ "agentFillSkip": {
+  "message": "Не надо"
+ },
+ "agentSelfTitle": {
+  "message": "Этот шаг — ваш"
+ },
+ "agentSelfPay": {
+  "message": "Оплатите или оформите заказ сами: нажмите «{0}», когда всё проверите."
+ },
+ "agentSelfSend": {
+  "message": "Отправьте сами: нажмите «{0}», когда прочитаете."
+ },
+ "agentSelfAuth": {
+  "message": "Войдите сами (Safari может подставить пароль). Я подожду."
+ },
+ "agentSelfConsent": {
+  "message": "Поставьте галочку «{0}» сами, если согласны."
+ },
+ "agentSelfRate": {
+  "message": "Отзывы, оценки и голоса — только ваши."
+ },
+ "agentSelfOther": {
+  "message": "Сделайте это сами: «{0}»."
+ },
+ "agentSelfFile": {
+  "message": "Выберите файл сами."
+ },
+ "agentSelfDone": {
+  "message": "Готово"
+ },
+ "agentSelfNotNow": {
+  "message": "Не сейчас"
+ },
+ "agentDoneTitle": {
+  "message": "Готово"
+ },
+ "agentAskedTitle": {
+  "message": "Нужен ваш ответ"
+ },
+ "agentStopped": {
+  "message": "Остановлено."
+ },
+ "agentUndo": {
+  "message": "Отменить"
+ },
+ "agentUndone": {
+  "message": "Вернул всё, что можно вернуть."
+ },
+ "agentLimit": {
+  "message": "Дела агента на сегодня закончились ({0} в день). Завтра будут снова."
+ },
+ "agentProOnly": {
+  "message": "Агент есть в Pro и Ultra."
+ },
+ "agentError": {
+  "message": "Что-то пошло не так. Попробуйте ещё раз."
+ },
+ "agentErrorPage": {
+  "message": "Страница не отвечает. Обновите её и попробуйте снова."
+ },
+ "agentSteps": {
+  "message": "Шагов вышло слишком много, я остановился здесь."
+ },
+ "agentBlockedSite": {
+  "message": "На сайтах банков, платёжных сервисов, госпорталов и подобных ContextFlow не действует за вас. Но может отвечать на вопросы о странице."
+ },
+ "amazonAgent": {
+  "message": "На Amazon ContextFlow может только отвечать на вопросы о странице: Amazon не разрешает автоматически действовать на своём сайте за вас."
+ },
+ "amazonSimilar": {
+  "message": "Не проверено: Amazon не даёт нашему серверу открывать свои страницы."
+ },
+ "agentStart": {
+  "message": "Начать"
+ },
+ "agentDeferredTitle": {
+  "message": "Отложенное дело"
+ },
+ "agentDontAskHere": {
+  "message": "На этом сайте начинать сразу"
+ },
+ "agentLater": {
+  "message": "Позже"
+ },
+ "agentLaterAt": {
+  "message": "В нужное время"
+ },
+ "agentLaterWatch": {
+  "message": "Когда сработает слежение за этой страницей"
+ },
+ "agentLaterSet": {
+  "message": "Готово"
+ },
+ "agentLaterSaved": {
+  "message": "В {0} придёт уведомление. Нажмёте — сделаю это на странице вместе с вами."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Когда сработает слежение, придёт уведомление. Нажмёте — сделаю вместе с вами."
+ },
+ "agentLaterNotifOff": {
+  "message": "Уведомления для ContextFlow выключены. Включите их в Настройках → Уведомления → ContextFlow."
+ },
+ "agentLaterLimit": {
+  "message": "Уже ждут {0} дел — это предел вашего тарифа."
+ },
+ "agentNotifTitle": {
+  "message": "Дело на {0}"
+ },
+ "agentNotifBody": {
+  "message": "Нажмите — сделаю вместе с вами: {0}"
+ },
+ "agentHelpLink": {
+  "message": "Чего агент не сделает"
+ },
+ "agentHelp": {
+  "message": "Агент делает дело на открытой странице: нажимает, печатает, выбирает. Перед отправкой формы он спрашивает «Сделать?», а покупку, оплату, письма и вход оставляет вам. Пароли, карты и номера документов он не видит и не вводит. С капчей, выбором файла и некоторыми необычными кнопками он не справится — тогда попросит сделать этот шаг вас. Отложенное дело приходит уведомлением: нажмёте — агент продолжит вместе с вами."
+ },
+ "setAgentAuto": {
+  "message": "Отложенные дела начинаются сразу на сайтах"
+ },
+ "setAgentAutoHint": {
+  "message": "Там дело начинается сразу после нажатия на уведомление, без «Начать». «Сделать?» и ваши шаги всё равно спрашивают."
+ },
+ "fdTitle": {
+  "message": "Мои данные"
+ },
+ "fdHint": {
+  "message": "Для заполнения форм на сайтах. Хранятся на устройстве; агент подставляет их только после вашего согласия, ИИ их не видит."
+ },
+ "fdNameFull": {
+  "message": "Имя и фамилия"
+ },
+ "fdNameGiven": {
+  "message": "Имя"
+ },
+ "fdNameFamily": {
+  "message": "Фамилия"
+ },
+ "fdNameLatin": {
+  "message": "Имя латиницей"
+ },
+ "fdNamePhonetic": {
+  "message": "Произношение имени"
+ },
+ "fdEmail": {
+  "message": "Электронная почта"
+ },
+ "fdPhone": {
+  "message": "Телефон"
+ },
+ "fdAddressLine": {
+  "message": "Улица и дом"
+ },
+ "fdAddressApartment": {
+  "message": "Квартира, этаж"
+ },
+ "fdAddressCity": {
+  "message": "Город"
+ },
+ "fdAddressRegion": {
+  "message": "Регион"
+ },
+ "fdAddressPostal": {
+  "message": "Индекс"
+ },
+ "fdAddressCountry": {
+  "message": "Страна"
+ },
+ "fdCompany": {
+  "message": "Компания"
+ },
+ "fdJobTitle": {
+  "message": "Должность"
+ },
+ "fdWebsite": {
+  "message": "Сайт"
+ },
+ "fdBirthDate": {
+  "message": "Дата рождения"
+ },
+ "fdFact": {
+  "message": "Другое"
+ },
+ "fdFactLabel": {
+  "message": "Что это (например, размер обуви)"
+ },
+ "fdAdd": {
+  "message": "Добавить"
+ },
+ "fdDelete": {
+  "message": "Удалить"
+ },
+ "fdDeleteAll": {
+  "message": "Удалить все"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Удалить все ваши данные с этого устройства (и из iCloud, если они синхронизируются)?"
+ },
+ "fdRefused": {
+  "message": "Пароли, карты, банковские реквизиты, номера документов, коды и данные о здоровье я не храню."
+ },
+ "fdICloudAsk": {
+  "message": "Синхронизировать ваши данные на ваших устройствах через iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "Через ваш личный iCloud, к которому у нас нет доступа. Без этого они остаются на этом устройстве."
+ },
+ "fdICloud": {
+  "message": "Синхронизировать через iCloud"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

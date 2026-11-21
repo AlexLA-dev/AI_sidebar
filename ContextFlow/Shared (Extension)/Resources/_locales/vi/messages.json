@@ -3137,6 +3137,261 @@
  "writeInserted": {
   "message": "Đã chèn"
  },
+ "agentMode": {
+  "message": "Làm"
+ },
+ "agentModeHint": {
+  "message": "Để ContextFlow làm việc này trên trang"
+ },
+ "placeholderAgent": {
+  "message": "Cần làm gì trên trang này?"
+ },
+ "agentWorking": {
+  "message": "Đang làm · bước {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Làm nhé?"
+ },
+ "agentYes": {
+  "message": "Có"
+ },
+ "agentNo": {
+  "message": "Không"
+ },
+ "agentNoUndo": {
+  "message": "Việc này không thể hoàn tác."
+ },
+ "agentOffRequest": {
+  "message": "Có vẻ bạn không yêu cầu việc này: {0}"
+ },
+ "agentStepClick": {
+  "message": "Nhấn “{0}”"
+ },
+ "agentStepType": {
+  "message": "Nhập “{0}” vào “{1}”"
+ },
+ "agentStepSelect": {
+  "message": "Chọn “{0}” trong “{1}”"
+ },
+ "agentStepGo": {
+  "message": "Đi tới {0}"
+ },
+ "agentFillTitle": {
+  "message": "Điền từ “Thông tin của tôi”?"
+ },
+ "agentFillButton": {
+  "message": "Điền"
+ },
+ "agentFillSkip": {
+  "message": "Không cần"
+ },
+ "agentSelfTitle": {
+  "message": "Bước này là của bạn"
+ },
+ "agentSelfPay": {
+  "message": "Bạn tự thanh toán hoặc đặt hàng nhé: nhấn “{0}” khi đã kiểm tra hết."
+ },
+ "agentSelfSend": {
+  "message": "Bạn tự gửi nhé: nhấn “{0}” khi đã đọc xong."
+ },
+ "agentSelfAuth": {
+  "message": "Bạn tự đăng nhập nhé (Safari có thể điền mật khẩu). Tôi sẽ chờ."
+ },
+ "agentSelfConsent": {
+  "message": "Nếu đồng ý, bạn hãy tự đánh dấu “{0}”."
+ },
+ "agentSelfRate": {
+  "message": "Đánh giá, chấm điểm và bình chọn là việc của riêng bạn."
+ },
+ "agentSelfOther": {
+  "message": "Bạn hãy tự làm việc này: “{0}”."
+ },
+ "agentSelfFile": {
+  "message": "Bạn hãy tự chọn tệp."
+ },
+ "agentSelfDone": {
+  "message": "Xong"
+ },
+ "agentSelfNotNow": {
+  "message": "Để sau"
+ },
+ "agentDoneTitle": {
+  "message": "Xong"
+ },
+ "agentAskedTitle": {
+  "message": "Tôi cần bạn trả lời"
+ },
+ "agentStopped": {
+  "message": "Đã dừng."
+ },
+ "agentUndo": {
+  "message": "Hoàn tác"
+ },
+ "agentUndone": {
+  "message": "Đã khôi phục những gì có thể khôi phục."
+ },
+ "agentLimit": {
+  "message": "Hôm nay tác nhân đã hết lượt việc ({0} mỗi ngày). Ngày mai sẽ có lại."
+ },
+ "agentProOnly": {
+  "message": "Tác nhân có trong Pro và Ultra."
+ },
+ "agentError": {
+  "message": "Đã xảy ra lỗi. Hãy thử lại."
+ },
+ "agentErrorPage": {
+  "message": "Trang không phản hồi. Hãy tải lại trang và thử lại."
+ },
+ "agentSteps": {
+  "message": "Việc này cần quá nhiều bước, nên tôi dừng ở đây."
+ },
+ "agentBlockedSite": {
+  "message": "Trên trang web ngân hàng, thanh toán, cơ quan nhà nước và các trang tương tự, ContextFlow không thao tác thay bạn. Nhưng vẫn có thể trả lời câu hỏi về trang."
+ },
+ "amazonAgent": {
+  "message": "Trên Amazon, ContextFlow chỉ có thể trả lời câu hỏi về trang: Amazon không cho phép công cụ tự động thao tác thay bạn trên trang web của họ."
+ },
+ "amazonSimilar": {
+  "message": "Chưa kiểm tra: Amazon không cho máy chủ của chúng tôi mở các trang của họ."
+ },
+ "agentStart": {
+  "message": "Bắt đầu"
+ },
+ "agentDeferredTitle": {
+  "message": "Việc để sau"
+ },
+ "agentDontAskHere": {
+  "message": "Lần sau bắt đầu ngay trên trang web này"
+ },
+ "agentLater": {
+  "message": "Làm sau"
+ },
+ "agentLaterAt": {
+  "message": "Hẹn giờ"
+ },
+ "agentLaterWatch": {
+  "message": "Khi theo dõi trang này báo thay đổi"
+ },
+ "agentLaterSet": {
+  "message": "Xong"
+ },
+ "agentLaterSaved": {
+  "message": "Vào {0}, bạn sẽ nhận được thông báo. Chạm vào đó, tôi sẽ cùng bạn làm việc này trên trang."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Khi theo dõi báo thay đổi, bạn sẽ nhận được thông báo. Chạm vào đó, tôi sẽ cùng bạn làm việc này."
+ },
+ "agentLaterNotifOff": {
+  "message": "Thông báo của ContextFlow đang tắt. Hãy bật trong Cài đặt → Thông báo → ContextFlow."
+ },
+ "agentLaterLimit": {
+  "message": "Đã có {0} việc đang chờ, mức tối đa của gói bạn dùng."
+ },
+ "agentNotifTitle": {
+  "message": "Một việc trên {0}"
+ },
+ "agentNotifBody": {
+  "message": "Chạm vào, tôi sẽ cùng bạn làm: {0}"
+ },
+ "agentHelpLink": {
+  "message": "Những gì tác nhân không làm"
+ },
+ "agentHelp": {
+  "message": "Tác nhân làm việc trên trang đang mở: nhấn, nhập, chọn. Trước khi gửi biểu mẫu, nó hỏi “Làm nhé?”, và để bạn tự mua hàng, thanh toán, nhắn tin và đăng nhập. Nó không bao giờ thấy hay nhập mật khẩu, thẻ hoặc số giấy tờ. Captcha, chọn tệp và một số nút lạ thì nó không làm được: khi đó nó sẽ nhờ bạn làm bước ấy. Việc để sau đến dưới dạng thông báo: chạm vào, tác nhân sẽ tiếp tục cùng bạn."
+ },
+ "setAgentAuto": {
+  "message": "Việc để sau bắt đầu ngay trên"
+ },
+ "setAgentAutoHint": {
+  "message": "Ở đó, chạm vào thông báo là việc bắt đầu luôn, không cần “Bắt đầu”. “Làm nhé?” và các bước của riêng bạn vẫn sẽ hỏi."
+ },
+ "fdTitle": {
+  "message": "Thông tin của tôi"
+ },
+ "fdHint": {
+  "message": "Dùng để điền biểu mẫu trên các trang web. Lưu trên thiết bị của bạn; tác nhân chỉ điền sau khi bạn đồng ý, và AI không bao giờ thấy chúng."
+ },
+ "fdNameFull": {
+  "message": "Họ và tên"
+ },
+ "fdNameGiven": {
+  "message": "Tên"
+ },
+ "fdNameFamily": {
+  "message": "Họ"
+ },
+ "fdNameLatin": {
+  "message": "Tên bằng chữ Latinh (không dấu)"
+ },
+ "fdNamePhonetic": {
+  "message": "Cách đọc tên"
+ },
+ "fdEmail": {
+  "message": "Email"
+ },
+ "fdPhone": {
+  "message": "Điện thoại"
+ },
+ "fdAddressLine": {
+  "message": "Số nhà, tên đường"
+ },
+ "fdAddressApartment": {
+  "message": "Căn hộ, tầng"
+ },
+ "fdAddressCity": {
+  "message": "Thành phố"
+ },
+ "fdAddressRegion": {
+  "message": "Tỉnh hoặc bang"
+ },
+ "fdAddressPostal": {
+  "message": "Mã bưu chính"
+ },
+ "fdAddressCountry": {
+  "message": "Quốc gia"
+ },
+ "fdCompany": {
+  "message": "Công ty"
+ },
+ "fdJobTitle": {
+  "message": "Chức danh"
+ },
+ "fdWebsite": {
+  "message": "Trang web"
+ },
+ "fdBirthDate": {
+  "message": "Ngày sinh"
+ },
+ "fdFact": {
+  "message": "Thông tin khác"
+ },
+ "fdFactLabel": {
+  "message": "Đây là gì (ví dụ: cỡ giày)"
+ },
+ "fdAdd": {
+  "message": "Thêm"
+ },
+ "fdDelete": {
+  "message": "Xóa"
+ },
+ "fdDeleteAll": {
+  "message": "Xóa tất cả"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Xóa tất cả thông tin của bạn khỏi thiết bị này (và khỏi iCloud, nếu có đồng bộ)?"
+ },
+ "fdRefused": {
+  "message": "Tôi không lưu mật khẩu, thẻ, thông tin ngân hàng, số giấy tờ, mã hay dữ liệu sức khỏe."
+ },
+ "fdICloudAsk": {
+  "message": "Đồng bộ thông tin của bạn giữa các thiết bị qua iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "Qua iCloud riêng của bạn, nơi chúng tôi không thể truy cập. Nếu không bật, thông tin chỉ nằm trên thiết bị này."
+ },
+ "fdICloud": {
+  "message": "Đồng bộ qua iCloud"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

@@ -1,0 +1,33 @@
+/* The agent in the panel (2.7.1): the working strip, its steps, what it waits for, «Мои данные». */
+.cf-agent { display: flex; flex-direction: column; gap: 8px; }
+.cf-agent-strip { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); font-size: 13px; }
+.cf-agent-step { flex: 1; font-weight: 600; }
+.cf-agent-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: .5; }
+.cf-agent-dot.on { animation: cf-agent-pulse 1.2s ease-in-out infinite; opacity: 1; }
+@keyframes cf-agent-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.55); opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .cf-agent-dot.on { animation: none; } }
+.cf-agent-stop { padding: 4px 10px; font-size: 13px; }
+.cf-agent-request { margin: 0; font-weight: 600; color: var(--text); }
+.cf-agent-lines { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--text-2); }
+.cf-agent-lines li.no { color: var(--text-3); }
+.cf-agent-mark { display: inline-block; width: 1em; color: var(--ok); }
+.cf-agent-lines li.no .cf-agent-mark { color: var(--text-3); }
+.cf-agent-ask { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-2); }
+.cf-agent-ask p { margin: 0; }
+.cf-agent-warn { color: var(--note-text); background: var(--note-soft); padding: 6px 8px; border-radius: 8px; display: flex; gap: 6px; align-items: flex-start; }
+.cf-agent-fill { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cf-agent-fill b { font-weight: 600; word-break: break-word; }
+.cf-agent-end { display: flex; flex-direction: column; gap: 6px; }
+.cf-agent-end p { margin: 0; }
+.cf-agent-help p { margin: 0; font-size: 13px; color: var(--text-2); }
+.cf-mode.cf-agent-mode.on { background: var(--accent); color: #fff; }
+.cf-input-line { font: inherit; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); min-width: 0; }
+.cf-mydetails .cf-fd-list { margin: 6px 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cf-mydetails .cf-fd-list li { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.cf-fd-name { color: var(--text-2); font-size: 13px; min-width: 8em; }
+.cf-fd-value { flex: 1; word-break: break-word; }
+.cf-fd-add { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 6px 0; }
+.cf-fd-add select { font: inherit; padding: 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.cf-fd-add .cf-input-line { flex: 1 1 10em; }
+.cf-fd-error { color: var(--danger); }
+.cf-fd-sites { display: flex; flex-wrap: wrap; gap: 6px; }

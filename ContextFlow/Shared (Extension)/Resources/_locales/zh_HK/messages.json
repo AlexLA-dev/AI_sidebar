@@ -3137,6 +3137,261 @@
  "writeInserted": {
   "message": "已插入"
  },
+ "agentMode": {
+  "message": "執行"
+ },
+ "agentModeHint": {
+  "message": "讓 ContextFlow 在這個頁面上幫你做"
+ },
+ "placeholderAgent": {
+  "message": "要在這個頁面上做什麼？"
+ },
+ "agentWorking": {
+  "message": "執行中 · 第 {0} 步"
+ },
+ "agentConfirmTitle": {
+  "message": "要執行嗎？"
+ },
+ "agentYes": {
+  "message": "是"
+ },
+ "agentNo": {
+  "message": "否"
+ },
+ "agentNoUndo": {
+  "message": "此動作無法復原。"
+ },
+ "agentOffRequest": {
+  "message": "這似乎不是你要求的：{0}"
+ },
+ "agentStepClick": {
+  "message": "點一下「{0}」"
+ },
+ "agentStepType": {
+  "message": "在「{1}」中輸入「{0}」"
+ },
+ "agentStepSelect": {
+  "message": "在「{1}」中選擇「{0}」"
+ },
+ "agentStepGo": {
+  "message": "前往 {0}"
+ },
+ "agentFillTitle": {
+  "message": "要用「我的資料」填寫嗎？"
+ },
+ "agentFillButton": {
+  "message": "填寫"
+ },
+ "agentFillSkip": {
+  "message": "不用了"
+ },
+ "agentSelfTitle": {
+  "message": "這一步請你來"
+ },
+ "agentSelfPay": {
+  "message": "請自己付款或送出訂單：全部確認後，點一下「{0}」。"
+ },
+ "agentSelfSend": {
+  "message": "請自己傳送：讀完後，點一下「{0}」。"
+ },
+ "agentSelfAuth": {
+  "message": "請自己登入（Safari 可以幫你填入密碼）。我會等你。"
+ },
+ "agentSelfConsent": {
+  "message": "如果同意，請自己勾選「{0}」。"
+ },
+ "agentSelfRate": {
+  "message": "評論、評分和投票，都要由你自己來。"
+ },
+ "agentSelfOther": {
+  "message": "這一步請自己來：「{0}」。"
+ },
+ "agentSelfFile": {
+  "message": "請自己選擇檔案。"
+ },
+ "agentSelfDone": {
+  "message": "完成"
+ },
+ "agentSelfNotNow": {
+  "message": "現在不要"
+ },
+ "agentDoneTitle": {
+  "message": "已完成"
+ },
+ "agentAskedTitle": {
+  "message": "需要你回答"
+ },
+ "agentStopped": {
+  "message": "已停止。"
+ },
+ "agentUndo": {
+  "message": "還原"
+ },
+ "agentUndone": {
+  "message": "能復原的都已復原。"
+ },
+ "agentLimit": {
+  "message": "今天的 AI 代理任務已用完（每天 {0} 個），明天會恢復。"
+ },
+ "agentProOnly": {
+  "message": "AI 代理包含在 Pro 和 Ultra 方案中。"
+ },
+ "agentError": {
+  "message": "出了點問題，請再試一次。"
+ },
+ "agentErrorPage": {
+  "message": "頁面沒有回應。請重新載入後再試一次。"
+ },
+ "agentSteps": {
+  "message": "步驟太多了，所以我先停在這裡。"
+ },
+ "agentBlockedSite": {
+  "message": "在銀行、支付、政府機關等網站上，ContextFlow 不會代替你操作，但仍可以回答關於頁面的問題。"
+ },
+ "amazonAgent": {
+  "message": "在 Amazon 上，ContextFlow 只能回答關於頁面的問題：Amazon 不允許自動化工具在它的網站上代替你操作。"
+ },
+ "amazonSimilar": {
+  "message": "未確認：Amazon 不讓我們的伺服器開啟它的頁面。"
+ },
+ "agentStart": {
+  "message": "開始"
+ },
+ "agentDeferredTitle": {
+  "message": "稍後執行的任務"
+ },
+ "agentDontAskHere": {
+  "message": "下次在這個網站直接開始"
+ },
+ "agentLater": {
+  "message": "稍後"
+ },
+ "agentLaterAt": {
+  "message": "指定時間"
+ },
+ "agentLaterWatch": {
+  "message": "追蹤的這個頁面有變化時"
+ },
+ "agentLaterSet": {
+  "message": "確定"
+ },
+ "agentLaterSaved": {
+  "message": "到了 {0}，你會收到通知。點一下通知，我就和你一起在這個頁面上完成。"
+ },
+ "agentLaterSavedWatch": {
+  "message": "追蹤的頁面有變化時，你會收到通知。點一下通知，我就和你一起完成。"
+ },
+ "agentLaterNotifOff": {
+  "message": "ContextFlow 的通知已關閉。請在「設定 → 通知 → ContextFlow」中開啟。"
+ },
+ "agentLaterLimit": {
+  "message": "已有 {0} 個任務在等待，這是你的方案上限。"
+ },
+ "agentNotifTitle": {
+  "message": "{0} 上的任務"
+ },
+ "agentNotifBody": {
+  "message": "點一下，我就和你一起完成：{0}"
+ },
+ "agentHelpLink": {
+  "message": "AI 代理不會做的事"
+ },
+ "agentHelp": {
+  "message": "AI 代理會在開啟的頁面上操作：點按、輸入、選擇。送出表單前，它會問「要執行嗎？」；購買、付款、傳訊息和登入都交給你自己。它從不查看、也不輸入密碼、信用卡和證件號碼。驗證碼、選擇檔案和一些特殊按鈕它處理不了，這時會請你自己完成這一步。稍後執行的任務會以通知送達：點一下通知，AI 代理就會和你一起繼續。"
+ },
+ "setAgentAuto": {
+  "message": "在這些網站上，稍後執行的任務會直接開始"
+ },
+ "setAgentAutoHint": {
+  "message": "在這些網站上，點一下任務通知就會直接開始，不必點「開始」。「要執行嗎？」和需要你自己做的步驟仍會詢問你。"
+ },
+ "fdTitle": {
+  "message": "我的資料"
+ },
+ "fdHint": {
+  "message": "用來在網站上填寫表單。儲存在你的裝置上；只有在你同意後，AI 代理才會填入，AI 模型看不到這些資料。"
+ },
+ "fdNameFull": {
+  "message": "姓名"
+ },
+ "fdNameGiven": {
+  "message": "名字"
+ },
+ "fdNameFamily": {
+  "message": "姓氏"
+ },
+ "fdNameLatin": {
+  "message": "英文姓名"
+ },
+ "fdNamePhonetic": {
+  "message": "姓名讀音"
+ },
+ "fdEmail": {
+  "message": "電子郵件"
+ },
+ "fdPhone": {
+  "message": "電話"
+ },
+ "fdAddressLine": {
+  "message": "街道和門牌號碼"
+ },
+ "fdAddressApartment": {
+  "message": "樓層、室號"
+ },
+ "fdAddressCity": {
+  "message": "城市"
+ },
+ "fdAddressRegion": {
+  "message": "州或省"
+ },
+ "fdAddressPostal": {
+  "message": "郵遞區號"
+ },
+ "fdAddressCountry": {
+  "message": "國家或地區"
+ },
+ "fdCompany": {
+  "message": "公司"
+ },
+ "fdJobTitle": {
+  "message": "職稱"
+ },
+ "fdWebsite": {
+  "message": "網站"
+ },
+ "fdBirthDate": {
+  "message": "出生日期"
+ },
+ "fdFact": {
+  "message": "其他"
+ },
+ "fdFactLabel": {
+  "message": "項目名稱（例如鞋子尺寸）"
+ },
+ "fdAdd": {
+  "message": "加入"
+ },
+ "fdDelete": {
+  "message": "刪除"
+ },
+ "fdDeleteAll": {
+  "message": "全部刪除"
+ },
+ "fdDeleteAllAsk": {
+  "message": "要從這台裝置刪除你的所有資料嗎？（如果有透過 iCloud 同步，也會從 iCloud 刪除。）"
+ },
+ "fdRefused": {
+  "message": "我不會保存密碼、信用卡、銀行帳號或證件號碼、驗證碼，也不保存健康資料。"
+ },
+ "fdICloudAsk": {
+  "message": "要透過 iCloud 在你的各台裝置間同步這些資料嗎？"
+ },
+ "fdICloudHint": {
+  "message": "透過你私人的 iCloud 同步，我們無法存取。不同步的話，資料只會留在這台裝置上。"
+ },
+ "fdICloud": {
+  "message": "透過 iCloud 同步"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

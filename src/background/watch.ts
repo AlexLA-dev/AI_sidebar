@@ -20,6 +20,7 @@ import {
 } from "../shared/watch/messages"
 import { watchLimit, type Plan } from "../shared/plan"
 import { WATCH_EVERY_MS, WATCH_FAILS_TO_LIVE, WATCH_ROUND_MS, WATCH_STORAGE, type Watch, type WatchKind } from "../shared/watch/types"
+import { deferredWatchMet } from "./agent"
 import { callNative } from "./native"
 
 export interface WatchDeps {
@@ -377,6 +378,8 @@ async function notify(w: Watch, value: string, line: string): Promise<void> {
     body: watchBody(w.note, line || t("watchChangedBody", w.what === "page" ? w.title : shown(value))),
     url: w.url
   }, 10_000)
+  // Deferred agent tasks waiting for this watch (2.7.1): their notification now.
+  void deferredWatchMet(w.id).catch(() => undefined)
   void syncApp()
 }
 
