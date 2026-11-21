@@ -18,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UNUserNotificationCenter.current().delegate = self
         // Page watch: this device's watches in Watching, and the notification question when they need it.
         WatchOpen.start()
+        AgentApp.start()
         // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare).
         DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
         // 2.6 (98): the App Store's version, read in the background too (What's new).
@@ -46,6 +47,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // 2.6 (98): "ContextFlow … is here" opens the What's new tab.
         if info["whatsNew"] is String {
             await MainActor.run { DeepLinkRouter.shared.handle(WhatsNew.link) }
+            return
+        }
+        // A deferred agent task (2.7.1): its page in Safari itself (another default browser has no panel), with
+        // #cf-task=<id>; the panel there goes on with the task (AgentTasks).
+        if info["agentTask"] is String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "agent", "s": "notif"])
+                guard let page = AgentTasks.opened(info) else { return }
+                if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
+                    UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
+                } else {
+                    UIApplication.shared.open(page)
+                }
+            }
             return
         }
         // Page watch: "Changed: …" opens its page (WatchOpen).

@@ -1,7 +1,7 @@
 import { tipClip } from "./tipClips"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
-import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
+import { API_BASE, LINKS, TARGET, VERSION, TEST_PLAN } from "../shared/config"
 import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
@@ -36,6 +36,7 @@ import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
 import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
+import { startAgent } from "./agent"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { collectAi } from "./collect"
@@ -1269,6 +1270,23 @@ startTranslate({
   },
   clientInfo,
   consented,
+  statusChanged: () => (statusCache = null)
+})
+// The agent (2.7.1): a task per tab, its steps through /api/v2/act, deferred tasks, «Мои данные» through the app.
+startAgent({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  consented,
+  plan: async () => {
+    // A test build against a local stand that signs its requests (the simulator has no subscription).
+    if (TEST_PLAN) return TEST_PLAN
+    const ent = await entitlement()
+    return ent?.active ? planFromProduct(ent.productId) : "free"
+  },
   statusChanged: () => (statusCache = null)
 })
 // Page watch (2.5): the checks run here while Safari runs; the AI plans a watch and reads a change.

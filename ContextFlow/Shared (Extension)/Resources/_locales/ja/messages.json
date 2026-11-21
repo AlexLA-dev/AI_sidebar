@@ -66,7 +66,7 @@
   "message": "価格を見守る"
  },
  "plusButton": {
-  "message": "その他：メモ、スナップショット、チャット全体"
+  "message": "その他：メモ、実行、スナップショット、チャット全体"
  },
  "hintShow": {
   "message": "表示"
@@ -3136,6 +3136,261 @@
  },
  "writeInserted": {
   "message": "挿入しました"
+ },
+ "agentMode": {
+  "message": "実行"
+ },
+ "agentModeHint": {
+  "message": "このページでContextFlowに操作してもらう"
+ },
+ "placeholderAgent": {
+  "message": "このページで何をしますか？"
+ },
+ "agentWorking": {
+  "message": "実行中 · ステップ{0}"
+ },
+ "agentConfirmTitle": {
+  "message": "実行しますか？"
+ },
+ "agentYes": {
+  "message": "はい"
+ },
+ "agentNo": {
+  "message": "いいえ"
+ },
+ "agentNoUndo": {
+  "message": "この操作は取り消せません。"
+ },
+ "agentOffRequest": {
+  "message": "ご依頼の内容とは違うようです：{0}"
+ },
+ "agentStepClick": {
+  "message": "「{0}」を押す"
+ },
+ "agentStepType": {
+  "message": "「{1}」に「{0}」と入力"
+ },
+ "agentStepSelect": {
+  "message": "「{1}」で「{0}」を選ぶ"
+ },
+ "agentStepGo": {
+  "message": "{0} に移動"
+ },
+ "agentFillTitle": {
+  "message": "「自分の情報」から入力しますか？"
+ },
+ "agentFillButton": {
+  "message": "入力する"
+ },
+ "agentFillSkip": {
+  "message": "入力しない"
+ },
+ "agentSelfTitle": {
+  "message": "このステップはご自身で"
+ },
+ "agentSelfPay": {
+  "message": "支払いや注文の確定はご自身でお願いします。すべて確認したら「{0}」を押してください。"
+ },
+ "agentSelfSend": {
+  "message": "送信はご自身でお願いします。読み終えたら「{0}」を押してください。"
+ },
+ "agentSelfAuth": {
+  "message": "ログインはご自身でお願いします（パスワードはSafariが入力できます）。待っています。"
+ },
+ "agentSelfConsent": {
+  "message": "同意する場合は、「{0}」にご自身でチェックを入れてください。"
+ },
+ "agentSelfRate": {
+  "message": "レビュー、評価、投票はご自身で行ってください。"
+ },
+ "agentSelfOther": {
+  "message": "これはご自身でお願いします：「{0}」。"
+ },
+ "agentSelfFile": {
+  "message": "ファイルはご自身で選んでください。"
+ },
+ "agentSelfDone": {
+  "message": "完了"
+ },
+ "agentSelfNotNow": {
+  "message": "今はしない"
+ },
+ "agentDoneTitle": {
+  "message": "完了"
+ },
+ "agentAskedTitle": {
+  "message": "質問があります"
+ },
+ "agentStopped": {
+  "message": "停止しました。"
+ },
+ "agentUndo": {
+  "message": "取り消す"
+ },
+ "agentUndone": {
+  "message": "元に戻せるものは戻しました。"
+ },
+ "agentLimit": {
+  "message": "今日のエージェントのタスクを使い切りました（1日{0}件）。明日また使えます。"
+ },
+ "agentProOnly": {
+  "message": "エージェントはProとUltraで使えます。"
+ },
+ "agentError": {
+  "message": "問題が発生しました。もう一度お試しください。"
+ },
+ "agentErrorPage": {
+  "message": "ページが応答しません。再読み込みしてから、もう一度お試しください。"
+ },
+ "agentSteps": {
+  "message": "ステップが多くなりすぎたため、ここで止めました。"
+ },
+ "agentBlockedSite": {
+  "message": "銀行、決済サービス、行政などのサイトでは、ContextFlowは代わりに操作しません。ページについての質問には答えられます。"
+ },
+ "amazonAgent": {
+  "message": "Amazonでは、ContextFlowはページについての質問に答えることしかできません。Amazonは、自動化ツールがあなたの代わりにサイトで操作することを認めていないためです。"
+ },
+ "amazonSimilar": {
+  "message": "未確認：Amazonは当社のサーバーがページを開くことを認めていません。"
+ },
+ "agentStart": {
+  "message": "開始"
+ },
+ "agentDeferredTitle": {
+  "message": "あとでやるタスク"
+ },
+ "agentDontAskHere": {
+  "message": "次回からこのサイトではすぐに開始"
+ },
+ "agentLater": {
+  "message": "あとで"
+ },
+ "agentLaterAt": {
+  "message": "時間を指定"
+ },
+ "agentLaterWatch": {
+  "message": "このページの見守りで変化があったとき"
+ },
+ "agentLaterSet": {
+  "message": "設定する"
+ },
+ "agentLaterSaved": {
+  "message": "{0}に通知が届きます。タップすると、このページで一緒に進めます。"
+ },
+ "agentLaterSavedWatch": {
+  "message": "見守りで変化があると通知が届きます。タップすると、一緒に進めます。"
+ },
+ "agentLaterNotifOff": {
+  "message": "ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。"
+ },
+ "agentLaterLimit": {
+  "message": "すでに{0}件のタスクが待っています。ご利用のプランではこれが上限です。"
+ },
+ "agentNotifTitle": {
+  "message": "{0} でのタスク"
+ },
+ "agentNotifBody": {
+  "message": "タップすると一緒に進めます：{0}"
+ },
+ "agentHelpLink": {
+  "message": "エージェントがしないこと"
+ },
+ "agentHelp": {
+  "message": "エージェントは開いているページで操作します：押す、入力する、選ぶ。フォームを送信する前には「実行しますか？」と確認し、購入、支払い、メッセージ、ログインはあなたに任せます。パスワード、カード、身分証明書などの番号は見ることも入力することもありません。CAPTCHA、ファイルの選択、一部の特殊なボタンは扱えないため、そのステップはあなたにお願いします。あとでやるタスクは通知で届きます。タップすると、エージェントがあなたと一緒に続けます。"
+ },
+ "setAgentAuto": {
+  "message": "あとでやるタスクをすぐに開始するサイト"
+ },
+ "setAgentAutoHint": {
+  "message": "これらのサイトでは、通知をタップすると「開始」を押さずにタスクが始まります。「実行しますか？」と、ご自身で行うステップの確認はこれまでどおりです。"
+ },
+ "fdTitle": {
+  "message": "自分の情報"
+ },
+ "fdHint": {
+  "message": "サイトのフォーム入力に使います。このデバイスに保存され、エージェントはあなたが同意したときだけ入力します。AIがこの情報を見ることはありません。"
+ },
+ "fdNameFull": {
+  "message": "氏名"
+ },
+ "fdNameGiven": {
+  "message": "名"
+ },
+ "fdNameFamily": {
+  "message": "姓"
+ },
+ "fdNameLatin": {
+  "message": "氏名（ローマ字）"
+ },
+ "fdNamePhonetic": {
+  "message": "フリガナ"
+ },
+ "fdEmail": {
+  "message": "メールアドレス"
+ },
+ "fdPhone": {
+  "message": "電話番号"
+ },
+ "fdAddressLine": {
+  "message": "町名・番地"
+ },
+ "fdAddressApartment": {
+  "message": "建物名・部屋番号"
+ },
+ "fdAddressCity": {
+  "message": "市区町村"
+ },
+ "fdAddressRegion": {
+  "message": "都道府県・州"
+ },
+ "fdAddressPostal": {
+  "message": "郵便番号"
+ },
+ "fdAddressCountry": {
+  "message": "国"
+ },
+ "fdCompany": {
+  "message": "会社名"
+ },
+ "fdJobTitle": {
+  "message": "役職"
+ },
+ "fdWebsite": {
+  "message": "ウェブサイト"
+ },
+ "fdBirthDate": {
+  "message": "生年月日"
+ },
+ "fdFact": {
+  "message": "その他"
+ },
+ "fdFactLabel": {
+  "message": "項目名（例：靴のサイズ）"
+ },
+ "fdAdd": {
+  "message": "追加"
+ },
+ "fdDelete": {
+  "message": "削除"
+ },
+ "fdDeleteAll": {
+  "message": "すべて削除"
+ },
+ "fdDeleteAllAsk": {
+  "message": "このデバイスから（同期している場合はiCloudからも）すべての情報を削除しますか？"
+ },
+ "fdRefused": {
+  "message": "パスワード、カード、銀行口座や身分証明書の番号、認証コード、健康に関するデータは保存しません。"
+ },
+ "fdICloudAsk": {
+  "message": "iCloudを使って、お使いのデバイス間で情報を同期しますか？"
+ },
+ "fdICloudHint": {
+  "message": "当社がアクセスできない、あなた専用のiCloudを使います。同期しない場合、情報はこのデバイスにだけ保存されます。"
+ },
+ "fdICloud": {
+  "message": "iCloudで同期"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

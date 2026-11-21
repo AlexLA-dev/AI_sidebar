@@ -404,6 +404,79 @@
   status = 301
   force = true
 
+# The agent's demo pages (2.7.1, noindex): the old host sends them to the domain like every page.
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/index"
+  to = "https://context-flow.app/agent-demo/index"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/index.html"
+  to = "https://context-flow.app/agent-demo/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/ar"
+  to = "https://context-flow.app/agent-demo/ar"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/ar.html"
+  to = "https://context-flow.app/agent-demo/ar"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/de"
+  to = "https://context-flow.app/agent-demo/de"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/de.html"
+  to = "https://context-flow.app/agent-demo/de"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/es"
+  to = "https://context-flow.app/agent-demo/es"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/es.html"
+  to = "https://context-flow.app/agent-demo/es"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/ja"
+  to = "https://context-flow.app/agent-demo/ja"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/ja.html"
+  to = "https://context-flow.app/agent-demo/ja"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/ru"
+  to = "https://context-flow.app/agent-demo/ru"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/agent-demo/ru.html"
+  to = "https://context-flow.app/agent-demo/ru"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "https://aisidebar.netlify.app/sitemap.xml"
   to = "https://context-flow.app/sitemap.xml"

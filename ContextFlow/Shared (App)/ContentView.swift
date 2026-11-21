@@ -1991,6 +1991,7 @@ struct SettingsView: View {
     @ObservedObject private var store = StoreKitManager.shared
     @Environment(\.openURL) private var openURL
     @State private var restoring = false
+    @State private var showingMyDetails = false
     @State private var restoreMessage: String?
     @State private var switching = false
     /// "Hide" on the yearly line: away for 60 days (it's a line in Settings, never a prompt).
@@ -2076,6 +2077,20 @@ struct SettingsView: View {
                     .onChange(of: settings.organize) { on in
                         if on { ChatAI.reportOrganize("organize_optin", ["action": "accepted", "from": "settings"]) }
                     }
+            }
+
+            // 2.7.1: the agent's «My details» for forms on sites (the panel edits the same store).
+            Section(footer: Text("For filling in forms on sites. Kept on your device; the agent fills them in only after you agree, and the AI never sees them.")) {
+                Button("My details") { showingMyDetails = true }
+            }
+            .sheet(isPresented: $showingMyDetails) {
+                NavigationStack {
+                    MyDetailsView()
+                        .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showingMyDetails = false } } }
+                }
+                #if os(macOS)
+                .frame(minWidth: 480, minHeight: 520)
+                #endif
             }
 
             Section(

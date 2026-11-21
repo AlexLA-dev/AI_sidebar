@@ -57,6 +57,13 @@ import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
 import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
+import { AgentDeferredCard, AgentLaterCard, AgentPanel, AgentStrip, type PanelAgent } from "./agent/AgentPanel"
+import { onTarget } from "./agent/hands"
+import { elementOf } from "./agent/map"
+import { autoStartHere, setAutoStart, takeTaskMark } from "./agent/marks"
+import { active as agentActive, type Answer as AgentAnswer } from "../shared/agent/runner"
+import { WATCH_STORAGE } from "../shared/watch/types"
+import { urlKey as watchUrlKey } from "../shared/conversation"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
 import { factsFrom, SIMILAR_CHIPS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
@@ -545,6 +552,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const savedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const bubbleHeld = () => selTyping.current || noteHold.current
   const [googleMode, setGoogleMode] = useState(false)
+  // The agent (2.7.1): «Сделать» in the composer, this tab's task (pushed by the background), a deferred task the
+  // notification brought (#cf-task), «Позже», the help text, and the offer of Pro to Free.
+  const [agentMode, setAgentMode] = useState(false)
+  const [agentTask, setAgentTask] = useState<PanelAgent | null>(null)
+  const [agentDeferred, setAgentDeferred] = useState<{ id: string; request: string; lang: string } | null>(null)
+  const [agentAutoHere, setAgentAutoHere] = useState(false)
+  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string } | null>(null)
+  const [agentHelp, setAgentHelp] = useState(false)
+  const [agentUpsell, setAgentUpsell] = useState(false)
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
   // The round button out of the selection buttons' way while they show (fabDodge.ts): its center, in px; null at home.
@@ -1597,7 +1613,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void sendBackground({ type: "useEvent", f: "shot", a: crop ? "crop" : "uncrop" })
   }
 
-  const submit = () => (noteMode ? void saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
+  const submit = () => (noteMode ? void saveNote(draft) : agentMode ? void startAgent(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
 
   // The chat and the field as they are now, for stop() (2.5 (75)).
   const nowRef = useRef({ messages, draft })
@@ -2511,6 +2527,134 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openApp = useCallback((target: "subscribe" | "manage", feature?: "ai" | "organize") => {
     openAppFromTap(touch, { target, feature })
   }, [touch])
+
+  // ------------------------------------------------------------ the agent (2.7.1)
+
+  const startAgent = async (request: string, deferred?: string) => {
+    const text = request.trim()
+    if (!text) return
+    if (!hasPro(plan)) {
+      setAgentUpsell(true)
+      return
+    }
+    setDraft("")
+    setAgentLater(null)
+    const r = await sendBackground<{ ok: boolean; code?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
+    if (r?.state) setAgentTask(r.state)
+    if (r?.code === "CONSENT") {
+      // The page's map goes to the AI: the same consent as answers; asked here, then the task starts.
+      await agreeQuietly()
+      const again = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
+      if (again?.state) setAgentTask(again.state)
+    } else if (r?.code === "PRO_ONLY") setAgentUpsell(true)
+  }
+
+  const answerAgent = async (a: AgentAnswer, chosen?: string[]) => {
+    const r = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentAnswer", answer: a, chosen })
+    if (r?.state) setAgentTask(r.state)
+  }
+
+  /** «Позже»: whether this page has a watch to wait for (its id), then the card. */
+  const openLater = async () => {
+    const watches = ((await chrome.storage.local.get(WATCH_STORAGE.watches))[WATCH_STORAGE.watches] as Array<{ id: string; url: string; metAt?: number }> | undefined) ?? []
+    const here = watches.find((w) => !w.metAt && watchUrlKey(w.url) === watchUrlKey(location.href))
+    setAgentLater({ note: null, hasWatch: !!here, ...(here ? { watch: here.id } : {}) })
+  }
+
+  const deferAgent = async (when: { at?: number; watch?: boolean }) => {
+    const request = draft.trim()
+    if (!request || !agentLater) return
+    const host = location.hostname.replace(/^www\./, "")
+    const r = await sendBackground<{ ok: boolean; code?: string; limit?: number }>({
+      type: "agentDefer", request, lang: uiLanguage(), url: location.href, title: document.title,
+      ...(when.at ? { at: when.at } : {}), ...(when.watch && agentLater.watch ? { watch: agentLater.watch } : {}),
+      notifTitle: t("agentNotifTitle", host), notifBody: t("agentNotifBody", request.slice(0, 120))
+    })
+    const note = r?.ok
+      ? when.at
+        ? t("agentLaterSaved", new Intl.DateTimeFormat(uiLanguage(), { dateStyle: "medium", timeStyle: "short" }).format(new Date(when.at)))
+        : t("agentLaterSavedWatch")
+      : r?.code === "NOTIF_OFF" ? t("agentLaterNotifOff") : r?.code === "DEFER_LIMIT" ? t("agentLaterLimit", String(r.limit ?? "")) : r?.code === "PRO_ONLY" ? t("agentProOnly") : t("agentError")
+    if (r?.ok) setDraft("")
+    setAgentLater({ ...agentLater, note })
+  }
+
+  // This tab's task as the background has it (pushed at every change), and a deferred task the notification brought.
+  useEffect(() => {
+    if (popup) return
+    const onState = (e: Event) => setAgentTask(((e as CustomEvent).detail as PanelAgent) ?? null)
+    bus.addEventListener("agentState", onState)
+    void sendBackground<{ state: PanelAgent | null }>({ type: "agentGet" }).then((r) => {
+      // A task still running in this tab (the page went on mid-task): the panel shows it (not the page's chat).
+      if (r?.state && agentActive(r.state as never)) {
+        setAgentTask(r.state)
+        show()
+      }
+    })
+    const take = async () => {
+      const id = takeTaskMark()
+      if (!id) return
+      const list = await sendBackground<{ tasks: Array<{ id: string; request: string; lang: string }> }>({ type: "agentDeferred" })
+      const task = list?.tasks.find((x) => x.id === id)
+      if (!task) return
+      void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "agent" })
+      // Like a notification's other taps: the panel opens, it doesn't pick the page's chat.
+      show()
+      setAgentLater(null)
+      const auto = await autoStartHere(location.hostname)
+      setAgentAutoHere(auto)
+      if (auto) void startAgent(task.request, task.id)
+      else setAgentDeferred(task)
+    }
+    void take()
+    const onHash = () => void take()
+    window.addEventListener("hashchange", onHash)
+    return () => {
+      bus.removeEventListener("agentState", onState)
+      window.removeEventListener("hashchange", onHash)
+    }
+  }, [popup, bus, show])
+
+  // The control the agent is about to use, ringed on the page (the director: «The person must see what the agent does»).
+  const [agentRing, setAgentRing] = useState<Range | null>(null)
+  useEffect(() => onTarget((el) => {
+    if (!el || el.ownerDocument !== document) return setAgentRing(null)
+    const range = document.createRange()
+    range.selectNode(el)
+    setAgentRing(range)
+  }), [])
+  // On the sheet (iPhone, iPad without a pointer) the panel would cover the page: while a step runs it steps aside to
+  // the strip, and it comes back when the agent needs the person (a card) or is done. A tap on the strip brings it back
+  // early; it stays then until the task's next stop.
+  const agentAway = useRef(false)
+  const agentPeek = useRef(false)
+  const agentStatus = agentTask?.status
+  useEffect(() => {
+    const running = agentStatus === "running"
+    if (!running) {
+      agentPeek.current = false
+      if (agentStatus !== "confirm" && agentStatus !== "fill" && agentStatus !== "self") setAgentRing(null)
+      // Waiting for the person: the control it's about, in view above the panel, ringed.
+      const id = agentTask?.pending?.call.id
+      const el = id ? elementOf(id) : null
+      if (el && el.ownerDocument === document) {
+        ;(el as HTMLElement).scrollIntoView?.({ block: "center" })
+        if (layout === "sheet") window.scrollBy(0, Math.round(window.innerHeight * 0.28))
+        const range = document.createRange()
+        range.selectNode(el)
+        setAgentRing(range)
+      }
+    }
+    if (layout !== "sheet") return
+    if (running && open && !agentPeek.current) {
+      agentAway.current = true
+      hide()
+    } else if (!running && agentAway.current && agentStatus) {
+      agentAway.current = false
+      show()
+    }
+  }, [agentStatus])
+
 
   // 2.6 (100): the App Store's "Write a Review", when tapped (the "…" menu's Other…, Settings' links). iPhone and iPad:
   // the App Store app's link, followed in the tap itself (Safari asks "Open in App Store?" only then); a Mac: the Mac
@@ -4185,6 +4329,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
       {/* 2.6 (92), the owner: the selection the panel or its pop-up is about is ringed on the page. */}
       {glowRange && <SelectionGlow range={glowRange} />}
+      {agentRing && agentTask && <SelectionGlow range={agentRing} />}
+      {agentTask?.status === "running" && !open && (
+        <AgentStrip
+          state={agentTask}
+          onOpen={() => {
+            agentPeek.current = true
+            show()
+          }}
+          onStop={() => void answerAgent("stop")}
+        />
+      )}
 
       {open && (
         <section
@@ -4651,6 +4806,57 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
+                {agentUpsell && (
+                  <div class="cf-card cf-agent" role="region">
+                    <p>{t("agentProOnly")}</p>
+                    <p class="cf-hint">{t("agentHelp")}</p>
+                    <div class="cf-card-actions">
+                      <button type="button" class="cf-primary" onClick={() => { setAgentUpsell(false); void openApp("subscribe") }}>{t("getPro")}</button>
+                      <button type="button" class="cf-secondary" onClick={() => setAgentUpsell(false)}>{t("close")}</button>
+                    </div>
+                  </div>
+                )}
+                {agentDeferred && !agentTask && (
+                  <AgentDeferredCard
+                    request={agentDeferred.request}
+                    autoHere={agentAutoHere}
+                    onStart={() => {
+                      const d = agentDeferred
+                      setAgentDeferred(null)
+                      void startAgent(d.request, d.id)
+                    }}
+                    onCancel={() => {
+                      void sendBackground({ type: "agentDeferCancel", id: agentDeferred.id })
+                      setAgentDeferred(null)
+                    }}
+                    onAuto={(on) => {
+                      setAgentAutoHere(on)
+                      void setAutoStart(location.hostname, on)
+                    }}
+                  />
+                )}
+                {agentTask && (
+                  <AgentPanel
+                    key={`${agentTask.id}-${agentTask.status}-${agentTask.step}`}
+                    state={agentTask}
+                    onAnswer={(a, chosen) => void answerAgent(a, chosen)}
+                    onUndo={() => void sendBackground({ type: "agentUndo" })}
+                    onClose={() => {
+                      void sendBackground({ type: "agentClose" })
+                      setAgentTask(null)
+                    }}
+                    onHelp={() => setAgentHelp(!agentHelp)}
+                  />
+                )}
+                {agentHelp && <div class="cf-card cf-agent-help" role="note"><p>{t("agentHelp")}</p></div>}
+                {agentLater && (
+                  <AgentLaterCard
+                    hasWatch={agentLater.hasWatch}
+                    note={agentLater.note}
+                    onClose={() => setAgentLater(null)}
+                    onSet={(when) => void deferAgent(when)}
+                  />
+                )}
                 {similarCard === "pick" && partial === null && (
                   <SimilarPicker
                     title={similarSubject ? t("noteQuote", clip(similarSubject, 140)) : source.title() || source.site()}
@@ -5029,6 +5235,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         flipMode()
                         inputRef.current?.focus()
                       }}
+                      agent={historyMode ? null : {
+                        on: agentMode,
+                        locked: !hasPro(plan),
+                        onPick: () => {
+                          setPlusOpen(false)
+                          void sendBackground({ type: "useEvent", f: "quiet", a: "plus_pick", what: "agent" })
+                          if (!hasPro(plan)) {
+                            setAgentUpsell(true)
+                            return
+                          }
+                          if (noteMode) flipMode()
+                          setAgentMode(!agentMode)
+                          if (!agentMode) setGoogleMode(false)
+                          inputRef.current?.focus()
+                        }
+                      }}
                       shot={historyMode ? null : {
                         on: shotPref.on,
                         onChange: (on) => {
@@ -5076,7 +5298,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     >
                       <Icon.Plus />
                     </button>
-                    {!noteMode && !historyMode && (
+                    {!noteMode && !historyMode && !agentMode && (
                       <button
                         type="button"
                         class={`cf-mode ${googleMode ? "on" : ""}`}
@@ -5087,12 +5309,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <Icon.Search size={14} /> {t("actGoogle")}
                       </button>
                     )}
+                    {agentMode && !noteMode && !historyMode && (
+                      <button
+                        type="button"
+                        class="cf-mode cf-agent-mode on"
+                        aria-pressed={true}
+                        title={t("agentModeHint")}
+                        onClick={() => setAgentMode(false)}
+                      >
+                        <Icon.Cursor /> {t("agentMode")}
+                      </button>
+                    )}
+                    {agentMode && !noteMode && (
+                      <button type="button" class="cf-mode" title={t("agentLater")} onClick={() => void openLater()}>
+                        <Icon.Clock />
+                      </button>
+                    )}
                     <textarea
                       ref={inputRef}
                       rows={1}
                       dir="auto"
                       value={draft}
-                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : agentMode ? "placeholderAgent" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                       enterkeyhint="send"
                       // What the screen does once the field has the focus tells a hardware keyboard from the one on
                       // screen (quiet/density.ts): noted for the next opening.

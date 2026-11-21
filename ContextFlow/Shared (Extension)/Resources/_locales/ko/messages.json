@@ -66,7 +66,7 @@
   "message": "가격 지켜보기"
  },
  "plusButton": {
-  "message": "더 보기: 메모, 스냅샷, 채팅 전체"
+  "message": "더 보기: 메모, 실행, 스냅샷, 채팅 전체"
  },
  "hintShow": {
   "message": "보기"
@@ -3136,6 +3136,261 @@
  },
  "writeInserted": {
   "message": "삽입됨"
+ },
+ "agentMode": {
+  "message": "실행"
+ },
+ "agentModeHint": {
+  "message": "이 페이지에서 ContextFlow에게 맡기기"
+ },
+ "placeholderAgent": {
+  "message": "이 페이지에서 무엇을 할까요?"
+ },
+ "agentWorking": {
+  "message": "작업 중 · {0}단계"
+ },
+ "agentConfirmTitle": {
+  "message": "실행할까요?"
+ },
+ "agentYes": {
+  "message": "예"
+ },
+ "agentNo": {
+  "message": "아니요"
+ },
+ "agentNoUndo": {
+  "message": "이 작업은 되돌릴 수 없어요."
+ },
+ "agentOffRequest": {
+  "message": "요청하신 내용과 다른 것 같아요: {0}"
+ },
+ "agentStepClick": {
+  "message": "‘{0}’ 누르기"
+ },
+ "agentStepType": {
+  "message": "‘{1}’에 ‘{0}’ 입력"
+ },
+ "agentStepSelect": {
+  "message": "‘{1}’에서 ‘{0}’ 선택"
+ },
+ "agentStepGo": {
+  "message": "{0} 열기"
+ },
+ "agentFillTitle": {
+  "message": "‘내 정보’로 채울까요?"
+ },
+ "agentFillButton": {
+  "message": "채우기"
+ },
+ "agentFillSkip": {
+  "message": "건너뛰기"
+ },
+ "agentSelfTitle": {
+  "message": "이 단계는 직접 해 주세요"
+ },
+ "agentSelfPay": {
+  "message": "결제나 주문은 직접 해 주세요. 모두 확인한 뒤 ‘{0}’를 누르세요."
+ },
+ "agentSelfSend": {
+  "message": "보내기는 직접 해 주세요. 다 읽은 뒤 ‘{0}’를 누르세요."
+ },
+ "agentSelfAuth": {
+  "message": "로그인은 직접 해 주세요(암호는 Safari가 채워 줄 수 있어요). 기다릴게요."
+ },
+ "agentSelfConsent": {
+  "message": "동의하시면 ‘{0}’에 직접 체크해 주세요."
+ },
+ "agentSelfRate": {
+  "message": "리뷰, 평점, 투표는 직접 해 주세요."
+ },
+ "agentSelfOther": {
+  "message": "이건 직접 해 주세요: ‘{0}’."
+ },
+ "agentSelfFile": {
+  "message": "파일은 직접 선택해 주세요."
+ },
+ "agentSelfDone": {
+  "message": "완료"
+ },
+ "agentSelfNotNow": {
+  "message": "나중에"
+ },
+ "agentDoneTitle": {
+  "message": "완료"
+ },
+ "agentAskedTitle": {
+  "message": "답이 필요해요"
+ },
+ "agentStopped": {
+  "message": "중지했어요."
+ },
+ "agentUndo": {
+  "message": "실행 취소"
+ },
+ "agentUndone": {
+  "message": "되돌릴 수 있는 건 모두 되돌렸어요."
+ },
+ "agentLimit": {
+  "message": "오늘 에이전트 작업을 모두 사용했어요(하루 {0}개). 내일 다시 쓸 수 있어요."
+ },
+ "agentProOnly": {
+  "message": "에이전트는 Pro와 Ultra에 포함돼요."
+ },
+ "agentError": {
+  "message": "문제가 발생했어요. 다시 시도해 주세요."
+ },
+ "agentErrorPage": {
+  "message": "페이지가 응답하지 않아요. 새로 고친 뒤 다시 시도해 주세요."
+ },
+ "agentSteps": {
+  "message": "단계가 너무 많아져서 여기서 멈췄어요."
+ },
+ "agentBlockedSite": {
+  "message": "은행, 결제 서비스, 정부 기관 같은 사이트에서는 ContextFlow가 대신 작업하지 않아요. 페이지에 대한 질문에는 답할 수 있어요."
+ },
+ "amazonAgent": {
+  "message": "Amazon에서는 ContextFlow가 페이지에 대한 질문에만 답할 수 있어요. Amazon은 자동화 도구가 사용자 대신 사이트에서 작업하는 것을 허용하지 않아요."
+ },
+ "amazonSimilar": {
+  "message": "확인하지 못함: Amazon이 저희 서버가 페이지를 여는 것을 허용하지 않아요."
+ },
+ "agentStart": {
+  "message": "시작"
+ },
+ "agentDeferredTitle": {
+  "message": "나중에 할 작업"
+ },
+ "agentDontAskHere": {
+  "message": "다음부터 이 사이트에서는 바로 시작"
+ },
+ "agentLater": {
+  "message": "나중에 하기"
+ },
+ "agentLaterAt": {
+  "message": "시간 지정"
+ },
+ "agentLaterWatch": {
+  "message": "지켜보던 이 페이지가 바뀌면"
+ },
+ "agentLaterSet": {
+  "message": "설정"
+ },
+ "agentLaterSaved": {
+  "message": "{0}에 알림이 와요. 탭하면 이 페이지에서 함께 할게요."
+ },
+ "agentLaterSavedWatch": {
+  "message": "지켜보던 페이지가 바뀌면 알림이 와요. 탭하면 함께 할게요."
+ },
+ "agentLaterNotifOff": {
+  "message": "ContextFlow 알림이 꺼져 있어요. 설정 → 알림 → ContextFlow에서 켜세요."
+ },
+ "agentLaterLimit": {
+  "message": "이미 작업 {0}개가 기다리고 있어요. 지금 요금제로는 이게 최대예요."
+ },
+ "agentNotifTitle": {
+  "message": "{0}에서 할 작업"
+ },
+ "agentNotifBody": {
+  "message": "탭하면 함께 할게요: {0}"
+ },
+ "agentHelpLink": {
+  "message": "에이전트가 하지 않는 일"
+ },
+ "agentHelp": {
+  "message": "에이전트는 열린 페이지에서 누르고, 입력하고, 선택해요. 양식을 보내기 전에는 ‘실행할까요?’라고 묻고, 구매, 결제, 메시지, 로그인은 직접 하도록 남겨 둬요. 암호, 카드 번호, 신분증 번호는 보지도 입력하지도 않아요. 캡차, 파일 선택, 일부 특이한 버튼은 다루지 못해서, 그럴 때는 그 단계를 직접 해 달라고 부탁해요. 나중에 할 작업은 알림으로 와요. 탭하면 에이전트가 함께 이어서 해요."
+ },
+ "setAgentAuto": {
+  "message": "나중에 할 작업을 바로 시작하는 사이트"
+ },
+ "setAgentAutoHint": {
+  "message": "이 사이트에서는 알림을 탭하면 ‘시작’ 없이 작업이 시작돼요. ‘실행할까요?’와 직접 할 단계는 그대로 물어봐요."
+ },
+ "fdTitle": {
+  "message": "내 정보"
+ },
+ "fdHint": {
+  "message": "사이트에서 양식을 채울 때 써요. 이 기기에 보관되고, 에이전트는 동의를 받은 뒤에만 채워요. AI는 이 정보를 보지 않아요."
+ },
+ "fdNameFull": {
+  "message": "성명"
+ },
+ "fdNameGiven": {
+  "message": "이름"
+ },
+ "fdNameFamily": {
+  "message": "성"
+ },
+ "fdNameLatin": {
+  "message": "영문 이름"
+ },
+ "fdNamePhonetic": {
+  "message": "이름 발음"
+ },
+ "fdEmail": {
+  "message": "이메일"
+ },
+ "fdPhone": {
+  "message": "전화번호"
+ },
+ "fdAddressLine": {
+  "message": "도로명 주소"
+ },
+ "fdAddressApartment": {
+  "message": "동·호수, 층"
+ },
+ "fdAddressCity": {
+  "message": "도시"
+ },
+ "fdAddressRegion": {
+  "message": "시/도 또는 주"
+ },
+ "fdAddressPostal": {
+  "message": "우편번호"
+ },
+ "fdAddressCountry": {
+  "message": "국가"
+ },
+ "fdCompany": {
+  "message": "회사"
+ },
+ "fdJobTitle": {
+  "message": "직함"
+ },
+ "fdWebsite": {
+  "message": "웹사이트"
+ },
+ "fdBirthDate": {
+  "message": "생년월일"
+ },
+ "fdFact": {
+  "message": "기타"
+ },
+ "fdFactLabel": {
+  "message": "항목 이름(예: 신발 사이즈)"
+ },
+ "fdAdd": {
+  "message": "추가"
+ },
+ "fdDelete": {
+  "message": "삭제"
+ },
+ "fdDeleteAll": {
+  "message": "모두 삭제"
+ },
+ "fdDeleteAllAsk": {
+  "message": "이 기기에서(동기화 중이라면 iCloud에서도) 내 정보를 모두 삭제할까요?"
+ },
+ "fdRefused": {
+  "message": "암호, 카드, 은행 계좌나 신분증 번호, 인증 코드, 건강 정보는 보관하지 않아요."
+ },
+ "fdICloudAsk": {
+  "message": "iCloud로 내 기기 간에 정보를 동기화할까요?"
+ },
+ "fdICloudHint": {
+  "message": "저희가 접근할 수 없는 개인 iCloud를 통해 동기화해요. 동기화하지 않으면 이 기기에만 남아요."
+ },
+ "fdICloud": {
+  "message": "iCloud로 동기화"
  },
  "tip_4cf1b54b00": {
   "message": "팁"

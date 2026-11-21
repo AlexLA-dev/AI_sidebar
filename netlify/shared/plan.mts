@@ -6,7 +6,7 @@ import { logEvent, upsertEntitlement, type Counter } from "./db.mts"
 import { hasPro, isUltra, PLAN_RANK } from "../../src/shared/plan.ts"
 import { USE_KINDS, useSubject, type UseKind } from "../../src/shared/spent.ts"
 
-export { hasPro, isUltra } from "../../src/shared/plan.ts"
+export { agentDaily, agentDeferred, hasPro, isUltra } from "../../src/shared/plan.ts"
 
 export interface Access {
   plan: Plan

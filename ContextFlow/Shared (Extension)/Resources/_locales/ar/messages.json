@@ -66,7 +66,7 @@
   "message": "مراقبة السعر"
  },
  "plusButton": {
-  "message": "المزيد: ملاحظة، لقطة، المحادثة كاملة"
+  "message": "المزيد: ملاحظة، تنفيذ، لقطة، المحادثة كاملة"
  },
  "hintShow": {
   "message": "عرض"
@@ -3136,6 +3136,261 @@
  },
  "writeInserted": {
   "message": "تم الإدراج"
+ },
+ "agentMode": {
+  "message": "نفّذ"
+ },
+ "agentModeHint": {
+  "message": "دع ContextFlow ينفّذ ذلك في هذه الصفحة"
+ },
+ "placeholderAgent": {
+  "message": "ماذا أفعل في هذه الصفحة؟"
+ },
+ "agentWorking": {
+  "message": "أعمل · الخطوة {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "هل أنفّذ؟"
+ },
+ "agentYes": {
+  "message": "نعم"
+ },
+ "agentNo": {
+  "message": "لا"
+ },
+ "agentNoUndo": {
+  "message": "لا يمكن التراجع عن هذا."
+ },
+ "agentOffRequest": {
+  "message": "يبدو أن هذا ليس ما طلبته: {0}"
+ },
+ "agentStepClick": {
+  "message": "الضغط على «{0}»"
+ },
+ "agentStepType": {
+  "message": "كتابة «{0}» في «{1}»"
+ },
+ "agentStepSelect": {
+  "message": "اختيار «{0}» في «{1}»"
+ },
+ "agentStepGo": {
+  "message": "الانتقال إلى {0}"
+ },
+ "agentFillTitle": {
+  "message": "هل أملأ من «بياناتي»؟"
+ },
+ "agentFillButton": {
+  "message": "املأ"
+ },
+ "agentFillSkip": {
+  "message": "لا داعي"
+ },
+ "agentSelfTitle": {
+  "message": "هذه الخطوة لك"
+ },
+ "agentSelfPay": {
+  "message": "ادفع أو أكمل الطلب بنفسك: اضغط «{0}» بعد أن تتحقق من كل شيء."
+ },
+ "agentSelfSend": {
+  "message": "أرسله بنفسك: اضغط «{0}» بعد أن تقرأه."
+ },
+ "agentSelfAuth": {
+  "message": "سجّل الدخول بنفسك (يمكن لـ Safari ملء كلمة السر). سأنتظر."
+ },
+ "agentSelfConsent": {
+  "message": "ضع علامة على «{0}» بنفسك إن كنت موافقًا."
+ },
+ "agentSelfRate": {
+  "message": "المراجعات والتقييمات والأصوات قرارك وحدك."
+ },
+ "agentSelfOther": {
+  "message": "افعل هذا بنفسك: «{0}»."
+ },
+ "agentSelfFile": {
+  "message": "اختر الملف بنفسك."
+ },
+ "agentSelfDone": {
+  "message": "تم"
+ },
+ "agentSelfNotNow": {
+  "message": "ليس الآن"
+ },
+ "agentDoneTitle": {
+  "message": "تم"
+ },
+ "agentAskedTitle": {
+  "message": "أحتاج إلى ردّك"
+ },
+ "agentStopped": {
+  "message": "تم الإيقاف."
+ },
+ "agentUndo": {
+  "message": "تراجع"
+ },
+ "agentUndone": {
+  "message": "أعدتُ كل ما أمكن إعادته."
+ },
+ "agentLimit": {
+  "message": "انتهت مهام الوكيل لهذا اليوم ({0} في اليوم). المزيد غدًا."
+ },
+ "agentProOnly": {
+  "message": "الوكيل متاح في Pro وUltra."
+ },
+ "agentError": {
+  "message": "حدث خطأ ما. حاول مرة أخرى."
+ },
+ "agentErrorPage": {
+  "message": "الصفحة لا تستجيب. أعد تحميلها وحاول مرة أخرى."
+ },
+ "agentSteps": {
+  "message": "احتاج ذلك إلى خطوات كثيرة جدًا، فتوقفت هنا."
+ },
+ "agentBlockedSite": {
+  "message": "في مواقع البنوك والدفع والجهات الحكومية وما يشبهها، لا يتصرف ContextFlow نيابةً عنك. لكنه يستطيع الإجابة عن أسئلتك حول الصفحة."
+ },
+ "amazonAgent": {
+  "message": "في Amazon، يستطيع ContextFlow الإجابة عن أسئلة حول الصفحة فقط: لا تسمح Amazon للأدوات الآلية بالتصرف في موقعها نيابةً عنك."
+ },
+ "amazonSimilar": {
+  "message": "لم يُتحقق منه: لا تسمح Amazon لخادمنا بفتح صفحاتها."
+ },
+ "agentStart": {
+  "message": "ابدأ"
+ },
+ "agentDeferredTitle": {
+  "message": "مهمة مؤجلة"
+ },
+ "agentDontAskHere": {
+  "message": "في المرة القادمة ابدأ فورًا على هذا الموقع"
+ },
+ "agentLater": {
+  "message": "لاحقًا"
+ },
+ "agentLaterAt": {
+  "message": "في وقت محدد"
+ },
+ "agentLaterWatch": {
+  "message": "عندما تنبّه مراقبة هذه الصفحة"
+ },
+ "agentLaterSet": {
+  "message": "تم"
+ },
+ "agentLaterSaved": {
+  "message": "سيصلك إشعار في {0}. اضغط عليه وسأنفّذ ذلك في هذه الصفحة معك."
+ },
+ "agentLaterSavedWatch": {
+  "message": "عندما تنبّه المراقبة سيصلك إشعار. اضغط عليه وسأنفّذ ذلك معك."
+ },
+ "agentLaterNotifOff": {
+  "message": "إشعارات ContextFlow متوقفة. شغّلها من الإعدادات ← الإشعارات ← ContextFlow."
+ },
+ "agentLaterLimit": {
+  "message": "هناك {0} مهام تنتظر بالفعل، وهذا أقصى ما تسمح به خطتك."
+ },
+ "agentNotifTitle": {
+  "message": "مهمة على {0}"
+ },
+ "agentNotifBody": {
+  "message": "اضغط وسأنفّذها معك: {0}"
+ },
+ "agentHelpLink": {
+  "message": "ما لن يفعله الوكيل"
+ },
+ "agentHelp": {
+  "message": "ينفّذ الوكيل أمورًا في الصفحة المفتوحة: يضغط ويكتب ويختار. قبل إرسال أي نموذج يسأل «هل أنفّذ؟»، ويترك لك الشراء والدفع والرسائل وتسجيل الدخول. لا يرى كلمات السر أو البطاقات أو أرقام الوثائق ولا يكتبها أبدًا. الكابتشا واختيار الملفات وبعض الأزرار غير المعتادة خارج قدرته: عندها يطلب منك تنفيذ هذه الخطوة. المهمة المؤجلة تصلك إشعارًا: اضغط عليه ويتابع الوكيل معك."
+ },
+ "setAgentAuto": {
+  "message": "المهام المؤجلة تبدأ فورًا على"
+ },
+ "setAgentAutoHint": {
+  "message": "هناك يبدأ إشعار المهمة تنفيذها دون «ابدأ». ويبقى سؤال «هل أنفّذ؟» والخطوات التي لك كما هي."
+ },
+ "fdTitle": {
+  "message": "بياناتي"
+ },
+ "fdHint": {
+  "message": "لملء النماذج في المواقع. تُحفظ على جهازك، ولا يملؤها الوكيل إلا بعد موافقتك، ولا يراها الذكاء الاصطناعي أبدًا."
+ },
+ "fdNameFull": {
+  "message": "الاسم الكامل"
+ },
+ "fdNameGiven": {
+  "message": "الاسم الأول"
+ },
+ "fdNameFamily": {
+  "message": "اسم العائلة"
+ },
+ "fdNameLatin": {
+  "message": "الاسم بالحروف اللاتينية"
+ },
+ "fdNamePhonetic": {
+  "message": "نطق الاسم"
+ },
+ "fdEmail": {
+  "message": "البريد الإلكتروني"
+ },
+ "fdPhone": {
+  "message": "الهاتف"
+ },
+ "fdAddressLine": {
+  "message": "الشارع ورقم المبنى"
+ },
+ "fdAddressApartment": {
+  "message": "الشقة، الطابق"
+ },
+ "fdAddressCity": {
+  "message": "المدينة"
+ },
+ "fdAddressRegion": {
+  "message": "المنطقة أو الولاية"
+ },
+ "fdAddressPostal": {
+  "message": "الرمز البريدي"
+ },
+ "fdAddressCountry": {
+  "message": "البلد"
+ },
+ "fdCompany": {
+  "message": "الشركة"
+ },
+ "fdJobTitle": {
+  "message": "المسمى الوظيفي"
+ },
+ "fdWebsite": {
+  "message": "الموقع الإلكتروني"
+ },
+ "fdBirthDate": {
+  "message": "تاريخ الميلاد"
+ },
+ "fdFact": {
+  "message": "شيء آخر"
+ },
+ "fdFactLabel": {
+  "message": "ما هو (مثلًا مقاس الحذاء)"
+ },
+ "fdAdd": {
+  "message": "إضافة"
+ },
+ "fdDelete": {
+  "message": "حذف"
+ },
+ "fdDeleteAll": {
+  "message": "حذف الكل"
+ },
+ "fdDeleteAllAsk": {
+  "message": "هل تريد حذف كل بياناتك من هذا الجهاز (ومن iCloud إن كانت تُزامَن)؟"
+ },
+ "fdRefused": {
+  "message": "لا أحفظ كلمات السر أو البطاقات أو البيانات المصرفية أو أرقام الوثائق أو الرموز أو البيانات الصحية."
+ },
+ "fdICloudAsk": {
+  "message": "هل تريد مزامنة بياناتك بين أجهزتك عبر iCloud؟"
+ },
+ "fdICloudHint": {
+  "message": "عبر iCloud الخاص بك، الذي لا نستطيع الوصول إليه. ومن دونه تبقى على هذا الجهاز."
+ },
+ "fdICloud": {
+  "message": "المزامنة عبر iCloud"
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

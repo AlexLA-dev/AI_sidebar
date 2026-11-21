@@ -66,7 +66,7 @@
   "message": "Watch the price"
  },
  "plusButton": {
-  "message": "More: note, snapshot, whole chat"
+  "message": "More: note, do it, snapshot, whole chat"
  },
  "hintShow": {
   "message": "Show"
@@ -3136,6 +3136,261 @@
  },
  "writeInserted": {
   "message": "Inserted"
+ },
+ "agentMode": {
+  "message": "Do"
+ },
+ "agentModeHint": {
+  "message": "Let ContextFlow do it on this page"
+ },
+ "placeholderAgent": {
+  "message": "What should I do on this page?"
+ },
+ "agentWorking": {
+  "message": "Working · step {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Do it?"
+ },
+ "agentYes": {
+  "message": "Yes"
+ },
+ "agentNo": {
+  "message": "No"
+ },
+ "agentNoUndo": {
+  "message": "This can't be undone."
+ },
+ "agentOffRequest": {
+  "message": "This doesn't look like what you asked: {0}"
+ },
+ "agentStepClick": {
+  "message": "Press “{0}”"
+ },
+ "agentStepType": {
+  "message": "Type “{0}” into “{1}”"
+ },
+ "agentStepSelect": {
+  "message": "Choose “{0}” in “{1}”"
+ },
+ "agentStepGo": {
+  "message": "Go to {0}"
+ },
+ "agentFillTitle": {
+  "message": "Fill in from My details?"
+ },
+ "agentFillButton": {
+  "message": "Fill in"
+ },
+ "agentFillSkip": {
+  "message": "Don't"
+ },
+ "agentSelfTitle": {
+  "message": "This step is yours"
+ },
+ "agentSelfPay": {
+  "message": "Pay or place the order yourself: press “{0}” when you've checked everything."
+ },
+ "agentSelfSend": {
+  "message": "Send it yourself: press “{0}” when you've read it."
+ },
+ "agentSelfAuth": {
+  "message": "Sign in yourself (Safari can fill in your password). I'll wait."
+ },
+ "agentSelfConsent": {
+  "message": "Tick “{0}” yourself if you agree."
+ },
+ "agentSelfRate": {
+  "message": "Reviews, ratings and votes are yours to give."
+ },
+ "agentSelfOther": {
+  "message": "Do this yourself: “{0}”."
+ },
+ "agentSelfFile": {
+  "message": "Choose the file yourself."
+ },
+ "agentSelfDone": {
+  "message": "Done"
+ },
+ "agentSelfNotNow": {
+  "message": "Not now"
+ },
+ "agentDoneTitle": {
+  "message": "Done"
+ },
+ "agentAskedTitle": {
+  "message": "I need you"
+ },
+ "agentStopped": {
+  "message": "Stopped."
+ },
+ "agentUndo": {
+  "message": "Undo"
+ },
+ "agentUndone": {
+  "message": "Put back what could be put back."
+ },
+ "agentLimit": {
+  "message": "Today's agent tasks are used up ({0} a day). More tomorrow."
+ },
+ "agentProOnly": {
+  "message": "The agent comes with Pro and Ultra."
+ },
+ "agentError": {
+  "message": "Something went wrong. Try again."
+ },
+ "agentErrorPage": {
+  "message": "The page isn't answering. Reload it and try again."
+ },
+ "agentSteps": {
+  "message": "That took too many steps, so I stopped here."
+ },
+ "agentBlockedSite": {
+  "message": "On banking, payment, government and similar sites, ContextFlow doesn't act for you. It can still answer questions about the page."
+ },
+ "amazonAgent": {
+  "message": "On Amazon, ContextFlow can only answer questions about the page: Amazon doesn't allow automated tools to act on its site for you."
+ },
+ "amazonSimilar": {
+  "message": "Not checked: Amazon doesn't let our server open its pages."
+ },
+ "agentStart": {
+  "message": "Start"
+ },
+ "agentDeferredTitle": {
+  "message": "Task for later"
+ },
+ "agentDontAskHere": {
+  "message": "Start right away on this site next time"
+ },
+ "agentLater": {
+  "message": "Later"
+ },
+ "agentLaterAt": {
+  "message": "At a time"
+ },
+ "agentLaterWatch": {
+  "message": "When the watch on this page fires"
+ },
+ "agentLaterSet": {
+  "message": "Set"
+ },
+ "agentLaterSaved": {
+  "message": "At {0} you'll get a notification. Tap it, and I'll do it on this page with you."
+ },
+ "agentLaterSavedWatch": {
+  "message": "When the watch fires, you'll get a notification. Tap it, and I'll do it with you."
+ },
+ "agentLaterNotifOff": {
+  "message": "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow."
+ },
+ "agentLaterLimit": {
+  "message": "{0} tasks are already waiting, the most your plan keeps."
+ },
+ "agentNotifTitle": {
+  "message": "A task on {0}"
+ },
+ "agentNotifBody": {
+  "message": "Tap, and I'll do it with you: {0}"
+ },
+ "agentHelpLink": {
+  "message": "What the agent won't do"
+ },
+ "agentHelp": {
+  "message": "The agent does things on the open page: presses, types, chooses. Before sending a form it asks “Do it?”, and it leaves buying, paying, messages and signing in to you. It never sees or types passwords, cards or document numbers. A captcha, choosing a file and some unusual buttons are beyond it: then it asks you to do that step. A task for later comes as a notification: tap it, and the agent goes on with you."
+ },
+ "setAgentAuto": {
+  "message": "Tasks for later start right away on"
+ },
+ "setAgentAutoHint": {
+  "message": "There a task's notification starts it without “Start”. “Do it?” and your own steps still ask."
+ },
+ "fdTitle": {
+  "message": "My details"
+ },
+ "fdHint": {
+  "message": "For filling in forms on sites. Kept on your device; the agent fills them in only after you agree, and the AI never sees them."
+ },
+ "fdNameFull": {
+  "message": "Full name"
+ },
+ "fdNameGiven": {
+  "message": "First name"
+ },
+ "fdNameFamily": {
+  "message": "Last name"
+ },
+ "fdNameLatin": {
+  "message": "Name in Latin letters"
+ },
+ "fdNamePhonetic": {
+  "message": "Name reading (phonetic)"
+ },
+ "fdEmail": {
+  "message": "E-mail"
+ },
+ "fdPhone": {
+  "message": "Phone"
+ },
+ "fdAddressLine": {
+  "message": "Street and house"
+ },
+ "fdAddressApartment": {
+  "message": "Apartment, floor"
+ },
+ "fdAddressCity": {
+  "message": "City"
+ },
+ "fdAddressRegion": {
+  "message": "Region or state"
+ },
+ "fdAddressPostal": {
+  "message": "Postal code"
+ },
+ "fdAddressCountry": {
+  "message": "Country"
+ },
+ "fdCompany": {
+  "message": "Company"
+ },
+ "fdJobTitle": {
+  "message": "Job title"
+ },
+ "fdWebsite": {
+  "message": "Website"
+ },
+ "fdBirthDate": {
+  "message": "Date of birth"
+ },
+ "fdFact": {
+  "message": "Something else"
+ },
+ "fdFactLabel": {
+  "message": "What is it (e.g. shoe size)"
+ },
+ "fdAdd": {
+  "message": "Add"
+ },
+ "fdDelete": {
+  "message": "Delete"
+ },
+ "fdDeleteAll": {
+  "message": "Delete all"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Delete all your details from this device (and from iCloud, if they sync)?"
+ },
+ "fdRefused": {
+  "message": "I don't keep passwords, cards, bank or document numbers, codes or health data."
+ },
+ "fdICloudAsk": {
+  "message": "Sync your details on your devices through iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "Through your private iCloud, which we can't access. Without it, they stay on this device."
+ },
+ "fdICloud": {
+  "message": "Sync through iCloud"
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

@@ -66,7 +66,7 @@
   "message": "Vigilar el precio"
  },
  "plusButton": {
-  "message": "Más: nota, captura, todo el chat"
+  "message": "Más: nota, hacer, captura, todo el chat"
  },
  "hintShow": {
   "message": "Ver"
@@ -3136,6 +3136,261 @@
  },
  "writeInserted": {
   "message": "Insertado"
+ },
+ "agentMode": {
+  "message": "Hacer"
+ },
+ "agentModeHint": {
+  "message": "Deja que ContextFlow lo haga en esta página"
+ },
+ "placeholderAgent": {
+  "message": "¿Qué hago en esta página?"
+ },
+ "agentWorking": {
+  "message": "Trabajando · paso {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "¿Lo hago?"
+ },
+ "agentYes": {
+  "message": "Sí"
+ },
+ "agentNo": {
+  "message": "No"
+ },
+ "agentNoUndo": {
+  "message": "Esto no se podrá deshacer."
+ },
+ "agentOffRequest": {
+  "message": "Esto no parece lo que pediste: {0}"
+ },
+ "agentStepClick": {
+  "message": "Pulsar «{0}»"
+ },
+ "agentStepType": {
+  "message": "Escribir «{0}» en «{1}»"
+ },
+ "agentStepSelect": {
+  "message": "Elegir «{0}» en «{1}»"
+ },
+ "agentStepGo": {
+  "message": "Ir a {0}"
+ },
+ "agentFillTitle": {
+  "message": "¿Rellenar con «Mis datos»?"
+ },
+ "agentFillButton": {
+  "message": "Rellenar"
+ },
+ "agentFillSkip": {
+  "message": "No, gracias"
+ },
+ "agentSelfTitle": {
+  "message": "Este paso es tuyo"
+ },
+ "agentSelfPay": {
+  "message": "Paga o haz el pedido tú: pulsa «{0}» cuando lo hayas revisado todo."
+ },
+ "agentSelfSend": {
+  "message": "Envíalo tú: pulsa «{0}» cuando lo hayas leído."
+ },
+ "agentSelfAuth": {
+  "message": "Inicia sesión tú (Safari puede rellenar tu contraseña). Te espero."
+ },
+ "agentSelfConsent": {
+  "message": "Marca «{0}» tú si estás de acuerdo."
+ },
+ "agentSelfRate": {
+  "message": "Las reseñas, valoraciones y votos son cosa tuya."
+ },
+ "agentSelfOther": {
+  "message": "Hazlo tú: «{0}»."
+ },
+ "agentSelfFile": {
+  "message": "Elige tú el archivo."
+ },
+ "agentSelfDone": {
+  "message": "Listo"
+ },
+ "agentSelfNotNow": {
+  "message": "Ahora no"
+ },
+ "agentDoneTitle": {
+  "message": "Hecho"
+ },
+ "agentAskedTitle": {
+  "message": "Necesito tu respuesta"
+ },
+ "agentStopped": {
+  "message": "Detenido."
+ },
+ "agentUndo": {
+  "message": "Deshacer"
+ },
+ "agentUndone": {
+  "message": "He deshecho todo lo que se podía deshacer."
+ },
+ "agentLimit": {
+  "message": "Se acabaron las tareas del agente por hoy ({0} al día). Mañana habrá más."
+ },
+ "agentProOnly": {
+  "message": "El agente está en Pro y Ultra."
+ },
+ "agentError": {
+  "message": "Algo salió mal. Inténtalo de nuevo."
+ },
+ "agentErrorPage": {
+  "message": "La página no responde. Vuelve a cargarla e inténtalo de nuevo."
+ },
+ "agentSteps": {
+  "message": "Hacían falta demasiados pasos, así que me he detenido aquí."
+ },
+ "agentBlockedSite": {
+  "message": "En sitios de bancos, pagos, administración pública y similares, ContextFlow no actúa por ti. Pero puede responder preguntas sobre la página."
+ },
+ "amazonAgent": {
+  "message": "En Amazon, ContextFlow solo puede responder preguntas sobre la página: Amazon no permite que herramientas automáticas actúen en su sitio por ti."
+ },
+ "amazonSimilar": {
+  "message": "Sin comprobar: Amazon no deja que nuestro servidor abra sus páginas."
+ },
+ "agentStart": {
+  "message": "Empezar"
+ },
+ "agentDeferredTitle": {
+  "message": "Tarea para después"
+ },
+ "agentDontAskHere": {
+  "message": "En este sitio, empezar directamente la próxima vez"
+ },
+ "agentLater": {
+  "message": "Más tarde"
+ },
+ "agentLaterAt": {
+  "message": "A una hora"
+ },
+ "agentLaterWatch": {
+  "message": "Cuando avise la vigilancia de esta página"
+ },
+ "agentLaterSet": {
+  "message": "Programar"
+ },
+ "agentLaterSaved": {
+  "message": "Te llegará una notificación: {0}. Tócala y lo hago contigo en esta página."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Cuando avise la vigilancia, te llegará una notificación. Tócala y lo hago contigo."
+ },
+ "agentLaterNotifOff": {
+  "message": "Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes → Notificaciones → ContextFlow."
+ },
+ "agentLaterLimit": {
+  "message": "Ya hay {0} tareas esperando, el máximo de tu plan."
+ },
+ "agentNotifTitle": {
+  "message": "Una tarea en {0}"
+ },
+ "agentNotifBody": {
+  "message": "Toca y lo hago contigo: {0}"
+ },
+ "agentHelpLink": {
+  "message": "Lo que el agente no hace"
+ },
+ "agentHelp": {
+  "message": "El agente hace cosas en la página abierta: pulsa, escribe, elige. Antes de enviar un formulario pregunta «¿Lo hago?», y te deja a ti las compras, los pagos, los mensajes y el inicio de sesión. Nunca ve ni escribe contraseñas, tarjetas ni números de documentos. Un captcha, elegir un archivo y algunos botones poco comunes se le escapan: entonces te pide que hagas tú ese paso. Una tarea para después llega como notificación: tócala y el agente sigue contigo."
+ },
+ "setAgentAuto": {
+  "message": "Las tareas para después empiezan directamente en"
+ },
+ "setAgentAutoHint": {
+  "message": "Allí, al tocar la notificación de una tarea, empieza sin «Empezar». «¿Lo hago?» y tus propios pasos siguen preguntando."
+ },
+ "fdTitle": {
+  "message": "Mis datos"
+ },
+ "fdHint": {
+  "message": "Para rellenar formularios en sitios web. Se guardan en tu dispositivo; el agente solo los rellena si aceptas, y la IA nunca los ve."
+ },
+ "fdNameFull": {
+  "message": "Nombre completo"
+ },
+ "fdNameGiven": {
+  "message": "Nombre"
+ },
+ "fdNameFamily": {
+  "message": "Apellidos"
+ },
+ "fdNameLatin": {
+  "message": "Nombre en alfabeto latino"
+ },
+ "fdNamePhonetic": {
+  "message": "Pronunciación del nombre"
+ },
+ "fdEmail": {
+  "message": "Correo electrónico"
+ },
+ "fdPhone": {
+  "message": "Teléfono"
+ },
+ "fdAddressLine": {
+  "message": "Calle y número"
+ },
+ "fdAddressApartment": {
+  "message": "Piso, puerta"
+ },
+ "fdAddressCity": {
+  "message": "Ciudad"
+ },
+ "fdAddressRegion": {
+  "message": "Provincia o estado"
+ },
+ "fdAddressPostal": {
+  "message": "Código postal"
+ },
+ "fdAddressCountry": {
+  "message": "País"
+ },
+ "fdCompany": {
+  "message": "Empresa"
+ },
+ "fdJobTitle": {
+  "message": "Cargo"
+ },
+ "fdWebsite": {
+  "message": "Sitio web"
+ },
+ "fdBirthDate": {
+  "message": "Fecha de nacimiento"
+ },
+ "fdFact": {
+  "message": "Otro"
+ },
+ "fdFactLabel": {
+  "message": "Qué es (p. ej., talla de zapato)"
+ },
+ "fdAdd": {
+  "message": "Añadir"
+ },
+ "fdDelete": {
+  "message": "Eliminar"
+ },
+ "fdDeleteAll": {
+  "message": "Eliminar todo"
+ },
+ "fdDeleteAllAsk": {
+  "message": "¿Eliminar todos tus datos de este dispositivo (y de iCloud, si se sincronizan)?"
+ },
+ "fdRefused": {
+  "message": "No guardo contraseñas, tarjetas, datos bancarios, números de documentos, códigos ni datos de salud."
+ },
+ "fdICloudAsk": {
+  "message": "¿Sincronizar tus datos en tus dispositivos con iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "A través de tu iCloud privado, al que no tenemos acceso. Sin él, se quedan en este dispositivo."
+ },
+ "fdICloud": {
+  "message": "Sincronizar con iCloud"
  },
  "tip_4cf1b54b00": {
   "message": "Consejos"
