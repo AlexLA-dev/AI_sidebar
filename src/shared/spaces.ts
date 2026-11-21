@@ -39,6 +39,12 @@ export type SpaceColor = keyof typeof SPACE_COLORS
  */
 export const HALO_ON_FIRST = false
 
+/**
+ * The halo's look while the owner picks (the director on #235's sheets): "ring", a white gap and a ring of the space's
+ * colour with a soft glow; "glow", no solid stroke, a wider glow of the space's colour with a faint white edge.
+ */
+export const HALO_LOOK: "ring" | "glow" = "ring"
+
 /** Whether the ✦ circle wears a halo for this space's colour (none outside spaces, none for blue by default). */
 export function fabHalo(color: SpaceColor | undefined): boolean {
   return Boolean(color) && (HALO_ON_FIRST || color !== "blue")

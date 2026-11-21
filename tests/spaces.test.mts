@@ -277,8 +277,21 @@ test("2.7.1: the ✦ circle is always our blue; its space glows around it as a h
   assert.match(app, /data-halo=\{halo \? spaces\.fabSpace\?\.color : undefined\}/)
   // Brighter once as the space changes, then still: a single run, none with Reduce Motion, nothing that keeps running.
   assert.match(css, /\.cf-fab\[data-halo\]\.flash \{ animation: cf-fab-halo 1\.1s ease-out 1; \}/)
-  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.cf-fab\[data-halo\]\.flash \{ animation: none; \} \}/)
-  assert.doesNotMatch(css, /cf-fab-halo[^;]*infinite/)
+  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.cf-fab\[data-halo\]\[data-halo-look\]\.flash \{ animation: none; \} \}/)
+  assert.doesNotMatch(css, /cf-fab-(halo|glow)[^;]*infinite/)
+  // Two looks while the owner picks (one switch): the ring as built, and a glow with no solid stroke, wider, in the
+  // space's base and light colours, a faint white edge; it flashes once too, and Reduce Motion stills it (the rule
+  // above comes last with the same weight).
+  const { HALO_LOOK } = await import("../src/shared/spaces.ts")
+  assert.ok(HALO_LOOK === "ring" || HALO_LOOK === "glow")
+  assert.match(app, /data-halo-look=\{halo \? HALO_LOOK : undefined\}/)
+  const glowAt = css.indexOf('.cf-fab[data-halo][data-halo-look="glow"] {')
+  const glow = css.slice(glowAt, css.indexOf("}", glowAt))
+  assert.match(glow, /0 0 0 1px rgba\(255, 255, 255, 0\.7\), 0 0 10px 4px var\(--space-glow-in\), 0 0 24px 9px var\(--space-glow-out\)/)
+  assert.doesNotMatch(glow, /var\(--space\)|width|height|margin|padding|outline|transform/)
+  assert.match(css, /\.cf-fab\[data-halo\]\[data-halo-look="glow"\]\.flash \{ animation: cf-fab-glow 1\.1s ease-out 1; \}/)
+  assert.ok(css.indexOf("prefers-reduced-motion: reduce) { .cf-fab[data-halo][data-halo-look].flash") > css.indexOf("@keyframes cf-fab-glow"))
+  assert.match(spacesTsx, /"--space-glow-in": `\$\{base\}a6`, "--space-glow-out": `\$\{light\}66`/)
   assert.match(app, /if \(!haloNow \|\| was === null \|\| was === haloNow\) return\s*setHaloFlash\(true\)/)
   // Quick insert's and Write's small circle: the same blue, a small halo in the space the ✦ circle is in.
   assert.match(insert, /\.cf-qi-btn \{[^}]*linear-gradient\(135deg, #38bdf8 0%, #2563eb 100%\) !important;/)

@@ -127,7 +127,7 @@ import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import { matchable, matchChat, matchScope, type ChatMatch, type MeaningMatches } from "../shared/match"
 import { pageTint, SpaceDot, SpaceSheet, SpaceSwitcher, SpaceToast, spaceVars, useSpaces } from "./Spaces"
-import { fabHalo } from "../shared/spaces"
+import { fabHalo, HALO_LOOK } from "../shared/spaces"
 import { CollectedMark, CollectionsWindow, CollectLink, CollectSheet, useCollections, type CollectAsk, type CollectPro, type CollectReport } from "./Collections"
 import { MoveSheet } from "./ux/MoveSheet"
 import { moveRange } from "./ux/moveAnswer"
@@ -4009,6 +4009,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ref={fabRef}
           class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}`}
           data-halo={halo ? spaces.fabSpace?.color : undefined}
+          data-halo-look={halo ? HALO_LOOK : undefined}
           style={{ top: fabTop, ...(halo && spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
           title={t("fabLabel")}
