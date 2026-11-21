@@ -18,6 +18,7 @@ export const MAX_REQUEST_CHARS = 2000
 const MAX_ITEMS = 200
 const MAX_LOG = 30
 const MAP_TEXT_MAX = 3500
+export const MAX_DATA_CHARS = 12_000
 
 export class ActError extends Error {
   reason: string
@@ -140,6 +141,8 @@ export interface StepInput {
   log: LogEntry[]
   // What the last step's check said, when the model's last answer was refused before it reached the page.
   refused?: string
+  // What the last extract read (the page's text or an element's): page content, fenced like the page.
+  data?: string
 }
 
 export function stepMessage(s: StepInput): string {
@@ -154,6 +157,7 @@ export function stepMessage(s: StepInput): string {
     fence(s.map.items.map(itemLine).join("\n")),
     forms.length ? forms.join("\n") : "",
     `text:\n${fence(s.map.text)}`,
+    s.data ? `extracted:\n${fence(s.data)}` : "",
     `</page>`,
     `Answer with one tool call.`
   ].filter(Boolean).join("\n")

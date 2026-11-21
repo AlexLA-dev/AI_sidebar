@@ -3,7 +3,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto"
 import type { Config, Context } from "@netlify/functions"
 
 import { clientBuild } from "../shared/answer.mts"
-import { ActError, cost, MAX_REQUEST_CHARS, needsStrong, nextStep, sanitizeLog, sanitizeMap, type Usage } from "../shared/act.mts"
+import { ActError, cost, MAX_DATA_CHARS, MAX_REQUEST_CHARS, needsStrong, nextStep, sanitizeLog, sanitizeMap, type Usage } from "../shared/act.mts"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
@@ -16,7 +16,7 @@ import { hostOf } from "../../src/shared/agent/sites.ts"
  * kept, the logs get counts (no addresses, no page words).
  *
  * Body: { installId, client, entitlement, task: { id, request, lang, startHost, step, confirmedHere, token? },
- *         map, log, refused? }
+ *         map, log, refused?, data? (what the last extract read) }
  * → { ok, call, verdict: {cls, reason}, target, offRequest?, token (step 0), left (tasks left today), stepsLeft }
  * Errors: {code} with BAD_REQUEST (400), UNAVAILABLE (400: an old build), OFF (503: AGENT=off), PRO_ONLY (402),
  * AGENT_LIMIT (402: the day's tasks), STEP_LIMIT (409: the task's steps), TOKEN (403), BUSY (503), UPSTREAM (502).
@@ -100,7 +100,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   let out
   try {
-    out = await nextStep({ request, lang: clip(task.lang, 12), map, log, refused: clip(body.refused, 300) || undefined }, {
+    out = await nextStep({ request, lang: clip(task.lang, 12), map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined }, {
       model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal
     })
   } catch (err) {
@@ -133,7 +133,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
     ...(out.offRequest ? { offRequest: out.offRequest } : {}),
     ...(step === 0 ? { token, left } : {}),
     strong,
-    stepsLeft: Math.max(0, a.maxSteps - stepsUsed)
+    stepsLeft: Math.max(0, a.maxSteps - stepsUsed),
+    // Measuring only: what the step cost and which model drove it.
+    ...(measuring ? { model, cost: Math.round(spent * 1e6) / 1e6, tokens } : {})
   })
 }
 
