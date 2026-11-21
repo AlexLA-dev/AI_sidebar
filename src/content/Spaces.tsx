@@ -242,7 +242,8 @@ export function SpaceToast({ space, text, back, phase, onHold, onBack }: {
   return (
     <div class={`cf-space-toast${back ? ` act ${phase ?? "run"}` : ""}`} role="status"
       onPointerEnter={back ? () => onHold?.(true) : undefined} onPointerLeave={back ? () => onHold?.(false) : undefined}
-      onFocusIn={back ? () => onHold?.(true) : undefined} onFocusOut={back ? () => onHold?.(false) : undefined}>
+      // focus/blur in capture (not focusin/focusout: those don't reach into our panel, topLayer.ts keeps them from sites)
+      onFocusCapture={back ? () => onHold?.(true) : undefined} onBlurCapture={back ? () => onHold?.(false) : undefined}>
       <SpaceDot color={space.color} size={10} />
       <span dir="auto">{text}</span>
       {back && (

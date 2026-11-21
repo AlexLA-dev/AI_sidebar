@@ -3095,10 +3095,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [status?.plan])
   useEffect(() => {
-    if (!planTourDue || !open || guide || touring || view !== "chat" || streaming || partial !== null) return
+    // (Not over an agent task that runs or waits for the person: the tour would cover its question.)
+    const agentBusy = !!agentTask && ["running", "confirm", "fill", "self"].includes(agentTask.status)
+    if (!planTourDue || !open || guide || touring || view !== "chat" || streaming || partial !== null || agentBusy) return
     setPlanTourDue(null)
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
-  }, [planTourDue, open, guide, touring, view, streaming, partial])
+  }, [planTourDue, open, guide, touring, view, streaming, partial, agentTask?.status])
   const plan = status?.plan ?? keptPlan ?? "free"
   proRef.current = plan === "pro" || plan === "ultra"
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
