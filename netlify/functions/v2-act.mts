@@ -60,10 +60,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let left: number | null = null
   if (step === 0) {
     const daily = agentDaily(access.plan, a)
-    counters = [
-      { subject: `agent:tx:${otid}`, period: "day", limit: daily },
-      { subject: `agent:${ipSubject(context.ip)}`, period: "day", limit: a.ipDaily }
-    ]
+    counters = [{ subject: `agent:tx:${otid}`, period: "day", limit: daily }]
+    // The address cap guards real installs; a measuring run (signed, deploy previews only) runs many installs from one Mac.
+    if (!measuring) counters.push({ subject: `agent:${ipSubject(context.ip)}`, period: "day", limit: a.ipDaily })
   } else if (!sameToken(clip(task.token, 100), token)) {
     return json({ code: "TOKEN" }, 403)
   }
