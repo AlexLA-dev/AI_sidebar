@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "Synchroniser avec iCloud"
  },
+ "agentPlanTitle": {
+  "message": "Voici ce que je vais faire"
+ },
+ "agentPlanReading": {
+  "message": "Je lis la page…"
+ },
+ "agentPlanAllowed": {
+  "message": "Je le ferai sans demander"
+ },
+ "agentPlanSelf": {
+  "message": "Vous le ferez vous-même"
+ },
+ "agentPlanOwn": {
+  "message": "Autre…"
+ },
+ "agentPlanNow": {
+  "message": "Maintenant"
+ },
+ "agentPermPersonal": {
+  "message": "Saisir vos infos de la demande : {0}"
+ },
+ "agentPermFill": {
+  "message": "Remplir avec « Mes infos » : {0}"
+ },
+ "agentPermConsent": {
+  "message": "Cocher l'acceptation des conditions de {0}"
+ },
+ "agentPermReminder": {
+  "message": "Ajouter aux Rappels : « {0} »"
+ },
+ "agentPermReminderDone": {
+  "message": "Marquer comme fait dans Rappels : « {0} »"
+ },
+ "agentPermEvent": {
+  "message": "Ajouter au Calendrier : « {0} »"
+ },
+ "agentPlanSelfPay": {
+  "message": "Payer ou passer la commande : « {0} »"
+ },
+ "agentPlanSelfSend": {
+  "message": "Envoyer : « {0} »"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Se connecter au site"
+ },
+ "agentPriceChanged": {
+  "message": "Le prix sur la page n'est plus celui du plan ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "En pause"
+ },
+ "agentMarkStopped": {
+  "message": "Arrêté"
+ },
+ "agentMarkFailed": {
+  "message": "Pas abouti"
+ },
+ "agentShowSteps": {
+  "message": "Étapes et résultat"
+ },
+ "agentModeOff": {
+  "message": "Désactiver « Faire »"
+ },
+ "noteHintTouchDo": {
+  "message": "Glissez le bouton vers le haut pour une note, vers le bas pour « Faire »"
+ },
+ "agentNoticeNeeds": {
+  "message": "Vous êtes attendu"
+ },
+ "agentGoToTab": {
+  "message": "Aller à l'onglet"
+ },
+ "agentNotifPaused": {
+  "message": "Tâche en pause — ouvrez Safari pour la terminer : {0}"
+ },
+ "agentNotifDone": {
+  "message": "Terminé : {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Vous êtes attendu : {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

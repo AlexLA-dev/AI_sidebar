@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "Синхронізувати через iCloud"
  },
+ "agentPlanTitle": {
+  "message": "Ось що зроблю"
+ },
+ "agentPlanReading": {
+  "message": "Читаю сторінку…"
+ },
+ "agentPlanAllowed": {
+  "message": "Зроблю без запитання"
+ },
+ "agentPlanSelf": {
+  "message": "Це зробите ви"
+ },
+ "agentPlanOwn": {
+  "message": "Своє…"
+ },
+ "agentPlanNow": {
+  "message": "Зараз"
+ },
+ "agentPermPersonal": {
+  "message": "Вписати ваші дані з прохання: {0}"
+ },
+ "agentPermFill": {
+  "message": "Заповнити з «Моїх даних»: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Позначити згоду з умовами сайту {0}"
+ },
+ "agentPermReminder": {
+  "message": "Додати в Нагадування: «{0}»"
+ },
+ "agentPermReminderDone": {
+  "message": "Позначити виконаним у Нагадуваннях: «{0}»"
+ },
+ "agentPermEvent": {
+  "message": "Додати в Календар: «{0}»"
+ },
+ "agentPlanSelfPay": {
+  "message": "Оплатити або оформити замовлення: «{0}»"
+ },
+ "agentPlanSelfSend": {
+  "message": "Надіслати: «{0}»"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Увійти на сайт"
+ },
+ "agentPriceChanged": {
+  "message": "Ціна на сторінці не та, що була в плані ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "На паузі"
+ },
+ "agentMarkStopped": {
+  "message": "Зупинено"
+ },
+ "agentMarkFailed": {
+  "message": "Не вийшло"
+ },
+ "agentShowSteps": {
+  "message": "Кроки й підсумок"
+ },
+ "agentModeOff": {
+  "message": "Вимкнути «Зробити»"
+ },
+ "noteHintTouchDo": {
+  "message": "Змахніть кнопку вгору — нотатка, вниз — «Зробити»"
+ },
+ "agentNoticeNeeds": {
+  "message": "Потрібні ви"
+ },
+ "agentGoToTab": {
+  "message": "Перейти до вкладки"
+ },
+ "agentNotifPaused": {
+  "message": "Справа на паузі — відкрийте Safari, щоб завершити: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Готово: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Потрібні ви: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

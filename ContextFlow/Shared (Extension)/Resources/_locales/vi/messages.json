@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "Đồng bộ qua iCloud"
  },
+ "agentPlanTitle": {
+  "message": "Tôi sẽ làm thế này"
+ },
+ "agentPlanReading": {
+  "message": "Đang đọc trang…"
+ },
+ "agentPlanAllowed": {
+  "message": "Tôi sẽ làm mà không hỏi lại"
+ },
+ "agentPlanSelf": {
+  "message": "Bạn sẽ tự làm"
+ },
+ "agentPlanOwn": {
+  "message": "Khác…"
+ },
+ "agentPlanNow": {
+  "message": "Ngay"
+ },
+ "agentPermPersonal": {
+  "message": "Nhập thông tin bạn đã cho trong yêu cầu: {0}"
+ },
+ "agentPermFill": {
+  "message": "Điền từ “Thông tin của tôi”: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Đánh dấu đồng ý với điều khoản của {0}"
+ },
+ "agentPermReminder": {
+  "message": "Thêm vào Lời nhắc: “{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "Đánh dấu xong trong Lời nhắc: “{0}”"
+ },
+ "agentPermEvent": {
+  "message": "Thêm vào Lịch: “{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "Thanh toán hoặc đặt hàng: “{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "Gửi: “{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Đăng nhập vào trang"
+ },
+ "agentPriceChanged": {
+  "message": "Giá trên trang không còn như trong kế hoạch ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "Tạm dừng"
+ },
+ "agentMarkStopped": {
+  "message": "Đã dừng"
+ },
+ "agentMarkFailed": {
+  "message": "Không được"
+ },
+ "agentShowSteps": {
+  "message": "Các bước và kết quả"
+ },
+ "agentModeOff": {
+  "message": "Tắt “Làm”"
+ },
+ "noteHintTouchDo": {
+  "message": "Vuốt nút lên để ghi chú, xuống để “Làm”"
+ },
+ "agentNoticeNeeds": {
+  "message": "Cần bạn"
+ },
+ "agentGoToTab": {
+  "message": "Đến thẻ"
+ },
+ "agentNotifPaused": {
+  "message": "Việc đang tạm dừng — mở Safari để làm xong: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Xong: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Cần bạn: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

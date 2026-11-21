@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "Über iCloud synchronisieren"
  },
+ "agentPlanTitle": {
+  "message": "Das mache ich"
+ },
+ "agentPlanReading": {
+  "message": "Ich lese die Seite …"
+ },
+ "agentPlanAllowed": {
+  "message": "Mache ich ohne Rückfrage"
+ },
+ "agentPlanSelf": {
+  "message": "Das machen Sie selbst"
+ },
+ "agentPlanOwn": {
+  "message": "Anderes …"
+ },
+ "agentPlanNow": {
+  "message": "Jetzt"
+ },
+ "agentPermPersonal": {
+  "message": "Ihre Angaben aus der Bitte eintragen: {0}"
+ },
+ "agentPermFill": {
+  "message": "Aus „Meine Daten“ ausfüllen: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Zustimmung zu den Bedingungen von {0} ankreuzen"
+ },
+ "agentPermReminder": {
+  "message": "Zu Erinnerungen hinzufügen: „{0}“"
+ },
+ "agentPermReminderDone": {
+  "message": "In Erinnerungen als erledigt markieren: „{0}“"
+ },
+ "agentPermEvent": {
+  "message": "Zum Kalender hinzufügen: „{0}“"
+ },
+ "agentPlanSelfPay": {
+  "message": "Bezahlen oder bestellen: „{0}“"
+ },
+ "agentPlanSelfSend": {
+  "message": "Senden: „{0}“"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Bei der Website anmelden"
+ },
+ "agentPriceChanged": {
+  "message": "Der Preis auf der Seite ist nicht mehr der aus dem Plan ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "Pausiert"
+ },
+ "agentMarkStopped": {
+  "message": "Gestoppt"
+ },
+ "agentMarkFailed": {
+  "message": "Hat nicht geklappt"
+ },
+ "agentShowSteps": {
+  "message": "Schritte und Ergebnis"
+ },
+ "agentModeOff": {
+  "message": "„Erledigen“ ausschalten"
+ },
+ "noteHintTouchDo": {
+  "message": "Knopf nach oben wischen: Notiz, nach unten: „Erledigen“"
+ },
+ "agentNoticeNeeds": {
+  "message": "Braucht Sie"
+ },
+ "agentGoToTab": {
+  "message": "Zum Tab"
+ },
+ "agentNotifPaused": {
+  "message": "Aufgabe pausiert – öffnen Sie Safari, um sie abzuschließen: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Erledigt: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Braucht Sie: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

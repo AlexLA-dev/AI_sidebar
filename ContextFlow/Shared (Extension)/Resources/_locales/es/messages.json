@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "Sincronizar con iCloud"
  },
+ "agentPlanTitle": {
+  "message": "Esto es lo que haré"
+ },
+ "agentPlanReading": {
+  "message": "Leyendo la página…"
+ },
+ "agentPlanAllowed": {
+  "message": "Lo haré sin preguntar"
+ },
+ "agentPlanSelf": {
+  "message": "Esto lo hará usted"
+ },
+ "agentPlanOwn": {
+  "message": "Otro…"
+ },
+ "agentPlanNow": {
+  "message": "Ahora"
+ },
+ "agentPermPersonal": {
+  "message": "Escribir sus datos de la petición: {0}"
+ },
+ "agentPermFill": {
+  "message": "Rellenar con «Mis datos»: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Marcar la aceptación de las condiciones de {0}"
+ },
+ "agentPermReminder": {
+  "message": "Añadir a Recordatorios: «{0}»"
+ },
+ "agentPermReminderDone": {
+  "message": "Marcar como hecho en Recordatorios: «{0}»"
+ },
+ "agentPermEvent": {
+  "message": "Añadir al Calendario: «{0}»"
+ },
+ "agentPlanSelfPay": {
+  "message": "Pagar o hacer el pedido: «{0}»"
+ },
+ "agentPlanSelfSend": {
+  "message": "Enviar: «{0}»"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Iniciar sesión en el sitio"
+ },
+ "agentPriceChanged": {
+  "message": "El precio de la página ya no es el del plan ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "En pausa"
+ },
+ "agentMarkStopped": {
+  "message": "Detenido"
+ },
+ "agentMarkFailed": {
+  "message": "No salió"
+ },
+ "agentShowSteps": {
+  "message": "Pasos y resultado"
+ },
+ "agentModeOff": {
+  "message": "Desactivar «Hacer»"
+ },
+ "noteHintTouchDo": {
+  "message": "Desliza el botón hacia arriba para una nota, hacia abajo para «Hacer»"
+ },
+ "agentNoticeNeeds": {
+  "message": "Te necesita"
+ },
+ "agentGoToTab": {
+  "message": "Ir a la pestaña"
+ },
+ "agentNotifPaused": {
+  "message": "Tarea en pausa: abre Safari para terminarla: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Hecho: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Te necesita: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

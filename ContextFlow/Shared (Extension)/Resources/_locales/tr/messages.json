@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "iCloud ile eşzamanla"
  },
+ "agentPlanTitle": {
+  "message": "Şunları yapacağım"
+ },
+ "agentPlanReading": {
+  "message": "Sayfayı okuyorum…"
+ },
+ "agentPlanAllowed": {
+  "message": "Sormadan yapacağım"
+ },
+ "agentPlanSelf": {
+  "message": "Bunları siz yapacaksınız"
+ },
+ "agentPlanOwn": {
+  "message": "Başka…"
+ },
+ "agentPlanNow": {
+  "message": "Şimdi"
+ },
+ "agentPermPersonal": {
+  "message": "İstekteki bilgilerinizi yazmak: {0}"
+ },
+ "agentPermFill": {
+  "message": "“Bilgilerim” ile doldurmak: {0}"
+ },
+ "agentPermConsent": {
+  "message": "{0} sitesinin koşullarını kabul kutusunu işaretlemek"
+ },
+ "agentPermReminder": {
+  "message": "Anımsatıcılar'a eklemek: “{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "Anımsatıcılar'da tamamlandı olarak işaretlemek: “{0}”"
+ },
+ "agentPermEvent": {
+  "message": "Takvim'e eklemek: “{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "Ödemek veya siparişi vermek: “{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "Göndermek: “{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Siteye giriş yapmak"
+ },
+ "agentPriceChanged": {
+  "message": "Sayfadaki fiyat plandaki fiyat değil ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "Duraklatıldı"
+ },
+ "agentMarkStopped": {
+  "message": "Durduruldu"
+ },
+ "agentMarkFailed": {
+  "message": "Olmadı"
+ },
+ "agentShowSteps": {
+  "message": "Adımlar ve sonuç"
+ },
+ "agentModeOff": {
+  "message": "“Yap”ı kapat"
+ },
+ "noteHintTouchDo": {
+  "message": "Not için düğmeyi yukarı, “Yap” için aşağı kaydırın"
+ },
+ "agentNoticeNeeds": {
+  "message": "Sizi bekliyor"
+ },
+ "agentGoToTab": {
+  "message": "Sekmeye git"
+ },
+ "agentNotifPaused": {
+  "message": "Görev duraklatıldı — bitirmek için Safari'yi açın: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Bitti: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Sizi bekliyor: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

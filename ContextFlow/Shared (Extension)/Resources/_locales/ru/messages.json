@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "Синхронизировать через iCloud"
  },
+ "agentPlanTitle": {
+  "message": "Вот что сделаю"
+ },
+ "agentPlanReading": {
+  "message": "Читаю страницу…"
+ },
+ "agentPlanAllowed": {
+  "message": "Сделаю без вопроса"
+ },
+ "agentPlanSelf": {
+  "message": "Это сделаете вы"
+ },
+ "agentPlanOwn": {
+  "message": "Своё…"
+ },
+ "agentPlanNow": {
+  "message": "Сейчас"
+ },
+ "agentPermPersonal": {
+  "message": "Вписать ваши данные из просьбы: {0}"
+ },
+ "agentPermFill": {
+  "message": "Заполнить из «Моих данных»: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Отметить согласие с условиями сайта {0}"
+ },
+ "agentPermReminder": {
+  "message": "Добавить в Напоминания: «{0}»"
+ },
+ "agentPermReminderDone": {
+  "message": "Отметить выполненным в Напоминаниях: «{0}»"
+ },
+ "agentPermEvent": {
+  "message": "Добавить в Календарь: «{0}»"
+ },
+ "agentPlanSelfPay": {
+  "message": "Оплатить или оформить заказ: «{0}»"
+ },
+ "agentPlanSelfSend": {
+  "message": "Отправить: «{0}»"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Войти на сайт"
+ },
+ "agentPriceChanged": {
+  "message": "Цена на странице не та, что была в плане ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "На паузе"
+ },
+ "agentMarkStopped": {
+  "message": "Остановлено"
+ },
+ "agentMarkFailed": {
+  "message": "Не вышло"
+ },
+ "agentShowSteps": {
+  "message": "Шаги и итог"
+ },
+ "agentModeOff": {
+  "message": "Выключить «Сделать»"
+ },
+ "noteHintTouchDo": {
+  "message": "Смахните кнопку вверх — заметка, вниз — «Сделать»"
+ },
+ "agentNoticeNeeds": {
+  "message": "Нужны вы"
+ },
+ "agentGoToTab": {
+  "message": "Перейти к вкладке"
+ },
+ "agentNotifPaused": {
+  "message": "Дело на паузе — откройте Safari, чтобы закончить: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Готово: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Нужны вы: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "Sync through iCloud"
  },
+ "agentPlanTitle": {
+  "message": "Here's my plan"
+ },
+ "agentPlanReading": {
+  "message": "Reading the page…"
+ },
+ "agentPlanAllowed": {
+  "message": "I'll do without asking"
+ },
+ "agentPlanSelf": {
+  "message": "You'll do these"
+ },
+ "agentPlanOwn": {
+  "message": "Other…"
+ },
+ "agentPlanNow": {
+  "message": "Now"
+ },
+ "agentPermPersonal": {
+  "message": "Type in your details from the request: {0}"
+ },
+ "agentPermFill": {
+  "message": "Fill in from My details: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Tick the box agreeing to {0}'s terms"
+ },
+ "agentPermReminder": {
+  "message": "Add to Reminders: “{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "Mark done in Reminders: “{0}”"
+ },
+ "agentPermEvent": {
+  "message": "Add to Calendar: “{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "Pay or place the order: “{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "Send: “{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Sign in to the site"
+ },
+ "agentPriceChanged": {
+  "message": "The price on the page isn't the one in the plan ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "Paused"
+ },
+ "agentMarkStopped": {
+  "message": "Stopped"
+ },
+ "agentMarkFailed": {
+  "message": "Didn't work"
+ },
+ "agentShowSteps": {
+  "message": "Steps and result"
+ },
+ "agentModeOff": {
+  "message": "Turn off Do"
+ },
+ "noteHintTouchDo": {
+  "message": "Swipe the button up for a note, down for Do"
+ },
+ "agentNoticeNeeds": {
+  "message": "Needs you"
+ },
+ "agentGoToTab": {
+  "message": "Go to the tab"
+ },
+ "agentNotifPaused": {
+  "message": "Task paused — open Safari to finish: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Done: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Needs you: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

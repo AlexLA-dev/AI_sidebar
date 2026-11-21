@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "المزامنة عبر iCloud"
  },
+ "agentPlanTitle": {
+  "message": "هذا ما سأفعله"
+ },
+ "agentPlanReading": {
+  "message": "أقرأ الصفحة…"
+ },
+ "agentPlanAllowed": {
+  "message": "سأفعله دون أن أسأل"
+ },
+ "agentPlanSelf": {
+  "message": "ستقوم بهذا بنفسك"
+ },
+ "agentPlanOwn": {
+  "message": "غير ذلك…"
+ },
+ "agentPlanNow": {
+  "message": "الآن"
+ },
+ "agentPermPersonal": {
+  "message": "كتابة بياناتك من الطلب: {0}"
+ },
+ "agentPermFill": {
+  "message": "الملء من «بياناتي»: {0}"
+ },
+ "agentPermConsent": {
+  "message": "وضع علامة الموافقة على شروط موقع {0}"
+ },
+ "agentPermReminder": {
+  "message": "إضافة إلى التذكيرات: «{0}»"
+ },
+ "agentPermReminderDone": {
+  "message": "وضع علامة «تم» في التذكيرات: «{0}»"
+ },
+ "agentPermEvent": {
+  "message": "إضافة إلى التقويم: «{0}»"
+ },
+ "agentPlanSelfPay": {
+  "message": "الدفع أو إتمام الطلب: «{0}»"
+ },
+ "agentPlanSelfSend": {
+  "message": "الإرسال: «{0}»"
+ },
+ "agentPlanSelfAuth": {
+  "message": "تسجيل الدخول إلى الموقع"
+ },
+ "agentPriceChanged": {
+  "message": "السعر في الصفحة ليس كما كان في الخطة ({0})."
+ },
+ "agentMarkPaused": {
+  "message": "متوقف مؤقتًا"
+ },
+ "agentMarkStopped": {
+  "message": "أُوقف"
+ },
+ "agentMarkFailed": {
+  "message": "لم ينجح"
+ },
+ "agentShowSteps": {
+  "message": "الخطوات والنتيجة"
+ },
+ "agentModeOff": {
+  "message": "إيقاف «نفّذ»"
+ },
+ "noteHintTouchDo": {
+  "message": "اسحب الزر لأعلى لملاحظة، ولأسفل لـ«نفّذ»"
+ },
+ "agentNoticeNeeds": {
+  "message": "بحاجة إليك"
+ },
+ "agentGoToTab": {
+  "message": "الانتقال إلى علامة التبويب"
+ },
+ "agentNotifPaused": {
+  "message": "المهمة متوقفة مؤقتًا — افتح Safari لإكمالها: {0}"
+ },
+ "agentNotifDone": {
+  "message": "تم: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "بحاجة إليك: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

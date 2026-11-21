@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "通过 iCloud 同步"
  },
+ "agentPlanTitle": {
+  "message": "我会这样做"
+ },
+ "agentPlanReading": {
+  "message": "正在读取页面…"
+ },
+ "agentPlanAllowed": {
+  "message": "无需再问即会执行"
+ },
+ "agentPlanSelf": {
+  "message": "这些由你来做"
+ },
+ "agentPlanOwn": {
+  "message": "其他…"
+ },
+ "agentPlanNow": {
+  "message": "现在"
+ },
+ "agentPermPersonal": {
+  "message": "填入你在请求里给出的信息：{0}"
+ },
+ "agentPermFill": {
+  "message": "用“我的信息”填写：{0}"
+ },
+ "agentPermConsent": {
+  "message": "勾选同意 {0} 的条款"
+ },
+ "agentPermReminder": {
+  "message": "添加到提醒事项：“{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "在提醒事项中标为完成：“{0}”"
+ },
+ "agentPermEvent": {
+  "message": "添加到日历：“{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "付款或下单：“{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "发送：“{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "登录网站"
+ },
+ "agentPriceChanged": {
+  "message": "页面上的价格和计划时不一样（{0}）。"
+ },
+ "agentMarkPaused": {
+  "message": "已暂停"
+ },
+ "agentMarkStopped": {
+  "message": "已停止"
+ },
+ "agentMarkFailed": {
+  "message": "没成功"
+ },
+ "agentShowSteps": {
+  "message": "步骤和结果"
+ },
+ "agentModeOff": {
+  "message": "关闭“执行”"
+ },
+ "noteHintTouchDo": {
+  "message": "向上轻扫按钮写笔记，向下轻扫“执行”"
+ },
+ "agentNoticeNeeds": {
+  "message": "需要你"
+ },
+ "agentGoToTab": {
+  "message": "前往该标签页"
+ },
+ "agentNotifPaused": {
+  "message": "任务已暂停——打开 Safari 来完成：{0}"
+ },
+ "agentNotifDone": {
+  "message": "完成：{0}"
+ },
+ "agentNotifNeeds": {
+  "message": "需要你：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

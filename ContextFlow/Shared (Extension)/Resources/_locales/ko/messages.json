@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "iCloud로 동기화"
  },
+ "agentPlanTitle": {
+  "message": "이렇게 할게요"
+ },
+ "agentPlanReading": {
+  "message": "페이지를 읽는 중…"
+ },
+ "agentPlanAllowed": {
+  "message": "묻지 않고 할 일"
+ },
+ "agentPlanSelf": {
+  "message": "직접 하실 일"
+ },
+ "agentPlanOwn": {
+  "message": "직접 입력…"
+ },
+ "agentPlanNow": {
+  "message": "지금"
+ },
+ "agentPermPersonal": {
+  "message": "요청에 있는 정보 입력: {0}"
+ },
+ "agentPermFill": {
+  "message": "‘내 정보’로 채우기: {0}"
+ },
+ "agentPermConsent": {
+  "message": "{0} 약관 동의에 체크"
+ },
+ "agentPermReminder": {
+  "message": "미리 알림에 추가: ‘{0}’"
+ },
+ "agentPermReminderDone": {
+  "message": "미리 알림에서 완료로 표시: ‘{0}’"
+ },
+ "agentPermEvent": {
+  "message": "캘린더에 추가: ‘{0}’"
+ },
+ "agentPlanSelfPay": {
+  "message": "결제 또는 주문: ‘{0}’"
+ },
+ "agentPlanSelfSend": {
+  "message": "보내기: ‘{0}’"
+ },
+ "agentPlanSelfAuth": {
+  "message": "사이트에 로그인"
+ },
+ "agentPriceChanged": {
+  "message": "페이지의 가격이 계획 때와 달라요({0})."
+ },
+ "agentMarkPaused": {
+  "message": "일시 정지"
+ },
+ "agentMarkStopped": {
+  "message": "중지됨"
+ },
+ "agentMarkFailed": {
+  "message": "안 됐어요"
+ },
+ "agentShowSteps": {
+  "message": "단계와 결과"
+ },
+ "agentModeOff": {
+  "message": "‘실행’ 끄기"
+ },
+ "noteHintTouchDo": {
+  "message": "버튼을 위로 밀면 메모, 아래로 밀면 ‘실행’"
+ },
+ "agentNoticeNeeds": {
+  "message": "확인이 필요해요"
+ },
+ "agentGoToTab": {
+  "message": "탭으로 이동"
+ },
+ "agentNotifPaused": {
+  "message": "작업이 일시 정지됐어요. 마치려면 Safari를 여세요: {0}"
+ },
+ "agentNotifDone": {
+  "message": "완료: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "확인이 필요해요: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

@@ -3434,6 +3434,87 @@
  "fdICloud": {
   "message": "iCloudで同期"
  },
+ "agentPlanTitle": {
+  "message": "こう進めます"
+ },
+ "agentPlanReading": {
+  "message": "ページを読んでいます…"
+ },
+ "agentPlanAllowed": {
+  "message": "確認せずに行うこと"
+ },
+ "agentPlanSelf": {
+  "message": "ご自身で行うこと"
+ },
+ "agentPlanOwn": {
+  "message": "その他…"
+ },
+ "agentPlanNow": {
+  "message": "今すぐ"
+ },
+ "agentPermPersonal": {
+  "message": "依頼文にある情報を入力：{0}"
+ },
+ "agentPermFill": {
+  "message": "「自分の情報」から入力：{0}"
+ },
+ "agentPermConsent": {
+  "message": "{0} の利用規約への同意にチェック"
+ },
+ "agentPermReminder": {
+  "message": "リマインダーに追加：「{0}」"
+ },
+ "agentPermReminderDone": {
+  "message": "リマインダーで完了にする：「{0}」"
+ },
+ "agentPermEvent": {
+  "message": "カレンダーに追加：「{0}」"
+ },
+ "agentPlanSelfPay": {
+  "message": "支払い・注文の確定：「{0}」"
+ },
+ "agentPlanSelfSend": {
+  "message": "送信：「{0}」"
+ },
+ "agentPlanSelfAuth": {
+  "message": "サイトにログイン"
+ },
+ "agentPriceChanged": {
+  "message": "ページの価格が計画時と違います（{0}）。"
+ },
+ "agentMarkPaused": {
+  "message": "一時停止中"
+ },
+ "agentMarkStopped": {
+  "message": "停止"
+ },
+ "agentMarkFailed": {
+  "message": "できませんでした"
+ },
+ "agentShowSteps": {
+  "message": "手順と結果"
+ },
+ "agentModeOff": {
+  "message": "「実行」をオフ"
+ },
+ "noteHintTouchDo": {
+  "message": "ボタンを上にスワイプでメモ、下で「実行」"
+ },
+ "agentNoticeNeeds": {
+  "message": "確認が必要です"
+ },
+ "agentGoToTab": {
+  "message": "タブへ移動"
+ },
+ "agentNotifPaused": {
+  "message": "作業は一時停止中です。終えるには Safari を開いてください：{0}"
+ },
+ "agentNotifDone": {
+  "message": "完了：{0}"
+ },
+ "agentNotifNeeds": {
+  "message": "確認が必要です：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
