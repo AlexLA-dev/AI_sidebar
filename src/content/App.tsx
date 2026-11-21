@@ -57,11 +57,12 @@ import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
 import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
-import { AgentDeferredCard, AgentLaterCard, AgentPanel, AgentStrip, type PanelAgent } from "./agent/AgentPanel"
+import { AgentDeferredCard, AgentLaterCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
+import type { TaskPlan } from "../shared/agent/taskplan"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
 import { autoStartHere, setAutoStart, takeTaskMark } from "./agent/marks"
-import { active as agentActive, type Answer as AgentAnswer } from "../shared/agent/runner"
+import { active as agentActive, type Answer as AgentAnswer, type PlanApproval } from "../shared/agent/runner"
 import { WATCH_STORAGE } from "../shared/watch/types"
 import { urlKey as watchUrlKey } from "../shared/conversation"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
@@ -557,9 +558,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // notification brought (#cf-task), «Позже», the help text, and the offer of Pro to Free.
   const [agentMode, setAgentMode] = useState(false)
   const [agentTask, setAgentTask] = useState<PanelAgent | null>(null)
+  // This tab's earlier tasks, kept in the chat folded to a line each (2.7.1).
+  const [agentPast, setAgentPast] = useState<PanelAgent[]>([])
   const [agentDeferred, setAgentDeferred] = useState<{ id: string; request: string; lang: string } | null>(null)
   const [agentAutoHere, setAgentAutoHere] = useState(false)
-  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean }; past?: boolean; canAlso?: boolean; also?: boolean } | null>(null)
+  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean }; past?: boolean; canAlso?: boolean; also?: boolean; request?: string; plan?: TaskPlan } | null>(null)
   const [agentHelp, setAgentHelp] = useState(false)
   const [agentUpsell, setAgentUpsell] = useState(false)
   // A start that didn't go (no answer from the background, or an error): said on a card, never silent.
@@ -2550,8 +2553,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setAgentLater(null)
     setAgentStartError(null)
     // The last task's card, finished, gives way to the new one (its Undo goes with it).
-    if (agentTask && !["running", "confirm", "fill", "self"].includes(agentTask.status)) {
-      await sendBackground({ type: "agentClose" })
+    if (agentTask && !agentActive(agentTask as never)) {
+      // (It stays in the chat, folded, without its Undo.)
+      const closed = await sendBackground<{ past?: PanelAgent[] }>({ type: "agentClose", keep: true })
+      if (closed?.past) setAgentPast(closed.past)
       setAgentTask(null)
     }
     const r = await sendBackground<{ ok: boolean; code?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
@@ -2574,37 +2579,71 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (r?.state) setAgentTask(r.state)
   }
 
-  /** «Позже»: whether this page has a watch to wait for (its id), then the card. */
-  const openLater = async () => {
-    const watches = ((await chrome.storage.local.get(WATCH_STORAGE.watches))[WATCH_STORAGE.watches] as Array<{ id: string; url: string; metAt?: number }> | undefined) ?? []
-    const here = watches.find((w) => !w.metAt && watchUrlKey(w.url) === watchUrlKey(location.href))
-    setAgentLater({ note: null, hasWatch: !!here, ...(here ? { watch: here.id } : {}) })
-    // «Также в Напоминания» only where Reminders can be written from here now.
-    const apple = await loadApple(sendBackground).catch(() => null)
-    if (apple?.reminders === "write") setAgentLater((l) => (l ? { ...l, canAlso: true } : l))
-  }
-
-  const deferAgent = async (when: { at?: number; watch?: boolean }, also = agentLater?.also ?? false) => {
-    const request = draft.trim()
-    if (!request || !agentLater) return
+  const deferAgent = async (when: { at?: number; watch?: boolean }, also = agentLater?.also ?? false, from = agentLater) => {
+    // The plan card's «Позже» brings its request and approved plan; the card of its own, the field's text.
+    const request = (from?.request ?? draft).trim()
+    if (!request || !from) return
     // A time already past would never ring (the notification waits for that date): the card asks for a later one.
     if (when.at !== undefined && !(when.at > Date.now() + 30_000)) {
-      setAgentLater({ ...agentLater, note: null, past: true })
+      if (from.plan) setPlanLater((l) => (l ? { ...l, past: true } : l))
+      else setAgentLater({ ...from, note: null, past: true })
       return
     }
     const host = location.hostname.replace(/^www\./, "")
     const r = await sendBackground<{ ok: boolean; code?: string; limit?: number }>({
       type: "agentDefer", request, lang: uiLanguage(), url: location.href, title: document.title,
-      ...(when.at ? { at: when.at } : {}), ...(when.watch && agentLater.watch ? { watch: agentLater.watch } : {}),
-      notifTitle: t("agentNotifTitle", host), notifBody: t("agentNotifBody", request.slice(0, 120)), ...(also ? { alsoReminder: true } : {})
+      ...(when.at ? { at: when.at } : {}), ...(when.watch && from.watch ? { watch: from.watch } : {}),
+      notifTitle: t("agentNotifTitle", host), notifBody: t("agentNotifBody", request.slice(0, 120)), ...(also ? { alsoReminder: true } : {}),
+      ...(from.plan ? { plan: from.plan } : {})
     })
+    // Put off from the plan card: the task here closes, the «Позже» card says what was set.
+    if (r?.ok && from.plan) {
+      await sendBackground({ type: "agentClose" })
+      setAgentTask(null)
+      setPlanLater(null)
+    }
     const note = r?.ok
       ? when.at
         ? t("agentLaterSaved", new Intl.DateTimeFormat(uiLanguage(), { dateStyle: "medium", timeStyle: "short" }).format(new Date(when.at)))
         : t("agentLaterSavedWatch")
       : r?.code === "NOTIF_ASK" ? t("agentLaterNotifyWhy") : r?.code === "NOTIF_OFF" ? t("agentLaterNotifOff") : r?.code === "DEFER_LIMIT" ? t("agentLaterLimit", String(r.limit ?? "")) : r?.code === "PRO_ONLY" ? t("agentProOnly") : t("agentError")
-    if (r?.ok) setDraft("")
-    setAgentLater({ ...agentLater, note, past: false, ask: r?.code === "NOTIF_ASK" ? when : undefined, also })
+    if (r?.ok && !from.plan) setDraft("")
+    // (Not set from the plan card: it stays, and «Позже» there says why on its own card.)
+    if (r?.ok || !from.plan || r?.code) setAgentLater({ ...from, note, past: false, ask: r?.code === "NOTIF_ASK" ? when : undefined, also })
+  }
+
+  // The plan card's «Позже»: whether this page has a watch, and Reminders to write to (asked once the card is up).
+  const [planLater, setPlanLater] = useState<{ hasWatch: boolean; watch?: string; canAlso: boolean; past?: boolean } | null>(null)
+  useEffect(() => {
+    if (agentTask?.status !== "plan") return
+    let live = true
+    void (async () => {
+      const watches = ((await chrome.storage.local.get(WATCH_STORAGE.watches))[WATCH_STORAGE.watches] as Array<{ id: string; url: string; metAt?: number }> | undefined) ?? []
+      const here = watches.find((w) => !w.metAt && watchUrlKey(w.url) === watchUrlKey(location.href))
+      const apple = await loadApple(sendBackground).catch(() => null)
+      if (live) setPlanLater({ hasWatch: !!here, ...(here ? { watch: here.id } : {}), canAlso: apple?.reminders === "write" })
+    })()
+    return () => {
+      live = false
+    }
+  }, [agentTask?.status, agentTask?.id])
+
+  /** The plan card's «Начать» (it goes on alone), or «Позже» (put off with the plan as approved). */
+  const planAgent = async (approval: PlanApproval, later?: LaterChoice) => {
+    const task = agentTask
+    if (!task?.plan) return
+    if (!later) {
+      const r = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentPlan", approval })
+      if (r?.state) setAgentTask(r.state)
+      return
+    }
+    const plan: TaskPlan = {
+      ...task.plan,
+      answers: task.plan.questions.map((q, i) => ({ q: q.q, a: approval.answers[i] ?? "" })),
+      perms: task.plan.perms.map((p) => ({ ...p, on: !approval.off.includes(p.id) })),
+      approved: true
+    }
+    await deferAgent(later.when, later.also, { note: null, hasWatch: !!planLater?.hasWatch, ...(planLater?.watch ? { watch: planLater.watch } : {}), request: task.request, plan })
   }
 
   /** «Включить уведомления» on the «Позже» card: the system's question (as under a set watch), then the task is set. */
@@ -2623,7 +2662,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (popup) return
     const onState = (e: Event) => setAgentTask(((e as CustomEvent).detail as PanelAgent) ?? null)
     bus.addEventListener("agentState", onState)
-    void sendBackground<{ state: PanelAgent | null }>({ type: "agentGet" }).then((r) => {
+    void sendBackground<{ state: PanelAgent | null; past?: PanelAgent[] }>({ type: "agentGet" }).then((r) => {
+      if (r?.past) setAgentPast(r.past)
       // A task still running in this tab (the page went on mid-task): the panel shows it (not the page's chat).
       if (r?.state && agentActive(r.state as never)) {
         setAgentTask(r.state)
@@ -2669,10 +2709,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const agentPeek = useRef(false)
   const agentStatus = agentTask?.status
   // An agent task's card (or a deferred one's) is on screen: the greeting and its chips step aside for it.
-  const agentCardShown = !!agentTask || !!agentDeferred
+  const agentCardShown = !!agentTask || !!agentDeferred || agentPast.length > 0
   const lastUserIndex = messages.findLastIndex((m) => m.role === "user" && !m.note)
+  // The plan's own step (the page read before the plan card): the panel stays, the card comes there.
+  const agentPlanning = agentStatus === "running" && (agentTask?.step ?? 0) === 0
   useEffect(() => {
-    const running = agentStatus === "running"
+    const running = agentStatus === "running" && !agentPlanning
     if (!running) {
       agentPeek.current = false
       if (agentStatus !== "confirm" && agentStatus !== "fill" && agentStatus !== "self") setAgentRing(null)
@@ -2702,7 +2744,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       agentAway.current = false
       show()
     }
-  }, [agentStatus])
+  }, [agentStatus, agentPlanning])
 
 
   // 2.6 (100): the App Store's "Write a Review", when tapped (the "…" menu's Other…, Settings' links). iPhone and iPad:
@@ -4895,11 +4937,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     }}
                   />
                 )}
+                {agentPast.map((p) => (
+                  <AgentPanel
+                    key={`past-${p.id}`}
+                    state={p}
+                    past
+                    onAnswer={() => undefined}
+                    onUndo={() => undefined}
+                    onClose={() => {
+                      void sendBackground({ type: "agentForgetPast", id: p.id })
+                      setAgentPast((list) => list.filter((x) => x.id !== p.id))
+                    }}
+                    onHelp={() => setAgentHelp(!agentHelp)}
+                  />
+                ))}
                 {agentTask && (
                   <AgentPanel
                     key={`${agentTask.id}-${agentTask.status}-${agentTask.step}`}
                     state={agentTask}
                     onAnswer={(a, chosen) => void answerAgent(a, chosen)}
+                    onPlan={(approval, later) => void planAgent(approval, later)}
+                    later={planLater ?? undefined}
                     onUndo={() => void sendBackground({ type: "agentUndo" })}
                     onClose={() => {
                       void sendBackground({ type: "agentClose" })
@@ -5352,8 +5410,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       onClose={() => setPlusOpen(false)}
                     />
                   )}
-                  <div class={`cf-input ${noteMode ? "note" : ""}`}>
-                    <button
+                  <div class={`cf-input ${noteMode ? "note" : ""} ${agentMode && !noteMode && !historyMode ? "agent" : ""}`}>
+                    {/* 2.7.1 (the owner: «большое нагромождение всего»): in Do mode the row is the «Сделать ✕» chip and the
+                        field; «Позже» is a choice in the plan card. */}
+                    {!(agentMode && !noteMode && !historyMode) && <button
                       type="button"
                       class={`cf-plus ${plusOpen ? "on" : ""}`}
                       aria-haspopup="menu"
@@ -5366,7 +5426,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       }}
                     >
                       <Icon.Plus />
-                    </button>
+                    </button>}
                     {!noteMode && !historyMode && !agentMode && (
                       <button
                         type="button"
@@ -5383,15 +5443,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         type="button"
                         class="cf-mode cf-agent-mode on"
                         aria-pressed={true}
+                        aria-label={t("agentModeOff")}
                         title={t("agentModeHint")}
                         onClick={() => setAgentMode(false)}
                       >
-                        <Icon.Sparkle size={13} /> {t("agentMode")}
-                      </button>
-                    )}
-                    {agentMode && !noteMode && (
-                      <button type="button" class="cf-mode" title={t("agentLater")} onClick={() => void openLater()}>
-                        <Icon.Clock />
+                        <Icon.Sparkle size={13} /> {t("agentMode")} <span class="cf-agent-mode-x" aria-hidden="true">✕</span>
                       </button>
                     )}
                     <textarea
@@ -5422,7 +5478,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     />
                     {/* The answers left, as a number by the field (the count itself is in «+»), on Free and when few are
                         left, on every layout. A tap opens «+», where it stands in full. */}
-                    {leftNow && !noteMode && (
+                    {leftNow && !noteMode && !agentMode && (
                       <button type="button" class={`cf-left ${leftNow.low ? "low" : ""}`} aria-label={usageLine} title={usageLine} onClick={() => {
                         // 110: «+» opens with what the answers went on.
                         void sendBackground({ type: "useEvent", f: "quiet", a: "spent", via: "number" })

@@ -219,13 +219,18 @@ test("the empty chat in a phone's sheet sits by the field: chips and field toget
 test("6. «+» by the field: Note, the page snapshot, Whole chat, the answers left; Google and the swipe stay", () => {
   const composer = app.slice(app.indexOf('<footer class="cf-composer">'), app.indexOf("</footer>", app.indexOf('<footer class="cf-composer">')))
   // In the field's row: «+», Google, the field, the count (every layout since 110), send.
-  const order = ['class={`cf-plus ${plusOpen ? "on" : ""}`}', 'class={`cf-mode ${googleMode ? "on" : ""}`}', "<textarea", "{leftNow && !noteMode && (", 'class="cf-send-wrap" {...switchGestures}']
+  const order = ['class={`cf-plus ${plusOpen ? "on" : ""}`}', 'class={`cf-mode ${googleMode ? "on" : ""}`}', "<textarea", "{leftNow && !noteMode && !agentMode && (", 'class="cf-send-wrap" {...switchGestures}']
   let at = composer.indexOf('<div class={`cf-input')
   for (const part of order) {
     const next = composer.indexOf(part, at + 1)
     assert.ok(next > at, `${part} in the field's row`)
     at = next
   }
+  // Do mode (2.7.1, the owner: «большое нагромождение всего»): the row is the «Сделать ✕» chip and the field — no «+»,
+  // no clock (Later is in the plan card), no count.
+  assert.match(composer, /\{!\(agentMode && !noteMode && !historyMode\) && <button\s+type="button"\s+class=\{`cf-plus/)
+  assert.doesNotMatch(composer, /<Icon\.Clock \/>/)
+  assert.match(composer, /\{t\("agentMode"\)\} <span class="cf-agent-mode-x" aria-hidden="true">✕<\/span>/)
   // The menu's four, on every layout (110).
   const plus = read("../src/content/quiet/Plus.tsx")
   const menuOrder = ['{t("selNote")}', '{t("shotSwitch")}', '{t("wholeChat")}', 'class="cf-plus-usage"']

@@ -1173,5 +1173,27 @@
   "fdRefused": "Je ne garde ni mots de passe, ni cartes, ni numéros bancaires ou de documents, ni codes, ni données de santé.",
   "fdICloudAsk": "Synchroniser vos infos sur vos appareils via iCloud ?",
   "fdICloudHint": "Via votre iCloud privé, auquel nous n’avons pas accès. Sans cela, elles restent sur cet appareil.",
-  "fdICloud": "Synchroniser avec iCloud"
+  "fdICloud": "Synchroniser avec iCloud",
+
+  "agentPlanTitle": "Voici ce que je vais faire",
+  "agentPlanReading": "Je lis la page…",
+  "agentPlanAllowed": "Je le ferai sans demander",
+  "agentPlanSelf": "Vous le ferez vous-même",
+  "agentPlanOwn": "Autre…",
+  "agentPlanNow": "Maintenant",
+  "agentPermPersonal": "Saisir vos infos de la demande : {0}",
+  "agentPermFill": "Remplir avec « Mes infos » : {0}",
+  "agentPermConsent": "Cocher l'acceptation des conditions de {0}",
+  "agentPermReminder": "Ajouter aux Rappels : « {0} »",
+  "agentPermReminderDone": "Marquer comme fait dans Rappels : « {0} »",
+  "agentPermEvent": "Ajouter au Calendrier : « {0} »",
+  "agentPlanSelfPay": "Payer ou passer la commande : « {0} »",
+  "agentPlanSelfSend": "Envoyer : « {0} »",
+  "agentPlanSelfAuth": "Se connecter au site",
+  "agentPriceChanged": "Le prix sur la page n'est plus celui du plan ({0}).",
+  "agentMarkPaused": "En pause",
+  "agentMarkStopped": "Arrêté",
+  "agentMarkFailed": "Pas abouti",
+  "agentShowSteps": "Étapes et résultat",
+  "agentModeOff": "Désactiver « Faire »"
 }

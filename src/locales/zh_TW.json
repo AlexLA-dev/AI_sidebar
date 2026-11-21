@@ -1173,5 +1173,27 @@
   "fdRefused": "我不會保存密碼、信用卡、銀行帳號或證件號碼、驗證碼，也不保存健康資料。",
   "fdICloudAsk": "要透過 iCloud 在你的各台裝置間同步這些資料嗎？",
   "fdICloudHint": "透過你私人的 iCloud 同步，我們無法存取。不同步的話，資料只會留在這台裝置上。",
-  "fdICloud": "透過 iCloud 同步"
+  "fdICloud": "透過 iCloud 同步",
+
+  "agentPlanTitle": "我會這樣做",
+  "agentPlanReading": "正在讀取頁面…",
+  "agentPlanAllowed": "不再詢問就會執行",
+  "agentPlanSelf": "這些由你來做",
+  "agentPlanOwn": "其他…",
+  "agentPlanNow": "現在",
+  "agentPermPersonal": "填入你在請求中提供的資料：{0}",
+  "agentPermFill": "用「我的資料」填寫：{0}",
+  "agentPermConsent": "勾選同意 {0} 的條款",
+  "agentPermReminder": "加入提醒事項：「{0}」",
+  "agentPermReminderDone": "在提醒事項中標為完成：「{0}」",
+  "agentPermEvent": "加入行事曆：「{0}」",
+  "agentPlanSelfPay": "付款或下單：「{0}」",
+  "agentPlanSelfSend": "傳送：「{0}」",
+  "agentPlanSelfAuth": "登入網站",
+  "agentPriceChanged": "頁面上的價格和計畫時不一樣（{0}）。",
+  "agentMarkPaused": "已暫停",
+  "agentMarkStopped": "已停止",
+  "agentMarkFailed": "沒成功",
+  "agentShowSteps": "步驟和結果",
+  "agentModeOff": "關閉「執行」"
 }

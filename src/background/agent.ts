@@ -9,7 +9,8 @@
 
 import { API_BASE, TARGET, TEST_PLAN } from "../shared/config"
 import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
-import { active, answer, drive, newState, type Answer, type AgentState, type RunnerIO } from "../shared/agent/runner"
+import { active, answer, approvePlan, drive, newState, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
+import type { TaskPlan } from "../shared/agent/taskplan"
 import { hostOf } from "../shared/agent/sites"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
@@ -29,6 +30,9 @@ let deps: AgentDeps
 
 const MAX_STEPS = 30
 const TASK_KEY = (tab: number) => `cf:agent:${tab}`
+// This tab's finished tasks the chat keeps, folded to a line each (2.7.1, the owner): newest last, a few.
+const PAST_KEY = (tab: number) => `cf:agentPast:${tab}`
+const PAST_MAX = 6
 export const DEFERRED_KEY = "cf:agentTasks"
 const DEFERRED_DAYS = 30
 
@@ -44,16 +48,20 @@ export interface DeferredTask {
   createdAt: number
   // It has a reminder in Apple Reminders too («Также в Напоминания», key cf.agent.<id>).
   reminder?: boolean
+  // The plan the person approved when they chose «Позже» on its card: started on the same page, it goes by it.
+  plan?: TaskPlan
 }
 
 export type AgentRequest =
   | { type: "agentStart"; request: string; lang: string; deferred?: string }
   | { type: "agentAnswer"; answer: Answer; chosen?: string[] }
+  | { type: "agentPlan"; approval: PlanApproval }
   | { type: "agentGet" }
   | { type: "agentAccessOpen"; kind: "reminders" | "calendar" }
   | { type: "agentUndo" }
-  | { type: "agentClose" }
-  | { type: "agentDefer"; request: string; lang: string; url: string; title: string; at?: number; watch?: string; notifTitle: string; notifBody: string; alsoReminder?: boolean }
+  | { type: "agentClose"; keep?: boolean }
+  | { type: "agentForgetPast"; id: string }
+  | { type: "agentDefer"; request: string; lang: string; url: string; title: string; at?: number; watch?: string; notifTitle: string; notifBody: string; alsoReminder?: boolean; plan?: TaskPlan }
   | { type: "agentDeferred" }
   | { type: "agentDeferCancel"; id: string }
   | { type: "formData" }
@@ -100,6 +108,29 @@ async function write(tab: number, state: AgentState): Promise<void> {
 async function forget(tab: number): Promise<void> {
   const key = TASK_KEY(tab)
   await Promise.all([store().remove(key).catch(() => undefined), chrome.storage.local.remove(key).catch(() => undefined)])
+}
+
+type PastTask = Omit<ReturnType<typeof forPanel>, "pending"> & { canUndo: false }
+
+async function past(tab: number): Promise<PastTask[]> {
+  const key = PAST_KEY(tab)
+  const got = (await chrome.storage.local.get(key).catch(() => ({} as Record<string, unknown>)))[key] as PastTask[] | undefined
+  return Array.isArray(got) ? got.filter((x) => Date.now() - (x.startedAt ?? 0) < LOCAL_FOR) : []
+}
+
+/** The tab's task goes; finished and kept, it stays in the chat as a folded line (without its Undo). */
+async function close(tab: number, keep: boolean): Promise<void> {
+  const state = await load(tab)
+  if (keep && state && !active(state)) {
+    const { pending: _p, ...rest } = forPanel(state)
+    const list = [...(await past(tab)).filter((x) => x.id !== state.id), { ...rest, undo: [], canUndo: false as const }].slice(-PAST_MAX)
+    await chrome.storage.local.set({ [PAST_KEY(tab)]: list })
+  }
+  await forget(tab)
+}
+
+async function forgetPast(tab: number, id: string): Promise<void> {
+  await chrome.storage.local.set({ [PAST_KEY(tab)]: (await past(tab)).filter((x) => x.id !== id) })
 }
 
 async function load(tab: number): Promise<AgentState | null> {
@@ -240,9 +271,13 @@ function io(tab: number): RunnerIO {
     maxSteps: MAX_STEPS,
     isStopped: async () => (await load(tab))?.status === "stopped",
     device: appleDevice,
-    apple: appleCall
+    apple: appleCall,
+    planning: true
   }
 }
+
+/** The same page, for a deferred task's plan: the address without its fragment. */
+const samePage = (a: string, b: string) => a.split("#")[0] === b.split("#")[0]
 
 // One drive at a time per tab (an answer that comes while it runs waits for it).
 const running = new Map<number, Promise<unknown>>()
@@ -264,7 +299,12 @@ async function start(tab: number, url: string, m: Extract<AgentRequest, { type: 
   const now = await load(tab)
   if (active(now)) return { ok: false, code: "BUSY", state: now && forPanel(now) }
   const state = newState(crypto.randomUUID(), m.request.slice(0, 2000), m.lang, url, m.deferred)
-  if (m.deferred) await removeDeferred(m.deferred, true)
+  if (m.deferred) {
+    // Its plan was approved when it was put off: on the same page it goes by it (another page: planned again).
+    const d = (await deferredAll()).find((x) => x.id === m.deferred)
+    if (d?.plan?.approved && samePage(d.url, url)) state.plan = d.plan
+    await removeDeferred(m.deferred, true)
+  }
   await save(tab, state)
   void run(tab, () => drive(state, io(tab))).then(() => deps.statusChanged())
   return { ok: true, state: forPanel(state) }
@@ -284,6 +324,14 @@ async function reply(tab: number, a: Answer, chosen?: string[]): Promise<Record<
     const fresh = (await load(tab)) ?? state
     return answer(fresh, io(tab), a, chosen)
   })
+  return { ok: true }
+}
+
+async function planned(tab: number, approval: PlanApproval): Promise<Record<string, unknown>> {
+  const state = await load(tab)
+  if (state?.status !== "plan") return { ok: false, state: state && forPanel(state) }
+  const a: PlanApproval = { answers: (approval?.answers ?? []).map((x) => String(x ?? "").slice(0, 200)), off: (approval?.off ?? []).map(String) }
+  void run(tab, async () => approvePlan((await load(tab)) ?? state, io(tab), a)).then(() => deps.statusChanged())
   return { ok: true }
 }
 
@@ -340,7 +388,7 @@ async function defer(m: Extract<AgentRequest, { type: "agentDefer" }>): Promise<
   const task: DeferredTask = {
     id: `a_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
     request: m.request.slice(0, 2000), lang: m.lang, url: m.url, title: m.title.slice(0, 200), createdAt: Date.now(),
-    ...(m.at ? { at: m.at } : {}), ...(m.watch ? { watch: m.watch } : {})
+    ...(m.at ? { at: m.at } : {}), ...(m.watch ? { watch: m.watch } : {}), ...(m.plan?.approved ? { plan: m.plan } : {})
   }
   let outcome = "scheduled"
   if (task.at && TARGET === "safari") {
@@ -388,12 +436,16 @@ export function startAgent(d: AgentDeps): void {
         return tab === undefined ? false : respond(start(tab, url, message))
       case "agentAnswer":
         return tab === undefined ? false : respond(reply(tab, message.answer, message.chosen))
+      case "agentPlan":
+        return tab === undefined ? false : respond(planned(tab, message.approval))
       case "agentGet":
-        return tab === undefined ? false : respond(load(tab).then((s) => ({ state: s && forPanel(s) })))
+        return tab === undefined ? false : respond(Promise.all([load(tab), past(tab)]).then(([s, p]) => ({ state: s && forPanel(s), past: p })))
       case "agentUndo":
         return tab === undefined ? false : respond(undoAll(tab).then((ok) => ({ ok })))
       case "agentClose":
-        return tab === undefined ? false : respond(forget(tab).then(() => ({ ok: true })))
+        return tab === undefined ? false : respond(close(tab, message.keep === true).then(() => past(tab)).then((p) => ({ ok: true, past: p })))
+      case "agentForgetPast":
+        return tab === undefined ? false : respond(forgetPast(tab, message.id).then(() => ({ ok: true })))
       case "agentDefer":
         return respond(defer(message).then(async (r) => {
           const task = r.task as DeferredTask | undefined
@@ -424,7 +476,10 @@ export function startAgent(d: AgentDeps): void {
     }
   })
   // A tab that closed takes its task with it.
-  chrome.tabs.onRemoved.addListener((tab) => void forget(tab))
+  chrome.tabs.onRemoved.addListener((tab) => {
+    void forget(tab)
+    void chrome.storage.local.remove(PAST_KEY(tab))
+  })
   // The app may have cancelled some; its list gets this device's.
   setTimeout(() => void syncDeferred().catch(() => undefined), 5_000)
 }

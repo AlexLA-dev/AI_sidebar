@@ -1173,5 +1173,27 @@
   "fdRefused": "Non conservo password, carte, coordinate bancarie, numeri di documenti, codici o dati sanitari.",
   "fdICloudAsk": "Sincronizzare i tuoi dati sui tuoi dispositivi tramite iCloud?",
   "fdICloudHint": "Tramite il tuo iCloud privato, a cui non abbiamo accesso. Senza, restano su questo dispositivo.",
-  "fdICloud": "Sincronizza con iCloud"
+  "fdICloud": "Sincronizza con iCloud",
+
+  "agentPlanTitle": "Ecco cosa farò",
+  "agentPlanReading": "Leggo la pagina…",
+  "agentPlanAllowed": "Lo farò senza chiedere",
+  "agentPlanSelf": "Questo lo farà lei",
+  "agentPlanOwn": "Altro…",
+  "agentPlanNow": "Ora",
+  "agentPermPersonal": "Inserire i suoi dati dalla richiesta: {0}",
+  "agentPermFill": "Compilare con «I miei dati»: {0}",
+  "agentPermConsent": "Spuntare l'accettazione dei termini di {0}",
+  "agentPermReminder": "Aggiungere a Promemoria: «{0}»",
+  "agentPermReminderDone": "Segnare come fatto in Promemoria: «{0}»",
+  "agentPermEvent": "Aggiungere al Calendario: «{0}»",
+  "agentPlanSelfPay": "Pagare o confermare l'ordine: «{0}»",
+  "agentPlanSelfSend": "Inviare: «{0}»",
+  "agentPlanSelfAuth": "Accedere al sito",
+  "agentPriceChanged": "Il prezzo sulla pagina non è quello del piano ({0}).",
+  "agentMarkPaused": "In pausa",
+  "agentMarkStopped": "Interrotto",
+  "agentMarkFailed": "Non è riuscito",
+  "agentShowSteps": "Passi e risultato",
+  "agentModeOff": "Disattivare «Fai»"
 }

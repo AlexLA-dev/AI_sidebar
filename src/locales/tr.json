@@ -1173,5 +1173,27 @@
   "fdRefused": "Parolaları, kartları, banka bilgilerini, belge numaralarını, kodları ve sağlık verilerini saklamam.",
   "fdICloudAsk": "Bilgileriniz cihazlarınız arasında iCloud ile eşzamanlansın mı?",
   "fdICloudHint": "Bizim erişemediğimiz kendi iCloud hesabınız üzerinden. Bu olmadan bilgiler bu cihazda kalır.",
-  "fdICloud": "iCloud ile eşzamanla"
+  "fdICloud": "iCloud ile eşzamanla",
+
+  "agentPlanTitle": "Şunları yapacağım",
+  "agentPlanReading": "Sayfayı okuyorum…",
+  "agentPlanAllowed": "Sormadan yapacağım",
+  "agentPlanSelf": "Bunları siz yapacaksınız",
+  "agentPlanOwn": "Başka…",
+  "agentPlanNow": "Şimdi",
+  "agentPermPersonal": "İstekteki bilgilerinizi yazmak: {0}",
+  "agentPermFill": "“Bilgilerim” ile doldurmak: {0}",
+  "agentPermConsent": "{0} sitesinin koşullarını kabul kutusunu işaretlemek",
+  "agentPermReminder": "Anımsatıcılar'a eklemek: “{0}”",
+  "agentPermReminderDone": "Anımsatıcılar'da tamamlandı olarak işaretlemek: “{0}”",
+  "agentPermEvent": "Takvim'e eklemek: “{0}”",
+  "agentPlanSelfPay": "Ödemek veya siparişi vermek: “{0}”",
+  "agentPlanSelfSend": "Göndermek: “{0}”",
+  "agentPlanSelfAuth": "Siteye giriş yapmak",
+  "agentPriceChanged": "Sayfadaki fiyat plandaki fiyat değil ({0}).",
+  "agentMarkPaused": "Duraklatıldı",
+  "agentMarkStopped": "Durduruldu",
+  "agentMarkFailed": "Olmadı",
+  "agentShowSteps": "Adımlar ve sonuç",
+  "agentModeOff": "“Yap”ı kapat"
 }

@@ -1173,5 +1173,27 @@
   "fdRefused": "암호, 카드, 은행 계좌나 신분증 번호, 인증 코드, 건강 정보는 보관하지 않아요.",
   "fdICloudAsk": "iCloud로 내 기기 간에 정보를 동기화할까요?",
   "fdICloudHint": "저희가 접근할 수 없는 개인 iCloud를 통해 동기화해요. 동기화하지 않으면 이 기기에만 남아요.",
-  "fdICloud": "iCloud로 동기화"
+  "fdICloud": "iCloud로 동기화",
+
+  "agentPlanTitle": "이렇게 할게요",
+  "agentPlanReading": "페이지를 읽는 중…",
+  "agentPlanAllowed": "묻지 않고 할 일",
+  "agentPlanSelf": "직접 하실 일",
+  "agentPlanOwn": "직접 입력…",
+  "agentPlanNow": "지금",
+  "agentPermPersonal": "요청에 있는 정보 입력: {0}",
+  "agentPermFill": "‘내 정보’로 채우기: {0}",
+  "agentPermConsent": "{0} 약관 동의에 체크",
+  "agentPermReminder": "미리 알림에 추가: ‘{0}’",
+  "agentPermReminderDone": "미리 알림에서 완료로 표시: ‘{0}’",
+  "agentPermEvent": "캘린더에 추가: ‘{0}’",
+  "agentPlanSelfPay": "결제 또는 주문: ‘{0}’",
+  "agentPlanSelfSend": "보내기: ‘{0}’",
+  "agentPlanSelfAuth": "사이트에 로그인",
+  "agentPriceChanged": "페이지의 가격이 계획 때와 달라요({0}).",
+  "agentMarkPaused": "일시 정지",
+  "agentMarkStopped": "중지됨",
+  "agentMarkFailed": "안 됐어요",
+  "agentShowSteps": "단계와 결과",
+  "agentModeOff": "‘실행’ 끄기"
 }

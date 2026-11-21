@@ -1173,5 +1173,27 @@
   "fdRefused": "パスワード、カード、銀行口座や身分証明書の番号、認証コード、健康に関するデータは保存しません。",
   "fdICloudAsk": "iCloudを使って、お使いのデバイス間で情報を同期しますか？",
   "fdICloudHint": "当社がアクセスできない、あなた専用のiCloudを使います。同期しない場合、情報はこのデバイスにだけ保存されます。",
-  "fdICloud": "iCloudで同期"
+  "fdICloud": "iCloudで同期",
+
+  "agentPlanTitle": "こう進めます",
+  "agentPlanReading": "ページを読んでいます…",
+  "agentPlanAllowed": "確認せずに行うこと",
+  "agentPlanSelf": "ご自身で行うこと",
+  "agentPlanOwn": "その他…",
+  "agentPlanNow": "今すぐ",
+  "agentPermPersonal": "依頼文にある情報を入力：{0}",
+  "agentPermFill": "「自分の情報」から入力：{0}",
+  "agentPermConsent": "{0} の利用規約への同意にチェック",
+  "agentPermReminder": "リマインダーに追加：「{0}」",
+  "agentPermReminderDone": "リマインダーで完了にする：「{0}」",
+  "agentPermEvent": "カレンダーに追加：「{0}」",
+  "agentPlanSelfPay": "支払い・注文の確定：「{0}」",
+  "agentPlanSelfSend": "送信：「{0}」",
+  "agentPlanSelfAuth": "サイトにログイン",
+  "agentPriceChanged": "ページの価格が計画時と違います（{0}）。",
+  "agentMarkPaused": "一時停止中",
+  "agentMarkStopped": "停止",
+  "agentMarkFailed": "できませんでした",
+  "agentShowSteps": "手順と結果",
+  "agentModeOff": "「実行」をオフ"
 }

@@ -1173,5 +1173,27 @@
   "fdRefused": "Паролі, картки, банківські реквізити, номери документів, коди й дані про здоров’я я не зберігаю.",
   "fdICloudAsk": "Синхронізувати ваші дані між вашими пристроями через iCloud?",
   "fdICloudHint": "Через ваш особистий iCloud, до якого ми не маємо доступу. Без цього вони залишаються на цьому пристрої.",
-  "fdICloud": "Синхронізувати через iCloud"
+  "fdICloud": "Синхронізувати через iCloud",
+
+  "agentPlanTitle": "Ось що зроблю",
+  "agentPlanReading": "Читаю сторінку…",
+  "agentPlanAllowed": "Зроблю без запитання",
+  "agentPlanSelf": "Це зробите ви",
+  "agentPlanOwn": "Своє…",
+  "agentPlanNow": "Зараз",
+  "agentPermPersonal": "Вписати ваші дані з прохання: {0}",
+  "agentPermFill": "Заповнити з «Моїх даних»: {0}",
+  "agentPermConsent": "Позначити згоду з умовами сайту {0}",
+  "agentPermReminder": "Додати в Нагадування: «{0}»",
+  "agentPermReminderDone": "Позначити виконаним у Нагадуваннях: «{0}»",
+  "agentPermEvent": "Додати в Календар: «{0}»",
+  "agentPlanSelfPay": "Оплатити або оформити замовлення: «{0}»",
+  "agentPlanSelfSend": "Надіслати: «{0}»",
+  "agentPlanSelfAuth": "Увійти на сайт",
+  "agentPriceChanged": "Ціна на сторінці не та, що була в плані ({0}).",
+  "agentMarkPaused": "На паузі",
+  "agentMarkStopped": "Зупинено",
+  "agentMarkFailed": "Не вийшло",
+  "agentShowSteps": "Кроки й підсумок",
+  "agentModeOff": "Вимкнути «Зробити»"
 }

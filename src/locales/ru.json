@@ -1173,5 +1173,27 @@
   "fdRefused": "Пароли, карты, банковские реквизиты, номера документов, коды и данные о здоровье я не храню.",
   "fdICloudAsk": "Синхронизировать ваши данные на ваших устройствах через iCloud?",
   "fdICloudHint": "Через ваш личный iCloud, к которому у нас нет доступа. Без этого они остаются на этом устройстве.",
-  "fdICloud": "Синхронизировать через iCloud"
+  "fdICloud": "Синхронизировать через iCloud",
+
+  "agentPlanTitle": "Вот что сделаю",
+  "agentPlanReading": "Читаю страницу…",
+  "agentPlanAllowed": "Сделаю без вопроса",
+  "agentPlanSelf": "Это сделаете вы",
+  "agentPlanOwn": "Своё…",
+  "agentPlanNow": "Сейчас",
+  "agentPermPersonal": "Вписать ваши данные из просьбы: {0}",
+  "agentPermFill": "Заполнить из «Моих данных»: {0}",
+  "agentPermConsent": "Отметить согласие с условиями сайта {0}",
+  "agentPermReminder": "Добавить в Напоминания: «{0}»",
+  "agentPermReminderDone": "Отметить выполненным в Напоминаниях: «{0}»",
+  "agentPermEvent": "Добавить в Календарь: «{0}»",
+  "agentPlanSelfPay": "Оплатить или оформить заказ: «{0}»",
+  "agentPlanSelfSend": "Отправить: «{0}»",
+  "agentPlanSelfAuth": "Войти на сайт",
+  "agentPriceChanged": "Цена на странице не та, что была в плане ({0}).",
+  "agentMarkPaused": "На паузе",
+  "agentMarkStopped": "Остановлено",
+  "agentMarkFailed": "Не вышло",
+  "agentShowSteps": "Шаги и итог",
+  "agentModeOff": "Выключить «Сделать»"
 }

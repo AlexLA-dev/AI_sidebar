@@ -1173,5 +1173,27 @@
   "fdRefused": "I don't keep passwords, cards, bank or document numbers, codes or health data.",
   "fdICloudAsk": "Sync your details on your devices through iCloud?",
   "fdICloudHint": "Through your private iCloud, which we can't access. Without it, they stay on this device.",
-  "fdICloud": "Sync through iCloud"
+  "fdICloud": "Sync through iCloud",
+
+  "agentPlanTitle": "Here's my plan",
+  "agentPlanReading": "Reading the page…",
+  "agentPlanAllowed": "I'll do without asking",
+  "agentPlanSelf": "You'll do these",
+  "agentPlanOwn": "Other…",
+  "agentPlanNow": "Now",
+  "agentPermPersonal": "Type in your details from the request: {0}",
+  "agentPermFill": "Fill in from My details: {0}",
+  "agentPermConsent": "Tick the box agreeing to {0}'s terms",
+  "agentPermReminder": "Add to Reminders: “{0}”",
+  "agentPermReminderDone": "Mark done in Reminders: “{0}”",
+  "agentPermEvent": "Add to Calendar: “{0}”",
+  "agentPlanSelfPay": "Pay or place the order: “{0}”",
+  "agentPlanSelfSend": "Send: “{0}”",
+  "agentPlanSelfAuth": "Sign in to the site",
+  "agentPriceChanged": "The price on the page isn't the one in the plan ({0}).",
+  "agentMarkPaused": "Paused",
+  "agentMarkStopped": "Stopped",
+  "agentMarkFailed": "Didn't work",
+  "agentShowSteps": "Steps and result",
+  "agentModeOff": "Turn off Do"
 }

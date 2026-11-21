@@ -1173,5 +1173,27 @@
   "fdRefused": "لا أحفظ كلمات السر أو البطاقات أو البيانات المصرفية أو أرقام الوثائق أو الرموز أو البيانات الصحية.",
   "fdICloudAsk": "هل تريد مزامنة بياناتك بين أجهزتك عبر iCloud؟",
   "fdICloudHint": "عبر iCloud الخاص بك، الذي لا نستطيع الوصول إليه. ومن دونه تبقى على هذا الجهاز.",
-  "fdICloud": "المزامنة عبر iCloud"
+  "fdICloud": "المزامنة عبر iCloud",
+
+  "agentPlanTitle": "هذا ما سأفعله",
+  "agentPlanReading": "أقرأ الصفحة…",
+  "agentPlanAllowed": "سأفعله دون أن أسأل",
+  "agentPlanSelf": "ستقوم بهذا بنفسك",
+  "agentPlanOwn": "غير ذلك…",
+  "agentPlanNow": "الآن",
+  "agentPermPersonal": "كتابة بياناتك من الطلب: {0}",
+  "agentPermFill": "الملء من «بياناتي»: {0}",
+  "agentPermConsent": "وضع علامة الموافقة على شروط موقع {0}",
+  "agentPermReminder": "إضافة إلى التذكيرات: «{0}»",
+  "agentPermReminderDone": "وضع علامة «تم» في التذكيرات: «{0}»",
+  "agentPermEvent": "إضافة إلى التقويم: «{0}»",
+  "agentPlanSelfPay": "الدفع أو إتمام الطلب: «{0}»",
+  "agentPlanSelfSend": "الإرسال: «{0}»",
+  "agentPlanSelfAuth": "تسجيل الدخول إلى الموقع",
+  "agentPriceChanged": "السعر في الصفحة ليس كما كان في الخطة ({0}).",
+  "agentMarkPaused": "متوقف مؤقتًا",
+  "agentMarkStopped": "أُوقف",
+  "agentMarkFailed": "لم ينجح",
+  "agentShowSteps": "الخطوات والنتيجة",
+  "agentModeOff": "إيقاف «نفّذ»"
 }

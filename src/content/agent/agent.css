@@ -52,3 +52,32 @@
 .cf-agent-hint { align-self: flex-end; margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; color: var(--accent-text); }
 /* The person's own step in the list: «Вы», not the agent's ✓. */
 .cf-agent-you { display: inline-block; padding: 0 6px; margin-inline-end: 2px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-text); font-size: 11px; font-weight: 600; line-height: 18px; vertical-align: 1px; }
+
+/* The plan card (2.7.1): what it will do, its questions, what may go without a question, «Сейчас / Позже», «Начать». */
+.cf-agent-plan { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-2); }
+.cf-agent-plan-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 2px; color: var(--text-2); font-size: 13.5px; }
+.cf-agent-plan-h { margin: 4px 0 0; font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: none; }
+.cf-agent-plan-self { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; }
+.cf-agent-q p { margin: 0 0 6px; font-weight: 600; }
+.cf-agent-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-agent-options .cf-chip { padding: 6px 12px; font-size: 13px; }
+.cf-agent-options .cf-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cf-agent-q .cf-input-line { margin-top: 6px; width: 100%; box-sizing: border-box; }
+.cf-agent-when { align-self: flex-start; }
+/* Do mode's row (2.7.1): the chip says how to leave it; nothing else stands by the field. */
+.cf-agent-mode-x { margin-left: 2px; font-size: 11px; opacity: 0.85; }
+.cf-input.agent .cf-mode.cf-agent-mode { flex: 0 0 auto; white-space: nowrap; }
+/* A finished task in the chat (2.7.1): one line, the request and its mark; a tap opens its steps and result. */
+.cf-card.cf-agent.folded { padding: 0; }
+.cf-agent-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 40px; padding: 8px 10px; text-align: start; border-radius: 12px; color: var(--text); }
+.cf-card.cf-agent:not(.folded) > .cf-agent-row { padding: 0 0 6px; min-height: 0; }
+.cf-agent-row-mark { flex: 0 0 auto; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 700; background: var(--bg-3); color: var(--text-2); }
+.cf-agent-row-mark.ok { background: var(--accent-soft); color: var(--accent-text); }
+.cf-agent-row-mark.fail { background: rgba(220, 60, 60, 0.12); color: #c0392b; }
+.cf-agent-row-text { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
+.cf-agent-row-text.open { white-space: normal; }
+.cf-agent-row-more { flex: 0 0 auto; color: var(--text-3, var(--text-2)); transition: transform 0.15s ease; }
+.cf-agent-row-more.open { transform: rotate(90deg); }
+[dir="rtl"] .cf-agent-row-more:not(.open) { transform: scaleX(-1); }
+.cf-agent-row-answer { padding: 0 10px 8px 38px; }
+.cf-agent-row-answer > :first-child { margin-top: 0; }

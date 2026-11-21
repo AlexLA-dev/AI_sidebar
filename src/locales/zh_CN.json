@@ -1173,5 +1173,27 @@
   "fdRefused": "我不保存密码、银行卡、银行账户或证件号码、验证码，也不保存健康数据。",
   "fdICloudAsk": "要通过 iCloud 在你的各台设备间同步这些信息吗？",
   "fdICloudHint": "通过你的私人 iCloud 同步，我们无法访问。不同步的话，信息只保存在这台设备上。",
-  "fdICloud": "通过 iCloud 同步"
+  "fdICloud": "通过 iCloud 同步",
+
+  "agentPlanTitle": "我会这样做",
+  "agentPlanReading": "正在读取页面…",
+  "agentPlanAllowed": "无需再问即会执行",
+  "agentPlanSelf": "这些由你来做",
+  "agentPlanOwn": "其他…",
+  "agentPlanNow": "现在",
+  "agentPermPersonal": "填入你在请求里给出的信息：{0}",
+  "agentPermFill": "用“我的信息”填写：{0}",
+  "agentPermConsent": "勾选同意 {0} 的条款",
+  "agentPermReminder": "添加到提醒事项：“{0}”",
+  "agentPermReminderDone": "在提醒事项中标为完成：“{0}”",
+  "agentPermEvent": "添加到日历：“{0}”",
+  "agentPlanSelfPay": "付款或下单：“{0}”",
+  "agentPlanSelfSend": "发送：“{0}”",
+  "agentPlanSelfAuth": "登录网站",
+  "agentPriceChanged": "页面上的价格和计划时不一样（{0}）。",
+  "agentMarkPaused": "已暂停",
+  "agentMarkStopped": "已停止",
+  "agentMarkFailed": "没成功",
+  "agentShowSteps": "步骤和结果",
+  "agentModeOff": "关闭“执行”"
 }

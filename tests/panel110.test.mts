@@ -17,7 +17,8 @@ test("1. Whole chat and the count are in «+» on every layout, the roomy one to
   assert.doesNotMatch(app, /class="cf-usage"/)
   assert.doesNotMatch(read("src/content/styles.css"), /\.cf-usage\b/)
   // The number by the field shows on every layout (Free, or few left), and opens «+».
-  assert.match(composer, /\{leftNow && !noteMode && \(\s*<button type="button" class=\{`cf-left/)
+  // (Not in Do mode: its row is the «Сделать ✕» chip and the field, 2.7.1.)
+  assert.match(composer, /\{leftNow && !noteMode && !agentMode && \(\s*<button type="button" class=\{`cf-left/)
   // The tour points at «+» for Whole chat on every layout.
   assert.match(read("src/content/Tour.tsx"), /targets: \[\["\.cf-plus"\]\], icon: <Icon\.Doc \/>, title: "tourWholeTitle", body: "tourWholeBodyPlus"/)
 })

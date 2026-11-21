@@ -6,7 +6,8 @@
 import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
-import type { Answer, AgentState } from "../../shared/agent/runner"
+import type { Answer, AgentState, PlanApproval } from "../../shared/agent/runner"
+import type { Perm, PlanSelf, TaskPlan } from "../../shared/agent/taskplan"
 import { AMAZON_TEXT } from "../../shared/amazon"
 import { t, type MessageKey } from "../../shared/i18n"
 import * as Icon from "../icons"
@@ -16,9 +17,21 @@ import { Markdown } from "../markdown"
 
 export type PanelAgent = Omit<AgentState, "log" | "data"> & { canUndo: boolean }
 
+/** «Позже» from the plan card: when, and «Также в Напоминания». */
+export interface LaterChoice {
+  when: { at?: number; watch?: boolean }
+  also: boolean
+}
+
 interface Props {
   state: PanelAgent
   onAnswer: (a: Answer, chosen?: string[]) => void
+  // The plan card's «Начать» (now), or «Позже» with its time.
+  onPlan?: (approval: PlanApproval, later?: LaterChoice) => void
+  // What «Позже» can offer here: this page's watch, a reminder too.
+  later?: { hasWatch: boolean; canAlso: boolean; past?: boolean }
+  // An earlier task of this tab, kept in the chat folded (no Undo; Close takes it out of the chat).
+  past?: boolean
   onUndo: () => void
   onClose: () => void
   onHelp: () => void
@@ -111,34 +124,189 @@ function errorText(code: string | undefined, left: number | null | undefined): s
   }
 }
 
-export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props): VNode {
+/** A permission as the plan card says it. */
+function permText(p: Perm, host: string): string {
+  switch (p.kind) {
+    case "press": return t("agentStepClick", p.label)
+    case "personal": return t("agentPermPersonal", p.label)
+    case "fill": return t("agentPermFill", p.label)
+    case "consent": return t("agentPermConsent", host)
+    default:
+      return p.reason === "event_add" ? t("agentPermEvent", p.label) : p.reason === "reminder_done" ? t("agentPermReminderDone", p.label) : t("agentPermReminder", p.label)
+  }
+}
+
+/** A step the person will do, as the plan card lists it. */
+function selfLine(x: PlanSelf): string {
+  switch (x.reason) {
+    case "pay": return t("agentPlanSelfPay", x.label)
+    case "send": case "post": return t("agentPlanSelfSend", x.label)
+    case "auth": case "account": return t("agentPlanSelfAuth")
+    default: return x.label
+  }
+}
+
+/** The task's plan (2.7.1): what it will do, its questions (options and «Своё»), what may go without a question (each
+ *  can be unticked), what the person does themselves, «Сейчас / Позже», and one «Начать». */
+function PlanCard({ plan, host, onPlan, later, onStop }: { plan: TaskPlan; host: string; onPlan: (a: PlanApproval, later?: LaterChoice) => void; later?: Props["later"]; onStop: () => void }): VNode {
+  const [answers, setAnswers] = useState<string[]>(() => plan.questions.map(() => ""))
+  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map(() => false))
+  const [off, setOff] = useState<Set<string>>(() => new Set())
+  const [mode, setMode] = useState<"now" | "later">("now")
+  const [laterChoice, setLaterChoice] = useState<LaterChoice | null>(null)
+  const answered = answers.every((a) => a.trim())
+  const approval = (): PlanApproval => ({ answers, off: [...off] })
+  const set = (i: number, v: string, isOwn: boolean) => {
+    setAnswers(answers.map((a, j) => (j === i ? v : a)))
+    setOwn(own.map((o, j) => (j === i ? isOwn : o)))
+  }
+  return (
+    <div class="cf-agent-plan">
+      <strong>{t("agentPlanTitle")}</strong>
+      {plan.steps.length > 0 && (
+        <ol class="cf-agent-plan-steps">
+          {plan.steps.map((l, i) => <li key={i} dir="auto">{l}</li>)}
+        </ol>
+      )}
+      {plan.questions.map((q, i) => (
+        <div class="cf-agent-q" key={i}>
+          <p dir="auto">{q.q}</p>
+          <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
+            {q.options.map((o) => (
+              <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>{o}</button>
+            ))}
+            <button type="button" role="radio" aria-checked={own[i]} class={`cf-chip ${own[i] ? "on" : ""}`} onClick={() => set(i, own[i] ? answers[i] : "", true)}>{t("agentPlanOwn")}</button>
+          </div>
+          {own[i] && (
+            <input
+              class="cf-input-line"
+              dir="auto"
+              value={answers[i]}
+              aria-label={q.q}
+              ref={(el) => {
+                if (el && !answers[i]) el.focus({ preventScroll: true })
+              }}
+              onInput={(e) => set(i, (e.target as HTMLInputElement).value, true)}
+              onKeyDown={(e) => e.stopPropagation()}
+              onKeyUp={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      ))}
+      {plan.perms.length > 0 && (
+        <>
+          <p class="cf-agent-plan-h">{t("agentPlanAllowed")}</p>
+          <ul class="cf-agent-fill">
+            {plan.perms.map((p) => (
+              <li key={p.id}>
+                <label class="cf-row toggle">
+                  <input type="checkbox" checked={!off.has(p.id)} onChange={(e) => {
+                    const next = new Set(off)
+                    if ((e.target as HTMLInputElement).checked) next.delete(p.id)
+                    else next.add(p.id)
+                    setOff(next)
+                  }} />
+                  <span dir="auto">{permText(p, host)}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {plan.self.length > 0 && (
+        <>
+          <p class="cf-agent-plan-h">{t("agentPlanSelf")}</p>
+          <ul class="cf-agent-plan-self">
+            {plan.self.map((x, i) => <li key={i} dir="auto"><span class="cf-agent-you">{t("agentYouMark")}</span> {selfLine(x)}</li>)}
+          </ul>
+        </>
+      )}
+      <div class="cf-seg cf-agent-when" role="radiogroup" aria-label={t("agentLater")}>
+        <button type="button" role="radio" aria-checked={mode === "now"} class={mode === "now" ? "on" : ""} onClick={() => setMode("now")}>{t("agentPlanNow")}</button>
+        <button type="button" role="radio" aria-checked={mode === "later"} class={mode === "later" ? "on" : ""} onClick={() => setMode("later")}>{t("agentLater")}</button>
+      </div>
+      {mode === "later" && <LaterFields hasWatch={!!later?.hasWatch} canAlso={!!later?.canAlso} past={!!later?.past} onChange={setLaterChoice} />}
+      <div class="cf-card-actions">
+        <button type="button" class="cf-primary" disabled={!answered || (mode === "later" && !laterChoice)} onClick={() => onPlan(approval(), mode === "later" && laterChoice ? laterChoice : undefined)}>
+          {mode === "later" ? t("agentLaterSet") : t("agentStart")}
+        </button>
+        <button type="button" class="cf-secondary" onClick={onStop}>{t("cancel")}</button>
+      </div>
+    </div>
+  )
+}
+
+// Steps that only read: a task made only of them answered a question, and its answer shows under the folded line.
+const READS = new Set(["read_page", "scroll", "extract", "back", "go", "reminders", "calendar"])
+
+/** A finished task's mark on its folded line: done, waiting for an answer, stopped, or didn't work. */
+function markOf(status: PanelAgent["status"]): { sign: string; text: string; cls: string } {
+  switch (status) {
+    case "done": return { sign: "✓", text: t("agentDoneTitle"), cls: "ok" }
+    case "asked": return { sign: "⏸", text: t("agentMarkPaused"), cls: "wait" }
+    case "stopped": return { sign: "■", text: t("agentMarkStopped"), cls: "stop" }
+    default: return { sign: "!", text: t("agentMarkFailed"), cls: "fail" }
+  }
+}
+
+export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, later, past }: Props): VNode {
+  // A finished task folds to one line (2.7.1, the owner: «свёрнутыми по дефолту в одну строку… с возможностью
+  // развернуть»); a tap opens its steps and its result.
+  const [open, setOpen] = useState(false)
   const [undone, setUndone] = useState(false)
   const [chosen, setChosen] = useState<Set<string>>(() => new Set((state.pending?.fill ?? []).map((l) => `${l.id}:${l.entryId}`)))
   const busy = state.status === "running"
+  const planning = state.status === "plan"
   const waiting = state.status === "confirm" || state.status === "fill" || state.status === "self"
-  const finished = !busy && !waiting
+  const finished = !busy && !waiting && !planning
   // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
   const lines = state.lines.filter((l) => l.text || l.target).slice(-8)
   // The card stays in view as the task goes on: its newest line, its question, its result.
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (ref.current) showIn(ref.current)
+    if (ref.current && !past) showIn(ref.current)
   }, [state.status, state.lines.length])
+  if (finished && !open) {
+    const mark = markOf(state.status)
+    const answerOnly = state.status === "done" && !past && !!state.summary && state.lines.every((l) => READS.has(l.tool))
+    return (
+      <div ref={ref} class="cf-card cf-agent folded" role="region" aria-label={t("agentMode")}>
+        <button type="button" class="cf-agent-row" aria-expanded={false} title={t("agentShowSteps")} onClick={() => setOpen(true)}>
+          <span class={`cf-agent-row-mark ${mark.cls}`} aria-label={mark.text} title={mark.text}>{mark.sign}</span>
+          <span class="cf-agent-row-text" dir="auto">{state.request}</span>
+          <span class="cf-agent-row-more" aria-hidden="true">›</span>
+        </button>
+        {answerOnly && <div class="cf-agent-row-answer"><Markdown text={state.summary ?? ""} /></div>}
+      </div>
+    )
+  }
   return (
     <div ref={ref} class="cf-card cf-agent" role="region" aria-label={t("agentMode")} aria-live="polite">
+      {finished && (
+        <button type="button" class="cf-agent-row" aria-expanded={true} onClick={() => setOpen(false)}>
+          <span class={`cf-agent-row-mark ${markOf(state.status).cls}`} aria-label={markOf(state.status).text}>{markOf(state.status).sign}</span>
+          <span class="cf-agent-row-text open" dir="auto">{state.request}</span>
+          <span class="cf-agent-row-more open" aria-hidden="true">›</span>
+        </button>
+      )}
       {(busy || waiting) && (
         <div class={`cf-agent-strip ${busy ? "" : "waiting"}`}>
           <span class={`cf-agent-dot ${busy ? "on" : ""}`} aria-hidden="true" />
           {/* The step it's at: working on it (with the step's own line, as the strip under the page shows), or waiting for
               the person (the card below says what for). */}
           <span class="cf-agent-step">
-            <b>{busy ? t("agentWorking", String(Math.max(1, state.step))) : t("agentWaitingStep", String(Math.max(1, state.step)))}</b>
+            <b>{busy ? (state.step === 0 ? t("agentPlanReading") : t("agentWorking", String(Math.max(1, state.step)))) : t("agentWaitingStep", String(Math.max(1, state.step)))}</b>
             {busy && lines.length > 0 && lines[lines.length - 1].text && <span dir="auto">{lines[lines.length - 1].text}</span>}
           </span>
           <button type="button" class="cf-secondary cf-agent-stop" onClick={() => onAnswer("stop")}><Icon.Stop /> {t("stop")}</button>
         </div>
       )}
-      <p class="cf-agent-request" dir="auto">{state.request}</p>
+      {!finished && <p class="cf-agent-request" dir="auto">{state.request}</p>}
+      {planning && state.plan && onPlan && <PlanCard plan={state.plan} host={hostName(state.url)} onPlan={onPlan} later={later} onStop={() => onAnswer("stop")} />}
+      {/* The plan's lines while it works by it (what it said it would do). */}
+      {(busy || waiting) && state.plan?.approved && state.plan.steps.length > 0 && lines.length === 0 && (
+        <ol class="cf-agent-plan-steps">{state.plan.steps.map((l, i) => <li key={i} dir="auto">{l}</li>)}</ol>
+      )}
       {lines.length > 0 && (
         <ol class="cf-agent-lines">
           {lines.map((l, i) => (
@@ -157,6 +325,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
           <strong>{t("agentConfirmTitle")}</strong>
           <p dir="auto">{stepText(state)}</p>
           {state.pending.offRequest && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentOffRequest", state.pending.offRequest)}</p>}
+          {state.pending.price && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentPriceChanged", state.pending.price)}</p>}
           {NO_UNDO.has(state.pending.verdict.reason) && <p class="cf-hint">{t("agentNoUndo")}</p>}
           <div class="cf-card-actions">
             <button type="button" class="cf-primary" onClick={() => onAnswer("yes")}>{t("agentYes")}</button>
@@ -228,7 +397,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
           {/* Typed values go back; a press (a size chosen, a box ticked) stays as it is: the line says so plainly. */}
           {undone && !state.canUndo && <p class="cf-hint">{t("agentUndone")}</p>}
           <div class="cf-card-actions">
-            {state.canUndo && <button type="button" class="cf-secondary" onClick={() => { setUndone(true); onUndo() }}>{t("agentUndo")}</button>}
+            {state.canUndo && !past && <button type="button" class="cf-secondary" onClick={() => { setUndone(true); onUndo() }}>{t("agentUndo")}</button>}
             <button type="button" class="cf-secondary" onClick={onClose}>{t("close")}</button>
             <button type="button" class="cf-link" onClick={onHelp}>{t("agentHelpLink")}</button>
           </div>
@@ -254,6 +423,7 @@ export function AgentStrip({ state, onOpen, onStop, onAnswer }: { state: PanelAg
             <b>{t(self ? "agentSelfTitle" : "agentConfirmTitle")}</b>
             <span class="wrap" dir="auto">{self ? selfText(state) : stepText(state)}</span>
             {!self && p.offRequest && <span class="wrap cf-agent-warn" dir="auto">{t("agentOffRequest", p.offRequest)}</span>}
+            {!self && p.price && <span class="wrap cf-agent-warn" dir="auto">{t("agentPriceChanged", p.price)}</span>}
             {!self && NO_UNDO.has(p.verdict.reason) && <span class="wrap">{t("agentNoUndo")}</span>}
           </span>
         </button>
@@ -302,43 +472,57 @@ function localMinute(d: Date): string {
   return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
 }
 
-/** «Позже»: at a time, or when this page's watch fires (when it has one). */
-export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past, canAlso }: { hasWatch: boolean; onSet: (when: { at?: number; watch?: boolean }, also: boolean) => void; onClose: () => void; note: string | null; onAsk?: () => void; past?: boolean; canAlso?: boolean }): VNode {
+function hostName(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "")
+  } catch {
+    return ""
+  }
+}
+
+/** «Позже»'s choices (the plan card's, and the card's of its own): at a time, or when this page's watch fires. */
+function LaterFields({ hasWatch, canAlso, past, onChange }: { hasWatch: boolean; canAlso: boolean; past: boolean; onChange: (c: LaterChoice | null) => void }): VNode {
   const [kind, setKind] = useState<"at" | "watch">("at")
   // «Также в Напоминания» (2.7.1): the task in Apple Reminders too, due then, without a second alert.
   const [also, setAlso] = useState(false)
   const [when, setWhen] = useState(() => localMinute(new Date(Date.now() + 3_600_000)))
+  useEffect(() => {
+    const at = new Date(when).getTime()
+    onChange(kind === "watch" ? { when: { watch: true }, also: false } : Number.isFinite(at) ? { when: { at }, also } : null)
+  }, [kind, also, when])
+  return (
+    <>
+      <label class="cf-row toggle">
+        <input type="radio" name="cf-agent-later" checked={kind === "at"} onChange={() => setKind("at")} />
+        <span>{t("agentLaterAt")}</span>
+      </label>
+      {kind === "at" && <input class="cf-input-line" type="datetime-local" value={when} min={localMinute(new Date())} onInput={(e) => setWhen((e.target as HTMLInputElement).value)} onKeyDown={(e) => e.stopPropagation()} />}
+      {kind === "at" && past && <p class="cf-agent-warn" dir="auto">{t("agentLaterPast")}</p>}
+      {kind === "at" && canAlso && (
+        <label class="cf-row toggle">
+          <input type="checkbox" checked={also} onChange={(e) => setAlso((e.target as HTMLInputElement).checked)} />
+          <span>{t("appleAlso")}</span>
+        </label>
+      )}
+      {hasWatch && (
+        <label class="cf-row toggle">
+          <input type="radio" name="cf-agent-later" checked={kind === "watch"} onChange={() => setKind("watch")} />
+          <span>{t("agentLaterWatch")}</span>
+        </label>
+      )}
+    </>
+  )
+}
+
+/** «Позже»'s own card: what came of it (set, or notifications to allow), and the choices again for a time already past. */
+export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past, canAlso }: { hasWatch: boolean; onSet: (when: { at?: number; watch?: boolean }, also: boolean) => void; onClose: () => void; note: string | null; onAsk?: () => void; past?: boolean; canAlso?: boolean }): VNode {
+  const [choice, setChoice] = useState<LaterChoice | null>(null)
   return (
     <div class="cf-card cf-agent" role="region" aria-label={t("agentLater")}>
       <strong>{t("agentLater")}</strong>
-      {note ? (
-        <p dir="auto">{note}</p>
-      ) : (
-        <>
-          <label class="cf-row toggle">
-            <input type="radio" name="cf-agent-later" checked={kind === "at"} onChange={() => setKind("at")} />
-            <span>{t("agentLaterAt")}</span>
-          </label>
-          {kind === "at" && <input class="cf-input-line" type="datetime-local" value={when} min={localMinute(new Date())} onInput={(e) => setWhen((e.target as HTMLInputElement).value)} onKeyDown={(e) => e.stopPropagation()} />}
-          {kind === "at" && past && <p class="cf-agent-warn" dir="auto">{t("agentLaterPast")}</p>}
-          {kind === "at" && canAlso && (
-            <label class="cf-row toggle">
-              <input type="checkbox" checked={also} onChange={(e) => setAlso((e.target as HTMLInputElement).checked)} />
-              <span>{t("appleAlso")}</span>
-            </label>
-          )}
-          {hasWatch && (
-            <label class="cf-row toggle">
-              <input type="radio" name="cf-agent-later" checked={kind === "watch"} onChange={() => setKind("watch")} />
-              <span>{t("agentLaterWatch")}</span>
-            </label>
-          )}
-        </>
-      )}
+      {note ? <p dir="auto">{note}</p> : <LaterFields hasWatch={hasWatch} canAlso={!!canAlso} past={!!past} onChange={setChoice} />}
       <div class="cf-card-actions">
-        {!note && (
-          <button type="button" class="cf-primary" onClick={() => onSet(kind === "watch" ? { watch: true } : { at: new Date(when).getTime() }, kind === "at" && also)}>{t("agentLaterSet")}</button>
-        )}
+        {!note && <button type="button" class="cf-primary" disabled={!choice} onClick={() => choice && onSet(choice.when, choice.also)}>{t("agentLaterSet")}</button>}
         {/* Notifications never asked for: the system's question on a tap, then the task is set. */}
         {note && onAsk && <button type="button" class="cf-primary" onClick={onAsk}>{t("listenNotifyOn")}</button>}
         <button type="button" class="cf-secondary" onClick={onClose}>{t(note && onAsk ? "listenNotifyLater" : "close")}</button>

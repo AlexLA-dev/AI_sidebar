@@ -1173,5 +1173,27 @@
   "fdRefused": "No guardo contraseñas, tarjetas, datos bancarios, números de documentos, códigos ni datos de salud.",
   "fdICloudAsk": "¿Sincronizar tus datos en tus dispositivos con iCloud?",
   "fdICloudHint": "A través de tu iCloud privado, al que no tenemos acceso. Sin él, se quedan en este dispositivo.",
-  "fdICloud": "Sincronizar con iCloud"
+  "fdICloud": "Sincronizar con iCloud",
+
+  "agentPlanTitle": "Esto es lo que haré",
+  "agentPlanReading": "Leyendo la página…",
+  "agentPlanAllowed": "Lo haré sin preguntar",
+  "agentPlanSelf": "Esto lo hará usted",
+  "agentPlanOwn": "Otro…",
+  "agentPlanNow": "Ahora",
+  "agentPermPersonal": "Escribir sus datos de la petición: {0}",
+  "agentPermFill": "Rellenar con «Mis datos»: {0}",
+  "agentPermConsent": "Marcar la aceptación de las condiciones de {0}",
+  "agentPermReminder": "Añadir a Recordatorios: «{0}»",
+  "agentPermReminderDone": "Marcar como hecho en Recordatorios: «{0}»",
+  "agentPermEvent": "Añadir al Calendario: «{0}»",
+  "agentPlanSelfPay": "Pagar o hacer el pedido: «{0}»",
+  "agentPlanSelfSend": "Enviar: «{0}»",
+  "agentPlanSelfAuth": "Iniciar sesión en el sitio",
+  "agentPriceChanged": "El precio de la página ya no es el del plan ({0}).",
+  "agentMarkPaused": "En pausa",
+  "agentMarkStopped": "Detenido",
+  "agentMarkFailed": "No salió",
+  "agentShowSteps": "Pasos y resultado",
+  "agentModeOff": "Desactivar «Hacer»"
 }

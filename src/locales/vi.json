@@ -1173,5 +1173,27 @@
   "fdRefused": "Tôi không lưu mật khẩu, thẻ, thông tin ngân hàng, số giấy tờ, mã hay dữ liệu sức khỏe.",
   "fdICloudAsk": "Đồng bộ thông tin của bạn giữa các thiết bị qua iCloud?",
   "fdICloudHint": "Qua iCloud riêng của bạn, nơi chúng tôi không thể truy cập. Nếu không bật, thông tin chỉ nằm trên thiết bị này.",
-  "fdICloud": "Đồng bộ qua iCloud"
+  "fdICloud": "Đồng bộ qua iCloud",
+
+  "agentPlanTitle": "Tôi sẽ làm thế này",
+  "agentPlanReading": "Đang đọc trang…",
+  "agentPlanAllowed": "Tôi sẽ làm mà không hỏi lại",
+  "agentPlanSelf": "Bạn sẽ tự làm",
+  "agentPlanOwn": "Khác…",
+  "agentPlanNow": "Ngay",
+  "agentPermPersonal": "Nhập thông tin bạn đã cho trong yêu cầu: {0}",
+  "agentPermFill": "Điền từ “Thông tin của tôi”: {0}",
+  "agentPermConsent": "Đánh dấu đồng ý với điều khoản của {0}",
+  "agentPermReminder": "Thêm vào Lời nhắc: “{0}”",
+  "agentPermReminderDone": "Đánh dấu xong trong Lời nhắc: “{0}”",
+  "agentPermEvent": "Thêm vào Lịch: “{0}”",
+  "agentPlanSelfPay": "Thanh toán hoặc đặt hàng: “{0}”",
+  "agentPlanSelfSend": "Gửi: “{0}”",
+  "agentPlanSelfAuth": "Đăng nhập vào trang",
+  "agentPriceChanged": "Giá trên trang không còn như trong kế hoạch ({0}).",
+  "agentMarkPaused": "Tạm dừng",
+  "agentMarkStopped": "Đã dừng",
+  "agentMarkFailed": "Không được",
+  "agentShowSteps": "Các bước và kết quả",
+  "agentModeOff": "Tắt “Làm”"
 }
