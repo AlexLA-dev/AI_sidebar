@@ -32,6 +32,7 @@
 		CFA271000000000000000005 /* FormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA271000000000000000001 /* FormData.swift */; };
 		CFA200000000000000000002 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000002 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CFA272000000000000000002 /* AgentApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA272000000000000000001 /* AgentApp.swift */; };
 		CF9500000000000000000002 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
 		CF9800000000000000000002 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CF9810000000000000000002 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
@@ -48,6 +49,7 @@
 		CF1000000000000000000008 /* ShareButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000007 /* ShareButton.swift */; };
 		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000003 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CFA272000000000000000003 /* AgentApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA272000000000000000001 /* AgentApp.swift */; };
 		CF9500000000000000000003 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
 		CF9800000000000000000003 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CF9810000000000000000003 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
@@ -213,6 +215,7 @@
 		CFA271000000000000000001 /* FormData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormData.swift; sourceTree = "<group>"; };
 		CFA200000000000000000001 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 		CFD100000000000000000001 /* WatchOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchOpen.swift; sourceTree = "<group>"; };
+		CFA272000000000000000001 /* AgentApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentApp.swift; sourceTree = "<group>"; };
 		CF9500000000000000000001 /* SimilarCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarCards.swift; sourceTree = "<group>"; };
 		CF9800000000000000000001 /* WhatsNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNew.swift; sourceTree = "<group>"; };
 		CF9810000000000000000001 /* MeaningSpot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningSpot.swift; sourceTree = "<group>"; };
@@ -349,6 +352,7 @@
 				CF7000000000000000000001 /* ChatsView.swift */,
 				CFA200000000000000000001 /* TemplatesView.swift */,
 				CFD100000000000000000001 /* WatchOpen.swift */,
+				CFA272000000000000000001 /* AgentApp.swift */,
 				CF9500000000000000000001 /* SimilarCards.swift */,
 				CF9800000000000000000001 /* WhatsNew.swift */,
 				CF9810000000000000000001 /* MeaningSpot.swift */,
@@ -700,6 +704,7 @@
 				CFA271000000000000000005 /* FormData.swift in Sources */,
 				CFA200000000000000000002 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000002 /* WatchOpen.swift in Sources */,
+				CFA272000000000000000002 /* AgentApp.swift in Sources */,
 				CF9500000000000000000002 /* SimilarCards.swift in Sources */,
 				CF9800000000000000000002 /* WhatsNew.swift in Sources */,
 				CF9810000000000000000002 /* MeaningSpot.swift in Sources */,
@@ -748,6 +753,7 @@
 				CFA271000000000000000004 /* FormData.swift in Sources */,
 				CFA200000000000000000003 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000003 /* WatchOpen.swift in Sources */,
+				CFA272000000000000000003 /* AgentApp.swift in Sources */,
 				CF9500000000000000000003 /* SimilarCards.swift in Sources */,
 				CF9800000000000000000003 /* WhatsNew.swift in Sources */,
 				CF9810000000000000000003 /* MeaningSpot.swift in Sources */,
