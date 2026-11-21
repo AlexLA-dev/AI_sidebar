@@ -2569,6 +2569,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     setDraft("")
+    // The field back to one line (a long request had grown it; the row then stood under it).
+    if (inputRef.current) inputRef.current.style.height = "auto"
     setAgentLater(null)
     setAgentStartError(null)
     // The last task's card, finished, gives way to the new one (its Undo goes with it).

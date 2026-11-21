@@ -317,7 +317,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
                 : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.text || nameOf(l.target)}
               {/* Test builds: when each step ran, from the task's start (the background-tab probe). */}
-              {TEST_PLAN && l.at ? <span class="cf-hint"> +{Math.round((l.at - state.startedAt) / 1000)}s</span> : null}
+              {TEST_PLAN && l.at ? <span class="cf-agent-at"> +{Math.round((l.at - state.startedAt) / 1000)}s</span> : null}
             </li>
           ))}
         </ol>

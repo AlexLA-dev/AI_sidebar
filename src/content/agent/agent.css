@@ -94,3 +94,4 @@
 .cf-agent-notice-req { margin: 0; font-weight: 500; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cf-agent-notice-sum { margin: 0; color: var(--text-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .cf-agent-notice .cf-primary { align-self: flex-start; }
+.cf-agent-at { color: var(--text-3, var(--text-2)); font-size: 11.5px; font-variant-numeric: tabular-nums; }
