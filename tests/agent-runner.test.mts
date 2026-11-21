@@ -144,3 +144,15 @@ test("fill: the form's other empty fields with a saved detail by autocomplete co
   assert.deepEqual(x.acted.map((c) => [c.id, c.text]), [["1", "Анна Петрова"], ["2", "+7 900 123-45-67"]])
   assert.ok(!JSON.stringify(x.asked).includes("Анна Петрова"))
 })
+
+test("after a form is sent, «Отменить» has nothing to offer", async () => {
+  const x = io([step({ tool: "click", id: "1" }, "free", "toggle"), step({ tool: "click", id: "2" }, "confirm", "submit"), step({ tool: "done", summary: "ok" }, "free", "read")])
+  x.act = async (c) => {
+    x.acted.push(c)
+    return { ok: true, note: "typed", undo: { id: c.id ?? "", kind: "value", before: "" } }
+  }
+  let s = await drive(newState("t10", "x", "en", MAP.url), x)
+  assert.equal(s.undo.length, 1)
+  s = await answer(s, x, "yes")
+  assert.equal(s.undo.length, 0)
+})

@@ -95,6 +95,9 @@ export function newState(id: string, request: string, lang: string, url: string,
 
 const STRICT: Record<StepClass, number> = { free: 0, confirm: 1, self: 2, blocked: 3 }
 
+// Reasons of steps that send or leave: after one, «Отменить» has nothing sensible to put back.
+const FINAL = new Set(["submit", "cart", "other_site", "decline", "unknown", "first_here", "off_request"])
+
 /** The stricter of the server's class and the device's own (the device never acts on a milder one than it sees). */
 export function stricter(server: StepVerdict, device: StepVerdict): StepVerdict {
   return STRICT[device.cls] > STRICT[server.cls] ? device : server
@@ -146,6 +149,8 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
     result = result ?? { ok: true, navigated: true, note: "the page went on" }
   }
   if (result.undo) state.undo.push(result.undo)
+  // A step that can't be taken back (a form sent, another site opened): what came before it can't be either, sensibly.
+  if (verdict.cls === "confirm" && FINAL.has(verdict.reason)) state.undo = []
   if (result.data) state.data = result.data
   // A fill's log line has its key, never its value (the log goes to the server with the next step).
   const logged: ToolCall = call.tool === "fill" ? { tool: "fill", id: call.id, key: call.key, why: call.why } : call

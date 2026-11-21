@@ -3125,6 +3125,8 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
 .cf-agent-warn { color: var(--note-text); background: var(--note-soft); padding: 6px 8px; border-radius: 8px; display: flex; gap: 6px; align-items: flex-start; }
 .cf-agent-fill { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .cf-agent-fill b { font-weight: 600; word-break: break-word; }
+.cf-agent-fill .cf-row { justify-content: flex-start; gap: 8px; text-align: start; }
+.cf-agent-fill .cf-row span { flex: 1; }
 .cf-agent-end { display: flex; flex-direction: column; gap: 6px; }
 .cf-agent-end p { margin: 0; }
 .cf-agent-help p { margin: 0; font-size: 13px; color: var(--text-2); }
