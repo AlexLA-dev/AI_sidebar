@@ -13,7 +13,7 @@
       "pauseSpendWithoutInstall": 3,
       "lowTtrImpressions": 300,
       "lowTtr": 0.025,
-      "targetCpi": 1.0,
+      "targetCpi": 1,
       "raiseStep": 0,
       "lowerStep": 0.2,
       "minBid": 0.2,
@@ -58,6 +58,50 @@
         },
         {
           "text": "google"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
@@ -181,6 +225,50 @@
         },
         {
           "text": "google"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
@@ -306,7 +394,7 @@
       "countries": [
         "FR"
       ],
-      "dailyBudget": 1.0,
+      "dailyBudget": 1,
       "start": "2026-11-13",
       "end": "2026-11-23T22:00:00.000",
       "negatives": [
@@ -349,6 +437,50 @@
         },
         {
           "text": "adblock"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
@@ -423,7 +555,7 @@
       "countries": [
         "DE"
       ],
-      "dailyBudget": 1.0,
+      "dailyBudget": 1,
       "start": "2026-11-13",
       "end": "2026-11-23T22:00:00.000",
       "negatives": [
@@ -454,6 +586,50 @@
         },
         {
           "text": "google"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
@@ -613,6 +789,50 @@
         },
         {
           "text": "lig"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
@@ -796,6 +1016,50 @@
         },
         {
           "text": "google"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
