@@ -34,16 +34,18 @@ export type SpaceColor = keyof typeof SPACE_COLORS
 
 /**
  * 2.7.1, the owner: «вернем цвет на стандартный синий наш, а лучше сделаем ореол светящийся у него теми цветами, которые
- * привязаны к пространству». The ✦ circle is always our blue; a space shows as a ring and a soft glow around it in the
- * space's two colours (src/content/styles.css `.cf-fab[data-halo]`). The first, blue space has none unless this says so.
+ * привязаны к пространству». The ✦ circle is always our blue; a space shows as a soft glow of its colours around it, a halo, not a
+ * border (src/content/styles.css `.cf-fab[data-halo]`). The first, blue space has none unless this says so.
  */
 export const HALO_ON_FIRST = false
 
 /**
- * The halo's look while the owner picks (the director on #235's sheets): "ring", a white gap and a ring of the space's
- * colour with a soft glow; "glow", no solid stroke, a wider glow of the space's colour with a faint white edge.
+ * How strongly the halo glows, while the director picks with the owner (the owner on #235: «Ты сделал просто обводку,
+ * а я тебе говорю про свечение легкое, как ореол»): 1 soft, 2 medium, 3 strong. The opacities of the glow's three
+ * layers, close in to far out (two hex digits each).
  */
-export const HALO_LOOK: "ring" | "glow" = "ring"
+export const HALO_STRENGTH: 1 | 2 | 3 = 2
+export const HALO_ALPHAS: Record<1 | 2 | 3, readonly [string, string, string]> = { 1: ["8c", "4d", "40"], 2: ["b3", "66", "59"], 3: ["d9", "80", "73"] }
 
 /** Whether the ✦ circle wears a halo for this space's colour (none outside spaces, none for blue by default). */
 export function fabHalo(color: SpaceColor | undefined): boolean {

@@ -257,17 +257,30 @@ test("2.7.1: the ✦ circle is always our blue; its space glows around it as a h
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   const insert = readFileSync(new URL("../src/content/insert/insert.css", import.meta.url), "utf8")
   const spacesTsx = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
-  const { fabHalo, HALO_ON_FIRST, COLOR_NAMES } = await import("../src/shared/spaces.ts")
+  const { fabHalo, HALO_ON_FIRST, HALO_STRENGTH, HALO_ALPHAS, COLOR_NAMES } = await import("../src/shared/spaces.ts")
+  const rule = (sel: string) => {
+    const at = css.indexOf(`${sel} {`)
+    assert.ok(at >= 0, sel)
+    return css.slice(at, css.indexOf("}", at))
+  }
   // The fill: our blue, whatever the space (no space variable in it).
-  const fab = css.slice(css.indexOf(".cf-fab {"), css.indexOf("}", css.indexOf(".cf-fab {")))
+  const fab = rule(".cf-fab")
   assert.match(fab, /background: linear-gradient\(135deg, #38bdf8 0%, #2563eb 100%\) !important;/)
   assert.doesNotMatch(fab, /var\(--space/)
-  // The halo's colours come from the space: its base for the ring, its light colour for the glow.
-  assert.match(spacesTsx, /const \[light, base\] = SPACE_COLORS\[color\][\s\S]{0,200}"--space": base, [\s\S]{0,80}"--space-glow": `\$\{light\}8c`/)
-  const halo = css.slice(css.indexOf(".cf-fab[data-halo] {"), css.indexOf("}", css.indexOf(".cf-fab[data-halo] {")))
-  assert.match(halo, /0 0 0 4\.5px var\(--space\)/)
-  assert.match(halo, /var\(--space-glow\)/)
-  // Shadows only: no size, margin, padding, outline or inset change, so the tap target and the drag stay.
+  // The halo is a glow, not a border (the owner: «свечение легкое, как ореол»): three blurred layers, no solid ring,
+  // no white gap; from the space's colours (its base close in, its light colour further out) at one strength.
+  const halo = rule(".cf-fab[data-halo]")
+  assert.match(halo, /box-shadow: 0 0 6px 1px var\(--halo-1\), 0 0 16px 4px var\(--halo-2\), 0 0 34px 10px var\(--halo-3\)/)
+  for (const shadow of halo.slice(halo.indexOf("box-shadow:") + 11).split(/,(?![^(]*\))/)) {
+    const blur = shadow.trim().split(/\s+/)[2]
+    assert.ok(blur && parseFloat(blur) > 0, `every layer is blurred: ${shadow.trim()}`)
+  }
+  assert.doesNotMatch(halo, /rgba\(255, 255, 255/)
+  assert.match(spacesTsx, /const \[h1, h2, h3\] = HALO_ALPHAS\[HALO_STRENGTH\]/)
+  assert.match(spacesTsx, /"--halo-1": `\$\{base\}\$\{h1\}`, "--halo-2": `\$\{base\}\$\{h2\}`, "--halo-3": `\$\{light\}\$\{h3\}`/)
+  assert.ok([1, 2, 3].includes(HALO_STRENGTH))
+  for (const k of [1, 2, 3] as const) assert.ok(HALO_ALPHAS[k].every((a) => /^[0-9a-f]{2}$/.test(a)))
+  // Shadows only: no size, margin, padding, outline, inset or transform, so the tap target and the drag stay.
   assert.doesNotMatch(halo, /width|height|margin|padding|outline|inset|transform/)
   // None outside spaces and none in the blue (first) space unless the one switch says so; every other colour has one.
   assert.equal(HALO_ON_FIRST, false)
@@ -277,25 +290,14 @@ test("2.7.1: the ✦ circle is always our blue; its space glows around it as a h
   assert.match(app, /data-halo=\{halo \? spaces\.fabSpace\?\.color : undefined\}/)
   // Brighter once as the space changes, then still: a single run, none with Reduce Motion, nothing that keeps running.
   assert.match(css, /\.cf-fab\[data-halo\]\.flash \{ animation: cf-fab-halo 1\.1s ease-out 1; \}/)
-  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.cf-fab\[data-halo\]\[data-halo-look\]\.flash \{ animation: none; \} \}/)
-  assert.doesNotMatch(css, /cf-fab-(halo|glow)[^;]*infinite/)
-  // Two looks while the owner picks (one switch): the ring as built, and a glow with no solid stroke, wider, in the
-  // space's base colour, a faint white edge; it flashes once too, and Reduce Motion stills it (the rule
-  // above comes last with the same weight).
-  const { HALO_LOOK } = await import("../src/shared/spaces.ts")
-  assert.ok(HALO_LOOK === "ring" || HALO_LOOK === "glow")
-  assert.match(app, /data-halo-look=\{halo \? HALO_LOOK : undefined\}/)
-  const glowAt = css.indexOf('.cf-fab[data-halo][data-halo-look="glow"] {')
-  const glow = css.slice(glowAt, css.indexOf("}", glowAt))
-  assert.match(glow, /0 0 0 1px rgba\(255, 255, 255, 0\.75\), 0 0 12px 5px var\(--space-glow-in\), 0 0 28px 12px var\(--space-glow-out\)/)
-  assert.doesNotMatch(glow, /var\(--space\)|width|height|margin|padding|outline|transform/)
-  assert.match(css, /\.cf-fab\[data-halo\]\[data-halo-look="glow"\]\.flash \{ animation: cf-fab-glow 1\.1s ease-out 1; \}/)
-  assert.ok(css.indexOf("prefers-reduced-motion: reduce) { .cf-fab[data-halo][data-halo-look].flash") > css.indexOf("@keyframes cf-fab-glow"))
-  assert.match(spacesTsx, /"--space-glow-in": `\$\{base\}d9`, "--space-glow-out": `\$\{base\}59`/)
+  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.cf-fab\[data-halo\]\.flash \{ animation: none; \} \}/)
+  assert.doesNotMatch(css, /cf-fab-halo[^;]*infinite/)
   assert.match(app, /if \(!haloNow \|\| was === null \|\| was === haloNow\) return\s*setHaloFlash\(true\)/)
-  // Quick insert's and Write's small circle: the same blue, a small halo in the space the ✦ circle is in.
+  // Quick insert's and Write's small circle: the same blue, a small glow in the space the ✦ circle is in.
   assert.match(insert, /\.cf-qi-btn \{[^}]*linear-gradient\(135deg, #38bdf8 0%, #2563eb 100%\) !important;/)
-  assert.match(insert, /\.cf\[data-tint\] \.cf-qi-btn \{[^}]*var\(--tint\)/)
+  const small = insert.slice(insert.indexOf(".cf[data-tint] .cf-qi-btn {"), insert.indexOf("}", insert.indexOf(".cf[data-tint] .cf-qi-btn {")))
+  assert.match(small, /var\(--tint\)/)
+  assert.doesNotMatch(small, /0 0 0 /)
 })
 
 test("109: the page's own controls take the ✦ circle's space colour, paler, through one switch; text stays readable", () => {

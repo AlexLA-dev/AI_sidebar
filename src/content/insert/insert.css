@@ -17,9 +17,10 @@
   animation: cf-pop 0.14s ease-out;
 }
 .cf-qi-btn:active { transform: scale(0.92); }
-/* The circle's halo, smaller, in the space the ✦ circle is in (styles.css .cf[data-tint]: none in the blue space). */
+/* The circle's halo, smaller: a soft glow in the space the ✦ circle is in (styles.css .cf[data-tint]: none in the blue
+   space). */
 .cf[data-tint] .cf-qi-btn {
-  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.92), 0 0 0 3.5px var(--tint), 0 0 10px 3px color-mix(in srgb, var(--tint-2) 55%, transparent),
+  box-shadow: 0 0 4px 1px color-mix(in srgb, var(--tint) 65%, transparent), 0 0 12px 3px color-mix(in srgb, var(--tint-2) 45%, transparent),
     0 1px 2px rgba(0, 0, 0, 0.18);
 }
 /* The first time after the update: what the button does. Colors are .cf-snack's (styles.css), as every toast's. */
