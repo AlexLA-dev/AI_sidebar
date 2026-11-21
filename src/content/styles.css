@@ -187,17 +187,17 @@
   35% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92), 0 0 0 6px var(--space), 0 0 30px 14px var(--space-glow), 0 6px 18px rgba(0, 0, 0, 0.22); }
   100% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92), 0 0 0 4.5px var(--space), 0 0 16px 5px var(--space-glow), 0 6px 18px rgba(0, 0, 0, 0.22); }
 }
-/* The "glow" look (spaces.ts HALO_LOOK): no solid stroke, the space's colour as a wider glow (its base close in, its
-   light colour further out) and a faint white edge that keeps the circle apart where the page has the same colour. */
+/* The "glow" look (spaces.ts HALO_LOOK): no solid stroke, the space's colour as a wider glow (its base strong close in,
+   fainter further out) and a faint white edge that keeps the circle apart where the page has the same colour. */
 .cf-fab[data-halo][data-halo-look="glow"] {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 0 10px 4px var(--space-glow-in), 0 0 24px 9px var(--space-glow-out),
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.75), 0 0 12px 5px var(--space-glow-in), 0 0 28px 12px var(--space-glow-out),
     0 4px 12px rgba(0, 0, 0, 0.16);
 }
 .cf-fab[data-halo][data-halo-look="glow"].flash { animation: cf-fab-glow 1.1s ease-out 1; }
 @keyframes cf-fab-glow {
-  0% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 0 10px 4px var(--space-glow-in), 0 0 24px 9px var(--space-glow-out), 0 4px 12px rgba(0, 0, 0, 0.16); }
-  35% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 0 16px 8px var(--space-glow-in), 0 0 38px 16px var(--space-glow-out), 0 4px 12px rgba(0, 0, 0, 0.16); }
-  100% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 0 10px 4px var(--space-glow-in), 0 0 24px 9px var(--space-glow-out), 0 4px 12px rgba(0, 0, 0, 0.16); }
+  0% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.75), 0 0 12px 5px var(--space-glow-in), 0 0 28px 12px var(--space-glow-out), 0 4px 12px rgba(0, 0, 0, 0.16); }
+  35% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.75), 0 0 18px 9px var(--space-glow-in), 0 0 42px 18px var(--space-glow-out), 0 4px 12px rgba(0, 0, 0, 0.16); }
+  100% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.75), 0 0 12px 5px var(--space-glow-in), 0 0 28px 12px var(--space-glow-out), 0 4px 12px rgba(0, 0, 0, 0.16); }
 }
 @media (prefers-reduced-motion: reduce) { .cf-fab[data-halo][data-halo-look].flash { animation: none; } }
 
