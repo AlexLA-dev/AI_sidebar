@@ -69,7 +69,9 @@ test("the extension's side links the two random ids until the server has them, a
   // The ping carries the install id (the app learns it from the extension's first message), and is asked again while
   // the app hasn't made its id.
   assert.match(background, /callNative<\{ build\?: string; app\?: string \}>\("ping", \{ installId: id \}, 1500\)/)
-  assert.match(background, /if \(!data\?\.build \|\| !data\.app\) nativeAsk = null/)
+  assert.match(background, /if \(!data\?\.build\) nativeAsk = null/)
+  assert.match(background, /if \(nativeAsk && nativeAppAskedAt && Date\.now\(\) - nativeAppAskedAt > 60_000\) nativeAsk = null/)
+  assert.match(background, /nativeAppAskedAt = data\?\.build && !app \? Date\.now\(\) : 0/)
   // Sent when the background starts and when the panel gets the subscription, Safari only.
   assert.match(background, /\/\/ 2\.7\.1: the app's id with this install's[\s\S]{0,160}?void reportLinked\(\)\.catch/)
   assert.match(background, /entitlementCache = \{ at: Date\.now\(\), value \}\s*\/\/[^\n]*\n\s*void reportLinked\(\)/)
