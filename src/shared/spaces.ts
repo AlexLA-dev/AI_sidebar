@@ -47,10 +47,11 @@ export const HALO_STRENGTH: 1 | 2 | 3 = 3
 export const HALO_ALPHAS: Record<1 | 2 | 3, readonly [string, string, string]> = { 1: ["8c", "4d", "40"], 2: ["b3", "66", "59"], 3: ["d9", "80", "73"] }
 
 /**
- * The panel's send button glows too, «но более слабеньким» (the owner on #235): two layers, closer in and fainter than
- * the circle's at any strength (styles.css `.cf-send[data-halo]`).
+ * The panel's send button glows too, «но более слабеньким» (the owner on #235): the same soft halo as the circle's, two
+ * wide blurred layers reaching about a third of the button past its edge, fainter than the circle's at any strength
+ * (styles.css `.cf-send[data-halo]`). Not a thin edge hugging the button (the director on 664465de: it read as an outline).
  */
-export const SEND_GLOW_ALPHAS: readonly [string, string] = ["8c", "4d"]
+export const SEND_GLOW_ALPHAS: readonly [string, string] = ["66", "59"]
 
 /** Whether the ✦ circle wears a halo for this space's colour (none outside spaces, none for blue by default). */
 export function fabHalo(color: SpaceColor | undefined): boolean {

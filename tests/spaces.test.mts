@@ -325,12 +325,17 @@ test("2.7.1: the panel's send button glows in its space's colours, weaker than t
   assert.match(glow, /var\(--glow-1\)/)
   assert.match(glow, /var\(--glow-2\)/)
   assert.doesNotMatch(glow, /rgba\(255, 255, 255|width|height|margin|padding|outline|transform/)
-  // Weaker than the circle's: fainter at every layer and a shorter reach than its closest two layers.
+  // Weaker than the circle's: fainter at every layer and a shorter reach. A halo, not an edge hugging the button (the
+  // director on 664465de): its outer layer reaches about a third of the 32 px button past the edge (blur/2 + spread).
   const [c1, c2] = HALO_ALPHAS[HALO_STRENGTH]
   const [g1, g2] = SEND_GLOW_ALPHAS
   assert.ok(parseInt(g1, 16) < parseInt(c1, 16) && parseInt(g2, 16) < parseInt(c2, 16))
   assert.match(css, /\.cf-fab\[data-halo\] \{\s*box-shadow: 0 0 6px 1px var\(--halo-1\), 0 0 16px 4px/)
-  assert.match(glow, /box-shadow: 0 0 4px 0 var\(--glow-1\), 0 0 10px 2px var\(--glow-2\);/)
+  assert.match(glow, /box-shadow: 0 0 8px 2px var\(--glow-1\), 0 0 20px 6px var\(--glow-2\);/)
+  const [, outer] = layers.map((l) => l.trim().split(/\s+/).slice(2, 4).map(parseFloat))
+  const reach = outer[0] / 2 + outer[1]
+  assert.ok(reach >= 32 / 3 && reach < 34 / 2 + 10, `about a third of the button past its edge, less than the circle's: ${reach}`)
+  for (const [blur] of layers.map((l) => l.trim().split(/\s+/).slice(2, 4).map(parseFloat))) assert.ok(blur >= 8, "no tight edge")
   assert.match(spacesTsx, /"--glow-1": `\$\{base\}\$\{g1\}`, "--glow-2": `\$\{light\}\$\{g2\}`/)
   // The panel's own space (its variables are on the panel), by the circle's rule: none outside spaces or in the blue one.
   assert.match(app, /const sendHalo = spaces\.multi && fabHalo\(spaces\.current\.color\)/)
