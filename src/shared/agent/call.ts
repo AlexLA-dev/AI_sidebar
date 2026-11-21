@@ -4,7 +4,10 @@
 
 import type { MapItem, PageMap, Role, ToolCall, ToolName } from "./types.ts"
 
-export const TOOLS: ToolName[] = ["read_page", "click", "type", "fill", "select", "scroll", "go", "back", "extract", "ask_user", "done"]
+export const TOOLS: ToolName[] = ["read_page", "click", "type", "fill", "select", "scroll", "go", "back", "extract", "ask_user", "done", "reminders", "reminder_add", "reminder_done", "calendar", "event_add"]
+
+/** The tools that work on the person's Calendar and Reminders, not on the page. */
+export const APPLE_TOOLS = new Set<ToolName>(["reminders", "reminder_add", "reminder_done", "calendar", "event_add"])
 
 /** The answer's shape: every field present, the ones the tool doesn't use null (strict schemas want them all). */
 const nullable = (schema: Record<string, unknown>) => ({ anyOf: [schema, { type: "null" }] })
@@ -22,9 +25,17 @@ export const CALL_SCHEMA = {
     part: nullable({ type: "integer" }),
     question: nullable({ type: "string" }),
     summary: nullable({ type: "string" }),
+    ref: nullable({ type: "string" }),
+    list: nullable({ type: "string" }),
+    date: nullable({ type: "string" }),
+    time: nullable({ type: "string" }),
+    until: nullable({ type: "string" }),
+    minutes: nullable({ type: "integer" }),
+    days: nullable({ type: "integer" }),
+    place: nullable({ type: "string" }),
     why: { type: "string" }
   },
-  required: ["tool", "id", "text", "mode", "key", "option", "to", "part", "question", "summary", "why"],
+  required: ["tool", "id", "text", "mode", "key", "option", "to", "part", "question", "summary", "ref", "list", "date", "time", "until", "minutes", "days", "place", "why"],
   additionalProperties: false
 }
 
@@ -105,8 +116,66 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
     case "done":
       call.summary = str(r.summary, 6000) ?? ""
       break
+    case "reminders":
+      call.text = str(r.text, 200)
+      call.list = str(r.list, 120)
+      break
+    case "reminder_add": {
+      call.text = str(r.text, 200)
+      if (!call.text) return { ok: false, error: "reminder_add needs the reminder's text" }
+      call.list = str(r.list, 120)
+      const when = dayAndTime(r)
+      if (typeof when === "string") return { ok: false, error: when }
+      Object.assign(call, when)
+      break
+    }
+    case "reminder_done":
+      call.ref = str(r.ref, 200)
+      if (!call.ref) return { ok: false, error: "reminder_done needs a ref from «reminders»" }
+      call.text = str(r.text, 200)
+      break
+    case "calendar": {
+      const when = dayAndTime(r)
+      if (typeof when === "string") return { ok: false, error: when }
+      if (!when.date) return { ok: false, error: "calendar needs a date" }
+      Object.assign(call, when)
+      const until = str(r.until, 5)
+      if (until && !TIME.test(until)) return { ok: false, error: "until is HH:MM" }
+      if (until) call.until = until
+      call.minutes = whole(r.minutes, 5, 720, 60)
+      call.days = whole(r.days, 1, 14, 1)
+      break
+    }
+    case "event_add": {
+      call.text = str(r.text, 200)
+      if (!call.text) return { ok: false, error: "event_add needs the event's title" }
+      const when = dayAndTime(r)
+      if (typeof when === "string") return { ok: false, error: when }
+      if (!when.date || !when.time) return { ok: false, error: "event_add needs a date and a time" }
+      Object.assign(call, when)
+      call.minutes = whole(r.minutes, 5, 24 * 60, 60)
+      call.place = str(r.place, 200)
+      break
+    }
   }
   return { ok: true, call, item }
+}
+
+const DATE = /^\d{4}-\d{2}-\d{2}$/
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/
+
+/** A call's day and time ("2026-12-05", "19:30"), checked; a time needs a day. */
+function dayAndTime(r: Record<string, unknown>): { date?: string; time?: string } | string {
+  const date = str(r.date, 10)
+  const time = str(r.time, 5)
+  if (date && !DATE.test(date)) return "date is YYYY-MM-DD"
+  if (time && !TIME.test(time)) return "time is HH:MM"
+  if (time && !date) return "a time needs a date"
+  return { ...(date ? { date } : {}), ...(time ? { time } : {}) }
+}
+
+function whole(v: unknown, min: number, max: number, fallback: number): number {
+  return typeof v === "number" && Number.isFinite(v) ? Math.min(max, Math.max(min, Math.round(v))) : fallback
 }
 
 /** An option as the person or the model names it: the same words, any case and spacing, or the start of it. */

@@ -508,8 +508,31 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 #endif
             }
         case "apple_remove":
-            if let key = message["key"] as? String { AppleItems.remove(key: key) }
+            if let key = message["key"] as? String {
+                if message["done"] as? Bool == true { AppleItems.complete(key: key) } else { AppleItems.remove(key: key) }
+            }
             Self.reply(context, ["success": true])
+        // 2.7.1, the agent's Calendar and Reminders (AgentApple): read, find, add, mark done, free times.
+        case "agent_apple":
+            guard AppleItems.available else {
+                Self.reply(context, ["success": true, "data": ["access": "unavailable"]])
+                return
+            }
+            Task {
+                let out = await AgentApple.handle(message)
+                Self.reply(context, ["success": true, "data": out])
+            }
+        // The agent needs access the app hasn't asked for: on a Mac the extension opens the app, which asks.
+        case "agent_access_open":
+            #if os(macOS)
+            let kind = (message["kind"] as? String) == "calendar" ? "calendar" : "reminders"
+            DispatchQueue.main.async {
+                let opened = NSWorkspace.shared.open(URL(string: "contextflow://access?kind=\(kind)")!)
+                Self.reply(context, ["success": true, "data": ["opened": opened]])
+            }
+            #else
+            Self.reply(context, ["success": true, "data": ["opened": false]])
+            #endif
         // 2.7, invite a friend: what the app kept (a friend's code entered there, the inviter's own code), a DeviceCheck
         // token for a code entered in the panel, and the panel's marks back (linked, its code).
         case "invite":

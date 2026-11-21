@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "Diese Zeit ist schon vorbei. Wähle eine spätere."
  },
+ "agentStepReminderAdd": {
+  "message": "Erinnerung „{0}“ zur Liste „{1}“ hinzufügen"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Erinnerung „{0}“ zur Liste „{1}“ hinzufügen, fällig {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "„{0}“ in Erinnerungen als erledigt markieren"
+ },
+ "agentStepEventAdd": {
+  "message": "„{0}“ zu deinem Kalender hinzufügen: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Erlaube ContextFlow den Zugriff auf Erinnerungen: Öffne die App, tippe auf „Erlauben“, komm dann zurück und tippe auf „Fertig“."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Erlaube ContextFlow den Zugriff auf deinen Kalender: Öffne die App, tippe auf „Vollzugriff erlauben“, komm dann zurück und tippe auf „Fertig“."
+ },
+ "agentOpenApp": {
+  "message": "ContextFlow öffnen"
+ },
+ "agentDefaultList": {
+  "message": "deine Standardliste"
+ },
  "agentLaterLimit": {
   "message": "Es warten schon {0} Aufgaben – mehr fasst dein Tarif nicht."
  },

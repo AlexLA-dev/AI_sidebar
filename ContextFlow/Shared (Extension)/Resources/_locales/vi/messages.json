@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "Thời điểm đó đã qua. Hãy chọn giờ muộn hơn."
  },
+ "agentStepReminderAdd": {
+  "message": "Thêm lời nhắc “{0}” vào danh sách “{1}”"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Thêm lời nhắc “{0}” vào danh sách “{1}”, hạn {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Đánh dấu “{0}” là đã xong trong Lời nhắc"
+ },
+ "agentStepEventAdd": {
+  "message": "Thêm “{0}” vào lịch của bạn: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Cho phép ContextFlow dùng Lời nhắc: mở ứng dụng, chạm “Cho phép”, rồi quay lại đây và chạm “Xong”."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Cho phép ContextFlow dùng Lịch: mở ứng dụng, chạm “Cho phép truy cập đầy đủ”, rồi quay lại đây và chạm “Xong”."
+ },
+ "agentOpenApp": {
+  "message": "Mở ContextFlow"
+ },
+ "agentDefaultList": {
+  "message": "danh sách mặc định"
+ },
  "agentLaterLimit": {
   "message": "Đã có {0} việc đang chờ, mức tối đa của gói bạn dùng."
  },

@@ -24,7 +24,9 @@ const MESSAGING = /(^|\.)(mail\.google|gmail|outlook|live|yahoo|proton|icloud|ma
 // Cart words in the 15 languages (the submit list's «add to cart» entries).
 const CART = /cart|basket|bag|trolley|корзин|кошик|warenkorb|panier|carrito|cesta|carrello|carrinho|sacola|sepet|السلة|カート|장바구니|购物车|購物車|giỏ/i
 
-const READ_ONLY = new Set(["read_page", "scroll", "extract", "ask_user", "done", "back"])
+const READ_ONLY = new Set(["read_page", "scroll", "extract", "ask_user", "done", "back", "reminders", "calendar"])
+// The person's Calendar and Reminders changed: always «Сделать?» first, wherever the page is.
+const APPLE_WRITES = new Set(["reminder_add", "reminder_done", "event_add"])
 const SELF_KINDS = new Set(["pay", "post", "rate", "account", "auth", "consent"])
 // An address or an e-mail address in text the model wants typed.
 const ADDRESS = /\bhttps?:\/\/\S+|\bwww\.\S+|[\w.+-]+@[\w-]+\.[\w.-]+/gi
@@ -123,6 +125,7 @@ function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
 export function classify(call: ToolCall, ctx: StepContext): StepVerdict {
   const host = hostOf(ctx.map.url)
   if (READ_ONLY.has(call.tool)) return verdict("free", "read")
+  if (APPLE_WRITES.has(call.tool)) return verdict("confirm", call.tool)
   const blocked = blockedSite(host, ctx.policy)
   if (blocked) return verdict("blocked", `site_${blocked}`)
   const item = itemById(ctx.map, call.id)

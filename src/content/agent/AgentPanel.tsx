@@ -11,6 +11,7 @@ import { AMAZON_TEXT } from "../../shared/amazon"
 import { t, type MessageKey } from "../../shared/i18n"
 import * as Icon from "../icons"
 import { showIn } from "../Consent"
+import { followLink } from "../page"
 import { Markdown } from "../markdown"
 
 export type PanelAgent = Omit<AgentState, "log" | "data"> & { canUndo: boolean }
@@ -29,10 +30,32 @@ function nameOf(target: string | null | undefined): string {
   return (m ? m[1] : target ?? "").slice(0, 80)
 }
 
+/** A day and time as the person reads them ("Sat, 5 Dec, 19:30"), in the panel's language. */
+function when(date?: string, time?: string): string {
+  if (!date) return ""
+  const [y, m, d] = date.split("-").map(Number)
+  const [h, min] = (time ?? "").split(":").map(Number)
+  const at = new Date(y, m - 1, d, time ? h : 12, time ? min : 0)
+  try {
+    return new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", ...(time ? { hour: "2-digit", minute: "2-digit" } : {}) }).format(at)
+  } catch {
+    return `${date}${time ? ` ${time}` : ""}`
+  }
+}
+
 function stepText(state: PanelAgent): string {
   const p = state.pending
   if (!p) return ""
   const name = nameOf(p.target)
+  const c = p.call
+  switch (c.tool) {
+    case "reminder_add": {
+      const list = c.list || t("agentDefaultList")
+      return c.date ? t("agentStepReminderAddDue", c.text ?? "", list, when(c.date, c.time)) : t("agentStepReminderAdd", c.text ?? "", list)
+    }
+    case "reminder_done": return t("agentStepReminderDone", c.text ?? "")
+    case "event_add": return t("agentStepEventAdd", c.text ?? "", `${when(c.date, c.time)}${c.place ? `, ${c.place}` : ""}`)
+  }
   switch (p.call.tool) {
     case "type": return t("agentStepType", (p.call.text ?? "").slice(0, 80), name)
     case "select": return t("agentStepSelect", p.call.option ?? "", name)
@@ -51,9 +74,28 @@ function selfText(state: PanelAgent): string {
     case "consent": case "cookies_accept": return t("agentSelfConsent", name)
     case "rate": return t("agentSelfRate")
     case "file": return t("agentSelfFile")
+    case "access_reminders": return t("agentSelfAccessReminders")
+    case "access_calendar": return t("agentSelfAccessCalendar")
     default: return t("agentSelfOther", name)
   }
 }
+
+/** The app asks for Calendar or Reminders (the extension can't): iPhone and iPad follow its link in the tap itself, a Mac
+ *  has the extension open it. */
+function openAppFor(state: PanelAgent): void {
+  const kind = state.pending?.verdict.reason === "access_calendar" ? "calendar" : "reminders"
+  const touch = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches
+  if (touch) followLink(`contextflow://access?kind=${kind}`)
+  else {
+    try {
+      chrome.runtime.sendMessage({ type: "agentAccessOpen", kind }, () => void chrome.runtime.lastError)
+    } catch {
+      // the panel stays; the person can open the app themselves
+    }
+  }
+}
+
+const isAccess = (state: PanelAgent) => !!state.pending?.verdict.reason.startsWith("access_")
 
 // What can't be put back after it's done: a form sent, a cart changed, another site opened.
 // (Not "off_request": that's about the request, not the step; a box it would tick can be unticked.)
@@ -150,7 +192,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
           <strong>{t("agentSelfTitle")}</strong>
           <p dir="auto">{selfText(state)}</p>
           <div class="cf-card-actions">
-            <button type="button" class="cf-primary" onClick={() => onAnswer("did")}>{t("agentSelfDone")}</button>
+            {isAccess(state) && <button type="button" class="cf-primary" onClick={() => openAppFor(state)}>{t("agentOpenApp")}</button>}
+            <button type="button" class={isAccess(state) ? "cf-secondary" : "cf-primary"} onClick={() => onAnswer("did")}>{t("agentSelfDone")}</button>
             <button type="button" class="cf-secondary" onClick={() => onAnswer("notnow")}>{t("agentSelfNotNow")}</button>
           </div>
         </div>
@@ -207,7 +250,8 @@ export function AgentStrip({ state, onOpen, onStop, onAnswer }: { state: PanelAg
           </span>
         </button>
         <div class="cf-agent-float-actions">
-          <button type="button" class="cf-primary" onClick={() => onAnswer(self ? "did" : "yes")}>{t(self ? "agentSelfDone" : "agentYes")}</button>
+          {self && isAccess(state) && <button type="button" class="cf-primary" onClick={() => openAppFor(state)}>{t("agentOpenApp")}</button>}
+          <button type="button" class={self && isAccess(state) ? "cf-secondary" : "cf-primary"} onClick={() => onAnswer(self ? "did" : "yes")}>{t(self ? "agentSelfDone" : "agentYes")}</button>
           <button type="button" class="cf-secondary" onClick={() => onAnswer(self ? "notnow" : "no")}>{t(self ? "agentSelfNotNow" : "agentNo")}</button>
         </div>
       </div>
@@ -251,8 +295,10 @@ function localMinute(d: Date): string {
 }
 
 /** «Позже»: at a time, or when this page's watch fires (when it has one). */
-export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past }: { hasWatch: boolean; onSet: (when: { at?: number; watch?: boolean }) => void; onClose: () => void; note: string | null; onAsk?: () => void; past?: boolean }): VNode {
+export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past, canAlso }: { hasWatch: boolean; onSet: (when: { at?: number; watch?: boolean }, also: boolean) => void; onClose: () => void; note: string | null; onAsk?: () => void; past?: boolean; canAlso?: boolean }): VNode {
   const [kind, setKind] = useState<"at" | "watch">("at")
+  // «Также в Напоминания» (2.7.1): the task in Apple Reminders too, due then, without a second alert.
+  const [also, setAlso] = useState(false)
   const [when, setWhen] = useState(() => localMinute(new Date(Date.now() + 3_600_000)))
   return (
     <div class="cf-card cf-agent" role="region" aria-label={t("agentLater")}>
@@ -267,6 +313,12 @@ export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past }: 
           </label>
           {kind === "at" && <input class="cf-input-line" type="datetime-local" value={when} min={localMinute(new Date())} onInput={(e) => setWhen((e.target as HTMLInputElement).value)} onKeyDown={(e) => e.stopPropagation()} />}
           {kind === "at" && past && <p class="cf-agent-warn" dir="auto">{t("agentLaterPast")}</p>}
+          {kind === "at" && canAlso && (
+            <label class="cf-row toggle">
+              <input type="checkbox" checked={also} onChange={(e) => setAlso((e.target as HTMLInputElement).checked)} />
+              <span>{t("appleAlso")}</span>
+            </label>
+          )}
           {hasWatch && (
             <label class="cf-row toggle">
               <input type="radio" name="cf-agent-later" checked={kind === "watch"} onChange={() => setKind("watch")} />
@@ -277,7 +329,7 @@ export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past }: 
       )}
       <div class="cf-card-actions">
         {!note && (
-          <button type="button" class="cf-primary" onClick={() => onSet(kind === "watch" ? { watch: true } : { at: new Date(when).getTime() })}>{t("agentLaterSet")}</button>
+          <button type="button" class="cf-primary" onClick={() => onSet(kind === "watch" ? { watch: true } : { at: new Date(when).getTime() }, kind === "at" && also)}>{t("agentLaterSet")}</button>
         )}
         {/* Notifications never asked for: the system's question on a tap, then the task is set. */}
         {note && onAsk && <button type="button" class="cf-primary" onClick={onAsk}>{t("listenNotifyOn")}</button>}

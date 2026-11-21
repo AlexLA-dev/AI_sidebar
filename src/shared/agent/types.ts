@@ -66,7 +66,10 @@ export interface PageMap {
   consent?: boolean
 }
 
-export type ToolName = "read_page" | "click" | "type" | "fill" | "select" | "scroll" | "go" | "back" | "extract" | "ask_user" | "done"
+export type ToolName =
+  | "read_page" | "click" | "type" | "fill" | "select" | "scroll" | "go" | "back" | "extract" | "ask_user" | "done"
+  // The person's Calendar and Reminders on the device (2.7.1, AgentApple.swift): no page in it.
+  | "reminders" | "reminder_add" | "reminder_done" | "calendar" | "event_add"
 
 /** One call of the model: one tool and its arguments (the ones the tool doesn't use are left out). */
 export interface ToolCall {
@@ -82,6 +85,16 @@ export interface ToolCall {
   part?: number
   question?: string
   summary?: string
+  // Calendar and Reminders: a reminder's ref (from «reminders»), a list's name, a day ("2026-12-05"), a time ("19:30"),
+  // the latest time ("21:00"), a length in minutes, how many days to look at, an event's place.
+  ref?: string
+  list?: string
+  date?: string
+  time?: string
+  until?: string
+  minutes?: number
+  days?: number
+  place?: string
   // What the model says the step is for, in the person's language (shown in the log).
   why?: string
 }

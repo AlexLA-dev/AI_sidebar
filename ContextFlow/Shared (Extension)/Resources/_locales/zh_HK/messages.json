@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "這個時間已經過了，請選一個更晚的時間。"
  },
+ "agentStepReminderAdd": {
+  "message": "將提醒事項「{0}」加入「{1}」"
+ },
+ "agentStepReminderAddDue": {
+  "message": "將提醒事項「{0}」加入「{1}」，截止 {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "在提醒事項中將「{0}」標為已完成"
+ },
+ "agentStepEventAdd": {
+  "message": "將「{0}」加入你的行事曆：{1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "允許 ContextFlow 使用你的提醒事項：打開 App，點一下「允許」，然後回到這裡點一下「完成」。"
+ },
+ "agentSelfAccessCalendar": {
+  "message": "允許 ContextFlow 使用你的行事曆：打開 App，點一下「允許完整取用」，然後回到這裡點一下「完成」。"
+ },
+ "agentOpenApp": {
+  "message": "打開 ContextFlow"
+ },
+ "agentDefaultList": {
+  "message": "預設列表"
+ },
  "agentLaterLimit": {
   "message": "已有 {0} 個任務在等待，這是你的方案上限。"
  },

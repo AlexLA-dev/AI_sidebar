@@ -8,91 +8,91 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يضيف ContextFlow التذكيرات التي تؤكدها. ولا يقرأ تذكيراتك ولا يرسلها إلى أي مكان."
+            "value": "يضيف ContextFlow التذكيرات التي تؤكدها. وعندما تطلب منه فعل شيء، يطّلع على قوائمك على هذا الجهاز ليضع كل شيء في مكانه؛ ولا يُرسَل إلى الذكاء الاصطناعي إلا ما تحتاجه المهمة."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow fügt die Erinnerungen hinzu, die du bestätigst. Es liest deine Erinnerungen nicht und sendet sie nirgendwohin."
+            "value": "ContextFlow fügt die Erinnerungen hinzu, die du bestätigst. Wenn du es um etwas bittest, sieht es deine Listen auf diesem Gerät durch, um alles am richtigen Ort abzulegen; an die KI geht nur, was die Aufgabe braucht."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow adds the reminders you confirm. It doesn't read your reminders or send them anywhere."
+            "value": "ContextFlow adds the reminders you confirm. When you ask it to do something, it looks through your lists on this device to put things in the right place; only what the task needs goes to the AI."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow añade los recordatorios que confirmas. No lee tus recordatorios ni los envía a ningún sitio."
+            "value": "ContextFlow añade los recordatorios que confirmas. Cuando le pides que haga algo, revisa tus listas en este dispositivo para poner cada cosa en su sitio; a la IA solo llega lo que la tarea necesita."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow ajoute les rappels que vous confirmez. Il ne lit pas vos rappels et ne les envoie nulle part."
+            "value": "ContextFlow ajoute les rappels que vous confirmez. Quand vous lui demandez de faire quelque chose, il parcourt vos listes sur cet appareil pour tout ranger au bon endroit ; seul ce dont la tâche a besoin est envoyé à l’IA."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow aggiunge i promemoria che confermi. Non legge i tuoi promemoria e non li invia da nessuna parte."
+            "value": "ContextFlow aggiunge i promemoria che confermi. Quando gli chiedi di fare qualcosa, scorre i tuoi elenchi su questo dispositivo per mettere ogni cosa al posto giusto; all’IA arriva solo ciò che serve al compito."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow は、あなたが確認したリマインダーを追加します。リマインダーを読んだり、どこかへ送ったりはしません。"
+            "value": "ContextFlow は、あなたが確認したリマインダーを追加します。何かを頼まれたときは、正しい場所に入れるためにこのデバイス上のリストを確認します。AI に送るのはその作業に必要なものだけです。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow는 확인한 미리 알림만 추가합니다. 미리 알림을 읽거나 다른 곳으로 보내지 않습니다."
+            "value": "ContextFlow는 확인한 미리 알림을 추가합니다. 무언가를 부탁하면 알맞은 곳에 넣기 위해 이 기기의 목록을 살펴보며, AI에는 작업에 필요한 것만 보냅니다."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O ContextFlow adiciona os lembretes que você confirma. Ele não lê seus lembretes nem os envia para lugar nenhum."
+            "value": "O ContextFlow adiciona os lembretes que você confirma. Quando você pede algo, ele consulta suas listas neste dispositivo para colocar cada coisa no lugar certo; só o que a tarefa precisa vai para a IA."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow добавляет напоминания, которые вы подтвердили. Он не читает ваши напоминания и никуда их не отправляет."
+            "value": "ContextFlow добавляет напоминания, которые вы подтвердили. Когда вы просите его что-то сделать, он просматривает ваши списки на этом устройстве, чтобы положить всё на место; в ИИ уходит только то, что нужно для дела."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow, onayladığınız anımsatıcıları ekler. Anımsatıcılarınızı okumaz ve hiçbir yere göndermez."
+            "value": "ContextFlow, onayladığınız anımsatıcıları ekler. Ondan bir şey yapmasını istediğinizde, her şeyi doğru yere koymak için bu aygıttaki listelerinize bakar; yapay zekâya yalnızca işin gerektirdiği gider."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow додає нагадування, які ви підтвердили. Він не читає ваші нагадування й нікуди їх не надсилає."
+            "value": "ContextFlow додає нагадування, які ви підтвердили. Коли ви просите його щось зробити, він переглядає ваші списки на цьому пристрої, щоб покласти все на місце; до ШІ потрапляє лише те, що потрібно для справи."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow thêm các lời nhắc mà bạn xác nhận. Ứng dụng không đọc lời nhắc của bạn và không gửi chúng đi đâu cả."
+            "value": "ContextFlow thêm các lời nhắc mà bạn xác nhận. Khi bạn nhờ làm việc gì, ứng dụng xem các danh sách trên thiết bị này để xếp đúng chỗ; chỉ những gì việc đó cần mới được gửi tới AI."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow 会添加你确认的提醒事项。它不会读取你的提醒事项，也不会将其发送到任何地方。"
+            "value": "ContextFlow 会添加你确认的提醒事项。你让它做事时，它会在这台设备上查看你的列表，把事项放到合适的位置；只有任务需要的内容才会发送给 AI。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow 會加入你確認的提醒事項。它不會讀取你的提醒事項，也不會將其傳送到任何地方。"
+            "value": "ContextFlow 會加入你確認的提醒事項。你請它做事時，它會在這台裝置上查看你的列表，把事項放到合適的位置；只有任務需要的內容才會傳送給 AI。"
           }
         }
       }
@@ -192,6 +192,102 @@
           }
         }
       }
+    },
+    "NSCalendarsFullAccessUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow finds free time and checks for conflicts on this device when you ask it to book something, and adds the events you confirm. Only free times go to the AI, never your events."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow находит свободное время и проверяет пересечения на этом устройстве, когда вы просите что-то забронировать, и добавляет события, которые вы подтвердили. В ИИ уходят только свободные промежутки, никогда ваши события."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow знаходить вільний час і перевіряє накладки на цьому пристрої, коли ви просите щось забронювати, і додає події, які ви підтвердили. До ШІ потрапляють лише вільні проміжки, ніколи ваші події."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow sucht freie Zeit und prüft Überschneidungen auf diesem Gerät, wenn du etwas buchen lässt, und fügt die Termine hinzu, die du bestätigst. An die KI gehen nur freie Zeiten, nie deine Termine."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow trouve du temps libre et vérifie les conflits sur cet appareil quand vous lui demandez de réserver, et ajoute les événements que vous confirmez. Seuls les créneaux libres vont à l’IA, jamais vos événements."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow busca tiempo libre y comprueba coincidencias en este dispositivo cuando le pides reservar algo, y añade los eventos que confirmas. A la IA solo llegan los huecos libres, nunca tus eventos."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow trova il tempo libero e controlla le sovrapposizioni su questo dispositivo quando gli chiedi di prenotare, e aggiunge gli eventi che confermi. All’IA arrivano solo gli orari liberi, mai i tuoi eventi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow encontra horários livres e verifica conflitos neste dispositivo quando você pede para reservar algo, e adiciona os eventos que você confirma. Só os horários livres vão para a IA, nunca seus eventos."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow, bir şey ayırtmasını istediğinizde bu aygıtta boş zamanı bulur ve çakışmaları denetler, onayladığınız etkinlikleri ekler. Yapay zekâya etkinlikleriniz değil, yalnızca boş zamanlar gider."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يجد ContextFlow الوقت المتاح ويتحقق من التعارضات على هذا الجهاز عندما تطلب منه حجز شيء، ويضيف الأحداث التي تؤكدها. لا يُرسَل إلى الذكاء الاصطناعي إلا الأوقات المتاحة، ولا تُرسَل أحداثك أبدًا."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予約を頼まれたとき、ContextFlow はこのデバイス上で空き時間を探して重なりを確認し、あなたが確認した予定を追加します。AI に送るのは空き時間だけで、予定の内容は送りません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무언가를 예약해 달라고 하면 ContextFlow는 이 기기에서 빈 시간을 찾고 겹치는 일정을 확인하며, 확인한 일정을 추가합니다. AI에는 빈 시간만 보내고 일정 내용은 보내지 않습니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khi bạn nhờ đặt chỗ, ContextFlow tìm thời gian trống và kiểm tra trùng lịch trên thiết bị này, rồi thêm các sự kiện bạn xác nhận. Chỉ thời gian trống được gửi tới AI, không bao giờ là sự kiện của bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你让 ContextFlow 预订时，它会在这台设备上查找空闲时间并检查冲突，并添加你确认的日程。发送给 AI 的只有空闲时段，从不包括你的日程。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你請 ContextFlow 預訂時，它會在這台裝置上尋找空閒時間並檢查衝突，並加入你確認的行程。傳送給 AI 的只有空閒時段，從不包括你的行程。"
+          }
+        }
+      },
+      "comment": "The agent (2.7.1): free times and conflicts found on the device, events added after a card."
     }
   },
   "version": "1.0"

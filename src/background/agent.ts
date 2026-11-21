@@ -13,6 +13,7 @@ import { active, answer, drive, newState, type Answer, type AgentState, type Run
 import { hostOf } from "../shared/agent/sites"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
+import { appleCall, appleDevice, deferredReminder, deferredReminderEnd } from "./agentApple"
 import { callNative } from "./native"
 
 export interface AgentDeps {
@@ -41,15 +42,18 @@ export interface DeferredTask {
   at?: number
   watch?: string
   createdAt: number
+  // It has a reminder in Apple Reminders too («Также в Напоминания», key cf.agent.<id>).
+  reminder?: boolean
 }
 
 export type AgentRequest =
   | { type: "agentStart"; request: string; lang: string; deferred?: string }
   | { type: "agentAnswer"; answer: Answer; chosen?: string[] }
   | { type: "agentGet" }
+  | { type: "agentAccessOpen"; kind: "reminders" | "calendar" }
   | { type: "agentUndo" }
   | { type: "agentClose" }
-  | { type: "agentDefer"; request: string; lang: string; url: string; title: string; at?: number; watch?: string; notifTitle: string; notifBody: string }
+  | { type: "agentDefer"; request: string; lang: string; url: string; title: string; at?: number; watch?: string; notifTitle: string; notifBody: string; alsoReminder?: boolean }
   | { type: "agentDeferred" }
   | { type: "agentDeferCancel"; id: string }
   | { type: "formData" }
@@ -186,7 +190,9 @@ function io(tab: number): RunnerIO {
     entries: async () => (await formData()).entries,
     policy: { amazon: true },
     maxSteps: MAX_STEPS,
-    isStopped: async () => (await load(tab))?.status === "stopped"
+    isStopped: async () => (await load(tab))?.status === "stopped",
+    device: appleDevice,
+    apple: appleCall
   }
 }
 
@@ -210,7 +216,7 @@ async function start(tab: number, url: string, m: Extract<AgentRequest, { type: 
   const now = await load(tab)
   if (active(now)) return { ok: false, code: "BUSY", state: now && forPanel(now) }
   const state = newState(crypto.randomUUID(), m.request.slice(0, 2000), m.lang, url, m.deferred)
-  if (m.deferred) await removeDeferred(m.deferred)
+  if (m.deferred) await removeDeferred(m.deferred, true)
   await save(tab, state)
   void run(tab, () => drive(state, io(tab))).then(() => deps.statusChanged())
   return { ok: true, state: forPanel(state) }
@@ -260,9 +266,12 @@ async function writeDeferred(list: DeferredTask[]): Promise<void> {
   void syncDeferred()
 }
 
-async function removeDeferred(id: string): Promise<void> {
+async function removeDeferred(id: string, started = false): Promise<void> {
+  const had = (await deferredAll()).find((d) => d.id === id)
   await writeDeferred((await deferredAll()).filter((d) => d.id !== id))
   if (TARGET === "safari") void callNative("agent_cancel", { id })
+  // Its reminder in Apple Reminders, when it has one: done when the task started, gone when it was cancelled.
+  if (had?.reminder) deferredReminderEnd(id, started)
 }
 
 /** The app's copy of the deferred tasks (its "Later" list); the ones cancelled there go here too. */
@@ -292,8 +301,10 @@ async function defer(m: Extract<AgentRequest, { type: "agentDefer" }>): Promise<
     // Never asked: the card says why and asks on a tap (the system's question, as under a set watch); off: Settings.
     if (outcome !== "scheduled") return { ok: false, code: outcome === "not-asked" ? "NOTIF_ASK" : outcome === "denied" ? "NOTIF_OFF" : "FAILED" }
   }
+  // «Также в Напоминания»: the same task in the person's Reminders, due then, without an alert of its own.
+  if (m.alsoReminder && task.at && (await deferredReminder(task.id, task.request, task.at, task.url))) task.reminder = true
   await writeDeferred([...list, task])
-  return { ok: true, task, outcome }
+  return { ok: true, task, outcome, reminder: !!task.reminder }
 }
 
 // The notification's words for a task its watch woke up (kept with the task when it was set).
@@ -346,6 +357,8 @@ export function startAgent(d: AgentDeps): void {
         }))
       case "agentDeferred":
         return respond(syncDeferred().then(deferredAll).then((tasks) => ({ tasks })))
+      case "agentAccessOpen":
+        return respond(TARGET === "safari" ? callNative("agent_access_open", { kind: message.kind === "calendar" ? "calendar" : "reminders" }, 5000).then((r) => r ?? { opened: false }) : Promise.resolve({ opened: false }))
       case "agentDeferCancel":
         return respond(removeDeferred(message.id).then(() => ({ ok: true })))
       case "formData":

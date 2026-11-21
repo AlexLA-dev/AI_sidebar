@@ -106,7 +106,7 @@ import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads, withStoredEdits } from "../shared/jobs"
 import { linkChats, remindsAhead, watchesOn } from "../shared/chatMarks"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
-import { appleNow } from "./ux/apple"
+import { appleNow, loadApple } from "./ux/apple"
 import { withoutItemMarker } from "../shared/appleItems"
 import { Tour, tourSteps } from "./Tour"
 import { answerLanguage, preferredLanguages, readerLanguageName, withAnswerLanguage } from "./answerLanguage"
@@ -558,7 +558,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [agentTask, setAgentTask] = useState<PanelAgent | null>(null)
   const [agentDeferred, setAgentDeferred] = useState<{ id: string; request: string; lang: string } | null>(null)
   const [agentAutoHere, setAgentAutoHere] = useState(false)
-  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean }; past?: boolean } | null>(null)
+  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean }; past?: boolean; canAlso?: boolean; also?: boolean } | null>(null)
   const [agentHelp, setAgentHelp] = useState(false)
   const [agentUpsell, setAgentUpsell] = useState(false)
   // A start that didn't go (no answer from the background, or an error): said on a card, never silent.
@@ -2575,9 +2575,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const watches = ((await chrome.storage.local.get(WATCH_STORAGE.watches))[WATCH_STORAGE.watches] as Array<{ id: string; url: string; metAt?: number }> | undefined) ?? []
     const here = watches.find((w) => !w.metAt && watchUrlKey(w.url) === watchUrlKey(location.href))
     setAgentLater({ note: null, hasWatch: !!here, ...(here ? { watch: here.id } : {}) })
+    // «Также в Напоминания» only where Reminders can be written from here now.
+    const apple = await loadApple(sendBackground).catch(() => null)
+    if (apple?.reminders === "write") setAgentLater((l) => (l ? { ...l, canAlso: true } : l))
   }
 
-  const deferAgent = async (when: { at?: number; watch?: boolean }) => {
+  const deferAgent = async (when: { at?: number; watch?: boolean }, also = agentLater?.also ?? false) => {
     const request = draft.trim()
     if (!request || !agentLater) return
     // A time already past would never ring (the notification waits for that date): the card asks for a later one.
@@ -2589,7 +2592,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const r = await sendBackground<{ ok: boolean; code?: string; limit?: number }>({
       type: "agentDefer", request, lang: uiLanguage(), url: location.href, title: document.title,
       ...(when.at ? { at: when.at } : {}), ...(when.watch && agentLater.watch ? { watch: agentLater.watch } : {}),
-      notifTitle: t("agentNotifTitle", host), notifBody: t("agentNotifBody", request.slice(0, 120))
+      notifTitle: t("agentNotifTitle", host), notifBody: t("agentNotifBody", request.slice(0, 120)), ...(also ? { alsoReminder: true } : {})
     })
     const note = r?.ok
       ? when.at
@@ -2597,7 +2600,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         : t("agentLaterSavedWatch")
       : r?.code === "NOTIF_ASK" ? t("agentLaterNotifyWhy") : r?.code === "NOTIF_OFF" ? t("agentLaterNotifOff") : r?.code === "DEFER_LIMIT" ? t("agentLaterLimit", String(r.limit ?? "")) : r?.code === "PRO_ONLY" ? t("agentProOnly") : t("agentError")
     if (r?.ok) setDraft("")
-    setAgentLater({ ...agentLater, note, past: false, ask: r?.code === "NOTIF_ASK" ? when : undefined })
+    setAgentLater({ ...agentLater, note, past: false, ask: r?.code === "NOTIF_ASK" ? when : undefined, also })
   }
 
   /** «Включить уведомления» on the «Позже» card: the system's question (as under a set watch), then the task is set. */
@@ -4902,7 +4905,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     hasWatch={agentLater.hasWatch}
                     note={agentLater.note}
                     onClose={() => setAgentLater(null)}
-                    onSet={(when) => void deferAgent(when)}
+                    onSet={(when, also) => void deferAgent(when, also)}
+                    canAlso={!!agentLater.canAlso}
                     onAsk={agentLater.ask ? () => void askAgentNotify() : undefined}
                     past={!!agentLater.past}
                   />

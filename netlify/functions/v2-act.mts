@@ -99,7 +99,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   let out
   try {
-    out = await nextStep({ request, lang: clip(task.lang, 12), map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys) }, {
+    out = await nextStep({ request, lang: clip(task.lang, 12), map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device) }, {
       model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal
     })
   } catch (err) {
@@ -160,3 +160,10 @@ function sameToken(a: string, b: string): boolean {
 export type { Access }
 
 export const config: Config = { path: "/api/v2/act" }
+
+/** What the device says of Calendar and Reminders: two words, nothing else from it reaches the prompt. */
+function deviceLine(v: unknown): string {
+  const d = (v && typeof v === "object" ? v : {}) as Record<string, unknown>
+  const one = (x: unknown) => (x === "yes" || x === "none" || x === "denied" ? x : "unavailable")
+  return `reminders=${one(d.reminders)} calendar=${one(d.calendar)}`
+}

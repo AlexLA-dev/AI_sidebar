@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "Bu saat geçti. Daha sonraki bir saat seçin."
  },
+ "agentStepReminderAdd": {
+  "message": "“{0}” anımsatıcısını “{1}” listesine ekle"
+ },
+ "agentStepReminderAddDue": {
+  "message": "“{0}” anımsatıcısını {2} için “{1}” listesine ekle"
+ },
+ "agentStepReminderDone": {
+  "message": "Anımsatıcılar’da “{0}” öğesini tamamlandı olarak işaretle"
+ },
+ "agentStepEventAdd": {
+  "message": "“{0}” etkinliğini takviminize ekle: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "ContextFlow’un Anımsatıcılar’ı kullanmasına izin verin: uygulamayı açın, “İzin Ver”e dokunun, sonra buraya dönüp “Bitti”ye dokunun."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "ContextFlow’un Takviminizi kullanmasına izin verin: uygulamayı açın, “Tam Erişime İzin Ver”e dokunun, sonra buraya dönüp “Bitti”ye dokunun."
+ },
+ "agentOpenApp": {
+  "message": "ContextFlow’u aç"
+ },
+ "agentDefaultList": {
+  "message": "varsayılan listeniz"
+ },
  "agentLaterLimit": {
   "message": "Zaten {0} görev bekliyor; planınızın izin verdiği en fazla sayı bu."
  },

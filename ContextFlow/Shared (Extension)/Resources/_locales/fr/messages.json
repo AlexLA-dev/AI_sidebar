@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "Cette heure est déjà passée. Choisissez-en une plus tard."
  },
+ "agentStepReminderAdd": {
+  "message": "Ajouter le rappel « {0} » à la liste « {1} »"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Ajouter le rappel « {0} » à la liste « {1} », pour le {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Marquer « {0} » comme terminé dans Rappels"
+ },
+ "agentStepEventAdd": {
+  "message": "Ajouter « {0} » à votre calendrier : {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Autorisez ContextFlow à utiliser vos Rappels : ouvrez l’app, touchez « Autoriser », puis revenez ici et touchez « Terminé »."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Autorisez ContextFlow à utiliser votre Calendrier : ouvrez l’app, touchez « Autoriser l’accès complet », puis revenez ici et touchez « Terminé »."
+ },
+ "agentOpenApp": {
+  "message": "Ouvrir ContextFlow"
+ },
+ "agentDefaultList": {
+  "message": "votre liste par défaut"
+ },
  "agentLaterLimit": {
   "message": "{0} tâches attendent déjà : c’est le maximum de votre forfait."
  },

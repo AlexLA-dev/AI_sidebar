@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "Esa hora ya pasó. Elige una más tarde."
  },
+ "agentStepReminderAdd": {
+  "message": "Añadir el recordatorio «{0}» a la lista «{1}»"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Añadir el recordatorio «{0}» a la lista «{1}» para el {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Marcar «{0}» como completado en Recordatorios"
+ },
+ "agentStepEventAdd": {
+  "message": "Añadir «{0}» a tu calendario: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Permite que ContextFlow use tus Recordatorios: abre la app, toca «Permitir», vuelve aquí y toca «Listo»."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Permite que ContextFlow use tu Calendario: abre la app, toca «Permitir acceso total», vuelve aquí y toca «Listo»."
+ },
+ "agentOpenApp": {
+  "message": "Abrir ContextFlow"
+ },
+ "agentDefaultList": {
+  "message": "tu lista predeterminada"
+ },
  "agentLaterLimit": {
   "message": "Ya hay {0} tareas esperando, el máximo de tu plan."
  },

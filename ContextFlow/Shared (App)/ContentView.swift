@@ -219,6 +219,10 @@ struct ContentView: View {
                 // 2.7: a reminder or an event the panel couldn't add itself (access is asked here).
                 case "add":
                     appleAdd.open(url)
+                // 2.7.1: the agent needs Calendar or Reminders: the system's question, asked here (the extension can't).
+                case "access":
+                    let kind = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "kind" }?.value
+                    Task { _ = await AppleItems.ask(kind == "calendar" ? .event : .reminder) }
                 // 2.7: a friend's invite link opened where the app is installed: the code goes into the field.
                 case "invite":
                     let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "code" }?.value ?? ""

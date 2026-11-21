@@ -84,12 +84,13 @@ enum AppleItems {
         return out
     }
 
-    /// The system's question, from the app only: full access to Reminders, write-only access to Calendar.
+    /// The system's question, from the app only: full access to Reminders and (2.7.1, the agent: free times, conflicts)
+    /// to Calendar.
     static func ask(_ kind: Item.Kind) async -> Bool {
         guard #available(iOS 17.0, macOS 14.0, *) else { return false }
         let store = EKEventStore()
         do {
-            return kind == .reminder ? try await store.requestFullAccessToReminders() : try await store.requestWriteOnlyAccessToEvents()
+            return kind == .reminder ? try await store.requestFullAccessToReminders() : try await store.requestFullAccessToEvents()
         } catch {
             log("ask \(kind.rawValue) failed: \(error)")
             return false
@@ -113,6 +114,8 @@ enum AppleItems {
         var location: String = ""
         /// A reminder list chosen in the card (its calendarIdentifier); the default list otherwise.
         var list: String = ""
+        /// A reminder due without its own alert (a deferred agent task rings with ContextFlow's notification).
+        var noAlarm = false
 
         init(kind: Kind, title: String) {
             self.kind = kind
@@ -202,7 +205,7 @@ enum AppleItems {
             guard reminder.calendar != nil else { throw EKError(.calendarDoesNotAllowReminders) }
             if let due = Item.components(item.date, item.time, zone: item.zone) {
                 reminder.dueDateComponents = due
-                reminder.alarms = item.start.flatMap { item.time.isEmpty ? nil : [EKAlarm(absoluteDate: $0)] }
+                reminder.alarms = item.start.flatMap { item.time.isEmpty || item.noAlarm ? nil : [EKAlarm(absoluteDate: $0)] }
             } else {
                 reminder.dueDateComponents = nil
                 reminder.alarms = nil
@@ -245,6 +248,14 @@ enum AppleItems {
     static func remove(key: String, store: EKEventStore = EKEventStore()) {
         guard access(.reminder) == .write, let reminder = existingReminder(key, store: store) else { return }
         if !reminder.isCompleted { try? store.remove(reminder, commit: true) }
+        forget(key)
+    }
+
+    /// A deferred agent task started (2.7.1): its reminder (made with «Также в Напоминания») is marked done.
+    static func complete(key: String, store: EKEventStore = EKEventStore()) {
+        guard access(.reminder) == .write, let reminder = existingReminder(key, store: store) else { return }
+        reminder.isCompleted = true
+        try? store.save(reminder, commit: true)
         forget(key)
     }
 

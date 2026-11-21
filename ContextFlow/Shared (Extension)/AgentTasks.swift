@@ -47,6 +47,8 @@ enum AgentTasks {
         defaults.set(stopped, forKey: stoppedKey)
         if let data = try? JSONEncoder().encode(entries().filter { $0.id != id }) { defaults.set(data, forKey: listKey) }
         cancel(id)
+        // Its reminder in Apple Reminders («Также в Напоминания»), when it has one, goes with it.
+        AppleItems.remove(key: "cf.agent.\(id)")
     }
 
     static func cancel(_ id: String) {

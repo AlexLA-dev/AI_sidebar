@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "その時刻はもう過ぎています。もっと後の時刻を選んでください。"
  },
+ "agentStepReminderAdd": {
+  "message": "リマインダー「{0}」を「{1}」に追加"
+ },
+ "agentStepReminderAddDue": {
+  "message": "リマインダー「{0}」を「{1}」に追加（期限 {2}）"
+ },
+ "agentStepReminderDone": {
+  "message": "リマインダーで「{0}」を完了にする"
+ },
+ "agentStepEventAdd": {
+  "message": "「{0}」をカレンダーに追加：{1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "ContextFlow にリマインダーの使用を許可してください：アプリを開いて「許可」をタップし、ここに戻って「完了」をタップします。"
+ },
+ "agentSelfAccessCalendar": {
+  "message": "ContextFlow にカレンダーの使用を許可してください：アプリを開いて「フルアクセスを許可」をタップし、ここに戻って「完了」をタップします。"
+ },
+ "agentOpenApp": {
+  "message": "ContextFlow を開く"
+ },
+ "agentDefaultList": {
+  "message": "デフォルトのリスト"
+ },
  "agentLaterLimit": {
   "message": "すでに{0}件のタスクが待っています。ご利用のプランではこれが上限です。"
  },

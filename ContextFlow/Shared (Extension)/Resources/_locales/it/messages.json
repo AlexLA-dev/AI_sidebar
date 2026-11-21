@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "Quell'ora è già passata. Scegline una più tardi."
  },
+ "agentStepReminderAdd": {
+  "message": "Aggiungere il promemoria «{0}» all’elenco «{1}»"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Aggiungere il promemoria «{0}» all’elenco «{1}» per il {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Segnare «{0}» come completato in Promemoria"
+ },
+ "agentStepEventAdd": {
+  "message": "Aggiungere «{0}» al tuo calendario: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Consenti a ContextFlow di usare i tuoi Promemoria: apri l’app, tocca «Consenti», poi torna qui e tocca «Fine»."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Consenti a ContextFlow di usare il tuo Calendario: apri l’app, tocca «Consenti accesso completo», poi torna qui e tocca «Fine»."
+ },
+ "agentOpenApp": {
+  "message": "Apri ContextFlow"
+ },
+ "agentDefaultList": {
+  "message": "il tuo elenco predefinito"
+ },
  "agentLaterLimit": {
   "message": "Ci sono già {0} attività in attesa, il massimo del tuo piano."
  },

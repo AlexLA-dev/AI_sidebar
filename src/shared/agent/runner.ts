@@ -7,6 +7,7 @@
 // - Re-checked here before the hands act: a step's class from the server is never trusted to be milder than the
 //   device's own check says (classify.ts runs again on the device's map).
 
+import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, type SitePolicy } from "./sites.ts"
@@ -84,6 +85,28 @@ export interface RunnerIO {
   maxSteps: number
   // The person pressed «Стоп» while a step was on its way (the background's stored state says so).
   isStopped?: () => Promise<boolean>
+  // Calendar and Reminders on this device (2.7.1): whether they're there ("yes", "none": not allowed yet, "denied",
+  // "unavailable"), and a call of one of their tools, done there (AgentApple.swift).
+  device?: () => Promise<{ reminders: string; calendar: string }>
+  apple?: (call: ToolCall) => Promise<StepResult>
+}
+
+/** Which of the two a Calendar and Reminders tool needs. */
+export function appleKind(tool: ToolCall["tool"]): "reminders" | "calendar" {
+  return tool === "calendar" || tool === "event_add" ? "calendar" : "reminders"
+}
+
+/** The device's date, weekday, time and zone, for the model's «tomorrow» and «after 18:00». */
+export function nowLine(d = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, "0")
+  const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]
+  let zone = ""
+  try {
+    zone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? ""
+  } catch {
+    zone = ""
+  }
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${day} ${p(d.getHours())}:${p(d.getMinutes())}${zone ? ` ${zone}` : ""}`
 }
 
 export function newState(id: string, request: string, lang: string, url: string, deferred?: string): AgentState {
@@ -143,6 +166,15 @@ export function fillLines(call: ToolCall, item: MapItem | null, entries: FormEnt
 /** Does a step on the page and writes it down. A fill types its value in; the log keeps only the key. */
 async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string): Promise<void> {
   const doing: ToolCall = call.tool === "fill" ? { ...call, text: value ?? "" } : call
+  // Calendar and Reminders: on the device, not on the page (what they read goes to the next step, like extract).
+  if (APPLE_TOOLS.has(call.tool)) {
+    const r = io.apple ? await io.apple(call).catch(() => null) : null
+    const result = r ?? { ok: false, note: "Calendar and Reminders aren't there on this device" }
+    if (result.data) state.data = result.data
+    state.log.push({ call, result: noteOf(result) })
+    state.lines.push(line(call, verdict, target, result.ok))
+    return
+  }
   let result = await io.act(doing)
   if (!result || result.navigated) {
     await io.waitPage()
@@ -179,8 +211,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     const entries = await io.entries().catch(() => [] as FormEntry[])
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
+    const here = (await io.device?.().catch(() => null)) ?? null
     const reply = await io.ask({
-      task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: state.confirmedHere, token: state.token, strongUsed: state.strongUsed },
+      task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: state.confirmedHere, token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}) },
       map, log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
@@ -237,6 +270,22 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.pending = { call, verdict, target }
       break
     }
+    // Calendar and Reminders the app hasn't been allowed yet: the person's own step (open the app, allow, «Готово»);
+    // turned off in Settings, or not on this device: the model hears it and tells the person.
+    if (APPLE_TOOLS.has(call.tool)) {
+      const kind = appleKind(call.tool)
+      const access = here?.[kind] ?? "unavailable"
+      if (access === "none") {
+        state.status = "self"
+        state.pending = { call, verdict: { cls: "self", reason: `access_${kind}` }, target: null }
+        break
+      }
+      if (access !== "yes") {
+        state.log.push({ call, result: access === "denied" ? `refused: ${kind} access is turned off in Settings → ContextFlow` : `refused: no ${kind} on this device` })
+        state.lines.push(line(call, verdict, null, false))
+        continue
+      }
+    }
     if (verdict.cls === "confirm") {
       if (call.tool === "fill") {
         const item = map.items.find((i) => i.id === call.id) ?? null
@@ -289,7 +338,8 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     }
   } else if (verdict.cls === "self") {
     const did = a === "did" || a === "yes"
-    state.log.push({ call, target: target ?? undefined, result: did ? "the person did this step themselves" : "the person didn't do this step now (it's left for them)" })
+    const access = verdict.reason.startsWith("access_")
+    state.log.push({ call, target: target ?? undefined, result: access ? (did ? "the person was asked to allow it in ContextFlow: call the tool again" : "the person didn't allow it now: go on without it") : did ? "the person did this step themselves" : "the person didn't do this step now (it's left for them)" })
     state.lines.push(line(call, verdict, target, did))
     if (did) state.confirmedHere = true
   } else {

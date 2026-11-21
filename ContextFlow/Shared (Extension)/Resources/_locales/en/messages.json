@@ -3290,6 +3290,30 @@
  "agentLaterPast": {
   "message": "That time has passed. Pick a later one."
  },
+ "agentStepReminderAdd": {
+  "message": "Add the reminder “{0}” to “{1}”"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Add the reminder “{0}” to “{1}”, due {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Mark “{0}” done in Reminders"
+ },
+ "agentStepEventAdd": {
+  "message": "Add “{0}” to your calendar: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Let ContextFlow use your Reminders: open the app, tap “Allow”, then come back here and tap “Done”."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Let ContextFlow use your Calendar: open the app, tap “Allow Full Access”, then come back here and tap “Done”."
+ },
+ "agentOpenApp": {
+  "message": "Open ContextFlow"
+ },
+ "agentDefaultList": {
+  "message": "your default list"
+ },
  "agentLaterLimit": {
   "message": "{0} tasks are already waiting, the most your plan keeps."
  },
