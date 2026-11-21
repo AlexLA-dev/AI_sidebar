@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import type { Answer, AgentState, PlanApproval } from "../../shared/agent/runner"
 import type { Perm, PlanSelf, TaskPlan } from "../../shared/agent/taskplan"
 import { AMAZON_TEXT } from "../../shared/amazon"
+import { TEST_PLAN } from "../../shared/config"
 import { t, type MessageKey } from "../../shared/i18n"
 import * as Icon from "../icons"
 import { showIn } from "../Consent"
@@ -315,6 +316,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
               {l.cls === "self"
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
                 : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.text || nameOf(l.target)}
+              {/* Test builds: when each step ran, from the task's start (the background-tab probe). */}
+              {TEST_PLAN && l.at ? <span class="cf-hint"> +{Math.round((l.at - state.startedAt) / 1000)}s</span> : null}
             </li>
           ))}
         </ol>
@@ -527,6 +530,24 @@ export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past, ca
         {note && onAsk && <button type="button" class="cf-primary" onClick={onAsk}>{t("listenNotifyOn")}</button>}
         <button type="button" class="cf-secondary" onClick={onClose}>{t(note && onAsk ? "listenNotifyLater" : "close")}</button>
       </div>
+    </div>
+  )
+}
+
+/** Another tab's task by the ✦ circle (2.7.1): done, or waiting for the person there; «Перейти к вкладке» brings it. */
+export function AgentNoticeCard({ notice, side, top, onGo, onClose }: { notice: { request: string; status: PanelAgent["status"]; summary: string }; side: "left" | "right"; top: string; onGo: () => void; onClose: () => void }): VNode {
+  const waiting = notice.status === "plan" || notice.status === "confirm" || notice.status === "fill" || notice.status === "self"
+  const mark = waiting ? { sign: "•", text: t("agentNoticeNeeds"), cls: "wait" } : markOf(notice.status)
+  return (
+    <div class={`cf-agent-notice ${side}`} style={{ top }} role="status" aria-live="polite">
+      <div class="cf-agent-notice-head">
+        <span class={`cf-agent-row-mark ${mark.cls}`} aria-hidden="true">{mark.sign}</span>
+        <b>{mark.text}</b>
+        <button type="button" class="cf-ph-x" aria-label={t("close")} title={t("close")} onClick={onClose}><Icon.Close /></button>
+      </div>
+      <p class="cf-agent-notice-req" dir="auto">{notice.request}</p>
+      {!waiting && notice.summary && <p class="cf-agent-notice-sum" dir="auto">{notice.summary}</p>}
+      <button type="button" class="cf-primary" onClick={onGo}>{t("agentGoToTab")}</button>
     </div>
   )
 }

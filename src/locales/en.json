@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "Didn't work",
   "agentShowSteps": "Steps and result",
   "agentModeOff": "Turn off Do",
-  "noteHintTouchDo": "Swipe the button up for a note, down for Do"
+  "noteHintTouchDo": "Swipe the button up for a note, down for Do",
+  "agentNoticeNeeds": "Needs you",
+  "agentGoToTab": "Go to the tab"
 }

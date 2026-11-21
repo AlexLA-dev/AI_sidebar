@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "Non è riuscito",
   "agentShowSteps": "Passi e risultato",
   "agentModeOff": "Disattivare «Fai»",
-  "noteHintTouchDo": "Scorri il pulsante in su per una nota, in giù per «Fai»"
+  "noteHintTouchDo": "Scorri il pulsante in su per una nota, in giù per «Fai»",
+  "agentNoticeNeeds": "Serve lei",
+  "agentGoToTab": "Vai alla scheda"
 }

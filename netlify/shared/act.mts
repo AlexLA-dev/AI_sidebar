@@ -165,11 +165,22 @@ export interface StepInput {
   plan?: string
 }
 
+/** A language code with its English name ("ja (Japanese)"): Haiku followed a bare code less often (a Japanese
+ *  request's plan came in English). */
+export function languageLine(code: string): string {
+  try {
+    const name = new Intl.DisplayNames(["en"], { type: "language" }).of(code.replace("_", "-"))
+    return name && name.toLowerCase() !== code.toLowerCase() ? `${code} (${name})` : code
+  } catch {
+    return code
+  }
+}
+
 export function stepMessage(s: StepInput): string {
   const forms = s.map.forms.filter((f) => f.otherSite || f.secret).map((f) => `form${f.n}: ${[f.secret ? "has a password or card field" : "", f.otherSite ? `sends to ${f.otherSite}` : ""].filter(Boolean).join(", ")}`)
   return [
     `<request>${s.request}</request>`,
-    `<language>${s.lang || "en"}</language>`,
+    `<language>${languageLine(s.lang || "en")}</language>`,
     s.now ? `<now>${s.now}</now>` : "",
     `<device>${s.device || "reminders=unavailable calendar=unavailable"}</device>`,
     s.keys?.length ? `<saved>${s.keys.join(", ")}</saved>` : "",

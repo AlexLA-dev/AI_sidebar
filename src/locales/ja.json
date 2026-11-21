@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "できませんでした",
   "agentShowSteps": "手順と結果",
   "agentModeOff": "「実行」をオフ",
-  "noteHintTouchDo": "ボタンを上にスワイプでメモ、下で「実行」"
+  "noteHintTouchDo": "ボタンを上にスワイプでメモ、下で「実行」",
+  "agentNoticeNeeds": "確認が必要です",
+  "agentGoToTab": "タブへ移動"
 }

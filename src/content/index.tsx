@@ -75,6 +75,11 @@ function boot(): void {
       bus.dispatchEvent(new CustomEvent("agentState", { detail: agent.state }))
       sendResponse({ ok: true })
     }
+    // A task in another tab finished or needs the person (its ring on the circle here), or that's seen now (null).
+    if (agent?.type === "agentNotice") {
+      bus.dispatchEvent(new CustomEvent("agentNotice", { detail: (message as unknown as { notice?: unknown }).notice ?? null }))
+      sendResponse({ ok: true })
+    }
     // A new install asks before it opens its «ContextFlow is ready» tab over this page (src/shared/welcomeTab.ts).
     if (message?.type === "here") sendResponse({ ok: true })
     return false

@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "Не вийшло",
   "agentShowSteps": "Кроки й підсумок",
   "agentModeOff": "Вимкнути «Зробити»",
-  "noteHintTouchDo": "Змахніть кнопку вгору — нотатка, вниз — «Зробити»"
+  "noteHintTouchDo": "Змахніть кнопку вгору — нотатка, вниз — «Зробити»",
+  "agentNoticeNeeds": "Потрібні ви",
+  "agentGoToTab": "Перейти до вкладки"
 }

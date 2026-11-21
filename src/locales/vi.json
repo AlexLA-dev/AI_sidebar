@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "Không được",
   "agentShowSteps": "Các bước và kết quả",
   "agentModeOff": "Tắt “Làm”",
-  "noteHintTouchDo": "Vuốt nút lên để ghi chú, xuống để “Làm”"
+  "noteHintTouchDo": "Vuốt nút lên để ghi chú, xuống để “Làm”",
+  "agentNoticeNeeds": "Cần bạn",
+  "agentGoToTab": "Đến thẻ"
 }

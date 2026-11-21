@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "Hat nicht geklappt",
   "agentShowSteps": "Schritte und Ergebnis",
   "agentModeOff": "„Erledigen“ ausschalten",
-  "noteHintTouchDo": "Knopf nach oben wischen: Notiz, nach unten: „Erledigen“"
+  "noteHintTouchDo": "Knopf nach oben wischen: Notiz, nach unten: „Erledigen“",
+  "agentNoticeNeeds": "Braucht Sie",
+  "agentGoToTab": "Zum Tab"
 }

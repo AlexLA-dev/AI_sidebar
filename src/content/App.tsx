@@ -57,7 +57,8 @@ import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
 import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
-import { AgentDeferredCard, AgentLaterCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
+import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
+import type { AgentNotice } from "../background/agent"
 import type { TaskPlan } from "../shared/agent/taskplan"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
@@ -560,6 +561,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [agentTask, setAgentTask] = useState<PanelAgent | null>(null)
   // This tab's earlier tasks, kept in the chat folded to a line each (2.7.1).
   const [agentPast, setAgentPast] = useState<PanelAgent[]>([])
+  // A task in another tab that finished or needs the person: a ring on the circle; a tap shows its card here (2.7.1).
+  const [agentNotice, setAgentNotice] = useState<AgentNotice | null>(null)
+  const agentNoticeRef = useRef<AgentNotice | null>(null)
+  agentNoticeRef.current = agentNotice
+  const [noticeOpen, setNoticeOpen] = useState(false)
   const [agentDeferred, setAgentDeferred] = useState<{ id: string; request: string; lang: string } | null>(null)
   const [agentAutoHere, setAgentAutoHere] = useState(false)
   const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean }; past?: boolean; canAlso?: boolean; also?: boolean; request?: string; plan?: TaskPlan } | null>(null)
@@ -2670,6 +2676,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     } else setAgentLater({ ...agentLater, note: t("agentLaterNotifOff"), ask: undefined })
   }
 
+  // Another tab's task: what it came to, pushed when it stops for the person or ends there (and null once it's seen).
+  useEffect(() => {
+    if (popup) return
+    const onNotice = (e: Event) => {
+      const n = ((e as CustomEvent).detail as AgentNotice | null) ?? null
+      setAgentNotice(n)
+      if (!n) setNoticeOpen(false)
+    }
+    bus.addEventListener("agentNotice", onNotice)
+    void sendBackground<{ notice: AgentNotice | null }>({ type: "agentNoticeGet" }).then((r) => setAgentNotice(r?.notice ?? null))
+    return () => bus.removeEventListener("agentNotice", onNotice)
+  }, [popup, bus])
+
   // This tab's task as the background has it (pushed at every change), and a deferred task the notification brought.
   useEffect(() => {
     if (popup) return
@@ -2969,7 +2988,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (to !== sideRef.current) void sendBackground({ type: "useEvent", f: "side", a: "drag_fab", what: to })
       updateSettings({ fabY, fabSide: to, fabSideChosen: true })
     },
-    onTap: () => show(undefined, { pageChat: true }),
+    // A task in another tab is done or needs the person: the tap shows its card first.
+    onTap: () => (agentNoticeRef.current ? setNoticeOpen(true) : show(undefined, { pageChat: true })),
     // Held down: the page's translation by hand (the pill by the circle), on any page.
     onHold: () => setFabHeld((n) => n + 1)
   })
@@ -4259,7 +4279,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <button
           type="button"
           ref={fabRef}
-          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}`}
+          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}${agentNotice ? ` agent-ring ${agentNotice.status === "done" ? "done" : "needs"}` : ""}`}
           data-halo={halo ? spaces.fabSpace?.color : undefined}
           style={{ top: fabTop, ...(halo && spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
@@ -4284,6 +4304,24 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           onPlans={() => {
             show()
             openPlans("pro", "translate")
+          }}
+        />
+      )}
+
+      {/* Another tab's task, by the circle: what it came to, and «Перейти к вкладке» (2.7.1). */}
+      {agentNotice && noticeOpen && fabVisible && (
+        <AgentNoticeCard
+          notice={agentNotice}
+          side={side}
+          top={fabTop}
+          onGo={() => {
+            setNoticeOpen(false)
+            void sendBackground({ type: "agentGoTab" })
+          }}
+          onClose={() => {
+            setNoticeOpen(false)
+            setAgentNotice(null)
+            void sendBackground({ type: "agentNoticeClear" })
           }}
         />
       )}

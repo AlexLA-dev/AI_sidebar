@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "لم ينجح",
   "agentShowSteps": "الخطوات والنتيجة",
   "agentModeOff": "إيقاف «نفّذ»",
-  "noteHintTouchDo": "اسحب الزر لأعلى لملاحظة، ولأسفل لـ«نفّذ»"
+  "noteHintTouchDo": "اسحب الزر لأعلى لملاحظة، ولأسفل لـ«نفّذ»",
+  "agentNoticeNeeds": "بحاجة إليك",
+  "agentGoToTab": "الانتقال إلى علامة التبويب"
 }

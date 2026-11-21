@@ -34,6 +34,8 @@ export interface AgentLine {
   target?: string
   // Done without a question: the plan the person approved allowed it.
   byPlan?: boolean
+  // When (ms): test builds show it, to see whether a task stepped while its tab was in the background.
+  at?: number
 }
 
 export interface AgentState {
@@ -136,7 +138,7 @@ export function stricter(server: StepVerdict, device: StepVerdict): StepVerdict 
 }
 
 function line(call: ToolCall, verdict: StepVerdict, target: string | null, ok: boolean, why?: string, byPlan?: boolean): AgentLine {
-  return { text: why ?? call.why ?? "", tool: call.tool, cls: verdict.cls, ok, ...(target ? { target } : {}), ...(byPlan ? { byPlan: true } : {}) }
+  return { text: why ?? call.why ?? "", tool: call.tool, cls: verdict.cls, ok, ...(target ? { target } : {}), ...(byPlan ? { byPlan: true } : {}), at: Date.now() }
 }
 
 function noteOf(r: StepResult | null): string {

@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "Pas abouti",
   "agentShowSteps": "Étapes et résultat",
   "agentModeOff": "Désactiver « Faire »",
-  "noteHintTouchDo": "Glissez le bouton vers le haut pour une note, vers le bas pour « Faire »"
+  "noteHintTouchDo": "Glissez le bouton vers le haut pour une note, vers le bas pour « Faire »",
+  "agentNoticeNeeds": "Vous êtes attendu",
+  "agentGoToTab": "Aller à l'onglet"
 }

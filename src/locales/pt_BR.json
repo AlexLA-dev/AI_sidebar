@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "Não deu certo",
   "agentShowSteps": "Passos e resultado",
   "agentModeOff": "Desligar “Fazer”",
-  "noteHintTouchDo": "Deslize o botão para cima para uma nota, para baixo para “Fazer”"
+  "noteHintTouchDo": "Deslize o botão para cima para uma nota, para baixo para “Fazer”",
+  "agentNoticeNeeds": "Precisa de você",
+  "agentGoToTab": "Ir para a aba"
 }

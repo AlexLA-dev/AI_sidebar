@@ -81,3 +81,16 @@
 [dir="rtl"] .cf-agent-row-more:not(.open) { transform: scaleX(-1); }
 .cf-agent-row-answer { padding: 0 10px 8px 38px; }
 .cf-agent-row-answer > :first-child { margin-top: 0; }
+/* Another tab's task (2.7.1): a ring on the circle, and its card beside it. */
+.cf-fab.agent-ring { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--accent), 0 6px 18px rgba(0, 0, 0, 0.22); }
+.cf-fab.agent-ring.needs { animation: cf-agent-ring 1.6s ease-in-out infinite; }
+@keyframes cf-agent-ring { 50% { box-shadow: 0 0 0 3px var(--bg), 0 0 0 9px var(--accent), 0 6px 18px rgba(0, 0, 0, 0.22); } }
+@media (prefers-reduced-motion: reduce) { .cf-fab.agent-ring.needs { animation: none; } }
+.cf-agent-notice { position: fixed; z-index: 3; width: min(300px, calc(100vw - 96px)); transform: translateY(-50%); display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 14px; background: var(--bg); color: var(--text); border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18); font-size: 13.5px; }
+.cf-agent-notice.right { right: 76px; }
+.cf-agent-notice.left { left: 76px; }
+.cf-agent-notice-head { display: flex; align-items: center; gap: 8px; }
+.cf-agent-notice-head b { flex: 1 1 auto; }
+.cf-agent-notice-req { margin: 0; font-weight: 500; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.cf-agent-notice-sum { margin: 0; color: var(--text-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.cf-agent-notice .cf-primary { align-self: flex-start; }

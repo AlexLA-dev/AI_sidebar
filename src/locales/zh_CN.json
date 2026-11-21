@@ -1196,5 +1196,7 @@
   "agentMarkFailed": "没成功",
   "agentShowSteps": "步骤和结果",
   "agentModeOff": "关闭“执行”",
-  "noteHintTouchDo": "向上轻扫按钮写笔记，向下轻扫“执行”"
+  "noteHintTouchDo": "向上轻扫按钮写笔记，向下轻扫“执行”",
+  "agentNoticeNeeds": "需要你",
+  "agentGoToTab": "前往该标签页"
 }

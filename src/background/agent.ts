@@ -61,6 +61,9 @@ export type AgentRequest =
   | { type: "agentUndo" }
   | { type: "agentClose"; keep?: boolean }
   | { type: "agentForgetPast"; id: string }
+  | { type: "agentNoticeGet" }
+  | { type: "agentGoTab" }
+  | { type: "agentNoticeClear" }
   | { type: "agentDefer"; request: string; lang: string; url: string; title: string; at?: number; watch?: string; notifTitle: string; notifBody: string; alsoReminder?: boolean; plan?: TaskPlan }
   | { type: "agentDeferred" }
   | { type: "agentDeferCancel"; id: string }
@@ -156,6 +159,64 @@ async function save(tab: number, state: AgentState): Promise<void> {
   await write(tab, state)
   // The panel shows it at once (the content script of the tab's top frame).
   chrome.tabs.sendMessage(tab, { type: "agentState", state: forPanel(state) }, { frameId: 0 }, () => void chrome.runtime.lastError)
+  if (state.status !== "running" && (now?.id !== state.id || now.status !== state.status)) void noticeElsewhere(tab, state)
+}
+
+// ------------------------------------------------------------ while the person is in another tab
+
+// A task that finished or needs the person while its tab isn't the one in front (2.7.1, the owner: «нотифаил через
+// круг когда я в сафари»): the circle in the other tabs gets a ring; a tap there shows a card with «Перейти к вкладке».
+const NOTICE_KEY = "cf:agentNotice"
+
+export interface AgentNotice {
+  tab: number
+  id: string
+  request: string
+  // done, or what it waits for (plan, confirm, fill, self), or how it ended (asked, stopped, error, blocked).
+  status: AgentState["status"]
+  summary: string
+  at: number
+}
+
+async function notice(): Promise<AgentNotice | null> {
+  const n = ((await chrome.storage.local.get(NOTICE_KEY).catch(() => ({} as Record<string, unknown>)))[NOTICE_KEY] as AgentNotice | undefined) ?? null
+  return n && Date.now() - n.at < LOCAL_FOR ? n : null
+}
+
+function tellTabs(n: AgentNotice | null, except?: number): void {
+  chrome.tabs.query({}, (tabs) => {
+    if (chrome.runtime.lastError) return
+    for (const t of tabs ?? []) {
+      if (t.id === undefined || t.id === except) continue
+      chrome.tabs.sendMessage(t.id, { type: "agentNotice", notice: n }, { frameId: 0 }, () => void chrome.runtime.lastError)
+    }
+  })
+}
+
+function tabActive(tab: number): Promise<boolean> {
+  return new Promise((resolve) => chrome.tabs.get(tab, (t) => resolve(!chrome.runtime.lastError && !!t?.active)))
+}
+
+async function noticeElsewhere(tab: number, state: AgentState): Promise<void> {
+  if (await tabActive(tab)) return
+  const n: AgentNotice = { tab, id: state.id, request: state.request.slice(0, 200), status: state.status, summary: (state.summary ?? "").slice(0, 300), at: Date.now() }
+  await chrome.storage.local.set({ [NOTICE_KEY]: n })
+  tellTabs(n, tab)
+}
+
+async function clearNotice(): Promise<void> {
+  if (!(await notice())) return
+  await chrome.storage.local.remove(NOTICE_KEY)
+  tellTabs(null)
+}
+
+/** «Перейти к вкладке»: the task's tab comes to the front (its panel shows the task), and the ring goes. */
+async function goTab(): Promise<boolean> {
+  const n = await notice()
+  if (!n) return false
+  const ok = await new Promise<boolean>((resolve) => chrome.tabs.update(n.tab, { active: true }, () => resolve(!chrome.runtime.lastError)))
+  await clearNotice()
+  return ok
 }
 
 /** What the panel gets: everything but the server's log and the last page text (it shows its own lines). */
@@ -439,7 +500,17 @@ export function startAgent(d: AgentDeps): void {
       case "agentPlan":
         return tab === undefined ? false : respond(planned(tab, message.approval))
       case "agentGet":
-        return tab === undefined ? false : respond(Promise.all([load(tab), past(tab)]).then(([s, p]) => ({ state: s && forPanel(s), past: p })))
+        return tab === undefined ? false : respond(Promise.all([load(tab), past(tab), notice()]).then(async ([s, p, n]) => {
+          // The task's own tab is in front again: the ring elsewhere goes.
+          if (n && n.tab === tab) await clearNotice()
+          return { state: s && forPanel(s), past: p }
+        }))
+      case "agentNoticeGet":
+        return respond(notice().then((n) => ({ notice: n && n.tab !== tab ? n : null })))
+      case "agentGoTab":
+        return respond(goTab().then((ok) => ({ ok })))
+      case "agentNoticeClear":
+        return respond(clearNotice().then(() => ({ ok: true })))
       case "agentUndo":
         return tab === undefined ? false : respond(undoAll(tab).then((ok) => ({ ok })))
       case "agentClose":
@@ -474,6 +545,12 @@ export function startAgent(d: AgentDeps): void {
       default:
         return false
     }
+  })
+  // The task's tab came to the front: its ring elsewhere goes.
+  chrome.tabs.onActivated?.addListener(({ tabId }) => {
+    void notice().then((n) => {
+      if (n && n.tab === tabId) void clearNotice()
+    })
   })
   // A tab that closed takes its task with it.
   chrome.tabs.onRemoved.addListener((tab) => {
