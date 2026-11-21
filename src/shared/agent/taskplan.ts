@@ -187,7 +187,7 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
   // A field the request's own words go into isn't a saved detail's too (the card said the phone twice).
   const fillOnly = [...new Set(fillFields)].filter((f) => !personal.includes(f))
   if (fillKeys.length && fillOnly.length) add({ kind: "fill", reason: "fill", label: fillOnly.join(", "), keys: fillKeys })
-  const seen = [...new Set([...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 40)
+  const seen = [...new Set([...(ctx.map.money ?? []), ...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 120)
   return { steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen }
 }
 
@@ -242,10 +242,15 @@ export function priceChanged(plan: TaskPlan, map: PageMap, near = ""): string | 
   const picked = plan.prices.flatMap((p) => amounts(p).length ? amounts(p) : [amountOf(p.replace(/[^\d.,\s]/g, "").trim())].filter((x): x is number => x !== null))
   if (!picked.length) return null
   const seen = [...picked, ...(plan.seen ?? [])]
+  const fit = (v: number) => seen.some((p) => [1, 2, 3, 4, 5, 6].some((q) => Math.abs(v - p * q) < 0.011))
+  // The whole page's amounts when the device has them: changed when one is new (not at plan time, nor a few of one).
+  if (map.money) {
+    const fresh = map.money.filter((v) => !fit(v))
+    return fresh.length ? plan.prices[0] : null
+  }
   const now = amounts(`${near}\n${map.text}`)
   if (!now.length) return null
-  const fits = now.some((v) => seen.some((p) => [1, 2, 3, 4, 5, 6].some((q) => Math.abs(v - p * q) < 0.011)))
-  return fits ? null : plan.prices[0]
+  return now.some(fit) ? null : plan.prices[0]
 }
 
 // ------------------------------------------------------------ coverage

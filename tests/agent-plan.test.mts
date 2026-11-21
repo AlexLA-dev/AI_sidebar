@@ -217,3 +217,14 @@ test("a saved detail the request itself gives goes as the plan's typing; a field
   s2 = await approvePlan(s2, y, { answers: ["19:30"], off: [] })
   assert.equal(s2.status, "fill", "another number than the request's: asks")
 })
+
+test("with the whole page's amounts: changed only when one is new; they never go to the server", async () => {
+  const plan = buildPlan(checkPlan({ steps: [], questions: [], risky: [], prices: ["73.00 €"] }), { ...ctx, map: { ...BOOK, text: "list 73.00 €", money: [129, 73, 58] } })
+  plan.approved = true
+  assert.equal(priceChanged(plan, { ...BOOK, text: "Air 2 129.00 €", money: [129, 73, 58, 258] }), null, "the screen moved; a cart of two")
+  assert.equal(priceChanged(plan, { ...BOOK, text: "Air 2 139.00 €", money: [139, 73, 58] }), "73.00 €")
+  const x = io([{ ok: true, plan: { steps: ["x"], questions: [], risky: [], prices: [] }, token: "t" }, step({ tool: "done", summary: "ok" }, "free", "read")])
+  x.map = async () => ({ ...BOOK, money: [1, 2] })
+  await drive(newState("t7", "x", "en", BOOK.url), x)
+  assert.ok(x.asked.every((b) => b.map.money === undefined))
+})

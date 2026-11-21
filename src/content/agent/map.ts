@@ -8,6 +8,7 @@
 //   map without their values: the model sees "filled" or "empty". So what Safari AutoFill or the person typed
 //   never reaches it.
 
+import { amounts } from "../../shared/agent/taskplan"
 import { fieldLock } from "../../shared/agent/fields"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import type { Lock, MapItem, PageForm, PageMap, Role } from "../../shared/agent/types"
@@ -507,6 +508,16 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     parts,
     text: pageText(doc, overlayList.slice(0, 2)),
     ...(overlayList.length ? { overlay: true } : {}),
-    ...(consent ? { consent: true } : {})
+    ...(consent ? { consent: true } : {}),
+    money: pageMoney(doc)
+  }
+}
+
+/** Every amount of money the whole page shows (the plan's price check; the text above is only around the screen). */
+function pageMoney(doc: Document): number[] {
+  try {
+    return amounts((doc.body?.innerText ?? "").slice(0, 60_000)).slice(0, 80)
+  } catch {
+    return []
   }
 }

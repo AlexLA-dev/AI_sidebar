@@ -201,6 +201,12 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   state.lines.push(line(call, verdict, target, result.ok, undefined, byPlan))
 }
 
+/** The map as it goes to the server: the page's amounts stay on the device (they're for its own price check). */
+function sent(map: PageMap): PageMap {
+  const { money: _money, ...rest } = map
+  return rest
+}
+
 /** The task's request as the server and the checks hear it: the person's words with the plan's answers. */
 function words(state: AgentState): string {
   return personWords(state.request, state.plan)
@@ -210,7 +216,7 @@ function words(state: AgentState): string {
 async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: string[], here: { reminders: string; calendar: string } | null): Promise<"card" | "go" | "stop"> {
   const reply = await io.ask({
     task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}) },
-    map, log: [], keys
+    map: sent(map), log: [], keys
   })
   if (!reply.ok) {
     state.status = "error"
@@ -267,7 +273,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const plan = planLine(state.plan)
     const reply = await io.ask({
       task: { id: state.id, request: words(state), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: state.confirmedHere, token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}) },
-      map, log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
+      map: sent(map), log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
     state.data = undefined

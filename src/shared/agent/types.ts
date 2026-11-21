@@ -64,6 +64,8 @@ export interface PageMap {
   overlay?: boolean
   // The overlay's own words, when it's about cookies or consent.
   consent?: boolean
+  // Every amount of money on the whole page (the device's price check against the plan; never sent to the model).
+  money?: number[]
 }
 
 export type ToolName =
