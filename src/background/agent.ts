@@ -158,6 +158,7 @@ async function save(tab: number, state: AgentState): Promise<void> {
     state.status = "stopped"
     state.pending = undefined
   }
+  state.touchedAt = Date.now()
   await write(tab, state)
   // The panel shows it at once (the content script of the tab's top frame).
   chrome.tabs.sendMessage(tab, { type: "agentState", state: forPanel(state) }, { frameId: 0 }, () => void chrome.runtime.lastError)
@@ -203,6 +204,7 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
 /** A page of ours was hidden or seen: away from Safari (as far as we can tell) or back. */
 async function seen(visible: boolean, words?: { paused: string; done: string; needs: string; title: string }): Promise<void> {
   if (visible) {
+    for (const [tab] of await activeTasks()) void resume(tab)
     if (!away) return
     away = null
     for (const [tab, state] of await activeTasks()) {
@@ -410,13 +412,30 @@ async function formDataPut(changes: FormEntry[]): Promise<{ entries: FormEntry[]
 
 // ------------------------------------------------------------ running a task
 
-function io(tab: number): RunnerIO {
+class Superseded extends Error {}
+
+function io(tab: number, gen?: string): RunnerIO {
+  // A run that Safari froze and a newer one replaced: it stops at its next ask, act or save, never acting twice.
+  const live = async () => {
+    if (!gen) return
+    const now = await load(tab)
+    if (now?.gen && now.gen !== gen) throw new Superseded("superseded")
+  }
   return {
     map: () => tabMessage<PageMap>(tab, { type: "agentMap" }, 6_000),
-    act: (call: ToolCall) => tabMessage<StepResult>(tab, { type: "agentAct", call }, 12_000),
+    act: async (call: ToolCall) => {
+      await live()
+      return tabMessage<StepResult>(tab, { type: "agentAct", call }, 12_000)
+    },
     waitPage: () => waitComplete(tab),
-    ask: async (body) => (await ask(body)) as never,
-    save: (state) => save(tab, state),
+    ask: async (body) => {
+      await live()
+      return (await ask(body)) as never
+    },
+    save: async (state) => {
+      await live()
+      return save(tab, { ...state, ...(gen ? { gen } : {}) })
+    },
     entries: async () => (await formData()).entries,
     policy: { amazon: true },
     maxSteps: MAX_STEPS,
@@ -429,6 +448,23 @@ function io(tab: number): RunnerIO {
 
 /** The same page, for a deferred task's plan: the address without its fragment. */
 const samePage = (a: string, b: string) => a.split("#")[0] === b.split("#")[0]
+
+/**
+ * Safari froze the task (its tab or Safari itself in the background) and it stood still: the person is back, so a new run
+ * goes on from what was saved (the frozen one, if it ever wakes, stops at its next ask, act or save).
+ */
+async function resume(tab: number): Promise<void> {
+  const st = await load(tab)
+  if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) < 15_000) return
+  const gen = crypto.randomUUID()
+  st.gen = gen
+  await write(tab, st)
+  const p = drive(st, io(tab, gen)).catch(() => st)
+  running.set(tab, p)
+  void p.finally(() => {
+    if (running.get(tab) === p) running.delete(tab)
+  }).then(() => deps.statusChanged())
+}
 
 // One drive at a time per tab (an answer that comes while it runs waits for it).
 const running = new Map<number, Promise<unknown>>()
@@ -457,7 +493,9 @@ async function start(tab: number, url: string, m: Extract<AgentRequest, { type: 
     await removeDeferred(m.deferred, true)
   }
   await save(tab, state)
-  void run(tab, () => drive(state, io(tab))).then(() => deps.statusChanged())
+  const gen = crypto.randomUUID()
+  state.gen = gen
+  void run(tab, () => drive(state, io(tab, gen))).then(() => deps.statusChanged(), () => undefined)
   return { ok: true, state: forPanel(state) }
 }
 
@@ -473,7 +511,7 @@ async function reply(tab: number, a: Answer, chosen?: string[]): Promise<Record<
   }
   void run(tab, async () => {
     const fresh = (await load(tab)) ?? state
-    return answer(fresh, io(tab), a, chosen)
+    return answer(fresh, io(tab, fresh.gen), a, chosen)
   })
   return { ok: true }
 }
@@ -482,7 +520,10 @@ async function planned(tab: number, approval: PlanApproval): Promise<Record<stri
   const state = await load(tab)
   if (state?.status !== "plan") return { ok: false, state: state && forPanel(state) }
   const a: PlanApproval = { answers: (approval?.answers ?? []).map((x) => String(x ?? "").slice(0, 200)), off: (approval?.off ?? []).map(String) }
-  void run(tab, async () => approvePlan((await load(tab)) ?? state, io(tab), a)).then(() => deps.statusChanged())
+  void run(tab, async () => {
+    const fresh = (await load(tab)) ?? state
+    return approvePlan(fresh, io(tab, fresh.gen), a)
+  }).then(() => deps.statusChanged(), () => undefined)
   return { ok: true }
 }
 
@@ -591,8 +632,9 @@ export function startAgent(d: AgentDeps): void {
         return tab === undefined ? false : respond(planned(tab, message.approval))
       case "agentGet":
         return tab === undefined ? false : respond(Promise.all([load(tab), past(tab), notice()]).then(async ([s, p, n]) => {
-          // The task's own tab is in front again: the ring elsewhere goes.
+          // The task's own tab is in front again: the ring elsewhere goes, and a task Safari froze goes on.
           if (n && n.tab === tab) await clearNotice()
+          void resume(tab)
           return { state: s && forPanel(s), past: p }
         }))
       case "agentSeen":
@@ -644,6 +686,7 @@ export function startAgent(d: AgentDeps): void {
   chrome.tabs.onActivated?.addListener(({ tabId }) => {
     switchedAt = Date.now()
     void seen(true)
+    void resume(tabId)
     void notice().then((n) => {
       if (n && n.tab === tabId) void clearNotice()
     })

@@ -64,6 +64,9 @@ export interface AgentState {
   // The deferred task it came from, when it did.
   deferred?: string
   startedAt: number
+  // Which run of it is the live one (the background starts a new one when Safari froze the last), and its last save.
+  gen?: string
+  touchedAt?: number
 }
 
 export interface ActReply {
