@@ -69,7 +69,7 @@ function errorText(code: string | undefined, left: number | null | undefined): s
 }
 
 export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props): VNode {
-  const [chosen, setChosen] = useState<Set<string>>(() => new Set((state.pending?.fill ?? []).map((l) => l.entryId)))
+  const [chosen, setChosen] = useState<Set<string>>(() => new Set((state.pending?.fill ?? []).map((l) => `${l.id}:${l.entryId}`)))
   const busy = state.status === "running"
   const waiting = state.status === "confirm" || state.status === "fill" || state.status === "self"
   const finished = !busy && !waiting
@@ -117,15 +117,15 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp }: Props):
           <strong>{t("agentFillTitle")}</strong>
           <ul class="cf-agent-fill">
             {state.pending.fill.map((l) => (
-              <li key={l.entryId}>
+              <li key={`${l.id}:${l.entryId}`}>
                 <label class="cf-row toggle">
                   <input
                     type="checkbox"
-                    checked={chosen.has(l.entryId)}
+                    checked={chosen.has(`${l.id}:${l.entryId}`)}
                     onChange={(e) => {
                       const next = new Set(chosen)
-                      if ((e.target as HTMLInputElement).checked) next.add(l.entryId)
-                      else next.delete(l.entryId)
+                      if ((e.target as HTMLInputElement).checked) next.add(`${l.id}:${l.entryId}`)
+                      else next.delete(`${l.id}:${l.entryId}`)
                       setChosen(next)
                     }}
                   />

@@ -8,7 +8,7 @@
 //   device's own check says (classify.ts runs again on the device's map).
 
 import { classify } from "./classify.ts"
-import { liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
+import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, type SitePolicy } from "./sites.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
@@ -18,6 +18,9 @@ export interface FillLine {
   entryId: string
   label: string
   value: string
+  // The field it goes into, and the detail's key (the log names the key, never the value).
+  id: string
+  key: string
 }
 
 export interface AgentLine {
@@ -108,11 +111,30 @@ function noteOf(r: StepResult | null): string {
 }
 
 /** The values a fill would put in, as the person sees them on the card: the entry for the key, shaped for the field. */
-export function fillLines(call: ToolCall, item: MapItem | null, entries: FormEntry[], lang: string): FillLine[] {
-  const entry = liveEntries(entries).find((e) => modelKey(e) === call.key)
+export function fillLines(call: ToolCall, item: MapItem | null, entries: FormEntry[], lang: string, map?: PageMap): FillLine[] {
+  const live = liveEntries(entries)
+  const entry = live.find((e) => modelKey(e) === call.key)
   if (!entry || !item) return []
-  const value = shapeValue(entry, { type: item.type, auto: item.auto, lang, options: item.options, label: item.label })
-  return value === null ? [] : [{ entryId: entry.id, label: item.label || entry.label || entry.key, value }]
+  const line = (it: MapItem, e: FormEntry): FillLine | null => {
+    const value = shapeValue(e, { type: it.type, auto: it.auto, lang, options: it.options, label: it.label })
+    return value === null ? null : { entryId: e.id, label: it.label || e.label || e.key, value, id: it.id, key: modelKey(e) }
+  }
+  const first = line(item, entry)
+  if (!first) return []
+  // The same form's other empty fields whose autocomplete names a saved detail: offered on the same card (each its own
+  // tick), so a form takes one «Заполнить», not one per field. Only by autocomplete: no guessing by labels here.
+  const more: FillLine[] = []
+  if (map && item.form !== undefined) {
+    for (const it of map.items) {
+      if (it.id === item.id || it.form !== item.form || it.lock === "secret" || !it.state?.includes("empty")) continue
+      const k = keyOfAutocomplete(it.auto)
+      if (!k || k.part) continue
+      const e = live.find((x) => x.key === k.key)
+      const l = e && line(it, e)
+      if (l && !more.some((m) => m.id === l.id)) more.push(l)
+    }
+  }
+  return [first, ...more]
 }
 
 /** Does a step on the page and writes it down. A fill types its value in; the log keeps only the key. */
@@ -207,7 +229,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (verdict.cls === "confirm") {
       if (call.tool === "fill") {
         const item = map.items.find((i) => i.id === call.id) ?? null
-        const fill = fillLines(call, item, entries, map.lang || state.lang)
+        const fill = fillLines(call, item, entries, map.lang || state.lang, map)
         if (!fill.length) {
           state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "failed: that detail doesn't fit this field" })
           continue
@@ -248,9 +270,9 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
   if (a === "yes" && verdict.cls === "confirm") {
     state.confirmedHere = true
     if (call.tool === "fill") {
-      const lines = (pending.fill ?? []).filter((l) => !chosen || chosen.includes(l.entryId))
+      const lines = (pending.fill ?? []).filter((l) => !chosen || chosen.includes(`${l.id}:${l.entryId}`) || chosen.includes(l.entryId))
       if (!lines.length) state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "the person chose not to fill it" })
-      else await perform(state, io, call, verdict, target, lines[0].value)
+      for (const l of lines) await perform(state, io, { tool: "fill", id: l.id, key: l.key, why: l.id === call.id ? call.why : "" }, verdict, l.id === call.id ? target : `field "${l.label}"`, l.value)
     } else {
       await perform(state, io, call, verdict, target)
     }

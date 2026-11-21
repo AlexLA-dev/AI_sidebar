@@ -91,7 +91,7 @@ test("fill: the card shows the value, the server only ever gets the key", async 
   const x = io([step({ tool: "fill", id: "3", key: "email" }, "confirm", "fill")], entries)
   let s = await drive(newState("t4", "subscribe me", "en", MAP.url), x)
   assert.equal(s.status, "fill")
-  assert.deepEqual(s.pending?.fill, [{ entryId: "e1", label: "E-mail", value: "anna@example.com" }])
+  assert.deepEqual(s.pending?.fill, [{ entryId: "e1", label: "E-mail", value: "anna@example.com", id: "3", key: "email" }])
   assert.deepEqual(x.asked[0].keys, ["email"])
   s = await answer(s, x, "yes", ["e1"])
   assert.equal(x.acted[0].text, "anna@example.com")
@@ -120,4 +120,27 @@ test("an error from the server stops it with the code; the step limit ends it", 
   const t = await drive(newState("t8", "x", "en", MAP.url), { ...y, maxSteps: 5 })
   assert.equal(t.step, 5)
   assert.equal(t.error, "steps")
+})
+
+test("fill: the form's other empty fields with a saved detail by autocomplete come on the same card", async () => {
+  const map: PageMap = {
+    ...MAP, forms: [{ n: 0, fillable: true }],
+    items: [
+      { id: "1", role: "textbox", label: "Имя", lock: "personal", auto: "name", state: ["empty"], form: 0 },
+      { id: "2", role: "textbox", label: "Телефон", lock: "personal", auto: "tel", state: ["empty"], form: 0 },
+      { id: "3", role: "textbox", label: "Почта", lock: "personal", auto: "email", state: ["filled"], form: 0 },
+      { id: "4", role: "textbox", label: "Комментарий", state: ["empty"], form: 0 }
+    ]
+  }
+  const entries: FormEntry[] = [
+    { id: "a", key: "name.full", label: "", value: "Анна Петрова", updatedAt: 1 },
+    { id: "b", key: "phone", label: "", value: "+7 900 123-45-67", updatedAt: 1 },
+    { id: "c", key: "email", label: "", value: "anna@example.com", updatedAt: 1 }
+  ]
+  const x = io([step({ tool: "fill", id: "1", key: "name.full" }, "confirm", "fill")], entries, map)
+  let s = await drive(newState("t9", "book", "ru", MAP.url), x)
+  assert.deepEqual(s.pending?.fill?.map((l) => l.id), ["1", "2"], "the filled e-mail and the comment aren't offered")
+  s = await answer(s, x, "yes", ["1:a", "2:b"])
+  assert.deepEqual(x.acted.map((c) => [c.id, c.text]), [["1", "Анна Петрова"], ["2", "+7 900 123-45-67"]])
+  assert.ok(!JSON.stringify(x.asked).includes("Анна Петрова"))
 })
