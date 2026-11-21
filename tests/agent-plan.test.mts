@@ -196,3 +196,24 @@ test("a price is changed only when the page shows none the device saw at plan ti
   assert.equal(priceChanged(plan, { ...BOOK, text: "Air 2 129.00 € · Cart 258.00 €" }), null)
   assert.equal(priceChanged(plan, { ...BOOK, text: "Air 2 139.00 €" }), "73.00 €")
 })
+
+test("a saved detail the request itself gives goes as the plan's typing; a field typed from the request isn't listed twice", async () => {
+  const raw = { ...RAW, risky: [...RAW.risky, { tool: "fill", id: "2", text: "", key: "phone" }] }
+  const plan = buildPlan(checkPlan(raw), ctx)
+  assert.equal(plan.perms.filter((p) => p.kind === "fill").length, 0, "the phone is typed from the request, not a saved detail too")
+  const x = io([
+    { ok: true, plan: RAW, token: "t" },
+    step({ tool: "fill", id: "2", key: "phone" }, "confirm", "fill"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ])
+  x.entries = async () => [{ id: "e1", key: "phone", label: "", value: "+44 20 7946 0000", updatedAt: 1 }] as never
+  let s = await drive(newState("t5", ctx.request, "en", BOOK.url), x)
+  s = await approvePlan(s, x, { answers: ["19:30"], off: [] })
+  assert.equal(s.status, "done", "no «Заполнить?»: the value is the request's own")
+  assert.equal((x.acted as ToolCall[])[0]?.text, "+44 20 7946 0000")
+  const y = io([{ ok: true, plan: RAW, token: "t" }, step({ tool: "fill", id: "2", key: "phone" }, "confirm", "fill")])
+  y.entries = async () => [{ id: "e1", key: "phone", label: "", value: "+44 20 0000 1111", updatedAt: 1 }] as never
+  let s2 = await drive(newState("t6", ctx.request, "en", BOOK.url), y)
+  s2 = await approvePlan(s2, y, { answers: ["19:30"], off: [] })
+  assert.equal(s2.status, "fill", "another number than the request's: asks")
+})

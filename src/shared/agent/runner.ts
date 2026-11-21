@@ -11,7 +11,7 @@ import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, type SitePolicy } from "./sites.ts"
-import { buildPlan, checkPlan, covered, personWords, planLine, planNeedsPerson, priceChanged, type TaskPlan } from "./taskplan.ts"
+import { buildPlan, checkPlan, covered, personWords, planLine, planNeedsPerson, priceChanged, squash, type Perm, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -309,7 +309,14 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const verdict = stricter(reply.verdict, device)
     // A step the approved plan allows goes without a question (a price changed since the plan, or a step the check
     // found off the request, is never covered: those ask as before).
-    const perm = verdict.cls === "confirm" || verdict.cls === "self" ? covered(state.plan, call, verdict, map, words(state), reply.offRequest) : null
+    let perm: Perm | null = verdict.cls === "confirm" || verdict.cls === "self" ? covered(state.plan, call, verdict, map, words(state), reply.offRequest) : null
+    // A saved detail whose value is the one the person wrote in the request: the plan's «type your details» covers it.
+    if (!perm && call.tool === "fill" && verdict.reason === "fill" && state.plan?.approved && !reply.offRequest) {
+      const typing = state.plan.perms.find((p) => p.kind === "personal" && p.on)
+      const lines = typing ? fillLines(call, map.items.find((i) => i.id === call.id) ?? null, entries, map.lang || state.lang, map) : []
+      const said = squash(words(state))
+      if (typing && lines.length && lines.every((l) => said.includes(squash(l.value)))) perm = { ...typing, keys: lines.map((l) => l.key) }
+    }
     if (verdict.cls === "blocked") {
       if (verdict.reason.startsWith("site_")) {
         state.status = "blocked"

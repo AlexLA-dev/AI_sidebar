@@ -184,7 +184,9 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
     }
   }
   if (personal.length) add({ kind: "personal", reason: "personal", label: [...new Set(personal)].join(", "), fields: [...new Set(personal)] })
-  if (fillKeys.length) add({ kind: "fill", reason: "fill", label: [...new Set(fillFields)].join(", "), keys: fillKeys })
+  // A field the request's own words go into isn't a saved detail's too (the card said the phone twice).
+  const fillOnly = [...new Set(fillFields)].filter((f) => !personal.includes(f))
+  if (fillKeys.length && fillOnly.length) add({ kind: "fill", reason: "fill", label: fillOnly.join(", "), keys: fillKeys })
   const seen = [...new Set([...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 40)
   return { steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen }
 }
@@ -200,7 +202,7 @@ export function personWords(request: string, plan?: TaskPlan | null): string {
   return answers.length ? `${request}\n${answers.map((a) => `${a.q} — ${a.a}`).join("\n")}` : request
 }
 
-const squash = (t: string) => normalize(t).replace(/[\s-]+/g, "")
+export const squash = (t: string) => normalize(t).replace(/[\s-]+/g, "")
 
 // ------------------------------------------------------------ prices
 

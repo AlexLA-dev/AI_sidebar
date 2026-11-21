@@ -313,7 +313,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
           {lines.map((l, i) => (
             <li key={i} class={l.ok ? "ok" : "no"} dir="auto">
               {/* The person's own step (ticked a box, signed in) is theirs, never the agent's ✓. */}
-              {l.cls === "self"
+              {/* (A box the plan let the agent tick is the agent's step.) */}
+              {l.cls === "self" && !l.byPlan
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
                 : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.text || nameOf(l.target)}
               {/* Test builds: when each step ran, from the task's start (the background-tab probe). */}
