@@ -1,0 +1,1200 @@
+{
+  "app": {
+    "adamId": "6759115793",
+    "name": "ContextFlow: AI for Safari"
+  },
+  "currency": "USD",
+  "guards": {
+    "totalBudget": 75,
+    "maxBid": 0.8,
+    "since": "2026-11-13",
+    "rules": {
+      "pauseTapsWithoutInstall": 12,
+      "pauseSpendWithoutInstall": 3,
+      "lowTtrImpressions": 300,
+      "lowTtr": 0.025,
+      "targetCpi": 1,
+      "raiseStep": 0,
+      "lowerStep": 0.2,
+      "minBid": 0.2,
+      "underspend": 0
+    }
+  },
+  "campaigns": [
+    {
+      "name": "CF · TW · 摘要",
+      "status": "ENABLED",
+      "countries": [
+        "TW"
+      ],
+      "dailyBudget": 1.8,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [
+        {
+          "text": "免費",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
+        }
+      ],
+      "adGroups": [
+        {
+          "name": "摘要 · exact",
+          "bid": 0.8,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "文章摘要",
+              "bid": 0.8
+            },
+            {
+              "text": "總結",
+              "bid": 0.8
+            },
+            {
+              "text": "影片摘要",
+              "bid": 0.8
+            },
+            {
+              "text": "網頁翻譯",
+              "bid": 0.8
+            },
+            {
+              "text": "摘要",
+              "bid": 0.8
+            },
+            {
+              "text": "重點摘要",
+              "bid": 0.8
+            }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "摘要 · broad + Search Match",
+          "bid": 0.45,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "文章摘要",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "總結",
+              "match": "BROAD",
+              "bid": 0.5
+            },
+            {
+              "text": "影片摘要",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "網頁翻譯",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "摘要",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "重點摘要",
+              "match": "BROAD",
+              "bid": 0.4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · IT · riassunto",
+      "status": "ENABLED",
+      "countries": [
+        "IT"
+      ],
+      "dailyBudget": 1.3,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [
+        {
+          "text": "gratis",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
+        }
+      ],
+      "adGroups": [
+        {
+          "name": "riassunto · exact",
+          "bid": 0.8,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "riassumere testo",
+              "bid": 0.8
+            },
+            {
+              "text": "riassunto articolo",
+              "bid": 0.8
+            },
+            {
+              "text": "riassunto video",
+              "bid": 0.8
+            },
+            {
+              "text": "tradurre pagina web",
+              "bid": 0.8
+            },
+            {
+              "text": "riassunto",
+              "bid": 0.8
+            },
+            {
+              "text": "riassunto testo",
+              "bid": 0.8
+            },
+            {
+              "text": "riassunti testi",
+              "bid": 0.8
+            },
+            {
+              "text": "riassunti video",
+              "bid": 0.8
+            },
+            {
+              "text": "riassumere",
+              "bid": 0.8
+            }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "riassunto · broad + Search Match",
+          "bid": 0.4,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "riassumere testo",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto articolo",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto video",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "tradurre pagina web",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunto",
+              "match": "BROAD",
+              "bid": 0.35
+            },
+            {
+              "text": "riassunto testo",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassunti testi",
+              "match": "BROAD",
+              "bid": 0.5
+            },
+            {
+              "text": "riassunti video",
+              "match": "BROAD",
+              "bid": 0.55
+            },
+            {
+              "text": "riassumere",
+              "match": "BROAD",
+              "bid": 0.35
+            }
+          ],
+          "negatives": [
+            {
+              "text": "appunti",
+              "match": "BROAD"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · FR · résumé",
+      "status": "ENABLED",
+      "countries": [
+        "FR"
+      ],
+      "dailyBudget": 1,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [
+        {
+          "text": "gratuit",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        },
+        {
+          "text": "cv"
+        },
+        {
+          "text": "lettre de motivation"
+        },
+        {
+          "text": "bloqueur"
+        },
+        {
+          "text": "adblock"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
+        }
+      ],
+      "adGroups": [
+        {
+          "name": "résumé · exact",
+          "bid": 0.8,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "résumer texte",
+              "bid": 0.8
+            },
+            {
+              "text": "résumé article",
+              "bid": 0.8
+            },
+            {
+              "text": "résumé vidéo",
+              "bid": 0.8
+            },
+            {
+              "text": "extension safari",
+              "bid": 0.8
+            }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "résumé · broad + Search Match",
+          "bid": 0.4,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "résumer texte",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "résumé article",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "résumé vidéo",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "extension safari",
+              "match": "BROAD",
+              "bid": 0.45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · DE · zusammenfassen",
+      "status": "ENABLED",
+      "countries": [
+        "DE"
+      ],
+      "dailyBudget": 1,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [
+        {
+          "text": "kostenlos",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
+        }
+      ],
+      "adGroups": [
+        {
+          "name": "zusammenfassen · exact",
+          "bid": 0.8,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "text zusammenfassen",
+              "bid": 0.8
+            },
+            {
+              "text": "artikel zusammenfassen",
+              "bid": 0.8
+            },
+            {
+              "text": "video zusammenfassen",
+              "bid": 0.8
+            },
+            {
+              "text": "webseite übersetzen",
+              "bid": 0.8
+            },
+            {
+              "text": "zusammenfassen",
+              "bid": 0.8
+            },
+            {
+              "text": "texte zusammenfassen",
+              "bid": 0.8
+            },
+            {
+              "text": "safari übersetzer",
+              "bid": 0.8
+            },
+            {
+              "text": "safari translate",
+              "bid": 0.8
+            },
+            {
+              "text": "zusammenfassung",
+              "bid": 0.8
+            }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "zusammenfassen · broad + Search Match",
+          "bid": 0.4,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "text zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "artikel zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "video zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "webseite übersetzen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "texte zusammenfassen",
+              "match": "BROAD",
+              "bid": 0.6
+            },
+            {
+              "text": "safari übersetzer",
+              "match": "BROAD",
+              "bid": 0.35
+            },
+            {
+              "text": "safari translate",
+              "match": "BROAD",
+              "bid": 0.35
+            },
+            {
+              "text": "zusammenfassung",
+              "match": "BROAD",
+              "bid": 0.35
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · TR · özet",
+      "status": "ENABLED",
+      "countries": [
+        "TR"
+      ],
+      "dailyBudget": 0.8,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [
+        {
+          "text": "ücretsiz",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        },
+        {
+          "text": "maç"
+        },
+        {
+          "text": "futbol"
+        },
+        {
+          "text": "lig"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
+        }
+      ],
+      "adGroups": [
+        {
+          "name": "özet · exact",
+          "bid": 0.45,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "metin özetleme",
+              "bid": 0.45
+            },
+            {
+              "text": "makale özetleme",
+              "bid": 0.45
+            },
+            {
+              "text": "web sayfası çeviri",
+              "bid": 0.45
+            },
+            {
+              "text": "video özetleme",
+              "bid": 0.45
+            },
+            {
+              "text": "özet",
+              "bid": 0.3
+            },
+            {
+              "text": "summarize article",
+              "bid": 0.4
+            },
+            {
+              "text": "pdf özetleme",
+              "bid": 0.45
+            }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "özet · broad + Search Match",
+          "bid": 0.35,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "metin özetleme",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "makale özetleme",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "web sayfası çeviri",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "video özetleme",
+              "match": "BROAD",
+              "bid": 0.45
+            },
+            {
+              "text": "özet",
+              "match": "BROAD",
+              "bid": 0.3
+            },
+            {
+              "text": "summarize article",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "pdf özetleme",
+              "match": "BROAD",
+              "bid": 0.45
+            }
+          ],
+          "negatives": [
+            {
+              "text": "safari",
+              "match": "EXACT"
+            },
+            {
+              "text": "safari indir",
+              "match": "EXACT"
+            },
+            {
+              "text": "chrome",
+              "match": "EXACT"
+            },
+            {
+              "text": "crome",
+              "match": "EXACT"
+            },
+            {
+              "text": "google chrome",
+              "match": "EXACT"
+            },
+            {
+              "text": "firefox",
+              "match": "EXACT"
+            },
+            {
+              "text": "seeke",
+              "match": "EXACT"
+            },
+            {
+              "text": "seekee",
+              "match": "EXACT"
+            },
+            {
+              "text": "puffin browser",
+              "match": "EXACT"
+            },
+            {
+              "text": "browser",
+              "match": "EXACT"
+            },
+            {
+              "text": "opera",
+              "match": "EXACT"
+            },
+            {
+              "text": "brave",
+              "match": "EXACT"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CF · AR+MX · resumir",
+      "status": "ENABLED",
+      "countries": [
+        "AR",
+        "MX"
+      ],
+      "dailyBudget": 0.6,
+      "start": "2026-11-13",
+      "end": "2026-11-23T22:00:00.000",
+      "negatives": [
+        {
+          "text": "gratis",
+          "match": "EXACT"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "copilot"
+        },
+        {
+          "text": "deepl"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "google"
+        },
+        {
+          "text": "safari",
+          "match": "EXACT"
+        },
+        {
+          "text": "safari indir",
+          "match": "EXACT"
+        },
+        {
+          "text": "chrome",
+          "match": "EXACT"
+        },
+        {
+          "text": "firefox",
+          "match": "EXACT"
+        },
+        {
+          "text": "brave",
+          "match": "EXACT"
+        },
+        {
+          "text": "navigateur internet",
+          "match": "EXACT"
+        },
+        {
+          "text": "navegador web",
+          "match": "EXACT"
+        },
+        {
+          "text": "seeke",
+          "match": "EXACT"
+        },
+        {
+          "text": "seekee",
+          "match": "EXACT"
+        },
+        {
+          "text": "genially",
+          "match": "EXACT"
+        },
+        {
+          "text": "muse",
+          "match": "EXACT"
+        }
+      ],
+      "adGroups": [
+        {
+          "name": "resumir · exact",
+          "bid": 0.4,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "resumir texto",
+              "bid": 0.4
+            },
+            {
+              "text": "resumidor",
+              "bid": 0.4
+            },
+            {
+              "text": "resumir video",
+              "bid": 0.4
+            },
+            {
+              "text": "traducir página web",
+              "bid": 0.4
+            },
+            {
+              "text": "resumir",
+              "bid": 0.3
+            },
+            {
+              "text": "resumen de texto",
+              "bid": 0.4
+            }
+          ],
+          "promoteTo": true
+        },
+        {
+          "name": "resumir · broad + Search Match",
+          "bid": 0.3,
+          "devices": [
+            "IPHONE",
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "resumir texto",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "resumidor",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "resumir video",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "traducir página web",
+              "match": "BROAD",
+              "bid": 0.4
+            },
+            {
+              "text": "resumir",
+              "match": "BROAD",
+              "bid": 0.3
+            },
+            {
+              "text": "resumen de texto",
+              "match": "BROAD",
+              "bid": 0.4
+            }
+          ],
+          "negatives": [
+            {
+              "text": "safari",
+              "match": "EXACT"
+            },
+            {
+              "text": "safari indir",
+              "match": "EXACT"
+            },
+            {
+              "text": "chrome",
+              "match": "EXACT"
+            },
+            {
+              "text": "crome",
+              "match": "EXACT"
+            },
+            {
+              "text": "google chrome",
+              "match": "EXACT"
+            },
+            {
+              "text": "firefox",
+              "match": "EXACT"
+            },
+            {
+              "text": "seeke",
+              "match": "EXACT"
+            },
+            {
+              "text": "seekee",
+              "match": "EXACT"
+            },
+            {
+              "text": "puffin browser",
+              "match": "EXACT"
+            },
+            {
+              "text": "browser",
+              "match": "EXACT"
+            },
+            {
+              "text": "opera",
+              "match": "EXACT"
+            },
+            {
+              "text": "brave",
+              "match": "EXACT"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

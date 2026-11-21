@@ -78,3 +78,24 @@ node tools/ads/asa.mjs stop --yes           # всё на паузу
 | Запрос из Discovery или broad потратил $1.50 без установок | минус-слово |
 
 Ключ, который привёл подписчика, на паузу не ставится. Подписчики по ключам берутся из Supabase (`cf_ads_funnel`), если в приложении есть атрибуция AdServices.
+
+## Arc (13–22.11.2026)
+
+`plan-arc.json` — отдельный план теста для тех, кто уходит с Arc: кампания «CF · Arc · Search», iPhone и iPad, 10 стран (как в Google), $4/день до 23.11 00:00 по Никосии = $40. Группа «Arc»: exact «arc search», «arc browser», «browse for me» по $1.20 и broad «arc search alternative» по $1.00, только новые пользователи, стандартная страница продукта (своя страница «Moving from Arc» — после одобрения Apple). Запущена 13.11 с «да» владельца.
+
+```
+node tools/ads/asa.mjs status --plan store/ads/plan-arc.json
+node tools/ads/asa.mjs report --plan store/ads/plan-arc.json
+```
+
+## $100 на окупаемость (с 13.11.2026)
+
+Владелец 13.11: на весь маркетинг $100, они должны окупиться подписками с этого трафика. Окупаемость при ~$10 выручки на платящего за 3 месяца — установка до ~$1, касание до $0.30–0.50 (economics.md в ~/ContextFlow-work/director/marketing-100). Поэтому:
+
+- `plan-arc.json` поставлен на паузу (англоязычные страны, ставка $1.20; на английском iPhone платят ~2.5 % скачавших). Потрачено $0.
+- `plan-local.json`: 6 кампаний, только exact на местных языках там, где уже платят — TW, IT, FR, DE, TR, AR+MX. iPhone + iPad, новые пользователи, Search Match выключен, ставки $0.30–0.60 (потолок $0.80), $6.50/день до 24.11 00:00 по Никосии = $71.50 (сокращено 13.11: $25 уходит на тест Meta). Правила optimize в guards.rules: пауза ключа после $3 или 12 касаний без установки, ставки сами не растут (raiseStep 0, underspend 0).
+
+```
+node tools/ads/asa.mjs status --plan store/ads/plan-local.json
+node tools/ads/asa.mjs report --plan store/ads/plan-local.json
+```
