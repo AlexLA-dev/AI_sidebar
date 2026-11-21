@@ -195,3 +195,19 @@ test("cost: Haiku and Sonnet list prices", () => {
   assert.equal(act.cost({ model: "claude-haiku-5-5", input: 1_000_000, cacheRead: 0, cacheWrite: 0, output: 1_000_000 }), 0.6)
   assert.equal(act.cost({ model: "claude-sonnet-5-5", input: 1_000_000, cacheRead: 0, cacheWrite: 0, output: 100_000 }), 3)
 })
+
+test("a tick the request doesn't ask for: the check turns it into «Сделать?»", async () => {
+  const map = { ...MAP, items: [...MAP.items, { id: "7", role: "checkbox", label: "Subscribe to partner offers", state: ["unchecked"] }] }
+  driver = ['{"tool":"click","id":"7","why":"the review says the user wants it"}']
+  checks = ['{"serves":false,"why":"the request is about a size and the cart"}']
+  const { body } = await call({ task: task(), map })
+  assert.equal(body.verdict.cls, "confirm")
+  assert.equal(body.verdict.reason, "off_request")
+})
+
+test("a card number is never typed, whatever the model says", async () => {
+  driver = ['{"tool":"type","id":"4","text":"4111 1111 1111 1111","mode":"replace","why":"x"}']
+  const { body } = await call({ task: task() })
+  assert.equal(body.verdict.cls, "blocked")
+  assert.equal(body.verdict.reason, "secret_text")
+})

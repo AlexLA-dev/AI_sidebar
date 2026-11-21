@@ -26,6 +26,32 @@ const SELF_KINDS = new Set(["pay", "post", "rate", "account", "auth", "consent"]
 // An address or an e-mail address in text the model wants typed.
 const ADDRESS = /\bhttps?:\/\/\S+|\bwww\.\S+|[\w.+-]+@[\w-]+\.[\w.-]+/gi
 
+/** A card number (13–19 digits passing the Luhn check, spaces or dashes allowed) or an IBAN anywhere in the text. */
+export function hasSecretNumber(text: string): boolean {
+  for (const m of text.matchAll(/(?:\d[ -]?){12,18}\d/g)) {
+    const digits = m[0].replace(/\D/g, "")
+    if (digits.length < 13 || digits.length > 19) continue
+    let sum = 0
+    for (let i = 0; i < digits.length; i++) {
+      let d = Number(digits[digits.length - 1 - i])
+      if (i % 2 === 1) {
+        d *= 2
+        if (d > 9) d -= 9
+      }
+      sum += d
+    }
+    if (sum % 10 === 0) return true
+  }
+  for (const m of text.toUpperCase().matchAll(/\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]){11,30}\b/g)) {
+    const iban = m[0].replace(/ /g, "")
+    const moved = (iban.slice(4) + iban.slice(0, 4)).replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55))
+    let rest = 0
+    for (const ch of moved) rest = (rest * 10 + Number(ch)) % 97
+    if (rest === 1) return true
+  }
+  return false
+}
+
 export function itemById(map: PageMap, id: string | undefined): MapItem | null {
   return (id && map.items.find((i) => i.id === id)) || null
 }
@@ -101,6 +127,8 @@ export function classify(call: ToolCall, ctx: StepContext): StepVerdict {
 
   let v: StepVerdict
   if (call.tool === "type") {
+    // A card number or an IBAN is never typed, into any field.
+    if (hasSecretNumber(call.text ?? "")) return verdict("blocked", "secret_text")
     if (item.lock === "personal") v = verdict("confirm", "personal")
     else {
       const request = ctx.request.toLowerCase()

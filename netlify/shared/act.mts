@@ -293,7 +293,7 @@ export async function nextStep(input: StepInput, opts: StepOptions): Promise<Ste
     const target = item ? `${item.role} "${item.label.slice(0, 80)}"` : null
     const out: StepOutput = { call, verdict, target, usage, retries }
     // A step that changes something and that the person would do (free) or confirm: checked against the request.
-    if (opts.check !== false && CHANGES.has(call.tool) && (verdict.cls === "free" || verdict.cls === "confirm") && (call.tool === "type" || verdict.cls === "confirm" || call.tool === "go")) {
+    if (opts.check !== false && CHANGES.has(call.tool) && (verdict.cls === "free" || verdict.cls === "confirm") && (call.tool === "type" || verdict.cls === "confirm" || call.tool === "go" || item?.role === "checkbox" || item?.role === "switch")) {
       try {
         const c = await checkStep(input.request, describeStep(call, item, hostOf(input.map.url)), opts.signal)
         usage.push(c.usage)
