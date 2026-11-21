@@ -278,7 +278,8 @@ test("2.7.1: the ✦ circle is always our blue; its space glows around it as a h
   assert.doesNotMatch(halo, /rgba\(255, 255, 255/)
   assert.match(spacesTsx, /const \[h1, h2, h3\] = HALO_ALPHAS\[HALO_STRENGTH\]/)
   assert.match(spacesTsx, /"--halo-1": `\$\{base\}\$\{h1\}`, "--halo-2": `\$\{base\}\$\{h2\}`, "--halo-3": `\$\{light\}\$\{h3\}`/)
-  assert.ok([1, 2, 3].includes(HALO_STRENGTH))
+  // The owner picked the strong glow on #235 («Сделай сильное свечение»).
+  assert.equal(HALO_STRENGTH, 3)
   for (const k of [1, 2, 3] as const) assert.ok(HALO_ALPHAS[k].every((a) => /^[0-9a-f]{2}$/.test(a)))
   // Shadows only: no size, margin, padding, outline, inset or transform, so the tap target and the drag stay.
   assert.doesNotMatch(halo, /width|height|margin|padding|outline|inset|transform/)
@@ -293,19 +294,59 @@ test("2.7.1: the ✦ circle is always our blue; its space glows around it as a h
   assert.match(css, /prefers-reduced-motion: reduce\) \{ \.cf-fab\[data-halo\]\.flash \{ animation: none; \} \}/)
   assert.doesNotMatch(css, /cf-fab-halo[^;]*infinite/)
   assert.match(app, /if \(!haloNow \|\| was === null \|\| was === haloNow\) return\s*setHaloFlash\(true\)/)
-  // Quick insert's and Write's small circle: the same blue, a small glow in the space the ✦ circle is in.
+  // Quick insert's and Write's small circle: the same blue; a small glow in the circle's space only while the page tint is
+  // on (off since 2.7.1, the next test).
   assert.match(insert, /\.cf-qi-btn \{[^}]*linear-gradient\(135deg, #38bdf8 0%, #2563eb 100%\) !important;/)
   const small = insert.slice(insert.indexOf(".cf[data-tint] .cf-qi-btn {"), insert.indexOf("}", insert.indexOf(".cf[data-tint] .cf-qi-btn {")))
   assert.match(small, /var\(--tint\)/)
   assert.doesNotMatch(small, /0 0 0 /)
 })
 
-test("109: the page's own controls take the ✦ circle's space colour, paler, through one switch; text stays readable", () => {
+test("2.7.1: the panel's send button glows in its space's colours, weaker than the ✦ circle; still blue, off when empty", async () => {
+  const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  const spacesTsx = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
+  const { HALO_ALPHAS, HALO_STRENGTH, SEND_GLOW_ALPHAS } = await import("../src/shared/spaces.ts")
+  const rule = (sel: string) => {
+    const at = css.indexOf(`${sel} {`)
+    assert.ok(at >= 0, sel)
+    return css.slice(at, css.indexOf("}", at))
+  }
+  // The fill stays the panel's accent (our blue: the panel keeps its blue in every space).
+  assert.match(rule(".cf-send"), /background: var\(--accent\) !important;/)
+  // A glow, not a ring: every layer blurred, no spread-only stroke, no white.
+  const glow = rule(".cf-send[data-halo]:not(:disabled):not(.note)")
+  const layers = glow.slice(glow.indexOf("box-shadow:") + 11).split(/,(?![^(]*\))/)
+  assert.equal(layers.length, 2)
+  for (const shadow of layers) {
+    const blur = shadow.trim().split(/\s+/)[2]
+    assert.ok(blur && parseFloat(blur) > 0, `every layer is blurred: ${shadow.trim()}`)
+  }
+  assert.match(glow, /var\(--glow-1\)/)
+  assert.match(glow, /var\(--glow-2\)/)
+  assert.doesNotMatch(glow, /rgba\(255, 255, 255|width|height|margin|padding|outline|transform/)
+  // Weaker than the circle's: fainter at every layer and a shorter reach than its closest two layers.
+  const [c1, c2] = HALO_ALPHAS[HALO_STRENGTH]
+  const [g1, g2] = SEND_GLOW_ALPHAS
+  assert.ok(parseInt(g1, 16) < parseInt(c1, 16) && parseInt(g2, 16) < parseInt(c2, 16))
+  assert.match(css, /\.cf-fab\[data-halo\] \{\s*box-shadow: 0 0 6px 1px var\(--halo-1\), 0 0 16px 4px/)
+  assert.match(glow, /box-shadow: 0 0 4px 0 var\(--glow-1\), 0 0 10px 2px var\(--glow-2\);/)
+  assert.match(spacesTsx, /"--glow-1": `\$\{base\}\$\{g1\}`, "--glow-2": `\$\{light\}\$\{g2\}`/)
+  // The panel's own space (its variables are on the panel), by the circle's rule: none outside spaces or in the blue one.
+  assert.match(app, /const sendHalo = spaces\.multi && fabHalo\(spaces\.current\.color\)/)
+  assert.match(app, /class=\{`cf-send \$\{noteMode \? "note" : ""\}`\}\s*data-halo=\{sendHalo \? spaces\.current\.color : undefined\}\s*disabled=\{!draft\.trim\(\)\}/)
+  // An empty field: the grey, disabled button with no glow (the :not(:disabled) above); Stop is another button.
+  assert.match(css, /\.cf-send:disabled \{ background: var\(--bg-3\) !important;/)
+  assert.doesNotMatch(app, /class="cf-send stop"[^>]*data-halo/)
+})
+
+test("109: the page's own controls can take the ✦ circle's space colour, paler, through one switch (off since 2.7.1); text stays readable", () => {
   const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   const spaces = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
-  // One switch, and none for the first (blue) colour: the page looks as it always did there.
-  assert.match(spaces, /export const PAGE_TINT = true/)
+  // One switch, and none for the first (blue) colour: the page looks as it always did there. Off since 2.7.1 (the owner
+  // on #235: «Сделай всегда синим»): the page's buttons are our blue in every space.
+  assert.match(spaces, /export const PAGE_TINT = false/)
   assert.match(spaces, /if \(!PAGE_TINT \|\| !color \|\| color === "blue"\) return null/)
   // The circle's space (a bound site's, else the panel's), on the root, so every control on the page has it.
   assert.match(app, /const tint = pageTint\(spaces\.fabSpace\?\.color\)/)

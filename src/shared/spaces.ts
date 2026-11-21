@@ -40,12 +40,17 @@ export type SpaceColor = keyof typeof SPACE_COLORS
 export const HALO_ON_FIRST = false
 
 /**
- * How strongly the halo glows, while the director picks with the owner (the owner on #235: «Ты сделал просто обводку,
- * а я тебе говорю про свечение легкое, как ореол»): 1 soft, 2 medium, 3 strong. The opacities of the glow's three
- * layers, close in to far out (two hex digits each).
+ * How strongly the halo glows: 1 soft, 2 medium, 3 strong. The owner picked strong on #235 («Сделай сильное свечение»).
+ * The opacities of the glow's three layers, close in to far out (two hex digits each).
  */
-export const HALO_STRENGTH: 1 | 2 | 3 = 2
+export const HALO_STRENGTH: 1 | 2 | 3 = 3
 export const HALO_ALPHAS: Record<1 | 2 | 3, readonly [string, string, string]> = { 1: ["8c", "4d", "40"], 2: ["b3", "66", "59"], 3: ["d9", "80", "73"] }
+
+/**
+ * The panel's send button glows too, «но более слабеньким» (the owner on #235): two layers, closer in and fainter than
+ * the circle's at any strength (styles.css `.cf-send[data-halo]`).
+ */
+export const SEND_GLOW_ALPHAS: readonly [string, string] = ["8c", "4d"]
 
 /** Whether the ✦ circle wears a halo for this space's colour (none outside spaces, none for blue by default). */
 export function fabHalo(color: SpaceColor | undefined): boolean {

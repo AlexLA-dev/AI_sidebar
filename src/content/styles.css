@@ -694,6 +694,13 @@
 .cf-note-hint::after { content: ""; position: absolute; inset-inline-end: 14px; top: 100%; border: 6px solid transparent; border-top-color: var(--snack-bg); }
 @keyframes cf-hint { from { transform: translateY(4px); opacity: 0; } to { transform: none; opacity: 1; } }
 .cf-send:disabled { background: var(--bg-3) !important; color: var(--text-3) !important; opacity: 1; }
+/* 2.7.1, the owner on #235: «кнопку отправки внутри можно также сделать со свечением, но более слабеньким». In a space
+   other than the first, the send button (still our blue) has a soft glow of the panel's space colours, closer in and
+   fainter than the ✦ circle's (Spaces.tsx spaceVars --glow-*, spaces.ts SEND_GLOW_ALPHAS). Blurred shadows only, no
+   ring; none while the field is empty, so a button with nothing to send still reads as off, and none on Stop or a note. */
+.cf-send[data-halo]:not(:disabled):not(.note) {
+  box-shadow: 0 0 4px 0 var(--glow-1), 0 0 10px 2px var(--glow-2);
+}
 /* One look for every toast and bar (2.5): "… · Undo", "Moved to …", "Saved", "Reminder: …", quick insert's. In the
    panel it sits over the question field; over the page, 64 px above the bottom of what's visible. */
 .cf-snack { background: var(--snack-bg); color: var(--snack-text); border-radius: 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); font-size: 14px; font-weight: 500; line-height: 1.35; }

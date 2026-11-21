@@ -3992,6 +3992,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // 2.7.1: the circle stays blue; its space shows as a halo (Spaces.tsx fabHalo), glowing up once as the space changes.
   const halo = fabHalo(spaces.fabSpace?.color)
+  // The panel's send button glows the same way, weaker, in the panel's own space (styles.css .cf-send[data-halo]).
+  const sendHalo = spaces.multi && fabHalo(spaces.current.color)
 
   // The circle's height, and the in-page translation pill's beside it (2.7).
   const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
@@ -5128,6 +5130,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <button
                           type="button"
                           class={`cf-send ${noteMode ? "note" : ""}`}
+                          data-halo={sendHalo ? spaces.current.color : undefined}
                           disabled={!draft.trim()}
                           onClick={() => {
                             if (switched.current) switched.current = false
