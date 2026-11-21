@@ -285,7 +285,11 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       if (toggle && before !== null) {
         const now = (el as HTMLInputElement).checked
         if (now === before) result.note = "the box didn't change (the site may want a real tap)"
-        else result.undo = { id: call.id!, kind: "checked", before }
+        else {
+          // A box's own state isn't a change the page shows (no attribute moves): said, or the model thinks it failed.
+          if (!settled.changed && !settled.navigated) result.note = now ? "the box is now ticked" : "the box is now cleared"
+          result.undo = { id: call.id!, kind: "checked", before }
+        }
       }
       return result
     }

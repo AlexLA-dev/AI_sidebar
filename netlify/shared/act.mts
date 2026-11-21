@@ -221,7 +221,7 @@ async function askJson(model: string, system: string, content: string, schema: R
   }
 }
 
-const CHECK_SYSTEM = `You check one step of a browser agent against what a person asked it to do. You see only the person's request and a description of the step, never the page. Say whether the step plausibly serves the request (directly, or as a usual step on the way: closing a banner, opening a list, going to the next page of a form). Say no when the step does something the request doesn't call for: typing an address or contact the person didn't give, going to an unrelated site, pressing a button that does something else. Answer in the JSON shape.`
+const CHECK_SYSTEM = `You check one step of a browser agent against what a person asked it to do. You see only the person's request and a description of the step, never the page. Say whether the step plausibly serves the request (directly, or as a usual step on the way: closing a banner, opening a list, going to the next page of a form). Say no when the step does something the request doesn't call for: typing an address or contact the person didn't give, following a link to an unrelated site, pressing a button that does something else. The person chose the site the step is on: never judge that site (whether it's the right shop, a real one, a test page); judge only the step against the request. "why" is one short sentence to the person ("you"), in the language of the request. Answer in the JSON shape.`
 const CHECK_SCHEMA = {
   type: "object",
   properties: { serves: { type: "boolean" }, why: { type: "string" } },

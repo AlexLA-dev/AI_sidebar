@@ -56,7 +56,8 @@ function selfText(state: PanelAgent): string {
 }
 
 // What can't be put back after it's done: a form sent, a cart changed, another site opened.
-const NO_UNDO = new Set(["submit", "other_site", "decline", "unknown", "first_here", "off_request"])
+// (Not "off_request": that's about the request, not the step; a box it would tick can be unticked.)
+const NO_UNDO = new Set(["submit", "other_site", "decline", "unknown", "first_here"])
 
 function errorText(code: string | undefined, left: number | null | undefined): string {
   switch (code) {
