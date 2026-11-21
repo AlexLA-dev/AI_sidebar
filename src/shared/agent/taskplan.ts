@@ -11,8 +11,9 @@ import { normalize, wordKind } from "./match.ts"
 import { hostOf, sameSite } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
 
-// The terms box as a plan permission (the director's 2.7.1 note lists «Отметить согласие с условиями сайта»; design.md
-// had it as the person's own). Off: the box stays the person's step, as before.
+// The terms box as a plan permission: the owner's decision (2.7.1, his «1»): the agent ticks a site's terms box itself
+// when that permission is ticked on the plan card; it can be unticked before «Начать». (design.md had it as the
+// person's own.) Off: the box stays the person's step, as before.
 export const CONSENT_IN_PLAN = true
 
 export interface PlanQuestion {
