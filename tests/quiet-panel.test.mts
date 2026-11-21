@@ -209,7 +209,7 @@ test("the empty chat in a phone's sheet sits by the field: chips and field toget
   assert.doesNotMatch(css, /\.cf-messages:has\(> \.cf-empty\)/)
   // With the guide's or the tour's card up the list isn't marked, so the chat stays under the header and the card lies
   // on nothing.
-  assert.match(app, /class=\{`cf-messages\$\{messages\.length === 0 && partial === null && !touring && !\(guide !== null && guideIdle && !ON_PAGE\.includes\(guide\)\) \? " is-empty" : ""\}`\}/)
+  assert.match(app, /class=\{`cf-messages\$\{messages\.length === 0 && partial === null && !agentCardShown && !touring && !\(guide !== null && guideIdle && !ON_PAGE\.includes\(guide\)\) \? " is-empty" : ""\}`\}/)
   assert.match(app, /\{touring && view === "chat" && panelRef\.current && \(/)
   assert.match(app, /\{guide && guideIdle && !ON_PAGE\.includes\(guide\) && view ===/)
   // The side panel (iPad, Mac) keeps the empty chat under the header.
