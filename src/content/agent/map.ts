@@ -532,7 +532,8 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     ...(overlayList.length ? { overlay: true } : {}),
     ...(consent ? { consent: true } : {}),
     ...(opts.money ? { money: pageMoney(doc) } : {}),
-    ...(takesPayment(doc) ? { pay: true } : {})
+    ...(takesPayment(doc) ? { pay: true } : {}),
+    ...(opts.money && asksDeposit(doc) ? { deposit: true } : {})
   }
 }
 
@@ -562,6 +563,19 @@ export function takesPayment(doc: Document): boolean {
 }
 
 /** Every amount of money the whole page shows (the plan's price check; the text above is only around the screen). */
+// A booking that holds money (2.7.1): a deposit, a prepayment, a no-show or late-cancellation fee. The press that commits
+// on such a page is the person's (classify.ts), whatever a plan or a rule allowed. (Only that press: a venue's policy
+// line on every page mustn't stop the way to it.)
+const DEPOSIT = /\b(deposit|prepay(ment)?|pre-?authori[sz]ation|no[- ]show fee|cancellation fee|late cancellation|card (is )?required to (book|reserve|hold))\b|депозит|предоплат|залог|штраф за (неявку|отмену)|списан\S* при неявке|anzahlung|kaution|no-show-gebühr|stornogebühr|acompte|frais d'annulation|frais de non-présentation|depósito|anticipo|señal|cargo por no presentarse|caparra|penale|depozito|kapora|ön ödeme|デポジット|前払い|キャンセル料|예약금|보증금|노쇼|定金|押金|订金|違約金|عربون|رسوم الإلغاء|tiền cọc|đặt cọc/i
+
+function asksDeposit(doc: Document): boolean {
+  try {
+    return DEPOSIT.test((doc.body?.innerText ?? "").slice(0, 60_000))
+  } catch {
+    return false
+  }
+}
+
 function pageMoney(doc: Document): number[] {
   try {
     return amounts((doc.body?.innerText ?? "").slice(0, 60_000)).slice(0, 80)

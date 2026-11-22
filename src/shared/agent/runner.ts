@@ -11,7 +11,8 @@ import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
-import { buildPlan, checkPlan, covered, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, type Perm, type TaskPlan } from "./taskplan.ts"
+import { readRules, rulesLine, looksLikeSlot, type AgentRules } from "./rules.ts"
+import { buildPlan, checkPlan, covered, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -89,6 +90,14 @@ export interface AgentState {
   // ask_user's answers offered as buttons, and the person's answers to the agent's questions (theirs to type).
   choices?: string[]
   replies?: string[]
+  // A booking (2.7.1, the owner: «оглядывался и на свободные слоты в календаре»): the person's rules as the model hears
+  // them, the Calendar's free times for it (worked out on the device: only times), how this site's booking went last
+  // time, the time slot pressed (checked against the Calendar), and what was booked (said by «done»).
+  rules?: string
+  calendar?: string
+  playbook?: string
+  slot?: { date: string; time: string }
+  booked?: { date: string; time: string; place?: string }
 }
 
 export interface ActReply {
@@ -128,6 +137,14 @@ export interface RunnerIO {
   apple?: (call: ToolCall) => Promise<StepResult>
   // The plan card before the first step (off: every «Сделать?» asks, as before 2.7.1's autonomy).
   planning?: boolean
+  // «Правила поручений» as stored (the defaults when there are none).
+  rules?: () => Promise<unknown>
+  // The Calendar's free times for a booking, on the device, with the rules' buffers ("2026-11-24 17:00–19:30; …",
+  // "none"); and whether one time is free (null: can't tell).
+  calendarFree?: (b: PlanBooking, days: number) => Promise<string | null>
+  slotFree?: (date: string, time: string, minutes: number) => Promise<boolean | null>
+  // How a site's booking went last time (the controls pressed, in order), kept on the device.
+  playbook?: { get(site: string): Promise<string[] | null>; put(site: string, steps: string[]): Promise<void> }
 }
 
 /** Which of the two a Calendar and Reminders tool needs. */
@@ -261,9 +278,15 @@ function words(state: AgentState): string {
 }
 
 /** The plan step (step 0): the plan card when it needs the person, else straight on with it approved. */
-async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: string[], here: { reminders: string; calendar: string } | null): Promise<"card" | "go" | "stop"> {
+async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: string[], here: { reminders: string; calendar: string } | null, entries: FormEntry[]): Promise<"card" | "go" | "stop"> {
+  const rules = readRules(await io.rules?.().catch(() => null))
+  const calendarOn = rules.calendar && here?.calendar === "yes" && !!io.calendarFree
+  const site = siteOfHost(hostOf(map.url))
+  const book = site ? await io.playbook?.get(site).catch(() => null) : null
+  if (book?.length) state.playbook = playbookLine(book)
+  state.rules = rulesLine(rules, calendarOn)
   const reply = await io.ask({
-    task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}) },
+    task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}), rules: state.rules, ...(state.playbook ? { playbook: state.playbook } : {}) },
     map: sent(map), log: [], keys
   })
   if (!reply.ok) {
@@ -278,12 +301,80 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   const plan = reply.plan ? buildPlan(checkPlan(reply.plan), { map, startHost: state.startHost, request: state.request, confirmedHere: false, policy: io.policy }) : null
   if (!plan) return "go"
   state.plan = plan
+  if (plan.booking && calendarOn) {
+    state.calendar = (await io.calendarFree!(plan.booking, rules.days).catch(() => null)) ?? undefined
+    // The booking in the Calendar afterwards: a permission of the plan, ticked (the device adds it itself, from the time
+    // that was booked, with the booking page's link).
+    if (!plan.perms.some((p) => p.kind === "apple" && p.reason === "event_add")) plan.perms.push({ id: "pcal", kind: "apple", reason: "event_add", label: plan.label || site, host: hostOf(map.url), on: true })
+  }
+  if (!state.calendar) state.rules = rulesLine(rules, false)
+  // Nothing left to ask (every answer known from «Мои данные», this site's remembered choices or the rules; nothing paid;
+  // a site booked on before): no card, the task starts with its answers in one line and Stop.
+  const pre = savedAnswers(plan, savedFacts(entries))
+  if (rules.auto && plan.booking && !!book?.length && pre.every((a) => !!a.trim()) && goesAlone(plan, map)) {
+    plan.answers = plan.questions.map((q, i) => ({ q: q.q, a: pre[i] }))
+    plan.perms = plan.perms.map((p) => ({ ...p, on: true }))
+    plan.approved = true
+    plan.auto = true
+    return "go"
+  }
   if (planNeedsPerson(plan)) {
     state.status = "plan"
     return "card"
   }
   plan.approved = true
   return "go"
+}
+
+/** The person's saved facts by the name a plan asks them by (factKey → value). */
+function savedFacts(entries: FormEntry[]): Record<string, string> {
+  return Object.fromEntries(liveEntries(entries).filter((e) => e.key === "fact").map((e) => [factKey(e.label), e.value]))
+}
+
+/**
+ * Whether a booking's plan may start without its card: what it may do is pressing the booking's own button, putting
+ * saved details into the fields the plan saw, and the Calendar event, and nothing on the way is paid (no price to
+ * pay, no payment page, no deposit or no-show fee, no step of the person's that pays). Signing in, a code or a
+ * captcha still stop it later, as the person's.
+ */
+export function goesAlone(plan: TaskPlan, map: PageMap): boolean {
+  if (plan.prices.length || map.pay || map.deposit || plan.self.some((x) => x.reason === "pay")) return false
+  return plan.perms.every((p) => (p.kind === "press" && p.reason === "submit") || p.kind === "fill" || (p.kind === "apple" && p.reason === "event_add"))
+}
+
+/** How a site's booking went last time, as the model hears it. */
+function playbookLine(steps: string[]): string {
+  return `Last time on this site the booking went: ${steps.map((x) => `«${x}»`).join(" → ")}. Go the same way while the pages match; when they don't, go on as usual. It is only a hint: what each step may do is decided as always.`
+}
+
+/** The controls a finished booking pressed, in order (no typed or filled values): next time's hint. */
+export function playbookOf(log: LogEntry[]): string[] {
+  const out: string[] = []
+  for (const e of log) {
+    if (!e.call || (e.call.tool !== "click" && e.call.tool !== "select") || /^(failed|refused)/.test(e.result)) continue
+    const label = (e.call.tool === "select" ? e.call.option : /"(.*)"$/.exec(e.target ?? "")?.[1]) ?? ""
+    const t = label.replace(/\s+/g, " ").trim().slice(0, 60)
+    if (t && out[out.length - 1] !== t) out.push(t)
+  }
+  return out.slice(0, 12)
+}
+
+/**
+ * A time slot pressed in a booking that looks at the Calendar: the model says its date and time, and the device checks
+ * them against the person's events (with the buffers). A busy one is refused, whatever the model thought; a refusal's
+ * reason goes back to it. (null: the step goes on.)
+ */
+async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, label: string): Promise<string | null> {
+  const b = state.plan?.booking
+  if (!b || !state.calendar || !io.slotFree || (call.tool !== "click" && call.tool !== "select")) return null
+  if (!looksLikeSlot(label)) return null
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : ""
+  const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : ""
+  if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check the person's calendar"
+  const free = await io.slotFree(date, time, b.minutes).catch(() => null)
+  if (free === false) return `${date} ${time} is busy in the person's calendar (their event, with time to get there). Free then: ${state.calendar}. Choose another time the rules allow and say in the summary why`
+  if (free === true) state.slot = { date, time }
+  return null
 }
 
 /** Runs the task until it needs the person, ends, or fails. Saves the state at every stop. */
@@ -299,7 +390,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // Two steps left: the model hears it should finish now and say what it found, or ask how to go on.
     if (state.step >= io.maxSteps - 2 && !state.refused) state.refused = "only 2 steps are left: call done now saying what you found and what is left for the person, or ask_user with choices for the way on"
     // The page's amounts only when a price may be checked: the plan's first look, or a plan that saw prices.
-    const money = (state.step === 0 && !!io.planning && !state.plan) || (!!state.plan?.approved && state.plan.prices.length > 0)
+    // A booking reads them too: a deposit or a no-show fee on its page makes paying the person's step.
+    const money = (state.step === 0 && !!io.planning && !state.plan) || (!!state.plan?.approved && (state.plan.prices.length > 0 || !!state.plan.booking))
     let map = await io.map({ money })
     if (!map) {
       await io.waitPage()
@@ -328,7 +420,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
     if (state.step === 0 && io.planning && !state.plan) {
-      const p = await planStep(state, io, map, keys, here)
+      const p = await planStep(state, io, map, keys, here, entries)
       if (await io.isStopped?.()) {
         state.status = "stopped"
         break
@@ -339,7 +431,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     const plan = planLine(state.plan)
     const reply = await io.ask({
-      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}) },
+      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}) },
       map: sent(map), log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
@@ -373,6 +465,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       }
       state.status = "done"
       state.summary = call.summary ?? ""
+      await afterBooking(state, io, call, here)
       break
     }
     // The model's answer failed the code's check twice: the task ends with an error, not an empty question.
@@ -405,6 +498,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const lines = typing ? fillLines(call, map.items.find((i) => i.id === call.id) ?? null, entries, map.lang || state.lang, map) : []
       const said = words(state)
       if (typing && lines.length && lines.every((l) => saidInWords(said, l.value))) perm = { ...typing, keys: lines.map((l) => l.key), ids: lines.map((l) => l.id) }
+    }
+    // A time slot that clashes with the person's Calendar is never pressed (checked on the device).
+    if (verdict.cls !== "blocked") {
+      const busy = await slotRefusal(state, io, call, call.tool === "select" ? call.option ?? "" : seenItem?.label ?? "")
+      if (busy) {
+        state.log.push({ call, target: target ?? undefined, result: `refused: ${busy}` })
+        state.refused = busy
+        continue
+      }
     }
     if (verdict.cls === "blocked") {
       if (verdict.reason.startsWith("site_")) {
@@ -493,6 +595,43 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
 }
 
 const READS = new Set(["read_page", "extract", "scroll", "reminders", "calendar"])
+
+/**
+ * A booking «done» says what was booked (date, time, place): the device puts it in the Calendar when the plan's
+ * permission for that stayed ticked (with the booking page's link, without its query), and keeps how the site's booking
+ * went for next time. Nothing booked (stopped at a sign-in, a payment): neither.
+ */
+async function afterBooking(state: AgentState, io: RunnerIO, call: ToolCall, here: { reminders: string; calendar: string } | null): Promise<void> {
+  const plan = state.plan
+  if (!plan?.booking) return
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : ""
+  const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : ""
+  const site = siteOfHost(state.host || state.startHost)
+  if (site && io.playbook) {
+    const steps = playbookOf(state.log)
+    if (steps.length) await io.playbook.put(site, steps).catch(() => undefined)
+  }
+  if (!date || !time) return
+  state.booked = { date, time, ...(call.place ? { place: call.place.slice(0, 120) } : {}) }
+  const perm = plan.perms.find((p) => p.kind === "apple" && p.reason === "event_add")
+  const added = state.log.some((e) => e.call?.tool === "event_add" && !/^(failed|refused)/.test(e.result))
+  if (!perm || perm.on === false || added || here?.calendar !== "yes" || !io.apple) return
+  const what = plan.label ? plan.label.charAt(0).toLocaleUpperCase() + plan.label.slice(1) : site
+  const event: ToolCall = { tool: "event_add", text: `${what}${call.place ? ` — ${call.place.slice(0, 80)}` : site ? ` — ${site}` : ""}`, date, time, minutes: plan.booking.minutes, place: call.place?.slice(0, 200) ?? "", link: pageLink(state.url), why: "" }
+  const r = await io.apple(event).catch(() => null)
+  state.log.push({ call: { ...event, link: undefined }, result: r?.ok ? "added to the calendar" : `failed: ${r?.note ?? "it couldn't be added"}` })
+  state.lines.push(line(event, { cls: "confirm", reason: "event_add" }, null, !!r?.ok, event.text, true))
+}
+
+/** A page's link for a Calendar event: without its query and fragment (they can carry an e-mail or a booking's token). */
+function pageLink(url: string): string {
+  try {
+    const u = new URL(url)
+    return `${u.origin}${u.pathname}`
+  } catch {
+    return ""
+  }
+}
 
 /** The page as far as progress goes: its address, its controls and their states, how much text (not where it's scrolled). */
 function pageSig(map: PageMap): string {

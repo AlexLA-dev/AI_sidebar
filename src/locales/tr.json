@@ -1209,5 +1209,19 @@
   "agentPlanRemember": "“Bilgilerim”e kaydet",
   "agentPlanFromSaved": "“Bilgilerim”den — orada güncelle",
   "agentMarkUnfinished": "Bitmedi",
-  "agentStuck": "Sayfa değişmeyi bıraktı, burada durdum. Yapabildiklerim yukarıda."
+  "agentStuck": "Sayfa değişmeyi bıraktı, burada durdum. Yapabildiklerim yukarıda.",
+  "agentNeedSignIn": "siteye giriş",
+  "agentNeedPay": "sitede ödeme",
+  "agentNeedAnswer": "bir yanıt",
+  "agentAutoLine": "Soru yok — Bilgilerim ve kurallarından: {0}",
+  "agentLineCalendar": "Takvime eklendi: {0}",
+  "agentRulesTitle": "Rezervasyon kuralları",
+  "agentRulesHint": "Ajan bunlara göre sormadan rezervasyon yapar. Ödeme, kodlar ve giriş her zaman sende.",
+  "agentRuleWindow": "Söylediğim saat kayabilir, dk",
+  "agentRuleDays": "O gün doluysa: en fazla … gün sonra",
+  "agentRuleParty": "Söylemezsem kişi sayısı",
+  "agentRuleAnySpecialist": "Herhangi bir uzman",
+  "agentRuleUsual": "O sitede geçen sefer seçtiğim hizmet",
+  "agentRuleCalendar": "Yalnızca Takvimimde boş saatler",
+  "agentRuleAuto": "Her şey biliniyor ve ücretli bir şey yoksa plansız rezervasyon yap"
 }

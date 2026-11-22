@@ -1209,5 +1209,19 @@
   "agentPlanRemember": "记在“我的信息”中",
   "agentPlanFromSaved": "来自“我的信息”——更改后更新",
   "agentMarkUnfinished": "未完成",
-  "agentStuck": "页面不再变化，我在这里停下了。完成的部分在上面。"
+  "agentStuck": "页面不再变化，我在这里停下了。完成的部分在上面。",
+  "agentNeedSignIn": "登录网站",
+  "agentNeedPay": "在网站上付款",
+  "agentNeedAnswer": "你的回答",
+  "agentAutoLine": "无需提问 — 来自“我的资料”和你的规则：{0}",
+  "agentLineCalendar": "已添加到日历：{0}",
+  "agentRulesTitle": "预订规则",
+  "agentRulesHint": "代理会按这些规则直接预订，不再询问。付款、验证码和登录始终由你来做。",
+  "agentRuleWindow": "说定的时间可前后调整（分钟）",
+  "agentRuleDays": "那天约满时：最多推迟几天",
+  "agentRuleParty": "没说人数时",
+  "agentRuleAnySpecialist": "任意服务人员",
+  "agentRuleUsual": "上次在该网站选的服务",
+  "agentRuleCalendar": "只选日历中空闲的时间",
+  "agentRuleAuto": "信息齐全且无需付款时，不显示计划直接预订"
 }

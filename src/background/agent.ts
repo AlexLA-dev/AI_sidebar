@@ -14,7 +14,8 @@ import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
 import { hostOf } from "../shared/agent/sites"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
-import { appleCall, appleDevice, deferredReminder, deferredReminderEnd } from "./agentApple"
+import { appleCall, appleDevice, calendarFreeLine, calendarSlotFree, deferredReminder, deferredReminderEnd } from "./agentApple"
+import { RULES_KEY } from "../shared/agent/rules"
 import { callNative } from "./native"
 
 export interface AgentDeps {
@@ -62,7 +63,7 @@ export type AgentRequest =
   | { type: "agentClose"; keep?: boolean }
   | { type: "agentForgetPast"; id: string }
   | { type: "agentNoticeGet" }
-  | { type: "agentSeen"; visible: boolean; words?: { paused: string; done: string; needs: string; title: string } }
+  | { type: "agentSeen"; visible: boolean; words?: AwayWords }
   | { type: "agentFocus"; id: string }
   | { type: "agentGoTab" }
   | { type: "agentNoticeClear" }
@@ -174,7 +175,8 @@ async function save(tab: number, state: AgentState): Promise<void> {
 // background) — never claiming it goes on. Done or waiting for the person while away: «Готово: …» / «Нужны вы: …» at
 // once instead. Back in Safari (any page of ours seen, or a tab switch): the one still waiting goes.
 const PAUSE_AFTER_MS = 30_000
-let away: { words: { paused: string; done: string; needs: string; title: string } } | null = null
+type AwayWords = { paused: string; done: string; needs: string; title: string; signIn?: string; pay?: string; answer?: string }
+let away: { words: AwayWords } | null = null
 // A tab switch hides one page and shows another: not leaving Safari.
 let switchedAt = 0
 
@@ -198,12 +200,35 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
     await callNative("agent_cancel", { id: runId(state) }, 4_000)
     return
   }
-  const body = (ended ? away.words.done : away.words.needs).replace("{0}", what)
+  // Done: what and when it booked («Готово: запись на стрижку · fresha.com, вт 24 ноя, 14:45»); waiting: what for
+  // («Нужны вы: вход на сайт · fresha.com»). Never a name, a phone or the request.
+  const when = ended && state.booked ? bookedWhen(state.booked.date, state.booked.time) : ""
+  const why = waiting ? needWord(state, away.words) : ""
+  const body = ended ? away.words.done.replace("{0}", when ? `${what}, ${when}` : what) : away.words.needs.replace("{0}", why ? `${why} · ${what}` : what)
   await callNative("agent_notify", { ...base, body }, 6_000)
 }
 
+function bookedWhen(date: string, time: string): string {
+  const [y, m, d] = date.split("-").map(Number)
+  const [h, min] = time.split(":").map(Number)
+  try {
+    return new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(y, m - 1, d, h, min))
+  } catch {
+    return `${date} ${time}`
+  }
+}
+
+/** What a waiting task needs the person for, in the panel's words (a sign-in, a payment, an answer). */
+function needWord(state: AgentState, w: AwayWords): string {
+  const reason = state.pending?.verdict.reason ?? ""
+  if (state.status === "self" && (reason === "auth" || reason === "account")) return w.signIn ?? ""
+  if (state.status === "self" && reason === "pay") return w.pay ?? ""
+  if (state.status === "asked") return w.answer ?? ""
+  return ""
+}
+
 /** A page of ours was hidden or seen: away from Safari (as far as we can tell) or back. */
-async function seen(visible: boolean, words?: { paused: string; done: string; needs: string; title: string }): Promise<void> {
+async function seen(visible: boolean, words?: AwayWords): Promise<void> {
   if (visible) {
     for (const [tab] of await activeTasks()) void resume(tab)
     if (!away) return
@@ -448,8 +473,28 @@ function io(tab: number, gen?: string): RunnerIO {
     isStopped: async () => (await load(tab))?.status === "stopped",
     device: cachedDevice,
     apple: appleCall,
-    planning: true
+    planning: true,
+    rules: async () => (await chrome.storage.local.get(RULES_KEY))[RULES_KEY],
+    calendarFree: (b, days) => calendarFreeLine(b.date, days + 1, b.from, b.until, b.minutes),
+    slotFree: calendarSlotFree,
+    playbook: { get: playbookGet, put: playbookPut }
   }
+}
+
+// How a site's booking went (2.7.1): the controls pressed, by site, on the device only; the newest 50 sites.
+const PLAYBOOKS_KEY = "agentPlaybooks"
+type Playbooks = Record<string, { steps: string[]; at: number }>
+
+async function playbookGet(site: string): Promise<string[] | null> {
+  const all = ((await chrome.storage.local.get(PLAYBOOKS_KEY))[PLAYBOOKS_KEY] ?? {}) as Playbooks
+  return all[site]?.steps ?? null
+}
+
+async function playbookPut(site: string, steps: string[]): Promise<void> {
+  const all = ((await chrome.storage.local.get(PLAYBOOKS_KEY))[PLAYBOOKS_KEY] ?? {}) as Playbooks
+  all[site] = { steps: steps.slice(0, 12).map((x) => x.slice(0, 60)), at: Date.now() }
+  const kept = Object.entries(all).sort((a, b) => b[1].at - a[1].at).slice(0, 50)
+  await chrome.storage.local.set({ [PLAYBOOKS_KEY]: Object.fromEntries(kept) })
 }
 
 // What a task reads from the app on every step, read once (2.7.1, the owner on 117: the phone got hot while Do ran —

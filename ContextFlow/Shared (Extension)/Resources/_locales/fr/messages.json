@@ -3539,6 +3539,48 @@
  "agentStuck": {
   "message": "La page ne changeait plus, je me suis arrêté ici. Ce que j’ai fait est au-dessus."
  },
+ "agentNeedSignIn": {
+  "message": "la connexion au site"
+ },
+ "agentNeedPay": {
+  "message": "le paiement sur le site"
+ },
+ "agentNeedAnswer": {
+  "message": "une réponse"
+ },
+ "agentAutoLine": {
+  "message": "Sans questions — d’après Mes infos et vos règles : {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Ajouté au Calendrier : {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Règles de réservation"
+ },
+ "agentRulesHint": {
+  "message": "L’agent réserve selon elles sans rien demander. Paiement, codes et connexion restent à vous."
+ },
+ "agentRuleWindow": {
+  "message": "Une heure indiquée peut bouger de, min"
+ },
+ "agentRuleDays": {
+  "message": "Si ce jour est complet : jusqu’à … jours plus tard"
+ },
+ "agentRuleParty": {
+  "message": "Personnes si je ne précise pas"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "N’importe quel professionnel"
+ },
+ "agentRuleUsual": {
+  "message": "Le service choisi la dernière fois sur ce site"
+ },
+ "agentRuleCalendar": {
+  "message": "Seulement les heures libres dans mon Calendrier"
+ },
+ "agentRuleAuto": {
+  "message": "Réserver sans plan quand tout est connu et rien n’est payant"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

@@ -6,6 +6,7 @@
 import { TARGET } from "../shared/config"
 import type { StepResult, ToolCall } from "../shared/agent/types"
 import { callNative } from "./native"
+import { PAD_MIN, PAD_PLACE_MIN } from "../shared/agent/rules"
 
 type Access = "yes" | "none" | "denied" | "unavailable"
 
@@ -48,7 +49,8 @@ export async function appleCall(call: ToolCall): Promise<StepResult> {
   if (call.tool === "reminder_add") Object.assign(op, { title: call.text ?? "", list: call.list ?? "", date: call.date ?? "", time: call.time ?? "" })
   if (call.tool === "reminder_done") Object.assign(op, { ref: call.ref ?? "" })
   if (call.tool === "calendar") Object.assign(op, { date: call.date ?? "", time: call.time ?? "", until: call.until ?? "", minutes: call.minutes ?? 60, days: call.days ?? 1 })
-  if (call.tool === "event_add") Object.assign(op, { title: call.text ?? "", date: call.date ?? "", time: call.time ?? "", minutes: call.minutes ?? 60, place: call.place ?? "" })
+  if (call.tool === "calendar") Object.assign(op, { pad: PAD_MIN, padPlace: PAD_PLACE_MIN })
+  if (call.tool === "event_add") Object.assign(op, { title: call.text ?? "", date: call.date ?? "", time: call.time ?? "", minutes: call.minutes ?? 60, place: call.place ?? "", url: call.link ?? "" })
   const r = await callNative<Found>("agent_apple", op, 15_000)
   if (!r) return { ok: false, note: "the device didn't answer" }
   if (r.access && r.access !== "yes") return { ok: false, note: r.access === "denied" ? "access is turned off in Settings → ContextFlow" : "no access yet" }
@@ -110,4 +112,31 @@ export async function deferredReminder(id: string, title: string, at: number, ur
 /** The deferred task started (done) or was cancelled: its reminder is marked done or taken away. */
 export function deferredReminderEnd(id: string, done: boolean): void {
   if (TARGET === "safari") void callNative("apple_remove", { key: `cf.agent.${id}`, done })
+}
+
+/** Free times for a booking (2.7.1): `days` days from `date`, between `from` and `until`, of `minutes` or more, the
+ *  rules' buffers kept around the person's events. Plain lines for the model ("2026-11-24 17:00–19:30"); null without
+ *  access. Only times: never an event's title or place. */
+export async function calendarFreeLine(date: string, days: number, from: string, until: string, minutes: number): Promise<string | null> {
+  if (TARGET !== "safari") return null
+  const r = await callNative<Found>("agent_apple", { op: "calendar", date, time: from, until, minutes, days, pad: PAD_MIN, padPlace: PAD_PLACE_MIN }, 15_000)
+  if (!r || (r.access && r.access !== "yes") || r.error) return null
+  const slots = Array.isArray(r.free) ? r.free : []
+  return slots.length ? slots.map((s) => `${s.from}–${s.until.slice(11)}`).join("; ") : "none"
+}
+
+/** Whether one time (`minutes` long) is free with the buffers kept; null: couldn't tell. */
+export async function calendarSlotFree(date: string, time: string, minutes: number): Promise<boolean | null> {
+  if (TARGET !== "safari") return null
+  const end = addMin(time, minutes)
+  const r = await callNative<Found>("agent_apple", { op: "calendar", date, time, until: end, minutes, days: 1, pad: PAD_MIN, padPlace: PAD_PLACE_MIN }, 10_000)
+  if (!r || (r.access && r.access !== "yes") || r.error || !r.exact) return null
+  return r.free === true
+}
+
+function addMin(time: string, minutes: number): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(time)
+  if (!m) return time
+  const t = Math.min(23 * 60 + 59, Number(m[1]) * 60 + Number(m[2]) + minutes)
+  return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`
 }

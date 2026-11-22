@@ -7,7 +7,7 @@ import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
 import type { Answer, AgentState, PlanApproval } from "../../shared/agent/runner"
-import { isCancelChoice, savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
+import { factLabel, isCancelChoice, savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
 import { AMAZON_TEXT } from "../../shared/amazon"
 import { TEST_PLAN } from "../../shared/config"
 import { t, type MessageKey } from "../../shared/i18n"
@@ -188,7 +188,11 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
     setMissing(null)
     setSending(true)
     // What to keep in «Мои данные»: the answers about the person that are new or changed.
-    const facts = plan.questions.flatMap((q, i) => (q.fact && keep[i] && answers[i].trim() && answers[i].trim() !== pre[i] ? [{ fact: q.fact, value: answers[i].trim() }] : []))
+    // A choice on this site («pref:Мастер») is kept under the site's name, for this site only.
+    const facts = plan.questions.flatMap((q, i) => {
+      const label = q.fact ? factLabel(q.fact, plan.site) : ""
+      return label && keep[i] && answers[i].trim() && answers[i].trim() !== pre[i] ? [{ fact: label, value: answers[i].trim() }] : []
+    })
     if (facts.length) onRemember?.(facts)
     onPlan(approval(), mode === "later" && laterChoice ? laterChoice : undefined)
   }
@@ -214,7 +218,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
             ))}
             <button type="button" role="radio" aria-checked={own[i]} class={`cf-chip ${own[i] ? "on" : ""}`} onClick={() => set(i, own[i] ? answers[i] : "", true)}>{t("agentPlanOwn")}</button>
           </div>
-          {q.fact && (
+          {q.fact && factLabel(q.fact, plan.site) && (
             <label class="cf-row toggle cf-agent-remember">
               <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
               <span>{pre[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
@@ -363,6 +367,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
         </div>
       )}
       {!finished && <p class="cf-agent-request" dir="auto">{state.request}</p>}
+      {/* Started without the card: what it took as known (2.7.1: «Бронирую… · Стоп»; Stop is on the strip). */}
+      {busy && state.plan?.auto && <p class="cf-agent-meta" dir="auto">{t("agentAutoLine", (state.plan.answers ?? []).map((a) => a.a).filter(Boolean).join(" · ") || "—")}</p>}
       {planning && state.plan && onPlan && <PlanCard key={`${state.id}-${planFailed ?? ""}-${Object.keys(saved ?? {}).length}`} plan={state.plan} host={hostName(state.url)} onPlan={onPlan} later={later} onStop={() => onAnswer("stop")} failed={planFailed} saved={saved} onRemember={onRemember} />}
       {/* The plan's lines while it works by it (what it said it would do). */}
       {(busy || waiting) && state.plan?.approved && state.plan.steps.length > 0 && lines.length === 0 && (
@@ -378,7 +384,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
               {/* (A box the plan let the agent tick is the agent's step.) */}
               {l.cls === "self" && !l.byPlan
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
-                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.text || nameOf(l.target)}
+                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.text || nameOf(l.target)}
             </li>
           ))}
         </ol>

@@ -141,7 +141,9 @@ enum AgentApple {
 
     /// Free times of `length` minutes from `date` on, for `days` days, each day between `from` and `until` (by default
     /// 08:00–21:00): up to 5, the earliest first. With `from` and `until` that hold exactly one such time: free or busy.
-    static func free(date: String, from: String, until: String, length: Int, days: Int) -> [String: Any] {
+    /// `pad` minutes are kept free around each event (a booking's rule, 2.7.1: time to get there), `padPlace` around one
+    /// that has a place. Only times leave here, never an event's title or place.
+    static func free(date: String, from: String, until: String, length: Int, days: Int, pad: Int = 0, padPlace: Int = 0) -> [String: Any] {
         guard access(.event) == "yes" else { return ["access": access(.event)] }
         guard let first = day(date) else { return ["error": "date"] }
         let span = max(1, min(days, 14))
@@ -153,7 +155,10 @@ enum AgentApple {
         let last = cal.date(byAdding: .day, value: span, to: first)!
         let busy = store.events(matching: store.predicateForEvents(withStart: first, end: last, calendars: nil))
             .filter { !$0.isAllDay && $0.availability != .free && $0.status != .canceled }
-            .map { ($0.startDate!, $0.endDate!) }
+            .map { e -> (Date, Date) in
+                let p = Double(max(0, min(240, (e.location ?? "").isEmpty ? pad : max(pad, padPlace))) * 60)
+                return (e.startDate!.addingTimeInterval(-p), e.endDate!.addingTimeInterval(p))
+            }
             .sorted { $0.0 < $1.0 }
         let now = Date()
         let fmt = { (d: Date) -> String in
@@ -192,7 +197,7 @@ enum AgentApple {
         return ["access": "yes", "free": slots]
     }
 
-    static func addEvent(title: String, date: String, time: String, length: Int, place: String) -> [String: Any] {
+    static func addEvent(title: String, date: String, time: String, length: Int, place: String, url: String = "") -> [String: Any] {
         let status = access(.event)
         // Write-only access (a Mac that gave it for «В Календарь») is enough to add one.
         let canWrite: Bool = {
@@ -205,6 +210,7 @@ enum AgentApple {
         item.date = date
         item.time = time
         item.location = place
+        item.url = url
         if let s = item.start, !time.isEmpty {
             let end = s.addingTimeInterval(Double(max(5, min(length > 0 ? length : 60, 24 * 60)) * 60))
             let c = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: end)
@@ -231,8 +237,8 @@ enum AgentApple {
         case "reminders": return await find(query: s("query", 200), list: s("list", 120))
         case "reminder_add": return await add(title: s("title", 200), list: s("list", 120), date: s("date", 10), time: s("time", 5), notes: s("notes", 1000), key: (message["key"] as? String).map { String($0.prefix(200)) }, noAlarm: message["noAlarm"] as? Bool ?? false)
         case "reminder_done": return complete(ref: s("ref", 200))
-        case "calendar": return free(date: s("date", 10), from: s("time", 5), until: s("until", 5), length: n("minutes"), days: n("days"))
-        case "event_add": return addEvent(title: s("title", 200), date: s("date", 10), time: s("time", 5), length: n("minutes"), place: s("place", 200))
+        case "calendar": return free(date: s("date", 10), from: s("time", 5), until: s("until", 5), length: n("minutes"), days: n("days"), pad: n("pad"), padPlace: n("padPlace"))
+        case "event_add": return addEvent(title: s("title", 200), date: s("date", 10), time: s("time", 5), length: n("minutes"), place: s("place", 200), url: s("url", 500))
         default: return ["error": "op"]
         }
     }

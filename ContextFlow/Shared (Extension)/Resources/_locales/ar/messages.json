@@ -3539,6 +3539,48 @@
  "agentStuck": {
   "message": "توقفت الصفحة عن التغير، فتوقفت هنا. ما أنجزته أعلاه."
  },
+ "agentNeedSignIn": {
+  "message": "تسجيل الدخول إلى الموقع"
+ },
+ "agentNeedPay": {
+  "message": "الدفع على الموقع"
+ },
+ "agentNeedAnswer": {
+  "message": "إجابة"
+ },
+ "agentAutoLine": {
+  "message": "بلا أسئلة — من «بياناتي» وقواعدك: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "أُضيف إلى التقويم: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "قواعد الحجز"
+ },
+ "agentRulesHint": {
+  "message": "يحجز الوكيل وفقها دون أن يسأل. الدفع والرموز وتسجيل الدخول تبقى لك."
+ },
+ "agentRuleWindow": {
+  "message": "يمكن تحريك الوقت الذي أذكره بمقدار (دقيقة)"
+ },
+ "agentRuleDays": {
+  "message": "إذا كان اليوم ممتلئًا: حتى … أيام بعده"
+ },
+ "agentRuleParty": {
+  "message": "عدد الأشخاص إن لم أذكره"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "أي مختص"
+ },
+ "agentRuleUsual": {
+  "message": "الخدمة التي اخترتها هناك في المرة السابقة"
+ },
+ "agentRuleCalendar": {
+  "message": "الأوقات الفارغة في تقويمي فقط"
+ },
+ "agentRuleAuto": {
+  "message": "الحجز دون خطة إذا كان كل شيء معروفًا ولا شيء مدفوع"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

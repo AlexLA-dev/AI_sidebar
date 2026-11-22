@@ -1209,5 +1209,19 @@
   "agentPlanRemember": "Retenir dans « Mes infos »",
   "agentPlanFromSaved": "Depuis « Mes infos » — mettre à jour",
   "agentMarkUnfinished": "Pas terminé",
-  "agentStuck": "La page ne changeait plus, je me suis arrêté ici. Ce que j’ai fait est au-dessus."
+  "agentStuck": "La page ne changeait plus, je me suis arrêté ici. Ce que j’ai fait est au-dessus.",
+  "agentNeedSignIn": "la connexion au site",
+  "agentNeedPay": "le paiement sur le site",
+  "agentNeedAnswer": "une réponse",
+  "agentAutoLine": "Sans questions — d’après Mes infos et vos règles : {0}",
+  "agentLineCalendar": "Ajouté au Calendrier : {0}",
+  "agentRulesTitle": "Règles de réservation",
+  "agentRulesHint": "L’agent réserve selon elles sans rien demander. Paiement, codes et connexion restent à vous.",
+  "agentRuleWindow": "Une heure indiquée peut bouger de, min",
+  "agentRuleDays": "Si ce jour est complet : jusqu’à … jours plus tard",
+  "agentRuleParty": "Personnes si je ne précise pas",
+  "agentRuleAnySpecialist": "N’importe quel professionnel",
+  "agentRuleUsual": "Le service choisi la dernière fois sur ce site",
+  "agentRuleCalendar": "Seulement les heures libres dans mon Calendrier",
+  "agentRuleAuto": "Réserver sans plan quand tout est connu et rien n’est payant"
 }

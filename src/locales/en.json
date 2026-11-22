@@ -1209,5 +1209,19 @@
   "agentPlanRemember": "Remember in My details",
   "agentPlanFromSaved": "From My details — keep it updated",
   "agentMarkUnfinished": "Not finished",
-  "agentStuck": "The page stopped changing, so I stopped here. What I got to is above."
+  "agentStuck": "The page stopped changing, so I stopped here. What I got to is above.",
+  "agentNeedSignIn": "signing in to the site",
+  "agentNeedPay": "paying on the site",
+  "agentNeedAnswer": "an answer",
+  "agentAutoLine": "No questions — from My details and your rules: {0}",
+  "agentLineCalendar": "Added to Calendar: {0}",
+  "agentRulesTitle": "Booking rules",
+  "agentRulesHint": "The agent books by these without asking. Paying, codes and signing in stay yours.",
+  "agentRuleWindow": "A time I name may move by, min",
+  "agentRuleDays": "If that day is full, up to … days later",
+  "agentRuleParty": "Guests when I don't say",
+  "agentRuleAnySpecialist": "Any specialist",
+  "agentRuleUsual": "The service I chose there last time",
+  "agentRuleCalendar": "Only times free in my Calendar",
+  "agentRuleAuto": "Book without a plan when everything is known and nothing is paid"
 }

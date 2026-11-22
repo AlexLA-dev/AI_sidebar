@@ -1209,5 +1209,19 @@
   "agentPlanRemember": "Recordar en «Mis datos»",
   "agentPlanFromSaved": "De «Mis datos»: actualizar allí",
   "agentMarkUnfinished": "Sin terminar",
-  "agentStuck": "La página dejó de cambiar, así que paré aquí. Lo que alcancé está arriba."
+  "agentStuck": "La página dejó de cambiar, así que paré aquí. Lo que alcancé está arriba.",
+  "agentNeedSignIn": "iniciar sesión en el sitio",
+  "agentNeedPay": "pagar en el sitio",
+  "agentNeedAnswer": "una respuesta",
+  "agentAutoLine": "Sin preguntas: de Mis datos y tus reglas: {0}",
+  "agentLineCalendar": "Añadido al Calendario: {0}",
+  "agentRulesTitle": "Reglas de reserva",
+  "agentRulesHint": "Con ellas el agente reserva sin preguntar. Pagar, códigos e iniciar sesión siguen siendo cosa tuya.",
+  "agentRuleWindow": "Una hora que diga puede moverse, min",
+  "agentRuleDays": "Si ese día está lleno: hasta … días después",
+  "agentRuleParty": "Personas si no lo digo",
+  "agentRuleAnySpecialist": "Cualquier profesional",
+  "agentRuleUsual": "El servicio que elegí ahí la última vez",
+  "agentRuleCalendar": "Solo horas libres en mi Calendario",
+  "agentRuleAuto": "Reservar sin plan si todo se sabe y nada se paga"
 }

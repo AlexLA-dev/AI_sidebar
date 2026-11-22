@@ -11,6 +11,7 @@ import { FORM_KEYS, refusedEntry, type FormEntry, type FormKey } from "../../sha
 import { t, type MessageKey } from "../../shared/i18n"
 import { sendBackground } from "../insert/store"
 import { autoStartSites, setAutoStart } from "./marks"
+import { DEFAULT_RULES, readRules, RULES_KEY, type AgentRules } from "../../shared/agent/rules"
 
 const KEY_NAME: Record<FormKey, MessageKey> = {
   "name.full": "fdNameFull", "name.given": "fdNameGiven", "name.family": "fdNameFamily", "name.latin": "fdNameLatin",
@@ -142,6 +143,7 @@ export function MyDetailsGroup(): VNode {
           </div>
         </div>
       )}
+      <RulesGroup />
       {sites.length > 0 && (
         <>
           <span class="cf-label">{t("setAgentAuto")}</span>
@@ -154,5 +156,53 @@ export function MyDetailsGroup(): VNode {
         </>
       )}
     </section>
+  )
+}
+
+/** «Правила поручений» (2.7.1): set once, used for every booking without asking; on the device (storage.local). */
+function RulesGroup(): VNode {
+  const [rules, setRules] = useState<AgentRules>(DEFAULT_RULES)
+  useEffect(() => {
+    try {
+      chrome.storage.local.get(RULES_KEY, (r) => setRules(readRules(r?.[RULES_KEY])))
+    } catch {
+      // the defaults stay
+    }
+  }, [])
+  const set = (patch: Partial<AgentRules>) => {
+    const next = readRules({ ...rules, ...patch })
+    setRules(next)
+    try {
+      void chrome.storage.local.set({ [RULES_KEY]: next })
+    } catch {
+      // not kept this time
+    }
+  }
+  const num = (key: "window" | "days" | "party", text: string, options: number[]) => (
+    <label class="cf-row">
+      <span>{text}</span>
+      <select class="cf-fd-rule" value={String(rules[key])} onChange={(e) => set({ [key]: Number((e.target as HTMLSelectElement).value) })}>
+        {options.map((o) => <option key={o} value={String(o)}>{o}</option>)}
+      </select>
+    </label>
+  )
+  const flag = (key: "anySpecialist" | "usual" | "calendar" | "auto", text: string) => (
+    <label class="cf-row toggle">
+      <input type="checkbox" checked={rules[key]} onChange={(e) => set({ [key]: (e.target as HTMLInputElement).checked })} />
+      <span>{text}</span>
+    </label>
+  )
+  return (
+    <div class="cf-fd-rules">
+      <span class="cf-label">{t("agentRulesTitle")}</span>
+      <p class="cf-hint">{t("agentRulesHint")}</p>
+      {num("window", t("agentRuleWindow"), [0, 15, 30, 60, 90, 120])}
+      {num("days", t("agentRuleDays"), [0, 1, 2, 3, 5, 7])}
+      {num("party", t("agentRuleParty"), [1, 2, 3, 4, 5, 6, 8])}
+      {flag("anySpecialist", t("agentRuleAnySpecialist"))}
+      {flag("usual", t("agentRuleUsual"))}
+      {flag("calendar", t("agentRuleCalendar"))}
+      {flag("auto", t("agentRuleAuto"))}
+    </div>
   )
 }

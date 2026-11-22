@@ -1209,5 +1209,19 @@
   "agentPlanRemember": "Ghi nhớ trong “Thông tin của tôi”",
   "agentPlanFromSaved": "Từ “Thông tin của tôi” — cập nhật ở đó",
   "agentMarkUnfinished": "Chưa xong",
-  "agentStuck": "Trang không thay đổi nữa nên tôi dừng ở đây. Những gì đã làm ở bên trên."
+  "agentStuck": "Trang không thay đổi nữa nên tôi dừng ở đây. Những gì đã làm ở bên trên.",
+  "agentNeedSignIn": "đăng nhập trang",
+  "agentNeedPay": "thanh toán trên trang",
+  "agentNeedAnswer": "câu trả lời",
+  "agentAutoLine": "Không hỏi — từ Dữ liệu của tôi và quy tắc của bạn: {0}",
+  "agentLineCalendar": "Đã thêm vào Lịch: {0}",
+  "agentRulesTitle": "Quy tắc đặt chỗ",
+  "agentRulesHint": "Trợ lý đặt chỗ theo các quy tắc này mà không hỏi. Thanh toán, mã và đăng nhập luôn do bạn làm.",
+  "agentRuleWindow": "Giờ tôi nói có thể lệch, phút",
+  "agentRuleDays": "Nếu ngày đó kín: muộn hơn tối đa … ngày",
+  "agentRuleParty": "Số người khi tôi không nói",
+  "agentRuleAnySpecialist": "Chuyên viên bất kỳ",
+  "agentRuleUsual": "Dịch vụ tôi chọn lần trước trên trang đó",
+  "agentRuleCalendar": "Chỉ giờ trống trong Lịch của tôi",
+  "agentRuleAuto": "Đặt chỗ không cần kế hoạch khi đã biết mọi thứ và không phải trả tiền"
 }

@@ -9,7 +9,7 @@
 import { classify, itemById, type StepContext } from "./classify.ts"
 import { normalize, wordKind } from "./match.ts"
 import { amountOf, amounts } from "./money.ts"
-import { hostOf, sameSite } from "./sites.ts"
+import { hostOf, sameSite, siteOfHost } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
 
 // The terms box as a plan permission: the owner's decision (2.7.1, his «1»): the agent ticks a site's terms box itself
@@ -69,6 +69,11 @@ export interface TaskPlan {
   // The person's answers to the questions, after «Начать».
   answers?: Array<{ q: string; a: string }>
   approved?: boolean
+  // The site it was planned on (remembered choices are this site's), and the time it books, when it does.
+  site?: string
+  booking?: PlanBooking
+  // Started without the card: every answer was known and nothing paid (the strip says so, with Stop).
+  auto?: boolean
 }
 
 export interface RawRisky {
@@ -84,6 +89,17 @@ export interface RawPlan {
   questions: PlanQuestion[]
   risky: RawRisky[]
   prices: string[]
+  booking?: PlanBooking
+}
+
+/** A task that books a time (2.7.1, the owner: the agent looks at the Calendar's free time for it): what, which day,
+ *  the window the request and the rules allow, how long it takes. */
+export interface PlanBooking {
+  kind: "table" | "appointment"
+  date: string
+  from: string
+  until: string
+  minutes: number
 }
 
 export const PLAN_SCHEMA = {
@@ -114,9 +130,21 @@ export const PLAN_SCHEMA = {
         additionalProperties: false
       }
     },
-    prices: { type: "array", items: { type: "string" } }
+    prices: { type: "array", items: { type: "string" } },
+    booking: {
+      type: "object",
+      properties: {
+        kind: { type: "string", enum: ["none", "table", "appointment"] },
+        date: { type: "string" },
+        from: { type: "string" },
+        until: { type: "string" },
+        minutes: { type: "number" }
+      },
+      required: ["kind", "date", "from", "until", "minutes"],
+      additionalProperties: false
+    }
   },
-  required: ["label", "steps", "questions", "risky", "prices"],
+  required: ["label", "steps", "questions", "risky", "prices", "booking"],
   additionalProperties: false
 }
 
@@ -131,7 +159,7 @@ export function checkPlan(raw: unknown): RawPlan {
     const q = x as Record<string, unknown>
     const text = s(q?.q, 200)
     const options = [...new Set(arr(q?.options).map((o) => s(o, 60)).filter(Boolean))].slice(0, 4)
-    const fact = s(q?.fact, 40).replace(/^fact:/i, "").trim()
+    const fact = s(q?.fact, 40).replace(/^fact:/i, "").replace(/^pref:\s*/i, "pref:").trim()
     return text ? [{ q: text, options, ...(fact ? { fact } : {}) }] : []
   }).slice(0, 3)
   const risky = arr(r.risky).flatMap((x) => {
@@ -140,7 +168,17 @@ export function checkPlan(raw: unknown): RawPlan {
     return tool ? [{ tool, id: s(k.id, 20), text: s(k.text, 200), key: s(k.key, 80) }] : []
   }).slice(0, 20)
   const prices = arr(r.prices).map((x) => s(x, 40)).filter((p) => /\d/.test(p)).slice(0, 4)
-  return { label: safeLabel(s(r.label, 60)), steps, questions, risky, prices }
+  return { label: safeLabel(s(r.label, 60)), steps, questions, risky, prices, ...(bookingOf(r.booking) ? { booking: bookingOf(r.booking)! } : {}) }
+}
+
+function bookingOf(v: unknown): PlanBooking | null {
+  const b = (v && typeof v === "object" ? v : {}) as Record<string, unknown>
+  const kind = b.kind === "table" || b.kind === "appointment" ? b.kind : null
+  const date = s(b.date, 10)
+  const time = (t: unknown) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(s(t, 5)) ? s(t, 5) : "")
+  if (!kind || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null
+  const minutes = typeof b.minutes === "number" && Number.isFinite(b.minutes) ? Math.min(600, Math.max(15, Math.round(b.minutes))) : 60
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes }
 }
 
 /**
@@ -248,7 +286,7 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
     if (i >= 0) x.step = i
   }
   const seen = [...new Set([...(ctx.map.money ?? []), ...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 120)
-  return { ...(raw.label ? { label: raw.label } : {}), steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen }
+  return { ...(raw.label ? { label: raw.label } : {}), steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen, site: siteOfHost(host), ...(raw.booking ? { booking: raw.booking } : {}) }
 }
 
 /** Whether the plan needs the person at all: questions, permissions or their own steps. */
@@ -393,9 +431,22 @@ export function factKey(label: string): string {
   return normalize(label)
 }
 
-/** The plan's questions pre-filled from the person's saved facts (by the fact's name): the value, or "". */
+/**
+ * The name a plan's fact is kept under in «Мои данные»: a fact about the person as it is («Пол»); a choice on a site
+ * («pref:Мастер») with the site's name first («fresha.com · Мастер»), so it's used on that site only.
+ */
+export function factLabel(fact: string, site?: string): string {
+  const pref = /^pref:\s*(.+)$/i.exec(fact)
+  if (!pref) return fact
+  return site ? `${site} · ${pref[1].trim()}`.slice(0, 60) : ""
+}
+
+/** The plan's questions pre-filled from the person's saved facts and this site's remembered choices: the value, or "". */
 export function savedAnswers(plan: TaskPlan, saved: Record<string, string>): string[] {
-  return plan.questions.map((q) => (q.fact ? optionFor(q.options, saved[factKey(q.fact)] ?? "") : ""))
+  return plan.questions.map((q) => {
+    const label = q.fact ? factLabel(q.fact, plan.site) : ""
+    return label ? optionFor(q.options, saved[factKey(label)] ?? "") : ""
+  })
 }
 
 /**

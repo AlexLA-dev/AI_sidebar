@@ -107,3 +107,8 @@
 .cf-agent-q.missing .cf-agent-options .cf-chip { border-color: var(--danger, #c0392b); }
 .cf-agent-reply { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .cf-agent-reply .cf-input-line { flex: 1 1 10em; }
+/* «Правила поручений» in «Мои данные»: a line each, the number on the right. */
+.cf-fd-rules { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
+.cf-fd-rules .cf-row span { flex: 1; }
+.cf-fd-rule { font: inherit; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+@media (pointer: coarse) { .cf-fd-rule { font-size: 16px; } }

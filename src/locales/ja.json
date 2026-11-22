@@ -1209,5 +1209,19 @@
   "agentPlanRemember": "「自分の情報」に保存",
   "agentPlanFromSaved": "「自分の情報」から（変更を保存）",
   "agentMarkUnfinished": "未完了",
-  "agentStuck": "ページが変わらなくなったので、ここで止めました。進んだところまでは上にあります。"
+  "agentStuck": "ページが変わらなくなったので、ここで止めました。進んだところまでは上にあります。",
+  "agentNeedSignIn": "サイトへのログイン",
+  "agentNeedPay": "サイトでの支払い",
+  "agentNeedAnswer": "回答",
+  "agentAutoLine": "質問なし — マイデータとルールから: {0}",
+  "agentLineCalendar": "カレンダーに追加: {0}",
+  "agentRulesTitle": "予約のルール",
+  "agentRulesHint": "エージェントはこれに従い、質問せずに予約します。支払い・コード・ログインは常にあなたが行います。",
+  "agentRuleWindow": "指定した時間をずらせる幅（分）",
+  "agentRuleDays": "その日が埋まっていたら、最大何日後まで",
+  "agentRuleParty": "人数の指定がないとき",
+  "agentRuleAnySpecialist": "担当者は指定なし",
+  "agentRuleUsual": "前回そのサイトで選んだメニュー",
+  "agentRuleCalendar": "カレンダーで空いている時間だけ",
+  "agentRuleAuto": "すべて分かっていて支払いがなければ、プランなしで予約"
 }

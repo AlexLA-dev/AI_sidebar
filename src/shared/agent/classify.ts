@@ -108,8 +108,14 @@ function isMessage(map: PageMap, item: MapItem, host: string): boolean {
   return map.items.some((i) => i.role === "editor" || i.role === "textarea")
 }
 
-/** The class of a click on `item` (a button, a link, a checkbox…) by its words and where it is. */
+/** The class of a click on `item` (a button, a link, a checkbox…) by its words and where it is. A press that commits
+ *  (a booking, a form sent) on a page that holds money (a deposit, a no-show fee) pays: the person's. */
 function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
+  const v = pressClass(map, item, host)
+  return map.deposit && v.cls === "confirm" && v.reason === "submit" ? verdict("self", "pay") : v
+}
+
+function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   const hit = wordKind(item.label)
   const form = item.form !== undefined ? map.forms.find((f) => f.n === item.form) : undefined
   const toggle = item.role === "checkbox" || item.role === "radio" || item.role === "switch"

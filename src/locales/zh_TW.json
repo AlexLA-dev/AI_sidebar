@@ -1209,5 +1209,19 @@
   "agentPlanRemember": "記在「我的資料」中",
   "agentPlanFromSaved": "來自「我的資料」——變更後更新",
   "agentMarkUnfinished": "未完成",
-  "agentStuck": "頁面不再變化，我在這裡停下了。完成的部分在上面。"
+  "agentStuck": "頁面不再變化，我在這裡停下了。完成的部分在上面。",
+  "agentNeedSignIn": "登入網站",
+  "agentNeedPay": "在網站上付款",
+  "agentNeedAnswer": "你的回答",
+  "agentAutoLine": "不必提問 — 來自「我的資料」和你的規則：{0}",
+  "agentLineCalendar": "已加入行事曆：{0}",
+  "agentRulesTitle": "預訂規則",
+  "agentRulesHint": "代理會依這些規則直接預訂，不再詢問。付款、驗證碼和登入一律由你來做。",
+  "agentRuleWindow": "說好的時間可前後調整（分鐘）",
+  "agentRuleDays": "當天額滿時：最多延後幾天",
+  "agentRuleParty": "沒說人數時",
+  "agentRuleAnySpecialist": "任一服務人員",
+  "agentRuleUsual": "上次在該網站選的服務",
+  "agentRuleCalendar": "只選行事曆中空閒的時間",
+  "agentRuleAuto": "資訊齊全且不需付款時，不顯示計畫直接預訂"
 }

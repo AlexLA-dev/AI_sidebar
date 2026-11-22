@@ -3539,6 +3539,48 @@
  "agentStuck": {
   "message": "Страница перестала меняться — я остановился. Что успел — выше."
  },
+ "agentNeedSignIn": {
+  "message": "вход на сайт"
+ },
+ "agentNeedPay": {
+  "message": "оплата на сайте"
+ },
+ "agentNeedAnswer": {
+  "message": "ваш ответ"
+ },
+ "agentAutoLine": {
+  "message": "Без вопросов — из «Моих данных» и правил: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Добавлено в Календарь: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Правила поручений"
+ },
+ "agentRulesHint": {
+  "message": "По ним агент бронирует без вопросов. Оплата, коды и вход — всегда ваши."
+ },
+ "agentRuleWindow": {
+  "message": "Названное время можно сдвинуть, мин"
+ },
+ "agentRuleDays": {
+  "message": "Если день занят — позже, до … дней"
+ },
+ "agentRuleParty": {
+  "message": "Гостей, если не сказал"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Любой мастер"
+ },
+ "agentRuleUsual": {
+  "message": "Услуга — как в прошлый раз на этом сайте"
+ },
+ "agentRuleCalendar": {
+  "message": "Только время, свободное в Календаре"
+ },
+ "agentRuleAuto": {
+  "message": "Бронировать без плана, если всё известно и ничего не платно"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

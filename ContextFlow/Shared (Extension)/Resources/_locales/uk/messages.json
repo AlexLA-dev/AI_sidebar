@@ -3539,6 +3539,48 @@
  "agentStuck": {
   "message": "Сторінка перестала змінюватися — я зупинився. Що встиг — вище."
  },
+ "agentNeedSignIn": {
+  "message": "вхід на сайт"
+ },
+ "agentNeedPay": {
+  "message": "оплата на сайті"
+ },
+ "agentNeedAnswer": {
+  "message": "ваша відповідь"
+ },
+ "agentAutoLine": {
+  "message": "Без запитань — з «Моїх даних» і правил: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Додано в Календар: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Правила доручень"
+ },
+ "agentRulesHint": {
+  "message": "За ними агент бронює без запитань. Оплата, коди та вхід — завжди ваші."
+ },
+ "agentRuleWindow": {
+  "message": "Названий час можна зсунути, хв"
+ },
+ "agentRuleDays": {
+  "message": "Якщо день зайнятий — пізніше, до … днів"
+ },
+ "agentRuleParty": {
+  "message": "Гостей, якщо не сказав"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Будь-який майстер"
+ },
+ "agentRuleUsual": {
+  "message": "Послуга — як минулого разу на цьому сайті"
+ },
+ "agentRuleCalendar": {
+  "message": "Лише час, вільний у Календарі"
+ },
+ "agentRuleAuto": {
+  "message": "Бронювати без плану, якщо все відомо й нічого не платно"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

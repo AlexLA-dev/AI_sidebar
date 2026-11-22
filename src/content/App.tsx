@@ -2729,7 +2729,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (popup) return
     const onVis = () => {
       const visible = document.visibilityState === "visible"
-      void sendBackground({ type: "agentSeen", visible, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}") } }) })
+      void sendBackground({ type: "agentSeen", visible, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}"), signIn: t("agentNeedSignIn"), pay: t("agentNeedPay"), answer: t("agentNeedAnswer") } }) })
     }
     document.addEventListener("visibilitychange", onVis)
     // A page that opens visible fires no change: it says so at once (a new tab otherwise left the background thinking
