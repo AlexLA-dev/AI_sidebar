@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "最初の数日、ページでできることを教えてくれます。"
  },
+ "setCookies": {
+  "message": "Cookieの確認画面を閉じる"
+ },
+ "setCookiesHint": {
+  "message": "「必須のみ」を選びます。"
+ },
+ "cookiesOffOnSite": {
+  "message": "このサイトでは閉じない"
+ },
+ "cookiesOnOnSite": {
+  "message": "このサイトでも閉じる"
+ },
+ "cookieClosedLine": {
+  "message": "Cookieの画面を閉じました：必須のみ"
+ },
  "phSimilarBodyUpBoth": {
   "message": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。"
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "ページが変わらなくなったので、ここで止めました。進んだところまでは上にあります。"
+ },
+ "agentNeedSignIn": {
+  "message": "サイトへのログイン"
+ },
+ "agentNeedPay": {
+  "message": "サイトでの支払い"
+ },
+ "agentNeedAnswer": {
+  "message": "回答"
+ },
+ "agentAutoLine": {
+  "message": "質問なし — マイデータとルールから: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "カレンダーに追加: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "予約のルール"
+ },
+ "agentRulesHint": {
+  "message": "エージェントはこれに従い、質問せずに予約します。支払い・コード・ログインは常にあなたが行います。"
+ },
+ "agentRuleWindow": {
+  "message": "指定した時間をずらせる幅（分）"
+ },
+ "agentRuleDays": {
+  "message": "その日が埋まっていたら、最大何日後まで"
+ },
+ "agentRuleParty": {
+  "message": "人数の指定がないとき"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "担当者は指定なし"
+ },
+ "agentRuleUsual": {
+  "message": "前回そのサイトで選んだメニュー"
+ },
+ "agentRuleCalendar": {
+  "message": "カレンダーで空いている時間だけ"
+ },
+ "agentRuleAuto": {
+  "message": "すべて分かっていて支払いがなければ、プランなしで予約"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "In your first days, they show what you can do on a page."
  },
+ "setCookies": {
+  "message": "Close cookie windows"
+ },
+ "setCookiesHint": {
+  "message": "Picks “only necessary”."
+ },
+ "cookiesOffOnSite": {
+  "message": "Don't close on this site"
+ },
+ "cookiesOnOnSite": {
+  "message": "Close on this site"
+ },
+ "cookieClosedLine": {
+  "message": "Closed a cookie window: only necessary"
+ },
  "phSimilarBodyUpBoth": {
   "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "The page stopped changing, so I stopped here. What I got to is above."
+ },
+ "agentNeedSignIn": {
+  "message": "signing in to the site"
+ },
+ "agentNeedPay": {
+  "message": "paying on the site"
+ },
+ "agentNeedAnswer": {
+  "message": "an answer"
+ },
+ "agentAutoLine": {
+  "message": "No questions — from My details and your rules: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Added to Calendar: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Booking rules"
+ },
+ "agentRulesHint": {
+  "message": "The agent books by these without asking. Paying, codes and signing in stay yours."
+ },
+ "agentRuleWindow": {
+  "message": "A time I name may move by, min"
+ },
+ "agentRuleDays": {
+  "message": "If that day is full, up to … days later"
+ },
+ "agentRuleParty": {
+  "message": "Guests when I don't say"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Any specialist"
+ },
+ "agentRuleUsual": {
+  "message": "The service I chose there last time"
+ },
+ "agentRuleCalendar": {
+  "message": "Only times free in my Calendar"
+ },
+ "agentRuleAuto": {
+  "message": "Book without a plan when everything is known and nothing is paid"
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "In den ersten Tagen zeigen sie, was du auf einer Seite tun kannst."
  },
+ "setCookies": {
+  "message": "Cookie-Fenster schließen"
+ },
+ "setCookiesHint": {
+  "message": "Wählt „Nur notwendige“."
+ },
+ "cookiesOffOnSite": {
+  "message": "Auf dieser Website nicht schließen"
+ },
+ "cookiesOnOnSite": {
+  "message": "Auf dieser Website schließen"
+ },
+ "cookieClosedLine": {
+  "message": "Cookie-Fenster geschlossen: nur notwendige"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "Die Seite hat sich nicht mehr verändert, deshalb habe ich hier aufgehört. Was ich geschafft habe, steht oben."
+ },
+ "agentNeedSignIn": {
+  "message": "Anmeldung auf der Website"
+ },
+ "agentNeedPay": {
+  "message": "Bezahlen auf der Website"
+ },
+ "agentNeedAnswer": {
+  "message": "eine Antwort"
+ },
+ "agentAutoLine": {
+  "message": "Ohne Fragen – aus „Meine Daten“ und deinen Regeln: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Zum Kalender hinzugefügt: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Buchungsregeln"
+ },
+ "agentRulesHint": {
+  "message": "Danach bucht der Agent ohne Fragen. Bezahlen, Codes und Anmelden bleiben bei dir."
+ },
+ "agentRuleWindow": {
+  "message": "Eine genannte Zeit darf sich verschieben um, Min."
+ },
+ "agentRuleDays": {
+  "message": "Ist der Tag voll: bis zu … Tage später"
+ },
+ "agentRuleParty": {
+  "message": "Gäste, wenn ich nichts sage"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Beliebige Fachkraft"
+ },
+ "agentRuleUsual": {
+  "message": "Die Leistung, die ich dort zuletzt gewählt habe"
+ },
+ "agentRuleCalendar": {
+  "message": "Nur Zeiten, die in meinem Kalender frei sind"
+ },
+ "agentRuleAuto": {
+  "message": "Ohne Plan buchen, wenn alles bekannt ist und nichts kostet"
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

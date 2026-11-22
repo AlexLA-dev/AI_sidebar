@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "刚开始的几天，提示你在页面上能做什么。"
  },
+ "setCookies": {
+  "message": "关闭 Cookie 窗口"
+ },
+ "setCookiesHint": {
+  "message": "选择“仅必要”。"
+ },
+ "cookiesOffOnSite": {
+  "message": "在此网站上不关闭"
+ },
+ "cookiesOnOnSite": {
+  "message": "在此网站上关闭"
+ },
+ "cookieClosedLine": {
+  "message": "已关闭 Cookie 窗口：仅必要"
+ },
  "phSimilarBodyUpBoth": {
   "message": "这是 Pro 和 Ultra 的功能：Pro 是快速搜索，Ultra 是完整搜索。同款更便宜的，以及其他商店的相似商品。点高亮的按钮。"
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "页面不再变化，我在这里停下了。完成的部分在上面。"
+ },
+ "agentNeedSignIn": {
+  "message": "登录网站"
+ },
+ "agentNeedPay": {
+  "message": "在网站上付款"
+ },
+ "agentNeedAnswer": {
+  "message": "你的回答"
+ },
+ "agentAutoLine": {
+  "message": "无需提问 — 来自“我的资料”和你的规则：{0}"
+ },
+ "agentLineCalendar": {
+  "message": "已添加到日历：{0}"
+ },
+ "agentRulesTitle": {
+  "message": "预订规则"
+ },
+ "agentRulesHint": {
+  "message": "代理会按这些规则直接预订，不再询问。付款、验证码和登录始终由你来做。"
+ },
+ "agentRuleWindow": {
+  "message": "说定的时间可前后调整（分钟）"
+ },
+ "agentRuleDays": {
+  "message": "那天约满时：最多推迟几天"
+ },
+ "agentRuleParty": {
+  "message": "没说人数时"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "任意服务人员"
+ },
+ "agentRuleUsual": {
+  "message": "上次在该网站选的服务"
+ },
+ "agentRuleCalendar": {
+  "message": "只选日历中空闲的时间"
+ },
+ "agentRuleAuto": {
+  "message": "信息齐全且无需付款时，不显示计划直接预订"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"

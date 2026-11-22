@@ -305,6 +305,25 @@ export const FEATURES: Record<string, Feature> = {
     fields: { cards: "int", what: ["collection", "card"] }
   },
 
+  // 2.7.1, the cookie closer (src/content/cookies): a day's counts, sent once the next day — banners answered with
+  // «only necessary» by each consent platform's rule, the generic closer or a TCF page ("closed", what, count), and
+  // banners left to the person and why ("left": only «Accept» offered, no button we know, pressed but it stayed, a
+  // «pay or accept» wall).
+  // Settings: the switch and the per-site exception. Never a site or an address.
+  cookies: {
+    since: "2.7.1", tracked: "2.7.1", on: "ext",
+    actions: ["closed", "left", "switch_on", "switch_off", "site_off", "site_on"],
+    fields: {
+      what: [
+        "onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "sourcepoint", "cookieyes", "complianz",
+        "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "cookie_notice", "cookieconsent",
+        "borlabs", "shopify", "evidon", "tcf", "generic"
+      ],
+      why: ["only_accept", "none", "stuck", "wall"],
+      count: "int"
+    }
+  },
+
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.
   ext: { since: "2.4", tracked: "2.4", on: "ext", actions: ["on"], own: true },
   limit: { since: "2.0", tracked: "2.0", actions: ["hit"], own: true },

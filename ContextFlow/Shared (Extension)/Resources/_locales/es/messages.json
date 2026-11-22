@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "En tus primeros días muestran qué puedes hacer en una página."
  },
+ "setCookies": {
+  "message": "Cerrar ventanas de cookies"
+ },
+ "setCookiesHint": {
+  "message": "Elige «solo necesarias»."
+ },
+ "cookiesOffOnSite": {
+  "message": "No cerrar en este sitio"
+ },
+ "cookiesOnOnSite": {
+  "message": "Cerrar en este sitio"
+ },
+ "cookieClosedLine": {
+  "message": "Ventana de cookies cerrada: solo necesarias"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Está en Pro y Ultra: en Pro, la búsqueda rápida; en Ultra, la completa. El mismo producto más barato y otros parecidos de otras tiendas. Toca el botón resaltado."
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "La página dejó de cambiar, así que paré aquí. Lo que alcancé está arriba."
+ },
+ "agentNeedSignIn": {
+  "message": "iniciar sesión en el sitio"
+ },
+ "agentNeedPay": {
+  "message": "pagar en el sitio"
+ },
+ "agentNeedAnswer": {
+  "message": "una respuesta"
+ },
+ "agentAutoLine": {
+  "message": "Sin preguntas: de Mis datos y tus reglas: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Añadido al Calendario: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Reglas de reserva"
+ },
+ "agentRulesHint": {
+  "message": "Con ellas el agente reserva sin preguntar. Pagar, códigos e iniciar sesión siguen siendo cosa tuya."
+ },
+ "agentRuleWindow": {
+  "message": "Una hora que diga puede moverse, min"
+ },
+ "agentRuleDays": {
+  "message": "Si ese día está lleno: hasta … días después"
+ },
+ "agentRuleParty": {
+  "message": "Personas si no lo digo"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Cualquier profesional"
+ },
+ "agentRuleUsual": {
+  "message": "El servicio que elegí ahí la última vez"
+ },
+ "agentRuleCalendar": {
+  "message": "Solo horas libres en mi Calendario"
+ },
+ "agentRuleAuto": {
+  "message": "Reservar sin plan si todo se sabe y nada se paga"
  },
  "tip_4cf1b54b00": {
   "message": "Consejos"

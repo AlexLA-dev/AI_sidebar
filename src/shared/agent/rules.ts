@@ -1,0 +1,83 @@
+// «Правила поручений» (2.7.1, the owner 2026-11-22: «доделывай нормальную автономизацию»): what the person decided once
+// for bookings, so the agent doesn't ask it each time. Kept on the device (storage.local), edited in «Мои данные»; the
+// model hears them as a line and the plan doesn't ask what they decide. A rule never widens what's allowed: paying,
+// cards, codes, signing in, messages and Amazon stay the person's whatever the rules say (classify.ts decides those).
+
+export interface AgentRules {
+  // A requested time may move this many minutes either way.
+  window: number
+  // A full day: up to this many days later.
+  days: number
+  // People at a table when the request doesn't say.
+  party: number
+  // Any specialist (true), or ask.
+  anySpecialist: boolean
+  // The service chosen last time on that site, when known.
+  usual: boolean
+  // Look at free times in the Calendar before choosing one (when the app may read it).
+  calendar: boolean
+  // Book without a plan card when every answer is known and nothing is paid.
+  auto: boolean
+}
+
+export const DEFAULT_RULES: AgentRules = { window: 60, days: 2, party: 2, anySpecialist: true, usual: true, calendar: true, auto: true }
+
+export const RULES_KEY = "agentRules"
+
+/** The rules as stored, with the defaults for what's missing or out of range. */
+export function readRules(raw: unknown): AgentRules {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<AgentRules>
+  const num = (v: unknown, lo: number, hi: number, d: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v))) : d)
+  const bool = (v: unknown, d: boolean) => (typeof v === "boolean" ? v : d)
+  return {
+    window: num(r.window, 0, 240, DEFAULT_RULES.window),
+    days: num(r.days, 0, 7, DEFAULT_RULES.days),
+    party: num(r.party, 1, 20, DEFAULT_RULES.party),
+    anySpecialist: bool(r.anySpecialist, DEFAULT_RULES.anySpecialist),
+    usual: bool(r.usual, DEFAULT_RULES.usual),
+    calendar: bool(r.calendar, DEFAULT_RULES.calendar),
+    auto: bool(r.auto, DEFAULT_RULES.auto)
+  }
+}
+
+/** The line the model reads (English, as the prompt is). */
+export function rulesLine(r: AgentRules, calendarFree: boolean): string {
+  return [
+    `a requested time may move up to ${r.window} minutes either way`,
+    r.days ? `if the requested day has no free time, up to ${r.days} day${r.days === 1 ? "" : "s"} later` : "the requested day only",
+    `${r.party} ${r.party === 1 ? "person" : "people"} when the request doesn't say how many`,
+    r.anySpecialist ? "any specialist" : "ask which specialist",
+    r.usual ? "the service chosen last time on this site when the answers say it" : "",
+    calendarFree ? "only times free in the person's calendar (<calendar>)" : ""
+  ].filter(Boolean).join("; ")
+}
+
+// Kept around the person's own events: time to get there and back. More when the event has a place (it may be across town).
+export const PAD_MIN = 30
+export const PAD_PLACE_MIN = 60
+
+/** A time slot's words on a page ("17:45", "5:45 PM", "17.45", "14h30"). */
+export const SLOT_TIME = /(^|[^\d])([01]?\d|2[0-3])\s*[:.h]\s*([0-5]\d)(?!\d)|(^|[^\d])(1[0-2]|0?[1-9])\s*(am|pm|a\.m\.|p\.m\.)/i
+
+/** Whether a control's words look like a time to book (a slot), not a date or a button. */
+export function looksLikeSlot(label: string): boolean {
+  return label.length <= 40 && SLOT_TIME.test(label)
+}
+
+const pad2 = (n: number) => String(n).padStart(2, "0")
+
+/** "HH:MM" plus minutes, within the day (clamped to 00:00–23:59). */
+export function addMinutes(time: string, minutes: number): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(time)
+  if (!m) return time
+  const t = Math.min(23 * 60 + 59, Math.max(0, Number(m[1]) * 60 + Number(m[2]) + minutes))
+  return `${pad2(Math.floor(t / 60))}:${pad2(t % 60)}`
+}
+
+/** The day after `date` ("YYYY-MM-DD"), `n` days on. */
+export function addDays(date: string, n: number): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+  if (!m) return date
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + n)
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+}

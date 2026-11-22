@@ -12,6 +12,7 @@ import { controlChanged } from "../../shared/agent/expect"
 import type { StepResult, ToolCall } from "../../shared/agent/types"
 import { readText, replaceText } from "../insert/fieldtext"
 import { elementOf, markFilled, nameOf, roleOf } from "./map"
+import { hostOf, sameSite } from "../../shared/agent/sites"
 import { fieldLock } from "../../shared/agent/fields"
 
 const SETTLE_QUIET_MS = 350
@@ -90,6 +91,14 @@ function reveal(el: Element): void {
 
 /** A press the way a page hears a finger or a mouse: pointer and mouse down and up, then the click itself. */
 export function press(el: Element): void {
+  // A link of this site that would open a new tab opens here: the agent works in its own tab (TheFork's restaurant
+  // cards opened tabs it never saw). Another site's link keeps its own way (that's classed apart).
+  const a = el.closest?.("a[href][target]") as HTMLAnchorElement | null
+  const target = a?.getAttribute("target") ?? ""
+  if (a && target && target !== "_self" && sameSite(hostOf(a.href), hostOf(el.ownerDocument.location?.href ?? ""))) {
+    a.setAttribute("target", "_self")
+    setTimeout(() => a.isConnected && a.setAttribute("target", target), 1500)
+  }
   const view = el.ownerDocument.defaultView ?? window
   const r = el.getBoundingClientRect()
   const at = { bubbles: true, cancelable: true, composed: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, button: 0, view }

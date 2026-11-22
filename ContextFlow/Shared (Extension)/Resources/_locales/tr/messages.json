@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "İlk günlerinizde bir sayfada neler yapabileceğinizi gösterir."
  },
+ "setCookies": {
+  "message": "Çerez pencerelerini kapat"
+ },
+ "setCookiesHint": {
+  "message": "“Yalnızca gerekli” seçeneğini seçer."
+ },
+ "cookiesOffOnSite": {
+  "message": "Bu sitede kapatma"
+ },
+ "cookiesOnOnSite": {
+  "message": "Bu sitede kapat"
+ },
+ "cookieClosedLine": {
+  "message": "Çerez penceresi kapatıldı: yalnızca gerekli"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Bu özellik Pro ve Ultra'da: Pro'da hızlı arama, Ultra'da tam arama. Aynı ürün daha ucuza ve başka mağazalardan benzerleri. Vurgulanan düğmeye dokunun."
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "Sayfa değişmeyi bıraktı, burada durdum. Yapabildiklerim yukarıda."
+ },
+ "agentNeedSignIn": {
+  "message": "siteye giriş"
+ },
+ "agentNeedPay": {
+  "message": "sitede ödeme"
+ },
+ "agentNeedAnswer": {
+  "message": "bir yanıt"
+ },
+ "agentAutoLine": {
+  "message": "Soru yok — Bilgilerim ve kurallarından: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Takvime eklendi: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Rezervasyon kuralları"
+ },
+ "agentRulesHint": {
+  "message": "Ajan bunlara göre sormadan rezervasyon yapar. Ödeme, kodlar ve giriş her zaman sende."
+ },
+ "agentRuleWindow": {
+  "message": "Söylediğim saat kayabilir, dk"
+ },
+ "agentRuleDays": {
+  "message": "O gün doluysa: en fazla … gün sonra"
+ },
+ "agentRuleParty": {
+  "message": "Söylemezsem kişi sayısı"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Herhangi bir uzman"
+ },
+ "agentRuleUsual": {
+  "message": "O sitede geçen sefer seçtiğim hizmet"
+ },
+ "agentRuleCalendar": {
+  "message": "Yalnızca Takvimimde boş saatler"
+ },
+ "agentRuleAuto": {
+  "message": "Her şey biliniyor ve ücretli bir şey yoksa plansız rezervasyon yap"
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"

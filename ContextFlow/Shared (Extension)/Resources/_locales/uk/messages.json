@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "У перші дні підказують, що можна зробити на сторінці."
  },
+ "setCookies": {
+  "message": "Закривати вікна cookie"
+ },
+ "setCookiesHint": {
+  "message": "Вибирає «лише необхідні»."
+ },
+ "cookiesOffOnSite": {
+  "message": "Не закривати на цьому сайті"
+ },
+ "cookiesOnOnSite": {
+  "message": "Закривати на цьому сайті"
+ },
+ "cookieClosedLine": {
+  "message": "Закрив вікно cookie: лише необхідні"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Це в Pro та Ultra: у Pro — швидкий пошук, в Ultra — повний. Той самий товар дешевше і схожі варіанти з інших магазинів. Натисніть підсвічену кнопку."
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "Сторінка перестала змінюватися — я зупинився. Що встиг — вище."
+ },
+ "agentNeedSignIn": {
+  "message": "вхід на сайт"
+ },
+ "agentNeedPay": {
+  "message": "оплата на сайті"
+ },
+ "agentNeedAnswer": {
+  "message": "ваша відповідь"
+ },
+ "agentAutoLine": {
+  "message": "Без запитань — з «Моїх даних» і правил: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Додано в Календар: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Правила доручень"
+ },
+ "agentRulesHint": {
+  "message": "За ними агент бронює без запитань. Оплата, коди та вхід — завжди ваші."
+ },
+ "agentRuleWindow": {
+  "message": "Названий час можна зсунути, хв"
+ },
+ "agentRuleDays": {
+  "message": "Якщо день зайнятий — пізніше, до … днів"
+ },
+ "agentRuleParty": {
+  "message": "Гостей, якщо не сказав"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Будь-який майстер"
+ },
+ "agentRuleUsual": {
+  "message": "Послуга — як минулого разу на цьому сайті"
+ },
+ "agentRuleCalendar": {
+  "message": "Лише час, вільний у Календарі"
+ },
+ "agentRuleAuto": {
+  "message": "Бронювати без плану, якщо все відомо й нічого не платно"
  },
  "tip_4cf1b54b00": {
   "message": "Поради"

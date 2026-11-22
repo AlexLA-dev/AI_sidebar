@@ -299,7 +299,8 @@ test("117: answers about the person are pre-filled from «Мои данные» 
   assert.deepEqual(savedAnswers(plan, { [factKey("пол")]: "Мужская" }), ["Мужская", ""])
   const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
   assert.match(panel, /const \[keep, setKeep\] = useState<boolean\[\]>\(\(\) => plan\.questions\.map\(\(q\) => !!q\.fact\)\)/)
-  assert.match(panel, /q\.fact && keep\[i\] && answers\[i\]\.trim\(\) && answers\[i\]\.trim\(\) !== pre\[i\]/)
+  assert.match(panel, /const label = q\.fact \? factLabel\(q\.fact, plan\.site\) : ""/)
+  assert.match(panel, /label && keep\[i\] && answers\[i\]\.trim\(\) && answers\[i\]\.trim\(\) !== pre\[i\]/)
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   assert.match(app, /if \(refusedEntry\(fact, value\)\) return \[\]/)
   assert.match(app, /type: "formDataPut", changes/)
@@ -383,7 +384,7 @@ test("118 fresha: a remembered answer picks the plan's own wording, the time slo
   assert.match(map, /if \(messages >= MESSAGES_MAX\) break/)
   // A no-progress nudge follows what the person already said; choices are real ways on.
   const runner = readFileSync(new URL("../src/shared/agent/runner.ts", import.meta.url), "utf8")
-  assert.match(runner, /If the person's words or answers already say what to do now, do it/)
+  assert.match(runner, /If the person's words, their answers or <rules> already decide what to do now/)
   const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
   assert.match(act, /do that instead of asking again/)
   assert.match(act, /never "try the same again"/)

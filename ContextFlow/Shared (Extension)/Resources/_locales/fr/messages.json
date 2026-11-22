@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "Les premiers jours, elles montrent ce que vous pouvez faire sur une page."
  },
+ "setCookies": {
+  "message": "Fermer les fenêtres de cookies"
+ },
+ "setCookiesHint": {
+  "message": "Choisit « uniquement nécessaires »."
+ },
+ "cookiesOffOnSite": {
+  "message": "Ne pas fermer sur ce site"
+ },
+ "cookiesOnOnSite": {
+  "message": "Fermer sur ce site"
+ },
+ "cookieClosedLine": {
+  "message": "Fenêtre de cookies fermée : uniquement nécessaires"
+ },
  "phSimilarBodyUpBoth": {
   "message": "C’est dans Pro et Ultra : dans Pro la recherche rapide, dans Ultra la complète. Le même produit moins cher, et des similaires d’autres boutiques. Touchez le bouton mis en avant."
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "La page ne changeait plus, je me suis arrêté ici. Ce que j’ai fait est au-dessus."
+ },
+ "agentNeedSignIn": {
+  "message": "la connexion au site"
+ },
+ "agentNeedPay": {
+  "message": "le paiement sur le site"
+ },
+ "agentNeedAnswer": {
+  "message": "une réponse"
+ },
+ "agentAutoLine": {
+  "message": "Sans questions — d’après Mes infos et vos règles : {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Ajouté au Calendrier : {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Règles de réservation"
+ },
+ "agentRulesHint": {
+  "message": "L’agent réserve selon elles sans rien demander. Paiement, codes et connexion restent à vous."
+ },
+ "agentRuleWindow": {
+  "message": "Une heure indiquée peut bouger de, min"
+ },
+ "agentRuleDays": {
+  "message": "Si ce jour est complet : jusqu’à … jours plus tard"
+ },
+ "agentRuleParty": {
+  "message": "Personnes si je ne précise pas"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "N’importe quel professionnel"
+ },
+ "agentRuleUsual": {
+  "message": "Le service choisi la dernière fois sur ce site"
+ },
+ "agentRuleCalendar": {
+  "message": "Seulement les heures libres dans mon Calendrier"
+ },
+ "agentRuleAuto": {
+  "message": "Réserver sans plan quand tout est connu et rien n’est payant"
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "Trong những ngày đầu, gợi ý cho bạn biết có thể làm gì trên trang."
  },
+ "setCookies": {
+  "message": "Đóng cửa sổ cookie"
+ },
+ "setCookiesHint": {
+  "message": "Chọn “chỉ cần thiết”."
+ },
+ "cookiesOffOnSite": {
+  "message": "Không đóng trên trang này"
+ },
+ "cookiesOnOnSite": {
+  "message": "Đóng trên trang này"
+ },
+ "cookieClosedLine": {
+  "message": "Đã đóng cửa sổ cookie: chỉ cần thiết"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Tính năng này có trong Pro và Ultra: Pro tìm nhanh, Ultra tìm đầy đủ. Cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "Trang không thay đổi nữa nên tôi dừng ở đây. Những gì đã làm ở bên trên."
+ },
+ "agentNeedSignIn": {
+  "message": "đăng nhập trang"
+ },
+ "agentNeedPay": {
+  "message": "thanh toán trên trang"
+ },
+ "agentNeedAnswer": {
+  "message": "câu trả lời"
+ },
+ "agentAutoLine": {
+  "message": "Không hỏi — từ Dữ liệu của tôi và quy tắc của bạn: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Đã thêm vào Lịch: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Quy tắc đặt chỗ"
+ },
+ "agentRulesHint": {
+  "message": "Trợ lý đặt chỗ theo các quy tắc này mà không hỏi. Thanh toán, mã và đăng nhập luôn do bạn làm."
+ },
+ "agentRuleWindow": {
+  "message": "Giờ tôi nói có thể lệch, phút"
+ },
+ "agentRuleDays": {
+  "message": "Nếu ngày đó kín: muộn hơn tối đa … ngày"
+ },
+ "agentRuleParty": {
+  "message": "Số người khi tôi không nói"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Chuyên viên bất kỳ"
+ },
+ "agentRuleUsual": {
+  "message": "Dịch vụ tôi chọn lần trước trên trang đó"
+ },
+ "agentRuleCalendar": {
+  "message": "Chỉ giờ trống trong Lịch của tôi"
+ },
+ "agentRuleAuto": {
+  "message": "Đặt chỗ không cần kế hoạch khi đã biết mọi thứ và không phải trả tiền"
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

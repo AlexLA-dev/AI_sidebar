@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "처음 며칠 동안 페이지에서 할 수 있는 일을 알려 줘요."
  },
+ "setCookies": {
+  "message": "쿠키 창 닫기"
+ },
+ "setCookiesHint": {
+  "message": "‘필수만’을 선택합니다."
+ },
+ "cookiesOffOnSite": {
+  "message": "이 사이트에서는 닫지 않기"
+ },
+ "cookiesOnOnSite": {
+  "message": "이 사이트에서 닫기"
+ },
+ "cookieClosedLine": {
+  "message": "쿠키 창을 닫았습니다: 필수만"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Pro와 Ultra 기능이에요. Pro는 빠른 검색, Ultra는 전체 검색. 같은 상품을 더 싸게, 다른 쇼핑몰의 비슷한 상품도 찾아요. 강조된 버튼을 누르세요."
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "페이지가 더 바뀌지 않아 여기서 멈췄어요. 진행한 내용은 위에 있어요."
+ },
+ "agentNeedSignIn": {
+  "message": "사이트 로그인"
+ },
+ "agentNeedPay": {
+  "message": "사이트에서 결제"
+ },
+ "agentNeedAnswer": {
+  "message": "답변"
+ },
+ "agentAutoLine": {
+  "message": "질문 없이 — 내 정보와 규칙으로: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "캘린더에 추가됨: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "예약 규칙"
+ },
+ "agentRulesHint": {
+  "message": "에이전트가 이 규칙대로 묻지 않고 예약합니다. 결제, 코드, 로그인은 항상 직접 하세요."
+ },
+ "agentRuleWindow": {
+  "message": "말한 시간을 옮길 수 있는 범위(분)"
+ },
+ "agentRuleDays": {
+  "message": "그날이 꽉 차면: 최대 며칠 뒤까지"
+ },
+ "agentRuleParty": {
+  "message": "인원을 말하지 않았을 때"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "아무 담당자나"
+ },
+ "agentRuleUsual": {
+  "message": "그 사이트에서 지난번에 고른 서비스"
+ },
+ "agentRuleCalendar": {
+  "message": "내 캘린더에서 비어 있는 시간만"
+ },
+ "agentRuleAuto": {
+  "message": "모두 알고 결제할 게 없으면 계획 없이 예약"
  },
  "tip_4cf1b54b00": {
   "message": "팁"

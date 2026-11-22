@@ -67,6 +67,8 @@ export interface PageMap {
   // The page takes payment: card fields, a payment provider's frame (Stripe, Adyen, Braintree, PayPal, Apple Pay…) or
   // a checkout / payment address. Every press that sends something here is the person's own.
   pay?: boolean
+  // The page mentions a deposit, a prepayment or a no-show fee (read with the page's amounts): its committing press pays.
+  deposit?: boolean
   // Every amount of money on the whole page (the device's price check against the plan; never sent to the model).
   money?: number[]
 }
@@ -107,6 +109,8 @@ export interface ToolCall {
   // The control as it was when the step was classed (set by the device, never by the model): the hands refuse the step
   // if the live control isn't that one any more («Continue» relabelled «Pay now» while the server answered).
   expect?: { label: string; role: Role; lock?: Lock }
+  // Set by the device only (never the model's): an event's link (the booking page without its query).
+  link?: string
 }
 
 /**

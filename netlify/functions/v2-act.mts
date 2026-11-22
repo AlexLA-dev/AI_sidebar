@@ -104,7 +104,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   const lang = requestLanguage(request, clip(task.lang, 12) || "en")
   const planning = task.phase === "plan" && step === 0
-  const input = { request, lang, map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device), plan: clip(task.plan, 2000) || undefined }
+  const input = { request, lang, map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device), plan: clip(task.plan, 2000) || undefined, rules: clip(task.rules, 600) || undefined, calendar: calendarLine(task.calendar), playbook: clip(task.playbook, 900) || undefined }
   let out
   try {
     if (planning) {
@@ -185,4 +185,13 @@ function deviceLine(v: unknown): string {
   const d = (v && typeof v === "object" ? v : {}) as Record<string, unknown>
   const one = (x: unknown) => (x === "yes" || x === "none" || x === "denied" ? x : "unavailable")
   return `reminders=${one(d.reminders)} calendar=${one(d.calendar)}`
+}
+
+/** The Calendar's free times for a booking as the device worked them out: times only ("2026-11-24 17:00–19:30; …", or
+ *  "none"); anything else from it doesn't reach the prompt. */
+function calendarLine(v: unknown): string | undefined {
+  const t = clip(v, 400)
+  if (t === "none") return t
+  const parts = t.split(";").map((x) => x.trim()).filter((x) => /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}–\d{2}:\d{2}$/.test(x))
+  return parts.length ? parts.join("; ") : undefined
 }

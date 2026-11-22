@@ -108,8 +108,23 @@ function isMessage(map: PageMap, item: MapItem, host: string): boolean {
   return map.items.some((i) => i.role === "editor" || i.role === "textarea")
 }
 
-/** The class of a click on `item` (a button, a link, a checkbox…) by its words and where it is. */
+const PRICE_FROM = /(^|\s)(from|starting at|ab|à partir de|dès|desde|a partir de|da|a partire da|от|від|itibaren|から|부터|起|起價|ابتداءً من|từ)(\s|$)/i
+
+/** A link that is a listing's card: long words with a price «from …» among them (not a button that pays). */
+function listingCard(item: MapItem): boolean {
+  return item.role === "link" && (item.label.length > 40 || PRICE_FROM.test(item.label))
+}
+
+/** The class of a click on `item` (a button, a link, a checkbox…) by its words and where it is. A press that commits
+ *  (a booking, a form sent) on a page that holds money (a deposit, a no-show fee) pays: the person's. */
 function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
+  const v = pressClass(map, item, host)
+  // Only the press that commits, on the page where it commits (personal fields, a review / confirm page): a fee named
+  // in a home page's text or a cookie banner's «Accept» isn't paying.
+  return map.deposit && v.cls === "confirm" && v.reason === "submit" && commitStage(map) && !isConsentDialog(map, item) ? verdict("self", "pay") : v
+}
+
+function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   const hit = wordKind(item.label)
   const form = item.form !== undefined ? map.forms.find((f) => f.n === item.form) : undefined
   const toggle = item.role === "checkbox" || item.role === "radio" || item.role === "switch"
@@ -122,7 +137,9 @@ function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   // Money (the security review: paying was stopped by word lists only). An amount on the button («Donate €10», «Rent
   // $3.99») pays; on a page that takes payment (card fields, a payment frame, a checkout address) every press that
   // isn't a link elsewhere on the page, a tab, an option or a refusal is the person's own.
-  if (amounts(item.label).length) return verdict("self", "pay")
+  // (A listing's card is a link with its price on it — «Groom Room … Men's haircut from £35», Treatwell: that's going to
+  // the salon, not paying. A button with an amount, or a short link that names one, still pays.)
+  if (amounts(item.label).length && !listingCard(item)) return verdict("self", "pay")
   const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || hit?.kind === "nav" || hit?.kind === "reject"
   if (map.pay && !quiet && !(item.role === "link" && !form)) return verdict("self", "pay")
   if (form?.secret && (hit?.kind === "submit" || hit?.kind === "weak" || hit?.kind === "send")) return verdict("self", "auth")
@@ -147,6 +164,9 @@ function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
     if (form.otherSite) return verdict("confirm", "other_site")
     if (form.fillable) return verdict("confirm", "submit")
   }
+  // A button with no words in something drawn over the page, outside a form: its close «×» (Treatwell's app banner had
+  // one, and asking about it stopped the task). Elsewhere a wordless control still asks.
+  if (!item.label.trim() && item.where === "dialog" && item.form === undefined && item.type !== "submit" && item.role === "button") return verdict("free", "close")
   if (!item.label.trim()) return verdict("confirm", "unknown")
   return verdict("free", "click")
 }

@@ -14,6 +14,7 @@ import { hintsOn, setHintsOn } from "./pagehints/store"
 import { resolveSide } from "./side/snap"
 import { InviteGroup } from "./invite/Invite"
 import { MyDetailsGroup } from "./agent/MyDetails"
+import { CookieGroup } from "./cookies/CookieSettings"
 import { SpentCount, usageText } from "./quiet/Spent"
 
 interface Props {
@@ -205,6 +206,9 @@ export function SettingsView(props: Props): VNode {
           <p class="cf-hint">{t("uxShareMarksHint")}</p>
         </section>
       )}
+
+      {/* 2.7.1: cookie banners answered with «only necessary», and the site to leave them on. */}
+      <CookieGroup site={site} />
 
       <InsertSettingsGroup site={site} touch={props.platform === "ios" || props.platform === "ipados"} onOpenTemplates={props.onOpenTemplates} />
       {/* 2.7.1: «Мои данные» for the agent's forms (Pro and Ultra have the agent; the details are kept anyway). */}

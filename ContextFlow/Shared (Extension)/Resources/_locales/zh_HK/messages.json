@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "剛開始的幾天，提示你在頁面上能做什麼。"
  },
+ "setCookies": {
+  "message": "關閉 Cookie 視窗"
+ },
+ "setCookiesHint": {
+  "message": "選擇「僅必要」。"
+ },
+ "cookiesOffOnSite": {
+  "message": "在此網站不關閉"
+ },
+ "cookiesOnOnSite": {
+  "message": "在此網站關閉"
+ },
+ "cookieClosedLine": {
+  "message": "已關閉 Cookie 視窗：僅必要"
+ },
  "phSimilarBodyUpBoth": {
   "message": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點一下亮起的按鈕。"
  },
@@ -3538,6 +3553,48 @@
  },
  "agentStuck": {
   "message": "頁面不再變化，我在這裡停下了。完成的部分在上面。"
+ },
+ "agentNeedSignIn": {
+  "message": "登入網站"
+ },
+ "agentNeedPay": {
+  "message": "在網站上付款"
+ },
+ "agentNeedAnswer": {
+  "message": "你的回答"
+ },
+ "agentAutoLine": {
+  "message": "不必提問 — 來自「我的資料」和你的規則：{0}"
+ },
+ "agentLineCalendar": {
+  "message": "已加入行事曆：{0}"
+ },
+ "agentRulesTitle": {
+  "message": "預訂規則"
+ },
+ "agentRulesHint": {
+  "message": "代理會依這些規則直接預訂，不再詢問。付款、驗證碼和登入一律由你來做。"
+ },
+ "agentRuleWindow": {
+  "message": "說好的時間可前後調整（分鐘）"
+ },
+ "agentRuleDays": {
+  "message": "當天額滿時：最多延後幾天"
+ },
+ "agentRuleParty": {
+  "message": "沒說人數時"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "任一服務人員"
+ },
+ "agentRuleUsual": {
+  "message": "上次在該網站選的服務"
+ },
+ "agentRuleCalendar": {
+  "message": "只選行事曆中空閒的時間"
+ },
+ "agentRuleAuto": {
+  "message": "資訊齊全且不需付款時，不顯示計畫直接預訂"
  },
  "tip_4cf1b54b00": {
   "message": "提示"
