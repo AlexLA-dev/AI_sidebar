@@ -22,6 +22,10 @@ test("larger sizes scale the panel, capped at the first accessibility size", () 
 test("the zoom rule and the AA greys are in the panel's styles", () => {
   const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
   assert.match(css, /\.cf\[data-ui\] \.cf-panel > \* \{ zoom: var\(--ui, 1\); \}/)
+  // The header stops at 1.2 and its space name gives way (the owner: the share and chats icons covered the name).
+  assert.match(css, /\.cf\[data-ui\] \.cf-panel > \.cf-header \{ zoom: min\(var\(--ui, 1\), 1\.2\); \}/)
+  const spaces = readFileSync(new URL("../src/content/spaces.css", import.meta.url), "utf8")
+  assert.match(spaces, /\.cf\[data-ui\] \.cf-space-switch \{ flex: 0 1 auto; min-width: 0; \}/)
   assert.doesNotMatch(css, /--text-3: #8d8a96/)
   assert.doesNotMatch(css, /--text-3: #85828f/)
 })

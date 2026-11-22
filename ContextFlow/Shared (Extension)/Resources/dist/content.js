@@ -155,9 +155,11 @@ ${o.text}`,sources:[{kind:"video",ok:!1,name:g,reason:m.status}]}}let a=[],s=[],
 /* The system text size on iPhone and iPad (systemText.ts): the panel's parts are zoomed by it, text and tap areas
    together, while the panel's own box keeps the screen's width. 1 (no zoom) at the default size and below. */
 .cf[data-ui] .cf-panel > * { zoom: var(--ui, 1); }
-/* The header (space name and five icons) and the input row (buttons, field, send) overlap or leave no room to type
-   past 1.35 on an iPhone, so they stop growing there. */
-.cf[data-ui] .cf-panel > .cf-header, .cf[data-ui] .cf-panel > .cf-composer { zoom: min(var(--ui, 1), 1.35); }
+/* The input row (buttons, field, send) leaves no room to type past 1.35 on an iPhone, so it stops growing there. The
+   header holds the space name and up to five icons: it stops at 1.2, and the name gives way (spaces.css) rather than
+   letting the icons slide over it (the owner on the 2.7.1 shots). */
+.cf[data-ui] .cf-panel > .cf-composer { zoom: min(var(--ui, 1), 1.35); }
+.cf[data-ui] .cf-panel > .cf-header { zoom: min(var(--ui, 1), 1.2); }
 
 .cf[data-theme="dark"] {
   --note: #f59e0b;
@@ -2680,6 +2682,11 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
 .cf-space-switch:hover, .cf-space-switch[aria-expanded="true"] { background: var(--space-soft, var(--bg-2)); }
 .cf-space-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
 .cf[data-layout="sheet"] .cf-space-name { max-width: min(150px, 34vw); }
+/* With the system text size (systemText.ts) the header is zoomed and vw no longer matches its room: the switch may
+   shrink, and the name keeps at least three letters before its ellipsis. */
+.cf[data-ui] .cf-space-wrap { flex: 0 1 auto; overflow: hidden; }
+.cf[data-ui] .cf-space-switch { flex: 0 1 auto; min-width: 0; }
+.cf[data-ui] .cf-space-name { min-width: 2.2em; max-width: 150px; }
 .cf-space-chev { flex: none; color: var(--text-2); transition: transform 0.15s ease; }
 .cf-space-switch[aria-expanded="true"] .cf-space-chev { transform: rotate(180deg); }
 

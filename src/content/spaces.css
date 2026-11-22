@@ -21,6 +21,11 @@
 .cf-space-switch:hover, .cf-space-switch[aria-expanded="true"] { background: var(--space-soft, var(--bg-2)); }
 .cf-space-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
 .cf[data-layout="sheet"] .cf-space-name { max-width: min(150px, 34vw); }
+/* With the system text size (systemText.ts) the header is zoomed and vw no longer matches its room: the switch may
+   shrink, and the name keeps at least three letters before its ellipsis. */
+.cf[data-ui] .cf-space-wrap { flex: 0 1 auto; overflow: hidden; }
+.cf[data-ui] .cf-space-switch { flex: 0 1 auto; min-width: 0; }
+.cf[data-ui] .cf-space-name { min-width: 2.2em; max-width: 150px; }
 .cf-space-chev { flex: none; color: var(--text-2); transition: transform 0.15s ease; }
 .cf-space-switch[aria-expanded="true"] .cf-space-chev { transform: rotate(180deg); }
 
