@@ -125,7 +125,7 @@
             "IPAD"
           ],
           "newUsersOnly": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "文章摘要",
@@ -164,7 +164,7 @@
           "newUsersOnly": true,
           "searchMatch": true,
           "negateCampaignExact": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "文章摘要",
@@ -292,7 +292,7 @@
             "IPAD"
           ],
           "newUsersOnly": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "riassumere testo",
@@ -343,7 +343,7 @@
           "newUsersOnly": true,
           "searchMatch": true,
           "negateCampaignExact": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "riassumere testo",
@@ -508,7 +508,7 @@
             "IPAD"
           ],
           "newUsersOnly": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "résumer texte",
@@ -539,7 +539,7 @@
           "newUsersOnly": true,
           "searchMatch": true,
           "negateCampaignExact": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "résumer texte",
@@ -661,7 +661,7 @@
             "IPAD"
           ],
           "newUsersOnly": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "text zusammenfassen",
@@ -712,7 +712,7 @@
           "newUsersOnly": true,
           "searchMatch": true,
           "negateCampaignExact": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "text zusammenfassen",
@@ -872,7 +872,7 @@
             "IPAD"
           ],
           "newUsersOnly": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "metin özetleme",
@@ -915,7 +915,7 @@
           "newUsersOnly": true,
           "searchMatch": true,
           "negateCampaignExact": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "metin özetleme",
@@ -1107,7 +1107,7 @@
             "IPAD"
           ],
           "newUsersOnly": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "resumir texto",
@@ -1146,7 +1146,7 @@
           "newUsersOnly": true,
           "searchMatch": true,
           "negateCampaignExact": true,
-          "productPage": "default",
+          "productPage": "2.6 Other languages: summarize, translate, listen",
           "keywords": [
             {
               "text": "resumir texto",
