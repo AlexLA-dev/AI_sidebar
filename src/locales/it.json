@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Vai alla scheda",
   "agentNotifPaused": "Attività in pausa: apri Safari per finirla: {0}",
   "agentNotifDone": "Fatto: {0}",
-  "agentNotifNeeds": "Serve lei: {0}"
+  "agentNotifNeeds": "Serve lei: {0}",
+  "agentPlanStepYours": "«{0}»: lo premi tu"
 }

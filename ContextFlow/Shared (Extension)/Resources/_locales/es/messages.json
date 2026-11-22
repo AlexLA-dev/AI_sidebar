@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "Te necesita: {0}"
  },
+ "agentPlanStepYours": {
+  "message": "«{0}»: lo pulsas tú"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

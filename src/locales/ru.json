@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Перейти к вкладке",
   "agentNotifPaused": "Дело на паузе — откройте Safari, чтобы закончить: {0}",
   "agentNotifDone": "Готово: {0}",
-  "agentNotifNeeds": "Нужны вы: {0}"
+  "agentNotifNeeds": "Нужны вы: {0}",
+  "agentPlanStepYours": "«{0}» — нажмёте вы"
 }

@@ -250,3 +250,42 @@ test("«Также в Напоминания» is titled with the task's short n
   assert.match(bg, /deferredReminder\(task\.id, noticeLabel\(task\.plan, hostOf\(task\.url\)\), task\.at, task\.url\)/)
   assert.doesNotMatch(bg, /deferredReminder\(task\.id, task\.request/)
 })
+
+test("a plan line naming the person's own step reads as theirs; the model hears it isn't its to press", async () => {
+  const { planLine } = await import("../src/shared/agent/taskplan.ts")
+  const shop: PageMap = { ...BOOK, items: [{ id: "1", role: "button", label: "Купить сейчас" }, { id: "2", role: "button", label: "В корзину" }] }
+  const plan = buildPlan(checkPlan({ steps: ["Выбираю размер 42", "Нажимаю «Купить сейчас»"], questions: [], risky: [{ tool: "click", id: "1", text: "", key: "" }], prices: [] }), { ...ctx, map: shop })
+  assert.deepEqual(plan.self.map((x) => [x.reason, x.step]), [["pay", 1]])
+  plan.approved = true
+  assert.match(planLine(plan), /Нажимаю «Купить сейчас» \(the person's own step: not yours to press\)/)
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /planStepText\(plan, i, l\)/)
+  assert.match(panel, /t\("agentPlanStepYours", own\.label\)/)
+})
+
+test("«done» before the plan's own press: one more step for it; «done» again is taken", async () => {
+  const shop: PageMap = { ...BOOK, items: [{ id: "1", role: "radio", label: "42" }, { id: "2", role: "button", label: "Add to cart" }] }
+  const raw = { steps: ["Choosing 42", "Adding to the cart"], questions: [], risky: [{ tool: "click", id: "2", text: "", key: "" }], prices: [] }
+  const go = (replies: ActReply[]) => {
+    const x = io(replies)
+    x.map = async () => shop
+    return x
+  }
+  const x = go([
+    { ok: true, plan: raw, token: "t" },
+    step({ tool: "click", id: "1" }, "free", "toggle"),
+    step({ tool: "done", summary: "Done" }, "free", "read"),
+    step({ tool: "click", id: "2" }, "confirm", "cart"),
+    step({ tool: "done", summary: "Added" }, "free", "read")
+  ])
+  let s = await drive(newState("d1", "add size 42 to the cart", "en", shop.url), x)
+  s = await approvePlan(s, x, { answers: [], off: [] })
+  assert.equal(s.status, "done")
+  assert.deepEqual((x.acted as ToolCall[]).map((c) => c.id), ["1", "2"], "the cart was pressed after the first «done»")
+  assert.match(x.asked[3].log.at(-1).result, /hasn't happened yet/)
+  const y = go([{ ok: true, plan: raw, token: "t" }, step({ tool: "done", summary: "Out of stock" }, "free", "read"), step({ tool: "done", summary: "Out of stock, nothing added" }, "free", "read")])
+  let s2 = await drive(newState("d2", "add size 42 to the cart", "en", shop.url), y)
+  s2 = await approvePlan(s2, y, { answers: [], off: [] })
+  assert.equal(s2.status, "done")
+  assert.equal(s2.summary, "Out of stock, nothing added", "a second «done» with its reason is taken")
+})

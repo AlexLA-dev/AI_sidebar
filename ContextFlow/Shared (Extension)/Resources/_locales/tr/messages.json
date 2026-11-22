@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "Sizi bekliyor: {0}"
  },
+ "agentPlanStepYours": {
+  "message": "“{0}” — siz basacaksınız"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

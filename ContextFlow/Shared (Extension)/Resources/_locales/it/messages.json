@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "Serve lei: {0}"
  },
+ "agentPlanStepYours": {
+  "message": "«{0}»: lo premi tu"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

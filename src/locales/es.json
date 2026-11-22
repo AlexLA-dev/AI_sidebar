@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Ir a la pestaña",
   "agentNotifPaused": "Tarea en pausa: abre Safari para terminarla: {0}",
   "agentNotifDone": "Hecho: {0}",
-  "agentNotifNeeds": "Te necesita: {0}"
+  "agentNotifNeeds": "Te necesita: {0}",
+  "agentPlanStepYours": "«{0}»: lo pulsas tú"
 }

@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "Precisa de você: {0}"
  },
+ "agentPlanStepYours": {
+  "message": "“{0}” — você aperta"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

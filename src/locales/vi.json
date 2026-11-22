@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Đến thẻ",
   "agentNotifPaused": "Việc đang tạm dừng — mở Safari để làm xong: {0}",
   "agentNotifDone": "Xong: {0}",
-  "agentNotifNeeds": "Cần bạn: {0}"
+  "agentNotifNeeds": "Cần bạn: {0}",
+  "agentPlanStepYours": "“{0}” — bạn tự nhấn"
 }

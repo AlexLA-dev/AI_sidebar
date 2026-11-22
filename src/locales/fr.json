@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Aller à l'onglet",
   "agentNotifPaused": "Tâche en pause — ouvrez Safari pour la terminer : {0}",
   "agentNotifDone": "Terminé : {0}",
-  "agentNotifNeeds": "Vous êtes attendu : {0}"
+  "agentNotifNeeds": "Vous êtes attendu : {0}",
+  "agentPlanStepYours": "« {0} » — c’est vous qui appuyez"
 }

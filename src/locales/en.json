@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Go to the tab",
   "agentNotifPaused": "Task paused — open Safari to finish: {0}",
   "agentNotifDone": "Done: {0}",
-  "agentNotifNeeds": "Needs you: {0}"
+  "agentNotifNeeds": "Needs you: {0}",
+  "agentPlanStepYours": "“{0}” — you press it"
 }

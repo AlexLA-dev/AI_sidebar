@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Zum Tab",
   "agentNotifPaused": "Aufgabe pausiert – öffnen Sie Safari, um sie abzuschließen: {0}",
   "agentNotifDone": "Erledigt: {0}",
-  "agentNotifNeeds": "Braucht Sie: {0}"
+  "agentNotifNeeds": "Braucht Sie: {0}",
+  "agentPlanStepYours": "„{0}“ – drücken Sie selbst"
 }

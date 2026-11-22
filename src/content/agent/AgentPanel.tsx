@@ -137,6 +137,13 @@ function permText(p: Perm, host: string): string {
   }
 }
 
+/** A line of the plan: the model's words, or, for a step the person does, theirs («Купить сейчас» — нажмёте вы). */
+function planStepText(plan: TaskPlan, i: number, line: string): VNode | string {
+  const own = plan.self.find((x) => x.step === i)
+  if (!own) return line
+  return <><span class="cf-agent-you">{t("agentYouMark")}</span> {t("agentPlanStepYours", own.label)}</>
+}
+
 /** A step the person will do, as the plan card lists it. */
 function selfLine(x: PlanSelf): string {
   switch (x.reason) {
@@ -166,7 +173,7 @@ function PlanCard({ plan, host, onPlan, later, onStop }: { plan: TaskPlan; host:
       <strong>{t("agentPlanTitle")}</strong>
       {plan.steps.length > 0 && (
         <ol class="cf-agent-plan-steps">
-          {plan.steps.map((l, i) => <li key={i} dir="auto">{l}</li>)}
+          {plan.steps.map((l, i) => <li key={i} dir="auto">{planStepText(plan, i, l)}</li>)}
         </ol>
       )}
       {plan.questions.map((q, i) => (
@@ -316,7 +323,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
       {planning && state.plan && onPlan && <PlanCard plan={state.plan} host={hostName(state.url)} onPlan={onPlan} later={later} onStop={() => onAnswer("stop")} />}
       {/* The plan's lines while it works by it (what it said it would do). */}
       {(busy || waiting) && state.plan?.approved && state.plan.steps.length > 0 && lines.length === 0 && (
-        <ol class="cf-agent-plan-steps">{state.plan.steps.map((l, i) => <li key={i} dir="auto">{l}</li>)}</ol>
+        <ol class="cf-agent-plan-steps">{state.plan.steps.map((l, i) => <li key={i} dir="auto">{planStepText(state.plan!, i, l)}</li>)}</ol>
       )}
       {lines.length > 0 && (
         <ol class="cf-agent-lines">
