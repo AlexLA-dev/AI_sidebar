@@ -18,9 +18,12 @@ export interface AgentRules {
   calendar: boolean
   // Book without a plan card when every answer is known and nothing is paid.
   auto: boolean
+  // A request that names no place: the agent chooses it (rated at least this, with enough reviews).
+  chooseVenue: boolean
+  rating: number
 }
 
-export const DEFAULT_RULES: AgentRules = { window: 60, days: 2, party: 2, anySpecialist: true, usual: true, calendar: true, auto: true }
+export const DEFAULT_RULES: AgentRules = { window: 60, days: 2, party: 2, anySpecialist: true, usual: true, calendar: true, auto: true, chooseVenue: true, rating: 4.5 }
 
 export const RULES_KEY = "agentRules"
 
@@ -36,7 +39,9 @@ export function readRules(raw: unknown): AgentRules {
     anySpecialist: bool(r.anySpecialist, DEFAULT_RULES.anySpecialist),
     usual: bool(r.usual, DEFAULT_RULES.usual),
     calendar: bool(r.calendar, DEFAULT_RULES.calendar),
-    auto: bool(r.auto, DEFAULT_RULES.auto)
+    auto: bool(r.auto, DEFAULT_RULES.auto),
+    chooseVenue: bool(r.chooseVenue, DEFAULT_RULES.chooseVenue),
+    rating: typeof r.rating === "number" && r.rating >= 3 && r.rating <= 5 ? Math.round(r.rating * 10) / 10 : DEFAULT_RULES.rating
   }
 }
 
@@ -48,7 +53,8 @@ export function rulesLine(r: AgentRules, calendarFree: boolean): string {
     `${r.party} ${r.party === 1 ? "person" : "people"} when the request doesn't say how many`,
     r.anySpecialist ? "any specialist" : "ask which specialist",
     r.usual ? "the service chosen last time on this site when the answers say it" : "",
-    calendarFree ? "only times free in the person's calendar (<calendar>)" : ""
+    calendarFree ? "only times free in the person's calendar (<calendar>)" : "",
+    r.chooseVenue ? `when the request names no place, choose it yourself: what it offers matches the request, rated ${r.rating} or more with at least 20 reviews, open with free slots then, the nearest to where the request or the site says; if its slots don't fit, try the next two before asking` : "when the request names no place, ask which one"
   ].filter(Boolean).join("; ")
 }
 
@@ -80,4 +86,78 @@ export function addDays(date: string, n: number): string {
   if (!m) return date
   const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + n)
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+}
+
+// ------------------------------------------------------------ the place's time zone
+
+/** Minutes east of UTC in `tz` at the instant `utcMs`. */
+function zoneOffset(tz: string, utcMs: number): number {
+  const f = new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+  const p = Object.fromEntries(f.formatToParts(new Date(utcMs)).map((x) => [x.type, x.value]))
+  return Math.round((Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute) - utcMs) / 60000)
+}
+
+/** The device's own zone. */
+export function deviceZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+  } catch {
+    return "UTC"
+  }
+}
+
+/**
+ * A wall-clock date and time in one zone as the same instant in another («19:00 in Paris» is 20:00 in Nicosia). The
+ * same when either zone is missing or they're equal.
+ */
+export function shiftZone(date: string, time: string, from?: string, to?: string): { date: string; time: string } {
+  const a = from || deviceZone()
+  const b = to || deviceZone()
+  const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+  const t = /^(\d{1,2}):(\d{2})$/.exec(time)
+  if (a === b || !d || !t) return { date, time }
+  try {
+    const wall = Date.UTC(+d[1], +d[2] - 1, +d[3], +t[1], +t[2])
+    // The instant whose wall time in `a` is `wall` (one correction for the offset at that instant).
+    let utc = wall - zoneOffset(a, wall) * 60000
+    utc = wall - zoneOffset(a, utc) * 60000
+    const out = new Date(utc + zoneOffset(b, utc) * 60000)
+    return { date: `${out.getUTCFullYear()}-${pad2(out.getUTCMonth() + 1)}-${pad2(out.getUTCDate())}`, time: `${pad2(out.getUTCHours())}:${pad2(out.getUTCMinutes())}` }
+  } catch {
+    return { date, time }
+  }
+}
+
+/** The Calendar's free times («2026-11-24 17:00–19:30; …», in the device's zone) as the place's wall clock. */
+export function freeLineIn(line: string, tz?: string): string {
+  if (!tz || tz === deviceZone()) return line
+  return line.split(";").map((part) => {
+    const m = /^\s*(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})–(\d{2}:\d{2})\s*$/.exec(part)
+    if (!m) return part.trim()
+    const a = shiftZone(m[1], m[2], undefined, tz)
+    const b = shiftZone(m[1], m[3], undefined, tz)
+    return `${a.date} ${a.time}–${b.time}`
+  }).join("; ")
+}
+
+// ------------------------------------------------------------ the page's own slots
+
+/** Every time a text names, as HH:MM (24 h): «17:45», «5:45 PM», «17.45», «14h30». */
+export function timesIn(text: string): string[] {
+  const out: string[] = []
+  const re = /(?<![\d:])([01]?\d|2[0-3])\s*[:.h]\s*([0-5]\d)(?!\d)(\s*(am|pm|a\.m\.|p\.m\.))?|(?<![\d:])(1[0-2]|0?[1-9])\s*(am|pm|a\.m\.|p\.m\.)/gi
+  for (const m of text.matchAll(re)) {
+    let h = Number(m[1] ?? m[5])
+    const min = m[2] ? Number(m[2]) : 0
+    const ap = (m[4] ?? m[6] ?? "").toLowerCase()
+    if (ap.startsWith("p") && h < 12) h += 12
+    if (ap.startsWith("a") && h === 12) h = 0
+    out.push(`${pad2(h)}:${pad2(min)}`)
+  }
+  return out
+}
+
+/** The question's choices that name times the page doesn't show (taken from the Calendar alone) are dropped. */
+export function pageChoices(choices: string[], pageTimes: Set<string>): string[] {
+  return choices.filter((c) => timesIn(c).every((t) => pageTimes.has(t)))
 }

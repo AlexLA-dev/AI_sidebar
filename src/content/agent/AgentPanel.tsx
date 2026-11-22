@@ -209,6 +209,12 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
           {plan.steps.map((l, i) => <li key={i} dir="auto">{planStepText(plan, i, l)}</li>)}
         </ol>
       )}
+      {/* A booking: how it will choose, so «Начать» is all it takes (the director on 120). */}
+      {plan.how && (
+        <p class="cf-agent-meta" dir="auto">
+          {[plan.how.rating ? t("agentPlanHow", plan.how.rating.toLocaleString()) : "", plan.how.calendar ? t("agentPlanHowCal") : ""].filter(Boolean).join(" · ")}
+        </p>
+      )}
       {plan.questions.map((q, i) => (
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
           <p dir="auto">{q.q}</p>

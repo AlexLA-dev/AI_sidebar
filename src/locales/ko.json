@@ -1228,5 +1228,9 @@
   "agentRuleAnySpecialist": "아무 담당자나",
   "agentRuleUsual": "그 사이트에서 지난번에 고른 서비스",
   "agentRuleCalendar": "내 캘린더에서 비어 있는 시간만",
-  "agentRuleAuto": "모두 알고 결제할 게 없으면 계획 없이 예약"
+  "agentRuleAuto": "모두 알고 결제할 게 없으면 계획 없이 예약",
+  "agentPlanHow": "장소는 제가 고릅니다: 평점 {0} 이상, 조건에 맞고 가장 가까운 곳",
+  "agentPlanHowCal": "캘린더에서 비어 있는 시간, 일정도 추가",
+  "agentRuleVenue": "장소를 말하지 않으면 직접 고르기",
+  "agentRuleRating": "장소 평점 최소"
 }

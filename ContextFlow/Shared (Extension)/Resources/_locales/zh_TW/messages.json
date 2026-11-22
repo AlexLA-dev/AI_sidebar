@@ -3596,6 +3596,18 @@
  "agentRuleAuto": {
   "message": "資訊齊全且不需付款時，不顯示計畫直接預訂"
  },
+ "agentPlanHow": {
+  "message": "地點由我來選：評分 {0} 以上、符合需求、最近"
+ },
+ "agentPlanHowCal": {
+  "message": "選行事曆中空閒的時間，並加入行事曆"
+ },
+ "agentRuleVenue": {
+  "message": "我沒指定地點時，自行選擇"
+ },
+ "agentRuleRating": {
+  "message": "地點評分不低於"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

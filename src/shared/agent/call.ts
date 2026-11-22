@@ -37,9 +37,10 @@ export const CALL_SCHEMA = {
     place: { type: "string" },
     why: { type: "string" },
     // ask_user: 2–4 short answers to offer as buttons ([] when the question is open).
-    choices: { type: "array", items: { type: "string" } }
+    choices: { type: "array", items: { type: "string" } },
+    also: { type: "array", items: { type: "object", properties: { id: { type: "string" }, why: { type: "string" } }, required: ["id", "why"], additionalProperties: false } }
   },
-  required: ["tool", "id", "text", "mode", "key", "option", "to", "part", "question", "summary", "ref", "list", "date", "time", "until", "minutes", "days", "place", "why", "choices"],
+  required: ["tool", "id", "text", "mode", "key", "option", "to", "part", "question", "summary", "ref", "list", "date", "time", "until", "minutes", "days", "place", "why", "choices", "also"],
   additionalProperties: false
 }
 
@@ -71,11 +72,21 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
     call.id = id
   }
   switch (tool) {
-    case "click":
+    case "click": {
       if (!CLICK_ROLES.has(item!.role)) return { ok: false, error: `element ${id} (${item!.role}) can't be clicked` }
       if (item!.state?.includes("disabled")) return { ok: false, error: `element ${id} is disabled` }
       slotOf(call, r)
+      // Up to 3 more presses on this page, after the first (a service, «any» specialist, a date): the device presses each
+      // only if it's still there and it's a free step; anything else waits for its own call.
+      const also = (Array.isArray(r.also) ? r.also : []).flatMap((x) => {
+        const o = (x && typeof x === "object" ? x : {}) as Record<string, unknown>
+        const aid = str(o.id, 20)
+        const it = aid ? map.items.find((i) => i.id === aid) : null
+        return aid && aid !== id && it && CLICK_ROLES.has(it.role) && !it.state?.includes("disabled") ? [{ id: aid, why: str(o.why, MAX_WHY) ?? "" }] : []
+      }).slice(0, 3)
+      if (also.length) call.also = also
       break
+    }
     case "type": {
       if (!TYPE_ROLES.has(item!.role)) return { ok: false, error: `element ${id} (${item!.role}) isn't a field` }
       if (item!.state?.includes("readonly") || item!.state?.includes("disabled")) return { ok: false, error: `field ${id} can't be typed into` }

@@ -3596,6 +3596,18 @@
  "agentRuleAuto": {
   "message": "Reservar sin plan si todo se sabe y nada se paga"
  },
+ "agentPlanHow": {
+  "message": "Elijo el sitio: con {0}+ de valoración, adecuado, el más cercano"
+ },
+ "agentPlanHowCal": {
+  "message": "una hora libre en tu Calendario, y la añado allí"
+ },
+ "agentRuleVenue": {
+  "message": "Elegir el sitio yo mismo si no nombro ninguno"
+ },
+ "agentRuleRating": {
+  "message": "Valoración del sitio desde"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

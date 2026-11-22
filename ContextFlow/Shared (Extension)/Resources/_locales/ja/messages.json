@@ -3596,6 +3596,18 @@
  "agentRuleAuto": {
   "message": "すべて分かっていて支払いがなければ、プランなしで予約"
  },
+ "agentPlanHow": {
+  "message": "場所はこちらで選びます：評価{0}以上・条件に合う・最寄り"
+ },
+ "agentPlanHowCal": {
+  "message": "カレンダーで空いている時間に、予定も追加"
+ },
+ "agentRuleVenue": {
+  "message": "場所を指定しないときは自分で選ぶ"
+ },
+ "agentRuleRating": {
+  "message": "場所の評価（以上）"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

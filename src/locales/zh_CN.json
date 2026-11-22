@@ -1228,5 +1228,9 @@
   "agentRuleAnySpecialist": "任意服务人员",
   "agentRuleUsual": "上次在该网站选的服务",
   "agentRuleCalendar": "只选日历中空闲的时间",
-  "agentRuleAuto": "信息齐全且无需付款时，不显示计划直接预订"
+  "agentRuleAuto": "信息齐全且无需付款时，不显示计划直接预订",
+  "agentPlanHow": "地点由我来选：评分 {0} 以上、符合要求、最近",
+  "agentPlanHowCal": "选日历中空闲的时间，并加入日历",
+  "agentRuleVenue": "我没指定地点时，自行选择",
+  "agentRuleRating": "地点评分不低于"
 }

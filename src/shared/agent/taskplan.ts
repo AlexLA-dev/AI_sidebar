@@ -74,6 +74,8 @@ export interface TaskPlan {
   booking?: PlanBooking
   // Started without the card: every answer was known and nothing paid (the strip says so, with Stop).
   auto?: boolean
+  // How a booking will be chosen, for the card: the place's rating floor (0: the person names it), the Calendar.
+  how?: { rating: number; calendar: boolean }
 }
 
 export interface RawRisky {
@@ -100,6 +102,8 @@ export interface PlanBooking {
   from: string
   until: string
   minutes: number
+  // The place's time zone (IANA), when it isn't the person's: slots are in it, the Calendar in the device's.
+  tz?: string
 }
 
 export const PLAN_SCHEMA = {
@@ -138,9 +142,10 @@ export const PLAN_SCHEMA = {
         date: { type: "string" },
         from: { type: "string" },
         until: { type: "string" },
-        minutes: { type: "number" }
+        minutes: { type: "number" },
+        tz: { type: "string" }
       },
-      required: ["kind", "date", "from", "until", "minutes"],
+      required: ["kind", "date", "from", "until", "minutes", "tz"],
       additionalProperties: false
     }
   },
@@ -178,7 +183,8 @@ function bookingOf(v: unknown): PlanBooking | null {
   const time = (t: unknown) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(s(t, 5)) ? s(t, 5) : "")
   if (!kind || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null
   const minutes = typeof b.minutes === "number" && Number.isFinite(b.minutes) ? Math.min(600, Math.max(15, Math.round(b.minutes))) : 60
-  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes }
+  const tz = s(b.tz, 60)
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}) }
 }
 
 /**
@@ -483,4 +489,13 @@ const CANCEL_CHOICE = /^(cancel|stop|abort|never ?mind|отмена|отмени
 
 export function isCancelChoice(choice: string): boolean {
   return CANCEL_CHOICE.test(choice.trim().replace(/[.!…]+$/u, ""))
+}
+
+function validZone(tz: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: tz })
+    return /\//.test(tz)
+  } catch {
+    return false
+  }
 }

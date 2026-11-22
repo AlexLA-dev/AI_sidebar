@@ -3596,6 +3596,18 @@
  "agentRuleAuto": {
   "message": "Book without a plan when everything is known and nothing is paid"
  },
+ "agentPlanHow": {
+  "message": "I'll pick the place: rated {0}+, matching, nearest"
+ },
+ "agentPlanHowCal": {
+  "message": "a time free in your Calendar, added there"
+ },
+ "agentRuleVenue": {
+  "message": "Choose the place myself when I don't name one"
+ },
+ "agentRuleRating": {
+  "message": "Place rating from"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

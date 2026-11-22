@@ -1228,5 +1228,9 @@
   "agentRuleAnySpecialist": "Any specialist",
   "agentRuleUsual": "The service I chose there last time",
   "agentRuleCalendar": "Only times free in my Calendar",
-  "agentRuleAuto": "Book without a plan when everything is known and nothing is paid"
+  "agentRuleAuto": "Book without a plan when everything is known and nothing is paid",
+  "agentPlanHow": "I'll pick the place: rated {0}+, matching, nearest",
+  "agentPlanHowCal": "a time free in your Calendar, added there",
+  "agentRuleVenue": "Choose the place myself when I don't name one",
+  "agentRuleRating": "Place rating from"
 }
