@@ -327,6 +327,11 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   return "go"
 }
 
+/** A value as compared with a saved one (spaces, case and a phone's separators aside). */
+function normalizeValue(v: string): string {
+  return v.toLocaleLowerCase().replace(/[\s()\-.]+/g, "").trim()
+}
+
 /** The person's saved facts by the name a plan asks them by (factKey → value). */
 function savedFacts(entries: FormEntry[]): Record<string, string> {
   return Object.fromEntries(liveEntries(entries).filter((e) => e.key === "fact").map((e) => [factKey(e.label), e.value]))
@@ -496,6 +501,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // found off the request, is never covered: those ask as before).
     let perm: Perm | null = verdict.cls === "confirm" || verdict.cls === "self" ? covered(state.plan, call, verdict, map, words(state), reply.offRequest) : null
     // A saved detail whose value is the one the person wrote in the request: the plan's «type your details» covers it.
+    // Typing a saved detail's own value into a field the plan meant to fill with it: the plan's fill covers it.
+    if (!perm && call.tool === "type" && verdict.reason === "personal" && state.plan?.approved && !reply.offRequest && call.id) {
+      const filling = state.plan.perms.find((p) => p.kind === "fill" && p.on && !!p.ids?.includes(call.id!) && sameSite(p.host, hostOf(map.url)))
+      const typed = normalizeValue(call.text ?? "")
+      if (filling && typed && liveEntries(entries).some((e) => filling.keys?.includes(modelKey(e)) && normalizeValue(e.value) === typed)) perm = filling
+    }
     if (!perm && call.tool === "fill" && verdict.reason === "fill" && state.plan?.approved && !reply.offRequest) {
       const typing = state.plan.perms.find((p) => p.kind === "personal" && p.on)
       const lines = typing ? fillLines(call, map.items.find((i) => i.id === call.id) ?? null, entries, map.lang || state.lang, map) : []
