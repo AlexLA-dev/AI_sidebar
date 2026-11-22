@@ -1953,22 +1953,8 @@ nonisolated enum SpeechCache {
 struct ListenView: View {
     @ObservedObject var player: ListenPlayer
     let openPlans: () -> Void
-    @Environment(\.dynamicTypeSize) private var typeSize
 
-    // Scrolls when the text doesn't fit (the largest accessibility text sizes clipped it, 2.7 VoiceOver pass);
-    // at normal sizes the content fills the screen as before and the footnote stays at the bottom.
     var body: some View {
-        GeometryReader { geo in
-            ScrollView {
-                content
-                    .frame(minHeight: geo.size.height)
-                    .frame(maxWidth: .infinity)
-            }
-            .scrollBounceBehavior(.basedOnSize)
-        }
-    }
-
-    private var content: some View {
         VStack(spacing: 22) {
             HStack {
                 if player.request?.url != nil {
@@ -1989,7 +1975,7 @@ struct ListenView: View {
                 Text(player.request?.title ?? "")
                     .font(.headline)
                     .multilineTextAlignment(.center)
-                    .lineLimit(typeSize.isAccessibilitySize ? nil : 3)
+                    .lineLimit(3)
                     .accessibilityIdentifier("listen.title")
                 (player.request?.what == "page" ? Text("The page, read aloud") : Text("The answer, read aloud"))
                     .font(.subheadline)
