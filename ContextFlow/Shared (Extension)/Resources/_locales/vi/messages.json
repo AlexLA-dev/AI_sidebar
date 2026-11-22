@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "Trong những ngày đầu, gợi ý cho bạn biết có thể làm gì trên trang."
  },
+ "setCookies": {
+  "message": "Đóng cửa sổ cookie"
+ },
+ "setCookiesHint": {
+  "message": "Chọn “chỉ cần thiết”."
+ },
+ "cookiesOffOnSite": {
+  "message": "Không đóng trên trang này"
+ },
+ "cookiesOnOnSite": {
+  "message": "Đóng trên trang này"
+ },
+ "cookieClosedLine": {
+  "message": "Đã đóng cửa sổ cookie: chỉ cần thiết"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Tính năng này có trong Pro và Ultra: Pro tìm nhanh, Ultra tìm đầy đủ. Cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
  },

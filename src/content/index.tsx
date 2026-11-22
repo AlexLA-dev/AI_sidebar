@@ -6,6 +6,8 @@ import { uiDirection, uiLang } from "../shared/i18n"
 import type { ToolCall } from "../shared/agent/types"
 import { act, undo } from "./agent/hands"
 import { buildMap } from "./agent/map"
+import { closedInFrame, closeForAgent, startCookieCloser } from "./cookies/auto"
+import { announceClosed, announceLeft } from "./cookies/CookieLine"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
@@ -60,8 +62,10 @@ function boot(): void {
     // The agent (2.7.1): the background's task asks for the page map, does a step, puts a step back, shows its state.
     const agent = message as unknown as { type: string; call?: ToolCall; undo?: Parameters<typeof undo>[0]; state?: unknown }
     if (agent?.type === "agentMap") {
-      sendResponse(buildMap(document, { money: (message as unknown as { money?: boolean }).money === true }))
-      return false
+      // 2.7.1: the page's cookie banner answered first («only necessary», the cookie closer), so it's never a step.
+      const money = (message as unknown as { money?: boolean }).money === true
+      closeForAgent().catch(() => null).then(() => sendResponse(buildMap(document, { money })))
+      return true
     }
     if (agent?.type === "agentAct" && agent.call) {
       act(agent.call).then(sendResponse, (err) => sendResponse({ ok: false, note: String(err).slice(0, 120) }))
@@ -78,6 +82,11 @@ function boot(): void {
     // A task in another tab finished or needs the person (its ring on the circle here), or that's seen now (null).
     if (agent?.type === "agentNotice") {
       bus.dispatchEvent(new CustomEvent("agentNotice", { detail: (message as unknown as { notice?: unknown }).notice ?? null }))
+      sendResponse({ ok: true })
+    }
+    // The cookie closer answered a banner in a consent platform's own frame of this page (2.7.1).
+    if ((message as unknown as { type: string })?.type === "cookieFrameDone") {
+      void closedInFrame(String((message as unknown as { via?: unknown }).via ?? "frame"), announceClosed)
       sendResponse({ ok: true })
     }
     // A new install asks before it opens its «ContextFlow is ready» tab over this page (src/shared/welcomeTab.ts).
@@ -153,6 +162,8 @@ ${agentStyles}`
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount, { once: true })
   else mount()
+  // 2.7.1: the page's cookie banner answered with «only necessary» (Settings: «Закрывать окна cookie»).
+  void startCookieCloser(announceClosed, announceLeft).catch(() => undefined)
   // A watched page the person opened is checked from here (2.5).
   if (TARGET === "safari") startLiveWatch()
 }

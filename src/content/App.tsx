@@ -133,6 +133,7 @@ import { ToolsRow } from "./quiet/ToolsRow"
 import { useFabDrag, usePanelDrag } from "./side/drag"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
+import { CookieLine, useCookieLine } from "./cookies/CookieLine"
 import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
@@ -3075,6 +3076,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   })
   // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
   const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
+  // 2.7.1: the cookie closer's confirmation by the circle, the first few times a banner is answered.
+  const cookieLine = useCookieLine(fabVisible && !open && !bubble?.rect)
   const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, firstRunAhead: !tourSeen, open: openFromHint })
   const panelDrag = usePanelDrag({
     panel: panelRef,
@@ -4408,6 +4411,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
       {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && (
         <HintLine id={pageHints.line} side={side} top={fabTop} onTap={pageHints.tap} onClose={pageHints.close} />
+      )}
+      {cookieLine.line && !pageHints.line && !fabDrag.state.dragging && (
+        <CookieLine line={cookieLine.line} side={side} top={fabTop} onClose={cookieLine.close} />
       )}
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}

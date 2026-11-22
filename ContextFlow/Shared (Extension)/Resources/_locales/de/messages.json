@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "In den ersten Tagen zeigen sie, was du auf einer Seite tun kannst."
  },
+ "setCookies": {
+  "message": "Cookie-Fenster schließen"
+ },
+ "setCookiesHint": {
+  "message": "Wählt „Nur notwendige“."
+ },
+ "cookiesOffOnSite": {
+  "message": "Auf dieser Website nicht schließen"
+ },
+ "cookiesOnOnSite": {
+  "message": "Auf dieser Website schließen"
+ },
+ "cookieClosedLine": {
+  "message": "Cookie-Fenster geschlossen: nur notwendige"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
  },
