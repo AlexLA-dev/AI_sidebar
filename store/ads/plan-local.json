@@ -110,6 +110,10 @@
         {
           "text": "捷徑",
           "match": "EXACT"
+        },
+        {
+          "text": "翻譯鷗",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
@@ -1087,6 +1091,10 @@
         },
         {
           "text": "chrime",
+          "match": "EXACT"
+        },
+        {
+          "text": "mozilla firefox",
           "match": "EXACT"
         }
       ],
