@@ -11,6 +11,7 @@ import { PageTranslator } from "./translate/engine"
 import { pageLanguage } from "./translate/decide"
 import { portAsk, storageCache } from "./translate/port"
 import { frameState, type FrameState, type FrameTold } from "../shared/translate"
+import { consentFrame } from "./cookies/frameMatch"
 
 declare global {
   interface Window {
@@ -70,8 +71,19 @@ function boot(): void {
   })
 }
 
+// A consent platform's own frame (Sourcepoint, TrustArc): the cookie closer is asked for here only (2.7.1).
+function cookieFrame(): void {
+  if (window.top === window || !consentFrame(location.href)) return
+  try {
+    chrome.runtime.sendMessage({ type: "cookieFrameInject" }, () => void chrome.runtime.lastError)
+  } catch {
+    // the extension was updated under this page
+  }
+}
+
 try {
   boot()
+  cookieFrame()
 } catch {
   // a frame the script can't work in: left as it is
 }

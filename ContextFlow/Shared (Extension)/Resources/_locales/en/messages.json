@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "In your first days, they show what you can do on a page."
  },
+ "setCookies": {
+  "message": "Close cookie windows"
+ },
+ "setCookiesHint": {
+  "message": "Picks “only necessary”."
+ },
+ "cookiesOffOnSite": {
+  "message": "Don't close on this site"
+ },
+ "cookiesOnOnSite": {
+  "message": "Close on this site"
+ },
+ "cookieClosedLine": {
+  "message": "Closed a cookie window: only necessary"
+ },
  "phSimilarBodyUpBoth": {
   "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
  },

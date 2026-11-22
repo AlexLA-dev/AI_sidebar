@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "最初の数日、ページでできることを教えてくれます。"
  },
+ "setCookies": {
+  "message": "Cookieの確認画面を閉じる"
+ },
+ "setCookiesHint": {
+  "message": "「必須のみ」を選びます。"
+ },
+ "cookiesOffOnSite": {
+  "message": "このサイトでは閉じない"
+ },
+ "cookiesOnOnSite": {
+  "message": "このサイトでも閉じる"
+ },
+ "cookieClosedLine": {
+  "message": "Cookieの画面を閉じました：必須のみ"
+ },
  "phSimilarBodyUpBoth": {
   "message": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。"
  },

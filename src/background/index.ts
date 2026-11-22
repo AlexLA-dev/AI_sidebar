@@ -1078,6 +1078,20 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void reportUse(message)
       sendResponse({ ok: true })
       return false
+    // The cookie closer (2.7.1): a consent platform's own frame asks for the closer (frame.js), and says it answered
+    // (dist/cookieframe.js), which the page's top hears for its count and the confirmation by the ✦ button.
+    case "cookieFrameInject":
+      if (_sender.tab?.id !== undefined && _sender.frameId) {
+        void chrome.scripting.executeScript({ target: { tabId: _sender.tab.id, frameIds: [_sender.frameId] }, files: ["dist/cookieframe.js"] }).catch(() => undefined)
+      }
+      sendResponse({ ok: true })
+      return false
+    case "cookieFrameDone":
+      if (_sender.tab?.id !== undefined) {
+        chrome.tabs.sendMessage(_sender.tab.id, { type: "cookieFrameDone", via: message.via }, { frameId: 0 }, () => void chrome.runtime.lastError)
+      }
+      sendResponse({ ok: true })
+      return false
     case "appleStatus":
       appleStatus().then(sendResponse, () => sendResponse({ available: false }))
       return true

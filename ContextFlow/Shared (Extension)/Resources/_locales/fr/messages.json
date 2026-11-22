@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "Les premiers jours, elles montrent ce que vous pouvez faire sur une page."
  },
+ "setCookies": {
+  "message": "Fermer les fenêtres de cookies"
+ },
+ "setCookiesHint": {
+  "message": "Choisit « uniquement nécessaires »."
+ },
+ "cookiesOffOnSite": {
+  "message": "Ne pas fermer sur ce site"
+ },
+ "cookiesOnOnSite": {
+  "message": "Fermer sur ce site"
+ },
+ "cookieClosedLine": {
+  "message": "Fenêtre de cookies fermée : uniquement nécessaires"
+ },
  "phSimilarBodyUpBoth": {
   "message": "C’est dans Pro et Ultra : dans Pro la recherche rapide, dans Ultra la complète. Le même produit moins cher, et des similaires d’autres boutiques. Touchez le bouton mis en avant."
  },

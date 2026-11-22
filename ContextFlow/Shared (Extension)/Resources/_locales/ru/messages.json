@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "В первые дни подсказывают, что можно сделать на странице."
  },
+ "setCookies": {
+  "message": "Закрывать окна cookie"
+ },
+ "setCookiesHint": {
+  "message": "Выбирает «только необходимые»."
+ },
+ "cookiesOffOnSite": {
+  "message": "Не закрывать на этом сайте"
+ },
+ "cookiesOnOnSite": {
+  "message": "Закрывать на этом сайте"
+ },
+ "cookieClosedLine": {
+  "message": "Закрыл окно cookie: только необходимые"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Это в Pro и Ultra: в Pro — быстрый поиск, в Ultra — полный. Тот же товар дешевле и похожие варианты из других магазинов. Нажмите подсвеченную кнопку."
  },

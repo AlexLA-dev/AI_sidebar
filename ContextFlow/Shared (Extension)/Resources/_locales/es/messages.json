@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "En tus primeros días muestran qué puedes hacer en una página."
  },
+ "setCookies": {
+  "message": "Cerrar ventanas de cookies"
+ },
+ "setCookiesHint": {
+  "message": "Elige «solo necesarias»."
+ },
+ "cookiesOffOnSite": {
+  "message": "No cerrar en este sitio"
+ },
+ "cookiesOnOnSite": {
+  "message": "Cerrar en este sitio"
+ },
+ "cookieClosedLine": {
+  "message": "Ventana de cookies cerrada: solo necesarias"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Está en Pro y Ultra: en Pro, la búsqueda rápida; en Ultra, la completa. El mismo producto más barato y otros parecidos de otras tiendas. Toca el botón resaltado."
  },

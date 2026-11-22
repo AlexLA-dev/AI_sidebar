@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "처음 며칠 동안 페이지에서 할 수 있는 일을 알려 줘요."
  },
+ "setCookies": {
+  "message": "쿠키 창 닫기"
+ },
+ "setCookiesHint": {
+  "message": "‘필수만’을 선택합니다."
+ },
+ "cookiesOffOnSite": {
+  "message": "이 사이트에서는 닫지 않기"
+ },
+ "cookiesOnOnSite": {
+  "message": "이 사이트에서 닫기"
+ },
+ "cookieClosedLine": {
+  "message": "쿠키 창을 닫았습니다: 필수만"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Pro와 Ultra 기능이에요. Pro는 빠른 검색, Ultra는 전체 검색. 같은 상품을 더 싸게, 다른 쇼핑몰의 비슷한 상품도 찾아요. 강조된 버튼을 누르세요."
  },

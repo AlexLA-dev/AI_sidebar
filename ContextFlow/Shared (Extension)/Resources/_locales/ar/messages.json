@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "في أيامك الأولى تُريك ما يمكنك فعله في الصفحة."
  },
+ "setCookies": {
+  "message": "إغلاق نوافذ ملفات تعريف الارتباط"
+ },
+ "setCookiesHint": {
+  "message": "يختار «الضرورية فقط»."
+ },
+ "cookiesOffOnSite": {
+  "message": "لا تُغلق على هذا الموقع"
+ },
+ "cookiesOnOnSite": {
+  "message": "أغلق على هذا الموقع"
+ },
+ "cookieClosedLine": {
+  "message": "أُغلقت نافذة ملفات تعريف الارتباط: الضرورية فقط"
+ },
  "phSimilarBodyUpBoth": {
   "message": "هذه ميزة في Pro وUltra: بحث سريع في Pro، وبحث كامل في Ultra. المنتج نفسه بسعر أقل ومنتجات مشابهة من متاجر أخرى. اضغط الزر المميّز."
  },

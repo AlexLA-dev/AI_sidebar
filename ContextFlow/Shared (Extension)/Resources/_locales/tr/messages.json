@@ -2825,6 +2825,21 @@
  "setPageHintsHint": {
   "message": "İlk günlerinizde bir sayfada neler yapabileceğinizi gösterir."
  },
+ "setCookies": {
+  "message": "Çerez pencerelerini kapat"
+ },
+ "setCookiesHint": {
+  "message": "“Yalnızca gerekli” seçeneğini seçer."
+ },
+ "cookiesOffOnSite": {
+  "message": "Bu sitede kapatma"
+ },
+ "cookiesOnOnSite": {
+  "message": "Bu sitede kapat"
+ },
+ "cookieClosedLine": {
+  "message": "Çerez penceresi kapatıldı: yalnızca gerekli"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Bu özellik Pro ve Ultra'da: Pro'da hızlı arama, Ultra'da tam arama. Aynı ürün daha ucuza ve başka mağazalardan benzerleri. Vurgulanan düğmeye dokunun."
  },

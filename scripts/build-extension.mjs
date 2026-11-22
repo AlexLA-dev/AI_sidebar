@@ -30,6 +30,8 @@ const apiBase = process.env.CF_API_BASE || "https://aisidebar.netlify.app"
 // it closed (no page script can read the panel: Copied, the chats, the answers), and the two never meet.
 const openShadow = process.env.CF_OPEN_SHADOW === "1"
 if (openShadow && apiBase === "https://aisidebar.netlify.app") throw new Error("CF_OPEN_SHADOW=1 is for test builds (set CF_API_BASE to a local stand)")
+const cookieDebug = process.env.CF_COOKIE_DEBUG === "1"
+if (cookieDebug && apiBase === "https://aisidebar.netlify.app") throw new Error("CF_COOKIE_DEBUG=1 is for test builds (set CF_API_BASE to a local stand)")
 const testPlan = process.env.CF_TEST_PLAN ?? ""
 if (testPlan && !/^http:\/\/localhost:\d+$/.test(apiBase)) throw new Error("CF_TEST_PLAN is for test builds with a local stand (CF_API_BASE=http://localhost:<port>)")
 if (testPlan && !["pro", "ultra"].includes(testPlan)) throw new Error("CF_TEST_PLAN: pro or ultra")
@@ -133,6 +135,8 @@ const options = {
     background: "src/background/index.ts",
     content: "src/content/index.tsx",
     frame: "src/content/frame.ts",
+    // The cookie closer inside a consent platform's own frame (2.7.1): injected there only, on frame.js's word.
+    cookieframe: "src/content/cookies/inframe.ts",
     popup: "src/popup/index.tsx",
     welcome: "src/pages/welcome.ts",
     clip: "src/pages/clip.ts",
@@ -155,6 +159,8 @@ const options = {
     __TARGET__: JSON.stringify(target),
     __SHADOW_MODE__: JSON.stringify(openShadow ? "open" : "closed"),
     __TEST_PLAN__: JSON.stringify(testPlan),
+    // Test builds: the cookie closer says what it did on every page (CF_COOKIE_DEBUG=1, never with the production API).
+    __COOKIE_DEBUG__: JSON.stringify(cookieDebug),
     __TIPS__: JSON.stringify(tips),
     // Page watch: how often a page is checked, in seconds (15 minutes; test builds: CF_WATCH_EVERY_S=60).
     __WATCH_EVERY_S__: String(Number(process.env.CF_WATCH_EVERY_S) || 900),
