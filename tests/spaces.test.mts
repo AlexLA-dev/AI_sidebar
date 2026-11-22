@@ -356,7 +356,9 @@ test("109: the page's own controls can take the ✦ circle's space colour, paler
   assert.match(spaces, /if \(!PAGE_TINT \|\| !color \|\| color === "blue"\) return null/)
   // The circle's space (a bound site's, else the panel's), on the root, so every control on the page has it.
   assert.match(app, /const tint = pageTint\(spaces\.fabSpace\?\.color\)/)
-  assert.match(app, /<div class="cf" [^>]*data-tint=\{tint \? spaces\.fabSpace\?\.color : undefined\} style=\{tint \?\? undefined\}>/)
+  // The root's style carries the tint (and, since 2.7.1, the system text scale beside it: systemText.ts).
+  assert.match(app, /<div class="cf" [^>]*data-tint=\{tint \? spaces\.fabSpace\?\.color : undefined\}[^>]*style=\{rootStyle\}/)
+  assert.match(app, /const rootStyle = uiScale !== 1 \? \{ \.\.\.\(tint \?\? \{\}\), "--ui": String\(uiScale\) \} : tint \?\? undefined/)
   // The accent variables the page's controls use, everywhere but in the panel (it keeps its blue); light and dark.
   const rule = (sel: string) => {
     const at = css.indexOf(`${sel} {`)

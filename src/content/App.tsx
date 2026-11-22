@@ -3,6 +3,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
+import { useSystemTextScale } from "./systemText"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
 import { freeAnswersBack, t, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
@@ -345,6 +346,9 @@ const RENEWAL_LABELS: Record<(typeof RENEWAL_REASONS)[number], MessageKey> = {
  */
 export function App({ platform, bus, source, popup = false }: { platform: Platform; bus: Bus; source: PageSource; popup?: boolean }): VNode {
   const touch = isTouch(platform)
+  const [uiHost, setUiHost] = useState<HTMLDivElement | null>(null)
+  // The system text size on iPhone and iPad scales the panel (systemText.ts; styles.css `--ui`).
+  const uiScale = useSystemTextScale(touch, uiHost)
   // The page's text goes into the chat (and iCloud) only for a tab's own page, never in Private Browsing.
   const keepsText = !popup && !privateBrowsing()
   const [open, setOpen] = useState(popup)
@@ -3998,10 +4002,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The circle's height, and the in-page translation pill's beside it (2.7).
   const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
 
+  const rootStyle = uiScale !== 1 ? { ...(tint ?? {}), "--ui": String(uiScale) } : tint ?? undefined
+
   // ------------------------------------------------------------ render
   return (
     <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}
-      data-tint={tint ? spaces.fabSpace?.color : undefined} style={tint ?? undefined}>
+      data-tint={tint ? spaces.fabSpace?.color : undefined} data-ui={uiScale !== 1 ? "1" : undefined} style={rootStyle} ref={setUiHost}>
       {/* Where fixed coordinates start, measured (fixedPlace.ts): the selection's buttons and ring are placed by it. */}
       <i class="cf-origin" aria-hidden="true" ref={setFixedProbe} />
       <EdgeGlow side={fabDrag.state.glow ?? panelDrag.glow} />
