@@ -283,15 +283,16 @@ ${o.text}`,sources:[{kind:"video",ok:!1,name:m,reason:g.status}]}}let r=[],s=[],
 /* 2.7.1, the owner: \xAB\u0441\u0432\u0435\u0447\u0435\u043D\u0438\u0435 \u043B\u0435\u0433\u043A\u043E\u0435, \u043A\u0430\u043A \u043E\u0440\u0435\u043E\u043B\xBB, not a border. A space other than the first shows as a soft glow of its
    colours around the blue circle, fading out in three layers (its base colour close in, its light colour further out;
    Spaces.tsx spaceVars, spaces.ts HALO_STRENGTH). Shadows only: the circle's size, its tap target and its drag stay as
-   they were. It glows up once as the space changes (App.tsx haloFlash), never on its own after that. */
+   they were. It glows up once as the space changes (App.tsx haloFlash), never on its own after that.
+   2.7.1 (119 \u2192 120), the owner: the radius 2.5 times smaller (\xAB\u0441\u043E\u043A\u0440\u0430\u0442\u0438\u043B \u0431\u044B \u0440\u0430\u0437\u0430 \u0432 2,5\xBB): every blur and spread / 2.5. */
 .cf-fab[data-halo] {
-  box-shadow: 0 0 6px 1px var(--halo-1), 0 0 16px 4px var(--halo-2), 0 0 34px 10px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 0 2.5px 0.5px var(--halo-1), 0 0 6.5px 1.5px var(--halo-2), 0 0 13.5px 4px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14);
 }
 .cf-fab[data-halo].flash { animation: cf-fab-halo 1.1s ease-out 1; }
 @keyframes cf-fab-halo {
-  0% { box-shadow: 0 0 6px 1px var(--halo-1), 0 0 16px 4px var(--halo-2), 0 0 34px 10px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
-  35% { box-shadow: 0 0 10px 3px var(--halo-1), 0 0 26px 9px var(--halo-2), 0 0 52px 18px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
-  100% { box-shadow: 0 0 6px 1px var(--halo-1), 0 0 16px 4px var(--halo-2), 0 0 34px 10px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+  0% { box-shadow: 0 0 2.5px 0.5px var(--halo-1), 0 0 6.5px 1.5px var(--halo-2), 0 0 13.5px 4px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+  35% { box-shadow: 0 0 4px 1px var(--halo-1), 0 0 10.5px 3.5px var(--halo-2), 0 0 21px 7px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+  100% { box-shadow: 0 0 2.5px 0.5px var(--halo-1), 0 0 6.5px 1.5px var(--halo-2), 0 0 13.5px 4px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
 }
 @media (prefers-reduced-motion: reduce) { .cf-fab[data-halo].flash { animation: none; } }
 
