@@ -7,7 +7,7 @@ import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
 import type { Answer, AgentState, PlanApproval } from "../../shared/agent/runner"
-import { savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
+import { isCancelChoice, savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
 import { AMAZON_TEXT } from "../../shared/amazon"
 import { TEST_PLAN } from "../../shared/config"
 import { t, type MessageKey } from "../../shared/i18n"
@@ -315,6 +315,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   const finished = !busy && !waiting && !planning
   // The agent's question: the offered answers as buttons, or the person's own words.
   const [replyText, setReplyText] = useState("")
+  // The model's «Отмена» among its choices: the card has its own Cancel (the owner on 118: one, not two).
+  const choices = (state.choices ?? []).filter((c) => !isCancelChoice(c))
   // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
   // While it works, the newest few; a finished task opened from its line shows every step that ran (the director: the
   // cookie step was missing from an opened booking).
@@ -369,14 +371,14 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
       {lines.length > 0 && (
         <ol class="cf-agent-lines">
           {lines.map((l, i) => (
-            <li key={i} class={l.ok ? "ok" : "no"} dir="auto">
+            // Test builds: when each step ran, from the task's start (the background-tab probe), on hover only (the owner
+            // on 118: one type scale, no «+80s» in the log).
+            <li key={i} class={l.ok ? "ok" : "no"} dir="auto" title={TEST_PLAN && l.at ? `+${Math.round((l.at - state.startedAt) / 1000)}s` : undefined}>
               {/* The person's own step (ticked a box, signed in) is theirs, never the agent's ✓. */}
               {/* (A box the plan let the agent tick is the agent's step.) */}
               {l.cls === "self" && !l.byPlan
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
                 : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.text || nameOf(l.target)}
-              {/* Test builds: when each step ran, from the task's start (the background-tab probe). */}
-              {TEST_PLAN && l.at ? <span class="cf-agent-at"> +{Math.round((l.at - state.startedAt) / 1000)}s</span> : null}
             </li>
           ))}
         </ol>
@@ -388,7 +390,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
           <p dir="auto">{stepText(state)}</p>
           {state.pending.offRequest && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentOffRequest", state.pending.offRequest)}</p>}
           {state.pending.price && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentPriceChanged", state.pending.price)}</p>}
-          {NO_UNDO.has(state.pending.verdict.reason) && <p class="cf-hint">{t("agentNoUndo")}</p>}
+          {NO_UNDO.has(state.pending.verdict.reason) && <p class="cf-agent-meta">{t("agentNoUndo")}</p>}
           <div class="cf-card-actions">
             <button type="button" class="cf-primary" disabled={sent} onClick={() => reply("yes")}>{t("agentYes")}</button>
             <button type="button" class="cf-secondary" disabled={sent} onClick={() => reply("no")}>{t("agentNo")}</button>
@@ -430,9 +432,9 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
         <div class="cf-agent-ask">
           <strong>{t("agentAskedTitle")}</strong>
           <p dir="auto">{state.summary}</p>
-          {(state.choices?.length ?? 0) > 0 && (
+          {choices.length > 0 && (
             <div class="cf-agent-options">
-              {state.choices!.map((c) => <button type="button" key={c} class="cf-chip" dir="auto" disabled={sent} onClick={() => reply("reply", [c])}>{c}</button>)}
+              {choices.map((c) => <button type="button" key={c} class="cf-chip" dir="auto" disabled={sent} onClick={() => reply("reply", [c])}>{c}</button>)}
             </div>
           )}
           <div class="cf-agent-reply">
@@ -472,7 +474,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
           {state.status === "blocked" && <p>{t(state.error === "site_amazon" ? (AMAZON_TEXT.agent as MessageKey) : "agentBlockedSite")}</p>}
           {state.status === "error" && <p>{errorText(state.error, state.left)}</p>}
           {/* Typed values go back; a press (a size chosen, a box ticked) stays as it is: the line says so plainly. */}
-          {undone && !state.canUndo && <p class="cf-hint">{t("agentUndone")}</p>}
+          {undone && !state.canUndo && <p class="cf-agent-meta">{t("agentUndone")}</p>}
           <div class="cf-card-actions">
             {state.canUndo && !past && <button type="button" class="cf-secondary" onClick={() => { setUndone(true); onUndo() }}>{t("agentUndo")}</button>}
             <button type="button" class="cf-secondary" onClick={onClose}>{t("close")}</button>
@@ -504,7 +506,7 @@ export function AgentStrip({ state, onOpen, onStop, onAnswer }: { state: PanelAg
             <span class="wrap" dir="auto">{self ? selfText(state) : stepText(state)}</span>
             {!self && p.offRequest && <span class="wrap cf-agent-warn" dir="auto">{t("agentOffRequest", p.offRequest)}</span>}
             {!self && p.price && <span class="wrap cf-agent-warn" dir="auto">{t("agentPriceChanged", p.price)}</span>}
-            {!self && NO_UNDO.has(p.verdict.reason) && <span class="wrap">{t("agentNoUndo")}</span>}
+            {!self && NO_UNDO.has(p.verdict.reason) && <span class="wrap cf-agent-meta">{t("agentNoUndo")}</span>}
           </span>
         </button>
         <div class="cf-agent-float-actions">

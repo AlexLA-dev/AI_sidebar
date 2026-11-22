@@ -420,3 +420,11 @@ export function optionFor(options: string[], value: string): string {
   })
   return close.length === 1 ? close[0] : v
 }
+
+// «Отмена», «Cancel», «Stop» as one of the model's choices (ask_user): the card has its own Cancel, so it isn't shown twice
+// (the owner on 118). The languages the panel speaks.
+const CANCEL_CHOICE = /^(cancel|stop|abort|never ?mind|отмена|отменить|отмените|стоп|не надо|скасувати|відміна|відмінити|стоп|abbrechen|stopp|annuler|arrêter|cancelar|parar|detener|annulla|annullare|interrompi|iptal|vazgeç|durdur|キャンセル|中止|やめる|취소|중지|取消|停止|إلغاء|توقف|hủy|dừng)$/iu
+
+export function isCancelChoice(choice: string): boolean {
+  return CANCEL_CHOICE.test(choice.trim().replace(/[.!…]+$/u, ""))
+}

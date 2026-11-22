@@ -75,3 +75,20 @@ test("117: Do is the send button's own state (no chip); after a task ends the fi
   assert.match(app, /if \(!ended \|\| endedFor\.current === agentTask\.id\) return\s*endedFor\.current = agentTask\.id\s*setAgentMode\(false\)/)
   assert.match(read("src/content/styles.css"), /\.cf-send\.do \{ background: linear-gradient/)
 })
+
+test("118 design: the agent's surfaces use the chat's type scale, one Cancel, no step times in the log", async () => {
+  const { isCancelChoice } = await import("../src/shared/agent/taskplan.ts")
+  for (const c of ["Отмена", "Cancel", "stop.", "Abbrechen", "キャンセル", "إلغاء"]) assert.equal(isCancelChoice(c), true, c)
+  for (const c of ["Другой день", "Вт 24 ноя, 14:45", "Cancel booking"]) assert.equal(isCancelChoice(c), false, c)
+  const css = readFileSync(new URL("../src/content/agent/agent.css", import.meta.url), "utf8")
+  // Text sizes come from --fs (Normal / Large): no fixed size on the agent's text but its tiny glyphs (the «Вы» badge,
+  // the folded line's mark) and «Мои данные»'s names.
+  const fixed = css.split("\n").filter((l) => /font-size:\s*\d/.test(l) && !/cf-agent-you|cf-agent-row-mark|cf-fd-name|cf-agent-mode-x|pointer: coarse/.test(l))
+  assert.deepEqual(fixed, [])
+  assert.match(css, /\.cf \{ --fs-small: calc\(var\(--fs\) - 2px\); \}/)
+  assert.doesNotMatch(css, /^\.cf-agent-options \.cf-chip \{/m, "choice chips are the panel's own")
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /const choices = \(state\.choices \?\? \[\]\)\.filter\(\(c\) => !isCancelChoice\(c\)\)/)
+  assert.doesNotMatch(panel, /cf-agent-at/)
+  assert.doesNotMatch(panel, /class="cf-hint"/)
+})
