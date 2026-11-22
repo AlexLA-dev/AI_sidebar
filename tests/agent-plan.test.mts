@@ -289,3 +289,37 @@ test("«done» before the plan's own press: one more step for it; «done» again
   assert.equal(s2.status, "done")
   assert.equal(s2.summary, "Out of stock, nothing added", "a second «done» with its reason is taken")
 })
+
+test("117: answers about the person are pre-filled from «Мои данные» next time, and new ones are kept there", async () => {
+  const { savedAnswers, factKey } = await import("../src/shared/agent/taskplan.ts")
+  const raw = checkPlan({ steps: [], questions: [{ q: "Для кого стрижка?", options: ["Мужская", "Женская"], fact: "fact:Пол" }, { q: "Какое время?", options: ["Утро", "Вечер"], fact: "" }], risky: [], prices: [] })
+  assert.equal(raw.questions[0].fact, "Пол")
+  assert.equal(raw.questions[1].fact, undefined)
+  const plan = buildPlan(raw, ctx)
+  assert.deepEqual(savedAnswers(plan, { [factKey("пол")]: "Мужская" }), ["Мужская", ""])
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /const \[keep, setKeep\] = useState<boolean\[\]>\(\(\) => plan\.questions\.map\(\(q\) => !!q\.fact\)\)/)
+  assert.match(panel, /q\.fact && keep\[i\] && answers\[i\]\.trim\(\) && answers\[i\]\.trim\(\) !== pre\[i\]/)
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.match(app, /if \(refusedEntry\(fact, value\)\) return \[\]/)
+  assert.match(app, /type: "formDataPut", changes/)
+})
+
+test("117 heat: the page's amounts only when a price can be checked; the in-flight mark doesn't re-render; nothing runs between steps", async () => {
+  const asked: Array<{ money?: boolean } | undefined> = []
+  const x = io([{ ok: true, plan: { steps: ["Reading"], questions: [], risky: [], prices: [] }, token: "t" }, step({ tool: "scroll", to: "down" }, "free", "read")])
+  x.map = async (o) => (asked.push(o), BOOK)
+  let marks = 0
+  x.mark = async () => void marks++
+  await drive(newState("h1", "read it", "en", BOOK.url), x)
+  assert.deepEqual(asked.map((o) => !!o?.money), [true, false, false], "money for the plan's first look only (no prices in the plan)")
+  assert.equal(marks, 1, "the in-flight mark went through mark(), not save()")
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  const ring = app.slice(app.indexOf("function AgentRing"), app.indexOf("function SelectionGlow"))
+  assert.doesNotMatch(ring, /setInterval/)
+  const css = readFileSync(new URL("../src/content/agent/agent.css", import.meta.url), "utf8")
+  assert.doesNotMatch(css, /infinite/)
+  const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
+  assert.match(bg, /entries: async \(\) => \(await cachedEntries\(\)\)\.entries/)
+  assert.match(bg, /device: cachedDevice/)
+})

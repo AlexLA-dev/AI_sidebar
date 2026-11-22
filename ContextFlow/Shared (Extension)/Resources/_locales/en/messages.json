@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "“{0}” — you press it"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Answer this first: “{0}”"
+ },
+ "agentErrorNoReply": {
+  "message": "The extension didn't answer. Try again — if it repeats, reload the page."
+ },
+ "agentStartFailed": {
+  "message": "Couldn't start the task ({0}). Try again."
+ },
+ "agentPlanRemember": {
+  "message": "Remember in My details"
+ },
+ "agentPlanFromSaved": {
+  "message": "From My details — keep it updated"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

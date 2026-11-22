@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "Việc đang tạm dừng — mở Safari để làm xong: {0}",
   "agentNotifDone": "Xong: {0}",
   "agentNotifNeeds": "Cần bạn: {0}",
-  "agentPlanStepYours": "“{0}” — bạn tự nhấn"
+  "agentPlanStepYours": "“{0}” — bạn tự nhấn",
+  "agentPlanAnswerFirst": "Hãy trả lời trước: “{0}”",
+  "agentErrorNoReply": "Tiện ích không phản hồi. Hãy thử lại — nếu vẫn vậy, hãy tải lại trang.",
+  "agentStartFailed": "Không bắt đầu được việc ({0}). Hãy thử lại.",
+  "agentPlanRemember": "Ghi nhớ trong “Thông tin của tôi”",
+  "agentPlanFromSaved": "Từ “Thông tin của tôi” — cập nhật ở đó"
 }

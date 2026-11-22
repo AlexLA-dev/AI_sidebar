@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "“{0}” — bạn tự nhấn"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Hãy trả lời trước: “{0}”"
+ },
+ "agentErrorNoReply": {
+  "message": "Tiện ích không phản hồi. Hãy thử lại — nếu vẫn vậy, hãy tải lại trang."
+ },
+ "agentStartFailed": {
+  "message": "Không bắt đầu được việc ({0}). Hãy thử lại."
+ },
+ "agentPlanRemember": {
+  "message": "Ghi nhớ trong “Thông tin của tôi”"
+ },
+ "agentPlanFromSaved": {
+  "message": "Từ “Thông tin của tôi” — cập nhật ở đó"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

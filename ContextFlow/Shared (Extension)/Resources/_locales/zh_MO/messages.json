@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "「{0}」——由你來點按"
  },
+ "agentPlanAnswerFirst": {
+  "message": "請先回答：「{0}」"
+ },
+ "agentErrorNoReply": {
+  "message": "擴充功能沒有回應。請再試一次；若仍如此，請重新載入頁面。"
+ },
+ "agentStartFailed": {
+  "message": "無法開始任務（{0}）。請再試一次。"
+ },
+ "agentPlanRemember": {
+  "message": "記在「我的資料」中"
+ },
+ "agentPlanFromSaved": {
+  "message": "來自「我的資料」——變更後更新"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

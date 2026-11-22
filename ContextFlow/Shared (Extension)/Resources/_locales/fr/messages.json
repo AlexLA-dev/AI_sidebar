@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "« {0} » — c’est vous qui appuyez"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Répondez d’abord : « {0} »"
+ },
+ "agentErrorNoReply": {
+  "message": "L’extension n’a pas répondu. Réessayez — si cela se reproduit, rechargez la page."
+ },
+ "agentStartFailed": {
+  "message": "Impossible de lancer la tâche ({0}). Réessayez."
+ },
+ "agentPlanRemember": {
+  "message": "Retenir dans « Mes infos »"
+ },
+ "agentPlanFromSaved": {
+  "message": "Depuis « Mes infos » — mettre à jour"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

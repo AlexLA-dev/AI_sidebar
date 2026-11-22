@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "Task paused — open Safari to finish: {0}",
   "agentNotifDone": "Done: {0}",
   "agentNotifNeeds": "Needs you: {0}",
-  "agentPlanStepYours": "“{0}” — you press it"
+  "agentPlanStepYours": "“{0}” — you press it",
+  "agentPlanAnswerFirst": "Answer this first: “{0}”",
+  "agentErrorNoReply": "The extension didn't answer. Try again — if it repeats, reload the page.",
+  "agentStartFailed": "Couldn't start the task ({0}). Try again.",
+  "agentPlanRemember": "Remember in My details",
+  "agentPlanFromSaved": "From My details — keep it updated"
 }

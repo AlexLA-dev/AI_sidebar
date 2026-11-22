@@ -60,7 +60,7 @@ function boot(): void {
     // The agent (2.7.1): the background's task asks for the page map, does a step, puts a step back, shows its state.
     const agent = message as unknown as { type: string; call?: ToolCall; undo?: Parameters<typeof undo>[0]; state?: unknown }
     if (agent?.type === "agentMap") {
-      sendResponse(buildMap(document))
+      sendResponse(buildMap(document, { money: (message as unknown as { money?: boolean }).money === true }))
       return false
     }
     if (agent?.type === "agentAct" && agent.call) {

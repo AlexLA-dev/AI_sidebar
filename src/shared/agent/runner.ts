@@ -98,8 +98,11 @@ export interface ActReply {
 }
 
 export interface RunnerIO {
-  // The page's map now (null: the page is changing; the runner waits and asks again).
-  map(): Promise<PageMap | null>
+  // The page's map now (null: the page is changing; the runner waits and asks again). `money`: with every amount on the
+  // page (it reads the whole page's text: only when the plan's price check needs it).
+  map(opts?: { money?: boolean }): Promise<PageMap | null>
+  // Keeps the state without telling the panel (the in-flight mark before a step: no extra render).
+  mark?: (state: AgentState) => Promise<void>
   // Does a step on the page (null: the page went away mid-step, as a link does).
   act(call: ToolCall): Promise<StepResult | null>
   // Waits for the tab's page to finish loading.
@@ -207,7 +210,7 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
     return
   }
   state.inflight = { step: state.step, call: call.tool === "fill" ? { tool: "fill", id: call.id, key: call.key } : call, at: Date.now() }
-  await io.save(state)
+  await (io.mark ?? io.save)(state)
   let result = await io.act(doing)
   state.inflight = undefined
   if (!result || result.navigated) {
@@ -283,10 +286,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.error = "steps"
       break
     }
-    let map = await io.map()
+    // The page's amounts only when a price may be checked: the plan's first look, or a plan that saw prices.
+    const money = (state.step === 0 && !!io.planning && !state.plan) || (!!state.plan?.approved && state.plan.prices.length > 0)
+    let map = await io.map({ money })
     if (!map) {
       await io.waitPage()
-      map = await io.map()
+      map = await io.map({ money })
     }
     if (!map) {
       state.status = "error"

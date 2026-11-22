@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "작업이 일시 정지됐어요. 마치려면 Safari를 여세요: {0}",
   "agentNotifDone": "완료: {0}",
   "agentNotifNeeds": "확인이 필요해요: {0}",
-  "agentPlanStepYours": "‘{0}’는 직접 누르세요"
+  "agentPlanStepYours": "‘{0}’는 직접 누르세요",
+  "agentPlanAnswerFirst": "먼저 답해 주세요: ‘{0}’",
+  "agentErrorNoReply": "확장 프로그램이 응답하지 않았어요. 다시 시도하고, 반복되면 페이지를 새로고침하세요.",
+  "agentStartFailed": "작업을 시작하지 못했어요({0}). 다시 시도해 주세요.",
+  "agentPlanRemember": "‘내 정보’에 기억",
+  "agentPlanFromSaved": "‘내 정보’에서 — 바뀌면 저장"
 }

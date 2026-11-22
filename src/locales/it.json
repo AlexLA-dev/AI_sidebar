@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "Attività in pausa: apri Safari per finirla: {0}",
   "agentNotifDone": "Fatto: {0}",
   "agentNotifNeeds": "Serve lei: {0}",
-  "agentPlanStepYours": "«{0}»: lo premi tu"
+  "agentPlanStepYours": "«{0}»: lo premi tu",
+  "agentPlanAnswerFirst": "Rispondi prima: «{0}»",
+  "agentErrorNoReply": "L’estensione non ha risposto. Riprova: se succede di nuovo, ricarica la pagina.",
+  "agentStartFailed": "Impossibile avviare l’attività ({0}). Riprova.",
+  "agentPlanRemember": "Ricorda in «I miei dati»",
+  "agentPlanFromSaved": "Da «I miei dati»: aggiorna lì"
 }

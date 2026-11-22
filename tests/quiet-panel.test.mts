@@ -226,11 +226,12 @@ test("6. «+» by the field: Note, the page snapshot, Whole chat, the answers le
     assert.ok(next > at, `${part} in the field's row`)
     at = next
   }
-  // Do mode (2.7.1, the owner: «большое нагромождение всего»): the row is the «Сделать ✕» chip and the field — no «+»,
-  // no clock (Later is in the plan card), no count.
-  assert.match(composer, /\{!\(agentMode && !noteMode && !historyMode\) && <button\s+type="button"\s+class=\{`cf-plus/)
+  // Do mode (2.7.1, the owner on 117): the send button's own state, like Note — no chip, the field keeps its width, «+»
+  // stays (its «Сделать» leaves Do as «Заметка» leaves a note); no clock (Later is in the plan card).
+  assert.doesNotMatch(composer, /cf-agent-mode-x|cf-mode cf-agent-mode/)
   assert.doesNotMatch(composer, /<Icon\.Clock \/>/)
-  assert.match(composer, /\{t\("agentMode"\)\} <span class="cf-agent-mode-x" aria-hidden="true">✕<\/span>/)
+  assert.match(composer, /class=\{`cf-send \$\{noteMode \? "note" : ""\} \$\{doMode \? "do" : ""\}`\}/)
+  assert.match(composer, /doMode \? <Icon\.Sparkle size=\{16\} \/>/)
   // The menu's four, on every layout (110).
   const plus = read("../src/content/quiet/Plus.tsx")
   const menuOrder = ['{t("selNote")}', '{t("shotSwitch")}', '{t("wholeChat")}', 'class="cf-plus-usage"']

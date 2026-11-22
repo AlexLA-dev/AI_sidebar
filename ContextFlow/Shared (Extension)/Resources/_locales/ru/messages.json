@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "«{0}» — нажмёте вы"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Сначала ответьте: «{0}»"
+ },
+ "agentErrorNoReply": {
+  "message": "Расширение не ответило. Попробуйте ещё раз, а если повторится — обновите страницу."
+ },
+ "agentStartFailed": {
+  "message": "Не удалось начать дело ({0}). Попробуйте ещё раз."
+ },
+ "agentPlanRemember": {
+  "message": "Запомнить в «Моих данных»"
+ },
+ "agentPlanFromSaved": {
+  "message": "Из «Моих данных» — обновлять там"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

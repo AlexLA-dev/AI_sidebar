@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "Tarefa pausada — abra o Safari para terminar: {0}",
   "agentNotifDone": "Pronto: {0}",
   "agentNotifNeeds": "Precisa de você: {0}",
-  "agentPlanStepYours": "“{0}” — você aperta"
+  "agentPlanStepYours": "“{0}” — você aperta",
+  "agentPlanAnswerFirst": "Responda primeiro: “{0}”",
+  "agentErrorNoReply": "A extensão não respondeu. Tente de novo — se acontecer de novo, recarregue a página.",
+  "agentStartFailed": "Não deu para começar a tarefa ({0}). Tente de novo.",
+  "agentPlanRemember": "Lembrar em “Meus dados”",
+  "agentPlanFromSaved": "De “Meus dados” — atualizar lá"
 }

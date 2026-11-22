@@ -385,6 +385,9 @@ function pageText(doc: Document, overlays: Element[]): string {
 export interface MapOptions {
   part?: number
   size?: number
+  // Every amount on the whole page (the plan's price check): read only when asked — it reads the whole page's text,
+  // which makes the browser lay the page out (2.7.1, the owner on 117: the phone got hot while Do ran).
+  money?: boolean
 }
 
 /** The page's map now (one part of it: PART_SIZE controls, those over the page and on the screen first). */
@@ -509,7 +512,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     text: pageText(doc, overlayList.slice(0, 2)),
     ...(overlayList.length ? { overlay: true } : {}),
     ...(consent ? { consent: true } : {}),
-    money: pageMoney(doc),
+    ...(opts.money ? { money: pageMoney(doc) } : {}),
     ...(takesPayment(doc) ? { pay: true } : {})
   }
 }

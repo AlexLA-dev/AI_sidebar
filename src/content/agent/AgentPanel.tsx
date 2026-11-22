@@ -7,7 +7,7 @@ import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
 import type { Answer, AgentState, PlanApproval } from "../../shared/agent/runner"
-import type { Perm, PlanSelf, TaskPlan } from "../../shared/agent/taskplan"
+import { savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
 import { AMAZON_TEXT } from "../../shared/amazon"
 import { TEST_PLAN } from "../../shared/config"
 import { t, type MessageKey } from "../../shared/i18n"
@@ -33,6 +33,11 @@ interface Props {
   later?: { hasWatch: boolean; canAlso: boolean; past?: boolean }
   // An earlier task of this tab, kept in the chat folded (no Undo; Close takes it out of the chat).
   past?: boolean
+  // «Начать» didn't reach the agent: what failed, on the plan card (it can be pressed again).
+  planFailed?: string | null
+  // The person's saved facts by name (factKey → value), for the plan's questions about them; and keeping new answers.
+  saved?: Record<string, string>
+  onRemember?: (facts: Array<{ fact: string; value: string }>) => void
   onUndo: () => void
   onClose: () => void
   onHelp: () => void
@@ -156,17 +161,41 @@ function selfLine(x: PlanSelf): string {
 
 /** The task's plan (2.7.1): what it will do, its questions (options and «Своё»), what may go without a question (each
  *  can be unticked), what the person does themselves, «Сейчас / Позже», and one «Начать». */
-function PlanCard({ plan, host, onPlan, later, onStop }: { plan: TaskPlan; host: string; onPlan: (a: PlanApproval, later?: LaterChoice) => void; later?: Props["later"]; onStop: () => void }): VNode {
-  const [answers, setAnswers] = useState<string[]>(() => plan.questions.map(() => ""))
-  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map(() => false))
+function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember }: { plan: TaskPlan; host: string; onPlan: (a: PlanApproval, later?: LaterChoice) => void; later?: Props["later"]; onStop: () => void; failed?: string | null; saved?: Record<string, string>; onRemember?: (facts: Array<{ fact: string; value: string }>) => void }): VNode {
+  // Questions about the person come pre-filled from «Мои данные» (the owner on 117: «не спрашивать снова»); a value not
+  // among the options shows as the person's own words, to change if they like.
+  const pre = savedAnswers(plan, saved ?? {})
+  const [answers, setAnswers] = useState<string[]>(() => pre)
+  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => !!pre[i] && !q.options.includes(pre[i])))
+  // «Запомнить» under each question about the person: on by default.
+  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact))
   const [off, setOff] = useState<Set<string>>(() => new Set())
   const [mode, setMode] = useState<"now" | "later">("now")
   const [laterChoice, setLaterChoice] = useState<LaterChoice | null>(null)
   const answered = answers.every((a) => a.trim())
   const approval = (): PlanApproval => ({ answers, off: [...off] })
+  // «Начать» is never a silent no-op (TestFlight 117: a pale, disabled «Start» under an unanswered question looked like a
+  // button that did nothing): pressed early, it says which question is left, and that question is marked.
+  const [missing, setMissing] = useState<number | null>(null)
+  const [sending, setSending] = useState(false)
+  const start = () => {
+    const left = answers.findIndex((a) => !a.trim())
+    if (left >= 0) {
+      setMissing(left)
+      return
+    }
+    if (mode === "later" && !laterChoice) return
+    setMissing(null)
+    setSending(true)
+    // What to keep in «Мои данные»: the answers about the person that are new or changed.
+    const facts = plan.questions.flatMap((q, i) => (q.fact && keep[i] && answers[i].trim() && answers[i].trim() !== pre[i] ? [{ fact: q.fact, value: answers[i].trim() }] : []))
+    if (facts.length) onRemember?.(facts)
+    onPlan(approval(), mode === "later" && laterChoice ? laterChoice : undefined)
+  }
   const set = (i: number, v: string, isOwn: boolean) => {
     setAnswers(answers.map((a, j) => (j === i ? v : a)))
     setOwn(own.map((o, j) => (j === i ? isOwn : o)))
+    if (missing === i && v.trim()) setMissing(null)
   }
   return (
     <div class="cf-agent-plan">
@@ -177,7 +206,7 @@ function PlanCard({ plan, host, onPlan, later, onStop }: { plan: TaskPlan; host:
         </ol>
       )}
       {plan.questions.map((q, i) => (
-        <div class="cf-agent-q" key={i}>
+        <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
           <p dir="auto">{q.q}</p>
           <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
             {q.options.map((o) => (
@@ -185,6 +214,12 @@ function PlanCard({ plan, host, onPlan, later, onStop }: { plan: TaskPlan; host:
             ))}
             <button type="button" role="radio" aria-checked={own[i]} class={`cf-chip ${own[i] ? "on" : ""}`} onClick={() => set(i, own[i] ? answers[i] : "", true)}>{t("agentPlanOwn")}</button>
           </div>
+          {q.fact && (
+            <label class="cf-row toggle cf-agent-remember">
+              <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
+              <span>{pre[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
+            </label>
+          )}
           {own[i] && (
             <input
               class="cf-input-line"
@@ -235,11 +270,13 @@ function PlanCard({ plan, host, onPlan, later, onStop }: { plan: TaskPlan; host:
       </div>
       {mode === "later" && <LaterFields hasWatch={!!later?.hasWatch} canAlso={!!later?.canAlso} past={!!later?.past} onChange={setLaterChoice} />}
       <div class="cf-card-actions">
-        <button type="button" class="cf-primary" disabled={!answered || (mode === "later" && !laterChoice)} onClick={() => onPlan(approval(), mode === "later" && laterChoice ? laterChoice : undefined)}>
+        <button type="button" class={`cf-primary ${answered ? "" : "soft"}`} disabled={sending} onClick={start}>
           {mode === "later" ? t("agentLaterSet") : t("agentStart")}
         </button>
         <button type="button" class="cf-secondary" onClick={onStop}>{t("cancel")}</button>
       </div>
+      {missing !== null && plan.questions[missing] && <p class="cf-agent-warn" role="alert" dir="auto">{t("agentPlanAnswerFirst", plan.questions[missing].q)}</p>}
+      {failed && <p class="cf-agent-warn" role="alert" dir="auto">{failed}</p>}
     </div>
   )
 }
@@ -257,7 +294,7 @@ function markOf(status: PanelAgent["status"]): { sign: string; text: string; cls
   }
 }
 
-export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, later, past }: Props): VNode {
+export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, later, past, planFailed, saved, onRemember }: Props): VNode {
   // A finished task folds to one line (2.7.1, the owner: «свёрнутыми по дефолту в одну строку… с возможностью
   // развернуть»); a tap opens its steps and its result.
   const [open, setOpen] = useState(false)
@@ -320,7 +357,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
         </div>
       )}
       {!finished && <p class="cf-agent-request" dir="auto">{state.request}</p>}
-      {planning && state.plan && onPlan && <PlanCard plan={state.plan} host={hostName(state.url)} onPlan={onPlan} later={later} onStop={() => onAnswer("stop")} />}
+      {planning && state.plan && onPlan && <PlanCard key={`${state.id}-${planFailed ?? ""}-${Object.keys(saved ?? {}).length}`} plan={state.plan} host={hostName(state.url)} onPlan={onPlan} later={later} onStop={() => onAnswer("stop")} failed={planFailed} saved={saved} onRemember={onRemember} />}
       {/* The plan's lines while it works by it (what it said it would do). */}
       {(busy || waiting) && state.plan?.approved && state.plan.steps.length > 0 && lines.length === 0 && (
         <ol class="cf-agent-plan-steps">{state.plan.steps.map((l, i) => <li key={i} dir="auto">{planStepText(state.plan!, i, l)}</li>)}</ol>

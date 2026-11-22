@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "المهمة متوقفة مؤقتًا — افتح Safari لإكمالها: {0}",
   "agentNotifDone": "تم: {0}",
   "agentNotifNeeds": "بحاجة إليك: {0}",
-  "agentPlanStepYours": "«{0}» — ستضغط عليه بنفسك"
+  "agentPlanStepYours": "«{0}» — ستضغط عليه بنفسك",
+  "agentPlanAnswerFirst": "أجب أولًا: «{0}»",
+  "agentErrorNoReply": "لم يستجب الامتداد. حاول مرة أخرى، وإن تكرر ذلك فأعد تحميل الصفحة.",
+  "agentStartFailed": "تعذّر بدء المهمة ({0}). حاول مرة أخرى.",
+  "agentPlanRemember": "تذكّر في «بياناتي»",
+  "agentPlanFromSaved": "من «بياناتي» — حدّثه هناك"
 }

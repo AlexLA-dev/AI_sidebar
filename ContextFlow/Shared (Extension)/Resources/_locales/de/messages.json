@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "„{0}“ – drücken Sie selbst"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Bitte zuerst beantworten: „{0}“"
+ },
+ "agentErrorNoReply": {
+  "message": "Die Erweiterung hat nicht geantwortet. Versuchen Sie es noch einmal – passiert es wieder, laden Sie die Seite neu."
+ },
+ "agentStartFailed": {
+  "message": "Die Aufgabe konnte nicht starten ({0}). Versuchen Sie es noch einmal."
+ },
+ "agentPlanRemember": {
+  "message": "In „Meine Daten“ merken"
+ },
+ "agentPlanFromSaved": {
+  "message": "Aus „Meine Daten“ – dort aktualisieren"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "任务已暂停——打开 Safari 来完成：{0}",
   "agentNotifDone": "完成：{0}",
   "agentNotifNeeds": "需要你：{0}",
-  "agentPlanStepYours": "“{0}”——由你来点按"
+  "agentPlanStepYours": "“{0}”——由你来点按",
+  "agentPlanAnswerFirst": "请先回答：“{0}”",
+  "agentErrorNoReply": "扩展没有响应。请再试一次；如果仍然这样，请重新加载页面。",
+  "agentStartFailed": "无法开始任务（{0}）。请再试一次。",
+  "agentPlanRemember": "记在“我的信息”中",
+  "agentPlanFromSaved": "来自“我的信息”——更改后更新"
 }

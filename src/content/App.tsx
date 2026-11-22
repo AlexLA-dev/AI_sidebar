@@ -59,7 +59,8 @@ import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameRepl
 import { ProUpsell } from "./ProUpsell"
 import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
 import type { AgentNotice } from "../background/agent"
-import { noticeLabel, sameTaskPage, type TaskPlan } from "../shared/agent/taskplan"
+import { factKey, noticeLabel, sameTaskPage, type TaskPlan } from "../shared/agent/taskplan"
+import { refusedEntry, type FormEntry } from "../shared/agent/formdata"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
 import { autoStartHere, setAutoStart, takeTaskMark } from "./agent/marks"
@@ -558,6 +559,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The agent (2.7.1): «Сделать» in the composer, this tab's task (pushed by the background), a deferred task the
   // notification brought (#cf-task), «Позже», the help text, and the offer of Pro to Free.
   const [agentMode, setAgentMode] = useState(false)
+  // Do mode as the field shows it (the send button's own state, 2.7.1).
+  const doMode = agentMode && !noteMode && !historyMode
   const [agentTask, setAgentTask] = useState<PanelAgent | null>(null)
   // This tab's earlier tasks, kept in the chat folded to a line each (2.7.1).
   const [agentPast, setAgentPast] = useState<PanelAgent[]>([])
@@ -2558,6 +2561,41 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ the agent (2.7.1)
 
+  // The agent's messages to the background (TestFlight 117: «Начать» did nothing, then «Something went wrong»): Safari can
+  // lose a message to a background it had put to sleep, the answer never comes. Tried again before giving up; every
+  // agent message is safe to repeat (a second start finds the first, a second «Начать» or answer is refused as stale).
+  const toAgent = async <T,>(message: Record<string, unknown>): Promise<T | null> => {
+    for (let i = 0; i < 3; i++) {
+      const r = await sendBackground<T>(message)
+      if (r) return r
+      await new Promise((ok) => setTimeout(ok, 400 * (i + 1)))
+    }
+    return null
+  }
+  const [agentPlanFailed, setAgentPlanFailed] = useState<string | null>(null)
+  // The person's saved facts (factKey → value), read when a plan card is up; and the plan's answers kept there (2.7.1,
+  // the owner on 117: answers about themselves aren't asked again). The values stay on the device: the card fills them
+  // in, and only an answer the person leaves goes with that task, as any answer does.
+  const [savedFacts, setSavedFacts] = useState<Record<string, string>>({})
+  const factEntries = useRef<FormEntry[]>([])
+  useEffect(() => {
+    if (agentTask?.status !== "plan") return
+    void sendBackground<{ entries: FormEntry[] }>({ type: "formData" }).then((d) => {
+      const live = (d?.entries ?? []).filter((e) => !e.deleted && e.key === "fact" && e.value.trim())
+      factEntries.current = live
+      setSavedFacts(Object.fromEntries(live.map((e) => [factKey(e.label), e.value])))
+    })
+  }, [agentTask?.status, agentTask?.id])
+  const rememberFacts = (facts: Array<{ fact: string; value: string }>) => {
+    const now = Date.now()
+    const changes: FormEntry[] = facts.flatMap(({ fact, value }) => {
+      if (refusedEntry(fact, value)) return []
+      const had = factEntries.current.find((e) => factKey(e.label) === factKey(fact))
+      return [had ? { ...had, value: value.slice(0, 500), updatedAt: now } : { id: `fd_${now.toString(36)}_${Math.random().toString(36).slice(2, 10)}`, key: "fact" as const, label: fact.slice(0, 60), value: value.slice(0, 500), updatedAt: now }]
+    })
+    if (changes.length) void sendBackground({ type: "formDataPut", changes })
+  }
+
   const startAgent = async (request: string, deferred?: string) => {
     const text = request.trim()
     if (!text) return
@@ -2580,11 +2618,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (closed?.past) setAgentPast(closed.past)
       setAgentTask(null)
     }
-    const r = await sendBackground<{ ok: boolean; code?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
+    const r = await toAgent<{ ok: boolean; code?: string; why?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
     if (r?.state) setAgentTask(r.state)
     if (!r || (!r.ok && !r.state && r.code !== "CONSENT" && r.code !== "PRO_ONLY")) {
-      // Test builds name the code (the simulator pass); people see the plain words.
-      setAgentStartError(`${t("agentError")}${TEST_PLAN ? ` (${r?.code ?? "no answer"})` : ""}`)
+      // What failed, in plain words: no answer from the extension, or what broke there (its code).
+      setAgentStartError(!r ? t("agentErrorNoReply") : t("agentStartFailed", r.why ? `${r.code}: ${r.why}` : r.code ?? "ERROR"))
       setDraft(text)
     }
     if (r?.code === "CONSENT") {
@@ -2598,7 +2636,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const answerAgent = async (a: AgentAnswer, chosen?: string[]) => {
     // The answer names its question (a second tap can't approve the next one).
     const key = agentTask ? pendingKey(agentTask as never) : ""
-    const r = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentAnswer", answer: a, chosen, key })
+    const r = await toAgent<{ ok: boolean; state?: PanelAgent }>({ type: "agentAnswer", answer: a, chosen, key })
     if (r?.state) setAgentTask(r.state)
   }
 
@@ -2657,8 +2695,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const task = agentTask
     if (!task?.plan) return
     if (!later) {
-      const r = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentPlan", approval })
+      setAgentPlanFailed(null)
+      const r = await toAgent<{ ok: boolean; state?: PanelAgent }>({ type: "agentPlan", approval })
       if (r?.state) setAgentTask(r.state)
+      // «Начать» never fails silently: no answer, or the task wasn't waiting for it any more.
+      if (!r) setAgentPlanFailed(t("agentErrorNoReply"))
+      else if (!r.ok && !r.state) setAgentPlanFailed(t("agentStartFailed", "PLAN"))
       return
     }
     const plan: TaskPlan = {
@@ -2690,6 +2732,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       void sendBackground({ type: "agentSeen", visible, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}") } }) })
     }
     document.addEventListener("visibilitychange", onVis)
+    // A page that opens visible fires no change: it says so at once (a new tab otherwise left the background thinking
+    // Safari was away, and «Дело на паузе» came while the person was in Safari).
+    if (document.visibilityState === "visible") onVis()
     return () => document.removeEventListener("visibilitychange", onVis)
   }, [popup])
 
@@ -2768,6 +2813,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // An agent task's card (or a deferred one's) is on screen: the greeting and its chips step aside for it.
   const agentCardShown = !!agentTask || !!agentDeferred || agentPast.length > 0
   const lastUserIndex = messages.findLastIndex((m) => m.role === "user" && !m.note)
+  // A task that ended (done, asked, stopped, failed, blocked) puts the field back to asking (the owner on 117: it stayed in
+  // Do). Only on the change itself: a finished task shown again later doesn't touch the mode.
+  const endedFor = useRef("")
+  useEffect(() => {
+    const ended = agentTask && ["done", "asked", "stopped", "error", "blocked"].includes(agentTask.status)
+    if (!ended || endedFor.current === agentTask.id) return
+    endedFor.current = agentTask.id
+    setAgentMode(false)
+  }, [agentTask?.status, agentTask?.id])
+
   // The plan's own step (the page read before the plan card): the panel stays, the card comes there.
   const agentPlanning = agentStatus === "running" && (agentTask?.step ?? 0) === 0
   useEffect(() => {
@@ -4287,8 +4342,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // 2.7.1: the circle stays blue; its space shows as a halo (Spaces.tsx fabHalo), glowing up once as the space changes.
   const halo = fabHalo(spaces.fabSpace?.color)
-  // The panel's send button glows the same way, weaker, in the panel's own space (styles.css .cf-send[data-halo]).
-  const sendHalo = spaces.multi && fabHalo(spaces.current.color)
+  // (2.7.1, the owner on 117: no space halo on the send button — the chat's header already shows the space.)
 
   // The circle's height, and the in-page translation pill's beside it (2.7).
   const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
@@ -5033,6 +5087,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     state={agentTask}
                     onAnswer={(a, chosen) => void answerAgent(a, chosen)}
                     onPlan={(approval, later) => void planAgent(approval, later)}
+                    planFailed={agentPlanFailed}
+                    saved={savedFacts}
+                    onRemember={rememberFacts}
                     later={planLater ?? undefined}
                     onUndo={() => void sendBackground({ type: "agentUndo" })}
                     onClose={() => {
@@ -5486,10 +5543,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       onClose={() => setPlusOpen(false)}
                     />
                   )}
-                  <div class={`cf-input ${noteMode ? "note" : ""} ${agentMode && !noteMode && !historyMode ? "agent" : ""}`}>
-                    {/* 2.7.1 (the owner: «большое нагромождение всего»): in Do mode the row is the «Сделать ✕» chip and the
-                        field; «Позже» is a choice in the plan card. */}
-                    {!(agentMode && !noteMode && !historyMode) && <button
+                  <div class={`cf-input ${noteMode ? "note" : ""} ${doMode ? "agent" : ""}`}>
+                    {/* 2.7.1 (the owner on 117): Do mode is the send button's own state, like Note — no chip, the field
+                        keeps its width; «+» stays, and its «Сделать» leaves it as «Заметка» leaves a note. */}
+                    {<button
                       type="button"
                       class={`cf-plus ${plusOpen ? "on" : ""}`}
                       aria-haspopup="menu"
@@ -5514,18 +5571,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <Icon.Search size={14} /> {t("actGoogle")}
                       </button>
                     )}
-                    {agentMode && !noteMode && !historyMode && (
-                      <button
-                        type="button"
-                        class="cf-mode cf-agent-mode on"
-                        aria-pressed={true}
-                        aria-label={t("agentModeOff")}
-                        title={t("agentModeHint")}
-                        onClick={() => setAgentMode(false)}
-                      >
-                        <Icon.Sparkle size={13} /> {t("agentMode")} <span class="cf-agent-mode-x" aria-hidden="true">✕</span>
-                      </button>
-                    )}
+
                     <textarea
                       ref={inputRef}
                       rows={1}
@@ -5568,17 +5614,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <span class="cf-send-wrap" {...switchGestures}>
                         <button
                           type="button"
-                          class={`cf-send ${noteMode ? "note" : ""}`}
-                          data-halo={sendHalo ? spaces.current.color : undefined}
+                          class={`cf-send ${noteMode ? "note" : ""} ${doMode ? "do" : ""}`}
                           disabled={!draft.trim()}
                           onClick={() => {
                             if (switched.current) switched.current = false
                             else submit()
                           }}
-                          aria-label={t(noteMode ? "saveNote" : "send")}
+                          aria-label={t(noteMode ? "saveNote" : doMode ? "agentMode" : "send")}
                           title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? (swipeDo ? "noteHintTouchDo" : "noteHintTouch") : "noteHintMouse")}`}
                         >
-                          <span class="cf-send-icon" key={noteMode ? "note" : "send"}>{noteMode ? <Icon.Pencil /> : <Icon.ArrowUp />}</span>
+                          <span class="cf-send-icon" key={noteMode ? "note" : doMode ? "do" : "send"}>{noteMode ? <Icon.Pencil /> : doMode ? <Icon.Sparkle size={16} /> : <Icon.ArrowUp />}</span>
                         </button>
                       </span>
                     )}
@@ -5872,14 +5917,32 @@ function SelField({ touch, chips, placeholder, markUltra, tone, onChip, children
 function AgentRing({ range }: { range: Range }): VNode | null {
   const [box, setBox] = useState<DOMRect | null>(null)
   useLayoutEffect(() => {
-    let timer = 0
+    // Measured when the page scrolls or resizes, and a few times as the step settles (a list that closes, a row that
+    // appears) — then nothing runs while the page is still (2.7.1, the owner on 117: it was every 200 ms, and the phone
+    // got hot while Do ran).
+    let frame = 0
     const place = () => {
+      frame = 0
       const r = toFixed(range.getBoundingClientRect())
       setBox(r.width > 1 && r.height > 1 ? r : null)
     }
+    const soon = () => {
+      if (!frame) frame = requestAnimationFrame(place)
+    }
     place()
-    timer = window.setInterval(place, 200)
-    return () => window.clearInterval(timer)
+    const settles = [300, 900, 1800].map((ms) => window.setTimeout(soon, ms))
+    window.addEventListener("scroll", soon, { passive: true, capture: true })
+    window.addEventListener("resize", soon)
+    window.visualViewport?.addEventListener("resize", soon)
+    window.visualViewport?.addEventListener("scroll", soon)
+    return () => {
+      cancelAnimationFrame(frame)
+      for (const t of settles) window.clearTimeout(t)
+      window.removeEventListener("scroll", soon, true)
+      window.removeEventListener("resize", soon)
+      window.visualViewport?.removeEventListener("resize", soon)
+      window.visualViewport?.removeEventListener("scroll", soon)
+    }
   }, [range])
   if (!box) return null
   return (

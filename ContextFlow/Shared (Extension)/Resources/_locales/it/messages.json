@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "«{0}»: lo premi tu"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Rispondi prima: «{0}»"
+ },
+ "agentErrorNoReply": {
+  "message": "L’estensione non ha risposto. Riprova: se succede di nuovo, ricarica la pagina."
+ },
+ "agentStartFailed": {
+  "message": "Impossibile avviare l’attività ({0}). Riprova."
+ },
+ "agentPlanRemember": {
+  "message": "Ricorda in «I miei dati»"
+ },
+ "agentPlanFromSaved": {
+  "message": "Da «I miei dati»: aggiorna lì"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

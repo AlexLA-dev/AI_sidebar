@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "Görev duraklatıldı — bitirmek için Safari'yi açın: {0}",
   "agentNotifDone": "Bitti: {0}",
   "agentNotifNeeds": "Sizi bekliyor: {0}",
-  "agentPlanStepYours": "“{0}” — siz basacaksınız"
+  "agentPlanStepYours": "“{0}” — siz basacaksınız",
+  "agentPlanAnswerFirst": "Önce şunu yanıtlayın: “{0}”",
+  "agentErrorNoReply": "Uzantı yanıt vermedi. Yeniden deneyin; tekrarlarsa sayfayı yenileyin.",
+  "agentStartFailed": "Görev başlatılamadı ({0}). Yeniden deneyin.",
+  "agentPlanRemember": "“Bilgilerim”e kaydet",
+  "agentPlanFromSaved": "“Bilgilerim”den — orada güncelle"
 }

@@ -1202,5 +1202,10 @@
   "agentNotifPaused": "Tâche en pause — ouvrez Safari pour la terminer : {0}",
   "agentNotifDone": "Terminé : {0}",
   "agentNotifNeeds": "Vous êtes attendu : {0}",
-  "agentPlanStepYours": "« {0} » — c’est vous qui appuyez"
+  "agentPlanStepYours": "« {0} » — c’est vous qui appuyez",
+  "agentPlanAnswerFirst": "Répondez d’abord : « {0} »",
+  "agentErrorNoReply": "L’extension n’a pas répondu. Réessayez — si cela se reproduit, rechargez la page.",
+  "agentStartFailed": "Impossible de lancer la tâche ({0}). Réessayez.",
+  "agentPlanRemember": "Retenir dans « Mes infos »",
+  "agentPlanFromSaved": "Depuis « Mes infos » — mettre à jour"
 }

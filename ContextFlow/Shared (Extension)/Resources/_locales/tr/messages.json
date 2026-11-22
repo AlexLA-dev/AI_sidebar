@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "“{0}” — siz basacaksınız"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Önce şunu yanıtlayın: “{0}”"
+ },
+ "agentErrorNoReply": {
+  "message": "Uzantı yanıt vermedi. Yeniden deneyin; tekrarlarsa sayfayı yenileyin."
+ },
+ "agentStartFailed": {
+  "message": "Görev başlatılamadı ({0}). Yeniden deneyin."
+ },
+ "agentPlanRemember": {
+  "message": "“Bilgilerim”e kaydet"
+ },
+ "agentPlanFromSaved": {
+  "message": "“Bilgilerim”den — orada güncelle"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

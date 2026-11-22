@@ -3518,6 +3518,21 @@
  "agentPlanStepYours": {
   "message": "‘{0}’는 직접 누르세요"
  },
+ "agentPlanAnswerFirst": {
+  "message": "먼저 답해 주세요: ‘{0}’"
+ },
+ "agentErrorNoReply": {
+  "message": "확장 프로그램이 응답하지 않았어요. 다시 시도하고, 반복되면 페이지를 새로고침하세요."
+ },
+ "agentStartFailed": {
+  "message": "작업을 시작하지 못했어요({0}). 다시 시도해 주세요."
+ },
+ "agentPlanRemember": {
+  "message": "‘내 정보’에 기억"
+ },
+ "agentPlanFromSaved": {
+  "message": "‘내 정보’에서 — 바뀌면 저장"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },
