@@ -6,7 +6,9 @@
 //   node tools/cookies/stand.mjs [port]        (default 8940)  →  http://localhost:8940/
 import { createServer } from "node:http"
 
-import { PAGE_SCRIPT, PAGES } from "../../tests/fixtures/cookies/pages.mjs"
+import { BROWSER_PAGES, PAGE_SCRIPT, PAGES as UNIT_PAGES } from "../../tests/fixtures/cookies/pages.mjs"
+
+const PAGES = [...UNIT_PAGES, ...BROWSER_PAGES]
 
 const PORT = Number(process.argv[2] ?? process.env.PORT ?? 8940)
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c])

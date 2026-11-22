@@ -49,6 +49,11 @@ test("reject beats the accept words it holds; settings that mention reject are s
   assert.equal(labelKind("I do not accept"), "reject")
   assert.equal(labelKind("Nur notwendige akzeptieren"), "reject")
   assert.equal(labelKind("Manage or reject cookies"), "settings")
+  // A cookie wall's other door subscribes or pays: never a reject.
+  for (const label of ["Rechazo y me suscribo", "Rifiuta e abbonati", "Ablehnen und Pur-Abo abschließen", "Refuser et s'abonner", "Purchase Guardian Ad-Lite", "Отказаться и оформить подписку"]) {
+    assert.equal(labelKind(label), "pay", label)
+  }
+  assert.deepEqual(chooseButton(["Acepto y continúo gratis", "Rechazo y me suscribo"]), { leave: "only_accept" })
   assert.equal(labelKind("Cookie settings"), "settings")
   assert.equal(labelKind("Настройки"), "settings")
   // A banner's sentence is no button.
@@ -178,21 +183,22 @@ for (const page of PAGES as Page[]) {
 
 test("the page set covers every platform of the list and generic banners in ten languages", () => {
   const ids = new Set((PLATFORM_PAGES as Page[]).map((p) => p.expect.via))
-  for (const id of ["onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "cookieyes", "complianz", "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "tcf"]) {
+  for (const id of ["evidon", "onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "cookieyes", "complianz", "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "tcf"]) {
     assert.ok(ids.has(id), id)
   }
   const langs = new Set((GENERIC_PAGES as Array<Page & { lang: string }>).filter((p) => p.expect.status === "done").map((p) => p.lang))
   for (const lang of ["en", "ru", "de", "fr", "es", "it", "tr", "ar", "ja", "zh"]) assert.ok(langs.has(lang), lang)
 })
 
-test("Sourcepoint answers in its own frame: its message and, only when we opened it, its privacy manager", () => {
+test("Sourcepoint answers in its own frame (its message's reject); a privacy manager only when we opened it", () => {
   assert.equal(consentFrame("https://cdn.privacy-mgmt.com/index.html?hasCsp=true&message_id=123456&consentUUID=x&preload_message=true"), "sourcepoint")
   assert.equal(consentFrame("https://sourcepoint.theguardian.com/index.html?message_id=8&consentUUID=x"), "sourcepoint")
   assert.equal(consentFrame("https://cdn.privacy-mgmt.com/privacy-manager/index.html?message_id=55"), "sourcepoint_pm")
   assert.equal(consentFrame("https://consent-pref.trustarc.com/?type=x"), "trustarc")
   assert.equal(consentFrame("https://googleads.g.doubleclick.net/pagead/ads?x=1"), null)
   assert.ok(FRAME_RULES.sourcepoint_pm.ours)
-  assert.ok(FRAME_RULES.sourcepoint.settings?.length)
+  // Its first layer without a reject is a «pay or accept» wall where it's used: no settings route (they lead there).
+  assert.equal(FRAME_RULES.sourcepoint.settings, undefined)
   // frame.js stays small: it only asks for the closer, which the background injects into that frame alone.
   const frame = read("src/content/frame.ts")
   assert.match(frame, /import \{ consentFrame \} from "\.\/cookies\/frameMatch"/)

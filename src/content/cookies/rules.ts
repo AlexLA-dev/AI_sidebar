@@ -48,7 +48,7 @@ export const RULES: readonly Rule[] = [
   },
   {
     id: "didomi",
-    root: "#didomi-host #didomi-notice, #didomi-host #didomi-popup, #didomi-notice, #didomi-popup",
+    root: "#didomi-host #didomi-notice, #didomi-notice, #didomi-popup .didomi-popup-container, #didomi-consent-popup .didomi-popup-container, #didomi-host .didomi-popup-container",
     wide: true,
     reject: ["#didomi-notice-disagree-button", ".didomi-continue-without-agreeing", "#didomi-popup [aria-label^='Disagree' i]"],
     settings: {
@@ -161,6 +161,8 @@ export const RULES: readonly Rule[] = [
     reject: [".fc-cta-do-not-consent", "button.fc-cta-do-not-consent"],
     settings: { open: [".fc-cta-manage-options"], then: [[".fc-confirm-choices", "button.fc-confirm-choices"]] }
   },
+  // Crownpeak's Evidon (TheFork).
+  { id: "evidon", root: "#_evidon_banner, #_evidon-message, .evidon-banner", wide: true, reject: ["#_evidon-decline-button", ".evidon-banner-declinebutton"] },
   // Common ones beyond the list: WordPress's Cookie Notice, CookieConsent (Orest Bida; Osano's older one), Borlabs,
   // Shopify's own banner.
   { id: "cookie_notice", root: "#cookie-notice.cookie-notice-visible, #cookie-notice", reject: ["#cn-refuse-cookie", ".cn-refuse-cookie"] },
@@ -187,9 +189,10 @@ export interface FrameRule {
 
 export const FRAME_RULES: Readonly<Record<string, FrameRule>> = {
   sourcepoint_pm: { reject: ["button.sp_choice_type_REJECT_ALL", "button[title='Reject All' i]", "button.sp_choice_type_13"], ours: true },
+  // No settings route: on the sites that use it, Sourcepoint's first layer without a reject is a «pay or accept» wall
+  // (Spiegel, The Guardian), and its settings lead to the subscription, not to «only necessary».
   sourcepoint: {
-    reject: ["button.sp_choice_type_13", "button.sp_choice_type_REJECT_ALL", "button[title='Reject All' i]", "button[title='Reject all' i]"],
-    settings: ["button.sp_choice_type_12", "button[title*='Settings' i]", "button[title*='Manage' i]", "button[title*='Options' i]", "button[title*='Preferences' i]"]
+    reject: ["button.sp_choice_type_13", "button.sp_choice_type_REJECT_ALL", "button[title='Reject All' i]", "button[title='Reject all' i]"]
   },
   trustarc: { reject: [".rejectAll", "#rejectAll", ".declineAllButtonLower", "a.required", ".required-only"] },
   consentmanager: { reject: [".cmpboxbtnno", "#cmpwelcomebtnno"] }

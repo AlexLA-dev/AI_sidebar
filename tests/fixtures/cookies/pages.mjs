@@ -55,10 +55,10 @@ export const PLATFORM_PAGES = [
       <div class="didomi-notice-text">We and our partners use cookies to store and access personal data such as browsing data.</div>
       ${btn("Learn more", 'id="didomi-notice-learn-more-button"', "show:#didomi-popup")}${btn("Agree and close", 'id="didomi-notice-agree-button"')}
     </div>
-    <div id="didomi-popup" data-banner hidden class="didomi-popup" style="${fixed};top:15%">
+    <div id="didomi-popup" hidden class="didomi-popup-backdrop" style="position:fixed;inset:0;background:#0006"><div class="didomi-popup-container" data-banner style="background:#fff;margin:40px 12px;padding:12px">
       <div class="didomi-consent-popup-header">Your consent choices</div>
       <div class="didomi-consent-popup-actions">${expectBtn("Disagree to all")}${btn("Agree to all")}</div>
-    </div></div>`
+    </div></div></div>`
   },
   {
     name: "quantcast", expect: { status: "done", via: "quantcast" },
@@ -165,6 +165,32 @@ export const PLATFORM_PAGES = [
     </div>`
   },
   {
+    // TheFork: Crownpeak's Evidon, «Continue Without Accepting ➜».
+    name: "evidon", expect: { status: "done", via: "evidon" },
+    html: `<div id="_evidon_banner" class="evidon-banner" data-banner role="dialog" style="${fixed}">
+      <div id="_evidon-message">TheFork values your Privacy. We and our trusted third-party partners use cookies and similar technologies.</div>
+      ${btn("Accept", 'id="_evidon-accept-button"')}${btn("Preferences", 'id="_evidon-option-button"', "none")}${expectBtn("Continue Without Accepting ➜", 'id="_evidon-decline-button" class="evidon-banner-declinebutton"')}
+    </div>`
+  },
+  {
+    // El País: Didomi with only «Configuration» and «Accept»; its settings are #didomi-consent-popup, a «Disagree» per
+    // purpose and «Disagree to all» at the bottom.
+    name: "didomi-popup", expect: { status: "done", via: "didomi" },
+    html: `<div id="didomi-host"><div id="didomi-notice" data-banner style="${fixed}">
+      <div id="text">We and our partners store and access information on your device, such as cookies.</div>
+      <div id="buttons">${btn("Configuration", 'id="didomi-notice-learn-more-button"', "show:#didomi-consent-popup")}${btn("Accept", 'id="didomi-notice-agree-button"')}</div>
+    </div>
+    <div id="didomi-consent-popup" class="didomi-popup-backdrop" hidden style="position:fixed;inset:0;background:#0006">
+      <div class="didomi-popup-container" data-banner style="background:#fff;margin:40px 12px;padding:12px">
+        <div class="didomi-consent-popup-purpose">Store and access information on a device
+          <button type="button" class="didomi-components-radio__option">Disagree</button><button type="button" class="didomi-components-radio__option">Agree</button></div>
+        <div class="didomi-consent-popup-purpose">Personalised advertising
+          <button type="button" class="didomi-components-radio__option">Disagree</button><button type="button" class="didomi-components-radio__option">Agree</button></div>
+        ${expectBtn("Disagree to all", 'class="didomi-components-button didomi-button"')}${btn("Agree to all", 'class="didomi-components-button didomi-button"')}${btn("Save", 'class="didomi-components-button didomi-button"')}
+      </div>
+    </div></div>`
+  },
+  {
     // The only answer offered is «OK»: left to the person.
     name: "onetrust-accept-only", expect: { status: "left", why: "only_accept", via: "onetrust" },
     html: `<div id="onetrust-consent-sdk"><div id="onetrust-banner-sdk" data-banner style="${fixed}">
@@ -202,6 +228,15 @@ export const GENERIC_PAGES = [
     name: "generic-accept-only-ru", lang: "ru", expect: { status: "left", why: "only_accept", via: "generic" },
     html: banner("notice-ru", `<p>Продолжая пользоваться сайтом, вы соглашаетесь на использование файлов cookie.</p>${btn("Принять")}${btn("Настройки", "", "none")}`)
   },
+  // «Pay or accept» (Marca, Corriere): the other door subscribes. Never pressed, nothing hidden.
+  {
+    name: "generic-wall-es", lang: "es", expect: { status: "left", why: "only_accept", via: "generic" },
+    html: banner("wall-es", `<p>Pulsando «Acepto y continúo gratis» accedes de forma gratuita y consientes la instalación de cookies.</p>${btn("Acepto y continúo gratis")}${btn("Rechazo y me suscribo", "", "none")}`)
+  },
+  {
+    name: "generic-wall-it", lang: "it", expect: { status: "left", why: "only_accept", via: "generic" },
+    html: banner("wall-it", `<p>Il Corriere usa cookie per offrirti un servizio migliore. Accetta o abbonati.</p>${btn("Accetta e continua")}${btn("Rifiuta e abbonati", "", "none")}`)
+  },
   // The reject is a link to another page: never followed.
   {
     name: "generic-reject-link", lang: "en", expect: { status: "left", why: "only_accept", via: "generic" },
@@ -221,6 +256,18 @@ export const GENERIC_PAGES = [
   {
     name: "generic-policy-page", lang: "en", expect: { status: "none" },
     html: `<main><h1>Cookie policy</h1><p>This page explains which cookies we use and how you can reject them in your browser.</p>${btn("Reject all")}</main>`
+  }
+]
+
+// A consent window in a frame of the page's own (srcdoc; Le Figaro): real browsers only (linkedom draws no frames).
+const frameDoc = `<!doctype html><html><body style="font:15px system-ui;margin:0"><div data-banner style="padding:16px">
+  <p>We and our 251 partners use cookies or equivalent technology to store and access information on your device.</p>
+  <button type="button" id="skip">Continue without accepting</button> <button type="button" id="all">ACCEPT ALL</button></div>
+  <script>for (const id of ["skip", "all"]) document.getElementById(id).onclick = function () { parent.document.getElementById("pressed").textContent = "pressed: " + this.textContent; frameElement.remove(); }<\/script></body></html>`
+export const BROWSER_PAGES = [
+  {
+    name: "srcdoc-frame", lang: "en", expect: { status: "done", via: "generic" },
+    html: `<iframe title="Consent window" srcdoc="${frameDoc.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" style="position:fixed;left:0;right:0;bottom:0;width:100%;height:240px;border:0;box-shadow:0 -2px 12px #0003;background:#fff;z-index:99999"></iframe>`
   }
 ]
 

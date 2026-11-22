@@ -212,7 +212,9 @@ async function byRule(env: Env, rule: Rule, root: Element): Promise<CloseResult>
     return (await gone(env, rule, root)) ? { status: "done", via: rule.id } : { status: "left", why: "stuck", via: rule.id }
   }
   const s = rule.settings
-  const open = s ? ownButton(env, rule, scope(), s.open) : null
+  // A «pay or accept» wall (its first layer offers a subscription): its settings lead there, not to «only necessary».
+  const wall = windowsOf(env, rule).some((w) => controls(w).some((el) => env.visible(el) && labelKind(labelOf(el)) === "pay"))
+  const open = s && !wall ? ownButton(env, rule, scope(), s.open) : null
   if (!s || !open) {
     const labels = windowsOf(env, rule).flatMap((w) => controls(w)).filter((el) => env.visible(el)).map(labelOf)
     if (!labels.length) return { status: "none" }
@@ -271,8 +273,33 @@ export function genericBanners(env: Env): Element[] {
   return out.sort((a, b) => (a.contains(b) ? 1 : b.contains(a) ? -1 : 0))
 }
 
-// Banners already answered or left on this page: never pressed again, nor anything inside or around them.
+/**
+ * A consent window drawn in a frame of the page's own (srcdoc or about:blank: no content script runs there): its body,
+ * when the frame floats over the page and talks about cookies. Other sites' frames can't be read and are left out.
+ */
+export function frameBanners(env: Env): Element[] {
+  const out: Element[] = []
+  for (const frame of env.doc.querySelectorAll("iframe")) {
+    if (!env.visible(frame) || !env.floats(frame)) continue
+    let body: HTMLElement | null = null
+    try {
+      body = (frame as HTMLIFrameElement).contentDocument?.body ?? null
+    } catch {
+      continue
+    }
+    if (!body) continue
+    const raw = body.textContent ?? ""
+    if (raw.length < 20 || raw.length > MAX_TEXT * 2 || !aboutCookies(textOf(body), env.sign === true)) continue
+    if (body.querySelector(SECRET)) continue
+    out.push(body)
+  }
+  return out
+}
+
+// Banners already answered on this page: never pressed again, nor anything inside or around them.
 const done = new Set<Element>()
+// Banners left to the person: looked at again as they change (a reject may come later), counted once.
+const leftAlone = new Set<Element>()
 const handled = (el: Element): boolean => {
   for (const d of done) if (d === el || d.contains(el) || el.contains(d)) return true
   return false
@@ -281,6 +308,7 @@ const handled = (el: Element): boolean => {
 /** Forgets the page's answered banners (the tests' pages one after another). */
 export function forgetBanners(): void {
   done.clear()
+  leftAlone.clear()
 }
 
 /** One look at the page: a platform's banner, else a banner the site made. */
@@ -299,13 +327,18 @@ export async function closeOnce(env: Env): Promise<CloseResult> {
       // Sourcepoint answers in its own frame (frame.ts): nothing to press on the page.
       if (!rule.reject.length && !rule.settings) return { status: "none" }
       const result = await byRule(env, rule, root)
-      // A window still being drawn (no buttons yet) is looked at again on the page's next change.
-      if (result.status !== "none") done.add(root)
+      if (result.status === "done" || (result.status === "left" && result.why === "stuck")) done.add(root)
+      // Left to the person (only «Accept» so far) or still being drawn: looked at again on the page's next change,
+      // counted once.
+      if (result.status === "left" && result.why !== "stuck") {
+        if (leftAlone.has(root)) return { status: "none" }
+        leftAlone.add(root)
+      }
       return result
     }
   }
   let left: CloseResult | null = null
-  for (const banner of genericBanners(env)) {
+  for (const banner of [...genericBanners(env), ...frameBanners(env)]) {
     if (handled(banner)) continue
     const list = controls(banner).filter((el) => env.visible(el))
     const safe = list.filter(safeControl)
@@ -315,9 +348,9 @@ export async function closeOnce(env: Env): Promise<CloseResult> {
       press(safe[choice.press] as HTMLElement)
       return (await gone(env, null, banner)) ? { status: "done", via: env.sign ? "tcf" : "generic" } : { status: "left", why: "stuck", via: "generic" }
     }
-    // Only «Accept» (and maybe settings, or a reject that leaves the page): the person's choice. Not looked at again.
-    if (!left && list.length) {
-      done.add(banner)
+    // Only «Accept» (and maybe settings, or a reject that leaves the page): the person's choice. Counted once.
+    if (!left && list.length && ![...leftAlone].some((l) => l === banner || l.contains(banner) || banner.contains(l))) {
+      leftAlone.add(banner)
       left = { status: "left", why: choice.leave, via: "generic" }
     }
   }
@@ -333,7 +366,8 @@ export function shownOnPage(el: Element): boolean {
   const r = h.getBoundingClientRect()
   if (r.width < 2 || r.height < 2) return false
   const view = el.ownerDocument.defaultView ?? window
-  if (r.bottom <= 0 || r.right <= 0 || r.top >= view.innerHeight || r.left >= view.innerWidth) return false
+  // Above or beside the screen is away; below it counts (a dialog's buttons further down its own scroll).
+  if (r.bottom <= 0 || r.right <= 0 || r.left >= view.innerWidth) return false
   if (typeof h.checkVisibility === "function") return h.checkVisibility({ opacityProperty: true, visibilityProperty: true, checkOpacity: true, checkVisibilityCSS: true })
   const s = view.getComputedStyle(el)
   return s.visibility !== "hidden" && s.display !== "none" && Number(s.opacity) > 0.05

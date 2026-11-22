@@ -5,7 +5,13 @@
 import { normalize } from "../agent/match.ts"
 import { ACCEPT_LABELS, CONSENT_WORD, COOKIE_WORD, REJECT_LABELS, SETTINGS_LABELS } from "./words.ts"
 
-export type LabelKind = "reject" | "accept" | "settings"
+export type LabelKind = "reject" | "accept" | "settings" | "pay"
+
+/**
+ * Subscribing or paying («Rechazo y me suscribo», «Rifiuta e abbonati», «Purchase Ad-Lite»): a cookie wall's other
+ * door. Never pressed for the person, whatever else the label says.
+ */
+export const PAYS = /subscri|suscri|abonn|abbona|abonier|abo\b|pur-abo|assin|подпис|передплат|abone ol|اشترك|購読|구독|订阅|訂閱|đăng ký|ad-lite|contentpass|\bpay\b|\bbuy\b|bezahl|zahlen|payer|pagar|pagare|оплат|kaufen|acheter|comprar|acquista/i
 
 // Chinese, Japanese, Korean: no spaces between words, an entry matches anywhere in the label.
 const CJK = /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/
@@ -28,15 +34,15 @@ function compile(raw: string): Entry {
   return { text, test: (label) => re.test(label) }
 }
 
-const LISTS: Array<[LabelKind, Entry[]]> = [
+const LISTS: Array<[Exclude<LabelKind, "pay">, Entry[]]> = [
   ["reject", [...new Set(REJECT_LABELS)].map(compile)],
   ["accept", [...new Set(ACCEPT_LABELS)].map(compile)],
   ["settings", [...new Set(SETTINGS_LABELS)].map(compile)]
 ]
 
 /** The longest entry of each list that's in the label (0: none). */
-function lengths(label: string): Record<LabelKind, number> {
-  const out: Record<LabelKind, number> = { reject: 0, accept: 0, settings: 0 }
+function lengths(label: string): Record<Exclude<LabelKind, "pay">, number> {
+  const out: Record<Exclude<LabelKind, "pay">, number> = { reject: 0, accept: 0, settings: 0 }
   for (const [kind, entries] of LISTS) {
     for (const e of entries) if (e.text.length > out[kind] && e.test(label)) out[kind] = e.text.length
   }
@@ -50,6 +56,7 @@ function lengths(label: string): Record<LabelKind, number> {
 export function labelKind(label: string): LabelKind | null {
   const text = normalize(label)
   if (!text || text.length > MAX_LABEL) return null
+  if (PAYS.test(text)) return "pay"
   const len = lengths(text)
   // «Manage or reject cookies» opens the settings: it rejects nothing by itself.
   if (len.reject && len.settings) return "settings"

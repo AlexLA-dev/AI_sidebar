@@ -316,7 +316,7 @@ export const FEATURES: Record<string, Feature> = {
       what: [
         "onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "sourcepoint", "cookieyes", "complianz",
         "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "cookie_notice", "cookieconsent",
-        "borlabs", "shopify", "tcf", "generic"
+        "borlabs", "shopify", "evidon", "tcf", "generic"
       ],
       why: ["only_accept", "none", "stuck"],
       count: "int"
