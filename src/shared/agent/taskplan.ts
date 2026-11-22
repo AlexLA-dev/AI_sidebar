@@ -372,7 +372,10 @@ export function covered(plan: TaskPlan | null | undefined, call: ToolCall, verdi
     switch (verdict.reason) {
       case "personal": {
         const typed = call.tool === "select" ? call.option ?? "" : call.text ?? ""
-        return typed && saidInWords(words, typed) ? on.find((p) => p.kind === "personal") ?? null : null
+        if (!typed || !saidInWords(words, typed)) return null
+        // The person's own words into a field the plan meant to fill from «Мои данные» (the model typed the request's
+        // value instead): the same field, the same consent (the cookie session, «ru book»: 3 extra cards).
+        return on.find((p) => p.kind === "personal") ?? on.find((p) => p.kind === "fill" && !!call.id && !!p.ids?.includes(call.id) && (!p.path || p.path === pathOf(map.url))) ?? null
       }
       case "fill":
         // The saved detail into the fields the plan saw it going into (same page), not any field with that key.

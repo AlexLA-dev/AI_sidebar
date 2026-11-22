@@ -254,3 +254,25 @@ test("a wordless button over the page (a banner's ×) closes it freely; elsewher
   assert.equal(classify({ tool: "click", id: "2" }, ctx([{ id: "2", role: "button", label: "" }])).cls, "confirm")
   assert.equal(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "button", label: "", where: "dialog", form: 0, type: "submit" }])).cls, "confirm")
 })
+
+test("typing what an approved fill would put in (the request's words or the saved value) is the plan's; another value asks", async () => {
+  const FORM: PageMap = { ...SALON, forms: [{ n: 0, fillable: true }], items: [{ id: "1", role: "textbox", label: "Name", lock: "personal", form: 0, state: ["empty"] }, { id: "2", role: "textbox", label: "Phone", lock: "personal", form: 0, state: ["empty"] }, { id: "9", role: "button", label: "Book", type: "submit", form: 0 }] }
+  const raw = { label: "", steps: ["Booking"], questions: [], risky: [{ tool: "fill", id: "1", text: "", key: "name.full" }, { tool: "fill", id: "2", text: "", key: "phone" }], prices: [] }
+  const entries: FormEntry[] = [{ id: "n", key: "name.full", label: "", value: "Анна Петрова", updatedAt: 1 }, { id: "p", key: "phone", label: "", value: "+357 99 123456", updatedAt: 1 }]
+  const run = async (typed: ToolCall[], request: string) => {
+    const x = io([{ ok: true, plan: raw, token: "t" }, ...typed.map((c) => step(c, "confirm", "personal")), step({ tool: "done", summary: "ok" }, "free", "read")], { map: FORM, entries, playbook: null })
+    const s = await drive(newState("h", request, "ru", FORM.url), x)
+    if (s.status === "plan") {
+      const { approvePlan } = await import("../src/shared/agent/runner.ts")
+      return approvePlan(s, x, { answers: [], off: [] }).then((r) => ({ s: r, x }))
+    }
+    return { s, x }
+  }
+  const a = await run([{ tool: "type", id: "1", text: "Анна Петрова" }], "забронируй на имя Анна Петрова")
+  assert.equal(a.s.status, "done", "the request's own words into the planned field")
+  assert.equal(a.x.acted.length, 1)
+  const b = await run([{ tool: "type", id: "2", text: "+357 99 123 456" }], "забронируй")
+  assert.equal(b.s.status, "done", "the saved phone's own value")
+  const c = await run([{ tool: "type", id: "2", text: "+44 20 7946 0000" }], "забронируй")
+  assert.equal(c.s.status, "confirm", "another number asks")
+})
