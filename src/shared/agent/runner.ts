@@ -323,7 +323,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.summary = state.summary || lastWords(state)
       break
     }
-    if ((state.stillReads ?? 0) >= 2) state.refused = "no progress: the page hasn't changed over your last reads. Don't read it again: tell the person what you found and ask how to go on (ask_user with choices), or call done"
+    if ((state.stillReads ?? 0) >= 2) state.refused = "no progress: the page hasn't changed over your last reads. Don't read it again. If the person's words or answers already say what to do now, do it; otherwise tell them what you found and ask how to go on (ask_user with choices), or call done"
     const entries = await io.entries().catch(() => [] as FormEntry[])
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null

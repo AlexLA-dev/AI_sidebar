@@ -364,3 +364,27 @@ test("118: the focus trap, the not-finished mark, «Start» looks active", () =>
   assert.match(panel, /if \(status === "done" && \(error === "steps" \|\| error === "stuck"\)\) return \{ sign: "…", text: t\("agentMarkUnfinished"\)/)
   assert.match(panel, /<button type="button" class="cf-primary" disabled=\{sending\} onClick=\{start\}>/)
 })
+
+test("118 fresha: a remembered answer picks the plan's own wording, the time slots reach the model, choices go on", async () => {
+  const { optionFor, savedAnswers, factKey } = await import("../src/shared/agent/taskplan.ts")
+  // «Мужской» was kept from the last plan; this one says «Мужчина / Женщина».
+  assert.equal(optionFor(["Мужчина", "Женщина"], "Мужской"), "Мужчина")
+  assert.equal(optionFor(["Male", "Female"], "male"), "Male")
+  assert.equal(optionFor(["Утро", "Вечер"], "Мужской"), "Мужской", "no close option: the answer as saved (Other…)")
+  assert.equal(optionFor(["Мужская стрижка", "Мужчина"], "Мужской"), "Мужской", "two close options: not guessed")
+  const plan = buildPlan(checkPlan({ steps: [], questions: [{ q: "Кто будет стричься?", options: ["Мужчина", "Женщина"], fact: "fact:Пол" }], risky: [], prices: [] }), ctx)
+  assert.deepEqual(savedAnswers(plan, { [factKey("пол")]: "Мужской" }), ["Мужчина"])
+  // fresha's date strip holds a year of date buttons (aria-live, scrolled sideways): they ranked before the time
+  // slots and filled the page's text, so the model never saw «11:30 AM».
+  const map = readFileSync(new URL("../src/content/agent/map.ts", import.meta.url), "utf8")
+  assert.match(map, /else if \(box\.width > 0 && \(box\.right < 0 \|\| box\.left > width\)\) item\.side = true/)
+  assert.match(map, /i\.where === undefined \? \(i\.side \? 1\.5 : 1\)/)
+  assert.match(map, /if \(m\.matches\(CONTROL\) \|\| hiddenByStyle\(m\)\) continue/)
+  assert.match(map, /if \(messages >= MESSAGES_MAX\) break/)
+  // A no-progress nudge follows what the person already said; choices are real ways on.
+  const runner = readFileSync(new URL("../src/shared/agent/runner.ts", import.meta.url), "utf8")
+  assert.match(runner, /If the person's words or answers already say what to do now, do it/)
+  const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
+  assert.match(act, /do that instead of asking again/)
+  assert.match(act, /never "try the same again"/)
+})

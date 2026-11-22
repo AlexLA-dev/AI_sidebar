@@ -395,5 +395,28 @@ export function factKey(label: string): string {
 
 /** The plan's questions pre-filled from the person's saved facts (by the fact's name): the value, or "". */
 export function savedAnswers(plan: TaskPlan, saved: Record<string, string>): string[] {
-  return plan.questions.map((q) => (q.fact ? saved[factKey(q.fact)] ?? "" : ""))
+  return plan.questions.map((q) => (q.fact ? optionFor(q.options, saved[factKey(q.fact)] ?? "") : ""))
+}
+
+/**
+ * The plan's own option for a remembered answer worded another way («Мужской» → «Мужчина», «Female» → «female»): the
+ * same word, or the one option that starts the same (three letters or more); else the answer as it was saved.
+ */
+export function optionFor(options: string[], value: string): string {
+  const v = value.trim()
+  if (!v) return ""
+  const norm = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
+  const nv = norm(v)
+  const same = options.find((o) => norm(o) === nv)
+  if (same) return same
+  const common = (a: string, b: string) => {
+    let n = 0
+    while (n < a.length && n < b.length && a[n] === b[n]) n++
+    return n
+  }
+  const close = options.filter((o) => {
+    const no = norm(o)
+    return no.length >= 4 && nv.length >= 4 && common(no, nv) >= 3
+  })
+  return close.length === 1 ? close[0] : v
 }
