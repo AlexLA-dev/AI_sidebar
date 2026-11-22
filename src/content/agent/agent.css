@@ -99,4 +99,5 @@
 /* The plan card's question left unanswered when «Начать» was pressed; «Начать» softer until all are answered. */
 .cf-agent-q.missing p { color: var(--danger, #c0392b); }
 .cf-agent-q.missing .cf-agent-options .cf-chip { border-color: var(--danger, #c0392b); }
-.cf-agent-plan .cf-primary.soft { opacity: 0.75; }
+.cf-agent-reply { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cf-agent-reply .cf-input-line { flex: 1 1 10em; }

@@ -270,7 +270,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
       </div>
       {mode === "later" && <LaterFields hasWatch={!!later?.hasWatch} canAlso={!!later?.canAlso} past={!!later?.past} onChange={setLaterChoice} />}
       <div class="cf-card-actions">
-        <button type="button" class={`cf-primary ${answered ? "" : "soft"}`} disabled={sending} onClick={start}>
+        <button type="button" class="cf-primary" disabled={sending} onClick={start}>
           {mode === "later" ? t("agentLaterSet") : t("agentStart")}
         </button>
         <button type="button" class="cf-secondary" onClick={onStop}>{t("cancel")}</button>
@@ -285,7 +285,9 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
 const READS = new Set(["read_page", "scroll", "extract", "back", "go", "reminders", "calendar"])
 
 /** A finished task's mark on its folded line: done, waiting for an answer, stopped, or didn't work. */
-function markOf(status: PanelAgent["status"]): { sign: string; text: string; cls: string } {
+function markOf(status: PanelAgent["status"], error?: string): { sign: string; text: string; cls: string } {
+  // Stopped short (the step limit, no progress): not ✓ (TestFlight 118).
+  if (status === "done" && (error === "steps" || error === "stuck")) return { sign: "…", text: t("agentMarkUnfinished"), cls: "stop" }
   switch (status) {
     case "done": return { sign: "✓", text: t("agentDoneTitle"), cls: "ok" }
     case "asked": return { sign: "⏸", text: t("agentMarkPaused"), cls: "wait" }
@@ -309,8 +311,10 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   const [chosen, setChosen] = useState<Set<string>>(() => new Set((state.pending?.fill ?? []).map((l) => `${l.id}:${l.entryId}`)))
   const busy = state.status === "running"
   const planning = state.status === "plan"
-  const waiting = state.status === "confirm" || state.status === "fill" || state.status === "self"
+  const waiting = state.status === "confirm" || state.status === "fill" || state.status === "self" || state.status === "asked"
   const finished = !busy && !waiting && !planning
+  // The agent's question: the offered answers as buttons, or the person's own words.
+  const [replyText, setReplyText] = useState("")
   // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
   // While it works, the newest few; a finished task opened from its line shows every step that ran (the director: the
   // cookie step was missing from an opened booking).
@@ -322,7 +326,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
     if (ref.current && !past) showIn(ref.current)
   }, [state.status, state.lines.length])
   if (finished && !open) {
-    const mark = markOf(state.status)
+    const mark = markOf(state.status, state.error)
     const answerOnly = state.status === "done" && !past && !!state.summary && state.lines.every((l) => READS.has(l.tool))
     return (
       <div ref={ref} class="cf-card cf-agent folded" role="region" aria-label={t("agentMode")}>
@@ -339,7 +343,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
     <div ref={ref} class="cf-card cf-agent" role="region" aria-label={t("agentMode")} aria-live="polite">
       {finished && (
         <button type="button" class="cf-agent-row" aria-expanded={true} onClick={() => setOpen(false)}>
-          <span class={`cf-agent-row-mark ${markOf(state.status).cls}`} aria-label={markOf(state.status).text}>{markOf(state.status).sign}</span>
+          <span class={`cf-agent-row-mark ${markOf(state.status, state.error).cls}`} aria-label={markOf(state.status, state.error).text}>{markOf(state.status, state.error).sign}</span>
           <span class="cf-agent-row-text open" dir="auto">{state.request}</span>
           <span class="cf-agent-row-more open" aria-hidden="true">›</span>
         </button>
@@ -422,6 +426,26 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
         </div>
       )}
 
+      {state.status === "asked" && (
+        <div class="cf-agent-ask">
+          <strong>{t("agentAskedTitle")}</strong>
+          <p dir="auto">{state.summary}</p>
+          {(state.choices?.length ?? 0) > 0 && (
+            <div class="cf-agent-options">
+              {state.choices!.map((c) => <button type="button" key={c} class="cf-chip" dir="auto" disabled={sent} onClick={() => reply("reply", [c])}>{c}</button>)}
+            </div>
+          )}
+          <div class="cf-agent-reply">
+            <input class="cf-input-line" dir="auto" value={replyText} placeholder={t("agentPlanOwn")} onInput={(e) => setReplyText((e.target as HTMLInputElement).value)} onKeyDown={(e) => {
+              e.stopPropagation()
+              if (e.key === "Enter" && replyText.trim()) reply("reply", [replyText.trim()])
+            }} onKeyUp={(e) => e.stopPropagation()} />
+            <button type="button" class="cf-primary" disabled={sent || !replyText.trim()} onClick={() => reply("reply", [replyText.trim()])}>{t("send")}</button>
+            <button type="button" class="cf-secondary" onClick={() => onAnswer("stop")}>{t("cancel")}</button>
+          </div>
+        </div>
+      )}
+
       {state.status === "self" && state.pending && (
         <div class="cf-agent-ask">
           <strong>{t("agentSelfTitle")}</strong>
@@ -438,17 +462,12 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
         <div class="cf-agent-end">
           {state.status === "done" && (
             <>
-              <strong>{t("agentDoneTitle")}</strong>
-              {state.error === "steps" && <p>{t("agentSteps")}</p>}
+              <strong>{t(state.error === "steps" || state.error === "stuck" ? "agentMarkUnfinished" : "agentDoneTitle")}</strong>
+              {(state.error === "steps" || state.error === "stuck") && <p>{t(state.error === "stuck" ? "agentStuck" : "agentSteps")}</p>}
               {state.summary ? <Markdown text={state.summary} /> : null}
             </>
           )}
-          {state.status === "asked" && (
-            <>
-              <strong>{t("agentAskedTitle")}</strong>
-              <p dir="auto">{state.summary}</p>
-            </>
-          )}
+
           {state.status === "stopped" && <p>{t("agentStopped")}</p>}
           {state.status === "blocked" && <p>{t(state.error === "site_amazon" ? (AMAZON_TEXT.agent as MessageKey) : "agentBlockedSite")}</p>}
           {state.status === "error" && <p>{errorText(state.error, state.left)}</p>}
@@ -594,7 +613,7 @@ export function AgentLaterCard({ hasWatch, onSet, onClose, note, onAsk, past, ca
 
 /** Another tab's task by the ✦ circle (2.7.1): done, or waiting for the person there; «Перейти к вкладке» brings it. */
 export function AgentNoticeCard({ notice, side, top, onGo, onClose }: { notice: { request: string; status: PanelAgent["status"]; summary: string }; side: "left" | "right"; top: string; onGo: () => void; onClose: () => void }): VNode {
-  const waiting = notice.status === "plan" || notice.status === "confirm" || notice.status === "fill" || notice.status === "self"
+  const waiting = notice.status === "plan" || notice.status === "confirm" || notice.status === "fill" || notice.status === "self" || notice.status === "asked"
   const mark = waiting ? { sign: "•", text: t("agentNoticeNeeds"), cls: "wait" } : markOf(notice.status)
   return (
     <div class={`cf-agent-notice ${side}`} style={{ top }} role="status" aria-live="polite">

@@ -81,6 +81,14 @@ export interface AgentState {
   readDevice?: boolean
   // «done» came once before a press the plan lists as the agent's own had happened: the model was sent back for it.
   doneNudged?: boolean
+  // The page as last read, and how many reads in a row found it the same (TestFlight 118: 25 reads of a date with no
+  // free time, then «too many steps»).
+  lastSig?: string
+  stillReads?: number
+  lastWasRead?: boolean
+  // ask_user's answers offered as buttons, and the person's answers to the agent's questions (theirs to type).
+  choices?: string[]
+  replies?: string[]
 }
 
 export interface ActReply {
@@ -248,7 +256,8 @@ export function confirmedOn(state: AgentState, host: string): boolean {
 
 /** The task's request as the server and the checks hear it: the person's words with the plan's answers. */
 function words(state: AgentState): string {
-  return personWords(state.request, state.plan)
+  const said = personWords(state.request, state.plan)
+  return state.replies?.length ? `${said}\n${state.replies.join("\n")}` : said
 }
 
 /** The plan step (step 0): the plan card when it needs the person, else straight on with it approved. */
@@ -282,10 +291,13 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
   while (state.status === "running") {
     if (state.step >= io.maxSteps) {
       state.status = "done"
-      state.summary = state.summary ?? ""
+      // Never only «too many steps»: what it got to, from its last line (the panel shows it as not finished).
+      state.summary = state.summary || lastWords(state)
       state.error = "steps"
       break
     }
+    // Two steps left: the model hears it should finish now and say what it found, or ask how to go on.
+    if (state.step >= io.maxSteps - 2 && !state.refused) state.refused = "only 2 steps are left: call done now saying what you found and what is left for the person, or ask_user with choices for the way on"
     // The page's amounts only when a price may be checked: the plan's first look, or a plan that saw prices.
     const money = (state.step === 0 && !!io.planning && !state.plan) || (!!state.plan?.approved && state.plan.prices.length > 0)
     let map = await io.map({ money })
@@ -299,6 +311,19 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     state.host = hostOf(map.url)
+    // No progress: reads in a row on a page that didn't change. Two: the model is told to stop reading and say what it
+    // found (or ask how to go on); four: the task stops, not finished.
+    const sig = pageSig(map)
+    state.stillReads = state.lastWasRead && state.lastSig === sig ? (state.stillReads ?? 0) + 1 : 0
+    state.lastSig = sig
+    state.lastWasRead = false
+    if ((state.stillReads ?? 0) >= 4) {
+      state.status = "done"
+      state.error = "stuck"
+      state.summary = state.summary || lastWords(state)
+      break
+    }
+    if ((state.stillReads ?? 0) >= 2) state.refused = "no progress: the page hasn't changed over your last reads. Don't read it again: tell the person what you found and ask how to go on (ask_user with choices), or call done"
     const entries = await io.entries().catch(() => [] as FormEntry[])
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
@@ -357,8 +382,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     if (call.tool === "ask_user") {
+      // The person answers (a button or their own words) and the task goes on (TestFlight 118: «На завтра мест нет…
+      // Записать на 24-е? [Да] [Другой день] [Отмена]»).
       state.status = "asked"
       state.summary = call.question ?? ""
+      state.choices = call.choices ?? []
       break
     }
     // The device's own check, on its own map: never milder than the server's.
@@ -457,10 +485,31 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     await perform(state, io, call, verdict, target)
+    state.lastWasRead = READS.has(call.tool)
     await io.save(state)
   }
   await io.save(state)
   return state
+}
+
+const READS = new Set(["read_page", "extract", "scroll", "reminders", "calendar"])
+
+/** The page as far as progress goes: its address, its controls and their states, how much text (not where it's scrolled). */
+function pageSig(map: PageMap): string {
+  const items = map.items.slice(0, 80).map((i) => `${i.role}:${i.label}:${i.value ?? ""}:${(i.state ?? []).join(",")}`).join("|")
+  return `${map.url}#${map.items.length}#${map.text.length}#${items.length}#${hashOf(items)}`
+}
+
+function hashOf(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0
+  return h
+}
+
+/** What the task got to, in its own last words (for a task that stopped short with no summary of its own). */
+function lastWords(state: AgentState): string {
+  const last = [...state.lines].reverse().find((l) => l.text || l.target)
+  return last?.text || (last?.target ? /"(.*)"$/.exec(last.target)?.[1] ?? last.target : "")
 }
 
 export interface PlanApproval {
@@ -482,7 +531,7 @@ export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApprov
   return drive(state, io)
 }
 
-export type Answer = "yes" | "no" | "did" | "notnow" | "stop"
+export type Answer = "yes" | "no" | "did" | "notnow" | "stop" | "reply"
 
 /**
  * Which question an answer is for: the step it stopped at, the tool and the control. The panel sends it with the answer
@@ -490,6 +539,7 @@ export type Answer = "yes" | "no" | "did" | "notnow" | "stop"
  */
 export function pendingKey(state: Pick<AgentState, "step" | "pending" | "status">): string {
   const p = state.pending
+  if (state.status === "asked") return `asked:${state.step}`
   return p ? `${state.status}:${state.step}:${p.call.tool}:${p.call.id ?? ""}:${p.call.key ?? ""}` : ""
 }
 
@@ -504,6 +554,19 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     state.pending = undefined
     await io.save(state)
     return state
+  }
+  // The person's answer to the agent's question: it goes on with it (their words count as theirs).
+  if (a === "reply" && state.status === "asked") {
+    const text = (chosen?.[0] ?? "").trim().slice(0, 300)
+    if (!text) return state
+    state.log.push({ call: { tool: "ask_user", question: state.summary ?? "" }, result: `the person answered: "${text}"` })
+    state.replies = [...(state.replies ?? []), text]
+    state.summary = undefined
+    state.choices = undefined
+    state.status = "running"
+    state.stillReads = 0
+    await io.save(state)
+    return drive(state, io)
   }
   if (!pending) return state
   state.pending = undefined
@@ -536,7 +599,7 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
 
 /** Whether the task is waiting for the person or still working (the panel's strip shows then). */
 export function active(state: AgentState | null | undefined): boolean {
-  return !!state && (state.status === "plan" || state.status === "running" || state.status === "confirm" || state.status === "fill" || state.status === "self")
+  return !!state && (state.status === "plan" || state.status === "running" || state.status === "confirm" || state.status === "fill" || state.status === "self" || state.status === "asked")
 }
 
 export { sameSite }

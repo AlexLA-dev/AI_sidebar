@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "Из «Моих данных» — обновлять там"
  },
+ "agentMarkUnfinished": {
+  "message": "Не закончено"
+ },
+ "agentStuck": {
+  "message": "Страница перестала меняться — я остановился. Что успел — выше."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

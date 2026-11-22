@@ -4,7 +4,7 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { answer, approvePlan, drive, newState, type ActReply, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { answer, approvePlan, drive, newState, pendingKey, type ActReply, type RunnerIO } from "../src/shared/agent/runner.ts"
 import { amounts, buildPlan, checkPlan, covered, personWords, planNeedsPerson, priceChanged } from "../src/shared/agent/taskplan.ts"
 import type { PageMap, ToolCall } from "../src/shared/agent/types.ts"
 
@@ -322,4 +322,45 @@ test("117 heat: the page's amounts only when a price can be checked; the in-flig
   const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
   assert.match(bg, /entries: async \(\) => \(await cachedEntries\(\)\)\.entries/)
   assert.match(bg, /device: cachedDevice/)
+})
+
+test("118: reads on a page that doesn't change: told to stop, then stopped as not finished; never only «too many steps»", async () => {
+  const replies: ActReply[] = Array.from({ length: 8 }, () => step({ tool: "extract" }, "free", "read"))
+  const x = io(replies)
+  x.planning = false
+  const s = await drive(newState("c1", "find a free time tomorrow after 18:00", "ru", BOOK.url), x)
+  assert.equal(s.status, "done")
+  assert.equal(s.error, "stuck")
+  assert.ok(x.asked.some((b) => /no progress/.test(b.refused ?? "")), "the model was told first")
+  const y = io(Array.from({ length: 40 }, (_, i) => step({ tool: "type", id: "3", text: `2026-12-0${(i % 9) + 1}`, why: "Ввожу дату" }, "free", "type")))
+  y.planning = false
+  y.maxSteps = 6
+  const t = await drive(newState("c2", "x", "ru", BOOK.url), y)
+  assert.equal(t.error, "steps")
+  assert.ok(t.summary, "what it got to, not an empty «too many steps»")
+  assert.ok(y.asked.some((b) => /only 2 steps are left/.test(b.refused ?? "")))
+})
+
+test("118: a question with choices waits for the person; the answer continues the task", async () => {
+  const x = io([
+    step({ tool: "ask_user", question: "На завтра мест нет. Ближайшее — 24 ноября. Записать на 24-е после 18:00?", choices: ["Да", "Другой день", "Отмена"] }, "free", "read"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ])
+  x.planning = false
+  let s = await drive(newState("c3", "x", "ru", BOOK.url), x)
+  assert.equal(s.status, "asked")
+  assert.deepEqual(s.choices, ["Да", "Другой день", "Отмена"])
+  assert.equal(pendingKey(s), `asked:${s.step}`)
+  s = await answer(s, x, "reply", ["Да"])
+  assert.equal(s.status, "done")
+  assert.match(x.asked[1].log.at(-1).result, /the person answered: "Да"/)
+})
+
+test("118: the focus trap, the not-finished mark, «Start» looks active", () => {
+  const index = readFileSync(new URL("../src/content/index.tsx", import.meta.url), "utf8")
+  assert.match(index, /for \(const type of \["focusin", "focusout"\]\) \{\s*window\.addEventListener\(type, \(e\) => \{\s*if \(e\.target === host \|\| \(e as FocusEvent\)\.relatedTarget === host\) e\.stopImmediatePropagation\(\)/)
+  assert.match(index, /if \(field && root\.activeElement !== field\) field\.focus\(\)/)
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /if \(status === "done" && \(error === "steps" \|\| error === "stuck"\)\) return \{ sign: "…", text: t\("agentMarkUnfinished"\)/)
+  assert.match(panel, /<button type="button" class="cf-primary" disabled=\{sending\} onClick=\{start\}>/)
 })

@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "Depuis « Mes infos » — mettre à jour"
  },
+ "agentMarkUnfinished": {
+  "message": "Pas terminé"
+ },
+ "agentStuck": {
+  "message": "La page ne changeait plus, je me suis arrêté ici. Ce que j’ai fait est au-dessus."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

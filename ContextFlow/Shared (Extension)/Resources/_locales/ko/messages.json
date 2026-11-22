@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "‘내 정보’에서 — 바뀌면 저장"
  },
+ "agentMarkUnfinished": {
+  "message": "끝나지 않음"
+ },
+ "agentStuck": {
+  "message": "페이지가 더 바뀌지 않아 여기서 멈췄어요. 진행한 내용은 위에 있어요."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

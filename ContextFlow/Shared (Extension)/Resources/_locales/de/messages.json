@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "Aus „Meine Daten“ – dort aktualisieren"
  },
+ "agentMarkUnfinished": {
+  "message": "Nicht fertig"
+ },
+ "agentStuck": {
+  "message": "Die Seite hat sich nicht mehr verändert, deshalb habe ich hier aufgehört. Was ich geschafft habe, steht oben."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

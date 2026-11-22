@@ -1207,5 +1207,7 @@
   "agentErrorNoReply": "The extension didn't answer. Try again — if it repeats, reload the page.",
   "agentStartFailed": "Couldn't start the task ({0}). Try again.",
   "agentPlanRemember": "Remember in My details",
-  "agentPlanFromSaved": "From My details — keep it updated"
+  "agentPlanFromSaved": "From My details — keep it updated",
+  "agentMarkUnfinished": "Not finished",
+  "agentStuck": "The page stopped changing, so I stopped here. What I got to is above."
 }

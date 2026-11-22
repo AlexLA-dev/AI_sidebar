@@ -1207,5 +1207,7 @@
   "agentErrorNoReply": "La extensión no respondió. Inténtalo de nuevo; si vuelve a pasar, recarga la página.",
   "agentStartFailed": "No se pudo empezar la tarea ({0}). Inténtalo de nuevo.",
   "agentPlanRemember": "Recordar en «Mis datos»",
-  "agentPlanFromSaved": "De «Mis datos»: actualizar allí"
+  "agentPlanFromSaved": "De «Mis datos»: actualizar allí",
+  "agentMarkUnfinished": "Sin terminar",
+  "agentStuck": "La página dejó de cambiar, así que paré aquí. Lo que alcancé está arriba."
 }

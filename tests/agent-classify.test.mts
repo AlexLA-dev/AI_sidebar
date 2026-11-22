@@ -273,6 +273,14 @@ test("adding to the cart asks with its own reason (the card doesn't say it can't
     const it: MapItem = { id: "1", role: "button", label }
     assert.equal(classify({ tool: "click", id: "1" }, ctx(page([it]))).reason, "cart", label)
   }
+  // (TestFlight 118: «Book now» that only opens the booking flow is a free step; the commit still asks.)
   const book: MapItem = { id: "1", role: "button", label: "Забронировать" }
-  assert.equal(classify({ tool: "click", id: "1" }, ctx(page([book]))).reason, "submit")
+  assert.deepEqual(classify({ tool: "click", id: "1" }, ctx(page([book]))), { cls: "free", reason: "entry" })
+  const inForm: MapItem = { ...book, form: 0, type: "submit" }
+  const name: MapItem = { id: "2", role: "textbox", label: "Имя", form: 0, lock: "personal" }
+  const formPage = { ...page([inForm, name]), forms: [{ n: 0, fillable: true }] }
+  assert.equal(classify({ tool: "click", id: "1" }, ctx(formPage)).reason, "submit")
+  const review = { ...page([book]), url: "https://salon.example.com/booking/review" }
+  assert.equal(classify({ tool: "click", id: "1" }, ctx(review)).reason, "submit", "a review / confirm page commits")
+  assert.equal(classify({ tool: "click", id: "1" }, ctx({ ...page([{ id: "1", role: "button", label: "Confirm" }]) })).reason, "submit", "«Confirm» always asks")
 })

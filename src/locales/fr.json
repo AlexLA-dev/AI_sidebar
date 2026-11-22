@@ -1207,5 +1207,7 @@
   "agentErrorNoReply": "L’extension n’a pas répondu. Réessayez — si cela se reproduit, rechargez la page.",
   "agentStartFailed": "Impossible de lancer la tâche ({0}). Réessayez.",
   "agentPlanRemember": "Retenir dans « Mes infos »",
-  "agentPlanFromSaved": "Depuis « Mes infos » — mettre à jour"
+  "agentPlanFromSaved": "Depuis « Mes infos » — mettre à jour",
+  "agentMarkUnfinished": "Pas terminé",
+  "agentStuck": "La page ne changeait plus, je me suis arrêté ici. Ce que j’ai fait est au-dessus."
 }

@@ -1207,5 +1207,7 @@
   "agentErrorNoReply": "확장 프로그램이 응답하지 않았어요. 다시 시도하고, 반복되면 페이지를 새로고침하세요.",
   "agentStartFailed": "작업을 시작하지 못했어요({0}). 다시 시도해 주세요.",
   "agentPlanRemember": "‘내 정보’에 기억",
-  "agentPlanFromSaved": "‘내 정보’에서 — 바뀌면 저장"
+  "agentPlanFromSaved": "‘내 정보’에서 — 바뀌면 저장",
+  "agentMarkUnfinished": "끝나지 않음",
+  "agentStuck": "페이지가 더 바뀌지 않아 여기서 멈췄어요. 진행한 내용은 위에 있어요."
 }

@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "来自“我的信息”——更改后更新"
  },
+ "agentMarkUnfinished": {
+  "message": "未完成"
+ },
+ "agentStuck": {
+  "message": "页面不再变化，我在这里停下了。完成的部分在上面。"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

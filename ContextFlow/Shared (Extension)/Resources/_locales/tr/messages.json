@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "“Bilgilerim”den — orada güncelle"
  },
+ "agentMarkUnfinished": {
+  "message": "Bitmedi"
+ },
+ "agentStuck": {
+  "message": "Sayfa değişmeyi bıraktı, burada durdum. Yapabildiklerim yukarıda."
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

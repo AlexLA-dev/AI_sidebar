@@ -192,7 +192,7 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
     await callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", what) }, 6_000)
     return
   }
-  const waiting = state.status === "plan" || state.status === "confirm" || state.status === "fill" || state.status === "self"
+  const waiting = state.status === "plan" || state.status === "confirm" || state.status === "fill" || state.status === "self" || state.status === "asked"
   const ended = state.status === "done"
   if (!waiting && !ended) {
     await callNative("agent_cancel", { id: runId(state) }, 4_000)

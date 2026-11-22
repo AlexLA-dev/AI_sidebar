@@ -1207,5 +1207,7 @@
   "agentErrorNoReply": "لم يستجب الامتداد. حاول مرة أخرى، وإن تكرر ذلك فأعد تحميل الصفحة.",
   "agentStartFailed": "تعذّر بدء المهمة ({0}). حاول مرة أخرى.",
   "agentPlanRemember": "تذكّر في «بياناتي»",
-  "agentPlanFromSaved": "من «بياناتي» — حدّثه هناك"
+  "agentPlanFromSaved": "من «بياناتي» — حدّثه هناك",
+  "agentMarkUnfinished": "لم يكتمل",
+  "agentStuck": "توقفت الصفحة عن التغير، فتوقفت هنا. ما أنجزته أعلاه."
 }

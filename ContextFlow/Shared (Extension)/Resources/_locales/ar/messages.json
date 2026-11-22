@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "من «بياناتي» — حدّثه هناك"
  },
+ "agentMarkUnfinished": {
+  "message": "لم يكتمل"
+ },
+ "agentStuck": {
+  "message": "توقفت الصفحة عن التغير، فتوقفت هنا. ما أنجزته أعلاه."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

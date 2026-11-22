@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "「自分の情報」から（変更を保存）"
  },
+ "agentMarkUnfinished": {
+  "message": "未完了"
+ },
+ "agentStuck": {
+  "message": "ページが変わらなくなったので、ここで止めました。進んだところまでは上にあります。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

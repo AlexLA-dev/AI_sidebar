@@ -3533,6 +3533,12 @@
  "agentPlanFromSaved": {
   "message": "Từ “Thông tin của tôi” — cập nhật ở đó"
  },
+ "agentMarkUnfinished": {
+  "message": "Chưa xong"
+ },
+ "agentStuck": {
+  "message": "Trang không thay đổi nữa nên tôi dừng ở đây. Những gì đã làm ở bên trên."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

@@ -2817,7 +2817,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Do). Only on the change itself: a finished task shown again later doesn't touch the mode.
   const endedFor = useRef("")
   useEffect(() => {
-    const ended = agentTask && ["done", "asked", "stopped", "error", "blocked"].includes(agentTask.status)
+    const ended = agentTask && ["done", "stopped", "error", "blocked"].includes(agentTask.status)
     if (!ended || endedFor.current === agentTask.id) return
     endedFor.current = agentTask.id
     setAgentMode(false)

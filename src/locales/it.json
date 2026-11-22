@@ -1207,5 +1207,7 @@
   "agentErrorNoReply": "L’estensione non ha risposto. Riprova: se succede di nuovo, ricarica la pagina.",
   "agentStartFailed": "Impossibile avviare l’attività ({0}). Riprova.",
   "agentPlanRemember": "Ricorda in «I miei dati»",
-  "agentPlanFromSaved": "Da «I miei dati»: aggiorna lì"
+  "agentPlanFromSaved": "Da «I miei dati»: aggiorna lì",
+  "agentMarkUnfinished": "Non finito",
+  "agentStuck": "La pagina ha smesso di cambiare, quindi mi sono fermato qui. Quello che ho fatto è sopra."
 }
