@@ -1228,5 +1228,9 @@
   "agentRuleAnySpecialist": "N’importe quel professionnel",
   "agentRuleUsual": "Le service choisi la dernière fois sur ce site",
   "agentRuleCalendar": "Seulement les heures libres dans mon Calendrier",
-  "agentRuleAuto": "Réserver sans plan quand tout est connu et rien n’est payant"
+  "agentRuleAuto": "Réserver sans plan quand tout est connu et rien n’est payant",
+  "agentPlanHow": "Je choisis le lieu : noté {0}+, adapté, le plus proche",
+  "agentPlanHowCal": "une heure libre dans votre Calendrier, ajoutée dedans",
+  "agentRuleVenue": "Choisir le lieu moi-même si je n’en nomme pas",
+  "agentRuleRating": "Note du lieu à partir de"
 }

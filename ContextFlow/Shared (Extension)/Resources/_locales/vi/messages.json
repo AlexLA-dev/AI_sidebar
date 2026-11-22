@@ -3596,6 +3596,18 @@
  "agentRuleAuto": {
   "message": "Đặt chỗ không cần kế hoạch khi đã biết mọi thứ và không phải trả tiền"
  },
+ "agentPlanHow": {
+  "message": "Tôi tự chọn nơi: đánh giá từ {0}, phù hợp, gần nhất"
+ },
+ "agentPlanHowCal": {
+  "message": "giờ trống trong Lịch của bạn, và thêm vào đó"
+ },
+ "agentRuleVenue": {
+  "message": "Tự chọn nơi nếu tôi không nêu tên"
+ },
+ "agentRuleRating": {
+  "message": "Đánh giá nơi từ"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

@@ -11,7 +11,7 @@ import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
-import { readRules, rulesLine, looksLikeSlot, type AgentRules } from "./rules.ts"
+import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { buildPlan, checkPlan, covered, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
@@ -303,12 +303,19 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   if (!plan) return "go"
   state.plan = plan
   if (plan.booking && calendarOn) {
-    state.calendar = (await io.calendarFree!(plan.booking, rules.days).catch(() => null)) ?? undefined
+    // Asked in the device's own clock, said to the model in the place's (a table in Paris from Nicosia).
+    const b = plan.booking
+    const from = shiftZone(b.date, b.from, b.tz)
+    const until = shiftZone(b.date, b.until, b.tz)
+    const free = (await io.calendarFree!({ ...b, date: from.date, from: from.time, until: until.date === from.date ? until.time : "23:59" }, rules.days).catch(() => null)) ?? undefined
+    state.calendar = free && free !== "none" ? freeLineIn(free, b.tz) : free
+    plan.how = { rating: rules.chooseVenue ? rules.rating : 0, calendar: true }
     // The booking in the Calendar afterwards: a permission of the plan, ticked (the device adds it itself, from the time
     // that was booked, with the booking page's link).
     if (!plan.perms.some((p) => p.kind === "apple" && p.reason === "event_add")) plan.perms.push({ id: "pcal", kind: "apple", reason: "event_add", label: plan.label || site, host: hostOf(map.url), on: true })
   }
   if (!state.calendar) state.rules = rulesLine(rules, false)
+  if (plan.booking && !plan.how) plan.how = { rating: rules.chooseVenue ? rules.rating : 0, calendar: false }
   // Nothing left to ask (every answer known from «Мои данные», this site's remembered choices or the rules; nothing paid;
   // a site booked on before): no card, the task starts with its answers in one line and Stop.
   const pre = savedAnswers(plan, savedFacts(entries))
@@ -379,7 +386,9 @@ async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, labe
   const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : ""
   const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : ""
   if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check the person's calendar"
-  const free = await io.slotFree(date, time, b.minutes).catch(() => null)
+  // The page's time is the place's; the Calendar is asked in the device's.
+  const here = shiftZone(date, time, b.tz)
+  const free = await io.slotFree(here.date, here.time, b.minutes).catch(() => null)
   if (free === false) return `${date} ${time} is busy in the person's calendar (their event, with time to get there). Free then: ${state.calendar}. Choose another time the rules allow and say in the summary why`
   if (free === true) state.slot = { date, time }
   return null
@@ -487,7 +496,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // Записать на 24-е? [Да] [Другой день] [Отмена]»).
       state.status = "asked"
       state.summary = call.question ?? ""
-      state.choices = call.choices ?? []
+      // Times the page doesn't show (taken from the Calendar alone, fresha 2) aren't offered.
+      state.choices = pageChoices(call.choices ?? [], pageTimes(map))
       break
     }
     // The device's own check, on its own map: never milder than the server's.
@@ -611,6 +621,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     await perform(state, io, call, verdict, target)
     state.lastWasRead = READS.has(call.tool)
+    if (call.tool === "click" && call.also?.length) await pressAlso(state, io, call.also)
     await io.save(state)
   }
   await io.save(state)
@@ -618,6 +629,29 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
 }
 
 const READS = new Set(["read_page", "extract", "scroll", "reminders", "calendar"])
+
+/** Every time the page shows (its controls' words and its text), as HH:MM. */
+function pageTimes(map: PageMap): Set<string> {
+  return new Set([...map.items.flatMap((i) => timesIn(i.label)), ...timesIn(map.text)])
+}
+
+/**
+ * The model's further presses on the same page (a service, «any» specialist, a date): each on the page as it is now,
+ * still there, and a free step by the device's own class; the first that isn't stops the rest (they come back as
+ * calls of their own). A time slot is checked against the Calendar as any press is.
+ */
+async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<ToolCall["also"]>): Promise<void> {
+  for (const a of also) {
+    const map = await io.map()
+    const item = map?.items.find((i) => i.id === a.id)
+    if (!map || !item) return
+    const call: ToolCall = { tool: "click", id: a.id, why: a.why ?? "", expect: { label: item.label, role: item.role, ...(item.lock ? { lock: item.lock } : {}) } }
+    const v = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
+    if (v.cls !== "free" || looksLikeSlot(item.label)) return
+    await perform(state, io, call, v, `${item.role} "${item.label}"`)
+    if (state.log[state.log.length - 1]?.result.startsWith("failed")) return
+  }
+}
 
 /**
  * A booking «done» says what was booked (date, time, place): the device puts it in the Calendar when the plan's

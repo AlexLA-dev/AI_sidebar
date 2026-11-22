@@ -1228,5 +1228,9 @@
   "agentRuleAnySpecialist": "担当者は指定なし",
   "agentRuleUsual": "前回そのサイトで選んだメニュー",
   "agentRuleCalendar": "カレンダーで空いている時間だけ",
-  "agentRuleAuto": "すべて分かっていて支払いがなければ、プランなしで予約"
+  "agentRuleAuto": "すべて分かっていて支払いがなければ、プランなしで予約",
+  "agentPlanHow": "場所はこちらで選びます：評価{0}以上・条件に合う・最寄り",
+  "agentPlanHowCal": "カレンダーで空いている時間に、予定も追加",
+  "agentRuleVenue": "場所を指定しないときは自分で選ぶ",
+  "agentRuleRating": "場所の評価（以上）"
 }

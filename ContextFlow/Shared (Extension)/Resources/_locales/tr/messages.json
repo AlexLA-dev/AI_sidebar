@@ -3596,6 +3596,18 @@
  "agentRuleAuto": {
   "message": "Her şey biliniyor ve ücretli bir şey yoksa plansız rezervasyon yap"
  },
+ "agentPlanHow": {
+  "message": "Yeri ben seçerim: {0}+ puanlı, uygun, en yakın"
+ },
+ "agentPlanHowCal": {
+  "message": "Takviminde boş bir saat, oraya da eklerim"
+ },
+ "agentRuleVenue": {
+  "message": "Bir yer söylemezsem yeri kendim seç"
+ },
+ "agentRuleRating": {
+  "message": "Yer puanı en az"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

@@ -1228,5 +1228,9 @@
   "agentRuleAnySpecialist": "Beliebige Fachkraft",
   "agentRuleUsual": "Die Leistung, die ich dort zuletzt gewählt habe",
   "agentRuleCalendar": "Nur Zeiten, die in meinem Kalender frei sind",
-  "agentRuleAuto": "Ohne Plan buchen, wenn alles bekannt ist und nichts kostet"
+  "agentRuleAuto": "Ohne Plan buchen, wenn alles bekannt ist und nichts kostet",
+  "agentPlanHow": "Den Ort wähle ich: ab {0} bewertet, passend, am nächsten",
+  "agentPlanHowCal": "eine Zeit, die im Kalender frei ist, dort eingetragen",
+  "agentRuleVenue": "Den Ort selbst wählen, wenn ich keinen nenne",
+  "agentRuleRating": "Bewertung des Orts ab"
 }

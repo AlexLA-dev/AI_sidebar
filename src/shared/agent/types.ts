@@ -111,6 +111,8 @@ export interface ToolCall {
   expect?: { label: string; role: Role; lock?: Lock }
   // Set by the device only (never the model's): an event's link (the booking page without its query).
   link?: string
+  // More presses on the same page after this one (each checked and classed on the device first).
+  also?: Array<{ id: string; why?: string }>
 }
 
 /**

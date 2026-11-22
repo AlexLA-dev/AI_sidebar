@@ -276,3 +276,58 @@ test("typing what an approved fill would put in (the request's words or the save
   const c = await run([{ tool: "type", id: "2", text: "+44 20 7946 0000" }], "забронируй")
   assert.equal(c.s.status, "confirm", "another number asks")
 })
+
+test("the place's time zone: Paris 19:00 is Nicosia 20:00; free time is said in the place's clock", async () => {
+  const { shiftZone, freeLineIn } = await import("../src/shared/agent/rules.ts")
+  assert.deepEqual(shiftZone("2026-11-23", "19:00", "Europe/Paris", "Asia/Nicosia"), { date: "2026-11-23", time: "20:00" })
+  assert.deepEqual(shiftZone("2026-11-23", "23:30", "Europe/London", "Asia/Nicosia"), { date: "2026-11-24", time: "01:30" })
+  assert.deepEqual(shiftZone("2026-11-23", "19:00", "Asia/Nicosia", "Asia/Nicosia"), { date: "2026-11-23", time: "19:00" })
+  assert.equal(freeLineIn("2026-11-23 20:00–22:30", "Europe/Paris").length > 0, true)
+  assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, tz: "Europe/Paris" } }).booking?.tz, "Europe/Paris")
+  assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, tz: "Mars/Olympus" } }).booking?.tz, undefined)
+})
+
+test("a slot in another zone is checked in the device's clock", async () => {
+  const seen: string[] = []
+  const raw = { ...RAW, booking: { ...BOOKING, tz: "Europe/Paris" } }
+  const x = io([{ ok: true, plan: raw, token: "t" }, step({ tool: "click", id: "3", date: "2026-11-24", time: "17:45" }, "free", "click", 'button "17:45"'), step({ tool: "done", summary: "x" }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  x.slotFree = async (date, time) => (seen.push(`${date} ${time}`), true)
+  process.env.TZ = process.env.TZ ?? ""
+  await drive(newState("z", "haircut", "en", SALON.url), x)
+  const { shiftZone } = await import("../src/shared/agent/rules.ts")
+  assert.deepEqual(seen, [`${shiftZone("2026-11-24", "17:45", "Europe/Paris").date} ${shiftZone("2026-11-24", "17:45", "Europe/Paris").time}`])
+})
+
+test("a question's times come from the page: a time only the Calendar has isn't offered", async () => {
+  const { timesIn, pageChoices } = await import("../src/shared/agent/rules.ts")
+  assert.deepEqual(timesIn("5:45 PM, 17.30 or 9am"), ["17:45", "17:30", "09:00"])
+  assert.deepEqual(pageChoices(["Вт 24 ноя, 14:30", "Пн 23 ноя, 20:00", "Другой день"], new Set(["14:30", "14:45"])), ["Вт 24 ноя, 14:30", "Другой день"])
+  const x = io([{ ok: true, plan: RAW, token: "t" }, step({ tool: "ask_user", question: "Which?", choices: ["17:45", "20:00", "Another day"] }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  const s = await drive(newState("q", "haircut", "en", SALON.url), x)
+  assert.deepEqual(s.choices, ["17:45", "Another day"], "20:00 isn't on the page")
+})
+
+test("obvious presses go together; each is checked on the page as it is and only a free one is done", async () => {
+  const { checkCall } = await import("../src/shared/agent/call.ts")
+  const r = checkCall({ tool: "click", id: "1", also: [{ id: "4", why: "" }, { id: "99", why: "" }, { id: "1", why: "" }], why: "" }, SALON, [])
+  assert.deepEqual(r.ok && r.call.also, [{ id: "4", why: "" }], "unknown ids and the first press itself are dropped")
+  const PAGE: PageMap = { ...SALON, items: [{ id: "1", role: "button", label: "Haircut" }, { id: "2", role: "button", label: "Any professional" }, { id: "3", role: "button", label: "Select Tue, Nov 24" }, { id: "4", role: "button", label: "Pay €18 now" }, { id: "5", role: "button", label: "17:45" }] }
+  const x = io([{ ok: true, plan: RAW, token: "t" }, step({ tool: "click", id: "1", also: [{ id: "2" }, { id: "3" }, { id: "4" }] }, "free", "click", 'button "Haircut"'), step({ tool: "done", summary: "x" }, "free", "read")], { map: PAGE, entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  await drive(newState("b", "haircut", "en", PAGE.url), x)
+  assert.deepEqual(x.acted.map((c) => c.id), ["1", "2", "3"], "paying stops the batch")
+  const y = io([{ ok: true, plan: RAW, token: "t" }, step({ tool: "click", id: "1", also: [{ id: "5" }] }, "free", "click", 'button "Haircut"'), step({ tool: "done", summary: "x" }, "free", "read")], { map: PAGE, entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  await drive(newState("c", "haircut", "en", PAGE.url), y)
+  assert.deepEqual(y.acted.map((c) => c.id), ["1"], "a time slot is never pressed in a batch (it needs its Calendar check)")
+})
+
+test("the plan follows the request's language; the venue is the agent's to choose by the rules", async () => {
+  const { sameScript } = await import("../netlify/shared/act.mts")
+  assert.equal(sameScript("Запиши меня на стрижку", "Searching men's haircuts"), false)
+  assert.equal(sameScript("Запиши меня на стрижку", "Ищу барбершоп в London"), true)
+  assert.equal(sameScript("book a table", "Booking"), true)
+  assert.match(rulesLine(DEFAULT_RULES, true), /choose it yourself: .*rated 4\.5 or more .*try the next two before asking/)
+  assert.match(rulesLine({ ...DEFAULT_RULES, chooseVenue: false }, true), /ask which one/)
+  const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
+  assert.match(act, /never ask which one/)
+  assert.match(act, /never offer or choose a time from <calendar> alone/)
+})

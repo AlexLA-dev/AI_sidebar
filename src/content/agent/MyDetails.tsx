@@ -186,7 +186,7 @@ function RulesGroup(): VNode {
       </select>
     </label>
   )
-  const flag = (key: "anySpecialist" | "usual" | "calendar" | "auto", text: string) => (
+  const flag = (key: "anySpecialist" | "usual" | "calendar" | "auto" | "chooseVenue", text: string) => (
     <label class="cf-row toggle">
       <input type="checkbox" checked={rules[key]} onChange={(e) => set({ [key]: (e.target as HTMLInputElement).checked })} />
       <span>{text}</span>
@@ -203,6 +203,15 @@ function RulesGroup(): VNode {
       {flag("usual", t("agentRuleUsual"))}
       {flag("calendar", t("agentRuleCalendar"))}
       {flag("auto", t("agentRuleAuto"))}
+      {flag("chooseVenue", t("agentRuleVenue"))}
+      {rules.chooseVenue && (
+        <label class="cf-row">
+          <span>{t("agentRuleRating")}</span>
+          <select class="cf-fd-rule" value={String(rules.rating)} onChange={(e) => set({ rating: Number((e.target as HTMLSelectElement).value) })}>
+            {[4, 4.3, 4.5, 4.7, 4.8].map((o) => <option key={o} value={String(o)}>{o.toLocaleString()}</option>)}
+          </select>
+        </label>
+      )}
     </div>
   )
 }

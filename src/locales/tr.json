@@ -1228,5 +1228,9 @@
   "agentRuleAnySpecialist": "Herhangi bir uzman",
   "agentRuleUsual": "O sitede geçen sefer seçtiğim hizmet",
   "agentRuleCalendar": "Yalnızca Takvimimde boş saatler",
-  "agentRuleAuto": "Her şey biliniyor ve ücretli bir şey yoksa plansız rezervasyon yap"
+  "agentRuleAuto": "Her şey biliniyor ve ücretli bir şey yoksa plansız rezervasyon yap",
+  "agentPlanHow": "Yeri ben seçerim: {0}+ puanlı, uygun, en yakın",
+  "agentPlanHowCal": "Takviminde boş bir saat, oraya da eklerim",
+  "agentRuleVenue": "Bir yer söylemezsem yeri kendim seç",
+  "agentRuleRating": "Yer puanı en az"
 }
