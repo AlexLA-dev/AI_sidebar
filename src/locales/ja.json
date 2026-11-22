@@ -1201,5 +1201,6 @@
   "agentGoToTab": "タブへ移動",
   "agentNotifPaused": "作業は一時停止中です。終えるには Safari を開いてください：{0}",
   "agentNotifDone": "完了：{0}",
-  "agentNotifNeeds": "確認が必要です：{0}"
+  "agentNotifNeeds": "確認が必要です：{0}",
+  "agentPlanStepYours": "「{0}」はご自身で押してください"
 }

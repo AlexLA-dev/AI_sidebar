@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Ir para a aba",
   "agentNotifPaused": "Tarefa pausada — abra o Safari para terminar: {0}",
   "agentNotifDone": "Pronto: {0}",
-  "agentNotifNeeds": "Precisa de você: {0}"
+  "agentNotifNeeds": "Precisa de você: {0}",
+  "agentPlanStepYours": "“{0}” — você aperta"
 }

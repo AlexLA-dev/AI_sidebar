@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "Cần bạn: {0}"
  },
+ "agentPlanStepYours": {
+  "message": "“{0}” — bạn tự nhấn"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

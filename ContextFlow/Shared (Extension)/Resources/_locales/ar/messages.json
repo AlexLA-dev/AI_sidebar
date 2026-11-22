@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "بحاجة إليك: {0}"
  },
+ "agentPlanStepYours": {
+  "message": "«{0}» — ستضغط عليه بنفسك"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

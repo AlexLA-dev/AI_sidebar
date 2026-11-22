@@ -11,7 +11,7 @@ import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
-import { buildPlan, checkPlan, covered, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, type Perm, type TaskPlan } from "./taskplan.ts"
+import { buildPlan, checkPlan, covered, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, type Perm, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -79,6 +79,8 @@ export interface AgentState {
   // Calendar or Reminders were read in this task: text typed into a page that isn't the person's own words asks first
   // (the security review: a page's hidden instructions could have the agent type what it read there into a field).
   readDevice?: boolean
+  // «done» came once before a press the plan lists as the agent's own had happened: the model was sent back for it.
+  doneNudged?: boolean
 }
 
 export interface ActReply {
@@ -330,6 +332,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const call = reply.call
     const target = reply.target ?? null
     if (call.tool === "done") {
+      // A press the plan lists as the agent's own hasn't happened: one more step for it, or «done» again with the
+      // reason in the summary (the stand: a cart «done» before its «Add to cart»).
+      const missing = missingPress(state.plan, state.log)
+      if (missing && !state.doneNudged) {
+        state.doneNudged = true
+        state.log.push({ call: { tool: "done" }, result: `refused: the plan's press "${missing.label}" hasn't happened yet — do it now, or call done again and say in the summary why it is left` })
+        await io.save(state)
+        continue
+      }
       state.status = "done"
       state.summary = call.summary ?? ""
       break

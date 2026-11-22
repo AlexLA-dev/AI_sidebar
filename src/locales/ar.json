@@ -1201,5 +1201,6 @@
   "agentGoToTab": "الانتقال إلى علامة التبويب",
   "agentNotifPaused": "المهمة متوقفة مؤقتًا — افتح Safari لإكمالها: {0}",
   "agentNotifDone": "تم: {0}",
-  "agentNotifNeeds": "بحاجة إليك: {0}"
+  "agentNotifNeeds": "بحاجة إليك: {0}",
+  "agentPlanStepYours": "«{0}» — ستضغط عليه بنفسك"
 }

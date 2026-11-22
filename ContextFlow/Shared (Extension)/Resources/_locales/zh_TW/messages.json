@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "需要你：{0}"
  },
+ "agentPlanStepYours": {
+  "message": "「{0}」——由你來點按"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "確認が必要です：{0}"
  },
+ "agentPlanStepYours": {
+  "message": "「{0}」はご自身で押してください"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

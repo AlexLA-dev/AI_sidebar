@@ -1201,5 +1201,6 @@
   "agentGoToTab": "前往該分頁",
   "agentNotifPaused": "任務已暫停——打開 Safari 來完成：{0}",
   "agentNotifDone": "完成：{0}",
-  "agentNotifNeeds": "需要你：{0}"
+  "agentNotifNeeds": "需要你：{0}",
+  "agentPlanStepYours": "「{0}」——由你來點按"
 }

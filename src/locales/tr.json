@@ -1201,5 +1201,6 @@
   "agentGoToTab": "Sekmeye git",
   "agentNotifPaused": "Görev duraklatıldı — bitirmek için Safari'yi açın: {0}",
   "agentNotifDone": "Bitti: {0}",
-  "agentNotifNeeds": "Sizi bekliyor: {0}"
+  "agentNotifNeeds": "Sizi bekliyor: {0}",
+  "agentPlanStepYours": "“{0}” — siz basacaksınız"
 }

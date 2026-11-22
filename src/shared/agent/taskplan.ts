@@ -46,6 +46,9 @@ export interface Perm {
 export interface PlanSelf {
   reason: string
   label: string
+  // The plan's own line that names this step (the model wrote it as its own: «Нажимаю «Купить сейчас»»), shown as the
+  // person's instead.
+  step?: number
 }
 
 export interface TaskPlan {
@@ -232,6 +235,14 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
   // A field the request's own words go into isn't a saved detail's too (the card said the phone twice).
   const fillOnly = [...new Set(fillFields)].filter((f) => !personal.includes(f))
   if (fillKeys.length && fillOnly.length && fillIds.length) add({ kind: "fill", reason: "fill", label: fillOnly.join(", "), keys: fillKeys, ids: [...new Set(fillIds)], path })
+  // A line of the plan that names a step the person does («2. Нажимаю «Купить сейчас»») is theirs, not the agent's: the
+  // card shows it so (the director: the list said the agent would press it, the card under it said «Это сделаете вы»).
+  for (const x of self) {
+    const name = normalize(x.label)
+    if (name.length < 3) continue
+    const i = raw.steps.findIndex((l) => normalize(l).includes(name))
+    if (i >= 0) x.step = i
+  }
   const seen = [...new Set([...(ctx.map.money ?? []), ...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 120)
   return { ...(raw.label ? { label: raw.label } : {}), steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen }
 }
@@ -349,13 +360,24 @@ export function covered(plan: TaskPlan | null | undefined, call: ToolCall, verdi
   return null
 }
 
+/**
+ * A press the approved plan lists as the agent's own that hasn't happened yet (the stand: the model said «done» on a
+ * Japanese cart before pressing カートに入れる). By the log: a click on a control with the permission's exact words that
+ * didn't fail. Null when every one happened, or the plan has none.
+ */
+export function missingPress(plan: TaskPlan | null | undefined, log: Array<{ call: { tool: string }; target?: string; result: string }>): Perm | null {
+  if (!plan?.approved) return null
+  const done = log.filter((e) => e.call.tool === "click" && !/^(failed|refused|the person said no)/.test(e.result)).map((e) => squash(/"(.*)"$/.exec(e.target ?? "")?.[1] ?? e.target ?? ""))
+  return plan.perms.find((p) => p.on && p.kind === "press" && !done.includes(squash(p.label))) ?? null
+}
+
 /** What the server and the check model hear of an approved plan: its lines, what may go without a question, prices. */
 export function planLine(plan: TaskPlan | null | undefined): string {
   if (!plan?.approved) return ""
   const allowed = plan.perms.filter((p) => p.on).map((p) => `${p.kind === "press" ? `press "${p.label}"` : p.kind === "personal" ? `type the person's details (${p.label})` : p.kind === "fill" ? `fill saved details (${p.keys?.join(", ")})` : p.kind === "consent" ? `tick the terms box "${p.label}"` : `${p.reason} "${p.label}"`}`)
   const refused = plan.perms.filter((p) => !p.on).map((p) => p.label)
   return [
-    plan.steps.length ? `steps: ${plan.steps.join("; ")}` : "",
+    plan.steps.length ? `steps: ${plan.steps.map((l, i) => (plan.self.some((x) => x.step === i) ? `${l} (the person's own step: not yours to press)` : l)).join("; ")}` : "",
     allowed.length ? `allowed without asking: ${allowed.join("; ")}` : "",
     refused.length ? `the person unticked: ${refused.join("; ")}` : "",
     plan.prices.length ? `prices seen: ${plan.prices.join(", ")}` : ""

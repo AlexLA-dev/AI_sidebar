@@ -3515,6 +3515,9 @@
  "agentNotifNeeds": {
   "message": "Нужны вы: {0}"
  },
+ "agentPlanStepYours": {
+  "message": "«{0}» — нажмёте вы"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },
