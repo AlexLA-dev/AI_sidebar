@@ -230,12 +230,26 @@ export const GENERIC_PAGES = [
   },
   // «Pay or accept» (Marca, Corriere): the other door subscribes. Never pressed, nothing hidden.
   {
-    name: "generic-wall-es", lang: "es", expect: { status: "left", why: "only_accept", via: "generic" },
+    name: "generic-wall-es", lang: "es", expect: { status: "left", why: "wall", via: "generic" },
     html: banner("wall-es", `<p>Pulsando «Acepto y continúo gratis» accedes de forma gratuita y consientes la instalación de cookies.</p>${btn("Acepto y continúo gratis")}${btn("Rechazo y me suscribo", "", "none")}`)
   },
   {
-    name: "generic-wall-it", lang: "it", expect: { status: "left", why: "only_accept", via: "generic" },
+    name: "generic-wall-it", lang: "it", expect: { status: "left", why: "wall", via: "generic" },
     html: banner("wall-it", `<p>Il Corriere usa cookie per offrirti un servizio migliore. Accetta o abbonati.</p>${btn("Accetta e continua")}${btn("Rifiuta e abbonati", "", "none")}`)
+  },
+  // Le Figaro: a reject on the first layer, but «Already subscribed?» says it's a wall (the reject leads to the
+  // subscription page). Nothing pressed.
+  {
+    name: "generic-wall-fr", lang: "fr", expect: { status: "left", why: "wall", via: "generic" },
+    html: banner("wall-fr", `<p>We and our 251 partners use cookies or equivalent technology to store and access information on your device.</p>${btn("Continue without accepting", "", "none")}${btn("ACCEPT ALL")}${btn("Already subscribed? Sign in", "", "none")}`)
+  },
+  // A platform's window with a subscription as its other door (Sourcepoint-style, The Guardian): nothing pressed.
+  {
+    name: "onetrust-wall", expect: { status: "left", why: "wall", via: "onetrust" },
+    html: `<div id="onetrust-consent-sdk"><div id="onetrust-banner-sdk" data-banner style="${fixed}">
+      <p id="onetrust-policy-text">We use cookies. Accept them, or reject them and subscribe.</p>
+      <div id="onetrust-button-group">${btn("Accept all", 'id="onetrust-accept-btn-handler"')}${btn("Reject all and subscribe", 'id="onetrust-reject-all-handler"', "none")}</div>
+    </div></div>`
   },
   // The reject is a link to another page: never followed.
   {

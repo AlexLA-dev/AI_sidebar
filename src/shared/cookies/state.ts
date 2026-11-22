@@ -13,7 +13,7 @@ const MAX_SITES = 200
 export type CookieVia = string
 
 /** Why a banner was left to the person. */
-export type LeftWhy = "only_accept" | "none" | "stuck"
+export type LeftWhy = "only_accept" | "none" | "stuck" | "wall"
 
 export interface CookieState {
   // Off in Settings («Закрывать окна cookie»). On by default, for new and existing users alike.

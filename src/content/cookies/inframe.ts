@@ -3,7 +3,7 @@
 // The page's site (the frame's top) decides whether the closer is on, like on the page itself.
 
 import { closesOn, COOKIE_KEY, readState } from "../../shared/cookies/state.ts"
-import { byLabel, firstShown, pageEnv, press } from "./closer.ts"
+import { byLabel, firstShown, isWall, pageEnv, press } from "./closer.ts"
 import { consentFrame } from "./frameMatch.ts"
 import { FRAME_RULES } from "./rules.ts"
 
@@ -62,6 +62,8 @@ async function boot(): Promise<void> {
 
   const look = async (): Promise<void> => {
     if (finished || !document.body) return
+    // A «pay or accept» wall: left to the person (rejecting leads to the subscription).
+    if (isWall(env, document)) return
     const reject = firstShown(env, document, rule.reject) ?? byLabel(env, document, "reject")
     if (reject) {
       finished = true

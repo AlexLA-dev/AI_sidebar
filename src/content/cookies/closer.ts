@@ -11,7 +11,8 @@ import { ANY_ROOT, RULES, type Rule, type Step } from "./rules.ts"
 
 export type CloseResult =
   | { status: "done"; via: string }
-  | { status: "left"; why: "only_accept" | "none" | "stuck"; via: string }
+  // wall: «pay or accept» (a subscription is the other door, and rejecting leads there: Le Figaro). Never touched.
+  | { status: "left"; why: "only_accept" | "none" | "stuck" | "wall"; via: string }
   | { status: "none" }
 
 export interface Env {
@@ -95,9 +96,14 @@ export function firstShown(env: Env, scope: ParentNode, selectors: readonly stri
     } catch {
       continue
     }
-    for (const el of list) if (env.visible(el) && safeControl(el)) return el as HTMLElement
+    for (const el of list) if (env.visible(el) && safeControl(el) && labelKind(labelOf(el)) !== "pay") return el as HTMLElement
   }
   return null
+}
+
+/** A «pay or accept» wall: a shown control under `scope` subscribes or pays («S'abonner», «Already subscribed?»). */
+export function isWall(env: Env, scope: ParentNode): boolean {
+  return controls(scope).some((el) => labelKind(labelOf(el)) === "pay" && env.visible(el))
 }
 
 /** A shown, safe control under `scope` whose label is of `kind` («reject»: the best one; «save»: one that saves). */
@@ -206,15 +212,14 @@ async function gone(env: Env, rule: Rule | null, el: Element): Promise<boolean> 
 /** Runs a platform's own way: its reject button, a reject label in its window, or its settings saved as necessary. */
 async function byRule(env: Env, rule: Rule, root: Element): Promise<CloseResult> {
   const scope = () => scopeOf(env, rule, root)
+  if (windowsOf(env, rule).some((w) => isWall(env, w))) return { status: "left", why: "wall", via: rule.id }
   const own = ownButton(env, rule, scope(), rule.reject) ?? byLabelIn(env, windowsOf(env, rule), "reject")
   if (own) {
     press(own)
     return (await gone(env, rule, root)) ? { status: "done", via: rule.id } : { status: "left", why: "stuck", via: rule.id }
   }
   const s = rule.settings
-  // A «pay or accept» wall (its first layer offers a subscription): its settings lead there, not to «only necessary».
-  const wall = windowsOf(env, rule).some((w) => controls(w).some((el) => env.visible(el) && labelKind(labelOf(el)) === "pay"))
-  const open = s && !wall ? ownButton(env, rule, scope(), s.open) : null
+  const open = s ? ownButton(env, rule, scope(), s.open) : null
   if (!s || !open) {
     const labels = windowsOf(env, rule).flatMap((w) => controls(w)).filter((el) => env.visible(el)).map(labelOf)
     if (!labels.length) return { status: "none" }
@@ -342,7 +347,8 @@ export async function closeOnce(env: Env): Promise<CloseResult> {
     if (handled(banner)) continue
     const list = controls(banner).filter((el) => env.visible(el))
     const safe = list.filter(safeControl)
-    const choice = chooseButton(safe.map(labelOf))
+    const wall = list.some((el) => labelKind(labelOf(el)) === "pay")
+    const choice = wall ? ({ leave: "wall" } as const) : chooseButton(safe.map(labelOf))
     if ("press" in choice) {
       done.add(banner)
       press(safe[choice.press] as HTMLElement)
