@@ -270,7 +270,7 @@ test("2.7.1: the ✦ circle is always our blue; its space glows around it as a h
   // The halo is a glow, not a border (the owner: «свечение легкое, как ореол»): three blurred layers, no solid ring,
   // no white gap; from the space's colours (its base close in, its light colour further out) at one strength.
   const halo = rule(".cf-fab[data-halo]")
-  assert.match(halo, /box-shadow: 0 0 6px 1px var\(--halo-1\), 0 0 16px 4px var\(--halo-2\), 0 0 34px 10px var\(--halo-3\)/)
+  assert.match(halo, /box-shadow: 0 0 2\.5px 0\.5px var\(--halo-1\), 0 0 6\.5px 1\.5px var\(--halo-2\), 0 0 13\.5px 4px var\(--halo-3\)/)
   for (const shadow of halo.slice(halo.indexOf("box-shadow:") + 11).split(/,(?![^(]*\))/)) {
     const blur = shadow.trim().split(/\s+/)[2]
     assert.ok(blur && parseFloat(blur) > 0, `every layer is blurred: ${shadow.trim()}`)
@@ -309,7 +309,7 @@ test("2.7.1 (the owner on 117): no space halo on the send button inside the chat
   assert.doesNotMatch(css, /\.cf-send\[data-halo\]/)
   assert.doesNotMatch(app, /sendHalo/)
   assert.doesNotMatch(app, /class=\{`cf-send[^`]*`\}\s*data-halo/)
-  assert.match(css, /\.cf-fab\[data-halo\] \{\s*box-shadow: 0 0 6px 1px var\(--halo-1\), 0 0 16px 4px/)
+  assert.match(css, /\.cf-fab\[data-halo\] \{\s*box-shadow: 0 0 2\.5px 0\.5px var\(--halo-1\), 0 0 6\.5px 1\.5px/)
 })
 
 test("109: the page's own controls can take the ✦ circle's space colour, paler, through one switch (off since 2.7.1); text stays readable", () => {
