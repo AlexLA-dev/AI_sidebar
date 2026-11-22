@@ -547,6 +547,9 @@ export function takesPayment(doc: Document): boolean {
     if (PAY_PATH.test(`${doc.location?.pathname ?? ""}`)) return true
     if (doc.querySelector("[autocomplete~=cc-number], [autocomplete~=cc-csc], [autocomplete~=cc-exp], apple-pay-button, [class*=apple-pay-button], gpay-button, [id*=paypal-button], [data-stripe]")) return true
     for (const f of Array.from(doc.querySelectorAll("iframe"))) {
+      // Only a frame one can see: Stripe's, PayPal's and Klarna's scripts leave an invisible frame on every page of a
+      // site that uses them (TheFork's home page read as a payment page, and its search box as «pay yourself»).
+      if (!shownFrame(f)) continue
       const src = f.getAttribute("src") ?? ""
       let host = ""
       try {
@@ -560,6 +563,14 @@ export function takesPayment(doc: Document): boolean {
     return false
   }
   return false
+}
+
+function shownFrame(f: HTMLIFrameElement): boolean {
+  const r = f.getBoundingClientRect()
+  if (r.width < 40 || r.height < 20) return false
+  const view = f.ownerDocument.defaultView
+  const cs = view?.getComputedStyle(f)
+  return !cs || (cs.display !== "none" && cs.visibility !== "hidden" && Number(cs.opacity || "1") > 0.05)
 }
 
 /** Every amount of money the whole page shows (the plan's price check; the text above is only around the screen). */

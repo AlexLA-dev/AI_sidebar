@@ -74,6 +74,7 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
     case "click":
       if (!CLICK_ROLES.has(item!.role)) return { ok: false, error: `element ${id} (${item!.role}) can't be clicked` }
       if (item!.state?.includes("disabled")) return { ok: false, error: `element ${id} is disabled` }
+      slotOf(call, r)
       break
     case "type": {
       if (!TYPE_ROLES.has(item!.role)) return { ok: false, error: `element ${id} (${item!.role}) isn't a field` }
@@ -101,6 +102,7 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
       if (item!.options?.length && !item!.options.some((o) => sameOption(o, call.option!))) {
         return { ok: false, error: `list ${id} has no option "${call.option}"` }
       }
+      slotOf(call, r)
       break
     case "go":
       if (item!.role !== "link") return { ok: false, error: `element ${id} isn't a link` }
@@ -126,6 +128,12 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
     }
     case "done":
       call.summary = str(r.summary, 6000) ?? ""
+      // A booking made: what, when and where (the device puts it in the Calendar).
+      slotOf(call, r)
+      if (call.date && call.time) {
+        const place = str(r.place, 200)
+        if (place) call.place = place
+      }
       break
     case "reminders":
       call.text = str(r.text, 200)
@@ -194,4 +202,15 @@ export function sameOption(option: string, wanted: string): boolean {
   const a = option.normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim()
   const b = wanted.normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim()
   return !!b && (a === b || a.startsWith(b) || (b.length >= 3 && a.includes(b)))
+}
+
+/** A time slot pressed in a booking, or a booking made: its date and time as the model gave them, when they are a real
+ *  date ("YYYY-MM-DD") and a time ("HH:MM"); the device checks them against the person's Calendar. */
+function slotOf(call: ToolCall, r: Record<string, unknown>): void {
+  const date = typeof r.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : ""
+  const time = typeof r.time === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(r.time) ? r.time : ""
+  if (date && time) {
+    call.date = date
+    call.time = time
+  }
 }

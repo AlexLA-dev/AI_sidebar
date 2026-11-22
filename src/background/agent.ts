@@ -15,7 +15,7 @@ import { hostOf } from "../shared/agent/sites"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
 import { appleCall, appleDevice, calendarFreeLine, calendarSlotFree, deferredReminder, deferredReminderEnd } from "./agentApple"
-import { RULES_KEY } from "../shared/agent/rules"
+import { addMinutes, RULES_KEY } from "../shared/agent/rules"
 import { callNative } from "./native"
 
 export interface AgentDeps {
@@ -475,7 +475,8 @@ function io(tab: number, gen?: string): RunnerIO {
     apple: appleCall,
     planning: true,
     rules: async () => (await chrome.storage.local.get(RULES_KEY))[RULES_KEY],
-    calendarFree: (b, days) => calendarFreeLine(b.date, days + 1, b.from, b.until, b.minutes),
+    // A start inside the window: the free time may run on past its end by the visit's length.
+    calendarFree: (b, days) => calendarFreeLine(b.date, days + 1, b.from, addMinutes(b.until, b.minutes), b.minutes),
     slotFree: calendarSlotFree,
     playbook: { get: playbookGet, put: playbookPut }
   }

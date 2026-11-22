@@ -421,7 +421,9 @@ export function planLine(plan: TaskPlan | null | undefined): string {
   return [
     plan.steps.length ? `steps: ${plan.steps.map((l, i) => (plan.self.some((x) => x.step === i) ? `${l} (the person's own step: not yours to press)` : l)).join("; ")}` : "",
     allowed.length ? `allowed without asking: ${allowed.join("; ")}` : "",
-    refused.length ? `the person unticked: ${refused.join("; ")}` : "",
+    // Unticked: still the task's steps, asked at the time (TheFork, 118: the model read «unticked» as «don't», and stopped
+    // before even opening the restaurant).
+    refused.length ? `ask the person first (they unticked it: go on, and the device asks them at that step): ${refused.join("; ")}` : "",
     plan.prices.length ? `prices seen: ${plan.prices.join(", ")}` : ""
   ].filter(Boolean).join("\n")
 }
