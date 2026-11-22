@@ -169,8 +169,11 @@ test("security: rules, remembered choices and playbooks never widen what's allow
   assert.equal(s.pending?.verdict.reason, "pay")
   assert.equal(pay.acted.length, 0)
   // A deposit on the page: the committing press is the person's (the device's own map says so).
-  const dep = { ...SALON, deposit: true, items: [...SALON.items, { id: "9", role: "button" as const, label: "Book appointment", form: 0, type: "submit" }], forms: [{ n: 0, fillable: true }] }
+  const dep = { ...SALON, deposit: true, items: [...SALON.items, { id: "8", role: "textbox" as const, label: "Phone", lock: "personal" as const, form: 0 }, { id: "9", role: "button" as const, label: "Book appointment", form: 0, type: "submit" }], forms: [{ n: 0, fillable: true }] }
   assert.deepEqual(classify({ tool: "click", id: "9" }, { map: dep, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } }), { cls: "self", reason: "pay" })
+  // (A fee named on a page that isn't where the booking commits doesn't make its buttons paying.)
+  const home: PageMap = { ...SALON, deposit: true, forms: [{ n: 0, fillable: true }], items: [{ id: "1", role: "textbox", label: "Search", form: 0 }, { id: "2", role: "button", label: "Search", type: "submit", form: 0 }] }
+  assert.notEqual(classify({ tool: "click", id: "2" }, { map: home, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } }).reason, "pay")
   // Signing in, a message, Amazon: the same as without rules.
   const login: PageMap = { ...SALON, forms: [{ n: 0, fillable: true, secret: true }], items: [{ id: "1", role: "textbox", label: "Password", lock: "secret", form: 0 }, { id: "2", role: "button", label: "Log in", type: "submit", form: 0 }] }
   assert.equal(classify({ tool: "click", id: "2" }, { map: login, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } }).cls, "self")
@@ -185,6 +188,10 @@ test("the Calendar's contents never leave the device: the server takes times onl
   const fn = readFileSync(new URL("../netlify/functions/v2-act.mts", import.meta.url), "utf8")
   assert.match(fn, /function calendarLine/)
   assert.match(fn, /\/\^\\d\{4\}-\\d\{2\}-\\d\{2\} \\d\{2\}:\\d\{2\}–\\d\{2\}:\\d\{2\}\$\//)
+  // A payment frame counts only when it's shown (an invisible Stripe frame is on every page of a site that uses it).
+  const map = readFileSync(new URL("../src/content/agent/map.ts", import.meta.url), "utf8")
+  assert.match(map, /if \(!shownFrame\(f\)\) continue/)
+  assert.match(map, /if \(r\.width < 40 \|\| r\.height < 20\) return false/)
   const swift = readFileSync(new URL("../ContextFlow/Shared (Extension)/AgentApple.swift", import.meta.url), "utf8")
   assert.match(swift, /padPlace: Int = 0/)
   assert.match(swift, /\(e\.location \?\? ""\)\.isEmpty \? pad : max\(pad, padPlace\)/)
@@ -194,4 +201,27 @@ test("the Calendar's contents never leave the device: the server takes times onl
     { call: { tool: "click", id: "3" }, target: 'button "Pay"', result: "refused: pay" },
     { call: { tool: "select", id: "4", option: "Haircut" }, result: "done" }
   ]), ["Book now", "Haircut"])
+})
+
+test("a search box isn't a personal field, even when its label says «name»", async () => {
+  const { fieldLock } = await import("../src/shared/agent/fields.ts")
+  assert.equal(fieldLock({ tag: "input", label: "Cuisine, restaurant name..." }), null)
+  assert.equal(fieldLock({ tag: "input", type: "search", label: "Name" }), null)
+  assert.equal(fieldLock({ tag: "input", label: "Поиск по названию" }), null)
+  assert.equal(fieldLock({ tag: "input", label: "Name" }), "personal")
+  assert.equal(fieldLock({ tag: "input", label: "Your name" }), "personal")
+  assert.equal(fieldLock({ tag: "input", label: "Search", autocomplete: "email" }), "personal", "the page's own token wins")
+  assert.equal(fieldLock({ tag: "input", label: "Search", type: "password" }), "secret")
+})
+
+test("a time slot's date and time survive the call's check (the device needs them for the Calendar)", async () => {
+  const { checkCall } = await import("../src/shared/agent/call.ts")
+  const r = checkCall({ tool: "click", id: "3", date: "2026-11-24", time: "17:45", why: "" }, SALON, [])
+  assert.equal(r.ok, true)
+  assert.equal(r.ok && r.call.date, "2026-11-24")
+  assert.equal(r.ok && r.call.time, "17:45")
+  const bad = checkCall({ tool: "click", id: "3", date: "tomorrow", time: "5pm", why: "" }, SALON, [])
+  assert.equal(bad.ok && bad.call.date, undefined)
+  const done = checkCall({ tool: "done", summary: "Booked", date: "2026-11-24", time: "17:45", place: "Cutter" }, SALON, [])
+  assert.equal(done.ok && done.call.place, "Cutter")
 })

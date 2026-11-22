@@ -112,7 +112,9 @@ function isMessage(map: PageMap, item: MapItem, host: string): boolean {
  *  (a booking, a form sent) on a page that holds money (a deposit, a no-show fee) pays: the person's. */
 function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   const v = pressClass(map, item, host)
-  return map.deposit && v.cls === "confirm" && v.reason === "submit" ? verdict("self", "pay") : v
+  // Only the press that commits, on the page where it commits (personal fields, a review / confirm page): a fee named
+  // in a home page's text or a cookie banner's «Accept» isn't paying.
+  return map.deposit && v.cls === "confirm" && v.reason === "submit" && commitStage(map) && !isConsentDialog(map, item) ? verdict("self", "pay") : v
 }
 
 function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {

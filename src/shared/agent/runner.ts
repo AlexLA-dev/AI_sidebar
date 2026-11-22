@@ -97,6 +97,7 @@ export interface AgentState {
   calendar?: string
   playbook?: string
   slot?: { date: string; time: string }
+  slotRefusals?: number
   booked?: { date: string; time: string; place?: string }
 }
 
@@ -505,8 +506,17 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       if (busy) {
         state.log.push({ call, target: target ?? undefined, result: `refused: ${busy}` })
         state.refused = busy
+        // Three in a row: it can't be settled this way; the task stops, not finished, with what it got to (never a loop).
+        state.slotRefusals = (state.slotRefusals ?? 0) + 1
+        if (state.slotRefusals >= 3) {
+          state.status = "done"
+          state.error = "stuck"
+          state.summary = state.summary || lastWords(state)
+          break
+        }
         continue
       }
+      state.slotRefusals = 0
     }
     if (verdict.cls === "blocked") {
       if (verdict.reason.startsWith("site_")) {
