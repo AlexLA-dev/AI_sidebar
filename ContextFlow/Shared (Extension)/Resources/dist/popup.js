@@ -144,6 +144,9 @@ ${c("qiAdaptConversation",y)}`:"");setTimeout(()=>jo(v,{label:c(y?"qiAdaptChat":
 /* The system text size on iPhone and iPad (systemText.ts): the panel's parts are zoomed by it, text and tap areas
    together, while the panel's own box keeps the screen's width. 1 (no zoom) at the default size and below. */
 .cf[data-ui] .cf-panel > * { zoom: var(--ui, 1); }
+/* The header (space name and five icons) and the input row (buttons, field, send) overlap or leave no room to type
+   past 1.35 on an iPhone, so they stop growing there. */
+.cf[data-ui] .cf-panel > .cf-header, .cf[data-ui] .cf-panel > .cf-composer { zoom: min(var(--ui, 1), 1.35); }
 
 .cf[data-theme="dark"] {
   --note: #f59e0b;
