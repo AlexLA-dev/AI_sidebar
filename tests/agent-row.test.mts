@@ -45,3 +45,7 @@ test("a task Safari froze goes on when the person is back, and the frozen run ne
   assert.match(bg, /act: async \(call: ToolCall\) => \{\s*await live\(\)/)
   assert.match(bg, /for \(const \[tab\] of await activeTasks\(\)\) void resume\(tab\)/)
 })
+
+test("an opened finished task lists every step that ran; only a running one shows the newest few", () => {
+  assert.match(panel, /const lines = finished \? shown : shown\.slice\(-8\)/)
+})

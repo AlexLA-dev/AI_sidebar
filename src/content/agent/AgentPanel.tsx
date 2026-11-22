@@ -268,7 +268,10 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   const waiting = state.status === "confirm" || state.status === "fill" || state.status === "self"
   const finished = !busy && !waiting && !planning
   // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
-  const lines = state.lines.filter((l) => l.text || l.target).slice(-8)
+  // While it works, the newest few; a finished task opened from its line shows every step that ran (the director: the
+  // cookie step was missing from an opened booking).
+  const shown = state.lines.filter((l) => l.text || l.target)
+  const lines = finished ? shown : shown.slice(-8)
   // The card stays in view as the task goes on: its newest line, its question, its result.
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
