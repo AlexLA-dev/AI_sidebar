@@ -1202,5 +1202,12 @@
   "agentNotifPaused": "任務已暫停——打開 Safari 來完成：{0}",
   "agentNotifDone": "完成：{0}",
   "agentNotifNeeds": "需要你：{0}",
-  "agentPlanStepYours": "「{0}」——由你來點按"
+  "agentPlanStepYours": "「{0}」——由你來點按",
+  "agentPlanAnswerFirst": "請先回答：「{0}」",
+  "agentErrorNoReply": "擴充功能沒有回應。請再試一次；若仍如此，請重新載入頁面。",
+  "agentStartFailed": "無法開始任務（{0}）。請再試一次。",
+  "agentPlanRemember": "記在「我的資料」中",
+  "agentPlanFromSaved": "來自「我的資料」——變更後更新",
+  "agentMarkUnfinished": "未完成",
+  "agentStuck": "頁面不再變化，我在這裡停下了。完成的部分在上面。"
 }

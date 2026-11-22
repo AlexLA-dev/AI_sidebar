@@ -281,19 +281,22 @@ interface Box {
   bottom: number
   width: number
   height: number
+  // Left and right in the top window: a strip scrolled sideways keeps its far items out of the screen.
+  left: number
+  right: number
 }
 
 /** Where the element shows, in the top window: its own box, or its label's for an input a site draws over. */
 function boxOf(f: Found, role: Role): Box | null {
   const r = f.el.getBoundingClientRect()
-  let box: Box = { top: r.top + f.dy, bottom: r.bottom + f.dy, width: r.width, height: r.height }
+  let box: Box = { top: r.top + f.dy, bottom: r.bottom + f.dy, width: r.width, height: r.height, left: r.left + f.dx, right: r.right + f.dx }
   const tiny = r.width < 2 || r.height < 2
   const noLayout = r.width === 0 && r.height === 0 && r.top === 0 && r.left === 0
   if (tiny && (role === "checkbox" || role === "radio" || role === "switch")) {
     const label = f.el.closest("label") ?? (f.el.id ? f.el.ownerDocument.querySelector(`label[for="${CSS.escape(f.el.id)}"]`) : null)
     if (label) {
       const l = label.getBoundingClientRect()
-      if (l.width >= 2 && l.height >= 2) box = { top: l.top + f.dy, bottom: l.bottom + f.dy, width: l.width, height: l.height }
+      if (l.width >= 2 && l.height >= 2) box = { top: l.top + f.dy, bottom: l.bottom + f.dy, width: l.width, height: l.height, left: l.left + f.dx, right: l.right + f.dx }
       else if (!noLayout) return null
     } else if (!noLayout) return null
   } else if (tiny && !noLayout) return null
@@ -351,6 +354,7 @@ function optionsOf(el: Element, role: Role): string[] | undefined {
 
 // ------------------------------------------------------------ the page's words
 
+const MESSAGES_MAX = 8
 const MESSAGE = "[role=alert], [role=status], [aria-live=assertive], [aria-live=polite], .error, .errors, .invalid-feedback, .field-error, .form-error"
 
 function pageText(doc: Document, overlays: Element[]): string {
@@ -365,7 +369,19 @@ function pageText(doc: Document, overlays: Element[]): string {
     size += t.length + 1
   }
   for (const o of overlays) add(`[over the page] ${textOf(o).slice(0, 500)}`)
-  for (const m of Array.from(doc.querySelectorAll(MESSAGE))) if (!hiddenByStyle(m)) add(`[message] ${textOf(m)}`)
+  // A page's messages, not its controls (fresha marks a year of date buttons aria-live: they filled the text before
+  // the time slots, TestFlight 118). A few, on the screen's width.
+  const width = view?.innerWidth ?? 400
+  let messages = 0
+  for (const m of Array.from(doc.querySelectorAll(MESSAGE))) {
+    if (messages >= MESSAGES_MAX) break
+    if (m.matches(CONTROL) || hiddenByStyle(m)) continue
+    const r = m.getBoundingClientRect()
+    if (r.width > 0 && (r.right < 0 || r.left > width)) continue
+    const before = parts.length
+    add(`[message] ${textOf(m)}`)
+    if (parts.length > before) messages++
+  }
   for (const h of Array.from(doc.querySelectorAll("h1, h2, h3"))) {
     const r = h.getBoundingClientRect()
     if (r.bottom > -height && r.top < height * 2 && !hiddenByStyle(h)) add(`# ${textOf(h)}`)
@@ -385,6 +401,9 @@ function pageText(doc: Document, overlays: Element[]): string {
 export interface MapOptions {
   part?: number
   size?: number
+  // Every amount on the whole page (the plan's price check): read only when asked — it reads the whole page's text,
+  // which makes the browser lay the page out (2.7.1, the owner on 117: the phone got hot while Do ran).
+  money?: boolean
 }
 
 /** The page's map now (one part of it: PART_SIZE controls, those over the page and on the screen first). */
@@ -414,7 +433,8 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     return f.n
   }
 
-  const items: Array<MapItem & { order: number }> = []
+  const width = view?.innerWidth ?? 400
+  const items: Array<MapItem & { order: number; side?: boolean }> = []
   const overlays = new Set<Element>()
   const seen = new Set<Element>()
   found.forEach((f, order) => {
@@ -442,7 +462,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     const lock: Lock | null = field || role === "listbox"
       ? fieldLock({ tag: tag(el), type, autocomplete: el.getAttribute("autocomplete") ?? "", name: el.getAttribute("name") ?? "", id: el.id, label }) ?? (fromData.has(el) ? "personal" : null)
       : null
-    const item: MapItem & { order: number } = { id: idOf(el, f.frame), role, label, order }
+    const item: MapItem & { order: number; side?: boolean } = { id: idOf(el, f.frame), role, label, order }
     if (type && type !== "text" && type !== "submit" && role !== "checkbox" && role !== "radio") item.type = type
     else if (type === "submit" && tag(el) !== "button") item.type = "submit"
     else if (tag(el) === "button" && type === "submit" && (input.form || el.closest("form"))) item.type = "submit"
@@ -462,6 +482,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
       overlays.add(banner)
     } else if (box.top > height) item.where = "below"
     else if (box.bottom < 0) item.where = "above"
+    else if (box.width > 0 && (box.right < 0 || box.left > width)) item.side = true
     const form = formOf(el)
     if (form !== undefined) item.form = form
     if (role === "link") {
@@ -488,12 +509,13 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     if (form.querySelector("input[type=password], [autocomplete~=cc-number], [autocomplete~=one-time-code]")) f.secret = true
   }
 
-  const rank = (i: MapItem) => (i.where === "dialog" ? 0 : i.where === undefined ? 1 : i.where === "below" ? 2 : 3)
+  // On the screen first; then what a sideways strip keeps out of it (a year of dates), then below and above.
+  const rank = (i: MapItem & { side?: boolean }) => (i.where === "dialog" ? 0 : i.where === undefined ? (i.side ? 1.5 : 1) : i.where === "below" ? 2 : 3)
   items.sort((a, b) => rank(a) - rank(b) || a.order - b.order)
   const size = opts.size ?? PART_SIZE
   const parts = Math.max(1, Math.ceil(items.length / size))
   const part = Math.min(Math.max(1, opts.part ?? 1), parts)
-  const slice = items.slice((part - 1) * size, part * size).map(({ order: _order, ...rest }) => rest)
+  const slice = items.slice((part - 1) * size, part * size).map(({ order: _order, side: _side, ...rest }) => rest)
   const overlayList = [...overlays]
   const consent = overlayList.some((o) => /cookie|куки|çerez|クッキー|쿠키|consent|gdpr|privacy|datenschutz|confidentialit|privacidad|privacidade|riservatezza|конфиденциальн|ملفات تعريف الارتباط|隐私|隱私|プライバシー|개인정보|quyền riêng tư/i.test(o.textContent ?? ""))
 
@@ -509,7 +531,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     text: pageText(doc, overlayList.slice(0, 2)),
     ...(overlayList.length ? { overlay: true } : {}),
     ...(consent ? { consent: true } : {}),
-    money: pageMoney(doc),
+    ...(opts.money ? { money: pageMoney(doc) } : {}),
     ...(takesPayment(doc) ? { pay: true } : {})
   }
 }

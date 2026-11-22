@@ -4,7 +4,7 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { answer, approvePlan, drive, newState, type ActReply, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { answer, approvePlan, drive, newState, pendingKey, type ActReply, type RunnerIO } from "../src/shared/agent/runner.ts"
 import { amounts, buildPlan, checkPlan, covered, personWords, planNeedsPerson, priceChanged } from "../src/shared/agent/taskplan.ts"
 import type { PageMap, ToolCall } from "../src/shared/agent/types.ts"
 
@@ -288,4 +288,103 @@ test("«done» before the plan's own press: one more step for it; «done» again
   s2 = await approvePlan(s2, y, { answers: [], off: [] })
   assert.equal(s2.status, "done")
   assert.equal(s2.summary, "Out of stock, nothing added", "a second «done» with its reason is taken")
+})
+
+test("117: answers about the person are pre-filled from «Мои данные» next time, and new ones are kept there", async () => {
+  const { savedAnswers, factKey } = await import("../src/shared/agent/taskplan.ts")
+  const raw = checkPlan({ steps: [], questions: [{ q: "Для кого стрижка?", options: ["Мужская", "Женская"], fact: "fact:Пол" }, { q: "Какое время?", options: ["Утро", "Вечер"], fact: "" }], risky: [], prices: [] })
+  assert.equal(raw.questions[0].fact, "Пол")
+  assert.equal(raw.questions[1].fact, undefined)
+  const plan = buildPlan(raw, ctx)
+  assert.deepEqual(savedAnswers(plan, { [factKey("пол")]: "Мужская" }), ["Мужская", ""])
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /const \[keep, setKeep\] = useState<boolean\[\]>\(\(\) => plan\.questions\.map\(\(q\) => !!q\.fact\)\)/)
+  assert.match(panel, /q\.fact && keep\[i\] && answers\[i\]\.trim\(\) && answers\[i\]\.trim\(\) !== pre\[i\]/)
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.match(app, /if \(refusedEntry\(fact, value\)\) return \[\]/)
+  assert.match(app, /type: "formDataPut", changes/)
+})
+
+test("117 heat: the page's amounts only when a price can be checked; the in-flight mark doesn't re-render; nothing runs between steps", async () => {
+  const asked: Array<{ money?: boolean } | undefined> = []
+  const x = io([{ ok: true, plan: { steps: ["Reading"], questions: [], risky: [], prices: [] }, token: "t" }, step({ tool: "scroll", to: "down" }, "free", "read")])
+  x.map = async (o) => (asked.push(o), BOOK)
+  let marks = 0
+  x.mark = async () => void marks++
+  await drive(newState("h1", "read it", "en", BOOK.url), x)
+  assert.deepEqual(asked.map((o) => !!o?.money), [true, false, false], "money for the plan's first look only (no prices in the plan)")
+  assert.equal(marks, 1, "the in-flight mark went through mark(), not save()")
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  const ring = app.slice(app.indexOf("function AgentRing"), app.indexOf("function SelectionGlow"))
+  assert.doesNotMatch(ring, /setInterval/)
+  const css = readFileSync(new URL("../src/content/agent/agent.css", import.meta.url), "utf8")
+  assert.doesNotMatch(css, /infinite/)
+  const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
+  assert.match(bg, /entries: async \(\) => \(await cachedEntries\(\)\)\.entries/)
+  assert.match(bg, /device: cachedDevice/)
+})
+
+test("118: reads on a page that doesn't change: told to stop, then stopped as not finished; never only «too many steps»", async () => {
+  const replies: ActReply[] = Array.from({ length: 8 }, () => step({ tool: "extract" }, "free", "read"))
+  const x = io(replies)
+  x.planning = false
+  const s = await drive(newState("c1", "find a free time tomorrow after 18:00", "ru", BOOK.url), x)
+  assert.equal(s.status, "done")
+  assert.equal(s.error, "stuck")
+  assert.ok(x.asked.some((b) => /no progress/.test(b.refused ?? "")), "the model was told first")
+  const y = io(Array.from({ length: 40 }, (_, i) => step({ tool: "type", id: "3", text: `2026-12-0${(i % 9) + 1}`, why: "Ввожу дату" }, "free", "type")))
+  y.planning = false
+  y.maxSteps = 6
+  const t = await drive(newState("c2", "x", "ru", BOOK.url), y)
+  assert.equal(t.error, "steps")
+  assert.ok(t.summary, "what it got to, not an empty «too many steps»")
+  assert.ok(y.asked.some((b) => /only 2 steps are left/.test(b.refused ?? "")))
+})
+
+test("118: a question with choices waits for the person; the answer continues the task", async () => {
+  const x = io([
+    step({ tool: "ask_user", question: "На завтра мест нет. Ближайшее — 24 ноября. Записать на 24-е после 18:00?", choices: ["Да", "Другой день", "Отмена"] }, "free", "read"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ])
+  x.planning = false
+  let s = await drive(newState("c3", "x", "ru", BOOK.url), x)
+  assert.equal(s.status, "asked")
+  assert.deepEqual(s.choices, ["Да", "Другой день", "Отмена"])
+  assert.equal(pendingKey(s), `asked:${s.step}`)
+  s = await answer(s, x, "reply", ["Да"])
+  assert.equal(s.status, "done")
+  assert.match(x.asked[1].log.at(-1).result, /the person answered: "Да"/)
+})
+
+test("118: the focus trap, the not-finished mark, «Start» looks active", () => {
+  const index = readFileSync(new URL("../src/content/index.tsx", import.meta.url), "utf8")
+  assert.match(index, /for \(const type of \["focusin", "focusout"\]\) \{\s*window\.addEventListener\(type, \(e\) => \{\s*if \(e\.target === host \|\| \(e as FocusEvent\)\.relatedTarget === host\) e\.stopImmediatePropagation\(\)/)
+  assert.match(index, /if \(field && root\.activeElement !== field\) field\.focus\(\)/)
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /if \(status === "done" && \(error === "steps" \|\| error === "stuck"\)\) return \{ sign: "…", text: t\("agentMarkUnfinished"\)/)
+  assert.match(panel, /<button type="button" class="cf-primary" disabled=\{sending\} onClick=\{start\}>/)
+})
+
+test("118 fresha: a remembered answer picks the plan's own wording, the time slots reach the model, choices go on", async () => {
+  const { optionFor, savedAnswers, factKey } = await import("../src/shared/agent/taskplan.ts")
+  // «Мужской» was kept from the last plan; this one says «Мужчина / Женщина».
+  assert.equal(optionFor(["Мужчина", "Женщина"], "Мужской"), "Мужчина")
+  assert.equal(optionFor(["Male", "Female"], "male"), "Male")
+  assert.equal(optionFor(["Утро", "Вечер"], "Мужской"), "Мужской", "no close option: the answer as saved (Other…)")
+  assert.equal(optionFor(["Мужская стрижка", "Мужчина"], "Мужской"), "Мужской", "two close options: not guessed")
+  const plan = buildPlan(checkPlan({ steps: [], questions: [{ q: "Кто будет стричься?", options: ["Мужчина", "Женщина"], fact: "fact:Пол" }], risky: [], prices: [] }), ctx)
+  assert.deepEqual(savedAnswers(plan, { [factKey("пол")]: "Мужской" }), ["Мужчина"])
+  // fresha's date strip holds a year of date buttons (aria-live, scrolled sideways): they ranked before the time
+  // slots and filled the page's text, so the model never saw «11:30 AM».
+  const map = readFileSync(new URL("../src/content/agent/map.ts", import.meta.url), "utf8")
+  assert.match(map, /else if \(box\.width > 0 && \(box\.right < 0 \|\| box\.left > width\)\) item\.side = true/)
+  assert.match(map, /i\.where === undefined \? \(i\.side \? 1\.5 : 1\)/)
+  assert.match(map, /if \(m\.matches\(CONTROL\) \|\| hiddenByStyle\(m\)\) continue/)
+  assert.match(map, /if \(messages >= MESSAGES_MAX\) break/)
+  // A no-progress nudge follows what the person already said; choices are real ways on.
+  const runner = readFileSync(new URL("../src/shared/agent/runner.ts", import.meta.url), "utf8")
+  assert.match(runner, /If the person's words or answers already say what to do now, do it/)
+  const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
+  assert.match(act, /do that instead of asking again/)
+  assert.match(act, /never "try the same again"/)
 })

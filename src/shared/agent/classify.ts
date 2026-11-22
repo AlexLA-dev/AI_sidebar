@@ -27,6 +27,21 @@ const MESSAGING_EXACT = /(^|\.)(mail\.ru|t\.me|mail\.com|gmx\.net|gmx\.com|web\.
 // Cart words in the 15 languages (the submit list's «add to cart» entries).
 const CART = /cart|basket|bag|trolley|корзин|кошик|warenkorb|panier|carrito|cesta|carrello|carrinho|sacola|sepet|السلة|カート|장바구니|购物车|購物車|giỏ/i
 
+// Booking words that open a booking flow (not «confirm», «submit», «send»): the words matched in WORDS.submit.
+const BOOK_ENTRY = /^(book|book now|book appointment|make an appointment|reserve|schedule|забронировать|бронировать|записаться|записаться на прием|забронювати|записатися|buchen|jetzt buchen|termin buchen|reservieren|réserver|prendre rendez-vous|reservar|pedir cita|prenota|prenota ora|agendar|rezervasyon yap|randevu al|احجز|حجز|予約する|予約|예약|예약하기|预订|预约|預訂|預約|đặt chỗ|đặt lịch|đặt bàn)$/
+// A page where a booking or an order is being committed: fields of the person's, payment, or a review / confirm address.
+const COMMIT_PATH = /(^|[/._-])(review|confirm|confirmation|checkout|summary|payment|pay|complete|finish)([/._?-]|$)/i
+
+function commitStage(map: PageMap): boolean {
+  let path = ""
+  try {
+    path = new URL(map.url).pathname
+  } catch {
+    path = ""
+  }
+  return !!map.pay || COMMIT_PATH.test(path) || map.items.some((i) => i.lock === "personal")
+}
+
 const READ_ONLY = new Set(["read_page", "scroll", "extract", "ask_user", "done", "back", "reminders", "calendar"])
 // The person's Calendar and Reminders changed: always «Сделать?» first, wherever the page is.
 const APPLE_WRITES = new Set(["reminder_add", "reminder_done", "event_add"])
@@ -116,6 +131,10 @@ function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
     if (hit.kind === "consent" && isConsentDialog(map, item)) return verdict("self", "cookies_accept")
     if (SELF_KINDS.has(hit.kind)) return verdict("self", hit.kind)
     if (hit.kind === "reject") return isConsentDialog(map, item) ? verdict("free", "cookies_reject") : verdict("confirm", "decline")
+    // A «Book now» / «Book an appointment» that only leads into a booking flow (TestFlight 118, the director on fresha:
+    // a question per step) is a free step; the press that commits the booking still asks — one in a form to fill, on
+    // a page with personal fields, on a page that takes payment, or on a review / confirm / checkout page.
+    if (hit.kind === "submit" && BOOK_ENTRY.test(hit.word) && !CART.test(hit.word) && !form?.fillable && !commitStage(map)) return verdict("free", "entry")
     // The cart: asked first, but undone on the site (the card doesn't say «can't be undone»).
     if (hit.kind === "submit") return verdict("confirm", CART.test(hit.word) ? "cart" : "submit")
     if (hit.kind === "weak") return form?.fillable ? verdict("confirm", "submit") : verdict("free", "weak")

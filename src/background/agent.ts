@@ -192,7 +192,7 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
     await callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", what) }, 6_000)
     return
   }
-  const waiting = state.status === "plan" || state.status === "confirm" || state.status === "fill" || state.status === "self"
+  const waiting = state.status === "plan" || state.status === "confirm" || state.status === "fill" || state.status === "self" || state.status === "asked"
   const ended = state.status === "done"
   if (!waiting && !ended) {
     await callNative("agent_cancel", { id: runId(state) }, 4_000)
@@ -423,7 +423,7 @@ function io(tab: number, gen?: string): RunnerIO {
     if (now?.gen && now.gen !== gen) throw new Superseded("superseded")
   }
   return {
-    map: () => tabMessage<PageMap>(tab, { type: "agentMap" }, 6_000),
+    map: (opts) => tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}) }, 6_000),
     act: async (call: ToolCall) => {
       await live()
       return tabMessage<StepResult>(tab, { type: "agentAct", call }, 12_000)
@@ -437,14 +437,37 @@ function io(tab: number, gen?: string): RunnerIO {
       await live()
       return save(tab, { ...state, ...(gen ? { gen } : {}) })
     },
-    entries: async () => (await formData()).entries,
+    mark: async (state) => {
+      await live()
+      await write(tab, { ...state, ...(gen ? { gen } : {}) })
+    },
+    // Read once a task (each read goes to the app, and with iCloud on it syncs): kept a couple of minutes.
+    entries: async () => (await cachedEntries()).entries,
     policy: { amazon: true },
     maxSteps: MAX_STEPS,
     isStopped: async () => (await load(tab))?.status === "stopped",
-    device: appleDevice,
+    device: cachedDevice,
     apple: appleCall,
     planning: true
   }
+}
+
+// What a task reads from the app on every step, read once (2.7.1, the owner on 117: the phone got hot while Do ran —
+// each step asked the app for «Мои данные», which syncs with iCloud, and for Calendar and Reminders' access).
+let entriesCache: { at: number; value: Promise<{ entries: FormEntry[]; icloud?: boolean }> } | null = null
+function cachedEntries(): Promise<{ entries: FormEntry[]; icloud?: boolean }> {
+  if (!entriesCache || Date.now() - entriesCache.at > 120_000) entriesCache = { at: Date.now(), value: formData().catch(() => ({ entries: [] })) }
+  return entriesCache.value
+}
+let deviceCache: { at: number; value: Promise<{ reminders: string; calendar: string }> } | null = null
+function cachedDevice(): Promise<{ reminders: string; calendar: string }> {
+  // Access may change after the person allowed it in the app: read again then (the access step drops the cache).
+  if (!deviceCache || Date.now() - deviceCache.at > 60_000) deviceCache = { at: Date.now(), value: appleDevice() }
+  return deviceCache.value
+}
+export function dropAgentCaches(): void {
+  entriesCache = null
+  deviceCache = null
 }
 
 /** The same page, for a deferred task's plan: the address without its fragment. */
@@ -489,12 +512,21 @@ function run(tab: number, work: () => Promise<AgentState>): Promise<AgentState> 
   return next
 }
 
+const STALE_RUN_MS = 120_000
+
 async function start(tab: number, url: string, m: Extract<AgentRequest, { type: "agentStart" }>): Promise<Record<string, unknown>> {
   if (!(await deps.consented())) return { ok: false, code: "CONSENT" }
   const plan = await deps.plan()
   if (plan !== "pro" && plan !== "ultra") return { ok: false, code: "PRO_ONLY" }
   const now = await load(tab)
-  if (active(now)) return { ok: false, code: "BUSY", state: now && forPanel(now) }
+  // A new request over a task still waiting at its plan card replaces it (nothing was done yet); a run that stood still
+  // (no save for two minutes, nothing on its way) is stale and goes. A task that's really going on is shown instead.
+  if (now && active(now)) {
+    const still = Date.now() - (now.touchedAt ?? now.startedAt ?? 0)
+    const stale = now.status === "plan" || (now.status === "running" && !now.inflight && still > STALE_RUN_MS)
+    if (!stale) return { ok: false, code: "BUSY", state: forPanel(now) }
+    await forget(tab)
+  }
   const state = newState(crypto.randomUUID(), m.request.slice(0, 2000), m.lang, url, m.deferred)
   if (m.deferred) {
     // Its plan was approved when it was put off: on the same page it goes by it (another page: planned again).
@@ -526,6 +558,8 @@ async function reply(tab: number, a: Answer, chosen?: string[], key?: string): P
   const now = pendingKey(state)
   if (!key || key !== now || answered.get(tab) === key) return { ok: false, code: "STALE", state: forPanel(state) }
   answered.set(tab, key)
+  // (An access step answered, or details changed meanwhile: read the app again.)
+  dropAgentCaches()
   void run(tab, async () => {
     const fresh = (await load(tab)) ?? state
     // (Queued behind another run: the question may have moved on meanwhile.)
@@ -641,7 +675,8 @@ export function startAgent(d: AgentDeps): void {
       p.then(sendResponse, (e) => {
         console.error("[agent]", message?.type, e)
         // Test builds name what broke (the simulator pass); real builds keep the plain code.
-        sendResponse({ ok: false, code: TEST_PLAN ? `ERROR ${String((e as Error)?.message ?? e).slice(0, 160)}` : "ERROR" })
+        // What broke, briefly (our own code's message, never page content), so the panel can say what failed.
+        sendResponse({ ok: false, code: "ERROR", why: String((e as Error)?.message ?? e).slice(0, TEST_PLAN ? 160 : 80) })
       })
       return true
     }
@@ -693,6 +728,7 @@ export function startAgent(d: AgentDeps): void {
       case "formData":
         return respond(formData())
       case "formDataPut":
+        dropAgentCaches()
         return respond(formDataPut(message.changes))
       case "formDataICloud":
         return respond(

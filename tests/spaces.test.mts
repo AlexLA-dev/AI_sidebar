@@ -303,47 +303,13 @@ test("2.7.1: the ✦ circle is always our blue; its space glows around it as a h
   assert.doesNotMatch(small, /0 0 0 /)
 })
 
-test("2.7.1: the panel's send button glows in its space's colours, weaker than the ✦ circle; still blue, off when empty", async () => {
+test("2.7.1 (the owner on 117): no space halo on the send button inside the chat; the ✦ circle keeps its glow", () => {
   const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
-  const spacesTsx = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
-  const { HALO_ALPHAS, HALO_STRENGTH, SEND_GLOW_ALPHAS } = await import("../src/shared/spaces.ts")
-  const rule = (sel: string) => {
-    const at = css.indexOf(`${sel} {`)
-    assert.ok(at >= 0, sel)
-    return css.slice(at, css.indexOf("}", at))
-  }
-  // The fill stays the panel's accent (our blue: the panel keeps its blue in every space).
-  assert.match(rule(".cf-send"), /background: var\(--accent\) !important;/)
-  // A glow, not a ring: every layer blurred, no spread-only stroke, no white.
-  const glow = rule(".cf-send[data-halo]:not(:disabled):not(.note)")
-  const layers = glow.slice(glow.indexOf("box-shadow:") + 11).split(/,(?![^(]*\))/)
-  assert.equal(layers.length, 2)
-  for (const shadow of layers) {
-    const blur = shadow.trim().split(/\s+/)[2]
-    assert.ok(blur && parseFloat(blur) > 0, `every layer is blurred: ${shadow.trim()}`)
-  }
-  assert.match(glow, /var\(--glow-1\)/)
-  assert.match(glow, /var\(--glow-2\)/)
-  assert.doesNotMatch(glow, /rgba\(255, 255, 255|width|height|margin|padding|outline|transform/)
-  // Weaker than the circle's: fainter at every layer and a shorter reach. A halo, not an edge hugging the button (the
-  // director on 664465de): its outer layer reaches about a third of the 32 px button past the edge (blur/2 + spread).
-  const [c1, c2] = HALO_ALPHAS[HALO_STRENGTH]
-  const [g1, g2] = SEND_GLOW_ALPHAS
-  assert.ok(parseInt(g1, 16) < parseInt(c1, 16) && parseInt(g2, 16) < parseInt(c2, 16))
+  assert.doesNotMatch(css, /\.cf-send\[data-halo\]/)
+  assert.doesNotMatch(app, /sendHalo/)
+  assert.doesNotMatch(app, /class=\{`cf-send[^`]*`\}\s*data-halo/)
   assert.match(css, /\.cf-fab\[data-halo\] \{\s*box-shadow: 0 0 6px 1px var\(--halo-1\), 0 0 16px 4px/)
-  assert.match(glow, /box-shadow: 0 0 8px 2px var\(--glow-1\), 0 0 20px 6px var\(--glow-2\);/)
-  const [, outer] = layers.map((l) => l.trim().split(/\s+/).slice(2, 4).map(parseFloat))
-  const reach = outer[0] / 2 + outer[1]
-  assert.ok(reach >= 32 / 3 && reach < 34 / 2 + 10, `about a third of the button past its edge, less than the circle's: ${reach}`)
-  for (const [blur] of layers.map((l) => l.trim().split(/\s+/).slice(2, 4).map(parseFloat))) assert.ok(blur >= 8, "no tight edge")
-  assert.match(spacesTsx, /"--glow-1": `\$\{base\}\$\{g1\}`, "--glow-2": `\$\{light\}\$\{g2\}`/)
-  // The panel's own space (its variables are on the panel), by the circle's rule: none outside spaces or in the blue one.
-  assert.match(app, /const sendHalo = spaces\.multi && fabHalo\(spaces\.current\.color\)/)
-  assert.match(app, /class=\{`cf-send \$\{noteMode \? "note" : ""\}`\}\s*data-halo=\{sendHalo \? spaces\.current\.color : undefined\}\s*disabled=\{!draft\.trim\(\)\}/)
-  // An empty field: the grey, disabled button with no glow (the :not(:disabled) above); Stop is another button.
-  assert.match(css, /\.cf-send:disabled \{ background: var\(--bg-3\) !important;/)
-  assert.doesNotMatch(app, /class="cf-send stop"[^>]*data-halo/)
 })
 
 test("109: the page's own controls can take the ✦ circle's space colour, paler, through one switch (off since 2.7.1); text stays readable", () => {

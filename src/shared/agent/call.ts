@@ -35,9 +35,11 @@ export const CALL_SCHEMA = {
     minutes: { type: "integer" },
     days: { type: "integer" },
     place: { type: "string" },
-    why: { type: "string" }
+    why: { type: "string" },
+    // ask_user: 2–4 short answers to offer as buttons ([] when the question is open).
+    choices: { type: "array", items: { type: "string" } }
   },
-  required: ["tool", "id", "text", "mode", "key", "option", "to", "part", "question", "summary", "ref", "list", "date", "time", "until", "minutes", "days", "place", "why"],
+  required: ["tool", "id", "text", "mode", "key", "option", "to", "part", "question", "summary", "ref", "list", "date", "time", "until", "minutes", "days", "place", "why", "choices"],
   additionalProperties: false
 }
 
@@ -115,10 +117,13 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
     case "extract":
       if (id && item) call.id = id
       break
-    case "ask_user":
+    case "ask_user": {
       call.question = str(r.question, 600)
       if (!call.question) return { ok: false, error: "ask_user needs a question" }
+      const choices = (Array.isArray(r.choices) ? r.choices : []).map((c) => str(c, 80)).filter((c): c is string => !!c)
+      if (choices.length) call.choices = [...new Set(choices)].slice(0, 4)
       break
+    }
     case "done":
       call.summary = str(r.summary, 6000) ?? ""
       break

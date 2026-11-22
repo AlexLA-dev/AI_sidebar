@@ -6,7 +6,8 @@
 .cf-agent-strip.waiting .cf-agent-step b { color: var(--text-2); }
 .cf-agent-step span { color: var(--text-2); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-agent-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: .5; }
-.cf-agent-dot.on { animation: cf-agent-pulse 1.2s ease-in-out infinite; opacity: 1; }
+/* A few pulses when a step starts, then still (2.7.1, the owner on 117: no animation running between steps). */
+.cf-agent-dot.on { animation: cf-agent-pulse 1.2s ease-in-out 2; opacity: 1; }
 @keyframes cf-agent-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.55); opacity: .45; } }
 @media (prefers-reduced-motion: reduce) { .cf-agent-dot.on { animation: none; } }
 .cf-agent-stop { padding: 4px 10px; font-size: 13px; }
@@ -83,7 +84,7 @@
 .cf-agent-row-answer > :first-child { margin-top: 0; }
 /* Another tab's task (2.7.1): a ring on the circle, and its card beside it. */
 .cf-fab.agent-ring { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--accent), 0 6px 18px rgba(0, 0, 0, 0.22); }
-.cf-fab.agent-ring.needs { animation: cf-agent-ring 1.6s ease-in-out infinite; }
+.cf-fab.agent-ring.needs { animation: cf-agent-ring 1.6s ease-in-out 3; }
 @keyframes cf-agent-ring { 50% { box-shadow: 0 0 0 3px var(--bg), 0 0 0 9px var(--accent), 0 6px 18px rgba(0, 0, 0, 0.22); } }
 @media (prefers-reduced-motion: reduce) { .cf-fab.agent-ring.needs { animation: none; } }
 .cf-agent-notice { position: fixed; z-index: 3; width: min(300px, calc(100vw - 96px)); transform: translateY(-50%); display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 14px; background: var(--bg); color: var(--text); border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18); font-size: 13.5px; }
@@ -95,3 +96,8 @@
 .cf-agent-notice-sum { margin: 0; color: var(--text-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .cf-agent-notice .cf-primary { align-self: flex-start; }
 .cf-agent-at { color: var(--text-3, var(--text-2)); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+/* The plan card's question left unanswered when «Начать» was pressed; «Начать» softer until all are answered. */
+.cf-agent-q.missing p { color: var(--danger, #c0392b); }
+.cf-agent-q.missing .cf-agent-options .cf-chip { border-color: var(--danger, #c0392b); }
+.cf-agent-reply { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cf-agent-reply .cf-input-line { flex: 1 1 10em; }

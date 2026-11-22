@@ -3518,6 +3518,27 @@
  "agentPlanStepYours": {
   "message": "「{0}」はご自身で押してください"
  },
+ "agentPlanAnswerFirst": {
+  "message": "先に答えてください：「{0}」"
+ },
+ "agentErrorNoReply": {
+  "message": "拡張機能が応答しませんでした。もう一度お試しください。続く場合はページを再読み込みしてください。"
+ },
+ "agentStartFailed": {
+  "message": "作業を始められませんでした（{0}）。もう一度お試しください。"
+ },
+ "agentPlanRemember": {
+  "message": "「自分の情報」に保存"
+ },
+ "agentPlanFromSaved": {
+  "message": "「自分の情報」から（変更を保存）"
+ },
+ "agentMarkUnfinished": {
+  "message": "未完了"
+ },
+ "agentStuck": {
+  "message": "ページが変わらなくなったので、ここで止めました。進んだところまでは上にあります。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

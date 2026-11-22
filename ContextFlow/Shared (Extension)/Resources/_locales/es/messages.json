@@ -3518,6 +3518,27 @@
  "agentPlanStepYours": {
   "message": "«{0}»: lo pulsas tú"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Responde primero: «{0}»"
+ },
+ "agentErrorNoReply": {
+  "message": "La extensión no respondió. Inténtalo de nuevo; si vuelve a pasar, recarga la página."
+ },
+ "agentStartFailed": {
+  "message": "No se pudo empezar la tarea ({0}). Inténtalo de nuevo."
+ },
+ "agentPlanRemember": {
+  "message": "Recordar en «Mis datos»"
+ },
+ "agentPlanFromSaved": {
+  "message": "De «Mis datos»: actualizar allí"
+ },
+ "agentMarkUnfinished": {
+  "message": "Sin terminar"
+ },
+ "agentStuck": {
+  "message": "La página dejó de cambiar, así que paré aquí. Lo que alcancé está arriba."
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

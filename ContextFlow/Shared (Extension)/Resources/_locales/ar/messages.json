@@ -3518,6 +3518,27 @@
  "agentPlanStepYours": {
   "message": "«{0}» — ستضغط عليه بنفسك"
  },
+ "agentPlanAnswerFirst": {
+  "message": "أجب أولًا: «{0}»"
+ },
+ "agentErrorNoReply": {
+  "message": "لم يستجب الامتداد. حاول مرة أخرى، وإن تكرر ذلك فأعد تحميل الصفحة."
+ },
+ "agentStartFailed": {
+  "message": "تعذّر بدء المهمة ({0}). حاول مرة أخرى."
+ },
+ "agentPlanRemember": {
+  "message": "تذكّر في «بياناتي»"
+ },
+ "agentPlanFromSaved": {
+  "message": "من «بياناتي» — حدّثه هناك"
+ },
+ "agentMarkUnfinished": {
+  "message": "لم يكتمل"
+ },
+ "agentStuck": {
+  "message": "توقفت الصفحة عن التغير، فتوقفت هنا. ما أنجزته أعلاه."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

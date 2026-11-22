@@ -89,6 +89,8 @@ export interface ToolCall {
   to?: "up" | "down"
   part?: number
   question?: string
+  // ask_user: the answers offered as buttons (the person can also write their own).
+  choices?: string[]
   summary?: string
   // Calendar and Reminders: a reminder's ref (from «reminders»), a list's name, a day ("2026-12-05"), a time ("19:30"),
   // the latest time ("21:00"), a length in minutes, how many days to look at, an event's place.

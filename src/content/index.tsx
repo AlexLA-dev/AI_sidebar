@@ -60,7 +60,7 @@ function boot(): void {
     // The agent (2.7.1): the background's task asks for the page map, does a step, puts a step back, shows its state.
     const agent = message as unknown as { type: string; call?: ToolCall; undo?: Parameters<typeof undo>[0]; state?: unknown }
     if (agent?.type === "agentMap") {
-      sendResponse(buildMap(document))
+      sendResponse(buildMap(document, { money: (message as unknown as { money?: boolean }).money === true }))
       return false
     }
     if (agent?.type === "agentAct" && agent.call) {
@@ -96,6 +96,8 @@ function boot(): void {
     setPanelRoot(root)
     // The page's touch handlers (Google's) can't stop our lists from scrolling (2.6).
     guardScroll(root)
+    // A page's focus trap (fresha's cookie dialog) can't keep our field from taking focus (TestFlight 118).
+    guardFocus(host, root)
     const style = document.createElement("style")
     style.textContent = `${styles}
 ${insertStyles}
@@ -125,6 +127,28 @@ ${agentStyles}`
     }).observe(document.documentElement, { childList: true })
     // Over a site's window in the top layer (a modal dialog, a popover): inside it while the person works there.
     keepOverTopLayer(host)
+  }
+
+  /**
+   * A page's focus trap (a cookie or sign-in dialog that keeps focus inside itself) pulled focus back out of our panel,
+   * so its field couldn't be typed in while the dialog was open (TestFlight 118, fresha.com). Traps listen for focus
+   * moving (focusin / focusout on the document): those that come from or go to our panel stop at the window, before the
+   * page sees them (the panel doesn't use them itself). A trap that cancels the press outside its dialog (no focus then)
+   * is met by the tap focusing our field itself.
+   */
+  function guardFocus(host: HTMLElement, root: ShadowRoot): void {
+    for (const type of ["focusin", "focusout"]) {
+      window.addEventListener(type, (e) => {
+        if (e.target === host || (e as FocusEvent).relatedTarget === host) e.stopImmediatePropagation()
+      }, true)
+    }
+    root.addEventListener("click", (e) => {
+      // (Inside our own root the target is the element itself.)
+      const el = e.target
+      if (!(el instanceof HTMLElement)) return
+      const field = el.closest<HTMLElement>("textarea, input:not([type=checkbox]):not([type=radio]), select, [contenteditable=true]")
+      if (field && root.activeElement !== field) field.focus()
+    })
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount, { once: true })

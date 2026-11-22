@@ -49,3 +49,29 @@ test("a task Safari froze goes on when the person is back, and the frozen run ne
 test("an opened finished task lists every step that ran; only a running one shows the newest few", () => {
   assert.match(panel, /const lines = finished \? shown : shown\.slice\(-8\)/)
 })
+
+test("117 blocker: «Начать» is never silent; agent messages are tried again; a failure says what failed; stale state clears", () => {
+  // Pressed early, «Начать» says which question is left (no disabled button that looks like it does nothing).
+  assert.match(panel, /const left = answers\.findIndex\(\(a\) => !a\.trim\(\)\)\s*if \(left >= 0\) \{\s*setMissing\(left\)/)
+  assert.match(panel, /disabled=\{sending\} onClick=\{start\}/)
+  assert.match(panel, /t\("agentPlanAnswerFirst", plan\.questions\[missing\]\.q\)/)
+  // A message Safari lost (a background put to sleep) is sent again; no answer at all is said as such.
+  assert.match(app, /for \(let i = 0; i < 3; i\+\+\) \{\s*const r = await sendBackground<T>\(message\)\s*if \(r\) return r/)
+  assert.match(app, /toAgent<\{ ok: boolean; state\?: PanelAgent \}>\(\{ type: "agentPlan", approval \}\)/)
+  assert.match(app, /if \(!r\) setAgentPlanFailed\(t\("agentErrorNoReply"\)\)/)
+  assert.match(app, /setAgentStartError\(!r \? t\("agentErrorNoReply"\) : t\("agentStartFailed"/)
+  // A new request over a plan card still waiting replaces it; a run that stood still for two minutes is stale.
+  const bg = read("src/background/agent.ts")
+  assert.match(bg, /const stale = now\.status === "plan" \|\| \(now\.status === "running" && !now\.inflight && still > STALE_RUN_MS\)/)
+  // A page that opens visible says so (no false «Дело на паузе» while the person is in Safari).
+  assert.match(app, /if \(document\.visibilityState === "visible"\) onVis\(\)/)
+  // The extension's version is the app's (events said 2.5.0 from a 2.7.1 build).
+  assert.equal(JSON.parse(read("package.json")).version, "2.7.1")
+})
+
+test("117: Do is the send button's own state (no chip); after a task ends the field asks again; no halo on send", () => {
+  assert.doesNotMatch(app, /cf-agent-mode-x/)
+  assert.match(app, /const doMode = agentMode && !noteMode && !historyMode/)
+  assert.match(app, /if \(!ended \|\| endedFor\.current === agentTask\.id\) return\s*endedFor\.current = agentTask\.id\s*setAgentMode\(false\)/)
+  assert.match(read("src/content/styles.css"), /\.cf-send\.do \{ background: linear-gradient/)
+})

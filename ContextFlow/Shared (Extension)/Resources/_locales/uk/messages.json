@@ -3518,6 +3518,27 @@
  "agentPlanStepYours": {
   "message": "«{0}» — натиснете ви"
  },
+ "agentPlanAnswerFirst": {
+  "message": "Спершу дайте відповідь: «{0}»"
+ },
+ "agentErrorNoReply": {
+  "message": "Розширення не відповіло. Спробуйте ще раз, а якщо повториться — оновіть сторінку."
+ },
+ "agentStartFailed": {
+  "message": "Не вдалося почати справу ({0}). Спробуйте ще раз."
+ },
+ "agentPlanRemember": {
+  "message": "Запам’ятати в «Моїх даних»"
+ },
+ "agentPlanFromSaved": {
+  "message": "З «Моїх даних» — оновлювати там"
+ },
+ "agentMarkUnfinished": {
+  "message": "Не завершено"
+ },
+ "agentStuck": {
+  "message": "Сторінка перестала змінюватися — я зупинився. Що встиг — вище."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

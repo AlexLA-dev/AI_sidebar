@@ -1202,5 +1202,12 @@
   "agentNotifPaused": "Aufgabe pausiert – öffnen Sie Safari, um sie abzuschließen: {0}",
   "agentNotifDone": "Erledigt: {0}",
   "agentNotifNeeds": "Braucht Sie: {0}",
-  "agentPlanStepYours": "„{0}“ – drücken Sie selbst"
+  "agentPlanStepYours": "„{0}“ – drücken Sie selbst",
+  "agentPlanAnswerFirst": "Bitte zuerst beantworten: „{0}“",
+  "agentErrorNoReply": "Die Erweiterung hat nicht geantwortet. Versuchen Sie es noch einmal – passiert es wieder, laden Sie die Seite neu.",
+  "agentStartFailed": "Die Aufgabe konnte nicht starten ({0}). Versuchen Sie es noch einmal.",
+  "agentPlanRemember": "In „Meine Daten“ merken",
+  "agentPlanFromSaved": "Aus „Meine Daten“ – dort aktualisieren",
+  "agentMarkUnfinished": "Nicht fertig",
+  "agentStuck": "Die Seite hat sich nicht mehr verändert, deshalb habe ich hier aufgehört. Was ich geschafft habe, steht oben."
 }

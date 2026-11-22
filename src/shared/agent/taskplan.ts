@@ -20,6 +20,9 @@ export const CONSENT_IN_PLAN = true
 export interface PlanQuestion {
   q: string
   options: string[]
+  // A question about the person themselves (gender, age, a size, a name): a short name for the fact ("Пол", "Размер
+  // обуви"). The card pre-fills it from «Мои данные» and offers to remember the answer there (2.7.1, the owner on 117).
+  fact?: string
 }
 
 export type PermKind = "press" | "personal" | "fill" | "consent" | "apple"
@@ -92,8 +95,8 @@ export const PLAN_SCHEMA = {
       type: "array",
       items: {
         type: "object",
-        properties: { q: { type: "string" }, options: { type: "array", items: { type: "string" } } },
-        required: ["q", "options"],
+        properties: { q: { type: "string" }, options: { type: "array", items: { type: "string" } }, fact: { type: "string" } },
+        required: ["q", "options", "fact"],
         additionalProperties: false
       }
     },
@@ -128,7 +131,8 @@ export function checkPlan(raw: unknown): RawPlan {
     const q = x as Record<string, unknown>
     const text = s(q?.q, 200)
     const options = [...new Set(arr(q?.options).map((o) => s(o, 60)).filter(Boolean))].slice(0, 4)
-    return text ? [{ q: text, options }] : []
+    const fact = s(q?.fact, 40).replace(/^fact:/i, "").trim()
+    return text ? [{ q: text, options, ...(fact ? { fact } : {}) }] : []
   }).slice(0, 3)
   const risky = arr(r.risky).flatMap((x) => {
     const k = x as Record<string, unknown>
@@ -382,4 +386,37 @@ export function planLine(plan: TaskPlan | null | undefined): string {
     refused.length ? `the person unticked: ${refused.join("; ")}` : "",
     plan.prices.length ? `prices seen: ${plan.prices.join(", ")}` : ""
   ].filter(Boolean).join("\n")
+}
+
+/** A fact's name as compared with what «Мои данные» holds ("Размер обуви" = "размер  обуви"). */
+export function factKey(label: string): string {
+  return normalize(label)
+}
+
+/** The plan's questions pre-filled from the person's saved facts (by the fact's name): the value, or "". */
+export function savedAnswers(plan: TaskPlan, saved: Record<string, string>): string[] {
+  return plan.questions.map((q) => (q.fact ? optionFor(q.options, saved[factKey(q.fact)] ?? "") : ""))
+}
+
+/**
+ * The plan's own option for a remembered answer worded another way («Мужской» → «Мужчина», «Female» → «female»): the
+ * same word, or the one option that starts the same (three letters or more); else the answer as it was saved.
+ */
+export function optionFor(options: string[], value: string): string {
+  const v = value.trim()
+  if (!v) return ""
+  const norm = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
+  const nv = norm(v)
+  const same = options.find((o) => norm(o) === nv)
+  if (same) return same
+  const common = (a: string, b: string) => {
+    let n = 0
+    while (n < a.length && n < b.length && a[n] === b[n]) n++
+    return n
+  }
+  const close = options.filter((o) => {
+    const no = norm(o)
+    return no.length >= 4 && nv.length >= 4 && common(no, nv) >= 3
+  })
+  return close.length === 1 ? close[0] : v
 }

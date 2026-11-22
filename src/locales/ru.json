@@ -1202,5 +1202,12 @@
   "agentNotifPaused": "Дело на паузе — откройте Safari, чтобы закончить: {0}",
   "agentNotifDone": "Готово: {0}",
   "agentNotifNeeds": "Нужны вы: {0}",
-  "agentPlanStepYours": "«{0}» — нажмёте вы"
+  "agentPlanStepYours": "«{0}» — нажмёте вы",
+  "agentPlanAnswerFirst": "Сначала ответьте: «{0}»",
+  "agentErrorNoReply": "Расширение не ответило. Попробуйте ещё раз, а если повторится — обновите страницу.",
+  "agentStartFailed": "Не удалось начать дело ({0}). Попробуйте ещё раз.",
+  "agentPlanRemember": "Запомнить в «Моих данных»",
+  "agentPlanFromSaved": "Из «Моих данных» — обновлять там",
+  "agentMarkUnfinished": "Не закончено",
+  "agentStuck": "Страница перестала меняться — я остановился. Что успел — выше."
 }

@@ -1202,5 +1202,12 @@
   "agentNotifPaused": "作業は一時停止中です。終えるには Safari を開いてください：{0}",
   "agentNotifDone": "完了：{0}",
   "agentNotifNeeds": "確認が必要です：{0}",
-  "agentPlanStepYours": "「{0}」はご自身で押してください"
+  "agentPlanStepYours": "「{0}」はご自身で押してください",
+  "agentPlanAnswerFirst": "先に答えてください：「{0}」",
+  "agentErrorNoReply": "拡張機能が応答しませんでした。もう一度お試しください。続く場合はページを再読み込みしてください。",
+  "agentStartFailed": "作業を始められませんでした（{0}）。もう一度お試しください。",
+  "agentPlanRemember": "「自分の情報」に保存",
+  "agentPlanFromSaved": "「自分の情報」から（変更を保存）",
+  "agentMarkUnfinished": "未完了",
+  "agentStuck": "ページが変わらなくなったので、ここで止めました。進んだところまでは上にあります。"
 }
