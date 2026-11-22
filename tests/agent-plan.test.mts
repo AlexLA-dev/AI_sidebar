@@ -65,7 +65,8 @@ test("coverage: the person's own words, the same button, the price, never off th
   plan.approved = true
   plan.answers = [{ q: "What time?", a: "19:30" }]
   const w = personWords(ctx.request, plan)
-  assert.match(w, /What time\? — 19:30/)
+  assert.match(w, /\n19:30$/, "only the person's answer is theirs (the model's question isn't)")
+  assert.doesNotMatch(w, /What time/)
   const c = (call: ToolCall, cls: "confirm" | "self", reason: string, off?: string, map = BOOK) => covered(plan, call, { cls, reason }, map, w, off)
   assert.ok(c({ tool: "type", id: "1", text: "Anna Petrova" }, "confirm", "personal"))
   assert.equal(c({ tool: "type", id: "1", text: "Boris" }, "confirm", "personal"), null, "a name the person didn't give")

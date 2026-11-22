@@ -59,11 +59,11 @@ import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameRepl
 import { ProUpsell } from "./ProUpsell"
 import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
 import type { AgentNotice } from "../background/agent"
-import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
+import { noticeLabel, sameTaskPage, type TaskPlan } from "../shared/agent/taskplan"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
 import { autoStartHere, setAutoStart, takeTaskMark } from "./agent/marks"
-import { active as agentActive, type Answer as AgentAnswer, type PlanApproval } from "../shared/agent/runner"
+import { active as agentActive, pendingKey, type Answer as AgentAnswer, type PlanApproval } from "../shared/agent/runner"
 import { WATCH_STORAGE } from "../shared/watch/types"
 import { urlKey as watchUrlKey } from "../shared/conversation"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
@@ -2596,7 +2596,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   const answerAgent = async (a: AgentAnswer, chosen?: string[]) => {
-    const r = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentAnswer", answer: a, chosen })
+    // The answer names its question (a second tap can't approve the next one).
+    const key = agentTask ? pendingKey(agentTask as never) : ""
+    const r = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentAnswer", answer: a, chosen, key })
     if (r?.state) setAgentTask(r.state)
   }
 
@@ -2726,9 +2728,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         if (r?.here) show()
         return
       }
-      const list = await sendBackground<{ tasks: Array<{ id: string; request: string; lang: string }> }>({ type: "agentDeferred" })
+      const list = await sendBackground<{ tasks: Array<{ id: string; request: string; lang: string; url?: string }> }>({ type: "agentDeferred" })
       const task = list?.tasks.find((x) => x.id === id)
       if (!task) return
+      // Only on the task's own page (the security review: any page could carry the mark and be offered the task).
+      if (!task.url || !sameTaskPage(task.url, location.href)) return
       void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "agent" })
       // Like a notification's other taps: the panel opens, it doesn't pick the page's chat.
       show()

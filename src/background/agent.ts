@@ -9,7 +9,7 @@
 
 import { API_BASE, TARGET, TEST_PLAN } from "../shared/config"
 import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
-import { active, answer, approvePlan, drive, newState, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
+import { active, answer, approvePlan, drive, newState, pendingKey, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
 import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
 import { hostOf } from "../shared/agent/sites"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
@@ -54,7 +54,7 @@ export interface DeferredTask {
 
 export type AgentRequest =
   | { type: "agentStart"; request: string; lang: string; deferred?: string }
-  | { type: "agentAnswer"; answer: Answer; chosen?: string[] }
+  | { type: "agentAnswer"; answer: Answer; chosen?: string[]; key?: string }
   | { type: "agentPlan"; approval: PlanApproval }
   | { type: "agentGet" }
   | { type: "agentAccessOpen"; kind: "reminders" | "calendar" }
@@ -454,9 +454,18 @@ const samePage = (a: string, b: string) => a.split("#")[0] === b.split("#")[0]
  * Safari froze the task (its tab or Safari itself in the background) and it stood still: the person is back, so a new run
  * goes on from what was saved (the frozen one, if it ever wakes, stops at its next ask, act or save).
  */
+const INFLIGHT_SETTLE_MS = 60_000
+
 async function resume(tab: number): Promise<void> {
   const st = await load(tab)
   if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) < 15_000) return
+  // A step was on its way when Safari froze the run: not resumed while it may still land; then settled — the model
+  // hears that it may or may not have happened and reads the page before doing it again.
+  if (st.inflight) {
+    if (Date.now() - st.inflight.at < INFLIGHT_SETTLE_MS) return
+    st.log.push({ call: st.inflight.call, result: "this step may or may not have happened (Safari paused mid-step): check the page before doing it again" })
+    st.inflight = undefined
+  }
   const gen = crypto.randomUUID()
   st.gen = gen
   await write(tab, st)
@@ -500,7 +509,10 @@ async function start(tab: number, url: string, m: Extract<AgentRequest, { type: 
   return { ok: true, state: forPanel(state) }
 }
 
-async function reply(tab: number, a: Answer, chosen?: string[]): Promise<Record<string, unknown>> {
+// The question each tab's last answer went to: a second tap (or the strip and the card both) is the same answer again.
+const answered = new Map<number, string>()
+
+async function reply(tab: number, a: Answer, chosen?: string[], key?: string): Promise<Record<string, unknown>> {
   const state = await load(tab)
   if (!state) return { ok: false }
   if (a === "stop") {
@@ -510,8 +522,14 @@ async function reply(tab: number, a: Answer, chosen?: string[]): Promise<Record<
     await save(tab, state)
     return { ok: true, state: forPanel(state) }
   }
+  // Only for the question on screen, once: never for a later step the person hasn't seen.
+  const now = pendingKey(state)
+  if (!key || key !== now || answered.get(tab) === key) return { ok: false, code: "STALE", state: forPanel(state) }
+  answered.set(tab, key)
   void run(tab, async () => {
     const fresh = (await load(tab)) ?? state
+    // (Queued behind another run: the question may have moved on meanwhile.)
+    if (pendingKey(fresh) !== key) return fresh
     return answer(fresh, io(tab, fresh.gen), a, chosen)
   })
   return { ok: true }
@@ -631,7 +649,7 @@ export function startAgent(d: AgentDeps): void {
       case "agentStart":
         return tab === undefined ? false : respond(start(tab, url, message))
       case "agentAnswer":
-        return tab === undefined ? false : respond(reply(tab, message.answer, message.chosen))
+        return tab === undefined ? false : respond(reply(tab, message.answer, message.chosen, typeof message.key === "string" ? message.key : undefined))
       case "agentPlan":
         return tab === undefined ? false : respond(planned(tab, message.approval))
       case "agentGet":

@@ -8,6 +8,7 @@
 // - Secret fields are refused here too, whatever the server said.
 
 import { sameOption } from "../../shared/agent/call"
+import { controlChanged } from "../../shared/agent/expect"
 import type { StepResult, ToolCall } from "../../shared/agent/types"
 import { readText, replaceText } from "../insert/fieldtext"
 import { elementOf, markFilled, nameOf, roleOf } from "./map"
@@ -265,6 +266,12 @@ export async function act(call: ToolCall, doc: Document = document): Promise<Ste
   return result
 }
 
+/** The live control isn't the one the step was classed on: refused, the model reads again (shared/agent/expect.ts). */
+export function changedSince(el: Element, call: ToolCall): string | null {
+  const role = roleOf(el)
+  return controlChanged(call, { role, label: role ? nameOf(el, role) : "", lock: lockOf(el) })
+}
+
 async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
   const view = doc.defaultView ?? window
   const needs = call.tool === "click" || call.tool === "type" || call.tool === "fill" || call.tool === "select" || call.tool === "go"
@@ -273,6 +280,8 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
   if (el && (call.tool === "type" || call.tool === "fill" || call.tool === "click" || call.tool === "select") && lockOf(el) === "secret") {
     return { ok: false, note: "a secret field: the agent never touches it" }
   }
+  const changed = el ? changedSince(el, call) : null
+  if (changed) return { ok: false, note: changed }
   switch (call.tool) {
     case "click":
     case "go": {

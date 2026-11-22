@@ -3,6 +3,7 @@
 // checks again before it acts (the extension is the one that presses).
 
 import { anyWord, wordKind } from "./match.ts"
+import { amounts } from "./money.ts"
 import { blockedSite, hostOf, sameSite, type SitePolicy } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
 import { CONSENT_DIALOG, TERMS_BOX } from "./words.ts"
@@ -19,7 +20,9 @@ export interface StepContext {
 }
 
 // Mail, chat and social sites: «Send» there is a message in the person's name.
-const MESSAGING = /(^|\.)(mail\.google|gmail|outlook|live|yahoo|proton|icloud|mail\.ru|yandex|telegram|t\.me|web\.whatsapp|whatsapp|messenger|facebook|instagram|x|twitter|threads|linkedin|vk|ok|reddit|discord|slack|teams\.microsoft|tiktok|pinterest|quora|medium|substack|tumblr|mastodon|bsky|line|kakao|naver|weibo|wechat|zalo)\.[a-z.]+$/
+const MESSAGING = /(^|\.)(mail\.google|chat\.google|messages\.google|fastmail|zoho|zohomail|tutanota|tuta|gmx|hey|outlook|live|yahoo|proton|icloud|mail\.ru|yandex|telegram|t\.me|web\.whatsapp|whatsapp|messenger|facebook|instagram|x|twitter|threads|linkedin|vk|ok|reddit|discord|slack|teams\.microsoft|tiktok|pinterest|quora|medium|substack|tumblr|mastodon|bsky|line|kakao|naver|weibo|wechat|zalo)\.[a-z.]+$/
+// Mail and chat hosts whose name already ends in their own domain (mail.ru, t.me): the whole host.
+const MESSAGING_EXACT = /(^|\.)(mail\.ru|t\.me|mail\.com|gmx\.net|gmx\.com|web\.de|fastmail\.fm|hey\.com)$/
 
 // Cart words in the 15 languages (the submit list's «add to cart» entries).
 const CART = /cart|basket|bag|trolley|корзин|кошик|warenkorb|panier|carrito|cesta|carrello|carrinho|sacola|sepet|السلة|カート|장바구니|购物车|購物車|giỏ/i
@@ -78,7 +81,7 @@ function isConsentDialog(map: PageMap, item: MapItem): boolean {
 
 /** A «Send» is a message when it's on a mail or social site, or in a form (or a page) that's a message composer. */
 function isMessage(map: PageMap, item: MapItem, host: string): boolean {
-  if (MESSAGING.test(host)) return true
+  if (MESSAGING.test(host) || MESSAGING_EXACT.test(host)) return true
   if (item.form !== undefined) {
     const form = map.forms.find((f) => f.n === item.form)
     const fields = map.items.filter((i) => i.form === item.form && (i.role === "textbox" || i.role === "textarea" || i.role === "editor"))
@@ -86,7 +89,8 @@ function isMessage(map: PageMap, item: MapItem, host: string): boolean {
     const personal = fields.some((i) => i.lock === "personal")
     return !!form && composer && !personal
   }
-  return map.items.some((i) => i.role === "editor")
+  // Outside a form: a page with a composer (a rich editor or a plain textarea) sends a message.
+  return map.items.some((i) => i.role === "editor" || i.role === "textarea")
 }
 
 /** The class of a click on `item` (a button, a link, a checkbox…) by its words and where it is. */
@@ -100,6 +104,13 @@ function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
     return verdict("free", "toggle")
   }
   if (item.role === "file") return verdict("self", "file")
+  // Money (the security review: paying was stopped by word lists only). An amount on the button («Donate €10», «Rent
+  // $3.99») pays; on a page that takes payment (card fields, a payment frame, a checkout address) every press that
+  // isn't a link elsewhere on the page, a tab, an option or a refusal is the person's own.
+  if (amounts(item.label).length) return verdict("self", "pay")
+  const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || hit?.kind === "nav" || hit?.kind === "reject"
+  if (map.pay && !quiet && !(item.role === "link" && !form)) return verdict("self", "pay")
+  if (form?.secret && (hit?.kind === "submit" || hit?.kind === "weak" || hit?.kind === "send")) return verdict("self", "auth")
   if (hit) {
     if (hit.kind === "send") return isMessage(map, item, host) ? verdict("self", "send") : verdict("confirm", "submit")
     if (hit.kind === "consent" && isConsentDialog(map, item)) return verdict("self", "cookies_accept")

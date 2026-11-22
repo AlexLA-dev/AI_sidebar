@@ -77,8 +77,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
   try {
     quota = await consume(counters)
   } catch (err) {
+    // The counters can't be read: the agent waits rather than acting uncounted (2.7.1, the security review: it went on
+    // unlimited before). The panel says it's busy; the person tries again.
     console.error("[cf] consume failed:", err instanceof Error ? err.message : err)
-    quota = { allowed: true, blocked: null, counters: counters.map((c) => ({ ...c, n: 0 })) }
+    return json({ code: "BUSY" }, 503)
   }
   if (step === 0) {
     const own = quota.counters.find((c) => c.subject === counters[0].subject)

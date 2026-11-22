@@ -8,6 +8,7 @@
 
 import { classify, itemById, type StepContext } from "./classify.ts"
 import { normalize, wordKind } from "./match.ts"
+import { amountOf, amounts } from "./money.ts"
 import { hostOf, sameSite } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
 
@@ -34,6 +35,10 @@ export interface Perm {
   // fill: the saved details' keys it may put in; personal: the fields' labels.
   keys?: string[]
   fields?: string[]
+  // The controls it was seen on at plan time (a terms box, the fields a saved detail goes into), and the page's path
+  // (a button seen on the page): it covers those, not any control on the site with similar words.
+  ids?: string[]
+  path?: string
   host: string
   on: boolean
 }
@@ -138,7 +143,20 @@ export function checkPlan(raw: unknown): RawPlan {
 export function safeLabel(label: string): string {
   const t = label.replace(/\s+/g, " ").trim().replace(/[.!]+$/, "")
   if (!t || /[\d@«»"“”„]|https?:|www\./i.test(t) || t.split(" ").length > 6) return ""
+  // A capitalised word after the first is likely a name (a person's, a restaurant's): the site alone then.
+  if (t.split(" ").slice(1).some((w) => /^\p{Lu}/u.test(w))) return ""
   return t
+}
+
+/** A deferred task's page and the page its mark was found on: the same host and path (the query and fragment may differ). */
+export function sameTaskPage(taskUrl: string, here: string): boolean {
+  try {
+    const a = new URL(taskUrl)
+    const b = new URL(here)
+    return a.protocol === b.protocol && a.hostname === b.hostname && a.pathname.replace(/\/+$/, "") === b.pathname.replace(/\/+$/, "")
+  } catch {
+    return false
+  }
 }
 
 /** What a notification says about a task: its plan's name and the site, or the site alone — never the request. */
@@ -173,6 +191,8 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
   const personal: string[] = []
   const fillKeys: string[] = []
   const fillFields: string[] = []
+  const fillIds: string[] = []
+  const path = pathOf(ctx.map.url)
   const add = (p: Omit<Perm, "id" | "on" | "host">) => {
     if (perms.some((x) => x.kind === p.kind && x.reason === p.reason && normalize(x.label) === normalize(p.label))) return
     perms.push({ ...p, id: `p${perms.length}`, host, on: true })
@@ -198,17 +218,20 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
       else if (v.reason === "fill") {
         if (r.key && !fillKeys.includes(r.key)) fillKeys.push(r.key)
         fillFields.push(label)
-      } else if (v.reason === "cart" || v.reason === "submit") add({ kind: "press", reason: v.reason, label })
+        if (item) fillIds.push(item.id)
+      } else if (v.reason === "cart" || v.reason === "submit") add({ kind: "press", reason: v.reason, label, ...(item ? { ids: [item.id], path } : {}) })
       // Another site, text from the page, an unknown button: not foreseeable as a permission; it asks when it comes.
     } else if (v.cls === "self") {
-      if (v.reason === "consent" && CONSENT_IN_PLAN) add({ kind: "consent", reason: "consent", label })
+      // The terms box: that box on this page only (a toggle the plan saw), never any «accept» on the site.
+      if (v.reason === "consent" && CONSENT_IN_PLAN && item && TOGGLES.has(item.role)) add({ kind: "consent", reason: "consent", label, ids: [item.id], path })
+      else if (v.reason === "consent" && CONSENT_IN_PLAN) addSelf("consent", label)
       else if (v.reason !== "cookies_accept") addSelf(v.reason, label)
     }
   }
   if (personal.length) add({ kind: "personal", reason: "personal", label: [...new Set(personal)].join(", "), fields: [...new Set(personal)] })
   // A field the request's own words go into isn't a saved detail's too (the card said the phone twice).
   const fillOnly = [...new Set(fillFields)].filter((f) => !personal.includes(f))
-  if (fillKeys.length && fillOnly.length) add({ kind: "fill", reason: "fill", label: fillOnly.join(", "), keys: fillKeys })
+  if (fillKeys.length && fillOnly.length && fillIds.length) add({ kind: "fill", reason: "fill", label: fillOnly.join(", "), keys: fillKeys, ids: [...new Set(fillIds)], path })
   const seen = [...new Set([...(ctx.map.money ?? []), ...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 120)
   return { ...(raw.label ? { label: raw.label } : {}), steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen }
 }
@@ -218,43 +241,47 @@ export function planNeedsPerson(plan: TaskPlan): boolean {
   return plan.questions.length > 0 || plan.perms.length > 0 || plan.self.length > 0
 }
 
-/** The person's own words for the task: the request and the plan's answers (what they gave is theirs to type). */
-export function personWords(request: string, plan?: TaskPlan | null): string {
+/** The request as the model hears it: with each plan question and the person's answer (the question gives it sense). */
+export function requestWithAnswers(request: string, plan?: TaskPlan | null): string {
   const answers = plan?.answers?.filter((a) => a.a.trim()) ?? []
   return answers.length ? `${request}\n${answers.map((a) => `${a.q} — ${a.a}`).join("\n")}` : request
 }
 
+/** The person's own words for the task: the request and the plan's answers (what they gave is theirs to type). */
+export function personWords(request: string, plan?: TaskPlan | null): string {
+  const answers = plan?.answers?.filter((a) => a.a.trim()) ?? []
+  // Only the person's answers count as their words (the model's question text could carry an address or a contact).
+  return answers.length ? `${request}\n${answers.map((a) => a.a).join("\n")}` : request
+}
+
 export const squash = (t: string) => normalize(t).replace(/[\s-]+/g, "")
+
+const TOGGLES = new Set(["checkbox", "switch", "radio"])
+
+/** A page's path, for binding a permission to the page it was seen on. */
+export function pathOf(url: string): string {
+  try {
+    return new URL(url).pathname.replace(/\/+$/, "") || "/"
+  } catch {
+    return ""
+  }
+}
+
+/**
+ * Whether the person's own words hold this value as a whole (the security review: «42» matched inside a phone number).
+ * Normalized words with their boundaries; a long value (a phone written with other separators) by its letters and digits.
+ */
+export function saidInWords(words: string, value: string): boolean {
+  const v = normalize(value)
+  if (!v) return false
+  if (` ${normalize(words)} `.includes(` ${v} `)) return true
+  const sv = squash(value)
+  return sv.length >= 7 && squash(words).includes(sv)
+}
 
 // ------------------------------------------------------------ prices
 
-const CUR = "[€$£¥₽₴₺₹₫₩₪]|руб\\.?|грн\\.?|zł|kr|chf|eur|usd|gbp|rub|uah|try|jpy|aed|sar|inr|vnd|r\\$|円|元|đ|درهم|ريال|ر\\.س|د\\.إ"
-const NUM = "\\d{1,3}(?:[ \\u00a0\\u202f.,']\\d{3})+(?:[.,]\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?"
-const MONEY = new RegExp(`(?:(?:${CUR})\\s?(${NUM}))|(?:(${NUM})\\s?(?:${CUR}))`, "giu")
-
-/** An amount's value: "1 299,90" and "1,299.90" are 1299.9; "129" is 129. */
-export function amountOf(raw: string): number | null {
-  const t = raw.replace(/[\s  ']/g, "")
-  const m = /^(.*?)(?:[.,](\d{1,2}))?$/.exec(t)
-  if (!m) return null
-  const whole = m[1].replace(/[.,]/g, "")
-  if (!/^\d+$/.test(whole)) return null
-  return Number(whole) + (m[2] ? Number(m[2].padEnd(2, "0")) / 100 : 0)
-}
-
-/** The money amounts written in a text. A plain space may group thousands («1 299 ₽») or end a name («Air 2 129.00 €»):
- *  both readings count. */
-export function amounts(text: string): number[] {
-  const out: number[] = []
-  for (const m of text.matchAll(MONEY)) {
-    const raw = m[1] ?? m[2] ?? ""
-    for (const r of / /.test(raw) ? [raw, raw.slice(raw.indexOf(" ") + 1)] : [raw]) {
-      const v = amountOf(r)
-      if (v !== null && v > 0 && !out.includes(v)) out.push(v)
-    }
-  }
-  return out
-}
+export { amountOf, amounts } from "./money.ts"
 
 /**
  * The price changed since the plan: the plan saw prices, the page now shows amounts, and none of them is one the plan
@@ -291,16 +318,19 @@ export function covered(plan: TaskPlan | null | undefined, call: ToolCall, verdi
   if (verdict.cls === "confirm") {
     switch (verdict.reason) {
       case "personal": {
-        const typed = squash(call.tool === "select" ? call.option ?? "" : call.text ?? "")
-        return typed && squash(words).includes(typed) ? on.find((p) => p.kind === "personal") ?? null : null
+        const typed = call.tool === "select" ? call.option ?? "" : call.text ?? ""
+        return typed && saidInWords(words, typed) ? on.find((p) => p.kind === "personal") ?? null : null
       }
       case "fill":
-        return on.find((p) => p.kind === "fill" && !!call.key && !!p.keys?.includes(call.key)) ?? null
+        // The saved detail into the fields the plan saw it going into (same page), not any field with that key.
+        return on.find((p) => p.kind === "fill" && !!call.key && !!p.keys?.includes(call.key) && !!call.id && !!p.ids?.includes(call.id) && (!p.path || p.path === pathOf(map.url))) ?? null
       case "cart":
       case "submit": {
+        // The same words exactly («Подтвердить» never covers «Подтвердить удаление аккаунта»), on the page the plan saw
+        // it on (a button the plan foresaw on a later page: by its words on the site).
         const label = squash(item?.label ?? "")
         if (!label) return null
-        const p = on.find((x) => x.kind === "press" && x.reason === verdict.reason && (squash(x.label) === label || (label.length >= 3 && squash(x.label).includes(label)) || (squash(x.label).length >= 3 && label.includes(squash(x.label)))))
+        const p = on.find((x) => x.kind === "press" && x.reason === verdict.reason && squash(x.label) === label && (!x.path || x.path === pathOf(map.url)))
         if (!p) return null
         return priceChanged(plan, map, item?.label ?? "") ? null : p
       }
@@ -312,7 +342,10 @@ export function covered(plan: TaskPlan | null | undefined, call: ToolCall, verdi
         return null
     }
   }
-  if (verdict.cls === "self" && verdict.reason === "consent" && CONSENT_IN_PLAN) return on.find((p) => p.kind === "consent") ?? null
+  // The terms box the plan saw: that toggle (by its id, or its exact words on the same page), nothing else.
+  if (verdict.cls === "self" && verdict.reason === "consent" && CONSENT_IN_PLAN && item && TOGGLES.has(item.role) && call.tool === "click") {
+    return on.find((p) => p.kind === "consent" && (!p.path || p.path === pathOf(map.url)) && (!!p.ids?.includes(item.id) || squash(p.label) === squash(item.label))) ?? null
+  }
   return null
 }
 

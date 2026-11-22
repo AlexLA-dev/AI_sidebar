@@ -18,9 +18,27 @@ export function hostOf(url: string): string {
 // Second-level labels under a country's TLD that aren't a site of their own (example.co.uk, example.com.tr).
 const SECOND = new Set(["co", "com", "net", "org", "gov", "ac", "edu", "or", "ne", "go", "gob", "gouv", "nic", "mil", "ltd", "plc", "me", "biz", "info", "in", "kiev", "spb", "msk"])
 
-/** The site a host belongs to: shop.example.co.uk → example.co.uk. */
+// Hosting domains where every name under them is someone else's site (the Public Suffix List's private section, the
+// widely used ones): evil.myshopify.com is not a.myshopify.com's site. (The whole list is large; these are the hosts a
+// shop, a booking page or a scam page is likely to live on.)
+const PRIVATE_SUFFIXES = new Set([
+  "myshopify.com", "github.io", "gitlab.io", "bitbucket.io", "blogspot.com", "wordpress.com", "wixsite.com", "wix.com",
+  "squarespace.com", "weebly.com", "webflow.io", "framer.app", "framer.website", "carrd.co", "notion.site", "substack.com",
+  "tumblr.com", "herokuapp.com", "netlify.app", "vercel.app", "pages.dev", "workers.dev", "web.app", "firebaseapp.com",
+  "appspot.com", "azurewebsites.net", "cloudfront.net", "amplifyapp.com", "onrender.com", "fly.dev", "glitch.me",
+  "repl.co", "replit.app", "surge.sh", "now.sh", "ngrok.io", "ngrok-free.app", "trycloudflare.com", "square.site",
+  "business.site", "godaddysites.com", "jimdosite.com", "strikingly.com", "mystrikingly.com", "tilda.ws", "ucoz.net",
+  "narod.ru", "blogspot.ru", "livejournal.com", "s3.amazonaws.com", "storage.googleapis.com", "translate.goog",
+  "ecwid.com", "company.site", "shopsettings.com", "bigcartel.com", "tictail.com", "teachable.com", "thinkific.com",
+  "kajabi.com", "gumroad.com", "itch.io", "neocities.org", "hubspotpagebuilder.com", "hs-sites.com", "readthedocs.io"
+])
+
+/** The site a host belongs to: shop.example.co.uk → example.co.uk; a.myshopify.com → a.myshopify.com. */
 export function siteOfHost(host: string): string {
   const parts = host.split(".").filter(Boolean)
+  for (let n = parts.length - 1; n >= 1; n--) {
+    if (PRIVATE_SUFFIXES.has(parts.slice(-n).join("."))) return parts.slice(-(n + 1)).join(".")
+  }
   if (parts.length <= 2) return parts.join(".")
   const tld = parts[parts.length - 1]
   const second = parts[parts.length - 2]

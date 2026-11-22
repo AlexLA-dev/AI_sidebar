@@ -509,8 +509,34 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     text: pageText(doc, overlayList.slice(0, 2)),
     ...(overlayList.length ? { overlay: true } : {}),
     ...(consent ? { consent: true } : {}),
-    money: pageMoney(doc)
+    money: pageMoney(doc),
+    ...(takesPayment(doc) ? { pay: true } : {})
   }
+}
+
+// Payment providers' frames and buttons, and addresses of checkout and payment pages (2.7.1, the security review: card
+// fields in another site's frame never made a form secret).
+const PAY_FRAME = /(^|\.)(stripe\.com|stripe\.network|adyen\.com|adyenpayments\.com|braintreegateway\.com|braintree-api\.com|paypal\.com|paypalobjects\.com|checkout\.com|squareup\.com|squarecdn\.com|klarna\.com|klarnacdn\.net|mollie\.com|worldpay\.com|authorize\.net|cybersource\.com|razorpay\.com|payu\.[a-z.]+|yookassa\.ru|cloudpayments\.ru|iyzipay\.com|apple\.com|pay\.google\.com|recurly\.com|chargebee\.com|paddle\.com|2checkout\.com|bluesnap\.com|globalpay[a-z]*\.com)$/
+const PAY_PATH = /(^|[/._-])(checkout|payment|payments|pay|billing|kasse|zahlung|bezahlen|paiement|pago|pagamento|pagamenti|oplata|odeme|subscribe|donate|order-confirm)([/._?-]|$)|оплат|결제|支付|決済|お支払い/i
+
+export function takesPayment(doc: Document): boolean {
+  try {
+    if (PAY_PATH.test(`${doc.location?.pathname ?? ""}`)) return true
+    if (doc.querySelector("[autocomplete~=cc-number], [autocomplete~=cc-csc], [autocomplete~=cc-exp], apple-pay-button, [class*=apple-pay-button], gpay-button, [id*=paypal-button], [data-stripe]")) return true
+    for (const f of Array.from(doc.querySelectorAll("iframe"))) {
+      const src = f.getAttribute("src") ?? ""
+      let host = ""
+      try {
+        host = src ? new URL(src, doc.location?.href).hostname : ""
+      } catch {
+        host = ""
+      }
+      if (PAY_FRAME.test(host) || /card|payment|checkout|zahlung|paiement|pago|оплат/i.test(`${f.title} ${f.name}`)) return true
+    }
+  } catch {
+    return false
+  }
+  return false
 }
 
 /** Every amount of money the whole page shows (the plan's price check; the text above is only around the screen). */

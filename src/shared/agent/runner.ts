@@ -10,8 +10,8 @@
 import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
-import { hostOf, sameSite, type SitePolicy } from "./sites.ts"
-import { buildPlan, checkPlan, covered, personWords, planLine, planNeedsPerson, priceChanged, squash, type Perm, type TaskPlan } from "./taskplan.ts"
+import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
+import { buildPlan, checkPlan, covered, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, type Perm, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -46,7 +46,13 @@ export interface AgentState {
   startHost: string
   step: number
   token: string | null
+  // (Kept for old states: a «Да» given somewhere in the task. What counts now is confirmedSites.)
   confirmedHere: boolean
+  // The sites a «Да» (or the person's own step, or the plan) was given on in this task: a free step on a site the task
+  // came to later asks first (the security review: one «Да» used to count for any site after a redirect).
+  confirmedSites?: string[]
+  // The host the task is on now.
+  host?: string
   strongUsed: number
   status: AgentStatus
   log: LogEntry[]
@@ -67,6 +73,12 @@ export interface AgentState {
   // Which run of it is the live one (the background starts a new one when Safari froze the last), and its last save.
   gen?: string
   touchedAt?: number
+  // A step on its way to the page (written before it's sent, cleared after): a run Safari froze mid-step leaves it, and
+  // the next run settles it instead of doing the step blindly again.
+  inflight?: { step: number; call: ToolCall; at: number }
+  // Calendar or Reminders were read in this task: text typed into a page that isn't the person's own words asks first
+  // (the security review: a page's hidden instructions could have the agent type what it read there into a field).
+  readDevice?: boolean
 }
 
 export interface ActReply {
@@ -184,12 +196,18 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   if (APPLE_TOOLS.has(call.tool)) {
     const r = io.apple ? await io.apple(call).catch(() => null) : null
     const result = r ?? { ok: false, note: "Calendar and Reminders aren't there on this device" }
-    if (result.data) state.data = result.data
+    if (result.data) {
+      state.data = result.data
+      state.readDevice = true
+    }
     state.log.push({ call, result: noteOf(result) })
     state.lines.push(line(call, verdict, target, result.ok, undefined, byPlan))
     return
   }
+  state.inflight = { step: state.step, call: call.tool === "fill" ? { tool: "fill", id: call.id, key: call.key } : call, at: Date.now() }
+  await io.save(state)
   let result = await io.act(doing)
+  state.inflight = undefined
   if (!result || result.navigated) {
     await io.waitPage()
     result = result ?? { ok: true, navigated: true, note: "the page went on" }
@@ -208,6 +226,19 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
 function sent(map: PageMap): PageMap {
   const { money: _money, ...rest } = map
   return rest
+}
+
+/** A «Да» given on the site the task is on now. */
+function confirmHere(state: AgentState): void {
+  const site = siteOfHost(state.host || state.startHost)
+  if (!site) return
+  state.confirmedSites = [...new Set([...(state.confirmedSites ?? []), site])]
+  state.confirmedHere = true
+}
+
+/** Whether a «Да» was given on this host's site in this task. */
+export function confirmedOn(state: AgentState, host: string): boolean {
+  return !!host && !!state.confirmedSites?.includes(siteOfHost(host))
 }
 
 /** The task's request as the server and the checks hear it: the person's words with the plan's answers. */
@@ -260,6 +291,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.error = "page"
       break
     }
+    state.host = hostOf(map.url)
     const entries = await io.entries().catch(() => [] as FormEntry[])
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
@@ -275,7 +307,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     const plan = planLine(state.plan)
     const reply = await io.ask({
-      task: { id: state.id, request: words(state), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: state.confirmedHere, token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}) },
+      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}) },
       map: sent(map), log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
@@ -314,8 +346,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     // The device's own check, on its own map: never milder than the server's.
-    const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: state.confirmedHere, policy: io.policy })
-    const verdict = stricter(reply.verdict, device)
+    // The control as classed now goes with the step: the hands check it's still that one before they act.
+    const seenItem = call.id ? map.items.find((i) => i.id === call.id) : undefined
+    if (seenItem) call.expect = { label: seenItem.label, role: seenItem.role, ...(seenItem.lock ? { lock: seenItem.lock } : {}) }
+    const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
+    let verdict = stricter(reply.verdict, device)
+    if (state.readDevice && call.tool === "type" && verdict.cls === "free" && !saidInWords(words(state), call.text ?? "")) verdict = { cls: "confirm", reason: "device_data" }
     // A step the approved plan allows goes without a question (a price changed since the plan, or a step the check
     // found off the request, is never covered: those ask as before).
     let perm: Perm | null = verdict.cls === "confirm" || verdict.cls === "self" ? covered(state.plan, call, verdict, map, words(state), reply.offRequest) : null
@@ -323,8 +359,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (!perm && call.tool === "fill" && verdict.reason === "fill" && state.plan?.approved && !reply.offRequest) {
       const typing = state.plan.perms.find((p) => p.kind === "personal" && p.on)
       const lines = typing ? fillLines(call, map.items.find((i) => i.id === call.id) ?? null, entries, map.lang || state.lang, map) : []
-      const said = squash(words(state))
-      if (typing && lines.length && lines.every((l) => said.includes(squash(l.value)))) perm = { ...typing, keys: lines.map((l) => l.key) }
+      const said = words(state)
+      if (typing && lines.length && lines.every((l) => saidInWords(said, l.value))) perm = { ...typing, keys: lines.map((l) => l.key), ids: lines.map((l) => l.id) }
     }
     if (verdict.cls === "blocked") {
       if (verdict.reason.startsWith("site_")) {
@@ -338,7 +374,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       continue
     }
     if (verdict.cls === "self" && perm) {
-      state.confirmedHere = true
+      confirmHere(state)
       await perform(state, io, call, verdict, target, undefined, true)
       await io.save(state)
       continue
@@ -372,11 +408,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       }
     }
     if (verdict.cls === "confirm" && perm) {
-      state.confirmedHere = true
+      confirmHere(state)
       if (call.tool === "fill") {
         const item = map.items.find((i) => i.id === call.id) ?? null
         // Only the details the plan named (the same form's others, with their own keys, when they're named too).
-        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => perm.keys?.includes(l.key))
+        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => perm.keys?.includes(l.key) && (!perm.ids || perm.ids.includes(l.id)))
         if (!fill.length) {
           state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "failed: that detail doesn't fit this field" })
           continue
@@ -433,6 +469,15 @@ export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApprov
 export type Answer = "yes" | "no" | "did" | "notnow" | "stop"
 
 /**
+ * Which question an answer is for: the step it stopped at, the tool and the control. The panel sends it with the answer
+ * and the background refuses one for another question (a second tap must never approve the next, unseen step).
+ */
+export function pendingKey(state: Pick<AgentState, "step" | "pending" | "status">): string {
+  const p = state.pending
+  return p ? `${state.status}:${state.step}:${p.call.tool}:${p.call.id ?? ""}:${p.call.key ?? ""}` : ""
+}
+
+/**
  * The person's answer to what the task waits for, then the task goes on. «Да»: the step is done (the fill with the
  * lines the person left ticked); «Нет» and «Не сейчас»: the model hears it; «Готово»: the person did it themselves.
  */
@@ -449,9 +494,10 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
   state.status = "running"
   const { call, verdict, target } = pending
   if (a === "yes" && verdict.cls === "confirm") {
-    state.confirmedHere = true
+    confirmHere(state)
     if (call.tool === "fill") {
-      const lines = (pending.fill ?? []).filter((l) => !chosen || chosen.includes(`${l.id}:${l.entryId}`) || chosen.includes(l.entryId))
+      // Each line by its field and entry together (an entry id alone could tick it for another field).
+      const lines = (pending.fill ?? []).filter((l) => !chosen || chosen.includes(`${l.id}:${l.entryId}`))
       if (!lines.length) state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "the person chose not to fill it" })
       for (const l of lines) await perform(state, io, { tool: "fill", id: l.id, key: l.key, why: l.id === call.id ? call.why : "" }, verdict, l.id === call.id ? target : `field "${l.label}"`, l.value)
     } else {
@@ -463,7 +509,7 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     state.log.push({ call, target: target ?? undefined, result: access ? (did ? "the person was asked to allow it in ContextFlow: call the tool again" : "the person didn't allow it now: go on without it") : did ? "the person did this step themselves" : "the person didn't do this step now (it's left for them)" })
     // (Access given: no line of its own; the tool's own step, called again, writes one.)
     if (!access) state.lines.push(line(call, verdict, target, did))
-    if (did) state.confirmedHere = true
+    if (did) confirmHere(state)
   } else {
     state.log.push({ call, target: target ?? undefined, result: "the person said no" })
     state.lines.push(line(call, verdict, target, false))

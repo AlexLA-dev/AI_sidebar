@@ -93,7 +93,10 @@ test("fill: the card shows the value, the server only ever gets the key", async 
   assert.equal(s.status, "fill")
   assert.deepEqual(s.pending?.fill, [{ entryId: "e1", label: "E-mail", value: "anna@example.com", id: "3", key: "email" }])
   assert.deepEqual(x.asked[0].keys, ["email"])
-  s = await answer(s, x, "yes", ["e1"])
+  // An entry id alone ticks nothing (the review: it could have ticked the line for another field).
+  const only = await answer(JSON.parse(JSON.stringify(s)), io([], entries), "yes", ["e1"])
+  assert.match(only.log.map((e) => e.result).join(" "), /chose not to fill/)
+  s = await answer(s, x, "yes", ["3:e1"])
   assert.equal(x.acted[0].text, "anna@example.com")
   assert.ok(!JSON.stringify(x.asked).includes("anna@example.com"), "no value in any request")
   assert.equal(s.status, "done")

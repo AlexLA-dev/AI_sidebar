@@ -255,6 +255,13 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   // развернуть»); a tap opens its steps and its result.
   const [open, setOpen] = useState(false)
   const [undone, setUndone] = useState(false)
+  // One answer per question: the buttons go quiet on the first tap (the background also refuses a second).
+  const [sent, setSent] = useState(false)
+  const reply = (a: Answer, chosen?: string[]) => {
+    if (sent) return
+    setSent(true)
+    onAnswer(a, chosen)
+  }
   const [chosen, setChosen] = useState<Set<string>>(() => new Set((state.pending?.fill ?? []).map((l) => `${l.id}:${l.entryId}`)))
   const busy = state.status === "running"
   const planning = state.status === "plan"
@@ -332,8 +339,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
           {state.pending.price && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentPriceChanged", state.pending.price)}</p>}
           {NO_UNDO.has(state.pending.verdict.reason) && <p class="cf-hint">{t("agentNoUndo")}</p>}
           <div class="cf-card-actions">
-            <button type="button" class="cf-primary" onClick={() => onAnswer("yes")}>{t("agentYes")}</button>
-            <button type="button" class="cf-secondary" onClick={() => onAnswer("no")}>{t("agentNo")}</button>
+            <button type="button" class="cf-primary" disabled={sent} onClick={() => reply("yes")}>{t("agentYes")}</button>
+            <button type="button" class="cf-secondary" disabled={sent} onClick={() => reply("no")}>{t("agentNo")}</button>
           </div>
         </div>
       )}
@@ -362,8 +369,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
           </ul>
           {state.pending.offRequest && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentOffRequest", state.pending.offRequest)}</p>}
           <div class="cf-card-actions">
-            <button type="button" class="cf-primary" disabled={chosen.size === 0} onClick={() => onAnswer("yes", [...chosen])}>{t("agentFillButton")}</button>
-            <button type="button" class="cf-secondary" onClick={() => onAnswer("no")}>{t("agentFillSkip")}</button>
+            <button type="button" class="cf-primary" disabled={sent || chosen.size === 0} onClick={() => reply("yes", [...chosen])}>{t("agentFillButton")}</button>
+            <button type="button" class="cf-secondary" disabled={sent} onClick={() => reply("no")}>{t("agentFillSkip")}</button>
           </div>
         </div>
       )}
@@ -374,8 +381,8 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
           <p dir="auto">{selfText(state)}</p>
           <div class="cf-card-actions">
             {isAccess(state) && <button type="button" class="cf-primary" onClick={() => openAppFor(state)}>{t("agentOpenApp")}</button>}
-            <button type="button" class={isAccess(state) ? "cf-secondary" : "cf-primary"} onClick={() => onAnswer("did")}>{t("agentSelfDone")}</button>
-            <button type="button" class="cf-secondary" onClick={() => onAnswer("notnow")}>{t("agentSelfNotNow")}</button>
+            <button type="button" class={isAccess(state) ? "cf-secondary" : "cf-primary"} disabled={sent} onClick={() => reply("did")}>{t("agentSelfDone")}</button>
+            <button type="button" class="cf-secondary" disabled={sent} onClick={() => reply("notnow")}>{t("agentSelfNotNow")}</button>
           </div>
         </div>
       )}
@@ -417,6 +424,9 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
  *  asks, with the control ringed in view. */
 export function AgentStrip({ state, onOpen, onStop, onAnswer }: { state: PanelAgent; onOpen: () => void; onStop: () => void; onAnswer?: (a: Answer) => void }): VNode {
   const last = state.lines[state.lines.length - 1]
+  // One answer per question (the strip's buttons too), reset when the question changes.
+  const [sentFor, setSentFor] = useState("")
+  const key = `${state.status}:${state.step}`
   const p = state.pending
   if ((state.status === "self" || state.status === "confirm") && p && onAnswer) {
     const self = state.status === "self"
@@ -433,8 +443,8 @@ export function AgentStrip({ state, onOpen, onStop, onAnswer }: { state: PanelAg
         </button>
         <div class="cf-agent-float-actions">
           {self && isAccess(state) && <button type="button" class="cf-primary" onClick={() => openAppFor(state)}>{t("agentOpenApp")}</button>}
-          <button type="button" class={self && isAccess(state) ? "cf-secondary" : "cf-primary"} onClick={() => onAnswer(self ? "did" : "yes")}>{t(self ? "agentSelfDone" : "agentYes")}</button>
-          <button type="button" class="cf-secondary" onClick={() => onAnswer(self ? "notnow" : "no")}>{t(self ? "agentSelfNotNow" : "agentNo")}</button>
+          <button type="button" class={self && isAccess(state) ? "cf-secondary" : "cf-primary"} disabled={sentFor === key} onClick={() => { setSentFor(key); onAnswer(self ? "did" : "yes") }}>{t(self ? "agentSelfDone" : "agentYes")}</button>
+          <button type="button" class="cf-secondary" disabled={sentFor === key} onClick={() => { setSentFor(key); onAnswer(self ? "notnow" : "no") }}>{t(self ? "agentSelfNotNow" : "agentNo")}</button>
         </div>
       </div>
     )

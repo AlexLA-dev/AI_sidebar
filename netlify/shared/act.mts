@@ -71,7 +71,8 @@ export function sanitizeMap(raw: unknown): PageMap | null {
   return {
     url, title: clipStr(m.title, 200), lang: clipStr(m.lang, 12), items, forms,
     more: num(m.more, 0), part: Math.max(1, num(m.part, 1)), parts: Math.max(1, num(m.parts, 1)),
-    text: clipStr(m.text, MAP_TEXT_MAX), ...(m.overlay === true ? { overlay: true } : {}), ...(m.consent === true ? { consent: true } : {})
+    text: clipStr(m.text, MAP_TEXT_MAX), ...(m.overlay === true ? { overlay: true } : {}), ...(m.consent === true ? { consent: true } : {}),
+    ...(m.pay === true ? { pay: true } : {})
   }
 }
 

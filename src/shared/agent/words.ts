@@ -24,6 +24,15 @@ export const WORDS: Record<WordKind, string[]> = {
     // en
     "buy", "buy now", "pay", "pay now", "place order", "place your order", "complete purchase", "complete order",
     "confirm order", "confirm purchase", "confirm payment", "purchase", "order now", "submit order", "checkout and pay",
+    // What else spends money (2.7.1, the security review): upgrades, trials that turn into a charge, bids, gifts, rents.
+    "upgrade", "upgrade now", "go premium", "get premium", "start free trial", "start trial", "start my trial", "try it free",
+    "try for free", "place bid", "bid now", "donate", "donate now", "rent", "rent now", "pre-order", "preorder",
+    "пожертвовать", "задонатить", "арендовать", "сделать ставку", "попробовать бесплатно", "оформить пробный период", "улучшить тариф",
+    "spenden", "jetzt spenden", "mieten", "gebot abgeben", "kostenlos testen", "jetzt upgraden",
+    "faire un don", "louer", "enchérir", "essai gratuit", "essayer gratuitement",
+    "donar", "alquilar", "pujar", "prueba gratis", "probar gratis",
+    "dona", "noleggia", "fai un'offerta", "prova gratis",
+    "doar", "alugar", "dar lance", "teste grátis", "experimente grátis",
     // ru
     "купить", "купите", "оплат*", "оформить заказ", "подтвердить заказ", "подтвердить оплату", "заказать",
     "завершить покупку", "оформить подписку",

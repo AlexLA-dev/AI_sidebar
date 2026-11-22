@@ -64,6 +64,9 @@ export interface PageMap {
   overlay?: boolean
   // The overlay's own words, when it's about cookies or consent.
   consent?: boolean
+  // The page takes payment: card fields, a payment provider's frame (Stripe, Adyen, Braintree, PayPal, Apple Pay…) or
+  // a checkout / payment address. Every press that sends something here is the person's own.
+  pay?: boolean
   // Every amount of money on the whole page (the device's price check against the plan; never sent to the model).
   money?: number[]
 }
@@ -99,6 +102,9 @@ export interface ToolCall {
   place?: string
   // What the model says the step is for, in the person's language (shown in the log).
   why?: string
+  // The control as it was when the step was classed (set by the device, never by the model): the hands refuse the step
+  // if the live control isn't that one any more («Continue» relabelled «Pay now» while the server answered).
+  expect?: { label: string; role: Role; lock?: Lock }
 }
 
 /**
