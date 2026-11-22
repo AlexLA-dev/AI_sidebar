@@ -343,19 +343,22 @@ export async function closeOnce(env: Env): Promise<CloseResult> {
     }
   }
   let left: CloseResult | null = null
-  for (const banner of [...genericBanners(env), ...frameBanners(env)]) {
+  const banners = [...genericBanners(env), ...frameBanners(env)]
+  for (const banner of banners) {
     if (handled(banner)) continue
     const list = controls(banner).filter((el) => env.visible(el))
     const safe = list.filter(safeControl)
-    const wall = list.some((el) => labelKind(labelOf(el)) === "pay")
+    // A wall is told by any of its parts: the box with the answers or the banner around it.
+    const wall = list.some((el) => labelKind(labelOf(el)) === "pay") || banners.some((o) => o !== banner && o.contains(banner) && isWall(env, o))
     const choice = wall ? ({ leave: "wall" } as const) : chooseButton(safe.map(labelOf))
     if ("press" in choice) {
       done.add(banner)
       press(safe[choice.press] as HTMLElement)
       return (await gone(env, null, banner)) ? { status: "done", via: env.sign ? "tcf" : "generic" } : { status: "left", why: "stuck", via: "generic" }
     }
-    // Only «Accept» (and maybe settings, or a reject that leaves the page): the person's choice. Counted once.
-    if (!left && list.length && ![...leftAlone].some((l) => l === banner || l.contains(banner) || banner.contains(l))) {
+    // Only «Accept» (and maybe settings, or a reject that leaves the page), or a wall: the person's choice. Counted
+    // once. A part of the page with no answer we know («none») isn't counted: it's often a box inside the banner.
+    if (!left && choice.leave !== "none" && ![...leftAlone].some((l) => l === banner || l.contains(banner) || banner.contains(l))) {
       leftAlone.add(banner)
       left = { status: "left", why: choice.leave, via: "generic" }
     }

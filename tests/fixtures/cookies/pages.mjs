@@ -251,6 +251,11 @@ export const GENERIC_PAGES = [
       <div id="onetrust-button-group">${btn("Accept all", 'id="onetrust-accept-btn-handler"')}${btn("Reject all and subscribe", 'id="onetrust-reject-all-handler"', "none")}</div>
     </div></div>`
   },
+  // Marca: each answer in a box of its own inside the banner; the subscription is in the second box.
+  {
+    name: "generic-wall-boxes", lang: "es", expect: { status: "left", why: "wall", via: "generic" },
+    html: banner("wall-boxes", `<div class="cookie-box"><p>Pulsando «Acepto y continúo gratis» consientes la instalación de cookies propias y de terceros.</p>${btn("Acepto y continúo gratis")}</div><div class="cookie-box"><p>Pulsando «Rechazo y me suscribo» no autorizas la instalación de cookies y accedes mediante la suscripción.</p>${btn("Rechazo y me suscribo", "", "none")}</div>`)
+  },
   // The reject is a link to another page: never followed.
   {
     name: "generic-reject-link", lang: "en", expect: { status: "left", why: "only_accept", via: "generic" },
