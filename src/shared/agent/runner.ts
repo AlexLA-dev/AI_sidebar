@@ -339,7 +339,9 @@ function savedFacts(entries: FormEntry[]): Record<string, string> {
  * captcha still stop it later, as the person's.
  */
 export function goesAlone(plan: TaskPlan, map: PageMap): boolean {
-  if (plan.prices.length || map.pay || map.deposit || plan.self.some((x) => x.reason === "pay")) return false
+  // A booking's price (a haircut's €18, paid there) isn't paying now; paying online is the page's (a payment page, card
+  // fields, a deposit or no-show fee, a «Pay» button) and always the person's.
+  if ((plan.prices.length && !plan.booking) || map.pay || map.deposit || plan.self.some((x) => x.reason === "pay")) return false
   return plan.perms.every((p) => (p.kind === "press" && p.reason === "submit") || p.kind === "fill" || (p.kind === "apple" && p.reason === "event_add"))
 }
 
@@ -416,7 +418,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.summary = state.summary || lastWords(state)
       break
     }
-    if ((state.stillReads ?? 0) >= 2) state.refused = "no progress: the page hasn't changed over your last reads. Don't read it again. If the person's words or answers already say what to do now, do it; otherwise tell them what you found and ask how to go on (ask_user with choices), or call done"
+    if ((state.stillReads ?? 0) >= 2) state.refused = "no progress: the page hasn't changed over your last reads. Don't read it again. If the person's words, their answers or <rules> already decide what to do now (another time inside the window, the next day the rules allow: press it), do it; otherwise tell them what you found and ask how to go on (ask_user with choices), or call done"
     const entries = await io.entries().catch(() => [] as FormEntry[])
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null

@@ -384,7 +384,7 @@ test("118 fresha: a remembered answer picks the plan's own wording, the time slo
   assert.match(map, /if \(messages >= MESSAGES_MAX\) break/)
   // A no-progress nudge follows what the person already said; choices are real ways on.
   const runner = readFileSync(new URL("../src/shared/agent/runner.ts", import.meta.url), "utf8")
-  assert.match(runner, /If the person's words or answers already say what to do now, do it/)
+  assert.match(runner, /If the person's words, their answers or <rules> already decide what to do now/)
   const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
   assert.match(act, /do that instead of asking again/)
   assert.match(act, /never "try the same again"/)

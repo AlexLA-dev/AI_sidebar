@@ -22,7 +22,7 @@ const PERSONAL_AUTO = /\b(name|honorific-prefix|given-name|additional-name|famil
 const SECRET_NAME = /pass(word|wd|code)?\b|\bpwd\b|card.?(num|no\b|number)|\bccnum|\bcc.?(number|num|exp|cvc|cvv)|\bcvc\b|\bcvv\d?\b|\biban\b|\bbic\b|\bswift\b|security.?code|\botp\b|one.?time|verif(y|ication).?code|sms.?code|\bssn\b|passport|\binn\b|\bsnils\b|\btckn\b|\bcpf\b|\bdni\b|routing|account.?(num|no\b)/i
 const PERSONAL_NAME = /(^|[\W_])(first.?name|last.?name|full.?name|surname|fname|lname|e.?mail|phone|mobile|tel\b|address|street|city|zip|postcode|postal|birth|bday|dob)([\W_]|$)/i
 
-const SEARCH_LABEL = /\b(search|find|look(ing)? for|keyword|cuisine|restaurant|product|item|dish|treatment|service|destination)\b|поиск|найти|искать|что ищете|ресторан|кухн|блюд|услуг|пошук|шукати|suche|suchen|recherche|rechercher|buscar|búsqueda|cerca|cercare|pesquisar|buscar|ara\b|arama|検索|探す|검색|搜索|搜尋|查找|بحث|tìm/i
+const SEARCH_LABEL = /\b(search|find|look(ing)? for|keyword|cuisine|restaurant|product|item|dish|treatment|service|destination|near me|nearby|station|location|where to)\b|рядом|станци|местоположени|куда|поиск|найти|искать|что ищете|ресторан|кухн|блюд|услуг|пошук|шукати|suche|suchen|recherche|rechercher|buscar|búsqueda|cerca|cercare|pesquisar|buscar|ara\b|arama|検索|探す|검색|搜索|搜尋|查找|بحث|tìm/i
 
 const secretLabel = wordList(SECRET_FIELD)
 const personalLabel = wordList(PERSONAL_FIELD)

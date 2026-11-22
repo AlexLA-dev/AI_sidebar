@@ -101,7 +101,8 @@ test("no card only when nothing is paid and the only steps are the booking's pre
   const ctx = { map: SALON, startHost: "www.salon.example.com", request: "book a haircut", confirmedHere: false, policy: { amazon: true } }
   const plan = buildPlan(checkPlan(RAW), ctx)
   assert.equal(goesAlone(plan, SALON), true)
-  assert.equal(goesAlone({ ...plan, prices: ["18 €"] }, SALON), false, "a price to pay")
+  assert.equal(goesAlone({ ...plan, prices: ["18 €"] }, SALON), true, "a booking's price is paid there")
+  assert.equal(goesAlone({ ...plan, prices: ["18 €"], booking: undefined }, SALON), false, "an order's price is paid now")
   assert.equal(goesAlone(plan, { ...SALON, pay: true }), false, "a page that takes payment")
   assert.equal(goesAlone(plan, { ...SALON, deposit: true }), false, "a deposit or no-show fee")
   assert.equal(goesAlone({ ...plan, self: [{ reason: "pay", label: "Pay" }] }, SALON), false)
@@ -208,6 +209,8 @@ test("a search box isn't a personal field, even when its label says «name»", a
   assert.equal(fieldLock({ tag: "input", label: "Cuisine, restaurant name..." }), null)
   assert.equal(fieldLock({ tag: "input", type: "search", label: "Name" }), null)
   assert.equal(fieldLock({ tag: "input", label: "Поиск по названию" }), null)
+  assert.equal(fieldLock({ tag: "input", label: "Near me, exact address, station..." }), null, "TheFork's place search")
+  assert.equal(fieldLock({ tag: "input", label: "Address" }), "personal")
   assert.equal(fieldLock({ tag: "input", label: "Name" }), "personal")
   assert.equal(fieldLock({ tag: "input", label: "Your name" }), "personal")
   assert.equal(fieldLock({ tag: "input", label: "Search", autocomplete: "email" }), "personal", "the page's own token wins")
@@ -224,4 +227,30 @@ test("a time slot's date and time survive the call's check (the device needs the
   assert.equal(bad.ok && bad.call.date, undefined)
   const done = checkCall({ tool: "done", summary: "Booked", date: "2026-11-24", time: "17:45", place: "Cutter" }, SALON, [])
   assert.equal(done.ok && done.call.place, "Cutter")
+})
+
+test("an unticked step is asked at the time, not dropped; this site's new-tab links open in the agent's tab", async () => {
+  const { planLine } = await import("../src/shared/agent/taskplan.ts")
+  const ctx = { map: SALON, startHost: "www.salon.example.com", request: "book", confirmedHere: false, policy: { amazon: true } }
+  const plan = buildPlan(checkPlan(RAW), ctx)
+  plan.approved = true
+  plan.perms = plan.perms.map((p) => ({ ...p, on: false }))
+  assert.match(planLine(plan), /ask the person first \(they unticked it: go on, and the device asks them at that step\): Confirm booking/)
+  const hands = readFileSync(new URL("../src/content/agent/hands.ts", import.meta.url), "utf8")
+  assert.match(hands, /sameSite\(hostOf\(a\.href\), hostOf\(el\.ownerDocument\.location\?\.href \?\? ""\)\)/)
+})
+
+test("a listing card with a price «from …» is a link to the place, not paying; a button with an amount still pays", () => {
+  const ctx = (items: PageMap["items"]) => ({ map: { ...SALON, items }, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } })
+  const card = { id: "1", role: "link" as const, label: "Groom Room 5.0 1178 reviews West Hampstead, London Men - Haircut from £35", href: "www.salon.example.com/groom" }
+  assert.notEqual(classify({ tool: "click", id: "1" }, ctx([card])).reason, "pay")
+  assert.deepEqual(classify({ tool: "click", id: "2" }, ctx([{ id: "2", role: "button", label: "Pay £35" }])), { cls: "self", reason: "pay" })
+  assert.deepEqual(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "link", label: "Donate £10" }])), { cls: "self", reason: "pay" })
+})
+
+test("a wordless button over the page (a banner's ×) closes it freely; elsewhere it still asks", () => {
+  const ctx = (items: PageMap["items"]) => ({ map: { ...SALON, items, forms: [{ n: 0, fillable: true }] }, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } })
+  assert.deepEqual(classify({ tool: "click", id: "1" }, ctx([{ id: "1", role: "button", label: "", where: "dialog" }])), { cls: "free", reason: "close" })
+  assert.equal(classify({ tool: "click", id: "2" }, ctx([{ id: "2", role: "button", label: "" }])).cls, "confirm")
+  assert.equal(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "button", label: "", where: "dialog", form: 0, type: "submit" }])).cls, "confirm")
 })
