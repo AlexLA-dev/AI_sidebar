@@ -64,7 +64,9 @@ test("only Accept → nothing pressed; Accept and settings → nothing pressed; 
   assert.deepEqual(chooseButton([]), { leave: "none" })
   assert.deepEqual(chooseButton(["Settings", "Reject all", "Accept all"]), { press: 1, label: "Reject all" })
   // The whole label one of ours beats a label that only holds one.
-  assert.deepEqual(chooseButton(["No thanks, take me back", "Reject all", "Accept"]), { press: 1, label: "Reject all" })
+  assert.deepEqual(chooseButton(["Reject non-essential cookies and close", "Reject all", "Accept"]), { press: 1, label: "Reject all" })
+  // A newsletter's «No thanks» is no answer to cookies.
+  assert.deepEqual(chooseButton(["No thanks", "Subscribe"]), { leave: "none" })
 })
 
 test("a banner is about cookies by the word in any script; consent words count only with a platform's sign", () => {

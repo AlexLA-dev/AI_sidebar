@@ -48,8 +48,10 @@ export function useCookieLine(shown: boolean): { line: Closed | null; close: () 
       setLine(null)
       return
     }
-    if (!DEBUG) void noteTold()
-    const timer = setTimeout(() => setLine(null), DEBUG ? 6_000 : LINE_MS)
+    // Test builds: it stays until the next page, so a test can read it.
+    if (DEBUG) return
+    void noteTold()
+    const timer = setTimeout(() => setLine(null), LINE_MS)
     return () => clearTimeout(timer)
   }, [line])
   return { line: shown ? line : null, close: () => setLine(null) }

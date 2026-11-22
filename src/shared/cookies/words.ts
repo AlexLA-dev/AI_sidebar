@@ -32,7 +32,7 @@ export const REJECT_LABELS = [
   "accept necessary cookies only", "accept only necessary cookies", "continue without accepting",
   "continue without agreeing", "continue without consent", "do not consent", "i do not consent", "don't consent",
   "disagree", "i disagree", "disagree to all", "disagree and close", "do not accept", "i do not accept",
-  "object to all", "opt out", "opt out of all", "no thanks", "no, thanks", "no thank you",
+  "object to all", "opt out of all",
   // ru
   "отклонить", "отклонить все", "отклонить всё", "отклонить cookie", "отклонить необязательные", "отказаться",
   "отказаться от всех", "отказаться от cookie", "запретить", "запретить все", "не принимать", "не согласен",
@@ -57,13 +57,13 @@ export const REJECT_LABELS = [
   "uniquement nécessaires", "uniquement les cookies nécessaires", "cookies nécessaires uniquement",
   "nécessaires uniquement", "seulement nécessaires", "accepter uniquement les nécessaires",
   "accepter les cookies nécessaires", "autoriser uniquement les nécessaires", "je ne consens pas", "ne pas consentir",
-  "s'opposer à tout", "non merci",
+  "s'opposer à tout",
   // es
   "rechazar", "rechazar todo", "rechazar todas", "rechazar todos", "rechazar cookies", "rechazar las cookies",
   "denegar", "denegar todo", "no acepto", "no aceptar", "solo necesarias", "solo las necesarias",
   "sólo necesarias", "solo cookies necesarias", "solo esenciales", "aceptar solo necesarias",
   "aceptar solo las necesarias", "permitir solo necesarias", "usar solo cookies necesarias",
-  "continuar sin aceptar", "no consiento", "no, gracias",
+  "continuar sin aceptar", "no consiento",
   // it
   "rifiuta", "rifiuta tutto", "rifiuta tutti", "rifiuta i cookie", "rifiuta cookie", "nega", "nega tutto",
   "non accetto", "solo necessari", "solo i necessari", "solo cookie necessari", "solo cookie tecnici",
