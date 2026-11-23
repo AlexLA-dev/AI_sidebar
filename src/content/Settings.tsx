@@ -403,11 +403,12 @@ export function SettingsView(props: Props): VNode {
           {fold("cookies", t("setSecCookies"), cookiesOn === null ? "" : onOff(cookiesOn), <CookieGroup site={site} />)}
 
           {fold("chats", t("setSecChats"), [
-            TARGET === "safari" && hasPro(plan) ? `${t("setOrganize")}: ${onOff(settings.organize)}` : "",
-            `${t("setSpaces")}: ${onOff(settings.spaces !== false)}`
+            `${t("setSpaces")}: ${onOff(settings.spaces !== false)}`,
+            TARGET === "safari" && hasPro(plan) && settings.organize ? t("setOrganize") : ""
           ].filter(Boolean).join(" · "), chatsGroup)}
 
-          {fold("data", t("setSecData"), TARGET === "safari" ? `iCloud: ${onOff(settings.syncChats)}` : t("deleteChats"), dataGroup)}
+          {/* The chats' iCloud (My details have their own switch, in their section). */}
+          {fold("data", t("setSecData"), TARGET === "safari" ? `${t("chatsTitle")} · iCloud: ${onOff(settings.syncChats)}` : t("deleteChats"), dataGroup)}
 
           {hasPro(plan) && planSection}
 

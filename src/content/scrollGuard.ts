@@ -16,7 +16,10 @@
 // doesn't scroll (the header, the question field, a chat too short to scroll), or a list already at its top or bottom
 // edge. (4) A finger that starts on a part of the panel with nothing to scroll under it doesn't drag the page either.
 // The page's own scrolling elsewhere, our floating circle and the pop-ups over the page are left alone, as are the
-// panel's drag (pointer events) and two-finger pinches.
+// panel's drag (pointer events) and two-finger pinches. (3) and (4) listen on the panel and the sheets themselves, as
+// they appear: a browser scrolls an area at once, without waiting for the page, unless an element there has a blocking
+// listener, and our root is no element (in the pane's Chromium a wheel over the header came uncancelable and scrolled
+// the page).
 
 const AXIS_SLOP = 6
 // The glide after the finger lifts: velocity in px per ms, decaying each frame.
@@ -143,9 +146,13 @@ export function guardScroll(root: ShadowRoot): () => void {
     velocity = 0
   }
 
+  // (4), on the panel and the sheets (see watchContained).
+  const hold = (e: TouchEvent) => {
+    if (holdPage && e.touches.length === 1 && e.cancelable) e.preventDefault()
+  }
+
   const move = (e: TouchEvent) => {
     e.stopPropagation()
-    if (holdPage && e.touches.length === 1 && e.cancelable) e.preventDefault()
     const p = e.touches[0]
     if (!p || !last || e.touches.length > 1) return
     const dx = p.clientX - last.x
@@ -200,9 +207,14 @@ export function guardScroll(root: ShadowRoot): () => void {
   root.addEventListener("touchstart", entering as EventListener, early)
   root.addEventListener("touchmove", entering as EventListener, early)
   root.addEventListener("touchstart", start as EventListener, opts)
-  // Not passive: it may hold the page (4).
-  root.addEventListener("touchmove", move as EventListener, { passive: false })
-  root.addEventListener("wheel", wheel as EventListener, { passive: false })
+  root.addEventListener("touchmove", move as EventListener, opts)
+  const stopWatching = watchContained(root, (el) => {
+    el.addEventListener("wheel", wheel as EventListener, { passive: false })
+    el.addEventListener("touchmove", hold as EventListener, { passive: false })
+  }, (el) => {
+    el.removeEventListener("wheel", wheel as EventListener)
+    el.removeEventListener("touchmove", hold as EventListener)
+  })
   root.addEventListener("touchend", end as EventListener, opts)
   root.addEventListener("touchcancel", end as EventListener, opts)
   return () => {
@@ -213,6 +225,28 @@ export function guardScroll(root: ShadowRoot): () => void {
     root.removeEventListener("touchmove", move as EventListener)
     root.removeEventListener("touchend", end as EventListener)
     root.removeEventListener("touchcancel", end as EventListener)
-    root.removeEventListener("wheel", wheel as EventListener)
+    stopWatching()
+  }
+}
+
+/**
+ * Calls `attach` once for each panel and sheet of ours (CONTAINED) in `root`, now and as they appear (they're rendered
+ * and removed as the panel opens, closes and changes views). Their listeners go with them.
+ */
+function watchContained(root: ShadowRoot, attach: (el: Element) => void, detach: (el: Element) => void): () => void {
+  const done = new WeakSet<Element>()
+  const scan = () => {
+    for (const el of root.querySelectorAll(CONTAINED)) {
+      if (done.has(el)) continue
+      done.add(el)
+      attach(el)
+    }
+  }
+  scan()
+  const seen = typeof MutationObserver === "undefined" ? null : new MutationObserver(scan)
+  seen?.observe(root, { childList: true, subtree: true })
+  return () => {
+    seen?.disconnect()
+    for (const el of root.querySelectorAll(CONTAINED)) detach(el)
   }
 }
