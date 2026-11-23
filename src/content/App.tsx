@@ -84,6 +84,7 @@ import { dodgeFab } from "./fabDodge"
 import { besideMenu, glassScale, setFixedProbe, toFixed } from "./fixedPlace"
 import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
+import type { SettingsAt } from "./settingsFold"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, firstRunMarks, hintsWith, markHintSeen, marksAfterRead, markMemoryOffered, memoryOffered, onFirstRunChanged, onJobsChanged, resetHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, loadSpaces, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged, madeNow, onMadeChanged } from "./store"
@@ -132,6 +133,8 @@ import { usageText } from "./quiet/Spent"
 import { readSignals, selectionInField, watchWriting, writingOn } from "./quiet/signals"
 import { ToolsRow } from "./quiet/ToolsRow"
 import { useFabDrag, usePanelDrag } from "./side/drag"
+import { wheelSwitch, wheelSwitchStep } from "./ux/wheelSwitch"
+import { markPointerHintSeen, pointerHintSeen, SendMenu } from "./ux/SendMenu"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
 import { CookieLine, useCookieLine } from "./cookies/CookieLine"
@@ -668,6 +671,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const allTips = tipsLabel() ? { label: t("hintAllTips"), run: () => setTipsOpen(true) } : undefined
   // Where Settings' back arrow goes: the chats list when it was opened from the list's "…" (build 94).
   const settingsBack = useRef<"chat" | "threads">("chat")
+  // 2.7.1: Settings opened at one setting (its section unfolds, Settings.tsx), from a link elsewhere in the panel.
+  const [settingsAt, setSettingsAt] = useState<SettingsAt | null>(null)
+  const openSettingsAt = (at: SettingsAt | null) => {
+    setSettingsAt(at)
+    setView("settings")
+  }
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
@@ -2397,7 +2406,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // 2.7.1 (the director): on Pro and Ultra a swipe down is «Сделать» instead (up stays the note). Not on the ✦ circle:
   // the circle follows the finger in every direction (its drag), so a swipe there would move it.
   const switched = useRef(false)
-  const gesture = useRef({ y: 0, moved: false, wheelAt: 0, hold: 0 })
+  const gesture = useRef({ y: 0, moved: false, hold: 0 })
+  // 2.7.1 (the owner on build 121, iPad + Magic Keyboard): two fingers on a trackpad, or a wheel, go the fingers' way
+  // as the touch swipe does (up: Note, down: Do), once per gesture (ux/wheelSwitch.ts). A pointer also has the
+  // button's menu (a right-click, or the button held with the pointer); a finger's hold still flips the note.
+  const wheelGesture = useRef(wheelSwitch())
+  const [sendMenu, setSendMenu] = useState(false)
+  // A pointer (a trackpad, a mouse) was last used on the field or the button: its hint, not the finger's.
+  const [pointerUsed, setPointerUsed] = useState(!touch)
+  const lastPointer = useRef<string>(touch ? "touch" : "mouse")
   const flipMode = useCallback(() => {
     setNoteMode((on) => !on)
     setAgentMode(false)
@@ -2431,34 +2448,58 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (g.moved) e.preventDefault()
     },
     onWheel: (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) < 3) return
       e.preventDefault()
-      const now = Date.now()
-      if (now - gesture.current.wheelAt > 500) flipMode()
-      gesture.current.wheelAt = now
+      if (!pointerUsed) setPointerUsed(true)
+      const dir = wheelSwitchStep(wheelGesture.current, {
+        deltaX: e.deltaX,
+        deltaY: e.deltaY,
+        deltaMode: e.deltaMode,
+        inverted: (e as WheelEvent & { webkitDirectionInvertedFromDevice?: boolean }).webkitDirectionInvertedFromDevice,
+        at: e.timeStamp || Date.now()
+      }, platform === "macos")
+      if (!dir) return
+      setSendMenu(false)
+      if (dir === "down" && swipeDo) flipDo()
+      else flipMode()
     },
-    onPointerDown: () => {
+    onPointerDown: (e: PointerEvent) => {
       switched.current = false
+      lastPointer.current = e.pointerType
+      const mouse = e.pointerType === "mouse"
+      if (mouse && !pointerUsed) setPointerUsed(true)
+      // A right-click opens the menu on its own (contextmenu).
+      if (e.button !== 0) return
       gesture.current.hold = window.setTimeout(() => {
         switched.current = true
-        flipMode()
+        if (mouse) setSendMenu(true)
+        else flipMode()
       }, 500)
     },
     onPointerUp: endHold,
     onPointerLeave: endHold,
     onPointerCancel: endHold,
-    onContextMenu: (e: Event) => e.preventDefault()
+    onContextMenu: (e: Event) => {
+      e.preventDefault()
+      if (lastPointer.current === "touch") return
+      endHold()
+      setSendMenu(true)
+    }
   }
+  const pointerHintKey = swipeDo ? "noteHintPointerDo" : "noteHintMouse"
+  const sendHintKey = touch && !pointerUsed ? (swipeDo ? "noteHintTouchDo" : "noteHintTouch") : pointerHintKey
 
   // While typing, the first few panel sessions show how to switch to a note (until it's been used once).
   const hintAsked = useRef(false)
   useEffect(() => {
     if (!draft.trim() || noteMode || hintAsked.current) return
     hintAsked.current = true
-    void noteHintCount().then((count) => {
-      if (count < 0 || count >= 3) return
+    // 2.7.1: a pointer's hint (up and down for Note and Do) once on this device, even after the finger's was used.
+    void Promise.all([noteHintCount(), pointerUsed ? pointerHintSeen() : Promise.resolve(true)]).then(([count, seen]) => {
+      const pointerFirst = !seen
+      if (!pointerFirst && (count < 0 || count >= 3)) return
       setNoteHint(true)
-      void setNoteHintCount(count + 1)
+      if (pointerFirst) markPointerHintSeen()
+      if (count >= 0 && count < 3) void setNoteHintCount(count + 1)
       window.setTimeout(() => setNoteHint(false), 8000)
     })
   }, [draft, noteMode])
@@ -4733,7 +4774,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       setPageMenu(false)
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "settings" })
                       settingsBack.current = view === "threads" ? "threads" : "chat"
-                      setView("settings")
+                      openSettingsAt(null)
                     }}
                     onListen={view === "chat" && TARGET === "safari" && source.readable() && source.kind() === "page" ? () => {
                       setPageMenu(false)
@@ -4927,6 +4968,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             />
           ) : view === "settings" ? (
             <SettingsView
+              key={settingsAt ?? "settings"}
+              at={settingsAt}
               settings={settings}
               status={status}
               usage={usage}
@@ -5308,7 +5351,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                             <button type="button" class="cf-link" onClick={() => { event("note"); writeNote() }}>{t("writeNote")}</button>
                           </p>
                           {!hasPro(plan) && TARGET === "safari" && (
-                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); setView("settings") }}>{t("useOwnKey")}</button></p>
+                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); openSettingsAt("ownKey") }}>{t("useOwnKey")}</button></p>
                           )}
                         </>}
                       />
@@ -5334,7 +5377,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {byok && (
                         <div class="cf-card-actions">
                           {upgradeButton("limit")}
-                          {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>}
+                          {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("useOwnKey")}</button>}
                           {/* The key is there now (added from this card, or the question was a Google one): the same
                               question again, answered with the key. Until 109 it had to be typed again. */}
                           {status?.hasOwnKey && lastIsUser && (
@@ -5351,7 +5394,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           ) : (
                             <button type="button" class="cf-primary" onClick={() => void openApp("subscribe")}><Icon.Sparkle size={14} /> {t("getPro")}</button>
                           )}
-                          <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>
+                          <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("useOwnKey")}</button>
                         </div>
                       )}
                     </div>
@@ -5414,7 +5457,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {lastIsUser && (error.code === "SEARCH_LIMIT" || error.code === "SEARCH_UNAVAILABLE") && (
                         <button type="button" class="cf-secondary" onClick={() => retry(true)}><Icon.Sparkle size={14} /> {t("askWithoutGoogle")}</button>
                       )}
-                      {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("settings")}</button>}
+                      {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("settings")}</button>}
                       {error.ownKey && (
                         <button type="button" class="cf-secondary" onClick={() => { const { provider, problem } = error.ownKey!; void sendBackground({ type: "openUrl", url: ownKeyPlace(provider, problem).url }) }}>
                           {ownKeyPlace(error.ownKey.provider, error.ownKey.problem).label}
@@ -5503,7 +5546,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <footer class="cf-composer">
                   {listenBar}
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
-                  {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? (swipeDo ? "noteHintTouchDo" : "noteHintTouch") : "noteHintMouse")}</div>}
+                  {noteHint && draft.trim() && !noteMode && !sendMenu && <div class="cf-note-hint" role="status">{t(sendHintKey)}</div>}
+                  {sendMenu && !streaming && (
+                    <SendMenu note={noteMode} doing={doMode} canDo={swipeDo} onNote={flipMode} onDo={flipDo} onClose={() => setSendMenu(false)} />
+                  )}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
                   {/* 2.7 (after 107), the owner's decision 4: no row with the page's title here (it's in the chat's "New
                       page" divider). What isn't the page keeps its row: a selection (with its bell and eye), "Ask your
@@ -5657,7 +5703,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                             else submit()
                           }}
                           aria-label={t(noteMode ? "saveNote" : doMode ? "agentMode" : "send")}
-                          title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? (swipeDo ? "noteHintTouchDo" : "noteHintTouch") : "noteHintMouse")}`}
+                          title={`${t(noteMode ? "saveNote" : "send")} · ${t(sendHintKey)}`}
                         >
                           <span class="cf-send-icon" key={noteMode ? "note" : doMode ? "do" : "send"}>{noteMode ? <Icon.Pencil /> : doMode ? <Icon.Sparkle size={16} /> : <Icon.ArrowUp />}</span>
                         </button>

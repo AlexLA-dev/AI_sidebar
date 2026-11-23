@@ -3585,7 +3585,7 @@
   "message": "人数の指定がないとき"
  },
  "agentRuleAnySpecialist": {
-  "message": "担当者は指定なし"
+  "message": "担当者は指定なし（美容師・医師・トレーナーなど）"
  },
  "agentRuleUsual": {
   "message": "前回そのサイトで選んだメニュー"
@@ -3646,6 +3646,60 @@
  },
  "agentPlanFromChat": {
   "message": "チャットから：{0}"
+ },
+ "sendMenuNote": {
+  "message": "メモ"
+ },
+ "noteHintPointerDo": {
+  "message": "ボタンの上でスクロール：上でメモ、下で「実行」。右クリックでも選べます"
+ },
+ "setSecGeneral": {
+  "message": "一般"
+ },
+ "setSecButton": {
+  "message": "フローティングボタンと選択"
+ },
+ "setSecWriting": {
+  "message": "クイック挿入と文章"
+ },
+ "setSecAgent": {
+  "message": "「実行」：ページでの作業"
+ },
+ "setSecCookies": {
+  "message": "Cookieの確認画面"
+ },
+ "setSecChats": {
+  "message": "チャットとスペース"
+ },
+ "setSecData": {
+  "message": "プライバシーとデータ"
+ },
+ "setSecPlan": {
+  "message": "プランとアカウント"
+ },
+ "setSecAbout": {
+  "message": "このアプリについて"
+ },
+ "fdICloudLocal": {
+  "message": "今はこのデバイスのみ"
+ },
+ "fdICloudSyncing": {
+  "message": "同期中…"
+ },
+ "fdICloudSynced": {
+  "message": "同期済み · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "たった今"
+ },
+ "fdICloudNoAccount": {
+  "message": "未同期：このデバイスでiCloudにサインインしてください"
+ },
+ "fdICloudFailed": {
+  "message": "未同期：iCloudから応答がありません。次回もう一度試します。"
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "理容師、スタイリスト、医師、トレーナー、ガイドなど、空いている人で予約します。オフにすると担当者を確認します。"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

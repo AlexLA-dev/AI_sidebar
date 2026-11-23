@@ -3585,7 +3585,7 @@
   "message": "인원을 말하지 않았을 때"
  },
  "agentRuleAnySpecialist": {
-  "message": "아무 담당자나"
+  "message": "아무 담당자나 (미용사, 의사, 트레이너 등)"
  },
  "agentRuleUsual": {
   "message": "그 사이트에서 지난번에 고른 서비스"
@@ -3646,6 +3646,60 @@
  },
  "agentPlanFromChat": {
   "message": "채팅에서: {0}"
+ },
+ "sendMenuNote": {
+  "message": "메모"
+ },
+ "noteHintPointerDo": {
+  "message": "버튼 위에서 위로 스크롤하면 메모, 아래로 스크롤하면 ‘실행’ (오른쪽 클릭도 돼요)"
+ },
+ "setSecGeneral": {
+  "message": "일반"
+ },
+ "setSecButton": {
+  "message": "플로팅 버튼과 선택"
+ },
+ "setSecWriting": {
+  "message": "빠른 삽입과 글쓰기"
+ },
+ "setSecAgent": {
+  "message": "‘실행’: 페이지에서 할 일"
+ },
+ "setSecCookies": {
+  "message": "쿠키 창"
+ },
+ "setSecChats": {
+  "message": "채팅과 스페이스"
+ },
+ "setSecData": {
+  "message": "개인정보와 데이터"
+ },
+ "setSecPlan": {
+  "message": "요금제와 계정"
+ },
+ "setSecAbout": {
+  "message": "앱 정보"
+ },
+ "fdICloudLocal": {
+  "message": "지금은 이 기기에만 있어요"
+ },
+ "fdICloudSyncing": {
+  "message": "동기화 중…"
+ },
+ "fdICloudSynced": {
+  "message": "동기화됨 · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "방금"
+ },
+ "fdICloudNoAccount": {
+  "message": "동기화 안 됨: 이 기기에서 iCloud에 로그인하세요"
+ },
+ "fdICloudFailed": {
+  "message": "동기화 안 됨: iCloud가 응답하지 않았어요. 다음에 다시 시도해요."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "이발사, 스타일리스트, 의사, 트레이너, 가이드 중 비어 있는 사람으로 예약해요. 끄면 누구로 할지 물어볼게요."
  },
  "tip_4cf1b54b00": {
   "message": "팁"

@@ -404,6 +404,18 @@ async function askOnce(body: Record<string, unknown>): Promise<Record<string, un
 interface NativeFormData {
   entries?: Array<{ id: string; updatedAt: number; data: string }>
   icloud?: boolean
+  // 2.7.1 (panel-ux-271): what the last iCloud sync did, for the line under the switch in Settings.
+  syncedAt?: number
+  syncError?: string
+}
+
+/** The iCloud choice and the last sync's result, as the app sent them (nothing when it said nothing). */
+function formDataState(raw: NativeFormData | null): { icloud?: boolean; syncedAt?: number; syncError?: string } {
+  return {
+    ...(typeof raw?.icloud === "boolean" ? { icloud: raw.icloud } : {}),
+    ...(typeof raw?.syncedAt === "number" ? { syncedAt: raw.syncedAt } : {}),
+    ...(typeof raw?.syncError === "string" ? { syncError: raw.syncError } : {})
+  }
 }
 
 const LOCAL_FORM = "cf:formdata"
@@ -423,7 +435,7 @@ function parseEntries(raw: NativeFormData | null): FormEntry[] {
 export async function formData(): Promise<{ entries: FormEntry[]; icloud?: boolean }> {
   if (TARGET !== "safari") return { entries: ((await chrome.storage.local.get(LOCAL_FORM))[LOCAL_FORM] as FormEntry[] | undefined) ?? [] }
   const raw = await callNative<NativeFormData>("formdata_get", {}, 15_000)
-  return { entries: parseEntries(raw), ...(typeof raw?.icloud === "boolean" ? { icloud: raw.icloud } : {}) }
+  return { entries: parseEntries(raw), ...formDataState(raw) }
 }
 
 async function formDataPut(changes: FormEntry[]): Promise<{ entries: FormEntry[]; icloud?: boolean }> {
@@ -436,7 +448,7 @@ async function formDataPut(changes: FormEntry[]): Promise<{ entries: FormEntry[]
     return { entries }
   }
   const raw = await callNative<NativeFormData>("formdata_put", { changes: changes.map((e) => ({ id: e.id, updatedAt: e.updatedAt, data: JSON.stringify(e) })) }, 15_000)
-  return { entries: parseEntries(raw), ...(typeof raw?.icloud === "boolean" ? { icloud: raw.icloud } : {}) }
+  return { entries: parseEntries(raw), ...formDataState(raw) }
 }
 
 // ------------------------------------------------------------ running a task
@@ -826,7 +838,7 @@ export function startAgent(d: AgentDeps): void {
       case "formDataICloud":
         return respond(
           TARGET === "safari"
-            ? callNative<NativeFormData>("formdata_icloud", { on: message.on }, 15_000).then((raw) => ({ entries: parseEntries(raw), icloud: message.on }))
+            ? callNative<NativeFormData>("formdata_icloud", { on: message.on }, 15_000).then((raw) => ({ entries: parseEntries(raw), ...formDataState(raw), icloud: message.on }))
             : Promise.resolve({ entries: [], icloud: false })
         )
       default:

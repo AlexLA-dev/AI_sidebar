@@ -3585,7 +3585,7 @@
   "message": "Số người khi tôi không nói"
  },
  "agentRuleAnySpecialist": {
-  "message": "Chuyên viên bất kỳ"
+  "message": "Chuyên viên bất kỳ (thợ làm tóc, bác sĩ, huấn luyện viên…)"
  },
  "agentRuleUsual": {
   "message": "Dịch vụ tôi chọn lần trước trên trang đó"
@@ -3636,16 +3636,70 @@
   "message": "Mở Cài đặt hệ thống"
  },
  "agentRuleCalNeeds": {
-  "message": "cần quyền truy cập Lịch"
+  "message": "Cần quyền truy cập Lịch"
  },
  "agentPlanCalAsk": {
   "message": "Xét đến lịch?"
  },
  "agentCalNotChecked": {
-  "message": "chưa kiểm tra lịch: không có quyền"
+  "message": "Chưa kiểm tra lịch: không có quyền"
  },
  "agentPlanFromChat": {
   "message": "Từ cuộc trò chuyện: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Ghi chú"
+ },
+ "noteHintPointerDo": {
+  "message": "Cuộn trên nút: lên để ghi chú, xuống để “Làm”, hoặc nhấp chuột phải vào nút"
+ },
+ "setSecGeneral": {
+  "message": "Chung"
+ },
+ "setSecButton": {
+  "message": "Nút nổi và vùng chọn"
+ },
+ "setSecWriting": {
+  "message": "Chèn nhanh và viết"
+ },
+ "setSecAgent": {
+  "message": "“Làm”: việc trên trang"
+ },
+ "setSecCookies": {
+  "message": "Cửa sổ cookie"
+ },
+ "setSecChats": {
+  "message": "Cuộc trò chuyện và không gian"
+ },
+ "setSecData": {
+  "message": "Quyền riêng tư và dữ liệu"
+ },
+ "setSecPlan": {
+  "message": "Gói và tài khoản"
+ },
+ "setSecAbout": {
+  "message": "Giới thiệu"
+ },
+ "fdICloudLocal": {
+  "message": "Hiện chỉ có trên thiết bị này"
+ },
+ "fdICloudSyncing": {
+  "message": "Đang đồng bộ…"
+ },
+ "fdICloudSynced": {
+  "message": "Đã đồng bộ · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "vừa xong"
+ },
+ "fdICloudNoAccount": {
+  "message": "Chưa đồng bộ: hãy đăng nhập iCloud trên thiết bị này"
+ },
+ "fdICloudFailed": {
+  "message": "Chưa đồng bộ: iCloud không phản hồi. Lần sau sẽ thử lại."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Thợ cắt tóc, nhà tạo mẫu, bác sĩ, huấn luyện viên hay hướng dẫn viên: ai rảnh cũng được. Tắt: tôi sẽ hỏi bạn chọn ai."
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
