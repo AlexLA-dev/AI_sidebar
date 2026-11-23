@@ -61,7 +61,7 @@ import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentSt
 import type { AgentNotice } from "../background/agent"
 import { factKey, noticeLabel, sameTaskPage, type TaskPlan } from "../shared/agent/taskplan"
 import { chatContext } from "../shared/agent/chatctx"
-import { onReturn, sendBackground } from "./bgmsg"
+import { onReturn, sendBackground, standTrace } from "./bgmsg"
 import { refusedEntry, type FormEntry } from "../shared/agent/formdata"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
@@ -295,7 +295,7 @@ function offerUrl(code: string): string {
 }
 
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
-const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED"]
+const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED", "LINK"]
 
 /** The device's region from its language ("ru-RU" → "RU"), for Find similar's "near me" before the server says. */
 function localeCountry(): string | undefined {
@@ -314,6 +314,9 @@ function errorText(error: ChatError): string {
   switch (error.code) {
     case "NETWORK":
       return t("errNetwork")
+    // The tab's link to ContextFlow went (iOS put it away while another app was open): retry, else reload the page.
+    case "LINK":
+      return t("errLink")
     case "BUSY":
       // A message comes only from the user's own provider (OpenAI or Anthropic), in its own words.
       return error.message ? t("errProvider", error.message) : t("errBusy")
@@ -393,7 +396,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
   // The question being prepared (page still being read); cleared when it's sent or stopped.
   const askToken = useRef<object | null>(null)
-  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google" }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
+  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
   // The chat shown is "Ask your chats" (Pro): questions about all the other chats, not the page.
   const [historyMode, setHistoryMode] = useState(false)
   const historyRef = useRef(false)
@@ -518,6 +521,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   const [noteHint, setNoteHint] = useState(false)
   const [error, setError] = useState<ChatError | null>(null)
+  // The tab's link to the extension is gone (no answer at all after coming back from another app, 123): said in the
+  // chat with «Повторить» and «Обновить страницу»; questions and tasks get that error at once instead of a silent wait.
+  const [linkLost, setLinkLostState] = useState(false)
+  const linkLostRef = useRef(false)
+  const setLinkLost = (v: boolean) => {
+    linkLostRef.current = v
+    setLinkLostState(v)
+  }
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
@@ -1248,7 +1259,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   // `cite`: Retry of a question asked on a selection that's gone now: about that text again (build 110).
-  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string } = {}) => {
+  // `resent`: the question sent again on its own once, because the background never got it (123).
+  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string; resent?: boolean } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
@@ -1360,7 +1372,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     portRef.current = port
-    listenChat(port, history)
+    // The background never got it (the tab's link went while Safari was away, 123): sent again once on its own, with
+    // a fresh port; then an error with «Повторить», never a question that silently vanishes.
+    pendingAskRef.current = { history, content, opts }
+    if (linkLostRef.current && opts.resent === undefined) {
+      // The link is known to be gone (seen on coming back): the error now, not after a silent wait.
+      undeliveredRef.current(history, content, { ...opts, resent: true })
+      return
+    }
+    listenChat(port, history, () => undeliveredRef.current(history, content, opts))
     // Sizes only, for /analytics: whether keeping 40 messages, 50 chats or a few pages gets in the way.
     const stats = { turns: history.length, pages: threadPages(history).length, chats: threadList.length }
     if (chats) {
@@ -1415,9 +1435,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const heardRef = useRef(0)
 
   /** Follows a chat answer on `port`: what came so far first when it's a job followed again ("snapshot"). */
-  const listenChat = (port: chrome.runtime.Port, history: Turn[]) => {
+  const listenChat = (port: chrome.runtime.Port, history: Turn[], onUndelivered?: () => void) => {
     heardRef.current = Date.now()
     let settled = false
+    // Anything at all from the background on this port: then the question got there.
+    let heardAny = false
     let grounded: { text: string; grounding: Grounding } | null = null
     let lastSeq = 0
     type Followed = { type: "snapshot"; text: string; grounding?: { text: string; grounding: Grounding } } | { type: "beat" } | { type: "gone" }
@@ -1429,6 +1451,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       }
       if (portRef.current !== port) return
       heardRef.current = Date.now()
+      heardAny = true
+      pendingAskRef.current = null
+      if (linkLostRef.current) setLinkLost(false)
       if (event.type === "snapshot") {
         partialRef.current = event.text
         setPartial(event.text)
@@ -1456,7 +1481,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
     // Closed without an end: the job may well go on (the background still answers it), so the chat is read again.
     port.onDisconnect.addListener(() => {
-      if (!settled && portRef.current === port) lostRef.current()
+      standTrace(`chat port closed: settled=${settled} heardAny=${heardAny} err=${String(chrome.runtime.lastError?.message ?? "")}`)
+      if (settled || portRef.current !== port) return
+      if (!heardAny && onUndelivered) onUndelivered()
+      else lostRef.current()
     })
   }
 
@@ -1530,6 +1558,38 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   const lostRef = useRef(lost)
   lostRef.current = lost
+  // The question just sent, until anything comes back for it (then it reached the background).
+  const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean } } | null>(null)
+  /** A quiet or closed answer: a question that never got there is undelivered; one that did is followed again. */
+  const quietRef = useRef(() => {
+    const p = pendingAskRef.current
+    if (p) undeliveredRef.current(p.history, p.content, p.opts)
+    else lostRef.current()
+  })
+
+  /** A question the background never got: asked again once (a fresh port), then an error the person can retry. */
+  const undelivered = (history: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean }) => {
+    const port = portRef.current
+    portRef.current = null
+    askToken.current = null
+    try {
+      port?.disconnect()
+    } catch {
+      // already closed
+    }
+    pendingAskRef.current = null
+    standTrace(`chat undelivered resent=${!!opts.resent}`)
+    if (!opts.resent) {
+      partialRef.current = ""
+      setPartial(null)
+      setTimeout(() => askRef.current(content, { label: opts.label, action: opts.action, mode: opts.mode, retry: true, resent: true }), 400)
+      return
+    }
+    setLinkLost(true)
+    finish(history, "", { code: "LINK" })
+  }
+  const undeliveredRef = useRef(undelivered)
+  undeliveredRef.current = undelivered
 
   // A followed answer that says nothing for a while (its port broke without closing: 2.6 (90), "Reading the page…" for
   // minutes) is looked up again; so is one coming back from sleep (the page in the background, the phone locked).
@@ -1538,10 +1598,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (partial === null) return
     const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
     const timer = setInterval(() => {
-      if (quiet(20_000)) lostRef.current()
+      if (quiet(20_000)) quietRef.current()
     }, 5_000)
     const onVisible = () => {
-      if (document.visibilityState === "visible" && quiet(6_000)) lostRef.current()
+      if (document.visibilityState === "visible" && quiet(6_000)) quietRef.current()
     }
     document.addEventListener("visibilitychange", onVisible)
     return () => {
@@ -2661,6 +2721,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (inputRef.current) inputRef.current.style.height = "auto"
     setAgentLater(null)
     setAgentStartError(null)
+    // The tab's link is known to be gone: said now (a task's start would wait on a background that can't hear it).
+    if (linkLostRef.current) {
+      setAgentStartError(t("errLink"))
+      setDraft(text)
+      return
+    }
     // The last task's card, finished, gives way to the new one (its Undo goes with it).
     if (agentTask && !agentActive(agentTask as never)) {
       // (It stays in the chat, folded, without its Undo.)
@@ -2806,7 +2872,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (popup) return
     return onReturn(() => {
-      void sendBackground<{ state: PanelAgent | null }>({ type: "agentGet" }).then((r) => r?.state && setAgentTask(r.state))
+      standTrace(`return: runtime id=${String((chrome.runtime as { id?: string } | undefined)?.id ?? "none")}`)
+      // The tab's link checked on coming back: no answer at all means it's gone (the panel says so at once).
+      void sendBackground<{ state: PanelAgent | null }>({ type: "agentGet" }).then((r) => {
+        setLinkLost(r === null)
+        if (r?.state) setAgentTask(r.state)
+      })
       void refreshStatus()
     })
   }, [popup, refreshStatus])
@@ -2876,6 +2947,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // «Сделать на этой странице?» for the latest request that asks for an action (the owner on 121: «Забукай меня…» got an
   // answer pointing at a chip that wasn't there — a past task in the chat hid it). Hidden only while a task is going on.
   const agentBusy = !!agentTask && agentActive(agentTask as never)
+  const recheckLink = () => void sendBackground({ type: "agentGet" }).then((r) => setLinkLost(r === null))
   const agentBusyRef = useRef(false)
   agentBusyRef.current = agentBusy
   const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) ? lastUserIndex : -1
@@ -5444,6 +5516,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 )}
 
+                {linkLost && !error && (
+                  <div class="cf-card error" role="status">
+                    <p>{t("errLink")}</p>
+                    <div class="cf-card-actions">
+                      <button type="button" class="cf-secondary" onClick={recheckLink}><Icon.Retry /> {t("retry")}</button>
+                      <button type="button" class="cf-secondary" onClick={() => location.reload()}>{t("reloadPage")}</button>
+                    </div>
+                  </div>
+                )}
+
                 {error && error.code !== "LIMIT_REACHED" && error.code !== "PRO_ONLY" && (
                   <div class="cf-card error">
                     <p>{errorText(error)}</p>
@@ -5457,6 +5539,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <button type="button" class="cf-secondary" onClick={() => retry(true)}><Icon.Sparkle size={14} /> {t("askWithoutGoogle")}</button>
                       )}
                       {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("settings")}</button>}
+                      {/* The tab's link to ContextFlow is gone: a reload brings a panel that talks to it again. */}
+                      {error.code === "LINK" && <button type="button" class="cf-secondary" onClick={() => location.reload()}>{t("reloadPage")}</button>}
                       {error.ownKey && (
                         <button type="button" class="cf-secondary" onClick={() => { const { provider, problem } = error.ownKey!; void sendBackground({ type: "openUrl", url: ownKeyPlace(provider, problem).url }) }}>
                           {ownKeyPlace(error.ownKey.provider, error.ownKey.problem).label}

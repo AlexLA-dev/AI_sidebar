@@ -1,3 +1,7 @@
+// The build's API address (a build-time constant; absent where this runs without the build, as in tests).
+declare const __API_BASE__: string | undefined
+const STAND_BASE: string = typeof __API_BASE__ === "string" ? __API_BASE__ : ""
+
 // Messages from the panel to the extension's background, made to survive Safari putting it away (2.7.1, 123: after
 // switching to the ContextFlow app and back — the Calendar «Разрешить» flow — the tab got no answers until a reload:
 // «Мои данные» stayed empty). Every try is time-boxed; a message that wasn't delivered (no receiver, the background
@@ -23,6 +27,7 @@ interface Runtime {
   lastError?: { message?: string }
   sendMessage(message: unknown, callback: (response: unknown) => void): void
 }
+const runtimeId = (): string => String((globalThis as unknown as { chrome?: { runtime?: { id?: string } } }).chrome?.runtime?.id ?? "none")
 const runtime = (): Runtime | undefined => (globalThis as unknown as { chrome?: { runtime?: Runtime } }).chrome?.runtime
 
 function once(message: unknown, timeoutMs: number): Promise<Try> {
@@ -58,6 +63,7 @@ export async function sendBackground<T>(message: unknown, opts: SendOptions = {}
   const timeoutMs = opts.timeoutMs ?? (idempotent ? 5_000 : 30_000)
   for (let i = 0; i < tries; i++) {
     const t = await once(message, timeoutMs)
+    if (t.kind !== "answer") standTrace(`send ${String(type)} try ${i + 1}: ${t.kind} id=${runtimeId()}`)
     if (t.kind === "answer") return t.value as T | null
     if (t.kind === "silent" && !idempotent) return null
     await new Promise((ok) => setTimeout(ok, 250 * (i + 1)))
@@ -75,4 +81,13 @@ export function onReturn(fn: () => void): () => void {
     document.removeEventListener("visibilitychange", seen)
     window.removeEventListener("pageshow", shown)
   }
+}
+
+// ------------------------------------------------------------ the stand's trace (test builds against a local stand)
+
+/** A line to the local stand's log (test builds only: the API on localhost); real builds send nothing. */
+export function standTrace(what: string): void {
+  const base = STAND_BASE
+  if (!/^http:\/\/localhost:\d+$/.test(base)) return
+  void fetch(`${base}/__trace`, { method: "POST", body: `panel ${what}` }).catch(() => undefined)
 }

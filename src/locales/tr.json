@@ -1266,5 +1266,7 @@
   "fdICloudJustNow": "az önce",
   "fdICloudNoAccount": "Eşzamanlanmadı: bu cihazda iCloud’a giriş yapın",
   "fdICloudFailed": "Eşzamanlanmadı: iCloud yanıt vermedi. Bir dahaki sefere yeniden denenecek.",
-  "agentRuleAnySpecialistHint": "Berber, kuaför, doktor, antrenör ya da rehber: kim müsaitse. Kapalıyken kiminle olacağını sorarım."
+  "agentRuleAnySpecialistHint": "Berber, kuaför, doktor, antrenör ya da rehber: kim müsaitse. Kapalıyken kiminle olacağını sorarım.",
+  "errLink": "ContextFlow bu sayfayla bağlantısını kaybetti (başka bir uygulama açıkken iOS onu kapatmış olabilir). Yeniden deneyin ya da tekrar olursa sayfayı yenileyin.",
+  "reloadPage": "Sayfayı yenile"
 }

@@ -1266,5 +1266,7 @@
   "fdICloudJustNow": "방금",
   "fdICloudNoAccount": "동기화 안 됨: 이 기기에서 iCloud에 로그인하세요",
   "fdICloudFailed": "동기화 안 됨: iCloud가 응답하지 않았어요. 다음에 다시 시도해요.",
-  "agentRuleAnySpecialistHint": "이발사, 스타일리스트, 의사, 트레이너, 가이드 중 비어 있는 사람으로 예약해요. 끄면 누구로 할지 물어볼게요."
+  "agentRuleAnySpecialistHint": "이발사, 스타일리스트, 의사, 트레이너, 가이드 중 비어 있는 사람으로 예약해요. 끄면 누구로 할지 물어볼게요.",
+  "errLink": "ContextFlow와 이 페이지의 연결이 끊어졌습니다(다른 앱이 열려 있는 동안 iOS가 중지했을 수 있습니다). 다시 시도하거나, 또 그러면 페이지를 새로고침하세요.",
+  "reloadPage": "페이지 새로고침"
 }

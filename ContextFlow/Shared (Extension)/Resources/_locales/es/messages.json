@@ -3707,6 +3707,12 @@
  "agentRuleAnySpecialistHint": {
   "message": "Peluquero, estilista, médico, entrenador o guía: quien esté libre. Desactivado: te pregunto con quién."
  },
+ "errLink": {
+  "message": "ContextFlow perdió la conexión con esta página (iOS pudo cerrarlo mientras otra app estaba abierta). Reintenta o, si vuelve a pasar, recarga la página."
+ },
+ "reloadPage": {
+  "message": "Recargar la página"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

@@ -3707,6 +3707,12 @@
  "agentRuleAnySpecialistHint": {
   "message": "理发师、造型师、医生、教练或导游，谁有空都行。关闭后，我会先问你选谁。"
  },
+ "errLink": {
+  "message": "ContextFlow 与此页面的连接已断开(打开其他应用时 iOS 可能已将其停止)。请重试;如果再次发生,请重新加载页面。"
+ },
+ "reloadPage": {
+  "message": "重新加载页面"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

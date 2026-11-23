@@ -3707,6 +3707,12 @@
  "agentRuleAnySpecialistHint": {
   "message": "Coiffeur, styliste, médecin, coach ou guide : celui qui est libre. Désactivé : je vous demande avec qui."
  },
+ "errLink": {
+  "message": "ContextFlow a perdu le lien avec cette page (iOS l'a peut-être mis en pause pendant qu'une autre app était ouverte). Réessayez, ou rechargez la page si cela se reproduit."
+ },
+ "reloadPage": {
+  "message": "Recharger la page"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

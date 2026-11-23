@@ -35,6 +35,8 @@ export function keyName(e: Pick<FormEntry, "key" | "label">): string {
 interface Data {
   entries: FormEntry[]
   icloud?: boolean
+  // No answer from the extension (the tab's link went while Safari was away, 123).
+  lost?: boolean
   // What the last sync through iCloud did (the app keeps it): when it went through, or why it didn't.
   syncedAt?: number
   syncError?: string
@@ -60,8 +62,8 @@ export function MyDetailsGroup(): VNode {
     load()
     void autoStartSites().then(setSites)
     const off = onReturn(load)
-    // Nothing came at all: say empty rather than wait forever.
-    const empty = setTimeout(() => setData((d) => d ?? { entries: [] }), 12_000)
+    // Nothing came at all: the tab's link to ContextFlow is gone (123) — said, with a reload, never an empty list.
+    const empty = setTimeout(() => setData((d) => d ?? { entries: [], lost: true }), 12_000)
     return () => {
       off()
       clearTimeout(empty)
@@ -107,6 +109,11 @@ export function MyDetailsGroup(): VNode {
     <section class="cf-group cf-mydetails">
       <span class="cf-label">{t("fdTitle")}</span>
       <p class="cf-hint">{t("fdHint")}</p>
+      {data?.lost && (
+        <p class="cf-hint">
+          {t("errLink")} <button type="button" class="cf-link" onClick={() => location.reload()}>{t("reloadPage")}</button>
+        </p>
+      )}
       {live.length > 0 && (
         <ul class="cf-fd-list">
           {live.map((e) => (

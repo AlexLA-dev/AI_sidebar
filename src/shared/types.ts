@@ -181,6 +181,8 @@ export type ErrorCode =
   | "BUSY"
   | "UPSTREAM"
   | "NETWORK"
+  // The tab lost its link to the extension (iOS put it away while another app was open; 123).
+  | "LINK"
   | "STREAM"
   | "EMPTY"
   | "BAD_KEY"

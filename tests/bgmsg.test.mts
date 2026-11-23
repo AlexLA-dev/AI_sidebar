@@ -65,7 +65,45 @@ test("the panel reads again when the page comes back from another app or tab", a
   doc.dispatchEvent(new Event("visibilitychange"))
   assert.equal(n, 2)
   const app = readFileSync("src/content/App.tsx", "utf8")
-  assert.match(app, /return onReturn\(\(\) => \{\s*void sendBackground<[^>]+>\(\{ type: "agentGet" \}\)/)
+  assert.match(app, /return onReturn\(\(\) => \{[\s\S]{0,300}void sendBackground<[^>]+>\(\{ type: "agentGet" \}\)/)
   assert.match(readFileSync("src/content/agent/MyDetails.tsx", "utf8"), /const off = onReturn\(load\)/)
   assert.match(readFileSync("src/content/insert/store.ts", "utf8"), /import \{ sendBackground \} from "\.\.\/bgmsg"/)
+})
+
+test("the chat: a question the background never got is sent again once on a fresh port, then an error with «Повторить» and a reload — never a silent drop", () => {
+  const app = readFileSync("src/content/App.tsx", "utf8")
+  // The port closed before a word came back: undelivered, not «lost» (the job never existed).
+  assert.match(app, /if \(!heardAny && onUndelivered\) onUndelivered\(\)\s*else lostRef\.current\(\)/)
+  assert.match(app, /listenChat\(port, history, \(\) => undeliveredRef\.current\(history, content, opts\)\)/)
+  // Once again on its own (the ask runs whole: the chat saved, a new port), then the error.
+  assert.match(app, /if \(!opts\.resent\) \{[^}]*askRef\.current\(content, \{[^}]*retry: true, resent: true \}\)/)
+  assert.match(app, /finish\(history, "", \{ code: "LINK" \}\)/)
+  assert.match(app, /case "LINK":\s*return t\("errLink"\)/)
+  assert.match(app, /error\.code === "LINK" && <button[^>]*onClick=\{\(\) => location\.reload\(\)\}>\{t\("reloadPage"\)\}/)
+  assert.match(app, /const RESUMABLE = \[[^\]]*"LINK"\]/)
+  // The error card's own Retry asks the same question again.
+  assert.match(app, /\{lastIsUser && error\.code !== "SEARCH_LIMIT"[^}]*\(\s*<button type="button" class="cf-secondary" onClick=\{\(\) => retry\(\)\}>/)
+  const details = readFileSync("src/content/agent/MyDetails.tsx", "utf8")
+  assert.match(details, /setData\(\(d\) => d \?\? \{ entries: \[\], lost: true \}\)/)
+  assert.match(details, /data\?\.lost && \(/)
+  for (const f of ["en", "ru", "uk", "de", "fr", "es", "it", "pt_BR", "tr", "ja", "ko", "zh_CN", "zh_TW", "ar", "vi"]) {
+    const d = JSON.parse(readFileSync(`src/locales/${f}.json`, "utf8"))
+    assert.ok(d.errLink?.trim() && d.reloadPage?.trim(), f)
+  }
+})
+
+test("a silent tab (no answer at all after another app): the quiet watchdog treats an unheard question as undelivered; coming back probes the link and says so at once", () => {
+  const app = readFileSync("src/content/App.tsx", "utf8")
+  // The quiet watchdog (20 s, and on coming back) goes through the pending question first.
+  assert.match(app, /if \(quiet\(20_000\)\) quietRef\.current\(\)/)
+  assert.match(app, /const p = pendingAskRef\.current\s*if \(p\) undeliveredRef\.current\(p\.history, p\.content, p\.opts\)\s*else lostRef\.current\(\)/)
+  // Anything heard clears it (the question got there) and the link is fine.
+  assert.match(app, /heardAny = true\s*pendingAskRef\.current = null\s*if \(linkLostRef\.current\) setLinkLost\(false\)/)
+  // On coming back: no answer to agentGet → the link is gone, said in the chat with «Повторить» and a reload.
+  assert.match(app, /sendBackground<\{ state: PanelAgent \| null \}>\(\{ type: "agentGet" \}\)\.then\(\(r\) => \{\s*setLinkLost\(r === null\)/)
+  assert.match(app, /\{linkLost && !error && \(\s*<div class="cf-card error" role="status">\s*<p>\{t\("errLink"\)\}<\/p>/)
+  assert.match(app, /onClick=\{recheckLink\}><Icon\.Retry \/> \{t\("retry"\)\}/)
+  // Known gone: a question errors at once, a task says so before waiting on a background that can't hear it.
+  assert.match(app, /if \(linkLostRef\.current && opts\.resent === undefined\) \{[^}]*undeliveredRef\.current\(history, content, \{ \.\.\.opts, resent: true \}\)/)
+  assert.match(app, /if \(linkLostRef\.current\) \{\s*setAgentStartError\(t\("errLink"\)\)/)
 })
