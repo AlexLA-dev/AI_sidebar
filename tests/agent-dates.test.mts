@@ -2,7 +2,13 @@
 // Days and slots the page shows as not choosable are marked in the map and never pressed; two date steps without
 // progress end in the one question; the card asks what the request left open and shows the place the rules picked.
 import assert from "node:assert/strict"
-import { test } from "node:test"
+import { mkdtempSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { before, test } from "node:test"
+import { pathToFileURL } from "node:url"
+
+import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
@@ -23,8 +29,17 @@ function domMap(html: string, colors: Record<string, string> = {}): PageMap {
   return (globalThis as any).__buildMap(document)
 }
 
+before(async () => {
+  // The content script's map, bundled as the extension has it (its imports are the bundler's).
+  const dir = mkdtempSync(join(tmpdir(), "cf-dates-"))
+  const entry = join(dir, "entry.ts")
+  writeFileSync(entry, `export { buildMap } from "${new URL("../src/content/agent/map.ts", import.meta.url).pathname}"\n`)
+  const out = join(dir, "map.mjs")
+  await build({ entryPoints: [entry], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent", define: { __TARGET__: '"safari"', __API_BASE__: '""', __TEST_PLAN__: '""' } })
+  ;(globalThis as any).__buildMap = (await import(pathToFileURL(out).href)).buildMap
+})
+
 test("days the page shows as not choosable are marked: a disabled class, faded, no presses, or greyed among their siblings", async () => {
-  ;(globalThis as any).__buildMap = (await import("../src/content/agent/map.ts")).buildMap
   const map = domMap(`<div class="strip"><div>
     <button id="d26" class="day selected" aria-selected="true">Sat 26 Dec</button>
     <button id="d27" class="day">Sun 27 Dec</button>
