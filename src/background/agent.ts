@@ -443,6 +443,26 @@ async function formDataPut(changes: FormEntry[]): Promise<{ entries: FormEntry[]
 
 class Superseded extends Error {}
 
+// Stand builds only (the API on a local stand): each phase of a run to the stand's log, so a run that stands still shows
+// where. Real builds send nothing.
+const TRACE = /^http:\/\/localhost:\d+$/.test(API_BASE)
+function trace(tab: number, what: string): void {
+  if (!TRACE) return
+  void fetch(`${API_BASE}/__trace`, { method: "POST", body: `tab ${tab} ${what}` }).catch(() => undefined)
+}
+
+async function traced<T>(tab: number, what: string, p: Promise<T>): Promise<T> {
+  trace(tab, `${what} …`)
+  try {
+    const out = await p
+    trace(tab, `${what} ok`)
+    return out
+  } catch (e) {
+    trace(tab, `${what} threw ${String((e as Error)?.message ?? e).slice(0, 80)}`)
+    throw e
+  }
+}
+
 function io(tab: number, gen?: string): RunnerIO {
   // A run that Safari froze and a newer one replaced: it stops at its next ask, act or save, never acting twice.
   const live = async () => {
@@ -451,15 +471,15 @@ function io(tab: number, gen?: string): RunnerIO {
     if (now?.gen && now.gen !== gen) throw new Superseded("superseded")
   }
   return {
-    map: (opts) => tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}) }, 6_000),
+    map: (opts) => traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}) }, 6_000)),
     act: async (call: ToolCall) => {
       await live()
-      return tabMessage<StepResult>(tab, { type: "agentAct", call }, 12_000)
+      return traced(tab, `act ${call.tool}`, tabMessage<StepResult>(tab, { type: "agentAct", call }, 12_000))
     },
-    waitPage: () => waitComplete(tab),
+    waitPage: () => traced(tab, "waitPage", waitComplete(tab)),
     ask: async (body) => {
       await live()
-      return (await ask(body)) as never
+      return (await traced(tab, "ask", ask(body))) as never
     },
     save: async (state) => {
       await live()
@@ -486,6 +506,7 @@ function io(tab: number, gen?: string): RunnerIO {
       await live()
       if (!/^https?:\/\//.test(url)) return
       // Never waits on Safari's callback alone (a run stood still after the device opened a place).
+      trace(tab, `open ${url.slice(0, 120)}`)
       const complete = waitComplete(tab)
       await Promise.race([new Promise<void>((resolve) => chrome.tabs.update(tab, { url }, () => resolve())), new Promise<void>((resolve) => setTimeout(resolve, 5_000))])
       await complete
@@ -540,6 +561,7 @@ const PING_IDLE_MS = 45_000
 
 async function resume(tab: number, idleMs = 15_000): Promise<void> {
   const st = await load(tab)
+  trace(tab, `resume? status=${st?.status} idle=${st ? Date.now() - (st.touchedAt ?? 0) : -1} inflight=${!!st?.inflight}`)
   if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) < idleMs) return
   // A step was on its way when Safari froze the run: not resumed while it may still land; then settled — the model
   // hears that it may or may not have happened and reads the page before doing it again.

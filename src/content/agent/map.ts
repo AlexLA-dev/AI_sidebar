@@ -510,7 +510,10 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
   }
 
   // On the screen first; then what a sideways strip keeps out of it (a year of dates), then below and above.
-  const rank = (i: MapItem & { side?: boolean }) => (i.where === "dialog" ? 0 : i.where === undefined ? (i.side ? 1.5 : 1) : i.where === "below" ? 2 : 3)
+  // A search box above the screen (a page scrolled past its header) stays with what's on the screen: OpenTable, round 3 —
+  // the agent couldn't search again once the list was scrolled.
+  const searchBox = (i: MapItem) => (i.role === "textbox" || i.role === "combobox") && (i.type === "search" || SEARCH_WORDS.test(i.label))
+  const rank = (i: MapItem & { side?: boolean }) => (i.where === "dialog" ? 0 : i.where === undefined ? (i.side ? 1.5 : 1) : i.where === "above" && searchBox(i) ? 1.2 : i.where === "below" ? 2 : 3)
   items.sort((a, b) => rank(a) - rank(b) || a.order - b.order)
   const size = opts.size ?? PART_SIZE
   const parts = Math.max(1, Math.ceil(items.length / size))
@@ -536,6 +539,8 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     ...(opts.money && asksDeposit(doc) ? { deposit: true } : {})
   }
 }
+
+const SEARCH_WORDS = /search|find|cuisine|restaurant name|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|ara|検索|검색|搜索|搜尋|بحث|tìm/i
 
 // Payment providers' frames and buttons, and addresses of checkout and payment pages (2.7.1, the security review: card
 // fields in another site's frame never made a form secret).
