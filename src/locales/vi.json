@@ -1232,5 +1232,18 @@
   "agentPlanHow": "Tôi tự chọn nơi: đánh giá từ {0}, phù hợp, gần nhất",
   "agentPlanHowCal": "giờ trống trong Lịch của bạn, và thêm vào đó",
   "agentRuleVenue": "Tự chọn nơi nếu tôi không nêu tên",
-  "agentRuleRating": "Đánh giá nơi từ"
+  "agentRuleRating": "Đánh giá nơi từ",
+  "accessGroup": "Lịch và Lời nhắc",
+  "accessHint": "Tác nhân chọn giờ còn trống trong lịch của bạn và có thể thêm lượt đặt vào đó. Nội dung lịch không bao giờ rời khỏi thiết bị.",
+  "accessCalendar": "Lịch",
+  "accessReminders": "Lời nhắc",
+  "accessYes": "Đã cho phép",
+  "accessNo": "Chưa có quyền",
+  "accessAllow": "Cho phép",
+  "accessSettingsIos": "Mở Cài đặt iOS",
+  "accessSettingsMac": "Mở Cài đặt hệ thống",
+  "agentRuleCalNeeds": "cần quyền truy cập Lịch",
+  "agentPlanCalAsk": "Xét đến lịch?",
+  "agentCalNotChecked": "chưa kiểm tra lịch: không có quyền",
+  "agentPlanFromChat": "Từ cuộc trò chuyện: {0}"
 }

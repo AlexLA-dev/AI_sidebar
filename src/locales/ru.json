@@ -1232,5 +1232,18 @@
   "agentPlanHow": "Место выберу сам: рейтинг от {0}, подходящее, ближайшее",
   "agentPlanHowCal": "время, свободное в Календаре, и добавлю туда",
   "agentRuleVenue": "Выбирать место самому, если я его не назвал",
-  "agentRuleRating": "Рейтинг места от"
+  "agentRuleRating": "Рейтинг места от",
+  "accessGroup": "Календарь и Напоминания",
+  "accessHint": "Агент выбирает время, свободное в календаре, и может добавлять брони. Содержимое календаря не покидает устройство.",
+  "accessCalendar": "Календарь",
+  "accessReminders": "Напоминания",
+  "accessYes": "Доступ есть",
+  "accessNo": "Нет доступа",
+  "accessAllow": "Разрешить",
+  "accessSettingsIos": "Открыть настройки iOS",
+  "accessSettingsMac": "Открыть Системные настройки",
+  "agentRuleCalNeeds": "нужен доступ к календарю",
+  "agentPlanCalAsk": "Учитывать календарь?",
+  "agentCalNotChecked": "календарь не проверял: нет доступа",
+  "agentPlanFromChat": "Из чата: {0}"
 }

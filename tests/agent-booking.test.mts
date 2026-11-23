@@ -399,3 +399,59 @@ test("the watchdog: a visible page pings while its task runs; a run idle for 45 
   assert.match(bg, /case "agentPing":[\s\S]{0,200}resume\(tab, PING_IDLE_MS\)/)
   assert.match(bg, /const PING_IDLE_MS = 45_000/)
 })
+
+test("a booking's contact form isn't the place failing: saved name, e-mail and phone go in by the plan; a missing one is asked once, with «remember»", async () => {
+  const { contactAsked } = await import("../src/shared/agent/taskplan.ts")
+  const opened: string[] = []
+  const CONTACT: PageMap = {
+    ...RESULTS, url: "https://www.example.com/r/fellini/book",
+    forms: [{ n: 0, fillable: true }],
+    items: [
+      { id: "1", role: "textbox", label: "Email", type: "email", lock: "personal", form: 0 },
+      { id: "2", role: "textbox", label: "Phone", type: "tel", lock: "personal", form: 0 },
+      { id: "9", role: "button", label: "Continue", form: 0 }
+    ]
+  }
+  const raw = { ...RAW, questions: [], booking: { ...BOOKING, match: ["Italian"] } }
+  const pages = [RESULTS]
+  const saved: FormEntry[] = [{ id: "e", key: "email", label: "", value: "anna@example.org", updatedAt: 1 }]
+  const x = io([
+    { ok: true, plan: raw, token: "t" },
+    step({ tool: "click", id: "2" }, "free", "click", 'link "Fellini"'),
+    step({ tool: "fill", id: "1", key: "email" }, "confirm", "fill", 'field "Email"'),
+    step({ tool: "ask_user", question: "Which phone number should the booking use?", choices: [] }, "free", "read")
+  ], { map: RESULTS, entries: saved, playbook: null })
+  x.map = async () => pages[pages.length - 1]
+  x.act = async (c) => {
+    x.acted.push(c)
+    if (c.id === "2" && c.tool === "click") pages.push(CONTACT)
+    return { ok: true }
+  }
+  x.rules = async () => ({ ...DEFAULT_RULES, rating: 4.2 })
+  x.open = async (url) => void opened.push(url)
+  let s = await drive(newState("c", "book an Italian restaurant for two at 20:00", "en", RESULTS.url), x)
+  assert.equal(s.status, "plan")
+  const contact = s.plan!.perms.find((p) => p.reason === "contact")
+  assert.deepEqual(contact?.keys, ["email"], "the card's one line: the saved contact details only")
+  const { approvePlan } = await import("../src/shared/agent/runner.ts")
+  s = await approvePlan(s, x, { answers: [], off: [] })
+  assert.equal(s.status, "asked", "the missing phone is asked")
+  assert.deepEqual(opened, [], "no next place for a details form")
+  assert.ok(x.acted.some((c) => c.tool === "fill" && c.key === "email"), "the saved e-mail went in without a question")
+  assert.equal(s.askKey, "phone", "the answer may be kept in «Мои данные»")
+  assert.equal(contactAsked("Какой e-mail указать для брони?"), "email")
+  assert.equal(contactAsked("Your name and phone?"), null, "two details: no single key to keep")
+})
+
+test("the contact fill covers saved contact keys into the person's fields only, never a secret field or another key", async () => {
+  const { covered, addContactFill } = await import("../src/shared/agent/taskplan.ts")
+  const plan = buildPlan(checkPlan(RAW)!, { map: SALON, startHost: "salon.example.com", request: "book", confirmedHere: false, policy: { amazon: true } })
+  plan.approved = true
+  addContactFill(plan, ["email", "phone", "address.city"], "salon.example.com")
+  const m: PageMap = { ...SALON, url: "https://www.salon.example.com/details", items: [{ id: "1", role: "textbox", label: "Email", lock: "personal" }, { id: "2", role: "textbox", label: "Card", lock: "secret" }, { id: "3", role: "textbox", label: "City", lock: "personal" }] }
+  const v = { cls: "confirm" as const, reason: "fill" }
+  assert.ok(covered(plan, { tool: "fill", id: "1", key: "email" }, v, m, "book"))
+  assert.equal(covered(plan, { tool: "fill", id: "2", key: "email" }, v, m, "book"), null, "never into a secret field")
+  assert.equal(covered(plan, { tool: "fill", id: "3", key: "address.city" }, v, m, "book"), null, "only contact keys")
+  assert.equal(covered(plan, { tool: "fill", id: "1", key: "email" }, v, { ...m, url: "https://other.example.net/x" }, "book"), null, "only on the booking's site")
+})

@@ -13,7 +13,7 @@ import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } 
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { cardsOf, onVenue, rankVenues, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
-import { buildPlan, checkPlan, covered, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
+import { addContactFill, buildPlan, checkPlan, contactAsked, covered, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -91,6 +91,12 @@ export interface AgentState {
   // ask_user's answers offered as buttons, and the person's answers to the agent's questions (theirs to type).
   choices?: string[]
   replies?: string[]
+  // A booking whose calendar rule couldn't be kept: the app has no access (the result says so).
+  calSkipped?: boolean
+  // The last turns of the chat the task was started from (chatctx.ts): the plan call only, for the request's references.
+  chat?: string
+  // The contact detail the question asks for, when «Мои данные» hasn't got it (the panel offers to keep the answer).
+  askKey?: string
   // A booking (2.7.1, the owner: «оглядывался и на свободные слоты в календаре»): the person's rules as the model hears
   // them, the Calendar's free times for it (worked out on the device: only times), how this site's booking went last
   // time, the time slot pressed (checked against the Calendar), and what was booked (said by «done»).
@@ -298,7 +304,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   state.chooseVenue = rules.chooseVenue
   state.minRating = rules.rating
   const reply = await io.ask({
-    task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}), rules: state.rules, ...(state.playbook ? { playbook: state.playbook } : {}) },
+    task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}), rules: state.rules, ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.chat ? { chat: state.chat } : {}) },
     map: sent(map), log: [], keys
   })
   if (!reply.ok) {
@@ -309,6 +315,8 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   state.token = reply.token ?? null
   if (reply.left !== undefined) state.left = reply.left
   state.step = 1
+  // The chat went with the plan only (what it resolved is the plan's fromChat): not kept with the task.
+  state.chat = undefined
   // A server without plans answered with a step: none, every «Сделать?» asks (it's asked again as step 1).
   const plan = reply.plan ? buildPlan(checkPlan(reply.plan), { map, startHost: state.startHost, request: state.request, confirmedHere: false, policy: io.policy }) : null
   if (!plan) return "go"
@@ -327,6 +335,14 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   if (!state.calendar) state.rules = rulesLine(rules, false)
   if (plan.booking && !plan.how) plan.how = { rating: rules.chooseVenue ? rules.rating : 0, calendar: false }
+  // The rule says «free in the calendar» but the app may not read it: the card offers it, the result says it wasn't
+  // checked (never a silent skip).
+  if (plan.booking && plan.how && rules.calendar && (here?.calendar === "none" || here?.calendar === "denied")) {
+    plan.how.ask = here.calendar
+    state.calSkipped = true
+  }
+  // The booking's contact form (a later page): the saved name, e-mail and phone go in as the plan's fill.
+  addContactFill(plan, liveEntries(entries).map((e) => e.key), hostOf(map.url))
   // Nothing left to ask (every answer known from «Мои данные», this site's remembered choices or the rules; nothing paid;
   // a site booked on before): no card, the task starts with its answers in one line and Stop.
   const pre = savedAnswers(plan, savedFacts(entries))
@@ -343,6 +359,11 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   plan.approved = true
   return "go"
+}
+
+/** Whether the page asks for the person's details: an empty field of theirs (name, e-mail, phone) on screen. */
+export function detailsForm(map: PageMap): boolean {
+  return map.items.some((i) => i.lock === "personal" && !i.value && i.where !== "above" && i.where !== "below" && (i.role === "textbox" || i.role === "combobox"))
 }
 
 /** A value as compared with a saved one (spaces, case and a phone's separators aside). */
@@ -473,7 +494,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     state.stillReads = state.lastWasRead && state.lastSig === sig ? (state.stillReads ?? 0) + 1 : 0
     state.lastSig = sig
     state.lastWasRead = false
-    if ((state.stillReads ?? 0) >= 4 && (await openNext(state, io, "the page stopped changing"))) continue
+    if ((state.stillReads ?? 0) >= 4 && !detailsForm(map) && (await openNext(state, io, "the page stopped changing"))) continue
     if ((state.stillReads ?? 0) >= 4) {
       state.status = "done"
       state.error = "stuck"
@@ -541,11 +562,14 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // A booking whose place the agent chose (the request named none): before a question, the next place or two by the
     // rules (fresha, 120: it asked about the first barbershop's slots instead of trying the next).
-    if (call.tool === "ask_user" && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
+    // A form asking for the person's details is the booking going on, not the place failing (the director on 23e9:
+    // Borgo Paris was left for a required e-mail): no next place for it.
+    const details = detailsForm(map)
+    if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       continue
     }
-    if (call.tool === "ask_user" && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && !state.venues) {
+    if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && !state.venues) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: "refused: the request names no place, so it's yours to choose: go back to the list (back) and try the next place by the rules that has slots fitting the rules and <calendar>; ask only after two more places didn't fit, with their real slots" })
       continue
@@ -557,6 +581,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.summary = call.question ?? ""
       // Times the page doesn't show (taken from the Calendar alone, fresha 2) aren't offered.
       state.choices = pageChoices(call.choices ?? [], pageTimes(map))
+      // A contact detail «Мои данные» hasn't got (asked once): the answer may be kept there.
+      const key = details ? contactAsked(call.question ?? "") : null
+      state.askKey = key && !liveEntries(entries).some((e) => e.key === key) ? key : undefined
       break
     }
     // The device's own check, on its own map: never milder than the server's.
@@ -580,7 +607,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // A saved detail whose value is the one the person wrote in the request: the plan's «type your details» covers it.
     // Typing a saved detail's own value into a field the plan meant to fill with it: the plan's fill covers it.
     if (!perm && call.tool === "type" && verdict.reason === "personal" && state.plan?.approved && !reply.offRequest && call.id) {
-      const filling = state.plan.perms.find((p) => p.kind === "fill" && p.on && !!p.ids?.includes(call.id!) && sameSite(p.host, hostOf(map.url)))
+      const filling = state.plan.perms.find((p) => p.kind === "fill" && p.on && (!!p.ids?.includes(call.id!) || p.reason === "contact") && sameSite(p.host, hostOf(map.url)))
       const typed = normalizeValue(call.text ?? "")
       if (filling && typed && liveEntries(entries).some((e) => filling.keys?.includes(modelKey(e)) && normalizeValue(e.value) === typed)) perm = filling
     }
@@ -831,6 +858,7 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     state.replies = [...(state.replies ?? []), text]
     state.summary = undefined
     state.choices = undefined
+    state.askKey = undefined
     state.status = "running"
     state.stillReads = 0
     await io.save(state)

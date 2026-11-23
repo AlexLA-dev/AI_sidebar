@@ -10,6 +10,7 @@ import { useEffect, useState } from "preact/hooks"
 import { FORM_KEYS, refusedEntry, type FormEntry, type FormKey } from "../../shared/agent/formdata"
 import { t, type MessageKey } from "../../shared/i18n"
 import { sendBackground } from "../insert/store"
+import { CalendarNeed } from "./AppleAccess"
 import { autoStartSites, setAutoStart } from "./marks"
 import { DEFAULT_RULES, readRules, RULES_KEY, type AgentRules } from "../../shared/agent/rules"
 
@@ -202,6 +203,7 @@ function RulesGroup(): VNode {
       {flag("anySpecialist", t("agentRuleAnySpecialist"))}
       {flag("usual", t("agentRuleUsual"))}
       {flag("calendar", t("agentRuleCalendar"))}
+      {rules.calendar && <CalendarNeed />}
       {flag("auto", t("agentRuleAuto"))}
       {flag("chooseVenue", t("agentRuleVenue"))}
       {rules.chooseVenue && (

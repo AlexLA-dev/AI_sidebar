@@ -91,6 +91,7 @@ struct ContentView: View {
     @StateObject private var listenShown = ListenShown()
     /// Calendar and Reminders handed over by the Safari panel (2.7, contextflow://add?id=…).
     @StateObject private var appleAdd = AppleAdd.shared
+    @StateObject private var appleAccess = AppleAccessModel.shared
 
     /// What's new in 2.5 (organizing): once, to those who already have chats.
     @State private var whatsNew = false
@@ -220,9 +221,15 @@ struct ContentView: View {
                 case "add":
                     appleAdd.open(url)
                 // 2.7.1: the agent needs Calendar or Reminders: the system's question, asked here (the extension can't).
+                // Turned down before (or «settings=1» from the panel): the system's Settings, where it's turned on.
                 case "access":
-                    let kind = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "kind" }?.value
-                    Task { _ = await AppleItems.ask(kind == "calendar" ? .event : .reminder) }
+                    let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+                    let item: AppleItems.Item.Kind = query.first { $0.name == "kind" }?.value == "calendar" ? .event : .reminder
+                    if query.contains(where: { $0.name == "settings" }) || AgentApple.access(item == .event ? .event : .reminder) == "denied" {
+                        AppleAdd.openSettings(item)
+                    } else {
+                        Task { _ = await AppleItems.ask(item); appleAccess.refresh() }
+                    }
                 // 2.7: a friend's invite link opened where the app is installed: the code goes into the field.
                 case "invite":
                     let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "code" }?.value ?? ""
@@ -1996,6 +2003,8 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var restoring = false
     @State private var showingMyDetails = false
+    @ObservedObject private var appleAccess = AppleAccessModel.shared
+    @Environment(\.scenePhase) private var scenePhase
     @State private var restoreMessage: String?
     @State private var switching = false
     /// "Hide" on the yearly line: away for 60 days (it's a line in Settings, never a prompt).
@@ -2095,6 +2104,17 @@ struct SettingsView: View {
                 #if os(macOS)
                 .frame(minWidth: 480, minHeight: 520)
                 #endif
+            }
+
+            // 2.7.1: the agent's Calendar and Reminders, seen and allowed here as in the panel's Settings.
+            Section(header: Text("Calendar and Reminders"), footer: Text("The agent picks times that are free in your calendar and can add bookings to it. What's in your calendar never leaves the device.")) {
+                AccessRow(title: "Calendar", state: appleAccess.calendar) { appleAccess.allow(.event) }
+                AccessRow(title: "Reminders", state: appleAccess.reminders) { appleAccess.allow(.reminder) }
+            }
+            .onAppear { appleAccess.refresh() }
+            .onChange(of: scenePhase) { phase in
+                // Back from the system's Settings: read it again.
+                if phase == .active { appleAccess.refresh() }
             }
 
             Section(

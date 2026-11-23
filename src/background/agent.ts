@@ -7,6 +7,7 @@
 // - «Мои данные»: read and written through the app's store (FormData.swift), never kept in the extension's storage;
 //   values reach only the content script that fills a field, after the person's «Заполнить».
 
+import { CHAT_CHARS } from "../shared/agent/chatctx"
 import { API_BASE, TARGET, TEST_PLAN } from "../shared/config"
 import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
 import { active, answer, approvePlan, drive, newState, pendingKey, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
@@ -54,11 +55,12 @@ export interface DeferredTask {
 }
 
 export type AgentRequest =
-  | { type: "agentStart"; request: string; lang: string; deferred?: string }
+  | { type: "agentStart"; request: string; lang: string; deferred?: string; chat?: string }
   | { type: "agentAnswer"; answer: Answer; chosen?: string[]; key?: string }
   | { type: "agentPlan"; approval: PlanApproval }
   | { type: "agentGet" }
-  | { type: "agentAccessOpen"; kind: "reminders" | "calendar" }
+  | { type: "agentAccessOpen"; kind: "reminders" | "calendar"; settings?: boolean }
+  | { type: "agentAccess" }
   | { type: "agentUndo" }
   | { type: "agentClose"; keep?: boolean }
   | { type: "agentForgetPast"; id: string }
@@ -331,7 +333,7 @@ async function goTab(): Promise<boolean> {
 
 /** What the panel gets: everything but the server's log and the last page text (it shows its own lines). */
 function forPanel(state: AgentState): Omit<AgentState, "log" | "data"> & { canUndo: boolean } {
-  const { log: _log, data: _data, ...rest } = state
+  const { log: _log, data: _data, chat: _chat, ...rest } = state
   // Only what was really changed (a field, a box, a list's choice) can be put back: a task that only read has no Undo.
   return { ...rest, canUndo: state.undo.some((u) => !!u && typeof u === "object" && !!u.id && !!u.kind) }
 }
@@ -583,6 +585,8 @@ async function start(tab: number, url: string, m: Extract<AgentRequest, { type: 
     await forget(tab)
   }
   const state = newState(crypto.randomUUID(), m.request.slice(0, 2000), m.lang, url, m.deferred)
+  // Started inside a chat thread: its last turns go with the plan call, for the request's references (never stored).
+  if (typeof m.chat === "string" && m.chat.trim()) state.chat = m.chat.slice(0, CHAT_CHARS + 400)
   if (m.deferred) {
     // Its plan was approved when it was put off: on the same page it goes by it (another page: planned again).
     const d = (await deferredAll()).find((x) => x.id === m.deferred)
@@ -781,7 +785,13 @@ export function startAgent(d: AgentDeps): void {
       case "agentDeferred":
         return respond(syncDeferred().then(deferredAll).then((tasks) => ({ tasks })))
       case "agentAccessOpen":
-        return respond(TARGET === "safari" ? callNative("agent_access_open", { kind: message.kind === "calendar" ? "calendar" : "reminders" }, 5000).then((r) => r ?? { opened: false }) : Promise.resolve({ opened: false }))
+        return respond(TARGET === "safari" ? callNative("agent_access_open", { kind: message.kind === "calendar" ? "calendar" : "reminders", ...(message.settings ? { settings: true } : {}) }, 5000).then((r) => r ?? { opened: false }) : Promise.resolve({ opened: false }))
+      // Settings' «Календарь и Напоминания»: whether the app may read them now (asked each time the panel shows it).
+      case "agentAccess": {
+        // Read fresh, and the agent's next look reads it too (the person may have just allowed it in the app).
+        deviceCache = null
+        return respond(cachedDevice().catch(() => ({ reminders: "unavailable", calendar: "unavailable" })))
+      }
       case "agentDeferCancel":
         return respond(removeDeferred(message.id).then(() => ({ ok: true })))
       case "formData":
