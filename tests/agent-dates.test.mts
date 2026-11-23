@@ -156,7 +156,7 @@ test("a question about the booking's day before the page showed it is sent back 
   assert.equal(after.status, "asked")
 })
 
-test("the asked day shown greyed is pressed once to hear the page; a question before that press is sent back (fresha, 124: «Sat 26 Dec» greyed until pressed: «fully booked… Available from Mon, Dec 28»)", async () => {
+test("the asked day shown greyed is pressed once to hear the page; a question before that press makes the device press it (fresha, 124: «Sat 26 Dec» greyed until pressed: «fully booked… Available from Mon, Dec 28»)", async () => {
   const STRIP: PageMap = {
     url: "https://www.fresha.com/a/cutter/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "Select a date", forms: [],
     items: [
@@ -166,16 +166,15 @@ test("the asked day shown greyed is pressed once to hear the page; a question be
   }
   const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30, tz: "", venue: "Cutter Barbershop", match: [], area: [] } }
   const ASK = { ok: true, call: { tool: "ask_user", question: "26 Dec and the days around are closed; free only until 9 Dec", choices: ["Wed 9 Dec"] }, verdict: { cls: "free", reason: "read" } }
-  const PRESS26 = { ok: true, call: { tool: "click", id: "3", why: "the asked day" }, verdict: { cls: "free", reason: "click" } }
   const PRESS27 = { ok: true, call: { tool: "click", id: "4", why: "next day" }, verdict: { cls: "free", reason: "click" } }
   const pressed: string[] = []
-  const replies: any[] = [{ ok: true, plan: RAW, token: "t" }, ASK, PRESS26, PRESS27, ASK]
+  const replies: any[] = [{ ok: true, plan: RAW, token: "t" }, ASK, PRESS27, ASK]
   const io: RunnerIO = { map: async () => STRIP, act: async (c: any) => { pressed.push(c.id); return { ok: true } }, waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
   const s = await drive(newState("g1", "Book me a haircut in a month on Saturday", "en", STRIP.url), io)
   const after = await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
-  const sent = after.log.find((l) => l.call.tool === "ask_user" && /^refused/.test(l.result ?? ""))
-  assert.ok(sent && /«Sat 26 Dec» shows greyed.*press it once/.test(sent.result!), "sent back to press the asked day")
+  const held = after.log.find((l) => l.call.tool === "ask_user" && /^held/.test(l.result ?? ""))
+  assert.ok(held && /pressed the asked day «Sat 26 Dec»/.test(held.result!), "the device pressed the asked day itself")
   assert.deepEqual(pressed, ["3"], "the asked day pressed once though greyed; another greyed day isn't")
   assert.equal(after.status, "asked", "then the question goes to the person")
 })

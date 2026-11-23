@@ -756,6 +756,19 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: box ? `refused: the request names no place, so it's yours to find: type what the request asks (the service or cuisine, and the area) into the site's search box #${box.id} "${box.label.slice(0, 60)}", search, then choose from the list by the rules` : "refused: the request names no place, so it's yours to find: open the site's own search or the category that fits (its search box, «Barbers», «Restaurants»), then choose from the list by the rules; ask only after two places didn't fit, with their real slots" })
       continue
     }
+    // The asked day shown greyed and never pressed (a strip that greys days it hasn't loaded): the device presses it once
+    // itself and the page's answer goes to the model, instead of a question about a day nobody looked at (fresha, 124:
+    // sent back once, the model asked again; pressed, «fully booked… Available from Mon, Dec 28»).
+    const greyDay = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.pressedTarget
+      ? dayItems(map, state.plan.booking.date).find(greyedItem)
+      : undefined
+    if (greyDay) {
+      state.pressedTarget = true
+      state.sawDate = true
+      await perform(state, io, { tool: "click", id: greyDay.id, why: `«${greyDay.label}» pressed once to read the page's answer for the asked day` }, { cls: "free", reason: "click" }, `button "${greyDay.label.slice(0, 60)}"`)
+      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `held: the device pressed the asked day «${greyDay.label}» first (it showed greyed); read the page's answer for it, then go on or ask with what the page shows` })
+      continue
+    }
     // A question about the booking's day before the page ever showed that day: sent back once, to go to it first.
     if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged) {
       state.dateNudged = true
