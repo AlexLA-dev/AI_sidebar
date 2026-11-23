@@ -1409,7 +1409,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(appleNow()?.available ? { items: true as const } : {}),
           // 2.7.1: a question that asks for an action gets «Сделать на этой странице?» under it: the answer says so.
           // (Plans with the agent only: Free's answer keeps its honest wording, the chip shows the Pro mark.)
-          ...(!historyMode && hasPro(planNow) ? { agent: true as const } : {}),
+          // Only when the chip is really shown for this question (the owner on 121: the answer described a button that
+          // wasn't there): an action request, not in history, no task going on.
+          ...(!historyMode && hasPro(planNow) && opts.mode !== "google" && asksForAction(content) && !agentBusyRef.current ? { agent: true as const } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
@@ -2872,6 +2874,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // An agent task's card (or a deferred one's) is on screen: the greeting and its chips step aside for it.
   const agentCardShown = !!agentTask || !!agentDeferred || agentPast.length > 0
   const lastUserIndex = messages.findLastIndex((m) => m.role === "user" && !m.note)
+  // «Сделать на этой странице?» for the latest request that asks for an action (the owner on 121: «Забукай меня…» got an
+  // answer pointing at a chip that wasn't there — a past task in the chat hid it). Hidden only while a task is going on.
+  const agentBusy = !!agentTask && agentActive(agentTask as never)
+  const agentBusyRef = useRef(false)
+  agentBusyRef.current = agentBusy
+  const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) ? lastUserIndex : -1
+  // Under the answer once it's there (where the answer says it is), under the question while it's written.
+  const offerAt = offerFor < 0 ? -1 : messages[offerFor + 1]?.role === "assistant" ? offerFor + 1 : offerFor
+  const offerChip = (at: number) =>
+    at === offerAt && (
+      <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))}>
+        <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
+      </button>
+    )
   // A task that ended (done, asked, stopped, failed, blocked) puts the field back to asking (the owner on 117: it stayed in
   // Do). Only on the change itself: a finished task shown again later doesn't touch the mode.
   const endedFor = useRef("")
@@ -5070,11 +5086,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {/* 2.7.1, the design: an ordinary question that asks for an action gets «Сделать на этой странице?»
                           under it (the latest one only); the agent starts on the tap, with the question's words. */}
-                      {!m.note && !historyMode && idx === lastUserIndex && !agentCardShown && m.similarAsk === undefined && asksForAction(m.content) && (
-                        <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(m.content, undefined, threadFor(idx))}>
-                          <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
-                        </button>
-                      )}
+                      {!m.note && offerChip(idx)}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                       {m.note && !picked && ux.addCard(m, idx)}
                     </div>
@@ -5093,6 +5105,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         </>
                       ), !picked)}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
+                      {!picked && offerChip(idx)}
                       {!picked && ux.addCard(m, idx)}
                     </div>
                   )

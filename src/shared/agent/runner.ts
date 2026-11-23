@@ -11,6 +11,7 @@ import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
+import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
@@ -93,6 +94,9 @@ export interface AgentState {
   replies?: string[]
   // A booking whose calendar rule couldn't be kept: the app has no access (the result says so).
   calSkipped?: boolean
+  // The one place, product or specialist the start page is about (subject.ts): the task's target unless the request
+  // names another (the owner on 121).
+  subject?: string
   // The last turns of the chat the task was started from (chatctx.ts): the plan call only, for the request's references.
   chat?: string
   // The contact detail the question asks for, when «Мои данные» hasn't got it (the panel offers to keep the answer).
@@ -303,8 +307,10 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   state.rules = rulesLine(rules, calendarOn)
   state.chooseVenue = rules.chooseVenue
   state.minRating = rules.rating
+  const subject = pageSubject(map)
+  if (subject) state.subject = subjectLine(subject, hostOf(map.url))
   const reply = await io.ask({
-    task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}), rules: state.rules, ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.chat ? { chat: state.chat } : {}) },
+    task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}), rules: state.rules, ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.chat ? { chat: state.chat } : {}), ...(state.subject ? { subject: state.subject } : {}) },
     map: sent(map), log: [], keys
   })
   if (!reply.ok) {
@@ -321,6 +327,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   const plan = reply.plan ? buildPlan(checkPlan(reply.plan), { map, startHost: state.startHost, request: state.request, confirmedHere: false, policy: io.policy }) : null
   if (!plan) return "go"
   state.plan = plan
+  // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
+  if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
+  if (subject && plan.booking?.venue) state.chooseVenue = false
   if (plan.booking && calendarOn) {
     // Asked in the device's own clock, said to the model in the place's (a table in Paris from Nicosia).
     const b = plan.booking
@@ -328,13 +337,13 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     const until = shiftZone(b.date, b.until, b.tz)
     const free = (await io.calendarFree!({ ...b, date: from.date, from: from.time, until: until.date === from.date ? until.time : "23:59" }, rules.days).catch(() => null)) ?? undefined
     state.calendar = free && free !== "none" ? freeLineIn(free, b.tz) : free
-    plan.how = { rating: rules.chooseVenue ? rules.rating : 0, calendar: true }
+    plan.how = { rating: rules.chooseVenue && !b.venue ? rules.rating : 0, calendar: true }
     // The booking in the Calendar afterwards: a permission of the plan, ticked (the device adds it itself, from the time
     // that was booked, with the booking page's link).
     if (!plan.perms.some((p) => p.kind === "apple" && p.reason === "event_add")) plan.perms.push({ id: "pcal", kind: "apple", reason: "event_add", label: plan.label || site, host: hostOf(map.url), on: true })
   }
   if (!state.calendar) state.rules = rulesLine(rules, false)
-  if (plan.booking && !plan.how) plan.how = { rating: rules.chooseVenue ? rules.rating : 0, calendar: false }
+  if (plan.booking && !plan.how) plan.how = { rating: rules.chooseVenue && !plan.booking.venue ? rules.rating : 0, calendar: false }
   // The rule says «free in the calendar» but the app may not read it: the card offers it, the result says it wasn't
   // checked (never a silent skip).
   if (plan.booking && plan.how && rules.calendar && (here?.calendar === "none" || here?.calendar === "denied")) {
@@ -517,7 +526,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     const plan = planLine(state.plan)
     const reply = await io.ask({
-      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.venues ? { venues: venuesLine(state.venues) } : {}) },
+      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.venues ? { venues: venuesLine(state.venues) } : {}), ...(state.subject ? { subject: state.subject } : {}) },
       map: sent(map), log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
