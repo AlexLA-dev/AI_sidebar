@@ -787,7 +787,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const day = dayWords(state.plan.booking.date)
       const why = state.greyTarget
         ? `«${state.greyTarget}» shows greyed, which can mean the page hasn't loaded that day yet: press it once and read what the page says (free times, or «fully booked», «Available from …»), then go on; ask only with days and times the page showed as free`
-        : `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first (the page's calendar or date button and its «next month» arrow, or scroll the date strip), read it, then go on; ask only with days the page showed as free`
+        : `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first — when the page shows no dates yet, choose what the request asks to reach them (the closest fitting service's «Select» or «Book»; a near name is fine), then the page's calendar or date button and its «next month» arrow, or the date strip scrolled — read it, then go on; ask only with days the page showed as free`
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
       state.refused = why
       continue
