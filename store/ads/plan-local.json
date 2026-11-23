@@ -497,6 +497,10 @@
         {
           "text": "shy safari",
           "match": "EXACT"
+        },
+        {
+          "text": "knowunity",
+          "match": "EXACT"
         }
       ],
       "adGroups": [
