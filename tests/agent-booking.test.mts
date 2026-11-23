@@ -455,3 +455,38 @@ test("the contact fill covers saved contact keys into the person's fields only, 
   assert.equal(covered(plan, { tool: "fill", id: "3", key: "address.city" }, v, m, "book"), null, "only contact keys")
   assert.equal(covered(plan, { tool: "fill", id: "1", key: "email" }, v, { ...m, url: "https://other.example.net/x" }, "book"), null, "only on the booking's site")
 })
+
+test("a saved detail of another kind never goes into a field (the full name into «email»): refused, then the missing e-mail is asked once", async () => {
+  const FORM: PageMap = { ...SALON, url: "https://www.thefork.com/booking/x", forms: [{ n: 0, fillable: true }], items: [{ id: "1", role: "textbox", label: "email", type: "email", lock: "personal", form: 0 }, { id: "9", role: "button", label: "Continue", form: 0 }] }
+  const raw = { ...RAW, questions: [], risky: [] }
+  const name: FormEntry = { id: "n", key: "name.full", label: "", value: "Anna Petrova", updatedAt: 1 }
+  const x = io([
+    { ok: true, plan: raw, token: "t" },
+    step({ tool: "fill", id: "1", key: "name.full" }, "confirm", "fill", 'field "email"'),
+    step({ tool: "ask_user", question: "Какой e-mail указать для брони?", choices: [] }, "free", "read")
+  ], { map: FORM, entries: [name], playbook: null })
+  let s = await drive(newState("k", "забронируй", "ru", FORM.url), x)
+  if (s.status === "plan") {
+    const { approvePlan } = await import("../src/shared/agent/runner.ts")
+    s = await approvePlan(s, x, { answers: [], off: [] })
+  }
+  assert.ok(!x.acted.some((c) => c.tool === "fill"), "nothing filled")
+  assert.match(s.log.find((e) => /refused: the field "email" asks for the email/.test(e.result))?.result ?? "", /<saved> has no email: ask the person/)
+  assert.equal(s.status, "asked")
+  assert.equal(s.askKey, "email")
+})
+
+test("a diner's review card (a name, their reviews, a score, «5 months ago») is not a place; places share the list's path", async () => {
+  const { venuesOn } = await import("../src/shared/agent/venues.ts")
+  const PAGE: PageMap = {
+    url: "https://www.thefork.com/restaurants/paris-c415144/italian", title: "Italian", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [],
+    items: [
+      { id: "1", role: "link", label: "Borgo Paris Italian 9.4 (2179 reviews)", href: "/restaurant/borgo-paris-r1" },
+      { id: "2", role: "link", label: "Tra di Noi Italian 9.6 (201 reviews)", href: "/restaurant/tra-di-noi-r2" },
+      { id: "3", role: "link", label: "Rhadamanthe Italian 9.5 (90 reviews)", href: "/restaurant/rhadamanthe-r3" },
+      { id: "4", role: "link", label: "M Marine E. 20 reviews 10 5 months ago A pizzeria with the authentic taste of Italy", href: "/restaurant/senza-nome-r9/reviews" },
+      { id: "5", role: "link", label: "Top 100 guide 9.9 (500 reviews)", href: "/guide/top-100" }
+    ]
+  }
+  assert.deepEqual(venuesOn(PAGE).map((v) => v.name.split(" ")[0]), ["Borgo", "Tra", "Rhadamanthe"])
+})

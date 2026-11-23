@@ -545,3 +545,17 @@ export function contactAsked(question: string): (typeof CONTACT_KEYS)[number] | 
   const hits = CONTACT_WORDS.filter(([, re]) => re.test(question)).map(([k]) => k)
   return hits.length === 1 ? hits[0] : null
 }
+
+/** A saved detail's kind: name, email, phone, address… ("fact" for the person's own). */
+export function keyKind(key: string): string {
+  return key.startsWith("fact:") ? "fact" : key.split(".")[0]
+}
+
+/** What a field asks for, when the page says it plainly (its type, autocomplete or label): email, phone; else null. */
+export function fieldKind(item: Pick<MapItem, "type" | "auto" | "label">, autoKey: string | null): string | null {
+  if (autoKey) return keyKind(autoKey)
+  if (item.type === "email") return "email"
+  if (item.type === "tel") return "phone"
+  for (const [k, re] of CONTACT_WORDS) if (k !== "name.full" && re.test(item.label)) return k
+  return null
+}

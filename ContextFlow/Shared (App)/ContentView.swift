@@ -225,7 +225,7 @@ struct ContentView: View {
                 case "access":
                     let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
                     let item: AppleItems.Item.Kind = query.first { $0.name == "kind" }?.value == "calendar" ? .event : .reminder
-                    if query.contains(where: { $0.name == "settings" }) || AgentApple.access(item == .event ? .event : .reminder) == "denied" {
+                    if query.contains(where: { $0.name == "settings" }) || AppleAccessModel.state(item) == "denied" {
                         AppleAdd.openSettings(item)
                     } else {
                         Task { _ = await AppleItems.ask(item); appleAccess.refresh() }

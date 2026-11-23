@@ -485,8 +485,10 @@ function io(tab: number, gen?: string): RunnerIO {
     open: async (url) => {
       await live()
       if (!/^https?:\/\//.test(url)) return
-      await new Promise<void>((resolve) => chrome.tabs.update(tab, { url }, () => resolve()))
-      await waitComplete(tab)
+      // Never waits on Safari's callback alone (a run stood still after the device opened a place).
+      const complete = waitComplete(tab)
+      await Promise.race([new Promise<void>((resolve) => chrome.tabs.update(tab, { url }, () => resolve())), new Promise<void>((resolve) => setTimeout(resolve, 5_000))])
+      await complete
     }
   }
 }

@@ -19,10 +19,15 @@ const REVIEWS = /\(?([0-9][0-9,.\s ]{0,8})\)?\s*(?:reviews?|ratings?|отзыв\
 
 const num = (s: string) => Number(s.replace(/[\s ,.]/g, ""))
 
+// A review's card (a diner's name, their own count of reviews, their score, «5 months ago») is not a place (TheFork, the
+// round-3 run: «M Marine E. 20 reviews 10 5 months ago» was opened as a restaurant).
+const REVIEW_CARD = /\b(ago|reviewed|visited)\b|назад|il y a|\bhace\b|\bfa\b|\bvor\b|\bhá\b|önce|前|전|قبل|trước/i
+
 /** One link of a results list as a place, or null: a link of this site with a rating and its reviews on it. */
 export function venueOf(item: MapItem, page: string): Venue | null {
   if (item.role !== "link" || !item.href || item.label.length < 8) return null
   const label = item.label.replace(/\s+/g, " ").trim()
+  if (REVIEW_CARD.test(label)) return null
   const r = RATING.exec(label)
   const v = REVIEWS.exec(label)
   if (!r || !v) return null
@@ -52,7 +57,21 @@ export function venuesOn(map: PageMap): Venue[] {
       out.push(v)
     }
   }
-  return out.length >= 3 ? out : []
+  // A results list's places share their path's first part (/restaurant/…, /a/…): the biggest such group is the list;
+  // other rated links on the page (a review, a guide) aren't places.
+  const groups = new Map<string, Venue[]>()
+  for (const v of out) {
+    const head = (() => {
+      try {
+        return new URL(v.url).pathname.split("/").filter(Boolean)[0] ?? ""
+      } catch {
+        return ""
+      }
+    })()
+    groups.set(head, [...(groups.get(head) ?? []), v])
+  }
+  const list = [...groups.values()].sort((a, b) => b.length - a.length)[0] ?? []
+  return list.length >= 3 ? out.filter((v) => list.includes(v)) : []
 }
 
 const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")

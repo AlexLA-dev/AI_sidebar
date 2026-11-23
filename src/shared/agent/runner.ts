@@ -13,7 +13,7 @@ import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } 
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { cardsOf, onVenue, rankVenues, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
-import { addContactFill, buildPlan, checkPlan, contactAsked, covered, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
+import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -589,6 +589,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The device's own check, on its own map: never milder than the server's.
     // The control as classed now goes with the step: the hands check it's still that one before they act.
     const seenItem = call.id ? map.items.find((i) => i.id === call.id) : undefined
+    // A saved detail into a field that asks for another kind (TheFork: the full name into «email»): refused, and the
+    // model hears which detail the field wants and whether «Мои данные» has it (else: ask the person once).
+    const wants = call.tool === "fill" && call.key && seenItem ? fieldKind(seenItem, keyOfAutocomplete(seenItem.auto)?.key ?? null) : null
+    if (wants && call.key && wants !== keyKind(call.key)) {
+      const has = liveEntries(entries).some((e) => keyKind(modelKey(e)) === wants)
+      const why = `the field "${seenItem!.label}" asks for the ${wants}, not ${call.key}${has ? `: fill it with the saved ${wants}` : `; <saved> has no ${wants}: ask the person for it once (ask_user naming it)`}`
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
     // A place that doesn't fit the request or the rules (a French restaurant for «Italian») isn't opened.
     const place = seenItem && (call.tool === "click" || call.tool === "go") ? venueOf(seenItem, map.url) : null
     if (place && state.venues && !state.venues.list.some((v) => v.url === place.url)) {

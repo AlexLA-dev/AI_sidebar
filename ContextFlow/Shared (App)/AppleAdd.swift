@@ -259,8 +259,13 @@ struct AppleAddView: View {
         reminders = AgentApple.access(.reminder)
     }
 
+    /// One kind's state as AgentApple says it ("yes", "none", "denied", "unavailable").
+    nonisolated static func state(_ kind: AppleItems.Item.Kind) -> String {
+        AgentApple.access(kind == .event ? EKEntityType.event : EKEntityType.reminder)
+    }
+
     func allow(_ kind: AppleItems.Item.Kind) {
-        if AgentApple.access(kind == .event ? .event : .reminder) == "denied" {
+        if Self.state(kind) == "denied" {
             AppleAdd.openSettings(kind)
             return
         }
