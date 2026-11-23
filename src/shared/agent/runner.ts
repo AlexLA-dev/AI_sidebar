@@ -8,6 +8,10 @@
 //   device's own check says (classify.ts runs again on the device's map).
 
 import { APPLE_TOOLS } from "./call.ts"
+import { dayItems, dayWords, isDateLabel } from "./dates.ts"
+import { wordTest } from "./match.ts"
+import { BOOKING_WORDS } from "./words.ts"
+export { dayItems, isDateLabel }
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
@@ -119,12 +123,12 @@ export interface AgentState {
   lastDate?: string
   wokeStrip?: boolean
   // The page has shown the booking's day (a strip's «Sat 26 Dec», a calendar's «26» under «December»), and whether a
-  // question before that was sent back once (fresha, 124: «26 декабря нет, ближайшая суббота — 5 декабря» without the
+  // question before that was sent back once (a salon booking site, 124: «26 декабря нет, ближайшая суббота — 5 декабря» without the
   // calendar ever opened; the page had 26 Dec free and 5 Dec greyed).
   sawDate?: boolean
   dateNudged?: boolean
-  // The booking's day as the page shows it greyed (a strip greys days it hasn't loaded: fresha's «Sat 26 Dec» answered
-  // «fully booked… Available from Mon, Dec 28» once pressed), and whether it was pressed once to hear the page.
+  // The booking's day as the page shows it greyed (a strip greys days it hasn't loaded: a booking site's «Sat 26 Dec» answered
+  // «full», with its next free day once pressed), and whether it was pressed once to hear the page.
   greyTarget?: string
   pressedTarget?: boolean
   // The rules let the agent choose the place; how many times a question was sent back to try the next one.
@@ -374,7 +378,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   // Where to book, shown (124, the owner: «переуточнять… если эта деталь не была уточнена»): a booking that names no
   // place, on a results list, gets the place the rules would choose as a picked, changeable answer, with the next two.
   if (plan.booking && !plan.booking.venue && rules.chooseVenue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) {
-    // A results list whose cards come after the first part of the map (TheFork's and Treatwell's filters and map first,
+    // A results list whose cards come after the first part of the map (restaurant and salon sites' filters and map first,
     // 124): the next parts are read on the device for the places (never sent to the model).
     let seen = map
     for (let p = 2; !venuesOn(seen).length && p <= Math.min(map.parts, 4); p++) {
@@ -411,22 +415,25 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   return "go"
 }
 
-// Booking providers whose forms restaurants and salons embed in a frame (they work on their own pages too).
-const BOOKING_PROVIDER = /(^|\.)(sevenrooms\.com|opentable\.[a-z.]+|resy\.com|quandoo\.[a-z.]+|zenchef\.com|formitable\.com|tablein\.com|bookatable\.[a-z.]+|designmynight\.com|collinsbookings\.com|resdiary\.com|thefork\.[a-z.]+|lafourchette\.com|fresha\.com|treatwell\.[a-z.]+|booksy\.com|setmore\.com|simplybook\.[a-z.]+|vagaro\.com|mindbodyonline\.com|squareup\.com|square\.site|timely\.com|gettimely\.com|phorest\.com|shedul\.com|planity\.com|doctolib\.[a-z.]+|calendly\.com|acuityscheduling\.com)$/i
+// A booking form another site serves in a frame of this page (a restaurant's or a salon's provider widget): its title,
+// name or address speaks of booking in one of the 15 languages («Reservation widget», «/reservations/…», «予約»).
+const bookingWord = wordTest(BOOKING_WORDS)
+export function bookingFrame(f: { src: string; host: string; title?: string }): boolean {
+  let where = f.host
+  try {
+    where = `${f.host} ${new URL(f.src).pathname}`
+  } catch {
+    // the address as it is
+  }
+  return bookingWord(`${f.title ?? ""} ${where.replace(/[/._\-?=&#+%]+/g, " ")}`)
+}
 
 const SEARCH_BOX = /search|find|treatment|salon|cuisine|restaurant|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|検索|검색|搜索|搜尋|بحث|tìm/i
-
-// A day in a date strip or calendar: a weekday or a month next to a day's number («Sat 26 Dec», «вт, 29 дек», «29.12»).
-const DATE_LABEL = /(^|[^\p{L}])(mon|tue|wed|thu|fri|sat|sun|пн|вт|ср|чт|пт|сб|вс|понед|вторн|сред|четв|пятн|субб|воскр|mo|di|mi|do|fr|sa|so|lun|mar|mer|jeu|ven|sam|dim|lu|ma|ju|vi|sá|do|seg|ter|qua|qui|sex|sáb|dom|pzt|sal|çar|per|cum|cmt|paz)\p{L}*\.?,?\s*\d{1,2}(?!\d)|(^|[^\d])\d{1,2}\s*\.?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|янв|фев|мар|апр|ма[йя]|июн|июл|авг|сен|окт|ноя|дек|jän|mär|okt|dez|janv|févr|avr|mai|juin|juil|août|sept|déc|ene|abr|ago|dic|gen|mag|giu|lug|set|ott|out|dez)|(^|[^\d])\d{1,2}[./]\d{1,2}(?![\d:])|(^|[^\p{L}])(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\p{L}*\.?\s+\d{1,2}(?![\d:])/iu
-
-export function isDateLabel(label: string): boolean {
-  return label.length <= 40 && DATE_LABEL.test(label) && !looksLikeSlot(label)
-}
 
 /** A date press as the page and the task stand: why it isn't done, or null to go on. */
 export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: ToolCall): string | null {
   if (looksLikeSlot(item.label)) {
-    // A time is for the day the page has chosen (fresha, 124: «Sat 26 Dec» greyed and pressed wasn't chosen; 11:30 was
+    // A time is for the day the page has chosen (a salon booking site, 124: «Sat 26 Dec» greyed and pressed wasn't chosen; 11:30 was
     // the first day's, «booked» as the 26th): the day it's said to be on must be the chosen one.
     const day = (call?.date && /^\d{4}-\d{2}-\d{2}$/.test(call.date) ? call.date : "") || state.plan?.booking?.date || ""
     if (day) {
@@ -436,7 +443,7 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
       if (chosen.length && mine.length && !chosen.some((c) => mine.some((m) => m.id === c.id)))
         return `the page's chosen day is «${chosen[0].label}», not ${words}: the times shown are for that day. Press ${words} first, or ask with what the page shows`
       if (!chosen.length && mine.length && mine.every(greyedItem))
-        return `${words} shows greyed and isn't chosen on the page, so the times shown aren't for it: read the page's answer for that day («fully booked», «Available from …») and ask_user with the page's real nearest options`
+        return `${words} shows greyed and isn't chosen on the page, so the times shown aren't for it: read what the page says for that day (that it's full, or the next day it's free) and ask_user with the page's real nearest options`
     }
     // A time: the dates got somewhere.
     state.dateSteps = 0
@@ -458,34 +465,16 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
       state.wokeStrip = true
       return null
     }
-    return `«${item.label}» is shown as not available on the page (greyed or disabled): don't press it. Choose an available day the rules allow (the page may name it: «Available from …»), or ask_user once with the page's real nearest options`
+    return `«${item.label}» is shown as not available on the page (greyed or disabled): don't press it. Choose an available day the rules allow (the page may name its next free day), or ask_user once with the page's real nearest options`
   }
   const steps = (state.dateSteps ?? 0) + 1
   if (state.lastDate === item.label) return `«${item.label}» was pressed already: the page answered it. Choose another available day the rules allow, or ask_user once with the page's real nearest options`
-  if (steps > 2) return "two date steps went nowhere: don't press more dates. ask_user once now, with the page's real nearest options: the next available day it names («Available from …»), another specialist on the asked day, another place"
+  if (steps > 2) return "two date steps went nowhere: don't press more dates. ask_user once now, with the page's real nearest options: the next free day the page names, another specialist on the asked day, another place"
   state.dateSteps = steps
   state.lastDate = item.label
   return null
 }
 
-// Month names' stems by month (January first), in the languages the date labels come in.
-const MONTH_STEMS: string[][] = [
-  ["jan", "янв", "jän", "janv", "ene", "gen", "oca", "ocak"],
-  ["feb", "фев", "févr", "fev", "şub"],
-  ["mar", "мар", "mär", "mars", "marz", "mart"],
-  ["apr", "апр", "avr", "abr", "nisan"],
-  ["may", "мая", "май", "mai", "mag", "mayıs"],
-  ["jun", "июн", "juin", "giu", "hazir"],
-  ["jul", "июл", "juil", "lug", "temmuz"],
-  ["aug", "авг", "août", "ago", "ağu"],
-  ["sep", "сен", "sept", "sett", "setem", "eyl"],
-  ["oct", "окт", "okt", "ott", "outu", "eki"],
-  ["nov", "ноя", "kasım"],
-  ["dec", "дек", "dez", "déc", "dic", "aralık"],
-]
-
-/** Whether the page shows the day (YYYY-MM-DD): a label with its number and month, a «26.12», or a calendar's bare
- *  «26» with the month named on the page. */
 export function seesDate(map: PageMap, iso: string): boolean {
   return dayItems(map, iso).length > 0
 }
@@ -493,36 +482,6 @@ export function seesDate(map: PageMap, iso: string): boolean {
 /** A day or slot the page shows as not choosable (marked by the map). */
 function greyedItem(i: MapItem): boolean {
   return !!i.state?.some((x) => x === "unavailable" || x === "disabled")
-}
-
-/** The page's controls that are the day (YYYY-MM-DD). */
-export function dayItems(map: PageMap, iso: string): MapItem[] {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
-  if (!m) return []
-  const month = Number(m[2]) - 1
-  const day = Number(m[3])
-  const stems = MONTH_STEMS[month] ?? []
-  const named = (s: string) => {
-    const low = s.toLocaleLowerCase()
-    return stems.some((st) => new RegExp(`(^|[^\\p{L}])${st}`, "u").test(low))
-  }
-  const num = new RegExp(`(^|[^\\d])0?${day}(?![\\d:])`)
-  const dotted = new RegExp(`(^|[^\\d])0?${day}[./]0?${month + 1}(?!\\d)`)
-  const monthOnPage = named(map.text) || named(map.title) || map.items.some((i) => named(i.label))
-  return map.items.filter((i) => {
-    const l = i.label
-    if (l.length > 60) return false
-    if (dotted.test(l)) return true
-    if (num.test(l) && named(l)) return true
-    return monthOnPage && new RegExp(`^\\s*0?${day}\\s*$`).test(l)
-  })
-}
-
-/** The booking's day as words for the model: «Sat 26 Dec 2026». */
-function dayWords(iso: string): string {
-  const d = new Date(`${iso}T12:00:00Z`)
-  if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
 }
 
 /** Whether the page asks for the person's details: an empty field of theirs (name, e-mail, phone) on screen. */
@@ -622,7 +581,7 @@ async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, labe
   const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : ""
   const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : ""
   if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check it"
-  // The request's window (its time widened by the rules), checked with or without the Calendar (Dishoom, 121 sweep:
+  // The request's window (its time widened by the rules), checked with or without the Calendar (a restaurant, 121 sweep:
   // 13:15 pressed for «17:30»).
   if (b.from && b.until && (time < b.from || time > b.until)) return `${time} is outside the time the request and the rules allow (${b.from}–${b.until}): choose a slot inside it, or ask with the page's nearest real slots`
   if (!state.calendar || !io.slotFree) return null
@@ -666,9 +625,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       if (days.some((i) => !greyedItem(i))) state.sawDate = true
       else if (days.length) state.greyTarget = days[0].label
     }
-    // A booking whose form is a booking provider's frame on this page (Dishoom's SevenRooms, 121 sweep: «I've tried "Book a
+    // A booking whose form is a booking provider's frame on this page (a restaurant's provider widget, 121 sweep: «I've tried "Book a
     // table" five times»): the device opens that form on its own page, once; the provider counts as this task's site.
-    const widget = state.plan?.approved && state.plan.booking && !state.widgetOpened ? map.frames?.find((f) => BOOKING_PROVIDER.test(f.host)) : undefined
+    const widget = state.plan?.approved && state.plan.booking && !state.widgetOpened ? map.frames?.find(bookingFrame) : undefined
     if (widget && io.open) {
       state.widgetOpened = widget.src
       await io.open(widget.src)
@@ -751,9 +710,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     // A booking whose place the agent chose (the request named none): before a question, the next place or two by the
-    // rules (fresha, 120: it asked about the first barbershop's slots instead of trying the next).
+    // rules (a salon booking site, 120: it asked about the first barbershop's slots instead of trying the next).
     // A form asking for the person's details is the booking going on, not the place failing (the director on 23e9:
-    // Borgo Paris was left for a required e-mail): no next place for it.
+    // a restaurant was left for a required e-mail): no next place for it.
     const details = detailsForm(map)
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
@@ -762,15 +721,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && !state.venues) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       // No list was ever seen (a home page, an error page with a search box, one featured place): the site's own search
-      // finds the places, never «back» to a list that isn't there (Treatwell, 121 sweep: it went back to nothing and
+      // finds the places, never «back» to a list that isn't there (a salon marketplace, 121 sweep: it went back to nothing and
       // then said it had checked several places).
       const box = map.items.find((i) => (i.role === "textbox" || i.role === "combobox") && !i.lock && (i.type === "search" || SEARCH_BOX.test(i.label)))
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: box ? `refused: the request names no place, so it's yours to find: type what the request asks (the service or cuisine, and the area) into the site's search box #${box.id} "${box.label.slice(0, 60)}", search, then choose from the list by the rules` : "refused: the request names no place, so it's yours to find: open the site's own search or the category that fits (its search box, «Barbers», «Restaurants»), then choose from the list by the rules; ask only after two places didn't fit, with their real slots" })
       continue
     }
     // The asked day shown greyed and never pressed (a strip that greys days it hasn't loaded): the device presses it once
-    // itself and the page's answer goes to the model, instead of a question about a day nobody looked at (fresha, 124:
-    // sent back once, the model asked again; pressed, «fully booked… Available from Mon, Dec 28»).
+    // itself and the page's answer goes to the model, instead of a question about a day nobody looked at (a salon booking site, 124:
+    // sent back once, the model asked again; pressed, «full», with its next free day).
     const greyDay = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.pressedTarget
       ? dayItems(map, state.plan.booking.date).find(greyedItem)
       : undefined
@@ -786,8 +745,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.dateNudged = true
       const day = dayWords(state.plan.booking.date)
       const why = state.greyTarget
-        ? `«${state.greyTarget}» shows greyed, which can mean the page hasn't loaded that day yet: press it once and read what the page says (free times, or «fully booked», «Available from …»), then go on; ask only with days and times the page showed as free`
-        : `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first — when the page shows no dates yet, choose what the request asks to reach them (the closest fitting service's «Select» or «Book»; a near name is fine), then the page's calendar or date button and its «next month» arrow, or the date strip scrolled — read it, then go on; ask only with days the page showed as free`
+        ? `«${state.greyTarget}» shows greyed, which can mean the page hasn't loaded that day yet: press it once and read what the page says (its free times, or that it's full and its next free day), then go on; ask only with days and times the page showed as free`
+        : `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first — when the page shows no dates yet, choose what the request asks to reach them (the closest fitting service's own choose or book button; a near name is fine), then the page's calendar or date button and its «next month» arrow, or the date strip scrolled — read it, then go on; ask only with days the page showed as free`
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -797,7 +756,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // Записать на 24-е? [Да] [Другой день] [Отмена]»).
       state.status = "asked"
       state.summary = call.question ?? ""
-      // Times the page doesn't show (taken from the Calendar alone, fresha 2) aren't offered.
+      // Times the page doesn't show (taken from the Calendar alone, a salon booking site 2) aren't offered.
       state.choices = pageChoices(call.choices ?? [], pageTimes(map))
       // A contact detail «Мои данные» hasn't got (asked once): the answer may be kept there.
       const key = details ? contactAsked(call.question ?? "") : null
@@ -807,7 +766,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The device's own check, on its own map: never milder than the server's.
     // The control as classed now goes with the step: the hands check it's still that one before they act.
     const seenItem = call.id ? map.items.find((i) => i.id === call.id) : undefined
-    // A saved detail into a field that asks for another kind (TheFork: the full name into «email»): refused, and the
+    // A saved detail into a field that asks for another kind (a restaurant site: the full name into «email»): refused, and the
     // model hears which detail the field wants and whether «Мои данные» has it (else: ask the person once).
     const wants = call.tool === "fill" && call.key && seenItem ? fieldKind(seenItem, keyOfAutocomplete(seenItem.auto)?.key ?? null) : null
     if (wants && call.key && (wants.includes(".") ? wants !== call.key : wants !== keyKind(call.key))) {
@@ -818,7 +777,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       continue
     }
     // A place that doesn't fit the request or the rules (a French restaurant for «Italian») isn't opened.
-    // Dates (124, the owner on fresha: 11 steps re-pressing «Sat, Dec 26» that the page showed greyed): a day or a
+    // Dates (124, the owner on a salon booking site: 11 steps re-pressing «Sat, Dec 26» that the page showed greyed): a day or a
     // slot the page shows as unavailable is never pressed (when the whole strip is greyed, one may be tapped once to
     // wake it); the same date isn't pressed twice; after two date steps without progress, the one question.
     const dateRefusal = seenItem && (call.tool === "click" || call.tool === "select") && state.plan?.booking ? dateStep(state, map, seenItem, call) : null
@@ -1110,7 +1069,7 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     state.askKey = undefined
     state.status = "running"
     state.stillReads = 0
-    // The answer sets the way on (fresha, 124: «Понедельник, 28 декабря» was refused as a third date step): the date
+    // The answer sets the way on (a salon booking site, 124: «Понедельник, 28 декабря» was refused as a third date step): the date
     // steps count again from it.
     state.dateSteps = 0
     state.lastDate = undefined

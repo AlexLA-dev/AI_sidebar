@@ -98,7 +98,7 @@ export interface RawPlan {
   risky: RawRisky[]
   prices: string[]
   booking?: PlanBooking
-  // What the plan took from the chat it was started in (resolved references: «Borgo Paris, 2 человека»), for the card.
+  // What the plan took from the chat it was started in (resolved references: «a restaurant, 2 человека»), for the card.
   fromChat?: string
 }
 
@@ -464,7 +464,7 @@ export function planLine(plan: TaskPlan | null | undefined): string {
   return [
     plan.steps.length ? `steps: ${plan.steps.map((l, i) => (plan.self.some((x) => x.step === i) ? `${l} (the person's own step: not yours to press)` : l)).join("; ")}` : "",
     allowed.length ? `allowed without asking: ${allowed.join("; ")}` : "",
-    // Unticked: still the task's steps, asked at the time (TheFork, 118: the model read «unticked» as «don't», and stopped
+    // Unticked: still the task's steps, asked at the time (a restaurant site, 118: the model read «unticked» as «don't», and stopped
     // before even opening the restaurant).
     refused.length ? `ask the person first (they unticked it: go on, and the device asks them at that step): ${refused.join("; ")}` : "",
     plan.prices.length ? `prices seen: ${plan.prices.join(", ")}` : "",
@@ -480,7 +480,7 @@ export function factKey(label: string): string {
 
 /**
  * The name a plan's fact is kept under in «Мои данные»: a fact about the person as it is («Пол»); a choice on a site
- * («pref:Мастер») with the site's name first («fresha.com · Мастер»), so it's used on that site only.
+ * («pref:Мастер») with the site's name first («a salon booking site.com · Мастер»), so it's used on that site only.
  */
 export function factLabel(fact: string, site?: string): string {
   const pref = /^pref:\s*(.+)$/i.exec(fact)
@@ -540,7 +540,7 @@ function validZone(tz: string): boolean {
 export const CONTACT_KEYS = ["name.full", "name.given", "name.family", "email", "phone"] as const
 
 /**
- * A booking's contact form is the booking going on (the director on 23e9: Borgo Paris was left for a required e-mail):
+ * A booking's contact form is the booking going on (the director on 23e9: a restaurant was left for a required e-mail):
  * the saved ones go in as the plan's fill, one ticked line on the card («Заполнить из «Моих данных»: имя, e-mail…»).
  */
 export function addContactFill(plan: TaskPlan, saved: string[], host: string): void {
@@ -572,7 +572,7 @@ const GIVEN = /first.?name|given.?name|forename|(?<!\p{L})имя(?!\p{L})|(?<!\p
 const FAMILY = /last.?name|surname|family.?name|фамили|прізвищ|nachname|nom de famille|(?<!\p{L})nom(?!\p{L})|apellido|cognome|sobrenome|soyad|姓(?!名)|성(?!함)/iu
 
 export function fieldKind(item: Pick<MapItem, "type" | "auto" | "label">, autoKey: string | null): string | null {
-  // A first or last name's field takes that part only (Dishoom's «First name»: the full name was put in).
+  // A first or last name's field takes that part only (a restaurant's «First name»: the full name was put in).
   if (autoKey === "name.given" || autoKey === "name.family") return autoKey
   if (!autoKey && FAMILY.test(item.label)) return "name.family"
   if (!autoKey && GIVEN.test(item.label)) return "name.given"

@@ -39,7 +39,7 @@ export function fieldLock(f: FieldFacts): Lock | null {
   if (type === "email" || type === "tel") return "personal"
   if (PERSONAL_AUTO.test(auto)) return "personal"
   if (PERSONAL_NAME.test(names)) return "personal"
-  // A search box isn't the person's: «Cuisine, restaurant name…» (TheFork) read as a name field, and typing a search
+  // A search box isn't the person's: a site's «Cuisine, restaurant name…» box read as a name field, and typing a search
   // asked first. Its page's own type or words say so; a field the page names as personal stays so (above).
   if (type === "search" || (f.label && SEARCH_LABEL.test(f.label))) return null
   if (f.label && personalLabel(f.label)) return "personal"

@@ -1,4 +1,4 @@
-// 124, the owner on fresha: «по яркости даты видно доступна ли она к букированию… агент сделал уже более 11 шагов».
+// 124, the owner on a salon booking site: «по яркости даты видно доступна ли она к букированию… агент сделал уже более 11 шагов».
 // Days and slots the page shows as not choosable are marked in the map and never pressed; two date steps without
 // progress end in the one question; the card asks what the request left open and shows the place the rules picked.
 import assert from "node:assert/strict"
@@ -12,7 +12,7 @@ import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
-import { approvePlan, dateStep, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { approvePlan, bookingFrame, dateStep, dayItems, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import type { MapItem, PageMap } from "../src/shared/agent/types.ts"
 
 function domMap(html: string, colors: Record<string, string> = {}): PageMap {
@@ -21,7 +21,7 @@ function domMap(html: string, colors: Record<string, string> = {}): PageMap {
   ;(window as any).getComputedStyle = (el: Element) => {
     const inline = (el.getAttribute("style") ?? "")
     const get = (p: string) => new RegExp(`${p}\\s*:\\s*([^;]+)`).exec(inline)?.[1]?.trim()
-    return { display: "block", visibility: "visible", contentVisibility: "visible", opacity: get("opacity") ?? "1", pointerEvents: get("pointer-events") ?? "auto", color: colors[el.id] ?? "rgb(20, 20, 20)", backgroundColor: el.tagName === "BODY" ? "rgb(255, 255, 255)" : "rgba(0, 0, 0, 0)" }
+    return { display: "block", visibility: "visible", contentVisibility: "visible", opacity: get("opacity") ?? "1", pointerEvents: get("pointer-events") ?? "auto", cursor: get("cursor") ?? "auto", color: colors[el.id] ?? "rgb(20, 20, 20)", backgroundColor: el.tagName === "BODY" ? "rgb(255, 255, 255)" : "rgba(0, 0, 0, 0)" }
   }
   Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement })
   if ((document as any).defaultView !== window) Object.defineProperty(document, "defaultView", { configurable: true, get: () => window })
@@ -43,7 +43,7 @@ test("days the page shows as not choosable are marked: a disabled class, faded, 
   const map = domMap(`<div class="strip"><div>
     <button id="d26" class="day selected" aria-selected="true">Sat 26 Dec</button>
     <button id="d27" class="day">Sun 27 Dec</button>
-    <button id="d28" class="day day--disabled">Mon 28 Dec</button>
+    <button id="d28" class="day is-disabled">Mon 28 Dec</button>
     <button id="d29" class="day">Tue 29 Dec</button>
     <button id="d30" class="day">Wed 30 Dec</button>
     <button id="d31" class="day" style="opacity: 0.4">Thu 31 Dec</button>
@@ -59,7 +59,7 @@ test("days the page shows as not choosable are marked: a disabled class, faded, 
 })
 
 const day = (id: string, label: string, s: string[] = []): MapItem => ({ id, role: "button", label, ...(s.length ? { state: s } : {}) })
-const page = (items: MapItem[]): PageMap => ({ url: "https://www.fresha.com/a/x/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "Sarbast is not available on this date. Available from Tue, Dec 29", forms: [], items })
+const page = (items: MapItem[]): PageMap => ({ url: "https://book.example/a/x/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "The specialist has no free time on this date. Next free day: Tue, Dec 29", forms: [], items })
 const booking = () => ({ plan: { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { kind: "appointment" as const, date: "2026-12-26", from: "09:00", until: "18:00", minutes: 30 } } } as unknown as AgentState)
 
 test("a greyed day is never pressed, the same day isn't pressed twice, two date steps without progress end in the one question", () => {
@@ -82,16 +82,16 @@ test("a greyed day is never pressed, the same day isn't pressed twice, two date 
   assert.equal(dateStep(s, grey, grey.items[3]), null, "one tap to wake the strip")
   assert.match(dateStep(s, grey, grey.items[4]) ?? "", /not available/)
   for (const l of ["Sat 26 Dec", "вт, 29 дек", "Di. 29. Dez", "29.12", "Sáb 26"]) assert.equal(isDateLabel(l), true, l)
-  for (const l of ["10:30", "Book now", "Sarbast", "€25"]) assert.equal(isDateLabel(l), false, l)
+  for (const l of ["10:30", "Book now", "Alex", "€25"]) assert.equal(isDateLabel(l), false, l)
 })
 
 test("the card shows the place the rules picked as a changeable answer; a changed one fixes the booking's place, the pick stays the rules'", async () => {
   const LIST: PageMap = {
-    url: "https://www.thefork.com/restaurants/paris", title: "Italian restaurants", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [],
+    url: "https://tables.example/restaurants/paris", title: "Italian restaurants", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [],
     items: [
-      { id: "1", role: "link", label: "Il Gusto Italian 9.1 (320 reviews)", href: "/restaurant/il-gusto" },
-      { id: "2", role: "link", label: "Borgo Paris Italian 9.4 (2179 reviews)", href: "/restaurant/borgo" },
-      { id: "3", role: "link", label: "Tra di Noi Italian 9.6 (201 reviews)", href: "/restaurant/tra" },
+      { id: "1", role: "link", label: "Trattoria Uno Italian 9.1 (320 reviews)", href: "/restaurant/uno" },
+      { id: "2", role: "link", label: "Trattoria Due Italian 9.4 (2179 reviews)", href: "/restaurant/due" },
+      { id: "3", role: "link", label: "Trattoria Tre Italian 9.6 (201 reviews)", href: "/restaurant/tre" },
       { id: "4", role: "button", label: "Book" }
     ]
   }
@@ -104,8 +104,8 @@ test("the card shows the place the rules picked as a changeable answer; a change
   let io = mk()
   let s = await drive(newState("v", "Book a table at an Italian restaurant on Friday at 20:00", "en", LIST.url), io)
   const q = s.plan!.questions.find((x) => x.kind === "venue")!
-  assert.deepEqual(q.options, ["Il Gusto Italian", "Borgo Paris Italian", "Tra di Noi Italian"])
-  assert.equal(q.pick, "Il Gusto Italian", "the rules' first in the page's order")
+  assert.deepEqual(q.options, ["Trattoria Uno Italian", "Trattoria Due Italian", "Trattoria Tre Italian"])
+  assert.equal(q.pick, "Trattoria Uno Italian", "the rules' first in the page's order")
   assert.equal(s.plan!.how?.rating, 0, "no «I'll pick the place» line besides the shown pick")
   // Left as picked: still the rules' (the next is tried when it doesn't fit).
   let after = await approvePlan(s, io, { answers: s.plan!.questions.map((x) => x.pick ?? ""), off: [] })
@@ -113,13 +113,13 @@ test("the card shows the place the rules picked as a changeable answer; a change
   // Changed on the card: that place, nothing chosen on the way.
   io = mk()
   s = await drive(newState("w", "Book a table at an Italian restaurant on Friday at 20:00", "en", LIST.url), io)
-  after = await approvePlan(s, io, { answers: s.plan!.questions.map((x) => (x.kind === "venue" ? "Tra di Noi Italian" : "")), off: [] })
-  assert.equal(after.plan!.booking!.venue, "Tra di Noi Italian")
+  after = await approvePlan(s, io, { answers: s.plan!.questions.map((x) => (x.kind === "venue" ? "Trattoria Tre Italian" : "")), off: [] })
+  assert.equal(after.plan!.booking!.venue, "Trattoria Tre Italian")
   assert.equal(after.chooseVenue, false)
 })
 
 test("the page has shown the booking's day: a strip's day with its month, «26.12», or a calendar's bare day under its month", () => {
-  const page = (labels: string[], text = ""): PageMap => ({ url: "https://www.fresha.com/a/x", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text, forms: [], items: labels.map((label, i) => ({ id: String(i + 1), role: "button", label })) })
+  const page = (labels: string[], text = ""): PageMap => ({ url: "https://book.example/a/x", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text, forms: [], items: labels.map((label, i) => ({ id: String(i + 1), role: "button", label })) })
   assert.equal(seesDate(page(["Wed 25 Nov", "Thu 26 Nov", "Sat 28 Nov"]), "2026-12-26"), false, "26 Nov isn't 26 Dec")
   assert.equal(seesDate(page(["Fri 25 Dec", "Sat 26 Dec"]), "2026-12-26"), true)
   assert.equal(seesDate(page(["сб, 26 дек."]), "2026-12-26"), true)
@@ -129,15 +129,15 @@ test("the page has shown the booking's day: a strip's day with its month, «26.1
   assert.equal(seesDate(page(["11:30 AM", "12:26"], "December"), "2026-12-26"), false, "a time isn't a day")
 })
 
-test("a question about the booking's day before the page showed it is sent back once to go there (fresha, 124: «26 Dec closed, nearest Sat 5 Dec» unseen)", async () => {
+test("a question about the booking's day before the page showed it is sent back once to go there (124: «26 Dec closed, nearest Sat 5 Dec» unseen)", async () => {
   const STRIP: PageMap = {
-    url: "https://www.fresha.com/a/cutter/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "Select a date Pick a time", forms: [],
+    url: "https://book.example/a/nova/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "Select a date Pick a time", forms: [],
     items: [
       { id: "1", role: "button", label: "Wed 25 Nov" }, { id: "2", role: "button", label: "Thu 26 Nov" }, { id: "3", role: "button", label: "Sat 28 Nov" },
       { id: "4", role: "button", label: "Open calendar" }, { id: "5", role: "button", label: "11:30 AM" }
     ]
   }
-  const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30, tz: "", venue: "Cutter Barbershop", match: [], area: [] } }
+  const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30, tz: "", venue: "Salon Nova", match: [], area: [] } }
   const ASK = { ok: true, call: { tool: "ask_user", question: "26 Dec is closed. Nearest Saturday is 5 Dec?", choices: ["Sat 5 Dec", "Another day"] }, verdict: { cls: "free", reason: "read" } }
   const mk = (replies: any[]): RunnerIO => ({ map: async () => STRIP, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } })
@@ -156,15 +156,15 @@ test("a question about the booking's day before the page showed it is sent back 
   assert.equal(after.status, "asked")
 })
 
-test("the asked day shown greyed is pressed once to hear the page; a question before that press makes the device press it (fresha, 124: «Sat 26 Dec» greyed until pressed: «fully booked… Available from Mon, Dec 28»)", async () => {
+test("the asked day shown greyed is pressed once to hear the page; a question before that press makes the device press it (124: a strip that greys days it hasn't loaded)", async () => {
   const STRIP: PageMap = {
-    url: "https://www.fresha.com/a/cutter/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "Select a date", forms: [],
+    url: "https://book.example/a/nova/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "Select a date", forms: [],
     items: [
       { id: "1", role: "button", label: "Wed 9 Dec" }, { id: "2", role: "button", label: "Fri 25 Dec", state: ["unavailable"] },
       { id: "3", role: "button", label: "Sat 26 Dec", state: ["unavailable"] }, { id: "4", role: "button", label: "Sun 27 Dec", state: ["unavailable"] }
     ]
   }
-  const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30, tz: "", venue: "Cutter Barbershop", match: [], area: [] } }
+  const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30, tz: "", venue: "Salon Nova", match: [], area: [] } }
   const ASK = { ok: true, call: { tool: "ask_user", question: "26 Dec and the days around are closed; free only until 9 Dec", choices: ["Wed 9 Dec"] }, verdict: { cls: "free", reason: "read" } }
   const PRESS27 = { ok: true, call: { tool: "click", id: "4", why: "next day" }, verdict: { cls: "free", reason: "click" } }
   const pressed: string[] = []
@@ -179,15 +179,15 @@ test("the asked day shown greyed is pressed once to hear the page; a question be
   assert.equal(after.status, "asked", "then the question goes to the person")
 })
 
-test("the place pick reads the list's cards past the map's first part; the option the request names is shown chosen (TheFork, Treatwell, 124)", async () => {
+test("the place pick reads the list's cards past the map's first part; the option the request names is shown chosen (124)", async () => {
   const TOP: PageMap = {
-    url: "https://www.treatwell.co.uk/places/treatment-mens-haircut/in-soho-london-uk/", title: "Men's haircuts in Soho", lang: "en", more: 6, part: 1, parts: 2, text: "", forms: [],
+    url: "https://salons.example/places/mens-haircut/in-soho/", title: "Men's haircuts in Soho", lang: "en", more: 6, part: 1, parts: 2, text: "", forms: [],
     items: [{ id: "1", role: "textbox", label: "Treatment or venue" }, { id: "2", role: "button", label: "Sort by" }]
   }
   const REST: PageMap = { ...TOP, part: 2, more: 0, items: [
-    { id: "10", role: "link", label: "Ruffians Soho 4.9 (812 reviews) Soho, London Men's Haircut from £40", href: "/place/ruffians-soho/" },
-    { id: "11", role: "link", label: "Pall Mall Barbers 4.8 (1204 reviews) Soho, London Men's Haircut from £35", href: "/place/pall-mall-barbers/" },
-    { id: "12", role: "link", label: "Blade Soho 4.7 (530 reviews) Soho, London Men's Haircut from £30", href: "/place/blade-soho/" }
+    { id: "10", role: "link", label: "Barber One Soho 4.9 (812 reviews) Soho, London Men's Haircut from £40", href: "/place/one/" },
+    { id: "11", role: "link", label: "Barber Two 4.8 (1204 reviews) Soho, London Men's Haircut from £35", href: "/place/two/" },
+    { id: "12", role: "link", label: "Barber Three Soho 4.7 (530 reviews) Soho, London Men's Haircut from £30", href: "/place/three/" }
   ] }
   const RAW = { label: "booking", steps: ["a"], prices: [], fromChat: "", risky: [],
     questions: [
@@ -207,9 +207,9 @@ test("the place pick reads the list's cards past the map's first part; the optio
   assert.equal(s.plan!.questions[1].pick, undefined, "a pick that isn't an option is dropped")
 })
 
-test("a time is pressed only for the day the page has chosen (fresha, 124: 11:30 of the first day «booked» as Sat 26 Dec)", () => {
-  const st = (): AgentState => ({ ...newState("s", "haircut", "en", "https://www.fresha.com/a/x"), plan: { booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30 } } as any })
-  const page = (items: MapItem[]): PageMap => ({ url: "https://www.fresha.com/a/x", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items })
+test("a time is pressed only for the day the page has chosen (124: 11:30 of the first day «booked» as Sat 26 Dec)", () => {
+  const st = (): AgentState => ({ ...newState("s", "haircut", "en", "https://book.example/a/x"), plan: { booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30 } } as any })
+  const page = (items: MapItem[]): PageMap => ({ url: "https://book.example/a/x", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items })
   const slot: MapItem = { id: "9", role: "button", label: "11:30 AM" }
   assert.equal(isDateLabel("Select Tue, Nov 24, 2026"), true, "the US order")
   // The greyed 26th, nothing chosen: the times aren't the 26th's.
@@ -226,11 +226,81 @@ test("a time is pressed only for the day the page has chosen (fresha, 124: 11:30
   assert.equal(why, null)
 })
 
-test("the person's answer counts the date steps again (fresha, 124: «Mon 28 Dec» chosen, then refused as a third date step)", async () => {
+test("the person's answer counts the date steps again (124: «Mon 28 Dec» chosen, then refused as a third date step)", async () => {
   const { answer } = await import("../src/shared/agent/runner.ts")
-  const st: AgentState = { ...newState("a", "haircut", "en", "https://www.fresha.com/a/x"), status: "asked", summary: "26 Dec is full", dateSteps: 2, lastDate: "Sun 27 Dec" }
+  const st: AgentState = { ...newState("a", "haircut", "en", "https://book.example/a/x"), status: "asked", summary: "26 Dec is full", dateSteps: 2, lastDate: "Sun 27 Dec" }
   const io = { save: async () => {}, map: async () => null, waitPage: async () => {} } as any
   const after = await answer(st, io, "reply", ["Mon 28 Dec"]).catch(() => st)
   assert.equal(after.dateSteps, 0)
   assert.equal(after.lastDate, undefined)
+})
+
+// Patterns booking pages draw days and times with (no site's markup: the shapes they share).
+test("pattern: disabled day buttons (disabled, aria-disabled) count as not choosable", async () => {
+  const map = domMap(`<div><div>
+    <button id="a">Fri 25 Dec</button><button id="b" disabled>Sat 26 Dec</button><button id="c" aria-disabled="true">Sun 27 Dec</button><button id="d">Mon 28 Dec</button>
+  </div></div>`)
+  const st = (l: string) => map.items.find((i) => i.label === l)?.state ?? []
+  assert.ok(st("Sat 26 Dec").includes("disabled"))
+  assert.ok(st("Sun 27 Dec").includes("disabled"))
+  const s = booking()
+  assert.match(dateStep(s, map, map.items.find((i) => i.label === "Sun 27 Dec")!) ?? "", /not available/, "another day greyed: never pressed")
+  assert.equal(dateStep(s, map, map.items.find((i) => i.label === "Sat 26 Dec")!), null, "the asked day: pressed once to hear the page")
+  assert.match(dateStep(s, map, map.items.find((i) => i.label === "Sat 26 Dec")!) ?? "", /not available/, "not twice")
+})
+
+test("pattern: a calendar grid — bare day numbers under the month, cells off by aria-disabled, a not-allowed cursor or their own words", async () => {
+  const map = domMap(`<section><h2>December 2026</h2><table role="grid"><tr>
+    <td role="gridcell" id="g25" tabindex="0">25</td>
+    <td role="gridcell" id="g26" tabindex="0">26</td>
+    <td role="gridcell" id="g27" tabindex="0" style="cursor: not-allowed">27</td>
+    <td role="gridcell" id="g28" tabindex="0" aria-label="28 December, not available">28</td>
+    <td role="gridcell" id="g29" tabindex="0" aria-label="29 декабря, нет мест">29</td>
+    <td role="gridcell" id="g30" tabindex="0" aria-disabled="true">30</td>
+  </tr></table></section>`)
+  const st = (l: string) => map.items.find((i) => i.label.startsWith(l))?.state ?? []
+  assert.deepEqual(dayItems(map, "2026-12-26").map((i) => i.label), ["26"], "the bare 26 under «December 2026»")
+  assert.ok(!st("26").includes("unavailable"))
+  assert.ok(st("27").includes("unavailable"), "not-allowed cursor")
+  assert.ok(st("28 December").includes("unavailable"), "its own words")
+  assert.ok(st("29 декабря").includes("unavailable"), "its own words in Russian")
+  assert.ok(st("30").includes("disabled"))
+  assert.equal(dayItems(map, "2026-11-26").length, 0, "another month's 26 isn't there")
+})
+
+test("pattern: a dropdown of times marks the ones the page won't take; the hands never set one", async () => {
+  const map = domMap(`<form><label for="t">Time</label><select id="t">
+    <option>19:00</option><option disabled>19:30</option><option>20:00 – fully booked</option><option>20:30 — complet</option><option>21:00 満席</option><option>21:30</option>
+  </select></form>`)
+  const sel = map.items.find((i) => i.role === "select")!
+  assert.deepEqual(sel.options, ["19:00", "19:30 [unavailable]", "20:00 – fully booked [unavailable]", "20:30 — complet [unavailable]", "21:00 満席 [unavailable]", "21:30"])
+})
+
+test("pattern: days in other languages and orders are read as days, times and prices aren't", () => {
+  for (const l of ["сб, 26 дек.", "Sa., 26. Dez.", "sam. 26 déc.", "sáb, 26 dic", "sab 26 dic", "Sáb., 26 de dez.", "Cmt 26 Ara", "السبت 26 ديسمبر", "12月26日(土)", "12월 26일 (토)", "12月26日 週六", "T7, 26 thg 12", "Tue, Nov 24, 2026", "26.12"]) assert.equal(isDateLabel(l), true, l)
+  for (const l of ["11:30 AM", "€18", "1 item", "Decide", "Market 12", "Top 10"]) assert.equal(isDateLabel(l), false, l)
+  const m = (labels: string[], text = ""): PageMap => ({ url: "https://book.example/x", title: "", lang: "", more: 0, part: 1, parts: 1, text, forms: [], items: labels.map((label, i) => ({ id: String(i), role: "button" as const, label })) })
+  assert.equal(seesDate(m(["12月25日(金)", "12月26日(土)"]), "2026-12-26"), true)
+  assert.equal(seesDate(m(["12月16日(水)"]), "2026-12-26"), false)
+  assert.equal(seesDate(m(["25", "26"], "Dezember 2026"), "2026-12-26"), true)
+})
+
+test("pattern: «tap a date first» — times shown before any day is chosen aren't the asked day's", () => {
+  const st = (): AgentState => ({ ...newState("t", "haircut", "en", "https://book.example/x"), plan: { booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30 } } as any })
+  const map = (items: MapItem[]): PageMap => ({ url: "https://book.example/x", title: "Choose a time", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items })
+  const slot: MapItem = { id: "9", role: "option", label: "12:30" }
+  // The asked day greyed (not loaded) and nothing chosen: the times are another day's.
+  assert.match(dateStep(st(), map([{ id: "1", role: "option", label: "Fri 25 Dec", state: ["unavailable"] }, { id: "2", role: "option", label: "Sat 26 Dec", state: ["unavailable"] }, slot]), slot, { tool: "click", id: "9", date: "2026-12-26", time: "12:30" }) ?? "", /isn't chosen/)
+  // The asked day chosen (aria-selected / pressed / current): fine.
+  for (const mark of ["selected", "pressed", "current"]) assert.equal(dateStep(st(), map([{ id: "2", role: "option", label: "Sat 26 Dec", state: [mark] }, slot]), slot, { tool: "click", id: "9", date: "2026-12-26", time: "12:30" }), null, mark)
+})
+
+test("pattern: another site's booking form in a frame is known by its title or address, in any language; other frames aren't", () => {
+  assert.equal(bookingFrame({ src: "https://widgets.provider.example/reservations/r/123", host: "widgets.provider.example" }), true)
+  assert.equal(bookingFrame({ src: "https://w.provider.example/embed?id=9", host: "w.provider.example", title: "Online booking" }), true)
+  assert.equal(bookingFrame({ src: "https://w.provider.example/x", host: "w.provider.example", title: "予約フォーム" }), true)
+  assert.equal(bookingFrame({ src: "https://w.provider.example/x", host: "w.provider.example", title: "Бронирование столика" }), true)
+  assert.equal(bookingFrame({ src: "https://ads.example/banner?id=3", host: "ads.example", title: "Advertisement" }), false)
+  assert.equal(bookingFrame({ src: "https://social.example/plugins/facebook-page.php", host: "social.example" }), false)
+  assert.equal(bookingFrame({ src: "https://maps.example/embed?q=place", host: "maps.example", title: "Map" }), false)
 })

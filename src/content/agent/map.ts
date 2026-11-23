@@ -9,6 +9,10 @@
 //   never reaches it.
 
 import { amounts } from "../../shared/agent/taskplan"
+import { isDateLabel } from "../../shared/agent/dates"
+import { wordTest } from "../../shared/agent/match"
+import { looksLikeSlot } from "../../shared/agent/rules"
+import { UNAVAILABLE_WORDS } from "../../shared/agent/words"
 import { fieldLock } from "../../shared/agent/fields"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import type { Lock, MapItem, PageForm, PageMap, Role } from "../../shared/agent/types"
@@ -19,7 +23,7 @@ const CONTROL = [
   "a[href]", "button", "input", "select", "textarea", "summary",
   "[role=button]", "[role=link]", "[role=checkbox]", "[role=radio]", "[role=switch]", "[role=tab]", "[role=menuitem]",
   "[role=menuitemcheckbox]", "[role=menuitemradio]", "[role=option]", "[role=combobox]", "[role=listbox]", "[role=slider]",
-  "[role=spinbutton]", "[role=textbox]", "[role=searchbox]", "[role=treeitem]",
+  "[role=spinbutton]", "[role=textbox]", "[role=searchbox]", "[role=treeitem]", "[role=gridcell]",
   "[contenteditable='']", "[contenteditable=true]", "[contenteditable=plaintext-only]", "[onclick]"
 ].join(",")
 
@@ -124,6 +128,8 @@ export function roleOf(el: Element): Role | null {
     case "tab": return "tab"
     case "menuitem": return "menuitem"
     case "option": case "treeitem": return "option"
+    // A calendar's day cell (a grid of days): a choice when it holds a short number and no button of its own.
+    case "gridcell": return !el.querySelector("button, a, [role=button], [role=option]") && /^\s*\D{0,12}\d{1,2}\D{0,12}\s*$/.test(el.textContent ?? "") ? "option" : null
     case "combobox": return "combobox"
     case "listbox": return "listbox"
     case "slider": return "slider"
@@ -264,7 +270,7 @@ function stateOf(el: Element, role: Role): string[] {
 }
 
 // Class names sites give a day or a slot that can't be chosen.
-const UNAVAILABLE_CLASS = /(^|[-_\s])(disabled|unavailable|not-?available|inactive|blocked|sold-?out|booked|is-?full|day--disabled|outside)([-_\s]|$)/i
+const UNAVAILABLE_CLASS = /(^|[-_\s])(disabled|unavailable|not-?available|inactive|blocked|sold-?out|booked|is-?full|outside)([-_\s]|$)/i
 
 /** Whether the page shows this control as not choosable: its class, faded (opacity), or not taking presses. */
 function unavailableByLook(el: Element): boolean {
@@ -277,9 +283,17 @@ function unavailableByLook(el: Element): boolean {
     const style = view?.getComputedStyle?.(e)
     if (!style) continue
     opacity *= Number(style.opacity || "1")
-    if (i === 0 && style.pointerEvents === "none") return true
+    if (i === 0 && (style.pointerEvents === "none" || style.cursor === "not-allowed")) return true
   }
   return opacity < 0.6
+}
+
+// A day or a time that says it's not choosable, in its name or its title, in any of the 15 languages («Sat 26, not
+// available», «Fully booked»): read on day and time controls only (a short number, a date, a time).
+const unavailableWord = wordTest(UNAVAILABLE_WORDS)
+function unavailableBySaying(el: Element, label: string): boolean {
+  if (!(isDateLabel(label) || looksLikeSlot(label) || /^\s*\d{1,2}\b/.test(label))) return false
+  return unavailableWord(`${label} ${el.getAttribute("title") ?? ""} ${el.getAttribute("aria-description") ?? ""}`)
 }
 
 const rgb = (c: string): [number, number, number, number] | null => {
@@ -393,12 +407,20 @@ function hrefOf(el: Element, pageHost: string): string | undefined {
   return sameSite(host, pageHost) ? path : `${host}${path}`.slice(0, 140)
 }
 
+/** An option as the model reads it: marked when the page shows it can't be chosen (a dropdown of times with full ones). */
+function optionText(o: Element): string {
+  const text = squash(o.textContent, 60)
+  if (!text) return ""
+  const off = (o as HTMLOptionElement).disabled || o.hasAttribute("disabled") || o.getAttribute("aria-disabled") === "true" || unavailableBySaying(o, text)
+  return off ? `${text} [unavailable]` : text
+}
+
 function optionsOf(el: Element, role: Role): string[] | undefined {
   if (role === "select" || (role === "listbox" && tag(el) === "select")) {
-    return Array.from((el as HTMLSelectElement).options).slice(0, 30).map((o) => squash(o.textContent, 60)).filter(Boolean)
+    return Array.from((el as HTMLSelectElement).options).slice(0, 30).map(optionText).filter(Boolean)
   }
   if (role === "listbox") {
-    const list = Array.from(el.querySelectorAll("[role=option]")).slice(0, 30).map((o) => squash(o.textContent, 60)).filter(Boolean)
+    const list = Array.from(el.querySelectorAll("[role=option]")).slice(0, 30).map(optionText).filter(Boolean)
     return list.length ? list : undefined
   }
   return undefined
@@ -421,7 +443,7 @@ function pageText(doc: Document, overlays: Element[]): string {
     size += t.length + 1
   }
   for (const o of overlays) add(`[over the page] ${textOf(o).slice(0, 500)}`)
-  // A page's messages, not its controls (fresha marks a year of date buttons aria-live: they filled the text before
+  // A page's messages, not its controls (a salon booking site marks a year of date buttons aria-live: they filled the text before
   // the time slots, TestFlight 118). A few, on the screen's width.
   const width = view?.innerWidth ?? 400
   let messages = 0
@@ -546,7 +568,8 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     if (options?.length) item.options = options
     // A date or a time that can't be chosen, as the page shows it (124, the owner: «по яркости даты видно доступна ли
     // она»): its class, its fading, or later its text against its siblings'.
-    if (!item.lock && (role === "button" || role === "option" || role === "radio" || role === "link") && !item.state?.includes("disabled") && unavailableByLook(el)) item.state = [...(item.state ?? []), "unavailable"]
+    const choice = !item.lock && (role === "button" || role === "option" || role === "radio" || role === "link")
+    if (choice && !item.state?.includes("disabled") && (unavailableByLook(el) || unavailableBySaying(el, item.label))) item.state = [...(item.state ?? []), "unavailable"]
     // (Only dates and times — a short label with a number — are compared with their siblings: a nav bar's styling isn't.)
     if (!item.lock && (role === "button" || role === "option" || role === "radio" || role === "link") && /\d/.test(item.label) && item.label.length <= 30) looks.push({ item, el, group: el.parentElement?.parentElement ?? el.parentElement, contrast: textContrast(el) })
     items.push(item)
@@ -581,7 +604,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
   }
 
   // On the screen first; then what a sideways strip keeps out of it (a year of dates), then below and above.
-  // A search box above the screen (a page scrolled past its header) stays with what's on the screen: OpenTable, round 3 —
+  // A search box above the screen (a page scrolled past its header) stays with what's on the screen: a restaurant site, round 3 —
   // the agent couldn't search again once the list was scrolled.
   const searchBox = (i: MapItem) => (i.role === "textbox" || i.role === "combobox") && (i.type === "search" || SEARCH_WORDS.test(i.label))
   const rank = (i: MapItem & { side?: boolean }) => (i.where === "dialog" ? 0 : i.where === undefined ? (i.side ? 1.5 : 1) : i.where === "above" && searchBox(i) ? 1.2 : i.where === "below" ? 2 : 3)
@@ -613,9 +636,9 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
 }
 
 /** Another site's frames on the screen, big enough to be a form (their insides aren't readable from here). */
-function otherFrames(doc: Document): Array<{ src: string; host: string; w: number; h: number }> {
+function otherFrames(doc: Document): Array<{ src: string; host: string; w: number; h: number; title?: string }> {
   const here = doc.location?.hostname ?? ""
-  const out: Array<{ src: string; host: string; w: number; h: number }> = []
+  const out: Array<{ src: string; host: string; w: number; h: number; title?: string }> = []
   for (const f of Array.from(doc.querySelectorAll("iframe"))) {
     const src = (f as HTMLIFrameElement).src
     if (!/^https:\/\//.test(src)) continue
@@ -628,7 +651,8 @@ function otherFrames(doc: Document): Array<{ src: string; host: string; w: numbe
     if (!host || host === here) continue
     const r = f.getBoundingClientRect()
     if (r.width < 240 || r.height < 240 || r.bottom < 0 || r.top > (doc.defaultView?.innerHeight ?? 800)) continue
-    out.push({ src: src.split("#")[0].slice(0, 500), host, w: Math.round(r.width), h: Math.round(r.height) })
+    const title = squash(f.getAttribute("title") || f.getAttribute("aria-label") || f.getAttribute("name") || "", 120)
+    out.push({ src: src.split("#")[0].slice(0, 500), host, w: Math.round(r.width), h: Math.round(r.height), ...(title ? { title } : {}) })
   }
   return out.slice(0, 3)
 }
@@ -646,7 +670,7 @@ export function takesPayment(doc: Document): boolean {
     if (doc.querySelector("[autocomplete~=cc-number], [autocomplete~=cc-csc], [autocomplete~=cc-exp], apple-pay-button, [class*=apple-pay-button], gpay-button, [id*=paypal-button], [data-stripe]")) return true
     for (const f of Array.from(doc.querySelectorAll("iframe"))) {
       // Only a frame one can see: Stripe's, PayPal's and Klarna's scripts leave an invisible frame on every page of a
-      // site that uses them (TheFork's home page read as a payment page, and its search box as «pay yourself»).
+      // site that uses them (a restaurant site's home page read as a payment page, and its search box as «pay yourself»).
       if (!shownFrame(f)) continue
       const src = f.getAttribute("src") ?? ""
       let host = ""

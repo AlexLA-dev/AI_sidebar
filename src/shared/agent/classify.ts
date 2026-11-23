@@ -2,11 +2,11 @@
 // model's own words about a step never change it. The server checks with this before it answers, and the extension
 // checks again before it acts (the extension is the one that presses).
 
-import { anyWord, wordKind } from "./match.ts"
+import { anyWord, wordKind, wordTest } from "./match.ts"
 import { amounts } from "./money.ts"
 import { blockedSite, hostOf, sameSite, type SitePolicy } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
-import { CONSENT_DIALOG, TERMS_BOX } from "./words.ts"
+import { CHOSEN_COUNT_WORDS, CONSENT_DIALOG, TERMS_BOX } from "./words.ts"
 
 export interface StepContext {
   map: PageMap
@@ -115,13 +115,17 @@ function listingCard(item: MapItem): boolean {
   return item.role === "link" && (item.label.length > 40 || PRICE_FROM.test(item.label))
 }
 
-// A count of what's chosen next to its total: «1 item», «2 services», «1 услуга», «3 Artikel».
-const ITEM_COUNT = /(^|[^\p{L}\d])\d{1,2}\s*(items?|services?|treatments?|products?|услуг\p{L}*|товар\p{L}*|позици\p{L}*|artikel|leistung\p{L}*|articles?|prestations?|artículos?|servicios?|articoli|servizi|itens|serviços|ürün|hizmet)(?![\p{L}])/iu
+// The word right after a count in a label («1 item», «2 услуги», «3 Artikel», «2点»): what's counted.
+const chosenCountWord = wordTest(CHOSEN_COUNT_WORDS)
+function countsChosen(label: string): boolean {
+  for (const m of label.matchAll(/(?<![\d.,])\d{1,2}\s*([\p{L}\p{M}]+(?:\s[\p{L}\p{M}]+)?)/gu)) if (chosenCountWord(m[1])) return true
+  return false
+}
 
-/** A booking or shop's summary bar: the total and how many things are chosen («€18 1 item • 30min - 45min», fresha,
- *  124) with no word that pays or orders — it shows the choice and goes on, the checkout comes after it. */
+/** A booking's or shop's summary bar: the total and how many things are chosen, with no word that pays or orders —
+ *  it shows the choice and goes on; the checkout comes after it. */
 function cartSummary(item: MapItem, kind: string | undefined): boolean {
-  return item.role === "button" && ITEM_COUNT.test(item.label) && (kind === undefined || kind === "nav" || kind === "weak")
+  return item.role === "button" && countsChosen(item.label) && (kind === undefined || kind === "nav" || kind === "weak")
 }
 
 /** The class of a click on `item` (a button, a link, a checkbox…) by its words and where it is. A press that commits
@@ -146,7 +150,7 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   // Money (the security review: paying was stopped by word lists only). An amount on the button («Donate €10», «Rent
   // $3.99») pays; on a page that takes payment (card fields, a payment frame, a checkout address) every press that
   // isn't a link elsewhere on the page, a tab, an option or a refusal is the person's own.
-  // (A listing's card is a link with its price on it — «Groom Room … Men's haircut from £35», Treatwell: that's going to
+  // (A listing's card is a link with its price on it — «Salon … Men's haircut from £35», a salon marketplace: that's going to
   // the salon, not paying. A button with an amount, or a short link that names one, still pays.)
   if (amounts(item.label).length && !listingCard(item) && !cartSummary(item, hit?.kind)) return verdict("self", "pay")
   const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || hit?.kind === "nav" || hit?.kind === "reject"
@@ -157,7 +161,7 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
     if (hit.kind === "consent" && isConsentDialog(map, item)) return verdict("self", "cookies_accept")
     if (SELF_KINDS.has(hit.kind)) return verdict("self", hit.kind)
     if (hit.kind === "reject") return isConsentDialog(map, item) ? verdict("free", "cookies_reject") : verdict("confirm", "decline")
-    // A «Book now» / «Book an appointment» that only leads into a booking flow (TestFlight 118, the director on fresha:
+    // A «Book now» / «Book an appointment» that only leads into a booking flow (TestFlight 118, the director on a salon booking site:
     // a question per step) is a free step; the press that commits the booking still asks — one in a form to fill, on
     // a page with personal fields, on a page that takes payment, or on a review / confirm / checkout page.
     if (hit.kind === "submit" && BOOK_ENTRY.test(hit.word) && !CART.test(hit.word) && !form?.fillable && !commitStage(map)) return verdict("free", "entry")
@@ -173,7 +177,7 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
     if (form.otherSite) return verdict("confirm", "other_site")
     if (form.fillable) return verdict("confirm", "submit")
   }
-  // A button with no words in something drawn over the page, outside a form: its close «×» (Treatwell's app banner had
+  // A button with no words in something drawn over the page, outside a form: its close «×» (a salon marketplace's app banner had
   // one, and asking about it stopped the task). Elsewhere a wordless control still asks.
   if (!item.label.trim() && item.where === "dialog" && item.form === undefined && item.type !== "submit" && item.role === "button") return verdict("free", "close")
   if (!item.label.trim()) return verdict("confirm", "unknown")

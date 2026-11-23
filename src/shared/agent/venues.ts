@@ -1,7 +1,7 @@
 // The places a booking can go to (2.7.1, the director's round 3): read from a results list on the device, ranked by the
 // person's rules, kept with the task, and opened one after another by their own links when one doesn't fit (the
 // model's «back» didn't get out of a booking window). A place has to match what the request asks for (its cuisine or
-// service words on its card), never only by rating (TheFork: a French restaurant for «итальянский»).
+// service words on its card), never only by rating (a restaurant site: a French restaurant for «итальянский»).
 
 import { hostOf, sameSite } from "./sites.ts"
 import type { MapItem, PageMap } from "./types.ts"
@@ -13,13 +13,13 @@ export interface Venue {
   reviews: number
 }
 
-// «4.8», «4,8», «9.4» (TheFork's /10), next to stars or on their own.
+// «4.8», «4,8», «9.4» (a restaurant site's /10), next to stars or on their own.
 const RATING = /(?:^|[\s(★⭐])([0-9](?:[.,][0-9])?|10)(?:\s*\/\s*(?:5|10))?(?=\s|$|[)★⭐])/
 const REVIEWS = /\(?([0-9][0-9,.\s ]{0,8})\)?\s*(?:reviews?|ratings?|отзыв\w*|оцен\w*|avis|bewertung\w*|reseñas?|valoraciones|recension\w*|avalia\w*|yorum\w*|değerlendirme|件|レビュー|리뷰|후기|评论|評論|評價|تقييم\w*|مراجع\w*|đánh giá)|\(([0-9][0-9,.]{0,8})\)/i
 
 const num = (s: string) => Number(s.replace(/[\s ,.]/g, ""))
 
-// A review's card (a diner's name, their own count of reviews, their score, «5 months ago») is not a place (TheFork, the
+// A review's card (a diner's name, their own count of reviews, their score, «5 months ago») is not a place (a restaurant site, the
 // round-3 run: «M Marine E. 20 reviews 10 5 months ago» was opened as a restaurant).
 const REVIEW_CARD = /\b(ago|reviewed|visited)\b|назад|il y a|\bhace\b|\bfa\b|\bvor\b|\bhá\b|önce|前|전|قبل|trước/i
 
@@ -83,7 +83,7 @@ const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{
 export function rankVenues(list: Venue[], cards: Map<string, string>, match: string[], minRating: number, area: string[] = []): Venue[] {
   const words = match.map(fold).filter((w) => w.length >= 3)
   const card = (v: Venue) => fold(cards.get(v.url) ?? v.name)
-  // The area the request names («Soho»): when some cards name it, only those (Treatwell, 121 sweep: a Shropshire salon
+  // The area the request names («Soho»): when some cards name it, only those (a salon marketplace, 121 sweep: a Shropshire salon
   // for «Soho, London»); when none does, the list is the site's answer to the search and stays.
   const places = area.map(fold).filter((w) => w.length >= 3)
   const near = places.length ? list.filter((v) => places.some((w) => card(v).includes(w))) : []

@@ -367,3 +367,80 @@ export const TERMS_BOX = [
   "條款", "服務條款", "隱私權政策", "個人資料",
   "điều khoản", "chính sách bảo mật", "dữ liệu cá nhân"
 ]
+
+// A day or a time the page shows as not choosable, in its own words (an aria-label «Sat 26, not available», a slot
+// «Fully booked»): read on date and time controls only.
+export const UNAVAILABLE_WORDS = [
+  "not available", "unavailable", "fully booked", "booked up", "sold out", "no availability", "no times available", "no slots", "not bookable", "closed",
+  "недоступ*", "нет мест", "мест нет", "нет свободн*", "всё занято", "все занято", "занято", "закрыто",
+  "недоступн*", "немає місць", "немає вільн*", "зайнято", "зачинено",
+  "nicht verfügbar", "ausgebucht", "keine verfügbarkeit", "keine termine", "belegt", "geschlossen",
+  "indisponible", "non disponible", "complet", "aucune disponibilité", "fermé",
+  "no disponible", "agotado", "completo", "sin disponibilidad", "cerrado",
+  "non disponibile", "esaurito", "al completo", "nessuna disponibilità", "chiuso",
+  "indisponível", "não disponível", "esgotado", "lotado", "sem disponibilidade", "fechado",
+  "müsait değil", "uygun değil", "dolu", "tükendi", "kapalı",
+  "غير متاح", "غير متوفر", "محجوز بالكامل", "لا توجد مواعيد", "مغلق",
+  "予約不可", "満席", "空きなし", "受付終了", "定休日", "休業",
+  "예약 불가", "예약불가", "마감", "매진", "휴무",
+  "不可预订", "已约满", "约满", "已满", "无空位", "已售罄",
+  "不可預訂", "已約滿", "約滿", "已滿", "無空位",
+  "không có sẵn", "hết chỗ", "đã kín", "hết lịch", "đóng cửa"
+]
+
+// A page naming its next free day or time («next available», «available from …»).
+export const NEXT_FREE_WORDS = [
+  "next available", "available from", "first available", "earliest available", "next opening",
+  "ближайш* свободн*", "ближайш* доступн*", "свободно с", "доступно с",
+  "найближч* вільн*", "найближч* доступн*", "доступно з",
+  "nächster freier termin", "nächste verfügbarkeit", "verfügbar ab",
+  "prochaine disponibilité", "disponible à partir", "disponible dès",
+  "próxima disponibilidad", "primera disponibilidad", "disponible desde",
+  "prossima disponibilità", "disponibile dal", "disponibile da",
+  "próxima disponibilidade", "disponível a partir",
+  "en yakın müsait", "ilk müsait", "itibaren müsait",
+  "أقرب موعد متاح", "متاح من",
+  "次の空き", "最短",
+  "다음 예약 가능", "가장 빠른",
+  "下一个可预订", "最早可约",
+  "下一個可預訂", "最早可約",
+  "lịch trống tiếp theo", "có sẵn từ"
+]
+
+// Words of booking in another site's frame (its title, name or address): a reservation or appointment form.
+export const BOOKING_WORDS = [
+  "book*", "reserv*", "appointment*", "schedul*",
+  "бронир*", "брониров*", "запис*", "резерв*",
+  "бронюв*", "запис*",
+  "buchen", "buchung*", "termin*", "reservierung*",
+  "réserv*", "rendez-vous",
+  "cita*", "agenda*",
+  "prenot*",
+  "agendament*", "marcaç*",
+  "rezervasyon*", "randevu*",
+  "حجز", "موعد",
+  "予約",
+  "예약",
+  "预订", "预约",
+  "預訂", "預約", "訂位",
+  "đặt bàn", "đặt lịch", "đặt chỗ"
+]
+
+// What a count next to a total counts in a booking's or shop's summary bar («1 item», «2 услуги», «3 Artikel»).
+export const CHOSEN_COUNT_WORDS = [
+  "item*", "service*", "treatment*", "product*",
+  "услуг*", "товар*", "позици*",
+  "послуг*", "товар*", "позиці*",
+  "artikel", "leistung*", "produkt*",
+  "article*", "prestation*", "produit*",
+  "artículo*", "servicio*", "producto*",
+  "articol*", "serviz*", "prodott*",
+  "itens", "item", "serviço*", "produto*",
+  "ürün*", "hizmet*",
+  "عنصر", "عناصر", "خدمة", "خدمات", "منتج*",
+  "点", "件", "サービス",
+  "개", "서비스", "상품",
+  "项", "服务",
+  "項", "服務",
+  "sản phẩm", "dịch vụ", "mục"
+]

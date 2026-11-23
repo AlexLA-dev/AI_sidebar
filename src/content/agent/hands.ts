@@ -91,7 +91,7 @@ function reveal(el: Element): void {
 
 /** A press the way a page hears a finger or a mouse: pointer and mouse down and up, then the click itself. */
 export function press(el: Element): void {
-  // A link of this site that would open a new tab opens here: the agent works in its own tab (TheFork's restaurant
+  // A link of this site that would open a new tab opens here: the agent works in its own tab (a restaurant site's restaurant
   // cards opened tabs it never saw). Another site's link keeps its own way (that's classed apart).
   const a = el.closest?.("a[href][target]") as HTMLAnchorElement | null
   const target = a?.getAttribute("target") ?? ""
@@ -182,13 +182,17 @@ async function typeAtEnd(el: HTMLElement, text: string, replace: boolean): Promi
   return (el.textContent ?? "").includes(text.trim())
 }
 
-async function choose(el: Element, option: string): Promise<StepResult> {
+async function choose(el: Element, asked: string): Promise<StepResult> {
   const view = el.ownerDocument.defaultView ?? window
+  // The map's own mark on an option isn't part of its text.
+  const option = asked.replace(/\s*\[unavailable\]\s*$/, "")
   if (tag(el) === "select") {
     const select = el as HTMLSelectElement
     const before = select.value
     const match = Array.from(select.options).find((o) => sameOption(o.textContent ?? "", option) || sameOption(o.value, option))
     if (!match) return { ok: false, note: `no option "${option}"` }
+    // An option the page doesn't let be chosen (a full time in a dropdown) isn't set behind its back.
+    if (match.disabled || match.hasAttribute("disabled")) return { ok: false, note: `"${option}" can't be chosen on the page (unavailable): choose another the rules allow, or ask with the page's real options` }
     select.value = match.value
     match.selected = true
     select.dispatchEvent(new view.Event("input", { bubbles: true }))
@@ -313,7 +317,7 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
     }
     case "type": {
       reveal(el!)
-      // A site's own slider (a price from–to): stepped with its keys to the number asked (TheFork, 121 sweep: «до 50 €»
+      // A site's own slider (a price from–to): stepped with its keys to the number asked (a restaurant site, 121 sweep: «до 50 €»
       // couldn't be set). A native range input takes its value as typed.
       if (roleOf(el!) === "slider" && tag(el!) !== "input") return slideTo(el as HTMLElement, call.text ?? "")
       const r = await typeInto(el!, call.text ?? "", call.mode ?? "replace")
