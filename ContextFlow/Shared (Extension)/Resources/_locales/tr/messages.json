@@ -3707,6 +3707,12 @@
  "agentRuleAnySpecialistHint": {
   "message": "Berber, kuaför, doktor, antrenör ya da rehber: kim müsaitse. Kapalıyken kiminle olacağını sorarım."
  },
+ "errLink": {
+  "message": "ContextFlow bu sayfayla bağlantısını kaybetti (başka bir uygulama açıkken iOS onu kapatmış olabilir). Yeniden deneyin ya da tekrar olursa sayfayı yenileyin."
+ },
+ "reloadPage": {
+  "message": "Sayfayı yenile"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

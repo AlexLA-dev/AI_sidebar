@@ -1266,5 +1266,7 @@
   "fdICloudJustNow": "ahora mismo",
   "fdICloudNoAccount": "Sin sincronizar: inicia sesión en iCloud en este dispositivo",
   "fdICloudFailed": "Sin sincronizar: iCloud no respondió. Se intentará de nuevo la próxima vez.",
-  "agentRuleAnySpecialistHint": "Peluquero, estilista, médico, entrenador o guía: quien esté libre. Desactivado: te pregunto con quién."
+  "agentRuleAnySpecialistHint": "Peluquero, estilista, médico, entrenador o guía: quien esté libre. Desactivado: te pregunto con quién.",
+  "errLink": "ContextFlow perdió la conexión con esta página (iOS pudo cerrarlo mientras otra app estaba abierta). Reintenta o, si vuelve a pasar, recarga la página.",
+  "reloadPage": "Recargar la página"
 }

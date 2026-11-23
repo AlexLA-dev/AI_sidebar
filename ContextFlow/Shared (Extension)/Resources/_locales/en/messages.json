@@ -3707,6 +3707,12 @@
  "agentRuleAnySpecialistHint": {
   "message": "A barber, stylist, doctor, trainer or guide: whoever is free. Off: I ask whom you want."
  },
+ "errLink": {
+  "message": "ContextFlow lost its link to this page (iOS may have put it away while another app was open). Retry, or reload the page if it happens again."
+ },
+ "reloadPage": {
+  "message": "Reload page"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

@@ -3707,6 +3707,12 @@
  "agentRuleAnySpecialistHint": {
   "message": "Thợ cắt tóc, nhà tạo mẫu, bác sĩ, huấn luyện viên hay hướng dẫn viên: ai rảnh cũng được. Tắt: tôi sẽ hỏi bạn chọn ai."
  },
+ "errLink": {
+  "message": "ContextFlow đã mất kết nối với trang này (iOS có thể đã tạm dừng nó khi một ứng dụng khác đang mở). Hãy thử lại, hoặc tải lại trang nếu vẫn xảy ra."
+ },
+ "reloadPage": {
+  "message": "Tải lại trang"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

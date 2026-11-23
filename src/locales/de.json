@@ -1266,5 +1266,7 @@
   "fdICloudJustNow": "gerade eben",
   "fdICloudNoAccount": "Nicht synchronisiert: Melde dich auf diesem Gerät bei iCloud an",
   "fdICloudFailed": "Nicht synchronisiert: iCloud hat nicht geantwortet. Beim nächsten Mal wird es erneut versucht.",
-  "agentRuleAnySpecialistHint": "Friseur, Stylistin, Arzt, Trainerin oder Guide – wer gerade frei ist. Aus: Ich frage, bei wem."
+  "agentRuleAnySpecialistHint": "Friseur, Stylistin, Arzt, Trainerin oder Guide – wer gerade frei ist. Aus: Ich frage, bei wem.",
+  "errLink": "ContextFlow hat die Verbindung zu dieser Seite verloren (iOS hat es vielleicht beendet, während eine andere App offen war). Versuche es noch einmal oder lade die Seite neu, falls es wieder passiert.",
+  "reloadPage": "Seite neu laden"
 }

@@ -3707,6 +3707,12 @@
  "agentRuleAnySpecialistHint": {
   "message": "Parrucchiere, stilista, medico, istruttore o guida: chi è libero. Disattivato: ti chiedo con chi."
  },
+ "errLink": {
+  "message": "ContextFlow ha perso il collegamento con questa pagina (iOS potrebbe averlo chiuso mentre un'altra app era aperta). Riprova o, se succede di nuovo, ricarica la pagina."
+ },
+ "reloadPage": {
+  "message": "Ricarica la pagina"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

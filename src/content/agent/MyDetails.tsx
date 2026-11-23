@@ -13,6 +13,7 @@ import { useEffect, useState } from "preact/hooks"
 import { FORM_KEYS, refusedEntry, type FormEntry, type FormKey } from "../../shared/agent/formdata"
 import { TARGET } from "../../shared/config"
 import { t, uiLang, type MessageKey } from "../../shared/i18n"
+import { onReturn } from "../bgmsg"
 import { sendBackground } from "../insert/store"
 import { CalendarNeed } from "./AppleAccess"
 import { FIELD_ORDER, orderedEntries, syncState } from "./detailsView"
@@ -34,6 +35,8 @@ export function keyName(e: Pick<FormEntry, "key" | "label">): string {
 interface Data {
   entries: FormEntry[]
   icloud?: boolean
+  // No answer from the extension (the tab's link went while Safari was away, 123).
+  lost?: boolean
   // What the last sync through iCloud did (the app keeps it): when it went through, or why it didn't.
   syncedAt?: number
   syncError?: string
@@ -53,8 +56,18 @@ export function MyDetailsGroup(): VNode {
   const [sites, setSites] = useState<string[]>([])
 
   useEffect(() => {
-    void sendBackground<Data>({ type: "formData" }).then((d) => setData(d ?? { entries: [] }))
+    const load = () => void sendBackground<Data>({ type: "formData" }).then((d) => d && setData(d))
+    // Read again when the page comes back (from the ContextFlow app after «Разрешить», another tab): the first read may
+    // have gone to a background Safari had put away.
+    load()
     void autoStartSites().then(setSites)
+    const off = onReturn(load)
+    // Nothing came at all: the tab's link to ContextFlow is gone (123) — said, with a reload, never an empty list.
+    const empty = setTimeout(() => setData((d) => d ?? { entries: [], lost: true }), 12_000)
+    return () => {
+      off()
+      clearTimeout(empty)
+    }
   }, [])
 
   const live = orderedEntries((data?.entries ?? []).filter((e) => !e.deleted), uiLang())
@@ -96,6 +109,11 @@ export function MyDetailsGroup(): VNode {
     <section class="cf-group cf-mydetails">
       <span class="cf-label">{t("fdTitle")}</span>
       <p class="cf-hint">{t("fdHint")}</p>
+      {data?.lost && (
+        <p class="cf-hint">
+          {t("errLink")} <button type="button" class="cf-link" onClick={() => location.reload()}>{t("reloadPage")}</button>
+        </p>
+      )}
       {live.length > 0 && (
         <ul class="cf-fd-list">
           {live.map((e) => (

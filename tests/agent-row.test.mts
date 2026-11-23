@@ -93,3 +93,15 @@ test("118 design: the agent's surfaces use the chat's type scale, one Cancel, no
   assert.doesNotMatch(panel, /cf-agent-at/)
   assert.doesNotMatch(panel, /class="cf-hint"/)
 })
+
+test("123 design: «Do it on this page?» in the Do violet as a button; the agent cards' buttons the panel's size, Start still filled", () => {
+  const css = readFileSync(new URL("../src/content/agent/agent.css", import.meta.url), "utf8")
+  const panelCss = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
+  assert.match(css, /\.cf-chip\.cf-agent-hint, \.cf-chip\.cf-agent-hint:hover \{[^}]*color: var\(--ultra-text\); background: var\(--ultra-soft\); border-color: var\(--ultra-line\)/)
+  // The cards' buttons: the secondary button's own padding (8px 13px), no shadow on the filled one, same height.
+  assert.match(panelCss, /\.cf-secondary \{[^}]*padding: 8px 13px/)
+  assert.match(css, /\.cf-agent \.cf-primary, \.cf-agent \.cf-secondary[^{]*\{\s*padding: 8px 13px;/)
+  assert.match(css, /\.cf-agent \.cf-primary, \.cf-agent-float \.cf-primary, \.cf-agent-notice \.cf-primary \{ border: 1px solid transparent !important; box-shadow: none; \}/)
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.match(app, /class="cf-chip cf-agent-hint"[^\n]*\n\s*<Icon\.Sparkle/)
+})

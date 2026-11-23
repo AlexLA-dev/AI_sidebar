@@ -174,8 +174,17 @@ test("121: «Забукай меня на стрижку…» and other ways to 
 
 test("121: the chat's answer names the agent's button only when the panel shows it (the flag follows the chip)", () => {
   const app = readFileSync("src/content/App.tsx", "utf8")
-  assert.match(app, /asksForAction\(content\) && !agentBusyRef\.current \? \{ agent: true as const \}/)
+  assert.match(app, /asksForAction\(content\) && !agentBusyRef\.current \? \{ agent: true as const, agentLabel: t\("agentHint"\) \}/)
   assert.match(app, /const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && [^\n]*asksForAction\(messages\[lastUserIndex\]\.content\)/)
   assert.ok(!/offerFor[^\n]*agentPast/.test(app), "a past task in the chat doesn't hide it")
   assert.match(readFileSync("src/shared/prompt.ts", "utf8"), /under your answer ContextFlow shows a button/)
+})
+
+test("123: the answer names the agent's button with the chip's own words, never a translation of them", async () => {
+  const { withAgentRule } = await import("../src/shared/prompt.ts")
+  const [rules] = withAgentRule(["Rules:\n- a\n\nrest", "x"], true, "Do it on this page?")
+  assert.match(rules, /«Do it on this page\?» \(exactly these words\)/)
+  const [plain] = withAgentRule(["Rules:\n- a\n\nrest", "x"], true)
+  assert.match(plain, /«Do it on this page\?» \(in their language\)/)
+  assert.match(readFileSync("src/content/App.tsx", "utf8"), /agent: true as const, agentLabel: t\("agentHint"\)/)
 })

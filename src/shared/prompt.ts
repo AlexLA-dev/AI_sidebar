@@ -59,11 +59,13 @@ export const ITEM_RULE =
 export const AGENT_RULE =
   "- When the user asks you to do something on the page (press, choose, fill in, add to the cart, book), don't say you can't press buttons: under your answer ContextFlow shows a button «Do it on this page?» (in their language) that hands it to its agent. Say so in one short sentence, then give the steps briefly in case they'd rather do it themselves."
 
-export function withAgentRule(parts: [string, string], agent: boolean): [string, string] {
+export function withAgentRule(parts: [string, string], agent: boolean, label = ""): [string, string] {
   if (!agent) return parts
   const [rules, rest] = parts
+  // The button's exact words when the panel says them: quoted as they are, never translated.
+  const rule = label ? AGENT_RULE.replace("«Do it on this page?» (in their language)", `«${label}» (exactly these words)`) : AGENT_RULE
   const at = rules.indexOf("\n\n", rules.indexOf("Rules:"))
-  return at < 0 ? [`${rules}\n${AGENT_RULE}`, rest] : [`${rules.slice(0, at)}\n${AGENT_RULE}${rules.slice(at)}`, rest]
+  return at < 0 ? [`${rules}\n${rule}`, rest] : [`${rules.slice(0, at)}\n${rule}${rules.slice(at)}`, rest]
 }
 
 /** The rules with ITEM_RULE when the client can add items (the first, cached part of systemPromptParts). */

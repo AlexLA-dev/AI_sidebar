@@ -3707,6 +3707,12 @@
  "agentRuleAnySpecialistHint": {
   "message": "이발사, 스타일리스트, 의사, 트레이너, 가이드 중 비어 있는 사람으로 예약해요. 끄면 누구로 할지 물어볼게요."
  },
+ "errLink": {
+  "message": "ContextFlow와 이 페이지의 연결이 끊어졌습니다(다른 앱이 열려 있는 동안 iOS가 중지했을 수 있습니다). 다시 시도하거나, 또 그러면 페이지를 새로고침하세요."
+ },
+ "reloadPage": {
+  "message": "페이지 새로고침"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },
