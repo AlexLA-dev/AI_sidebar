@@ -56,8 +56,22 @@
 /* Safari on iPhone zooms the page into a field whose text is under 16 px when it gets the focus: «Мои данные» and «Позже»
    fields are 16 px there. */
 @media (pointer: coarse) { .cf-input-line, .cf-fd-add select { font-size: 16px; } }
-/* «Сделать на этой странице?» under a question that asks for an action. */
-.cf-agent-hint { align-self: flex-end; margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; color: var(--accent-text); }
+/* «Сделать на этой странице?» under an answer to an action request: the Do action's own violet (the Do-mode send and
+   field edge), filled lightly with its edge, so it reads as a button, not a link (the owner on 122). The violet's text,
+   fill and edge tokens are the ones checked for 4.5:1 in both themes. */
+.cf-chip.cf-agent-hint, .cf-chip.cf-agent-hint:hover {
+  align-self: flex-end; margin-top: 6px; display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); font-weight: 600;
+}
+.cf-chip.cf-agent-hint:hover { background: color-mix(in srgb, var(--ultra-soft) 100%, var(--ultra-text) 8%); }
+.cf-chip.cf-agent-hint svg { color: var(--ultra-text); }
+/* The agent cards' buttons the size of the panel's own («Cancel», the answer chips): «Start», «Yes», «Fill in», «Go to
+   the tab» stay filled but no bigger (the owner on 122: «Start» was bigger than the chat's other buttons). */
+.cf-agent .cf-primary, .cf-agent .cf-secondary, .cf-agent-float .cf-primary, .cf-agent-float .cf-secondary,
+.cf-agent-notice .cf-primary, .cf-agent-notice .cf-secondary {
+  padding: 8px 13px; line-height: 1.25; border-radius: 11px; min-height: 0;
+}
+.cf-agent .cf-primary, .cf-agent-float .cf-primary, .cf-agent-notice .cf-primary { border: 1px solid transparent !important; box-shadow: none; }
 /* The person's own step in the list: «Вы», not the agent's ✓. */
 .cf-agent-you { display: inline-block; padding: 0 6px; margin-inline-end: 2px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-text); font-size: 12px; font-weight: 600; line-height: 18px; vertical-align: 1px; }
 

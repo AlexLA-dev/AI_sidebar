@@ -1411,7 +1411,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           // (Plans with the agent only: Free's answer keeps its honest wording, the chip shows the Pro mark.)
           // Only when the chip is really shown for this question (the owner on 121: the answer described a button that
           // wasn't there): an action request, not in history, no task going on.
-          ...(!historyMode && hasPro(planNow) && opts.mode !== "google" && asksForAction(content) && !agentBusyRef.current ? { agent: true as const } : {}),
+          ...(!historyMode && hasPro(planNow) && opts.mode !== "google" && asksForAction(content) && !agentBusyRef.current ? { agent: true as const, agentLabel: t("agentHint") } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })

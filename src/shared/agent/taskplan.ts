@@ -412,7 +412,7 @@ export function covered(plan: TaskPlan | null | undefined, call: ToolCall, verdi
         return on.find((p) => p.kind === "fill" && !!call.key && !!p.keys?.includes(call.key) && !!call.id && !!p.ids?.includes(call.id) && (!p.path || p.path === pathOf(map.url)))
           // A booking's contact details (name, e-mail, phone) go into the form wherever it comes (a later page the plan
           // couldn't see): only those keys, only into a field that is the person's (never a secret one), on that site.
-          ?? on.find((p) => p.kind === "fill" && p.reason === "contact" && !!call.key && !!p.keys?.includes(call.key) && item?.lock === "personal")
+          ?? on.find((p) => p.kind === "fill" && p.reason === "contact" && !!call.key && (!!p.keys?.includes(call.key) || ((call.key === "name.given" || call.key === "name.family") && !!p.keys?.includes("name.full"))) && item?.lock === "personal")
           ?? null
       case "cart":
       case "submit": {
@@ -538,7 +538,8 @@ export const CONTACT_KEYS = ["name.full", "name.given", "name.family", "email", 
  * the saved ones go in as the plan's fill, one ticked line on the card («Заполнить из «Моих данных»: имя, e-mail…»).
  */
 export function addContactFill(plan: TaskPlan, saved: string[], host: string): void {
-  const keys = CONTACT_KEYS.filter((k) => saved.includes(k))
+  // A full name covers its first and last name (they're split from it on the device): the card names it once.
+  const keys = CONTACT_KEYS.filter((k) => saved.includes(k) && !((k === "name.given" || k === "name.family") && saved.includes("name.full")))
   if (!plan.booking || !keys.length || plan.perms.some((p) => p.reason === "contact")) return
   plan.perms.push({ id: "pcontact", kind: "fill", reason: "contact", label: "", keys: [...keys], host, on: true })
 }

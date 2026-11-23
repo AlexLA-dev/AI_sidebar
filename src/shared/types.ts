@@ -122,6 +122,8 @@ export interface AskPayload {
   items?: true
   // 2.7.1: the panel can hand an action to the agent («Сделать на этой странице?» under the question).
   agent?: true
+  // The chip's own words (the answer names the button with them).
+  agentLabel?: string
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
