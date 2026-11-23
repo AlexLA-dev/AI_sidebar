@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Escolhe “somente necessários”."
  },
+ "setCookiesAccept": {
+  "message": "Se não der para recusar, aceitar"
+ },
  "cookiesOffOnSite": {
   "message": "Não fechar neste site"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Janela de cookies fechada: somente necessários"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookies aceitos: não havia outra opção"
  },
  "phSimilarBodyUpBoth": {
   "message": "Isso está no Pro e no Ultra: no Pro, a busca rápida; no Ultra, a completa. O mesmo produto mais barato e parecidos de outras lojas. Toque no botão destacado."

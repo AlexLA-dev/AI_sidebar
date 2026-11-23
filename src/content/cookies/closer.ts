@@ -6,11 +6,12 @@
 // Never: a link that leaves the page, a form's submit, anything near a password or a card. Cheap: one look when the
 // page is idle, then one MutationObserver for a short while (no polling), and nothing once a banner is answered.
 
-import { aboutCookies, chooseButton, labelKind } from "../../shared/cookies/labels.ts"
+import { aboutCookies, chooseAccept, chooseButton, labelKind } from "../../shared/cookies/labels.ts"
 import { ANY_ROOT, RULES, type Rule, type Step } from "./rules.ts"
 
 export type CloseResult =
-  | { status: "done"; via: string }
+  // accepted: no way to refuse, and the person asked for «Accept» then (Settings, off by default).
+  | { status: "done"; via: string; accepted?: true }
   // wall: «pay or accept» (a subscription is the other door, and rejecting leads there: Le Figaro). Never touched.
   | { status: "left"; why: "only_accept" | "none" | "stuck" | "wall"; via: string }
   | { status: "none" }
@@ -25,7 +26,17 @@ export interface Env {
   until: (root: Node, ms: number, ready: () => boolean) => Promise<boolean>
   // A consent platform's sign on the page (the TCF API's frame): «privacy» and «consent» words count then.
   sign?: boolean
+  // «Если отказаться нельзя — принимать»: a banner with no way to refuse (only «Accept», a «pay or accept» wall) gets
+  // its «Accept», never the subscription. Off by default.
+  accept?: boolean
+  // The clock (the tests' own).
+  now?: () => number
 }
+
+// «Accept» only once a banner has offered no way to refuse for this long: some draw their reject a moment later.
+export const ACCEPT_AFTER_MS = 1500
+// When each banner was first seen with no way to refuse.
+const noChoiceSince = new Map<Element, number>()
 
 // Controls a banner's answer can be. Links only when they stay on the page (no href, "#…", "javascript:").
 const CONTROLS = "button, [role=button], input[type=button], input[type=submit], a, [onclick]"
@@ -78,13 +89,43 @@ export function safeControl(el: Element): boolean {
   return true
 }
 
+/**
+ * A design system's button (Just Eat's <pie-button>, <pie-link>): a custom element whose own shadow root holds the
+ * real control, its label in the element's own text. It is the control: pressed and read as one.
+ */
+function wrapsControl(el: Element): boolean {
+  const sr = (el as HTMLElement).shadowRoot
+  return !!sr && el.localName.includes("-") && !!sr.querySelector(CONTROLS)
+}
+
 /** Every control under `scope`, its open shadow roots one level in too (some platforms draw there). */
 function controls(scope: ParentNode): Element[] {
   const out = [...scope.querySelectorAll(CONTROLS)]
   for (const el of scope.querySelectorAll("*")) {
     const sr = (el as HTMLElement).shadowRoot
-    if (sr) out.push(...sr.querySelectorAll(CONTROLS))
+    if (!sr) continue
+    if (wrapsControl(el) && (el.textContent ?? "").trim()) out.push(el)
+    else out.push(...sr.querySelectorAll(CONTROLS))
   }
+  return out
+}
+
+/**
+ * The open shadow roots on the page that may hold a banner (a cookie banner drawn as a web component: Just Eat's
+ * <pie-cookie-banner>), and those inside them one level further. Design-system buttons' own roots are left out.
+ */
+function shadowScopes(doc: Document): ShadowRoot[] {
+  const out: ShadowRoot[] = []
+  const add = (root: ParentNode, depth: number) => {
+    for (const el of root.querySelectorAll("*")) {
+      const sr = (el as HTMLElement).shadowRoot
+      // (Our own panel's root is never looked into.)
+      if (!sr || el.localName === "contextflow-root" || wrapsControl(el) || out.length >= 40) continue
+      out.push(sr)
+      if (depth < 1) add(sr, depth + 1)
+    }
+  }
+  add(doc, 0)
   return out
 }
 
@@ -194,13 +235,33 @@ function shownRoot(env: Env, rule: Rule): Element | null {
   }
   for (const el of list) {
     if (rule.shadow && (el as HTMLElement).shadowRoot) {
-      const inner = [...(el as HTMLElement).shadowRoot!.querySelectorAll("*")].find((c) => c.matches(CONTROLS) && env.visible(c))
+      const inner = controls((el as HTMLElement).shadowRoot!).find((c) => env.visible(c))
       if (inner) return el
       continue
     }
     if (env.visible(el)) return el
   }
   return null
+}
+
+/** The banner's «Accept» (or «continue with cookies»), shown and safe; never a subscription or the settings. */
+export function acceptButton(env: Env, scopes: ParentNode[]): HTMLElement | null {
+  const list = scopes.flatMap((w) => controls(w)).filter((el) => env.visible(el) && safeControl(el))
+  const i = chooseAccept(list.map(labelOf))
+  return i >= 0 ? (list[i] as HTMLElement) : null
+}
+
+/** No way to refuse: «Accept» when the person asked for it, else the banner is left to them. */
+async function acceptOrLeave(env: Env, scopes: ParentNode[], left: Extract<CloseResult, { status: "left" }>, isGone: () => Promise<boolean>, key: Element): Promise<CloseResult> {
+  if (!env.accept || (left.why !== "only_accept" && left.why !== "wall")) return left
+  const now = (env.now ?? Date.now)()
+  const since = noChoiceSince.get(key)
+  if (since === undefined) noChoiceSince.set(key, now)
+  if (since === undefined || now - since < ACCEPT_AFTER_MS) return left
+  const el = acceptButton(env, scopes)
+  if (!el) return left
+  press(el)
+  return (await isGone()) ? { status: "done", via: left.via, accepted: true } : { status: "left", why: "stuck", via: left.via }
 }
 
 async function gone(env: Env, rule: Rule | null, el: Element): Promise<boolean> {
@@ -212,7 +273,9 @@ async function gone(env: Env, rule: Rule | null, el: Element): Promise<boolean> 
 /** Runs a platform's own way: its reject button, a reject label in its window, or its settings saved as necessary. */
 async function byRule(env: Env, rule: Rule, root: Element): Promise<CloseResult> {
   const scope = () => scopeOf(env, rule, root)
-  if (windowsOf(env, rule).some((w) => isWall(env, w))) return { status: "left", why: "wall", via: rule.id }
+  if (windowsOf(env, rule).some((w) => isWall(env, w))) {
+    return acceptOrLeave(env, windowsOf(env, rule), { status: "left", why: "wall", via: rule.id }, () => gone(env, rule, root), root)
+  }
   const own = ownButton(env, rule, scope(), rule.reject) ?? byLabelIn(env, windowsOf(env, rule), "reject")
   if (own) {
     press(own)
@@ -224,7 +287,8 @@ async function byRule(env: Env, rule: Rule, root: Element): Promise<CloseResult>
     const labels = windowsOf(env, rule).flatMap((w) => controls(w)).filter((el) => env.visible(el)).map(labelOf)
     if (!labels.length) return { status: "none" }
     const choice = chooseButton(labels)
-    return { status: "left", why: "leave" in choice ? choice.leave : "none", via: rule.id }
+    const left = { status: "left" as const, why: "leave" in choice ? choice.leave : ("none" as const), via: rule.id }
+    return acceptOrLeave(env, windowsOf(env, rule), left, () => gone(env, rule, root), root)
   }
   press(open)
   const find = (step: Step): HTMLElement | null =>
@@ -253,6 +317,8 @@ export function genericBanners(env: Env): Element[] {
   const add = (el: Element) => seen.size < MAX_CANDIDATES && seen.add(el)
   try {
     for (const el of doc.querySelectorAll(GENERIC)) add(el)
+    // Banners drawn inside a web component's shadow root.
+    for (const sr of shadowScopes(doc)) for (const el of sr.querySelectorAll(GENERIC)) add(el)
   } catch {
     // a selector the engine doesn't take: the page's top levels below still are looked at
   }
@@ -314,6 +380,7 @@ const handled = (el: Element): boolean => {
 export function forgetBanners(): void {
   done.clear()
   leftAlone.clear()
+  noChoiceSince.clear()
 }
 
 /** One look at the page: a platform's banner, else a banner the site made. */
@@ -355,6 +422,15 @@ export async function closeOnce(env: Env): Promise<CloseResult> {
       done.add(banner)
       press(safe[choice.press] as HTMLElement)
       return (await gone(env, null, banner)) ? { status: "done", via: env.sign ? "tcf" : "generic" } : { status: "left", why: "stuck", via: "generic" }
+    }
+    // No way to refuse, and the person asked for «Accept» then.
+    if (env.accept && (choice.leave === "only_accept" || choice.leave === "wall")) {
+      const via = env.sign ? "tcf" : "generic"
+      const result = await acceptOrLeave(env, [banner], { status: "left", why: choice.leave, via }, () => gone(env, null, banner), banner)
+      if (result.status === "done") {
+        done.add(banner)
+        return result
+      }
     }
     // Only «Accept» (and maybe settings, or a reject that leaves the page), or a wall: the person's choice. Counted
     // once. A part of the page with no answer we know («none») isn't counted: it's often a box inside the banner.
@@ -420,8 +496,8 @@ export function untilOnPage(root: Node, ms: number, ready: () => boolean): Promi
   })
 }
 
-export function pageEnv(doc: Document = document, sign = false): Env {
-  return { doc, visible: shownOnPage, floats: floatsOnPage, until: untilOnPage, sign }
+export function pageEnv(doc: Document = document, sign = false, accept = false): Env {
+  return { doc, visible: shownOnPage, floats: floatsOnPage, until: untilOnPage, sign, accept }
 }
 
 /** The TCF API's sign on the page (its locator frame): consent platforms that we have no rule for. */

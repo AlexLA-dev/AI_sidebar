@@ -3,7 +3,7 @@
 // so it's never a step or a question (index.tsx, agentMap).
 
 import { closesOn, COOKIE_KEY, counted, readState, rollDay, tell, type CookieState, type LeftWhy } from "../../shared/cookies/state.ts"
-import { closeOnce, pageEnv, tcfSign, type CloseResult } from "./closer.ts"
+import { ACCEPT_AFTER_MS, closeOnce, pageEnv, tcfSign, type CloseResult } from "./closer.ts"
 
 declare const __COOKIE_DEBUG__: boolean
 const DEBUG = typeof __COOKIE_DEBUG__ !== "undefined" && __COOKIE_DEBUG__
@@ -17,6 +17,8 @@ const LOOKS = 30
 
 export interface Closed {
   via: string
+  // Accepted because there was no way to refuse (the switch is on): «Принял cookie: другого выбора не было».
+  accepted?: boolean
   // The confirmation by the ✦ button shows (the first times only).
   tell: boolean
 }
@@ -49,6 +51,7 @@ async function reportDay(): Promise<void> {
   await save(next)
   if (!report) return
   for (const [what, count] of Object.entries(report.done)) send({ a: "closed", what, count })
+  for (const [what, count] of Object.entries(report.accepted)) send({ a: "accepted", what, count })
   for (const [why, count] of Object.entries(report.left)) send({ a: "left", why, count })
 }
 
@@ -57,9 +60,10 @@ export async function record(result: CloseResult): Promise<Closed | null> {
   if (result.status === "none") return null
   let state = await load()
   if (result.status === "done") {
-    state = counted(state, Date.now(), { via: result.via })
+    const accepted = result.accepted === true
+    state = counted(state, Date.now(), accepted ? { accepted: result.via } : { via: result.via })
     await save(state)
-    return { via: result.via, tell: tell(state).show || DEBUG }
+    return { via: result.via, ...(accepted ? { accepted } : {}), tell: tell(state, accepted).show || DEBUG }
   }
   await save(counted(state, Date.now(), { left: result.why as LeftWhy }))
   return null
@@ -108,7 +112,7 @@ export async function startCookieCloser(closed: (c: Closed) => void, left?: (why
     if (++looks > LOOKS || Date.now() - started > WATCH_MS) return stop()
     busy = true
     try {
-      const result = await closeOnce(pageEnv(document, tcfSign(document)))
+      const result = await closeOnce(pageEnv(document, tcfSign(document), state.accept === true))
       if (result.status === "done") {
         stop()
         const c = await record(result)
@@ -118,6 +122,8 @@ export async function startCookieCloser(closed: (c: Closed) => void, left?: (why
       if (result.status === "left") {
         await record(result)
         if (DEBUG) left?.(result.why, result.via)
+        // «Если отказаться нельзя — принимать»: one more look once the banner has had time to show a reject.
+        if (state.accept && (result.why === "only_accept" || result.why === "wall")) setTimeout(() => void look(), ACCEPT_AFTER_MS + 200)
       }
     } finally {
       busy = false
@@ -139,21 +145,21 @@ export async function startCookieCloser(closed: (c: Closed) => void, left?: (why
 export async function closeForAgent(): Promise<string | null> {
   const state = await load()
   if ((state.sites ?? []).length && !closesOn({ ...state, off: false }, location.hostname)) return null
-  const result = await closeOnce(pageEnv(document, tcfSign(document)))
+  const result = await closeOnce(pageEnv(document, tcfSign(document), state.accept === true))
   if (result.status !== "done") return null
   await record(result)
   return result.via
 }
 
 /** A banner answered inside a consent platform's frame of this page (frame.ts, through the background). */
-export async function closedInFrame(via: string, closed: (c: Closed) => void): Promise<void> {
-  const c = await record({ status: "done", via })
+export async function closedInFrame(via: string, closed: (c: Closed) => void, accepted = false): Promise<void> {
+  const c = await record({ status: "done", via, ...(accepted ? { accepted: true as const } : {}) })
   if (c) closed(c)
 }
 
 /** The confirmation showed once more (it shows the first few times only). */
-export async function noteTold(): Promise<void> {
-  await save(tell(await load()).state)
+export async function noteTold(accepted = false): Promise<void> {
+  await save(tell(await load(), accepted).state)
 }
 
 /** Settings' switch and the site exception. */

@@ -312,12 +312,13 @@ export const FEATURES: Record<string, Feature> = {
   // Settings: the switch and the per-site exception. Never a site or an address.
   cookies: {
     since: "2.7.1", tracked: "2.7.1", on: "ext",
-    actions: ["closed", "left", "switch_on", "switch_off", "site_off", "site_on"],
+    // 121, the owner: "accepted" — no way to refuse, «Если отказаться нельзя — принимать» on ("accept_on"/"accept_off").
+    actions: ["closed", "accepted", "left", "switch_on", "switch_off", "site_off", "site_on", "accept_on", "accept_off"],
     fields: {
       what: [
         "onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "sourcepoint", "cookieyes", "complianz",
         "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "cookie_notice", "cookieconsent",
-        "borlabs", "shopify", "evidon", "tcf", "generic"
+        "borlabs", "shopify", "evidon", "just_eat", "tcf", "generic"
       ],
       why: ["only_accept", "none", "stuck", "wall"],
       count: "int"

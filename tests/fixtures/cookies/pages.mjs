@@ -165,6 +165,32 @@ export const PLATFORM_PAGES = [
     </div>`
   },
   {
+    // Just Eat (the owner's iPad, TestFlight 121): <pie-cookie-banner>'s shadow root holds the banner; its buttons are
+    // <pie-button> / <pie-link>, each with a shadow root of its own around a real <button> (`wrap`), the label slotted.
+    name: "just-eat", expect: { status: "done", via: "just_eat" },
+    shadow: {
+      host: "pie-host",
+      wrap: ["pie-button", "pie-link"],
+      html: `<div class="c-cookieBanner" data-banner role="dialog" style="${fixed}">
+        <h2>Cookies</h2><div class="c-cookieBanner-body"><p>We use our own and third party cookies and other tech to enhance and personalise your user experience. Necessary cookies are always set. Click
+        <pie-link data-test-id="body-necessary-only" data-act="none">Necessary only</pie-link> to continue without accepting more. Click <pie-link data-test-id="body-manage-prefs" data-act="none">Manage preferences</pie-link> to share your preferences or <pie-link data-test-id="body-accept-all" data-act="hide">Accept all</pie-link>.</p></div>
+        <div class="c-cookieBanner-actions"><pie-link data-test-id="actions-manage-prefs" data-act="none">Manage preferences</pie-link><pie-button data-test-id="actions-necessary-only" data-act="hide" data-expect>Necessary only</pie-button><pie-button data-test-id="actions-accept-all" data-act="hide">Accept all</pie-button></div>
+      </div>`
+    },
+    html: `<pie-cookie-banner id="pie-host"></pie-cookie-banner>`
+  },
+  {
+    // The same web-component banner on a site we have no rule for: the generic closer finds it in the shadow root.
+    name: "generic-shadow", expect: { status: "done", via: "generic" },
+    shadow: {
+      host: "shadow-host",
+      wrap: ["ds-button"],
+      html: `<div class="consent-sheet" data-banner role="dialog" style="${fixed}"><p>Wir verwenden Cookies, um Ihnen das beste Erlebnis zu bieten.</p>
+        <ds-button data-act="hide">Alle akzeptieren</ds-button><ds-button data-act="hide" data-expect>Nur notwendige</ds-button></div>`
+    },
+    html: `<site-consent id="shadow-host"></site-consent>`
+  },
+  {
     // TheFork: Crownpeak's Evidon, «Continue Without Accepting ➜».
     name: "evidon", expect: { status: "done", via: "evidon" },
     html: `<div id="_evidon_banner" class="evidon-banner" data-banner role="dialog" style="${fixed}">
@@ -255,6 +281,15 @@ export const GENERIC_PAGES = [
   {
     name: "generic-wall-boxes", lang: "es", expect: { status: "left", why: "wall", via: "generic" },
     html: banner("wall-boxes", `<div class="cookie-box"><p>Pulsando «Acepto y continúo gratis» consientes la instalación de cookies propias y de terceros.</p>${btn("Acepto y continúo gratis")}</div><div class="cookie-box"><p>Pulsando «Rechazo y me suscribo» no autorizas la instalación de cookies y accedes mediante la suscripción.</p>${btn("Rechazo y me suscribo", "", "none")}</div>`)
+  },
+  // El País on the owner's iPad (121): «Free browsing by accepting cookies» or «Subscribe and decline». Left alone; with
+  // «Если отказаться нельзя — принимать» on, its «Accept and continue» (never the subscription).
+  {
+    name: "generic-wall-elpais", lang: "en", expect: { status: "left", why: "wall", via: "generic" },
+    html: `<div role="dialog" aria-modal="true" data-banner style="${fixed};top:15%"><h2>EL PAÍS</h2><p>It offers the following browsing modes</p>
+      <div><h3>Free browsing by accepting cookies</h3><p>This will involve the use of your browsing information for advertising and content personalization purposes, collected via cookies and similar technologies.</p>${btn("ACCEPT AND CONTINUE", "data-accept")}</div>
+      <div><h3>Subscribe and decline</h3><p>This option will allow you unlimited reading of EL PAÍS with exclusive content.</p>${btn("SUBSCRIBE AND DECLINE", "", "none")}</div>
+      <p>Already a subscriber? <a href="#">Log in</a></p></div>`
   },
   // The reject is a link to another page: never followed.
   {

@@ -28,6 +28,17 @@ export function CookieGroup({ site }: { site: string }): VNode {
         }} />
       </label>
       <p class="cf-hint">{t("setCookiesHint")}</p>
+      {/* 121, the owner: «в настройках выключаемую опцию Принять все, если нет других вариантов» (off by default). */}
+      {on && (
+        <label class="cf-row toggle">
+          <span class="cf-label">{t("setCookiesAccept")}</span>
+          <input type="checkbox" checked={state.accept === true} onChange={(e) => {
+            const next = e.currentTarget.checked
+            void setCookieSettings((s) => ({ ...s, accept: next })).then(setState)
+            step(next ? "accept_on" : "accept_off")
+          }} />
+        </label>
+      )}
       {on && site && (
         <div class="cf-row">
           <button type="button" class="cf-link" onClick={() => {

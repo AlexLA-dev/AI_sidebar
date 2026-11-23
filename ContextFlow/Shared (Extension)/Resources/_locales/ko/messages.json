@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "‘필수만’을 선택합니다."
  },
+ "setCookiesAccept": {
+  "message": "거부할 수 없으면 수락"
+ },
  "cookiesOffOnSite": {
   "message": "이 사이트에서는 닫지 않기"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "쿠키 창을 닫았습니다: 필수만"
+ },
+ "cookieAcceptedLine": {
+  "message": "쿠키를 수락했습니다: 다른 선택지가 없었습니다"
  },
  "phSimilarBodyUpBoth": {
   "message": "Pro와 Ultra 기능이에요. Pro는 빠른 검색, Ultra는 전체 검색. 같은 상품을 더 싸게, 다른 쇼핑몰의 비슷한 상품도 찾아요. 강조된 버튼을 누르세요."

@@ -50,7 +50,7 @@ export function useCookieLine(shown: boolean): { line: Closed | null; close: () 
     }
     // Test builds: it stays until the next page, so a test can read it.
     if (DEBUG) return
-    void noteTold()
+    void noteTold(line.accepted === true)
     const timer = setTimeout(() => setLine(null), LINE_MS)
     return () => clearTimeout(timer)
   }, [line])
@@ -61,7 +61,7 @@ export function CookieLine({ line, side, top, onClose }: { line: Closed; side: "
   return (
     <div class={`cf-ph cf-cookie-line ${side}`} style={{ top }} role="status">
       <button type="button" class="cf-ph-text" onClick={onClose}>
-        {t("cookieClosedLine")}{DEBUG ? ` · ${line.via}` : ""}
+        {t(line.accepted ? "cookieAcceptedLine" : "cookieClosedLine")}{DEBUG ? ` · ${line.via}` : ""}
       </button>
     </div>
   )

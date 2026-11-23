@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "「必須のみ」を選びます。"
  },
+ "setCookiesAccept": {
+  "message": "拒否できない場合は同意する"
+ },
  "cookiesOffOnSite": {
   "message": "このサイトでは閉じない"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Cookieの画面を閉じました：必須のみ"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookieに同意しました：ほかに選択肢がありませんでした"
  },
  "phSimilarBodyUpBoth": {
   "message": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。"

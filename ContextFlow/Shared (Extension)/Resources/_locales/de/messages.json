@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Wählt „Nur notwendige“."
  },
+ "setCookiesAccept": {
+  "message": "Wenn Ablehnen nicht geht: akzeptieren"
+ },
  "cookiesOffOnSite": {
   "message": "Auf dieser Website nicht schließen"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Cookie-Fenster geschlossen: nur notwendige"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookies akzeptiert: es gab keine andere Wahl"
  },
  "phSimilarBodyUpBoth": {
   "message": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."

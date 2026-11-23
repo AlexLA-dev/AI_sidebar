@@ -161,6 +161,14 @@ export const RULES: readonly Rule[] = [
     reject: [".fc-cta-do-not-consent", "button.fc-cta-do-not-consent"],
     settings: { open: [".fc-cta-manage-options"], then: [[".fc-confirm-choices", "button.fc-confirm-choices"]] }
   },
+  // Just Eat Takeaway's own (just-eat.co.uk, thuisbezorgd.nl, lieferando.de…): <pie-cookie-banner>, a web component; its
+  // buttons are <pie-button> / <pie-link> elements (design-system buttons with shadow roots of their own).
+  {
+    id: "just_eat",
+    root: "pie-cookie-banner",
+    shadow: "pie-cookie-banner",
+    reject: ["[data-test-id=actions-necessary-only]", "[data-test-id=body-necessary-only]"]
+  },
   // Crownpeak's Evidon (TheFork).
   { id: "evidon", root: "#_evidon_banner, #_evidon-message, .evidon-banner", wide: true, reject: ["#_evidon-decline-button", ".evidon-banner-declinebutton"] },
   // Common ones beyond the list: WordPress's Cookie Notice, CookieConsent (Orest Bida; Osano's older one), Borlabs,
