@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "Sayfayı yenile"
  },
+ "agentPlanVenueQ": {
+  "message": "Nerede rezervasyon (kurallarınıza göre seçildi)"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

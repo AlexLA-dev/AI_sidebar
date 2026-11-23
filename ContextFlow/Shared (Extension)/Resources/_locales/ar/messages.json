@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "إعادة تحميل الصفحة"
  },
+ "agentPlanVenueQ": {
+  "message": "أين الحجز (مختار حسب قواعدك)"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

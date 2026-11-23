@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "Recargar la página"
  },
+ "agentPlanVenueQ": {
+  "message": "Dónde reservar (elegido según tus reglas)"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

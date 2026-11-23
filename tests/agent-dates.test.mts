@@ -12,7 +12,7 @@ import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
-import { approvePlan, dateStep, drive, isDateLabel, newState, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { approvePlan, dateStep, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import type { MapItem, PageMap } from "../src/shared/agent/types.ts"
 
 function domMap(html: string, colors: Record<string, string> = {}): PageMap {
@@ -116,4 +116,42 @@ test("the card shows the place the rules picked as a changeable answer; a change
   after = await approvePlan(s, io, { answers: s.plan!.questions.map((x) => (x.kind === "venue" ? "Tra di Noi Italian" : "")), off: [] })
   assert.equal(after.plan!.booking!.venue, "Tra di Noi Italian")
   assert.equal(after.chooseVenue, false)
+})
+
+test("the page has shown the booking's day: a strip's day with its month, «26.12», or a calendar's bare day under its month", () => {
+  const page = (labels: string[], text = ""): PageMap => ({ url: "https://www.fresha.com/a/x", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text, forms: [], items: labels.map((label, i) => ({ id: String(i + 1), role: "button", label })) })
+  assert.equal(seesDate(page(["Wed 25 Nov", "Thu 26 Nov", "Sat 28 Nov"]), "2026-12-26"), false, "26 Nov isn't 26 Dec")
+  assert.equal(seesDate(page(["Fri 25 Dec", "Sat 26 Dec"]), "2026-12-26"), true)
+  assert.equal(seesDate(page(["сб, 26 дек."]), "2026-12-26"), true)
+  assert.equal(seesDate(page(["26.12."]), "2026-12-26"), true)
+  assert.equal(seesDate(page(["25", "26", "27"], "December 2026"), "2026-12-26"), true, "a calendar's cells under «December 2026»")
+  assert.equal(seesDate(page(["25", "26", "27"], "November 2026"), "2026-12-26"), false, "November's calendar")
+  assert.equal(seesDate(page(["11:30 AM", "12:26"], "December"), "2026-12-26"), false, "a time isn't a day")
+})
+
+test("a question about the booking's day before the page showed it is sent back once to go there (fresha, 124: «26 Dec closed, nearest Sat 5 Dec» unseen)", async () => {
+  const STRIP: PageMap = {
+    url: "https://www.fresha.com/a/cutter/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "Select a date Pick a time", forms: [],
+    items: [
+      { id: "1", role: "button", label: "Wed 25 Nov" }, { id: "2", role: "button", label: "Thu 26 Nov" }, { id: "3", role: "button", label: "Sat 28 Nov" },
+      { id: "4", role: "button", label: "Open calendar" }, { id: "5", role: "button", label: "11:30 AM" }
+    ]
+  }
+  const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30, tz: "", venue: "Cutter Barbershop", match: [], area: [] } }
+  const ASK = { ok: true, call: { tool: "ask_user", question: "26 Dec is closed. Nearest Saturday is 5 Dec?", choices: ["Sat 5 Dec", "Another day"] }, verdict: { cls: "free", reason: "read" } }
+  const mk = (replies: any[]): RunnerIO => ({ map: async () => STRIP, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } })
+  let io = mk([{ ok: true, plan: RAW, token: "t" }, ASK, ASK])
+  let s = await drive(newState("d1", "Book me a haircut in a month on Saturday", "en", STRIP.url), io)
+  let after = await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
+  const sent = after.log.find((l) => l.call.tool === "ask_user" && /^refused/.test(l.result ?? ""))
+  assert.ok(sent && /hasn't shown Sat,? 26 Dec 2026/.test(sent.result!), "sent back with the day to go to")
+  assert.equal(after.status, "asked", "asked again: the question goes to the person (one nudge only)")
+  // Once the page shows the day, the question goes straight through.
+  STRIP.items.push({ id: "6", role: "button", label: "Sat 26 Dec" })
+  io = mk([{ ok: true, plan: RAW, token: "t" }, ASK])
+  s = await drive(newState("d2", "Book me a haircut in a month on Saturday", "en", STRIP.url), io)
+  after = await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
+  assert.equal(after.log.some((l) => /^refused/.test(l.result ?? "")), false)
+  assert.equal(after.status, "asked")
 })

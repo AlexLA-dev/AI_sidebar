@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "Seite neu laden"
  },
+ "agentPlanVenueQ": {
+  "message": "Wo buchen (nach deinen Regeln gewählt)"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

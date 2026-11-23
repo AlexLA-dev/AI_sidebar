@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "Tải lại trang"
  },
+ "agentPlanVenueQ": {
+  "message": "Đặt ở đâu (chọn theo quy tắc của bạn)"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

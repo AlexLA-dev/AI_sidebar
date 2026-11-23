@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "페이지 새로고침"
  },
+ "agentPlanVenueQ": {
+  "message": "예약할 곳(내 규칙으로 선택됨)"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

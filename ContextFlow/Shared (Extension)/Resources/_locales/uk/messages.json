@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "Оновити сторінку"
  },
+ "agentPlanVenueQ": {
+  "message": "Де бронювати (вибрано за вашими правилами)"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

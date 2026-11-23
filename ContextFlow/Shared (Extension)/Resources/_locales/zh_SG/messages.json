@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "重新加载页面"
  },
+ "agentPlanVenueQ": {
+  "message": "在哪里预订(按你的规则选择)"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

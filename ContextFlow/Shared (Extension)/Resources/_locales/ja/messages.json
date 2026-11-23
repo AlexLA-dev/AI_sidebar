@@ -3713,6 +3713,9 @@
  "reloadPage": {
   "message": "ページを再読み込み"
  },
+ "agentPlanVenueQ": {
+  "message": "予約先(あなたのルールで選択)"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

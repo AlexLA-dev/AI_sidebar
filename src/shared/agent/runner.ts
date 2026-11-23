@@ -118,6 +118,11 @@ export interface AgentState {
   dateSteps?: number
   lastDate?: string
   wokeStrip?: boolean
+  // The page has shown the booking's day (a strip's «Sat 26 Dec», a calendar's «26» under «December»), and whether a
+  // question before that was sent back once (fresha, 124: «26 декабря нет, ближайшая суббота — 5 декабря» without the
+  // calendar ever opened; the page had 26 Dec free and 5 Dec greyed).
+  sawDate?: boolean
+  dateNudged?: boolean
   // The rules let the agent choose the place; how many times a question was sent back to try the next one.
   chooseVenue?: boolean
   venueNudges?: number
@@ -432,6 +437,53 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem): string
   return null
 }
 
+// Month names' stems by month (January first), in the languages the date labels come in.
+const MONTH_STEMS: string[][] = [
+  ["jan", "янв", "jän", "janv", "ene", "gen", "oca", "ocak"],
+  ["feb", "фев", "févr", "fev", "şub"],
+  ["mar", "мар", "mär", "mars", "marz", "mart"],
+  ["apr", "апр", "avr", "abr", "nisan"],
+  ["may", "мая", "май", "mai", "mag", "mayıs"],
+  ["jun", "июн", "juin", "giu", "hazir"],
+  ["jul", "июл", "juil", "lug", "temmuz"],
+  ["aug", "авг", "août", "ago", "ağu"],
+  ["sep", "сен", "sept", "sett", "setem", "eyl"],
+  ["oct", "окт", "okt", "ott", "outu", "eki"],
+  ["nov", "ноя", "kasım"],
+  ["dec", "дек", "dez", "déc", "dic", "aralık"],
+]
+
+/** Whether the page shows the day (YYYY-MM-DD): a label with its number and month, a «26.12», or a calendar's bare
+ *  «26» with the month named on the page. */
+export function seesDate(map: PageMap, iso: string): boolean {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
+  if (!m) return false
+  const month = Number(m[2]) - 1
+  const day = Number(m[3])
+  const stems = MONTH_STEMS[month] ?? []
+  const named = (s: string) => {
+    const low = s.toLocaleLowerCase()
+    return stems.some((st) => new RegExp(`(^|[^\\p{L}])${st}`, "u").test(low))
+  }
+  const num = new RegExp(`(^|[^\\d])0?${day}(?![\\d:])`)
+  const dotted = new RegExp(`(^|[^\\d])0?${day}[./]0?${month + 1}(?!\\d)`)
+  const monthOnPage = named(map.text) || named(map.title) || map.items.some((i) => named(i.label))
+  return map.items.some((i) => {
+    const l = i.label
+    if (l.length > 60) return false
+    if (dotted.test(l)) return true
+    if (num.test(l) && named(l)) return true
+    return monthOnPage && new RegExp(`^\\s*0?${day}\\s*$`).test(l)
+  })
+}
+
+/** The booking's day as words for the model: «Sat 26 Dec 2026». */
+function dayWords(iso: string): string {
+  const d = new Date(`${iso}T12:00:00Z`)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+}
+
 /** Whether the page asks for the person's details: an empty field of theirs (name, e-mail, phone) on screen. */
 export function detailsForm(map: PageMap): boolean {
   return map.items.some((i) => i.lock === "personal" && !i.value && i.where !== "above" && i.where !== "below" && (i.role === "textbox" || i.role === "combobox"))
@@ -566,6 +618,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     state.host = hostOf(map.url)
     noteVenues(state, map)
+    if (state.plan?.approved && state.plan.booking?.date && !state.sawDate && seesDate(map, state.plan.booking.date)) state.sawDate = true
     // A booking whose form is a booking provider's frame on this page (Dishoom's SevenRooms, 121 sweep: «I've tried "Book a
     // table" five times»): the device opens that form on its own page, once; the provider counts as this task's site.
     const widget = state.plan?.approved && state.plan.booking && !state.widgetOpened ? map.frames?.find((f) => BOOKING_PROVIDER.test(f.host)) : undefined
@@ -666,6 +719,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // then said it had checked several places).
       const box = map.items.find((i) => (i.role === "textbox" || i.role === "combobox") && !i.lock && (i.type === "search" || SEARCH_BOX.test(i.label)))
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: box ? `refused: the request names no place, so it's yours to find: type what the request asks (the service or cuisine, and the area) into the site's search box #${box.id} "${box.label.slice(0, 60)}", search, then choose from the list by the rules` : "refused: the request names no place, so it's yours to find: open the site's own search or the category that fits (its search box, «Barbers», «Restaurants»), then choose from the list by the rules; ask only after two places didn't fit, with their real slots" })
+      continue
+    }
+    // A question about the booking's day before the page ever showed that day: sent back once, to go to it first.
+    if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged) {
+      state.dateNudged = true
+      const day = dayWords(state.plan.booking.date)
+      const why = `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first (the page's calendar or date button and its «next month» arrow, or scroll the date strip), read it, then go on; ask only with days the page showed as free`
+      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
+      state.refused = why
       continue
     }
     if (call.tool === "ask_user") {
