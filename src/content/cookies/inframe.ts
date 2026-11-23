@@ -3,7 +3,7 @@
 // The page's site (the frame's top) decides whether the closer is on, like on the page itself.
 
 import { closesOn, COOKIE_KEY, readState } from "../../shared/cookies/state.ts"
-import { byLabel, firstShown, isWall, pageEnv, press } from "./closer.ts"
+import { ACCEPT_AFTER_MS, acceptButton, byLabel, firstShown, isWall, pageEnv, press } from "./closer.ts"
 import { consentFrame } from "./frameMatch.ts"
 import { FRAME_RULES } from "./rules.ts"
 
@@ -33,9 +33,9 @@ function topHost(): string {
   }
 }
 
-function done(via: string): void {
+function done(via: string, accepted = false): void {
   try {
-    chrome.runtime.sendMessage({ type: "cookieFrameDone", via }, () => void chrome.runtime.lastError)
+    chrome.runtime.sendMessage({ type: "cookieFrameDone", via, ...(accepted ? { accepted } : {}) }, () => void chrome.runtime.lastError)
   } catch {
     // the extension was updated under this page
   }
@@ -49,28 +49,45 @@ async function boot(): Promise<void> {
   if (!id || !rule) return
   const host = topHost()
   const stored = await chrome.storage.local.get([COOKIE_KEY, STEP_KEY]).catch(() => ({} as Record<string, unknown>))
-  if (!host || !closesOn(readState(stored[COOKIE_KEY]), host)) return
+  const state = readState(stored[COOKIE_KEY])
+  if (!host || !closesOn(state, host)) return
   if (rule.ours) {
     const step = stored[STEP_KEY] as { at?: number; host?: string } | undefined
     if (!step || step.host !== host || typeof step.at !== "number" || Date.now() - step.at > STEP_MS) return
     await chrome.storage.local.remove(STEP_KEY).catch(() => undefined)
   }
-  const env = pageEnv(document, true)
+  const env = pageEnv(document, true, state.accept === true)
   const via = id.replace(/_pm$/, "")
   let finished = false
   let timer = 0
+  let noChoiceAt = 0
 
   const look = async (): Promise<void> => {
     if (finished || !document.body) return
-    // A «pay or accept» wall: left to the person (rejecting leads to the subscription).
-    if (isWall(env, document)) return
-    const reject = firstShown(env, document, rule.reject) ?? byLabel(env, document, "reject")
+    // A «pay or accept» wall: left to the person (rejecting leads to the subscription), or its «Accept» when they
+    // asked for it (Settings: «Если отказаться нельзя — принимать»).
+    const wall = isWall(env, document)
+    const reject = wall ? null : firstShown(env, document, rule.reject) ?? byLabel(env, document, "reject")
     if (reject) {
       finished = true
       press(reject)
       done(via)
       return
     }
+    if (env.accept && !rule.ours) {
+      const accept = acceptButton(env, [document])
+      // Only once it has offered no way to refuse for a moment (a reject drawn a little later wins).
+      if (accept && !noChoiceAt) {
+        noChoiceAt = Date.now()
+        setTimeout(() => void look(), ACCEPT_AFTER_MS + 200)
+      } else if (accept && Date.now() - noChoiceAt >= ACCEPT_AFTER_MS) {
+        finished = true
+        press(accept)
+        done(via, true)
+        return
+      }
+    }
+    if (wall) return
     const settings = rule.settings ? firstShown(env, document, rule.settings) : null
     if (settings) {
       finished = true

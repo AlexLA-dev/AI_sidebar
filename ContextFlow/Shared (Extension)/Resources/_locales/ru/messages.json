@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Выбирает «только необходимые»."
  },
+ "setCookiesAccept": {
+  "message": "Если отказаться нельзя — принимать"
+ },
  "cookiesOffOnSite": {
   "message": "Не закрывать на этом сайте"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Закрыл окно cookie: только необходимые"
+ },
+ "cookieAcceptedLine": {
+  "message": "Принял cookie: другого выбора не было"
  },
  "phSimilarBodyUpBoth": {
   "message": "Это в Pro и Ultra: в Pro — быстрый поиск, в Ultra — полный. Тот же товар дешевле и похожие варианты из других магазинов. Нажмите подсвеченную кнопку."
@@ -3585,7 +3591,7 @@
   "message": "Гостей, если не сказал"
  },
  "agentRuleAnySpecialist": {
-  "message": "Любой мастер"
+  "message": "Любой специалист (мастер, врач, тренер…)"
  },
  "agentRuleUsual": {
   "message": "Услуга — как в прошлый раз на этом сайте"
@@ -3636,16 +3642,70 @@
   "message": "Открыть Системные настройки"
  },
  "agentRuleCalNeeds": {
-  "message": "нужен доступ к календарю"
+  "message": "Нужен доступ к календарю"
  },
  "agentPlanCalAsk": {
   "message": "Учитывать календарь?"
  },
  "agentCalNotChecked": {
-  "message": "календарь не проверял: нет доступа"
+  "message": "Календарь не проверял: нет доступа"
  },
  "agentPlanFromChat": {
   "message": "Из чата: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Заметка"
+ },
+ "noteHintPointerDo": {
+  "message": "Прокрутите над кнопкой: вверх — заметка, вниз — «Сделать». Или правый клик по ней"
+ },
+ "setSecGeneral": {
+  "message": "Основное"
+ },
+ "setSecButton": {
+  "message": "Плавающая кнопка и выделение"
+ },
+ "setSecWriting": {
+  "message": "Вставка и письмо"
+ },
+ "setSecAgent": {
+  "message": "«Сделать»: задачи на страницах"
+ },
+ "setSecCookies": {
+  "message": "Окна cookie"
+ },
+ "setSecChats": {
+  "message": "Чаты и пространства"
+ },
+ "setSecData": {
+  "message": "Приватность и данные"
+ },
+ "setSecPlan": {
+  "message": "Подписка и аккаунт"
+ },
+ "setSecAbout": {
+  "message": "О приложении"
+ },
+ "fdICloudLocal": {
+  "message": "Пока только на этом устройстве"
+ },
+ "fdICloudSyncing": {
+  "message": "Синхронизирую…"
+ },
+ "fdICloudSynced": {
+  "message": "Синхронизировано · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "только что"
+ },
+ "fdICloudNoAccount": {
+  "message": "Не синхронизировано: войдите в iCloud на этом устройстве"
+ },
+ "fdICloudFailed": {
+  "message": "Не синхронизировано: iCloud не ответил. В следующий раз попробую снова."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Парикмахер, стилист, врач, тренер, гид — кто свободен. Выключено — спрошу, к кому."
  },
  "tip_4cf1b54b00": {
   "message": "Советы"

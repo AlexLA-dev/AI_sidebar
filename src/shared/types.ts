@@ -288,7 +288,7 @@ export type BackgroundRequest =
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
   // The cookie closer in a consent platform's own frame (2.7.1).
   | { type: "cookieFrameInject" }
-  | { type: "cookieFrameDone"; via: string }
+  | { type: "cookieFrameDone"; via: string; accepted?: boolean }
   | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect" | "cookies"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number; count?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */

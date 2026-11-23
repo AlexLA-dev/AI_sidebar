@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Wählt „Nur notwendige“."
  },
+ "setCookiesAccept": {
+  "message": "Wenn Ablehnen nicht geht: akzeptieren"
+ },
  "cookiesOffOnSite": {
   "message": "Auf dieser Website nicht schließen"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Cookie-Fenster geschlossen: nur notwendige"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookies akzeptiert: es gab keine andere Wahl"
  },
  "phSimilarBodyUpBoth": {
   "message": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
@@ -3585,7 +3591,7 @@
   "message": "Gäste, wenn ich nichts sage"
  },
  "agentRuleAnySpecialist": {
-  "message": "Beliebige Fachkraft"
+  "message": "Beliebige Fachkraft (Friseur, Ärztin, Trainer …)"
  },
  "agentRuleUsual": {
   "message": "Die Leistung, die ich dort zuletzt gewählt habe"
@@ -3636,7 +3642,7 @@
   "message": "Systemeinstellungen öffnen"
  },
  "agentRuleCalNeeds": {
-  "message": "braucht Zugriff auf den Kalender"
+  "message": "Braucht Zugriff auf den Kalender"
  },
  "agentPlanCalAsk": {
   "message": "Kalender berücksichtigen?"
@@ -3646,6 +3652,60 @@
  },
  "agentPlanFromChat": {
   "message": "Aus dem Chat: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Notiz"
+ },
+ "noteHintPointerDo": {
+  "message": "Auf der Taste scrollen: nach oben für eine Notiz, nach unten für „Erledigen“ – oder Rechtsklick"
+ },
+ "setSecGeneral": {
+  "message": "Allgemein"
+ },
+ "setSecButton": {
+  "message": "Schwebender Button und Auswahl"
+ },
+ "setSecWriting": {
+  "message": "Schnelleinfügen und Schreiben"
+ },
+ "setSecAgent": {
+  "message": "„Erledigen“: Aufgaben auf Seiten"
+ },
+ "setSecCookies": {
+  "message": "Cookie-Fenster"
+ },
+ "setSecChats": {
+  "message": "Chats und Bereiche"
+ },
+ "setSecData": {
+  "message": "Datenschutz und Daten"
+ },
+ "setSecPlan": {
+  "message": "Tarif und Konto"
+ },
+ "setSecAbout": {
+  "message": "Über die App"
+ },
+ "fdICloudLocal": {
+  "message": "Vorerst nur auf diesem Gerät"
+ },
+ "fdICloudSyncing": {
+  "message": "Wird synchronisiert …"
+ },
+ "fdICloudSynced": {
+  "message": "Synchronisiert · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "gerade eben"
+ },
+ "fdICloudNoAccount": {
+  "message": "Nicht synchronisiert: Melde dich auf diesem Gerät bei iCloud an"
+ },
+ "fdICloudFailed": {
+  "message": "Nicht synchronisiert: iCloud hat nicht geantwortet. Beim nächsten Mal wird es erneut versucht."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Friseur, Stylistin, Arzt, Trainerin oder Guide – wer gerade frei ist. Aus: Ich frage, bei wem."
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

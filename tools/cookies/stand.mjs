@@ -16,7 +16,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 function page(p) {
   const want = p.expect.status === "done" ? `answered by ${p.expect.via}` : p.expect.status === "left" ? `left alone (${p.expect.why})` : "not a banner: nothing pressed"
   const shadow = p.shadow
-    ? `<script>(function(){var h=document.getElementById(${JSON.stringify(p.shadow.host)});var r=h.attachShadow({mode:"open"});r.innerHTML=${JSON.stringify(p.shadow.html)};})();</script>`
+    ? `<script>(function(){var h=document.getElementById(${JSON.stringify(p.shadow.host)});var r=h.attachShadow({mode:"open"});r.innerHTML=${JSON.stringify(p.shadow.html)};${JSON.stringify(p.shadow.wrap ?? [])}.forEach(function(t){r.querySelectorAll(t).forEach(function(e){e.attachShadow({mode:"open"}).innerHTML='<button type="button"><slot></slot></button>';});});})();</script>`
     : ""
   return `<!doctype html><html lang="${esc(p.lang ?? "en")}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(p.name)}</title><style>body{font:16px system-ui;margin:20px;line-height:1.45}main{max-width:640px}#pressed{font-weight:600;color:#0a6}</style></head>

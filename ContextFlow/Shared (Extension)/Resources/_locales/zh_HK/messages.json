@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "選擇「僅必要」。"
  },
+ "setCookiesAccept": {
+  "message": "無法拒絕時接受"
+ },
  "cookiesOffOnSite": {
   "message": "在此網站不關閉"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "已關閉 Cookie 視窗：僅必要"
+ },
+ "cookieAcceptedLine": {
+  "message": "已接受 Cookie：沒有其他選擇"
  },
  "phSimilarBodyUpBoth": {
   "message": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點一下亮起的按鈕。"
@@ -3585,7 +3591,7 @@
   "message": "沒說人數時"
  },
  "agentRuleAnySpecialist": {
-  "message": "任一服務人員"
+  "message": "任一服務人員（設計師、醫師、教練等）"
  },
  "agentRuleUsual": {
   "message": "上次在該網站選的服務"
@@ -3646,6 +3652,60 @@
  },
  "agentPlanFromChat": {
   "message": "來自聊天：{0}"
+ },
+ "sendMenuNote": {
+  "message": "筆記"
+ },
+ "noteHintPointerDo": {
+  "message": "在按鈕上捲動：向上寫筆記，向下「執行」，也可以按右鍵"
+ },
+ "setSecGeneral": {
+  "message": "一般"
+ },
+ "setSecButton": {
+  "message": "浮動按鈕與選取"
+ },
+ "setSecWriting": {
+  "message": "快速插入與寫作"
+ },
+ "setSecAgent": {
+  "message": "「執行」：網頁上的任務"
+ },
+ "setSecCookies": {
+  "message": "Cookie 視窗"
+ },
+ "setSecChats": {
+  "message": "對話與空間"
+ },
+ "setSecData": {
+  "message": "隱私權與資料"
+ },
+ "setSecPlan": {
+  "message": "方案與帳號"
+ },
+ "setSecAbout": {
+  "message": "關於"
+ },
+ "fdICloudLocal": {
+  "message": "目前僅在此裝置上"
+ },
+ "fdICloudSyncing": {
+  "message": "正在同步…"
+ },
+ "fdICloudSynced": {
+  "message": "已同步 · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "剛剛"
+ },
+ "fdICloudNoAccount": {
+  "message": "未同步：請在此裝置上登入 iCloud"
+ },
+ "fdICloudFailed": {
+  "message": "未同步：iCloud 沒有回應。下次會再試。"
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "理髮師、造型師、醫師、教練或導遊，誰有空都可以。關閉後，我會先問你選誰。"
  },
  "tip_4cf1b54b00": {
   "message": "提示"

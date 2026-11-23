@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Escolhe “somente necessários”."
  },
+ "setCookiesAccept": {
+  "message": "Se não der para recusar, aceitar"
+ },
  "cookiesOffOnSite": {
   "message": "Não fechar neste site"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Janela de cookies fechada: somente necessários"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookies aceitos: não havia outra opção"
  },
  "phSimilarBodyUpBoth": {
   "message": "Isso está no Pro e no Ultra: no Pro, a busca rápida; no Ultra, a completa. O mesmo produto mais barato e parecidos de outras lojas. Toque no botão destacado."
@@ -3585,7 +3591,7 @@
   "message": "Pessoas se eu não disser"
  },
  "agentRuleAnySpecialist": {
-  "message": "Qualquer profissional"
+  "message": "Qualquer profissional (cabeleireiro, médico, treinador…)"
  },
  "agentRuleUsual": {
   "message": "O serviço que escolhi lá da última vez"
@@ -3636,16 +3642,70 @@
   "message": "Abrir Ajustes do Sistema"
  },
  "agentRuleCalNeeds": {
-  "message": "precisa de acesso ao calendário"
+  "message": "Precisa de acesso ao calendário"
  },
  "agentPlanCalAsk": {
   "message": "Considerar o calendário?"
  },
  "agentCalNotChecked": {
-  "message": "não verifiquei o calendário: sem acesso"
+  "message": "Não verifiquei o calendário: sem acesso"
  },
  "agentPlanFromChat": {
   "message": "Do chat: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Nota"
+ },
+ "noteHintPointerDo": {
+  "message": "Role sobre o botão: para cima para uma nota, para baixo para “Fazer”, ou clique com o botão direito"
+ },
+ "setSecGeneral": {
+  "message": "Geral"
+ },
+ "setSecButton": {
+  "message": "Botão flutuante e seleção"
+ },
+ "setSecWriting": {
+  "message": "Inserção rápida e escrita"
+ },
+ "setSecAgent": {
+  "message": "“Fazer”: tarefas nas páginas"
+ },
+ "setSecCookies": {
+  "message": "Janelas de cookies"
+ },
+ "setSecChats": {
+  "message": "Conversas e espaços"
+ },
+ "setSecData": {
+  "message": "Privacidade e dados"
+ },
+ "setSecPlan": {
+  "message": "Plano e conta"
+ },
+ "setSecAbout": {
+  "message": "Sobre"
+ },
+ "fdICloudLocal": {
+  "message": "Por enquanto, só neste dispositivo"
+ },
+ "fdICloudSyncing": {
+  "message": "Sincronizando…"
+ },
+ "fdICloudSynced": {
+  "message": "Sincronizado · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "agora mesmo"
+ },
+ "fdICloudNoAccount": {
+  "message": "Não sincronizado: entre no iCloud neste dispositivo"
+ },
+ "fdICloudFailed": {
+  "message": "Não sincronizado: o iCloud não respondeu. Tenta de novo na próxima vez."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Barbeiro, cabeleireiro, médico, treinador ou guia: quem estiver livre. Desligado: pergunto com quem."
  },
  "tip_4cf1b54b00": {
   "message": "Dicas"

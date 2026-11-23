@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Elige «solo necesarias»."
  },
+ "setCookiesAccept": {
+  "message": "Si no se puede rechazar, aceptar"
+ },
  "cookiesOffOnSite": {
   "message": "No cerrar en este sitio"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Ventana de cookies cerrada: solo necesarias"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookies aceptadas: no había otra opción"
  },
  "phSimilarBodyUpBoth": {
   "message": "Está en Pro y Ultra: en Pro, la búsqueda rápida; en Ultra, la completa. El mismo producto más barato y otros parecidos de otras tiendas. Toca el botón resaltado."
@@ -3585,7 +3591,7 @@
   "message": "Personas si no lo digo"
  },
  "agentRuleAnySpecialist": {
-  "message": "Cualquier profesional"
+  "message": "Cualquier profesional (peluquero, médico, entrenador…)"
  },
  "agentRuleUsual": {
   "message": "El servicio que elegí ahí la última vez"
@@ -3636,16 +3642,70 @@
   "message": "Abrir Ajustes del Sistema"
  },
  "agentRuleCalNeeds": {
-  "message": "necesita acceso al calendario"
+  "message": "Necesita acceso al calendario"
  },
  "agentPlanCalAsk": {
   "message": "¿Tener en cuenta el calendario?"
  },
  "agentCalNotChecked": {
-  "message": "no revisé el calendario: sin acceso"
+  "message": "No revisé el calendario: sin acceso"
  },
  "agentPlanFromChat": {
   "message": "Del chat: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Nota"
+ },
+ "noteHintPointerDo": {
+  "message": "Desplázate sobre el botón: hacia arriba para una nota, hacia abajo para «Hacer», o haz clic derecho"
+ },
+ "setSecGeneral": {
+  "message": "General"
+ },
+ "setSecButton": {
+  "message": "Botón flotante y selección"
+ },
+ "setSecWriting": {
+  "message": "Inserción rápida y escritura"
+ },
+ "setSecAgent": {
+  "message": "«Hacer»: tareas en las páginas"
+ },
+ "setSecCookies": {
+  "message": "Ventanas de cookies"
+ },
+ "setSecChats": {
+  "message": "Chats y espacios"
+ },
+ "setSecData": {
+  "message": "Privacidad y datos"
+ },
+ "setSecPlan": {
+  "message": "Plan y cuenta"
+ },
+ "setSecAbout": {
+  "message": "Acerca de"
+ },
+ "fdICloudLocal": {
+  "message": "Por ahora solo en este dispositivo"
+ },
+ "fdICloudSyncing": {
+  "message": "Sincronizando…"
+ },
+ "fdICloudSynced": {
+  "message": "Sincronizado · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "ahora mismo"
+ },
+ "fdICloudNoAccount": {
+  "message": "Sin sincronizar: inicia sesión en iCloud en este dispositivo"
+ },
+ "fdICloudFailed": {
+  "message": "Sin sincronizar: iCloud no respondió. Se intentará de nuevo la próxima vez."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Peluquero, estilista, médico, entrenador o guía: quien esté libre. Desactivado: te pregunto con quién."
  },
  "tip_4cf1b54b00": {
   "message": "Consejos"

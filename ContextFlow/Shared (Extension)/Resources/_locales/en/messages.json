@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Picks “only necessary”."
  },
+ "setCookiesAccept": {
+  "message": "If refusing isn't possible, accept"
+ },
  "cookiesOffOnSite": {
   "message": "Don't close on this site"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Closed a cookie window: only necessary"
+ },
+ "cookieAcceptedLine": {
+  "message": "Accepted cookies: there was no other choice"
  },
  "phSimilarBodyUpBoth": {
   "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
@@ -3585,7 +3591,7 @@
   "message": "Guests when I don't say"
  },
  "agentRuleAnySpecialist": {
-  "message": "Any specialist"
+  "message": "Any specialist (stylist, doctor, trainer…)"
  },
  "agentRuleUsual": {
   "message": "The service I chose there last time"
@@ -3636,16 +3642,70 @@
   "message": "Open System Settings"
  },
  "agentRuleCalNeeds": {
-  "message": "needs Calendar access"
+  "message": "Needs Calendar access"
  },
  "agentPlanCalAsk": {
   "message": "Check your calendar?"
  },
  "agentCalNotChecked": {
-  "message": "didn't check your calendar: no access"
+  "message": "Didn't check your calendar: no access"
  },
  "agentPlanFromChat": {
   "message": "From the chat: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Note"
+ },
+ "noteHintPointerDo": {
+  "message": "Scroll on the button: up for a note, down for Do, or right-click it"
+ },
+ "setSecGeneral": {
+  "message": "General"
+ },
+ "setSecButton": {
+  "message": "Floating button and selection"
+ },
+ "setSecWriting": {
+  "message": "Quick insert and writing"
+ },
+ "setSecAgent": {
+  "message": "Do: tasks on pages"
+ },
+ "setSecCookies": {
+  "message": "Cookie windows"
+ },
+ "setSecChats": {
+  "message": "Chats and Spaces"
+ },
+ "setSecData": {
+  "message": "Privacy and data"
+ },
+ "setSecPlan": {
+  "message": "Plan and account"
+ },
+ "setSecAbout": {
+  "message": "About"
+ },
+ "fdICloudLocal": {
+  "message": "Only on this device for now"
+ },
+ "fdICloudSyncing": {
+  "message": "Syncing…"
+ },
+ "fdICloudSynced": {
+  "message": "Synced · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "just now"
+ },
+ "fdICloudNoAccount": {
+  "message": "Not synced: sign in to iCloud on this device"
+ },
+ "fdICloudFailed": {
+  "message": "Not synced: iCloud didn't answer. It tries again next time."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "A barber, stylist, doctor, trainer or guide: whoever is free. Off: I ask whom you want."
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

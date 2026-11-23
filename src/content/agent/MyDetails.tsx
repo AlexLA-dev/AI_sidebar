@@ -1,6 +1,9 @@
 // «Мои данные» in the panel's settings (2.7.1): the person's details for forms on sites, kept by the app on this device
-// (FormData.swift), and in their iCloud only after they said yes. The first time they save something, the one question
-// «Синхронизировать через iCloud?»; after that, a switch. Passwords, cards, bank and document numbers, codes and health
+// (FormData.swift), and in their iCloud only after they turn it on. 2.7.1 (the owner on build 121: «куда делась настройка
+// вкл/выкл синк с iCloud?», and the one question vanished unanswered: it lived only until Settings re-rendered, and with
+// no answer kept there was no switch): a switch always, in the style of every other one, off until the person turns it
+// on («Пока только на этом устройстве»), and what the last sync did under it. Shown in one order (detailsView.ts), the
+// saved rows and the add menu alike. Passwords, cards, bank and document numbers, codes and health
 // data are refused before they're kept (src/shared/agent/formdata.ts). Also here: the sites where a deferred task
 // starts right after its notification (switched back on with ✕).
 
@@ -8,9 +11,11 @@ import type { VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
 import { FORM_KEYS, refusedEntry, type FormEntry, type FormKey } from "../../shared/agent/formdata"
-import { t, type MessageKey } from "../../shared/i18n"
+import { TARGET } from "../../shared/config"
+import { t, uiLang, type MessageKey } from "../../shared/i18n"
 import { sendBackground } from "../insert/store"
 import { CalendarNeed } from "./AppleAccess"
+import { FIELD_ORDER, orderedEntries, syncState } from "./detailsView"
 import { autoStartSites, setAutoStart } from "./marks"
 import { DEFAULT_RULES, readRules, RULES_KEY, type AgentRules } from "../../shared/agent/rules"
 
@@ -29,6 +34,9 @@ export function keyName(e: Pick<FormEntry, "key" | "label">): string {
 interface Data {
   entries: FormEntry[]
   icloud?: boolean
+  // What the last sync through iCloud did (the app keeps it): when it went through, or why it didn't.
+  syncedAt?: number
+  syncError?: string
 }
 
 const newId = () => `fd_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`
@@ -39,7 +47,8 @@ export function MyDetailsGroup(): VNode {
   const [label, setLabel] = useState("")
   const [value, setValue] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const [askICloud, setAskICloud] = useState(false)
+  // Turning iCloud on or off: the answer pending.
+  const [syncing, setSyncing] = useState(false)
   const [confirmAll, setConfirmAll] = useState(false)
   const [sites, setSites] = useState<string[]>([])
 
@@ -48,7 +57,7 @@ export function MyDetailsGroup(): VNode {
     void autoStartSites().then(setSites)
   }, [])
 
-  const live = (data?.entries ?? []).filter((e) => !e.deleted)
+  const live = orderedEntries((data?.entries ?? []).filter((e) => !e.deleted), uiLang())
   const put = async (changes: FormEntry[]) => {
     const d = await sendBackground<Data>({ type: "formDataPut", changes })
     if (d) setData(d)
@@ -67,8 +76,7 @@ export function MyDetailsGroup(): VNode {
     const d = await put([{ id: newId(), key, label: l, value: v.slice(0, 500), updatedAt: Date.now() }])
     setValue("")
     setLabel("")
-    // The first thing saved: the one question about iCloud (until it's answered nothing syncs).
-    if (d && d.icloud === undefined) setAskICloud(true)
+    return d
   }
 
   const remove = (e: FormEntry) => void put([{ ...e, label: "", value: "", deleted: true, updatedAt: Date.now() }])
@@ -77,9 +85,11 @@ export function MyDetailsGroup(): VNode {
     void put(live.map((e) => ({ ...e, label: "", value: "", deleted: true, updatedAt: Date.now() })))
   }
   const icloud = async (on: boolean) => {
-    setAskICloud(false)
+    setSyncing(true)
+    setData((now) => ({ ...(now ?? { entries: [] }), icloud: on }))
     const d = await sendBackground<Data>({ type: "formDataICloud", on })
-    setData((now) => ({ entries: d?.entries?.length ? d.entries : now?.entries ?? [], icloud: on }))
+    setSyncing(false)
+    setData((now) => ({ ...d, entries: d?.entries?.length ? d.entries : now?.entries ?? [], icloud: on, ...(d ? {} : { syncError: "failed" }) }))
   }
 
   return (
@@ -99,7 +109,7 @@ export function MyDetailsGroup(): VNode {
       )}
       <div class="cf-fd-add">
         <select value={key} onChange={(e) => setKey((e.target as HTMLSelectElement).value as FormKey)}>
-          {[...FORM_KEYS, "fact" as const].map((k) => <option key={k} value={k}>{t(KEY_NAME[k])}</option>)}
+          {FIELD_ORDER.filter((k) => k === "fact" || (FORM_KEYS as readonly string[]).includes(k)).map((k) => <option key={k} value={k}>{t(KEY_NAME[k])}</option>)}
         </select>
         {key === "fact" && (
           <input class="cf-input-line" value={label} placeholder={t("fdFactLabel")} maxLength={60} onInput={(e) => setLabel((e.target as HTMLInputElement).value)} onKeyDown={(e) => e.stopPropagation()} />
@@ -118,21 +128,15 @@ export function MyDetailsGroup(): VNode {
         <button type="button" class="cf-secondary" onClick={() => void add()}>{t("fdAdd")}</button>
       </div>
       {error && <p class="cf-hint cf-fd-error" role="alert">{error}</p>}
-      {askICloud && (
-        <div class="cf-card cf-fd-icloud" role="region">
-          <strong>{t("fdICloudAsk")}</strong>
-          <p class="cf-hint">{t("fdICloudHint")}</p>
-          <div class="cf-card-actions">
-            <button type="button" class="cf-primary" onClick={() => void icloud(true)}>{t("agentYes")}</button>
-            <button type="button" class="cf-secondary" onClick={() => void icloud(false)}>{t("agentNo")}</button>
-          </div>
-        </div>
-      )}
-      {data?.icloud !== undefined && (
-        <label class="cf-row toggle">
-          <input type="checkbox" checked={data.icloud} onChange={(e) => void icloud((e.target as HTMLInputElement).checked)} />
-          <span>{t("fdICloud")}</span>
-        </label>
+      {/* Always here, off until the person turns it on (never by default); on: what the last sync did. */}
+      {data && TARGET === "safari" && (
+        <>
+          <label class="cf-row toggle cf-fd-icloud">
+            <span class="cf-label">{t("fdICloud")}</span>
+            <input type="checkbox" checked={data.icloud === true} disabled={syncing} onChange={(e) => void icloud((e.target as HTMLInputElement).checked)} />
+          </label>
+          <p class="cf-hint" role="status">{syncLine(data, syncing)}</p>
+        </>
       )}
       {live.length > 1 && !confirmAll && <button type="button" class="cf-link" onClick={() => setConfirmAll(true)}>{t("fdDeleteAll")}</button>}
       {confirmAll && (
@@ -187,10 +191,11 @@ function RulesGroup(): VNode {
       </select>
     </label>
   )
+  // The switch at the end of its row, as every other switch in Settings (2.7.1, the owner on 121).
   const flag = (key: "anySpecialist" | "usual" | "calendar" | "auto" | "chooseVenue", text: string) => (
     <label class="cf-row toggle">
-      <input type="checkbox" checked={rules[key]} onChange={(e) => set({ [key]: (e.target as HTMLInputElement).checked })} />
       <span>{text}</span>
+      <input type="checkbox" checked={rules[key]} onChange={(e) => set({ [key]: (e.target as HTMLInputElement).checked })} />
     </label>
   )
   return (
@@ -201,6 +206,8 @@ function RulesGroup(): VNode {
       {num("days", t("agentRuleDays"), [0, 1, 2, 3, 5, 7])}
       {num("party", t("agentRuleParty"), [1, 2, 3, 4, 5, 6, 8])}
       {flag("anySpecialist", t("agentRuleAnySpecialist"))}
+      {/* Whoever does the service (2.7.1, the owner: «почему тут только мастер?»). */}
+      <p class="cf-hint">{t("agentRuleAnySpecialistHint")}</p>
       {flag("usual", t("agentRuleUsual"))}
       {flag("calendar", t("agentRuleCalendar"))}
       {rules.calendar && <CalendarNeed />}
@@ -216,4 +223,21 @@ function RulesGroup(): VNode {
       )}
     </div>
   )
+}
+
+/** The line under the iCloud switch, in words (detailsView.ts syncState). */
+function syncLine(d: Pick<Data, "icloud" | "syncedAt" | "syncError">, syncing: boolean): string {
+  const state = syncState(d, syncing)
+  switch (state.line) {
+    case "local": return t("fdICloudLocal")
+    case "syncing": return t("fdICloudSyncing")
+    case "noAccount": return t("fdICloudNoAccount")
+    case "failed": return t("fdICloudFailed")
+    case "private": return t("fdICloudHint")
+    case "synced": {
+      if (state.when === "now") return t("fdICloudSynced", t("fdICloudJustNow"))
+      const recent = Date.now() - state.when < 20 * 3_600_000
+      return t("fdICloudSynced", new Date(state.when).toLocaleString(uiLang(), recent ? { hour: "numeric", minute: "2-digit" } : { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }))
+    }
+  }
 }

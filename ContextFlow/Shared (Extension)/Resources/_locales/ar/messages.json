@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "يختار «الضرورية فقط»."
  },
+ "setCookiesAccept": {
+  "message": "إذا تعذّر الرفض، اقبل"
+ },
  "cookiesOffOnSite": {
   "message": "لا تُغلق على هذا الموقع"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "أُغلقت نافذة ملفات تعريف الارتباط: الضرورية فقط"
+ },
+ "cookieAcceptedLine": {
+  "message": "قُبلت ملفات تعريف الارتباط: لم يكن هناك خيار آخر"
  },
  "phSimilarBodyUpBoth": {
   "message": "هذه ميزة في Pro وUltra: بحث سريع في Pro، وبحث كامل في Ultra. المنتج نفسه بسعر أقل ومنتجات مشابهة من متاجر أخرى. اضغط الزر المميّز."
@@ -3585,7 +3591,7 @@
   "message": "عدد الأشخاص إن لم أذكره"
  },
  "agentRuleAnySpecialist": {
-  "message": "أي مختص"
+  "message": "أي مختص (حلاق، طبيب، مدرب…)"
  },
  "agentRuleUsual": {
   "message": "الخدمة التي اخترتها هناك في المرة السابقة"
@@ -3646,6 +3652,60 @@
  },
  "agentPlanFromChat": {
   "message": "من الدردشة: {0}"
+ },
+ "sendMenuNote": {
+  "message": "ملاحظة"
+ },
+ "noteHintPointerDo": {
+  "message": "مرّر فوق الزر: لأعلى لملاحظة، ولأسفل لـ«نفّذ»، أو انقر عليه بالزر الأيمن"
+ },
+ "setSecGeneral": {
+  "message": "عام"
+ },
+ "setSecButton": {
+  "message": "الزر العائم والتحديد"
+ },
+ "setSecWriting": {
+  "message": "الإدراج السريع والكتابة"
+ },
+ "setSecAgent": {
+  "message": "«نفّذ»: مهام على الصفحات"
+ },
+ "setSecCookies": {
+  "message": "نوافذ ملفات تعريف الارتباط"
+ },
+ "setSecChats": {
+  "message": "المحادثات والمساحات"
+ },
+ "setSecData": {
+  "message": "الخصوصية والبيانات"
+ },
+ "setSecPlan": {
+  "message": "الخطة والحساب"
+ },
+ "setSecAbout": {
+  "message": "حول التطبيق"
+ },
+ "fdICloudLocal": {
+  "message": "على هذا الجهاز فقط حاليًا"
+ },
+ "fdICloudSyncing": {
+  "message": "جارٍ المزامنة…"
+ },
+ "fdICloudSynced": {
+  "message": "تمت المزامنة · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "الآن"
+ },
+ "fdICloudNoAccount": {
+  "message": "لم تتم المزامنة: سجّل الدخول إلى iCloud على هذا الجهاز"
+ },
+ "fdICloudFailed": {
+  "message": "لم تتم المزامنة: لم يستجب iCloud. ستتم المحاولة مرة أخرى في المرة القادمة."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "حلاق أو مصفف أو طبيب أو مدرب أو مرشد: أيّهم متاح. عند الإيقاف أسألك مع من."
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

@@ -123,9 +123,9 @@ const isAccess = (state: PanelAgent) => !!state.pending?.verdict.reason.startsWi
 // (Not "off_request": that's about the request, not the step; a box it would tick can be unticked.)
 const NO_UNDO = new Set(["submit", "other_site", "decline", "unknown", "first_here"])
 
-function errorText(code: string | undefined, left: number | null | undefined): string {
+function errorText(code: string | undefined, left: number | null | undefined, limit?: number): string {
   switch (code) {
-    case "AGENT_LIMIT": return t("agentLimit", String(left ?? ""))
+    case "AGENT_LIMIT": return t("agentLimit", String(limit ?? left ?? ""))
     case "PRO_ONLY": return t("agentProOnly")
     case "page": return t("agentErrorPage")
     case "steps": return t("agentSteps")
@@ -345,7 +345,11 @@ function markOf(status: PanelAgent["status"], error?: string): { sign: string; t
 export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, later, past, planFailed, saved, onRemember }: Props): VNode {
   // A finished task folds to one line (2.7.1, the owner: «свёрнутыми по дефолту в одну строку… с возможностью
   // развернуть»); a tap opens its steps and its result.
-  const [open, setOpen] = useState(false)
+  // A task that just failed or was refused stays open with its reason (121 sweep: a bare «!» line hid «tasks used up»).
+  const [open, setOpen] = useState(() => !past && (state.status === "error" || state.status === "blocked"))
+  useEffect(() => {
+    if (!past && (state.status === "error" || state.status === "blocked")) setOpen(true)
+  }, [state.status, past])
   const [undone, setUndone] = useState(false)
   // One answer per question: the buttons go quiet on the first tap (the background also refuses a second).
   const [sent, setSent] = useState(false)
@@ -533,7 +537,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
 
           {state.status === "stopped" && <p>{t("agentStopped")}</p>}
           {state.status === "blocked" && <p>{t(state.error === "site_amazon" ? (AMAZON_TEXT.agent as MessageKey) : "agentBlockedSite")}</p>}
-          {state.status === "error" && <p>{errorText(state.error, state.left)}</p>}
+          {state.status === "error" && <p>{errorText(state.error, state.left, state.limit)}</p>}
           {/* Typed values go back; a press (a size chosen, a box ticked) stays as it is: the line says so plainly. */}
           {undone && !state.canUndo && <p class="cf-agent-meta">{t("agentUndone")}</p>}
           <div class="cf-card-actions">

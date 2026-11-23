@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "选择“仅必要”。"
  },
+ "setCookiesAccept": {
+  "message": "无法拒绝时接受"
+ },
  "cookiesOffOnSite": {
   "message": "在此网站上不关闭"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "已关闭 Cookie 窗口：仅必要"
+ },
+ "cookieAcceptedLine": {
+  "message": "已接受 Cookie：没有其他选择"
  },
  "phSimilarBodyUpBoth": {
   "message": "这是 Pro 和 Ultra 的功能：Pro 是快速搜索，Ultra 是完整搜索。同款更便宜的，以及其他商店的相似商品。点高亮的按钮。"
@@ -3585,7 +3591,7 @@
   "message": "没说人数时"
  },
  "agentRuleAnySpecialist": {
-  "message": "任意服务人员"
+  "message": "任意服务人员（理发师、医生、教练等）"
  },
  "agentRuleUsual": {
   "message": "上次在该网站选的服务"
@@ -3646,6 +3652,60 @@
  },
  "agentPlanFromChat": {
   "message": "来自聊天：{0}"
+ },
+ "sendMenuNote": {
+  "message": "笔记"
+ },
+ "noteHintPointerDo": {
+  "message": "在按钮上滚动：向上写笔记，向下“执行”，也可以右键点按"
+ },
+ "setSecGeneral": {
+  "message": "通用"
+ },
+ "setSecButton": {
+  "message": "悬浮按钮与选择"
+ },
+ "setSecWriting": {
+  "message": "快速插入与写作"
+ },
+ "setSecAgent": {
+  "message": "“执行”：网页上的任务"
+ },
+ "setSecCookies": {
+  "message": "Cookie 窗口"
+ },
+ "setSecChats": {
+  "message": "对话与空间"
+ },
+ "setSecData": {
+  "message": "隐私与数据"
+ },
+ "setSecPlan": {
+  "message": "套餐与账户"
+ },
+ "setSecAbout": {
+  "message": "关于"
+ },
+ "fdICloudLocal": {
+  "message": "目前仅在此设备上"
+ },
+ "fdICloudSyncing": {
+  "message": "正在同步…"
+ },
+ "fdICloudSynced": {
+  "message": "已同步 · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "刚刚"
+ },
+ "fdICloudNoAccount": {
+  "message": "未同步：请在此设备上登录 iCloud"
+ },
+ "fdICloudFailed": {
+  "message": "未同步：iCloud 没有响应。下次会再试。"
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "理发师、造型师、医生、教练或导游，谁有空都行。关闭后，我会先问你选谁。"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"

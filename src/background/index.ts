@@ -1088,7 +1088,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       return false
     case "cookieFrameDone":
       if (_sender.tab?.id !== undefined) {
-        chrome.tabs.sendMessage(_sender.tab.id, { type: "cookieFrameDone", via: message.via }, { frameId: 0 }, () => void chrome.runtime.lastError)
+        chrome.tabs.sendMessage(_sender.tab.id, { type: "cookieFrameDone", via: message.via, accepted: message.accepted === true }, { frameId: 0 }, () => void chrome.runtime.lastError)
       }
       sendResponse({ ok: true })
       return false

@@ -6,9 +6,9 @@ import { test } from "node:test"
 
 import { parseHTML } from "linkedom"
 
-import { aboutCookies, chooseButton, labelKind } from "../src/shared/cookies/labels.ts"
+import { aboutCookies, chooseAccept, chooseButton, labelKind } from "../src/shared/cookies/labels.ts"
 import { closesOn, counted, readState, rollDay, tell, TOLD_TIMES, withSite } from "../src/shared/cookies/state.ts"
-import { closeOnce, forgetBanners, safeControl, type Env } from "../src/content/cookies/closer.ts"
+import { ACCEPT_AFTER_MS, closeOnce, forgetBanners, safeControl, type Env } from "../src/content/cookies/closer.ts"
 import { consentFrame } from "../src/content/cookies/frameMatch.ts"
 import { FRAME_RULES } from "../src/content/cookies/rules.ts"
 import { FEATURES, useFields } from "../src/shared/usage.ts"
@@ -105,7 +105,7 @@ function floatsUp(el: Element): boolean {
 interface Page {
   name: string
   html: string
-  shadow?: { host: string; html: string }
+  shadow?: { host: string; html: string; wrap?: string[] }
   expect: { status: string; via?: string; why?: string }
 }
 
@@ -129,6 +129,10 @@ function load(page: Page): { env: Env; doc: Document; window: Window } {
     const host = document.getElementById(page.shadow.host)!
     const root = host.attachShadow({ mode: "open" })
     root.innerHTML = page.shadow.html
+    // Design-system buttons: a shadow root of their own around a real button, the label slotted in.
+    for (const tag of page.shadow.wrap ?? []) {
+      for (const el of root.querySelectorAll(tag)) el.attachShadow({ mode: "open" }).innerHTML = `<button type="button" part="button"><slot></slot></button>`
+    }
     // In the stand the page's script hears it through the shadow root; here it's told directly.
     root.addEventListener("click", (e: Event) => {
       const b = (e.target as Element).closest("[data-act]")
@@ -183,7 +187,7 @@ for (const page of PAGES as Page[]) {
 
 test("the page set covers every platform of the list and generic banners in ten languages", () => {
   const ids = new Set((PLATFORM_PAGES as Page[]).map((p) => p.expect.via))
-  for (const id of ["evidon", "onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "cookieyes", "complianz", "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "tcf"]) {
+  for (const id of ["just_eat", "evidon", "onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "cookieyes", "complianz", "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "tcf"]) {
     assert.ok(ids.has(id), id)
   }
   const langs = new Set((GENERIC_PAGES as Array<Page & { lang: string }>).filter((p) => p.expect.status === "done").map((p) => p.lang))
@@ -235,7 +239,7 @@ test("counts per day, no site: yesterday's reported once; the confirmation the f
   assert.doesNotMatch(JSON.stringify(s), /\./, "no host or address in the counts")
   assert.equal(rollDay(s, day1).report, null)
   const rolled = rollDay(s, day2)
-  assert.deepEqual(rolled.report, { day: "2026-11-22", done: { onetrust: 2, generic: 1 }, left: { only_accept: 1 } })
+  assert.deepEqual(rolled.report, { day: "2026-11-22", done: { onetrust: 2, generic: 1 }, accepted: {}, left: { only_accept: 1 } })
   assert.equal(rolled.state.done, undefined)
   assert.equal(rollDay(rolled.state, day2).report, null)
   let told = {}
@@ -287,4 +291,95 @@ test("the agent answers a page's banner before reading it; Settings has the swit
       if (lang !== "en") assert.notEqual(l[key], en[key], `${lang}.${key} translated`)
     }
   }
+})
+
+// ------------------------------------------------------------- 121: «Если отказаться нельзя — принимать» (off by default)
+
+test("accept when there's no way to refuse: the accept label, never a subscription, settings or a reject", () => {
+  assert.equal(chooseAccept(["ACCEPT AND CONTINUE", "SUBSCRIBE AND DECLINE", "Log in"]), 0)
+  assert.equal(chooseAccept(["Manage settings", "Yes, I'm happy"]), 1)
+  assert.equal(chooseAccept(["Got it!", "Learn more"]), 0)
+  assert.equal(chooseAccept(["Reject all and subscribe", "Accept all"]), 1)
+  assert.equal(chooseAccept(["Manage or reject cookies", "Settings"]), -1)
+  assert.equal(chooseAccept(["Принять", "Настройки"]), 0)
+  assert.equal(chooseAccept(["Acepto y continúo gratis", "Rechazo y me suscribo"]), 0)
+})
+
+async function acceptRun(name: string, opts: { accept: boolean }): Promise<{ first: Awaited<ReturnType<typeof closeOnce>>; second: Awaited<ReturnType<typeof closeOnce>>; pressed: string[] }> {
+  const page = (PAGES as Page[]).find((p) => p.name === name)!
+  const { env } = load(page)
+  let clock = 1_000_000
+  const e: Env = { ...env, accept: opts.accept, now: () => clock }
+  const first = await closeOnce(e)
+  clock += ACCEPT_AFTER_MS + 100
+  const second = await closeOnce(e)
+  return { first, second, pressed: [...((globalThis as any).window.__pressed ?? [])] }
+}
+
+test("switch on: only «Accept» → accepted once it has offered no reject for a moment; a reject still wins", async () => {
+  const only = await acceptRun("generic-accept-only-en", { accept: true })
+  assert.equal(only.first.status, "left", "not on the first look: a reject may still come")
+  assert.deepEqual(only.second, { status: "done", via: "generic", accepted: true })
+  assert.deepEqual(only.pressed, ["Got it!"])
+  const ru = await acceptRun("generic-accept-only-ru", { accept: true })
+  assert.deepEqual(ru.pressed, ["Принять"])
+  const platform = await acceptRun("onetrust-accept-only", { accept: true })
+  assert.deepEqual(platform.second, { status: "done", via: "onetrust", accepted: true })
+  // A banner with a reject: the reject, as always.
+  const reject = await acceptRun("generic-de", { accept: true })
+  assert.deepEqual(reject.first, { status: "done", via: "generic" })
+  assert.deepEqual(reject.pressed, ["Nur notwendige Cookies"])
+})
+
+test("switch on: a «pay or accept» wall gets its «Accept and continue», never the subscription; off: left alone", async () => {
+  const on = await acceptRun("generic-wall-elpais", { accept: true })
+  assert.deepEqual(on.second, { status: "done", via: "generic", accepted: true })
+  assert.deepEqual(on.pressed, ["ACCEPT AND CONTINUE"])
+  for (const name of ["generic-wall-es", "generic-wall-it", "generic-wall-boxes", "onetrust-wall"]) {
+    const r = await acceptRun(name, { accept: true })
+    assert.equal(r.second.status, "done", name)
+    assert.ok(r.pressed.every((p) => labelKind(p) === "accept"), `${name}: ${r.pressed}`)
+  }
+  const off = await acceptRun("generic-wall-elpais", { accept: false })
+  assert.equal(off.second.status, "none", "left once, nothing pressed")
+  assert.deepEqual(off.pressed, [])
+})
+
+test("switch on: never a sign-in dialog, a policy page, or a link away", async () => {
+  for (const name of ["generic-login", "generic-policy-page"]) {
+    const r = await acceptRun(name, { accept: true })
+    assert.deepEqual(r.pressed, [], name)
+  }
+})
+
+test("the accept switch is off by default; the site exception wins; its own counts and confirmations", () => {
+  assert.equal(readState(undefined).accept, undefined)
+  assert.equal(readState({ accept: true }).accept, true)
+  const excepted = withSite({ accept: true }, "elpais.com", false)
+  assert.ok(!closesOn(excepted, "elpais.com"))
+  let s = counted({}, Date.UTC(2026, 10, 23), { accepted: "generic" })
+  s = counted(s, Date.UTC(2026, 10, 23), { via: "onetrust" })
+  assert.deepEqual(s.accepted, { generic: 1 })
+  assert.deepEqual(s.done, { onetrust: 1 })
+  assert.deepEqual(rollDay(s, Date.UTC(2026, 10, 24)).report?.accepted, { generic: 1 })
+  let told: ReturnType<typeof readState> = { told: TOLD_TIMES }
+  assert.equal(tell(told).show, false)
+  assert.equal(tell(told, true).show, true, "the accept line has first times of its own")
+  for (let i = 0; i < TOLD_TIMES; i++) told = tell(told, true).state
+  assert.equal(tell(told, true).show, false)
+  assert.deepEqual(useFields({ f: "cookies", a: "accepted", what: "generic", count: 2 }), { f: "cookies", a: "accepted", what: "generic", count: 2 })
+  assert.ok(useFields({ f: "cookies", a: "accept_on" }))
+  const ru = JSON.parse(read("src/locales/ru.json"))
+  assert.equal(ru.setCookiesAccept, "Если отказаться нельзя — принимать")
+  assert.equal(ru.cookieAcceptedLine, "Принял cookie: другого выбора не было")
+  const en = JSON.parse(read("src/locales/en.json"))
+  for (const lang of ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "tr", "uk", "vi", "zh_CN", "zh_TW"]) {
+    const l = JSON.parse(read(`src/locales/${lang}.json`))
+    for (const key of ["setCookiesAccept", "cookieAcceptedLine"]) {
+      assert.ok(typeof l[key] === "string" && l[key].length > 2, `${lang}.${key}`)
+      if (lang !== "en") assert.notEqual(l[key], en[key], `${lang}.${key} translated`)
+    }
+  }
+  const settings = read("src/content/cookies/CookieSettings.tsx")
+  assert.match(settings, /checked=\{state\.accept === true\}/)
 })

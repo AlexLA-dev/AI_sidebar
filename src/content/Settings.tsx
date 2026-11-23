@@ -1,5 +1,5 @@
-import type { VNode } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import type { ComponentChildren, VNode } from "preact"
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 
 import { LINKS, TARGET, VERSION } from "../shared/config"
 import { t, uiDirection, uiLang } from "../shared/i18n"
@@ -16,6 +16,8 @@ import { InviteGroup } from "./invite/Invite"
 import { AccessGroup } from "./agent/AppleAccess"
 import { MyDetailsGroup } from "./agent/MyDetails"
 import { CookieGroup } from "./cookies/CookieSettings"
+import { cookieSettings } from "./cookies/auto"
+import { keptOpen, OPEN_FIRST, OPEN_KEY, SECTIONS, type SettingsAt, type SettingsSection, toggled } from "./settingsFold"
 import { SpentCount, usageText } from "./quiet/Spent"
 
 interface Props {
@@ -46,6 +48,8 @@ interface Props {
   onOrganizePro: () => void
   // 2.7, invite a friend: an App Store offer code (the inviter's reward) to the App Store's redeem sheet.
   onRedeem: (code: string) => void
+  // 2.7.1: Settings opened at one setting (a link elsewhere in the panel): its section unfolds and it comes into view.
+  at?: SettingsAt | null
 }
 
 function Segmented<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }): VNode {
@@ -151,21 +155,8 @@ export function SettingsView(props: Props): VNode {
     </section>
   )
 
-  return (
-    <div class="cf-settings">
-      {!hasPro(plan) && planGroup}
-
-      <section class="cf-group">
-        <div class="cf-row">
-          <span class="cf-label">{t("setAppearance")}</span>
-          <Segmented value={settings.theme} options={[["auto", t("themeAuto")], ["light", t("themeLight")], ["dark", t("themeDark")]]} onChange={(theme) => onChange({ theme })} />
-        </div>
-        <div class="cf-row">
-          <span class="cf-label">{t("setTextSize")}</span>
-          <Segmented value={settings.textSize} options={[["normal", t("sizeNormal")], ["large", t("sizeLarge")]]} onChange={(textSize) => onChange({ textSize })} />
-        </div>
-      </section>
-
+  const buttonGroup = (
+    <>
       <section class="cf-group">
         <div class="cf-row">
           <span class="cf-label">{t("setFab")}</span>
@@ -193,94 +184,76 @@ export function SettingsView(props: Props): VNode {
           <input type="checkbox" checked={settings.selectionButton} onChange={(e) => onChange({ selectionButton: e.currentTarget.checked })} />
         </label>
       </section>
-
-      {/* Share and copy (2.5 rules): highlights as bold, apart from the floating button. */}
-      {typeof navigator.share === "function" && (
-        <section class="cf-group">
-          <div class="cf-row">
-            <span class="cf-label">{t("setShareGroup")}</span>
-          </div>
-          <label class="cf-row toggle">
-            <span class="cf-label">{t("uxShareMarks")}</span>
-            <input type="checkbox" checked={settings.shareMarks} onChange={(e) => onChange({ shareMarks: e.currentTarget.checked })} />
-          </label>
-          <p class="cf-hint">{t("uxShareMarksHint")}</p>
-        </section>
-      )}
-
-      {/* 2.7.1: cookie banners answered with «only necessary», and the site to leave them on. */}
-      <CookieGroup site={site} />
-
-      <InsertSettingsGroup site={site} touch={props.platform === "ios" || props.platform === "ipados"} onOpenTemplates={props.onOpenTemplates} />
-      {/* 2.7.1: «Мои данные» for the agent's forms (Pro and Ultra have the agent; the details are kept anyway). */}
-      <MyDetailsGroup />
-      {/* 2.7.1: Calendar and Reminders, seen and allowed here (the app asks the system). */}
-      <AccessGroup />
-
-      <section class="cf-group">
-        <span class="cf-label">{t("setAbout")}</span>
-        <textarea
-          class="cf-textarea"
-          dir="auto"
-          rows={3}
-          maxLength={1000}
-          value={about}
-          onInput={(e) => setAbout(e.currentTarget.value)}
-          onBlur={() => about !== settings.aboutMe && onChange({ aboutMe: about.trim() })}
-          onKeyDown={(e) => e.stopPropagation()}
-        />
-        <p class="cf-hint">{t("setAboutHint")}</p>
-      </section>
-
-      <section class="cf-group">
-        <div class="cf-row">
-          <span class="cf-label">{t("setOwnKey")}</span>
-          {!ownKeyAllowed && <span class="cf-hint inline"><Icon.Lock /> {t("setOwnKeyLocked")}</span>}
+    </>
+  )
+  const aboutGroup = (
+    <section class="cf-group">
+      <span class="cf-label">{t("setAbout")}</span>
+      <textarea
+        class="cf-textarea"
+        dir="auto"
+        rows={3}
+        maxLength={1000}
+        value={about}
+        onInput={(e) => setAbout(e.currentTarget.value)}
+        onBlur={() => about !== settings.aboutMe && onChange({ aboutMe: about.trim() })}
+        onKeyDown={(e) => e.stopPropagation()}
+      />
+      <p class="cf-hint">{t("setAboutHint")}</p>
+    </section>
+  )
+  const ownKeyGroup = (
+    <section class="cf-group" data-set-at="ownKey">
+      <div class="cf-row">
+        <span class="cf-label">{t("setOwnKey")}</span>
+        {!ownKeyAllowed && <span class="cf-hint inline"><Icon.Lock /> {t("setOwnKeyLocked")}</span>}
+      </div>
+      {status?.hasOwnKey ? (
+        <div class="cf-row buttons">
+          <span class="cf-key">{status.ownKeyProvider === "anthropic" ? "Claude · sk-ant-••••" : "OpenAI · sk-••••"}</span>
+          <button type="button" class="cf-secondary" onClick={() => saveKey("")}>{t("remove")}</button>
         </div>
-        {status?.hasOwnKey ? (
-          <div class="cf-row buttons">
-            <span class="cf-key">{status.ownKeyProvider === "anthropic" ? "Claude · sk-ant-••••" : "OpenAI · sk-••••"}</span>
-            <button type="button" class="cf-secondary" onClick={() => saveKey("")}>{t("remove")}</button>
+      ) : (
+        <div class="cf-row buttons">
+          {/* Not a password field (109): Safari took the key for a password and asked «Save Password?», with a
+              user name to enter, right after Save. The text is hidden the same way by the style. */}
+          <input
+            class="cf-text cf-secret"
+            type="text"
+            placeholder="sk-… / sk-ant-…"
+            autoComplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck={false}
+            value={keyDraft}
+            disabled={!ownKeyAllowed}
+            onInput={(e) => setKeyDraft(e.currentTarget.value)}
+            onKeyDown={(e) => e.stopPropagation()}
+          />
+          <button type="button" class="cf-secondary" disabled={!ownKeyAllowed || !OWN_KEY_PATTERN.test(keyDraft.trim())} onClick={() => saveKey(keyDraft)}>
+            {keySaved ? t("saved") : t("save")}
+          </button>
+        </div>
+      )}
+      <p class="cf-hint">
+        {t("setOwnKeyHint")} {t("getKey")}:{" "}
+        <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.openAiKeys)}>OpenAI</button>
+        {" · "}
+        <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.anthropicKeys)}>Claude</button>
+      </p>
+      {(ownKeyAllowed || status?.hasOwnKey) && (
+        <>
+          <div class="cf-row">
+            <span class="cf-label">{t("setOwnKeyModel")}</span>
+            <Segmented value={settings.ownKeyModel} options={[["fast", t("modelFast")], ["smart", t("modelSmart")]]} onChange={(ownKeyModel) => onChange({ ownKeyModel })} />
           </div>
-        ) : (
-          <div class="cf-row buttons">
-            {/* Not a password field (109): Safari took the key for a password and asked «Save Password?», with a
-                user name to enter, right after Save. The text is hidden the same way by the style. */}
-            <input
-              class="cf-text cf-secret"
-              type="text"
-              placeholder="sk-… / sk-ant-…"
-              autoComplete="off"
-              autocorrect="off"
-              autocapitalize="off"
-              spellcheck={false}
-              value={keyDraft}
-              disabled={!ownKeyAllowed}
-              onInput={(e) => setKeyDraft(e.currentTarget.value)}
-              onKeyDown={(e) => e.stopPropagation()}
-            />
-            <button type="button" class="cf-secondary" disabled={!ownKeyAllowed || !OWN_KEY_PATTERN.test(keyDraft.trim())} onClick={() => saveKey(keyDraft)}>
-              {keySaved ? t("saved") : t("save")}
-            </button>
-          </div>
-        )}
-        <p class="cf-hint">
-          {t("setOwnKeyHint")} {t("getKey")}:{" "}
-          <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.openAiKeys)}>OpenAI</button>
-          {" · "}
-          <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.anthropicKeys)}>Claude</button>
-        </p>
-        {(ownKeyAllowed || status?.hasOwnKey) && (
-          <>
-            <div class="cf-row">
-              <span class="cf-label">{t("setOwnKeyModel")}</span>
-              <Segmented value={settings.ownKeyModel} options={[["fast", t("modelFast")], ["smart", t("modelSmart")]]} onChange={(ownKeyModel) => onChange({ ownKeyModel })} />
-            </div>
-            <p class="cf-hint">{t("setOwnKeyModelHint")}</p>
-          </>
-        )}
-      </section>
-
+          <p class="cf-hint">{t("setOwnKeyModelHint")}</p>
+        </>
+      )}
+    </section>
+  )
+  const chatsGroup = (
+    <>
       <section class="cf-group">
         {TARGET === "safari" && (hasPro(plan) ? (
           <>
@@ -303,44 +276,175 @@ export function SettingsView(props: Props): VNode {
           <input type="checkbox" checked={settings.spaces !== false} onChange={(e) => onChange({ spaces: e.currentTarget.checked })} />
         </label>
         <p class="cf-hint">{t("setSpacesHint")}</p>
-        {TARGET === "safari" && (
-          <>
-            <label class="cf-row toggle">
-              <span class="cf-label">{t("setSyncChats")}</span>
-              <input type="checkbox" checked={settings.syncChats} onChange={(e) => onChange({ syncChats: e.currentTarget.checked })} />
-            </label>
-            <p class="cf-hint">{t("setSyncChatsHint")}</p>
-          </>
-        )}
-        <button
-          type="button"
-          class="cf-link danger"
-          onClick={async () => {
-            await deleteAllChats()
-            props.onChatsDeleted()
-            setChatsDeleted(true)
-          }}
-        >
-          {chatsDeleted ? t("chatsDeleted") : t("deleteChats")}
-        </button>
       </section>
+      {/* Share and copy (2.5 rules): highlights as bold, apart from the floating button. */}
+      {typeof navigator.share === "function" && (
+        <section class="cf-group">
+          <div class="cf-row">
+            <span class="cf-label">{t("setShareGroup")}</span>
+          </div>
+          <label class="cf-row toggle">
+            <span class="cf-label">{t("uxShareMarks")}</span>
+            <input type="checkbox" checked={settings.shareMarks} onChange={(e) => onChange({ shareMarks: e.currentTarget.checked })} />
+          </label>
+          <p class="cf-hint">{t("uxShareMarksHint")}</p>
+        </section>
+      )}
+    </>
+  )
+  const dataGroup = (
+    <section class="cf-group">
+      {TARGET === "safari" && (
+        <>
+          <label class="cf-row toggle">
+            <span class="cf-label">{t("setSyncChats")}</span>
+            <input type="checkbox" checked={settings.syncChats} onChange={(e) => onChange({ syncChats: e.currentTarget.checked })} />
+          </label>
+          <p class="cf-hint">{t("setSyncChatsHint")}</p>
+        </>
+      )}
+      <button
+        type="button"
+        class="cf-link danger"
+        onClick={async () => {
+          await deleteAllChats()
+          props.onChatsDeleted()
+          setChatsDeleted(true)
+        }}
+      >
+        {chatsDeleted ? t("chatsDeleted") : t("deleteChats")}
+      </button>
+    </section>
+  )
 
-      {hasPro(plan) && planGroup}
+  // 2.7.1 (the owner on build 121: «настроек стало очень много, их бы группировать по функционалу и сворачивать, как
+  // в Tips»): the groups go in sections by feature, each folding like a Tips block, which are open kept on this
+  // device (settingsFold.ts). A folded one says in a line what's in it. Every setting and what it does is as before.
+  const [open, setOpen] = useState<SettingsSection[] | null>(null)
+  useEffect(() => void foldedOpen().then((kept) => setOpen(props.at ? toggled(kept, SECTIONS[props.at], true) : kept)), [])
+  const toggle = (id: SettingsSection) => {
+    const next = toggled(open ?? [], id)
+    setOpen(next)
+    keepOpen(next)
+  }
+  const isOpen = (id: SettingsSection) => open?.includes(id) ?? false
+  // The cookie switch's state, for its section's line (read again whenever a section folds or unfolds).
+  const [cookiesOn, setCookiesOn] = useState<boolean | null>(null)
+  useEffect(() => void cookieSettings().then((c) => setCookiesOn(!c.off)), [open?.join()])
+  // Opened at a setting: it's scrolled to within Settings' own list (scrollIntoView would move the panel's fixed frame).
+  const box = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    if (!props.at || !open) return
+    const place = () => {
+      const list = box.current
+      const el = list?.querySelector<HTMLElement>(`[data-set-at="${props.at}"]`)
+      if (list && el) list.scrollTop = el.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop - 8
+    }
+    place()
+    // Again once the groups that read their state first (My details, the access rows) have their height.
+    const later = window.setTimeout(place, 300)
+    return () => window.clearTimeout(later)
+  }, [open !== null])
 
+  const onOff = (on: boolean) => (on ? t("fabOn") : t("fabOff"))
+  const themeName = settings.theme === "dark" ? t("themeDark") : settings.theme === "light" ? t("themeLight") : t("themeAuto")
+  const fold = (id: SettingsSection, title: string, summary: string, children: ComponentChildren) => (
+    <Fold id={id} title={title} summary={summary} open={isOpen(id)} onToggle={() => toggle(id)}>{children}</Fold>
+  )
+
+  const planSection = fold("plan", t("setSecPlan"), status?.hasOwnKey && plan !== "byok" ? `${planName} · ${t("planByok")}` : planName, (
+    <>
+      {planGroup}
+      {ownKeyGroup}
       {/* 2.7 (plan section 5): invite a friend, optional; a new install enters a friend's code here too. */}
       {TARGET === "safari" && <InviteGroup onRedeem={props.onRedeem} onStatusChange={props.onStatusChange} />}
+    </>
+  ))
 
-      <footer class="cf-links">
-        <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>
-        <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.review)}>{t("rateApp")}</button>
-        <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.support)}>{t("support")}</button>
-        <button type="button" class="cf-link" onClick={() => props.onSocial("x")}>X</button>
-        <button type="button" class="cf-link" onClick={() => props.onSocial("threads")}>Threads</button>
-        <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.privacy)}>{t("privacyPolicy")}</button>
-        <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.terms)}>{t("terms")}</button>
-        <span class="cf-version">{t("version", VERSION)}</span>
-      </footer>
+  return (
+    <div ref={box} class="cf-settings">
+      {open && (
+        <>
+          {/* The plan comes first until there is Pro; with Pro it's managed near the bottom. */}
+          {!hasPro(plan) && planSection}
+
+          {fold("general", t("setSecGeneral"), `${themeName} · ${settings.textSize === "large" ? t("sizeLarge") : t("sizeNormal")}`, (
+            <>
+              <section class="cf-group">
+                <div class="cf-row">
+                  <span class="cf-label">{t("setAppearance")}</span>
+                  <Segmented value={settings.theme} options={[["auto", t("themeAuto")], ["light", t("themeLight")], ["dark", t("themeDark")]]} onChange={(theme) => onChange({ theme })} />
+                </div>
+                <div class="cf-row">
+                  <span class="cf-label">{t("setTextSize")}</span>
+                  <Segmented value={settings.textSize} options={[["normal", t("sizeNormal")], ["large", t("sizeLarge")]]} onChange={(textSize) => onChange({ textSize })} />
+                </div>
+              </section>
+              {aboutGroup}
+            </>
+          ))}
+
+          {fold("button", t("setSecButton"), `${onOff(settings.fab !== "off")} · ${resolveSide(settings, uiDirection()) === "left" ? t("sideLeft") : t("sideRight")}`, buttonGroup)}
+
+          {fold("writing", t("setSecWriting"), `${t("qiTitle")} · ${t("writeSetting")}`, (
+            <InsertSettingsGroup site={site} touch={props.platform === "ios" || props.platform === "ipados"} onOpenTemplates={props.onOpenTemplates} />
+          ))}
+
+          {fold("agent", t("setSecAgent"), `${t("fdTitle")} · ${t("accessGroup")}`, (
+            <>
+              {/* 2.7.1: «Мои данные» for the agent's forms (Pro and Ultra have the agent; the details are kept anyway). */}
+              <MyDetailsGroup />
+              {/* 2.7.1: Calendar and Reminders, seen and allowed here (the app asks the system). */}
+              <div data-set-at="access"><AccessGroup /></div>
+            </>
+          ))}
+
+          {/* 2.7.1: cookie banners answered with «only necessary», and the site to leave them on. */}
+          {fold("cookies", t("setSecCookies"), cookiesOn === null ? "" : onOff(cookiesOn), <CookieGroup site={site} />)}
+
+          {fold("chats", t("setSecChats"), [
+            `${t("setSpaces")}: ${onOff(settings.spaces !== false)}`,
+            TARGET === "safari" && hasPro(plan) && settings.organize ? t("setOrganize") : ""
+          ].filter(Boolean).join(" · "), chatsGroup)}
+
+          {/* The chats' iCloud (My details have their own switch, in their section). */}
+          {fold("data", t("setSecData"), TARGET === "safari" ? `${t("chatsTitle")} · iCloud: ${onOff(settings.syncChats)}` : t("deleteChats"), dataGroup)}
+
+          {hasPro(plan) && planSection}
+
+          {fold("about", t("setSecAbout"), t("version", VERSION), (
+            <footer class="cf-links">
+              <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>
+              <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.review)}>{t("rateApp")}</button>
+              <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.support)}>{t("support")}</button>
+              <button type="button" class="cf-link" onClick={() => props.onSocial("x")}>X</button>
+              <button type="button" class="cf-link" onClick={() => props.onSocial("threads")}>Threads</button>
+              <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.privacy)}>{t("privacyPolicy")}</button>
+              <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.terms)}>{t("terms")}</button>
+              <span class="cf-version">{t("version", VERSION)}</span>
+            </footer>
+          ))}
+        </>
+      )}
     </div>
+  )
+}
+
+/** A section of Settings: its head folds it (as a Tips block); folded, a line says what's in it. */
+function Fold({ id, title, summary, open, onToggle, children }: { id: SettingsSection; title: string; summary: string; open: boolean; onToggle: () => void; children: ComponentChildren }): VNode {
+  return (
+    <section class={`cf-set-sec ${open ? "open" : ""}`} data-sec={id}>
+      <button type="button" class="cf-set-head" aria-expanded={open} onClick={onToggle}>
+        <span class="cf-set-head-text">
+          <span class="cf-set-title">{title}</span>
+          {!open && summary && <span class="cf-set-sum">{summary}</span>}
+        </span>
+        <svg class="cf-set-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" />
+        </svg>
+      </button>
+      {open && <div class="cf-set-body">{children}</div>}
+    </section>
   )
 }
 
@@ -363,4 +467,21 @@ function PageHintsSwitch(): VNode {
       <p class="cf-hint">{t("setPageHintsHint")}</p>
     </>
   )
+}
+
+/** Which sections are open on this device (settingsFold.ts). */
+async function foldedOpen(): Promise<SettingsSection[]> {
+  try {
+    return keptOpen((await chrome.storage.local.get(OPEN_KEY))[OPEN_KEY])
+  } catch {
+    return [...OPEN_FIRST]
+  }
+}
+
+function keepOpen(open: SettingsSection[]): void {
+  try {
+    void chrome.storage.local.set({ [OPEN_KEY]: open })
+  } catch {
+    // Kept while Settings is open.
+  }
 }

@@ -103,3 +103,24 @@ export function aboutCookies(text: string, platformSign = false): boolean {
   const head = text.slice(0, 3000)
   return COOKIE_WORD.test(head) || (platformSign && CONSENT_WORD.test(head))
 }
+
+/**
+ * «Accept» when there's no other way (Settings: «Если отказаться нельзя — принимать», off by default): the accept
+ * button among a banner's labels, the whole label one of ours first; never a subscription, the settings or a reject.
+ * -1: none.
+ */
+export function chooseAccept(labels: readonly string[]): number {
+  let best = -1
+  let bestScore = -1
+  labels.forEach((label, i) => {
+    if (labelKind(label) !== "accept") return
+    const text = normalize(label)
+    const len = lengths(text).accept
+    const score = (len === text.length ? 1000 : 0) + len
+    if (score > bestScore) {
+      best = i
+      bestScore = score
+    }
+  })
+  return best
+}

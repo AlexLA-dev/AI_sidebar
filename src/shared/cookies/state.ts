@@ -18,6 +18,11 @@ export type LeftWhy = "only_accept" | "none" | "stuck" | "wall"
 export interface CookieState {
   // Off in Settings («Закрывать окна cookie»). On by default, for new and existing users alike.
   off?: boolean
+  // «Если отказаться нельзя — принимать» (the owner on 121): a banner with no way to refuse gets its «Accept». Off by
+  // default.
+  accept?: boolean
+  // How many times «Принял cookie: другого выбора не было» showed (its own first few times).
+  toldAccept?: number
   // «Не закрывать на этом сайте»: the sites it never answers on (a host without www.).
   sites?: string[]
   // How many times the confirmation showed.
@@ -25,6 +30,8 @@ export interface CookieState {
   // The day of the counts (UTC, YYYY-MM-DD) and the counts: answered by each platform (or "generic"), left and why.
   day?: string
   done?: Record<string, number>
+  // Banners accepted because there was no way to refuse (by platform), with the switch on.
+  accepted?: Record<string, number>
   left?: Partial<Record<LeftWhy, number>>
 }
 
@@ -38,6 +45,9 @@ export function readState(raw: unknown): CookieState {
   }
   return {
     ...(r.off === true ? { off: true } : {}),
+    ...(r.accept === true ? { accept: true } : {}),
+    ...(typeof r.toldAccept === "number" ? { toldAccept: Math.max(0, Math.floor(r.toldAccept)) } : {}),
+    ...(r.accepted ? { accepted: counts(r.accepted) } : {}),
     ...(Array.isArray(r.sites) ? { sites: r.sites.filter((s): s is string => typeof s === "string").slice(-MAX_SITES) } : {}),
     ...(typeof r.told === "number" ? { told: Math.max(0, Math.floor(r.told)) } : {}),
     ...(typeof r.day === "string" ? { day: r.day } : {}),
@@ -67,20 +77,32 @@ export function today(now: number): string {
 }
 
 /** The counts of a day gone by, to report once (null: nothing to report), and the state with today's counts. */
-export function rollDay(state: CookieState, now: number): { report: { day: string; done: Record<string, number>; left: Partial<Record<LeftWhy, number>> } | null; state: CookieState } {
+export interface DayReport {
+  day: string
+  done: Record<string, number>
+  accepted: Record<string, number>
+  left: Partial<Record<LeftWhy, number>>
+}
+
+export function rollDay(state: CookieState, now: number): { report: DayReport | null; state: CookieState } {
   const day = today(now)
   if (state.day === day) return { report: null, state }
-  const had = state.day && (Object.keys(state.done ?? {}).length || Object.keys(state.left ?? {}).length)
-  const { done: _done, left: _left, ...rest } = state
+  const had = state.day && (Object.keys(state.done ?? {}).length || Object.keys(state.left ?? {}).length || Object.keys(state.accepted ?? {}).length)
+  const { done: _done, left: _left, accepted: _accepted, ...rest } = state
   return {
-    report: had ? { day: state.day!, done: state.done ?? {}, left: state.left ?? {} } : null,
+    report: had ? { day: state.day!, done: state.done ?? {}, accepted: state.accepted ?? {}, left: state.left ?? {} } : null,
     state: { ...rest, day }
   }
 }
 
 /** A banner answered (by `via`) or left (and why), counted for today. */
-export function counted(state: CookieState, now: number, outcome: { via: CookieVia } | { left: LeftWhy }): CookieState {
+export function counted(state: CookieState, now: number, outcome: { via: CookieVia } | { accepted: CookieVia } | { left: LeftWhy }): CookieState {
   const s = rollDay(state, now).state
+  if ("accepted" in outcome) {
+    const accepted = { ...(s.accepted ?? {}) }
+    accepted[outcome.accepted] = Math.min(9999, (accepted[outcome.accepted] ?? 0) + 1)
+    return { ...s, accepted }
+  }
   if ("via" in outcome) {
     const done = { ...(s.done ?? {}) }
     done[outcome.via] = Math.min(9999, (done[outcome.via] ?? 0) + 1)
@@ -92,8 +114,8 @@ export function counted(state: CookieState, now: number, outcome: { via: CookieV
 }
 
 /** Whether the confirmation shows for this banner (the first few times only), and the state after it. */
-export function tell(state: CookieState): { show: boolean; state: CookieState } {
-  const told = state.told ?? 0
+export function tell(state: CookieState, accepted = false): { show: boolean; state: CookieState } {
+  const told = (accepted ? state.toldAccept : state.told) ?? 0
   if (told >= TOLD_TIMES) return { show: false, state }
-  return { show: true, state: { ...state, told: told + 1 } }
+  return { show: true, state: accepted ? { ...state, toldAccept: told + 1 } : { ...state, told: told + 1 } }
 }

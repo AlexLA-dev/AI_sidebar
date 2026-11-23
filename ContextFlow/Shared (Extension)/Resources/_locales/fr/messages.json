@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Choisit « uniquement nécessaires »."
  },
+ "setCookiesAccept": {
+  "message": "Si refuser est impossible, accepter"
+ },
  "cookiesOffOnSite": {
   "message": "Ne pas fermer sur ce site"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Fenêtre de cookies fermée : uniquement nécessaires"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookies acceptés : il n'y avait pas d'autre choix"
  },
  "phSimilarBodyUpBoth": {
   "message": "C’est dans Pro et Ultra : dans Pro la recherche rapide, dans Ultra la complète. Le même produit moins cher, et des similaires d’autres boutiques. Touchez le bouton mis en avant."
@@ -3585,7 +3591,7 @@
   "message": "Personnes si je ne précise pas"
  },
  "agentRuleAnySpecialist": {
-  "message": "N’importe quel professionnel"
+  "message": "N’importe quel professionnel (coiffeur, médecin, coach…)"
  },
  "agentRuleUsual": {
   "message": "Le service choisi la dernière fois sur ce site"
@@ -3636,16 +3642,70 @@
   "message": "Ouvrir les Réglages Système"
  },
  "agentRuleCalNeeds": {
-  "message": "accès au calendrier nécessaire"
+  "message": "Accès au calendrier nécessaire"
  },
  "agentPlanCalAsk": {
   "message": "Tenir compte du calendrier ?"
  },
  "agentCalNotChecked": {
-  "message": "calendrier non vérifié : pas d'accès"
+  "message": "Calendrier non vérifié : pas d'accès"
  },
  "agentPlanFromChat": {
   "message": "Depuis le chat : {0}"
+ },
+ "sendMenuNote": {
+  "message": "Note"
+ },
+ "noteHintPointerDo": {
+  "message": "Faites défiler sur le bouton : vers le haut pour une note, vers le bas pour « Faire », ou faites un clic droit"
+ },
+ "setSecGeneral": {
+  "message": "Général"
+ },
+ "setSecButton": {
+  "message": "Bouton flottant et sélection"
+ },
+ "setSecWriting": {
+  "message": "Insertion rapide et écriture"
+ },
+ "setSecAgent": {
+  "message": "« Faire » : tâches sur les pages"
+ },
+ "setSecCookies": {
+  "message": "Fenêtres de cookies"
+ },
+ "setSecChats": {
+  "message": "Discussions et espaces"
+ },
+ "setSecData": {
+  "message": "Confidentialité et données"
+ },
+ "setSecPlan": {
+  "message": "Forfait et compte"
+ },
+ "setSecAbout": {
+  "message": "À propos"
+ },
+ "fdICloudLocal": {
+  "message": "Pour l’instant, uniquement sur cet appareil"
+ },
+ "fdICloudSyncing": {
+  "message": "Synchronisation…"
+ },
+ "fdICloudSynced": {
+  "message": "Synchronisé · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "à l’instant"
+ },
+ "fdICloudNoAccount": {
+  "message": "Non synchronisé : connectez-vous à iCloud sur cet appareil"
+ },
+ "fdICloudFailed": {
+  "message": "Non synchronisé : iCloud n’a pas répondu. Nouvel essai la prochaine fois."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Coiffeur, styliste, médecin, coach ou guide : celui qui est libre. Désactivé : je vous demande avec qui."
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

@@ -57,7 +57,7 @@ export const ITEM_RULE =
  * (`agent: true`). The answer doesn't say ContextFlow can't press buttons; it points at the chip.
  */
 export const AGENT_RULE =
-  "- When the user asks you to do something on the page (press, choose, fill in, add to the cart, book), don't say you can't press buttons: under their message there's a button «Do it on this page?» (in their language) that hands it to ContextFlow's agent. Say so in one short sentence, then give the steps briefly in case they'd rather do it themselves."
+  "- When the user asks you to do something on the page (press, choose, fill in, add to the cart, book), don't say you can't press buttons: under your answer ContextFlow shows a button «Do it on this page?» (in their language) that hands it to its agent. Say so in one short sentence, then give the steps briefly in case they'd rather do it themselves."
 
 export function withAgentRule(parts: [string, string], agent: boolean): [string, string] {
   if (!agent) return parts

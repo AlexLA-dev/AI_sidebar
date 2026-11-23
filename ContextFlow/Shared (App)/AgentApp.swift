@@ -37,13 +37,28 @@ enum AgentApp {
 
 // MARK: - My details
 
-/// What a detail is, as the panel names it (src/shared/agent/formdata.ts FORM_KEYS).
+/// What a detail is, as the panel names it (src/shared/agent/formdata.ts FORM_KEYS), in the order they're shown, the
+/// same as the panel's (src/content/agent/detailsView.ts; 2.7.1, the owner on 121: they came in the order added).
 enum FormKeyName {
     static let keys: [String] = [
-        "name.full", "name.given", "name.family", "name.latin", "name.phonetic", "email", "phone", "address.line",
-        "address.apartment", "address.city", "address.region", "address.postal", "address.country", "company",
-        "jobTitle", "website", "birthDate", "fact"
+        "name.full", "name.given", "name.family", "name.latin", "name.phonetic", "phone", "email",
+        "address.line", "address.apartment", "address.city", "address.region", "address.postal", "address.country",
+        "birthDate", "company", "jobTitle", "website", "fact"
     ]
+
+    /// The entries in that order; facts (and a key not known here) last, by their names.
+    static func ordered(_ entries: [FormDataEntry]) -> [FormDataEntry] {
+        let rank = { (key: String) in keys.firstIndex(of: key) ?? keys.count }
+        return entries.sorted { a, b in
+            let ra = rank(a.key), rb = rank(b.key)
+            if ra != rb { return ra < rb }
+            if ra >= keys.count - 1 {
+                let byName = (a.label.isEmpty ? a.key : a.label).localizedCaseInsensitiveCompare(b.label.isEmpty ? b.key : b.label)
+                if byName != .orderedSame { return byName == .orderedAscending }
+            }
+            return a.updatedAt < b.updatedAt
+        }
+    }
 
     static func name(_ key: String) -> String {
         switch key {
@@ -112,12 +127,18 @@ enum FormDataRules {
 
 @MainActor
 final class MyDetailsModel: ObservableObject {
-    @Published var entries: [FormDataEntry] = FormDataStore.live()
+    @Published var entries: [FormDataEntry] = FormKeyName.ordered(FormDataStore.live())
     @Published var icloud: Bool? = FormDataStore.syncChoice
+    /// 2.7.1: the last sync's result (the line under the switch), and a sync under way after turning it on.
+    @Published var syncedAt: Double? = FormDataStore.syncedAt
+    @Published var syncError: String? = FormDataStore.syncError
+    @Published var syncing = false
 
     func reload() {
-        entries = FormDataStore.live()
+        entries = FormKeyName.ordered(FormDataStore.live())
         icloud = FormDataStore.syncChoice
+        syncedAt = FormDataStore.syncedAt
+        syncError = FormDataStore.syncError
     }
 
     /// False: refused (a password, a card, a document…).
@@ -147,8 +168,10 @@ final class MyDetailsModel: ObservableObject {
     func setICloud(_ on: Bool) {
         FormDataStore.syncChoice = on
         icloud = on
+        syncing = on
         Task {
-            if on { _ = try? await FormDataSync.sync() } else { await FormDataSync.removeCloud() }
+            if on { await FormDataSync.syncNoted() } else { await FormDataSync.removeCloud() }
+            syncing = false
             reload()
         }
     }
@@ -156,9 +179,26 @@ final class MyDetailsModel: ObservableObject {
     private func syncSoon() {
         guard FormDataStore.syncChoice == true else { return }
         Task {
-            _ = try? await FormDataSync.sync()
+            await FormDataSync.syncNoted()
             reload()
         }
+    }
+
+    /// The line under the switch, as the panel's (MyDetails.tsx syncLine).
+    var syncLine: String {
+        if icloud != true { return String(localized: "Only on this device for now") }
+        if syncing { return String(localized: "Syncing…") }
+        if let error = syncError {
+            return error == "no_account"
+                ? String(localized: "Not synced: sign in to iCloud on this device")
+                : String(localized: "Not synced: iCloud didn't answer. It tries again next time.")
+        }
+        guard let at = syncedAt else { return String(localized: "Through your private iCloud, which we can't access. Without it, they stay on this device.") }
+        let date = Date(timeIntervalSince1970: at / 1000)
+        let when = Date().timeIntervalSince(date) < 90
+            ? String(localized: "just now")
+            : date.formatted(date: Date().timeIntervalSince(date) < 72_000 ? .omitted : .abbreviated, time: .shortened)
+        return String(localized: "Synced · \(when)")
     }
 }
 
@@ -168,7 +208,6 @@ struct MyDetailsView: View {
     @State private var label = ""
     @State private var value = ""
     @State private var refused = false
-    @State private var askICloud = false
     @State private var confirmAll = false
 
     var body: some View {
@@ -192,22 +231,20 @@ struct MyDetailsView: View {
                 }
                 TextField(FormKeyName.name(key), text: $value)
                 Button("Add") {
-                    let first = model.entries.isEmpty && model.icloud == nil
                     refused = !model.add(key: key, label: label, value: value)
                     if !refused {
                         value = ""
                         label = ""
-                        if first && !model.entries.isEmpty { askICloud = true }
                     }
                 }
                 if refused {
                     Text("I don't keep passwords, cards, bank or document numbers, codes or health data.").font(.footnote).foregroundStyle(.red)
                 }
             }
-            if let on = model.icloud {
-                Section(footer: Text("Through your private iCloud, which we can't access. Without it, they stay on this device.")) {
-                    Toggle("Sync through iCloud", isOn: Binding(get: { on }, set: { model.setICloud($0) }))
-                }
+            // 2.7.1 (the owner on 121): the switch always, off until the person turns it on; what the last sync did under it.
+            Section(footer: Text(model.syncLine)) {
+                Toggle("Sync through iCloud", isOn: Binding(get: { model.icloud == true }, set: { model.setICloud($0) }))
+                    .disabled(model.syncing)
             }
             if model.entries.count > 1 {
                 Section {
@@ -217,12 +254,6 @@ struct MyDetailsView: View {
         }
         .navigationTitle("My details")
         .onAppear { model.reload() }
-        .alert("Sync your details on your devices through iCloud?", isPresented: $askICloud) {
-            Button("Yes") { model.setICloud(true) }
-            Button("No", role: .cancel) { model.setICloud(false) }
-        } message: {
-            Text("Through your private iCloud, which we can't access. Without it, they stay on this device.")
-        }
         .confirmationDialog("Delete all your details from this device (and from iCloud, if they sync)?", isPresented: $confirmAll, titleVisibility: .visible) {
             Button("Delete all", role: .destructive) { model.deleteAll() }
         }
