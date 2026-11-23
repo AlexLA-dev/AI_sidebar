@@ -536,8 +536,30 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     ...(consent ? { consent: true } : {}),
     ...(opts.money ? { money: pageMoney(doc) } : {}),
     ...(takesPayment(doc) ? { pay: true } : {}),
-    ...(opts.money && asksDeposit(doc) ? { deposit: true } : {})
+    ...(opts.money && asksDeposit(doc) ? { deposit: true } : {}),
+    ...(otherFrames(doc).length ? { frames: otherFrames(doc) } : {})
   }
+}
+
+/** Another site's frames on the screen, big enough to be a form (their insides aren't readable from here). */
+function otherFrames(doc: Document): Array<{ src: string; host: string; w: number; h: number }> {
+  const here = doc.location?.hostname ?? ""
+  const out: Array<{ src: string; host: string; w: number; h: number }> = []
+  for (const f of Array.from(doc.querySelectorAll("iframe"))) {
+    const src = (f as HTMLIFrameElement).src
+    if (!/^https:\/\//.test(src)) continue
+    let host = ""
+    try {
+      host = new URL(src).hostname
+    } catch {
+      continue
+    }
+    if (!host || host === here) continue
+    const r = f.getBoundingClientRect()
+    if (r.width < 240 || r.height < 240 || r.bottom < 0 || r.top > (doc.defaultView?.innerHeight ?? 800)) continue
+    out.push({ src: src.split("#")[0].slice(0, 500), host, w: Math.round(r.width), h: Math.round(r.height) })
+  }
+  return out.slice(0, 3)
 }
 
 const SEARCH_WORDS = /search|find|cuisine|restaurant name|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|ara|検索|검색|搜索|搜尋|بحث|tìm/i

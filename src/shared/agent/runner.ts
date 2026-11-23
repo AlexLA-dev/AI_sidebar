@@ -68,6 +68,8 @@ export interface AgentState {
   // What «Отменить» puts back, newest last.
   undo: NonNullable<StepResult["undo"]>[]
   left?: number | null
+  // The day's tasks of the plan, said when they ran out («(… a day)» was empty: the server's limit wasn't kept).
+  limit?: number
   data?: string
   refused?: string
   // The deferred task it came from, when it did.
@@ -97,6 +99,8 @@ export interface AgentState {
   // The one place, product or specialist the start page is about (subject.ts): the task's target unless the request
   // names another (the owner on 121).
   subject?: string
+  // The booking provider's form (a frame on the start page) the device opened on its own page.
+  widgetOpened?: string
   // The last turns of the chat the task was started from (chatctx.ts): the plan call only, for the request's references.
   chat?: string
   // The contact detail the question asks for, when «Мои данные» hasn't got it (the panel offers to keep the answer).
@@ -127,6 +131,7 @@ export interface ActReply {
   offRequest?: string
   token?: string
   left?: number
+  limit?: number
   strong?: boolean
   // The plan's makings (task.phase "plan"): the device classes what was foreseen on its own map.
   plan?: unknown
@@ -274,7 +279,8 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
 
 /** The map as it goes to the server: the page's amounts stay on the device (they're for its own price check). */
 function sent(map: PageMap): PageMap {
-  const { money: _money, ...rest } = map
+  // The amounts and other sites' frame addresses stay on the device (the device acts on those itself).
+  const { money: _money, frames: _frames, ...rest } = map
   return rest
 }
 
@@ -316,6 +322,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   if (!reply.ok) {
     state.status = "error"
     state.error = reply.code ?? "UPSTREAM"
+    if (reply.limit) state.limit = reply.limit
     return "stop"
   }
   state.token = reply.token ?? null
@@ -369,6 +376,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   plan.approved = true
   return "go"
 }
+
+// Booking providers whose forms restaurants and salons embed in a frame (they work on their own pages too).
+const BOOKING_PROVIDER = /(^|\.)(sevenrooms\.com|opentable\.[a-z.]+|resy\.com|quandoo\.[a-z.]+|zenchef\.com|formitable\.com|tablein\.com|bookatable\.[a-z.]+|designmynight\.com|collinsbookings\.com|resdiary\.com|thefork\.[a-z.]+|lafourchette\.com|fresha\.com|treatwell\.[a-z.]+|booksy\.com|setmore\.com|simplybook\.[a-z.]+|vagaro\.com|mindbodyonline\.com|squareup\.com|square\.site|timely\.com|gettimely\.com|phorest\.com|shedul\.com|planity\.com|doctolib\.[a-z.]+|calendly\.com|acuityscheduling\.com)$/i
 
 const SEARCH_BOX = /search|find|treatment|salon|cuisine|restaurant|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|検索|검색|搜索|搜尋|بحث|tìm/i
 
@@ -499,6 +509,17 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     state.host = hostOf(map.url)
     noteVenues(state, map)
+    // A booking whose form is a booking provider's frame on this page (Dishoom's SevenRooms, 121 sweep: «I've tried "Book a
+    // table" five times»): the device opens that form on its own page, once; the provider counts as this task's site.
+    const widget = state.plan?.approved && state.plan.booking && !state.widgetOpened ? map.frames?.find((f) => BOOKING_PROVIDER.test(f.host)) : undefined
+    if (widget && io.open) {
+      state.widgetOpened = widget.src
+      await io.open(widget.src)
+      state.confirmedSites = [...new Set([...(state.confirmedSites ?? []), siteOfHost(widget.host)])]
+      state.log.push({ call: { tool: "go", why: widget.host }, result: `the booking form is ${widget.host}'s frame on this page, which you can't see inside: the device opened it on its own page — go on there` })
+      state.lines.push(line({ tool: "go" }, { cls: "free", reason: "booking_form" }, null, true, widget.host))
+      continue
+    }
     // No progress: reads in a row on a page that didn't change. Two: the model is told to stop reading and say what it
     // found (or ask how to go on); four: the task stops, not finished.
     const sig = pageSig(map)
@@ -540,6 +561,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (!reply.ok || !reply.call || !reply.verdict) {
       state.status = "error"
       state.error = reply.code ?? "UPSTREAM"
+      if (reply.limit) state.limit = reply.limit
       break
     }
     if (state.step === 0) {

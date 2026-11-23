@@ -81,3 +81,25 @@ test("121 sweep: with no list ever seen, a request that names no place is sent t
   assert.match(r, /search box #4 "Search for treatments \/ salons"/)
   assert.ok(!/back/.test(r))
 })
+
+test("121 sweep: a booking form in a booking provider's frame (Dishoom's SevenRooms) is opened on its own page, once; its address stays on the device", async () => {
+  const DISH = page("https://www.dishoom.com/covent-garden/", "Dishoom Covent Garden", "Dishoom Covent Garden\n12 Upper St Martin's Ln", [{ id: "1", role: "button", label: "Book a table" }])
+  const WIDGET = { ...DISH, frames: [{ src: "https://www.sevenrooms.com/reservations/dishoomcoventgarden", host: "www.sevenrooms.com", w: 400, h: 700 }, { src: "https://ads.example.net/x", host: "ads.example.net", w: 300, h: 300 }] }
+  const SEVEN = page("https://www.sevenrooms.com/reservations/dishoomcoventgarden", "Dishoom Covent Garden", "Reservations", [{ id: "1", role: "button", label: "Nov 24" }])
+  const pages: PageMap[] = [WIDGET]
+  const opened: string[] = []
+  const asked: any[] = []
+  const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "table", date: "2026-11-24", from: "17:00", until: "18:30", minutes: 90, tz: "Europe/London", venue: "Dishoom Covent Garden", match: [] } }
+  const replies: any[] = [{ ok: true, plan: RAW, token: "t" }, { ok: true, call: { tool: "click", id: "1" }, verdict: { cls: "free", reason: "click" }, target: "button" }, { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }]
+  const io: RunnerIO = {
+    map: async () => pages[pages.length - 1], act: async () => ({ ok: true }), waitPage: async () => {}, ask: async (b) => (asked.push(JSON.parse(JSON.stringify(b))), replies.shift()), save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} },
+    open: async (url) => void (opened.push(url), pages.push(SEVEN))
+  }
+  const s = await drive(newState("d", "Book a table for 2 tomorrow at 17:30", "en", DISH.url), io)
+  const { approvePlan } = await import("../src/shared/agent/runner.ts")
+  const after = s.status === "plan" ? await approvePlan(s, io, { answers: [], off: [] }) : s
+  assert.deepEqual(opened, ["https://www.sevenrooms.com/reservations/dishoomcoventgarden"], "the provider's form only, once")
+  assert.ok(asked.every((b) => !("frames" in b.map)), "frame addresses never go to the server")
+  assert.ok(after.confirmedSites?.includes("sevenrooms.com"))
+})
