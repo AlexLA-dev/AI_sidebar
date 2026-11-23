@@ -1228,5 +1228,22 @@
   "agentRuleAnySpecialist": "Herhangi bir uzman",
   "agentRuleUsual": "O sitede geçen sefer seçtiğim hizmet",
   "agentRuleCalendar": "Yalnızca Takvimimde boş saatler",
-  "agentRuleAuto": "Her şey biliniyor ve ücretli bir şey yoksa plansız rezervasyon yap"
+  "agentRuleAuto": "Her şey biliniyor ve ücretli bir şey yoksa plansız rezervasyon yap",
+  "agentPlanHow": "Yeri ben seçerim: {0}+ puanlı, uygun, en yakın",
+  "agentPlanHowCal": "Takviminde boş bir saat, oraya da eklerim",
+  "agentRuleVenue": "Bir yer söylemezsem yeri kendim seç",
+  "agentRuleRating": "Yer puanı en az",
+  "accessGroup": "Takvim ve Anımsatıcılar",
+  "accessHint": "Ajan takviminizdeki boş saatleri seçer ve rezervasyonları takvime ekleyebilir. Takviminizin içeriği cihazdan asla çıkmaz.",
+  "accessCalendar": "Takvim",
+  "accessReminders": "Anımsatıcılar",
+  "accessYes": "Erişim var",
+  "accessNo": "Erişim yok",
+  "accessAllow": "İzin ver",
+  "accessSettingsIos": "iOS Ayarları'nı aç",
+  "accessSettingsMac": "Sistem Ayarları'nı aç",
+  "agentRuleCalNeeds": "takvim erişimi gerekiyor",
+  "agentPlanCalAsk": "Takvim dikkate alınsın mı?",
+  "agentCalNotChecked": "takvim kontrol edilmedi: erişim yok",
+  "agentPlanFromChat": "Sohbetten: {0}"
 }

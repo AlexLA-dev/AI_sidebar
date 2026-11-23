@@ -3596,6 +3596,57 @@
  "agentRuleAuto": {
   "message": "Réserver sans plan quand tout est connu et rien n’est payant"
  },
+ "agentPlanHow": {
+  "message": "Je choisis le lieu : noté {0}+, adapté, le plus proche"
+ },
+ "agentPlanHowCal": {
+  "message": "une heure libre dans votre Calendrier, ajoutée dedans"
+ },
+ "agentRuleVenue": {
+  "message": "Choisir le lieu moi-même si je n’en nomme pas"
+ },
+ "agentRuleRating": {
+  "message": "Note du lieu à partir de"
+ },
+ "accessGroup": {
+  "message": "Calendrier et Rappels"
+ },
+ "accessHint": {
+  "message": "L'agent choisit des horaires libres dans votre calendrier et peut y ajouter vos réservations. Le contenu de votre calendrier ne quitte jamais l'appareil."
+ },
+ "accessCalendar": {
+  "message": "Calendrier"
+ },
+ "accessReminders": {
+  "message": "Rappels"
+ },
+ "accessYes": {
+  "message": "Accès autorisé"
+ },
+ "accessNo": {
+  "message": "Pas d'accès"
+ },
+ "accessAllow": {
+  "message": "Autoriser"
+ },
+ "accessSettingsIos": {
+  "message": "Ouvrir les Réglages iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Ouvrir les Réglages Système"
+ },
+ "agentRuleCalNeeds": {
+  "message": "accès au calendrier nécessaire"
+ },
+ "agentPlanCalAsk": {
+  "message": "Tenir compte du calendrier ?"
+ },
+ "agentCalNotChecked": {
+  "message": "calendrier non vérifié : pas d'accès"
+ },
+ "agentPlanFromChat": {
+  "message": "Depuis le chat : {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

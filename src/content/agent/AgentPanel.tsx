@@ -10,7 +10,10 @@ import type { Answer, AgentState, PlanApproval } from "../../shared/agent/runner
 import { factLabel, isCancelChoice, savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
 import { AMAZON_TEXT } from "../../shared/amazon"
 import { TEST_PLAN } from "../../shared/config"
+import type { FormKey } from "../../shared/agent/formdata"
 import { t, type MessageKey } from "../../shared/i18n"
+import { askAccess } from "./AppleAccess"
+import { keyName } from "./MyDetails"
 import * as Icon from "../icons"
 import { showIn } from "../Consent"
 import { followLink } from "../page"
@@ -37,7 +40,7 @@ interface Props {
   planFailed?: string | null
   // The person's saved facts by name (factKey → value), for the plan's questions about them; and keeping new answers.
   saved?: Record<string, string>
-  onRemember?: (facts: Array<{ fact: string; value: string }>) => void
+  onRemember?: (facts: Array<{ fact: string; value: string; key?: FormKey }>) => void
   onUndo: () => void
   onClose: () => void
   onHelp: () => void
@@ -135,7 +138,7 @@ function permText(p: Perm, host: string): string {
   switch (p.kind) {
     case "press": return t("agentStepClick", p.label)
     case "personal": return t("agentPermPersonal", p.label)
-    case "fill": return t("agentPermFill", p.label)
+    case "fill": return t("agentPermFill", p.label || (p.keys ?? []).map((k) => keyName({ key: k as FormKey, label: "" })).join(", "))
     case "consent": return t("agentPermConsent", host)
     default:
       return p.reason === "event_add" ? t("agentPermEvent", p.label) : p.reason === "reminder_done" ? t("agentPermReminderDone", p.label) : t("agentPermReminder", p.label)
@@ -157,6 +160,35 @@ function selfLine(x: PlanSelf): string {
     case "auth": case "account": return t("agentPlanSelfAuth")
     default: return x.label
   }
+}
+
+const CAL_ASK_KEY = "agentCalAskDone"
+
+/** «Учитывать календарь? · Разрешить ×»: once per install, until allowed or dismissed. */
+function CalendarAsk({ state }: { state: "none" | "denied" }): VNode | null {
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    try {
+      chrome.storage.local.get(CAL_ASK_KEY, (r) => setShown(!r?.[CAL_ASK_KEY]))
+    } catch {
+      setShown(true)
+    }
+  }, [])
+  const done = () => {
+    setShown(false)
+    try {
+      void chrome.storage.local.set({ [CAL_ASK_KEY]: true })
+    } catch {
+      // shown again next time
+    }
+  }
+  if (!shown) return null
+  return (
+    <p class="cf-agent-meta cf-access-need" dir="auto">
+      {t("agentPlanCalAsk")} · <button type="button" class="cf-link" onClick={() => { askAccess("calendar", state); done() }}>{t(state === "denied" ? (typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches ? "accessSettingsIos" : "accessSettingsMac") : "accessAllow")}</button>
+      <button type="button" class="cf-icon-btn cf-access-x" aria-label={t("close")} onClick={done}>×</button>
+    </p>
+  )
 }
 
 /** The task's plan (2.7.1): what it will do, its questions (options and «Своё»), what may go without a question (each
@@ -209,6 +241,16 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
           {plan.steps.map((l, i) => <li key={i} dir="auto">{planStepText(plan, i, l)}</li>)}
         </ol>
       )}
+      {/* A booking: how it will choose, so «Начать» is all it takes (the director on 120). */}
+      {plan.how && (plan.how.rating > 0 || plan.how.calendar) && (
+        <p class="cf-agent-meta" dir="auto">
+          {[plan.how.rating ? t("agentPlanHow", plan.how.rating.toLocaleString()) : "", plan.how.calendar ? t("agentPlanHowCal") : ""].filter(Boolean).join(" · ")}
+        </p>
+      )}
+      {/* The calendar rule without access to the Calendar: asked here once per install, never skipped silently. */}
+      {plan.how?.ask && <CalendarAsk state={plan.how.ask} />}
+      {/* What the request's «во втором», «в тот ресторан» were taken to mean, from the chat it was started in. */}
+      {plan.fromChat && <p class="cf-agent-meta" dir="auto">{t("agentPlanFromChat", plan.fromChat)}</p>}
       {plan.questions.map((q, i) => (
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
           <p dir="auto">{q.q}</p>
@@ -291,7 +333,7 @@ const READS = new Set(["read_page", "scroll", "extract", "back", "go", "reminder
 /** A finished task's mark on its folded line: done, waiting for an answer, stopped, or didn't work. */
 function markOf(status: PanelAgent["status"], error?: string): { sign: string; text: string; cls: string } {
   // Stopped short (the step limit, no progress): not ✓ (TestFlight 118).
-  if (status === "done" && (error === "steps" || error === "stuck")) return { sign: "…", text: t("agentMarkUnfinished"), cls: "stop" }
+  if (status === "done" && (error === "steps" || error === "stuck" || error === "unbooked")) return { sign: "…", text: t("agentMarkUnfinished"), cls: "stop" }
   switch (status) {
     case "done": return { sign: "✓", text: t("agentDoneTitle"), cls: "ok" }
     case "asked": return { sign: "⏸", text: t("agentMarkPaused"), cls: "wait" }
@@ -319,6 +361,12 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   const finished = !busy && !waiting && !planning
   // The agent's question: the offered answers as buttons, or the person's own words.
   const [replyText, setReplyText] = useState("")
+  // A contact detail «Мои данные» hasn't got: the typed answer may be kept there (on, like the plan card's «Запомнить»).
+  const [keep, setKeep] = useState(true)
+  const own = (text: string) => {
+    if (keep && state.askKey) onRemember?.([{ fact: "", value: text, key: state.askKey as FormKey }])
+    reply("reply", [text])
+  }
   // The model's «Отмена» among its choices: the card has its own Cancel (the owner on 118: one, not two).
   const choices = (state.choices ?? []).filter((c) => !isCancelChoice(c))
   // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
@@ -446,11 +494,17 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
           <div class="cf-agent-reply">
             <input class="cf-input-line" dir="auto" value={replyText} placeholder={t("agentPlanOwn")} onInput={(e) => setReplyText((e.target as HTMLInputElement).value)} onKeyDown={(e) => {
               e.stopPropagation()
-              if (e.key === "Enter" && replyText.trim()) reply("reply", [replyText.trim()])
+              if (e.key === "Enter" && replyText.trim()) own(replyText.trim())
             }} onKeyUp={(e) => e.stopPropagation()} />
-            <button type="button" class="cf-primary" disabled={sent || !replyText.trim()} onClick={() => reply("reply", [replyText.trim()])}>{t("send")}</button>
+            <button type="button" class="cf-primary" disabled={sent || !replyText.trim()} onClick={() => own(replyText.trim())}>{t("send")}</button>
             <button type="button" class="cf-secondary" onClick={() => onAnswer("stop")}>{t("cancel")}</button>
           </div>
+          {state.askKey && (
+            <label class="cf-row toggle cf-agent-remember">
+              <input type="checkbox" checked={keep} onChange={(e) => setKeep((e.target as HTMLInputElement).checked)} />
+              <span>{t("agentPlanRemember")}</span>
+            </label>
+          )}
         </div>
       )}
 
@@ -470,9 +524,10 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
         <div class="cf-agent-end">
           {state.status === "done" && (
             <>
-              <strong>{t(state.error === "steps" || state.error === "stuck" ? "agentMarkUnfinished" : "agentDoneTitle")}</strong>
+              <strong>{t(state.error === "steps" || state.error === "stuck" || state.error === "unbooked" ? "agentMarkUnfinished" : "agentDoneTitle")}</strong>
               {(state.error === "steps" || state.error === "stuck") && <p>{t(state.error === "stuck" ? "agentStuck" : "agentSteps")}</p>}
               {state.summary ? <Markdown text={state.summary} /> : null}
+              {state.calSkipped && <p class="cf-agent-meta">{t("agentCalNotChecked")}</p>}
             </>
           )}
 

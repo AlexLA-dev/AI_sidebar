@@ -3596,6 +3596,57 @@
  "agentRuleAuto": {
   "message": "Đặt chỗ không cần kế hoạch khi đã biết mọi thứ và không phải trả tiền"
  },
+ "agentPlanHow": {
+  "message": "Tôi tự chọn nơi: đánh giá từ {0}, phù hợp, gần nhất"
+ },
+ "agentPlanHowCal": {
+  "message": "giờ trống trong Lịch của bạn, và thêm vào đó"
+ },
+ "agentRuleVenue": {
+  "message": "Tự chọn nơi nếu tôi không nêu tên"
+ },
+ "agentRuleRating": {
+  "message": "Đánh giá nơi từ"
+ },
+ "accessGroup": {
+  "message": "Lịch và Lời nhắc"
+ },
+ "accessHint": {
+  "message": "Tác nhân chọn giờ còn trống trong lịch của bạn và có thể thêm lượt đặt vào đó. Nội dung lịch không bao giờ rời khỏi thiết bị."
+ },
+ "accessCalendar": {
+  "message": "Lịch"
+ },
+ "accessReminders": {
+  "message": "Lời nhắc"
+ },
+ "accessYes": {
+  "message": "Đã cho phép"
+ },
+ "accessNo": {
+  "message": "Chưa có quyền"
+ },
+ "accessAllow": {
+  "message": "Cho phép"
+ },
+ "accessSettingsIos": {
+  "message": "Mở Cài đặt iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Mở Cài đặt hệ thống"
+ },
+ "agentRuleCalNeeds": {
+  "message": "cần quyền truy cập Lịch"
+ },
+ "agentPlanCalAsk": {
+  "message": "Xét đến lịch?"
+ },
+ "agentCalNotChecked": {
+  "message": "chưa kiểm tra lịch: không có quyền"
+ },
+ "agentPlanFromChat": {
+  "message": "Từ cuộc trò chuyện: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

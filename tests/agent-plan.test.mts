@@ -362,7 +362,7 @@ test("118: the focus trap, the not-finished mark, «Start» looks active", () =>
   assert.match(index, /for \(const type of \["focusin", "focusout"\]\) \{\s*window\.addEventListener\(type, \(e\) => \{\s*if \(e\.target === host \|\| \(e as FocusEvent\)\.relatedTarget === host\) e\.stopImmediatePropagation\(\)/)
   assert.match(index, /if \(field && root\.activeElement !== field\) field\.focus\(\)/)
   const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
-  assert.match(panel, /if \(status === "done" && \(error === "steps" \|\| error === "stuck"\)\) return \{ sign: "…", text: t\("agentMarkUnfinished"\)/)
+  assert.match(panel, /if \(status === "done" && \(error === "steps" \|\| error === "stuck" \|\| error === "unbooked"\)\) return \{ sign: "…", text: t\("agentMarkUnfinished"\)/)
   assert.match(panel, /<button type="button" class="cf-primary" disabled=\{sending\} onClick=\{start\}>/)
 })
 

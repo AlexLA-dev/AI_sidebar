@@ -40,7 +40,8 @@ test("out of Safari mid-task: the paused notification only once steps stop, done
 
 test("a task Safari froze goes on when the person is back, and the frozen run never acts twice", () => {
   const bg = read("src/background/agent.ts")
-  assert.match(bg, /if \(!st \|\| st\.status !== "running" \|\| Date\.now\(\) - \(st\.touchedAt \?\? 0\) < 15_000\) return/)
+  assert.match(bg, /async function resume\(tab: number, idleMs = 15_000\)/)
+  assert.match(bg, /if \(!st \|\| st\.status !== "running" \|\| Date\.now\(\) - \(st\.touchedAt \?\? 0\) < idleMs\) return/)
   assert.match(bg, /if \(now\?\.gen && now\.gen !== gen\) throw new Superseded/)
   assert.match(bg, /act: async \(call: ToolCall\) => \{\s*await live\(\)/)
   assert.match(bg, /for \(const \[tab\] of await activeTasks\(\)\) void resume\(tab\)/)

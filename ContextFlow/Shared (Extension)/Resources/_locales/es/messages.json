@@ -3596,6 +3596,57 @@
  "agentRuleAuto": {
   "message": "Reservar sin plan si todo se sabe y nada se paga"
  },
+ "agentPlanHow": {
+  "message": "Elijo el sitio: con {0}+ de valoración, adecuado, el más cercano"
+ },
+ "agentPlanHowCal": {
+  "message": "una hora libre en tu Calendario, y la añado allí"
+ },
+ "agentRuleVenue": {
+  "message": "Elegir el sitio yo mismo si no nombro ninguno"
+ },
+ "agentRuleRating": {
+  "message": "Valoración del sitio desde"
+ },
+ "accessGroup": {
+  "message": "Calendario y Recordatorios"
+ },
+ "accessHint": {
+  "message": "El agente elige horas libres en tu calendario y puede añadir las reservas. Lo que hay en tu calendario nunca sale del dispositivo."
+ },
+ "accessCalendar": {
+  "message": "Calendario"
+ },
+ "accessReminders": {
+  "message": "Recordatorios"
+ },
+ "accessYes": {
+  "message": "Acceso permitido"
+ },
+ "accessNo": {
+  "message": "Sin acceso"
+ },
+ "accessAllow": {
+  "message": "Permitir"
+ },
+ "accessSettingsIos": {
+  "message": "Abrir Ajustes de iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Abrir Ajustes del Sistema"
+ },
+ "agentRuleCalNeeds": {
+  "message": "necesita acceso al calendario"
+ },
+ "agentPlanCalAsk": {
+  "message": "¿Tener en cuenta el calendario?"
+ },
+ "agentCalNotChecked": {
+  "message": "no revisé el calendario: sin acceso"
+ },
+ "agentPlanFromChat": {
+  "message": "Del chat: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

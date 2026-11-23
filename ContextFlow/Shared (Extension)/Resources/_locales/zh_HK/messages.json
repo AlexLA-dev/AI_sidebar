@@ -3596,6 +3596,57 @@
  "agentRuleAuto": {
   "message": "資訊齊全且不需付款時，不顯示計畫直接預訂"
  },
+ "agentPlanHow": {
+  "message": "地點由我來選：評分 {0} 以上、符合需求、最近"
+ },
+ "agentPlanHowCal": {
+  "message": "選行事曆中空閒的時間，並加入行事曆"
+ },
+ "agentRuleVenue": {
+  "message": "我沒指定地點時，自行選擇"
+ },
+ "agentRuleRating": {
+  "message": "地點評分不低於"
+ },
+ "accessGroup": {
+  "message": "行事曆與提醒事項"
+ },
+ "accessHint": {
+  "message": "代理會選擇行事曆中空閒的時間，並可加入預訂。行事曆內容絕不會離開裝置。"
+ },
+ "accessCalendar": {
+  "message": "行事曆"
+ },
+ "accessReminders": {
+  "message": "提醒事項"
+ },
+ "accessYes": {
+  "message": "已允許"
+ },
+ "accessNo": {
+  "message": "無取用權限"
+ },
+ "accessAllow": {
+  "message": "允許"
+ },
+ "accessSettingsIos": {
+  "message": "打開 iOS 設定"
+ },
+ "accessSettingsMac": {
+  "message": "打開系統設定"
+ },
+ "agentRuleCalNeeds": {
+  "message": "需要行事曆取用權限"
+ },
+ "agentPlanCalAsk": {
+  "message": "要參考行事曆嗎？"
+ },
+ "agentCalNotChecked": {
+  "message": "未檢查行事曆：無取用權限"
+ },
+ "agentPlanFromChat": {
+  "message": "來自聊天：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

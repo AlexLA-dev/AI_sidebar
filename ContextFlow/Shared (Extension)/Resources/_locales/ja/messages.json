@@ -3596,6 +3596,57 @@
  "agentRuleAuto": {
   "message": "すべて分かっていて支払いがなければ、プランなしで予約"
  },
+ "agentPlanHow": {
+  "message": "場所はこちらで選びます：評価{0}以上・条件に合う・最寄り"
+ },
+ "agentPlanHowCal": {
+  "message": "カレンダーで空いている時間に、予定も追加"
+ },
+ "agentRuleVenue": {
+  "message": "場所を指定しないときは自分で選ぶ"
+ },
+ "agentRuleRating": {
+  "message": "場所の評価（以上）"
+ },
+ "accessGroup": {
+  "message": "カレンダーとリマインダー"
+ },
+ "accessHint": {
+  "message": "エージェントはカレンダーの空いている時間を選び、予約を追加できます。カレンダーの内容がデバイスの外に出ることはありません。"
+ },
+ "accessCalendar": {
+  "message": "カレンダー"
+ },
+ "accessReminders": {
+  "message": "リマインダー"
+ },
+ "accessYes": {
+  "message": "アクセスあり"
+ },
+ "accessNo": {
+  "message": "アクセスなし"
+ },
+ "accessAllow": {
+  "message": "許可"
+ },
+ "accessSettingsIos": {
+  "message": "iOSの設定を開く"
+ },
+ "accessSettingsMac": {
+  "message": "システム設定を開く"
+ },
+ "agentRuleCalNeeds": {
+  "message": "カレンダーへのアクセスが必要"
+ },
+ "agentPlanCalAsk": {
+  "message": "カレンダーを確認しますか？"
+ },
+ "agentCalNotChecked": {
+  "message": "カレンダーは未確認：アクセスなし"
+ },
+ "agentPlanFromChat": {
+  "message": "チャットから：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

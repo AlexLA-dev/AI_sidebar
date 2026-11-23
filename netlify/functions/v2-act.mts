@@ -104,7 +104,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   const lang = requestLanguage(request, clip(task.lang, 12) || "en")
   const planning = task.phase === "plan" && step === 0
-  const input = { request, lang, map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device), plan: clip(task.plan, 2000) || undefined, rules: clip(task.rules, 600) || undefined, calendar: calendarLine(task.calendar), playbook: clip(task.playbook, 900) || undefined }
+  const input = { request, lang, map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device), plan: clip(task.plan, 2000) || undefined, rules: clip(task.rules, 600) || undefined, calendar: calendarLine(task.calendar), playbook: clip(task.playbook, 900) || undefined, venues: clip(task.venues, 1200) || undefined, ...(task.phase === "plan" && step === 0 ? { chat: clip(task.chat, 2400) || undefined } : {}) }
   let out
   try {
     if (planning) {
@@ -113,7 +113,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       context.waitUntil(Promise.all([
         logEvent("agent_step", installId, {
           plan: access.plan, step, tool: "plan", cls: "free", reason: "plan", strong: false, retries: 0, off_request: false, items: map.items.length,
-          questions: p.plan.questions.length, risky: p.plan.risky.length, prompt_tokens: p.usage.reduce((n, u) => n + u.input + u.cacheRead + u.cacheWrite, 0),
+          questions: p.plan.questions.length, risky: p.plan.risky.length, chat_chars: input.chat?.length ?? 0, prompt_tokens: p.usage.reduce((n, u) => n + u.input + u.cacheRead + u.cacheWrite, 0),
           completion_tokens: p.usage.reduce((n, u) => n + u.output, 0), cost_usd: Math.round(spent * 1e6) / 1e6, ms: Date.now() - started, platform, version, build
         }),
         touchInstall(installId, platform, version, locale, 0).catch(() => undefined)

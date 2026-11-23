@@ -1228,5 +1228,22 @@
   "agentRuleAnySpecialist": "Qualquer profissional",
   "agentRuleUsual": "O serviço que escolhi lá da última vez",
   "agentRuleCalendar": "Só horários livres no meu Calendário",
-  "agentRuleAuto": "Reservar sem plano quando tudo é conhecido e nada é pago"
+  "agentRuleAuto": "Reservar sem plano quando tudo é conhecido e nada é pago",
+  "agentPlanHow": "Escolho o lugar: nota {0}+, adequado, o mais próximo",
+  "agentPlanHowCal": "um horário livre no seu Calendário, adicionado lá",
+  "agentRuleVenue": "Escolher o lugar sozinho se eu não disser qual",
+  "agentRuleRating": "Nota do lugar a partir de",
+  "accessGroup": "Calendário e Lembretes",
+  "accessHint": "O agente escolhe horários livres no seu calendário e pode adicionar as reservas. O conteúdo do seu calendário nunca sai do aparelho.",
+  "accessCalendar": "Calendário",
+  "accessReminders": "Lembretes",
+  "accessYes": "Acesso permitido",
+  "accessNo": "Sem acesso",
+  "accessAllow": "Permitir",
+  "accessSettingsIos": "Abrir Ajustes do iOS",
+  "accessSettingsMac": "Abrir Ajustes do Sistema",
+  "agentRuleCalNeeds": "precisa de acesso ao calendário",
+  "agentPlanCalAsk": "Considerar o calendário?",
+  "agentCalNotChecked": "não verifiquei o calendário: sem acesso",
+  "agentPlanFromChat": "Do chat: {0}"
 }

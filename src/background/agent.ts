@@ -7,6 +7,7 @@
 // - «Мои данные»: read and written through the app's store (FormData.swift), never kept in the extension's storage;
 //   values reach only the content script that fills a field, after the person's «Заполнить».
 
+import { CHAT_CHARS } from "../shared/agent/chatctx"
 import { API_BASE, TARGET, TEST_PLAN } from "../shared/config"
 import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
 import { active, answer, approvePlan, drive, newState, pendingKey, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
@@ -54,16 +55,18 @@ export interface DeferredTask {
 }
 
 export type AgentRequest =
-  | { type: "agentStart"; request: string; lang: string; deferred?: string }
+  | { type: "agentStart"; request: string; lang: string; deferred?: string; chat?: string }
   | { type: "agentAnswer"; answer: Answer; chosen?: string[]; key?: string }
   | { type: "agentPlan"; approval: PlanApproval }
   | { type: "agentGet" }
-  | { type: "agentAccessOpen"; kind: "reminders" | "calendar" }
+  | { type: "agentAccessOpen"; kind: "reminders" | "calendar"; settings?: boolean }
+  | { type: "agentAccess" }
   | { type: "agentUndo" }
   | { type: "agentClose"; keep?: boolean }
   | { type: "agentForgetPast"; id: string }
   | { type: "agentNoticeGet" }
   | { type: "agentSeen"; visible: boolean; words?: AwayWords }
+  | { type: "agentPing" }
   | { type: "agentFocus"; id: string }
   | { type: "agentGoTab" }
   | { type: "agentNoticeClear" }
@@ -330,7 +333,7 @@ async function goTab(): Promise<boolean> {
 
 /** What the panel gets: everything but the server's log and the last page text (it shows its own lines). */
 function forPanel(state: AgentState): Omit<AgentState, "log" | "data"> & { canUndo: boolean } {
-  const { log: _log, data: _data, ...rest } = state
+  const { log: _log, data: _data, chat: _chat, ...rest } = state
   // Only what was really changed (a field, a box, a list's choice) can be put back: a task that only read has no Undo.
   return { ...rest, canUndo: state.undo.some((u) => !!u && typeof u === "object" && !!u.id && !!u.kind) }
 }
@@ -478,7 +481,15 @@ function io(tab: number, gen?: string): RunnerIO {
     // A start inside the window: the free time may run on past its end by the visit's length.
     calendarFree: (b, days) => calendarFreeLine(b.date, days + 1, b.from, addMinutes(b.until, b.minutes), b.minutes),
     slotFree: calendarSlotFree,
-    playbook: { get: playbookGet, put: playbookPut }
+    playbook: { get: playbookGet, put: playbookPut },
+    open: async (url) => {
+      await live()
+      if (!/^https?:\/\//.test(url)) return
+      // Never waits on Safari's callback alone (a run stood still after the device opened a place).
+      const complete = waitComplete(tab)
+      await Promise.race([new Promise<void>((resolve) => chrome.tabs.update(tab, { url }, () => resolve())), new Promise<void>((resolve) => setTimeout(resolve, 5_000))])
+      await complete
+    }
   }
 }
 
@@ -525,9 +536,11 @@ const samePage = (a: string, b: string) => a.split("#")[0] === b.split("#")[0]
  */
 const INFLIGHT_SETTLE_MS = 60_000
 
-async function resume(tab: number): Promise<void> {
+const PING_IDLE_MS = 45_000
+
+async function resume(tab: number, idleMs = 15_000): Promise<void> {
   const st = await load(tab)
-  if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) < 15_000) return
+  if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) < idleMs) return
   // A step was on its way when Safari froze the run: not resumed while it may still land; then settled — the model
   // hears that it may or may not have happened and reads the page before doing it again.
   if (st.inflight) {
@@ -574,6 +587,8 @@ async function start(tab: number, url: string, m: Extract<AgentRequest, { type: 
     await forget(tab)
   }
   const state = newState(crypto.randomUUID(), m.request.slice(0, 2000), m.lang, url, m.deferred)
+  // Started inside a chat thread: its last turns go with the plan call, for the request's references (never stored).
+  if (typeof m.chat === "string" && m.chat.trim()) state.chat = m.chat.slice(0, CHAT_CHARS + 400)
   if (m.deferred) {
     // Its plan was approved when it was put off: on the same page it goes by it (another page: planned again).
     const d = (await deferredAll()).find((x) => x.id === m.deferred)
@@ -742,6 +757,10 @@ export function startAgent(d: AgentDeps): void {
         }))
       case "agentSeen":
         return respond(seen(message.visible === true, message.words).then(() => ({ ok: true })))
+      // The task's page, visible, says it's there every 20 s: a run with no step for 45 s is picked up again (TheFork:
+      // a press opened a page and the run never heard back — Safari had paused the background mid-step).
+      case "agentPing":
+        return respond(tab === undefined ? Promise.resolve({ ok: false }) : resume(tab, PING_IDLE_MS).then(() => ({ ok: true })))
       case "agentFocus":
         return respond(focusTask(String(message.id ?? "").replace(/^run_/, ""), tab))
       case "agentNoticeGet":
@@ -768,7 +787,13 @@ export function startAgent(d: AgentDeps): void {
       case "agentDeferred":
         return respond(syncDeferred().then(deferredAll).then((tasks) => ({ tasks })))
       case "agentAccessOpen":
-        return respond(TARGET === "safari" ? callNative("agent_access_open", { kind: message.kind === "calendar" ? "calendar" : "reminders" }, 5000).then((r) => r ?? { opened: false }) : Promise.resolve({ opened: false }))
+        return respond(TARGET === "safari" ? callNative("agent_access_open", { kind: message.kind === "calendar" ? "calendar" : "reminders", ...(message.settings ? { settings: true } : {}) }, 5000).then((r) => r ?? { opened: false }) : Promise.resolve({ opened: false }))
+      // Settings' «Календарь и Напоминания»: whether the app may read them now (asked each time the panel shows it).
+      case "agentAccess": {
+        // Read fresh, and the agent's next look reads it too (the person may have just allowed it in the app).
+        deviceCache = null
+        return respond(cachedDevice().catch(() => ({ reminders: "unavailable", calendar: "unavailable" })))
+      }
       case "agentDeferCancel":
         return respond(removeDeferred(message.id).then(() => ({ ok: true })))
       case "formData":

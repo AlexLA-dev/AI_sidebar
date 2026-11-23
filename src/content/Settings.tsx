@@ -13,6 +13,7 @@ import { sendBackground } from "./insert/store"
 import { hintsOn, setHintsOn } from "./pagehints/store"
 import { resolveSide } from "./side/snap"
 import { InviteGroup } from "./invite/Invite"
+import { AccessGroup } from "./agent/AppleAccess"
 import { MyDetailsGroup } from "./agent/MyDetails"
 import { CookieGroup } from "./cookies/CookieSettings"
 import { SpentCount, usageText } from "./quiet/Spent"
@@ -213,6 +214,8 @@ export function SettingsView(props: Props): VNode {
       <InsertSettingsGroup site={site} touch={props.platform === "ios" || props.platform === "ipados"} onOpenTemplates={props.onOpenTemplates} />
       {/* 2.7.1: «Мои данные» for the agent's forms (Pro and Ultra have the agent; the details are kept anyway). */}
       <MyDetailsGroup />
+      {/* 2.7.1: Calendar and Reminders, seen and allowed here (the app asks the system). */}
+      <AccessGroup />
 
       <section class="cf-group">
         <span class="cf-label">{t("setAbout")}</span>
