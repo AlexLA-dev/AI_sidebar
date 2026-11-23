@@ -249,6 +249,15 @@ test("a listing card with a price «from …» is a link to the place, not payin
   assert.deepEqual(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "link", label: "Donate £10" }])), { cls: "self", reason: "pay" })
 })
 
+test("a summary bar with the total and the count chosen goes on; a pay or order word, or a checkout page, still pays (fresha, 124)", () => {
+  const ctx = (items: PageMap["items"], pay = false) => ({ map: { ...SALON, items, pay }, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } })
+  assert.notEqual(classify({ tool: "click", id: "1" }, ctx([{ id: "1", role: "button", label: "€18 1 item • 30min - 45min" }])).reason, "pay")
+  assert.notEqual(classify({ tool: "click", id: "1" }, ctx([{ id: "1", role: "button", label: "2 услуги · 36 €" }])).reason, "pay")
+  assert.deepEqual(classify({ tool: "click", id: "2" }, ctx([{ id: "2", role: "button", label: "Pay €18 · 1 item" }])), { cls: "self", reason: "pay" })
+  assert.deepEqual(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "button", label: "€18 1 item" }], true)), { cls: "self", reason: "pay" })
+  assert.deepEqual(classify({ tool: "click", id: "4" }, ctx([{ id: "4", role: "button", label: "€18 for 30min" }])), { cls: "self", reason: "pay" })
+})
+
 test("a wordless button over the page (a banner's ×) closes it freely; elsewhere it still asks", () => {
   const ctx = (items: PageMap["items"]) => ({ map: { ...SALON, items, forms: [{ n: 0, fillable: true }] }, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } })
   assert.deepEqual(classify({ tool: "click", id: "1" }, ctx([{ id: "1", role: "button", label: "", where: "dialog" }])), { cls: "free", reason: "close" })

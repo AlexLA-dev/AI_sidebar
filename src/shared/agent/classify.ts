@@ -115,6 +115,15 @@ function listingCard(item: MapItem): boolean {
   return item.role === "link" && (item.label.length > 40 || PRICE_FROM.test(item.label))
 }
 
+// A count of what's chosen next to its total: «1 item», «2 services», «1 услуга», «3 Artikel».
+const ITEM_COUNT = /(^|[^\p{L}\d])\d{1,2}\s*(items?|services?|treatments?|products?|услуг\p{L}*|товар\p{L}*|позици\p{L}*|artikel|leistung\p{L}*|articles?|prestations?|artículos?|servicios?|articoli|servizi|itens|serviços|ürün|hizmet)(?![\p{L}])/iu
+
+/** A booking or shop's summary bar: the total and how many things are chosen («€18 1 item • 30min - 45min», fresha,
+ *  124) with no word that pays or orders — it shows the choice and goes on, the checkout comes after it. */
+function cartSummary(item: MapItem, kind: string | undefined): boolean {
+  return item.role === "button" && ITEM_COUNT.test(item.label) && (kind === undefined || kind === "nav" || kind === "weak")
+}
+
 /** The class of a click on `item` (a button, a link, a checkbox…) by its words and where it is. A press that commits
  *  (a booking, a form sent) on a page that holds money (a deposit, a no-show fee) pays: the person's. */
 function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
@@ -139,7 +148,7 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   // isn't a link elsewhere on the page, a tab, an option or a refusal is the person's own.
   // (A listing's card is a link with its price on it — «Groom Room … Men's haircut from £35», Treatwell: that's going to
   // the salon, not paying. A button with an amount, or a short link that names one, still pays.)
-  if (amounts(item.label).length && !listingCard(item)) return verdict("self", "pay")
+  if (amounts(item.label).length && !listingCard(item) && !cartSummary(item, hit?.kind)) return verdict("self", "pay")
   const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || hit?.kind === "nav" || hit?.kind === "reject"
   if (map.pay && !quiet && !(item.role === "link" && !form)) return verdict("self", "pay")
   if (form?.secret && (hit?.kind === "submit" || hit?.kind === "weak" || hit?.kind === "send")) return verdict("self", "auth")
