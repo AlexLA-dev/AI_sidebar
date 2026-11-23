@@ -18,6 +18,13 @@ const READS = /^(formData|agentGet|agentAccess|agentNoticeGet|agentDeferred|agen
 
 type Try = { kind: "answer"; value: unknown } | { kind: "undelivered" } | { kind: "silent" }
 
+// The extension's messaging, read where it is (also from the tests, which have no extension types).
+interface Runtime {
+  lastError?: { message?: string }
+  sendMessage(message: unknown, callback: (response: unknown) => void): void
+}
+const runtime = (): Runtime | undefined => (globalThis as unknown as { chrome?: { runtime?: Runtime } }).chrome?.runtime
+
 function once(message: unknown, timeoutMs: number): Promise<Try> {
   return new Promise((resolve) => {
     let done = false
@@ -29,8 +36,10 @@ function once(message: unknown, timeoutMs: number): Promise<Try> {
     }
     const timer = setTimeout(() => finish({ kind: "silent" }), timeoutMs)
     try {
-      chrome.runtime.sendMessage(message, (response: unknown) => {
-        const err = chrome.runtime.lastError
+      const rt = runtime()
+      if (!rt) return finish({ kind: "undelivered" })
+      rt.sendMessage(message, (response: unknown) => {
+        const err = rt.lastError
         // «Could not establish connection», «receiving end does not exist»: it never arrived.
         if (err) finish({ kind: "undelivered" })
         else finish({ kind: "answer", value: response ?? null })
