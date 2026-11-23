@@ -3608,6 +3608,45 @@
  "agentRuleRating": {
   "message": "Рейтинг места от"
  },
+ "accessGroup": {
+  "message": "Календарь и Напоминания"
+ },
+ "accessHint": {
+  "message": "Агент выбирает время, свободное в календаре, и может добавлять брони. Содержимое календаря не покидает устройство."
+ },
+ "accessCalendar": {
+  "message": "Календарь"
+ },
+ "accessReminders": {
+  "message": "Напоминания"
+ },
+ "accessYes": {
+  "message": "Доступ есть"
+ },
+ "accessNo": {
+  "message": "Нет доступа"
+ },
+ "accessAllow": {
+  "message": "Разрешить"
+ },
+ "accessSettingsIos": {
+  "message": "Открыть настройки iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Открыть Системные настройки"
+ },
+ "agentRuleCalNeeds": {
+  "message": "нужен доступ к календарю"
+ },
+ "agentPlanCalAsk": {
+  "message": "Учитывать календарь?"
+ },
+ "agentCalNotChecked": {
+  "message": "календарь не проверял: нет доступа"
+ },
+ "agentPlanFromChat": {
+  "message": "Из чата: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

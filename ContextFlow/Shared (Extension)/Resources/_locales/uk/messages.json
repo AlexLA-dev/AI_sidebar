@@ -3608,6 +3608,45 @@
  "agentRuleRating": {
   "message": "Рейтинг місця від"
  },
+ "accessGroup": {
+  "message": "Календар і Нагадування"
+ },
+ "accessHint": {
+  "message": "Агент вибирає час, вільний у календарі, і може додавати бронювання. Вміст календаря не залишає пристрій."
+ },
+ "accessCalendar": {
+  "message": "Календар"
+ },
+ "accessReminders": {
+  "message": "Нагадування"
+ },
+ "accessYes": {
+  "message": "Доступ є"
+ },
+ "accessNo": {
+  "message": "Немає доступу"
+ },
+ "accessAllow": {
+  "message": "Дозволити"
+ },
+ "accessSettingsIos": {
+  "message": "Відкрити Параметри iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Відкрити Системні параметри"
+ },
+ "agentRuleCalNeeds": {
+  "message": "потрібен доступ до календаря"
+ },
+ "agentPlanCalAsk": {
+  "message": "Враховувати календар?"
+ },
+ "agentCalNotChecked": {
+  "message": "календар не перевіряв: немає доступу"
+ },
+ "agentPlanFromChat": {
+  "message": "З чату: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

@@ -3608,6 +3608,45 @@
  "agentRuleRating": {
   "message": "Bewertung des Orts ab"
  },
+ "accessGroup": {
+  "message": "Kalender und Erinnerungen"
+ },
+ "accessHint": {
+  "message": "Der Agent wählt Zeiten, die in deinem Kalender frei sind, und kann Buchungen eintragen. Was in deinem Kalender steht, verlässt das Gerät nicht."
+ },
+ "accessCalendar": {
+  "message": "Kalender"
+ },
+ "accessReminders": {
+  "message": "Erinnerungen"
+ },
+ "accessYes": {
+  "message": "Zugriff erlaubt"
+ },
+ "accessNo": {
+  "message": "Kein Zugriff"
+ },
+ "accessAllow": {
+  "message": "Erlauben"
+ },
+ "accessSettingsIos": {
+  "message": "iOS-Einstellungen öffnen"
+ },
+ "accessSettingsMac": {
+  "message": "Systemeinstellungen öffnen"
+ },
+ "agentRuleCalNeeds": {
+  "message": "braucht Zugriff auf den Kalender"
+ },
+ "agentPlanCalAsk": {
+  "message": "Kalender berücksichtigen?"
+ },
+ "agentCalNotChecked": {
+  "message": "Kalender nicht geprüft: kein Zugriff"
+ },
+ "agentPlanFromChat": {
+  "message": "Aus dem Chat: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
