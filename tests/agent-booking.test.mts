@@ -302,7 +302,7 @@ test("a question's times come from the page: a time only the Calendar has isn't 
   const { timesIn, pageChoices } = await import("../src/shared/agent/rules.ts")
   assert.deepEqual(timesIn("5:45 PM, 17.30 or 9am"), ["17:45", "17:30", "09:00"])
   assert.deepEqual(pageChoices(["Вт 24 ноя, 14:30", "Пн 23 ноя, 20:00", "Другой день"], new Set(["14:30", "14:45"])), ["Вт 24 ноя, 14:30", "Другой день"])
-  const x = io([{ ok: true, plan: RAW, token: "t" }, step({ tool: "ask_user", question: "Which?", choices: ["17:45", "20:00", "Another day"] }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  const x = io([{ ok: true, plan: { ...RAW, booking: { ...BOOKING, venue: "Cutter" } }, token: "t" }, step({ tool: "ask_user", question: "Which?", choices: ["17:45", "20:00", "Another day"] }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
   const s = await drive(newState("q", "haircut", "en", SALON.url), x)
   assert.deepEqual(s.choices, ["17:45", "Another day"], "20:00 isn't on the page")
 })
@@ -330,4 +330,17 @@ test("the plan follows the request's language; the venue is the agent's to choos
   const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
   assert.match(act, /never ask which one/)
   assert.match(act, /never offer or choose a time from <calendar> alone/)
+})
+
+test("a place the agent chose: its first two questions go back to try the next place; a named place asks at once", async () => {
+  const ask = step({ tool: "ask_user", question: "No evening slots here. What now?", choices: [] }, "free", "read")
+  const x = io([{ ok: true, plan: RAW, token: "t" }, ask, ask, ask], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  const s = await drive(newState("v", "find a barbershop", "en", SALON.url), x)
+  assert.equal(s.status, "asked")
+  assert.equal(s.log.filter((e) => /refused: the request names no place/.test(e.result)).length, 2)
+  const named = { ...RAW, booking: { ...BOOKING, venue: "Cutter Barbershop" } }
+  const y = io([{ ok: true, plan: named, token: "t" }, ask], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  const s2 = await drive(newState("w", "book at Cutter", "en", SALON.url), y)
+  assert.equal(s2.status, "asked")
+  assert.equal(s2.log.filter((e) => /refused: the request names no place/.test(e.result)).length, 0)
 })

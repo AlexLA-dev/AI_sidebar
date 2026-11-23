@@ -98,6 +98,9 @@ export interface AgentState {
   playbook?: string
   slot?: { date: string; time: string }
   slotRefusals?: number
+  // The rules let the agent choose the place; how many times a question was sent back to try the next one.
+  chooseVenue?: boolean
+  venueNudges?: number
   booked?: { date: string; time: string; place?: string }
 }
 
@@ -286,6 +289,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   const book = site ? await io.playbook?.get(site).catch(() => null) : null
   if (book?.length) state.playbook = playbookLine(book)
   state.rules = rulesLine(rules, calendarOn)
+  state.chooseVenue = rules.chooseVenue
   const reply = await io.ask({
     task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}), rules: state.rules, ...(state.playbook ? { playbook: state.playbook } : {}) },
     map: sent(map), log: [], keys
@@ -490,6 +494,13 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.status = "error"
       state.error = "bad_call"
       break
+    }
+    // A booking whose place the agent chose (the request named none): before a question, the next place or two by the
+    // rules (fresha, 120: it asked about the first barbershop's slots instead of trying the next).
+    if (call.tool === "ask_user" && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2) {
+      state.venueNudges = (state.venueNudges ?? 0) + 1
+      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: "refused: the request names no place, so it's yours to choose: go back to the list (back) and try the next place by the rules that has slots fitting the rules and <calendar>; ask only after two more places didn't fit, with their real slots" })
+      continue
     }
     if (call.tool === "ask_user") {
       // The person answers (a button or their own words) and the task goes on (TestFlight 118: «На завтра мест нет…

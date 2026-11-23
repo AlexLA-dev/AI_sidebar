@@ -104,6 +104,8 @@ export interface PlanBooking {
   minutes: number
   // The place's time zone (IANA), when it isn't the person's: slots are in it, the Calendar in the device's.
   tz?: string
+  // The place the request names; none: the agent chooses it by the rules (and tries the next before asking).
+  venue?: string
 }
 
 export const PLAN_SCHEMA = {
@@ -143,9 +145,10 @@ export const PLAN_SCHEMA = {
         from: { type: "string" },
         until: { type: "string" },
         minutes: { type: "number" },
-        tz: { type: "string" }
+        tz: { type: "string" },
+        venue: { type: "string" }
       },
-      required: ["kind", "date", "from", "until", "minutes", "tz"],
+      required: ["kind", "date", "from", "until", "minutes", "tz", "venue"],
       additionalProperties: false
     }
   },
@@ -184,7 +187,8 @@ function bookingOf(v: unknown): PlanBooking | null {
   if (!kind || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null
   const minutes = typeof b.minutes === "number" && Number.isFinite(b.minutes) ? Math.min(600, Math.max(15, Math.round(b.minutes))) : 60
   const tz = s(b.tz, 60)
-  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}) }
+  const venue = s(b.venue, 120)
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}) }
 }
 
 /**
