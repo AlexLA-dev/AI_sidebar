@@ -246,6 +246,8 @@ function byWords(text: string): StepVerdict | null {
   return null
 }
 
+const REMIND_WORDS = /remind|reminder|calendar|напомн|напоминан|календар|нагад|календар|erinner|kalender|rappel|calendrier|recorda|calendario|ricord|lembr|calendário|hatırlat|takvim|リマインド|カレンダー|알림|캘린더|提醒|日历|日曆|تذكير|تقويم|nhắc|lịch/i
+
 /**
  * The plan card's permissions and «you'll do it» lines, from what the model foresaw, each classed by code on the map
  * (the device's own, on the device). Personal fields typed from the request: one permission; saved details: one.
@@ -268,6 +270,9 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
   }
   for (const r of raw.risky) {
     if (APPLE.has(r.tool)) {
+      // A booking's reminder or event the request didn't ask for isn't planned (121 sweep: «Add to Reminders» ticked
+      // under a haircut nobody asked to be reminded of); the booking's Calendar event is the device's own permission.
+      if (raw.booking && !REMIND_WORDS.test(ctx.request)) continue
       if (r.text) add({ kind: "apple", reason: r.tool, label: r.text })
       continue
     }

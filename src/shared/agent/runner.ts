@@ -370,6 +370,8 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   return "go"
 }
 
+const SEARCH_BOX = /search|find|treatment|salon|cuisine|restaurant|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|検索|검색|搜索|搜尋|بحث|tìm/i
+
 /** Whether the page asks for the person's details: an empty field of theirs (name, e-mail, phone) on screen. */
 export function detailsForm(map: PageMap): boolean {
   return map.items.some((i) => i.lock === "personal" && !i.value && i.where !== "above" && i.where !== "below" && (i.role === "textbox" || i.role === "combobox"))
@@ -580,7 +582,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && !state.venues) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
-      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: "refused: the request names no place, so it's yours to choose: go back to the list (back) and try the next place by the rules that has slots fitting the rules and <calendar>; ask only after two more places didn't fit, with their real slots" })
+      // No list was ever seen (a home page, an error page with a search box, one featured place): the site's own search
+      // finds the places, never «back» to a list that isn't there (Treatwell, 121 sweep: it went back to nothing and
+      // then said it had checked several places).
+      const box = map.items.find((i) => (i.role === "textbox" || i.role === "combobox") && !i.lock && (i.type === "search" || SEARCH_BOX.test(i.label)))
+      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: box ? `refused: the request names no place, so it's yours to find: type what the request asks (the service or cuisine, and the area) into the site's search box #${box.id} "${box.label.slice(0, 60)}", search, then choose from the list by the rules` : "refused: the request names no place, so it's yours to find: open the site's own search or the category that fits (its search box, «Barbers», «Restaurants»), then choose from the list by the rules; ask only after two places didn't fit, with their real slots" })
       continue
     }
     if (call.tool === "ask_user") {
