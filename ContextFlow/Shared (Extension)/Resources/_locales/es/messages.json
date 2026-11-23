@@ -3585,7 +3585,7 @@
   "message": "Personas si no lo digo"
  },
  "agentRuleAnySpecialist": {
-  "message": "Cualquier profesional"
+  "message": "Cualquier profesional (peluquero, médico, entrenador…)"
  },
  "agentRuleUsual": {
   "message": "El servicio que elegí ahí la última vez"
@@ -3636,13 +3636,13 @@
   "message": "Abrir Ajustes del Sistema"
  },
  "agentRuleCalNeeds": {
-  "message": "necesita acceso al calendario"
+  "message": "Necesita acceso al calendario"
  },
  "agentPlanCalAsk": {
   "message": "¿Tener en cuenta el calendario?"
  },
  "agentCalNotChecked": {
-  "message": "no revisé el calendario: sin acceso"
+  "message": "No revisé el calendario: sin acceso"
  },
  "agentPlanFromChat": {
   "message": "Del chat: {0}"
@@ -3679,6 +3679,27 @@
  },
  "setSecAbout": {
   "message": "Acerca de"
+ },
+ "fdICloudLocal": {
+  "message": "Por ahora solo en este dispositivo"
+ },
+ "fdICloudSyncing": {
+  "message": "Sincronizando…"
+ },
+ "fdICloudSynced": {
+  "message": "Sincronizado · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "ahora mismo"
+ },
+ "fdICloudNoAccount": {
+  "message": "Sin sincronizar: inicia sesión en iCloud en este dispositivo"
+ },
+ "fdICloudFailed": {
+  "message": "Sin sincronizar: iCloud no respondió. Se intentará de nuevo la próxima vez."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Peluquero, estilista, médico, entrenador o guía: quien esté libre. Desactivado: te pregunto con quién."
  },
  "tip_4cf1b54b00": {
   "message": "Consejos"

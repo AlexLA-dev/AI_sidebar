@@ -3585,7 +3585,7 @@
   "message": "没说人数时"
  },
  "agentRuleAnySpecialist": {
-  "message": "任意服务人员"
+  "message": "任意服务人员（理发师、医生、教练等）"
  },
  "agentRuleUsual": {
   "message": "上次在该网站选的服务"
@@ -3679,6 +3679,27 @@
  },
  "setSecAbout": {
   "message": "关于"
+ },
+ "fdICloudLocal": {
+  "message": "目前仅在此设备上"
+ },
+ "fdICloudSyncing": {
+  "message": "正在同步…"
+ },
+ "fdICloudSynced": {
+  "message": "已同步 · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "刚刚"
+ },
+ "fdICloudNoAccount": {
+  "message": "未同步：请在此设备上登录 iCloud"
+ },
+ "fdICloudFailed": {
+  "message": "未同步：iCloud 没有响应。下次会再试。"
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "理发师、造型师、医生、教练或导游，谁有空都行。关闭后，我会先问你选谁。"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"

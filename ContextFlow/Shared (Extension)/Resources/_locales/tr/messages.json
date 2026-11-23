@@ -3585,7 +3585,7 @@
   "message": "Söylemezsem kişi sayısı"
  },
  "agentRuleAnySpecialist": {
-  "message": "Herhangi bir uzman"
+  "message": "Herhangi bir uzman (kuaför, doktor, antrenör…)"
  },
  "agentRuleUsual": {
   "message": "O sitede geçen sefer seçtiğim hizmet"
@@ -3636,13 +3636,13 @@
   "message": "Sistem Ayarları'nı aç"
  },
  "agentRuleCalNeeds": {
-  "message": "takvim erişimi gerekiyor"
+  "message": "Takvim erişimi gerekiyor"
  },
  "agentPlanCalAsk": {
   "message": "Takvim dikkate alınsın mı?"
  },
  "agentCalNotChecked": {
-  "message": "takvim kontrol edilmedi: erişim yok"
+  "message": "Takvim kontrol edilmedi: erişim yok"
  },
  "agentPlanFromChat": {
   "message": "Sohbetten: {0}"
@@ -3679,6 +3679,27 @@
  },
  "setSecAbout": {
   "message": "Hakkında"
+ },
+ "fdICloudLocal": {
+  "message": "Şimdilik yalnızca bu cihazda"
+ },
+ "fdICloudSyncing": {
+  "message": "Eşzamanlanıyor…"
+ },
+ "fdICloudSynced": {
+  "message": "Eşzamanlandı · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "az önce"
+ },
+ "fdICloudNoAccount": {
+  "message": "Eşzamanlanmadı: bu cihazda iCloud’a giriş yapın"
+ },
+ "fdICloudFailed": {
+  "message": "Eşzamanlanmadı: iCloud yanıt vermedi. Bir dahaki sefere yeniden denenecek."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Berber, kuaför, doktor, antrenör ya da rehber: kim müsaitse. Kapalıyken kiminle olacağını sorarım."
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"

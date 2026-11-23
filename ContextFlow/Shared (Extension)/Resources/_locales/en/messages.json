@@ -3585,7 +3585,7 @@
   "message": "Guests when I don't say"
  },
  "agentRuleAnySpecialist": {
-  "message": "Any specialist"
+  "message": "Any specialist (stylist, doctor, trainer…)"
  },
  "agentRuleUsual": {
   "message": "The service I chose there last time"
@@ -3636,13 +3636,13 @@
   "message": "Open System Settings"
  },
  "agentRuleCalNeeds": {
-  "message": "needs Calendar access"
+  "message": "Needs Calendar access"
  },
  "agentPlanCalAsk": {
   "message": "Check your calendar?"
  },
  "agentCalNotChecked": {
-  "message": "didn't check your calendar: no access"
+  "message": "Didn't check your calendar: no access"
  },
  "agentPlanFromChat": {
   "message": "From the chat: {0}"
@@ -3679,6 +3679,27 @@
  },
  "setSecAbout": {
   "message": "About"
+ },
+ "fdICloudLocal": {
+  "message": "Only on this device for now"
+ },
+ "fdICloudSyncing": {
+  "message": "Syncing…"
+ },
+ "fdICloudSynced": {
+  "message": "Synced · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "just now"
+ },
+ "fdICloudNoAccount": {
+  "message": "Not synced: sign in to iCloud on this device"
+ },
+ "fdICloudFailed": {
+  "message": "Not synced: iCloud didn't answer. It tries again next time."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "A barber, stylist, doctor, trainer or guide: whoever is free. Off: I ask whom you want."
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

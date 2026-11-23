@@ -3585,7 +3585,7 @@
   "message": "عدد الأشخاص إن لم أذكره"
  },
  "agentRuleAnySpecialist": {
-  "message": "أي مختص"
+  "message": "أي مختص (حلاق، طبيب، مدرب…)"
  },
  "agentRuleUsual": {
   "message": "الخدمة التي اخترتها هناك في المرة السابقة"
@@ -3679,6 +3679,27 @@
  },
  "setSecAbout": {
   "message": "حول التطبيق"
+ },
+ "fdICloudLocal": {
+  "message": "على هذا الجهاز فقط حاليًا"
+ },
+ "fdICloudSyncing": {
+  "message": "جارٍ المزامنة…"
+ },
+ "fdICloudSynced": {
+  "message": "تمت المزامنة · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "الآن"
+ },
+ "fdICloudNoAccount": {
+  "message": "لم تتم المزامنة: سجّل الدخول إلى iCloud على هذا الجهاز"
+ },
+ "fdICloudFailed": {
+  "message": "لم تتم المزامنة: لم يستجب iCloud. ستتم المحاولة مرة أخرى في المرة القادمة."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "حلاق أو مصفف أو طبيب أو مدرب أو مرشد: أيّهم متاح. عند الإيقاف أسألك مع من."
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

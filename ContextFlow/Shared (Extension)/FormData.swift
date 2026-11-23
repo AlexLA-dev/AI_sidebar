@@ -43,6 +43,28 @@ enum FormDataStore {
     static let tokenKey = "cf_fd_sync_token"
     static let cloudKey = "cf_fd_cloud"
     static let syncKey = "cf_fd_icloud"
+    /// 2.7.1 (the owner on 121): what the last sync did, shown under the switch («Синхронизировано · только что», or
+    /// why not). Outside the entries' prefix.
+    static let syncedAtKey = "cf_fdsync_at"
+    static let syncErrorKey = "cf_fdsync_error"
+
+    /// When the last sync went through (ms since 1970), and the kind of the last failure since ("no_account", "failed").
+    static var syncedAt: Double? { defaults.object(forKey: syncedAtKey) as? Double }
+    static var syncError: String? { defaults.string(forKey: syncErrorKey) }
+
+    static func noteSync(_ error: Error?) {
+        if let error {
+            defaults.set((error as? ChatSync.Failure) == .noAccount ? "no_account" : "failed", forKey: syncErrorKey)
+        } else {
+            defaults.set(Date().timeIntervalSince1970 * 1000, forKey: syncedAtKey)
+            defaults.removeObject(forKey: syncErrorKey)
+        }
+    }
+
+    static func forgetSync() {
+        defaults.removeObject(forKey: syncedAtKey)
+        defaults.removeObject(forKey: syncErrorKey)
+    }
 
     static var defaults: UserDefaults { UserDefaults(suiteName: SharedDefaults.suiteName) ?? .standard }
 
@@ -134,8 +156,23 @@ enum FormDataSync {
         }
     }
 
+    /// `sync()`, its result kept for the switch's line (FormDataStore.noteSync). Only when the person turned it on.
+    @discardableResult
+    static func syncNoted() async -> Bool {
+        guard FormDataStore.syncChoice == true else { return false }
+        do {
+            let changed = try await sync()
+            FormDataStore.noteSync(nil)
+            return changed
+        } catch {
+            FormDataStore.noteSync(error)
+            return false
+        }
+    }
+
     /// The iCloud copy removed (sync turned off): the zone goes; this device keeps its entries.
     static func removeCloud() async {
+        FormDataStore.forgetSync()
         UserDefaults.standard.set(false, forKey: zoneReadyKey)
         FormDataStore.defaults.removeObject(forKey: FormDataStore.tokenKey)
         FormDataStore.defaults.removeObject(forKey: FormDataStore.cloudKey)

@@ -3585,7 +3585,7 @@
   "message": "Гостей, якщо не сказав"
  },
  "agentRuleAnySpecialist": {
-  "message": "Будь-який майстер"
+  "message": "Будь-який фахівець (майстер, лікар, тренер…)"
  },
  "agentRuleUsual": {
   "message": "Послуга — як минулого разу на цьому сайті"
@@ -3636,13 +3636,13 @@
   "message": "Відкрити Системні параметри"
  },
  "agentRuleCalNeeds": {
-  "message": "потрібен доступ до календаря"
+  "message": "Потрібен доступ до календаря"
  },
  "agentPlanCalAsk": {
   "message": "Враховувати календар?"
  },
  "agentCalNotChecked": {
-  "message": "календар не перевіряв: немає доступу"
+  "message": "Календар не перевіряв: немає доступу"
  },
  "agentPlanFromChat": {
   "message": "З чату: {0}"
@@ -3679,6 +3679,27 @@
  },
  "setSecAbout": {
   "message": "Про застосунок"
+ },
+ "fdICloudLocal": {
+  "message": "Поки що лише на цьому пристрої"
+ },
+ "fdICloudSyncing": {
+  "message": "Синхронізую…"
+ },
+ "fdICloudSynced": {
+  "message": "Синхронізовано · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "щойно"
+ },
+ "fdICloudNoAccount": {
+  "message": "Не синхронізовано: увійдіть в iCloud на цьому пристрої"
+ },
+ "fdICloudFailed": {
+  "message": "Не синхронізовано: iCloud не відповів. Наступного разу спробую знову."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Перукар, стиліст, лікар, тренер, гід — хто вільний. Вимкнено — спитаю, до кого."
  },
  "tip_4cf1b54b00": {
   "message": "Поради"

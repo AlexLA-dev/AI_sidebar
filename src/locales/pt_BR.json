@@ -1225,7 +1225,7 @@
   "agentRuleWindow": "Um horário que eu disser pode mudar até, min",
   "agentRuleDays": "Se o dia estiver cheio: até … dias depois",
   "agentRuleParty": "Pessoas se eu não disser",
-  "agentRuleAnySpecialist": "Qualquer profissional",
+  "agentRuleAnySpecialist": "Qualquer profissional (cabeleireiro, médico, treinador…)",
   "agentRuleUsual": "O serviço que escolhi lá da última vez",
   "agentRuleCalendar": "Só horários livres no meu Calendário",
   "agentRuleAuto": "Reservar sem plano quando tudo é conhecido e nada é pago",
@@ -1242,9 +1242,9 @@
   "accessAllow": "Permitir",
   "accessSettingsIos": "Abrir Ajustes do iOS",
   "accessSettingsMac": "Abrir Ajustes do Sistema",
-  "agentRuleCalNeeds": "precisa de acesso ao calendário",
+  "agentRuleCalNeeds": "Precisa de acesso ao calendário",
   "agentPlanCalAsk": "Considerar o calendário?",
-  "agentCalNotChecked": "não verifiquei o calendário: sem acesso",
+  "agentCalNotChecked": "Não verifiquei o calendário: sem acesso",
   "agentPlanFromChat": "Do chat: {0}",
 
   "sendMenuNote": "Nota",
@@ -1257,5 +1257,12 @@
   "setSecChats": "Conversas e espaços",
   "setSecData": "Privacidade e dados",
   "setSecPlan": "Plano e conta",
-  "setSecAbout": "Sobre"
+  "setSecAbout": "Sobre",
+  "fdICloudLocal": "Por enquanto, só neste dispositivo",
+  "fdICloudSyncing": "Sincronizando…",
+  "fdICloudSynced": "Sincronizado · {0}",
+  "fdICloudJustNow": "agora mesmo",
+  "fdICloudNoAccount": "Não sincronizado: entre no iCloud neste dispositivo",
+  "fdICloudFailed": "Não sincronizado: o iCloud não respondeu. Tenta de novo na próxima vez.",
+  "agentRuleAnySpecialistHint": "Barbeiro, cabeleireiro, médico, treinador ou guia: quem estiver livre. Desligado: pergunto com quem."
 }

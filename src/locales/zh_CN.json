@@ -1225,7 +1225,7 @@
   "agentRuleWindow": "说定的时间可前后调整（分钟）",
   "agentRuleDays": "那天约满时：最多推迟几天",
   "agentRuleParty": "没说人数时",
-  "agentRuleAnySpecialist": "任意服务人员",
+  "agentRuleAnySpecialist": "任意服务人员（理发师、医生、教练等）",
   "agentRuleUsual": "上次在该网站选的服务",
   "agentRuleCalendar": "只选日历中空闲的时间",
   "agentRuleAuto": "信息齐全且无需付款时，不显示计划直接预订",
@@ -1257,5 +1257,12 @@
   "setSecChats": "对话与空间",
   "setSecData": "隐私与数据",
   "setSecPlan": "套餐与账户",
-  "setSecAbout": "关于"
+  "setSecAbout": "关于",
+  "fdICloudLocal": "目前仅在此设备上",
+  "fdICloudSyncing": "正在同步…",
+  "fdICloudSynced": "已同步 · {0}",
+  "fdICloudJustNow": "刚刚",
+  "fdICloudNoAccount": "未同步：请在此设备上登录 iCloud",
+  "fdICloudFailed": "未同步：iCloud 没有响应。下次会再试。",
+  "agentRuleAnySpecialistHint": "理发师、造型师、医生、教练或导游，谁有空都行。关闭后，我会先问你选谁。"
 }

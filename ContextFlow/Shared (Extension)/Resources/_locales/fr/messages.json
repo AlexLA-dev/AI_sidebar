@@ -3585,7 +3585,7 @@
   "message": "Personnes si je ne précise pas"
  },
  "agentRuleAnySpecialist": {
-  "message": "N’importe quel professionnel"
+  "message": "N’importe quel professionnel (coiffeur, médecin, coach…)"
  },
  "agentRuleUsual": {
   "message": "Le service choisi la dernière fois sur ce site"
@@ -3636,13 +3636,13 @@
   "message": "Ouvrir les Réglages Système"
  },
  "agentRuleCalNeeds": {
-  "message": "accès au calendrier nécessaire"
+  "message": "Accès au calendrier nécessaire"
  },
  "agentPlanCalAsk": {
   "message": "Tenir compte du calendrier ?"
  },
  "agentCalNotChecked": {
-  "message": "calendrier non vérifié : pas d'accès"
+  "message": "Calendrier non vérifié : pas d'accès"
  },
  "agentPlanFromChat": {
   "message": "Depuis le chat : {0}"
@@ -3679,6 +3679,27 @@
  },
  "setSecAbout": {
   "message": "À propos"
+ },
+ "fdICloudLocal": {
+  "message": "Pour l’instant, uniquement sur cet appareil"
+ },
+ "fdICloudSyncing": {
+  "message": "Synchronisation…"
+ },
+ "fdICloudSynced": {
+  "message": "Synchronisé · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "à l’instant"
+ },
+ "fdICloudNoAccount": {
+  "message": "Non synchronisé : connectez-vous à iCloud sur cet appareil"
+ },
+ "fdICloudFailed": {
+  "message": "Non synchronisé : iCloud n’a pas répondu. Nouvel essai la prochaine fois."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Coiffeur, styliste, médecin, coach ou guide : celui qui est libre. Désactivé : je vous demande avec qui."
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

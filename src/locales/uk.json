@@ -1225,7 +1225,7 @@
   "agentRuleWindow": "Названий час можна зсунути, хв",
   "agentRuleDays": "Якщо день зайнятий — пізніше, до … днів",
   "agentRuleParty": "Гостей, якщо не сказав",
-  "agentRuleAnySpecialist": "Будь-який майстер",
+  "agentRuleAnySpecialist": "Будь-який фахівець (майстер, лікар, тренер…)",
   "agentRuleUsual": "Послуга — як минулого разу на цьому сайті",
   "agentRuleCalendar": "Лише час, вільний у Календарі",
   "agentRuleAuto": "Бронювати без плану, якщо все відомо й нічого не платно",
@@ -1242,9 +1242,9 @@
   "accessAllow": "Дозволити",
   "accessSettingsIos": "Відкрити Параметри iOS",
   "accessSettingsMac": "Відкрити Системні параметри",
-  "agentRuleCalNeeds": "потрібен доступ до календаря",
+  "agentRuleCalNeeds": "Потрібен доступ до календаря",
   "agentPlanCalAsk": "Враховувати календар?",
-  "agentCalNotChecked": "календар не перевіряв: немає доступу",
+  "agentCalNotChecked": "Календар не перевіряв: немає доступу",
   "agentPlanFromChat": "З чату: {0}",
 
   "sendMenuNote": "Нотатка",
@@ -1257,5 +1257,12 @@
   "setSecChats": "Чати й простори",
   "setSecData": "Приватність і дані",
   "setSecPlan": "Підписка й акаунт",
-  "setSecAbout": "Про застосунок"
+  "setSecAbout": "Про застосунок",
+  "fdICloudLocal": "Поки що лише на цьому пристрої",
+  "fdICloudSyncing": "Синхронізую…",
+  "fdICloudSynced": "Синхронізовано · {0}",
+  "fdICloudJustNow": "щойно",
+  "fdICloudNoAccount": "Не синхронізовано: увійдіть в iCloud на цьому пристрої",
+  "fdICloudFailed": "Не синхронізовано: iCloud не відповів. Наступного разу спробую знову.",
+  "agentRuleAnySpecialistHint": "Перукар, стиліст, лікар, тренер, гід — хто вільний. Вимкнено — спитаю, до кого."
 }

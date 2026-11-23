@@ -216,3 +216,75 @@ test("the new strings are in all 15 languages", () => {
     assert.ok(messages.noteHintPointerDo.includes(messages.agentMode), `${lang} noteHintPointerDo`)
   }
 })
+
+// ---- 4. «Мои данные» (the director's notes from the owner on 121)
+
+import { FIELD_ORDER, orderedEntries, syncState } from "../src/content/agent/detailsView.ts"
+import { FORM_KEYS } from "../src/shared/agent/formdata.ts"
+
+test("My details in one order: name, phone, e-mail, the address street to country, birth date, work; facts last by name", () => {
+  const e = (key: string, label = "", updatedAt = 0) => ({ key, label, updatedAt } as { key: never; label: string; updatedAt: number })
+  // As they were added in the owner's panel: last name, e-mail, city, country; then a first name and two facts.
+  const added = [e("name.family", "", 1), e("email", "", 2), e("address.city", "", 3), e("address.country", "", 4), e("fact", "Размер обуви", 5), e("name.given", "", 6), e("fact", "Пол", 7), e("phone", "", 8), e("address.postal", "", 9), e("birthDate", "", 10)]
+  assert.deepEqual(orderedEntries(added, "ru").map((x) => x.label || x.key), ["name.given", "name.family", "phone", "email", "address.city", "address.postal", "address.country", "birthDate", "Пол", "Размер обуви"])
+  // A key this build doesn't know (a newer app's) goes last too; two of one key keep the order they were added in.
+  assert.deepEqual(orderedEntries([e("vehicle.plate", "", 1), e("email", "", 3), e("email", "", 2)]).map((x) => `${x.key}${x.updatedAt}`), ["email2", "email3", "vehicle.plate1"])
+  // Every key the store knows has its place, and the add menu uses the same order; the app's list is the same.
+  for (const key of FORM_KEYS) assert.ok(FIELD_ORDER.includes(key), key)
+  const swift = read("ContextFlow/Shared (App)/AgentApp.swift")
+  const appKeys = [...swift.match(/static let keys: \[String\] = \[([\s\S]+?)\]/)![1].matchAll(/"([^"]+)"/g)].map((m) => m[1])
+  assert.deepEqual(appKeys, FIELD_ORDER)
+  assert.match(read("src/content/agent/MyDetails.tsx"), /FIELD_ORDER\.filter\(/)
+})
+
+test("the iCloud line: only here until the person turns it on; syncing; synced just now or when; why not", () => {
+  assert.deepEqual(syncState({}, false), { line: "local" })
+  assert.deepEqual(syncState({ icloud: false, syncedAt: 5 }, false), { line: "local" })
+  assert.deepEqual(syncState({ icloud: true }, true), { line: "syncing" })
+  assert.deepEqual(syncState({ icloud: false }, true), { line: "local" })
+  assert.deepEqual(syncState({ icloud: true, syncError: "no_account" }, false), { line: "noAccount" })
+  assert.deepEqual(syncState({ icloud: true, syncError: "failed", syncedAt: 1 }, false), { line: "failed" })
+  // Said yes on 121 (no sync noted yet): the hint about the private iCloud until the next sync notes one.
+  assert.deepEqual(syncState({ icloud: true }, false), { line: "private" })
+  assert.deepEqual(syncState({ icloud: true, syncedAt: 1_000_000 }, false, 1_060_000), { line: "synced", when: "now" })
+  assert.deepEqual(syncState({ icloud: true, syncedAt: 1_000_000 }, false, 1_200_000), { line: "synced", when: 1_000_000 })
+})
+
+test("My details: the iCloud switch always there (never on by default), no one-time card; the app the same", () => {
+  const ui = read("src/content/agent/MyDetails.tsx")
+  assert.doesNotMatch(ui, /askICloud|fdICloudAsk/)
+  assert.match(ui, /<label class="cf-row toggle cf-fd-icloud">\n\s+<span class="cf-label">\{t\("fdICloud"\)\}<\/span>\n\s+<input type="checkbox" checked=\{data\.icloud === true\}/)
+  assert.match(ui, /<p class="cf-hint" role="status">\{syncLine\(data, syncing\)\}<\/p>/)
+  // The rules' switches at the end of their rows, as every other switch in Settings; the specialist's hint.
+  assert.match(ui, /<span>\{text\}<\/span>\n\s+<input type="checkbox" checked=\{rules\[key\]\}/)
+  assert.match(ui, /t\("agentRuleAnySpecialistHint"\)/)
+  // The background passes the last sync's result on; the app keeps it and says it.
+  assert.match(read("src/background/agent.ts"), /\.\.\.formDataState\(raw\), icloud: message\.on/)
+  const handler = read("ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift")
+  assert.match(handler, /if on \{ _ = await Self\.withTimeout\(seconds: 12\) \{ await FormDataSync\.syncNoted\(\) \} \}/)
+  assert.match(handler, /out\["syncedAt"\] = at/)
+  const store = read("ContextFlow/Shared (Extension)/FormData.swift")
+  assert.match(store, /static func syncNoted\(\) async -> Bool \{\n\s+guard FormDataStore\.syncChoice == true else \{ return false \}/)
+  const app = read("ContextFlow/Shared (App)/AgentApp.swift")
+  assert.doesNotMatch(app, /askICloud/)
+  assert.match(app, /Toggle\("Sync through iCloud", isOn: Binding\(get: \{ model\.icloud == true \}/)
+  const catalog = JSON.parse(read("ContextFlow/Shared (App)/Localizable.xcstrings")) as { strings: Record<string, { localizations: Record<string, unknown> }> }
+  for (const key of ["Only on this device for now", "Syncing…", "Synced · %@", "just now", "Not synced: sign in to iCloud on this device", "Not synced: iCloud didn't answer. It tries again next time."]) {
+    assert.equal(Object.keys(catalog.strings[key]?.localizations ?? {}).length, 14, key)
+  }
+})
+
+test("the rule's words: any specialist, not just a master; lines that stand alone start with a capital, in every language", () => {
+  for (const lang of ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "tr", "uk", "vi", "zh_CN", "zh_TW"]) {
+    const m = JSON.parse(read(`src/locales/${lang}.json`)) as Record<string, string>
+    for (const key of ["fdICloudLocal", "fdICloudSyncing", "fdICloudSynced", "fdICloudJustNow", "fdICloudNoAccount", "fdICloudFailed", "agentRuleAnySpecialistHint"]) assert.ok(m[key]?.trim(), `${lang} ${key}`)
+    assert.match(m.fdICloudSynced, /\{0\}/)
+    for (const key of ["agentRuleCalNeeds", "agentCalNotChecked", "fdICloudLocal", "fdICloudNoAccount", "agentRuleAnySpecialist"]) {
+      const first = m[key][0]
+      assert.ok(first === first.toUpperCase(), `${lang} ${key}: «${m[key]}»`)
+    }
+  }
+  const ru = JSON.parse(read("src/locales/ru.json")) as Record<string, string>
+  assert.equal(ru.agentRuleAnySpecialist, "Любой специалист (мастер, врач, тренер…)")
+  assert.equal(ru.agentRuleCalNeeds, "Нужен доступ к календарю")
+})

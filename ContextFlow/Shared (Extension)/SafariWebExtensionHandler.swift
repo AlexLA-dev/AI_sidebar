@@ -274,7 +274,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 FormDataStore.merge((message["changes"] as? [[String: Any]] ?? []).compactMap { FormDataEntry.decode($0["data"] as? String) })
             }
             Task {
-                if FormDataStore.syncChoice == true { _ = await Self.withTimeout(seconds: 12) { try await FormDataSync.sync() } }
+                if FormDataStore.syncChoice == true { _ = await Self.withTimeout(seconds: 12) { await FormDataSync.syncNoted() } }
                 Self.reply(context, ["success": true, "data": Self.formDataReply()])
             }
         case "formdata_icloud":
@@ -283,7 +283,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             let on = message["on"] as? Bool ?? false
             FormDataStore.syncChoice = on
             Task {
-                if on { _ = await Self.withTimeout(seconds: 12) { try await FormDataSync.sync() } } else { await FormDataSync.removeCloud() }
+                if on { _ = await Self.withTimeout(seconds: 12) { await FormDataSync.syncNoted() } } else { await FormDataSync.removeCloud() }
                 Self.reply(context, ["success": true, "data": Self.formDataReply()])
             }
         case "agent_cancel":
@@ -578,6 +578,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     private static func formDataReply() -> [String: Any] {
         var out: [String: Any] = ["entries": FormDataStore.all().map { ["id": $0.id, "updatedAt": $0.updatedAt, "data": $0.json] as [String: Any] }]
         if let choice = FormDataStore.syncChoice { out["icloud"] = choice }
+        // 2.7.1: the last sync's result, for the line under the switch.
+        if let at = FormDataStore.syncedAt { out["syncedAt"] = at }
+        if let error = FormDataStore.syncError { out["syncError"] = error }
         return out
     }
 

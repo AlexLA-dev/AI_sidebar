@@ -1225,7 +1225,7 @@
   "agentRuleWindow": "A time I name may move by, min",
   "agentRuleDays": "If that day is full, up to … days later",
   "agentRuleParty": "Guests when I don't say",
-  "agentRuleAnySpecialist": "Any specialist",
+  "agentRuleAnySpecialist": "Any specialist (stylist, doctor, trainer…)",
   "agentRuleUsual": "The service I chose there last time",
   "agentRuleCalendar": "Only times free in my Calendar",
   "agentRuleAuto": "Book without a plan when everything is known and nothing is paid",
@@ -1242,9 +1242,9 @@
   "accessAllow": "Allow",
   "accessSettingsIos": "Open iOS Settings",
   "accessSettingsMac": "Open System Settings",
-  "agentRuleCalNeeds": "needs Calendar access",
+  "agentRuleCalNeeds": "Needs Calendar access",
   "agentPlanCalAsk": "Check your calendar?",
-  "agentCalNotChecked": "didn't check your calendar: no access",
+  "agentCalNotChecked": "Didn't check your calendar: no access",
   "agentPlanFromChat": "From the chat: {0}",
 
   "sendMenuNote": "Note",
@@ -1257,5 +1257,12 @@
   "setSecChats": "Chats and Spaces",
   "setSecData": "Privacy and data",
   "setSecPlan": "Plan and account",
-  "setSecAbout": "About"
+  "setSecAbout": "About",
+  "fdICloudLocal": "Only on this device for now",
+  "fdICloudSyncing": "Syncing…",
+  "fdICloudSynced": "Synced · {0}",
+  "fdICloudJustNow": "just now",
+  "fdICloudNoAccount": "Not synced: sign in to iCloud on this device",
+  "fdICloudFailed": "Not synced: iCloud didn't answer. It tries again next time.",
+  "agentRuleAnySpecialistHint": "A barber, stylist, doctor, trainer or guide: whoever is free. Off: I ask whom you want."
 }

@@ -1225,7 +1225,7 @@
   "agentRuleWindow": "指定した時間をずらせる幅（分）",
   "agentRuleDays": "その日が埋まっていたら、最大何日後まで",
   "agentRuleParty": "人数の指定がないとき",
-  "agentRuleAnySpecialist": "担当者は指定なし",
+  "agentRuleAnySpecialist": "担当者は指定なし（美容師・医師・トレーナーなど）",
   "agentRuleUsual": "前回そのサイトで選んだメニュー",
   "agentRuleCalendar": "カレンダーで空いている時間だけ",
   "agentRuleAuto": "すべて分かっていて支払いがなければ、プランなしで予約",
@@ -1257,5 +1257,12 @@
   "setSecChats": "チャットとスペース",
   "setSecData": "プライバシーとデータ",
   "setSecPlan": "プランとアカウント",
-  "setSecAbout": "このアプリについて"
+  "setSecAbout": "このアプリについて",
+  "fdICloudLocal": "今はこのデバイスのみ",
+  "fdICloudSyncing": "同期中…",
+  "fdICloudSynced": "同期済み · {0}",
+  "fdICloudJustNow": "たった今",
+  "fdICloudNoAccount": "未同期：このデバイスでiCloudにサインインしてください",
+  "fdICloudFailed": "未同期：iCloudから応答がありません。次回もう一度試します。",
+  "agentRuleAnySpecialistHint": "理容師、スタイリスト、医師、トレーナー、ガイドなど、空いている人で予約します。オフにすると担当者を確認します。"
 }
