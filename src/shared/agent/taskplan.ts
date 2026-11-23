@@ -130,8 +130,8 @@ export const PLAN_SCHEMA = {
       type: "array",
       items: {
         type: "object",
-        properties: { q: { type: "string" }, options: { type: "array", items: { type: "string" } }, fact: { type: "string" } },
-        required: ["q", "options", "fact"],
+        properties: { q: { type: "string" }, options: { type: "array", items: { type: "string" } }, fact: { type: "string" }, pick: { type: "string" } },
+        required: ["q", "options", "fact", "pick"],
         additionalProperties: false
       }
     },
@@ -184,7 +184,9 @@ export function checkPlan(raw: unknown): RawPlan {
     const text = s(q?.q, 200)
     const options = [...new Set(arr(q?.options).map((o) => s(o, 60)).filter(Boolean))].slice(0, 4)
     const fact = s(q?.fact, 40).replace(/^fact:/i, "").replace(/^pref:\s*/i, "pref:").trim()
-    return text ? [{ q: text, options, ...(fact ? { fact } : {}) }] : []
+    // The option the request's own words name («мужскую стрижку» → «Men's Haircut»): shown chosen, still changeable.
+    const pick = s(q?.pick, 60)
+    return text ? [{ q: text, options, ...(fact ? { fact } : {}), ...(pick && options.includes(pick) ? { pick } : {}) }] : []
   }).slice(0, 3)
   const risky = arr(r.risky).flatMap((x) => {
     const k = x as Record<string, unknown>

@@ -483,7 +483,7 @@ function io(tab: number, gen?: string): RunnerIO {
     if (now?.gen && now.gen !== gen) throw new Superseded("superseded")
   }
   return {
-    map: (opts) => traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}) }, 6_000)),
+    map: (opts) => traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}), ...(opts?.part && opts.part > 1 ? { part: opts.part } : {}) }, 6_000)),
     act: async (call: ToolCall) => {
       await live()
       return traced(tab, `act ${call.tool}`, tabMessage<StepResult>(tab, { type: "agentAct", call }, 12_000))

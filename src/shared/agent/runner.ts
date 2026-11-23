@@ -154,7 +154,7 @@ export interface ActReply {
 export interface RunnerIO {
   // The page's map now (null: the page is changing; the runner waits and asks again). `money`: with every amount on the
   // page (it reads the whole page's text: only when the plan's price check needs it).
-  map(opts?: { money?: boolean }): Promise<PageMap | null>
+  map(opts?: { money?: boolean; part?: number }): Promise<PageMap | null>
   // Keeps the state without telling the panel (the in-flight mark before a step: no extra render).
   mark?: (state: AgentState) => Promise<void>
   // Does a step on the page (null: the page went away mid-step, as a link does).
@@ -374,7 +374,15 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   // Where to book, shown (124, the owner: «переуточнять… если эта деталь не была уточнена»): a booking that names no
   // place, on a results list, gets the place the rules would choose as a picked, changeable answer, with the next two.
   if (plan.booking && !plan.booking.venue && rules.chooseVenue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) {
-    const ranked = rankVenues(venuesOn(map), cardsOf(map), plan.booking.match ?? [], rules.rating, plan.booking.area ?? []).slice(0, 3)
+    // A results list whose cards come after the first part of the map (TheFork's and Treatwell's filters and map first,
+    // 124): the next parts are read on the device for the places (never sent to the model).
+    let seen = map
+    for (let p = 2; !venuesOn(seen).length && p <= Math.min(map.parts, 4); p++) {
+      const more = await io.map({ part: p }).catch(() => null)
+      if (!more) break
+      seen = { ...seen, items: [...seen.items, ...more.items] }
+    }
+    const ranked = rankVenues(venuesOn(seen), cardsOf(seen), plan.booking.match ?? [], rules.rating, plan.booking.area ?? []).slice(0, 3)
     if (ranked.length) {
       plan.questions.push({ q: "", kind: "venue", options: ranked.map((v) => v.name), pick: ranked[0].name })
       // The question shows the choice: no «I'll pick the place» line besides it.

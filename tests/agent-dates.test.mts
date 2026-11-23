@@ -179,3 +179,31 @@ test("the asked day shown greyed is pressed once to hear the page; a question be
   assert.deepEqual(pressed, ["3"], "the asked day pressed once though greyed; another greyed day isn't")
   assert.equal(after.status, "asked", "then the question goes to the person")
 })
+
+test("the place pick reads the list's cards past the map's first part; the option the request names is shown chosen (TheFork, Treatwell, 124)", async () => {
+  const TOP: PageMap = {
+    url: "https://www.treatwell.co.uk/places/treatment-mens-haircut/in-soho-london-uk/", title: "Men's haircuts in Soho", lang: "en", more: 6, part: 1, parts: 2, text: "", forms: [],
+    items: [{ id: "1", role: "textbox", label: "Treatment or venue" }, { id: "2", role: "button", label: "Sort by" }]
+  }
+  const REST: PageMap = { ...TOP, part: 2, more: 0, items: [
+    { id: "10", role: "link", label: "Ruffians Soho 4.9 (812 reviews) Soho, London Men's Haircut from £40", href: "/place/ruffians-soho/" },
+    { id: "11", role: "link", label: "Pall Mall Barbers 4.8 (1204 reviews) Soho, London Men's Haircut from £35", href: "/place/pall-mall-barbers/" },
+    { id: "12", role: "link", label: "Blade Soho 4.7 (530 reviews) Soho, London Men's Haircut from £30", href: "/place/blade-soho/" }
+  ] }
+  const RAW = { label: "booking", steps: ["a"], prices: [], fromChat: "", risky: [],
+    questions: [
+      { q: "Какая услуга?", options: ["Men's Haircut", "Wash & Haircut"], fact: "pref:Услуга", pick: "Men's Haircut" },
+      { q: "Какой мастер?", options: ["Любой мастер", "Sam"], fact: "pref:Мастер", pick: "Kim" }
+    ],
+    booking: { kind: "appointment", date: "2026-12-26", from: "12:00", until: "18:00", minutes: 30, tz: "Europe/London", venue: "", match: ["Men's Haircut"], area: ["Soho"] } }
+  const parts: number[] = []
+  const replies: any[] = [{ ok: true, plan: RAW, token: "t" }]
+  const io: RunnerIO = { map: async (o?: { part?: number }) => { parts.push(o?.part ?? 1); return o?.part === 2 ? REST : TOP }, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
+  const s = await drive(newState("p1", "Запиши меня на мужскую стрижку в субботу 26 декабря после 12", "ru", TOP.url), io)
+  assert.ok(parts.includes(2), "the next part was read on the device")
+  const venue = s.plan!.questions.find((q) => q.kind === "venue")!
+  assert.ok(venue && venue.options.length === 3 && venue.pick === venue.options[0], "the rules' place shown chosen")
+  assert.equal(s.plan!.questions[0].pick, "Men's Haircut", "the service the request names")
+  assert.equal(s.plan!.questions[1].pick, undefined, "a pick that isn't an option is dropped")
+})

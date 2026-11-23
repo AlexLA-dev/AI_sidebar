@@ -64,7 +64,8 @@ function boot(): void {
     if (agent?.type === "agentMap") {
       // 2.7.1: the page's cookie banner answered first («only necessary», the cookie closer), so it's never a step.
       const money = (message as unknown as { money?: boolean }).money === true
-      closeForAgent().catch(() => null).then(() => sendResponse(buildMap(document, { money })))
+      const part = Number((message as unknown as { part?: number }).part) || undefined
+      closeForAgent().catch(() => null).then(() => sendResponse(buildMap(document, { money, ...(part ? { part } : {}) })))
       return true
     }
     if (agent?.type === "agentAct" && agent.call) {
