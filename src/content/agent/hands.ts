@@ -313,6 +313,9 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
     }
     case "type": {
       reveal(el!)
+      // A site's own slider (a price from–to): stepped with its keys to the number asked (TheFork, 121 sweep: «до 50 €»
+      // couldn't be set). A native range input takes its value as typed.
+      if (roleOf(el!) === "slider" && tag(el!) !== "input") return slideTo(el as HTMLElement, call.text ?? "")
       const r = await typeInto(el!, call.text ?? "", call.mode ?? "replace")
       if (r.undo) r.undo.id = call.id!
       return r
@@ -372,4 +375,24 @@ export async function undo(u: NonNullable<StepResult["undo"]>): Promise<boolean>
   }
   const r = await typeInto(el, String(u.before), "replace")
   return r.ok
+}
+
+/** Steps a custom slider (role=slider) with its arrow keys until its value reaches the number in `text`. */
+async function slideTo(el: HTMLElement, text: string): Promise<StepResult> {
+  const want = Number((/-?\d+(?:[.,]\d+)?/.exec(text.replace(/\s/g, ""))?.[0] ?? "").replace(",", "."))
+  const now = () => Number(el.getAttribute("aria-valuenow") ?? NaN)
+  if (!Number.isFinite(want) || !Number.isFinite(now())) return { ok: false, note: "this slider doesn't say its value: press the steps beside it, or ask the person" }
+  const before = now()
+  el.focus?.()
+  for (let i = 0; i < 400 && now() !== want; i++) {
+    const v = now()
+    const key = want > v ? "ArrowRight" : "ArrowLeft"
+    for (const type of ["keydown", "keyup"] as const) el.dispatchEvent(new KeyboardEvent(type, { key, code: key, bubbles: true, cancelable: true }))
+    await new Promise((r) => setTimeout(r, 8))
+    // Overshot (steps bigger than one): stop at the first value past the number asked.
+    if ((key === "ArrowRight" && now() >= want) || (key === "ArrowLeft" && now() <= want) || now() === v) break
+  }
+  const after = now()
+  const settled = await stepSettle(300, 2000)
+  return after === before ? { ok: false, note: "the slider didn't move with its keys: press the steps beside it, or ask the person" } : { ok: true, note: `the slider is at ${after}`, changed: settled.changed }
 }

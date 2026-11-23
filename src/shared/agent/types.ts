@@ -69,6 +69,8 @@ export interface PageMap {
   pay?: boolean
   // The page mentions a deposit, a prepayment or a no-show fee (read with the page's amounts): its committing press pays.
   deposit?: boolean
+  // Another site's frames big enough to be a form (a restaurant's SevenRooms widget): the map can't read inside them.
+  frames?: Array<{ src: string; host: string; w: number; h: number }>
   // Every amount of money on the whole page (the device's price check against the plan; never sent to the model).
   money?: number[]
 }

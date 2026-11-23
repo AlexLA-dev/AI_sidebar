@@ -144,3 +144,18 @@ export function shapeValue(e: FormEntry, field: FieldShape): string | null {
   if (field.options?.length) return pickOption(field.options, [value])
   return value
 }
+
+/**
+ * A saved full name gives its first and last name too, when those aren't saved (forms ask for them apart: Dishoom's
+ * «First name», «Last name»). Only for filling on the device; never kept.
+ */
+export function withNameParts(entries: FormEntry[]): FormEntry[] {
+  const live = liveEntries(entries)
+  const full = live.find((e) => e.key === "name.full")
+  const parts = full?.value.trim().split(/\s+/) ?? []
+  if (!full || parts.length < 2) return entries
+  const add: FormEntry[] = []
+  if (!live.some((e) => e.key === "name.given")) add.push({ id: `${full.id}:given`, key: "name.given", label: "", value: parts[0], updatedAt: full.updatedAt })
+  if (!live.some((e) => e.key === "name.family")) add.push({ id: `${full.id}:family`, key: "name.family", label: "", value: parts.slice(1).join(" "), updatedAt: full.updatedAt })
+  return [...entries, ...add]
+}

@@ -80,9 +80,15 @@ const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{
  * The places that fit, best first: the request's words on the card (when it has any), rated at least `minRating`
  * with 20 reviews or more; the page's own order kept among them (a site sorts by distance or relevance).
  */
-export function rankVenues(list: Venue[], cards: Map<string, string>, match: string[], minRating: number): Venue[] {
+export function rankVenues(list: Venue[], cards: Map<string, string>, match: string[], minRating: number, area: string[] = []): Venue[] {
   const words = match.map(fold).filter((w) => w.length >= 3)
-  const fits = list.filter((v) => !words.length || words.some((w) => fold(cards.get(v.url) ?? v.name).includes(w)))
+  const card = (v: Venue) => fold(cards.get(v.url) ?? v.name)
+  // The area the request names («Soho»): when some cards name it, only those (Treatwell, 121 sweep: a Shropshire salon
+  // for «Soho, London»); when none does, the list is the site's answer to the search and stays.
+  const places = area.map(fold).filter((w) => w.length >= 3)
+  const near = places.length ? list.filter((v) => places.some((w) => card(v).includes(w))) : []
+  const inArea = near.length ? near : list
+  const fits = inArea.filter((v) => !words.length || words.some((w) => card(v).includes(w)))
   const good = fits.filter((v) => v.rating >= minRating && v.reviews >= 20)
   return good.length ? good : fits.filter((v) => v.rating >= minRating - 0.3)
 }

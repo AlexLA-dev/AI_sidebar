@@ -113,6 +113,8 @@ export interface PlanBooking {
   // Words a fitting place's card shows for what the request asks (its cuisine or service), in the site's language and
   // in English: a place without any of them isn't chosen.
   match?: string[]
+  // Where the request asks for it («Soho», «Limassol»): a place whose card names another area isn't chosen.
+  area?: string[]
 }
 
 export const PLAN_SCHEMA = {
@@ -155,9 +157,10 @@ export const PLAN_SCHEMA = {
         minutes: { type: "number" },
         tz: { type: "string" },
         venue: { type: "string" },
-        match: { type: "array", items: { type: "string" } }
+        match: { type: "array", items: { type: "string" } },
+        area: { type: "array", items: { type: "string" } }
       },
-      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match"],
+      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match", "area"],
       additionalProperties: false
     }
   },
@@ -199,7 +202,8 @@ function bookingOf(v: unknown): PlanBooking | null {
   const tz = s(b.tz, 60)
   const venue = s(b.venue, 120)
   const match = (Array.isArray(b.match) ? b.match : []).map((x) => s(x, 30)).filter((x) => x.length >= 3).slice(0, 8)
-  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}) }
+  const area = (Array.isArray(b.area) ? b.area : []).map((x) => s(x, 40)).filter((x) => x.length >= 3).slice(0, 4)
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}) }
 }
 
 /**
@@ -246,6 +250,8 @@ function byWords(text: string): StepVerdict | null {
   return null
 }
 
+const REMIND_WORDS = /remind|reminder|calendar|напомн|напоминан|календар|нагад|календар|erinner|kalender|rappel|calendrier|recorda|calendario|ricord|lembr|calendário|hatırlat|takvim|リマインド|カレンダー|알림|캘린더|提醒|日历|日曆|تذكير|تقويم|nhắc|lịch/i
+
 /**
  * The plan card's permissions and «you'll do it» lines, from what the model foresaw, each classed by code on the map
  * (the device's own, on the device). Personal fields typed from the request: one permission; saved details: one.
@@ -268,6 +274,9 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
   }
   for (const r of raw.risky) {
     if (APPLE.has(r.tool)) {
+      // A booking's reminder or event the request didn't ask for isn't planned (121 sweep: «Add to Reminders» ticked
+      // under a haircut nobody asked to be reminded of); the booking's Calendar event is the device's own permission.
+      if (raw.booking && !REMIND_WORDS.test(ctx.request)) continue
       if (r.text) add({ kind: "apple", reason: r.tool, label: r.text })
       continue
     }
@@ -552,7 +561,14 @@ export function keyKind(key: string): string {
 }
 
 /** What a field asks for, when the page says it plainly (its type, autocomplete or label): email, phone; else null. */
+const GIVEN = /first.?name|given.?name|forename|(?<!\p{L})имя(?!\p{L})|(?<!\p{L})ім'я|vorname|prénom|prenom|(?<!\p{L})nombre(?!\p{L})|(?<!\p{L})nome(?!\p{L})|(?<!\p{L})ad(?!\p{L})|名(?!字)|이름/iu
+const FAMILY = /last.?name|surname|family.?name|фамили|прізвищ|nachname|nom de famille|(?<!\p{L})nom(?!\p{L})|apellido|cognome|sobrenome|soyad|姓(?!名)|성(?!함)/iu
+
 export function fieldKind(item: Pick<MapItem, "type" | "auto" | "label">, autoKey: string | null): string | null {
+  // A first or last name's field takes that part only (Dishoom's «First name»: the full name was put in).
+  if (autoKey === "name.given" || autoKey === "name.family") return autoKey
+  if (!autoKey && FAMILY.test(item.label)) return "name.family"
+  if (!autoKey && GIVEN.test(item.label)) return "name.given"
   if (autoKey) return keyKind(autoKey)
   if (item.type === "email") return "email"
   if (item.type === "tel") return "phone"

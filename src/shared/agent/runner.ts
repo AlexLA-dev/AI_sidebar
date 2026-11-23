@@ -9,7 +9,7 @@
 
 import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
-import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
+import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueOf, venuesOn, type Venue } from "./venues.ts"
@@ -68,6 +68,8 @@ export interface AgentState {
   // What «Отменить» puts back, newest last.
   undo: NonNullable<StepResult["undo"]>[]
   left?: number | null
+  // The day's tasks of the plan, said when they ran out («(… a day)» was empty: the server's limit wasn't kept).
+  limit?: number
   data?: string
   refused?: string
   // The deferred task it came from, when it did.
@@ -97,6 +99,8 @@ export interface AgentState {
   // The one place, product or specialist the start page is about (subject.ts): the task's target unless the request
   // names another (the owner on 121).
   subject?: string
+  // The booking provider's form (a frame on the start page) the device opened on its own page.
+  widgetOpened?: string
   // The last turns of the chat the task was started from (chatctx.ts): the plan call only, for the request's references.
   chat?: string
   // The contact detail the question asks for, when «Мои данные» hasn't got it (the panel offers to keep the answer).
@@ -127,6 +131,7 @@ export interface ActReply {
   offRequest?: string
   token?: string
   left?: number
+  limit?: number
   strong?: boolean
   // The plan's makings (task.phase "plan"): the device classes what was foreseen on its own map.
   plan?: unknown
@@ -274,7 +279,8 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
 
 /** The map as it goes to the server: the page's amounts stay on the device (they're for its own price check). */
 function sent(map: PageMap): PageMap {
-  const { money: _money, ...rest } = map
+  // The amounts and other sites' frame addresses stay on the device (the device acts on those itself).
+  const { money: _money, frames: _frames, ...rest } = map
   return rest
 }
 
@@ -316,6 +322,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   if (!reply.ok) {
     state.status = "error"
     state.error = reply.code ?? "UPSTREAM"
+    if (reply.limit) state.limit = reply.limit
     return "stop"
   }
   state.token = reply.token ?? null
@@ -370,6 +377,11 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   return "go"
 }
 
+// Booking providers whose forms restaurants and salons embed in a frame (they work on their own pages too).
+const BOOKING_PROVIDER = /(^|\.)(sevenrooms\.com|opentable\.[a-z.]+|resy\.com|quandoo\.[a-z.]+|zenchef\.com|formitable\.com|tablein\.com|bookatable\.[a-z.]+|designmynight\.com|collinsbookings\.com|resdiary\.com|thefork\.[a-z.]+|lafourchette\.com|fresha\.com|treatwell\.[a-z.]+|booksy\.com|setmore\.com|simplybook\.[a-z.]+|vagaro\.com|mindbodyonline\.com|squareup\.com|square\.site|timely\.com|gettimely\.com|phorest\.com|shedul\.com|planity\.com|doctolib\.[a-z.]+|calendly\.com|acuityscheduling\.com)$/i
+
+const SEARCH_BOX = /search|find|treatment|salon|cuisine|restaurant|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|検索|검색|搜索|搜尋|بحث|tìm/i
+
 /** Whether the page asks for the person's details: an empty field of theirs (name, e-mail, phone) on screen. */
 export function detailsForm(map: PageMap): boolean {
   return map.items.some((i) => i.lock === "personal" && !i.value && i.where !== "above" && i.where !== "below" && (i.role === "textbox" || i.role === "combobox"))
@@ -388,7 +400,7 @@ function noteVenues(state: AgentState, map: PageMap): void {
   if (!state.venues) {
     const list = venuesOn(map)
     if (list.length) {
-      const ranked = rankVenues(list, cardsOf(map), b.match ?? [], state.minRating ?? 4.5).slice(0, 8)
+      const ranked = rankVenues(list, cardsOf(map), b.match ?? [], state.minRating ?? 4.5, b.area ?? []).slice(0, 8)
       if (ranked.length) state.venues = { list: ranked, tried: [] }
     }
   }
@@ -457,11 +469,15 @@ export function playbookOf(log: LogEntry[]): string[] {
  */
 async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, label: string): Promise<string | null> {
   const b = state.plan?.booking
-  if (!b || !state.calendar || !io.slotFree || (call.tool !== "click" && call.tool !== "select")) return null
+  if (!b || (call.tool !== "click" && call.tool !== "select")) return null
   if (!looksLikeSlot(label)) return null
   const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : ""
   const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : ""
-  if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check the person's calendar"
+  if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check it"
+  // The request's window (its time widened by the rules), checked with or without the Calendar (Dishoom, 121 sweep:
+  // 13:15 pressed for «17:30»).
+  if (b.from && b.until && (time < b.from || time > b.until)) return `${time} is outside the time the request and the rules allow (${b.from}–${b.until}): choose a slot inside it, or ask with the page's nearest real slots`
+  if (!state.calendar || !io.slotFree) return null
   // The page's time is the place's; the Calendar is asked in the device's.
   const here = shiftZone(date, time, b.tz)
   const free = await io.slotFree(here.date, here.time, b.minutes).catch(() => null)
@@ -497,6 +513,17 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     state.host = hostOf(map.url)
     noteVenues(state, map)
+    // A booking whose form is a booking provider's frame on this page (Dishoom's SevenRooms, 121 sweep: «I've tried "Book a
+    // table" five times»): the device opens that form on its own page, once; the provider counts as this task's site.
+    const widget = state.plan?.approved && state.plan.booking && !state.widgetOpened ? map.frames?.find((f) => BOOKING_PROVIDER.test(f.host)) : undefined
+    if (widget && io.open) {
+      state.widgetOpened = widget.src
+      await io.open(widget.src)
+      state.confirmedSites = [...new Set([...(state.confirmedSites ?? []), siteOfHost(widget.host)])]
+      state.log.push({ call: { tool: "go", why: widget.host }, result: `the booking form is ${widget.host}'s frame on this page, which you can't see inside: the device opened it on its own page — go on there` })
+      state.lines.push(line({ tool: "go" }, { cls: "free", reason: "booking_form" }, null, true, widget.host))
+      continue
+    }
     // No progress: reads in a row on a page that didn't change. Two: the model is told to stop reading and say what it
     // found (or ask how to go on); four: the task stops, not finished.
     const sig = pageSig(map)
@@ -511,7 +538,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     if ((state.stillReads ?? 0) >= 2) state.refused = "no progress: the page hasn't changed over your last reads. Don't read it again. If the person's words, their answers or <rules> already decide what to do now (another time inside the window, the next day the rules allow: press it), do it; otherwise tell them what you found and ask how to go on (ask_user with choices), or call done"
-    const entries = await io.entries().catch(() => [] as FormEntry[])
+    const entries = withNameParts(await io.entries().catch(() => [] as FormEntry[]))
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
     if (state.step === 0 && io.planning && !state.plan) {
@@ -538,6 +565,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (!reply.ok || !reply.call || !reply.verdict) {
       state.status = "error"
       state.error = reply.code ?? "UPSTREAM"
+      if (reply.limit) state.limit = reply.limit
       break
     }
     if (state.step === 0) {
@@ -580,7 +608,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && !state.venues) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
-      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: "refused: the request names no place, so it's yours to choose: go back to the list (back) and try the next place by the rules that has slots fitting the rules and <calendar>; ask only after two more places didn't fit, with their real slots" })
+      // No list was ever seen (a home page, an error page with a search box, one featured place): the site's own search
+      // finds the places, never «back» to a list that isn't there (Treatwell, 121 sweep: it went back to nothing and
+      // then said it had checked several places).
+      const box = map.items.find((i) => (i.role === "textbox" || i.role === "combobox") && !i.lock && (i.type === "search" || SEARCH_BOX.test(i.label)))
+      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: box ? `refused: the request names no place, so it's yours to find: type what the request asks (the service or cuisine, and the area) into the site's search box #${box.id} "${box.label.slice(0, 60)}", search, then choose from the list by the rules` : "refused: the request names no place, so it's yours to find: open the site's own search or the category that fits (its search box, «Barbers», «Restaurants»), then choose from the list by the rules; ask only after two places didn't fit, with their real slots" })
       continue
     }
     if (call.tool === "ask_user") {
@@ -601,8 +633,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // A saved detail into a field that asks for another kind (TheFork: the full name into «email»): refused, and the
     // model hears which detail the field wants and whether «Мои данные» has it (else: ask the person once).
     const wants = call.tool === "fill" && call.key && seenItem ? fieldKind(seenItem, keyOfAutocomplete(seenItem.auto)?.key ?? null) : null
-    if (wants && call.key && wants !== keyKind(call.key)) {
-      const has = liveEntries(entries).some((e) => keyKind(modelKey(e)) === wants)
+    if (wants && call.key && (wants.includes(".") ? wants !== call.key : wants !== keyKind(call.key))) {
+      const has = liveEntries(entries).some((e) => (wants.includes(".") ? modelKey(e) === wants : keyKind(modelKey(e)) === wants))
       const why = `the field "${seenItem!.label}" asks for the ${wants}, not ${call.key}${has ? `: fill it with the saved ${wants}` : `; <saved> has no ${wants}: ask the person for it once (ask_user naming it)`}`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
