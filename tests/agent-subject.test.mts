@@ -103,3 +103,33 @@ test("121 sweep: a booking form in a booking provider's frame (Dishoom's SevenRo
   assert.ok(asked.every((b) => !("frames" in b.map)), "frame addresses never go to the server")
   assert.ok(after.confirmedSites?.includes("sevenrooms.com"))
 })
+
+test("121 sweep: a slot outside the request's window is refused without the Calendar; a full name gives its parts for «First/Last name»", async () => {
+  const { withNameParts } = await import("../src/shared/agent/formdata.ts")
+  const { fieldKind } = await import("../src/shared/agent/taskplan.ts")
+  const parts = withNameParts([{ id: "n", key: "name.full", label: "", value: "Anna Petrova", updatedAt: 1 }])
+  assert.deepEqual(parts.map((e) => [e.key, e.value]), [["name.full", "Anna Petrova"], ["name.given", "Anna"], ["name.family", "Petrova"]])
+  assert.equal(fieldKind({ label: "First name *" }, null), "name.given")
+  assert.equal(fieldKind({ label: "Last name *" }, null), "name.family")
+  assert.equal(fieldKind({ label: "Фамилия" }, null), "name.family")
+  assert.equal(fieldKind({ label: "Email address", type: "email" }, null), "email")
+
+  const SEVEN = page("https://www.sevenrooms.com/reservations/x", "Dishoom", "Tue 24 Nov", [{ id: "1", role: "button", label: "13:15" }, { id: "2", role: "button", label: "17:30" }, { id: "3", role: "textbox", label: "First name *", lock: "personal" }])
+  const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "table", date: "2026-11-24", from: "16:30", until: "18:30", minutes: 90, tz: "Europe/London", venue: "Dishoom", match: [] } }
+  const replies: any[] = [{ ok: true, plan: RAW, token: "t" },
+    { ok: true, call: { tool: "click", id: "1", date: "2026-11-24", time: "13:15" }, verdict: { cls: "free", reason: "click" }, target: "button" },
+    { ok: true, call: { tool: "fill", id: "3", key: "name.full" }, verdict: { cls: "confirm", reason: "fill" }, target: "field" },
+    { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }]
+  const acted: any[] = []
+  const io: RunnerIO = {
+    map: async () => SEVEN, act: async (c) => (acted.push(c), { ok: true }), waitPage: async () => {}, ask: async () => replies.shift(), save: async () => {},
+    entries: async () => [{ id: "n", key: "name.full", label: "", value: "Anna Petrova", updatedAt: 1 }], policy: { amazon: true }, maxSteps: 30, planning: true,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
+  }
+  const s = await drive(newState("w", "Book a table for 2 tomorrow at 17:30", "en", SEVEN.url), io)
+  const { approvePlan } = await import("../src/shared/agent/runner.ts")
+  const after = s.status === "plan" ? await approvePlan(s, io, { answers: [], off: [] }) : s
+  assert.match(after.log.find((e) => /13:15 is outside/.test(e.result))?.result ?? "", /16:30–18:30/)
+  assert.match(after.log.find((e) => /asks for the name\.given/.test(e.result))?.result ?? "", /fill it with the saved name\.given/)
+  assert.ok(!acted.length, "neither the slot nor the wrong name went in")
+})

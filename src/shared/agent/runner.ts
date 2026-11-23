@@ -9,7 +9,7 @@
 
 import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
-import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
+import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueOf, venuesOn, type Venue } from "./venues.ts"
@@ -469,11 +469,15 @@ export function playbookOf(log: LogEntry[]): string[] {
  */
 async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, label: string): Promise<string | null> {
   const b = state.plan?.booking
-  if (!b || !state.calendar || !io.slotFree || (call.tool !== "click" && call.tool !== "select")) return null
+  if (!b || (call.tool !== "click" && call.tool !== "select")) return null
   if (!looksLikeSlot(label)) return null
   const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : ""
   const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : ""
-  if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check the person's calendar"
+  if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check it"
+  // The request's window (its time widened by the rules), checked with or without the Calendar (Dishoom, 121 sweep:
+  // 13:15 pressed for «17:30»).
+  if (b.from && b.until && (time < b.from || time > b.until)) return `${time} is outside the time the request and the rules allow (${b.from}–${b.until}): choose a slot inside it, or ask with the page's nearest real slots`
+  if (!state.calendar || !io.slotFree) return null
   // The page's time is the place's; the Calendar is asked in the device's.
   const here = shiftZone(date, time, b.tz)
   const free = await io.slotFree(here.date, here.time, b.minutes).catch(() => null)
@@ -534,7 +538,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     if ((state.stillReads ?? 0) >= 2) state.refused = "no progress: the page hasn't changed over your last reads. Don't read it again. If the person's words, their answers or <rules> already decide what to do now (another time inside the window, the next day the rules allow: press it), do it; otherwise tell them what you found and ask how to go on (ask_user with choices), or call done"
-    const entries = await io.entries().catch(() => [] as FormEntry[])
+    const entries = withNameParts(await io.entries().catch(() => [] as FormEntry[]))
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
     if (state.step === 0 && io.planning && !state.plan) {
@@ -629,8 +633,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // A saved detail into a field that asks for another kind (TheFork: the full name into «email»): refused, and the
     // model hears which detail the field wants and whether «Мои данные» has it (else: ask the person once).
     const wants = call.tool === "fill" && call.key && seenItem ? fieldKind(seenItem, keyOfAutocomplete(seenItem.auto)?.key ?? null) : null
-    if (wants && call.key && wants !== keyKind(call.key)) {
-      const has = liveEntries(entries).some((e) => keyKind(modelKey(e)) === wants)
+    if (wants && call.key && (wants.includes(".") ? wants !== call.key : wants !== keyKind(call.key))) {
+      const has = liveEntries(entries).some((e) => (wants.includes(".") ? modelKey(e) === wants : keyKind(modelKey(e)) === wants))
       const why = `the field "${seenItem!.label}" asks for the ${wants}, not ${call.key}${has ? `: fill it with the saved ${wants}` : `; <saved> has no ${wants}: ask the person for it once (ask_user naming it)`}`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why

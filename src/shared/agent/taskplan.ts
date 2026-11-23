@@ -557,7 +557,14 @@ export function keyKind(key: string): string {
 }
 
 /** What a field asks for, when the page says it plainly (its type, autocomplete or label): email, phone; else null. */
+const GIVEN = /first.?name|given.?name|forename|(?<!\p{L})имя(?!\p{L})|(?<!\p{L})ім'я|vorname|prénom|prenom|(?<!\p{L})nombre(?!\p{L})|(?<!\p{L})nome(?!\p{L})|(?<!\p{L})ad(?!\p{L})|名(?!字)|이름/iu
+const FAMILY = /last.?name|surname|family.?name|фамили|прізвищ|nachname|nom de famille|(?<!\p{L})nom(?!\p{L})|apellido|cognome|sobrenome|soyad|姓(?!名)|성(?!함)/iu
+
 export function fieldKind(item: Pick<MapItem, "type" | "auto" | "label">, autoKey: string | null): string | null {
+  // A first or last name's field takes that part only (Dishoom's «First name»: the full name was put in).
+  if (autoKey === "name.given" || autoKey === "name.family") return autoKey
+  if (!autoKey && FAMILY.test(item.label)) return "name.family"
+  if (!autoKey && GIVEN.test(item.label)) return "name.given"
   if (autoKey) return keyKind(autoKey)
   if (item.type === "email") return "email"
   if (item.type === "tel") return "phone"
