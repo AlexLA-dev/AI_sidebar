@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "Từ cuộc trò chuyện: {0}"
  },
+ "sendMenuNote": {
+  "message": "Ghi chú"
+ },
+ "noteHintPointerDo": {
+  "message": "Cuộn trên nút: lên để ghi chú, xuống để “Làm”, hoặc nhấp chuột phải vào nút"
+ },
+ "setSecGeneral": {
+  "message": "Chung"
+ },
+ "setSecButton": {
+  "message": "Nút nổi và vùng chọn"
+ },
+ "setSecWriting": {
+  "message": "Chèn nhanh và viết"
+ },
+ "setSecAgent": {
+  "message": "“Làm”: việc trên trang"
+ },
+ "setSecCookies": {
+  "message": "Cửa sổ cookie"
+ },
+ "setSecChats": {
+  "message": "Cuộc trò chuyện và không gian"
+ },
+ "setSecData": {
+  "message": "Quyền riêng tư và dữ liệu"
+ },
+ "setSecPlan": {
+  "message": "Gói và tài khoản"
+ },
+ "setSecAbout": {
+  "message": "Giới thiệu"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

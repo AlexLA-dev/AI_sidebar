@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "Sohbetten: {0}"
  },
+ "sendMenuNote": {
+  "message": "Not"
+ },
+ "noteHintPointerDo": {
+  "message": "Düğmenin üzerinde kaydırın: not için yukarı, “Yap” için aşağı. Ya da sağ tıklayın"
+ },
+ "setSecGeneral": {
+  "message": "Genel"
+ },
+ "setSecButton": {
+  "message": "Kayan düğme ve seçim"
+ },
+ "setSecWriting": {
+  "message": "Hızlı ekleme ve yazma"
+ },
+ "setSecAgent": {
+  "message": "“Yap”: sayfalardaki görevler"
+ },
+ "setSecCookies": {
+  "message": "Çerez pencereleri"
+ },
+ "setSecChats": {
+  "message": "Sohbetler ve alanlar"
+ },
+ "setSecData": {
+  "message": "Gizlilik ve veriler"
+ },
+ "setSecPlan": {
+  "message": "Plan ve hesap"
+ },
+ "setSecAbout": {
+  "message": "Hakkında"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

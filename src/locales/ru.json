@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "нужен доступ к календарю",
   "agentPlanCalAsk": "Учитывать календарь?",
   "agentCalNotChecked": "календарь не проверял: нет доступа",
-  "agentPlanFromChat": "Из чата: {0}"
+  "agentPlanFromChat": "Из чата: {0}",
+
+  "sendMenuNote": "Заметка",
+  "noteHintPointerDo": "Прокрутите над кнопкой: вверх — заметка, вниз — «Сделать». Или правый клик по ней",
+  "setSecGeneral": "Основное",
+  "setSecButton": "Плавающая кнопка и выделение",
+  "setSecWriting": "Вставка и письмо",
+  "setSecAgent": "«Сделать»: задачи на страницах",
+  "setSecCookies": "Окна cookie",
+  "setSecChats": "Чаты и пространства",
+  "setSecData": "Приватность и данные",
+  "setSecPlan": "Подписка и аккаунт",
+  "setSecAbout": "О приложении"
 }

@@ -429,6 +429,13 @@
   -webkit-overflow-scrolling: touch;
   padding: 14px 14px 6px;
 }
+/* 2.7.1 (the owner on build 121): the page doesn't scroll on once one of our lists reaches its end. Every list of
+   ours that scrolls up and down, besides the chat's and Settings' (and the sideways chips, which keep their own rule:
+   a vertical swipe on them still scrolls the chat). The rest is scrollGuard.ts. */
+.cf-sheet, .cf-move-list, .cf-pages-pop, .cf-space-pop, .cf-col-list, .cf-col-menu, .cf-pinbar-list, .cf-qi-view,
+.cf-qi-pick, .cf-qi-fill-text, .cf-wr-text, .cf-tr-consent .cf-card, .cf-input textarea, .cf-textarea, textarea.cf-watch-cond {
+  overscroll-behavior: contain;
+}
 
 .cf-empty { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 22px 6px 10px; }
 .cf-empty-icon {
@@ -717,6 +724,22 @@
 
 /* --------------------------------------------------------- settings */
 .cf-settings { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px 18px; }
+/* Settings in sections by feature (2.7.1, settingsFold.ts), folding as Tips blocks do: a line between them, the title
+   in Tips' size, the chevron turning down when open; folded, a line under the title says what's set there. */
+.cf-set-sec { border-top: 1px solid var(--border); }
+.cf-set-sec:first-child { border-top: 0; }
+.cf-set-head { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 4px !important; text-align: start; color: var(--text); }
+.cf-set-head-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.cf-set-title { font-size: 15px; font-weight: 600; }
+.cf-set-sum { font-size: 12.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf[data-touch] .cf-set-sum { font-size: 13px; }
+.cf-set-chev { flex-shrink: 0; color: var(--text-3); transition: transform 0.15s ease; }
+.cf-set-sec.open .cf-set-chev { transform: rotate(90deg); }
+.cf-set-body { padding-bottom: 4px; }
+.cf-set-body .cf-links { padding-bottom: 10px; }
+@media (prefers-reduced-motion: reduce) { .cf-set-chev { transition: none; } }
+:host([dir="rtl"]) .cf-set-chev { transform: scaleX(-1); }
+:host([dir="rtl"]) .cf-set-sec.open .cf-set-chev { transform: scaleX(-1) rotate(90deg); }
 .cf-chats-button { position: relative; }
 .cf-badge {
   position: absolute; top: 3px; inset-inline-end: 2px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px;

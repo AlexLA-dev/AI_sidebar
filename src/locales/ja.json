@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "カレンダーへのアクセスが必要",
   "agentPlanCalAsk": "カレンダーを確認しますか？",
   "agentCalNotChecked": "カレンダーは未確認：アクセスなし",
-  "agentPlanFromChat": "チャットから：{0}"
+  "agentPlanFromChat": "チャットから：{0}",
+
+  "sendMenuNote": "メモ",
+  "noteHintPointerDo": "ボタンの上でスクロール：上でメモ、下で「実行」。右クリックでも選べます",
+  "setSecGeneral": "一般",
+  "setSecButton": "フローティングボタンと選択",
+  "setSecWriting": "クイック挿入と文章",
+  "setSecAgent": "「実行」：ページでの作業",
+  "setSecCookies": "Cookieの確認画面",
+  "setSecChats": "チャットとスペース",
+  "setSecData": "プライバシーとデータ",
+  "setSecPlan": "プランとアカウント",
+  "setSecAbout": "このアプリについて"
 }

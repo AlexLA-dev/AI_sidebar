@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "takvim erişimi gerekiyor",
   "agentPlanCalAsk": "Takvim dikkate alınsın mı?",
   "agentCalNotChecked": "takvim kontrol edilmedi: erişim yok",
-  "agentPlanFromChat": "Sohbetten: {0}"
+  "agentPlanFromChat": "Sohbetten: {0}",
+
+  "sendMenuNote": "Not",
+  "noteHintPointerDo": "Düğmenin üzerinde kaydırın: not için yukarı, “Yap” için aşağı. Ya da sağ tıklayın",
+  "setSecGeneral": "Genel",
+  "setSecButton": "Kayan düğme ve seçim",
+  "setSecWriting": "Hızlı ekleme ve yazma",
+  "setSecAgent": "“Yap”: sayfalardaki görevler",
+  "setSecCookies": "Çerez pencereleri",
+  "setSecChats": "Sohbetler ve alanlar",
+  "setSecData": "Gizlilik ve veriler",
+  "setSecPlan": "Plan ve hesap",
+  "setSecAbout": "Hakkında"
 }

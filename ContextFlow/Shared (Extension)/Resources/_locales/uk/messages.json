@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "З чату: {0}"
  },
+ "sendMenuNote": {
+  "message": "Нотатка"
+ },
+ "noteHintPointerDo": {
+  "message": "Прокрутіть над кнопкою: вгору — нотатка, вниз — «Зробити». Або правий клік по ній"
+ },
+ "setSecGeneral": {
+  "message": "Основне"
+ },
+ "setSecButton": {
+  "message": "Плаваюча кнопка й виділення"
+ },
+ "setSecWriting": {
+  "message": "Вставка й письмо"
+ },
+ "setSecAgent": {
+  "message": "«Зробити»: завдання на сторінках"
+ },
+ "setSecCookies": {
+  "message": "Вікна cookie"
+ },
+ "setSecChats": {
+  "message": "Чати й простори"
+ },
+ "setSecData": {
+  "message": "Приватність і дані"
+ },
+ "setSecPlan": {
+  "message": "Підписка й акаунт"
+ },
+ "setSecAbout": {
+  "message": "Про застосунок"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

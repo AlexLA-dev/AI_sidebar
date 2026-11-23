@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "From the chat: {0}"
  },
+ "sendMenuNote": {
+  "message": "Note"
+ },
+ "noteHintPointerDo": {
+  "message": "Scroll on the button: up for a note, down for Do, or right-click it"
+ },
+ "setSecGeneral": {
+  "message": "General"
+ },
+ "setSecButton": {
+  "message": "Floating button and selection"
+ },
+ "setSecWriting": {
+  "message": "Quick insert and writing"
+ },
+ "setSecAgent": {
+  "message": "Do: tasks on pages"
+ },
+ "setSecCookies": {
+  "message": "Cookie windows"
+ },
+ "setSecChats": {
+  "message": "Chats and Spaces"
+ },
+ "setSecData": {
+  "message": "Privacy and data"
+ },
+ "setSecPlan": {
+  "message": "Plan and account"
+ },
+ "setSecAbout": {
+  "message": "About"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

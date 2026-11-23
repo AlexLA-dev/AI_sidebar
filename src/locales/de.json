@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "braucht Zugriff auf den Kalender",
   "agentPlanCalAsk": "Kalender berücksichtigen?",
   "agentCalNotChecked": "Kalender nicht geprüft: kein Zugriff",
-  "agentPlanFromChat": "Aus dem Chat: {0}"
+  "agentPlanFromChat": "Aus dem Chat: {0}",
+
+  "sendMenuNote": "Notiz",
+  "noteHintPointerDo": "Auf der Taste scrollen: nach oben für eine Notiz, nach unten für „Erledigen“ – oder Rechtsklick",
+  "setSecGeneral": "Allgemein",
+  "setSecButton": "Schwebender Button und Auswahl",
+  "setSecWriting": "Schnelleinfügen und Schreiben",
+  "setSecAgent": "„Erledigen“: Aufgaben auf Seiten",
+  "setSecCookies": "Cookie-Fenster",
+  "setSecChats": "Chats und Bereiche",
+  "setSecData": "Datenschutz und Daten",
+  "setSecPlan": "Tarif und Konto",
+  "setSecAbout": "Über die App"
 }

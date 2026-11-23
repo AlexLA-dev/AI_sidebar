@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "需要日历访问权限",
   "agentPlanCalAsk": "参考日历吗？",
   "agentCalNotChecked": "未检查日历：无访问权限",
-  "agentPlanFromChat": "来自聊天：{0}"
+  "agentPlanFromChat": "来自聊天：{0}",
+
+  "sendMenuNote": "笔记",
+  "noteHintPointerDo": "在按钮上滚动：向上写笔记，向下“执行”，也可以右键点按",
+  "setSecGeneral": "通用",
+  "setSecButton": "悬浮按钮与选择",
+  "setSecWriting": "快速插入与写作",
+  "setSecAgent": "“执行”：网页上的任务",
+  "setSecCookies": "Cookie 窗口",
+  "setSecChats": "对话与空间",
+  "setSecData": "隐私与数据",
+  "setSecPlan": "套餐与账户",
+  "setSecAbout": "关于"
 }

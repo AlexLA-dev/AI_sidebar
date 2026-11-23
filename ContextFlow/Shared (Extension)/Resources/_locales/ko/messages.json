@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "채팅에서: {0}"
  },
+ "sendMenuNote": {
+  "message": "메모"
+ },
+ "noteHintPointerDo": {
+  "message": "버튼 위에서 위로 스크롤하면 메모, 아래로 스크롤하면 ‘실행’ (오른쪽 클릭도 돼요)"
+ },
+ "setSecGeneral": {
+  "message": "일반"
+ },
+ "setSecButton": {
+  "message": "플로팅 버튼과 선택"
+ },
+ "setSecWriting": {
+  "message": "빠른 삽입과 글쓰기"
+ },
+ "setSecAgent": {
+  "message": "‘실행’: 페이지에서 할 일"
+ },
+ "setSecCookies": {
+  "message": "쿠키 창"
+ },
+ "setSecChats": {
+  "message": "채팅과 스페이스"
+ },
+ "setSecData": {
+  "message": "개인정보와 데이터"
+ },
+ "setSecPlan": {
+  "message": "요금제와 계정"
+ },
+ "setSecAbout": {
+  "message": "앱 정보"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "accès au calendrier nécessaire",
   "agentPlanCalAsk": "Tenir compte du calendrier ?",
   "agentCalNotChecked": "calendrier non vérifié : pas d'accès",
-  "agentPlanFromChat": "Depuis le chat : {0}"
+  "agentPlanFromChat": "Depuis le chat : {0}",
+
+  "sendMenuNote": "Note",
+  "noteHintPointerDo": "Faites défiler sur le bouton : vers le haut pour une note, vers le bas pour « Faire », ou faites un clic droit",
+  "setSecGeneral": "Général",
+  "setSecButton": "Bouton flottant et sélection",
+  "setSecWriting": "Insertion rapide et écriture",
+  "setSecAgent": "« Faire » : tâches sur les pages",
+  "setSecCookies": "Fenêtres de cookies",
+  "setSecChats": "Discussions et espaces",
+  "setSecData": "Confidentialité et données",
+  "setSecPlan": "Forfait et compte",
+  "setSecAbout": "À propos"
 }

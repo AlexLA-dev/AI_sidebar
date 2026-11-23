@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "يلزم الوصول إلى التقويم",
   "agentPlanCalAsk": "مراعاة التقويم؟",
   "agentCalNotChecked": "لم أتحقق من التقويم: لا وصول",
-  "agentPlanFromChat": "من الدردشة: {0}"
+  "agentPlanFromChat": "من الدردشة: {0}",
+
+  "sendMenuNote": "ملاحظة",
+  "noteHintPointerDo": "مرّر فوق الزر: لأعلى لملاحظة، ولأسفل لـ«نفّذ»، أو انقر عليه بالزر الأيمن",
+  "setSecGeneral": "عام",
+  "setSecButton": "الزر العائم والتحديد",
+  "setSecWriting": "الإدراج السريع والكتابة",
+  "setSecAgent": "«نفّذ»: مهام على الصفحات",
+  "setSecCookies": "نوافذ ملفات تعريف الارتباط",
+  "setSecChats": "المحادثات والمساحات",
+  "setSecData": "الخصوصية والبيانات",
+  "setSecPlan": "الخطة والحساب",
+  "setSecAbout": "حول التطبيق"
 }

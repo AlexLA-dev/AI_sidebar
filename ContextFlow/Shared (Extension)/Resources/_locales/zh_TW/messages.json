@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "來自聊天：{0}"
  },
+ "sendMenuNote": {
+  "message": "筆記"
+ },
+ "noteHintPointerDo": {
+  "message": "在按鈕上捲動：向上寫筆記，向下「執行」，也可以按右鍵"
+ },
+ "setSecGeneral": {
+  "message": "一般"
+ },
+ "setSecButton": {
+  "message": "浮動按鈕與選取"
+ },
+ "setSecWriting": {
+  "message": "快速插入與寫作"
+ },
+ "setSecAgent": {
+  "message": "「執行」：網頁上的任務"
+ },
+ "setSecCookies": {
+  "message": "Cookie 視窗"
+ },
+ "setSecChats": {
+  "message": "對話與空間"
+ },
+ "setSecData": {
+  "message": "隱私權與資料"
+ },
+ "setSecPlan": {
+  "message": "方案與帳號"
+ },
+ "setSecAbout": {
+  "message": "關於"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

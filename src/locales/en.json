@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "needs Calendar access",
   "agentPlanCalAsk": "Check your calendar?",
   "agentCalNotChecked": "didn't check your calendar: no access",
-  "agentPlanFromChat": "From the chat: {0}"
+  "agentPlanFromChat": "From the chat: {0}",
+
+  "sendMenuNote": "Note",
+  "noteHintPointerDo": "Scroll on the button: up for a note, down for Do, or right-click it",
+  "setSecGeneral": "General",
+  "setSecButton": "Floating button and selection",
+  "setSecWriting": "Quick insert and writing",
+  "setSecAgent": "Do: tasks on pages",
+  "setSecCookies": "Cookie windows",
+  "setSecChats": "Chats and Spaces",
+  "setSecData": "Privacy and data",
+  "setSecPlan": "Plan and account",
+  "setSecAbout": "About"
 }

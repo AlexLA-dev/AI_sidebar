@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "من الدردشة: {0}"
  },
+ "sendMenuNote": {
+  "message": "ملاحظة"
+ },
+ "noteHintPointerDo": {
+  "message": "مرّر فوق الزر: لأعلى لملاحظة، ولأسفل لـ«نفّذ»، أو انقر عليه بالزر الأيمن"
+ },
+ "setSecGeneral": {
+  "message": "عام"
+ },
+ "setSecButton": {
+  "message": "الزر العائم والتحديد"
+ },
+ "setSecWriting": {
+  "message": "الإدراج السريع والكتابة"
+ },
+ "setSecAgent": {
+  "message": "«نفّذ»: مهام على الصفحات"
+ },
+ "setSecCookies": {
+  "message": "نوافذ ملفات تعريف الارتباط"
+ },
+ "setSecChats": {
+  "message": "المحادثات والمساحات"
+ },
+ "setSecData": {
+  "message": "الخصوصية والبيانات"
+ },
+ "setSecPlan": {
+  "message": "الخطة والحساب"
+ },
+ "setSecAbout": {
+  "message": "حول التطبيق"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

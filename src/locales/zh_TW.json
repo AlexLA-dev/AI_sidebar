@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "需要行事曆取用權限",
   "agentPlanCalAsk": "要參考行事曆嗎？",
   "agentCalNotChecked": "未檢查行事曆：無取用權限",
-  "agentPlanFromChat": "來自聊天：{0}"
+  "agentPlanFromChat": "來自聊天：{0}",
+
+  "sendMenuNote": "筆記",
+  "noteHintPointerDo": "在按鈕上捲動：向上寫筆記，向下「執行」，也可以按右鍵",
+  "setSecGeneral": "一般",
+  "setSecButton": "浮動按鈕與選取",
+  "setSecWriting": "快速插入與寫作",
+  "setSecAgent": "「執行」：網頁上的任務",
+  "setSecCookies": "Cookie 視窗",
+  "setSecChats": "對話與空間",
+  "setSecData": "隱私權與資料",
+  "setSecPlan": "方案與帳號",
+  "setSecAbout": "關於"
 }

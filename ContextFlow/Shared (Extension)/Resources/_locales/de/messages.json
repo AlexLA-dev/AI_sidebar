@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "Aus dem Chat: {0}"
  },
+ "sendMenuNote": {
+  "message": "Notiz"
+ },
+ "noteHintPointerDo": {
+  "message": "Auf der Taste scrollen: nach oben für eine Notiz, nach unten für „Erledigen“ – oder Rechtsklick"
+ },
+ "setSecGeneral": {
+  "message": "Allgemein"
+ },
+ "setSecButton": {
+  "message": "Schwebender Button und Auswahl"
+ },
+ "setSecWriting": {
+  "message": "Schnelleinfügen und Schreiben"
+ },
+ "setSecAgent": {
+  "message": "„Erledigen“: Aufgaben auf Seiten"
+ },
+ "setSecCookies": {
+  "message": "Cookie-Fenster"
+ },
+ "setSecChats": {
+  "message": "Chats und Bereiche"
+ },
+ "setSecData": {
+  "message": "Datenschutz und Daten"
+ },
+ "setSecPlan": {
+  "message": "Tarif und Konto"
+ },
+ "setSecAbout": {
+  "message": "Über die App"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

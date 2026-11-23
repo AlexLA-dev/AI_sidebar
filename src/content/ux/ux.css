@@ -78,6 +78,9 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-msg-menu button:hover { background: var(--bg-2); }
 .cf-msg-menu button.danger { color: var(--danger); }
 .cf[data-touch] .cf-msg-menu button { padding: 11px 12px; font-size: 15px; }
+/* The send button's menu (2.7.1, SendMenu.tsx): over the button, at the composer's end. */
+.cf-msg-menu.cf-send-menu { inset-inline-start: auto; inset-inline-end: 12px; bottom: calc(100% - 2px); z-index: 4; min-width: 170px; }
+.cf-send-menu-on { display: flex; margin-inline-start: auto; color: var(--accent-text); }
 /* Mac: pin, remind and delete in the tools row, on hover (the same as in the menu and on right-click). */
 .cf-hover-tools { display: none; gap: 1px; }
 .cf-hover-tools button { padding: 4px 6px; }

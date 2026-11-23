@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "necesita acceso al calendario",
   "agentPlanCalAsk": "¿Tener en cuenta el calendario?",
   "agentCalNotChecked": "no revisé el calendario: sin acceso",
-  "agentPlanFromChat": "Del chat: {0}"
+  "agentPlanFromChat": "Del chat: {0}",
+
+  "sendMenuNote": "Nota",
+  "noteHintPointerDo": "Desplázate sobre el botón: hacia arriba para una nota, hacia abajo para «Hacer», o haz clic derecho",
+  "setSecGeneral": "General",
+  "setSecButton": "Botón flotante y selección",
+  "setSecWriting": "Inserción rápida y escritura",
+  "setSecAgent": "«Hacer»: tareas en las páginas",
+  "setSecCookies": "Ventanas de cookies",
+  "setSecChats": "Chats y espacios",
+  "setSecData": "Privacidad y datos",
+  "setSecPlan": "Plan y cuenta",
+  "setSecAbout": "Acerca de"
 }

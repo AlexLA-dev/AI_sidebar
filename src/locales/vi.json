@@ -1245,5 +1245,17 @@
   "agentRuleCalNeeds": "cần quyền truy cập Lịch",
   "agentPlanCalAsk": "Xét đến lịch?",
   "agentCalNotChecked": "chưa kiểm tra lịch: không có quyền",
-  "agentPlanFromChat": "Từ cuộc trò chuyện: {0}"
+  "agentPlanFromChat": "Từ cuộc trò chuyện: {0}",
+
+  "sendMenuNote": "Ghi chú",
+  "noteHintPointerDo": "Cuộn trên nút: lên để ghi chú, xuống để “Làm”, hoặc nhấp chuột phải vào nút",
+  "setSecGeneral": "Chung",
+  "setSecButton": "Nút nổi và vùng chọn",
+  "setSecWriting": "Chèn nhanh và viết",
+  "setSecAgent": "“Làm”: việc trên trang",
+  "setSecCookies": "Cửa sổ cookie",
+  "setSecChats": "Cuộc trò chuyện và không gian",
+  "setSecData": "Quyền riêng tư và dữ liệu",
+  "setSecPlan": "Gói và tài khoản",
+  "setSecAbout": "Giới thiệu"
 }

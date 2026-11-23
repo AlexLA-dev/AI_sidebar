@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "Del chat: {0}"
  },
+ "sendMenuNote": {
+  "message": "Nota"
+ },
+ "noteHintPointerDo": {
+  "message": "Desplázate sobre el botón: hacia arriba para una nota, hacia abajo para «Hacer», o haz clic derecho"
+ },
+ "setSecGeneral": {
+  "message": "General"
+ },
+ "setSecButton": {
+  "message": "Botón flotante y selección"
+ },
+ "setSecWriting": {
+  "message": "Inserción rápida y escritura"
+ },
+ "setSecAgent": {
+  "message": "«Hacer»: tareas en las páginas"
+ },
+ "setSecCookies": {
+  "message": "Ventanas de cookies"
+ },
+ "setSecChats": {
+  "message": "Chats y espacios"
+ },
+ "setSecData": {
+  "message": "Privacidad y datos"
+ },
+ "setSecPlan": {
+  "message": "Plan y cuenta"
+ },
+ "setSecAbout": {
+  "message": "Acerca de"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

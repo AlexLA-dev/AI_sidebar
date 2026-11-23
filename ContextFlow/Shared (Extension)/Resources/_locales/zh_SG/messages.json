@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "来自聊天：{0}"
  },
+ "sendMenuNote": {
+  "message": "笔记"
+ },
+ "noteHintPointerDo": {
+  "message": "在按钮上滚动：向上写笔记，向下“执行”，也可以右键点按"
+ },
+ "setSecGeneral": {
+  "message": "通用"
+ },
+ "setSecButton": {
+  "message": "悬浮按钮与选择"
+ },
+ "setSecWriting": {
+  "message": "快速插入与写作"
+ },
+ "setSecAgent": {
+  "message": "“执行”：网页上的任务"
+ },
+ "setSecCookies": {
+  "message": "Cookie 窗口"
+ },
+ "setSecChats": {
+  "message": "对话与空间"
+ },
+ "setSecData": {
+  "message": "隐私与数据"
+ },
+ "setSecPlan": {
+  "message": "套餐与账户"
+ },
+ "setSecAbout": {
+  "message": "关于"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

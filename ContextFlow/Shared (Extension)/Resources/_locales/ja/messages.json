@@ -3647,6 +3647,39 @@
  "agentPlanFromChat": {
   "message": "チャットから：{0}"
  },
+ "sendMenuNote": {
+  "message": "メモ"
+ },
+ "noteHintPointerDo": {
+  "message": "ボタンの上でスクロール：上でメモ、下で「実行」。右クリックでも選べます"
+ },
+ "setSecGeneral": {
+  "message": "一般"
+ },
+ "setSecButton": {
+  "message": "フローティングボタンと選択"
+ },
+ "setSecWriting": {
+  "message": "クイック挿入と文章"
+ },
+ "setSecAgent": {
+  "message": "「実行」：ページでの作業"
+ },
+ "setSecCookies": {
+  "message": "Cookieの確認画面"
+ },
+ "setSecChats": {
+  "message": "チャットとスペース"
+ },
+ "setSecData": {
+  "message": "プライバシーとデータ"
+ },
+ "setSecPlan": {
+  "message": "プランとアカウント"
+ },
+ "setSecAbout": {
+  "message": "このアプリについて"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
