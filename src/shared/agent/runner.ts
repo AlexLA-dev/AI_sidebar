@@ -123,6 +123,10 @@ export interface AgentState {
   // calendar ever opened; the page had 26 Dec free and 5 Dec greyed).
   sawDate?: boolean
   dateNudged?: boolean
+  // The booking's day as the page shows it greyed (a strip greys days it hasn't loaded: fresha's «Sat 26 Dec» answered
+  // «fully booked… Available from Mon, Dec 28» once pressed), and whether it was pressed once to hear the page.
+  greyTarget?: string
+  pressedTarget?: boolean
   // The rules let the agent choose the place; how many times a question was sent back to try the next one.
   chooseVenue?: boolean
   venueNudges?: number
@@ -419,8 +423,15 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem): string
     return null
   }
   if (!isDateLabel(item.label)) return null
-  const greyed = (i: MapItem) => !!i.state?.some((x) => x === "unavailable" || x === "disabled")
+  const greyed = greyedItem
   if (greyed(item)) {
+    // The day asked for, greyed: pressed once, the page's answer is what counts (a strip greys days not loaded yet).
+    const target = state.plan?.booking?.date
+    if (target && !state.pressedTarget && dayItems(map, target).some((i) => i.id === item.id)) {
+      state.pressedTarget = true
+      state.sawDate = true
+      return null
+    }
     const days = map.items.filter((i) => isDateLabel(i.label))
     // A strip that shows every day greyed until one is tapped: one tap, then read again.
     if (days.length >= 3 && days.every(greyed) && !state.wokeStrip) {
@@ -456,8 +467,18 @@ const MONTH_STEMS: string[][] = [
 /** Whether the page shows the day (YYYY-MM-DD): a label with its number and month, a «26.12», or a calendar's bare
  *  «26» with the month named on the page. */
 export function seesDate(map: PageMap, iso: string): boolean {
+  return dayItems(map, iso).length > 0
+}
+
+/** A day or slot the page shows as not choosable (marked by the map). */
+function greyedItem(i: MapItem): boolean {
+  return !!i.state?.some((x) => x === "unavailable" || x === "disabled")
+}
+
+/** The page's controls that are the day (YYYY-MM-DD). */
+export function dayItems(map: PageMap, iso: string): MapItem[] {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
-  if (!m) return false
+  if (!m) return []
   const month = Number(m[2]) - 1
   const day = Number(m[3])
   const stems = MONTH_STEMS[month] ?? []
@@ -468,7 +489,7 @@ export function seesDate(map: PageMap, iso: string): boolean {
   const num = new RegExp(`(^|[^\\d])0?${day}(?![\\d:])`)
   const dotted = new RegExp(`(^|[^\\d])0?${day}[./]0?${month + 1}(?!\\d)`)
   const monthOnPage = named(map.text) || named(map.title) || map.items.some((i) => named(i.label))
-  return map.items.some((i) => {
+  return map.items.filter((i) => {
     const l = i.label
     if (l.length > 60) return false
     if (dotted.test(l)) return true
@@ -522,6 +543,8 @@ async function openNext(state: AgentState, io: RunnerIO, why: string): Promise<b
   state.dateSteps = 0
   state.lastDate = undefined
   state.wokeStrip = false
+  state.sawDate = state.pressedTarget = state.dateNudged = false
+  state.greyTarget = undefined
   await io.open(next.url)
   state.log.push({ call: { tool: "go", why: next.name }, result: `the device opened the next place by the rules, «${next.name}» (${next.rating}, ${next.reviews} reviews), because ${why.slice(0, 160)}` })
   state.lines.push(line({ tool: "go" }, { cls: "free", reason: "next_place" }, null, true, next.name))
@@ -618,7 +641,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     state.host = hostOf(map.url)
     noteVenues(state, map)
-    if (state.plan?.approved && state.plan.booking?.date && !state.sawDate && seesDate(map, state.plan.booking.date)) state.sawDate = true
+    if (state.plan?.approved && state.plan.booking?.date && !state.sawDate) {
+      const days = dayItems(map, state.plan.booking.date)
+      if (days.some((i) => !greyedItem(i))) state.sawDate = true
+      else if (days.length) state.greyTarget = days[0].label
+    }
     // A booking whose form is a booking provider's frame on this page (Dishoom's SevenRooms, 121 sweep: «I've tried "Book a
     // table" five times»): the device opens that form on its own page, once; the provider counts as this task's site.
     const widget = state.plan?.approved && state.plan.booking && !state.widgetOpened ? map.frames?.find((f) => BOOKING_PROVIDER.test(f.host)) : undefined
@@ -725,7 +752,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged) {
       state.dateNudged = true
       const day = dayWords(state.plan.booking.date)
-      const why = `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first (the page's calendar or date button and its «next month» arrow, or scroll the date strip), read it, then go on; ask only with days the page showed as free`
+      const why = state.greyTarget
+        ? `«${state.greyTarget}» shows greyed, which can mean the page hasn't loaded that day yet: press it once and read what the page says (free times, or «fully booked», «Available from …»), then go on; ask only with days and times the page showed as free`
+        : `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first (the page's calendar or date button and its «next month» arrow, or scroll the date strip), read it, then go on; ask only with days the page showed as free`
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
       state.refused = why
       continue
