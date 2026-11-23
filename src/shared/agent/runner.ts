@@ -417,15 +417,27 @@ const BOOKING_PROVIDER = /(^|\.)(sevenrooms\.com|opentable\.[a-z.]+|resy\.com|qu
 const SEARCH_BOX = /search|find|treatment|salon|cuisine|restaurant|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|検索|검색|搜索|搜尋|بحث|tìm/i
 
 // A day in a date strip or calendar: a weekday or a month next to a day's number («Sat 26 Dec», «вт, 29 дек», «29.12»).
-const DATE_LABEL = /(^|[^\p{L}])(mon|tue|wed|thu|fri|sat|sun|пн|вт|ср|чт|пт|сб|вс|понед|вторн|сред|четв|пятн|субб|воскр|mo|di|mi|do|fr|sa|so|lun|mar|mer|jeu|ven|sam|dim|lu|ma|ju|vi|sá|do|seg|ter|qua|qui|sex|sáb|dom|pzt|sal|çar|per|cum|cmt|paz)\p{L}*\.?,?\s*\d{1,2}(?!\d)|(^|[^\d])\d{1,2}\s*\.?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|янв|фев|мар|апр|ма[йя]|июн|июл|авг|сен|окт|ноя|дек|jän|mär|okt|dez|janv|févr|avr|mai|juin|juil|août|sept|déc|ene|abr|ago|dic|gen|mag|giu|lug|set|ott|out|dez)|(^|[^\d])\d{1,2}[./]\d{1,2}(?![\d:])/iu
+const DATE_LABEL = /(^|[^\p{L}])(mon|tue|wed|thu|fri|sat|sun|пн|вт|ср|чт|пт|сб|вс|понед|вторн|сред|четв|пятн|субб|воскр|mo|di|mi|do|fr|sa|so|lun|mar|mer|jeu|ven|sam|dim|lu|ma|ju|vi|sá|do|seg|ter|qua|qui|sex|sáb|dom|pzt|sal|çar|per|cum|cmt|paz)\p{L}*\.?,?\s*\d{1,2}(?!\d)|(^|[^\d])\d{1,2}\s*\.?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|янв|фев|мар|апр|ма[йя]|июн|июл|авг|сен|окт|ноя|дек|jän|mär|okt|dez|janv|févr|avr|mai|juin|juil|août|sept|déc|ene|abr|ago|dic|gen|mag|giu|lug|set|ott|out|dez)|(^|[^\d])\d{1,2}[./]\d{1,2}(?![\d:])|(^|[^\p{L}])(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\p{L}*\.?\s+\d{1,2}(?![\d:])/iu
 
 export function isDateLabel(label: string): boolean {
   return label.length <= 40 && DATE_LABEL.test(label) && !looksLikeSlot(label)
 }
 
 /** A date press as the page and the task stand: why it isn't done, or null to go on. */
-export function dateStep(state: AgentState, map: PageMap, item: MapItem): string | null {
+export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: ToolCall): string | null {
   if (looksLikeSlot(item.label)) {
+    // A time is for the day the page has chosen (fresha, 124: «Sat 26 Dec» greyed and pressed wasn't chosen; 11:30 was
+    // the first day's, «booked» as the 26th): the day it's said to be on must be the chosen one.
+    const day = (call?.date && /^\d{4}-\d{2}-\d{2}$/.test(call.date) ? call.date : "") || state.plan?.booking?.date || ""
+    if (day) {
+      const chosen = map.items.filter((i) => isDateLabel(i.label) && i.state?.some((x) => x === "selected" || x === "pressed" || x === "current" || x === "checked"))
+      const mine = dayItems(map, day)
+      const words = dayWords(day)
+      if (chosen.length && mine.length && !chosen.some((c) => mine.some((m) => m.id === c.id)))
+        return `the page's chosen day is «${chosen[0].label}», not ${words}: the times shown are for that day. Press ${words} first, or ask with what the page shows`
+      if (!chosen.length && mine.length && mine.every(greyedItem))
+        return `${words} shows greyed and isn't chosen on the page, so the times shown aren't for it: read the page's answer for that day («fully booked», «Available from …») and ask_user with the page's real nearest options`
+    }
     // A time: the dates got somewhere.
     state.dateSteps = 0
     return null
@@ -809,7 +821,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // Dates (124, the owner on fresha: 11 steps re-pressing «Sat, Dec 26» that the page showed greyed): a day or a
     // slot the page shows as unavailable is never pressed (when the whole strip is greyed, one may be tapped once to
     // wake it); the same date isn't pressed twice; after two date steps without progress, the one question.
-    const dateRefusal = seenItem && (call.tool === "click" || call.tool === "select") && state.plan?.booking ? dateStep(state, map, seenItem) : null
+    const dateRefusal = seenItem && (call.tool === "click" || call.tool === "select") && state.plan?.booking ? dateStep(state, map, seenItem, call) : null
     if (dateRefusal) {
       state.log.push({ call, target: target ?? undefined, result: `refused: ${dateRefusal}` })
       state.refused = dateRefusal

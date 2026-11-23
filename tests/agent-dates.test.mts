@@ -206,3 +206,22 @@ test("the place pick reads the list's cards past the map's first part; the optio
   assert.equal(s.plan!.questions[0].pick, "Men's Haircut", "the service the request names")
   assert.equal(s.plan!.questions[1].pick, undefined, "a pick that isn't an option is dropped")
 })
+
+test("a time is pressed only for the day the page has chosen (fresha, 124: 11:30 of the first day «booked» as Sat 26 Dec)", () => {
+  const st = (): AgentState => ({ ...newState("s", "haircut", "en", "https://www.fresha.com/a/x"), plan: { booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30 } } as any })
+  const page = (items: MapItem[]): PageMap => ({ url: "https://www.fresha.com/a/x", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items })
+  const slot: MapItem = { id: "9", role: "button", label: "11:30 AM" }
+  assert.equal(isDateLabel("Select Tue, Nov 24, 2026"), true, "the US order")
+  // The greyed 26th, nothing chosen: the times aren't the 26th's.
+  let why = dateStep(st(), page([{ id: "1", role: "button", label: "Tue 22 Dec" }, { id: "2", role: "button", label: "Sat 26 Dec", state: ["unavailable"] }, slot]), slot, { tool: "click", id: "9", date: "2026-12-26", time: "11:30" })
+  assert.ok(why && /isn't chosen/.test(why))
+  // Another day chosen.
+  why = dateStep(st(), page([{ id: "1", role: "button", label: "Select Tue, Nov 24, 2026", state: ["selected"] }, { id: "2", role: "button", label: "Select Sat, Dec 26, 2026" }, slot]), slot, { tool: "click", id: "9", date: "2026-12-26", time: "11:30" })
+  assert.ok(why && /chosen day is «Select Tue, Nov 24, 2026»/.test(why))
+  // The 26th chosen: fine.
+  why = dateStep(st(), page([{ id: "2", role: "button", label: "Sat 26 Dec", state: ["selected"] }, slot]), slot, { tool: "click", id: "9", date: "2026-12-26", time: "11:30" })
+  assert.equal(why, null)
+  // A page that marks no day and shows the 26th plainly: fine.
+  why = dateStep(st(), page([{ id: "2", role: "button", label: "Sat 26 Dec" }, slot]), slot, { tool: "click", id: "9", date: "2026-12-26", time: "11:30" })
+  assert.equal(why, null)
+})
