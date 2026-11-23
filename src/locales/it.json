@@ -1268,5 +1268,6 @@
   "fdICloudFailed": "Non sincronizzato: iCloud non ha risposto. Si riproverà la prossima volta.",
   "agentRuleAnySpecialistHint": "Parrucchiere, stilista, medico, istruttore o guida: chi è libero. Disattivato: ti chiedo con chi.",
   "errLink": "ContextFlow ha perso il collegamento con questa pagina (iOS potrebbe averlo chiuso mentre un'altra app era aperta). Riprova o, se succede di nuovo, ricarica la pagina.",
-  "reloadPage": "Ricarica la pagina"
+  "reloadPage": "Ricarica la pagina",
+  "agentPlanVenueQ": "Dove prenotare (scelto secondo le tue regole)"
 }

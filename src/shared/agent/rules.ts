@@ -51,7 +51,7 @@ export function rulesLine(r: AgentRules, calendarFree: boolean): string {
     `a requested time may move up to ${r.window} minutes either way`,
     r.days ? `if the requested day has no free time, up to ${r.days} day${r.days === 1 ? "" : "s"} later` : "the requested day only",
     `${r.party} ${r.party === 1 ? "person" : "people"} when the request doesn't say how many`,
-    r.anySpecialist ? "any specialist" : "ask which specialist",
+    r.anySpecialist ? "the specialist the plan's answer names («any» is its first option)" : "ask which specialist",
     r.usual ? "the service chosen last time on this site when the answers say it" : "",
     calendarFree ? "only times free in the person's calendar (<calendar>)" : "",
     r.chooseVenue ? `when the request names no place, choose it yourself: what it offers matches the request, rated ${r.rating} or more with at least 20 reviews, open with free slots then, the nearest to where the request or the site says; if its slots don't fit, try the next two before asking` : "when the request names no place, ask which one"

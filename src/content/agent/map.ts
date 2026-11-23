@@ -263,6 +263,58 @@ function stateOf(el: Element, role: Role): string[] {
   return s
 }
 
+// Class names sites give a day or a slot that can't be chosen.
+const UNAVAILABLE_CLASS = /(^|[-_\s])(disabled|unavailable|not-?available|inactive|blocked|sold-?out|booked|is-?full|day--disabled|outside)([-_\s]|$)/i
+
+/** Whether the page shows this control as not choosable: its class, faded (opacity), or not taking presses. */
+function unavailableByLook(el: Element): boolean {
+  const view = el.ownerDocument.defaultView
+  let opacity = 1
+  let e: Element | null = el
+  for (let i = 0; e && i < 3; i++, e = e.parentElement) {
+    const cls = typeof (e as HTMLElement).className === "string" ? (e as HTMLElement).className : e.getAttribute("class") ?? ""
+    if (i < 2 && UNAVAILABLE_CLASS.test(cls)) return true
+    const style = view?.getComputedStyle?.(e)
+    if (!style) continue
+    opacity *= Number(style.opacity || "1")
+    if (i === 0 && style.pointerEvents === "none") return true
+  }
+  return opacity < 0.6
+}
+
+const rgb = (c: string): [number, number, number, number] | null => {
+  const m = /rgba?\(([^)]+)\)/.exec(c)
+  if (!m) return null
+  const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number)
+  return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]
+}
+const lum = ([r, g, b]: [number, number, number, number]) => {
+  const f = (v: number) => {
+    const x = v / 255
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+}
+
+/** The contrast of a control's text against the background behind it (0 when it can't be told). */
+function textContrast(el: Element): number {
+  const view = el.ownerDocument.defaultView
+  const style = view?.getComputedStyle?.(el)
+  const fg = style ? rgb(style.color) : null
+  if (!fg) return 0
+  let bg: [number, number, number, number] | null = null
+  for (let e: Element | null = el; e && !bg; e = e.parentElement) {
+    const c = rgb(view?.getComputedStyle?.(e).backgroundColor ?? "")
+    if (c && c[3] > 0.5) bg = c
+  }
+  bg = bg ?? [255, 255, 255, 1]
+  // A see-through text colour is its blend with the background.
+  const mix: [number, number, number, number] = [fg[0] * fg[3] + bg[0] * (1 - fg[3]), fg[1] * fg[3] + bg[1] * (1 - fg[3]), fg[2] * fg[3] + bg[2] * (1 - fg[3]), 1]
+  const a = lum(mix)
+  const b = lum(bg)
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+}
+
 function hiddenByStyle(el: Element): boolean {
   const view = el.ownerDocument.defaultView
   for (let e: Element | null = el; e; e = e.parentElement ?? ((e.getRootNode() as ShadowRoot).host ?? null)) {
@@ -435,6 +487,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
 
   const width = view?.innerWidth ?? 400
   const items: Array<MapItem & { order: number; side?: boolean }> = []
+  const looks: Array<{ item: MapItem; el: Element; group: Element | null; contrast: number }> = []
   const overlays = new Set<Element>()
   const seen = new Set<Element>()
   found.forEach((f, order) => {
@@ -491,8 +544,26 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     }
     const options = optionsOf(el, role)
     if (options?.length) item.options = options
+    // A date or a time that can't be chosen, as the page shows it (124, the owner: «по яркости даты видно доступна ли
+    // она»): its class, its fading, or later its text against its siblings'.
+    if (!item.lock && (role === "button" || role === "option" || role === "radio" || role === "link") && !item.state?.includes("disabled") && unavailableByLook(el)) item.state = [...(item.state ?? []), "unavailable"]
+    // (Only dates and times — a short label with a number — are compared with their siblings: a nav bar's styling isn't.)
+    if (!item.lock && (role === "button" || role === "option" || role === "radio" || role === "link") && /\d/.test(item.label) && item.label.length <= 30) looks.push({ item, el, group: el.parentElement?.parentElement ?? el.parentElement, contrast: textContrast(el) })
     items.push(item)
   })
+  // Greyed among its own: a control whose text is much fainter than its siblings' (a date strip where the days that
+  // can't be booked are light grey), when the strip has four or more and some are clearly darker.
+  const byGroup = new Map<Element | null, typeof looks>()
+  for (const l of looks) byGroup.set(l.group, [...(byGroup.get(l.group) ?? []), l])
+  for (const group of byGroup.values()) {
+    const known = group.filter((l) => l.contrast > 0)
+    if (known.length < 4) continue
+    const best = Math.max(...known.map((l) => l.contrast))
+    if (best < 3) continue
+    for (const l of known) {
+      if (l.contrast < best * 0.55 && !l.item.state?.some((x) => x === "unavailable" || x === "disabled" || x === "selected" || x === "pressed" || x === "current")) l.item.state = [...(l.item.state ?? []), "unavailable"]
+    }
+  }
 
   // The forms: what they hold (a password or a card makes a form secret; a field to fill makes it fillable).
   const byForm = new Map<number, PageForm>()

@@ -113,6 +113,11 @@ export interface AgentState {
   playbook?: string
   slot?: { date: string; time: string }
   slotRefusals?: number
+  // Date presses without progress (a time to choose), the last date pressed, and whether a fully greyed strip was
+  // tapped once to wake it.
+  dateSteps?: number
+  lastDate?: string
+  wokeStrip?: boolean
   // The rules let the agent choose the place; how many times a question was sent back to try the next one.
   chooseVenue?: boolean
   venueNudges?: number
@@ -357,13 +362,25 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     plan.how.ask = here.calendar
     state.calSkipped = true
   }
+  // Where to book, shown (124, the owner: «переуточнять… если эта деталь не была уточнена»): a booking that names no
+  // place, on a results list, gets the place the rules would choose as a picked, changeable answer, with the next two.
+  if (plan.booking && !plan.booking.venue && rules.chooseVenue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) {
+    const ranked = rankVenues(venuesOn(map), cardsOf(map), plan.booking.match ?? [], rules.rating, plan.booking.area ?? []).slice(0, 3)
+    if (ranked.length) {
+      plan.questions.push({ q: "", kind: "venue", options: ranked.map((v) => v.name), pick: ranked[0].name })
+      // The question shows the choice: no «I'll pick the place» line besides it.
+      if (plan.how) plan.how.rating = 0
+    }
+  }
   // The booking's contact form (a later page): the saved name, e-mail and phone go in as the plan's fill.
   addContactFill(plan, liveEntries(entries).map((e) => e.key), hostOf(map.url))
   // Nothing left to ask (every answer known from «Мои данные», this site's remembered choices or the rules; nothing paid;
   // a site booked on before): no card, the task starts with its answers in one line and Stop.
-  const pre = savedAnswers(plan, savedFacts(entries))
+  // (A place the rules picked counts as known: the card would only show it.)
+  const pre = savedAnswers(plan, savedFacts(entries)).map((a, i) => a || plan.questions[i]?.pick || "")
   if (rules.auto && plan.booking && !!book?.length && pre.every((a) => !!a.trim()) && goesAlone(plan, map)) {
-    plan.answers = plan.questions.map((q, i) => ({ q: q.q, a: pre[i] }))
+    plan.answers = plan.questions.map((q, i) => ({ q: q.q || (q.kind === "venue" ? "Where to book" : ""), a: pre[i] }))
+    placeFromAnswers(state, plan, pre)
     plan.perms = plan.perms.map((p) => ({ ...p, on: true }))
     plan.approved = true
     plan.auto = true
@@ -381,6 +398,39 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
 const BOOKING_PROVIDER = /(^|\.)(sevenrooms\.com|opentable\.[a-z.]+|resy\.com|quandoo\.[a-z.]+|zenchef\.com|formitable\.com|tablein\.com|bookatable\.[a-z.]+|designmynight\.com|collinsbookings\.com|resdiary\.com|thefork\.[a-z.]+|lafourchette\.com|fresha\.com|treatwell\.[a-z.]+|booksy\.com|setmore\.com|simplybook\.[a-z.]+|vagaro\.com|mindbodyonline\.com|squareup\.com|square\.site|timely\.com|gettimely\.com|phorest\.com|shedul\.com|planity\.com|doctolib\.[a-z.]+|calendly\.com|acuityscheduling\.com)$/i
 
 const SEARCH_BOX = /search|find|treatment|salon|cuisine|restaurant|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|検索|검색|搜索|搜尋|بحث|tìm/i
+
+// A day in a date strip or calendar: a weekday or a month next to a day's number («Sat 26 Dec», «вт, 29 дек», «29.12»).
+const DATE_LABEL = /(^|[^\p{L}])(mon|tue|wed|thu|fri|sat|sun|пн|вт|ср|чт|пт|сб|вс|понед|вторн|сред|четв|пятн|субб|воскр|mo|di|mi|do|fr|sa|so|lun|mar|mer|jeu|ven|sam|dim|lu|ma|ju|vi|sá|do|seg|ter|qua|qui|sex|sáb|dom|pzt|sal|çar|per|cum|cmt|paz)\p{L}*\.?,?\s*\d{1,2}(?!\d)|(^|[^\d])\d{1,2}\s*\.?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|янв|фев|мар|апр|ма[йя]|июн|июл|авг|сен|окт|ноя|дек|jän|mär|okt|dez|janv|févr|avr|mai|juin|juil|août|sept|déc|ene|abr|ago|dic|gen|mag|giu|lug|set|ott|out|dez)|(^|[^\d])\d{1,2}[./]\d{1,2}(?![\d:])/iu
+
+export function isDateLabel(label: string): boolean {
+  return label.length <= 40 && DATE_LABEL.test(label) && !looksLikeSlot(label)
+}
+
+/** A date press as the page and the task stand: why it isn't done, or null to go on. */
+export function dateStep(state: AgentState, map: PageMap, item: MapItem): string | null {
+  if (looksLikeSlot(item.label)) {
+    // A time: the dates got somewhere.
+    state.dateSteps = 0
+    return null
+  }
+  if (!isDateLabel(item.label)) return null
+  const greyed = (i: MapItem) => !!i.state?.some((x) => x === "unavailable" || x === "disabled")
+  if (greyed(item)) {
+    const days = map.items.filter((i) => isDateLabel(i.label))
+    // A strip that shows every day greyed until one is tapped: one tap, then read again.
+    if (days.length >= 3 && days.every(greyed) && !state.wokeStrip) {
+      state.wokeStrip = true
+      return null
+    }
+    return `«${item.label}» is shown as not available on the page (greyed or disabled): don't press it. Choose an available day the rules allow (the page may name it: «Available from …»), or ask_user once with the page's real nearest options`
+  }
+  const steps = (state.dateSteps ?? 0) + 1
+  if (state.lastDate === item.label) return `«${item.label}» was pressed already: the page answered it. Choose another available day the rules allow, or ask_user once with the page's real nearest options`
+  if (steps > 2) return "two date steps went nowhere: don't press more dates. ask_user once now, with the page's real nearest options: the next available day it names («Available from …»), another specialist on the asked day, another place"
+  state.dateSteps = steps
+  state.lastDate = item.label
+  return null
+}
 
 /** Whether the page asks for the person's details: an empty field of theirs (name, e-mail, phone) on screen. */
 export function detailsForm(map: PageMap): boolean {
@@ -417,6 +467,9 @@ async function openNext(state: AgentState, io: RunnerIO, why: string): Promise<b
   const next = state.venues?.list.find((v) => !state.venues!.tried.includes(v.url))
   if (!next || !io.open) return false
   state.venues!.tried.push(next.url)
+  state.dateSteps = 0
+  state.lastDate = undefined
+  state.wokeStrip = false
   await io.open(next.url)
   state.log.push({ call: { tool: "go", why: next.name }, result: `the device opened the next place by the rules, «${next.name}» (${next.rating}, ${next.reviews} reviews), because ${why.slice(0, 160)}` })
   state.lines.push(line({ tool: "go" }, { cls: "free", reason: "next_place" }, null, true, next.name))
@@ -641,6 +694,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       continue
     }
     // A place that doesn't fit the request or the rules (a French restaurant for «Italian») isn't opened.
+    // Dates (124, the owner on fresha: 11 steps re-pressing «Sat, Dec 26» that the page showed greyed): a day or a
+    // slot the page shows as unavailable is never pressed (when the whole strip is greyed, one may be tapped once to
+    // wake it); the same date isn't pressed twice; after two date steps without progress, the one question.
+    const dateRefusal = seenItem && (call.tool === "click" || call.tool === "select") && state.plan?.booking ? dateStep(state, map, seenItem) : null
+    if (dateRefusal) {
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${dateRefusal}` })
+      state.refused = dateRefusal
+      continue
+    }
     const place = seenItem && (call.tool === "click" || call.tool === "go") ? venueOf(seenItem, map.url) : null
     if (place && state.venues && !state.venues.list.some((v) => v.url === place.url)) {
       const fit = state.venues.list.filter((v) => !state.venues!.tried.includes(v.url)).map((v) => `«${v.name}»`).slice(0, 4).join(", ")
@@ -866,11 +928,23 @@ export interface PlanApproval {
 }
 
 /** «Начать» on the plan card: the answers and the ticks kept, then the task goes on alone. */
+/** The place answered on the card (picked by the rules, or another): the booking goes there, nothing chosen on the way. */
+function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]): void {
+  const where = plan.questions.findIndex((q) => q.kind === "venue" || q.fact === "venue")
+  const place = where >= 0 ? (answers[where] ?? "").trim() : ""
+  // (The rules' own pick left as it was stays the rules': when it has no fitting slot, the next place is tried.)
+  if (plan.booking && place && place !== plan.questions[where].pick && plan.questions[where].options.includes(place)) {
+    plan.booking.venue = place
+    state.chooseVenue = false
+  }
+}
+
 export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApproval): Promise<AgentState> {
   if (state.status !== "plan" || !state.plan) return state
   const plan = state.plan
-  plan.answers = plan.questions.map((q, i) => ({ q: q.q, a: (a.answers[i] ?? "").slice(0, 200) }))
+  plan.answers = plan.questions.map((q, i) => ({ q: q.q || (q.kind === "venue" ? "Where to book" : ""), a: (a.answers[i] ?? "").slice(0, 200) }))
   plan.perms = plan.perms.map((p) => ({ ...p, on: !a.off.includes(p.id) }))
+  placeFromAnswers(state, plan, a.answers)
   plan.approved = true
   state.status = "running"
   await io.save(state)

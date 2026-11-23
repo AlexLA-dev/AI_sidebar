@@ -69,7 +69,7 @@ test("rules: stored values are clamped, the defaults fill the rest, the model he
   assert.equal(r.days, 0)
   assert.equal(r.party, 1)
   assert.equal(r.auto, true, "a value of the wrong kind keeps the default")
-  assert.match(rulesLine(DEFAULT_RULES, true), /60 minutes either way; .*2 days later; 2 people .*any specialist.*free in the person's calendar/)
+  assert.match(rulesLine(DEFAULT_RULES, true), /60 minutes either way; .*2 days later; 2 people .*«any» is its first option.*free in the person's calendar/)
   assert.doesNotMatch(rulesLine(DEFAULT_RULES, false), /calendar/)
 })
 

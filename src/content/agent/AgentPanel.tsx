@@ -196,7 +196,8 @@ function CalendarAsk({ state }: { state: "none" | "denied" }): VNode | null {
 function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember }: { plan: TaskPlan; host: string; onPlan: (a: PlanApproval, later?: LaterChoice) => void; later?: Props["later"]; onStop: () => void; failed?: string | null; saved?: Record<string, string>; onRemember?: (facts: Array<{ fact: string; value: string }>) => void }): VNode {
   // Questions about the person come pre-filled from «Мои данные» (the owner on 117: «не спрашивать снова»); a value not
   // among the options shows as the person's own words, to change if they like.
-  const pre = savedAnswers(plan, saved ?? {})
+  // Remembered answers, else what the plan picked already (the place chosen by the rules, shown and changeable).
+  const pre = savedAnswers(plan, saved ?? {}).map((a, i) => a || plan.questions[i]?.pick || "")
   const [answers, setAnswers] = useState<string[]>(() => pre)
   const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => !!pre[i] && !q.options.includes(pre[i])))
   // «Запомнить» under each question about the person: on by default.
@@ -253,7 +254,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
       {plan.fromChat && <p class="cf-agent-meta" dir="auto">{t("agentPlanFromChat", plan.fromChat)}</p>}
       {plan.questions.map((q, i) => (
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
-          <p dir="auto">{q.q}</p>
+          <p dir="auto">{q.q || (q.kind === "venue" ? t("agentPlanVenueQ") : "")}</p>
           <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
             {q.options.map((o) => (
               <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>{o}</button>

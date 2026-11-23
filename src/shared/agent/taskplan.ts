@@ -23,6 +23,10 @@ export interface PlanQuestion {
   // A question about the person themselves (gender, age, a size, a name): a short name for the fact ("Пол", "Размер
   // обуви"). The card pre-fills it from «Мои данные» and offers to remember the answer there (2.7.1, the owner on 117).
   fact?: string
+  // The answer picked already, changeable (a place the agent chose by the rules: shown, not silent; 124).
+  pick?: string
+  // The device's own question about where to book (its words come from the panel's language).
+  kind?: "venue"
 }
 
 export type PermKind = "press" | "personal" | "fill" | "consent" | "apple"
