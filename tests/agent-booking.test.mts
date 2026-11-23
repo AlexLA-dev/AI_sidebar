@@ -152,7 +152,8 @@ test("a time slot that clashes with the Calendar is never pressed; the model mus
 
 test("nothing booked (a sign-in left to the person), or the Calendar permission unticked: no event", async () => {
   const x = io([{ ok: true, plan: RAW, token: "t" }, step({ tool: "done", summary: "Sign in to finish" }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
-  await drive(newState("e", "haircut", "en", SALON.url), x)
+  const unbooked = await drive(newState("e", "haircut", "en", SALON.url), x)
+  assert.equal(unbooked.error, "unbooked", "a booking that didn't happen isn't shown as done")
   assert.equal(x.events.length, 0)
   const y = io([{ ok: true, plan: RAW, token: "t" }], { playbook: null })
   const s = await drive(newState("f", "haircut", "en", SALON.url), y)

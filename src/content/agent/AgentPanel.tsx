@@ -297,7 +297,7 @@ const READS = new Set(["read_page", "scroll", "extract", "back", "go", "reminder
 /** A finished task's mark on its folded line: done, waiting for an answer, stopped, or didn't work. */
 function markOf(status: PanelAgent["status"], error?: string): { sign: string; text: string; cls: string } {
   // Stopped short (the step limit, no progress): not ✓ (TestFlight 118).
-  if (status === "done" && (error === "steps" || error === "stuck")) return { sign: "…", text: t("agentMarkUnfinished"), cls: "stop" }
+  if (status === "done" && (error === "steps" || error === "stuck" || error === "unbooked")) return { sign: "…", text: t("agentMarkUnfinished"), cls: "stop" }
   switch (status) {
     case "done": return { sign: "✓", text: t("agentDoneTitle"), cls: "ok" }
     case "asked": return { sign: "⏸", text: t("agentMarkPaused"), cls: "wait" }
@@ -476,7 +476,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
         <div class="cf-agent-end">
           {state.status === "done" && (
             <>
-              <strong>{t(state.error === "steps" || state.error === "stuck" ? "agentMarkUnfinished" : "agentDoneTitle")}</strong>
+              <strong>{t(state.error === "steps" || state.error === "stuck" || state.error === "unbooked" ? "agentMarkUnfinished" : "agentDoneTitle")}</strong>
               {(state.error === "steps" || state.error === "stuck") && <p>{t(state.error === "stuck" ? "agentStuck" : "agentSteps")}</p>}
               {state.summary ? <Markdown text={state.summary} /> : null}
             </>

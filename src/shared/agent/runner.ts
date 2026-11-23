@@ -679,7 +679,11 @@ async function afterBooking(state: AgentState, io: RunnerIO, call: ToolCall, her
     const steps = playbookOf(state.log)
     if (steps.length) await io.playbook.put(site, steps).catch(() => undefined)
   }
-  if (!date || !time) return
+  // A booking task that ends without a booking (it stopped at a sign-in, it gave up): not «done» on its line.
+  if (!date || !time) {
+    state.error = state.error || "unbooked"
+    return
+  }
   state.booked = { date, time, ...(call.place ? { place: call.place.slice(0, 120) } : {}) }
   const perm = plan.perms.find((p) => p.kind === "apple" && p.reason === "event_add")
   const added = state.log.some((e) => e.call?.tool === "event_add" && !/^(failed|refused)/.test(e.result))
