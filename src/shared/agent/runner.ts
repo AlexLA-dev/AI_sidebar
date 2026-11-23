@@ -1110,6 +1110,10 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     state.askKey = undefined
     state.status = "running"
     state.stillReads = 0
+    // The answer sets the way on (fresha, 124: «Понедельник, 28 декабря» was refused as a third date step): the date
+    // steps count again from it.
+    state.dateSteps = 0
+    state.lastDate = undefined
     await io.save(state)
     return drive(state, io)
   }

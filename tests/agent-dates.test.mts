@@ -225,3 +225,12 @@ test("a time is pressed only for the day the page has chosen (fresha, 124: 11:30
   why = dateStep(st(), page([{ id: "2", role: "button", label: "Sat 26 Dec" }, slot]), slot, { tool: "click", id: "9", date: "2026-12-26", time: "11:30" })
   assert.equal(why, null)
 })
+
+test("the person's answer counts the date steps again (fresha, 124: «Mon 28 Dec» chosen, then refused as a third date step)", async () => {
+  const { answer } = await import("../src/shared/agent/runner.ts")
+  const st: AgentState = { ...newState("a", "haircut", "en", "https://www.fresha.com/a/x"), status: "asked", summary: "26 Dec is full", dateSteps: 2, lastDate: "Sun 27 Dec" }
+  const io = { save: async () => {}, map: async () => null, waitPage: async () => {} } as any
+  const after = await answer(st, io, "reply", ["Mon 28 Dec"]).catch(() => st)
+  assert.equal(after.dateSteps, 0)
+  assert.equal(after.lastDate, undefined)
+})
