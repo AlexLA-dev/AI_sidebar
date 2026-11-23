@@ -728,7 +728,15 @@
    in Tips' size, the chevron turning down when open; folded, a line under the title says what's set there. */
 .cf-set-sec { border-top: 1px solid var(--border); }
 .cf-set-sec:first-child { border-top: 0; }
-.cf-set-head { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 4px !important; text-align: start; color: var(--text); }
+/* The head reaches across the list's side padding (14px), so when it stays at the top (below) nothing shows beside it. */
+.cf-set-head { display: flex; align-items: center; gap: 8px; width: calc(100% + 28px); margin: 0 -14px; padding: 12px 18px !important; text-align: start; color: var(--text); background: var(--bg); }
+/* 2.7.1 (123, the owner: «удерживать шапку раздела, когда листаем вниз блок»): an open section's head stays at the top
+   of the list while its settings scroll under it, until the next section's head pushes it off (sticky within its own
+   section); a hairline under it while it's there. The list's own 12px top padding is above it. */
+.cf-set-sec.open > .cf-set-head:not(.static) { position: sticky; top: -12px; z-index: 2; }
+.cf-set-head[data-stuck] { box-shadow: 0 1px 0 var(--border); }
+/* «О приложении»: always open, its head a plain title. */
+.cf-set-head.static { cursor: default; padding-bottom: 6px !important; }
 .cf-set-head-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .cf-set-title { font-size: 15px; font-weight: 600; }
 .cf-set-sum { font-size: 12.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
