@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Sceglie «solo necessari»."
  },
+ "setCookiesAccept": {
+  "message": "Se non si può rifiutare, accetta"
+ },
  "cookiesOffOnSite": {
   "message": "Non chiudere su questo sito"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Finestra dei cookie chiusa: solo necessari"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookie accettati: non c'era altra scelta"
  },
  "phSimilarBodyUpBoth": {
   "message": "È in Pro e Ultra: in Pro la ricerca rapida, in Ultra quella completa. Lo stesso prodotto a meno e altri simili da altri negozi. Tocca il pulsante evidenziato."

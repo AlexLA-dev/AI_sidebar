@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "يختار «الضرورية فقط»."
  },
+ "setCookiesAccept": {
+  "message": "إذا تعذّر الرفض، اقبل"
+ },
  "cookiesOffOnSite": {
   "message": "لا تُغلق على هذا الموقع"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "أُغلقت نافذة ملفات تعريف الارتباط: الضرورية فقط"
+ },
+ "cookieAcceptedLine": {
+  "message": "قُبلت ملفات تعريف الارتباط: لم يكن هناك خيار آخر"
  },
  "phSimilarBodyUpBoth": {
   "message": "هذه ميزة في Pro وUltra: بحث سريع في Pro، وبحث كامل في Ultra. المنتج نفسه بسعر أقل ومنتجات مشابهة من متاجر أخرى. اضغط الزر المميّز."

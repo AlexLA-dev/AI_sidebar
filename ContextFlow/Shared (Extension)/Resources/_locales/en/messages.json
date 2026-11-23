@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Picks “only necessary”."
  },
+ "setCookiesAccept": {
+  "message": "If refusing isn't possible, accept"
+ },
  "cookiesOffOnSite": {
   "message": "Don't close on this site"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Closed a cookie window: only necessary"
+ },
+ "cookieAcceptedLine": {
+  "message": "Accepted cookies: there was no other choice"
  },
  "phSimilarBodyUpBoth": {
   "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."

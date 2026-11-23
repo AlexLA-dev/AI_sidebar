@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "“Yalnızca gerekli” seçeneğini seçer."
  },
+ "setCookiesAccept": {
+  "message": "Reddetmek mümkün değilse kabul et"
+ },
  "cookiesOffOnSite": {
   "message": "Bu sitede kapatma"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Çerez penceresi kapatıldı: yalnızca gerekli"
+ },
+ "cookieAcceptedLine": {
+  "message": "Çerezler kabul edildi: başka seçenek yoktu"
  },
  "phSimilarBodyUpBoth": {
   "message": "Bu özellik Pro ve Ultra'da: Pro'da hızlı arama, Ultra'da tam arama. Aynı ürün daha ucuza ve başka mağazalardan benzerleri. Vurgulanan düğmeye dokunun."

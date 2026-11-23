@@ -2831,6 +2831,9 @@
  "setCookiesHint": {
   "message": "Вибирає «лише необхідні»."
  },
+ "setCookiesAccept": {
+  "message": "Якщо відмовитися не можна — приймати"
+ },
  "cookiesOffOnSite": {
   "message": "Не закривати на цьому сайті"
  },
@@ -2839,6 +2842,9 @@
  },
  "cookieClosedLine": {
   "message": "Закрив вікно cookie: лише необхідні"
+ },
+ "cookieAcceptedLine": {
+  "message": "Прийняв cookie: іншого вибору не було"
  },
  "phSimilarBodyUpBoth": {
   "message": "Це в Pro та Ultra: у Pro — швидкий пошук, в Ultra — повний. Той самий товар дешевше і схожі варіанти з інших магазинів. Натисніть підсвічену кнопку."

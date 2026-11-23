@@ -86,7 +86,8 @@ function boot(): void {
     }
     // The cookie closer answered a banner in a consent platform's own frame of this page (2.7.1).
     if ((message as unknown as { type: string })?.type === "cookieFrameDone") {
-      void closedInFrame(String((message as unknown as { via?: unknown }).via ?? "frame"), announceClosed)
+      const told = message as unknown as { via?: unknown; accepted?: unknown }
+      void closedInFrame(String(told.via ?? "frame"), announceClosed, told.accepted === true)
       sendResponse({ ok: true })
     }
     // A new install asks before it opens its «ContextFlow is ready» tab over this page (src/shared/welcomeTab.ts).
