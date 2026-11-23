@@ -3608,6 +3608,45 @@
  "agentRuleRating": {
   "message": "Place rating from"
  },
+ "accessGroup": {
+  "message": "Calendar and Reminders"
+ },
+ "accessHint": {
+  "message": "The agent picks times that are free in your calendar and can add bookings to it. What's in your calendar never leaves the device."
+ },
+ "accessCalendar": {
+  "message": "Calendar"
+ },
+ "accessReminders": {
+  "message": "Reminders"
+ },
+ "accessYes": {
+  "message": "Allowed"
+ },
+ "accessNo": {
+  "message": "Not allowed"
+ },
+ "accessAllow": {
+  "message": "Allow"
+ },
+ "accessSettingsIos": {
+  "message": "Open iOS Settings"
+ },
+ "accessSettingsMac": {
+  "message": "Open System Settings"
+ },
+ "agentRuleCalNeeds": {
+  "message": "needs Calendar access"
+ },
+ "agentPlanCalAsk": {
+  "message": "Check your calendar?"
+ },
+ "agentCalNotChecked": {
+  "message": "didn't check your calendar: no access"
+ },
+ "agentPlanFromChat": {
+  "message": "From the chat: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

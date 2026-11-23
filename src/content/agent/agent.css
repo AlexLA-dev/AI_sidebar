@@ -112,3 +112,13 @@
 .cf-fd-rules .cf-row span { flex: 1; }
 .cf-fd-rule { font: inherit; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
 @media (pointer: coarse) { .cf-fd-rule { font-size: 16px; } }
+
+/* 2.7.1: Calendar and Reminders access (Settings, the calendar rule, a booking's plan card), in the chat's type scale. */
+.cf-access-row { gap: 8px; }
+.cf-access-row .cf-label { flex: 1; }
+.cf-access-state { font-size: var(--fs-small); color: var(--text-3); }
+.cf-access-state.on { color: var(--accent-text); }
+.cf-access-ask { font-size: var(--fs-small); padding: 4px 10px; }
+.cf-access-need { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.cf-access-need .cf-link { font-size: var(--fs-small); padding: 0 2px !important; }
+.cf-access-x { margin-inline-start: auto; font-size: var(--fs-small); color: var(--text-3); padding: 0 4px; }

@@ -3608,6 +3608,45 @@
  "agentRuleRating": {
   "message": "Valutazione del posto da"
  },
+ "accessGroup": {
+  "message": "Calendario e Promemoria"
+ },
+ "accessHint": {
+  "message": "L'agente sceglie orari liberi nel tuo calendario e può aggiungervi le prenotazioni. Il contenuto del calendario non lascia mai il dispositivo."
+ },
+ "accessCalendar": {
+  "message": "Calendario"
+ },
+ "accessReminders": {
+  "message": "Promemoria"
+ },
+ "accessYes": {
+  "message": "Accesso consentito"
+ },
+ "accessNo": {
+  "message": "Nessun accesso"
+ },
+ "accessAllow": {
+  "message": "Consenti"
+ },
+ "accessSettingsIos": {
+  "message": "Apri Impostazioni iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Apri Impostazioni di Sistema"
+ },
+ "agentRuleCalNeeds": {
+  "message": "serve l'accesso al calendario"
+ },
+ "agentPlanCalAsk": {
+  "message": "Tenere conto del calendario?"
+ },
+ "agentCalNotChecked": {
+  "message": "calendario non controllato: nessun accesso"
+ },
+ "agentPlanFromChat": {
+  "message": "Dalla chat: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

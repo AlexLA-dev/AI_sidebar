@@ -1232,5 +1232,18 @@
   "agentPlanHow": "場所はこちらで選びます：評価{0}以上・条件に合う・最寄り",
   "agentPlanHowCal": "カレンダーで空いている時間に、予定も追加",
   "agentRuleVenue": "場所を指定しないときは自分で選ぶ",
-  "agentRuleRating": "場所の評価（以上）"
+  "agentRuleRating": "場所の評価（以上）",
+  "accessGroup": "カレンダーとリマインダー",
+  "accessHint": "エージェントはカレンダーの空いている時間を選び、予約を追加できます。カレンダーの内容がデバイスの外に出ることはありません。",
+  "accessCalendar": "カレンダー",
+  "accessReminders": "リマインダー",
+  "accessYes": "アクセスあり",
+  "accessNo": "アクセスなし",
+  "accessAllow": "許可",
+  "accessSettingsIos": "iOSの設定を開く",
+  "accessSettingsMac": "システム設定を開く",
+  "agentRuleCalNeeds": "カレンダーへのアクセスが必要",
+  "agentPlanCalAsk": "カレンダーを確認しますか？",
+  "agentCalNotChecked": "カレンダーは未確認：アクセスなし",
+  "agentPlanFromChat": "チャットから：{0}"
 }

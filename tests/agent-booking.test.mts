@@ -152,7 +152,8 @@ test("a time slot that clashes with the Calendar is never pressed; the model mus
 
 test("nothing booked (a sign-in left to the person), or the Calendar permission unticked: no event", async () => {
   const x = io([{ ok: true, plan: RAW, token: "t" }, step({ tool: "done", summary: "Sign in to finish" }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
-  await drive(newState("e", "haircut", "en", SALON.url), x)
+  const unbooked = await drive(newState("e", "haircut", "en", SALON.url), x)
+  assert.equal(unbooked.error, "unbooked", "a booking that didn't happen isn't shown as done")
   assert.equal(x.events.length, 0)
   const y = io([{ ok: true, plan: RAW, token: "t" }], { playbook: null })
   const s = await drive(newState("f", "haircut", "en", SALON.url), y)
@@ -302,7 +303,7 @@ test("a question's times come from the page: a time only the Calendar has isn't 
   const { timesIn, pageChoices } = await import("../src/shared/agent/rules.ts")
   assert.deepEqual(timesIn("5:45 PM, 17.30 or 9am"), ["17:45", "17:30", "09:00"])
   assert.deepEqual(pageChoices(["Вт 24 ноя, 14:30", "Пн 23 ноя, 20:00", "Другой день"], new Set(["14:30", "14:45"])), ["Вт 24 ноя, 14:30", "Другой день"])
-  const x = io([{ ok: true, plan: RAW, token: "t" }, step({ tool: "ask_user", question: "Which?", choices: ["17:45", "20:00", "Another day"] }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  const x = io([{ ok: true, plan: { ...RAW, booking: { ...BOOKING, venue: "Cutter" } }, token: "t" }, step({ tool: "ask_user", question: "Which?", choices: ["17:45", "20:00", "Another day"] }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
   const s = await drive(newState("q", "haircut", "en", SALON.url), x)
   assert.deepEqual(s.choices, ["17:45", "Another day"], "20:00 isn't on the page")
 })
@@ -330,4 +331,162 @@ test("the plan follows the request's language; the venue is the agent's to choos
   const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
   assert.match(act, /never ask which one/)
   assert.match(act, /never offer or choose a time from <calendar> alone/)
+})
+
+test("a place the agent chose: its first two questions go back to try the next place; a named place asks at once", async () => {
+  const ask = step({ tool: "ask_user", question: "No evening slots here. What now?", choices: [] }, "free", "read")
+  const x = io([{ ok: true, plan: RAW, token: "t" }, ask, ask, ask], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  const s = await drive(newState("v", "find a barbershop", "en", SALON.url), x)
+  assert.equal(s.status, "asked")
+  assert.equal(s.log.filter((e) => /refused: the request names no place/.test(e.result)).length, 2)
+  const named = { ...RAW, booking: { ...BOOKING, venue: "Cutter Barbershop" } }
+  const y = io([{ ok: true, plan: named, token: "t" }, ask], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  const s2 = await drive(newState("w", "book at Cutter", "en", SALON.url), y)
+  assert.equal(s2.status, "asked")
+  assert.equal(s2.log.filter((e) => /refused: the request names no place/.test(e.result)).length, 0)
+})
+
+const RESULTS: PageMap = {
+  url: "https://www.salon.example.com/search?q=barber", title: "Results", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [],
+  items: [
+    { id: "1", role: "link", label: "Chez Milo French · Average price €19 9.1 (7936)", href: "/r/chez-milo" },
+    { id: "2", role: "link", label: "Fellini Italian · Average price €25 9.3 (812 reviews)", href: "/r/fellini" },
+    { id: "3", role: "link", label: "Batistou Italian pizza 8.6 (95 reviews)", href: "/r/batistou" },
+    { id: "4", role: "link", label: "Luigi Italian 9.6 (4 reviews)", href: "/r/luigi" },
+    { id: "5", role: "link", label: "Partner site 4.9 (900 reviews)", href: "other.example.org/x" }
+  ]
+}
+
+test("places come from the results list: matching the request, rated by the rules, the page's order kept", async () => {
+  const { venuesOn, rankVenues, cardsOf } = await import("../src/shared/agent/venues.ts")
+  const all = venuesOn(RESULTS)
+  assert.deepEqual(all.map((v) => v.url.split("/").pop()), ["chez-milo", "fellini", "batistou", "luigi"], "another site's link isn't a place here")
+  assert.equal(all[0].rating, 4.55, "TheFork's /10 counts as /5")
+  const ranked = rankVenues(all, cardsOf(RESULTS), ["Italian", "italien"], 4.2)
+  assert.deepEqual(ranked.map((v) => v.url.split("/").pop()), ["fellini", "batistou"], "French dropped (not Italian), Luigi dropped (4 reviews)")
+  assert.deepEqual(rankVenues(all, cardsOf(RESULTS), [], 4.5).map((v) => v.url.split("/").pop()), ["chez-milo", "fellini"])
+})
+
+test("a misfit place is refused; when one doesn't fit, the device opens the next by its link", async () => {
+  const opened: string[] = []
+  const raw = { ...RAW, booking: { ...BOOKING, match: ["Italian"] } }
+  const pages = [RESULTS]
+  const x = io([
+    { ok: true, plan: raw, token: "t" },
+    step({ tool: "click", id: "1" }, "free", "click", 'link "Chez Milo"'),
+    step({ tool: "click", id: "2" }, "free", "click", 'link "Fellini"'),
+    step({ tool: "ask_user", question: "No evening slots at Fellini", choices: [] }, "free", "read"),
+    step({ tool: "done", summary: "x" }, "free", "read")
+  ], { map: RESULTS, entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  x.map = async () => pages[pages.length - 1]
+  x.rules = async () => ({ ...DEFAULT_RULES, rating: 4.2 })
+  x.open = async (url) => {
+    opened.push(url)
+  }
+  const s = await drive(newState("n", "find an Italian restaurant", "en", RESULTS.url), x)
+  assert.match(s.log.find((e) => /refused: «Chez Milo/.test(e.result))?.result ?? "", /doesn't fit the request or the rules; the ones that do: «Fellini/)
+  assert.deepEqual(x.acted.map((c) => c.id), ["2"], "only the fitting place was opened")
+  assert.equal(opened.length, 1)
+  assert.match(opened[0], /\/r\/(fellini|batistou)$/)
+  assert.match(s.log.find((e) => /the device opened the next place/.test(e.result))?.result ?? "", /by the rules/)
+})
+
+test("the watchdog: a visible page pings while its task runs; a run idle for 45 s is picked up again", () => {
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.match(app, /if \(!document\.hidden\) void sendBackground\(\{ type: "agentPing" \}\)/)
+  assert.match(app, /setInterval\(ping, 20_000\)/)
+  const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
+  assert.match(bg, /case "agentPing":[\s\S]{0,200}resume\(tab, PING_IDLE_MS\)/)
+  assert.match(bg, /const PING_IDLE_MS = 45_000/)
+})
+
+test("a booking's contact form isn't the place failing: saved name, e-mail and phone go in by the plan; a missing one is asked once, with «remember»", async () => {
+  const { contactAsked } = await import("../src/shared/agent/taskplan.ts")
+  const opened: string[] = []
+  const CONTACT: PageMap = {
+    ...RESULTS, url: "https://www.example.com/r/fellini/book",
+    forms: [{ n: 0, fillable: true }],
+    items: [
+      { id: "1", role: "textbox", label: "Email", type: "email", lock: "personal", form: 0 },
+      { id: "2", role: "textbox", label: "Phone", type: "tel", lock: "personal", form: 0 },
+      { id: "9", role: "button", label: "Continue", form: 0 }
+    ]
+  }
+  const raw = { ...RAW, questions: [], booking: { ...BOOKING, match: ["Italian"] } }
+  const pages = [RESULTS]
+  const saved: FormEntry[] = [{ id: "e", key: "email", label: "", value: "anna@example.org", updatedAt: 1 }]
+  const x = io([
+    { ok: true, plan: raw, token: "t" },
+    step({ tool: "click", id: "2" }, "free", "click", 'link "Fellini"'),
+    step({ tool: "fill", id: "1", key: "email" }, "confirm", "fill", 'field "Email"'),
+    step({ tool: "ask_user", question: "Which phone number should the booking use?", choices: [] }, "free", "read")
+  ], { map: RESULTS, entries: saved, playbook: null })
+  x.map = async () => pages[pages.length - 1]
+  x.act = async (c) => {
+    x.acted.push(c)
+    if (c.id === "2" && c.tool === "click") pages.push(CONTACT)
+    return { ok: true }
+  }
+  x.rules = async () => ({ ...DEFAULT_RULES, rating: 4.2 })
+  x.open = async (url) => void opened.push(url)
+  let s = await drive(newState("c", "book an Italian restaurant for two at 20:00", "en", RESULTS.url), x)
+  assert.equal(s.status, "plan")
+  const contact = s.plan!.perms.find((p) => p.reason === "contact")
+  assert.deepEqual(contact?.keys, ["email"], "the card's one line: the saved contact details only")
+  const { approvePlan } = await import("../src/shared/agent/runner.ts")
+  s = await approvePlan(s, x, { answers: [], off: [] })
+  assert.equal(s.status, "asked", "the missing phone is asked")
+  assert.deepEqual(opened, [], "no next place for a details form")
+  assert.ok(x.acted.some((c) => c.tool === "fill" && c.key === "email"), "the saved e-mail went in without a question")
+  assert.equal(s.askKey, "phone", "the answer may be kept in «Мои данные»")
+  assert.equal(contactAsked("Какой e-mail указать для брони?"), "email")
+  assert.equal(contactAsked("Your name and phone?"), null, "two details: no single key to keep")
+})
+
+test("the contact fill covers saved contact keys into the person's fields only, never a secret field or another key", async () => {
+  const { covered, addContactFill } = await import("../src/shared/agent/taskplan.ts")
+  const plan = buildPlan(checkPlan(RAW)!, { map: SALON, startHost: "salon.example.com", request: "book", confirmedHere: false, policy: { amazon: true } })
+  plan.approved = true
+  addContactFill(plan, ["email", "phone", "address.city"], "salon.example.com")
+  const m: PageMap = { ...SALON, url: "https://www.salon.example.com/details", items: [{ id: "1", role: "textbox", label: "Email", lock: "personal" }, { id: "2", role: "textbox", label: "Card", lock: "secret" }, { id: "3", role: "textbox", label: "City", lock: "personal" }] }
+  const v = { cls: "confirm" as const, reason: "fill" }
+  assert.ok(covered(plan, { tool: "fill", id: "1", key: "email" }, v, m, "book"))
+  assert.equal(covered(plan, { tool: "fill", id: "2", key: "email" }, v, m, "book"), null, "never into a secret field")
+  assert.equal(covered(plan, { tool: "fill", id: "3", key: "address.city" }, v, m, "book"), null, "only contact keys")
+  assert.equal(covered(plan, { tool: "fill", id: "1", key: "email" }, v, { ...m, url: "https://other.example.net/x" }, "book"), null, "only on the booking's site")
+})
+
+test("a saved detail of another kind never goes into a field (the full name into «email»): refused, then the missing e-mail is asked once", async () => {
+  const FORM: PageMap = { ...SALON, url: "https://www.thefork.com/booking/x", forms: [{ n: 0, fillable: true }], items: [{ id: "1", role: "textbox", label: "email", type: "email", lock: "personal", form: 0 }, { id: "9", role: "button", label: "Continue", form: 0 }] }
+  const raw = { ...RAW, questions: [], risky: [] }
+  const name: FormEntry = { id: "n", key: "name.full", label: "", value: "Anna Petrova", updatedAt: 1 }
+  const x = io([
+    { ok: true, plan: raw, token: "t" },
+    step({ tool: "fill", id: "1", key: "name.full" }, "confirm", "fill", 'field "email"'),
+    step({ tool: "ask_user", question: "Какой e-mail указать для брони?", choices: [] }, "free", "read")
+  ], { map: FORM, entries: [name], playbook: null })
+  let s = await drive(newState("k", "забронируй", "ru", FORM.url), x)
+  if (s.status === "plan") {
+    const { approvePlan } = await import("../src/shared/agent/runner.ts")
+    s = await approvePlan(s, x, { answers: [], off: [] })
+  }
+  assert.ok(!x.acted.some((c) => c.tool === "fill"), "nothing filled")
+  assert.match(s.log.find((e) => /refused: the field "email" asks for the email/.test(e.result))?.result ?? "", /<saved> has no email: ask the person/)
+  assert.equal(s.status, "asked")
+  assert.equal(s.askKey, "email")
+})
+
+test("a diner's review card (a name, their reviews, a score, «5 months ago») is not a place; places share the list's path", async () => {
+  const { venuesOn } = await import("../src/shared/agent/venues.ts")
+  const PAGE: PageMap = {
+    url: "https://www.thefork.com/restaurants/paris-c415144/italian", title: "Italian", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [],
+    items: [
+      { id: "1", role: "link", label: "Borgo Paris Italian 9.4 (2179 reviews)", href: "/restaurant/borgo-paris-r1" },
+      { id: "2", role: "link", label: "Tra di Noi Italian 9.6 (201 reviews)", href: "/restaurant/tra-di-noi-r2" },
+      { id: "3", role: "link", label: "Rhadamanthe Italian 9.5 (90 reviews)", href: "/restaurant/rhadamanthe-r3" },
+      { id: "4", role: "link", label: "M Marine E. 20 reviews 10 5 months ago A pizzeria with the authentic taste of Italy", href: "/restaurant/senza-nome-r9/reviews" },
+      { id: "5", role: "link", label: "Top 100 guide 9.9 (500 reviews)", href: "/guide/top-100" }
+    ]
+  }
+  assert.deepEqual(venuesOn(PAGE).map((v) => v.name.split(" ")[0]), ["Borgo", "Tra", "Rhadamanthe"])
 })

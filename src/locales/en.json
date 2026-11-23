@@ -1232,5 +1232,18 @@
   "agentPlanHow": "I'll pick the place: rated {0}+, matching, nearest",
   "agentPlanHowCal": "a time free in your Calendar, added there",
   "agentRuleVenue": "Choose the place myself when I don't name one",
-  "agentRuleRating": "Place rating from"
+  "agentRuleRating": "Place rating from",
+  "accessGroup": "Calendar and Reminders",
+  "accessHint": "The agent picks times that are free in your calendar and can add bookings to it. What's in your calendar never leaves the device.",
+  "accessCalendar": "Calendar",
+  "accessReminders": "Reminders",
+  "accessYes": "Allowed",
+  "accessNo": "Not allowed",
+  "accessAllow": "Allow",
+  "accessSettingsIos": "Open iOS Settings",
+  "accessSettingsMac": "Open System Settings",
+  "agentRuleCalNeeds": "needs Calendar access",
+  "agentPlanCalAsk": "Check your calendar?",
+  "agentCalNotChecked": "didn't check your calendar: no access",
+  "agentPlanFromChat": "From the chat: {0}"
 }

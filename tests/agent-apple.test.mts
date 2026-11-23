@@ -2,6 +2,7 @@
 // calls are checked, reading is free and writing always asks, nothing touches the page, access not given yet is the
 // person's own step, and what the device read goes to the next step only.
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
 import { checkCall } from "../src/shared/agent/call.ts"
@@ -158,4 +159,23 @@ test("«Готово» without allowing: the model hears it, not a second access
   assert.equal(s.status, "done")
   assert.match(x.asked[2].log.at(-1).result, /still isn't given/)
   assert.equal(x.appleCalls.length, 0)
+})
+
+test("121: «Забукай меня на стрижку…» and other ways to ask are action requests; questions about booking aren't", async () => {
+  const { asksForAction } = await import("../src/shared/agent/hint.ts")
+  for (const yes of ["Забукай меня на стрижку через месяц в субботу", "закажи две пиццы", "Найди барбера и забронируй на субботу", "можешь забронировать столик на 20:00?",
+    "Order the blue one", "I want you to book a haircut on Saturday", "Bestelle das in Größe M", "Buche mir einen Termin am Samstag", "купи это в размере 42", "оформи заказ"]) {
+    assert.equal(asksForAction(yes), true, yes)
+  }
+  for (const no of ["what's the booking policy", "Как здесь работает бронирование?", "Is ordering online cheaper?", "Bestellung status?", "где кнопка заказа"]) {
+    assert.equal(asksForAction(no), false, no)
+  }
+})
+
+test("121: the chat's answer names the agent's button only when the panel shows it (the flag follows the chip)", () => {
+  const app = readFileSync("src/content/App.tsx", "utf8")
+  assert.match(app, /asksForAction\(content\) && !agentBusyRef\.current \? \{ agent: true as const \}/)
+  assert.match(app, /const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && [^\n]*asksForAction\(messages\[lastUserIndex\]\.content\)/)
+  assert.ok(!/offerFor[^\n]*agentPast/.test(app), "a past task in the chat doesn't hide it")
+  assert.match(readFileSync("src/shared/prompt.ts", "utf8"), /under your answer ContextFlow shows a button/)
 })

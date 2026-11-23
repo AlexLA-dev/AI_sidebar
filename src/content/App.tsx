@@ -60,6 +60,7 @@ import { ProUpsell } from "./ProUpsell"
 import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
 import type { AgentNotice } from "../background/agent"
 import { factKey, noticeLabel, sameTaskPage, type TaskPlan } from "../shared/agent/taskplan"
+import { chatContext } from "../shared/agent/chatctx"
 import { refusedEntry, type FormEntry } from "../shared/agent/formdata"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
@@ -1399,7 +1400,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(appleNow()?.available ? { items: true as const } : {}),
           // 2.7.1: a question that asks for an action gets «Сделать на этой странице?» under it: the answer says so.
           // (Plans with the agent only: Free's answer keeps its honest wording, the chip shows the Pro mark.)
-          ...(!historyMode && hasPro(planNow) ? { agent: true as const } : {}),
+          // Only when the chip is really shown for this question (the owner on 121: the answer described a button that
+          // wasn't there): an action request, not in history, no task going on.
+          ...(!historyMode && hasPro(planNow) && opts.mode !== "google" && asksForAction(content) && !agentBusyRef.current ? { agent: true as const } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
@@ -1632,7 +1635,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void sendBackground({ type: "useEvent", f: "shot", a: crop ? "crop" : "uncrop" })
   }
 
-  const submit = () => (noteMode ? void saveNote(draft) : agentMode ? void startAgent(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
+  const submit = () => (noteMode ? void saveNote(draft) : agentMode ? void startAgent(draft, undefined, historyMode ? "" : threadFor()) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
 
   // The chat and the field as they are now, for stop() (2.5 (75)).
   const nowRef = useRef({ messages, draft })
@@ -2574,6 +2577,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return null
   }
   const [agentPlanFailed, setAgentPlanFailed] = useState<string | null>(null)
+  // The watchdog (2.7.1, the director's round 3): while this tab's task runs and the page is seen, a ping every 20 s;
+  // the background picks up a run with no step for 45 s (a press whose answer Safari lost). Hidden: no ping, and the
+  // paused notification says so, as before.
+  useEffect(() => {
+    if (agentTask?.status !== "running") return
+    const ping = () => {
+      if (!document.hidden) void sendBackground({ type: "agentPing" })
+    }
+    const timer = setInterval(ping, 20_000)
+    return () => clearInterval(timer)
+  }, [agentTask?.status, agentTask?.id])
   // The person's saved facts (factKey → value), read when a plan card is up; and the plan's answers kept there (2.7.1,
   // the owner on 117: answers about themselves aren't asked again). The values stay on the device: the card fills them
   // in, and only an answer the person leaves goes with that task, as any answer does.
@@ -2587,17 +2601,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setSavedFacts(Object.fromEntries(live.map((e) => [factKey(e.label), e.value])))
     })
   }, [agentTask?.status, agentTask?.id])
-  const rememberFacts = (facts: Array<{ fact: string; value: string }>) => {
+  const rememberFacts = (facts: Array<{ fact: string; value: string; key?: FormEntry["key"] }>) => {
     const now = Date.now()
-    const changes: FormEntry[] = facts.flatMap(({ fact, value }) => {
+    const changes: FormEntry[] = facts.flatMap(({ fact, value, key }) => {
       if (refusedEntry(fact, value)) return []
+      // A standard detail (an e-mail the agent asked for at a booking's form): a new entry of that key.
+      if (key && key !== "fact") return [{ id: `fd_${now.toString(36)}_${Math.random().toString(36).slice(2, 10)}`, key, label: "", value: value.slice(0, 500), updatedAt: now }]
       const had = factEntries.current.find((e) => factKey(e.label) === factKey(fact))
       return [had ? { ...had, value: value.slice(0, 500), updatedAt: now } : { id: `fd_${now.toString(36)}_${Math.random().toString(36).slice(2, 10)}`, key: "fact" as const, label: fact.slice(0, 60), value: value.slice(0, 500), updatedAt: now }]
     })
     if (changes.length) void sendBackground({ type: "formDataPut", changes })
   }
 
-  const startAgent = async (request: string, deferred?: string) => {
+  // The chat thread a task starts in (its last turns, for «во втором», «в тот ресторан»): nothing from an empty chat.
+  const threadFor = (upTo = messages.length) => chatContext(messages.slice(0, upTo).filter((m) => !m.note).map((m) => ({ role: m.role, content: m.content })))
+
+  const startAgent = async (request: string, deferred?: string, chat?: string) => {
     const text = request.trim()
     if (!text) return
     // The plan as last heard (a ref: a task started from a notification's tap runs before the panel has its status, in an
@@ -2619,7 +2638,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (closed?.past) setAgentPast(closed.past)
       setAgentTask(null)
     }
-    const r = await toAgent<{ ok: boolean; code?: string; why?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
+    const r = await toAgent<{ ok: boolean; code?: string; why?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred, ...(chat ? { chat } : {}) })
     if (r?.state) setAgentTask(r.state)
     if (!r || (!r.ok && !r.state && r.code !== "CONSENT" && r.code !== "PRO_ONLY")) {
       // What failed, in plain words: no answer from the extension, or what broke there (its code).
@@ -2629,7 +2648,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (r?.code === "CONSENT") {
       // The page's map goes to the AI: the same consent as answers; asked here, then the task starts.
       await agreeQuietly()
-      const again = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred })
+      const again = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred, ...(chat ? { chat } : {}) })
       if (again?.state) setAgentTask(again.state)
     } else if (r?.code === "PRO_ONLY") setAgentUpsell(true)
   }
@@ -2814,6 +2833,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // An agent task's card (or a deferred one's) is on screen: the greeting and its chips step aside for it.
   const agentCardShown = !!agentTask || !!agentDeferred || agentPast.length > 0
   const lastUserIndex = messages.findLastIndex((m) => m.role === "user" && !m.note)
+  // «Сделать на этой странице?» for the latest request that asks for an action (the owner on 121: «Забукай меня…» got an
+  // answer pointing at a chip that wasn't there — a past task in the chat hid it). Hidden only while a task is going on.
+  const agentBusy = !!agentTask && agentActive(agentTask as never)
+  const agentBusyRef = useRef(false)
+  agentBusyRef.current = agentBusy
+  const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) ? lastUserIndex : -1
+  // Under the answer once it's there (where the answer says it is), under the question while it's written.
+  const offerAt = offerFor < 0 ? -1 : messages[offerFor + 1]?.role === "assistant" ? offerFor + 1 : offerFor
+  const offerChip = (at: number) =>
+    at === offerAt && (
+      <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))}>
+        <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
+      </button>
+    )
   // A task that ended (done, asked, stopped, failed, blocked) puts the field back to asking (the owner on 117: it stayed in
   // Do). Only on the change itself: a finished task shown again later doesn't touch the mode.
   const endedFor = useRef("")
@@ -5010,11 +5043,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {/* 2.7.1, the design: an ordinary question that asks for an action gets «Сделать на этой странице?»
                           under it (the latest one only); the agent starts on the tap, with the question's words. */}
-                      {!m.note && !historyMode && idx === lastUserIndex && !agentCardShown && m.similarAsk === undefined && asksForAction(m.content) && (
-                        <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(m.content)}>
-                          <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
-                        </button>
-                      )}
+                      {!m.note && offerChip(idx)}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                       {m.note && !picked && ux.addCard(m, idx)}
                     </div>
@@ -5033,6 +5062,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         </>
                       ), !picked)}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
+                      {!picked && offerChip(idx)}
                       {!picked && ux.addCard(m, idx)}
                     </div>
                   )

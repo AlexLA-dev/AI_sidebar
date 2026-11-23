@@ -3608,6 +3608,45 @@
  "agentRuleRating": {
   "message": "地点评分不低于"
  },
+ "accessGroup": {
+  "message": "日历和提醒事项"
+ },
+ "accessHint": {
+  "message": "代理会选择日历中空闲的时间，并可添加预订。日历内容绝不会离开设备。"
+ },
+ "accessCalendar": {
+  "message": "日历"
+ },
+ "accessReminders": {
+  "message": "提醒事项"
+ },
+ "accessYes": {
+  "message": "已允许"
+ },
+ "accessNo": {
+  "message": "无访问权限"
+ },
+ "accessAllow": {
+  "message": "允许"
+ },
+ "accessSettingsIos": {
+  "message": "打开 iOS 设置"
+ },
+ "accessSettingsMac": {
+  "message": "打开系统设置"
+ },
+ "agentRuleCalNeeds": {
+  "message": "需要日历访问权限"
+ },
+ "agentPlanCalAsk": {
+  "message": "参考日历吗？"
+ },
+ "agentCalNotChecked": {
+  "message": "未检查日历：无访问权限"
+ },
+ "agentPlanFromChat": {
+  "message": "来自聊天：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

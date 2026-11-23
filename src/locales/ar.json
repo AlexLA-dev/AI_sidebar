@@ -1232,5 +1232,18 @@
   "agentPlanHow": "سأختار المكان: تقييم {0}+ ومناسب والأقرب",
   "agentPlanHowCal": "وقت فارغ في تقويمك، وأضيفه إليه",
   "agentRuleVenue": "اختيار المكان بنفسي إن لم أسمِّه",
-  "agentRuleRating": "تقييم المكان من"
+  "agentRuleRating": "تقييم المكان من",
+  "accessGroup": "التقويم والتذكيرات",
+  "accessHint": "يختار الوكيل أوقاتًا متاحة في تقويمك ويمكنه إضافة الحجوزات إليه. لا يغادر محتوى تقويمك الجهاز أبدًا.",
+  "accessCalendar": "التقويم",
+  "accessReminders": "التذكيرات",
+  "accessYes": "الوصول مسموح",
+  "accessNo": "لا وصول",
+  "accessAllow": "السماح",
+  "accessSettingsIos": "فتح إعدادات iOS",
+  "accessSettingsMac": "فتح إعدادات النظام",
+  "agentRuleCalNeeds": "يلزم الوصول إلى التقويم",
+  "agentPlanCalAsk": "مراعاة التقويم؟",
+  "agentCalNotChecked": "لم أتحقق من التقويم: لا وصول",
+  "agentPlanFromChat": "من الدردشة: {0}"
 }

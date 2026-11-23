@@ -3608,6 +3608,45 @@
  "agentRuleRating": {
   "message": "تقييم المكان من"
  },
+ "accessGroup": {
+  "message": "التقويم والتذكيرات"
+ },
+ "accessHint": {
+  "message": "يختار الوكيل أوقاتًا متاحة في تقويمك ويمكنه إضافة الحجوزات إليه. لا يغادر محتوى تقويمك الجهاز أبدًا."
+ },
+ "accessCalendar": {
+  "message": "التقويم"
+ },
+ "accessReminders": {
+  "message": "التذكيرات"
+ },
+ "accessYes": {
+  "message": "الوصول مسموح"
+ },
+ "accessNo": {
+  "message": "لا وصول"
+ },
+ "accessAllow": {
+  "message": "السماح"
+ },
+ "accessSettingsIos": {
+  "message": "فتح إعدادات iOS"
+ },
+ "accessSettingsMac": {
+  "message": "فتح إعدادات النظام"
+ },
+ "agentRuleCalNeeds": {
+  "message": "يلزم الوصول إلى التقويم"
+ },
+ "agentPlanCalAsk": {
+  "message": "مراعاة التقويم؟"
+ },
+ "agentCalNotChecked": {
+  "message": "لم أتحقق من التقويم: لا وصول"
+ },
+ "agentPlanFromChat": {
+  "message": "من الدردشة: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

@@ -3608,6 +3608,45 @@
  "agentRuleRating": {
   "message": "Yer puanı en az"
  },
+ "accessGroup": {
+  "message": "Takvim ve Anımsatıcılar"
+ },
+ "accessHint": {
+  "message": "Ajan takviminizdeki boş saatleri seçer ve rezervasyonları takvime ekleyebilir. Takviminizin içeriği cihazdan asla çıkmaz."
+ },
+ "accessCalendar": {
+  "message": "Takvim"
+ },
+ "accessReminders": {
+  "message": "Anımsatıcılar"
+ },
+ "accessYes": {
+  "message": "Erişim var"
+ },
+ "accessNo": {
+  "message": "Erişim yok"
+ },
+ "accessAllow": {
+  "message": "İzin ver"
+ },
+ "accessSettingsIos": {
+  "message": "iOS Ayarları'nı aç"
+ },
+ "accessSettingsMac": {
+  "message": "Sistem Ayarları'nı aç"
+ },
+ "agentRuleCalNeeds": {
+  "message": "takvim erişimi gerekiyor"
+ },
+ "agentPlanCalAsk": {
+  "message": "Takvim dikkate alınsın mı?"
+ },
+ "agentCalNotChecked": {
+  "message": "takvim kontrol edilmedi: erişim yok"
+ },
+ "agentPlanFromChat": {
+  "message": "Sohbetten: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },
