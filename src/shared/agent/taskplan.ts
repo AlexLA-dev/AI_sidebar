@@ -106,6 +106,9 @@ export interface PlanBooking {
   tz?: string
   // The place the request names; none: the agent chooses it by the rules (and tries the next before asking).
   venue?: string
+  // Words a fitting place's card shows for what the request asks (its cuisine or service), in the site's language and
+  // in English: a place without any of them isn't chosen.
+  match?: string[]
 }
 
 export const PLAN_SCHEMA = {
@@ -146,9 +149,10 @@ export const PLAN_SCHEMA = {
         until: { type: "string" },
         minutes: { type: "number" },
         tz: { type: "string" },
-        venue: { type: "string" }
+        venue: { type: "string" },
+        match: { type: "array", items: { type: "string" } }
       },
-      required: ["kind", "date", "from", "until", "minutes", "tz", "venue"],
+      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match"],
       additionalProperties: false
     }
   },
@@ -188,7 +192,8 @@ function bookingOf(v: unknown): PlanBooking | null {
   const minutes = typeof b.minutes === "number" && Number.isFinite(b.minutes) ? Math.min(600, Math.max(15, Math.round(b.minutes))) : 60
   const tz = s(b.tz, 60)
   const venue = s(b.venue, 120)
-  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}) }
+  const match = (Array.isArray(b.match) ? b.match : []).map((x) => s(x, 30)).filter((x) => x.length >= 3).slice(0, 8)
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}) }
 }
 
 /**

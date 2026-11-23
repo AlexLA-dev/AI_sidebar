@@ -2574,6 +2574,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return null
   }
   const [agentPlanFailed, setAgentPlanFailed] = useState<string | null>(null)
+  // The watchdog (2.7.1, the director's round 3): while this tab's task runs and the page is seen, a ping every 20 s;
+  // the background picks up a run with no step for 45 s (a press whose answer Safari lost). Hidden: no ping, and the
+  // paused notification says so, as before.
+  useEffect(() => {
+    if (agentTask?.status !== "running") return
+    const ping = () => {
+      if (!document.hidden) void sendBackground({ type: "agentPing" })
+    }
+    const timer = setInterval(ping, 20_000)
+    return () => clearInterval(timer)
+  }, [agentTask?.status, agentTask?.id])
   // The person's saved facts (factKey → value), read when a plan card is up; and the plan's answers kept there (2.7.1,
   // the owner on 117: answers about themselves aren't asked again). The values stay on the device: the card fills them
   // in, and only an answer the person leaves goes with that task, as any answer does.

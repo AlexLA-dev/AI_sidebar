@@ -11,6 +11,7 @@ import { APPLE_TOOLS } from "./call.ts"
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
+import { cardsOf, onVenue, rankVenues, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { buildPlan, checkPlan, covered, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
@@ -101,6 +102,9 @@ export interface AgentState {
   // The rules let the agent choose the place; how many times a question was sent back to try the next one.
   chooseVenue?: boolean
   venueNudges?: number
+  minRating?: number
+  // The places that fit (ranked on the device from a results list), and the ones already tried.
+  venues?: { list: Venue[]; tried: string[] }
   booked?: { date: string; time: string; place?: string }
 }
 
@@ -149,6 +153,8 @@ export interface RunnerIO {
   slotFree?: (date: string, time: string, minutes: number) => Promise<boolean | null>
   // How a site's booking went last time (the controls pressed, in order), kept on the device.
   playbook?: { get(site: string): Promise<string[] | null>; put(site: string, steps: string[]): Promise<void> }
+  // Opens a page in the task's tab by its address (the next place by the rules) and waits for it.
+  open?: (url: string) => Promise<void>
 }
 
 /** Which of the two a Calendar and Reminders tool needs. */
@@ -290,6 +296,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   if (book?.length) state.playbook = playbookLine(book)
   state.rules = rulesLine(rules, calendarOn)
   state.chooseVenue = rules.chooseVenue
+  state.minRating = rules.rating
   const reply = await io.ask({
     task: { id: state.id, request: state.request, lang: state.lang, startHost: state.startHost, step: 0, confirmedHere: false, token: null, strongUsed: 0, now: nowLine(), phase: "plan", ...(here ? { device: here } : {}), rules: state.rules, ...(state.playbook ? { playbook: state.playbook } : {}) },
     map: sent(map), log: [], keys
@@ -341,6 +348,41 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
 /** A value as compared with a saved one (spaces, case and a phone's separators aside). */
 function normalizeValue(v: string): string {
   return v.toLocaleLowerCase().replace(/[\s()\-.]+/g, "").trim()
+}
+
+/** A results list seen in a booking whose place the agent chooses: its fitting places, ranked, kept with the task; the
+ *  place the tab is on now counts as tried. */
+function noteVenues(state: AgentState, map: PageMap): void {
+  const b = state.plan?.booking
+  if (!b || b.venue || !state.chooseVenue || !state.plan?.approved) return
+  if (!state.venues) {
+    const list = venuesOn(map)
+    if (list.length) {
+      const ranked = rankVenues(list, cardsOf(map), b.match ?? [], state.minRating ?? 4.5).slice(0, 8)
+      if (ranked.length) state.venues = { list: ranked, tried: [] }
+    }
+  }
+  const here = state.venues?.list.find((v) => onVenue(map.url, v))
+  if (here && !state.venues!.tried.includes(here.url)) state.venues!.tried.push(here.url)
+}
+
+function venuesLine(v: NonNullable<AgentState["venues"]>): string {
+  return v.list.map((x, i) => `${i + 1}. «${x.name}» (${x.rating}, ${x.reviews} reviews)${v.tried.includes(x.url) ? " — tried" : ""}`).join("; ")
+}
+
+/** The next place by the rules, opened by its own link (never the model's «back»); false when none is left. */
+async function openNext(state: AgentState, io: RunnerIO, why: string): Promise<boolean> {
+  const next = state.venues?.list.find((v) => !state.venues!.tried.includes(v.url))
+  if (!next || !io.open) return false
+  state.venues!.tried.push(next.url)
+  await io.open(next.url)
+  state.log.push({ call: { tool: "go", why: next.name }, result: `the device opened the next place by the rules, «${next.name}» (${next.rating}, ${next.reviews} reviews), because ${why.slice(0, 160)}` })
+  state.lines.push(line({ tool: "go" }, { cls: "free", reason: "next_place" }, null, true, next.name))
+  state.stillReads = 0
+  state.slotRefusals = 0
+  state.lastWasRead = false
+  await io.save(state)
+  return true
 }
 
 /** The person's saved facts by the name a plan asks them by (factKey → value). */
@@ -424,12 +466,14 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     state.host = hostOf(map.url)
+    noteVenues(state, map)
     // No progress: reads in a row on a page that didn't change. Two: the model is told to stop reading and say what it
     // found (or ask how to go on); four: the task stops, not finished.
     const sig = pageSig(map)
     state.stillReads = state.lastWasRead && state.lastSig === sig ? (state.stillReads ?? 0) + 1 : 0
     state.lastSig = sig
     state.lastWasRead = false
+    if ((state.stillReads ?? 0) >= 4 && (await openNext(state, io, "the page stopped changing"))) continue
     if ((state.stillReads ?? 0) >= 4) {
       state.status = "done"
       state.error = "stuck"
@@ -452,7 +496,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     const plan = planLine(state.plan)
     const reply = await io.ask({
-      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}) },
+      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.venues ? { venues: venuesLine(state.venues) } : {}) },
       map: sent(map), log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
@@ -497,7 +541,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // A booking whose place the agent chose (the request named none): before a question, the next place or two by the
     // rules (fresha, 120: it asked about the first barbershop's slots instead of trying the next).
-    if (call.tool === "ask_user" && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2) {
+    if (call.tool === "ask_user" && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
+      state.venueNudges = (state.venueNudges ?? 0) + 1
+      continue
+    }
+    if (call.tool === "ask_user" && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && !state.venues) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: "refused: the request names no place, so it's yours to choose: go back to the list (back) and try the next place by the rules that has slots fitting the rules and <calendar>; ask only after two more places didn't fit, with their real slots" })
       continue
@@ -514,6 +562,14 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The device's own check, on its own map: never milder than the server's.
     // The control as classed now goes with the step: the hands check it's still that one before they act.
     const seenItem = call.id ? map.items.find((i) => i.id === call.id) : undefined
+    // A place that doesn't fit the request or the rules (a French restaurant for «Italian») isn't opened.
+    const place = seenItem && (call.tool === "click" || call.tool === "go") ? venueOf(seenItem, map.url) : null
+    if (place && state.venues && !state.venues.list.some((v) => v.url === place.url)) {
+      const fit = state.venues.list.filter((v) => !state.venues!.tried.includes(v.url)).map((v) => `«${v.name}»`).slice(0, 4).join(", ")
+      state.log.push({ call, target: target ?? undefined, result: `refused: «${place.name}» doesn't fit the request or the rules${fit ? `; the ones that do: ${fit}` : ""}` })
+      state.refused = "choose a place from <venues>"
+      continue
+    }
     if (seenItem) call.expect = { label: seenItem.label, role: seenItem.role, ...(seenItem.lock ? { lock: seenItem.lock } : {}) }
     const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
     let verdict = stricter(reply.verdict, device)
@@ -542,6 +598,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.refused = busy
         // Three in a row: it can't be settled this way; the task stops, not finished, with what it got to (never a loop).
         state.slotRefusals = (state.slotRefusals ?? 0) + 1
+        if (state.slotRefusals >= 3 && (await openNext(state, io, "no free time there fitted the person's calendar"))) continue
         if (state.slotRefusals >= 3) {
           state.status = "done"
           state.error = "stuck"

@@ -64,6 +64,7 @@ export type AgentRequest =
   | { type: "agentForgetPast"; id: string }
   | { type: "agentNoticeGet" }
   | { type: "agentSeen"; visible: boolean; words?: AwayWords }
+  | { type: "agentPing" }
   | { type: "agentFocus"; id: string }
   | { type: "agentGoTab" }
   | { type: "agentNoticeClear" }
@@ -478,7 +479,13 @@ function io(tab: number, gen?: string): RunnerIO {
     // A start inside the window: the free time may run on past its end by the visit's length.
     calendarFree: (b, days) => calendarFreeLine(b.date, days + 1, b.from, addMinutes(b.until, b.minutes), b.minutes),
     slotFree: calendarSlotFree,
-    playbook: { get: playbookGet, put: playbookPut }
+    playbook: { get: playbookGet, put: playbookPut },
+    open: async (url) => {
+      await live()
+      if (!/^https?:\/\//.test(url)) return
+      await new Promise<void>((resolve) => chrome.tabs.update(tab, { url }, () => resolve()))
+      await waitComplete(tab)
+    }
   }
 }
 
@@ -525,9 +532,11 @@ const samePage = (a: string, b: string) => a.split("#")[0] === b.split("#")[0]
  */
 const INFLIGHT_SETTLE_MS = 60_000
 
-async function resume(tab: number): Promise<void> {
+const PING_IDLE_MS = 45_000
+
+async function resume(tab: number, idleMs = 15_000): Promise<void> {
   const st = await load(tab)
-  if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) < 15_000) return
+  if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) < idleMs) return
   // A step was on its way when Safari froze the run: not resumed while it may still land; then settled — the model
   // hears that it may or may not have happened and reads the page before doing it again.
   if (st.inflight) {
@@ -742,6 +751,10 @@ export function startAgent(d: AgentDeps): void {
         }))
       case "agentSeen":
         return respond(seen(message.visible === true, message.words).then(() => ({ ok: true })))
+      // The task's page, visible, says it's there every 20 s: a run with no step for 45 s is picked up again (TheFork:
+      // a press opened a page and the run never heard back — Safari had paused the background mid-step).
+      case "agentPing":
+        return respond(tab === undefined ? Promise.resolve({ ok: false }) : resume(tab, PING_IDLE_MS).then(() => ({ ok: true })))
       case "agentFocus":
         return respond(focusTask(String(message.id ?? "").replace(/^run_/, ""), tab))
       case "agentNoticeGet":

@@ -345,3 +345,57 @@ test("a place the agent chose: its first two questions go back to try the next p
   assert.equal(s2.status, "asked")
   assert.equal(s2.log.filter((e) => /refused: the request names no place/.test(e.result)).length, 0)
 })
+
+const RESULTS: PageMap = {
+  url: "https://www.salon.example.com/search?q=barber", title: "Results", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [],
+  items: [
+    { id: "1", role: "link", label: "Chez Milo French · Average price €19 9.1 (7936)", href: "/r/chez-milo" },
+    { id: "2", role: "link", label: "Fellini Italian · Average price €25 9.3 (812 reviews)", href: "/r/fellini" },
+    { id: "3", role: "link", label: "Batistou Italian pizza 8.6 (95 reviews)", href: "/r/batistou" },
+    { id: "4", role: "link", label: "Luigi Italian 9.6 (4 reviews)", href: "/r/luigi" },
+    { id: "5", role: "link", label: "Partner site 4.9 (900 reviews)", href: "other.example.org/x" }
+  ]
+}
+
+test("places come from the results list: matching the request, rated by the rules, the page's order kept", async () => {
+  const { venuesOn, rankVenues, cardsOf } = await import("../src/shared/agent/venues.ts")
+  const all = venuesOn(RESULTS)
+  assert.deepEqual(all.map((v) => v.url.split("/").pop()), ["chez-milo", "fellini", "batistou", "luigi"], "another site's link isn't a place here")
+  assert.equal(all[0].rating, 4.55, "TheFork's /10 counts as /5")
+  const ranked = rankVenues(all, cardsOf(RESULTS), ["Italian", "italien"], 4.2)
+  assert.deepEqual(ranked.map((v) => v.url.split("/").pop()), ["fellini", "batistou"], "French dropped (not Italian), Luigi dropped (4 reviews)")
+  assert.deepEqual(rankVenues(all, cardsOf(RESULTS), [], 4.5).map((v) => v.url.split("/").pop()), ["chez-milo", "fellini"])
+})
+
+test("a misfit place is refused; when one doesn't fit, the device opens the next by its link", async () => {
+  const opened: string[] = []
+  const raw = { ...RAW, booking: { ...BOOKING, match: ["Italian"] } }
+  const pages = [RESULTS]
+  const x = io([
+    { ok: true, plan: raw, token: "t" },
+    step({ tool: "click", id: "1" }, "free", "click", 'link "Chez Milo"'),
+    step({ tool: "click", id: "2" }, "free", "click", 'link "Fellini"'),
+    step({ tool: "ask_user", question: "No evening slots at Fellini", choices: [] }, "free", "read"),
+    step({ tool: "done", summary: "x" }, "free", "read")
+  ], { map: RESULTS, entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
+  x.map = async () => pages[pages.length - 1]
+  x.rules = async () => ({ ...DEFAULT_RULES, rating: 4.2 })
+  x.open = async (url) => {
+    opened.push(url)
+  }
+  const s = await drive(newState("n", "find an Italian restaurant", "en", RESULTS.url), x)
+  assert.match(s.log.find((e) => /refused: «Chez Milo/.test(e.result))?.result ?? "", /doesn't fit the request or the rules; the ones that do: «Fellini/)
+  assert.deepEqual(x.acted.map((c) => c.id), ["2"], "only the fitting place was opened")
+  assert.equal(opened.length, 1)
+  assert.match(opened[0], /\/r\/(fellini|batistou)$/)
+  assert.match(s.log.find((e) => /the device opened the next place/.test(e.result))?.result ?? "", /by the rules/)
+})
+
+test("the watchdog: a visible page pings while its task runs; a run idle for 45 s is picked up again", () => {
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.match(app, /if \(!document\.hidden\) void sendBackground\(\{ type: "agentPing" \}\)/)
+  assert.match(app, /setInterval\(ping, 20_000\)/)
+  const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
+  assert.match(bg, /case "agentPing":[\s\S]{0,200}resume\(tab, PING_IDLE_MS\)/)
+  assert.match(bg, /const PING_IDLE_MS = 45_000/)
+})
