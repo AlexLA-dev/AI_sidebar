@@ -113,6 +113,8 @@ export interface PlanBooking {
   // Words a fitting place's card shows for what the request asks (its cuisine or service), in the site's language and
   // in English: a place without any of them isn't chosen.
   match?: string[]
+  // Where the request asks for it («Soho», «Limassol»): a place whose card names another area isn't chosen.
+  area?: string[]
 }
 
 export const PLAN_SCHEMA = {
@@ -155,9 +157,10 @@ export const PLAN_SCHEMA = {
         minutes: { type: "number" },
         tz: { type: "string" },
         venue: { type: "string" },
-        match: { type: "array", items: { type: "string" } }
+        match: { type: "array", items: { type: "string" } },
+        area: { type: "array", items: { type: "string" } }
       },
-      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match"],
+      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match", "area"],
       additionalProperties: false
     }
   },
@@ -199,7 +202,8 @@ function bookingOf(v: unknown): PlanBooking | null {
   const tz = s(b.tz, 60)
   const venue = s(b.venue, 120)
   const match = (Array.isArray(b.match) ? b.match : []).map((x) => s(x, 30)).filter((x) => x.length >= 3).slice(0, 8)
-  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}) }
+  const area = (Array.isArray(b.area) ? b.area : []).map((x) => s(x, 40)).filter((x) => x.length >= 3).slice(0, 4)
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}) }
 }
 
 /**

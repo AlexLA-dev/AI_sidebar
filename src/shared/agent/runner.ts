@@ -400,7 +400,7 @@ function noteVenues(state: AgentState, map: PageMap): void {
   if (!state.venues) {
     const list = venuesOn(map)
     if (list.length) {
-      const ranked = rankVenues(list, cardsOf(map), b.match ?? [], state.minRating ?? 4.5).slice(0, 8)
+      const ranked = rankVenues(list, cardsOf(map), b.match ?? [], state.minRating ?? 4.5, b.area ?? []).slice(0, 8)
       if (ranked.length) state.venues = { list: ranked, tried: [] }
     }
   }
