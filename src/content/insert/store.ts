@@ -8,6 +8,7 @@ import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../../shared/types"
 import type { Threads } from "../../shared/threads"
 import { toPlainText } from "../../shared/share"
 import { keepSample, samplesFor, type Samples } from "../../shared/writing"
+import { sendBackground } from "../bgmsg"
 
 async function get<T>(key: string): Promise<T | undefined> {
   try {
@@ -37,18 +38,8 @@ function onKey(key: string, listener: () => void): () => void {
   return () => chrome.storage.onChanged.removeListener(handler)
 }
 
-export function sendBackground<T>(message: unknown): Promise<T | null> {
-  return new Promise((resolve) => {
-    try {
-      chrome.runtime.sendMessage(message, (response: T) => {
-        void chrome.runtime.lastError
-        resolve(response ?? null)
-      })
-    } catch {
-      resolve(null)
-    }
-  })
-}
+// (Time-boxed, sent again when it didn't arrive: the tab keeps talking to the extension after Safari put it away.)
+export { sendBackground }
 
 export function report(event: InsertEvent): void {
   void sendBackground({ type: "qiEvent", event })

@@ -61,6 +61,7 @@ import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentSt
 import type { AgentNotice } from "../background/agent"
 import { factKey, noticeLabel, sameTaskPage, type TaskPlan } from "../shared/agent/taskplan"
 import { chatContext } from "../shared/agent/chatctx"
+import { onReturn, sendBackground } from "./bgmsg"
 import { refusedEntry, type FormEntry } from "../shared/agent/formdata"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
@@ -257,18 +258,6 @@ function forSelection(action: Action, text: string): Action | null {
   return action.id === "sel_translate" ? translateFor(text) : action
 }
 
-function sendBackground<T>(message: unknown): Promise<T | null> {
-  return new Promise((resolve) => {
-    try {
-      chrome.runtime.sendMessage(message, (response: T) => {
-        void chrome.runtime.lastError
-        resolve(response ?? null)
-      })
-    } catch {
-      resolve(null)
-    }
-  })
-}
 
 
 async function copyText(text: string): Promise<boolean> {
@@ -2811,6 +2800,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void sendBackground<{ notice: AgentNotice | null }>({ type: "agentNoticeGet" }).then((r) => setAgentNotice(r?.notice ?? null))
     return () => bus.removeEventListener("agentNotice", onNotice)
   }, [popup, bus])
+
+  // Back from another app or tab (the ContextFlow app after «Разрешить»): this tab's task and the plan's status read
+  // again, through a background Safari may have put away meanwhile (123: no answers until a reload).
+  useEffect(() => {
+    if (popup) return
+    return onReturn(() => {
+      void sendBackground<{ state: PanelAgent | null }>({ type: "agentGet" }).then((r) => r?.state && setAgentTask(r.state))
+      void refreshStatus()
+    })
+  }, [popup, refreshStatus])
 
   // This tab's task as the background has it (pushed at every change), and a deferred task the notification brought.
   useEffect(() => {

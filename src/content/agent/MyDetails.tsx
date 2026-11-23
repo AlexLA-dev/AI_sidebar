@@ -13,6 +13,7 @@ import { useEffect, useState } from "preact/hooks"
 import { FORM_KEYS, refusedEntry, type FormEntry, type FormKey } from "../../shared/agent/formdata"
 import { TARGET } from "../../shared/config"
 import { t, uiLang, type MessageKey } from "../../shared/i18n"
+import { onReturn } from "../bgmsg"
 import { sendBackground } from "../insert/store"
 import { CalendarNeed } from "./AppleAccess"
 import { FIELD_ORDER, orderedEntries, syncState } from "./detailsView"
@@ -53,8 +54,18 @@ export function MyDetailsGroup(): VNode {
   const [sites, setSites] = useState<string[]>([])
 
   useEffect(() => {
-    void sendBackground<Data>({ type: "formData" }).then((d) => setData(d ?? { entries: [] }))
+    const load = () => void sendBackground<Data>({ type: "formData" }).then((d) => d && setData(d))
+    // Read again when the page comes back (from the ContextFlow app after «Разрешить», another tab): the first read may
+    // have gone to a background Safari had put away.
+    load()
     void autoStartSites().then(setSites)
+    const off = onReturn(load)
+    // Nothing came at all: say empty rather than wait forever.
+    const empty = setTimeout(() => setData((d) => d ?? { entries: [] }), 12_000)
+    return () => {
+      off()
+      clearTimeout(empty)
+    }
   }, [])
 
   const live = orderedEntries((data?.entries ?? []).filter((e) => !e.deleted), uiLang())
