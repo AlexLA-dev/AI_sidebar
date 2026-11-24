@@ -69077,6 +69077,534 @@
           }
         }
       }
+    },
+    "In Settings, tap Apps on the left, then Safari in the list, then Extensions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في الإعدادات، اضغط على «التطبيقات» على اليمين، ثم Safari في القائمة، ثم «الامتدادات»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in „Einstellungen“ links auf „Apps“, dann in der Liste auf „Safari“ und dann auf „Erweiterungen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Ajustes, toca Apps a la izquierda, luego Safari en la lista y después Extensiones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Réglages, touchez Apps à gauche, puis Safari dans la liste, puis Extensions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Impostazioni, tocca App a sinistra, poi Safari nell’elenco, poi Estensioni."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定」で左側の「アプリ」をタップし、一覧の「Safari」、続いて「機能拡張」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 왼쪽의 앱을 탭한 다음, 목록에서 Safari를 탭하고 확장 프로그램을 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nos Ajustes, toque em Apps à esquerda, depois em Safari na lista e em Extensões."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В «Настройках» нажмите «Приложения» слева, затем Safari в списке, затем «Расширения»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar’da soldaki Uygulamalar’a, ardından listede Safari’ye, sonra Uzantılar’a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У «Параметрах» торкніться «Програми» ліворуч, потім Safari у списку, потім «Розширення»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Cài đặt, chạm vào Ứng dụng ở bên trái, rồi Safari trong danh sách, rồi Tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“设置”中，轻点左侧的“App”，然后轻点列表中的“Safari”，再轻点“扩展”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「設定」中，點一下左側的「App」，接著點一下列表中的「Safari」，再點一下「延伸功能」。"
+          }
+        }
+      }
+    },
+    "On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "على iPad، لا تُفتح الإعدادات على صفحة ContextFlow: ابدأ من «التطبيقات» على اليمين واتبع الخطوات أعلاه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf dem iPad öffnet „Einstellungen“ nicht die Seite von ContextFlow: Beginne links bei „Apps“ und folge den Schritten oben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En el iPad, Ajustes no se abre en la página de ContextFlow: empieza por Apps a la izquierda y sigue los pasos de arriba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur iPad, Réglages ne s’ouvre pas sur la page de ContextFlow : commencez par Apps à gauche et suivez les étapes ci-dessus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su iPad, Impostazioni non si apre sulla pagina di ContextFlow: parti da App a sinistra e segui i passaggi qui sopra."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPadでは、設定はContextFlowのページで開きません。左側の「アプリ」から始めて、上の手順に進んでください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPad에서는 설정이 ContextFlow 페이지로 열리지 않아요. 왼쪽의 ‘앱’부터 시작해 위의 단계를 따라 하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No iPad, os Ajustes não abrem na página do ContextFlow: comece por Apps à esquerda e siga os passos acima."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На iPad «Настройки» не открываются на странице ContextFlow: начните с «Приложений» слева и следуйте шагам выше."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPad’de Ayarlar, ContextFlow sayfasında açılmaz: soldaki Uygulamalar’dan başlayın ve yukarıdaki adımları izleyin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На iPad «Параметри» не відкриваються на сторінці ContextFlow: почніть із «Програм» ліворуч і виконайте кроки вище."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trên iPad, Cài đặt không mở trang của ContextFlow: hãy bắt đầu từ Ứng dụng ở bên trái và làm theo các bước ở trên."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 iPad 上，“设置”不会直接打开 ContextFlow 的页面：请从左侧的“App”开始，按照上面的步骤操作。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 iPad 上，「設定」不會直接打開 ContextFlow 的頁面：請從左側的「App」開始，依照上面的步驟操作。"
+          }
+        }
+      }
+    },
+    "Next: open Safari": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التالي: افتح Safari"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als Nächstes: Safari öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siguiente: abre Safari"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ensuite : ouvrez Safari"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ora: apri Safari"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次は Safari を開きます"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음: Safari 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximo passo: abra o Safari"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дальше: откройте Safari"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sıradaki: Safari’yi açın"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Далі: відкрийте Safari"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp theo: mở Safari"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步：打开 Safari"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步：打開 Safari"
+          }
+        }
+      }
+    },
+    "So the reminder you just set reaches you.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حتى يصلك التذكير الذي ضبطته للتو."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit dich die Erinnerung erreicht, die du gerade gesetzt hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que te llegue el recordatorio que acabas de poner."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour que le rappel que vous venez de créer vous parvienne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Così ti arriva il promemoria che hai appena impostato."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定したリマインダーを受け取るには通知が必要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "방금 설정한 리마인더를 받으려면 알림이 필요해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que o lembrete que você acabou de definir chegue até você."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы напоминание, которое вы только что поставили, до вас дошло."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Az önce kurduğunuz hatırlatıcı size ulaşsın diye."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб нагадування, яке ви щойно поставили, до вас дійшло."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để lời nhắc bạn vừa đặt đến được với bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要通知，你刚设置的提醒才能送达。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要通知，你剛設定的提醒才能送達。"
+          }
+        }
+      }
+    },
+    "So you hear when the page you watch changes.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حتى تعرف عندما تتغيّر الصفحة التي تتابعها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit du erfährst, wenn sich die beobachtete Seite ändert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que sepas cuándo cambia la página que sigues."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour savoir quand la page que vous suivez change."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Così sai quando cambia la pagina che segui."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチしているページが変わったらお知らせします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지켜보는 페이지가 바뀌면 바로 알려 드려요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para saber quando a página que você acompanha mudar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы узнать, когда изменится страница, за которой вы следите."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takip ettiğiniz sayfa değiştiğinde haberiniz olsun diye."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб дізнатися, коли зміниться сторінка, за якою ви стежите."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để bạn biết khi trang bạn đang theo dõi thay đổi."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你关注的页面有变化时，我们会通知你。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你關注的頁面有變化時，我們會通知你。"
+          }
+        }
+      }
+    },
+    "So you know when your free answers are back.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حتى تعرف متى تعود إجاباتك المجانية."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit du weißt, wann deine Gratis-Antworten wieder da sind."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que sepas cuándo vuelves a tener respuestas gratis."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour savoir quand vos réponses gratuites sont de retour."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Così sai quando tornano le tue risposte gratis."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料の回答がまた使えるようになったらお知らせします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무료 답변이 다시 생기면 알려 드려요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para saber quando suas respostas grátis voltarem."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы узнать, когда бесплатные ответы снова появятся."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ücretsiz yanıtlarınız yenilendiğinde haberiniz olsun diye."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб дізнатися, коли безкоштовні відповіді знову з’являться."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để bạn biết khi lượt trả lời miễn phí đã có lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免费回答恢复时，我们会通知你。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免費回答恢復時，我們會通知你。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

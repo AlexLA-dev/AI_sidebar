@@ -87,13 +87,14 @@ enum WatchStore {
     static func permission(ask: Bool = false) async -> Permission {
         let center = UNUserNotificationCenter.current()
         var status = await center.notificationSettings().authorizationStatus
-        if status == .notDetermined, ask {
+        // Quiet permission (the setup reminders', 2.8) counts as not asked.
+        if NotifyStatus.notAsked(status), ask {
             _ = try? await center.requestAuthorization(options: [.alert, .sound])
             status = await center.notificationSettings().authorizationStatus
         }
         switch status {
-        case .authorized, .provisional, .ephemeral: return .ok
-        case .notDetermined: return .notAsked
+        case _ where NotifyStatus.on(status): return .ok
+        case _ where NotifyStatus.notAsked(status): return .notAsked
         default: return .denied
         }
     }

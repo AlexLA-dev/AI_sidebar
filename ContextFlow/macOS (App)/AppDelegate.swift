@@ -40,6 +40,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             await MainActor.run { DeepLinkRouter.shared.handle(WhatsNew.link) }
             return
         }
+        // A reminder to finish setup (2.8, В1.1): counted, and the setup guide opens.
+        if let which = info["setup"] as? String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "setup", "s": "notif", "when": which == "24h" ? "24h" : "15m"])
+                if let setup = URL(string: "contextflow://setup") { DeepLinkRouter.shared.handle(setup) }
+            }
+            return
+        }
         // Find similar is done: its chat opens in the panel, on its page in Safari (SimilarAway), not another default
         // browser, which has no panel.
         if info["similar"] is String {

@@ -212,11 +212,8 @@ nonisolated enum SimilarAway {
     static func notify(_ w: Watch, outcome: String, items: Int) async {
         let center = UNUserNotificationCenter.current()
         let status = await center.notificationSettings().authorizationStatus
-        #if os(iOS)
-        guard status == .authorized || status == .provisional || status == .ephemeral else { return }
-        #else
-        guard status == .authorized || status == .provisional else { return }
-        #endif
+        // Not with quiet permission: that's the setup reminders' only (2.8).
+        guard NotifyStatus.on(status) else { return }
         let content = UNMutableNotificationContent()
         content.title = w.title.isEmpty ? "ContextFlow" : w.title
         switch outcome {

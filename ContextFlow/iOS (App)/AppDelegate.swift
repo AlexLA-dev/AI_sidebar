@@ -49,6 +49,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             await MainActor.run { DeepLinkRouter.shared.handle(WhatsNew.link) }
             return
         }
+        // A reminder to finish setup (2.8, В1.1): counted, and the setup guide opens.
+        if let which = info["setup"] as? String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "setup", "s": "notif", "when": which == "24h" ? "24h" : "15m"])
+                if let setup = URL(string: "contextflow://setup") { DeepLinkRouter.shared.handle(setup) }
+            }
+            return
+        }
         // A deferred agent task (2.7.1): its page in Safari itself (another default browser has no panel), with
         // #cf-task=<id>; the panel there goes on with the task (AgentTasks).
         if info["agentTask"] is String {

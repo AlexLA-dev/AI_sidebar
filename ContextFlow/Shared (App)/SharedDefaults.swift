@@ -1,5 +1,6 @@
 import Foundation
 import StoreKit
+import UserNotifications
 
 /// State shared between the ContextFlow app and its Safari extension
 /// (App Group `group.com.contextflow.shared`):
@@ -14,6 +15,24 @@ import StoreKit
 ///
 /// This file is compiled into both the app and the extension targets
 /// (two copies: "Shared (App)" and "Shared (Extension)" — keep them identical).
+/// Whether notifications may be sent (2.8, В2.6). The setup reminders go with quiet (provisional) permission, which the
+/// app takes on a new install without asking; everything else counts quiet permission as not asked, so nothing else
+/// arrives quietly and the question still comes at its moment (NotifyAsk in the app).
+enum NotifyStatus {
+    /// Fully on: the person said yes (or an App Clip's ephemeral permission).
+    static func on(_ status: UNAuthorizationStatus) -> Bool {
+        #if os(iOS)
+        if status == .ephemeral { return true }
+        #endif
+        return status == .authorized
+    }
+
+    /// Not asked yet: never, or only the quiet permission the setup reminders use.
+    static func notAsked(_ status: UNAuthorizationStatus) -> Bool {
+        status == .notDetermined || status == .provisional
+    }
+}
+
 /// The products we sell, by plan (2.6: Ultra, and yearly plans). src/shared/plan.ts and App Store Connect match it.
 enum PlanProducts {
     static let ultra = ["com.contextflow.ultra.monthly", "com.contextflow.ultra.yearly"]

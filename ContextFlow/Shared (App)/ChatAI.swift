@@ -277,7 +277,8 @@ enum ChatAI {
             "reason": reason,
             "product": entitlement.productId ?? "",
             "from": "app",
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            // 2.8 (В1.6): with the build, the storefront and whether an ad brought it (AppSource, Setup.swift).
+            "client": AppSource.client(platform: platform, locale: Locale.current.identifier)
         ]
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         if let end = entitlement.expiresAt { body["days_left"] = max(0, Int(end.timeIntervalSinceNow / 86_400)) }
@@ -292,7 +293,8 @@ enum ChatAI {
             "kind": "social_open",
             "appId": Activation.shared.appId,
             "network": network,
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            // 2.8 (В1.6): with the build, the storefront and whether an ad brought it (AppSource, Setup.swift).
+            "client": AppSource.client(platform: platform, locale: Locale.current.identifier)
         ]
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         guard let request = try? request("api/v2/event", body) else { return }
@@ -528,7 +530,8 @@ extension ChatAI {
             "kind": kind,
             "appId": Activation.shared.appId,
             "surface": "app",
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            // 2.8 (В1.6): with the build, the storefront and whether an ad brought it (AppSource, Setup.swift).
+            "client": AppSource.client(platform: platform, locale: Locale.current.identifier)
         ]
         for (key, value) in fields { body[key] = value }
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }

@@ -37,12 +37,13 @@ enum MessageReminders {
     static func schedule(chat: String, message: String, at: Date, title: String, body: String, open page: URL? = nil, ask: Bool) async -> Outcome {
         let center = UNUserNotificationCenter.current()
         var status = await center.notificationSettings().authorizationStatus
-        if status == .notDetermined {
+        // Quiet permission (the setup reminders', 2.8) counts as not asked.
+        if NotifyStatus.notAsked(status) {
             guard ask else { return .notAsked }
             _ = try? await center.requestAuthorization(options: [.alert, .sound])
             status = await center.notificationSettings().authorizationStatus
         }
-        guard status == .authorized || status == .provisional else { return .denied }
+        guard NotifyStatus.on(status) else { return .denied }
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body

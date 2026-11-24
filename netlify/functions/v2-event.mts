@@ -35,13 +35,14 @@ const UPSELL_WHERE = new Set(["limit", "search", "pro_only", "offer", "pro_scree
 const RENEWAL_FROM = new Set(["app", "panel"])
 const MEDIA = new Set(["video", "pdf", "video,pdf"])
 const STATES = new Set(["off", "on", "in_use"])
-const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
+// "quiet" (2.8): provisional permission, granted without a question for the setup reminders only.
+const NOTIFICATIONS = new Set(["granted", "denied", "not_asked", "quiet"])
 
 /**
  * POST /api/v2/event — anonymous counts: funnel steps between the App Store download and the first answer,
  * and which features people use, in what order.
  * Body: { kind, installId?: <extension install id>, appId?: <random id of the app>,
- *         client: {version, build?, platform, locale}, audience?: "test" (debug and TestFlight builds),
+ *         client: {version, build?, platform, locale, sf?, ad?}, audience?: "test" (debug and TestFlight builds),
  *         extension?: "off"|"on"|"in_use", notifications?,
  *         adToken?: <AdServices attribution token, app_open only>, media?: "video"|"pdf"|"video,pdf",
  *         renewal_off: reason (src/shared/renewal.ts), product, days_left, from: "app"|"panel",
@@ -73,6 +74,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
     version: clip(client.version, 20),
     locale: clip(client.locale, 12),
     ...(build ? { build: Number(build[0]) } : {}),
+    // 2.8 (В1.6), the app's events: the App Store storefront (StoreKit's three-letter country code) and whether Apple
+    // Ads brought the install ("yes" / "no" once Apple has answered), so organic and ad installs compare by country.
+    ...(typeof client.sf === "string" && /^[A-Z]{2,3}$/.test(client.sf) ? { sf: client.sf } : {}),
+    ...(client.ad === "yes" || client.ad === "no" ? { ad: client.ad } : {}),
     ...(body.audience === "test" || client.audience === "test" ? { audience: "test" } : {})
   }
   const steps = items.map((item) => step(item, shared)).filter((s): s is Step => s !== null)

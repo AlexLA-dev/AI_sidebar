@@ -28,15 +28,17 @@ test("the app sends each step where it happens, in order", () => {
   // Settings from the home card (iPhone, iPad): counted as it opens, after the guide's video when that started.
   assert.match(setup, /private func openExtensionSettings\(\) \{\s*activation\.wentToSettings\("card"\)/)
   assert.match(setup, /pictureInPictureControllerDidStartPictureInPicture[\s\S]{0,120}?Activation\.shared\.guideStarted\(\)\s*self\.openPending\(\)/)
-  // A failed start opens Settings without a "video".
-  assert.match(setup, /failedToStartPictureInPictureWithError error: Error\) \{\s*Task \{ @MainActor in self\.openPending\(\) \}/)
+  // A failed start opens Settings without a "video" (2.8: and the frames stop playing in the card first).
+  assert.match(setup, /failedToStartPictureInPictureWithError error: Error\) \{\s*Task \{ @MainActor in[\s\S]{0,200}?self\.clear\(\)[\s\S]{0,160}?self\.openPending\(\)\s*\}/)
+  assert.doesNotMatch(setup, /failedToStartPictureInPictureWithError[\s\S]{0,300}?guideStarted/)
   // Back counts once a trip, and only after the app really left the front.
-  assert.match(setup, /func wentToSettings\(_ via: String\) \{\s*trip = \.going\s*UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.tripKey\)\s*step\("settings", \["via": via\]\)/)
+  assert.match(setup, /func wentToSettings\(_ via: String\) \{\s*trip = \.going\s*settingsHow = nil\s*UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.tripKey\)\s*UserDefaults\.standard\.removeObject\(forKey: Self\.howKey\)\s*step\("settings", \["via": via\]\)/)
   assert.match(setup, /private func wentAway\(\) \{\s*if trip == \.going \{ trip = \.away \}/)
   // "Left" from the system (the views get no scene phase in the background): iPhone and iPad, and the Mac.
   assert.match(setup, /#if os\(iOS\)\s*let left = UIApplication\.didEnterBackgroundNotification\s*#else\s*let left = NSApplication\.didResignActiveNotification\s*#endif\s*NotificationCenter\.default\.addObserver\(forName: left, object: nil, queue: \.main\) \{ \[weak self\] _ in\s*Task \{ @MainActor in self\?\.wentAway\(\) \}/)
   // Switching it on in Settings can end the app: the trip is kept on disk, and a relaunch within the hour is the way back.
-  assert.match(setup, /func cameBack\(\) \{[\s\S]*?guard at > 0, trip != \.going else \{ return \}\s*trip = nil\s*defaults\.removeObject\(forKey: Self\.tripKey\)\s*if Date\(\)\.timeIntervalSince1970 - at < 3600 \{ step\("back"\) \}/)
+  // 2.8 (В2.1): "back" says how Settings was opened ("direct" or "app"), known only once the app has started leaving.
+  assert.match(setup, /func cameBack\(\) \{[\s\S]*?guard at > 0, trip != \.going else \{ return \}\s*trip = nil\s*defaults\.removeObject\(forKey: Self\.tripKey\)\s*let how = settingsHow \?\? defaults\.string\(forKey: Self\.howKey\)\s*defaults\.removeObject\(forKey: Self\.howKey\)\s*if Date\(\)\.timeIntervalSince1970 - at < 3600 \{ step\("back", how\.map \{ \["how": \$0\] \} \?\? \[:\]\) \}/)
   assert.match(setup, /func launched\(\) async \{[\s\S]{0,120}?cameBack\(\)\s*await refresh\(\)/)
   // Enabled: the first time the app sees it go from off to on, once an install.
   assert.match(setup, /let before = state\s*state = next[\s\S]{0,80}?if before == \.off, next != \.off \{ reportEnabled\(\) \}/)
@@ -52,7 +54,7 @@ test("the app sends each step where it happens, in order", () => {
 
   const content = app("ContentView.swift")
   // "back" before the refresh that may send "enabled".
-  assert.match(content, /activation\.cameBack\(\)\s*Task \{ await activation\.refresh\(\) \}/)
+  assert.match(content, /activation\.cameBack\(\)\s*Task \{\s*await activation\.refresh\(\)\s*await activation\.reportDeliveredReminders\(\)\s*\}/)
   assert.doesNotMatch(content, /wentAway/)
   // The Mac's Safari settings: the home card and the chats' empty state.
   assert.match(content, /activation\.wentToSettings\("card"\)\s*SFSafariApplication\.showPreferencesForExtension/)

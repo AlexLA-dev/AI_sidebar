@@ -666,7 +666,8 @@ enum ListenAway {
         case .authorized: return "authorized"
         case .denied: return "denied"
         case .notDetermined: return "notDetermined"
-        case .provisional: return "provisional"
+        // Quiet permission is the setup reminders' only (2.8): for the panel, not asked yet.
+        case .provisional: return "notDetermined"
         #if os(iOS)
         case .ephemeral: return "ephemeral"
         #endif
@@ -696,7 +697,7 @@ enum ListenAway {
 
         let center = UNUserNotificationCenter.current()
         let status = await center.notificationSettings().authorizationStatus
-        guard status == .authorized || status == .provisional else { return }
+        guard NotifyStatus.on(status) else { return }
         let content = UNMutableNotificationContent()
         let title = String((message["title"] as? String ?? "").prefix(200))
         content.title = title.isEmpty ? "ContextFlow" : title

@@ -54,6 +54,20 @@ enum AppTab: Hashable {
     case home, chats, templates, tips, pro, settings, whatsNew
     /// 2.7: Подборки, the Mac's sidebar (on iPhone and iPad they open from the Chats screen).
     case collections
+
+    /// The name `tab.open` counts it by (src/shared/usage.ts).
+    var event: String {
+        switch self {
+        case .home: return "start"
+        case .chats: return "chats"
+        case .templates: return "templates"
+        case .tips: return "tips"
+        case .pro: return "pro"
+        case .settings: return "settings"
+        case .whatsNew: return "whats_new"
+        case .collections: return "collections"
+        }
+    }
 }
 
 // MARK: - Root
@@ -234,16 +248,25 @@ struct ContentView: View {
                 case "invite":
                     let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "code" }?.value ?? ""
                     invite.draft = InviteModel.parseCode(code) ?? ""
-                    if hasChats || !invite.offersEntry { invite.shown = true } else { tab = .home }
+                    // 2.8 (В3.4): the code is entered on Invite a friend (the first screen no longer has a card for it).
+                    invite.shown = true
                 #if os(iOS)
                 // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
                 case "notifications":
                     let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "listen" }?.value?.lowercased()
-                    // 2.7: the link's own text is kept, so it's here whether or not the extension's copy has come.
-                    ListenLink.keep(url)
-                    Task { await NotifyAsk.shared.show(.listen, listen: id) }
+                    if let id {
+                        // 2.7: the link's own text is kept, so it's here whether or not the extension's copy has come.
+                        ListenLink.keep(url)
+                        Task { await NotifyAsk.shared.show(.listen, listen: id) }
+                    } else {
+                        // 2.8 (В3.2): a moment of value in the panel (`why`), the one way the panel asks.
+                        Task { await NotifyAsk.shared.show(link: url) }
+                    }
                 #endif
                 case "tips": tab = .tips
+                // 2.8: a reminder to finish setup was tapped: the guide (in a sheet when there are chats).
+                case "setup":
+                    if hasChats { showingSetup = true } else { tab = .home }
                 #if DEBUG
                 // 2.6 (100): suggestions coming from "another device" while a chat is read (ChatLibrary.debugOrg).
                 case "debug-org": chats.debugOrg(url)
@@ -281,9 +304,12 @@ struct ContentView: View {
                 WhatsNew.schedule()
                 #endif
                 tour.debugStartIfAsked()
+                // 2.8 (В1.6): the storefront every app event carries, read before the first ones where it can be.
+                await AppSource.refresh()
                 await store.refreshEntitlement()
                 ReviewAsk.shared.cameToFront()
                 await activation.launched()
+                await activation.reportDeliveredReminders()
             }
             .onChange(of: scenePhase) { phase in
                 if phase == .active {
@@ -294,7 +320,10 @@ struct ContentView: View {
                     // Back from Settings or Safari: whether ContextFlow is on now (2.6), and the guide over Settings goes.
                     // 2.7: "back" first, so the server has it before "enabled".
                     activation.cameBack()
-                    Task { await activation.refresh() }
+                    Task {
+                        await activation.refresh()
+                        await activation.reportDeliveredReminders()
+                    }
                     #if os(iOS)
                     SettingsPiP.shared.stop()
                     #endif
@@ -303,6 +332,8 @@ struct ContentView: View {
             // What's new hides again once another tab is chosen (Tips is back in its place). Left after an update: a good
             // moment for a rating (2.6 (100)).
             .onChange(of: tab) { next in
+                // 2.8 (В1.7): which tabs are opened (Tips, What's new and Pro above all).
+                ChatAI.reportUse("tab", "open", ["what": next.event])
                 if next != .whatsNew {
                     if whatsNewShown { ReviewAsk.shared.ask(.whatsNew) }
                     whatsNewShown = false
@@ -478,8 +509,8 @@ struct HomeView: View {
                 #else
                 SetupCard(activation: activation, openSafari: openSafari)
                 #endif
-                // 2.7 (plan section 5): a new install enters a friend's code here (bonus answers for the first week).
-                FriendCodeCard()
+                // 2.8 (В3.4): the friend's code card left the first screen (one job there: switching ContextFlow on).
+                // A code is entered on Invite a friend, in Settings or from an invite link.
                 howToCard
                 planCard
                 footer
@@ -545,6 +576,8 @@ struct HomeView: View {
             }
             .buttonStyle(.borderedProminent)
         }
+        // 2.8 (В1.1): the funnel's zero step, the instruction shown.
+        .onAppear { if !enabled { activation.instructionShown() } }
     }
 
     #endif

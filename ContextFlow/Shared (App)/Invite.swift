@@ -42,19 +42,6 @@ final class InviteModel: ObservableObject {
     /// The screen from Settings, or from a link.
     @Published var shown = false
 
-    /// The first screen's card: a new install (first week, not an update) without a friend's code yet.
-    var offersEntry: Bool {
-        if enteredUntil != nil || Self.keptUntil() != nil { return false }
-        // «Start as a new user» (test builds, Setup.swift): the card as a new install has it.
-        if NewUserPreview.isOn { return true }
-        guard let first = SharedDefaults.shared.appFirstLaunch() else { return true }
-        return !SharedDefaults.shared.appUpdatedInstall() && Date().timeIntervalSince1970 - first < 7 * 86_400
-    }
-
-    /// The first screen's card was put away ("Not now").
-    @Published var entryHidden = UserDefaults.standard.bool(forKey: "cf_invite_entry_hidden") {
-        didSet { UserDefaults.standard.set(entryHidden, forKey: "cf_invite_entry_hidden") }
-    }
     /// The inviter's discount as named before the server says (the App Store shows the real price).
     var discount: Int { reward?.pro?.discount ?? reward?.ultra?.discount ?? 50 }
 
@@ -339,40 +326,6 @@ struct FriendCodeField: View {
             Button("Enter") { Task { await model.redeem(model.draft, via: via) } }
                 .buttonStyle(.borderedProminent)
                 .disabled(model.busy || model.draft.trimmingCharacters(in: .whitespaces).isEmpty)
-        }
-    }
-}
-
-/// The first screen's card on a new install: «Have a friend's code?».
-struct FriendCodeCard: View {
-    @ObservedObject var model = InviteModel.shared
-
-    var body: some View {
-        if let until = model.enteredUntil {
-            Label("Code accepted: bonus answers, +\(model.friendDaily) a day, until \(InviteModel.day(until)).", systemImage: "gift")
-                .font(.subheadline)
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RoundedRectangle(cornerRadius: 16).fill(Color.cardFill))
-        } else if model.offersEntry && (!model.entryHidden || !model.draft.isEmpty) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Label("Have a friend's code?", systemImage: "gift")
-                        .font(.headline)
-                    Spacer()
-                    Button("Not now") { model.entryHidden = true }
-                        .font(.subheadline)
-                }
-                Text("Enter it for bonus answers in your first week.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                FriendCodeField(via: "first_screen")
-                if let error = model.error {
-                    Text(error).font(.footnote).foregroundColor(.red)
-                }
-            }
-            .padding(16)
-            .background(RoundedRectangle(cornerRadius: 16).fill(Color.cardFill))
         }
     }
 }
