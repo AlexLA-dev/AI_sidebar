@@ -560,6 +560,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // own install id until the server has the two together (src/background/link.ts). Nothing when the app hasn't
             // been opened yet: the extension asks again later.
             if let app = SharedDefaults.shared.appId() { data["app"] = app }
+            // 2.8 (В1.9): a simulator or debug build: the extension marks its requests as ours too.
+            if OurBuild.isOurs { data["test"] = true }
             Self.reply(context, ["success": true, "data": data])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])

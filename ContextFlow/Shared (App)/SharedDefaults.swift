@@ -14,6 +14,23 @@ import StoreKit
 ///
 /// This file is compiled into both the app and the extension targets
 /// (two copies: "Shared (App)" and "Shared (Extension)" — keep them identical).
+/// Our own builds (2.8, В1.9): a debug build, or any build running in a simulator. Every request they send is marked
+/// `audience: "test"` (the app's own, and the extension's through the native ping), which the server keeps and the
+/// reports leave out (contextflow.test_ids). Before this nothing marked them: each erase-and-install of a simulator
+/// reached production as a new person (160 "installs" on 14–22.11). A release build on a real device is never marked;
+/// TestFlight builds are told apart by their server, as before.
+enum OurBuild {
+    static let isOurs: Bool = {
+        #if DEBUG
+        return true
+        #elseif targetEnvironment(simulator)
+        return true
+        #else
+        return false
+        #endif
+    }()
+}
+
 /// The products we sell, by plan (2.6: Ultra, and yearly plans). src/shared/plan.ts and App Store Connect match it.
 enum PlanProducts {
     static let ultra = ["com.contextflow.ultra.monthly", "com.contextflow.ultra.yearly"]

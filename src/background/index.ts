@@ -93,32 +93,30 @@ async function ownKey(): Promise<string> {
 // whose consent screen names Anthropic (67 and later). Asked once per worker; Chrome has none.
 // 2.7.1: the same answer carries the app's random id (once the app has been opened), for linkApp below; the ping
 // carries this install's id, so the app has it from the extension's first message, not only once the panel opens.
-let nativeAsk: Promise<{ build: string; app: string | null }> | null = null
+let nativeAsk: Promise<{ build: string; app: string | null; test: boolean }> | null = null
 let nativeAppAskedAt = 0
 
-function nativeInfo(): Promise<{ build: string; app: string | null }> {
-  if (TARGET !== "safari") return Promise.resolve({ build: "", app: null })
+function nativeInfo(): Promise<{ build: string; app: string | null; test: boolean }> {
+  if (TARGET !== "safari") return Promise.resolve({ build: "", app: null, test: false })
   // No app id yet (the app not opened so far): asked again at most once a minute, never on every request.
   if (nativeAsk && nativeAppAskedAt && Date.now() - nativeAppAskedAt > 60_000) nativeAsk = null
   nativeAsk ??= installId()
-    .then((id) => callNative<{ build?: string; app?: string }>("ping", { installId: id }, 1500))
+    .then((id) => callNative<{ build?: string; app?: string; test?: boolean }>("ping", { installId: id }, 1500))
     .then((data) => {
       // No answer: asked again by the next caller.
       if (!data?.build) nativeAsk = null
       const app = typeof data?.app === "string" ? data.app : null
       nativeAppAskedAt = data?.build && !app ? Date.now() : 0
-      return { build: data?.build ?? "", app }
+      // 2.8 (В1.9): the app's side says it's a simulator or debug build (OurBuild): every request is marked as ours.
+      return { build: data?.build ?? "", app, test: data?.test === true }
     })
   return nativeAsk
 }
 
-function appBuild(): Promise<string> {
-  return nativeInfo().then((info) => info.build)
-}
-
 async function clientInfo() {
-  const [build, os, invite] = await Promise.all([appBuild(), platform(), inviteMarks().catch(() => ({}))])
-  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite }
+  const [native, os, invite] = await Promise.all([nativeInfo(), platform(), inviteMarks().catch(() => ({}))])
+  const { build, test } = native
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite, ...(test ? { audience: "test" } : {}) }
 }
 
 // ---------------------------------------------------- App Store subscription
@@ -1301,7 +1299,9 @@ startAgent({
     const ent = await entitlement()
     return ent?.active ? planFromProduct(ent.productId) : "free"
   },
-  statusChanged: () => (statusCache = null)
+  statusChanged: () => (statusCache = null),
+  // The agent's usage events (feature "agent", src/shared/usage.ts): kinds and counts only.
+  use: (fields) => void reportUse({ type: "useEvent", ...fields } as Extract<BackgroundRequest, { type: "useEvent" }>)
 })
 // Page watch (2.5): the checks run here while Safari runs; the AI plans a watch and reads a change.
 startWatch({

@@ -18,7 +18,8 @@ import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
-import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { pageKind } from "./events.ts"
+import { addContactFill, buildPlan, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -136,6 +137,9 @@ export interface AgentState {
   // before that press was shown (B2: only once).
   picked?: { date?: string; time?: string }
   recapShown?: boolean
+  // The usage events already sent for this task (src/shared/agent/events.ts), and its start page's kind.
+  ev?: { start?: boolean; end?: boolean }
+  pageKind?: string
   // A question sent back once because the page's own date field showed another day (B3).
   widgetNudged?: boolean
   // Waits for a control the page showed disabled (a bad call on it), at most two.
@@ -388,6 +392,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   state.chat = undefined
   // A server without plans answered with a step: none, every «Сделать?» asks (it's asked again as step 1).
   const plan = reply.plan ? buildPlan(checkPlan(reply.plan), { map, startHost: state.startHost, request: state.request, confirmedHere: false, policy: io.policy }) : null
+  state.pageKind = pageKind(map, subject, plan?.booking)
   if (!plan) return "go"
   state.plan = plan
   // A place the request (or the chat it came from) doesn't name isn't the model's to pick on the plan (124, the director:
@@ -432,13 +437,13 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     // A results list whose cards come after the first part of the map (restaurant and salon sites' filters and map first,
     // 124): the next parts are read on the device for the places (never sent to the model).
     let seen = map
-    for (let p = 2; !venuesOn(seen).length && p <= Math.min(map.parts, 4); p++) {
+    for (let p = 2; !venuesOn(seen, plan.booking.area ?? []).length && p <= Math.min(map.parts, 4); p++) {
       const more = await io.map({ part: p }).catch(() => null)
       if (!more) break
       seen = { ...seen, items: [...seen.items, ...more.items] }
     }
     const cards = cardsOf(seen)
-    const ranked = rankVenues(venuesOn(seen), cards, plan.booking.match ?? [], rules.rating, plan.booking.area ?? [], true).slice(0, 3)
+    const ranked = rankVenues(venuesOn(seen, plan.booking.area ?? []), cards, plan.booking.match ?? [], rules.rating, plan.booking.area ?? [], true).slice(0, 3)
     // A place that matters to the person (an appointment: a salon, a clinic) is theirs to choose: the page's best by the
     // rules with their rating and area, the one they went to last time, and «pick for me by my rules»; only a
     // remembered one is chosen already. A table at «any Italian» is the rules' choice, shown chosen and changeable.
@@ -455,6 +460,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
       if (plan.how) plan.how.rating = 0
     }
   }
+  // A page that is the booking's own form (its booking press is on this page, no places listed): there's no place to
+  // choose, so no «I'll pick the place» (the director on 126, a stand's one-form page).
+  if (plan.booking && plan.how && !placesListed && !venuesOn(map).length && plan.perms.some((p) => p.kind === "press" && p.reason === "submit" && !!p.ids?.length && p.path === pathOf(map.url))) plan.how.rating = 0
   // A place that's the person's to choose isn't «I'll pick the place»: the agent asks once it has a real list.
   if (plan.booking?.personal && !plan.booking.venue && plan.how && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) plan.how.rating = 0
   // A personal service's open choices, asked on the card unless the request names them (the owner on 123: «переуточнять
@@ -484,13 +492,15 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   if (plan.booking?.contacts?.length) {
     const have = new Set(liveEntries(entries).map((e) => e.key))
     const said = `${state.request} ${plan.fromChat ?? ""}`
-    const forSomeone = plan.perms.some((p) => p.kind === "personal")
+    // (Someone's details in the request: a contact or a name written in it, typed by the plan — not a site's search box
+    // the plan took for a personal field, 126.)
+    const forSomeone = plan.perms.some((p) => p.kind === "personal") && (contactInWords("email", said) || contactInWords("phone", said) || NAME_SAID.test(said))
     for (const key of plan.booking.contacts) {
       if (!have.has(key) && !contactInWords(key, said) && !plan.questions.some((q) => q.key === key)) plan.questions.push({ q: "", kind: "contact", key, options: [], ...(forSomeone ? { once: true } : {}) })
     }
   }
   // The booking's contact form (a later page): the saved name, e-mail and phone go in as the plan's fill.
-  addContactFill(plan, liveEntries(entries).map((e) => e.key), hostOf(map.url))
+  addContactFill(plan, liveEntries(entries).map((e) => e.key), hostOf(map.url), `${state.request} ${plan.fromChat ?? ""}`)
   // Nothing left to ask (every answer known from «Мои данные», this site's remembered choices or the rules; nothing paid;
   // a site booked on before): no card, the task starts with its answers in one line and Stop.
   // (A place the rules picked counts as known: the card would only show it.)
@@ -511,6 +521,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   plan.approved = true
   return "go"
 }
+
+// A name written in the request («имя Мария Ким», «name: Anna», «au nom de…»), in the panel's languages.
+const NAME_SAID = /(?<!\p{L})(имя|имени|на имя|name|nom|nombre|nome|vorname|isim|adına|名前|氏名|이름|姓名|名字|الاسم|باسم|tên|ім'я)(?!\p{L})/iu
 
 // A booking form another site serves in a frame of this page (a restaurant's or a salon's provider widget): its title,
 // name or address speaks of booking in one of the 15 languages («Reservation widget», «/reservations/…», «予約»).
@@ -690,9 +703,9 @@ function normalizeValue(v: string): string {
  *  place the tab is on now counts as tried. */
 function noteVenues(state: AgentState, map: PageMap): void {
   const b = state.plan?.booking
-  if (!b || b.venue || !state.chooseVenue || !state.plan?.approved) return
+  if (!b || b.venue || !(state.chooseVenue || state.plan?.askPlace) || !state.plan?.approved) return
   if (!state.venues) {
-    const list = venuesOn(map)
+    const list = venuesOn(map, b.area ?? [])
     if (list.length) {
       // (Places to ask the person about are only ones in the area the request names: a home page's promoted hotels
       // elsewhere aren't a list to ask from, 125.)
@@ -957,7 +970,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The place question the plan left to the agent (askPlace), asked from a list of places: once, past the guards below.
     const placeAsk = call.tool === "ask_user" && !!state.plan?.askPlace && !state.placeAsked && !!state.venues?.list.length
     if (placeAsk) state.placeAsked = true
-    const details = detailsForm(map) || chosenAsk || placeAsk
+    // (In the last two steps a question goes to the person: the device opening the next place instead spent the last
+    // step and the task ended with nobody asked, 126 on a hotel site.)
+    const details = detailsForm(map) || chosenAsk || placeAsk || state.step >= io.maxSteps - 2
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       continue
@@ -1078,7 +1093,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const listed = seenItem?.href && (call.tool === "click" || call.tool === "go") && state.venues ? state.venues.list.find((v) => linkTo(seenItem.href!, map.url) === v.url) : undefined
     if ((place || listed) && state.plan?.askPlace && !state.placeAsked && state.venues?.list.length) {
       const best = state.venues.list.slice(0, 2).map((v) => `«${v.name}» (${v.rating}, ${v.reviews})`).join(", ")
-      const why = `which place is the person's choice: ask_user once now with the two best by the rules (${best}) and a third choice to let you choose by the rules; open one only after the answer`
+      const why = state.chooseVenue
+        ? `which place is the person's choice: ask_user once now with the two best by the rules (${best}) and a third choice to let you choose by the rules; open one only after the answer`
+        : `which place is the person's choice (their rules say not to choose one for them): ask_user once now with the first places the list shows (${best}); open one only after the answer`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1253,6 +1270,10 @@ async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<Tool
     const call: ToolCall = { tool: "click", id: a.id, why: a.why ?? "", expect: { label: item.label, role: item.role, ...(item.lock ? { lock: item.lock } : {}) } }
     const v = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
     if (v.cls !== "free" || looksLikeSlot(item.label)) return
+    // A menu the press before opened isn't pressed again in the batch (it would close: 126 stand, a colour list opened
+    // and shut by the same batch, four steps in a row).
+    const last = state.log[state.log.length - 1]?.call
+    if (item.state?.includes("expanded") && last?.tool === "click" && last.id === a.id) return
     // A day in a batch goes through the same date checks as one pressed alone.
     if (state.plan?.booking && isDateLabel(item.label)) {
       const why = dateStep(state, map, item, call)
@@ -1357,7 +1378,9 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
   // (The rules' own pick left as it was stays the rules': when it has no fitting slot, the next place is tried; «pick for
   // me» leaves it to the rules; a place of the page's, last time's or the person's own words is that place.)
   // Theirs to choose and not asked on the card (no list there): the agent asks once a list is open.
-  if (plan.booking?.personal && !plan.booking.venue && where < 0 && state.chooseVenue !== false) plan.askPlace = true
+  // (So is any place when the person's rules say not to choose one for them: 126, a clinic task with that rule off opened
+  // the first doctor — nothing was noted or held back.)
+  if ((plan.booking?.personal || state.chooseVenue === false) && plan.booking && !plan.booking.venue && where < 0) plan.askPlace = true
   if (plan.booking && place && place !== "@auto" && place !== plan.questions[where].pick) {
     plan.booking.venue = place
     state.chooseVenue = false

@@ -57,7 +57,19 @@ enum ChatAI {
         #if DEBUG
         if let custom = UserDefaults.standard.string(forKey: "CFApiBase"), let url = URL(string: custom) { return url }
         #endif
-        return URL(string: "https://6b05865109c226fb735180bb--aisidebar.netlify.app")!  // TestFlight 2.7.1: PR #237 deploy preview at 7fe39094 (claude/release-2.7.1-tf only)
+        return URL(string: "https://6b05ddbba9ec2a93870d0d1c--aisidebar.netlify.app")!  // TestFlight 2.7.1: PR #237 deploy preview at 7ff95e3c (claude/release-2.7.1-tf only)
+    }
+
+    /// Every app event's client (2.8, В1.9): platform, version, locale, and on a simulator or debug build the mark the
+    /// server and the reports take for ours (`audience: "test"`).
+    static func eventClient(platform: String, locale: String) -> [String: String] {
+        var client = [
+            "platform": platform,
+            "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+            "locale": locale
+        ]
+        if OurBuild.isOurs { client["audience"] = "test" }
+        return client
     }
 
     @MainActor
@@ -71,6 +83,8 @@ enum ChatAI {
         ]
         // 2.7: a friend's code's extra answers run (the server checks it; see Invite.swift).
         if InviteModel.keptUntil() != nil { client["inv"] = 1 }
+        // 2.8 (В1.9): a simulator or debug build is ours, never a person (OurBuild, SharedDefaults).
+        if OurBuild.isOurs { client["audience"] = "test" }
         var body: [String: Any] = [
             "installId": (Activation.shared.accountToken ?? UUID()).uuidString.lowercased(),
             "client": client
@@ -277,7 +291,7 @@ enum ChatAI {
             "reason": reason,
             "product": entitlement.productId ?? "",
             "from": "app",
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            "client": eventClient(platform: platform, locale: Locale.current.identifier)
         ]
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         if let end = entitlement.expiresAt { body["days_left"] = max(0, Int(end.timeIntervalSinceNow / 86_400)) }
@@ -292,7 +306,7 @@ enum ChatAI {
             "kind": "social_open",
             "appId": Activation.shared.appId,
             "network": network,
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            "client": eventClient(platform: platform, locale: Locale.current.identifier)
         ]
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         guard let request = try? request("api/v2/event", body) else { return }
@@ -528,7 +542,7 @@ extension ChatAI {
             "kind": kind,
             "appId": Activation.shared.appId,
             "surface": "app",
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            "client": eventClient(platform: platform, locale: Locale.current.identifier)
         ]
         for (key, value) in fields { body[key] = value }
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }

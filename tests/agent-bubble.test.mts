@@ -46,7 +46,7 @@ test("another tab's answer names the step and goes through the panel's own check
   assert.match(bg, /key: pendingKey\(state\), \.\.\.\(p \? \{ pending: \{ call: p\.call, verdict: p\.verdict, target: p\.target, offRequest: p\.offRequest, price: p\.price, recap: p\.recap \} \} : \{\}\)/)
   assert.doesNotMatch(bg, /pending: \{[^}]*fill/)
   // Only for the notice's step, then the same reply() as the panel (its key check, once per step).
-  assert.match(bg, /if \(!n \|\| !key \|\| n\.key !== key \|\| a === "stop"\) return \{ ok: false, code: "STALE" \}\n\s+const r = await reply\(n\.tab, a, chosen, key\)/)
+  assert.match(bg, /if \(!n \|\| !key \|\| n\.key !== key \|\| a === "stop"\) return \{ ok: false, code: "STALE" \}\n\s+const r = await reply\(n\.tab, a, chosen, key, "bubble"\)/)
   assert.match(app, /sendBackground<\{ ok: boolean \}>\(\{ type: "agentNoticeAnswer", answer: a, chosen, key: b\.key \}\)/)
 })
 
@@ -69,4 +69,15 @@ test("the bubble's words in all 15 languages", () => {
     for (const k of keys) assert.ok(d[k], `${loc}: ${k}`)
     for (const k of ["agentBubbleDone", "agentBubbleNotDone", "agentBubbleCheck"]) assert.match(d[k], /\{0\}/, `${loc}: ${k}`)
   }
+})
+
+test("the recap's asked time is in the device's clock, as the booked one (the director on 126: «07:00 PM» beside «19:10»)", () => {
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /r\.askedDate \? when\(r\.askedDate, r\.askedTime\) : clock\(r\.askedTime \?\? ""\)/)
+  assert.match(panel, /export function clock\(time: string\): string \{[\s\S]{0,200}Intl\.DateTimeFormat\(undefined, \{ hour: "2-digit", minute: "2-digit" \}\)/)
+})
+
+test("another tab's finished task doesn't speak over a task working in this tab (126)", () => {
+  assert.match(app, /const workingHere = agentTask\?\.status === "running"/)
+  assert.match(app, /otherBubble && !\(workingHere && otherBubble\.kind === "end"\) \? otherBubble : null/)
 })

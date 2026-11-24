@@ -325,21 +325,26 @@ function wordsOf(box: Element, max: number): string {
 }
 
 /** The card a link heads, when the link carries only a name: the nearest box around it (up to five levels) that holds a
- *  rating and a count of reviews and no more than one place's links. Its text, or "". */
+ *  rating and a count of reviews and no more than one place's links; else the widest box with one place's links and more
+ *  words than the name (a card without a rating). Its text, or "". */
 function cardOf(el: Element, label: string): string {
   if (label.length > 80 || (CARD_RATING.test(label) && CARD_REVIEWS.test(label))) return ""
   // A whole card that is one link named by its aria-label («Trattoria Uno»): its own text is the card.
   const own = wordsOf(el, 600)
   if (own.length <= 400 && own !== label && CARD_RATING.test(own) && CARD_REVIEWS.test(own)) return own.slice(0, 240)
   let box: Element | null = el.parentElement
-  for (let i = 0; box && i < 5; i++, box = box.parentElement) {
+  // A card without a rating (a clinic's directory: the doctor, the address, the next free times, 126): the widest box
+  // around the link that still holds one place's links and a card's worth of text (a script-drawn card nests deep).
+  let plain = ""
+  for (let i = 0; box && i < 10; i++, box = box.parentElement) {
     const hrefs = new Set(Array.from(box.querySelectorAll("a[href]")).map((a) => (a.getAttribute("href") ?? "").split(/[?#]/)[0]).filter((h) => h && h !== "/"))
-    if (hrefs.size > 3) return ""
+    if (hrefs.size > 3) break
     const text = wordsOf(box, 600)
-    if (text.length > 400) return ""
-    if (CARD_RATING.test(text) && CARD_REVIEWS.test(text)) return text.slice(0, 240)
+    if (text.length > 400) break
+    if (i < 5 && CARD_RATING.test(text) && CARD_REVIEWS.test(text)) return text.slice(0, 240)
+    if (text.length >= label.length + 15) plain = text
   }
-  return ""
+  return plain.slice(0, 240)
 }
 
 const rgb = (c: string): [number, number, number, number] | null => {

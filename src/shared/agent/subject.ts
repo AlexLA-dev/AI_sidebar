@@ -23,6 +23,9 @@ const PERSON = /(?<!\p{L})(stylist|therapist|specialist|doctor|dr\.|мастер
 // Titles that name a list or a site's page, never one thing.
 const LISTY = /(?<!\p{L})(best|top \d+|near me|restaurants in|search|results|find |book (a|an) |all |category|catalog|deals|offers|рядом|лучшие|поиск|каталог|результат)/iu
 
+// A search a site offers for places (its box, its button): what, where, find, in the panel's languages.
+const SEARCH = /(?<!\p{L})(search|find|where|location|recherch|où|buscar|dónde|cerca|dove|suche|wo\b|pesquis|onde|поиск|найти|где|пошук|знайти|ara|nerede|検索|検索|어디|검색|搜索|搜尋|哪里|بحث|أين|tìm)/iu
+
 /** The title's own name: before « | », « - », « – », « · » (the site and the city come after). */
 function nameOf(title: string): string {
   return title.split(/\s+[|–—·-]\s+|\s*\|\s*/)[0].replace(/\s+/g, " ").trim()
@@ -44,6 +47,18 @@ export function pageSubject(map: PageMap): Subject | null {
     if (cand.length >= 3 && head.includes(cand.toLocaleLowerCase())) name = cand
   }
   if (!name) return null
+  // The site's own name on its home page with a search for places (a marketplace: «Doctolib» on doctolib.fr, 126) isn't
+  // one place: the task searches it. (A restaurant's own site with no search stays its place.)
+  const brand = (() => {
+    try {
+      return new URL(map.url).hostname.replace(/^www\./, "").split(".")[0]
+    } catch {
+      return ""
+    }
+  })()
+  const flat = (x: string) => x.toLocaleLowerCase().normalize("NFKD").replace(/[^\p{L}\p{N}]/gu, "")
+  const searches = map.items.some((i) => ((i.role === "textbox" || i.role === "combobox") && SEARCH.test(`${i.label} ${i.type ?? ""}`)) || (i.role === "button" && SEARCH.test(i.label)))
+  if (brand && flat(name) === flat(brand) && searches) return null
   const labels = map.items.filter((i) => i.role === "button" || i.role === "link").map((i) => i.label)
   if (labels.some((l) => BUY.test(l))) return { kind: "product", name }
   if (!labels.some((l) => BOOK.test(l))) return null

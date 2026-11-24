@@ -65,6 +65,17 @@ function when(date?: string, time?: string): string {
   }
 }
 
+/** A time alone («19:10») in the device's own clock, as `when` shows a time (the director on 126: «07:00 PM» beside «19:10»). */
+export function clock(time: string): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(time.trim())
+  if (!m) return time
+  try {
+    return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" }).format(new Date(2000, 0, 1, Number(m[1]), Number(m[2])))
+  } catch {
+    return time
+  }
+}
+
 /** The recap's booking in a line: «Cutter, Sun 27 Dec, 09:00». */
 export function recapWhat(r: Recap): string {
   return [r.place, r.date ? when(r.date, r.time) : ""].filter(Boolean).join(", ")
@@ -73,7 +84,7 @@ export function recapWhat(r: Recap): string {
 /** What the recap says besides it: what was asked, another place, the page's cancellation terms. */
 export function recapNotes(r: Recap): string[] {
   return [
-    r.askedDate || r.askedTime ? t("agentRecapAsked", r.askedDate ? when(r.askedDate, r.askedTime) : r.askedTime ?? "") : "",
+    r.askedDate || r.askedTime ? t("agentRecapAsked", r.askedDate ? when(r.askedDate, r.askedTime) : clock(r.askedTime ?? "")) : "",
     r.otherPlace ? t("agentRecapOtherPlace") : "",
     r.terms ? t("agentRecapTerms", r.terms) : ""
   ].filter(Boolean)

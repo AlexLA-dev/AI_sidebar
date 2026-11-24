@@ -13,6 +13,8 @@ import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
 import { active, answer, approvePlan, drive, newState, pendingKey, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
 import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
 import { hostOf, sameSite } from "../shared/agent/sites"
+import { venuesOn } from "../shared/agent/venues"
+import { agentEvents, type AgentUse } from "../shared/agent/events"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
 import { appleCall, appleDevice, calendarFreeLine, calendarSlotFree, deferredReminder, deferredReminderEnd } from "./agentApple"
@@ -26,6 +28,7 @@ export interface AgentDeps {
   consented: () => Promise<boolean>
   plan: () => Promise<Plan>
   statusChanged: () => void
+  use?: (fields: AgentUse) => void
 }
 
 let deps: AgentDeps
@@ -56,7 +59,7 @@ export interface DeferredTask {
 
 export type AgentRequest =
   | { type: "agentStart"; request: string; lang: string; deferred?: string; chat?: string }
-  | { type: "agentAnswer"; answer: Answer; chosen?: string[]; key?: string }
+  | { type: "agentAnswer"; answer: Answer; chosen?: string[]; key?: string; via?: "chat" | "bubble" }
   | { type: "agentPlan"; approval: PlanApproval }
   | { type: "agentGet" }
   | { type: "agentAccessOpen"; kind: "reminders" | "calendar"; settings?: boolean }
@@ -164,7 +167,10 @@ async function save(tab: number, state: AgentState): Promise<void> {
     state.pending = undefined
   }
   state.touchedAt = Date.now()
+  // The task's start and end, once each (marked on the state written now).
+  const events = agentEvents(state)
   await write(tab, state)
+  for (const e of events) deps.use?.(e)
   // The panel shows it at once (the content script of the tab's top frame).
   chrome.tabs.sendMessage(tab, { type: "agentState", state: forPanel(state) }, { frameId: 0 }, () => void chrome.runtime.lastError)
   if (state.status !== "running" && (now?.id !== state.id || now.status !== state.status)) void noticeElsewhere(tab, state)
@@ -340,7 +346,7 @@ async function clearNotice(): Promise<void> {
 async function noticeAnswer(a: Answer, chosen: string[] | undefined, key: string): Promise<Record<string, unknown>> {
   const n = await notice()
   if (!n || !key || n.key !== key || a === "stop") return { ok: false, code: "STALE" }
-  const r = await reply(n.tab, a, chosen, key)
+  const r = await reply(n.tab, a, chosen, key, "bubble")
   if (r.ok) await clearNotice()
   return { ok: r.ok === true, ...(r.code ? { code: r.code } : {}) }
 }
@@ -506,7 +512,17 @@ function io(tab: number, gen?: string): RunnerIO {
     if (now?.gen && now.gen !== gen) throw new Superseded("superseded")
   }
   return {
-    map: (opts) => traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}), ...(opts?.part && opts.part > 1 ? { part: opts.part } : {}) }, 6_000)),
+    map: (opts) =>
+      traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}), ...(opts?.part && opts.part > 1 ? { part: opts.part } : {}) }, 6_000)).then(async (m) => {
+        // (Stand builds: what the map holds for a list of places, to see on a device why a list was or wasn't one.)
+        if (TRACE && m) {
+          const st = await load(tab)
+          const area = st?.plan?.booking?.area ?? []
+          const cards = m.items.filter((i) => i.card)
+          trace(tab, `places v4 venue=${JSON.stringify(st?.plan?.booking?.venue ?? "")} subject=${JSON.stringify(st?.subject ?? "").slice(0, 80)} q=${JSON.stringify((st?.plan?.questions ?? []).map((q) => (q.kind ?? "") + "/" + (q.fact ?? "")))} approved=${st?.plan?.approved} cards=${cards.length} area=${JSON.stringify(area)} match=${JSON.stringify(st?.plan?.booking?.match ?? [])} personal=${st?.plan?.booking?.personal} askPlace=${st?.plan?.askPlace} choose=${st?.chooseVenue} noted=${st?.venues?.list.length ?? -1} venues=${venuesOn(m, area).length} ${cards.slice(0, 3).map((i) => `«${i.label.slice(0, 30)} | ${(i.where ?? "")} | ${i.card!.slice(0, 120)}»`).join(" ")}`)
+        }
+        return m
+      }),
     act: async (call: ToolCall) => {
       await live()
       return traced(tab, `act ${call.tool}`, tabMessage<StepResult>(tab, { type: "agentAct", call }, 12_000))
@@ -665,7 +681,7 @@ async function start(tab: number, url: string, m: Extract<AgentRequest, { type: 
 // The question each tab's last answer went to: a second tap (or the strip and the card both) is the same answer again.
 const answered = new Map<number, string>()
 
-async function reply(tab: number, a: Answer, chosen?: string[], key?: string): Promise<Record<string, unknown>> {
+async function reply(tab: number, a: Answer, chosen?: string[], key?: string, via: "chat" | "bubble" = "chat"): Promise<Record<string, unknown>> {
   const state = await load(tab)
   if (!state) return { ok: false }
   if (a === "stop") {
@@ -679,6 +695,9 @@ async function reply(tab: number, a: Answer, chosen?: string[], key?: string): P
   const now = pendingKey(state)
   if (!key || key !== now || answered.get(tab) === key) return { ok: false, code: "STALE", state: forPanel(state) }
   answered.set(tab, key)
+  // The person's answer as a count: the recap before a booking taken or dropped; a question answered, and where.
+  if (state.pending?.recap && (a === "yes" || a === "no")) deps.use?.({ f: "agent", a: a === "yes" ? "accepted" : "rejected", task: state.id, via })
+  else if (state.status === "asked") deps.use?.({ f: "agent", a: "question", task: state.id, via, options: Math.min(9999, state.choices?.length ?? 0), did: "answered" })
   // (An access step answered, or details changed meanwhile: read the app again.)
   dropAgentCaches()
   void run(tab, async () => {
@@ -694,6 +713,8 @@ async function planned(tab: number, approval: PlanApproval): Promise<Record<stri
   const state = await load(tab)
   if (state?.status !== "plan") return { ok: false, state: state && forPanel(state) }
   const a: PlanApproval = { answers: (approval?.answers ?? []).map((x) => String(x ?? "").slice(0, 200)), off: (approval?.off ?? []).map(String) }
+  // Each question on the card: answered there or left (counts only).
+  state.plan?.questions.forEach((q, i) => deps.use?.({ f: "agent", a: "question", task: state.id, via: "card", options: Math.min(9999, q.options.length), did: a.answers[i]?.trim() ? "answered" : "dismissed" }))
   void run(tab, async () => {
     const fresh = (await load(tab)) ?? state
     return approvePlan(fresh, io(tab, fresh.gen), a)
@@ -805,7 +826,7 @@ export function startAgent(d: AgentDeps): void {
       case "agentStart":
         return tab === undefined ? false : respond(start(tab, url, message))
       case "agentAnswer":
-        return tab === undefined ? false : respond(reply(tab, message.answer, message.chosen, typeof message.key === "string" ? message.key : undefined))
+        return tab === undefined ? false : respond(reply(tab, message.answer, message.chosen, typeof message.key === "string" ? message.key : undefined, message.via === "bubble" ? "bubble" : "chat"))
       case "agentPlan":
         return tab === undefined ? false : respond(planned(tab, message.approval))
       case "agentGet":
