@@ -387,6 +387,54 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/find-cheaper-similar-product-safari-iphone"
+  to = "https://context-flow.app/find-cheaper-similar-product-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/find-cheaper-similar-product-safari-iphone.html"
+  to = "https://context-flow.app/find-cheaper-similar-product-safari-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/ask-ai-about-web-page-safari"
+  to = "https://context-flow.app/ask-ai-about-web-page-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/ask-ai-about-web-page-safari.html"
+  to = "https://context-flow.app/ask-ai-about-web-page-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/contextflow-vs-zeki-surfmind"
+  to = "https://context-flow.app/contextflow-vs-zeki-surfmind"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/contextflow-vs-zeki-surfmind.html"
+  to = "https://context-flow.app/contextflow-vs-zeki-surfmind"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/turn-on-safari-extension-iphone"
+  to = "https://context-flow.app/turn-on-safari-extension-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/turn-on-safari-extension-iphone.html"
+  to = "https://context-flow.app/turn-on-safari-extension-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/demo/lisboa.html"
   to = "https://context-flow.app/demo/lisboa"
   status = 301

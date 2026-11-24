@@ -36,7 +36,11 @@
     "/read-aloud-safari-iphone": "listen",
     "/summarize-pdf-safari": "pdf",
     "/translate-web-page-safari-iphone": "translate",
-    "/proofread-safari-iphone": "proofread"
+    "/proofread-safari-iphone": "proofread",
+    "/find-cheaper-similar-product-safari-iphone": "similar",
+    "/ask-ai-about-web-page-safari": "askpage",
+    "/contextflow-vs-zeki-surfmind": "compare_zeki",
+    "/turn-on-safari-extension-iphone": "turnon"
   }
   const OWN = /(^|\.)(context-flow\.app|aisidebar\.netlify\.app)$/
   // A referrer's host or a utm_source value → the source; the first match wins (Gemini before Google).
