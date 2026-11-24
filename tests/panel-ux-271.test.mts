@@ -12,7 +12,7 @@ import { parseHTML } from "linkedom"
 import { fingers, SWITCH_AT, SWITCH_GAP, wheelSwitch, wheelSwitchStep, type WheelInput } from "../src/content/ux/wheelSwitch.ts"
 import { WHEEL_IDLE } from "../src/content/ux/swipeMath.ts"
 import { canScroll, guardScroll, type ScrollBox, touchStops, wheelStops } from "../src/content/scrollGuard.ts"
-import { keptOpen, OPEN_FIRST, SECTIONS, toggled } from "../src/content/settingsFold.ts"
+import { foldScroll, keptOpen, OPEN_FIRST, SECTIONS, stuckSection, toggled } from "../src/content/settingsFold.ts"
 
 const read = (p: string) => readFileSync(p, "utf8")
 
@@ -182,7 +182,8 @@ test("Settings' sections: «Основное» open at first, what's kept read s
   assert.deepEqual(keptOpen(undefined), ["general"])
   assert.deepEqual(keptOpen("general"), ["general"])
   assert.deepEqual(keptOpen([]), [])
-  assert.deepEqual(keptOpen(["about", "bogus", "general", "general"]), ["general", "about"])
+  // «О приложении» isn't folded (2.7.1, 123): an old device's kept "about" is let go.
+  assert.deepEqual(keptOpen(["about", "bogus", "general", "general", "data"]), ["general", "data"])
   assert.deepEqual(toggled(["general"], "agent"), ["general", "agent"])
   assert.deepEqual(toggled(["general", "agent"], "general"), ["agent"])
   assert.deepEqual(toggled(["general"], "general", true), ["general"])
@@ -195,7 +196,8 @@ test("Settings: every group is still there, in its section; the own-key links op
   for (const group of ["planGroup", "ownKeyGroup", "aboutGroup", "buttonGroup", "chatsGroup", "dataGroup", "<InsertSettingsGroup", "<MyDetailsGroup />", "<AccessGroup />", "<CookieGroup site={site} />", "<InviteGroup", "<PageHintsSwitch />"]) {
     assert.ok(ui.includes(group), group)
   }
-  for (const id of ["plan", "general", "button", "writing", "agent", "cookies", "chats", "data", "about"]) assert.match(ui, new RegExp(`fold\\("${id}"`))
+  for (const id of ["plan", "general", "button", "writing", "agent", "cookies", "chats", "data"]) assert.match(ui, new RegExp(`fold\\("${id}"`))
+  assert.doesNotMatch(ui, /fold\("about"/)
   for (const key of ["setFab", "setSide", "setSelectionButton", "uxShareMarks", "setAbout", "setOwnKey", "setOwnKeyModel", "setOrganize", "setSpaces", "setSyncChats", "deleteChats", "tourShow", "privacyPolicy", "terms"]) {
     assert.ok(ui.includes(`t("${key}")`), key)
   }
@@ -287,4 +289,47 @@ test("the rule's words: any specialist, not just a master; lines that stand alon
   const ru = JSON.parse(read("src/locales/ru.json")) as Record<string, string>
   assert.equal(ru.agentRuleAnySpecialist, "Любой специалист (мастер, врач, тренер…)")
   assert.equal(ru.agentRuleCalNeeds, "Нужен доступ к календарю")
+})
+
+// ---- 5. TestFlight 123 (iPad): the open section's head stays at the top; «О приложении» never folds
+
+test("the open section's head stays at the top while its settings scroll, until the next head pushes it off", () => {
+  const head = 44
+  // The list's top at 100. «Основное» open, scrolled 300 into it (its top at -200, its end at 500): its head stays.
+  const at = (generalTop: number) => [
+    { id: "general", open: true, top: generalTop, bottom: generalTop + 700, head },
+    { id: "button", open: false, top: generalTop + 700, bottom: generalTop + 760, head },
+    { id: "agent", open: true, top: generalTop + 760, bottom: generalTop + 1900, head }
+  ]
+  assert.equal(stuckSection(at(100), 100), null)
+  assert.equal(stuckSection(at(-200), 100), "general")
+  // Its end has come up to the head's bottom: the next head (a folded one) is taking over; none is stuck.
+  assert.equal(stuckSection(at(100 - 700 + head - 1), 100), null)
+  // Further, inside the open «Сделать» section: its head.
+  assert.equal(stuckSection(at(-900), 100), "agent")
+  // A folded section never sticks, wherever it is.
+  assert.equal(stuckSection([{ id: "button", open: false, top: -50, bottom: 400, head }], 100), null)
+})
+
+test("folding the stuck section scrolls its head back to the top; a section in view folds where it is", () => {
+  assert.equal(foldScroll(-200, 100), -300)
+  assert.equal(foldScroll(100, 100), 0)
+  assert.equal(foldScroll(260, 100), 0)
+})
+
+test("Settings: sticky heads in the CSS, the hairline while stuck, «О приложении» always open with no chevron", () => {
+  const css = read("src/content/styles.css")
+  assert.match(css, /\.cf-set-sec\.open > \.cf-set-head:not\(\.static\) \{ position: sticky; top: -12px; z-index: 2; \}/)
+  assert.match(css, /\.cf-set-head \{[^}]*background: var\(--bg\)/)
+  assert.match(css, /\.cf-set-head\[data-stuck\] \{ box-shadow: 0 1px 0 var\(--border\); \}/)
+  // The list's top padding is what the sticky top takes back.
+  assert.match(css, /\.cf-settings \{[^}]*padding: 12px 14px 18px/)
+  const ui = read("src/content/Settings.tsx")
+  const about = ui.slice(ui.indexOf('<section class="cf-set-sec open cf-set-about">'), ui.indexOf("</section>", ui.indexOf("cf-set-about")))
+  assert.ok(about.includes('<div class="cf-set-head static"><span class="cf-set-title">{t("setSecAbout")}</span></div>'))
+  assert.doesNotMatch(about, /cf-set-chev|onClick=\{onToggle|aria-expanded/)
+  for (const key of ["tourShow", "rateApp", "support", "privacyPolicy", "terms", "version"]) assert.ok(about.includes(`t("${key}"`), key)
+  // The about section comes last.
+  assert.ok(ui.indexOf("cf-set-about") > ui.indexOf('{hasPro(plan) && planSection}'))
+  assert.match(ui, /<div ref=\{box\} class="cf-settings" onScroll=\{onScroll\}>/)
 })

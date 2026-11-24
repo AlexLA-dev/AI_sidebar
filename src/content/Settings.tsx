@@ -17,7 +17,7 @@ import { AccessGroup } from "./agent/AppleAccess"
 import { MyDetailsGroup } from "./agent/MyDetails"
 import { CookieGroup } from "./cookies/CookieSettings"
 import { cookieSettings } from "./cookies/auto"
-import { keptOpen, OPEN_FIRST, OPEN_KEY, SECTIONS, type SettingsAt, type SettingsSection, toggled } from "./settingsFold"
+import { foldScroll, keptOpen, OPEN_FIRST, OPEN_KEY, SECTIONS, type SettingsAt, type SettingsSection, stuckSection, toggled } from "./settingsFold"
 import { SpentCount, usageText } from "./quiet/Spent"
 
 interface Props {
@@ -322,10 +322,34 @@ export function SettingsView(props: Props): VNode {
   // device (settingsFold.ts). A folded one says in a line what's in it. Every setting and what it does is as before.
   const [open, setOpen] = useState<SettingsSection[] | null>(null)
   useEffect(() => void foldedOpen().then((kept) => setOpen(props.at ? toggled(kept, SECTIONS[props.at], true) : kept)), [])
-  const toggle = (id: SettingsSection) => {
+  // 2.7.1 (123): folding the section whose head is stuck at the top brings its head back to the top once it folds
+  // (otherwise the list would sit in the middle of whatever came up under it).
+  const toggle = (id: SettingsSection, sectionEl?: Element | null) => {
     const next = toggled(open ?? [], id)
+    const list = box.current
+    const folding = (open ?? []).includes(id)
+    const delta = folding && list && sectionEl ? foldScroll(sectionEl.getBoundingClientRect().top, list.getBoundingClientRect().top) : 0
     setOpen(next)
     keepOpen(next)
+    if (delta && list) {
+      requestAnimationFrame(() => {
+        const at = list.querySelector(`[data-sec="${id}"]`)
+        if (at) list.scrollTop += at.getBoundingClientRect().top - list.getBoundingClientRect().top
+      })
+    }
+  }
+  // The open section's head that is stuck at the top now (a hairline under it then).
+  const [stuck, setStuck] = useState<SettingsSection | null>(null)
+  const onScroll = () => {
+    const list = box.current
+    if (!list) return
+    const top = list.getBoundingClientRect().top
+    const sections = [...list.querySelectorAll<HTMLElement>(".cf-set-sec[data-sec]")].map((el) => {
+      const r = el.getBoundingClientRect()
+      return { id: el.dataset.sec as SettingsSection, open: el.classList.contains("open"), top: r.top, bottom: r.bottom, head: el.querySelector(".cf-set-head")?.getBoundingClientRect().height ?? 0 }
+    })
+    const now = stuckSection(sections, top)
+    if (now !== stuck) setStuck(now)
   }
   const isOpen = (id: SettingsSection) => open?.includes(id) ?? false
   // The cookie switch's state, for its section's line (read again whenever a section folds or unfolds).
@@ -349,7 +373,7 @@ export function SettingsView(props: Props): VNode {
   const onOff = (on: boolean) => (on ? t("fabOn") : t("fabOff"))
   const themeName = settings.theme === "dark" ? t("themeDark") : settings.theme === "light" ? t("themeLight") : t("themeAuto")
   const fold = (id: SettingsSection, title: string, summary: string, children: ComponentChildren) => (
-    <Fold id={id} title={title} summary={summary} open={isOpen(id)} onToggle={() => toggle(id)}>{children}</Fold>
+    <Fold id={id} title={title} summary={summary} open={isOpen(id)} stuck={stuck === id} onToggle={(el) => toggle(id, el)}>{children}</Fold>
   )
 
   const planSection = fold("plan", t("setSecPlan"), status?.hasOwnKey && plan !== "byok" ? `${planName} · ${t("planByok")}` : planName, (
@@ -362,7 +386,7 @@ export function SettingsView(props: Props): VNode {
   ))
 
   return (
-    <div ref={box} class="cf-settings">
+    <div ref={box} class="cf-settings" onScroll={onScroll}>
       {open && (
         <>
           {/* The plan comes first until there is Pro; with Pro it's managed near the bottom. */}
@@ -412,7 +436,10 @@ export function SettingsView(props: Props): VNode {
 
           {hasPro(plan) && planSection}
 
-          {fold("about", t("setSecAbout"), t("version", VERSION), (
+          {/* 2.7.1 (123, the owner: «Раздел About не нужно сворачивать»): always open, at the bottom, no chevron. */}
+          <section class="cf-set-sec open cf-set-about">
+            <div class="cf-set-head static"><span class="cf-set-title">{t("setSecAbout")}</span></div>
+            <div class="cf-set-body">
             <footer class="cf-links">
               <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>
               <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.review)}>{t("rateApp")}</button>
@@ -423,7 +450,8 @@ export function SettingsView(props: Props): VNode {
               <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.terms)}>{t("terms")}</button>
               <span class="cf-version">{t("version", VERSION)}</span>
             </footer>
-          ))}
+            </div>
+          </section>
         </>
       )}
     </div>
@@ -431,10 +459,12 @@ export function SettingsView(props: Props): VNode {
 }
 
 /** A section of Settings: its head folds it (as a Tips block); folded, a line says what's in it. */
-function Fold({ id, title, summary, open, onToggle, children }: { id: SettingsSection; title: string; summary: string; open: boolean; onToggle: () => void; children: ComponentChildren }): VNode {
+function Fold({ id, title, summary, open, stuck, onToggle, children }: { id: SettingsSection; title: string; summary: string; open: boolean; stuck: boolean; onToggle: (section: Element | null) => void; children: ComponentChildren }): VNode {
+  // Open, the head stays at the top while its settings scroll under it (CSS sticky within the section), with a hairline
+  // while it's stuck there (2.7.1, 123).
   return (
     <section class={`cf-set-sec ${open ? "open" : ""}`} data-sec={id}>
-      <button type="button" class="cf-set-head" aria-expanded={open} onClick={onToggle}>
+      <button type="button" class="cf-set-head" aria-expanded={open} data-stuck={stuck ? "" : undefined} onClick={(e) => onToggle(e.currentTarget.closest(".cf-set-sec"))}>
         <span class="cf-set-head-text">
           <span class="cf-set-title">{title}</span>
           {!open && summary && <span class="cf-set-sum">{summary}</span>}
