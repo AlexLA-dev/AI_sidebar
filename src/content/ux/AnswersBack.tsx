@@ -5,7 +5,7 @@
 // which brings the person back to this page; the reminder is then set again here. Kept per reset.
 
 import type { VNode } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 
 import { t, uiLang } from "../../shared/i18n"
 import { sendBackground } from "../insert/store"
@@ -20,14 +20,28 @@ type State = "idle" | "asking" | "set" | "off" | "failed"
 /** The reminder's own ids among the panel's reminders (MessageReminders: one per chat and message). */
 export const ANSWERS_BACK = { chat: "cf-limit", message: "answers-back" } as const
 
-/** The one place the panel asks for this reminder (and for notifications, when never asked). */
-export async function askAnswersBack(at: number, count: number, url: string): Promise<"scheduled" | "denied" | "not-asked" | "failed" | "unavailable"> {
-  const reply = await sendBackground<{ outcome?: string }>({
-    type: "remind", ...ANSWERS_BACK, at, ask: true,
-    title: "ContextFlow", body: t("answersBackBody", String(count)), url
-  })
+export type AnswersBackOutcome = "scheduled" | "denied" | "not-asked" | "failed" | "unavailable"
+type Send = (message: Record<string, unknown>, opts: { timeoutMs: number; tries: number }) => Promise<{ outcome?: string } | null>
+
+const outcomeOf = (reply: { outcome?: string } | null): AnswersBackOutcome => {
   const outcome = reply?.outcome
   return outcome === "scheduled" || outcome === "denied" || outcome === "not-asked" || outcome === "unavailable" ? outcome : "failed"
+}
+
+/**
+ * The one place the panel asks for this reminder (and for notifications, when never asked). The director's first
+ * acceptance (2.8, iPad, shot 13): allowed in the system's first-time question, and the card said it couldn't be set.
+ * The question can outlast the panel's wait for an answer, and Safari may put the page away under it, so the answer
+ * never comes back. No answer, then: asked again without the question (the same reminder, so it is set once at most),
+ * which finds the permission just given and sets it.
+ */
+export async function askAnswersBack(at: number, count: number, url: string, ask = true, send: Send = sendBackground, pause = 1_500): Promise<AnswersBackOutcome> {
+  const message = { type: "remind", ...ANSWERS_BACK, at, title: "ContextFlow", body: t("answersBackBody", String(count)), url }
+  // The background waits for the system's answer up to 90 s; one try, no resend of a question already on screen.
+  const first = outcomeOf(await send({ ...message, ask }, { timeoutMs: 100_000, tries: 1 }).catch(() => null))
+  if (first !== "failed") return first
+  await new Promise((ok) => setTimeout(ok, pause))
+  return outcomeOf(await send({ ...message, ask: false }, { timeoutMs: 15_000, tries: 2 }).catch(() => null))
 }
 
 function clock(at: number): string {
@@ -48,6 +62,8 @@ export function AnswersBack({ resetsAt, count, url, onEvent }: {
   onEvent: (action: "remind" | "remind_set" | "remind_off" | "remind_notify") => void
 }): VNode | null {
   const [state, setState] = useState<State>("idle")
+  const stateRef = useRef<State>("idle")
+  stateRef.current = state
   useEffect(() => {
     void chrome.storage.local.get(KEY).then((kept) => {
       if (kept[KEY] === resetsAt) setState("set")
@@ -58,7 +74,8 @@ export function AnswersBack({ resetsAt, count, url, onEvent }: {
     const back = async () => {
       if (document.visibilityState !== "visible") return
       const kept = await chrome.storage.local.get(ASKED).catch(() => ({} as Record<string, unknown>))
-      if (kept[ASKED] !== resetsAt) return
+      // Back from the app's ask, or back after a try that got no answer: set it again (no question this time).
+      if (kept[ASKED] !== resetsAt && stateRef.current !== "failed") return
       void chrome.storage.local.remove(ASKED).catch(() => undefined)
       void ask(false)
     }
@@ -75,7 +92,7 @@ export function AnswersBack({ resetsAt, count, url, onEvent }: {
   const ask = async (tapped = true) => {
     setState("asking")
     if (tapped) onEvent("remind")
-    const outcome = await askAnswersBack(resetsAt, count, url)
+    const outcome = await askAnswersBack(resetsAt, count, url, tapped)
     if (outcome === "scheduled") {
       setState("set")
       onEvent("remind_set")
@@ -103,7 +120,11 @@ export function AnswersBack({ resetsAt, count, url, onEvent }: {
           }}>{t("listenNotifyOn")}</button>
         </>
       ) : state === "failed" ? (
-        <span>{t("answersBackFailed", clock(resetsAt))}</span>
+        <>
+          <span>{t("answersBackFailed", clock(resetsAt))}</span>{" "}
+          {/* Never a dead end: try again (the question is asked again only if it was never answered). */}
+          <button type="button" class="cf-link" onClick={() => void ask()}>{t("retry")}</button>
+        </>
       ) : (
         <button type="button" class="cf-link" disabled={state === "asking"} onClick={() => void ask()}>{t("answersBackAsk", String(count))}</button>
       )}

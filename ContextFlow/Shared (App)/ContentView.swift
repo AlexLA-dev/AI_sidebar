@@ -136,9 +136,18 @@ struct ContentView: View {
             return
         }
         #endif
-        guard hasChats, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
+        // 2.8 (the director's acceptance, shot 15): never over the App Store's sheet; it waits for another time.
+        guard hasChats, !Paywall.shared.purchasing, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
         whatsNew = true
+    }
+
+    /// A purchase started while What's new was up (the app opened by the panel's «Choose»): it goes, and comes another
+    /// time.
+    private func purchaseStarted(_ purchasing: Bool) {
+        guard purchasing, whatsNew else { return }
+        whatsNew = false
+        UserDefaults.standard.set(false, forKey: "cf_whatsnew_organize")
     }
 
     /// What a plan adds, after a purchase or an upgrade (2.6, build 89).
@@ -189,7 +198,7 @@ struct ContentView: View {
     /// plan's tour, the notifications question, the setup guide, the 2.5 What's new sheet, Listen's player (unless a
     /// text was just heard to its end in it). Safari's moment then waits for the next time the app comes to the front.
     private func askForReview(_ request: ReviewAsk.Request) {
-        var busy = tour.run != nil || showingSetup || whatsNew || (listenShown.visible && request.via != .listen)
+        var busy = tour.run != nil || showingSetup || whatsNew || Paywall.shared.purchasing || (listenShown.visible && request.via != .listen)
         #if os(iOS)
         if notify.ask != nil { busy = true }
         #endif
@@ -227,6 +236,7 @@ struct ContentView: View {
             }
             #endif
             .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
+            .onReceive(Paywall.shared.$purchasing) { purchaseStarted($0) }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
                 // 2.6: the panel's plans sheet names the plan and period; the plans screen opens on it. Build 94: also for
@@ -235,6 +245,8 @@ struct ContentView: View {
                 // 2.8 (В7.2): from the panel with the page to go back to: the App Store's sheet at once, over whatever is on
                 // screen, and back to Safari after it (the Pro tab only when the purchase can't go through here).
                 case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil) && QuickBuy.wants(url):
+                    // At once, before anything else on launch can present a sheet over the App Store's.
+                    Paywall.shared.purchasing = true
                     QuickBuy.run(url, store: store) { tab = .pro }
                 case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil):
                     Paywall.shared.open(url)
@@ -1574,7 +1586,9 @@ struct ProView: View {
         // 2.8 (В1.5): every purchase with where it started (the tab, a link from the panel, …), its plan and period.
         let fields = PurchaseEvent.fields(product.id, via: paywall.via)
         ChatAI.reportUse("paywall", "plan", fields)
+        paywall.purchasing = true
         Task {
+            defer { paywall.purchasing = false }
             do {
                 let outcome = try await store.purchase(product)
                 ChatAI.reportUse("paywall", outcome == .purchased ? "buy_ok" : outcome == .pending ? "buy_pending" : "buy_cancel", fields)
@@ -1634,10 +1648,17 @@ enum QuickBuy {
     private static var running = false
 
     static func run(_ url: URL, store: StoreKitManager, showPlans: @escaping () -> Void) {
-        guard !running, let id = product(url), let page = back(url) else { return }
+        guard !running, let id = product(url), let page = back(url) else {
+            if !running { Paywall.shared.purchasing = false }
+            return
+        }
         running = true
+        Paywall.shared.purchasing = true
         Task { @MainActor in
-            defer { running = false }
+            defer {
+                running = false
+                Paywall.shared.purchasing = false
+            }
             if store.products.isEmpty { await store.loadProducts() }
             guard let product = store.products.first(where: { $0.id == id }) else {
                 // The App Store didn't answer: the plans, with the plan chosen, as before.
@@ -1716,6 +1737,9 @@ final class Paywall: ObservableObject {
     @Published var buyNow: String?
     /// 2.8: what the one-tap purchase couldn't finish (waiting for approval, an error), said on the Pro screen.
     @Published var notice: String?
+    /// 2.8 (the director's acceptance, shot 15): the App Store's sheet is up for a purchase. Nothing else is presented
+    /// meanwhile (What's new waits for another time); after a one-tap purchase or a cancel the person is back in Safari.
+    @Published var purchasing = false
     /// 2.8 (В1.5): how the plans screen was reached: the tab itself, or a link (from the panel: where in it).
     var via = "tab"
 
