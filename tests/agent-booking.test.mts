@@ -518,3 +518,10 @@ test("any reservable thing: a stay or a rental by days, a slot, a ticket; who or
     assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, kind } }).booking!.personal, personal, kind)
   assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, kind: "cinema" } }).booking, undefined)
 })
+
+test("a card's own choice remembered («@page», «@auto») counts only where this card offers it", async () => {
+  const { optionFor } = await import("../src/shared/agent/taskplan.ts")
+  assert.equal(optionFor(["@any", "Yasmin", "Angelos"], "@page"), "")
+  assert.equal(optionFor(["@any", "@page"], "@page"), "@page")
+  assert.equal(optionFor(["@any", "Yasmin"], "@any"), "@any")
+})

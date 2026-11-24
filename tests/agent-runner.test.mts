@@ -180,3 +180,14 @@ test("a menu the last press opened isn't pressed again (it would close): the mod
   assert.deepEqual(x.acted.map((c) => c.id), ["6", "7"])
   assert.match(s.log.find((l) => l.result.startsWith("refused"))?.result ?? "", /is open now/)
 })
+
+test("a control the page shows disabled (the model's call refused on it) waits and reads again, twice, before the task ends", async () => {
+  const bad = (): ActReply => ({ ok: true, call: { tool: "ask_user", question: "", why: "element 2 is disabled" }, verdict: { cls: "blocked", reason: "bad_call" }, target: null })
+  const x = io([bad(), step({ tool: "click", id: "5", why: "more" }, "free", "click"), step({ tool: "done", summary: "ok" }, "free", "read")])
+  const s = await drive(newState("t1", "add", "en", MAP.url), x)
+  assert.equal(s.status, "done")
+  const y = io([bad(), bad(), bad()])
+  const t = await drive(newState("t2", "add", "en", MAP.url), y)
+  assert.equal(t.status, "error")
+  assert.equal(t.error, "bad_call")
+})

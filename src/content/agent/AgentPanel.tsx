@@ -247,7 +247,8 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
     const facts = plan.questions.flatMap((q, i): Array<{ fact: string; value: string; key?: FormKey }> => {
       if (q.kind === "contact") return q.key && keep[i] && answers[i].trim() ? [{ fact: "", value: answers[i].trim(), key: q.key as FormKey }] : []
       const label = q.fact ? factLabel(q.fact, plan.site) : ""
-      return label && keep[i] && answers[i].trim() && answers[i].trim() !== pre[i] ? [{ fact: label, value: answers[i].trim() }] : []
+      // («I'll choose on the place's page» is this time's answer, never one to keep.)
+      return label && keep[i] && answers[i].trim() && answers[i].trim() !== pre[i] && answers[i].trim() !== "@page" ? [{ fact: label, value: answers[i].trim() }] : []
     })
     if (facts.length) onRemember?.(facts)
     onPlan(approval(), mode === "later" && laterChoice ? laterChoice : undefined)

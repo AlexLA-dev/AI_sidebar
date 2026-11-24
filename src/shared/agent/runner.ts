@@ -138,6 +138,8 @@ export interface AgentState {
   recapShown?: boolean
   // A question sent back once because the page's own date field showed another day (B3).
   widgetNudged?: boolean
+  // Waits for a control the page showed disabled (a bad call on it), at most two.
+  disabledWaits?: number
   slotRefusals?: number
   // Date presses without progress (a time to choose), the last date pressed, and whether a fully greyed strip was
   // tapped once to wake it.
@@ -879,6 +881,14 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     // The model's answer failed the code's check twice: the task ends with an error, not an empty question.
+    // …except a control the page shows disabled while it settles (a salon's «Continue» greyed for a moment after a
+    // service was added: three tries at it ended the task): the device waits for the page and reads again, twice.
+    if (reply.verdict.reason === "bad_call" && /is disabled/.test(reply.call?.why ?? "") && (state.disabledWaits ?? 0) < 2) {
+      state.disabledWaits = (state.disabledWaits ?? 0) + 1
+      await io.waitPage().catch(() => {})
+      state.log.push({ call: { tool: "read_page", why: "" }, result: `${reply.call?.why ?? "that control is disabled"} on the page now (it may still be loading): the device waited and reads the page again — choose what it shows enabled, or wait for it` })
+      continue
+    }
     if (reply.verdict.reason === "bad_call") {
       state.status = "error"
       state.error = "bad_call"

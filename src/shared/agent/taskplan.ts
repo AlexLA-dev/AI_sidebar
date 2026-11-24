@@ -559,6 +559,8 @@ export function savedAnswers(plan: TaskPlan, saved: Record<string, string>): str
 export function optionFor(options: string[], value: string): string {
   const v = value.trim()
   if (!v) return ""
+  // A card's own choice («any», «pick for me», «on the place's page») counts only where this card offers it.
+  if (v.startsWith("@")) return options.includes(v) ? v : ""
   const norm = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
   const nv = norm(v)
   const same = options.find((o) => norm(o) === nv)
