@@ -74,9 +74,12 @@ const writeLog: Array<{ at: number; live: boolean; action: string; chars: number
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
 let lastAnswerEvent: unknown = null
 type Item = { subject: string; limit: number | null; amount?: number }
+// Each counter's limit as last asked (GET /use-up fills the free day's counters to it).
+const limits = new Map<string, number>()
 const rpc: Record<string, (a: any) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
+    for (const i of items) if (i.limit !== null) limits.set(i.subject, i.limit)
     // As cf_consume: an item counts as its amount (a long page), allowed only when all of it fits.
     const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
     if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
@@ -909,6 +912,15 @@ createServer(async (req, res) => {
     lastSimilarRequest = body
     if (process.env.SIMILAR_PROXY && process.env.SIMILAR_EVAL_TOKEN_FILE) await similarProxied(body, res)
     else await similarStub(body, res)
+    return
+  }
+  // 2.8: the free answers of today used up at once (every install counter asked so far filled to its limit), for a
+  // check of the limit card without asking five questions first.
+  if (url.pathname === "/use-up") {
+    const filled: string[] = []
+    for (const [subject, limit] of limits) if (subject.startsWith("install:")) { counters.set(subject, limit); filled.push(subject) }
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ filled: filled.length }))
     return
   }
   // 2.7: the plan every request comes as from now on (free, byok, pro, ultra), for a check of several plans in one run.
