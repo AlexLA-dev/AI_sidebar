@@ -70,6 +70,15 @@ enum AppTab: Hashable {
     }
 }
 
+/// The install's first day (2.8, В3.3): no promo sheets then. From the app's first launch on this device (an update
+/// that had the app before counts as past it).
+enum QuietDay {
+    static var firstDay: Bool {
+        guard !SharedDefaults.shared.appUpdatedInstall(), let first = SharedDefaults.shared.appFirstLaunch() else { return false }
+        return Date().timeIntervalSince1970 - first < 86_400
+    }
+}
+
 // MARK: - Root
 
 struct ContentView: View {
@@ -137,6 +146,9 @@ struct ContentView: View {
         }
         #endif
         guard hasChats, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
+        // 2.8 (В3.3, the quiet first day): no promo sheet in the install's first day, and none while a purchase is in
+        // flight (it came up under the App Store's sign-in). It comes on a later launch, or when the purchase is over.
+        guard !QuietDay.firstDay, !store.purchasing, Paywall.shared.buyNow == nil else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
         whatsNew = true
     }
@@ -227,6 +239,7 @@ struct ContentView: View {
             }
             #endif
             .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
+            .onChange(of: store.purchasing) { buying in if !buying { showWhatsNewIfDue() } }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
                 // 2.6: the panel's plans sheet names the plan and period; the plans screen opens on it. Build 94: also for

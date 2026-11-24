@@ -88,9 +88,16 @@ test("В2.1: the card, its footnote and the guide over Settings show the whole w
 
 test("В2.2: back from Settings, nothing of the guide stays over the steps", () => {
   assert.match(setup, /private func clear\(\) \{\s*layer\.stopRequestingMediaData\(\)\s*layer\.flushAndRemoveImage\(\)\s*queued = 0\s*\}/)
-  assert.match(setup, /func stop\(\) \{[\s\S]{0,200}?controller\?\.stopPictureInPicture\(\)\s*clear\(\)/)
+  assert.match(setup, /func stop\(\) \{[\s\S]{0,700}?if controller\?\.isPictureInPictureActive == true \{ controller\?\.stopPictureInPicture\(\) \} else \{ clear\(\) \}/)
   assert.match(setup, /pictureInPictureControllerDidStopPictureInPicture[\s\S]{0,200}?self\.clear\(\)/)
+  // Auto-start from the background only for the trip to Settings: off again when the app is back.
+  assert.match(setup, /func stop\(\) \{[\s\S]{0,400}?canStartPictureInPictureAutomaticallyFromInline = false/)
+  assert.match(setup, /func start\(phases: \[Int\], path: SetupPath, then open: @escaping \(\) -> Void\) \{[\s\S]{0,400}?canStartPictureInPictureAutomaticallyFromInline = true/)
+  assert.match(setup, /guide\.onAppear \{\s*activation\.instructionShown\(\)\s*SettingsPiP\.shared\.prepare\(phases: path\.phases, path: path\)/)
   assert.match(content, /SettingsPiP\.shared\.stop\(\)/)
+  // And from the system's own "back to the front", which arrives where SwiftUI's scene phase didn't.
+  assert.match(setup, /addObserver\(forName: UIApplication\.didBecomeActiveNotification, object: nil, queue: \.main\) \{ _ in\s*Task \{ @MainActor in\s*guard SettingsPiP\.shared\.away else \{ return \}\s*SettingsPiP\.shared\.away = false\s*SettingsPiP\.shared\.stop\(\)/)
+  assert.match(setup, /addObserver\(forName: UIApplication\.didEnterBackgroundNotification, object: nil, queue: \.main\) \{ _ in\s*Task \{ @MainActor in SettingsPiP\.shared\.away = true \}/)
 })
 
 test("В2.4: switched on and never used, the app's next step is Safari, with one big button and what to tap there", () => {
@@ -99,11 +106,15 @@ test("В2.4: switched on and never used, the app's next step is Safari, with one
   assert.match(step, /Card\(title: "Next: open Safari", systemImage: "safari"\)/)
   assert.match(step, /Step\(number: 1, text: "Tap ✦ on the page\."\)/)
   // No ✦ while All Websites is still Ask: Safari's page menu is the way in, and Safari's question comes there.
-  assert.match(step, /Step\(number: 2, text: "No ✦\? Open the page menu in the address bar and choose ContextFlow\."\)/)
+  assert.match(step, /Step\(number: 2, text: SetupPath\.safariMenuStep\)/)
   assert.match(step, /Step\(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website\."\)/)
   assert.ok(step.indexOf("safariButton") < step.indexOf("TipClipView"), "the button before the clip")
   // Back from Safari with the panel unused: the page menu comes first (All Websites likely still on Ask).
-  assert.match(step, /if activation\.backFromSafariUnused \{\s*Text\("No ✦ on the page\? Safari is waiting for your permission\."\)[\s\S]{0,200}?Step\(number: 1, text: "In Safari, open the page menu in the address bar and choose ContextFlow\."\)\s*Step\(number: 2, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website\."\)\s*Step\(number: 3, text: "Tap ✦ on the page\."\)/)
+  assert.match(step, /if activation\.backFromSafariUnused \{\s*Text\("No ✦ on the page\? Safari is waiting for your permission\."\)[\s\S]{0,200}?Step\(number: 1, text: SetupPath\.safariMenuFirst\)\s*Step\(number: 2, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website\."\)\s*Step\(number: 3, text: "Tap ✦ on the page\."\)/)
+  // Where Safari keeps ContextFlow on a page: the iPhone's page menu, the iPad's puzzle-piece button (its page menu has
+  // no extensions; seen on iPadOS 26.5 and 27).
+  assert.match(setup, /static var safariMenuStep: LocalizedStringKey \{\s*UIDevice\.current\.userInterfaceIdiom == \.pad\s*\? "No ✦\? Tap the puzzle-piece button next to the address, then ContextFlow\."\s*: "No ✦\? Open the page menu in the address bar and choose ContextFlow\."/)
+  assert.match(setup, /static var safariMenuFirst: LocalizedStringKey \{\s*UIDevice\.current\.userInterfaceIdiom == \.pad\s*\? "In Safari, tap the puzzle-piece button next to the address, then ContextFlow\."\s*: "In Safari, open the page menu in the address bar and choose ContextFlow\."/)
   assert.match(setup, /func openedSafari\(_ via: String\) \{[\s\S]{0,120}?UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.safariTripKey\)/)
   assert.match(setup, /guard state == \.on, !backFromSafariUnused else \{ return \}\s*backFromSafariUnused = true/)
   assert.match(setup, /if before == \.off, next != \.off \{ reportEnabled\(\) \}\s*checkSafariTrip\(\)/)
@@ -131,7 +142,7 @@ test("В1.1: the setup funnel from its zero step, counted once where it should b
   assert.match(setup, /func openedSafari\(_ via: String\) \{\s*step\("open_safari", \["via": via\], feature: "setup"\)/)
   assert.match(setup, /Activation\.shared\.remindersScheduled\(status == \.provisional \? "quiet" : "on"\)/)
   assert.deepEqual(useFields({ f: "notif", a: "tap", what: "setup", when: "15m" }), { f: "notif", a: "tap", what: "setup", when: "15m" })
-  assert.match(setup, /case \.off: guide\.onAppear \{ activation\.instructionShown\(\) \}/)
+  assert.match(setup, /case \.off:\s*guide\.onAppear \{\s*activation\.instructionShown\(\)/)
   assert.match(setup, /func instructionShown\(\) \{ once\("shown", key: "cf_activation_shown_reported", fields: \["via": "card"\]\) \}/)
   assert.match(setup, /private func once\(_ action: String, key: String, fields: \[String: String\] = \[:\], feature: String = "activation"\) \{\s*guard !NewUserPreview\.isOn, !UserDefaults\.standard\.bool\(forKey: key\) else \{ return \}/)
   assert.match(content, /\.onAppear \{ if !enabled \{ activation\.instructionShown\(\) \} \}/)
@@ -182,7 +193,10 @@ test("В1.7: Tips, What's new and the Pro tab are counted when opened", () => {
 
 test("every new text is translated into the app's 14 other languages; on iPad in Arabic the sidebar is on the right", () => {
   const keys = [
-    "In Settings, tap Apps on the left, then Safari in the list, then Extensions.",
+    "In Settings, tap Apps on the left, then Safari in the list (not ContextFlow), then Extensions.",
+    "Open the Settings app and go to Apps → Safari (not ContextFlow) → Extensions.",
+    "No ✦? Tap the puzzle-piece button next to the address, then ContextFlow.",
+    "In Safari, tap the puzzle-piece button next to the address, then ContextFlow.",
     "On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above.",
     "Next: open Safari",
     "So the reminder you just set reaches you.", "So you hear when the page you watch changes.", "So you know when your free answers are back.",
@@ -205,5 +219,24 @@ test("every new text is translated into the app's 14 other languages; on iPad in
     assert.ok(old[lang].stringUnit.value.includes(name) && first[lang].stringUnit.value.includes(name), `${lang} ${name}`)
   }
   assert.match(first.ar.stringUnit.value, /على اليمين/)
-  assert.match(catalog[keys[1]].localizations!.ar.stringUnit.value, /على اليمين/)
+  assert.match(catalog["On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above."].localizations!.ar.stringUnit.value, /على اليمين/)
+})
+
+test("the Apps list has ContextFlow itself in view: the first step says Safari, not ContextFlow, on every device", () => {
+  assert.match(setup, /self == \.fromApps \? "In Settings, tap Apps on the left, then Safari in the list \(not ContextFlow\), then Extensions\."\s*: "Open the Settings app and go to Apps → Safari \(not ContextFlow\) → Extensions\."/)
+  for (const key of ["In Settings, tap Apps on the left, then Safari in the list (not ContextFlow), then Extensions.", "Open the Settings app and go to Apps → Safari (not ContextFlow) → Extensions."]) {
+    for (const lang of LANGS) assert.match(catalog[key].localizations![lang].stringUnit.value, /ContextFlow/, `${lang}: ${key}`)
+  }
+})
+
+test("the floating guide starts once picture in picture is possible, within the second before Settings opens", () => {
+  assert.match(setup, /startWhenPossible\(controller, tries: 9\)\s*\/\/[^\n]*\n\s*DispatchQueue\.main\.asyncAfter\(deadline: \.now\(\) \+ 1\.0\) \{ \[weak self\] in self\?\.openPending\(\) \}/)
+  assert.match(setup, /private func startWhenPossible\(_ controller: AVPictureInPictureController, tries: Int\) \{\s*guard pendingOpen != nil else \{ return \}\s*if controller\.isPictureInPicturePossible \|\| tries == 0 \{\s*controller\.startPictureInPicture\(\)/)
+})
+
+test("В3.3 (app side): no promo sheet on the install's first day, and none while a purchase is in flight", () => {
+  assert.match(content, /guard hasChats, !UserDefaults\.standard\.bool\(forKey: "cf_whatsnew_organize"\) else \{ return \}\s*\/\/[^\n]*\n\s*\/\/[^\n]*\n\s*guard !QuietDay\.firstDay, !store\.purchasing, Paywall\.shared\.buyNow == nil else \{ return \}/)
+  assert.match(content, /\.onChange\(of: store\.purchasing\) \{ buying in if !buying \{ showWhatsNewIfDue\(\) \} \}/)
+  assert.match(content, /enum QuietDay \{\s*static var firstDay: Bool \{\s*guard !SharedDefaults\.shared\.appUpdatedInstall\(\), let first = SharedDefaults\.shared\.appFirstLaunch\(\) else \{ return false \}\s*return Date\(\)\.timeIntervalSince1970 - first < 86_400/)
+  assert.match(app("StoreKitManager.swift"), /func purchase\(_ product: Product, offer: ChatAI\.PromoSignature\? = nil\) async throws -> PurchaseOutcome \{\s*purchasing = true\s*defer \{ purchasing = false \}/)
 })

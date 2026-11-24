@@ -70311,6 +70311,358 @@
           }
         }
       }
+    },
+    "Open the Settings app and go to Apps → Safari (not ContextFlow) → Extensions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح تطبيق الإعدادات وانتقل إلى التطبيقات ← Safari (وليس ContextFlow) ← الامتدادات."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne die App „Einstellungen“ und wähle „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre la app Ajustes y ve a Apps → Safari (no ContextFlow) → Extensiones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez l’app Réglages et accédez à Apps → Safari (pas ContextFlow) → Extensions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri l’app Impostazioni e vai su App → Safari (non ContextFlow) → Estensioni."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定」アプリを開き、「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」と進みます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 앱을 열고 앱 → Safari(ContextFlow 아님) → 확장 프로그램으로 이동하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra o app Ajustes e acesse Apps → Safari (não o ContextFlow) → Extensões."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Откройте приложение «Настройки» и перейдите в «Приложения» → Safari (не ContextFlow) → «Расширения»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar uygulamasını açın ve Uygulamalar → Safari (ContextFlow değil) → Uzantılar bölümüne gidin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрийте програму «Параметри» й перейдіть у «Програми» → Safari (не ContextFlow) → «Розширення»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở ứng dụng Cài đặt và đi tới Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开“设置”App，然后前往“App”→“Safari”（不是 ContextFlow）→“扩展”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開「設定」App，然後前往「App」→「Safari」（不是 ContextFlow）→「延伸功能」。"
+          }
+        }
+      }
+    },
+    "In Settings, tap Apps on the left, then Safari in the list (not ContextFlow), then Extensions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في الإعدادات، اضغط على «التطبيقات» على اليمين، ثم Safari في القائمة (وليس ContextFlow)، ثم «الامتدادات»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in „Einstellungen“ links auf „Apps“, dann in der Liste auf „Safari“ (nicht „ContextFlow“) und dann auf „Erweiterungen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Ajustes, toca Apps a la izquierda, luego Safari en la lista (no ContextFlow) y después Extensiones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Réglages, touchez Apps à gauche, puis Safari dans la liste (pas ContextFlow), puis Extensions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Impostazioni, tocca App a sinistra, poi Safari nell’elenco (non ContextFlow), poi Estensioni."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定」で左側の「アプリ」をタップし、一覧の「Safari」（ContextFlowではなく）、続いて「機能拡張」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 왼쪽의 앱을 탭한 다음, 목록에서 Safari(ContextFlow 아님)를 탭하고 확장 프로그램을 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nos Ajustes, toque em Apps à esquerda, depois em Safari na lista (não no ContextFlow) e em Extensões."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В «Настройках» нажмите «Приложения» слева, затем Safari в списке (не ContextFlow), затем «Расширения»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar’da soldaki Uygulamalar’a, ardından listede Safari’ye (ContextFlow’a değil), sonra Uzantılar’a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У «Параметрах» торкніться «Програми» ліворуч, потім Safari у списку (не ContextFlow), потім «Розширення»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Cài đặt, chạm vào Ứng dụng ở bên trái, rồi Safari trong danh sách (không phải ContextFlow), rồi Tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“设置”中，轻点左侧的“App”，然后轻点列表中的“Safari”（不是 ContextFlow），再轻点“扩展”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「設定」中，點一下左側的「App」，接著點一下列表中的「Safari」（不是 ContextFlow），再點一下「延伸功能」。"
+          }
+        }
+      }
+    },
+    "No ✦? Tap the puzzle-piece button next to the address, then ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا ترى ✦؟ اضغط على زر قطعة البازل بجانب العنوان، ثم ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein ✦ zu sehen? Tippe neben der Adresse auf die Taste mit dem Puzzleteil und dann auf „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No ves ✦? Toca el botón de la pieza de puzle junto a la dirección y luego ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de ✦ ? Touchez le bouton en forme de pièce de puzzle à côté de l’adresse, puis ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non vedi ✦? Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo, poi ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦が見当たらない場合は、アドレスの横にあるパズルピースのボタンをタップし、「ContextFlow」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦가 안 보이면 주소 옆의 퍼즐 조각 버튼을 탭한 다음 ContextFlow를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não vê o ✦? Toque no botão de peça de quebra-cabeça ao lado do endereço e depois em ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет ✦? Нажмите кнопку с кусочком пазла рядом с адресом, затем ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ yok mu? Adresin yanındaki yapboz parçası düğmesine, ardından ContextFlow'a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає ✦? Торкніться кнопки з елементом пазла поруч з адресою, потім ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thấy ✦? Chạm vào nút mảnh ghép cạnh địa chỉ, rồi chạm vào ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？轻点地址旁的拼图按钮，然后轻点“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？點一下網址旁的拼圖按鈕，然後點一下「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "In Safari, tap the puzzle-piece button next to the address, then ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في Safari، اضغط على زر قطعة البازل بجانب العنوان، ثم ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in Safari neben der Adresse auf die Taste mit dem Puzzleteil und dann auf „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Safari, toca el botón de la pieza de puzle junto a la dirección y luego ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Safari, touchez le bouton en forme de pièce de puzzle à côté de l’adresse, puis ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Safari, tocca il pulsante con il pezzo di puzzle accanto all’indirizzo, poi ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safariで、アドレスの横にあるパズルピースのボタンをタップし、「ContextFlow」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari에서 주소 옆의 퍼즐 조각 버튼을 탭한 다음 ContextFlow를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Safari, toque no botão de peça de quebra-cabeça ao lado do endereço e depois em ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Safari нажмите кнопку с кусочком пазла рядом с адресом, затем ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari’de adresin yanındaki yapboz parçası düğmesine, ardından ContextFlow'a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У Safari торкніться кнопки з елементом пазла поруч з адресою, потім ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Safari, chạm vào nút mảnh ghép cạnh địa chỉ, rồi chạm vào ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 中，轻点地址旁的拼图按钮，然后轻点“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 中，點一下網址旁的拼圖按鈕，然後點一下「ContextFlow」。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

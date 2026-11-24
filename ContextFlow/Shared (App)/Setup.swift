@@ -761,9 +761,26 @@ enum SetupPath {
     var phases: [Int] { Array(0..<6) }
 
     /// The first written step: on iPad it starts where Settings opens.
+    /// 2.8: the Apps list has ContextFlow itself in view (above Safari), and its page has no extension switch: the step
+    /// says Safari, not ContextFlow.
     var firstStep: LocalizedStringKey {
-        self == .fromApps ? "In Settings, tap Apps on the left, then Safari in the list, then Extensions."
-            : "Open the Settings app and go to Apps → Safari → Extensions."
+        self == .fromApps ? "In Settings, tap Apps on the left, then Safari in the list (not ContextFlow), then Extensions."
+            : "Open the Settings app and go to Apps → Safari (not ContextFlow) → Extensions."
+    }
+
+    /// Where Safari keeps ContextFlow on a page (2.8, seen on the simulators): on an iPhone, in the page menu at the left
+    /// of the address; on an iPad (iPadOS 26 and 27), behind the extensions button (the puzzle piece) at the right of the
+    /// address; the iPad's page menu has no extensions.
+    static var safariMenuStep: LocalizedStringKey {
+        UIDevice.current.userInterfaceIdiom == .pad
+            ? "No ✦? Tap the puzzle-piece button next to the address, then ContextFlow."
+            : "No ✦? Open the page menu in the address bar and choose ContextFlow."
+    }
+
+    static var safariMenuFirst: LocalizedStringKey {
+        UIDevice.current.userInterfaceIdiom == .pad
+            ? "In Safari, tap the puzzle-piece button next to the address, then ContextFlow."
+            : "In Safari, open the page menu in the address bar and choose ContextFlow."
     }
 }
 
@@ -775,7 +792,11 @@ struct SetupCard: View {
 
     var body: some View {
         switch activation.state {
-        case .off: guide.onAppear { activation.instructionShown() }
+        case .off:
+            guide.onAppear {
+                activation.instructionShown()
+                SettingsPiP.shared.prepare(phases: path.phases, path: path)
+            }
         case .on: safariStep.onAppear { activation.safariStepShown() }
         case .inUse: ready
         }
@@ -871,12 +892,12 @@ struct SetupCard: View {
                 Text("No ✦ on the page? Safari is waiting for your permission.")
                     .font(.callout)
                     .fixedSize(horizontal: false, vertical: true)
-                Step(number: 1, text: "In Safari, open the page menu in the address bar and choose ContextFlow.")
+                Step(number: 1, text: SetupPath.safariMenuFirst)
                 Step(number: 2, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website.")
                 Step(number: 3, text: "Tap ✦ on the page.")
             } else {
                 Step(number: 1, text: "Tap ✦ on the page.")
-                Step(number: 2, text: "No ✦? Open the page menu in the address bar and choose ContextFlow.")
+                Step(number: 2, text: SetupPath.safariMenuStep)
                 Step(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website.")
             }
             if let url = TipClip.url("open") {
@@ -1139,6 +1160,8 @@ final class SettingsPiP: NSObject {
     private var frames: [CVPixelBuffer] = []
     private var phases: [Int] = []
     private var path: SetupPath?
+    /// The app went to the background since the guide started (Settings is in front).
+    private var away = false
     private var queued = 0
     private var pendingOpen: (() -> Void)?
     /// Each screen this long, as in the card.
@@ -1149,6 +1172,20 @@ final class SettingsPiP: NSObject {
     private override init() {
         super.init()
         layer.videoGravity = .resizeAspect
+        // Back in the app, the guide goes (2.8): from the system itself, as Activation's trip does. SwiftUI's scene phase
+        // didn't arrive on the way back in the simulators, and the guide floated on over Safari afterwards. Only once the
+        // app is active again (stopping it while the app is still coming to the front left a black window), and only
+        // after the app really left (starting the guide doesn't count).
+        NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
+            Task { @MainActor in SettingsPiP.shared.away = true }
+        }
+        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+            Task { @MainActor in
+                guard SettingsPiP.shared.away else { return }
+                SettingsPiP.shared.away = false
+                SettingsPiP.shared.stop()
+            }
+        }
     }
 
     private func makeController() -> AVPictureInPictureController? {
@@ -1164,22 +1201,45 @@ final class SettingsPiP: NSObject {
 
     /// Floats the screens for `phases` (Settings opens on ContextFlow's page on 26.2+: the last three), then calls
     /// `open` once the window shows, or at once when it can't.
+    /// The controller and the frames made ahead, when the card shows (2.8: on the first tap of a process the system's
+    /// picture in picture wasn't ready yet, and the guide floated only on the second tap; the simulator showed the same).
+    func prepare(phases: [Int], path: SetupPath) {
+        guard makeController() != nil else { return }
+        render(phases: phases, path: path)
+    }
+
+    private func render(phases: [Int], path: SetupPath) {
+        guard phases != self.phases || path != self.path || frames.isEmpty else { return }
+        self.phases = phases
+        self.path = path
+        frames = phases.compactMap { Self.frame(phase: $0, path: path) }
+    }
+
     func start(phases: [Int], path: SetupPath, then open: @escaping () -> Void) {
         guard let controller = makeController() else { return open() }
-        if phases != self.phases || path != self.path || frames.isEmpty {
-            self.phases = phases
-            self.path = path
-            frames = phases.compactMap { Self.frame(phase: $0, path: path) }
-        }
+        render(phases: phases, path: path)
         guard !frames.isEmpty else { return open() }
+        // If it hasn't started by the time Settings is in front, it starts as the app leaves (this trip only).
+        if #available(iOS 14.2, *) { controller.canStartPictureInPictureAutomaticallyFromInline = true }
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .moviePlayback, options: [.mixWithOthers])
         try? session.setActive(true)
         play()
         pendingOpen = open
-        controller.startPictureInPicture()
+        // 2.8: started once the system says it's possible, not at once: the layer has no frame yet at this point, and an
+        // early start failed (the director's iPad: no guide on the first try, the guide on the second).
+        startWhenPossible(controller, tries: 9)
         // Not possible on this device right now, or slow to start: Settings opens anyway.
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in self?.openPending() }
+    }
+
+    private func startWhenPossible(_ controller: AVPictureInPictureController, tries: Int) {
+        guard pendingOpen != nil else { return }
+        if controller.isPictureInPicturePossible || tries == 0 {
+            controller.startPictureInPicture()
+            return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in self?.startWhenPossible(controller, tries: tries - 1) }
     }
 
     /// Back in the app: the window goes, and so does its last frame. 2.8 (В2.2): `flush()` kept the frame on the layer,
@@ -1187,8 +1247,11 @@ final class SettingsPiP: NSObject {
     /// stayed over the steps (and where picture in picture didn't start, the frames played there).
     func stop() {
         guard controller?.isPictureInPictureActive == true || queued > 0 else { return }
-        controller?.stopPictureInPicture()
-        clear()
+        // Not on the next time the app goes to the background.
+        if #available(iOS 14.2, *) { controller?.canStartPictureInPictureAutomaticallyFromInline = false }
+        // Floating: it closes first, and its frames go when it has (the delegate's didStop); emptied while it was still
+        // up, the window turned black. Not floating: the frames go now.
+        if controller?.isPictureInPictureActive == true { controller?.stopPictureInPicture() } else { clear() }
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
@@ -1283,12 +1346,9 @@ extension SettingsPiP: AVPictureInPictureControllerDelegate {
     }
 
     nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
-        Task { @MainActor in
-            // Not floating: the frames mustn't go on playing in the card (2.8, В2.2).
-            self.clear()
-            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-            self.openPending()
-        }
+        // 2.8: the frames stay queued, so it can still start as the app leaves for Settings (allowed for this trip); back
+        // in the app, stop() takes them off the card (В2.2).
+        Task { @MainActor in self.openPending() }
     }
 
     nonisolated func pictureInPictureControllerDidStopPictureInPicture(_ controller: AVPictureInPictureController) {
