@@ -965,7 +965,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The place question the plan left to the agent (askPlace), asked from a list of places: once, past the guards below.
     const placeAsk = call.tool === "ask_user" && !!state.plan?.askPlace && !state.placeAsked && !!state.venues?.list.length
     if (placeAsk) state.placeAsked = true
-    const details = detailsForm(map) || chosenAsk || placeAsk
+    // (In the last two steps a question goes to the person: the device opening the next place instead spent the last
+    // step and the task ended with nobody asked, 126 on a hotel site.)
+    const details = detailsForm(map) || chosenAsk || placeAsk || state.step >= io.maxSteps - 2
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       continue
