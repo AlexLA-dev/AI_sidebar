@@ -428,3 +428,30 @@ test("pattern: a results list whose whole cards are links named by their aria-la
   assert.deepEqual(venuesOn(map).map((v) => v.name), ["Trattoria Uno", "Trattoria Due", "Trattoria Tre"])
   assert.equal(venuesOn(map)[0].rating, 4.55, "9.1 of 10, not the slide's «1 of 8»")
 })
+
+test("a layer that comes back after the same press is that press's next step: closed once, then left to the model", async () => {
+  const LAYER = { id: "9", label: "Close" }
+  let n = 0
+  const pressed: string[] = []
+  const page = (): PageMap => ({ url: "https://salons.example/s/1", title: "Salon", lang: "en", more: 0, part: 1, parts: 1, text: "Collect points", forms: [], overlay: true, promo: LAYER,
+    items: [{ id: "9", role: "button", label: "Close", where: "dialog" }, { id: "5", role: "button", label: "Keep earning", where: "dialog" }, { id: "4", role: "button", label: "Continue" }] })
+  const replies: any[] = [
+    { ok: true, call: { tool: "click", id: "4", why: "continue" }, verdict: { cls: "free", reason: "nav" }, target: 'button "Continue"' },
+    { ok: true, call: { tool: "click", id: "4", why: "continue" }, verdict: { cls: "free", reason: "nav" }, target: 'button "Continue"' }
+  ]
+  const asked: any[] = []
+  const io = { map: async () => (n++ === 0 ? { ...page(), overlay: undefined, promo: undefined } : page()), act: async (c: any) => { pressed.push(c.id); return { ok: true } }, waitPage: async () => {}, ask: async (b: any) => { asked.push(b); return replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
+  await drive(newState("lb", "book a haircut", "en", "https://salons.example/s/1"), io)
+  assert.deepEqual(pressed, ["4", "9", "4"], "closed once after «Continue», not again after the same press")
+  assert.ok(asked.some((b) => /came back after/.test(JSON.stringify(b))), "the model hears it's that press's next step")
+})
+
+test("pattern: a card's rating and review count side by side («4.4 268 reviews», «4.5 3 822 reviews») and a service term matched word by word", async () => {
+  const { venuesOn, cardsOf, rankVenues } = await import("../src/shared/agent/venues.ts")
+  const L = ["Barber One Soho 4.5 3 822 reviews Soho, London Men's Wash, Haircut & Style 45 mins", "Barber Two 4.4 268 reviews Fitzrovia, London Men's Wash, Cut & Finish", "Barber Three 4.7 303 reviews Mayfair, London Men - Haircut, Wash & Styling"]
+  const map: PageMap = { url: "https://salons.example/places/x/", title: "", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items: L.map((label, i) => ({ id: String(i), role: "link" as const, label, href: `/place/p${i}/` })) }
+  const v = venuesOn(map)
+  assert.deepEqual(v.map((x) => [x.rating * 2, x.reviews]), [[9, 3822], [8.8, 268], [9.4, 303]].map(([r, n]) => [r / 2 * 2, n]))
+  assert.deepEqual(rankVenues(v, cardsOf(map), ["Men's Haircut"], 4.5, []).map((x) => x.name), ["Barber One Soho", "Barber Three"])
+})

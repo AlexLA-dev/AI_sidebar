@@ -15,7 +15,7 @@ export interface Venue {
 
 // «4.8», «4,8», «9.4» (a restaurant site's /10), next to stars or on their own.
 const RATING = /(?:^|[\s(★⭐])([0-9](?:[.,][0-9])?|10)(?:\s*\/\s*(?:5|10))?(?=\s|$|[)★⭐])/
-const REVIEWS = /\(?([0-9][0-9,.\s ]{0,8})\)?\s*(?:reviews?|ratings?|отзыв\w*|оцен\w*|avis|bewertung\w*|reseñas?|valoraciones|recension\w*|avalia\w*|yorum\w*|değerlendirme|件|レビュー|리뷰|후기|评论|評論|評價|تقييم\w*|مراجع\w*|đánh giá)|\(([0-9][0-9,.\s\u00a0\u202f]{0,8})\)/i
+const REVIEWS = /\(?(?<![\d.,])([0-9]{1,3}(?:[,.\s\u00a0\u202f][0-9]{3})+|[0-9]+)\)?\s*(?:reviews?|ratings?|отзыв\w*|оцен\w*|avis|bewertung\w*|reseñas?|valoraciones|recension\w*|avalia\w*|yorum\w*|değerlendirme|件|レビュー|리뷰|후기|评论|評論|評價|تقييم\w*|مراجع\w*|đánh giá)|\(([0-9][0-9,.\s\u00a0\u202f]{0,8})\)/i
 
 const num = (s: string) => Number(s.replace(/[\s ,.]/g, ""))
 
@@ -97,7 +97,11 @@ export function rankVenues(list: Venue[], cards: Map<string, string>, match: str
   const places = area.map(fold).filter((w) => w.length >= 3)
   const near = places.length ? list.filter((v) => places.some((w) => card(v).includes(w))) : []
   const inArea = near.length ? near : list
-  const fits = inArea.filter((v) => !words.length || words.some((w) => card(v).includes(w)))
+  // A term fits when each of its words is on the card, in any order («men's haircut» on «Men's Wash, Haircut & Style»;
+  // a possessive or plural ending aside).
+  const stem = (w: string) => w.replace(/['’]s$|s$/u, "")
+  const has = (text: string, term: string) => term.split(/[\s\-–,&/]+/).map(stem).filter((x) => x.length >= 3).every((x) => text.includes(x))
+  const fits = inArea.filter((v) => !words.length || words.some((w) => card(v).includes(w) || has(card(v), w)))
   const good = fits.filter((v) => v.rating >= minRating && v.reviews >= 20)
   return good.length ? good : fits.filter((v) => v.rating >= minRating - 0.3)
 }
