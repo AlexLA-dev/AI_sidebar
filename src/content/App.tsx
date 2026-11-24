@@ -2785,8 +2785,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       no: () => send("no"),
       did: () => send("did"),
       notNow: () => send("notnow"),
+      // (Not «gone»: the chat opened hides it; closed again unanswered, the question is back by the circle.)
       open: () => {
-        setBubbleGone(b.key)
         if (!b.here) {
           void sendBackground({ type: "agentGoTab" })
           return

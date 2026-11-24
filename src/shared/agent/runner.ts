@@ -1386,6 +1386,8 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
       state.plan.booking.venue = picked.name
       state.chooseVenue = false
     }
+    // Answered: the plan no longer says to ask (a «choose by my rules» answer leaves it to the rules).
+    if (state.plan?.askPlace && state.placeAsked) state.plan.askPlace = false
     await io.save(state)
     return drive(state, io)
   }
