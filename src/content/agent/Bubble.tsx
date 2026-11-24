@@ -56,7 +56,8 @@ function stepWords(s: BubbleSource): string {
 }
 
 export function bubbleOf(s: BubbleSource, key: string, here: boolean): BubbleData | null {
-  const base = { key, here, options: [] as string[], other: false }
+  // (A plan card waits with no step key: its own, so «×» and the circle tell it apart.)
+  const base = { key: key || `${s.status}:${s.id}`, here, options: [] as string[], other: false }
   const p = s.pending
   switch (s.status) {
     case "asked": {
