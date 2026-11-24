@@ -1605,9 +1605,9 @@
   ]
  },
  {
-  "key": "f20cf94f822b",
+  "key": "5934fc25d49f",
   "kind": "html",
-  "en": "Where is it? On iPhone and iPad, tap ✦ on the page, or open the page menu in the address bar and choose ContextFlow. On Mac, click ✦ or the ContextFlow icon in the toolbar, or press Control-Shift-E.",
+  "en": "Where is it? On iPhone and iPad, tap ✦ on the page. ContextFlow is also in the page menu in the address bar on iPhone, and behind the puzzle-piece button next to the address on iPad. On Mac, click ✦ or the ContextFlow icon in the toolbar, or press Control-Shift-E.",
   "pages": [
    "features.html"
   ]
@@ -4051,9 +4051,9 @@
   ]
  },
  {
-  "key": "9b1a76694eed",
+  "key": "c04c81a2999b",
   "kind": "html",
-  "en": "Open any website in Safari and tap ✦. You can also open it from the page menu in the address bar.",
+  "en": "Open any website in Safari and tap ✦. You can also open it from the page menu in the address bar on iPhone, or from the puzzle-piece button next to the address on iPad.",
   "pages": [
    "safari-ai-extension-iphone.html"
   ]
@@ -4971,9 +4971,9 @@
   ]
  },
  {
-  "key": "605db19975f6",
+  "key": "ef7e34f134ea",
   "kind": "html",
-  "en": "Open the Settings app → Apps → Safari → Extensions → ContextFlow, switch it on and set <em>All Websites</em> to <em>Allow</em>. Then open any website in Safari and tap the ✦ button (or the page menu in the address bar → ContextFlow). <a href=\"/turn-on-safari-extension-iphone\">If ✦ doesn't show</a>.",
+  "en": "Open the Settings app → Apps → Safari → Extensions → ContextFlow, switch it on and set <em>All Websites</em> to <em>Allow</em>. Then open any website in Safari and tap the ✦ button. It's also in the page menu in the address bar on iPhone, and behind the puzzle-piece button next to the address on iPad. <a href=\"/turn-on-safari-extension-iphone\">If ✦ doesn't show</a>.",
   "pages": [
    "support.html"
   ]
@@ -6589,9 +6589,9 @@
   ]
  },
  {
-  "key": "613b47ac7dc7",
+  "key": "3729c2f1dd31",
   "kind": "html",
-  "en": "Tap ✦ at the edge of the screen, or open the page menu in the address bar and choose ContextFlow. Ask your question.",
+  "en": "Tap ✦ at the edge of the screen and ask your question. ContextFlow is also in the page menu in the address bar on iPhone, and behind the puzzle-piece button next to the address on iPad.",
   "pages": [
    "ask-ai-about-web-page-safari.html"
   ]
@@ -7303,17 +7303,17 @@
   ]
  },
  {
-  "key": "b8d8e191fd7d",
+  "key": "50544ec5a23c",
   "kind": "ld",
-  "en": "Where is the page menu?",
+  "en": "Where are Safari's extensions?",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "85fd40e6167f",
+  "key": "2a648048f5c9",
   "kind": "ld",
-  "en": "It's the button in Safari's address bar that opens the page's options, like Reader, Translate and your extensions. How it looks depends on your iOS version.",
+  "en": "On iPhone, in the page menu: the button in the address bar that also holds Reader and Translate. On iPad, behind the puzzle-piece button next to the address.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7343,17 +7343,17 @@
   ]
  },
  {
-  "key": "990c562ff378",
+  "key": "2d6f703e6dfa",
   "kind": "ld",
-  "en": "Reload the page. If ✦ still doesn't show, open the page menu: if ContextFlow is marked ⚠ there, Safari is still asking for your permission.",
+  "en": "Reload the page. If ✦ still doesn't show, open the page menu on iPhone, or the puzzle-piece button on iPad: if ContextFlow is marked ⚠ there, Safari is still asking for your permission.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "58374fa1cc97",
+  "key": "1570c7ce89fa",
   "kind": "ld",
-  "en": "Yes, the steps are the same as on iPhone.",
+  "en": "Yes. On iPad, extensions sit behind the puzzle-piece button next to the address instead of the page menu; the rest is the same.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7367,9 +7367,9 @@
   ]
  },
  {
-  "key": "4345140c20f2",
+  "key": "bbbbd330a1ce",
   "kind": "html",
-  "en": "Right in Safari",
+  "en": "Right in Safari, on iPhone",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7394,6 +7394,38 @@
   "key": "522b8aa9ac6a",
   "kind": "html",
   "en": "Back in the page menu, tap ContextFlow, then choose Always Allow, then Always Allow on Every Website.",
+  "pages": [
+   "turn-on-safari-extension-iphone.html"
+  ]
+ },
+ {
+  "key": "26718a21e9e5",
+  "kind": "html",
+  "en": "Right in Safari, on iPad",
+  "pages": [
+   "turn-on-safari-extension-iphone.html"
+  ]
+ },
+ {
+  "key": "8a74c56f53f5",
+  "kind": "html",
+  "en": "On iPad, extensions aren't in the page menu. They sit behind the puzzle-piece button next to the address.",
+  "pages": [
+   "turn-on-safari-extension-iphone.html"
+  ]
+ },
+ {
+  "key": "f990738725a6",
+  "kind": "html",
+  "en": "Open any website and tap the puzzle-piece button next to the address.",
+  "pages": [
+   "turn-on-safari-extension-iphone.html"
+  ]
+ },
+ {
+  "key": "7d7d88a5976d",
+  "kind": "html",
+  "en": "Tap the puzzle-piece button again, then ContextFlow, and choose Always Allow, then Always Allow on Every Website.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7439,17 +7471,17 @@
   ]
  },
  {
-  "key": "2b1ca4957717",
+  "key": "0cf659670083",
   "kind": "html",
-  "en": "<strong>Safari is still asking.</strong> With All Websites left on Ask, the button doesn't appear, and Safari's question waits in the page menu: ContextFlow is marked ⚠ there. Tap it and choose Always Allow, then Always Allow on Every Website.",
+  "en": "<strong>Safari is still asking.</strong> With All Websites left on Ask, the button doesn't appear, and Safari's question waits: in the page menu on iPhone, behind the puzzle-piece button next to the address on iPad. ContextFlow is marked ⚠ there. Tap it and choose Always Allow, then Always Allow on Every Website. On iPad, a banner under the address asking for more permissions is the same question.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "860f24175041",
+  "key": "0ae265aab291",
   "kind": "html",
-  "en": "<strong>The extension is off.</strong> It isn't in the page menu at all: tap Manage Extensions there and switch it on.",
+  "en": "<strong>The extension is off.</strong> ContextFlow isn't in the page menu (iPhone) or behind the puzzle-piece button (iPad) at all: tap Manage Extensions there and switch it on.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]

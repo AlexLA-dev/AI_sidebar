@@ -76,10 +76,10 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Menu trang ở đâu?",
+          "name": "Tiện ích mở rộng của Safari ở đâu?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Đó là nút trên thanh địa chỉ của Safari, mở các tùy chọn của trang, như Trình đọc, Dịch và các tiện ích của bạn. Hình dạng nút tùy vào phiên bản iOS của bạn."
+            "text": "Trên iPhone, trong menu trang: nút trên thanh địa chỉ cũng chứa Trình đọc và Dịch. Trên iPad, sau nút mảnh ghép cạnh địa chỉ."
           }
         },
         {
@@ -95,7 +95,7 @@
           "name": "Tôi đã bật mà vẫn không thấy gì.",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Tải lại trang. Nếu ✦ vẫn không hiện, hãy mở menu trang: nếu ContextFlow ở đó có dấu ⚠, Safari vẫn đang hỏi quyền của bạn."
+            "text": "Tải lại trang. Nếu ✦ vẫn không hiện, hãy mở menu trang trên iPhone, hoặc nút mảnh ghép trên iPad: nếu ContextFlow ở đó có dấu ⚠, Safari vẫn đang hỏi quyền của bạn."
           }
         },
         {
@@ -103,7 +103,7 @@
           "name": "Có dùng được trên iPad không?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Có, các bước giống như trên iPhone."
+            "text": "Có. Trên iPad, tiện ích mở rộng nằm sau nút mảnh ghép cạnh địa chỉ thay vì trong menu trang; phần còn lại giống nhau."
           }
         }
       ]
@@ -120,11 +120,19 @@
 
   <p class="lede">Bạn đã cài một tiện ích mở rộng Safari mà trên trang không hiện gì. Gần như lúc nào cũng là do Safari cần bạn trả lời thêm một câu. Các bước giống nhau với mọi tiện ích; tôi lấy ContextFlow, ứng dụng do tôi làm ra, làm ví dụ.</p>
 
-  <h2>Ngay trong Safari</h2>
+  <h2>Ngay trong Safari, trên iPhone</h2>
   <ol>
     <li>Mở trang web bất kỳ và chạm vào nút menu trang trên thanh địa chỉ.</li>
     <li>Chạm vào “Quản lý tiện ích mở rộng” và bật ContextFlow.</li>
     <li>Quay lại menu trang, chạm vào ContextFlow, chọn “Luôn cho phép”, rồi chọn “Luôn cho phép trên mọi trang web”.</li>
+  </ol>
+
+  <h2>Ngay trong Safari, trên iPad</h2>
+  <p>Trên iPad, tiện ích mở rộng không nằm trong menu trang. Chúng nằm sau nút mảnh ghép cạnh địa chỉ.</p>
+  <ol>
+    <li>Mở trang web bất kỳ và chạm vào nút mảnh ghép cạnh địa chỉ.</li>
+    <li>Chạm vào “Quản lý tiện ích mở rộng” và bật ContextFlow.</li>
+    <li>Chạm lại vào nút mảnh ghép, rồi chạm vào ContextFlow, chọn “Luôn cho phép”, rồi chọn “Luôn cho phép trên mọi trang web”.</li>
   </ol>
 
   <h2>Trong Cài đặt</h2>
@@ -136,8 +144,8 @@
 
   <h2>Đã bật mà không thấy nút?</h2>
   <ul>
-    <li><strong>Safari vẫn đang hỏi.</strong> Khi Tất cả trang web vẫn để ở Hỏi, nút sẽ không hiện, và câu hỏi của Safari đang chờ trong menu trang: ở đó ContextFlow có dấu ⚠. Chạm vào đó, chọn “Luôn cho phép”, rồi chọn “Luôn cho phép trên mọi trang web”.</li>
-    <li><strong>Tiện ích đang tắt.</strong> Nó hoàn toàn không có trong menu trang: chạm vào “Quản lý tiện ích mở rộng” ở đó và bật lên.</li>
+    <li><strong>Safari vẫn đang hỏi.</strong> Khi Tất cả trang web vẫn để ở Hỏi, nút sẽ không hiện, và câu hỏi của Safari đang chờ: trong menu trang trên iPhone, sau nút mảnh ghép cạnh địa chỉ trên iPad. Ở đó ContextFlow có dấu ⚠. Chạm vào đó, chọn “Luôn cho phép”, rồi chọn “Luôn cho phép trên mọi trang web”. Trên iPad, biểu ngữ dưới địa chỉ xin thêm quyền cũng chính là câu hỏi đó.</li>
+    <li><strong>Tiện ích đang tắt.</strong> ContextFlow hoàn toàn không có trong menu trang (iPhone) hay sau nút mảnh ghép (iPad): chạm vào “Quản lý tiện ích mở rộng” ở đó và bật lên.</li>
     <li><strong>Duyệt web riêng tư.</strong> Tiện ích chỉ chạy ở đó nếu bạn cho phép: Cài đặt › Ứng dụng › Safari › Tiện ích mở rộng › ContextFlow › Cho phép trong Duyệt web riêng tư.</li>
     <li><strong>Trang không cho tiện ích chạy.</strong> Safari không cho tiện ích chạy trên trang bắt đầu, các trang App Store và một vài trang khác. Hãy mở một trang web bình thường.</li>
   </ul>
@@ -154,10 +162,10 @@
   <p class="get"><a class="cta" href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=turnon&amp;mt=8"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z" /></svg><span><small>Tải về trên</small>App Store</span></a></p>
 
   <h2>Câu hỏi thường gặp</h2>
-  <details><summary>Menu trang ở đâu?</summary><p>Đó là nút trên thanh địa chỉ của Safari, mở các tùy chọn của trang, như Trình đọc, Dịch và các tiện ích của bạn. Hình dạng nút tùy vào phiên bản iOS của bạn.</p></details>
+  <details><summary>Tiện ích mở rộng của Safari ở đâu?</summary><p>Trên iPhone, trong menu trang: nút trên thanh địa chỉ cũng chứa Trình đọc và Dịch. Trên iPad, sau nút mảnh ghép cạnh địa chỉ.</p></details>
   <details><summary>Tôi có cần mở ứng dụng trước không?</summary><p>Bạn có thể bật tiện ích từ Safari hoặc từ Cài đặt. Nếu có gói đăng ký, hãy mở ứng dụng ContextFlow một lần để gói đăng ký đến được tiện ích.</p></details>
-  <details><summary>Tôi đã bật mà vẫn không thấy gì.</summary><p>Tải lại trang. Nếu ✦ vẫn không hiện, hãy mở menu trang: nếu ContextFlow ở đó có dấu ⚠, Safari vẫn đang hỏi quyền của bạn.</p></details>
-  <details><summary>Có dùng được trên iPad không?</summary><p>Có, các bước giống như trên iPhone.</p></details>
+  <details><summary>Tôi đã bật mà vẫn không thấy gì.</summary><p>Tải lại trang. Nếu ✦ vẫn không hiện, hãy mở menu trang trên iPhone, hoặc nút mảnh ghép trên iPad: nếu ContextFlow ở đó có dấu ⚠, Safari vẫn đang hỏi quyền của bạn.</p></details>
+  <details><summary>Có dùng được trên iPad không?</summary><p>Có. Trên iPad, tiện ích mở rộng nằm sau nút mảnh ghép cạnh địa chỉ thay vì trong menu trang; phần còn lại giống nhau.</p></details>
 
   <p class="more">Xem thêm: <a href="/vi/find-cheaper-similar-product-safari-iphone">Tìm sản phẩm tương tự, rẻ hơn</a> · <a href="/vi/ask-ai-about-web-page-safari">Hỏi AI về trang bạn đang đọc</a> · <a href="/vi/contextflow-vs-zeki-surfmind">ContextFlow, Zeki hay SurfMind</a> · <a href="/vi/translate-web-page-safari-iphone">Dịch trang web trong Safari</a> · <a href="/vi/features">Mọi tính năng</a></p>
 </main>

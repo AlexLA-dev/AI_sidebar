@@ -76,10 +76,10 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "페이지 메뉴는 어디에 있나요?",
+          "name": "Safari 확장 프로그램은 어디에 있나요?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Safari 주소 막대에 있는 버튼으로, 읽기 도구, 번역, 확장 프로그램 같은 페이지 옵션을 열어요. 모양은 iOS 버전에 따라 달라요."
+            "text": "iPhone에서는 페이지 메뉴에 있어요. 읽기 도구와 번역도 들어 있는 주소 막대의 버튼이에요. iPad에서는 주소 옆의 퍼즐 조각 버튼 안에 있어요."
           }
         },
         {
@@ -95,7 +95,7 @@
           "name": "켰는데도 아무것도 안 보여요.",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "페이지를 새로고침하세요. 그래도 ✦가 안 보이면 페이지 메뉴를 여세요. 거기서 ContextFlow에 ⚠ 표시가 있다면 Safari가 아직 허용 여부를 묻고 있는 거예요."
+            "text": "페이지를 새로고침하세요. 그래도 ✦가 안 보이면 iPhone에서는 페이지 메뉴를, iPad에서는 퍼즐 조각 버튼을 여세요. 거기서 ContextFlow에 ⚠ 표시가 있다면 Safari가 아직 허용 여부를 묻고 있는 거예요."
           }
         },
         {
@@ -103,7 +103,7 @@
           "name": "iPad에서도 되나요?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "네, 단계는 iPhone과 같아요."
+            "text": "네. iPad에서는 확장 프로그램이 페이지 메뉴 대신 주소 옆의 퍼즐 조각 버튼 안에 있어요. 나머지는 같아요."
           }
         }
       ]
@@ -120,11 +120,19 @@
 
   <p class="lede">Safari 확장 프로그램을 설치했는데 페이지에 아무것도 안 보여요. 거의 항상 Safari가 답을 하나 더 기다리고 있는 거예요. 단계는 어떤 확장 프로그램이든 같아요. 제가 만드는 ContextFlow를 예로 들게요.</p>
 
-  <h2>Safari에서 바로</h2>
+  <h2>iPhone의 Safari에서 바로</h2>
   <ol>
     <li>아무 웹 사이트나 열고 주소 막대에서 페이지 메뉴 버튼을 탭하세요.</li>
     <li>‘확장 프로그램 관리’를 탭하고 ContextFlow를 켜세요.</li>
     <li>페이지 메뉴로 돌아와 ContextFlow를 탭한 다음 ‘항상 허용’을 선택하고, 이어서 ‘모든 웹 사이트에서 항상 허용’을 선택하세요.</li>
+  </ol>
+
+  <h2>iPad의 Safari에서 바로</h2>
+  <p>iPad에서는 확장 프로그램이 페이지 메뉴에 없어요. 주소 옆의 퍼즐 조각 버튼 안에 있어요.</p>
+  <ol>
+    <li>아무 웹 사이트나 열고 주소 옆의 퍼즐 조각 버튼을 탭하세요.</li>
+    <li>‘확장 프로그램 관리’를 탭하고 ContextFlow를 켜세요.</li>
+    <li>퍼즐 조각 버튼을 다시 탭한 다음 ContextFlow를 탭하고, ‘항상 허용’을 선택한 다음 ‘모든 웹 사이트에서 항상 허용’을 선택하세요.</li>
   </ol>
 
   <h2>설정에서</h2>
@@ -136,8 +144,8 @@
 
   <h2>켰는데 버튼이 없나요?</h2>
   <ul>
-    <li><strong>Safari가 아직 묻고 있어요.</strong> ‘모든 웹 사이트’가 ‘묻기’로 남아 있으면 버튼이 나타나지 않고, Safari의 질문은 페이지 메뉴에서 기다리고 있어요. 거기서 ContextFlow에 ⚠ 표시가 있어요. 탭하고 ‘항상 허용’을 선택한 다음, 이어서 ‘모든 웹 사이트에서 항상 허용’을 선택하세요.</li>
-    <li><strong>확장 프로그램이 꺼져 있어요.</strong> 페이지 메뉴에 아예 없어요. 거기서 ‘확장 프로그램 관리’를 탭해 켜세요.</li>
+    <li><strong>Safari가 아직 묻고 있어요.</strong> ‘모든 웹 사이트’가 ‘묻기’로 남아 있으면 버튼이 나타나지 않고, Safari의 질문은 iPhone에서는 페이지 메뉴에서, iPad에서는 주소 옆의 퍼즐 조각 버튼 안에서 기다리고 있어요. 거기서 ContextFlow에 ⚠ 표시가 있어요. 탭하고 ‘항상 허용’을 선택한 다음, 이어서 ‘모든 웹 사이트에서 항상 허용’을 선택하세요. iPad에서 주소 아래에 추가 권한을 요청하는 배너가 보이면 그것도 같은 질문이에요.</li>
+    <li><strong>확장 프로그램이 꺼져 있어요.</strong> ContextFlow가 페이지 메뉴(iPhone)에도, 퍼즐 조각 버튼 안(iPad)에도 아예 없어요. 거기서 ‘확장 프로그램 관리’를 탭해 켜세요.</li>
     <li><strong>개인정보 보호 브라우징.</strong> 허용한 경우에만 확장 프로그램이 작동해요: 설정 › 앱 › Safari › 확장 프로그램 › ContextFlow › 개인정보 보호 브라우징에서 허용.</li>
     <li><strong>확장 프로그램이 작동하지 않는 페이지.</strong> Safari는 시작 페이지, App Store 페이지 등 몇몇 페이지에서 확장 프로그램을 막아요. 일반 웹 사이트를 여세요.</li>
   </ul>
@@ -154,10 +162,10 @@
   <p class="get"><a class="cta" href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=turnon&amp;mt=8"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z" /></svg><span><small>다운로드</small>App Store</span></a></p>
 
   <h2>자주 묻는 질문</h2>
-  <details><summary>페이지 메뉴는 어디에 있나요?</summary><p>Safari 주소 막대에 있는 버튼으로, 읽기 도구, 번역, 확장 프로그램 같은 페이지 옵션을 열어요. 모양은 iOS 버전에 따라 달라요.</p></details>
+  <details><summary>Safari 확장 프로그램은 어디에 있나요?</summary><p>iPhone에서는 페이지 메뉴에 있어요. 읽기 도구와 번역도 들어 있는 주소 막대의 버튼이에요. iPad에서는 주소 옆의 퍼즐 조각 버튼 안에 있어요.</p></details>
   <details><summary>앱을 먼저 열어야 하나요?</summary><p>확장 프로그램은 Safari에서도 설정에서도 켤 수 있어요. 구독 중이라면 구독이 확장 프로그램에 전달되도록 ContextFlow 앱을 한 번 열어 주세요.</p></details>
-  <details><summary>켰는데도 아무것도 안 보여요.</summary><p>페이지를 새로고침하세요. 그래도 ✦가 안 보이면 페이지 메뉴를 여세요. 거기서 ContextFlow에 ⚠ 표시가 있다면 Safari가 아직 허용 여부를 묻고 있는 거예요.</p></details>
-  <details><summary>iPad에서도 되나요?</summary><p>네, 단계는 iPhone과 같아요.</p></details>
+  <details><summary>켰는데도 아무것도 안 보여요.</summary><p>페이지를 새로고침하세요. 그래도 ✦가 안 보이면 iPhone에서는 페이지 메뉴를, iPad에서는 퍼즐 조각 버튼을 여세요. 거기서 ContextFlow에 ⚠ 표시가 있다면 Safari가 아직 허용 여부를 묻고 있는 거예요.</p></details>
+  <details><summary>iPad에서도 되나요?</summary><p>네. iPad에서는 확장 프로그램이 페이지 메뉴 대신 주소 옆의 퍼즐 조각 버튼 안에 있어요. 나머지는 같아요.</p></details>
 
   <p class="more">더 보기: <a href="/ko/find-cheaper-similar-product-safari-iphone">비슷한 상품 더 싸게 찾기</a> · <a href="/ko/ask-ai-about-web-page-safari">읽고 있는 페이지에 대해 AI에게 묻기</a> · <a href="/ko/contextflow-vs-zeki-surfmind">ContextFlow, Zeki, SurfMind 비교</a> · <a href="/ko/translate-web-page-safari-iphone">Safari에서 페이지 번역하기</a> · <a href="/ko/features">모든 기능</a></p>
 </main>

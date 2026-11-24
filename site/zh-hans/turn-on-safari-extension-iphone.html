@@ -76,10 +76,10 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "页面菜单在哪里？",
+          "name": "Safari 的扩展在哪里？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "就是 Safari 地址栏中的那个按钮，用来打开网页的选项，比如阅读器、翻译和你的扩展。它的样子取决于你的 iOS 版本。"
+            "text": "在 iPhone 上，在页面菜单里：就是地址栏中那个也放着阅读器和翻译的按钮。在 iPad 上，在地址旁的拼图按钮里。"
           }
         },
         {
@@ -95,7 +95,7 @@
           "name": "我开启了，还是什么都看不到。",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "重新载入页面。如果 ✦ 仍然不出现，打开页面菜单：如果 ContextFlow 在那里带有 ⚠ 标记，说明 Safari 仍在等你允许。"
+            "text": "重新载入页面。如果 ✦ 仍然不出现，在 iPhone 上打开页面菜单，在 iPad 上打开拼图按钮：如果 ContextFlow 在那里带有 ⚠ 标记，说明 Safari 仍在等你允许。"
           }
         },
         {
@@ -103,7 +103,7 @@
           "name": "iPad 上能用吗？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "能，步骤和 iPhone 上一样。"
+            "text": "能。在 iPad 上，扩展不在页面菜单里，而在地址旁的拼图按钮里；其他步骤都一样。"
           }
         }
       ]
@@ -120,11 +120,19 @@
 
   <p class="lede">你装了一个 Safari 扩展，网页上却什么都没出现。几乎总是因为 Safari 还需要你再回答一次。任何扩展的步骤都一样；这里用我做的 ContextFlow 举例。</p>
 
-  <h2>直接在 Safari 中</h2>
+  <h2>直接在 iPhone 的 Safari 中</h2>
   <ol>
     <li>打开任意网站，轻点地址栏中的页面菜单按钮。</li>
     <li>轻点“管理扩展”，然后打开 ContextFlow。</li>
     <li>回到页面菜单，轻点“ContextFlow”，选择“始终允许”，然后选择“在所有网站上始终允许”。</li>
+  </ol>
+
+  <h2>直接在 iPad 的 Safari 中</h2>
+  <p>在 iPad 上，扩展不在页面菜单里。它们在地址旁的拼图按钮里。</p>
+  <ol>
+    <li>打开任意网站，轻点地址旁的拼图按钮。</li>
+    <li>轻点“管理扩展”，然后打开 ContextFlow。</li>
+    <li>再次轻点拼图按钮，然后轻点“ContextFlow”，选择“始终允许”，然后选择“在所有网站上始终允许”。</li>
   </ol>
 
   <h2>在“设置”中</h2>
@@ -136,8 +144,8 @@
 
   <h2>已开启，却没有按钮？</h2>
   <ul>
-    <li><strong>Safari 还在询问。</strong>如果“所有网站”仍设为“询问”，按钮就不会出现，Safari 的询问就在页面菜单里：ContextFlow 在那里带有 ⚠ 标记。轻点它，选择“始终允许”，然后选择“在所有网站上始终允许”。</li>
-    <li><strong>扩展已关闭。</strong>页面菜单里根本没有它：在那里轻点“管理扩展”，然后打开它。</li>
+    <li><strong>Safari 还在询问。</strong>如果“所有网站”仍设为“询问”，按钮就不会出现，Safari 的询问在等着你：在 iPhone 上在页面菜单里，在 iPad 上在地址旁的拼图按钮里。ContextFlow 在那里带有 ⚠ 标记。轻点它，选择“始终允许”，然后选择“在所有网站上始终允许”。在 iPad 上，地址下方请求更多权限的横幅也是同一个询问。</li>
+    <li><strong>扩展已关闭。</strong>页面菜单（iPhone）或拼图按钮（iPad）里根本没有 ContextFlow：在那里轻点“管理扩展”，然后打开它。</li>
     <li><strong>无痕浏览。</strong>只有你允许，扩展才会在无痕浏览中运行：在“设置”›“App”›“Safari”›“扩展”›“ContextFlow”中，打开允许在无痕浏览中使用的选项。</li>
     <li><strong>扩展无法运行的页面。</strong>Safari 不让扩展在它的起始页、App Store 页面和其他少数页面上运行。请打开一个普通网站。</li>
   </ul>
@@ -154,10 +162,10 @@
   <p class="get"><a class="cta" href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=turnon&amp;mt=8"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z" /></svg><span><small>下载于</small>App Store</span></a></p>
 
   <h2>常见问题</h2>
-  <details><summary>页面菜单在哪里？</summary><p>就是 Safari 地址栏中的那个按钮，用来打开网页的选项，比如阅读器、翻译和你的扩展。它的样子取决于你的 iOS 版本。</p></details>
+  <details><summary>Safari 的扩展在哪里？</summary><p>在 iPhone 上，在页面菜单里：就是地址栏中那个也放着阅读器和翻译的按钮。在 iPad 上，在地址旁的拼图按钮里。</p></details>
   <details><summary>需要先打开 App 吗？</summary><p>在 Safari 或“设置”中都能开启扩展。如果你有订阅，请打开一次 ContextFlow App，让订阅同步到扩展。</p></details>
-  <details><summary>我开启了，还是什么都看不到。</summary><p>重新载入页面。如果 ✦ 仍然不出现，打开页面菜单：如果 ContextFlow 在那里带有 ⚠ 标记，说明 Safari 仍在等你允许。</p></details>
-  <details><summary>iPad 上能用吗？</summary><p>能，步骤和 iPhone 上一样。</p></details>
+  <details><summary>我开启了，还是什么都看不到。</summary><p>重新载入页面。如果 ✦ 仍然不出现，在 iPhone 上打开页面菜单，在 iPad 上打开拼图按钮：如果 ContextFlow 在那里带有 ⚠ 标记，说明 Safari 仍在等你允许。</p></details>
+  <details><summary>iPad 上能用吗？</summary><p>能。在 iPad 上，扩展不在页面菜单里，而在地址旁的拼图按钮里；其他步骤都一样。</p></details>
 
   <p class="more">更多：<a href="/zh-hans/find-cheaper-similar-product-safari-iphone">找更便宜的相似商品</a> · <a href="/zh-hans/ask-ai-about-web-page-safari">就你正在读的网页问 AI</a> · <a href="/zh-hans/contextflow-vs-zeki-surfmind">ContextFlow、Zeki 还是 SurfMind</a> · <a href="/zh-hans/translate-web-page-safari-iphone">在 Safari 中翻译网页</a> · <a href="/zh-hans/features">所有功能</a></p>
 </main>

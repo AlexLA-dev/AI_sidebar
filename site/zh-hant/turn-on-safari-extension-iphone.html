@@ -76,10 +76,10 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "頁面選單在哪裡？",
+          "name": "Safari 的延伸功能在哪裡？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "就是 Safari 網址列中的那個按鈕，可打開頁面的選項，例如閱讀器、翻譯和你的延伸功能。它的外觀取決於你的 iOS 版本。"
+            "text": "在 iPhone 上，在頁面選單裡：就是網址列中那個也放著閱讀器和翻譯的按鈕。在 iPad 上，在網址旁的拼圖按鈕裡。"
           }
         },
         {
@@ -95,7 +95,7 @@
           "name": "我開啟了，還是什麼都沒看到。",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "重新載入頁面。如果 ✦ 還是沒出現，打開頁面選單：如果 ContextFlow 在那裡帶有 ⚠ 標記，表示 Safari 仍在等你允許。"
+            "text": "重新載入頁面。如果 ✦ 還是沒出現，在 iPhone 上打開頁面選單，在 iPad 上打開拼圖按鈕：如果 ContextFlow 在那裡帶有 ⚠ 標記，表示 Safari 仍在等你允許。"
           }
         },
         {
@@ -103,7 +103,7 @@
           "name": "在 iPad 上能用嗎？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "可以，步驟和 iPhone 上一樣。"
+            "text": "可以。在 iPad 上，延伸功能不在頁面選單裡，而在網址旁的拼圖按鈕裡；其他步驟都一樣。"
           }
         }
       ]
@@ -120,11 +120,19 @@
 
   <p class="lede">你安裝了一個 Safari 延伸功能，頁面上卻什麼都沒出現。幾乎都是因為 Safari 還需要你再回答一次。任何延伸功能的步驟都一樣；這裡用我做的 ContextFlow 當例子。</p>
 
-  <h2>直接在 Safari 中</h2>
+  <h2>直接在 iPhone 的 Safari 中</h2>
   <ol>
     <li>打開任何網站，點一下網址列中的頁面選單按鈕。</li>
     <li>點一下「管理延伸功能」，然後開啟 ContextFlow。</li>
     <li>回到頁面選單，點一下「ContextFlow」，選擇「永遠允許」，然後選擇「在每個網站上永遠允許」。</li>
+  </ol>
+
+  <h2>直接在 iPad 的 Safari 中</h2>
+  <p>在 iPad 上，延伸功能不在頁面選單裡。它們在網址旁的拼圖按鈕裡。</p>
+  <ol>
+    <li>打開任何網站，點一下網址旁的拼圖按鈕。</li>
+    <li>點一下「管理延伸功能」，然後開啟 ContextFlow。</li>
+    <li>再點一下拼圖按鈕，然後點一下「ContextFlow」，選擇「永遠允許」，然後選擇「在每個網站上永遠允許」。</li>
   </ol>
 
   <h2>在「設定」中</h2>
@@ -136,8 +144,8 @@
 
   <h2>已開啟，卻沒有按鈕？</h2>
   <ul>
-    <li><strong>Safari 還在詢問。</strong>如果「所有網站」仍設為「詢問」，按鈕就不會出現，Safari 的詢問就在頁面選單裡：ContextFlow 在那裡帶有 ⚠ 標記。點一下它，選擇「永遠允許」，然後選擇「在每個網站上永遠允許」。</li>
-    <li><strong>延伸功能已關閉。</strong>頁面選單裡完全沒有它：在那裡點一下「管理延伸功能」，然後開啟它。</li>
+    <li><strong>Safari 還在詢問。</strong>如果「所有網站」仍設為「詢問」，按鈕就不會出現，Safari 的詢問在等著你：在 iPhone 上在頁面選單裡，在 iPad 上在網址旁的拼圖按鈕裡。ContextFlow 在那裡帶有 ⚠ 標記。點一下它，選擇「永遠允許」，然後選擇「在每個網站上永遠允許」。在 iPad 上，網址下方要求更多權限的橫幅也是同一個詢問。</li>
+    <li><strong>延伸功能已關閉。</strong>頁面選單（iPhone）或拼圖按鈕（iPad）裡完全沒有 ContextFlow：在那裡點一下「管理延伸功能」，然後開啟它。</li>
     <li><strong>私密瀏覽。</strong>只有你允許時，延伸功能才會在私密瀏覽中執行：在「設定」›「App」›「Safari」›「延伸功能」›「ContextFlow」中，開啟允許在私密瀏覽中使用的選項。</li>
     <li><strong>延伸功能無法執行的頁面。</strong>Safari 不讓延伸功能在它的起始頁面、App Store 頁面和其他少數頁面上執行。請打開一般網站。</li>
   </ul>
@@ -154,10 +162,10 @@
   <p class="get"><a class="cta" href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=turnon&amp;mt=8"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z" /></svg><span><small>下載於</small>App Store</span></a></p>
 
   <h2>常見問題</h2>
-  <details><summary>頁面選單在哪裡？</summary><p>就是 Safari 網址列中的那個按鈕，可打開頁面的選項，例如閱讀器、翻譯和你的延伸功能。它的外觀取決於你的 iOS 版本。</p></details>
+  <details><summary>Safari 的延伸功能在哪裡？</summary><p>在 iPhone 上，在頁面選單裡：就是網址列中那個也放著閱讀器和翻譯的按鈕。在 iPad 上，在網址旁的拼圖按鈕裡。</p></details>
   <details><summary>需要先打開 App 嗎？</summary><p>在 Safari 或「設定」中都能開啟延伸功能。如果你有訂閱，請打開 ContextFlow App 一次，讓訂閱同步到延伸功能。</p></details>
-  <details><summary>我開啟了，還是什麼都沒看到。</summary><p>重新載入頁面。如果 ✦ 還是沒出現，打開頁面選單：如果 ContextFlow 在那裡帶有 ⚠ 標記，表示 Safari 仍在等你允許。</p></details>
-  <details><summary>在 iPad 上能用嗎？</summary><p>可以，步驟和 iPhone 上一樣。</p></details>
+  <details><summary>我開啟了，還是什麼都沒看到。</summary><p>重新載入頁面。如果 ✦ 還是沒出現，在 iPhone 上打開頁面選單，在 iPad 上打開拼圖按鈕：如果 ContextFlow 在那裡帶有 ⚠ 標記，表示 Safari 仍在等你允許。</p></details>
+  <details><summary>在 iPad 上能用嗎？</summary><p>可以。在 iPad 上，延伸功能不在頁面選單裡，而在網址旁的拼圖按鈕裡；其他步驟都一樣。</p></details>
 
   <p class="more">更多：<a href="/zh-hant/find-cheaper-similar-product-safari-iphone">找更便宜的類似商品</a> · <a href="/zh-hant/ask-ai-about-web-page-safari">針對你正在讀的頁面問 AI</a> · <a href="/zh-hant/contextflow-vs-zeki-surfmind">ContextFlow、Zeki 還是 SurfMind</a> · <a href="/zh-hant/translate-web-page-safari-iphone">在 Safari 翻譯網頁</a> · <a href="/zh-hant/features">所有功能</a></p>
 </main>

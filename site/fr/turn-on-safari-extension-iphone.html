@@ -76,10 +76,10 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Où est le menu de la page ?",
+          "name": "Où sont les extensions de Safari ?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "C’est le bouton de la barre d’adresse de Safari qui ouvre les options de la page, comme le Lecteur, la traduction et vos extensions. Son apparence dépend de votre version d’iOS."
+            "text": "Sur iPhone, dans le menu de la page : le bouton de la barre d’adresse qui contient aussi le Lecteur et la traduction. Sur iPad, derrière le bouton en forme de pièce de puzzle à côté de l’adresse."
           }
         },
         {
@@ -95,7 +95,7 @@
           "name": "Je l’ai activée et je ne vois toujours rien.",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Rechargez la page. Si ✦ n’apparaît toujours pas, ouvrez le menu de la page : si ContextFlow y est marqué ⚠, Safari attend encore votre autorisation."
+            "text": "Rechargez la page. Si ✦ n’apparaît toujours pas, ouvrez le menu de la page sur iPhone, ou le bouton en forme de pièce de puzzle sur iPad : si ContextFlow y est marqué ⚠, Safari attend encore votre autorisation."
           }
         },
         {
@@ -103,7 +103,7 @@
           "name": "Est-ce que ça marche sur iPad ?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Oui, les étapes sont les mêmes que sur iPhone."
+            "text": "Oui. Sur iPad, les extensions se trouvent derrière le bouton en forme de pièce de puzzle à côté de l’adresse, et non dans le menu de la page ; le reste est identique."
           }
         }
       ]
@@ -120,11 +120,19 @@
 
   <p class="lede">Vous avez installé une extension Safari et rien n’apparaît sur la page. Presque toujours, Safari attend encore une réponse de votre part. Les étapes sont les mêmes pour toutes les extensions&#160;; je prends pour exemple ContextFlow, que je développe.</p>
 
-  <h2>Directement dans Safari</h2>
+  <h2>Directement dans Safari, sur iPhone</h2>
   <ol>
     <li>Ouvrez n’importe quel site web et touchez le bouton du menu de la page dans la barre d’adresse.</li>
     <li>Touchez «&#160;Gérer les extensions&#160;» et activez ContextFlow.</li>
     <li>De retour dans le menu de la page, touchez ContextFlow, puis choisissez «&#160;Toujours autoriser&#160;», puis «&#160;Toujours autoriser sur tous les sites web&#160;».</li>
+  </ol>
+
+  <h2>Directement dans Safari, sur iPad</h2>
+  <p>Sur iPad, les extensions ne sont pas dans le menu de la page. Elles se trouvent derrière le bouton en forme de pièce de puzzle à côté de l’adresse.</p>
+  <ol>
+    <li>Ouvrez n’importe quel site web et touchez le bouton en forme de pièce de puzzle à côté de l’adresse.</li>
+    <li>Touchez «&#160;Gérer les extensions&#160;» et activez ContextFlow.</li>
+    <li>Touchez à nouveau le bouton en forme de pièce de puzzle, puis ContextFlow, et choisissez «&#160;Toujours autoriser&#160;», puis «&#160;Toujours autoriser sur tous les sites web&#160;».</li>
   </ol>
 
   <h2>Dans Réglages</h2>
@@ -136,8 +144,8 @@
 
   <h2>Activée, mais pas de bouton&#160;?</h2>
   <ul>
-    <li><strong>Safari demande encore.</strong> Tant que «&#160;Tous les sites web&#160;» reste sur «&#160;Demander&#160;», le bouton n’apparaît pas, et la question de Safari attend dans le menu de la page&#160;: ContextFlow y est marqué ⚠. Touchez-le et choisissez «&#160;Toujours autoriser&#160;», puis «&#160;Toujours autoriser sur tous les sites web&#160;».</li>
-    <li><strong>L’extension est désactivée.</strong> Elle n’apparaît pas du tout dans le menu de la page&#160;: touchez «&#160;Gérer les extensions&#160;» dans ce menu et activez-la.</li>
+    <li><strong>Safari demande encore.</strong> Tant que «&#160;Tous les sites web&#160;» reste sur «&#160;Demander&#160;», le bouton n’apparaît pas, et la question de Safari attend&#160;: dans le menu de la page sur iPhone, derrière le bouton en forme de pièce de puzzle à côté de l’adresse sur iPad. ContextFlow y est marqué ⚠. Touchez-le et choisissez «&#160;Toujours autoriser&#160;», puis «&#160;Toujours autoriser sur tous les sites web&#160;». Sur iPad, un bandeau sous l’adresse qui demande des autorisations supplémentaires, c’est la même question.</li>
+    <li><strong>L’extension est désactivée.</strong> ContextFlow n’apparaît pas du tout dans le menu de la page (iPhone) ni derrière le bouton en forme de pièce de puzzle (iPad)&#160;: touchez «&#160;Gérer les extensions&#160;» au même endroit et activez-la.</li>
     <li><strong>Navigation privée.</strong> Les extensions n’y fonctionnent que si vous l’autorisez&#160;: Réglages › Apps › Safari › Extensions › ContextFlow › «&#160;Autoriser en navigation privée&#160;».</li>
     <li><strong>Une page où les extensions ne fonctionnent pas.</strong> Safari tient les extensions à l’écart de sa page de démarrage, des pages de l’App Store et de quelques autres. Ouvrez un site web classique.</li>
   </ul>
@@ -154,10 +162,10 @@
   <p class="get"><a class="cta" href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=turnon&amp;mt=8"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z" /></svg><span><small>Télécharger dans l’</small>App Store</span></a></p>
 
   <h2>Questions</h2>
-  <details><summary>Où est le menu de la page&#160;?</summary><p>C’est le bouton de la barre d’adresse de Safari qui ouvre les options de la page, comme le Lecteur, la traduction et vos extensions. Son apparence dépend de votre version d’iOS.</p></details>
+  <details><summary>Où sont les extensions de Safari&#160;?</summary><p>Sur iPhone, dans le menu de la page&#160;: le bouton de la barre d’adresse qui contient aussi le Lecteur et la traduction. Sur iPad, derrière le bouton en forme de pièce de puzzle à côté de l’adresse.</p></details>
   <details><summary>Faut-il d’abord ouvrir l’app&#160;?</summary><p>L’extension s’active depuis Safari ou depuis Réglages. Si vous avez un abonnement, ouvrez une fois l’app ContextFlow pour qu’il parvienne à l’extension.</p></details>
-  <details><summary>Je l’ai activée et je ne vois toujours rien.</summary><p>Rechargez la page. Si ✦ n’apparaît toujours pas, ouvrez le menu de la page&#160;: si ContextFlow y est marqué ⚠, Safari attend encore votre autorisation.</p></details>
-  <details><summary>Est-ce que ça marche sur iPad&#160;?</summary><p>Oui, les étapes sont les mêmes que sur iPhone.</p></details>
+  <details><summary>Je l’ai activée et je ne vois toujours rien.</summary><p>Rechargez la page. Si ✦ n’apparaît toujours pas, ouvrez le menu de la page sur iPhone, ou le bouton en forme de pièce de puzzle sur iPad&#160;: si ContextFlow y est marqué ⚠, Safari attend encore votre autorisation.</p></details>
+  <details><summary>Est-ce que ça marche sur iPad&#160;?</summary><p>Oui. Sur iPad, les extensions se trouvent derrière le bouton en forme de pièce de puzzle à côté de l’adresse, et non dans le menu de la page&#160;; le reste est identique.</p></details>
 
   <p class="more">Plus&#160;: <a href="/fr/find-cheaper-similar-product-safari-iphone">Trouver un produit similaire moins cher</a> · <a href="/fr/ask-ai-about-web-page-safari">Poser des questions à l’IA sur la page que vous lisez</a> · <a href="/fr/contextflow-vs-zeki-surfmind">ContextFlow, Zeki ou SurfMind</a> · <a href="/fr/translate-web-page-safari-iphone">Traduire une page web dans Safari</a> · <a href="/fr/features">Toutes les fonctions</a></p>
 </main>
