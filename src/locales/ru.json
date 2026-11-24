@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "Какая услуга?",
   "agentPlanSpecialistOnPage": "Выберу на странице салона",
   "agentPlanVenueAuto": "Подобрать самому: рейтинг {0}+, ближе всего",
-  "agentPlanLastTime": "в прошлый раз"
+  "agentPlanLastTime": "в прошлый раз",
+  "agentPlanPlaceQ": "Где записаться?"
 }

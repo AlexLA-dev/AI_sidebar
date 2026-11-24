@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "Яка послуга?",
   "agentPlanSpecialistOnPage": "Оберу на сторінці закладу",
   "agentPlanVenueAuto": "Підібрати самому: рейтинг {0}+, найближче",
-  "agentPlanLastTime": "минулого разу"
+  "agentPlanLastTime": "минулого разу",
+  "agentPlanPlaceQ": "Де записатися?"
 }

@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "选择哪项服务？",
   "agentPlanSpecialistOnPage": "在店铺页面再选",
   "agentPlanVenueAuto": "帮我选：评分 {0}+，最近",
-  "agentPlanLastTime": "上次"
+  "agentPlanLastTime": "上次",
+  "agentPlanPlaceQ": "在哪里预约？"
 }

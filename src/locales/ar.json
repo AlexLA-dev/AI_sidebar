@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "أي خدمة؟",
   "agentPlanSpecialistOnPage": "سأختار في صفحة المكان",
   "agentPlanVenueAuto": "اختر لي: تقييم {0}+، الأقرب",
-  "agentPlanLastTime": "المرة الماضية"
+  "agentPlanLastTime": "المرة الماضية",
+  "agentPlanPlaceQ": "أين نحجز؟"
 }

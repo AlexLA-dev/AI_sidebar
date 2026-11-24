@@ -262,7 +262,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
       {plan.fromChat && <p class="cf-agent-meta" dir="auto">{t("agentPlanFromChat", plan.fromChat)}</p>}
       {plan.questions.map((q, i) => (
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
-          <p dir="auto">{q.q || (q.kind === "venue" ? t("agentPlanVenueQ") : q.kind === "specialist" ? t("agentPlanSpecialistQ") : q.kind === "service" ? t("agentPlanServiceQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
+          <p dir="auto">{q.q || (q.kind === "venue" ? t(q.pick ? "agentPlanVenueQ" : "agentPlanPlaceQ") : q.kind === "specialist" ? t("agentPlanSpecialistQ") : q.kind === "service" ? t("agentPlanServiceQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
           {q.kind !== "contact" && <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
             {optsOf(q).map((o, j) => (
               <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>

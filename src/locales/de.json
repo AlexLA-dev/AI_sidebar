@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "Welche Leistung?",
   "agentPlanSpecialistOnPage": "Wähle ich auf der Seite des Ladens",
   "agentPlanVenueAuto": "Für mich wählen: ab {0} Sternen, am nächsten",
-  "agentPlanLastTime": "letztes Mal"
+  "agentPlanLastTime": "letztes Mal",
+  "agentPlanPlaceQ": "Wo buchen?"
 }

@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "Hangi hizmet?",
   "agentPlanSpecialistOnPage": "İşletmenin sayfasında seçerim",
   "agentPlanVenueAuto": "Benim için seç: {0}+ puan, en yakın",
-  "agentPlanLastTime": "geçen sefer"
+  "agentPlanLastTime": "geçen sefer",
+  "agentPlanPlaceQ": "Nereden randevu alalım?"
 }

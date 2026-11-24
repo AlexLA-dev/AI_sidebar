@@ -147,7 +147,7 @@ export function byRules(list: Venue[], cards: Map<string, string>): Venue[] {
  *  («★ 4.8 · 1,523 · Germasogeia, Limassol»). */
 export function venueNote(v: Venue, cards: Map<string, string>): string {
   const text = (cards.get(v.url) ?? "").replace(v.name, " ")
-  const area = /(?<![\d\p{L}])(\p{Lu}[\p{L}'’.-]+(?:\s[\p{L}'’.-]+){0,2}\s?,\s?\p{Lu}[\p{L}'’.-]+(?:\s\p{Lu}[\p{L}'’.-]+)?)/u.exec(text)?.[1]
+  const area = /(?<![\d\p{L}])(\p{Lu}[\p{L}'’.-]+(?:\s[\p{L}'’.-]+){0,2}\s?,\s?\p{Lu}[\p{L}'’.-]+)/u.exec(text)?.[1]
   const d = distanceOf(text)
   return [`★ ${(Math.round(v.rating * 10) / 10).toString()}`, v.reviews ? v.reviews.toLocaleString("en-US") : "", area ?? "", d !== null ? (d >= 1000 ? `${(d / 1000).toFixed(1)} km` : `${Math.round(d)} m`) : ""].filter(Boolean).join(" · ")
 }

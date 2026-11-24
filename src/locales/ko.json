@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "어떤 서비스로 할까요?",
   "agentPlanSpecialistOnPage": "매장 페이지에서 고를게요",
   "agentPlanVenueAuto": "알아서 골라줘: 평점 {0}+, 가까운 곳",
-  "agentPlanLastTime": "지난번"
+  "agentPlanLastTime": "지난번",
+  "agentPlanPlaceQ": "어디로 예약할까요?"
 }

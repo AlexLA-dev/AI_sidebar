@@ -3743,6 +3743,9 @@
  "agentPlanLastTime": {
   "message": "前回"
  },
+ "agentPlanPlaceQ": {
+  "message": "どこで予約しますか？"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

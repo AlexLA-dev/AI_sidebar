@@ -3743,6 +3743,9 @@
  "agentPlanLastTime": {
   "message": "المرة الماضية"
  },
+ "agentPlanPlaceQ": {
+  "message": "أين نحجز؟"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

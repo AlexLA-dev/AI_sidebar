@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "Chọn dịch vụ nào?",
   "agentPlanSpecialistOnPage": "Tôi sẽ chọn trên trang của tiệm",
   "agentPlanVenueAuto": "Chọn giúp tôi: đánh giá {0}+, gần nhất",
-  "agentPlanLastTime": "lần trước"
+  "agentPlanLastTime": "lần trước",
+  "agentPlanPlaceQ": "Đặt ở đâu?"
 }

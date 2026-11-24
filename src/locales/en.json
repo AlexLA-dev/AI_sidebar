@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "Which service?",
   "agentPlanSpecialistOnPage": "I'll choose on the place's page",
   "agentPlanVenueAuto": "Pick for me: rated {0}+, nearest",
-  "agentPlanLastTime": "last time"
+  "agentPlanLastTime": "last time",
+  "agentPlanPlaceQ": "Where to book?"
 }

@@ -1278,5 +1278,6 @@
   "agentPlanServiceQ": "Quelle prestation ?",
   "agentPlanSpecialistOnPage": "Je choisirai sur la page de l'établissement",
   "agentPlanVenueAuto": "Choisir pour moi : note {0}+, le plus proche",
-  "agentPlanLastTime": "la dernière fois"
+  "agentPlanLastTime": "la dernière fois",
+  "agentPlanPlaceQ": "Où réserver ?"
 }

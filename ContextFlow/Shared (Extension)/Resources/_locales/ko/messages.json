@@ -3743,6 +3743,9 @@
  "agentPlanLastTime": {
   "message": "지난번"
  },
+ "agentPlanPlaceQ": {
+  "message": "어디로 예약할까요?"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

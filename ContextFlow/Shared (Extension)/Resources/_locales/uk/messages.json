@@ -3743,6 +3743,9 @@
  "agentPlanLastTime": {
   "message": "минулого разу"
  },
+ "agentPlanPlaceQ": {
+  "message": "Де записатися?"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

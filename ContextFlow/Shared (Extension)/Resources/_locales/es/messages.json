@@ -3743,6 +3743,9 @@
  "agentPlanLastTime": {
   "message": "la última vez"
  },
+ "agentPlanPlaceQ": {
+  "message": "¿Dónde reservar?"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },
