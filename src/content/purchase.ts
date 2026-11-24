@@ -57,6 +57,8 @@ export function boughtMark(hash: string): { word: string; rest: string } | null 
 const LOADED_WITH = typeof location === "undefined" ? "" : location.hash
 // The step being taken back (history.back() is not at once: the mark stays in the address until it's done).
 let undoing: string | null = null
+// Marks already taken in this page: Safari keeps the step taken back as Forward; going Forward to it is not a return.
+const taken = new Set<string>()
 
 interface Where {
   location: { hash: string; href: string; pathname: string; search: string }
@@ -66,8 +68,9 @@ interface Where {
 
 /**
  * Takes the mark out of the address at once, leaving the tab's history as it was; null when there's none (or it's being
- * taken already). Came by a jump within the page: that step is taken back (Back is then as before the purchase, and goes
- * nowhere new: the step before is this same page). Loaded with it: the address is replaced.
+ * taken already, or it's the same step again by Forward). Came by a jump within the page: that step is taken back (Back
+ * is then as before the purchase: the simulator check after acceptance 3 saw it grey again; before, it was a dead tap to
+ * the same page). Loaded with it: the address is replaced.
  */
 export function takeBoughtMark(where: Where = { location, history, loadedWith: LOADED_WITH }): string | null {
   const { location: at, history: steps } = where
@@ -79,9 +82,11 @@ export function takeBoughtMark(where: Where = { location, history, loadedWith: L
   if (undoing === at.href) return null
   if (!boughtMark(where.loadedWith)) {
     undoing = at.href
+    const again = taken.has(at.href)
+    taken.add(at.href)
     try {
       steps.back()
-      return mark.word
+      return again ? null : mark.word
     } catch {
       undoing = null
       // a page that won't let it: the address replaced below

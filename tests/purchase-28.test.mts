@@ -140,6 +140,11 @@ test("back from the app: the mark leaves the address and the tab's history as th
   assert.equal(purchase.takeBoughtMark(again.where), "pro")
   assert.deepEqual(again.calls, ["back"])
   purchase.takeBoughtMark(page("", "").where)
+  // Forward to the step taken back (Safari keeps it): stepped back again, quietly, not a return.
+  const forward = page("#cf-bought=no", "")
+  assert.equal(purchase.takeBoughtMark(forward.where), null)
+  assert.deepEqual(forward.calls, ["back"])
+  purchase.takeBoughtMark(page("", "").where)
   // Loaded with it (a fresh tab): only the address is replaced, nothing is stepped back.
   const fresh = page("#cf-bought=pro", "#cf-bought=pro")
   assert.equal(purchase.takeBoughtMark(fresh.where), "pro")
