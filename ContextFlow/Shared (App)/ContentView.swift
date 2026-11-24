@@ -530,10 +530,17 @@ struct HomeView: View {
     @ObservedObject var activation: Activation
     var openPro: () -> Void
     var openTips: () -> Void
+    #if os(iOS)
+    /// Where the setup card's top is in the visible part of the home, and how tall that part is (2.8).
+    @State private var setupTop: CGFloat = 0
+    @State private var visibleHeight: CGFloat = 0
+    #endif
 
     var body: some View {
         // 2.8 (the director's acceptance): back from Settings with ContextFlow on, the card's new step came in at the old
-        // scroll position, its heading off screen. The card is brought into view whenever its step changes.
+        // scroll position, its heading off screen. The card is brought into view whenever its step changes, and only
+        // when its heading is off screen or low on it (acceptance 3: on iPad, where the card is already near the top,
+        // scrolling it up put the app's own heading under the floating tab bar).
         ScrollViewReader { scroller in
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -550,6 +557,9 @@ struct HomeView: View {
                 #else
                 SetupCard(activation: activation, openSafari: openSafari)
                     .id("setup")
+                    .background(GeometryReader { place in
+                        Color.clear.preference(key: SetupTopKey.self, value: place.frame(in: .named("home")).minY)
+                    })
                 #endif
                 // 2.8 (В3.4): the friend's code card left the first screen (one job there: switching ContextFlow on).
                 // A code is entered on Invite a friend, in Settings or from an invite link.
@@ -561,20 +571,35 @@ struct HomeView: View {
             .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
-        .onChange(of: activation.state) { _ in
-            #if os(iOS)
-            withAnimation(.easeInOut(duration: 0.3)) { scroller.scrollTo("setup", anchor: .top) }
-            #endif
-        }
         #if os(iOS)
+        .coordinateSpace(name: "home")
+        .background(GeometryReader { place in
+            Color.clear
+                .onAppear { visibleHeight = place.size.height }
+                .onChange(of: place.size.height) { visibleHeight = $0 }
+        })
+        .onPreferenceChange(SetupTopKey.self) { if let top = $0 { setupTop = top } }
+        .onChange(of: activation.state) { _ in bringSetupIntoView(scroller) }
         // And when it leads with Safari's permission (back from Safari, the panel still unused).
-        .onChange(of: activation.backFromSafariUnused) { _ in
-            withAnimation(.easeInOut(duration: 0.3)) { scroller.scrollTo("setup", anchor: .top) }
-        }
+        .onChange(of: activation.backFromSafariUnused) { _ in bringSetupIntoView(scroller) }
         #endif
         }
         .navigationTitle("ContextFlow")
     }
+
+    #if os(iOS)
+    /// After the card's new step is laid out: up to the top only when its heading is above the screen or in its lower
+    /// half.
+    private func bringSetupIntoView(_ scroller: ScrollViewProxy) {
+        DispatchQueue.main.async {
+            #if DEBUG
+            NSLog("[cf-setup] setup card top %.0f of %.0f", setupTop, visibleHeight)
+            #endif
+            guard setupTop < 0 || setupTop > visibleHeight * 0.5 else { return }
+            withAnimation(.easeInOut(duration: 0.3)) { scroller.scrollTo("setup", anchor: .top) }
+        }
+    }
+    #endif
 
     private var header: some View {
         HStack(spacing: 16) {
@@ -2846,3 +2871,13 @@ struct PlanTourView: View {
         }
     }
 }
+
+#if os(iOS)
+/// The setup card's top in the home's visible part (2.8).
+/// Optional: the views beside the card report nothing (with a plain number their default overwrote the card's: seen,
+/// "setup card top 0" with the heading off screen).
+private struct SetupTopKey: PreferenceKey {
+    static var defaultValue: CGFloat? = nil
+    static func reduce(value: inout CGFloat?, nextValue: () -> CGFloat?) { value = value ?? nextValue() }
+}
+#endif

@@ -70928,94 +70928,6 @@
         }
       }
     },
-    "Back in Safari, reload the page and tap ✦.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "عند العودة إلى Safari، أعد تحميل الصفحة واضغط على ✦."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lade die Seite zurück in Safari neu und tippe auf ✦."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De vuelta en Safari, vuelve a cargar la página y toca ✦."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De retour dans Safari, rechargez la page et touchez ✦."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tornato in Safari, ricarica la pagina e tocca ✦."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Safariに戻ってページを再読み込みし、✦をタップします。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Safari로 돌아가 페이지를 새로 고친 다음 ✦를 탭하세요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De volta ao Safari, recarregue a página e toque em ✦."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вернувшись в Safari, обновите страницу и нажмите ✦."
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Safari’ye dönünce sayfayı yeniden yükleyin ve ✦ düğmesine dokunun."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Повернувшись у Safari, перезавантажте сторінку й торкніться ✦."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quay lại Safari, tải lại trang rồi chạm vào ✦."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "回到 Safari 后，重新载入页面并轻点 ✦。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "回到 Safari 後，重新載入頁面並點一下 ✦。"
-          }
-        }
-      }
-    },
     "No ✦? In Settings, set All Websites to Allow for ContextFlow (Apps → Safari → Extensions → ContextFlow).": {
       "localizations": {
         "ar": {
@@ -71364,6 +71276,182 @@
           "stringUnit": {
             "state": "translated",
             "value": "打開任何頁面並點一下 ✦，或點一下網址旁的拼圖按鈕並選擇「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ضمن «الأذونات»، اضبط «كل مواقع الويب» على «سماح». إذا ظهرت هناك قائمة بمواقع الويب بدلًا من ذلك، فاضبط كل صف فيها على «سماح»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“. Siehst du dort stattdessen eine Liste von Websites, setze jede Zeile darin auf „Erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Permisos, ajusta “Todos los sitios web” en “Permitir”. Si en su lugar ves una lista de sitios web, ajusta cada fila en “Permitir”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous Autorisations, réglez « Tous les sites web » sur « Autoriser ». Si vous y voyez plutôt une liste de sites web, réglez chaque ligne sur « Autoriser »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Permessi, imposta “Tutti i siti web” su “Consenti”. Se invece vedi un elenco di siti web, imposta ogni riga su “Consenti”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「アクセス権」で「すべてのWebサイト」を「許可」に設定します。代わりにWebサイトの一覧が表示されている場合は、一覧のすべての行を「許可」に設定します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "권한에서 '모든 웹 사이트'를 '허용'으로 설정하세요. 대신 웹 사이트 목록이 보이면 목록의 모든 항목을 '허용'으로 설정하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em Permissões, ajuste “Todos os Sites” para “Permitir”. Se, em vez disso, aparecer uma lista de sites, ajuste cada linha para “Permitir”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В разделе «Разрешения» для параметра «Все веб-сайты» выберите «Разрешить». Если вместо него там список сайтов, выберите «Разрешить» для каждой строки списка."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın. Bunun yerine bir web sitesi listesi görürseniz listedeki her satırı “İzin Ver” yapın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У розділі «Дозволи» для параметра «Усі вебсайти» виберіть «Дозволити». Якщо натомість там список вебсайтів, виберіть «Дозволити» для кожного рядка списку."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Quyền, đặt Tất cả trang web thành Cho phép. Nếu thay vào đó bạn thấy danh sách trang web, hãy đặt từng dòng trong danh sách thành Cho phép."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“权限”下，将“所有网站”设为“允许”。如果那里显示的是网站列表，请将列表中的每一行都设为“允许”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「權限」下方，將「所有網站」設為「允許」。如果那裡顯示的是網站列表，請將列表中的每一列都設為「允許」。"
+          }
+        }
+      }
+    },
+    "Tap ◀ ContextFlow at the top left, then Open Safari, and tap ✦ on the page.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على «ContextFlow» في أعلى اليمين، ثم «فتح Safari»، واضغط على ✦ في الصفحة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe oben links auf „◀ ContextFlow“, dann auf „Safari öffnen“, und tippe auf der Seite auf ✦."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca “◀ ContextFlow” arriba a la izquierda, luego “Abrir Safari”, y toca ✦ en la página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez « ◀ ContextFlow » en haut à gauche, puis « Ouvrir Safari », et touchez ✦ sur la page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca “◀ ContextFlow” in alto a sinistra, poi “Apri Safari”, e tocca ✦ sulla pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左上の「◀ ContextFlow」をタップし、「Safariを開く」をタップしてから、ページ上の✦をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "왼쪽 상단의 '◀ ContextFlow'를 탭한 다음 'Safari 열기'를 탭하고, 페이지에서 ✦를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em “◀ ContextFlow” no canto superior esquerdo, depois em “Abrir Safari”, e toque em ✦ na página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «◀ ContextFlow» в левом верхнем углу, затем «Открыть Safari» и нажмите ✦ на странице."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sol üstteki ◀ ContextFlow'a dokunun, ardından “Safari'yi aç” düğmesine ve sayfadaki ✦ düğmesine dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться «◀ ContextFlow» у лівому верхньому куті, потім «Відкрити Safari» і торкніться ✦ на сторінці."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào ◀ ContextFlow ở góc trên bên trái, rồi Mở Safari, và chạm vào ✦ trên trang."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点左上角的“◀ ContextFlow”，然后轻点“打开 Safari”，再轻点页面上的 ✦。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下左上角的「◀ ContextFlow」，然後點一下「打開 Safari」，再點一下頁面上的 ✦。"
           }
         }
       }

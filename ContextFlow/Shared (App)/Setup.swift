@@ -916,10 +916,22 @@ struct SetupCard: View {
                     .font(.callout.weight(.semibold))
                     .fixedSize(horizontal: false, vertical: true)
                 Step(number: 1, text: SetupPath.allowFirstStep)
-                Step(number: 2, text: "Under Permissions, set All Websites to Allow.")
-                Step(number: 3, text: "Back in Safari, reload the page and tap ✦.")
+                // Acceptance 3: after «Don't Allow» in Safari's own question, Settings lists the websites one by one
+                // (Deny) and «Other Websites» instead of All Websites, and a denied website stays denied under Other
+                // Websites: Allow. Seen working: every row of that list set to Allow, then ✦ on the page.
+                Step(number: 2, text: "Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.")
+                // How it really goes back: Settings' own way back (top left) leads to the app, not to Safari, and Open
+                // Safari opens the page in a new tab, loaded afresh (nothing to reload).
+                Step(number: 3, text: "Tap ◀ ContextFlow at the top left, then Open Safari, and tap ✦ on the page.")
                 Button {
-                    SettingsPiP.shared.start(phases: path.phases, path: path) { openExtensionSettings(via: "allow") }
+                    // Acceptance 3: on iPad the floating strip sits over Settings' Back button, and after «Don't Allow»
+                    // in Safari's question this trip needs Back after every website in the list (seen: blocked under
+                    // the strip). Here the iPad goes without it; the steps above are the guide.
+                    if path == .fromApps {
+                        openExtensionSettings(via: "allow")
+                    } else {
+                        SettingsPiP.shared.start(phases: path.phases, path: path) { openExtensionSettings(via: "allow") }
+                    }
                 } label: {
                     Label("Open Settings", systemImage: "gear")
                         .font(.headline)
@@ -1270,8 +1282,18 @@ final class SettingsPiP: NSObject {
     }
 
     func start(phases: [Int], path: SetupPath, then open: @escaping () -> Void) {
-        guard let controller = makeController() else { return open() }
+        guard let controller = makeController() else {
+            #if DEBUG
+            NSLog("[cf-setup] guide start: picture in picture not supported")
+            #endif
+            return open()
+        }
         render(phases: phases, path: path)
+        #if DEBUG
+        NSLog("[cf-setup] guide start: phases %@ frames %d size %@ possible %@", phases.description, frames.count,
+              frames.first.map { "\(CVPixelBufferGetWidth($0))x\(CVPixelBufferGetHeight($0))" } ?? "-",
+              controller.isPictureInPicturePossible ? "yes" : "no")
+        #endif
         guard !frames.isEmpty else { return open() }
         // If it hasn't started by the time Settings is in front, it starts as the app leaves (this trip only).
         if #available(iOS 14.2, *) { controller.canStartPictureInPictureAutomaticallyFromInline = true }
@@ -1290,6 +1312,10 @@ final class SettingsPiP: NSObject {
     private func startWhenPossible(_ controller: AVPictureInPictureController, tries: Int) {
         guard pendingOpen != nil else { return }
         if controller.isPictureInPicturePossible || tries == 0 {
+            #if DEBUG
+            NSLog("[cf-setup] guide startPictureInPicture: possible %@ tries left %d layer status %d",
+                  controller.isPictureInPicturePossible ? "yes" : "no", tries, layer.status.rawValue)
+            #endif
             controller.startPictureInPicture()
             return
         }
@@ -1373,6 +1399,13 @@ final class SettingsPiP: NSObject {
             // hiding the very rows to tap (ContextFlow on the Extensions list, and its caption sat over the wrong
             // ContextFlow row on Apps). On iPad the guide is a short strip instead: the whole path, the step to tap now
             // marked, so it reads right on whichever screen the person is.
+            //
+            // Acceptance 3 (iPad mini, 26.5): the system sizes the window, not the app. Strips 92, 140, 200 and 280 high
+            // all floated 465 points wide at the top right (465×74 … 465×231); the square screens of 2.7.1, 333×311.
+            // So no shape clears Settings' Back button (under the strip's left end) without covering the rows to tap.
+            // The switch-on trip needs no Back (each step goes forward; Apps on the left starts it again from any screen),
+            // and the window drags away like any picture in picture: both seen. The «No ✦» trip does need Back (one row
+            // per website after «Don't Allow»): on iPad it goes without the strip (SetupCard).
             view = AnyView(pathStrip(phase: phase)
                 .padding(.horizontal, 14)
                 .frame(width: 560, height: 92)
@@ -1448,7 +1481,16 @@ final class SettingsPiP: NSObject {
 }
 
 extension SettingsPiP: AVPictureInPictureControllerDelegate {
+    #if DEBUG
+    nonisolated func pictureInPictureControllerWillStartPictureInPicture(_ controller: AVPictureInPictureController) {
+        NSLog("[cf-setup] guide willStart")
+    }
+    #endif
+
     nonisolated func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
+        #if DEBUG
+        NSLog("[cf-setup] guide didStart")
+        #endif
         Task { @MainActor in
             Activation.shared.guideStarted()
             self.openPending()
@@ -1456,12 +1498,18 @@ extension SettingsPiP: AVPictureInPictureControllerDelegate {
     }
 
     nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        #if DEBUG
+        NSLog("[cf-setup] guide failedToStart: %@", "\(error)")
+        #endif
         // 2.8: the frames stay queued, so it can still start as the app leaves for Settings (allowed for this trip); back
         // in the app, stop() takes them off the card (В2.2).
         Task { @MainActor in self.openPending() }
     }
 
     nonisolated func pictureInPictureControllerDidStopPictureInPicture(_ controller: AVPictureInPictureController) {
+        #if DEBUG
+        NSLog("[cf-setup] guide didStop")
+        #endif
         // Closed by the person over Settings, or stopped on the way back: its frame doesn't come back into the card.
         Task { @MainActor in self.clear() }
     }
