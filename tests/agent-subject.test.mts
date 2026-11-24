@@ -4,7 +4,7 @@ import assert from "node:assert/strict"
 import { test } from "node:test"
 
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
-import { drive, newState, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { approvePlan, drive, newState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import { pageSubject } from "../src/shared/agent/subject.ts"
 import { stepMessage } from "../netlify/shared/act.mts"
 import type { MapItem, PageMap } from "../src/shared/agent/types.ts"
@@ -35,6 +35,11 @@ test("a page about one place, specialist or product is told apart from lists and
   assert.deepEqual(pageSubject(PRODUCT), { kind: "product", name: "Daily Runner" })
   assert.equal(pageSubject(LIST), null)
   assert.equal(pageSubject(HOME), null)
+  // A place's own page that lists nearby places far below it is still that place's page (a salon marketplace, 125).
+  const nearby: MapItem[] = ["North Cuts", "Blade Room", "Fade Lab"].map((n, i) => ({ id: `n${i}`, role: "link", label: `${n} 4.9 (120 reviews)`, href: `/a/${i}`, where: "below" }))
+  assert.deepEqual(pageSubject({ ...FRESHA, items: [...FRESHA.items, ...nearby] }), { kind: "place", name: "Mancave Barbershop" })
+  // The same places on the screen: a list.
+  assert.equal(pageSubject({ ...FRESHA, items: [...FRESHA.items, ...nearby.map((i) => ({ ...i, where: undefined }))] }), null)
 })
 
 test("on one barbershop's page the booking is there: its name is the venue, no «I'll pick the place», the plan and steps hear the page", async () => {
@@ -145,5 +150,31 @@ test("121 sweep: the area the request names keeps places from elsewhere out of t
   const cards = new Map([["https://t.example/a", "Canvas Barbershop 5.0 32 reviews Bridgnorth, Shropshire barber"], ["https://t.example/b", "Soho Cuts 4.8 400 reviews Soho, London barber"], ["https://t.example/c", "Groom Room 4.9 1178 reviews Old Compton St, Soho barber"]])
   assert.deepEqual(rankVenues(list, cards, ["barber"], 4.5, ["Soho"]).map((v) => v.name), ["Groom Room", "Soho Cuts"])
   assert.deepEqual(rankVenues(list, cards, ["barber"], 4.5, ["Camden"]).map((v) => v.name).length, 3, "no card names it: the site's list stays")
+  // The plan's start page isn't a search's answer: no card naming the area offers none (125: promoted hotels abroad).
+  assert.deepEqual(rankVenues(list, cards, ["barber"], 4.5, ["Camden"], true), [])
+  assert.equal(rankVenues(list, cards, ["barber"], 4.5, ["Soho"], true).length, 2)
   assert.deepEqual(checkPlan({ label: "b", steps: ["a"], questions: [], risky: [], prices: [], fromChat: "", booking: { kind: "appointment", date: "2026-11-28", from: "12:00", until: "18:00", minutes: 45, tz: "", venue: "", match: ["barber"], area: ["Soho"] } }).booking?.area, ["Soho"])
+})
+
+test("the plan's place question offers only places the page shows; fewer than two left, it isn't asked (125)", async () => {
+  const HOMEPAGE = page("https://stays.example/", "Stays — find a hotel", "Find your next stay. Up to 40% off stays globally.", [{ id: "1", role: "textbox", label: "Enter destination" }, { id: "2", role: "button", label: "Search" }])
+  const run = async (options: string[]) => {
+    const RAW = { label: "booking a hotel", steps: ["Search"], questions: [{ q: "Which hotel?", options, fact: "venue", pick: "" }], prices: [], fromChat: "", risky: [],
+      booking: { kind: "stay", date: "2026-12-26", dateEnd: "2026-12-28", at: "", personal: true, from: "09:00", until: "21:00", minutes: 0, tz: "", venue: "", match: ["hotel"], area: ["Limassol"], contacts: [], specialists: [], services: [], specialistNamed: "", serviceNamed: "" } }
+    const io: RunnerIO = {
+      map: async () => HOMEPAGE, act: async () => ({ ok: true }), waitPage: async () => {},
+      ask: async () => ({ ok: true, plan: RAW, token: "t" } as any),
+      save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+      device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
+    }
+    const s = await drive(newState("h", "Отель в Лимасоле с 26 по 28 декабря", "ru", HOMEPAGE.url), io)
+    return { s, io }
+  }
+  const { s, io } = await run(["Seaside Resort", "Harbour Hotel", "Old Town Inn"])
+  assert.ok(!s.plan?.questions.some((q) => q.fact === "venue"), "none of them is on the page")
+  if (s.status === "plan") {
+    io.ask = async () => ({ ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } } as any)
+    await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
+  }
+  assert.equal(s.plan?.askPlace, true, "asked once a list is open")
 })

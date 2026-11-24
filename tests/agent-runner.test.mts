@@ -166,3 +166,64 @@ test("an answer the code refused twice ends the task with an error, not an empty
   assert.equal(s.status, "error")
   assert.equal(s.error, "bad_call")
 })
+
+test("a menu the last press opened isn't pressed again (it would close): the model hears to choose from its list", async () => {
+  const open: PageMap = { ...MAP, items: [{ id: "6", role: "button", label: "Colour Black", state: ["expanded"] }, { id: "7", role: "option", label: "Red" }] }
+  const x = io([
+    step({ tool: "click", id: "6", why: "open the colours" }, "free", "click"),
+    step({ tool: "click", id: "6", why: "open the colours" }, "free", "click"),
+    step({ tool: "click", id: "7", why: "red" }, "free", "click"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ], [], open)
+  const s = await drive(newState("t1", "red colour", "en", MAP.url), x)
+  assert.equal(s.status, "done")
+  assert.deepEqual(x.acted.map((c) => c.id), ["6", "7"])
+  assert.match(s.log.find((l) => l.result.startsWith("refused"))?.result ?? "", /is open now/)
+})
+
+test("a control the page shows disabled (the model's call refused on it) waits and reads again, twice, before the task ends", async () => {
+  const bad = (): ActReply => ({ ok: true, call: { tool: "ask_user", question: "", why: "element 2 is disabled" }, verdict: { cls: "blocked", reason: "bad_call" }, target: null })
+  const x = io([bad(), step({ tool: "click", id: "5", why: "more" }, "free", "click"), step({ tool: "done", summary: "ok" }, "free", "read")])
+  const s = await drive(newState("t1", "add", "en", MAP.url), x)
+  assert.equal(s.status, "done")
+  const y = io([bad(), bad(), bad()])
+  const t = await drive(newState("t2", "add", "en", MAP.url), y)
+  assert.equal(t.status, "error")
+  assert.equal(t.error, "bad_call")
+})
+
+test("read_page(part) reads that part of the map at the next step, then the first again", async () => {
+  const parts: Array<number | undefined> = []
+  const x = io([
+    step({ tool: "read_page", part: 2, why: "" }, "free", "read"),
+    step({ tool: "read_page", why: "" }, "free", "read"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ], [], { ...MAP, parts: 3 })
+  const map = x.map
+  x.map = async (o) => {
+    parts.push(o?.part)
+    return map(o)
+  }
+  const s = await drive(newState("t1", "look", "en", MAP.url), x)
+  assert.equal(s.status, "done")
+  assert.deepEqual(parts, [undefined, 2, undefined])
+})
+
+test("a place that's the person's choice isn't opened before they're asked (the list is open)", async () => {
+  const list: PageMap = { ...MAP, url: "https://clinics.example/search?q=dentist", items: [
+    { id: "a", role: "link", label: "Smile Clinic 4.8 (120 reviews)", href: "/clinic/smile-c1" },
+    { id: "b", role: "link", label: "Tooth Lab 4.7 (90 reviews)", href: "/clinic/tooth-c2" }
+  ] }
+  const x = io([
+    step({ tool: "click", id: "a", why: "open" }, "free", "click"),
+    step({ tool: "ask_user", question: "Which clinic?", choices: ["Smile Clinic", "Tooth Lab", "By my rules"] }, "free", "read")
+  ], [], list)
+  const st = newState("t1", "dentist on Monday", "en", list.url)
+  st.plan = { label: "", steps: [], questions: [], perms: [], self: [], prices: [], approved: true, askPlace: true, booking: { kind: "appointment", date: "2026-12-28", personal: true, from: "08:00", until: "12:00", minutes: 30 } } as never
+  st.chooseVenue = true
+  st.venues = { list: [{ url: "https://clinics.example/clinic/smile-c1", name: "Smile Clinic", rating: 4.8, reviews: 120 }, { url: "https://clinics.example/clinic/tooth-c2", name: "Tooth Lab", rating: 4.7, reviews: 90 }], tried: [] }
+  const s = await drive(st, x)
+  assert.deepEqual(x.acted.map((c) => c.id), [], JSON.stringify(s.log) + s.status + JSON.stringify(s.pending))
+  assert.equal(s.status, "asked", JSON.stringify({ log: s.log, p: s.pending?.verdict }))
+  assert.match(s.log[0].result, /person's choice/)
+})

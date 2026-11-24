@@ -657,7 +657,10 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
   // A search box above the screen (a page scrolled past its header) stays with what's on the screen: a restaurant site, round 3 —
   // the agent couldn't search again once the list was scrolled.
   const searchBox = (i: MapItem) => (i.role === "textbox" || i.role === "combobox") && (i.type === "search" || SEARCH_WORDS.test(i.label))
-  const rank = (i: MapItem & { side?: boolean }) => (i.where === "dialog" ? 0 : i.where === undefined ? (i.side ? 1.5 : 1) : i.where === "above" && searchBox(i) ? 1.2 : i.where === "below" ? 2 : 3)
+  // So does a booking's own setting scrolled past (2.7.1, B3: a widget's date, party and time fields at the top of the
+  // page dropped out of the map once the agent scrolled to the slots): fields, a form's controls, a day.
+  const setting = (i: MapItem) => searchBox(i) || FIELD_ROLES.has(i.role) || i.form !== undefined || isDateLabel(i.label)
+  const rank = (i: MapItem & { side?: boolean }) => (i.where === "dialog" ? 0 : i.where === undefined ? (i.side ? 1.5 : 1) : i.where === "above" && setting(i) ? 1.2 : i.where === "below" ? 2 : 3)
   items.sort((a, b) => rank(a) - rank(b) || a.order - b.order)
   const size = opts.size ?? PART_SIZE
   const parts = Math.max(1, Math.ceil(items.length / size))
@@ -692,6 +695,9 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
 // A layer over the page that isn't the task: its meaning (rewards, newsletter, the app, notifications, location), and
 // the control that closes it without agreeing (lexicon). Never a sign-in, a payment or the task's own dialog (a field
 // for a password or a card, a day or a time to choose, a sign-in's words).
+// The roles a page's settings take (a field, a picker, a list to choose from).
+const FIELD_ROLES = new Set<Role>(["textbox", "combobox", "select", "listbox", "slider", "switch", "checkbox", "radio"])
+
 const promoWord = wordTest(PROMO_WORDS)
 const closeWord = wordTest(CLOSE_WORDS)
 const WORDLESS_CLOSE = /^\s*[×✕✖xX]?\s*$/

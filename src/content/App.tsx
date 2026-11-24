@@ -58,6 +58,7 @@ import { withRemindWords } from "../shared/reminders"
 import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
+import { AgentBubble, bubbleOf, type BubbleActions, type BubbleData } from "./agent/Bubble"
 import type { AgentNotice } from "../background/agent"
 import { factKey, noticeLabel, sameTaskPage, type TaskPlan } from "../shared/agent/taskplan"
 import { chatContext } from "../shared/agent/chatctx"
@@ -161,6 +162,11 @@ const PRO_WEEKLY = 375
 // An Own key subscriber is offered Pro at a discount this long after the first refusal of the period.
 const BYOK_OFFER_AFTER_MS = 24 * 3600_000
 const APP_ID = "6759115793"
+// The agent's bubble by the circle (2.7.1): the task the person closed the chat for (it stays closed on the next page),
+// the finished task whose end was seen, and how long an end is worth a bubble on this tab's pages.
+const AGENT_QUIET = "cf:agentQuiet"
+const AGENT_END_SEEN = "cf:agentEndSeen"
+const END_BUBBLE_MS = 15 * 60_000
 
 interface ChatError {
   code: ErrorCode
@@ -574,6 +580,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const agentNoticeRef = useRef<AgentNotice | null>(null)
   agentNoticeRef.current = agentNotice
   const [noticeOpen, setNoticeOpen] = useState(false)
+  // The bubble by the circle (2.7.1): the step it was closed for («×»; a tap on the circle brings a question back), the
+  // finished task whose end was seen, and a page field the person types in (the bubble steps aside for the keyboard).
+  const [bubbleGone, setBubbleGone] = useState("")
+  const bubbleGoneRef = useRef("")
+  bubbleGoneRef.current = bubbleGone
+  const [endSeen, setEndSeen] = useState<string | null>(null)
+  const [pageTyping, setPageTyping] = useState(false)
+  const agentBubbleRef = useRef<BubbleData | null>(null)
   const [agentDeferred, setAgentDeferred] = useState<{ id: string; request: string; lang: string } | null>(null)
   const [agentAutoHere, setAgentAutoHere] = useState(false)
   const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean }; past?: boolean; canAlso?: boolean; also?: boolean; request?: string; plan?: TaskPlan } | null>(null)
@@ -2749,6 +2763,50 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     } else if (r?.code === "PRO_ONLY") setAgentUpsell(true)
   }
 
+  const markEndSeen = (id: string) => {
+    setEndSeen(id)
+    void chrome.storage.local.set({ [AGENT_END_SEEN]: id }).catch(() => undefined)
+  }
+
+  // The bubble's buttons: this tab's answers go the panel's way; another tab's go to its task by the notice's step key.
+  const agentBubbleActs = (b: BubbleData): BubbleActions => {
+    const send = (a: AgentAnswer, chosen?: string[]) => {
+      setBubbleGone(b.key)
+      if (b.here) void answerAgent(a, chosen)
+      else
+        void sendBackground<{ ok: boolean }>({ type: "agentNoticeAnswer", answer: a, chosen, key: b.key }).then((r) => {
+          // (The step moved on meanwhile: the card in that tab says what's next; this bubble goes.)
+          if (!r?.ok) setAgentNotice(null)
+        })
+    }
+    return {
+      reply: (text) => send("reply", [text]),
+      yes: () => send("yes"),
+      no: () => send("no"),
+      did: () => send("did"),
+      notNow: () => send("notnow"),
+      // (Not «gone»: the chat opened hides it; closed again unanswered, the question is back by the circle.)
+      open: () => {
+        if (!b.here) {
+          void sendBackground({ type: "agentGoTab" })
+          return
+        }
+        if (b.kind === "end" && agentTask) markEndSeen(agentTask.id)
+        agentPeek.current = true
+        show()
+      },
+      close: () => {
+        setBubbleGone(b.key)
+        if (b.kind !== "end") return
+        if (b.here && agentTask) markEndSeen(agentTask.id)
+        else if (!b.here) {
+          setAgentNotice(null)
+          void sendBackground({ type: "agentNoticeClear" })
+        }
+      }
+    }
+  }
+
   const answerAgent = async (a: AgentAnswer, chosen?: string[]) => {
     // The answer names its question (a second tap can't approve the next one).
     const key = agentTask ? pendingKey(agentTask as never) : ""
@@ -2867,6 +2925,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => bus.removeEventListener("agentNotice", onNotice)
   }, [popup, bus])
 
+  // A page field the person types in (the keyboard is up on iPhone and iPad): the bubble by the circle steps aside.
+  useEffect(() => {
+    if (popup) return
+    const check = () => {
+      const a = document.activeElement as HTMLElement | null
+      const kind = a?.tagName === "INPUT" ? ((a as HTMLInputElement).type || "text") : ""
+      setPageTyping(!!a && (a.isContentEditable || a.tagName === "TEXTAREA" || (a.tagName === "INPUT" && !/^(checkbox|radio|button|submit|reset|range|color|file|image|hidden)$/.test(kind))))
+    }
+    const later = () => setTimeout(check, 0)
+    document.addEventListener("focusin", check, true)
+    document.addEventListener("focusout", later, true)
+    return () => {
+      document.removeEventListener("focusin", check, true)
+      document.removeEventListener("focusout", later, true)
+    }
+  }, [popup])
+
   // Back from another app or tab (the ContextFlow app after «Разрешить»): this tab's task and the plan's status read
   // again, through a background Safari may have put away meanwhile (123: no answers until a reload).
   useEffect(() => {
@@ -2892,8 +2967,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // A task still running in this tab (the page went on mid-task): the panel shows it (not the page's chat).
       if (r?.state && agentActive(r.state as never)) {
         setAgentTask(r.state)
-        show()
-      }
+        // The person closed the chat during this task: it goes on with the chat closed (its questions come as bubbles).
+        const id = r.state.id
+        void chrome.storage.local.get([AGENT_QUIET, AGENT_END_SEEN]).then((v) => {
+          setEndSeen((v[AGENT_END_SEEN] as string | undefined) ?? null)
+          if (v[AGENT_QUIET] !== id) show()
+        }, () => show())
+      } else void chrome.storage.local.get(AGENT_END_SEEN).then((v) => setEndSeen((v[AGENT_END_SEEN] as string | undefined) ?? null), () => undefined)
     })
     const take = async () => {
       const id = takeTaskMark()
@@ -3000,9 +3080,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // Already aside: stays so.
     } else if (!running && agentAway.current && agentStatus) {
       agentAway.current = false
-      show()
+      // What the bubble by the circle answers (a question with short answers, «Сделать?», the person's own step, the
+      // end) stays there: the chat stays closed (2.7.1). A form to check or a warning to read brings the chat back.
+      const b = agentTask ? bubbleOf(agentTask, pendingKey(agentTask as never), true) : null
+      if (!b || b.kind === "open") show()
     }
   }, [agentStatus, agentPlanning])
+
+  // The person closed the chat while the task goes on: kept for the task, so the next page doesn't open it again; opened
+  // again, it's the chat's once more. A finished task seen in the chat has no end bubble after.
+  const wasOpen = useRef(open)
+  useEffect(() => {
+    if (popup) return
+    if (wasOpen.current && !open && agentBusyRef.current && !agentAway.current && agentTask) void chrome.storage.local.set({ [AGENT_QUIET]: agentTask.id }).catch(() => undefined)
+    if (open && agentTask) {
+      void chrome.storage.local.remove(AGENT_QUIET).catch(() => undefined)
+      if (!agentActive(agentTask as never)) markEndSeen(agentTask.id)
+    }
+    wasOpen.current = open
+  }, [open, agentTask?.status])
 
 
   // 2.6 (100): the App Store's "Write a Review", when tapped (the "…" menu's Other…, Settings' links). iPhone and iPad:
@@ -3214,8 +3310,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (to !== sideRef.current) void sendBackground({ type: "useEvent", f: "side", a: "drag_fab", what: to })
       updateSettings({ fabY, fabSide: to, fabSideChosen: true })
     },
-    // A task in another tab is done or needs the person: the tap shows its card first.
-    onTap: () => (agentNoticeRef.current ? setNoticeOpen(true) : show(undefined, { pageChat: true })),
+    // A question the bubble was closed for comes back first (it waits until answered); another tab's task with no bubble
+    // shows its card; otherwise the chat.
+    onTap: () => {
+      const b = agentBubbleRef.current
+      if (b && b.kind !== "end" && bubbleGoneRef.current === b.key) return setBubbleGone("")
+      if (agentNoticeRef.current && !b) return setNoticeOpen(true)
+      show(undefined, { pageChat: true })
+    },
     // Held down: the page's translation by hand (the pill by the circle), on any page.
     onHold: () => setFabHeld((n) => n + 1)
   })
@@ -4495,6 +4597,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The circle's height, and the in-page translation pill's beside it (2.7).
   const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
 
+  // The agent's bubble by the circle (2.7.1): this tab's task with the chat closed, else another tab's notice.
+  const hereBubble = !popup && !open && agentTask ? bubbleOf(agentTask, pendingKey(agentTask as never), true) : null
+  const hereFresh = hereBubble && !(hereBubble.kind === "end" && (endSeen === agentTask?.id || Date.now() - (agentTask?.touchedAt ?? 0) > END_BUBBLE_MS))
+  const agentBubble = hereFresh ? hereBubble : !popup && agentNotice ? bubbleOf(agentNotice, agentNotice.key ?? "", false) : null
+  agentBubbleRef.current = agentBubble
+  const bubbleUp = !!agentBubble && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !pageTyping && bubbleGone !== agentBubble.key
+  const fabRing = agentBubble ? (agentBubble.kind === "end" && agentBubble.ok ? "done" : "needs") : agentNotice ? (agentNotice.status === "done" ? "done" : "needs") : null
+
   // ------------------------------------------------------------ render
   return (
     <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}
@@ -4506,7 +4616,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <button
           type="button"
           ref={fabRef}
-          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}${agentNotice ? ` agent-ring ${agentNotice.status === "done" ? "done" : "needs"}` : ""}`}
+          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}${fabRing ? ` agent-ring ${fabRing}` : ""}`}
           data-halo={halo ? spaces.fabSpace?.color : undefined}
           style={{ top: fabTop, ...(halo && spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
@@ -4525,7 +4635,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <TranslatePill
           side={side}
           top={fabTop}
-          show={fabVisible && !fabDrag.state.dragging && !bubble?.rect}
+          show={fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp}
           free={!hasPro(plan)}
           held={fabHeld}
           onPlans={() => {
@@ -4535,8 +4645,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         />
       )}
 
-      {/* Another tab's task, by the circle: what it came to, and «Перейти к вкладке» (2.7.1). */}
-      {agentNotice && noticeOpen && fabVisible && (
+      {/* The agent's question, the person's step or the task's end, by the circle with the chat closed (2.7.1). */}
+      {bubbleUp && agentBubble && <AgentBubble data={agentBubble} side={side} top={fabTop} low={fabDodge !== null ? fabDodge > window.innerHeight / 2 : settings.fabY > 50} act={agentBubbleActs(agentBubble)} />}
+
+      {/* Another tab's task with nothing to ask, by the circle: what it came to, and «Перейти к вкладке» (2.7.1). */}
+      {agentNotice && noticeOpen && !agentBubble && fabVisible && (
         <AgentNoticeCard
           notice={agentNotice}
           side={side}
@@ -4554,10 +4667,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       )}
 
       {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
-      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && (
+      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp && (
         <HintLine id={pageHints.line} side={side} top={fabTop} onTap={pageHints.tap} onClose={pageHints.close} />
       )}
-      {cookieLine.line && !pageHints.line && !fabDrag.state.dragging && (
+      {cookieLine.line && !pageHints.line && !fabDrag.state.dragging && !bubbleUp && (
         <CookieLine line={cookieLine.line} side={side} top={fabTop} onClose={cookieLine.close} />
       )}
 
@@ -4704,7 +4817,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {/* 2.6 (92), the owner: the selection the panel or its pop-up is about is ringed on the page. */}
       {glowRange && <SelectionGlow range={glowRange} />}
       {agentRing && agentTask && <AgentRing range={agentRing} />}
-      {(agentTask?.status === "running" || ((agentTask?.status === "self" || agentTask?.status === "confirm") && layout === "sheet")) && !open && (
+      {agentTask?.status === "running" && !open && (
         <AgentStrip
           state={agentTask}
           onOpen={() => {

@@ -3588,10 +3588,10 @@
   "message": "Se quel giorno è pieno: fino a … giorni dopo"
  },
  "agentRuleParty": {
-  "message": "Persone se non lo dico"
+  "message": "Persone se non lo dico (ospiti, biglietti, posti)"
  },
  "agentRuleAnySpecialist": {
-  "message": "Qualsiasi professionista (parrucchiere, medico, istruttore…)"
+  "message": "Qualsiasi specialista (parrucchiere, medico, insegnante, istruttore, guida…)"
  },
  "agentRuleUsual": {
   "message": "Il servizio scelto lì l’ultima volta"
@@ -3705,7 +3705,7 @@
   "message": "Non sincronizzato: iCloud non ha risposto. Si riproverà la prossima volta."
  },
  "agentRuleAnySpecialistHint": {
-  "message": "Parrucchiere, stilista, medico, istruttore o guida: chi è libero. Disattivato: ti chiedo con chi."
+  "message": "Chi offre il servizio — parrucchiere, medico, insegnante, istruttore o guida — chi è libero. Disattivato: chiedo con chi."
  },
  "errLink": {
   "message": "ContextFlow ha perso il collegamento con questa pagina (iOS potrebbe averlo chiuso mentre un'altra app era aperta). Riprova o, se succede di nuovo, ricarica la pagina."
@@ -3745,6 +3745,57 @@
  },
  "agentPlanPlaceQ": {
   "message": "Dove prenotare?"
+ },
+ "agentBubbleCheck": {
+  "message": "Controlla prima che io prosegua: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Accedi al sito, ti aspetto"
+ },
+ "agentBubblePlan": {
+  "message": "Il piano ti aspetta"
+ },
+ "agentBubbleFill": {
+  "message": "Controlla cosa inserire nel modulo"
+ },
+ "agentBubbleDone": {
+  "message": "Fatto: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Non finito: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Apri"
+ },
+ "agentBubbleOther": {
+  "message": "Altro…"
+ },
+ "agentBubbleShow": {
+  "message": "Mostra"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Prenota solo con cancellazione gratuita"
+ },
+ "agentRuleVenueHint": {
+  "message": "Un posto è un ristorante, un salone, una clinica, un hotel o un appartamento, un noleggio, una palestra o una filiale. Quando conta chi o dove (un medico, un hotel per un viaggio), chiedo; altrimenti scelgo con queste regole."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Dove prenotare?"
+ },
+ "agentRecapTitle": {
+  "message": "Controlla prima che prenoti"
+ },
+ "agentRecapWhat": {
+  "message": "Prenoto: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "Avevi chiesto: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Altro posto: il primo non aveva un orario adatto"
+ },
+ "agentRecapTerms": {
+  "message": "Cancellazione, come dice la pagina: {0}"
  },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"

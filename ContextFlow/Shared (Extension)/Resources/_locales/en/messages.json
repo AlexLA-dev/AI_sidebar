@@ -3588,10 +3588,10 @@
   "message": "If that day is full, up to … days later"
  },
  "agentRuleParty": {
-  "message": "Guests when I don't say"
+  "message": "People when I don't say (guests, tickets, seats)"
  },
  "agentRuleAnySpecialist": {
-  "message": "Any specialist (stylist, doctor, trainer…)"
+  "message": "Any specialist (stylist, doctor, tutor, trainer, guide…)"
  },
  "agentRuleUsual": {
   "message": "The service I chose there last time"
@@ -3705,7 +3705,7 @@
   "message": "Not synced: iCloud didn't answer. It tries again next time."
  },
  "agentRuleAnySpecialistHint": {
-  "message": "A barber, stylist, doctor, trainer or guide: whoever is free. Off: I ask whom you want."
+  "message": "Whoever gives the service — a stylist, doctor, tutor, trainer, instructor or guide — whoever is free. Off: I ask whom you want."
  },
  "errLink": {
   "message": "ContextFlow lost its link to this page (iOS may have put it away while another app was open). Retry, or reload the page if it happens again."
@@ -3745,6 +3745,57 @@
  },
  "agentPlanPlaceQ": {
   "message": "Where to book?"
+ },
+ "agentBubbleCheck": {
+  "message": "Check before I go on: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Sign in on the site — I'll wait"
+ },
+ "agentBubblePlan": {
+  "message": "The plan is waiting for you"
+ },
+ "agentBubbleFill": {
+  "message": "Check what goes into the form"
+ },
+ "agentBubbleDone": {
+  "message": "Done: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Not finished: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Open"
+ },
+ "agentBubbleOther": {
+  "message": "Other…"
+ },
+ "agentBubbleShow": {
+  "message": "Show"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Book only with free cancellation"
+ },
+ "agentRuleVenueHint": {
+  "message": "A place is a restaurant, salon, clinic, hotel or flat, rental desk, gym or branch. Where it matters who or where (a doctor, a hotel for a trip), I ask; otherwise I choose by these rules."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Where to book?"
+ },
+ "agentRecapTitle": {
+  "message": "Check before I book"
+ },
+ "agentRecapWhat": {
+  "message": "Booking: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "You asked for: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Another place: the first had no time that fits"
+ },
+ "agentRecapTerms": {
+  "message": "Cancelling, as the page says: {0}"
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

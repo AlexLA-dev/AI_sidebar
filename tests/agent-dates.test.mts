@@ -12,7 +12,7 @@ import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
-import { approvePlan, bookingFrame, dateStep, dayItems, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { approvePlan, bookingFrame, cancelTerms, recapOf, widgetDay, dateStep, dayItems, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import type { MapItem, PageMap } from "../src/shared/agent/types.ts"
 
 function domMap(html: string, colors: Record<string, string> = {}, url = ""): PageMap {
@@ -26,7 +26,11 @@ function domMap(html: string, colors: Record<string, string> = {}, url = ""): Pa
   }
   Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement })
   if ((document as any).defaultView !== window) Object.defineProperty(document, "defaultView", { configurable: true, get: () => window })
-  for (const el of document.querySelectorAll("*")) (el as any).getBoundingClientRect = () => ({ top: 100, bottom: 140, left: 10, right: 80, width: 70, height: 40 })
+  // (data-top: where the element is against the screen, for what's scrolled past.)
+  for (const el of document.querySelectorAll("*")) {
+    const top = Number(el.getAttribute("data-top") ?? 100)
+    ;(el as any).getBoundingClientRect = () => ({ top, bottom: top + 40, left: 10, right: 80, width: 70, height: 40 })
+  }
   return (globalThis as any).__buildMap(document)
 }
 
@@ -495,4 +499,61 @@ test("a salon not named: the card asks the place (ranked by the rules, «Feature
   assert.equal(after.chooseVenue, true, "«pick for me»: the rules choose")
   assert.equal(after.status, "asked", "the specialist question reached the person")
   assert.ok(after.plan!.answers!.some((a) => /chosen on the place's own page/.test(a.a)))
+})
+
+test("a stay or a rental: its first day, then its last (check-out, return), never a day before the first", () => {
+  const cal = [day("1", "Thu 24 Dec"), day("2", "Fri 25 Dec"), day("3", "Sat 26 Dec"), day("4", "Sun 27 Dec"), day("5", "Mon 28 Dec"), day("6", "Tue 29 Dec"), day("7", "Wed 30 Dec")]
+  const map = page(cal)
+  const s = { plan: { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { kind: "stay" as const, date: "2026-12-26", dateEnd: "2026-12-29", personal: true, from: "09:00", until: "21:00", minutes: 0 } } } as unknown as AgentState
+  assert.match(dateStep(s, map, cal[1]) ?? "", /isn't a day of this stay/, "not before check-in")
+  assert.equal(dateStep(s, map, cal[2]), null, "check-in")
+  assert.equal(dateStep(s, map, cal[5]), null, "check-out after it")
+  // Another day than the stay's own two is the person's to choose (125: 27 pressed as check-in for «26 to 28»).
+  assert.match(dateStep(s, map, cal[3]) ?? "", /isn't a day of this stay/)
+  assert.match(dateStep(s, map, cal[6]) ?? "", /Done/)
+})
+
+test("the recap before the last press: only another day, time or place, or a new site's cancellation terms", () => {
+  const st = (o: Partial<AgentState> = {}) => ({ plan: { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { kind: "appointment" as const, date: "2026-12-26", at: "09:00", from: "08:00", until: "10:00", minutes: 30, venue: "Studio One" } }, ...o } as unknown as AgentState)
+  const plain = { ...page([]), text: "Your booking. Confirm to finish." }
+  // As asked, on a site booked on before: no recap.
+  assert.equal(recapOf(st({ picked: { date: "2026-12-26", time: "09:00" }, playbook: "x" }), plain), null)
+  // Another day.
+  assert.deepEqual(recapOf(st({ picked: { date: "2026-12-28", time: "09:00" }, playbook: "x" }), plain), { place: "Studio One", date: "2026-12-28", time: "09:00", askedDate: "2026-12-26" })
+  // Another time inside the rules' window.
+  assert.equal(recapOf(st({ picked: { date: "2026-12-26", time: "09:30" }, playbook: "x" }), plain)?.askedTime, "09:00")
+  // Another place than the first one chosen.
+  const venues = { list: [{ url: "a", name: "A", rating: 4.8, reviews: 50 }, { url: "b", name: "B", rating: 4.7, reviews: 40 }], tried: ["a", "b"] }
+  const other = recapOf(st({ picked: { date: "2026-12-26", time: "09:00" }, playbook: "x", venues } as never), plain)
+  assert.equal(other?.otherPlace, true)
+  assert.equal(other?.place, "B")
+  // The first booking on a site whose page shows its cancellation terms (in its own words, any language).
+  const terms = { ...page([]), text: "Your booking. Free cancellation until 24 hours before. Confirm to finish." }
+  assert.equal(recapOf(st({ picked: { date: "2026-12-26", time: "09:00" } }), terms)?.terms, "Free cancellation until 24 hours before.")
+  assert.equal(recapOf(st({ picked: { date: "2026-12-26", time: "09:00" }, playbook: "x" }), terms), null, "booked there before")
+  assert.equal(cancelTerms({ ...page([]), text: "Бронь. Бесплатная отмена за 24 часа до визита." }), "Бесплатная отмена за 24 часа до визита.")
+  assert.equal(cancelTerms({ ...page([]), text: "Tarif non remboursable." }), "Tarif non remboursable.")
+  assert.equal(cancelTerms({ ...page([]), text: "Pick a time that suits you." }), "")
+})
+
+test("a booking's own settings scrolled past stay in the map's first part (B3): fields, a form's controls, a day", () => {
+  // The slots on the screen, then a long footer below it.
+  const slots = Array.from({ length: 40 }, (_, i) => `<button>${String(9 + Math.floor(i / 4)).padStart(2, "0")}:${String((i % 4) * 15).padStart(2, "0")}</button>`).join("") +
+    Array.from({ length: 100 }, (_, i) => `<a href="/p${i}" data-top="2000">Page ${i}</a>`).join("")
+  const map = domMap(`<form data-top="-600"><label>Date <input id="date" type="date" data-top="-600"></label><select id="party" aria-label="Guests" data-top="-560"><option>2</option></select></form>
+    <a href="/about" data-top="-700">About us</a><button data-top="-650">Sat 26 Dec</button>${slots}`)
+  const labels = map.items.map((i) => i.label)
+  assert.equal(map.parts, 2)
+  assert.ok(labels.includes("Date"), "the date field")
+  assert.ok(labels.includes("Guests"), "the party")
+  assert.ok(labels.includes("Sat 26 Dec"), "a day")
+  assert.ok(!labels.includes("About us"), "a link scrolled past stays last")
+})
+
+test("a widget's own date field on another day than the asked one is found (B3)", () => {
+  const field = (value: string, extra: Partial<MapItem> = {}): MapItem => ({ id: "f", role: "textbox", label: "Date", value, ...extra })
+  assert.equal(widgetDay(page([field("2026-12-24", { type: "date" })]), "2026-12-26")?.value, "2026-12-24")
+  assert.equal(widgetDay(page([field("Thu 24 Dec")]), "2026-12-26")?.value, "Thu 24 Dec")
+  assert.equal(widgetDay(page([field("Sat 26 Dec")]), "2026-12-26"), null, "the asked day")
+  assert.equal(widgetDay(page([field("Anna")]), "2026-12-26"), null, "not a date")
 })

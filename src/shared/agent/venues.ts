@@ -94,13 +94,16 @@ const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{
  * The places that fit, best first: the request's words on the card (when it has any), rated at least `minRating`
  * with 20 reviews or more; the page's own order kept among them (a site sorts by distance or relevance).
  */
-export function rankVenues(list: Venue[], cards: Map<string, string>, match: string[], minRating: number, area: string[] = []): Venue[] {
+/** `strict`: a page that isn't the answer to a search (the plan's start page: a home page's promoted places in another
+ *  country for «a hotel in Limassol», 125) offers none when none of its cards names the area. */
+export function rankVenues(list: Venue[], cards: Map<string, string>, match: string[], minRating: number, area: string[] = [], strict = false): Venue[] {
   const words = match.map(fold).filter((w) => w.length >= 3)
   const card = (v: Venue) => fold(cards.get(v.url) ?? v.name)
   // The area the request names («Soho»): when some cards name it, only those (a salon marketplace, 121 sweep: a Shropshire salon
   // for «Soho, London»); when none does, the list is the site's answer to the search and stays.
   const places = area.map(fold).filter((w) => w.length >= 3)
   const near = places.length ? list.filter((v) => places.some((w) => card(v).includes(w))) : []
+  if (strict && places.length && !near.length) return []
   const inArea = near.length ? near : list
   // A term fits when each of its words is on the card, in any order («men's haircut» on «Men's Wash, Haircut & Style»;
   // a possessive or plural ending aside).

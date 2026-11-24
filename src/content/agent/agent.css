@@ -116,6 +116,28 @@
 .cf-agent-notice-req { margin: 0; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cf-agent-notice-sum { margin: 0; color: var(--text-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .cf-agent-notice .cf-primary { align-self: flex-start; }
+/* The agent's bubble by the circle (2.7.1): a question with up to three short answers, the person's own step, or how the
+   task ended, with the chat closed. The chat's type scale and buttons; beside the circle, never over the page's middle. */
+.cf-agent-bubble { position: fixed; z-index: 3; width: min(300px, calc(100vw - 96px)); max-height: calc(100vh - 24px); overflow: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px 14px; border-radius: 14px; background: var(--bg); color: var(--text); border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18); font-family: var(--font); font-size: var(--fs); line-height: var(--lh); animation: cf-agent-bubble-in 0.18s ease-out; }
+/* Level with the circle (48 px, its `top` is its center): ending at its bottom edge in the lower half, starting at its
+   top edge in the upper half, so it never runs off the screen. */
+.cf-agent-bubble.low { transform: translateY(calc(-100% + 24px)); }
+.cf-agent-bubble.high { transform: translateY(-24px); }
+.cf-agent-bubble.right { right: 76px; }
+.cf-agent-bubble.left { left: 76px; }
+@keyframes cf-agent-bubble-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cf-agent-bubble { animation: none; } }
+.cf-agent-bubble-head { display: flex; align-items: flex-start; gap: 8px; }
+.cf-agent-bubble-head p { flex: 1 1 auto; margin: 0; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.cf-agent-bubble-head .cf-ph-x { flex: none; margin: -4px -6px 0 0; }
+.cf-agent-bubble-mark { flex: none; width: 8px; height: 8px; margin-top: 0.55em; border-radius: 50%; background: var(--accent); }
+.cf-agent-bubble-mark.done { background: var(--ok); }
+.cf-agent-bubble-mark.notdone { background: var(--danger); }
+.cf-agent-bubble-meta { margin: -4px 0 0; font-size: var(--fs-small); color: var(--text-2); }
+.cf-agent-bubble-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+/* (An answer longer than the bubble wraps to two lines, never cut: «Попробовать понедельник, 28 декабря».) */
+.cf-agent-bubble-actions .cf-primary, .cf-agent-bubble-actions .cf-secondary { padding: 8px 13px; line-height: 1.25; border-radius: 11px; min-height: 0; max-width: 100%; white-space: normal; text-align: start; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.cf-agent-bubble-actions .cf-primary { border: 1px solid transparent !important; box-shadow: none; }
 /* The plan card's question left unanswered when «Начать» was pressed; «Начать» softer until all are answered. */
 .cf-agent-q.missing p { color: var(--danger, #c0392b); }
 .cf-agent-q.missing .cf-agent-options .cf-chip { border-color: var(--danger, #c0392b); }
