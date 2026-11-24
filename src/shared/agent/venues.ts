@@ -103,29 +103,32 @@ function urlOf(href: string, page: string): string | null {
 
 /**
  * A list of places that shows no ratings (a clinic's directory of doctors, 125): three or more links of this site with
- * the same address shape (its first part and depth), each with a card of its own that offers booking (its words) or
- * shows a time to book; ranked by the rules from distance or the page's order.
+ * the same address shape (its first part and depth), each with a card of its own, two or more of them on the screen
+ * offering booking (its words), a time to book or their next free day (a directory loads its free times as cards come
+ * into view, 126); ranked by the rules from distance or the page's order.
  */
 function unratedOn(map: PageMap): Venue[] {
-  const groups = new Map<string, Venue[]>()
+  const groups = new Map<string, { list: Venue[]; signed: number }>()
   const seen = new Set<string>()
   for (const it of map.items) {
-    if (it.role !== "link" || !it.href || !it.card || it.where === "below") continue
+    if (it.role !== "link" || !it.href || !it.card) continue
     const name = it.label.replace(/\s+/g, " ").trim()
     const card = it.card.replace(/\s+/g, " ").trim()
     if (name.length < 3 || name.length > 80 || /^\d/.test(name) || card.length < name.length + 15) continue
-    // (Offers booking in its words, shows a time, or names its next free day: «à partir du vendredi 27 novembre».)
-    if (!bookingWord(card) && !TIME.test(card) && !(/\d/.test(card) && monthIn(card) >= 0)) continue
     const url = urlOf(it.href, map.url)
     if (!url || seen.has(url)) continue
     const parts = new URL(url).pathname.split("/").filter(Boolean)
     if (parts.length < 2) continue
     seen.add(url)
     const key = `${parts[0]}/${parts.length}`
-    groups.set(key, [...(groups.get(key) ?? []), { url, name, rating: 0, reviews: 0 }])
+    const g = groups.get(key) ?? { list: [], signed: 0 }
+    g.list.push({ url, name, rating: 0, reviews: 0 })
+    // (Offers booking in its words, shows a time, or names its next free day: «à partir du vendredi 27 novembre».)
+    if (it.where !== "below" && it.where !== "above" && (bookingWord(card) || TIME.test(card) || (/\d/.test(card) && monthIn(card) >= 0))) g.signed++
+    groups.set(key, g)
   }
-  const list = [...groups.values()].sort((a, b) => b.length - a.length)[0] ?? []
-  return list.length >= 3 && new Set(list.map((v) => v.name)).size >= 3 ? list : []
+  const best = [...groups.values()].filter((g) => g.signed >= 2).sort((a, b) => b.list.length - a.list.length)[0]
+  return best && best.list.length >= 3 && new Set(best.list.map((v) => v.name)).size >= 3 ? best.list : []
 }
 
 const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")

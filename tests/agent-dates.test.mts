@@ -356,6 +356,23 @@ test("pattern: a results list whose cards' links are just the names, rating and 
   assert.ok(map.items.some((i) => i.card))
 })
 
+test("pattern: a directory without ratings, its cards drawn deep, free times loaded only on the first cards — still a list of places (126)", async () => {
+  const { venuesOn } = await import("../src/shared/agent/venues.ts")
+  const nest = (inner: string, n: number) => "<div>".repeat(n) + inner + "</div>".repeat(n)
+  const card = (slug: string, name: string, street: string, days: string) =>
+    `<div class="row">${nest(`<div>${nest(`<a href="/dentist/paris/${slug}?pid=1"><h2>${name}</h2></a>`, 3)}<p>Dental surgeon</p></div><p>${street} 75008 Paris</p>`, 3)}${days ? `<div><span>Tue 24 Nov</span><span>Wed 25 Nov</span><p>Next appointment on 30 November 2026</p></div>` : ""}</div>`
+  const html = `<header><a href="/">Home</a><a href="/help">Help</a></header><main><section>${card("dr-a", "Dr Anne Martin", "5 Rue Example", "y")}${card("dr-b", "Dr Paul Bernard", "28 Boulevard Example", "y")}${card("dr-c", "Dr Claire Petit", "36 Rue Example", "")}${card("dr-d", "Dr Hugo Laurent", "51 Avenue Example", "")}</section></main>`
+  const map = domMap(html, {}, "https://clinics.example/dentist/paris")
+  map.url = map.url || "https://clinics.example/dentist/paris"
+  assert.ok(map.items.filter((i) => i.card).length >= 4, "every doctor's link has its card")
+  assert.deepEqual(venuesOn(map).map((v) => v.name), ["Dr Anne Martin", "Dr Paul Bernard", "Dr Claire Petit", "Dr Hugo Laurent"])
+  // One card with times is not enough (an article list with one dated card).
+  const one = domMap(html.replace(/<div><span>Tue 24 Nov<\/span><span>Wed 25 Nov<\/span><p>Next appointment on 30 November 2026<\/p><\/div>/, ""), {}, "https://clinics.example/dentist/paris")
+  one.url = one.url || "https://clinics.example/dentist/paris"
+  assert.equal(one.items.filter((i) => i.card && /November/.test(i.card)).length, 1)
+  assert.deepEqual(venuesOn(one), [])
+})
+
 test("a contact detail the booking will ask for and «Мои данные» lacks is asked on the card; its value goes by key, never into the request", async () => {
   const PAGE: PageMap = { url: "https://tables.example/r/1", title: "Book", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items: [{ id: "1", role: "button", label: "Book a table" }] }
   const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "table", date: "2026-12-26", from: "19:00", until: "21:00", minutes: 90, tz: "", venue: "Trattoria Uno", match: [], area: [], contacts: ["email", "phone"] } }
