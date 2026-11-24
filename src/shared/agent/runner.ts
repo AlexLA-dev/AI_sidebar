@@ -658,10 +658,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The page's amounts only when a price may be checked: the plan's first look, or a plan that saw prices.
     // A booking reads them too: a deposit or a no-show fee on its page makes paying the person's step.
     const money = (state.step === 0 && !!io.planning && !state.plan) || (!!state.plan?.approved && (state.plan.prices.length > 0 || !!state.plan.booking))
-    let map = await io.map({ money })
+    // (A read that fails while the page is changing, a site's form opened on its own page on the iPad, 124: the same as
+    // no answer — wait for the page and read again, never the task's end.)
+    let map = await io.map({ money }).catch(() => null)
     if (!map) {
-      await io.waitPage()
-      map = await io.map({ money })
+      await io.waitPage().catch(() => {})
+      map = await io.map({ money }).catch(() => null)
+    }
+    if (!map) {
+      await io.waitPage().catch(() => {})
+      map = await io.map({ money }).catch(() => null)
     }
     if (!map) {
       state.status = "error"
