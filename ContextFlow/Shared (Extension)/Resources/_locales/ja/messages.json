@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "ページ上のウィンドウを閉じました：「{0}」"
  },
+ "agentPlanSpecialistQ": {
+  "message": "担当者は？"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "指名なし"
+ },
+ "agentPlanServiceQ": {
+  "message": "どのメニュー？"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

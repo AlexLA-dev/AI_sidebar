@@ -200,7 +200,8 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
   const pre = savedAnswers(plan, saved ?? {}).map((a, i) => a || plan.questions[i]?.pick || "")
   const [answers, setAnswers] = useState<string[]>(() => pre)
   // A contact detail is typed (no options); an answer not among the options shows as the person's own words.
-  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => q.kind === "contact" || (!!pre[i] && !q.options.includes(pre[i]))))
+  const optsOf = (q: TaskPlan["questions"][number]) => (q.kind === "specialist" ? [t("agentPlanAnySpecialist"), ...q.options] : q.options)
+  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => q.kind === "contact" || (!!pre[i] && !optsOf(q).includes(pre[i]))))
   // «Запомнить» under each question about the person and each contact detail: on by default.
   const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact || q.kind === "contact"))
   const [off, setOff] = useState<Set<string>>(() => new Set())
@@ -257,19 +258,13 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
       {plan.fromChat && <p class="cf-agent-meta" dir="auto">{t("agentPlanFromChat", plan.fromChat)}</p>}
       {plan.questions.map((q, i) => (
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
-          <p dir="auto">{q.q || (q.kind === "venue" ? t("agentPlanVenueQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
+          <p dir="auto">{q.q || (q.kind === "venue" ? t("agentPlanVenueQ") : q.kind === "specialist" ? t("agentPlanSpecialistQ") : q.kind === "service" ? t("agentPlanServiceQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
           {q.kind !== "contact" && <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
-            {q.options.map((o) => (
+            {optsOf(q).map((o) => (
               <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>{o}</button>
             ))}
             <button type="button" role="radio" aria-checked={own[i]} class={`cf-chip ${own[i] ? "on" : ""}`} onClick={() => set(i, own[i] ? answers[i] : "", true)}>{t("agentPlanOwn")}</button>
           </div>}
-          {((q.fact && factLabel(q.fact, plan.site)) || q.kind === "contact") && (
-            <label class="cf-row toggle cf-agent-remember">
-              <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
-              <span>{pre[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
-            </label>
-          )}
           {own[i] && (
             <input
               class="cf-input-line"
@@ -284,6 +279,12 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
               onKeyDown={(e) => e.stopPropagation()}
               onKeyUp={(e) => e.stopPropagation()}
             />
+          )}
+          {((q.fact && factLabel(q.fact, plan.site)) || q.kind === "contact") && (
+            <label class="cf-row toggle cf-agent-remember">
+              <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
+              <span>{pre[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
+            </label>
           )}
         </div>
       ))}

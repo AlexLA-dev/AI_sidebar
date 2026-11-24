@@ -1272,5 +1272,8 @@
   "agentPlanVenueQ": "Wo buchen (nach deinen Regeln gewählt)",
   "agentPlanEmailQ": "Deine E-Mail für die Buchung (die Seite fragt danach)",
   "agentPlanPhoneQ": "Deine Telefonnummer für die Buchung (die Seite fragt danach)",
-  "agentLinePopup": "Fenster über der Seite geschlossen: «{0}»"
+  "agentLinePopup": "Fenster über der Seite geschlossen: «{0}»",
+  "agentPlanSpecialistQ": "Welche Fachkraft?",
+  "agentPlanAnySpecialist": "Beliebige Fachkraft",
+  "agentPlanServiceQ": "Welche Leistung?"
 }

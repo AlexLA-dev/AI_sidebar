@@ -1272,5 +1272,8 @@
   "agentPlanVenueQ": "在哪里预订(按你的规则选择)",
   "agentPlanEmailQ": "用于预订的邮箱（网站会要求填写）",
   "agentPlanPhoneQ": "用于预订的电话（网站会要求填写）",
-  "agentLinePopup": "已关闭页面上的弹窗：「{0}」"
+  "agentLinePopup": "已关闭页面上的弹窗：「{0}」",
+  "agentPlanSpecialistQ": "选择哪位服务人员？",
+  "agentPlanAnySpecialist": "任意服务人员",
+  "agentPlanServiceQ": "选择哪项服务？"
 }

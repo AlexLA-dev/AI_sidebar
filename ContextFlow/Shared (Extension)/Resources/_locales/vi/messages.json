@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "Đã đóng cửa sổ trên trang: «{0}»"
  },
+ "agentPlanSpecialistQ": {
+  "message": "Chọn chuyên viên nào?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Chuyên viên bất kỳ"
+ },
+ "agentPlanServiceQ": {
+  "message": "Chọn dịch vụ nào?"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

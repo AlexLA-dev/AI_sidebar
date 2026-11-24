@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "Закрив вікно поверх сторінки: «{0}»"
  },
+ "agentPlanSpecialistQ": {
+  "message": "Який майстер?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Будь-який майстер"
+ },
+ "agentPlanServiceQ": {
+  "message": "Яка послуга?"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

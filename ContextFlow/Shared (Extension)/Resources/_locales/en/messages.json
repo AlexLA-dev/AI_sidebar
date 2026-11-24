@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "Closed a window over the page: «{0}»"
  },
+ "agentPlanSpecialistQ": {
+  "message": "Which specialist?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Any specialist"
+ },
+ "agentPlanServiceQ": {
+  "message": "Which service?"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

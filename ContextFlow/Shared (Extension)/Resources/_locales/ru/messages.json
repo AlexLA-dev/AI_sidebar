@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "Закрыл окно поверх страницы: «{0}»"
  },
+ "agentPlanSpecialistQ": {
+  "message": "Какой мастер?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Любой мастер"
+ },
+ "agentPlanServiceQ": {
+  "message": "Какая услуга?"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

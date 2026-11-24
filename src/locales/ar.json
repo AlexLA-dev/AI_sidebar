@@ -1272,5 +1272,8 @@
   "agentPlanVenueQ": "أين الحجز (مختار حسب قواعدك)",
   "agentPlanEmailQ": "بريدك الإلكتروني للحجز (سيطلبه الموقع)",
   "agentPlanPhoneQ": "رقم هاتفك للحجز (سيطلبه الموقع)",
-  "agentLinePopup": "أُغلقت نافذة فوق الصفحة: «{0}»"
+  "agentLinePopup": "أُغلقت نافذة فوق الصفحة: «{0}»",
+  "agentPlanSpecialistQ": "أي مختص؟",
+  "agentPlanAnySpecialist": "أي مختص",
+  "agentPlanServiceQ": "أي خدمة؟"
 }

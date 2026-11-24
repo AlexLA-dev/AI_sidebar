@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "Fenster über der Seite geschlossen: «{0}»"
  },
+ "agentPlanSpecialistQ": {
+  "message": "Welche Fachkraft?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Beliebige Fachkraft"
+ },
+ "agentPlanServiceQ": {
+  "message": "Welche Leistung?"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

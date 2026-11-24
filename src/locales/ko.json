@@ -1272,5 +1272,8 @@
   "agentPlanVenueQ": "예약할 곳(내 규칙으로 선택됨)",
   "agentPlanEmailQ": "예약용 이메일 (사이트에서 요청합니다)",
   "agentPlanPhoneQ": "예약용 전화번호 (사이트에서 요청합니다)",
-  "agentLinePopup": "페이지 위의 창을 닫았습니다: «{0}»"
+  "agentLinePopup": "페이지 위의 창을 닫았습니다: «{0}»",
+  "agentPlanSpecialistQ": "어느 담당자로 할까요?",
+  "agentPlanAnySpecialist": "담당자 무관",
+  "agentPlanServiceQ": "어떤 서비스로 할까요?"
 }

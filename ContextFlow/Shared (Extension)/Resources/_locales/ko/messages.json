@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "페이지 위의 창을 닫았습니다: «{0}»"
  },
+ "agentPlanSpecialistQ": {
+  "message": "어느 담당자로 할까요?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "담당자 무관"
+ },
+ "agentPlanServiceQ": {
+  "message": "어떤 서비스로 할까요?"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

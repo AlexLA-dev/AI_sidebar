@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "Fechei uma janela sobre a página: «{0}»"
  },
+ "agentPlanSpecialistQ": {
+  "message": "Qual profissional?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Qualquer profissional"
+ },
+ "agentPlanServiceQ": {
+  "message": "Qual serviço?"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

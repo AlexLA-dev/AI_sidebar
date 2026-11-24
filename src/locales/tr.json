@@ -1272,5 +1272,8 @@
   "agentPlanVenueQ": "Nerede rezervasyon (kurallarınıza göre seçildi)",
   "agentPlanEmailQ": "Rezervasyon için e-postanız (site isteyecek)",
   "agentPlanPhoneQ": "Rezervasyon için telefonunuz (site isteyecek)",
-  "agentLinePopup": "Sayfanın üstündeki pencere kapatıldı: «{0}»"
+  "agentLinePopup": "Sayfanın üstündeki pencere kapatıldı: «{0}»",
+  "agentPlanSpecialistQ": "Hangi uzman?",
+  "agentPlanAnySpecialist": "Herhangi bir uzman",
+  "agentPlanServiceQ": "Hangi hizmet?"
 }

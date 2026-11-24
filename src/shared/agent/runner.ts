@@ -400,6 +400,19 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
       if (plan.how) plan.how.rating = 0
     }
   }
+  // A personal service's open choices, asked on the card unless the request names them (the owner on 123: «переуточнять
+  // … если эта деталь не была уточнена»): the specialist («any» first, then the page's names) and the service when more
+  // than one fits; a remembered answer pre-fills them. Built on the device from the plan's fields, so they're never
+  // skipped; a question the plan already asks about the same names isn't asked twice.
+  const b = plan.booking
+  if (b?.kind === "appointment") {
+    const asks = (names: string[]) => plan.questions.some((q) => q.options.some((o) => names.includes(o)))
+    if (b.specialists?.length && !b.specialistNamed && !asks(b.specialists)) plan.questions.push({ q: "", kind: "specialist", fact: "pref:specialist", options: b.specialists.slice(0, 3) })
+    if ((b.services?.length ?? 0) >= 2 && !asks(b.services!)) {
+      const named = b.serviceNamed && b.services!.includes(b.serviceNamed) ? b.serviceNamed : ""
+      if (!named) plan.questions.push({ q: "", kind: "service", fact: "pref:service", options: b.services!.slice(0, 3) })
+    }
+  }
   // A contact detail the booking will ask for and «Мои данные» hasn't got: asked on the card with «Запомнить», not
   // mid-task (the director on 124). The plan names the ones its booking will ask for.
   if (plan.booking?.contacts?.length) {
@@ -1071,7 +1084,7 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
 export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApproval): Promise<AgentState> {
   if (state.status !== "plan" || !state.plan) return state
   const plan = state.plan
-  plan.answers = plan.questions.map((q, i) => ({ q: q.q || (q.kind === "venue" ? "Where to book" : q.key ?? ""), a: (a.answers[i] ?? "").slice(0, 200), ...(q.kind === "contact" ? { contact: true } : {}) }))
+  plan.answers = plan.questions.map((q, i) => ({ q: q.q || (q.kind === "venue" ? "Where to book" : q.kind === "specialist" ? "Which specialist" : q.kind === "service" ? "Which service" : q.key ?? ""), a: (a.answers[i] ?? "").slice(0, 200), ...(q.kind === "contact" ? { contact: true } : {}) }))
   // A contact detail given on the card: filled by its key in this task (kept in «Мои данные» too when ticked there).
   state.oneTime = plan.questions.flatMap((q, i) => (q.kind === "contact" && q.key && (a.answers[i] ?? "").trim() ? [{ key: q.key, value: a.answers[i].trim().slice(0, 120) }] : []))
   // …and goes in by the plan's contact fill, like a saved one (no second question at the form).

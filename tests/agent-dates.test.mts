@@ -392,3 +392,21 @@ test("a layer over the page that isn't the task is closed as a free step, with n
   assert.equal(calls, 1, "the model was asked only after the layer was gone")
   assert.ok(s.lines.some((l) => l.popup))
 })
+
+test("a personal service's open choices are asked on the card from the plan's fields: the specialist and a service when several fit; a named one isn't", async () => {
+  const PAGE: PageMap = { url: "https://salons.example/s/nova", title: "Salon Nova", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items: [{ id: "1", role: "button", label: "Book now" }] }
+  const plan = (b: Record<string, unknown>) => ({ label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30, tz: "", venue: "Salon Nova", match: [], area: [], contacts: [], specialists: [], services: [], specialistNamed: "", serviceNamed: "", ...b } })
+  const run = async (b: Record<string, unknown>) => {
+    const replies: any[] = [{ ok: true, plan: plan(b), token: "t" }]
+    const io = { map: async () => PAGE, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+      device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
+    return (await drive(newState("sp", "Book me a haircut on Saturday", "en", PAGE.url), io)).plan!.questions
+  }
+  let qs = await run({ specialists: ["Yasmin", "Angel", "Maria", "Leo"], services: ["Haircut", "Haircut & Beard", "Wash & Cut"] })
+  assert.deepEqual(qs.map((q) => q.kind), ["specialist", "service"])
+  assert.deepEqual(qs[0].options, ["Yasmin", "Angel", "Maria"], "the page's names (the card puts «any» first)")
+  qs = await run({ specialists: ["Yasmin"], specialistNamed: "Yasmin", services: ["Haircut", "Wash & Cut"], serviceNamed: "Haircut" })
+  assert.deepEqual(qs.map((q) => q.kind), [], "named in the request: nothing to ask")
+  qs = await run({ services: ["Haircut"] })
+  assert.deepEqual(qs.map((q) => q.kind), [], "one service fits: no question")
+})

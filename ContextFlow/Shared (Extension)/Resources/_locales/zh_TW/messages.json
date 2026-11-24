@@ -3725,6 +3725,15 @@
  "agentLinePopup": {
   "message": "已關閉頁面上的彈出視窗：「{0}」"
  },
+ "agentPlanSpecialistQ": {
+  "message": "選擇哪位服務人員？"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "任一服務人員"
+ },
+ "agentPlanServiceQ": {
+  "message": "選擇哪項服務？"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

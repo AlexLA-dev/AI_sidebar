@@ -1272,5 +1272,8 @@
   "agentPlanVenueQ": "Dove prenotare (scelto secondo le tue regole)",
   "agentPlanEmailQ": "La tua e-mail per la prenotazione (il sito la chiederà)",
   "agentPlanPhoneQ": "Il tuo telefono per la prenotazione (il sito lo chiederà)",
-  "agentLinePopup": "Chiusa una finestra sopra la pagina: «{0}»"
+  "agentLinePopup": "Chiusa una finestra sopra la pagina: «{0}»",
+  "agentPlanSpecialistQ": "Quale professionista?",
+  "agentPlanAnySpecialist": "Qualsiasi professionista",
+  "agentPlanServiceQ": "Quale servizio?"
 }

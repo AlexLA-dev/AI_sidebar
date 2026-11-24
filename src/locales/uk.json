@@ -1272,5 +1272,8 @@
   "agentPlanVenueQ": "Де бронювати (вибрано за вашими правилами)",
   "agentPlanEmailQ": "Ваш e-mail для бронювання (сайт його попросить)",
   "agentPlanPhoneQ": "Ваш телефон для бронювання (сайт його попросить)",
-  "agentLinePopup": "Закрив вікно поверх сторінки: «{0}»"
+  "agentLinePopup": "Закрив вікно поверх сторінки: «{0}»",
+  "agentPlanSpecialistQ": "Який майстер?",
+  "agentPlanAnySpecialist": "Будь-який майстер",
+  "agentPlanServiceQ": "Яка послуга?"
 }

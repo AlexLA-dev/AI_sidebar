@@ -27,7 +27,7 @@ export interface PlanQuestion {
   pick?: string
   // The device's own questions (their words come from the panel's language): where to book; a contact detail the booking
   // will ask for and «Мои данные» hasn't got (asked here, not mid-task; its value is filled by key, never sent).
-  kind?: "venue" | "contact"
+  kind?: "venue" | "contact" | "specialist" | "service"
   key?: "email" | "phone"
 }
 
@@ -123,6 +123,12 @@ export interface PlanBooking {
   area?: string[]
   // The contact details the booking will ask for at its end (its site's form or sign-up): "email", "phone".
   contacts?: Array<"email" | "phone">
+  // A personal service's choices the page offers: the specialists it names (when one can be chosen), the services that
+  // fit the request, and the ones the request itself names (""). The device asks the open ones on the card.
+  specialists?: string[]
+  services?: string[]
+  specialistNamed?: string
+  serviceNamed?: string
 }
 
 export const PLAN_SCHEMA = {
@@ -167,9 +173,13 @@ export const PLAN_SCHEMA = {
         venue: { type: "string" },
         match: { type: "array", items: { type: "string" } },
         area: { type: "array", items: { type: "string" } },
-        contacts: { type: "array", items: { type: "string", enum: ["email", "phone"] } }
+        contacts: { type: "array", items: { type: "string", enum: ["email", "phone"] } },
+        specialists: { type: "array", items: { type: "string" } },
+        services: { type: "array", items: { type: "string" } },
+        specialistNamed: { type: "string" },
+        serviceNamed: { type: "string" }
       },
-      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts"],
+      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
       additionalProperties: false
     }
   },
@@ -215,7 +225,12 @@ function bookingOf(v: unknown): PlanBooking | null {
   const match = (Array.isArray(b.match) ? b.match : []).map((x) => s(x, 30)).filter((x) => x.length >= 3).slice(0, 8)
   const area = (Array.isArray(b.area) ? b.area : []).map((x) => s(x, 40)).filter((x) => x.length >= 3).slice(0, 4)
   const contacts = [...new Set((Array.isArray(b.contacts) ? b.contacts : []).filter((x): x is "email" | "phone" => x === "email" || x === "phone"))]
-  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}) }
+  const names = (v: unknown) => [...new Set((Array.isArray(v) ? v : []).map((x) => s(x, 60)).filter((x) => x.length >= 2))].slice(0, 6)
+  const specialists = names(b.specialists)
+  const services = names(b.services)
+  const specialistNamed = s(b.specialistNamed, 60)
+  const serviceNamed = s(b.serviceNamed, 60)
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
 }
 
 /**

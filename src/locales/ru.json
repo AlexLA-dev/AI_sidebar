@@ -1272,5 +1272,8 @@
   "agentPlanVenueQ": "Где бронировать (выбрано по вашим правилам)",
   "agentPlanEmailQ": "Ваш e-mail для брони (сайт его попросит)",
   "agentPlanPhoneQ": "Ваш телефон для брони (сайт его попросит)",
-  "agentLinePopup": "Закрыл окно поверх страницы: «{0}»"
+  "agentLinePopup": "Закрыл окно поверх страницы: «{0}»",
+  "agentPlanSpecialistQ": "Какой мастер?",
+  "agentPlanAnySpecialist": "Любой мастер",
+  "agentPlanServiceQ": "Какая услуга?"
 }
