@@ -794,7 +794,6 @@
   "offerMemoryTitle": "Proならチャット全体を記憶",
   "offerMemoryBody": "無料の回答が覚えているのは、チャットの直近{0}件の回答とメモです。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
   "offerMemoryLong": "このチャットは、無料の回答が覚えている{0}件の回答とメモを超えています。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
-  "offerRetryAt": "{0}に回答が戻ります。",
   "similarWhere": "探す範囲",
   "similarWorld": "世界中",
   "similarLocal": "近く",
@@ -1312,5 +1311,6 @@
   "answersBackOff": "ContextFlowの通知がオフです。回答は{0}に戻ります。",
   "answersBackFailed": "リマインダーを設定できませんでした。回答は{0}に戻ります。",
   "answersBackBody": "無料の回答{0}回分が戻りました。どのページについても質問できます。",
-  "answersBackInApp": "ContextFlowアプリで設定する"
+  "answersBackInApp": "ContextFlowアプリで設定する",
+  "hoursMinutes": "{0}時間{1}分"
 }

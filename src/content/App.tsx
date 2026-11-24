@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET, TEST_PLAN } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
-import { freeAnswersBack, t, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
+import { freeAnswersBack, t, timeLeft, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
@@ -288,9 +288,7 @@ async function copyText(text: string): Promise<boolean> {
 
 function timeUntil(iso: string | undefined): string {
   if (!iso) return t("hours", 24)
-  const ms = Math.max(0, Date.parse(iso) - Date.now())
-  const hours = Math.floor(ms / 3_600_000)
-  return hours >= 1 ? t("hours", hours) : t("minutes", Math.max(1, Math.ceil(ms / 60_000)))
+  return timeLeft(Math.max(0, Date.parse(iso) - Date.now()))
 }
 
 /** The local time of day a limit resets ("3:00 AM"). */

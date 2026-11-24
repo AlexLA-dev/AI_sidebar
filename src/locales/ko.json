@@ -794,7 +794,6 @@
   "offerMemoryTitle": "Pro는 채팅 전체를 기억합니다",
   "offerMemoryBody": "무료 답변은 채팅의 최근 답변과 메모 {0}개를 기억합니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지.",
   "offerMemoryLong": "이 채팅에는 무료 답변이 기억하는 답변과 메모 {0}개보다 많은 내용이 있습니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지.",
-  "offerRetryAt": "{0}에 답변이 다시 가능합니다.",
   "similarWhere": "찾을 범위",
   "similarWorld": "전 세계",
   "similarLocal": "내 주변",
@@ -1312,5 +1311,6 @@
   "answersBackOff": "ContextFlow 알림이 꺼져 있어요. 답변은 {0}에 돌아와요.",
   "answersBackFailed": "알림을 설정하지 못했어요. 답변은 {0}에 돌아와요.",
   "answersBackBody": "무료 답변 {0}개가 돌아왔어요. 어떤 페이지든 물어보세요.",
-  "answersBackInApp": "ContextFlow 앱에서 설정하기"
+  "answersBackInApp": "ContextFlow 앱에서 설정하기",
+  "hoursMinutes": "{0}시간 {1}분"
 }

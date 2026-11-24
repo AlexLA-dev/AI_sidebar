@@ -121,3 +121,31 @@ test("acceptance 2: the limit card shows no made-up time and no live Retry befor
   assert.match(offer, /const canRetry = Boolean\(onRetry\) && retryAt !== "unknown"/)
   assert.match(app, /if \(firstDay \|\| done\.includes\(chat\) \|\| threadRef\.current !== chat\) return/)
 })
+
+test("back from the app: the mark leaves the address and the tab's history as they were (acceptance 3, D2)", () => {
+  const page = (hash: string, loadedWith: string) => {
+    const calls: string[] = []
+    const at = { hash, href: `https://example.com/a?b=1${hash}`, pathname: "/a", search: "?b=1" }
+    return { calls, at, where: { location: at, loadedWith, history: { state: null, back: () => calls.push("back"), replaceState: (_s: unknown, _t: string, url: string) => calls.push(`replace ${url}`) } } }
+  }
+  // Came by a jump within the page (the tab that had it): that step is taken back, once, however often it's looked at.
+  const jump = page("#cf-bought=no", "")
+  assert.equal(purchase.takeBoughtMark(jump.where), "no")
+  assert.equal(purchase.takeBoughtMark(jump.where), null)
+  assert.deepEqual(jump.calls, ["back"])
+  // Back on the step before: no mark, nothing to do; a later return is taken again.
+  const before = page("", "")
+  assert.equal(purchase.takeBoughtMark(before.where), null)
+  const again = page("#cf-bought=pro", "")
+  assert.equal(purchase.takeBoughtMark(again.where), "pro")
+  assert.deepEqual(again.calls, ["back"])
+  purchase.takeBoughtMark(page("", "").where)
+  // Loaded with it (a fresh tab): only the address is replaced, nothing is stepped back.
+  const fresh = page("#cf-bought=pro", "#cf-bought=pro")
+  assert.equal(purchase.takeBoughtMark(fresh.where), "pro")
+  assert.deepEqual(fresh.calls, ["replace /a?b=1"])
+  // No mark: nothing touched.
+  const plain = page("#section", "")
+  assert.equal(purchase.takeBoughtMark(plain.where), null)
+  assert.deepEqual(plain.calls, [])
+})

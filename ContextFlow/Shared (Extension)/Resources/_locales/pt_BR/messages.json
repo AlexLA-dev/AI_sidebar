@@ -2306,9 +2306,6 @@
  "offerMemoryLong": {
   "message": "Este chat tem mais do que as {0} respostas e notas que uma resposta gratuita lembra. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou."
  },
- "offerRetryAt": {
-  "message": "As respostas voltam às {0}."
- },
  "similarWhere": {
   "message": "Onde procurar"
  },
@@ -3844,6 +3841,9 @@
  },
  "answersBackInApp": {
   "message": "Definir no app ContextFlow"
+ },
+ "hoursMinutes": {
+  "message": "{0} h {1} min"
  },
  "tip_4cf1b54b00": {
   "message": "Dicas"

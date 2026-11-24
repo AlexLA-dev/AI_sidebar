@@ -2306,9 +2306,6 @@
  "offerMemoryLong": {
   "message": "このチャットは、無料の回答が覚えている{0}件の回答とメモを超えています。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。"
  },
- "offerRetryAt": {
-  "message": "{0}に回答が戻ります。"
- },
  "similarWhere": {
   "message": "探す範囲"
  },
@@ -3844,6 +3841,9 @@
  },
  "answersBackInApp": {
   "message": "ContextFlowアプリで設定する"
+ },
+ "hoursMinutes": {
+  "message": "{0}時間{1}分"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

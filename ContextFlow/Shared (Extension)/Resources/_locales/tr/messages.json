@@ -2306,9 +2306,6 @@
  "offerMemoryLong": {
   "message": "Bu sohbette, ücretsiz bir yanıtın hatırladığı {0} yanıt ve nottan fazlası var. Pro'da yapay zekâ hepsini hatırlar: her mesajı, notlarınızı ve hakkında soru sorduğunuz sayfaları."
  },
- "offerRetryAt": {
-  "message": "Yanıtlar saat {0} itibarıyla geri gelir."
- },
  "similarWhere": {
   "message": "Nerede aransın"
  },
@@ -3844,6 +3841,9 @@
  },
  "answersBackInApp": {
   "message": "ContextFlow uygulamasında ayarla"
+ },
+ "hoursMinutes": {
+  "message": "{0} sa {1} dk"
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"

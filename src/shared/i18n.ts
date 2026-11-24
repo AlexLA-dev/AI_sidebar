@@ -44,6 +44,21 @@ export function freeAnswersBack(count: number, at: string, until: string, lang?:
 }
 
 /**
+ * How long until something comes back, short ("40 min", "1 h 40 min", "17 h"). Under 3 hours it says hours and minutes,
+ * past that the nearest hour (2.8, the director's acceptance 3: «at 2:00 AM, in 1 h» shown with 1 h 40 left read as wrong,
+ * the hours were cut down).
+ */
+export function timeLeft(ms: number): string {
+  const minutes = Math.max(1, Math.ceil(ms / 60_000))
+  if (minutes < 60) return t("minutes", minutes)
+  if (minutes < 180) {
+    const h = Math.floor(minutes / 60), m = minutes % 60
+    return m ? t("hoursMinutes", h, m) : t("hours", h)
+  }
+  return t("hours", Math.round(minutes / 60))
+}
+
+/**
  * The panel strings' language as a BCP 47 tag ("ar", "zh-Hant", "pt-BR"): their own langCode, so it's the language the
  * browser actually loaded. On the panel's root as lang (Traditional Chinese gets PingFang TC's glyphs, 2.6).
  */

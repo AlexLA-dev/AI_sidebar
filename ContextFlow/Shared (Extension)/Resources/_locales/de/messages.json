@@ -2306,9 +2306,6 @@
  "offerMemoryLong": {
   "message": "Dieser Chat hat mehr als die {0} Antworten und Notizen, die eine kostenlose Antwort kennt. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast."
  },
- "offerRetryAt": {
-  "message": "Antworten gibt es wieder um {0}."
- },
  "similarWhere": {
   "message": "Wo suchen"
  },
@@ -3844,6 +3841,9 @@
  },
  "answersBackInApp": {
   "message": "In der ContextFlow-App einstellen"
+ },
+ "hoursMinutes": {
+  "message": "{0} Std. {1} Min."
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

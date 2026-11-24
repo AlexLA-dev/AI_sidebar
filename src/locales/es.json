@@ -794,7 +794,6 @@
   "offerMemoryTitle": "Pro recuerda todo el chat",
   "offerMemoryBody": "Una respuesta gratuita recuerda las últimas {0} respuestas y notas de un chat. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste.",
   "offerMemoryLong": "Este chat tiene más de las {0} respuestas y notas que recuerda una respuesta gratuita. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste.",
-  "offerRetryAt": "Las respuestas vuelven a las {0}.",
   "similarWhere": "Dónde buscar",
   "similarWorld": "En todo el mundo",
   "similarLocal": "Cerca de mí",
@@ -1312,5 +1311,6 @@
   "answersBackOff": "Las notificaciones de ContextFlow están desactivadas. Tus respuestas vuelven a las {0}.",
   "answersBackFailed": "No se pudo programar el aviso. Tus respuestas vuelven a las {0}.",
   "answersBackBody": "Ya tienes de nuevo tus {0} respuestas gratis. Pregunta sobre cualquier página.",
-  "answersBackInApp": "Programarlo en la app ContextFlow"
+  "answersBackInApp": "Programarlo en la app ContextFlow",
+  "hoursMinutes": "{0} h {1} min"
 }

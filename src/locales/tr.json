@@ -794,7 +794,6 @@
   "offerMemoryTitle": "Pro tüm sohbeti hatırlar",
   "offerMemoryBody": "Ücretsiz bir yanıt, sohbetteki son {0} yanıtı ve notu hatırlar. Pro'da yapay zekâ hepsini hatırlar: her mesajı, notlarınızı ve hakkında soru sorduğunuz sayfaları.",
   "offerMemoryLong": "Bu sohbette, ücretsiz bir yanıtın hatırladığı {0} yanıt ve nottan fazlası var. Pro'da yapay zekâ hepsini hatırlar: her mesajı, notlarınızı ve hakkında soru sorduğunuz sayfaları.",
-  "offerRetryAt": "Yanıtlar saat {0} itibarıyla geri gelir.",
   "similarWhere": "Nerede aransın",
   "similarWorld": "Tüm dünyada",
   "similarLocal": "Yakınımda",
@@ -1312,5 +1311,6 @@
   "answersBackOff": "ContextFlow bildirimleri kapalı. Yanıtlarınız {0} itibarıyla geri gelir.",
   "answersBackFailed": "Hatırlatma ayarlanamadı. Yanıtlarınız {0} itibarıyla geri gelir.",
   "answersBackBody": "{0} ücretsiz yanıtınız geri geldi. Herhangi bir sayfa hakkında sorun.",
-  "answersBackInApp": "ContextFlow uygulamasında ayarla"
+  "answersBackInApp": "ContextFlow uygulamasında ayarla",
+  "hoursMinutes": "{0} sa {1} dk"
 }

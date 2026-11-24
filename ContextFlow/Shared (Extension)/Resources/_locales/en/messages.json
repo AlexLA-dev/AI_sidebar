@@ -2306,9 +2306,6 @@
  "offerMemoryLong": {
   "message": "This chat has more than the {0} answers and notes a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
  },
- "offerRetryAt": {
-  "message": "Answers are back at {0}."
- },
  "similarWhere": {
   "message": "Where to look"
  },
@@ -3844,6 +3841,9 @@
  },
  "answersBackInApp": {
   "message": "Set it in the ContextFlow app"
+ },
+ "hoursMinutes": {
+  "message": "{0} h {1} min"
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

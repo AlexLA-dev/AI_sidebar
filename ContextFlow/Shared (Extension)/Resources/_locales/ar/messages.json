@@ -2306,9 +2306,6 @@
  "offerMemoryLong": {
   "message": "في هذه المحادثة أكثر من {0} إجابات وملاحظات تتذكرها الإجابة المجانية. مع Pro يتذكر الذكاء الاصطناعي المحادثة كاملة: كل رسالة، وملاحظاتك، والصفحات التي سألت عنها."
  },
- "offerRetryAt": {
-  "message": "تعود الإجابات في {0}."
- },
  "similarWhere": {
   "message": "أين أبحث"
  },
@@ -3844,6 +3841,9 @@
  },
  "answersBackInApp": {
   "message": "اضبطه في تطبيق ContextFlow"
+ },
+ "hoursMinutes": {
+  "message": "{0} س {1} د"
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

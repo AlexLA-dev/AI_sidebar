@@ -121,22 +121,27 @@ test("yearly (build 95): twelve months of the monthly plan, struck through, when
   ui.clear(el)
 })
 
-test("Retry: off until the answers are back, then the question goes again", async () => {
+test("Retry: not there until the answers are back, then the question goes again", async () => {
   const el = dom.document.createElement("div")
   dom.document.body.appendChild(el)
   let retried = 0
+  const retryIn = (root: any) => [...root.querySelectorAll(".cf-secondary")].find((b: any) => /Retry/.test(b.textContent))
   ui.offer(el, { place: "limit", status: STATUS, title: "Out", retryAt: Date.now() + 3_600_000, onRetry: () => retried++, onChoose() {}, onEvent() {} })
   await tick()
-  const button = [...el.querySelectorAll(".cf-secondary")].find((b: any) => /Retry/.test(b.textContent))
-  assert.ok(button)
-  assert.equal(button.disabled, true)
-  assert.ok(el.querySelector(".cf-offer-retry-at"))
+  // The director's acceptance 3: a greyed Retry beside «Choose» while answers are out could only hit the limit again.
+  assert.equal(retryIn(el), undefined)
+  const unknown = dom.document.createElement("div")
+  dom.document.body.appendChild(unknown)
+  ui.offer(unknown, { place: "limit", status: STATUS, title: "Out", retryAt: "unknown", onRetry: () => retried++, onChoose() {}, onEvent() {} })
+  await tick()
+  assert.equal(retryIn(unknown), undefined)
+  ui.clear(unknown)
   const back = dom.document.createElement("div")
   dom.document.body.appendChild(back)
   ui.offer(back, { place: "limit", status: STATUS, title: "Out", retryAt: Date.now() - 1_000, onRetry: () => retried++, onChoose() {}, onEvent() {} })
   await tick()
-  const live = [...back.querySelectorAll(".cf-secondary")].find((b: any) => /Retry/.test(b.textContent))
-  assert.equal(live.disabled, false)
+  const live = retryIn(back)
+  assert.ok(live)
   await click(live)
   assert.equal(retried, 1)
   // Gone from the chat: its timer with it.

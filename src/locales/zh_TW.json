@@ -794,7 +794,6 @@
   "offerMemoryTitle": "Pro 會記住整段對話",
   "offerMemoryBody": "免費回答只記得對話中最近的 {0} 則回答和筆記。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
   "offerMemoryLong": "這段對話的回答和筆記已超過免費回答能記住的 {0} 則。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
-  "offerRetryAt": "回答將在 {0} 恢復。",
   "similarWhere": "搜尋範圍",
   "similarWorld": "全球",
   "similarLocal": "我附近",
@@ -1312,5 +1311,6 @@
   "answersBackOff": "ContextFlow 的通知已關閉。回答將在 {0} 恢復。",
   "answersBackFailed": "無法設定提醒。回答將在 {0} 恢復。",
   "answersBackBody": "{0} 次免費回答已恢復。可以問任何頁面。",
-  "answersBackInApp": "在 ContextFlow App 中設定"
+  "answersBackInApp": "在 ContextFlow App 中設定",
+  "hoursMinutes": "{0} 小時 {1} 分鐘"
 }

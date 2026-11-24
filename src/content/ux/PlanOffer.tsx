@@ -7,7 +7,7 @@
 import type { ComponentChildren, VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
-import { t, uiLanguage } from "../../shared/i18n"
+import { t } from "../../shared/i18n"
 import { productOf, type PaidPlan, type Period } from "../../shared/plan"
 import type { StatusInfo } from "../../shared/types"
 import { currencyCode, tierLines, yearlySaving } from "../Plans"
@@ -39,7 +39,7 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   focus?: OfferChoice["plan"]
   // The place's own actions under the button (the discount, a note, the own key).
   extra?: ComponentChildren
-  // Retry the question: possible from `retryAt` (ms) on (when the answers are back); null when it is now; "unknown"
+  // Retry the question: shown from `retryAt` (ms) on (when the answers are back); null when it is now; "unknown"
   // while the server hasn't said when (2.8: no made-up time, Retry waits).
   retryAt?: number | null | "unknown"
   onRetry?: () => void
@@ -57,7 +57,7 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   const [period, setPeriod] = useState<Period>("yearly")
   // Shown once per message.
   useEffect(() => onEvent("shown", { plan, period }), [])
-  // Retry comes alive when the answers are back.
+  // Retry shows up when the answers are back.
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
     if (!retryAt || retryAt === "unknown" || retryAt <= now) return
@@ -120,13 +120,14 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
       )}
       <div class="cf-card-actions">
         <button type="button" class="cf-primary" onClick={choose}><Icon.Sparkle size={14} /> {t("plansChoose", name(plan))}</button>
-        {onRetry && (
-          <button type="button" class="cf-secondary" disabled={!canRetry} onClick={() => { onEvent("retry"); onRetry() }} title={canRetry ? t("retry") : undefined}>
+        {/* Only once the answers are back (the director's acceptance 3: a greyed Retry beside «Choose» while they're out
+            could only hit the limit again; when they're back is in the card's own text). */}
+        {canRetry && (
+          <button type="button" class="cf-secondary" onClick={() => { onEvent("retry"); onRetry!() }}>
             <Icon.Retry /> {t("retry")}
           </button>
         )}
       </div>
-      {onRetry && !canRetry && typeof retryAt === "number" && <p class="cf-offer-retry-at">{t("offerRetryAt", new Intl.DateTimeFormat(uiLanguage(), { hour: "numeric", minute: "2-digit" }).format(retryAt))}</p>}
       {extra}
     </div>
   )
