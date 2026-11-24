@@ -5991,81 +5991,41 @@
   ]
  },
  {
-  "key": "9d96ba4d55c1",
+  "key": "4ec1ebf7c590",
   "kind": "html",
-  "en": "Don't see ✦?",
+  "en": "No ✦ on the page? ContextFlow isn't allowed on websites yet.",
   "pages": [
    "start.html"
   ]
  },
  {
-  "key": "d6c19b41a6a0",
+  "key": "b805da32b11a",
   "kind": "html",
-  "en": "Just switched ContextFlow on? Safari is most likely still asking about each website. Until you answer, ✦ doesn't show up, and the question waits in the page menu:",
+  "en": "Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.",
   "pages": [
    "start.html"
   ]
  },
  {
-  "key": "f4afcc50e13a",
+  "key": "abbe3a8e83ad",
   "kind": "html",
-  "en": "Tap the page menu button in the address bar.",
+  "en": "Under Permissions, set All Websites to Allow.",
   "pages": [
    "start.html"
   ]
  },
  {
-  "key": "1b2420ba8f62",
+  "key": "07b51faeeeef",
   "kind": "html",
-  "en": "Tap ContextFlow there: it's marked ⚠.",
+  "en": "Back in Safari, reload the page and tap ✦.",
   "pages": [
    "start.html"
   ]
  },
  {
-  "key": "67db24588787",
+  "key": "9cf76ea2ed86",
   "kind": "html",
-  "en": "Choose Always Allow, then Always Allow on Every Website.",
-  "pages": [
-   "start.html"
-  ]
- },
- {
-  "key": "3809443abef4",
-  "kind": "html",
-  "en": "No ContextFlow in the page menu? Then it's switched off: tap Manage Extensions there, switch ContextFlow on, and do the steps above.",
-  "pages": [
-   "start.html"
-  ]
- },
- {
-  "key": "4fc815061e7b",
-  "kind": "html",
-  "en": "Just switched ContextFlow on? Safari is most likely still asking about each website. Until you answer, ✦ doesn't show up, and the question waits under the puzzle-piece button next to the address:",
-  "pages": [
-   "start.html"
-  ]
- },
- {
-  "key": "4893e7625de2",
-  "kind": "html",
-  "en": "Tap the puzzle-piece button next to the address, then ContextFlow: it's marked ⚠.",
-  "pages": [
-   "start.html"
-  ]
- },
- {
-  "key": "bf894fc10a36",
-  "kind": "html",
-  "en": "A banner under the address asking for more permissions? It's the same question: tap it.",
-  "pages": [
-   "start.html"
-  ]
- },
- {
-  "key": "880ff2fd1011",
-  "kind": "html",
-  "en": "No ContextFlow under that button? Then it's switched off: tap Manage Extensions there, switch ContextFlow on, and do the steps above.",
+  "en": "Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow.",
   "pages": [
    "start.html"
   ]
@@ -6095,9 +6055,9 @@
   ]
  },
  {
-  "key": "953bf7dc5176",
+  "key": "6c05410141f9",
   "kind": "html",
-  "en": "Choose Always Allow, then Always Allow on Every Website, so ✦ shows up on every page you read. ContextFlow reads a page only when you ask it something.",
+  "en": "Choose Always Allow. ContextFlow reads a page only when you ask it something.",
   "pages": [
    "start.html"
   ]
