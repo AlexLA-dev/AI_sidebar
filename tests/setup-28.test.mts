@@ -252,3 +252,21 @@ test("a page goes to Safari itself through x-safari- only when it's https (iOS h
   assert.equal((read("ContextFlow/iOS (App)/AppDelegate.swift").match(/SafariPage\.open\(page\)/g) ?? []).length, 2)
   assert.match(read("ContextFlow/Shared (App)/Chats.swift"), /SafariPage\.open\(link\)/)
 })
+
+test("back from Settings, the setup card's new step is brought into view", () => {
+  assert.match(content, /SetupCard\(activation: activation, openSafari: openSafari\)\s*\.id\("setup"\)/)
+  assert.match(content, /\.onChange\(of: activation\.state\) \{ _ in\s*#if os\(iOS\)\s*withAnimation\(\.easeInOut\(duration: 0\.3\)\) \{ scroller\.scrollTo\("setup", anchor: \.top\) \}/)
+})
+
+test("no rating ask on a new install's first day (ReviewGate's firstDay, from QuietDay)", () => {
+  assert.match(app("ReviewGate.swift"), /if s\.busy \|\| s\.firstDay \{ return false \}/)
+  assert.match(app("ReviewAsk.swift"), /firstDay: QuietDay\.firstDay/)
+})
+
+test("on iPad the guide over Settings is a short strip with the whole path, not a tall picture over the rows", () => {
+  assert.match(setup, /if path == \.fromApps \{[\s\S]{0,700}?view = AnyView\(pathStrip\(phase: phase\)[\s\S]{0,120}?\.frame\(width: 560, height: 92\)/)
+  assert.match(setup, /let names = \[String\(localized: "Apps"\), "Safari", String\(localized: "Extensions"\), "ContextFlow",\s*String\(localized: "Allow Extension"\), String\(localized: "All Websites"\), String\(localized: "Allow"\)\]/)
+  for (const key of ["Apps", "Extensions", "Allow Extension", "All Websites", "Allow"]) {
+    assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 14, key)
+  }
+})

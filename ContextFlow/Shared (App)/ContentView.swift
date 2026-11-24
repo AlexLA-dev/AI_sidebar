@@ -529,6 +529,9 @@ struct HomeView: View {
     var openTips: () -> Void
 
     var body: some View {
+        // 2.8 (the director's acceptance): back from Settings with ContextFlow on, the card's new step came in at the old
+        // scroll position, its heading off screen. The card is brought into view whenever its step changes.
+        ScrollViewReader { scroller in
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Test builds, «Start as a new user» on (Setup.swift): what this is, and the way back.
@@ -543,6 +546,7 @@ struct HomeView: View {
                 macStatus
                 #else
                 SetupCard(activation: activation, openSafari: openSafari)
+                    .id("setup")
                 #endif
                 // 2.8 (В3.4): the friend's code card left the first screen (one job there: switching ContextFlow on).
                 // A code is entered on Invite a friend, in Settings or from an invite link.
@@ -553,6 +557,18 @@ struct HomeView: View {
             .padding(20)
             .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
+        }
+        .onChange(of: activation.state) { _ in
+            #if os(iOS)
+            withAnimation(.easeInOut(duration: 0.3)) { scroller.scrollTo("setup", anchor: .top) }
+            #endif
+        }
+        #if os(iOS)
+        // And when it leads with Safari's permission (back from Safari, the panel still unused).
+        .onChange(of: activation.backFromSafariUnused) { _ in
+            withAnimation(.easeInOut(duration: 0.3)) { scroller.scrollTo("setup", anchor: .top) }
+        }
+        #endif
         }
         .navigationTitle("ContextFlow")
     }

@@ -1319,16 +1319,28 @@ final class SettingsPiP: NSObject {
     private static func frame(phase: Int, path: SetupPath) -> CVPixelBuffer? {
         let step: LocalizedStringKey = phase < 2 ? path.firstStep
             : phase < 4 ? "Tap ContextFlow and switch it on." : "Under Permissions, set All Websites to Allow."
-        let view = VStack(spacing: 10) {
-            SettingsScreen(phase: phase).frame(height: 216)
-            Text(step)
-                .font(.footnote.weight(.semibold))
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
+        let view: AnyView
+        if path == .fromApps {
+            // 2.8 (the director's acceptance, iPad): a picture of a screen made a tall window over the right-hand pane,
+            // hiding the very rows to tap (ContextFlow on the Extensions list, and its caption sat over the wrong
+            // ContextFlow row on Apps). On iPad the guide is a short strip instead: the whole path, the step to tap now
+            // marked, so it reads right on whichever screen the person is.
+            view = AnyView(pathStrip(phase: phase)
+                .padding(.horizontal, 14)
+                .frame(width: 560, height: 92)
+                .background(Color(uiColor: .systemBackground)))
+        } else {
+            view = AnyView(VStack(spacing: 10) {
+                SettingsScreen(phase: phase).frame(height: 216)
+                Text(step)
+                    .font(.footnote.weight(.semibold))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(12)
+            .frame(width: 320, height: 300, alignment: .top)
+            .background(Color(uiColor: .systemBackground)))
         }
-        .padding(12)
-        .frame(width: 320, height: 300, alignment: .top)
-        .background(Color(uiColor: .systemBackground))
         let renderer = ImageRenderer(content: view)
         renderer.scale = 2
         guard let image = renderer.cgImage else { return nil }
@@ -1344,6 +1356,36 @@ final class SettingsPiP: NSObject {
         ) else { return nil }
         context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
         return buffer
+    }
+
+    /// The path in Settings as one line, the names Settings itself shows: the step for this screen marked, the ones
+    /// before it dimmed (phase 0 marks Apps and Safari: the iPad starts from Apps on the left).
+    private static func pathStrip(phase: Int) -> some View {
+        let names = [String(localized: "Apps"), "Safari", String(localized: "Extensions"), "ContextFlow",
+                     String(localized: "Allow Extension"), String(localized: "All Websites"), String(localized: "Allow")]
+        let now: Set<Int> = phase == 0 ? [0, 1] : [phase + 1]
+        var line = AttributedString()
+        for (index, name) in names.enumerated() {
+            if index > 0 {
+                var arrow = AttributedString("  ›  ")
+                arrow.foregroundColor = .secondary
+                line += arrow
+            }
+            var part = AttributedString(name)
+            if now.contains(index) {
+                part.foregroundColor = .accentColor
+                part.font = .system(size: 17, weight: .bold)
+            } else {
+                part.foregroundColor = index < (now.min() ?? 0) ? .secondary : .primary
+            }
+            line += part
+        }
+        return Text(line)
+            .font(.system(size: 15, weight: .medium))
+            .multilineTextAlignment(.center)
+            .lineLimit(3)
+            .minimumScaleFactor(0.7)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private nonisolated static func sample(_ buffer: CVPixelBuffer, at time: CMTime) -> CMSampleBuffer? {
