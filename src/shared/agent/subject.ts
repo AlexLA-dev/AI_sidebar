@@ -4,7 +4,11 @@
 // the task's target when the request names no other.
 
 import type { PageMap } from "./types.ts"
+import { wordTest } from "./match.ts"
 import { venuesOn } from "./venues.ts"
+import { BOOKING_WORDS } from "./words.ts"
+
+const bookingWord = wordTest(BOOKING_WORDS)
 
 export interface Subject {
   kind: "place" | "product" | "person"
@@ -27,7 +31,8 @@ function nameOf(title: string): string {
 /** The thing this page is about, or null: a list, a home page, or nothing to book or buy here. */
 export function pageSubject(map: PageMap): Subject | null {
   const full = nameOf(map.title)
-  if (full.length < 3 || full.length > 80 || LISTY.test(full)) return null
+  // (A title that is the page's action — «Забронировать столик», «Book a table» — names nothing.)
+  if (full.length < 3 || full.length > 80 || LISTY.test(full) || bookingWord(full.split(" ")[0])) return null
   // (A results list shows its places on the screen; a place's own page may list «nearby» ones far below it.)
   if (venuesOn({ ...map, items: map.items.filter((i) => i.where !== "below") }).length) return null
   // The name as the page itself shows it (its heading), not only in the tab's title: «Trattoria Sole in Paris» is «Trattoria Sole».

@@ -429,8 +429,8 @@ export const NEXT_FREE_WORDS = [
 // Words of booking in another site's frame (its title, name or address): a reservation or appointment form.
 export const BOOKING_WORDS = [
   "book*", "reserv*", "appointment*", "schedul*",
-  "бронир*", "брониров*", "запис*", "резерв*",
-  "бронюв*", "запис*",
+  "бронир*", "брониров*", "заброн*", "запис*", "резерв*",
+  "бронюв*", "заброню*", "запис*",
   "buchen", "buchung*", "termin*", "reservierung*",
   "réserv*", "rendez-vous",
   "cita*", "agenda*",
