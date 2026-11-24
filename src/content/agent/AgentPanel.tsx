@@ -197,7 +197,8 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
   // Questions about the person come pre-filled from «Мои данные» (the owner on 117: «не спрашивать снова»); a value not
   // among the options shows as the person's own words, to change if they like.
   // Remembered answers, else what the plan picked already (the place chosen by the rules, shown and changeable).
-  const pre = savedAnswers(plan, saved ?? {}).map((a, i) => a || plan.questions[i]?.pick || "")
+  const remembered = savedAnswers(plan, saved ?? {})
+  const pre = remembered.map((a, i) => a || plan.questions[i]?.pick || "")
   const [answers, setAnswers] = useState<string[]>(() => pre)
   // A contact detail is typed (no options); an answer not among the options shows as the person's own words.
   const optsOf = (q: TaskPlan["questions"][number]) => q.options
@@ -290,7 +291,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
           {((q.fact && factLabel(q.fact, plan.site)) || q.kind === "contact") && (
             <label class="cf-row toggle cf-agent-remember">
               <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
-              <span>{pre[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
+              <span>{remembered[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
             </label>
           )}
         </div>
