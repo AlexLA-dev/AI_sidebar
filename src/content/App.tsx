@@ -1028,9 +1028,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const check = async () => {
       if (busy || document.visibilityState !== "visible") return
       const mark = takeBoughtMark()
+      // Only the tab that comes back takes it (every open tab's panel reads the same record; the simulator check after
+      // acceptance 1 counted «bought» three times): iPhone and iPad come back by the address with the app's mark, the Mac
+      // by Safari's window in front, so the focused tab.
+      if (!mark && (touch || !document.hasFocus())) return
       const buying = await readBuying()
       if (!mark && !buying) return
       busy = true
+      // Claimed at once, before anything is awaited again: said and counted once.
+      if (buying) await clearBuying()
       try {
         if (mark && !panelOpenRef.current) show()
         const next = await refreshStatus(true)
@@ -1039,8 +1045,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           setBought(now)
           setError((e) => (e && (e.code === "LIMIT_REACHED" || e.code === "PRO_ONLY") ? null : e))
           void sendBackground({ type: "useEvent", f: "plans", a: "bought", plan: now, ...(buying ? { period: buying.period } : {}) })
+          // In view: it comes at the chat's end, under what was there (it stayed below the fold on iPhone).
+          setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 120)
         }
-        if (now || mark) void clearBuying()
       } finally {
         busy = false
       }
@@ -1055,7 +1062,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       window.removeEventListener("focus", onEvent)
       window.removeEventListener("hashchange", onEvent)
     }
-  }, [refreshStatus, show])
+  }, [refreshStatus, show, touch])
 
   // The first time the panel is open and idle: the guided first request where there's a page to summarize (2.6),
   // else the tour of what it can do.
