@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "Отмена, как пишет страница: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Слушать в Pro: осталось {0} из {1} мин на неделю"
+ },
+ "tasteSimilarLeft": {
+  "message": "Полный поиск в Pro: осталось {0} из {1} на неделю"
+ },
+ "tasteUltraListen": {
+  "message": "В Ultra — {0} мин в неделю"
+ },
+ "tasteUltraSimilar": {
+  "message": "В Ultra — {0} полных поисков в неделю"
+ },
+ "tasteListenUsed": {
+  "message": "Минуты прослушивания в Pro на эту неделю закончились ({0} мин). Обновятся: {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "Полный поиск в Pro на эту неделю использован. Обновится: {0}. Быстрый поиск работает."
+ },
+ "tasteSimilarDone": {
+  "message": "Это полный поиск, как в Ultra: в Pro он есть раз в неделю."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

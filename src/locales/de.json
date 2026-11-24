@@ -1296,5 +1296,12 @@
   "agentRecapWhat": "Ich buche: {0}",
   "agentRecapAsked": "Gewünscht war: {0}",
   "agentRecapOtherPlace": "Anderer Ort: Der erste hatte keine passende Zeit",
-  "agentRecapTerms": "Stornierung laut Seite: {0}"
+  "agentRecapTerms": "Stornierung laut Seite: {0}",
+  "tasteListenLeft": "Anhören in Pro: diese Woche noch {0} von {1} Min.",
+  "tasteSimilarLeft": "Volle Suche in Pro: diese Woche noch {0} von {1}",
+  "tasteUltraListen": "In Ultra: {0} Min. pro Woche",
+  "tasteUltraSimilar": "In Ultra: {0} volle Suchen pro Woche",
+  "tasteListenUsed": "Die {0} Minuten Anhören in Pro für diese Woche sind aufgebraucht. Am {1} gibt es neue.",
+  "tasteSimilarUsed": "Die volle Suche in Pro für diese Woche ist verbraucht. Am {0} gibt es eine neue; die schnelle Suche geht weiter.",
+  "tasteSimilarDone": "Eine volle Suche wie in Ultra: Pro hat eine pro Woche."
 }

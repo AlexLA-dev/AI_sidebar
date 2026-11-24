@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "Cancelling, as the page says: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Listen in Pro: {0} of {1} min left this week"
+ },
+ "tasteSimilarLeft": {
+  "message": "Full search in Pro: {0} of {1} left this week"
+ },
+ "tasteUltraListen": {
+  "message": "In Ultra: {0} min a week"
+ },
+ "tasteUltraSimilar": {
+  "message": "In Ultra: {0} full searches a week"
+ },
+ "tasteListenUsed": {
+  "message": "This week's {0} minutes of listening in Pro are used up. They come back on {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "This week's full search in Pro is used. It comes back on {0}; the quick search still works."
+ },
+ "tasteSimilarDone": {
+  "message": "A full search, as in Ultra: Pro gets one a week."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

@@ -43,6 +43,8 @@ export interface StatusInfo {
   // 2.6: an Ultra subscriber's week of read aloud (seconds) and find similar (searches); null for other plans or
   // offline. plans: the allowances the plans sheet names, from the server (defaults offline).
   ultra: { speak: Usage | null; similar: Usage | null } | null
+  // 2.8 (В7.4): Pro's weekly tastes of Ultra, this week's use (only the tastes the server has on; absent: none).
+  taste?: { speak?: Usage; similar?: Usage }
   plans: PlanFacts
   // What the device's App Store account says (may be ahead of the server).
   // autoRenew: false when the user turned auto-renew off (null: not known); period and renewalAsked: the

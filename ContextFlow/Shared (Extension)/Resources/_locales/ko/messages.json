@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "페이지의 취소 조건: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Pro 듣기: 이번 주 {1}분 중 {0}분 남음"
+ },
+ "tasteSimilarLeft": {
+  "message": "Pro 전체 검색: 이번 주 {1}회 중 {0}회 남음"
+ },
+ "tasteUltraListen": {
+  "message": "Ultra에서는 주 {0}분"
+ },
+ "tasteUltraSimilar": {
+  "message": "Ultra에서는 전체 검색 주 {0}회"
+ },
+ "tasteListenUsed": {
+  "message": "이번 주 Pro 듣기 {0}분을 모두 썼어요. {1}에 다시 생겨요."
+ },
+ "tasteSimilarUsed": {
+  "message": "이번 주 Pro 전체 검색을 썼어요. {0}에 다시 생기고, 빠른 검색은 계속 쓸 수 있어요."
+ },
+ "tasteSimilarDone": {
+  "message": "Ultra와 같은 전체 검색이에요. Pro에서는 주 1회 쓸 수 있어요."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "Cancellazione, come dice la pagina: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Ascolta in Pro: questa settimana restano {0} min su {1}"
+ },
+ "tasteSimilarLeft": {
+  "message": "Ricerca completa in Pro: questa settimana ne restano {0} su {1}"
+ },
+ "tasteUltraListen": {
+  "message": "In Ultra: {0} min a settimana"
+ },
+ "tasteUltraSimilar": {
+  "message": "In Ultra: {0} ricerche complete a settimana"
+ },
+ "tasteListenUsed": {
+  "message": "Hai usato i {0} minuti di ascolto di Pro di questa settimana. Tornano {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "Hai usato la ricerca completa di Pro di questa settimana. Torna {0}; la ricerca rapida funziona sempre."
+ },
+ "tasteSimilarDone": {
+  "message": "Una ricerca completa, come in Ultra: Pro ne ha una a settimana."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

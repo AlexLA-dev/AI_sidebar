@@ -1296,5 +1296,12 @@
   "agentRecapWhat": "سأحجز: {0}",
   "agentRecapAsked": "طلبتَ: {0}",
   "agentRecapOtherPlace": "مكان آخر: لم يكن في الأول وقت مناسب",
-  "agentRecapTerms": "الإلغاء كما تقول الصفحة: {0}"
+  "agentRecapTerms": "الإلغاء كما تقول الصفحة: {0}",
+  "tasteListenLeft": "الاستماع في Pro: تبقّى {0} من {1} د هذا الأسبوع",
+  "tasteSimilarLeft": "البحث الكامل في Pro: تبقّى {0} من {1} هذا الأسبوع",
+  "tasteUltraListen": "في Ultra: ‏{0} د أسبوعيًا",
+  "tasteUltraSimilar": "في Ultra: ‏{0} عمليات بحث كاملة أسبوعيًا",
+  "tasteListenUsed": "انتهت دقائق الاستماع في Pro لهذا الأسبوع ({0} دقيقة). تعود يوم {1}.",
+  "tasteSimilarUsed": "استُخدم البحث الكامل في Pro لهذا الأسبوع. يعود يوم {0}، والبحث السريع ما زال يعمل.",
+  "tasteSimilarDone": "بحث كامل كما في Ultra: في Pro بحث واحد كل أسبوع."
 }

@@ -342,6 +342,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       limits?: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchFreeDaily?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> }
       organize?: { on?: unknown; space?: unknown; config?: unknown }
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
+      taste?: { speak?: Usage | null; similar?: Usage | null } | null
       country?: string
       invite?: { active?: unknown } | null
     }
@@ -350,6 +351,10 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
       ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
+      // 2.8 (В7.4): Pro's tastes of Ultra (the server sends only those that are on).
+      ...(body.taste && (body.taste.speak || body.taste.similar)
+        ? { taste: { ...(body.taste.speak ? { speak: body.taste.speak } : {}), ...(body.taste.similar ? { similar: body.taste.similar } : {}) } }
+        : {}),
       // 2.7: friends who came with this install's code and asked on two days (only once it has a code).
       ...(body.invite && typeof body.invite.active === "number" ? { invite: { active: body.invite.active } } : {}),
       plans: planFacts(body.limits),

@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "Stornierung laut Seite: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Anhören in Pro: diese Woche noch {0} von {1} Min."
+ },
+ "tasteSimilarLeft": {
+  "message": "Volle Suche in Pro: diese Woche noch {0} von {1}"
+ },
+ "tasteUltraListen": {
+  "message": "In Ultra: {0} Min. pro Woche"
+ },
+ "tasteUltraSimilar": {
+  "message": "In Ultra: {0} volle Suchen pro Woche"
+ },
+ "tasteListenUsed": {
+  "message": "Die {0} Minuten Anhören in Pro für diese Woche sind aufgebraucht. Am {1} gibt es neue."
+ },
+ "tasteSimilarUsed": {
+  "message": "Die volle Suche in Pro für diese Woche ist verbraucht. Am {0} gibt es eine neue; die schnelle Suche geht weiter."
+ },
+ "tasteSimilarDone": {
+  "message": "Eine volle Suche wie in Ultra: Pro hat eine pro Woche."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

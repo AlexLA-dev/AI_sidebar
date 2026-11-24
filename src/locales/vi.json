@@ -1296,5 +1296,12 @@
   "agentRecapWhat": "Đặt: {0}",
   "agentRecapAsked": "Bạn đã yêu cầu: {0}",
   "agentRecapOtherPlace": "Nơi khác: nơi đầu tiên không có giờ phù hợp",
-  "agentRecapTerms": "Hủy, theo trang: {0}"
+  "agentRecapTerms": "Hủy, theo trang: {0}",
+  "tasteListenLeft": "Nghe trong Pro: tuần này còn {0}/{1} phút",
+  "tasteSimilarLeft": "Tìm đầy đủ trong Pro: tuần này còn {0}/{1} lượt",
+  "tasteUltraListen": "Trong Ultra: {0} phút mỗi tuần",
+  "tasteUltraSimilar": "Trong Ultra: {0} lượt tìm đầy đủ mỗi tuần",
+  "tasteListenUsed": "Đã dùng hết {0} phút nghe của Pro tuần này. Sẽ có lại vào {1}.",
+  "tasteSimilarUsed": "Đã dùng lượt tìm đầy đủ của Pro tuần này. Sẽ có lại vào {0}; tìm nhanh vẫn dùng được.",
+  "tasteSimilarDone": "Một lượt tìm đầy đủ như trong Ultra: Pro có một lượt mỗi tuần."
 }

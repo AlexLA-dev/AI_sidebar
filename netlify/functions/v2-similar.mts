@@ -169,9 +169,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
             if (event.type === "result") {
               items = event.items.length
               condition = event.condition
-              result = { intro: event.intro, items: event.items, note: event.note, condition: event.condition, ...(light ? { light: true } : {}) }
+              result = { intro: event.intro, items: event.items, note: event.note, condition: event.condition, ...(light ? { light: true } : {}), ...(taste ? { taste: true } : {}) }
             }
-            send(controller, light && event.type === "result" ? { ...event, light: true } : event)
+            // The answer says which search it was: the light one, or (2.8) Ultra's full one as Pro's taste.
+            send(controller, event.type === "result" && (light || taste) ? { ...event, ...(light ? { light: true } : { taste: true }) } : event)
           }
           category = statsA.plan?.category ?? ""
           ok = true

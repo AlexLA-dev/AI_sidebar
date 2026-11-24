@@ -1296,5 +1296,12 @@
   "agentRecapWhat": "Je réserve : {0}",
   "agentRecapAsked": "Vous aviez demandé : {0}",
   "agentRecapOtherPlace": "Autre lieu : le premier n’avait pas d’horaire qui convienne",
-  "agentRecapTerms": "Annulation, selon la page : {0}"
+  "agentRecapTerms": "Annulation, selon la page : {0}",
+  "tasteListenLeft": "Écouter dans Pro : {0} min sur {1} restantes cette semaine",
+  "tasteSimilarLeft": "Recherche complète dans Pro : {0} sur {1} restante cette semaine",
+  "tasteUltraListen": "Dans Ultra : {0} min par semaine",
+  "tasteUltraSimilar": "Dans Ultra : {0} recherches complètes par semaine",
+  "tasteListenUsed": "Les {0} minutes d’écoute de Pro pour cette semaine sont utilisées. Elles reviennent {1}.",
+  "tasteSimilarUsed": "La recherche complète de Pro pour cette semaine est utilisée. Elle revient {0} ; la recherche rapide marche toujours.",
+  "tasteSimilarDone": "Une recherche complète, comme dans Ultra : Pro en a une par semaine."
 }

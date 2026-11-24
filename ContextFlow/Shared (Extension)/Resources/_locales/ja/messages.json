@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "ページに書かれたキャンセル条件：{0}"
  },
+ "tasteListenLeft": {
+  "message": "Proの読み上げ：今週は残り{0}/{1}分"
+ },
+ "tasteSimilarLeft": {
+  "message": "Proのフル検索：今週は残り{0}/{1}回"
+ },
+ "tasteUltraListen": {
+  "message": "Ultraなら週{0}分"
+ },
+ "tasteUltraSimilar": {
+  "message": "Ultraならフル検索が週{0}回"
+ },
+ "tasteListenUsed": {
+  "message": "今週のProの読み上げ{0}分を使い切りました。{1}に戻ります。"
+ },
+ "tasteSimilarUsed": {
+  "message": "今週のProのフル検索は使いました。{0}に戻ります。クイック検索は引き続き使えます。"
+ },
+ "tasteSimilarDone": {
+  "message": "Ultraと同じフル検索です。Proでは週1回使えます。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

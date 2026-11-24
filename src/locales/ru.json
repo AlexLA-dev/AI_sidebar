@@ -1296,5 +1296,12 @@
   "agentRecapWhat": "Бронирую: {0}",
   "agentRecapAsked": "Вы просили: {0}",
   "agentRecapOtherPlace": "Другое место: в первом не было подходящего времени",
-  "agentRecapTerms": "Отмена, как пишет страница: {0}"
+  "agentRecapTerms": "Отмена, как пишет страница: {0}",
+  "tasteListenLeft": "Слушать в Pro: осталось {0} из {1} мин на неделю",
+  "tasteSimilarLeft": "Полный поиск в Pro: осталось {0} из {1} на неделю",
+  "tasteUltraListen": "В Ultra — {0} мин в неделю",
+  "tasteUltraSimilar": "В Ultra — {0} полных поисков в неделю",
+  "tasteListenUsed": "Минуты прослушивания в Pro на эту неделю закончились ({0} мин). Обновятся: {1}.",
+  "tasteSimilarUsed": "Полный поиск в Pro на эту неделю использован. Обновится: {0}. Быстрый поиск работает.",
+  "tasteSimilarDone": "Это полный поиск, как в Ultra: в Pro он есть раз в неделю."
 }

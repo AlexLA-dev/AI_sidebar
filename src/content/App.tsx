@@ -71,14 +71,15 @@ import { active as agentActive, pendingKey, type Answer as AgentAnswer, type Pla
 import { WATCH_STORAGE } from "../shared/watch/types"
 import { urlKey as watchUrlKey } from "../shared/conversation"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
-import { factsFrom, SIMILAR_CHIPS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { factsFrom, SIMILAR_CHIPS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, similarTaste, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
 import { takeChatMark } from "./similar/mark"
 import { LINK_OPEN_KEY, linkOpen, messageAt, messageRef, takesLinkOpen, type LinkOpen } from "../shared/linkOpen"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
-import { PlansSheet } from "./Plans"
+import { PlansSheet, type PlansFeature } from "./Plans"
+import { TasteLine, tasteOf, tasteUsedLead, ultraLine } from "./Taste"
 import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
@@ -494,6 +495,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
   // 2.6: the plans sheet, open on this plan (Ultra from Listen).
   const [plansOpen, setPlansOpen] = useState<PaidPlan | null>(null)
+  // 2.8 (В7.4): the Ultra feature the sheet opens on (a taste used up) and its line on top.
+  const [plansFeature, setPlansFeature] = useState<{ feature: PlansFeature; lead?: string } | null>(null)
   const [draft, setDraft] = useState("")
   // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
   const [noteMode, setNoteMode] = useState(false)
@@ -1833,7 +1836,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   openSimilarRef.current = openSimilar
 
   /** Ends a Find similar: the checked list as the chat's answer, or why there isn't one. */
-  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null, entry?: Turn, answers?: number) => {
+  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null, entry?: Turn, answers?: number, taste?: boolean) => {
     portRef.current = null
     askToken.current = null
     partialRef.current = ""
@@ -1843,11 +1846,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // Not in their plan after all (the server's word), or the week's searches are used: the question goes, a card
       // says so.
       setMessages(history.slice(0, -1))
+      // 2.8 (В7.4): Pro's taste of the full search is used this week: the plans, Find similar first.
+      if (code === "LIMIT_REACHED" && taste) {
+        void sendBackground({ type: "useEvent", f: "similar", a: "limit", what: "taste" })
+        openPlans("ultra", "similar", "similar", tasteUsedLead("similar", usage, uiLang()))
+        return
+      }
       const light = similarMode(statusRef.current?.plan) === "light"
       if (code === "LIMIT_REACHED") void sendBackground({ type: "useEvent", f: "similar", a: "limit", what: light ? "light" : "full" })
       setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null, ...(light ? { light } : {}), ...(answers ? { answers } : {}) } : "upsell")
       return
     }
+    // 2.8 (В7.4): Pro's taste of the full search taken: the counter (and the next search's kind) from the server.
+    if (answer?.taste || entry?.similar?.taste) void refreshStatus(true)
     if (entry || answer) {
       // The list as the background wrote it into the chat (build 91), else as it came.
       const full: SimilarAnswer | null = entry ? null : { ...answer!, asked, at: Date.now() }
@@ -1871,9 +1882,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // else the device's region.
     // 2.7: the light search doesn't ask (it looks from their country), so no choice is shown under the question (a plan
     // not known yet sends the choice, and the server decides).
-    const region = statusRef.current && similarMode(statusRef.current.plan) === "light" ? undefined : where?.region ?? settingsRef.current.similarRegion
+    // 2.8 (В7.4): Pro's taste of Ultra's full search, while this week's is left: the full search, asked as such.
+    const taste = similarTaste(statusRef.current?.plan, tasteOf(statusRef.current, "similar"))
+    const region = statusRef.current && similarMode(statusRef.current.plan, tasteOf(statusRef.current, "similar")) === "light" ? undefined : where?.region ?? settingsRef.current.similarRegion
     const country = where?.country ?? statusRef.current?.country ?? localeCountry()
-    void sendBackground({ type: "useEvent", f: "similar", a: "find", what: similarMode(statusRef.current?.plan) })
+    void sendBackground({ type: "useEvent", f: "similar", a: "find", what: taste ? "taste" : similarMode(statusRef.current?.plan) })
     setUndoBar(null)
     setFirstWin(null)
     setError(null)
@@ -1918,7 +1931,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(region ? { region } : {}),
           ...(country ? { country } : {}),
           // Build 95: the chip apart from their own words (an ask without them: all of the condition is their words).
-          ...(ask ? { chip: ask.chips?.[0] ?? "", ...(ask.chips && ask.chips.length > 1 ? { chips: ask.chips } : {}), words: ask.words ?? "" } : {})
+          ...(ask ? { chip: ask.chips?.[0] ?? "", ...(ask.chips && ask.chips.length > 1 ? { chips: ask.chips } : {}), words: ask.words ?? "" } : {}),
+          ...(taste ? { taste: true } : {})
         }
       })
     })
@@ -1955,7 +1969,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         finishSimilar(history, answer ?? { intro: "", items, note: "", condition: "" }, condition, null, undefined, event.entry)
       } else if (event.type === "error") {
         settled = true
-        finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage, event.entry, event.answers)
+        finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage, event.entry, event.answers, event.taste)
       }
     })
     // Closed without an end: the background may still be answering it, so the chat is read again.
@@ -3543,11 +3557,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => clearTimeout(timer)
   }, [open, view, pointedChip, messages.length, chipsSig, markUltra])
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
-  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "translate" | "spaces" | "collections" = "listen") => {
+  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "translate" | "spaces" | "collections" = "listen", feature?: PlansFeature, lead?: string) => {
     setPlansOpen(focus)
+    setPlansFeature(feature ? { feature, ...(lead ? { lead } : {}) } : null)
     // The prices' currency and App Store country as the app's side gave them (a wrong currency can be traced from them).
     const prices = statusRef.current?.store?.prices ?? {}
-    void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus, cur: prices["#currency"], sf: prices["#storefront"] })
+    void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus, cur: prices["#currency"], sf: prices["#storefront"], ...(feature ? { feature } : {}) })
   }, [])
   if (status?.plan) planKnownRef.current = status.plan
   // Spaces (2.7, Spaces.tsx): the space the panel is in, its chats, the switcher's steps.
@@ -3633,11 +3648,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
   const panelOpenRef = useRef(open)
   panelOpenRef.current = open
+  // 2.8 (В7.4): Pro's weekly taste of Listen (null: none).
+  const listenTaste = tasteOf(status, "listen")
+  const listenAllowed = isUltra(plan) || listenTaste !== null
+  const listenSpeak = status?.ultra?.speak ?? listenTaste
   const listen = useListen({
     platform,
     plan,
-    speakLeft: status?.ultra?.speak ? Math.max(0, status.ultra.speak.limit - status.ultra.speak.used) : null,
-    onUltra: () => openPlans("ultra"),
+    allowed: listenAllowed,
+    speakLeft: listenSpeak ? Math.max(0, listenSpeak.limit - listenSpeak.used) : null,
+    onUltra: (used) => (used ? openPlans("ultra", "listen", "listen", tasteUsedLead("listen", listenTaste, uiLang())) : openPlans("ultra")),
     follow: followLink,
     send: (message) => sendBackground(message),
     // Back from the app (build 93): the panel opens again if it was open.
@@ -3661,7 +3681,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [])
   const anyMark = Object.keys(voiced).length > 0 || Object.keys(made).length > 0
-  const answerMark = (text: string) => (anyMark && isUltra(plan) ? listenMark(voicedId("answer", text), voiced, made) : null)
+  const answerMark = (text: string) => (anyMark && listenAllowed ? listenMark(voicedId("answer", text), voiced, made) : null)
   const markWords = (mark: "free" | number) => (mark === "free" ? t("listenVoiced") : t("listenMadeLeft", markClock(mark)))
   // A long press on Listen (iPhone, iPad: no tooltip there) says what its mark means, under the answer's tools.
   const [markSaid, setMarkSaid] = useState<number | null>(null)
@@ -3675,7 +3695,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // the chat's answers as the server counts them, heard on any device in any number of listens. Asked about when the
   // chat shows (each at most every 10 minutes: the background keeps track); the voiced ones join the list.
   const unvoicedShown = useMemo(() => {
-    if (TARGET !== "safari" || view !== "chat" || streaming || !isUltra(plan)) return []
+    if (TARGET !== "safari" || view !== "chat" || streaming || !listenAllowed) return []
     return messages.filter((m) => m.role === "assistant" && !m.note && m.content && !voiced[voicedId("answer", m.content)]).slice(-30)
   }, [messages, voiced, view, streaming, plan])
   const unvoicedKey = unvoicedShown.map((m) => voicedId("answer", m.content)).join(",")
@@ -3703,7 +3723,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const listenSounds = listen.state.at === "playing" || listen.state.at === "paused" || listen.state.at === "loading"
   const playingChat = listenSounds && "key" in listen.state ? listen.state.key.split("|")[0] : null
   // The bar: under the chat's question field, and at the bottom of the chats list while something plays (build 93).
-  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onRetry={listen.retry} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onRetry={listen.retry} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => (listenTaste ? openPlans("ultra", "limit", "listen", tasteUsedLead("listen", listenTaste, uiLang())) : openPlans("ultra", "limit"))} />
   // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
   // in the bar when the panel opens again).
   // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.
@@ -5173,6 +5193,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
               onPlans={() => openPlans(hasPro(plan) || byok ? "ultra" : "pro", "settings")}
+              onTaste={(feature) => openPlans("ultra", "settings", feature)}
               onYearly={(chosen) => {
                 void sendBackground({ type: "useEvent", f: "plans", a: "yearly", plan: chosen, period: "yearly" })
                 openAppFromTap(touch, { target: "subscribe", plan: chosen, period: "yearly" })
@@ -5284,7 +5305,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <>
                           {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                           {m.similar ? (
-                            <SimilarList answer={m.similar} items={m.similar.items} onOpen={(url) => openPage(url, threadRef.current, messageRef(messages, idx))} onWatch={listsKind("watch") ? watchItem : undefined} />
+                            <SimilarList answer={m.similar} items={m.similar.items} onOpen={(url) => openPage(url, threadRef.current, messageRef(messages, idx))} onWatch={listsKind("watch") ? watchItem : undefined} tasteFoot={plan === "pro" ? <p class="cf-taste"><span>{t("tasteSimilarDone")}</span><button type="button" class="cf-link" onClick={() => openPlans("ultra", "similar", "similar")}>{ultraLine("similar", status?.plans)} ›</button></p> : null} />
                           ) : (
                             <Markdown text={historyMode ? linkChats(m.content, chatNames) : m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} onChat={historyMode ? openChatLink : undefined} />
                           )}
@@ -5301,7 +5322,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan) === "light"} /> : partial ? <Markdown text={withoutItemMarker(partial).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
+                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan, tasteOf(status, "similar")) === "light"} /> : partial ? <Markdown text={withoutItemMarker(partial).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
                   </div>
                 )}
 
@@ -5390,7 +5411,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     region={settings.similarRegion ?? null}
                     country={status?.country ?? localeCountry()}
                     onRegion={(r) => updateSettings({ similarRegion: r })}
-                    light={similarMode(plan) === "light" ? { weekly: status?.plans.similarLightWeekly ?? SIMILAR_LIGHT_WEEKLY, ...(plan === "pro" ? { answers: status?.plans.similarProAnswers ?? SIMILAR_PRO_ANSWERS } : {}) } : undefined}
+                    taste={tasteOf(status, "similar") ? <TasteLine feature="similar" usage={tasteOf(status, "similar")!} facts={status?.plans} onUltra={() => openPlans("ultra", "similar", "similar")} /> : null}
+                    light={similarMode(plan, tasteOf(status, "similar")) === "light" ? { weekly: status?.plans.similarLightWeekly ?? SIMILAR_LIGHT_WEEKLY, ...(plan === "pro" ? { answers: status?.plans.similarProAnswers ?? SIMILAR_PRO_ANSWERS } : {}) } : undefined}
                     onFind={(condition, label, ask) => {
                       if (!similarSubject) return findSimilar(condition, label, false, undefined, undefined, ask)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).
@@ -5941,6 +5963,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <PlansSheet
               status={status}
               focus={plansOpen}
+              {...(plansFeature ? { feature: plansFeature.feature, lead: plansFeature.lead } : {})}
               onChoose={(chosen, period) => {
                 setPlansOpen(null)
                 void sendBackground({ type: "useEvent", f: "plans", a: "choose", plan: chosen, period })

@@ -1296,5 +1296,12 @@
   "agentRecapWhat": "予約内容：{0}",
   "agentRecapAsked": "ご希望：{0}",
   "agentRecapOtherPlace": "別の場所：最初の場所に合う時間がありませんでした",
-  "agentRecapTerms": "ページに書かれたキャンセル条件：{0}"
+  "agentRecapTerms": "ページに書かれたキャンセル条件：{0}",
+  "tasteListenLeft": "Proの読み上げ：今週は残り{0}/{1}分",
+  "tasteSimilarLeft": "Proのフル検索：今週は残り{0}/{1}回",
+  "tasteUltraListen": "Ultraなら週{0}分",
+  "tasteUltraSimilar": "Ultraならフル検索が週{0}回",
+  "tasteListenUsed": "今週のProの読み上げ{0}分を使い切りました。{1}に戻ります。",
+  "tasteSimilarUsed": "今週のProのフル検索は使いました。{0}に戻ります。クイック検索は引き続き使えます。",
+  "tasteSimilarDone": "Ultraと同じフル検索です。Proでは週1回使えます。"
 }

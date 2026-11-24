@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "Скасування, як пише сторінка: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Слухати в Pro: залишилося {0} з {1} хв цього тижня"
+ },
+ "tasteSimilarLeft": {
+  "message": "Повний пошук у Pro: залишилося {0} з {1} цього тижня"
+ },
+ "tasteUltraListen": {
+  "message": "В Ultra — {0} хв на тиждень"
+ },
+ "tasteUltraSimilar": {
+  "message": "В Ultra — {0} повних пошуків на тиждень"
+ },
+ "tasteListenUsed": {
+  "message": "Хвилини прослуховування в Pro на цей тиждень закінчилися ({0} хв). Оновляться: {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "Повний пошук у Pro на цей тиждень використано. Оновиться: {0}. Швидкий пошук працює."
+ },
+ "tasteSimilarDone": {
+  "message": "Це повний пошук, як в Ultra: у Pro він є раз на тиждень."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "页面上的取消条款：{0}"
  },
+ "tasteListenLeft": {
+  "message": "Pro 朗读：本周剩余 {0}/{1} 分钟"
+ },
+ "tasteSimilarLeft": {
+  "message": "Pro 完整搜索：本周剩余 {0}/{1} 次"
+ },
+ "tasteUltraListen": {
+  "message": "Ultra：每周 {0} 分钟"
+ },
+ "tasteUltraSimilar": {
+  "message": "Ultra：每周 {0} 次完整搜索"
+ },
+ "tasteListenUsed": {
+  "message": "本周 Pro 的 {0} 分钟朗读已用完，{1}恢复。"
+ },
+ "tasteSimilarUsed": {
+  "message": "本周 Pro 的完整搜索已用过，{0}恢复；快速搜索照常可用。"
+ },
+ "tasteSimilarDone": {
+  "message": "这是和 Ultra 一样的完整搜索：Pro 每周可用一次。"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

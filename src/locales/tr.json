@@ -1296,5 +1296,12 @@
   "agentRecapWhat": "Rezervasyon: {0}",
   "agentRecapAsked": "İstediğiniz: {0}",
   "agentRecapOtherPlace": "Başka yer: ilkinde uygun saat yoktu",
-  "agentRecapTerms": "Sayfaya göre iptal: {0}"
+  "agentRecapTerms": "Sayfaya göre iptal: {0}",
+  "tasteListenLeft": "Pro'da dinleme: bu hafta {1} dakikadan {0} dakika kaldı",
+  "tasteSimilarLeft": "Pro'da tam arama: bu hafta {1} aramadan {0} arama kaldı",
+  "tasteUltraListen": "Ultra'da: haftada {0} dakika",
+  "tasteUltraSimilar": "Ultra'da: haftada {0} tam arama",
+  "tasteListenUsed": "Pro'daki bu haftaki {0} dakikalık dinleme süreniz doldu. Süre {1} günü yenilenir.",
+  "tasteSimilarUsed": "Pro'daki bu haftaki tam aramanızı kullandınız. {0} günü yenilenir; hızlı arama çalışmaya devam eder.",
+  "tasteSimilarDone": "Ultra'daki gibi tam bir arama: Pro'da haftada bir tane var."
 }

@@ -151,7 +151,7 @@ export const FEATURES: Record<string, Feature> = {
   // Build 95: a text whose audio played out but isn't marked ("unvoiced"), and why: skipped ahead here, skipped in Safari
   // before it was carried on ("before"), or the end not reached by `gap_s` seconds ("short").
   listen: {
-    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced"],
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced", "taste_used"],
     fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int", why: ["skipped", "before", "short"], gap_s: "int" }
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
@@ -159,7 +159,8 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
     via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces", "collections"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
-    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
+    // 2.8 (В7.4): the Ultra feature it opened on (Pro's taste of it used, or its «In Ultra» link).
+    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code", feature: ["listen", "similar"] }
   },
   // Build 91: the plans message in the chat — out of answers ("limit"), the chat's memory ("memory": the switch, or a
   // free chat past its last messages), a Pro or Ultra feature refused; shown, and what was tapped: a plan and period
@@ -182,7 +183,8 @@ export const FEATURES: Record<string, Feature> = {
   // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
   // ("pick"), a search asked ("find"), the light search's week or Pro's answers used ("limit"); the panel and the app: an
   // item opened ("open"). Each search itself, its plan and cost, is logged by the server ("similar", with `mode`).
-  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full"] } },
+  // 2.8 (В7.4): "taste", Pro's taste of the full search (asked, or its week used).
+  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full", "taste"] } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],

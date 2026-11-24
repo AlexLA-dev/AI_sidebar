@@ -71,16 +71,6 @@ export const ULTRA_DEFAULTS = { speakWeeklySeconds: 1800, similarWeekly: 10 } as
  */
 export const PRO_TASTE_DEFAULTS = { speakWeeklySeconds: 300, similarWeekly: 1 } as const
 
-export interface Tastes {
-  speakWeeklySeconds: number
-  similarWeekly: number
-}
-
-/** Listen on a plan: Ultra, and Pro while it has a taste of it (`tastes` as the status gave them; none: no taste). */
-export function canListen(plan: Plan | null | undefined, tastes?: Tastes | null): boolean {
-  return isUltra(plan) || (hasPro(plan) && (tastes?.speakWeeklySeconds ?? 0) > 0)
-}
-
 /**
  * Find similar's light search for Own key and Pro (2.7, the owner: «Свой ключ и Pro получают тоже поиск похожего, но до
  * 5 в неделю»): searches a week per device. The one number: the server's default (env SIMILAR_LIGHT_WEEKLY overrides it

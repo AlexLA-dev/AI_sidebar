@@ -2180,7 +2180,7 @@ struct SettingsView: View {
         Section(header: Text("Your plan"), footer: restoreMessage.map { Text($0) }) {
             HStack {
                 Text(planName(store.entitlement.productId))
-                    .task { if store.isUltra { await store.refreshPlanFacts() } }
+                    .task { if store.isPro { await store.refreshPlanFacts() } }
                 Spacer()
                 if let date = store.entitlement.expiresAt {
                     if store.entitlement.autoRenew == false {
@@ -2196,6 +2196,15 @@ struct SettingsView: View {
             if store.isUltra, let left = store.planFacts.speakLeftSeconds {
                 Text("Listening: \(left / 60) of \(store.planFacts.speakWeeklyMinutes) min left this week")
                     .foregroundColor(.secondary)
+            }
+            // 2.8 (В7.4): Pro's weekly taste of Listen, and what Ultra has.
+            if !store.isUltra, let taste = store.planFacts.tasteSpeakSeconds, let left = store.planFacts.speakLeftSeconds {
+                Text("Listen in Pro: \(left / 60) of \(taste / 60) min left this week")
+                    .foregroundColor(.secondary)
+                // To the plans, Ultra first (the app's own link, as the panel's «In Ultra» opens it).
+                Button("In Ultra: \(store.planFacts.speakWeeklyMinutes) min a week") {
+                    if let url = URL(string: "contextflow://subscribe?plan=ultra&feature=listen") { openURL(url) }
+                }
             }
             if let offer = store.yearlySwitch, Date().timeIntervalSince1970 > yearlyHiddenUntil {
                 yearlyLine(offer)

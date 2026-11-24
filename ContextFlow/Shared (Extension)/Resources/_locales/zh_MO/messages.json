@@ -3797,6 +3797,27 @@
  "agentRecapTerms": {
   "message": "頁面上的取消條款：{0}"
  },
+ "tasteListenLeft": {
+  "message": "Pro 朗讀：本週剩餘 {0}/{1} 分鐘"
+ },
+ "tasteSimilarLeft": {
+  "message": "Pro 完整搜尋：本週剩餘 {0}/{1} 次"
+ },
+ "tasteUltraListen": {
+  "message": "Ultra：每週 {0} 分鐘"
+ },
+ "tasteUltraSimilar": {
+  "message": "Ultra：每週 {0} 次完整搜尋"
+ },
+ "tasteListenUsed": {
+  "message": "本週 Pro 的 {0} 分鐘朗讀已用完，{1}恢復。"
+ },
+ "tasteSimilarUsed": {
+  "message": "本週 Pro 的完整搜尋已用過，{0}恢復；快速搜尋照常可用。"
+ },
+ "tasteSimilarDone": {
+  "message": "這是和 Ultra 一樣的完整搜尋：Pro 每週可用一次。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },
