@@ -817,7 +817,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `held: the device pressed the asked day «${greyDay.label}» first (it showed greyed); read the page's answer for it, then go on or ask with what the page shows` })
       continue
     }
-    // The page names its own next free day («available from …», «next available», a button to it) and the model asks
+    // The page names its own next free day (in its words, or a button to it) and the model asks
     // instead (124, a salon strip: «27 and 28 have no times, open only until 9 Dec» while the page said its next free
     // day was the 28th): sent back once with the page's own words, so the rules decide or the question offers that day.
     if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking && !state.nextNudged) {

@@ -328,7 +328,7 @@ function wordsOf(box: Element, max: number): string {
  *  rating and a count of reviews and no more than one place's links. Its text, or "". */
 function cardOf(el: Element, label: string): string {
   if (label.length > 80 || (CARD_RATING.test(label) && CARD_REVIEWS.test(label))) return ""
-  // A whole card that is one link named by its aria-label («Batistou»): its own text is the card.
+  // A whole card that is one link named by its aria-label («Trattoria Uno»): its own text is the card.
   const own = wordsOf(el, 600)
   if (own.length <= 400 && own !== label && CARD_RATING.test(own) && CARD_REVIEWS.test(own)) return own.slice(0, 240)
   let box: Element | null = el.parentElement
