@@ -73,6 +73,7 @@ final class Activation: ObservableObject {
     /// «Start as a new user» began or ended (test builds): the state as it's recorded for that, with nothing reported.
     func previewChanged() {
         state = Self.recordedState()
+        backFromSafariUnused = UserDefaults.standard.bool(forKey: "cf_setup_back_unused")
     }
 
     /// Re-reads the state: the extension may have been switched on while the app was in the background.
@@ -96,6 +97,7 @@ final class Activation: ObservableObject {
         state = next
         if next != .off { SetupReminders.cancel() }
         if before == .off, next != .off { reportEnabled() }
+        checkSafariTrip()
     }
 
     // MARK: The way to switching it on (2.7, plan section 8 «Активация»): counts only, f "activation" in usage.ts.
@@ -130,7 +132,27 @@ final class Activation: ObservableObject {
 
     /// «Open Safari» tapped on the setup card: setup.open_safari (`via`: "step", the step after switching it on; "card",
     /// the card once it's been used; "guide", the guide's own button where this iOS can't tell the app it's on).
-    func openedSafari(_ via: String) { step("open_safari", ["via": via], feature: "setup") }
+    func openedSafari(_ via: String) {
+        step("open_safari", ["via": via], feature: "setup")
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.safariTripKey)
+    }
+
+    /// 2.8 («Ask»): the person went to Safari from the «Open Safari» step and came back, and the panel still hasn't been
+    /// opened. With All Websites left on Ask no ✦ shows on any page, so the step then names Safari's page menu first.
+    /// Kept on disk: from the first return after a trip until the panel is used.
+    @Published private(set) var backFromSafariUnused = UserDefaults.standard.bool(forKey: "cf_setup_back_unused")
+    private static let safariTripKey = "cf_setup_safari_trip_at"
+
+    private func checkSafariTrip() {
+        let defaults = UserDefaults.standard
+        let at = defaults.double(forKey: Self.safariTripKey)
+        guard at > 0, Date().timeIntervalSince1970 - at > 5 else { return }
+        defaults.removeObject(forKey: Self.safariTripKey)
+        guard state == .on, !backFromSafariUnused else { return }
+        backFromSafariUnused = true
+        defaults.set(true, forKey: "cf_setup_back_unused")
+        once("ask_shown", key: "cf_setup_ask_shown_reported", feature: "setup")
+    }
 
     private func once(_ action: String, key: String, fields: [String: String] = [:], feature: String = "activation") {
         guard !NewUserPreview.isOn, !UserDefaults.standard.bool(forKey: key) else { return }
@@ -719,9 +741,10 @@ enum FirstPage {
 
 /// Where «Open Settings» lands, and so what the card, its footnote and the guide over Settings show (2.8, В2.1).
 enum SetupPath {
-    /// The iPhone on iOS 26.2 and later: Safari's settings open on ContextFlow's own page (2.6), and the guide shows
-    /// that page's steps only.
-    case direct
+    /// The iPhone on iOS 26.2 and later: Safari's settings are asked to open on ContextFlow's own page (2.6), but
+    /// where they land isn't proven (2.8: the iPhone simulators land on Settings' first page, and the system reports
+    /// success either way). The whole way is shown, and the footnote reads right whichever page opens.
+    case maybeDirect
     /// The iPad (2.8, the owner's iPad and the iPad simulators): the same call opens Settings on Apps or on its first
     /// page, never on ContextFlow's. The whole way is shown, from Apps on the left.
     case fromApps
@@ -730,12 +753,12 @@ enum SetupPath {
 
     static var current: SetupPath {
         if UIDevice.current.userInterfaceIdiom == .pad { return .fromApps }
-        if #available(iOS 26.2, *) { return .direct }
+        if #available(iOS 26.2, *) { return .maybeDirect }
         return .appPage
     }
 
     /// The walkthrough's screens the guide over Settings plays.
-    var phases: [Int] { self == .direct ? [3, 4, 5] : Array(0..<6) }
+    var phases: [Int] { Array(0..<6) }
 
     /// The first written step: on iPad it starts where Settings opens.
     var firstStep: LocalizedStringKey {
@@ -775,8 +798,9 @@ struct SetupCard: View {
             .padding(.top, 4)
             .accessibilityIdentifier("cf-setup-settings")
             switch path {
-            case .direct:
-                Text("Settings opens on ContextFlow: switch it on, then set All Websites to Allow.")
+            case .maybeDirect:
+                // 2.8: true whether Settings opens on ContextFlow's page or on its first page.
+                Text("If Settings opens on ContextFlow's page, start at step 2. If not, start from Apps.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -841,10 +865,20 @@ struct SetupCard: View {
             // Above the clip: on an iPhone the button is on the first screen without scrolling.
             safariButton("step", large: true)
             // With All Websites left on Ask (the step people skip in Settings), no ✦ shows on any page: the way in is
-            // Safari's page menu, where Safari asks for the permission (2.8, found on the iPhone walk).
-            Step(number: 1, text: "Tap ✦ on the page.")
-            Step(number: 2, text: "No ✦? Open the page menu in the address bar and choose ContextFlow.")
-            Step(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website.")
+            // Safari's page menu, where Safari asks for the permission (2.8, found on the iPhone walk). Back from Safari
+            // with the panel still unused, that fix comes first.
+            if activation.backFromSafariUnused {
+                Text("No ✦ on the page? Safari is waiting for your permission.")
+                    .font(.callout)
+                    .fixedSize(horizontal: false, vertical: true)
+                Step(number: 1, text: "In Safari, open the page menu in the address bar and choose ContextFlow.")
+                Step(number: 2, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website.")
+                Step(number: 3, text: "Tap ✦ on the page.")
+            } else {
+                Step(number: 1, text: "Tap ✦ on the page.")
+                Step(number: 2, text: "No ✦? Open the page menu in the address bar and choose ContextFlow.")
+                Step(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website.")
+            }
             if let url = TipClip.url("open") {
                 TipClipView(url: url)
                     .aspectRatio(TipClip.aspect, contentMode: .fit)
@@ -1374,7 +1408,8 @@ final class NewUserPreview: ObservableObject {
     nonisolated private static let key = "cf_new_user_preview_since"
     /// What a new install hasn't had yet, in the app's own defaults on this device: the reminders to finish setup, and
     /// the setup funnel's once-an-install steps (2.8; they're not sent while this is on, so a preview can see them again).
-    private static let firstRunKeys = ["cf_setup_reminders_offered", "cf_activation_shown_reported", "cf_activation_safari_shown_reported"]
+    private static let firstRunKeys = ["cf_setup_reminders_offered", "cf_activation_shown_reported", "cf_activation_safari_shown_reported",
+                                       "cf_setup_back_unused", "cf_setup_ask_shown_reported", "cf_setup_safari_trip_at"]
 
     /// On now (a store build never: the flag left by a test build installed before it counts for nothing).
     nonisolated static var isOn: Bool {

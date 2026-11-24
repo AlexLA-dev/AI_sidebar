@@ -1296,5 +1296,20 @@
   "agentRecapWhat": "Đặt: {0}",
   "agentRecapAsked": "Bạn đã yêu cầu: {0}",
   "agentRecapOtherPlace": "Nơi khác: nơi đầu tiên không có giờ phù hợp",
-  "agentRecapTerms": "Hủy, theo trang: {0}"
+  "agentRecapTerms": "Hủy, theo trang: {0}",
+  "tasteListenLeft": "Nghe trong Pro: tuần này còn {0}/{1} phút",
+  "tasteSimilarLeft": "Tìm đầy đủ trong Pro: tuần này còn {0}/{1} lượt",
+  "tasteUltraListen": "Trong Ultra: {0} phút mỗi tuần",
+  "tasteUltraSimilar": "Trong Ultra: {0} lượt tìm đầy đủ mỗi tuần",
+  "tasteListenUsed": "Đã dùng hết {0} phút nghe của Pro tuần này. Sẽ có lại vào {1}.",
+  "tasteSimilarUsed": "Đã dùng lượt tìm đầy đủ của Pro tuần này. Sẽ có lại vào {0}; tìm nhanh vẫn dùng được.",
+  "tasteSimilarDone": "Một lượt tìm đầy đủ như trong Ultra: Pro có một lượt mỗi tuần.",
+  "boughtPro": "Pro đã bật: tối đa {0} câu trả lời mỗi tuần. Cứ hỏi thoải mái.",
+  "boughtUltra": "Ultra đã bật: Nghe, tìm tương tự đầy đủ và mọi thứ trong Pro.",
+  "boughtByok": "Khóa riêng đã bật. Hãy thêm khóa API trong Cài đặt.",
+  "answersBackAsk": "Nhắc tôi khi {0} câu trả lời quay lại",
+  "answersBackSet": "Tôi sẽ nhắc bạn lúc {0}, khi câu trả lời quay lại.",
+  "answersBackOff": "Thông báo của ContextFlow đang tắt. Câu trả lời sẽ quay lại lúc {0}.",
+  "answersBackFailed": "Không đặt được lời nhắc. Câu trả lời sẽ quay lại lúc {0}.",
+  "answersBackBody": "{0} câu trả lời miễn phí đã quay lại. Hãy hỏi về bất kỳ trang nào."
 }

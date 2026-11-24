@@ -186,14 +186,17 @@ enum ChatAI {
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let limits = object["limits"] as? [String: Any] else { return nil }
         let watch = limits["watch"] as? [String: Int] ?? [:]
-        let speak = (object["ultra"] as? [String: Any])?["speak"] as? [String: Any]
+        // 2.8 (В7.4): Pro's weekly taste of Listen (on the server's numbers), in place of Ultra's minutes.
+        let taste = (object["taste"] as? [String: Any])?["speak"] as? [String: Any]
+        let speak = (object["ultra"] as? [String: Any])?["speak"] as? [String: Any] ?? taste
         return PlanFacts(
             proWeekly: limits["proWeekly"] as? Int ?? 375,
             speakWeeklyMinutes: (limits["speakWeeklySeconds"] as? Int ?? 1800) / 60,
             similarWeekly: limits["similarWeekly"] as? Int ?? 10,
             watchPro: watch["pro"] ?? 20,
             watchUltra: watch["ultra"] ?? 50,
-            speakLeftSeconds: speak.flatMap { s in (s["limit"] as? Int).map { max(0, $0 - (s["used"] as? Int ?? 0)) } }
+            speakLeftSeconds: speak.flatMap { s in (s["limit"] as? Int).map { max(0, $0 - (s["used"] as? Int ?? 0)) } },
+            tasteSpeakSeconds: taste?["limit"] as? Int
         )
     }
 
@@ -204,6 +207,8 @@ enum ChatAI {
         var watchPro = 20
         var watchUltra = 50
         var speakLeftSeconds: Int?
+        /// 2.8 (В7.4): Pro's taste of Listen, seconds a week (nil: none, or not Pro).
+        var tasteSpeakSeconds: Int?
     }
 
     /// Read aloud (2.6, Ultra): one part of the text, spoken by our server (/api/v2/speak), as 24 kHz 16-bit PCM.

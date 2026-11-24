@@ -6,6 +6,8 @@ import { t, uiDirection, uiLang } from "../shared/i18n"
 import { OWN_KEY_PATTERN } from "../shared/models"
 import { hasPro, isUltra, periodOfProduct, productOf } from "../shared/plan"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
+import type { PlansFeature } from "./Plans"
+import { TasteLine, tasteOf } from "./Taste"
 import * as Icon from "./icons"
 import { deleteAllChats, hideYearly, yearlyHiddenNow } from "./store"
 import { InsertSettingsGroup } from "./insert/InsertSettings"
@@ -32,6 +34,8 @@ interface Props {
   onUpgrade: () => void
   // 2.6: the plans sheet (Own key, Pro, Ultra; monthly or yearly).
   onPlans?: () => void
+  // 2.8 (В7.4): Pro's tastes of Ultra: «In Ultra: …» opens the plans on that feature.
+  onTaste?: (feature: PlansFeature) => void
   // Build 90: a monthly Pro or Ultra subscriber switches to the yearly plan (the app takes the payment).
   onYearly?: (plan: "pro" | "ultra") => void
   // The Own key plan's button: "Upgrade to Pro", at the discount when there is one.
@@ -124,6 +128,10 @@ export function SettingsView(props: Props): VNode {
       {speak && (
         <p class="cf-hint">{t("listenLeft", String(Math.max(0, Math.floor((speak.limit - speak.used) / 60))), String(Math.round(speak.limit / 60)))}</p>
       )}
+      {TARGET === "safari" && props.onTaste && (["listen", "similar"] as const).map((feature) => {
+        const usage = tasteOf(status, feature)
+        return usage ? <TasteLine key={feature} feature={feature} usage={usage} facts={status?.plans} onUltra={() => props.onTaste?.(feature)} /> : null
+      })}
       {renews && plan !== "free" && <p class="cf-hint">{status?.store?.autoRenew === false ? t("planEnds", renews) : t("planRenews", renews)}</p>}
       {TARGET === "safari" && (
         <div class="cf-row buttons">

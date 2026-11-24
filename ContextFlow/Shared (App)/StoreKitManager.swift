@@ -222,6 +222,10 @@ final class StoreKitManager: ObservableObject {
         return entitlement.active && ["pro", "ultra"].contains(PlanProducts.plan(of: entitlement.productId))
     }
 
+    /// Listen plays for Ultra, and (2.8, В7.4) for Pro while the server gives it a weekly taste (known once the plan facts
+    /// came; until then the server decides when Pro asks).
+    var canListen: Bool { isUltra || (isPro && (planFacts.tasteSpeakSeconds ?? 0) > 0) }
+
     /// Ultra is active (2.6): read aloud, find similar, more watched pages. `-CFDebugUltra YES` in Debug builds.
     var isUltra: Bool {
         #if DEBUG

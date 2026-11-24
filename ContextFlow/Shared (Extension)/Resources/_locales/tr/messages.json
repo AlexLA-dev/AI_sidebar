@@ -3797,6 +3797,51 @@
  "agentRecapTerms": {
   "message": "Sayfaya göre iptal: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Pro'da dinleme: bu hafta {1} dakikadan {0} dakika kaldı"
+ },
+ "tasteSimilarLeft": {
+  "message": "Pro'da tam arama: bu hafta {1} aramadan {0} arama kaldı"
+ },
+ "tasteUltraListen": {
+  "message": "Ultra'da: haftada {0} dakika"
+ },
+ "tasteUltraSimilar": {
+  "message": "Ultra'da: haftada {0} tam arama"
+ },
+ "tasteListenUsed": {
+  "message": "Pro'daki bu haftaki {0} dakikalık dinleme süreniz doldu. Süre {1} günü yenilenir."
+ },
+ "tasteSimilarUsed": {
+  "message": "Pro'daki bu haftaki tam aramanızı kullandınız. {0} günü yenilenir; hızlı arama çalışmaya devam eder."
+ },
+ "tasteSimilarDone": {
+  "message": "Ultra'daki gibi tam bir arama: Pro'da haftada bir tane var."
+ },
+ "boughtPro": {
+  "message": "Pro açık: haftada {0} yanıta kadar. Hemen sorun."
+ },
+ "boughtUltra": {
+  "message": "Ultra açık: Dinle, tam benzerini bulma ve Pro'daki her şey."
+ },
+ "boughtByok": {
+  "message": "Own key açık. API anahtarınızı Ayarlar'da ekleyin."
+ },
+ "answersBackAsk": {
+  "message": "{0} yanıtım geri geldiğinde hatırlat"
+ },
+ "answersBackSet": {
+  "message": "Yanıtlarınız geri geldiğinde, {0} itibarıyla hatırlatacağım."
+ },
+ "answersBackOff": {
+  "message": "ContextFlow bildirimleri kapalı. Yanıtlarınız {0} itibarıyla geri gelir."
+ },
+ "answersBackFailed": {
+  "message": "Hatırlatma ayarlanamadı. Yanıtlarınız {0} itibarıyla geri gelir."
+ },
+ "answersBackBody": {
+  "message": "{0} ücretsiz yanıtınız geri geldi. Herhangi bir sayfa hakkında sorun."
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

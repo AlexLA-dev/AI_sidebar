@@ -3797,6 +3797,51 @@
  "agentRecapTerms": {
   "message": "페이지의 취소 조건: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Pro 듣기: 이번 주 {1}분 중 {0}분 남음"
+ },
+ "tasteSimilarLeft": {
+  "message": "Pro 전체 검색: 이번 주 {1}회 중 {0}회 남음"
+ },
+ "tasteUltraListen": {
+  "message": "Ultra에서는 주 {0}분"
+ },
+ "tasteUltraSimilar": {
+  "message": "Ultra에서는 전체 검색 주 {0}회"
+ },
+ "tasteListenUsed": {
+  "message": "이번 주 Pro 듣기 {0}분을 모두 썼어요. {1}에 다시 생겨요."
+ },
+ "tasteSimilarUsed": {
+  "message": "이번 주 Pro 전체 검색을 썼어요. {0}에 다시 생기고, 빠른 검색은 계속 쓸 수 있어요."
+ },
+ "tasteSimilarDone": {
+  "message": "Ultra와 같은 전체 검색이에요. Pro에서는 주 1회 쓸 수 있어요."
+ },
+ "boughtPro": {
+  "message": "Pro가 켜졌어요. 주 {0}개까지 답변해요. 바로 물어보세요."
+ },
+ "boughtUltra": {
+  "message": "Ultra가 켜졌어요. 듣기, 전체 검색 비슷한 것 찾기, Pro의 모든 기능을 쓸 수 있어요."
+ },
+ "boughtByok": {
+  "message": "내 키 요금제가 켜졌어요. 설정에서 API 키를 추가하세요."
+ },
+ "answersBackAsk": {
+  "message": "답변 {0}개가 돌아오면 알려 주기"
+ },
+ "answersBackSet": {
+  "message": "{0}에 답변이 돌아오면 알려 드릴게요."
+ },
+ "answersBackOff": {
+  "message": "ContextFlow 알림이 꺼져 있어요. 답변은 {0}에 돌아와요."
+ },
+ "answersBackFailed": {
+  "message": "알림을 설정하지 못했어요. 답변은 {0}에 돌아와요."
+ },
+ "answersBackBody": {
+  "message": "무료 답변 {0}개가 돌아왔어요. 어떤 페이지든 물어보세요."
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

@@ -6,7 +6,7 @@ import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
-import type { PaidPlan, Period, Plan } from "./plan.ts"
+import type { BuyVia, PaidPlan, Period, Plan } from "./plan.ts"
 import type { UseKind } from "./spent.ts"
 import type { OrgState } from "./threads.ts"
 export type { Plan } from "./plan.ts"
@@ -43,6 +43,8 @@ export interface StatusInfo {
   // 2.6: an Ultra subscriber's week of read aloud (seconds) and find similar (searches); null for other plans or
   // offline. plans: the allowances the plans sheet names, from the server (defaults offline).
   ultra: { speak: Usage | null; similar: Usage | null } | null
+  // 2.8 (В7.4): Pro's weekly tastes of Ultra, this week's use (only the tastes the server has on; absent: none).
+  taste?: { speak?: Usage; similar?: Usage }
   plans: PlanFacts
   // What the device's App Store account says (may be ahead of the server).
   // autoRenew: false when the user turned auto-renew off (null: not known); period and renewalAsked: the
@@ -212,7 +214,7 @@ export type BackgroundRequest =
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
   // plan, period (2.6): what was chosen in the panel's plans sheet; the app opens on it.
-  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period }
+  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period; via?: BuyVia; back?: string }
   // Read aloud on iPhone and iPad (2.6): the parts go to the app (App Group), which plays them with the screen
   // locked; answers { url } (contextflow://listen?id=…) for the page to follow, or { url: null } (no app).
   // text, script (2.6): the raw text and whether the app should write it for the ear first (parts: when it can't).

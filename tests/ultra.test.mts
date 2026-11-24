@@ -122,8 +122,8 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
 
 const apple = await import("../netlify/shared/apple.mts")
 apple.setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
-const { PRODUCTS } = await import("../netlify/shared/config.mts")
-const { resolveAccess, countersFor, searchCountersFor, visibleUsage } = await import("../netlify/shared/plan.mts")
+const { PRODUCTS, config: serverConfig } = await import("../netlify/shared/config.mts")
+const { resolveAccess, countersFor, searchCountersFor, visibleUsage, similarCountersFor, speakCountersFor, speakMadeCountersFor, tastesFor } = await import("../netlify/shared/plan.mts")
 const { hasPro, isUltra, planOfProduct, productOf, PLAN_RANK, watchLimit } = await import("../src/shared/plan.ts")
 const { speechText, speechParts, speechSeconds, speechKind, needsScript, scriptChunks, PartSplitter } = await import("../src/shared/speech.ts")
 const { newestGeminiTts } = await import("../src/shared/models.ts")
@@ -151,6 +151,7 @@ beforeEach(() => {
   tts = { calls: [], pcmBytes: 48_000 * 3, chunks: 3 }
   noEver = false
   haiku = { calls: [], script: "The MARKUS costs 299 dollars. The Sihoo costs 169." }
+  serverConfig.taste = { speakWeeklySeconds: 300, similarWeekly: 1 }
   delete (globalThis as { Netlify?: unknown }).Netlify
 })
 
@@ -285,7 +286,8 @@ async function readAll(res: Response): Promise<Uint8Array> {
   return new Uint8Array(await res.arrayBuffer())
 }
 
-test("speak: Ultra only", async () => {
+test("speak: Ultra only (and Pro with a taste, 2.8: none here)", async () => {
+  serverConfig.taste.speakWeeklySeconds = 0
   const c = ctx()
   const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Hello.", entitlement: signJws(transaction()) }), c)
   assert.equal(res.status, 403)
@@ -501,8 +503,9 @@ test("heard: a text is voiced once every part is counted, over any listens and d
   // From then on its id alone answers, on any device; another text, a part never made or a bad id: no.
   const later = await (await speakHeard(ask({ texts: [{ id }, { id: "fedcba9876543210", keys: [partKey("en", "never made")] }, { id: "nothex" }] }), ctx())).json()
   assert.deepEqual(later.voiced, [id])
-  // Neither list: a 400; without Ultra: 403.
+  // Neither list: a 400; without Ultra (or Pro's taste): 403.
   assert.equal((await speakHeard(ask({ texts: [] }), ctx())).status, 400)
+  serverConfig.taste.speakWeeklySeconds = 0
   assert.equal((await speakHeard(post("https://x/api/v2/speak-heard", { installId: INSTALL, entitlement: signJws(transaction()), texts: [{ id }] }), ctx())).status, 403)
 })
 
@@ -650,6 +653,7 @@ test("heard: before the 'ever' counters are set up, read aloud still plays and a
 })
 
 test("heard: Ultra only, and nothing to count is a 400", async () => {
+  serverConfig.taste.speakWeeklySeconds = 0
   const pro = await speakHeard(post("https://x/api/v2/speak-heard", { installId: INSTALL, entitlement: signJws(transaction()), items: [{ key: "c".repeat(64), s: 3 }] }), ctx())
   assert.equal(pro.status, 403)
   assert.equal((await speakHeard(heardReq([]), ctx())).status, 400)
@@ -750,6 +754,7 @@ test("speak and speak-script: a debug or TestFlight build's traffic is marked te
 })
 
 test("speak-script: Ultra only; too long refused; Haiku failing gives UPSTREAM and the cap back", async () => {
+  serverConfig.taste.speakWeeklySeconds = 0
   assert.equal((await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: "Hi.", entitlement: signJws(transaction()) }), ctx())).status, 403)
   assert.equal((await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: "x".repeat(6001), entitlement: ultraJws() }), ctx())).status, 400)
   haiku.status = 529
@@ -759,4 +764,62 @@ test("speak-script: Ultra only; too long refused; Haiku failing gives UPSTREAM a
   assert.equal((await res.json()).code, "UPSTREAM")
   await Promise.all(c.waits)
   assert.equal(counters.get("script:tx:3000000001"), 0)
+})
+
+// ---- 2.8 (В7.4): Pro's tastes of Ultra -----------------------------------------------------------------------------
+
+const PRO_OTID = "1000000001"
+const proJws = () => signJws(transaction({ productId: "com.contextflow.pro.monthly", originalTransactionId: PRO_OTID }))
+
+test("2.8 taste: Pro listens up to its taste's minutes, on Ultra's own counter; then LIMIT_REACHED with the taste's usage", async () => {
+  const c = ctx()
+  const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "A".repeat(70), lang: "en", entitlement: proJws() }), c)
+  assert.equal(res.status, 200)
+  assert.deepEqual(JSON.parse(res.headers.get("X-CF-Usage") ?? "null").limit, 300)
+  await readAll(res)
+  await Promise.all(c.waits)
+  // The five minutes heard: the next text is refused, with the taste's usage (the panel then opens the plans, Listen first).
+  counters.set(`speak:tx:${PRO_OTID}`, 300)
+  const out = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Another text.", lang: "en", entitlement: proJws() }), ctx())
+  assert.equal(out.status, 402)
+  const body = await out.json()
+  assert.deepEqual([body.code, body.plan, body.usage.used, body.usage.limit], ["LIMIT_REACHED", "pro", 300, 300])
+  // Free has no taste.
+  assert.equal((await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Hi." }), ctx())).status, 403)
+})
+
+test("2.8 taste: a text already playing finishes within the taste's own size; our cap on audio made scales with it", async () => {
+  const pro = await resolveAccess(proJws(), INSTALL)
+  assert.equal(speakCountersFor(pro, 0)[0].limit, 300)
+  assert.equal(speakCountersFor(pro, 0, true)[0].limit, 600)
+  assert.equal(speakMadeCountersFor(pro, 10)[0].limit, 450)
+  serverConfig.taste.speakWeeklySeconds = 60
+  assert.equal(speakCountersFor(pro, 0, true)[0].limit, 120)
+  // Ultra unchanged.
+  const ultra = await resolveAccess(ultraJws(), INSTALL)
+  assert.equal(speakCountersFor(ultra, 0, true)[0].limit, serverConfig.ultra.speakWeeklySeconds + serverConfig.ultra.speakFinishSeconds)
+  assert.equal(similarCountersFor(ultra)[0].limit, serverConfig.ultra.similarWeekly)
+  // Pro's full searches a week: the taste, on Ultra's counter (an upgrade that week keeps what was used).
+  assert.deepEqual(similarCountersFor(pro)[0], { subject: `similar:tx:${PRO_OTID}`, period: "week", limit: 1 })
+  assert.deepEqual(tastesFor(pro), { speakWeeklySeconds: 60, similarWeekly: 1 })
+  assert.equal(tastesFor(ultra), null)
+  serverConfig.taste = { speakWeeklySeconds: 0, similarWeekly: 0 }
+  assert.equal(tastesFor(pro), null)
+})
+
+test("2.8 taste: the status tells Pro its tastes and the numbers; Ultra and Free get none; 0 leaves a taste out", async () => {
+  counters.set(`speak:tx:${PRO_OTID}`, 120)
+  counters.set(`similar:tx:${PRO_OTID}`, 1)
+  const pro = await (await status(post("https://x/api/v2/status", { installId: INSTALL, entitlement: proJws() }), ctx())).json()
+  assert.equal(pro.ultra, null)
+  assert.deepEqual([pro.taste.speak.used, pro.taste.speak.limit, pro.taste.speak.period], [120, 300, "week"])
+  assert.deepEqual([pro.taste.similar.used, pro.taste.similar.limit], [1, 1])
+  assert.deepEqual([pro.limits.tasteSpeakSeconds, pro.limits.tasteSimilarWeekly], [300, 1])
+  const ultra = await (await status(post("https://x/api/v2/status", { installId: INSTALL, entitlement: ultraJws() }), ctx())).json()
+  assert.equal(ultra.taste, undefined)
+  const free = await (await status(post("https://x/api/v2/status", { installId: INSTALL }), ctx())).json()
+  assert.equal(free.taste, undefined)
+  serverConfig.taste.similarWeekly = 0
+  const noSearch = await (await status(post("https://x/api/v2/status", { installId: INSTALL, entitlement: proJws() }), ctx())).json()
+  assert.deepEqual(Object.keys(noSearch.taste), ["speak"])
 })

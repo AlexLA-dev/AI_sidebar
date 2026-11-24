@@ -70,11 +70,12 @@ test("В3.2: one way in for the panel's moments of value, from a fixed list", ()
   }
 })
 
-test("В2.1: on iPad the card, its footnote and the guide over Settings show the whole way; the iPhone keeps the direct one", () => {
-  assert.match(setup, /if UIDevice\.current\.userInterfaceIdiom == \.pad \{ return \.fromApps \}\s*if #available\(iOS 26\.2, \*\) \{ return \.direct \}\s*return \.appPage/)
-  assert.match(setup, /var phases: \[Int\] \{ self == \.direct \? \[3, 4, 5\] : Array\(0\.\.<6\) \}/)
-  // The footnote that promised ContextFlow's page shows on the direct path only.
-  assert.match(setup, /case \.direct:\s*Text\("Settings opens on ContextFlow: switch it on, then set All Websites to Allow\."\)/)
+test("В2.1: the card, its footnote and the guide over Settings show the whole way, and promise no page Settings may not open on", () => {
+  assert.match(setup, /if UIDevice\.current\.userInterfaceIdiom == \.pad \{ return \.fromApps \}\s*if #available\(iOS 26\.2, \*\) \{ return \.maybeDirect \}\s*return \.appPage/)
+  assert.match(setup, /var phases: \[Int\] \{ Array\(0\.\.<6\) \}/)
+  // No «Settings opens on ContextFlow» anywhere: the iPhone's footnote reads right whichever page opens.
+  assert.doesNotMatch(setup, /"Settings opens on ContextFlow: switch it on/)
+  assert.match(setup, /case \.maybeDirect:[\s\S]{0,120}?Text\("If Settings opens on ContextFlow's page, start at step 2\. If not, start from Apps\."\)/)
   assert.match(setup, /case \.fromApps:[\s\S]{0,120}?Text\("On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above\."\)/)
   // The walkthrough's first step and the floating frames say where to start on iPad.
   assert.match(setup, /Step\(number: 1, text: path\.firstStep\)/)
@@ -101,6 +102,12 @@ test("В2.4: switched on and never used, the app's next step is Safari, with one
   assert.match(step, /Step\(number: 2, text: "No ✦\? Open the page menu in the address bar and choose ContextFlow\."\)/)
   assert.match(step, /Step\(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website\."\)/)
   assert.ok(step.indexOf("safariButton") < step.indexOf("TipClipView"), "the button before the clip")
+  // Back from Safari with the panel unused: the page menu comes first (All Websites likely still on Ask).
+  assert.match(step, /if activation\.backFromSafariUnused \{\s*Text\("No ✦ on the page\? Safari is waiting for your permission\."\)[\s\S]{0,200}?Step\(number: 1, text: "In Safari, open the page menu in the address bar and choose ContextFlow\."\)\s*Step\(number: 2, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website\."\)\s*Step\(number: 3, text: "Tap ✦ on the page\."\)/)
+  assert.match(setup, /func openedSafari\(_ via: String\) \{[\s\S]{0,120}?UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.safariTripKey\)/)
+  assert.match(setup, /guard state == \.on, !backFromSafariUnused else \{ return \}\s*backFromSafariUnused = true/)
+  assert.match(setup, /if before == \.off, next != \.off \{ reportEnabled\(\) \}\s*checkSafariTrip\(\)/)
+  assert.deepEqual(useFields({ f: "setup", a: "ask_shown" }), { f: "setup", a: "ask_shown" })
   assert.match(step, /safariButton\("step", large: true\)/)
   assert.match(setup, /activation\.openedSafari\(via\)\s*openSafari\(\)/)
 })
@@ -121,7 +128,7 @@ test("В1.1: the setup funnel from its zero step, counted once where it should b
   assert.deepEqual(useFields({ f: "setup", a: "safari_shown" }), { f: "setup", a: "safari_shown" })
   assert.deepEqual(useFields({ f: "setup", a: "reminder", perm: "quiet" }), { f: "setup", a: "reminder", perm: "quiet" })
   assert.deepEqual(useFields({ f: "setup", a: "reminder_seen", what: "24h" }), { f: "setup", a: "reminder_seen", what: "24h" })
-  assert.match(setup, /func openedSafari\(_ via: String\) \{ step\("open_safari", \["via": via\], feature: "setup"\) \}/)
+  assert.match(setup, /func openedSafari\(_ via: String\) \{\s*step\("open_safari", \["via": via\], feature: "setup"\)/)
   assert.match(setup, /Activation\.shared\.remindersScheduled\(status == \.provisional \? "quiet" : "on"\)/)
   assert.deepEqual(useFields({ f: "notif", a: "tap", what: "setup", when: "15m" }), { f: "notif", a: "tap", what: "setup", when: "15m" })
   assert.match(setup, /case \.off: guide\.onAppear \{ activation\.instructionShown\(\) \}/)
@@ -180,7 +187,10 @@ test("every new text is translated into the app's 14 other languages; on iPad in
     "Next: open Safari",
     "So the reminder you just set reaches you.", "So you hear when the page you watch changes.", "So you know when your free answers are back.",
     "Tap ✦ on the page.", "No ✦? Open the page menu in the address bar and choose ContextFlow.",
-    "When Safari asks, choose Always Allow, then Always Allow on Every Website."
+    "When Safari asks, choose Always Allow, then Always Allow on Every Website.",
+    "If Settings opens on ContextFlow's page, start at step 2. If not, start from Apps.",
+    "No ✦ on the page? Safari is waiting for your permission.",
+    "In Safari, open the page menu in the address bar and choose ContextFlow."
   ]
   for (const key of keys) {
     assert.match(setup, new RegExp(key.replace(/[.?()]/g, "\\$&")), key)

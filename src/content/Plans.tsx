@@ -51,21 +51,27 @@ export function yearlySaving(monthly: string | undefined, yearly: string | undef
   return percent >= 5 ? percent : null
 }
 
-export function tierLines(plan: PaidPlan, facts: PlanFacts): string[] {
+/** An Ultra feature the sheet opens on (2.8, В7.4: Pro's taste of it is used): its line first, its slide first. */
+export type PlansFeature = "listen" | "similar"
+
+export function tierLines(plan: PaidPlan, facts: PlanFacts, feature?: PlansFeature): string[] {
   if (plan === "byok") return [t("tierByok1"), t("tierByok2")]
   if (plan === "pro") return [t("tierPro1", String(facts.proWeekly)), t("tierPro2"), t("tierPro3", String(facts.watch.pro))]
-  return [
-    t("tierUltra0"),
-    t("tierUltra1", String(Math.round(facts.speakWeeklySeconds / 60))),
-    t("tierUltra2", String(facts.similarWeekly)),
-    t("tierUltra3", String(facts.watch.ultra))
-  ]
+  const listen = t("tierUltra1", String(Math.round(facts.speakWeeklySeconds / 60)))
+  const similar = t("tierUltra2", String(facts.similarWeekly))
+  const lines = [t("tierUltra0"), listen, similar, t("tierUltra3", String(facts.watch.ultra))]
+  if (!feature) return lines
+  const first = feature === "listen" ? listen : similar
+  return [first, ...lines.filter((line) => line !== first)]
 }
 
-export function PlansSheet({ status, focus, onChoose, onClose }: {
+export function PlansSheet({ status, focus, feature, lead, onChoose, onClose }: {
   status: StatusInfo | null
   // The plan to show first (highlighted): Ultra from Listen, Pro from a Pro feature.
   focus: PaidPlan
+  // 2.8 (В7.4): the Ultra feature to put first, and a line on top saying why the sheet opened (a taste used up).
+  feature?: PlansFeature
+  lead?: string
   onChoose: (plan: PaidPlan, period: Period) => void
   onClose: () => void
 }): VNode {
@@ -91,6 +97,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
         <strong>{t("plansTitle")}</strong>
         <button type="button" class="cf-icon-btn" onClick={onClose} aria-label={t("close")}>×</button>
       </div>
+      {lead && <p class="cf-plans-lead">{lead}</p>}
       <div class="cf-seg cf-plans-period" role="radiogroup">
         {(["monthly", "yearly"] as const).map((p) => (
           <button type="button" key={p} role="radio" aria-checked={p === period} class={p === period ? "on" : ""} onClick={() => setPeriod(p)}>
@@ -135,7 +142,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
               {saved && <p class="cf-plan-saved">{t("plansSaveMoney", saved)}</p>}
               {facts && (
                 <ul class="cf-plan-lines">
-                  {tierLines(plan, facts).map((line, i) => <li key={i} class={plan === "ultra" && i === 0 ? "lead" : ""}>{line}</li>)}
+                  {tierLines(plan, facts, feature).map((line, i) => <li key={i} class={plan === "ultra" && i === 0 ? "lead" : ""}>{line}</li>)}
                 </ul>
               )}
               {current ? (
@@ -153,7 +160,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
         <p class="cf-plans-own"><button type="button" class="cf-link" onClick={() => setOwnOpen(true)}>{t("plansOwnKeyLink")}</button></p>
       )}
       {currencyCode(prices) && <p class="cf-hint cf-plans-currency">{t("plansCurrency", currencyCode(prices)!)}</p>}
-      <Gallery facts={facts} ultra={focus === "ultra"} />
+      <Gallery facts={facts} ultra={focus === "ultra"} start={feature} />
       <p class="cf-hint">{t("plansNote")}</p>
     </div>
     </div>

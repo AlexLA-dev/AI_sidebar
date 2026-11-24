@@ -1296,5 +1296,20 @@
   "agentRecapWhat": "預訂：{0}",
   "agentRecapAsked": "你要的是：{0}",
   "agentRecapOtherPlace": "換了地方：第一家沒有合適的時間",
-  "agentRecapTerms": "頁面上的取消條款：{0}"
+  "agentRecapTerms": "頁面上的取消條款：{0}",
+  "tasteListenLeft": "Pro 朗讀：本週剩餘 {0}/{1} 分鐘",
+  "tasteSimilarLeft": "Pro 完整搜尋：本週剩餘 {0}/{1} 次",
+  "tasteUltraListen": "Ultra：每週 {0} 分鐘",
+  "tasteUltraSimilar": "Ultra：每週 {0} 次完整搜尋",
+  "tasteListenUsed": "本週 Pro 的 {0} 分鐘朗讀已用完，{1}恢復。",
+  "tasteSimilarUsed": "本週 Pro 的完整搜尋已用過，{0}恢復；快速搜尋照常可用。",
+  "tasteSimilarDone": "這是和 Ultra 一樣的完整搜尋：Pro 每週可用一次。",
+  "boughtPro": "Pro 已開通：每週最多 {0} 次回答。儘管問吧。",
+  "boughtUltra": "Ultra 已開通：朗讀、完整的尋找相似，以及 Pro 的全部功能。",
+  "boughtByok": "自備金鑰已開通。請在設定中加入你的 API 金鑰。",
+  "answersBackAsk": "{0} 次回答恢復時提醒我",
+  "answersBackSet": "{0} 回答恢復時會提醒你。",
+  "answersBackOff": "ContextFlow 的通知已關閉。回答將在 {0} 恢復。",
+  "answersBackFailed": "無法設定提醒。回答將在 {0} 恢復。",
+  "answersBackBody": "{0} 次免費回答已恢復。可以問任何頁面。"
 }

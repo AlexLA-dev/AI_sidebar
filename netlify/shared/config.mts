@@ -2,7 +2,7 @@
 // (Project configuration → Environment variables) without a code change.
 
 import { organizeConfig } from "../../src/shared/organize.ts"
-import { AGENT_DEFAULTS, PLAN_PRODUCTS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
+import { AGENT_DEFAULTS, PLAN_PRODUCTS, PRO_TASTE_DEFAULTS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
 
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
@@ -72,9 +72,11 @@ export const config = {
   geminiModel: env("GEMINI_MODEL") ?? "auto",
   geminiFallbackModels: (env("GEMINI_FALLBACK_MODELS") ?? "gemini-3.8-flash,gemini-3.6-flash,gemini-2.5-flash").split(",").map((m) => m.trim()).filter(Boolean),
   geminiMaxOutputTokens: int("GEMINI_MAX_TOKENS", 4096),
-  // Google answers also count against the plan's normal allowance; these cap the search share
-  // (each grounded answer is billed per search query on top of tokens).
+  // Google answers count against Pro's weekly answers; these cap the search share (each grounded answer is billed per
+  // search query on top of tokens). Free and Own key (2.8, Б8, the owner on 2026-11-24: «да»): Google answers have only
+  // their own cap a day and don't take from the free answers. SEARCH_FREE_APART=off counts them in the free answers again.
   searchFreeDailyLimit: int("SEARCH_FREE_DAILY_LIMIT", 3),
+  searchFreeApart: (env("SEARCH_FREE_APART") ?? "on").trim() !== "off",
   searchProWeeklyLimit: int("SEARCH_PRO_WEEKLY_LIMIT", 100),
   searchGlobalDailyLimit: int("SEARCH_GLOBAL_DAILY_LIMIT", 1500),
 
@@ -105,6 +107,11 @@ export const config = {
     speakMadePercent: int("ULTRA_SPEAK_MADE_PERCENT", 150),
     // Find similar's daily safety caps (per install, for everyone) belong to its engine (config.similar, /api/v2/similar).
     similarWeekly: int("ULTRA_SIMILAR_WEEKLY", ULTRA_DEFAULTS.similarWeekly)
+  },
+  // 2.8 (В7.4): Pro's weekly tastes of Ultra, per subscription (src/shared/plan.ts PRO_TASTE_DEFAULTS); 0: none.
+  taste: {
+    speakWeeklySeconds: Math.max(0, int("PRO_TASTE_SPEAK_SECONDS", PRO_TASTE_DEFAULTS.speakWeeklySeconds)),
+    similarWeekly: Math.max(0, int("PRO_TASTE_SIMILAR_WEEKLY", PRO_TASTE_DEFAULTS.similarWeekly))
   },
   // Read aloud (2.6, Ultra): Gemini TTS through our server with GEMINI_API_KEY, streamed as headerless PCM.
   // "auto" picks the newest stable model of the kind from the model list (like GEMINI_MODEL); Flash-Lite speaks

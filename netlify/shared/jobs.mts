@@ -14,6 +14,8 @@ export interface StoredResult {
   condition: string
   // 2.7: a light search (not Ultra).
   light?: boolean
+  // 2.8: Ultra's full search as Pro's taste.
+  taste?: boolean
 }
 
 export interface StoredJob {

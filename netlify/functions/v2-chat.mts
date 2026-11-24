@@ -11,9 +11,9 @@ import { freeMemory, sanitizeMessages, sanitizeOtherPages, sanitizePage, systemP
 import { geminiModels } from "../shared/models.mts"
 import { pageForModel } from "../../src/shared/attachments.ts"
 import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES, withAgentRule, withItemRule } from "../../src/shared/prompt.ts"
-import { uiFields } from "../../src/shared/usage.ts"
+import { uiFields, variantFields } from "../../src/shared/usage.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
-import { blockReason, countersFor, hasPro, proOffer, resolveAccess, searchCountersFor, visibleUsage, withUse } from "../shared/plan.mts"
+import { blockReason, countersFor, googleApart, hasPro, proOffer, resolveAccess, searchCountersFor, visibleUsage, withUse } from "../shared/plan.mts"
 import { chatSize, digestCut, limitsHit } from "../shared/limits.mts"
 import { pageBucket, pageChars, requestWeight } from "../shared/weight.mts"
 
@@ -68,6 +68,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const step = {
     ...(fromApp ? { s: "app" } : {}),
     ...uiFields(body.ui, history ? "ask_chats" : "ask"),
+    // 2.8: the test arms (client.variant), on the answer's row and the limit's.
+    ...variantFields(client),
     ...(client.audience === "test" ? { audience: "test" } : {})
   }
   if (google && !settings.geminiKey) return json({ code: "SEARCH_UNAVAILABLE", message: "Google search is not available right now." }, 503)
@@ -98,9 +100,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const giveBack = () => (tour ? giveTourAnswerBack(installId).catch(() => undefined) : Promise.resolve(undefined))
   // 2.7: a friend's first week (invite a friend) has extra free answers a day.
   const own = countersFor(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
+  // 2.8 (Б8): a free Google answer has its own cap a day and leaves the free answers alone, like a guided one.
+  const apart = google && googleApart(access)
   // 110: and what they went on (withUse): the chat, Google, or «Ask your chats».
   const counters = withUse([
-    ...tourCounters(own, installId, tour).map((c) => (weight > 1 ? { ...c, amount: weight } : c)),
+    ...tourCounters(own, installId, tour || apart).map((c) => (weight > 1 ? { ...c, amount: weight } : c)),
     ...(google ? searchCountersFor(access, installId) : [])
   ], history ? "chats" : google ? "google" : "chat")
 
@@ -115,15 +119,15 @@ export default async (req: Request, context: Context): Promise<Response> => {
     }
     quota = { allowed: true, blocked: null, counters: counters.map((c) => ({ ...c, n: 0 })) }
   }
-  // A free guided answer left the install's counter alone: the person still sees where it stands.
-  const usage = tour
+  // A free guided answer, or a free Google one, left the install's counter alone: the person still sees where it stands.
+  const usage = tour || apart
     ? await peek(own.filter((c) => c.subject === installCounter(installId))).then((rows) => visibleUsage(access, rows), () => null)
     : visibleUsage(access, quota.counters)
 
   if (!quota.allowed) {
     context.waitUntil(giveBack())
     const reason = blockReason(quota.blocked)
-    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat", ...(weight > 1 ? { weight } : {}), ...step }))
+    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, ...(build ? { build } : {}), mode: google ? "google" : "chat", ...(weight > 1 ? { weight } : {}), ...step }))
     const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
     // Out of free answers: the App Store offer code for Pro.
     const offer = code === "LIMIT_REACHED" ? proOffer(access) : null

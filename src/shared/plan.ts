@@ -64,6 +64,14 @@ export function watchLimit(plan: Plan | null | undefined): number {
 export const ULTRA_DEFAULTS = { speakWeeklySeconds: 1800, similarWeekly: 10 } as const
 
 /**
+ * Pro's weekly tastes of Ultra (2.8, В7.4, the owner's idea: «Pro gets small weekly tastes of Ultra»): seconds of Listen
+ * and full Find similar searches a week per subscription, on Ultra's own counters (speak:tx, similar:tx), so what was
+ * used carries over to Ultra. The server's defaults (env PRO_TASTE_SPEAK_SECONDS, PRO_TASTE_SIMILAR_WEEKLY override them
+ * there, 0 turns a taste off, and the status then says so); the panel shows a taste only when the status has it.
+ */
+export const PRO_TASTE_DEFAULTS = { speakWeeklySeconds: 300, similarWeekly: 1 } as const
+
+/**
  * Find similar's light search for Own key and Pro (2.7, the owner: «Свой ключ и Pro получают тоже поиск похожего, но до
  * 5 в неделю»): searches a week per device. The one number: the server's default (env SIMILAR_LIGHT_WEEKLY overrides it
  * there, and the status then says so), and what the panel says before a status came. Free has no Find similar.
@@ -99,9 +107,21 @@ export function agentDeferred(plan: Plan | null | undefined, limits: AgentLimits
   return isUltra(plan) ? limits.deferredUltra : hasPro(plan) ? limits.deferredPro : 0
 }
 
-/** The link that opens the ContextFlow app on a plan and period (2.6), or on its plans or home. */
-export function appLink(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period): string {
-  const query = [`plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : ""].filter(Boolean).join("&")
+/** Where in the panel a purchase started (2.8, В1.5): the plans sheet, the plans in the chat, Settings. */
+export const BUY_VIA = ["sheet", "chat", "settings", "yearly"] as const
+export type BuyVia = (typeof BUY_VIA)[number]
+
+/**
+ * The link that opens the ContextFlow app on a plan and period (2.6), or on its plans or home. 2.8 (В7.2): `back`, the
+ * page to come back to after the App Store's sheet (one tap: the app buys at once and sends the person back; the
+ * address stays on the device), and `via`, where in the panel it started.
+ */
+export function appLink(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period, extra: { back?: string; via?: BuyVia } = {}): string {
+  const back = extra.back && /^https?:\/\//.test(extra.back) && extra.back.length <= 2000 ? extra.back.split("#")[0] : ""
+  const query = [
+    `plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : "",
+    extra.via ? `via=${extra.via}` : "", back && period ? `back=${encodeURIComponent(back)}` : ""
+  ].filter(Boolean).join("&")
   return target === "subscribe" ? `contextflow://subscribe?${query}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
 }
 

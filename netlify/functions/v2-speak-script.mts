@@ -3,7 +3,7 @@ import type { Config, Context } from "@netlify/functions"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, type Counter } from "../shared/db.mts"
 import { clip, corsHeaders, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { evalCheck, isUltra, resolveAccess, type Access } from "../shared/plan.mts"
+import { evalCheck, speakAllowance, resolveAccess, type Access } from "../shared/plan.mts"
 import { scriptCost, speakScript, type ScriptStats } from "../shared/speakscript.mts"
 
 /**
@@ -41,7 +41,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   const check = evalCheck(req, installId, context)
   const access: Access = check.access ?? (await resolveAccess(body.entitlement, installId))
-  if (!isUltra(access.plan)) return refused("ULTRA_ONLY", 403, { plan: access.plan, feature: "speak", ...(check.refused ? { eval: check.refused } : {}) })
+  if (speakAllowance(access) <= 0) return refused("ULTRA_ONLY", 403, { plan: access.plan, feature: "speak", ...(check.refused ? { eval: check.refused } : {}) })
   if (!settings.speak.scriptEnabled || !settings.anthropicKey) return refused("OFF", 503)
 
   const counters: Counter[] = [

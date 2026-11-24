@@ -30,8 +30,9 @@ const ULTRA_FROM = SLIDES.indexOf("listen")
 
 const price = (value: number, currency = "USD") => value.toLocaleString(undefined, { style: "currency", currency, maximumFractionDigits: 0 })
 
-export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined; ultra?: boolean }): VNode {
-  const [index, setIndex] = useState(ultra ? ULTRA_FROM : 0)
+export function Gallery({ facts, ultra = false, start }: { facts: PlanFacts | undefined; ultra?: boolean; start?: "listen" | "similar" }): VNode {
+  // 2.8 (В7.4): the sheet opened on an Ultra feature starts on its slide.
+  const [index, setIndex] = useState(start ? SLIDES.indexOf(start) : ultra ? ULTRA_FROM : 0)
   const [forward, setForward] = useState(true)
   const touch = useRef<{ x: number; y: number; horizontal: boolean | null } | null>(null)
   // A trackpad's two-finger swipe (Mac, iPad with a Magic Keyboard): the sideways scroll adds up to one step, then

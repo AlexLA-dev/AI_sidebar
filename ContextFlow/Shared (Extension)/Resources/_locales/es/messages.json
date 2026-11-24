@@ -3797,6 +3797,51 @@
  "agentRecapTerms": {
   "message": "Cancelación, según la página: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Escuchar en Pro: te quedan {0} de {1} min esta semana"
+ },
+ "tasteSimilarLeft": {
+  "message": "Búsqueda completa en Pro: te quedan {0} de {1} esta semana"
+ },
+ "tasteUltraListen": {
+  "message": "En Ultra: {0} min a la semana"
+ },
+ "tasteUltraSimilar": {
+  "message": "En Ultra: {0} búsquedas completas a la semana"
+ },
+ "tasteListenUsed": {
+  "message": "Ya usaste los {0} minutos de escucha de Pro de esta semana. Vuelven el {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "Ya usaste la búsqueda completa de Pro de esta semana. Vuelve el {0}; la búsqueda rápida sigue funcionando."
+ },
+ "tasteSimilarDone": {
+  "message": "Una búsqueda completa, como en Ultra: Pro tiene una a la semana."
+ },
+ "boughtPro": {
+  "message": "Pro está activo: hasta {0} respuestas a la semana. Pregunta lo que quieras."
+ },
+ "boughtUltra": {
+  "message": "Ultra está activo: Escuchar, la búsqueda completa de similares y todo lo de Pro."
+ },
+ "boughtByok": {
+  "message": "El plan Clave propia está activo. Añade tu clave de API en Ajustes."
+ },
+ "answersBackAsk": {
+  "message": "Avísame cuando vuelvan mis {0} respuestas"
+ },
+ "answersBackSet": {
+  "message": "Te aviso a las {0}, cuando vuelvan tus respuestas."
+ },
+ "answersBackOff": {
+  "message": "Las notificaciones de ContextFlow están desactivadas. Tus respuestas vuelven a las {0}."
+ },
+ "answersBackFailed": {
+  "message": "No se pudo programar el aviso. Tus respuestas vuelven a las {0}."
+ },
+ "answersBackBody": {
+  "message": "Ya tienes de nuevo tus {0} respuestas gratis. Pregunta sobre cualquier página."
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

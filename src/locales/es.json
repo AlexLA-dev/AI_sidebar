@@ -1296,5 +1296,20 @@
   "agentRecapWhat": "Reservo: {0}",
   "agentRecapAsked": "Pediste: {0}",
   "agentRecapOtherPlace": "Otro lugar: el primero no tenía una hora que encajara",
-  "agentRecapTerms": "Cancelación, según la página: {0}"
+  "agentRecapTerms": "Cancelación, según la página: {0}",
+  "tasteListenLeft": "Escuchar en Pro: te quedan {0} de {1} min esta semana",
+  "tasteSimilarLeft": "Búsqueda completa en Pro: te quedan {0} de {1} esta semana",
+  "tasteUltraListen": "En Ultra: {0} min a la semana",
+  "tasteUltraSimilar": "En Ultra: {0} búsquedas completas a la semana",
+  "tasteListenUsed": "Ya usaste los {0} minutos de escucha de Pro de esta semana. Vuelven el {1}.",
+  "tasteSimilarUsed": "Ya usaste la búsqueda completa de Pro de esta semana. Vuelve el {0}; la búsqueda rápida sigue funcionando.",
+  "tasteSimilarDone": "Una búsqueda completa, como en Ultra: Pro tiene una a la semana.",
+  "boughtPro": "Pro está activo: hasta {0} respuestas a la semana. Pregunta lo que quieras.",
+  "boughtUltra": "Ultra está activo: Escuchar, la búsqueda completa de similares y todo lo de Pro.",
+  "boughtByok": "El plan Clave propia está activo. Añade tu clave de API en Ajustes.",
+  "answersBackAsk": "Avísame cuando vuelvan mis {0} respuestas",
+  "answersBackSet": "Te aviso a las {0}, cuando vuelvan tus respuestas.",
+  "answersBackOff": "Las notificaciones de ContextFlow están desactivadas. Tus respuestas vuelven a las {0}.",
+  "answersBackFailed": "No se pudo programar el aviso. Tus respuestas vuelven a las {0}.",
+  "answersBackBody": "Ya tienes de nuevo tus {0} respuestas gratis. Pregunta sobre cualquier página."
 }

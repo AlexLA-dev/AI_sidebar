@@ -1296,5 +1296,20 @@
   "agentRecapWhat": "预订：{0}",
   "agentRecapAsked": "你要的是：{0}",
   "agentRecapOtherPlace": "换了地方：第一家没有合适的时间",
-  "agentRecapTerms": "页面上的取消条款：{0}"
+  "agentRecapTerms": "页面上的取消条款：{0}",
+  "tasteListenLeft": "Pro 朗读：本周剩余 {0}/{1} 分钟",
+  "tasteSimilarLeft": "Pro 完整搜索：本周剩余 {0}/{1} 次",
+  "tasteUltraListen": "Ultra：每周 {0} 分钟",
+  "tasteUltraSimilar": "Ultra：每周 {0} 次完整搜索",
+  "tasteListenUsed": "本周 Pro 的 {0} 分钟朗读已用完，{1}恢复。",
+  "tasteSimilarUsed": "本周 Pro 的完整搜索已用过，{0}恢复；快速搜索照常可用。",
+  "tasteSimilarDone": "这是和 Ultra 一样的完整搜索：Pro 每周可用一次。",
+  "boughtPro": "Pro 已开通：每周最多 {0} 次回答。尽管问吧。",
+  "boughtUltra": "Ultra 已开通：朗读、完整的查找相似，以及 Pro 的全部功能。",
+  "boughtByok": "自有密钥已开通。请在设置中添加你的 API 密钥。",
+  "answersBackAsk": "{0} 次回答恢复时提醒我",
+  "answersBackSet": "{0} 回答恢复时会提醒你。",
+  "answersBackOff": "ContextFlow 的通知已关闭。回答将在 {0} 恢复。",
+  "answersBackFailed": "无法设置提醒。回答将在 {0} 恢复。",
+  "answersBackBody": "{0} 次免费回答已恢复。可以问任何页面。"
 }

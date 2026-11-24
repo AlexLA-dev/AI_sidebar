@@ -3797,6 +3797,51 @@
  "agentRecapTerms": {
   "message": "Cancellazione, come dice la pagina: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Ascolta in Pro: questa settimana restano {0} min su {1}"
+ },
+ "tasteSimilarLeft": {
+  "message": "Ricerca completa in Pro: questa settimana ne restano {0} su {1}"
+ },
+ "tasteUltraListen": {
+  "message": "In Ultra: {0} min a settimana"
+ },
+ "tasteUltraSimilar": {
+  "message": "In Ultra: {0} ricerche complete a settimana"
+ },
+ "tasteListenUsed": {
+  "message": "Hai usato i {0} minuti di ascolto di Pro di questa settimana. Tornano {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "Hai usato la ricerca completa di Pro di questa settimana. Torna {0}; la ricerca rapida funziona sempre."
+ },
+ "tasteSimilarDone": {
+  "message": "Una ricerca completa, come in Ultra: Pro ne ha una a settimana."
+ },
+ "boughtPro": {
+  "message": "Pro è attivo: fino a {0} risposte a settimana. Chiedi pure."
+ },
+ "boughtUltra": {
+  "message": "Ultra è attivo: Ascolta, la ricerca completa di simili e tutto Pro."
+ },
+ "boughtByok": {
+  "message": "Il piano Chiave propria è attivo. Aggiungi la chiave API nelle impostazioni."
+ },
+ "answersBackAsk": {
+  "message": "Avvisami quando tornano le mie {0} risposte"
+ },
+ "answersBackSet": {
+  "message": "Ti avviso alle {0}, quando tornano le risposte."
+ },
+ "answersBackOff": {
+  "message": "Le notifiche di ContextFlow sono disattivate. Le risposte tornano alle {0}."
+ },
+ "answersBackFailed": {
+  "message": "Non è stato possibile impostare il promemoria. Le risposte tornano alle {0}."
+ },
+ "answersBackBody": {
+  "message": "Le tue {0} risposte gratuite sono tornate. Chiedi pure su qualsiasi pagina."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

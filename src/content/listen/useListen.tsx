@@ -42,13 +42,15 @@ export interface ListenWhat {
   url: string
 }
 
-export function useListen({ platform, plan, speakLeft, onUltra, follow, send, panelOpen, reopen }: {
+export function useListen({ platform, plan, allowed, speakLeft, onUltra, follow, send, panelOpen, reopen }: {
   platform: Platform
   plan: Plan
+  // Who may listen: Ultra, and (2.8, В7.4) Pro with its weekly taste of it (src/shared/plan.ts canListen). Left out: Ultra.
+  allowed?: boolean
   // Seconds of this week's listening left (the status's), null when not known.
   speakLeft?: number | null
-  // Without Ultra: what Ultra adds (the plans sheet on Ultra).
-  onUltra: () => void
+  // Without Ultra: what Ultra adds (the plans sheet on Ultra). `used`: Pro's taste is used up this week (2.8).
+  onUltra: (used?: boolean) => void
   // Opens a contextflow:// link from the page (iPhone and iPad).
   follow: (url: string) => void
   send: <T>(message: Record<string, unknown>) => Promise<T | null>
@@ -213,9 +215,14 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
   const start = useCallback(async (key: string, item: ListenWhat, anyway = false, back?: { player: PcmPlayer | null }) => {
     stop()
     const step = (a: string) => void send({ type: "useEvent", f: "listen", a, what: item.what })
-    if (!isUltra(plan)) {
+    if (!(allowed ?? isUltra(plan))) {
       step("ultra")
       return onUltra()
+    }
+    // 2.8 (В7.4): Pro's taste of Listen used up this week: the plans, Listen first (the server would say the same).
+    if (!isUltra(plan) && left === 0) {
+      step("taste_used")
+      return onUltra(true)
     }
     const text = plainText(item)
     const parts = speechParts(text)
@@ -460,7 +467,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
       if (run.current === current && !current.ended) current.ended = true
     })
     port.postMessage({ type: "play", text: item.text, lang: item.lang, what: item.what } satisfies SpeakIn)
-  }, [plan, platform, onUltra, send, stop, left, handOff, askNotify])
+  }, [plan, allowed, platform, onUltra, send, stop, left, handOff, askNotify])
 
   const toggle = useCallback(() => {
     const current = run.current

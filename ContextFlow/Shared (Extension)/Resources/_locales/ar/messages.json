@@ -3797,6 +3797,51 @@
  "agentRecapTerms": {
   "message": "الإلغاء كما تقول الصفحة: {0}"
  },
+ "tasteListenLeft": {
+  "message": "الاستماع في Pro: تبقّى {0} من {1} د هذا الأسبوع"
+ },
+ "tasteSimilarLeft": {
+  "message": "البحث الكامل في Pro: تبقّى {0} من {1} هذا الأسبوع"
+ },
+ "tasteUltraListen": {
+  "message": "في Ultra: ‏{0} د أسبوعيًا"
+ },
+ "tasteUltraSimilar": {
+  "message": "في Ultra: ‏{0} عمليات بحث كاملة أسبوعيًا"
+ },
+ "tasteListenUsed": {
+  "message": "انتهت دقائق الاستماع في Pro لهذا الأسبوع ({0} دقيقة). تعود يوم {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "استُخدم البحث الكامل في Pro لهذا الأسبوع. يعود يوم {0}، والبحث السريع ما زال يعمل."
+ },
+ "tasteSimilarDone": {
+  "message": "بحث كامل كما في Ultra: في Pro بحث واحد كل أسبوع."
+ },
+ "boughtPro": {
+  "message": "تم تفعيل Pro: حتى {0} إجابة أسبوعيًا. اسأل ما تشاء."
+ },
+ "boughtUltra": {
+  "message": "تم تفعيل Ultra: الاستماع والبحث الكامل عن المشابه وكل ما في Pro."
+ },
+ "boughtByok": {
+  "message": "تم تفعيل مفتاحك الخاص. أضف مفتاح API في الإعدادات."
+ },
+ "answersBackAsk": {
+  "message": "ذكّرني عندما تعود إجاباتي الـ {0}"
+ },
+ "answersBackSet": {
+  "message": "سأذكّرك في {0} عندما تعود إجاباتك."
+ },
+ "answersBackOff": {
+  "message": "إشعارات ContextFlow متوقفة. تعود إجاباتك في {0}."
+ },
+ "answersBackFailed": {
+  "message": "تعذّر ضبط التذكير. تعود إجاباتك في {0}."
+ },
+ "answersBackBody": {
+  "message": "عادت إجاباتك المجانية ({0}). اسأل عن أي صفحة."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

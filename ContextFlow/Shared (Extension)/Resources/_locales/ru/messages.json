@@ -3797,6 +3797,51 @@
  "agentRecapTerms": {
   "message": "Отмена, как пишет страница: {0}"
  },
+ "tasteListenLeft": {
+  "message": "Слушать в Pro: осталось {0} из {1} мин на неделю"
+ },
+ "tasteSimilarLeft": {
+  "message": "Полный поиск в Pro: осталось {0} из {1} на неделю"
+ },
+ "tasteUltraListen": {
+  "message": "В Ultra — {0} мин в неделю"
+ },
+ "tasteUltraSimilar": {
+  "message": "В Ultra — {0} полных поисков в неделю"
+ },
+ "tasteListenUsed": {
+  "message": "Минуты прослушивания в Pro на эту неделю закончились ({0} мин). Обновятся: {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "Полный поиск в Pro на эту неделю использован. Обновится: {0}. Быстрый поиск работает."
+ },
+ "tasteSimilarDone": {
+  "message": "Это полный поиск, как в Ultra: в Pro он есть раз в неделю."
+ },
+ "boughtPro": {
+  "message": "Pro подключён: до {0} ответов в неделю. Спрашивайте."
+ },
+ "boughtUltra": {
+  "message": "Ultra подключён: «Слушать», полный поиск похожего и всё, что есть в Pro."
+ },
+ "boughtByok": {
+  "message": "«Свой ключ» подключён. Добавьте ключ API в настройках."
+ },
+ "answersBackAsk": {
+  "message": "Напомнить, когда вернутся {0} ответов"
+ },
+ "answersBackSet": {
+  "message": "Напомню в {0}, когда ответы вернутся."
+ },
+ "answersBackOff": {
+  "message": "Уведомления для ContextFlow выключены. Ответы вернутся в {0}."
+ },
+ "answersBackFailed": {
+  "message": "Не удалось поставить напоминание. Ответы вернутся в {0}."
+ },
+ "answersBackBody": {
+  "message": "Бесплатные ответы вернулись: {0}. Спрашивайте о любой странице."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

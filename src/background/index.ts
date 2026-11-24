@@ -2,7 +2,7 @@ import { tipClip } from "./tipClips"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION, TEST_PLAN } from "../shared/config"
-import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
+import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type BuyVia, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { LINK_OPEN_KEY, linkOpen } from "../shared/linkOpen"
@@ -342,6 +342,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       limits?: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchFreeDaily?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> }
       organize?: { on?: unknown; space?: unknown; config?: unknown }
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
+      taste?: { speak?: Usage | null; similar?: Usage | null } | null
       country?: string
       invite?: { active?: unknown } | null
     }
@@ -350,6 +351,10 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
       ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
+      // 2.8 (В7.4): Pro's tastes of Ultra (the server sends only those that are on).
+      ...(body.taste && (body.taste.speak || body.taste.similar)
+        ? { taste: { ...(body.taste.speak ? { speak: body.taste.speak } : {}), ...(body.taste.similar ? { similar: body.taste.similar } : {}) } }
+        : {}),
       // 2.7: friends who came with this install's code and asked on two days (only once it has a code).
       ...(body.invite && typeof body.invite.active === "number" ? { invite: { active: body.invite.active } } : {}),
       plans: planFacts(body.limits),
@@ -772,14 +777,15 @@ async function rateApp(): Promise<void> {
 }
 
 async function openApp(
-  target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period
+  target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period,
+  extra: { back?: string; via?: BuyVia } = {}
 ): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
   // 2.6: the plan and period chosen in the panel's plans sheet open preselected in the app.
-  const url = appLink(target, feature, plan, period)
+  const url = appLink(target, feature, plan, period, extra)
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
@@ -930,7 +936,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         .then(sendResponse, () => sendResponse(null))
       return true
     case "openApp":
-      openApp(message.target, message.feature, message.plan, message.period).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      openApp(message.target, message.feature, message.plan, message.period, { back: message.back, via: message.via }).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
       return true
     case "listenInApp":
       listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
