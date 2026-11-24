@@ -9,7 +9,7 @@ import type { VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
 import { t } from "../shared/i18n"
-import { DEFAULT_PLAN_FACTS, PLAN_RANK, periodOfProduct, planOfProduct, productOf, type PaidPlan, type Period } from "../shared/plan"
+import { DEFAULT_PLAN_FACTS, PLAN_RANK, periodOfProduct, planOfProduct, productOf, startPeriod, type PaidPlan, type Period } from "../shared/plan"
 import type { PlanFacts, StatusInfo } from "../shared/types"
 import { Gallery } from "./Gallery"
 import { lastPrices } from "./store"
@@ -82,7 +82,7 @@ export function PlansSheet({ status, focus, feature, lead, onChoose, onClose }: 
   const prices = Object.keys(given).length ? given : keptPrices
   const currentProduct = status?.store?.active ? status.store.productId : null
   const currentPlan = planOfProduct(currentProduct)
-  const [period, setPeriod] = useState<Period>(periodOfProduct(currentProduct) ?? "yearly")
+  const [period, setPeriod] = useState<Period>(startPeriod(currentProduct))
   // Own key's card, behind its link until asked for (the sheet opened on Own key shows it at once).
   const [ownOpen, setOwnOpen] = useState(focus === "byok")
   const shown = plansShown(currentPlan, ownOpen)

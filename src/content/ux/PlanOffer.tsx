@@ -8,7 +8,7 @@ import type { ComponentChildren, VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
-import { productOf, type PaidPlan, type Period } from "../../shared/plan"
+import { productOf, startPeriod, type PaidPlan, type Period } from "../../shared/plan"
 import type { StatusInfo } from "../../shared/types"
 import { currencyCode, tierLines, yearlySaving } from "../Plans"
 import * as Icon from "../icons"
@@ -27,7 +27,7 @@ export function savingOf(prices: Record<string, string>, plan: PaidPlan): number
   return Number(prices[`${yearly}#percent`]) || yearlySaving(prices[productOf(plan, "monthly")], prices[yearly])
 }
 
-export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "ultra"], focus, period: startPeriod = "yearly", extra, retryAt, onRetry, onChoose, onEvent, onClose }: {
+export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "ultra"], focus, extra, retryAt, onRetry, onChoose, onEvent, onClose }: {
   place: OfferPlace
   status: StatusInfo | null
   title: string
@@ -37,8 +37,6 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   // The plans to choose from (Ultra alone for an Ultra feature, or for someone who has Pro), the first one picked.
   plans?: Array<OfferChoice["plan"]>
   focus?: OfferChoice["plan"]
-  // The period chosen when it opens (the free answers' limit card: monthly, the owner's decision for 2.8).
-  period?: Period
   // The place's own actions under the button (the discount, a note, the own key).
   extra?: ComponentChildren
   // Retry the question: shown from `retryAt` (ms) on (when the answers are back); null when it is now; "unknown"
@@ -56,7 +54,8 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   const prices = Object.keys(given).length ? given : keptPrices
   const facts = status?.plans
   const [plan, setPlan] = useState<OfferChoice["plan"]>(focus && plans.includes(focus) ? focus : plans[0])
-  const [period, setPeriod] = useState<Period>(startPeriod)
+  // Monthly first (DEFAULT_PERIOD); a subscriber's own period when they're changing plan.
+  const [period, setPeriod] = useState<Period>(startPeriod(status?.store?.active ? status.store.productId : null))
   // Shown once per message.
   useEffect(() => onEvent("shown", { plan, period }), [])
   // Retry shows up when the answers are back.

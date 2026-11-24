@@ -1336,7 +1336,9 @@ struct ProView: View {
             .onChange(of: paywall.notice) { _ in takeNotice() }
             // 2.8 (В1.5): the plans screen shown, and where from.
             .onAppear { ChatAI.reportUse("paywall", "shown", ["via": paywall.via]) }
-            .onDisappear { paywall.via = "tab" }
+            // 2.8 (the owner): Monthly first; a subscriber sees their own period.
+            .onAppear { paywall.startPeriod(subscribed: store.entitlement.active ? store.entitlement.productId : nil) }
+            .onDisappear { paywall.via = "tab"; paywall.periodDone() }
             .onChange(of: store.products.count) { _ in buyChosen() }
         }
         .navigationTitle("ContextFlow Pro")
@@ -1794,6 +1796,19 @@ enum PurchaseEvent {
     }
 }
 
+/// The period every plan choice in the app opens on (2.8, the owner: «всегда лучше поначалу показывать месячные подписки»;
+/// all subscriptions so far are monthly). Yearly stays one tap away with its saving. The app's one place for it (the
+/// panel's is DEFAULT_PERIOD in src/shared/plan.ts).
+enum PlanDefaults {
+    static let yearlyFirst = false
+
+    /// A subscriber's own period (changing plan), else the default.
+    static func startsYearly(subscribed productId: String?) -> Bool {
+        guard let productId, productId.hasSuffix(".yearly") || productId.hasSuffix(".monthly") else { return yearlyFirst }
+        return productId.hasSuffix(".yearly")
+    }
+}
+
 /// What the panel's plans sheet chose (contextflow://subscribe?plan=ultra&period=yearly), for the Pro screen.
 final class Paywall: ObservableObject {
     static let shared = Paywall()
@@ -1808,7 +1823,10 @@ final class Paywall: ObservableObject {
         return "com.contextflow.\(tier.rawValue).\(period == "yearly" ? "yearly" : "monthly")" != productId
     }
     @Published var focus: StoreKitManager.Tier?
-    @Published var yearly = true
+    /// Monthly first (PlanDefaults); a period named by a link, or a subscriber's own, when there is one.
+    @Published var yearly = PlanDefaults.yearlyFirst
+    /// The period came with a link (the panel's choice): the Pro screen opening doesn't put it back to the default.
+    private var periodFromLink = false
     /// The product to buy at once (build 95, the owner since 91: "Choose…" in the panel and "Buy" in the chat open the
     /// App Store's purchase of that plan and period, not the plans with one more tap to go).
     @Published var buyNow: String?
@@ -1820,13 +1838,23 @@ final class Paywall: ObservableObject {
     /// 2.8 (В1.5): how the plans screen was reached: the tab itself, or a link (from the panel: where in it).
     var via = "tab"
 
+    /// The Pro screen opening: Monthly, or the subscriber's own period (changing plan, they see where they are), unless a
+    /// link named one.
+    func startPeriod(subscribed productId: String?) {
+        if periodFromLink { return }
+        yearly = PlanDefaults.startsYearly(subscribed: productId)
+    }
+
+    /// The Pro screen gone: the next opening starts afresh.
+    func periodDone() { periodFromLink = false }
+
     func open(_ url: URL) {
         let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
         via = items.contains { $0.name == "via" } ? QuickBuy.via(url) : "deeplink"
         let value = { (name: String) in items.first { $0.name == name }?.value }
         let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:))
         if let plan { focus = plan }
-        if let period = value("period") { yearly = period == "yearly" }
+        if let period = value("period") { yearly = period == "yearly"; periodFromLink = true }
         // A plan and a period named: that product is bought now (the plans stay behind the App Store's sheet).
         if let plan, let period = value("period") { buyNow = "com.contextflow.\(plan.rawValue).\(period == "yearly" ? "yearly" : "monthly")" }
     }

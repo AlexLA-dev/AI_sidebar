@@ -5612,8 +5612,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           {hasPro(plan) ? backPro : backFree}
                         </>}
                         plans={hasPro(plan) ? ["ultra"] : ["pro", "ultra"]}
-                        // Monthly first (the owner, 2.8: every subscription so far is monthly); yearly one tap away.
-                        period="monthly"
                         retryAt={resetsAt ? Date.parse(resetsAt) : "unknown"}
                         onRetry={lastIsUser ? () => retry() : undefined}
                         onChoose={choosePlan}

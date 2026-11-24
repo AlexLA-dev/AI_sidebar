@@ -2,7 +2,7 @@
 // monthly or yearly with the App Store's price and the yearly saving, the choice handed to the app, logged once shown
 // and on every tap, and Retry alive once the answers are back. Also: the conversation is cached for the next question.
 import assert from "node:assert/strict"
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs"
+import { mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { before, test } from "node:test"
@@ -61,14 +61,16 @@ test("Pro or Ultra, monthly or yearly: the App Store's price, the yearly saving,
   ui.offer(el, { place: "limit", status: STATUS, title: "You're out of answers", body: "5 more at 3:00 AM.", onChoose: (c: unknown) => chosen.push(c), onEvent: (a: string, c: unknown) => events.push([a, c]) })
   // Effects run after the next frame (Preact falls back to a 100 ms timer without one).
   await new Promise((r) => setTimeout(r, 150))
-  // Shown once, on Pro yearly (the first plan, the yearly period).
-  assert.deepEqual(events, [["shown", { plan: "pro", period: "yearly" }]])
+  // Shown once, on Pro monthly (the first plan; Monthly first, 2.8).
+  assert.deepEqual(events, [["shown", { plan: "pro", period: "monthly" }]])
   const text = () => el.textContent as string
+  assert.match(text(), /\$6\.99/)
+  const segs = el.querySelectorAll(".cf-seg button")
+  assert.equal(segs.length, 4) // Pro, Ultra; Monthly, Yearly
+  await click(segs[3]) // Yearly
   assert.match(text(), /\$59\.99/)
   assert.match(text(), /28/)
   assert.match(text(), /\$5\.00/)
-  const segs = el.querySelectorAll(".cf-seg button")
-  assert.equal(segs.length, 4) // Pro, Ultra; Monthly, Yearly
   await click(segs[1]) // Ultra
   assert.match(text(), /\$119\.99/)
   await click(segs[2]) // Monthly
@@ -121,12 +123,12 @@ test("yearly (build 95): twelve months of the monthly plan, struck through, when
   ui.clear(el)
 })
 
-test("the free answers' limit card opens on Monthly (the owner, 2.8); yearly one tap away with its saving", async () => {
+test("plan cards open on Monthly (the owner, 2.8); yearly one tap away with its saving; a subscriber sees their own", async () => {
   const el = dom.document.createElement("div")
   dom.document.body.appendChild(el)
   const events: Array<[string, unknown]> = []
   const chosen: unknown[] = []
-  ui.offer(el, { place: "limit", status: STATUS, title: "Out", period: "monthly", onChoose: (c: unknown) => chosen.push(c), onEvent: (a: string, c: unknown) => events.push([a, c]) })
+  ui.offer(el, { place: "limit", status: STATUS, title: "Out", onChoose: (c: unknown) => chosen.push(c), onEvent: (a: string, c: unknown) => events.push([a, c]) })
   await new Promise((r) => setTimeout(r, 150))
   assert.deepEqual(events, [["shown", { plan: "pro", period: "monthly" }]])
   const text = () => el.textContent as string
@@ -140,8 +142,14 @@ test("the free answers' limit card opens on Monthly (the owner, 2.8); yearly one
   await click(period[1])
   assert.match(text(), /\$59\.99/)
   ui.clear(el)
-  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
-  assert.match(app, /plans=\{hasPro\(plan\) \? \["ultra"\] : \["pro", "ultra"\]\}[\s\S]{0,200}period="monthly"/)
+  // A yearly Pro subscriber offered Ultra: their own period first.
+  const sub = dom.document.createElement("div")
+  dom.document.body.appendChild(sub)
+  const seen: Array<[string, unknown]> = []
+  ui.offer(sub, { place: "limit", status: { ...STATUS, plan: "pro", store: { active: true, productId: "com.contextflow.pro.yearly", prices: PRICES } }, title: "Out", plans: ["ultra"], onChoose() {}, onEvent: (a: string, c: unknown) => seen.push([a, c]) })
+  await new Promise((r) => setTimeout(r, 150))
+  assert.deepEqual(seen, [["shown", { plan: "ultra", period: "yearly" }]])
+  ui.clear(sub)
 })
 
 test("Retry: not there until the answers are back, then the question goes again", async () => {

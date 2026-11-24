@@ -34,6 +34,18 @@ export function periodOfProduct(productId: string | null | undefined): Period | 
   return productId.endsWith(".yearly") ? "yearly" : productId.endsWith(".monthly") ? "monthly" : null
 }
 
+/**
+ * The period every plan choice opens on (2.8, the owner: «всегда лучше поначалу показывать месячные подписки»; all
+ * subscriptions so far are monthly). Yearly stays one tap away, with its saving. The one place it's set in the panel;
+ * the app has its own (PlanDefaults.period).
+ */
+export const DEFAULT_PERIOD: Period = "monthly"
+
+/** The period a plan choice opens on: a subscriber's own (changing plan, they see where they are), else the default. */
+export function startPeriod(productId: string | null | undefined): Period {
+  return periodOfProduct(productId) ?? DEFAULT_PERIOD
+}
+
 /** Everything Pro unlocks: Pro itself and Ultra (Ultra is everything in Pro and more). Own key is not Pro. */
 export function hasPro(plan: Plan | null | undefined): plan is "pro" | "ultra" {
   return plan === "pro" || plan === "ultra"
