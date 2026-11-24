@@ -25,6 +25,9 @@ export interface PlanQuestion {
   fact?: string
   // The answer picked already, changeable (a place the agent chose by the rules: shown, not silent; 124).
   pick?: string
+  // A contact asked for a booking whose request carries someone's details (a name, an e-mail): likely theirs, so the
+  // card doesn't offer to keep it in «Мои данные» by default.
+  once?: boolean
   // The device's own questions (their words come from the panel's language): where to book; a contact detail the booking
   // will ask for and «Мои данные» hasn't got (asked here, not mid-task; its value is filled by key, never sent).
   kind?: "venue" | "contact" | "specialist" | "service"
@@ -580,6 +583,16 @@ export function optionFor(options: string[], value: string): string {
 // «Отмена», «Cancel», «Stop» as one of the model's choices (ask_user): the card has its own Cancel, so it isn't shown twice
 // (the owner on 118). The languages the panel speaks.
 const CANCEL_CHOICE = /^(cancel|stop|abort|never ?mind|отмена|отменить|отмените|стоп|не надо|скасувати|відміна|відмінити|стоп|abbrechen|stopp|annuler|arrêter|cancelar|parar|detener|annulla|annullare|interrompi|iptal|vazgeç|durdur|キャンセル|中止|やめる|취소|중지|取消|停止|إلغاء|توقف|hủy|dừng)$/iu
+
+const EMAIL_IN = /[^\s@<>()]+@[^\s@<>()]+\.[\p{L}]{2,}/u
+// (Seven digits or more in one run of digits, spaces, dots and dashes: «+357 99 123456», never «20 декабря в 19:00».)
+const PHONE_IN = /(?:\+|(?<![\d:]))\d(?:[\s().-]?\d){6,}(?![\d:])/
+
+/** The request (with its chat) gives this contact itself: an e-mail address, or a phone number. */
+export function contactInWords(key: "email" | "phone", words: string): boolean {
+  // (Dates written with digits — «2026-12-20», «20.12.2026» — aren't phones.)
+  return key === "email" ? EMAIL_IN.test(words) : PHONE_IN.test(words.replace(EMAIL_IN, "").replace(/\b\d{4}[-./]\d{1,2}[-./]\d{1,2}\b|\b\d{1,2}[-./]\d{1,2}[-./]\d{2,4}\b/g, ""))
+}
 
 export function isCancelChoice(choice: string): boolean {
   return CANCEL_CHOICE.test(choice.trim().replace(/[.!…]+$/u, ""))

@@ -18,7 +18,7 @@ import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
-import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -479,10 +479,14 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   // A contact detail the booking will ask for and «Мои данные» hasn't got: asked on the card with «Запомнить», not
   // mid-task (the director on 124). The plan names the ones its booking will ask for.
+  // One the request already gives («почта maria@example.com») isn't asked again (the director on 125); and when the request
+  // carries someone's details, a contact still asked is likely theirs: not kept in «Мои данные» by default.
   if (plan.booking?.contacts?.length) {
     const have = new Set(liveEntries(entries).map((e) => e.key))
+    const said = `${state.request} ${plan.fromChat ?? ""}`
+    const forSomeone = plan.perms.some((p) => p.kind === "personal")
     for (const key of plan.booking.contacts) {
-      if (!have.has(key) && !plan.questions.some((q) => q.key === key)) plan.questions.push({ q: "", kind: "contact", key, options: [] })
+      if (!have.has(key) && !contactInWords(key, said) && !plan.questions.some((q) => q.key === key)) plan.questions.push({ q: "", kind: "contact", key, options: [], ...(forSomeone ? { once: true } : {}) })
     }
   }
   // The booking's contact form (a later page): the saved name, e-mail and phone go in as the plan's fill.
