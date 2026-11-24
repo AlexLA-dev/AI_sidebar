@@ -3282,7 +3282,8 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
 .cf-agent-bubble-mark.notdone { background: var(--danger); }
 .cf-agent-bubble-meta { margin: -4px 0 0; font-size: var(--fs-small); color: var(--text-2); }
 .cf-agent-bubble-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-.cf-agent-bubble-actions .cf-primary, .cf-agent-bubble-actions .cf-secondary { padding: 8px 13px; line-height: 1.25; border-radius: 11px; min-height: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* (An answer longer than the bubble wraps to two lines, never cut: \xAB\u041F\u043E\u043F\u0440\u043E\u0431\u043E\u0432\u0430\u0442\u044C \u043F\u043E\u043D\u0435\u0434\u0435\u043B\u044C\u043D\u0438\u043A, 28 \u0434\u0435\u043A\u0430\u0431\u0440\u044F\xBB.) */
+.cf-agent-bubble-actions .cf-primary, .cf-agent-bubble-actions .cf-secondary { padding: 8px 13px; line-height: 1.25; border-radius: 11px; min-height: 0; max-width: 100%; white-space: normal; text-align: start; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cf-agent-bubble-actions .cf-primary { border: 1px solid transparent !important; box-shadow: none; }
 /* The plan card's question left unanswered when \xAB\u041D\u0430\u0447\u0430\u0442\u044C\xBB was pressed; \xAB\u041D\u0430\u0447\u0430\u0442\u044C\xBB softer until all are answered. */
 .cf-agent-q.missing p { color: var(--danger, #c0392b); }

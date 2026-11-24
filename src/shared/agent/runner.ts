@@ -430,7 +430,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
       seen = { ...seen, items: [...seen.items, ...more.items] }
     }
     const cards = cardsOf(seen)
-    const ranked = rankVenues(venuesOn(seen), cards, plan.booking.match ?? [], rules.rating, plan.booking.area ?? []).slice(0, 3)
+    const ranked = rankVenues(venuesOn(seen), cards, plan.booking.match ?? [], rules.rating, plan.booking.area ?? [], true).slice(0, 3)
     // A place that matters to the person (an appointment: a salon, a clinic) is theirs to choose: the page's best by the
     // rules with their rating and area, the one they went to last time, and «pick for me by my rules»; only a
     // remembered one is chosen already. A table at «any Italian» is the rules' choice, shown chosen and changeable.

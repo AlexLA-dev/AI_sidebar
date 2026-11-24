@@ -150,5 +150,8 @@ test("121 sweep: the area the request names keeps places from elsewhere out of t
   const cards = new Map([["https://t.example/a", "Canvas Barbershop 5.0 32 reviews Bridgnorth, Shropshire barber"], ["https://t.example/b", "Soho Cuts 4.8 400 reviews Soho, London barber"], ["https://t.example/c", "Groom Room 4.9 1178 reviews Old Compton St, Soho barber"]])
   assert.deepEqual(rankVenues(list, cards, ["barber"], 4.5, ["Soho"]).map((v) => v.name), ["Groom Room", "Soho Cuts"])
   assert.deepEqual(rankVenues(list, cards, ["barber"], 4.5, ["Camden"]).map((v) => v.name).length, 3, "no card names it: the site's list stays")
+  // The plan's start page isn't a search's answer: no card naming the area offers none (125: promoted hotels abroad).
+  assert.deepEqual(rankVenues(list, cards, ["barber"], 4.5, ["Camden"], true), [])
+  assert.equal(rankVenues(list, cards, ["barber"], 4.5, ["Soho"], true).length, 2)
   assert.deepEqual(checkPlan({ label: "b", steps: ["a"], questions: [], risky: [], prices: [], fromChat: "", booking: { kind: "appointment", date: "2026-11-28", from: "12:00", until: "18:00", minutes: 45, tz: "", venue: "", match: ["barber"], area: ["Soho"] } }).booking?.area, ["Soho"])
 })
