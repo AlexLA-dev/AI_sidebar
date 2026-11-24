@@ -374,6 +374,16 @@ export function sessionFields(body: Record<string, unknown> | null | undefined):
   }
 }
 
+// 2.8 (growth plan, ~/ContextFlow-work/director/growth-plan/events-2.8.md): the test arms an install is in, from its
+// first event on: "<test>=<arm>", at most three joined by commas. Names only, never an id.
+const VARIANT = /^[a-z0-9_]{1,16}=[a-z0-9_]{1,16}(?:,[a-z0-9_]{1,16}=[a-z0-9_]{1,16}){0,2}$/
+
+/** The client's test variant (client.variant) as an event field, or nothing when it isn't one. */
+export function variantFields(client: Record<string, unknown> | null | undefined): { variant?: string } {
+  const value = client?.variant
+  return typeof value === "string" && VARIANT.test(value) ? { variant: value } : {}
+}
+
 /** A "use" step's own fields, or null when the feature or the action isn't in the registry (or is sent as its
  * own kind). Unknown extra fields and values are left out. */
 export function useFields(body: Record<string, unknown>): Record<string, unknown> | null {
