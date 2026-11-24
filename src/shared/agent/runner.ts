@@ -419,6 +419,14 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   // Where to book, shown (124, the owner: «переуточнять… если эта деталь не была уточнена»): a booking that names no
   // place, on a results list, gets the place the rules would choose as a picked, changeable answer, with the next two.
+  // The plan's own question about the place offers only places this page shows (125: three hotels from the model's
+  // memory on a home page with none of them); fewer than two left, it's not asked here (the agent asks from a real list).
+  const shown = `${map.text} ${map.items.map((i) => `${i.label} ${i.card ?? ""}`).join(" ")}`.toLocaleLowerCase()
+  plan.questions = plan.questions.flatMap((q) => {
+    if (q.fact !== "venue" && q.fact !== "pref:place") return [q]
+    const options = q.options.filter((o) => shown.includes(o.toLocaleLowerCase()))
+    return options.length >= 2 ? [{ ...q, options, ...(q.pick && options.includes(q.pick) ? {} : { pick: undefined }) }] : []
+  })
   let placesListed = false
   if (plan.booking && !plan.booking.venue && rules.chooseVenue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) {
     // A results list whose cards come after the first part of the map (restaurant and salon sites' filters and map first,
@@ -493,6 +501,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     state.status = "plan"
     return "card"
   }
+  placeFromAnswers(state, plan, [])
   plan.approved = true
   return "go"
 }
