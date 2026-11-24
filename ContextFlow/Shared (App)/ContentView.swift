@@ -1697,9 +1697,13 @@ enum QuickBuy {
         var parts = URLComponents(url: page, resolvingAgainstBaseURL: false)
         if (parts?.fragment ?? "").isEmpty { parts?.fragment = "cf-bought=\(word)" }
         let target = parts?.url ?? page
-        // Safari itself (iOS 17 and later), not another default browser: the panel lives there.
-        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(target.absoluteString)") {
-            UIApplication.shared.open(safari)
+        // Safari itself (iOS 17 and later), not another default browser: the panel lives there. Only `x-safari-https` is
+        // registered (an http page's `x-safari-http` opened nothing: the simulator check after acceptance 1), so an http
+        // page, or a refusal, opens the address itself.
+        if #available(iOS 17, *), target.scheme == "https", let safari = URL(string: "x-safari-\(target.absoluteString)") {
+            UIApplication.shared.open(safari) { opened in
+                if !opened { UIApplication.shared.open(target) }
+            }
         } else {
             UIApplication.shared.open(target)
         }
