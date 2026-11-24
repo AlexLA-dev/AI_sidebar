@@ -4600,7 +4600,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The agent's bubble by the circle (2.7.1): this tab's task with the chat closed, else another tab's notice.
   const hereBubble = !popup && !open && agentTask ? bubbleOf(agentTask, pendingKey(agentTask as never), true) : null
   const hereFresh = hereBubble && !(hereBubble.kind === "end" && (endSeen === agentTask?.id || Date.now() - (agentTask?.touchedAt ?? 0) > END_BUBBLE_MS))
-  const agentBubble = hereFresh ? hereBubble : !popup && agentNotice ? bubbleOf(agentNotice, agentNotice.key ?? "", false) : null
+  // (Another tab's finished task doesn't speak over a task working here: 126, a stand booking's «Not finished» over the
+  // clinic task running in this tab.)
+  const otherBubble = !popup && agentNotice ? bubbleOf(agentNotice, agentNotice.key ?? "", false) : null
+  const workingHere = agentTask?.status === "running"
+  const agentBubble = hereFresh ? hereBubble : otherBubble && !(workingHere && otherBubble.kind === "end") ? otherBubble : null
   agentBubbleRef.current = agentBubble
   const bubbleUp = !!agentBubble && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !pageTyping && bubbleGone !== agentBubble.key
   const fabRing = agentBubble ? (agentBubble.kind === "end" && agentBubble.ok ? "done" : "needs") : agentNotice ? (agentNotice.status === "done" ? "done" : "needs") : null

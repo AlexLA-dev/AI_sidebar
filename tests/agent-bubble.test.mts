@@ -76,3 +76,8 @@ test("the recap's asked time is in the device's clock, as the booked one (the di
   assert.match(panel, /r\.askedDate \? when\(r\.askedDate, r\.askedTime\) : clock\(r\.askedTime \?\? ""\)/)
   assert.match(panel, /export function clock\(time: string\): string \{[\s\S]{0,200}Intl\.DateTimeFormat\(undefined, \{ hour: "2-digit", minute: "2-digit" \}\)/)
 })
+
+test("another tab's finished task doesn't speak over a task working in this tab (126)", () => {
+  assert.match(app, /const workingHere = agentTask\?\.status === "running"/)
+  assert.match(app, /otherBubble && !\(workingHere && otherBubble\.kind === "end"\) \? otherBubble : null/)
+})

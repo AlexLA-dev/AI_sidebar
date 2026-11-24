@@ -198,6 +198,18 @@ test("a list of places that shows no ratings (a clinic directory) is a list by i
   assert.deepEqual(venuesOn(footer), [])
 })
 
+test("a directory at a tablet's width (doctor, specialty, address; no times) is a list when its cards name the request's area (126)", async () => {
+  const { venuesOn, rankVenues, cardsOf } = await import("../src/shared/agent/venues.ts")
+  const doc = (n: string, street: string): MapItem => ({ id: n, role: "link", label: `Dr ${n}`, href: `/dentist/paris/dr-${n.toLowerCase()}`, card: `Dr ${n} Chirurgien-dentiste ${street} 75020 Paris Conventionné` })
+  const map = page("https://clinics.example/dentist/paris", "Dentists in Paris", "Dentists in Paris", [doc("Martin", "192 Boulevard Example"), doc("Bernard", "74 Rue Example"), doc("Petit", "76 Rue Example")])
+  assert.deepEqual(venuesOn(map), [], "no sign of booking on the cards alone")
+  const list = venuesOn(map, ["Paris"])
+  assert.equal(list.length, 3)
+  assert.deepEqual(rankVenues(list, cardsOf(map), ["dentiste"], 4.5, ["Paris"], true).map((v) => v.name), ["Dr Martin", "Dr Bernard", "Dr Petit"], "the page's order")
+  // Another city's directory isn't the area's list.
+  assert.deepEqual(venuesOn(map, ["Lyon"]), [])
+})
+
 test("a page that is the booking's own form: no «I'll pick the place», and a detail the request gives has one source (the director on 126)", async () => {
   const FORM = page("https://r.example/booking?lang=ru", "Забронировать столик", "Забронировать столик\nИмя\nТелефон\nЭлектронная почта\nДата\nВремя\nГостей",
     [{ id: "1", role: "textbox", label: "Имя", lock: "personal" }, { id: "2", role: "textbox", label: "Электронная почта", type: "email", lock: "personal" },

@@ -432,13 +432,13 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     // A results list whose cards come after the first part of the map (restaurant and salon sites' filters and map first,
     // 124): the next parts are read on the device for the places (never sent to the model).
     let seen = map
-    for (let p = 2; !venuesOn(seen).length && p <= Math.min(map.parts, 4); p++) {
+    for (let p = 2; !venuesOn(seen, plan.booking.area ?? []).length && p <= Math.min(map.parts, 4); p++) {
       const more = await io.map({ part: p }).catch(() => null)
       if (!more) break
       seen = { ...seen, items: [...seen.items, ...more.items] }
     }
     const cards = cardsOf(seen)
-    const ranked = rankVenues(venuesOn(seen), cards, plan.booking.match ?? [], rules.rating, plan.booking.area ?? [], true).slice(0, 3)
+    const ranked = rankVenues(venuesOn(seen, plan.booking.area ?? []), cards, plan.booking.match ?? [], rules.rating, plan.booking.area ?? [], true).slice(0, 3)
     // A place that matters to the person (an appointment: a salon, a clinic) is theirs to choose: the page's best by the
     // rules with their rating and area, the one they went to last time, and «pick for me by my rules»; only a
     // remembered one is chosen already. A table at «any Italian» is the rules' choice, shown chosen and changeable.
@@ -695,7 +695,7 @@ function noteVenues(state: AgentState, map: PageMap): void {
   const b = state.plan?.booking
   if (!b || b.venue || !state.chooseVenue || !state.plan?.approved) return
   if (!state.venues) {
-    const list = venuesOn(map)
+    const list = venuesOn(map, b.area ?? [])
     if (list.length) {
       // (Places to ask the person about are only ones in the area the request names: a home page's promoted hotels
       // elsewhere aren't a list to ask from, 125.)
