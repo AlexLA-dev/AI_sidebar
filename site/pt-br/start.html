@@ -38,7 +38,7 @@
      opens /features?utm_source=app (and /<language>/features?utm_source=app); netlify.toml serves this page there, and
      /features stays as it is for everyone else. One job: the person taps ✦ and asks a first question. noindex, not in
      the sitemap, no counter. The script below only looks for the element ContextFlow's content script adds to every page
-     (<contextflow-root>); it needs no permission and sends nothing anywhere. -->
+     (<contextflow-root>) and for taps on it; it needs no permission and sends nothing anywhere. -->
 <style>
   .first { max-width: 680px; }
   .first h1 { font-size: 34px; line-height: 1.15; margin: 28px 0 10px; }
@@ -48,9 +48,11 @@
   .steps-live .mark { flex: none; width: 26px; height: 26px; border-radius: 13px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: transparent; }
   .steps-live li.done .mark { background: #16a34a; border-color: #16a34a; color: #fff; }
   .steps-live li.done .mark::after { content: "✓"; }
-  /* The last step is never ticked: the page can't see the panel's answer. It points at the article instead. */
+  /* The last step points at the article until the person taps something in the open panel (see the script). */
   .steps-live li.goal .mark { border-color: var(--blue); color: var(--blue); }
   .steps-live li.goal .mark::after { content: "↓"; }
+  .steps-live li.goal.done .mark { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .steps-live li.goal.done .mark::after { content: "✓"; }
   .steps-live li.now { outline: 2px solid var(--blue); }
   .steps-live p { margin: 0; }
   .steps-live .sub { display: block; font-size: 15px; color: var(--text-2); }
@@ -67,15 +69,19 @@
   .try p { font-family: Georgia, "Times New Roman", serif; font-size: 19px; line-height: 1.65; }
   .ideas { margin: 0 0 30px; padding-left: 22px; }
   [dir="rtl"] .ideas { padding-left: 0; padding-right: 22px; }
-  .here { position: fixed; top: 72%; right: 66px; transform: translateY(-50%); z-index: 50; display: flex; align-items: center; gap: 8px;
-    background: var(--blue); color: #fff; font-weight: 700; font-size: 16px; padding: 9px 14px; border-radius: 22px; box-shadow: 0 6px 20px rgba(0,0,0,.25);
-    animation: nudge 1.2s ease-in-out infinite; }
-  .here .arrow { font-size: 20px; line-height: 1; }
-  [dir="rtl"] .here { right: auto; left: 66px; }
-  [dir="rtl"] .here .arrow { transform: scaleX(-1); }
-  @keyframes nudge { 0%, 100% { margin-right: 0; margin-left: 0; } 50% { margin-right: -8px; } }
-  [dir="rtl"] .here { animation-name: nudge-rtl; }
-  @keyframes nudge-rtl { 0%, 100% { margin-left: 0; } 50% { margin-left: -8px; } }
+  /* Sits right above ✦ and centred on it (48 px round, 14 px from the edge, at 72 % of the screen by default), narrow enough
+     to stay in the page margin on iPad instead of over the article. Where the label can't fit there (a word wider than the
+     pill, or a phone's narrow margin) the script makes it .bare: just the arrow. */
+  .here { position: fixed; top: 72%; right: 8px; transform: translateY(calc(-100% - 34px)); z-index: 50;
+    display: flex; flex-direction: column; align-items: center; gap: 2px; width: 60px; box-sizing: border-box; text-align: center;
+    background: var(--blue); color: #fff; font-weight: 700; font-size: 14px; line-height: 1.2; padding: 6px 7px 4px; border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25); animation: nudge 1.2s ease-in-out infinite; }
+  .here .arrow { font-size: 18px; line-height: 1; }
+  .here.bare { width: 36px; right: 20px; padding: 7px 0 6px; border-radius: 18px; }
+  .here.bare .label { display: none; }
+  [dir="rtl"] .here { right: auto; left: 8px; }
+  [dir="rtl"] .here.bare { left: 20px; }
+  @keyframes nudge { 0%, 100% { margin-top: 0; } 50% { margin-top: 6px; } }
   @media (prefers-reduced-motion: reduce) { .here { animation: none; } }
   [hidden] { display: none !important; }
 </style>
@@ -143,14 +149,16 @@
   </ul>
   </aside>
 </main>
-<div class="here" id="here" hidden aria-hidden="true"><span>Toque em ✦</span><span class="arrow">➜</span></div>
+<div class="here" id="here" hidden aria-hidden="true"><span class="label">Toque em ✦</span><span class="arrow">↓</span></div>
 <footer class="wrap"><span>© 2026 ContextFlow</span><a href="/pt-br/support">Suporte</a><a href="/privacy">Política de Privacidade</a><nav class="langs" aria-label="Language" data-i18n-generated><a href="/start" hreflang="en" lang="en">English</a><a href="/de/start" hreflang="de" lang="de">Deutsch</a><a href="/es/start" hreflang="es" lang="es">Español</a><a href="/fr/start" hreflang="fr" lang="fr">Français</a><a href="/it/start" hreflang="it" lang="it">Italiano</a><span lang="pt-BR" aria-current="page">Português (Brasil)</span><a href="/tr/start" hreflang="tr" lang="tr">Türkçe</a><a href="/ru/start" hreflang="ru" lang="ru">Русский</a><a href="/uk/start" hreflang="uk" lang="uk">Українська</a><a href="/vi/start" hreflang="vi" lang="vi">Tiếng Việt</a><a href="/ar/start" hreflang="ar" lang="ar">العربية</a><a href="/ja/start" hreflang="ja" lang="ja">日本語</a><a href="/ko/start" hreflang="ko" lang="ko">한국어</a><a href="/zh-hans/start" hreflang="zh-Hans" lang="zh-Hans">简体中文</a><a href="/zh-hant/start" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a></nav></footer>
 <script>
 // Looks for ContextFlow's own element on this page (the content script adds <contextflow-root>): it needs no permission
-// and sends nothing. Found: the first step is done and an arrow points at the edge where ✦ sits by default. A tap on ✦ or
-// in the panel reaches the page as a click on that element, which marks the second step and makes the third the current
-// one. The third is never ticked: the page can't see the panel's answer, so it shows an arrow to the article, not a box.
-// Not found after a moment: how to turn ContextFlow on from Safari itself.
+// and sends nothing. Found: the first step is done and a label points at ✦ in its default place. Taps on ✦ or in the
+// panel reach the page as pointer events on that element. Not clicks: ✦ opens the panel on the finger's lift, and in an
+// iPad check the second step stayed unticked after that tap until the next one. The first tap marks the second step.
+// The panel's content is closed to the page, so it can't see an answer: the third step is marked by the next tap that
+// leaves the panel open where the finger was (Summarize, a question sent), not by one that closes it.
+// Not found after a moment: how to turn ContextFlow on.
 (function () {
   var TAG = "CONTEXTFLOW-ROOT"
   var on = document.getElementById("step-on")
@@ -173,18 +181,52 @@
     on.classList.add("done")
     show("found")
     help.hidden = true
-    if (!tapped) { tap.classList.add("now"); here.hidden = false }
+    if (!tapped) { tap.classList.add("now"); here.hidden = false; fit() }
   }
+  // The label stays only if each of its words fits the pill and the pill clears the article's text column.
+  function fit() {
+    if (here.hidden) return
+    here.classList.remove("bare")
+    var card = document.querySelector(".try").getBoundingClientRect()
+    var pad = parseFloat(getComputedStyle(document.querySelector(".try")).paddingLeft) || 0
+    var pill = here.getBoundingClientRect()
+    var rtl = document.documentElement.dir === "rtl"
+    var clear = rtl ? pill.right <= card.left + pad - 4 : pill.left >= card.right - pad + 4
+    // The pill's padding is 7 px a side; a word that runs into it doesn't fit.
+    var room = here.clientWidth - 14
+    if (here.querySelector(".label").getBoundingClientRect().width > room + 1 || !clear) here.classList.add("bare")
+  }
+  window.addEventListener("resize", fit)
   check()
   new MutationObserver(check).observe(document.documentElement, { childList: true })
   setTimeout(function () { if (!found) { show("missing"); help.hidden = false } }, 3000)
-  document.addEventListener("click", function (e) {
-    if (!e.target || e.target.tagName !== TAG || tapped) return
-    tapped = true
-    here.hidden = true
-    tap.classList.remove("now")
-    tap.classList.add("done")
-    ask.classList.add("now")
+  var down = null
+  var asked = false
+  function onPanel(x, y) { var el = document.elementFromPoint(x, y); return !!el && el.tagName === TAG }
+  document.addEventListener("pointerdown", function (e) {
+    down = e.target && e.target.tagName === TAG ? { x: e.clientX, y: e.clientY } : null
+  }, true)
+  document.addEventListener("pointerup", function (e) {
+    var d = down
+    down = null
+    // A drag of ✦ or of the panel isn't a tap.
+    if (!d || !e.target || e.target.tagName !== TAG || Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y) > 12) return
+    if (!tapped) {
+      tapped = true
+      here.hidden = true
+      tap.classList.remove("now")
+      tap.classList.add("done")
+      ask.classList.add("now")
+      return
+    }
+    if (asked) return
+    var x = e.clientX, y = e.clientY
+    setTimeout(function () {
+      if (asked || !onPanel(x, y)) return
+      asked = true
+      ask.classList.remove("now")
+      ask.classList.add("done")
+    }, 500)
   }, true)
   document.getElementById("reload").addEventListener("click", function () { location.reload() })
 })()
