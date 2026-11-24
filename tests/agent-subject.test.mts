@@ -178,3 +178,18 @@ test("the plan's place question offers only places the page shows; fewer than tw
   }
   assert.equal(s.plan?.askPlace, true, "asked once a list is open")
 })
+
+test("a list of places that shows no ratings (a clinic directory) is a list by its own signs, ranked by distance or order (125)", async () => {
+  const { venuesOn, rankVenues, cardsOf } = await import("../src/shared/agent/venues.ts")
+  const doc = (n: string, km: string, slot: string): MapItem => ({ id: n, role: "link", label: `Dr ${n}`, href: `/dentist/paris/dr-${n.toLowerCase()}`, card: `Dr ${n} Dental surgeon ${km} km 12 Rue Example, 75011 Paris Next availability Mon 28 Dec ${slot} Book an appointment` })
+  const map = page("https://clinics.example/dentist/paris", "Dentists in Paris", "Dentists in Paris · 3 results", [
+    { id: "n1", role: "link", label: "Help", href: "/help" }, { id: "n2", role: "link", label: "Sign in", href: "/signin" },
+    doc("Martin", "2.1", "09:30"), doc("Bernard", "0.8", "10:15"), doc("Petit", "1.4", "11:00")
+  ])
+  const list = venuesOn(map)
+  assert.deepEqual(list.map((v) => v.name), ["Dr Martin", "Dr Bernard", "Dr Petit"])
+  assert.deepEqual(rankVenues(list, cardsOf(map), ["dental"], 4.5, ["Paris"], true).map((v) => v.name), ["Dr Bernard", "Dr Petit", "Dr Martin"], "nearest first")
+  // Plain links without booking on their cards (a footer, an article list) aren't places.
+  const footer = page("https://clinics.example/", "Clinics", "Home", ["a", "b", "c"].map((x) => ({ id: x, role: "link" as const, label: `Guide ${x}`, href: `/guides/${x}/read`, card: `Guide ${x} — five things to know about your teeth` })))
+  assert.deepEqual(venuesOn(footer), [])
+})

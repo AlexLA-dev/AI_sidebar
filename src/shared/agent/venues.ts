@@ -4,7 +4,7 @@
 // service words on its card), never only by rating (a restaurant site: a French restaurant for «итальянский»).
 
 import { wordTest } from "./match.ts"
-import { PROMOTED_WORDS } from "./words.ts"
+import { BOOKING_WORDS, PROMOTED_WORDS } from "./words.ts"
 import { hostOf, sameSite } from "./sites.ts"
 import type { MapItem, PageMap } from "./types.ts"
 
@@ -85,7 +85,45 @@ export function venuesOn(map: PageMap): Venue[] {
     groups.set(head, [...(groups.get(head) ?? []), v])
   }
   const list = [...groups.values()].sort((a, b) => b.length - a.length)[0] ?? []
-  return list.length >= 3 ? out.filter((v) => list.includes(v)) : []
+  return list.length >= 3 ? out.filter((v) => list.includes(v)) : unratedOn(map)
+}
+
+const bookingWord = wordTest(BOOKING_WORDS)
+const TIME = /(^|[^\d])([01]?\d|2[0-3])[:.h][0-5]\d(?!\d)/
+
+function urlOf(href: string, page: string): string | null {
+  try {
+    const url = new URL(href, page).toString().split("#")[0]
+    return sameSite(hostOf(url), hostOf(page)) ? url : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * A list of places that shows no ratings (a clinic's directory of doctors, 125): three or more links of this site with
+ * the same address shape (its first part and depth), each with a card of its own that offers booking (its words) or
+ * shows a time to book; ranked by the rules from distance or the page's order.
+ */
+function unratedOn(map: PageMap): Venue[] {
+  const groups = new Map<string, Venue[]>()
+  const seen = new Set<string>()
+  for (const it of map.items) {
+    if (it.role !== "link" || !it.href || !it.card || it.where === "below") continue
+    const name = it.label.replace(/\s+/g, " ").trim()
+    const card = it.card.replace(/\s+/g, " ").trim()
+    if (name.length < 3 || name.length > 80 || /^\d/.test(name) || card.length < name.length + 15) continue
+    if (!bookingWord(card) && !TIME.test(card)) continue
+    const url = urlOf(it.href, map.url)
+    if (!url || seen.has(url)) continue
+    const parts = new URL(url).pathname.split("/").filter(Boolean)
+    if (parts.length < 2) continue
+    seen.add(url)
+    const key = `${parts[0]}/${parts.length}`
+    groups.set(key, [...(groups.get(key) ?? []), { url, name, rating: 0, reviews: 0 }])
+  }
+  const list = [...groups.values()].sort((a, b) => b.length - a.length)[0] ?? []
+  return list.length >= 3 && new Set(list.map((v) => v.name)).size >= 3 ? list : []
 }
 
 const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")
@@ -110,6 +148,8 @@ export function rankVenues(list: Venue[], cards: Map<string, string>, match: str
   const stem = (w: string) => w.replace(/['’]s$|s$/u, "")
   const has = (text: string, term: string) => term.split(/[\s\-–,&/]+/).map(stem).filter((x) => x.length >= 3).every((x) => text.includes(x))
   const fits = inArea.filter((v) => !words.length || words.some((w) => card(v).includes(w) || has(card(v), w)))
+  // (A list with no ratings at all: by distance or the page's order.)
+  if (fits.length && fits.every((v) => !v.rating)) return byRules(fits, cards)
   const good = fits.filter((v) => v.rating >= minRating && v.reviews >= 20)
   return byRules(good.length ? good : fits.filter((v) => v.rating >= minRating - 0.3), cards)
 }
@@ -152,7 +192,7 @@ export function venueNote(v: Venue, cards: Map<string, string>): string {
   const text = (cards.get(v.url) ?? "").replace(v.name, " ")
   const area = /(?<![\d\p{L}])(\p{Lu}[\p{L}'’.-]+(?:\s[\p{L}'’.-]+){0,2}\s?,\s?\p{Lu}[\p{L}'’.-]+)/u.exec(text)?.[1]
   const d = distanceOf(text)
-  return [`★ ${(Math.round(v.rating * 10) / 10).toString()}`, v.reviews ? v.reviews.toLocaleString("en-US") : "", area ?? "", d !== null ? (d >= 1000 ? `${(d / 1000).toFixed(1)} km` : `${Math.round(d)} m`) : ""].filter(Boolean).join(" · ")
+  return [v.rating ? `★ ${(Math.round(v.rating * 10) / 10).toString()}` : "", v.reviews ? v.reviews.toLocaleString("en-US") : "", area ?? "", d !== null ? (d >= 1000 ? `${(d / 1000).toFixed(1)} km` : `${Math.round(d)} m`) : ""].filter(Boolean).join(" · ")
 }
 
 /** The cards' words by place (all of each link's text: the cuisine or service is there, not in the name only). */
@@ -161,6 +201,10 @@ export function cardsOf(map: PageMap): Map<string, string> {
   for (const it of map.items) {
     const v = venueOf(it, map.url)
     if (v) out.set(v.url, it.card ? `${it.label} ${it.card}` : it.label)
+    else if (it.role === "link" && it.href && it.card) {
+      const url = urlOf(it.href, map.url)
+      if (url && !out.has(url)) out.set(url, `${it.label} ${it.card}`)
+    }
   }
   return out
 }
