@@ -352,7 +352,7 @@ export const PERSONAL_FIELD = [
 /** A checkbox about terms, conditions, an offer or the use of personal data: the person ticks it. */
 export const TERMS_BOX = [
   "terms", "conditions", "terms of service", "privacy policy", "personal data",
-  "услови*", "оферт*", "политик* конфиденциальности", "персональных данных", "обработку данных",
+  "услови*", "оферт*", "политика конфиденциальности", "политики конфиденциальности", "политикой конфиденциальности", "персональных данных", "обработку данных",
   "умов*", "оферт*", "персональних даних",
   "bedingungen", "nutzungsbedingungen", "agb", "datenschutzerklärung", "ich stimme",
   "conditions générales", "cgu", "cgv", "politique de confidentialité", "données personnelles",
@@ -391,8 +391,8 @@ export const UNAVAILABLE_WORDS = [
 // A page naming its next free day or time («next available», «available from …»).
 export const NEXT_FREE_WORDS = [
   "next available", "available from", "first available", "earliest available", "next opening",
-  "ближайш* свободн*", "ближайш* доступн*", "свободно с", "доступно с",
-  "найближч* вільн*", "найближч* доступн*", "доступно з",
+  "ближайшее свободн*", "ближайший свободн*", "ближайшая свободн*", "ближайшее доступн*", "ближайшая доступн*", "свободно с", "доступно с",
+  "найближчий вільн*", "найближча вільн*", "найближче вільн*", "найближча доступн*", "доступно з",
   "nächster freier termin", "nächste verfügbarkeit", "verfügbar ab",
   "prochaine disponibilité", "disponible à partir", "disponible dès",
   "próxima disponibilidad", "primera disponibilidad", "disponible desde",

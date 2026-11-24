@@ -410,3 +410,12 @@ test("a personal service's open choices are asked on the card from the plan's fi
   qs = await run({ services: ["Haircut"] })
   assert.deepEqual(qs.map((q) => q.kind), [], "one service fits: no question")
 })
+
+test("the page naming its next free day sends a question back once with its own words and control, in any language", async () => {
+  const { nextFreeSaid } = await import("../src/shared/agent/runner.ts")
+  const m = (text: string, labels: string[] = []): PageMap => ({ url: "https://book.example/x", title: "", lang: "", more: 0, part: 1, parts: 1, text, forms: [], items: labels.map((label, i) => ({ id: String(i), role: "button" as const, label })) })
+  assert.deepEqual(nextFreeSaid(m("The specialist is fully booked on this date. Available from Mon, Dec 28", ["Go to next available date"])), { text: "Available from Mon, Dec 28", button: "Go to next available date" })
+  assert.equal(nextFreeSaid(m("Мастер занят в этот день. Ближайшее свободное время: пн, 28 дек."))?.text, "Ближайшее свободное время: пн, 28 дек.")
+  assert.equal(nextFreeSaid(m("Prochaine disponibilité : lundi 28 décembre"))?.text, "Prochaine disponibilité : lundi 28 décembre")
+  assert.equal(nextFreeSaid(m("Pick a time", ["11:30", "12:00"])), null)
+})

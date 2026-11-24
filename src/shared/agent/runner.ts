@@ -10,7 +10,7 @@
 import { APPLE_TOOLS } from "./call.ts"
 import { dayItems, dayOf, dayWords, isDateLabel } from "./dates.ts"
 import { wordTest } from "./match.ts"
-import { BOOKING_WORDS } from "./words.ts"
+import { BOOKING_WORDS, NEXT_FREE_WORDS } from "./words.ts"
 export { dayItems, isDateLabel }
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
@@ -131,6 +131,8 @@ export interface AgentState {
   oneTime?: Array<{ key: "email" | "phone"; value: string }>
   sawDate?: boolean
   dateNudged?: boolean
+  // A question sent back once because the page named its next free day.
+  nextNudged?: boolean
   // Layers over the page the device closed itself (at most three a task).
   popups?: number
   // The booking's day as the page shows it greyed (a strip greys days it hasn't loaded: a booking site's «Sat 26 Dec» answered
@@ -515,6 +517,17 @@ export function seesDate(map: PageMap, iso: string): boolean {
   return dayItems(map, iso).length > 0
 }
 
+// The page naming its next free day or time, in any of the 15 languages (lexicon).
+const nextFreeWord = wordTest(NEXT_FREE_WORDS)
+
+/** Where the page names its next free day: the sentence of its text that says so, and a control that goes there. */
+export function nextFreeSaid(map: PageMap): { text: string; button?: string } | null {
+  const button = map.items.find((i) => (i.role === "button" || i.role === "link") && i.label.length <= 60 && nextFreeWord(i.label))?.label
+  const sentence = map.text.split(/(?<=[.!?。！？])\s+|\n+/).map((x) => x.trim()).find((x) => x.length <= 200 && nextFreeWord(x))
+  if (!sentence && !button) return null
+  return { text: (sentence ?? button ?? "").slice(0, 160), ...(button ? { button } : {}) }
+}
+
 /** A day or slot the page shows as not choosable (marked by the map). */
 function greyedItem(i: MapItem): boolean {
   return !!i.state?.some((x) => x === "unavailable" || x === "disabled")
@@ -790,6 +803,19 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       await perform(state, io, { tool: "click", id: greyDay.id, why: `«${greyDay.label}» pressed once to read the page's answer for the asked day` }, { cls: "free", reason: "click" }, `button "${greyDay.label.slice(0, 60)}"`)
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `held: the device pressed the asked day «${greyDay.label}» first (it showed greyed); read the page's answer for it, then go on or ask with what the page shows` })
       continue
+    }
+    // The page names its own next free day («available from …», «next available», a button to it) and the model asks
+    // instead (124, a salon strip: «27 and 28 have no times, open only until 9 Dec» while the page said its next free
+    // day was the 28th): sent back once with the page's own words, so the rules decide or the question offers that day.
+    if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking && !state.nextNudged) {
+      const said = nextFreeSaid(map)
+      if (said) {
+        state.nextNudged = true
+        const why = `the page names its next free day: «${said.text}»${said.button ? `, with its own control «${said.button}»` : ""}. Go there (that control, or that day) and choose by the rules and the request; ask only if that day doesn't fit them, offering it. Don't call days closed the page didn't say were`
+        state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
+        state.refused = why
+        continue
+      }
     }
     // A question about the booking's day before the page ever showed that day: sent back once, to go to it first.
     if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged) {
