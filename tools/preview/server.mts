@@ -861,7 +861,9 @@ async function similarProxied(body: Record<string, unknown>, res: import("node:h
 }
 
 async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
-  if (process.env.PREVIEW_PLAN !== "ultra") {
+  // 2.8: Pro gets the light search, or Ultra's full one as its weekly taste when the panel asks (taste: true).
+  const kind = process.env.PREVIEW_PLAN === "pro" ? (body.taste === true ? { taste: true } : { light: true }) : {}
+  if (process.env.PREVIEW_PLAN !== "ultra" && process.env.PREVIEW_PLAN !== "pro") {
     res.writeHead(403, { "Content-Type": "application/json" })
     res.end(JSON.stringify({ code: "PRO_ONLY", plan: "free", feature: "similar" }))
     return
@@ -891,7 +893,7 @@ async function similarStub(body: Record<string, unknown>, res: import("node:http
   }
   await wait(200)
   const intro = ru ? "Беспроводные наушники с шумоподавлением, похожие на Aero 2; каждую страницу мы только что открыли и проверили." : "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now."
-  send({ type: "result", engine: "a", intro, items, note: "", condition: condition ? "cheaper" : "none" })
+  send({ type: "result", engine: "a", intro, items, note: "", condition: condition ? "cheaper" : "none", ...kind })
   send({ type: "done", ms: 9000, usd: 0 })
   res.end()
 }
