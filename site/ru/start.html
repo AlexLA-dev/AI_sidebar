@@ -48,6 +48,9 @@
   .steps-live .mark { flex: none; width: 26px; height: 26px; border-radius: 13px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: transparent; }
   .steps-live li.done .mark { background: #16a34a; border-color: #16a34a; color: #fff; }
   .steps-live li.done .mark::after { content: "✓"; }
+  /* The last step is never ticked: the page can't see the panel's answer. It points at the article instead. */
+  .steps-live li.goal .mark { border-color: var(--blue); color: var(--blue); }
+  .steps-live li.goal .mark::after { content: "↓"; }
   .steps-live li.now { outline: 2px solid var(--blue); }
   .steps-live p { margin: 0; }
   .steps-live .sub { display: block; font-size: 15px; color: var(--text-2); }
@@ -80,13 +83,19 @@
 <body>
 <nav class="wrap"><a class="brand" href="/ru/"><img src="/icon.png" alt="" />ContextFlow</a></nav>
 <main class="wrap first">
+  <!-- What ContextFlow reads on this page is the article alone: the title, the steps, the help and the ideas sit in a
+       header and asides, which the panel's reader leaves out (src/content/page.ts, proseCover.ts, Readability), hidden
+       help blocks included. -->
+  <header>
   <h1>Попробуйте ContextFlow на этой странице</h1>
   <p class="lede">Ниже — короткая статья. Спросите о ней ContextFlow: этого хватит, чтобы понять, как он работает.</p>
+  </header>
 
+  <aside class="guide">
   <ol class="steps-live" aria-live="polite">
     <li id="step-on" class="now"><span class="mark" aria-hidden="true"></span><p><b>ContextFlow работает на этой странице</b><span class="sub" data-when="looking">Ищем его…</span><span class="sub" data-when="found" hidden>Нашли: ✦ у края экрана.</span><span class="sub" data-when="missing" hidden>Пока нет. Как его включить — чуть ниже.</span></p></li>
     <li id="step-tap"><span class="mark" aria-hidden="true"></span><p><b>Нажмите ✦</b><span class="sub">Круглая кнопка у края экрана — справа, если вы её не переносили.</span></p></li>
-    <li id="step-ask"><span class="mark" aria-hidden="true"></span><p><b>Спросите о статье ниже</b><span class="sub">Нажмите «Кратко» или напишите свой вопрос.</span></p></li>
+    <li id="step-ask" class="goal"><span class="mark" aria-hidden="true"></span><p><b>Спросите о статье ниже</b><span class="sub">Нажмите «Кратко» или напишите свой вопрос.</span></p></li>
   </ol>
 
   <div class="box warn" id="turn-on" hidden>
@@ -119,6 +128,7 @@
     <h2>Если Safari спросит об этом сайте</h2>
     <p>Выберите «Всегда разрешать», затем «Всегда разрешать на всех веб-сайтах» — тогда ✦ будет на каждой странице, которую вы читаете. ContextFlow читает страницу, только когда вы о чём-то спрашиваете.</p>
   </div>
+  </aside>
 
   <article class="try">
     <p class="kicker">Попробуйте на этом</p>
@@ -128,20 +138,23 @@
     <p>Помогают две привычки. Вернуться к тексту через промежуток — через день, потом через неделю — даёт больше, чем прочитать его дважды подряд. А пересказать мысль своими словами, хоть одним предложением, закрепляет её лучше, чем перечитывание.</p>
   </article>
 
+  <aside class="guide">
   <h2>О чём спросить</h2>
   <ul class="ideas">
     <li>«В чём главная мысль, одним предложением?»</li>
     <li>Выделите «У его кривой есть подвох» и спросите: «Это правда?»</li>
     <li>«Что об этом выяснили более поздние исследования?»</li>
   </ul>
+  </aside>
 </main>
 <div class="here" id="here" hidden aria-hidden="true"><span>Нажмите ✦</span><span class="arrow">➜</span></div>
 <footer class="wrap"><span>© 2026 ContextFlow</span><a href="/ru/support">Поддержка</a><a href="/privacy">Политика конфиденциальности</a><nav class="langs" aria-label="Language" data-i18n-generated><a href="/start" hreflang="en" lang="en">English</a><a href="/de/start" hreflang="de" lang="de">Deutsch</a><a href="/es/start" hreflang="es" lang="es">Español</a><a href="/fr/start" hreflang="fr" lang="fr">Français</a><a href="/it/start" hreflang="it" lang="it">Italiano</a><a href="/pt-br/start" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a><a href="/tr/start" hreflang="tr" lang="tr">Türkçe</a><span lang="ru" aria-current="page">Русский</span><a href="/uk/start" hreflang="uk" lang="uk">Українська</a><a href="/vi/start" hreflang="vi" lang="vi">Tiếng Việt</a><a href="/ar/start" hreflang="ar" lang="ar">العربية</a><a href="/ja/start" hreflang="ja" lang="ja">日本語</a><a href="/ko/start" hreflang="ko" lang="ko">한국어</a><a href="/zh-hans/start" hreflang="zh-Hans" lang="zh-Hans">简体中文</a><a href="/zh-hant/start" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a></nav></footer>
 <script>
 // Looks for ContextFlow's own element on this page (the content script adds <contextflow-root>): it needs no permission
 // and sends nothing. Found: the first step is done and an arrow points at the edge where ✦ sits by default. A tap on ✦ or
-// in the panel reaches the page as a click on that element, which marks the second step. Not found after a moment: how
-// to turn ContextFlow on from Safari itself.
+// in the panel reaches the page as a click on that element, which marks the second step and makes the third the current
+// one. The third is never ticked: the page can't see the panel's answer, so it shows an arrow to the article, not a box.
+// Not found after a moment: how to turn ContextFlow on from Safari itself.
 (function () {
   var TAG = "CONTEXTFLOW-ROOT"
   var on = document.getElementById("step-on")
