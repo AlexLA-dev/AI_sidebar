@@ -125,6 +125,8 @@ export interface AgentState {
   // The page has shown the booking's day (a strip's «Sat 26 Dec», a calendar's «26» under «December»), and whether a
   // question before that was sent back once (a salon booking site, 124: «26 декабря нет, ближайшая суббота — 5 декабря» without the
   // calendar ever opened; the page had 26 Dec free and 5 Dec greyed).
+  // Contact details answered on the plan card and not kept in «Мои данные»: filled by key in this task only.
+  oneTime?: Array<{ key: "email" | "phone"; value: string }>
   sawDate?: boolean
   dateNudged?: boolean
   // The booking's day as the page shows it greyed (a strip greys days it hasn't loaded: a booking site's «Sat 26 Dec» answered
@@ -299,7 +301,8 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
 function sent(map: PageMap): PageMap {
   // The amounts and other sites' frame addresses stay on the device (the device acts on those itself).
   const { money: _money, frames: _frames, ...rest } = map
-  return rest
+  // A card's text beside its link is the device's own reading of places.
+  return rest.items.some((i) => i.card) ? { ...rest, items: rest.items.map(({ card: _card, ...i }) => i) } : rest
 }
 
 /** A «Да» given on the site the task is on now. */
@@ -391,6 +394,14 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
       plan.questions.push({ q: "", kind: "venue", options: ranked.map((v) => v.name), pick: ranked[0].name })
       // The question shows the choice: no «I'll pick the place» line besides it.
       if (plan.how) plan.how.rating = 0
+    }
+  }
+  // A contact detail the booking will ask for and «Мои данные» hasn't got: asked on the card with «Запомнить», not
+  // mid-task (the director on 124). The plan names the ones its booking will ask for.
+  if (plan.booking?.contacts?.length) {
+    const have = new Set(liveEntries(entries).map((e) => e.key))
+    for (const key of plan.booking.contacts) {
+      if (!have.has(key) && !plan.questions.some((q) => q.key === key)) plan.questions.push({ q: "", kind: "contact", key, options: [] })
     }
   }
   // The booking's contact form (a later page): the saved name, e-mail and phone go in as the plan's fill.
@@ -658,7 +669,10 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     if ((state.stillReads ?? 0) >= 2) state.refused = "no progress: the page hasn't changed over your last reads. Don't read it again. If the person's words, their answers or <rules> already decide what to do now (another time inside the window, the next day the rules allow: press it), do it; otherwise tell them what you found and ask how to go on (ask_user with choices), or call done"
-    const entries = withNameParts(await io.entries().catch(() => [] as FormEntry[]))
+    const stored = withNameParts(await io.entries().catch(() => [] as FormEntry[]))
+    // The card's contact answers not kept in «Мои данные» count for this task (filled by key, like saved ones).
+    const extra = (state.oneTime ?? []).filter((o) => !liveEntries(stored).some((e) => e.key === o.key))
+    const entries = extra.length ? [...stored, ...extra.map((o) => ({ id: `once-${o.key}`, key: o.key, label: "", value: o.value, updatedAt: 0 }) as FormEntry)] : stored
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
     if (state.step === 0 && io.planning && !state.plan) {
@@ -1041,7 +1055,16 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
 export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApproval): Promise<AgentState> {
   if (state.status !== "plan" || !state.plan) return state
   const plan = state.plan
-  plan.answers = plan.questions.map((q, i) => ({ q: q.q || (q.kind === "venue" ? "Where to book" : ""), a: (a.answers[i] ?? "").slice(0, 200) }))
+  plan.answers = plan.questions.map((q, i) => ({ q: q.q || (q.kind === "venue" ? "Where to book" : q.key ?? ""), a: (a.answers[i] ?? "").slice(0, 200), ...(q.kind === "contact" ? { contact: true } : {}) }))
+  // A contact detail given on the card: filled by its key in this task (kept in «Мои данные» too when ticked there).
+  state.oneTime = plan.questions.flatMap((q, i) => (q.kind === "contact" && q.key && (a.answers[i] ?? "").trim() ? [{ key: q.key, value: a.answers[i].trim().slice(0, 120) }] : []))
+  // …and goes in by the plan's contact fill, like a saved one (no second question at the form).
+  const once = state.oneTime.map((o) => o.key)
+  if (once.length) {
+    const fill = plan.perms.find((p) => p.reason === "contact")
+    if (fill) fill.keys = [...new Set([...(fill.keys ?? []), ...once])]
+    else plan.perms.push({ id: "pcontact", kind: "fill", reason: "contact", label: "", keys: once, host: plan.perms[0]?.host ?? state.host ?? "", on: true })
+  }
   plan.perms = plan.perms.map((p) => ({ ...p, on: !a.off.includes(p.id) }))
   placeFromAnswers(state, plan, a.answers)
   plan.approved = true

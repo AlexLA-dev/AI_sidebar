@@ -25,8 +25,10 @@ export interface PlanQuestion {
   fact?: string
   // The answer picked already, changeable (a place the agent chose by the rules: shown, not silent; 124).
   pick?: string
-  // The device's own question about where to book (its words come from the panel's language).
-  kind?: "venue"
+  // The device's own questions (their words come from the panel's language): where to book; a contact detail the booking
+  // will ask for and «Мои данные» hasn't got (asked here, not mid-task; its value is filled by key, never sent).
+  kind?: "venue" | "contact"
+  key?: "email" | "phone"
 }
 
 export type PermKind = "press" | "personal" | "fill" | "consent" | "apple"
@@ -71,7 +73,7 @@ export interface TaskPlan {
   // then read as «changed»): a price is changed only when the page shows none of them.
   seen?: number[]
   // The person's answers to the questions, after «Начать».
-  answers?: Array<{ q: string; a: string }>
+  answers?: Array<{ q: string; a: string; contact?: boolean }>
   approved?: boolean
   // The site it was planned on (remembered choices are this site's), and the time it books, when it does.
   site?: string
@@ -119,6 +121,8 @@ export interface PlanBooking {
   match?: string[]
   // Where the request asks for it («Soho», «Limassol»): a place whose card names another area isn't chosen.
   area?: string[]
+  // The contact details the booking will ask for at its end (its site's form or sign-up): "email", "phone".
+  contacts?: Array<"email" | "phone">
 }
 
 export const PLAN_SCHEMA = {
@@ -162,9 +166,10 @@ export const PLAN_SCHEMA = {
         tz: { type: "string" },
         venue: { type: "string" },
         match: { type: "array", items: { type: "string" } },
-        area: { type: "array", items: { type: "string" } }
+        area: { type: "array", items: { type: "string" } },
+        contacts: { type: "array", items: { type: "string", enum: ["email", "phone"] } }
       },
-      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match", "area"],
+      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts"],
       additionalProperties: false
     }
   },
@@ -209,7 +214,8 @@ function bookingOf(v: unknown): PlanBooking | null {
   const venue = s(b.venue, 120)
   const match = (Array.isArray(b.match) ? b.match : []).map((x) => s(x, 30)).filter((x) => x.length >= 3).slice(0, 8)
   const area = (Array.isArray(b.area) ? b.area : []).map((x) => s(x, 40)).filter((x) => x.length >= 3).slice(0, 4)
-  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}) }
+  const contacts = [...new Set((Array.isArray(b.contacts) ? b.contacts : []).filter((x): x is "email" | "phone" => x === "email" || x === "phone"))]
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}) }
 }
 
 /**
@@ -332,7 +338,8 @@ export function planNeedsPerson(plan: TaskPlan): boolean {
 
 /** The request as the model hears it: with each plan question and the person's answer (the question gives it sense). */
 export function requestWithAnswers(request: string, plan?: TaskPlan | null): string {
-  const answers = plan?.answers?.filter((a) => a.a.trim()) ?? []
+  // (A contact detail answered on the card is filled by its key: its value never goes to the model.)
+  const answers = plan?.answers?.filter((a) => a.a.trim() && !a.contact) ?? []
   return answers.length ? `${request}\n${answers.map((a) => `${a.q} — ${a.a}`).join("\n")}` : request
 }
 
@@ -480,7 +487,7 @@ export function factKey(label: string): string {
 
 /**
  * The name a plan's fact is kept under in «Мои данные»: a fact about the person as it is («Пол»); a choice on a site
- * («pref:Мастер») with the site's name first («a salon booking site.com · Мастер»), so it's used on that site only.
+ * («pref:Мастер») with the site's name first («site.com · Мастер»), so it's used on that site only.
  */
 export function factLabel(fact: string, site?: string): string {
   const pref = /^pref:\s*(.+)$/i.exec(fact)

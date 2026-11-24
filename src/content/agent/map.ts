@@ -305,6 +305,40 @@ function unavailableBySaying(el: Element, label: string): boolean {
   return unavailableWord(`${label} ${el.getAttribute("title") ?? ""} ${el.getAttribute("aria-description") ?? ""}`)
 }
 
+// A rating («4.8», «9,1», «★») and a count of reviews («(851)», «1 178 reviews», «отзывов»…) in a card's text.
+const CARD_RATING = /(?<![\d.,])\d[.,]\d(?![\d.,])|★|⭐/
+const CARD_REVIEWS = /\(\s*\d[\d,. \u00a0]{0,8}\)|\d\s*(reviews?|ratings?|отзыв|оцен|avis|bewertung|reseñ|valoraci|recension|avalia|yorum|değerlendirme|件|レビュー|리뷰|후기|评论|評論|評價|تقييم|مراجع|đánh giá)/i
+
+/** A box's text with its pieces apart («Italian 9.1 (320)», not «Italian9.1(320)» as textContent joins them), cut at max. */
+function wordsOf(box: Element, max: number): string {
+  const doc = box.ownerDocument
+  const walker = doc.createTreeWalker(box, 4 /* NodeFilter.SHOW_TEXT */)
+  const parts: string[] = []
+  let size = 0
+  for (let n = walker.nextNode(); n && size <= max; n = walker.nextNode()) {
+    const t = (n.nodeValue ?? "").replace(/\s+/g, " ").trim()
+    if (!t) continue
+    parts.push(t)
+    size += t.length + 1
+  }
+  return parts.join(" ")
+}
+
+/** The card a link heads, when the link carries only a name: the nearest box around it (up to five levels) that holds a
+ *  rating and a count of reviews and no more than one place's links. Its text, or "". */
+function cardOf(el: Element, label: string): string {
+  if (label.length > 80 || (CARD_RATING.test(label) && CARD_REVIEWS.test(label))) return ""
+  let box: Element | null = el.parentElement
+  for (let i = 0; box && i < 5; i++, box = box.parentElement) {
+    const hrefs = new Set(Array.from(box.querySelectorAll("a[href]")).map((a) => (a.getAttribute("href") ?? "").split(/[?#]/)[0]).filter((h) => h && h !== "/"))
+    if (hrefs.size > 3) return ""
+    const text = wordsOf(box, 600)
+    if (text.length > 400) return ""
+    if (CARD_RATING.test(text) && CARD_REVIEWS.test(text)) return text.slice(0, 240)
+  }
+  return ""
+}
+
 const rgb = (c: string): [number, number, number, number] | null => {
   const m = /rgba?\(([^)]+)\)/.exec(c)
   if (!m) return null
@@ -572,6 +606,10 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     if (role === "link") {
       const href = hrefOf(el, pageHost)
       if (href) item.href = href
+      if (href && !item.lock && item.label.trim().length >= 2) {
+        const card = cardOf(el, item.label)
+        if (card) item.card = card
+      }
     }
     const options = optionsOf(el, role)
     if (options?.length) item.options = options

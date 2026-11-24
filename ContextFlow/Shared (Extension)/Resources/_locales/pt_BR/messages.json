@@ -3716,6 +3716,12 @@
  "agentPlanVenueQ": {
   "message": "Onde reservar (escolhido pelas suas regras)"
  },
+ "agentPlanEmailQ": {
+  "message": "Seu e-mail para a reserva (o site vai pedir)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Seu telefone para a reserva (o site vai pedir)"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

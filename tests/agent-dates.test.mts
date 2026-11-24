@@ -15,8 +15,9 @@ import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
 import { approvePlan, bookingFrame, dateStep, dayItems, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import type { MapItem, PageMap } from "../src/shared/agent/types.ts"
 
-function domMap(html: string, colors: Record<string, string> = {}): PageMap {
+function domMap(html: string, colors: Record<string, string> = {}, url = ""): PageMap {
   const { document, window } = parseHTML(`<!doctype html><html><head></head><body>${html}</body></html>`)
+  if (url) { const loc = new URL(url); Object.defineProperty(document, "location", { configurable: true, get: () => loc }); Object.defineProperty(document, "baseURI", { configurable: true, get: () => url }); Object.defineProperty(window, "location", { configurable: true, get: () => loc }) }
   // linkedom has no layout: computed styles from a small table (text colour by id, opacity and pointer-events inline).
   ;(window as any).getComputedStyle = (el: Element) => {
     const inline = (el.getAttribute("style") ?? "")
@@ -334,4 +335,34 @@ test("pattern: another day than the asked one — never an earlier one, a later 
   assert.equal(press("Mon 28 Dec", true), null, "after the asked day was shown full")
   assert.equal(press("Sat 26 Dec"), null)
   assert.equal(press("Sat 2 Jan", true), null, "January after a December request is later")
+})
+
+test("pattern: a results list whose cards' links are just the names, rating and reviews beside them — the places are read from the card", async () => {
+  const { venuesOn, cardsOf } = await import("../src/shared/agent/venues.ts")
+  const card = (slug: string, name: string, rating: string, reviews: string, kind: string) => `<article><a href="/restaurant/${slug}"><img alt=""></a><h3><a href="/restaurant/${slug}">${name}</a></h3><p>${kind} · Paris</p><span>${rating}</span><span>(${reviews})</span><button>19:00</button><button>19:30</button></article>`
+  const map = domMap(`<main><section>${card("uno", "Trattoria Uno", "9.1", "320", "Italian")}${card("due", "Trattoria Due", "9.4", "2 179", "Italian")}${card("tre", "Bistro Tre", "8.8", "201", "French")}</section></main>`, {}, "https://tables.example/restaurants/paris")
+  map.url = map.url || "https://tables.example/restaurants/paris"
+  const places = venuesOn(map)
+  assert.deepEqual(places.map((v) => v.name), ["Trattoria Uno", "Trattoria Due", "Bistro Tre"])
+  assert.equal(places[1].reviews, 2179)
+  assert.ok([...cardsOf(map).values()].some((t) => /Italian/.test(t)), "the card's cuisine for matching")
+  // The model never gets the card text (the device's own reading).
+  assert.ok(map.items.some((i) => i.card))
+})
+
+test("a contact detail the booking will ask for and «Мои данные» lacks is asked on the card; its value goes by key, never into the request", async () => {
+  const PAGE: PageMap = { url: "https://tables.example/r/1", title: "Book", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items: [{ id: "1", role: "button", label: "Book a table" }] }
+  const RAW = { label: "booking", steps: ["a"], questions: [], prices: [], fromChat: "", risky: [], booking: { kind: "table", date: "2026-12-26", from: "19:00", until: "21:00", minutes: 90, tz: "", venue: "Trattoria Uno", match: [], area: [], contacts: ["email", "phone"] } }
+  const saved = [{ id: "p", key: "phone", label: "", value: "+100000000", updatedAt: 1 }]
+  const asked: any[] = []
+  const replies: any[] = [{ ok: true, plan: RAW, token: "t" }]
+  const io = { map: async () => PAGE, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async (b: any) => { asked.push(b); return replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } } }, save: async () => {}, entries: async () => saved, policy: { amazon: true }, maxSteps: 30, planning: true,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
+  const s = await drive(newState("c", "Book a table for two on Saturday at 20:00", "en", PAGE.url), io)
+  const qs = s.plan!.questions.filter((q) => q.kind === "contact")
+  assert.deepEqual(qs.map((q) => q.key), ["email"], "the phone is saved; the e-mail is asked")
+  const after = await approvePlan(s, io, { answers: s.plan!.questions.map((q) => (q.kind === "contact" ? "me@mail.example" : "")), off: [] })
+  assert.deepEqual(after.oneTime, [{ key: "email", value: "me@mail.example" }])
+  assert.ok(after.plan!.perms.find((p) => p.reason === "contact")!.keys!.includes("email"), "filled by the plan's contact fill")
+  assert.ok(!JSON.stringify(asked.slice(1)).includes("me@mail.example"), "the value never goes to the server")
 })

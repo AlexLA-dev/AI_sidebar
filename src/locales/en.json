@@ -1269,5 +1269,7 @@
   "agentRuleAnySpecialistHint": "A barber, stylist, doctor, trainer or guide: whoever is free. Off: I ask whom you want.",
   "errLink": "ContextFlow lost its link to this page (iOS may have put it away while another app was open). Retry, or reload the page if it happens again.",
   "reloadPage": "Reload page",
-  "agentPlanVenueQ": "Where to book (chosen by your rules)"
+  "agentPlanVenueQ": "Where to book (chosen by your rules)",
+  "agentPlanEmailQ": "Your e-mail for the booking (the site will ask for it)",
+  "agentPlanPhoneQ": "Your phone number for the booking (the site will ask for it)"
 }

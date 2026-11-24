@@ -1269,5 +1269,7 @@
   "agentRuleAnySpecialistHint": "Coiffeur, styliste, médecin, coach ou guide : celui qui est libre. Désactivé : je vous demande avec qui.",
   "errLink": "ContextFlow a perdu le lien avec cette page (iOS l'a peut-être mis en pause pendant qu'une autre app était ouverte). Réessayez, ou rechargez la page si cela se reproduit.",
   "reloadPage": "Recharger la page",
-  "agentPlanVenueQ": "Où réserver (choisi selon vos règles)"
+  "agentPlanVenueQ": "Où réserver (choisi selon vos règles)",
+  "agentPlanEmailQ": "Votre e-mail pour la réservation (le site le demandera)",
+  "agentPlanPhoneQ": "Votre numéro de téléphone pour la réservation (le site le demandera)"
 }

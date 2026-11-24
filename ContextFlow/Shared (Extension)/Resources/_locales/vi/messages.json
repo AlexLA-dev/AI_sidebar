@@ -3716,6 +3716,12 @@
  "agentPlanVenueQ": {
   "message": "Đặt ở đâu (chọn theo quy tắc của bạn)"
  },
+ "agentPlanEmailQ": {
+  "message": "Email của bạn để đặt chỗ (trang sẽ hỏi)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Số điện thoại của bạn để đặt chỗ (trang sẽ hỏi)"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

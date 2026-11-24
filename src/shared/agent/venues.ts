@@ -15,7 +15,7 @@ export interface Venue {
 
 // «4.8», «4,8», «9.4» (a restaurant site's /10), next to stars or on their own.
 const RATING = /(?:^|[\s(★⭐])([0-9](?:[.,][0-9])?|10)(?:\s*\/\s*(?:5|10))?(?=\s|$|[)★⭐])/
-const REVIEWS = /\(?([0-9][0-9,.\s ]{0,8})\)?\s*(?:reviews?|ratings?|отзыв\w*|оцен\w*|avis|bewertung\w*|reseñas?|valoraciones|recension\w*|avalia\w*|yorum\w*|değerlendirme|件|レビュー|리뷰|후기|评论|評論|評價|تقييم\w*|مراجع\w*|đánh giá)|\(([0-9][0-9,.]{0,8})\)/i
+const REVIEWS = /\(?([0-9][0-9,.\s ]{0,8})\)?\s*(?:reviews?|ratings?|отзыв\w*|оцен\w*|avis|bewertung\w*|reseñas?|valoraciones|recension\w*|avalia\w*|yorum\w*|değerlendirme|件|レビュー|리뷰|후기|评论|評論|評價|تقييم\w*|مراجع\w*|đánh giá)|\(([0-9][0-9,.\s\u00a0\u202f]{0,8})\)/i
 
 const num = (s: string) => Number(s.replace(/[\s ,.]/g, ""))
 
@@ -25,9 +25,14 @@ const REVIEW_CARD = /\b(ago|reviewed|visited)\b|назад|il y a|\bhace\b|\bfa\
 
 /** One link of a results list as a place, or null: a link of this site with a rating and its reviews on it. */
 export function venueOf(item: MapItem, page: string): Venue | null {
-  if (item.role !== "link" || !item.href || item.label.length < 8) return null
-  const label = item.label.replace(/\s+/g, " ").trim()
-  if (REVIEW_CARD.test(label)) return null
+  if (item.role !== "link" || !item.href) return null
+  const own = item.label.replace(/\s+/g, " ").trim()
+  // A title link beside its rating (a card whose link is just the place's name): the card's text is read with it.
+  const viaCard = !!item.card && !(RATING.test(own) && REVIEWS.test(own))
+  // (A photo's link has no name of its own: the card's title link names the place.)
+  if (viaCard && own.length < 2) return null
+  const label = viaCard ? `${own} ${item.card!.replace(/\s+/g, " ").trim()}` : own
+  if (label.length < 8 || REVIEW_CARD.test(label)) return null
   const r = RATING.exec(label)
   const v = REVIEWS.exec(label)
   if (!r || !v) return null
@@ -42,7 +47,7 @@ export function venueOf(item: MapItem, page: string): Venue | null {
   let rating = Number(r[1].replace(",", "."))
   if (rating > 5) rating = rating / 2
   const reviews = num(v[1] ?? v[2] ?? "0")
-  const name = label.slice(0, Math.max(8, Math.min(label.length, label.search(/\s[0-9]/) > 0 ? label.search(/\s[0-9]/) : 60))).trim()
+  const name = (label === own ? label.slice(0, Math.max(8, Math.min(label.length, label.search(/\s[0-9]/) > 0 ? label.search(/\s[0-9]/) : 60))) : own.slice(0, 80)).trim()
   return { url: url.split("#")[0], name: name.slice(0, 80), rating, reviews }
 }
 
@@ -98,7 +103,7 @@ export function cardsOf(map: PageMap): Map<string, string> {
   const out = new Map<string, string>()
   for (const it of map.items) {
     const v = venueOf(it, map.url)
-    if (v) out.set(v.url, it.label)
+    if (v) out.set(v.url, it.card ? `${it.label} ${it.card}` : it.label)
   }
   return out
 }

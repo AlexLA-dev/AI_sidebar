@@ -1269,5 +1269,7 @@
   "agentRuleAnySpecialistHint": "Peluquero, estilista, médico, entrenador o guía: quien esté libre. Desactivado: te pregunto con quién.",
   "errLink": "ContextFlow perdió la conexión con esta página (iOS pudo cerrarlo mientras otra app estaba abierta). Reintenta o, si vuelve a pasar, recarga la página.",
   "reloadPage": "Recargar la página",
-  "agentPlanVenueQ": "Dónde reservar (elegido según tus reglas)"
+  "agentPlanVenueQ": "Dónde reservar (elegido según tus reglas)",
+  "agentPlanEmailQ": "Tu correo para la reserva (el sitio lo pedirá)",
+  "agentPlanPhoneQ": "Tu teléfono para la reserva (el sitio lo pedirá)"
 }

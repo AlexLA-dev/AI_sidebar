@@ -3716,6 +3716,12 @@
  "agentPlanVenueQ": {
   "message": "在哪里预订(按你的规则选择)"
  },
+ "agentPlanEmailQ": {
+  "message": "用于预订的邮箱（网站会要求填写）"
+ },
+ "agentPlanPhoneQ": {
+  "message": "用于预订的电话（网站会要求填写）"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

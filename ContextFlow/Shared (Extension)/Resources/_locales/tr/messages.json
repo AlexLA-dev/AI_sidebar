@@ -3716,6 +3716,12 @@
  "agentPlanVenueQ": {
   "message": "Nerede rezervasyon (kurallarınıza göre seçildi)"
  },
+ "agentPlanEmailQ": {
+  "message": "Rezervasyon için e-postanız (site isteyecek)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Rezervasyon için telefonunuz (site isteyecek)"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

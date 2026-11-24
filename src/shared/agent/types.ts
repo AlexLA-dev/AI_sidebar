@@ -36,6 +36,9 @@ export interface MapItem {
   href?: string
   // A select's options (the first 30), or a listbox's.
   options?: string[]
+  // A link with no rating of its own: the text of the card it heads (its rating, reviews, cuisine, area beside it), so
+  // the device can read the place. Kept on the device (never sent to the model).
+  card?: string
 }
 
 export interface PageForm {

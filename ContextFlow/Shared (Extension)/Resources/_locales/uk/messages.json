@@ -3716,6 +3716,12 @@
  "agentPlanVenueQ": {
   "message": "Де бронювати (вибрано за вашими правилами)"
  },
+ "agentPlanEmailQ": {
+  "message": "Ваш e-mail для бронювання (сайт його попросить)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Ваш телефон для бронювання (сайт його попросить)"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

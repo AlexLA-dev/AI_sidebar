@@ -3716,6 +3716,12 @@
  "agentPlanVenueQ": {
   "message": "예약할 곳(내 규칙으로 선택됨)"
  },
+ "agentPlanEmailQ": {
+  "message": "예약용 이메일 (사이트에서 요청합니다)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "예약용 전화번호 (사이트에서 요청합니다)"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

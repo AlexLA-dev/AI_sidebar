@@ -298,7 +298,7 @@ test("117: answers about the person are pre-filled from «Мои данные» 
   const plan = buildPlan(raw, ctx)
   assert.deepEqual(savedAnswers(plan, { [factKey("пол")]: "Мужская" }), ["Мужская", ""])
   const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
-  assert.match(panel, /const \[keep, setKeep\] = useState<boolean\[\]>\(\(\) => plan\.questions\.map\(\(q\) => !!q\.fact\)\)/)
+  assert.match(panel, /const \[keep, setKeep\] = useState<boolean\[\]>\(\(\) => plan\.questions\.map\(\(q\) => !!q\.fact \|\| q\.kind === "contact"\)\)/)
   assert.match(panel, /const label = q\.fact \? factLabel\(q\.fact, plan\.site\) : ""/)
   assert.match(panel, /label && keep\[i\] && answers\[i\]\.trim\(\) && answers\[i\]\.trim\(\) !== pre\[i\]/)
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")

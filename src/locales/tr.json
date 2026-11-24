@@ -1269,5 +1269,7 @@
   "agentRuleAnySpecialistHint": "Berber, kuaför, doktor, antrenör ya da rehber: kim müsaitse. Kapalıyken kiminle olacağını sorarım.",
   "errLink": "ContextFlow bu sayfayla bağlantısını kaybetti (başka bir uygulama açıkken iOS onu kapatmış olabilir). Yeniden deneyin ya da tekrar olursa sayfayı yenileyin.",
   "reloadPage": "Sayfayı yenile",
-  "agentPlanVenueQ": "Nerede rezervasyon (kurallarınıza göre seçildi)"
+  "agentPlanVenueQ": "Nerede rezervasyon (kurallarınıza göre seçildi)",
+  "agentPlanEmailQ": "Rezervasyon için e-postanız (site isteyecek)",
+  "agentPlanPhoneQ": "Rezervasyon için telefonunuz (site isteyecek)"
 }

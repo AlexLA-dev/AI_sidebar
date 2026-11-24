@@ -193,15 +193,16 @@ function CalendarAsk({ state }: { state: "none" | "denied" }): VNode | null {
 
 /** The task's plan (2.7.1): what it will do, its questions (options and «Своё»), what may go without a question (each
  *  can be unticked), what the person does themselves, «Сейчас / Позже», and one «Начать». */
-function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember }: { plan: TaskPlan; host: string; onPlan: (a: PlanApproval, later?: LaterChoice) => void; later?: Props["later"]; onStop: () => void; failed?: string | null; saved?: Record<string, string>; onRemember?: (facts: Array<{ fact: string; value: string }>) => void }): VNode {
+function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember }: { plan: TaskPlan; host: string; onPlan: (a: PlanApproval, later?: LaterChoice) => void; later?: Props["later"]; onStop: () => void; failed?: string | null; saved?: Record<string, string>; onRemember?: (facts: Array<{ fact: string; value: string; key?: FormKey }>) => void }): VNode {
   // Questions about the person come pre-filled from «Мои данные» (the owner on 117: «не спрашивать снова»); a value not
   // among the options shows as the person's own words, to change if they like.
   // Remembered answers, else what the plan picked already (the place chosen by the rules, shown and changeable).
   const pre = savedAnswers(plan, saved ?? {}).map((a, i) => a || plan.questions[i]?.pick || "")
   const [answers, setAnswers] = useState<string[]>(() => pre)
-  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => !!pre[i] && !q.options.includes(pre[i])))
-  // «Запомнить» under each question about the person: on by default.
-  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact))
+  // A contact detail is typed (no options); an answer not among the options shows as the person's own words.
+  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => q.kind === "contact" || (!!pre[i] && !q.options.includes(pre[i]))))
+  // «Запомнить» under each question about the person and each contact detail: on by default.
+  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact || q.kind === "contact"))
   const [off, setOff] = useState<Set<string>>(() => new Set())
   const [mode, setMode] = useState<"now" | "later">("now")
   const [laterChoice, setLaterChoice] = useState<LaterChoice | null>(null)
@@ -212,7 +213,8 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
   const [missing, setMissing] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
   const start = () => {
-    const left = answers.findIndex((a) => !a.trim())
+    // (A contact detail may stay empty: the booking's form asks it then.)
+    const left = answers.findIndex((a, i) => !a.trim() && plan.questions[i]?.kind !== "contact")
     if (left >= 0) {
       setMissing(left)
       return
@@ -222,7 +224,8 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
     setSending(true)
     // What to keep in «Мои данные»: the answers about the person that are new or changed.
     // A choice on this site («pref:Мастер») is kept under the site's name, for this site only.
-    const facts = plan.questions.flatMap((q, i) => {
+    const facts = plan.questions.flatMap((q, i): Array<{ fact: string; value: string; key?: FormKey }> => {
+      if (q.kind === "contact") return q.key && keep[i] && answers[i].trim() ? [{ fact: "", value: answers[i].trim(), key: q.key as FormKey }] : []
       const label = q.fact ? factLabel(q.fact, plan.site) : ""
       return label && keep[i] && answers[i].trim() && answers[i].trim() !== pre[i] ? [{ fact: label, value: answers[i].trim() }] : []
     })
@@ -254,14 +257,14 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
       {plan.fromChat && <p class="cf-agent-meta" dir="auto">{t("agentPlanFromChat", plan.fromChat)}</p>}
       {plan.questions.map((q, i) => (
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
-          <p dir="auto">{q.q || (q.kind === "venue" ? t("agentPlanVenueQ") : "")}</p>
-          <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
+          <p dir="auto">{q.q || (q.kind === "venue" ? t("agentPlanVenueQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
+          {q.kind !== "contact" && <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
             {q.options.map((o) => (
               <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>{o}</button>
             ))}
             <button type="button" role="radio" aria-checked={own[i]} class={`cf-chip ${own[i] ? "on" : ""}`} onClick={() => set(i, own[i] ? answers[i] : "", true)}>{t("agentPlanOwn")}</button>
-          </div>
-          {q.fact && factLabel(q.fact, plan.site) && (
+          </div>}
+          {((q.fact && factLabel(q.fact, plan.site)) || q.kind === "contact") && (
             <label class="cf-row toggle cf-agent-remember">
               <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
               <span>{pre[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
@@ -272,9 +275,10 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
               class="cf-input-line"
               dir="auto"
               value={answers[i]}
-              aria-label={q.q}
+              aria-label={q.q || (q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}
+              {...(q.kind === "contact" ? { type: q.key === "phone" ? "tel" : "email", autocomplete: q.key === "phone" ? "tel" : "email", inputMode: q.key === "phone" ? "tel" : "email" } : {})}
               ref={(el) => {
-                if (el && !answers[i]) el.focus({ preventScroll: true })
+                if (el && !answers[i] && q.kind !== "contact") el.focus({ preventScroll: true })
               }}
               onInput={(e) => set(i, (e.target as HTMLInputElement).value, true)}
               onKeyDown={(e) => e.stopPropagation()}

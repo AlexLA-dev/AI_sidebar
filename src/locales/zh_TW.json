@@ -1269,5 +1269,7 @@
   "agentRuleAnySpecialistHint": "理髮師、造型師、醫師、教練或導遊，誰有空都可以。關閉後，我會先問你選誰。",
   "errLink": "ContextFlow 與此頁面的連線已中斷(開啟其他 App 時 iOS 可能已將其停止)。請重試;若再次發生,請重新載入頁面。",
   "reloadPage": "重新載入頁面",
-  "agentPlanVenueQ": "在哪裡預訂(依你的規則選擇)"
+  "agentPlanVenueQ": "在哪裡預訂(依你的規則選擇)",
+  "agentPlanEmailQ": "用於預訂的電子郵件（網站會要求填寫）",
+  "agentPlanPhoneQ": "用於預訂的電話（網站會要求填寫）"
 }
