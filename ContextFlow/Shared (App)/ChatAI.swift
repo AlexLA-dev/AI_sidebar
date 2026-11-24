@@ -57,7 +57,7 @@ enum ChatAI {
         #if DEBUG
         if let custom = UserDefaults.standard.string(forKey: "CFApiBase"), let url = URL(string: custom) { return url }
         #endif
-        return URL(string: "https://6b05771327e787a9d375b695--aisidebar.netlify.app")!  // TestFlight 2.7.1: PR #237 deploy preview at a10d7216 (claude/release-2.7.1-tf only)
+        return URL(string: "https://6b05865109c226fb735180bb--aisidebar.netlify.app")!  // TestFlight 2.7.1: PR #237 deploy preview at 7fe39094 (claude/release-2.7.1-tf only)
     }
 
     @MainActor

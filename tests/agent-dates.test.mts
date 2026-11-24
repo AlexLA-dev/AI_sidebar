@@ -12,7 +12,7 @@ import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
-import { approvePlan, bookingFrame, cancelTerms, recapOf, widgetDay, dateStep, dayItems, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { approvePlan, bookingFrame, cancelTerms, recapOf, staleDates, widgetDay, dateStep, dayItems, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import type { MapItem, PageMap } from "../src/shared/agent/types.ts"
 
 function domMap(html: string, colors: Record<string, string> = {}, url = ""): PageMap {
@@ -556,4 +556,11 @@ test("a widget's own date field on another day than the asked one is found (B3)"
   assert.equal(widgetDay(page([field("Thu 24 Dec")]), "2026-12-26")?.value, "Thu 24 Dec")
   assert.equal(widgetDay(page([field("Sat 26 Dec")]), "2026-12-26"), null, "the asked day")
   assert.equal(widgetDay(page([field("Anna")]), "2026-12-26"), null, "not a date")
+})
+
+test("a link carrying other days than the booking's (a list searched before the dates changed) is found", () => {
+  const b = { kind: "stay" as const, date: "2026-12-26", dateEnd: "2026-12-28", from: "09:00", until: "21:00", minutes: 0 }
+  assert.equal(staleDates("https://stays.example/hotel/x.html?checkin=2026-11-28&checkout=2026-11-29&group_adults=2", b), "2026-11-28, 2026-11-29")
+  assert.equal(staleDates("/hotel/x.html?checkin=2026-12-26&checkout=2026-12-28", b), null)
+  assert.equal(staleDates("/hotel/x.html?ref=list", b), null, "no days in it")
 })

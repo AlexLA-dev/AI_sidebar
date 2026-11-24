@@ -18,7 +18,7 @@ import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
-import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -479,10 +479,14 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   // A contact detail the booking will ask for and «Мои данные» hasn't got: asked on the card with «Запомнить», not
   // mid-task (the director on 124). The plan names the ones its booking will ask for.
+  // One the request already gives («почта maria@example.com») isn't asked again (the director on 125); and when the request
+  // carries someone's details, a contact still asked is likely theirs: not kept in «Мои данные» by default.
   if (plan.booking?.contacts?.length) {
     const have = new Set(liveEntries(entries).map((e) => e.key))
+    const said = `${state.request} ${plan.fromChat ?? ""}`
+    const forSomeone = plan.perms.some((p) => p.kind === "personal")
     for (const key of plan.booking.contacts) {
-      if (!have.has(key) && !plan.questions.some((q) => q.key === key)) plan.questions.push({ q: "", kind: "contact", key, options: [] })
+      if (!have.has(key) && !contactInWords(key, said) && !plan.questions.some((q) => q.key === key)) plan.questions.push({ q: "", kind: "contact", key, options: [], ...(forSomeone ? { once: true } : {}) })
     }
   }
   // The booking's contact form (a later page): the saved name, e-mail and phone go in as the plan's fill.
@@ -628,6 +632,28 @@ export function widgetDay(map: PageMap, iso: string): MapItem | null {
     if (day && day !== iso) return i
   }
   return null
+}
+
+/** A link's full address without its fragment, or "". */
+function linkTo(href: string, page: string): string {
+  try {
+    return new URL(href, page).toString().split("#")[0]
+  } catch {
+    return ""
+  }
+}
+
+/** The days a link's address carries (its query's YYYY-MM-DD values) when none of them is the booking's, or null. */
+export function staleDates(href: string, b: PlanBooking | undefined): string | null {
+  if (!b) return null
+  let days: string[] = []
+  try {
+    days = [...new URL(href, "https://x.invalid").searchParams.values()].filter((v) => /^\d{4}-\d{2}-\d{2}$/.test(v))
+  } catch {
+    return null
+  }
+  if (!days.length || days.includes(b.date) || (b.dateEnd && days.includes(b.dateEnd))) return null
+  return days.slice(0, 2).join(", ")
 }
 
 export function seesDate(map: PageMap, iso: string): boolean {
@@ -1036,10 +1062,21 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.refused = dateRefusal
       continue
     }
+    // A link whose address carries other days than the booking's (a results list searched before the dates were
+    // changed, 125: a hotel's link with the old check-in): the search goes again first.
+    const stale = seenItem?.href && (call.tool === "click" || call.tool === "go") && state.plan?.approved ? staleDates(seenItem.href, state.plan.booking) : null
+    if (stale) {
+      const why = `that link carries other dates (${stale}) than the booking's: run the page's search again with the request's dates (its Search or Apply), then choose from the new list`
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
     const place = seenItem && (call.tool === "click" || call.tool === "go") ? venueOf(seenItem, map.url) : null
     // The place is the person's to choose (askPlace) and a list is open: it's asked before one is opened (125, a clinic
     // site: a dentist opened without the question).
-    if (place && state.plan?.askPlace && !state.placeAsked && state.venues?.list.length) {
+    // (Any link of the places found — a list with no ratings too — by its address.)
+    const listed = seenItem?.href && (call.tool === "click" || call.tool === "go") && state.venues ? state.venues.list.find((v) => linkTo(seenItem.href!, map.url) === v.url) : undefined
+    if ((place || listed) && state.plan?.askPlace && !state.placeAsked && state.venues?.list.length) {
       const best = state.venues.list.slice(0, 2).map((v) => `«${v.name}» (${v.rating}, ${v.reviews})`).join(", ")
       const why = `which place is the person's choice: ask_user once now with the two best by the rules (${best}) and a third choice to let you choose by the rules; open one only after the answer`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })

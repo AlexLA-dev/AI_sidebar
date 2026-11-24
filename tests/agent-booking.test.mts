@@ -525,3 +525,13 @@ test("a card's own choice remembered («@page», «@auto») counts only where th
   assert.equal(optionFor(["@any", "@page"], "@page"), "@page")
   assert.equal(optionFor(["@any", "Yasmin"], "@any"), "@any")
 })
+
+test("a contact the request already gives isn't asked again on the card (the director on 125)", async () => {
+  const { contactInWords } = await import("../src/shared/agent/taskplan.ts")
+  const req = "Забронируй столик на 20 декабря в 19:00 на двоих, имя Мария Ким, почта maria@example.com"
+  assert.equal(contactInWords("email", req), true)
+  assert.equal(contactInWords("phone", req), false, "a date and a time aren't a phone")
+  assert.equal(contactInWords("phone", "столик, телефон +357 99 123456"), true)
+  assert.equal(contactInWords("phone", "table for 2 on 2026-12-20 at 19:30"), false)
+  assert.equal(contactInWords("email", "book a table, my email is the usual one"), false)
+})

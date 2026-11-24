@@ -35,6 +35,7 @@ test("a page about one place, specialist or product is told apart from lists and
   assert.deepEqual(pageSubject(PRODUCT), { kind: "product", name: "Daily Runner" })
   assert.equal(pageSubject(LIST), null)
   assert.equal(pageSubject(HOME), null)
+  assert.equal(pageSubject(page("https://r.example/booking", "Забронировать столик", "Забронировать столик\nИмя\nДата", [{ id: "1", role: "button", label: "Забронировать" }])), null, "the page's action isn't a name")
   // A place's own page that lists nearby places far below it is still that place's page (a salon marketplace, 125).
   const nearby: MapItem[] = ["North Cuts", "Blade Room", "Fade Lab"].map((n, i) => ({ id: `n${i}`, role: "link", label: `${n} 4.9 (120 reviews)`, href: `/a/${i}`, where: "below" }))
   assert.deepEqual(pageSubject({ ...FRESHA, items: [...FRESHA.items, ...nearby] }), { kind: "place", name: "Mancave Barbershop" })
@@ -177,4 +178,22 @@ test("the plan's place question offers only places the page shows; fewer than tw
     await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
   }
   assert.equal(s.plan?.askPlace, true, "asked once a list is open")
+})
+
+test("a list of places that shows no ratings (a clinic directory) is a list by its own signs, ranked by distance or order (125)", async () => {
+  const { venuesOn, rankVenues, cardsOf } = await import("../src/shared/agent/venues.ts")
+  const doc = (n: string, km: string, slot: string): MapItem => ({ id: n, role: "link", label: `Dr ${n}`, href: `/dentist/paris/dr-${n.toLowerCase()}`, card: `Dr ${n} Dental surgeon ${km} km 12 Rue Example, 75011 Paris Next availability Mon 28 Dec ${slot} Book an appointment` })
+  const map = page("https://clinics.example/dentist/paris", "Dentists in Paris", "Dentists in Paris · 3 results", [
+    { id: "n1", role: "link", label: "Help", href: "/help" }, { id: "n2", role: "link", label: "Sign in", href: "/signin" },
+    doc("Martin", "2.1", "09:30"), doc("Bernard", "0.8", "10:15"), doc("Petit", "1.4", "11:00")
+  ])
+  const list = venuesOn(map)
+  assert.deepEqual(list.map((v) => v.name), ["Dr Martin", "Dr Bernard", "Dr Petit"])
+  assert.deepEqual(rankVenues(list, cardsOf(map), ["dental"], 4.5, ["Paris"], true).map((v) => v.name), ["Dr Bernard", "Dr Petit", "Dr Martin"], "nearest first")
+  // A card that only names its next free day is one too («à partir du vendredi 27 novembre»).
+  const dayOnly = page("https://clinics.example/dentist/paris", "Dentists", "Dentists", ["a", "b", "c"].map((x, i) => ({ id: x, role: "link" as const, label: `Dr ${x.toUpperCase()}x`, href: `/dentist/paris/dr-${x}`, card: `Dr ${x.toUpperCase()}x Chirurgien-dentiste 11 Rue Example 75017 Paris à partir du vendredi ${27 + i} novembre 2026` })))
+  assert.equal(venuesOn(dayOnly).length, 3)
+  // Plain links without booking on their cards (a footer, an article list) aren't places.
+  const footer = page("https://clinics.example/", "Clinics", "Home", ["a", "b", "c"].map((x) => ({ id: x, role: "link" as const, label: `Guide ${x}`, href: `/guides/${x}/read`, card: `Guide ${x} — five things to know about your teeth` })))
+  assert.deepEqual(venuesOn(footer), [])
 })

@@ -222,7 +222,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
   const optNote = (q: TaskPlan["questions"][number], j: number) => (q.notes?.[j] === "@last" ? t("agentPlanLastTime") : q.notes?.[j] ?? "")
   const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => q.kind === "contact" || (!!pre[i] && !optsOf(q).includes(pre[i]))))
   // «Запомнить» under each question about the person and each contact detail: on by default.
-  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact || q.kind === "contact"))
+  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact || (q.kind === "contact" && !q.once)))
   const [off, setOff] = useState<Set<string>>(() => new Set())
   const [mode, setMode] = useState<"now" | "later">("now")
   const [laterChoice, setLaterChoice] = useState<LaterChoice | null>(null)
