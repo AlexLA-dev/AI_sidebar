@@ -1268,5 +1268,16 @@
   "fdICloudFailed": "Nicht synchronisiert: iCloud hat nicht geantwortet. Beim nächsten Mal wird es erneut versucht.",
   "agentRuleAnySpecialistHint": "Friseur, Stylistin, Arzt, Trainerin oder Guide – wer gerade frei ist. Aus: Ich frage, bei wem.",
   "errLink": "ContextFlow hat die Verbindung zu dieser Seite verloren (iOS hat es vielleicht beendet, während eine andere App offen war). Versuche es noch einmal oder lade die Seite neu, falls es wieder passiert.",
-  "reloadPage": "Seite neu laden"
+  "reloadPage": "Seite neu laden",
+  "agentPlanVenueQ": "Wo buchen (nach deinen Regeln gewählt)",
+  "agentPlanEmailQ": "Deine E-Mail für die Buchung (die Seite fragt danach)",
+  "agentPlanPhoneQ": "Deine Telefonnummer für die Buchung (die Seite fragt danach)",
+  "agentLinePopup": "Fenster über der Seite geschlossen: «{0}»",
+  "agentPlanSpecialistQ": "Welche Fachkraft?",
+  "agentPlanAnySpecialist": "Beliebige Fachkraft",
+  "agentPlanServiceQ": "Welche Leistung?",
+  "agentPlanSpecialistOnPage": "Wähle ich auf der Seite des Ladens",
+  "agentPlanVenueAuto": "Für mich wählen: ab {0} Sternen, am nächsten",
+  "agentPlanLastTime": "letztes Mal",
+  "agentPlanPlaceQ": "Wo buchen?"
 }

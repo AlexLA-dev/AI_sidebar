@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "重新載入頁面"
  },
+ "agentPlanVenueQ": {
+  "message": "在哪裡預訂(依你的規則選擇)"
+ },
+ "agentPlanEmailQ": {
+  "message": "用於預訂的電子郵件（網站會要求填寫）"
+ },
+ "agentPlanPhoneQ": {
+  "message": "用於預訂的電話（網站會要求填寫）"
+ },
+ "agentLinePopup": {
+  "message": "已關閉頁面上的彈出視窗：「{0}」"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "選擇哪位服務人員？"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "任一服務人員"
+ },
+ "agentPlanServiceQ": {
+  "message": "選擇哪項服務？"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "在店家頁面再選"
+ },
+ "agentPlanVenueAuto": {
+  "message": "幫我選：評分 {0}+，最近"
+ },
+ "agentPlanLastTime": {
+  "message": "上次"
+ },
+ "agentPlanPlaceQ": {
+  "message": "在哪裡預約？"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

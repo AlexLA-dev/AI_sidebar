@@ -146,7 +146,7 @@ export function shapeValue(e: FormEntry, field: FieldShape): string | null {
 }
 
 /**
- * A saved full name gives its first and last name too, when those aren't saved (forms ask for them apart: Dishoom's
+ * A saved full name gives its first and last name too, when those aren't saved (forms ask for them apart: a restaurant's
  * «First name», «Last name»). Only for filling on the device; never kept.
  */
 export function withNameParts(entries: FormEntry[]): FormEntry[] {

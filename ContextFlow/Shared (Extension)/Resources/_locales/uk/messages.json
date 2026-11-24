@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "Оновити сторінку"
  },
+ "agentPlanVenueQ": {
+  "message": "Де бронювати (вибрано за вашими правилами)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Ваш e-mail для бронювання (сайт його попросить)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Ваш телефон для бронювання (сайт його попросить)"
+ },
+ "agentLinePopup": {
+  "message": "Закрив вікно поверх сторінки: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Який майстер?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Будь-який майстер"
+ },
+ "agentPlanServiceQ": {
+  "message": "Яка послуга?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Оберу на сторінці закладу"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Підібрати самому: рейтинг {0}+, найближче"
+ },
+ "agentPlanLastTime": {
+  "message": "минулого разу"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Де записатися?"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

@@ -1268,5 +1268,16 @@
   "fdICloudFailed": "Chưa đồng bộ: iCloud không phản hồi. Lần sau sẽ thử lại.",
   "agentRuleAnySpecialistHint": "Thợ cắt tóc, nhà tạo mẫu, bác sĩ, huấn luyện viên hay hướng dẫn viên: ai rảnh cũng được. Tắt: tôi sẽ hỏi bạn chọn ai.",
   "errLink": "ContextFlow đã mất kết nối với trang này (iOS có thể đã tạm dừng nó khi một ứng dụng khác đang mở). Hãy thử lại, hoặc tải lại trang nếu vẫn xảy ra.",
-  "reloadPage": "Tải lại trang"
+  "reloadPage": "Tải lại trang",
+  "agentPlanVenueQ": "Đặt ở đâu (chọn theo quy tắc của bạn)",
+  "agentPlanEmailQ": "Email của bạn để đặt chỗ (trang sẽ hỏi)",
+  "agentPlanPhoneQ": "Số điện thoại của bạn để đặt chỗ (trang sẽ hỏi)",
+  "agentLinePopup": "Đã đóng cửa sổ trên trang: «{0}»",
+  "agentPlanSpecialistQ": "Chọn chuyên viên nào?",
+  "agentPlanAnySpecialist": "Chuyên viên bất kỳ",
+  "agentPlanServiceQ": "Chọn dịch vụ nào?",
+  "agentPlanSpecialistOnPage": "Tôi sẽ chọn trên trang của tiệm",
+  "agentPlanVenueAuto": "Chọn giúp tôi: đánh giá {0}+, gần nhất",
+  "agentPlanLastTime": "lần trước",
+  "agentPlanPlaceQ": "Đặt ở đâu?"
 }

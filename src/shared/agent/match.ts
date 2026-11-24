@@ -91,3 +91,12 @@ export function wordList(list: string[]): (text: string) => string | null {
     return null
   }
 }
+
+/** A tester for a word list, its entries made once (for lists read over many labels: the map's items). */
+export function wordTest(list: string[]): (text: string) => boolean {
+  const entries = list.map((raw) => entry("nav", raw))
+  return (text: string) => {
+    const label = normalize(text)
+    return !!label && entries.some((e) => e.test(label))
+  }
+}

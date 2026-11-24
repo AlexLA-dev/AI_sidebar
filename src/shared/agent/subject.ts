@@ -1,4 +1,4 @@
-// The page a task starts on, when it is about one thing (2.7.1, the owner on 121: on fresha's page of Mancave Barbershop
+// The page a task starts on, when it is about one thing (2.7.1, the owner on 121: on a booking site's page of one barbershop
 // «Забукай меня на стрижку…» planned «Выбираю барбершоп…» and «I'll pick the place»). A single place, product or
 // specialist's page — its name in the title and on the page, a button that books or buys it, no list of places — is
 // the task's target when the request names no other.
@@ -29,7 +29,7 @@ export function pageSubject(map: PageMap): Subject | null {
   const full = nameOf(map.title)
   if (full.length < 3 || full.length > 80 || LISTY.test(full)) return null
   if (venuesOn(map).length) return null
-  // The name as the page itself shows it (its heading), not only in the tab's title: «Il Fico in Paris» is «Il Fico».
+  // The name as the page itself shows it (its heading), not only in the tab's title: «Trattoria Sole in Paris» is «Trattoria Sole».
   const head = map.text.slice(0, 1500).toLocaleLowerCase()
   const words = full.split(" ")
   let name = ""

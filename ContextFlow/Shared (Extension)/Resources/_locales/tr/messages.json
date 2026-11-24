@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "Sayfayı yenile"
  },
+ "agentPlanVenueQ": {
+  "message": "Nerede rezervasyon (kurallarınıza göre seçildi)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Rezervasyon için e-postanız (site isteyecek)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Rezervasyon için telefonunuz (site isteyecek)"
+ },
+ "agentLinePopup": {
+  "message": "Sayfanın üstündeki pencere kapatıldı: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Hangi uzman?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Herhangi bir uzman"
+ },
+ "agentPlanServiceQ": {
+  "message": "Hangi hizmet?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "İşletmenin sayfasında seçerim"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Benim için seç: {0}+ puan, en yakın"
+ },
+ "agentPlanLastTime": {
+  "message": "geçen sefer"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Nereden randevu alalım?"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

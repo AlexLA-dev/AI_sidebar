@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "Recarregar a página"
  },
+ "agentPlanVenueQ": {
+  "message": "Onde reservar (escolhido pelas suas regras)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Seu e-mail para a reserva (o site vai pedir)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Seu telefone para a reserva (o site vai pedir)"
+ },
+ "agentLinePopup": {
+  "message": "Fechei uma janela sobre a página: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Qual profissional?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Qualquer profissional"
+ },
+ "agentPlanServiceQ": {
+  "message": "Qual serviço?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Escolho na página do local"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Escolher por mim: nota {0}+, mais perto"
+ },
+ "agentPlanLastTime": {
+  "message": "da última vez"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Onde agendar?"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

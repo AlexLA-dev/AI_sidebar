@@ -136,3 +136,5 @@
 .cf-access-need { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
 .cf-access-need .cf-link { font-size: var(--fs-small); padding: 0 2px !important; }
 .cf-access-x { margin-inline-start: auto; font-size: var(--fs-small); color: var(--text-3); padding: 0 4px; }
+/* A place's rating and area, or «last time», beside its option on the plan card. */
+.cf-agent-options .cf-chip .cf-chip-note { opacity: 0.7; font-weight: 400; }

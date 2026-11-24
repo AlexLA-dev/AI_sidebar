@@ -69,7 +69,7 @@ test("rules: stored values are clamped, the defaults fill the rest, the model he
   assert.equal(r.days, 0)
   assert.equal(r.party, 1)
   assert.equal(r.auto, true, "a value of the wrong kind keeps the default")
-  assert.match(rulesLine(DEFAULT_RULES, true), /60 minutes either way; .*2 days later; 2 people .*any specialist.*free in the person's calendar/)
+  assert.match(rulesLine(DEFAULT_RULES, true), /60 minutes either way; .*2 days later; 2 people .*«any» is its first option.*free in the person's calendar/)
   assert.doesNotMatch(rulesLine(DEFAULT_RULES, false), /calendar/)
 })
 
@@ -249,6 +249,17 @@ test("a listing card with a price «from …» is a link to the place, not payin
   assert.deepEqual(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "link", label: "Donate £10" }])), { cls: "self", reason: "pay" })
 })
 
+test("a summary bar with the total and the count chosen goes on; a pay or order word, or a checkout page, still pays (124)", () => {
+  const ctx = (items: PageMap["items"], pay = false) => ({ map: { ...SALON, items, pay }, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } })
+  assert.notEqual(classify({ tool: "click", id: "1" }, ctx([{ id: "1", role: "button", label: "€20 1 item • 30min" }])).reason, "pay")
+  assert.notEqual(classify({ tool: "click", id: "1" }, ctx([{ id: "1", role: "button", label: "2 услуги · 36 €" }])).reason, "pay")
+  assert.deepEqual(classify({ tool: "click", id: "2" }, ctx([{ id: "2", role: "button", label: "Pay €18 · 1 item" }])), { cls: "self", reason: "pay" })
+  assert.deepEqual(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "button", label: "€18 1 item" }], true)), { cls: "self", reason: "pay" })
+  assert.deepEqual(classify({ tool: "click", id: "4" }, ctx([{ id: "4", role: "button", label: "€18 for 30min" }])), { cls: "self", reason: "pay" })
+  // The count in other languages, from the lexicon.
+  for (const label of ["3 Artikel · 54 €", "2 articles — 40 €", "1 servicio · 18 €", "2 ürün ₺300", "¥3,000 2点", "2개 30,000원", "1 dịch vụ 200.000₫"]) assert.notEqual(classify({ tool: "click", id: "5" }, ctx([{ id: "5", role: "button", label }])).reason, "pay", label)
+})
+
 test("a wordless button over the page (a banner's ×) closes it freely; elsewhere it still asks", () => {
   const ctx = (items: PageMap["items"]) => ({ map: { ...SALON, items, forms: [{ n: 0, fillable: true }] }, startHost: "www.salon.example.com", request: "book", confirmedHere: true, policy: { amazon: true } })
   assert.deepEqual(classify({ tool: "click", id: "1" }, ctx([{ id: "1", role: "button", label: "", where: "dialog" }])), { cls: "free", reason: "close" })
@@ -304,7 +315,7 @@ test("a question's times come from the page: a time only the Calendar has isn't 
   assert.deepEqual(timesIn("5:45 PM, 17.30 or 9am"), ["17:45", "17:30", "09:00"])
   assert.deepEqual(pageChoices(["Вт 24 ноя, 14:30", "Пн 23 ноя, 20:00", "Другой день"], new Set(["14:30", "14:45"])), ["Вт 24 ноя, 14:30", "Другой день"])
   const x = io([{ ok: true, plan: { ...RAW, booking: { ...BOOKING, venue: "Cutter" } }, token: "t" }, step({ tool: "ask_user", question: "Which?", choices: ["17:45", "20:00", "Another day"] }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
-  const s = await drive(newState("q", "haircut", "en", SALON.url), x)
+  const s = await drive(newState("q", "haircut at Cutter", "en", SALON.url), x)
   assert.deepEqual(s.choices, ["17:45", "Another day"], "20:00 isn't on the page")
 })
 
@@ -357,19 +368,19 @@ const RESULTS: PageMap = {
   ]
 }
 
-test("places come from the results list: matching the request, rated by the rules, the page's order kept", async () => {
+test("places come from the results list: matching the request, in the rules' order (rating, then reviews), not the page's", async () => {
   const { venuesOn, rankVenues, cardsOf } = await import("../src/shared/agent/venues.ts")
   const all = venuesOn(RESULTS)
   assert.deepEqual(all.map((v) => v.url.split("/").pop()), ["chez-milo", "fellini", "batistou", "luigi"], "another site's link isn't a place here")
   assert.equal(all[0].rating, 4.55, "TheFork's /10 counts as /5")
   const ranked = rankVenues(all, cardsOf(RESULTS), ["Italian", "italien"], 4.2)
   assert.deepEqual(ranked.map((v) => v.url.split("/").pop()), ["fellini", "batistou"], "French dropped (not Italian), Luigi dropped (4 reviews)")
-  assert.deepEqual(rankVenues(all, cardsOf(RESULTS), [], 4.5).map((v) => v.url.split("/").pop()), ["chez-milo", "fellini"])
+  assert.deepEqual(rankVenues(all, cardsOf(RESULTS), [], 4.5).map((v) => v.url.split("/").pop()), ["fellini", "chez-milo"], "9.3 before 9.1, whatever comes first on the page")
 })
 
 test("a misfit place is refused; when one doesn't fit, the device opens the next by its link", async () => {
   const opened: string[] = []
-  const raw = { ...RAW, booking: { ...BOOKING, match: ["Italian"] } }
+  const raw = { ...RAW, booking: { ...BOOKING, kind: "table", match: ["Italian"] } }
   const pages = [RESULTS]
   const x = io([
     { ok: true, plan: raw, token: "t" },

@@ -352,7 +352,7 @@ export const PERSONAL_FIELD = [
 /** A checkbox about terms, conditions, an offer or the use of personal data: the person ticks it. */
 export const TERMS_BOX = [
   "terms", "conditions", "terms of service", "privacy policy", "personal data",
-  "услови*", "оферт*", "политик* конфиденциальности", "персональных данных", "обработку данных",
+  "услови*", "оферт*", "политика конфиденциальности", "политики конфиденциальности", "политикой конфиденциальности", "персональных данных", "обработку данных",
   "умов*", "оферт*", "персональних даних",
   "bedingungen", "nutzungsbedingungen", "agb", "datenschutzerklärung", "ich stimme",
   "conditions générales", "cgu", "cgv", "politique de confidentialité", "données personnelles",
@@ -366,4 +366,140 @@ export const TERMS_BOX = [
   "条款", "服务条款", "隐私政策", "个人信息",
   "條款", "服務條款", "隱私權政策", "個人資料",
   "điều khoản", "chính sách bảo mật", "dữ liệu cá nhân"
+]
+
+// A day or a time the page shows as not choosable, in its own words (an aria-label «Sat 26, not available», a slot
+// «Fully booked»): read on date and time controls only.
+export const UNAVAILABLE_WORDS = [
+  "not available", "unavailable", "fully booked", "booked up", "sold out", "no availability", "no times available", "no slots", "not bookable", "closed",
+  "недоступ*", "нет мест", "мест нет", "нет свободн*", "всё занято", "все занято", "занято", "закрыто",
+  "недоступн*", "немає місць", "немає вільн*", "зайнято", "зачинено",
+  "nicht verfügbar", "ausgebucht", "keine verfügbarkeit", "keine termine", "belegt", "geschlossen",
+  "indisponible", "non disponible", "complet", "aucune disponibilité", "fermé",
+  "no disponible", "agotado", "completo", "sin disponibilidad", "cerrado",
+  "non disponibile", "esaurito", "al completo", "nessuna disponibilità", "chiuso",
+  "indisponível", "não disponível", "esgotado", "lotado", "sem disponibilidade", "fechado",
+  "müsait değil", "uygun değil", "dolu", "tükendi", "kapalı",
+  "غير متاح", "غير متوفر", "محجوز بالكامل", "لا توجد مواعيد", "مغلق",
+  "予約不可", "満席", "空きなし", "受付終了", "定休日", "休業",
+  "예약 불가", "예약불가", "마감", "매진", "휴무",
+  "不可预订", "已约满", "约满", "已满", "无空位", "已售罄",
+  "不可預訂", "已約滿", "約滿", "已滿", "無空位",
+  "không có sẵn", "hết chỗ", "đã kín", "hết lịch", "đóng cửa"
+]
+
+// A page naming its next free day or time («next available», «available from …»).
+export const NEXT_FREE_WORDS = [
+  "next available", "available from", "first available", "earliest available", "next opening",
+  "ближайшее свободн*", "ближайший свободн*", "ближайшая свободн*", "ближайшее доступн*", "ближайшая доступн*", "свободно с", "доступно с",
+  "найближчий вільн*", "найближча вільн*", "найближче вільн*", "найближча доступн*", "доступно з",
+  "nächster freier termin", "nächste verfügbarkeit", "verfügbar ab",
+  "prochaine disponibilité", "disponible à partir", "disponible dès",
+  "próxima disponibilidad", "primera disponibilidad", "disponible desde",
+  "prossima disponibilità", "disponibile dal", "disponibile da",
+  "próxima disponibilidade", "disponível a partir",
+  "en yakın müsait", "ilk müsait", "itibaren müsait",
+  "أقرب موعد متاح", "متاح من",
+  "次の空き", "最短",
+  "다음 예약 가능", "가장 빠른",
+  "下一个可预订", "最早可约",
+  "下一個可預訂", "最早可約",
+  "lịch trống tiếp theo", "có sẵn từ"
+]
+
+// Words of booking in another site's frame (its title, name or address): a reservation or appointment form.
+export const BOOKING_WORDS = [
+  "book*", "reserv*", "appointment*", "schedul*",
+  "бронир*", "брониров*", "запис*", "резерв*",
+  "бронюв*", "запис*",
+  "buchen", "buchung*", "termin*", "reservierung*",
+  "réserv*", "rendez-vous",
+  "cita*", "agenda*",
+  "prenot*",
+  "agendament*", "marcaç*",
+  "rezervasyon*", "randevu*",
+  "حجز", "موعد",
+  "予約",
+  "예약",
+  "预订", "预约",
+  "預訂", "預約", "訂位",
+  "đặt bàn", "đặt lịch", "đặt chỗ"
+]
+
+// What a count next to a total counts in a booking's or shop's summary bar («1 item», «2 услуги», «3 Artikel»).
+export const CHOSEN_COUNT_WORDS = [
+  "item*", "service*", "treatment*", "product*",
+  "услуг*", "товар*", "позици*",
+  "послуг*", "товар*", "позиці*",
+  "artikel", "leistung*", "produkt*",
+  "article*", "prestation*", "produit*",
+  "artículo*", "servicio*", "producto*",
+  "articol*", "serviz*", "prodott*",
+  "itens", "item", "serviço*", "produto*",
+  "ürün*", "hizmet*",
+  "عنصر", "عناصر", "خدمة", "خدمات", "منتج*",
+  "点", "件", "サービス",
+  "개", "서비스", "상품",
+  "项", "服务",
+  "項", "服務",
+  "sản phẩm", "dịch vụ", "mục"
+]
+
+// What a layer over the page that isn't the task is about: rewards and points, a newsletter, the site's app, a discount,
+// notifications, the person's location (closed as a free step; cookie banners have their own closer).
+export const PROMO_WORDS = [
+  "newsletter", "subscribe to our", "rewards", "earn points", "collect points", "loyalty", "download the app", "download our app", "get the app", "open in app", "open the app", "use the app", "install the app", "% off", "discount code", "promo code", "coupon", "exclusive offer", "turn on notifications", "enable notifications", "allow notifications", "your location", "use my location", "share your location",
+  "рассылк*", "подпишитесь", "бонус*", "балл*", "кешбэк", "скачайте приложение", "скачать приложение", "в приложении", "промокод", "скидк*", "уведомлени*", "геолокаци*", "местоположени*",
+  "розсилк*", "бонус*", "бал*", "завантажте застосунок", "у застосунку", "промокод", "знижк*", "сповіщен*", "геолокаці*",
+  "newsletter", "abonnieren", "prämien", "punkte sammeln", "treuepunkte", "app herunterladen", "in der app", "rabatt*", "gutschein*", "benachrichtigungen", "standort",
+  "newsletter", "abonnez-vous", "récompenses", "points de fidélité", "cumulez des points", "télécharger l'application", "dans l'application", "réduction", "code promo", "notifications", "localisation", "votre position",
+  "boletín", "suscríbete", "recompensas", "puntos", "descarga la app", "descargar la aplicación", "en la app", "descuento", "código promocional", "cupón", "notificaciones", "ubicación",
+  "newsletter", "iscriviti", "premi", "punti fedeltà", "scarica l'app", "nell'app", "sconto", "codice promozionale", "coupon", "notifiche", "posizione",
+  "newsletter", "inscreva-se", "recompensas", "pontos", "baixe o app", "baixar o aplicativo", "no app", "desconto", "cupom", "código promocional", "notificações", "localização",
+  "bülten", "abone ol", "ödül*", "puan*", "uygulamayı indir", "uygulamada", "indirim*", "kupon", "promosyon kodu", "bildirim*", "konum*",
+  "النشرة", "اشترك", "مكافآت", "نقاط", "حمّل التطبيق", "تنزيل التطبيق", "في التطبيق", "خصم", "كوبون", "رمز الترويج", "الإشعارات", "موقعك",
+  "メルマガ", "ニュースレター", "ポイント", "アプリをダウンロード", "アプリで開く", "クーポン", "割引", "通知", "位置情報",
+  "뉴스레터", "구독", "포인트", "적립", "앱 다운로드", "앱에서 열기", "쿠폰", "할인", "알림", "위치",
+  "订阅", "积分", "奖励", "下载应用", "下载app", "在应用中打开", "优惠券", "折扣", "通知", "位置",
+  "訂閱", "積分", "獎勵", "下載應用程式", "下載app", "在應用程式中開啟", "優惠券", "折扣", "通知", "位置",
+  "bản tin", "đăng ký nhận", "phần thưởng", "tích điểm", "tải ứng dụng", "mở trong ứng dụng", "giảm giá", "mã khuyến mãi", "phiếu giảm giá", "thông báo", "vị trí"
+]
+
+// A control that closes such a layer without agreeing to anything: «Close», «Not now», «No thanks», «Skip», «Maybe later»,
+// «Continue in the browser» (never «Accept», «Allow», «Subscribe», «Install», «Open the app»).
+export const CLOSE_WORDS = [
+  "=close", "=dismiss", "not now", "no thanks", "no, thanks", "=skip", "skip for now", "maybe later", "=later", "remind me later", "continue in browser", "continue on web", "stay on the website", "=×", "=✕", "=x", "close dialog", "close popup", "close modal",
+  "=закрыть", "не сейчас", "нет, спасибо", "нет спасибо", "=пропустить", "=позже", "напомнить позже", "продолжить в браузере", "остаться на сайте",
+  "=закрити", "не зараз", "ні, дякую", "=пропустити", "=пізніше", "продовжити в браузері",
+  "=schließen", "nicht jetzt", "nein danke", "nein, danke", "=überspringen", "=später", "vielleicht später", "im browser fortfahren",
+  "=fermer", "pas maintenant", "non merci", "non, merci", "=passer", "=ignorer", "plus tard", "continuer sur le navigateur",
+  "=cerrar", "ahora no", "no gracias", "no, gracias", "=omitir", "=saltar", "más tarde", "continuar en el navegador",
+  "=chiudi", "non ora", "no grazie", "no, grazie", "=salta", "più tardi", "continua nel browser",
+  "=fechar", "agora não", "não, obrigado", "não obrigado", "=pular", "mais tarde", "continuar no navegador",
+  "=kapat", "şimdi değil", "hayır teşekkürler", "hayır, teşekkürler", "=atla", "daha sonra", "tarayıcıda devam et",
+  "=إغلاق", "ليس الآن", "لا شكرا", "لا، شكرا", "=تخطي", "لاحقا", "المتابعة في المتصفح",
+  "=閉じる", "今はしない", "後で", "=スキップ", "ブラウザで続ける",
+  "=닫기", "나중에", "=건너뛰기", "괜찮습니다", "브라우저로 계속",
+  "=关闭", "以后再说", "=跳过", "不用了", "继续使用浏览器",
+  "=關閉", "以後再說", "=跳過", "不用了", "繼續使用瀏覽器",
+  "=đóng", "để sau", "=bỏ qua", "không, cảm ơn", "tiếp tục trên trình duyệt"
+]
+
+// A card the site puts first for money or by its own choice («Featured», «Sponsored», «Реклама»): never first for that.
+export const PROMOTED_WORDS = [
+  "featured", "sponsored", "promoted", "=ad", "advertisement",
+  "реклама", "спонсор*", "продвигается",
+  "реклама", "спонсор*",
+  "gesponsert", "anzeige", "hervorgehoben",
+  "sponsorisé", "à la une", "mis en avant",
+  "patrocinado", "destacado", "anuncio",
+  "sponsorizzato", "in evidenza",
+  "patrocinado", "destaque", "anúncio",
+  "sponsorlu", "öne çıkan", "reklam",
+  "إعلان", "مُموَّل", "مميز",
+  "広告", "pr", "スポンサー",
+  "광고", "스폰서",
+  "广告", "推广", "赞助",
+  "廣告", "推廣", "贊助",
+  "quảng cáo", "tài trợ", "nổi bật"
 ]

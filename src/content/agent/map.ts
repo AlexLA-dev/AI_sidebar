@@ -9,6 +9,10 @@
 //   never reaches it.
 
 import { amounts } from "../../shared/agent/taskplan"
+import { isDateLabel } from "../../shared/agent/dates"
+import { wordKind, wordTest } from "../../shared/agent/match"
+import { looksLikeSlot } from "../../shared/agent/rules"
+import { CLOSE_WORDS, PROMO_WORDS, UNAVAILABLE_WORDS } from "../../shared/agent/words"
 import { fieldLock } from "../../shared/agent/fields"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import type { Lock, MapItem, PageForm, PageMap, Role } from "../../shared/agent/types"
@@ -19,7 +23,7 @@ const CONTROL = [
   "a[href]", "button", "input", "select", "textarea", "summary",
   "[role=button]", "[role=link]", "[role=checkbox]", "[role=radio]", "[role=switch]", "[role=tab]", "[role=menuitem]",
   "[role=menuitemcheckbox]", "[role=menuitemradio]", "[role=option]", "[role=combobox]", "[role=listbox]", "[role=slider]",
-  "[role=spinbutton]", "[role=textbox]", "[role=searchbox]", "[role=treeitem]",
+  "[role=spinbutton]", "[role=textbox]", "[role=searchbox]", "[role=treeitem]", "[role=gridcell]",
   "[contenteditable='']", "[contenteditable=true]", "[contenteditable=plaintext-only]", "[onclick]"
 ].join(",")
 
@@ -124,6 +128,8 @@ export function roleOf(el: Element): Role | null {
     case "tab": return "tab"
     case "menuitem": return "menuitem"
     case "option": case "treeitem": return "option"
+    // A calendar's day cell (a grid of days): a choice when it holds a short number and no button of its own.
+    case "gridcell": return !el.querySelector("button, a, [role=button], [role=option]") && /^\s*\D{0,12}\d{1,2}\D{0,12}\s*$/.test(el.textContent ?? "") ? "option" : null
     case "combobox": return "combobox"
     case "listbox": return "listbox"
     case "slider": return "slider"
@@ -263,6 +269,112 @@ function stateOf(el: Element, role: Role): string[] {
   return s
 }
 
+// Class names sites give a day or a slot that can't be chosen.
+const UNAVAILABLE_CLASS = /(^|[-_\s])(disabled|unavailable|not-?available|inactive|blocked|sold-?out|booked|is-?full|outside)([-_\s]|$)/i
+
+const struck = (style: CSSStyleDeclaration) => /line-through/.test(`${style.textDecorationLine ?? ""} ${style.textDecoration ?? ""}`)
+
+/** Whether the page shows this control as not choosable: its class, faded (opacity), not taking presses, a not-allowed
+ *  cursor, or its text struck through. */
+function unavailableByLook(el: Element): boolean {
+  const view = el.ownerDocument.defaultView
+  let opacity = 1
+  let e: Element | null = el
+  for (let i = 0; e && i < 3; i++, e = e.parentElement) {
+    const cls = typeof (e as HTMLElement).className === "string" ? (e as HTMLElement).className : e.getAttribute("class") ?? ""
+    if (i < 2 && UNAVAILABLE_CLASS.test(cls)) return true
+    const style = view?.getComputedStyle?.(e)
+    if (!style) continue
+    opacity *= Number(style.opacity || "1")
+    if (i === 0 && (style.pointerEvents === "none" || style.cursor === "not-allowed")) return true
+    if (i === 0 && struck(style)) return true
+  }
+  // A day number struck through inside its tile (a calendar crossing out full days).
+  for (const child of Array.from(el.children).slice(0, 3)) {
+    const style = view?.getComputedStyle?.(child)
+    if (style && struck(style) && (child.textContent ?? "").trim()) return true
+  }
+  return opacity < 0.6
+}
+
+// A day or a time that says it's not choosable, in its name or its title, in any of the 15 languages (the lexicon's
+// UNAVAILABLE_WORDS): read on day and time controls only (a short number, a date, a time).
+const unavailableWord = wordTest(UNAVAILABLE_WORDS)
+function unavailableBySaying(el: Element, label: string): boolean {
+  if (!(isDateLabel(label) || looksLikeSlot(label) || /^\s*\d{1,2}\b/.test(label))) return false
+  return unavailableWord(`${label} ${el.getAttribute("title") ?? ""} ${el.getAttribute("aria-description") ?? ""}`)
+}
+
+// A rating («4.8», «9,1», «★») and a count of reviews («(851)», «1 178 reviews», «отзывов»…) in a card's text.
+const CARD_RATING = /(?<![\d.,])\d[.,]\d(?![\d.,])|★|⭐/
+const CARD_REVIEWS = /\(\s*\d[\d,. \u00a0]{0,8}\)|\d\s*(reviews?|ratings?|отзыв|оцен|avis|bewertung|reseñ|valoraci|recension|avalia|yorum|değerlendirme|件|レビュー|리뷰|후기|评论|評論|評價|تقييم|مراجع|đánh giá)/i
+
+/** A box's text with its pieces apart («Italian 9.1 (320)», not «Italian9.1(320)» as textContent joins them), cut at max. */
+function wordsOf(box: Element, max: number): string {
+  const doc = box.ownerDocument
+  const walker = doc.createTreeWalker(box, 4 /* NodeFilter.SHOW_TEXT */)
+  const parts: string[] = []
+  let size = 0
+  for (let n = walker.nextNode(); n && size <= max; n = walker.nextNode()) {
+    const t = (n.nodeValue ?? "").replace(/\s+/g, " ").trim()
+    if (!t) continue
+    parts.push(t)
+    size += t.length + 1
+  }
+  return parts.join(" ")
+}
+
+/** The card a link heads, when the link carries only a name: the nearest box around it (up to five levels) that holds a
+ *  rating and a count of reviews and no more than one place's links. Its text, or "". */
+function cardOf(el: Element, label: string): string {
+  if (label.length > 80 || (CARD_RATING.test(label) && CARD_REVIEWS.test(label))) return ""
+  // A whole card that is one link named by its aria-label («Trattoria Uno»): its own text is the card.
+  const own = wordsOf(el, 600)
+  if (own.length <= 400 && own !== label && CARD_RATING.test(own) && CARD_REVIEWS.test(own)) return own.slice(0, 240)
+  let box: Element | null = el.parentElement
+  for (let i = 0; box && i < 5; i++, box = box.parentElement) {
+    const hrefs = new Set(Array.from(box.querySelectorAll("a[href]")).map((a) => (a.getAttribute("href") ?? "").split(/[?#]/)[0]).filter((h) => h && h !== "/"))
+    if (hrefs.size > 3) return ""
+    const text = wordsOf(box, 600)
+    if (text.length > 400) return ""
+    if (CARD_RATING.test(text) && CARD_REVIEWS.test(text)) return text.slice(0, 240)
+  }
+  return ""
+}
+
+const rgb = (c: string): [number, number, number, number] | null => {
+  const m = /rgba?\(([^)]+)\)/.exec(c)
+  if (!m) return null
+  const p = m[1].split(/[\s,/]+/).filter(Boolean).map(Number)
+  return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]
+}
+const lum = ([r, g, b]: [number, number, number, number]) => {
+  const f = (v: number) => {
+    const x = v / 255
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+}
+
+/** The contrast of a control's text against the background behind it (0 when it can't be told). */
+function textContrast(el: Element): number {
+  const view = el.ownerDocument.defaultView
+  const style = view?.getComputedStyle?.(el)
+  const fg = style ? rgb(style.color) : null
+  if (!fg) return 0
+  let bg: [number, number, number, number] | null = null
+  for (let e: Element | null = el; e && !bg; e = e.parentElement) {
+    const c = rgb(view?.getComputedStyle?.(e).backgroundColor ?? "")
+    if (c && c[3] > 0.5) bg = c
+  }
+  bg = bg ?? [255, 255, 255, 1]
+  // A see-through text colour is its blend with the background.
+  const mix: [number, number, number, number] = [fg[0] * fg[3] + bg[0] * (1 - fg[3]), fg[1] * fg[3] + bg[1] * (1 - fg[3]), fg[2] * fg[3] + bg[2] * (1 - fg[3]), 1]
+  const a = lum(mix)
+  const b = lum(bg)
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+}
+
 function hiddenByStyle(el: Element): boolean {
   const view = el.ownerDocument.defaultView
   for (let e: Element | null = el; e; e = e.parentElement ?? ((e.getRootNode() as ShadowRoot).host ?? null)) {
@@ -341,12 +453,20 @@ function hrefOf(el: Element, pageHost: string): string | undefined {
   return sameSite(host, pageHost) ? path : `${host}${path}`.slice(0, 140)
 }
 
+/** An option as the model reads it: marked when the page shows it can't be chosen (a dropdown of times with full ones). */
+function optionText(o: Element): string {
+  const text = squash(o.textContent, 60)
+  if (!text) return ""
+  const off = (o as HTMLOptionElement).disabled || o.hasAttribute("disabled") || o.getAttribute("aria-disabled") === "true" || unavailableBySaying(o, text)
+  return off ? `${text} [unavailable]` : text
+}
+
 function optionsOf(el: Element, role: Role): string[] | undefined {
   if (role === "select" || (role === "listbox" && tag(el) === "select")) {
-    return Array.from((el as HTMLSelectElement).options).slice(0, 30).map((o) => squash(o.textContent, 60)).filter(Boolean)
+    return Array.from((el as HTMLSelectElement).options).slice(0, 30).map(optionText).filter(Boolean)
   }
   if (role === "listbox") {
-    const list = Array.from(el.querySelectorAll("[role=option]")).slice(0, 30).map((o) => squash(o.textContent, 60)).filter(Boolean)
+    const list = Array.from(el.querySelectorAll("[role=option]")).slice(0, 30).map(optionText).filter(Boolean)
     return list.length ? list : undefined
   }
   return undefined
@@ -369,7 +489,7 @@ function pageText(doc: Document, overlays: Element[]): string {
     size += t.length + 1
   }
   for (const o of overlays) add(`[over the page] ${textOf(o).slice(0, 500)}`)
-  // A page's messages, not its controls (fresha marks a year of date buttons aria-live: they filled the text before
+  // A page's messages, not its controls (a salon booking site marks a year of date buttons aria-live: they filled the text before
   // the time slots, TestFlight 118). A few, on the screen's width.
   const width = view?.innerWidth ?? 400
   let messages = 0
@@ -435,6 +555,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
 
   const width = view?.innerWidth ?? 400
   const items: Array<MapItem & { order: number; side?: boolean }> = []
+  const looks: Array<{ item: MapItem; el: Element; group: Element | null; contrast: number }> = []
   const overlays = new Set<Element>()
   const seen = new Set<Element>()
   found.forEach((f, order) => {
@@ -488,11 +609,34 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     if (role === "link") {
       const href = hrefOf(el, pageHost)
       if (href) item.href = href
+      if (href && !item.lock && item.label.trim().length >= 2) {
+        const card = cardOf(el, item.label)
+        if (card) item.card = card
+      }
     }
     const options = optionsOf(el, role)
     if (options?.length) item.options = options
+    // A date or a time that can't be chosen, as the page shows it (124, the owner: «по яркости даты видно доступна ли
+    // она»): its class, its fading, or later its text against its siblings'.
+    const choice = !item.lock && (role === "button" || role === "option" || role === "radio" || role === "link")
+    if (choice && !item.state?.includes("disabled") && (unavailableByLook(el) || unavailableBySaying(el, item.label))) item.state = [...(item.state ?? []), "unavailable"]
+    // (Only dates and times — a short label with a number — are compared with their siblings: a nav bar's styling isn't.)
+    if (!item.lock && (role === "button" || role === "option" || role === "radio" || role === "link") && /\d/.test(item.label) && item.label.length <= 30) looks.push({ item, el, group: el.parentElement?.parentElement ?? el.parentElement, contrast: textContrast(el) })
     items.push(item)
   })
+  // Greyed among its own: a control whose text is much fainter than its siblings' (a date strip where the days that
+  // can't be booked are light grey), when the strip has four or more and some are clearly darker.
+  const byGroup = new Map<Element | null, typeof looks>()
+  for (const l of looks) byGroup.set(l.group, [...(byGroup.get(l.group) ?? []), l])
+  for (const group of byGroup.values()) {
+    const known = group.filter((l) => l.contrast > 0)
+    if (known.length < 4) continue
+    const best = Math.max(...known.map((l) => l.contrast))
+    if (best < 3) continue
+    for (const l of known) {
+      if (l.contrast < best * 0.55 && !l.item.state?.some((x) => x === "unavailable" || x === "disabled" || x === "selected" || x === "pressed" || x === "current")) l.item.state = [...(l.item.state ?? []), "unavailable"]
+    }
+  }
 
   // The forms: what they hold (a password or a card makes a form secret; a field to fill makes it fillable).
   const byForm = new Map<number, PageForm>()
@@ -510,7 +654,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
   }
 
   // On the screen first; then what a sideways strip keeps out of it (a year of dates), then below and above.
-  // A search box above the screen (a page scrolled past its header) stays with what's on the screen: OpenTable, round 3 —
+  // A search box above the screen (a page scrolled past its header) stays with what's on the screen: a restaurant site, round 3 —
   // the agent couldn't search again once the list was scrolled.
   const searchBox = (i: MapItem) => (i.role === "textbox" || i.role === "combobox") && (i.type === "search" || SEARCH_WORDS.test(i.label))
   const rank = (i: MapItem & { side?: boolean }) => (i.where === "dialog" ? 0 : i.where === undefined ? (i.side ? 1.5 : 1) : i.where === "above" && searchBox(i) ? 1.2 : i.where === "below" ? 2 : 3)
@@ -534,6 +678,10 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     text: pageText(doc, overlayList.slice(0, 2)),
     ...(overlayList.length ? { overlay: true } : {}),
     ...(consent ? { consent: true } : {}),
+    ...((() => {
+      const promo = consent ? null : promoLayer(overlayList, items)
+      return promo ? { promo } : {}
+    })()),
     ...(opts.money ? { money: pageMoney(doc) } : {}),
     ...(takesPayment(doc) ? { pay: true } : {}),
     ...(opts.money && asksDeposit(doc) ? { deposit: true } : {}),
@@ -541,10 +689,43 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
   }
 }
 
+// A layer over the page that isn't the task: its meaning (rewards, newsletter, the app, notifications, location), and
+// the control that closes it without agreeing (lexicon). Never a sign-in, a payment or the task's own dialog (a field
+// for a password or a card, a day or a time to choose, a sign-in's words).
+const promoWord = wordTest(PROMO_WORDS)
+const closeWord = wordTest(CLOSE_WORDS)
+const WORDLESS_CLOSE = /^\s*[×✕✖xX]?\s*$/
+
+function promoLayer(overlays: Element[], items: Array<MapItem & { order: number }>): { id: string; label: string } | null {
+  for (const o of overlays) {
+    if (o.querySelector("input[type=password], [autocomplete~=cc-number], [autocomplete~=one-time-code]")) continue
+    const text = wordsOf(o, 1500)
+    if (!promoWord(text)) continue
+    const inside = items.filter((i) => {
+      const el = byId.get(i.id)?.deref()
+      return !!el && o.contains(el)
+    })
+    // The task's own dialog (a date picker, slots, a sign-in) isn't a promotion, whatever else it says.
+    if (inside.some((i) => isDateLabel(i.label) || looksLikeSlot(i.label) || i.lock === "secret")) continue
+    if (inside.some((i) => { const k = wordKind(i.label)?.kind; return k === "auth" || k === "account" })) continue
+    const close =
+      inside.find((i) => (i.role === "button" || i.role === "link") && closeWord(i.label) && !blocksClose(i.label)) ??
+      inside.find((i) => i.role === "button" && WORDLESS_CLOSE.test(i.label) && i.form === undefined && i.type !== "submit")
+    if (close) return { id: close.id, label: close.label || "×" }
+  }
+  return null
+}
+
+/** A close word next to an agreeing one («Close and subscribe») doesn't close. */
+function blocksClose(label: string): boolean {
+  const k = wordKind(label)?.kind
+  return k === "consent" || k === "submit" || k === "pay" || k === "account" || k === "send" || k === "post"
+}
+
 /** Another site's frames on the screen, big enough to be a form (their insides aren't readable from here). */
-function otherFrames(doc: Document): Array<{ src: string; host: string; w: number; h: number }> {
+function otherFrames(doc: Document): Array<{ src: string; host: string; w: number; h: number; title?: string }> {
   const here = doc.location?.hostname ?? ""
-  const out: Array<{ src: string; host: string; w: number; h: number }> = []
+  const out: Array<{ src: string; host: string; w: number; h: number; title?: string }> = []
   for (const f of Array.from(doc.querySelectorAll("iframe"))) {
     const src = (f as HTMLIFrameElement).src
     if (!/^https:\/\//.test(src)) continue
@@ -557,7 +738,8 @@ function otherFrames(doc: Document): Array<{ src: string; host: string; w: numbe
     if (!host || host === here) continue
     const r = f.getBoundingClientRect()
     if (r.width < 240 || r.height < 240 || r.bottom < 0 || r.top > (doc.defaultView?.innerHeight ?? 800)) continue
-    out.push({ src: src.split("#")[0].slice(0, 500), host, w: Math.round(r.width), h: Math.round(r.height) })
+    const title = squash(f.getAttribute("title") || f.getAttribute("aria-label") || f.getAttribute("name") || "", 120)
+    out.push({ src: src.split("#")[0].slice(0, 500), host, w: Math.round(r.width), h: Math.round(r.height), ...(title ? { title } : {}) })
   }
   return out.slice(0, 3)
 }
@@ -575,7 +757,7 @@ export function takesPayment(doc: Document): boolean {
     if (doc.querySelector("[autocomplete~=cc-number], [autocomplete~=cc-csc], [autocomplete~=cc-exp], apple-pay-button, [class*=apple-pay-button], gpay-button, [id*=paypal-button], [data-stripe]")) return true
     for (const f of Array.from(doc.querySelectorAll("iframe"))) {
       // Only a frame one can see: Stripe's, PayPal's and Klarna's scripts leave an invisible frame on every page of a
-      // site that uses them (TheFork's home page read as a payment page, and its search box as «pay yourself»).
+      // site that uses them (a restaurant site's home page read as a payment page, and its search box as «pay yourself»).
       if (!shownFrame(f)) continue
       const src = f.getAttribute("src") ?? ""
       let host = ""

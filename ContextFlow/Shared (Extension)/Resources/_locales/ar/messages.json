@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "إعادة تحميل الصفحة"
  },
+ "agentPlanVenueQ": {
+  "message": "أين الحجز (مختار حسب قواعدك)"
+ },
+ "agentPlanEmailQ": {
+  "message": "بريدك الإلكتروني للحجز (سيطلبه الموقع)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "رقم هاتفك للحجز (سيطلبه الموقع)"
+ },
+ "agentLinePopup": {
+  "message": "أُغلقت نافذة فوق الصفحة: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "أي مختص؟"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "أي مختص"
+ },
+ "agentPlanServiceQ": {
+  "message": "أي خدمة؟"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "سأختار في صفحة المكان"
+ },
+ "agentPlanVenueAuto": {
+  "message": "اختر لي: تقييم {0}+، الأقرب"
+ },
+ "agentPlanLastTime": {
+  "message": "المرة الماضية"
+ },
+ "agentPlanPlaceQ": {
+  "message": "أين نحجز؟"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

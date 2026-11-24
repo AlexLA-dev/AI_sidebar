@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "Обновить страницу"
  },
+ "agentPlanVenueQ": {
+  "message": "Где бронировать (выбрано по вашим правилам)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Ваш e-mail для брони (сайт его попросит)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Ваш телефон для брони (сайт его попросит)"
+ },
+ "agentLinePopup": {
+  "message": "Закрыл окно поверх страницы: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Какой мастер?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Любой мастер"
+ },
+ "agentPlanServiceQ": {
+  "message": "Какая услуга?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Выберу на странице салона"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Подобрать самому: рейтинг {0}+, ближе всего"
+ },
+ "agentPlanLastTime": {
+  "message": "в прошлый раз"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Где записаться?"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

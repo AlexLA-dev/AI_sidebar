@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "Recharger la page"
  },
+ "agentPlanVenueQ": {
+  "message": "Où réserver (choisi selon vos règles)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Votre e-mail pour la réservation (le site le demandera)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Votre numéro de téléphone pour la réservation (le site le demandera)"
+ },
+ "agentLinePopup": {
+  "message": "Fenêtre fermée au-dessus de la page : «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Quel spécialiste ?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "N'importe quel spécialiste"
+ },
+ "agentPlanServiceQ": {
+  "message": "Quelle prestation ?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Je choisirai sur la page de l'établissement"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Choisir pour moi : note {0}+, le plus proche"
+ },
+ "agentPlanLastTime": {
+  "message": "la dernière fois"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Où réserver ?"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

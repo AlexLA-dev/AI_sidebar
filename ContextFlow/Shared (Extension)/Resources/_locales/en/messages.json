@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "Reload page"
  },
+ "agentPlanVenueQ": {
+  "message": "Where to book (chosen by your rules)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Your e-mail for the booking (the site will ask for it)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Your phone number for the booking (the site will ask for it)"
+ },
+ "agentLinePopup": {
+  "message": "Closed a window over the page: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Which specialist?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Any specialist"
+ },
+ "agentPlanServiceQ": {
+  "message": "Which service?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "I'll choose on the place's page"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Pick for me: rated {0}+, nearest"
+ },
+ "agentPlanLastTime": {
+  "message": "last time"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Where to book?"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

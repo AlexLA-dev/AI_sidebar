@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "Tải lại trang"
  },
+ "agentPlanVenueQ": {
+  "message": "Đặt ở đâu (chọn theo quy tắc của bạn)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Email của bạn để đặt chỗ (trang sẽ hỏi)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Số điện thoại của bạn để đặt chỗ (trang sẽ hỏi)"
+ },
+ "agentLinePopup": {
+  "message": "Đã đóng cửa sổ trên trang: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Chọn chuyên viên nào?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Chuyên viên bất kỳ"
+ },
+ "agentPlanServiceQ": {
+  "message": "Chọn dịch vụ nào?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Tôi sẽ chọn trên trang của tiệm"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Chọn giúp tôi: đánh giá {0}+, gần nhất"
+ },
+ "agentPlanLastTime": {
+  "message": "lần trước"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Đặt ở đâu?"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

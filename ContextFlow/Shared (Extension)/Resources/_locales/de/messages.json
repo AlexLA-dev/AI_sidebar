@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "Seite neu laden"
  },
+ "agentPlanVenueQ": {
+  "message": "Wo buchen (nach deinen Regeln gewählt)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Deine E-Mail für die Buchung (die Seite fragt danach)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Deine Telefonnummer für die Buchung (die Seite fragt danach)"
+ },
+ "agentLinePopup": {
+  "message": "Fenster über der Seite geschlossen: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Welche Fachkraft?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Beliebige Fachkraft"
+ },
+ "agentPlanServiceQ": {
+  "message": "Welche Leistung?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Wähle ich auf der Seite des Ladens"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Für mich wählen: ab {0} Sternen, am nächsten"
+ },
+ "agentPlanLastTime": {
+  "message": "letztes Mal"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Wo buchen?"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

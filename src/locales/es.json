@@ -1268,5 +1268,16 @@
   "fdICloudFailed": "Sin sincronizar: iCloud no respondió. Se intentará de nuevo la próxima vez.",
   "agentRuleAnySpecialistHint": "Peluquero, estilista, médico, entrenador o guía: quien esté libre. Desactivado: te pregunto con quién.",
   "errLink": "ContextFlow perdió la conexión con esta página (iOS pudo cerrarlo mientras otra app estaba abierta). Reintenta o, si vuelve a pasar, recarga la página.",
-  "reloadPage": "Recargar la página"
+  "reloadPage": "Recargar la página",
+  "agentPlanVenueQ": "Dónde reservar (elegido según tus reglas)",
+  "agentPlanEmailQ": "Tu correo para la reserva (el sitio lo pedirá)",
+  "agentPlanPhoneQ": "Tu teléfono para la reserva (el sitio lo pedirá)",
+  "agentLinePopup": "Cerré una ventana sobre la página: «{0}»",
+  "agentPlanSpecialistQ": "¿Qué profesional?",
+  "agentPlanAnySpecialist": "Cualquier profesional",
+  "agentPlanServiceQ": "¿Qué servicio?",
+  "agentPlanSpecialistOnPage": "Elegiré en la página del local",
+  "agentPlanVenueAuto": "Elegir por mí: valoración {0}+, lo más cerca",
+  "agentPlanLastTime": "la última vez",
+  "agentPlanPlaceQ": "¿Dónde reservar?"
 }

@@ -53,7 +53,7 @@ test("an opened finished task lists every step that ran; only a running one show
 
 test("117 blocker: «Начать» is never silent; agent messages are tried again; a failure says what failed; stale state clears", () => {
   // Pressed early, «Начать» says which question is left (no disabled button that looks like it does nothing).
-  assert.match(panel, /const left = answers\.findIndex\(\(a\) => !a\.trim\(\)\)\s*if \(left >= 0\) \{\s*setMissing\(left\)/)
+  assert.match(panel, /const left = answers\.findIndex\(\(a, i\) => !a\.trim\(\) && plan\.questions\[i\]\?\.kind !== "contact"\)\s*if \(left >= 0\) \{\s*setMissing\(left\)/)
   assert.match(panel, /disabled=\{sending\} onClick=\{start\}/)
   assert.match(panel, /t\("agentPlanAnswerFirst", plan\.questions\[missing\]\.q\)/)
   // A message Safari lost (a background put to sleep) is sent again; no answer at all is said as such.

@@ -36,6 +36,9 @@ export interface MapItem {
   href?: string
   // A select's options (the first 30), or a listbox's.
   options?: string[]
+  // A link with no rating of its own: the text of the card it heads (its rating, reviews, cuisine, area beside it), so
+  // the device can read the place. Kept on the device (never sent to the model).
+  card?: string
 }
 
 export interface PageForm {
@@ -64,13 +67,17 @@ export interface PageMap {
   overlay?: boolean
   // The overlay's own words, when it's about cookies or consent.
   consent?: boolean
+  // A layer over the page that isn't the task (rewards, a newsletter, the site's app, notifications, location) and its
+  // control that closes it without agreeing to anything: the device presses it as a free step.
+  promo?: { id: string; label: string }
   // The page takes payment: card fields, a payment provider's frame (Stripe, Adyen, Braintree, PayPal, Apple Pay…) or
   // a checkout / payment address. Every press that sends something here is the person's own.
   pay?: boolean
   // The page mentions a deposit, a prepayment or a no-show fee (read with the page's amounts): its committing press pays.
   deposit?: boolean
-  // Another site's frames big enough to be a form (a restaurant's SevenRooms widget): the map can't read inside them.
-  frames?: Array<{ src: string; host: string; w: number; h: number }>
+  // Another site's frames big enough to be a form (a restaurant's booking widget from a provider): the map can't read
+  // inside them. Their title (title, aria-label or name) when they have one.
+  frames?: Array<{ src: string; host: string; w: number; h: number; title?: string }>
   // Every amount of money on the whole page (the device's price check against the plan; never sent to the model).
   money?: number[]
 }

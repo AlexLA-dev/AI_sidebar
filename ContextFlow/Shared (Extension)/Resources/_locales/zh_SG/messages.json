@@ -3713,6 +3713,39 @@
  "reloadPage": {
   "message": "重新加载页面"
  },
+ "agentPlanVenueQ": {
+  "message": "在哪里预订(按你的规则选择)"
+ },
+ "agentPlanEmailQ": {
+  "message": "用于预订的邮箱（网站会要求填写）"
+ },
+ "agentPlanPhoneQ": {
+  "message": "用于预订的电话（网站会要求填写）"
+ },
+ "agentLinePopup": {
+  "message": "已关闭页面上的弹窗：「{0}」"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "选择哪位服务人员？"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "任意服务人员"
+ },
+ "agentPlanServiceQ": {
+  "message": "选择哪项服务？"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "在店铺页面再选"
+ },
+ "agentPlanVenueAuto": {
+  "message": "帮我选：评分 {0}+，最近"
+ },
+ "agentPlanLastTime": {
+  "message": "上次"
+ },
+ "agentPlanPlaceQ": {
+  "message": "在哪里预约？"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

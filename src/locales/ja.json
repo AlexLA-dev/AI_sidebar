@@ -1268,5 +1268,16 @@
   "fdICloudFailed": "未同期：iCloudから応答がありません。次回もう一度試します。",
   "agentRuleAnySpecialistHint": "理容師、スタイリスト、医師、トレーナー、ガイドなど、空いている人で予約します。オフにすると担当者を確認します。",
   "errLink": "ContextFlow とこのページの接続が切れました(別のアプリを開いている間に iOS が停止した可能性があります)。もう一度試すか、繰り返す場合はページを再読み込みしてください。",
-  "reloadPage": "ページを再読み込み"
+  "reloadPage": "ページを再読み込み",
+  "agentPlanVenueQ": "予約先(あなたのルールで選択)",
+  "agentPlanEmailQ": "予約用のメールアドレス（サイトで求められます）",
+  "agentPlanPhoneQ": "予約用の電話番号（サイトで求められます）",
+  "agentLinePopup": "ページ上のウィンドウを閉じました：「{0}」",
+  "agentPlanSpecialistQ": "担当者は？",
+  "agentPlanAnySpecialist": "指名なし",
+  "agentPlanServiceQ": "どのメニュー？",
+  "agentPlanSpecialistOnPage": "お店のページで選ぶ",
+  "agentPlanVenueAuto": "おまかせ：評価{0}以上・近い順",
+  "agentPlanLastTime": "前回",
+  "agentPlanPlaceQ": "どこで予約しますか？"
 }

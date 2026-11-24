@@ -23,6 +23,16 @@ export interface PlanQuestion {
   // A question about the person themselves (gender, age, a size, a name): a short name for the fact ("Пол", "Размер
   // обуви"). The card pre-fills it from «Мои данные» and offers to remember the answer there (2.7.1, the owner on 117).
   fact?: string
+  // The answer picked already, changeable (a place the agent chose by the rules: shown, not silent; 124).
+  pick?: string
+  // The device's own questions (their words come from the panel's language): where to book; a contact detail the booking
+  // will ask for and «Мои данные» hasn't got (asked here, not mid-task; its value is filled by key, never sent).
+  kind?: "venue" | "contact" | "specialist" | "service"
+  key?: "email" | "phone"
+  // What the card shows beside each option (a place's rating, reviews and area; "@last" for last time's), and the
+  // rules' rating for the «pick for me» option. Options may be the card's own words: "@any", "@page", "@auto".
+  notes?: string[]
+  min?: number
 }
 
 export type PermKind = "press" | "personal" | "fill" | "consent" | "apple"
@@ -67,7 +77,7 @@ export interface TaskPlan {
   // then read as «changed»): a price is changed only when the page shows none of them.
   seen?: number[]
   // The person's answers to the questions, after «Начать».
-  answers?: Array<{ q: string; a: string }>
+  answers?: Array<{ q: string; a: string; contact?: boolean }>
   approved?: boolean
   // The site it was planned on (remembered choices are this site's), and the time it books, when it does.
   site?: string
@@ -94,7 +104,7 @@ export interface RawPlan {
   risky: RawRisky[]
   prices: string[]
   booking?: PlanBooking
-  // What the plan took from the chat it was started in (resolved references: «Borgo Paris, 2 человека»), for the card.
+  // What the plan took from the chat it was started in (resolved references: «a restaurant, 2 человека»), for the card.
   fromChat?: string
 }
 
@@ -115,6 +125,14 @@ export interface PlanBooking {
   match?: string[]
   // Where the request asks for it («Soho», «Limassol»): a place whose card names another area isn't chosen.
   area?: string[]
+  // The contact details the booking will ask for at its end (its site's form or sign-up): "email", "phone".
+  contacts?: Array<"email" | "phone">
+  // A personal service's choices the page offers: the specialists it names (when one can be chosen), the services that
+  // fit the request, and the ones the request itself names (""). The device asks the open ones on the card.
+  specialists?: string[]
+  services?: string[]
+  specialistNamed?: string
+  serviceNamed?: string
 }
 
 export const PLAN_SCHEMA = {
@@ -126,8 +144,8 @@ export const PLAN_SCHEMA = {
       type: "array",
       items: {
         type: "object",
-        properties: { q: { type: "string" }, options: { type: "array", items: { type: "string" } }, fact: { type: "string" } },
-        required: ["q", "options", "fact"],
+        properties: { q: { type: "string" }, options: { type: "array", items: { type: "string" } }, fact: { type: "string" }, pick: { type: "string" } },
+        required: ["q", "options", "fact", "pick"],
         additionalProperties: false
       }
     },
@@ -158,9 +176,14 @@ export const PLAN_SCHEMA = {
         tz: { type: "string" },
         venue: { type: "string" },
         match: { type: "array", items: { type: "string" } },
-        area: { type: "array", items: { type: "string" } }
+        area: { type: "array", items: { type: "string" } },
+        contacts: { type: "array", items: { type: "string", enum: ["email", "phone"] } },
+        specialists: { type: "array", items: { type: "string" } },
+        services: { type: "array", items: { type: "string" } },
+        specialistNamed: { type: "string" },
+        serviceNamed: { type: "string" }
       },
-      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match", "area"],
+      required: ["kind", "date", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
       additionalProperties: false
     }
   },
@@ -180,7 +203,9 @@ export function checkPlan(raw: unknown): RawPlan {
     const text = s(q?.q, 200)
     const options = [...new Set(arr(q?.options).map((o) => s(o, 60)).filter(Boolean))].slice(0, 4)
     const fact = s(q?.fact, 40).replace(/^fact:/i, "").replace(/^pref:\s*/i, "pref:").trim()
-    return text ? [{ q: text, options, ...(fact ? { fact } : {}) }] : []
+    // The option the request's own words name («мужскую стрижку» → «Men's Haircut»): shown chosen, still changeable.
+    const pick = s(q?.pick, 60)
+    return text ? [{ q: text, options, ...(fact ? { fact } : {}), ...(pick && options.includes(pick) ? { pick } : {}) }] : []
   }).slice(0, 3)
   const risky = arr(r.risky).flatMap((x) => {
     const k = x as Record<string, unknown>
@@ -203,7 +228,13 @@ function bookingOf(v: unknown): PlanBooking | null {
   const venue = s(b.venue, 120)
   const match = (Array.isArray(b.match) ? b.match : []).map((x) => s(x, 30)).filter((x) => x.length >= 3).slice(0, 8)
   const area = (Array.isArray(b.area) ? b.area : []).map((x) => s(x, 40)).filter((x) => x.length >= 3).slice(0, 4)
-  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}) }
+  const contacts = [...new Set((Array.isArray(b.contacts) ? b.contacts : []).filter((x): x is "email" | "phone" => x === "email" || x === "phone"))]
+  const names = (v: unknown) => [...new Set((Array.isArray(v) ? v : []).map((x) => s(x, 60)).filter((x) => x.length >= 2))].slice(0, 6)
+  const specialists = names(b.specialists)
+  const services = names(b.services)
+  const specialistNamed = s(b.specialistNamed, 60)
+  const serviceNamed = s(b.serviceNamed, 60)
+  return { kind, date, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
 }
 
 /**
@@ -326,7 +357,8 @@ export function planNeedsPerson(plan: TaskPlan): boolean {
 
 /** The request as the model hears it: with each plan question and the person's answer (the question gives it sense). */
 export function requestWithAnswers(request: string, plan?: TaskPlan | null): string {
-  const answers = plan?.answers?.filter((a) => a.a.trim()) ?? []
+  // (A contact detail answered on the card is filled by its key: its value never goes to the model.)
+  const answers = plan?.answers?.filter((a) => a.a.trim() && !a.contact) ?? []
   return answers.length ? `${request}\n${answers.map((a) => `${a.q} — ${a.a}`).join("\n")}` : request
 }
 
@@ -458,7 +490,7 @@ export function planLine(plan: TaskPlan | null | undefined): string {
   return [
     plan.steps.length ? `steps: ${plan.steps.map((l, i) => (plan.self.some((x) => x.step === i) ? `${l} (the person's own step: not yours to press)` : l)).join("; ")}` : "",
     allowed.length ? `allowed without asking: ${allowed.join("; ")}` : "",
-    // Unticked: still the task's steps, asked at the time (TheFork, 118: the model read «unticked» as «don't», and stopped
+    // Unticked: still the task's steps, asked at the time (a restaurant site, 118: the model read «unticked» as «don't», and stopped
     // before even opening the restaurant).
     refused.length ? `ask the person first (they unticked it: go on, and the device asks them at that step): ${refused.join("; ")}` : "",
     plan.prices.length ? `prices seen: ${plan.prices.join(", ")}` : "",
@@ -474,7 +506,7 @@ export function factKey(label: string): string {
 
 /**
  * The name a plan's fact is kept under in «Мои данные»: a fact about the person as it is («Пол»); a choice on a site
- * («pref:Мастер») with the site's name first («fresha.com · Мастер»), so it's used on that site only.
+ * («pref:Мастер») with the site's name first («site.com · Мастер»), so it's used on that site only.
  */
 export function factLabel(fact: string, site?: string): string {
   const pref = /^pref:\s*(.+)$/i.exec(fact)
@@ -534,7 +566,7 @@ function validZone(tz: string): boolean {
 export const CONTACT_KEYS = ["name.full", "name.given", "name.family", "email", "phone"] as const
 
 /**
- * A booking's contact form is the booking going on (the director on 23e9: Borgo Paris was left for a required e-mail):
+ * A booking's contact form is the booking going on (the director on 23e9: a restaurant was left for a required e-mail):
  * the saved ones go in as the plan's fill, one ticked line on the card («Заполнить из «Моих данных»: имя, e-mail…»).
  */
 export function addContactFill(plan: TaskPlan, saved: string[], host: string): void {
@@ -566,7 +598,7 @@ const GIVEN = /first.?name|given.?name|forename|(?<!\p{L})имя(?!\p{L})|(?<!\p
 const FAMILY = /last.?name|surname|family.?name|фамили|прізвищ|nachname|nom de famille|(?<!\p{L})nom(?!\p{L})|apellido|cognome|sobrenome|soyad|姓(?!名)|성(?!함)/iu
 
 export function fieldKind(item: Pick<MapItem, "type" | "auto" | "label">, autoKey: string | null): string | null {
-  // A first or last name's field takes that part only (Dishoom's «First name»: the full name was put in).
+  // A first or last name's field takes that part only (a restaurant's «First name»: the full name was put in).
   if (autoKey === "name.given" || autoKey === "name.family") return autoKey
   if (!autoKey && FAMILY.test(item.label)) return "name.family"
   if (!autoKey && GIVEN.test(item.label)) return "name.given"

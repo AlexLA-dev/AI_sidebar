@@ -193,14 +193,22 @@ function CalendarAsk({ state }: { state: "none" | "denied" }): VNode | null {
 
 /** The task's plan (2.7.1): what it will do, its questions (options and «Своё»), what may go without a question (each
  *  can be unticked), what the person does themselves, «Сейчас / Позже», and one «Начать». */
-function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember }: { plan: TaskPlan; host: string; onPlan: (a: PlanApproval, later?: LaterChoice) => void; later?: Props["later"]; onStop: () => void; failed?: string | null; saved?: Record<string, string>; onRemember?: (facts: Array<{ fact: string; value: string }>) => void }): VNode {
+function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember }: { plan: TaskPlan; host: string; onPlan: (a: PlanApproval, later?: LaterChoice) => void; later?: Props["later"]; onStop: () => void; failed?: string | null; saved?: Record<string, string>; onRemember?: (facts: Array<{ fact: string; value: string; key?: FormKey }>) => void }): VNode {
   // Questions about the person come pre-filled from «Мои данные» (the owner on 117: «не спрашивать снова»); a value not
   // among the options shows as the person's own words, to change if they like.
-  const pre = savedAnswers(plan, saved ?? {})
+  // Remembered answers, else what the plan picked already (the place chosen by the rules, shown and changeable).
+  const remembered = savedAnswers(plan, saved ?? {})
+  const pre = remembered.map((a, i) => a || plan.questions[i]?.pick || "")
   const [answers, setAnswers] = useState<string[]>(() => pre)
-  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => !!pre[i] && !q.options.includes(pre[i])))
-  // «Запомнить» under each question about the person: on by default.
-  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact))
+  // A contact detail is typed (no options); an answer not among the options shows as the person's own words.
+  const optsOf = (q: TaskPlan["questions"][number]) => q.options
+  // The device's own options in the panel's words: «any», «I'll choose on the place's page», «pick for me by my rules».
+  const optText = (q: TaskPlan["questions"][number], o: string) =>
+    o === "@any" ? t("agentPlanAnySpecialist") : o === "@page" ? t("agentPlanSpecialistOnPage") : o === "@auto" ? t("agentPlanVenueAuto", (q.min ?? 4.5).toLocaleString()) : o
+  const optNote = (q: TaskPlan["questions"][number], j: number) => (q.notes?.[j] === "@last" ? t("agentPlanLastTime") : q.notes?.[j] ?? "")
+  const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => q.kind === "contact" || (!!pre[i] && !optsOf(q).includes(pre[i]))))
+  // «Запомнить» under each question about the person and each contact detail: on by default.
+  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact || q.kind === "contact"))
   const [off, setOff] = useState<Set<string>>(() => new Set())
   const [mode, setMode] = useState<"now" | "later">("now")
   const [laterChoice, setLaterChoice] = useState<LaterChoice | null>(null)
@@ -211,7 +219,8 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
   const [missing, setMissing] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
   const start = () => {
-    const left = answers.findIndex((a) => !a.trim())
+    // (A contact detail may stay empty: the booking's form asks it then.)
+    const left = answers.findIndex((a, i) => !a.trim() && plan.questions[i]?.kind !== "contact")
     if (left >= 0) {
       setMissing(left)
       return
@@ -221,7 +230,8 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
     setSending(true)
     // What to keep in «Мои данные»: the answers about the person that are new or changed.
     // A choice on this site («pref:Мастер») is kept under the site's name, for this site only.
-    const facts = plan.questions.flatMap((q, i) => {
+    const facts = plan.questions.flatMap((q, i): Array<{ fact: string; value: string; key?: FormKey }> => {
+      if (q.kind === "contact") return q.key && keep[i] && answers[i].trim() ? [{ fact: "", value: answers[i].trim(), key: q.key as FormKey }] : []
       const label = q.fact ? factLabel(q.fact, plan.site) : ""
       return label && keep[i] && answers[i].trim() && answers[i].trim() !== pre[i] ? [{ fact: label, value: answers[i].trim() }] : []
     })
@@ -253,32 +263,36 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
       {plan.fromChat && <p class="cf-agent-meta" dir="auto">{t("agentPlanFromChat", plan.fromChat)}</p>}
       {plan.questions.map((q, i) => (
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
-          <p dir="auto">{q.q}</p>
-          <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
-            {q.options.map((o) => (
-              <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>{o}</button>
+          <p dir="auto">{q.q || (q.kind === "venue" ? t(q.pick ? "agentPlanVenueQ" : "agentPlanPlaceQ") : q.kind === "specialist" ? t("agentPlanSpecialistQ") : q.kind === "service" ? t("agentPlanServiceQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
+          {q.kind !== "contact" && <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
+            {optsOf(q).map((o, j) => (
+              <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>
+                {optText(q, o)}
+                {optNote(q, j) && <span class="cf-chip-note"> · {optNote(q, j)}</span>}
+              </button>
             ))}
             <button type="button" role="radio" aria-checked={own[i]} class={`cf-chip ${own[i] ? "on" : ""}`} onClick={() => set(i, own[i] ? answers[i] : "", true)}>{t("agentPlanOwn")}</button>
-          </div>
-          {q.fact && factLabel(q.fact, plan.site) && (
-            <label class="cf-row toggle cf-agent-remember">
-              <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
-              <span>{pre[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
-            </label>
-          )}
+          </div>}
           {own[i] && (
             <input
               class="cf-input-line"
               dir="auto"
               value={answers[i]}
-              aria-label={q.q}
+              aria-label={q.q || (q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}
+              {...(q.kind === "contact" ? { type: q.key === "phone" ? "tel" : "email", autocomplete: q.key === "phone" ? "tel" : "email", inputMode: q.key === "phone" ? "tel" : "email" } : {})}
               ref={(el) => {
-                if (el && !answers[i]) el.focus({ preventScroll: true })
+                if (el && !answers[i] && q.kind !== "contact") el.focus({ preventScroll: true })
               }}
               onInput={(e) => set(i, (e.target as HTMLInputElement).value, true)}
               onKeyDown={(e) => e.stopPropagation()}
               onKeyUp={(e) => e.stopPropagation()}
             />
+          )}
+          {((q.fact && factLabel(q.fact, plan.site)) || q.kind === "contact") && (
+            <label class="cf-row toggle cf-agent-remember">
+              <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
+              <span>{remembered[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
+            </label>
           )}
         </div>
       ))}
@@ -376,7 +390,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
   // While it works, the newest few; a finished task opened from its line shows every step that ran (the director: the
   // cookie step was missing from an opened booking).
-  const shown = state.lines.filter((l) => l.text || l.target)
+  const shown = state.lines.filter((l) => l.text || l.target || l.popup)
   const lines = finished ? shown : shown.slice(-8)
   // The card stays in view as the task goes on: its newest line, its question, its result.
   const ref = useRef<HTMLDivElement>(null)
@@ -436,7 +450,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
               {/* (A box the plan let the agent tick is the agent's step.) */}
               {l.cls === "self" && !l.byPlan
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
-                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.text || nameOf(l.target)}
+                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.popup ? t("agentLinePopup", nameOf(l.target)) : l.text || nameOf(l.target)}
             </li>
           ))}
         </ol>

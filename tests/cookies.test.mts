@@ -275,7 +275,7 @@ test("the use event: counts by platform and reason, never a site", () => {
 
 test("the agent answers a page's banner before reading it; Settings has the switch and the exception", () => {
   const index = read("src/content/index.tsx")
-  assert.match(index, /closeForAgent\(\)\.catch\(\(\) => null\)\.then\(\(\) => sendResponse\(buildMap\(document, \{ money \}\)\)\)/)
+  assert.match(index, /closeForAgent\(\)\.catch\(\(\) => null\)\.then\(\(\) => sendResponse\(buildMap\(document, \{ money[^\n]*\}\)\)\)/)
   assert.match(index, /startCookieCloser\(announceClosed, announceLeft\)/)
   assert.match(read("src/content/Settings.tsx"), /<CookieGroup site=\{site\} \/>/)
   const ru = JSON.parse(read("src/locales/ru.json"))
