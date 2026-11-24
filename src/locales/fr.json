@@ -1275,5 +1275,8 @@
   "agentLinePopup": "Fenêtre fermée au-dessus de la page : «{0}»",
   "agentPlanSpecialistQ": "Quel spécialiste ?",
   "agentPlanAnySpecialist": "N'importe quel spécialiste",
-  "agentPlanServiceQ": "Quelle prestation ?"
+  "agentPlanServiceQ": "Quelle prestation ?",
+  "agentPlanSpecialistOnPage": "Je choisirai sur la page de l'établissement",
+  "agentPlanVenueAuto": "Choisir pour moi : note {0}+, le plus proche",
+  "agentPlanLastTime": "la dernière fois"
 }

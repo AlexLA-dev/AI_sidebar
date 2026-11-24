@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "¿Qué servicio?"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "Elegiré en la página del local"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Elegir por mí: valoración {0}+, lo más cerca"
+ },
+ "agentPlanLastTime": {
+  "message": "la última vez"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

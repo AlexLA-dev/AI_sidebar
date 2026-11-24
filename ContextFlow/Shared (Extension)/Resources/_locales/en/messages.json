@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "Which service?"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "I'll choose on the place's page"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Pick for me: rated {0}+, nearest"
+ },
+ "agentPlanLastTime": {
+  "message": "last time"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

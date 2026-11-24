@@ -16,7 +16,7 @@ import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
-import { cardsOf, onVenue, rankVenues, venueOf, venuesOn, type Venue } from "./venues.ts"
+import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
@@ -133,6 +133,8 @@ export interface AgentState {
   dateNudged?: boolean
   // A question sent back once because the page named its next free day.
   nextNudged?: boolean
+  // The person chose to pick the specialist on the place's page: that one question passes when it comes.
+  askSpecialist?: boolean
   // Layers over the page the device closed itself (at most three a task), and the presses they came after.
   popups?: number
   closedAfter?: string[]
@@ -362,6 +364,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   const plan = reply.plan ? buildPlan(checkPlan(reply.plan), { map, startHost: state.startHost, request: state.request, confirmedHere: false, policy: io.policy }) : null
   if (!plan) return "go"
   state.plan = plan
+  // A place the request (or the chat it came from) doesn't name isn't the model's to pick on the plan (124, the director:
+  // a home page's first «Featured» salon taken silently): the place is asked on the card or chosen by the rules.
+  if (plan.booking?.venue && !(subject?.kind === "place" && subject.name === plan.booking.venue) && !namedIn(plan.booking.venue, `${state.request} ${plan.fromChat ?? ""}`)) delete plan.booking.venue
   // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
   if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
   if (subject && plan.booking?.venue) state.chooseVenue = false
@@ -387,6 +392,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   // Where to book, shown (124, the owner: «переуточнять… если эта деталь не была уточнена»): a booking that names no
   // place, on a results list, gets the place the rules would choose as a picked, changeable answer, with the next two.
+  let placesListed = false
   if (plan.booking && !plan.booking.venue && rules.chooseVenue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) {
     // A results list whose cards come after the first part of the map (restaurant and salon sites' filters and map first,
     // 124): the next parts are read on the device for the places (never sent to the model).
@@ -396,9 +402,20 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
       if (!more) break
       seen = { ...seen, items: [...seen.items, ...more.items] }
     }
-    const ranked = rankVenues(venuesOn(seen), cardsOf(seen), plan.booking.match ?? [], rules.rating, plan.booking.area ?? []).slice(0, 3)
-    if (ranked.length) {
-      plan.questions.push({ q: "", kind: "venue", options: ranked.map((v) => v.name), pick: ranked[0].name })
+    const cards = cardsOf(seen)
+    const ranked = rankVenues(venuesOn(seen), cards, plan.booking.match ?? [], rules.rating, plan.booking.area ?? []).slice(0, 3)
+    // A place that matters to the person (an appointment: a salon, a clinic) is theirs to choose: the page's best by the
+    // rules with their rating and area, the one they went to last time, and «pick for me by my rules»; only a
+    // remembered one is chosen already. A table at «any Italian» is the rules' choice, shown chosen and changeable.
+    const personal = plan.booking.kind === "appointment"
+    const saidLast = savedFacts(entries)[factKey(factLabel("pref:place", plan.site ?? site))] ?? ""
+    const last = saidLast.startsWith("@") ? "" : saidLast
+    const names = ranked.map((v) => v.name)
+    const options = [...(last && !names.includes(last) ? [last] : []), ...names, "@auto"]
+    const notes = options.map((o) => (o === last ? "@last" : o === "@auto" ? "" : venueNote(ranked.find((v) => v.name === o)!, cards)))
+    placesListed = ranked.length > 0
+    if (ranked.length || (personal && last)) {
+      plan.questions.push({ q: "", kind: "venue", fact: "pref:place", options, notes, min: rules.rating, ...(!personal && ranked.length ? { pick: ranked[0].name } : {}) })
       // The question shows the choice: no «I'll pick the place» line besides it.
       if (plan.how) plan.how.rating = 0
     }
@@ -410,7 +427,14 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   const b = plan.booking
   if (b?.kind === "appointment") {
     const asks = (names: string[]) => plan.questions.some((q) => q.options.some((o) => names.includes(o)))
-    if (b.specialists?.length && !b.specialistNamed && !asks(b.specialists)) plan.questions.push({ q: "", kind: "specialist", fact: "pref:specialist", options: b.specialists.slice(0, 3) })
+    const lastSpecialist = savedFacts(entries)[factKey(factLabel("pref:specialist", plan.site ?? site))] ?? ""
+    if (b.specialists?.length && !b.specialistNamed && !asks(b.specialists)) plan.questions.push({ q: "", kind: "specialist", fact: "pref:specialist", options: ["@any", ...b.specialists.slice(0, 3)] })
+    // No names before the place's own page (a home page, a list): «any», last time's, or «I'll choose on the place's
+    // page» — then the one question with the page's real names comes there.
+    else if (!b.specialists?.length && !b.specialistNamed && !b.venue && placesListed) {
+      const opts = ["@any", ...(lastSpecialist && lastSpecialist !== "@any" && lastSpecialist !== "@page" ? [lastSpecialist] : []), "@page"]
+      plan.questions.push({ q: "", kind: "specialist", fact: "pref:specialist", options: opts, notes: opts.map((o) => (o === lastSpecialist ? "@last" : "")) })
+    }
     if ((b.services?.length ?? 0) >= 2 && !asks(b.services!)) {
       const named = b.serviceNamed && b.services!.includes(b.serviceNamed) ? b.serviceNamed : ""
       if (!named) plan.questions.push({ q: "", kind: "service", fact: "pref:service", options: b.services!.slice(0, 3) })
@@ -790,7 +814,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // rules (a salon booking site, 120: it asked about the first barbershop's slots instead of trying the next).
     // A form asking for the person's details is the booking going on, not the place failing (the director on 23e9:
     // a restaurant was left for a required e-mail): no next place for it.
-    const details = detailsForm(map)
+    // The specialist question the person asked for on the place's page («I'll choose there»): it passes the question
+    // guards below once (they're for questions about places and days).
+    const chosenAsk = call.tool === "ask_user" && !!state.askSpecialist
+    if (chosenAsk) state.askSpecialist = false
+    const details = detailsForm(map) || chosenAsk
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       continue
@@ -1110,11 +1138,26 @@ export interface PlanApproval {
 
 /** «Начать» on the plan card: the answers and the ticks kept, then the task goes on alone. */
 /** The place answered on the card (picked by the rules, or another): the booking goes there, nothing chosen on the way. */
+/** The card's own options as the model reads them. */
+function tokenWords(answer: string): string {
+  return answer === "@any" ? "any specialist" : answer === "@auto" ? "chosen by the rules" : answer === "@page" ? "chosen on the place's own page: once it shows its specialists, ask the person once (ask_user) with their names, «any» first" : answer
+}
+
+/** Whether a place's name is in the person's words (its distinctive words, half of them at least). */
+export function namedIn(name: string, words: string): boolean {
+  const said = fold2(words)
+  const parts = fold2(name).split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 4)
+  if (!parts.length) return said.includes(fold2(name))
+  return parts.filter((w) => said.includes(w)).length * 2 >= parts.length
+}
+const fold2 = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")
+
 function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]): void {
   const where = plan.questions.findIndex((q) => q.kind === "venue" || q.fact === "venue")
   const place = where >= 0 ? (answers[where] ?? "").trim() : ""
-  // (The rules' own pick left as it was stays the rules': when it has no fitting slot, the next place is tried.)
-  if (plan.booking && place && place !== plan.questions[where].pick && plan.questions[where].options.includes(place)) {
+  // (The rules' own pick left as it was stays the rules': when it has no fitting slot, the next place is tried; «pick for
+  // me» leaves it to the rules; a place of the page's, last time's or the person's own words is that place.)
+  if (plan.booking && place && place !== "@auto" && place !== plan.questions[where].pick) {
     plan.booking.venue = place
     state.chooseVenue = false
   }
@@ -1123,7 +1166,9 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
 export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApproval): Promise<AgentState> {
   if (state.status !== "plan" || !state.plan) return state
   const plan = state.plan
-  plan.answers = plan.questions.map((q, i) => ({ q: q.q || (q.kind === "venue" ? "Where to book" : q.kind === "specialist" ? "Which specialist" : q.kind === "service" ? "Which service" : q.key ?? ""), a: (a.answers[i] ?? "").slice(0, 200), ...(q.kind === "contact" ? { contact: true } : {}) }))
+  plan.answers = plan.questions.map((q, i) => ({ q: q.q || (q.kind === "venue" ? "Where to book" : q.kind === "specialist" ? "Which specialist" : q.kind === "service" ? "Which service" : q.key ?? ""), a: tokenWords(a.answers[i] ?? "").slice(0, 200), ...(q.kind === "contact" ? { contact: true } : {}) }))
+  // «I'll choose on the place's page»: the one question with the page's names is allowed there.
+  if (plan.questions.some((q, i) => q.kind === "specialist" && a.answers[i] === "@page")) state.askSpecialist = true
   // A contact detail given on the card: filled by its key in this task (kept in «Мои данные» too when ticked there).
   state.oneTime = plan.questions.flatMap((q, i) => (q.kind === "contact" && q.key && (a.answers[i] ?? "").trim() ? [{ key: q.key, value: a.answers[i].trim().slice(0, 120) }] : []))
   // …and goes in by the plan's contact fill, like a saved one (no second question at the form).

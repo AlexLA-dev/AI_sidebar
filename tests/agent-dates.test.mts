@@ -105,8 +105,8 @@ test("the card shows the place the rules picked as a changeable answer; a change
   let io = mk()
   let s = await drive(newState("v", "Book a table at an Italian restaurant on Friday at 20:00", "en", LIST.url), io)
   const q = s.plan!.questions.find((x) => x.kind === "venue")!
-  assert.deepEqual(q.options, ["Trattoria Uno Italian", "Trattoria Due Italian", "Trattoria Tre Italian"])
-  assert.equal(q.pick, "Trattoria Uno Italian", "the rules' first in the page's order")
+  assert.deepEqual(q.options, ["Trattoria Tre Italian", "Trattoria Due Italian", "Trattoria Uno Italian", "@auto"], "the rules' order (9.6, 9.4, 9.1), not the page's, and «pick for me»")
+  assert.equal(q.pick, "Trattoria Tre Italian", "a table at «any Italian»: the rules' first, shown chosen")
   assert.equal(s.plan!.how?.rating, 0, "no «I'll pick the place» line besides the shown pick")
   // Left as picked: still the rules' (the next is tried when it doesn't fit).
   let after = await approvePlan(s, io, { answers: s.plan!.questions.map((x) => x.pick ?? ""), off: [] })
@@ -114,8 +114,8 @@ test("the card shows the place the rules picked as a changeable answer; a change
   // Changed on the card: that place, nothing chosen on the way.
   io = mk()
   s = await drive(newState("w", "Book a table at an Italian restaurant on Friday at 20:00", "en", LIST.url), io)
-  after = await approvePlan(s, io, { answers: s.plan!.questions.map((x) => (x.kind === "venue" ? "Trattoria Tre Italian" : "")), off: [] })
-  assert.equal(after.plan!.booking!.venue, "Trattoria Tre Italian")
+  after = await approvePlan(s, io, { answers: s.plan!.questions.map((x) => (x.kind === "venue" ? "Trattoria Uno Italian" : "")), off: [] })
+  assert.equal(after.plan!.booking!.venue, "Trattoria Uno Italian")
   assert.equal(after.chooseVenue, false)
 })
 
@@ -143,7 +143,7 @@ test("a question about the booking's day before the page showed it is sent back 
   const mk = (replies: any[]): RunnerIO => ({ map: async () => STRIP, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } })
   let io = mk([{ ok: true, plan: RAW, token: "t" }, ASK, ASK])
-  let s = await drive(newState("d1", "Book me a haircut in a month on Saturday", "en", STRIP.url), io)
+  let s = await drive(newState("d1", "Book me a haircut at Salon Nova in a month on Saturday", "en", STRIP.url), io)
   let after = await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
   const sent = after.log.find((l) => l.call.tool === "ask_user" && /^refused/.test(l.result ?? ""))
   assert.ok(sent && /hasn't shown Sat,? 26 Dec 2026/.test(sent.result!), "sent back with the day to go to")
@@ -151,7 +151,7 @@ test("a question about the booking's day before the page showed it is sent back 
   // Once the page shows the day, the question goes straight through.
   STRIP.items.push({ id: "6", role: "button", label: "Sat 26 Dec" })
   io = mk([{ ok: true, plan: RAW, token: "t" }, ASK])
-  s = await drive(newState("d2", "Book me a haircut in a month on Saturday", "en", STRIP.url), io)
+  s = await drive(newState("d2", "Book me a haircut at Salon Nova in a month on Saturday", "en", STRIP.url), io)
   after = await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
   assert.equal(after.log.some((l) => /^refused/.test(l.result ?? "")), false)
   assert.equal(after.status, "asked")
@@ -172,7 +172,7 @@ test("the asked day shown greyed is pressed once to hear the page; a question be
   const replies: any[] = [{ ok: true, plan: RAW, token: "t" }, ASK, PRESS27, ASK]
   const io: RunnerIO = { map: async () => STRIP, act: async (c: any) => { pressed.push(c.id); return { ok: true } }, waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
-  const s = await drive(newState("g1", "Book me a haircut in a month on Saturday", "en", STRIP.url), io)
+  const s = await drive(newState("g1", "Book me a haircut at Salon Nova in a month on Saturday", "en", STRIP.url), io)
   const after = await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
   const held = after.log.find((l) => l.call.tool === "ask_user" && /^held/.test(l.result ?? ""))
   assert.ok(held && /pressed the asked day «Sat 26 Dec»/.test(held.result!), "the device pressed the asked day itself")
@@ -203,7 +203,9 @@ test("the place pick reads the list's cards past the map's first part; the optio
   const s = await drive(newState("p1", "Запиши меня на мужскую стрижку в субботу 26 декабря после 12", "ru", TOP.url), io)
   assert.ok(parts.includes(2), "the next part was read on the device")
   const venue = s.plan!.questions.find((q) => q.kind === "venue")!
-  assert.ok(venue && venue.options.length === 3 && venue.pick === venue.options[0], "the rules' place shown chosen")
+  assert.ok(venue && venue.options.length === 4 && venue.options[3] === "@auto", "the page's places by the rules, and «pick for me»")
+  assert.equal(venue.pick, undefined, "a salon matters to the person: nothing chosen for them unless remembered")
+  assert.ok(venue.notes?.[0] && /★ 4\.9/.test(venue.notes[0]), "rating beside the place")
   assert.equal(s.plan!.questions[0].pick, "Men's Haircut", "the service the request names")
   assert.equal(s.plan!.questions[1].pick, undefined, "a pick that isn't an option is dropped")
 })
@@ -404,7 +406,7 @@ test("a personal service's open choices are asked on the card from the plan's fi
   }
   let qs = await run({ specialists: ["Yasmin", "Angel", "Maria", "Leo"], services: ["Haircut", "Haircut & Beard", "Wash & Cut"] })
   assert.deepEqual(qs.map((q) => q.kind), ["specialist", "service"])
-  assert.deepEqual(qs[0].options, ["Yasmin", "Angel", "Maria"], "the page's names (the card puts «any» first)")
+  assert.deepEqual(qs[0].options, ["@any", "Yasmin", "Angel", "Maria"], "«any» first, then the page's names")
   qs = await run({ specialists: ["Yasmin"], specialistNamed: "Yasmin", services: ["Haircut", "Wash & Cut"], serviceNamed: "Haircut" })
   assert.deepEqual(qs.map((q) => q.kind), [], "named in the request: nothing to ask")
   qs = await run({ services: ["Haircut"] })
@@ -453,5 +455,44 @@ test("pattern: a card's rating and review count side by side («4.4 268 reviews�
   const map: PageMap = { url: "https://salons.example/places/x/", title: "", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items: L.map((label, i) => ({ id: String(i), role: "link" as const, label, href: `/place/p${i}/` })) }
   const v = venuesOn(map)
   assert.deepEqual(v.map((x) => [x.rating * 2, x.reviews]), [[9, 3822], [8.8, 268], [9.4, 303]].map(([r, n]) => [r / 2 * 2, n]))
-  assert.deepEqual(rankVenues(v, cardsOf(map), ["Men's Haircut"], 4.5, []).map((x) => x.name), ["Barber One Soho", "Barber Three"])
+  assert.deepEqual(rankVenues(v, cardsOf(map), ["Men's Haircut"], 4.5, []).map((x) => x.name), ["Barber Three", "Barber One Soho"])
+})
+
+test("a salon not named: the card asks the place (ranked by the rules, «Featured» never first for being first) and the specialist in general form; «choose on the page» lets one question through there", async () => {
+  const HOME: PageMap = { url: "https://book.example/", title: "Book beauty & wellness", lang: "en", more: 0, part: 1, parts: 1, text: "Recommended", forms: [],
+    items: [
+      { id: "1", role: "link", label: "Featured Glow Couture 5.0 Germasogeia, Limassol Hair Salon 1,127 reviews", href: "/a/glow" },
+      { id: "2", role: "link", label: "Cut Studio 5.0 Agios Tychonas, Limassol Barber 2,410 reviews", href: "/a/cut" },
+      { id: "3", role: "link", label: "Barber Nova 4.6 Neapoli, Limassol Barber 300 reviews", href: "/a/nova" },
+      { id: "4", role: "button", label: "Search" }
+    ] }
+  const RAW = { label: "booking", steps: ["Opening Glow Couture"], questions: [], prices: [], fromChat: "", risky: [],
+    booking: { kind: "appointment", date: "2026-12-26", from: "10:00", until: "18:00", minutes: 30, tz: "", venue: "Glow Couture", match: ["hair", "barber"], area: ["Limassol"], contacts: [], specialists: [], services: [], specialistNamed: "", serviceNamed: "" } }
+  const run = async (entries: any[] = [], replies: any[] = []) => {
+    const q: any[] = [{ ok: true, plan: RAW, token: "t" }, ...replies]
+    const io = { map: async () => HOME, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => q.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => entries, policy: { amazon: true }, maxSteps: 30, planning: true, open: async () => {},
+      device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
+    return { s: await drive(newState("salon", "Book me a haircut in Limassol on Saturday in a month", "en", HOME.url), io), io }
+  }
+  const { s } = await run()
+  assert.equal(s.plan!.booking!.venue, undefined, "a place the request doesn't name isn't the plan's to pick")
+  const place = s.plan!.questions.find((x) => x.kind === "venue")!
+  assert.deepEqual(place.options, ["Cut Studio", "Glow Couture", "Barber Nova", "@auto"], "5.0 with more reviews first; the «Featured» one loses the tie")
+  assert.equal(place.pick, undefined, "nothing chosen for the person")
+  assert.match(place.notes![0], /★ 5 · 2,410 · Agios Tychonas, Limassol/)
+  const who = s.plan!.questions.find((x) => x.kind === "specialist")!
+  assert.deepEqual(who.options, ["@any", "@page"], "no names before the salon's page")
+  // Remembered: last time's place and specialist offered (and pre-filled by the card).
+  const saved = [{ id: "a", key: "fact", label: "book.example · place", value: "Salon Old", updatedAt: 1 }, { id: "b", key: "fact", label: "book.example · specialist", value: "Maria", updatedAt: 1 }]
+  const r2 = (await run(saved)).s.plan!.questions
+  assert.deepEqual(r2.find((x) => x.kind === "venue")!.options[0], "Salon Old")
+  assert.equal(r2.find((x) => x.kind === "venue")!.notes![0], "@last")
+  assert.deepEqual(r2.find((x) => x.kind === "specialist")!.options, ["@any", "Maria", "@page"])
+  // «Choose on the salon's page»: the one question there goes to the person (no place guard sends it back).
+  const ASK = { ok: true, call: { tool: "ask_user", question: "Which specialist?", choices: ["Any", "Eleni", "Marios"] }, verdict: { cls: "free", reason: "read" } }
+  const { s: s3, io: io3 } = await run([], [ASK])
+  const after = await approvePlan(s3, io3, { answers: s3.plan!.questions.map((x) => (x.kind === "venue" ? "@auto" : x.kind === "specialist" ? "@page" : "")), off: [] })
+  assert.equal(after.chooseVenue, true, "«pick for me»: the rules choose")
+  assert.equal(after.status, "asked", "the specialist question reached the person")
+  assert.ok(after.plan!.answers!.some((a) => /chosen on the place's own page/.test(a.a)))
 })

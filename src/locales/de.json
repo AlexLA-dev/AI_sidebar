@@ -1275,5 +1275,8 @@
   "agentLinePopup": "Fenster über der Seite geschlossen: «{0}»",
   "agentPlanSpecialistQ": "Welche Fachkraft?",
   "agentPlanAnySpecialist": "Beliebige Fachkraft",
-  "agentPlanServiceQ": "Welche Leistung?"
+  "agentPlanServiceQ": "Welche Leistung?",
+  "agentPlanSpecialistOnPage": "Wähle ich auf der Seite des Ladens",
+  "agentPlanVenueAuto": "Für mich wählen: ab {0} Sternen, am nächsten",
+  "agentPlanLastTime": "letztes Mal"
 }

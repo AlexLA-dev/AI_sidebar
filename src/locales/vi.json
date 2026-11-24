@@ -1275,5 +1275,8 @@
   "agentLinePopup": "Đã đóng cửa sổ trên trang: «{0}»",
   "agentPlanSpecialistQ": "Chọn chuyên viên nào?",
   "agentPlanAnySpecialist": "Chuyên viên bất kỳ",
-  "agentPlanServiceQ": "Chọn dịch vụ nào?"
+  "agentPlanServiceQ": "Chọn dịch vụ nào?",
+  "agentPlanSpecialistOnPage": "Tôi sẽ chọn trên trang của tiệm",
+  "agentPlanVenueAuto": "Chọn giúp tôi: đánh giá {0}+, gần nhất",
+  "agentPlanLastTime": "lần trước"
 }

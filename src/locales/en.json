@@ -1275,5 +1275,8 @@
   "agentLinePopup": "Closed a window over the page: «{0}»",
   "agentPlanSpecialistQ": "Which specialist?",
   "agentPlanAnySpecialist": "Any specialist",
-  "agentPlanServiceQ": "Which service?"
+  "agentPlanServiceQ": "Which service?",
+  "agentPlanSpecialistOnPage": "I'll choose on the place's page",
+  "agentPlanVenueAuto": "Pick for me: rated {0}+, nearest",
+  "agentPlanLastTime": "last time"
 }

@@ -29,6 +29,10 @@ export interface PlanQuestion {
   // will ask for and «Мои данные» hasn't got (asked here, not mid-task; its value is filled by key, never sent).
   kind?: "venue" | "contact" | "specialist" | "service"
   key?: "email" | "phone"
+  // What the card shows beside each option (a place's rating, reviews and area; "@last" for last time's), and the
+  // rules' rating for the «pick for me» option. Options may be the card's own words: "@any", "@page", "@auto".
+  notes?: string[]
+  min?: number
 }
 
 export type PermKind = "press" | "personal" | "fill" | "consent" | "apple"

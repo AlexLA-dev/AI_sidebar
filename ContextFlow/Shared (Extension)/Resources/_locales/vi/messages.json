@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "Chọn dịch vụ nào?"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "Tôi sẽ chọn trên trang của tiệm"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Chọn giúp tôi: đánh giá {0}+, gần nhất"
+ },
+ "agentPlanLastTime": {
+  "message": "lần trước"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

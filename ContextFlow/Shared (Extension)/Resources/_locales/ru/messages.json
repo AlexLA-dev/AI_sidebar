@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "Какая услуга?"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "Выберу на странице салона"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Подобрать самому: рейтинг {0}+, ближе всего"
+ },
+ "agentPlanLastTime": {
+  "message": "в прошлый раз"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

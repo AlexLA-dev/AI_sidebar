@@ -1275,5 +1275,8 @@
   "agentLinePopup": "Закрив вікно поверх сторінки: «{0}»",
   "agentPlanSpecialistQ": "Який майстер?",
   "agentPlanAnySpecialist": "Будь-який майстер",
-  "agentPlanServiceQ": "Яка послуга?"
+  "agentPlanServiceQ": "Яка послуга?",
+  "agentPlanSpecialistOnPage": "Оберу на сторінці закладу",
+  "agentPlanVenueAuto": "Підібрати самому: рейтинг {0}+, найближче",
+  "agentPlanLastTime": "минулого разу"
 }

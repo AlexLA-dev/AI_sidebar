@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "أي خدمة؟"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "سأختار في صفحة المكان"
+ },
+ "agentPlanVenueAuto": {
+  "message": "اختر لي: تقييم {0}+، الأقرب"
+ },
+ "agentPlanLastTime": {
+  "message": "المرة الماضية"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

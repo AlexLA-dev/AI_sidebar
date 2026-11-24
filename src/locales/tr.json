@@ -1275,5 +1275,8 @@
   "agentLinePopup": "Sayfanın üstündeki pencere kapatıldı: «{0}»",
   "agentPlanSpecialistQ": "Hangi uzman?",
   "agentPlanAnySpecialist": "Herhangi bir uzman",
-  "agentPlanServiceQ": "Hangi hizmet?"
+  "agentPlanServiceQ": "Hangi hizmet?",
+  "agentPlanSpecialistOnPage": "İşletmenin sayfasında seçerim",
+  "agentPlanVenueAuto": "Benim için seç: {0}+ puan, en yakın",
+  "agentPlanLastTime": "geçen sefer"
 }

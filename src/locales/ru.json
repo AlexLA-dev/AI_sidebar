@@ -1275,5 +1275,8 @@
   "agentLinePopup": "Закрыл окно поверх страницы: «{0}»",
   "agentPlanSpecialistQ": "Какой мастер?",
   "agentPlanAnySpecialist": "Любой мастер",
-  "agentPlanServiceQ": "Какая услуга?"
+  "agentPlanServiceQ": "Какая услуга?",
+  "agentPlanSpecialistOnPage": "Выберу на странице салона",
+  "agentPlanVenueAuto": "Подобрать самому: рейтинг {0}+, ближе всего",
+  "agentPlanLastTime": "в прошлый раз"
 }

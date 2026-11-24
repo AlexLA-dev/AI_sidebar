@@ -1275,5 +1275,8 @@
   "agentLinePopup": "已关闭页面上的弹窗：「{0}」",
   "agentPlanSpecialistQ": "选择哪位服务人员？",
   "agentPlanAnySpecialist": "任意服务人员",
-  "agentPlanServiceQ": "选择哪项服务？"
+  "agentPlanServiceQ": "选择哪项服务？",
+  "agentPlanSpecialistOnPage": "在店铺页面再选",
+  "agentPlanVenueAuto": "帮我选：评分 {0}+，最近",
+  "agentPlanLastTime": "上次"
 }

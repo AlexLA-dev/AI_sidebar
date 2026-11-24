@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "Welche Leistung?"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "Wähle ich auf der Seite des Ladens"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Für mich wählen: ab {0} Sternen, am nächsten"
+ },
+ "agentPlanLastTime": {
+  "message": "letztes Mal"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

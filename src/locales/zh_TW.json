@@ -1275,5 +1275,8 @@
   "agentLinePopup": "已關閉頁面上的彈出視窗：「{0}」",
   "agentPlanSpecialistQ": "選擇哪位服務人員？",
   "agentPlanAnySpecialist": "任一服務人員",
-  "agentPlanServiceQ": "選擇哪項服務？"
+  "agentPlanServiceQ": "選擇哪項服務？",
+  "agentPlanSpecialistOnPage": "在店家頁面再選",
+  "agentPlanVenueAuto": "幫我選：評分 {0}+，最近",
+  "agentPlanLastTime": "上次"
 }

@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "Яка послуга?"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "Оберу на сторінці закладу"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Підібрати самому: рейтинг {0}+, найближче"
+ },
+ "agentPlanLastTime": {
+  "message": "минулого разу"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

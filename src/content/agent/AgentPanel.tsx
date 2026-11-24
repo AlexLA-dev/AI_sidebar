@@ -200,7 +200,11 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
   const pre = savedAnswers(plan, saved ?? {}).map((a, i) => a || plan.questions[i]?.pick || "")
   const [answers, setAnswers] = useState<string[]>(() => pre)
   // A contact detail is typed (no options); an answer not among the options shows as the person's own words.
-  const optsOf = (q: TaskPlan["questions"][number]) => (q.kind === "specialist" ? [t("agentPlanAnySpecialist"), ...q.options] : q.options)
+  const optsOf = (q: TaskPlan["questions"][number]) => q.options
+  // The device's own options in the panel's words: «any», «I'll choose on the place's page», «pick for me by my rules».
+  const optText = (q: TaskPlan["questions"][number], o: string) =>
+    o === "@any" ? t("agentPlanAnySpecialist") : o === "@page" ? t("agentPlanSpecialistOnPage") : o === "@auto" ? t("agentPlanVenueAuto", (q.min ?? 4.5).toLocaleString()) : o
+  const optNote = (q: TaskPlan["questions"][number], j: number) => (q.notes?.[j] === "@last" ? t("agentPlanLastTime") : q.notes?.[j] ?? "")
   const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => q.kind === "contact" || (!!pre[i] && !optsOf(q).includes(pre[i]))))
   // «Запомнить» under each question about the person and each contact detail: on by default.
   const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact || q.kind === "contact"))
@@ -260,8 +264,11 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
           <p dir="auto">{q.q || (q.kind === "venue" ? t("agentPlanVenueQ") : q.kind === "specialist" ? t("agentPlanSpecialistQ") : q.kind === "service" ? t("agentPlanServiceQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
           {q.kind !== "contact" && <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
-            {optsOf(q).map((o) => (
-              <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>{o}</button>
+            {optsOf(q).map((o, j) => (
+              <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>
+                {optText(q, o)}
+                {optNote(q, j) && <span class="cf-chip-note"> · {optNote(q, j)}</span>}
+              </button>
             ))}
             <button type="button" role="radio" aria-checked={own[i]} class={`cf-chip ${own[i] ? "on" : ""}`} onClick={() => set(i, own[i] ? answers[i] : "", true)}>{t("agentPlanOwn")}</button>
           </div>}

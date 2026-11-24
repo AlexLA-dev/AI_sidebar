@@ -3,6 +3,8 @@
 // model's «back» didn't get out of a booking window). A place has to match what the request asks for (its cuisine or
 // service words on its card), never only by rating (a restaurant site: a French restaurant for «итальянский»).
 
+import { wordTest } from "./match.ts"
+import { PROMOTED_WORDS } from "./words.ts"
 import { hostOf, sameSite } from "./sites.ts"
 import type { MapItem, PageMap } from "./types.ts"
 
@@ -52,7 +54,10 @@ export function venueOf(item: MapItem, page: string): Venue | null {
   if (rating > 5) rating = rating / 2
   const reviews = num(v[1] ?? v[2] ?? "0")
   const name = (label === own ? label.slice(0, Math.max(8, Math.min(label.length, label.search(/\s[0-9]/) > 0 ? label.search(/\s[0-9]/) : 60))) : own.slice(0, 80)).trim()
-  return { url: url.split("#")[0], name: name.slice(0, 80), rating, reviews }
+  // («Featured Glow Couture»: the site's badge isn't the place's name.)
+  const words = name.split(/\s+/)
+  while (words.length > 1 && promotedWord(words[0])) words.shift()
+  return { url: url.split("#")[0], name: words.join(" ").slice(0, 80), rating, reviews }
 }
 
 /** The places a page lists (three or more links that look like places), first seen first. */
@@ -103,7 +108,48 @@ export function rankVenues(list: Venue[], cards: Map<string, string>, match: str
   const has = (text: string, term: string) => term.split(/[\s\-–,&/]+/).map(stem).filter((x) => x.length >= 3).every((x) => text.includes(x))
   const fits = inArea.filter((v) => !words.length || words.some((w) => card(v).includes(w) || has(card(v), w)))
   const good = fits.filter((v) => v.rating >= minRating && v.reviews >= 20)
-  return good.length ? good : fits.filter((v) => v.rating >= minRating - 0.3)
+  return byRules(good.length ? good : fits.filter((v) => v.rating >= minRating - 0.3), cards)
+}
+
+// A distance a card shows («0.3 mi away», «1,2 km», «850 m»), in metres.
+const DISTANCE = /(?<![\d.,])(\d+(?:[.,]\d+)?)\s*(km|mi|m|км|м|公里|千米|キロ|킬로미터)(?![\p{L}])/u
+function distanceOf(text: string): number | null {
+  const m = DISTANCE.exec(text)
+  if (!m) return null
+  const n = Number(m[1].replace(",", "."))
+  const unit = m[2]
+  return unit === "mi" ? n * 1609 : unit === "m" || unit === "м" ? n : n * 1000
+}
+
+const promotedWord = wordTest(PROMOTED_WORDS)
+
+/** The fitting places in the rules' order, never the page's: nearest first when the cards show distances, else the
+ *  best rated and most reviewed; a promoted card («Featured», «Sponsored») loses a tie, never wins by its place. */
+export function byRules(list: Venue[], cards: Map<string, string>): Venue[] {
+  const text = (v: Venue) => cards.get(v.url) ?? v.name
+  const dist = new Map(list.map((v) => [v.url, distanceOf(text(v))]))
+  const useDistance = list.filter((v) => dist.get(v.url) !== null).length >= 2
+  const promoted = (v: Venue) => (promotedWord(text(v)) ? 1 : 0)
+  return [...list].sort((a, b) => {
+    if (useDistance) {
+      const d = (dist.get(a.url) ?? Infinity) - (dist.get(b.url) ?? Infinity)
+      if (Math.abs(d) > 50) return d
+    }
+    const r = Math.round(b.rating * 10) - Math.round(a.rating * 10)
+    if (r) return r
+    const p = promoted(a) - promoted(b)
+    if (p) return p
+    return b.reviews - a.reviews
+  })
+}
+
+/** What a card says of a place for the card's question: its rating, its count of reviews and its area when it shows one
+ *  («★ 4.8 · 1,523 · Germasogeia, Limassol»). */
+export function venueNote(v: Venue, cards: Map<string, string>): string {
+  const text = (cards.get(v.url) ?? "").replace(v.name, " ")
+  const area = /(?<![\d\p{L}])(\p{Lu}[\p{L}'’.-]+(?:\s[\p{L}'’.-]+){0,2}\s?,\s?\p{Lu}[\p{L}'’.-]+(?:\s\p{Lu}[\p{L}'’.-]+)?)/u.exec(text)?.[1]
+  const d = distanceOf(text)
+  return [`★ ${(Math.round(v.rating * 10) / 10).toString()}`, v.reviews ? v.reviews.toLocaleString("en-US") : "", area ?? "", d !== null ? (d >= 1000 ? `${(d / 1000).toFixed(1)} km` : `${Math.round(d)} m`) : ""].filter(Boolean).join(" · ")
 }
 
 /** The cards' words by place (all of each link's text: the cuisine or service is there, not in the name only). */

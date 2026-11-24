@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "どのメニュー？"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "お店のページで選ぶ"
+ },
+ "agentPlanVenueAuto": {
+  "message": "おまかせ：評価{0}以上・近い順"
+ },
+ "agentPlanLastTime": {
+  "message": "前回"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

@@ -484,3 +484,22 @@ export const CLOSE_WORDS = [
   "=關閉", "以後再說", "=跳過", "不用了", "繼續使用瀏覽器",
   "=đóng", "để sau", "=bỏ qua", "không, cảm ơn", "tiếp tục trên trình duyệt"
 ]
+
+// A card the site puts first for money or by its own choice («Featured», «Sponsored», «Реклама»): never first for that.
+export const PROMOTED_WORDS = [
+  "featured", "sponsored", "promoted", "=ad", "advertisement",
+  "реклама", "спонсор*", "продвигается",
+  "реклама", "спонсор*",
+  "gesponsert", "anzeige", "hervorgehoben",
+  "sponsorisé", "à la une", "mis en avant",
+  "patrocinado", "destacado", "anuncio",
+  "sponsorizzato", "in evidenza",
+  "patrocinado", "destaque", "anúncio",
+  "sponsorlu", "öne çıkan", "reklam",
+  "إعلان", "مُموَّل", "مميز",
+  "広告", "pr", "スポンサー",
+  "광고", "스폰서",
+  "广告", "推广", "赞助",
+  "廣告", "推廣", "贊助",
+  "quảng cáo", "tài trợ", "nổi bật"
+]

@@ -1275,5 +1275,8 @@
   "agentLinePopup": "أُغلقت نافذة فوق الصفحة: «{0}»",
   "agentPlanSpecialistQ": "أي مختص؟",
   "agentPlanAnySpecialist": "أي مختص",
-  "agentPlanServiceQ": "أي خدمة؟"
+  "agentPlanServiceQ": "أي خدمة؟",
+  "agentPlanSpecialistOnPage": "سأختار في صفحة المكان",
+  "agentPlanVenueAuto": "اختر لي: تقييم {0}+، الأقرب",
+  "agentPlanLastTime": "المرة الماضية"
 }

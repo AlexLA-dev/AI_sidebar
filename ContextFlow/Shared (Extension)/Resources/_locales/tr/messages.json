@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "Hangi hizmet?"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "İşletmenin sayfasında seçerim"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Benim için seç: {0}+ puan, en yakın"
+ },
+ "agentPlanLastTime": {
+  "message": "geçen sefer"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

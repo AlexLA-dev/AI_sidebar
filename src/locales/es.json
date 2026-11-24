@@ -1275,5 +1275,8 @@
   "agentLinePopup": "Cerré una ventana sobre la página: «{0}»",
   "agentPlanSpecialistQ": "¿Qué profesional?",
   "agentPlanAnySpecialist": "Cualquier profesional",
-  "agentPlanServiceQ": "¿Qué servicio?"
+  "agentPlanServiceQ": "¿Qué servicio?",
+  "agentPlanSpecialistOnPage": "Elegiré en la página del local",
+  "agentPlanVenueAuto": "Elegir por mí: valoración {0}+, lo más cerca",
+  "agentPlanLastTime": "la última vez"
 }

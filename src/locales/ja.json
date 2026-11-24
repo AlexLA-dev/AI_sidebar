@@ -1275,5 +1275,8 @@
   "agentLinePopup": "ページ上のウィンドウを閉じました：「{0}」",
   "agentPlanSpecialistQ": "担当者は？",
   "agentPlanAnySpecialist": "指名なし",
-  "agentPlanServiceQ": "どのメニュー？"
+  "agentPlanServiceQ": "どのメニュー？",
+  "agentPlanSpecialistOnPage": "お店のページで選ぶ",
+  "agentPlanVenueAuto": "おまかせ：評価{0}以上・近い順",
+  "agentPlanLastTime": "前回"
 }

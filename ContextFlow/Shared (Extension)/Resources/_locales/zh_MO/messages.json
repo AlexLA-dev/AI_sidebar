@@ -3734,6 +3734,15 @@
  "agentPlanServiceQ": {
   "message": "選擇哪項服務？"
  },
+ "agentPlanSpecialistOnPage": {
+  "message": "在店家頁面再選"
+ },
+ "agentPlanVenueAuto": {
+  "message": "幫我選：評分 {0}+，最近"
+ },
+ "agentPlanLastTime": {
+  "message": "上次"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },
