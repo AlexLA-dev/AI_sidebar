@@ -413,7 +413,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   if (plan.booking && !plan.how) plan.how = { rating: rules.chooseVenue && !plan.booking.venue ? rules.rating : 0, calendar: false }
   // The rule says «free in the calendar» but the app may not read it: the card offers it, the result says it wasn't
   // checked (never a silent skip).
-  if (plan.booking && plan.how && rules.calendar && (here?.calendar === "none" || here?.calendar === "denied")) {
+  if (plan.booking && plan.how && rules.calendar && !DAY_KINDS.has(plan.booking.kind) && (here?.calendar === "none" || here?.calendar === "denied")) {
     plan.how.ask = here.calendar
     state.calSkipped = true
   }
@@ -559,6 +559,10 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
     state.lastDate = item.label
     return null
   }
+  // A stay's or a rental's days are the request's own (check-in, check-out): another day is the person's to choose, never
+  // the rules' (125, the iPad: 27 pressed as check-in for «26 to 28»).
+  if (asked && pressed && end && pressed !== asked && pressed !== end && state.plan?.booking && DAY_KINDS.has(state.plan.booking.kind))
+    return `«${item.label}» isn't a day of this ${state.plan.booking.kind} (${dayWords(asked)} to ${dayWords(end)}): press only those two. A picker may show the chosen days only in its own grid (selected, in range) until its own «Done»/«Apply»: read that, then press it; if those days really can't be chosen, ask_user with what the page shows`
   if (asked && pressed && pressed !== asked) {
     if (pressed < asked) return `«${item.label}» is before the asked day (${dayWords(asked)}): go to the asked day instead (the calendar's next-month arrow, or the date strip scrolled)`
     if (!state.sawDate && !dayItems(map, asked).length) return `«${item.label}» isn't the asked day (${dayWords(asked)}), and the page hasn't shown that day yet: go to it first`
@@ -1188,6 +1192,14 @@ async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<Tool
     const call: ToolCall = { tool: "click", id: a.id, why: a.why ?? "", expect: { label: item.label, role: item.role, ...(item.lock ? { lock: item.lock } : {}) } }
     const v = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
     if (v.cls !== "free" || looksLikeSlot(item.label)) return
+    // A day in a batch goes through the same date checks as one pressed alone.
+    if (state.plan?.booking && isDateLabel(item.label)) {
+      const why = dateStep(state, map, item, call)
+      if (why) {
+        state.log.push({ call, target: `${item.role} "${item.label}"`, result: `refused: ${why}` })
+        return
+      }
+    }
     await perform(state, io, call, v, `${item.role} "${item.label}"`)
     if (state.log[state.log.length - 1]?.result.startsWith("failed")) return
   }

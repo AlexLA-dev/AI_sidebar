@@ -505,12 +505,12 @@ test("a stay or a rental: its first day, then its last (check-out, return), neve
   const cal = [day("1", "Thu 24 Dec"), day("2", "Fri 25 Dec"), day("3", "Sat 26 Dec"), day("4", "Sun 27 Dec"), day("5", "Mon 28 Dec"), day("6", "Tue 29 Dec"), day("7", "Wed 30 Dec")]
   const map = page(cal)
   const s = { plan: { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { kind: "stay" as const, date: "2026-12-26", dateEnd: "2026-12-29", personal: true, from: "09:00", until: "21:00", minutes: 0 } } } as unknown as AgentState
-  assert.match(dateStep(s, map, cal[1]) ?? "", /before the asked day/, "not before check-in")
+  assert.match(dateStep(s, map, cal[1]) ?? "", /isn't a day of this stay/, "not before check-in")
   assert.equal(dateStep(s, map, cal[2]), null, "check-in")
   assert.equal(dateStep(s, map, cal[5]), null, "check-out after it")
-  // The range set: another day is a third date step that went somewhere else.
-  assert.equal(dateStep(s, map, cal[6]), null)
-  assert.match(dateStep(s, map, cal[4]) ?? "", /two date steps went nowhere/)
+  // Another day than the stay's own two is the person's to choose (125: 27 pressed as check-in for «26 to 28»).
+  assert.match(dateStep(s, map, cal[3]) ?? "", /isn't a day of this stay/)
+  assert.match(dateStep(s, map, cal[6]) ?? "", /Done/)
 })
 
 test("the recap before the last press: only another day, time or place, or a new site's cancellation terms", () => {
