@@ -13,6 +13,7 @@ import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
 import { active, answer, approvePlan, drive, newState, pendingKey, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
 import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
 import { hostOf, sameSite } from "../shared/agent/sites"
+import { venuesOn } from "../shared/agent/venues"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
 import { appleCall, appleDevice, calendarFreeLine, calendarSlotFree, deferredReminder, deferredReminderEnd } from "./agentApple"
@@ -506,7 +507,17 @@ function io(tab: number, gen?: string): RunnerIO {
     if (now?.gen && now.gen !== gen) throw new Superseded("superseded")
   }
   return {
-    map: (opts) => traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}), ...(opts?.part && opts.part > 1 ? { part: opts.part } : {}) }, 6_000)),
+    map: (opts) =>
+      traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}), ...(opts?.part && opts.part > 1 ? { part: opts.part } : {}) }, 6_000)).then(async (m) => {
+        // (Stand builds: what the map holds for a list of places, to see on a device why a list was or wasn't one.)
+        if (TRACE && m) {
+          const st = await load(tab)
+          const area = st?.plan?.booking?.area ?? []
+          const cards = m.items.filter((i) => i.card)
+          trace(tab, `places cards=${cards.length} area=${JSON.stringify(area)} match=${JSON.stringify(st?.plan?.booking?.match ?? [])} personal=${st?.plan?.booking?.personal} askPlace=${st?.plan?.askPlace} choose=${st?.chooseVenue} noted=${st?.venues?.list.length ?? -1} venues=${venuesOn(m, area).length} ${cards.slice(0, 3).map((i) => `«${i.label.slice(0, 30)} | ${(i.where ?? "")} | ${i.card!.slice(0, 120)}»`).join(" ")}`)
+        }
+        return m
+      }),
     act: async (call: ToolCall) => {
       await live()
       return traced(tab, `act ${call.tool}`, tabMessage<StepResult>(tab, { type: "agentAct", call }, 12_000))

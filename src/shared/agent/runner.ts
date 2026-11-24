@@ -693,7 +693,7 @@ function normalizeValue(v: string): string {
  *  place the tab is on now counts as tried. */
 function noteVenues(state: AgentState, map: PageMap): void {
   const b = state.plan?.booking
-  if (!b || b.venue || !state.chooseVenue || !state.plan?.approved) return
+  if (!b || b.venue || !(state.chooseVenue || state.plan?.askPlace) || !state.plan?.approved) return
   if (!state.venues) {
     const list = venuesOn(map, b.area ?? [])
     if (list.length) {
@@ -1081,7 +1081,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const listed = seenItem?.href && (call.tool === "click" || call.tool === "go") && state.venues ? state.venues.list.find((v) => linkTo(seenItem.href!, map.url) === v.url) : undefined
     if ((place || listed) && state.plan?.askPlace && !state.placeAsked && state.venues?.list.length) {
       const best = state.venues.list.slice(0, 2).map((v) => `«${v.name}» (${v.rating}, ${v.reviews})`).join(", ")
-      const why = `which place is the person's choice: ask_user once now with the two best by the rules (${best}) and a third choice to let you choose by the rules; open one only after the answer`
+      const why = state.chooseVenue
+        ? `which place is the person's choice: ask_user once now with the two best by the rules (${best}) and a third choice to let you choose by the rules; open one only after the answer`
+        : `which place is the person's choice (their rules say not to choose one for them): ask_user once now with the first places the list shows (${best}); open one only after the answer`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1364,7 +1366,9 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
   // (The rules' own pick left as it was stays the rules': when it has no fitting slot, the next place is tried; «pick for
   // me» leaves it to the rules; a place of the page's, last time's or the person's own words is that place.)
   // Theirs to choose and not asked on the card (no list there): the agent asks once a list is open.
-  if (plan.booking?.personal && !plan.booking.venue && where < 0 && state.chooseVenue !== false) plan.askPlace = true
+  // (So is any place when the person's rules say not to choose one for them: 126, a clinic task with that rule off opened
+  // the first doctor — nothing was noted or held back.)
+  if ((plan.booking?.personal || state.chooseVenue === false) && plan.booking && !plan.booking.venue && where < 0) plan.askPlace = true
   if (plan.booking && place && place !== "@auto" && place !== plan.questions[where].pick) {
     plan.booking.venue = place
     state.chooseVenue = false
