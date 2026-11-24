@@ -783,8 +783,9 @@ enum SetupPath {
         return .appPage
     }
 
-    /// The walkthrough's screens the guide over Settings plays.
-    var phases: [Int] { Array(0..<6) }
+    /// The walkthrough's screens the guide over Settings plays. On iPhone 26.2+ the owner's real iPhone lands on
+    /// ContextFlow's own page (2.8 acceptance 3), as 2.7 assumed: the last three, as 2.7 played them.
+    var phases: [Int] { self == .maybeDirect ? [3, 4, 5] : Array(0..<6) }
 
     /// The first written step: on iPad it starts where Settings opens.
     /// 2.8: the Apps list has ContextFlow itself in view (above Safari), and its page has no extension switch: the step
@@ -798,10 +799,29 @@ enum SetupPath {
     /// iPhone, is Settings (ContextFlow's page → All Websites → Allow). Safari's own question (behind the puzzle-piece
     /// button on iPad, in the page menu on iPhone) has not been seen to grant anything yet, so it's never the fix here,
     /// only a side note.
-    static var allowFirstStep: LocalizedStringKey {
-        UIDevice.current.userInterfaceIdiom == .pad
-            ? "Tap Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow."
-            : "Tap Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow."
+    var allowFirstStep: LocalizedStringKey {
+        switch self {
+        case .fromApps: return "Tap Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow."
+        // The owner's real iPhone lands on ContextFlow's page (acceptance 3); simulators land on Settings' first page.
+        case .maybeDirect: return "Tap Open Settings: it opens on ContextFlow. If not, go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow."
+        case .appPage: return "Tap Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow."
+        }
+    }
+
+    /// Safari's own question, from the page, with Safari's own button names (MobileSafari.framework's strings in each
+    /// language). 2.8 acceptance 3: on the owner's real iPad «Always Allow…» → «Always Allow on Every Website» brought ✦
+    /// at once; in the simulators it never granted anything (a simulator limit). iPad: the puzzle-piece button;
+    /// iPhone: the page menu.
+    var safariAsksStep: LocalizedStringKey {
+        self == .fromApps
+            ? "Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
+            : "Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
+    }
+
+    var noSparkleStep: LocalizedStringKey {
+        self == .fromApps
+            ? "No ✦? Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
+            : "No ✦? Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
     }
 }
 
@@ -841,8 +861,13 @@ struct SetupCard: View {
             .accessibilityIdentifier("cf-setup-settings")
             switch path {
             case .maybeDirect:
-                // 2.8: true whether Settings opens on ContextFlow's page or on its first page.
-                Text("If Settings opens on ContextFlow's page, start at step 2. If not, start from Apps.")
+                // 2.8 acceptance 3: the owner's real iPhone lands on ContextFlow's own page, with its switch (2.7's text,
+                // 2.7's rule: iOS 26.2+); simulators and some devices land elsewhere: the second line.
+                Text("Settings opens on ContextFlow: switch it on, then set All Websites to Allow.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("If it opens somewhere else, start from Apps → Safari (not ContextFlow) → Extensions.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -915,7 +940,16 @@ struct SetupCard: View {
                 Text("No ✦ on the page? ContextFlow isn't allowed on websites yet.")
                     .font(.callout.weight(.semibold))
                     .fixedSize(horizontal: false, vertical: true)
-                Step(number: 1, text: SetupPath.allowFirstStep)
+                // Acceptance 3: Safari's own question first (four taps without leaving the page; seen granting on the
+                // owner's real iPad), Settings second (the way seen working every time in the simulators).
+                Text(path.safariAsksStep)
+                    .font(.callout)
+                    .fixedSize(horizontal: false, vertical: true)
+                oneDayNote
+                Text("Or in Settings:")
+                    .font(.callout.weight(.semibold))
+                    .padding(.top, 4)
+                Step(number: 1, text: path.allowFirstStep)
                 // Acceptance 3: after «Don't Allow» in Safari's own question, Settings lists the websites one by one
                 // (Deny) and «Other Websites» instead of All Websites, and a denied website stays denied under Other
                 // Websites: Allow. Seen working: every row of that list set to Allow, then ✦ on the page.
@@ -944,12 +978,9 @@ struct SetupCard: View {
                 .background(PiPSource(layer: SettingsPiP.shared.layer))
             } else {
                 Step(number: 1, text: "Tap ✦ on the page.")
-                Step(number: 2, text: "No ✦? In Settings, set All Websites to Allow for ContextFlow (Apps → Safari → Extensions → ContextFlow).")
+                Step(number: 2, text: path.noSparkleStep)
+                oneDayNote
             }
-            Text("If Safari asks about a website, choose Always Allow.")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
             if let url = TipClip.url("open") {
                 TipClipView(url: url)
                     .aspectRatio(TipClip.aspect, contentMode: .fit)
@@ -959,6 +990,14 @@ struct SetupCard: View {
                     .frame(maxWidth: .infinity)
             }
         }
+    }
+
+    /// «Allow for One Day» is Safari's prominent blue button, and with it ✦ is gone the next day.
+    private var oneDayNote: some View {
+        Text("Not “Allow for One Day”: with it, ✦ is gone again tomorrow.")
+            .font(.footnote)
+            .foregroundColor(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     /// 2.8: the iPad's page menu has no extensions; ContextFlow is behind the puzzle-piece button there (seen opening the
