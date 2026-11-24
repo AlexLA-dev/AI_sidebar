@@ -110,7 +110,7 @@ test("every ask goes through ReviewAsk: one requestReview, at the root, and each
   assert.match(content, /\.onReceive\(ReviewAsk\.shared\.requests\) \{ askForReview\(\$0\) \}/)
   assert.match(content, /if ReviewAsk\.shared\.take\(request, busy: busy\) \{ requestReview\(\) \}/)
   // Not over something being done; Listen's player only unless its text was just heard to its end.
-  assert.match(content, /var busy = tour\.run != nil \|\| showingSetup \|\| whatsNew \|\| \(listenShown\.visible && request\.via != \.listen\)/)
+  assert.match(content, /var busy = tour\.run != nil \|\| showingSetup \|\| whatsNew \|\| Paywall\.shared\.purchasing \|\| \(listenShown\.visible && request\.via != \.listen\)/)
   assert.match(content, /if notify\.ask != nil \{ busy = true \}/)
   // Safari's moment: at launch and whenever the app comes to the front (iOS: twice over, one ask waits at a time).
   assert.equal([...content.matchAll(/ReviewAsk\.shared\.cameToFront\(\)/g)].length, 4)
