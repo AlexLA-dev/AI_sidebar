@@ -5,7 +5,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { isRenewalReason } from "../../src/shared/renewal.ts"
-import { sessionFields, useFields } from "../../src/shared/usage.ts"
+import { sessionFields, useFields, variantFields } from "../../src/shared/usage.ts"
 
 // "app_open": the ContextFlow app was opened (at most once a day per app); "ext_on": the Safari
 // extension ran for the first time, i.e. the user switched it on. "media_notice": a free answer said
@@ -41,7 +41,7 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
  * POST /api/v2/event — anonymous counts: funnel steps between the App Store download and the first answer,
  * and which features people use, in what order.
  * Body: { kind, installId?: <extension install id>, appId?: <random id of the app>,
- *         client: {version, build?, platform, locale}, audience?: "test" (debug and TestFlight builds),
+ *         client: {version, build?, platform, locale, variant?: "<test>=<arm>[,…]" (2.8)}, audience?: "test" (debug and TestFlight builds),
  *         extension?: "off"|"on"|"in_use", notifications?,
  *         adToken?: <AdServices attribution token, app_open only>, media?: "video"|"pdf"|"video,pdf",
  *         renewal_off: reason (src/shared/renewal.ts), product, days_left, from: "app"|"panel",
@@ -73,6 +73,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     version: clip(client.version, 20),
     locale: clip(client.locale, 12),
     ...(build ? { build: Number(build[0]) } : {}),
+    // 2.8: the test arms (client.variant), on every event of the install.
+    ...variantFields(client),
     ...(body.audience === "test" || client.audience === "test" ? { audience: "test" } : {})
   }
   const steps = items.map((item) => step(item, shared)).filter((s): s is Step => s !== null)
