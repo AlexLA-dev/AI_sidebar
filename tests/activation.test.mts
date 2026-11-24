@@ -63,12 +63,13 @@ test("the extension's side links the two random ids until the server has them, a
   const handler = read("ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift")
   // 2.7.1: the native side only answers the app's id with the ping; the background sends the link (src/background/link.ts).
   assert.doesNotMatch(handler, /reportLinked|knewInstall/)
-  assert.match(handler, /case "ping":[\s\S]{0,700}?if let app = SharedDefaults\.shared\.appId\(\) \{ data\["app"\] = app \}\s*Self\.reply\(context, \["success": true, "data": data\]\)/)
+  // 2.8 (В1.9): and whether this is one of our simulator or debug builds (tests/our-builds-marked.test.mts).
+  assert.match(handler, /case "ping":[\s\S]{0,700}?if let app = SharedDefaults\.shared\.appId\(\) \{ data\["app"\] = app \}[\s\S]{0,200}?Self\.reply\(context, \["success": true, "data": data\]\)/)
   const background = read("src/background/index.ts")
   assert.match(background, /callNative<NativeEntitlement>\("getEntitlement", \{ installId: await installId\(\), base: API_BASE \}, 6000\)/)
   // The ping carries the install id (the app learns it from the extension's first message), and is asked again while
   // the app hasn't made its id.
-  assert.match(background, /callNative<\{ build\?: string; app\?: string \}>\("ping", \{ installId: id \}, 1500\)/)
+  assert.match(background, /callNative<\{ build\?: string; app\?: string; test\?: boolean \}>\("ping", \{ installId: id \}, 1500\)/)
   assert.match(background, /if \(!data\?\.build\) nativeAsk = null/)
   assert.match(background, /if \(nativeAsk && nativeAppAskedAt && Date\.now\(\) - nativeAppAskedAt > 60_000\) nativeAsk = null/)
   assert.match(background, /nativeAppAskedAt = data\?\.build && !app \? Date\.now\(\) : 0/)
