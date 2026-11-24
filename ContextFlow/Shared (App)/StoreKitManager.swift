@@ -262,7 +262,14 @@ final class StoreKitManager: ObservableObject {
         case purchased, cancelled, pending
     }
 
+    /// Any path into the App Store's purchase sheet (or its sign-in) is under way: nothing else of ours comes on screen
+    /// meanwhile (2.8, the director's acceptance: a promo sheet under the Apple sign-in). Paywall.shared.purchasing
+    /// (the limit session) also covers the moments before this is called, from the panel's purchase link on.
+    @Published private(set) var purchasing = false
+
     func purchase(_ product: Product, offer: ChatAI.PromoSignature? = nil) async throws -> PurchaseOutcome {
+        purchasing = true
+        defer { purchasing = false }
         // The install id travels with the transaction (appAccountToken), so the server can tell which
         // install subscribed — still without accounts.
         var options: Set<Product.PurchaseOption> = Activation.shared.accountToken.map { [.appAccountToken($0)] } ?? []

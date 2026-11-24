@@ -98,7 +98,7 @@ test("the director's acceptance (shot 15): nothing is presented over the App Sto
   const swift = read("ContextFlow/Shared (App)/ContentView.swift")
   assert.match(swift, /@Published var purchasing = false/)
   assert.match(swift, /QuickBuy\.wants\(url\):\s*\/\/[^\n]*\n\s*Paywall\.shared\.purchasing = true\s*QuickBuy\.run/)
-  assert.match(swift, /guard hasChats, !Paywall\.shared\.purchasing, !UserDefaults/)
+  assert.match(swift, /guard hasChats,[^\n]*!Paywall\.shared\.purchasing,[^\n]*!UserDefaults/)
   assert.match(swift, /\.onReceive\(Paywall\.shared\.\$purchasing\) \{ purchaseStarted\(\$0\) \}/)
   assert.match(swift, /var busy = [^\n]*Paywall\.shared\.purchasing/)
   // Both purchase paths set it and always clear it.

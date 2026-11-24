@@ -512,8 +512,7 @@ final class NotifyAsk: ObservableObject {
     private static func openInSafari(_ page: URL) {
         Task {
             try? await Task.sleep(nanoseconds: 400_000_000)
-            if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)"), await UIApplication.shared.open(safari) { return }
-            await UIApplication.shared.open(page)
+            SafariPage.open(page)
         }
     }
 
@@ -729,16 +728,35 @@ enum FirstPage {
     @MainActor
     private static func show() {
         guard let page = url else { return }
-        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
-            UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
-        } else {
-            UIApplication.shared.open(page)
-        }
+        SafariPage.open(page)
     }
     #endif
 }
 
 #if os(iOS)
+// MARK: - A page in Safari itself
+
+/// A page opened in Safari itself, not another default browser (the panel lives in Safari): on iOS 17 and later through
+/// the x-safari- scheme. 2.8 (found by the limit session): iOS handles x-safari-https only, an x-safari-http address does
+/// nothing; an http page, or a failed x-safari- one, opens as it is (the default browser). One rule for every place.
+@MainActor
+enum SafariPage {
+    /// The address that opens `page` in Safari itself, or nil where only the page's own address can.
+    static func safariURL(_ page: URL) -> URL? {
+        guard page.scheme?.lowercased() == "https" else { return nil }
+        if #available(iOS 17, *) { return URL(string: "x-safari-\(page.absoluteString)") }
+        return nil
+    }
+
+    static func open(_ page: URL) {
+        if let safari = safariURL(page) {
+            UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
+        } else {
+            UIApplication.shared.open(page)
+        }
+    }
+}
+
 // MARK: - Setup guide (iOS)
 
 /// Where «Open Settings» lands, and so what the card, its footnote and the guide over Settings show (2.8, В2.1).

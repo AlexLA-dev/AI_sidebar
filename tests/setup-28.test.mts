@@ -235,8 +235,20 @@ test("the floating guide starts once picture in picture is possible, within the 
 })
 
 test("В3.3 (app side): a new install never gets 2.5's What's new sheet or the What's new tab, and no promo sheet on its first day or during a purchase", () => {
-  assert.match(content, /guard hasChats, !Paywall\.shared\.purchasing, !UserDefaults\.standard\.bool\(forKey: "cf_whatsnew_organize"\) else \{ return \}\s*(\/\/[^\n]*\n\s*)+guard SharedDefaults\.shared\.appUpdatedInstall\(\), !QuietDay\.firstDay else \{ return \}/)
+  assert.match(content, /guard hasChats, !store\.purchasing, !Paywall\.shared\.purchasing, Paywall\.shared\.buyNow == nil, !UserDefaults\.standard\.bool\(forKey: "cf_whatsnew_organize"\) else \{ return \}\s*(\/\/[^\n]*\n\s*)+guard SharedDefaults\.shared\.appUpdatedInstall\(\), !QuietDay\.firstDay else \{ return \}/)
   assert.match(content, /let existing = SharedDefaults\.shared\.appUpdatedInstall\(\) \|\| UserDefaults\.standard\.object\(forKey: "cf_whatsnew_organize"\) != nil/)
   assert.doesNotMatch(content, /let existing = hasChats/)
   assert.match(content, /enum QuietDay \{\s*static var firstDay: Bool \{\s*guard !SharedDefaults\.shared\.appUpdatedInstall\(\), let first = SharedDefaults\.shared\.appFirstLaunch\(\) else \{ return false \}\s*return Date\(\)\.timeIntervalSince1970 - first < 86_400/)
+})
+
+test("a page goes to Safari itself through x-safari- only when it's https (iOS has no x-safari-http), else as it is", () => {
+  assert.match(setup, /static func safariURL\(_ page: URL\) -> URL\? \{\s*guard page\.scheme\?\.lowercased\(\) == "https" else \{ return nil \}\s*if #available\(iOS 17, \*\) \{ return URL\(string: "x-safari-\\\(page\.absoluteString\)"\) \}\s*return nil/)
+  assert.match(setup, /static func open\(_ page: URL\) \{\s*if let safari = safariURL\(page\) \{\s*UIApplication\.shared\.open\(safari\) \{ opened in if !opened \{ UIApplication\.shared\.open\(page\) \} \}\s*\} else \{\s*UIApplication\.shared\.open\(page\)/)
+  // Every place of this session's opens a page through it: no other x-safari- address is made there.
+  for (const file of ["ContextFlow/Shared (App)/Setup.swift", "ContextFlow/Shared (App)/Chats.swift", "ContextFlow/iOS (App)/AppDelegate.swift"]) {
+    const src = read(file)
+    assert.equal((src.match(/URL\(string: "x-safari-/g) ?? []).length, file.endsWith("Setup.swift") ? 1 : 0, file)
+  }
+  assert.equal((read("ContextFlow/iOS (App)/AppDelegate.swift").match(/SafariPage\.open\(page\)/g) ?? []).length, 2)
+  assert.match(read("ContextFlow/Shared (App)/Chats.swift"), /SafariPage\.open\(link\)/)
 })

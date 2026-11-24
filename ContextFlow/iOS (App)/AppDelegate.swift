@@ -63,11 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             await MainActor.run {
                 ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "agent", "s": "notif"])
                 guard let page = AgentTasks.opened(info) else { return }
-                if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
-                    UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
-                } else {
-                    UIApplication.shared.open(page)
-                }
+                SafariPage.open(page)
             }
             return
         }
@@ -82,11 +78,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             await MainActor.run {
                 ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "similar", "s": "notif"])
                 if let page = SimilarAway.opened(info) {
-                    if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
-                        UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
-                    } else {
-                        UIApplication.shared.open(page)
-                    }
+                    SafariPage.open(page)
                 } else if let chats = URL(string: "contextflow://chats") {
                     DeepLinkRouter.shared.handle(chats)
                 }

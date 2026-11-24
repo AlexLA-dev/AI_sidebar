@@ -148,7 +148,7 @@ struct ContentView: View {
         }
         #endif
         // 2.8 (the director's acceptance, shot 15): never over the App Store's sheet; it waits for another time.
-        guard hasChats, !Paywall.shared.purchasing, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
+        guard hasChats, !store.purchasing, !Paywall.shared.purchasing, Paywall.shared.buyNow == nil, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
         // 2.8 (В3.3, the quiet first day): this is 2.5's What's new. A new install never gets a What's new for a version it
         // didn't update from (it came on a fresh install's first day, minutes after its first answers), and no promo
         // sheet comes in an install's first day.
