@@ -5003,9 +5003,9 @@
   ]
  },
  {
-  "key": "72c851293781",
+  "key": "0b2ae80e259d",
   "kind": "html",
-  "en": "Make sure ContextFlow is allowed on the site (Safari's page menu → ContextFlow → Always Allow on Every Website). Some pages can't be read by extensions (Safari's start page, App Store pages); open a regular website instead. Reloading the page after enabling the extension also helps.",
+  "en": "Make sure ContextFlow is allowed on websites: Settings → Apps → Safari (not ContextFlow) → Extensions → ContextFlow, All Websites set to Allow. Some pages can't be read by extensions (Safari's start page, App Store pages); open a regular website instead. Reloading the page after enabling the extension also helps.",
   "pages": [
    "support.html"
   ]
@@ -7279,9 +7279,9 @@
   ]
  },
  {
-  "key": "298a4913a429",
+  "key": "2716a7b0a06d",
   "kind": "meta",
-  "en": "How to turn on a Safari extension on iPhone and iPad, from Settings or right in Safari, and what to do when its button still doesn't show: Safari still asking, the extension off, Private Browsing, or a page extensions can't run on.",
+  "en": "How to turn on a Safari extension on iPhone and iPad in Settings, and what to do when its button still doesn't show: All Websites still on Ask, Private Browsing, or a page extensions can't run on.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7295,9 +7295,9 @@
   ]
  },
  {
-  "key": "f2ab6740643b",
+  "key": "87f3783e14c0",
   "kind": "meta",
-  "en": "Two ways to turn an extension on, and the four reasons its button doesn't show.",
+  "en": "The Settings steps that turn an extension on, and the three reasons its button doesn't show.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7311,9 +7311,9 @@
   ]
  },
  {
-  "key": "2a648048f5c9",
+  "key": "b00080ea37aa",
   "kind": "ld",
-  "en": "On iPhone, in the page menu: the button in the address bar that also holds Reader and Translate. On iPad, behind the puzzle-piece button next to the address.",
+  "en": "Their settings are in the Settings app: Apps → Safari → Extensions. In Safari itself, they're in the page menu in the address bar on iPhone, and behind the puzzle-piece button next to the address on iPad.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7327,9 +7327,9 @@
   ]
  },
  {
-  "key": "a55624c2389a",
+  "key": "34d1d1a80d48",
   "kind": "ld",
-  "en": "Turning the extension on works from Safari or Settings. Open the ContextFlow app once if you have a subscription, so it reaches the extension.",
+  "en": "No: the extension is turned on in Settings. Open the ContextFlow app once if you have a subscription, so it reaches the extension.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7343,121 +7343,97 @@
   ]
  },
  {
-  "key": "2d6f703e6dfa",
+  "key": "f97696beeb56",
   "kind": "ld",
-  "en": "Reload the page. If ✦ still doesn't show, open the page menu on iPhone, or the puzzle-piece button on iPad: if ContextFlow is marked ⚠ there, Safari is still asking for your permission.",
+  "en": "Open Settings → Apps → Safari → Extensions → ContextFlow and check that All Websites is set to Allow, then reload the page.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "1570c7ce89fa",
+  "key": "5c60c5d17e74",
   "kind": "ld",
-  "en": "Yes. On iPad, extensions sit behind the puzzle-piece button next to the address instead of the page menu; the rest is the same.",
+  "en": "Yes. The steps in Settings are the same; on iPad, Apps is in the list on the left.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "ba05eef058ce",
+  "key": "88f712fe8af4",
   "kind": "html",
-  "en": "You installed a Safari extension and nothing shows on the page. Almost always Safari needs one more answer from you. The steps are the same for any extension; I use ContextFlow, which I make, as the example.",
+  "en": "You installed a Safari extension and nothing shows on the page. Almost always it isn't allowed on websites yet. The steps are the same for any extension; I use ContextFlow, which I make, as the example.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "bbbbd330a1ce",
+  "key": "da24259f939c",
   "kind": "html",
-  "en": "Right in Safari, on iPhone",
+  "en": "On iPhone",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "d3a4e7084adf",
+  "key": "b805da32b11a",
   "kind": "html",
-  "en": "Open any website and tap the page menu button in the address bar.",
+  "en": "Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "893f27724c24",
+  "key": "abbe3a8e83ad",
   "kind": "html",
-  "en": "Tap Manage Extensions and switch ContextFlow on.",
+  "en": "Under Permissions, set All Websites to Allow.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "522b8aa9ac6a",
+  "key": "07b51faeeeef",
   "kind": "html",
-  "en": "Back in the page menu, tap ContextFlow, then choose Always Allow, then Always Allow on Every Website.",
+  "en": "Back in Safari, reload the page and tap ✦.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "26718a21e9e5",
+  "key": "9d0a81e966b7",
   "kind": "html",
-  "en": "Right in Safari, on iPad",
+  "en": "On iPad",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "8a74c56f53f5",
+  "key": "9cf76ea2ed86",
   "kind": "html",
-  "en": "On iPad, extensions aren't in the page menu. They sit behind the puzzle-piece button next to the address.",
+  "en": "Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "f990738725a6",
+  "key": "6fa21dbedd8b",
   "kind": "html",
-  "en": "Open any website and tap the puzzle-piece button next to the address.",
+  "en": "Pick Safari in the Apps list, not ContextFlow: ContextFlow is listed there too, and its own page has no extension switch.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "7d7d88a5976d",
+  "key": "dcbf54a42129",
   "kind": "html",
-  "en": "Tap the puzzle-piece button again, then ContextFlow, and choose Always Allow, then Always Allow on Every Website.",
+  "en": "If Safari asks about a website",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
  },
  {
-  "key": "a9808eb24576",
+  "key": "f1d6ee0e623d",
   "kind": "html",
-  "en": "In Settings",
-  "pages": [
-   "turn-on-safari-extension-iphone.html"
-  ]
- },
- {
-  "key": "6a9735e94892",
-  "kind": "html",
-  "en": "Open the Settings app, then Apps › Safari › Extensions › ContextFlow.",
-  "pages": [
-   "turn-on-safari-extension-iphone.html"
-  ]
- },
- {
-  "key": "31e8e27f2575",
-  "kind": "html",
-  "en": "Switch it on and set All Websites to Allow.",
-  "pages": [
-   "turn-on-safari-extension-iphone.html"
-  ]
- },
- {
-  "key": "02293aadccac",
-  "kind": "html",
-  "en": "Go back to Safari and reload the page.",
+  "en": "Safari can also ask on a page: ContextFlow is then marked ⚠ in the page menu on iPhone, or behind the puzzle-piece button next to the address on iPad. Choose Always Allow. If ✦ still doesn't show, use the Settings steps above.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7471,17 +7447,9 @@
   ]
  },
  {
-  "key": "0cf659670083",
+  "key": "eab4486f7e00",
   "kind": "html",
-  "en": "<strong>Safari is still asking.</strong> With All Websites left on Ask, the button doesn't appear, and Safari's question waits: in the page menu on iPhone, behind the puzzle-piece button next to the address on iPad. ContextFlow is marked ⚠ there. Tap it and choose Always Allow, then Always Allow on Every Website. On iPad, a banner under the address asking for more permissions is the same question.",
-  "pages": [
-   "turn-on-safari-extension-iphone.html"
-  ]
- },
- {
-  "key": "0ae265aab291",
-  "kind": "html",
-  "en": "<strong>The extension is off.</strong> ContextFlow isn't in the page menu (iPhone) or behind the puzzle-piece button (iPad) at all: tap Manage Extensions there and switch it on.",
+  "en": "<strong>All Websites is still on Ask.</strong> Set it to Allow in Settings, as above, and reload the page.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7527,9 +7495,9 @@
   ]
  },
  {
-  "key": "aa81ded54830",
+  "key": "b816d048ded2",
   "kind": "html",
-  "en": "Is Always Allow on Every Website safe?",
+  "en": "Is allowing it on every website safe?",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]

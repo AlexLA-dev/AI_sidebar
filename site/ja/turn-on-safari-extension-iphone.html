@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>iPhone・iPadでSafariの機能拡張をオンにする方法と、ボタンが表示されない理由 — ContextFlow</title>
-<meta name="description" content="iPhoneとiPadでSafariの機能拡張をオンにする方法（「設定」からでもSafariの中からでも）と、それでもボタンが表示されないときの対処：Safariがまだ確認している、機能拡張がオフ、プライベートブラウズ、機能拡張が動かないページ。" />
+<meta name="description" content="iPhoneとiPadでSafariの機能拡張（拡張機能）を「設定」からオンにする方法と、それでもボタンが表示されないときの対処：「すべてのWebサイト」が「確認」のまま、プライベートブラウズ、機能拡張が動かないページ。" />
 <link rel="icon" href="/icon.png" />
 <link rel="apple-touch-icon" href="/icon-512.png" />
 <link rel="stylesheet" href="/style.css" />
@@ -34,7 +34,7 @@
 <meta name="apple-itunes-app" content="app-id=6759115793, affiliate-data=ct=site_banner&amp;pt=119037986" />
 <meta property="og:type" content="article" />
 <meta property="og:title" content="iPhone・iPadでSafariの機能拡張をオンにする方法" />
-<meta property="og:description" content="機能拡張をオンにする2つの方法と、ボタンが表示されない4つの理由。" />
+<meta property="og:description" content="機能拡張をオンにする「設定」の手順と、ボタンが表示されない3つの理由。" />
 <meta property="og:image" content="https://context-flow.app/icon-512.png" />
 <meta property="og:url" content="https://context-flow.app/ja/turn-on-safari-extension-iphone" />
 <meta property="og:locale" content="ja_JP" />
@@ -79,7 +79,7 @@
           "name": "Safariの機能拡張はどこにありますか？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "iPhoneでは、ページメニューの中です。アドレスバーにあるボタンで、リーダーや翻訳もここにあります。iPadでは、アドレスの横にあるパズルピースのボタンの中です。"
+            "text": "設定は「設定」アプリの「アプリ」→「Safari」→「機能拡張」にあります。Safariの中では、iPhoneならアドレスバーのページメニュー、iPadならアドレスの横にあるパズルピースのボタンの中です。"
           }
         },
         {
@@ -87,7 +87,7 @@
           "name": "先にアプリを開く必要はありますか？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "機能拡張はSafariからでも「設定」からでもオンにできます。サブスクリプションをお持ちなら、それが機能拡張に届くよう、ContextFlowアプリを一度開いてください。"
+            "text": "いいえ。機能拡張は「設定」でオンにします。サブスクリプションをお持ちなら、それが機能拡張に届くよう、ContextFlowアプリを一度開いてください。"
           }
         },
         {
@@ -95,7 +95,7 @@
           "name": "オンにしたのに何も表示されません。",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "ページを再読み込みしてください。それでも✦が表示されない場合は、iPhoneではページメニューを、iPadではパズルピースのボタンを開きます。そこでContextFlowに⚠が付いていれば、Safariがまだ許可を確認しています。"
+            "text": "「設定」→「アプリ」→「Safari」→「機能拡張」→「ContextFlow」を開いて「すべてのWebサイト」が「許可」になっているか確認し、ページを再読み込みしてください。"
           }
         },
         {
@@ -103,7 +103,7 @@
           "name": "iPadでも使えますか？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "はい。iPadでは、機能拡張はページメニューではなく、アドレスの横にあるパズルピースのボタンの中にあります。それ以外は同じです。"
+            "text": "はい。「設定」での手順は同じです。iPadでは「アプリ」が左側のリストにあります。"
           }
         }
       ]
@@ -118,34 +118,29 @@
   <h1>iPhone・iPadでSafariの機能拡張をオンにする方法</h1>
   <div class="updated">2026年11月更新 · ContextFlowの開発者より</div>
 
-  <p class="lede">Safariの機能拡張をインストールしたのに、ページに何も表示されない。ほとんどの場合、Safariがあなたの応答をもう1つ待っています。手順はどの機能拡張でも同じです。ここでは私が作っているContextFlowを例にします。</p>
+  <p class="lede">Safariの機能拡張をインストールしたのに、ページに何も表示されない。ほとんどの場合、まだWebサイトで許可されていないのが原因です。手順はどの機能拡張でも同じです。ここでは私が作っているContextFlowを例にします。</p>
 
-  <h2>iPhoneのSafariの中で</h2>
+  <h2>iPhoneの場合</h2>
   <ol>
-    <li>好きなWebサイトを開き、アドレスバーのページメニューボタンをタップします。</li>
-    <li>「機能拡張を管理」をタップして、ContextFlowをオンにします。</li>
-    <li>ページメニューに戻って「ContextFlow」をタップし、「常に許可」、続けて「すべてのWebサイトで常に許可」を選びます。</li>
+    <li>「設定」アプリを開き、「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」→「ContextFlow」と進みます。</li>
+    <li>「アクセス権」で「すべてのWebサイト」を「許可」に設定します。</li>
+    <li>Safariに戻り、ページを再読み込みして✦をタップします。</li>
   </ol>
 
-  <h2>iPadのSafariの中で</h2>
-  <p>iPadでは、機能拡張はページメニューにはありません。アドレスの横にあるパズルピースのボタンの中にあります。</p>
+  <h2>iPadの場合</h2>
   <ol>
-    <li>好きなWebサイトを開き、アドレスの横にあるパズルピースのボタンをタップします。</li>
-    <li>「機能拡張を管理」をタップして、ContextFlowをオンにします。</li>
-    <li>もう一度パズルピースのボタンをタップして「ContextFlow」をタップし、「常に許可」、続けて「すべてのWebサイトで常に許可」を選びます。</li>
+    <li>「設定」を開き、左側の「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」→「ContextFlow」と進みます。</li>
+    <li>「アクセス権」で「すべてのWebサイト」を「許可」に設定します。</li>
+    <li>Safariに戻り、ページを再読み込みして✦をタップします。</li>
   </ol>
+  <p>「アプリ」の一覧では、ContextFlowではなく「Safari」を選んでください。ContextFlowも一覧にありますが、そのページには機能拡張のスイッチがありません。</p>
 
-  <h2>「設定」で</h2>
-  <ol>
-    <li>「設定」アプリを開き、「アプリ」›「Safari」›「機能拡張」›「ContextFlow」に進みます。</li>
-    <li>オンにして、「すべてのWebサイト」を「許可」にします。</li>
-    <li>Safariに戻ってページを再読み込みします。</li>
-  </ol>
+  <h2>SafariにWebサイトについて確認されたら</h2>
+  <p>Safariがページ上で確認してくることもあります。その場合、iPhoneではページメニュー、iPadではアドレスの横にあるパズルピースのボタンの中で、ContextFlowに⚠が付いています。「常に許可」を選んでください。それでも✦が表示されない場合は、上の「設定」の手順に従ってください。</p>
 
   <h2>オンにしたのにボタンがない？</h2>
   <ul>
-    <li><strong>Safariがまだ確認している。</strong>「すべてのWebサイト」が「確認」のままだとボタンは表示されず、Safariの確認が待っています。iPhoneではページメニューの中、iPadではアドレスの横にあるパズルピースのボタンの中です。そこでContextFlowに⚠が付いています。それをタップし、「常に許可」、続けて「すべてのWebサイトで常に許可」を選びます。iPadでアドレスの下に追加の許可を求めるバナーが出ている場合も、同じ確認です。</li>
-    <li><strong>機能拡張がオフになっている。</strong>ページメニュー（iPhone）にもパズルピースのボタンの中（iPad）にも、ContextFlowがまったく表示されません。そこで「機能拡張を管理」をタップしてオンにします。</li>
+    <li><strong>「すべてのWebサイト」が「確認」のまま。</strong>上と同じように「設定」で「許可」に変えて、ページを再読み込みしてください。</li>
     <li><strong>プライベートブラウズ。</strong>許可した場合だけ、そこで機能拡張が動きます：「設定」›「アプリ」›「Safari」›「機能拡張」›「ContextFlow」›「プライベートブラウズで許可」。</li>
     <li><strong>機能拡張が動かないページ。</strong>Safariでは、スタートページやApp Storeのページなど、いくつかのページで機能拡張が動きません。通常のWebサイトを開いてください。</li>
   </ul>
@@ -156,16 +151,16 @@
     <li>そのあと、ツールバーのContextFlowをクリックするか、Control-Shift-Eを押します。</li>
   </ul>
 
-  <h2>「すべてのWebサイトで常に許可」は安全ですか？</h2>
+  <h2>すべてのWebサイトで許可しても安全ですか？</h2>
   <p>Safariは、機能拡張が何をするのかを知ることができないため、どの機能拡張にも同じ警告を表示します。ContextFlowがページを読むのはあなたが何か質問したときだけで、ページのテキストは私のサーバーに保存されません。サイトごとに許可することもできます。その場合、✦はそのサイトでだけ表示されます。</p>
 
   <p class="get"><a class="cta" href="https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&amp;ct=turnon&amp;mt=8"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z" /></svg><span><small>ダウンロード</small>App Store</span></a></p>
 
   <h2>よくある質問</h2>
-  <details><summary>Safariの機能拡張はどこにありますか？</summary><p>iPhoneでは、ページメニューの中です。アドレスバーにあるボタンで、リーダーや翻訳もここにあります。iPadでは、アドレスの横にあるパズルピースのボタンの中です。</p></details>
-  <details><summary>先にアプリを開く必要はありますか？</summary><p>機能拡張はSafariからでも「設定」からでもオンにできます。サブスクリプションをお持ちなら、それが機能拡張に届くよう、ContextFlowアプリを一度開いてください。</p></details>
-  <details><summary>オンにしたのに何も表示されません。</summary><p>ページを再読み込みしてください。それでも✦が表示されない場合は、iPhoneではページメニューを、iPadではパズルピースのボタンを開きます。そこでContextFlowに⚠が付いていれば、Safariがまだ許可を確認しています。</p></details>
-  <details><summary>iPadでも使えますか？</summary><p>はい。iPadでは、機能拡張はページメニューではなく、アドレスの横にあるパズルピースのボタンの中にあります。それ以外は同じです。</p></details>
+  <details><summary>Safariの機能拡張はどこにありますか？</summary><p>設定は「設定」アプリの「アプリ」→「Safari」→「機能拡張」にあります。Safariの中では、iPhoneならアドレスバーのページメニュー、iPadならアドレスの横にあるパズルピースのボタンの中です。</p></details>
+  <details><summary>先にアプリを開く必要はありますか？</summary><p>いいえ。機能拡張は「設定」でオンにします。サブスクリプションをお持ちなら、それが機能拡張に届くよう、ContextFlowアプリを一度開いてください。</p></details>
+  <details><summary>オンにしたのに何も表示されません。</summary><p>「設定」→「アプリ」→「Safari」→「機能拡張」→「ContextFlow」を開いて「すべてのWebサイト」が「許可」になっているか確認し、ページを再読み込みしてください。</p></details>
+  <details><summary>iPadでも使えますか？</summary><p>はい。「設定」での手順は同じです。iPadでは「アプリ」が左側のリストにあります。</p></details>
 
   <p class="more">関連：<a href="/ja/find-cheaper-similar-product-safari-iphone">似た商品をもっと安く探す</a> · <a href="/ja/ask-ai-about-web-page-safari">読んでいるページについてAIに質問する</a> · <a href="/ja/contextflow-vs-zeki-surfmind">ContextFlow、Zeki、SurfMindを比較</a> · <a href="/ja/translate-web-page-safari-iphone">SafariでWebページを翻訳</a> · <a href="/ja/features">すべての機能</a></p>
 </main>
