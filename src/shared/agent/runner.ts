@@ -162,6 +162,8 @@ export interface AgentState {
   pressedTarget?: boolean
   // The rules let the agent choose the place; how many times a question was sent back to try the next one.
   chooseVenue?: boolean
+  // The plan's place question asked (askPlace): once.
+  placeAsked?: boolean
   venueNudges?: number
   minRating?: number
   // The places that fit (ranked on the device from a results list), and the ones already tried.
@@ -878,7 +880,10 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // guards below once (they're for questions about places and days).
     const chosenAsk = call.tool === "ask_user" && !!state.askSpecialist
     if (chosenAsk) state.askSpecialist = false
-    const details = detailsForm(map) || chosenAsk
+    // The place question the plan left to the agent (askPlace), asked from a list of places: once, past the guards below.
+    const placeAsk = call.tool === "ask_user" && !!state.plan?.askPlace && !state.placeAsked && !!state.venues?.list.length
+    if (placeAsk) state.placeAsked = true
+    const details = detailsForm(map) || chosenAsk || placeAsk
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       continue
@@ -1229,6 +1234,8 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
   const place = where >= 0 ? (answers[where] ?? "").trim() : ""
   // (The rules' own pick left as it was stays the rules': when it has no fitting slot, the next place is tried; «pick for
   // me» leaves it to the rules; a place of the page's, last time's or the person's own words is that place.)
+  // Theirs to choose and not asked on the card (no list there): the agent asks once a list is open.
+  if (plan.booking?.personal && !plan.booking.venue && where < 0 && state.chooseVenue !== false) plan.askPlace = true
   if (plan.booking && place && place !== "@auto" && place !== plan.questions[where].pick) {
     plan.booking.venue = place
     state.chooseVenue = false
@@ -1297,6 +1304,12 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     // steps count again from it.
     state.dateSteps = 0
     state.lastDate = undefined
+    // The place the person picked from the agent's question (askPlace): theirs — no switching to another one.
+    const picked = state.plan?.askPlace && state.placeAsked ? state.venues?.list.find((v) => namedIn(v.name, text)) : undefined
+    if (picked && state.plan?.booking) {
+      state.plan.booking.venue = picked.name
+      state.chooseVenue = false
+    }
     await io.save(state)
     return drive(state, io)
   }
