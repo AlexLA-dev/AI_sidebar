@@ -707,10 +707,7 @@
   "f3e85fc02c58": "Frag zum Artikel unten",
   "bcaffb144408": "Tippe auf „Zusammenfassen“ oder schreib deine eigene Frage.",
   "9d96ba4d55c1": "Du siehst ✦ nicht?",
-  "9d9ad8e99b95": "Schalte ContextFlow für Websites ein, direkt hier in Safari:",
   "f4afcc50e13a": "Tippe in der Adressleiste auf die Taste für das Seitenmenü.",
-  "893f27724c24": "Tippe auf „Erweiterungen verwalten“ und schalte ContextFlow ein.",
-  "522b8aa9ac6a": "Tippe zurück im Seitenmenü auf „ContextFlow“ und wähle „Immer erlauben“, dann „Auf allen Websites immer erlauben“.",
   "549e89fb27a3": "Schalte ContextFlow in Safari ein: Safari › Einstellungen › Erweiterungen, setze das Häkchen bei ContextFlow und erlaube es auf allen Websites. Klicke dann in der Symbolleiste auf ContextFlow.",
   "1cc58907b745": "Diese Seite neu laden",
   "8906a1b64245": "Falls Safari nach dieser Website fragt",
@@ -723,5 +720,9 @@
   "e4ebf5270dc5": "Was du fragen kannst",
   "1b9e268ed03c": "„Was ist die Kernaussage, in einem Satz?“",
   "270760321fc9": "Markiere „Seine Kurve hat einen Haken“ und frag: „Stimmt das?“",
-  "896f51d1cdab": "„Was hat spätere Forschung dazu herausgefunden?“"
+  "896f51d1cdab": "„Was hat spätere Forschung dazu herausgefunden?“",
+  "d6c19b41a6a0": "ContextFlow gerade eingeschaltet? Dann fragt Safari wahrscheinlich noch bei jeder Website nach. Bis du antwortest, erscheint ✦ nicht, und die Frage wartet im Seitenmenü:",
+  "1b2420ba8f62": "Tippe dort auf „ContextFlow“: Es ist mit ⚠ markiert.",
+  "67db24588787": "Wähle „Immer erlauben“, dann „Auf allen Websites immer erlauben“.",
+  "3809443abef4": "Kein ContextFlow im Seitenmenü? Dann ist es ausgeschaltet: Tippe dort auf „Erweiterungen verwalten“, schalte ContextFlow ein und folge dann den Schritten oben."
 }

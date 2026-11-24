@@ -707,10 +707,7 @@
   "f3e85fc02c58": "Posez une question sur l’article ci-dessous",
   "bcaffb144408": "Touchez « Résumer », ou tapez votre propre question.",
   "9d96ba4d55c1": "Vous ne voyez pas ✦ ?",
-  "9d9ad8e99b95": "Activez ContextFlow pour les sites web, ici même dans Safari :",
   "f4afcc50e13a": "Touchez le bouton du menu de la page dans la barre d’adresse.",
-  "893f27724c24": "Touchez « Gérer les extensions » et activez ContextFlow.",
-  "522b8aa9ac6a": "De retour dans le menu de la page, touchez ContextFlow, puis choisissez « Toujours autoriser », puis « Toujours autoriser sur tous les sites web ».",
   "549e89fb27a3": "Activez ContextFlow dans Safari : Safari › Réglages › Extensions, cochez ContextFlow et autorisez-le sur tous les sites web. Cliquez ensuite sur ContextFlow dans la barre d’outils.",
   "1cc58907b745": "Recharger cette page",
   "8906a1b64245": "Si Safari vous pose une question sur ce site",
@@ -723,5 +720,9 @@
   "e4ebf5270dc5": "Questions à poser",
   "1b9e268ed03c": "« Quelle est l’idée principale, en une phrase ? »",
   "270760321fc9": "Sélectionnez « Sa courbe a un hic » et demandez : « C’est vrai ? »",
-  "896f51d1cdab": "« Qu’ont découvert les recherches plus récentes à ce sujet ? »"
+  "896f51d1cdab": "« Qu’ont découvert les recherches plus récentes à ce sujet ? »",
+  "d6c19b41a6a0": "Vous venez d’activer ContextFlow ? Safari demande sans doute encore l’autorisation sur chaque site web. Tant que vous n’avez pas répondu, ✦ n’apparaît pas, et la question attend dans le menu de la page :",
+  "1b2420ba8f62": "Touchez ContextFlow dans ce menu : il est marqué ⚠.",
+  "67db24588787": "Choisissez « Toujours autoriser », puis « Toujours autoriser sur tous les sites web ».",
+  "3809443abef4": "Pas de ContextFlow dans le menu de la page ? Il est alors désactivé : touchez « Gérer les extensions » dans ce menu, activez ContextFlow, puis suivez les étapes ci-dessus."
 }

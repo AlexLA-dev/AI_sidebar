@@ -707,10 +707,7 @@
   "f3e85fc02c58": "Pregunta sobre el artículo de abajo",
   "bcaffb144408": "Toca «Resumir» o escribe tu propia pregunta.",
   "9d96ba4d55c1": "¿No ves ✦?",
-  "9d9ad8e99b95": "Activa ContextFlow para los sitios web aquí mismo, en Safari:",
   "f4afcc50e13a": "Toca el botón del menú de la página en la barra de direcciones.",
-  "893f27724c24": "Toca «Gestionar extensiones» y activa ContextFlow.",
-  "522b8aa9ac6a": "De vuelta en el menú de la página, toca ContextFlow y elige «Permitir siempre» y luego «Permitir siempre en todos los sitios web».",
   "549e89fb27a3": "Activa ContextFlow en Safari: Safari › Ajustes › Extensiones, marca ContextFlow y permítelo en todos los sitios web. Después haz clic en ContextFlow en la barra de herramientas.",
   "1cc58907b745": "Volver a cargar esta página",
   "8906a1b64245": "Si Safari pregunta por este sitio web",
@@ -723,5 +720,9 @@
   "e4ebf5270dc5": "Qué preguntar",
   "1b9e268ed03c": "«¿Cuál es la idea principal, en una frase?»",
   "270760321fc9": "Selecciona «Su curva tiene un pero» y pregunta: «¿Es cierto?»",
-  "896f51d1cdab": "«¿Qué descubrieron investigaciones posteriores sobre esto?»"
+  "896f51d1cdab": "«¿Qué descubrieron investigaciones posteriores sobre esto?»",
+  "d6c19b41a6a0": "¿Acabas de activar ContextFlow? Lo más probable es que Safari todavía pregunte en cada sitio web. Hasta que respondas, ✦ no aparece, y la pregunta espera en el menú de la página:",
+  "1b2420ba8f62": "Toca ContextFlow ahí: está marcado con ⚠.",
+  "67db24588787": "Elige «Permitir siempre» y luego «Permitir siempre en todos los sitios web».",
+  "3809443abef4": "¿No ves ContextFlow en el menú de la página? Entonces está desactivado: toca ahí «Gestionar extensiones», activa ContextFlow y sigue los pasos de arriba."
 }

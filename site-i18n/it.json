@@ -707,10 +707,7 @@
   "f3e85fc02c58": "Chiedi dell’articolo qui sotto",
   "bcaffb144408": "Tocca «Riassumi» o scrivi la tua domanda.",
   "9d96ba4d55c1": "Non vedi ✦?",
-  "9d9ad8e99b95": "Attiva ContextFlow per i siti web, direttamente qui in Safari:",
   "f4afcc50e13a": "Tocca il pulsante del menu della pagina nella barra degli indirizzi.",
-  "893f27724c24": "Tocca «Gestisci estensioni» e attiva ContextFlow.",
-  "522b8aa9ac6a": "Di nuovo nel menu della pagina, tocca ContextFlow, poi scegli «Consenti sempre» e quindi «Consenti sempre su tutti i siti web».",
   "549e89fb27a3": "Attiva ContextFlow in Safari: Safari › Impostazioni › Estensioni, spunta ContextFlow e consentilo su tutti i siti web. Poi fai clic su ContextFlow nella barra degli strumenti.",
   "1cc58907b745": "Ricarica questa pagina",
   "8906a1b64245": "Se Safari ti chiede di questo sito",
@@ -723,5 +720,9 @@
   "e4ebf5270dc5": "Cosa chiedere",
   "1b9e268ed03c": "«Qual è l’idea principale, in una frase?»",
   "270760321fc9": "Seleziona «La sua curva ha un punto debole» e chiedi: «È vero?»",
-  "896f51d1cdab": "«Cosa hanno scoperto le ricerche successive su questo?»"
+  "896f51d1cdab": "«Cosa hanno scoperto le ricerche successive su questo?»",
+  "d6c19b41a6a0": "Hai appena attivato ContextFlow? Molto probabilmente Safari chiede ancora il permesso su ogni sito web. Finché non rispondi, ✦ non compare, e la domanda aspetta nel menu della pagina:",
+  "1b2420ba8f62": "Tocca ContextFlow lì: è segnato con ⚠.",
+  "67db24588787": "Scegli «Consenti sempre», poi «Consenti sempre su tutti i siti web».",
+  "3809443abef4": "Nel menu della pagina non c’è ContextFlow? Allora è disattivato: tocca lì «Gestisci estensioni», attiva ContextFlow e segui i passaggi qui sopra."
 }

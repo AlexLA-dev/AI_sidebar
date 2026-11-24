@@ -707,10 +707,7 @@
   "f3e85fc02c58": "Pergunte sobre o artigo abaixo",
   "bcaffb144408": "Toque em “Resumir” ou digite sua própria pergunta.",
   "9d96ba4d55c1": "Não está vendo o ✦?",
-  "9d9ad8e99b95": "Ative o ContextFlow para sites aqui mesmo, no Safari:",
   "f4afcc50e13a": "Toque no botão do menu da página na barra de endereço.",
-  "893f27724c24": "Toque em “Gerenciar Extensões” e ative o ContextFlow.",
-  "522b8aa9ac6a": "De volta ao menu da página, toque em ContextFlow e escolha “Sempre Permitir” e depois “Sempre Permitir em Todos os Sites”.",
   "549e89fb27a3": "Ative o ContextFlow no Safari: Safari › Ajustes › Extensões, marque ContextFlow e permita a extensão em todos os sites. Depois clique em ContextFlow na barra de ferramentas.",
   "1cc58907b745": "Recarregar esta página",
   "8906a1b64245": "Se o Safari perguntar sobre este site",
@@ -723,5 +720,9 @@
   "e4ebf5270dc5": "O que perguntar",
   "1b9e268ed03c": "“Qual é a ideia principal, em uma frase?”",
   "270760321fc9": "Selecione “A curva dele tem um porém” e pergunte: “Isso é verdade?”",
-  "896f51d1cdab": "“O que pesquisas posteriores descobriram sobre isso?”"
+  "896f51d1cdab": "“O que pesquisas posteriores descobriram sobre isso?”",
+  "d6c19b41a6a0": "Acabou de ativar o ContextFlow? Provavelmente o Safari ainda está perguntando em cada site. Até você responder, o ✦ não aparece, e a pergunta fica esperando no menu da página:",
+  "1b2420ba8f62": "Toque em ContextFlow ali: ele está marcado com ⚠.",
+  "67db24588787": "Escolha “Sempre Permitir” e depois “Sempre Permitir em Todos os Sites”.",
+  "3809443abef4": "Não aparece ContextFlow no menu da página? Então ele está desativado: toque em “Gerenciar Extensões” ali, ative o ContextFlow e siga os passos acima."
 }

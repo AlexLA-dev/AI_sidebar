@@ -707,10 +707,7 @@
   "f3e85fc02c58": "Hỏi về bài viết bên dưới",
   "bcaffb144408": "Chạm vào “Tóm tắt”, hoặc tự nhập câu hỏi của bạn.",
   "9d96ba4d55c1": "Không thấy ✦?",
-  "9d9ad8e99b95": "Bật ContextFlow cho các trang web ngay tại đây, trong Safari:",
   "f4afcc50e13a": "Chạm vào nút menu trang trên thanh địa chỉ.",
-  "893f27724c24": "Chạm vào “Quản lý tiện ích mở rộng” và bật ContextFlow.",
-  "522b8aa9ac6a": "Quay lại menu trang, chạm vào ContextFlow, chọn “Luôn cho phép”, rồi chọn “Luôn cho phép trên mọi trang web”.",
   "549e89fb27a3": "Bật ContextFlow trong Safari: Safari › Cài đặt › Tiện ích mở rộng, đánh dấu chọn ContextFlow và cho phép trên mọi trang web. Sau đó bấm vào ContextFlow trên thanh công cụ.",
   "1cc58907b745": "Tải lại trang này",
   "8906a1b64245": "Nếu Safari hỏi về trang web này",
@@ -723,5 +720,9 @@
   "e4ebf5270dc5": "Gợi ý câu hỏi",
   "1b9e268ed03c": "“Ý chính là gì, tóm lại trong một câu?”",
   "270760321fc9": "Bôi đen câu “Đường cong của ông có một điểm yếu” rồi hỏi: “Điều này có đúng không?”",
-  "896f51d1cdab": "“Các nghiên cứu sau này phát hiện gì về chuyện này?”"
+  "896f51d1cdab": "“Các nghiên cứu sau này phát hiện gì về chuyện này?”",
+  "d6c19b41a6a0": "Bạn vừa bật ContextFlow? Nhiều khả năng Safari vẫn đang hỏi trên từng trang web. Cho đến khi bạn trả lời, ✦ sẽ không hiện, và câu hỏi đang chờ trong menu trang:",
+  "1b2420ba8f62": "Chạm vào ContextFlow ở đó: mục này có dấu ⚠.",
+  "67db24588787": "Chọn “Luôn cho phép”, rồi chọn “Luôn cho phép trên mọi trang web”.",
+  "3809443abef4": "Không thấy ContextFlow trong menu trang? Vậy là tiện ích đang tắt: chạm vào “Quản lý tiện ích mở rộng” ở đó, bật ContextFlow rồi làm theo các bước ở trên."
 }

@@ -707,10 +707,7 @@
   "f3e85fc02c58": "Aşağıdaki makale hakkında sorun",
   "bcaffb144408": "“Özetle” düğmesine dokunun ya da kendi sorunuzu yazın.",
   "9d96ba4d55c1": "✦ düğmesini görmüyor musunuz?",
-  "9d9ad8e99b95": "ContextFlow'u web siteleri için hemen burada, Safari'de açın:",
   "f4afcc50e13a": "Adres çubuğundaki sayfa menüsü düğmesine dokunun.",
-  "893f27724c24": "“Uzantıları Yönet”e dokunun ve ContextFlow'u açın.",
-  "522b8aa9ac6a": "Sayfa menüsüne dönüp ContextFlow'a dokunun, ardından önce “Her Zaman İzin Ver”i, sonra “Her Web Sitesinde Her Zaman İzin Ver”i seçin.",
   "549e89fb27a3": "ContextFlow'u Safari'de açın: Safari › Ayarlar › Uzantılar'da ContextFlow'u işaretleyin ve tüm web sitelerinde izin verin. Ardından araç çubuğundaki ContextFlow'a tıklayın.",
   "1cc58907b745": "Bu sayfayı yeniden yükleyin",
   "8906a1b64245": "Safari bu web sitesi için izin isterse",
@@ -723,5 +720,9 @@
   "e4ebf5270dc5": "Neler sorabilirsiniz",
   "1b9e268ed03c": "“Ana fikir ne? Tek cümleyle anlat.”",
   "270760321fc9": "“Eğrisinin bir kusuru var” cümlesini seçin ve sorun: “Bu doğru mu?”",
-  "896f51d1cdab": "“Sonraki araştırmalar bu konuda ne buldu?”"
+  "896f51d1cdab": "“Sonraki araştırmalar bu konuda ne buldu?”",
+  "d6c19b41a6a0": "ContextFlow'u yeni mi açtınız? Safari büyük olasılıkla hâlâ her web sitesinde izin soruyor. Siz yanıt verene kadar ✦ görünmez ve soru sayfa menüsünde bekler:",
+  "1b2420ba8f62": "Orada ContextFlow'a dokunun: yanında ⚠ işareti vardır.",
+  "67db24588787": "Önce “Her Zaman İzin Ver”i, sonra “Her Web Sitesinde Her Zaman İzin Ver”i seçin.",
+  "3809443abef4": "Sayfa menüsünde ContextFlow yok mu? O zaman uzantı kapalıdır: orada “Uzantıları Yönet”e dokunun, ContextFlow'u açın ve yukarıdaki adımları izleyin."
 }

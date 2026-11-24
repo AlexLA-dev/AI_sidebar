@@ -5999,9 +5999,9 @@
   ]
  },
  {
-  "key": "9d9ad8e99b95",
+  "key": "d6c19b41a6a0",
   "kind": "html",
-  "en": "Turn ContextFlow on for websites, right here in Safari:",
+  "en": "Just switched ContextFlow on? Safari is most likely still asking about each website. Until you answer, ✦ doesn't show up, and the question waits in the page menu:",
   "pages": [
    "start.html"
   ]
@@ -6015,17 +6015,25 @@
   ]
  },
  {
-  "key": "893f27724c24",
+  "key": "1b2420ba8f62",
   "kind": "html",
-  "en": "Tap Manage Extensions and switch ContextFlow on.",
+  "en": "Tap ContextFlow there: it's marked ⚠.",
   "pages": [
    "start.html"
   ]
  },
  {
-  "key": "522b8aa9ac6a",
+  "key": "67db24588787",
   "kind": "html",
-  "en": "Back in the page menu, tap ContextFlow, then choose Always Allow, then Always Allow on Every Website.",
+  "en": "Choose Always Allow, then Always Allow on Every Website.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "3809443abef4",
+  "kind": "html",
+  "en": "No ContextFlow in the page menu? Then it's switched off: tap Manage Extensions there, switch ContextFlow on, and do the steps above.",
   "pages": [
    "start.html"
   ]
