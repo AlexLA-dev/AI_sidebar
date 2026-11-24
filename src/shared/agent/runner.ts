@@ -487,7 +487,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   if (plan.booking?.contacts?.length) {
     const have = new Set(liveEntries(entries).map((e) => e.key))
     const said = `${state.request} ${plan.fromChat ?? ""}`
-    const forSomeone = plan.perms.some((p) => p.kind === "personal")
+    // (Someone's details in the request: a contact or a name written in it, typed by the plan — not a site's search box
+    // the plan took for a personal field, 126.)
+    const forSomeone = plan.perms.some((p) => p.kind === "personal") && (contactInWords("email", said) || contactInWords("phone", said) || NAME_SAID.test(said))
     for (const key of plan.booking.contacts) {
       if (!have.has(key) && !contactInWords(key, said) && !plan.questions.some((q) => q.key === key)) plan.questions.push({ q: "", kind: "contact", key, options: [], ...(forSomeone ? { once: true } : {}) })
     }
@@ -514,6 +516,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   plan.approved = true
   return "go"
 }
+
+// A name written in the request («имя Мария Ким», «name: Anna», «au nom de…»), in the panel's languages.
+const NAME_SAID = /(?<!\p{L})(имя|имени|на имя|name|nom|nombre|nome|vorname|isim|adına|名前|氏名|이름|姓名|名字|الاسم|باسم|tên|ім'я)(?!\p{L})/iu
 
 // A booking form another site serves in a frame of this page (a restaurant's or a salon's provider widget): its title,
 // name or address speaks of booking in one of the 15 languages («Reservation widget», «/reservations/…», «予約»).

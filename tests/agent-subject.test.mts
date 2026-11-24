@@ -198,6 +198,14 @@ test("a list of places that shows no ratings (a clinic directory) is a list by i
   assert.deepEqual(venuesOn(footer), [])
 })
 
+test("a marketplace's home page named after its site, with a search, isn't one place (126); a restaurant's own home page is", () => {
+  const home = page("https://www.clinicbook.example/", "Clinicbook : Prenez rendez-vous avec un médecin", "Clinicbook\nTrouvez un rendez-vous", [
+    { id: "1", role: "textbox", label: "Nom, spécialité, établissement" }, { id: "2", role: "textbox", label: "Où ?" }, { id: "3", role: "button", label: "Rechercher" }, { id: "4", role: "link", label: "Réserver un rendez-vous", href: "/rdv" }])
+  assert.equal(pageSubject(home), null)
+  const own = page("https://trattoriasole.example/", "Trattoria Sole | Italian restaurant in Paris", "Trattoria Sole\nItalian cuisine since 1990", [{ id: "1", role: "button", label: "Book a table" }])
+  assert.deepEqual(pageSubject(own), { kind: "place", name: "Trattoria Sole" })
+})
+
 test("rules that say not to choose a place make any unnamed place the person's: asked from the list, noted even without the rule (126)", async () => {
   const HOME = page("https://parking.example/", "Parking", "Find parking", [{ id: "1", role: "textbox", label: "Where" }, { id: "2", role: "button", label: "Search" }])
   const LIST = page("https://parking.example/search/limassol", "Parking in Limassol", "Parking in Limassol",
@@ -254,4 +262,21 @@ test("a page that is the booking's own form: no «I'll pick the place», and a d
   assert.ok(s.plan?.perms.some((p) => p.kind === "personal"), "the request's details are typed")
   assert.ok(!s.plan?.perms.some((p) => p.kind === "fill" && p.keys?.includes("email")), "the e-mail isn't from «Мои данные» too")
   assert.ok(!s.plan?.questions.some((q) => q.kind === "contact"), "nor asked")
+})
+
+test("a contact still asked is kept by default unless the request carries someone's details (a search box isn't them, 126)", async () => {
+  const SEARCHY = page("https://clinics.example/", "Clinics", "Find a doctor", [{ id: "1", role: "textbox", label: "Nom, spécialité, examens", lock: "personal" }, { id: "2", role: "button", label: "Rechercher" }])
+  const run = async (request: string) => {
+    const RAW = { label: "rdv", steps: ["Search"], questions: [], prices: [], fromChat: "", risky: [{ tool: "type", id: "1", text: "dentiste", key: "" }],
+      booking: { kind: "appointment", date: "2026-12-28", dateEnd: "", at: "", personal: true, from: "08:00", until: "12:00", minutes: 30, tz: "", venue: "", match: ["dentist"], area: ["Paris"], contacts: ["phone"], specialists: [], services: [], specialistNamed: "", serviceNamed: "" } }
+    const io: RunnerIO = {
+      map: async () => SEARCHY, act: async () => ({ ok: true }), waitPage: async () => {},
+      ask: async () => ({ ok: true, plan: RAW, token: "t" } as any),
+      save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+      device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
+    }
+    return (await drive(newState("c", request, "ru", SEARCHY.url), io)).plan?.questions.find((q) => q.kind === "contact")
+  }
+  assert.equal((await run("Запиши меня к стоматологу в Париже в понедельник"))?.once, undefined, "the person's own: kept")
+  assert.equal((await run("Запиши к стоматологу в Париже, имя Мария Ким"))?.once, true, "someone else's: not kept by default")
 })

@@ -514,7 +514,7 @@ function io(tab: number, gen?: string): RunnerIO {
           const st = await load(tab)
           const area = st?.plan?.booking?.area ?? []
           const cards = m.items.filter((i) => i.card)
-          trace(tab, `places cards=${cards.length} area=${JSON.stringify(area)} match=${JSON.stringify(st?.plan?.booking?.match ?? [])} personal=${st?.plan?.booking?.personal} askPlace=${st?.plan?.askPlace} choose=${st?.chooseVenue} noted=${st?.venues?.list.length ?? -1} venues=${venuesOn(m, area).length} ${cards.slice(0, 3).map((i) => `«${i.label.slice(0, 30)} | ${(i.where ?? "")} | ${i.card!.slice(0, 120)}»`).join(" ")}`)
+          trace(tab, `places v4 venue=${JSON.stringify(st?.plan?.booking?.venue ?? "")} subject=${JSON.stringify(st?.subject ?? "").slice(0, 80)} q=${JSON.stringify((st?.plan?.questions ?? []).map((q) => (q.kind ?? "") + "/" + (q.fact ?? "")))} approved=${st?.plan?.approved} cards=${cards.length} area=${JSON.stringify(area)} match=${JSON.stringify(st?.plan?.booking?.match ?? [])} personal=${st?.plan?.booking?.personal} askPlace=${st?.plan?.askPlace} choose=${st?.chooseVenue} noted=${st?.venues?.list.length ?? -1} venues=${venuesOn(m, area).length} ${cards.slice(0, 3).map((i) => `«${i.label.slice(0, 30)} | ${(i.where ?? "")} | ${i.card!.slice(0, 120)}»`).join(" ")}`)
         }
         return m
       }),
