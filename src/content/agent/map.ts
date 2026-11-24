@@ -288,8 +288,8 @@ function unavailableByLook(el: Element): boolean {
   return opacity < 0.6
 }
 
-// A day or a time that says it's not choosable, in its name or its title, in any of the 15 languages («Sat 26, not
-// available», «Fully booked»): read on day and time controls only (a short number, a date, a time).
+// A day or a time that says it's not choosable, in its name or its title, in any of the 15 languages (the lexicon's
+// UNAVAILABLE_WORDS): read on day and time controls only (a short number, a date, a time).
 const unavailableWord = wordTest(UNAVAILABLE_WORDS)
 function unavailableBySaying(el: Element, label: string): boolean {
   if (!(isDateLabel(label) || looksLikeSlot(label) || /^\s*\d{1,2}\b/.test(label))) return false
