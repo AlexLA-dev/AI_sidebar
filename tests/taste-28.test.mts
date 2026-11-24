@@ -16,7 +16,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const read = (path: string) => readFileSync(join(root, path), "utf8")
 const LANGS = ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "tr", "uk", "vi", "zh_CN", "zh_TW"]
 
-let taste: typeof import("../src/content/Taste.tsx")
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let taste: Record<string, (...args: any[]) => any>
 let plans: { tierLines: (plan: string, facts: unknown, feature?: string) => string[] }
 before(async () => {
   ;(globalThis as { chrome?: unknown }).chrome = { i18n: undefined }

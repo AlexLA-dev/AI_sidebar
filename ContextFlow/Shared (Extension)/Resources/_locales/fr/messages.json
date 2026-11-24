@@ -3818,6 +3818,30 @@
  "tasteSimilarDone": {
   "message": "Une recherche complète, comme dans Ultra : Pro en a une par semaine."
  },
+ "boughtPro": {
+  "message": "Pro est activé : jusqu’à {0} réponses par semaine. Posez vos questions."
+ },
+ "boughtUltra": {
+  "message": "Ultra est activé : Écouter, la recherche complète de similaires et tout Pro."
+ },
+ "boughtByok": {
+  "message": "Le forfait Clé personnelle est activé. Ajoutez votre clé API dans les réglages."
+ },
+ "answersBackAsk": {
+  "message": "Me prévenir quand mes {0} réponses reviennent"
+ },
+ "answersBackSet": {
+  "message": "Je vous préviens à {0}, quand vos réponses reviennent."
+ },
+ "answersBackOff": {
+  "message": "Les notifications de ContextFlow sont désactivées, donc pas de rappel. Vos réponses reviennent à {0}."
+ },
+ "answersBackFailed": {
+  "message": "Le rappel n’a pas pu être créé. Vos réponses reviennent à {0}."
+ },
+ "answersBackBody": {
+  "message": "Vos {0} réponses gratuites sont de retour. Posez une question sur n’importe quelle page."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

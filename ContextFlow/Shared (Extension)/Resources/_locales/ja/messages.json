@@ -3818,6 +3818,30 @@
  "tasteSimilarDone": {
   "message": "Ultraと同じフル検索です。Proでは週1回使えます。"
  },
+ "boughtPro": {
+  "message": "Proが有効になりました。週{0}回まで回答できます。どうぞ質問してください。"
+ },
+ "boughtUltra": {
+  "message": "Ultraが有効になりました。読み上げ、フル検索の「似たものを探す」、Proのすべてが使えます。"
+ },
+ "boughtByok": {
+  "message": "自分のキーが有効になりました。設定でAPIキーを追加してください。"
+ },
+ "answersBackAsk": {
+  "message": "{0}回分の回答が戻ったら知らせる"
+ },
+ "answersBackSet": {
+  "message": "{0}に回答が戻ったらお知らせします。"
+ },
+ "answersBackOff": {
+  "message": "ContextFlowの通知がオフのため、お知らせできません。回答は{0}に戻ります。"
+ },
+ "answersBackFailed": {
+  "message": "リマインダーを設定できませんでした。回答は{0}に戻ります。"
+ },
+ "answersBackBody": {
+  "message": "無料の回答{0}回分が戻りました。どのページについても質問できます。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

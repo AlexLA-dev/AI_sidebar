@@ -3818,6 +3818,30 @@
  "tasteSimilarDone": {
   "message": "這是和 Ultra 一樣的完整搜尋：Pro 每週可用一次。"
  },
+ "boughtPro": {
+  "message": "Pro 已開通：每週最多 {0} 次回答。儘管問吧。"
+ },
+ "boughtUltra": {
+  "message": "Ultra 已開通：朗讀、完整的尋找相似，以及 Pro 的全部功能。"
+ },
+ "boughtByok": {
+  "message": "自備金鑰已開通。請在設定中加入你的 API 金鑰。"
+ },
+ "answersBackAsk": {
+  "message": "{0} 次回答恢復時提醒我"
+ },
+ "answersBackSet": {
+  "message": "{0} 回答恢復時會提醒你。"
+ },
+ "answersBackOff": {
+  "message": "ContextFlow 的通知已關閉，無法提醒。回答將在 {0} 恢復。"
+ },
+ "answersBackFailed": {
+  "message": "無法設定提醒。回答將在 {0} 恢復。"
+ },
+ "answersBackBody": {
+  "message": "{0} 次免費回答已恢復。可以問任何頁面。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

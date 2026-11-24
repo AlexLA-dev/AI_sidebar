@@ -648,7 +648,7 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.equal(body.onboarding.people[0].answer, 540)
   assert.deepEqual([body.onboarding.people[0].limit, body.onboarding.people[0].paid], [900, 1200])
   assert.deepEqual(body.new_outcomes[0], { day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 })
-  assert.deepEqual([body.features.features[0].f, body.features.base.paywall, body.features.base.panel.on], ["ask", { since: "2.5", on: "app" }, "ext"])
+  assert.deepEqual([body.features.features[0].f, body.features.base.paywall, body.features.base.panel.on], ["ask", { since: "2.8", on: "app" }, "ext"])
   assert.equal(body.feature_funnels[0].funnel, "purchase")
   assert.deepEqual([body.after_limit.people[0].before, body.after_limit.paying], [5, []])
   assert.equal(body.after_limit.people[0].locale, "uk-UA")

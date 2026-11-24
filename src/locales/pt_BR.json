@@ -1303,5 +1303,13 @@
   "tasteUltraSimilar": "No Ultra: {0} buscas completas por semana",
   "tasteListenUsed": "Os {0} minutos de áudio do Pro desta semana acabaram. Eles voltam {1}.",
   "tasteSimilarUsed": "A busca completa do Pro desta semana já foi usada. Ela volta {0}; a busca rápida continua funcionando.",
-  "tasteSimilarDone": "Uma busca completa, como no Ultra: o Pro tem uma por semana."
+  "tasteSimilarDone": "Uma busca completa, como no Ultra: o Pro tem uma por semana.",
+  "boughtPro": "O Pro está ativo: até {0} respostas por semana. Pode perguntar.",
+  "boughtUltra": "O Ultra está ativo: Ouvir, a busca completa de parecidos e tudo do Pro.",
+  "boughtByok": "O plano Chave própria está ativo. Adicione sua chave de API nos Ajustes.",
+  "answersBackAsk": "Me avise quando minhas {0} respostas voltarem",
+  "answersBackSet": "Aviso você às {0}, quando suas respostas voltarem.",
+  "answersBackOff": "As notificações do ContextFlow estão desativadas, então não haverá aviso. Suas respostas voltam às {0}.",
+  "answersBackFailed": "Não foi possível criar o aviso. Suas respostas voltam às {0}.",
+  "answersBackBody": "Suas {0} respostas grátis voltaram. Pergunte sobre qualquer página."
 }

@@ -2,7 +2,7 @@ import { Readability } from "@mozilla/readability"
 
 import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
-import { appLink, type PaidPlan, type Period } from "../shared/plan"
+import { appLink, type BuyVia, type PaidPlan, type Period } from "../shared/plan"
 import type { Platform } from "../shared/types"
 import { toFixed } from "./fixedPlace"
 import { proseCover } from "./proseCover"
@@ -39,10 +39,10 @@ export function followLink(url: string): void {
 /** Opens the ContextFlow app on a plan (or its plans). iPhone and iPad: the link is followed during the tap and the
  *  background is told afterwards (build 91: Choose and Buy closed the sheet and nothing more, the link came after a
  *  round trip to the extension, too late for Safari). Mac: the extension opens the app itself. */
-export function openAppFromTap(touch: boolean, request: { target: "subscribe" | "manage"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period }): void {
+export function openAppFromTap(touch: boolean, request: { target: "subscribe" | "manage"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period; via?: BuyVia; back?: string }): void {
   const message = { type: "openApp", ...request }
   if (touch) {
-    followLink(appLink(request.target, request.feature, request.plan, request.period))
+    followLink(appLink(request.target, request.feature, request.plan, request.period, { back: request.back, via: request.via }))
     void chrome.runtime.sendMessage(message).catch(() => undefined)
     return
   }

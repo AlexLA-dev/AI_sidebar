@@ -209,6 +209,10 @@ struct ContentView: View {
                 // 2.6: the panel's plans sheet names the plan and period; the plans screen opens on it. Build 94: also for
                 // a subscriber choosing another period or a lower plan (they went to Settings, with nothing to buy);
                 // only the plan they already have goes to Settings.
+                // 2.8 (В7.2): from the panel with the page to go back to: the App Store's sheet at once, over whatever is on
+                // screen, and back to Safari after it (the Pro tab only when the purchase can't go through here).
+                case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil) && QuickBuy.wants(url):
+                    QuickBuy.run(url, store: store) { tab = .pro }
                 case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil):
                     Paywall.shared.open(url)
                     tab = .pro
@@ -1240,6 +1244,12 @@ struct ProView: View {
             .onChange(of: paywall.focus) { _ in scrollToFocus(scroller) }
             .onAppear { buyChosen() }
             .onChange(of: paywall.buyNow) { _ in buyChosen() }
+            // 2.8 (В7.2): what the one-tap purchase from the panel couldn't finish.
+            .onAppear { takeNotice() }
+            .onChange(of: paywall.notice) { _ in takeNotice() }
+            // 2.8 (В1.5): the plans screen shown, and where from.
+            .onAppear { ChatAI.reportUse("paywall", "shown", ["via": paywall.via]) }
+            .onDisappear { paywall.via = "tab" }
             .onChange(of: store.products.count) { _ in buyChosen() }
         }
         .navigationTitle("ContextFlow Pro")
@@ -1251,6 +1261,12 @@ struct ProView: View {
                 dismissButton: .default(Text("OK")) { ReviewAsk.shared.ask(.purchase, after: 0.5) }
             )
         }
+    }
+
+    private func takeNotice() {
+        guard let notice = paywall.notice else { return }
+        paywall.notice = nil
+        message = notice
     }
 
     /// Chosen in the panel (contextflow://subscribe?plan=…&period=…): its purchase opens at once, once the plans have
@@ -1518,9 +1534,14 @@ struct ProView: View {
     private func buy(_ product: Product) {
         busyProduct = product.id
         message = nil
+        // 2.8 (В1.5): every purchase with where it started (the tab, a link from the panel, …), its plan and period.
+        let fields = PurchaseEvent.fields(product.id, via: paywall.via)
+        ChatAI.reportUse("paywall", "plan", fields)
         Task {
             do {
-                switch try await store.purchase(product) {
+                let outcome = try await store.purchase(product)
+                ChatAI.reportUse("paywall", outcome == .purchased ? "buy_ok" : outcome == .pending ? "buy_pending" : "buy_cancel", fields)
+                switch outcome {
                 // The plan's tour, when it starts now, takes the place of "You're all set".
                 case .purchased:
                     // Bought, but another plan stays on until the renewal (the App Store's sheet said so): said here too.
@@ -1537,10 +1558,104 @@ struct ProView: View {
                 case .cancelled: break
                 }
             } catch {
+                ChatAI.reportUse("paywall", "buy_fail", fields)
                 message = error.localizedDescription
             }
             busyProduct = nil
         }
+    }
+}
+
+/// 2.8 (В7.2): a plan and period chosen in the panel, with the page to go back to (contextflow://subscribe?plan=pro&
+/// period=monthly&via=sheet&back=<page>): the App Store's sheet for it at once, then Safari again: iPhone and iPad open
+/// the page with #cf-bought=<plan | later | no> (the panel takes it out and reopens), the Mac brings Safari's window back.
+/// The page's address stays on the device. Waiting for approval, or an error: the Pro tab, saying so.
+@MainActor
+enum QuickBuy {
+    static func wants(_ url: URL) -> Bool { product(url) != nil && back(url) != nil }
+
+    static func product(_ url: URL) -> String? {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        guard let plan = items.first(where: { $0.name == "plan" })?.value.flatMap(StoreKitManager.Tier.init(rawValue:)),
+              let period = items.first(where: { $0.name == "period" })?.value else { return nil }
+        return "com.contextflow.\(plan.rawValue).\(period == "yearly" ? "yearly" : "monthly")"
+    }
+
+    static func back(_ url: URL) -> URL? {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        guard let value = items.first(where: { $0.name == "back" })?.value, value.count <= 2000,
+              let page = URL(string: value), ["http", "https"].contains(page.scheme ?? "") else { return nil }
+        return page
+    }
+
+    /// Where in the panel it started (the events' `via`): the plans sheet, the plans in the chat, Settings' yearly line.
+    static func via(_ url: URL) -> String {
+        let value = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "via" }?.value ?? ""
+        return ["sheet", "chat", "settings", "yearly"].contains(value) ? "panel_\(value)" : "panel"
+    }
+
+    private static var running = false
+
+    static func run(_ url: URL, store: StoreKitManager, showPlans: @escaping () -> Void) {
+        guard !running, let id = product(url), let page = back(url) else { return }
+        running = true
+        Task { @MainActor in
+            defer { running = false }
+            if store.products.isEmpty { await store.loadProducts() }
+            guard let product = store.products.first(where: { $0.id == id }) else {
+                // The App Store didn't answer: the plans, with the plan chosen, as before.
+                Paywall.shared.open(url)
+                showPlans()
+                return
+            }
+            let fields = PurchaseEvent.fields(product.id, via: via(url))
+            ChatAI.reportUse("paywall", "plan", fields)
+            do {
+                switch try await store.purchase(product) {
+                case .purchased:
+                    ChatAI.reportUse("paywall", "buy_ok", fields)
+                    let now = store.entitlement.active && store.entitlement.productId == product.id
+                    backToSafari(page, word: now ? PlanProducts.plan(of: product.id) : "later")
+                case .cancelled:
+                    ChatAI.reportUse("paywall", "buy_cancel", fields)
+                    backToSafari(page, word: "no")
+                case .pending:
+                    ChatAI.reportUse("paywall", "buy_pending", fields)
+                    Paywall.shared.notice = String(localized: "Your purchase is waiting for approval.")
+                    showPlans()
+                }
+            } catch {
+                ChatAI.reportUse("paywall", "buy_fail", fields)
+                Paywall.shared.notice = error.localizedDescription
+                Paywall.shared.open(url)
+                Paywall.shared.buyNow = nil
+                showPlans()
+            }
+        }
+    }
+
+    static func backToSafari(_ page: URL, word: String) {
+        #if os(iOS)
+        var parts = URLComponents(url: page, resolvingAgainstBaseURL: false)
+        if (parts?.fragment ?? "").isEmpty { parts?.fragment = "cf-bought=\(word)" }
+        let target = parts?.url ?? page
+        // Safari itself (iOS 17 and later), not another default browser: the panel lives there.
+        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(target.absoluteString)") {
+            UIApplication.shared.open(safari)
+        } else {
+            UIApplication.shared.open(target)
+        }
+        #else
+        // Safari's own window, as it was (the tab and its panel): no new tab.
+        PlanTour.openSafari()
+        #endif
+    }
+}
+
+/// 2.8 (В1.5): what a purchase's events carry: the plan, its period, the offer it went with, and where it started.
+enum PurchaseEvent {
+    static func fields(_ productId: String, via: String, offer: String = "none") -> [String: String] {
+        ["via": via, "tier": PlanProducts.plan(of: productId), "period": productId.hasSuffix(".yearly") ? "yearly" : "monthly", "offer": offer]
     }
 }
 
@@ -1562,9 +1677,14 @@ final class Paywall: ObservableObject {
     /// The product to buy at once (build 95, the owner since 91: "Choose…" in the panel and "Buy" in the chat open the
     /// App Store's purchase of that plan and period, not the plans with one more tap to go).
     @Published var buyNow: String?
+    /// 2.8: what the one-tap purchase couldn't finish (waiting for approval, an error), said on the Pro screen.
+    @Published var notice: String?
+    /// 2.8 (В1.5): how the plans screen was reached: the tab itself, or a link (from the panel: where in it).
+    var via = "tab"
 
     func open(_ url: URL) {
         let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        via = items.contains { $0.name == "via" } ? QuickBuy.via(url) : "deeplink"
         let value = { (name: String) in items.first { $0.name == name }?.value }
         let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:))
         if let plan { focus = plan }

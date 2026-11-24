@@ -2,7 +2,7 @@ import { tipClip } from "./tipClips"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION, TEST_PLAN } from "../shared/config"
-import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
+import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type BuyVia, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { LINK_OPEN_KEY, linkOpen } from "../shared/linkOpen"
@@ -777,14 +777,15 @@ async function rateApp(): Promise<void> {
 }
 
 async function openApp(
-  target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period
+  target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period,
+  extra: { back?: string; via?: BuyVia } = {}
 ): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
   // 2.6: the plan and period chosen in the panel's plans sheet open preselected in the app.
-  const url = appLink(target, feature, plan, period)
+  const url = appLink(target, feature, plan, period, extra)
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
@@ -935,7 +936,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         .then(sendResponse, () => sendResponse(null))
       return true
     case "openApp":
-      openApp(message.target, message.feature, message.plan, message.period).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      openApp(message.target, message.feature, message.plan, message.period, { back: message.back, via: message.via }).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
       return true
     case "listenInApp":
       listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))

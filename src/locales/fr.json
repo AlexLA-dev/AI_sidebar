@@ -1303,5 +1303,13 @@
   "tasteUltraSimilar": "Dans Ultra : {0} recherches complètes par semaine",
   "tasteListenUsed": "Les {0} minutes d’écoute de Pro pour cette semaine sont utilisées. Elles reviennent {1}.",
   "tasteSimilarUsed": "La recherche complète de Pro pour cette semaine est utilisée. Elle revient {0} ; la recherche rapide marche toujours.",
-  "tasteSimilarDone": "Une recherche complète, comme dans Ultra : Pro en a une par semaine."
+  "tasteSimilarDone": "Une recherche complète, comme dans Ultra : Pro en a une par semaine.",
+  "boughtPro": "Pro est activé : jusqu’à {0} réponses par semaine. Posez vos questions.",
+  "boughtUltra": "Ultra est activé : Écouter, la recherche complète de similaires et tout Pro.",
+  "boughtByok": "Le forfait Clé personnelle est activé. Ajoutez votre clé API dans les réglages.",
+  "answersBackAsk": "Me prévenir quand mes {0} réponses reviennent",
+  "answersBackSet": "Je vous préviens à {0}, quand vos réponses reviennent.",
+  "answersBackOff": "Les notifications de ContextFlow sont désactivées, donc pas de rappel. Vos réponses reviennent à {0}.",
+  "answersBackFailed": "Le rappel n’a pas pu être créé. Vos réponses reviennent à {0}.",
+  "answersBackBody": "Vos {0} réponses gratuites sont de retour. Posez une question sur n’importe quelle page."
 }

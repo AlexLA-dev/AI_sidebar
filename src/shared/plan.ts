@@ -107,9 +107,21 @@ export function agentDeferred(plan: Plan | null | undefined, limits: AgentLimits
   return isUltra(plan) ? limits.deferredUltra : hasPro(plan) ? limits.deferredPro : 0
 }
 
-/** The link that opens the ContextFlow app on a plan and period (2.6), or on its plans or home. */
-export function appLink(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period): string {
-  const query = [`plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : ""].filter(Boolean).join("&")
+/** Where in the panel a purchase started (2.8, В1.5): the plans sheet, the plans in the chat, Settings. */
+export const BUY_VIA = ["sheet", "chat", "settings", "yearly"] as const
+export type BuyVia = (typeof BUY_VIA)[number]
+
+/**
+ * The link that opens the ContextFlow app on a plan and period (2.6), or on its plans or home. 2.8 (В7.2): `back`, the
+ * page to come back to after the App Store's sheet (one tap: the app buys at once and sends the person back; the
+ * address stays on the device), and `via`, where in the panel it started.
+ */
+export function appLink(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period, extra: { back?: string; via?: BuyVia } = {}): string {
+  const back = extra.back && /^https?:\/\//.test(extra.back) && extra.back.length <= 2000 ? extra.back.split("#")[0] : ""
+  const query = [
+    `plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : "",
+    extra.via ? `via=${extra.via}` : "", back && period ? `back=${encodeURIComponent(back)}` : ""
+  ].filter(Boolean).join("&")
   return target === "subscribe" ? `contextflow://subscribe?${query}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
 }
 

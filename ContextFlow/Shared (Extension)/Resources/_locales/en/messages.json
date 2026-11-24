@@ -3818,6 +3818,30 @@
  "tasteSimilarDone": {
   "message": "A full search, as in Ultra: Pro gets one a week."
  },
+ "boughtPro": {
+  "message": "Pro is on: up to {0} answers a week. Ask away."
+ },
+ "boughtUltra": {
+  "message": "Ultra is on: Listen, the full Find similar and everything in Pro."
+ },
+ "boughtByok": {
+  "message": "Own key is on. Add your API key in Settings."
+ },
+ "answersBackAsk": {
+  "message": "Remind me when my {0} answers are back"
+ },
+ "answersBackSet": {
+  "message": "I'll remind you at {0}, when your answers are back."
+ },
+ "answersBackOff": {
+  "message": "Notifications are off for ContextFlow, so no reminder. Your answers are back at {0}."
+ },
+ "answersBackFailed": {
+  "message": "The reminder couldn't be set. Your answers are back at {0}."
+ },
+ "answersBackBody": {
+  "message": "Your {0} free answers are back. Ask about any page."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

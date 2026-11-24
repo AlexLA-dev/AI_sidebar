@@ -190,3 +190,13 @@ button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-
 .cf[data-touch] .cf-plans-lead { font-size: 14.5px; }
 .cf[data-touch] .cf-taste { font-size: 13.5px; }
 .cf[data-touch] .cf-taste .cf-link { min-height: 32px; }
+/* 2.8 (В7.2): back from the App Store's sheet, the plan is on. */
+.cf-card.cf-bought { display: flex; align-items: center; gap: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.45; }
+.cf-card.cf-bought span { flex: 1; display: inline-flex; align-items: baseline; gap: 6px; }
+.cf-card.cf-bought .cf-icon-btn { flex: none; }
+.cf[data-touch] .cf-card.cf-bought { font-size: 14.5px; }
+/* 2.8 (В7.1): «Remind me when my answers are back», by the plans at the free limit. */
+.cf-answers-back { margin: 6px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.cf-answers-back .cf-link { padding: 0; font-size: inherit; text-align: start; }
+.cf[data-touch] .cf-answers-back { font-size: 14px; }
+.cf[data-touch] .cf-answers-back .cf-link { min-height: 36px; }

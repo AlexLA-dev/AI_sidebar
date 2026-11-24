@@ -85,7 +85,9 @@ import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListe
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
 import { besideMenu, glassScale, setFixedProbe, toFixed } from "./fixedPlace"
-import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
+import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type BuyVia, type PaidPlan, type Period } from "../shared/plan"
+import { boughtNow, clearBuying, noteBuying, readBuying, takeBoughtMark } from "./purchase"
+import { AnswersBack } from "./ux/AnswersBack"
 import { SettingsView } from "./Settings"
 import type { SettingsAt } from "./settingsFold"
 import { shareLabels } from "./shareLabels"
@@ -782,6 +784,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setStatus(next)
       setUsage(next.usage)
     }
+    return next
   }, [platform])
 
   /** 110: the usage read fresh for what the answers went on (the count's details, in «+» and Settings); null offline. */
@@ -1015,6 +1018,44 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     document.addEventListener("visibilitychange", onVisible)
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [open, refreshStatus])
+
+  // 2.8 (В7.2): back from the App Store's sheet after a plan chosen here: the plan read afresh, and said when it's on
+  // (the limit's card goes). iPhone and iPad come back by the page's address with the app's mark, which opens the panel;
+  // the Mac by Safari's window coming to the front.
+  const [bought, setBought] = useState<PaidPlan | null>(null)
+  useEffect(() => {
+    let busy = false
+    const check = async () => {
+      if (busy || document.visibilityState !== "visible") return
+      const mark = takeBoughtMark()
+      const buying = await readBuying()
+      if (!mark && !buying) return
+      busy = true
+      try {
+        if (mark && !panelOpenRef.current) show()
+        const next = await refreshStatus(true)
+        const now = boughtNow(buying, next?.plan)
+        if (now) {
+          setBought(now)
+          setError((e) => (e && (e.code === "LIMIT_REACHED" || e.code === "PRO_ONLY") ? null : e))
+          void sendBackground({ type: "useEvent", f: "plans", a: "bought", plan: now, ...(buying ? { period: buying.period } : {}) })
+        }
+        if (now || mark) void clearBuying()
+      } finally {
+        busy = false
+      }
+    }
+    void check()
+    const onEvent = () => void check()
+    document.addEventListener("visibilitychange", onEvent)
+    window.addEventListener("focus", onEvent)
+    window.addEventListener("hashchange", onEvent)
+    return () => {
+      document.removeEventListener("visibilitychange", onEvent)
+      window.removeEventListener("focus", onEvent)
+      window.removeEventListener("hashchange", onEvent)
+    }
+  }, [refreshStatus, show])
 
   // The first time the panel is open and idle: the guided first request where there's a page to summarize (2.6),
   // else the tour of what it can do.
@@ -3641,8 +3682,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setView("chat")
   }
   // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
-  const choosePlan = (choice: OfferChoice) => {
-    openAppFromTap(touch, { target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
+  const choosePlan = (choice: OfferChoice) => buyPlan(choice.plan, choice.period, "chat")
+  /** 2.8 (В7.2): a plan and period chosen in the panel: the App Store's sheet for it, at once, through the app, which then
+   *  sends the person back to this page (src/content/purchase.ts). */
+  const buyPlan = (chosen: PaidPlan, period: Period, via: BuyVia) => {
+    void noteBuying({ plan: chosen, period, was: statusRef.current?.plan ?? "free", at: Date.now() })
+    openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined, via, back: source.href() })
   }
   const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
     void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
@@ -5196,7 +5241,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onTaste={(feature) => openPlans("ultra", "settings", feature)}
               onYearly={(chosen) => {
                 void sendBackground({ type: "useEvent", f: "plans", a: "yearly", plan: chosen, period: "yearly" })
-                openAppFromTap(touch, { target: "subscribe", plan: chosen, period: "yearly" })
+                buyPlan(chosen, "yearly", "yearly")
               }}
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
@@ -5526,6 +5571,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
+                {bought && (
+                  <div class="cf-card cf-bought" role="status">
+                    <span><Icon.Check /> {bought === "ultra" ? t("boughtUltra") : bought === "pro" ? t("boughtPro", String(status?.plans.proWeekly ?? 375)) : t("boughtByok")}</span>
+                    <button type="button" class="cf-icon-btn" onClick={() => setBought(null)} aria-label={t("close")}>×</button>
+                  </div>
+                )}
                 {error && error.code === "LIMIT_REACHED" && (() => {
                   const resetsAt = error.usage?.resetsAt ?? usage?.resetsAt
                   const back = error.usage?.limit ?? usage?.limit ?? 5
@@ -5560,6 +5611,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                             <Icon.Pencil /> {t("limitNotes")}{" "}
                             <button type="button" class="cf-link" onClick={() => { event("note"); writeNote() }}>{t("writeNote")}</button>
                           </p>
+                          {/* 2.8 (В7.1): a notification when the free answers are back, asked about here. */}
+                          {!hasPro(plan) && TARGET === "safari" && resetsAt && (
+                            <AnswersBack resetsAt={Date.parse(resetsAt)} count={back} url={source.href()} onEvent={(a) => event(a)} />
+                          )}
                           {!hasPro(plan) && TARGET === "safari" && (
                             <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); openSettingsAt("ownKey") }}>{t("useOwnKey")}</button></p>
                           )}
@@ -5966,8 +6021,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               {...(plansFeature ? { feature: plansFeature.feature, lead: plansFeature.lead } : {})}
               onChoose={(chosen, period) => {
                 setPlansOpen(null)
-                void sendBackground({ type: "useEvent", f: "plans", a: "choose", plan: chosen, period })
-                openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined })
+                void sendBackground({ type: "useEvent", f: "plans", a: "choose", plan: chosen, period, ...(plansFeature ? { feature: plansFeature.feature } : {}) })
+                buyPlan(chosen, period, "sheet")
               }}
               onClose={() => setPlansOpen(null)}
             />

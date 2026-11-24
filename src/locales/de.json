@@ -1303,5 +1303,13 @@
   "tasteUltraSimilar": "In Ultra: {0} volle Suchen pro Woche",
   "tasteListenUsed": "Die {0} Minuten Anhören in Pro für diese Woche sind aufgebraucht. Am {1} gibt es neue.",
   "tasteSimilarUsed": "Die volle Suche in Pro für diese Woche ist verbraucht. Am {0} gibt es eine neue; die schnelle Suche geht weiter.",
-  "tasteSimilarDone": "Eine volle Suche wie in Ultra: Pro hat eine pro Woche."
+  "tasteSimilarDone": "Eine volle Suche wie in Ultra: Pro hat eine pro Woche.",
+  "boughtPro": "Pro ist aktiv: bis zu {0} Antworten pro Woche. Frag einfach.",
+  "boughtUltra": "Ultra ist aktiv: Anhören, die volle Suche nach Ähnlichem und alles aus Pro.",
+  "boughtByok": "Eigener Schlüssel ist aktiv. Füge deinen API-Schlüssel in den Einstellungen hinzu.",
+  "answersBackAsk": "Erinnere mich, wenn meine {0} Antworten zurück sind",
+  "answersBackSet": "Ich erinnere dich um {0}, wenn deine Antworten zurück sind.",
+  "answersBackOff": "Mitteilungen für ContextFlow sind aus, daher keine Erinnerung. Deine Antworten sind um {0} zurück.",
+  "answersBackFailed": "Die Erinnerung ließ sich nicht setzen. Deine Antworten sind um {0} zurück.",
+  "answersBackBody": "Deine {0} Gratis-Antworten sind zurück. Frag zu jeder Seite."
 }

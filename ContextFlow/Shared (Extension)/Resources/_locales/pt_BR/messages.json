@@ -3818,6 +3818,30 @@
  "tasteSimilarDone": {
   "message": "Uma busca completa, como no Ultra: o Pro tem uma por semana."
  },
+ "boughtPro": {
+  "message": "O Pro está ativo: até {0} respostas por semana. Pode perguntar."
+ },
+ "boughtUltra": {
+  "message": "O Ultra está ativo: Ouvir, a busca completa de parecidos e tudo do Pro."
+ },
+ "boughtByok": {
+  "message": "O plano Chave própria está ativo. Adicione sua chave de API nos Ajustes."
+ },
+ "answersBackAsk": {
+  "message": "Me avise quando minhas {0} respostas voltarem"
+ },
+ "answersBackSet": {
+  "message": "Aviso você às {0}, quando suas respostas voltarem."
+ },
+ "answersBackOff": {
+  "message": "As notificações do ContextFlow estão desativadas, então não haverá aviso. Suas respostas voltam às {0}."
+ },
+ "answersBackFailed": {
+  "message": "Não foi possível criar o aviso. Suas respostas voltam às {0}."
+ },
+ "answersBackBody": {
+  "message": "Suas {0} respostas grátis voltaram. Pergunte sobre qualquer página."
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

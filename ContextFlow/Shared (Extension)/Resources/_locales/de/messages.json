@@ -3818,6 +3818,30 @@
  "tasteSimilarDone": {
   "message": "Eine volle Suche wie in Ultra: Pro hat eine pro Woche."
  },
+ "boughtPro": {
+  "message": "Pro ist aktiv: bis zu {0} Antworten pro Woche. Frag einfach."
+ },
+ "boughtUltra": {
+  "message": "Ultra ist aktiv: Anhören, die volle Suche nach Ähnlichem und alles aus Pro."
+ },
+ "boughtByok": {
+  "message": "Eigener Schlüssel ist aktiv. Füge deinen API-Schlüssel in den Einstellungen hinzu."
+ },
+ "answersBackAsk": {
+  "message": "Erinnere mich, wenn meine {0} Antworten zurück sind"
+ },
+ "answersBackSet": {
+  "message": "Ich erinnere dich um {0}, wenn deine Antworten zurück sind."
+ },
+ "answersBackOff": {
+  "message": "Mitteilungen für ContextFlow sind aus, daher keine Erinnerung. Deine Antworten sind um {0} zurück."
+ },
+ "answersBackFailed": {
+  "message": "Die Erinnerung ließ sich nicht setzen. Deine Antworten sind um {0} zurück."
+ },
+ "answersBackBody": {
+  "message": "Deine {0} Gratis-Antworten sind zurück. Frag zu jeder Seite."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

@@ -3818,6 +3818,30 @@
  "tasteSimilarDone": {
   "message": "بحث كامل كما في Ultra: في Pro بحث واحد كل أسبوع."
  },
+ "boughtPro": {
+  "message": "تم تفعيل Pro: حتى {0} إجابة أسبوعيًا. اسأل ما تشاء."
+ },
+ "boughtUltra": {
+  "message": "تم تفعيل Ultra: الاستماع والبحث الكامل عن المشابه وكل ما في Pro."
+ },
+ "boughtByok": {
+  "message": "تم تفعيل مفتاحك الخاص. أضف مفتاح API في الإعدادات."
+ },
+ "answersBackAsk": {
+  "message": "ذكّرني عندما تعود إجاباتي الـ {0}"
+ },
+ "answersBackSet": {
+  "message": "سأذكّرك في {0} عندما تعود إجاباتك."
+ },
+ "answersBackOff": {
+  "message": "إشعارات ContextFlow متوقفة، لذا لن يصلك تذكير. تعود إجاباتك في {0}."
+ },
+ "answersBackFailed": {
+  "message": "تعذّر ضبط التذكير. تعود إجاباتك في {0}."
+ },
+ "answersBackBody": {
+  "message": "عادت إجاباتك المجانية ({0}). اسأل عن أي صفحة."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

@@ -3818,6 +3818,30 @@
  "tasteSimilarDone": {
   "message": "Una búsqueda completa, como en Ultra: Pro tiene una a la semana."
  },
+ "boughtPro": {
+  "message": "Pro está activo: hasta {0} respuestas a la semana. Pregunta lo que quieras."
+ },
+ "boughtUltra": {
+  "message": "Ultra está activo: Escuchar, la búsqueda completa de similares y todo lo de Pro."
+ },
+ "boughtByok": {
+  "message": "El plan Clave propia está activo. Añade tu clave de API en Ajustes."
+ },
+ "answersBackAsk": {
+  "message": "Avísame cuando vuelvan mis {0} respuestas"
+ },
+ "answersBackSet": {
+  "message": "Te aviso a las {0}, cuando vuelvan tus respuestas."
+ },
+ "answersBackOff": {
+  "message": "Las notificaciones de ContextFlow están desactivadas, así que no habrá aviso. Tus respuestas vuelven a las {0}."
+ },
+ "answersBackFailed": {
+  "message": "No se pudo programar el aviso. Tus respuestas vuelven a las {0}."
+ },
+ "answersBackBody": {
+  "message": "Ya tienes de nuevo tus {0} respuestas gratis. Pregunta sobre cualquier página."
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

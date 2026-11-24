@@ -6,7 +6,7 @@ import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
-import type { PaidPlan, Period, Plan } from "./plan.ts"
+import type { BuyVia, PaidPlan, Period, Plan } from "./plan.ts"
 import type { UseKind } from "./spent.ts"
 import type { OrgState } from "./threads.ts"
 export type { Plan } from "./plan.ts"
@@ -214,7 +214,7 @@ export type BackgroundRequest =
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
   // plan, period (2.6): what was chosen in the panel's plans sheet; the app opens on it.
-  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period }
+  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period; via?: BuyVia; back?: string }
   // Read aloud on iPhone and iPad (2.6): the parts go to the app (App Group), which plays them with the screen
   // locked; answers { url } (contextflow://listen?id=…) for the page to follow, or { url: null } (no app).
   // text, script (2.6): the raw text and whether the app should write it for the ear first (parts: when it can't).

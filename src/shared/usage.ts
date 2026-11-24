@@ -75,10 +75,13 @@ export const FEATURES: Record<string, Feature> = {
   offer: { since: "2.4", actions: ["shown", "redeem", "later"] },
   // The app's notifications screen before the system's question (2.6): why it came up, and what was answered.
   notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen"], status: ["denied", "not_asked"] } },
+  // 2.8 (В1.5, sent from 2.8): the app's plans screen shown, a plan's Buy ("plan"), and how the App Store's sheet ended,
+  // with where it started (the tab, a link; from the panel: its plans sheet, the plans in the chat, Settings' yearly line,
+  // straight to the sheet in one tap), the plan, its period and the offer it went with.
   paywall: {
-    since: "2.0", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
-    via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew"],
-    fields: { plan: ["monthly", "yearly", "own_key", "promo"] }
+    since: "2.0", tracked: "2.8", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
+    via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew", "panel", "panel_sheet", "panel_chat", "panel_settings", "panel_yearly"],
+    fields: { plan: ["monthly", "yearly", "own_key", "promo"], tier: ["pro", "ultra", "byok"], period: ["monthly", "yearly"], offer: ["none", "promo", "intro", "code"] }
   },
   renewal: { since: "2.4", tracked: "2.4", actions: ["shown", "answer"] },
   // 2.6: the guided first request (src/content/Guide.tsx) reports these; "what" is the step it was on (or, for "exit",
@@ -156,7 +159,8 @@ export const FEATURES: Record<string, Feature> = {
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
+    // 2.8 (В7.2): "bought", back from the App Store's sheet with the plan on (the period chosen).
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly", "bought"],
     via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces", "collections"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
     // 2.8 (В7.4): the Ultra feature it opened on (Pro's taste of it used, or its «In Ultra» link).
@@ -166,7 +170,8 @@ export const FEATURES: Record<string, Feature> = {
   // free chat past its last messages), a Pro or Ultra feature refused; shown, and what was tapped: a plan and period
   // (to the app), the discount, a note, the own key, Retry.
   chat_plans: {
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
+    // 2.8 (В7.1): «Remind me when my answers are back» tapped, set, or notifications off.
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off"],
     via: ["limit", "memory", "pro_only", "ultra_only"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
   },
