@@ -110,32 +110,36 @@ final class Activation: ObservableObject {
     private var nextStepAt = Date.distantPast
     private static let enabledReportedKey = "cf_activation_enabled_reported"
 
-    private func step(_ action: String, _ fields: [String: String] = [:]) {
+    private func step(_ action: String, _ fields: [String: String] = [:], feature: String = "activation") {
         // «Start as a new user» (test builds) isn't a new install: its steps aren't counted.
         guard !NewUserPreview.isOn else { return }
         let now = Date()
         let at = max(now, nextStepAt)
         nextStepAt = at.addingTimeInterval(1)
-        ChatAI.reportUse("activation", action, fields, after: at.timeIntervalSince(now))
+        ChatAI.reportUse(feature, action, fields, after: at.timeIntervalSince(now))
     }
 
     /// The guide's video started floating over Settings (iPhone, iPad).
     func guideStarted() { step("video") }
 
-    /// 2.8 (В1.1): the funnel's zero step, the instruction to switch it on shown; and the «Open Safari» step shown once
-    /// it's on. Each once an install.
-    func instructionShown() { once("shown", key: "cf_activation_shown_reported") }
-    func safariStepShown() { once("safari_shown", key: "cf_activation_safari_shown_reported") }
+    /// 2.8 (В1.1, names from the 2.8 event schema): the funnel's zero step, the instruction to switch it on shown
+    /// (activation.shown, "via" the home card); and the «Open Safari» step shown once it's on (setup.safari_shown).
+    /// Each once an install.
+    func instructionShown() { once("shown", key: "cf_activation_shown_reported", fields: ["via": "card"]) }
+    func safariStepShown() { once("safari_shown", key: "cf_activation_safari_shown_reported", feature: "setup") }
 
-    /// «Open Safari» tapped on the setup card (`via`: "step", the step after switching it on; "card", the card once it's
-    /// been used; "guide", the guide's own button where this iOS can't tell the app it's on).
-    func openedSafari(_ via: String) { step("safari", ["via": via]) }
+    /// «Open Safari» tapped on the setup card: setup.open_safari (`via`: "step", the step after switching it on; "card",
+    /// the card once it's been used; "guide", the guide's own button where this iOS can't tell the app it's on).
+    func openedSafari(_ via: String) { step("open_safari", ["via": via], feature: "setup") }
 
-    private func once(_ action: String, key: String) {
+    private func once(_ action: String, key: String, fields: [String: String] = [:], feature: String = "activation") {
         guard !NewUserPreview.isOn, !UserDefaults.standard.bool(forKey: key) else { return }
         UserDefaults.standard.set(true, forKey: key)
-        step(action)
+        step(action, fields, feature: feature)
     }
+
+    /// The reminders to finish setup were scheduled (setup.reminder; "perm": "quiet" provisional, "on" full permission).
+    func remindersScheduled(_ perm: String) { step("reminder", ["perm": perm], feature: "setup") }
 
     /// Settings opened from the app to switch ContextFlow on: "card" (the home screen's), "chats" (their empty state, Mac).
     func wentToSettings(_ via: String) {
@@ -225,7 +229,7 @@ final class Activation: ObservableObject {
             let key = "cf_activation_reminder_\(what)"
             guard !defaults.bool(forKey: key) else { continue }
             defaults.set(true, forKey: key)
-            step("reminder", ["what": what])
+            step("reminder_seen", ["what": what], feature: "setup")
         }
     }
 
@@ -360,7 +364,7 @@ enum AppSource {
 /// setup reminders go quietly instead (SetupReminders), and quiet permission counts here as not asked: this question
 /// still comes at the first moment of value, and a yes turns the quiet permission into the full one.
 ///
-/// The one way in for the panel: `contextflow://notifications?why=remind|watch|answers` (and `&page=<https address>`
+/// The one way in for the panel: `contextflow://notifications?why=later|watch|answers_back` (and `&page=<https address>`
 /// to go back to that page in Safari once it's answered). Everything that prompts the person is meant to go through
 /// one hint coordinator (plan В3.1); until it exists, this is the only place that asks about notifications.
 @MainActor
@@ -371,7 +375,7 @@ final class NotifyAsk: ObservableObject {
         case ultra, listen
         /// The panel's moments of value (2.8): a reminder set, a page watched, a reminder for when the free answers are
         /// back.
-        case remind, watch, answers
+        case later, watch, answers_back
     }
 
     struct Ask: Identifiable {
@@ -545,9 +549,9 @@ struct NotifyAskView: View {
     /// What this moment needs them for (2.8: the panel's moments of value).
     private var lead: LocalizedStringKey? {
         switch ask.reason {
-        case .remind: return "So the reminder you just set reaches you."
+        case .later: return "So the reminder you just set reaches you."
         case .watch: return "So you hear when the page you watch changes."
-        case .answers: return "So you know when your free answers are back."
+        case .answers_back: return "So you know when your free answers are back."
         case .ultra, .listen: return nil
         }
     }
@@ -583,6 +587,7 @@ enum SetupReminders {
         }
         let status = await center.notificationSettings().authorizationStatus
         guard NotifyStatus.on(status) || status == .provisional else { return }
+        await MainActor.run { Activation.shared.remindersScheduled(status == .provisional ? "quiet" : "on") }
         let ids = SharedDefaults.setupReminderIds
         center.removePendingNotificationRequests(withIdentifiers: ids)
         #if os(iOS)
@@ -804,6 +809,9 @@ struct SetupCard: View {
         if #available(iOS 26.2, *) {
             // Also on iPad, where it lands on Apps (the nearest to ContextFlow's page it gets there).
             SFSafariSettings.openExtensionsSettings(forIdentifiers: [extensionBundleIdentifier]) { error in
+                #if DEBUG
+                NSLog("[cf-setup] openExtensionsSettings: %@", error.map { String(describing: $0) } ?? "no error")
+                #endif
                 DispatchQueue.main.async {
                     if error != nil { appSettings() } else { activation.settingsOpened("direct") }
                 }

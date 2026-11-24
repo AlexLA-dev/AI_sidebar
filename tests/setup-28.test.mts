@@ -58,12 +58,13 @@ test("В2.6: quiet permission carries the setup reminders only; everything else 
 })
 
 test("В3.2: one way in for the panel's moments of value, from a fixed list", () => {
-  assert.match(setup, /case ultra, listen\s*\/\/\/[^\n]*\n\s*\/\/\/[^\n]*\n\s*case remind, watch, answers/)
+  assert.match(setup, /case ultra, listen\s*\/\/\/[^\n]*\n\s*\/\/\/[^\n]*\n\s*case later, watch, answers_back/)
   assert.match(setup, /guard let reason = value\("why"\)\.flatMap\(Reason\.init\(rawValue:\)\), reason != \.listen, reason != \.ultra else \{ return \}/)
   // Only a web page to go back to.
   assert.match(setup, /\$0\.scheme == "https" \|\| \$0\.scheme == "http" \? \$0 : nil/)
   assert.match(content, /case "notifications":[\s\S]{0,700}?Task \{ await NotifyAsk\.shared\.show\(link: url\) \}/)
-  assert.deepEqual(FEATURES.notify.fields?.why, ["launch", "ultra", "listen", "remind", "watch", "answers"])
+  // The 2.8 event schema's names (events-2.8.md).
+  assert.deepEqual(FEATURES.notify.fields?.why, ["launch", "ultra", "listen", "later", "watch", "answers_back"])
   for (const key of ["So the reminder you just set reaches you.", "So you hear when the page you watch changes.", "So you know when your free answers are back."]) {
     assert.match(setup, new RegExp(`"${key.replace(/[.?]/g, "\\$&")}"`), key)
   }
@@ -107,15 +108,21 @@ test("В3.4: the friend's code card left the first screen; a code is entered on 
 })
 
 test("В1.1: the setup funnel from its zero step, counted once where it should be, nothing on screen sent", () => {
-  assert.deepEqual([...FEATURES.activation.actions], ["video", "settings", "back", "enabled", "linked", "shown", "safari_shown", "safari", "reminder"])
+  // Names from the 2.8 event schema (events-2.8.md): activation.shown, setup.open_safari, setup.reminder.
+  assert.deepEqual([...FEATURES.activation.actions], ["video", "settings", "back", "enabled", "linked", "shown"])
+  assert.deepEqual(useFields({ f: "activation", a: "shown", via: "card" }), { f: "activation", a: "shown", via: "card" })
   assert.deepEqual(useFields({ f: "activation", a: "back", how: "direct" }), { f: "activation", a: "back", how: "direct" })
   assert.deepEqual(useFields({ f: "activation", a: "back", how: "Settings › Apps" }), { f: "activation", a: "back" })
-  assert.deepEqual(useFields({ f: "activation", a: "safari", via: "step" }), { f: "activation", a: "safari", via: "step" })
-  assert.deepEqual(useFields({ f: "activation", a: "reminder", what: "24h" }), { f: "activation", a: "reminder", what: "24h" })
+  assert.deepEqual(useFields({ f: "setup", a: "open_safari", via: "step" }), { f: "setup", a: "open_safari", via: "step" })
+  assert.deepEqual(useFields({ f: "setup", a: "safari_shown" }), { f: "setup", a: "safari_shown" })
+  assert.deepEqual(useFields({ f: "setup", a: "reminder", perm: "quiet" }), { f: "setup", a: "reminder", perm: "quiet" })
+  assert.deepEqual(useFields({ f: "setup", a: "reminder_seen", what: "24h" }), { f: "setup", a: "reminder_seen", what: "24h" })
+  assert.match(setup, /func openedSafari\(_ via: String\) \{ step\("open_safari", \["via": via\], feature: "setup"\) \}/)
+  assert.match(setup, /Activation\.shared\.remindersScheduled\(status == \.provisional \? "quiet" : "on"\)/)
   assert.deepEqual(useFields({ f: "notif", a: "tap", what: "setup", when: "15m" }), { f: "notif", a: "tap", what: "setup", when: "15m" })
   assert.match(setup, /case \.off: guide\.onAppear \{ activation\.instructionShown\(\) \}/)
-  assert.match(setup, /func instructionShown\(\) \{ once\("shown", key: "cf_activation_shown_reported"\) \}/)
-  assert.match(setup, /private func once\(_ action: String, key: String\) \{\s*guard !NewUserPreview\.isOn, !UserDefaults\.standard\.bool\(forKey: key\) else \{ return \}/)
+  assert.match(setup, /func instructionShown\(\) \{ once\("shown", key: "cf_activation_shown_reported", fields: \["via": "card"\]\) \}/)
+  assert.match(setup, /private func once\(_ action: String, key: String, fields: \[String: String\] = \[:\], feature: String = "activation"\) \{\s*guard !NewUserPreview\.isOn, !UserDefaults\.standard\.bool\(forKey: key\) else \{ return \}/)
   assert.match(content, /\.onAppear \{ if !enabled \{ activation\.instructionShown\(\) \} \}/)
   // A reminder delivered is counted when the app is next in front; its tap where it arrives, then the guide opens.
   assert.match(setup, /let key = "cf_activation_reminder_\\\(what\)"/)
@@ -126,8 +133,11 @@ test("В1.1: the setup funnel from its zero step, counted once where it should b
   assert.match(content, /case "setup":\s*if hasChats \{ showingSetup = true \} else \{ tab = \.home \}/)
   // The analytics page names the new steps and ways in.
   const page = read("site/analytics.html")
-  for (const a of FEATURES.activation.actions) assert.match(/const ACTION_RU = \{([\s\S]*?)\n\}/.exec(page)?.[1] ?? "", new RegExp(`\\b${a}: "`), a)
-  for (const v of FEATURES.activation.via ?? []) assert.match(/const VIA_RU = \{([\s\S]*?)\n\}/.exec(page)?.[1] ?? "", new RegExp(`\\b${v}: "`), v)
+  for (const f of ["activation", "setup", "whatsnew"] as const) {
+    for (const a of FEATURES[f].actions) assert.match(/const ACTION_RU = \{([\s\S]*?)\n\}/.exec(page)?.[1] ?? "", new RegExp(`\\b${a}: "`), `${f}.${a}`)
+    for (const v of FEATURES[f].via ?? []) assert.match(/const VIA_RU = \{([\s\S]*?)\n\}/.exec(page)?.[1] ?? "", new RegExp(`\\b${v}: "`), `${f} via ${v}`)
+    assert.match(/const FEATURE_RU = \{([\s\S]*?)\n\}/.exec(page)?.[1] ?? "", new RegExp(`\\b${f}: "`), f)
+  }
 })
 
 test("В1.6: every app event carries the build, the storefront and whether an ad brought it; the server keeps them, nothing else", () => {
@@ -144,12 +154,18 @@ test("В1.6: every app event carries the build, the storefront and whether an ad
 })
 
 test("В1.7: Tips, What's new and the Pro tab are counted when opened", () => {
+  assert.match(content, /\.onChange\(of: tab\) \{ next in\s*reportTab\(next\)/)
   assert.match(content, /ChatAI\.reportUse\("tab", "open", \["what": next\.event\]\)/)
   for (const what of ["tips", "whats_new", "pro"]) {
     assert.ok(FEATURES.tab.fields?.what?.includes(what), what)
     assert.match(content, new RegExp(`return "${what}"`), what)
   }
   assert.equal(FEATURES.tab.tracked, "2.8")
+  assert.match(content, /if next == \.tips \{ ChatAI\.reportUse\("tips", "open"\) \}/)
+  assert.match(content, /if next == \.whatsNew \{ ChatAI\.reportUse\("whatsnew", "shown"\) \}/)
+  assert.match(content, /if next != \.whatsNew, whatsNewShown \{ ChatAI\.reportUse\("whatsnew", "close"\) \}/)
+  assert.match(app("WhatsNew.swift"), /ChatAI\.reportUse\("whatsnew", "tap"\)\s*openURL\(url\)/)
+  assert.deepEqual([...FEATURES.whatsnew.actions], ["shown", "tap", "close"])
 })
 
 test("every new text is translated into the app's 14 other languages; on iPad in Arabic the sidebar is on the right", () => {

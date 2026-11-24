@@ -74,9 +74,9 @@ export const FEATURES: Record<string, Feature> = {
   },
   offer: { since: "2.4", actions: ["shown", "redeem", "later"] },
   // The app's notifications screen before the system's question (2.6): why it came up, and what was answered.
-  // 2.8 (В3.2): no longer at launch ("launch" stays for older builds); asked at the panel's moments of value: "remind",
-  // "watch", "answers". "quiet": only the setup reminders' provisional permission so far.
-  notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen", "remind", "watch", "answers"], status: ["denied", "not_asked", "quiet"] } },
+  // 2.8 (В3.2): no longer at launch ("launch" stays for older builds); asked at the panel's moments of value: "later"
+  // (a reminder set), "watch", "answers_back". "quiet": only the setup reminders' provisional permission so far.
+  notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen", "later", "watch", "answers_back"], status: ["denied", "not_asked", "quiet"] } },
   paywall: {
     since: "2.0", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
     via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew"],
@@ -115,7 +115,19 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.0", on: "app", actions: ["open", "play"],
     fields: { what: ["summary", "translate", "selection", "note", "video", "pdf", "chats", "search", "tags", "ai_search", "ask_chats", "quick_insert", "templates", "copied", "organize"] }
   },
-  setup: { since: "2.4", on: "app", actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap"] },
+  // 2.8 (events-2.8.md): "open_safari" the «Open Safari» button ("via": "step" the step after switching it on, "card"
+  // once it's been used, "guide" an iOS that can't say it's on), "safari_shown" that step on screen (once an install);
+  // "reminder" the reminders to finish setup scheduled ("perm": "quiet" provisional, "on" full permission),
+  // "reminder_seen" one of them in Notification Center when the app came to the front ("what": which). Its tap is
+  // notif.tap with what "setup".
+  setup: {
+    since: "2.4", tracked: "2.8", on: "app",
+    actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap", "safari_shown", "reminder", "reminder_seen"],
+    via: ["step", "card", "guide"],
+    fields: { perm: ["quiet", "on"], what: ["15m", "24h"] }
+  },
+  // 2.8 (В1.7): the What's new tab shown, its Update button tapped, the tab left.
+  whatsnew: { since: "2.6", tracked: "2.8", on: "app", actions: ["shown", "tap", "close"] },
   // 2.7 (plan section 8, «Активация»): the way from the app to ContextFlow switched on, counted, never what's on screen.
   // "video": the guide started floating over Settings (iPhone, iPad); "settings": Settings opened from the app (the
   // home card, or on a Mac the chats' empty state too); "back": the app in front again after that trip; "enabled": the
@@ -123,17 +135,14 @@ export const FEATURES: Record<string, Feature> = {
   // gives it the install id, sends it with the app's id (both random), so the steps in the app join the ones Safari's
   // side logs: switched on there (ext_on) and the first answer. 2.7.1: sent by the extension's background instead, until
   // the server confirms it, and again when the app's id changes (src/background/link.ts); still both ids only.
-  // 2.8 (В1.1): "shown" the instruction to switch it on was on screen (once an install: the funnel's zero step);
-  // "back" carries how Settings was opened ("how": "direct" Safari's settings for ContextFlow, "app" the app's own
-  // page); "safari_shown" the «Open Safari» step after switching it on (once an install); "safari" its button, or the
-  // card's once it's been used, or the guide's on an iOS that can't say it's on ("via": "step", "card", "guide");
-  // "reminder" a reminder to finish setup was in Notification Center when the app came to the front ("what": which
-  // one). Its tap is notif.tap with what "setup".
+  // 2.8 (В1.1, events-2.8.md): "shown" the instruction to switch it on was on screen (once an install, "via" card: the
+  // funnel's zero step); "back" carries how Settings was opened ("how": "direct" Safari's settings for ContextFlow,
+  // "app" the app's own page). The «Open Safari» step and the reminders are setup.*.
   activation: {
     since: "2.7", tracked: "2.7", on: "app",
-    actions: ["video", "settings", "back", "enabled", "linked", "shown", "safari_shown", "safari", "reminder"],
-    via: ["card", "chats", "step", "guide"],
-    fields: { how: ["direct", "app"], what: ["15m", "24h"] }
+    actions: ["video", "settings", "back", "enabled", "linked", "shown"],
+    via: ["card", "chats"],
+    fields: { how: ["direct", "app"] }
   },
   // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page
   // its tap opened showed the panel on that chat (the chat named in the page's address, the panel's step).

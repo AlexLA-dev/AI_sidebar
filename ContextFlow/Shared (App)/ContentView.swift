@@ -170,6 +170,15 @@ struct ContentView: View {
         Binding(get: { otherSheet ? nil : tour.run }, set: { if $0 == nil, !otherSheet { closeTour() } })
     }
 
+    /// 2.8 (В1.7): which tabs are opened (Tips, What's new and Pro above all), and What's new left. Before the tab's own
+    /// handling, while `whatsNewShown` still says whether What's new was showing.
+    private func reportTab(_ next: AppTab) {
+        ChatAI.reportUse("tab", "open", ["what": next.event])
+        if next == .tips { ChatAI.reportUse("tips", "open") }
+        if next == .whatsNew { ChatAI.reportUse("whatsnew", "shown") }
+        if next != .whatsNew, whatsNewShown { ChatAI.reportUse("whatsnew", "close") }
+    }
+
     private func closeTour() {
         guard tour.close() else { return }
         // It stood in for "You're all set" after a purchase: the rating is asked as that alert did.
@@ -332,8 +341,7 @@ struct ContentView: View {
             // What's new hides again once another tab is chosen (Tips is back in its place). Left after an update: a good
             // moment for a rating (2.6 (100)).
             .onChange(of: tab) { next in
-                // 2.8 (В1.7): which tabs are opened (Tips, What's new and Pro above all).
-                ChatAI.reportUse("tab", "open", ["what": next.event])
+                reportTab(next)
                 if next != .whatsNew {
                     if whatsNewShown { ReviewAsk.shared.ask(.whatsNew) }
                     whatsNewShown = false

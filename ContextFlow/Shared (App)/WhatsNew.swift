@@ -167,7 +167,11 @@ struct WhatsNewView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         if let url = URL(string: store.url) {
-                            Button("Update") { openURL(url) }
+                            Button("Update") {
+                                // 2.8 (В1.7): the tab's one action.
+                                ChatAI.reportUse("whatsnew", "tap")
+                                openURL(url)
+                            }
                                 .buttonStyle(.borderedProminent)
                         }
                     }

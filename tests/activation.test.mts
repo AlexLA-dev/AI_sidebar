@@ -47,7 +47,7 @@ test("the app sends each step where it happens, in order", () => {
   assert.match(setup, /var request = URLRequest\(url: ChatAI\.base\.appendingPathComponent\("api\/v2\/event"\)\)/)
   assert.doesNotMatch(setup, /aisidebar\.netlify\.app/)
   // Steps a moment apart go a second apart, so the server gets them in order; none waits on another's answer.
-  assert.match(setup, /let at = max\(now, nextStepAt\)\s*nextStepAt = at\.addingTimeInterval\(1\)\s*ChatAI\.reportUse\("activation", action, fields, after: at\.timeIntervalSince\(now\)\)/)
+  assert.match(setup, /let at = max\(now, nextStepAt\)\s*nextStepAt = at\.addingTimeInterval\(1\)\s*ChatAI\.reportUse\(feature, action, fields, after: at\.timeIntervalSince\(now\)\)/)
   const chatAI = app("ChatAI.swift")
   assert.match(chatAI, /after delay: TimeInterval\) \{[\s\S]*?if delay > 0 \{ try\? await Task\.sleep\(nanoseconds: UInt64\(delay \* 1_000_000_000\)\) \}\s*_ = try\? await URLSession\.shared\.data\(for: request\)/)
   assert.doesNotMatch(chatAI, /await previous/)
