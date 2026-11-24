@@ -1256,6 +1256,10 @@ async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<Tool
     const call: ToolCall = { tool: "click", id: a.id, why: a.why ?? "", expect: { label: item.label, role: item.role, ...(item.lock ? { lock: item.lock } : {}) } }
     const v = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
     if (v.cls !== "free" || looksLikeSlot(item.label)) return
+    // A menu the press before opened isn't pressed again in the batch (it would close: 126 stand, a colour list opened
+    // and shut by the same batch, four steps in a row).
+    const last = state.log[state.log.length - 1]?.call
+    if (item.state?.includes("expanded") && last?.tool === "click" && last.id === a.id) return
     // A day in a batch goes through the same date checks as one pressed alone.
     if (state.plan?.booking && isDateLabel(item.label)) {
       const why = dateStep(state, map, item, call)

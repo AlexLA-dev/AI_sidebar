@@ -181,6 +181,18 @@ test("a menu the last press opened isn't pressed again (it would close): the mod
   assert.match(s.log.find((l) => l.result.startsWith("refused"))?.result ?? "", /is open now/)
 })
 
+test("a batch doesn't press the menu its own first press opened (126 stand: open, shut, four steps)", async () => {
+  const open: PageMap = { ...MAP, items: [{ id: "6", role: "button", label: "Colour Black", state: ["expanded"] }, { id: "7", role: "option", label: "Red" }] }
+  const x = io([
+    step({ tool: "click", id: "6", why: "open the colours", also: [{ id: "6", why: "open" }] } as any, "free", "click"),
+    step({ tool: "click", id: "7", why: "red" }, "free", "click"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ], [], open)
+  const s = await drive(newState("t1b", "red colour", "en", MAP.url), x)
+  assert.equal(s.status, "done")
+  assert.deepEqual(x.acted.map((c) => c.id), ["6", "7"])
+})
+
 test("a control the page shows disabled (the model's call refused on it) waits and reads again, twice, before the task ends", async () => {
   const bad = (): ActReply => ({ ok: true, call: { tool: "ask_user", question: "", why: "element 2 is disabled" }, verdict: { cls: "blocked", reason: "bad_call" }, target: null })
   const x = io([bad(), step({ tool: "click", id: "5", why: "more" }, "free", "click"), step({ tool: "done", summary: "ok" }, "free", "read")])
