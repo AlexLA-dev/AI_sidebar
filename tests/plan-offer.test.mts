@@ -2,7 +2,7 @@
 // monthly or yearly with the App Store's price and the yearly saving, the choice handed to the app, logged once shown
 // and on every tap, and Retry alive once the answers are back. Also: the conversation is cached for the next question.
 import assert from "node:assert/strict"
-import { mkdtempSync, writeFileSync } from "node:fs"
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { before, test } from "node:test"
@@ -119,6 +119,29 @@ test("yearly (build 95): twelve months of the monthly plan, struck through, when
   if (seg.length) await click(seg[seg.length - 1])
   assert.equal(el.querySelector(".cf-plan-year s")?.textContent, "$155.88")
   ui.clear(el)
+})
+
+test("the free answers' limit card opens on Monthly (the owner, 2.8); yearly one tap away with its saving", async () => {
+  const el = dom.document.createElement("div")
+  dom.document.body.appendChild(el)
+  const events: Array<[string, unknown]> = []
+  const chosen: unknown[] = []
+  ui.offer(el, { place: "limit", status: STATUS, title: "Out", period: "monthly", onChoose: (c: unknown) => chosen.push(c), onEvent: (a: string, c: unknown) => events.push([a, c]) })
+  await new Promise((r) => setTimeout(r, 150))
+  assert.deepEqual(events, [["shown", { plan: "pro", period: "monthly" }]])
+  const text = () => el.textContent as string
+  assert.match(text(), /\$6\.99/)
+  assert.doesNotMatch(text(), /\$59\.99/)
+  const period = el.querySelectorAll(".cf-offer-period button")
+  assert.equal(period[0].getAttribute("aria-checked"), "true")
+  assert.match(period[1].textContent, /28/)
+  await click(el.querySelector(".cf-primary"))
+  assert.deepEqual(chosen, [{ plan: "pro", period: "monthly" }])
+  await click(period[1])
+  assert.match(text(), /\$59\.99/)
+  ui.clear(el)
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.match(app, /plans=\{hasPro\(plan\) \? \["ultra"\] : \["pro", "ultra"\]\}[\s\S]{0,200}period="monthly"/)
 })
 
 test("Retry: not there until the answers are back, then the question goes again", async () => {
