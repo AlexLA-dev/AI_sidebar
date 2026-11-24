@@ -112,7 +112,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       const spent = p.usage.reduce((n, u: Usage) => n + cost(u), 0)
       context.waitUntil(Promise.all([
         logEvent("agent_step", installId, {
-          plan: access.plan, step, tool: "plan", cls: "free", reason: "plan", strong: false, retries: 0, off_request: false, items: map.items.length,
+          task: taskId, plan: access.plan, step, tool: "plan", cls: "free", reason: "plan", strong: false, retries: 0, off_request: false, items: map.items.length,
           questions: p.plan.questions.length, risky: p.plan.risky.length, chat_chars: input.chat?.length ?? 0, prompt_tokens: p.usage.reduce((n, u) => n + u.input + u.cacheRead + u.cacheWrite, 0),
           completion_tokens: p.usage.reduce((n, u) => n + u.output, 0), cost_usd: Math.round(spent * 1e6) / 1e6, ms: Date.now() - started, platform, version, build
         }),
@@ -138,7 +138,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const tokens = out.usage.reduce((n, u) => n + u.input + u.cacheRead + u.cacheWrite, 0)
   context.waitUntil(Promise.all([
     logEvent("agent_step", installId, {
-      plan: access.plan, step, tool: out.call.tool, cls: out.verdict.cls, reason: out.verdict.reason, strong, retries: out.retries,
+      task: taskId, plan: access.plan, step, tool: out.call.tool, cls: out.verdict.cls, reason: out.verdict.reason, strong, retries: out.retries,
       off_request: !!out.offRequest, items: map.items.length, prompt_tokens: tokens,
       completion_tokens: out.usage.reduce((n, u) => n + u.output, 0), cost_usd: Math.round(spent * 1e6) / 1e6,
       ms: Date.now() - started, platform, version, build

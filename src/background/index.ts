@@ -1301,7 +1301,9 @@ startAgent({
     const ent = await entitlement()
     return ent?.active ? planFromProduct(ent.productId) : "free"
   },
-  statusChanged: () => (statusCache = null)
+  statusChanged: () => (statusCache = null),
+  // The agent's usage events (feature "agent", src/shared/usage.ts): kinds and counts only.
+  use: (fields) => void reportUse({ type: "useEvent", ...fields } as Extract<BackgroundRequest, { type: "useEvent" }>)
 })
 // Page watch (2.5): the checks run here while Safari runs; the AI plans a watch and reads a change.
 startWatch({

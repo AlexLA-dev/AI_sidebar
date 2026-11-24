@@ -18,6 +18,7 @@ import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
+import { pageKind } from "./events.ts"
 import { addContactFill, buildPlan, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
@@ -136,6 +137,9 @@ export interface AgentState {
   // before that press was shown (B2: only once).
   picked?: { date?: string; time?: string }
   recapShown?: boolean
+  // The usage events already sent for this task (src/shared/agent/events.ts), and its start page's kind.
+  ev?: { start?: boolean; end?: boolean }
+  pageKind?: string
   // A question sent back once because the page's own date field showed another day (B3).
   widgetNudged?: boolean
   // Waits for a control the page showed disabled (a bad call on it), at most two.
@@ -388,6 +392,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   state.chat = undefined
   // A server without plans answered with a step: none, every «Сделать?» asks (it's asked again as step 1).
   const plan = reply.plan ? buildPlan(checkPlan(reply.plan), { map, startHost: state.startHost, request: state.request, confirmedHere: false, policy: io.policy }) : null
+  state.pageKind = pageKind(map, subject, plan?.booking)
   if (!plan) return "go"
   state.plan = plan
   // A place the request (or the chat it came from) doesn't name isn't the model's to pick on the plan (124, the director:

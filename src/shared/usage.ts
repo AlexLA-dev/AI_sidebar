@@ -18,8 +18,9 @@ interface Feature {
   actions: readonly string[]
   /** How people got to it. */
   via?: readonly string[]
-  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country). */
-  fields?: Record<string, readonly string[] | "int" | "code">
+  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country), "uuid" a
+   *  random id (an agent task's, never anything about the person). */
+  fields?: Record<string, readonly string[] | "int" | "code" | "uuid">
   /** Sent as its own event kind (or logged by the server), never as "use": named here for prev and reports. */
   own?: true
 }
@@ -27,6 +28,25 @@ interface Feature {
 const ENTRIES = ["list", "search", "ai_search", "move_bar", "reminder", "deeplink"] as const
 
 export const FEATURES: Record<string, Feature> = {
+  // The browser agent (2.7.1): one task's start and end, tied by its random id (also on the server's agent_step rows);
+  // the person's answer to the recap before a booking; a question and where it was answered; the end's «Show».
+  // Kinds and counts only: never a site, a name, a time or the request.
+  agent: {
+    since: "2.7.1", tracked: "2.7.1", on: "ext",
+    actions: ["start", "end", "accepted", "rejected", "question", "result"],
+    via: ["card", "bubble", "chat"],
+    fields: {
+      task: "uuid",
+      what: ["book_table", "book_stay", "book_visit", "cart", "form", "other"],
+      page: ["product", "article", "video", "form", "event", "stay", "other"],
+      card: ["shown", "skipped"],
+      result: ["done", "failed", "stopped", "asked"],
+      err: ["steps", "stuck", "page", "unbooked", "blocked", "upstream", "other"],
+      recap: ["yes", "no"],
+      did: ["answered", "dismissed", "show"],
+      steps: "int", secs: "int", calls: "int", options: "int"
+    }
+  },
   panel: {
     since: "2.0", on: "ext", actions: ["open", "close"],
     via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app"],
@@ -384,8 +404,8 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
   if (has(spec.via, body.via)) out.via = body.via
   for (const [name, allowed] of Object.entries(spec.fields ?? {})) {
     const value = allowed === "int" ? count(body[name]) : body[name]
-    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : has(allowed, value)
-    if (ok) out[name] = value
+    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : allowed === "uuid" ? typeof value === "string" && UUID.test(value) : has(allowed, value)
+    if (ok) out[name] = allowed === "uuid" ? (value as string).toLowerCase() : value
   }
   return out
 }
