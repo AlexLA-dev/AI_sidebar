@@ -43,6 +43,8 @@ export interface AgentLine {
   byPlan?: boolean
   // When (ms): test builds show it, to see whether a task stepped while its tab was in the background.
   at?: number
+  // The device closed a layer over the page that wasn't the task (a promotion, the site's app, notifications).
+  popup?: boolean
 }
 
 export interface AgentState {
@@ -129,6 +131,8 @@ export interface AgentState {
   oneTime?: Array<{ key: "email" | "phone"; value: string }>
   sawDate?: boolean
   dateNudged?: boolean
+  // Layers over the page the device closed itself (at most three a task).
+  popups?: number
   // The booking's day as the page shows it greyed (a strip greys days it hasn't loaded: a booking site's «Sat 26 Dec» answered
   // «full», with its next free day once pressed), and whether it was pressed once to hear the page.
   greyTarget?: string
@@ -639,6 +643,18 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     state.host = hostOf(map.url)
     noteVenues(state, map)
+    // A layer over the page that isn't the task (rewards, a newsletter, the site's app, notifications, location): closed
+    // by its own «Not now» / «×» as a free step, never a question, never «Accept» or «Allow» (the director on 124). Only
+    // once the person started the task; cookie banners are the cookie closer's.
+    if (map.promo && (!io.planning || state.plan?.approved) && (state.popups ?? 0) < 3) {
+      state.popups = (state.popups ?? 0) + 1
+      await perform(state, io, { tool: "click", id: map.promo.id, why: "" }, { cls: "free", reason: "close" }, `button "${map.promo.label.slice(0, 60)}"`)
+      const shown = state.lines[state.lines.length - 1]
+      if (shown) shown.popup = true
+      const logged = state.log[state.log.length - 1]
+      if (logged) logged.result = `${logged.result} (the device closed a layer over the page that wasn't the task)`
+      continue
+    }
     if (state.plan?.approved && state.plan.booking?.date && !state.sawDate) {
       const days = dayItems(map, state.plan.booking.date)
       if (days.some((i) => !greyedItem(i))) state.sawDate = true

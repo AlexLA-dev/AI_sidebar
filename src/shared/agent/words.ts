@@ -444,3 +444,43 @@ export const CHOSEN_COUNT_WORDS = [
   "項", "服務",
   "sản phẩm", "dịch vụ", "mục"
 ]
+
+// What a layer over the page that isn't the task is about: rewards and points, a newsletter, the site's app, a discount,
+// notifications, the person's location (closed as a free step; cookie banners have their own closer).
+export const PROMO_WORDS = [
+  "newsletter", "subscribe to our", "rewards", "earn points", "collect points", "loyalty", "download the app", "download our app", "get the app", "open in app", "open the app", "use the app", "install the app", "% off", "discount code", "promo code", "coupon", "exclusive offer", "turn on notifications", "enable notifications", "allow notifications", "your location", "use my location", "share your location",
+  "рассылк*", "подпишитесь", "бонус*", "балл*", "кешбэк", "скачайте приложение", "скачать приложение", "в приложении", "промокод", "скидк*", "уведомлени*", "геолокаци*", "местоположени*",
+  "розсилк*", "бонус*", "бал*", "завантажте застосунок", "у застосунку", "промокод", "знижк*", "сповіщен*", "геолокаці*",
+  "newsletter", "abonnieren", "prämien", "punkte sammeln", "treuepunkte", "app herunterladen", "in der app", "rabatt*", "gutschein*", "benachrichtigungen", "standort",
+  "newsletter", "abonnez-vous", "récompenses", "points de fidélité", "cumulez des points", "télécharger l'application", "dans l'application", "réduction", "code promo", "notifications", "localisation", "votre position",
+  "boletín", "suscríbete", "recompensas", "puntos", "descarga la app", "descargar la aplicación", "en la app", "descuento", "código promocional", "cupón", "notificaciones", "ubicación",
+  "newsletter", "iscriviti", "premi", "punti fedeltà", "scarica l'app", "nell'app", "sconto", "codice promozionale", "coupon", "notifiche", "posizione",
+  "newsletter", "inscreva-se", "recompensas", "pontos", "baixe o app", "baixar o aplicativo", "no app", "desconto", "cupom", "código promocional", "notificações", "localização",
+  "bülten", "abone ol", "ödül*", "puan*", "uygulamayı indir", "uygulamada", "indirim*", "kupon", "promosyon kodu", "bildirim*", "konum*",
+  "النشرة", "اشترك", "مكافآت", "نقاط", "حمّل التطبيق", "تنزيل التطبيق", "في التطبيق", "خصم", "كوبون", "رمز الترويج", "الإشعارات", "موقعك",
+  "メルマガ", "ニュースレター", "ポイント", "アプリをダウンロード", "アプリで開く", "クーポン", "割引", "通知", "位置情報",
+  "뉴스레터", "구독", "포인트", "적립", "앱 다운로드", "앱에서 열기", "쿠폰", "할인", "알림", "위치",
+  "订阅", "积分", "奖励", "下载应用", "下载app", "在应用中打开", "优惠券", "折扣", "通知", "位置",
+  "訂閱", "積分", "獎勵", "下載應用程式", "下載app", "在應用程式中開啟", "優惠券", "折扣", "通知", "位置",
+  "bản tin", "đăng ký nhận", "phần thưởng", "tích điểm", "tải ứng dụng", "mở trong ứng dụng", "giảm giá", "mã khuyến mãi", "phiếu giảm giá", "thông báo", "vị trí"
+]
+
+// A control that closes such a layer without agreeing to anything: «Close», «Not now», «No thanks», «Skip», «Maybe later»,
+// «Continue in the browser» (never «Accept», «Allow», «Subscribe», «Install», «Open the app»).
+export const CLOSE_WORDS = [
+  "=close", "=dismiss", "not now", "no thanks", "no, thanks", "=skip", "skip for now", "maybe later", "=later", "remind me later", "continue in browser", "continue on web", "stay on the website", "=×", "=✕", "=x", "close dialog", "close popup", "close modal",
+  "=закрыть", "не сейчас", "нет, спасибо", "нет спасибо", "=пропустить", "=позже", "напомнить позже", "продолжить в браузере", "остаться на сайте",
+  "=закрити", "не зараз", "ні, дякую", "=пропустити", "=пізніше", "продовжити в браузері",
+  "=schließen", "nicht jetzt", "nein danke", "nein, danke", "=überspringen", "=später", "vielleicht später", "im browser fortfahren",
+  "=fermer", "pas maintenant", "non merci", "non, merci", "=passer", "=ignorer", "plus tard", "continuer sur le navigateur",
+  "=cerrar", "ahora no", "no gracias", "no, gracias", "=omitir", "=saltar", "más tarde", "continuar en el navegador",
+  "=chiudi", "non ora", "no grazie", "no, grazie", "=salta", "più tardi", "continua nel browser",
+  "=fechar", "agora não", "não, obrigado", "não obrigado", "=pular", "mais tarde", "continuar no navegador",
+  "=kapat", "şimdi değil", "hayır teşekkürler", "hayır, teşekkürler", "=atla", "daha sonra", "tarayıcıda devam et",
+  "=إغلاق", "ليس الآن", "لا شكرا", "لا، شكرا", "=تخطي", "لاحقا", "المتابعة في المتصفح",
+  "=閉じる", "今はしない", "後で", "=スキップ", "ブラウザで続ける",
+  "=닫기", "나중에", "=건너뛰기", "괜찮습니다", "브라우저로 계속",
+  "=关闭", "以后再说", "=跳过", "不用了", "继续使用浏览器",
+  "=關閉", "以後再說", "=跳過", "不用了", "繼續使用瀏覽器",
+  "=đóng", "để sau", "=bỏ qua", "không, cảm ơn", "tiếp tục trên trình duyệt"
+]

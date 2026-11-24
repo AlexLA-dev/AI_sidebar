@@ -10,9 +10,9 @@
 
 import { amounts } from "../../shared/agent/taskplan"
 import { isDateLabel } from "../../shared/agent/dates"
-import { wordTest } from "../../shared/agent/match"
+import { wordKind, wordTest } from "../../shared/agent/match"
 import { looksLikeSlot } from "../../shared/agent/rules"
-import { UNAVAILABLE_WORDS } from "../../shared/agent/words"
+import { CLOSE_WORDS, PROMO_WORDS, UNAVAILABLE_WORDS } from "../../shared/agent/words"
 import { fieldLock } from "../../shared/agent/fields"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import type { Lock, MapItem, PageForm, PageMap, Role } from "../../shared/agent/types"
@@ -675,11 +675,48 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     text: pageText(doc, overlayList.slice(0, 2)),
     ...(overlayList.length ? { overlay: true } : {}),
     ...(consent ? { consent: true } : {}),
+    ...((() => {
+      const promo = consent ? null : promoLayer(overlayList, items)
+      return promo ? { promo } : {}
+    })()),
     ...(opts.money ? { money: pageMoney(doc) } : {}),
     ...(takesPayment(doc) ? { pay: true } : {}),
     ...(opts.money && asksDeposit(doc) ? { deposit: true } : {}),
     ...(otherFrames(doc).length ? { frames: otherFrames(doc) } : {})
   }
+}
+
+// A layer over the page that isn't the task: its meaning (rewards, newsletter, the app, notifications, location), and
+// the control that closes it without agreeing (lexicon). Never a sign-in, a payment or the task's own dialog (a field
+// for a password or a card, a day or a time to choose, a sign-in's words).
+const promoWord = wordTest(PROMO_WORDS)
+const closeWord = wordTest(CLOSE_WORDS)
+const WORDLESS_CLOSE = /^\s*[×✕✖xX]?\s*$/
+
+function promoLayer(overlays: Element[], items: Array<MapItem & { order: number }>): { id: string; label: string } | null {
+  for (const o of overlays) {
+    if (o.querySelector("input[type=password], [autocomplete~=cc-number], [autocomplete~=one-time-code]")) continue
+    const text = wordsOf(o, 1500)
+    if (!promoWord(text)) continue
+    const inside = items.filter((i) => {
+      const el = byId.get(i.id)?.deref()
+      return !!el && o.contains(el)
+    })
+    // The task's own dialog (a date picker, slots, a sign-in) isn't a promotion, whatever else it says.
+    if (inside.some((i) => isDateLabel(i.label) || looksLikeSlot(i.label) || i.lock === "secret")) continue
+    if (inside.some((i) => { const k = wordKind(i.label)?.kind; return k === "auth" || k === "account" })) continue
+    const close =
+      inside.find((i) => (i.role === "button" || i.role === "link") && closeWord(i.label) && !blocksClose(i.label)) ??
+      inside.find((i) => i.role === "button" && WORDLESS_CLOSE.test(i.label) && i.form === undefined && i.type !== "submit")
+    if (close) return { id: close.id, label: close.label || "×" }
+  }
+  return null
+}
+
+/** A close word next to an agreeing one («Close and subscribe») doesn't close. */
+function blocksClose(label: string): boolean {
+  const k = wordKind(label)?.kind
+  return k === "consent" || k === "submit" || k === "pay" || k === "account" || k === "send" || k === "post"
 }
 
 /** Another site's frames on the screen, big enough to be a form (their insides aren't readable from here). */

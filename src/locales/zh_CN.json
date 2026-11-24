@@ -1271,5 +1271,6 @@
   "reloadPage": "重新加载页面",
   "agentPlanVenueQ": "在哪里预订(按你的规则选择)",
   "agentPlanEmailQ": "用于预订的邮箱（网站会要求填写）",
-  "agentPlanPhoneQ": "用于预订的电话（网站会要求填写）"
+  "agentPlanPhoneQ": "用于预订的电话（网站会要求填写）",
+  "agentLinePopup": "已关闭页面上的弹窗：「{0}」"
 }

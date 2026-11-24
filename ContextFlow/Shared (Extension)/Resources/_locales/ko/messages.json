@@ -3722,6 +3722,9 @@
  "agentPlanPhoneQ": {
   "message": "예약용 전화번호 (사이트에서 요청합니다)"
  },
+ "agentLinePopup": {
+  "message": "페이지 위의 창을 닫았습니다: «{0}»"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

@@ -1271,5 +1271,6 @@
   "reloadPage": "Seite neu laden",
   "agentPlanVenueQ": "Wo buchen (nach deinen Regeln gewählt)",
   "agentPlanEmailQ": "Deine E-Mail für die Buchung (die Seite fragt danach)",
-  "agentPlanPhoneQ": "Deine Telefonnummer für die Buchung (die Seite fragt danach)"
+  "agentPlanPhoneQ": "Deine Telefonnummer für die Buchung (die Seite fragt danach)",
+  "agentLinePopup": "Fenster über der Seite geschlossen: «{0}»"
 }

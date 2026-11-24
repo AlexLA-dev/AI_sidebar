@@ -381,7 +381,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
   // While it works, the newest few; a finished task opened from its line shows every step that ran (the director: the
   // cookie step was missing from an opened booking).
-  const shown = state.lines.filter((l) => l.text || l.target)
+  const shown = state.lines.filter((l) => l.text || l.target || l.popup)
   const lines = finished ? shown : shown.slice(-8)
   // The card stays in view as the task goes on: its newest line, its question, its result.
   const ref = useRef<HTMLDivElement>(null)
@@ -441,7 +441,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
               {/* (A box the plan let the agent tick is the agent's step.) */}
               {l.cls === "self" && !l.byPlan
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
-                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.text || nameOf(l.target)}
+                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.popup ? t("agentLinePopup", nameOf(l.target)) : l.text || nameOf(l.target)}
             </li>
           ))}
         </ol>

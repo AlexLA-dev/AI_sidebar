@@ -67,6 +67,9 @@ export interface PageMap {
   overlay?: boolean
   // The overlay's own words, when it's about cookies or consent.
   consent?: boolean
+  // A layer over the page that isn't the task (rewards, a newsletter, the site's app, notifications, location) and its
+  // control that closes it without agreeing to anything: the device presses it as a free step.
+  promo?: { id: string; label: string }
   // The page takes payment: card fields, a payment provider's frame (Stripe, Adyen, Braintree, PayPal, Apple Pay…) or
   // a checkout / payment address. Every press that sends something here is the person's own.
   pay?: boolean

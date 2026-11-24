@@ -3722,6 +3722,9 @@
  "agentPlanPhoneQ": {
   "message": "Số điện thoại của bạn để đặt chỗ (trang sẽ hỏi)"
  },
+ "agentLinePopup": {
+  "message": "Đã đóng cửa sổ trên trang: «{0}»"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

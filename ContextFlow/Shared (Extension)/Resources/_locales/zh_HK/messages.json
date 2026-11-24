@@ -3722,6 +3722,9 @@
  "agentPlanPhoneQ": {
   "message": "用於預訂的電話（網站會要求填寫）"
  },
+ "agentLinePopup": {
+  "message": "已關閉頁面上的彈出視窗：「{0}」"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

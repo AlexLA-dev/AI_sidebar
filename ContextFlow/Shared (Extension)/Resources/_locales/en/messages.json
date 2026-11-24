@@ -3722,6 +3722,9 @@
  "agentPlanPhoneQ": {
   "message": "Your phone number for the booking (the site will ask for it)"
  },
+ "agentLinePopup": {
+  "message": "Closed a window over the page: «{0}»"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

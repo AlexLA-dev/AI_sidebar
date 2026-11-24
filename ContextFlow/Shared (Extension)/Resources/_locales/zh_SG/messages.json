@@ -3722,6 +3722,9 @@
  "agentPlanPhoneQ": {
   "message": "用于预订的电话（网站会要求填写）"
  },
+ "agentLinePopup": {
+  "message": "已关闭页面上的弹窗：「{0}」"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

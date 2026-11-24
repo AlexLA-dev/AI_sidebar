@@ -1271,5 +1271,6 @@
   "reloadPage": "重新載入頁面",
   "agentPlanVenueQ": "在哪裡預訂(依你的規則選擇)",
   "agentPlanEmailQ": "用於預訂的電子郵件（網站會要求填寫）",
-  "agentPlanPhoneQ": "用於預訂的電話（網站會要求填寫）"
+  "agentPlanPhoneQ": "用於預訂的電話（網站會要求填寫）",
+  "agentLinePopup": "已關閉頁面上的彈出視窗：「{0}」"
 }

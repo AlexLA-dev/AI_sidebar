@@ -1271,5 +1271,6 @@
   "reloadPage": "ページを再読み込み",
   "agentPlanVenueQ": "予約先(あなたのルールで選択)",
   "agentPlanEmailQ": "予約用のメールアドレス（サイトで求められます）",
-  "agentPlanPhoneQ": "予約用の電話番号（サイトで求められます）"
+  "agentPlanPhoneQ": "予約用の電話番号（サイトで求められます）",
+  "agentLinePopup": "ページ上のウィンドウを閉じました：「{0}」"
 }

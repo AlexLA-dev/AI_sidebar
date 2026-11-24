@@ -1271,5 +1271,6 @@
   "reloadPage": "Recharger la page",
   "agentPlanVenueQ": "Où réserver (choisi selon vos règles)",
   "agentPlanEmailQ": "Votre e-mail pour la réservation (le site le demandera)",
-  "agentPlanPhoneQ": "Votre numéro de téléphone pour la réservation (le site le demandera)"
+  "agentPlanPhoneQ": "Votre numéro de téléphone pour la réservation (le site le demandera)",
+  "agentLinePopup": "Fenêtre fermée au-dessus de la page : «{0}»"
 }

@@ -3722,6 +3722,9 @@
  "agentPlanPhoneQ": {
   "message": "رقم هاتفك للحجز (سيطلبه الموقع)"
  },
+ "agentLinePopup": {
+  "message": "أُغلقت نافذة فوق الصفحة: «{0}»"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

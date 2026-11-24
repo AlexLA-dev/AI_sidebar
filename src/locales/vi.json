@@ -1271,5 +1271,6 @@
   "reloadPage": "Tải lại trang",
   "agentPlanVenueQ": "Đặt ở đâu (chọn theo quy tắc của bạn)",
   "agentPlanEmailQ": "Email của bạn để đặt chỗ (trang sẽ hỏi)",
-  "agentPlanPhoneQ": "Số điện thoại của bạn để đặt chỗ (trang sẽ hỏi)"
+  "agentPlanPhoneQ": "Số điện thoại của bạn để đặt chỗ (trang sẽ hỏi)",
+  "agentLinePopup": "Đã đóng cửa sổ trên trang: «{0}»"
 }

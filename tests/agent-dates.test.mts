@@ -366,3 +366,29 @@ test("a contact detail the booking will ask for and «Мои данные» lack
   assert.ok(after.plan!.perms.find((p) => p.reason === "contact")!.keys!.includes("email"), "filled by the plan's contact fill")
   assert.ok(!JSON.stringify(asked.slice(1)).includes("me@mail.example"), "the value never goes to the server")
 })
+
+test("pattern: layers over the page that aren't the task are closed by their own «Not now» / «×»; sign-ins, the task's dialogs, cookie banners and «Allow» never", async () => {
+  const promo = (inner: string) => domMap(`<main><button>Book</button></main><div role="dialog" aria-modal="true">${inner}</div>`, {}, "https://shop.example/x").promo
+  assert.equal(promo(`<h2>Collect points and earn up to £25 in rewards</h2><button aria-label="Close">×</button><button>Join now</button>`)?.label, "Close")
+  assert.equal(promo(`<p>Open in app for a better experience</p><button>Open the app</button><button>Not now</button>`)?.label, "Not now")
+  assert.equal(promo(`<p>Abonnieren Sie unseren Newsletter: 10 % Rabatt</p><input type="email" aria-label="E-Mail"><button>Abonnieren</button><button>Nein danke</button>`)?.label, "Nein danke")
+  assert.equal(promo(`<p>Включите уведомления о скидках</p><button>Разрешить</button><button>Не сейчас</button>`)?.label, "Не сейчас")
+  assert.equal(promo(`<p>アプリをダウンロードしてポイントを貯めよう</p><button>ダウンロード</button><button>後で</button>`)?.label, "後で")
+  assert.equal(promo(`<h2>Log in to collect your points</h2><input type="password" aria-label="Password"><button>Log in</button><button>Close</button>`), undefined, "a sign-in")
+  assert.equal(promo(`<p>Book with points</p><button>Sat 26 Dec</button><button>19:30</button><button>Close</button>`), undefined, "the task's own dialog")
+  assert.equal(promo(`<p>Turn on notifications</p><button>Allow</button><button>Subscribe</button>`), undefined, "only agreeing controls")
+  assert.equal(promo(`<p>We use cookies and similar technologies. Rewards partners…</p><button>Reject all</button><button>Close</button>`), undefined, "a cookie banner is the cookie closer's")
+})
+
+test("a layer over the page that isn't the task is closed as a free step, with no model call and no question", async () => {
+  const PAGE: PageMap = { url: "https://salons.example/s/1", title: "Salon", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], overlay: true, promo: { id: "9", label: "Not now" },
+    items: [{ id: "9", role: "button", label: "Not now", where: "dialog" }, { id: "1", role: "button", label: "Select" }] }
+  const pressed: string[] = []
+  let calls = 0
+  const io = { map: async () => (pressed.length ? { ...PAGE, overlay: undefined, promo: undefined } : PAGE), act: async (c: any) => { pressed.push(c.id); return { ok: true } }, waitPage: async () => {}, ask: async () => { calls++; return { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
+  const s = await drive(newState("pp", "find a haircut", "en", PAGE.url), io)
+  assert.deepEqual(pressed, ["9"])
+  assert.equal(calls, 1, "the model was asked only after the layer was gone")
+  assert.ok(s.lines.some((l) => l.popup))
+})
