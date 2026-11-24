@@ -81,7 +81,8 @@ export const FEATURES: Record<string, Feature> = {
   paywall: {
     since: "2.0", tracked: "2.8", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
     via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew", "panel", "panel_sheet", "panel_chat", "panel_settings", "panel_yearly"],
-    fields: { plan: ["monthly", "yearly", "own_key", "promo"], tier: ["pro", "ultra", "byok"], period: ["monthly", "yearly"], offer: ["none", "promo", "intro", "code"] }
+    // The 2.8 schema (events-2.8.md, rung 15): `plan` is the plan bought (its old values were never sent).
+    fields: { plan: ["pro", "ultra", "byok"], period: ["monthly", "yearly"], offer: ["none", "promo", "intro", "code"] }
   },
   renewal: { since: "2.4", tracked: "2.4", actions: ["shown", "answer"] },
   // 2.6: the guided first request (src/content/Guide.tsx) reports these; "what" is the step it was on (or, for "exit",
@@ -171,7 +172,7 @@ export const FEATURES: Record<string, Feature> = {
   // (to the app), the discount, a note, the own key, Retry.
   chat_plans: {
     // 2.8 (В7.1): «Remind me when my answers are back» tapped, set, or notifications off.
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off"],
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify"],
     via: ["limit", "memory", "pro_only", "ultra_only"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
   },

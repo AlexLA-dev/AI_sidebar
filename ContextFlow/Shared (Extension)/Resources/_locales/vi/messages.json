@@ -3834,7 +3834,7 @@
   "message": "Tôi sẽ nhắc bạn lúc {0}, khi câu trả lời quay lại."
  },
  "answersBackOff": {
-  "message": "Thông báo của ContextFlow đang tắt nên không nhắc được. Câu trả lời sẽ quay lại lúc {0}."
+  "message": "Thông báo của ContextFlow đang tắt. Câu trả lời sẽ quay lại lúc {0}."
  },
  "answersBackFailed": {
   "message": "Không đặt được lời nhắc. Câu trả lời sẽ quay lại lúc {0}."

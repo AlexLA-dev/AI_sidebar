@@ -1309,7 +1309,7 @@
   "boughtByok": "Le forfait Clé personnelle est activé. Ajoutez votre clé API dans les réglages.",
   "answersBackAsk": "Me prévenir quand mes {0} réponses reviennent",
   "answersBackSet": "Je vous préviens à {0}, quand vos réponses reviennent.",
-  "answersBackOff": "Les notifications de ContextFlow sont désactivées, donc pas de rappel. Vos réponses reviennent à {0}.",
+  "answersBackOff": "Les notifications de ContextFlow sont désactivées. Vos réponses reviennent à {0}.",
   "answersBackFailed": "Le rappel n’a pas pu être créé. Vos réponses reviennent à {0}.",
   "answersBackBody": "Vos {0} réponses gratuites sont de retour. Posez une question sur n’importe quelle page."
 }

@@ -3834,7 +3834,7 @@
   "message": "{0}에 답변이 돌아오면 알려 드릴게요."
  },
  "answersBackOff": {
-  "message": "ContextFlow 알림이 꺼져 있어 알려 드릴 수 없어요. 답변은 {0}에 돌아와요."
+  "message": "ContextFlow 알림이 꺼져 있어요. 답변은 {0}에 돌아와요."
  },
  "answersBackFailed": {
   "message": "알림을 설정하지 못했어요. 답변은 {0}에 돌아와요."

@@ -1309,7 +1309,7 @@
   "boughtByok": "自分のキーが有効になりました。設定でAPIキーを追加してください。",
   "answersBackAsk": "{0}回分の回答が戻ったら知らせる",
   "answersBackSet": "{0}に回答が戻ったらお知らせします。",
-  "answersBackOff": "ContextFlowの通知がオフのため、お知らせできません。回答は{0}に戻ります。",
+  "answersBackOff": "ContextFlowの通知がオフです。回答は{0}に戻ります。",
   "answersBackFailed": "リマインダーを設定できませんでした。回答は{0}に戻ります。",
   "answersBackBody": "無料の回答{0}回分が戻りました。どのページについても質問できます。"
 }

@@ -3834,7 +3834,7 @@
   "message": "I'll remind you at {0}, when your answers are back."
  },
  "answersBackOff": {
-  "message": "Notifications are off for ContextFlow, so no reminder. Your answers are back at {0}."
+  "message": "Notifications are off for ContextFlow. Your answers are back at {0}."
  },
  "answersBackFailed": {
   "message": "The reminder couldn't be set. Your answers are back at {0}."

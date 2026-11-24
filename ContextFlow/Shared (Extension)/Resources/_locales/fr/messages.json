@@ -3834,7 +3834,7 @@
   "message": "Je vous préviens à {0}, quand vos réponses reviennent."
  },
  "answersBackOff": {
-  "message": "Les notifications de ContextFlow sont désactivées, donc pas de rappel. Vos réponses reviennent à {0}."
+  "message": "Les notifications de ContextFlow sont désactivées. Vos réponses reviennent à {0}."
  },
  "answersBackFailed": {
   "message": "Le rappel n’a pas pu être créé. Vos réponses reviennent à {0}."

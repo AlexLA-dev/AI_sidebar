@@ -3834,7 +3834,7 @@
   "message": "Ti avviso alle {0}, quando tornano le risposte."
  },
  "answersBackOff": {
-  "message": "Le notifiche di ContextFlow sono disattivate, quindi niente promemoria. Le risposte tornano alle {0}."
+  "message": "Le notifiche di ContextFlow sono disattivate. Le risposte tornano alle {0}."
  },
  "answersBackFailed": {
   "message": "Non è stato possibile impostare il promemoria. Le risposte tornano alle {0}."

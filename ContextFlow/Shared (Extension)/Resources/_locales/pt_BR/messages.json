@@ -3834,7 +3834,7 @@
   "message": "Aviso você às {0}, quando suas respostas voltarem."
  },
  "answersBackOff": {
-  "message": "As notificações do ContextFlow estão desativadas, então não haverá aviso. Suas respostas voltam às {0}."
+  "message": "As notificações do ContextFlow estão desativadas. Suas respostas voltam às {0}."
  },
  "answersBackFailed": {
   "message": "Não foi possível criar o aviso. Suas respostas voltam às {0}."

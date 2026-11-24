@@ -3834,7 +3834,7 @@
   "message": "{0}に回答が戻ったらお知らせします。"
  },
  "answersBackOff": {
-  "message": "ContextFlowの通知がオフのため、お知らせできません。回答は{0}に戻ります。"
+  "message": "ContextFlowの通知がオフです。回答は{0}に戻ります。"
  },
  "answersBackFailed": {
   "message": "リマインダーを設定できませんでした。回答は{0}に戻ります。"

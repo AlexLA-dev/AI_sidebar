@@ -71,7 +71,7 @@ test("the app: one-tap purchase without the Pro tab, back to Safari with the mar
 test("events: the purchase's source, plan, period and offer are registered; the panel's plans say bought and the feature", () => {
   const paywall = FEATURES.paywall
   for (const via of ["panel_sheet", "panel_chat", "panel_yearly", "tab", "deeplink"]) assert.ok(paywall.via?.includes(via), via)
-  assert.deepEqual([paywall.fields?.tier, paywall.fields?.period, paywall.fields?.offer], [["pro", "ultra", "byok"], ["monthly", "yearly"], ["none", "promo", "intro", "code"]])
+  assert.deepEqual([paywall.fields?.plan, paywall.fields?.period, paywall.fields?.offer], [["pro", "ultra", "byok"], ["monthly", "yearly"], ["none", "promo", "intro", "code"]])
   assert.ok(FEATURES.plans.actions.includes("bought"))
   assert.deepEqual(FEATURES.plans.fields?.feature, ["listen", "similar"])
   for (const a of ["remind", "remind_set", "remind_off"]) assert.ok(FEATURES.chat_plans.actions.includes(a), a)
@@ -82,6 +82,9 @@ test("«Remind me when my answers are back»: at the free limit only, at the mom
   assert.match(app, /!hasPro\(plan\) && TARGET === "safari" && resetsAt && \(\s*<AnswersBack resetsAt=\{Date\.parse\(resetsAt\)\} count=\{back\}/)
   const card = read("src/content/ux/AnswersBack.tsx")
   assert.match(card, /type: "remind", \.\.\.ANSWERS_BACK, at, ask: true/)
+  // Notifications not on: the app's own ask (setup-28's entry point), back to this page, then set again here.
+  assert.match(card, /followLink\(notifyLink\(url\)\)/)
+  assert.match(card, /contextflow:\/\/notifications\?why=answers_back/)
   for (const lang of ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "tr", "uk", "vi", "zh_CN", "zh_TW"]) {
     const d = JSON.parse(read(`src/locales/${lang}.json`))
     for (const key of ["answersBackAsk", "answersBackSet", "answersBackOff", "answersBackFailed", "answersBackBody", "boughtPro", "boughtUltra", "boughtByok"]) {

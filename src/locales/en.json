@@ -1309,7 +1309,7 @@
   "boughtByok": "Own key is on. Add your API key in Settings.",
   "answersBackAsk": "Remind me when my {0} answers are back",
   "answersBackSet": "I'll remind you at {0}, when your answers are back.",
-  "answersBackOff": "Notifications are off for ContextFlow, so no reminder. Your answers are back at {0}.",
+  "answersBackOff": "Notifications are off for ContextFlow. Your answers are back at {0}.",
   "answersBackFailed": "The reminder couldn't be set. Your answers are back at {0}.",
   "answersBackBody": "Your {0} free answers are back. Ask about any page."
 }

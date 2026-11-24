@@ -1309,7 +1309,7 @@
   "boughtByok": "Il piano Chiave propria è attivo. Aggiungi la chiave API nelle impostazioni.",
   "answersBackAsk": "Avvisami quando tornano le mie {0} risposte",
   "answersBackSet": "Ti avviso alle {0}, quando tornano le risposte.",
-  "answersBackOff": "Le notifiche di ContextFlow sono disattivate, quindi niente promemoria. Le risposte tornano alle {0}.",
+  "answersBackOff": "Le notifiche di ContextFlow sono disattivate. Le risposte tornano alle {0}.",
   "answersBackFailed": "Non è stato possibile impostare il promemoria. Le risposte tornano alle {0}.",
   "answersBackBody": "Le tue {0} risposte gratuite sono tornate. Chiedi pure su qualsiasi pagina."
 }

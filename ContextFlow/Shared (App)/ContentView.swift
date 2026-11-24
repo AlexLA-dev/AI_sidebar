@@ -1655,7 +1655,7 @@ enum QuickBuy {
 /// 2.8 (В1.5): what a purchase's events carry: the plan, its period, the offer it went with, and where it started.
 enum PurchaseEvent {
     static func fields(_ productId: String, via: String, offer: String = "none") -> [String: String] {
-        ["via": via, "tier": PlanProducts.plan(of: productId), "period": productId.hasSuffix(".yearly") ? "yearly" : "monthly", "offer": offer]
+        ["via": via, "plan": PlanProducts.plan(of: productId), "period": productId.hasSuffix(".yearly") ? "yearly" : "monthly", "offer": offer]
     }
 }
 

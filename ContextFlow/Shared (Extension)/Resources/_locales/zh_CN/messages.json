@@ -3834,7 +3834,7 @@
   "message": "{0} 回答恢复时会提醒你。"
  },
  "answersBackOff": {
-  "message": "ContextFlow 的通知已关闭，无法提醒。回答将在 {0} 恢复。"
+  "message": "ContextFlow 的通知已关闭。回答将在 {0} 恢复。"
  },
  "answersBackFailed": {
   "message": "无法设置提醒。回答将在 {0} 恢复。"

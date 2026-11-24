@@ -1309,7 +1309,7 @@
   "boughtByok": "自備金鑰已開通。請在設定中加入你的 API 金鑰。",
   "answersBackAsk": "{0} 次回答恢復時提醒我",
   "answersBackSet": "{0} 回答恢復時會提醒你。",
-  "answersBackOff": "ContextFlow 的通知已關閉，無法提醒。回答將在 {0} 恢復。",
+  "answersBackOff": "ContextFlow 的通知已關閉。回答將在 {0} 恢復。",
   "answersBackFailed": "無法設定提醒。回答將在 {0} 恢復。",
   "answersBackBody": "{0} 次免費回答已恢復。可以問任何頁面。"
 }

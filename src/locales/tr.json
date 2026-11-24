@@ -1309,7 +1309,7 @@
   "boughtByok": "Own key açık. API anahtarınızı Ayarlar'da ekleyin.",
   "answersBackAsk": "{0} yanıtım geri geldiğinde hatırlat",
   "answersBackSet": "Yanıtlarınız geri geldiğinde, {0} itibarıyla hatırlatacağım.",
-  "answersBackOff": "ContextFlow bildirimleri kapalı, bu yüzden hatırlatma olmayacak. Yanıtlarınız {0} itibarıyla geri gelir.",
+  "answersBackOff": "ContextFlow bildirimleri kapalı. Yanıtlarınız {0} itibarıyla geri gelir.",
   "answersBackFailed": "Hatırlatma ayarlanamadı. Yanıtlarınız {0} itibarıyla geri gelir.",
   "answersBackBody": "{0} ücretsiz yanıtınız geri geldi. Herhangi bir sayfa hakkında sorun."
 }

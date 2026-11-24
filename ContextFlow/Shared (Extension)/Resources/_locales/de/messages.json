@@ -3834,7 +3834,7 @@
   "message": "Ich erinnere dich um {0}, wenn deine Antworten zurück sind."
  },
  "answersBackOff": {
-  "message": "Mitteilungen für ContextFlow sind aus, daher keine Erinnerung. Deine Antworten sind um {0} zurück."
+  "message": "Mitteilungen für ContextFlow sind aus. Deine Antworten sind um {0} zurück."
  },
  "answersBackFailed": {
   "message": "Die Erinnerung ließ sich nicht setzen. Deine Antworten sind um {0} zurück."

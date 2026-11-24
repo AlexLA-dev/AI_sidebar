@@ -3834,7 +3834,7 @@
   "message": "Yanıtlarınız geri geldiğinde, {0} itibarıyla hatırlatacağım."
  },
  "answersBackOff": {
-  "message": "ContextFlow bildirimleri kapalı, bu yüzden hatırlatma olmayacak. Yanıtlarınız {0} itibarıyla geri gelir."
+  "message": "ContextFlow bildirimleri kapalı. Yanıtlarınız {0} itibarıyla geri gelir."
  },
  "answersBackFailed": {
   "message": "Hatırlatma ayarlanamadı. Yanıtlarınız {0} itibarıyla geri gelir."
