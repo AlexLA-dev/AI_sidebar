@@ -33,9 +33,13 @@ export function venueOf(item: MapItem, page: string): Venue | null {
   if (viaCard && own.length < 2) return null
   const label = viaCard ? `${own} ${item.card!.replace(/\s+/g, " ").trim()}` : own
   if (label.length < 8 || REVIEW_CARD.test(label)) return null
-  const r = RATING.exec(label)
   const v = REVIEWS.exec(label)
-  if (!r || !v) return null
+  if (!v) return null
+  // The rating among the card's numbers («Slide 1 of 12 … 9.3 (4120)»): a decimal one first, else the one nearest
+  // before the review count.
+  const all = [...label.matchAll(new RegExp(RATING.source, "g"))]
+  const r = all.find((m) => /[.,]/.test(m[1])) ?? all.filter((m) => (m.index ?? 0) <= v.index).pop() ?? all[0]
+  if (!r) return null
   let url: string
   try {
     const base = new URL(page)

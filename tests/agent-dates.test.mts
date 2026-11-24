@@ -426,4 +426,5 @@ test("pattern: a results list whose whole cards are links named by their aria-la
   const map = domMap(`<ul>${card("uno", "Trattoria Uno", "9.1", "320")}${card("due", "Trattoria Due", "9.4", "2179")}${card("tre", "Trattoria Tre", "8.8", "201")}</ul>`, {}, "https://tables.example/restaurants/paris")
   map.url = map.url || "https://tables.example/restaurants/paris"
   assert.deepEqual(venuesOn(map).map((v) => v.name), ["Trattoria Uno", "Trattoria Due", "Trattoria Tre"])
+  assert.equal(venuesOn(map)[0].rating, 4.55, "9.1 of 10, not the slide's «1 of 8»")
 })
