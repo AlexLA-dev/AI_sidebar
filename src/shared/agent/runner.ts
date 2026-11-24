@@ -893,6 +893,14 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       continue
     }
     if (verdict.cls === "confirm") {
+      // The person already said no to this very press in this task: not asked again (124, a restaurant calendar: the same
+      // «Do it?» came back right after «No»); the model hears it and asks or finishes instead.
+      if (target && call.tool !== "fill" && state.log.some((l) => l.result === "the person said no" && l.target === target && l.call.tool === call.tool)) {
+        const why = `the person said no to ${target} already: don't propose it again. Ask them how to go on (ask_user with what the page shows) or call done saying what you found`
+        state.log.push({ call, target, result: `refused: ${why}` })
+        state.refused = why
+        continue
+      }
       // The plan allowed this button, but the price on the page isn't the one it saw: the card says so.
       const item = map.items.find((i) => i.id === call.id) ?? null
       const price = state.plan?.approved && (verdict.reason === "cart" || verdict.reason === "submit") ? priceChanged(state.plan, map, item?.label ?? "") : null

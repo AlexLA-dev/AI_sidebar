@@ -272,7 +272,10 @@ function stateOf(el: Element, role: Role): string[] {
 // Class names sites give a day or a slot that can't be chosen.
 const UNAVAILABLE_CLASS = /(^|[-_\s])(disabled|unavailable|not-?available|inactive|blocked|sold-?out|booked|is-?full|outside)([-_\s]|$)/i
 
-/** Whether the page shows this control as not choosable: its class, faded (opacity), or not taking presses. */
+const struck = (style: CSSStyleDeclaration) => /line-through/.test(`${style.textDecorationLine ?? ""} ${style.textDecoration ?? ""}`)
+
+/** Whether the page shows this control as not choosable: its class, faded (opacity), not taking presses, a not-allowed
+ *  cursor, or its text struck through. */
 function unavailableByLook(el: Element): boolean {
   const view = el.ownerDocument.defaultView
   let opacity = 1
@@ -284,6 +287,12 @@ function unavailableByLook(el: Element): boolean {
     if (!style) continue
     opacity *= Number(style.opacity || "1")
     if (i === 0 && (style.pointerEvents === "none" || style.cursor === "not-allowed")) return true
+    if (i === 0 && struck(style)) return true
+  }
+  // A day number struck through inside its tile (a calendar crossing out full days).
+  for (const child of Array.from(el.children).slice(0, 3)) {
+    const style = view?.getComputedStyle?.(child)
+    if (style && struck(style) && (child.textContent ?? "").trim()) return true
   }
   return opacity < 0.6
 }

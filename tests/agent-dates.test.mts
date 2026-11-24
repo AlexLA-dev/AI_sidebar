@@ -21,7 +21,7 @@ function domMap(html: string, colors: Record<string, string> = {}): PageMap {
   ;(window as any).getComputedStyle = (el: Element) => {
     const inline = (el.getAttribute("style") ?? "")
     const get = (p: string) => new RegExp(`${p}\\s*:\\s*([^;]+)`).exec(inline)?.[1]?.trim()
-    return { display: "block", visibility: "visible", contentVisibility: "visible", opacity: get("opacity") ?? "1", pointerEvents: get("pointer-events") ?? "auto", cursor: get("cursor") ?? "auto", color: colors[el.id] ?? "rgb(20, 20, 20)", backgroundColor: el.tagName === "BODY" ? "rgb(255, 255, 255)" : "rgba(0, 0, 0, 0)" }
+    return { display: "block", visibility: "visible", contentVisibility: "visible", opacity: get("opacity") ?? "1", pointerEvents: get("pointer-events") ?? "auto", cursor: get("cursor") ?? "auto", textDecorationLine: get("text-decoration-line") ?? get("text-decoration") ?? "none", color: colors[el.id] ?? "rgb(20, 20, 20)", backgroundColor: el.tagName === "BODY" ? "rgb(255, 255, 255)" : "rgba(0, 0, 0, 0)" }
   }
   Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement })
   if ((document as any).defaultView !== window) Object.defineProperty(document, "defaultView", { configurable: true, get: () => window })
@@ -257,6 +257,7 @@ test("pattern: a calendar grid — bare day numbers under the month, cells off b
     <td role="gridcell" id="g28" tabindex="0" aria-label="28 December, not available">28</td>
     <td role="gridcell" id="g29" tabindex="0" aria-label="29 декабря, нет мест">29</td>
     <td role="gridcell" id="g30" tabindex="0" aria-disabled="true">30</td>
+    <td role="gridcell" id="g31" tabindex="0"><span style="text-decoration: line-through">31</span></td>
   </tr></table></section>`)
   const st = (l: string) => map.items.find((i) => i.label.startsWith(l))?.state ?? []
   assert.deepEqual(dayItems(map, "2026-12-26").map((i) => i.label), ["26"], "the bare 26 under «December 2026»")
@@ -265,6 +266,7 @@ test("pattern: a calendar grid — bare day numbers under the month, cells off b
   assert.ok(st("28 December").includes("unavailable"), "its own words")
   assert.ok(st("29 декабря").includes("unavailable"), "its own words in Russian")
   assert.ok(st("30").includes("disabled"))
+  assert.ok(st("31").includes("unavailable"), "struck through")
   assert.equal(dayItems(map, "2026-11-26").length, 0, "another month's 26 isn't there")
 })
 
@@ -303,4 +305,20 @@ test("pattern: another site's booking form in a frame is known by its title or a
   assert.equal(bookingFrame({ src: "https://ads.example/banner?id=3", host: "ads.example", title: "Advertisement" }), false)
   assert.equal(bookingFrame({ src: "https://social.example/plugins/facebook-page.php", host: "social.example" }), false)
   assert.equal(bookingFrame({ src: "https://maps.example/embed?q=place", host: "maps.example", title: "Map" }), false)
+})
+
+test("a press the person said no to isn't put to them again in the same task", async () => {
+  const PAGE: PageMap = { url: "https://tables.example/r/1", title: "Book", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [],
+    items: [{ id: "7", role: "link", label: "Find a table at a similar restaurant", href: "/similar" }] }
+  const { answer } = await import("../src/shared/agent/runner.ts")
+  const PRESS = { ok: true, call: { tool: "click", id: "7", why: "similar" }, verdict: { cls: "confirm", reason: "other" }, target: 'link "Find a table at a similar restaurant"' }
+  const ASK = { ok: true, call: { tool: "ask_user", question: "How to go on?", choices: ["Another day"] }, verdict: { cls: "free", reason: "read" } }
+  const replies: any[] = [PRESS, PRESS, ASK]
+  const io = { map: async () => PAGE, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} } } as any
+  let s = await drive(newState("n", "book a table", "en", PAGE.url), io)
+  assert.equal(s.status, "confirm")
+  s = await answer(s, io, "no")
+  assert.ok(s.log.some((l) => /^refused: the person said no to/.test(l.result ?? "")), "the second proposal refused on the device")
+  assert.equal(s.status, "asked")
 })
