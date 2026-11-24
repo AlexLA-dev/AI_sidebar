@@ -3588,10 +3588,10 @@
   "message": "Se o dia estiver cheio: até … dias depois"
  },
  "agentRuleParty": {
-  "message": "Pessoas se eu não disser"
+  "message": "Pessoas quando eu não disser (convidados, ingressos, lugares)"
  },
  "agentRuleAnySpecialist": {
-  "message": "Qualquer profissional (cabeleireiro, médico, treinador…)"
+  "message": "Qualquer especialista (cabeleireiro, médico, professor, treinador, guia…)"
  },
  "agentRuleUsual": {
   "message": "O serviço que escolhi lá da última vez"
@@ -3705,7 +3705,7 @@
   "message": "Não sincronizado: o iCloud não respondeu. Tenta de novo na próxima vez."
  },
  "agentRuleAnySpecialistHint": {
-  "message": "Barbeiro, cabeleireiro, médico, treinador ou guia: quem estiver livre. Desligado: pergunto com quem."
+  "message": "Quem presta o serviço — cabeleireiro, médico, professor, treinador, instrutor ou guia —, quem estiver livre. Desligado: pergunto com quem."
  },
  "errLink": {
   "message": "O ContextFlow perdeu a ligação com esta página (o iOS pode tê-lo encerrado enquanto outro app estava aberto). Tente de novo ou, se acontecer outra vez, recarregue a página."
@@ -3772,6 +3772,30 @@
  },
  "agentBubbleShow": {
   "message": "Mostrar"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Reservar só com cancelamento grátis"
+ },
+ "agentRuleVenueHint": {
+  "message": "Um lugar é um restaurante, salão, clínica, hotel ou apartamento, locadora, academia ou filial. Quando importa quem ou onde (um médico, um hotel para uma viagem), pergunto; senão escolho por estas regras."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Onde reservar?"
+ },
+ "agentRecapTitle": {
+  "message": "Confira antes de eu reservar"
+ },
+ "agentRecapWhat": {
+  "message": "Reservando: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "Você pediu: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Outro lugar: o primeiro não tinha horário que servisse"
+ },
+ "agentRecapTerms": {
+  "message": "Cancelamento, segundo a página: {0}"
  },
  "tip_4cf1b54b00": {
   "message": "Dicas"

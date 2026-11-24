@@ -43,7 +43,7 @@ test("a warning, a form to check, an app's access: the bubble only opens the cha
 
 test("another tab's answer names the step and goes through the panel's own check", () => {
   // The notice carries the step's key and the step (never the form's values).
-  assert.match(bg, /key: pendingKey\(state\), \.\.\.\(p \? \{ pending: \{ call: p\.call, verdict: p\.verdict, target: p\.target, offRequest: p\.offRequest, price: p\.price \} \} : \{\}\)/)
+  assert.match(bg, /key: pendingKey\(state\), \.\.\.\(p \? \{ pending: \{ call: p\.call, verdict: p\.verdict, target: p\.target, offRequest: p\.offRequest, price: p\.price, recap: p\.recap \} \} : \{\}\)/)
   assert.doesNotMatch(bg, /pending: \{[^}]*fill/)
   // Only for the notice's step, then the same reply() as the panel (its key check, once per step).
   assert.match(bg, /if \(!n \|\| !key \|\| n\.key !== key \|\| a === "stop"\) return \{ ok: false, code: "STALE" \}\n\s+const r = await reply\(n\.tab, a, chosen, key\)/)

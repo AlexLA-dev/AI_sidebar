@@ -10,7 +10,7 @@
 import { APPLE_TOOLS } from "./call.ts"
 import { dayItems, dayOf, dayWords, isDateLabel } from "./dates.ts"
 import { wordTest } from "./match.ts"
-import { BOOKING_WORDS, NEXT_FREE_WORDS } from "./words.ts"
+import { BOOKING_WORDS, CANCEL_TERMS_WORDS, NEXT_FREE_WORDS } from "./words.ts"
 export { dayItems, isDateLabel }
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
@@ -18,7 +18,7 @@ import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
-import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan } from "./taskplan.ts"
+import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -47,6 +47,20 @@ export interface AgentLine {
   popup?: boolean
 }
 
+/** What the booking's last press will book, said before it only when it isn't what the person asked (another day, time
+ *  or place) or it's the first booking on a site that shows its cancellation terms (2.7.1, B2). */
+export interface Recap {
+  place?: string
+  date?: string
+  time?: string
+  // What the request asked, when the booking differs from it.
+  askedDate?: string
+  askedTime?: string
+  otherPlace?: boolean
+  // The page's own sentence about cancelling (its words, shown as they are).
+  terms?: string
+}
+
 export interface AgentState {
   id: string
   request: string
@@ -66,7 +80,7 @@ export interface AgentState {
   status: AgentStatus
   log: LogEntry[]
   lines: AgentLine[]
-  pending?: { call: ToolCall; verdict: StepVerdict; target: string | null; offRequest?: string; fill?: FillLine[]; price?: string }
+  pending?: { call: ToolCall; verdict: StepVerdict; target: string | null; offRequest?: string; fill?: FillLine[]; price?: string; recap?: Recap }
   // The plan card (status "plan"), then the approved plan the steps go by (2.7.1, the owner's autonomy note).
   plan?: TaskPlan
   summary?: string
@@ -118,6 +132,10 @@ export interface AgentState {
   calendar?: string
   playbook?: string
   slot?: { date: string; time: string }
+  // The day and time slot the agent pressed for the booking (what its last press will book), and whether the recap
+  // before that press was shown (B2: only once).
+  picked?: { date?: string; time?: string }
+  recapShown?: boolean
   slotRefusals?: number
   // Date presses without progress (a time to choose), the last date pressed, and whether a fully greyed strip was
   // tapped once to wake it.
@@ -370,7 +388,8 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
   if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
   if (subject && plan.booking?.venue) state.chooseVenue = false
-  if (plan.booking && calendarOn) {
+  // (A stay or a rental is booked by days: the Calendar's free hours don't decide it.)
+  if (plan.booking && calendarOn && !DAY_KINDS.has(plan.booking.kind)) {
     // Asked in the device's own clock, said to the model in the place's (a table in Paris from Nicosia).
     const b = plan.booking
     const from = shiftZone(b.date, b.from, b.tz)
@@ -407,7 +426,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     // A place that matters to the person (an appointment: a salon, a clinic) is theirs to choose: the page's best by the
     // rules with their rating and area, the one they went to last time, and «pick for me by my rules»; only a
     // remembered one is chosen already. A table at «any Italian» is the rules' choice, shown chosen and changeable.
-    const personal = plan.booking.kind === "appointment"
+    const personal = plan.booking.personal ?? plan.booking.kind === "appointment"
     const saidLast = savedFacts(entries)[factKey(factLabel("pref:place", plan.site ?? site))] ?? ""
     const last = saidLast.startsWith("@") ? "" : saidLast
     const names = ranked.map((v) => v.name)
@@ -526,16 +545,56 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
   // an earlier one; a later one only once the page has shown the asked day (full, or not there).
   const asked = state.plan?.booking?.date
   const pressed = asked ? dayOf(item.label, asked) : null
+  // A stay's or a rental's last day (check-out, return), once the first was pressed: the range's second press.
+  const end = state.plan?.booking?.dateEnd
+  if (end && pressed === end && state.lastDate && state.lastDate !== item.label) {
+    state.lastDate = item.label
+    return null
+  }
   if (asked && pressed && pressed !== asked) {
     if (pressed < asked) return `«${item.label}» is before the asked day (${dayWords(asked)}): go to the asked day instead (the calendar's next-month arrow, or the date strip scrolled)`
     if (!state.sawDate && !dayItems(map, asked).length) return `«${item.label}» isn't the asked day (${dayWords(asked)}), and the page hasn't shown that day yet: go to it first`
   }
+  if (pressed && asked && !(end && pressed === end)) state.picked = { date: pressed }
   const steps = (state.dateSteps ?? 0) + 1
   if (state.lastDate === item.label) return `«${item.label}» was pressed already: the page answered it. Choose another available day the rules allow, or ask_user once with the page's real nearest options`
   if (steps > 2) return "two date steps went nowhere: don't press more dates. ask_user once now, with the page's real nearest options: the next free day the page names, another specialist on the asked day, another place"
   state.dateSteps = steps
   state.lastDate = item.label
   return null
+}
+
+const cancelWord = wordTest(CANCEL_TERMS_WORDS)
+
+/** The page's own words about cancelling (a sentence of its text, or a short control naming the terms), or "". */
+export function cancelTerms(map: PageMap): string {
+  const sentence = map.text.split(/(?<=[.!?。！？])\s+|\n+/).map((x) => x.trim()).find((x) => x.length >= 8 && x.length <= 220 && cancelWord(x))
+  if (sentence) return sentence
+  return map.items.find((i) => (i.role === "link" || i.role === "button" || i.role === "summary" || i.role === "other") && i.label.length <= 80 && cancelWord(i.label))?.label ?? ""
+}
+
+/** The recap before the booking's last press, or null when it's what was asked on a site booked on before (B2). */
+export function recapOf(state: AgentState, map: PageMap): Recap | null {
+  const b = state.plan?.booking
+  if (!b) return null
+  const p = state.picked ?? {}
+  const otherDay = !!p.date && p.date !== b.date
+  const otherTime = !!b.at && !!p.time && p.time !== b.at
+  // The place it opened isn't the first one chosen (the next one, when the first had no slot that fits).
+  const otherPlace = (state.venues?.tried.length ?? 0) > 1
+  const terms = state.playbook ? "" : cancelTerms(map)
+  if (!otherDay && !otherTime && !otherPlace && !terms) return null
+  const tried = state.venues?.tried.at(-1)
+  const place = (tried && state.venues?.list.find((v) => v.url === tried)?.name) || b.venue || ""
+  return {
+    ...(place ? { place: place.slice(0, 80) } : {}),
+    ...(p.date ? { date: p.date } : {}),
+    ...(p.time ? { time: p.time } : {}),
+    ...(otherDay ? { askedDate: b.date } : {}),
+    ...(otherTime ? { askedTime: b.at } : {}),
+    ...(otherPlace ? { otherPlace: true } : {}),
+    ...(terms ? { terms: terms.slice(0, 220) } : {})
+  }
 }
 
 export function seesDate(map: PageMap, iso: string): boolean {
@@ -655,6 +714,7 @@ async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, labe
   const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : ""
   const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : ""
   if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check it"
+  state.picked = { date, time }
   // The request's window (its time widened by the rules), checked with or without the Calendar (a restaurant, 121 sweep:
   // 13:15 pressed for «17:30»).
   if (b.from && b.until && (time < b.from || time > b.until)) return `${time} is outside the time the request and the rules allow (${b.from}–${b.until}): choose a slot inside it, or ask with the page's nearest real slots`
@@ -995,6 +1055,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         continue
       }
     }
+    // The booking's last press, allowed by the plan: said first when it isn't what the person asked, or when it's the
+    // first booking on this site and the page shows its cancellation terms (B2); otherwise it goes as approved.
+    const recap = verdict.cls === "confirm" && perm && verdict.reason === "submit" && !state.recapShown ? recapOf(state, map) : null
+    if (recap) {
+      state.recapShown = true
+      state.status = "confirm"
+      state.pending = { call, verdict, target, recap }
+      break
+    }
     if (verdict.cls === "confirm" && perm) {
       confirmHere(state)
       if (call.tool === "fill") {
@@ -1085,12 +1154,15 @@ async function afterBooking(state: AgentState, io: RunnerIO, call: ToolCall, her
     const steps = playbookOf(state.log)
     if (steps.length) await io.playbook.put(site, steps).catch(() => undefined)
   }
-  // A booking task that ends without a booking (it stopped at a sign-in, it gave up): not «done» on its line.
-  if (!date || !time) {
+  // A booking task that ends without a booking (it stopped at a sign-in, it gave up): not «done» on its line. (A stay or a
+  // rental has a day and no time slot.)
+  if (!date || (!time && !DAY_KINDS.has(plan.booking.kind))) {
     state.error = state.error || "unbooked"
     return
   }
   state.booked = { date, time, ...(call.place ? { place: call.place.slice(0, 120) } : {}) }
+  // (By days: no Calendar event, which holds a timed stretch of up to a day.)
+  if (!time) return
   const perm = plan.perms.find((p) => p.kind === "apple" && p.reason === "event_add")
   const added = state.log.some((e) => e.call?.tool === "event_add" && !/^(failed|refused)/.test(e.result))
   if (!perm || perm.on === false || added || here?.calendar !== "yes" || !io.apple) return

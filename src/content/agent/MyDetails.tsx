@@ -210,7 +210,7 @@ function RulesGroup(): VNode {
     </label>
   )
   // The switch at the end of its row, as every other switch in Settings (2.7.1, the owner on 121).
-  const flag = (key: "anySpecialist" | "usual" | "calendar" | "auto" | "chooseVenue", text: string) => (
+  const flag = (key: "anySpecialist" | "freeCancel" | "usual" | "calendar" | "auto" | "chooseVenue", text: string) => (
     <label class="cf-row toggle">
       <span>{text}</span>
       <input type="checkbox" checked={rules[key]} onChange={(e) => set({ [key]: (e.target as HTMLInputElement).checked })} />
@@ -226,11 +226,14 @@ function RulesGroup(): VNode {
       {flag("anySpecialist", t("agentRuleAnySpecialist"))}
       {/* Whoever does the service (2.7.1, the owner: «почему тут только мастер?»). */}
       <p class="cf-hint">{t("agentRuleAnySpecialistHint")}</p>
+      {flag("freeCancel", t("agentRuleFreeCancel"))}
       {flag("usual", t("agentRuleUsual"))}
       {flag("calendar", t("agentRuleCalendar"))}
       {rules.calendar && <CalendarNeed />}
       {flag("auto", t("agentRuleAuto"))}
       {flag("chooseVenue", t("agentRuleVenue"))}
+      {/* A place is a venue, a property, a clinic, a branch (2.7.1: any reservable thing). */}
+      <p class="cf-hint">{t("agentRuleVenueHint")}</p>
       {rules.chooseVenue && (
         <label class="cf-row">
           <span>{t("agentRuleRating")}</span>

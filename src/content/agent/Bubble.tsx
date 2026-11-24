@@ -11,7 +11,7 @@ import type { VNode } from "preact"
 import * as Icon from "../icons"
 import { t } from "../../shared/i18n"
 import { isCancelChoice } from "../../shared/agent/taskplan"
-import { errorText, isAccess, NO_UNDO, selfText, stepText, type PanelAgent } from "./AgentPanel"
+import { errorText, isAccess, NO_UNDO, recapNotes, recapWhat, selfText, stepText, type PanelAgent } from "./AgentPanel"
 
 export type BubbleKind = "ask" | "confirm" | "self" | "open" | "end"
 
@@ -64,6 +64,8 @@ export function bubbleOf(s: BubbleSource, key: string, here: boolean): BubbleDat
       if (!p) return null
       // A warning is read in the chat, never approved from a bubble.
       if (p.offRequest || p.price) return { ...base, kind: "open", text: t("agentBubbleCheck", stepText(s)) }
+      // The booking's recap (another day, time or place, or a new site's cancellation terms): what it books, and why it asks.
+      if (p.recap) return { ...base, kind: "confirm", text: t("agentRecapWhat", recapWhat(p.recap) || stepText(s)), meta: recapNotes(p.recap).join(" · ") || undefined }
       return { ...base, kind: "confirm", text: stepText(s), meta: NO_UNDO.has(p.verdict.reason) ? t("agentNoUndo") : undefined }
     case "self":
       if (!p) return null

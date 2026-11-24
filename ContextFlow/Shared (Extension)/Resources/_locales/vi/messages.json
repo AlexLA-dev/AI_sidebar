@@ -3588,10 +3588,10 @@
   "message": "Nếu ngày đó kín: muộn hơn tối đa … ngày"
  },
  "agentRuleParty": {
-  "message": "Số người khi tôi không nói"
+  "message": "Số người khi tôi không nói (khách, vé, chỗ)"
  },
  "agentRuleAnySpecialist": {
-  "message": "Chuyên viên bất kỳ (thợ làm tóc, bác sĩ, huấn luyện viên…)"
+  "message": "Chuyên viên bất kỳ (thợ làm tóc, bác sĩ, gia sư, huấn luyện viên, hướng dẫn viên…)"
  },
  "agentRuleUsual": {
   "message": "Dịch vụ tôi chọn lần trước trên trang đó"
@@ -3705,7 +3705,7 @@
   "message": "Chưa đồng bộ: iCloud không phản hồi. Lần sau sẽ thử lại."
  },
  "agentRuleAnySpecialistHint": {
-  "message": "Thợ cắt tóc, nhà tạo mẫu, bác sĩ, huấn luyện viên hay hướng dẫn viên: ai rảnh cũng được. Tắt: tôi sẽ hỏi bạn chọn ai."
+  "message": "Người làm dịch vụ — thợ làm tóc, bác sĩ, gia sư, huấn luyện viên, hướng dẫn viên — ai rảnh thì người đó. Tắt: tôi hỏi bạn muốn ai."
  },
  "errLink": {
   "message": "ContextFlow đã mất kết nối với trang này (iOS có thể đã tạm dừng nó khi một ứng dụng khác đang mở). Hãy thử lại, hoặc tải lại trang nếu vẫn xảy ra."
@@ -3772,6 +3772,30 @@
  },
  "agentBubbleShow": {
   "message": "Xem"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Chỉ đặt khi được hủy miễn phí"
+ },
+ "agentRuleVenueHint": {
+  "message": "Nơi là nhà hàng, tiệm, phòng khám, khách sạn hay căn hộ, điểm cho thuê, phòng tập hoặc chi nhánh. Khi ai hay ở đâu là quan trọng (bác sĩ, khách sạn cho chuyến đi), tôi sẽ hỏi; nếu không, tôi chọn theo các quy tắc này."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Đặt ở đâu?"
+ },
+ "agentRecapTitle": {
+  "message": "Kiểm tra trước khi tôi đặt"
+ },
+ "agentRecapWhat": {
+  "message": "Đặt: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "Bạn đã yêu cầu: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Nơi khác: nơi đầu tiên không có giờ phù hợp"
+ },
+ "agentRecapTerms": {
+  "message": "Hủy, theo trang: {0}"
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

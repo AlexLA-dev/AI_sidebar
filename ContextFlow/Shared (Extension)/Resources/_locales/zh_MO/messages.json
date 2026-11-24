@@ -3588,10 +3588,10 @@
   "message": "當天額滿時：最多延後幾天"
  },
  "agentRuleParty": {
-  "message": "沒說人數時"
+  "message": "沒說時的人數（客人、票、座位）"
  },
  "agentRuleAnySpecialist": {
-  "message": "任一服務人員（設計師、醫師、教練等）"
+  "message": "任何專業人員（髮型師、醫師、老師、教練、導遊…）"
  },
  "agentRuleUsual": {
   "message": "上次在該網站選的服務"
@@ -3705,7 +3705,7 @@
   "message": "未同步：iCloud 沒有回應。下次會再試。"
  },
  "agentRuleAnySpecialistHint": {
-  "message": "理髮師、造型師、醫師、教練或導遊，誰有空都可以。關閉後，我會先問你選誰。"
+  "message": "提供服務的人——髮型師、醫師、老師、教練、講師或導遊——誰有空就誰。關閉：我會問你要找誰。"
  },
  "errLink": {
   "message": "ContextFlow 與此頁面的連線已中斷(開啟其他 App 時 iOS 可能已將其停止)。請重試;若再次發生,請重新載入頁面。"
@@ -3772,6 +3772,30 @@
  },
  "agentBubbleShow": {
   "message": "查看"
+ },
+ "agentRuleFreeCancel": {
+  "message": "只預訂可免費取消的"
+ },
+ "agentRuleVenueHint": {
+  "message": "地點指餐廳、沙龍、診所、飯店或公寓、租賃點、健身房或分店。在乎由誰或在哪裡時（醫師、旅行住的飯店）我會問；否則依這些規則選。"
+ },
+ "agentPlanPlaceQAny": {
+  "message": "在哪裡預訂？"
+ },
+ "agentRecapTitle": {
+  "message": "預訂前請確認"
+ },
+ "agentRecapWhat": {
+  "message": "預訂：{0}"
+ },
+ "agentRecapAsked": {
+  "message": "你要的是：{0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "換了地方：第一家沒有合適的時間"
+ },
+ "agentRecapTerms": {
+  "message": "頁面上的取消條款：{0}"
  },
  "tip_4cf1b54b00": {
   "message": "提示"

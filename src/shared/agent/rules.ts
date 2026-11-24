@@ -1,5 +1,7 @@
 // «Правила поручений» (2.7.1, the owner 2026-11-22: «доделывай нормальную автономизацию»): what the person decided once
-// for bookings, so the agent doesn't ask it each time. Kept on the device (storage.local), edited in «Мои данные»; the
+// for bookings of any kind (a table, a session with a specialist, a stay, a rental, a class, a ticket), so the agent
+// doesn't ask it each time. «Specialist» is whoever gives the service; «place» a venue, a property or a branch; the
+// party is people, rooms or tickets as the page counts them. Kept on the device (storage.local), edited in «Мои данные»; the
 // model hears them as a line and the plan doesn't ask what they decide. A rule never widens what's allowed: paying,
 // cards, codes, signing in, messages and Amazon stay the person's whatever the rules say (classify.ts decides those).
 
@@ -8,10 +10,12 @@ export interface AgentRules {
   window: number
   // A full day: up to this many days later.
   days: number
-  // People at a table when the request doesn't say.
+  // People (guests, tickets, seats) when the request doesn't say.
   party: number
   // Any specialist (true), or ask.
   anySpecialist: boolean
+  // Only what can be cancelled for free (the page's own terms): never a non-refundable rate (2.7.1, B2).
+  freeCancel: boolean
   // The service chosen last time on that site, when known.
   usual: boolean
   // Look at free times in the Calendar before choosing one (when the app may read it).
@@ -23,7 +27,7 @@ export interface AgentRules {
   rating: number
 }
 
-export const DEFAULT_RULES: AgentRules = { window: 60, days: 2, party: 2, anySpecialist: true, usual: true, calendar: true, auto: true, chooseVenue: true, rating: 4.5 }
+export const DEFAULT_RULES: AgentRules = { window: 60, days: 2, party: 2, anySpecialist: true, freeCancel: false, usual: true, calendar: true, auto: true, chooseVenue: true, rating: 4.5 }
 
 export const RULES_KEY = "agentRules"
 
@@ -37,6 +41,7 @@ export function readRules(raw: unknown): AgentRules {
     days: num(r.days, 0, 7, DEFAULT_RULES.days),
     party: num(r.party, 1, 20, DEFAULT_RULES.party),
     anySpecialist: bool(r.anySpecialist, DEFAULT_RULES.anySpecialist),
+    freeCancel: bool(r.freeCancel, DEFAULT_RULES.freeCancel),
     usual: bool(r.usual, DEFAULT_RULES.usual),
     calendar: bool(r.calendar, DEFAULT_RULES.calendar),
     auto: bool(r.auto, DEFAULT_RULES.auto),
@@ -50,11 +55,12 @@ export function rulesLine(r: AgentRules, calendarFree: boolean): string {
   return [
     `a requested time may move up to ${r.window} minutes either way`,
     r.days ? `if the requested day has no free time, up to ${r.days} day${r.days === 1 ? "" : "s"} later` : "the requested day only",
-    `${r.party} ${r.party === 1 ? "person" : "people"} when the request doesn't say how many`,
-    r.anySpecialist ? "the specialist the plan's answer names («any» is its first option)" : "ask which specialist",
+    `${r.party} ${r.party === 1 ? "person" : "people"} when the request doesn't say how many (guests, tickets, seats — as the page counts them; one room for them)`,
+    r.anySpecialist ? "the specialist the plan's answer names — whoever gives the service: a stylist, a doctor, a tutor, a trainer, an instructor, a guide («any» is its first option)" : "ask which specialist (whoever gives the service)",
+    r.freeCancel ? "only an option the page says can be cancelled for free (its own cancellation terms); never a non-refundable or prepaid-only rate — when none is free to cancel, ask" : "",
     r.usual ? "the service chosen last time on this site when the answers say it" : "",
     calendarFree ? "only times free in the person's calendar (<calendar>)" : "",
-    r.chooseVenue ? `when the request names no place, choose it yourself: what it offers matches the request, rated ${r.rating} or more with at least 20 reviews, open with free slots then, the nearest to where the request or the site says; if its slots don't fit, try the next two before asking` : "when the request names no place, ask which one"
+    r.chooseVenue ? `when the request names no place (a venue, a property, a branch, a provider), choose it yourself: what it offers matches the request, rated ${r.rating} or more with at least 20 reviews, open with free slots then, the nearest to where the request or the site says; if its slots don't fit, try the next two before asking` : "when the request names no place, ask which one"
   ].filter(Boolean).join("; ")
 }
 

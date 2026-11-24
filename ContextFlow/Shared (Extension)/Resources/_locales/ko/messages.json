@@ -3588,10 +3588,10 @@
   "message": "그날이 꽉 차면: 최대 며칠 뒤까지"
  },
  "agentRuleParty": {
-  "message": "인원을 말하지 않았을 때"
+  "message": "말하지 않을 때 인원 (손님, 티켓, 좌석)"
  },
  "agentRuleAnySpecialist": {
-  "message": "아무 담당자나 (미용사, 의사, 트레이너 등)"
+  "message": "아무 전문가 (미용사, 의사, 강사, 트레이너, 가이드…)"
  },
  "agentRuleUsual": {
   "message": "그 사이트에서 지난번에 고른 서비스"
@@ -3705,7 +3705,7 @@
   "message": "동기화 안 됨: iCloud가 응답하지 않았어요. 다음에 다시 시도해요."
  },
  "agentRuleAnySpecialistHint": {
-  "message": "이발사, 스타일리스트, 의사, 트레이너, 가이드 중 비어 있는 사람으로 예약해요. 끄면 누구로 할지 물어볼게요."
+  "message": "서비스를 하는 사람 — 미용사, 의사, 강사, 트레이너, 가이드 — 중 비어 있는 사람. 끄면: 누구를 원하는지 물어요."
  },
  "errLink": {
   "message": "ContextFlow와 이 페이지의 연결이 끊어졌습니다(다른 앱이 열려 있는 동안 iOS가 중지했을 수 있습니다). 다시 시도하거나, 또 그러면 페이지를 새로고침하세요."
@@ -3772,6 +3772,30 @@
  },
  "agentBubbleShow": {
   "message": "보기"
+ },
+ "agentRuleFreeCancel": {
+  "message": "무료 취소 가능한 것만 예약"
+ },
+ "agentRuleVenueHint": {
+  "message": "장소는 식당, 살롱, 병원, 호텔이나 숙소, 렌털 지점, 체육관, 지점 등이에요. 누구·어디가 중요할 때(의사, 여행 숙소)는 물어보고, 아니면 이 규칙대로 골라요."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "어디로 예약할까요?"
+ },
+ "agentRecapTitle": {
+  "message": "예약하기 전에 확인해 주세요"
+ },
+ "agentRecapWhat": {
+  "message": "예약: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "요청하신 것: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "다른 곳: 처음 곳에는 맞는 시간이 없었어요"
+ },
+ "agentRecapTerms": {
+  "message": "페이지의 취소 조건: {0}"
  },
  "tip_4cf1b54b00": {
   "message": "팁"

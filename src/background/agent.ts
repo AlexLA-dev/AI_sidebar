@@ -214,9 +214,9 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
 
 function bookedWhen(date: string, time: string): string {
   const [y, m, d] = date.split("-").map(Number)
-  const [h, min] = time.split(":").map(Number)
+  const [h, min] = time ? time.split(":").map(Number) : [12, 0]
   try {
-    return new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(y, m - 1, d, h, min))
+    return new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", ...(time ? { hour: "2-digit", minute: "2-digit" } : {}) }).format(new Date(y, m - 1, d, h, min))
   } catch {
     return `${date} ${time}`
   }
@@ -322,7 +322,7 @@ async function noticeElsewhere(tab: number, state: AgentState): Promise<void> {
   const p = state.pending
   const n: AgentNotice = {
     tab, id: state.id, request: state.request.slice(0, 200), status: state.status, summary: (state.summary ?? "").slice(0, 300), at: Date.now(),
-    key: pendingKey(state), ...(p ? { pending: { call: p.call, verdict: p.verdict, target: p.target, offRequest: p.offRequest, price: p.price } } : {}),
+    key: pendingKey(state), ...(p ? { pending: { call: p.call, verdict: p.verdict, target: p.target, offRequest: p.offRequest, price: p.price, recap: p.recap } } : {}),
     ...(state.choices?.length ? { choices: state.choices.slice(0, 8) } : {}), ...(state.error ? { error: state.error } : {}), ...(state.askKey ? { askKey: state.askKey } : {})
   }
   await chrome.storage.local.set({ [NOTICE_KEY]: n })

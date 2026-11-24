@@ -3588,10 +3588,10 @@
   "message": "Si ce jour est complet : jusqu’à … jours plus tard"
  },
  "agentRuleParty": {
-  "message": "Personnes si je ne précise pas"
+  "message": "Personnes si je ne précise pas (invités, billets, places)"
  },
  "agentRuleAnySpecialist": {
-  "message": "N’importe quel professionnel (coiffeur, médecin, coach…)"
+  "message": "N’importe quel spécialiste (coiffeur, médecin, prof, coach, guide…)"
  },
  "agentRuleUsual": {
   "message": "Le service choisi la dernière fois sur ce site"
@@ -3705,7 +3705,7 @@
   "message": "Non synchronisé : iCloud n’a pas répondu. Nouvel essai la prochaine fois."
  },
  "agentRuleAnySpecialistHint": {
-  "message": "Coiffeur, styliste, médecin, coach ou guide : celui qui est libre. Désactivé : je vous demande avec qui."
+  "message": "Celui qui assure le service — coiffeur, médecin, prof, coach, moniteur ou guide —, celui qui est libre. Désactivé : je demande lequel."
  },
  "errLink": {
   "message": "ContextFlow a perdu le lien avec cette page (iOS l'a peut-être mis en pause pendant qu'une autre app était ouverte). Réessayez, ou rechargez la page si cela se reproduit."
@@ -3772,6 +3772,30 @@
  },
  "agentBubbleShow": {
   "message": "Afficher"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Réserver uniquement avec annulation gratuite"
+ },
+ "agentRuleVenueHint": {
+  "message": "Un lieu, c’est un restaurant, un salon, une clinique, un hôtel ou un appartement, une agence de location, une salle ou une succursale. Quand compte qui ou où (un médecin, un hôtel pour un voyage), je demande ; sinon je choisis selon ces règles."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Où réserver ?"
+ },
+ "agentRecapTitle": {
+  "message": "Vérifiez avant que je réserve"
+ },
+ "agentRecapWhat": {
+  "message": "Je réserve : {0}"
+ },
+ "agentRecapAsked": {
+  "message": "Vous aviez demandé : {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Autre lieu : le premier n’avait pas d’horaire qui convienne"
+ },
+ "agentRecapTerms": {
+  "message": "Annulation, selon la page : {0}"
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

@@ -3588,10 +3588,10 @@
   "message": "O gün doluysa: en fazla … gün sonra"
  },
  "agentRuleParty": {
-  "message": "Söylemezsem kişi sayısı"
+  "message": "Söylemezsem kişi sayısı (misafir, bilet, koltuk)"
  },
  "agentRuleAnySpecialist": {
-  "message": "Herhangi bir uzman (kuaför, doktor, antrenör…)"
+  "message": "Herhangi bir uzman (kuaför, doktor, öğretmen, antrenör, rehber…)"
  },
  "agentRuleUsual": {
   "message": "O sitede geçen sefer seçtiğim hizmet"
@@ -3705,7 +3705,7 @@
   "message": "Eşzamanlanmadı: iCloud yanıt vermedi. Bir dahaki sefere yeniden denenecek."
  },
  "agentRuleAnySpecialistHint": {
-  "message": "Berber, kuaför, doktor, antrenör ya da rehber: kim müsaitse. Kapalıyken kiminle olacağını sorarım."
+  "message": "Hizmeti veren kişi — kuaför, doktor, öğretmen, antrenör, eğitmen ya da rehber — kim müsaitse. Kapalı: kimi istediğinizi sorarım."
  },
  "errLink": {
   "message": "ContextFlow bu sayfayla bağlantısını kaybetti (başka bir uygulama açıkken iOS onu kapatmış olabilir). Yeniden deneyin ya da tekrar olursa sayfayı yenileyin."
@@ -3772,6 +3772,30 @@
  },
  "agentBubbleShow": {
   "message": "Göster"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Yalnızca ücretsiz iptalle rezervasyon yap"
+ },
+ "agentRuleVenueHint": {
+  "message": "Yer; restoran, salon, klinik, otel ya da daire, kiralama noktası, spor salonu veya şubedir. Kimin ya da nerenin önemli olduğu yerde (doktor, seyahat için otel) sorarım; değilse bu kurallarla seçerim."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Nerede rezervasyon yapalım?"
+ },
+ "agentRecapTitle": {
+  "message": "Rezervasyondan önce kontrol edin"
+ },
+ "agentRecapWhat": {
+  "message": "Rezervasyon: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "İstediğiniz: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Başka yer: ilkinde uygun saat yoktu"
+ },
+ "agentRecapTerms": {
+  "message": "Sayfaya göre iptal: {0}"
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"

@@ -388,6 +388,25 @@ export const UNAVAILABLE_WORDS = [
   "không có sẵn", "hết chỗ", "đã kín", "hết lịch", "đóng cửa"
 ]
 
+// A booking page's cancellation terms («Free cancellation until …», «Non-refundable», «Условия отмены»): the first
+// booking on a site that shows them gets a recap before its last press (2.7.1, B2).
+export const CANCEL_TERMS_WORDS = [
+  "cancellation*", "cancelation*", "non-refundable", "nonrefundable", "refundable", "cancel for free", "free cancel*",
+  "бесплатная отмена", "бесплатной отмен*", "бесплатно отменить", "отменить бесплатно", "условия отмены", "правила отмены", "отмена брони", "отмена записи", "невозвратн*", "без возврата",
+  "скасуван*", "безкоштовне скасування", "неповоротн*",
+  "stornierung*", "storno*", "kostenlos stornier*", "nicht erstattbar",
+  "annulation*", "non remboursable", "remboursable",
+  "cancelación*", "cancelacion*", "no reembolsable", "reembolsable",
+  "cancellazione*", "disdetta*", "non rimborsabile", "rimborsabile",
+  "cancelamento*", "não reembolsável", "reembolsável",
+  "iptal*", "iade edilmez", "ücretsiz iptal",
+  "إلغاء", "الإلغاء", "غير قابل للاسترداد",
+  "キャンセル", "返金不可",
+  "취소", "환불 불가",
+  "取消", "退款", "不可退",
+  "hủy", "hoàn tiền", "không hoàn"
+]
+
 // A page naming its next free day or time («next available», «available from …»).
 export const NEXT_FREE_WORDS = [
   "next available", "available from", "first available", "earliest available", "next opening",

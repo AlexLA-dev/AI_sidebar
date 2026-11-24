@@ -6,7 +6,7 @@
 import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
-import type { Answer, AgentState, PlanApproval } from "../../shared/agent/runner"
+import type { Answer, AgentState, PlanApproval, Recap } from "../../shared/agent/runner"
 import { factLabel, isCancelChoice, savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
 import { AMAZON_TEXT } from "../../shared/amazon"
 import { TEST_PLAN } from "../../shared/config"
@@ -63,6 +63,20 @@ function when(date?: string, time?: string): string {
   } catch {
     return `${date}${time ? ` ${time}` : ""}`
   }
+}
+
+/** The recap's booking in a line: «Cutter, Sun 27 Dec, 09:00». */
+export function recapWhat(r: Recap): string {
+  return [r.place, r.date ? when(r.date, r.time) : ""].filter(Boolean).join(", ")
+}
+
+/** What the recap says besides it: what was asked, another place, the page's cancellation terms. */
+export function recapNotes(r: Recap): string[] {
+  return [
+    r.askedDate || r.askedTime ? t("agentRecapAsked", r.askedDate ? when(r.askedDate, r.askedTime) : r.askedTime ?? "") : "",
+    r.otherPlace ? t("agentRecapOtherPlace") : "",
+    r.terms ? t("agentRecapTerms", r.terms) : ""
+  ].filter(Boolean)
 }
 
 export function stepText(state: Pick<PanelAgent, "pending">): string {
@@ -263,7 +277,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
       {plan.fromChat && <p class="cf-agent-meta" dir="auto">{t("agentPlanFromChat", plan.fromChat)}</p>}
       {plan.questions.map((q, i) => (
         <div class={`cf-agent-q ${missing === i ? "missing" : ""}`} key={i}>
-          <p dir="auto">{q.q || (q.kind === "venue" ? t(q.pick ? "agentPlanVenueQ" : "agentPlanPlaceQ") : q.kind === "specialist" ? t("agentPlanSpecialistQ") : q.kind === "service" ? t("agentPlanServiceQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
+          <p dir="auto">{q.q || (q.kind === "venue" ? t(q.pick ? "agentPlanVenueQ" : plan.booking?.kind === "appointment" ? "agentPlanPlaceQ" : "agentPlanPlaceQAny") : q.kind === "specialist" ? t("agentPlanSpecialistQ") : q.kind === "service" ? t("agentPlanServiceQ") : q.kind === "contact" ? t(q.key === "phone" ? "agentPlanPhoneQ" : "agentPlanEmailQ") : "")}</p>
           {q.kind !== "contact" && <div class="cf-agent-options" role="radiogroup" aria-label={q.q}>
             {optsOf(q).map((o, j) => (
               <button type="button" key={o} role="radio" aria-checked={!own[i] && answers[i] === o} class={`cf-chip ${!own[i] && answers[i] === o ? "on" : ""}`} dir="auto" onClick={() => set(i, o, false)}>
@@ -458,8 +472,9 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
 
       {state.status === "confirm" && state.pending && (
         <div class="cf-agent-ask">
-          <strong>{t("agentConfirmTitle")}</strong>
-          <p dir="auto">{stepText(state)}</p>
+          <strong>{t(state.pending.recap ? "agentRecapTitle" : "agentConfirmTitle")}</strong>
+          <p dir="auto">{state.pending.recap ? t("agentRecapWhat", recapWhat(state.pending.recap) || nameOf(state.pending.target)) : stepText(state)}</p>
+          {state.pending.recap && recapNotes(state.pending.recap).map((n) => <p key={n} class="cf-agent-meta" dir="auto">{n}</p>)}
           {state.pending.offRequest && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentOffRequest", state.pending.offRequest)}</p>}
           {state.pending.price && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentPriceChanged", state.pending.price)}</p>}
           {NO_UNDO.has(state.pending.verdict.reason) && <p class="cf-agent-meta">{t("agentNoUndo")}</p>}

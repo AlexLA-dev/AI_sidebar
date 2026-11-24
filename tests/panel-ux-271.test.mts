@@ -287,7 +287,7 @@ test("the rule's words: any specialist, not just a master; lines that stand alon
     }
   }
   const ru = JSON.parse(read("src/locales/ru.json")) as Record<string, string>
-  assert.equal(ru.agentRuleAnySpecialist, "Любой специалист (мастер, врач, тренер…)")
+  assert.equal(ru.agentRuleAnySpecialist, "Любой специалист (мастер, врач, репетитор, тренер, гид…)")
   assert.equal(ru.agentRuleCalNeeds, "Нужен доступ к календарю")
 })
 

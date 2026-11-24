@@ -12,7 +12,7 @@ import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
-import { approvePlan, bookingFrame, dateStep, dayItems, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { approvePlan, bookingFrame, cancelTerms, recapOf, dateStep, dayItems, drive, isDateLabel, newState, seesDate, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import type { MapItem, PageMap } from "../src/shared/agent/types.ts"
 
 function domMap(html: string, colors: Record<string, string> = {}, url = ""): PageMap {
@@ -495,4 +495,39 @@ test("a salon not named: the card asks the place (ranked by the rules, «Feature
   assert.equal(after.chooseVenue, true, "«pick for me»: the rules choose")
   assert.equal(after.status, "asked", "the specialist question reached the person")
   assert.ok(after.plan!.answers!.some((a) => /chosen on the place's own page/.test(a.a)))
+})
+
+test("a stay or a rental: its first day, then its last (check-out, return), never a day before the first", () => {
+  const cal = [day("1", "Thu 24 Dec"), day("2", "Fri 25 Dec"), day("3", "Sat 26 Dec"), day("4", "Sun 27 Dec"), day("5", "Mon 28 Dec"), day("6", "Tue 29 Dec"), day("7", "Wed 30 Dec")]
+  const map = page(cal)
+  const s = { plan: { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { kind: "stay" as const, date: "2026-12-26", dateEnd: "2026-12-29", personal: true, from: "09:00", until: "21:00", minutes: 0 } } } as unknown as AgentState
+  assert.match(dateStep(s, map, cal[1]) ?? "", /before the asked day/, "not before check-in")
+  assert.equal(dateStep(s, map, cal[2]), null, "check-in")
+  assert.equal(dateStep(s, map, cal[5]), null, "check-out after it")
+  // The range set: another day is a third date step that went somewhere else.
+  assert.equal(dateStep(s, map, cal[6]), null)
+  assert.match(dateStep(s, map, cal[4]) ?? "", /two date steps went nowhere/)
+})
+
+test("the recap before the last press: only another day, time or place, or a new site's cancellation terms", () => {
+  const st = (o: Partial<AgentState> = {}) => ({ plan: { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { kind: "appointment" as const, date: "2026-12-26", at: "09:00", from: "08:00", until: "10:00", minutes: 30, venue: "Studio One" } }, ...o } as unknown as AgentState)
+  const plain = { ...page([]), text: "Your booking. Confirm to finish." }
+  // As asked, on a site booked on before: no recap.
+  assert.equal(recapOf(st({ picked: { date: "2026-12-26", time: "09:00" }, playbook: "x" }), plain), null)
+  // Another day.
+  assert.deepEqual(recapOf(st({ picked: { date: "2026-12-28", time: "09:00" }, playbook: "x" }), plain), { place: "Studio One", date: "2026-12-28", time: "09:00", askedDate: "2026-12-26" })
+  // Another time inside the rules' window.
+  assert.equal(recapOf(st({ picked: { date: "2026-12-26", time: "09:30" }, playbook: "x" }), plain)?.askedTime, "09:00")
+  // Another place than the first one chosen.
+  const venues = { list: [{ url: "a", name: "A", rating: 4.8, reviews: 50 }, { url: "b", name: "B", rating: 4.7, reviews: 40 }], tried: ["a", "b"] }
+  const other = recapOf(st({ picked: { date: "2026-12-26", time: "09:00" }, playbook: "x", venues } as never), plain)
+  assert.equal(other?.otherPlace, true)
+  assert.equal(other?.place, "B")
+  // The first booking on a site whose page shows its cancellation terms (in its own words, any language).
+  const terms = { ...page([]), text: "Your booking. Free cancellation until 24 hours before. Confirm to finish." }
+  assert.equal(recapOf(st({ picked: { date: "2026-12-26", time: "09:00" } }), terms)?.terms, "Free cancellation until 24 hours before.")
+  assert.equal(recapOf(st({ picked: { date: "2026-12-26", time: "09:00" }, playbook: "x" }), terms), null, "booked there before")
+  assert.equal(cancelTerms({ ...page([]), text: "Бронь. Бесплатная отмена за 24 часа до визита." }), "Бесплатная отмена за 24 часа до визита.")
+  assert.equal(cancelTerms({ ...page([]), text: "Tarif non remboursable." }), "Tarif non remboursable.")
+  assert.equal(cancelTerms({ ...page([]), text: "Pick a time that suits you." }), "")
 })

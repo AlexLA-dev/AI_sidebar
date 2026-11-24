@@ -74,10 +74,11 @@ test("rules: stored values are clamped, the defaults fill the rest, the model he
 })
 
 test("the plan's booking is checked: a real date and times, a sane length, or none", () => {
-  assert.deepEqual(checkPlan(RAW).booking, BOOKING)
+  // (A session with someone is the person's choice unless the plan says otherwise.)
+  assert.deepEqual(checkPlan(RAW).booking, { ...BOOKING, personal: true })
   assert.equal(checkPlan({ ...RAW, booking: { kind: "none", date: "", from: "", until: "", minutes: 0 } }).booking, undefined)
   assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, date: "tomorrow" } }).booking, undefined)
-  assert.deepEqual(checkPlan({ ...RAW, booking: { ...BOOKING, from: "25:00", minutes: 9000 } }).booking, { ...BOOKING, from: "08:00", minutes: 600 })
+  assert.deepEqual(checkPlan({ ...RAW, booking: { ...BOOKING, from: "25:00", minutes: 9000 } }).booking, { ...BOOKING, personal: true, from: "08:00", minutes: 600 })
   assert.equal(looksLikeSlot("17:45"), true)
   assert.equal(looksLikeSlot("5:45 PM"), true)
   assert.equal(looksLikeSlot("Select Tue, Nov 24"), false)
@@ -500,4 +501,20 @@ test("a diner's review card (a name, their reviews, a score, «5 months ago») i
     ]
   }
   assert.deepEqual(venuesOn(PAGE).map((v) => v.name.split(" ")[0]), ["Borgo", "Tra", "Rhadamanthe"])
+})
+
+test("any reservable thing: a stay or a rental by days, a slot, a ticket; who or where matters decides who chooses", () => {
+  const stay = checkPlan({ ...RAW, booking: { ...BOOKING, kind: "stay", date: "2026-12-26", dateEnd: "2026-12-29", personal: true, minutes: 0 } }).booking!
+  assert.equal(stay.kind, "stay")
+  assert.equal(stay.dateEnd, "2026-12-29")
+  assert.equal(stay.personal, true)
+  // A last day before the first, or a year on, isn't one.
+  assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, kind: "rental", date: "2026-12-26", dateEnd: "2026-12-20" } }).booking!.dateEnd, undefined)
+  assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, kind: "rental", date: "2026-12-26", dateEnd: "2028-01-01" } }).booking!.dateEnd, undefined)
+  // Said by the plan: any parking spot or yoga class then is the rules' choice.
+  assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, kind: "slot", personal: false } }).booking!.personal, false)
+  // Not said: a session with someone and a stay are the person's; a table, a slot, a ticket, a rental the rules'.
+  for (const [kind, personal] of [["appointment", true], ["stay", true], ["table", false], ["slot", false], ["ticket", false], ["rental", false]] as const)
+    assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, kind } }).booking!.personal, personal, kind)
+  assert.equal(checkPlan({ ...RAW, booking: { ...BOOKING, kind: "cinema" } }).booking, undefined)
 })
