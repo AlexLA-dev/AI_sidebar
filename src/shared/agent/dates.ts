@@ -96,7 +96,8 @@ function weekdayIn(text: string): boolean {
 
 // A day's number on its own (not part of a time «12:30», a price «€18» or a year).
 const DAY_NUMBER = /(?<![\d:.,€$£¥])(0?[1-9]|[12]\d|3[01])(?![\d:])/u
-const DOTTED = /(?<!\d)(0?[1-9]|[12]\d|3[01])[./](0?[1-9]|1[0-2])(?![\d:])/
+// «26.12», «05.01», «5.1.» — a month of two digits or a closing dot (a rating «9.1» or «4.8» is neither).
+const DOTTED = /(?<![\d.,])(0?[1-9]|[12]\d|3[01])[./](0[1-9]|1[0-2]|[1-9]\.)(?![\d:])/
 
 /** A day in a date strip or calendar: a day's number with a month or weekday name, or «26.12». Never a time slot. */
 export function isDateLabel(label: string): boolean {
@@ -114,7 +115,8 @@ export function dayItems(map: PageMap, iso: string): MapItem[] {
   const month = Number(m[2]) - 1
   const day = Number(m[3])
   const num = new RegExp(`(?<![\\d:.,€$£¥])0?${day}(?![\\d:])`)
-  const dotted = new RegExp(`(?<!\\d)0?${day}[./]0?${month + 1}(?!\\d)`)
+  const mm = month + 1
+  const dotted = new RegExp(`(?<![\\d.,])0?${day}[./](?:${String(mm).padStart(2, "0")}${mm < 10 ? `|${mm}\\.` : ""})(?![\\d:])`)
   const bare = new RegExp(`^\\s*0?${day}\\s*$`)
   const monthOnPage = namesMonth(map.text, month) || namesMonth(map.title, month) || map.items.some((i) => i.label.length <= 60 && namesMonth(i.label, month))
   return map.items.filter((i) => {
@@ -131,4 +133,30 @@ export function dayWords(iso: string): string {
   const d = new Date(`${iso}T12:00:00Z`)
   if (Number.isNaN(d.getTime())) return iso
   return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+}
+
+/** The day (YYYY-MM-DD) a label names with its month («Sat 28 Nov», «28.11»), its year the one nearest to `near`
+ *  (YYYY-MM-DD); null when the label has no month (a calendar's bare «28»). */
+export function dayOf(label: string, near: string): string | null {
+  const ref = /^(\d{4})-(\d{2})-(\d{2})$/.exec(near)
+  if (!ref || label.length > 60 || looksLikeSlot(label)) return null
+  let month = -1
+  let day = 0
+  const dotted = DOTTED.exec(label)
+  if (dotted) {
+    day = Number(dotted[1])
+    month = Number(dotted[2].replace(".", "")) - 1
+  } else {
+    month = monthIn(label)
+    const n = DAY_NUMBER.exec(label)
+    if (month < 0 || !n) return null
+    day = Number(n[1])
+  }
+  const refMonth = Number(ref[2]) - 1
+  let year = Number(ref[1])
+  // December's request and a January day: next year; the other way round: last year.
+  if (month - refMonth > 6) year--
+  if (refMonth - month > 6) year++
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${year}-${pad(month + 1)}-${pad(day)}`
 }

@@ -8,7 +8,7 @@
 //   device's own check says (classify.ts runs again on the device's map).
 
 import { APPLE_TOOLS } from "./call.ts"
-import { dayItems, dayWords, isDateLabel } from "./dates.ts"
+import { dayItems, dayOf, dayWords, isDateLabel } from "./dates.ts"
 import { wordTest } from "./match.ts"
 import { BOOKING_WORDS } from "./words.ts"
 export { dayItems, isDateLabel }
@@ -466,6 +466,14 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
       return null
     }
     return `«${item.label}» is shown as not available on the page (greyed or disabled): don't press it. Choose an available day the rules allow (the page may name its next free day), or ask_user once with the page's real nearest options`
+  }
+  // Another day than the asked one (124, a restaurant's widget: «Sat 28 Nov» pressed for «Saturday 26 December»): never
+  // an earlier one; a later one only once the page has shown the asked day (full, or not there).
+  const asked = state.plan?.booking?.date
+  const pressed = asked ? dayOf(item.label, asked) : null
+  if (asked && pressed && pressed !== asked) {
+    if (pressed < asked) return `«${item.label}» is before the asked day (${dayWords(asked)}): go to the asked day instead (the calendar's next-month arrow, or the date strip scrolled)`
+    if (!state.sawDate && !dayItems(map, asked).length) return `«${item.label}» isn't the asked day (${dayWords(asked)}), and the page hasn't shown that day yet: go to it first`
   }
   const steps = (state.dateSteps ?? 0) + 1
   if (state.lastDate === item.label) return `«${item.label}» was pressed already: the page answered it. Choose another available day the rules allow, or ask_user once with the page's real nearest options`

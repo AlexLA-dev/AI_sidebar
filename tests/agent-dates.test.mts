@@ -280,7 +280,8 @@ test("pattern: a dropdown of times marks the ones the page won't take; the hands
 
 test("pattern: days in other languages and orders are read as days, times and prices aren't", () => {
   for (const l of ["сб, 26 дек.", "Sa., 26. Dez.", "sam. 26 déc.", "sáb, 26 dic", "sab 26 dic", "Sáb., 26 de dez.", "Cmt 26 Ara", "السبت 26 ديسمبر", "12月26日(土)", "12월 26일 (토)", "12月26日 週六", "T7, 26 thg 12", "Tue, Nov 24, 2026", "26.12"]) assert.equal(isDateLabel(l), true, l)
-  for (const l of ["11:30 AM", "€18", "1 item", "Decide", "Market 12", "Top 10"]) assert.equal(isDateLabel(l), false, l)
+  for (const l of ["11:30 AM", "€18", "1 item", "Decide", "Market 12", "Top 10", "9.1 (7936)", "Rated 4.8", "Trattoria 9.4 (2179)"]) assert.equal(isDateLabel(l), false, l)
+  for (const l of ["26.12.", "5.1.", "Sa 26.12."]) assert.equal(isDateLabel(l), true, l)
   const m = (labels: string[], text = ""): PageMap => ({ url: "https://book.example/x", title: "", lang: "", more: 0, part: 1, parts: 1, text, forms: [], items: labels.map((label, i) => ({ id: String(i), role: "button" as const, label })) })
   assert.equal(seesDate(m(["12月25日(金)", "12月26日(土)"]), "2026-12-26"), true)
   assert.equal(seesDate(m(["12月16日(水)"]), "2026-12-26"), false)
@@ -321,4 +322,16 @@ test("a press the person said no to isn't put to them again in the same task", a
   s = await answer(s, io, "no")
   assert.ok(s.log.some((l) => /^refused: the person said no to/.test(l.result ?? "")), "the second proposal refused on the device")
   assert.equal(s.status, "asked")
+})
+
+test("pattern: another day than the asked one — never an earlier one, a later one only after the asked day was shown", () => {
+  const st = (saw: boolean): AgentState => ({ ...newState("o", "table", "en", "https://tables.example/r"), sawDate: saw, plan: { booking: { kind: "table", date: "2026-12-26", from: "19:00", until: "21:00", minutes: 90 } } as any })
+  const m: PageMap = { url: "https://tables.example/r", title: "", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items: [] }
+  const press = (label: string, saw = false) => dateStep(st(saw), { ...m, items: [{ id: "1", role: "button", label }] }, { id: "1", role: "button", label })
+  assert.match(press("Sat 28 Nov") ?? "", /before the asked day/)
+  assert.match(press("сб, 28 нояб.") ?? "", /before the asked day/)
+  assert.match(press("Mon 28 Dec") ?? "", /hasn't shown that day yet/)
+  assert.equal(press("Mon 28 Dec", true), null, "after the asked day was shown full")
+  assert.equal(press("Sat 26 Dec"), null)
+  assert.equal(press("Sat 2 Jan", true), null, "January after a December request is later")
 })
