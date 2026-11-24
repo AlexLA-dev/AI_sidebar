@@ -59,6 +59,13 @@ const LOADED_WITH = typeof location === "undefined" ? "" : location.hash
 let undoing: string | null = null
 // Marks already taken in this page: Safari keeps the step taken back as Forward; going Forward to it is not a return.
 const taken = new Set<string>()
+// The step back done: cleared here, not by the next look (the panel's return check may still be busy then; the
+// simulator check after acceptance 3 saw Forward to the mark left in place).
+if (typeof addEventListener === "function" && typeof location !== "undefined") {
+  addEventListener("hashchange", () => {
+    if (!boughtMark(location.hash)) undoing = null
+  })
+}
 
 interface Where {
   location: { hash: string; href: string; pathname: string; search: string }

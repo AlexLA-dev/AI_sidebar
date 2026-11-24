@@ -17,7 +17,13 @@ const read = (path: string) => readFileSync(join(root, path), "utf8")
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let purchase: Record<string, (...args: any[]) => any>
+// The page's own address events, as the module hears them (it listens to hashchange itself).
+const hashListeners: Array<() => void> = []
+const pageLocation = { hash: "" }
 before(async () => {
+  const g = globalThis as Record<string, unknown>
+  g.location = pageLocation
+  g.addEventListener = (type: string, listener: () => void) => { if (type === "hashchange") hashListeners.push(listener) }
   const out = join(mkdtempSync(join(tmpdir(), "cf-purchase-")), "purchase.mjs")
   await build({ entryPoints: [join(root, "src/content/purchase.ts")], bundle: true, format: "esm", platform: "node", outfile: out, logLevel: "silent" })
   purchase = await import(pathToFileURL(out).href)
@@ -145,6 +151,18 @@ test("back from the app: the mark leaves the address and the tab's history as th
   assert.equal(purchase.takeBoughtMark(forward.where), null)
   assert.deepEqual(forward.calls, ["back"])
   purchase.takeBoughtMark(page("", "").where)
+  // The panel busy when the step back lands (it doesn't look then): the module's own hashchange clears it, so Forward to
+  // the mark is still stepped back (the simulator check after acceptance 3).
+  const busy = page("#cf-bought=no", "")
+  busy.at.href = "https://example.com/c#cf-bought=no"
+  assert.equal(purchase.takeBoughtMark(busy.where), "no")
+  assert.equal(hashListeners.length, 1)
+  pageLocation.hash = ""
+  hashListeners.forEach((f) => f())
+  const forward2 = page("#cf-bought=no", "")
+  forward2.at.href = "https://example.com/c#cf-bought=no"
+  assert.equal(purchase.takeBoughtMark(forward2.where), null)
+  assert.deepEqual(forward2.calls, ["back"])
   // Loaded with it (a fresh tab): only the address is replaced, nothing is stepped back.
   const fresh = page("#cf-bought=pro", "#cf-bought=pro")
   assert.equal(purchase.takeBoughtMark(fresh.where), "pro")
