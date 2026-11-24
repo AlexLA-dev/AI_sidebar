@@ -634,6 +634,15 @@ export function widgetDay(map: PageMap, iso: string): MapItem | null {
   return null
 }
 
+/** A link's full address without its fragment, or "". */
+function linkTo(href: string, page: string): string {
+  try {
+    return new URL(href, page).toString().split("#")[0]
+  } catch {
+    return ""
+  }
+}
+
 /** The days a link's address carries (its query's YYYY-MM-DD values) when none of them is the booking's, or null. */
 export function staleDates(href: string, b: PlanBooking | undefined): string | null {
   if (!b) return null
@@ -1065,7 +1074,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const place = seenItem && (call.tool === "click" || call.tool === "go") ? venueOf(seenItem, map.url) : null
     // The place is the person's to choose (askPlace) and a list is open: it's asked before one is opened (125, a clinic
     // site: a dentist opened without the question).
-    if (place && state.plan?.askPlace && !state.placeAsked && state.venues?.list.length) {
+    // (Any link of the places found — a list with no ratings too — by its address.)
+    const listed = seenItem?.href && (call.tool === "click" || call.tool === "go") && state.venues ? state.venues.list.find((v) => linkTo(seenItem.href!, map.url) === v.url) : undefined
+    if ((place || listed) && state.plan?.askPlace && !state.placeAsked && state.venues?.list.length) {
       const best = state.venues.list.slice(0, 2).map((v) => `«${v.name}» (${v.rating}, ${v.reviews})`).join(", ")
       const why = `which place is the person's choice: ask_user once now with the two best by the rules (${best}) and a third choice to let you choose by the rules; open one only after the answer`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
