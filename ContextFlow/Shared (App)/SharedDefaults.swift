@@ -15,6 +15,23 @@ import UserNotifications
 ///
 /// This file is compiled into both the app and the extension targets
 /// (two copies: "Shared (App)" and "Shared (Extension)" — keep them identical).
+/// Our own builds (2.8, В1.9): a debug build, or any build running in a simulator. Every request they send is marked
+/// `audience: "test"` (the app's own, and the extension's through the native ping), which the server keeps and the
+/// reports leave out (contextflow.test_ids). Before this nothing marked them: each erase-and-install of a simulator
+/// reached production as a new person (160 "installs" on 14–22.11). A release build on a real device is never marked;
+/// TestFlight builds are told apart by their server, as before.
+enum OurBuild {
+    static let isOurs: Bool = {
+        #if DEBUG
+        return true
+        #elseif targetEnvironment(simulator)
+        return true
+        #else
+        return false
+        #endif
+    }()
+}
+
 /// Whether notifications may be sent (2.8, В2.6). The setup reminders go with quiet (provisional) permission, which the
 /// app takes on a new install without asking; everything else counts quiet permission as not asked, so nothing else
 /// arrives quietly and the question still comes at its moment (NotifyAsk in the app).

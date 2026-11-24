@@ -71,6 +71,8 @@ enum ChatAI {
         ]
         // 2.7: a friend's code's extra answers run (the server checks it; see Invite.swift).
         if InviteModel.keptUntil() != nil { client["inv"] = 1 }
+        // 2.8 (В1.9): a simulator or debug build is ours, never a person (OurBuild, SharedDefaults).
+        if OurBuild.isOurs { client["audience"] = "test" }
         var body: [String: Any] = [
             "installId": (Activation.shared.accountToken ?? UUID()).uuidString.lowercased(),
             "client": client

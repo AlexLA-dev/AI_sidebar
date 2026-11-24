@@ -374,6 +374,8 @@ enum AppSource {
         ]
         if let storefront { client["sf"] = storefront }
         if let ad { client["ad"] = ad }
+        // 2.8 (В1.9): a simulator or debug build is ours, never a person.
+        if OurBuild.isOurs { client["audience"] = "test" }
         return client
     }
 }
