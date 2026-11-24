@@ -88,6 +88,7 @@ import { besideMenu, glassScale, setFixedProbe, toFixed } from "./fixedPlace"
 import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type BuyVia, type PaidPlan, type Period } from "../shared/plan"
 import { boughtNow, clearBuying, noteBuying, readBuying, takeBoughtMark } from "./purchase"
 import { AnswersBack } from "./ux/AnswersBack"
+import { firstSeen, isFirstDay } from "./firstDay"
 import { SettingsView } from "./Settings"
 import type { SettingsAt } from "./settingsFold"
 import { shareLabels } from "./shareLabels"
@@ -1019,6 +1020,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [open, refreshStatus])
 
+  // 2.8: the install's first day starts counting the first time the panel runs (firstDay.ts).
+  useEffect(() => void firstSeen(), [])
+
   // 2.8 (В7.2): back from the App Store's sheet after a plan chosen here: the plan read afresh, and said when it's on
   // (the limit's card goes). iPhone and iPad come back by the page's address with the app's mark, which opens the panel;
   // the Mac by Safari's window coming to the front.
@@ -1316,8 +1320,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // More answers and notes than a free answer remembers (build 92: the last 5).
     if (entries.filter((e) => e.role === "assistant" || e.note).length <= FREE_MEMORY) return
     const chat = threadRef.current
-    void memoryOffered().then((done) => {
-      if (done.includes(chat) || threadRef.current !== chat) return
+    // 2.8 (the director's acceptance 2, C2-q5): on the first day the only place plans appear is the limit card. Not
+    // marked as offered: it can come in this chat from day 2.
+    void Promise.all([memoryOffered(), isFirstDay()]).then(([done, firstDay]) => {
+      if (firstDay || done.includes(chat) || threadRef.current !== chat) return
       void markMemoryOffered(chat)
       setMemoryOffer("long")
     })
@@ -5586,7 +5592,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
                 {error && error.code === "LIMIT_REACHED" && (() => {
                   const resetsAt = error.usage?.resetsAt ?? usage?.resetsAt
+                  // When they're back, only as the server says it (the director's acceptance 2, D2-5: a chat reopened in
+                  // a new tab showed «at 10:04 PM, in 24 h» and an active Retry until the status came): nothing until then.
                   const back = error.usage?.limit ?? usage?.limit ?? 5
+                  const backFree = resetsAt ? freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt)) : ""
+                  const backPro = resetsAt ? t("limitProBody", timeUntil(resetsAt)) : ""
                   // A long page: some answers are left, but fewer than it counts as (2.5).
                   const left = Math.max(0, (error.usage?.limit ?? 0) - (error.usage?.used ?? 0))
                   const long = (error.weight ?? 1) > 1 && left > 0
@@ -5601,10 +5611,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         title={long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : t("limitFreeTitle")}
                         body={<>
                           {long && `${t("limitLongBody", error.weight!, left)} `}
-                          {hasPro(plan) ? t("limitProBody", timeUntil(resetsAt)) : freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))}
+                          {hasPro(plan) ? backPro : backFree}
                         </>}
                         plans={hasPro(plan) ? ["ultra"] : ["pro", "ultra"]}
-                        retryAt={resetsAt ? Date.parse(resetsAt) : null}
+                        retryAt={resetsAt ? Date.parse(resetsAt) : "unknown"}
                         onRetry={lastIsUser ? () => retry() : undefined}
                         onChoose={choosePlan}
                         onEvent={event}
@@ -5635,12 +5645,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <p>
                         {long && `${t("limitLongBody", error.weight!, left)} `}
                         {hasPro(plan)
-                          ? t("limitProBody", timeUntil(resetsAt))
+                          ? backPro
                           : byok
                             // With a key: only Google answers go through ContextFlow. A key added after the refusal
                             // (from this card) leaves a question that wasn't a Google one: nothing more to say, Retry.
-                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))}${!status?.hasOwnKey ? ` ${t("byokLimitNoKey", back, PRO_WEEKLY)}` : messages[messages.length - 1]?.mode === "google" ? ` ${t("byokLimitGoogle", back, PRO_WEEKLY)}` : ""}`
-                            : `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
+                            ? `${backFree}${!status?.hasOwnKey ? ` ${t("byokLimitNoKey", back, PRO_WEEKLY)}` : messages[messages.length - 1]?.mode === "google" ? ` ${t("byokLimitGoogle", back, PRO_WEEKLY)}` : ""}`
+                            : `${backFree} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
                       </p>
                       <p class="cf-limit-notes">
                         <Icon.Pencil /> {t("limitNotes")}{" "}

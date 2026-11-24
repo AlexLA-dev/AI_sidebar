@@ -39,8 +39,9 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   focus?: OfferChoice["plan"]
   // The place's own actions under the button (the discount, a note, the own key).
   extra?: ComponentChildren
-  // Retry the question: possible from `retryAt` (ms) on (when the answers are back); null when it is now.
-  retryAt?: number | null
+  // Retry the question: possible from `retryAt` (ms) on (when the answers are back); null when it is now; "unknown"
+  // while the server hasn't said when (2.8: no made-up time, Retry waits).
+  retryAt?: number | null | "unknown"
   onRetry?: () => void
   onChoose: (choice: OfferChoice) => void
   onEvent: (action: "shown" | "choose" | "retry" | "close", choice?: OfferChoice) => void
@@ -59,11 +60,11 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   // Retry comes alive when the answers are back.
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
-    if (!retryAt || retryAt <= now) return
+    if (!retryAt || retryAt === "unknown" || retryAt <= now) return
     const timer = setTimeout(() => setNow(Date.now()), Math.min(retryAt - now + 500, 2_147_000_000))
     return () => clearTimeout(timer)
   }, [retryAt, now])
-  const canRetry = Boolean(onRetry) && (!retryAt || retryAt <= now)
+  const canRetry = Boolean(onRetry) && retryAt !== "unknown" && (!retryAt || retryAt <= now)
 
   const monthly = prices[productOf(plan, "monthly")]
   const yearly = prices[productOf(plan, "yearly")]
@@ -125,7 +126,7 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
           </button>
         )}
       </div>
-      {onRetry && !canRetry && retryAt && <p class="cf-offer-retry-at">{t("offerRetryAt", new Intl.DateTimeFormat(uiLanguage(), { hour: "numeric", minute: "2-digit" }).format(retryAt))}</p>}
+      {onRetry && !canRetry && typeof retryAt === "number" && <p class="cf-offer-retry-at">{t("offerRetryAt", new Intl.DateTimeFormat(uiLanguage(), { hour: "numeric", minute: "2-digit" }).format(retryAt))}</p>}
       {extra}
     </div>
   )

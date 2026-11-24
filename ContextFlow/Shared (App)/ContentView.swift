@@ -1712,16 +1712,11 @@ enum QuickBuy {
         var parts = URLComponents(url: page, resolvingAgainstBaseURL: false)
         if (parts?.fragment ?? "").isEmpty { parts?.fragment = "cf-bought=\(word)" }
         let target = parts?.url ?? page
-        // Safari itself (iOS 17 and later), not another default browser: the panel lives there. Only `x-safari-https` is
-        // registered (an http page's `x-safari-http` opened nothing: the simulator check after acceptance 1), so an http
-        // page, or a refusal, opens the address itself.
-        if #available(iOS 17, *), target.scheme == "https", let safari = URL(string: "x-safari-\(target.absoluteString)") {
-            UIApplication.shared.open(safari) { opened in
-                if !opened { UIApplication.shared.open(target) }
-            }
-        } else {
-            UIApplication.shared.open(target)
-        }
+        // The address itself, not `x-safari-https://`: Safari then goes back to the tab that has this page, where the panel
+        // is as it was (the director's acceptance 2, D2-5: x-safari- always opened a new tab, the page's state lost; the
+        // simulator check: the address itself 3 tabs → 3, x-safari- 3 → 4). Where another browser is the default, iOS opens
+        // the page there: no way to name Safari and keep the tab; the status bar's «◀ Safari» still goes back.
+        UIApplication.shared.open(target)
         #else
         // Safari's own window, as it was (the tab and its panel): no new tab.
         PlanTour.openSafari()
