@@ -35,6 +35,11 @@ test("a page about one place, specialist or product is told apart from lists and
   assert.deepEqual(pageSubject(PRODUCT), { kind: "product", name: "Daily Runner" })
   assert.equal(pageSubject(LIST), null)
   assert.equal(pageSubject(HOME), null)
+  // A place's own page that lists nearby places far below it is still that place's page (a salon marketplace, 125).
+  const nearby: MapItem[] = ["North Cuts", "Blade Room", "Fade Lab"].map((n, i) => ({ id: `n${i}`, role: "link", label: `${n} 4.9 (120 reviews)`, href: `/a/${i}`, where: "below" }))
+  assert.deepEqual(pageSubject({ ...FRESHA, items: [...FRESHA.items, ...nearby] }), { kind: "place", name: "Mancave Barbershop" })
+  // The same places on the screen: a list.
+  assert.equal(pageSubject({ ...FRESHA, items: [...FRESHA.items, ...nearby.map((i) => ({ ...i, where: undefined }))] }), null)
 })
 
 test("on one barbershop's page the booking is there: its name is the venue, no «I'll pick the place», the plan and steps hear the page", async () => {

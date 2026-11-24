@@ -28,7 +28,8 @@ function nameOf(title: string): string {
 export function pageSubject(map: PageMap): Subject | null {
   const full = nameOf(map.title)
   if (full.length < 3 || full.length > 80 || LISTY.test(full)) return null
-  if (venuesOn(map).length) return null
+  // (A results list shows its places on the screen; a place's own page may list «nearby» ones far below it.)
+  if (venuesOn({ ...map, items: map.items.filter((i) => i.where !== "below") }).length) return null
   // The name as the page itself shows it (its heading), not only in the tab's title: «Trattoria Sole in Paris» is «Trattoria Sole».
   const head = map.text.slice(0, 1500).toLocaleLowerCase()
   const words = full.split(" ")
