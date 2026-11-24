@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "Dove prenotare?"
  },
+ "agentBubbleCheck": {
+  "message": "Controlla prima che io prosegua: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Accedi al sito, ti aspetto"
+ },
+ "agentBubblePlan": {
+  "message": "Il piano ti aspetta"
+ },
+ "agentBubbleFill": {
+  "message": "Controlla cosa inserire nel modulo"
+ },
+ "agentBubbleDone": {
+  "message": "Fatto: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Non finito: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Apri"
+ },
+ "agentBubbleOther": {
+  "message": "Altro…"
+ },
+ "agentBubbleShow": {
+  "message": "Mostra"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

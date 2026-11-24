@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "Wähle ich auf der Seite des Ladens",
   "agentPlanVenueAuto": "Für mich wählen: ab {0} Sternen, am nächsten",
   "agentPlanLastTime": "letztes Mal",
-  "agentPlanPlaceQ": "Wo buchen?"
+  "agentPlanPlaceQ": "Wo buchen?",
+  "agentBubbleCheck": "Bitte prüfen, bevor ich weitermache: {0}",
+  "agentBubbleSignIn": "Melde dich auf der Website an – ich warte",
+  "agentBubblePlan": "Der Plan wartet auf dich",
+  "agentBubbleFill": "Prüfe, was ins Formular kommt",
+  "agentBubbleDone": "Erledigt: {0}",
+  "agentBubbleNotDone": "Nicht abgeschlossen: {0}",
+  "agentBubbleOpen": "Öffnen",
+  "agentBubbleOther": "Anderes…",
+  "agentBubbleShow": "Anzeigen"
 }

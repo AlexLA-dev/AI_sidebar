@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "Onde agendar?"
  },
+ "agentBubbleCheck": {
+  "message": "Confira antes de eu continuar: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Entre no site — eu espero"
+ },
+ "agentBubblePlan": {
+  "message": "O plano está esperando por você"
+ },
+ "agentBubbleFill": {
+  "message": "Confira o que vai no formulário"
+ },
+ "agentBubbleDone": {
+  "message": "Pronto: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Não terminado: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Abrir"
+ },
+ "agentBubbleOther": {
+  "message": "Outro…"
+ },
+ "agentBubbleShow": {
+  "message": "Mostrar"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

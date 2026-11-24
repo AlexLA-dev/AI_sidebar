@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "在哪裡預約？"
  },
+ "agentBubbleCheck": {
+  "message": "繼續之前請確認：{0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "請在網站上登入，我會等你"
+ },
+ "agentBubblePlan": {
+  "message": "計畫在等你"
+ },
+ "agentBubbleFill": {
+  "message": "請確認表單要填寫的內容"
+ },
+ "agentBubbleDone": {
+  "message": "已完成：{0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "未完成：{0}"
+ },
+ "agentBubbleOpen": {
+  "message": "開啟"
+ },
+ "agentBubbleOther": {
+  "message": "其他…"
+ },
+ "agentBubbleShow": {
+  "message": "查看"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

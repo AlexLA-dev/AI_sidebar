@@ -65,7 +65,7 @@ function when(date?: string, time?: string): string {
   }
 }
 
-function stepText(state: PanelAgent): string {
+export function stepText(state: Pick<PanelAgent, "pending">): string {
   const p = state.pending
   if (!p) return ""
   const name = nameOf(p.target)
@@ -86,7 +86,7 @@ function stepText(state: PanelAgent): string {
   }
 }
 
-function selfText(state: PanelAgent): string {
+export function selfText(state: Pick<PanelAgent, "pending">): string {
   const p = state.pending
   const name = nameOf(p?.target)
   switch (p?.verdict.reason) {
@@ -117,13 +117,13 @@ function openAppFor(state: PanelAgent): void {
   }
 }
 
-const isAccess = (state: PanelAgent) => !!state.pending?.verdict.reason.startsWith("access_")
+export const isAccess = (state: Pick<PanelAgent, "pending">) => !!state.pending?.verdict.reason.startsWith("access_")
 
 // What can't be put back after it's done: a form sent, a cart changed, another site opened.
 // (Not "off_request": that's about the request, not the step; a box it would tick can be unticked.)
-const NO_UNDO = new Set(["submit", "other_site", "decline", "unknown", "first_here"])
+export const NO_UNDO = new Set(["submit", "other_site", "decline", "unknown", "first_here"])
 
-function errorText(code: string | undefined, left: number | null | undefined, limit?: number): string {
+export function errorText(code: string | undefined, left: number | null | undefined, limit?: number): string {
   switch (code) {
     case "AGENT_LIMIT": return t("agentLimit", String(limit ?? left ?? ""))
     case "PRO_ONLY": return t("agentProOnly")

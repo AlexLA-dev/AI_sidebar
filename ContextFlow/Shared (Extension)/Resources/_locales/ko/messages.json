@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "어디로 예약할까요?"
  },
+ "agentBubbleCheck": {
+  "message": "계속하기 전에 확인해 주세요: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "사이트에서 로그인해 주세요. 기다릴게요"
+ },
+ "agentBubblePlan": {
+  "message": "계획이 기다리고 있어요"
+ },
+ "agentBubbleFill": {
+  "message": "양식에 들어갈 내용을 확인해 주세요"
+ },
+ "agentBubbleDone": {
+  "message": "완료: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "끝나지 않음: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "열기"
+ },
+ "agentBubbleOther": {
+  "message": "기타…"
+ },
+ "agentBubbleShow": {
+  "message": "보기"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "أين نحجز؟"
  },
+ "agentBubbleCheck": {
+  "message": "تحقّق قبل أن أتابع: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "سجّل الدخول في الموقع، سأنتظر"
+ },
+ "agentBubblePlan": {
+  "message": "الخطة بانتظارك"
+ },
+ "agentBubbleFill": {
+  "message": "تحقّق مما سيُكتب في النموذج"
+ },
+ "agentBubbleDone": {
+  "message": "تم: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "لم يكتمل: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "فتح"
+ },
+ "agentBubbleOther": {
+  "message": "غير ذلك…"
+ },
+ "agentBubbleShow": {
+  "message": "عرض"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

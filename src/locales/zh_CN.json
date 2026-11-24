@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "在店铺页面再选",
   "agentPlanVenueAuto": "帮我选：评分 {0}+，最近",
   "agentPlanLastTime": "上次",
-  "agentPlanPlaceQ": "在哪里预约？"
+  "agentPlanPlaceQ": "在哪里预约？",
+  "agentBubbleCheck": "继续之前请确认：{0}",
+  "agentBubbleSignIn": "请在网站上登录，我会等你",
+  "agentBubblePlan": "计划在等你",
+  "agentBubbleFill": "请确认表单要填写的内容",
+  "agentBubbleDone": "已完成：{0}",
+  "agentBubbleNotDone": "未完成：{0}",
+  "agentBubbleOpen": "打开",
+  "agentBubbleOther": "其他…",
+  "agentBubbleShow": "查看"
 }

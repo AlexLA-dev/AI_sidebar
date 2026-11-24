@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "Nereden randevu alalım?"
  },
+ "agentBubbleCheck": {
+  "message": "Devam etmeden önce kontrol edin: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Sitede oturum açın, bekliyorum"
+ },
+ "agentBubblePlan": {
+  "message": "Plan sizi bekliyor"
+ },
+ "agentBubbleFill": {
+  "message": "Forma ne yazılacağını kontrol edin"
+ },
+ "agentBubbleDone": {
+  "message": "Bitti: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Tamamlanmadı: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Aç"
+ },
+ "agentBubbleOther": {
+  "message": "Başka…"
+ },
+ "agentBubbleShow": {
+  "message": "Göster"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

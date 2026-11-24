@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "Elegiré en la página del local",
   "agentPlanVenueAuto": "Elegir por mí: valoración {0}+, lo más cerca",
   "agentPlanLastTime": "la última vez",
-  "agentPlanPlaceQ": "¿Dónde reservar?"
+  "agentPlanPlaceQ": "¿Dónde reservar?",
+  "agentBubbleCheck": "Revísalo antes de que siga: {0}",
+  "agentBubbleSignIn": "Inicia sesión en el sitio; te espero",
+  "agentBubblePlan": "El plan te está esperando",
+  "agentBubbleFill": "Revisa qué se pone en el formulario",
+  "agentBubbleDone": "Hecho: {0}",
+  "agentBubbleNotDone": "Sin terminar: {0}",
+  "agentBubbleOpen": "Abrir",
+  "agentBubbleOther": "Otro…",
+  "agentBubbleShow": "Mostrar"
 }

@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "İşletmenin sayfasında seçerim",
   "agentPlanVenueAuto": "Benim için seç: {0}+ puan, en yakın",
   "agentPlanLastTime": "geçen sefer",
-  "agentPlanPlaceQ": "Nereden randevu alalım?"
+  "agentPlanPlaceQ": "Nereden randevu alalım?",
+  "agentBubbleCheck": "Devam etmeden önce kontrol edin: {0}",
+  "agentBubbleSignIn": "Sitede oturum açın, bekliyorum",
+  "agentBubblePlan": "Plan sizi bekliyor",
+  "agentBubbleFill": "Forma ne yazılacağını kontrol edin",
+  "agentBubbleDone": "Bitti: {0}",
+  "agentBubbleNotDone": "Tamamlanmadı: {0}",
+  "agentBubbleOpen": "Aç",
+  "agentBubbleOther": "Başka…",
+  "agentBubbleShow": "Göster"
 }

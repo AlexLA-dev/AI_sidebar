@@ -70,6 +70,7 @@ export type AgentRequest =
   | { type: "agentFocus"; id: string }
   | { type: "agentGoTab" }
   | { type: "agentNoticeClear" }
+  | { type: "agentNoticeAnswer"; answer: Answer; chosen?: string[]; key: string }
   | { type: "agentDefer"; request: string; lang: string; url: string; title: string; at?: number; watch?: string; notifTitle: string; notifBody: string; alsoReminder?: boolean; plan?: TaskPlan }
   | { type: "agentDeferred" }
   | { type: "agentDeferCancel"; id: string }
@@ -288,6 +289,13 @@ export interface AgentNotice {
   status: AgentState["status"]
   summary: string
   at: number
+  // What the bubble by the circle asks in the other tabs (2.7.1): the step's key (an answer names it), the step itself
+  // (without the form's values), the agent's answers to pick from, how it failed.
+  key?: string
+  pending?: Omit<NonNullable<AgentState["pending"]>, "fill">
+  choices?: string[]
+  error?: string
+  askKey?: string
 }
 
 async function notice(): Promise<AgentNotice | null> {
@@ -311,7 +319,12 @@ function tabActive(tab: number): Promise<boolean> {
 
 async function noticeElsewhere(tab: number, state: AgentState): Promise<void> {
   if (await tabActive(tab)) return
-  const n: AgentNotice = { tab, id: state.id, request: state.request.slice(0, 200), status: state.status, summary: (state.summary ?? "").slice(0, 300), at: Date.now() }
+  const p = state.pending
+  const n: AgentNotice = {
+    tab, id: state.id, request: state.request.slice(0, 200), status: state.status, summary: (state.summary ?? "").slice(0, 300), at: Date.now(),
+    key: pendingKey(state), ...(p ? { pending: { call: p.call, verdict: p.verdict, target: p.target, offRequest: p.offRequest, price: p.price } } : {}),
+    ...(state.choices?.length ? { choices: state.choices.slice(0, 8) } : {}), ...(state.error ? { error: state.error } : {}), ...(state.askKey ? { askKey: state.askKey } : {})
+  }
   await chrome.storage.local.set({ [NOTICE_KEY]: n })
   tellTabs(n, tab)
 }
@@ -320,6 +333,16 @@ async function clearNotice(): Promise<void> {
   if (!(await notice())) return
   await chrome.storage.local.remove(NOTICE_KEY)
   tellTabs(null)
+}
+
+/** The bubble's answer in another tab: for the step the notice asked about only (the key), then the task goes on there
+ *  and the bubble goes. The same check as the panel's answer (reply): a later step the person hasn't seen isn't it. */
+async function noticeAnswer(a: Answer, chosen: string[] | undefined, key: string): Promise<Record<string, unknown>> {
+  const n = await notice()
+  if (!n || !key || n.key !== key || a === "stop") return { ok: false, code: "STALE" }
+  const r = await reply(n.tab, a, chosen, key)
+  if (r.ok) await clearNotice()
+  return { ok: r.ok === true, ...(r.code ? { code: r.code } : {}) }
 }
 
 /** «Перейти к вкладке»: the task's tab comes to the front (its panel shows the task), and the ring goes. */
@@ -803,6 +826,8 @@ export function startAgent(d: AgentDeps): void {
         return respond(goTab().then((ok) => ({ ok })))
       case "agentNoticeClear":
         return respond(clearNotice().then(() => ({ ok: true })))
+      case "agentNoticeAnswer":
+        return respond(noticeAnswer(message.answer, Array.isArray(message.chosen) ? message.chosen.map((c: unknown) => String(c ?? "").slice(0, 300)) : undefined, typeof message.key === "string" ? message.key : ""))
       case "agentUndo":
         return tab === undefined ? false : respond(undoAll(tab).then((ok) => ({ ok })))
       case "agentClose":

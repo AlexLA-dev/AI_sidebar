@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "Đặt ở đâu?"
  },
+ "agentBubbleCheck": {
+  "message": "Kiểm tra trước khi tôi làm tiếp: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Hãy đăng nhập trên trang, tôi sẽ đợi"
+ },
+ "agentBubblePlan": {
+  "message": "Kế hoạch đang chờ bạn"
+ },
+ "agentBubbleFill": {
+  "message": "Kiểm tra những gì sẽ điền vào biểu mẫu"
+ },
+ "agentBubbleDone": {
+  "message": "Xong: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Chưa xong: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Mở"
+ },
+ "agentBubbleOther": {
+  "message": "Khác…"
+ },
+ "agentBubbleShow": {
+  "message": "Xem"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

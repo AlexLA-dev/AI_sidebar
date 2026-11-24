@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "在哪里预约？"
  },
+ "agentBubbleCheck": {
+  "message": "继续之前请确认：{0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "请在网站上登录，我会等你"
+ },
+ "agentBubblePlan": {
+  "message": "计划在等你"
+ },
+ "agentBubbleFill": {
+  "message": "请确认表单要填写的内容"
+ },
+ "agentBubbleDone": {
+  "message": "已完成：{0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "未完成：{0}"
+ },
+ "agentBubbleOpen": {
+  "message": "打开"
+ },
+ "agentBubbleOther": {
+  "message": "其他…"
+ },
+ "agentBubbleShow": {
+  "message": "查看"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

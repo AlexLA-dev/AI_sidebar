@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "¿Dónde reservar?"
  },
+ "agentBubbleCheck": {
+  "message": "Revísalo antes de que siga: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Inicia sesión en el sitio; te espero"
+ },
+ "agentBubblePlan": {
+  "message": "El plan te está esperando"
+ },
+ "agentBubbleFill": {
+  "message": "Revisa qué se pone en el formulario"
+ },
+ "agentBubbleDone": {
+  "message": "Hecho: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Sin terminar: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Abrir"
+ },
+ "agentBubbleOther": {
+  "message": "Otro…"
+ },
+ "agentBubbleShow": {
+  "message": "Mostrar"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

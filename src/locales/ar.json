@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "سأختار في صفحة المكان",
   "agentPlanVenueAuto": "اختر لي: تقييم {0}+، الأقرب",
   "agentPlanLastTime": "المرة الماضية",
-  "agentPlanPlaceQ": "أين نحجز؟"
+  "agentPlanPlaceQ": "أين نحجز؟",
+  "agentBubbleCheck": "تحقّق قبل أن أتابع: {0}",
+  "agentBubbleSignIn": "سجّل الدخول في الموقع، سأنتظر",
+  "agentBubblePlan": "الخطة بانتظارك",
+  "agentBubbleFill": "تحقّق مما سيُكتب في النموذج",
+  "agentBubbleDone": "تم: {0}",
+  "agentBubbleNotDone": "لم يكتمل: {0}",
+  "agentBubbleOpen": "فتح",
+  "agentBubbleOther": "غير ذلك…",
+  "agentBubbleShow": "عرض"
 }

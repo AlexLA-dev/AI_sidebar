@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "Где записаться?"
  },
+ "agentBubbleCheck": {
+  "message": "Проверьте, прежде чем я продолжу: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Войдите на сайте — я подожду"
+ },
+ "agentBubblePlan": {
+  "message": "План ждёт вас"
+ },
+ "agentBubbleFill": {
+  "message": "Проверьте, что вписать в форму"
+ },
+ "agentBubbleDone": {
+  "message": "Готово: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Не закончено: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Открыть"
+ },
+ "agentBubbleOther": {
+  "message": "Другое…"
+ },
+ "agentBubbleShow": {
+  "message": "Показать"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

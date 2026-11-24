@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "Where to book?"
  },
+ "agentBubbleCheck": {
+  "message": "Check before I go on: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Sign in on the site — I'll wait"
+ },
+ "agentBubblePlan": {
+  "message": "The plan is waiting for you"
+ },
+ "agentBubbleFill": {
+  "message": "Check what goes into the form"
+ },
+ "agentBubbleDone": {
+  "message": "Done: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Not finished: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Open"
+ },
+ "agentBubbleOther": {
+  "message": "Other…"
+ },
+ "agentBubbleShow": {
+  "message": "Show"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

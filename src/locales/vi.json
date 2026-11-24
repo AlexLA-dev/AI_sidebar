@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "Tôi sẽ chọn trên trang của tiệm",
   "agentPlanVenueAuto": "Chọn giúp tôi: đánh giá {0}+, gần nhất",
   "agentPlanLastTime": "lần trước",
-  "agentPlanPlaceQ": "Đặt ở đâu?"
+  "agentPlanPlaceQ": "Đặt ở đâu?",
+  "agentBubbleCheck": "Kiểm tra trước khi tôi làm tiếp: {0}",
+  "agentBubbleSignIn": "Hãy đăng nhập trên trang, tôi sẽ đợi",
+  "agentBubblePlan": "Kế hoạch đang chờ bạn",
+  "agentBubbleFill": "Kiểm tra những gì sẽ điền vào biểu mẫu",
+  "agentBubbleDone": "Xong: {0}",
+  "agentBubbleNotDone": "Chưa xong: {0}",
+  "agentBubbleOpen": "Mở",
+  "agentBubbleOther": "Khác…",
+  "agentBubbleShow": "Xem"
 }

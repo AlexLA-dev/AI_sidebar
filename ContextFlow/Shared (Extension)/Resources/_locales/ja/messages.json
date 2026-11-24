@@ -3746,6 +3746,33 @@
  "agentPlanPlaceQ": {
   "message": "どこで予約しますか？"
  },
+ "agentBubbleCheck": {
+  "message": "続ける前に確認してください：{0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "サイトでサインインしてください。お待ちします"
+ },
+ "agentBubblePlan": {
+  "message": "プランがあなたを待っています"
+ },
+ "agentBubbleFill": {
+  "message": "フォームに入力する内容を確認してください"
+ },
+ "agentBubbleDone": {
+  "message": "完了：{0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "未完了：{0}"
+ },
+ "agentBubbleOpen": {
+  "message": "開く"
+ },
+ "agentBubbleOther": {
+  "message": "その他…"
+ },
+ "agentBubbleShow": {
+  "message": "表示"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

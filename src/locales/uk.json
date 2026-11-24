@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "Оберу на сторінці закладу",
   "agentPlanVenueAuto": "Підібрати самому: рейтинг {0}+, найближче",
   "agentPlanLastTime": "минулого разу",
-  "agentPlanPlaceQ": "Де записатися?"
+  "agentPlanPlaceQ": "Де записатися?",
+  "agentBubbleCheck": "Перевірте, перш ніж я продовжу: {0}",
+  "agentBubbleSignIn": "Увійдіть на сайті — я зачекаю",
+  "agentBubblePlan": "План чекає на вас",
+  "agentBubbleFill": "Перевірте, що вписати у форму",
+  "agentBubbleDone": "Готово: {0}",
+  "agentBubbleNotDone": "Не завершено: {0}",
+  "agentBubbleOpen": "Відкрити",
+  "agentBubbleOther": "Інше…",
+  "agentBubbleShow": "Показати"
 }

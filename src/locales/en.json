@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "I'll choose on the place's page",
   "agentPlanVenueAuto": "Pick for me: rated {0}+, nearest",
   "agentPlanLastTime": "last time",
-  "agentPlanPlaceQ": "Where to book?"
+  "agentPlanPlaceQ": "Where to book?",
+  "agentBubbleCheck": "Check before I go on: {0}",
+  "agentBubbleSignIn": "Sign in on the site — I'll wait",
+  "agentBubblePlan": "The plan is waiting for you",
+  "agentBubbleFill": "Check what goes into the form",
+  "agentBubbleDone": "Done: {0}",
+  "agentBubbleNotDone": "Not finished: {0}",
+  "agentBubbleOpen": "Open",
+  "agentBubbleOther": "Other…",
+  "agentBubbleShow": "Show"
 }

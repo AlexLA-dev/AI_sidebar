@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "Выберу на странице салона",
   "agentPlanVenueAuto": "Подобрать самому: рейтинг {0}+, ближе всего",
   "agentPlanLastTime": "в прошлый раз",
-  "agentPlanPlaceQ": "Где записаться?"
+  "agentPlanPlaceQ": "Где записаться?",
+  "agentBubbleCheck": "Проверьте, прежде чем я продолжу: {0}",
+  "agentBubbleSignIn": "Войдите на сайте — я подожду",
+  "agentBubblePlan": "План ждёт вас",
+  "agentBubbleFill": "Проверьте, что вписать в форму",
+  "agentBubbleDone": "Готово: {0}",
+  "agentBubbleNotDone": "Не закончено: {0}",
+  "agentBubbleOpen": "Открыть",
+  "agentBubbleOther": "Другое…",
+  "agentBubbleShow": "Показать"
 }

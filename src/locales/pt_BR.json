@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "Escolho na página do local",
   "agentPlanVenueAuto": "Escolher por mim: nota {0}+, mais perto",
   "agentPlanLastTime": "da última vez",
-  "agentPlanPlaceQ": "Onde agendar?"
+  "agentPlanPlaceQ": "Onde agendar?",
+  "agentBubbleCheck": "Confira antes de eu continuar: {0}",
+  "agentBubbleSignIn": "Entre no site — eu espero",
+  "agentBubblePlan": "O plano está esperando por você",
+  "agentBubbleFill": "Confira o que vai no formulário",
+  "agentBubbleDone": "Pronto: {0}",
+  "agentBubbleNotDone": "Não terminado: {0}",
+  "agentBubbleOpen": "Abrir",
+  "agentBubbleOther": "Outro…",
+  "agentBubbleShow": "Mostrar"
 }

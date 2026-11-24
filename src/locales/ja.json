@@ -1279,5 +1279,14 @@
   "agentPlanSpecialistOnPage": "お店のページで選ぶ",
   "agentPlanVenueAuto": "おまかせ：評価{0}以上・近い順",
   "agentPlanLastTime": "前回",
-  "agentPlanPlaceQ": "どこで予約しますか？"
+  "agentPlanPlaceQ": "どこで予約しますか？",
+  "agentBubbleCheck": "続ける前に確認してください：{0}",
+  "agentBubbleSignIn": "サイトでサインインしてください。お待ちします",
+  "agentBubblePlan": "プランがあなたを待っています",
+  "agentBubbleFill": "フォームに入力する内容を確認してください",
+  "agentBubbleDone": "完了：{0}",
+  "agentBubbleNotDone": "未完了：{0}",
+  "agentBubbleOpen": "開く",
+  "agentBubbleOther": "その他…",
+  "agentBubbleShow": "表示"
 }
