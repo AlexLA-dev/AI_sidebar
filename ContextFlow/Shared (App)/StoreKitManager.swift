@@ -53,6 +53,17 @@ final class StoreKitManager: ObservableObject {
     private init() {
         // Before anything here writes the App Group: the app's first launch is told from an update by it.
         _ = Activation.shared
+        // 2.8 diagnostics (the director's acceptance 2, C3): what the app sees of notifications, at launch and each time it
+        // comes to the front, for the extension's line when a reminder can't be set (MessageReminders).
+        Task { await MessageReminders.noteAppStatus() }
+        #if os(iOS)
+        let active = UIApplication.didBecomeActiveNotification
+        #else
+        let active = NSApplication.didBecomeActiveNotification
+        #endif
+        NotificationCenter.default.addObserver(forName: active, object: nil, queue: .main) { _ in
+            Task { await MessageReminders.noteAppStatus() }
+        }
         updates = Task.detached { [weak self] in
             for await result in StoreKit.Transaction.updates {
                 if case .verified(let transaction) = result {

@@ -196,7 +196,7 @@ export const FEATURES: Record<string, Feature> = {
   // (to the app), the discount, a note, the own key, Retry.
   chat_plans: {
     // 2.8 (В7.1): «Remind me when my answers are back» tapped, set, or notifications off.
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify"],
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify", "remind_app"],
     via: ["limit", "memory", "pro_only", "ultra_only"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
   },

@@ -1311,5 +1311,6 @@
   "answersBackSet": "سأذكّرك في {0} عندما تعود إجاباتك.",
   "answersBackOff": "إشعارات ContextFlow متوقفة. تعود إجاباتك في {0}.",
   "answersBackFailed": "تعذّر ضبط التذكير. تعود إجاباتك في {0}.",
-  "answersBackBody": "عادت إجاباتك المجانية ({0}). اسأل عن أي صفحة."
+  "answersBackBody": "عادت إجاباتك المجانية ({0}). اسأل عن أي صفحة.",
+  "answersBackInApp": "اضبطه في تطبيق ContextFlow"
 }

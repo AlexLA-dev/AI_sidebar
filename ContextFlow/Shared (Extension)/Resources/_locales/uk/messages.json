@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "Безкоштовні відповіді повернулися: {0}. Питайте про будь-яку сторінку."
  },
+ "answersBackInApp": {
+  "message": "Поставити в застосунку ContextFlow"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

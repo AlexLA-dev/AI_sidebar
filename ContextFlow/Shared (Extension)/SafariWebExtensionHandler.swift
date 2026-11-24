@@ -232,6 +232,15 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                                                               title: title, body: body, open: page, ask: message["ask"] as? Bool ?? false)
                 Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
             }
+        case "remind_pending":
+            // 2.8: whether a reminder is waiting on the device (the app may have set it, the panel's fallback when the
+            // extension couldn't): its time, or none.
+            let chat = message["chat"] as? String ?? ""
+            let key = message["message"] as? String ?? ""
+            Task {
+                let at = await MessageReminders.isPending(chat: chat, message: key)
+                Self.reply(context, ["success": true, "data": at.map { ["at": $0.timeIntervalSince1970 * 1000] } ?? [:]])
+            }
         case "unremind":
             if let chat = message["chat"] as? String, let key = message["message"] as? String {
                 MessageReminders.cancel(chat: chat, message: key)

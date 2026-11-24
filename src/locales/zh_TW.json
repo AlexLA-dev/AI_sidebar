@@ -1311,5 +1311,6 @@
   "answersBackSet": "{0} 回答恢復時會提醒你。",
   "answersBackOff": "ContextFlow 的通知已關閉。回答將在 {0} 恢復。",
   "answersBackFailed": "無法設定提醒。回答將在 {0} 恢復。",
-  "answersBackBody": "{0} 次免費回答已恢復。可以問任何頁面。"
+  "answersBackBody": "{0} 次免費回答已恢復。可以問任何頁面。",
+  "answersBackInApp": "在 ContextFlow App 中設定"
 }

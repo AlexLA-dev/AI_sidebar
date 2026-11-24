@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "무료 답변 {0}개가 돌아왔어요. 어떤 페이지든 물어보세요."
  },
+ "answersBackInApp": {
+  "message": "ContextFlow 앱에서 설정하기"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

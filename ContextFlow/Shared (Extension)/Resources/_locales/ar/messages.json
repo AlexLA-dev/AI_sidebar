@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "عادت إجاباتك المجانية ({0}). اسأل عن أي صفحة."
  },
+ "answersBackInApp": {
+  "message": "اضبطه في تطبيق ContextFlow"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

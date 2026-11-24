@@ -266,6 +266,9 @@ struct ContentView: View {
                 case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil):
                     Paywall.shared.open(url)
                     tab = .pro
+                // 2.8: a reminder the panel couldn't set from the extension (the director's acceptance 2, C3), set here.
+                case "remind":
+                    AppReminder.open(url)
                 case "subscribe", "manage":
                     tab = store.isPro ? .settings : .pro
                     showPlan = store.isPro
@@ -1732,18 +1735,53 @@ enum QuickBuy {
         var parts = URLComponents(url: page, resolvingAgainstBaseURL: false)
         if (parts?.fragment ?? "").isEmpty { parts?.fragment = "cf-bought=\(word)" }
         let target = parts?.url ?? page
-        // Safari itself (iOS 17 and later), not another default browser: the panel lives there. Only `x-safari-https` is
-        // registered (an http page's `x-safari-http` opened nothing: the simulator check after acceptance 1), so an http
-        // page, or a refusal, opens the address itself.
-        if #available(iOS 17, *), target.scheme == "https", let safari = URL(string: "x-safari-\(target.absoluteString)") {
-            UIApplication.shared.open(safari) { opened in
-                if !opened { UIApplication.shared.open(target) }
-            }
-        } else {
-            UIApplication.shared.open(target)
-        }
+        // The address itself, not `x-safari-https://`: Safari then goes back to the tab that has this page, where the panel
+        // is as it was (the director's acceptance 2, D2-5: x-safari- always opened a new tab, the page's state lost; the
+        // simulator check: the address itself 3 tabs → 3, x-safari- 3 → 4). Where another browser is the default, iOS opens
+        // the page there: no way to name Safari and keep the tab; the status bar's «◀ Safari» still goes back.
+        UIApplication.shared.open(target)
         #else
         // Safari's own window, as it was (the tab and its panel): no new tab.
+        PlanTour.openSafari()
+        #endif
+    }
+}
+
+/// 2.8 (the director's acceptance 2, C3): a reminder the extension couldn't set («Source is not authorized» right after
+/// Allow), set by the app from its own process: contextflow://remind?chat=…&message=…&at=<ms>&title=…&body=…&page=<page>.
+/// The same reminder id as the panel's, so it is set once at most; then back to the page, where the panel finds it
+/// waiting (remind_pending). Notifications not on for the app either: the app's own ask (NotifyAsk), as the panel's link.
+@MainActor
+enum AppReminder {
+    static func open(_ url: URL) {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let value = { (name: String) in items.first { $0.name == name }?.value ?? "" }
+        let id = "^[A-Za-z0-9_-]{1,64}$"
+        let chat = value("chat"), message = value("message")
+        guard chat.range(of: id, options: .regularExpression) != nil, message.range(of: id, options: .regularExpression) != nil,
+              let ms = Double(value("at")), ms > Date().timeIntervalSince1970 * 1000 else { return }
+        let page = URL(string: value("page")).flatMap { ["http", "https"].contains($0.scheme ?? "") ? $0 : nil }
+        let title = String(value("title").prefix(200)), body = String(value("body").prefix(300))
+        Task {
+            let outcome = await MessageReminders.schedule(chat: chat, message: message, at: Date(timeIntervalSince1970: ms / 1000),
+                                                          title: title.isEmpty ? "ContextFlow" : title, body: body, open: page, ask: false)
+            MessageReminders.log("app set \(MessageReminders.identifier(chat: chat, message: message)): \(outcome.rawValue) — \(await MessageReminders.statusLine("app"))")
+            #if os(iOS)
+            if outcome == .scheduled {
+                if let page { backToPage(page) }
+            } else {
+                await NotifyAsk.shared.show(.answers_back, page: page)
+            }
+            #else
+            if let page { backToPage(page) }
+            #endif
+        }
+    }
+
+    private static func backToPage(_ page: URL) {
+        #if os(iOS)
+        UIApplication.shared.open(page)
+        #else
         PlanTour.openSafari()
         #endif
     }

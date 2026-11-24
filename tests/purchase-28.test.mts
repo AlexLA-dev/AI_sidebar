@@ -67,9 +67,10 @@ test("the app: one-tap purchase without the Pro tab, back to Safari with the mar
   const swift = read("ContextFlow/Shared (App)/ContentView.swift")
   assert.match(swift, /&& QuickBuy\.wants\(url\):[\s\S]{0,200}QuickBuy\.run\(url, store: store\) \{ tab = \.pro \}/)
   assert.match(swift, /parts\?\.fragment = "cf-bought=\\\(word\)"/)
-  // x-safari- only for https (no handler is registered for x-safari-http), else the address itself.
-  assert.match(swift, /target\.scheme == "https", let safari = URL\(string: "x-safari-/)
-  assert.match(swift, /if !opened \{ UIApplication\.shared\.open\(target\) \}/)
+  // Back by the address itself, never x-safari- (it always opens a new tab: the director's acceptance 2).
+  const back = swift.slice(swift.indexOf("static func backToSafari"), swift.indexOf("static func backToSafari") + 1600)
+  assert.match(back, /UIApplication\.shared\.open\(target\)/)
+  assert.doesNotMatch(back, /x-safari-\\\(/)
   assert.match(swift, /#else\s*\/\/ Safari's own window, as it was \(the tab and its panel\): no new tab\.\s*PlanTour\.openSafari\(\)/)
   for (const a of ["plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail"]) assert.ok(swift.includes(`"paywall", "${a}"`) || swift.includes(`"buy_ok" : outcome`), a)
 })
@@ -110,4 +111,13 @@ test("the director's acceptance (shot 15): nothing is presented over the App Sto
   // Both purchase paths set it and always clear it.
   assert.match(swift, /Paywall\.shared\.purchasing = true\s*Task \{ @MainActor in\s*defer \{\s*running = false\s*Paywall\.shared\.purchasing = false/)
   assert.match(swift, /paywall\.purchasing = true\s*Task \{\s*defer \{ paywall\.purchasing = false \}/)
+})
+
+test("acceptance 2: the limit card shows no made-up time and no live Retry before the server's reset time; the memory card waits on day 1", () => {
+  const app = read("src/content/App.tsx")
+  assert.match(app, /const backFree = resetsAt \? freeAnswersBack\(back, clockTime\(resetsAt\), timeUntil\(resetsAt\)\) : ""/)
+  assert.match(app, /retryAt=\{resetsAt \? Date\.parse\(resetsAt\) : "unknown"\}/)
+  const offer = read("src/content/ux/PlanOffer.tsx")
+  assert.match(offer, /const canRetry = Boolean\(onRetry\) && retryAt !== "unknown"/)
+  assert.match(app, /if \(firstDay \|\| done\.includes\(chat\) \|\| threadRef\.current !== chat\) return/)
 })

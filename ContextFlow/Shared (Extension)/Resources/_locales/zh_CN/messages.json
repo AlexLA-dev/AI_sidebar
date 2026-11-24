@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "{0} 次免费回答已恢复。可以问任何页面。"
  },
+ "answersBackInApp": {
+  "message": "在 ContextFlow App 中设置"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

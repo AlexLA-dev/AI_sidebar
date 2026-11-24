@@ -1311,5 +1311,6 @@
   "answersBackSet": "{0}에 답변이 돌아오면 알려 드릴게요.",
   "answersBackOff": "ContextFlow 알림이 꺼져 있어요. 답변은 {0}에 돌아와요.",
   "answersBackFailed": "알림을 설정하지 못했어요. 답변은 {0}에 돌아와요.",
-  "answersBackBody": "무료 답변 {0}개가 돌아왔어요. 어떤 페이지든 물어보세요."
+  "answersBackBody": "무료 답변 {0}개가 돌아왔어요. 어떤 페이지든 물어보세요.",
+  "answersBackInApp": "ContextFlow 앱에서 설정하기"
 }

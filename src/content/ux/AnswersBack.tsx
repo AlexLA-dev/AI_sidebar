@@ -41,7 +41,21 @@ export async function askAnswersBack(at: number, count: number, url: string, ask
   const first = outcomeOf(await send({ ...message, ask }, { timeoutMs: 100_000, tries: 1 }).catch(() => null))
   if (first !== "failed") return first
   await new Promise((ok) => setTimeout(ok, pause))
-  return outcomeOf(await send({ ...message, ask: false }, { timeoutMs: 15_000, tries: 2 }).catch(() => null))
+  const second = outcomeOf(await send({ ...message, ask: false }, { timeoutMs: 15_000, tries: 2 }).catch(() => null))
+  if (second !== "failed") return second
+  // Set already, by the app (the fallback below) or an earlier try: waiting on the device is what counts.
+  const waiting = await send({ type: "remindPending", ...ANSWERS_BACK }, { timeoutMs: 5_000, tries: 1 }).catch(() => null) as { at?: number | null } | null
+  return typeof waiting?.at === "number" ? "scheduled" : "failed"
+}
+
+/**
+ * The app sets it from its own process when the extension can't (the director's acceptance 2, C3: «Source is not
+ * authorized» right after Allow on his iPads, not on ours): the same reminder, then back to this page.
+ */
+export function appReminderLink(at: number, count: number, page: string): string {
+  const q = new URLSearchParams({ ...ANSWERS_BACK, at: String(at), title: "ContextFlow", body: t("answersBackBody", String(count)) })
+  if (/^https?:\/\//.test(page)) q.set("page", page.split("#")[0])
+  return `contextflow://remind?${q.toString()}`
 }
 
 function clock(at: number): string {
@@ -59,7 +73,7 @@ export function AnswersBack({ resetsAt, count, url, onEvent }: {
   count: number
   // The page the notification opens.
   url: string
-  onEvent: (action: "remind" | "remind_set" | "remind_off" | "remind_notify") => void
+  onEvent: (action: "remind" | "remind_set" | "remind_off" | "remind_notify" | "remind_app") => void
 }): VNode | null {
   const [state, setState] = useState<State>("idle")
   const stateRef = useRef<State>("idle")
@@ -122,8 +136,14 @@ export function AnswersBack({ resetsAt, count, url, onEvent }: {
       ) : state === "failed" ? (
         <>
           <span>{t("answersBackFailed", clock(resetsAt))}</span>{" "}
-          {/* Never a dead end: try again (the question is asked again only if it was never answered). */}
-          <button type="button" class="cf-link" onClick={() => void ask()}>{t("retry")}</button>
+          {/* Never a dead end: try again (the question is asked again only if it was never answered), or let the app
+              set it (in the tap itself: Safari opens the app only for a tap's own navigation). */}
+          <button type="button" class="cf-link" onClick={() => void ask()}>{t("retry")}</button>{" "}
+          <button type="button" class="cf-link" onClick={() => {
+            onEvent("remind_app")
+            void chrome.storage.local.set({ [ASKED]: resetsAt }).catch(() => undefined)
+            followLink(appReminderLink(resetsAt, count, url))
+          }}>{t("answersBackInApp")}</button>
         </>
       ) : (
         <button type="button" class="cf-link" disabled={state === "asking"} onClick={() => void ask()}>{t("answersBackAsk", String(count))}</button>

@@ -52,7 +52,30 @@ test("an answer is taken as it is: set, notifications off, or not asked (the app
   const { send } = sender([null, null])
   assert.equal(await card.askAnswersBack(Date.now() + 1000, 5, "https://example.com", true, send, 0), "failed")
   const src = readFileSync(join(root, "src/content/ux/AnswersBack.tsx"), "utf8")
-  assert.match(src, /state === "failed" \? \([\s\S]{0,300}onClick=\{\(\) => void ask\(\)\}>\{t\("retry"\)\}/)
+  assert.match(src, /state === "failed" \? \([\s\S]{0,600}onClick=\{\(\) => void ask\(\)\}>\{t\("retry"\)\}/)
   // Back on the page after a try that got no answer: set again, without the question.
   assert.match(src, /kept\[ASKED\] !== resetsAt && stateRef\.current !== "failed"/)
+})
+
+test("acceptance 2 (C3, not reproduced here): a reminder the app set counts; the app is offered, with the same reminder", async () => {
+  const { sent, send } = sender([null, null, { at: Date.now() + 1000 } as never])
+  assert.equal(await card.askAnswersBack(Date.now() + 3_600_000, 5, "https://example.com", true, send, 0), "scheduled")
+  assert.deepEqual(sent[2].message, { type: "remindPending", chat: "cf-limit", message: "answers-back" })
+  const link = new URL(card.appReminderLink(1_800_000_000_000, 5, "https://example.com/a#x"))
+  assert.equal(link.protocol + link.host, "contextflow:remind")
+  assert.deepEqual([link.searchParams.get("chat"), link.searchParams.get("message"), link.searchParams.get("at"), link.searchParams.get("page")], ["cf-limit", "answers-back", "1800000000000", "https://example.com/a"])
+  assert.equal(new URL(card.appReminderLink(1, 5, "file:///x")).searchParams.get("page"), null)
+  const src = readFileSync(join(root, "src/content/ux/AnswersBack.tsx"), "utf8")
+  assert.match(src, /onEvent\("remind_app"\)[\s\S]{0,200}followLink\(appReminderLink\(resetsAt, count, url\)\)/)
+})
+
+test("the app sets it from its own process and goes back; the extension says what both processes see when it can't", () => {
+  const app = readFileSync(join(root, "ContextFlow/Shared (App)/ContentView.swift"), "utf8")
+  assert.match(app, /case "remind":\s*AppReminder\.open\(url\)/)
+  assert.match(app, /MessageReminders\.schedule\(chat: chat, message: message,[\s\S]{0,200}ask: false\)/)
+  const rem = readFileSync(join(root, "ContextFlow/Shared (Extension)/MessageReminders.swift"), "utf8")
+  assert.match(rem, /log\("failed \\\(request\.identifier\) — \\\(await statusLine\(/)
+  assert.match(rem, /app saw: \\\(appStatusLine\(\)\)/)
+  assert.match(readFileSync(join(root, "ContextFlow/Shared (App)/StoreKitManager.swift"), "utf8"), /MessageReminders\.noteAppStatus\(\)/)
+  assert.match(readFileSync(join(root, "ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift"), "utf8"), /case "remind_pending":/)
 })

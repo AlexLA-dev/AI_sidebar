@@ -280,6 +280,7 @@ export type BackgroundRequest =
   // A reminder on an answer or a note (2.5): a local notification on this device (Safari); answers
   // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
   | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; url?: string; ask?: boolean }
+  | { type: "remindPending"; chat: string; message: string }
   // 2.7, Calendar and Reminders (appleItems.ts): whether this device can add them and with what access ("appleStatus");
   // a reminder or an event written on the device, or handed to the app with `handoff` (its id, the link the page already
   // followed) when the extension can't write it ("appleAdd" → { outcome: "saved" | "app" | "denied" | "failed" |
