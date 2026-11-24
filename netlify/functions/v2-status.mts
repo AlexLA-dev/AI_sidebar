@@ -3,7 +3,7 @@ import type { Config, Context } from "@netlify/functions"
 import { config as settings } from "../shared/config.mts"
 import { limitedBefore, logEvent, peek, touchInstall } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { countersFor, evalAccess, isUltra, proOffer, resolveAccess, similarCountersFor, speakCountersFor, ultraUsage, useBreakdown, useCountersFor, visibleUsage } from "../shared/plan.mts"
+import { countersFor, evalAccess, isUltra, proOffer, resolveAccess, similarCountersFor, speakAllowance, speakCountersFor, tastesFor, ultraUsage, useBreakdown, useCountersFor, visibleUsage } from "../shared/plan.mts"
 import { WATCH_LIMITS } from "../../src/shared/plan.ts"
 import { vectorSpace } from "../shared/organize.mts"
 import { promoConfigured } from "../shared/promo.mts"
@@ -36,7 +36,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   const access = evalAccess(req, installId, context) ?? (await resolveAccess(body.entitlement, installId))
   const counters = countersFor(access, installId, ipSubject(context.ip), await inviteExtra(client, [installId], access.plan))
-  const ultraCounters = isUltra(access.plan) ? [...speakCountersFor(access, 0), ...similarCountersFor(access)] : []
+  // 2.8 (В7.4): Pro's tastes of Ultra are read from Ultra's own counters.
+  const tastes = tastesFor(access)
+  const ultraCounters = isUltra(access.plan) || tastes ? [...speakCountersFor(access, 0), ...similarCountersFor(access)] : []
   // 110: what the answers went on, read with them (no answers' counter, as with their own key: none).
   const use = useCountersFor(counters)
   const [state, limited, ultraState, invite] = await Promise.all([
@@ -70,11 +72,19 @@ export default async (req: Request, context: Context): Promise<Response> => {
     offer,
     upgradeOffer: access.plan === "byok" && promoConfigured() ? { discount: settings.promoDiscount } : null,
     ultra: isUltra(access.plan) ? { speak: ultraUsage(ultraState, "speak:"), similar: ultraUsage(ultraState, "similar:") } : null,
+    // A taste that's off (0) isn't there; the clients show only what's here.
+    ...(tastes ? {
+      taste: {
+        ...(tastes.speakWeeklySeconds > 0 ? { speak: ultraUsage(ultraState, "speak:", speakAllowance(access)) } : {}),
+        ...(tastes.similarWeekly > 0 ? { similar: ultraUsage(ultraState, "similar:") } : {})
+      }
+    } : {}),
     limits: {
       freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit, searchFreeDaily: settings.searchFreeDailyLimit, searchProWeekly: settings.searchProWeeklyLimit,
       // 2.8 (Б8): free Google answers don't take from the free answers.
       searchFreeApart: settings.searchFreeApart,
-      ultraWeekly: settings.ultra.weeklyLimit, speakWeeklySeconds: settings.ultra.speakWeeklySeconds, similarWeekly: settings.ultra.similarWeekly, similarLightWeekly: settings.similar.lightWeekly, similarProAnswers: settings.similar.proAnswers, watch: WATCH_LIMITS
+      ultraWeekly: settings.ultra.weeklyLimit, speakWeeklySeconds: settings.ultra.speakWeeklySeconds, similarWeekly: settings.ultra.similarWeekly, similarLightWeekly: settings.similar.lightWeekly, similarProAnswers: settings.similar.proAnswers, watch: WATCH_LIMITS,
+      tasteSpeakSeconds: settings.taste.speakWeeklySeconds, tasteSimilarWeekly: settings.taste.similarWeekly
     },
     organize: { on: settings.organize.enabled, space: vectorSpace(), config: settings.organize.thresholds },
     ...(invite ? { invite: { active: invite.active } } : {}),

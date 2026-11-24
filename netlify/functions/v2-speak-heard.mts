@@ -3,7 +3,7 @@ import type { Config, Context } from "@netlify/functions"
 import { logEvent, peek } from "../shared/db.mts"
 import { applyHeard, heardItems, heardTexts, textStates } from "../shared/heard.mts"
 import { clip, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { evalCheck, isUltra, resolveAccess, speakCountersFor, ultraUsage } from "../shared/plan.mts"
+import { evalCheck, speakAllowance, resolveAccess, speakCountersFor, ultraUsage } from "../shared/plan.mts"
 
 /**
  * POST /api/v2/speak-heard — read aloud's seconds heard (build 92): what counts against the week's minutes.
@@ -32,7 +32,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const client = (body.client ?? {}) as Record<string, unknown>
   const check = evalCheck(req, installId, context)
   const access = check.access ?? (await resolveAccess(body.entitlement, installId))
-  if (!isUltra(access.plan)) return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "speak" }, 403)
+  if (speakAllowance(access) <= 0) return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "speak" }, 403)
 
   // The database refusing (busy, or the 'ever' counters not set up yet): the device keeps the seconds and sends again.
   const added = await applyHeard(access, items).catch((err) => {
@@ -48,7 +48,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // Only asking about texts (a chat shown): nothing was counted, nothing more to read.
   if (!items.length) return json({ ok: true, added: 0, voiced, made })
   const minutes = speakCountersFor(access, 0).filter((c) => c.subject.startsWith("speak:"))
-  const usage = ultraUsage(await peek(minutes).catch(() => minutes.map((c) => ({ ...c, n: 0 }))), "speak:")
+  const usage = ultraUsage(await peek(minutes).catch(() => minutes.map((c) => ({ ...c, n: 0 }))), "speak:", speakAllowance(access))
   context.waitUntil(logEvent("speak_heard", installId, {
     plan: access.plan, parts: items.length, heard_s: Math.round(items.reduce((n, i) => n + i.s, 0)), added_s: added,
     platform: clip(client.platform, 20), version: clip(client.version, 20), ...(client.audience === "test" ? { audience: "test" } : {})

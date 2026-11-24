@@ -7,7 +7,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { buildGrounding, type GoogleStats } from "../shared/google.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
-import { blockReason, isUltra, resolveAccess, similarCountersFor, similarLightCounters, ultraUsage, visibleUsage, type Access } from "../shared/plan.mts"
+import { blockReason, isUltra, resolveAccess, similarAllowance, similarCountersFor, similarLightCounters, ultraUsage, visibleUsage, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
 import { CHIP_KINDS, MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, lightOverrides, probeShipping, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
@@ -78,6 +78,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let counters: Counter[] = []
   // 2.7: Own key and Pro get the light search (an evaluation asks for it with options.light); Free, none.
   let light = evaluating && (body.options as Record<string, unknown> | undefined)?.light === "on"
+  let taste = false
   if (!evaluating) {
     access = await resolveAccess(body.entitlement, installId)
     if (!similarAllowed(access.plan)) {
@@ -85,7 +86,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
       // The panel shows the plans that have it (and so did 2.6's, for PRO_ONLY).
       return json({ code: "PRO_ONLY", plan: access.plan, feature: "similar" }, 403)
     }
-    light = !isUltra(access.plan)
+    // 2.8 (В7.4): a Pro subscriber's taste of Ultra's full search, when the panel asks for it (taste: true, sent only
+    // while the status says one is left this week); older panels never ask, and keep the light search.
+    taste = !isUltra(access.plan) && body.taste === true && similarAllowance(access) > 0
+    light = !isUltra(access.plan) && !taste
     // The week's searches — Ultra's per subscription, the light search's per device and a Pro one's answers (plan.mts) —
     // and the engine's daily safety caps, charged together before anything runs.
     counters = [...(light ? similarLightCounters(access, installId, ipSubject(context.ip)) : similarCountersFor(access)), ...similarCounters(installId, ipSubject(context.ip))]
@@ -97,8 +101,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     }
     if (quota && !quota.allowed) {
       const reason = blockReason(quota.blocked)
-      context.waitUntil(logEvent("limit", installId, { reason, plan: access.plan, platform, version, mode: "similar", ...(light ? { light: true } : {}), ...step }))
-      if (reason === "similar") return json({ code: "LIMIT_REACHED", plan: access.plan, ...(light ? { light: true } : {}), usage: ultraUsage(quota.counters, light ? "similarlight:" : "similar:") }, 402)
+      context.waitUntil(logEvent("limit", installId, { reason, plan: access.plan, platform, version, mode: "similar", ...(light ? { light: true } : {}), ...(taste ? { taste: true } : {}), ...step }))
+      if (reason === "similar") return json({ code: "LIMIT_REACHED", plan: access.plan, ...(light ? { light: true } : {}), ...(taste ? { taste: true } : {}), usage: ultraUsage(quota.counters, light ? "similarlight:" : "similar:") }, 402)
       // Pro: fewer of the week's answers left than a light search counts as (none taken).
       if (reason === "limit" && light) return json({ code: "LIMIT_REACHED", plan: access.plan, light: true, answers: settings.similar.proAnswers, usage: visibleUsage(access, quota.counters) }, 402)
       return json({ code: "BUSY" }, 503)
@@ -221,7 +225,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       // Nothing came, or (2.7) the light search found nothing: the search is given back.
       ...(ok && (items > 0 || !light) ? [] : [refund(counters).catch(() => undefined)]),
       logEvent("similar", installId, {
-        engine, ok, items, model: engine === "a" ? overrides.writeModel || settings.similar.writeModel : model, mode: light ? "light" : "full",
+        engine, ok, items, model: engine === "a" ? overrides.writeModel || settings.similar.writeModel : model, mode: light ? "light" : "full", ...(taste ? { taste: true } : {}),
         ...(category ? { category } : {}), ...(condition ? { condition } : {}),
         ...(failure ? { message: failure } : {}),
         // Engine A's dollars from its steps, so a search that stopped halfway still counts what it spent (statsA.usd is

@@ -5,7 +5,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, peek, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { applyHeard, recordPartMade } from "../shared/heard.mts"
 import { clip, corsHeaders, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { blockReason, evalCheck, isUltra, resolveAccess, speakCountersFor, speakMadeCountersFor, ultraUsage, type Access } from "../shared/plan.mts"
+import { blockReason, evalCheck, speakAllowance, resolveAccess, speakCountersFor, speakMadeCountersFor, ultraUsage, type Access } from "../shared/plan.mts"
 import { voiceGender, readSpeech, speechCost, startSpeech, type SpeechStats } from "../shared/speak.mts"
 import { SPEECH_RATE, speechKind, speechSeconds } from "../../src/shared/speech.ts"
 
@@ -51,7 +51,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const check = evalCheck(req, installId, context)
   const evaluated = check.access
   const access = evaluated ?? (await resolveAccess(body.entitlement, installId))
-  if (!isUltra(access.plan)) {
+  if (speakAllowance(access) <= 0) {
     context.waitUntil(logEvent("pro_only", installId, { feature: "speak", plan: access.plan, platform, version }))
     return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "speak", ...(check.refused ? { eval: check.refused } : {}) }, 403)
   }
@@ -87,7 +87,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     console.error("[cf] peek failed:", err instanceof Error ? err.message : err)
     heardNow = minutes.map((c) => ({ ...c, n: 0 }))
   }
-  const usage = ultraUsage(heardNow, "speak:")
+  const usage = ultraUsage(heardNow, "speak:", speakAllowance(access))
   const minutesLeft = (heardNow[0]?.limit ?? Infinity) - (heardNow[0]?.n ?? 0)
   if (minutesLeft <= 0) {
     context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason: "speak", platform, version, mode: "speak" }))

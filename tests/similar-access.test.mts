@@ -77,11 +77,11 @@ const ctx = () => {
   const waits: Promise<unknown>[] = []
   return { ip: "203.0.113.9", deploy: { context: "production" }, waitUntil: (p: Promise<unknown>) => void waits.push(p), waits } as any
 }
-const ask = (entitlement: string | null, c = ctx()) =>
+const ask = (entitlement: string | null, c = ctx(), extra: Record<string, unknown> = {}) =>
   similar(new Request("https://x/api/v2/similar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ installId: INSTALL, client: { version: "2.6", platform: "ios", locale: "en-US", build: "88" }, engine: "a", entitlement, page: { title: "Acme Q1", url: "https://shop.example/q1", text: "Headphones." }, condition: "cheaper" })
+    body: JSON.stringify({ installId: INSTALL, client: { version: "2.6", platform: "ios", locale: "en-US", build: "88" }, engine: "a", entitlement, page: { title: "Acme Q1", url: "https://shop.example/q1", text: "Headphones." }, condition: "cheaper", ...extra })
   }), c)
 
 beforeEach(() => {
@@ -263,4 +263,27 @@ test("2.7, an evaluation asking for the light search gets it whole (its unset sw
   assert.ok(searches.length >= 1)
   for (const call of searches) assert.equal(call.tools[0].max_uses, 2)
   assert.equal(consumed.length, 0, "an evaluation counts nothing")
+})
+
+test("2.8 (В7.4), Pro's taste: asked for, the full search on Ultra's counter (no answers taken); used, LIMIT_REACHED taste; not asked, the light one", async () => {
+  const c = ctx()
+  const res = await ask(PRO(), c, { taste: true })
+  assert.equal(res.status, 200)
+  assert.deepEqual(consumed[0].slice(0, 1), [`similar:tx:${OTID}`])
+  assert.ok(!consumed[0].some((s) => s.startsWith("similarlight:") || s === `tx:${OTID}`), "not the light search, no answers")
+  await res.text()
+  await Promise.all(c.waits)
+  // The week's taste used: the panel shows the plans, Find similar first.
+  counters.set(`similar:tx:${OTID}`, 1)
+  const used = await ask(PRO(), ctx(), { taste: true })
+  assert.equal(used.status, 402)
+  const body = await used.json()
+  assert.deepEqual([body.code, body.taste, body.light, body.usage.used, body.usage.limit], ["LIMIT_REACHED", true, undefined, 1, 1])
+  // A panel that doesn't ask (2.7.1 and older), and Own key asking: the light search, as before.
+  consumed = []
+  await (await ask(PRO())).text()
+  assert.equal(consumed[0][0], `similarlight:${INSTALL}`)
+  consumed = []
+  await (await ask(BYOK(), ctx(), { taste: true })).text()
+  assert.equal(consumed[0][0], `similarlight:${INSTALL}`)
 })

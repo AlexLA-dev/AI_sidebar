@@ -64,6 +64,24 @@ export function watchLimit(plan: Plan | null | undefined): number {
 export const ULTRA_DEFAULTS = { speakWeeklySeconds: 1800, similarWeekly: 10 } as const
 
 /**
+ * Pro's weekly tastes of Ultra (2.8, В7.4, the owner's idea: «Pro gets small weekly tastes of Ultra»): seconds of Listen
+ * and full Find similar searches a week per subscription, on Ultra's own counters (speak:tx, similar:tx), so what was
+ * used carries over to Ultra. The server's defaults (env PRO_TASTE_SPEAK_SECONDS, PRO_TASTE_SIMILAR_WEEKLY override them
+ * there, 0 turns a taste off, and the status then says so); the panel shows a taste only when the status has it.
+ */
+export const PRO_TASTE_DEFAULTS = { speakWeeklySeconds: 300, similarWeekly: 1 } as const
+
+export interface Tastes {
+  speakWeeklySeconds: number
+  similarWeekly: number
+}
+
+/** Listen on a plan: Ultra, and Pro while it has a taste of it (`tastes` as the status gave them; none: no taste). */
+export function canListen(plan: Plan | null | undefined, tastes?: Tastes | null): boolean {
+  return isUltra(plan) || (hasPro(plan) && (tastes?.speakWeeklySeconds ?? 0) > 0)
+}
+
+/**
  * Find similar's light search for Own key and Pro (2.7, the owner: «Свой ключ и Pro получают тоже поиск похожего, но до
  * 5 в неделю»): searches a week per device. The one number: the server's default (env SIMILAR_LIGHT_WEEKLY overrides it
  * there, and the status then says so), and what the panel says before a status came. Free has no Find similar.

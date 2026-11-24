@@ -2,7 +2,7 @@
 // (Project configuration → Environment variables) without a code change.
 
 import { organizeConfig } from "../../src/shared/organize.ts"
-import { AGENT_DEFAULTS, PLAN_PRODUCTS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
+import { AGENT_DEFAULTS, PLAN_PRODUCTS, PRO_TASTE_DEFAULTS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
 
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
@@ -107,6 +107,11 @@ export const config = {
     speakMadePercent: int("ULTRA_SPEAK_MADE_PERCENT", 150),
     // Find similar's daily safety caps (per install, for everyone) belong to its engine (config.similar, /api/v2/similar).
     similarWeekly: int("ULTRA_SIMILAR_WEEKLY", ULTRA_DEFAULTS.similarWeekly)
+  },
+  // 2.8 (В7.4): Pro's weekly tastes of Ultra, per subscription (src/shared/plan.ts PRO_TASTE_DEFAULTS); 0: none.
+  taste: {
+    speakWeeklySeconds: Math.max(0, int("PRO_TASTE_SPEAK_SECONDS", PRO_TASTE_DEFAULTS.speakWeeklySeconds)),
+    similarWeekly: Math.max(0, int("PRO_TASTE_SIMILAR_WEEKLY", PRO_TASTE_DEFAULTS.similarWeekly))
   },
   // Read aloud (2.6, Ultra): Gemini TTS through our server with GEMINI_API_KEY, streamed as headerless PCM.
   // "auto" picks the newest stable model of the kind from the model list (like GEMINI_MODEL); Flash-Lite speaks
