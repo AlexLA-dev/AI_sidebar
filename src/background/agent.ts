@@ -12,7 +12,7 @@ import { API_BASE, TARGET, TEST_PLAN } from "../shared/config"
 import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
 import { active, answer, approvePlan, drive, newState, pendingKey, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
 import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
-import { hostOf } from "../shared/agent/sites"
+import { hostOf, sameSite } from "../shared/agent/sites"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
 import { appleCall, appleDevice, calendarFreeLine, calendarSlotFree, deferredReminder, deferredReminderEnd } from "./agentApple"
@@ -608,7 +608,10 @@ async function resume(tab: number, idleMs = 15_000): Promise<void> {
   const gen = crypto.randomUUID()
   st.gen = gen
   await write(tab, st)
-  const p = drive(st, io(tab, gen)).catch(() => st)
+  const p = drive(st, io(tab, gen)).catch((e) => {
+    trace(tab, `drive failed: ${String((e as Error)?.message ?? e).slice(0, 160)}`)
+    return st
+  })
   running.set(tab, p)
   void p.finally(() => {
     if (running.get(tab) === p) running.delete(tab)
@@ -878,6 +881,35 @@ export function startAgent(d: AgentDeps): void {
     void notice().then((n) => {
       if (n && n.tab === tabId) void clearNotice()
     })
+  })
+  // A tab the task's own press opened (a site that opens a place with a script, not a link: a hotel's page, 125): the
+  // task goes there in its own tab and the extra tab closes, so the task never waits on a page it can't see. Only
+  // right after a step of a running task, and only the same site's page.
+  chrome.tabs.onCreated?.addListener((t) => {
+    const opener = t.openerTabId
+    if (t.id === undefined || opener === undefined) return
+    void (async () => {
+      const st = await load(opener)
+      if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) > 8_000) return
+      const url = await new Promise<string>((resolve) => {
+        const timer = setTimeout(() => done(t.pendingUrl ?? t.url ?? ""), 4_000)
+        const done = (u: string) => {
+          clearTimeout(timer)
+          chrome.tabs.onUpdated.removeListener(listener)
+          resolve(u)
+        }
+        const listener = (id: number, info: { url?: string }) => {
+          if (id === t.id && info.url && /^https?:/.test(info.url)) done(info.url)
+        }
+        chrome.tabs.onUpdated.addListener(listener)
+        if (/^https?:/.test(t.pendingUrl ?? t.url ?? "")) done(t.pendingUrl ?? t.url ?? "")
+      })
+      const here = await new Promise<string>((resolve) => chrome.tabs.get(opener, (o) => resolve(chrome.runtime.lastError ? "" : o?.url ?? "")))
+      if (!url || !here || !sameSite(hostOf(url), hostOf(here))) return
+      trace(opener, `the task's press opened a tab: back in the task's own tab (${hostOf(url)})`)
+      chrome.tabs.update(opener, { url, active: true }, () => void chrome.runtime.lastError)
+      chrome.tabs.remove(t.id!, () => void chrome.runtime.lastError)
+    })()
   })
   // A tab that closed takes its task with it.
   chrome.tabs.onRemoved.addListener((tab) => {

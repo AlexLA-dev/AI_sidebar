@@ -634,6 +634,19 @@ export function widgetDay(map: PageMap, iso: string): MapItem | null {
   return null
 }
 
+/** The days a link's address carries (its query's YYYY-MM-DD values) when none of them is the booking's, or null. */
+export function staleDates(href: string, b: PlanBooking | undefined): string | null {
+  if (!b) return null
+  let days: string[] = []
+  try {
+    days = [...new URL(href, "https://x.invalid").searchParams.values()].filter((v) => /^\d{4}-\d{2}-\d{2}$/.test(v))
+  } catch {
+    return null
+  }
+  if (!days.length || days.includes(b.date) || (b.dateEnd && days.includes(b.dateEnd))) return null
+  return days.slice(0, 2).join(", ")
+}
+
 export function seesDate(map: PageMap, iso: string): boolean {
   return dayItems(map, iso).length > 0
 }
@@ -1038,6 +1051,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (dateRefusal) {
       state.log.push({ call, target: target ?? undefined, result: `refused: ${dateRefusal}` })
       state.refused = dateRefusal
+      continue
+    }
+    // A link whose address carries other days than the booking's (a results list searched before the dates were
+    // changed, 125: a hotel's link with the old check-in): the search goes again first.
+    const stale = seenItem?.href && (call.tool === "click" || call.tool === "go") && state.plan?.approved ? staleDates(seenItem.href, state.plan.booking) : null
+    if (stale) {
+      const why = `that link carries other dates (${stale}) than the booking's: run the page's search again with the request's dates (its Search or Apply), then choose from the new list`
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
       continue
     }
     const place = seenItem && (call.tool === "click" || call.tool === "go") ? venueOf(seenItem, map.url) : null
