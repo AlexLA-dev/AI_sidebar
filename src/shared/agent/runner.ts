@@ -1037,6 +1037,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       continue
     }
     const place = seenItem && (call.tool === "click" || call.tool === "go") ? venueOf(seenItem, map.url) : null
+    // The place is the person's to choose (askPlace) and a list is open: it's asked before one is opened (125, a clinic
+    // site: a dentist opened without the question).
+    if (place && state.plan?.askPlace && !state.placeAsked && state.venues?.list.length) {
+      const best = state.venues.list.slice(0, 2).map((v) => `«${v.name}» (${v.rating}, ${v.reviews})`).join(", ")
+      const why = `which place is the person's choice: ask_user once now with the two best by the rules (${best}) and a third choice to let you choose by the rules; open one only after the answer`
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
     if (place && state.venues && !state.venues.list.some((v) => v.url === place.url)) {
       const fit = state.venues.list.filter((v) => !state.venues!.tried.includes(v.url)).map((v) => `«${v.name}»`).slice(0, 4).join(", ")
       state.log.push({ call, target: target ?? undefined, result: `refused: «${place.name}» doesn't fit the request or the rules${fit ? `; the ones that do: ${fit}` : ""}` })

@@ -208,3 +208,22 @@ test("read_page(part) reads that part of the map at the next step, then the firs
   assert.equal(s.status, "done")
   assert.deepEqual(parts, [undefined, 2, undefined])
 })
+
+test("a place that's the person's choice isn't opened before they're asked (the list is open)", async () => {
+  const list: PageMap = { ...MAP, url: "https://clinics.example/search?q=dentist", items: [
+    { id: "a", role: "link", label: "Smile Clinic 4.8 (120 reviews)", href: "/clinic/smile-c1" },
+    { id: "b", role: "link", label: "Tooth Lab 4.7 (90 reviews)", href: "/clinic/tooth-c2" }
+  ] }
+  const x = io([
+    step({ tool: "click", id: "a", why: "open" }, "free", "click"),
+    step({ tool: "ask_user", question: "Which clinic?", choices: ["Smile Clinic", "Tooth Lab", "By my rules"] }, "free", "read")
+  ], [], list)
+  const st = newState("t1", "dentist on Monday", "en", list.url)
+  st.plan = { label: "", steps: [], questions: [], perms: [], self: [], prices: [], approved: true, askPlace: true, booking: { kind: "appointment", date: "2026-12-28", personal: true, from: "08:00", until: "12:00", minutes: 30 } } as never
+  st.chooseVenue = true
+  st.venues = { list: [{ url: "https://clinics.example/clinic/smile-c1", name: "Smile Clinic", rating: 4.8, reviews: 120 }, { url: "https://clinics.example/clinic/tooth-c2", name: "Tooth Lab", rating: 4.7, reviews: 90 }], tried: [] }
+  const s = await drive(st, x)
+  assert.deepEqual(x.acted.map((c) => c.id), [], JSON.stringify(s.log) + s.status + JSON.stringify(s.pending))
+  assert.equal(s.status, "asked", JSON.stringify({ log: s.log, p: s.pending?.verdict }))
+  assert.match(s.log[0].result, /person's choice/)
+})
