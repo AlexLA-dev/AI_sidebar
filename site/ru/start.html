@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Попробуйте ContextFlow на этой странице — ContextFlow</title>
+<meta name="description" content="Короткая статья, чтобы попробовать ContextFlow: нажмите ✦ и спросите о ней." />
+<link rel="icon" href="/icon.png" />
+<link rel="apple-touch-icon" href="/icon-512.png" />
+<link rel="stylesheet" href="/style.css" />
+<link rel="canonical" href="https://context-flow.app/ru/start" />
+<link rel="alternate" hreflang="en" href="https://context-flow.app/start" />
+<link rel="alternate" hreflang="de" href="https://context-flow.app/de/start" />
+<link rel="alternate" hreflang="es" href="https://context-flow.app/es/start" />
+<link rel="alternate" hreflang="fr" href="https://context-flow.app/fr/start" />
+<link rel="alternate" hreflang="it" href="https://context-flow.app/it/start" />
+<link rel="alternate" hreflang="pt-BR" href="https://context-flow.app/pt-br/start" />
+<link rel="alternate" hreflang="tr" href="https://context-flow.app/tr/start" />
+<link rel="alternate" hreflang="ru" href="https://context-flow.app/ru/start" />
+<link rel="alternate" hreflang="uk" href="https://context-flow.app/uk/start" />
+<link rel="alternate" hreflang="vi" href="https://context-flow.app/vi/start" />
+<link rel="alternate" hreflang="ar" href="https://context-flow.app/ar/start" />
+<link rel="alternate" hreflang="ja" href="https://context-flow.app/ja/start" />
+<link rel="alternate" hreflang="ko" href="https://context-flow.app/ko/start" />
+<link rel="alternate" hreflang="zh-Hans" href="https://context-flow.app/zh-hans/start" />
+<link rel="alternate" hreflang="zh-CN" href="https://context-flow.app/zh-hans/start" />
+<link rel="alternate" hreflang="zh-SG" href="https://context-flow.app/zh-hans/start" />
+<link rel="alternate" hreflang="zh-Hant" href="https://context-flow.app/zh-hant/start" />
+<link rel="alternate" hreflang="zh-TW" href="https://context-flow.app/zh-hant/start" />
+<link rel="alternate" hreflang="zh-HK" href="https://context-flow.app/zh-hant/start" />
+<link rel="alternate" hreflang="zh-MO" href="https://context-flow.app/zh-hant/start" />
+<link rel="alternate" hreflang="x-default" href="https://context-flow.app/start" />
+<meta property="og:title" content="Попробуйте ContextFlow на этой странице" />
+<meta property="og:url" content="https://context-flow.app/ru/start" />
+<meta property="og:locale" content="ru_RU" />
+<!-- The first page (2.8 plan, step 2, the owner's yes of 2026-11-24): what the app's «Open Safari» button opens. The app
+     opens /features?utm_source=app (and /<language>/features?utm_source=app); netlify.toml serves this page there, and
+     /features stays as it is for everyone else. One job: the person taps ✦ and asks a first question. noindex, not in
+     the sitemap, no counter. The script below only looks for the element ContextFlow's content script adds to every page
+     (<contextflow-root>); it needs no permission and sends nothing anywhere. -->
+<style>
+  .first { max-width: 680px; }
+  .first h1 { font-size: 34px; line-height: 1.15; margin: 28px 0 10px; }
+  .first .lede { font-size: 19px; color: var(--text-2); margin: 0 0 22px; }
+  .steps-live { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 10px; }
+  .steps-live li { display: flex; gap: 12px; align-items: flex-start; background: var(--bg-2); border-radius: 14px; padding: 12px 14px; }
+  .steps-live .mark { flex: none; width: 26px; height: 26px; border-radius: 13px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: transparent; }
+  .steps-live li.done .mark { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .steps-live li.done .mark::after { content: "✓"; }
+  .steps-live li.now { outline: 2px solid var(--blue); }
+  .steps-live p { margin: 0; }
+  .steps-live .sub { display: block; font-size: 15px; color: var(--text-2); }
+  .box { background: var(--bg-2); border-radius: 14px; padding: 14px 16px; margin: 0 0 18px; }
+  .box h2 { font-size: 19px; margin: 0 0 6px; }
+  .box p, .box ol { margin: 6px 0 0; }
+  .box ol { padding-left: 22px; }
+  [dir="rtl"] .box ol { padding-left: 0; padding-right: 22px; }
+  .box.warn { border: 2px solid #f59e0b; }
+  .reload { margin-top: 10px; font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 16px; background: var(--blue); color: #fff; }
+  .try { border: 1px solid var(--border); border-radius: 18px; padding: 6px 20px 14px; margin: 8px 0 18px; }
+  .try .kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 14px 0 0; }
+  .try h2 { font-size: 26px; line-height: 1.2; margin: 6px 0 10px; }
+  .try p { font-family: Georgia, "Times New Roman", serif; font-size: 19px; line-height: 1.65; }
+  .ideas { margin: 0 0 30px; padding-left: 22px; }
+  [dir="rtl"] .ideas { padding-left: 0; padding-right: 22px; }
+  .here { position: fixed; top: 72%; right: 66px; transform: translateY(-50%); z-index: 50; display: flex; align-items: center; gap: 8px;
+    background: var(--blue); color: #fff; font-weight: 700; font-size: 16px; padding: 9px 14px; border-radius: 22px; box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    animation: nudge 1.2s ease-in-out infinite; }
+  .here .arrow { font-size: 20px; line-height: 1; }
+  [dir="rtl"] .here { right: auto; left: 66px; }
+  [dir="rtl"] .here .arrow { transform: scaleX(-1); }
+  @keyframes nudge { 0%, 100% { margin-right: 0; margin-left: 0; } 50% { margin-right: -8px; } }
+  [dir="rtl"] .here { animation-name: nudge-rtl; }
+  @keyframes nudge-rtl { 0%, 100% { margin-left: 0; } 50% { margin-left: -8px; } }
+  @media (prefers-reduced-motion: reduce) { .here { animation: none; } }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<nav class="wrap"><a class="brand" href="/ru/"><img src="/icon.png" alt="" />ContextFlow</a></nav>
+<main class="wrap first">
+  <h1>Попробуйте ContextFlow на этой странице</h1>
+  <p class="lede">Ниже — короткая статья. Спросите о ней ContextFlow: этого хватит, чтобы понять, как он работает.</p>
+
+  <ol class="steps-live" aria-live="polite">
+    <li id="step-on" class="now"><span class="mark" aria-hidden="true"></span><p><b>ContextFlow работает на этой странице</b><span class="sub" data-when="looking">Ищем его…</span><span class="sub" data-when="found" hidden>Нашли: ✦ у края экрана.</span><span class="sub" data-when="missing" hidden>Пока нет. Как его включить — чуть ниже.</span></p></li>
+    <li id="step-tap"><span class="mark" aria-hidden="true"></span><p><b>Нажмите ✦</b><span class="sub">Круглая кнопка у края экрана — справа, если вы её не переносили.</span></p></li>
+    <li id="step-ask"><span class="mark" aria-hidden="true"></span><p><b>Спросите о статье ниже</b><span class="sub">Нажмите «Кратко» или напишите свой вопрос.</span></p></li>
+  </ol>
+
+  <div class="box warn" id="turn-on" hidden>
+    <h2>Не видно ✦?</h2>
+    <div data-device="touch">
+      <p>Включите ContextFlow для сайтов прямо здесь, в Safari:</p>
+      <ol>
+        <li>Нажмите кнопку меню страницы в адресной строке.</li>
+        <li>Нажмите «Управление расширениями» и включите ContextFlow.</li>
+        <li>Снова в меню страницы нажмите ContextFlow, выберите «Всегда разрешать», затем «Всегда разрешать на всех веб-сайтах».</li>
+      </ol>
+    </div>
+    <div data-device="mac" hidden>
+      <p>Включите ContextFlow в Safari: Safari › Настройки › Расширения, отметьте ContextFlow и разрешите его на всех сайтах. Затем нажмите ContextFlow на панели инструментов.</p>
+    </div>
+    <button class="reload" type="button" id="reload">Обновить страницу</button>
+  </div>
+
+  <div class="box">
+    <h2>Если Safari спросит об этом сайте</h2>
+    <p>Выберите «Всегда разрешать», затем «Всегда разрешать на всех веб-сайтах» — тогда ✦ будет на каждой странице, которую вы читаете. ContextFlow читает страницу, только когда вы о чём-то спрашиваете.</p>
+  </div>
+
+  <article class="try">
+    <p class="kicker">Попробуйте на этом</p>
+    <h2>Почему мы забываем большую часть прочитанного</h2>
+    <p>В 1880-х немецкий психолог Герман Эббингауз месяцами заучивал списки бессмысленных слогов вроде «WID» и «ZOF», а потом проверял себя. Оказалось, быстрее всего мы забываем в самом начале: большая часть списка уходила за первый час, ещё больше — к следующему дню. Дальше забывание замедлялось.</p>
+    <p>У его кривой есть подвох. Бессмысленные слоги ничего не значат, а то, что для нас важно или связано с уже известным, удерживается легче. И всё же форма кривой подтверждается: если не вернуться к длинной статье, большая её часть забывается за несколько дней.</p>
+    <p>Помогают две привычки. Вернуться к тексту через промежуток — через день, потом через неделю — даёт больше, чем прочитать его дважды подряд. А пересказать мысль своими словами, хоть одним предложением, закрепляет её лучше, чем перечитывание.</p>
+  </article>
+
+  <h2>О чём спросить</h2>
+  <ul class="ideas">
+    <li>«В чём главная мысль, одним предложением?»</li>
+    <li>Выделите «У его кривой есть подвох» и спросите: «Это правда?»</li>
+    <li>«Что об этом выяснили более поздние исследования?»</li>
+  </ul>
+</main>
+<div class="here" id="here" hidden aria-hidden="true"><span>Нажмите ✦</span><span class="arrow">➜</span></div>
+<footer class="wrap"><span>© 2026 ContextFlow</span><a href="/ru/support">Поддержка</a><a href="/privacy">Политика конфиденциальности</a><nav class="langs" aria-label="Language" data-i18n-generated><a href="/start" hreflang="en" lang="en">English</a><a href="/de/start" hreflang="de" lang="de">Deutsch</a><a href="/es/start" hreflang="es" lang="es">Español</a><a href="/fr/start" hreflang="fr" lang="fr">Français</a><a href="/it/start" hreflang="it" lang="it">Italiano</a><a href="/pt-br/start" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a><a href="/tr/start" hreflang="tr" lang="tr">Türkçe</a><span lang="ru" aria-current="page">Русский</span><a href="/uk/start" hreflang="uk" lang="uk">Українська</a><a href="/vi/start" hreflang="vi" lang="vi">Tiếng Việt</a><a href="/ar/start" hreflang="ar" lang="ar">العربية</a><a href="/ja/start" hreflang="ja" lang="ja">日本語</a><a href="/ko/start" hreflang="ko" lang="ko">한국어</a><a href="/zh-hans/start" hreflang="zh-Hans" lang="zh-Hans">简体中文</a><a href="/zh-hant/start" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a></nav></footer>
+<script>
+// Looks for ContextFlow's own element on this page (the content script adds <contextflow-root>): it needs no permission
+// and sends nothing. Found: the first step is done and an arrow points at the edge where ✦ sits by default. A tap on ✦ or
+// in the panel reaches the page as a click on that element, which marks the second step. Not found after a moment: how
+// to turn ContextFlow on from Safari itself.
+(function () {
+  var TAG = "CONTEXTFLOW-ROOT"
+  var on = document.getElementById("step-on")
+  var tap = document.getElementById("step-tap")
+  var ask = document.getElementById("step-ask")
+  var help = document.getElementById("turn-on")
+  var here = document.getElementById("here")
+  var mac = navigator.maxTouchPoints === 0 && /Mac/.test(navigator.platform || "")
+  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = (el.getAttribute("data-device") === "mac") !== mac })
+  function show(when) { on.querySelectorAll("[data-when]").forEach(function (el) { el.hidden = el.getAttribute("data-when") !== when }) }
+  var found = false
+  var tapped = false
+  function check() {
+    if (found || !document.querySelector(TAG.toLowerCase())) return
+    found = true
+    on.classList.remove("now")
+    on.classList.add("done")
+    show("found")
+    help.hidden = true
+    if (!tapped) { tap.classList.add("now"); here.hidden = false }
+  }
+  check()
+  new MutationObserver(check).observe(document.documentElement, { childList: true })
+  setTimeout(function () { if (!found) { show("missing"); help.hidden = false } }, 3000)
+  document.addEventListener("click", function (e) {
+    if (!e.target || e.target.tagName !== TAG || tapped) return
+    tapped = true
+    here.hidden = true
+    tap.classList.remove("now")
+    tap.classList.add("done")
+    ask.classList.add("now")
+  }, true)
+  document.getElementById("reload").addEventListener("click", function () { location.reload() })
+})()
+</script>
+</body>
+</html>

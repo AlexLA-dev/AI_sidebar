@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Essayez ContextFlow sur cette page — ContextFlow</title>
+<meta name="description" content="Un court article pour essayer ContextFlow : touchez ✦ et posez une question dessus." />
+<link rel="icon" href="/icon.png" />
+<link rel="apple-touch-icon" href="/icon-512.png" />
+<link rel="stylesheet" href="/style.css" />
+<link rel="canonical" href="https://context-flow.app/fr/start" />
+<link rel="alternate" hreflang="en" href="https://context-flow.app/start" />
+<link rel="alternate" hreflang="de" href="https://context-flow.app/de/start" />
+<link rel="alternate" hreflang="es" href="https://context-flow.app/es/start" />
+<link rel="alternate" hreflang="fr" href="https://context-flow.app/fr/start" />
+<link rel="alternate" hreflang="it" href="https://context-flow.app/it/start" />
+<link rel="alternate" hreflang="pt-BR" href="https://context-flow.app/pt-br/start" />
+<link rel="alternate" hreflang="tr" href="https://context-flow.app/tr/start" />
+<link rel="alternate" hreflang="ru" href="https://context-flow.app/ru/start" />
+<link rel="alternate" hreflang="uk" href="https://context-flow.app/uk/start" />
+<link rel="alternate" hreflang="vi" href="https://context-flow.app/vi/start" />
+<link rel="alternate" hreflang="ar" href="https://context-flow.app/ar/start" />
+<link rel="alternate" hreflang="ja" href="https://context-flow.app/ja/start" />
+<link rel="alternate" hreflang="ko" href="https://context-flow.app/ko/start" />
+<link rel="alternate" hreflang="zh-Hans" href="https://context-flow.app/zh-hans/start" />
+<link rel="alternate" hreflang="zh-CN" href="https://context-flow.app/zh-hans/start" />
+<link rel="alternate" hreflang="zh-SG" href="https://context-flow.app/zh-hans/start" />
+<link rel="alternate" hreflang="zh-Hant" href="https://context-flow.app/zh-hant/start" />
+<link rel="alternate" hreflang="zh-TW" href="https://context-flow.app/zh-hant/start" />
+<link rel="alternate" hreflang="zh-HK" href="https://context-flow.app/zh-hant/start" />
+<link rel="alternate" hreflang="zh-MO" href="https://context-flow.app/zh-hant/start" />
+<link rel="alternate" hreflang="x-default" href="https://context-flow.app/start" />
+<meta property="og:title" content="Essayez ContextFlow sur cette page" />
+<meta property="og:url" content="https://context-flow.app/fr/start" />
+<meta property="og:locale" content="fr_FR" />
+<!-- The first page (2.8 plan, step 2, the owner's yes of 2026-11-24): what the app's «Open Safari» button opens. The app
+     opens /features?utm_source=app (and /<language>/features?utm_source=app); netlify.toml serves this page there, and
+     /features stays as it is for everyone else. One job: the person taps ✦ and asks a first question. noindex, not in
+     the sitemap, no counter. The script below only looks for the element ContextFlow's content script adds to every page
+     (<contextflow-root>); it needs no permission and sends nothing anywhere. -->
+<style>
+  .first { max-width: 680px; }
+  .first h1 { font-size: 34px; line-height: 1.15; margin: 28px 0 10px; }
+  .first .lede { font-size: 19px; color: var(--text-2); margin: 0 0 22px; }
+  .steps-live { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 10px; }
+  .steps-live li { display: flex; gap: 12px; align-items: flex-start; background: var(--bg-2); border-radius: 14px; padding: 12px 14px; }
+  .steps-live .mark { flex: none; width: 26px; height: 26px; border-radius: 13px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: transparent; }
+  .steps-live li.done .mark { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .steps-live li.done .mark::after { content: "✓"; }
+  .steps-live li.now { outline: 2px solid var(--blue); }
+  .steps-live p { margin: 0; }
+  .steps-live .sub { display: block; font-size: 15px; color: var(--text-2); }
+  .box { background: var(--bg-2); border-radius: 14px; padding: 14px 16px; margin: 0 0 18px; }
+  .box h2 { font-size: 19px; margin: 0 0 6px; }
+  .box p, .box ol { margin: 6px 0 0; }
+  .box ol { padding-left: 22px; }
+  [dir="rtl"] .box ol { padding-left: 0; padding-right: 22px; }
+  .box.warn { border: 2px solid #f59e0b; }
+  .reload { margin-top: 10px; font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 16px; background: var(--blue); color: #fff; }
+  .try { border: 1px solid var(--border); border-radius: 18px; padding: 6px 20px 14px; margin: 8px 0 18px; }
+  .try .kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 14px 0 0; }
+  .try h2 { font-size: 26px; line-height: 1.2; margin: 6px 0 10px; }
+  .try p { font-family: Georgia, "Times New Roman", serif; font-size: 19px; line-height: 1.65; }
+  .ideas { margin: 0 0 30px; padding-left: 22px; }
+  [dir="rtl"] .ideas { padding-left: 0; padding-right: 22px; }
+  .here { position: fixed; top: 72%; right: 66px; transform: translateY(-50%); z-index: 50; display: flex; align-items: center; gap: 8px;
+    background: var(--blue); color: #fff; font-weight: 700; font-size: 16px; padding: 9px 14px; border-radius: 22px; box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    animation: nudge 1.2s ease-in-out infinite; }
+  .here .arrow { font-size: 20px; line-height: 1; }
+  [dir="rtl"] .here { right: auto; left: 66px; }
+  [dir="rtl"] .here .arrow { transform: scaleX(-1); }
+  @keyframes nudge { 0%, 100% { margin-right: 0; margin-left: 0; } 50% { margin-right: -8px; } }
+  [dir="rtl"] .here { animation-name: nudge-rtl; }
+  @keyframes nudge-rtl { 0%, 100% { margin-left: 0; } 50% { margin-left: -8px; } }
+  @media (prefers-reduced-motion: reduce) { .here { animation: none; } }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<nav class="wrap"><a class="brand" href="/fr/"><img src="/icon.png" alt="" />ContextFlow</a></nav>
+<main class="wrap first">
+  <h1>Essayez ContextFlow sur cette page</h1>
+  <p class="lede">Voici un court article. Posez une question à ContextFlow à son sujet&#160;: il n’en faut pas plus pour voir comment ça marche.</p>
+
+  <ol class="steps-live" aria-live="polite">
+    <li id="step-on" class="now"><span class="mark" aria-hidden="true"></span><p><b>ContextFlow est sur cette page</b><span class="sub" data-when="looking">Recherche en cours…</span><span class="sub" data-when="found" hidden>Trouvé&#160;: ✦ est au bord de l’écran.</span><span class="sub" data-when="missing" hidden>Pas encore. Voyez comment l’activer, juste en dessous.</span></p></li>
+    <li id="step-tap"><span class="mark" aria-hidden="true"></span><p><b>Touchez ✦</b><span class="sub">Le bouton rond au bord de l’écran, à droite, sauf si vous l’avez déplacé.</span></p></li>
+    <li id="step-ask"><span class="mark" aria-hidden="true"></span><p><b>Posez une question sur l’article ci-dessous</b><span class="sub">Touchez «&#160;Résumer&#160;», ou tapez votre propre question.</span></p></li>
+  </ol>
+
+  <div class="box warn" id="turn-on" hidden>
+    <h2>Vous ne voyez pas ✦&#160;?</h2>
+    <div data-device="touch">
+      <p>Activez ContextFlow pour les sites web, ici même dans Safari&#160;:</p>
+      <ol>
+        <li>Touchez le bouton du menu de la page dans la barre d’adresse.</li>
+        <li>Touchez «&#160;Gérer les extensions&#160;» et activez ContextFlow.</li>
+        <li>De retour dans le menu de la page, touchez ContextFlow, puis choisissez «&#160;Toujours autoriser&#160;», puis «&#160;Toujours autoriser sur tous les sites web&#160;».</li>
+      </ol>
+    </div>
+    <div data-device="mac" hidden>
+      <p>Activez ContextFlow dans Safari&#160;: Safari › Réglages › Extensions, cochez ContextFlow et autorisez-le sur tous les sites web. Cliquez ensuite sur ContextFlow dans la barre d’outils.</p>
+    </div>
+    <button class="reload" type="button" id="reload">Recharger cette page</button>
+  </div>
+
+  <div class="box">
+    <h2>Si Safari vous pose une question sur ce site</h2>
+    <p>Choisissez «&#160;Toujours autoriser&#160;», puis «&#160;Toujours autoriser sur tous les sites web&#160;», pour que ✦ apparaisse sur chaque page que vous lisez. ContextFlow ne lit une page que lorsque vous lui posez une question.</p>
+  </div>
+
+  <article class="try">
+    <p class="kicker">Essayez sur ce texte</p>
+    <h2>Pourquoi nous oublions la plupart de ce que nous lisons</h2>
+    <p>Dans les années 1880, le psychologue allemand Hermann Ebbinghaus a passé des mois à apprendre des listes de syllabes dépourvues de sens, comme «&#160;WID&#160;» et «&#160;ZOF&#160;», puis à s’interroger lui-même dessus plus tard. L’oubli, a-t-il constaté, est le plus rapide au début&#160;: une bonne partie d’une liste disparaissait dès la première heure, et davantage encore le lendemain. Ensuite, la perte ralentissait.</p>
+    <p>Sa courbe a un hic. Les syllabes absurdes ne veulent rien dire, alors que ce qui compte pour nous, ou se rattache à ce que nous savons déjà, se retient plus facilement. La forme de la courbe tient pourtant&#160;: sans second coup d’œil, la majeure partie d’un long article s’efface en quelques jours.</p>
+    <p>Deux habitudes aident. Revenir sur un texte après une pause, un jour plus tard puis une semaine plus tard, permet d’en retenir davantage que de le lire deux fois de suite. Et reformuler une idée avec ses propres mots, ne serait-ce qu’en une phrase, l’ancre mieux qu’une relecture.</p>
+  </article>
+
+  <h2>Questions à poser</h2>
+  <ul class="ideas">
+    <li>«&#160;Quelle est l’idée principale, en une phrase&#160;?&#160;»</li>
+    <li>Sélectionnez «&#160;Sa courbe a un hic&#160;» et demandez&#160;: «&#160;C’est vrai&#160;?&#160;»</li>
+    <li>«&#160;Qu’ont découvert les recherches plus récentes à ce sujet&#160;?&#160;»</li>
+  </ul>
+</main>
+<div class="here" id="here" hidden aria-hidden="true"><span>Touchez ✦</span><span class="arrow">➜</span></div>
+<footer class="wrap"><span>© 2026 ContextFlow</span><a href="/fr/support">Assistance</a><a href="/privacy">Politique de confidentialité</a><nav class="langs" aria-label="Language" data-i18n-generated><a href="/start" hreflang="en" lang="en">English</a><a href="/de/start" hreflang="de" lang="de">Deutsch</a><a href="/es/start" hreflang="es" lang="es">Español</a><span lang="fr" aria-current="page">Français</span><a href="/it/start" hreflang="it" lang="it">Italiano</a><a href="/pt-br/start" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a><a href="/tr/start" hreflang="tr" lang="tr">Türkçe</a><a href="/ru/start" hreflang="ru" lang="ru">Русский</a><a href="/uk/start" hreflang="uk" lang="uk">Українська</a><a href="/vi/start" hreflang="vi" lang="vi">Tiếng Việt</a><a href="/ar/start" hreflang="ar" lang="ar">العربية</a><a href="/ja/start" hreflang="ja" lang="ja">日本語</a><a href="/ko/start" hreflang="ko" lang="ko">한국어</a><a href="/zh-hans/start" hreflang="zh-Hans" lang="zh-Hans">简体中文</a><a href="/zh-hant/start" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a></nav></footer>
+<script>
+// Looks for ContextFlow's own element on this page (the content script adds <contextflow-root>): it needs no permission
+// and sends nothing. Found: the first step is done and an arrow points at the edge where ✦ sits by default. A tap on ✦ or
+// in the panel reaches the page as a click on that element, which marks the second step. Not found after a moment: how
+// to turn ContextFlow on from Safari itself.
+(function () {
+  var TAG = "CONTEXTFLOW-ROOT"
+  var on = document.getElementById("step-on")
+  var tap = document.getElementById("step-tap")
+  var ask = document.getElementById("step-ask")
+  var help = document.getElementById("turn-on")
+  var here = document.getElementById("here")
+  var mac = navigator.maxTouchPoints === 0 && /Mac/.test(navigator.platform || "")
+  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = (el.getAttribute("data-device") === "mac") !== mac })
+  function show(when) { on.querySelectorAll("[data-when]").forEach(function (el) { el.hidden = el.getAttribute("data-when") !== when }) }
+  var found = false
+  var tapped = false
+  function check() {
+    if (found || !document.querySelector(TAG.toLowerCase())) return
+    found = true
+    on.classList.remove("now")
+    on.classList.add("done")
+    show("found")
+    help.hidden = true
+    if (!tapped) { tap.classList.add("now"); here.hidden = false }
+  }
+  check()
+  new MutationObserver(check).observe(document.documentElement, { childList: true })
+  setTimeout(function () { if (!found) { show("missing"); help.hidden = false } }, 3000)
+  document.addEventListener("click", function (e) {
+    if (!e.target || e.target.tagName !== TAG || tapped) return
+    tapped = true
+    here.hidden = true
+    tap.classList.remove("now")
+    tap.classList.add("done")
+    ask.classList.add("now")
+  }, true)
+  document.getElementById("reload").addEventListener("click", function () { location.reload() })
+})()
+</script>
+</body>
+</html>
