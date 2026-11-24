@@ -61,7 +61,7 @@ test("the panel: every plan choice goes through one-tap buy; the return takes th
 
 test("the app: one-tap purchase without the Pro tab, back to Safari with the mark (iPhone, iPad) or Safari's window (Mac)", () => {
   const swift = read("ContextFlow/Shared (App)/ContentView.swift")
-  assert.match(swift, /&& QuickBuy\.wants\(url\):\s*QuickBuy\.run\(url, store: store\) \{ tab = \.pro \}/)
+  assert.match(swift, /&& QuickBuy\.wants\(url\):[\s\S]{0,200}QuickBuy\.run\(url, store: store\) \{ tab = \.pro \}/)
   assert.match(swift, /parts\?\.fragment = "cf-bought=\\\(word\)"/)
   assert.match(swift, /x-safari-/)
   assert.match(swift, /#else\s*\/\/ Safari's own window, as it was \(the tab and its panel\): no new tab\.\s*PlanTour\.openSafari\(\)/)
@@ -81,7 +81,8 @@ test("«Remind me when my answers are back»: at the free limit only, at the mom
   const app = read("src/content/App.tsx")
   assert.match(app, /!hasPro\(plan\) && TARGET === "safari" && resetsAt && \(\s*<AnswersBack resetsAt=\{Date\.parse\(resetsAt\)\} count=\{back\}/)
   const card = read("src/content/ux/AnswersBack.tsx")
-  assert.match(card, /type: "remind", \.\.\.ANSWERS_BACK, at, ask: true/)
+  assert.match(card, /type: "remind", \.\.\.ANSWERS_BACK, at,/)
+  assert.match(card, /send\(\{ \.\.\.message, ask \}/)
   // Notifications not on: the app's own ask (setup-28's entry point), back to this page, then set again here.
   assert.match(card, /followLink\(notifyLink\(url\)\)/)
   assert.match(card, /contextflow:\/\/notifications\?why=answers_back/)
@@ -91,4 +92,16 @@ test("«Remind me when my answers are back»: at the free limit only, at the mom
       assert.ok(d[key]?.includes("{0}") || !/\{0\}/.test(JSON.parse(read("src/locales/en.json"))[key]), `${lang} ${key}`)
     }
   }
+})
+
+test("the director's acceptance (shot 15): nothing is presented over the App Store's sheet; the flag is set before launch sheets can", () => {
+  const swift = read("ContextFlow/Shared (App)/ContentView.swift")
+  assert.match(swift, /@Published var purchasing = false/)
+  assert.match(swift, /QuickBuy\.wants\(url\):\s*\/\/[^\n]*\n\s*Paywall\.shared\.purchasing = true\s*QuickBuy\.run/)
+  assert.match(swift, /guard hasChats, !Paywall\.shared\.purchasing, !UserDefaults/)
+  assert.match(swift, /\.onReceive\(Paywall\.shared\.\$purchasing\) \{ purchaseStarted\(\$0\) \}/)
+  assert.match(swift, /var busy = [^\n]*Paywall\.shared\.purchasing/)
+  // Both purchase paths set it and always clear it.
+  assert.match(swift, /Paywall\.shared\.purchasing = true\s*Task \{ @MainActor in\s*defer \{\s*running = false\s*Paywall\.shared\.purchasing = false/)
+  assert.match(swift, /paywall\.purchasing = true\s*Task \{\s*defer \{ paywall\.purchasing = false \}/)
 })

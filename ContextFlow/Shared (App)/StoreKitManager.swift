@@ -262,13 +262,7 @@ final class StoreKitManager: ObservableObject {
         case purchased, cancelled, pending
     }
 
-    /// The App Store's purchase sheet (or its sign-in) is up: nothing else of ours comes on screen meanwhile (2.8, the
-    /// director's acceptance: a promo sheet appeared under the Apple sign-in dialog).
-    @Published private(set) var purchasing = false
-
     func purchase(_ product: Product, offer: ChatAI.PromoSignature? = nil) async throws -> PurchaseOutcome {
-        purchasing = true
-        defer { purchasing = false }
         // The install id travels with the transaction (appAccountToken), so the server can tell which
         // install subscribed — still without accounts.
         var options: Set<Product.PurchaseOption> = Activation.shared.accountToken.map { [.appAccountToken($0)] } ?? []

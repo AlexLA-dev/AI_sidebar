@@ -234,9 +234,9 @@ test("the floating guide starts once picture in picture is possible, within the 
   assert.match(setup, /private func startWhenPossible\(_ controller: AVPictureInPictureController, tries: Int\) \{\s*guard pendingOpen != nil else \{ return \}\s*if controller\.isPictureInPicturePossible \|\| tries == 0 \{\s*controller\.startPictureInPicture\(\)/)
 })
 
-test("В3.3 (app side): no promo sheet on the install's first day, and none while a purchase is in flight", () => {
-  assert.match(content, /guard hasChats, !UserDefaults\.standard\.bool\(forKey: "cf_whatsnew_organize"\) else \{ return \}\s*\/\/[^\n]*\n\s*\/\/[^\n]*\n\s*guard !QuietDay\.firstDay, !store\.purchasing, Paywall\.shared\.buyNow == nil else \{ return \}/)
-  assert.match(content, /\.onChange\(of: store\.purchasing\) \{ buying in if !buying \{ showWhatsNewIfDue\(\) \} \}/)
+test("В3.3 (app side): a new install never gets 2.5's What's new sheet or the What's new tab, and no promo sheet on its first day or during a purchase", () => {
+  assert.match(content, /guard hasChats, !Paywall\.shared\.purchasing, !UserDefaults\.standard\.bool\(forKey: "cf_whatsnew_organize"\) else \{ return \}\s*(\/\/[^\n]*\n\s*)+guard SharedDefaults\.shared\.appUpdatedInstall\(\), !QuietDay\.firstDay else \{ return \}/)
+  assert.match(content, /let existing = SharedDefaults\.shared\.appUpdatedInstall\(\) \|\| UserDefaults\.standard\.object\(forKey: "cf_whatsnew_organize"\) != nil/)
+  assert.doesNotMatch(content, /let existing = hasChats/)
   assert.match(content, /enum QuietDay \{\s*static var firstDay: Bool \{\s*guard !SharedDefaults\.shared\.appUpdatedInstall\(\), let first = SharedDefaults\.shared\.appFirstLaunch\(\) else \{ return false \}\s*return Date\(\)\.timeIntervalSince1970 - first < 86_400/)
-  assert.match(app("StoreKitManager.swift"), /func purchase\(_ product: Product, offer: ChatAI\.PromoSignature\? = nil\) async throws -> PurchaseOutcome \{\s*purchasing = true\s*defer \{ purchasing = false \}/)
 })
