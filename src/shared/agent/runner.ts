@@ -136,6 +136,8 @@ export interface AgentState {
   // before that press was shown (B2: only once).
   picked?: { date?: string; time?: string }
   recapShown?: boolean
+  // A question sent back once because the page's own date field showed another day (B3).
+  widgetNudged?: boolean
   slotRefusals?: number
   // Date presses without progress (a time to choose), the last date pressed, and whether a fully greyed strip was
   // tapped once to wake it.
@@ -599,6 +601,16 @@ export function recapOf(state: AgentState, map: PageMap): Recap | null {
   }
 }
 
+/** A date field on the page (a widget's own setting) whose value is another day than the asked one, or null. */
+export function widgetDay(map: PageMap, iso: string): MapItem | null {
+  for (const i of map.items) {
+    if (!i.value || i.lock || !(i.type === "date" || ((i.role === "textbox" || i.role === "combobox" || i.role === "select") && (isDateLabel(i.value) || /^\d{4}-\d{2}-\d{2}$/.test(i.value))))) continue
+    const day = /^\d{4}-\d{2}-\d{2}$/.test(i.value) ? i.value : dayOf(i.value, iso)
+    if (day && day !== iso) return i
+  }
+  return null
+}
+
 export function seesDate(map: PageMap, iso: string): boolean {
   return dayItems(map, iso).length > 0
 }
@@ -922,6 +934,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.refused = why
         continue
       }
+    }
+    // A booking widget whose own date field shows another day than the asked one (B3: «your time isn't available» read
+    // as no slot): sent back once to set the field first.
+    const field = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.widgetNudged ? widgetDay(map, state.plan.booking.date) : null
+    if (field) {
+      state.widgetNudged = true
+      const why = `the page's own date field «${field.label.slice(0, 40)}» shows ${field.value}, not ${dayWords(state.plan!.booking!.date)}: set it to the asked day first (and the party, then the time), read the page's slots for that day, then go on; ask only with what it shows then`
+      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
+      state.refused = why
+      continue
     }
     // A question about the booking's day before the page ever showed that day: sent back once, to go to it first.
     if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged) {
