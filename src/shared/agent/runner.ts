@@ -140,6 +140,8 @@ export interface AgentState {
   widgetNudged?: boolean
   // Waits for a control the page showed disabled (a bad call on it), at most two.
   disabledWaits?: number
+  // The map's part the model asked for (read_page), read at the next step only.
+  readPart?: number
   slotRefusals?: number
   // Date presses without progress (a time to choose), the last date pressed, and whether a fully greyed strip was
   // tapped once to wake it.
@@ -760,14 +762,19 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const money = (state.step === 0 && !!io.planning && !state.plan) || (!!state.plan?.approved && (state.plan.prices.length > 0 || !!state.plan.booking))
     // (A read that fails while the page is changing, a site's form opened on its own page on the iPad, 124: the same as
     // no answer — wait for the page and read again, never the task's end.)
-    let map = await io.map({ money }).catch(() => null)
+    // The part of the map the model asked for with read_page (a long slot list: the times after noon come in part 2;
+    // 125, the iPad: four reads of part 1 again, then «stuck»); the next step is back on the first part.
+    const part = state.readPart
+    state.readPart = undefined
+    const opts = { money, ...(part ? { part } : {}) }
+    let map = await io.map(opts).catch(() => null)
     if (!map) {
       await io.waitPage().catch(() => {})
-      map = await io.map({ money }).catch(() => null)
+      map = await io.map(opts).catch(() => null)
     }
     if (!map) {
       await io.waitPage().catch(() => {})
-      map = await io.map({ money }).catch(() => null)
+      map = await io.map(opts).catch(() => null)
     }
     if (!map) {
       state.status = "error"
@@ -1151,6 +1158,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       }
       break
     }
+    if (call.tool === "read_page" && (call.part ?? 1) > 1) state.readPart = Math.min(Math.round(call.part!), map.parts)
     await perform(state, io, call, verdict, target)
     state.lastWasRead = READS.has(call.tool)
     if (call.tool === "click" && call.also?.length) await pressAlso(state, io, call.also)
@@ -1232,7 +1240,7 @@ function pageLink(url: string): string {
 /** The page as far as progress goes: its address, its controls and their states, how much text (not where it's scrolled). */
 function pageSig(map: PageMap): string {
   const items = map.items.slice(0, 80).map((i) => `${i.role}:${i.label}:${i.value ?? ""}:${(i.state ?? []).join(",")}`).join("|")
-  return `${map.url}#${map.items.length}#${map.text.length}#${items.length}#${hashOf(items)}`
+  return `${map.url}#${map.part}#${map.items.length}#${map.text.length}#${items.length}#${hashOf(items)}`
 }
 
 function hashOf(s: string): number {

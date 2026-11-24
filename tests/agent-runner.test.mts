@@ -191,3 +191,20 @@ test("a control the page shows disabled (the model's call refused on it) waits a
   assert.equal(t.status, "error")
   assert.equal(t.error, "bad_call")
 })
+
+test("read_page(part) reads that part of the map at the next step, then the first again", async () => {
+  const parts: Array<number | undefined> = []
+  const x = io([
+    step({ tool: "read_page", part: 2, why: "" }, "free", "read"),
+    step({ tool: "read_page", why: "" }, "free", "read"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ], [], { ...MAP, parts: 3 })
+  const map = x.map
+  x.map = async (o) => {
+    parts.push(o?.part)
+    return map(o)
+  }
+  const s = await drive(newState("t1", "look", "en", MAP.url), x)
+  assert.equal(s.status, "done")
+  assert.deepEqual(parts, [undefined, 2, undefined])
+})
