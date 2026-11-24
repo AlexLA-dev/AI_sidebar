@@ -455,6 +455,8 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
       if (plan.how) plan.how.rating = 0
     }
   }
+  // A place that's the person's to choose isn't «I'll pick the place»: the agent asks once it has a real list.
+  if (plan.booking?.personal && !plan.booking.venue && plan.how && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) plan.how.rating = 0
   // A personal service's open choices, asked on the card unless the request names them (the owner on 123: «переуточнять
   // … если эта деталь не была уточнена»): the specialist («any» first, then the page's names) and the service when more
   // than one fits; a remembered answer pre-fills them. Built on the device from the plan's fields, so they're never
@@ -666,7 +668,9 @@ function noteVenues(state: AgentState, map: PageMap): void {
   if (!state.venues) {
     const list = venuesOn(map)
     if (list.length) {
-      const ranked = rankVenues(list, cardsOf(map), b.match ?? [], state.minRating ?? 4.5, b.area ?? []).slice(0, 8)
+      // (Places to ask the person about are only ones in the area the request names: a home page's promoted hotels
+      // elsewhere aren't a list to ask from, 125.)
+      const ranked = rankVenues(list, cardsOf(map), b.match ?? [], state.minRating ?? 4.5, b.area ?? [], !!state.plan?.askPlace).slice(0, 8)
       if (ranked.length) state.venues = { list: ranked, tried: [] }
     }
   }
