@@ -146,7 +146,8 @@ export const FEATURES: Record<string, Feature> = {
   activation: {
     since: "2.7", tracked: "2.7", on: "app",
     actions: ["video", "settings", "back", "enabled", "linked", "shown"],
-    via: ["card", "chats"],
+    // "allow" (2.8): Settings opened from the «Open Safari» step to set All Websites to Allow.
+    via: ["card", "chats", "allow"],
     fields: { how: ["direct", "app"] }
   },
   // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page

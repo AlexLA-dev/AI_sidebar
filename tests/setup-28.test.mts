@@ -105,16 +105,16 @@ test("В2.4: switched on and never used, the app's next step is Safari, with one
   const step = /private var safariStep: some View \{([\s\S]*?)\n {4}\}/.exec(setup)?.[1] ?? ""
   assert.match(step, /Card\(title: "Next: open Safari", systemImage: "safari"\)/)
   assert.match(step, /Step\(number: 1, text: "Tap ✦ on the page\."\)/)
-  // No ✦ while All Websites is still Ask: Safari's page menu is the way in, and Safari's question comes there.
-  assert.match(step, /Step\(number: 2, text: SetupPath\.safariMenuStep\)/)
-  assert.match(step, /Step\(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website\."\)/)
+  // No ✦ while All Websites is still Ask. 2.8 (acceptance 2): the fix is Settings, the way seen working every time;
+  // Safari's own question is only a side note (not yet seen to grant anything).
+  assert.match(step, /Step\(number: 2, text: "No ✦\? In Settings, set All Websites to Allow for ContextFlow \(Apps → Safari → Extensions → ContextFlow\)\."\)/)
+  assert.match(step, /Text\("If Safari asks about a website, choose Always Allow\."\)\s*\.font\(\.footnote\)/)
+  assert.doesNotMatch(setup, /"[^"\n]*(puzzle-piece|Always Allow on Every Website)[^"\n]*"|safariMenu/)
   assert.ok(step.indexOf("safariButton") < step.indexOf("TipClipView"), "the button before the clip")
-  // Back from Safari with the panel unused: the page menu comes first (All Websites likely still on Ask).
-  assert.match(step, /if activation\.backFromSafariUnused \{\s*Text\("No ✦ on the page\? Safari is waiting for your permission\."\)[\s\S]{0,200}?Step\(number: 1, text: SetupPath\.safariMenuFirst\)\s*Step\(number: 2, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website\."\)\s*Step\(number: 3, text: "Tap ✦ on the page\."\)/)
-  // Where Safari keeps ContextFlow on a page: the iPhone's page menu, the iPad's puzzle-piece button (its page menu has
-  // no extensions; seen on iPadOS 26.5 and 27).
-  assert.match(setup, /static var safariMenuStep: LocalizedStringKey \{\s*UIDevice\.current\.userInterfaceIdiom == \.pad\s*\? "No ✦\? Tap the puzzle-piece button next to the address, then ContextFlow\."\s*: "No ✦\? Open the page menu in the address bar and choose ContextFlow\."/)
-  assert.match(setup, /static var safariMenuFirst: LocalizedStringKey \{\s*UIDevice\.current\.userInterfaceIdiom == \.pad\s*\? "In Safari, tap the puzzle-piece button next to the address, then ContextFlow\."\s*: "In Safari, open the page menu in the address bar and choose ContextFlow\."/)
+  // Back from Safari with the panel unused: Settings first, with its own button and the guide over Settings.
+  assert.match(step, /if activation\.backFromSafariUnused \{\s*Text\("No ✦ on the page\? ContextFlow isn't allowed on websites yet\."\)[\s\S]{0,200}?Step\(number: 1, text: SetupPath\.allowFirstStep\)\s*Step\(number: 2, text: "Under Permissions, set All Websites to Allow\."\)\s*Step\(number: 3, text: "Back in Safari, reload the page and tap ✦\."\)\s*Button \{\s*SettingsPiP\.shared\.start\(phases: path\.phases, path: path\) \{ openExtensionSettings\(via: "allow"\) \}/)
+  assert.match(setup, /static var allowFirstStep: LocalizedStringKey \{\s*UIDevice\.current\.userInterfaceIdiom == \.pad\s*\? "Tap Open Settings, then Apps on the left → Safari \(not ContextFlow\) → Extensions → ContextFlow\."\s*: "Tap Open Settings and go to Apps → Safari \(not ContextFlow\) → Extensions → ContextFlow\."/)
+  assert.deepEqual(useFields({ f: "activation", a: "settings", via: "allow" }), { f: "activation", a: "settings", via: "allow" })
   assert.match(setup, /func openedSafari\(_ via: String\) \{[\s\S]{0,120}?UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.safariTripKey\)/)
   assert.match(setup, /guard state == \.on, !backFromSafariUnused else \{ return \}\s*backFromSafariUnused = true/)
   assert.match(setup, /if before == \.off, next != \.off \{ reportEnabled\(\) \}\s*checkSafariTrip\(\)/)
@@ -195,16 +195,17 @@ test("every new text is translated into the app's 14 other languages; on iPad in
   const keys = [
     "In Settings, tap Apps on the left, then Safari in the list (not ContextFlow), then Extensions.",
     "Open the Settings app and go to Apps → Safari (not ContextFlow) → Extensions.",
-    "No ✦? Tap the puzzle-piece button next to the address, then ContextFlow.",
-    "In Safari, tap the puzzle-piece button next to the address, then ContextFlow.",
     "On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above.",
     "Next: open Safari",
     "So the reminder you just set reaches you.", "So you hear when the page you watch changes.", "So you know when your free answers are back.",
-    "Tap ✦ on the page.", "No ✦? Open the page menu in the address bar and choose ContextFlow.",
-    "When Safari asks, choose Always Allow, then Always Allow on Every Website.",
+    "Tap ✦ on the page.",
     "If Settings opens on ContextFlow's page, start at step 2. If not, start from Apps.",
-    "No ✦ on the page? Safari is waiting for your permission.",
-    "In Safari, open the page menu in the address bar and choose ContextFlow."
+    "No ✦ on the page? ContextFlow isn't allowed on websites yet.",
+    "Tap Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow.",
+    "Tap Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.",
+    "Back in Safari, reload the page and tap ✦.",
+    "No ✦? In Settings, set All Websites to Allow for ContextFlow (Apps → Safari → Extensions → ContextFlow).",
+    "If Safari asks about a website, choose Always Allow."
   ]
   for (const key of keys) {
     assert.match(setup, new RegExp(key.replace(/[.?()]/g, "\\$&")), key)

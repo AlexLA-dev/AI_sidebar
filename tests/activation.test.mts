@@ -26,7 +26,9 @@ test("the registry keeps the activation steps and the ways in, nothing else, fro
 test("the app sends each step where it happens, in order", () => {
   const setup = app("Setup.swift")
   // Settings from the home card (iPhone, iPad): counted as it opens, after the guide's video when that started.
-  assert.match(setup, /private func openExtensionSettings\(\) \{\s*activation\.wentToSettings\("card"\)/)
+  // 2.8: "card" from the switch-it-on step, "allow" from the «Open Safari» step's way to All Websites: Allow.
+  assert.match(setup, /private func openExtensionSettings\(\) \{ openExtensionSettings\(via: "card"\) \}/)
+  assert.match(setup, /private func openExtensionSettings\(via: String\) \{\s*activation\.wentToSettings\(via\)/)
   assert.match(setup, /pictureInPictureControllerDidStartPictureInPicture[\s\S]{0,120}?Activation\.shared\.guideStarted\(\)\s*self\.openPending\(\)/)
   // A failed start opens Settings without a "video" (2.8: and the frames stop playing in the card first).
   assert.match(setup, /failedToStartPictureInPictureWithError error: Error\) \{[\s\S]{0,300}?Task \{ @MainActor in self\.openPending\(\) \}/)

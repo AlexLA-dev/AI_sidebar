@@ -794,19 +794,14 @@ enum SetupPath {
             : "Open the Settings app and go to Apps → Safari (not ContextFlow) → Extensions."
     }
 
-    /// Where Safari keeps ContextFlow on a page (2.8, seen on the simulators): on an iPhone, in the page menu at the left
-    /// of the address; on an iPad (iPadOS 26 and 27), behind the extensions button (the puzzle piece) at the right of the
-    /// address; the iPad's page menu has no extensions.
-    static var safariMenuStep: LocalizedStringKey {
+    /// No ✦ on any page: All Websites is still Ask. 2.8 (acceptance 2): the way that has worked every time, on iPad and
+    /// iPhone, is Settings (ContextFlow's page → All Websites → Allow). Safari's own question (behind the puzzle-piece
+    /// button on iPad, in the page menu on iPhone) has not been seen to grant anything yet, so it's never the fix here,
+    /// only a side note.
+    static var allowFirstStep: LocalizedStringKey {
         UIDevice.current.userInterfaceIdiom == .pad
-            ? "No ✦? Tap the puzzle-piece button next to the address, then ContextFlow."
-            : "No ✦? Open the page menu in the address bar and choose ContextFlow."
-    }
-
-    static var safariMenuFirst: LocalizedStringKey {
-        UIDevice.current.userInterfaceIdiom == .pad
-            ? "In Safari, tap the puzzle-piece button next to the address, then ContextFlow."
-            : "In Safari, open the page menu in the address bar and choose ContextFlow."
+            ? "Tap Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow."
+            : "Tap Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow."
     }
 }
 
@@ -882,8 +877,11 @@ struct SetupCard: View {
         SettingsPiP.shared.start(phases: path.phases, path: path, then: openExtensionSettings)
     }
 
-    private func openExtensionSettings() {
-        activation.wentToSettings("card")
+    private func openExtensionSettings() { openExtensionSettings(via: "card") }
+
+    /// `via`: "card" the switch-it-on step, "allow" the «Open Safari» step's way to All Websites: Allow (2.8).
+    private func openExtensionSettings(via: String) {
+        activation.wentToSettings(via)
         let appSettings = {
             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             activation.settingsOpened("app")
@@ -911,21 +909,35 @@ struct SetupCard: View {
                 .font(.callout.weight(.semibold))
             // Above the clip: on an iPhone the button is on the first screen without scrolling.
             safariButton("step", large: true)
-            // With All Websites left on Ask (the step people skip in Settings), no ✦ shows on any page: the way in is
-            // Safari's page menu, where Safari asks for the permission (2.8, found on the iPhone walk). Back from Safari
-            // with the panel still unused, that fix comes first.
+            // With All Websites left on Ask (the step people skip in Settings), no ✦ shows on any page. Back from Safari with
+            // the panel still unused, the fix that has worked every time comes first: Settings, with its own button.
             if activation.backFromSafariUnused {
-                Text("No ✦ on the page? Safari is waiting for your permission.")
-                    .font(.callout)
+                Text("No ✦ on the page? ContextFlow isn't allowed on websites yet.")
+                    .font(.callout.weight(.semibold))
                     .fixedSize(horizontal: false, vertical: true)
-                Step(number: 1, text: SetupPath.safariMenuFirst)
-                Step(number: 2, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website.")
-                Step(number: 3, text: "Tap ✦ on the page.")
+                Step(number: 1, text: SetupPath.allowFirstStep)
+                Step(number: 2, text: "Under Permissions, set All Websites to Allow.")
+                Step(number: 3, text: "Back in Safari, reload the page and tap ✦.")
+                Button {
+                    SettingsPiP.shared.start(phases: path.phases, path: path) { openExtensionSettings(via: "allow") }
+                } label: {
+                    Label("Open Settings", systemImage: "gear")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier("cf-setup-allow-settings")
+                // The picture-in-picture guide's source, as on the switch-it-on step.
+                .background(PiPSource(layer: SettingsPiP.shared.layer))
             } else {
                 Step(number: 1, text: "Tap ✦ on the page.")
-                Step(number: 2, text: SetupPath.safariMenuStep)
-                Step(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website.")
+                Step(number: 2, text: "No ✦? In Settings, set All Websites to Allow for ContextFlow (Apps → Safari → Extensions → ContextFlow).")
             }
+            Text("If Safari asks about a website, choose Always Allow.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
             if let url = TipClip.url("open") {
                 TipClipView(url: url)
                     .aspectRatio(TipClip.aspect, contentMode: .fit)
