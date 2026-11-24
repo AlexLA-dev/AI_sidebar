@@ -26,7 +26,7 @@ test("В2.3: nothing asks about notifications at launch; the reminders to finish
   assert.doesNotMatch(setup, /\.show\(\.launch\)/)
   // Provisional only when nothing was ever asked: never in place of a "no", never a question.
   const schedule = /static func schedule\(\) async \{([\s\S]*?)\n {4}\}/.exec(setup)?.[1] ?? ""
-  assert.match(schedule, /if await center\.notificationSettings\(\)\.authorizationStatus == \.notDetermined \{\s*_ = try\? await center\.requestAuthorization\(options: \[\.alert, \.sound, \.provisional\]\)/)
+  assert.match(schedule, /if quiet, await center\.notificationSettings\(\)\.authorizationStatus == \.notDetermined \{\s*_ = try\? await center\.requestAuthorization\(options: \[\.alert, \.sound, \.provisional\]\)/)
   assert.match(schedule, /guard NotifyStatus\.on\(status\) \|\| status == \.provisional else \{ return \}/)
   assert.doesNotMatch(schedule, /requestAuthorization\(options: \[\.alert, \.sound\]\)/)
   // Withdrawn once it's on: by the app and by the extension's first message.

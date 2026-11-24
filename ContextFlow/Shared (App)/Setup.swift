@@ -610,7 +610,13 @@ struct NotifyAskView: View {
 enum SetupReminders {
     static func schedule() async {
         let center = UNUserNotificationCenter.current()
-        if await center.notificationSettings().authorizationStatus == .notDetermined {
+        var quiet = true
+        #if DEBUG
+        // Comparisons on the simulator (2.8: the extension's own reminders after quiet permission): `-CFDebugNoQuiet YES`
+        // takes no quiet permission, as 2.7 didn't.
+        if UserDefaults.standard.bool(forKey: "CFDebugNoQuiet") { quiet = false }
+        #endif
+        if quiet, await center.notificationSettings().authorizationStatus == .notDetermined {
             _ = try? await center.requestAuthorization(options: [.alert, .sound, .provisional])
         }
         let status = await center.notificationSettings().authorizationStatus
