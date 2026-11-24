@@ -724,5 +724,9 @@
   "d6c19b41a6a0": "Acabou de ativar o ContextFlow? Provavelmente o Safari ainda está perguntando em cada site. Até você responder, o ✦ não aparece, e a pergunta fica esperando no menu da página:",
   "1b2420ba8f62": "Toque em ContextFlow ali: ele está marcado com ⚠.",
   "67db24588787": "Escolha “Sempre Permitir” e depois “Sempre Permitir em Todos os Sites”.",
-  "3809443abef4": "Não aparece ContextFlow no menu da página? Então ele está desativado: toque em “Gerenciar Extensões” ali, ative o ContextFlow e siga os passos acima."
+  "3809443abef4": "Não aparece ContextFlow no menu da página? Então ele está desativado: toque em “Gerenciar Extensões” ali, ative o ContextFlow e siga os passos acima.",
+  "4fc815061e7b": "Acabou de ativar o ContextFlow? Provavelmente o Safari ainda está perguntando em cada site. Até você responder, o ✦ não aparece, e a pergunta fica esperando no botão de peça de quebra-cabeça ao lado do endereço:",
+  "4893e7625de2": "Toque no botão de peça de quebra-cabeça ao lado do endereço e depois em ContextFlow: ele está marcado com ⚠.",
+  "bf894fc10a36": "Apareceu um aviso abaixo do endereço pedindo mais permissões? É a mesma pergunta: toque nele.",
+  "880ff2fd1011": "Não aparece ContextFlow nesse botão? Então ele está desativado: toque em “Gerenciar Extensões” ali, ative o ContextFlow e siga os passos acima."
 }

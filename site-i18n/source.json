@@ -6039,6 +6039,38 @@
   ]
  },
  {
+  "key": "4fc815061e7b",
+  "kind": "html",
+  "en": "Just switched ContextFlow on? Safari is most likely still asking about each website. Until you answer, ✦ doesn't show up, and the question waits under the puzzle-piece button next to the address:",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "4893e7625de2",
+  "kind": "html",
+  "en": "Tap the puzzle-piece button next to the address, then ContextFlow: it's marked ⚠.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "bf894fc10a36",
+  "kind": "html",
+  "en": "A banner under the address asking for more permissions? It's the same question: tap it.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "880ff2fd1011",
+  "kind": "html",
+  "en": "No ContextFlow under that button? Then it's switched off: tap Manage Extensions there, switch ContextFlow on, and do the steps above.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
   "key": "549e89fb27a3",
   "kind": "html",
   "en": "Turn ContextFlow on in Safari: Safari › Settings › Extensions, tick ContextFlow, and allow it on every website. Then click ContextFlow in the toolbar.",

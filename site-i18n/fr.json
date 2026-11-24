@@ -724,5 +724,9 @@
   "d6c19b41a6a0": "Vous venez d’activer ContextFlow ? Safari demande sans doute encore l’autorisation sur chaque site web. Tant que vous n’avez pas répondu, ✦ n’apparaît pas, et la question attend dans le menu de la page :",
   "1b2420ba8f62": "Touchez ContextFlow dans ce menu : il est marqué ⚠.",
   "67db24588787": "Choisissez « Toujours autoriser », puis « Toujours autoriser sur tous les sites web ».",
-  "3809443abef4": "Pas de ContextFlow dans le menu de la page ? Il est alors désactivé : touchez « Gérer les extensions » dans ce menu, activez ContextFlow, puis suivez les étapes ci-dessus."
+  "3809443abef4": "Pas de ContextFlow dans le menu de la page ? Il est alors désactivé : touchez « Gérer les extensions » dans ce menu, activez ContextFlow, puis suivez les étapes ci-dessus.",
+  "4fc815061e7b": "Vous venez d’activer ContextFlow ? Safari demande sans doute encore l’autorisation sur chaque site web. Tant que vous n’avez pas répondu, ✦ n’apparaît pas, et la question attend derrière le bouton en forme de pièce de puzzle à côté de l’adresse :",
+  "4893e7625de2": "Touchez le bouton en forme de pièce de puzzle à côté de l’adresse, puis ContextFlow : il est marqué ⚠.",
+  "bf894fc10a36": "Un bandeau sous l’adresse demande des autorisations supplémentaires ? C’est la même question : touchez-le.",
+  "880ff2fd1011": "Pas de ContextFlow derrière ce bouton ? Il est alors désactivé : touchez « Gérer les extensions » au même endroit, activez ContextFlow, puis suivez les étapes ci-dessus."
 }

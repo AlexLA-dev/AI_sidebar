@@ -91,7 +91,7 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>没看到 ✦？</h2>
-    <div data-device="touch">
+    <div data-device="iphone">
       <p>刚刚启用 ContextFlow？Safari 很可能仍在每个网站上询问。你回答之前 ✦ 不会出现，这个询问就在页面菜单里：</p>
       <ol>
         <li>轻点地址栏中的页面菜单按钮。</li>
@@ -99,6 +99,15 @@
         <li>选择“始终允许”，然后选择“在所有网站上始终允许”。</li>
       </ol>
       <p>页面菜单里没有 ContextFlow？说明它已关闭：在那里轻点“管理扩展”，打开 ContextFlow，再按上面的步骤操作。</p>
+    </div>
+    <div data-device="ipad" hidden>
+      <p>刚刚启用 ContextFlow？Safari 很可能仍在每个网站上询问。你回答之前 ✦ 不会出现，这个询问就在地址旁的拼图按钮里：</p>
+      <ol>
+        <li>轻点地址旁的拼图按钮，然后轻点“ContextFlow”，它带有 ⚠ 标记。</li>
+        <li>选择“始终允许”，然后选择“在所有网站上始终允许”。</li>
+      </ol>
+      <p>地址下方出现请求更多权限的横幅？那是同一个询问：轻点它。</p>
+      <p>那个按钮里没有 ContextFlow？说明它已关闭：在那里轻点“管理扩展”，打开 ContextFlow，再按上面的步骤操作。</p>
     </div>
     <div data-device="mac" hidden>
       <p>在 Safari 中启用 ContextFlow：Safari › 设置 › 扩展，勾选 ContextFlow，并允许它在所有网站上运行。然后点按工具栏中的 ContextFlow。</p>
@@ -140,8 +149,11 @@
   var ask = document.getElementById("step-ask")
   var help = document.getElementById("turn-on")
   var here = document.getElementById("here")
-  var mac = navigator.maxTouchPoints === 0 && /Mac/.test(navigator.platform || "")
-  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = (el.getAttribute("data-device") === "mac") !== mac })
+  // Safari on iPad says Macintosh in its user agent; touch points tell it from a Mac.
+  var touch = navigator.maxTouchPoints > 0
+  var device = !touch && /Mac/.test(navigator.platform || "") ? "mac"
+    : /iPad/.test(navigator.userAgent) || (touch && /Macintosh/.test(navigator.userAgent)) ? "ipad" : "iphone"
+  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = el.getAttribute("data-device") !== device })
   function show(when) { on.querySelectorAll("[data-when]").forEach(function (el) { el.hidden = el.getAttribute("data-when") !== when }) }
   var found = false
   var tapped = false

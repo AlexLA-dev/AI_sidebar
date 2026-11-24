@@ -91,7 +91,7 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>لا ترى ✦؟</h2>
-    <div data-device="touch">
+    <div data-device="iphone">
       <p>هل شغّلت ContextFlow للتو؟ على الأرجح ما زال Safari يسأل عند كل موقع ويب. لن يظهر ✦ حتى تجيب، والسؤال ينتظرك في قائمة الصفحة:</p>
       <ol>
         <li>اضغط على زر قائمة الصفحة في شريط العنوان.</li>
@@ -99,6 +99,15 @@
         <li>اختر «السماح دائمًا»، ثم «السماح دائمًا على كل موقع ويب».</li>
       </ol>
       <p>لا يظهر ContextFlow في قائمة الصفحة؟ إذن الامتداد متوقف: اضغط هناك على «إدارة الامتدادات» وشغّل ContextFlow، ثم اتبع الخطوات أعلاه.</p>
+    </div>
+    <div data-device="ipad" hidden>
+      <p>هل شغّلت ContextFlow للتو؟ على الأرجح ما زال Safari يسأل عند كل موقع ويب. لن يظهر ✦ حتى تجيب، والسؤال ينتظرك خلف زر قطعة البازل بجانب العنوان:</p>
+      <ol>
+        <li>اضغط على زر قطعة البازل بجانب العنوان، ثم ContextFlow، وستجد بجانبه العلامة ⚠.</li>
+        <li>اختر «السماح دائمًا»، ثم «السماح دائمًا على كل موقع ويب».</li>
+      </ol>
+      <p>ظهر شريط تحت العنوان يطلب أذونات إضافية؟ إنه السؤال نفسه: اضغط عليه.</p>
+      <p>لا يظهر ContextFlow خلف هذا الزر؟ إذن الامتداد متوقف: اضغط هناك على «إدارة الامتدادات» وشغّل ContextFlow، ثم اتبع الخطوات أعلاه.</p>
     </div>
     <div data-device="mac" hidden>
       <p>شغّل ContextFlow في Safari: Safari ← الإعدادات ← الامتدادات، وحدّد ContextFlow، واسمح له على كل مواقع الويب. ثم انقر على ContextFlow في شريط الأدوات.</p>
@@ -140,8 +149,11 @@
   var ask = document.getElementById("step-ask")
   var help = document.getElementById("turn-on")
   var here = document.getElementById("here")
-  var mac = navigator.maxTouchPoints === 0 && /Mac/.test(navigator.platform || "")
-  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = (el.getAttribute("data-device") === "mac") !== mac })
+  // Safari on iPad says Macintosh in its user agent; touch points tell it from a Mac.
+  var touch = navigator.maxTouchPoints > 0
+  var device = !touch && /Mac/.test(navigator.platform || "") ? "mac"
+    : /iPad/.test(navigator.userAgent) || (touch && /Macintosh/.test(navigator.userAgent)) ? "ipad" : "iphone"
+  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = el.getAttribute("data-device") !== device })
   function show(when) { on.querySelectorAll("[data-when]").forEach(function (el) { el.hidden = el.getAttribute("data-when") !== when }) }
   var found = false
   var tapped = false

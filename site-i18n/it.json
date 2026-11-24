@@ -724,5 +724,9 @@
   "d6c19b41a6a0": "Hai appena attivato ContextFlow? Molto probabilmente Safari chiede ancora il permesso su ogni sito web. Finché non rispondi, ✦ non compare, e la domanda aspetta nel menu della pagina:",
   "1b2420ba8f62": "Tocca ContextFlow lì: è segnato con ⚠.",
   "67db24588787": "Scegli «Consenti sempre», poi «Consenti sempre su tutti i siti web».",
-  "3809443abef4": "Nel menu della pagina non c’è ContextFlow? Allora è disattivato: tocca lì «Gestisci estensioni», attiva ContextFlow e segui i passaggi qui sopra."
+  "3809443abef4": "Nel menu della pagina non c’è ContextFlow? Allora è disattivato: tocca lì «Gestisci estensioni», attiva ContextFlow e segui i passaggi qui sopra.",
+  "4fc815061e7b": "Hai appena attivato ContextFlow? Molto probabilmente Safari chiede ancora il permesso su ogni sito web. Finché non rispondi, ✦ non compare, e la domanda aspetta dietro il pulsante con il pezzo di puzzle accanto all’indirizzo:",
+  "4893e7625de2": "Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo, poi ContextFlow: è segnato con ⚠.",
+  "bf894fc10a36": "Sotto l’indirizzo compare un avviso che chiede altri permessi? È la stessa domanda: toccalo.",
+  "880ff2fd1011": "Dietro quel pulsante non c’è ContextFlow? Allora è disattivato: tocca lì «Gestisci estensioni», attiva ContextFlow e segui i passaggi qui sopra."
 }

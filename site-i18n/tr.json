@@ -724,5 +724,9 @@
   "d6c19b41a6a0": "ContextFlow'u yeni mi açtınız? Safari büyük olasılıkla hâlâ her web sitesinde izin soruyor. Siz yanıt verene kadar ✦ görünmez ve soru sayfa menüsünde bekler:",
   "1b2420ba8f62": "Orada ContextFlow'a dokunun: yanında ⚠ işareti vardır.",
   "67db24588787": "Önce “Her Zaman İzin Ver”i, sonra “Her Web Sitesinde Her Zaman İzin Ver”i seçin.",
-  "3809443abef4": "Sayfa menüsünde ContextFlow yok mu? O zaman uzantı kapalıdır: orada “Uzantıları Yönet”e dokunun, ContextFlow'u açın ve yukarıdaki adımları izleyin."
+  "3809443abef4": "Sayfa menüsünde ContextFlow yok mu? O zaman uzantı kapalıdır: orada “Uzantıları Yönet”e dokunun, ContextFlow'u açın ve yukarıdaki adımları izleyin.",
+  "4fc815061e7b": "ContextFlow'u yeni mi açtınız? Safari büyük olasılıkla hâlâ her web sitesinde izin soruyor. Siz yanıt verene kadar ✦ görünmez ve soru, adresin yanındaki yapboz parçası düğmesinin arkasında bekler:",
+  "4893e7625de2": "Adresin yanındaki yapboz parçası düğmesine, ardından ContextFlow'a dokunun: yanında ⚠ işareti vardır.",
+  "bf894fc10a36": "Adresin altında ek izin isteyen bir başlık mı çıktı? Bu aynı sorudur: ona dokunun.",
+  "880ff2fd1011": "Bu düğmenin arkasında ContextFlow yok mu? O zaman uzantı kapalıdır: orada “Uzantıları Yönet”e dokunun, ContextFlow'u açın ve yukarıdaki adımları izleyin."
 }

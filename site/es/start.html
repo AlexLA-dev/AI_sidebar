@@ -91,7 +91,7 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>¿No ves ✦?</h2>
-    <div data-device="touch">
+    <div data-device="iphone">
       <p>¿Acabas de activar ContextFlow? Lo más probable es que Safari todavía pregunte en cada sitio web. Hasta que respondas, ✦ no aparece, y la pregunta espera en el menú de la página:</p>
       <ol>
         <li>Toca el botón del menú de la página en la barra de direcciones.</li>
@@ -99,6 +99,15 @@
         <li>Elige «Permitir siempre» y luego «Permitir siempre en todos los sitios web».</li>
       </ol>
       <p>¿No ves ContextFlow en el menú de la página? Entonces está desactivado: toca ahí «Gestionar extensiones», activa ContextFlow y sigue los pasos de arriba.</p>
+    </div>
+    <div data-device="ipad" hidden>
+      <p>¿Acabas de activar ContextFlow? Lo más probable es que Safari todavía pregunte en cada sitio web. Hasta que respondas, ✦ no aparece, y la pregunta espera tras el botón de la pieza de puzle junto a la dirección:</p>
+      <ol>
+        <li>Toca el botón de la pieza de puzle junto a la dirección y luego ContextFlow: está marcado con ⚠.</li>
+        <li>Elige «Permitir siempre» y luego «Permitir siempre en todos los sitios web».</li>
+      </ol>
+      <p>¿Aparece bajo la dirección un aviso que pide más permisos? Es la misma pregunta: tócalo.</p>
+      <p>¿No ves ContextFlow tras ese botón? Entonces está desactivado: toca ahí «Gestionar extensiones», activa ContextFlow y sigue los pasos de arriba.</p>
     </div>
     <div data-device="mac" hidden>
       <p>Activa ContextFlow en Safari: Safari › Ajustes › Extensiones, marca ContextFlow y permítelo en todos los sitios web. Después haz clic en ContextFlow en la barra de herramientas.</p>
@@ -140,8 +149,11 @@
   var ask = document.getElementById("step-ask")
   var help = document.getElementById("turn-on")
   var here = document.getElementById("here")
-  var mac = navigator.maxTouchPoints === 0 && /Mac/.test(navigator.platform || "")
-  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = (el.getAttribute("data-device") === "mac") !== mac })
+  // Safari on iPad says Macintosh in its user agent; touch points tell it from a Mac.
+  var touch = navigator.maxTouchPoints > 0
+  var device = !touch && /Mac/.test(navigator.platform || "") ? "mac"
+    : /iPad/.test(navigator.userAgent) || (touch && /Macintosh/.test(navigator.userAgent)) ? "ipad" : "iphone"
+  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = el.getAttribute("data-device") !== device })
   function show(when) { on.querySelectorAll("[data-when]").forEach(function (el) { el.hidden = el.getAttribute("data-when") !== when }) }
   var found = false
   var tapped = false

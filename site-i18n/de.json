@@ -724,5 +724,9 @@
   "d6c19b41a6a0": "ContextFlow gerade eingeschaltet? Dann fragt Safari wahrscheinlich noch bei jeder Website nach. Bis du antwortest, erscheint ✦ nicht, und die Frage wartet im Seitenmenü:",
   "1b2420ba8f62": "Tippe dort auf „ContextFlow“: Es ist mit ⚠ markiert.",
   "67db24588787": "Wähle „Immer erlauben“, dann „Auf allen Websites immer erlauben“.",
-  "3809443abef4": "Kein ContextFlow im Seitenmenü? Dann ist es ausgeschaltet: Tippe dort auf „Erweiterungen verwalten“, schalte ContextFlow ein und folge dann den Schritten oben."
+  "3809443abef4": "Kein ContextFlow im Seitenmenü? Dann ist es ausgeschaltet: Tippe dort auf „Erweiterungen verwalten“, schalte ContextFlow ein und folge dann den Schritten oben.",
+  "4fc815061e7b": "ContextFlow gerade eingeschaltet? Dann fragt Safari wahrscheinlich noch bei jeder Website nach. Bis du antwortest, erscheint ✦ nicht, und die Frage wartet hinter der Taste mit dem Puzzleteil neben der Adresse:",
+  "4893e7625de2": "Tippe neben der Adresse auf die Taste mit dem Puzzleteil und dann auf „ContextFlow“: Es ist mit ⚠ markiert.",
+  "bf894fc10a36": "Zeigt Safari unter der Adresse ein Banner, das weitere Berechtigungen anfragt? Das ist dieselbe Frage: Tippe darauf.",
+  "880ff2fd1011": "Kein ContextFlow hinter dieser Taste? Dann ist es ausgeschaltet: Tippe dort auf „Erweiterungen verwalten“, schalte ContextFlow ein und folge dann den Schritten oben."
 }

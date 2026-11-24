@@ -91,7 +91,7 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>✦が見当たりませんか？</h2>
-    <div data-device="touch">
+    <div data-device="iphone">
       <p>ContextFlowをオンにしたばかりですか？ Safariがまだ各Webサイトで許可を確認している可能性が高いです。応答するまで✦は表示されず、確認はページメニューの中で待っています：</p>
       <ol>
         <li>アドレスバーのページメニューボタンをタップします。</li>
@@ -99,6 +99,15 @@
         <li>「常に許可」、続けて「すべてのWebサイトで常に許可」を選びます。</li>
       </ol>
       <p>ページメニューにContextFlowがない場合は、オフになっています。そこで「機能拡張を管理」をタップしてContextFlowをオンにし、上の手順に進んでください。</p>
+    </div>
+    <div data-device="ipad" hidden>
+      <p>ContextFlowをオンにしたばかりですか？ Safariがまだ各Webサイトで許可を確認している可能性が高いです。応答するまで✦は表示されず、確認はアドレスの横にあるパズルピースのボタンの中で待っています：</p>
+      <ol>
+        <li>アドレスの横にあるパズルピースのボタンをタップし、「ContextFlow」をタップします。⚠が付いています。</li>
+        <li>「常に許可」、続けて「すべてのWebサイトで常に許可」を選びます。</li>
+      </ol>
+      <p>アドレスの下に追加の許可を求めるバナーが出ている場合は、同じ確認です。タップしてください。</p>
+      <p>そのボタンの中にContextFlowがない場合は、オフになっています。そこで「機能拡張を管理」をタップしてContextFlowをオンにし、上の手順に進んでください。</p>
     </div>
     <div data-device="mac" hidden>
       <p>SafariでContextFlowをオンにします。「Safari」›「設定」›「機能拡張」でContextFlowにチェックを入れ、すべてのWebサイトで許可します。そのあと、ツールバーのContextFlowをクリックします。</p>
@@ -140,8 +149,11 @@
   var ask = document.getElementById("step-ask")
   var help = document.getElementById("turn-on")
   var here = document.getElementById("here")
-  var mac = navigator.maxTouchPoints === 0 && /Mac/.test(navigator.platform || "")
-  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = (el.getAttribute("data-device") === "mac") !== mac })
+  // Safari on iPad says Macintosh in its user agent; touch points tell it from a Mac.
+  var touch = navigator.maxTouchPoints > 0
+  var device = !touch && /Mac/.test(navigator.platform || "") ? "mac"
+    : /iPad/.test(navigator.userAgent) || (touch && /Macintosh/.test(navigator.userAgent)) ? "ipad" : "iphone"
+  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = el.getAttribute("data-device") !== device })
   function show(when) { on.querySelectorAll("[data-when]").forEach(function (el) { el.hidden = el.getAttribute("data-when") !== when }) }
   var found = false
   var tapped = false

@@ -91,7 +91,7 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>✦ düğmesini görmüyor musunuz?</h2>
-    <div data-device="touch">
+    <div data-device="iphone">
       <p>ContextFlow'u yeni mi açtınız? Safari büyük olasılıkla hâlâ her web sitesinde izin soruyor. Siz yanıt verene kadar ✦ görünmez ve soru sayfa menüsünde bekler:</p>
       <ol>
         <li>Adres çubuğundaki sayfa menüsü düğmesine dokunun.</li>
@@ -99,6 +99,15 @@
         <li>Önce “Her Zaman İzin Ver”i, sonra “Her Web Sitesinde Her Zaman İzin Ver”i seçin.</li>
       </ol>
       <p>Sayfa menüsünde ContextFlow yok mu? O zaman uzantı kapalıdır: orada “Uzantıları Yönet”e dokunun, ContextFlow'u açın ve yukarıdaki adımları izleyin.</p>
+    </div>
+    <div data-device="ipad" hidden>
+      <p>ContextFlow'u yeni mi açtınız? Safari büyük olasılıkla hâlâ her web sitesinde izin soruyor. Siz yanıt verene kadar ✦ görünmez ve soru, adresin yanındaki yapboz parçası düğmesinin arkasında bekler:</p>
+      <ol>
+        <li>Adresin yanındaki yapboz parçası düğmesine, ardından ContextFlow'a dokunun: yanında ⚠ işareti vardır.</li>
+        <li>Önce “Her Zaman İzin Ver”i, sonra “Her Web Sitesinde Her Zaman İzin Ver”i seçin.</li>
+      </ol>
+      <p>Adresin altında ek izin isteyen bir başlık mı çıktı? Bu aynı sorudur: ona dokunun.</p>
+      <p>Bu düğmenin arkasında ContextFlow yok mu? O zaman uzantı kapalıdır: orada “Uzantıları Yönet”e dokunun, ContextFlow'u açın ve yukarıdaki adımları izleyin.</p>
     </div>
     <div data-device="mac" hidden>
       <p>ContextFlow'u Safari'de açın: Safari › Ayarlar › Uzantılar'da ContextFlow'u işaretleyin ve tüm web sitelerinde izin verin. Ardından araç çubuğundaki ContextFlow'a tıklayın.</p>
@@ -140,8 +149,11 @@
   var ask = document.getElementById("step-ask")
   var help = document.getElementById("turn-on")
   var here = document.getElementById("here")
-  var mac = navigator.maxTouchPoints === 0 && /Mac/.test(navigator.platform || "")
-  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = (el.getAttribute("data-device") === "mac") !== mac })
+  // Safari on iPad says Macintosh in its user agent; touch points tell it from a Mac.
+  var touch = navigator.maxTouchPoints > 0
+  var device = !touch && /Mac/.test(navigator.platform || "") ? "mac"
+    : /iPad/.test(navigator.userAgent) || (touch && /Macintosh/.test(navigator.userAgent)) ? "ipad" : "iphone"
+  document.querySelectorAll("[data-device]").forEach(function (el) { el.hidden = el.getAttribute("data-device") !== device })
   function show(when) { on.querySelectorAll("[data-when]").forEach(function (el) { el.hidden = el.getAttribute("data-when") !== when }) }
   var found = false
   var tapped = false
