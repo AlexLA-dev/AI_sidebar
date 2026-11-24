@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "{0} câu trả lời miễn phí đã quay lại. Hãy hỏi về bất kỳ trang nào."
  },
+ "answersBackInApp": {
+  "message": "Đặt trong ứng dụng ContextFlow"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

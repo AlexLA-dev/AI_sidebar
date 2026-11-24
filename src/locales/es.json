@@ -1311,5 +1311,6 @@
   "answersBackSet": "Te aviso a las {0}, cuando vuelvan tus respuestas.",
   "answersBackOff": "Las notificaciones de ContextFlow están desactivadas. Tus respuestas vuelven a las {0}.",
   "answersBackFailed": "No se pudo programar el aviso. Tus respuestas vuelven a las {0}.",
-  "answersBackBody": "Ya tienes de nuevo tus {0} respuestas gratis. Pregunta sobre cualquier página."
+  "answersBackBody": "Ya tienes de nuevo tus {0} respuestas gratis. Pregunta sobre cualquier página.",
+  "answersBackInApp": "Programarlo en la app ContextFlow"
 }

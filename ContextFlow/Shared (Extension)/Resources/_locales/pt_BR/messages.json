@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "Suas {0} respostas grátis voltaram. Pergunte sobre qualquer página."
  },
+ "answersBackInApp": {
+  "message": "Definir no app ContextFlow"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

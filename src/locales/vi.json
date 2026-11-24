@@ -1311,5 +1311,6 @@
   "answersBackSet": "Tôi sẽ nhắc bạn lúc {0}, khi câu trả lời quay lại.",
   "answersBackOff": "Thông báo của ContextFlow đang tắt. Câu trả lời sẽ quay lại lúc {0}.",
   "answersBackFailed": "Không đặt được lời nhắc. Câu trả lời sẽ quay lại lúc {0}.",
-  "answersBackBody": "{0} câu trả lời miễn phí đã quay lại. Hãy hỏi về bất kỳ trang nào."
+  "answersBackBody": "{0} câu trả lời miễn phí đã quay lại. Hãy hỏi về bất kỳ trang nào.",
+  "answersBackInApp": "Đặt trong ứng dụng ContextFlow"
 }

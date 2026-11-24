@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "Your {0} free answers are back. Ask about any page."
  },
+ "answersBackInApp": {
+  "message": "Set it in the ContextFlow app"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

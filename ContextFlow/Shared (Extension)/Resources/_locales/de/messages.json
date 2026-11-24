@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "Deine {0} Gratis-Antworten sind zurück. Frag zu jeder Seite."
  },
+ "answersBackInApp": {
+  "message": "In der ContextFlow-App einstellen"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

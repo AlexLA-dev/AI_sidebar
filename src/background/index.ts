@@ -1074,6 +1074,11 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "remind":
       remind(message).then(sendResponse, () => sendResponse({ outcome: "unavailable" }))
       return true
+    case "remindPending":
+      // 2.8: a reminder waiting on the device (the app may have set it for the panel); its time, or none.
+      (TARGET === "safari" ? callNative<{ at?: number }>("remind_pending", { chat: message.chat, message: message.message }, 5000) : Promise.resolve(null))
+        .then((r) => sendResponse({ at: typeof r?.at === "number" ? r.at : null }), () => sendResponse({ at: null }))
+      return true
     case "uxEvent":
       void reportUx(message)
       sendResponse({ ok: true })

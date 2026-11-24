@@ -62,8 +62,36 @@ enum MessageReminders {
             return .scheduled
         } catch {
             log("failed \(request.identifier): \(error)")
+            // 2.8 (the director's acceptance 2, C3: «Source is not authorized … Denied» right after Allow, not reproduced
+            // here): what this process sees now, beside what the app saw last, so the next failing run names the cause.
+            log("failed \(request.identifier) — \(await statusLine(Bundle.main.bundleIdentifier ?? "?")); app saw: \(appStatusLine())")
             return .failed
         }
+    }
+
+    // MARK: What each process sees (2.8 diagnostics)
+
+    private static let appStatusKey = "cf_notify_app_status_v1"
+
+    /// One line of this process's notification settings: authorization, alert, centre, lock screen, sound, provisional.
+    static func statusLine(_ who: String) async -> String {
+        let s = await UNUserNotificationCenter.current().notificationSettings()
+        return "\(who): auth=\(s.authorizationStatus.rawValue) alert=\(s.alertSetting.rawValue) center=\(s.notificationCenterSetting.rawValue) lock=\(s.lockScreenSetting.rawValue) sound=\(s.soundSetting.rawValue)"
+    }
+
+    /// The app notes what it sees (on launch and each time it comes to the front), for the extension's failure line.
+    static func noteAppStatus() async {
+        let line = await statusLine("app")
+        UserDefaults(suiteName: SharedDefaults.suiteName)?.set("\(line) at \(ISO8601DateFormatter().string(from: Date()))", forKey: appStatusKey)
+    }
+
+    static func appStatusLine() -> String {
+        UserDefaults(suiteName: SharedDefaults.suiteName)?.string(forKey: appStatusKey) ?? "never noted"
+    }
+
+    /// Whether this reminder is waiting on the device (the app may have set it: the panel's fallback, 2.8).
+    static func isPending(chat: String, message: String) async -> Date? {
+        await pending()[identifier(chat: chat, message: message)]
     }
 
     static func cancel(chat: String, message: String) {

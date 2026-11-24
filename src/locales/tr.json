@@ -1311,5 +1311,6 @@
   "answersBackSet": "Yanıtlarınız geri geldiğinde, {0} itibarıyla hatırlatacağım.",
   "answersBackOff": "ContextFlow bildirimleri kapalı. Yanıtlarınız {0} itibarıyla geri gelir.",
   "answersBackFailed": "Hatırlatma ayarlanamadı. Yanıtlarınız {0} itibarıyla geri gelir.",
-  "answersBackBody": "{0} ücretsiz yanıtınız geri geldi. Herhangi bir sayfa hakkında sorun."
+  "answersBackBody": "{0} ücretsiz yanıtınız geri geldi. Herhangi bir sayfa hakkında sorun.",
+  "answersBackInApp": "ContextFlow uygulamasında ayarla"
 }

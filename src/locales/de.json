@@ -1311,5 +1311,6 @@
   "answersBackSet": "Ich erinnere dich um {0}, wenn deine Antworten zurück sind.",
   "answersBackOff": "Mitteilungen für ContextFlow sind aus. Deine Antworten sind um {0} zurück.",
   "answersBackFailed": "Die Erinnerung ließ sich nicht setzen. Deine Antworten sind um {0} zurück.",
-  "answersBackBody": "Deine {0} Gratis-Antworten sind zurück. Frag zu jeder Seite."
+  "answersBackBody": "Deine {0} Gratis-Antworten sind zurück. Frag zu jeder Seite.",
+  "answersBackInApp": "In der ContextFlow-App einstellen"
 }

@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "Vos {0} réponses gratuites sont de retour. Posez une question sur n’importe quelle page."
  },
+ "answersBackInApp": {
+  "message": "Le régler dans l’app ContextFlow"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

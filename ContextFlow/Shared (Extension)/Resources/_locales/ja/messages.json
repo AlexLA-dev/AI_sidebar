@@ -3842,6 +3842,9 @@
  "answersBackBody": {
   "message": "無料の回答{0}回分が戻りました。どのページについても質問できます。"
  },
+ "answersBackInApp": {
+  "message": "ContextFlowアプリで設定する"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
