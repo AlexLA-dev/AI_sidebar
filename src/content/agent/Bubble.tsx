@@ -49,6 +49,12 @@ export function plainLine(md: string, max = 140): string {
 const ENDED = new Set(["done", "error", "blocked"])
 
 /** The bubble a task shows with the panel closed, or null while it just works (or the person stopped it). */
+/** A step's words, or the chat's own «Сделать?» when its control has no name to show (an icon button: «Press ""»). */
+function stepWords(s: BubbleSource): string {
+  const text = stepText(s)
+  return /""|«»|“”/.test(text) ? t("agentConfirmTitle") : text
+}
+
 export function bubbleOf(s: BubbleSource, key: string, here: boolean): BubbleData | null {
   const base = { key, here, options: [] as string[], other: false }
   const p = s.pending
@@ -63,10 +69,10 @@ export function bubbleOf(s: BubbleSource, key: string, here: boolean): BubbleDat
     case "confirm":
       if (!p) return null
       // A warning is read in the chat, never approved from a bubble.
-      if (p.offRequest || p.price) return { ...base, kind: "open", text: t("agentBubbleCheck", stepText(s)) }
+      if (p.offRequest || p.price) return { ...base, kind: "open", text: t("agentBubbleCheck", stepWords(s)) }
       // The booking's recap (another day, time or place, or a new site's cancellation terms): what it books, and why it asks.
-      if (p.recap) return { ...base, kind: "confirm", text: t("agentRecapWhat", recapWhat(p.recap) || stepText(s)), meta: recapNotes(p.recap).join(" · ") || undefined }
-      return { ...base, kind: "confirm", text: stepText(s), meta: NO_UNDO.has(p.verdict.reason) ? t("agentNoUndo") : undefined }
+      if (p.recap) return { ...base, kind: "confirm", text: t("agentRecapWhat", recapWhat(p.recap) || stepWords(s)), meta: recapNotes(p.recap).join(" · ") || undefined }
+      return { ...base, kind: "confirm", text: stepWords(s), meta: NO_UNDO.has(p.verdict.reason) ? t("agentNoUndo") : undefined }
     case "self":
       if (!p) return null
       // Calendar or Reminders access: the app is opened from the chat's own button.
