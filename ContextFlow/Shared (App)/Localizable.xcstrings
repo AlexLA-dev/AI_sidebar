@@ -71191,6 +71191,182 @@
           }
         }
       }
+    },
+    "Tap the ✦ button on the page — or tap the puzzle-piece button next to the address and choose ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على زر ✦ في الصفحة، أو اضغط على زر قطعة البازل بجانب العنوان واختر ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf der Seite auf ✦ – oder tippe neben der Adresse auf die Taste mit dem Puzzleteil und wähle „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca el botón ✦ en la página, o toca el botón de la pieza de puzle junto a la dirección y elige ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez le bouton ✦ sur la page, ou touchez le bouton en forme de pièce de puzzle à côté de l’adresse et choisissez ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca il pulsante ✦ sulla pagina, oppure tocca il pulsante con il pezzo di puzzle accanto all’indirizzo e scegli ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上の✦ボタンをタップするか、アドレスの横にあるパズルピースのボタンをタップして「ContextFlow」を選択します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지의 ✦ 버튼을 탭하거나, 주소 옆의 퍼즐 조각 버튼을 탭하고 ContextFlow를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque no botão ✦ na página, ou toque no botão de peça de quebra-cabeça ao lado do endereço e escolha ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите кнопку ✦ на странице — или нажмите кнопку с кусочком пазла рядом с адресом и выберите ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayfadaki ✦ düğmesine dokunun ya da adresin yanındaki yapboz parçası düğmesine dokunup ContextFlow'u seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться кнопки ✦ на сторінці — або торкніться кнопки з елементом пазла поруч з адресою й виберіть ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào nút ✦ trên trang, hoặc chạm vào nút mảnh ghép cạnh địa chỉ rồi chọn ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点页面上的 ✦ 按钮，或轻点地址旁的拼图按钮并选择“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下頁面上的 ✦ 按鈕，或點一下網址旁的拼圖按鈕並選擇「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "Open any page and tap ✦ — or tap the puzzle-piece button next to the address and choose ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح أي صفحة واضغط على ✦، أو اضغط على زر قطعة البازل بجانب العنوان واختر ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne eine beliebige Seite und tippe auf ✦ – oder tippe neben der Adresse auf die Taste mit dem Puzzleteil und wähle „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre cualquier página y toca ✦, o toca el botón de la pieza de puzle junto a la dirección y elige ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez une page et touchez ✦, ou touchez le bouton en forme de pièce de puzzle à côté de l’adresse et choisissez ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri una pagina qualsiasi e tocca ✦, oppure tocca il pulsante con il pezzo di puzzle accanto all’indirizzo e scegli ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任意のページを開いて✦をタップするか、アドレスの横にあるパズルピースのボタンをタップして「ContextFlow」を選択します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아무 페이지나 열고 ✦를 탭하거나, 주소 옆의 퍼즐 조각 버튼을 탭하고 ContextFlow를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra qualquer página e toque em ✦, ou toque no botão de peça de quebra-cabeça ao lado do endereço e escolha ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Откройте любую страницу и нажмите ✦ — или нажмите кнопку с кусочком пазла рядом с адресом и выберите ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herhangi bir sayfayı açıp ✦ düğmesine dokunun ya da adresin yanındaki yapboz parçası düğmesine dokunup ContextFlow'u seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрийте будь-яку сторінку й торкніться ✦ — або торкніться кнопки з елементом пазла поруч з адресою й виберіть ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở trang bất kỳ và chạm vào ✦, hoặc chạm vào nút mảnh ghép cạnh địa chỉ rồi chọn ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开任意网页并轻点 ✦，或轻点地址旁的拼图按钮并选择“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開任何頁面並點一下 ✦，或點一下網址旁的拼圖按鈕並選擇「ContextFlow」。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

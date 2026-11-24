@@ -171,6 +171,15 @@ final class SharedDefaults {
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
 
+    /// The panel was opened on a page (2.8): a system-wide (Darwin) notice from the extension to the app, which may be
+    /// in the background playing the guide over Settings. People go from Settings straight to Safari, so the app wasn't
+    /// in front again to stop it; it stops on this. Carries nothing.
+    static let panelOpenedNotice = "com.contextflow.shared.panel-opened"
+
+    static func postPanelOpened() {
+        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName(panelOpenedNotice as CFString), nil, nil, true)
+    }
+
     private init() {
         defaults = UserDefaults(suiteName: SharedDefaults.suiteName) ?? .standard
     }

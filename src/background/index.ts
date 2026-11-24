@@ -897,7 +897,16 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 // ---------------------------------------------------------------- messages
 
+// 2.8 (the app's guide over Settings): the first message from a page in this background's life tells the app's side that
+// ContextFlow runs on a page now (All Websites allowed). The app, still playing its guide over Settings because people go
+// from Settings straight to Safari, stops it then. Once per background; carries nothing.
+let pageSeenSent = false
+
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
+  if (TARGET === "safari" && _sender.tab && !pageSeenSent) {
+    pageSeenSent = true
+    void callNative("page_seen", {}, 1500).catch(() => undefined)
+  }
   switch (message?.type) {
     case "shotCapture":
       void captureTab(_sender.tab?.windowId).then(sendResponse, () => sendResponse({ ok: false, code: "FAILED" }))

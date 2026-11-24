@@ -88,7 +88,7 @@ test("В2.1: the card, its footnote and the guide over Settings show the whole w
 
 test("В2.2: back from Settings, nothing of the guide stays over the steps", () => {
   assert.match(setup, /private func clear\(\) \{\s*layer\.stopRequestingMediaData\(\)\s*layer\.flushAndRemoveImage\(\)\s*queued = 0\s*\}/)
-  assert.match(setup, /func stop\(\) \{[\s\S]{0,700}?if controller\?\.isPictureInPictureActive == true \{ controller\?\.stopPictureInPicture\(\) \} else \{ clear\(\) \}/)
+  assert.match(setup, /func stop\(\) \{[\s\S]{0,900}?if controller\?\.isPictureInPictureActive == true \{\s*controller\?\.stopPictureInPicture\(\)[\s\S]{0,300}?if UIApplication\.shared\.applicationState != \.active \{\s*controller\?\.contentSource = nil\s*controller = nil\s*clear\(\)\s*\}\s*\} else \{\s*clear\(\)\s*\}/)
   assert.match(setup, /pictureInPictureControllerDidStopPictureInPicture[\s\S]{0,200}?self\.clear\(\)/)
   // Auto-start from the background only for the trip to Settings: off again when the app is back.
   assert.match(setup, /func stop\(\) \{[\s\S]{0,400}?canStartPictureInPictureAutomaticallyFromInline = false/)
@@ -109,7 +109,9 @@ test("В2.4: switched on and never used, the app's next step is Safari, with one
   // Safari's own question is only a side note (not yet seen to grant anything).
   assert.match(step, /Step\(number: 2, text: "No ✦\? In Settings, set All Websites to Allow for ContextFlow \(Apps → Safari → Extensions → ContextFlow\)\."\)/)
   assert.match(step, /Text\("If Safari asks about a website, choose Always Allow\."\)\s*\.font\(\.footnote\)/)
-  assert.doesNotMatch(setup, /"[^"\n]*(puzzle-piece|Always Allow on Every Website)[^"\n]*"|safariMenu/)
+  // Safari's question isn't the fix anywhere; the puzzle-piece only as the way to open the panel once allowed (readyText).
+  assert.doesNotMatch(step, /puzzle-piece|Always Allow on Every Website/)
+  assert.doesNotMatch(setup, /"[^"\n]*Always Allow on Every Website[^"\n]*"|safariMenu/)
   assert.ok(step.indexOf("safariButton") < step.indexOf("TipClipView"), "the button before the clip")
   // Back from Safari with the panel unused: Settings first, with its own button and the guide over Settings.
   assert.match(step, /if activation\.backFromSafariUnused \{\s*Text\("No ✦ on the page\? ContextFlow isn't allowed on websites yet\."\)[\s\S]{0,200}?Step\(number: 1, text: SetupPath\.allowFirstStep\)\s*Step\(number: 2, text: "Under Permissions, set All Websites to Allow\."\)\s*Step\(number: 3, text: "Back in Safari, reload the page and tap ✦\."\)\s*Button \{\s*SettingsPiP\.shared\.start\(phases: path\.phases, path: path\) \{ openExtensionSettings\(via: "allow"\) \}/)
@@ -269,5 +271,24 @@ test("on iPad the guide over Settings is a short strip with the whole path, not 
   assert.match(setup, /let names = \[String\(localized: "Apps"\), "Safari", String\(localized: "Extensions"\), "ContextFlow",\s*String\(localized: "Allow Extension"\), String\(localized: "All Websites"\), String\(localized: "Allow"\)\]/)
   for (const key of ["Apps", "Extensions", "Allow Extension", "All Websites", "Allow"]) {
     assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 14, key)
+  }
+})
+
+test("the guide over Settings also goes when the panel opens in Safari (people go from Settings straight to Safari)", () => {
+  for (const copy of ["ContextFlow/Shared (App)/SharedDefaults.swift", "ContextFlow/Shared (Extension)/SharedDefaults.swift"]) {
+    assert.match(read(copy), /static func postPanelOpened\(\) \{\s*CFNotificationCenterPostNotification\(CFNotificationCenterGetDarwinNotifyCenter\(\), CFNotificationName\(panelOpenedNotice as CFString\), nil, nil, true\)/)
+  }
+  assert.match(ext("SafariWebExtensionHandler.swift"), /if command == "getEntitlement" \|\| command == "page_seen" \{ SharedDefaults\.postPanelOpened\(\) \}/)
+  assert.match(ext("SafariWebExtensionHandler.swift"), /case "page_seen":\s*Self\.reply\(context, \["success": true\]\)/)
+  // The background sends it once, on the first message from a page (the panel's stored answers don't reach the app).
+  assert.match(read("src/background/index.ts"), /if \(TARGET === "safari" && _sender\.tab && !pageSeenSent\) \{\s*pageSeenSent = true\s*void callNative\("page_seen", \{\}, 1500\)\.catch\(\(\) => undefined\)/)
+  assert.match(setup, /CFNotificationCenterAddObserver\(CFNotificationCenterGetDarwinNotifyCenter\(\), nil, \{ _, _, _, _, _ in[\s\S]{0,140}?Task \{ @MainActor in SettingsPiP\.shared\.stop\(\) \}\s*\}, SharedDefaults\.panelOpenedNotice as CFString, nil, \.deliverImmediately\)/)
+})
+
+test("on iPad, the ways to open the panel name the puzzle-piece button (the page menu has no extensions there)", () => {
+  assert.match(setup, /private static var readyText: LocalizedStringKey \{\s*UIDevice\.current\.userInterfaceIdiom == \.pad\s*\? "Open any page and tap ✦ — or tap the puzzle-piece button next to the address and choose ContextFlow\."/)
+  assert.match(content, /Step\(number: 2, text: UIDevice\.current\.userInterfaceIdiom == \.pad\s*\? "Tap the ✦ button on the page — or tap the puzzle-piece button next to the address and choose ContextFlow\."/)
+  for (const key of ["Open any page and tap ✦ — or tap the puzzle-piece button next to the address and choose ContextFlow.", "Tap the ✦ button on the page — or tap the puzzle-piece button next to the address and choose ContextFlow."]) {
+    assert.deepEqual(Object.keys(catalog[key]?.localizations ?? {}).sort(), [...LANGS].sort(), key)
   }
 })

@@ -637,7 +637,11 @@ struct HomeView: View {
         Card(title: "How to use it", systemImage: "hand.tap") {
             #if os(iOS)
             Step(number: 1, text: "Open any article, product page or document in Safari.")
-            Step(number: 2, text: "Tap the ✦ button on the page — or tap the page menu in the address bar and choose ContextFlow.")
+            // 2.8: the iPad's page menu has no extensions; ContextFlow is behind the puzzle-piece button there (seen opening
+            // the panel on iPadOS 26.5 and 27 once allowed).
+            Step(number: 2, text: UIDevice.current.userInterfaceIdiom == .pad
+                 ? "Tap the ✦ button on the page — or tap the puzzle-piece button next to the address and choose ContextFlow."
+                 : "Tap the ✦ button on the page — or tap the page menu in the address bar and choose ContextFlow.")
             Step(number: 3, text: "Pick Summarize, Key takeaways, Explain or Translate, or ask your own question.")
             Step(number: 4, text: "Select text first to ask about just that part.")
             #else

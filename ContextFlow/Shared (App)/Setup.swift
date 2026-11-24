@@ -949,9 +949,17 @@ struct SetupCard: View {
         }
     }
 
+    /// 2.8: the iPad's page menu has no extensions; ContextFlow is behind the puzzle-piece button there (seen opening the
+    /// panel on iPadOS 26.5 and 27 once allowed).
+    private static var readyText: LocalizedStringKey {
+        UIDevice.current.userInterfaceIdiom == .pad
+            ? "Open any page and tap ✦ — or tap the puzzle-piece button next to the address and choose ContextFlow."
+            : "Open any page and tap ✦ — or choose ContextFlow in the page menu of the address bar."
+    }
+
     private var ready: some View {
         Card(title: "ContextFlow is on in Safari", systemImage: "checkmark.seal.fill") {
-            Text("Open any page and tap ✦ — or choose ContextFlow in the page menu of the address bar.")
+            Text(Self.readyText)
                 .font(.callout)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -1217,6 +1225,14 @@ final class SettingsPiP: NSObject {
         NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
             Task { @MainActor in SettingsPiP.shared.away = true }
         }
+        // From Settings straight to Safari, the app never comes back to the front: the extension says when the panel opens
+        // (a Darwin notice), and the guide goes then.
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), nil, { _, _, _, _, _ in
+            #if DEBUG
+            NSLog("[cf-setup] panel opened: the guide goes")
+            #endif
+            Task { @MainActor in SettingsPiP.shared.stop() }
+        }, SharedDefaults.panelOpenedNotice as CFString, nil, .deliverImmediately)
         NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
             Task { @MainActor in
                 guard SettingsPiP.shared.away else { return }
@@ -1284,12 +1300,26 @@ final class SettingsPiP: NSObject {
     /// which lives in the card under the walkthrough: back from Settings, a white box with the last step's caption
     /// stayed over the steps (and where picture in picture didn't start, the frames played there).
     func stop() {
+        #if DEBUG
+        NSLog("[cf-setup] guide stop: active %@ queued %d", controller?.isPictureInPictureActive == true ? "yes" : "no", queued)
+        #endif
         guard controller?.isPictureInPictureActive == true || queued > 0 else { return }
         // Not on the next time the app goes to the background.
         if #available(iOS 14.2, *) { controller?.canStartPictureInPictureAutomaticallyFromInline = false }
         // Floating: it closes first, and its frames go when it has (the delegate's didStop); emptied while it was still
         // up, the window turned black. Not floating: the frames go now.
-        if controller?.isPictureInPictureActive == true { controller?.stopPictureInPicture() } else { clear() }
+        if controller?.isPictureInPictureActive == true {
+            controller?.stopPictureInPicture()
+            // In the background (the panel opened in Safari) the system ignores stopPictureInPicture: without its content
+            // and its controller the window goes. A new controller is made for the next time.
+            if UIApplication.shared.applicationState != .active {
+                controller?.contentSource = nil
+                controller = nil
+                clear()
+            }
+        } else {
+            clear()
+        }
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 

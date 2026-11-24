@@ -77,6 +77,11 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any] ?? [:]
         let command = message["command"] as? String ?? ""
+        // 2.8: the panel opened on a page: the app's guide over Settings, if it's still up, goes.
+        if command == "getEntitlement" || command == "page_seen" { SharedDefaults.postPanelOpened() }
+        #if DEBUG
+        NSLog("[cf-setup] native %@", command)
+        #endif
         if SharedDefaults.shared.recordExtensionSeen(used: command == "getEntitlement", installId: message["installId"] as? String) {
             // Switched on: the reminders to finish setup the app scheduled are no longer needed.
             let center = UNUserNotificationCenter.current()
@@ -552,6 +557,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             default:
                 Self.reply(context, ["success": true, "data": SharedDefaults.shared.readInvite()])
             }
+        // 2.8: the first page this background heard from (the notice above has gone to the app).
+        case "page_seen":
+            Self.reply(context, ["success": true])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
