@@ -185,6 +185,14 @@ export function useBreakdown(state: { subject: string; n: number }[], counters: 
   return by
 }
 
+/**
+ * A Google answer that leaves the free answers alone (2.8, Б8): not Pro, with config.searchFreeApart on. It's charged to
+ * searchCountersFor() and the safety counters (the network address's day, everyone's free day), not to the install's day.
+ */
+export function googleApart(access: Access): boolean {
+  return config.searchFreeApart && !(hasPro(access.plan) && access.entitlement)
+}
+
 /** Extra counters for a Google (search-grounded) answer, charged together with countersFor(). */
 export function searchCountersFor(access: Access, installId: string): Counter[] {
   const own = hasPro(access.plan) && access.entitlement
