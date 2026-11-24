@@ -5,6 +5,7 @@
 
 import { wordTest } from "./match.ts"
 import { BOOKING_WORDS, PROMOTED_WORDS } from "./words.ts"
+import { monthIn } from "./dates.ts"
 import { hostOf, sameSite } from "./sites.ts"
 import type { MapItem, PageMap } from "./types.ts"
 
@@ -113,7 +114,8 @@ function unratedOn(map: PageMap): Venue[] {
     const name = it.label.replace(/\s+/g, " ").trim()
     const card = it.card.replace(/\s+/g, " ").trim()
     if (name.length < 3 || name.length > 80 || /^\d/.test(name) || card.length < name.length + 15) continue
-    if (!bookingWord(card) && !TIME.test(card)) continue
+    // (Offers booking in its words, shows a time, or names its next free day: «à partir du vendredi 27 novembre».)
+    if (!bookingWord(card) && !TIME.test(card) && !(/\d/.test(card) && monthIn(card) >= 0)) continue
     const url = urlOf(it.href, map.url)
     if (!url || seen.has(url)) continue
     const parts = new URL(url).pathname.split("/").filter(Boolean)

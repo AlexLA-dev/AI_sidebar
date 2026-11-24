@@ -190,6 +190,9 @@ test("a list of places that shows no ratings (a clinic directory) is a list by i
   const list = venuesOn(map)
   assert.deepEqual(list.map((v) => v.name), ["Dr Martin", "Dr Bernard", "Dr Petit"])
   assert.deepEqual(rankVenues(list, cardsOf(map), ["dental"], 4.5, ["Paris"], true).map((v) => v.name), ["Dr Bernard", "Dr Petit", "Dr Martin"], "nearest first")
+  // A card that only names its next free day is one too («à partir du vendredi 27 novembre»).
+  const dayOnly = page("https://clinics.example/dentist/paris", "Dentists", "Dentists", ["a", "b", "c"].map((x, i) => ({ id: x, role: "link" as const, label: `Dr ${x.toUpperCase()}x`, href: `/dentist/paris/dr-${x}`, card: `Dr ${x.toUpperCase()}x Chirurgien-dentiste 11 Rue Example 75017 Paris à partir du vendredi ${27 + i} novembre 2026` })))
+  assert.equal(venuesOn(dayOnly).length, 3)
   // Plain links without booking on their cards (a footer, an article list) aren't places.
   const footer = page("https://clinics.example/", "Clinics", "Home", ["a", "b", "c"].map((x) => ({ id: x, role: "link" as const, label: `Guide ${x}`, href: `/guides/${x}/read`, card: `Guide ${x} — five things to know about your teeth` })))
   assert.deepEqual(venuesOn(footer), [])
