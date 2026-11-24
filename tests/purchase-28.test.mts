@@ -52,8 +52,12 @@ test("the panel: every plan choice goes through one-tap buy; the return takes th
   assert.match(app, /buyPlan\(chosen, period, "sheet"\)/)
   assert.match(app, /buyPlan\(chosen, "yearly", "yearly"\)/)
   assert.match(app, /via, back: source\.href\(\) \}\)/)
-  assert.match(app, /const mark = takeBoughtMark\(\)[\s\S]{0,200}const next = await refreshStatus\(true\)\s*const now = boughtNow\(buying, next\?\.plan\)/)
+  assert.match(app, /const mark = takeBoughtMark\(\)[\s\S]{0,900}const next = await refreshStatus\(true\)\s*const now = boughtNow\(buying, next\?\.plan\)/)
   assert.match(app, /window\.addEventListener\("focus", onEvent\)/)
+  // Counted once: the purchase on record is cleared before the guard lets the next look in; the line is scrolled into view.
+  assert.match(app, /if \(!mark && \(touch \|\| !document\.hasFocus\(\)\)\) return/)
+  assert.match(app, /busy = true\s*\/\/[^\n]*\n\s*if \(buying\) await clearBuying\(\)\s*try \{/)
+  assert.match(app, /setBought\(now\)[\s\S]{0,500}listRef\.current\?\.scrollTo\(\{ top: listRef\.current\.scrollHeight/)
   // The address goes only into the app's link, never to our server: the background passes it to appLink and nowhere else.
   const bg = read("src/background/index.ts")
   assert.equal((bg.match(/message\.back/g) ?? []).length, 1)
@@ -63,7 +67,9 @@ test("the app: one-tap purchase without the Pro tab, back to Safari with the mar
   const swift = read("ContextFlow/Shared (App)/ContentView.swift")
   assert.match(swift, /&& QuickBuy\.wants\(url\):[\s\S]{0,200}QuickBuy\.run\(url, store: store\) \{ tab = \.pro \}/)
   assert.match(swift, /parts\?\.fragment = "cf-bought=\\\(word\)"/)
-  assert.match(swift, /x-safari-/)
+  // x-safari- only for https (no handler is registered for x-safari-http), else the address itself.
+  assert.match(swift, /target\.scheme == "https", let safari = URL\(string: "x-safari-/)
+  assert.match(swift, /if !opened \{ UIApplication\.shared\.open\(target\) \}/)
   assert.match(swift, /#else\s*\/\/ Safari's own window, as it was \(the tab and its panel\): no new tab\.\s*PlanTour\.openSafari\(\)/)
   for (const a of ["plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail"]) assert.ok(swift.includes(`"paywall", "${a}"`) || swift.includes(`"buy_ok" : outcome`), a)
 })
