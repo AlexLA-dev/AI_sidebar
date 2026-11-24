@@ -38,6 +38,125 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 # Old builds send sign-up confirmation links here.
+# The first page (2.8): the app's «Open Safari» opens /features?utm_source=app (and /<language>/features?utm_source=app).
+# That address serves /start (a rewrite, the address stays); /features without it stays the features page.
+[[redirects]]
+  from = "/features"
+  to = "/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/de/features"
+  to = "/de/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/es/features"
+  to = "/es/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/fr/features"
+  to = "/fr/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/it/features"
+  to = "/it/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/pt-br/features"
+  to = "/pt-br/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/tr/features"
+  to = "/tr/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/ru/features"
+  to = "/ru/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/uk/features"
+  to = "/uk/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/vi/features"
+  to = "/vi/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/ar/features"
+  to = "/ar/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/ja/features"
+  to = "/ja/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/ko/features"
+  to = "/ko/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/zh-hans/features"
+  to = "/zh-hans/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "/zh-hant/features"
+  to = "/zh-hant/start"
+  status = 200
+  force = true
+  query = {utm_source = "app"}
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/start"
+  to = "https://context-flow.app/start"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/start.html"
+  to = "https://context-flow.app/start"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/email-confirmed"
   to = "/.netlify/functions/email-confirmed"

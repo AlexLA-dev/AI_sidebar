@@ -140,6 +140,7 @@
    "support.html",
    "translate-web-page-safari-iphone.html",
    "proofread-safari-iphone.html",
+   "start.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -1352,6 +1353,7 @@
    "support.html",
    "translate-web-page-safari-iphone.html",
    "proofread-safari-iphone.html",
+   "start.html",
    "youtube-transcript-safari.html",
    "read-aloud-safari-iphone.html",
    "summarize-pdf-safari.html"
@@ -5890,6 +5892,246 @@
   "en": "More: <a href=\"/translate-web-page-safari-iphone\">Translate a web page in Safari</a>",
   "pages": [
    "proofread-safari-iphone.html"
+  ]
+ },
+ {
+  "key": "251e7f817a8c",
+  "kind": "title",
+  "en": "Try ContextFlow on this page — ContextFlow",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "c0dc9525754b",
+  "kind": "meta",
+  "en": "A short article to try ContextFlow on: tap ✦ and ask about it.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "24f837f22822",
+  "kind": "meta",
+  "en": "Try ContextFlow on this page",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "fd45cc397b75",
+  "kind": "html",
+  "en": "Below is a short article. Ask ContextFlow about it: that's all it takes to see how it works.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "f3a733e91418",
+  "kind": "html",
+  "en": "ContextFlow is on this page",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "4fc86f31f4eb",
+  "kind": "html",
+  "en": "Looking for it…",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "29dce898ce84",
+  "kind": "html",
+  "en": "Found it: ✦ is at the edge of the screen.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "1921a37160f4",
+  "kind": "html",
+  "en": "Not yet. See how to turn it on, just below.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "71291102d299",
+  "kind": "html",
+  "en": "Tap ✦",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "a23d5b99039d",
+  "kind": "html",
+  "en": "The round button at the edge of the screen, on the right unless you moved it.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "f3e85fc02c58",
+  "kind": "html",
+  "en": "Ask about the article below",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "bcaffb144408",
+  "kind": "html",
+  "en": "Tap Summarize, or type your own question.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "4ec1ebf7c590",
+  "kind": "html",
+  "en": "No ✦ on the page? ContextFlow isn't allowed on websites yet.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "b805da32b11a",
+  "kind": "html",
+  "en": "Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "abbe3a8e83ad",
+  "kind": "html",
+  "en": "Under Permissions, set All Websites to Allow.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "07b51faeeeef",
+  "kind": "html",
+  "en": "Back in Safari, reload the page and tap ✦.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "9cf76ea2ed86",
+  "kind": "html",
+  "en": "Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "549e89fb27a3",
+  "kind": "html",
+  "en": "Turn ContextFlow on in Safari: Safari › Settings › Extensions, tick ContextFlow, and allow it on every website. Then click ContextFlow in the toolbar.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "1cc58907b745",
+  "kind": "html",
+  "en": "Reload this page",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "8906a1b64245",
+  "kind": "html",
+  "en": "If Safari asks about this website",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "6c05410141f9",
+  "kind": "html",
+  "en": "Choose Always Allow. ContextFlow reads a page only when you ask it something.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "132afa7f9bcb",
+  "kind": "html",
+  "en": "Try it on this",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "4bb7d33713ac",
+  "kind": "html",
+  "en": "Why we forget most of what we read",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "b653d24d564e",
+  "kind": "html",
+  "en": "In the 1880s the German psychologist Hermann Ebbinghaus spent months learning lists of nonsense syllables, like “WID” and “ZOF”, and testing himself on them later. Forgetting, he found, is fastest at the start: much of a list was gone within the first hour, and more by the next day. After that the loss slowed down.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "116e110466d0",
+  "kind": "html",
+  "en": "His curve has a catch. Nonsense syllables mean nothing, while what matters to us, or connects to what we already know, is easier to keep. Still, the shape holds up: without a second look, most of a long article fades within days.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "5fdd6cdf0966",
+  "kind": "html",
+  "en": "Two habits help. Coming back to something after a gap, a day later and then a week later, keeps more than reading it twice in a row. And putting an idea into your own words, even one sentence, makes it stick better than rereading.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "e4ebf5270dc5",
+  "kind": "html",
+  "en": "Things to ask",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "1b9e268ed03c",
+  "kind": "html",
+  "en": "“What's the main idea, in one sentence?”",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "270760321fc9",
+  "kind": "html",
+  "en": "Select “His curve has a catch” and ask: “Is that true?”",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "896f51d1cdab",
+  "kind": "html",
+  "en": "“What did later research find about this?”",
+  "pages": [
+   "start.html"
   ]
  },
  {
