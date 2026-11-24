@@ -985,6 +985,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // Dates (124, the owner on a salon booking site: 11 steps re-pressing «Sat, Dec 26» that the page showed greyed): a day or a
     // slot the page shows as unavailable is never pressed (when the whole strip is greyed, one may be tapped once to
     // wake it); the same date isn't pressed twice; after two date steps without progress, the one question.
+    // A menu or a picker the last press opened (shown expanded now) pressed again would close it (a batch's last press
+    // opened a colour list, the model pressed it again «to open it», four times): its list is what to choose from.
+    const lastCall = state.log[state.log.length - 1]?.call
+    if (seenItem && call.tool === "click" && seenItem.state?.includes("expanded") && lastCall?.tool === "click" && lastCall.id === call.id) {
+      const why = `«${seenItem.label.slice(0, 60)}» is open now (its last press opened it): choose from the list it shows; pressing it again would close it`
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
     const dateRefusal = seenItem && (call.tool === "click" || call.tool === "select") && state.plan?.booking ? dateStep(state, map, seenItem, call) : null
     if (dateRefusal) {
       state.log.push({ call, target: target ?? undefined, result: `refused: ${dateRefusal}` })

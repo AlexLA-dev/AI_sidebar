@@ -166,3 +166,17 @@ test("an answer the code refused twice ends the task with an error, not an empty
   assert.equal(s.status, "error")
   assert.equal(s.error, "bad_call")
 })
+
+test("a menu the last press opened isn't pressed again (it would close): the model hears to choose from its list", async () => {
+  const open: PageMap = { ...MAP, items: [{ id: "6", role: "button", label: "Colour Black", state: ["expanded"] }, { id: "7", role: "option", label: "Red" }] }
+  const x = io([
+    step({ tool: "click", id: "6", why: "open the colours" }, "free", "click"),
+    step({ tool: "click", id: "6", why: "open the colours" }, "free", "click"),
+    step({ tool: "click", id: "7", why: "red" }, "free", "click"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ], [], open)
+  const s = await drive(newState("t1", "red colour", "en", MAP.url), x)
+  assert.equal(s.status, "done")
+  assert.deepEqual(x.acted.map((c) => c.id), ["6", "7"])
+  assert.match(s.log.find((l) => l.result.startsWith("refused"))?.result ?? "", /is open now/)
+})
