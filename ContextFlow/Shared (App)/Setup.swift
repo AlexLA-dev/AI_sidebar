@@ -218,12 +218,17 @@ final class Activation: ObservableObject {
             await SetupReminders.schedule()
         }
         await reportOpen()
+        await reportDeliveredReminders()
     }
 
     /// A reminder to finish setup that reached Notification Center (2.8, В1.1): seen by the app the next time it's in
-    /// front, so it's counted then, once a reminder. Tapping one is counted where the tap arrives (AppDelegate).
-    func reportDeliveredReminders() async {
+    /// front (`launched`, on every launch and every return), so it's counted then, once a reminder. Tapping one is
+    /// counted where the tap arrives (AppDelegate).
+    private func reportDeliveredReminders() async {
         let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
+        #if DEBUG
+        NSLog("[cf-setup] delivered: %@", delivered.map(\.request.identifier).joined(separator: ","))
+        #endif
         let defaults = UserDefaults.standard
         for (id, what) in zip(SharedDefaults.setupReminderIds, ["15m", "24h"]) where delivered.contains(where: { $0.request.identifier == id }) {
             let key = "cf_activation_reminder_\(what)"
@@ -607,7 +612,13 @@ enum SetupReminders {
             content.sound = .default
             // Its tap is counted and opens the setup guide (AppDelegate).
             content.userInfo = ["setup": index == 0 ? "15m" : "24h"]
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: reminder.after, repeats: false)
+            var after = reminder.after
+            #if DEBUG
+            // Simulator checks of the quiet reminder: `-CFDebugSetupReminderSeconds 20` brings the first one forward.
+            let soon = UserDefaults.standard.double(forKey: "CFDebugSetupReminderSeconds")
+            if soon > 0, index == 0 { after = soon }
+            #endif
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: after, repeats: false)
             try? await center.add(UNNotificationRequest(identifier: reminder.id, content: content, trigger: trigger))
         }
     }
@@ -825,9 +836,15 @@ struct SetupCard: View {
     /// what to tap there (✦, then Safari's own question about the extension).
     private var safariStep: some View {
         Card(title: "Next: open Safari", systemImage: "safari") {
-            Text("ContextFlow is on. Now open any page in Safari and tap ✦. If Safari asks, choose Always Allow, then Always Allow on Every Website.")
-                .font(.callout)
-                .fixedSize(horizontal: false, vertical: true)
+            Text("ContextFlow is on in Safari.")
+                .font(.callout.weight(.semibold))
+            // Above the clip: on an iPhone the button is on the first screen without scrolling.
+            safariButton("step", large: true)
+            // With All Websites left on Ask (the step people skip in Settings), no ✦ shows on any page: the way in is
+            // Safari's page menu, where Safari asks for the permission (2.8, found on the iPhone walk).
+            Step(number: 1, text: "Tap ✦ on the page.")
+            Step(number: 2, text: "No ✦? Open the page menu in the address bar and choose ContextFlow.")
+            Step(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website.")
             if let url = TipClip.url("open") {
                 TipClipView(url: url)
                     .aspectRatio(TipClip.aspect, contentMode: .fit)
@@ -836,7 +853,6 @@ struct SetupCard: View {
                     .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.primary.opacity(0.08)))
                     .frame(maxWidth: .infinity)
             }
-            safariButton("step", large: true)
         }
     }
 

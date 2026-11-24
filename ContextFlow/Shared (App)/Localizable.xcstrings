@@ -69605,6 +69605,270 @@
           }
         }
       }
+    },
+    "Tap ✦ on the page.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على ✦ في الصفحة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf der Seite auf ✦."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca ✦ en la página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez ✦ sur la page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca ✦ sulla pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上の✦をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 ✦를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em ✦ na página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите ✦ на странице."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayfadaki ✦ düğmesine dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться ✦ на сторінці."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào ✦ trên trang."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点页面上的 ✦。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下頁面上的 ✦。"
+          }
+        }
+      }
+    },
+    "No ✦? Open the page menu in the address bar and choose ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا ترى ✦؟ افتح قائمة الصفحة في شريط العناوين واختر ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein ✦ zu sehen? Öffne in der Adressleiste das Seitenmenü und wähle „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No ves ✦? Abre el menú de la página en la barra de direcciones y elige ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de ✦ ? Ouvrez le menu de la page dans la barre d’adresse et choisissez ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non vedi ✦? Apri il menu della pagina nella barra degli indirizzi e scegli ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦が見当たらない場合は、アドレスバーのページメニューを開いて「ContextFlow」を選択します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦가 안 보이면 주소 막대의 페이지 메뉴를 열고 ContextFlow를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não vê o ✦? Abra o menu da página na barra de endereço e escolha ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет ✦? Откройте меню страницы в адресной строке и выберите ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ yok mu? Adres çubuğundaki sayfa menüsünü açıp ContextFlow'u seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає ✦? Відкрийте меню сторінки в адресному рядку й виберіть ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thấy ✦? Mở menu trang trên thanh địa chỉ và chọn ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？打开地址栏中的页面菜单并选择“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？打開網址列中的頁面選單並選擇「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "When Safari asks, choose Always Allow, then Always Allow on Every Website.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عندما يسألك Safari، اختر «السماح دائمًا»، ثم «السماح دائمًا على كل موقع ويب»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn Safari fragt, wähle „Immer erlauben“ und dann „Auf allen Websites immer erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando Safari pregunte, elige “Permitir siempre” y luego “Permitir siempre en todos los sitios web”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand Safari le demande, choisissez « Toujours autoriser », puis « Toujours autoriser sur tous les sites web »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando Safari lo chiede, scegli “Consenti sempre”, poi “Consenti sempre su tutti i siti web”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safariに確認されたら「常に許可」、続けて「すべてのWebサイトで常に許可」を選びます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari가 물으면 ‘항상 허용’을 선택한 다음 ‘모든 웹 사이트에서 항상 허용’을 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando o Safari perguntar, escolha “Sempre Permitir” e depois “Sempre Permitir em Todos os Sites”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда Safari спросит, выберите «Всегда разрешать», затем «Всегда разрешать на всех веб-сайтах»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari sorduğunda önce “Her Zaman İzin Ver”i, ardından “Her Web Sitesinde Her Zaman İzin Ver”i seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коли Safari запитає, виберіть «Завжди дозволяти», потім «Завжди дозволяти на всіх вебсайтах»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khi Safari hỏi, chọn Luôn cho phép, rồi chọn Luôn cho phép trên mọi trang web."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari 询问时，请选择“始终允许”，然后选择“在所有网站上始终允许”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari 詢問時，請選擇「永遠允許」，然後選擇「在每個網站上永遠允許」。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

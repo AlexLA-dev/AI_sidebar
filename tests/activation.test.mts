@@ -54,7 +54,7 @@ test("the app sends each step where it happens, in order", () => {
 
   const content = app("ContentView.swift")
   // "back" before the refresh that may send "enabled".
-  assert.match(content, /activation\.cameBack\(\)\s*Task \{\s*await activation\.refresh\(\)\s*await activation\.reportDeliveredReminders\(\)\s*\}/)
+  assert.match(content, /activation\.cameBack\(\)\s*Task \{ await activation\.refresh\(\) \}/)
   assert.doesNotMatch(content, /wentAway/)
   // The Mac's Safari settings: the home card and the chats' empty state.
   assert.match(content, /activation\.wentToSettings\("card"\)\s*SFSafariApplication\.showPreferencesForExtension/)

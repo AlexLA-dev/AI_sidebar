@@ -318,7 +318,6 @@ struct ContentView: View {
                 await store.refreshEntitlement()
                 ReviewAsk.shared.cameToFront()
                 await activation.launched()
-                await activation.reportDeliveredReminders()
             }
             .onChange(of: scenePhase) { phase in
                 if phase == .active {
@@ -329,10 +328,7 @@ struct ContentView: View {
                     // Back from Settings or Safari: whether ContextFlow is on now (2.6), and the guide over Settings goes.
                     // 2.7: "back" first, so the server has it before "enabled".
                     activation.cameBack()
-                    Task {
-                        await activation.refresh()
-                        await activation.reportDeliveredReminders()
-                    }
+                    Task { await activation.refresh() }
                     #if os(iOS)
                     SettingsPiP.shared.stop()
                     #endif

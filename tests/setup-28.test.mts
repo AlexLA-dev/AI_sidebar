@@ -96,7 +96,11 @@ test("В2.4: switched on and never used, the app's next step is Safari, with one
   assert.match(setup, /case \.on: safariStep\.onAppear \{ activation\.safariStepShown\(\) \}/)
   const step = /private var safariStep: some View \{([\s\S]*?)\n {4}\}/.exec(setup)?.[1] ?? ""
   assert.match(step, /Card\(title: "Next: open Safari", systemImage: "safari"\)/)
-  assert.match(step, /tap ✦\. If Safari asks, choose Always Allow, then Always Allow on Every Website\./)
+  assert.match(step, /Step\(number: 1, text: "Tap ✦ on the page\."\)/)
+  // No ✦ while All Websites is still Ask: Safari's page menu is the way in, and Safari's question comes there.
+  assert.match(step, /Step\(number: 2, text: "No ✦\? Open the page menu in the address bar and choose ContextFlow\."\)/)
+  assert.match(step, /Step\(number: 3, text: "When Safari asks, choose Always Allow, then Always Allow on Every Website\."\)/)
+  assert.ok(step.indexOf("safariButton") < step.indexOf("TipClipView"), "the button before the clip")
   assert.match(step, /safariButton\("step", large: true\)/)
   assert.match(setup, /activation\.openedSafari\(via\)\s*openSafari\(\)/)
 })
@@ -126,6 +130,7 @@ test("В1.1: the setup funnel from its zero step, counted once where it should b
   assert.match(content, /\.onAppear \{ if !enabled \{ activation\.instructionShown\(\) \} \}/)
   // A reminder delivered is counted when the app is next in front; its tap where it arrives, then the guide opens.
   assert.match(setup, /let key = "cf_activation_reminder_\\\(what\)"/)
+  assert.match(setup, /await reportOpen\(\)\s*await reportDeliveredReminders\(\)\s*\}/)
   for (const delegate of ["ContextFlow/iOS (App)/AppDelegate.swift", "ContextFlow/macOS (App)/AppDelegate.swift"]) {
     assert.match(read(delegate), /if let which = info\["setup"\] as\? String \{[\s\S]{0,300}?"f": "notif", "a": "tap", "what": "setup"/, delegate)
   }
@@ -173,7 +178,9 @@ test("every new text is translated into the app's 14 other languages; on iPad in
     "In Settings, tap Apps on the left, then Safari in the list, then Extensions.",
     "On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above.",
     "Next: open Safari",
-    "So the reminder you just set reaches you.", "So you hear when the page you watch changes.", "So you know when your free answers are back."
+    "So the reminder you just set reaches you.", "So you hear when the page you watch changes.", "So you know when your free answers are back.",
+    "Tap ✦ on the page.", "No ✦? Open the page menu in the address bar and choose ContextFlow.",
+    "When Safari asks, choose Always Allow, then Always Allow on Every Website."
   ]
   for (const key of keys) {
     assert.match(setup, new RegExp(key.replace(/[.?()]/g, "\\$&")), key)
