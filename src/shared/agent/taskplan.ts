@@ -614,9 +614,16 @@ export const CONTACT_KEYS = ["name.full", "name.given", "name.family", "email", 
  * A booking's contact form is the booking going on (the director on 23e9: a restaurant was left for a required e-mail):
  * the saved ones go in as the plan's fill, one ticked line on the card («Заполнить из «Моих данных»: имя, e-mail…»).
  */
-export function addContactFill(plan: TaskPlan, saved: string[], host: string): void {
+export function addContactFill(plan: TaskPlan, saved: string[], host: string, said = ""): void {
+  // A detail the request itself gives (its e-mail, or a field the plan types from the request's words) comes from the
+  // request, not from «Мои данные» too: one source per field, the request wins (the director on 126: the card named the
+  // e-mail twice, «from the request» and «from My details»).
+  const given = new Set<string>((plan.perms.find((p) => p.kind === "personal")?.fields ?? []).map((f) => contactAsked(f) ?? "").filter(Boolean))
+  if (contactInWords("email", said)) given.add("email")
+  if (contactInWords("phone", said)) given.add("phone")
+  const fromRequest = (k: string) => given.has(k) || ((k === "name.given" || k === "name.family") && given.has("name.full"))
   // A full name covers its first and last name (they're split from it on the device): the card names it once.
-  const keys = CONTACT_KEYS.filter((k) => saved.includes(k) && !((k === "name.given" || k === "name.family") && saved.includes("name.full")))
+  const keys = CONTACT_KEYS.filter((k) => saved.includes(k) && !fromRequest(k) && !((k === "name.given" || k === "name.family") && saved.includes("name.full")))
   if (!plan.booking || !keys.length || plan.perms.some((p) => p.reason === "contact")) return
   plan.perms.push({ id: "pcontact", kind: "fill", reason: "contact", label: "", keys: [...keys], host, on: true })
 }

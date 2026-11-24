@@ -70,3 +70,9 @@ test("the bubble's words in all 15 languages", () => {
     for (const k of ["agentBubbleDone", "agentBubbleNotDone", "agentBubbleCheck"]) assert.match(d[k], /\{0\}/, `${loc}: ${k}`)
   }
 })
+
+test("the recap's asked time is in the device's clock, as the booked one (the director on 126: «07:00 PM» beside «19:10»)", () => {
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /r\.askedDate \? when\(r\.askedDate, r\.askedTime\) : clock\(r\.askedTime \?\? ""\)/)
+  assert.match(panel, /export function clock\(time: string\): string \{[\s\S]{0,200}Intl\.DateTimeFormat\(undefined, \{ hour: "2-digit", minute: "2-digit" \}\)/)
+})

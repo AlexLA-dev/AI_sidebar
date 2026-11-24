@@ -197,3 +197,25 @@ test("a list of places that shows no ratings (a clinic directory) is a list by i
   const footer = page("https://clinics.example/", "Clinics", "Home", ["a", "b", "c"].map((x) => ({ id: x, role: "link" as const, label: `Guide ${x}`, href: `/guides/${x}/read`, card: `Guide ${x} — five things to know about your teeth` })))
   assert.deepEqual(venuesOn(footer), [])
 })
+
+test("a page that is the booking's own form: no «I'll pick the place», and a detail the request gives has one source (the director on 126)", async () => {
+  const FORM = page("https://r.example/booking?lang=ru", "Забронировать столик", "Забронировать столик\nИмя\nТелефон\nЭлектронная почта\nДата\nВремя\nГостей",
+    [{ id: "1", role: "textbox", label: "Имя", lock: "personal" }, { id: "2", role: "textbox", label: "Электронная почта", type: "email", lock: "personal" },
+      { id: "3", role: "textbox", label: "Дата", type: "date" }, { id: "4", role: "checkbox", label: "Я согласен с условиями обслуживания" }, { id: "5", role: "button", label: "Забронировать" }])
+  const RAW = { label: "столик", steps: ["Заполню дату", "Введу имя и почту", "Нажму «Забронировать»"], questions: [], prices: [], fromChat: "",
+    risky: [{ tool: "type", id: "1", text: "Мария Ким", key: "" }, { tool: "type", id: "2", text: "maria@example.com", key: "" }, { tool: "click", id: "5", text: "Забронировать", key: "" }],
+    booking: { kind: "table", date: "2026-12-20", from: "19:10", until: "19:10", at: "19:10", minutes: 90, tz: "", venue: "", match: [], contacts: ["email"] } }
+  const io: RunnerIO = {
+    map: async () => FORM, act: async () => ({ ok: true }), waitPage: async () => {},
+    ask: async () => ({ ok: true, plan: RAW, token: "t" } as any),
+    save: async () => {}, entries: async () => [{ id: "e", key: "email", label: "", value: "me@example.org", updatedAt: 1 }], policy: { amazon: true }, maxSteps: 30, planning: true,
+    device: async () => ({ reminders: "yes", calendar: "yes" }), rules: async () => DEFAULT_RULES,
+    calendarFree: async () => "2026-12-20 18:00–22:00", slotFree: async () => true, playbook: { get: async () => null, put: async () => {} }
+  }
+  const s = await drive(newState("f", "Забронируй столик на 20 декабря в 19:10 на двоих, имя Мария Ким, почта maria@example.com", "ru", FORM.url), io)
+  assert.equal(s.status, "plan")
+  assert.equal(s.plan?.how?.rating, 0, "no place to choose on a one-form page")
+  assert.ok(s.plan?.perms.some((p) => p.kind === "personal"), "the request's details are typed")
+  assert.ok(!s.plan?.perms.some((p) => p.kind === "fill" && p.keys?.includes("email")), "the e-mail isn't from «Мои данные» too")
+  assert.ok(!s.plan?.questions.some((q) => q.kind === "contact"), "nor asked")
+})

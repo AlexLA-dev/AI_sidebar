@@ -18,7 +18,7 @@ import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
-import { addContactFill, buildPlan, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { addContactFill, buildPlan, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -455,6 +455,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
       if (plan.how) plan.how.rating = 0
     }
   }
+  // A page that is the booking's own form (its booking press is on this page, no places listed): there's no place to
+  // choose, so no «I'll pick the place» (the director on 126, a stand's one-form page).
+  if (plan.booking && plan.how && !placesListed && !venuesOn(map).length && plan.perms.some((p) => p.kind === "press" && p.reason === "submit" && !!p.ids?.length && p.path === pathOf(map.url))) plan.how.rating = 0
   // A place that's the person's to choose isn't «I'll pick the place»: the agent asks once it has a real list.
   if (plan.booking?.personal && !plan.booking.venue && plan.how && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) plan.how.rating = 0
   // A personal service's open choices, asked on the card unless the request names them (the owner on 123: «переуточнять
@@ -490,7 +493,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     }
   }
   // The booking's contact form (a later page): the saved name, e-mail and phone go in as the plan's fill.
-  addContactFill(plan, liveEntries(entries).map((e) => e.key), hostOf(map.url))
+  addContactFill(plan, liveEntries(entries).map((e) => e.key), hostOf(map.url), `${state.request} ${plan.fromChat ?? ""}`)
   // Nothing left to ask (every answer known from «Мои данные», this site's remembered choices or the rules; nothing paid;
   // a site booked on before): no card, the task starts with its answers in one line and Stop.
   // (A place the rules picked counts as known: the card would only show it.)

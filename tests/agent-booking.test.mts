@@ -535,3 +535,17 @@ test("a contact the request already gives isn't asked again on the card (the dir
   assert.equal(contactInWords("phone", "table for 2 on 2026-12-20 at 19:30"), false)
   assert.equal(contactInWords("email", "book a table, my email is the usual one"), false)
 })
+
+test("the contact fill leaves out what the request gives: its e-mail, its phone, a name it types (the director on 126)", async () => {
+  const { addContactFill } = await import("../src/shared/agent/taskplan.ts")
+  const plan = buildPlan(checkPlan(RAW)!, { map: SALON, startHost: "salon.example.com", request: "book", confirmedHere: false, policy: { amazon: true } })
+  addContactFill(plan, ["name.full", "email", "phone"], "salon.example.com", "столик, почта maria@example.com")
+  assert.deepEqual(plan.perms.find((p) => p.reason === "contact")?.keys, ["name.full", "phone"])
+  const plan2 = buildPlan(checkPlan(RAW)!, { map: SALON, startHost: "salon.example.com", request: "book", confirmedHere: false, policy: { amazon: true } })
+  plan2.perms.push({ id: "pp", kind: "personal", reason: "personal", label: "Имя", fields: ["Имя"], host: "salon.example.com", on: true })
+  addContactFill(plan2, ["name.full", "email"], "salon.example.com", "столик, телефон +357 99 123456")
+  assert.deepEqual(plan2.perms.find((p) => p.reason === "contact")?.keys, ["email"])
+  const plan3 = buildPlan(checkPlan(RAW)!, { map: SALON, startHost: "salon.example.com", request: "book", confirmedHere: false, policy: { amazon: true } })
+  addContactFill(plan3, ["email"], "salon.example.com", "почта a@b.example")
+  assert.equal(plan3.perms.find((p) => p.reason === "contact"), undefined, "nothing left: no line")
+})
