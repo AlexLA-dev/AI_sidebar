@@ -3905,6 +3905,9 @@
  "limitCardBackNow": {
   "message": "Vos réponses gratuites sont de retour."
  },
+ "limitCardTitleBack": {
+  "message": "Réponses gratuites de retour"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

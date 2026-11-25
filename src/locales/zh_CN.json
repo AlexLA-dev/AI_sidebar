@@ -1332,5 +1332,6 @@
   "answersBackOfferBody": "{0} 次免费回答已恢复。如果需要更多，Pro 首月优惠 {1}%。",
   "setOfferNotify": "在提醒中告知 Pro 优惠",
   "setOfferNotifyHint": "仅限免费回答用完时你设置的那一条提醒。在你开启之前保持关闭。",
-  "limitCardBackNow": "免费回答已恢复。"
+  "limitCardBackNow": "免费回答已恢复。",
+  "limitCardTitleBack": "免费回答已恢复"
 }

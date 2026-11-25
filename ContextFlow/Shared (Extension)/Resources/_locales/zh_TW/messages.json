@@ -3905,6 +3905,9 @@
  "limitCardBackNow": {
   "message": "免費回答已恢復。"
  },
+ "limitCardTitleBack": {
+  "message": "免費回答已恢復"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

@@ -1332,5 +1332,6 @@
   "answersBackOfferBody": "無料の回答{0}回分が戻りました。もっと使いたいときは、Pro の最初の1か月が {1}% オフです。",
   "setOfferNotify": "お知らせで Pro の割引を伝える",
   "setOfferNotifyHint": "無料回答を使い切ったときに設定する1件のお知らせだけです。オンにするまでオフです。",
-  "limitCardBackNow": "無料回答が戻りました。"
+  "limitCardBackNow": "無料回答が戻りました。",
+  "limitCardTitleBack": "無料回答が戻りました"
 }

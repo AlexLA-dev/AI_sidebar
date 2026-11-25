@@ -141,6 +141,25 @@ test("no own key row where the panel has none; no prices yet: still one button, 
   ui.clear(card.el)
 })
 
+test("once the answers are back the title says so, with no «in …» line under it; before, the title and the line", async () => {
+  const before = mount({ retryAt: Date.now() + 3_600_000, backTitle: "Your free answers are back" })
+  await tick()
+  assert.equal(before.el.querySelector(".cf-upsell-head strong").textContent, "You've used today's free answers")
+  assert.ok(before.el.querySelector(".cf-offer-body"))
+  ui.clear(before.el)
+  const after = mount({ retryAt: Date.now() - 1000, backTitle: "Your free answers are back" })
+  await tick()
+  assert.equal(after.el.querySelector(".cf-upsell-head strong").textContent, "Your free answers are back")
+  assert.equal(after.el.querySelector(".cf-offer-body"), null)
+  ui.clear(after.el)
+  // A long page's card keeps its own title and line (no backTitle).
+  const long = mount({ retryAt: Date.now() - 1000 })
+  await tick()
+  assert.equal(long.el.querySelector(".cf-upsell-head strong").textContent, "You've used today's free answers")
+  ui.clear(long.el)
+  assert.match(read("src/content/App.tsx"), /backTitle=\{long \? undefined : t\("limitCardTitleBack"\)\}/)
+})
+
 test("Retry only once the answers are back", async () => {
   const out = mount({ retryAt: Date.now() + 3_600_000 })
   await tick()
@@ -175,7 +194,7 @@ test("the panel: free people get this card, a Pro subscriber keeps Ultra in thei
 })
 
 test("15 languages: every string translated, placeholders kept, no «two taps» anywhere", () => {
-  const keys = ["limitCardTitle", "limitCardBack", "limitCardBackNow", "limitProLine", "limitCancel", "limitBuyOffer", "limitBuyPrice", "answersBackAt", "limitMore", "moreYearly", "moreYearlySave", "moreUltra", "moreUltraNoPrice", "moreChoose", "moreNotes", "moreOwnKey", "moreOwnKeyLink"]
+  const keys = ["limitCardTitle", "limitCardTitleBack", "limitCardBack", "limitCardBackNow", "limitProLine", "limitCancel", "limitBuyOffer", "limitBuyPrice", "answersBackAt", "limitMore", "moreYearly", "moreYearlySave", "moreUltra", "moreUltraNoPrice", "moreChoose", "moreNotes", "moreOwnKey", "moreOwnKeyLink"]
   const en = JSON.parse(read("src/locales/en.json"))
   const langs = readdirSync(join(root, "src/locales")).filter((f) => f.endsWith(".json"))
   assert.equal(langs.length, 15)

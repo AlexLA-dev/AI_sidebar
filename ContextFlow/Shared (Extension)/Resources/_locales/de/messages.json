@@ -3905,6 +3905,9 @@
  "limitCardBackNow": {
   "message": "Deine Gratis-Antworten sind wieder da."
  },
+ "limitCardTitleBack": {
+  "message": "Gratis-Antworten sind wieder da"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

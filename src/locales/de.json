@@ -1332,5 +1332,6 @@
   "answersBackOfferBody": "Deine {0} Gratis-Antworten sind zurück. Und wenn du mehr willst: Der erste Monat Pro ist {1} % günstiger.",
   "setOfferNotify": "Pro-Rabatte in Erinnerungen",
   "setOfferNotifyHint": "Nur in der einen Erinnerung, die du stellst, wenn deine Gratis-Antworten aufgebraucht sind. Aus, bis du es einschaltest.",
-  "limitCardBackNow": "Deine Gratis-Antworten sind wieder da."
+  "limitCardBackNow": "Deine Gratis-Antworten sind wieder da.",
+  "limitCardTitleBack": "Gratis-Antworten sind wieder da"
 }
