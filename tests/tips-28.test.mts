@@ -6,6 +6,7 @@ import { join } from "node:path"
 import { test } from "node:test"
 import { fileURLToPath } from "node:url"
 
+// @ts-expect-error: a plain .mjs module (the build's own)
 import { CATALOG_LANG, tipsData } from "../scripts/tips-source.mjs"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
