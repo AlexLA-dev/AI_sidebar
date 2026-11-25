@@ -727,7 +727,6 @@
   "154e05a4beaa": "No es un comparador de precios de todas las tiendas. Encuentra unas pocas alternativas buenas y las comprueba.",
   "d2236822c570": "Algunas tiendas no dejan abrir una página desde fuera; esas alternativas llegan sin comprobar.",
   "14c4d6d9e316": "Es un modelo de IA. Lee la página de la tienda antes de comprar, como harías de todos modos.",
-  "b7f8551a0802": "Encuentra y comprueba. No compra nada ni rellena nada por ti.",
   "c2b34c3d3c87": "Google Lens",
   "47294bde2f4b": "La app de Google, desde una captura",
   "474a3a87e680": "En la página del producto, en Safari",
@@ -909,5 +908,7 @@
   "095c2a50886f": "Sí. Las tres se pueden empezar a usar gratis desde el App Store.",
   "af61a24dc3fd": "Las tres ponen un chat de IA junto a la página que lees, y las tres pueden resumirla y trabajar con el texto seleccionado. ContextFlow y Zeki funcionan en Safari; la página de SurfMind en el App Store habla de «tu navegador» y no nombra ninguno. Se diferencian en lo que añaden. Yo hago ContextFlow, así que no soy neutral. Zeki y SurfMind se describen aquí tal como lo hacen sus páginas del App Store, en noviembre de 2026.",
   "c27425609fb6": "<strong>Con tu propia clave:</strong> gratis e ilimitado, con claves de Anthropic, OpenAI, Google, OpenRouter, Groq o Mistral, y cualquier modelo al que dé acceso la clave.",
-  "f202491f0a07": "Safari muestra el mismo aviso con todas las extensiones, porque no puede saber qué hace cada una. El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos. También puedes permitirlo sitio por sitio; entonces ✦ solo aparece en esos sitios."
+  "f202491f0a07": "Safari muestra el mismo aviso con todas las extensiones, porque no puede saber qué hace cada una. El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos. También puedes permitirlo sitio por sitio; entonces ✦ solo aparece en esos sitios.",
+  "00d4db45c1ce": "Sí, Pro y Ultra",
+  "932a1fd2c1fe": "Encuentra y comprueba. No compra nada por ti: pagar siempre te toca a ti."
 }

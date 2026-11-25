@@ -727,7 +727,6 @@
   "154e05a4beaa": "Ce n’est pas un comparateur de prix de toutes les boutiques. Il trouve une poignée de bonnes alternatives et les vérifie.",
   "d2236822c570": "Certaines boutiques ne laissent pas ouvrir une page depuis l’extérieur ; ces alternatives arrivent sans vérification.",
   "14c4d6d9e316": "C’est un modèle d’IA. Lisez la page de la boutique avant d’acheter, comme vous le feriez de toute façon.",
-  "b7f8551a0802": "Il trouve et vérifie. Il n’achète rien et ne remplit rien à votre place.",
   "c2b34c3d3c87": "Google Lens",
   "47294bde2f4b": "L’app Google, depuis une capture d’écran",
   "474a3a87e680": "Sur la page du produit dans Safari",
@@ -909,5 +908,7 @@
   "095c2a50886f": "Oui. Les trois sont gratuits pour commencer sur l’App Store.",
   "af61a24dc3fd": "Toutes trois placent une discussion IA à côté de la page que vous lisez, et toutes trois peuvent la résumer et travailler sur du texte sélectionné. ContextFlow et Zeki fonctionnent dans Safari ; la page App Store de SurfMind parle de « votre navigateur » et n’en nomme aucun. Elles diffèrent par ce qu’elles ajoutent. Je développe ContextFlow, donc je ne suis pas neutre. Zeki et SurfMind sont décrits ici tels que leurs pages App Store les décrivent, en novembre 2026.",
   "c27425609fb6": "<strong>Avec votre propre clé :</strong> gratuit et illimité, avec des clés d’Anthropic, OpenAI, Google, OpenRouter, Groq ou Mistral, et n’importe quel modèle accessible avec la clé.",
-  "f202491f0a07": "Safari affiche le même avertissement pour toutes les extensions, car il ne peut pas savoir ce que fait chacune. Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles. Vous pouvez aussi l’autoriser site par site ; ✦ n’apparaît alors que sur ces sites."
+  "f202491f0a07": "Safari affiche le même avertissement pour toutes les extensions, car il ne peut pas savoir ce que fait chacune. Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles. Vous pouvez aussi l’autoriser site par site ; ✦ n’apparaît alors que sur ces sites.",
+  "00d4db45c1ce": "Oui, Pro et Ultra",
+  "932a1fd2c1fe": "Il trouve et vérifie. Il n’achète rien à votre place : le paiement vous revient toujours."
 }

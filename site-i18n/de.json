@@ -727,7 +727,6 @@
   "154e05a4beaa": "Es ist kein Preisvergleich über alle Shops. Es findet eine Handvoll guter Alternativen und prüft sie.",
   "d2236822c570": "Manche Shops lassen nicht zu, dass eine Seite von außen geöffnet wird; diese Alternativen kommen ohne Prüfung.",
   "14c4d6d9e316": "Es ist ein KI-Modell. Lies die Seite des Shops, bevor du kaufst, wie du es ohnehin tun würdest.",
-  "b7f8551a0802": "Es findet und prüft. Es kauft nichts und füllt nichts für dich aus.",
   "c2b34c3d3c87": "Google Lens",
   "47294bde2f4b": "Die Google-App, mit einem Screenshot",
   "474a3a87e680": "Auf der Produktseite in Safari",
@@ -909,5 +908,7 @@
   "095c2a50886f": "Ja. Alle drei sind im App Store zum Einstieg kostenlos.",
   "af61a24dc3fd": "Alle drei bringen einen KI-Chat neben die Seite, die du liest, und alle drei können sie zusammenfassen und mit markiertem Text arbeiten. ContextFlow und Zeki funktionieren in Safari; die Seite von SurfMind im App Store spricht von „deinem Browser“ und nennt keinen. Sie unterscheiden sich darin, was noch dazukommt. Ich entwickle ContextFlow selbst, bin also nicht neutral. Zeki und SurfMind beschreibe ich hier so, wie ihre Seiten im App Store sie beschreiben, Stand November 2026.",
   "c27425609fb6": "<strong>Mit eigenem Schlüssel:</strong> kostenlos und unbegrenzt, mit Schlüsseln von Anthropic, OpenAI, Google, OpenRouter, Groq oder Mistral und jedem Modell, auf das der Schlüssel Zugriff hat.",
-  "f202491f0a07": "Safari zeigt dieselbe Warnung bei jeder Erweiterung, weil es nicht wissen kann, was sie tut. Seitentext wird nur gesendet, wenn du etwas fragst, und nicht zum Trainieren von Modellen verwendet. Du kannst es auch Website für Website erlauben; dann erscheint ✦ nur auf diesen Websites."
+  "f202491f0a07": "Safari zeigt dieselbe Warnung bei jeder Erweiterung, weil es nicht wissen kann, was sie tut. Seitentext wird nur gesendet, wenn du etwas fragst, und nicht zum Trainieren von Modellen verwendet. Du kannst es auch Website für Website erlauben; dann erscheint ✦ nur auf diesen Websites.",
+  "00d4db45c1ce": "Ja, Pro und Ultra",
+  "932a1fd2c1fe": "Es findet und prüft. Es kauft nichts für dich: Bezahlen tust immer du selbst."
 }

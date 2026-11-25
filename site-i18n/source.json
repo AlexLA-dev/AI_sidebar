@@ -6304,9 +6304,9 @@
   ]
  },
  {
-  "key": "b7f8551a0802",
+  "key": "932a1fd2c1fe",
   "kind": "html",
-  "en": "It finds and checks. It doesn't buy anything or fill in anything for you.",
+  "en": "It finds and checks. It doesn't buy anything for you: paying is always yours.",
   "pages": [
    "find-cheaper-similar-product-safari-iphone.html"
   ]
@@ -7253,6 +7253,14 @@
   "key": "614cb4b12cb0",
   "kind": "html",
   "en": "Acts on pages for you",
+  "pages": [
+   "contextflow-vs-zeki-surfmind.html"
+  ]
+ },
+ {
+  "key": "00d4db45c1ce",
+  "kind": "html",
+  "en": "Yes, Pro and Ultra",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
