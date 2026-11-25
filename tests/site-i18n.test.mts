@@ -5,7 +5,7 @@ import { test } from "node:test"
 // The site in every app language (2.6): scripts/site-i18n.mjs writes site/<language>/… from the English pages and
 // site-i18n/<language>.json. These checks read what's committed.
 // @ts-expect-error: a plain .mjs module
-import { ENGLISH_ONLY, LANGUAGES, PAGES, SOME_LANGUAGES, TRANSLATED, extract, inLanguage, languagesOf, outputs, pageUrl, problems, urlPath } from "../scripts/site-i18n.mjs"
+import { ENGLISH_ONLY, LANGUAGES, PAGES, UNLISTED, SOME_LANGUAGES, TRANSLATED, extract, inLanguage, languagesOf, outputs, pageUrl, problems, urlPath } from "../scripts/site-i18n.mjs"
 
 const dir = new URL("../site/", import.meta.url)
 const read = (path: string) => readFileSync(new URL(path, dir), "utf8")
@@ -50,7 +50,8 @@ test("each language page says its language and direction, keeps the counter, and
       const tag = html.match(/<html[^>]*>/)![0]
       assert.ok(tag.includes(` lang="${language.lang}"`), `${file}: ${tag}`)
       assert.equal(tag.includes(' dir="rtl"'), !!language.rtl, `${file}: ${tag}`)
-      assert.ok(html.includes('<script src="/visit.js" defer></script>'), `${file}: visit.js`)
+      // The counter runs on indexable pages only; the unlisted first page (noindex) has none.
+      assert.equal(html.includes('<script src="/visit.js" defer></script>'), !UNLISTED.includes(page), `${file}: visit.js`)
       // Internal links stay in the language (2.7, the director's review: no reader is sent to an English page). Only
       // privacy and terms, the binding texts, are English for everyone; the language links go anywhere.
       const body = html.replace(/<nav class="langs"[\s\S]*?<\/nav>/, "")
@@ -98,7 +99,8 @@ test("titles and descriptions are translated in every language, with the English
 test("the sitemap lists every page in every language it comes in, with its alternates; the rest in English", () => {
   const sitemap = read("sitemap.xml")
   for (const [page, versions] of VERSIONED) {
-    for (const language of versions) assert.ok(sitemap.includes(`<loc>${pageUrl(page, language)}</loc>`), pageUrl(page, language))
+    // The unlisted first page (noindex) is never in the sitemap.
+    for (const language of versions) assert.equal(sitemap.includes(`<loc>${pageUrl(page, language)}</loc>`), !UNLISTED.includes(page), pageUrl(page, language))
   }
   // A page in English and Russian only names just those two, and no other language.
   for (const page of Object.keys(SOME_LANGUAGES)) {
@@ -107,5 +109,5 @@ test("the sitemap lists every page in every language it comes in, with its alter
   for (const page of ENGLISH_ONLY) assert.ok(sitemap.includes(`<loc>${pageUrl(page)}</loc>`), page)
   assert.match(sitemap, /xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/)
   const versions = Object.keys(SOME_LANGUAGES).reduce((n, page) => n + languagesOf(page).length, 0)
-  assert.equal([...sitemap.matchAll(/<loc>/g)].length, PAGES.length * LANGUAGES.length + versions + ENGLISH_ONLY.length)
+  assert.equal([...sitemap.matchAll(/<loc>/g)].length, (PAGES.length - UNLISTED.length) * LANGUAGES.length + versions + ENGLISH_ONLY.length)
 })

@@ -54,8 +54,10 @@ export const PAGES = [
   "cases/planning.html", "safari-ai-extension-iphone.html", "notes-while-reading-safari.html", "safari-summary-vs-chatgpt.html",
   "support.html", "translate-web-page-safari-iphone.html", "proofread-safari-iphone.html",
   "find-cheaper-similar-product-safari-iphone.html", "ask-ai-about-web-page-safari.html", "contextflow-vs-zeki-surfmind.html",
-  "turn-on-safari-extension-iphone.html"
+  "turn-on-safari-extension-iphone.html", "start.html"
 ]
+/** In every language but never in the sitemap (noindex): the first page the app's «Open Safari» button opens (2.8). */
+export const UNLISTED = ["start.html"]
 /** English only, still in the sitemap: privacy and terms (the binding texts), and the alternative pages (2.7), which
  * come in other languages only when search data asks for it. */
 export const ENGLISH_ONLY = [
@@ -358,7 +360,7 @@ function sitemap() {
   const old = read("sitemap.xml")
   const lastmod = (file) => old.match(new RegExp(`<loc>${pageUrl(file).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc><lastmod>([\\d-]+)</lastmod>`))?.[1] ?? today(file) ?? "2026-11-07"
   const lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
-  for (const file of PAGES) {
+  for (const file of PAGES.filter((f) => !UNLISTED.includes(f))) {
     const alternates = LANGUAGES.flatMap((l) => [l.hreflang, ...(l.also ?? [])].map((code) => `<xhtml:link rel="alternate" hreflang="${code}" href="${pageUrl(file, l)}" />`))
     alternates.push(`<xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(file)}" />`)
     for (const l of LANGUAGES) lines.push(`  <url><loc>${pageUrl(file, l)}</loc><lastmod>${lastmod(file)}</lastmod>${alternates.join("")}</url>`)
