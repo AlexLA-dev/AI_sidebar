@@ -133,9 +133,9 @@ export function isOurRequest(data: Record<string, unknown>): boolean {
   return data.audience === "test" || "audience" in testMark(data)
 }
 
-/** Our simulator installs caught on the server (20261125120000_contextflow_sim_net.sql): for an app's first open from
- *  an address that was ours earlier today, or the third new app on one platform from one address today, the reason
- *  ("address" | "burst") to write as audience_set with audience "test"; null otherwise and when the call fails. */
+/** Our simulator installs caught on the server (20261125120000_contextflow_sim_net.sql), for an app's first open:
+ *  "address" when the address was ours earlier today (marked as a test), "burst" for the third new app on one platform
+ *  from one address today (a hint only); null otherwise and when the call fails. */
 export const eventGuard = (subject: string, app: string | null, install: string | null, platform: string, firstOpen: boolean, marked: boolean) =>
   rpc<string | null>("cf_event_guard", {
     p_subject: subject, p_app: app, p_install: install, p_platform: platform || null, p_first_open: firstOpen, p_marked: marked

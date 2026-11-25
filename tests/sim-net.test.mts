@@ -30,13 +30,25 @@ test("the setup funnel's app opened counts the install cohort, as the ladder doe
   assert.match(funnel, /where c\.source <> 'batch'/)
 })
 
-test("/api/v2/event asks the guard and writes its reason with audience test; a token-carrying open is never asked", () => {
+test("/api/v2/event asks the guard; only an address mark hides an app, a burst is a hint; a token-carrying open is never asked", () => {
   const event = read("netlify/functions/v2-event.mts")
   assert.match(event, /const firstOpen = has\(FIRST_OPEN\) && typeof body\.adToken !== "string"/)
   assert.match(event, /eventGuard\(address, appId, installId, shared\.platform, firstOpen, steps\.some\(\(s\) => isOurRequest\(s\.data\)\)\)/)
-  assert.match(event, /if \(why\) for \(const s of steps\) s\.data = \{ \.\.\.s\.data, audience: "test", audience_set: why \}/)
+  // Only "address" hides an app; "burst" is a hint that leaves it in every report.
+  assert.match(event, /const mark = why === "address" \? \{ audience: "test", audience_set: why \} : why === "burst" \? \{ net_hint: why \} : null/)
+  assert.doesNotMatch(event, /audience_set: "burst"|audience: "test", audience_set: why \} : why === "burst" \? \{ audience/)
   // The address subject for the counters is the same one the rate limit uses.
   assert.match(event, /\{ subject: `\$\{bucket\}:\$\{address\}`, period: "day", limit: limit \* 10 \}/)
   const db = read("netlify/shared/db.mts")
   assert.match(db, /why === "address" \|\| why === "burst" \? why : null\), \(\) => null\)/)
+})
+
+test("the reports that counted our installs go through the cohort or test_installs", () => {
+  const onboarding = /create or replace function public\.cf_onboarding[\s\S]*?\n\$\$;/.exec(migration)?.[0] ?? ""
+  assert.match(onboarding, /a\.test or not exists \(select 1 from cohort c where c\.app = a\.app\) as test/)
+  for (const view of ["v_audience", "v_daily", "v_funnel_30d", "v_summary"]) {
+    const def = new RegExp(`create or replace view contextflow\\.${view} as[\\s\\S]*?;\\n`).exec(migration)?.[0] ?? ""
+    assert.match(def, /contextflow\.test_installs/, view)
+  }
+  assert.match(migration, /create or replace view contextflow\.net_burst as/)
 })

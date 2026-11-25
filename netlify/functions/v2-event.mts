@@ -87,9 +87,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const limit = funnel ? settings.eventDailyLimit : busy ? settings.insert.eventDaily : settings.useEventDailyLimit
   const bucket = funnel ? "event" : busy ? `event:${busy}` : "event:use"
   const address = ipSubject(context.ip)
-  // Our simulator builds that don't mark themselves (2.7 and older branches): an app's first open from our address
-  // today, or a run of new apps from one address, is marked as a test here (cf_event_guard). An open that carries an
-  // AdServices token is never one: a simulator has none, a real iPhone or iPad sends one with its first opens.
+  // Our simulator builds that don't mark themselves (2.7 and older branches): an app's first open from an address
+  // that was ours earlier today is marked as a test here; the third new app on one platform from one address today
+  // only gets a hint, for a check by hand (cf_event_guard). An open that sends an AdServices token is left alone:
+  // a simulator has no token, and the app reads and sends it with the first open itself (Setup.swift reportOpen).
   const firstOpen = has(FIRST_OPEN) && typeof body.adToken !== "string"
   const [quota, why] = await Promise.all([
     consume([
@@ -99,7 +100,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     eventGuard(address, appId, installId, shared.platform, firstOpen, steps.some((s) => isOurRequest(s.data)))
   ])
   if (quota && !quota.allowed) return json({ code: "LIMIT_REACHED" }, 429)
-  if (why) for (const s of steps) s.data = { ...s.data, audience: "test", audience_set: why }
+  const mark = why === "address" ? { audience: "test", audience_set: why } : why === "burst" ? { net_hint: why } : null
+  if (mark) for (const s of steps) s.data = { ...s.data, ...mark }
 
   context.waitUntil(Promise.all(steps.map((s) => logEvent(s.kind, installId, s.data))))
   if (batch) return json({ ok: true, kept: steps.length, left_out: items.length - steps.length })
