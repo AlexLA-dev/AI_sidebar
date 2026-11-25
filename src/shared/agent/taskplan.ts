@@ -32,6 +32,8 @@ export interface PlanQuestion {
   // The device's own questions (their words come from the panel's language): where to book; a contact detail the booking
   // will ask for and «Мои данные» hasn't got (asked here, not mid-task; its value is filled by key, never sent).
   kind?: "venue" | "contact" | "specialist" | "service"
+  // Which place to book (the prompt's «venue» question, or options that are places the page lists): never kept.
+  place?: boolean
   key?: "email" | "phone"
   // What the card shows beside each option (a place's rating, reviews and area; "@last" for last time's), and the
   // rules' rating for the «pick for me» option. Options may be the card's own words: "@any", "@page", "@auto".
@@ -550,10 +552,11 @@ export function planLine(plan: TaskPlan | null | undefined): string {
  * Whether a plan question's answer may be kept in «Мои данные»: a contact detail, a fact about the person, a choice on a
  * site they'd make again — never which place to book (128: «venue: Harbour View Suites» kept from a ticked box).
  */
-export function keepable(q: Pick<PlanQuestion, "kind" | "fact">): boolean {
+export function keepable(q: Pick<PlanQuestion, "kind" | "fact" | "place">): boolean {
   if (q.kind === "contact") return true
-  if (!q.fact || q.kind === "venue") return false
-  return !/^(pref:)?\s*(venue|place|places|hotel|stay|restaurant)$/i.test(q.fact.trim())
+  if (!q.fact || q.kind === "venue" || q.place) return false
+  // (The device's and the prompt's own markers for it, the same in every language.)
+  return !/^(pref:)?\s*(venue|place)$/i.test(q.fact.trim())
 }
 
 /** A fact's name as compared with what «Мои данные» holds ("Размер обуви" = "размер  обуви"). */
@@ -640,15 +643,16 @@ export const CONTACT_KEYS = ["name.full", "name.given", "name.family", "email", 
  * A booking's contact form is the booking going on (the director on 23e9: a restaurant was left for a required e-mail):
  * the saved ones go in as the plan's fill, one ticked line on the card («Заполнить из «Моих данных»: имя, e-mail…»).
  */
-export function addContactFill(plan: TaskPlan, saved: string[], host: string, said = ""): void {
+export function addContactFill(plan: TaskPlan, saved: string[], host: string, said = "", savedName = ""): void {
   // A detail the request itself gives (its e-mail, or a field the plan types from the request's words) comes from the
   // request, not from «Мои данные» too: one source per field, the request wins (the director on 126: the card named the
   // e-mail twice, «from the request» and «from My details»).
   const given = requestGives(plan, said)
   const fromRequest = (k: string) => given.has(contactKind(k) ?? "")
-  // A booking for someone the request names (their name or contact in it, 128: «for Maria Kim, phone …»): the person's
-  // own saved contacts aren't theirs — offered unticked, and the model leaves an optional field empty.
-  const forOther = !!plan.booking && plan.perms.some((p) => p.kind === "personal") && (given.size > 0 || NAME_SAID.test(said))
+  // A booking for someone the request names (128: «for Maria Kim, phone …»): the person's own saved contacts aren't
+  // theirs — offered unticked, and the model leaves an optional field empty. Only a name the request gives that isn't
+  // the person's saved one: a phone or an e-mail alone («my phone is …») is the person's own booking.
+  const forOther = !!plan.booking && given.has("name") && !(savedName && saidInWords(said, savedName))
   if (forOther) plan.forOther = true
   const has = (k: string) => saved.includes(k) || ((k === "name.given" || k === "name.family") && saved.includes("name.full"))
   // The model's own «fill from My details» (127): only details that are saved and that the request doesn't give (the card

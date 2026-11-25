@@ -182,7 +182,17 @@ export function daysInText(text: string, near: string): string[] {
   }
   for (const m of text.matchAll(/(?<!\d)(\d{1,2})\s*[月월]\s*(\d{1,2})\s*[日일]/gu)) at(Number(m[1]), Number(m[2]))
   // («26.12», «5.1.»: never a time «19.30» or a price, which have no month of their own.)
-  for (const m of text.matchAll(new RegExp(DOTTED.source, "g"))) if (!/\d[.,]\d{2}\s*(€|\$|£|eur|usd)/i.test(text.slice(m.index ?? 0, (m.index ?? 0) + m[0].length + 5))) at(Number(m[2].replace(".", "")), Number(m[1]))
+  // «12/04/2026», «12/4 – 12/6»: day/month or month/day by the page's habit, which a text alone doesn't say — both
+  // readings (one of them is the asked day or neither is; 128, the director: a US-order page never «showed» its dates).
+  for (const m of text.matchAll(/(?<![\d/.])(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?(?![\d/])/g)) {
+    const [a, b2, y] = [Number(m[1]), Number(m[2]), m[3]]
+    for (const [mo, d] of [[b2, a], [a, b2]]) {
+      if (mo < 1 || mo > 12 || d < 1 || d > 31) continue
+      if (y) out.add(`${y}-${pad2(mo)}-${pad2(d)}`)
+      else at(mo, d)
+    }
+  }
+  for (const m of text.matchAll(new RegExp(DOTTED.source.replace("[./]", "\\."), "g"))) if (!/\d[.,]\d{2}\s*(€|\$|£|eur|usd)/i.test(text.slice(m.index ?? 0, (m.index ?? 0) + m[0].length + 5))) at(Number(m[2].replace(".", "")), Number(m[1]))
   const words = text.split(/\s+/)
   words.forEach((w, i) => {
     if (!/\p{L}/u.test(w) || /\d/.test(w) || monthIn(w) < 0) return

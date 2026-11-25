@@ -200,3 +200,105 @@ test("6–9: one day format, labels without their required mark, warnings cut at
   const en = JSON.parse(readFileSync(new URL("../src/locales/en.json", import.meta.url), "utf8"))
   assert.doesNotMatch(en.agentPriceChanged, /plan/i, "the price warning stands on its own (no plan card may have been shown)")
 })
+
+// ---------------------------------------------------------------- the director's review of 04a35ae3 (A–G)
+
+test("A: a page holding its dates in US order («12/04/2026», «12/4 – 12/6») shows them; the last press goes", async () => {
+  const US = { ...STAY("Dec 2026"), items: [{ id: "2", role: "textbox", label: "Check-in", value: "12/04/2026" }, { id: "8", role: "textbox", label: "Check-out", value: "12/06/2026" }, ...STAY("").items] } as PageMap
+  assert.equal(showsDay(US, "2026-12-04"), true)
+  assert.equal(showsDay(STAY("Your stay: 12/4 – 12/6"), "2026-12-06"), true)
+  assert.equal(showsDay(STAY("Your stay: 4/12 – 6/12"), "2026-12-04"), true, "day/month as well")
+  const x = io([step({ tool: "click", id: "6", why: "Completing the booking" }, "confirm", "submit"), step({ tool: "done", summary: "Booked." }, "free", "read")], US)
+  const after = await drive(stay("Book a stay from 4 to 6 December"), x)
+  assert.equal(x.acted.length, 1, "pressed")
+  assert.equal(after.booked?.date, "2026-12-04")
+})
+
+const TABLE = (items: PageMap["items"]): PageMap => ({ url: "https://tables.example/book", title: "Book a table", lang: "en", forms: [{ n: 0, fillable: true }], more: 0, part: 1, parts: 1, text: "Book a table", items: [...items, { id: "9", role: "button", label: "Book", type: "submit", form: 0 }] }) as PageMap
+function table(request: string): AgentState {
+  const s = newState("tB", request, "en", "https://tables.example/book")
+  s.plan = { steps: [], questions: [], self: [], prices: [], approved: true, perms: [{ id: "p1", kind: "press", reason: "submit", label: "Book", host: "tables.example", on: true }], booking: { kind: "table", date: "2026-11-26", at: "19:30", from: "", until: "", minutes: 90 } } as unknown as TaskPlan
+  return s
+}
+
+test("B: a table left on the page's own day (another day set) isn't booked because the strip offered the asked one", () => {
+  const strip = TABLE([{ id: "d1", role: "button", label: "Wed 25 Nov", state: ["pressed"] }, { id: "d2", role: "button", label: "Thu 26 Nov" }, { id: "d3", role: "button", label: "Fri 27 Nov" }, { id: "d4", role: "button", label: "Sat 28 Nov" }])
+  const s = table("Book a table tomorrow at 19:30")
+  s.sawDate = true
+  assert.match(unsetDays(s, strip) ?? "", /doesn't show the booking's day/)
+  const field = TABLE([{ id: "f", role: "textbox", label: "Date", type: "date", value: "2026-11-25" }])
+  assert.match(unsetDays(s, field) ?? "", /doesn't show the booking's day/)
+  // The asked day marked chosen: it goes.
+  const chosen = TABLE([{ id: "d1", role: "button", label: "Wed 25 Nov" }, { id: "d2", role: "button", label: "Thu 26 Nov", state: ["pressed"] }, { id: "d3", role: "button", label: "Fri 27 Nov" }, { id: "d4", role: "button", label: "Sat 28 Nov" }])
+  assert.equal(unsetDays(s, chosen), null)
+})
+
+test("C: the person took another day in their answer: the last press goes, the recap and the booking carry their day", async () => {
+  const page = TABLE([{ id: "f", role: "textbox", label: "Date", type: "date", value: "2026-11-28" }, { id: "t", role: "button", label: "19:30", state: ["pressed"] }])
+  const s = table("Book a table tomorrow at 19:30")
+  s.replies = ["2026-11-28"]
+  assert.equal(unsetDays(s, page), null)
+  // Not allowed by the plan this time: the «Do it?» carries what it books.
+  s.plan!.perms = []
+  const x = io([step({ tool: "click", id: "9", why: "Booking" }, "confirm", "submit")], page)
+  const asked = await drive(s, x)
+  assert.equal(asked.status, "confirm")
+  assert.equal(asked.pending?.recap?.date, "2026-11-28")
+  assert.equal(asked.pending?.recap?.askedDate, "2026-11-26")
+  const { answer } = await import("../src/shared/agent/runner.ts")
+  x.ask = async () => ({ ok: true, call: { tool: "done", summary: "Booked.", date: "2026-11-26", time: "19:30" }, verdict: { cls: "free", reason: "read" } })
+  const after = await answer(asked, x, "yes")
+  assert.equal(after.booked?.date, "2026-11-28", "the day the page showed at the press, not the model's asked day")
+})
+
+test("D: which place isn't kept in any language: the question whose options are places the page lists", () => {
+  assert.equal(keepable({ fact: "Отель", place: true }), false)
+  assert.equal(keepable({ fact: "Lieu", place: true }), false)
+  assert.equal(keepable({ fact: "Отель" }), true, "by words alone it can't tell: the device marks it from the page")
+  const runner = readFileSync(new URL("../src/shared/agent/runner.ts", import.meta.url), "utf8")
+  assert.match(runner, /if \(q\.fact === "venue" \|\| q\.options\.filter\(\(o\) => listed\.has\(squashName\(o\)\)\)\.length >= 2\) q\.place = true/)
+})
+
+test("E: a phone or an e-mail alone is the person's own booking; a name that isn't theirs makes it someone else's", () => {
+  const plan = (said: string, fields: string[]) => {
+    const p = { steps: [], questions: [], self: [], prices: [], booking: { kind: "table" }, perms: [{ id: "p0", kind: "personal", reason: "personal", label: fields.join(", "), fields, host: "h", on: true }] } as unknown as TaskPlan
+    addContactFill(p, ["name.full", "email", "phone"], "h", said, "Alex Test")
+    return p
+  }
+  assert.equal(plan("Book a table tomorrow, my phone is +33 6 12 34 56 78", ["Phone"]).forOther, undefined)
+  assert.equal(plan("Book a table tomorrow, my phone is +33 6 12 34 56 78", ["Phone"]).perms.find((p) => p.reason === "contact")?.on, true)
+  assert.equal(plan("Book a table for Alex Test tomorrow", ["Name"]).forOther, undefined, "their own saved name")
+  assert.equal(plan("Book a table for Maria Kim tomorrow", ["Name"]).forOther, true)
+})
+
+test("F: a required field marked only by «*», or asked again after the press, ends with the person asked — never a loop", async () => {
+  const FORM = (label: string) => ({ url: "https://tables.example/slots", title: "Book", lang: "en", forms: [{ n: 0, fillable: true }], more: 0, part: 1, parts: 1, text: "", items: [{ id: "3", role: "textbox", label, lock: "personal", type: "email", auto: "email", form: 0, state: ["empty"] }] }) as PageMap
+  const other = { steps: [], questions: [], self: [], prices: [], approved: true, forOther: true, booking: { kind: "table", date: "2026-11-26", at: "19:30", from: "", until: "", minutes: 90 }, perms: [{ id: "pcontact", kind: "fill", reason: "contact", label: "", keys: ["email"], host: "tables.example", on: false }] } as unknown as TaskPlan
+  const run = async (label: string) => {
+    const s = newState("tF", "Book a table for Maria Kim tomorrow at 19:30", "en", "https://tables.example/slots")
+    s.plan = structuredClone(other)
+    const fill = () => step({ tool: "fill", id: "3", key: "email", why: "Adding the e-mail" }, "confirm", "fill")
+    const x = io([fill(), fill(), fill()], FORM(label))
+    return { after: await drive(s, x), x }
+  }
+  assert.equal((await run("E-mail *")).after.status, "fill", "«*»: required, the person is asked")
+  const again = await run("E-mail")
+  assert.match(again.x.asked[1].log.at(-1).result, /refused: this booking is for someone the request names/)
+  assert.equal(again.after.status, "fill", "the second time (the form asked for it): the person is asked")
+})
+
+test("G: an emptied line shows its control's name; a table's day pressed on a strip keeps its line", () => {
+  const s = table("Book a table tomorrow at 19:30")
+  s.lines.push({ text: "Choosing 2026-11-26 for 2", tool: "click", cls: "free", ok: true, target: 'button "Thu 26"' })
+  s.lineCheck = 0
+  s.picked = { date: "2026-11-26" }
+  checkDayLine(s, TABLE([{ id: "d", role: "button", label: "Thu 26" }, { id: "e", role: "button", label: "Fri 27" }]))
+  assert.equal(s.lines[0].text, "Choosing 2026-11-26 for 2")
+  const t = table("Book a table tomorrow at 19:30")
+  t.lines.push({ text: "Choosing Thu 26 Nov", tool: "click", cls: "free", ok: true, target: 'button "Thu 26 Nov"' })
+  t.lineCheck = 0
+  checkDayLine(t, TABLE([{ id: "d", role: "button", label: "Thu 26 Nov" }, ...Array.from({ length: 6 }, (_, i) => ({ id: `x${i}`, role: "button", label: `Fri ${27 + i} Nov` }) as PageMap["items"][number])]))
+  assert.equal(t.lines[0].text, "Choosing Thu 26 Nov", "the pressed control is that day")
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /l\.text \? localWhen\(l\.text\) : l\.tool === "fill" && l\.target \? t\("agentLineFilled", nameOf\(l\.target\)\) : nameOf\(l\.target\)/)
+})

@@ -19,7 +19,7 @@ import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { pageKind } from "./events.ts"
-import { addContactFill, NAME_SAID, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -192,6 +192,8 @@ export interface AgentState {
   dateRefusals?: number
   bookedDays?: { date: string; dateEnd?: string }
   daysAtPress?: { date: string; dateEnd?: string }
+  // Fields of someone else's booking the person's saved contact was kept out of once (128).
+  otherLeft?: string[]
 }
 
 export interface ActReply {
@@ -352,6 +354,8 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   if (verdict.cls === "confirm" && verdict.reason === "submit" && result.ok && state.daysAtPress) state.bookedDays = state.daysAtPress
 }
 
+const squashName = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
+
 /** Today on the device (YYYY-MM-DD), the year a day without one is read against. */
 function todayIso(): string {
   const d = new Date()
@@ -367,8 +371,11 @@ export function checkDayLine(state: AgentState, map: PageMap): void {
   state.lineCheck = undefined
   const l = i === undefined ? undefined : state.lines[i]
   if (!l?.text || !l.ok) return
-  const days = daysInText(l.text, state.plan?.booking?.date ?? todayIso())
-  if (days.some((d) => !showsDay(map, d))) l.text = ""
+  const near = state.plan?.booking?.date ?? todayIso()
+  const days = daysInText(l.text, near)
+  // (The step's own control is that day — a strip's «Thu 26 Nov» pressed —, or the day the device saw pressed: kept.)
+  const own = (d: string) => (!!l.target && dayOf(/"(.*)"$/.exec(l.target)?.[1] ?? "", d) === d) || state.picked?.date === d
+  if (days.some((d) => !showsDay(map, d) && !own(d))) l.text = ""
 }
 
 /**
@@ -377,14 +384,40 @@ export function checkDayLine(state: AgentState, map: PageMap): void {
  * on; one day counts once the page showed it, or it was pressed.
  */
 export function unsetDays(state: AgentState, map: PageMap): string | null {
+  return bookingDays(state, map) ? null : daysRefusal(state)
+}
+
+/**
+ * The days the booking's last press books, as the page shows them set; null when it doesn't. The asked days, or the
+ * ones the person chose in their answers (128, the director: the asked day had nothing and they took another), or a
+ * day pressed past the date checks. A day only on offer (a strip showing it) counts only while no other day is set.
+ */
+export function bookingDays(state: AgentState, map: PageMap): { date: string; dateEnd?: string } | null {
   const b = state.plan?.booking
   if (!b?.date) return null
+  const replied = daysInText((state.replies ?? []).join("\n"), b.date).filter((d) => showsDay(map, d)).sort()
   if (b.dateEnd) {
-    if (showsDay(map, b.date) && showsDay(map, b.dateEnd)) return null
-    return `the page doesn't show this ${b.kind}'s dates set (${dayWords(b.date)} to ${dayWords(b.dateEnd)}), so this press would book without them or for other dates: never press it so. Set the dates on the page first (its own date fields, then its Search, Apply or Update), or open the place again from a list that has the dates; if the page can't take them, ask_user with what it shows`
+    if (showsDay(map, b.date) && showsDay(map, b.dateEnd)) return { date: b.date, dateEnd: b.dateEnd }
+    return replied.length >= 2 ? { date: replied[0], dateEnd: replied[replied.length - 1] } : null
   }
-  if (showsDay(map, b.date) || state.picked?.date === b.date || state.sawDate) return null
+  if (showsDay(map, b.date)) return { date: b.date }
+  if (replied.length) return { date: replied[0] }
+  if (state.picked?.date) return { date: state.picked.date }
+  // (A table left on the page's own day, another one set, while the strip merely offered the asked one.)
+  if (state.sawDate && !otherDaySet(map, b.date)) return { date: b.date }
+  return null
+}
+
+function daysRefusal(state: AgentState): string {
+  const b = state.plan!.booking!
+  if (b.dateEnd) return `the page doesn't show this ${b.kind}'s dates set (${dayWords(b.date)} to ${dayWords(b.dateEnd)}), so this press would book without them or for other dates: never press it so. Set the dates on the page first (its own date fields, then its Search, Apply or Update), or open the place again from a list that has the dates; if the page can't take them, ask_user with what it shows`
   return `the page doesn't show the booking's day (${dayWords(b.date)}) set, so this press would book without it or for another day: never press it so. Choose the day on the page first; if the page can't take it, ask_user with what it shows`
+}
+
+/** Another day than this one set on the page: a date field's value, or a day control marked chosen. */
+function otherDaySet(map: PageMap, iso: string): boolean {
+  if (widgetDay(map, iso)) return true
+  return map.items.some((i) => i.label.length <= 60 && isDateLabel(i.label) && !!i.state?.some((x) => x === "selected" || x === "checked" || x === "pressed" || x === "current") && dayOf(i.label, iso) !== null && dayOf(i.label, iso) !== iso)
 }
 
 /** The map as it goes to the server: the page's amounts stay on the device (they're for its own price check). */
@@ -446,6 +479,10 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   state.pageKind = pageKind(map, subject, plan?.booking)
   if (!plan) return "go"
   state.plan = plan
+  // Which place to book, by what it is, not by its words (128: «venue» was kept in My details; a fact is written in the
+  // request's language): the question the prompt marks, or one whose options are places this page lists (its links).
+  const listed = new Set([...venuesOn(map).map((v) => v.name), ...map.items.filter((i) => i.role === "link" && i.href).map((i) => i.label)].map(squashName))
+  for (const q of plan.questions) if (q.fact === "venue" || q.options.filter((o) => listed.has(squashName(o))).length >= 2) q.place = true
   // A place the request (or the chat it came from) doesn't name isn't the model's to pick on the plan (124, the director:
   // a home page's first «Featured» salon taken silently): the place is asked on the card or chosen by the rules.
   if (plan.booking?.venue && !(subject?.kind === "place" && subject.name === plan.booking.venue) && !namedIn(plan.booking.venue, `${state.request} ${plan.fromChat ?? ""}`)) delete plan.booking.venue
@@ -552,7 +589,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     }
   }
   // The booking's contact form (a later page): the saved name, e-mail and phone go in as the plan's fill.
-  addContactFill(plan, liveEntries(entries).map((e) => e.key), hostOf(map.url), `${state.request} ${plan.fromChat ?? ""}`)
+  addContactFill(plan, liveEntries(entries).map((e) => e.key), hostOf(map.url), `${state.request} ${plan.fromChat ?? ""}`, liveEntries(entries).find((e) => e.key === "name.full")?.value ?? "")
   // Nothing left to ask (every answer known from «Мои данные», this site's remembered choices or the rules; nothing paid;
   // a site booked on before): no card, the task starts with its answers in one line and Stop.
   // (A place the rules picked counts as known: the card would only show it.)
@@ -668,7 +705,7 @@ export function cancelTerms(map: PageMap): string {
 export function recapOf(state: AgentState, map: PageMap, always = false): Recap | null {
   const b = state.plan?.booking
   if (!b) return null
-  const p = state.picked ?? {}
+  const p = { ...(state.picked ?? {}), ...(state.daysAtPress ? { date: state.daysAtPress.date } : {}) }
   const otherDay = !!p.date && p.date !== b.date
   const otherTime = !!b.at && !!p.time && p.time !== b.at
   // The place it opened isn't the first one chosen (the next one, when the first had no slot that fits).
@@ -683,7 +720,7 @@ export function recapOf(state: AgentState, map: PageMap, always = false): Recap 
   return {
     ...(place ? { place: place.slice(0, 80) } : {}),
     ...(p.date || b.date ? { date: p.date || b.date } : {}),
-    ...(b.dateEnd ? { dateEnd: b.dateEnd } : {}),
+    ...(b.dateEnd ? { dateEnd: state.daysAtPress?.dateEnd ?? b.dateEnd } : {}),
     ...(p.time ? { time: p.time } : {}),
     ...(otherDay ? { askedDate: b.date } : {}),
     ...(otherTime ? { askedTime: b.at } : {}),
@@ -1165,8 +1202,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // A booking for someone the request names (128: Maria Kim's table went out with the saved alex.test@…): the person's
     // own saved contact goes into a field the page doesn't require only when they ticked it on the card or answered it here.
-    const otherKind = call.tool === "fill" && call.key && state.plan?.forOther && seenItem && !seenItem.state?.includes("required") ? contactKind(call.key) : null
+    // (Required by the page's state or its «*»; refused once per field: the form may ask for it after the press, and then
+    // the person is asked with the value shown, never a loop.)
+    const required = !!seenItem && (!!seenItem.state?.includes("required") || bareLabel(seenItem.label) !== seenItem.label.trim())
+    const otherKind = call.tool === "fill" && call.key && state.plan?.forOther && seenItem && !required && !state.otherLeft?.includes(seenItem.id) ? contactKind(call.key) : null
     if (otherKind && !state.plan!.perms.some((p) => p.reason === "contact" && p.on && p.keys?.includes(call.key!)) && !state.oneTime?.some((o) => o.key === call.key)) {
+      state.otherLeft = [...(state.otherLeft ?? []), seenItem!.id]
       const why = `this booking is for someone the request names: the saved ${otherKind} is the person's own, not theirs, and the page doesn't require this field — leave it empty and go on`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
@@ -1285,8 +1326,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         }
         continue
       }
-      const b = state.plan.booking
-      state.daysAtPress = { date: b.dateEnd || showsDay(map, b.date) ? b.date : state.picked?.date ?? b.date, ...(b.dateEnd ? { dateEnd: b.dateEnd } : {}) }
+      state.daysAtPress = bookingDays(state, map) ?? undefined
     }
     if (verdict.cls === "blocked") {
       if (verdict.reason.startsWith("site_")) {
@@ -1443,7 +1483,8 @@ async function afterBooking(state: AgentState, io: RunnerIO, call: ToolCall, her
   if (!plan?.booking) return
   // (A «done» without its date after the booking's last press went, 128: «Not finished» over «Your stay is booked» —
   // the day is the one the page showed at that press.)
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : state.bookedDays?.date ?? ""
+  // (The day the page showed at the press goes first: the person's own choice when they took another, 128.)
+  const date = state.bookedDays?.date ?? (/^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : "")
   const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : state.bookedDays ? state.picked?.time ?? "" : ""
   const site = siteOfHost(state.host || state.startHost)
   if (site && io.playbook) {
