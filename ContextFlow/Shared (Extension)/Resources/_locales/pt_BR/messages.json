@@ -2732,6 +2732,69 @@
  "fabFirstLabel": {
   "message": "Pergunte sobre esta página"
  },
+ "rqProductWorth": {
+  "message": "Vale o que custa?"
+ },
+ "rqProductCons": {
+  "message": "Quais são as desvantagens?"
+ },
+ "rqProductCheck": {
+  "message": "O que verificar antes de comprar?"
+ },
+ "rqArticleMain": {
+  "message": "Qual é a ideia principal?"
+ },
+ "rqArticleArgue": {
+  "message": "O que dá para questionar aqui?"
+ },
+ "rqArticleMe": {
+  "message": "O que isso significa para mim?"
+ },
+ "rqVideoAbout": {
+  "message": "Sobre o que é este vídeo?"
+ },
+ "rqVideoKey": {
+  "message": "Quais são os pontos principais?"
+ },
+ "rqFormNeed": {
+  "message": "O que preciso para preencher isto?"
+ },
+ "rqFormWatch": {
+  "message": "Com o que devo tomar cuidado aqui?"
+ },
+ "rqEventWhen": {
+  "message": "Quando, onde e quanto custa?"
+ },
+ "rqEventWorth": {
+  "message": "Vale a pena ir?"
+ },
+ "rqStayKey": {
+  "message": "Quais são os detalhes principais?"
+ },
+ "rqStayWatch": {
+  "message": "O que saber antes de decidir?"
+ },
+ "rqAnyMain": {
+  "message": "O que é o principal aqui?"
+ },
+ "rqAnyWorth": {
+  "message": "O que vale a pena saber aqui?"
+ },
+ "rqTitle": {
+  "message": "Pergunte sobre esta página"
+ },
+ "rqAgree": {
+  "message": "Concordar e perguntar"
+ },
+ "rqAgreeNote": {
+  "message": "Tocar em uma pergunta dá este consentimento e a envia."
+ },
+ "rqContinue": {
+  "message": "Continuar «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "Ou pergunte com suas palavras…"
+ },
  "phWatch": {
   "message": "Acompanhar o preço?"
  },

@@ -2732,6 +2732,69 @@
  "fabFirstLabel": {
   "message": "이 페이지에 대해 질문하기"
  },
+ "rqProductWorth": {
+  "message": "가격만큼의 가치가 있나요?"
+ },
+ "rqProductCons": {
+  "message": "단점은 뭔가요?"
+ },
+ "rqProductCheck": {
+  "message": "사기 전에 무엇을 확인해야 하나요?"
+ },
+ "rqArticleMain": {
+  "message": "핵심 내용이 뭔가요?"
+ },
+ "rqArticleArgue": {
+  "message": "여기서 반박할 만한 부분은?"
+ },
+ "rqArticleMe": {
+  "message": "저에게 어떤 의미인가요?"
+ },
+ "rqVideoAbout": {
+  "message": "이 영상은 무슨 내용인가요?"
+ },
+ "rqVideoKey": {
+  "message": "핵심 포인트는 뭔가요?"
+ },
+ "rqFormNeed": {
+  "message": "작성하려면 무엇이 필요한가요?"
+ },
+ "rqFormWatch": {
+  "message": "여기서 주의할 점은?"
+ },
+ "rqEventWhen": {
+  "message": "언제, 어디서, 얼마인가요?"
+ },
+ "rqEventWorth": {
+  "message": "가볼 만한가요?"
+ },
+ "rqStayKey": {
+  "message": "주요 세부 사항은 뭔가요?"
+ },
+ "rqStayWatch": {
+  "message": "결정하기 전에 알아야 할 것은?"
+ },
+ "rqAnyMain": {
+  "message": "여기서 핵심은 뭔가요?"
+ },
+ "rqAnyWorth": {
+  "message": "여기서 알아둘 만한 것은?"
+ },
+ "rqTitle": {
+  "message": "이 페이지에 대해 질문하기"
+ },
+ "rqAgree": {
+  "message": "동의하고 질문하기"
+ },
+ "rqAgreeNote": {
+  "message": "질문을 탭하면 이 동의를 하고 질문합니다."
+ },
+ "rqContinue": {
+  "message": "'{0}' 이어서 하기"
+ },
+ "rqOwnWords": {
+  "message": "또는 직접 질문하세요…"
+ },
  "phWatch": {
   "message": "가격을 지켜볼까요?"
  },

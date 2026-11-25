@@ -2732,6 +2732,69 @@
  "fabFirstLabel": {
   "message": "就此页面提问"
  },
+ "rqProductWorth": {
+  "message": "这个值这个价吗？"
+ },
+ "rqProductCons": {
+  "message": "有什么缺点？"
+ },
+ "rqProductCheck": {
+  "message": "购买前要确认什么？"
+ },
+ "rqArticleMain": {
+  "message": "主要观点是什么？"
+ },
+ "rqArticleArgue": {
+  "message": "这里有什么值得商榷的？"
+ },
+ "rqArticleMe": {
+  "message": "这对我意味着什么？"
+ },
+ "rqVideoAbout": {
+  "message": "这个视频讲了什么？"
+ },
+ "rqVideoKey": {
+  "message": "关键点有哪些？"
+ },
+ "rqFormNeed": {
+  "message": "填写这个需要准备什么？"
+ },
+ "rqFormWatch": {
+  "message": "这里需要注意什么？"
+ },
+ "rqEventWhen": {
+  "message": "什么时间、地点，多少钱？"
+ },
+ "rqEventWorth": {
+  "message": "值得去吗？"
+ },
+ "rqStayKey": {
+  "message": "关键细节有哪些？"
+ },
+ "rqStayWatch": {
+  "message": "决定之前需要知道什么？"
+ },
+ "rqAnyMain": {
+  "message": "这里最重要的是什么？"
+ },
+ "rqAnyWorth": {
+  "message": "这里有什么值得了解的？"
+ },
+ "rqTitle": {
+  "message": "就此页面提问"
+ },
+ "rqAgree": {
+  "message": "同意并提问"
+ },
+ "rqAgreeNote": {
+  "message": "点按问题即表示给予此同意并提问。"
+ },
+ "rqContinue": {
+  "message": "继续“{0}”"
+ },
+ "rqOwnWords": {
+  "message": "或用自己的话提问…"
+ },
  "phWatch": {
   "message": "关注价格？"
  },

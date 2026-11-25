@@ -2732,6 +2732,69 @@
  "fabFirstLabel": {
   "message": "Fragen zu dieser Seite"
  },
+ "rqProductWorth": {
+  "message": "Ist es sein Geld wert?"
+ },
+ "rqProductCons": {
+  "message": "Welche Nachteile hat es?"
+ },
+ "rqProductCheck": {
+  "message": "Was sollte ich vor dem Kauf prüfen?"
+ },
+ "rqArticleMain": {
+  "message": "Was ist die Kernaussage?"
+ },
+ "rqArticleArgue": {
+  "message": "Was ist hier fragwürdig?"
+ },
+ "rqArticleMe": {
+  "message": "Was bedeutet das für mich?"
+ },
+ "rqVideoAbout": {
+  "message": "Worum geht es in dem Video?"
+ },
+ "rqVideoKey": {
+  "message": "Was sind die wichtigsten Punkte?"
+ },
+ "rqFormNeed": {
+  "message": "Was brauche ich zum Ausfüllen?"
+ },
+ "rqFormWatch": {
+  "message": "Worauf sollte ich hier achten?"
+ },
+ "rqEventWhen": {
+  "message": "Wann, wo und was kostet es?"
+ },
+ "rqEventWorth": {
+  "message": "Lohnt es sich hinzugehen?"
+ },
+ "rqStayKey": {
+  "message": "Was sind die wichtigsten Details?"
+ },
+ "rqStayWatch": {
+  "message": "Was sollte ich vorher wissen?"
+ },
+ "rqAnyMain": {
+  "message": "Worum geht es hier im Kern?"
+ },
+ "rqAnyWorth": {
+  "message": "Was ist hier wissenswert?"
+ },
+ "rqTitle": {
+  "message": "Fragen zu dieser Seite"
+ },
+ "rqAgree": {
+  "message": "Zustimmen und fragen"
+ },
+ "rqAgreeNote": {
+  "message": "Ein Tippen auf eine Frage gibt diese Zustimmung und stellt die Frage."
+ },
+ "rqContinue": {
+  "message": "„{0}“ fortsetzen"
+ },
+ "rqOwnWords": {
+  "message": "Oder frag in deinen eigenen Worten…"
+ },
  "phWatch": {
   "message": "Preis beobachten?"
  },

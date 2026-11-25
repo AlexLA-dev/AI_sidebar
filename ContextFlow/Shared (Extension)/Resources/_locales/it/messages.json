@@ -2732,6 +2732,69 @@
  "fabFirstLabel": {
   "message": "Chiedi di questa pagina"
  },
+ "rqProductWorth": {
+  "message": "Vale quello che costa?"
+ },
+ "rqProductCons": {
+  "message": "Quali sono i difetti?"
+ },
+ "rqProductCheck": {
+  "message": "Cosa controllare prima di comprare?"
+ },
+ "rqArticleMain": {
+  "message": "Qual è il punto principale?"
+ },
+ "rqArticleArgue": {
+  "message": "Su cosa si potrebbe discutere?"
+ },
+ "rqArticleMe": {
+  "message": "Cosa significa per me?"
+ },
+ "rqVideoAbout": {
+  "message": "Di cosa parla questo video?"
+ },
+ "rqVideoKey": {
+  "message": "Quali sono i punti chiave?"
+ },
+ "rqFormNeed": {
+  "message": "Cosa mi serve per compilarlo?"
+ },
+ "rqFormWatch": {
+  "message": "A cosa devo fare attenzione qui?"
+ },
+ "rqEventWhen": {
+  "message": "Quando, dove e quanto costa?"
+ },
+ "rqEventWorth": {
+  "message": "Vale la pena andarci?"
+ },
+ "rqStayKey": {
+  "message": "Quali sono i dettagli principali?"
+ },
+ "rqStayWatch": {
+  "message": "Cosa sapere prima di decidere?"
+ },
+ "rqAnyMain": {
+  "message": "Qual è la cosa principale qui?"
+ },
+ "rqAnyWorth": {
+  "message": "Cosa vale la pena sapere qui?"
+ },
+ "rqTitle": {
+  "message": "Chiedi di questa pagina"
+ },
+ "rqAgree": {
+  "message": "Accetta e chiedi"
+ },
+ "rqAgreeNote": {
+  "message": "Toccare una domanda dà questo consenso e la invia."
+ },
+ "rqContinue": {
+  "message": "Continua «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "Oppure chiedi con parole tue…"
+ },
  "phWatch": {
   "message": "Seguire il prezzo?"
  },

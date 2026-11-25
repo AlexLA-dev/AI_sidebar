@@ -2732,6 +2732,69 @@
  "fabFirstLabel": {
   "message": "اسأل عن هذه الصفحة"
  },
+ "rqProductWorth": {
+  "message": "هل يستحق سعره؟"
+ },
+ "rqProductCons": {
+  "message": "ما عيوبه؟"
+ },
+ "rqProductCheck": {
+  "message": "ما الذي يجب أن أتحقق منه قبل الشراء؟"
+ },
+ "rqArticleMain": {
+  "message": "ما الفكرة الرئيسية؟"
+ },
+ "rqArticleArgue": {
+  "message": "ما الذي يمكن الاعتراض عليه هنا؟"
+ },
+ "rqArticleMe": {
+  "message": "ماذا يعني هذا بالنسبة لي؟"
+ },
+ "rqVideoAbout": {
+  "message": "عمّ يتحدث هذا الفيديو؟"
+ },
+ "rqVideoKey": {
+  "message": "ما النقاط الأساسية؟"
+ },
+ "rqFormNeed": {
+  "message": "ما الذي أحتاجه لتعبئة هذا؟"
+ },
+ "rqFormWatch": {
+  "message": "ما الذي يجب أن أنتبه إليه هنا؟"
+ },
+ "rqEventWhen": {
+  "message": "متى وأين وكم يكلف؟"
+ },
+ "rqEventWorth": {
+  "message": "هل يستحق الذهاب؟"
+ },
+ "rqStayKey": {
+  "message": "ما التفاصيل الأساسية؟"
+ },
+ "rqStayWatch": {
+  "message": "ما الذي يجب أن أعرفه قبل أن أقرر؟"
+ },
+ "rqAnyMain": {
+  "message": "ما الأهم هنا؟"
+ },
+ "rqAnyWorth": {
+  "message": "ما الذي يستحق المعرفة هنا؟"
+ },
+ "rqTitle": {
+  "message": "اسأل عن هذه الصفحة"
+ },
+ "rqAgree": {
+  "message": "وافق واسأل"
+ },
+ "rqAgreeNote": {
+  "message": "النقر على سؤال يمنح هذه الموافقة ويرسل السؤال."
+ },
+ "rqContinue": {
+  "message": "متابعة «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "أو اسأل بكلماتك…"
+ },
  "phWatch": {
   "message": "مراقبة السعر؟"
  },

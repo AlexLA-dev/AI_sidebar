@@ -4,6 +4,7 @@
 // itself. Panels follow a job through ports: the one that asked it, and any that comes back to it ("job" port).
 
 import { withoutItemMarker } from "../shared/appleItems"
+import { splitNext } from "../shared/nextQuestions"
 import { stamped, type Entry } from "../shared/conversation"
 import { afterRestart, prunedJobs, seenIn, withAnswer, withoutQuestion, type Job, type JobKind, type Jobs } from "../shared/jobs"
 import { similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
@@ -371,10 +372,12 @@ function answerOf(job: Live, event: AnyEvent): Entry | null {
   if (job.job.kind === "chat") {
     const grounded = failed ? undefined : job.snapshot.grounding
     // 2.7: the chat's marker for a reminder or an event comes out of the text and stays as a mark on the answer.
-    const { text, marked } = withoutItemMarker(grounded?.text ?? job.snapshot.text)
+    const { text: whole, marked } = withoutItemMarker(grounded?.text ?? job.snapshot.text)
+    // 2.8: the follow-up questions come off the text and stay on the answer (nextQuestions.ts).
+    const { text, next } = splitNext(whole)
     if (!text) return null
     const answer: Entry = grounded ? { role: "assistant", content: text, grounding: grounded.grounding } : { role: "assistant", content: text }
-    return stamped(marked ? { ...answer, addable: true } : answer)
+    return stamped({ ...answer, ...(marked ? { addable: true as const } : {}), ...(next.length ? { next } : {}) })
   }
   const items = job.snapshot.items
   const answer = failed ? (items.length ? { intro: "", items, note: "", condition: "" } : null) : job.answer ?? { intro: "", items, note: "", condition: "" }

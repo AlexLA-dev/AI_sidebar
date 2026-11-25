@@ -97,6 +97,9 @@ export interface Entry extends ChatTurn {
   // 2.7, answers: the answer ended with the chat's marker (appleItems.ts ITEM_MARKER, taken out of the text): the
   // person asked for a reminder or an event, or it gives a date to keep. The panel offers to add it (a card).
   addable?: true
+  // 2.8 (В6.1): two follow-up questions the model wrote with the answer (nextQuestions.ts), shown as buttons under the
+  // chat's latest answer.
+  next?: string[]
 }
 
 /** A new message's id: 12 random letters and digits. */

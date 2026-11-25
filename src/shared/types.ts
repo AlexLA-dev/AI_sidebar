@@ -129,6 +129,10 @@ export interface AskPayload {
   agent?: true
   // The chip's own words (the answer names the button with them).
   agentLabel?: string
+  // 2.8 (В6.1): the answer ends with two follow-up questions (src/shared/nextQuestions.ts).
+  next?: true
+  // 2.8: how the question came and the page's kind, for the answer's row (src/shared/usage.ts uiFields).
+  ui?: { via: string; page: string }
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */

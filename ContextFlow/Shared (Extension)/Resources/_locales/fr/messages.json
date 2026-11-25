@@ -2732,6 +2732,69 @@
  "fabFirstLabel": {
   "message": "Posez une question sur cette page"
  },
+ "rqProductWorth": {
+  "message": "Est-ce que ça vaut son prix ?"
+ },
+ "rqProductCons": {
+  "message": "Quels sont ses défauts ?"
+ },
+ "rqProductCheck": {
+  "message": "Que vérifier avant d'acheter ?"
+ },
+ "rqArticleMain": {
+  "message": "Quelle est l'idée principale ?"
+ },
+ "rqArticleArgue": {
+  "message": "Qu'est-ce qui est discutable ici ?"
+ },
+ "rqArticleMe": {
+  "message": "Qu'est-ce que ça change pour moi ?"
+ },
+ "rqVideoAbout": {
+  "message": "De quoi parle cette vidéo ?"
+ },
+ "rqVideoKey": {
+  "message": "Quels sont les points clés ?"
+ },
+ "rqFormNeed": {
+  "message": "De quoi ai-je besoin pour remplir ceci ?"
+ },
+ "rqFormWatch": {
+  "message": "À quoi faire attention ici ?"
+ },
+ "rqEventWhen": {
+  "message": "Quand, où et combien ça coûte ?"
+ },
+ "rqEventWorth": {
+  "message": "Est-ce que ça vaut le coup d'y aller ?"
+ },
+ "rqStayKey": {
+  "message": "Quels sont les détails importants ?"
+ },
+ "rqStayWatch": {
+  "message": "Que savoir avant de me décider ?"
+ },
+ "rqAnyMain": {
+  "message": "Qu'est-ce qui compte ici ?"
+ },
+ "rqAnyWorth": {
+  "message": "Qu'est-ce qu'il faut savoir ici ?"
+ },
+ "rqTitle": {
+  "message": "Posez une question sur cette page"
+ },
+ "rqAgree": {
+  "message": "Accepter et demander"
+ },
+ "rqAgreeNote": {
+  "message": "Toucher une question donne ce consentement et la pose."
+ },
+ "rqContinue": {
+  "message": "Reprendre « {0} »"
+ },
+ "rqOwnWords": {
+  "message": "Ou posez votre question avec vos mots…"
+ },
  "phWatch": {
   "message": "Surveiller le prix ?"
  },

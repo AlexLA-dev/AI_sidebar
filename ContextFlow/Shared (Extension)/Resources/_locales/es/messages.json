@@ -2732,6 +2732,69 @@
  "fabFirstLabel": {
   "message": "Pregunta sobre esta página"
  },
+ "rqProductWorth": {
+  "message": "¿Vale lo que cuesta?"
+ },
+ "rqProductCons": {
+  "message": "¿Qué desventajas tiene?"
+ },
+ "rqProductCheck": {
+  "message": "¿Qué debo revisar antes de comprar?"
+ },
+ "rqArticleMain": {
+  "message": "¿Cuál es la idea principal?"
+ },
+ "rqArticleArgue": {
+  "message": "¿Qué se podría discutir aquí?"
+ },
+ "rqArticleMe": {
+  "message": "¿Qué significa esto para mí?"
+ },
+ "rqVideoAbout": {
+  "message": "¿De qué trata este video?"
+ },
+ "rqVideoKey": {
+  "message": "¿Cuáles son los puntos clave?"
+ },
+ "rqFormNeed": {
+  "message": "¿Qué necesito para rellenar esto?"
+ },
+ "rqFormWatch": {
+  "message": "¿A qué debo prestar atención aquí?"
+ },
+ "rqEventWhen": {
+  "message": "¿Cuándo, dónde y cuánto cuesta?"
+ },
+ "rqEventWorth": {
+  "message": "¿Vale la pena ir?"
+ },
+ "rqStayKey": {
+  "message": "¿Cuáles son los detalles clave?"
+ },
+ "rqStayWatch": {
+  "message": "¿Qué debo saber antes de decidirme?"
+ },
+ "rqAnyMain": {
+  "message": "¿Qué es lo principal aquí?"
+ },
+ "rqAnyWorth": {
+  "message": "¿Qué vale la pena saber aquí?"
+ },
+ "rqTitle": {
+  "message": "Pregunta sobre esta página"
+ },
+ "rqAgree": {
+  "message": "Aceptar y preguntar"
+ },
+ "rqAgreeNote": {
+  "message": "Tocar una pregunta da este consentimiento y la envía."
+ },
+ "rqContinue": {
+  "message": "Continuar «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "O pregunta con tus palabras…"
+ },
  "phWatch": {
   "message": "¿Vigilar el precio?"
  },

@@ -1,4 +1,5 @@
 import { tipClip } from "./tipClips"
+import { variantOf } from "../shared/variant"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION, TEST_PLAN } from "../shared/config"
@@ -114,9 +115,11 @@ function nativeInfo(): Promise<{ build: string; app: string | null; test: boolea
 }
 
 async function clientInfo() {
-  const [native, os, invite] = await Promise.all([nativeInfo(), platform(), inviteMarks().catch(() => ({}))])
+  const [native, os, invite, id] = await Promise.all([nativeInfo(), platform(), inviteMarks().catch(() => ({})), installId().catch(() => "")])
   const { build, test } = native
-  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite, ...(test ? { audience: "test" } : {}) }
+  // 2.8: the install's test arms (src/shared/variant.ts), on every event and answer.
+  const variant = variantOf(id)
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite, ...(variant ? { variant } : {}), ...(test ? { audience: "test" } : {}) }
 }
 
 // ---------------------------------------------------- App Store subscription

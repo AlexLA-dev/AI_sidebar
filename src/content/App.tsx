@@ -19,7 +19,8 @@ import {
   type FindReply,
   type StatusInfo,
   type StreamEvent,
-  type Usage
+  type Usage,
+  STORAGE
 } from "../shared/types"
 import * as Icon from "./icons"
 import { ownKeyPlace, providerName } from "../shared/ownKeyError"
@@ -122,6 +123,7 @@ import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { appleNow, loadApple } from "./ux/apple"
 import { asksForAction } from "../shared/agent/hint"
 import { withoutItemMarker } from "../shared/appleItems"
+import { splitNext } from "../shared/nextQuestions"
 import { Tour, tourSteps } from "./Tour"
 import { answerLanguage, preferredLanguages, readerLanguageName, withAnswerLanguage } from "./answerLanguage"
 import { languageName, translateTarget } from "./translateTarget"
@@ -147,6 +149,9 @@ import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
 import { pageKind } from "./pagehints/detect"
 import { panelRoot } from "./root"
+import { ReadyQuestions } from "./ready/ReadyQuestions"
+import { readyFor } from "./ready/questions"
+import { firstArm, type FirstArm } from "../shared/variant"
 import { CookieLine, useCookieLine } from "./cookies/CookieLine"
 import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
@@ -166,6 +171,9 @@ import { dayKey, type CoachHint } from "./coach/rules"
 export type Bus = EventTarget
 
 type Turn = Entry
+
+/** How a question came, beyond a chip's label or the field: a ready question (В4.1), a follow-up under an answer (В6.1). */
+type AskVia = "ready" | "followup"
 
 /** The device day the ✦ was last reported seen (fab.shown, once a day). */
 const FAB_SHOWN_KEY = "cf:fabShownDay"
@@ -424,7 +432,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
   // The question being prepared (page still being read); cleared when it's sent or stopped.
   const askToken = useRef<object | null>(null)
-  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
+  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
   // The chat shown is "Ask your chats" (Pro): questions about all the other chats, not the page.
   const [historyMode, setHistoryMode] = useState(false)
   const historyRef = useRef(false)
@@ -562,7 +570,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
-  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string; similarAsk?: SimilarAsk } | null>(null)
+  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; via?: AskVia; similar?: string; similarSel?: string; similarAsk?: SimilarAsk } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   // For closing the panel: whether it was about a selection, and whether it was open before (92: the buttons come back).
   const keptSelectionRef = useRef<SelectionInfo | null>(null)
@@ -665,6 +673,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const coach = useCoach({ consent: consent === "ok", paid: (status?.plan ?? keptPlan ?? "free") !== "free" })
   const coachRef = useRef<Coach | null>(null)
   coachRef.current = coach
+  // 2.8 (В6.2): this install's arm of the first-open test, by its id (src/shared/variant.ts): the guided first request,
+  // or ready questions. Null until the id is read.
+  const [arm, setArm] = useState<FirstArm | null>(null)
+  const armRef = useRef(arm)
+  armRef.current = arm
+  useEffect(() => {
+    let tries = 0
+    const read = () => void chrome.storage.local.get(STORAGE.installId).then((got) => {
+      const id = got[STORAGE.installId]
+      if (typeof id === "string") setArm(firstArm(id) ?? "guide")
+      else if (++tries < 5) setTimeout(read, 600)
+      else setArm("guide")
+    }).catch(() => setArm("guide"))
+    read()
+  }, [])
   // The chat being loaded as the panel opens: a question typed by the selection waits for it.
   const loadingRef = useRef<Promise<void>>(Promise.resolve())
   const settingsRef = useRef(settings)
@@ -1149,14 +1172,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The first time the panel is open and idle: the guided first request where there's a page to summarize (2.6),
   // else the tour of what it can do.
   useEffect(() => {
-    if (popup || tourSeen || touring || guideRef.current || !visible || view !== "chat" || streaming || pending) return
+    if (popup || tourSeen || touring || guideRef.current || !visible || view !== "chat" || streaming || pending || arm === null) return
     const timer = setTimeout(() => {
       firstRunRef.current = true
-      if (firstGuideRef.current()) startGuideRef.current("first")
+      // 2.8 (В6.2): the "ask" arm has ready questions instead of the guide; its first run is over as it starts.
+      if (armRef.current === "ask" && firstGuideRef.current()) endTour()
+      else if (firstGuideRef.current()) startGuideRef.current("first")
       else setTouring(true)
     }, 450)
     return () => clearTimeout(timer)
-  }, [popup, tourSeen, touring, visible, view, streaming, pending])
+  }, [popup, tourSeen, touring, visible, view, streaming, pending, arm])
 
   // Recently Deleted emptied (everything restored or deleted, here or elsewhere): back to the list, where its row goes too.
   useEffect(() => {
@@ -1378,8 +1403,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setStreamMode(null)
     if (entry || text) {
       const shown = withoutItemMarker(text)
-      const answer: Turn = grounding ? { role: "assistant", content: shown.text, grounding } : { role: "assistant", content: shown.text }
-      const next: Turn[] = [...history, entry ?? stamped(shown.marked ? { ...answer, addable: true } : answer)]
+      // 2.8 (В6.1): the follow-up questions come off the text and stay on the answer.
+      const split = splitNext(shown.text)
+      const answer: Turn = grounding ? { role: "assistant", content: split.text, grounding } : { role: "assistant", content: split.text }
+      const next: Turn[] = [...history, entry ?? stamped({ ...answer, ...(shown.marked ? { addable: true as const } : {}), ...(split.next.length ? { next: split.next } : {}) })]
       setMessages(next)
       const skipped = skippedFor(next, next.length - 1)
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
@@ -1415,15 +1442,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // `cite`: Retry of a question asked on a selection that's gone now: about that text again (build 110).
   // `resent`: the question sent again on its own once, because the background never got it (123).
-  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string; resent?: boolean } = {}) => {
+  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string; resent?: boolean; via?: AskVia } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
-    if (openingRef.current) openingRef.current.did = opts.label ? "chip" : "ask"
+    if (openingRef.current) openingRef.current.did = opts.label || opts.via === "ready" || opts.via === "followup" ? "chip" : "ask"
     setUndoBar(null)
     setFirstWin(null)
     setMemoryOffer(null)
     if (consent !== "ok") {
-      setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
+      setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode, via: opts.via })
       return
     }
     // The same question again after it was left without an answer (interrupted): it takes that one's place.
@@ -1569,7 +1596,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           mode: opts.mode,
           stats,
           // Asked during the guided first request: the server doesn't count it, for an install's first few (2.6).
-          ...(guideRef.current && !planTour.current ? { tour: true as const } : {}),
+          // 2.8 (В6.4): every new install's first three answers, in both arms of the first-open test (the server keeps
+          // its own count per install, never reset: the mark gains nothing later).
+          ...((guideRef.current && !planTour.current) || (coachRef.current?.ready && coachRef.current.answers < 3) ? { tour: true as const } : {}),
+          // 2.8 (В6.1): the first answer of a chat comes with two follow-up questions (nextQuestions.ts).
+          ...(!base.some((e) => e.role === "assistant") && opts.mode !== "google" ? { next: true as const } : {}),
+          // 2.8: how the question came (a ready question, a follow-up, a chip, typed) and the page's kind, for the
+          // answer's row (src/shared/usage.ts uiFields).
+          ui: { via: opts.via ?? (opts.label ? "chip" : "composer"), page: pageKindNow() },
           // 2.7: reminders and events can be added here, so the answer may suggest one (a card under it).
           ...(appleNow()?.available ? { items: true as const } : {}),
           // 2.7.1: a question that asks for an action gets «Сделать на этой странице?» under it: the answer says so.
@@ -1715,7 +1749,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const lostRef = useRef(lost)
   lostRef.current = lost
   // The question just sent, until anything comes back for it (then it reached the background).
-  const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean } } | null>(null)
+  const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia } } | null>(null)
   /** A quiet or closed answer: a question that never got there is undelivered; one that did is followed again. */
   const quietRef = useRef(() => {
     const p = pendingAskRef.current
@@ -1724,7 +1758,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   })
 
   /** A question the background never got: asked again once (a fresh port), then an error the person can retry. */
-  const undelivered = (history: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean }) => {
+  const undelivered = (history: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia }) => {
     const port = portRef.current
     portRef.current = null
     askToken.current = null
@@ -2137,7 +2171,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const p = pending
     setPending(null)
     if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text, false, p.similarSel, undefined, p.similarAsk), 0)
-    else if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
+    else if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode, via: p.via }), 0)
   }, [pending])
   // "Not now": the question stays in the box, nothing is sent.
   const declineConsent = useCallback(() => setPending(null), [])
@@ -4864,6 +4898,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }).catch(() => undefined)
   }, [fabVisible])
 
+  // ------------------------------------------------------------ never an empty panel (2.8, В4.1, В4.2, В6.2)
+  // Ready questions about this page in the empty chat: the "ask" arm from its first opening, everyone once they've had an
+  // answer (the returner's panel). Not over the guide, the tour or an agent task's card.
+  const showReady = !popup && !historyMode && messages.length === 0 && partial === null && !agentCardShown && contextKind === "page" &&
+    guide === null && !touring && arm !== null && coach.ready && (arm === "ask" || coach.answers > 0 || coach.day >= 2)
+  const readyQuestions = showReady ? readyFor(pageKind(document, location.href), mediaOn) : []
+  // The chat the person was in last, when this one is new: «Continue «…»» (with an answer in it, the last two weeks).
+  const lastChat = showReady && coach.answers > 0
+    ? threadList.find((th) => th.id !== threadRef.current && th.kind !== "history" && th.m.some((e) => e.role === "assistant") && Date.now() - (th.a ?? th.u) < 14 * 86_400_000) ?? null
+    : null
+  const askReady = (text: string) => {
+    if (consent === "ok") return ask(text, { via: "ready" })
+    // The question's own button said «Agree and ask» over the consent's text: given by this tap.
+    void giveConsent().then(() => {
+      setConsent("ok")
+      setTimeout(() => askRef.current(text, { via: "ready" }), 0)
+    })
+  }
+
   // ------------------------------------------------------------ the hint coordinator (2.8, В3.1)
   // Every prompt says here whether it fits now; the coordinator gives one of them the slot (coach/rules.ts). Prompts on
   // the page need the panel closed; prompts in the panel need it open on the chat.
@@ -4895,7 +4948,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const pulse = slot === "fab_pulse"
   // What the first screen of an opening shows (panel.open's screen).
   screenNowRef.current = () =>
-    guide !== null ? "guide" : touring ? "tour" : agentCardShown ? "agent" : plansOpen !== null ? "plans" : messages.length > 0 ? "chat" : "empty"
+    guide !== null ? "guide" : touring ? "tour" : agentCardShown ? "agent" : plansOpen !== null ? "plans" : messages.length > 0 ? "chat" : showReady ? "ask" : "empty"
 
   // ------------------------------------------------------------ render
   return (
@@ -5552,7 +5605,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
                     <h2>{t("emptyTitle")}</h2>
-                    <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>
+                    {!showReady && <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>}
+                    {/* 2.8: ready questions about this page, «Continue «…»», the consent in the same tap (ready/). */}
+                    {showReady && (
+                      <ReadyQuestions
+                        questions={readyQuestions}
+                        consentFirst={consent !== "ok"}
+                        again={consent === "old"}
+                        onAsk={askReady}
+                        last={lastChat ? { name: threadName(lastChat), open: () => {
+                          void sendBackground({ type: "useEvent", f: "chat", a: "continue" })
+                          openThread(lastChat.id)
+                        } } : null}
+                      />
+                    )}
                     {actions.length > 0 && (
                       <ChipsRow cls="cf-actions" sig={chipsSig} arrows={!touch} still={guide !== null || touring}>
                         {actions.map((a) => (
@@ -5611,6 +5677,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       ), !picked)}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                       {!picked && offerChip(idx)}
+                      {/* 2.8 (В6.1): two follow-up questions the answer came with, under the chat's latest answer. */}
+                      {!picked && idx === messages.length - 1 && m.next && m.next.length > 0 && partial === null && !historyMode && (
+                        <div class="cf-next" role="group" aria-label={t("rqTitle")}>
+                          {m.next.map((q) => <button type="button" key={q} class="cf-next-q" dir="auto" onClick={() => ask(q, { via: "followup" })}>{q}</button>)}
+                        </div>
+                      )}
                       {!picked && ux.addCard(m, idx)}
                     </div>
                   )
@@ -5618,7 +5690,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan, tasteOf(status, "similar")) === "light"} /> : partial ? <Markdown text={withoutItemMarker(partial).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
+                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan, tasteOf(status, "similar")) === "light"} /> : partial ? <Markdown text={splitNext(withoutItemMarker(partial).text).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
                   </div>
                 )}
 
@@ -6231,7 +6303,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       rows={1}
                       dir="auto"
                       value={draft}
-                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : agentMode ? "placeholderAgent" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : agentMode ? "placeholderAgent" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : showReady || (coach.answers < 3 && messages[messages.length - 1]?.next?.length) ? "rqOwnWords" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                       enterkeyhint="send"
                       // What the screen does once the field has the focus tells a hardware keyboard from the one on
                       // screen (quiet/density.ts): noted for the next opening.

@@ -3,6 +3,7 @@
 
 import type { Attachment, MediaKind } from "./attachments.ts"
 import { ITEM_MARKER } from "./appleItems.ts"
+import { NEXT_MARKER } from "./nextQuestions.ts"
 import { fitTokens, GAP, PAGE_TOKENS } from "./pagefit.ts"
 
 export interface PageContext {
@@ -74,6 +75,21 @@ export function withItemRule(parts: [string, string], items: boolean): [string, 
   const [rules, rest] = parts
   const at = rules.indexOf("\n\n", rules.indexOf("Rules:"))
   return at < 0 ? [`${rules}\n${ITEM_RULE}`, rest] : [`${rules.slice(0, at)}\n${ITEM_RULE}${rules.slice(at)}`, rest]
+}
+
+/**
+ * 2.8 (В6.1): two follow-up questions written with the answer (nextQuestions.ts), for a panel that asks for them
+ * (`next: true`). They come last, after any other marker line, and the panel shows them as buttons.
+ */
+export const NEXT_RULE =
+  `- After everything else in your answer (after any other marker line too), write a line that is exactly ${NEXT_MARKER}, then exactly two short follow-up questions the user might want to ask next about this page, one per line: in the language of your answer, written as the user would ask them, under 70 characters each, no numbering, no quotes. Make them go deeper into what the user asked, answerable from the page. Write nothing after them, and never mention them or the marker.`
+
+/** The rules with NEXT_RULE when the panel asks for follow-up questions (the first, cached part of systemPromptParts). */
+export function withNextRule(parts: [string, string], next: boolean): [string, string] {
+  if (!next) return parts
+  const [rules, rest] = parts
+  const at = rules.indexOf("\n\n", rules.indexOf("Rules:"))
+  return at < 0 ? [`${rules}\n${NEXT_RULE}`, rest] : [`${rules.slice(0, at)}\n${NEXT_RULE}${rules.slice(at)}`, rest]
 }
 
 /** Whether an earlier answer in the conversation carries the user's highlights (see MARK_RULE). */

@@ -49,7 +49,8 @@ export const FEATURES: Record<string, Feature> = {
   // Answers are logged by the server (/api/v2/chat with "ui"); the panel sends the rest.
   ask: {
     since: "2.0", tracked: "2.0", actions: ["answer", "error", "stop", "retry", "google_on", "google_off", "whole_on", "whole_off", "source"],
-    via: ["composer", "chip", "followup", "newpage", "bubble", "qi_adapt", "retry", "app_chat"]
+    // 2.8: "ready", a ready question about the page (src/content/ready); "followup", one under an answer.
+    via: ["composer", "chip", "followup", "newpage", "bubble", "qi_adapt", "retry", "app_chat", "ready"]
   },
   ai_search: { since: "2.4", tracked: "2.4", actions: ["on", "answer", "error", "open"], fields: { hits: ["0", "1-5", "6+"] } },
   // Build 94: "link", a chat opened from a link to it in an answer.
@@ -58,7 +59,8 @@ export const FEATURES: Record<string, Feature> = {
   // newer text.
   consent: {
     since: "2.0", tracked: "2.8", actions: ["shown", "accepted", "declined"],
-    via: ["ask", "find", "ask_chats", "qi", "organize", "translate", "write", "watch"], fields: { step: "int" }
+    // "ready": given by tapping a ready question that says so (В6.3).
+    via: ["ask", "find", "ask_chats", "qi", "organize", "translate", "write", "watch", "ready"], fields: { step: "int" }
   },
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
   // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
@@ -468,7 +470,8 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
 export function uiFields(ui: unknown, feature: "ask" | "ai_search" | "ask_chats"): Record<string, unknown> {
   if (!ui || typeof ui !== "object" || Array.isArray(ui)) return {}
   const body = ui as Record<string, unknown>
-  return { ...sessionFields(body), ...(has(FEATURES[feature].via, body.via) ? { via: body.via } : {}) }
+  // 2.8 (events-2.8 §3): the page's kind as the device decided it (one of PAGE_KINDS, never the page itself).
+  return { ...sessionFields(body), ...(has(FEATURES[feature].via, body.via) ? { via: body.via } : {}), ...(has(PAGE_KINDS, body.page) ? { page: body.page } : {}) }
 }
 
 const later = (a: string, b: string) => {
