@@ -727,7 +727,6 @@
   "154e05a4beaa": "Tüm mağazaları karşılaştıran bir fiyat karşılaştırma aracı değildir. Birkaç iyi alternatif bulur ve onları kontrol eder.",
   "d2236822c570": "Bazı mağazalar bir sayfanın dışarıdan açılmasına izin vermez; bu alternatifler kontrol edilmeden gelir.",
   "14c4d6d9e316": "Bu bir yapay zekâ modeli. Satın almadan önce mağazanın sayfasını okuyun, zaten yapacağınız gibi.",
-  "b7f8551a0802": "Bulur ve kontrol eder. Sizin yerinize bir şey satın almaz ya da bir şey doldurmaz.",
   "c2b34c3d3c87": "Google Lens",
   "47294bde2f4b": "Google uygulaması, ekran görüntüsünden",
   "474a3a87e680": "Safari'de ürün sayfasında",
@@ -908,5 +907,7 @@
   "af61a24dc3fd": "Üçü de okuduğunuz sayfanın yanına bir yapay zekâ sohbeti koyar ve üçü de sayfayı özetleyebilir, seçili metinle de çalışabilir. ContextFlow ve Zeki Safari'de çalışır; SurfMind'ın App Store sayfası ise “tarayıcınız” diyor ve hangi tarayıcı olduğunu söylemiyor. Fark, bunların üstüne gelenlerde. ContextFlow'u ben geliştiriyorum, yani tarafsız değilim. Zeki ve SurfMind burada, Kasım 2026'da App Store sayfalarında anlatıldığı şekliyle yer alıyor.",
   "c27425609fb6": "<strong>Kendi anahtarınızla:</strong> ücretsiz ve sınırsız; Anthropic, OpenAI, Google, OpenRouter, Groq ya da Mistral anahtarlarıyla ve anahtarın erişebildiği herhangi bir modelle.",
   "f202491f0a07": "Safari her uzantı için aynı uyarıyı gösterir, çünkü bir uzantının ne yaptığını bilemez. Sayfa metni yalnızca bir şey sorduğunuzda gönderilir ve model eğitmek için kullanılmaz. Dilerseniz site site de izin verebilirsiniz; o zaman ✦ yalnızca o sitelerde görünür.",
+  "00d4db45c1ce": "Evet, Pro ve Ultra",
+  "932a1fd2c1fe": "Bulur ve kontrol eder. Sizin yerinize bir şey satın almaz: ödemeyi her zaman siz yaparsınız.",
   "f6a68fb273c4": "“Her Zaman İzin Ver”i seçin. Sayfa metni yalnızca bir şey sorduğunuzda gönderilir ve model eğitmek için kullanılmaz."
 }

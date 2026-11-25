@@ -727,7 +727,6 @@
   "154e05a4beaa": "Đây không phải là so sánh giá ở mọi cửa hàng. Nó tìm vài lựa chọn thay thế tốt và kiểm tra chúng.",
   "d2236822c570": "Một số cửa hàng không cho mở trang từ bên ngoài; các lựa chọn thay thế đó sẽ không được kiểm tra.",
   "14c4d6d9e316": "Đây là mô hình AI. Hãy đọc trang của cửa hàng trước khi mua, như bạn vẫn làm.",
-  "b7f8551a0802": "Nó tìm và kiểm tra. Nó không mua gì hay điền gì thay bạn.",
   "c2b34c3d3c87": "Google Lens",
   "47294bde2f4b": "Ứng dụng Google, từ ảnh chụp màn hình",
   "474a3a87e680": "Trên trang sản phẩm trong Safari",
@@ -908,5 +907,7 @@
   "af61a24dc3fd": "Cả ba đều đặt một khung trò chuyện AI cạnh trang bạn đang đọc, và cả ba đều tóm tắt được trang và làm việc với văn bản đã chọn. ContextFlow và Zeki chạy trong Safari; trang App Store của SurfMind nói đến “trình duyệt của bạn” mà không nêu tên trình duyệt nào. Chúng khác nhau ở phần có thêm. Tôi là người làm ra ContextFlow, nên tôi không trung lập. Zeki và SurfMind được mô tả ở đây đúng như trang App Store của chúng mô tả, vào tháng 11 năm 2026.",
   "c27425609fb6": "<strong>Khóa của riêng bạn:</strong> miễn phí và không giới hạn, với khóa từ Anthropic, OpenAI, Google, OpenRouter, Groq hoặc Mistral, và mọi mô hình mà khóa đó dùng được.",
   "f202491f0a07": "Safari hiện cùng một cảnh báo cho mọi tiện ích, vì nó không thể biết một tiện ích làm gì. Văn bản của trang chỉ được gửi khi bạn hỏi và không được dùng để huấn luyện mô hình. Bạn cũng có thể cho phép theo từng trang web; khi đó ✦ chỉ hiện trên những trang đó.",
+  "00d4db45c1ce": "Có, Pro và Ultra",
+  "932a1fd2c1fe": "Nó tìm và kiểm tra. Nó không mua gì thay bạn: việc thanh toán luôn do bạn tự làm.",
   "f6a68fb273c4": "Chọn “Luôn cho phép”. Văn bản của trang chỉ được gửi khi bạn hỏi và không được dùng để huấn luyện mô hình."
 }

@@ -727,7 +727,6 @@
   "154e05a4beaa": "Não é um comparador de preços de todas as lojas. Ele encontra algumas boas alternativas e verifica cada uma.",
   "d2236822c570": "Algumas lojas não deixam que uma página seja aberta de fora; essas alternativas vêm sem verificação.",
   "14c4d6d9e316": "É um modelo de IA. Leia a página da loja antes de comprar, como você faria de qualquer jeito.",
-  "b7f8551a0802": "Ele encontra e verifica. Não compra nada nem preenche nada por você.",
   "c2b34c3d3c87": "Google Lens",
   "47294bde2f4b": "O app Google, a partir de uma captura de tela",
   "474a3a87e680": "Na página do produto, no Safari",
@@ -908,5 +907,7 @@
   "af61a24dc3fd": "Os três colocam um chat de IA ao lado da página que você está lendo, e os três conseguem resumi-la e trabalhar com o texto selecionado. O ContextFlow e o Zeki funcionam no Safari; a página do SurfMind na App Store fala em “seu navegador” e não cita nenhum. A diferença está no que vem além disso. Sou eu que faço o ContextFlow, então não sou neutro. O Zeki e o SurfMind estão descritos aqui como as páginas deles na App Store os descrevem, em novembro de 2026.",
   "c27425609fb6": "<strong>Com sua própria chave:</strong> grátis e ilimitado, com chaves da Anthropic, OpenAI, Google, OpenRouter, Groq ou Mistral, e qualquer modelo a que a chave dê acesso.",
   "f202491f0a07": "O Safari mostra o mesmo aviso para toda extensão, porque não tem como saber o que cada uma faz. O texto da página só é enviado quando você pergunta algo e não é usado para treinar modelos. Você também pode permitir site por site; nesse caso o ✦ só aparece nesses sites.",
+  "00d4db45c1ce": "Sim, no Pro e no Ultra",
+  "932a1fd2c1fe": "Ele encontra e verifica. Não compra nada por você: o pagamento é sempre com você.",
   "f6a68fb273c4": "Escolha “Sempre Permitir”. O texto da página só é enviado quando você pergunta algo e não é usado para treinar modelos."
 }
