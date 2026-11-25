@@ -42,7 +42,7 @@ test("N2: a place only the chat suggested isn't the person's: asked, the suggest
       { id: "2", role: "link", label: "Olive Grove Apartments 9.2 (188 reviews)", href: "/stay?id=1" },
       { id: "3", role: "link", label: "Old Town Guesthouse 9.0 (266 reviews)", href: "/stay?id=3" }
     ] } as PageMap
-  const RAW = (request: string) => ({ label: "booking a stay", steps: ["a"], questions: [], prices: [], fromChat: "2 nights, Dec 4–6, Old Town Guesthouse", risky: [], booking: { kind: "stay", date: "2026-12-04", dateEnd: "2026-12-06", from: "", until: "", minutes: 0, venue: "Old Town Guesthouse", personal: true, match: [], area: [] }, _r: request })
+  const RAW = (request: string) => ({ label: "booking a stay", steps: ["Choosing Old Town Guesthouse, rated 9.0", "Booking the stay"], questions: [], prices: [], fromChat: "2 nights, Dec 4–6, Old Town Guesthouse", risky: [], booking: { kind: "stay", date: "2026-12-04", dateEnd: "2026-12-06", from: "", until: "", minutes: 0, venue: "Old Town Guesthouse", personal: true, match: [], area: [] }, _r: request })
   const mk = (request: string): RunnerIO => {
     const replies: any[] = [{ ok: true, plan: RAW(request), token: "t" }]
     return { map: async () => LIST, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
@@ -54,6 +54,13 @@ test("N2: a place only the chat suggested isn't the person's: asked, the suggest
   const q = asked.plan!.questions.find((x) => x.kind === "venue")
   assert.ok(q, "which place is asked")
   assert.match(q!.options[0], /^Old Town Guesthouse/, "the chat's suggestion first")
+  // Script-opened cards (links with no address, 129 on the iPad): still asked, the suggestion first.
+  const SCRIPT = { ...LIST, items: [{ id: "1", role: "link", label: "Harbour View Suites" }, { id: "2", role: "link", label: "Olive Grove Apartments" }, { id: "3", role: "link", label: "Old Town Guesthouse" }] } as PageMap
+  const mkScript = (): RunnerIO => ({ ...mk("x"), map: async () => SCRIPT })
+  const script = await drive(newState("n2c", "Book a stay for 2 nights from next Friday", "en", SCRIPT.url), mkScript())
+  const sq = script.plan!.questions.find((x) => x.kind === "venue")
+  assert.deepEqual(sq?.options, ["Old Town Guesthouse", "Harbour View Suites", "Olive Grove Apartments", "@auto"])
+  assert.ok(!script.plan!.steps.some((l) => /Old Town/.test(l)), "no plan step choosing it")
   const pointed = await drive(newState("n2b", "Book the one you suggested for 2 nights from next Friday", "en", LIST.url), mk("x"))
   assert.equal(pointed.plan!.booking!.venue, "Old Town Guesthouse")
 })
