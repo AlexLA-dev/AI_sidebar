@@ -949,35 +949,44 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const o = openingRef.current
     if (o && view === "settings" && (o.did === "none" || o.did === "other")) o.did = "settings"
   }, [view])
+  // Any tap in the panel: the opening did something (its root is there once the panel has rendered).
   useEffect(() => {
     const root = panelRoot()
     if (!root) return
     const tapped = () => {
       if (openingRef.current?.did === "none") openingRef.current.did = "other"
     }
+    root.addEventListener("click", tapped, true)
+    return () => root.removeEventListener("click", tapped, true)
+  }, [open])
+  useEffect(() => {
     // The page goes away, or Safari is put away, with the panel open: a message from a page going away often never
     // arrives, so the opening is kept (with when it was last seen) and its close is sent from the next page.
     const keep = () => {
       const o = openingRef.current
-      if (o) keepOpening(o.id, { at: o.at, last: Date.now(), did: o.did })
+      if (!o) return
+      o.sendOpen?.()
+      keepOpening(o.id, { at: o.at, last: Date.now(), did: o.did })
     }
     const hidden = () => document.visibilityState === "hidden" && keep()
     const beat = setInterval(keep, 15_000)
-    root.addEventListener("click", tapped, true)
     window.addEventListener("pagehide", keep)
     document.addEventListener("visibilitychange", hidden)
     // Openings left by pages that went away (not seen for a minute: a panel open in another tab keeps its own fresh).
-    void chrome.storage.local.get(OPENINGS_KEY).then((got) => {
+    const flush = () => void chrome.storage.local.get(OPENINGS_KEY).then((got) => {
       const all = (got[OPENINGS_KEY] as Record<string, OpeningRecord> | undefined) ?? {}
       for (const [id, rec] of Object.entries(all)) {
-        if (Date.now() - rec.last < 60_000) continue
+        if (Date.now() - rec.last < 60_000 || id === openingRef.current?.id) continue
         void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.max(0, Math.round((rec.last - rec.at) / 1000))), did: rec.did, cut: 1 })
         keepOpening(id, null)
       }
     }).catch(() => undefined)
+    flush()
+    // …and again a minute on (a page opened right after another one left its record fresh).
+    const later = setTimeout(flush, 65_000)
     return () => {
       clearInterval(beat)
-      root.removeEventListener("click", tapped, true)
+      clearTimeout(later)
       window.removeEventListener("pagehide", keep)
       document.removeEventListener("visibilitychange", hidden)
     }
