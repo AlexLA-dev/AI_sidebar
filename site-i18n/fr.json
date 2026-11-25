@@ -722,10 +722,10 @@
   "b805da32b11a": "Ouvrez l’app Réglages et accédez à Apps → Safari (pas ContextFlow) → Extensions → ContextFlow.",
   "9cf76ea2ed86": "Ouvrez Réglages, puis Apps à gauche → Safari (pas ContextFlow) → Extensions → ContextFlow.",
   "07b51faeeeef": "De retour dans Safari, rechargez la page et touchez ✦.",
-  "6c05410141f9": "Choisissez « Toujours autoriser ». ContextFlow ne lit une page que lorsque vous lui posez une question.",
   "393d79f8b457": "Ouvrez le menu de la page dans la barre d’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».",
   "ca4ea310de90": "Pas « Autoriser pendant un jour » : avec ce choix, ✦ disparaît dès demain.",
   "0b43319f282d": "Ou dans Réglages :",
   "2c91c2a977f2": "Sous Autorisations, réglez « Tous les sites web » sur « Autoriser ». Si vous y voyez plutôt une liste de sites web, réglez chaque ligne sur « Autoriser ».",
-  "661d6fcb9cf1": "Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web »."
+  "661d6fcb9cf1": "Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».",
+  "f6a68fb273c4": "Choisissez « Toujours autoriser ». Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles."
 }

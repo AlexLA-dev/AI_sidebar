@@ -722,10 +722,10 @@
   "b805da32b11a": "Abra o app Ajustes e acesse Apps → Safari (não o ContextFlow) → Extensões → ContextFlow.",
   "9cf76ea2ed86": "Abra os Ajustes, depois Apps à esquerda → Safari (não o ContextFlow) → Extensões → ContextFlow.",
   "07b51faeeeef": "De volta ao Safari, recarregue a página e toque em ✦.",
-  "6c05410141f9": "Escolha “Sempre Permitir”. O ContextFlow só lê uma página quando você pergunta algo.",
   "393d79f8b457": "Abra o menu da página na barra de endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”.",
   "ca4ea310de90": "Não “Permitir por Um Dia”: com ele, ✦ some de novo amanhã.",
   "0b43319f282d": "Ou nos Ajustes:",
   "2c91c2a977f2": "Em Permissões, ajuste “Todos os Sites” para “Permitir”. Se, em vez disso, aparecer uma lista de sites, ajuste cada linha para “Permitir”.",
-  "661d6fcb9cf1": "Toque no botão de peça de quebra-cabeça ao lado do endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”."
+  "661d6fcb9cf1": "Toque no botão de peça de quebra-cabeça ao lado do endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”.",
+  "f6a68fb273c4": "Escolha “Sempre Permitir”. O texto da página só é enviado quando você pergunta algo e não é usado para treinar modelos."
 }

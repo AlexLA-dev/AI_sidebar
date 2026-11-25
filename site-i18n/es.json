@@ -722,10 +722,10 @@
   "b805da32b11a": "Abre la app Ajustes y ve a Apps → Safari (no ContextFlow) → Extensiones → ContextFlow.",
   "9cf76ea2ed86": "Abre Ajustes y luego Apps a la izquierda → Safari (no ContextFlow) → Extensiones → ContextFlow.",
   "07b51faeeeef": "Vuelve a Safari, recarga la página y toca ✦.",
-  "6c05410141f9": "Elige «Permitir siempre». ContextFlow solo lee una página cuando le preguntas algo.",
   "393d79f8b457": "Abre el menú de la página en la barra de direcciones → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.",
   "ca4ea310de90": "No “Permitir durante un día”: con eso, ✦ desaparece mañana.",
   "0b43319f282d": "O en Ajustes:",
   "2c91c2a977f2": "En Permisos, ajusta “Todos los sitios web” en “Permitir”. Si en su lugar ves una lista de sitios web, ajusta cada fila en “Permitir”.",
-  "661d6fcb9cf1": "Toca el botón de la pieza de puzle junto a la dirección → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”."
+  "661d6fcb9cf1": "Toca el botón de la pieza de puzle junto a la dirección → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.",
+  "f6a68fb273c4": "Elige «Permitir siempre». El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos."
 }

@@ -722,10 +722,10 @@
   "b805da32b11a": "Apri l’app Impostazioni e vai su App → Safari (non ContextFlow) → Estensioni → ContextFlow.",
   "9cf76ea2ed86": "Apri Impostazioni, poi App a sinistra → Safari (non ContextFlow) → Estensioni → ContextFlow.",
   "07b51faeeeef": "Torna in Safari, ricarica la pagina e tocca ✦.",
-  "6c05410141f9": "Scegli «Consenti sempre». ContextFlow legge una pagina solo quando gli chiedi qualcosa.",
   "393d79f8b457": "Apri il menu della pagina nella barra degli indirizzi → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.",
   "ca4ea310de90": "Non “Consenti per un giorno”: così ✦ sparisce già domani.",
   "0b43319f282d": "Oppure in Impostazioni:",
   "2c91c2a977f2": "In Permessi, imposta “Tutti i siti web” su “Consenti”. Se invece vedi un elenco di siti web, imposta ogni riga su “Consenti”.",
-  "661d6fcb9cf1": "Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”."
+  "661d6fcb9cf1": "Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.",
+  "f6a68fb273c4": "Scegli «Consenti sempre». Il testo della pagina viene inviato solo quando chiedi qualcosa e non viene usato per addestrare modelli."
 }

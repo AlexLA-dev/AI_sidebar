@@ -6087,9 +6087,9 @@
   ]
  },
  {
-  "key": "6c05410141f9",
+  "key": "f6a68fb273c4",
   "kind": "html",
-  "en": "Choose Always Allow. ContextFlow reads a page only when you ask it something.",
+  "en": "Choose Always Allow. Page text is sent only when you ask something and is not used to train models.",
   "pages": [
    "start.html"
   ]
