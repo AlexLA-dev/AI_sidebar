@@ -94,9 +94,15 @@ test("the chat: a question the background never got is sent again once on a fres
 
 test("a silent tab (no answer at all after another app): the quiet watchdog treats an unheard question as undelivered; coming back probes the link and says so at once", () => {
   const app = readFileSync("src/content/App.tsx", "utf8")
-  // The quiet watchdog (20 s, and on coming back) goes through the pending question first.
-  assert.match(app, /if \(quiet\(20_000\)\) quietRef\.current\(\)/)
-  assert.match(app, /const p = pendingAskRef\.current\s*if \(p\) undeliveredRef\.current\(p\.history, p\.content, p\.opts\)\s*else lostRef\.current\(\)/)
+  // The quiet watchdog (20 s, and on coming back) goes through the pending question first. 2.8.1 (the director): a
+  // question whose connection said nothing for the whole 20 s isn't sent again — the tab's link is gone (a tab left
+  // open across an update): straight to «lost its link» with Reload (about 20–25 s, was about 75 s). Coming back from
+  // the background (6 s quiet) still asks again once.
+  assert.match(app, /if \(quiet\(20_000\)\) quietRef\.current\(true\)/)
+  assert.match(app, /if \(document\.visibilityState === "visible" && quiet\(6_000\)\) quietRef\.current\(\)/)
+  assert.match(app, /const quietRef = useRef\(\(silent = false\) => \{\s*const p = pendingAskRef\.current\s*if \(p\) undeliveredRef\.current\(p\.history, p\.content, silent \? \{ \.\.\.p\.opts, resent: true \} : p\.opts\)\s*else lostRef\.current\(\)/)
+  // A resent question is the error at once: no second fresh connection.
+  assert.match(app, /if \(!opts\.resent\) \{[\s\S]{0,260}?return\s*\}\s*setLinkLost\(true\)\s*finish\(history, "", \{ code: "LINK" \}\)/)
   // Anything heard clears it (the question got there) and the link is fine.
   assert.match(app, /heardAny = true\s*pendingAskRef\.current = null\s*if \(linkLostRef\.current\) setLinkLost\(false\)/)
   // On coming back: no answer to agentGet → the link is gone, said in the chat with «Повторить» and a reload.

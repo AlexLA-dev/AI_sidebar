@@ -408,7 +408,8 @@ function reportLinked(): Promise<boolean> {
   linking ??= linkApp({
     appId: () => nativeInfo().then((info) => info.app),
     installId,
-    client: clientInfo,
+    // (Its only request is the «linked» event: the client that waits for the build and the «ours» mark.)
+    client: clientForEvent,
     linked: async () => ((await chrome.storage.local.get(STORAGE.appLinked))[STORAGE.appLinked] as string | undefined) ?? null,
     markLinked: (app) => chrome.storage.local.set({ [STORAGE.appLinked]: app }),
     post: (body) =>
@@ -1321,6 +1322,7 @@ startInsert({
     return ent?.active ? ent.jws : null
   },
   clientInfo,
+  eventClient: clientForEvent,
   consented,
   statusChanged: () => (statusCache = null)
 })
@@ -1342,6 +1344,7 @@ startTranslate({
     return ent?.active ? ent.jws : null
   },
   clientInfo,
+  eventClient: clientForEvent,
   consented,
   statusChanged: () => (statusCache = null)
 })
@@ -1366,6 +1369,7 @@ startAgent({
 startWatch({
   installId,
   clientInfo,
+  eventClient: clientForEvent,
   consented,
   plan: async () => {
     const ent = await entitlement()

@@ -26,6 +26,9 @@ import { callNative } from "./native"
 export interface WatchDeps {
   installId: () => Promise<string>
   clientInfo: () => Promise<Record<string, unknown>>
+  // 2.8.1: the client fields for an event, which wait briefly for the app's build and «ours» mark (index.ts
+  // clientForEvent): a simulator install that only used this feature reached the events unmarked. Requests keep clientInfo.
+  eventClient?: () => Promise<Record<string, unknown>>
   // The AI only with the person's consent (the same as for answers); without it, the device's own rules.
   consented: () => Promise<boolean>
   // The plan: Pro or Own key watch 20 pages at once instead of Free's 5 (the owner's limit), Ultra 50 (2.6).
@@ -417,7 +420,7 @@ async function syncApp(): Promise<void> {
 
 /** A step for the counters: the "use" kind, f "watch" (the analytics registry). Never the page or its text. */
 async function report(step: WatchStep): Promise<void> {
-  const [installId, client] = await Promise.all([deps.installId(), deps.clientInfo()])
+  const [installId, client] = await Promise.all([deps.installId(), (deps.eventClient ?? deps.clientInfo)()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

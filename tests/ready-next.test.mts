@@ -99,3 +99,16 @@ test("one capability a day (В5): a line's tap does its feature here; forms get 
   const rules = read("src/content/pagehints/rules.ts")
   assert.match(rules, /case "form":\n\s+return \["agent", "templates"\]/)
 })
+
+test("every event a module sends waits for the app's build and «ours» mark: translate, insert, watch, the link (2.8.1)", () => {
+  const bg = read("src/background/index.ts")
+  for (const start of ["startInsert({", "startTranslate({", "startWatch({"]) {
+    const at = bg.indexOf(start)
+    assert.match(bg.slice(at, at + 400), /eventClient: clientForEvent,/, start)
+  }
+  assert.match(bg, /client: clientForEvent,\n\s+linked: async \(\) =>/)
+  for (const file of ["translate", "insert", "watch"]) {
+    const src = read(`src/background/${file}.ts`)
+    assert.match(src, /async function report\([^)]*\): Promise<void> \{\n\s+const \[installId, client\] = await Promise\.all\(\[deps\.installId\(\), \(deps\.eventClient \?\? deps\.clientInfo\)\(\)\]\)/, file)
+  }
+})

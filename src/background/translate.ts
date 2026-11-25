@@ -13,6 +13,9 @@ export interface TranslateDeps {
   // The App Store transaction the server checks the plan with (null: free).
   entitlementJws: () => Promise<string | null>
   clientInfo: () => Promise<Record<string, unknown>>
+  // 2.8.1: the client fields for an event, which wait briefly for the app's build and «ours» mark (index.ts
+  // clientForEvent): a simulator install that only used this feature reached the events unmarked. Requests keep clientInfo.
+  eventClient?: () => Promise<Record<string, unknown>>
   consented: () => Promise<boolean>
   // A page counted as an answer: the panel's usage line is asked again.
   statusChanged: () => void
@@ -99,7 +102,7 @@ async function run(deps: TranslateDeps, ask: TranslateAsk, emit: (r: TranslateRe
 
 /** The feature counter for a step of the pill (the page's surface). */
 async function report(deps: TranslateDeps, step: TranslateStep): Promise<void> {
-  const [installId, client] = await Promise.all([deps.installId(), deps.clientInfo()])
+  const [installId, client] = await Promise.all([deps.installId(), (deps.eventClient ?? deps.clientInfo)()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
