@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Bunu kendiniz yapın: “{0}”."
  },
+ "agentSelfNewTab": {
+  "message": "“{0}” öğesine kendiniz dokunun: sayfa bunu yeni sekmede açıyor ve bunu yalnızca sizin dokunuşunuz yapabilir. Oradan devam edeceğim."
+ },
  "agentSelfFile": {
   "message": "Dosyayı kendiniz seçin."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "Dolduruldu: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Dokunuldu: {0}"
  },
  "agentPermConsent": {
   "message": "{0} sitesinin koşullarını kabul kutusunu işaretlemek"

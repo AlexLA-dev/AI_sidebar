@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "這一步請自己來：「{0}」。"
  },
+ "agentSelfNewTab": {
+  "message": "請自己點一下「{0}」：這個頁面會在新分頁中開啟，只有你親手點才行。接著我會在那裡繼續。"
+ },
  "agentSelfFile": {
   "message": "請自己選擇檔案。"
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "已填寫：{0}"
+ },
+ "agentLinePressed": {
+  "message": "已點按：{0}"
  },
  "agentPermConsent": {
   "message": "勾選同意 {0} 的條款"

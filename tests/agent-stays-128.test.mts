@@ -300,7 +300,8 @@ test("G: an emptied line shows its control's name; a table's day pressed on a st
   checkDayLine(t, TABLE([{ id: "d", role: "button", label: "Thu 26 Nov" }, ...Array.from({ length: 6 }, (_, i) => ({ id: `x${i}`, role: "button", label: `Fri ${27 + i} Nov` }) as PageMap["items"][number])]))
   assert.equal(t.lines[0].text, "Choosing Thu 26 Nov", "the pressed control is that day")
   const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
-  assert.match(panel, /l\.text \? localWhen\(l\.text\) : l\.tool === "fill" && l\.target \? t\("agentLineFilled", nameOf\(l\.target\)\) : nameOf\(l\.target\)/)
+  // (A press with no words says what was pressed: «Pressed: Reserve», 129.)
+  assert.match(panel, /l\.text \? localWhen\(l\.text\) : l\.tool === "fill" && l\.target \? t\("agentLineFilled", nameOf\(l\.target\)\) : \(l\.tool === "click" \|\| l\.tool === "go"\) && l\.target \? t\("agentLinePressed", nameOf\(l\.target\)\) : nameOf\(l\.target\)/)
 })
 
 test("4 (iPad): the plan card starts a permission unticked when the plan does", () => {

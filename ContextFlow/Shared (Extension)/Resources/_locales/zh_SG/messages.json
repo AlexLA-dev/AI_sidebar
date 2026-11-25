@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "这一步请你自己来：“{0}”。"
  },
+ "agentSelfNewTab": {
+  "message": "请你自己点一下“{0}”：这个页面会在新标签页中打开，只有你亲手点才行。接着我会在那里继续。"
+ },
  "agentSelfFile": {
   "message": "请自己选择文件。"
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "已填写：{0}"
+ },
+ "agentLinePressed": {
+  "message": "已点按：{0}"
  },
  "agentPermConsent": {
   "message": "勾选同意 {0} 的条款"

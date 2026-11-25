@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "이건 직접 해 주세요: ‘{0}’."
  },
+ "agentSelfNewTab": {
+  "message": "‘{0}’을(를) 직접 눌러 주세요. 이 페이지는 새 탭에서 열리며, 직접 눌러야만 열 수 있어요. 그다음은 거기서 이어갈게요."
+ },
  "agentSelfFile": {
   "message": "파일은 직접 선택해 주세요."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "입력함: {0}"
+ },
+ "agentLinePressed": {
+  "message": "누름: {0}"
  },
  "agentPermConsent": {
   "message": "{0} 약관 동의에 체크"

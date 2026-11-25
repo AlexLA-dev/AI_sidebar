@@ -17,7 +17,7 @@ import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, ty
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
-import { freeLineIn, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
+import { freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { pageKind } from "./events.ts"
 import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
@@ -192,6 +192,12 @@ export interface AgentState {
   dateRefusals?: number
   bookedDays?: { date: string; dateEnd?: string }
   daysAtPress?: { date: string; dateEnd?: string }
+  // The address the last tap's page tried to open in a new tab (shown as a link, gone to through the usual checks), and
+  // what the tap was on; places whose tap changed nothing (never offered again as a choice).
+  openedLink?: { url: string; from: string; page?: string }
+  dead?: string[]
+  // Pages whose own search was asked for once before a place was opened from them (128).
+  searchNudged?: string[]
   // Fields of someone else's booking the person's saved contact was kept out of once (128).
   otherLeft?: string[]
 }
@@ -319,7 +325,7 @@ export function fillLines(call: ToolCall, item: MapItem | null, entries: FormEnt
 }
 
 /** Does a step on the page and writes it down. A fill types its value in; the log keeps only the key. */
-async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string, byPlan?: boolean): Promise<void> {
+async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string, byPlan?: boolean): Promise<StepResult | null> {
   const doing: ToolCall = call.tool === "fill" ? { ...call, text: value ?? "" } : call
   // Calendar and Reminders: on the device, not on the page (what they read goes to the next step, like extract).
   if (APPLE_TOOLS.has(call.tool)) {
@@ -331,11 +337,14 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
     }
     state.log.push({ call, result: noteOf(result) })
     state.lines.push(line(call, verdict, target, result.ok, undefined, byPlan))
-    return
+    return result
   }
   state.inflight = { step: state.step, call: call.tool === "fill" ? { tool: "fill", id: call.id, key: call.key } : call, at: Date.now() }
   await (io.mark ?? io.save)(state)
-  let result = await io.act(doing)
+  // The address a tap's page tried to open in a new tab, gone to here (its «go» passed the checks like any other).
+  const opening = (call.tool === "go" || call.tool === "click") && call.id === NEW_TAB_ID && state.openedLink && io.open ? state.openedLink : null
+  let result = opening ? await io.open!(opening.url).then(() => ({ ok: true, navigated: true, note: "the page went on" }) as StepResult, () => ({ ok: false, note: "it couldn't be opened" }) as StepResult) : await io.act(doing)
+  if (opening) state.openedLink = undefined
   state.inflight = undefined
   if (!result || result.navigated) {
     await io.waitPage()
@@ -348,11 +357,42 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   // A fill's log line has its key, never its value (the log goes to the server with the next step).
   const logged: ToolCall = call.tool === "fill" ? { tool: "fill", id: call.id, key: call.key, why: call.why } : call
   state.log.push({ call: logged, target: target ?? undefined, result: `${noteOf(result)}${byPlan ? " (allowed in the plan)" : ""}` })
-  state.lines.push(line(call, verdict, target, result.ok, undefined, byPlan))
+  // A tap that changed nothing isn't done (128: five ✓ «Opening Harbour View Suites again…» on a card that never opened).
+  const idle = (call.tool === "click" || call.tool === "go") && /^nothing changed on the page/.test(result.note ?? "")
+  state.lines.push(line(call, verdict, target, result.ok && !idle, undefined, byPlan))
   state.lineCheck = state.lines.length - 1
+  const pressed = /"(.*)"$/.exec(target ?? "")?.[1] ?? ""
+  if (idle && pressed && !state.dead?.includes(pressed)) state.dead = [...(state.dead ?? []), pressed]
+  if (result.opened) {
+    state.openedLink = { url: result.opened, from: pressed }
+    state.log[state.log.length - 1].result = `the page tried to open ${result.opened} in a new tab, which the browser keeps the task out of: to open it here, go to link #${NEW_TAB_ID}`
+  }
+  // The page's world couldn't be watched and the tap did nothing: the browser likely blocked a new tab the agent's tap
+  // can't open. The person taps it themselves; the device follows the tab it opens (background: onCreated).
+  if (result.tabBlocked && state.status === "running") {
+    state.log[state.log.length - 1].result = "nothing changed: the page may have tried to open a new tab, which the browser blocks for the agent's tap — the person taps it themselves"
+    state.status = "self"
+    state.pending = { call, verdict: { cls: "self", reason: "new_tab" }, target }
+  }
   // The booking's last press went: what it booked is the days the page showed then (the «done» may leave them out).
   if (verdict.cls === "confirm" && verdict.reason === "submit" && result.ok && state.daysAtPress) state.bookedDays = state.daysAtPress
+  return result
 }
+
+/** An address as the map writes a link's: its path on the same site, its host and path on another. */
+function mapHref(url: string, page: string): string {
+  try {
+    const u = new URL(url)
+    const host = u.hostname.toLowerCase().replace(/^www\./, "")
+    const path = `${u.pathname}${u.search}`.slice(0, 120)
+    return sameSite(host, hostOf(page)) ? path : `${host}${path}`.slice(0, 140)
+  } catch {
+    return url
+  }
+}
+
+/** The map item the address a tap tried to open in a new tab stands as (the model goes to it like any link). */
+export const NEW_TAB_ID = "newtab"
 
 const squashName = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
 
@@ -385,6 +425,29 @@ export function checkDayLine(state: AgentState, map: PageMap): void {
  */
 export function unsetDays(state: AgentState, map: PageMap): string | null {
   return bookingDays(state, map) ? null : daysRefusal(state)
+}
+
+/**
+ * Why a place shouldn't be opened from this page yet, or null: a booking by days on a page with its own date fields
+ * whose list doesn't carry those days (its address and its text don't name them) — the fields not set, or set and its
+ * search not pressed. Said once per page.
+ */
+export function searchFirst(state: AgentState, map: PageMap): string | null {
+  const b = state.plan?.booking
+  if (!b?.date || !b.dateEnd || state.searchNudged?.includes(map.url)) return null
+  const fields = map.items.filter((i) => i.type === "date" || ((i.role === "textbox" || i.role === "combobox") && !!i.value && daysInText(i.value, b.date).length > 0))
+  if (!fields.length) return null
+  let address = map.url
+  try {
+    address = decodeURIComponent(map.url)
+  } catch {
+    // (An address that doesn't decode is read as it is.)
+  }
+  const listed = daysInText(`${address}\n${map.title}\n${map.text}`, b.date)
+  if (listed.includes(b.date) && listed.includes(b.dateEnd)) return null
+  const has = (d: string) => fields.some((i) => !!i.value && daysInText(i.value, b.date).includes(d))
+  const set = has(b.date) && has(b.dateEnd)
+  return `this list doesn't carry the ${b.kind}'s days (${dayWords(b.date)} to ${dayWords(b.dateEnd)}) yet: ${set ? "its date fields have them, but its search wasn't pressed" : "set them in its own date fields"} — press this page's own search (Search, Apply, Update) first, then open the place from the new list, so its page has the days`
 }
 
 /**
@@ -730,11 +793,12 @@ export function recapOf(state: AgentState, map: PageMap, always = false): Recap 
 }
 
 /** A date field on the page (a widget's own setting) whose value is another day than the asked one, or null. */
-export function widgetDay(map: PageMap, iso: string): MapItem | null {
+export function widgetDay(map: PageMap, iso: string, end?: string): MapItem | null {
   for (const i of map.items) {
     if (!i.value || i.lock || !(i.type === "date" || ((i.role === "textbox" || i.role === "combobox" || i.role === "select") && (isDateLabel(i.value) || /^\d{4}-\d{2}-\d{2}$/.test(i.value))))) continue
     const day = /^\d{4}-\d{2}-\d{2}$/.test(i.value) ? i.value : dayOf(i.value, iso)
-    if (day && day !== iso) return i
+    // (A stay's check-out field holding its last day is the booking's own, 129: «Check-out shows 2026-12-06, not 4 Dec».)
+    if (day && day !== iso && day !== end) return i
   }
   return null
 }
@@ -968,6 +1032,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     state.host = hostOf(map.url)
+    // (The address the last tap's page tried to open in a new tab: a link on this map, only while it's the same page.)
+    if (state.openedLink && state.openedLink.page && state.openedLink.page !== map.url) state.openedLink = undefined
+    if (state.openedLink && !state.openedLink.page) state.openedLink.page = map.url
+    // (Never a stale one: the check and the open go by the same address.)
+    map = { ...map, items: map.items.filter((i) => i.id !== NEW_TAB_ID) }
+    if (state.openedLink) map.items.push({ id: NEW_TAB_ID, role: "link", label: `${state.openedLink.from || "new tab"} (opens in a new tab)`.slice(0, 80), href: mapHref(state.openedLink.url, map.url) } as MapItem)
     checkDayLine(state, map)
     noteVenues(state, map)
     // A layer over the page that isn't the task (rewards, a newsletter, the site's app, notifications, location): closed
@@ -990,7 +1060,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     if (state.plan?.approved && state.plan.booking?.date && !state.sawDate) {
       const days = dayItems(map, state.plan.booking.date)
-      if (days.some((i) => !greyedItem(i))) state.sawDate = true
+      // (Or set in the page's own date field: a stay list with «Check-in 2026-12-04», 129.)
+      if (days.some((i) => !greyedItem(i)) || showsDay(map, state.plan.booking.date)) state.sawDate = true
       else if (days.length) state.greyTarget = days[0].label
     }
     // A booking whose form is a booking provider's frame on this page (a restaurant's provider widget, 121 sweep: «I've tried "Book a
@@ -1143,7 +1214,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // A booking widget whose own date field shows another day than the asked one (B3: «your time isn't available» read
     // as no slot): sent back once to set the field first.
-    const field = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.widgetNudged ? widgetDay(map, state.plan.booking.date) : null
+    const field = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.widgetNudged ? widgetDay(map, state.plan.booking.date, state.plan.booking.dateEnd) : null
     if (field) {
       state.widgetNudged = true
       const why = `the page's own date field «${field.label.slice(0, 40)}» shows ${field.value}, not ${dayWords(state.plan!.booking!.date)}: set it to the asked day first (and the party, then the time), read the page's slots for that day, then go on; ask only with what it shows then`
@@ -1168,7 +1239,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.status = "asked"
       state.summary = call.question ?? ""
       // Times the page doesn't show (taken from the Calendar alone, a salon booking site 2) aren't offered.
-      state.choices = pageChoices(call.choices ?? [], pageTimes(map))
+      state.choices = honestChoices(pageChoices(call.choices ?? [], pageTimes(map)), map, state.dead)
       // A contact detail «Мои данные» hasn't got (asked once): the answer may be kept there.
       const key = details ? contactAsked(call.question ?? "") : null
       state.askKey = key && !liveEntries(entries).some((e) => e.key === key) ? key : undefined
@@ -1211,6 +1282,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const why = `this booking is for someone the request names: the saved ${otherKind} is the person's own, not theirs, and the page doesn't require this field — leave it empty and go on`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
+      continue
+    }
+    // A stay's or a rental's place opened from a list whose own search hasn't taken the days (128: the model typed the
+    // dates and opened a stay without pressing Search, twice in three; the stay page said «Choose your dates» and the task
+    // ended in questions): sent back once per page — set the days in its fields and press its search first.
+    const unsearched = seenItem && (call.tool === "click" || call.tool === "go") && seenItem.role === "link" && call.id !== NEW_TAB_ID ? searchFirst(state, map) : null
+    if (unsearched) {
+      state.searchNudged = [...(state.searchNudged ?? []), map.url]
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${unsearched}` })
+      state.refused = unsearched
       continue
     }
     // A place that doesn't fit the request or the rules (a French restaurant for «Italian») isn't opened.
@@ -1429,7 +1510,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (call.tool === "read_page" && (call.part ?? 1) > 1) state.readPart = Math.min(Math.round(call.part!), map.parts)
     await perform(state, io, call, verdict, target)
     state.lastWasRead = READS.has(call.tool)
-    if (call.tool === "click" && call.also?.length) await pressAlso(state, io, call.also)
+    if (call.tool === "click" && call.also?.length && state.status === "running") await pressAlso(state, io, call.also)
     await io.save(state)
   }
   await io.save(state)

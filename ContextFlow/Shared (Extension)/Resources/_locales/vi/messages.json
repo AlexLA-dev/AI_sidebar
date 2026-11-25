@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Bạn hãy tự làm việc này: “{0}”."
  },
+ "agentSelfNewTab": {
+  "message": "Bạn hãy tự chạm vào “{0}”: trang mở mục này trong tab mới, và chỉ thao tác của chính bạn mới làm được. Mình sẽ làm tiếp ở đó."
+ },
  "agentSelfFile": {
   "message": "Bạn hãy tự chọn tệp."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "Đã điền: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Đã chạm: {0}"
  },
  "agentPermConsent": {
   "message": "Đánh dấu đồng ý với điều khoản của {0}"

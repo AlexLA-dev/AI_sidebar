@@ -89,6 +89,37 @@ function reveal(el: Element): void {
   if (!inView(el)) (el as HTMLElement).scrollIntoView?.({ block: "center", inline: "nearest" })
 }
 
+/**
+ * Watches the page's own window.open during one tap (its world, through a script element): what address it asked for,
+ * and whether the page's world could be reached at all (a strict content policy blocks the script). Put back after.
+ */
+export function catchNewTab(doc: Document): { done(): { url: string; reached: boolean } } {
+  const root = doc.documentElement
+  root.removeAttribute("data-cf-open")
+  let reached = false
+  try {
+    const s = doc.createElement("script")
+    s.textContent = `(()=>{const d=document.documentElement,o=window.open;d.setAttribute("data-cf-win","1");window.open=function(u){try{d.setAttribute("data-cf-open",new URL(String(u==null?"":u),location.href).href)}catch(e){}return null};document.addEventListener("cf-win-off",()=>{window.open=o;d.removeAttribute("data-cf-win")},{once:true})})()`
+    ;(doc.head ?? root).appendChild(s)
+    s.remove()
+    reached = root.getAttribute("data-cf-win") === "1"
+  } catch {
+    reached = false
+  }
+  return {
+    done() {
+      const url = root.getAttribute("data-cf-open") ?? ""
+      root.removeAttribute("data-cf-open")
+      try {
+        doc.dispatchEvent(new (doc.defaultView ?? window).CustomEvent("cf-win-off"))
+      } catch {
+        // (The page is gone: nothing to put back.)
+      }
+      return { url: /^https?:\/\//.test(url) ? url : "", reached }
+    }
+  }
+}
+
 /** A press the way a page hears a finger or a mouse: pointer and mouse down and up, then the click itself. */
 export function press(el: Element): void {
   // A link of this site that would open a new tab opens here: the agent works in its own tab (a restaurant site's restaurant
@@ -301,9 +332,18 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       reveal(el!)
       const toggle = tag(el!) === "input" && /^(checkbox|radio)$/i.test((el as HTMLInputElement).type)
       const before = toggle ? (el as HTMLInputElement).checked : null
+      // A page that opens its place in a new tab by script (window.open): Safari blocks it for a tap that isn't a person's
+      // (128, the iPad: the stand's card got the test line «the new tab was blocked»). During this tap only, the page's
+      // window.open keeps the address instead; the runner sends the task there through the same checks as any «go».
+      const win = toggle ? null : catchNewTab(el!.ownerDocument)
       press(el!)
       const settled = await stepSettle()
+      const tab = win?.done() ?? null
       const result: StepResult = { ok: true, note: settled.navigated ? "the page went on" : settled.changed ? "the page changed" : "nothing changed on the page", changed: settled.changed, navigated: settled.navigated }
+      if (tab?.url && !settled.navigated) {
+        result.opened = tab.url
+        result.note = "the page tried to open another page in a new tab"
+      } else if (tab && !tab.reached && !settled.changed && !settled.navigated && roleOf(el!) === "link" && !(el as HTMLAnchorElement).href) result.tabBlocked = true
       if (toggle && before !== null) {
         const now = (el as HTMLInputElement).checked
         if (now === before) result.note = "the box didn't change (the site may want a real tap)"

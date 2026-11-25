@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Hazlo tú: «{0}»."
  },
+ "agentSelfNewTab": {
+  "message": "Toca «{0}» tú: la página lo abre en una pestaña nueva y solo tu propio toque puede hacerlo. Seguiré ahí."
+ },
  "agentSelfFile": {
   "message": "Elige tú el archivo."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "Rellenado: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Pulsado: {0}"
  },
  "agentPermConsent": {
   "message": "Marcar la aceptación de las condiciones de {0}"

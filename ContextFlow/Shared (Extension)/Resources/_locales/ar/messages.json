@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "افعل هذا بنفسك: «{0}»."
  },
+ "agentSelfNewTab": {
+  "message": "اضغط «{0}» بنفسك: الصفحة تفتحه في علامة تبويب جديدة، ولا يفعل ذلك إلا ضغطك أنت. سأتابع هناك."
+ },
  "agentSelfFile": {
   "message": "اختر الملف بنفسك."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "تمت التعبئة: {0}"
+ },
+ "agentLinePressed": {
+  "message": "تم الضغط: {0}"
  },
  "agentPermConsent": {
   "message": "وضع علامة الموافقة على شروط موقع {0}"

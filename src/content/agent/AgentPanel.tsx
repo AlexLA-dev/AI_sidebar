@@ -142,6 +142,7 @@ export function selfText(state: Pick<PanelAgent, "pending">): string {
     case "file": return t("agentSelfFile")
     case "access_reminders": return t("agentSelfAccessReminders")
     case "access_calendar": return t("agentSelfAccessCalendar")
+    case "new_tab": return t("agentSelfNewTab", name)
     default: return t("agentSelfOther", name)
   }
 }
@@ -499,7 +500,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
               {/* (A box the plan let the agent tick is the agent's step.) */}
               {l.cls === "self" && !l.byPlan
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
-                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.popup ? t("agentLinePopup", nameOf(l.target)) : l.text ? localWhen(l.text) : l.tool === "fill" && l.target ? t("agentLineFilled", nameOf(l.target)) : nameOf(l.target)}
+                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.popup ? t("agentLinePopup", nameOf(l.target)) : l.text ? localWhen(l.text) : l.tool === "fill" && l.target ? t("agentLineFilled", nameOf(l.target)) : (l.tool === "click" || l.tool === "go") && l.target ? t("agentLinePressed", nameOf(l.target)) : nameOf(l.target)}
             </li>
           ))}
         </ol>

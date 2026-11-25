@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "これはご自身でお願いします：「{0}」。"
  },
+ "agentSelfNewTab": {
+  "message": "「{0}」はご自身でタップしてください。このページは新しいタブで開き、それができるのはご自身のタップだけです。続きはそちらで進めます。"
+ },
  "agentSelfFile": {
   "message": "ファイルはご自身で選んでください。"
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "入力しました：{0}"
+ },
+ "agentLinePressed": {
+  "message": "タップしました：{0}"
  },
  "agentPermConsent": {
   "message": "{0} の利用規約への同意にチェック"

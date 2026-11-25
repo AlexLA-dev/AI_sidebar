@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Do this yourself: “{0}”."
  },
+ "agentSelfNewTab": {
+  "message": "Tap “{0}” yourself: the page opens it in a new tab, and only your own tap can do that. I'll go on there."
+ },
  "agentSelfFile": {
   "message": "Choose the file yourself."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "Filled in: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Pressed: {0}"
  },
  "agentPermConsent": {
   "message": "Tick the box agreeing to {0}'s terms"

@@ -911,7 +911,9 @@ export function startAgent(d: AgentDeps): void {
     if (t.id === undefined || opener === undefined) return
     void (async () => {
       const st = await load(opener)
-      if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) > 8_000) return
+      // (Or the person's own tap the task asked for: a page that opens its place in a new tab only for a real tap, 128.)
+      const theirs = st?.status === "self" && st.pending?.verdict.reason === "new_tab"
+      if (!st || (!theirs && (st.status !== "running" || Date.now() - (st.touchedAt ?? 0) > 8_000))) return
       const url = await new Promise<string>((resolve) => {
         const timer = setTimeout(() => done(t.pendingUrl ?? t.url ?? ""), 4_000)
         const done = (u: string) => {

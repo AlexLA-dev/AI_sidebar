@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Faites-le vous-même : « {0} »."
  },
+ "agentSelfNewTab": {
+  "message": "Touchez « {0} » vous-même : la page l'ouvre dans un nouvel onglet, et seul votre propre geste le permet. Je continuerai là-bas."
+ },
  "agentSelfFile": {
   "message": "Choisissez le fichier vous-même."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "Rempli : {0}"
+ },
+ "agentLinePressed": {
+  "message": "Touché : {0}"
  },
  "agentPermConsent": {
   "message": "Cocher l'acceptation des conditions de {0}"

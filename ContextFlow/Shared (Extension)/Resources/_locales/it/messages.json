@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Fallo tu: «{0}»."
  },
+ "agentSelfNewTab": {
+  "message": "Tocca tu «{0}»: la pagina lo apre in una nuova scheda e solo il tuo tocco può farlo. Proseguo lì."
+ },
  "agentSelfFile": {
   "message": "Scegli tu il file."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "Compilato: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Toccato: {0}"
  },
  "agentPermConsent": {
   "message": "Spuntare l'accettazione dei termini di {0}"

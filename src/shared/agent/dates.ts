@@ -243,11 +243,27 @@ export function daysAsIso(text: string, near: string): string {
     const w = word(tok.text)
     // (A lowercase «may» or «mar» is a word of its own: «you may 5…», «mar» the sea.)
     if (!/\p{L}/u.test(w) || /\d/.test(w) || monthIn(w) < 0 || /^(may|mar)$/.test(w)) return
+    // A range «4–6 December» / «December 4–6»: both days, as «2026-12-04 – 2026-12-06».
+    const range = (t?: { text: string; at: number }) => (t ? /^(0?[1-9]|[12]\d|3[01])[–-](0?[1-9]|[12]\d|3[01])[.,;:!?)]*$/u.exec(t.text) : null)
+    const rb = range(tokens[i - 1])
+    const ra = rb ? null : range(tokens[i + 1])
+    if (rb || ra) {
+      const r = (rb ?? ra)!
+      const a = dayOf(`${r[1]} ${w}`, near)
+      const z = dayOf(`${r[2]} ${w}`, near)
+      const from = rb ? i - 1 : i
+      const to = rb ? i : i + 1
+      if (a && z && !spans.some((x) => x.end > tokens[from].at)) {
+        const tail = tokens[to].text.length - tokens[to].text.replace(/[)»"”.,;:!?]+$/u, "").length
+        spans.push({ start: tokens[from].at, end: tokens[to].at + tokens[to].text.length - tail, iso: `${a} – ${z}` })
+      }
+      return
+    }
     let first = -1
     let last = -1
     let day = ""
     const before = tokens[i - 1] && DAY_TOKEN.exec(word(tokens[i - 1].text)) ? word(tokens[i - 1].text) : ""
-    const after = !before && tokens[i + 1] && DAY_TOKEN.exec(tokens[i + 1].text.replace(/[)»"”.;:!?]+$/u, "")) ? tokens[i + 1].text : ""
+    const after = !before && tokens[i + 1] && DAY_TOKEN.exec(tokens[i + 1].text.replace(/[)»"”.,;:!?]+$/u, "")) ? tokens[i + 1].text : ""
     if (before) [first, last, day] = [i - 1, i, before]
     else if (after) [first, last, day] = [i, i + 1, word(after)]
     else return
@@ -259,8 +275,29 @@ export function daysAsIso(text: string, near: string): string {
     if (tokens[first - 1] && /\p{L}/u.test(tokens[first - 1].text) && weekdayIn(word(tokens[first - 1].text)) && word(tokens[first - 1].text).length <= 12) first--
     if (spans.some((s) => s.end > tokens[first].at)) return
     const tail = tokens[last].text.length - tokens[last].text.replace(/[)»"”.,;:!?]+$/u, "").length
-    spans.push({ start: tokens[first].at, end: tokens[last].at + tokens[last].text.length - tail, iso })
+    // (A bracket or a quote before it stays: «(Fri, Dec 4 to …)» kept its «(», 128.)
+    const lead = tokens[first].text.length - tokens[first].text.replace(/^[(«"“]+/u, "").length
+    spans.push({ start: tokens[first].at + lead, end: tokens[last].at + tokens[last].text.length - tail, iso })
   })
   for (const s of spans.reverse()) out = `${out.slice(0, s.start)}${s.iso}${out.slice(s.end)}`
-  return out
+  // A weekday the model wrote before a date goes: the device shows its own («Friday, 2026-12-04» read «Friday, Fri, Dec 4»).
+  return out.replace(/([(«"“]?)([\p{L}.]+),?\s+(?=\d{4}-\d{2}-\d{2}(?!\d))/gu, (m, open: string, w: string) => (w.length <= 14 && weekdayWord(w.replace(/\.$/, "")) ? open : m))
+}
+
+let longDays: string[] | null = null
+
+/** A weekday's name, its forms too («пятницу», «пятница», «Friday», «Fri»): the platform's names, a case ending aside. */
+export function weekdayWord(word: string): boolean {
+  if (weekdayIn(word)) return true
+  const w = clean(word)
+  if (w.length < 5 || /\d/.test(w)) return false
+  if (!longDays) {
+    const set = new Set<string>()
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(Date.UTC(2026, 10, 1 + d, 12))
+      for (const loc of LOCALES) set.add(clean(partOf(loc, { weekday: "long" }, day, "weekday")))
+    }
+    longDays = [...set].filter((n) => n.length >= 5)
+  }
+  return longDays.some((n) => w.startsWith(n.slice(0, -1)) || n.startsWith(w.slice(0, -1)))
 }

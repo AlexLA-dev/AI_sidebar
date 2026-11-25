@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Mach das bitte selbst: „{0}“."
  },
+ "agentSelfNewTab": {
+  "message": "Tippe bitte selbst auf „{0}“: Die Seite öffnet das in einem neuen Tab, und das geht nur mit deinem eigenen Tippen. Ich mache dort weiter."
+ },
  "agentSelfFile": {
   "message": "Wähl die Datei bitte selbst aus."
  },
@@ -3481,6 +3484,9 @@
  },
  "agentLineFilled": {
   "message": "Ausgefüllt: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Getippt: {0}"
  },
  "agentPermConsent": {
   "message": "Zustimmung zu den Bedingungen von {0} ankreuzen"
