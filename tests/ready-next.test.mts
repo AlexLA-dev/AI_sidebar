@@ -109,6 +109,61 @@ test("every event a module sends waits for the app's build and «ours» mark: tr
   assert.match(bg, /client: clientForEvent,\n\s+linked: async \(\) =>/)
   for (const file of ["translate", "insert", "watch"]) {
     const src = read(`src/background/${file}.ts`)
-    assert.match(src, /async function report\([^)]*\): Promise<void> \{\n\s+const \[installId, client\] = await Promise\.all\(\[deps\.installId\(\), \(deps\.eventClient \?\? deps\.clientInfo\)\(\)\]\)/, file)
+    assert.match(src, /async function report\([^)]*\): Promise<void> \{\n\s+await postEvent\(async \(\) => \{\n\s+const \[installId, client\] = await Promise\.all\(\[deps\.installId\(\), \(deps\.eventClient \?\? deps\.clientInfo\)\(\)\]\)/, file)
   }
+})
+
+test("F4 (2.8.1): one shared wait for the app's mark, and every event the background sends goes out in its order", async () => {
+  const bg = read("src/background/index.ts")
+  // One wait, at most 3 s, shared by every event (it was up to about 9 s, each event on its own).
+  assert.match(bg, /const MARK_WAIT_MS = 3_000/)
+  assert.match(bg, /async function clientForEvent\(\)[^{]*\{\s*await markReady\(\)\s*return clientInfo\(\)\s*\}/)
+  assert.match(bg, /markWait \?\?= \(async \(\) => \{/)
+  // No event is posted except through the queue.
+  for (const file of ["index", "translate", "insert", "watch", "organize"]) {
+    const src = read(`src/background/${file}.ts`)
+    assert.doesNotMatch(src, /fetch\(`\$\{API_BASE\}\/api\/v2\/event`/, file)
+  }
+  // The queue: in order, each body made in its turn (so the shared wait runs inside the first event's turn).
+  const sent: string[] = []
+  const g = globalThis as unknown as { fetch: unknown }
+  const saved = g.fetch
+  g.fetch = async (_url: string, init: { body: string }) => {
+    sent.push(JSON.parse(init.body).a)
+    return { ok: true, status: 200 }
+  }
+  try {
+    const { build } = await import("esbuild")
+    const { mkdtempSync } = await import("node:fs")
+    const { tmpdir } = await import("node:os")
+    const { join } = await import("node:path")
+    const { pathToFileURL } = await import("node:url")
+    const out = join(mkdtempSync(join(tmpdir(), "cf-events-")), "events.mjs")
+    await build({ entryPoints: [new URL("../src/background/events.ts", import.meta.url).pathname], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent", define: { __API_BASE__: '"http://stand"', __VERSION__: '"0"', __TARGET__: '"safari"', __SHADOW_MODE__: '"closed"', __TEST_PLAN__: '""' } })
+    const { postEvent } = await import(pathToFileURL(out).href)
+    const slow = (a: string, ms: number) => () => new Promise<Record<string, unknown>>((done) => setTimeout(() => done({ a }), ms))
+    const runs = [postEvent(slow("open", 60)), postEvent(slow("shown", 5)), postEvent(() => ({ a: "close" })), postEvent(() => null)]
+    const results = await Promise.all(runs)
+    assert.deepEqual(sent, ["open", "shown", "close"])
+    assert.deepEqual(results, [{ ok: true, status: 200 }, { ok: true, status: 200 }, { ok: true, status: 200 }, null])
+    // A failing one doesn't stop the next.
+    g.fetch = async () => {
+      throw new Error("offline")
+    }
+    assert.equal(await postEvent(() => ({ a: "x" })), null)
+    g.fetch = async (_url: string, init: { body: string }) => {
+      sent.push(JSON.parse(init.body).a)
+      return { ok: true, status: 200 }
+    }
+    await postEvent(() => ({ a: "after" }))
+    assert.equal(sent.at(-1), "after")
+  } finally {
+    g.fetch = saved
+  }
+})
+
+test("F5 (2.8.1): the return discount's visit counts only with the chat on screen (not Settings or the chat list)", () => {
+  const app = read("src/content/App.tsx")
+  assert.match(app, /const offerOnScreen = open && view === "chat" && offerCard && !!offer && !error && partial === null/)
+  assert.match(app, /if \(!offerOnScreen \|\| offerCounted\.current\) return/)
 })

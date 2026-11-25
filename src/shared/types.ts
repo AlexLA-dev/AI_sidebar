@@ -210,6 +210,7 @@ export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   // 2.8.1: the panel says its platform as it starts, before its first event (the first fab.shown went out as "other").
   | { type: "platform"; platform: Platform }
+  | { type: "alive" }
   // 2.8.1 (R10): the install's id when the panel doesn't find it stored yet (its arm must be the background's).
   | { type: "installId" }
   // 2.6 (91): a Tips clip from the app (App Group) for the clip page.

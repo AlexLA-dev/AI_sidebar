@@ -7,6 +7,7 @@ import { API_BASE } from "../shared/config"
 import { urlKey } from "../shared/conversation"
 import { sseData } from "../shared/sse"
 import { frameState, type FramesTell, type FrameTold, type TranslateAsk, type TranslateError, type TranslateReply, type TranslateStep } from "../shared/translate"
+import { postEvent } from "./events"
 
 export interface TranslateDeps {
   installId: () => Promise<string>
@@ -102,12 +103,10 @@ async function run(deps: TranslateDeps, ask: TranslateAsk, emit: (r: TranslateRe
 
 /** The feature counter for a step of the pill (the page's surface). */
 async function report(deps: TranslateDeps, step: TranslateStep): Promise<void> {
-  const [installId, client] = await Promise.all([deps.installId(), (deps.eventClient ?? deps.clientInfo)()])
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "use", installId, client, f: "translate_page", a: step.a, s: "page" })
-  }).catch(() => undefined)
+  await postEvent(async () => {
+    const [installId, client] = await Promise.all([deps.installId(), (deps.eventClient ?? deps.clientInfo)()])
+    return { kind: "use", installId, client, f: "translate_page", a: step.a, s: "page" }
+  })
 }
 
 export function startTranslate(deps: TranslateDeps): void {

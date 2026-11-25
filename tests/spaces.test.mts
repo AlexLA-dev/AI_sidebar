@@ -218,7 +218,7 @@ test("a space's toggle reaches the server with its val and spaces (the backgroun
   // The background passes the whole step on, only its message type left out.
   const bg = readFileSync(new URL("../src/background/index.ts", import.meta.url), "utf8")
   assert.match(bg, /function useStep\([^)]*\)[^{]*\{\s*const \{ type: _type, \.\.\.fields \} = message\s*return fields\s*\}/)
-  assert.match(bg, /body: JSON\.stringify\(\{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}\)/)
+  assert.match(bg, /return \{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}/)
   // The server keeps them.
   assert.deepEqual(useFields({ f: "space", a: "toggle", via: "settings", val: "off", spaces: 3 }), { f: "space", a: "toggle", via: "settings", val: "off", spaces: 3 })
 })

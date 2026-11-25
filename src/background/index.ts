@@ -29,6 +29,7 @@ import {
   type Usage
 } from "../shared/types"
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
+import { postEvent } from "./events"
 import { callNative, type NativeEntitlement } from "./native"
 import { isPdfUrl } from "../shared/pdf"
 import { daysLeft, type RenewalReason } from "../shared/renewal"
@@ -391,13 +392,11 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
 async function reportSwitchedOn(): Promise<void> {
   const stored = await chrome.storage.local.get(STORAGE.extOnPending)
   if (stored[STORAGE.extOnPending] !== false) return
-  const [id, client] = await Promise.all([installId(), clientForEvent()])
-  const res = await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "ext_on", installId: id, client })
+  const res = await postEvent(async () => {
+    const [id, client] = await Promise.all([installId(), clientForEvent()])
+    return { kind: "ext_on", installId: id, client }
   })
-  if (res.ok || res.status === 400) await chrome.storage.local.remove(STORAGE.extOnPending)
+  if (res && (res.ok || res.status === 400)) await chrome.storage.local.remove(STORAGE.extOnPending)
 }
 
 /** The app's id and this install's, sent together until the server has them (src/background/link.ts). */
@@ -412,8 +411,7 @@ function reportLinked(): Promise<boolean> {
     client: clientForEvent,
     linked: async () => ((await chrome.storage.local.get(STORAGE.appLinked))[STORAGE.appLinked] as string | undefined) ?? null,
     markLinked: (app) => chrome.storage.local.set({ [STORAGE.appLinked]: app }),
-    post: (body) =>
-      fetch(`${API_BASE}/api/v2/event`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    post: async (body) => (await postEvent(() => body)) ?? Promise.reject(new Error("not sent"))
   }).finally(() => {
     linking = null
   })
@@ -422,12 +420,10 @@ function reportLinked(): Promise<boolean> {
 
 /** The skipped-video/PDF line: how often free answers meet one, and how often it leads to Pro. */
 async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): Promise<void> {
-  const [id, client] = await Promise.all([installId(), clientForEvent()])
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: action === "pro" ? "media_notice_pro" : "media_notice", installId: id, client, media: mediaKinds(media.map((kind) => ({ kind }))).join(",") })
-  }).catch(() => undefined)
+  await postEvent(async () => {
+    const [id, client] = await Promise.all([installId(), clientForEvent()])
+    return { kind: action === "pro" ? "media_notice_pro" : "media_notice", installId: id, client, media: mediaKinds(media.map((kind) => ({ kind }))).join(",") }
+  })
 }
 
 // Google search allowances when the server can't be asked (free a day, Pro a week).
@@ -471,16 +467,14 @@ async function reportUpsell(action: "refused" | "shown" | "tap", where: UpsellWh
     await callNative("byokOfferShown", { period })
     statusCache = null
   }
-  const [id, client, key] = await Promise.all([installId(), clientForEvent(), ownKey()])
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  await postEvent(async () => {
+    const [id, client, key] = await Promise.all([installId(), clientForEvent(), ownKey()])
+    return {
       kind: "byok_upsell", installId: id, client, action, where, from: "panel",
       ...(discount ? { discount: true } : {}),
       ...(action === "refused" ? { has_key: Boolean(key) } : {})
-    })
-  }).catch(() => undefined)
+    }
+  })
 }
 
 /**
@@ -492,13 +486,11 @@ async function reportRenewal(reason: RenewalReason, period: string, productId: s
   await callNative("renewalAsked", { period })
   entitlementCache = null
   statusCache = null
-  const [id, client] = await Promise.all([installId(), clientForEvent()])
   const days = daysLeft(expiresAt)
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "renewal_off", installId: id, client, reason, product: productId ?? "", ...(days === null ? {} : { days_left: days }), from: "panel" })
-  }).catch(() => undefined)
+  await postEvent(async () => {
+    const [id, client] = await Promise.all([installId(), clientForEvent()])
+    return { kind: "renewal_off", installId: id, client, reason, product: productId ?? "", ...(days === null ? {} : { days_left: days }), from: "panel" }
+  })
 }
 
 // -------------------------------------------------------------------- chat
@@ -617,6 +609,9 @@ function servePort(port: chrome.runtime.Port, spec: JobSpec | null, run: Run): v
     }
     if (event.type === "done" || event.type === "error") close()
   }
+  // 2.8.1 (F1): the question is here. Said at once, before anything slower (the plan, the app's ping, the server), so a
+  // panel never takes a background that is still busy starting for a link that's gone.
+  send({ type: "beat" })
   if (spec) {
     const unfollow = startJob(spec, run, send)
     port.onDisconnect.addListener(() => {
@@ -882,12 +877,10 @@ async function itemsRead(message: Extract<BackgroundRequest, { type: "itemsRead"
 
 /** A chat UX count (2.5): kind, action and a few words from fixed lists; never text or sites. */
 async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>): Promise<void> {
-  const [id, client] = await Promise.all([installId(), clientForEvent()])
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: message.kind, installId: id, client, action: message.action, what: message.what, how: message.how, preset: message.preset, surface: "panel" })
-  }).catch(() => undefined)
+  await postEvent(async () => {
+    const [id, client] = await Promise.all([installId(), clientForEvent()])
+    return { kind: message.kind, installId: id, client, action: message.action, what: message.what, how: message.how, preset: message.preset, surface: "panel" }
+  })
 }
 
 /** A step for the feature counters ("use", f and a, src/shared/usage.ts): the panel's, named values only. */
@@ -899,28 +892,46 @@ function useStep(message: Extract<BackgroundRequest, { type: "useEvent" }>): Rec
 
 /**
  * The client fields for an event (every event the background sends: use steps, ext_on, media notices, the renewal
- * answer, upsell, chat UX, organizing), waiting a little for the app's side when it hasn't answered yet (2.8.1, the director
- * on the simulator pass: an install's first events went out without the build and the "ours" mark — the native ping
- * wasn't answered yet — so our own test installs looked like people). At most three more tries a second apart.
+ * answer, upsell, chat UX, organizing, translate, insert, watch, the link), once the app's side has said its build and
+ * whether the install is ours (2.8.1, the director on the simulator pass: an install's first events went out without
+ * the build and the "ours" mark, so our own test installs looked like people). F4: that wait is one, shared by every
+ * event, and at most MARK_WAIT_MS; the events wait for it in their order (events.ts).
  */
 async function clientForEvent(): Promise<Awaited<ReturnType<typeof clientInfo>>> {
-  let client = await clientInfo()
-  for (let i = 0; i < 3 && TARGET === "safari" && !("build" in client); i++) {
-    await new Promise((done) => setTimeout(done, 1000))
-    client = await clientInfo()
-  }
-  return client
+  await markReady()
+  return clientInfo()
 }
 
-async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" }>): Promise<void> {
-  const [id, client] = await Promise.all([installId(), clientForEvent()])
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    // Every field the step carries: the server keeps only the feature's own (src/shared/usage.ts useFields), so a
-    // feature's new count (2.7: a space's val and spaces, the matching chat's match, a collection's cards) isn't lost here.
-    body: JSON.stringify({ ...useStep(message), kind: "use", installId: id, client, s: "panel" })
-  }).catch(() => undefined)
+/** The longest the events wait for the app's build and «ours» mark, all of them together. */
+const MARK_WAIT_MS = 3_000
+let markWait: Promise<void> | null = null
+
+/** Resolves once the app's side has answered the ping, or MARK_WAIT_MS after the first event asked; one wait for all. */
+function markReady(): Promise<void> {
+  if (TARGET !== "safari") return Promise.resolve()
+  markWait ??= (async () => {
+    const until = Date.now() + MARK_WAIT_MS
+    for (let left = MARK_WAIT_MS; left > 0; left = until - Date.now()) {
+      const info = await Promise.race([nativeInfo(), new Promise<null>((done) => setTimeout(() => done(null), left))])
+      if (info?.build) return
+      const pause = Math.min(500, until - Date.now())
+      if (pause > 0) await new Promise((done) => setTimeout(done, pause))
+    }
+    // Unanswered (no app's side here): these events go without the mark; events a minute on may wait once more.
+    setTimeout(() => {
+      markWait = null
+    }, 60_000)
+  })()
+  return markWait
+}
+
+function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" }>): Promise<void> {
+  // Every field the step carries: the server keeps only the feature's own (src/shared/usage.ts useFields), so a
+  // feature's new count (2.7: a space's val and spaces, the matching chat's match, a collection's cards) isn't lost here.
+  return postEvent(async () => {
+    const [id, client] = await Promise.all([installId(), clientForEvent()])
+    return { ...useStep(message), kind: "use", installId: id, client, s: "panel" }
+  }).then(() => undefined)
 }
 
 // ---------------------------------------------------------------- messages
@@ -965,6 +976,10 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "installId":
       void installId().then(sendResponse, () => sendResponse(null))
       return true
+    // 2.8.1 (F1): the panel asks whether this page still reaches the background (a question's connection went quiet).
+    case "alive":
+      sendResponse(true)
+      return false
     case "platform":
       if (message.platform && message.platform !== platformKept) {
         platformKept = message.platform
@@ -1109,7 +1124,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       sendResponse({ ok: true })
       return false
     case "organizeEvent":
-      Promise.all([installId(), clientForEvent()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)
+      void reportOrganize(message.event, installId, clientForEvent)
       sendResponse({ ok: true })
       return false
     case "pdfText":

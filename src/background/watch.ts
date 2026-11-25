@@ -22,6 +22,7 @@ import { watchLimit, type Plan } from "../shared/plan"
 import { WATCH_EVERY_MS, WATCH_FAILS_TO_LIVE, WATCH_ROUND_MS, WATCH_STORAGE, type Watch, type WatchKind } from "../shared/watch/types"
 import { deferredWatchMet } from "./agent"
 import { callNative } from "./native"
+import { postEvent } from "./events"
 
 export interface WatchDeps {
   installId: () => Promise<string>
@@ -420,12 +421,10 @@ async function syncApp(): Promise<void> {
 
 /** A step for the counters: the "use" kind, f "watch" (the analytics registry). Never the page or its text. */
 async function report(step: WatchStep): Promise<void> {
-  const [installId, client] = await Promise.all([deps.installId(), (deps.eventClient ?? deps.clientInfo)()])
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "use", installId, client, f: "watch", ...step })
-  }).catch(() => undefined)
+  await postEvent(async () => {
+    const [installId, client] = await Promise.all([deps.installId(), (deps.eventClient ?? deps.clientInfo)()])
+    return { kind: "use", installId, client, f: "watch", ...step }
+  })
 }
 
 interface Tally { day: string; bg: number; live: number }

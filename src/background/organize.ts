@@ -11,6 +11,7 @@ import { cleanTitle, liveThreads, threadName, threadTitle, type Thread, type Thr
 import { chatsInSpace, cleanSpaceList, emptySpaces, spaceOfChat, type StoredSpaces } from "../shared/spaces"
 import { SITE_MATCH, type MeaningMatches } from "../shared/match"
 import { DEFAULT_SETTINGS, STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type Settings, type StatusInfo } from "../shared/types"
+import { postEvent } from "./events"
 
 interface Context {
   status: StatusInfo
@@ -258,19 +259,14 @@ async function reportScan(chat: Thread, live: Thread[], vectorOf: VectorOf, cfg:
   // How much of the extension's storage is used (its vectors live there), when the browser says.
   const used = await (chrome.storage.local as { getBytesInUse?: (keys: null) => Promise<number> }).getBytesInUse?.(null).catch(() => undefined)
   const kb = typeof used === "number" ? { kb: Math.min(9999, Math.round(used / 1024)) } : {}
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "use", installId: ctx.installId, client: ctx.client, f: "org", a: "scan", ...scan, ...kb, ev: ORGANIZE_ENGINE, s: "panel" })
-  }).catch(() => undefined)
+  await postEvent(() => ({ kind: "use", installId: ctx.installId, client: ctx.client, f: "org", a: "scan", ...scan, ...kb, ev: ORGANIZE_ENGINE, s: "panel" }))
 }
 
-export async function reportOrganize(event: OrganizeEvent, installId: string, client: Record<string, unknown>): Promise<void> {
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...event, surface: "panel", installId, client })
-  }).catch(() => undefined)
+export async function reportOrganize(event: OrganizeEvent, installId: () => Promise<string>, client: () => Promise<Record<string, unknown>>): Promise<void> {
+  await postEvent(async () => {
+    const [id, c] = await Promise.all([installId(), client()])
+    return { ...event, surface: "panel", installId: id, client: c }
+  })
 }
 
 /**

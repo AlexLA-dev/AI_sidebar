@@ -98,7 +98,11 @@ test("a silent tab (no answer at all after another app): the quiet watchdog trea
   // question whose connection said nothing for the whole 20 s isn't sent again — the tab's link is gone (a tab left
   // open across an update): straight to «lost its link» with Reload (about 20–25 s, was about 75 s). Coming back from
   // the background (6 s quiet) still asks again once.
-  assert.match(app, /if \(quiet\(20_000\)\) quietRef\.current\(true\)/)
+  // F1: the silence is checked first — the background answering «alive» means the question went astray (asked again
+  // once); no answer in PROBE_MS means the link is gone.
+  assert.match(app, /if \(probing \|\| !quiet\(SILENT_MS\)\) return/)
+  assert.match(app, /sendBackground<boolean>\(\{ type: "alive" \}, \{ tries: 1, timeoutMs: PROBE_MS \}\)/)
+  assert.match(app, /if \(portRef\.current !== port \|\| heardRef\.current !== heard\) return[\s\S]{0,160}quietRef\.current\(alive === null\)/)
   assert.match(app, /if \(document\.visibilityState === "visible" && quiet\(6_000\)\) quietRef\.current\(\)/)
   assert.match(app, /const quietRef = useRef\(\(silent = false\) => \{\s*const p = pendingAskRef\.current\s*if \(p\) undeliveredRef\.current\(p\.history, p\.content, silent \? \{ \.\.\.p\.opts, resent: true \} : p\.opts\)\s*else lostRef\.current\(\)/)
   // A resent question is the error at once: no second fresh connection.
@@ -120,4 +124,20 @@ test("a tab whose link is gone: saving the consent ends in the lost-link card af
   assert.match(app, /if \(!\(await consentSaved\(\)\)\) \{\s*setPending\(null\)\s*setLinkLost\(true\)\s*return\s*\}/)
   assert.match(app, /void consentSaved\(\)\.then\(\(saved\) => \{\s*if \(!saved\) return setLinkLost\(true\)/)
   assert.match(app, /if \(linkLost\) requestAnimationFrame\(\(\) => listRef\.current\?\.scrollTo/)
+})
+
+test("F1 (2.8.1): a question's wait starts at its connection, never at the ask; the background confirms a question at once", () => {
+  const app = readFileSync("src/content/App.tsx", "utf8")
+  const bg = readFileSync("src/background/index.ts", "utf8")
+  // No cut-off counted from the ask (it counted the plan's status and the page's read: a cold background ended a healthy
+  // question with «lost its link»).
+  assert.doesNotMatch(app, /STUCK_MS|askedAtRef/)
+  // Every connection starts its own wait: chat (a question, Ask your chats, a retry) and Find similar.
+  assert.match(app, /const listenChat = \(port[\s\S]{0,120}?\) => \{\s*heardRef\.current = Date\.now\(\)/)
+  assert.match(app, /const listenSimilar = \(port[\s\S]{0,120}?\) => \{\s*heardRef\.current = Date\.now\(\)/)
+  assert.match(app, /const SILENT_MS = 20_000/)
+  assert.match(app, /const PROBE_MS = 10_000/)
+  // The background says «here» on every question's port before anything slower, and answers the check.
+  assert.match(bg, /function servePort\([\s\S]{0,900}?send\(\{ type: "beat" \}\)\s*if \(spec\) \{/)
+  assert.match(bg, /case "alive":\s*sendResponse\(true\)\s*return false/)
 })
