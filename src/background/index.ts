@@ -902,8 +902,12 @@ async function clientForEvent(): Promise<Awaited<ReturnType<typeof clientInfo>>>
   return clientInfo()
 }
 
-/** The longest the events wait for the app's build and «ours» mark, all of them together. */
-const MARK_WAIT_MS = 3_000
+/**
+ * The longest the events wait for the app's build and «ours» mark, all of them together. On the simulator after Safari
+ * was killed, the app's side answered about 6 s after the background started: with 3 s the first `fab.shown` went out
+ * unmarked. Events only go to our server, never in front of anyone, so the one wait may be long.
+ */
+const MARK_WAIT_MS = 10_000
 let markWait: Promise<void> | null = null
 
 /** Resolves once the app's side has answered the ping, or MARK_WAIT_MS after the first event asked; one wait for all. */

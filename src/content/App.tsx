@@ -1726,6 +1726,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** Follows a chat answer on `port`: what came so far first when it's a job followed again ("snapshot"). */
   const listenChat = (port: chrome.runtime.Port, history: Turn[], onUndelivered?: () => void) => {
     heardRef.current = Date.now()
+    const connected = heardRef.current
+    standTrace("chat connected")
     let settled = false
     // Anything at all from the background on this port: then the question got there.
     let heardAny = false
@@ -1740,6 +1742,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       }
       if (portRef.current !== port) return
       heardRef.current = Date.now()
+      if (!heardAny) standTrace(`chat heard first ${event.type} after ${heardRef.current - connected} ms`)
       heardAny = true
       pendingAskRef.current = null
       if (linkLostRef.current) setLinkLost(false)

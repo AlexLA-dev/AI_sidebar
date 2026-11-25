@@ -115,8 +115,8 @@ test("every event a module sends waits for the app's build and «ours» mark: tr
 
 test("F4 (2.8.1): one shared wait for the app's mark, and every event the background sends goes out in its order", async () => {
   const bg = read("src/background/index.ts")
-  // One wait, at most 3 s, shared by every event (it was up to about 9 s, each event on its own).
-  assert.match(bg, /const MARK_WAIT_MS = 3_000/)
+  // One wait, at most 10 s, shared by every event (it was up to about 9 s, each event on its own and out of order).
+  assert.match(bg, /const MARK_WAIT_MS = 10_000/)
   assert.match(bg, /async function clientForEvent\(\)[^{]*\{\s*await markReady\(\)\s*return clientInfo\(\)\s*\}/)
   assert.match(bg, /markWait \?\?= \(async \(\) => \{/)
   // No event is posted except through the queue.
