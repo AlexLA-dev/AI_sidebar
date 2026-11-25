@@ -1026,7 +1026,7 @@
   "message": "または、最初の 1 か月が {0}% オフの Pro をどうぞ。より深く詳しい回答を週 {1} 件まで受け取れます。いつでも解約できます。"
  },
  "offerButton": {
-  "message": "Pro を {0}% オフで"
+  "message": "最初の1か月が {0}% オフ"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -3844,6 +3844,9 @@
  },
  "hoursMinutes": {
   "message": "{0}時間{1}分"
+ },
+ "offerByCode": {
+  "message": "App Store でコードを使って適用されます。"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

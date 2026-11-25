@@ -355,7 +355,7 @@
   "errKeyCredit": "Your {0} account has no credit, or billing isn't set up there, so it refused the request. Add credit at {1} and ask again.",
   "errKeyRate": "{0} is holding back requests from your key right now: your account's rate limit. Wait a minute and ask again. Your limits are at {1}.",
   "offerLimit": "Or get Pro with {0}% off your first month: up to {1} answers a week, deeper and more detailed. Cancel any time.",
-  "offerButton": "Get Pro {0}% off",
+  "offerButton": "Get the first month {0}% off",
   "offerShort": "Pro −{0}%",
   "offerCardTitle": "Running out of answers?",
   "offerCardBody": "You've hit the free daily limit before. Pro gives you up to {1} answers a week, deeper and more detailed, and your first month is {0}% off. Then the regular price; cancel any time in your App Store settings.",
@@ -1312,5 +1312,6 @@
   "answersBackFailed": "The reminder couldn't be set. Your answers are back at {0}.",
   "answersBackBody": "Your {0} free answers are back. Ask about any page.",
   "answersBackInApp": "Set it in the ContextFlow app",
-  "hoursMinutes": "{0} h {1} min"
+  "hoursMinutes": "{0} h {1} min",
+  "offerByCode": "Applied with a code in the App Store."
 }

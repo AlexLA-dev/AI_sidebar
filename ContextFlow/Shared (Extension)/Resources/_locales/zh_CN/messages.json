@@ -1026,7 +1026,7 @@
   "message": "或开通 Pro，首月优惠 {0}%：每周最多 {1} 次更深入、更详细的回答。可随时取消。"
  },
  "offerButton": {
-  "message": "Pro 首月优惠 {0}%"
+  "message": "首月优惠 {0}%"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -3844,6 +3844,9 @@
  },
  "hoursMinutes": {
   "message": "{0} 小时 {1} 分钟"
+ },
+ "offerByCode": {
+  "message": "在 App Store 中通过优惠代码使用。"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"

@@ -1026,7 +1026,7 @@
   "message": "Hoặc dùng Pro, giảm {0}% tháng đầu: tối đa {1} câu trả lời mỗi tuần, sâu và chi tiết hơn. Hủy bất cứ lúc nào."
  },
  "offerButton": {
-  "message": "Dùng Pro, giảm {0}%"
+  "message": "Tháng đầu giảm {0}%"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -3844,6 +3844,9 @@
  },
  "hoursMinutes": {
   "message": "{0} giờ {1} phút"
+ },
+ "offerByCode": {
+  "message": "Áp dụng bằng mã trong App Store."
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

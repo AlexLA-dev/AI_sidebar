@@ -355,7 +355,7 @@
   "errKeyCredit": "你的 {0} 帳號沒有餘額，或尚未設定帳單，因此請求被拒絕了。請到 {1} 儲值後再問一次。",
   "errKeyRate": "{0} 目前正在限制你的金鑰發出的請求（帳號的速率限制）。請等一分鐘再問一次。你的額度請見 {1}。",
   "offerLimit": "或升級 Pro，首月省 {0}%：每週最多 {1} 個回答，更深入、更詳細。隨時可以取消。",
-  "offerButton": "Pro 首月省 {0}%",
+  "offerButton": "首月省 {0}%",
   "offerShort": "Pro −{0}%",
   "offerCardTitle": "回答不夠用？",
   "offerCardBody": "你之前用完過每天的免費回答。Pro 每週最多 {1} 個回答，更深入、更詳細，而且首月省 {0}%。之後按原價計費；隨時可以在 App Store 設定中取消。",
@@ -1312,5 +1312,6 @@
   "answersBackFailed": "無法設定提醒。回答將在 {0} 恢復。",
   "answersBackBody": "{0} 次免費回答已恢復。可以問任何頁面。",
   "answersBackInApp": "在 ContextFlow App 中設定",
-  "hoursMinutes": "{0} 小時 {1} 分鐘"
+  "hoursMinutes": "{0} 小時 {1} 分鐘",
+  "offerByCode": "在 App Store 中以優惠代碼套用。"
 }

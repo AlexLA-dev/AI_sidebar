@@ -355,7 +355,7 @@
   "errKeyCredit": "Sua conta da {0} está sem créditos ou sem faturamento configurado, por isso o pedido foi recusado. Adicione créditos em {1} e pergunte de novo.",
   "errKeyRate": "A {0} está limitando agora os pedidos da sua chave: é o limite da sua conta. Espere um minuto e pergunte de novo. Seus limites ficam em {1}.",
   "offerLimit": "Ou assine o Pro com {0}% de desconto no primeiro mês: até {1} respostas por semana, mais aprofundadas e detalhadas. Cancele quando quiser.",
-  "offerButton": "Pro com {0}% de desconto",
+  "offerButton": "Primeiro mês com {0}% de desconto",
   "offerShort": "Pro −{0}%",
   "offerCardTitle": "Faltando respostas?",
   "offerCardBody": "Você já atingiu o limite diário grátis. O Pro dá até {1} respostas por semana, mais aprofundadas e detalhadas, e o primeiro mês tem {0}% de desconto. Depois, o preço normal; cancele quando quiser nos ajustes da App Store.",
@@ -1312,5 +1312,6 @@
   "answersBackFailed": "Não foi possível criar o aviso. Suas respostas voltam às {0}.",
   "answersBackBody": "Suas {0} respostas grátis voltaram. Pergunte sobre qualquer página.",
   "answersBackInApp": "Definir no app ContextFlow",
-  "hoursMinutes": "{0} h {1} min"
+  "hoursMinutes": "{0} h {1} min",
+  "offerByCode": "Aplicado com um código na App Store."
 }

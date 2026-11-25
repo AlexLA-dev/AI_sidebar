@@ -355,7 +355,7 @@
   "errKeyCredit": "Dein {0}-Konto hat kein Guthaben oder die Abrechnung ist dort nicht eingerichtet, deshalb wurde die Anfrage abgelehnt. Lade unter {1} Guthaben auf und frag dann noch mal.",
   "errKeyRate": "{0} bremst gerade die Anfragen mit deinem Schlüssel: Das ist das Limit deines Kontos. Warte eine Minute und frag noch mal. Deine Limits findest du unter {1}.",
   "offerLimit": "Oder hol dir Pro mit {0} % Rabatt im ersten Monat: bis zu {1} Antworten pro Woche, ausführlicher und gründlicher. Jederzeit kündbar.",
-  "offerButton": "Pro mit {0} % Rabatt",
+  "offerButton": "Erster Monat mit {0} % Rabatt",
   "offerShort": "Pro −{0} %",
   "offerCardTitle": "Gehen dir die Antworten aus?",
   "offerCardBody": "Du hast das tägliche Gratis-Limit schon einmal erreicht. Mit Pro bekommst du bis zu {1} Antworten pro Woche, ausführlicher und gründlicher, und der erste Monat kostet {0} % weniger. Danach gilt der normale Preis; jederzeit in den App-Store-Einstellungen kündbar.",
@@ -1312,5 +1312,6 @@
   "answersBackFailed": "Die Erinnerung ließ sich nicht setzen. Deine Antworten sind um {0} zurück.",
   "answersBackBody": "Deine {0} Gratis-Antworten sind zurück. Frag zu jeder Seite.",
   "answersBackInApp": "In der ContextFlow-App einstellen",
-  "hoursMinutes": "{0} Std. {1} Min."
+  "hoursMinutes": "{0} Std. {1} Min.",
+  "offerByCode": "Wird mit einem Code im App Store eingelöst."
 }

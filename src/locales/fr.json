@@ -355,7 +355,7 @@
   "errKeyCredit": "Votre compte {0} n’a pas de crédit ou la facturation n’y est pas configurée : la demande a donc été refusée. Ajoutez du crédit sur {1}, puis reposez la question.",
   "errKeyRate": "{0} limite en ce moment les demandes de votre clé : c’est la limite de votre compte. Attendez une minute, puis reposez la question. Vos limites se trouvent sur {1}.",
   "offerLimit": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine, plus approfondies et détaillées. Résiliable à tout moment.",
-  "offerButton": "Pro à −{0} %",
+  "offerButton": "Premier mois à −{0} %",
   "offerShort": "Pro −{0} %",
   "offerCardTitle": "Plus assez de réponses ?",
   "offerCardBody": "Vous avez déjà atteint la limite quotidienne gratuite. Pro vous donne jusqu'à {1} réponses par semaine, plus approfondies et détaillées, et le premier mois est à −{0} %. Ensuite, le prix normal ; résiliable à tout moment dans les réglages de l'App Store.",
@@ -1312,5 +1312,6 @@
   "answersBackFailed": "Le rappel n’a pas pu être créé. Vos réponses reviennent à {0}.",
   "answersBackBody": "Vos {0} réponses gratuites sont de retour. Posez une question sur n’importe quelle page.",
   "answersBackInApp": "Le régler dans l’app ContextFlow",
-  "hoursMinutes": "{0} h {1} min"
+  "hoursMinutes": "{0} h {1} min",
+  "offerByCode": "Appliquée avec un code dans l’App Store."
 }

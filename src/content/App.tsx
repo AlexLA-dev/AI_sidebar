@@ -5579,6 +5579,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <button type="button" class="cf-primary" onClick={() => closeOfferCard(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
                       <button type="button" class="cf-secondary" onClick={() => closeOfferCard(null)}>{t("offerLater")}</button>
                     </div>
+                    <p class="cf-offer-code">{t("offerByCode")}</p>
                   </div>
                 )}
 
@@ -5618,9 +5619,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         onEvent={event}
                         extra={<>
                           {offer && (
-                            <div class="cf-card-actions">
-                              <button type="button" class="cf-secondary" onClick={() => { event("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                            </div>
+                            <>
+                              <div class="cf-card-actions">
+                                <button type="button" class="cf-secondary" onClick={() => { event("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                              </div>
+                              {/* The first month only, through the App Store's code page (acceptance 3: next to the monthly
+                                  price it read as a second, cheaper buy button). */}
+                              <p class="cf-offer-code">{t("offerByCode")}</p>
+                            </>
                           )}
                           <p class="cf-limit-notes">
                             <Icon.Pencil /> {t("limitNotes")}{" "}
@@ -5677,6 +5683,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("useOwnKey")}</button>
                         </div>
                       )}
+                      {!hasPro(plan) && !byok && offer && <p class="cf-offer-code">{t("offerByCode")}</p>}
                     </div>
                   )
                 })()}
@@ -5700,9 +5707,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     onEvent={offerEvent("pro_only")}
                     onClose={() => setError(null)}
                     extra={offer ? (
-                      <div class="cf-card-actions">
-                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("pro_only")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                      </div>
+                      <>
+                        <div class="cf-card-actions">
+                          <button type="button" class="cf-secondary" onClick={() => { offerEvent("pro_only")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                        </div>
+                        <p class="cf-offer-code">{t("offerByCode")}</p>
+                      </>
                     ) : undefined}
                   />
                 ))}
@@ -5718,9 +5728,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     onEvent={offerEvent("memory")}
                     onClose={() => setMemoryOffer(null)}
                     extra={offer ? (
-                      <div class="cf-card-actions">
-                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("memory")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                      </div>
+                      <>
+                        <div class="cf-card-actions">
+                          <button type="button" class="cf-secondary" onClick={() => { offerEvent("memory")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                        </div>
+                        <p class="cf-offer-code">{t("offerByCode")}</p>
+                      </>
                     ) : undefined}
                   />
                 )}

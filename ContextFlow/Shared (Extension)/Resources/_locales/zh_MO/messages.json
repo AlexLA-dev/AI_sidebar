@@ -1026,7 +1026,7 @@
   "message": "或升級 Pro，首月省 {0}%：每週最多 {1} 個回答，更深入、更詳細。隨時可以取消。"
  },
  "offerButton": {
-  "message": "Pro 首月省 {0}%"
+  "message": "首月省 {0}%"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -3844,6 +3844,9 @@
  },
  "hoursMinutes": {
   "message": "{0} 小時 {1} 分鐘"
+ },
+ "offerByCode": {
+  "message": "在 App Store 中以優惠代碼套用。"
  },
  "tip_4cf1b54b00": {
   "message": "提示"

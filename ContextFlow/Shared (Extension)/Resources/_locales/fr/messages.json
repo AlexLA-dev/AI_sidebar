@@ -1026,7 +1026,7 @@
   "message": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine, plus approfondies et détaillées. Résiliable à tout moment."
  },
  "offerButton": {
-  "message": "Pro à −{0} %"
+  "message": "Premier mois à −{0} %"
  },
  "offerShort": {
   "message": "Pro −{0} %"
@@ -3844,6 +3844,9 @@
  },
  "hoursMinutes": {
   "message": "{0} h {1} min"
+ },
+ "offerByCode": {
+  "message": "Appliquée avec un code dans l’App Store."
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

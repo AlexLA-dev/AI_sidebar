@@ -600,6 +600,8 @@
 .cf-card.offer p { margin-bottom: 0; }
 /* Out of answers, notes still work: a quiet line in the note colour. */
 .cf-card p.cf-limit-notes { padding: 8px 10px; border-radius: 10px; background: var(--note-soft); color: var(--note-text); font-size: 13px; }
+/* The offer's first month goes through the App Store's code page: said under its button (2.8, acceptance 3). */
+.cf-card p.cf-offer-code { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
 .cf-limit-notes svg { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; margin-inline-end: 2px; }
 .cf-limit-notes .cf-link { color: var(--note-text) !important; font-weight: 600; text-decoration: underline; padding: 0 !important; font-size: 13px; }
 .cf-card.error p { color: var(--text); }

@@ -1026,7 +1026,7 @@
   "message": "Oder hol dir Pro mit {0} % Rabatt im ersten Monat: bis zu {1} Antworten pro Woche, ausführlicher und gründlicher. Jederzeit kündbar."
  },
  "offerButton": {
-  "message": "Pro mit {0} % Rabatt"
+  "message": "Erster Monat mit {0} % Rabatt"
  },
  "offerShort": {
   "message": "Pro −{0} %"
@@ -3844,6 +3844,9 @@
  },
  "hoursMinutes": {
   "message": "{0} Std. {1} Min."
+ },
+ "offerByCode": {
+  "message": "Wird mit einem Code im App Store eingelöst."
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

@@ -355,7 +355,7 @@
   "errKeyCredit": "{0} hesabınızda bakiye yok veya faturalandırma ayarlanmamış; bu yüzden istek reddedildi. {1} adresinden bakiye ekleyip yeniden sorun.",
   "errKeyRate": "{0} şu anda anahtarınızdan gelen istekleri sınırlıyor: bu, hesabınızın hız sınırı. Bir dakika bekleyip yeniden sorun. Sınırlarınız: {1}.",
   "offerLimit": "Ya da ilk ayda %{0} indirimle Pro'ya geçin: haftada {1} yanıta kadar, daha derin ve daha ayrıntılı. İstediğiniz zaman iptal edebilirsiniz.",
-  "offerButton": "%{0} indirimle Pro'ya geç",
+  "offerButton": "İlk ay %{0} indirimli",
   "offerShort": "Pro −%{0}",
   "offerCardTitle": "Yanıtlarınız tükeniyor mu?",
   "offerCardBody": "Günlük ücretsiz sınıra daha önce de ulaştınız. Pro ile haftada {1} yanıta kadar, daha derin ve ayrıntılı yanıtlar alırsınız; ilk ayınız da %{0} indirimli. Sonrasında normal fiyat geçerlidir; App Store ayarlarınızdan istediğiniz zaman iptal edebilirsiniz.",
@@ -1312,5 +1312,6 @@
   "answersBackFailed": "Hatırlatma ayarlanamadı. Yanıtlarınız {0} itibarıyla geri gelir.",
   "answersBackBody": "{0} ücretsiz yanıtınız geri geldi. Herhangi bir sayfa hakkında sorun.",
   "answersBackInApp": "ContextFlow uygulamasında ayarla",
-  "hoursMinutes": "{0} sa {1} dk"
+  "hoursMinutes": "{0} sa {1} dk",
+  "offerByCode": "İndirim App Store'da bir kodla uygulanır."
 }

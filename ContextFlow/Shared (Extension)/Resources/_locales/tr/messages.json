@@ -1026,7 +1026,7 @@
   "message": "Ya da ilk ayda %{0} indirimle Pro'ya geçin: haftada {1} yanıta kadar, daha derin ve daha ayrıntılı. İstediğiniz zaman iptal edebilirsiniz."
  },
  "offerButton": {
-  "message": "%{0} indirimle Pro'ya geç"
+  "message": "İlk ay %{0} indirimli"
  },
  "offerShort": {
   "message": "Pro −%{0}"
@@ -3844,6 +3844,9 @@
  },
  "hoursMinutes": {
   "message": "{0} sa {1} dk"
+ },
+ "offerByCode": {
+  "message": "İndirim App Store'da bir kodla uygulanır."
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
