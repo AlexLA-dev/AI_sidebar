@@ -1807,10 +1807,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   lostRef.current = lost
   // The question just sent, until anything comes back for it (then it reached the background).
   const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia } } | null>(null)
-  /** A quiet or closed answer: a question that never got there is undelivered; one that did is followed again. */
-  const quietRef = useRef(() => {
+  /**
+   * A quiet or closed answer: a question that never got there is undelivered; one that did is followed again.
+   * `silent`: the connection said nothing at all for the whole wait. Then it isn't sent again on a fresh one: the tab's
+   * link to the extension is gone (a tab left open across an update), and the resend only doubled the wait before the
+   * «lost its link» message with Reload (about 75 s on the simulator; now 20–25 s). A connection that closed, or one
+   * found quiet on coming back from the background, is still asked again once.
+   */
+  const quietRef = useRef((silent = false) => {
     const p = pendingAskRef.current
-    if (p) undeliveredRef.current(p.history, p.content, p.opts)
+    if (p) undeliveredRef.current(p.history, p.content, silent ? { ...p.opts, resent: true } : p.opts)
     else lostRef.current()
   })
 
@@ -1850,7 +1856,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // (Not while a video's transcript or PDFs are read: that can take longer, and says so.)
     const stuck = () => askToken.current !== null && portRef.current === null && askedAtRef.current > 0 && readingRef.current === null && Date.now() - askedAtRef.current > STUCK_MS
     const timer = setInterval(() => {
-      if (quiet(20_000)) quietRef.current()
+      if (quiet(20_000)) quietRef.current(true)
       else if (stuck()) {
         askToken.current = null
         askedAtRef.current = 0
